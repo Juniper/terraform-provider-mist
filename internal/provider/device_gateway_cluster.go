@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"terraform-provider-mist/internal/resource_device_gateway_cluster"
+	"github.com/Juniper/terraform-provider-mist/internal/resource_device_gateway_cluster"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 

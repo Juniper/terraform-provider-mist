@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"terraform-provider-mist/internal/resource_org_inventory"
+	"github.com/Juniper/terraform-provider-mist/internal/resource_org_inventory"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 

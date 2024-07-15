@@ -9,7 +9,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	mist_hours "terraform-provider-mist/internal/commons/hours"
+	mist_hours "github.com/Juniper/terraform-provider-mist/internal/commons/hours"
 )
 
 func engagementDwellTagNamesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.SiteEngagementDwellTagNames {

@@ -1,7 +1,7 @@
 package resource_org_wlantemplate
 
 import (
-	mist_transform "terraform-provider-mist/internal/commons/utils"
+	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"golang.org/x/net/context"
 

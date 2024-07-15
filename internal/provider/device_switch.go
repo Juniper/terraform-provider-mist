@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"io"
 
-	"terraform-provider-mist/internal/resource_device_switch"
+	"github.com/Juniper/terraform-provider-mist/internal/resource_device_switch"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 

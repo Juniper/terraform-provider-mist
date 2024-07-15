@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 
-	hours "terraform-provider-mist/internal/commons/hours"
+	hours "github.com/Juniper/terraform-provider-mist/internal/commons/hours"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )

@@ -11,8 +11,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 
-	mist_transform "terraform-provider-mist/internal/commons/utils"
-	mist_network "terraform-provider-mist/internal/resource_org_network"
+	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mist_network "github.com/Juniper/terraform-provider-mist/internal/resource_org_network"
 )
 
 func NetworksSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m []models.Network) basetypes.ListValue {

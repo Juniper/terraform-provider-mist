@@ -1,4 +1,4 @@
-module terraform-provider-mist
+module github.com/Juniper/terraform-provider-mist
 
 go 1.22.4
 

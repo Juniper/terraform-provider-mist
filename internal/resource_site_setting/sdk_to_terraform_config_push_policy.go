@@ -2,7 +2,8 @@ package resource_site_setting
 
 import (
 	"context"
-	mist_hours "terraform-provider-mist/internal/commons/hours"
+
+	mist_hours "github.com/Juniper/terraform-provider-mist/internal/commons/hours"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 

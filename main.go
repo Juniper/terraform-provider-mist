@@ -5,10 +5,9 @@ import (
 	"flag"
 	"log"
 
-	"terraform-provider-mist/internal/provider"
+	"github.com/Juniper/terraform-provider-mist/internal/provider"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
-	//"github.com/tmunzer/terraform-provider-mist/internal/provider"
 )
 
 // Run "go generate" to format example terraform files and generate the docs for the registry/website
@@ -41,7 +40,7 @@ func main() {
 	log.SetFlags(log.Flags() &^ (log.Ldate | log.Ltime))
 
 	opts := providerserver.ServeOpts{
-		Address: "hashicorp.com/juniper/mist",
+		Address: "hashicorp.com/Juniper/mist",
 		Debug:   debug,
 	}
 

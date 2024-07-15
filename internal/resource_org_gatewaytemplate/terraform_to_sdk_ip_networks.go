@@ -3,8 +3,8 @@ package resource_org_gatewaytemplate
 import (
 	"context"
 
-	mist_transform "terraform-provider-mist/internal/commons/utils"
-	"terraform-provider-mist/internal/resource_org_network"
+	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	"github.com/Juniper/terraform-provider-mist/internal/resource_org_network"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 

@@ -3,7 +3,8 @@ package provider
 import (
 	"context"
 	"fmt"
-	"terraform-provider-mist/internal/resource_org"
+
+	"github.com/Juniper/terraform-provider-mist/internal/resource_org"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 

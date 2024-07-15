@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 
-	mist_transform "terraform-provider-mist/internal/commons/utils"
+	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func tunnelConfigAutoProvNodeSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.TunnelConfigsAutoProvisionNode, r_type map[string]attr.Type) basetypes.ObjectValue {

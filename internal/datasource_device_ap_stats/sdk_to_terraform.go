@@ -4,7 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"math/big"
-	mist_transform "terraform-provider-mist/internal/commons/utils"
+
+	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"

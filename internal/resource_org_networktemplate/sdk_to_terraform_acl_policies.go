@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	mist_transform "terraform-provider-mist/internal/commons/utils"
+	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func aclPolicyActionsToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.AclPolicyAction) basetypes.ListValue {

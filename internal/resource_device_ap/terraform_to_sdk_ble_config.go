@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 
-	mist_transform "terraform-provider-mist/internal/commons/utils"
+	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )

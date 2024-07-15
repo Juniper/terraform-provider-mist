@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 
-	mist_transform "terraform-provider-mist/internal/commons/utils"
+	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )

@@ -5,7 +5,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	mist_hours "terraform-provider-mist/internal/commons/hours"
+	mist_hours "github.com/Juniper/terraform-provider-mist/internal/commons/hours"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"

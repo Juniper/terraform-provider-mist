@@ -3,7 +3,7 @@ package resource_device_ap
 import (
 	"context"
 
-	mist_list "terraform-provider-mist/internal/commons/utils"
+	mist_list "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 

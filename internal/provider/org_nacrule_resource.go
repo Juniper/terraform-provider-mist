@@ -6,7 +6,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 
-	"terraform-provider-mist/internal/resource_org_nacrule"
+	"github.com/Juniper/terraform-provider-mist/internal/resource_org_nacrule"
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/resource"

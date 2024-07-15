@@ -8,7 +8,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	"terraform-provider-mist/internal/datasource_org_wxtags"
+	"github.com/Juniper/terraform-provider-mist/internal/datasource_org_wxtags"
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"

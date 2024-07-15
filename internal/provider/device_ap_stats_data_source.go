@@ -8,7 +8,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	"terraform-provider-mist/internal/datasource_device_ap_stats"
+	"github.com/Juniper/terraform-provider-mist/internal/datasource_device_ap_stats"
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"

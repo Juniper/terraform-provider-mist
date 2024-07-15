@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"terraform-provider-mist/internal/resource_org_deviceprofile_assign"
+	"github.com/Juniper/terraform-provider-mist/internal/resource_org_deviceprofile_assign"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 	"github.com/tmunzer/mistapi-go/mistapi/models"

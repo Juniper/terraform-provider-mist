@@ -9,7 +9,7 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	"terraform-provider-mist/internal/resource_org_deviceprofile_gateway"
+	"github.com/Juniper/terraform-provider-mist/internal/resource_org_deviceprofile_gateway"
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
