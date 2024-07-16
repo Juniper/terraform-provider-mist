@@ -42,9 +42,9 @@ func modelSpecificTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d
 		if !plan.Band6.IsNull() && !plan.Band6.IsUnknown() {
 			plan_band6, _ := NewBand6Value(plan.Band6.AttributeTypes(ctx), plan.Band6.Attributes())
 			data.Band6 = band6TerraformToSdk(ctx, diags, plan_band6)
-
-			data_map[k] = data
 		}
+
+		data_map[k] = data
 	}
 	return data_map
 }
