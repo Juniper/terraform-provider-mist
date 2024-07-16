@@ -126,8 +126,8 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	if d.CpuUtil.Value() != nil {
 		cpu_util = types.Int64Value(int64(*d.CpuUtil.Value()))
 	}
-	if d.CreatedTime.Value() != nil {
-		created_time = types.Int64Value(int64(*d.CreatedTime.Value()))
+	if d.CreatedTime != nil {
+		created_time = types.Int64Value(int64(*d.CreatedTime))
 	}
 	if d.DeviceprofileId.Value() != nil {
 		deviceprofile_id = types.StringValue(d.DeviceprofileId.Value().String())
@@ -204,8 +204,8 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	if d.Model != nil {
 		model = types.StringValue(*d.Model)
 	}
-	if d.ModifiedTime.Value() != nil {
-		modified_time = types.Int64Value(int64(*d.ModifiedTime.Value()))
+	if d.ModifiedTime != nil {
+		modified_time = types.Int64Value(int64(*d.ModifiedTime))
 	}
 	if d.Mount.Value() != nil {
 		mount = types.StringValue(*d.Mount.Value())
