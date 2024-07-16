@@ -21145,48 +21145,6 @@ func (v BandValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	}
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 var _ basetypes.ObjectTypable = SwitchRedundancyType{}
 
 type SwitchRedundancyType struct {

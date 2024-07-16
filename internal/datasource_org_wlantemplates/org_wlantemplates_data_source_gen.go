@@ -53,7 +53,7 @@ func OrgWlantemplatesDataSourceSchema(ctx context.Context) schema.Schema {
 }
 
 type OrgWlantemplatesModel struct {
-	OrgId         types.String `tfsdk:"org_id"`
+	OrgId            types.String `tfsdk:"org_id"`
 	OrgWlantemplates types.Set    `tfsdk:"org_wlantemplates"`
 }
 

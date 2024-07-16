@@ -53,7 +53,7 @@ func OrgWxtagsDataSourceSchema(ctx context.Context) schema.Schema {
 }
 
 type OrgWxtagsModel struct {
-	OrgId         types.String `tfsdk:"org_id"`
+	OrgId     types.String `tfsdk:"org_id"`
 	OrgWxtags types.Set    `tfsdk:"org_wxtags"`
 }
 

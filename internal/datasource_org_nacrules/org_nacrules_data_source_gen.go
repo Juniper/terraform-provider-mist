@@ -53,7 +53,7 @@ func OrgNacrulesDataSourceSchema(ctx context.Context) schema.Schema {
 }
 
 type OrgNacrulesModel struct {
-	OrgId         types.String `tfsdk:"org_id"`
+	OrgId       types.String `tfsdk:"org_id"`
 	OrgNacrules types.Set    `tfsdk:"org_nacrules"`
 }
 

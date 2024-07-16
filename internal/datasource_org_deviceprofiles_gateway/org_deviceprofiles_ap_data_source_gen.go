@@ -56,7 +56,7 @@ func OrgDeviceprofilesGatewayDataSourceSchema(ctx context.Context) schema.Schema
 }
 
 type OrgDeviceprofilesGatewayModel struct {
-	OrgId         types.String `tfsdk:"org_id"`
+	OrgId                    types.String `tfsdk:"org_id"`
 	OrgDeviceprofilesGateway types.Set    `tfsdk:"deviceprofiles"`
 }
 

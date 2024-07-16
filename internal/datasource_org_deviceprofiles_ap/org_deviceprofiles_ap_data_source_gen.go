@@ -56,7 +56,7 @@ func OrgDeviceprofilesApDataSourceSchema(ctx context.Context) schema.Schema {
 }
 
 type OrgDeviceprofilesApModel struct {
-	OrgId         types.String `tfsdk:"org_id"`
+	OrgId               types.String `tfsdk:"org_id"`
 	OrgDeviceprofilesAp types.Set    `tfsdk:"deviceprofiles"`
 }
 

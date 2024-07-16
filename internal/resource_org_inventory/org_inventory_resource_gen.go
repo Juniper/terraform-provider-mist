@@ -88,16 +88,16 @@ func OrgInventoryResourceSchema(ctx context.Context) schema.Schema {
 						},
 					},
 				},
-				Optional:            true,
-				Computed:            true,
+				Optional: true,
+				Computed: true,
 			},
 		},
 	}
 }
 
 type OrgInventoryModel struct {
-	OrgId       types.String        `tfsdk:"org_id"`
-	Devices		types.List		 	`tfsdk:"devices"`
+	OrgId   types.String `tfsdk:"org_id"`
+	Devices types.List   `tfsdk:"devices"`
 }
 
 var _ basetypes.ObjectTypable = DevicesType{}
@@ -143,7 +143,6 @@ func (t DevicesType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 			fmt.Sprintf(`mac expected to be basetypes.StringValue, was: %T`, macAttribute))
 	}
 
-
 	claim_codeAttribute, ok := attributes["claim_code"]
 
 	if !ok {
@@ -161,7 +160,6 @@ func (t DevicesType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 			"Attribute Wrong Type",
 			fmt.Sprintf(`claim_code expected to be basetypes.StringValue, was: %T`, claim_codeAttribute))
 	}
-
 
 	modelAttribute, ok := attributes["model"]
 
@@ -181,7 +179,6 @@ func (t DevicesType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 			fmt.Sprintf(`model expected to be basetypes.StringValue, was: %T`, modelAttribute))
 	}
 
-
 	orgIdAttribute, ok := attributes["org_id"]
 
 	if !ok {
@@ -199,7 +196,6 @@ func (t DevicesType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 			"Attribute Wrong Type",
 			fmt.Sprintf(`org_id expected to be basetypes.StringValue, was: %T`, orgIdAttribute))
 	}
-
 
 	serialAttribute, ok := attributes["serial"]
 
@@ -219,7 +215,6 @@ func (t DevicesType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 			fmt.Sprintf(`serial expected to be basetypes.StringValue, was: %T`, serialAttribute))
 	}
 
-
 	siteIdAttribute, ok := attributes["site_id"]
 
 	if !ok {
@@ -238,7 +233,6 @@ func (t DevicesType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 			fmt.Sprintf(`site_id expected to be basetypes.StringValue, was: %T`, siteIdAttribute))
 	}
 
-
 	deviceTypeAttribute, ok := attributes["type"]
 
 	if !ok {
@@ -256,7 +250,6 @@ func (t DevicesType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 			"Attribute Wrong Type",
 			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, deviceTypeAttribute))
 	}
-
 
 	vcMacAttribute, ok := attributes["vc_mac"]
 
@@ -312,20 +305,18 @@ func (t DevicesType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 			fmt.Sprintf(`id expected to be basetypes.StringValue, was: %T`, deviceIdAttribute))
 	}
 
-
-
 	return DevicesValue{
-		Magic: 			claim_codeVal,
-		Mac:    		macVal,
-		Model: 			modelVal,
-		OrgId: 			orgIdVal,
-		Serial: 		serialVal,
-		SiteId: 		siteIdVal,
-		DeviceType: 	deviceTypeVal,
-		VcMac: 			vcMacVal,
-		Hostname:		hostnameVal,
-		Id:				deviceIdVal,
-		state:   		attr.ValueStateKnown,
+		Magic:      claim_codeVal,
+		Mac:        macVal,
+		Model:      modelVal,
+		OrgId:      orgIdVal,
+		Serial:     serialVal,
+		SiteId:     siteIdVal,
+		DeviceType: deviceTypeVal,
+		VcMac:      vcMacVal,
+		Hostname:   hostnameVal,
+		Id:         deviceIdVal,
+		state:      attr.ValueStateKnown,
 	}, diags
 }
 
@@ -410,8 +401,6 @@ func NewDevicesValue(attributeTypes map[string]attr.Type, attributes map[string]
 			fmt.Sprintf(`claim_code expected to be basetypes.StringValue, was: %T`, claim_codeAttribute))
 	}
 
-	
-
 	macAttribute, ok := attributes["mac"]
 
 	if !ok {
@@ -429,8 +418,6 @@ func NewDevicesValue(attributeTypes map[string]attr.Type, attributes map[string]
 			"Attribute Wrong Type",
 			fmt.Sprintf(`mac expected to be basetypes.StringValue, was: %T`, macAttribute))
 	}
-
-	
 
 	modelAttribute, ok := attributes["model"]
 
@@ -450,8 +437,6 @@ func NewDevicesValue(attributeTypes map[string]attr.Type, attributes map[string]
 			fmt.Sprintf(`model expected to be basetypes.StringValue, was: %T`, modelAttribute))
 	}
 
-	
-
 	orgIdAttribute, ok := attributes["org_id"]
 
 	if !ok {
@@ -469,8 +454,6 @@ func NewDevicesValue(attributeTypes map[string]attr.Type, attributes map[string]
 			"Attribute Wrong Type",
 			fmt.Sprintf(`org_id expected to be basetypes.StringValue, was: %T`, orgIdAttribute))
 	}
-
-	
 
 	serialAttribute, ok := attributes["serial"]
 
@@ -490,8 +473,6 @@ func NewDevicesValue(attributeTypes map[string]attr.Type, attributes map[string]
 			fmt.Sprintf(`serial expected to be basetypes.StringValue, was: %T`, serialAttribute))
 	}
 
-	
-
 	siteIdAttribute, ok := attributes["site_id"]
 
 	if !ok {
@@ -509,8 +490,6 @@ func NewDevicesValue(attributeTypes map[string]attr.Type, attributes map[string]
 			"Attribute Wrong Type",
 			fmt.Sprintf(`site_id expected to be basetypes.StringValue, was: %T`, siteIdAttribute))
 	}
-
-	
 
 	deviceTypeAttribute, ok := attributes["type"]
 
@@ -530,8 +509,6 @@ func NewDevicesValue(attributeTypes map[string]attr.Type, attributes map[string]
 			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, deviceTypeAttribute))
 	}
 
-	
-
 	vcMacAttribute, ok := attributes["vc_mac"]
 
 	if !ok {
@@ -549,7 +526,6 @@ func NewDevicesValue(attributeTypes map[string]attr.Type, attributes map[string]
 			"Attribute Wrong Type",
 			fmt.Sprintf(`vc_mac expected to be basetypes.StringValue, was: %T`, vcMacAttribute))
 	}
-	
 
 	hostnameAttribute, ok := attributes["hostname"]
 
@@ -568,7 +544,6 @@ func NewDevicesValue(attributeTypes map[string]attr.Type, attributes map[string]
 			"Attribute Wrong Type",
 			fmt.Sprintf(`hostname expected to be basetypes.StringValue, was: %T`, hostnameAttribute))
 	}
-	
 
 	deviceIdAttribute, ok := attributes["id"]
 
@@ -588,24 +563,22 @@ func NewDevicesValue(attributeTypes map[string]attr.Type, attributes map[string]
 			fmt.Sprintf(`id expected to be basetypes.StringValue, was: %T`, deviceIdAttribute))
 	}
 
-	
-
 	if diags.HasError() {
 		return NewDevicesValueUnknown(), diags
 	}
 
 	return DevicesValue{
-		Magic: 			claim_codeVal,
-		Mac:    		macVal,
-		Model: 			modelVal,
-		OrgId: 			orgIdVal,
-		Serial: 		serialVal,
-		SiteId: 		siteIdVal,
-		DeviceType: 	deviceTypeVal,
-		VcMac: 			vcMacVal,
-		Hostname:		hostnameVal,
-		Id:				deviceIdVal,
-		state:   		attr.ValueStateKnown,
+		Magic:      claim_codeVal,
+		Mac:        macVal,
+		Model:      modelVal,
+		OrgId:      orgIdVal,
+		Serial:     serialVal,
+		SiteId:     siteIdVal,
+		DeviceType: deviceTypeVal,
+		VcMac:      vcMacVal,
+		Hostname:   hostnameVal,
+		Id:         deviceIdVal,
+		state:      attr.ValueStateKnown,
 	}, diags
 }
 
@@ -677,17 +650,17 @@ func (t DevicesType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = DevicesValue{}
 
 type DevicesValue struct {
-	Magic 			basetypes.StringValue   		`tfsdk:"claim_code"`
-	Mac 			basetypes.StringValue   		`tfsdk:"mac"`
-	Model 			basetypes.StringValue   		`tfsdk:"model"`
-	OrgId 			basetypes.StringValue   		`tfsdk:"org_id"`
-	Serial 			basetypes.StringValue   		`tfsdk:"serial"`
-	SiteId 			basetypes.StringValue   		`tfsdk:"site_id"`
-	DeviceType 		basetypes.StringValue   		`tfsdk:"type"`
-	VcMac 			basetypes.StringValue   		`tfsdk:"vc_mac"`
-	Hostname		basetypes.StringValue   		`tfsdk:"hostname"`
-	Id				basetypes.StringValue   		`tfsdk:"id"`
-	state   		attr.ValueState
+	Magic      basetypes.StringValue `tfsdk:"claim_code"`
+	Mac        basetypes.StringValue `tfsdk:"mac"`
+	Model      basetypes.StringValue `tfsdk:"model"`
+	OrgId      basetypes.StringValue `tfsdk:"org_id"`
+	Serial     basetypes.StringValue `tfsdk:"serial"`
+	SiteId     basetypes.StringValue `tfsdk:"site_id"`
+	DeviceType basetypes.StringValue `tfsdk:"type"`
+	VcMac      basetypes.StringValue `tfsdk:"vc_mac"`
+	Hostname   basetypes.StringValue `tfsdk:"hostname"`
+	Id         basetypes.StringValue `tfsdk:"id"`
+	state      attr.ValueState
 }
 
 func (v DevicesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
@@ -821,18 +794,18 @@ func (v DevicesValue) String() string {
 
 func (v DevicesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
-	
+
 	attributeTypes := map[string]attr.Type{
-		"claim_code": 		basetypes.StringType{},
-		"mac": 			basetypes.StringType{},
-		"model": 		basetypes.StringType{},
-		"org_id": 		basetypes.StringType{},
-		"serial": 		basetypes.StringType{},
-		"site_id": 		basetypes.StringType{},
-		"type": 		basetypes.StringType{},
-		"vc_mac": 		basetypes.StringType{},
-		"hostname": 	basetypes.StringType{},
-		"id": 			basetypes.StringType{},
+		"claim_code": basetypes.StringType{},
+		"mac":        basetypes.StringType{},
+		"model":      basetypes.StringType{},
+		"org_id":     basetypes.StringType{},
+		"serial":     basetypes.StringType{},
+		"site_id":    basetypes.StringType{},
+		"type":       basetypes.StringType{},
+		"vc_mac":     basetypes.StringType{},
+		"hostname":   basetypes.StringType{},
+		"id":         basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -846,16 +819,16 @@ func (v DevicesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"claim_code":  		v.Magic,
-			"mac":     		v.Mac,
-			"model": 		v.Model,
-			"org_id": 		v.OrgId,
-			"serial": 		v.Serial,
-			"site_id": 		v.SiteId,
-			"type": 		v.DeviceType,
-			"vc_mac": 		v.VcMac,
-			"hostname": 	v.Hostname,
-			"id": 			v.Id,
+			"claim_code": v.Magic,
+			"mac":        v.Mac,
+			"model":      v.Model,
+			"org_id":     v.OrgId,
+			"serial":     v.Serial,
+			"site_id":    v.SiteId,
+			"type":       v.DeviceType,
+			"vc_mac":     v.VcMac,
+			"hostname":   v.Hostname,
+			"id":         v.Id,
 		})
 
 	return objVal, diags
@@ -929,16 +902,15 @@ func (v DevicesValue) Type(ctx context.Context) attr.Type {
 
 func (v DevicesValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"claim_code": 		basetypes.StringType{},
-		"mac": 				basetypes.StringType{},
-		"model": 			basetypes.StringType{},
-		"org_id": 			basetypes.StringType{},
-		"serial": 			basetypes.StringType{},
-		"site_id": 			basetypes.StringType{},
-		"type": 			basetypes.StringType{},
-		"vc_mac": 			basetypes.StringType{},
-		"hostname": 		basetypes.StringType{},
-		"id": 				basetypes.StringType{},
+		"claim_code": basetypes.StringType{},
+		"mac":        basetypes.StringType{},
+		"model":      basetypes.StringType{},
+		"org_id":     basetypes.StringType{},
+		"serial":     basetypes.StringType{},
+		"site_id":    basetypes.StringType{},
+		"type":       basetypes.StringType{},
+		"vc_mac":     basetypes.StringType{},
+		"hostname":   basetypes.StringType{},
+		"id":         basetypes.StringType{},
 	}
 }
-	

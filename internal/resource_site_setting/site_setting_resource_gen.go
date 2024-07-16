@@ -7436,27 +7436,6 @@ func (v DwellTagsValue) AttributeTypes(ctx context.Context) map[string]attr.Type
 	}
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 var _ basetypes.ObjectTypable = LedType{}
 
 type LedType struct {

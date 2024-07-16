@@ -53,7 +53,7 @@ func OrgNactagsDataSourceSchema(ctx context.Context) schema.Schema {
 }
 
 type OrgNactagsModel struct {
-	OrgId         types.String `tfsdk:"org_id"`
+	OrgId      types.String `tfsdk:"org_id"`
 	OrgNactags types.Set    `tfsdk:"org_nactags"`
 }
 

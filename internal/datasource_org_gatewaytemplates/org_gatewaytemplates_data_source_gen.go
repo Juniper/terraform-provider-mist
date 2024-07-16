@@ -53,7 +53,7 @@ func OrgGatewaytemplatesDataSourceSchema(ctx context.Context) schema.Schema {
 }
 
 type OrgGatewaytemplatesModel struct {
-	OrgId         types.String `tfsdk:"org_id"`
+	OrgId               types.String `tfsdk:"org_id"`
 	OrgGatewaytemplates types.Set    `tfsdk:"org_gatewaytemplates"`
 }
 

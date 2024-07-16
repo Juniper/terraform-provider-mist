@@ -53,7 +53,7 @@ func OrgNetworksDataSourceSchema(ctx context.Context) schema.Schema {
 }
 
 type OrgNetworksModel struct {
-	OrgId         types.String `tfsdk:"org_id"`
+	OrgId       types.String `tfsdk:"org_id"`
 	OrgNetworks types.Set    `tfsdk:"org_networks"`
 }
 
