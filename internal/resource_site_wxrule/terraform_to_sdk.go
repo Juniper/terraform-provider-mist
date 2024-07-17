@@ -15,14 +15,31 @@ func TerraformToSdk(ctx context.Context, plan *SiteWxruleModel) (*models.WxlanRu
 	var diags diag.Diagnostics
 	data := models.WxlanRule{}
 
-	data.Action = (*models.WxlanRuleActionEnum)(plan.Action.ValueStringPointer())
-	data.ApplyTags = mist_transform.ListOfStringTerraformToSdk(ctx, plan.ApplyTags)
-	data.BlockedApps = mist_transform.ListOfStringTerraformToSdk(ctx, plan.BlockedApps)
-	data.DstAllowWxtags = mist_transform.ListOfStringTerraformToSdk(ctx, plan.DstAllowWxtags)
-	data.DstDenyWxtags = mist_transform.ListOfStringTerraformToSdk(ctx, plan.DstDenyWxtags)
-	data.Enabled = plan.Enabled.ValueBoolPointer()
-	data.Order = int(plan.Order.ValueInt64())
-	data.SrcWxtags = mist_transform.ListOfStringTerraformToSdk(ctx, plan.SrcWxtags)
+	if !plan.Action.IsNull() && !plan.Action.IsUnknown() {
+		data.Action = (*models.WxlanRuleActionEnum)(plan.Action.ValueStringPointer())
+	}
+	if !plan.ApplyTags.IsNull() && !plan.ApplyTags.IsUnknown() {
+		data.ApplyTags = mist_transform.ListOfStringTerraformToSdk(ctx, plan.ApplyTags)
+	}
+	if !plan.BlockedApps.IsNull() && !plan.BlockedApps.IsUnknown() {
+		data.BlockedApps = mist_transform.ListOfStringTerraformToSdk(ctx, plan.BlockedApps)
+	}
+	if !plan.DstAllowWxtags.IsNull() && !plan.DstAllowWxtags.IsUnknown() {
+		data.DstAllowWxtags = mist_transform.ListOfStringTerraformToSdk(ctx, plan.DstAllowWxtags)
+	}
+	if !plan.DstDenyWxtags.IsNull() && !plan.DstDenyWxtags.IsUnknown() {
+		data.DstDenyWxtags = mist_transform.ListOfStringTerraformToSdk(ctx, plan.DstDenyWxtags)
+	}
+	if !plan.Enabled.IsNull() && !plan.Enabled.IsUnknown() {
+		data.Enabled = plan.Enabled.ValueBoolPointer()
+	}
+	if !plan.Order.IsNull() && !plan.Order.IsUnknown() {
+		data.Order = int(plan.Order.ValueInt64())
+	}
+	if !plan.SrcWxtags.IsNull() && !plan.SrcWxtags.IsUnknown() {
+		data.SrcWxtags = mist_transform.ListOfStringTerraformToSdk(ctx, plan.SrcWxtags)
+	}
+
 	if len(plan.TemplateId.ValueString()) > 0 {
 		template_id, e := uuid.Parse(plan.TemplateId.ValueString())
 		if e != nil {

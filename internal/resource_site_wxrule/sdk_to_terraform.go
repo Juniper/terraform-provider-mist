@@ -15,19 +15,48 @@ func SdkToTerraform(ctx context.Context, data models.WxlanRule) (SiteWxruleModel
 	var state SiteWxruleModel
 	var diags diag.Diagnostics
 
+	var action types.String
+	var apply_tags types.List = types.ListNull(types.StringType)
+	var blocked_apps types.List = types.ListNull(types.StringType)
+	var dst_allow_wxtags types.List = types.ListNull(types.StringType)
+	var dst_deny_wxtags types.List = types.ListNull(types.StringType)
+	var enabled types.Bool
+	var src_wxtags types.List = types.ListNull(types.StringType)
+
+	if data.Action != nil {
+		action = types.StringValue(string(*data.Action))
+	}
+	if data.ApplyTags != nil {
+		apply_tags = mist_transform.ListOfStringSdkToTerraform(ctx, data.ApplyTags)
+	}
+	if data.BlockedApps != nil {
+		blocked_apps = mist_transform.ListOfStringSdkToTerraform(ctx, data.BlockedApps)
+	}
+	if data.DstAllowWxtags != nil {
+		dst_allow_wxtags = mist_transform.ListOfStringSdkToTerraform(ctx, data.DstAllowWxtags)
+	}
+	if data.DstDenyWxtags != nil {
+		dst_deny_wxtags = mist_transform.ListOfStringSdkToTerraform(ctx, data.DstDenyWxtags)
+	}
+	if data.Enabled != nil {
+		enabled = types.BoolValue(*data.Enabled)
+	}
+	if data.SrcWxtags != nil {
+		src_wxtags = mist_transform.ListOfStringSdkToTerraform(ctx, data.SrcWxtags)
+	}
+
 	state.Id = types.StringValue(data.Id.String())
 	state.OrgId = types.StringValue(data.OrgId.String())
-	state.SiteId = types.StringValue(data.SiteId.String())
 	state.TemplateId = types.StringValue(data.TemplateId.String())
-
-	state.Action = types.StringValue(string(*data.Action))
-	state.ApplyTags = mist_transform.ListOfStringSdkToTerraform(ctx, data.ApplyTags)
-	state.BlockedApps = mist_transform.ListOfStringSdkToTerraform(ctx, data.BlockedApps)
-	state.DstAllowWxtags = mist_transform.ListOfStringSdkToTerraform(ctx, data.DstAllowWxtags)
-	state.DstDenyWxtags = mist_transform.ListOfStringSdkToTerraform(ctx, data.DstDenyWxtags)
-	state.Enabled = types.BoolValue(*data.Enabled)
 	state.Order = types.Int64Value(int64(data.Order))
-	state.SrcWxtags = mist_transform.ListOfStringSdkToTerraform(ctx, data.SrcWxtags)
+
+	state.Action = action
+	state.ApplyTags = apply_tags
+	state.BlockedApps = blocked_apps
+	state.DstAllowWxtags = dst_allow_wxtags
+	state.DstDenyWxtags = dst_deny_wxtags
+	state.Enabled = enabled
+	state.SrcWxtags = src_wxtags
 
 	return state, diags
 }
