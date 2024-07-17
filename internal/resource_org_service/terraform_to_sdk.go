@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func actTagSpecsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.ServiceSpec {
+func specSpecsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.ServiceSpec {
 	var data []models.ServiceSpec
 	for _, v := range d.Elements() {
 		var v_interface interface{} = v
@@ -35,7 +35,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgServiceModel) (models.Service,
 	data := models.Service{}
 
 	data.Name = plan.Name.ValueStringPointer()
-	data.Specs = actTagSpecsTerraformToSdk(ctx, &diags, plan.Specs)
+	data.Specs = specSpecsTerraformToSdk(ctx, &diags, plan.Specs)
 
 	if !plan.Addresses.IsNull() && !plan.Addresses.IsUnknown() {
 		data.Addresses = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Addresses)

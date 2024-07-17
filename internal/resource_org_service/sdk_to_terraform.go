@@ -63,7 +63,7 @@ func SdkToTerraform(ctx context.Context, d *models.Service) (OrgServiceModel, di
 	var name types.String
 	var org_id types.String
 	var sle_enabled types.Bool
-	var specs types.List = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+	var specs types.List = types.ListNull(SpecsValue{}.Type(ctx))
 	var ssr_relaxed_tcp_state_enforcement types.Bool
 	var traffic_class types.String
 	var traffic_type types.String
