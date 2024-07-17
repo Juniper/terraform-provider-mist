@@ -23,7 +23,7 @@ func SiteWxtagResourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Optional: true,
+				Computed: true,
 			},
 			"last_ips": schema.ListAttribute{
 				ElementType: types.StringType,
@@ -87,7 +87,7 @@ func SiteWxtagResourceSchema(ctx context.Context) schema.Schema {
 				},
 			},
 			"site_id": schema.StringAttribute{
-				Optional: true,
+				Required: true,
 			},
 			"specs": schema.ListNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
