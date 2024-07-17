@@ -14,6 +14,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
@@ -52,7 +53,11 @@ func (r *deviceApResource) Metadata(ctx context.Context, req resource.MetadataRe
 }
 
 func (r *deviceApResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = resource_device_ap.DeviceApResourceSchema(ctx)
+	resp.Schema = schema.Schema{
+		MarkdownDescription: docCategoryDevices + "This resource manages the Wireless Access Point configuration." +
+			"It can be used to define specific configuration at the device level or to override AP Device Profile (`mist_org_deviceprofile_ap`).",
+		Attributes: resource_device_ap.DeviceApResourceSchema(ctx).Attributes,
+	}
 }
 
 func (r *deviceApResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {

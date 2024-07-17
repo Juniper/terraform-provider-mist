@@ -12,6 +12,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -48,7 +49,12 @@ func (d *orgDeviceprofilesGatewayDataSource) Metadata(ctx context.Context, req d
 }
 
 func (d *orgDeviceprofilesGatewayDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = datasource_org_deviceprofiles_gateway.OrgDeviceprofilesGatewayDataSourceSchema(ctx)
+	resp.Schema = schema.Schema{
+		MarkdownDescription: docCategoryDevices + "This provides the list of Gateway Device Profiles (Hub Templates)." +
+			"A Hub template is used to define WAN Assurance HUB configurations" +
+			"and is assigned to one or multiple gateways as a deviceprofile with the `mist_org_deviceprofile_assign` resource",
+		Attributes: datasource_org_deviceprofiles_gateway.OrgDeviceprofilesGatewayDataSourceSchema(ctx).Attributes,
+	}
 }
 
 func (d *orgDeviceprofilesGatewayDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {

@@ -10,6 +10,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
@@ -48,7 +49,12 @@ func (r *deviceGatewayClusterResource) Metadata(ctx context.Context, req resourc
 }
 
 func (r *deviceGatewayClusterResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = resource_device_gateway_cluster.DeviceGatewayClusterResourceSchema(ctx)
+	resp.Schema = schema.Schema{
+		MarkdownDescription: docCategoryDevices + "This resource manages the Gateway Clusters." +
+			"It can be used to form or unset a cluster with two Gateways assigned to the same site." +
+			"Please check the Juniper Documentation first to validate the cabling between the Gateways",
+		Attributes: resource_device_gateway_cluster.DeviceGatewayClusterResourceSchema(ctx).Attributes,
+	}
 }
 
 func (r *deviceGatewayClusterResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {

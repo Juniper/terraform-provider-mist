@@ -10,6 +10,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
@@ -48,7 +49,12 @@ func (r *orgNacRuleResource) Metadata(ctx context.Context, req resource.Metadata
 }
 
 func (r *orgNacRuleResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = resource_org_nacrule.OrgNacruleResourceSchema(ctx)
+	resp.Schema = schema.Schema{
+		MarkdownDescription: docCategoryNac + "This resource manages the NAC Rules (Auth Policies)." +
+			"A NAC Rule defines a list of critera (NAC Tag) the network client must match to execute the Rule, an action (Allow/Deny)" +
+			"and a list of RADIUS Attributes (NAC Tags) to return",
+		Attributes: resource_org_nacrule.OrgNacruleResourceSchema(ctx).Attributes,
+	}
 }
 
 func (r *orgNacRuleResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {

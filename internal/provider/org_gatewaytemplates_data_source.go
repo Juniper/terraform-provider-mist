@@ -12,6 +12,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -48,7 +49,12 @@ func (d *orgGatewaytemplatesDataSource) Metadata(ctx context.Context, req dataso
 }
 
 func (d *orgGatewaytemplatesDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = datasource_org_gatewaytemplates.OrgGatewaytemplatesDataSourceSchema(ctx)
+	resp.Schema = schema.Schema{
+		MarkdownDescription: docCategoryWan + "This data source provides the list of Gateway Templates." +
+			"A Gateway template can be used to define generic gateway configuration at the org level and" +
+			"be applied to one or multiple Sites. It works like a blueprint of the network of the site.",
+		Attributes: datasource_org_gatewaytemplates.OrgGatewaytemplatesDataSourceSchema(ctx).Attributes,
+	}
 }
 
 func (d *orgGatewaytemplatesDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {

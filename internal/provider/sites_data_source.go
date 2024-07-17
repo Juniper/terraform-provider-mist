@@ -12,6 +12,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -48,7 +49,11 @@ func (d *sitesDataSource) Metadata(ctx context.Context, req datasource.MetadataR
 }
 
 func (d *sitesDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = datasource_sites.SitesDataSourceSchema(ctx)
+	resp.Schema = schema.Schema{
+		MarkdownDescription: docCategorySite + "This datasource provides the list of sites in a Mist Organization." +
+			"A site represents a project, a deployment. A site contains a set of Maps, Wlans, Policies, Zones, ...",
+		Attributes: datasource_sites.SitesDataSourceSchema(ctx).Attributes,
+	}
 }
 
 func (d *sitesDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {

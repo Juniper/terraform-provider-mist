@@ -12,6 +12,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -48,7 +49,10 @@ func (d *orgInventoryDataSource) Metadata(ctx context.Context, req datasource.Me
 }
 
 func (d *orgInventoryDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = datasource_org_inventory.OrgInventoryDataSourceSchema(ctx)
+	resp.Schema = schema.Schema{
+		MarkdownDescription: docCategoryDevices + "This data source provides the list of Devices in the Org inventory.",
+		Attributes:          datasource_org_inventory.OrgInventoryDataSourceSchema(ctx).Attributes,
+	}
 }
 
 func (d *orgInventoryDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {

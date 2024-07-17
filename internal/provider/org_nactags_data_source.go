@@ -12,6 +12,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -48,7 +49,11 @@ func (d *orgNactagsDataSource) Metadata(ctx context.Context, req datasource.Meta
 }
 
 func (d *orgNactagsDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = datasource_org_nactags.OrgNactagsDataSourceSchema(ctx)
+	resp.Schema = schema.Schema{
+		MarkdownDescription: docCategoryNac + "This data source provides the list of NAC Tags (Auth Policy Labels)." +
+			"The NAC Tags can be used in the NAC Rules to define the matching criterias or the returned RADIUS Attributes",
+		Attributes: datasource_org_nactags.OrgNactagsDataSourceSchema(ctx).Attributes,
+	}
 }
 
 func (d *orgNactagsDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {

@@ -12,6 +12,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -48,7 +49,11 @@ func (d *orgRftemplatesDataSource) Metadata(ctx context.Context, req datasource.
 }
 
 func (d *orgRftemplatesDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = datasource_org_rftemplates.OrgRftemplatesDataSourceSchema(ctx)
+	resp.Schema = schema.Schema{
+		MarkdownDescription: docCategoryWlan + "This resource provides the list of RF Templates." +
+			"The RF Templates can be used to define Wireless Access Points radio configuration, and can be assigned to the sites",
+		Attributes: datasource_org_rftemplates.OrgRftemplatesDataSourceSchema(ctx).Attributes,
+	}
 }
 
 func (d *orgRftemplatesDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {

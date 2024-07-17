@@ -12,6 +12,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -48,7 +49,10 @@ func (d *orgVpnsDataSource) Metadata(ctx context.Context, req datasource.Metadat
 }
 
 func (d *orgVpnsDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = datasource_org_vpns.OrgVpnsDataSourceSchema(ctx)
+	resp.Schema = schema.Schema{
+		MarkdownDescription: docCategoryWlan + "This data source provide the list of the Org VPNs.",
+		Attributes:          datasource_org_vpns.OrgVpnsDataSourceSchema(ctx).Attributes,
+	}
 }
 
 func (d *orgVpnsDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {

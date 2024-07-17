@@ -14,6 +14,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
@@ -52,7 +53,11 @@ func (r *deviceGatewayResource) Metadata(ctx context.Context, req resource.Metad
 }
 
 func (r *deviceGatewayResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = resource_device_gateway.DeviceGatewayResourceSchema(ctx)
+	resp.Schema = schema.Schema{
+		MarkdownDescription: docCategoryDevices + "This resource manages the Gateway configuration." +
+			"It can be used to define specific configuration at the device level or to override Org Gateway template settings.",
+		Attributes: resource_device_gateway.DeviceGatewayResourceSchema(ctx).Attributes,
+	}
 }
 
 func (r *deviceGatewayResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {

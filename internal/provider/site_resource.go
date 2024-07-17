@@ -10,6 +10,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
@@ -48,7 +49,11 @@ func (r *siteResource) Metadata(ctx context.Context, req resource.MetadataReques
 }
 
 func (r *siteResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = resource_site.SiteResourceSchema(ctx)
+	resp.Schema = schema.Schema{
+		MarkdownDescription: docCategorySite + "This resources manages the Site basic information." +
+			"This resource can be used to assign templates to a site, or to change basic information (e.g. Site Address)",
+		Attributes: resource_site.SiteResourceSchema(ctx).Attributes,
+	}
 }
 
 func (r *siteResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {

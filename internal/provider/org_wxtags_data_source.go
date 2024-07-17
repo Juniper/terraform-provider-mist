@@ -12,6 +12,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -48,7 +49,14 @@ func (d *orgWxtagsDataSource) Metadata(ctx context.Context, req datasource.Metad
 }
 
 func (d *orgWxtagsDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = datasource_org_wxtags.OrgWxtagsDataSourceSchema(ctx)
+	resp.Schema = schema.Schema{
+		MarkdownDescription: docCategoryWlan + "This resource provides the list of Org Wlan tags (labels)." +
+			"The tags can be used " +
+			"  * within the WxRules to create filtering rules, or assign specific VLAN" +
+			"  * in the WLANs configuration to assign a WLAN to specific APs" +
+			"  * to identify unknown application used by Wi-Fi clients",
+		Attributes: datasource_org_wxtags.OrgWxtagsDataSourceSchema(ctx).Attributes,
+	}
 }
 
 func (d *orgWxtagsDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {

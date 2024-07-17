@@ -14,6 +14,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
@@ -52,7 +53,11 @@ func (r *orgInventoryResource) Metadata(ctx context.Context, req resource.Metada
 }
 
 func (r *orgInventoryResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = resource_org_inventory.OrgInventoryResourceSchema(ctx)
+	resp.Schema = schema.Schema{
+		MarkdownDescription: docCategoryDevices + "This resource manages the Org inventory." +
+			"It can be used to claim, unclaim, assign, unassign, reassign devices",
+		Attributes: resource_org_inventory.OrgInventoryResourceSchema(ctx).Attributes,
+	}
 }
 
 func (r *orgInventoryResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {

@@ -10,6 +10,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
@@ -48,7 +49,11 @@ func (r *siteSettingResource) Metadata(ctx context.Context, req resource.Metadat
 }
 
 func (r *siteSettingResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = resource_site_setting.SiteSettingResourceSchema(ctx)
+	resp.Schema = schema.Schema{
+		MarkdownDescription: docCategorySite + "This resource manages the Site Settings." +
+			"The Site Settings can used to customize the Site configuration and assign Site Variables (Sites Variables can be reused in configuration templates) ",
+		Attributes: resource_site_setting.SiteSettingResourceSchema(ctx).Attributes,
+	}
 }
 
 func (r *siteSettingResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {

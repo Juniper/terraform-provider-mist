@@ -10,6 +10,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
@@ -48,7 +49,14 @@ func (r *orgWxTagResource) Metadata(ctx context.Context, req resource.MetadataRe
 }
 
 func (r *orgWxTagResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = resource_org_wxtag.OrgWxtagResourceSchema(ctx)
+	resp.Schema = schema.Schema{
+		MarkdownDescription: docCategoryWlan + "This resource manages the Org Wlan tags (labels)." +
+			"The tags can be used " +
+			"  * within the WxRules to create filtering rules, or assign specific VLAN" +
+			"  * in the WLANs configuration to assign a WLAN to specific APs" +
+			"  * to identify unknown application used by Wi-Fi clients",
+		Attributes: resource_org_wxtag.OrgWxtagResourceSchema(ctx).Attributes,
+	}
 }
 
 func (r *orgWxTagResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {

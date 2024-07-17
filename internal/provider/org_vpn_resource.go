@@ -10,6 +10,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
@@ -49,7 +50,10 @@ func (r *orgVpnResource) Metadata(ctx context.Context, req resource.MetadataRequ
 }
 
 func (r *orgVpnResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = resource_org_vpn.OrgVpnResourceSchema(ctx)
+	resp.Schema = schema.Schema{
+		MarkdownDescription: docCategoryWan + "This resource manages the Org VPN.",
+		Attributes:          resource_org_vpn.OrgVpnResourceSchema(ctx).Attributes,
+	}
 }
 
 func (r *orgVpnResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {

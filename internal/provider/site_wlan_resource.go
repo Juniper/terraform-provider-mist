@@ -10,6 +10,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
@@ -48,7 +49,11 @@ func (r *siteWlanResource) Metadata(ctx context.Context, req resource.MetadataRe
 }
 
 func (r *siteWlanResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = resource_site_wlan.SiteWlanResourceSchema(ctx)
+	resp.Schema = schema.Schema{
+		MarkdownDescription: docCategoryWlan + "This resource manages the Site Wlans." +
+			"The WLAN object contains all the required configuration to broadcast an SSID (Authentication, VLAN, ...)",
+		Attributes: resource_site_wlan.SiteWlanResourceSchema(ctx).Attributes,
+	}
 }
 
 func (r *siteWlanResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {

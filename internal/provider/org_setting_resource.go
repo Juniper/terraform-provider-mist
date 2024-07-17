@@ -10,6 +10,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
@@ -48,7 +49,11 @@ func (r *orgSettingResource) Metadata(ctx context.Context, req resource.Metadata
 }
 
 func (r *orgSettingResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = resource_org_setting.OrgSettingResourceSchema(ctx)
+	resp.Schema = schema.Schema{
+		MarkdownDescription: docCategorySite + "This resource manages the Org Settings." +
+			"The Org Settings can be used to customize the Org configuration",
+		Attributes: resource_org_setting.OrgSettingResourceSchema(ctx).Attributes,
+	}
 }
 
 func (r *orgSettingResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {

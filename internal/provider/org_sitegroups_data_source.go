@@ -12,6 +12,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -48,7 +49,11 @@ func (d *orgSitegroupsDataSource) Metadata(ctx context.Context, req datasource.M
 }
 
 func (d *orgSitegroupsDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = datasource_org_sitegroups.OrgSitegroupsDataSourceSchema(ctx)
+	resp.Schema = schema.Schema{
+		MarkdownDescription: docCategoryWlan + "This data source provides the list of Org Site Groups (sitegroups)." +
+			"A Site Group is a group of site that can be used in the WLAN Templates or when providing privileges to Administrators",
+		Attributes: datasource_org_sitegroups.OrgSitegroupsDataSourceSchema(ctx).Attributes,
+	}
 }
 
 func (d *orgSitegroupsDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {

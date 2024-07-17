@@ -10,6 +10,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
@@ -48,7 +49,11 @@ func (r *orgOrgServiceResource) Metadata(ctx context.Context, req resource.Metad
 	resp.TypeName = req.ProviderTypeName + "_org_service"
 }
 func (r *orgOrgServiceResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = resource_org_service.OrgServiceResourceSchema(ctx)
+	resp.Schema = schema.Schema{
+		MarkdownDescription: docCategoryWan + "This resource manages WAN Assurance Services (Applications)." +
+			"The Services are used in the `service_policies` from the Gateway configuration and Gateway templates ",
+		Attributes: resource_org_service.OrgServiceResourceSchema(ctx).Attributes,
+	}
 }
 
 func (r *orgOrgServiceResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {

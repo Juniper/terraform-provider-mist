@@ -12,6 +12,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -48,7 +49,11 @@ func (d *orgWlantemplatesDataSource) Metadata(ctx context.Context, req datasourc
 }
 
 func (d *orgWlantemplatesDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = datasource_org_wlantemplates.OrgWlantemplatesDataSourceSchema(ctx)
+	resp.Schema = schema.Schema{
+		MarkdownDescription: docCategorySite + "This datasource provides the list of WLAN Templates in a Mist Organization." +
+			"A WLAN Template regroup a list of SSIDs and WxRules to applies to Sites, group of Sites (sitegroups) or the all the sites from the Org",
+		Attributes: datasource_org_wlantemplates.OrgWlantemplatesDataSourceSchema(ctx).Attributes,
+	}
 }
 
 func (d *orgWlantemplatesDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {

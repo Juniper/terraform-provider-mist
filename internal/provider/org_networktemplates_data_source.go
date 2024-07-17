@@ -12,6 +12,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -48,7 +49,12 @@ func (d *orgNetworktemplatesDataSource) Metadata(ctx context.Context, req dataso
 }
 
 func (d *orgNetworktemplatesDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = datasource_org_networktemplates.OrgNetworktemplatesDataSourceSchema(ctx)
+	resp.Schema = schema.Schema{
+		MarkdownDescription: docCategoryWired + "This data source provides the list of Org Network Templates (Switch templates)." +
+			"A Network template can be used to define generic switch configuration at the org level and" +
+			"be applied to one or multiple Sites. It works like a blueprint of the network of the site.",
+		Attributes: datasource_org_networktemplates.OrgNetworktemplatesDataSourceSchema(ctx).Attributes,
+	}
 }
 
 func (d *orgNetworktemplatesDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {

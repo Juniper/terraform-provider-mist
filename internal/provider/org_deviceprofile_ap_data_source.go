@@ -12,6 +12,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -48,7 +49,12 @@ func (d *orgDeviceprofilesApDataSource) Metadata(ctx context.Context, req dataso
 }
 
 func (d *orgDeviceprofilesApDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = datasource_org_deviceprofiles_ap.OrgDeviceprofilesApDataSourceSchema(ctx)
+	resp.Schema = schema.Schema{
+		MarkdownDescription: docCategoryDevices + "This data source provides the list of AP Device Profiles." +
+			"An AP Device Profile can be used to define common configuration accross multiple Wireless Access Points" +
+			"and is assigned to one or multiple APs as a deviceprofile with the `mist_org_deviceprofile_assign` resource",
+		Attributes: datasource_org_deviceprofiles_ap.OrgDeviceprofilesApDataSourceSchema(ctx).Attributes,
+	}
 }
 
 func (d *orgDeviceprofilesApDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {

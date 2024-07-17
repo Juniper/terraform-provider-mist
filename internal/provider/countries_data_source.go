@@ -9,6 +9,7 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -45,7 +46,11 @@ func (d *countriesDataSource) Metadata(ctx context.Context, req datasource.Metad
 }
 
 func (d *countriesDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = datasource_countries.CountriesDataSourceSchema(ctx)
+	resp.Schema = schema.Schema{
+		MarkdownDescription: docCategoryConst + "This data source provides the of Countries." +
+			"This information can be used to define the Country in the RF templates (`mist_org_rftemplate`)",
+		Attributes: datasource_countries.CountriesDataSourceSchema(ctx).Attributes,
+	}
 }
 
 func (d *countriesDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {

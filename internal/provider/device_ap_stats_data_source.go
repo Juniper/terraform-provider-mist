@@ -12,6 +12,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -48,7 +49,10 @@ func (d *deviceApStatsDataSource) Metadata(ctx context.Context, req datasource.M
 }
 
 func (d *deviceApStatsDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = datasource_device_ap_stats.DeviceApStatsDataSourceSchema(ctx)
+	resp.Schema = schema.Schema{
+		MarkdownDescription: docCategoryDevices + "This data source provides the list of Wireless Access Points with their statistics.",
+		Attributes:          datasource_device_ap_stats.DeviceApStatsDataSourceSchema(ctx).Attributes,
+	}
 }
 
 func (d *deviceApStatsDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {

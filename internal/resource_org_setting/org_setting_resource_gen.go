@@ -244,7 +244,7 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					"mxtunnel_ids": schema.ListAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
-						Computed: true,
+						Computed:            true,
 						Description:         "list of Mist Tunnels",
 						MarkdownDescription: "list of Mist Tunnels",
 					},
@@ -577,7 +577,7 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 								"custom_test_urls": schema.ListAttribute{
 									ElementType: types.StringType,
 									Optional:    true,
-									Computed: true,
+									Computed:    true,
 								},
 								"disabled": schema.BoolAttribute{
 									Optional:            true,

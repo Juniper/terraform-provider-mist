@@ -12,6 +12,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -48,7 +49,10 @@ func (d *deviceGatewayStatsDataSource) Metadata(ctx context.Context, req datasou
 }
 
 func (d *deviceGatewayStatsDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = datasource_device_gateway_stats.DeviceGatewayStatsDataSourceSchema(ctx)
+	resp.Schema = schema.Schema{
+		MarkdownDescription: docCategoryDevices + "This data source provides the list of Gateways with their statistics.",
+		Attributes:          datasource_device_gateway_stats.DeviceGatewayStatsDataSourceSchema(ctx).Attributes,
+	}
 }
 
 func (d *deviceGatewayStatsDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {

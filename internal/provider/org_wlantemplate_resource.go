@@ -10,6 +10,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
@@ -48,7 +49,11 @@ func (r *orgWlanTemplateResource) Metadata(ctx context.Context, req resource.Met
 }
 
 func (r *orgWlanTemplateResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = resource_org_wlantemplate.OrgWlantemplateResourceSchema(ctx)
+	resp.Schema = schema.Schema{
+		MarkdownDescription: docCategorySite + "This resource manages the Org WLAN Templates." +
+			"A WLAN Template regroup a list of SSIDs and WxRules to applies to Sites, group of Sites (sitegroups) or the all the sites from the Org",
+		Attributes: resource_org_wlantemplate.OrgWlantemplateResourceSchema(ctx).Attributes,
+	}
 }
 
 func (r *orgWlanTemplateResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {

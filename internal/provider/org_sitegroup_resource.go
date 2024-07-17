@@ -12,6 +12,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
@@ -50,7 +51,11 @@ func (r *orgSiteGroupResource) Metadata(ctx context.Context, req resource.Metada
 }
 
 func (r *orgSiteGroupResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = resource_org_sitegroup.OrgSitegroupResourceSchema(ctx)
+	resp.Schema = schema.Schema{
+		MarkdownDescription: docCategoryWlan + "This resource managed the Org Site Groups (sitegroups)." +
+			"A Site Group is a group of site that can be used in the WLAN Templates or when providing privileges to Administrators",
+		Attributes: resource_org_sitegroup.OrgSitegroupResourceSchema(ctx).Attributes,
+	}
 }
 
 func (r *orgSiteGroupResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {

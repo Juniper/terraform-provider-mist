@@ -12,6 +12,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -48,7 +49,11 @@ func (d *orgNetworksDataSource) Metadata(ctx context.Context, req datasource.Met
 }
 
 func (d *orgNetworksDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = datasource_org_networks.OrgNetworksDataSourceSchema(ctx)
+	resp.Schema = schema.Schema{
+		MarkdownDescription: docCategoryWan + "This data source provides the list of WAN Assurance Networks." +
+			"The Networks are used in the `service_policies` from the Gateway configuration and Gateway templates ",
+		Attributes: datasource_org_networks.OrgNetworksDataSourceSchema(ctx).Attributes,
+	}
 }
 
 func (d *orgNetworksDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {

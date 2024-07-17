@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
@@ -49,7 +50,12 @@ func (r *orgGatewaytemplateResource) Metadata(ctx context.Context, req resource.
 }
 
 func (r *orgGatewaytemplateResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = resource_org_gatewaytemplate.OrgGatewaytemplateResourceSchema(ctx)
+	resp.Schema = schema.Schema{
+		MarkdownDescription: docCategoryWan + "This resource manages the Gateway Templates." +
+			"A Gateway template can be used to define generic gateway configuration at the org level and" +
+			"be applied to one or multiple Sites. It works like a blueprint of the network of the site.",
+		Attributes: resource_org_gatewaytemplate.OrgGatewaytemplateResourceSchema(ctx).Attributes,
+	}
 }
 
 func (r *orgGatewaytemplateResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {

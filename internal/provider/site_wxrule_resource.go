@@ -10,6 +10,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
@@ -48,7 +49,11 @@ func (r *siteWxRuleResource) Metadata(ctx context.Context, req resource.Metadata
 }
 
 func (r *siteWxRuleResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = resource_site_wxrule.SiteWxruleResourceSchema(ctx)
+	resp.Schema = schema.Schema{
+		MarkdownDescription: docCategoryWlan + "This resource manages the Site WxRules (WLAN policies)." +
+			"The WxRules can be used to filter Wireless traffic.",
+		Attributes: resource_site_wxrule.SiteWxruleResourceSchema(ctx).Attributes,
+	}
 }
 
 func (r *siteWxRuleResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
