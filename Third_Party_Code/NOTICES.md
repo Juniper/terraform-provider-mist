@@ -32,8 +32,8 @@ SOFTWARE.
 ## github.com/fatih/color
 
 * Name: github.com/fatih/color
-* Version: v1.17.0
-* License: [MIT](https://github.com/fatih/color/blob/v1.17.0/LICENSE.md)
+* Version: v1.16.0
+* License: [MIT](https://github.com/fatih/color/blob/v1.16.0/LICENSE.md)
 
 ```
 The MIT License (MIT)
@@ -137,8 +137,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ## github.com/hashicorp/go-hclog
 
 * Name: github.com/hashicorp/go-hclog
-* Version: v1.6.3
-* License: [MIT](https://github.com/hashicorp/go-hclog/blob/v1.6.3/LICENSE)
+* Version: v1.5.0
+* License: [MIT](https://github.com/hashicorp/go-hclog/blob/v1.5.0/LICENSE)
 
 ```
 Copyright (c) 2017 HashiCorp, Inc.
@@ -166,8 +166,8 @@ SOFTWARE.
 ## github.com/hashicorp/go-plugin
 
 * Name: github.com/hashicorp/go-plugin
-* Version: v1.6.1
-* License: [MPL-2.0](https://github.com/hashicorp/go-plugin/blob/v1.6.1/LICENSE)
+* Version: v1.6.0
+* License: [MPL-2.0](https://github.com/hashicorp/go-plugin/blob/v1.6.0/LICENSE)
 
 ```
 Copyright (c) 2016 HashiCorp, Inc.
@@ -3553,8 +3553,8 @@ THE SOFTWARE.
 ## github.com/oklog/run
 
 * Name: github.com/oklog/run
-* Version: v1.1.0
-* License: [Apache-2.0](https://github.com/oklog/run/blob/v1.1.0/LICENSE)
+* Version: v1.0.0
+* License: [Apache-2.0](https://github.com/oklog/run/blob/v1.0.0/LICENSE)
 
 ```
                                  Apache License
@@ -3764,8 +3764,8 @@ THE SOFTWARE.
 ## github.com/tmunzer/mistapi-go/mistapi
 
 * Name: github.com/tmunzer/mistapi-go/mistapi
-* Version: v0.2.9
-* License: [MIT](https://github.com/tmunzer/mistapi-go/blob/v0.2.9/LICENSE)
+* Version: v0.2.12
+* License: [MIT](https://github.com/tmunzer/mistapi-go/blob/v0.2.12/LICENSE)
 
 ```
 License: 
@@ -3940,8 +3940,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ## google.golang.org/genproto/googleapis/rpc/status
 
 * Name: google.golang.org/genproto/googleapis/rpc/status
-* Version: v0.0.0-20240711142825-46eb208f015d
-* License: [Apache-2.0](https://github.com/googleapis/go-genproto/blob/46eb208f015d/googleapis/rpc/LICENSE)
+* Version: v0.0.0-20240227224415-6ceb2ff114de
+* License: [Apache-2.0](https://github.com/googleapis/go-genproto/blob/6ceb2ff114de/googleapis/rpc/LICENSE)
 
 ```
 
@@ -4152,8 +4152,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ## google.golang.org/grpc
 
 * Name: google.golang.org/grpc
-* Version: v1.65.0
-* License: [Apache-2.0](https://github.com/grpc/grpc-go/blob/v1.65.0/LICENSE)
+* Version: v1.63.2
+* License: [Apache-2.0](https://github.com/grpc/grpc-go/blob/v1.63.2/LICENSE)
 
 ```
 
@@ -4364,8 +4364,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ## google.golang.org/protobuf
 
 * Name: google.golang.org/protobuf
-* Version: v1.34.2
-* License: [BSD-3-Clause](https://github.com/protocolbuffers/protobuf-go/blob/v1.34.2/LICENSE)
+* Version: v1.34.0
+* License: [BSD-3-Clause](https://github.com/protocolbuffers/protobuf-go/blob/v1.34.0/LICENSE)
 
 ```
 Copyright (c) 2018 The Go Authors. All rights reserved.
