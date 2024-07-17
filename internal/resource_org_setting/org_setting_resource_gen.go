@@ -46,9 +46,6 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Optional: true,
 			},
-			"blacklist_url": schema.StringAttribute{
-				Computed: true,
-			},
 			"cacerts": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
@@ -244,7 +241,6 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					"mxtunnel_ids": schema.ListAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
-						Computed:            true,
 						Description:         "list of Mist Tunnels",
 						MarkdownDescription: "list of Mist Tunnels",
 					},
@@ -383,9 +379,6 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Optional: true,
 			},
-			"msp_id": schema.StringAttribute{
-				Computed: true,
-			},
 			"mxedge_fips_enabled": schema.BoolAttribute{
 				Optional: true,
 				Computed: true,
@@ -512,9 +505,6 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Optional: true,
 			},
-			"pcap_bucket_verified": schema.BoolAttribute{
-				Computed: true,
-			},
 			"security": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"disable_local_ssh": schema.BoolAttribute{
@@ -577,7 +567,6 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 								"custom_test_urls": schema.ListAttribute{
 									ElementType: types.StringType,
 									Optional:    true,
-									Computed:    true,
 								},
 								"disabled": schema.BoolAttribute{
 									Optional:            true,
@@ -667,7 +656,6 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 type OrgSettingModel struct {
 	ApUpdownThreshold      types.Int64         `tfsdk:"ap_updown_threshold"`
 	ApiPolicy              ApiPolicyValue      `tfsdk:"api_policy"`
-	BlacklistUrl           types.String        `tfsdk:"blacklist_url"`
 	Cacerts                types.List          `tfsdk:"cacerts"`
 	Celona                 CelonaValue         `tfsdk:"celona"`
 	Cloudshark             CloudsharkValue     `tfsdk:"cloudshark"`
@@ -682,13 +670,11 @@ type OrgSettingModel struct {
 	Juniper                JuniperValue        `tfsdk:"juniper"`
 	Mgmt                   MgmtValue           `tfsdk:"mgmt"`
 	MistNac                MistNacValue        `tfsdk:"mist_nac"`
-	MspId                  types.String        `tfsdk:"msp_id"`
 	MxedgeFipsEnabled      types.Bool          `tfsdk:"mxedge_fips_enabled"`
 	MxedgeMgmt             MxedgeMgmtValue     `tfsdk:"mxedge_mgmt"`
 	OrgId                  types.String        `tfsdk:"org_id"`
 	PasswordPolicy         PasswordPolicyValue `tfsdk:"password_policy"`
 	Pcap                   PcapValue           `tfsdk:"pcap"`
-	PcapBucketVerified     types.Bool          `tfsdk:"pcap_bucket_verified"`
 	Security               SecurityValue       `tfsdk:"security"`
 	SwitchMgmt             SwitchMgmtValue     `tfsdk:"switch_mgmt"`
 	SwitchUpdownThreshold  types.Int64         `tfsdk:"switch_updown_threshold"`

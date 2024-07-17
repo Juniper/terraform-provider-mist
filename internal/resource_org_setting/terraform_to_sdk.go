@@ -26,12 +26,6 @@ func TerraformToSdk(ctx context.Context, plan *OrgSettingModel) (*models.OrgSett
 		unset["-api_policy"] = ""
 	}
 
-	if plan.BlacklistUrl.ValueStringPointer() != nil {
-		data.BlacklistUrl = plan.BlacklistUrl.ValueStringPointer()
-	} else {
-		unset["-blacklist_url"] = ""
-	}
-
 	if !plan.Cacerts.IsNull() && !plan.Cacerts.IsUnknown() {
 		data.Cacerts = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Cacerts)
 	} else {

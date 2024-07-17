@@ -16,7 +16,7 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 
 	var ap_updown_threshold types.Int64
 	var api_policy ApiPolicyValue = NewApiPolicyValueNull()
-	var blacklist_url types.String
+	// var blacklist_url types.String
 	var cacerts types.List = types.ListNull(types.StringType)
 	var celona CelonaValue = NewCelonaValueNull()
 	var cloudshark CloudsharkValue = NewCloudsharkValueNull()
@@ -31,13 +31,13 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	var juniper JuniperValue = NewJuniperValueNull()
 	var mgmt MgmtValue = NewMgmtValueNull()
 	var mist_nac MistNacValue = NewMistNacValueNull()
-	var msp_id types.String
+	// var msp_id types.String
 	var mxedge_fips_enabled types.Bool
 	var mxedge_mgmt MxedgeMgmtValue
 	var org_id types.String
 	var password_policy PasswordPolicyValue = NewPasswordPolicyValueNull()
 	var pcap PcapValue = NewPcapValueNull()
-	var pcap_bucket_verified types.Bool
+	// var pcap_bucket_verified types.Bool
 	var security SecurityValue = NewSecurityValueNull()
 	var switch_mgmt SwitchMgmtValue = NewSwitchMgmtValueNull()
 	var switch_updown_threshold types.Int64
@@ -51,9 +51,9 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	if data.ApiPolicy != nil {
 		api_policy = apiPolicySdkToTerraform(ctx, &diags, data.ApiPolicy)
 	}
-	if data.BlacklistUrl != nil {
-		blacklist_url = types.StringValue(*data.BlacklistUrl)
-	}
+	// if data.BlacklistUrl != nil {
+	// 	blacklist_url = types.StringValue(*data.BlacklistUrl)
+	// }
 	if data.Cacerts != nil {
 		cacerts = mist_transform.ListOfStringSdkToTerraform(ctx, data.Cacerts)
 	}
@@ -96,9 +96,9 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	if data.MistNac != nil {
 		mist_nac = mistNacSdkToTerraform(ctx, &diags, data.MistNac)
 	}
-	if data.MspId != nil {
-		msp_id = types.StringValue(data.MspId.String())
-	}
+	// if data.MspId != nil {
+	// 	msp_id = types.StringValue(data.MspId.String())
+	// }
 	if data.MxedgeFipsEnabled != nil {
 		mxedge_fips_enabled = types.BoolValue(*data.MxedgeFipsEnabled)
 	}
@@ -114,9 +114,9 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	if data.Pcap != nil {
 		pcap = pcapSdkToTerraform(ctx, &diags, data.Pcap)
 	}
-	if data.PcapBucketVerified != nil {
-		pcap_bucket_verified = types.BoolValue(*data.PcapBucketVerified)
-	}
+	// if data.PcapBucketVerified != nil {
+	// 	pcap_bucket_verified = types.BoolValue(*data.PcapBucketVerified)
+	// }
 	if data.Security != nil {
 		security = securitySdkToTerraform(ctx, &diags, data.Security)
 	}
@@ -138,7 +138,7 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 
 	state.ApUpdownThreshold = ap_updown_threshold
 	state.ApiPolicy = api_policy
-	state.BlacklistUrl = blacklist_url
+	// state.BlacklistUrl = blacklist_url
 	state.Cacerts = cacerts
 	state.Celona = celona
 	state.Cloudshark = cloudshark
@@ -153,13 +153,13 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	state.Juniper = juniper
 	state.Mgmt = mgmt
 	state.MistNac = mist_nac
-	state.MspId = msp_id
+	// state.MspId = msp_id
 	state.MxedgeFipsEnabled = mxedge_fips_enabled
 	state.MxedgeMgmt = mxedge_mgmt
 	state.OrgId = org_id
 	state.PasswordPolicy = password_policy
 	state.Pcap = pcap
-	state.PcapBucketVerified = pcap_bucket_verified
+	// state.PcapBucketVerified = pcap_bucket_verified
 	state.Security = security
 	state.SwitchMgmt = switch_mgmt
 	state.SwitchUpdownThreshold = switch_updown_threshold
