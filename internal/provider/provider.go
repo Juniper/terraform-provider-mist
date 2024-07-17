@@ -340,5 +340,6 @@ func (p *mistProvider) Resources(ctx context.Context) []func() resource.Resource
 		NewOrgDeviceprofileAp,
 		NewOrgDeviceprofileAssign,
 		NewOrgDeviceprofileGateway,
+		NewOrgSettingResource,
 	}
 }
