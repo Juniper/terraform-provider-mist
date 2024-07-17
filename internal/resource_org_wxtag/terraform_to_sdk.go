@@ -15,17 +15,34 @@ func TerraformToSdk(ctx context.Context, plan *OrgWxtagModel) (*models.WxlanTag,
 	specs := specsTerraformToSdk(ctx, &diags, plan.Specs)
 
 	data := models.WxlanTag{}
-	data.Mac = models.NewOptional(models.ToPointer(plan.Mac.ValueString()))
-	data.Match = models.ToPointer(models.WxlanTagMatchEnum(plan.Match.ValueString()))
+
+	if !plan.Mac.IsNull() && !plan.Mac.IsUnknown() {
+		data.Mac = models.NewOptional(models.ToPointer(plan.Mac.ValueString()))
+	}
+	if !plan.Match.IsNull() && !plan.Match.IsUnknown() {
+		data.Match = models.ToPointer(models.WxlanTagMatchEnum(plan.Match.ValueString()))
+	}
 	data.Name = plan.Name.ValueString()
 	data.Op = models.ToPointer(models.WxlanTagOperationEnum(plan.Op.ValueString()))
-	data.ResourceMac = models.NewOptional(models.ToPointer(plan.ResourceMac.ValueString()))
-	data.Services = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Services)
-	data.Specs = specs
-	data.Subnet = models.ToPointer(plan.Subnet.ValueString())
+	if !plan.ResourceMac.IsNull() && !plan.ResourceMac.IsUnknown() {
+		data.ResourceMac = models.NewOptional(models.ToPointer(plan.ResourceMac.ValueString()))
+	}
+	if !plan.Services.IsNull() && !plan.Services.IsUnknown() {
+		data.Services = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Services)
+	}
+	if !plan.Specs.IsNull() && !plan.Specs.IsUnknown() {
+		data.Specs = specs
+	}
+	if !plan.Subnet.IsNull() && !plan.Subnet.IsUnknown() {
+		data.Subnet = models.ToPointer(plan.Subnet.ValueString())
+	}
 	data.Type = models.WxlanTagTypeEnum(plan.Type.ValueString())
-	data.Values = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Values)
-	data.VlanId = models.ToPointer(int(plan.VlanId.ValueInt64()))
+	if !plan.Values.IsNull() && !plan.Values.IsUnknown() {
+		data.Values = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Values)
+	}
+	if !plan.VlanId.IsNull() && !plan.VlanId.IsUnknown() {
+		data.VlanId = models.ToPointer(int(plan.VlanId.ValueInt64()))
+	}
 
 	return &data, diags
 
