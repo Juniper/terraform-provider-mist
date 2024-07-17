@@ -9,124 +9,126 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 func routingPolicyTermActionTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.RoutingPolicyTermAction {
-	tflog.Debug(ctx, "routingPolicyTermActionTerraformToSdk")
 	data := models.RoutingPolicyTermAction{}
-	if d.IsNull() || d.IsUnknown() {
-		return &data
-	} else {
-		plan := NewActionValueMust(d.AttributeTypes(ctx), d.Attributes())
-		if plan.Accept.ValueBoolPointer() != nil {
-			data.Accept = models.ToPointer(plan.Accept.ValueBool())
+	if !d.IsNull() || !d.IsUnknown() {
+		plan, e := NewActionValue(d.AttributeTypes(ctx), d.Attributes())
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			if plan.Accept.ValueBoolPointer() != nil {
+				data.Accept = models.ToPointer(plan.Accept.ValueBool())
+			}
+			if !plan.AddCommunity.IsNull() && !plan.AddCommunity.IsUnknown() {
+				data.AddCommunity = mist_transform.ListOfStringTerraformToSdk(ctx, plan.AddCommunity)
+			}
+			if !plan.AddTargetVrfs.IsNull() && !plan.AddTargetVrfs.IsUnknown() {
+				data.AddTargetVrfs = mist_transform.ListOfStringTerraformToSdk(ctx, plan.AddTargetVrfs)
+			}
+			if !plan.Community.IsNull() && !plan.Community.IsUnknown() {
+				data.Community = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Community)
+			}
+			if !plan.ExcludeAsPath.IsNull() && !plan.ExcludeAsPath.IsUnknown() {
+				data.ExcludeAsPath = mist_transform.ListOfStringTerraformToSdk(ctx, plan.ExcludeAsPath)
+			}
+			if !plan.ExcludeCommunity.IsNull() && !plan.ExcludeCommunity.IsUnknown() {
+				data.ExcludeCommunity = mist_transform.ListOfStringTerraformToSdk(ctx, plan.ExcludeCommunity)
+			}
+			if plan.LocalPreference.ValueStringPointer() != nil {
+				data.LocalPreference = models.ToPointer(plan.LocalPreference.ValueString())
+			}
+			if !plan.PrependAsPath.IsNull() && !plan.PrependAsPath.IsUnknown() {
+				data.PrependAsPath = mist_transform.ListOfStringTerraformToSdk(ctx, plan.PrependAsPath)
+			}
 		}
-		if !plan.AddCommunity.IsNull() && !plan.AddCommunity.IsUnknown() {
-			data.AddCommunity = mist_transform.ListOfStringTerraformToSdk(ctx, plan.AddCommunity)
-		}
-		if !plan.AddTargetVrfs.IsNull() && !plan.AddTargetVrfs.IsUnknown() {
-			data.AddTargetVrfs = mist_transform.ListOfStringTerraformToSdk(ctx, plan.AddTargetVrfs)
-		}
-		if !plan.Community.IsNull() && !plan.Community.IsUnknown() {
-			data.Community = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Community)
-		}
-		if !plan.ExcludeAsPath.IsNull() && !plan.ExcludeAsPath.IsUnknown() {
-			data.ExcludeAsPath = mist_transform.ListOfStringTerraformToSdk(ctx, plan.ExcludeAsPath)
-		}
-		if !plan.ExcludeCommunity.IsNull() && !plan.ExcludeCommunity.IsUnknown() {
-			data.ExcludeCommunity = mist_transform.ListOfStringTerraformToSdk(ctx, plan.ExcludeCommunity)
-		}
-		if plan.LocalPreference.ValueStringPointer() != nil {
-			data.LocalPreference = models.ToPointer(plan.LocalPreference.ValueString())
-		}
-		if !plan.PrependAsPath.IsNull() && !plan.PrependAsPath.IsUnknown() {
-			data.PrependAsPath = mist_transform.ListOfStringTerraformToSdk(ctx, plan.PrependAsPath)
-		}
-		return &data
 	}
+	return &data
 }
 
 func routingPolicyTermMatchingRouteExistsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.RoutingPolicyTermMatchingRouteExists {
-	tflog.Debug(ctx, "routingPolicyTermMatchingRouteExistsTerraformToSdk")
 	data := models.RoutingPolicyTermMatchingRouteExists{}
-	if d.IsNull() || d.IsUnknown() {
-		return &data
-	} else {
-		plan := NewRouteExistsValueMust(d.AttributeTypes(ctx), d.Attributes())
-		if plan.Route.ValueStringPointer() != nil {
-			data.Route = models.ToPointer(plan.Route.ValueString())
+	if !d.IsNull() || !d.IsUnknown() {
+		plan, e := NewRouteExistsValue(d.AttributeTypes(ctx), d.Attributes())
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			if plan.Route.ValueStringPointer() != nil {
+				data.Route = models.ToPointer(plan.Route.ValueString())
+			}
+			if plan.VrfName.ValueStringPointer() != nil {
+				data.VrfName = models.ToPointer(plan.VrfName.ValueString())
+			}
 		}
-		if plan.VrfName.ValueStringPointer() != nil {
-			data.VrfName = models.ToPointer(plan.VrfName.ValueString())
-		}
-		return &data
 	}
+	return &data
 }
 
 func routingPolicyTermMatchingVpnPathSlaExistsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.RoutingPolicyTermMatchingVpnPathSla {
-	tflog.Debug(ctx, "routingPolicyTermMatchingVpnPathSlaExistsTerraformToSdk")
 	data := models.RoutingPolicyTermMatchingVpnPathSla{}
-	if d.IsNull() || d.IsUnknown() {
-		return &data
-	} else {
-		plan := NewVpnPathSlaValueMust(d.AttributeTypes(ctx), d.Attributes())
-		if plan.MaxJitter.ValueInt64Pointer() != nil {
-			data.MaxJitter = models.NewOptional(models.ToPointer(int(plan.MaxJitter.ValueInt64())))
+	if !d.IsNull() || !d.IsUnknown() {
+		plan, e := NewVpnPathSlaValue(d.AttributeTypes(ctx), d.Attributes())
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			if plan.MaxJitter.ValueInt64Pointer() != nil {
+				data.MaxJitter = models.NewOptional(models.ToPointer(int(plan.MaxJitter.ValueInt64())))
+			}
+			if plan.MaxLatency.ValueInt64Pointer() != nil {
+				data.MaxLatency = models.NewOptional(models.ToPointer(int(plan.MaxLatency.ValueInt64())))
+			}
+			if plan.MaxLoss.ValueInt64Pointer() != nil {
+				data.MaxLoss = models.NewOptional(models.ToPointer(int(plan.MaxLoss.ValueInt64())))
+			}
 		}
-		if plan.MaxLatency.ValueInt64Pointer() != nil {
-			data.MaxLatency = models.NewOptional(models.ToPointer(int(plan.MaxLatency.ValueInt64())))
-		}
-		if plan.MaxLoss.ValueInt64Pointer() != nil {
-			data.MaxLoss = models.NewOptional(models.ToPointer(int(plan.MaxLoss.ValueInt64())))
-		}
-		return &data
 	}
+	return &data
 }
 
 func routingPolicyTermMatchingTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.RoutingPolicyTermMatching {
-	tflog.Debug(ctx, "routingPolicyTermMatchingTerraformToSdk")
 	data := models.RoutingPolicyTermMatching{}
-	if d.IsNull() || d.IsUnknown() {
-		return &data
-	} else {
-		plan := NewRoutingPolicyTermMatchingValueMust(d.AttributeTypes(ctx), d.Attributes())
-		if !plan.AsPath.IsNull() && !plan.AsPath.IsUnknown() {
-			data.AsPath = mist_transform.ListOfStringTerraformToSdk(ctx, plan.AsPath)
-		}
-		if !plan.Community.IsNull() && !plan.Community.IsUnknown() {
-			data.Community = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Community)
-		}
-		if !plan.Network.IsNull() && !plan.Network.IsUnknown() {
-			data.Network = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Network)
-		}
-		if !plan.Prefix.IsNull() && !plan.Prefix.IsUnknown() {
-			data.Prefix = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Prefix)
-		}
-		if !plan.Protocol.IsNull() && !plan.Protocol.IsUnknown() {
-			data.Protocol = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Protocol)
-		}
+	if !d.IsNull() || !d.IsUnknown() {
+		plan, e := NewRoutingPolicyTermMatchingValue(d.AttributeTypes(ctx), d.Attributes())
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			if !plan.AsPath.IsNull() && !plan.AsPath.IsUnknown() {
+				data.AsPath = mist_transform.ListOfStringTerraformToSdk(ctx, plan.AsPath)
+			}
+			if !plan.Community.IsNull() && !plan.Community.IsUnknown() {
+				data.Community = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Community)
+			}
+			if !plan.Network.IsNull() && !plan.Network.IsUnknown() {
+				data.Network = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Network)
+			}
+			if !plan.Prefix.IsNull() && !plan.Prefix.IsUnknown() {
+				data.Prefix = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Prefix)
+			}
+			if !plan.Protocol.IsNull() && !plan.Protocol.IsUnknown() {
+				data.Protocol = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Protocol)
+			}
 
-		if !plan.RouteExists.IsNull() && !plan.RouteExists.IsUnknown() {
-			data.RouteExists = routingPolicyTermMatchingRouteExistsTerraformToSdk(ctx, diags, plan.RouteExists)
-		}
+			if !plan.RouteExists.IsNull() && !plan.RouteExists.IsUnknown() {
+				data.RouteExists = routingPolicyTermMatchingRouteExistsTerraformToSdk(ctx, diags, plan.RouteExists)
+			}
 
-		if !plan.VpnNeighborMac.IsNull() && !plan.VpnNeighborMac.IsUnknown() {
-			data.VpnNeighborMac = mist_transform.ListOfStringTerraformToSdk(ctx, plan.VpnNeighborMac)
-		}
-		if !plan.VpnPath.IsNull() && !plan.VpnPath.IsUnknown() {
-			data.VpnPath = mist_transform.ListOfStringTerraformToSdk(ctx, plan.VpnPath)
-		}
+			if !plan.VpnNeighborMac.IsNull() && !plan.VpnNeighborMac.IsUnknown() {
+				data.VpnNeighborMac = mist_transform.ListOfStringTerraformToSdk(ctx, plan.VpnNeighborMac)
+			}
+			if !plan.VpnPath.IsNull() && !plan.VpnPath.IsUnknown() {
+				data.VpnPath = mist_transform.ListOfStringTerraformToSdk(ctx, plan.VpnPath)
+			}
 
-		if !plan.VpnPathSla.IsNull() && !plan.VpnPathSla.IsUnknown() {
-			data.VpnPathSla = routingPolicyTermMatchingVpnPathSlaExistsTerraformToSdk(ctx, diags, plan.VpnPathSla)
+			if !plan.VpnPathSla.IsNull() && !plan.VpnPathSla.IsUnknown() {
+				data.VpnPathSla = routingPolicyTermMatchingVpnPathSlaExistsTerraformToSdk(ctx, diags, plan.VpnPathSla)
+			}
 		}
-		return &data
 	}
+	return &data
 }
 
 func routingPolicyTermerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.RoutingPolicyTerm {
-	tflog.Debug(ctx, "routingPolicyTermerraformToSdk")
 	var data_list []models.RoutingPolicyTerm
 	for _, v := range d.Elements() {
 		var v_interface interface{} = v
@@ -147,7 +149,6 @@ func routingPolicyTermerraformToSdk(ctx context.Context, diags *diag.Diagnostics
 }
 
 func routingPoliciesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.RoutingPolicy {
-	tflog.Debug(ctx, "routingPoliciesTerraformToSdk")
 	data_map := make(map[string]models.RoutingPolicy)
 	for k, v := range d.Elements() {
 		var v_interface interface{} = v

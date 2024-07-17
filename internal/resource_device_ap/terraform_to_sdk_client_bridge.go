@@ -5,31 +5,28 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
 func clientBridgeAuthTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.ApClientBridgeAuth {
-	tflog.Debug(ctx, "clientBridgeAuthTerraformToSdk")
 	data := models.ApClientBridgeAuth{}
-	if d.IsNull() || d.IsUnknown() {
-		return nil
-	} else {
-		var di interface{} = d
-		dv := di.(AuthValue)
-		if dv.Psk.ValueStringPointer() != nil {
-			data.Psk = dv.Psk.ValueStringPointer()
+	if !d.IsNull() || !d.IsUnknown() {
+		plan, e := NewAuthValue(d.AttributeTypes(ctx), d.Attributes())
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			if plan.Psk.ValueStringPointer() != nil {
+				data.Psk = plan.Psk.ValueStringPointer()
+			}
+			if plan.AuthType.ValueStringPointer() != nil {
+				data.Type = models.ToPointer(models.ApClientBridgeAuthTypeEnum(plan.AuthType.ValueString()))
+			}
 		}
-		if dv.AuthType.ValueStringPointer() != nil {
-			data.Type = models.ToPointer(models.ApClientBridgeAuthTypeEnum(dv.AuthType.ValueString()))
-		}
-
-		return &data
 	}
+	return &data
 }
 func clientBridgeTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d ClientBridgeValue) *models.ApClientBridge {
-	tflog.Debug(ctx, "clientBridgeTerraformToSdk")
 	data := models.ApClientBridge{}
 
 	auth := clientBridgeAuthTerraformToSdk(ctx, diags, d.Auth)

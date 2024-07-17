@@ -9,84 +9,88 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 func tunnelConfigsAutoProvisionPrimaryTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.TunnelConfigsAutoProvisionNode {
-	tflog.Debug(ctx, "tunnelConfigsAutoProvisionPrimaryTerraformToSdk")
 	data := models.TunnelConfigsAutoProvisionNode{}
 	if d.IsNull() || d.IsUnknown() {
 		return &data
 	} else {
-		plan := NewAutoProvisionPrimaryValueMust(d.AttributeTypes(ctx), d.Attributes())
-		if plan.NumHosts.ValueStringPointer() != nil {
-			data.NumHosts = models.ToPointer(plan.NumHosts.ValueString())
+		plan, e := NewAutoProvisionPrimaryValue(d.AttributeTypes(ctx), d.Attributes())
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			if plan.NumHosts.ValueStringPointer() != nil {
+				data.NumHosts = models.ToPointer(plan.NumHosts.ValueString())
+			}
+			if !plan.WanNames.IsNull() && !plan.WanNames.IsUnknown() {
+				data.WanNames = mist_transform.ListOfStringTerraformToSdk(ctx, plan.WanNames)
+			}
 		}
-		if !plan.WanNames.IsNull() && !plan.WanNames.IsUnknown() {
-			data.WanNames = mist_transform.ListOfStringTerraformToSdk(ctx, plan.WanNames)
-		}
-
 		return &data
 	}
 }
 
 func tunnelConfigsAutoProvisionSecondaryTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.TunnelConfigsAutoProvisionNode {
-	tflog.Debug(ctx, "tunnelConfigsAutoProvisionSecondaryTerraformToSdk")
 	data := models.TunnelConfigsAutoProvisionNode{}
 	if d.IsNull() || d.IsUnknown() {
 		return &data
 	} else {
-		plan := NewAutoProvisionSecondaryValueMust(d.AttributeTypes(ctx), d.Attributes())
-		if plan.NumHosts.ValueStringPointer() != nil {
-			data.NumHosts = models.ToPointer(plan.NumHosts.ValueString())
+		plan, e := NewAutoProvisionSecondaryValue(d.AttributeTypes(ctx), d.Attributes())
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			if plan.NumHosts.ValueStringPointer() != nil {
+				data.NumHosts = models.ToPointer(plan.NumHosts.ValueString())
+			}
+			if !plan.WanNames.IsNull() && !plan.WanNames.IsUnknown() {
+				data.WanNames = mist_transform.ListOfStringTerraformToSdk(ctx, plan.WanNames)
+			}
 		}
-		if !plan.WanNames.IsNull() && !plan.WanNames.IsUnknown() {
-			data.WanNames = mist_transform.ListOfStringTerraformToSdk(ctx, plan.WanNames)
-		}
-
 		return &data
 	}
 }
 
 func tunnelConfigsAutoProvisionTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) models.TunnelConfigsAutoProvision {
-	tflog.Debug(ctx, "tunnelConfigsAutoProvisionTerraformToSdk")
 	data := models.TunnelConfigsAutoProvision{}
 	if d.IsNull() || d.IsUnknown() {
 		return data
 	} else {
-		plan := NewAutoProvisionValueMust(d.AttributeTypes(ctx), d.Attributes())
-		if plan.Enable.ValueBoolPointer() != nil {
-			data.Enable = models.ToPointer(plan.Enable.ValueBool())
+		plan, e := NewAutoProvisionValue(d.AttributeTypes(ctx), d.Attributes())
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			if plan.Enable.ValueBoolPointer() != nil {
+				data.Enable = models.ToPointer(plan.Enable.ValueBool())
+			}
+
+			var plan_latlng_interface interface{} = plan.Latlng
+			plan_latlng := plan_latlng_interface.(LatlngValue)
+
+			var latlng models.LatLng
+			latlng.Lat = plan_latlng.Lng.ValueFloat64()
+			latlng.Lng = plan_latlng.Lng.ValueFloat64()
+			if !plan.Latlng.IsNull() && !plan.Latlng.IsUnknown() {
+				data.Latlng = models.ToPointer(latlng)
+			}
+
+			if !plan.AutoProvisionPrimary.IsNull() && !plan.AutoProvisionPrimary.IsUnknown() {
+				data.Primary = tunnelConfigsAutoProvisionPrimaryTerraformToSdk(ctx, diags, plan.AutoProvisionPrimary)
+			}
+
+			if plan.Region.ValueStringPointer() != nil {
+				data.Region = models.ToPointer(models.TunnelConfigsAutoProvisionRegionEnum(plan.Region.ValueString()))
+			}
+
+			if !plan.AutoProvisionSecondary.IsNull() && !plan.AutoProvisionSecondary.IsUnknown() {
+				data.Secondary = tunnelConfigsAutoProvisionSecondaryTerraformToSdk(ctx, diags, plan.AutoProvisionSecondary)
+			}
 		}
-
-		var plan_latlng_interface interface{} = plan.Latlng
-		plan_latlng := plan_latlng_interface.(LatlngValue)
-
-		var latlng models.LatLng
-		latlng.Lat = plan_latlng.Lng.ValueFloat64()
-		latlng.Lng = plan_latlng.Lng.ValueFloat64()
-		if !plan.Latlng.IsNull() && !plan.Latlng.IsUnknown() {
-			data.Latlng = models.ToPointer(latlng)
-		}
-
-		if !plan.AutoProvisionPrimary.IsNull() && !plan.AutoProvisionPrimary.IsUnknown() {
-			data.Primary = tunnelConfigsAutoProvisionPrimaryTerraformToSdk(ctx, diags, plan.AutoProvisionPrimary)
-		}
-
-		if plan.Region.ValueStringPointer() != nil {
-			data.Region = models.ToPointer(models.TunnelConfigsAutoProvisionRegionEnum(plan.Region.ValueString()))
-		}
-
-		if !plan.AutoProvisionSecondary.IsNull() && !plan.AutoProvisionSecondary.IsUnknown() {
-			data.Secondary = tunnelConfigsAutoProvisionSecondaryTerraformToSdk(ctx, diags, plan.AutoProvisionSecondary)
-		}
-
 		return data
 	}
 }
 
 func gatewayTemplateTunnelIkeProposalTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.GatewayTemplateTunnelIkeProposal {
-	tflog.Debug(ctx, "gatewayTemplateTunnelIkeProposalTerraformToSdk")
 	var data_list []models.GatewayTemplateTunnelIkeProposal
 	for _, v := range d.Elements() {
 		var v_interface interface{} = v
@@ -108,7 +112,6 @@ func gatewayTemplateTunnelIkeProposalTerraformToSdk(ctx context.Context, diags *
 }
 
 func gatewayTemplateTunnelIpsecProposalTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.GatewayTemplateTunnelIpsecProposal {
-	tflog.Debug(ctx, "gatewayTemplateTunnelIpsecProposalTerraformToSdk")
 	var data_list []models.GatewayTemplateTunnelIpsecProposal
 	for _, v := range d.Elements() {
 		var v_interface interface{} = v
@@ -130,82 +133,90 @@ func gatewayTemplateTunnelIpsecProposalTerraformToSdk(ctx context.Context, diags
 }
 
 func gatewayTemplateTunnelProbeTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) models.GatewayTemplateTunnelProbe {
-	tflog.Debug(ctx, "gatewayTemplateTunnelProbeTerraformToSdk")
 	data := models.GatewayTemplateTunnelProbe{}
 	if d.IsNull() || d.IsUnknown() {
 		return data
 	} else {
-		plan := NewProbeValueMust(d.AttributeTypes(ctx), d.Attributes())
-		if plan.Interval.ValueInt64Pointer() != nil {
-			data.Interval = models.ToPointer(int(plan.Interval.ValueInt64()))
-		}
-		if plan.Threshold.ValueInt64Pointer() != nil {
-			data.Threshold = models.ToPointer(int(plan.Threshold.ValueInt64()))
-		}
-		if plan.Timeout.ValueInt64Pointer() != nil {
-			data.Timeout = models.ToPointer(int(plan.Timeout.ValueInt64()))
-		}
-		if plan.ProbeType.ValueStringPointer() != nil {
-			data.Type = models.ToPointer(models.GatewayTemplateProbeTypeEnum(plan.ProbeType.ValueString()))
+		plan, e := NewProbeValue(d.AttributeTypes(ctx), d.Attributes())
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			if plan.Interval.ValueInt64Pointer() != nil {
+				data.Interval = models.ToPointer(int(plan.Interval.ValueInt64()))
+			}
+			if plan.Threshold.ValueInt64Pointer() != nil {
+				data.Threshold = models.ToPointer(int(plan.Threshold.ValueInt64()))
+			}
+			if plan.Timeout.ValueInt64Pointer() != nil {
+				data.Timeout = models.ToPointer(int(plan.Timeout.ValueInt64()))
+			}
+			if plan.ProbeType.ValueStringPointer() != nil {
+				data.Type = models.ToPointer(models.GatewayTemplateProbeTypeEnum(plan.ProbeType.ValueString()))
+			}
 		}
 		return data
 	}
 }
 
 func gatewayTemplateTunnelPrimaryProbeTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) models.GatewayTemplateTunnelNode {
-	tflog.Debug(ctx, "gatewayTemplateTunnelPrimaryProbeTerraformToSdk")
 	data := models.GatewayTemplateTunnelNode{}
 	if d.IsNull() || d.IsUnknown() {
 		return data
 	} else {
-		plan := NewPrimaryValueMust(d.AttributeTypes(ctx), d.Attributes())
-		if !plan.Hosts.IsNull() && !plan.Hosts.IsUnknown() {
-			data.Hosts = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Hosts)
-		}
-		if !plan.InternalIps.IsNull() && !plan.InternalIps.IsUnknown() {
-			data.InternalIps = mist_transform.ListOfStringTerraformToSdk(ctx, plan.InternalIps)
-		}
-		if !plan.ProbeIps.IsNull() && !plan.ProbeIps.IsUnknown() {
-			data.ProbeIps = mist_transform.ListOfStringTerraformToSdk(ctx, plan.ProbeIps)
-		}
-		if !plan.RemoteIds.IsNull() && !plan.RemoteIds.IsUnknown() {
-			data.RemoteIds = mist_transform.ListOfStringTerraformToSdk(ctx, plan.RemoteIds)
-		}
-		if !plan.WanNames.IsNull() && !plan.WanNames.IsUnknown() {
-			data.WanNames = mist_transform.ListOfStringTerraformToSdk(ctx, plan.WanNames)
+		plan, e := NewPrimaryValue(d.AttributeTypes(ctx), d.Attributes())
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			if !plan.Hosts.IsNull() && !plan.Hosts.IsUnknown() {
+				data.Hosts = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Hosts)
+			}
+			if !plan.InternalIps.IsNull() && !plan.InternalIps.IsUnknown() {
+				data.InternalIps = mist_transform.ListOfStringTerraformToSdk(ctx, plan.InternalIps)
+			}
+			if !plan.ProbeIps.IsNull() && !plan.ProbeIps.IsUnknown() {
+				data.ProbeIps = mist_transform.ListOfStringTerraformToSdk(ctx, plan.ProbeIps)
+			}
+			if !plan.RemoteIds.IsNull() && !plan.RemoteIds.IsUnknown() {
+				data.RemoteIds = mist_transform.ListOfStringTerraformToSdk(ctx, plan.RemoteIds)
+			}
+			if !plan.WanNames.IsNull() && !plan.WanNames.IsUnknown() {
+				data.WanNames = mist_transform.ListOfStringTerraformToSdk(ctx, plan.WanNames)
+			}
 		}
 		return data
 	}
 }
 
 func gatewayTemplateTunnelSecondaryProbeTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) models.GatewayTemplateTunnelNode {
-	tflog.Debug(ctx, "gatewayTemplateTunnelSecondaryProbeTerraformToSdk")
 	data := models.GatewayTemplateTunnelNode{}
 	if d.IsNull() || d.IsUnknown() {
 		return data
 	} else {
-		plan := NewSecondaryValueMust(d.AttributeTypes(ctx), d.Attributes())
-		if !plan.Hosts.IsNull() && !plan.Hosts.IsUnknown() {
-			data.Hosts = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Hosts)
-		}
-		if !plan.InternalIps.IsNull() && !plan.InternalIps.IsUnknown() {
-			data.InternalIps = mist_transform.ListOfStringTerraformToSdk(ctx, plan.InternalIps)
-		}
-		if !plan.ProbeIps.IsNull() && !plan.ProbeIps.IsUnknown() {
-			data.ProbeIps = mist_transform.ListOfStringTerraformToSdk(ctx, plan.ProbeIps)
-		}
-		if !plan.RemoteIds.IsNull() && !plan.RemoteIds.IsUnknown() {
-			data.RemoteIds = mist_transform.ListOfStringTerraformToSdk(ctx, plan.RemoteIds)
-		}
-		if !plan.WanNames.IsNull() && !plan.WanNames.IsUnknown() {
-			data.WanNames = mist_transform.ListOfStringTerraformToSdk(ctx, plan.WanNames)
+		plan, e := NewSecondaryValue(d.AttributeTypes(ctx), d.Attributes())
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			if !plan.Hosts.IsNull() && !plan.Hosts.IsUnknown() {
+				data.Hosts = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Hosts)
+			}
+			if !plan.InternalIps.IsNull() && !plan.InternalIps.IsUnknown() {
+				data.InternalIps = mist_transform.ListOfStringTerraformToSdk(ctx, plan.InternalIps)
+			}
+			if !plan.ProbeIps.IsNull() && !plan.ProbeIps.IsUnknown() {
+				data.ProbeIps = mist_transform.ListOfStringTerraformToSdk(ctx, plan.ProbeIps)
+			}
+			if !plan.RemoteIds.IsNull() && !plan.RemoteIds.IsUnknown() {
+				data.RemoteIds = mist_transform.ListOfStringTerraformToSdk(ctx, plan.RemoteIds)
+			}
+			if !plan.WanNames.IsNull() && !plan.WanNames.IsUnknown() {
+				data.WanNames = mist_transform.ListOfStringTerraformToSdk(ctx, plan.WanNames)
+			}
 		}
 		return data
 	}
 }
 
 func tunnelConfigsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.TunnelConfigs {
-	tflog.Debug(ctx, "tunnelConfigsTerraformToSdk")
 	data_map := make(map[string]models.TunnelConfigs)
 	for k, v := range d.Elements() {
 		var v_interface interface{} = v

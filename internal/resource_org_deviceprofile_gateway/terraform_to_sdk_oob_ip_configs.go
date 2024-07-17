@@ -7,42 +7,39 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 func oobIpConfigNode1TerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.GatewayOobIpConfigNode1 {
-	tflog.Debug(ctx, "oobIpConfigsTerraformToSdk")
-
 	data := models.GatewayOobIpConfigNode1{}
-
 	if !d.IsNull() && !d.IsUnknown() {
+		plan, e := NewNode1Value(d.AttributeTypes(ctx), d.Attributes())
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			if plan.Ip.ValueStringPointer() != nil {
+				data.Ip = plan.Ip.ValueStringPointer()
+			}
+			if plan.Netmask.ValueStringPointer() != nil {
+				data.Netmask = plan.Netmask.ValueStringPointer()
+			}
+			if plan.Network.ValueStringPointer() != nil {
+				data.Network = plan.Network.ValueStringPointer()
+			}
 
-		plan := NewNode1ValueMust(d.AttributeTypes(ctx), d.Attributes())
-		if plan.Ip.ValueStringPointer() != nil {
-			data.Ip = plan.Ip.ValueStringPointer()
-		}
-		if plan.Netmask.ValueStringPointer() != nil {
-			data.Netmask = plan.Netmask.ValueStringPointer()
-		}
-		if plan.Network.ValueStringPointer() != nil {
-			data.Network = plan.Network.ValueStringPointer()
-		}
-
-		if plan.Node1Type.ValueStringPointer() != nil {
-			data.Type = (*models.IpTypeEnum)(plan.Node1Type.ValueStringPointer())
-		}
-		if plan.UseMgmtVrf.ValueBoolPointer() != nil {
-			data.UseMgmtVrf = plan.UseMgmtVrf.ValueBoolPointer()
-		}
-		if plan.UseMgmtVrfForHostOut.ValueBoolPointer() != nil {
-			data.UseMgmtVrfForHostOut = plan.UseMgmtVrfForHostOut.ValueBoolPointer()
+			if plan.Node1Type.ValueStringPointer() != nil {
+				data.Type = (*models.IpTypeEnum)(plan.Node1Type.ValueStringPointer())
+			}
+			if plan.UseMgmtVrf.ValueBoolPointer() != nil {
+				data.UseMgmtVrf = plan.UseMgmtVrf.ValueBoolPointer()
+			}
+			if plan.UseMgmtVrfForHostOut.ValueBoolPointer() != nil {
+				data.UseMgmtVrfForHostOut = plan.UseMgmtVrfForHostOut.ValueBoolPointer()
+			}
 		}
 	}
-
 	return &data
 }
 func oobIpConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d OobIpConfigValue) *models.GatewayOobIpConfig {
-	tflog.Debug(ctx, "oobIpConfigsTerraformToSdk")
 
 	data := models.GatewayOobIpConfig{}
 

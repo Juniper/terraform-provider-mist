@@ -247,24 +247,23 @@ func snmpConfigV3UsmUsersTerraformToSdk(ctx context.Context, diags *diag.Diagnos
 }
 func snmpConfigV3UsmTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.SnmpUsm {
 	data := models.SnmpUsm{}
-	if d.IsNull() || d.IsUnknown() {
-		return &data
-	} else {
-		var d_interface interface{} = d
-		plan := d_interface.(UsmValue)
-
-		if plan.EngineType.ValueStringPointer() != nil {
-			data.EngineType = models.ToPointer(models.SnmpUsmEngineTypeEnum(plan.EngineType.ValueString()))
+	if !d.IsNull() || !d.IsUnknown() {
+		plan, e := NewUsmValue(d.AttributeTypes(ctx), d.Attributes())
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			if plan.EngineType.ValueStringPointer() != nil {
+				data.EngineType = models.ToPointer(models.SnmpUsmEngineTypeEnum(plan.EngineType.ValueString()))
+			}
+			if plan.Engineid.ValueStringPointer() != nil {
+				data.EngineId = plan.Engineid.ValueStringPointer()
+			}
+			if !plan.Snmpv3Users.IsNull() && !plan.Snmpv3Users.IsUnknown() {
+				data.Users = snmpConfigV3UsmUsersTerraformToSdk(ctx, diags, plan.Snmpv3Users)
+			}
 		}
-		if plan.Engineid.ValueStringPointer() != nil {
-			data.EngineId = plan.Engineid.ValueStringPointer()
-		}
-		if !plan.Snmpv3Users.IsNull() && !plan.Snmpv3Users.IsUnknown() {
-			data.Users = snmpConfigV3UsmUsersTerraformToSdk(ctx, diags, plan.Snmpv3Users)
-		}
-
-		return &data
 	}
+	return &data
 }
 
 // V3 VACM ACCESS
@@ -346,70 +345,68 @@ func snmpConfigV3VacmSecurityToGroupContentTerraformToSdk(ctx context.Context, d
 }
 func snmpConfigV3VacmSecurityToGroupTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.SnmpVacmSecurityToGroup {
 	data := models.SnmpVacmSecurityToGroup{}
-	if d.IsNull() || d.IsUnknown() {
-		return &data
-	} else {
-		var d_interface interface{} = d
-		plan := d_interface.(SecurityToGroupValue)
-
-		if plan.SecurityModel.ValueStringPointer() != nil {
-			data.SecurityModel = models.ToPointer(models.SnmpVacmSecurityModelEnum(plan.SecurityModel.ValueString()))
+	if !d.IsNull() || !d.IsUnknown() {
+		plan, e := NewSecurityToGroupValue(d.AttributeTypes(ctx), d.Attributes())
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			if plan.SecurityModel.ValueStringPointer() != nil {
+				data.SecurityModel = models.ToPointer(models.SnmpVacmSecurityModelEnum(plan.SecurityModel.ValueString()))
+			}
+			if !plan.Snmpv3VacmContent.IsNull() && !plan.Snmpv3VacmContent.IsUnknown() {
+				data.Content = snmpConfigV3VacmSecurityToGroupContentTerraformToSdk(ctx, diags, plan.Snmpv3VacmContent)
+			}
 		}
-		if !plan.Snmpv3VacmContent.IsNull() && !plan.Snmpv3VacmContent.IsUnknown() {
-			data.Content = snmpConfigV3VacmSecurityToGroupContentTerraformToSdk(ctx, diags, plan.Snmpv3VacmContent)
-		}
-
-		return &data
 	}
+	return &data
 }
 func snmpConfigV3VacmTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.SnmpVacm {
 	data := models.SnmpVacm{}
-	if d.IsNull() || d.IsUnknown() {
-		return &data
-	} else {
-		var d_interface interface{} = d
-		plan := d_interface.(VacmValue)
-
-		if !plan.Access.IsNull() && !plan.Access.IsUnknown() {
-			data.Access = snmpConfigV3VacmAccessTerraformToSdk(ctx, diags, plan.Access)
+	if !d.IsNull() || !d.IsUnknown() {
+		plan, e := NewVacmValue(d.AttributeTypes(ctx), d.Attributes())
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			if !plan.Access.IsNull() && !plan.Access.IsUnknown() {
+				data.Access = snmpConfigV3VacmAccessTerraformToSdk(ctx, diags, plan.Access)
+			}
+			if !plan.SecurityToGroup.IsNull() && !plan.SecurityToGroup.IsUnknown() {
+				data.SecurityToGroup = snmpConfigV3VacmSecurityToGroupTerraformToSdk(ctx, diags, plan.SecurityToGroup)
+			}
 		}
-		if !plan.SecurityToGroup.IsNull() && !plan.SecurityToGroup.IsUnknown() {
-			data.SecurityToGroup = snmpConfigV3VacmSecurityToGroupTerraformToSdk(ctx, diags, plan.SecurityToGroup)
-		}
-
-		return &data
 	}
+	return &data
 }
 
 // V3 MAIN
 func snmpConfigV3TerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.Snmpv3Config {
 	data := models.Snmpv3Config{}
-	if d.IsNull() || d.IsUnknown() {
-		return &data
-	} else {
-		var d_interface interface{} = d
-		plan := d_interface.(V3ConfigValue)
-
-		if !plan.Notify.IsNull() && !plan.Notify.IsUnknown() {
-			data.Notify = snmpConfigV3NotifyTerraformToSdk(ctx, diags, plan.Notify)
+	if !d.IsNull() || !d.IsUnknown() {
+		plan, e := NewV3ConfigValue(d.AttributeTypes(ctx), d.Attributes())
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			if !plan.Notify.IsNull() && !plan.Notify.IsUnknown() {
+				data.Notify = snmpConfigV3NotifyTerraformToSdk(ctx, diags, plan.Notify)
+			}
+			if !plan.NotifyFilter.IsNull() && !plan.NotifyFilter.IsUnknown() {
+				data.NotifyFilter = snmpConfigV3NotifyFilterTerraformToSdk(ctx, diags, plan.NotifyFilter)
+			}
+			if !plan.TargetAddress.IsNull() && !plan.TargetAddress.IsUnknown() {
+				data.TargetAddress = snmpConfigV3TargetAddressTerraformToSdk(ctx, diags, plan.TargetAddress)
+			}
+			if !plan.TargetParameters.IsNull() && !plan.TargetParameters.IsUnknown() {
+				data.TargetParameters = snmpConfigV3TargetParametersTerraformToSdk(ctx, diags, plan.TargetParameters)
+			}
+			if !plan.Usm.IsNull() && !plan.Usm.IsUnknown() {
+				data.Usm = snmpConfigV3UsmTerraformToSdk(ctx, diags, plan.Usm)
+			}
+			if !plan.Vacm.IsNull() && !plan.Vacm.IsUnknown() {
+				data.Vacm = snmpConfigV3VacmTerraformToSdk(ctx, diags, plan.Vacm)
+			}
 		}
-		if !plan.NotifyFilter.IsNull() && !plan.NotifyFilter.IsUnknown() {
-			data.NotifyFilter = snmpConfigV3NotifyFilterTerraformToSdk(ctx, diags, plan.NotifyFilter)
-		}
-		if !plan.TargetAddress.IsNull() && !plan.TargetAddress.IsUnknown() {
-			data.TargetAddress = snmpConfigV3TargetAddressTerraformToSdk(ctx, diags, plan.TargetAddress)
-		}
-		if !plan.TargetParameters.IsNull() && !plan.TargetParameters.IsUnknown() {
-			data.TargetParameters = snmpConfigV3TargetParametersTerraformToSdk(ctx, diags, plan.TargetParameters)
-		}
-		if !plan.Usm.IsNull() && !plan.Usm.IsUnknown() {
-			data.Usm = snmpConfigV3UsmTerraformToSdk(ctx, diags, plan.Usm)
-		}
-		if !plan.Vacm.IsNull() && !plan.Vacm.IsUnknown() {
-			data.Vacm = snmpConfigV3VacmTerraformToSdk(ctx, diags, plan.Vacm)
-		}
-		return &data
 	}
+	return &data
 }
 
 // //////////////////////////////////////////////

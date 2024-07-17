@@ -15,14 +15,17 @@ func remoteSyslogConfigArchiveTerraformToSdk(ctx context.Context, diags *diag.Di
 		return &data
 	} else {
 		item, e := NewArchiveValue(ArchiveValue{}.AttributeTypes(ctx), d.Attributes())
-		diags.Append(e...)
-		var item_interface interface{} = item
-		item_obj := item_interface.(ArchiveValue)
-		if item_obj.Files.ValueInt64Pointer() != nil {
-			data.Files = models.ToPointer(int(item_obj.Files.ValueInt64()))
-		}
-		if item_obj.Size.ValueStringPointer() != nil {
-			data.Size = models.ToPointer(item_obj.Size.ValueString())
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			var item_interface interface{} = item
+			item_obj := item_interface.(ArchiveValue)
+			if item_obj.Files.ValueInt64Pointer() != nil {
+				data.Files = models.ToPointer(int(item_obj.Files.ValueInt64()))
+			}
+			if item_obj.Size.ValueStringPointer() != nil {
+				data.Size = models.ToPointer(item_obj.Size.ValueString())
+			}
 		}
 		return &data
 	}
@@ -33,14 +36,17 @@ func remoteSyslogArchiveTerraformToSdk(ctx context.Context, diags *diag.Diagnost
 		return &data
 	} else {
 		item, e := NewArchiveValue(ArchiveValue{}.AttributeTypes(ctx), d.Attributes())
-		diags.Append(e...)
-		var item_interface interface{} = item
-		item_obj := item_interface.(ArchiveValue)
-		if item_obj.Files.ValueInt64Pointer() != nil {
-			data.Files = models.ToPointer(int(item_obj.Files.ValueInt64()))
-		}
-		if item_obj.Size.ValueStringPointer() != nil {
-			data.Size = models.ToPointer(item_obj.Size.ValueString())
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			var item_interface interface{} = item
+			item_obj := item_interface.(ArchiveValue)
+			if item_obj.Files.ValueInt64Pointer() != nil {
+				data.Files = models.ToPointer(int(item_obj.Files.ValueInt64()))
+			}
+			if item_obj.Size.ValueStringPointer() != nil {
+				data.Size = models.ToPointer(item_obj.Size.ValueString())
+			}
 		}
 		return &data
 	}
@@ -65,11 +71,11 @@ func remoteSyslogConsoleTerraformToSdk(ctx context.Context, diags *diag.Diagnost
 		return &data
 	} else {
 		item_obj, e := NewConsoleValue(d.AttributeTypes(ctx), d.Attributes())
-		diags.Append(e...)
-		// var item_interface interface{} = d
-		// item_obj := item_interface.(ConsoleValue)
-
-		data.Contents = remoteSyslogContentTerraformToSdk(ctx, diags, item_obj.Contents)
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			data.Contents = remoteSyslogContentTerraformToSdk(ctx, diags, item_obj.Contents)
+		}
 		return &data
 	}
 }

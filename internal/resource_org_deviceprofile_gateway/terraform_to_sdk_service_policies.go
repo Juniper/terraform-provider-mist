@@ -11,25 +11,24 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 func servicePolicyAppqoeTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.ServicePolicyAppqoe {
-	tflog.Debug(ctx, "servicePolicyAppqoeTerraformToSdk")
 	data := models.ServicePolicyAppqoe{}
-	if d.IsNull() || d.IsUnknown() {
-		return nil
-	} else {
-		plan := NewAppqoeValueMust(d.AttributeTypes(ctx), d.Attributes())
-		if plan.Enabled.ValueBoolPointer() != nil {
-			data.Enabled = models.ToPointer(plan.Enabled.ValueBool())
+	if !d.IsNull() || !d.IsUnknown() {
+		plan, e := NewAppqoeValue(d.AttributeTypes(ctx), d.Attributes())
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			if plan.Enabled.ValueBoolPointer() != nil {
+				data.Enabled = models.ToPointer(plan.Enabled.ValueBool())
+			}
 		}
-		return &data
 	}
+	return &data
 }
 
 func servicePolicyEwfRuleTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.ServicePolicyEwfRule {
-	tflog.Debug(ctx, "servicePolicyEwfRuleTerraformToSdk")
 	var data_list []models.ServicePolicyEwfRule
 	for _, v := range d.Elements() {
 		var v_interface interface{} = v
@@ -54,37 +53,36 @@ func servicePolicyEwfRuleTerraformToSdk(ctx context.Context, diags *diag.Diagnos
 }
 
 func idpConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.IdpConfig {
-	tflog.Debug(ctx, "idpConfigTerraformToSdk")
 	data := models.IdpConfig{}
-	if d.IsNull() || d.IsUnknown() {
-		return nil
-	} else {
-		plan := NewIdpValueMust(d.AttributeTypes(ctx), d.Attributes())
+	if !d.IsNull() || !d.IsUnknown() {
+		plan, e := NewIdpValue(d.AttributeTypes(ctx), d.Attributes())
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			if plan.IdpprofileId.ValueStringPointer() != nil {
+				idp_profile_id, e := uuid.Parse(plan.IdpprofileId.ValueString())
+				if e != nil {
+					diags.AddError("Unable to convert IdpprofileId", e.Error())
+				} else {
+					data.IdpprofileId = models.ToPointer(idp_profile_id)
+				}
+			}
 
-		if plan.IdpprofileId.ValueStringPointer() != nil {
-			idp_profile_id, e := uuid.Parse(plan.IdpprofileId.ValueString())
-			if e != nil {
-				diags.AddError("Unable to convert IdpprofileId", e.Error())
-			} else {
-				data.IdpprofileId = models.ToPointer(idp_profile_id)
+			if plan.AlertOnly.ValueBoolPointer() != nil {
+				data.AlertOnly = models.ToPointer(plan.AlertOnly.ValueBool())
+			}
+			if plan.Enabled.ValueBoolPointer() != nil {
+				data.Enabled = models.ToPointer(plan.Enabled.ValueBool())
+			}
+			if plan.Profile.ValueStringPointer() != nil {
+				data.Profile = models.ToPointer(plan.Profile.ValueString())
 			}
 		}
-
-		if plan.AlertOnly.ValueBoolPointer() != nil {
-			data.AlertOnly = models.ToPointer(plan.AlertOnly.ValueBool())
-		}
-		if plan.Enabled.ValueBoolPointer() != nil {
-			data.Enabled = models.ToPointer(plan.Enabled.ValueBool())
-		}
-		if plan.Profile.ValueStringPointer() != nil {
-			data.Profile = models.ToPointer(plan.Profile.ValueString())
-		}
-		return &data
 	}
+	return &data
 }
 
 func servicePoliciesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.ServicePolicy {
-	tflog.Debug(ctx, "servicePoliciesTerraformToSdk")
 	var data_list []models.ServicePolicy
 	for _, v := range d.Elements() {
 		var v_interface interface{} = v

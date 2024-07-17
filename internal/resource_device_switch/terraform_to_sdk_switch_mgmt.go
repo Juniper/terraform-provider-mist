@@ -112,27 +112,28 @@ func switchMgmtTacacsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics
 	if d.IsNull() || d.IsUnknown() {
 		return &data
 	} else {
-		item, e := NewProtectReValue(TacacsValue{}.AttributeTypes(ctx), d.Attributes())
+		item, e := NewTacacsValue(d.AttributeTypes(ctx), d.Attributes())
 		diags.Append(e...)
-		var item_interface interface{} = item
-		item_obj := item_interface.(TacacsValue)
 
-		if item_obj.Enabled.ValueBoolPointer() != nil {
-			data.Enabled = models.ToPointer(item_obj.Enabled.ValueBool())
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			if item.Enabled.ValueBoolPointer() != nil {
+				data.Enabled = models.ToPointer(item.Enabled.ValueBool())
+			}
+			if item.Network.ValueStringPointer() != nil {
+				data.Network = models.ToPointer(item.Network.ValueString())
+			}
+			if !item.TacacctServers.IsNull() && !item.TacacctServers.IsUnknown() {
+				data.AcctServers = TacacsAcctServersTerraformToSdk(ctx, diags, item.TacacctServers)
+			}
+			if !item.TacplusServers.IsNull() && !item.TacplusServers.IsUnknown() {
+				data.TacplusServers = TacacsAuthServersTerraformToSdk(ctx, diags, item.TacplusServers)
+			}
+			if item.DefaultRole.ValueStringPointer() != nil {
+				data.DefaultRole = models.ToPointer(models.TacacsDefaultRoleEnum(item.DefaultRole.ValueString()))
+			}
 		}
-		if item_obj.Network.ValueStringPointer() != nil {
-			data.Network = models.ToPointer(item_obj.Network.ValueString())
-		}
-		if !item_obj.TacacctServers.IsNull() && !item_obj.TacacctServers.IsUnknown() {
-			data.AcctServers = TacacsAcctServersTerraformToSdk(ctx, diags, item_obj.TacacctServers)
-		}
-		if !item_obj.TacplusServers.IsNull() && !item_obj.TacplusServers.IsUnknown() {
-			data.TacplusServers = TacacsAuthServersTerraformToSdk(ctx, diags, item_obj.TacplusServers)
-		}
-		if item_obj.DefaultRole.ValueStringPointer() != nil {
-			data.DefaultRole = models.ToPointer(models.TacacsDefaultRoleEnum(item_obj.DefaultRole.ValueString()))
-		}
-
 		return &data
 	}
 }

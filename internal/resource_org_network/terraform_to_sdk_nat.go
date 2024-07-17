@@ -39,12 +39,13 @@ func staticNatTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d bas
 
 func sourceNatTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.NetworkSourceNat {
 	data := models.NetworkSourceNat{}
-	if d.IsNull() || d.IsUnknown() {
-		return &data
-	} else {
-		var d_interface interface{} = d
-		d_plan := d_interface.(SourceNatValue)
-		data.ExteralIp = d_plan.ExteralIp.ValueStringPointer()
-		return &data
+	if !d.IsNull() || !d.IsUnknown() {
+		plan, e := NewSourceNatValue(d.AttributeTypes(ctx), d.Attributes())
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			data.ExteralIp = plan.ExteralIp.ValueStringPointer()
+		}
 	}
+	return &data
 }

@@ -9,11 +9,9 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 func idpProfileMatchingSeverityTerraformToSdk(ctx context.Context, list basetypes.ListValue) []models.IdpProfileMatchingSeverityValueEnum {
-	tflog.Debug(ctx, "idpProfileMatchingSeverityTerraformToSdk")
 	var items []models.IdpProfileMatchingSeverityValueEnum
 	for _, item := range list.Elements() {
 		s := models.IdpProfileMatchingSeverityValueEnum(item.String())
@@ -23,30 +21,28 @@ func idpProfileMatchingSeverityTerraformToSdk(ctx context.Context, list basetype
 }
 
 func idpProfileMatchingTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.IdpProfileMatching {
-	tflog.Debug(ctx, "idpProfileMatchingTerraformToSdk")
 	data := models.IdpProfileMatching{}
-	if d.IsNull() || d.IsUnknown() {
-		return &data
-	} else {
-		var d_interface interface{} = d
-		plan := d_interface.(IpdProfileOverwriteMatchingValue)
+	if !d.IsNull() || !d.IsUnknown() {
+		plan, e := NewIpdProfileOverwriteMatchingValue(d.AttributeTypes(ctx), d.Attributes())
+		if e != nil {
+			diags.Append(e...)
+		} else {
 
-		if !plan.AttackName.IsNull() && !plan.AttackName.IsUnknown() {
-			data.AttackName = mist_transform.ListOfStringTerraformToSdk(ctx, plan.AttackName)
+			if !plan.AttackName.IsNull() && !plan.AttackName.IsUnknown() {
+				data.AttackName = mist_transform.ListOfStringTerraformToSdk(ctx, plan.AttackName)
+			}
+			if !plan.DstSubnet.IsNull() && !plan.DstSubnet.IsUnknown() {
+				data.DstSubnet = mist_transform.ListOfStringTerraformToSdk(ctx, plan.DstSubnet)
+			}
+			if !plan.Severity.IsNull() && !plan.Severity.IsUnknown() {
+				data.Severity = idpProfileMatchingSeverityTerraformToSdk(ctx, plan.Severity)
+			}
 		}
-		if !plan.DstSubnet.IsNull() && !plan.DstSubnet.IsUnknown() {
-			data.DstSubnet = mist_transform.ListOfStringTerraformToSdk(ctx, plan.DstSubnet)
-		}
-		if !plan.Severity.IsNull() && !plan.Severity.IsUnknown() {
-			data.Severity = idpProfileMatchingSeverityTerraformToSdk(ctx, plan.Severity)
-		}
-
-		return &data
 	}
+	return &data
 }
 
 func idpProfileOverwritesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.IdpProfileOverwrite {
-	tflog.Debug(ctx, "idpProfileOverwritesTerraformToSdk")
 	var data_list []models.IdpProfileOverwrite
 	for _, v := range d.Elements() {
 		var v_interface interface{} = v
@@ -66,7 +62,6 @@ func idpProfileOverwritesTerraformToSdk(ctx context.Context, diags *diag.Diagnos
 }
 
 func idpProfileTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.IdpProfile {
-	tflog.Debug(ctx, "idpProfileTerraformToSdk")
 	data_map := make(map[string]models.IdpProfile)
 	for k, v := range d.Elements() {
 		var v_interface interface{} = v

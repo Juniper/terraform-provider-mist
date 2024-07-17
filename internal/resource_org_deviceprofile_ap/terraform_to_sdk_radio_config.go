@@ -20,135 +20,132 @@ func channelsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d base
 }
 
 func band24TerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.ApRadioBand24 {
-	if d.IsNull() || d.IsUnknown() {
-		return nil
-	} else {
-		var di interface{} = d
-		plan := di.(Band24Value)
-		data := models.ApRadioBand24{}
-		if plan.AllowRrmDisable.ValueBoolPointer() != nil {
-			data.AllowRrmDisable = plan.AllowRrmDisable.ValueBoolPointer()
+	data := models.ApRadioBand24{}
+	if !d.IsNull() || !d.IsUnknown() {
+		plan, e := NewBand24Value(d.AttributeTypes(ctx), d.Attributes())
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			if plan.AllowRrmDisable.ValueBoolPointer() != nil {
+				data.AllowRrmDisable = plan.AllowRrmDisable.ValueBoolPointer()
+			}
+			if plan.AntGain.ValueInt64Pointer() != nil {
+				data.AntGain = models.NewOptional(models.ToPointer(int(plan.AntGain.ValueInt64())))
+			}
+			if plan.AntennaMode.ValueStringPointer() != nil {
+				data.AntennaMode = models.ToPointer(models.RadioBandAntennaModeEnum(plan.AntennaMode.ValueString()))
+			}
+			if plan.Bandwidth.ValueInt64Pointer() != nil {
+				data.Bandwidth = models.ToPointer(models.Dot11Bandwidth24Enum(plan.Bandwidth.ValueInt64()))
+			}
+			if !plan.Channels.IsNull() && !plan.Channels.IsUnknown() {
+				data.Channels = models.NewOptional(models.ToPointer(channelsTerraformToSdk(ctx, diags, plan.Channels)))
+			}
+			if plan.Disabled.ValueBoolPointer() != nil {
+				data.Disabled = plan.Disabled.ValueBoolPointer()
+			}
+			if plan.Power.ValueInt64Pointer() != nil {
+				data.Power = models.NewOptional(models.ToPointer(int(plan.Power.ValueInt64())))
+			}
+			if plan.PowerMax.ValueInt64Pointer() != nil {
+				data.PowerMax = models.NewOptional(models.ToPointer(int(plan.PowerMax.ValueInt64())))
+			}
+			if plan.PowerMin.ValueInt64Pointer() != nil {
+				data.PowerMin = models.NewOptional(models.ToPointer(int(plan.PowerMin.ValueInt64())))
+			}
+			if plan.Preamble.ValueStringPointer() != nil {
+				data.Preamble = models.ToPointer(models.RadioBandPreambleEnum(plan.Preamble.ValueString()))
+			}
 		}
-		if plan.AntGain.ValueInt64Pointer() != nil {
-			data.AntGain = models.NewOptional(models.ToPointer(int(plan.AntGain.ValueInt64())))
-		}
-		if plan.AntennaMode.ValueStringPointer() != nil {
-			data.AntennaMode = models.ToPointer(models.RadioBandAntennaModeEnum(plan.AntennaMode.ValueString()))
-		}
-		if plan.Bandwidth.ValueInt64Pointer() != nil {
-			data.Bandwidth = models.ToPointer(models.Dot11Bandwidth24Enum(plan.Bandwidth.ValueInt64()))
-		}
-		if !plan.Channels.IsNull() && !plan.Channels.IsUnknown() {
-			data.Channels = models.NewOptional(models.ToPointer(channelsTerraformToSdk(ctx, diags, plan.Channels)))
-		}
-		if plan.Disabled.ValueBoolPointer() != nil {
-			data.Disabled = plan.Disabled.ValueBoolPointer()
-		}
-		if plan.Power.ValueInt64Pointer() != nil {
-			data.Power = models.NewOptional(models.ToPointer(int(plan.Power.ValueInt64())))
-		}
-		if plan.PowerMax.ValueInt64Pointer() != nil {
-			data.PowerMax = models.NewOptional(models.ToPointer(int(plan.PowerMax.ValueInt64())))
-		}
-		if plan.PowerMin.ValueInt64Pointer() != nil {
-			data.PowerMin = models.NewOptional(models.ToPointer(int(plan.PowerMin.ValueInt64())))
-		}
-		if plan.Preamble.ValueStringPointer() != nil {
-			data.Preamble = models.ToPointer(models.RadioBandPreambleEnum(plan.Preamble.ValueString()))
-		}
-
-		return &data
 	}
+	return &data
 }
 
 func band5TerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.ApRadioBand5 {
-	if d.IsNull() || d.IsUnknown() {
-		return nil
-	} else {
-		var di interface{} = d
-		plan := di.(Band5Value)
-		data := models.ApRadioBand5{}
-
-		if plan.AllowRrmDisable.ValueBoolPointer() != nil {
-			data.AllowRrmDisable = plan.AllowRrmDisable.ValueBoolPointer()
+	data := models.ApRadioBand5{}
+	if !d.IsNull() || !d.IsUnknown() {
+		plan, e := NewBand5Value(d.AttributeTypes(ctx), d.Attributes())
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			if plan.AllowRrmDisable.ValueBoolPointer() != nil {
+				data.AllowRrmDisable = plan.AllowRrmDisable.ValueBoolPointer()
+			}
+			if plan.AntGain.ValueInt64Pointer() != nil {
+				data.AntGain = models.NewOptional(models.ToPointer(int(plan.AntGain.ValueInt64())))
+			}
+			if plan.AntennaMode.ValueStringPointer() != nil {
+				data.AntennaMode = models.ToPointer(models.RadioBandAntennaModeEnum(plan.AntennaMode.ValueString()))
+			}
+			if plan.Bandwidth.ValueInt64Pointer() != nil {
+				data.Bandwidth = models.ToPointer(models.Dot11Bandwidth5Enum(plan.Bandwidth.ValueInt64()))
+			}
+			if !plan.Channels.IsNull() && !plan.Channels.IsUnknown() {
+				data.Channels = models.NewOptional(models.ToPointer(channelsTerraformToSdk(ctx, diags, plan.Channels)))
+			}
+			if plan.Disabled.ValueBoolPointer() != nil {
+				data.Disabled = plan.Disabled.ValueBoolPointer()
+			}
+			if plan.Power.ValueInt64Pointer() != nil {
+				data.Power = models.NewOptional(models.ToPointer(int(plan.Power.ValueInt64())))
+			}
+			if plan.PowerMax.ValueInt64Pointer() != nil {
+				data.PowerMax = models.NewOptional(models.ToPointer(int(plan.PowerMax.ValueInt64())))
+			}
+			if plan.PowerMin.ValueInt64Pointer() != nil {
+				data.PowerMin = models.NewOptional(models.ToPointer(int(plan.PowerMin.ValueInt64())))
+			}
+			if plan.Preamble.ValueStringPointer() != nil {
+				data.Preamble = models.ToPointer(models.RadioBandPreambleEnum(plan.Preamble.ValueString()))
+			}
 		}
-		if plan.AntGain.ValueInt64Pointer() != nil {
-			data.AntGain = models.NewOptional(models.ToPointer(int(plan.AntGain.ValueInt64())))
-		}
-		if plan.AntennaMode.ValueStringPointer() != nil {
-			data.AntennaMode = models.ToPointer(models.RadioBandAntennaModeEnum(plan.AntennaMode.ValueString()))
-		}
-		if plan.Bandwidth.ValueInt64Pointer() != nil {
-			data.Bandwidth = models.ToPointer(models.Dot11Bandwidth5Enum(plan.Bandwidth.ValueInt64()))
-		}
-		if !plan.Channels.IsNull() && !plan.Channels.IsUnknown() {
-			data.Channels = models.NewOptional(models.ToPointer(channelsTerraformToSdk(ctx, diags, plan.Channels)))
-		}
-		if plan.Disabled.ValueBoolPointer() != nil {
-			data.Disabled = plan.Disabled.ValueBoolPointer()
-		}
-		if plan.Power.ValueInt64Pointer() != nil {
-			data.Power = models.NewOptional(models.ToPointer(int(plan.Power.ValueInt64())))
-		}
-		if plan.PowerMax.ValueInt64Pointer() != nil {
-			data.PowerMax = models.NewOptional(models.ToPointer(int(plan.PowerMax.ValueInt64())))
-		}
-		if plan.PowerMin.ValueInt64Pointer() != nil {
-			data.PowerMin = models.NewOptional(models.ToPointer(int(plan.PowerMin.ValueInt64())))
-		}
-		if plan.Preamble.ValueStringPointer() != nil {
-			data.Preamble = models.ToPointer(models.RadioBandPreambleEnum(plan.Preamble.ValueString()))
-		}
-
-		return &data
 	}
+	return &data
 }
 
 func band6TerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.ApRadioBand6 {
-
-	if d.IsNull() || d.IsUnknown() {
-		return nil
-	} else {
-		var di interface{} = d
-		plan := di.(Band6Value)
-		data := models.ApRadioBand6{}
-
-		if plan.AllowRrmDisable.ValueBoolPointer() != nil {
-			data.AllowRrmDisable = plan.AllowRrmDisable.ValueBoolPointer()
+	data := models.ApRadioBand6{}
+	if !d.IsNull() || !d.IsUnknown() {
+		plan, e := NewBand6Value(d.AttributeTypes(ctx), d.Attributes())
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			if plan.AllowRrmDisable.ValueBoolPointer() != nil {
+				data.AllowRrmDisable = plan.AllowRrmDisable.ValueBoolPointer()
+			}
+			if plan.AntGain.ValueInt64Pointer() != nil {
+				data.AntGain = models.NewOptional(models.ToPointer(int(plan.AntGain.ValueInt64())))
+			}
+			if plan.AntennaMode.ValueStringPointer() != nil {
+				data.AntennaMode = models.ToPointer(models.RadioBandAntennaModeEnum(plan.AntennaMode.ValueString()))
+			}
+			if plan.Bandwidth.ValueInt64Pointer() != nil {
+				data.Bandwidth = models.ToPointer(models.Dot11Bandwidth6Enum(plan.Bandwidth.ValueInt64()))
+			}
+			if !plan.Channels.IsNull() && !plan.Channels.IsUnknown() {
+				data.Channels = models.NewOptional(models.ToPointer(channelsTerraformToSdk(ctx, diags, plan.Channels)))
+			}
+			if plan.Disabled.ValueBoolPointer() != nil {
+				data.Disabled = plan.Disabled.ValueBoolPointer()
+			}
+			if plan.Power.ValueInt64Pointer() != nil {
+				data.Power = models.NewOptional(models.ToPointer(int(plan.Power.ValueInt64())))
+			}
+			if plan.PowerMax.ValueInt64Pointer() != nil {
+				data.PowerMax = models.NewOptional(models.ToPointer(int(plan.PowerMax.ValueInt64())))
+			}
+			if plan.PowerMin.ValueInt64Pointer() != nil {
+				data.PowerMin = models.NewOptional(models.ToPointer(int(plan.PowerMin.ValueInt64())))
+			}
+			if plan.Preamble.ValueStringPointer() != nil {
+				data.Preamble = models.ToPointer(models.RadioBandPreambleEnum(plan.Preamble.ValueString()))
+			}
+			if plan.StandardPower.ValueBoolPointer() != nil {
+				data.StandardPower = plan.StandardPower.ValueBoolPointer()
+			}
 		}
-		if plan.AntGain.ValueInt64Pointer() != nil {
-			data.AntGain = models.NewOptional(models.ToPointer(int(plan.AntGain.ValueInt64())))
-		}
-		if plan.AntennaMode.ValueStringPointer() != nil {
-			data.AntennaMode = models.ToPointer(models.RadioBandAntennaModeEnum(plan.AntennaMode.ValueString()))
-		}
-		if plan.Bandwidth.ValueInt64Pointer() != nil {
-			data.Bandwidth = models.ToPointer(models.Dot11Bandwidth6Enum(plan.Bandwidth.ValueInt64()))
-		}
-		if !plan.Channels.IsNull() && !plan.Channels.IsUnknown() {
-			data.Channels = models.NewOptional(models.ToPointer(channelsTerraformToSdk(ctx, diags, plan.Channels)))
-		}
-		if plan.Disabled.ValueBoolPointer() != nil {
-			data.Disabled = plan.Disabled.ValueBoolPointer()
-		}
-		if plan.Power.ValueInt64Pointer() != nil {
-			data.Power = models.NewOptional(models.ToPointer(int(plan.Power.ValueInt64())))
-		}
-		if plan.PowerMax.ValueInt64Pointer() != nil {
-			data.PowerMax = models.NewOptional(models.ToPointer(int(plan.PowerMax.ValueInt64())))
-		}
-		if plan.PowerMin.ValueInt64Pointer() != nil {
-			data.PowerMin = models.NewOptional(models.ToPointer(int(plan.PowerMin.ValueInt64())))
-		}
-		if plan.Preamble.ValueStringPointer() != nil {
-			data.Preamble = models.ToPointer(models.RadioBandPreambleEnum(plan.Preamble.ValueString()))
-		}
-		if plan.StandardPower.ValueBoolPointer() != nil {
-			data.StandardPower = plan.StandardPower.ValueBoolPointer()
-		}
-
-		return &data
 	}
+	return &data
 }
 
 func radioConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, plan RadioConfigValue) *models.ApRadio {
