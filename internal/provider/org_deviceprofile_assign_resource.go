@@ -12,7 +12,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
@@ -239,7 +238,7 @@ func (r *orgDeviceprofileAssignResource) Delete(ctx context.Context, req resourc
 		return
 	}
 
-	plan_macs := basetypes.NewListNull(types.StringType)
+	plan_macs := types.ListNull(types.StringType)
 	macs_to_unassign, _, e := resource_org_deviceprofile_assign.TerraformToSdk(ctx, plan_macs, state.Macs)
 	if e != nil {
 		diags.Append(e...)
