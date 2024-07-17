@@ -10,7 +10,6 @@ import (
 )
 
 func wiredVnaTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d WiredVnaValue) *models.SiteSettingWiredVna {
-	tflog.Debug(ctx, "wiredVnaTerraformToSdk")
 	data := models.SiteSettingWiredVna{}
 
 	data.Enabled = d.Enabled.ValueBool()

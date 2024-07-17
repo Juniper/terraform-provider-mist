@@ -10,7 +10,6 @@ import (
 )
 
 func wanVnaTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d WanVnaValue) *models.SiteSettingWanVna {
-	tflog.Debug(ctx, "wanVnaTerraformToSdk")
 	data := models.SiteSettingWanVna{}
 
 	data.Enabled = d.Enabled.ValueBool()

@@ -11,11 +11,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 func engagementDwellTagNamesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteEngagementDwellTagNames) basetypes.ObjectValue {
-	tflog.Debug(ctx, "engagementDwellTagNamesSdkToTerraform")
 	var bounce basetypes.StringValue
 	var engaged basetypes.StringValue
 	var passerby basetypes.StringValue
@@ -48,7 +46,6 @@ func engagementDwellTagNamesSdkToTerraform(ctx context.Context, diags *diag.Diag
 }
 
 func engagementDwellTagsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteEngagementDwellTags) basetypes.ObjectValue {
-	tflog.Debug(ctx, "engagementDwellTagsSdkToTerraform")
 
 	var bounce basetypes.StringValue
 	var engaged basetypes.StringValue
@@ -82,7 +79,6 @@ func engagementDwellTagsSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 }
 
 func engagementSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteEngagement) EngagementValue {
-	tflog.Debug(ctx, "engagementSdkToTerraform")
 
 	var dwell_tag_names basetypes.ObjectValue = types.ObjectNull(DwellTagNamesValue{}.AttributeTypes(ctx))
 	var dwell_tags basetypes.ObjectValue = types.ObjectNull(DwellTagsValue{}.AttributeTypes(ctx))

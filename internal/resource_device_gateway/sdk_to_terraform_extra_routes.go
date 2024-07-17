@@ -9,11 +9,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 func extraRoutesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.GatewayExtraRoute) basetypes.MapValue {
-	tflog.Debug(ctx, "extraRoutesSdkToTerraform")
 
 	state_value_map_value := make(map[string]attr.Value)
 	for k, d := range m {

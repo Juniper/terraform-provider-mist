@@ -13,7 +13,6 @@ import (
 )
 
 func vnaSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteSettingVna) VnaValue {
-	tflog.Debug(ctx, "vnaSdkToTerraform")
 
 	var enabled basetypes.BoolValue
 

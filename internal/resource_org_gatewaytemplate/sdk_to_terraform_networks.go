@@ -9,14 +9,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	mist_network "github.com/Juniper/terraform-provider-mist/internal/resource_org_network"
 )
 
 func NetworksSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m []models.Network) basetypes.ListValue {
-	tflog.Debug(ctx, "NetworksSdkToTerraform")
 	var data_list = []NetworksValue{}
 
 	for _, d := range m {

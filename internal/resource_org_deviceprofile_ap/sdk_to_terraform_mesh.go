@@ -7,13 +7,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
 func meshSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ApMesh) MeshValue {
-	tflog.Debug(ctx, "meshSdkToTerraform")
 
 	var enabled basetypes.BoolValue
 	var group basetypes.Int64Value

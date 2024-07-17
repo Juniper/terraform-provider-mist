@@ -9,13 +9,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func bleConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.BleConfig) BleConfigValue {
-	tflog.Debug(ctx, "bleConfigsSdkToTerraform")
 
 	var beacon_enabled basetypes.BoolValue
 	var beacon_rate basetypes.Int64Value

@@ -9,13 +9,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func servicePolicyAppQoESdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ServicePolicyAppqoe) basetypes.ObjectValue {
-	tflog.Debug(ctx, "servicePolicyAppQoESdkToTerraform")
 	var enabled basetypes.BoolValue = types.BoolValue(false)
 
 	if d != nil && d.Enabled != nil {
@@ -32,7 +30,6 @@ func servicePolicyAppQoESdkToTerraform(ctx context.Context, diags *diag.Diagnost
 }
 
 func servicePolicyEwfSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d []models.ServicePolicyEwfRule) basetypes.ListValue {
-	tflog.Debug(ctx, "servicePolicyEwfSdkToTerraform")
 	var data_list = []EwfValue{}
 	for _, v := range d {
 		var alert_only basetypes.BoolValue
@@ -71,7 +68,6 @@ func servicePolicyEwfSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 }
 
 func servicePolicyIdpSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.IdpConfig) basetypes.ObjectValue {
-	tflog.Debug(ctx, "servicePolicyIdpSdkToTerraform")
 	var alert_only basetypes.BoolValue
 	var enabled basetypes.BoolValue = types.BoolValue(false)
 	var idpprofile_id basetypes.StringValue
@@ -103,7 +99,6 @@ func servicePolicyIdpSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 }
 
 func servicePoliciesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d []models.ServicePolicy) basetypes.ListValue {
-	tflog.Debug(ctx, "servicePoliciesSdkToTerraform")
 	var data_list = []ServicePoliciesValue{}
 
 	for _, v := range d {

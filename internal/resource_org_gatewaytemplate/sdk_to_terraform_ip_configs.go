@@ -9,13 +9,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func ipConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.GatewayIpConfigProperty) basetypes.MapValue {
-	tflog.Debug(ctx, "ipConfigsSdkToTerraform")
 
 	state_value_map := make(map[string]attr.Value)
 	for k, d := range m {

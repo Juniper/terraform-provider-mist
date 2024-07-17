@@ -13,7 +13,6 @@ import (
 )
 
 func wanVnaSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteSettingWanVna) WanVnaValue {
-	tflog.Debug(ctx, "wanVnaSdkToTerraform")
 
 	var enabled basetypes.BoolValue
 

@@ -9,11 +9,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 func widsAuthFailureSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteWidsRepeatedAuthFailures) basetypes.ObjectValue {
-	tflog.Debug(ctx, "widsAuthFailureSdkToTerraform")
 
 	var duration basetypes.Int64Value
 	var threshold basetypes.Int64Value
@@ -37,7 +35,6 @@ func widsAuthFailureSdkToTerraform(ctx context.Context, diags *diag.Diagnostics,
 }
 
 func widsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteWids) WidsValue {
-	tflog.Debug(ctx, "widsSdkToTerraform")
 
 	var repeated_auth_failures basetypes.ObjectValue = types.ObjectNull(RepeatedAuthFailuresValue{}.AttributeTypes(ctx))
 

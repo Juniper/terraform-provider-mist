@@ -5,13 +5,11 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
 func widsAuthFailureTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, o basetypes.ObjectValue) *models.SiteWidsRepeatedAuthFailures {
-	tflog.Debug(ctx, "widsAuthFailureTerraformToSdk")
 	data := models.SiteWidsRepeatedAuthFailures{}
 	if o.IsNull() || o.IsUnknown() {
 		return &data
@@ -24,7 +22,6 @@ func widsAuthFailureTerraformToSdk(ctx context.Context, diags *diag.Diagnostics,
 }
 
 func widsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d WidsValue) *models.SiteWids {
-	tflog.Debug(ctx, "widsTerraformToSdk")
 	data := models.SiteWids{}
 
 	if !d.IsNull() {

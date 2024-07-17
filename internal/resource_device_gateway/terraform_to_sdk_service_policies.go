@@ -11,11 +11,9 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 func servicePolicyAppqoeTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.ServicePolicyAppqoe {
-	tflog.Debug(ctx, "servicePolicyAppqoeTerraformToSdk")
 	data := models.ServicePolicyAppqoe{}
 	if d.IsNull() || d.IsUnknown() {
 		return nil
@@ -29,7 +27,6 @@ func servicePolicyAppqoeTerraformToSdk(ctx context.Context, diags *diag.Diagnost
 }
 
 func servicePolicyEwfRuleTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.ServicePolicyEwfRule {
-	tflog.Debug(ctx, "servicePolicyEwfRuleTerraformToSdk")
 	var data_list []models.ServicePolicyEwfRule
 	for _, v := range d.Elements() {
 		var v_interface interface{} = v
@@ -54,7 +51,6 @@ func servicePolicyEwfRuleTerraformToSdk(ctx context.Context, diags *diag.Diagnos
 }
 
 func idpConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.IdpConfig {
-	tflog.Debug(ctx, "idpConfigTerraformToSdk")
 	data := models.IdpConfig{}
 	if d.IsNull() || d.IsUnknown() {
 		return nil
@@ -84,7 +80,6 @@ func idpConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d bas
 }
 
 func servicePoliciesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.ServicePolicy {
-	tflog.Debug(ctx, "servicePoliciesTerraformToSdk")
 	var data_list []models.ServicePolicy
 	for _, v := range d.Elements() {
 		var v_interface interface{} = v

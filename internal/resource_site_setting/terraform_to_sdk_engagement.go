@@ -5,7 +5,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -13,7 +12,6 @@ import (
 )
 
 func engagementDwellTagNamesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.SiteEngagementDwellTagNames {
-	tflog.Debug(ctx, "engagementDwellTagNamesTerraformToSdk")
 	data := models.SiteEngagementDwellTagNames{}
 	if d.IsNull() || d.IsUnknown() {
 		return &data
@@ -29,7 +27,6 @@ func engagementDwellTagNamesTerraformToSdk(ctx context.Context, diags *diag.Diag
 }
 
 func engagementDwellTagsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.SiteEngagementDwellTags {
-	tflog.Debug(ctx, "engagementDwellTagsTerraformToSdk")
 	data := models.SiteEngagementDwellTags{}
 	if d.IsNull() || d.IsUnknown() {
 		return &data
@@ -45,7 +42,6 @@ func engagementDwellTagsTerraformToSdk(ctx context.Context, diags *diag.Diagnost
 }
 
 func engagementTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d EngagementValue) *models.SiteEngagement {
-	tflog.Debug(ctx, "engagementTerraformToSdk")
 	data := models.SiteEngagement{}
 
 	data.DwellTagNames = engagementDwellTagNamesTerraformToSdk(ctx, diags, d.DwellTagNames)

@@ -9,11 +9,9 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 func pathPreferencePathsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.GatewayPathPreferencesPath {
-	tflog.Debug(ctx, "pathPreferencePathsTerraformToSdk")
 	var data_list []models.GatewayPathPreferencesPath
 	for _, v := range d.Elements() {
 		var v_interface interface{} = v
@@ -53,7 +51,6 @@ func pathPreferencePathsTerraformToSdk(ctx context.Context, diags *diag.Diagnost
 }
 
 func pathPreferencesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.GatewayPathPreferences {
-	tflog.Debug(ctx, "pathPreferencesTerraformToSdk")
 	data_map := make(map[string]models.GatewayPathPreferences)
 	for k, v := range d.Elements() {
 		var v_interface interface{} = v

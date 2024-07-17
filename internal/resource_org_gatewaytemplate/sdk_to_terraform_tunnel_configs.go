@@ -9,13 +9,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func tunnelConfigAutoProvNodeSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.TunnelConfigsAutoProvisionNode, r_type map[string]attr.Type) basetypes.ObjectValue {
-	tflog.Debug(ctx, "tunnelConfigAutoProvNodeSdkToTerraform")
 
 	var num_hosts basetypes.StringValue
 	var wan_names basetypes.ListValue = types.ListNull(types.StringType)
@@ -37,7 +35,6 @@ func tunnelConfigAutoProvNodeSdkToTerraform(ctx context.Context, diags *diag.Dia
 }
 
 func tunnelConfigAutoProvSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.TunnelConfigsAutoProvision) basetypes.ObjectValue {
-	tflog.Debug(ctx, "tunnelConfigAutoProvSdkToTerraform")
 
 	var primary basetypes.ObjectValue = types.ObjectNull(PrimaryValue{}.AttributeTypes(ctx))
 	var secondary basetypes.ObjectValue = types.ObjectNull(SecondaryValue{}.AttributeTypes(ctx))
@@ -87,7 +84,6 @@ func tunnelConfigAutoProvSdkToTerraform(ctx context.Context, diags *diag.Diagnos
 }
 
 func tunnelConfigIkeProposalSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.GatewayTemplateTunnelIkeProposal) basetypes.ListValue {
-	tflog.Debug(ctx, "tunnelConfigIkeProposalSdkToTerraform")
 	var data_list = []IkeProposalsValue{}
 	for _, d := range l {
 
@@ -123,7 +119,6 @@ func tunnelConfigIkeProposalSdkToTerraform(ctx context.Context, diags *diag.Diag
 }
 
 func tunnelConfigIpsecProposalSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.GatewayTemplateTunnelIpsecProposal) basetypes.ListValue {
-	tflog.Debug(ctx, "tunnelConfigIpsecProposalSdkToTerraform")
 	var data_list = []IpsecProposalsValue{}
 	for _, d := range l {
 		var auth_algo basetypes.StringValue
@@ -158,7 +153,6 @@ func tunnelConfigIpsecProposalSdkToTerraform(ctx context.Context, diags *diag.Di
 }
 
 func tunnelConfigNodeSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.GatewayTemplateTunnelNode, data_map_attr_type map[string]attr.Type) basetypes.ObjectValue {
-	tflog.Debug(ctx, "tunnelConfigNodeSdkToTerraform")
 	var hosts basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 	var internal_ips basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 	var probe_ips basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
@@ -195,7 +189,6 @@ func tunnelConfigNodeSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 }
 
 func tunnelConfigProbeSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.GatewayTemplateTunnelProbe) basetypes.ObjectValue {
-	tflog.Debug(ctx, "tunnelConfigProbeSdkToTerraform")
 	var interval basetypes.Int64Value
 	var threshold basetypes.Int64Value
 	var timeout basetypes.Int64Value
@@ -228,7 +221,6 @@ func tunnelConfigProbeSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 }
 
 func tunnelConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.TunnelConfigs) basetypes.MapValue {
-	tflog.Debug(ctx, "tunnelConfigsSdkToTerraform")
 
 	state_value_map := make(map[string]attr.Value)
 	for k, d := range m {

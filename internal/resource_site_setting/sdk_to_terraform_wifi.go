@@ -9,11 +9,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 func wifiSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteWifi) WifiValue {
-	tflog.Debug(ctx, "wifiSdkToTerraform")
 	var cisco_enabled basetypes.BoolValue
 	var disable_11k basetypes.BoolValue
 	var disable_radios_when_power_constrained basetypes.BoolValue

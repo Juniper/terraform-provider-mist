@@ -9,13 +9,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func ssrSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteSettingSsr) SsrValue {
-	tflog.Debug(ctx, "ssrSdkToTerraform")
 
 	var conductor_hosts basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 	var disable_stats basetypes.BoolValue

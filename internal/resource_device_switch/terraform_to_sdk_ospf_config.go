@@ -7,7 +7,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 func ospfConfigAreasTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.OspfConfigArea {
@@ -25,7 +24,6 @@ func ospfConfigAreasTerraformToSdk(ctx context.Context, diags *diag.Diagnostics,
 }
 
 func ospfConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d OspfConfigValue) *models.OspfConfig {
-	tflog.Debug(ctx, "ospfConfigTerraformToSdk")
 
 	data := models.OspfConfig{}
 

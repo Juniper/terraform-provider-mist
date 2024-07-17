@@ -10,13 +10,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func idpProfileOverwriteMatchingSeveritiesSdkToTerraform(ctx context.Context, data []models.IdpProfileMatchingSeverityValueEnum) basetypes.ListValue {
-	tflog.Debug(ctx, "idpProfileOverwriteMatchingSeveritiesSdkToTerraform")
 	var items []attr.Value
 	var items_type attr.Type = basetypes.StringType{}
 	for _, item := range data {
@@ -28,7 +26,6 @@ func idpProfileOverwriteMatchingSeveritiesSdkToTerraform(ctx context.Context, da
 }
 
 func idpProfileOverwriteMatchingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.IdpProfileMatching) basetypes.ObjectValue {
-	tflog.Debug(ctx, "idpProfileOverwriteMatchingSdkToTerraform")
 
 	var attack_name basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 	var dst_subnet basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
@@ -57,7 +54,6 @@ func idpProfileOverwriteMatchingSdkToTerraform(ctx context.Context, diags *diag.
 }
 
 func idpProfileOverwritesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.IdpProfileOverwrite) basetypes.ListValue {
-	tflog.Debug(ctx, "idpProfileOverwritesSdkToTerraform")
 	var data_list = []OverwritesValue{}
 
 	for _, d := range l {
@@ -88,7 +84,6 @@ func idpProfileOverwritesSdkToTerraform(ctx context.Context, diags *diag.Diagnos
 }
 
 func idpProfileSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.IdpProfile) basetypes.MapValue {
-	tflog.Debug(ctx, "idpProfileSdkToTerraform")
 
 	state_value_map := make(map[string]attr.Value)
 	for k, d := range m {

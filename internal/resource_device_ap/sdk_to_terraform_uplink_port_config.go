@@ -7,13 +7,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
 func uplinkPortConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ApUplinkPortConfig) UplinkPortConfigValue {
-	tflog.Debug(ctx, "uplinkPortConfigSdkToTerraform")
 	var dot1x basetypes.BoolValue
 	var keep_wlans_up_if_down basetypes.BoolValue
 

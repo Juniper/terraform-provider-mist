@@ -9,11 +9,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 func simpleAlertArpSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SimpleAlertArpFailure) basetypes.ObjectValue {
-	tflog.Debug(ctx, "simpleAlertArpSdkToTerraform")
 	var client_count basetypes.Int64Value
 	var duration basetypes.Int64Value
 	var incident_count basetypes.Int64Value
@@ -40,7 +38,6 @@ func simpleAlertArpSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 	return data
 }
 func simpleAlertDnsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SimpleAlertDnsFailure) basetypes.ObjectValue {
-	tflog.Debug(ctx, "simpleAlertDnsSdkToTerraform")
 	var client_count basetypes.Int64Value
 	var duration basetypes.Int64Value
 	var incident_count basetypes.Int64Value
@@ -67,7 +64,6 @@ func simpleAlertDnsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 	return data
 }
 func simpleAlertDhcpSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SimpleAlertDhcpFailure) basetypes.ObjectValue {
-	tflog.Debug(ctx, "simpleAlertDhcpSdkToTerraform")
 
 	var client_count basetypes.Int64Value
 	var duration basetypes.Int64Value
@@ -96,7 +92,6 @@ func simpleAlertDhcpSdkToTerraform(ctx context.Context, diags *diag.Diagnostics,
 }
 
 func simpleAlertSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SimpleAlert) SimpleAlertValue {
-	tflog.Debug(ctx, "simpleAlertSdkToTerraform")
 	var arp_failure basetypes.ObjectValue = types.ObjectNull(ArpFailureValue{}.AttributeTypes(ctx))
 	var dhcp_failure basetypes.ObjectValue = types.ObjectNull(DhcpFailureValue{}.AttributeTypes(ctx))
 	var dns_failure basetypes.ObjectValue = types.ObjectNull(DnsFailureValue{}.AttributeTypes(ctx))

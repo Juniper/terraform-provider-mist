@@ -7,13 +7,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
 func pwrConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ApPwrConfig) PwrConfigValue {
-	tflog.Debug(ctx, "pwrConfigSdkToTerraform")
 	var base basetypes.Int64Value
 	var prefer_usb_over_wifi basetypes.BoolValue
 

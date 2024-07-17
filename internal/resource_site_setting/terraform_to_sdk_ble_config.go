@@ -5,7 +5,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
@@ -13,7 +12,6 @@ import (
 )
 
 func siteSettingBleConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d BleConfigValue) *models.BleConfig {
-	tflog.Debug(ctx, "siteSettingBleConfigTerraformToSdk")
 	data := models.BleConfig{}
 
 	if d.BeaconEnabled.ValueBoolPointer() != nil {

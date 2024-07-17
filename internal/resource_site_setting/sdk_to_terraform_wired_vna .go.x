@@ -13,7 +13,6 @@ import (
 )
 
 func wiredVnaSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteSettingWiredVna) WiredVnaValue {
-	tflog.Debug(ctx, "wiredVnaSdkToTerraform")
 
 	var enabled basetypes.BoolValue
 

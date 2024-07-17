@@ -10,7 +10,6 @@ import (
 )
 
 func srxAppTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d SrxAppValue) *models.SiteSettingSrxApp {
-	tflog.Debug(ctx, "srxAppTerraformToSdk")
 	data := models.SiteSettingSrxApp{}
 
 	data.Enabled = d.Enabled.ValueBoolPointer()

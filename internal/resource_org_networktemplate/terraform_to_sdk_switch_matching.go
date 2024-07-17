@@ -5,7 +5,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
@@ -90,7 +89,6 @@ func switchMatchingRulesPortConfigTerraformToSdk(ctx context.Context, diags *dia
 	return data
 }
 func switchMatchingRulesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.SwitchMatchingRule {
-	tflog.Debug(ctx, "switchMatchingRulesTerraformToSdk")
 
 	var data []models.SwitchMatchingRule
 	for _, v := range d.Elements() {

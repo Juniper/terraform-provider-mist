@@ -4,13 +4,11 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
 func meshTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d MeshValue) *models.ApMesh {
-	tflog.Debug(ctx, "meshTerraformToSdk")
 	data := models.ApMesh{}
 
 	if d.Enabled.ValueBoolPointer() != nil {

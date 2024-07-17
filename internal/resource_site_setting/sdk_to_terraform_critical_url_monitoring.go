@@ -9,11 +9,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 func criticalUrlMonitoringMonitorSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.SiteSettingCriticalUrlMonitoringMonitor) basetypes.ListValue {
-	tflog.Debug(ctx, "criticalUrlMonitoringMonitorSdkToTerraform")
 	var data_list = []MonitorsValue{}
 	for _, d := range l {
 		var url basetypes.StringValue
@@ -43,7 +41,6 @@ func criticalUrlMonitoringMonitorSdkToTerraform(ctx context.Context, diags *diag
 }
 
 func criticalUrlMonitoringSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteSettingCriticalUrlMonitoring) CriticalUrlMonitoringValue {
-	tflog.Debug(ctx, "criticalUrlMonitoringSdkToTerraform")
 	var enabled basetypes.BoolValue
 	var monitors basetypes.ListValue = types.ListNull(MonitorsValue{}.Type(ctx))
 

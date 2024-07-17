@@ -11,11 +11,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 func zoneOccupancySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.SiteZoneOccupancyAlert) ZoneOccupancyAlertValue {
-	tflog.Debug(ctx, "zoneOccupancySdkToTerraform")
 	var email_notifiers basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 	var enabled basetypes.BoolValue
 	var threshold basetypes.Int64Value

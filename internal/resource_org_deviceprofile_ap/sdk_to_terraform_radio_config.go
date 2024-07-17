@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 func band24SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ApRadioBand24) basetypes.ObjectValue {
@@ -206,7 +205,6 @@ func band6SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 }
 
 func radioConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ApRadio) RadioConfigValue {
-	tflog.Debug(ctx, "radioConfigSdkToTerraform")
 
 	var allow_rrm_disable basetypes.BoolValue
 	var ant_gain_24 basetypes.Int64Value

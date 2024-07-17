@@ -7,7 +7,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 func virtualChassisMemberTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.SwitchVirtualChassisMember {
@@ -33,7 +32,6 @@ func virtualChassisMemberTerraformToSdk(ctx context.Context, diags *diag.Diagnos
 }
 
 func virtualChassisTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d VirtualChassisValue) *models.SwitchVirtualChassis {
-	tflog.Debug(ctx, "virtualChassisTerraformToSdk")
 
 	data := models.SwitchVirtualChassis{}
 

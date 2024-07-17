@@ -5,13 +5,11 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
 func simpleAlertArpTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, o basetypes.ObjectValue) *models.SimpleAlertArpFailure {
-	tflog.Debug(ctx, "simpleAlertArpTerraformToSdk")
 	data := models.SimpleAlertArpFailure{}
 	if o.IsNull() || o.IsUnknown() {
 		return &data
@@ -27,7 +25,6 @@ func simpleAlertArpTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, 
 }
 
 func simpleAlertDhcpTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, o basetypes.ObjectValue) *models.SimpleAlertDhcpFailure {
-	tflog.Debug(ctx, "simpleAlertDhcpTerraformToSdk")
 	data := models.SimpleAlertDhcpFailure{}
 	if o.IsNull() || o.IsUnknown() {
 		return &data
@@ -43,7 +40,6 @@ func simpleAlertDhcpTerraformToSdk(ctx context.Context, diags *diag.Diagnostics,
 }
 
 func simpleAlertDnsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, o basetypes.ObjectValue) *models.SimpleAlertDnsFailure {
-	tflog.Debug(ctx, "simpleAlertDnsTerraformToSdk")
 	data := models.SimpleAlertDnsFailure{}
 	if o.IsNull() || o.IsUnknown() {
 		return &data
@@ -59,7 +55,6 @@ func simpleAlertDnsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, 
 }
 
 func simpleAlertTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d SimpleAlertValue) *models.SimpleAlert {
-	tflog.Debug(ctx, "simpleAlertTerraformToSdk")
 	data := models.SimpleAlert{}
 
 	arp := simpleAlertArpTerraformToSdk(ctx, diags, d.ArpFailure)

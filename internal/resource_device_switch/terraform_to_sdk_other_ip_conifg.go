@@ -7,11 +7,9 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 func otherIpConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.JunosOtherIpConfig {
-	tflog.Debug(ctx, "otherIpConfigTerraformToSdk")
 
 	data_map := make(map[string]models.JunosOtherIpConfig)
 	for k, v := range d.Elements() {

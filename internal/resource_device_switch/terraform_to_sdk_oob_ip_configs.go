@@ -6,11 +6,9 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 func oobIpConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d OobIpConfigValue) *models.SwitchOobIpConfig {
-	tflog.Debug(ctx, "oobIpConfigsTerraformToSdk")
 
 	data := models.SwitchOobIpConfig{}
 

@@ -10,7 +10,6 @@ import (
 )
 
 func vnaTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d VnaValue) *models.SiteSettingVna {
-	tflog.Debug(ctx, "vnaTerraformToSdk")
 	data := models.SiteSettingVna{}
 
 	data.Enabled = d.Enabled.ValueBool()

@@ -13,7 +13,6 @@ import (
 )
 
 func analyticSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteOccupancyAnalytics) AnalyticValue {
-	tflog.Debug(ctx, "analyticSdkToTerraform")
 
 	var enabled basetypes.BoolValue
 

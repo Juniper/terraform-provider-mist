@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
@@ -12,7 +11,6 @@ import (
 )
 
 func rogueTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d RogueValue) *models.SiteRogue {
-	tflog.Debug(ctx, "rogueTerraformToSdk")
 	data := models.SiteRogue{}
 
 	data.Enabled = d.Enabled.ValueBoolPointer()

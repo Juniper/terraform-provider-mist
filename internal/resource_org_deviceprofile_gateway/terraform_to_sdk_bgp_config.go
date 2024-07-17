@@ -9,11 +9,9 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 func bgpConfigCommunitiesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.BgpConfigCommunity {
-	tflog.Debug(ctx, "bgpConfigCommunitiesTerraformToSdk")
 
 	var data_list []models.BgpConfigCommunity
 	for _, v := range d.Elements() {
@@ -36,7 +34,6 @@ func bgpConfigCommunitiesTerraformToSdk(ctx context.Context, diags *diag.Diagnos
 }
 
 func bgpConfigNeighborsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.BgpConfigNeighbors {
-	tflog.Debug(ctx, "bgpConfigNeighborsTerraformToSdk")
 	data_map := make(map[string]models.BgpConfigNeighbors)
 	for k, v := range d.Elements() {
 		var v_interface interface{} = v
@@ -68,7 +65,6 @@ func bgpConfigNeighborsTerraformToSdk(ctx context.Context, diags *diag.Diagnosti
 }
 
 func bgpConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.BgpConfig {
-	tflog.Debug(ctx, "bgpConfigTerraformToSdk")
 	data_map := make(map[string]models.BgpConfig)
 	for k, v := range d.Elements() {
 		var v_interface interface{} = v

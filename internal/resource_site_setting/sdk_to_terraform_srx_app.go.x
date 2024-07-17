@@ -13,7 +13,6 @@ import (
 )
 
 func srxAppSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteSettingSrxApp) SrxAppValue {
-	tflog.Debug(ctx, "srxAppSdkToTerraform")
 
 	var enabled basetypes.BoolValue
 

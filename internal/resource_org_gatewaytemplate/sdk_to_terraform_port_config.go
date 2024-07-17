@@ -7,7 +7,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
@@ -15,7 +14,6 @@ import (
 )
 
 func portConfigIpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, g *models.GatewayPortConfigIpConfig) basetypes.ObjectValue {
-	tflog.Debug(ctx, "portConfigIpConfigSdkToTerraform")
 	var dns basetypes.ListValue = types.ListNull(types.StringType)
 	var dns_suffix basetypes.ListValue = types.ListNull(types.StringType)
 	var gateway basetypes.StringValue
@@ -79,7 +77,6 @@ func portConfigIpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 }
 
 func portConfigTrafficShappingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, g *models.GatewayTrafficShaping) basetypes.ObjectValue {
-	tflog.Debug(ctx, "portConfigTrafficShappingSdkToTerraform")
 	var class_percentages basetypes.ListValue = mist_transform.ListOfIntSdkToTerraformEmpty(ctx)
 	var enabled basetypes.BoolValue = types.BoolValue(false)
 
@@ -103,7 +100,6 @@ func portConfigTrafficShappingSdkToTerraform(ctx context.Context, diags *diag.Di
 }
 
 func portConfigVpnPathsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, g map[string]models.GatewayPortVpnPath) basetypes.MapValue {
-	tflog.Debug(ctx, "portConfigVpPathsSdkToTerraform")
 
 	port_usage_type := VpnPathsValue{}.AttributeTypes(ctx)
 	state_value_map := make(map[string]attr.Value)
@@ -149,7 +145,6 @@ func portConfigVpnPathsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 }
 
 func portConfigWanSourceNatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, g *models.GatewayPortWanSourceNat) basetypes.ObjectValue {
-	tflog.Debug(ctx, "portConfigWanSourceNatSdkToTerraform")
 
 	var disabled basetypes.BoolValue = types.BoolValue(false)
 	var nat_pool basetypes.StringValue
@@ -174,7 +169,6 @@ func portConfigWanSourceNatSdkToTerraform(ctx context.Context, diags *diag.Diagn
 }
 
 func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d map[string]models.GatewayPortConfig) basetypes.MapValue {
-	tflog.Debug(ctx, "portConfigSdkToTerraform")
 	port_usage_type := PortConfigValue{}.AttributeTypes(ctx)
 	state_value_map := make(map[string]attr.Value)
 	for k, v := range d {

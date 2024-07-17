@@ -4,13 +4,11 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
 func usbConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d UsbConfigValue) *models.ApUsb {
-	tflog.Debug(ctx, "usbConfigTerraformToSdk")
 	data := models.ApUsb{}
 
 	if d.Cacert.ValueStringPointer() != nil {

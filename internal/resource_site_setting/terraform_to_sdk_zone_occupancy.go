@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
@@ -12,7 +11,6 @@ import (
 )
 
 func zoneOccupancyTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d ZoneOccupancyAlertValue) *models.SiteZoneOccupancyAlert {
-	tflog.Debug(ctx, "zoneOccupancyTerraformToSdk")
 	data := models.SiteZoneOccupancyAlert{}
 
 	data.EmailNotifiers = mist_transform.ListOfStringTerraformToSdk(ctx, d.EmailNotifiers)

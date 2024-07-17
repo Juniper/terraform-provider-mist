@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
@@ -12,7 +11,6 @@ import (
 )
 
 func ssrTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d SsrValue) *models.SiteSettingSsr {
-	tflog.Debug(ctx, "ssrTerraformToSdk")
 	data := models.SiteSettingSsr{}
 
 	data.ConductorHosts = mist_transform.ListOfStringTerraformToSdk(ctx, d.ConductorHosts)

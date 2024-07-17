@@ -9,11 +9,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 func oobIpConfigsNode1SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.GatewayOobIpConfigNode1) basetypes.ObjectValue {
-	tflog.Debug(ctx, "oobIpConfigsSdkToTerraform")
 	var ip basetypes.StringValue
 	var netmask basetypes.StringValue
 	var network basetypes.StringValue
@@ -56,7 +54,6 @@ func oobIpConfigsNode1SdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 }
 
 func oobIpConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.GatewayOobIpConfig) OobIpConfigValue {
-	tflog.Debug(ctx, "oobIpConfigsSdkToTerraform")
 	var ip basetypes.StringValue
 	var netmask basetypes.StringValue
 	var network basetypes.StringValue

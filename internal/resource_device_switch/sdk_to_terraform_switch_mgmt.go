@@ -9,13 +9,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func switchMgmtProtecCustomtReSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.ProtectReCustom) basetypes.ListValue {
-	tflog.Debug(ctx, "switchMgmtProtecCustomtReSdkToTerraform")
 	var data_list = []CustomValue{}
 
 	for _, d := range l {
@@ -52,7 +50,6 @@ func switchMgmtProtecCustomtReSdkToTerraform(ctx context.Context, diags *diag.Di
 	return r
 }
 func switchMgmtProtectReSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ProtectRe) basetypes.ObjectValue {
-	tflog.Debug(ctx, "switchMgmtProtectReSdkToTerraform")
 
 	var allowed_services basetypes.ListValue = types.ListNull(types.StringType)
 	var custom basetypes.ListValue = types.ListNull(CustomValue{}.Type(ctx))
@@ -88,7 +85,6 @@ func switchMgmtProtectReSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 }
 
 func switchMgmtTacacsAcctSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.TacacsAcctServer) basetypes.ListValue {
-	tflog.Debug(ctx, "switchMgmtTacacsAcctSdkToTerraform")
 
 	var acct_value_list []attr.Value
 	for _, d := range l {
@@ -130,7 +126,6 @@ func switchMgmtTacacsAcctSdkToTerraform(ctx context.Context, diags *diag.Diagnos
 	return acct_state_list
 }
 func switchMgmtTacacsAuthSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.TacacsAuthServer) basetypes.ListValue {
-	tflog.Debug(ctx, "switchMgmtTacacsAuthSdkToTerraform")
 
 	var acct_value_list []attr.Value
 	for _, d := range l {
@@ -173,7 +168,6 @@ func switchMgmtTacacsAuthSdkToTerraform(ctx context.Context, diags *diag.Diagnos
 	return acct_state_list
 }
 func switchMgmtTacacsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.Tacacs) basetypes.ObjectValue {
-	tflog.Debug(ctx, "switchMgmtTacacsSdkToTerraform")
 
 	var default_role basetypes.StringValue
 	var enabled basetypes.BoolValue
@@ -212,7 +206,6 @@ func switchMgmtTacacsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 	return o
 }
 func switchMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SwitchMgmt) SwitchMgmtValue {
-	tflog.Debug(ctx, "switchMgmtSdkToTerraform")
 
 	var config_revert basetypes.Int64Value
 	var protect_re basetypes.ObjectValue = types.ObjectNull(ProtectReValue{}.AttributeTypes(ctx))

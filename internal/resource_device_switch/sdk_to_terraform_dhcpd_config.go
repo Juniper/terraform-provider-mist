@@ -10,13 +10,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func dhcpdConfigVendorEncapsulatedSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.DhcpdConfigVendorOption) basetypes.MapValue {
-	tflog.Debug(ctx, "dhcpdConfigVendorEncapsulatedSdkToTerraform")
 
 	r_map_value := make(map[string]attr.Value)
 	for k, d := range m {
@@ -47,7 +45,6 @@ func dhcpdConfigVendorEncapsulatedSdkToTerraform(ctx context.Context, diags *dia
 }
 
 func dhcpdConfigOptionsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.DhcpdConfigOption) basetypes.MapValue {
-	tflog.Debug(ctx, "dhcpdConfigOptionsSdkToTerraform")
 
 	r_map_value := make(map[string]attr.Value)
 	for k, d := range m {
@@ -78,7 +75,6 @@ func dhcpdConfigOptionsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 }
 
 func dhcpdConfigFixedBindingsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.DhcpdConfigFixedBinding) basetypes.MapValue {
-	tflog.Debug(ctx, "dhcpdConfigFixedBindingsSdkToTerraform")
 	r_map := make(map[string]attr.Value)
 	for k, d := range m {
 		var ip basetypes.StringValue
@@ -108,7 +104,6 @@ func dhcpdConfigFixedBindingsSdkToTerraform(ctx context.Context, diags *diag.Dia
 }
 
 func dhcpdConfigConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]interface{}) basetypes.MapValue {
-	tflog.Debug(ctx, "dhcpdConfigConfigsSdkToTerraform")
 	r_map_value := make(map[string]attr.Value)
 	for k, d_interface := range m {
 		if k != "enabled" {
@@ -213,7 +208,6 @@ func dhcpdConfigConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 }
 
 func dhcpdConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.DhcpdConfig) DhcpdConfigValue {
-	tflog.Debug(ctx, "dhcpdConfigSdkToTerraform")
 
 	var config basetypes.MapValue = types.MapNull(ConfigValue{}.Type(ctx))
 	var enabled basetypes.BoolValue = types.BoolValue(false)

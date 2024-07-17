@@ -9,13 +9,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func bgpConfigNeighborsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.BgpConfigNeighbors) basetypes.MapValue {
-	tflog.Debug(ctx, "bgpConfigNeighborsSdkToTerraform")
 
 	state_value_map_value := make(map[string]attr.Value)
 	for k, d := range m {
@@ -66,7 +64,6 @@ func bgpConfigNeighborsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 }
 
 func bgpConfigCommunitiesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.BgpConfigCommunity) basetypes.ListValue {
-	tflog.Debug(ctx, "bgpConfigCommunitiesSdkToTerraform")
 	var data_list = []CommunitiesValue{}
 
 	for _, d := range l {
@@ -102,7 +99,6 @@ func bgpConfigCommunitiesSdkToTerraform(ctx context.Context, diags *diag.Diagnos
 }
 
 func bgpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.BgpConfig) basetypes.MapValue {
-	tflog.Debug(ctx, "bgpConfigSdkToTerraform")
 	state_value_map := make(map[string]attr.Value)
 	for k, d := range m {
 		var auth_key basetypes.StringValue

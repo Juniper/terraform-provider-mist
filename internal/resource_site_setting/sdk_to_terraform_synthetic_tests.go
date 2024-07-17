@@ -9,13 +9,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func synthteticTestVlansSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.SynthetictestProperties) basetypes.ListValue {
-	tflog.Debug(ctx, "synthteticTestVlansSdkToTerraform")
 	var data_list = []VlansValue{}
 	for _, d := range l {
 		var custom_test_urls basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
@@ -50,7 +48,6 @@ func synthteticTestVlansSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 }
 
 func synthteticTestSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SynthetictestConfig) SyntheticTestValue {
-	tflog.Debug(ctx, "synthteticTestSdkToTerraform")
 
 	var disabled basetypes.BoolValue
 	var vlans basetypes.ListValue = types.ListNull(VlansValue{}.Type(ctx))

@@ -7,13 +7,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
 func eslSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ApEslConfig) EslConfigValue {
-	tflog.Debug(ctx, "eslSdkToTerraform")
 	var cacert basetypes.StringValue
 	var channel basetypes.Int64Value
 	var enabled basetypes.BoolValue

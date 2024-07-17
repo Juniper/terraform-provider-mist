@@ -6,13 +6,11 @@ import (
 	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
 func ipConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d IpConfigValue) *models.ApIpConfig {
-	tflog.Debug(ctx, "ipConfigTerraformToSdk")
 	data := models.ApIpConfig{}
 
 	if !d.Dns.IsNull() && !d.Dns.IsUnknown() {

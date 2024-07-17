@@ -150,7 +150,6 @@ func switchMatchingRulesPortConfigSdkToTerraform(ctx context.Context, diags *dia
 	return r
 }
 func switchMatchingRulesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.SwitchMatchingRule) basetypes.ListValue {
-	tflog.Debug(ctx, "switchMatchingRulesSdkToTerraform")
 	var data_list = []MatchingRulesValue{}
 
 	for _, d := range l {
@@ -216,7 +215,6 @@ func switchMatchingRulesSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 }
 
 func switchMatchingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SwitchMatching) SwitchMatchingValue {
-	tflog.Debug(ctx, "switchMatchingSdkToTerraform")
 
 	var enable basetypes.BoolValue
 	var rules basetypes.ListValue = types.ListNull(RulesValue{}.Type(ctx))

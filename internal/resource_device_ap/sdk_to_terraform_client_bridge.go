@@ -7,7 +7,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
@@ -35,7 +34,6 @@ func clientAuthBridgeSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 	return data
 }
 func clientBridgeSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ApClientBridge) ClientBridgeValue {
-	tflog.Debug(ctx, "clientBridgeSdkToTerraform")
 	var auth basetypes.ObjectValue = types.ObjectNull(AuthValue{}.AttributeTypes(ctx))
 	var enabled basetypes.BoolValue
 	var ssid basetypes.StringValue

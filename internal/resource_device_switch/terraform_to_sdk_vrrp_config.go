@@ -7,7 +7,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 func vrrpGroupsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.VrrpConfigGroup {
@@ -27,7 +26,6 @@ func vrrpGroupsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d ba
 }
 
 func vrrpTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d VrrpConfigValue) *models.VrrpConfig {
-	tflog.Debug(ctx, "vrrpTerraformToSdk")
 
 	data := models.VrrpConfig{}
 

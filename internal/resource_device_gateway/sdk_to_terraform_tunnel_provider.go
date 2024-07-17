@@ -11,11 +11,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 func tunnelProviderJseSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.TunnelProviderOptions) basetypes.ObjectValue {
-	tflog.Debug(ctx, "tunnelProviderJseSdkToTerraform")
 
 	var name basetypes.StringValue
 	var num_users basetypes.Int64Value
@@ -38,7 +36,6 @@ func tunnelProviderJseSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 }
 
 func tunnelProviderZscalerSubLocationSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, t *models.TunnelProviderOptions) basetypes.ListValue {
-	tflog.Debug(ctx, "tunnelProviderZscalerSubLocationSdkToTerraform")
 	var data_list = []SubLocationsValue{}
 	if t != nil && t.Zscaler != nil && t.Zscaler.SubLocations != nil {
 		for _, v := range t.Zscaler.SubLocations {
@@ -100,7 +97,6 @@ func tunnelProviderZscalerSubLocationSdkToTerraform(ctx context.Context, diags *
 	return r
 }
 func tunnelProviderZscalerSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, t *models.TunnelProviderOptions) basetypes.ObjectValue {
-	tflog.Debug(ctx, "tunnelProviderZscalerSdkToTerraform")
 
 	var aup_acceptance_required basetypes.BoolValue = types.BoolValue(true)
 	var aup_expire basetypes.Int64Value = types.Int64Value(1)
@@ -165,7 +161,6 @@ func tunnelProviderZscalerSdkToTerraform(ctx context.Context, diags *diag.Diagno
 }
 
 func tunnelProviderSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.TunnelProviderOptions) TunnelProviderOptionsValue {
-	tflog.Debug(ctx, "tunnelProviderSdkToTerraform")
 	var jse basetypes.ObjectValue = types.ObjectNull(JseValue{}.AttributeTypes(ctx))
 	var zscaler basetypes.ObjectValue = types.ObjectNull(ZscalerValue{}.AttributeTypes(ctx))
 

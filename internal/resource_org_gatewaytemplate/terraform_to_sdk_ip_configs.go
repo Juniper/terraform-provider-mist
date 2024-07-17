@@ -9,11 +9,9 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 func ipConfigsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.GatewayIpConfigProperty {
-	tflog.Debug(ctx, "ipConfigsTerraformToSdk")
 	data_map := make(map[string]models.GatewayIpConfigProperty)
 	for k, v := range d.Elements() {
 		var v_interface interface{} = v

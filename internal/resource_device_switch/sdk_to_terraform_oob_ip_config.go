@@ -9,11 +9,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 func oobIpConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SwitchOobIpConfig) OobIpConfigValue {
-	tflog.Debug(ctx, "oobIpConfigsSdkToTerraform")
 	var gateway basetypes.StringValue
 	var ip basetypes.StringValue
 	var netmask basetypes.StringValue

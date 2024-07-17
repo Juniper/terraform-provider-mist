@@ -9,11 +9,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 func occupancySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteOccupancyAnalytics) OccupancyValue {
-	tflog.Debug(ctx, "occupancySdkToTerraform")
 
 	var assets_enabled basetypes.BoolValue
 	var clients_enabled basetypes.BoolValue

@@ -4,13 +4,11 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
 func wifiTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d WifiValue) *models.SiteWifi {
-	tflog.Debug(ctx, "wifiTerraformToSdk")
 	data := models.SiteWifi{}
 
 	data.CiscoEnabled = d.CiscoEnabled.ValueBoolPointer()

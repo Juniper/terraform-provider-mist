@@ -9,11 +9,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 func aeroscoutSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ApAeroscout) AeroscoutValue {
-	tflog.Debug(ctx, "aeroscoutSdkToTerraform")
 	var enabled basetypes.BoolValue
 	var host basetypes.StringValue
 	var locate_connected basetypes.BoolValue

@@ -5,13 +5,11 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
 func criticalUrlMonitoringMonitorsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.SiteSettingCriticalUrlMonitoringMonitor {
-	tflog.Debug(ctx, "criticalUrlMonitoringMonitorsTerraformToSdk")
 	var data_list []models.SiteSettingCriticalUrlMonitoringMonitor
 	for _, v := range d.Elements() {
 		var v_interface interface{} = v
@@ -26,7 +24,6 @@ func criticalUrlMonitoringMonitorsTerraformToSdk(ctx context.Context, diags *dia
 }
 
 func criticalUrlMonitoringTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d CriticalUrlMonitoringValue) *models.SiteSettingCriticalUrlMonitoring {
-	tflog.Debug(ctx, "criticalUrlMonitoringTerraformToSdk")
 	data := models.SiteSettingCriticalUrlMonitoring{}
 
 	data.Enabled = d.Enabled.ValueBoolPointer()

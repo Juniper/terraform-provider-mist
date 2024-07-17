@@ -9,13 +9,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func pathPreferencePathsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.GatewayPathPreferencesPath) basetypes.ListValue {
-	tflog.Debug(ctx, "pathPreferencePathsSdkToTerraform")
 	var data_list = []PathsValue{}
 
 	for _, d := range l {
@@ -81,7 +79,6 @@ func pathPreferencePathsSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 }
 
 func pathPreferencesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.GatewayPathPreferences) basetypes.MapValue {
-	tflog.Debug(ctx, "pathPreferencesSdkToTerraform")
 	state_value_map := make(map[string]attr.Value)
 	for k, d := range m {
 		var paths basetypes.ListValue = types.ListNull(PathsValue{}.Type(ctx))

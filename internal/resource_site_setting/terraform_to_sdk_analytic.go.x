@@ -10,7 +10,6 @@ import (
 )
 
 func analyticTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d AnalyticValue) *models.SiteSettingAnalytic {
-	tflog.Debug(ctx, "analyticTerraformToSdk")
 	data := models.NewSiteSettingAnalytic()
 
 	data.SetEnabled(d.Enabled.ValueBool())

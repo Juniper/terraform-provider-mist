@@ -4,13 +4,11 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
 func pwrConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d PwrConfigValue) *models.ApPwrConfig {
-	tflog.Debug(ctx, "pwrConfigTerraformToSdk")
 	data := models.ApPwrConfig{}
 
 	if d.Base.ValueInt64Pointer() != nil {

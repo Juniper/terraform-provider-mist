@@ -9,13 +9,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func routingPolocyTermMatchingRouteExistsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.RoutingPolicyTermMatchingRouteExists) basetypes.ObjectValue {
-	tflog.Debug(ctx, "routingPolocyTermMatchingRouteExistsSdkToTerraform")
 	var route basetypes.StringValue
 	var vrf_name basetypes.StringValue = types.StringValue("default")
 
@@ -37,7 +35,6 @@ func routingPolocyTermMatchingRouteExistsSdkToTerraform(ctx context.Context, dia
 	return data
 }
 func routingPolocyTermMatchingVpnSlaSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.RoutingPolicyTermMatchingVpnPathSla) basetypes.ObjectValue {
-	tflog.Debug(ctx, "routingPolocyTermMatchingVpnSlaSdkToTerraform")
 
 	var max_jitter basetypes.Int64Value
 	var max_latency basetypes.Int64Value
@@ -66,7 +63,6 @@ func routingPolocyTermMatchingVpnSlaSdkToTerraform(ctx context.Context, diags *d
 
 }
 func routingPolocyTermMatchingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.RoutingPolicyTermMatching) basetypes.ObjectValue {
-	tflog.Debug(ctx, "routingPolocyTermMatchingSdkToTerraform")
 
 	var as_path basetypes.ListValue = types.ListNull(types.StringType)
 	var community basetypes.ListValue = types.ListNull(types.StringType)
@@ -124,7 +120,6 @@ func routingPolocyTermMatchingSdkToTerraform(ctx context.Context, diags *diag.Di
 	return data
 }
 func routingPolocyTermActionSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.RoutingPolicyTermAction) basetypes.ObjectValue {
-	tflog.Debug(ctx, "routingPolocyTermActionSdkToTerraform")
 
 	var accept basetypes.BoolValue
 	var add_community basetypes.ListValue = types.ListNull(types.StringType)
@@ -183,7 +178,6 @@ func routingPolocyTermActionSdkToTerraform(ctx context.Context, diags *diag.Diag
 }
 
 func routingPolocyTermsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.RoutingPolicyTerm) basetypes.ListValue {
-	tflog.Debug(ctx, "routingPolocyTermsSdkToTerraform")
 	var data_list = []TermsValue{}
 
 	for _, d := range l {
@@ -214,7 +208,6 @@ func routingPolocyTermsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 }
 
 func routingPolociesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.RoutingPolicy) basetypes.MapValue {
-	tflog.Debug(ctx, "routingPolociesSdkToTerraform")
 	state_value_map := make(map[string]attr.Value)
 	for k, d := range m {
 
