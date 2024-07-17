@@ -495,12 +495,16 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
+									"critical",
 									"strict",
 									"standard",
 								),
 							},
 						},
 						"name": schema.StringAttribute{
+							Optional: true,
+						},
+						"org_id": schema.StringAttribute{
 							Optional: true,
 						},
 						"overwrites": schema.ListNestedAttribute{
@@ -541,6 +545,9 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 												AttrTypes: IpdProfileOverwriteMatchingValue{}.AttributeTypes(ctx),
 											},
 										},
+										Optional: true,
+									},
+									"name": schema.StringAttribute{
 										Optional: true,
 									},
 								},
@@ -8425,6 +8432,24 @@ func (t IdpProfilesType) ValueFromObject(ctx context.Context, in basetypes.Objec
 			fmt.Sprintf(`name expected to be basetypes.StringValue, was: %T`, nameAttribute))
 	}
 
+	orgIdAttribute, ok := attributes["org_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`org_id is missing from object`)
+
+		return nil, diags
+	}
+
+	orgIdVal, ok := orgIdAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`org_id expected to be basetypes.StringValue, was: %T`, orgIdAttribute))
+	}
+
 	overwritesAttribute, ok := attributes["overwrites"]
 
 	if !ok {
@@ -8450,6 +8475,7 @@ func (t IdpProfilesType) ValueFromObject(ctx context.Context, in basetypes.Objec
 	return IdpProfilesValue{
 		BaseProfile: baseProfileVal,
 		Name:        nameVal,
+		OrgId:       orgIdVal,
 		Overwrites:  overwritesVal,
 		state:       attr.ValueStateKnown,
 	}, diags
@@ -8554,6 +8580,24 @@ func NewIdpProfilesValue(attributeTypes map[string]attr.Type, attributes map[str
 			fmt.Sprintf(`name expected to be basetypes.StringValue, was: %T`, nameAttribute))
 	}
 
+	orgIdAttribute, ok := attributes["org_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`org_id is missing from object`)
+
+		return NewIdpProfilesValueUnknown(), diags
+	}
+
+	orgIdVal, ok := orgIdAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`org_id expected to be basetypes.StringValue, was: %T`, orgIdAttribute))
+	}
+
 	overwritesAttribute, ok := attributes["overwrites"]
 
 	if !ok {
@@ -8579,6 +8623,7 @@ func NewIdpProfilesValue(attributeTypes map[string]attr.Type, attributes map[str
 	return IdpProfilesValue{
 		BaseProfile: baseProfileVal,
 		Name:        nameVal,
+		OrgId:       orgIdVal,
 		Overwrites:  overwritesVal,
 		state:       attr.ValueStateKnown,
 	}, diags
@@ -8654,18 +8699,20 @@ var _ basetypes.ObjectValuable = IdpProfilesValue{}
 type IdpProfilesValue struct {
 	BaseProfile basetypes.StringValue `tfsdk:"base_profile"`
 	Name        basetypes.StringValue `tfsdk:"name"`
+	OrgId       basetypes.StringValue `tfsdk:"org_id"`
 	Overwrites  basetypes.ListValue   `tfsdk:"overwrites"`
 	state       attr.ValueState
 }
 
 func (v IdpProfilesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 3)
+	attrTypes := make(map[string]tftypes.Type, 4)
 
 	var val tftypes.Value
 	var err error
 
 	attrTypes["base_profile"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["org_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["overwrites"] = basetypes.ListType{
 		ElemType: OverwritesValue{}.Type(ctx),
 	}.TerraformType(ctx)
@@ -8674,7 +8721,7 @@ func (v IdpProfilesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 3)
+		vals := make(map[string]tftypes.Value, 4)
 
 		val, err = v.BaseProfile.ToTerraformValue(ctx)
 
@@ -8691,6 +8738,14 @@ func (v IdpProfilesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 		}
 
 		vals["name"] = val
+
+		val, err = v.OrgId.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["org_id"] = val
 
 		val, err = v.Overwrites.ToTerraformValue(ctx)
 
@@ -8761,6 +8816,7 @@ func (v IdpProfilesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 	attributeTypes := map[string]attr.Type{
 		"base_profile": basetypes.StringType{},
 		"name":         basetypes.StringType{},
+		"org_id":       basetypes.StringType{},
 		"overwrites": basetypes.ListType{
 			ElemType: OverwritesValue{}.Type(ctx),
 		},
@@ -8779,6 +8835,7 @@ func (v IdpProfilesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 		map[string]attr.Value{
 			"base_profile": v.BaseProfile,
 			"name":         v.Name,
+			"org_id":       v.OrgId,
 			"overwrites":   overwrites,
 		})
 
@@ -8808,6 +8865,10 @@ func (v IdpProfilesValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.OrgId.Equal(other.OrgId) {
+		return false
+	}
+
 	if !v.Overwrites.Equal(other.Overwrites) {
 		return false
 	}
@@ -8827,6 +8888,7 @@ func (v IdpProfilesValue) AttributeTypes(ctx context.Context) map[string]attr.Ty
 	return map[string]attr.Type{
 		"base_profile": basetypes.StringType{},
 		"name":         basetypes.StringType{},
+		"org_id":       basetypes.StringType{},
 		"overwrites": basetypes.ListType{
 			ElemType: OverwritesValue{}.Type(ctx),
 		},
@@ -8894,6 +8956,24 @@ func (t OverwritesType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`matching expected to be basetypes.ObjectValue, was: %T`, ipdProfileOverwriteMatchingAttribute))
 	}
 
+	nameAttribute, ok := attributes["name"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`name is missing from object`)
+
+		return nil, diags
+	}
+
+	nameVal, ok := nameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`name expected to be basetypes.StringValue, was: %T`, nameAttribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
@@ -8901,6 +8981,7 @@ func (t OverwritesType) ValueFromObject(ctx context.Context, in basetypes.Object
 	return OverwritesValue{
 		Action:                      actionVal,
 		IpdProfileOverwriteMatching: ipdProfileOverwriteMatchingVal,
+		Name:                        nameVal,
 		state:                       attr.ValueStateKnown,
 	}, diags
 }
@@ -9004,6 +9085,24 @@ func NewOverwritesValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`matching expected to be basetypes.ObjectValue, was: %T`, ipdProfileOverwriteMatchingAttribute))
 	}
 
+	nameAttribute, ok := attributes["name"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`name is missing from object`)
+
+		return NewOverwritesValueUnknown(), diags
+	}
+
+	nameVal, ok := nameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`name expected to be basetypes.StringValue, was: %T`, nameAttribute))
+	}
+
 	if diags.HasError() {
 		return NewOverwritesValueUnknown(), diags
 	}
@@ -9011,6 +9110,7 @@ func NewOverwritesValue(attributeTypes map[string]attr.Type, attributes map[stri
 	return OverwritesValue{
 		Action:                      actionVal,
 		IpdProfileOverwriteMatching: ipdProfileOverwriteMatchingVal,
+		Name:                        nameVal,
 		state:                       attr.ValueStateKnown,
 	}, diags
 }
@@ -9085,11 +9185,12 @@ var _ basetypes.ObjectValuable = OverwritesValue{}
 type OverwritesValue struct {
 	Action                      basetypes.StringValue `tfsdk:"action"`
 	IpdProfileOverwriteMatching basetypes.ObjectValue `tfsdk:"matching"`
+	Name                        basetypes.StringValue `tfsdk:"name"`
 	state                       attr.ValueState
 }
 
 func (v OverwritesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 2)
+	attrTypes := make(map[string]tftypes.Type, 3)
 
 	var val tftypes.Value
 	var err error
@@ -9098,12 +9199,13 @@ func (v OverwritesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	attrTypes["matching"] = basetypes.ObjectType{
 		AttrTypes: IpdProfileOverwriteMatchingValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
+	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 2)
+		vals := make(map[string]tftypes.Value, 3)
 
 		val, err = v.Action.ToTerraformValue(ctx)
 
@@ -9120,6 +9222,14 @@ func (v OverwritesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 		}
 
 		vals["matching"] = val
+
+		val, err = v.Name.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["name"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -9176,6 +9286,7 @@ func (v OverwritesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		"matching": basetypes.ObjectType{
 			AttrTypes: IpdProfileOverwriteMatchingValue{}.AttributeTypes(ctx),
 		},
+		"name": basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -9191,6 +9302,7 @@ func (v OverwritesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		map[string]attr.Value{
 			"action":   v.Action,
 			"matching": ipdProfileOverwriteMatching,
+			"name":     v.Name,
 		})
 
 	return objVal, diags
@@ -9219,6 +9331,10 @@ func (v OverwritesValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.Name.Equal(other.Name) {
+		return false
+	}
+
 	return true
 }
 
@@ -9236,6 +9352,7 @@ func (v OverwritesValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"matching": basetypes.ObjectType{
 			AttrTypes: IpdProfileOverwriteMatchingValue{}.AttributeTypes(ctx),
 		},
+		"name": basetypes.StringType{},
 	}
 }
 

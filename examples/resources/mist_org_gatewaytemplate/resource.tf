@@ -1,7 +1,7 @@
 
-resource "mist_org_gatewaytemplate" "gwtemplate_one" {
+resource "mist_org_gatewaytemplate" "gatewaytemplate_one" {
   type   = "spoke"
-  name   = "gwtemplate_one"
+  name   = "gatewaytemplate_one"
   org_id = mist_org.terraform_test.id
   port_config = {
     "ge-0/0/3" = {
@@ -16,13 +16,13 @@ resource "mist_org_gatewaytemplate" "gwtemplate_one" {
         ip      = "192.168.1.8"
         netmask = "/24"
         gateway = "192.168.1.1"
-      },
+      }
       disable_autoneg = false
       speed           = "auto"
       duplex          = "auto"
       wan_source_nat = {
         disabled = false
-      },
+      }
       vpn_paths = {
         "SSR_HUB_DC-MPLS.OrgOverlay" = {
           key         = 0
@@ -30,7 +30,7 @@ resource "mist_org_gatewaytemplate" "gwtemplate_one" {
           bfd_profile = "broadband"
         }
       }
-    },
+    }
     "ge-0/0/5" = {
       usage            = "lan"
       critical         = false
@@ -51,12 +51,12 @@ resource "mist_org_gatewaytemplate" "gwtemplate_one" {
       type    = "static"
       ip      = "10.3.100.9"
       netmask = "/24"
-    },
+    }
     "PRD-Mgmt" = {
       type    = "static"
       ip      = "10.3.172.1"
       netmask = "/24"
-    },
+    }
     "PRD-Lab" = {
       type    = "static"
       ip      = "10.3.171.1"
@@ -65,13 +65,9 @@ resource "mist_org_gatewaytemplate" "gwtemplate_one" {
   }
   service_policies = [
     {
-      name = "Policy-14"
-      tenants = [
-        "PRD-Core"
-      ],
-      services = [
-        "any"
-      ],
+      name            = "Policy-14"
+      tenants         = ["PRD-Core"]
+      services        = ["any"]
       action          = "allow"
       path_preference = "HUB"
       idp = {

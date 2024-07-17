@@ -38,7 +38,7 @@ Read-Only:
 - `appqoe` (Attributes) For SRX Only (see [below for nested schema](#nestedatt--org_servicepolicies--appqoe))
 - `created_time` (Number)
 - `ewf` (Attributes List) (see [below for nested schema](#nestedatt--org_servicepolicies--ewf))
-- `id` (String) used to link servicepolicy defined at org level and overwrite some attributes
+- `id` (String)
 - `idp` (Attributes) (see [below for nested schema](#nestedatt--org_servicepolicies--idp))
 - `local_routing` (Boolean) access within the same VRF
 - `modified_time` (Number)

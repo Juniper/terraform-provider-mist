@@ -23,8 +23,8 @@ resource "mist_org_servicepolicy" "servicepolicy_one" {
   ]
   action    = "allow"
   idp = {
-    enabled    = true,
-    profile    = "standard",
+    enabled    = true
+    profile    = "standard"
     alert_only = true
   }
   name = "Guest-IDP"
@@ -53,7 +53,7 @@ optionally, you can customize by using `path_preference`
 
 ### Read-Only
 
-- `id` (String) used to link servicepolicy defined at org level and overwrite some attributes
+- `id` (String) The ID of this resource.
 
 <a id="nestedatt--appqoe"></a>
 ### Nested Schema for `appqoe`

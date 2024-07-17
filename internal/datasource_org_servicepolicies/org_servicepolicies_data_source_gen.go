@@ -70,9 +70,7 @@ func OrgServicepoliciesDataSourceSchema(ctx context.Context) schema.Schema {
 							Computed: true,
 						},
 						"id": schema.StringAttribute{
-							Computed:            true,
-							Description:         "used to link servicepolicy defined at org level and overwrite some attributes",
-							MarkdownDescription: "used to link servicepolicy defined at org level and overwrite some attributes",
+							Computed: true,
 						},
 						"idp": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{

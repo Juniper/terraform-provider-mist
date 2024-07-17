@@ -8,8 +8,8 @@ resource "mist_org_servicepolicy" "servicepolicy_one" {
   ]
   action    = "allow"
   idp = {
-    enabled    = true,
-    profile    = "standard",
+    enabled    = true
+    profile    = "standard"
     alert_only = true
   }
   name = "Guest-IDP"
