@@ -42,8 +42,8 @@ func ListOfIntTerraformToSdk(ctx context.Context, list basetypes.ListValue) []in
 	var items []int
 	for _, item := range list.Elements() {
 		var item_interface interface{} = item
-		i := item_interface.(int64)
-		items = append(items, int(i))
+		i := item_interface.(basetypes.Int64Value)
+		items = append(items, int(i.ValueInt64()))
 	}
 	return items
 }
