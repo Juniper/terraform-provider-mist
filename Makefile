@@ -53,6 +53,9 @@ compliance:
 docs:
 	tfplugindocs generate
 
+docs-check:
+	@sh -c "$(CURDIR)/scripts/tfplugindocs.sh"
+
 build:
 	GPG_FINGERPRINT=31A813F1EC67A717 goreleaser release --clean 
 
@@ -60,9 +63,12 @@ install: build
 		mkdir -p ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
 		mv ${BINARY} ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
 
-test: fmtcheck
+test: gofmt
 	go test -i $(TEST) || exit 1                                                   
 	echo $(TEST) | xargs -t -n4 go test $(TESTARGS) -timeout=30s -parallel=4   
 
-gofmt:
+fmt-check:
 	@sh -c "$(CURDIR)/scripts/gofmtcheck.sh"
+
+fmt:
+	gofmt -w $$(find . -name '*.go' |grep -v vendor)
