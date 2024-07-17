@@ -57,7 +57,7 @@ docs-check:
 	@sh -c "$(CURDIR)/scripts/tfplugindocs.sh"
 
 build:
-	GPG_FINGERPRINT=D3AB8D26583A94DA goreleaser release --clean 
+	GPG_FINGERPRINT=2084D2307B7D24FA goreleaser release --clean 
 
 install: build
 		mkdir -p ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
