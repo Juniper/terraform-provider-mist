@@ -24,7 +24,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	var config_push_policy ConfigPushPolicyValue = NewConfigPushPolicyValueNull()
 	var critical_url_monitoring CriticalUrlMonitoringValue = NewCriticalUrlMonitoringValueNull()
 	var device_updown_threshold types.Int64
-	var disabled_system_defined_port_usages types.List = basetypes.NewListNull(types.StringType)
+	var disabled_system_defined_port_usages types.List = types.ListNull(types.StringType)
 	var engagement EngagementValue = NewEngagementValueNull()
 	var gateway_updown_threshold types.Int64
 	var led LedValue = NewLedValueNull()
@@ -37,7 +37,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	var simple_alert SimpleAlertValue = NewSimpleAlertValueNull()
 	// var site_id types.String
 	var skyatp SkyatpValue = NewSkyatpValueNull()
-	var ssh_keys types.List = basetypes.NewListNull(types.StringType)
+	var ssh_keys types.List = types.ListNull(types.StringType)
 	var ssr SsrValue = NewSsrValueNull()
 	var switch_updown_threshold types.Int64
 	var synthetic_test SyntheticTestValue = NewSyntheticTestValueNull()

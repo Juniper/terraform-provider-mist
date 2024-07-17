@@ -17,7 +17,6 @@ func SdkToTerraform(ctx context.Context, data models.WxlanTag) (OrgWxtagModel, d
 
 	state.Id = types.StringValue(data.Id.String())
 	state.OrgId = types.StringValue(data.OrgId.String())
-	state.SiteId = types.StringValue(data.SiteId.String())
 
 	state.Name = types.StringValue(data.Name)
 	state.LastIps = mist_transform.ListOfStringSdkToTerraform(ctx, data.LastIps)

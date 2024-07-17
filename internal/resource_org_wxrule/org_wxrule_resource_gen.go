@@ -69,9 +69,6 @@ func OrgWxruleResourceSchema(ctx context.Context) schema.Schema {
 			"org_id": schema.StringAttribute{
 				Required: true,
 			},
-			"site_id": schema.StringAttribute{
-				Required: true,
-			},
 			"src_wxtags": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Required:            true,
@@ -97,7 +94,6 @@ type OrgWxruleModel struct {
 	Id             types.String `tfsdk:"id"`
 	Order          types.Int64  `tfsdk:"order"`
 	OrgId          types.String `tfsdk:"org_id"`
-	SiteId         types.String `tfsdk:"site_id"`
 	SrcWxtags      types.List   `tfsdk:"src_wxtags"`
 	TemplateId     types.String `tfsdk:"template_id"`
 }

@@ -86,9 +86,6 @@ func OrgWxtagResourceSchema(ctx context.Context) schema.Schema {
 					listvalidator.UniqueValues(),
 				},
 			},
-			"site_id": schema.StringAttribute{
-				Required: true,
-			},
 			"specs": schema.ListNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
@@ -165,7 +162,6 @@ type OrgWxtagModel struct {
 	OrgId       types.String `tfsdk:"org_id"`
 	ResourceMac types.String `tfsdk:"resource_mac"`
 	Services    types.List   `tfsdk:"services"`
-	SiteId      types.String `tfsdk:"site_id"`
 	Specs       types.List   `tfsdk:"specs"`
 	Subnet      types.String `tfsdk:"subnet"`
 	Type        types.String `tfsdk:"type"`
