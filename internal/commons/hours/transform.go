@@ -10,13 +10,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
 func HoursSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.Hours) basetypes.ObjectValue {
-	tflog.Debug(ctx, "HoursSdkToTerraform")
 	r_attr_type := HoursValue{}.AttributeTypes(ctx)
 	r_attr_value := map[string]attr.Value{
 		"mon": types.StringValue(*d.Mon),
@@ -33,23 +31,24 @@ func HoursSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 }
 
 func HoursTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.Hours {
-	tflog.Debug(ctx, "HoursConfigTerraformToSdk")
-	if d.IsNull() || d.IsUnknown() {
-		return &models.Hours{}
-	} else {
-		v := NewHoursValueMust(d.AttributeTypes(ctx), d.Attributes())
-		data := models.Hours{
-			Mon: v.Mon.ValueStringPointer(),
-			Tue: v.Tue.ValueStringPointer(),
-			Wed: v.Wed.ValueStringPointer(),
-			Thu: v.Thu.ValueStringPointer(),
-			Fri: v.Fri.ValueStringPointer(),
-			Sat: v.Sat.ValueStringPointer(),
-			Sun: v.Sun.ValueStringPointer(),
+	data := models.Hours{}
+	if !d.IsNull() || !d.IsUnknown() {
+		v, e := NewHoursValue(d.AttributeTypes(ctx), d.Attributes())
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			data = models.Hours{
+				Mon: v.Mon.ValueStringPointer(),
+				Tue: v.Tue.ValueStringPointer(),
+				Wed: v.Wed.ValueStringPointer(),
+				Thu: v.Thu.ValueStringPointer(),
+				Fri: v.Fri.ValueStringPointer(),
+				Sat: v.Sat.ValueStringPointer(),
+				Sun: v.Sun.ValueStringPointer(),
+			}
 		}
-
-		return &data
 	}
+	return &data
 }
 
 /************************************************************************
