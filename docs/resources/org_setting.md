@@ -63,12 +63,6 @@ resource "mist_org_vpn" "vpn_one" {
 - `ui_idle_timeout` (Number) automatically logout the user when UI session is inactive. `0` means disabled
 - `vpn_options` (Attributes) (see [below for nested schema](#nestedatt--vpn_options))
 
-### Read-Only
-
-- `blacklist_url` (String)
-- `msp_id` (String)
-- `pcap_bucket_verified` (Boolean)
-
 <a id="nestedatt--api_policy"></a>
 ### Nested Schema for `api_policy`
 

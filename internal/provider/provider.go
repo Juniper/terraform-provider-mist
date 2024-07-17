@@ -307,6 +307,7 @@ func (p *mistProvider) DataSources(ctx context.Context) []func() datasource.Data
 		NewSitesDataSource,
 		NewOrgDeviceprofilesApDataSource,
 		NewOrgDeviceprofilesGatewayDataSource,
+		NewOrgServicepoliciesDataSource,
 	}
 }
 
@@ -341,5 +342,6 @@ func (p *mistProvider) Resources(ctx context.Context) []func() resource.Resource
 		NewOrgDeviceprofileAssign,
 		NewOrgDeviceprofileGateway,
 		NewOrgSettingResource,
+		NewOrgServicepolicyResource,
 	}
 }

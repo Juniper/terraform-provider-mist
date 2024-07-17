@@ -2,12 +2,12 @@
 page_title: "mist_org_service Resource - terraform-provider-mist"
 subcategory: "WAN Assurance"
 description: |-
-  This resource manages WAN Assurance Services (Applications).The Services are used in the service_policies from the Gateway configuration and Gateway templates
+  This resource manages WAN Assurance Services (Applications).The Services are used in the service_policies from the Gateway configuration and Gateway templates, or can be used in the Org Service Policies (org_servicepolicy resource).
 ---
 
 # mist_org_service (Resource)
 
-This resource manages WAN Assurance Services (Applications).The Services are used in the `service_policies` from the Gateway configuration and Gateway templates
+This resource manages WAN Assurance Services (Applications).The Services are used in the `service_policies` from the Gateway configuration and Gateway templates, or can be used in the Org Service Policies (`org_servicepolicy` resource).
 
 
 ## Example Usage
