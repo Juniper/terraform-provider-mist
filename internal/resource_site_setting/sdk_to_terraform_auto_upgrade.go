@@ -9,11 +9,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 func autoUpgradeSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.SiteSettingAutoUpgrade) AutoUpgradeValue {
-	tflog.Debug(ctx, "autoUpgradeSdkToTerraform")
 
 	var custom_versions basetypes.MapValue = types.MapNull(types.StringType)
 	var day_of_week basetypes.StringValue
