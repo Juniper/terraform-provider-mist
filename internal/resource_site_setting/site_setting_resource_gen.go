@@ -939,6 +939,26 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						},
 						Optional: true,
 					},
+					"wan_speedtest": schema.SingleNestedAttribute{
+						Attributes: map[string]schema.Attribute{
+							"enabled": schema.BoolAttribute{
+								Optional: true,
+							},
+							"time_od_fay": schema.StringAttribute{
+								Optional:            true,
+								Computed:            true,
+								Description:         "any / HH:MM (24-hour format)",
+								MarkdownDescription: "any / HH:MM (24-hour format)",
+								Default:             stringdefault.StaticString("any"),
+							},
+						},
+						CustomType: WanSpeedtestType{
+							ObjectType: types.ObjectType{
+								AttrTypes: WanSpeedtestValue{}.AttributeTypes(ctx),
+							},
+						},
+						Optional: true,
+					},
 				},
 				CustomType: SyntheticTestType{
 					ObjectType: types.ObjectType{
@@ -11987,14 +12007,33 @@ func (t SyntheticTestType) ValueFromObject(ctx context.Context, in basetypes.Obj
 			fmt.Sprintf(`vlans expected to be basetypes.ListValue, was: %T`, vlansAttribute))
 	}
 
+	wanSpeedtestAttribute, ok := attributes["wan_speedtest"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`wan_speedtest is missing from object`)
+
+		return nil, diags
+	}
+
+	wanSpeedtestVal, ok := wanSpeedtestAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`wan_speedtest expected to be basetypes.ObjectValue, was: %T`, wanSpeedtestAttribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
 
 	return SyntheticTestValue{
-		Disabled: disabledVal,
-		Vlans:    vlansVal,
-		state:    attr.ValueStateKnown,
+		Disabled:     disabledVal,
+		Vlans:        vlansVal,
+		WanSpeedtest: wanSpeedtestVal,
+		state:        attr.ValueStateKnown,
 	}, diags
 }
 
@@ -12097,14 +12136,33 @@ func NewSyntheticTestValue(attributeTypes map[string]attr.Type, attributes map[s
 			fmt.Sprintf(`vlans expected to be basetypes.ListValue, was: %T`, vlansAttribute))
 	}
 
+	wanSpeedtestAttribute, ok := attributes["wan_speedtest"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`wan_speedtest is missing from object`)
+
+		return NewSyntheticTestValueUnknown(), diags
+	}
+
+	wanSpeedtestVal, ok := wanSpeedtestAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`wan_speedtest expected to be basetypes.ObjectValue, was: %T`, wanSpeedtestAttribute))
+	}
+
 	if diags.HasError() {
 		return NewSyntheticTestValueUnknown(), diags
 	}
 
 	return SyntheticTestValue{
-		Disabled: disabledVal,
-		Vlans:    vlansVal,
-		state:    attr.ValueStateKnown,
+		Disabled:     disabledVal,
+		Vlans:        vlansVal,
+		WanSpeedtest: wanSpeedtestVal,
+		state:        attr.ValueStateKnown,
 	}, diags
 }
 
@@ -12176,13 +12234,14 @@ func (t SyntheticTestType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = SyntheticTestValue{}
 
 type SyntheticTestValue struct {
-	Disabled basetypes.BoolValue `tfsdk:"disabled"`
-	Vlans    basetypes.ListValue `tfsdk:"vlans"`
-	state    attr.ValueState
+	Disabled     basetypes.BoolValue   `tfsdk:"disabled"`
+	Vlans        basetypes.ListValue   `tfsdk:"vlans"`
+	WanSpeedtest basetypes.ObjectValue `tfsdk:"wan_speedtest"`
+	state        attr.ValueState
 }
 
 func (v SyntheticTestValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 2)
+	attrTypes := make(map[string]tftypes.Type, 3)
 
 	var val tftypes.Value
 	var err error
@@ -12191,12 +12250,15 @@ func (v SyntheticTestValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 	attrTypes["vlans"] = basetypes.ListType{
 		ElemType: VlansValue{}.Type(ctx),
 	}.TerraformType(ctx)
+	attrTypes["wan_speedtest"] = basetypes.ObjectType{
+		AttrTypes: WanSpeedtestValue{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 2)
+		vals := make(map[string]tftypes.Value, 3)
 
 		val, err = v.Disabled.ToTerraformValue(ctx)
 
@@ -12213,6 +12275,14 @@ func (v SyntheticTestValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 		}
 
 		vals["vlans"] = val
+
+		val, err = v.WanSpeedtest.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["wan_speedtest"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -12272,10 +12342,34 @@ func (v SyntheticTestValue) ToObjectValue(ctx context.Context) (basetypes.Object
 		)
 	}
 
+	var wanSpeedtest basetypes.ObjectValue
+
+	if v.WanSpeedtest.IsNull() {
+		wanSpeedtest = types.ObjectNull(
+			WanSpeedtestValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.WanSpeedtest.IsUnknown() {
+		wanSpeedtest = types.ObjectUnknown(
+			WanSpeedtestValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.WanSpeedtest.IsNull() && !v.WanSpeedtest.IsUnknown() {
+		wanSpeedtest = types.ObjectValueMust(
+			WanSpeedtestValue{}.AttributeTypes(ctx),
+			v.WanSpeedtest.Attributes(),
+		)
+	}
+
 	attributeTypes := map[string]attr.Type{
 		"disabled": basetypes.BoolType{},
 		"vlans": basetypes.ListType{
 			ElemType: VlansValue{}.Type(ctx),
+		},
+		"wan_speedtest": basetypes.ObjectType{
+			AttrTypes: WanSpeedtestValue{}.AttributeTypes(ctx),
 		},
 	}
 
@@ -12290,8 +12384,9 @@ func (v SyntheticTestValue) ToObjectValue(ctx context.Context) (basetypes.Object
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"disabled": v.Disabled,
-			"vlans":    vlans,
+			"disabled":      v.Disabled,
+			"vlans":         vlans,
+			"wan_speedtest": wanSpeedtest,
 		})
 
 	return objVal, diags
@@ -12320,6 +12415,10 @@ func (v SyntheticTestValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.WanSpeedtest.Equal(other.WanSpeedtest) {
+		return false
+	}
+
 	return true
 }
 
@@ -12336,6 +12435,9 @@ func (v SyntheticTestValue) AttributeTypes(ctx context.Context) map[string]attr.
 		"disabled": basetypes.BoolType{},
 		"vlans": basetypes.ListType{
 			ElemType: VlansValue{}.Type(ctx),
+		},
+		"wan_speedtest": basetypes.ObjectType{
+			AttrTypes: WanSpeedtestValue{}.AttributeTypes(ctx),
 		},
 	}
 }
@@ -12815,6 +12917,385 @@ func (v VlansValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 		"vlan_ids": basetypes.ListType{
 			ElemType: types.Int64Type,
 		},
+	}
+}
+
+var _ basetypes.ObjectTypable = WanSpeedtestType{}
+
+type WanSpeedtestType struct {
+	basetypes.ObjectType
+}
+
+func (t WanSpeedtestType) Equal(o attr.Type) bool {
+	other, ok := o.(WanSpeedtestType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t WanSpeedtestType) String() string {
+	return "WanSpeedtestType"
+}
+
+func (t WanSpeedtestType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	timeOdFayAttribute, ok := attributes["time_od_fay"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`time_od_fay is missing from object`)
+
+		return nil, diags
+	}
+
+	timeOdFayVal, ok := timeOdFayAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`time_od_fay expected to be basetypes.StringValue, was: %T`, timeOdFayAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return WanSpeedtestValue{
+		Enabled:   enabledVal,
+		TimeOdFay: timeOdFayVal,
+		state:     attr.ValueStateKnown,
+	}, diags
+}
+
+func NewWanSpeedtestValueNull() WanSpeedtestValue {
+	return WanSpeedtestValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewWanSpeedtestValueUnknown() WanSpeedtestValue {
+	return WanSpeedtestValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewWanSpeedtestValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (WanSpeedtestValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing WanSpeedtestValue Attribute Value",
+				"While creating a WanSpeedtestValue value, a missing attribute value was detected. "+
+					"A WanSpeedtestValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("WanSpeedtestValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid WanSpeedtestValue Attribute Type",
+				"While creating a WanSpeedtestValue value, an invalid attribute value was detected. "+
+					"A WanSpeedtestValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("WanSpeedtestValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("WanSpeedtestValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra WanSpeedtestValue Attribute Value",
+				"While creating a WanSpeedtestValue value, an extra attribute value was detected. "+
+					"A WanSpeedtestValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra WanSpeedtestValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewWanSpeedtestValueUnknown(), diags
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return NewWanSpeedtestValueUnknown(), diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	timeOdFayAttribute, ok := attributes["time_od_fay"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`time_od_fay is missing from object`)
+
+		return NewWanSpeedtestValueUnknown(), diags
+	}
+
+	timeOdFayVal, ok := timeOdFayAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`time_od_fay expected to be basetypes.StringValue, was: %T`, timeOdFayAttribute))
+	}
+
+	if diags.HasError() {
+		return NewWanSpeedtestValueUnknown(), diags
+	}
+
+	return WanSpeedtestValue{
+		Enabled:   enabledVal,
+		TimeOdFay: timeOdFayVal,
+		state:     attr.ValueStateKnown,
+	}, diags
+}
+
+func NewWanSpeedtestValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) WanSpeedtestValue {
+	object, diags := NewWanSpeedtestValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewWanSpeedtestValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t WanSpeedtestType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewWanSpeedtestValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewWanSpeedtestValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewWanSpeedtestValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewWanSpeedtestValueMust(WanSpeedtestValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t WanSpeedtestType) ValueType(ctx context.Context) attr.Value {
+	return WanSpeedtestValue{}
+}
+
+var _ basetypes.ObjectValuable = WanSpeedtestValue{}
+
+type WanSpeedtestValue struct {
+	Enabled   basetypes.BoolValue   `tfsdk:"enabled"`
+	TimeOdFay basetypes.StringValue `tfsdk:"time_od_fay"`
+	state     attr.ValueState
+}
+
+func (v WanSpeedtestValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 2)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["time_od_fay"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 2)
+
+		val, err = v.Enabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enabled"] = val
+
+		val, err = v.TimeOdFay.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["time_od_fay"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v WanSpeedtestValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v WanSpeedtestValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v WanSpeedtestValue) String() string {
+	return "WanSpeedtestValue"
+}
+
+func (v WanSpeedtestValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"enabled":     basetypes.BoolType{},
+		"time_od_fay": basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"enabled":     v.Enabled,
+			"time_od_fay": v.TimeOdFay,
+		})
+
+	return objVal, diags
+}
+
+func (v WanSpeedtestValue) Equal(o attr.Value) bool {
+	other, ok := o.(WanSpeedtestValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Enabled.Equal(other.Enabled) {
+		return false
+	}
+
+	if !v.TimeOdFay.Equal(other.TimeOdFay) {
+		return false
+	}
+
+	return true
+}
+
+func (v WanSpeedtestValue) Type(ctx context.Context) attr.Type {
+	return WanSpeedtestType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v WanSpeedtestValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"enabled":     basetypes.BoolType{},
+		"time_od_fay": basetypes.StringType{},
 	}
 }
 
