@@ -10,7 +10,9 @@ import (
 func varsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, m basetypes.MapValue) map[string]string {
 	data_map := make(map[string]string)
 	for k, v := range m.Elements() {
-		data_map[k] = string(v.String())
+		var vi interface{} = v
+		vd := vi.(basetypes.StringValue)
+		data_map[k] = string(vd.ValueString())
 	}
 	return data_map
 }
