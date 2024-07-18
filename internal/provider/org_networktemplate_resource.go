@@ -51,8 +51,10 @@ func (r *orgNetworkTemplateResource) Metadata(ctx context.Context, req resource.
 func (r *orgNetworkTemplateResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryWired + "This resource managed the Org Network Templates (Switch templates)." +
-			"A Network template can be used to define generic switch configuration at the site level, and" +
-			"be applied to one or multiple Sites. It works like a blueprint of the network of the site.",
+			"A network template is a predefined configuration that provides a consistent and reusable set of network settings for devices within an organization. " +
+			"It includes various parameters such as ip addressing, vlan configurations, routing protocols, security policies, and other network-specific settings. " +
+			"Network templates simplify the deployment and management of switches by ensuring consistent configurations across multiple devices and sites. " +
+			"They help enforce standardization, reduce human error, and streamline troubleshooting and maintenance tasks.",
 		Attributes: resource_org_networktemplate.OrgNetworktemplateResourceSchema(ctx).Attributes,
 	}
 }

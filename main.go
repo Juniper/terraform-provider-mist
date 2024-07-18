@@ -21,12 +21,9 @@ import (
 //go:generate go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs generate -provider-name scaffolding
 
 var (
-	// these will be set by the goreleaser configuration
-	// to appropriate values for the compiled binary.
-	version string = "dev"
-
-	// goreleaser can pass other information to the main package, such as the specific commit
-	// https://goreleaser.com/cookbooks/using-main.version/
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
 )
 
 func main() {
@@ -35,12 +32,10 @@ func main() {
 	flag.BoolVar(&debug, "debug", false, "set to true to run the provider with support for debuggers like delve")
 	flag.Parse()
 
-	// Clean up log output
-	// See https://developer.hashicorp.com/terraform/plugin/log/writing#legacy-logging
 	log.SetFlags(log.Flags() &^ (log.Ldate | log.Ltime))
 
 	opts := providerserver.ServeOpts{
-		Address: "hashicorp.com/Juniper/mist",
+		Address: "registry.terraform.io/Juniper/mist",
 		Debug:   debug,
 	}
 

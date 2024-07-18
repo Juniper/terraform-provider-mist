@@ -52,8 +52,9 @@ func (r *orgGatewaytemplateResource) Metadata(ctx context.Context, req resource.
 func (r *orgGatewaytemplateResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryWan + "This resource manages the Gateway Templates." +
-			"A Gateway template can be used to define generic gateway configuration at the org level and" +
-			"be applied to one or multiple Sites. It works like a blueprint of the network of the site.",
+			"A Gateway template is used to define the static ip address and subnet mask of the hub device, along with the gateway. " +
+			"It also allows for the selection of options such as enabling source nat and overriding the public ip for the hub if needed. " +
+			"the endpoint selected in the gateway template ties the hub and spoke devices together and creates the auto-vpn tunnel.",
 		Attributes: resource_org_gatewaytemplate.OrgGatewaytemplateResourceSchema(ctx).Attributes,
 	}
 }

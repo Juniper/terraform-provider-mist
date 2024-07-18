@@ -50,8 +50,10 @@ func (r *orgWxTagResource) Metadata(ctx context.Context, req resource.MetadataRe
 
 func (r *orgWxTagResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryWlan + "This resource manages the Org Wlan tags (labels)." +
-			"The tags can be used " +
+		MarkdownDescription: docCategoryWlan + "This resource manages the Org WxLan tags (labels)." +
+			"A WxTag is a label or tag used in the mist system to classify and categorize applications, " +
+			"users, and resources for the purpose of creating policies and making network management decisions." +
+			"They can be used " +
 			"  * within the WxRules to create filtering rules, or assign specific VLAN" +
 			"  * in the WLANs configuration to assign a WLAN to specific APs" +
 			"  * to identify unknown application used by Wi-Fi clients",
