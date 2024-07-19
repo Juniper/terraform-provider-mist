@@ -231,28 +231,26 @@ func (p *mistProvider) Configure(ctx context.Context, req provider.ConfigureRequ
 		apiResponse, err := tmp_client.AdminsLogin().Login(ctx, &body)
 		if err != nil {
 			resp.Diagnostics.AddError("Authentication Error", err.Error())
-			if resp.Diagnostics.HasError() {
-				return
-			}
-			// Process the Response Headers to extract the CSRF Token
-		} else {
-			csrfTokenSet := false
-			for hNAme, hVal := range apiResponse.Response.Header {
-				if hNAme == "Set-Cookie" {
-					for _, cooky := range hVal {
-						for _, cVal := range strings.Split(cooky, ";") {
-							if strings.HasPrefix(cVal, "csrftoken") {
-								csrfToken_string := strings.Split(cVal, "=")[1]
-								test := mistapi.NewCsrfTokenCredentials(string(csrfToken_string))
-								client_config = mistapi.CreateConfiguration(
-									mistapi.WithEnvironment(mist_cloud),
-									mistapi.WithBasicAuthCredentials(
-										mistapi.NewBasicAuthCredentials(username, password),
-									),
-									mistapi.WithCsrfTokenCredentials(test),
-								)
-								csrfTokenSet = true
-							}
+			return
+		}
+
+		// Process the Response Headers to extract the CSRF Token
+		csrfTokenSet := false
+		for hNAme, hVal := range apiResponse.Response.Header {
+			if hNAme == "Set-Cookie" {
+				for _, cooky := range hVal {
+					for _, cVal := range strings.Split(cooky, ";") {
+						if strings.HasPrefix(cVal, "csrftoken") {
+							csrfToken_string := strings.Split(cVal, "=")[1]
+							test := mistapi.NewCsrfTokenCredentials(string(csrfToken_string))
+							client_config = mistapi.CreateConfiguration(
+								mistapi.WithEnvironment(mist_cloud),
+								mistapi.WithBasicAuthCredentials(
+									mistapi.NewBasicAuthCredentials(username, password),
+								),
+								mistapi.WithCsrfTokenCredentials(test),
+							)
+							csrfTokenSet = true
 						}
 					}
 				}
@@ -260,9 +258,7 @@ func (p *mistProvider) Configure(ctx context.Context, req provider.ConfigureRequ
 			// IF CSRF Token not set, raise an error and exit
 			if !csrfTokenSet {
 				resp.Diagnostics.AddError("Authentication Error", "Unable to extract the CSRF Token from the Authentication response")
-				if resp.Diagnostics.HasError() {
-					return
-				}
+				return
 			}
 		}
 	}
@@ -272,9 +268,7 @@ func (p *mistProvider) Configure(ctx context.Context, req provider.ConfigureRequ
 	_, err := client.SelfAccount().GetSelf(ctx)
 	if err != nil {
 		resp.Diagnostics.AddError("Authentication Error", err.Error())
-		if resp.Diagnostics.HasError() {
-			return
-		}
+		return
 	}
 
 	resp.DataSourceData = client
