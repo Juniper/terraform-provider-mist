@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -160,6 +161,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "ACL Tags to identify traffic source or destination. Key name is the tag name",
 				MarkdownDescription: "ACL Tags to identify traffic source or destination. Key name is the tag name",
+				Validators: []validator.Map{
+					mapvalidator.SizeAtLeast(1),
+				},
 			},
 			"additional_config_cmds": schema.ListAttribute{
 				ElementType:         types.StringType,
@@ -241,6 +245,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 									Optional:            true,
 									Description:         "Property key is the MAC Address",
 									MarkdownDescription: "Property key is the MAC Address",
+									Validators: []validator.Map{
+										mapvalidator.SizeAtLeast(1),
+									},
 								},
 								"gateway": schema.StringAttribute{
 									Optional:            true,
@@ -309,6 +316,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 									Optional:            true,
 									Description:         "Property key is the DHCP option number",
 									MarkdownDescription: "Property key is the DHCP option number",
+									Validators: []validator.Map{
+										mapvalidator.SizeAtLeast(1),
+									},
 								},
 								"server_id_override": schema.BoolAttribute{
 									Optional:            true,
@@ -391,6 +401,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 									Optional:            true,
 									Description:         "Property key is <enterprise number>:<sub option code>, with\n* enterprise number: 1-65535 (https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers)\n* sub option code: 1-255, sub-option code",
 									MarkdownDescription: "Property key is <enterprise number>:<sub option code>, with\n* enterprise number: 1-65535 (https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers)\n* sub option code: 1-255, sub-option code",
+									Validators: []validator.Map{
+										mapvalidator.SizeAtLeast(1),
+									},
 								},
 							},
 							CustomType: ConfigType{
@@ -400,6 +413,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional: true,
+						Validators: []validator.Map{
+							mapvalidator.SizeAtLeast(1),
+						},
 					},
 					"enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -494,6 +510,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional: true,
+							Validators: []validator.Map{
+								mapvalidator.SizeAtLeast(1),
+							},
 						},
 						"no_resolve": schema.BoolAttribute{
 							Optional: true,
@@ -519,6 +538,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
+				Validators: []validator.Map{
+					mapvalidator.SizeAtLeast(1),
+				},
 			},
 			"extra_routes6": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
@@ -553,6 +575,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional: true,
+							Validators: []validator.Map{
+								mapvalidator.SizeAtLeast(1),
+							},
 						},
 						"no_resolve": schema.BoolAttribute{
 							Optional: true,
@@ -580,6 +605,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Property key is the destination CIDR (e.g. \"2a02:1234:420a:10c9::/64\")",
 				MarkdownDescription: "Property key is the destination CIDR (e.g. \"2a02:1234:420a:10c9::/64\")",
+				Validators: []validator.Map{
+					mapvalidator.SizeAtLeast(1),
+				},
 			},
 			"image1_url": schema.StringAttribute{
 				Computed: true,
@@ -707,7 +735,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "optional for pure switching, required when L3 / routing features are used",
 							MarkdownDescription: "optional for pure switching, required when L3 / routing features are used",
 						},
-						"vlan_id": schema.Int64Attribute{
+						"vlan_id": schema.StringAttribute{
 							Required: true,
 						},
 					},
@@ -720,6 +748,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Property key is network name",
 				MarkdownDescription: "Property key is network name",
+				Validators: []validator.Map{
+					mapvalidator.SizeAtLeast(1),
+				},
 			},
 			"notes": schema.StringAttribute{
 				Optional: true,
@@ -807,6 +838,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "OSPF areas to run on this device and the corresponding per-area-specific configs. Property key is the area",
 						MarkdownDescription: "OSPF areas to run on this device and the corresponding per-area-specific configs. Property key is the area",
+						Validators: []validator.Map{
+							mapvalidator.SizeAtLeast(1),
+						},
 					},
 					"enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -896,6 +930,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Property key is the network name",
 				MarkdownDescription: "Property key is the network name",
+				Validators: []validator.Map{
+					mapvalidator.SizeAtLeast(1),
+				},
 			},
 			"port_config": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
@@ -1006,6 +1043,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Property key is the port name or range (e.g. \"ge-0/0/0-10\")",
 				MarkdownDescription: "Property key is the port name or range (e.g. \"ge-0/0/0-10\")",
+				Validators: []validator.Map{
+					mapvalidator.SizeAtLeast(1),
+				},
 			},
 			"port_mirroring": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
@@ -1046,6 +1086,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Property key is the port mirroring instance name\nport_mirroring can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output.",
 				MarkdownDescription: "Property key is the port mirroring instance name\nport_mirroring can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output.",
+				Validators: []validator.Map{
+					mapvalidator.SizeAtLeast(1),
+				},
 			},
 			"port_usages": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
@@ -1385,6 +1428,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
+				Validators: []validator.Map{
+					mapvalidator.SizeAtLeast(1),
+				},
 			},
 			"radius_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -2857,6 +2903,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "Property key is the destination CIDR (e.g. \"10.0.0.0/8\")",
 							MarkdownDescription: "Property key is the destination CIDR (e.g. \"10.0.0.0/8\")",
+							Validators: []validator.Map{
+								mapvalidator.SizeAtLeast(1),
+							},
 						},
 					},
 					CustomType: VrfInstancesType{
@@ -2868,6 +2917,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Property key is the network name",
 				MarkdownDescription: "Property key is the network name",
+				Validators: []validator.Map{
+					mapvalidator.SizeAtLeast(1),
+				},
 			},
 			"vrrp_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -2890,6 +2942,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "Property key is the VRRP name",
 						MarkdownDescription: "Property key is the VRRP name",
+						Validators: []validator.Map{
+							mapvalidator.SizeAtLeast(1),
+						},
 					},
 				},
 				CustomType: VrrpConfigType{
@@ -10540,6 +10595,27 @@ func (v ExtraRoutes6Value) AttributeTypes(ctx context.Context) map[string]attr.T
 	}
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 var _ basetypes.ObjectTypable = IpConfigType{}
 
 type IpConfigType struct {
@@ -11714,12 +11790,12 @@ func (t NetworksType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 		return nil, diags
 	}
 
-	vlanIdVal, ok := vlanIdAttribute.(basetypes.Int64Value)
+	vlanIdVal, ok := vlanIdAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`vlan_id expected to be basetypes.Int64Value, was: %T`, vlanIdAttribute))
+			fmt.Sprintf(`vlan_id expected to be basetypes.StringValue, was: %T`, vlanIdAttribute))
 	}
 
 	if diags.HasError() {
@@ -11862,12 +11938,12 @@ func NewNetworksValue(attributeTypes map[string]attr.Type, attributes map[string
 		return NewNetworksValueUnknown(), diags
 	}
 
-	vlanIdVal, ok := vlanIdAttribute.(basetypes.Int64Value)
+	vlanIdVal, ok := vlanIdAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`vlan_id expected to be basetypes.Int64Value, was: %T`, vlanIdAttribute))
+			fmt.Sprintf(`vlan_id expected to be basetypes.StringValue, was: %T`, vlanIdAttribute))
 	}
 
 	if diags.HasError() {
@@ -11954,7 +12030,7 @@ type NetworksValue struct {
 	Isolation       basetypes.BoolValue   `tfsdk:"isolation"`
 	IsolationVlanId basetypes.StringValue `tfsdk:"isolation_vlan_id"`
 	Subnet          basetypes.StringValue `tfsdk:"subnet"`
-	VlanId          basetypes.Int64Value  `tfsdk:"vlan_id"`
+	VlanId          basetypes.StringValue `tfsdk:"vlan_id"`
 	state           attr.ValueState
 }
 
@@ -11967,7 +12043,7 @@ func (v NetworksValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 	attrTypes["isolation"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["isolation_vlan_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["subnet"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["vlan_id"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["vlan_id"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
@@ -12040,7 +12116,7 @@ func (v NetworksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 		"isolation":         basetypes.BoolType{},
 		"isolation_vlan_id": basetypes.StringType{},
 		"subnet":            basetypes.StringType{},
-		"vlan_id":           basetypes.Int64Type{},
+		"vlan_id":           basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -12110,7 +12186,7 @@ func (v NetworksValue) AttributeTypes(ctx context.Context) map[string]attr.Type 
 		"isolation":         basetypes.BoolType{},
 		"isolation_vlan_id": basetypes.StringType{},
 		"subnet":            basetypes.StringType{},
-		"vlan_id":           basetypes.Int64Type{},
+		"vlan_id":           basetypes.StringType{},
 	}
 }
 
@@ -24085,6 +24161,48 @@ func (v FilesValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	}
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 var _ basetypes.ObjectTypable = ServersType{}
 
 type ServersType struct {
@@ -25049,6 +25167,27 @@ func (v ServersValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	}
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 var _ basetypes.ObjectTypable = UsersType{}
 
 type UsersType struct {
@@ -25517,6 +25656,27 @@ func (v UsersValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 		"user":  basetypes.StringType{},
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 var _ basetypes.ObjectTypable = SnmpConfigType{}
 
@@ -29627,8 +29787,8 @@ func (v NotifyFilterValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"profile_name": v.ProfileName,
-			"contents":     snmpv3Contents,
+			"profile_name":    v.ProfileName,
+			"contents": snmpv3Contents,
 		})
 
 	return objVal, diags
@@ -31667,9 +31827,9 @@ func (v UsmValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, dia
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"engine_type": v.EngineType,
-			"engineid":    v.Engineid,
-			"users":       snmpv3Users,
+			"engine_type":  v.EngineType,
+			"engineid":     v.Engineid,
+			"users": snmpv3Users,
 		})
 
 	return objVal, diags
@@ -34140,8 +34300,8 @@ func (v SecurityToGroupValue) ToObjectValue(ctx context.Context) (basetypes.Obje
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"security_model": v.SecurityModel,
-			"content":        snmpv3VacmContent,
+			"security_model":      v.SecurityModel,
+			"content": snmpv3VacmContent,
 		})
 
 	return objVal, diags
@@ -37445,7 +37605,7 @@ func (v TacacsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"default_role":    v.DefaultRole,
 			"enabled":         v.Enabled,
 			"network":         v.Network,
-			"acct_servers":    tacacctServers,
+			"acct_servers": tacacctServers,
 			"tacplus_servers": tacplusServers,
 		})
 
