@@ -30,13 +30,12 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	var gateway_updown_threshold types.Int64
 	var led LedValue = NewLedValueNull()
 	var occupancy OccupancyValue = NewOccupancyValueNull()
-	// var org_id types.String
 	var persist_config_on_device types.Bool
 	var proxy ProxyValue = NewProxyValueNull()
 	var report_gatt types.Bool
 	var rogue RogueValue = NewRogueValueNull()
+	var rtsa RtsaValue = NewRtsaValueNull()
 	var simple_alert SimpleAlertValue = NewSimpleAlertValueNull()
-	// var site_id types.String
 	var skyatp SkyatpValue = NewSkyatpValueNull()
 	var ssh_keys types.List = types.ListNull(types.StringType)
 	var ssr SsrValue = NewSsrValueNull()
@@ -127,6 +126,10 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 		rogue = rogueSdkToTerraform(ctx, &diags, data.Rogue)
 	}
 
+	if data.Rtsa != nil {
+		rtsa = rtsaSdkToTerraform(ctx, &diags, data.Rtsa)
+	}
+
 	if data.SimpleAlert != nil {
 		simple_alert = simpleAlertSdkToTerraform(ctx, &diags, data.SimpleAlert)
 	}
@@ -204,6 +207,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	state.Proxy = proxy
 	state.ReportGatt = report_gatt
 	state.Rogue = rogue
+	state.Rtsa = rtsa
 	state.SimpleAlert = simple_alert
 	state.Skyatp = skyatp
 	// state.SrxApp = srxAppSdkToTerraform(ctx, &diags, data.SrxApp)

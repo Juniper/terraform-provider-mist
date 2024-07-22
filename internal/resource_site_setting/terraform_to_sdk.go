@@ -15,7 +15,11 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 	var diags diag.Diagnostics
 	unset := make(map[string]interface{})
 
-	// data.Analytic = analyticTerraformToSdk(ctx, &diags, plan.Analytic)
+	if plan.ApUpdownThreshold.ValueInt64Pointer() != nil {
+		data.Analytic = analyticTerraformToSdk(ctx, &diags, plan.Analytic)
+	} else {
+		unset["-analytic"] = ""
+	}
 
 	if plan.ApUpdownThreshold.ValueInt64Pointer() != nil {
 		data.ApUpdownThreshold = models.NewOptional(models.ToPointer(int(plan.ApUpdownThreshold.ValueInt64())))
@@ -113,6 +117,12 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 		data.Rogue = rogueTerraformToSdk(ctx, &diags, plan.Rogue)
 	} else {
 		unset["-rogue"] = ""
+	}
+
+	if !plan.Rtsa.IsNull() && !plan.Rtsa.IsUnknown() {
+		data.Rtsa = rtsaTerraformToSdk(ctx, &diags, plan.Rtsa)
+	} else {
+		unset["-rtsa"] = ""
 	}
 
 	if !plan.SimpleAlert.IsNull() && !plan.SimpleAlert.IsUnknown() {
