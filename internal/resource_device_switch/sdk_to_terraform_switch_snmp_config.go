@@ -524,13 +524,33 @@ func snmpV3VacmSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 }
 
 // V3
-func snmpV3SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data *models.Snmpv3Config) basetypes.ObjectValue {
-	notify := snmpV3NotifySdkToTerraform(ctx, diags, data.Notify)
-	notify_filter := snmpV3NotifyFilterSdkToTerraform(ctx, diags, data.NotifyFilter)
-	target_address := snmpV3TargetAddressSdkToTerraform(ctx, diags, data.TargetAddress)
-	target_parameters := snmpV3TargetParametersSdkToTerraform(ctx, diags, data.TargetParameters)
-	usm := snmpV3UsmSdkToTerraform(ctx, diags, data.Usm)
-	vacm := snmpV3VacmSdkToTerraform(ctx, diags, data.Vacm)
+func snmpV3SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.Snmpv3Config) basetypes.ObjectValue {
+	var notify basetypes.ListValue = types.ListNull(NotifyValue{}.Type(ctx))
+	var notify_filter basetypes.ListValue = types.ListNull(NotifyFilterValue{}.Type(ctx))
+	var target_address basetypes.ListValue = types.ListNull(TargetAddressValue{}.Type(ctx))
+	var target_parameters basetypes.ListValue = types.ListNull(TargetParametersValue{}.Type(ctx))
+	var usm basetypes.ObjectValue = types.ObjectNull(UsersValue{}.AttributeTypes(ctx))
+	var vacm basetypes.ObjectValue = types.ObjectNull(VacmValue{}.AttributeTypes(ctx))
+
+	if d.Notify != nil {
+		notify = snmpV3NotifySdkToTerraform(ctx, diags, d.Notify)
+	}
+	if d.NotifyFilter != nil {
+		notify_filter = snmpV3NotifyFilterSdkToTerraform(ctx, diags, d.NotifyFilter)
+	}
+	if d.TargetAddress != nil {
+		target_address = snmpV3TargetAddressSdkToTerraform(ctx, diags, d.TargetAddress)
+	}
+	if d.TargetParameters != nil {
+		target_parameters = snmpV3TargetParametersSdkToTerraform(ctx, diags, d.TargetParameters)
+	}
+	if d.Usm != nil {
+		usm = snmpV3UsmSdkToTerraform(ctx, diags, d.Usm)
+	}
+	if d.Vacm != nil {
+		vacm = snmpV3VacmSdkToTerraform(ctx, diags, d.Vacm)
+
+	}
 
 	r_attr_type := V3ConfigValue{}.AttributeTypes(ctx)
 	r_attr_value := map[string]attr.Value{
@@ -541,9 +561,10 @@ func snmpV3SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data *mo
 		"usm":               usm,
 		"vacm":              vacm,
 	}
-	r, e := basetypes.NewObjectValue(r_attr_type, r_attr_value)
+
+	data, e := basetypes.NewObjectValue(r_attr_type, r_attr_value)
 	diags.Append(e...)
-	return r
+	return data
 }
 
 // ////////////////////////////////
@@ -622,10 +643,18 @@ func snmpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 		if d.Network != nil {
 			network = types.StringValue(*d.Network)
 		}
-		trap_groups = snmpTrapGroupsSdkToTerraform(ctx, diags, d.TrapGroups)
-		v2c_config = snmpV2cSdkToTerraform(ctx, diags, d.V2cConfig)
-		v3_config = snmpV3SdkToTerraform(ctx, diags, d.V3Config)
-		views = snmpConfigViewsSdkToTerraform(ctx, diags, d.Views)
+		if d.TrapGroups != nil {
+			trap_groups = snmpTrapGroupsSdkToTerraform(ctx, diags, d.TrapGroups)
+		}
+		if d.V2cConfig != nil {
+			v2c_config = snmpV2cSdkToTerraform(ctx, diags, d.V2cConfig)
+		}
+		if d.V3Config != nil {
+			v3_config = snmpV3SdkToTerraform(ctx, diags, d.V3Config)
+		}
+		if d.Views != nil {
+			views = snmpConfigViewsSdkToTerraform(ctx, diags, d.Views)
+		}
 	}
 
 	data_map_attr_type := SnmpConfigValue{}.AttributeTypes(ctx)
