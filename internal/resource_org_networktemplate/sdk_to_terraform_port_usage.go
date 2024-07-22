@@ -105,7 +105,7 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		var disable_autoneg basetypes.BoolValue
 		var disabled basetypes.BoolValue
 		var duplex basetypes.StringValue
-		var dynamic_vlan_networks basetypes.ListValue = types.ListNull(types.StringType)
+		var dynamic_vlan_networks basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 		var enable_mac_auth basetypes.BoolValue
 		var enable_qos basetypes.BoolValue
 		var guest_network basetypes.StringValue
@@ -115,7 +115,7 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		var mac_limit basetypes.Int64Value
 		var mode basetypes.StringValue
 		var mtu basetypes.Int64Value
-		var networks basetypes.ListValue = types.ListNull(types.StringType)
+		var networks basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 		var persist_mac basetypes.BoolValue
 		var poe_disabled basetypes.BoolValue
 		var port_auth basetypes.StringValue
