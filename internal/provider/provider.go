@@ -81,39 +81,6 @@ func (p *mistProvider) Configure(ctx context.Context, req provider.ConfigureRequ
 		return
 	}
 
-	if config.Host.IsUnknown() {
-		resp.Diagnostics.AddAttributeError(
-			path.Root("host"),
-			"Unknown Mist API Host",
-			"The provider cannot create the Mist API client as there is an unknown configuration value for the Mist API host. "+
-				"Either target apply the source of the value first, set the value statically in the configuration, or use the HOST environment variable.",
-		)
-	}
-	if config.Apitoken.IsUnknown() && (config.Username.IsUnknown() && config.Password.IsUnknown()) {
-		resp.Diagnostics.AddError(
-			"Unknown Mist API Authentication",
-			"The provider cannot create the Mist API client as there is an unknown authentication configuration. "+
-				"Either the API Token or the Username/Password must be statically set in the configuration or as environment variables.",
-		)
-	} else if config.Apitoken.IsUnknown() && (!config.Username.IsUnknown() && config.Password.IsUnknown()) {
-		resp.Diagnostics.AddAttributeError(
-			path.Root("password"),
-			"Unknown Mist API Password",
-			"The provider cannot create the Mist API client as there is an unknown configuration value for the Mist Username whereas the MIST Username is configured. "+
-				"Either target apply the source of the value first, set the value statically in the configuration, or use the MIST_USERNAME environment variable.",
-		)
-	} else if config.Apitoken.IsUnknown() && (config.Username.IsUnknown() && !config.Password.IsUnknown()) {
-		resp.Diagnostics.AddAttributeError(
-			path.Root("password"),
-			"Unknown Mist API Password",
-			"The provider cannot create the Mist API client as there is an unknown configuration value for the Mist Password whereas the MIST Username is configured. "+
-				"Either target apply the source of the value first, set the value statically in the configuration, or use the MIST_PASSWORD environment variable.",
-		)
-	}
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
 	host := os.Getenv("MIST_HOST")
 	if !config.Host.IsNull() {
 		host = config.Host.ValueString()
