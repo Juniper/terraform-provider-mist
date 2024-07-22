@@ -9,14 +9,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-func analyticSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteOccupancyAnalytics) AnalyticValue {
-
+func analyticSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteSettingAnalytic) AnalyticValue {
 	var enabled basetypes.BoolValue
 
-	if d != nil && d.Enabled != nil {
+	if d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
 

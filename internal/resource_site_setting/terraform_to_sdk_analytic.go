@@ -4,15 +4,16 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
 func analyticTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d AnalyticValue) *models.SiteSettingAnalytic {
-	data := models.NewSiteSettingAnalytic()
+	data := models.SiteSettingAnalytic{}
 
-	data.SetEnabled(d.Enabled.ValueBool())
+	if d.Enabled.ValueBoolPointer() != nil {
+		data.Enabled = d.Enabled.ValueBoolPointer()
+	}
 
-	return data
+	return &data
 }

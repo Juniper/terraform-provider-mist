@@ -16,6 +16,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	var state SiteSettingModel
 	var diags diag.Diagnostics
 
+	var analytic AnalyticValue = NewAnalyticValueNull()
 	var ap_updown_threshold types.Int64
 	var auto_upgrade AutoUpgradeValue = NewAutoUpgradeValueNull()
 	var blacklist_url types.String
@@ -54,7 +55,9 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	state.SiteId = types.StringValue(data.SiteId.String())
 	state.OrgId = types.StringValue(data.OrgId.String())
 
-	// state.Analytic = analyticSdkToTerraform(ctx, &diags, data.Analytic)
+	if data.Analytic != nil {
+		analytic = analyticSdkToTerraform(ctx, &diags, data.Analytic)
+	}
 
 	if data.ApUpdownThreshold.Value() != nil {
 		ap_updown_threshold = types.Int64Value(int64(*data.ApUpdownThreshold.Value()))
@@ -183,6 +186,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 		zone_occupancy_alert = zoneOccupancySdkToTerraform(ctx, &diags, *data.ZoneOccupancyAlert)
 	}
 
+	state.Analytic = analytic
 	state.ApUpdownThreshold = ap_updown_threshold
 	state.AutoUpgrade = auto_upgrade
 	state.BleConfig = ble_config
