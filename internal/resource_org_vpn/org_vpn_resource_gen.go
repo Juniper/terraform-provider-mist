@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -71,6 +72,9 @@ func OrgVpnResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Required: true,
+				Validators: []validator.Map{
+					mapvalidator.SizeAtLeast(1),
+				},
 			},
 		},
 	}

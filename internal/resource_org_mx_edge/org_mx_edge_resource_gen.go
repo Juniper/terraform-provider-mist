@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -243,6 +244,9 @@ func OrgMxEdgeResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "global and per-VLAN. Property key is the VLAN ID",
 				MarkdownDescription: "global and per-VLAN. Property key is the VLAN ID",
+				Validators: []validator.Map{
+					mapvalidator.SizeAtLeast(1),
+				},
 			},
 			"tunterm_extra_routes": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
@@ -260,6 +264,9 @@ func OrgMxEdgeResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Property key is a CIDR",
 				MarkdownDescription: "Property key is a CIDR",
+				Validators: []validator.Map{
+					mapvalidator.SizeAtLeast(1),
+				},
 			},
 			"tunterm_igmp_snooping_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -434,6 +441,9 @@ func OrgMxEdgeResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "ip configs by VLAN ID. Property key is the VLAN ID",
 				MarkdownDescription: "ip configs by VLAN ID. Property key is the VLAN ID",
+				Validators: []validator.Map{
+					mapvalidator.SizeAtLeast(1),
+				},
 			},
 			"tunterm_port_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -496,6 +506,9 @@ func OrgMxEdgeResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "if custom vlan settings are desired",
 				MarkdownDescription: "if custom vlan settings are desired",
+				Validators: []validator.Map{
+					mapvalidator.SizeAtLeast(1),
+				},
 			},
 			"versions": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{

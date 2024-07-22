@@ -45,7 +45,7 @@ func apRedundancySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	var num_aps basetypes.Int64Value
 	var num_aps_with_switch_redundancy basetypes.Int64Value
 
-	if d.Modules != nil {
+	if d.Modules != nil && len(d.Modules) > 0 {
 		modules = apRedundancyModuleSdkToTerraform(ctx, diags, d.Modules)
 	}
 	if d.NumAps != nil {

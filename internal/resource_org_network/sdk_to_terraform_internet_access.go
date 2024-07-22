@@ -21,7 +21,7 @@ func InternetAccessSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 	if d.CreateSimpleServicePolicy != nil {
 		create_simple_service_policy = types.BoolValue(*d.CreateSimpleServicePolicy)
 	}
-	if d.DestinationNat != nil {
+	if d.DestinationNat != nil && len(d.DestinationNat) > 0 {
 		destination_nat = destinationNatSdkToTerraform(ctx, diags, d.DestinationNat)
 	}
 	if d.Enabled != nil {
@@ -30,7 +30,7 @@ func InternetAccessSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 	if d.Restricted != nil {
 		restricted = types.BoolValue(*d.Restricted)
 	}
-	if d.StaticNat != nil {
+	if d.StaticNat != nil && len(d.StaticNat) > 0 {
 		static_nac = staticNatSdkToTerraform(ctx, diags, d.StaticNat)
 	}
 

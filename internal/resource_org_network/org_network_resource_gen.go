@@ -5,6 +5,7 @@ package resource_org_network
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -81,6 +82,9 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "Property key may be an IP/Port (i.e. \"63.16.0.3:443\"), or a port (i.e. \":2222\")",
 						MarkdownDescription: "Property key may be an IP/Port (i.e. \"63.16.0.3:443\"), or a port (i.e. \":2222\")",
+						Validators: []validator.Map{
+							mapvalidator.SizeAtLeast(1),
+						},
 					},
 					"enabled": schema.BoolAttribute{
 						Optional: true,
@@ -116,6 +120,9 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "Property key may be an IP Address (i.e. \"172.16.0.1\"), and IP Address and Port (i.e. \"172.16.0.1:8443\") or a CIDR (i.e. \"172.16.0.12/20\")",
 						MarkdownDescription: "Property key may be an IP Address (i.e. \"172.16.0.1\"), and IP Address and Port (i.e. \"172.16.0.1:8443\") or a CIDR (i.e. \"172.16.0.12/20\")",
+						Validators: []validator.Map{
+							mapvalidator.SizeAtLeast(1),
+						},
 					},
 				},
 				CustomType: InternetAccessType{
@@ -168,6 +175,9 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
+				Validators: []validator.Map{
+					mapvalidator.SizeAtLeast(1),
+				},
 			},
 			"vlan_id": schema.Int64Attribute{
 				Optional: true,
@@ -208,6 +218,9 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "Property key may be an IP/Port (i.e. \"63.16.0.3:443\"), or a port (i.e. \":2222\")",
 							MarkdownDescription: "Property key may be an IP/Port (i.e. \"63.16.0.3:443\"), or a port (i.e. \":2222\")",
+							Validators: []validator.Map{
+								mapvalidator.SizeAtLeast(1),
+							},
 						},
 						"nat_pool": schema.StringAttribute{
 							Optional:            true,
@@ -287,6 +300,9 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "Property key may be an IP Address (i.e. \"172.16.0.1\"), and IP Address and Port (i.e. \"172.16.0.1:8443\") or a CIDR (i.e. \"172.16.0.12/20\")",
 							MarkdownDescription: "Property key may be an IP Address (i.e. \"172.16.0.1\"), and IP Address and Port (i.e. \"172.16.0.1:8443\") or a CIDR (i.e. \"172.16.0.12/20\")",
+							Validators: []validator.Map{
+								mapvalidator.SizeAtLeast(1),
+							},
 						},
 						"summarized_subnet": schema.StringAttribute{
 							Optional:            true,
@@ -313,6 +329,9 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Property key is the VPN name. Whether this network can be accessed from vpn",
 				MarkdownDescription: "Property key is the VPN name. Whether this network can be accessed from vpn",
+				Validators: []validator.Map{
+					mapvalidator.SizeAtLeast(1),
+				},
 			},
 		},
 	}

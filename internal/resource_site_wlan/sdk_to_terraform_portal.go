@@ -277,7 +277,6 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 		sponsor_status_notify = types.BoolValue(*d.SponsorStatusNotify)
 	}
 	if d != nil && d.Sponsors != nil {
-
 		sponsors_attr := make(map[string]attr.Value)
 		for k, v := range d.Sponsors {
 			sponsors_attr[k] = types.StringValue(string(v))

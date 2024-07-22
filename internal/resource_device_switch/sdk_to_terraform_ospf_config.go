@@ -41,7 +41,7 @@ func ospfConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d mo
 	var enabled basetypes.BoolValue
 	var reference_bandwidth basetypes.StringValue
 
-	if d.Areas != nil {
+	if d.Areas != nil && len(d.Areas) > 0 {
 		areas = ospfAreasConfigSdkToTerraform(ctx, diags, d.Areas)
 	}
 	if d.Enabled != nil {

@@ -154,7 +154,7 @@ func dhcpdConfigConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 			if d.LeaseTime != nil {
 				lease_time = types.Int64Value(int64(*d.LeaseTime))
 			}
-			if d.Options != nil {
+			if d.Options != nil && len(d.Options) > 0 {
 				options = dhcpdConfigOptionsSdkToTerraform(ctx, diags, d.Options)
 			}
 			if d.ServerIdOverride != nil {
@@ -172,7 +172,7 @@ func dhcpdConfigConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 			if d.Type6 != nil {
 				type6 = types.StringValue(string(*d.Type6))
 			}
-			if d.VendorEncapulated != nil {
+			if d.VendorEncapulated != nil && len(d.VendorEncapulated) > 0 {
 				vendor_encapulated = dhcpdConfigVendorEncapsulatedSdkToTerraform(ctx, diags, d.VendorEncapulated)
 			}
 

@@ -162,7 +162,7 @@ func bgpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map
 		if d.LocalAs != nil {
 			local_as = types.Int64Value(int64(*d.LocalAs))
 		}
-		if d.NeighborAs != nil {
+		if d.NeighborAs != nil && len(d.Neighbors) > 0 {
 			neighbor_as = types.Int64Value(int64(*d.NeighborAs))
 		}
 		if d.Neighbors != nil && len(d.Neighbors) > 0 {

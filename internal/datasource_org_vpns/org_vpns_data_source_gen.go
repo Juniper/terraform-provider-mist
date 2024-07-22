@@ -5,8 +5,10 @@ package datasource_org_vpns
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
@@ -61,6 +63,9 @@ func OrgVpnsDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Computed: true,
+							Validators: []validator.Map{
+								mapvalidator.SizeAtLeast(1),
+							},
 						},
 					},
 					CustomType: OrgVpnsType{

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -226,6 +227,9 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional: true,
+						Validators: []validator.Map{
+							mapvalidator.SizeAtLeast(1),
+						},
 					},
 					"enabled": schema.BoolAttribute{
 						Optional: true,
@@ -587,6 +591,9 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 						Required:            true,
 						Description:         "what services are allowed. \nProperty key is the service name",
 						MarkdownDescription: "what services are allowed. \nProperty key is the service name",
+						Validators: []validator.Map{
+							mapvalidator.SizeAtLeast(1),
+						},
 					},
 				},
 				CustomType: BonjourType{

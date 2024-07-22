@@ -43,7 +43,7 @@ func SdkToTerraform(ctx context.Context, data *models.GatewayTemplate) (OrgGatew
 	if data.AdditionalConfigCmds != nil {
 		additional_config_cmds = mist_transform.ListOfStringSdkToTerraform(ctx, data.AdditionalConfigCmds)
 	}
-	if data.BgpConfig != nil {
+	if data.BgpConfig != nil && len(data.BgpConfig) > 0 {
 		bgp_config = bgpConfigSdkToTerraform(ctx, &diags, data.BgpConfig)
 	}
 	if data.DhcpdConfig != nil {
@@ -58,16 +58,16 @@ func SdkToTerraform(ctx context.Context, data *models.GatewayTemplate) (OrgGatew
 	if data.DnsSuffix != nil {
 		dns_suffix = mist_transform.ListOfStringSdkToTerraform(ctx, data.DnsSuffix)
 	}
-	if data.ExtraRoutes != nil {
+	if data.ExtraRoutes != nil && len(data.ExtraRoutes) > 0 {
 		extra_routes = extraRoutesSdkToTerraform(ctx, &diags, data.ExtraRoutes)
 	}
 	if data.Id != nil {
 		id = types.StringValue(data.Id.String())
 	}
-	if data.IdpProfiles != nil {
+	if data.IdpProfiles != nil && len(data.IdpProfiles) > 0 {
 		idp_profiles = idpProfileSdkToTerraform(ctx, &diags, data.IdpProfiles)
 	}
-	if data.IpConfigs != nil {
+	if data.IpConfigs != nil && len(data.IpConfigs) > 0 {
 		ip_configs = ipConfigsSdkToTerraform(ctx, &diags, data.IpConfigs)
 	}
 	if data.Networks != nil {
@@ -85,22 +85,22 @@ func SdkToTerraform(ctx context.Context, data *models.GatewayTemplate) (OrgGatew
 	if data.OrgId != nil {
 		org_id = types.StringValue(data.OrgId.String())
 	}
-	if data.PathPreferences != nil {
+	if data.PathPreferences != nil && len(data.PathPreferences) > 0 {
 		path_preferences = pathPreferencesSdkToTerraform(ctx, &diags, data.PathPreferences)
 	}
-	if data.PortConfig != nil {
+	if data.PortConfig != nil && len(data.PortConfig) > 0 {
 		port_config = portConfigSdkToTerraform(ctx, &diags, data.PortConfig)
 	}
 	if data.RouterId != nil {
 		router_id = types.StringValue(*data.RouterId)
 	}
-	if data.RoutingPolicies != nil {
+	if data.RoutingPolicies != nil && len(data.RoutingPolicies) > 0 {
 		routing_policies = routingPolociesSdkToTerraform(ctx, &diags, data.RoutingPolicies)
 	}
 	if data.ServicePolicies != nil {
 		service_policies = servicePoliciesSdkToTerraform(ctx, &diags, data.ServicePolicies)
 	}
-	if data.TunnelConfigs != nil {
+	if data.TunnelConfigs != nil && len(data.TunnelConfigs) > 0 {
 		tunnel_configs = tunnelConfigsSdkToTerraform(ctx, &diags, data.TunnelConfigs)
 	}
 	if data.TunnelProviderOptions != nil {

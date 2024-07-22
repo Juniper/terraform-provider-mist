@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -982,6 +983,9 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "overwrites for a specific model. If a band is specified, it will shadow the default. Property key is the model name (e.g. \"AP63\")",
 				MarkdownDescription: "overwrites for a specific model. If a band is specified, it will shadow the default. Property key is the model name (e.g. \"AP63\")",
+				Validators: []validator.Map{
+					mapvalidator.SizeAtLeast(1),
+				},
 			},
 			"name": schema.StringAttribute{
 				Required:            true,

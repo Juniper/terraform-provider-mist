@@ -43,7 +43,7 @@ func vrrpConfigInstancesSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 	if d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
-	if d.Groups != nil {
+	if d.Groups != nil && len(d.Groups) > 0 {
 		groups = vrrpGroupsSdkToTerraform(ctx, diags, d.Groups)
 	}
 

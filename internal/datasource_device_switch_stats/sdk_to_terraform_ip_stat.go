@@ -47,7 +47,7 @@ func ipStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 	if d.Ip6.Value() != nil {
 		ip6 = types.StringValue(*d.Ip6.Value())
 	}
-	if d.Ips != nil {
+	if d.Ips != nil && len(d.Ips) > 0 {
 		map_attr_values := make(map[string]attr.Value)
 		for k, v := range d.Ips {
 			map_attr_values[k] = types.StringValue(v)

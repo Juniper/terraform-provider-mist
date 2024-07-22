@@ -45,7 +45,7 @@ func SdkToTerraform(ctx context.Context, data models.RfTemplate) (OrgRftemplateM
 
 	state.CountryCode = types.StringValue(*data.CountryCode)
 
-	if data.ModelSpecific != nil {
+	if data.ModelSpecific != nil && len(data.ModelSpecific) > 0 {
 		state.ModelSpecific = modelSpecificSdkToTerraform(ctx, &diags, data.ModelSpecific)
 	} else {
 		state.ModelSpecific = types.MapNull(ModelSpecificValue{}.Type(ctx))

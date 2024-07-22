@@ -70,7 +70,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	if data.AclPolicies != nil {
 		acl_policies = aclPoliciesSdkToTerraform(ctx, &diags, data.AclPolicies)
 	}
-	if data.AclTags != nil {
+	if data.AclTags != nil && len(data.AclTags) > 0 {
 		acl_tags = aclTagsSdkToTerraform(ctx, &diags, data.AclTags)
 	}
 	if data.AdditionalConfigCmds != nil {
@@ -94,10 +94,10 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	if data.EvpnConfig != nil {
 		evpn_config = evpnConfigSdkToTerraform(ctx, &diags, data.EvpnConfig)
 	}
-	if data.ExtraRoutes != nil {
+	if data.ExtraRoutes != nil && len(data.ExtraRoutes) > 0 {
 		extra_routes = extraRoutesSdkToTerraform(ctx, &diags, data.ExtraRoutes)
 	}
-	if data.ExtraRoutes6 != nil {
+	if data.ExtraRoutes6 != nil && len(data.ExtraRoutes6) > 0 {
 		extra_routes6 = extraRoutes6SdkToTerraform(ctx, &diags, data.ExtraRoutes6)
 	}
 	if data.Id != nil {
@@ -130,7 +130,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	if data.Name != nil {
 		name = types.StringValue(*data.Name)
 	}
-	if data.Networks != nil {
+	if data.Networks != nil && len(data.Networks) > 0 {
 		networks = NetworksSdkToTerraform(ctx, &diags, data.Networks)
 	}
 	if data.NtpServers != nil {
@@ -145,16 +145,16 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	if data.OspfConfig != nil {
 		ospf_config = ospfConfigSdkToTerraform(ctx, &diags, *data.OspfConfig)
 	}
-	if data.OtherIpConfigs != nil {
+	if data.OtherIpConfigs != nil && len(data.OtherIpConfigs) > 0 {
 		other_ip_configs = otherIpConfigsSdkToTerraform(ctx, &diags, data.OtherIpConfigs)
 	}
-	if data.PortConfig != nil {
+	if data.PortConfig != nil && len(data.PortConfig) > 0 {
 		port_config = portConfigSdkToTerraform(ctx, &diags, data.PortConfig)
 	}
-	if data.PortMirroring != nil {
+	if data.PortMirroring != nil && len(data.PortMirroring) > 0 {
 		port_mirroring = portMirroringSdkToTerraform(ctx, &diags, data.PortMirroring)
 	}
-	if data.PortUsages != nil {
+	if data.PortUsages != nil && len(data.PortUsages) > 0 {
 		port_usages = portUsagesSdkToTerraform(ctx, &diags, data.PortUsages)
 	}
 	if data.RadiusConfig != nil {
@@ -190,10 +190,10 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	if data.VrfConfig != nil {
 		vrf_config = vrfConfigSdkToTerraform(ctx, &diags, data.VrfConfig)
 	}
-	if data.Vars != nil {
+	if data.Vars != nil && len(data.Vars) > 0 {
 		vars = varsSdkToTerraform(ctx, &diags, data.Vars)
 	}
-	if data.VrfInstances != nil {
+	if data.VrfInstances != nil && len(data.VrfInstances) > 0 {
 		vrf_instances = vrfInstancesSdkToTerraform(ctx, &diags, data.VrfInstances)
 	}
 	if data.VrrpConfig != nil {

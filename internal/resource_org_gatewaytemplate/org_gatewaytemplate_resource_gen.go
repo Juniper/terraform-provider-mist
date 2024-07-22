@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -176,6 +177,9 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "if per-neighbor as is desired. Property key is the neighbor address",
 							MarkdownDescription: "if per-neighbor as is desired. Property key is the neighbor address",
+							Validators: []validator.Map{
+								mapvalidator.SizeAtLeast(1),
+							},
 						},
 						"networks": schema.ListAttribute{
 							ElementType:         types.StringType,
@@ -234,6 +238,9 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
+				Validators: []validator.Map{
+					mapvalidator.SizeAtLeast(1),
+				},
 			},
 			"dhcpd_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -273,6 +280,9 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 									Optional:            true,
 									Description:         "Property key is the MAC Address",
 									MarkdownDescription: "Property key is the MAC Address",
+									Validators: []validator.Map{
+										mapvalidator.SizeAtLeast(1),
+									},
 								},
 								"gateway": schema.StringAttribute{
 									Optional:            true,
@@ -341,6 +351,9 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 									Optional:            true,
 									Description:         "Property key is the DHCP option number",
 									MarkdownDescription: "Property key is the DHCP option number",
+									Validators: []validator.Map{
+										mapvalidator.SizeAtLeast(1),
+									},
 								},
 								"server_id_override": schema.BoolAttribute{
 									Optional:            true,
@@ -427,6 +440,9 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 									Optional:            true,
 									Description:         "Property key is <enterprise number>:<sub option code>, with\n* enterprise number: 1-65535 (https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers)\n* sub option code: 1-255, sub-option code",
 									MarkdownDescription: "Property key is <enterprise number>:<sub option code>, with\n* enterprise number: 1-65535 (https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers)\n* sub option code: 1-255, sub-option code",
+									Validators: []validator.Map{
+										mapvalidator.SizeAtLeast(1),
+									},
 								},
 							},
 							CustomType: ConfigType{
@@ -436,6 +452,9 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional: true,
+						Validators: []validator.Map{
+							mapvalidator.SizeAtLeast(1),
+						},
 					},
 					"enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -483,6 +502,9 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
+				Validators: []validator.Map{
+					mapvalidator.SizeAtLeast(1),
+				},
 			},
 			"id": schema.StringAttribute{
 				Computed: true,
@@ -569,6 +591,9 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Property key is the profile name",
 				MarkdownDescription: "Property key is the profile name",
+				Validators: []validator.Map{
+					mapvalidator.SizeAtLeast(1),
+				},
 			},
 			"ip_configs": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
@@ -609,6 +634,9 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Property key is the network name",
 				MarkdownDescription: "Property key is the network name",
+				Validators: []validator.Map{
+					mapvalidator.SizeAtLeast(1),
+				},
 			},
 			"name": schema.StringAttribute{
 				Required: true,
@@ -671,6 +699,9 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 									Optional:            true,
 									Description:         "Property key may be an IP/Port (i.e. \"63.16.0.3:443\"), or a port (i.e. \":2222\")",
 									MarkdownDescription: "Property key may be an IP/Port (i.e. \"63.16.0.3:443\"), or a port (i.e. \":2222\")",
+									Validators: []validator.Map{
+										mapvalidator.SizeAtLeast(1),
+									},
 								},
 								"enabled": schema.BoolAttribute{
 									Optional: true,
@@ -706,6 +737,9 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 									Optional:            true,
 									Description:         "Property key may be an IP Address (i.e. \"172.16.0.1\"), and IP Address and Port (i.e. \"172.16.0.1:8443\") or a CIDR (i.e. \"172.16.0.12/20\")",
 									MarkdownDescription: "Property key may be an IP Address (i.e. \"172.16.0.1\"), and IP Address and Port (i.e. \"172.16.0.1:8443\") or a CIDR (i.e. \"172.16.0.12/20\")",
+									Validators: []validator.Map{
+										mapvalidator.SizeAtLeast(1),
+									},
 								},
 							},
 							CustomType: InternetAccessType{
@@ -752,6 +786,9 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional: true,
+							Validators: []validator.Map{
+								mapvalidator.SizeAtLeast(1),
+							},
 						},
 						"vlan_id": schema.Int64Attribute{
 							Optional: true,
@@ -791,6 +828,9 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 										Optional:            true,
 										Description:         "Property key may be an IP/Port (i.e. \"63.16.0.3:443\"), or a port (i.e. \":2222\")",
 										MarkdownDescription: "Property key may be an IP/Port (i.e. \"63.16.0.3:443\"), or a port (i.e. \":2222\")",
+										Validators: []validator.Map{
+											mapvalidator.SizeAtLeast(1),
+										},
 									},
 									"nat_pool": schema.StringAttribute{
 										Optional:            true,
@@ -866,6 +906,9 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 										Optional:            true,
 										Description:         "Property key may be an IP Address (i.e. \"172.16.0.1\"), and IP Address and Port (i.e. \"172.16.0.1:8443\") or a CIDR (i.e. \"172.16.0.12/20\")",
 										MarkdownDescription: "Property key may be an IP Address (i.e. \"172.16.0.1\"), and IP Address and Port (i.e. \"172.16.0.1:8443\") or a CIDR (i.e. \"172.16.0.12/20\")",
+										Validators: []validator.Map{
+											mapvalidator.SizeAtLeast(1),
+										},
 									},
 									"summarized_subnet": schema.StringAttribute{
 										Optional:            true,
@@ -892,6 +935,9 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "Property key is the VPN name. Whether this network can be accessed from vpn",
 							MarkdownDescription: "Property key is the VPN name. Whether this network can be accessed from vpn",
+							Validators: []validator.Map{
+								mapvalidator.SizeAtLeast(1),
+							},
 						},
 					},
 					CustomType: NetworksType{
@@ -1112,6 +1158,9 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Property key is the path name",
 				MarkdownDescription: "Property key is the path name",
+				Validators: []validator.Map{
+					mapvalidator.SizeAtLeast(1),
+				},
 			},
 			"port_config": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
@@ -1475,6 +1524,9 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional: true,
+							Validators: []validator.Map{
+								mapvalidator.SizeAtLeast(1),
+							},
 						},
 						"wan_arp_policer": schema.StringAttribute{
 							Optional:            true,
@@ -1545,6 +1597,9 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Property key is the port(s) name or range (e.g. \"ge-0/0/0-10\")",
 				MarkdownDescription: "Property key is the port(s) name or range (e.g. \"ge-0/0/0-10\")",
+				Validators: []validator.Map{
+					mapvalidator.SizeAtLeast(1),
+				},
 			},
 			"router_id": schema.StringAttribute{
 				Optional:            true,
@@ -1731,6 +1786,9 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Property key is the routing policy name",
 				MarkdownDescription: "Property key is the routing policy name",
+				Validators: []validator.Map{
+					mapvalidator.SizeAtLeast(1),
+				},
 			},
 			"service_policies": schema.ListNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
@@ -2289,6 +2347,9 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Property key is the tunnel name",
 				MarkdownDescription: "Property key is the tunnel name",
+				Validators: []validator.Map{
+					mapvalidator.SizeAtLeast(1),
+				},
 			},
 			"tunnel_provider_options": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{

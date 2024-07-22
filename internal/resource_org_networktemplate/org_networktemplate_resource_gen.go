@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -160,6 +161,9 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "ACL Tags to identify traffic source or destination. Key name is the tag name",
 				MarkdownDescription: "ACL Tags to identify traffic source or destination. Key name is the tag name",
+				Validators: []validator.Map{
+					mapvalidator.SizeAtLeast(1),
+				},
 			},
 			"additional_config_cmds": schema.ListAttribute{
 				ElementType:         types.StringType,
@@ -244,6 +248,9 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional: true,
+							Validators: []validator.Map{
+								mapvalidator.SizeAtLeast(1),
+							},
 						},
 						"no_resolve": schema.BoolAttribute{
 							Optional: true,
@@ -269,6 +276,9 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
+				Validators: []validator.Map{
+					mapvalidator.SizeAtLeast(1),
+				},
 			},
 			"extra_routes6": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
@@ -303,6 +313,9 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional: true,
+							Validators: []validator.Map{
+								mapvalidator.SizeAtLeast(1),
+							},
 						},
 						"no_resolve": schema.BoolAttribute{
 							Optional: true,
@@ -330,6 +343,9 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Property key is the destination CIDR (e.g. \"2a02:1234:420a:10c9::/64\")",
 				MarkdownDescription: "Property key is the destination CIDR (e.g. \"2a02:1234:420a:10c9::/64\")",
+				Validators: []validator.Map{
+					mapvalidator.SizeAtLeast(1),
+				},
 			},
 			"id": schema.StringAttribute{
 				Computed: true,
@@ -386,6 +402,9 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Property key is network name",
 				MarkdownDescription: "Property key is network name",
+				Validators: []validator.Map{
+					mapvalidator.SizeAtLeast(1),
+				},
 			},
 			"ntp_servers": schema.ListAttribute{
 				ElementType:         types.StringType,
@@ -435,6 +454,9 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Property key is the port mirroring instance name\nport_mirroring can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output.",
 				MarkdownDescription: "Property key is the port mirroring instance name\nport_mirroring can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output.",
+				Validators: []validator.Map{
+					mapvalidator.SizeAtLeast(1),
+				},
 			},
 			"port_usages": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
@@ -774,6 +796,9 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
+				Validators: []validator.Map{
+					mapvalidator.SizeAtLeast(1),
+				},
 			},
 			"radius_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -2049,6 +2074,9 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									Optional:            true,
 									Description:         "Propery key is the interface name or interface range",
 									MarkdownDescription: "Propery key is the interface name or interface range",
+									Validators: []validator.Map{
+										mapvalidator.SizeAtLeast(1),
+									},
 								},
 								"port_mirroring": schema.MapNestedAttribute{
 									NestedObject: schema.NestedAttributeObject{
@@ -2089,6 +2117,9 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									Optional:            true,
 									Description:         "Property key is the port mirroring instance name\nport_mirroring can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output.",
 									MarkdownDescription: "Property key is the port mirroring instance name\nport_mirroring can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output.",
+									Validators: []validator.Map{
+										mapvalidator.SizeAtLeast(1),
+									},
 								},
 							},
 							CustomType: MatchingRulesType{
@@ -2332,6 +2363,9 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "Property key is the destination CIDR (e.g. \"10.0.0.0/8\")",
 							MarkdownDescription: "Property key is the destination CIDR (e.g. \"10.0.0.0/8\")",
+							Validators: []validator.Map{
+								mapvalidator.SizeAtLeast(1),
+							},
 						},
 					},
 					CustomType: VrfInstancesType{
@@ -2343,6 +2377,9 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Property key is the network name",
 				MarkdownDescription: "Property key is the network name",
+				Validators: []validator.Map{
+					mapvalidator.SizeAtLeast(1),
+				},
 			},
 		},
 	}
