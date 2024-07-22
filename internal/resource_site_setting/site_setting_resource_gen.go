@@ -24,6 +24,23 @@ import (
 func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
+			"analytic": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"enabled": schema.BoolAttribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "enable Advanced Analytic feature (using SUB-ANA license)",
+						MarkdownDescription: "enable Advanced Analytic feature (using SUB-ANA license)",
+						Default:             booldefault.StaticBool(false),
+					},
+				},
+				CustomType: AnalyticType{
+					ObjectType: types.ObjectType{
+						AttrTypes: AnalyticValue{}.AttributeTypes(ctx),
+					},
+				},
+				Optional: true,
+			},
 			"ap_updown_threshold": schema.Int64Attribute{
 				Optional:            true,
 				Description:         "enable threshold-based device down delivery for AP devices only. When configured it takes effect for AP devices and `device_updown_threshold` is ignored.",
@@ -585,6 +602,160 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "**Note**: if hours does not exist, it’s treated as everyday of the week, 00:00-23:59. Currently we don’t allow multiple ranges for the same day\n\n**Note**: default values for `dwell_tags`: passerby (1,300) bounce (301, 14400) engaged (14401, 28800) stationed (28801, 42000)\n\n**Note**: default values for `dwell_tag_names`: passerby = “Passerby”, bounce = “Visitor”, engaged = “Associates”, stationed = “Assets”",
 				MarkdownDescription: "**Note**: if hours does not exist, it’s treated as everyday of the week, 00:00-23:59. Currently we don’t allow multiple ranges for the same day\n\n**Note**: default values for `dwell_tags`: passerby (1,300) bounce (301, 14400) engaged (14401, 28800) stationed (28801, 42000)\n\n**Note**: default values for `dwell_tag_names`: passerby = “Passerby”, bounce = “Visitor”, engaged = “Associates”, stationed = “Assets”",
 			},
+			"gateway_mgmt": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"admin_sshkeys": schema.ListAttribute{
+						ElementType:         types.StringType,
+						Optional:            true,
+						Description:         "for SSR only, as direct root access is not allowed",
+						MarkdownDescription: "for SSR only, as direct root access is not allowed",
+					},
+					"app_probing": schema.SingleNestedAttribute{
+						Attributes: map[string]schema.Attribute{
+							"apps": schema.ListAttribute{
+								ElementType: types.StringType,
+								Optional:    true,
+							},
+							"custom_apps": schema.ListNestedAttribute{
+								NestedObject: schema.NestedAttributeObject{
+									Attributes: map[string]schema.Attribute{
+										"address": schema.StringAttribute{
+											Optional:            true,
+											Description:         "if `protocol`==`icmp`",
+											MarkdownDescription: "if `protocol`==`icmp`",
+										},
+										"app_type": schema.StringAttribute{
+											Optional: true,
+										},
+										"hostname": schema.ListAttribute{
+											ElementType:         types.StringType,
+											Optional:            true,
+											Description:         "if `protocol`==`http`",
+											MarkdownDescription: "if `protocol`==`http`",
+										},
+										"name": schema.StringAttribute{
+											Optional: true,
+										},
+										"network": schema.StringAttribute{
+											Optional: true,
+										},
+										"protocol": schema.StringAttribute{
+											Optional: true,
+											Computed: true,
+											Validators: []validator.String{
+												stringvalidator.OneOf(
+													"",
+													"http",
+													"udp",
+												),
+											},
+											Default: stringdefault.StaticString("http"),
+										},
+										"url": schema.StringAttribute{
+											Optional:            true,
+											Description:         "if `protocol`==`http`",
+											MarkdownDescription: "if `protocol`==`http`",
+										},
+										"vrf": schema.StringAttribute{
+											Optional: true,
+										},
+									},
+									CustomType: CustomAppsType{
+										ObjectType: types.ObjectType{
+											AttrTypes: CustomAppsValue{}.AttributeTypes(ctx),
+										},
+									},
+								},
+								Optional: true,
+							},
+							"enabled": schema.BoolAttribute{
+								Optional: true,
+							},
+						},
+						CustomType: AppProbingType{
+							ObjectType: types.ObjectType{
+								AttrTypes: AppProbingValue{}.AttributeTypes(ctx),
+							},
+						},
+						Optional: true,
+					},
+					"app_usage": schema.BoolAttribute{
+						Optional:            true,
+						Description:         "consumes uplink bandwidth, requires WA license",
+						MarkdownDescription: "consumes uplink bandwidth, requires WA license",
+					},
+					"auto_signature_update": schema.SingleNestedAttribute{
+						Attributes: map[string]schema.Attribute{
+							"day_of_week": schema.StringAttribute{
+								Optional: true,
+								Validators: []validator.String{
+									stringvalidator.OneOf(
+										"",
+										"any",
+										"mon",
+										"tue",
+										"wed",
+										"thu",
+										"fri",
+										"sat",
+										"sun",
+									),
+								},
+							},
+							"enable": schema.BoolAttribute{
+								Optional: true,
+								Computed: true,
+								Default:  booldefault.StaticBool(true),
+							},
+							"time_of_day": schema.StringAttribute{
+								Optional:            true,
+								Description:         "optional, Mist will decide the timing",
+								MarkdownDescription: "optional, Mist will decide the timing",
+							},
+						},
+						CustomType: AutoSignatureUpdateType{
+							ObjectType: types.ObjectType{
+								AttrTypes: AutoSignatureUpdateValue{}.AttributeTypes(ctx),
+							},
+						},
+						Optional: true,
+					},
+					"config_revert_timer": schema.Int64Attribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "he rollback timer for commit confirmed",
+						MarkdownDescription: "he rollback timer for commit confirmed",
+						Validators: []validator.Int64{
+							int64validator.Between(1, 30),
+						},
+						Default: int64default.StaticInt64(10),
+					},
+					"probe_hosts": schema.ListAttribute{
+						ElementType: types.StringType,
+						Optional:    true,
+					},
+					"root_password": schema.StringAttribute{
+						Optional:            true,
+						Sensitive:           true,
+						Description:         "for SRX only",
+						MarkdownDescription: "for SRX only",
+					},
+					"security_log_source_address": schema.StringAttribute{
+						Optional: true,
+					},
+					"security_log_source_interface": schema.StringAttribute{
+						Optional: true,
+					},
+				},
+				CustomType: GatewayMgmtType{
+					ObjectType: types.ObjectType{
+						AttrTypes: GatewayMgmtValue{}.AttributeTypes(ctx),
+					},
+				},
+				Optional:            true,
+				Description:         "Gateway Site settings",
+				MarkdownDescription: "Gateway Site settings",
+			},
 			"gateway_updown_threshold": schema.Int64Attribute{
 				Optional:            true,
 				Description:         "enable threshold-based device down delivery for Gateway devices only. When configured it takes effect for GW devices and `device_updown_threshold` is ignored.",
@@ -751,6 +922,41 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "Rogue site settings",
 				MarkdownDescription: "Rogue site settings",
 			},
+			"rtsa": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"app_waking": schema.BoolAttribute{
+						Optional: true,
+						Computed: true,
+						Default:  booldefault.StaticBool(false),
+					},
+					"disable_dead_reckoning": schema.BoolAttribute{
+						Optional: true,
+					},
+					"disable_pressure_sensor": schema.BoolAttribute{
+						Optional: true,
+						Computed: true,
+						Default:  booldefault.StaticBool(false),
+					},
+					"enabled": schema.BoolAttribute{
+						Optional: true,
+					},
+					"track_asset": schema.BoolAttribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "asset tracking related",
+						MarkdownDescription: "asset tracking related",
+						Default:             booldefault.StaticBool(false),
+					},
+				},
+				CustomType: RtsaType{
+					ObjectType: types.ObjectType{
+						AttrTypes: RtsaValue{}.AttributeTypes(ctx),
+					},
+				},
+				Optional:            true,
+				Description:         "managed mobility",
+				MarkdownDescription: "managed mobility",
+			},
 			"simple_alert": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"arp_failure": schema.SingleNestedAttribute{
@@ -877,6 +1083,21 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Optional: true,
 			},
+			"srx_app": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"enabled": schema.BoolAttribute{
+						Optional: true,
+						Computed: true,
+						Default:  booldefault.StaticBool(false),
+					},
+				},
+				CustomType: SrxAppType{
+					ObjectType: types.ObjectType{
+						AttrTypes: SrxAppValue{}.AttributeTypes(ctx),
+					},
+				},
+				Optional: true,
+			},
 			"ssh_keys": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
@@ -974,11 +1195,52 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "whether to track anonymous BLE assets (requires ‘track_asset’ enabled)",
 				Default:             booldefault.StaticBool(false),
 			},
+			"uplink_port_config": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"dot1x": schema.BoolAttribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "Whether to do 802.1x against uplink switch. When enaled, AP cert will be used to do EAP-TLS and the Org's CA Cert has to be provisioned at the switch",
+						MarkdownDescription: "Whether to do 802.1x against uplink switch. When enaled, AP cert will be used to do EAP-TLS and the Org's CA Cert has to be provisioned at the switch",
+						Default:             booldefault.StaticBool(false),
+					},
+					"keep_wlans_up_if_down": schema.BoolAttribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "by default, WLANs are disabled when uplink is down. In some scenario, like SiteSurvey, one would want the AP to keep sending beacons.",
+						MarkdownDescription: "by default, WLANs are disabled when uplink is down. In some scenario, like SiteSurvey, one would want the AP to keep sending beacons.",
+						Default:             booldefault.StaticBool(false),
+					},
+				},
+				CustomType: UplinkPortConfigType{
+					ObjectType: types.ObjectType{
+						AttrTypes: UplinkPortConfigValue{}.AttributeTypes(ctx),
+					},
+				},
+				Optional: true,
+			},
 			"vars": schema.MapAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
 				Description:         "a dictionary of name->value, the vars can then be used in Wlans. This can overwrite those from Site Vars",
 				MarkdownDescription: "a dictionary of name->value, the vars can then be used in Wlans. This can overwrite those from Site Vars",
+			},
+			"vna": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"enabled": schema.BoolAttribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "enable Virtual Network Assistant (using SUB-VNA license). This applied to AP / Switch / Gateway",
+						MarkdownDescription: "enable Virtual Network Assistant (using SUB-VNA license). This applied to AP / Switch / Gateway",
+						Default:             booldefault.StaticBool(false),
+					},
+				},
+				CustomType: VnaType{
+					ObjectType: types.ObjectType{
+						AttrTypes: VnaValue{}.AttributeTypes(ctx),
+					},
+				},
+				Optional: true,
 			},
 			"vs_instance": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -990,6 +1252,21 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 				CustomType: VsInstanceType{
 					ObjectType: types.ObjectType{
 						AttrTypes: VsInstanceValue{}.AttributeTypes(ctx),
+					},
+				},
+				Optional: true,
+			},
+			"wan_vna": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"enabled": schema.BoolAttribute{
+						Optional: true,
+						Computed: true,
+						Default:  booldefault.StaticBool(false),
+					},
+				},
+				CustomType: WanVnaType{
+					ObjectType: types.ObjectType{
+						AttrTypes: WanVnaValue{}.AttributeTypes(ctx),
 					},
 				},
 				Optional: true,
@@ -1194,6 +1471,7 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 }
 
 type SiteSettingModel struct {
+	Analytic                        AnalyticValue              `tfsdk:"analytic"`
 	ApUpdownThreshold               types.Int64                `tfsdk:"ap_updown_threshold"`
 	AutoUpgrade                     AutoUpgradeValue           `tfsdk:"auto_upgrade"`
 	BlacklistUrl                    types.String               `tfsdk:"blacklist_url"`
@@ -1204,6 +1482,7 @@ type SiteSettingModel struct {
 	DeviceUpdownThreshold           types.Int64                `tfsdk:"device_updown_threshold"`
 	DisabledSystemDefinedPortUsages types.List                 `tfsdk:"disabled_system_defined_port_usages"`
 	Engagement                      EngagementValue            `tfsdk:"engagement"`
+	GatewayMgmt                     GatewayMgmtValue           `tfsdk:"gateway_mgmt"`
 	GatewayUpdownThreshold          types.Int64                `tfsdk:"gateway_updown_threshold"`
 	Led                             LedValue                   `tfsdk:"led"`
 	Occupancy                       OccupancyValue             `tfsdk:"occupancy"`
@@ -1212,22 +1491,351 @@ type SiteSettingModel struct {
 	Proxy                           ProxyValue                 `tfsdk:"proxy"`
 	ReportGatt                      types.Bool                 `tfsdk:"report_gatt"`
 	Rogue                           RogueValue                 `tfsdk:"rogue"`
+	Rtsa                            RtsaValue                  `tfsdk:"rtsa"`
 	SimpleAlert                     SimpleAlertValue           `tfsdk:"simple_alert"`
 	SiteId                          types.String               `tfsdk:"site_id"`
 	Skyatp                          SkyatpValue                `tfsdk:"skyatp"`
+	SrxApp                          SrxAppValue                `tfsdk:"srx_app"`
 	SshKeys                         types.List                 `tfsdk:"ssh_keys"`
 	Ssr                             SsrValue                   `tfsdk:"ssr"`
 	SwitchUpdownThreshold           types.Int64                `tfsdk:"switch_updown_threshold"`
 	SyntheticTest                   SyntheticTestValue         `tfsdk:"synthetic_test"`
 	TrackAnonymousDevices           types.Bool                 `tfsdk:"track_anonymous_devices"`
+	UplinkPortConfig                UplinkPortConfigValue      `tfsdk:"uplink_port_config"`
 	Vars                            types.Map                  `tfsdk:"vars"`
+	Vna                             VnaValue                   `tfsdk:"vna"`
 	VsInstance                      VsInstanceValue            `tfsdk:"vs_instance"`
+	WanVna                          WanVnaValue                `tfsdk:"wan_vna"`
 	WatchedStationUrl               types.String               `tfsdk:"watched_station_url"`
 	WhitelistUrl                    types.String               `tfsdk:"whitelist_url"`
 	Wids                            WidsValue                  `tfsdk:"wids"`
 	Wifi                            WifiValue                  `tfsdk:"wifi"`
 	WiredVna                        WiredVnaValue              `tfsdk:"wired_vna"`
 	ZoneOccupancyAlert              ZoneOccupancyAlertValue    `tfsdk:"zone_occupancy_alert"`
+}
+
+var _ basetypes.ObjectTypable = AnalyticType{}
+
+type AnalyticType struct {
+	basetypes.ObjectType
+}
+
+func (t AnalyticType) Equal(o attr.Type) bool {
+	other, ok := o.(AnalyticType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t AnalyticType) String() string {
+	return "AnalyticType"
+}
+
+func (t AnalyticType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return AnalyticValue{
+		Enabled: enabledVal,
+		state:   attr.ValueStateKnown,
+	}, diags
+}
+
+func NewAnalyticValueNull() AnalyticValue {
+	return AnalyticValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewAnalyticValueUnknown() AnalyticValue {
+	return AnalyticValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewAnalyticValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (AnalyticValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing AnalyticValue Attribute Value",
+				"While creating a AnalyticValue value, a missing attribute value was detected. "+
+					"A AnalyticValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("AnalyticValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid AnalyticValue Attribute Type",
+				"While creating a AnalyticValue value, an invalid attribute value was detected. "+
+					"A AnalyticValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("AnalyticValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("AnalyticValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra AnalyticValue Attribute Value",
+				"While creating a AnalyticValue value, an extra attribute value was detected. "+
+					"A AnalyticValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra AnalyticValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewAnalyticValueUnknown(), diags
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return NewAnalyticValueUnknown(), diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	if diags.HasError() {
+		return NewAnalyticValueUnknown(), diags
+	}
+
+	return AnalyticValue{
+		Enabled: enabledVal,
+		state:   attr.ValueStateKnown,
+	}, diags
+}
+
+func NewAnalyticValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) AnalyticValue {
+	object, diags := NewAnalyticValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewAnalyticValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t AnalyticType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewAnalyticValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewAnalyticValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewAnalyticValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewAnalyticValueMust(AnalyticValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t AnalyticType) ValueType(ctx context.Context) attr.Value {
+	return AnalyticValue{}
+}
+
+var _ basetypes.ObjectValuable = AnalyticValue{}
+
+type AnalyticValue struct {
+	Enabled basetypes.BoolValue `tfsdk:"enabled"`
+	state   attr.ValueState
+}
+
+func (v AnalyticValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 1)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 1)
+
+		val, err = v.Enabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enabled"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v AnalyticValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v AnalyticValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v AnalyticValue) String() string {
+	return "AnalyticValue"
+}
+
+func (v AnalyticValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"enabled": basetypes.BoolType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"enabled": v.Enabled,
+		})
+
+	return objVal, diags
+}
+
+func (v AnalyticValue) Equal(o attr.Value) bool {
+	other, ok := o.(AnalyticValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Enabled.Equal(other.Enabled) {
+		return false
+	}
+
+	return true
+}
+
+func (v AnalyticValue) Type(ctx context.Context) attr.Type {
+	return AnalyticType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v AnalyticValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"enabled": basetypes.BoolType{},
+	}
 }
 
 var _ basetypes.ObjectTypable = AutoUpgradeType{}
@@ -7456,6 +8064,2547 @@ func (v DwellTagsValue) AttributeTypes(ctx context.Context) map[string]attr.Type
 	}
 }
 
+var _ basetypes.ObjectTypable = GatewayMgmtType{}
+
+type GatewayMgmtType struct {
+	basetypes.ObjectType
+}
+
+func (t GatewayMgmtType) Equal(o attr.Type) bool {
+	other, ok := o.(GatewayMgmtType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t GatewayMgmtType) String() string {
+	return "GatewayMgmtType"
+}
+
+func (t GatewayMgmtType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	adminSshkeysAttribute, ok := attributes["admin_sshkeys"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`admin_sshkeys is missing from object`)
+
+		return nil, diags
+	}
+
+	adminSshkeysVal, ok := adminSshkeysAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`admin_sshkeys expected to be basetypes.ListValue, was: %T`, adminSshkeysAttribute))
+	}
+
+	appProbingAttribute, ok := attributes["app_probing"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`app_probing is missing from object`)
+
+		return nil, diags
+	}
+
+	appProbingVal, ok := appProbingAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`app_probing expected to be basetypes.ObjectValue, was: %T`, appProbingAttribute))
+	}
+
+	appUsageAttribute, ok := attributes["app_usage"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`app_usage is missing from object`)
+
+		return nil, diags
+	}
+
+	appUsageVal, ok := appUsageAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`app_usage expected to be basetypes.BoolValue, was: %T`, appUsageAttribute))
+	}
+
+	autoSignatureUpdateAttribute, ok := attributes["auto_signature_update"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`auto_signature_update is missing from object`)
+
+		return nil, diags
+	}
+
+	autoSignatureUpdateVal, ok := autoSignatureUpdateAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`auto_signature_update expected to be basetypes.ObjectValue, was: %T`, autoSignatureUpdateAttribute))
+	}
+
+	configRevertTimerAttribute, ok := attributes["config_revert_timer"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`config_revert_timer is missing from object`)
+
+		return nil, diags
+	}
+
+	configRevertTimerVal, ok := configRevertTimerAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`config_revert_timer expected to be basetypes.Int64Value, was: %T`, configRevertTimerAttribute))
+	}
+
+	probeHostsAttribute, ok := attributes["probe_hosts"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`probe_hosts is missing from object`)
+
+		return nil, diags
+	}
+
+	probeHostsVal, ok := probeHostsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`probe_hosts expected to be basetypes.ListValue, was: %T`, probeHostsAttribute))
+	}
+
+	rootPasswordAttribute, ok := attributes["root_password"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`root_password is missing from object`)
+
+		return nil, diags
+	}
+
+	rootPasswordVal, ok := rootPasswordAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`root_password expected to be basetypes.StringValue, was: %T`, rootPasswordAttribute))
+	}
+
+	securityLogSourceAddressAttribute, ok := attributes["security_log_source_address"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`security_log_source_address is missing from object`)
+
+		return nil, diags
+	}
+
+	securityLogSourceAddressVal, ok := securityLogSourceAddressAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`security_log_source_address expected to be basetypes.StringValue, was: %T`, securityLogSourceAddressAttribute))
+	}
+
+	securityLogSourceInterfaceAttribute, ok := attributes["security_log_source_interface"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`security_log_source_interface is missing from object`)
+
+		return nil, diags
+	}
+
+	securityLogSourceInterfaceVal, ok := securityLogSourceInterfaceAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`security_log_source_interface expected to be basetypes.StringValue, was: %T`, securityLogSourceInterfaceAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return GatewayMgmtValue{
+		AdminSshkeys:               adminSshkeysVal,
+		AppProbing:                 appProbingVal,
+		AppUsage:                   appUsageVal,
+		AutoSignatureUpdate:        autoSignatureUpdateVal,
+		ConfigRevertTimer:          configRevertTimerVal,
+		ProbeHosts:                 probeHostsVal,
+		RootPassword:               rootPasswordVal,
+		SecurityLogSourceAddress:   securityLogSourceAddressVal,
+		SecurityLogSourceInterface: securityLogSourceInterfaceVal,
+		state:                      attr.ValueStateKnown,
+	}, diags
+}
+
+func NewGatewayMgmtValueNull() GatewayMgmtValue {
+	return GatewayMgmtValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewGatewayMgmtValueUnknown() GatewayMgmtValue {
+	return GatewayMgmtValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewGatewayMgmtValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (GatewayMgmtValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing GatewayMgmtValue Attribute Value",
+				"While creating a GatewayMgmtValue value, a missing attribute value was detected. "+
+					"A GatewayMgmtValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("GatewayMgmtValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid GatewayMgmtValue Attribute Type",
+				"While creating a GatewayMgmtValue value, an invalid attribute value was detected. "+
+					"A GatewayMgmtValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("GatewayMgmtValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("GatewayMgmtValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra GatewayMgmtValue Attribute Value",
+				"While creating a GatewayMgmtValue value, an extra attribute value was detected. "+
+					"A GatewayMgmtValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra GatewayMgmtValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewGatewayMgmtValueUnknown(), diags
+	}
+
+	adminSshkeysAttribute, ok := attributes["admin_sshkeys"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`admin_sshkeys is missing from object`)
+
+		return NewGatewayMgmtValueUnknown(), diags
+	}
+
+	adminSshkeysVal, ok := adminSshkeysAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`admin_sshkeys expected to be basetypes.ListValue, was: %T`, adminSshkeysAttribute))
+	}
+
+	appProbingAttribute, ok := attributes["app_probing"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`app_probing is missing from object`)
+
+		return NewGatewayMgmtValueUnknown(), diags
+	}
+
+	appProbingVal, ok := appProbingAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`app_probing expected to be basetypes.ObjectValue, was: %T`, appProbingAttribute))
+	}
+
+	appUsageAttribute, ok := attributes["app_usage"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`app_usage is missing from object`)
+
+		return NewGatewayMgmtValueUnknown(), diags
+	}
+
+	appUsageVal, ok := appUsageAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`app_usage expected to be basetypes.BoolValue, was: %T`, appUsageAttribute))
+	}
+
+	autoSignatureUpdateAttribute, ok := attributes["auto_signature_update"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`auto_signature_update is missing from object`)
+
+		return NewGatewayMgmtValueUnknown(), diags
+	}
+
+	autoSignatureUpdateVal, ok := autoSignatureUpdateAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`auto_signature_update expected to be basetypes.ObjectValue, was: %T`, autoSignatureUpdateAttribute))
+	}
+
+	configRevertTimerAttribute, ok := attributes["config_revert_timer"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`config_revert_timer is missing from object`)
+
+		return NewGatewayMgmtValueUnknown(), diags
+	}
+
+	configRevertTimerVal, ok := configRevertTimerAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`config_revert_timer expected to be basetypes.Int64Value, was: %T`, configRevertTimerAttribute))
+	}
+
+	probeHostsAttribute, ok := attributes["probe_hosts"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`probe_hosts is missing from object`)
+
+		return NewGatewayMgmtValueUnknown(), diags
+	}
+
+	probeHostsVal, ok := probeHostsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`probe_hosts expected to be basetypes.ListValue, was: %T`, probeHostsAttribute))
+	}
+
+	rootPasswordAttribute, ok := attributes["root_password"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`root_password is missing from object`)
+
+		return NewGatewayMgmtValueUnknown(), diags
+	}
+
+	rootPasswordVal, ok := rootPasswordAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`root_password expected to be basetypes.StringValue, was: %T`, rootPasswordAttribute))
+	}
+
+	securityLogSourceAddressAttribute, ok := attributes["security_log_source_address"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`security_log_source_address is missing from object`)
+
+		return NewGatewayMgmtValueUnknown(), diags
+	}
+
+	securityLogSourceAddressVal, ok := securityLogSourceAddressAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`security_log_source_address expected to be basetypes.StringValue, was: %T`, securityLogSourceAddressAttribute))
+	}
+
+	securityLogSourceInterfaceAttribute, ok := attributes["security_log_source_interface"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`security_log_source_interface is missing from object`)
+
+		return NewGatewayMgmtValueUnknown(), diags
+	}
+
+	securityLogSourceInterfaceVal, ok := securityLogSourceInterfaceAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`security_log_source_interface expected to be basetypes.StringValue, was: %T`, securityLogSourceInterfaceAttribute))
+	}
+
+	if diags.HasError() {
+		return NewGatewayMgmtValueUnknown(), diags
+	}
+
+	return GatewayMgmtValue{
+		AdminSshkeys:               adminSshkeysVal,
+		AppProbing:                 appProbingVal,
+		AppUsage:                   appUsageVal,
+		AutoSignatureUpdate:        autoSignatureUpdateVal,
+		ConfigRevertTimer:          configRevertTimerVal,
+		ProbeHosts:                 probeHostsVal,
+		RootPassword:               rootPasswordVal,
+		SecurityLogSourceAddress:   securityLogSourceAddressVal,
+		SecurityLogSourceInterface: securityLogSourceInterfaceVal,
+		state:                      attr.ValueStateKnown,
+	}, diags
+}
+
+func NewGatewayMgmtValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) GatewayMgmtValue {
+	object, diags := NewGatewayMgmtValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewGatewayMgmtValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t GatewayMgmtType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewGatewayMgmtValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewGatewayMgmtValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewGatewayMgmtValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewGatewayMgmtValueMust(GatewayMgmtValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t GatewayMgmtType) ValueType(ctx context.Context) attr.Value {
+	return GatewayMgmtValue{}
+}
+
+var _ basetypes.ObjectValuable = GatewayMgmtValue{}
+
+type GatewayMgmtValue struct {
+	AdminSshkeys               basetypes.ListValue   `tfsdk:"admin_sshkeys"`
+	AppProbing                 basetypes.ObjectValue `tfsdk:"app_probing"`
+	AppUsage                   basetypes.BoolValue   `tfsdk:"app_usage"`
+	AutoSignatureUpdate        basetypes.ObjectValue `tfsdk:"auto_signature_update"`
+	ConfigRevertTimer          basetypes.Int64Value  `tfsdk:"config_revert_timer"`
+	ProbeHosts                 basetypes.ListValue   `tfsdk:"probe_hosts"`
+	RootPassword               basetypes.StringValue `tfsdk:"root_password"`
+	SecurityLogSourceAddress   basetypes.StringValue `tfsdk:"security_log_source_address"`
+	SecurityLogSourceInterface basetypes.StringValue `tfsdk:"security_log_source_interface"`
+	state                      attr.ValueState
+}
+
+func (v GatewayMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 9)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["admin_sshkeys"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["app_probing"] = basetypes.ObjectType{
+		AttrTypes: AppProbingValue{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
+	attrTypes["app_usage"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["auto_signature_update"] = basetypes.ObjectType{
+		AttrTypes: AutoSignatureUpdateValue{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
+	attrTypes["config_revert_timer"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["probe_hosts"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["root_password"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["security_log_source_address"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["security_log_source_interface"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 9)
+
+		val, err = v.AdminSshkeys.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["admin_sshkeys"] = val
+
+		val, err = v.AppProbing.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["app_probing"] = val
+
+		val, err = v.AppUsage.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["app_usage"] = val
+
+		val, err = v.AutoSignatureUpdate.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["auto_signature_update"] = val
+
+		val, err = v.ConfigRevertTimer.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["config_revert_timer"] = val
+
+		val, err = v.ProbeHosts.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["probe_hosts"] = val
+
+		val, err = v.RootPassword.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["root_password"] = val
+
+		val, err = v.SecurityLogSourceAddress.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["security_log_source_address"] = val
+
+		val, err = v.SecurityLogSourceInterface.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["security_log_source_interface"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v GatewayMgmtValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v GatewayMgmtValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v GatewayMgmtValue) String() string {
+	return "GatewayMgmtValue"
+}
+
+func (v GatewayMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	var appProbing basetypes.ObjectValue
+
+	if v.AppProbing.IsNull() {
+		appProbing = types.ObjectNull(
+			AppProbingValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.AppProbing.IsUnknown() {
+		appProbing = types.ObjectUnknown(
+			AppProbingValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.AppProbing.IsNull() && !v.AppProbing.IsUnknown() {
+		appProbing = types.ObjectValueMust(
+			AppProbingValue{}.AttributeTypes(ctx),
+			v.AppProbing.Attributes(),
+		)
+	}
+
+	var autoSignatureUpdate basetypes.ObjectValue
+
+	if v.AutoSignatureUpdate.IsNull() {
+		autoSignatureUpdate = types.ObjectNull(
+			AutoSignatureUpdateValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.AutoSignatureUpdate.IsUnknown() {
+		autoSignatureUpdate = types.ObjectUnknown(
+			AutoSignatureUpdateValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.AutoSignatureUpdate.IsNull() && !v.AutoSignatureUpdate.IsUnknown() {
+		autoSignatureUpdate = types.ObjectValueMust(
+			AutoSignatureUpdateValue{}.AttributeTypes(ctx),
+			v.AutoSignatureUpdate.Attributes(),
+		)
+	}
+
+	adminSshkeysVal, d := types.ListValue(types.StringType, v.AdminSshkeys.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"admin_sshkeys": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"app_probing": basetypes.ObjectType{
+				AttrTypes: AppProbingValue{}.AttributeTypes(ctx),
+			},
+			"app_usage": basetypes.BoolType{},
+			"auto_signature_update": basetypes.ObjectType{
+				AttrTypes: AutoSignatureUpdateValue{}.AttributeTypes(ctx),
+			},
+			"config_revert_timer": basetypes.Int64Type{},
+			"probe_hosts": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"root_password":                 basetypes.StringType{},
+			"security_log_source_address":   basetypes.StringType{},
+			"security_log_source_interface": basetypes.StringType{},
+		}), diags
+	}
+
+	probeHostsVal, d := types.ListValue(types.StringType, v.ProbeHosts.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"admin_sshkeys": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"app_probing": basetypes.ObjectType{
+				AttrTypes: AppProbingValue{}.AttributeTypes(ctx),
+			},
+			"app_usage": basetypes.BoolType{},
+			"auto_signature_update": basetypes.ObjectType{
+				AttrTypes: AutoSignatureUpdateValue{}.AttributeTypes(ctx),
+			},
+			"config_revert_timer": basetypes.Int64Type{},
+			"probe_hosts": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"root_password":                 basetypes.StringType{},
+			"security_log_source_address":   basetypes.StringType{},
+			"security_log_source_interface": basetypes.StringType{},
+		}), diags
+	}
+
+	attributeTypes := map[string]attr.Type{
+		"admin_sshkeys": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"app_probing": basetypes.ObjectType{
+			AttrTypes: AppProbingValue{}.AttributeTypes(ctx),
+		},
+		"app_usage": basetypes.BoolType{},
+		"auto_signature_update": basetypes.ObjectType{
+			AttrTypes: AutoSignatureUpdateValue{}.AttributeTypes(ctx),
+		},
+		"config_revert_timer": basetypes.Int64Type{},
+		"probe_hosts": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"root_password":                 basetypes.StringType{},
+		"security_log_source_address":   basetypes.StringType{},
+		"security_log_source_interface": basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"admin_sshkeys":                 adminSshkeysVal,
+			"app_probing":                   appProbing,
+			"app_usage":                     v.AppUsage,
+			"auto_signature_update":         autoSignatureUpdate,
+			"config_revert_timer":           v.ConfigRevertTimer,
+			"probe_hosts":                   probeHostsVal,
+			"root_password":                 v.RootPassword,
+			"security_log_source_address":   v.SecurityLogSourceAddress,
+			"security_log_source_interface": v.SecurityLogSourceInterface,
+		})
+
+	return objVal, diags
+}
+
+func (v GatewayMgmtValue) Equal(o attr.Value) bool {
+	other, ok := o.(GatewayMgmtValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.AdminSshkeys.Equal(other.AdminSshkeys) {
+		return false
+	}
+
+	if !v.AppProbing.Equal(other.AppProbing) {
+		return false
+	}
+
+	if !v.AppUsage.Equal(other.AppUsage) {
+		return false
+	}
+
+	if !v.AutoSignatureUpdate.Equal(other.AutoSignatureUpdate) {
+		return false
+	}
+
+	if !v.ConfigRevertTimer.Equal(other.ConfigRevertTimer) {
+		return false
+	}
+
+	if !v.ProbeHosts.Equal(other.ProbeHosts) {
+		return false
+	}
+
+	if !v.RootPassword.Equal(other.RootPassword) {
+		return false
+	}
+
+	if !v.SecurityLogSourceAddress.Equal(other.SecurityLogSourceAddress) {
+		return false
+	}
+
+	if !v.SecurityLogSourceInterface.Equal(other.SecurityLogSourceInterface) {
+		return false
+	}
+
+	return true
+}
+
+func (v GatewayMgmtValue) Type(ctx context.Context) attr.Type {
+	return GatewayMgmtType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v GatewayMgmtValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"admin_sshkeys": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"app_probing": basetypes.ObjectType{
+			AttrTypes: AppProbingValue{}.AttributeTypes(ctx),
+		},
+		"app_usage": basetypes.BoolType{},
+		"auto_signature_update": basetypes.ObjectType{
+			AttrTypes: AutoSignatureUpdateValue{}.AttributeTypes(ctx),
+		},
+		"config_revert_timer": basetypes.Int64Type{},
+		"probe_hosts": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"root_password":                 basetypes.StringType{},
+		"security_log_source_address":   basetypes.StringType{},
+		"security_log_source_interface": basetypes.StringType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = AppProbingType{}
+
+type AppProbingType struct {
+	basetypes.ObjectType
+}
+
+func (t AppProbingType) Equal(o attr.Type) bool {
+	other, ok := o.(AppProbingType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t AppProbingType) String() string {
+	return "AppProbingType"
+}
+
+func (t AppProbingType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	appsAttribute, ok := attributes["apps"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`apps is missing from object`)
+
+		return nil, diags
+	}
+
+	appsVal, ok := appsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`apps expected to be basetypes.ListValue, was: %T`, appsAttribute))
+	}
+
+	customAppsAttribute, ok := attributes["custom_apps"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`custom_apps is missing from object`)
+
+		return nil, diags
+	}
+
+	customAppsVal, ok := customAppsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`custom_apps expected to be basetypes.ListValue, was: %T`, customAppsAttribute))
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return AppProbingValue{
+		Apps:       appsVal,
+		CustomApps: customAppsVal,
+		Enabled:    enabledVal,
+		state:      attr.ValueStateKnown,
+	}, diags
+}
+
+func NewAppProbingValueNull() AppProbingValue {
+	return AppProbingValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewAppProbingValueUnknown() AppProbingValue {
+	return AppProbingValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewAppProbingValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (AppProbingValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing AppProbingValue Attribute Value",
+				"While creating a AppProbingValue value, a missing attribute value was detected. "+
+					"A AppProbingValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("AppProbingValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid AppProbingValue Attribute Type",
+				"While creating a AppProbingValue value, an invalid attribute value was detected. "+
+					"A AppProbingValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("AppProbingValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("AppProbingValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra AppProbingValue Attribute Value",
+				"While creating a AppProbingValue value, an extra attribute value was detected. "+
+					"A AppProbingValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra AppProbingValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewAppProbingValueUnknown(), diags
+	}
+
+	appsAttribute, ok := attributes["apps"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`apps is missing from object`)
+
+		return NewAppProbingValueUnknown(), diags
+	}
+
+	appsVal, ok := appsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`apps expected to be basetypes.ListValue, was: %T`, appsAttribute))
+	}
+
+	customAppsAttribute, ok := attributes["custom_apps"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`custom_apps is missing from object`)
+
+		return NewAppProbingValueUnknown(), diags
+	}
+
+	customAppsVal, ok := customAppsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`custom_apps expected to be basetypes.ListValue, was: %T`, customAppsAttribute))
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return NewAppProbingValueUnknown(), diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	if diags.HasError() {
+		return NewAppProbingValueUnknown(), diags
+	}
+
+	return AppProbingValue{
+		Apps:       appsVal,
+		CustomApps: customAppsVal,
+		Enabled:    enabledVal,
+		state:      attr.ValueStateKnown,
+	}, diags
+}
+
+func NewAppProbingValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) AppProbingValue {
+	object, diags := NewAppProbingValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewAppProbingValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t AppProbingType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewAppProbingValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewAppProbingValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewAppProbingValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewAppProbingValueMust(AppProbingValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t AppProbingType) ValueType(ctx context.Context) attr.Value {
+	return AppProbingValue{}
+}
+
+var _ basetypes.ObjectValuable = AppProbingValue{}
+
+type AppProbingValue struct {
+	Apps       basetypes.ListValue `tfsdk:"apps"`
+	CustomApps basetypes.ListValue `tfsdk:"custom_apps"`
+	Enabled    basetypes.BoolValue `tfsdk:"enabled"`
+	state      attr.ValueState
+}
+
+func (v AppProbingValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 3)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["apps"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["custom_apps"] = basetypes.ListType{
+		ElemType: CustomAppsValue{}.Type(ctx),
+	}.TerraformType(ctx)
+	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 3)
+
+		val, err = v.Apps.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["apps"] = val
+
+		val, err = v.CustomApps.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["custom_apps"] = val
+
+		val, err = v.Enabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enabled"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v AppProbingValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v AppProbingValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v AppProbingValue) String() string {
+	return "AppProbingValue"
+}
+
+func (v AppProbingValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	customApps := types.ListValueMust(
+		CustomAppsType{
+			basetypes.ObjectType{
+				AttrTypes: CustomAppsValue{}.AttributeTypes(ctx),
+			},
+		},
+		v.CustomApps.Elements(),
+	)
+
+	if v.CustomApps.IsNull() {
+		customApps = types.ListNull(
+			CustomAppsType{
+				basetypes.ObjectType{
+					AttrTypes: CustomAppsValue{}.AttributeTypes(ctx),
+				},
+			},
+		)
+	}
+
+	if v.CustomApps.IsUnknown() {
+		customApps = types.ListUnknown(
+			CustomAppsType{
+				basetypes.ObjectType{
+					AttrTypes: CustomAppsValue{}.AttributeTypes(ctx),
+				},
+			},
+		)
+	}
+
+	appsVal, d := types.ListValue(types.StringType, v.Apps.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"apps": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"custom_apps": basetypes.ListType{
+				ElemType: CustomAppsValue{}.Type(ctx),
+			},
+			"enabled": basetypes.BoolType{},
+		}), diags
+	}
+
+	attributeTypes := map[string]attr.Type{
+		"apps": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"custom_apps": basetypes.ListType{
+			ElemType: CustomAppsValue{}.Type(ctx),
+		},
+		"enabled": basetypes.BoolType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"apps":        appsVal,
+			"custom_apps": customApps,
+			"enabled":     v.Enabled,
+		})
+
+	return objVal, diags
+}
+
+func (v AppProbingValue) Equal(o attr.Value) bool {
+	other, ok := o.(AppProbingValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Apps.Equal(other.Apps) {
+		return false
+	}
+
+	if !v.CustomApps.Equal(other.CustomApps) {
+		return false
+	}
+
+	if !v.Enabled.Equal(other.Enabled) {
+		return false
+	}
+
+	return true
+}
+
+func (v AppProbingValue) Type(ctx context.Context) attr.Type {
+	return AppProbingType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v AppProbingValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"apps": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"custom_apps": basetypes.ListType{
+			ElemType: CustomAppsValue{}.Type(ctx),
+		},
+		"enabled": basetypes.BoolType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = CustomAppsType{}
+
+type CustomAppsType struct {
+	basetypes.ObjectType
+}
+
+func (t CustomAppsType) Equal(o attr.Type) bool {
+	other, ok := o.(CustomAppsType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t CustomAppsType) String() string {
+	return "CustomAppsType"
+}
+
+func (t CustomAppsType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	addressAttribute, ok := attributes["address"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`address is missing from object`)
+
+		return nil, diags
+	}
+
+	addressVal, ok := addressAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`address expected to be basetypes.StringValue, was: %T`, addressAttribute))
+	}
+
+	appTypeAttribute, ok := attributes["app_type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`app_type is missing from object`)
+
+		return nil, diags
+	}
+
+	appTypeVal, ok := appTypeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`app_type expected to be basetypes.StringValue, was: %T`, appTypeAttribute))
+	}
+
+	hostnameAttribute, ok := attributes["hostname"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`hostname is missing from object`)
+
+		return nil, diags
+	}
+
+	hostnameVal, ok := hostnameAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`hostname expected to be basetypes.ListValue, was: %T`, hostnameAttribute))
+	}
+
+	nameAttribute, ok := attributes["name"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`name is missing from object`)
+
+		return nil, diags
+	}
+
+	nameVal, ok := nameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`name expected to be basetypes.StringValue, was: %T`, nameAttribute))
+	}
+
+	networkAttribute, ok := attributes["network"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`network is missing from object`)
+
+		return nil, diags
+	}
+
+	networkVal, ok := networkAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`network expected to be basetypes.StringValue, was: %T`, networkAttribute))
+	}
+
+	protocolAttribute, ok := attributes["protocol"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`protocol is missing from object`)
+
+		return nil, diags
+	}
+
+	protocolVal, ok := protocolAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`protocol expected to be basetypes.StringValue, was: %T`, protocolAttribute))
+	}
+
+	urlAttribute, ok := attributes["url"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`url is missing from object`)
+
+		return nil, diags
+	}
+
+	urlVal, ok := urlAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`url expected to be basetypes.StringValue, was: %T`, urlAttribute))
+	}
+
+	vrfAttribute, ok := attributes["vrf"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`vrf is missing from object`)
+
+		return nil, diags
+	}
+
+	vrfVal, ok := vrfAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`vrf expected to be basetypes.StringValue, was: %T`, vrfAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return CustomAppsValue{
+		Address:  addressVal,
+		AppType:  appTypeVal,
+		Hostname: hostnameVal,
+		Name:     nameVal,
+		Network:  networkVal,
+		Protocol: protocolVal,
+		Url:      urlVal,
+		Vrf:      vrfVal,
+		state:    attr.ValueStateKnown,
+	}, diags
+}
+
+func NewCustomAppsValueNull() CustomAppsValue {
+	return CustomAppsValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewCustomAppsValueUnknown() CustomAppsValue {
+	return CustomAppsValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewCustomAppsValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (CustomAppsValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing CustomAppsValue Attribute Value",
+				"While creating a CustomAppsValue value, a missing attribute value was detected. "+
+					"A CustomAppsValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("CustomAppsValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid CustomAppsValue Attribute Type",
+				"While creating a CustomAppsValue value, an invalid attribute value was detected. "+
+					"A CustomAppsValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("CustomAppsValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("CustomAppsValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra CustomAppsValue Attribute Value",
+				"While creating a CustomAppsValue value, an extra attribute value was detected. "+
+					"A CustomAppsValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra CustomAppsValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewCustomAppsValueUnknown(), diags
+	}
+
+	addressAttribute, ok := attributes["address"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`address is missing from object`)
+
+		return NewCustomAppsValueUnknown(), diags
+	}
+
+	addressVal, ok := addressAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`address expected to be basetypes.StringValue, was: %T`, addressAttribute))
+	}
+
+	appTypeAttribute, ok := attributes["app_type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`app_type is missing from object`)
+
+		return NewCustomAppsValueUnknown(), diags
+	}
+
+	appTypeVal, ok := appTypeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`app_type expected to be basetypes.StringValue, was: %T`, appTypeAttribute))
+	}
+
+	hostnameAttribute, ok := attributes["hostname"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`hostname is missing from object`)
+
+		return NewCustomAppsValueUnknown(), diags
+	}
+
+	hostnameVal, ok := hostnameAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`hostname expected to be basetypes.ListValue, was: %T`, hostnameAttribute))
+	}
+
+	nameAttribute, ok := attributes["name"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`name is missing from object`)
+
+		return NewCustomAppsValueUnknown(), diags
+	}
+
+	nameVal, ok := nameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`name expected to be basetypes.StringValue, was: %T`, nameAttribute))
+	}
+
+	networkAttribute, ok := attributes["network"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`network is missing from object`)
+
+		return NewCustomAppsValueUnknown(), diags
+	}
+
+	networkVal, ok := networkAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`network expected to be basetypes.StringValue, was: %T`, networkAttribute))
+	}
+
+	protocolAttribute, ok := attributes["protocol"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`protocol is missing from object`)
+
+		return NewCustomAppsValueUnknown(), diags
+	}
+
+	protocolVal, ok := protocolAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`protocol expected to be basetypes.StringValue, was: %T`, protocolAttribute))
+	}
+
+	urlAttribute, ok := attributes["url"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`url is missing from object`)
+
+		return NewCustomAppsValueUnknown(), diags
+	}
+
+	urlVal, ok := urlAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`url expected to be basetypes.StringValue, was: %T`, urlAttribute))
+	}
+
+	vrfAttribute, ok := attributes["vrf"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`vrf is missing from object`)
+
+		return NewCustomAppsValueUnknown(), diags
+	}
+
+	vrfVal, ok := vrfAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`vrf expected to be basetypes.StringValue, was: %T`, vrfAttribute))
+	}
+
+	if diags.HasError() {
+		return NewCustomAppsValueUnknown(), diags
+	}
+
+	return CustomAppsValue{
+		Address:  addressVal,
+		AppType:  appTypeVal,
+		Hostname: hostnameVal,
+		Name:     nameVal,
+		Network:  networkVal,
+		Protocol: protocolVal,
+		Url:      urlVal,
+		Vrf:      vrfVal,
+		state:    attr.ValueStateKnown,
+	}, diags
+}
+
+func NewCustomAppsValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) CustomAppsValue {
+	object, diags := NewCustomAppsValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewCustomAppsValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t CustomAppsType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewCustomAppsValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewCustomAppsValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewCustomAppsValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewCustomAppsValueMust(CustomAppsValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t CustomAppsType) ValueType(ctx context.Context) attr.Value {
+	return CustomAppsValue{}
+}
+
+var _ basetypes.ObjectValuable = CustomAppsValue{}
+
+type CustomAppsValue struct {
+	Address  basetypes.StringValue `tfsdk:"address"`
+	AppType  basetypes.StringValue `tfsdk:"app_type"`
+	Hostname basetypes.ListValue   `tfsdk:"hostname"`
+	Name     basetypes.StringValue `tfsdk:"name"`
+	Network  basetypes.StringValue `tfsdk:"network"`
+	Protocol basetypes.StringValue `tfsdk:"protocol"`
+	Url      basetypes.StringValue `tfsdk:"url"`
+	Vrf      basetypes.StringValue `tfsdk:"vrf"`
+	state    attr.ValueState
+}
+
+func (v CustomAppsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 8)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["address"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["app_type"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["hostname"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["network"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["protocol"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["url"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["vrf"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 8)
+
+		val, err = v.Address.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["address"] = val
+
+		val, err = v.AppType.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["app_type"] = val
+
+		val, err = v.Hostname.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["hostname"] = val
+
+		val, err = v.Name.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["name"] = val
+
+		val, err = v.Network.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["network"] = val
+
+		val, err = v.Protocol.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["protocol"] = val
+
+		val, err = v.Url.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["url"] = val
+
+		val, err = v.Vrf.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["vrf"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v CustomAppsValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v CustomAppsValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v CustomAppsValue) String() string {
+	return "CustomAppsValue"
+}
+
+func (v CustomAppsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	hostnameVal, d := types.ListValue(types.StringType, v.Hostname.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"address":  basetypes.StringType{},
+			"app_type": basetypes.StringType{},
+			"hostname": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"name":     basetypes.StringType{},
+			"network":  basetypes.StringType{},
+			"protocol": basetypes.StringType{},
+			"url":      basetypes.StringType{},
+			"vrf":      basetypes.StringType{},
+		}), diags
+	}
+
+	attributeTypes := map[string]attr.Type{
+		"address":  basetypes.StringType{},
+		"app_type": basetypes.StringType{},
+		"hostname": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"name":     basetypes.StringType{},
+		"network":  basetypes.StringType{},
+		"protocol": basetypes.StringType{},
+		"url":      basetypes.StringType{},
+		"vrf":      basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"address":  v.Address,
+			"app_type": v.AppType,
+			"hostname": hostnameVal,
+			"name":     v.Name,
+			"network":  v.Network,
+			"protocol": v.Protocol,
+			"url":      v.Url,
+			"vrf":      v.Vrf,
+		})
+
+	return objVal, diags
+}
+
+func (v CustomAppsValue) Equal(o attr.Value) bool {
+	other, ok := o.(CustomAppsValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Address.Equal(other.Address) {
+		return false
+	}
+
+	if !v.AppType.Equal(other.AppType) {
+		return false
+	}
+
+	if !v.Hostname.Equal(other.Hostname) {
+		return false
+	}
+
+	if !v.Name.Equal(other.Name) {
+		return false
+	}
+
+	if !v.Network.Equal(other.Network) {
+		return false
+	}
+
+	if !v.Protocol.Equal(other.Protocol) {
+		return false
+	}
+
+	if !v.Url.Equal(other.Url) {
+		return false
+	}
+
+	if !v.Vrf.Equal(other.Vrf) {
+		return false
+	}
+
+	return true
+}
+
+func (v CustomAppsValue) Type(ctx context.Context) attr.Type {
+	return CustomAppsType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v CustomAppsValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"address":  basetypes.StringType{},
+		"app_type": basetypes.StringType{},
+		"hostname": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"name":     basetypes.StringType{},
+		"network":  basetypes.StringType{},
+		"protocol": basetypes.StringType{},
+		"url":      basetypes.StringType{},
+		"vrf":      basetypes.StringType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = AutoSignatureUpdateType{}
+
+type AutoSignatureUpdateType struct {
+	basetypes.ObjectType
+}
+
+func (t AutoSignatureUpdateType) Equal(o attr.Type) bool {
+	other, ok := o.(AutoSignatureUpdateType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t AutoSignatureUpdateType) String() string {
+	return "AutoSignatureUpdateType"
+}
+
+func (t AutoSignatureUpdateType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	dayOfWeekAttribute, ok := attributes["day_of_week"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`day_of_week is missing from object`)
+
+		return nil, diags
+	}
+
+	dayOfWeekVal, ok := dayOfWeekAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`day_of_week expected to be basetypes.StringValue, was: %T`, dayOfWeekAttribute))
+	}
+
+	enableAttribute, ok := attributes["enable"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enable is missing from object`)
+
+		return nil, diags
+	}
+
+	enableVal, ok := enableAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enable expected to be basetypes.BoolValue, was: %T`, enableAttribute))
+	}
+
+	timeOfDayAttribute, ok := attributes["time_of_day"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`time_of_day is missing from object`)
+
+		return nil, diags
+	}
+
+	timeOfDayVal, ok := timeOfDayAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`time_of_day expected to be basetypes.StringValue, was: %T`, timeOfDayAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return AutoSignatureUpdateValue{
+		DayOfWeek: dayOfWeekVal,
+		Enable:    enableVal,
+		TimeOfDay: timeOfDayVal,
+		state:     attr.ValueStateKnown,
+	}, diags
+}
+
+func NewAutoSignatureUpdateValueNull() AutoSignatureUpdateValue {
+	return AutoSignatureUpdateValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewAutoSignatureUpdateValueUnknown() AutoSignatureUpdateValue {
+	return AutoSignatureUpdateValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewAutoSignatureUpdateValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (AutoSignatureUpdateValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing AutoSignatureUpdateValue Attribute Value",
+				"While creating a AutoSignatureUpdateValue value, a missing attribute value was detected. "+
+					"A AutoSignatureUpdateValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("AutoSignatureUpdateValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid AutoSignatureUpdateValue Attribute Type",
+				"While creating a AutoSignatureUpdateValue value, an invalid attribute value was detected. "+
+					"A AutoSignatureUpdateValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("AutoSignatureUpdateValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("AutoSignatureUpdateValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra AutoSignatureUpdateValue Attribute Value",
+				"While creating a AutoSignatureUpdateValue value, an extra attribute value was detected. "+
+					"A AutoSignatureUpdateValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra AutoSignatureUpdateValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewAutoSignatureUpdateValueUnknown(), diags
+	}
+
+	dayOfWeekAttribute, ok := attributes["day_of_week"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`day_of_week is missing from object`)
+
+		return NewAutoSignatureUpdateValueUnknown(), diags
+	}
+
+	dayOfWeekVal, ok := dayOfWeekAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`day_of_week expected to be basetypes.StringValue, was: %T`, dayOfWeekAttribute))
+	}
+
+	enableAttribute, ok := attributes["enable"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enable is missing from object`)
+
+		return NewAutoSignatureUpdateValueUnknown(), diags
+	}
+
+	enableVal, ok := enableAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enable expected to be basetypes.BoolValue, was: %T`, enableAttribute))
+	}
+
+	timeOfDayAttribute, ok := attributes["time_of_day"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`time_of_day is missing from object`)
+
+		return NewAutoSignatureUpdateValueUnknown(), diags
+	}
+
+	timeOfDayVal, ok := timeOfDayAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`time_of_day expected to be basetypes.StringValue, was: %T`, timeOfDayAttribute))
+	}
+
+	if diags.HasError() {
+		return NewAutoSignatureUpdateValueUnknown(), diags
+	}
+
+	return AutoSignatureUpdateValue{
+		DayOfWeek: dayOfWeekVal,
+		Enable:    enableVal,
+		TimeOfDay: timeOfDayVal,
+		state:     attr.ValueStateKnown,
+	}, diags
+}
+
+func NewAutoSignatureUpdateValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) AutoSignatureUpdateValue {
+	object, diags := NewAutoSignatureUpdateValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewAutoSignatureUpdateValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t AutoSignatureUpdateType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewAutoSignatureUpdateValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewAutoSignatureUpdateValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewAutoSignatureUpdateValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewAutoSignatureUpdateValueMust(AutoSignatureUpdateValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t AutoSignatureUpdateType) ValueType(ctx context.Context) attr.Value {
+	return AutoSignatureUpdateValue{}
+}
+
+var _ basetypes.ObjectValuable = AutoSignatureUpdateValue{}
+
+type AutoSignatureUpdateValue struct {
+	DayOfWeek basetypes.StringValue `tfsdk:"day_of_week"`
+	Enable    basetypes.BoolValue   `tfsdk:"enable"`
+	TimeOfDay basetypes.StringValue `tfsdk:"time_of_day"`
+	state     attr.ValueState
+}
+
+func (v AutoSignatureUpdateValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 3)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["day_of_week"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["enable"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["time_of_day"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 3)
+
+		val, err = v.DayOfWeek.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["day_of_week"] = val
+
+		val, err = v.Enable.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enable"] = val
+
+		val, err = v.TimeOfDay.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["time_of_day"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v AutoSignatureUpdateValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v AutoSignatureUpdateValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v AutoSignatureUpdateValue) String() string {
+	return "AutoSignatureUpdateValue"
+}
+
+func (v AutoSignatureUpdateValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"day_of_week": basetypes.StringType{},
+		"enable":      basetypes.BoolType{},
+		"time_of_day": basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"day_of_week": v.DayOfWeek,
+			"enable":      v.Enable,
+			"time_of_day": v.TimeOfDay,
+		})
+
+	return objVal, diags
+}
+
+func (v AutoSignatureUpdateValue) Equal(o attr.Value) bool {
+	other, ok := o.(AutoSignatureUpdateValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.DayOfWeek.Equal(other.DayOfWeek) {
+		return false
+	}
+
+	if !v.Enable.Equal(other.Enable) {
+		return false
+	}
+
+	if !v.TimeOfDay.Equal(other.TimeOfDay) {
+		return false
+	}
+
+	return true
+}
+
+func (v AutoSignatureUpdateValue) Type(ctx context.Context) attr.Type {
+	return AutoSignatureUpdateType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v AutoSignatureUpdateValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"day_of_week": basetypes.StringType{},
+		"enable":      basetypes.BoolType{},
+		"time_of_day": basetypes.StringType{},
+	}
+}
+
 var _ basetypes.ObjectTypable = LedType{}
 
 type LedType struct {
@@ -9349,6 +12498,550 @@ func (v RogueValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 		"whitelisted_ssids": basetypes.ListType{
 			ElemType: types.StringType,
 		},
+	}
+}
+
+var _ basetypes.ObjectTypable = RtsaType{}
+
+type RtsaType struct {
+	basetypes.ObjectType
+}
+
+func (t RtsaType) Equal(o attr.Type) bool {
+	other, ok := o.(RtsaType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t RtsaType) String() string {
+	return "RtsaType"
+}
+
+func (t RtsaType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	appWakingAttribute, ok := attributes["app_waking"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`app_waking is missing from object`)
+
+		return nil, diags
+	}
+
+	appWakingVal, ok := appWakingAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`app_waking expected to be basetypes.BoolValue, was: %T`, appWakingAttribute))
+	}
+
+	disableDeadReckoningAttribute, ok := attributes["disable_dead_reckoning"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disable_dead_reckoning is missing from object`)
+
+		return nil, diags
+	}
+
+	disableDeadReckoningVal, ok := disableDeadReckoningAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disable_dead_reckoning expected to be basetypes.BoolValue, was: %T`, disableDeadReckoningAttribute))
+	}
+
+	disablePressureSensorAttribute, ok := attributes["disable_pressure_sensor"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disable_pressure_sensor is missing from object`)
+
+		return nil, diags
+	}
+
+	disablePressureSensorVal, ok := disablePressureSensorAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disable_pressure_sensor expected to be basetypes.BoolValue, was: %T`, disablePressureSensorAttribute))
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	trackAssetAttribute, ok := attributes["track_asset"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`track_asset is missing from object`)
+
+		return nil, diags
+	}
+
+	trackAssetVal, ok := trackAssetAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`track_asset expected to be basetypes.BoolValue, was: %T`, trackAssetAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return RtsaValue{
+		AppWaking:             appWakingVal,
+		DisableDeadReckoning:  disableDeadReckoningVal,
+		DisablePressureSensor: disablePressureSensorVal,
+		Enabled:               enabledVal,
+		TrackAsset:            trackAssetVal,
+		state:                 attr.ValueStateKnown,
+	}, diags
+}
+
+func NewRtsaValueNull() RtsaValue {
+	return RtsaValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewRtsaValueUnknown() RtsaValue {
+	return RtsaValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewRtsaValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (RtsaValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing RtsaValue Attribute Value",
+				"While creating a RtsaValue value, a missing attribute value was detected. "+
+					"A RtsaValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("RtsaValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid RtsaValue Attribute Type",
+				"While creating a RtsaValue value, an invalid attribute value was detected. "+
+					"A RtsaValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("RtsaValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("RtsaValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra RtsaValue Attribute Value",
+				"While creating a RtsaValue value, an extra attribute value was detected. "+
+					"A RtsaValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra RtsaValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewRtsaValueUnknown(), diags
+	}
+
+	appWakingAttribute, ok := attributes["app_waking"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`app_waking is missing from object`)
+
+		return NewRtsaValueUnknown(), diags
+	}
+
+	appWakingVal, ok := appWakingAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`app_waking expected to be basetypes.BoolValue, was: %T`, appWakingAttribute))
+	}
+
+	disableDeadReckoningAttribute, ok := attributes["disable_dead_reckoning"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disable_dead_reckoning is missing from object`)
+
+		return NewRtsaValueUnknown(), diags
+	}
+
+	disableDeadReckoningVal, ok := disableDeadReckoningAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disable_dead_reckoning expected to be basetypes.BoolValue, was: %T`, disableDeadReckoningAttribute))
+	}
+
+	disablePressureSensorAttribute, ok := attributes["disable_pressure_sensor"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disable_pressure_sensor is missing from object`)
+
+		return NewRtsaValueUnknown(), diags
+	}
+
+	disablePressureSensorVal, ok := disablePressureSensorAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disable_pressure_sensor expected to be basetypes.BoolValue, was: %T`, disablePressureSensorAttribute))
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return NewRtsaValueUnknown(), diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	trackAssetAttribute, ok := attributes["track_asset"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`track_asset is missing from object`)
+
+		return NewRtsaValueUnknown(), diags
+	}
+
+	trackAssetVal, ok := trackAssetAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`track_asset expected to be basetypes.BoolValue, was: %T`, trackAssetAttribute))
+	}
+
+	if diags.HasError() {
+		return NewRtsaValueUnknown(), diags
+	}
+
+	return RtsaValue{
+		AppWaking:             appWakingVal,
+		DisableDeadReckoning:  disableDeadReckoningVal,
+		DisablePressureSensor: disablePressureSensorVal,
+		Enabled:               enabledVal,
+		TrackAsset:            trackAssetVal,
+		state:                 attr.ValueStateKnown,
+	}, diags
+}
+
+func NewRtsaValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) RtsaValue {
+	object, diags := NewRtsaValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewRtsaValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t RtsaType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewRtsaValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewRtsaValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewRtsaValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewRtsaValueMust(RtsaValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t RtsaType) ValueType(ctx context.Context) attr.Value {
+	return RtsaValue{}
+}
+
+var _ basetypes.ObjectValuable = RtsaValue{}
+
+type RtsaValue struct {
+	AppWaking             basetypes.BoolValue `tfsdk:"app_waking"`
+	DisableDeadReckoning  basetypes.BoolValue `tfsdk:"disable_dead_reckoning"`
+	DisablePressureSensor basetypes.BoolValue `tfsdk:"disable_pressure_sensor"`
+	Enabled               basetypes.BoolValue `tfsdk:"enabled"`
+	TrackAsset            basetypes.BoolValue `tfsdk:"track_asset"`
+	state                 attr.ValueState
+}
+
+func (v RtsaValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 5)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["app_waking"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["disable_dead_reckoning"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["disable_pressure_sensor"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["track_asset"] = basetypes.BoolType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 5)
+
+		val, err = v.AppWaking.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["app_waking"] = val
+
+		val, err = v.DisableDeadReckoning.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["disable_dead_reckoning"] = val
+
+		val, err = v.DisablePressureSensor.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["disable_pressure_sensor"] = val
+
+		val, err = v.Enabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enabled"] = val
+
+		val, err = v.TrackAsset.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["track_asset"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v RtsaValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v RtsaValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v RtsaValue) String() string {
+	return "RtsaValue"
+}
+
+func (v RtsaValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"app_waking":              basetypes.BoolType{},
+		"disable_dead_reckoning":  basetypes.BoolType{},
+		"disable_pressure_sensor": basetypes.BoolType{},
+		"enabled":                 basetypes.BoolType{},
+		"track_asset":             basetypes.BoolType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"app_waking":              v.AppWaking,
+			"disable_dead_reckoning":  v.DisableDeadReckoning,
+			"disable_pressure_sensor": v.DisablePressureSensor,
+			"enabled":                 v.Enabled,
+			"track_asset":             v.TrackAsset,
+		})
+
+	return objVal, diags
+}
+
+func (v RtsaValue) Equal(o attr.Value) bool {
+	other, ok := o.(RtsaValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.AppWaking.Equal(other.AppWaking) {
+		return false
+	}
+
+	if !v.DisableDeadReckoning.Equal(other.DisableDeadReckoning) {
+		return false
+	}
+
+	if !v.DisablePressureSensor.Equal(other.DisablePressureSensor) {
+		return false
+	}
+
+	if !v.Enabled.Equal(other.Enabled) {
+		return false
+	}
+
+	if !v.TrackAsset.Equal(other.TrackAsset) {
+		return false
+	}
+
+	return true
+}
+
+func (v RtsaValue) Type(ctx context.Context) attr.Type {
+	return RtsaType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v RtsaValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"app_waking":              basetypes.BoolType{},
+		"disable_dead_reckoning":  basetypes.BoolType{},
+		"disable_pressure_sensor": basetypes.BoolType{},
+		"enabled":                 basetypes.BoolType{},
+		"track_asset":             basetypes.BoolType{},
 	}
 }
 
@@ -11548,6 +15241,330 @@ func (v SkyatpValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	}
 }
 
+var _ basetypes.ObjectTypable = SrxAppType{}
+
+type SrxAppType struct {
+	basetypes.ObjectType
+}
+
+func (t SrxAppType) Equal(o attr.Type) bool {
+	other, ok := o.(SrxAppType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t SrxAppType) String() string {
+	return "SrxAppType"
+}
+
+func (t SrxAppType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return SrxAppValue{
+		Enabled: enabledVal,
+		state:   attr.ValueStateKnown,
+	}, diags
+}
+
+func NewSrxAppValueNull() SrxAppValue {
+	return SrxAppValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewSrxAppValueUnknown() SrxAppValue {
+	return SrxAppValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewSrxAppValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (SrxAppValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing SrxAppValue Attribute Value",
+				"While creating a SrxAppValue value, a missing attribute value was detected. "+
+					"A SrxAppValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("SrxAppValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid SrxAppValue Attribute Type",
+				"While creating a SrxAppValue value, an invalid attribute value was detected. "+
+					"A SrxAppValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("SrxAppValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("SrxAppValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra SrxAppValue Attribute Value",
+				"While creating a SrxAppValue value, an extra attribute value was detected. "+
+					"A SrxAppValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra SrxAppValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewSrxAppValueUnknown(), diags
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return NewSrxAppValueUnknown(), diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	if diags.HasError() {
+		return NewSrxAppValueUnknown(), diags
+	}
+
+	return SrxAppValue{
+		Enabled: enabledVal,
+		state:   attr.ValueStateKnown,
+	}, diags
+}
+
+func NewSrxAppValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) SrxAppValue {
+	object, diags := NewSrxAppValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewSrxAppValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t SrxAppType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewSrxAppValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewSrxAppValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewSrxAppValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewSrxAppValueMust(SrxAppValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t SrxAppType) ValueType(ctx context.Context) attr.Value {
+	return SrxAppValue{}
+}
+
+var _ basetypes.ObjectValuable = SrxAppValue{}
+
+type SrxAppValue struct {
+	Enabled basetypes.BoolValue `tfsdk:"enabled"`
+	state   attr.ValueState
+}
+
+func (v SrxAppValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 1)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 1)
+
+		val, err = v.Enabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enabled"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v SrxAppValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v SrxAppValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v SrxAppValue) String() string {
+	return "SrxAppValue"
+}
+
+func (v SrxAppValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"enabled": basetypes.BoolType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"enabled": v.Enabled,
+		})
+
+	return objVal, diags
+}
+
+func (v SrxAppValue) Equal(o attr.Value) bool {
+	other, ok := o.(SrxAppValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Enabled.Equal(other.Enabled) {
+		return false
+	}
+
+	return true
+}
+
+func (v SrxAppValue) Type(ctx context.Context) attr.Type {
+	return SrxAppType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v SrxAppValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"enabled": basetypes.BoolType{},
+	}
+}
+
 var _ basetypes.ObjectTypable = SsrType{}
 
 type SsrType struct {
@@ -13299,6 +17316,709 @@ func (v WanSpeedtestValue) AttributeTypes(ctx context.Context) map[string]attr.T
 	}
 }
 
+var _ basetypes.ObjectTypable = UplinkPortConfigType{}
+
+type UplinkPortConfigType struct {
+	basetypes.ObjectType
+}
+
+func (t UplinkPortConfigType) Equal(o attr.Type) bool {
+	other, ok := o.(UplinkPortConfigType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t UplinkPortConfigType) String() string {
+	return "UplinkPortConfigType"
+}
+
+func (t UplinkPortConfigType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	dot1xAttribute, ok := attributes["dot1x"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`dot1x is missing from object`)
+
+		return nil, diags
+	}
+
+	dot1xVal, ok := dot1xAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`dot1x expected to be basetypes.BoolValue, was: %T`, dot1xAttribute))
+	}
+
+	keepWlansUpIfDownAttribute, ok := attributes["keep_wlans_up_if_down"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`keep_wlans_up_if_down is missing from object`)
+
+		return nil, diags
+	}
+
+	keepWlansUpIfDownVal, ok := keepWlansUpIfDownAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`keep_wlans_up_if_down expected to be basetypes.BoolValue, was: %T`, keepWlansUpIfDownAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return UplinkPortConfigValue{
+		Dot1x:             dot1xVal,
+		KeepWlansUpIfDown: keepWlansUpIfDownVal,
+		state:             attr.ValueStateKnown,
+	}, diags
+}
+
+func NewUplinkPortConfigValueNull() UplinkPortConfigValue {
+	return UplinkPortConfigValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewUplinkPortConfigValueUnknown() UplinkPortConfigValue {
+	return UplinkPortConfigValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewUplinkPortConfigValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (UplinkPortConfigValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing UplinkPortConfigValue Attribute Value",
+				"While creating a UplinkPortConfigValue value, a missing attribute value was detected. "+
+					"A UplinkPortConfigValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("UplinkPortConfigValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid UplinkPortConfigValue Attribute Type",
+				"While creating a UplinkPortConfigValue value, an invalid attribute value was detected. "+
+					"A UplinkPortConfigValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("UplinkPortConfigValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("UplinkPortConfigValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra UplinkPortConfigValue Attribute Value",
+				"While creating a UplinkPortConfigValue value, an extra attribute value was detected. "+
+					"A UplinkPortConfigValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra UplinkPortConfigValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewUplinkPortConfigValueUnknown(), diags
+	}
+
+	dot1xAttribute, ok := attributes["dot1x"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`dot1x is missing from object`)
+
+		return NewUplinkPortConfigValueUnknown(), diags
+	}
+
+	dot1xVal, ok := dot1xAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`dot1x expected to be basetypes.BoolValue, was: %T`, dot1xAttribute))
+	}
+
+	keepWlansUpIfDownAttribute, ok := attributes["keep_wlans_up_if_down"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`keep_wlans_up_if_down is missing from object`)
+
+		return NewUplinkPortConfigValueUnknown(), diags
+	}
+
+	keepWlansUpIfDownVal, ok := keepWlansUpIfDownAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`keep_wlans_up_if_down expected to be basetypes.BoolValue, was: %T`, keepWlansUpIfDownAttribute))
+	}
+
+	if diags.HasError() {
+		return NewUplinkPortConfigValueUnknown(), diags
+	}
+
+	return UplinkPortConfigValue{
+		Dot1x:             dot1xVal,
+		KeepWlansUpIfDown: keepWlansUpIfDownVal,
+		state:             attr.ValueStateKnown,
+	}, diags
+}
+
+func NewUplinkPortConfigValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) UplinkPortConfigValue {
+	object, diags := NewUplinkPortConfigValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewUplinkPortConfigValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t UplinkPortConfigType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewUplinkPortConfigValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewUplinkPortConfigValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewUplinkPortConfigValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewUplinkPortConfigValueMust(UplinkPortConfigValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t UplinkPortConfigType) ValueType(ctx context.Context) attr.Value {
+	return UplinkPortConfigValue{}
+}
+
+var _ basetypes.ObjectValuable = UplinkPortConfigValue{}
+
+type UplinkPortConfigValue struct {
+	Dot1x             basetypes.BoolValue `tfsdk:"dot1x"`
+	KeepWlansUpIfDown basetypes.BoolValue `tfsdk:"keep_wlans_up_if_down"`
+	state             attr.ValueState
+}
+
+func (v UplinkPortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 2)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["dot1x"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["keep_wlans_up_if_down"] = basetypes.BoolType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 2)
+
+		val, err = v.Dot1x.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["dot1x"] = val
+
+		val, err = v.KeepWlansUpIfDown.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["keep_wlans_up_if_down"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v UplinkPortConfigValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v UplinkPortConfigValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v UplinkPortConfigValue) String() string {
+	return "UplinkPortConfigValue"
+}
+
+func (v UplinkPortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"dot1x":                 basetypes.BoolType{},
+		"keep_wlans_up_if_down": basetypes.BoolType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"dot1x":                 v.Dot1x,
+			"keep_wlans_up_if_down": v.KeepWlansUpIfDown,
+		})
+
+	return objVal, diags
+}
+
+func (v UplinkPortConfigValue) Equal(o attr.Value) bool {
+	other, ok := o.(UplinkPortConfigValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Dot1x.Equal(other.Dot1x) {
+		return false
+	}
+
+	if !v.KeepWlansUpIfDown.Equal(other.KeepWlansUpIfDown) {
+		return false
+	}
+
+	return true
+}
+
+func (v UplinkPortConfigValue) Type(ctx context.Context) attr.Type {
+	return UplinkPortConfigType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v UplinkPortConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"dot1x":                 basetypes.BoolType{},
+		"keep_wlans_up_if_down": basetypes.BoolType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = VnaType{}
+
+type VnaType struct {
+	basetypes.ObjectType
+}
+
+func (t VnaType) Equal(o attr.Type) bool {
+	other, ok := o.(VnaType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t VnaType) String() string {
+	return "VnaType"
+}
+
+func (t VnaType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return VnaValue{
+		Enabled: enabledVal,
+		state:   attr.ValueStateKnown,
+	}, diags
+}
+
+func NewVnaValueNull() VnaValue {
+	return VnaValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewVnaValueUnknown() VnaValue {
+	return VnaValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewVnaValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (VnaValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing VnaValue Attribute Value",
+				"While creating a VnaValue value, a missing attribute value was detected. "+
+					"A VnaValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("VnaValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid VnaValue Attribute Type",
+				"While creating a VnaValue value, an invalid attribute value was detected. "+
+					"A VnaValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("VnaValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("VnaValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra VnaValue Attribute Value",
+				"While creating a VnaValue value, an extra attribute value was detected. "+
+					"A VnaValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra VnaValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewVnaValueUnknown(), diags
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return NewVnaValueUnknown(), diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	if diags.HasError() {
+		return NewVnaValueUnknown(), diags
+	}
+
+	return VnaValue{
+		Enabled: enabledVal,
+		state:   attr.ValueStateKnown,
+	}, diags
+}
+
+func NewVnaValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) VnaValue {
+	object, diags := NewVnaValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewVnaValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t VnaType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewVnaValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewVnaValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewVnaValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewVnaValueMust(VnaValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t VnaType) ValueType(ctx context.Context) attr.Value {
+	return VnaValue{}
+}
+
+var _ basetypes.ObjectValuable = VnaValue{}
+
+type VnaValue struct {
+	Enabled basetypes.BoolValue `tfsdk:"enabled"`
+	state   attr.ValueState
+}
+
+func (v VnaValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 1)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 1)
+
+		val, err = v.Enabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enabled"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v VnaValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v VnaValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v VnaValue) String() string {
+	return "VnaValue"
+}
+
+func (v VnaValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"enabled": basetypes.BoolType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"enabled": v.Enabled,
+		})
+
+	return objVal, diags
+}
+
+func (v VnaValue) Equal(o attr.Value) bool {
+	other, ok := o.(VnaValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Enabled.Equal(other.Enabled) {
+		return false
+	}
+
+	return true
+}
+
+func (v VnaValue) Type(ctx context.Context) attr.Type {
+	return VnaType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v VnaValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"enabled": basetypes.BoolType{},
+	}
+}
+
 var _ basetypes.ObjectTypable = VsInstanceType{}
 
 type VsInstanceType struct {
@@ -13638,6 +18358,330 @@ func (v VsInstanceValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"networks": basetypes.ListType{
 			ElemType: types.StringType,
 		},
+	}
+}
+
+var _ basetypes.ObjectTypable = WanVnaType{}
+
+type WanVnaType struct {
+	basetypes.ObjectType
+}
+
+func (t WanVnaType) Equal(o attr.Type) bool {
+	other, ok := o.(WanVnaType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t WanVnaType) String() string {
+	return "WanVnaType"
+}
+
+func (t WanVnaType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return WanVnaValue{
+		Enabled: enabledVal,
+		state:   attr.ValueStateKnown,
+	}, diags
+}
+
+func NewWanVnaValueNull() WanVnaValue {
+	return WanVnaValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewWanVnaValueUnknown() WanVnaValue {
+	return WanVnaValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewWanVnaValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (WanVnaValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing WanVnaValue Attribute Value",
+				"While creating a WanVnaValue value, a missing attribute value was detected. "+
+					"A WanVnaValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("WanVnaValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid WanVnaValue Attribute Type",
+				"While creating a WanVnaValue value, an invalid attribute value was detected. "+
+					"A WanVnaValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("WanVnaValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("WanVnaValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra WanVnaValue Attribute Value",
+				"While creating a WanVnaValue value, an extra attribute value was detected. "+
+					"A WanVnaValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra WanVnaValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewWanVnaValueUnknown(), diags
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return NewWanVnaValueUnknown(), diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	if diags.HasError() {
+		return NewWanVnaValueUnknown(), diags
+	}
+
+	return WanVnaValue{
+		Enabled: enabledVal,
+		state:   attr.ValueStateKnown,
+	}, diags
+}
+
+func NewWanVnaValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) WanVnaValue {
+	object, diags := NewWanVnaValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewWanVnaValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t WanVnaType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewWanVnaValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewWanVnaValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewWanVnaValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewWanVnaValueMust(WanVnaValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t WanVnaType) ValueType(ctx context.Context) attr.Value {
+	return WanVnaValue{}
+}
+
+var _ basetypes.ObjectValuable = WanVnaValue{}
+
+type WanVnaValue struct {
+	Enabled basetypes.BoolValue `tfsdk:"enabled"`
+	state   attr.ValueState
+}
+
+func (v WanVnaValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 1)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 1)
+
+		val, err = v.Enabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enabled"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v WanVnaValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v WanVnaValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v WanVnaValue) String() string {
+	return "WanVnaValue"
+}
+
+func (v WanVnaValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"enabled": basetypes.BoolType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"enabled": v.Enabled,
+		})
+
+	return objVal, diags
+}
+
+func (v WanVnaValue) Equal(o attr.Value) bool {
+	other, ok := o.(WanVnaValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Enabled.Equal(other.Enabled) {
+		return false
+	}
+
+	return true
+}
+
+func (v WanVnaValue) Type(ctx context.Context) attr.Type {
+	return WanVnaType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v WanVnaValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"enabled": basetypes.BoolType{},
 	}
 }
 

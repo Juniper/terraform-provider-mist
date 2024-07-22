@@ -75,6 +75,12 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 		unset["-engagement"] = ""
 	}
 
+	if plan.GatewayMgmt.IsNull() && !plan.GatewayMgmt.IsUnknown() {
+		data.GatewayMgmt = gatewayMgmtTerraformToSdk(ctx, &diags, plan.GatewayMgmt)
+	} else {
+		unset["-gateway_mgmt"] = ""
+	}
+
 	if plan.GatewayUpdownThreshold.ValueInt64Pointer() != nil {
 		data.GatewayUpdownThreshold = models.NewOptional(models.ToPointer(int(plan.GatewayUpdownThreshold.ValueInt64())))
 	} else {
@@ -173,23 +179,29 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 		unset["-track_anonymous_devices"] = ""
 	}
 
+	if !plan.UplinkPortConfig.IsNull() && !plan.UplinkPortConfig.IsUnknown() {
+		data.UplinkPortConfig = uplinkPortConfigTerraformToSdk(ctx, &diags, plan.UplinkPortConfig)
+	} else {
+		unset["-uplink_port_config"] = ""
+	}
+
 	if !plan.Vars.IsNull() && !plan.Vars.IsUnknown() {
 		data.Vars = varsTerraformToSdk(ctx, &diags, plan.Vars)
 	} else {
 		unset["-var"] = ""
 	}
 
-	// if !plan.Vna.IsNull() && !plan.Vna.IsUnknown() {
-	// 	data.Vna = vnaTerraformToSdk(ctx, &diags, plan.Vna)
-	// } else {
-	// 	unset["-vna"] = ""
-	// }
+	if !plan.Vna.IsNull() && !plan.Vna.IsUnknown() {
+		data.Vna = vnaTerraformToSdk(ctx, &diags, plan.Vna)
+	} else {
+		unset["-vna"] = ""
+	}
 
-	// if !plan.WanVna.IsNull() && !plan.WanVna.IsUnknown() {
-	// 	data.WanVna = wanVnaTerraformToSdk(ctx, &diags, plan.WanVna)
-	// } else {
-	// 	unset["-wan_vna"] = ""
-	// }
+	if !plan.WanVna.IsNull() && !plan.WanVna.IsUnknown() {
+		data.WanVna = wanVnaTerraformToSdk(ctx, &diags, plan.WanVna)
+	} else {
+		unset["-wan_vna"] = ""
+	}
 
 	if !plan.Wids.IsNull() && !plan.Wids.IsUnknown() {
 		data.Wids = widsTerraformToSdk(ctx, &diags, plan.Wids)
@@ -203,11 +215,11 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 		unset["-wifi"] = ""
 	}
 
-	// if !plan.WiredVna.IsNull() && !plan.WiredVna.IsUnknown() {
-	// 	data.WiredVna = wiredVnaTerraformToSdk(ctx, &diags, plan.WiredVna)
-	// } else {
-	// 	unset["-wired_vna"] = ""
-	// }
+	if !plan.WiredVna.IsNull() && !plan.WiredVna.IsUnknown() {
+		data.WiredVna = wiredVnaTerraformToSdk(ctx, &diags, plan.WiredVna)
+	} else {
+		unset["-wired_vna"] = ""
+	}
 
 	if !plan.ZoneOccupancyAlert.IsNull() && !plan.ZoneOccupancyAlert.IsUnknown() {
 		data.ZoneOccupancyAlert = zoneOccupancyTerraformToSdk(ctx, &diags, plan.ZoneOccupancyAlert)

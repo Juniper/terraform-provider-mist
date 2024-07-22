@@ -27,6 +27,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	var device_updown_threshold types.Int64
 	var disabled_system_defined_port_usages types.List = types.ListNull(types.StringType)
 	var engagement EngagementValue = NewEngagementValueNull()
+	var gateway_mgmt GatewayMgmtValue = NewGatewayMgmtValueNull()
 	var gateway_updown_threshold types.Int64
 	var led LedValue = NewLedValueNull()
 	var occupancy OccupancyValue = NewOccupancyValueNull()
@@ -43,13 +44,16 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	var switch_updown_threshold types.Int64
 	var synthetic_test SyntheticTestValue = NewSyntheticTestValueNull()
 	var track_anonymous_devices types.Bool
+	var uplink_port_config UplinkPortConfigValue = NewUplinkPortConfigValueNull()
 	var vars types.Map = basetypes.NewMapNull(types.StringType)
 	// var vs_instance VsInstanceValue = NewVsInstanceValueNull()
+	var vna VnaValue = NewVnaValueNull()
 	var watched_station_url types.String
 	var whitelist_url types.String
 	var wids WidsValue = NewWidsValueNull()
 	var wifi WifiValue = NewWifiValueNull()
-	// var wired_vna WiredVnaValue = NewWiredVnaValueNull()
+	var wan_van WanVnaValue = NewWanVnaValueNull()
+	var wired_vna WiredVnaValue = NewWiredVnaValueNull()
 	var zone_occupancy_alert ZoneOccupancyAlertValue = NewZoneOccupancyAlertValueNull()
 
 	state.SiteId = types.StringValue(data.SiteId.String())
@@ -97,6 +101,10 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 
 	if data.Engagement != nil {
 		engagement = engagementSdkToTerraform(ctx, &diags, data.Engagement)
+	}
+
+	if data.GatewayMgmt != nil {
+		gateway_mgmt = gatewayMgmtSdkToTerraform(ctx, &diags, data.GatewayMgmt)
 	}
 
 	if data.GatewayUpdownThreshold.Value() != nil {
@@ -163,13 +171,21 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 		track_anonymous_devices = types.BoolValue(*data.TrackAnonymousDevices)
 	}
 
+	if data.UplinkPortConfig != nil {
+		uplink_port_config = uplinkPortConfigValueSdkToTerraform(ctx, &diags, data.UplinkPortConfig)
+	}
+
 	if data.Vars != nil {
 		vars = varsSdkToTerraform(ctx, &diags, data.Vars)
 	}
 
-	// state.Vna = vnaSdkToTerraform(ctx, &diags, data.Vna)
+	if data.Vna != nil {
+		state.Vna = vnaSdkToTerraform(ctx, &diags, data.Vna)
+	}
 
-	// state.WanVna = wanVnaSdkToTerraform(ctx, &diags, data.WanVna)
+	if data.WanVna != nil {
+		state.WanVna = wanVnaSdkToTerraform(ctx, &diags, data.WanVna)
+	}
 
 	if data.WatchedStationUrl != nil {
 		watched_station_url = types.StringValue(*data.WatchedStationUrl)
@@ -187,7 +203,9 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 		wifi = wifiSdkToTerraform(ctx, &diags, data.Wifi)
 	}
 
-	// state.WiredVna = wiredVnaSdkToTerraform(ctx, &diags, data.WiredVna)
+	if data.WiredVna != nil {
+		state.WiredVna = wiredVnaSdkToTerraform(ctx, &diags, data.WiredVna)
+	}
 
 	if data.ZoneOccupancyAlert != nil {
 		zone_occupancy_alert = zoneOccupancySdkToTerraform(ctx, &diags, *data.ZoneOccupancyAlert)
@@ -204,6 +222,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	state.DeviceUpdownThreshold = device_updown_threshold
 	state.DisabledSystemDefinedPortUsages = disabled_system_defined_port_usages
 	state.Engagement = engagement
+	state.GatewayMgmt = gateway_mgmt
 	state.GatewayUpdownThreshold = gateway_updown_threshold
 	state.Led = led
 	state.Occupancy = occupancy
@@ -220,14 +239,15 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	state.SwitchUpdownThreshold = switch_updown_threshold
 	state.SyntheticTest = synthetic_test
 	state.TrackAnonymousDevices = track_anonymous_devices
+	state.UplinkPortConfig = uplink_port_config
 	state.Vars = vars
-	// state.Vna = vnaSdkToTerraform(ctx, &diags, data.Vna)
-	// state.WanVna = wanVnaSdkToTerraform(ctx, &diags, data.WanVna)
+	state.Vna = vna
+	state.WanVna = wan_van
 	state.WatchedStationUrl = watched_station_url
 	state.WhitelistUrl = whitelist_url
 	state.Wids = wids
 	state.Wifi = wifi
-	// state.WiredVna = wiredVnaSdkToTerraform(ctx, &diags, data.WiredVna)
+	state.WiredVna = wired_vna
 	state.ZoneOccupancyAlert = zone_occupancy_alert
 
 	return state, diags

@@ -9,10 +9,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-func wanVnaSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteSettingWanVna) WanVnaValue {
+func vnaSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteSettingVna) VnaValue {
 
 	var enabled basetypes.BoolValue
 
@@ -20,11 +19,11 @@ func wanVnaSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *model
 		enabled = types.BoolValue(*d.Enabled)
 	}
 
-	data_map_attr_type := WanVnaValue{}.AttributeTypes(ctx)
+	data_map_attr_type := VnaValue{}.AttributeTypes(ctx)
 	data_map_value := map[string]attr.Value{
 		"enabled": enabled,
 	}
-	data, e := NewWanVnaValue(data_map_attr_type, data_map_value)
+	data, e := NewVnaValue(data_map_attr_type, data_map_value)
 	diags.Append(e...)
 
 	return data

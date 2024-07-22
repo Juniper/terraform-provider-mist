@@ -9,22 +9,21 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-func wiredVnaSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteSettingWiredVna) WiredVnaValue {
+func wanVnaSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteSettingWanVna) WanVnaValue {
 
 	var enabled basetypes.BoolValue
 
-	if d.Enabled != nil {
+	if d != nil && d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
 
-	data_map_attr_type := WiredVnaValue{}.AttributeTypes(ctx)
+	data_map_attr_type := WanVnaValue{}.AttributeTypes(ctx)
 	data_map_value := map[string]attr.Value{
 		"enabled": enabled,
 	}
-	data, e := NewWiredVnaValue(data_map_attr_type, data_map_value)
+	data, e := NewWanVnaValue(data_map_attr_type, data_map_value)
 	diags.Append(e...)
 
 	return data
