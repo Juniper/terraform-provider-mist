@@ -101,6 +101,7 @@ port_mirroring can be added under device/site settings. It takes interface and p
 - `snmp_config` (Attributes) (see [below for nested schema](#nestedatt--snmp_config))
 - `switch_matching` (Attributes) Switch template (see [below for nested schema](#nestedatt--switch_matching))
 - `switch_mgmt` (Attributes) (see [below for nested schema](#nestedatt--switch_mgmt))
+- `uplink_port_config` (Attributes) (see [below for nested schema](#nestedatt--uplink_port_config))
 - `vrf_config` (Attributes) (see [below for nested schema](#nestedatt--vrf_config))
 - `vrf_instances` (Attributes Map) Property key is the network name (see [below for nested schema](#nestedatt--vrf_instances))
 - `vs_instance` (Attributes) (see [below for nested schema](#nestedatt--vs_instance))
@@ -837,6 +838,15 @@ Optional:
 - `timeout` (Number)
 
 
+
+
+<a id="nestedatt--uplink_port_config"></a>
+### Nested Schema for `uplink_port_config`
+
+Optional:
+
+- `dot1x` (Boolean) Whether to do 802.1x against uplink switch. When enaled, AP cert will be used to do EAP-TLS and the Org's CA Cert has to be provisioned at the switch
+- `keep_wlans_up_if_down` (Boolean) by default, WLANs are disabled when uplink is down. In some scenario, like SiteSurvey, one would want the AP to keep sending beacons.
 
 
 <a id="nestedatt--vrf_config"></a>

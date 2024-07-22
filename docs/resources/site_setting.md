@@ -41,6 +41,7 @@ resource "mist_site_setting" "site_one" {
 
 ### Optional
 
+- `analytic` (Attributes) (see [below for nested schema](#nestedatt--analytic))
 - `ap_updown_threshold` (Number) enable threshold-based device down delivery for AP devices only. When configured it takes effect for AP devices and `device_updown_threshold` is ignored.
 - `auto_upgrade` (Attributes) Auto Upgrade Settings (see [below for nested schema](#nestedatt--auto_upgrade))
 - `ble_config` (Attributes) BLE AP settings (see [below for nested schema](#nestedatt--ble_config))
@@ -54,6 +55,7 @@ resource "mist_site_setting" "site_one" {
 **Note**: default values for `dwell_tags`: passerby (1,300) bounce (301, 14400) engaged (14401, 28800) stationed (28801, 42000)
 
 **Note**: default values for `dwell_tag_names`: passerby = “Passerby”, bounce = “Visitor”, engaged = “Associates”, stationed = “Assets” (see [below for nested schema](#nestedatt--engagement))
+- `gateway_mgmt` (Attributes) Gateway Site settings (see [below for nested schema](#nestedatt--gateway_mgmt))
 - `gateway_updown_threshold` (Number) enable threshold-based device down delivery for Gateway devices only. When configured it takes effect for GW devices and `device_updown_threshold` is ignored.
 - `led` (Attributes) LED AP settings (see [below for nested schema](#nestedatt--led))
 - `occupancy` (Attributes) Occupancy Analytics settings (see [below for nested schema](#nestedatt--occupancy))
@@ -61,17 +63,22 @@ resource "mist_site_setting" "site_one" {
 - `proxy` (Attributes) Proxy Configuration to talk to Mist (see [below for nested schema](#nestedatt--proxy))
 - `report_gatt` (Boolean) whether AP should periodically connect to BLE devices and report GATT device info (device name, manufacturer name, serial number, battery %, temperature, humidity)
 - `rogue` (Attributes) Rogue site settings (see [below for nested schema](#nestedatt--rogue))
+- `rtsa` (Attributes) managed mobility (see [below for nested schema](#nestedatt--rtsa))
 - `simple_alert` (Attributes) Set of heuristic rules will be enabled when marvis subscription is not available.
 It triggers when, in a Z minute window, there are more than Y distinct client encountring over X failures (see [below for nested schema](#nestedatt--simple_alert))
 - `site_id` (String)
 - `skyatp` (Attributes) (see [below for nested schema](#nestedatt--skyatp))
+- `srx_app` (Attributes) (see [below for nested schema](#nestedatt--srx_app))
 - `ssh_keys` (List of String) when limit_ssh_access = true in Org Setting, list of SSH public keys provided by Mist Support to install onto APs (see Org:Setting)
 - `ssr` (Attributes) (see [below for nested schema](#nestedatt--ssr))
 - `switch_updown_threshold` (Number) enable threshold-based device down delivery for Switch devices only. When configured it takes effect for SW devices and `device_updown_threshold` is ignored.
 - `synthetic_test` (Attributes) (see [below for nested schema](#nestedatt--synthetic_test))
 - `track_anonymous_devices` (Boolean) whether to track anonymous BLE assets (requires ‘track_asset’ enabled)
+- `uplink_port_config` (Attributes) (see [below for nested schema](#nestedatt--uplink_port_config))
 - `vars` (Map of String) a dictionary of name->value, the vars can then be used in Wlans. This can overwrite those from Site Vars
+- `vna` (Attributes) (see [below for nested schema](#nestedatt--vna))
 - `vs_instance` (Attributes) (see [below for nested schema](#nestedatt--vs_instance))
+- `wan_vna` (Attributes) (see [below for nested schema](#nestedatt--wan_vna))
 - `wids` (Attributes) WIDS site settings (see [below for nested schema](#nestedatt--wids))
 - `wifi` (Attributes) Wi-Fi site settings (see [below for nested schema](#nestedatt--wifi))
 - `wired_vna` (Attributes) (see [below for nested schema](#nestedatt--wired_vna))
@@ -83,6 +90,14 @@ It triggers when, in a Z minute window, there are more than Y distinct client en
 - `org_id` (String)
 - `watched_station_url` (String)
 - `whitelist_url` (String)
+
+<a id="nestedatt--analytic"></a>
+### Nested Schema for `analytic`
+
+Optional:
+
+- `enabled` (Boolean) enable Advanced Analytic feature (using SUB-ANA license)
+
 
 <a id="nestedatt--auto_upgrade"></a>
 ### Nested Schema for `auto_upgrade`
@@ -232,6 +247,57 @@ Optional:
 
 
 
+<a id="nestedatt--gateway_mgmt"></a>
+### Nested Schema for `gateway_mgmt`
+
+Optional:
+
+- `admin_sshkeys` (List of String) for SSR only, as direct root access is not allowed
+- `app_probing` (Attributes) (see [below for nested schema](#nestedatt--gateway_mgmt--app_probing))
+- `app_usage` (Boolean) consumes uplink bandwidth, requires WA license
+- `auto_signature_update` (Attributes) (see [below for nested schema](#nestedatt--gateway_mgmt--auto_signature_update))
+- `config_revert_timer` (Number) he rollback timer for commit confirmed
+- `probe_hosts` (List of String)
+- `root_password` (String, Sensitive) for SRX only
+- `security_log_source_address` (String)
+- `security_log_source_interface` (String)
+
+<a id="nestedatt--gateway_mgmt--app_probing"></a>
+### Nested Schema for `gateway_mgmt.app_probing`
+
+Optional:
+
+- `apps` (List of String)
+- `custom_apps` (Attributes List) (see [below for nested schema](#nestedatt--gateway_mgmt--app_probing--custom_apps))
+- `enabled` (Boolean)
+
+<a id="nestedatt--gateway_mgmt--app_probing--custom_apps"></a>
+### Nested Schema for `gateway_mgmt.app_probing.custom_apps`
+
+Optional:
+
+- `address` (String) if `protocol`==`icmp`
+- `app_type` (String)
+- `hostname` (List of String) if `protocol`==`http`
+- `name` (String)
+- `network` (String)
+- `protocol` (String)
+- `url` (String) if `protocol`==`http`
+- `vrf` (String)
+
+
+
+<a id="nestedatt--gateway_mgmt--auto_signature_update"></a>
+### Nested Schema for `gateway_mgmt.auto_signature_update`
+
+Optional:
+
+- `day_of_week` (String)
+- `enable` (Boolean)
+- `time_of_day` (String) optional, Mist will decide the timing
+
+
+
 <a id="nestedatt--led"></a>
 ### Nested Schema for `led`
 
@@ -272,6 +338,18 @@ Optional:
 - `min_rssi` (Number) minimum RSSI for an AP to be considered rogue (ignoring APs that’s far away)
 - `whitelisted_bssids` (List of String) list of BSSIDs to whitelist. Ex: "cc-:8e-:6f-:d4-:bf-:16", "cc-8e-6f-d4-bf-16", "cc-73-*", "cc:82:*"
 - `whitelisted_ssids` (List of String) list of SSIDs to whitelist
+
+
+<a id="nestedatt--rtsa"></a>
+### Nested Schema for `rtsa`
+
+Optional:
+
+- `app_waking` (Boolean)
+- `disable_dead_reckoning` (Boolean)
+- `disable_pressure_sensor` (Boolean)
+- `enabled` (Boolean)
+- `track_asset` (Boolean) asset tracking related
 
 
 <a id="nestedatt--simple_alert"></a>
@@ -323,6 +401,14 @@ Optional:
 - `send_ip_mac_mapping` (Boolean) whether to send IP-MAC mapping to SkyATP
 
 
+<a id="nestedatt--srx_app"></a>
+### Nested Schema for `srx_app`
+
+Optional:
+
+- `enabled` (Boolean)
+
+
 <a id="nestedatt--ssr"></a>
 ### Nested Schema for `ssr`
 
@@ -361,12 +447,37 @@ Optional:
 
 
 
+<a id="nestedatt--uplink_port_config"></a>
+### Nested Schema for `uplink_port_config`
+
+Optional:
+
+- `dot1x` (Boolean) Whether to do 802.1x against uplink switch. When enaled, AP cert will be used to do EAP-TLS and the Org's CA Cert has to be provisioned at the switch
+- `keep_wlans_up_if_down` (Boolean) by default, WLANs are disabled when uplink is down. In some scenario, like SiteSurvey, one would want the AP to keep sending beacons.
+
+
+<a id="nestedatt--vna"></a>
+### Nested Schema for `vna`
+
+Optional:
+
+- `enabled` (Boolean) enable Virtual Network Assistant (using SUB-VNA license). This applied to AP / Switch / Gateway
+
+
 <a id="nestedatt--vs_instance"></a>
 ### Nested Schema for `vs_instance`
 
 Optional:
 
 - `networks` (List of String)
+
+
+<a id="nestedatt--wan_vna"></a>
+### Nested Schema for `wan_vna`
+
+Optional:
+
+- `enabled` (Boolean)
 
 
 <a id="nestedatt--wids"></a>
