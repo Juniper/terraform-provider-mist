@@ -137,11 +137,11 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 		unset["-skyatp"] = ""
 	}
 
-	// if !plan.SrxApp.IsNull() && !plan.SrxApp.IsUnknown() {
-	// 	data.SrxApp = srxAppTerraformToSdk(ctx, &diags, plan.SrxApp)
-	// } else {
-	// 	unset["-srx_app"] = ""
-	// }
+	if !plan.SrxApp.IsNull() && !plan.SrxApp.IsUnknown() {
+		data.SrxApp = srxAppTerraformToSdk(ctx, &diags, plan.SrxApp)
+	} else {
+		unset["-srx_app"] = ""
+	}
 
 	if !plan.SshKeys.IsNull() && !plan.SshKeys.IsUnknown() {
 		data.SshKeys = mist_transform.ListOfStringTerraformToSdk(ctx, plan.SshKeys)

@@ -37,6 +37,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	var rtsa RtsaValue = NewRtsaValueNull()
 	var simple_alert SimpleAlertValue = NewSimpleAlertValueNull()
 	var skyatp SkyatpValue = NewSkyatpValueNull()
+	var srx_app SrxAppValue = NewSrxAppValueNull()
 	var ssh_keys types.List = types.ListNull(types.StringType)
 	var ssr SsrValue = NewSsrValueNull()
 	var switch_updown_threshold types.Int64
@@ -138,7 +139,10 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 		skyatp = skyAtpSdkToTerraform(ctx, &diags, data.Skyatp)
 	}
 
-	// state.SrxApp = srxAppSdkToTerraform(ctx, &diags, data.SrxApp)
+	if data.SrxApp != nil {
+		srx_app = srxAppSdkToTerraform(ctx, &diags, data.SrxApp)
+	}
+
 	if data.SshKeys != nil {
 		ssh_keys = mist_list.ListOfStringSdkToTerraform(ctx, data.SshKeys)
 	}
@@ -210,7 +214,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	state.Rtsa = rtsa
 	state.SimpleAlert = simple_alert
 	state.Skyatp = skyatp
-	// state.SrxApp = srxAppSdkToTerraform(ctx, &diags, data.SrxApp)
+	state.SrxApp = srx_app
 	state.SshKeys = ssh_keys
 	state.Ssr = ssr
 	state.SwitchUpdownThreshold = switch_updown_threshold
