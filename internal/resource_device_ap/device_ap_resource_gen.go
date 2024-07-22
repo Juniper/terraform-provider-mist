@@ -436,8 +436,8 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 					"vlan_id": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Only if `type`==`solum` or `type`==`hansho`",
-						MarkdownDescription: "Only if `type`==`solum` or `type`==`hansho`",
+						Description:         "Only if `type`==`solum` or `type`==`hanshow`",
+						MarkdownDescription: "Only if `type`==`solum` or `type`==`hanshow`",
 						Default:             int64default.StaticInt64(1),
 					},
 				},
