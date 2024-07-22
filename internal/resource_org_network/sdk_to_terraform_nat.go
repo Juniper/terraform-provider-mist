@@ -29,6 +29,7 @@ func destinationNatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 	diags.Append(e...)
 	return state_result_map
 }
+
 func staticNatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d map[string]models.NetworkStaticNatProperty) basetypes.MapValue {
 	state_value_map_attr_type := StaticNatValue{}.AttributeTypes(ctx)
 	state_value_map_value := make(map[string]attr.Value)
@@ -47,21 +48,20 @@ func staticNatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d map
 	diags.Append(e...)
 	return state_result_map
 }
+
 func sourceNatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.NetworkSourceNat) basetypes.ObjectValue {
-
-	state_value_map_attr_type := SourceNatValue{}.AttributeTypes(ctx)
-
 	var external_ip basetypes.StringValue
-	if d.ExteralIp != nil {
-		external_ip = types.StringValue(*d.ExteralIp)
+
+	if d != nil && d.ExternalIp != nil {
+		external_ip = types.StringValue(*d.ExternalIp)
 	}
 
-	state_value_map_attr_value := map[string]attr.Value{
-		"exteral_ip": external_ip,
+	r_attr_type := SourceNatValue{}.AttributeTypes(ctx)
+	r_attr_value := map[string]attr.Value{
+		"external_ip": external_ip,
 	}
 
-	n, e := types.ObjectValue(state_value_map_attr_type, state_value_map_attr_value)
+	r, e := basetypes.NewObjectValue(r_attr_type, r_attr_value)
 	diags.Append(e...)
-
-	return n
+	return r
 }

@@ -15,23 +15,52 @@ func VpnTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes
 	data_map := make(map[string]models.NetworkVpnAccessConfig)
 	for k, v := range d.Elements() {
 		var v_interface interface{} = v
-		v_plan := v_interface.(VpnAccessValue)
+		plan := v_interface.(VpnAccessValue)
 
 		data := models.NetworkVpnAccessConfig{}
-		data.AdvertisedSubnet = v_plan.AdvertisedSubnet.ValueStringPointer()
-		data.AllowPing = v_plan.AllowPing.ValueBoolPointer()
-		data.DestinationNat = destinationNatTerraformToSdk(ctx, diags, v_plan.DestinationNat)
-		data.NatPool = v_plan.NatPool.ValueStringPointer()
-		data.NoReadvertiseToLanBgp = v_plan.NoReadvertiseToLanBgp.ValueBoolPointer()
-		data.NoReadvertiseToLanOspf = v_plan.NoReadvertiseToLanOspf.ValueBoolPointer()
-		data.NoReadvertiseToOverlay = v_plan.NoReadvertiseToOverlay.ValueBoolPointer()
-		data.OtherVrfs = mist_transform.ListOfStringTerraformToSdk(ctx, v_plan.OtherVrfs)
-		data.Routed = v_plan.Routed.ValueBoolPointer()
-		data.SourceNat = sourceNatTerraformToSdk(ctx, diags, v_plan.SourceNat)
-		data.StaticNat = staticNatTerraformToSdk(ctx, diags, v_plan.StaticNat)
-		data.SummarizedSubnet = v_plan.SummarizedSubnet.ValueStringPointer()
-		data.SummarizedSubnetToLanBgp = v_plan.SummarizedSubnetToLanBgp.ValueStringPointer()
-		data.SummarizedSubnetToLanOspf = v_plan.SummarizedSubnetToLanOspf.ValueStringPointer()
+		if plan.AdvertisedSubnet.ValueStringPointer() != nil {
+			data.AdvertisedSubnet = plan.AdvertisedSubnet.ValueStringPointer()
+		}
+		if plan.AllowPing.ValueBoolPointer() != nil {
+			data.AllowPing = plan.AllowPing.ValueBoolPointer()
+		}
+		if !plan.DestinationNat.IsNull() && !plan.DestinationNat.IsUnknown() {
+			data.DestinationNat = destinationNatTerraformToSdk(ctx, diags, plan.DestinationNat)
+		}
+		if plan.NatPool.ValueStringPointer() != nil {
+			data.NatPool = plan.NatPool.ValueStringPointer()
+		}
+		if plan.NoReadvertiseToLanBgp.ValueBoolPointer() != nil {
+			data.NoReadvertiseToLanBgp = plan.NoReadvertiseToLanBgp.ValueBoolPointer()
+		}
+		if plan.NoReadvertiseToLanOspf.ValueBoolPointer() != nil {
+			data.NoReadvertiseToLanOspf = plan.NoReadvertiseToLanOspf.ValueBoolPointer()
+		}
+		if plan.NoReadvertiseToOverlay.ValueBoolPointer() != nil {
+			data.NoReadvertiseToOverlay = plan.NoReadvertiseToOverlay.ValueBoolPointer()
+		}
+		if !plan.OtherVrfs.IsNull() && !plan.OtherVrfs.IsUnknown() {
+			data.OtherVrfs = mist_transform.ListOfStringTerraformToSdk(ctx, plan.OtherVrfs)
+		}
+		if plan.Routed.ValueBoolPointer() != nil {
+			data.Routed = plan.Routed.ValueBoolPointer()
+		}
+		if !plan.SourceNat.IsNull() && !plan.DestinationNat.IsUnknown() {
+			data.SourceNat = sourceNatTerraformToSdk(ctx, diags, plan.SourceNat)
+		}
+		if !plan.StaticNat.IsNull() && !plan.StaticNat.IsUnknown() {
+			data.StaticNat = staticNatTerraformToSdk(ctx, diags, plan.StaticNat)
+		}
+		if plan.SummarizedSubnet.ValueStringPointer() != nil {
+			data.SummarizedSubnet = plan.SummarizedSubnet.ValueStringPointer()
+		}
+		if plan.SummarizedSubnetToLanBgp.ValueStringPointer() != nil {
+			data.SummarizedSubnetToLanBgp = plan.SummarizedSubnetToLanBgp.ValueStringPointer()
+		}
+		if plan.SummarizedSubnetToLanOspf.ValueStringPointer() != nil {
+			data.SummarizedSubnetToLanOspf = plan.SummarizedSubnetToLanOspf.ValueStringPointer()
+		}
+
 		data_map[k] = data
 	}
 	return data_map

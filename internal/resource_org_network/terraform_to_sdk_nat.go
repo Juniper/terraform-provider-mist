@@ -44,7 +44,7 @@ func sourceNatTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d bas
 		if e != nil {
 			diags.Append(e...)
 		} else {
-			data.ExteralIp = plan.ExteralIp.ValueStringPointer()
+			data.ExternalIp = plan.ExternalIp.ValueStringPointer()
 		}
 	}
 	return &data
