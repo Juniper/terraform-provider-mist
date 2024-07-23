@@ -10,31 +10,31 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 )
 
-var _ validator.String = ParseSubnetValidator{}
+var _ validator.String = ParseNetmaskValidator{}
 
-type ParseSubnetValidator struct {
+type ParseNetmaskValidator struct {
 	cidrFormat    bool
 	decimalFormat bool
 }
 
-func (o ParseSubnetValidator) Description(_ context.Context) string {
+func (o ParseNetmaskValidator) Description(_ context.Context) string {
 	switch {
 	case o.cidrFormat && o.decimalFormat:
-		return "Ensures that user submitted IPv4 Subnet has a valid CIDR format (e.g. \"/24\") and Decimal format (e.g. \"255.255.255.0\") - this usage is likely a mistake in the provider code"
+		return "Ensures that user submitted IPv4 Netmask has a valid CIDR format (e.g. \"/24\") and Decimal format (e.g. \"255.255.255.0\") - this usage is likely a mistake in the provider code"
 	case o.cidrFormat:
-		return "Ensures that user submitted IPv4 Subnet has a valid CIDR format (e.g. \"/24\")"
+		return "Ensures that user submitted IPv4 Netmask has a valid CIDR format (e.g. \"/24\")"
 	case o.decimalFormat:
-		return "Ensures that user submitted IPv4 Subnet has a valid Decimal format (e.g. \"255.255.255.0\")"
+		return "Ensures that user submitted IPv4 Netmask has a valid Decimal format (e.g. \"255.255.255.0\")"
 	default:
-		return "Ensures that user submitted IPv4 Subnet has a valid CIDR format (e.g. \"/24\") or Decimal format (e.g. \"255.255.255.0\")"
+		return "Ensures that user submitted IPv4 Netmask has a valid CIDR format (e.g. \"/24\") or Decimal format (e.g. \"255.255.255.0\")"
 	}
 }
 
-func (o ParseSubnetValidator) MarkdownDescription(ctx context.Context) string {
+func (o ParseNetmaskValidator) MarkdownDescription(ctx context.Context) string {
 	return o.Description(ctx)
 }
 
-func (o ParseSubnetValidator) ValidateString(_ context.Context, req validator.StringRequest, resp *validator.StringResponse) {
+func (o ParseNetmaskValidator) ValidateString(_ context.Context, req validator.StringRequest, resp *validator.StringResponse) {
 	if req.ConfigValue.IsNull() || req.ConfigValue.IsUnknown() {
 		return
 	}
@@ -62,8 +62,8 @@ func (o ParseSubnetValidator) ValidateString(_ context.Context, req validator.St
 	}
 }
 
-func ParseSubnet(cidrFormat bool, decimalFormat bool) validator.String {
-	return ParseSubnetValidator{
+func ParseNetmask(cidrFormat bool, decimalFormat bool) validator.String {
+	return ParseNetmaskValidator{
 		cidrFormat:    cidrFormat,
 		decimalFormat: decimalFormat,
 	}
