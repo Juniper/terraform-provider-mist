@@ -157,7 +157,7 @@ Optional:
 - `port` (Number) Only if `type`==`imagotag` or `type`==`native`
 - `type` (String) note: ble_config will be ingored if esl_config is enabled and with native mode.
 - `verify_cert` (Boolean) Only if `type`==`imagotag` or `type`==`native`
-- `vlan_id` (Number) Only if `type`==`solum` or `type`==`hansho`
+- `vlan_id` (Number) Only if `type`==`solum` or `type`==`hanshow`
 
 
 <a id="nestedatt--ip_config"></a>

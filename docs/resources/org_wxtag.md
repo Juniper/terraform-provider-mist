@@ -45,7 +45,7 @@ resource "mist_org_wxtag" "wtag_one" {
 - `specs` (Attributes List) if `type`==`specs` (see [below for nested schema](#nestedatt--specs))
 - `subnet` (String)
 - `values` (List of String) if `type`!=`vlan_id` and `type`!=`specs`, list of values to match
-- `vlan_id` (Number) if `type`==`vlan_id`
+- `vlan_id` (String)
 
 ### Read-Only
 

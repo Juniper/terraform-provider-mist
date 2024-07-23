@@ -269,6 +269,7 @@ Optional:
 
 - `base_profile` (String)
 - `name` (String)
+- `org_id` (String)
 - `overwrites` (Attributes List) (see [below for nested schema](#nestedatt--idp_profiles--overwrites))
 
 <a id="nestedatt--idp_profiles--overwrites"></a>
@@ -280,6 +281,7 @@ Optional:
 - drop: siliently dropping packets
 - close: notify client/server to close connection
 - `matching` (Attributes) (see [below for nested schema](#nestedatt--idp_profiles--overwrites--matching))
+- `name` (String)
 
 <a id="nestedatt--idp_profiles--overwrites--matching"></a>
 ### Nested Schema for `idp_profiles.overwrites.matching`
@@ -323,7 +325,7 @@ Optional:
 - `subnet` (String)
 - `subnet6` (String)
 - `tenants` (Attributes Map) (see [below for nested schema](#nestedatt--networks--tenants))
-- `vlan_id` (Number)
+- `vlan_id` (String)
 - `vpn_access` (Attributes Map) Property key is the VPN name. Whether this network can be accessed from vpn (see [below for nested schema](#nestedatt--networks--vpn_access))
 
 <a id="nestedatt--networks--internal_access"></a>
@@ -412,7 +414,7 @@ Optional:
 
 Optional:
 
-- `exteral_ip` (String)
+- `external_ip` (String)
 
 
 <a id="nestedatt--networks--vpn_access--static_nat"></a>

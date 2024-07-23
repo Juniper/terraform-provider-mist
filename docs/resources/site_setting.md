@@ -193,7 +193,7 @@ Optional:
 Optional:
 
 - `url` (String)
-- `vlan_id` (Number)
+- `vlan_id` (String)
 
 
 

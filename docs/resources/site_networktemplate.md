@@ -183,6 +183,10 @@ Optional:
 <a id="nestedatt--extra_routes"></a>
 ### Nested Schema for `extra_routes`
 
+Required:
+
+- `via` (String) next-hop IP Address
+
 Optional:
 
 - `discard` (Boolean) this takes precedence
@@ -190,7 +194,6 @@ Optional:
 - `next_qualified` (Attributes Map) (see [below for nested schema](#nestedatt--extra_routes--next_qualified))
 - `no_resolve` (Boolean)
 - `preference` (Number)
-- `via` (String) next-hop IP Address
 
 <a id="nestedatt--extra_routes--next_qualified"></a>
 ### Nested Schema for `extra_routes.next_qualified`
@@ -205,6 +208,10 @@ Optional:
 <a id="nestedatt--extra_routes6"></a>
 ### Nested Schema for `extra_routes6`
 
+Required:
+
+- `via` (String) next-hop IP Address
+
 Optional:
 
 - `discard` (Boolean) this takes precedence
@@ -212,7 +219,6 @@ Optional:
 - `next_qualified` (Attributes Map) (see [below for nested schema](#nestedatt--extra_routes6--next_qualified))
 - `no_resolve` (Boolean)
 - `preference` (Number)
-- `via` (String) next-hop IP Address
 
 <a id="nestedatt--extra_routes6--next_qualified"></a>
 ### Nested Schema for `extra_routes6.next_qualified`
@@ -238,7 +244,7 @@ Optional:
 
 Required:
 
-- `vlan_id` (Number)
+- `vlan_id` (String)
 
 Optional:
 
@@ -868,7 +874,7 @@ Optional:
 <a id="nestedatt--vrf_instances--vrf_extra_routes"></a>
 ### Nested Schema for `vrf_instances.vrf_extra_routes`
 
-Optional:
+Required:
 
 - `via` (String) Next-hop address
 

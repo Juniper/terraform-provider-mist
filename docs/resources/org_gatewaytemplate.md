@@ -223,9 +223,12 @@ should overwrite the Sever Identifier option (i.e. DHCP option 54) in DHCP respo
 <a id="nestedatt--dhcpd_config--config--fixed_bindings"></a>
 ### Nested Schema for `dhcpd_config.config.fixed_bindings`
 
-Optional:
+Required:
 
 - `ip` (String)
+
+Optional:
+
 - `name` (String)
 
 
@@ -252,7 +255,7 @@ Optional:
 <a id="nestedatt--extra_routes"></a>
 ### Nested Schema for `extra_routes`
 
-Optional:
+Required:
 
 - `via` (String)
 
@@ -293,10 +296,13 @@ Optional:
 <a id="nestedatt--ip_configs"></a>
 ### Nested Schema for `ip_configs`
 
-Optional:
+Required:
 
 - `ip` (String)
 - `netmask` (String)
+
+Optional:
+
 - `secondary_ips` (List of String) optional list of secondary IPs in CIDR format
 - `type` (String)
 
@@ -307,6 +313,7 @@ Optional:
 Required:
 
 - `name` (String)
+- `subnet` (String)
 
 Optional:
 
@@ -317,10 +324,9 @@ Optional:
 - `internet_access` (Attributes) whether this network has direct internet access (see [below for nested schema](#nestedatt--networks--internet_access))
 - `isolation` (Boolean) whether to allow clients in the network to talk to each other
 - `routed_for_networks` (List of String) for a Network (usually LAN), it can be routable to other networks (e.g. OSPF)
-- `subnet` (String)
 - `subnet6` (String)
 - `tenants` (Attributes Map) (see [below for nested schema](#nestedatt--networks--tenants))
-- `vlan_id` (Number)
+- `vlan_id` (String)
 - `vpn_access` (Attributes Map) Property key is the VPN name. Whether this network can be accessed from vpn (see [below for nested schema](#nestedatt--networks--vpn_access))
 
 <a id="nestedatt--networks--internal_access"></a>
@@ -409,7 +415,7 @@ Optional:
 
 Optional:
 
-- `exteral_ip` (String)
+- `external_ip` (String)
 
 
 <a id="nestedatt--networks--vpn_access--static_nat"></a>
@@ -440,10 +446,13 @@ Optional:
 <a id="nestedatt--oob_ip_config--node1"></a>
 ### Nested Schema for `oob_ip_config.node1`
 
-Optional:
+Required:
 
 - `ip` (String)
 - `netmask` (String) used only if `subnet` is not specified in `networks`
+
+Optional:
+
 - `network` (String) optional, the network to be used for mgmt
 - `type` (String)
 - `use_mgmt_vrf` (Boolean) if supported on the platform. If enabled, DNS will be using this routing-instance, too

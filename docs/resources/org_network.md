@@ -41,7 +41,7 @@ resource "mist_org_network" "network_one" {
 - `routed_for_networks` (List of String) for a Network (usually LAN), it can be routable to other networks (e.g. OSPF)
 - `subnet6` (String)
 - `tenants` (Attributes Map) (see [below for nested schema](#nestedatt--tenants))
-- `vlan_id` (Number)
+- `vlan_id` (String)
 - `vpn_access` (Attributes Map) Property key is the VPN name. Whether this network can be accessed from vpn (see [below for nested schema](#nestedatt--vpn_access))
 
 ### Read-Only
@@ -134,7 +134,7 @@ Optional:
 
 Optional:
 
-- `exteral_ip` (String)
+- `external_ip` (String)
 
 
 <a id="nestedatt--vpn_access--static_nat"></a>

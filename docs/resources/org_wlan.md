@@ -122,11 +122,10 @@ dynamic_psk allows PSK to be selected at runtime depending on context (wlan/site
 - `schedule` (Attributes) WLAN operating schedule, default is disabled (see [below for nested schema](#nestedatt--schedule))
 - `sle_excluded` (Boolean) whether to exclude this WLAN from SLE metrics
 - `template_id` (String)
-- `thumbnail` (String) Url of portal background image thumbnail
 - `use_eapol_v1` (Boolean) if `auth.type`==’eap’ or ‘psk’, should only be set for legacy client, such as pre-2004, 802.11b devices
 - `vlan_enabled` (Boolean) if vlan tagging is enabled
-- `vlan_id` (Number)
-- `vlan_ids` (List of Number) vlan_ids to use when there’s no match from RA
+- `vlan_id` (String)
+- `vlan_ids` (List of String) vlan_ids to use when there’s no match from RA
 - `vlan_pooling` (Boolean) vlan pooling allows AP to place client on different VLAN using a deterministic algorithm
 - `wlan_limit_down` (Number) kbps
 - `wlan_limit_down_enabled` (Boolean) if downlink limiting for whole wlan is enabled
@@ -144,6 +143,7 @@ dynamic_psk allows PSK to be selected at runtime depending on context (wlan/site
 - `portal_image` (String) Url of portal background image
 - `portal_sso_url` (String)
 - `site_id` (String)
+- `thumbnail` (String) Url of portal background image thumbnail
 
 <a id="nestedatt--acct_servers"></a>
 ### Nested Schema for `acct_servers`
@@ -259,7 +259,7 @@ Optional:
 
 Required:
 
-- `additional_vlan_ids` (List of Number) additional VLAN IDs (on the LAN side or from other WLANs) should we be forwarding bonjour queries/responses
+- `additional_vlan_ids` (List of String) additional VLAN IDs (on the LAN side or from other WLANs) should we be forwarding bonjour queries/responses
 - `services` (Attributes Map) what services are allowed. 
 Property key is the service name (see [below for nested schema](#nestedatt--bonjour--services))
 
@@ -320,12 +320,12 @@ Property key is the RADIUS group, property value is the desired DNS Server
 Optional:
 
 - `default_psk` (String, Sensitive) default PSK to use if cloud WLC is not available, 8-63 characters
-- `default_vlan_id` (Number)
+- `default_vlan_id` (String)
 - `enabled` (Boolean)
 - `force_lookup` (Boolean) when 11r is enabled, we'll try to use the cached PMK, this can be disabled
 `false` means auto
 - `source` (String)
-- `vlan_ids` (List of Number)
+- `vlan_ids` (List of String)
 
 
 <a id="nestedatt--dynamic_vlan"></a>
@@ -333,9 +333,9 @@ Optional:
 
 Optional:
 
-- `default_vlan_id` (Number) vlan_id to use when there’s no match from RADIUS
+- `default_vlan_id` (String)
 - `enabled` (Boolean) whether to enable dynamic vlan
-- `local_vlan_ids` (List of Number) vlan_ids to be locally bridged
+- `local_vlan_ids` (List of String) vlan_ids to be locally bridged
 - `type` (String) standard (using Tunnel-Private-Group-ID, widely supported), airespace-interface-name (Airespace/Cisco)
 - `vlans` (Map of String) map between vlan_id (as string) to airespace interface names (comma-separated) or null for stndard mapping
   * if `dynamic_vlan.type`==`standard`, property key is the Vlan ID and property value is ""
