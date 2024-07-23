@@ -5,6 +5,8 @@ package resource_org_service
 import (
 	"context"
 	"fmt"
+	"github.com/Juniper/terraform-provider-mist/internal/validators"
+	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -29,7 +31,10 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "if `type`==`custom`, ip subnets",
 				MarkdownDescription: "if `type`==`custom`, ip subnets",
-				Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+				Validators: []validator.List{
+					listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseCidr(true, false), mistvalidator.ParseVar())),
+				},
+				Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 			},
 			"app_categories": schema.ListAttribute{
 				ElementType:         types.StringType,
@@ -104,6 +109,9 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"name": schema.StringAttribute{
 				Required: true,
+				Validators: []validator.String{
+					stringvalidator.All(stringvalidator.LengthBetween(2, 32), mistvalidator.ParseName()),
+				},
 			},
 			"org_id": schema.StringAttribute{
 				Required: true,
@@ -123,10 +131,12 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"protocol": schema.StringAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "`https`/ `tcp` / `udp` / `icmp` / `gre` / `any` / `:protocol_number`.\n`protocol_number` is between 1-254",
 							MarkdownDescription: "`https`/ `tcp` / `udp` / `icmp` / `gre` / `any` / `:protocol_number`.\n`protocol_number` is between 1-254",
-							Default:             stringdefault.StaticString("any"),
+							Validators: []validator.String{
+								stringvalidator.Any(stringvalidator.OneOf("https", "tcp", "udp", "icmp", "gre", "any"), mistvalidator.ParseInt(1, 254)),
+							},
+							Default: stringdefault.StaticString("any"),
 						},
 					},
 					CustomType: SpecsType{
