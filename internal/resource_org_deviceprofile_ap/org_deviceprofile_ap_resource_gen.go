@@ -1249,7 +1249,6 @@ type OrgDeviceprofileApModel struct {
 	PwrConfig        PwrConfigValue        `tfsdk:"pwr_config"`
 	RadioConfig      RadioConfigValue      `tfsdk:"radio_config"`
 	SiteId           types.String          `tfsdk:"site_id"`
-	SwitchConfig     SwitchConfigValue     `tfsdk:"switch_config"`
 	Type             types.String          `tfsdk:"type"`
 	UplinkPortConfig UplinkPortConfigValue `tfsdk:"uplink_port_config"`
 	UsbConfig        UsbConfigValue        `tfsdk:"usb_config"`
