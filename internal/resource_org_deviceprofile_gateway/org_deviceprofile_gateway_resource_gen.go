@@ -5,6 +5,7 @@ package resource_org_deviceprofile_gateway
 import (
 	"context"
 	"fmt"
+	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
@@ -646,6 +647,9 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"name": schema.StringAttribute{
 				Required: true,
+				Validators: []validator.String{
+					stringvalidator.All(stringvalidator.LengthBetween(2, 32), mistvalidator.ParseName()),
+				},
 			},
 			"networks": schema.ListNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{

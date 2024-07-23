@@ -131,6 +131,7 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"protocol": schema.StringAttribute{
 							Optional:            true,
+							Computed:            true,
 							Description:         "`https`/ `tcp` / `udp` / `icmp` / `gre` / `any` / `:protocol_number`.\n`protocol_number` is between 1-254",
 							MarkdownDescription: "`https`/ `tcp` / `udp` / `icmp` / `gre` / `any` / `:protocol_number`.\n`protocol_number` is between 1-254",
 							Validators: []validator.String{

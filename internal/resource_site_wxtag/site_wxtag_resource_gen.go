@@ -150,7 +150,7 @@ func SiteWxtagResourceSchema(ctx context.Context) schema.Schema {
 			"vlan_id": schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					stringvalidator.Any(mistvalidator.ParseVlanId(), mistvalidator.ParseVar()),
+					stringvalidator.Any(mistvalidator.ParseInt(1, 4094), mistvalidator.ParseVar()),
 				},
 			},
 		},

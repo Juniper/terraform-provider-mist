@@ -5,6 +5,7 @@ package resource_device_gateway
 import (
 	"context"
 	"fmt"
+	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
@@ -258,6 +259,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									Optional:            true,
 									Description:         "if `type`==`local` - optional, if not defined, system one will be used",
 									MarkdownDescription: "if `type`==`local` - optional, if not defined, system one will be used",
+									Validators: []validator.List{
+										listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar())),
+									},
 								},
 								"dns_suffix": schema.ListAttribute{
 									ElementType:         types.StringType,
@@ -271,7 +275,10 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									NestedObject: schema.NestedAttributeObject{
 										Attributes: map[string]schema.Attribute{
 											"ip": schema.StringAttribute{
-												Optional: true,
+												Required: true,
+												Validators: []validator.String{
+													mistvalidator.ParseIp(true, false),
+												},
 											},
 											"name": schema.StringAttribute{
 												Optional: true,
@@ -287,33 +294,48 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									Description:         "Property key is the MAC Address",
 									MarkdownDescription: "Property key is the MAC Address",
 									Validators: []validator.Map{
-										mapvalidator.SizeAtLeast(1),
+										mapvalidator.SizeAtLeast(1), mapvalidator.KeysAre(mistvalidator.ParseMac()),
 									},
 								},
 								"gateway": schema.StringAttribute{
 									Optional:            true,
 									Description:         "if `type`==`local` - optional, `ip` will be used if not provided",
 									MarkdownDescription: "if `type`==`local` - optional, `ip` will be used if not provided",
+									Validators: []validator.String{
+										stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar()),
+									},
 								},
 								"ip_end": schema.StringAttribute{
 									Optional:            true,
 									Description:         "if `type`==`local`",
 									MarkdownDescription: "if `type`==`local`",
+									Validators: []validator.String{
+										stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar()),
+									},
 								},
 								"ip_end6": schema.StringAttribute{
 									Optional:            true,
 									Description:         "if `type6`==`local`",
 									MarkdownDescription: "if `type6`==`local`",
+									Validators: []validator.String{
+										stringvalidator.Any(mistvalidator.ParseIp(false, true), mistvalidator.ParseVar()),
+									},
 								},
 								"ip_start": schema.StringAttribute{
 									Optional:            true,
 									Description:         "if `type`==`local`",
 									MarkdownDescription: "if `type`==`local`",
+									Validators: []validator.String{
+										stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar()),
+									},
 								},
 								"ip_start6": schema.StringAttribute{
 									Optional:            true,
 									Description:         "if `type6`==`local`",
 									MarkdownDescription: "if `type6`==`local`",
+									Validators: []validator.String{
+										stringvalidator.Any(mistvalidator.ParseIp(false, true), mistvalidator.ParseVar()),
+									},
 								},
 								"lease_time": schema.Int64Attribute{
 									Optional:            true,
@@ -374,7 +396,10 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									Computed:            true,
 									Description:         "if `type`==`relay`",
 									MarkdownDescription: "if `type`==`relay`",
-									Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+									Validators: []validator.List{
+										listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar())),
+									},
+									Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 								},
 								"servers6": schema.ListAttribute{
 									ElementType:         types.StringType,
@@ -382,7 +407,10 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									Computed:            true,
 									Description:         "if `type6`==`relay`",
 									MarkdownDescription: "if `type6`==`relay`",
-									Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+									Validators: []validator.List{
+										listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseIp(false, true), mistvalidator.ParseVar())),
+									},
+									Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 								},
 								"type": schema.StringAttribute{
 									Optional:            true,
@@ -493,7 +521,10 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"via": schema.StringAttribute{
-							Optional: true,
+							Required: true,
+							Validators: []validator.String{
+								stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar()),
+							},
 						},
 					},
 					CustomType: ExtraRoutesType{
@@ -504,7 +535,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Optional: true,
 				Validators: []validator.Map{
-					mapvalidator.SizeAtLeast(1),
+					mapvalidator.SizeAtLeast(1), mapvalidator.KeysAre(stringvalidator.Any(mistvalidator.ParseCidr(true, false), mistvalidator.ParseVar())),
 				},
 			},
 			"idp_profiles": schema.MapNestedAttribute{
@@ -615,10 +646,16 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"ip": schema.StringAttribute{
-							Optional: true,
+							Required: true,
+							Validators: []validator.String{
+								stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar()),
+							},
 						},
 						"netmask": schema.StringAttribute{
-							Optional: true,
+							Required: true,
+							Validators: []validator.String{
+								stringvalidator.Any(mistvalidator.ParseNetmask(true, true), mistvalidator.ParseVar()),
+							},
 						},
 						"secondary_ips": schema.ListAttribute{
 							ElementType:         types.StringType,
@@ -693,9 +730,15 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"gateway": schema.StringAttribute{
 							Optional: true,
+							Validators: []validator.String{
+								stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar()),
+							},
 						},
 						"gateway6": schema.StringAttribute{
 							Optional: true,
+							Validators: []validator.String{
+								stringvalidator.Any(mistvalidator.ParseIp(false, true), mistvalidator.ParseVar()),
+							},
 						},
 						"id": schema.StringAttribute{
 							Optional: true,
@@ -804,6 +847,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"name": schema.StringAttribute{
 							Required: true,
+							Validators: []validator.String{
+								stringvalidator.All(stringvalidator.LengthBetween(2, 32), mistvalidator.ParseName()),
+							},
 						},
 						"org_id": schema.StringAttribute{
 							Optional: true,
@@ -815,10 +861,16 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "for a Network (usually LAN), it can be routable to other networks (e.g. OSPF)",
 						},
 						"subnet": schema.StringAttribute{
-							Optional: true,
+							Required: true,
+							Validators: []validator.String{
+								stringvalidator.Any(mistvalidator.ParseCidr(true, false), mistvalidator.ParseVar()),
+							},
 						},
 						"subnet6": schema.StringAttribute{
 							Optional: true,
+							Validators: []validator.String{
+								stringvalidator.Any(mistvalidator.ParseCidr(false, true), mistvalidator.ParseVar()),
+							},
 						},
 						"tenants": schema.MapNestedAttribute{
 							NestedObject: schema.NestedAttributeObject{
@@ -841,6 +893,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"vlan_id": schema.StringAttribute{
 							Optional: true,
+							Validators: []validator.String{
+								stringvalidator.Any(mistvalidator.ParseInt(1, 4094), mistvalidator.ParseVar()),
+							},
 						},
 						"vpn_access": schema.MapNestedAttribute{
 							NestedObject: schema.NestedAttributeObject{
@@ -875,6 +930,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 											},
 										},
 										Optional:            true,
+										Computed:            true,
 										Description:         "Property key may be an IP/Port (i.e. \"63.16.0.3:443\"), or a port (i.e. \":2222\")",
 										MarkdownDescription: "Property key may be an IP/Port (i.e. \"63.16.0.3:443\"), or a port (i.e. \":2222\")",
 										Validators: []validator.Map{
@@ -908,8 +964,10 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									"other_vrfs": schema.ListAttribute{
 										ElementType:         types.StringType,
 										Optional:            true,
+										Computed:            true,
 										Description:         "by default, the routes are only readvertised toward the same vrf on spoke\nto allow it to be leaked to other vrfs",
 										MarkdownDescription: "by default, the routes are only readvertised toward the same vrf on spoke\nto allow it to be leaked to other vrfs",
+										Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 									},
 									"routed": schema.BoolAttribute{
 										Optional:            true,
@@ -928,6 +986,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 											},
 										},
 										Optional:            true,
+										Computed:            true,
 										Description:         "if `routed`==`false` (usually at Spoke), but some hosts needs to be reachable from Hub",
 										MarkdownDescription: "if `routed`==`false` (usually at Spoke), but some hosts needs to be reachable from Hub",
 									},
@@ -953,6 +1012,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 											},
 										},
 										Optional:            true,
+										Computed:            true,
 										Description:         "Property key may be an IP Address (i.e. \"172.16.0.1\"), and IP Address and Port (i.e. \"172.16.0.1:8443\") or a CIDR (i.e. \"172.16.0.12/20\")",
 										MarkdownDescription: "Property key may be an IP Address (i.e. \"172.16.0.1\"), and IP Address and Port (i.e. \"172.16.0.1:8443\") or a CIDR (i.e. \"172.16.0.12/20\")",
 										Validators: []validator.Map{
@@ -1011,11 +1071,17 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 				Attributes: map[string]schema.Attribute{
 					"ip": schema.StringAttribute{
 						Optional: true,
+						Validators: []validator.String{
+							mistvalidator.ParseIp(true, false),
+						},
 					},
 					"netmask": schema.StringAttribute{
 						Optional:            true,
 						Description:         "used only if `subnet` is not specified in `networks`",
 						MarkdownDescription: "used only if `subnet` is not specified in `networks`",
+						Validators: []validator.String{
+							stringvalidator.Any(mistvalidator.ParseNetmask(true, true), mistvalidator.ParseVar()),
+						},
 					},
 					"network": schema.StringAttribute{
 						Optional:            true,
@@ -1025,12 +1091,18 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 					"node1": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
 							"ip": schema.StringAttribute{
-								Optional: true,
+								Required: true,
+								Validators: []validator.String{
+									mistvalidator.ParseIp(true, false),
+								},
 							},
 							"netmask": schema.StringAttribute{
-								Optional:            true,
+								Required:            true,
 								Description:         "used only if `subnet` is not specified in `networks`",
 								MarkdownDescription: "used only if `subnet` is not specified in `networks`",
+								Validators: []validator.String{
+									stringvalidator.Any(mistvalidator.ParseNetmask(true, true), mistvalidator.ParseVar()),
+								},
 							},
 							"network": schema.StringAttribute{
 								Optional:            true,

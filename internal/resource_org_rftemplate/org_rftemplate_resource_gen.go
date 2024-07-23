@@ -5,6 +5,7 @@ package resource_org_rftemplate
 import (
 	"context"
 	"fmt"
+	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -991,6 +992,9 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 				Required:            true,
 				Description:         "The name of the RF template",
 				MarkdownDescription: "The name of the RF template",
+				Validators: []validator.String{
+					stringvalidator.All(stringvalidator.LengthBetween(2, 32), mistvalidator.ParseName()),
+				},
 			},
 			"org_id": schema.StringAttribute{
 				Required: true,

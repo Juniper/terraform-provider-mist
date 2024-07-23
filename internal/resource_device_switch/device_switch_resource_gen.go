@@ -5,6 +5,7 @@ package resource_device_switch
 import (
 	"context"
 	"fmt"
+	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
@@ -444,6 +445,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting",
 				MarkdownDescription: "Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting",
+				Validators: []validator.List{
+					listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar())),
+				},
 			},
 			"dns_suffix": schema.ListAttribute{
 				ElementType:         types.StringType,
@@ -526,9 +530,12 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						"via": schema.StringAttribute{
-							Optional:            true,
+							Required:            true,
 							Description:         "next-hop IP Address",
 							MarkdownDescription: "next-hop IP Address",
+							Validators: []validator.String{
+								stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar()),
+							},
 						},
 					},
 					CustomType: ExtraRoutesType{
@@ -539,7 +546,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Optional: true,
 				Validators: []validator.Map{
-					mapvalidator.SizeAtLeast(1),
+					mapvalidator.SizeAtLeast(1), mapvalidator.KeysAre(stringvalidator.Any(mistvalidator.ParseCidr(true, false), mistvalidator.ParseVar())),
 				},
 			},
 			"extra_routes6": schema.MapNestedAttribute{
@@ -591,9 +598,12 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						"via": schema.StringAttribute{
-							Optional:            true,
+							Required:            true,
 							Description:         "next-hop IP Address",
 							MarkdownDescription: "next-hop IP Address",
+							Validators: []validator.String{
+								stringvalidator.Any(mistvalidator.ParseIp(false, true), mistvalidator.ParseVar()),
+							},
 						},
 					},
 					CustomType: ExtraRoutes6Type{
@@ -606,7 +616,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "Property key is the destination CIDR (e.g. \"2a02:1234:420a:10c9::/64\")",
 				MarkdownDescription: "Property key is the destination CIDR (e.g. \"2a02:1234:420a:10c9::/64\")",
 				Validators: []validator.Map{
-					mapvalidator.SizeAtLeast(1),
+					mapvalidator.SizeAtLeast(1), mapvalidator.KeysAre(stringvalidator.Any(mistvalidator.ParseCidr(false, true), mistvalidator.ParseVar())),
 				},
 			},
 			"image1_url": schema.StringAttribute{
@@ -734,9 +744,15 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "optional for pure switching, required when L3 / routing features are used",
 							MarkdownDescription: "optional for pure switching, required when L3 / routing features are used",
+							Validators: []validator.String{
+								stringvalidator.Any(mistvalidator.ParseCidr(false, true), mistvalidator.ParseVar()),
+							},
 						},
 						"vlan_id": schema.StringAttribute{
 							Required: true,
+							Validators: []validator.String{
+								stringvalidator.Any(mistvalidator.ParseInt(1, 4094), mistvalidator.ParseVar()),
+							},
 						},
 					},
 					CustomType: NetworksType{
@@ -749,7 +765,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "Property key is network name",
 				MarkdownDescription: "Property key is network name",
 				Validators: []validator.Map{
-					mapvalidator.SizeAtLeast(1),
+					mapvalidator.SizeAtLeast(1), mapvalidator.KeysAre(stringvalidator.All(stringvalidator.LengthBetween(2, 32), mistvalidator.ParseName())),
 				},
 			},
 			"notes": schema.StringAttribute{
@@ -2889,9 +2905,12 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"via": schema.StringAttribute{
-										Optional:            true,
+										Required:            true,
 										Description:         "Next-hop address",
 										MarkdownDescription: "Next-hop address",
+										Validators: []validator.String{
+											stringvalidator.Any(mistvalidator.ParseIp(false, true), mistvalidator.ParseVar()),
+										},
 									},
 								},
 								CustomType: VrfExtraRoutesType{
@@ -2904,7 +2923,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Property key is the destination CIDR (e.g. \"10.0.0.0/8\")",
 							MarkdownDescription: "Property key is the destination CIDR (e.g. \"10.0.0.0/8\")",
 							Validators: []validator.Map{
-								mapvalidator.SizeAtLeast(1),
+								mapvalidator.SizeAtLeast(1), mapvalidator.KeysAre(stringvalidator.Any(mistvalidator.ParseCidr(false, true), mistvalidator.ParseVar())),
 							},
 						},
 					},
@@ -2918,7 +2937,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "Property key is the network name",
 				MarkdownDescription: "Property key is the network name",
 				Validators: []validator.Map{
-					mapvalidator.SizeAtLeast(1),
+					mapvalidator.SizeAtLeast(1), mapvalidator.KeysAre(mistvalidator.ParseName()),
 				},
 			},
 			"vrrp_config": schema.SingleNestedAttribute{
