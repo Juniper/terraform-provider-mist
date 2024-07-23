@@ -5,6 +5,7 @@ package resource_site_setting
 import (
 	"context"
 	"fmt"
+	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -439,10 +440,11 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 								"url": schema.StringAttribute{
 									Optional: true,
 								},
-								"vlan_id": schema.Int64Attribute{
+								"vlan_id": schema.StringAttribute{
 									Optional: true,
-									Computed: true,
-									Default:  int64default.StaticInt64(1),
+									Validators: []validator.String{
+										stringvalidator.Any(mistvalidator.ParseVlanId(), mistvalidator.ParseVar()),
+									},
 								},
 							},
 							CustomType: MonitorsType{
@@ -6135,12 +6137,12 @@ func (t MonitorsType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 		return nil, diags
 	}
 
-	vlanIdVal, ok := vlanIdAttribute.(basetypes.Int64Value)
+	vlanIdVal, ok := vlanIdAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`vlan_id expected to be basetypes.Int64Value, was: %T`, vlanIdAttribute))
+			fmt.Sprintf(`vlan_id expected to be basetypes.StringValue, was: %T`, vlanIdAttribute))
 	}
 
 	if diags.HasError() {
@@ -6245,12 +6247,12 @@ func NewMonitorsValue(attributeTypes map[string]attr.Type, attributes map[string
 		return NewMonitorsValueUnknown(), diags
 	}
 
-	vlanIdVal, ok := vlanIdAttribute.(basetypes.Int64Value)
+	vlanIdVal, ok := vlanIdAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`vlan_id expected to be basetypes.Int64Value, was: %T`, vlanIdAttribute))
+			fmt.Sprintf(`vlan_id expected to be basetypes.StringValue, was: %T`, vlanIdAttribute))
 	}
 
 	if diags.HasError() {
@@ -6333,7 +6335,7 @@ var _ basetypes.ObjectValuable = MonitorsValue{}
 
 type MonitorsValue struct {
 	Url    basetypes.StringValue `tfsdk:"url"`
-	VlanId basetypes.Int64Value  `tfsdk:"vlan_id"`
+	VlanId basetypes.StringValue `tfsdk:"vlan_id"`
 	state  attr.ValueState
 }
 
@@ -6344,7 +6346,7 @@ func (v MonitorsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 	var err error
 
 	attrTypes["url"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["vlan_id"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["vlan_id"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
@@ -6399,7 +6401,7 @@ func (v MonitorsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 
 	attributeTypes := map[string]attr.Type{
 		"url":     basetypes.StringType{},
-		"vlan_id": basetypes.Int64Type{},
+		"vlan_id": basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -6457,7 +6459,7 @@ func (v MonitorsValue) Type(ctx context.Context) attr.Type {
 func (v MonitorsValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"url":     basetypes.StringType{},
-		"vlan_id": basetypes.Int64Type{},
+		"vlan_id": basetypes.StringType{},
 	}
 }
 

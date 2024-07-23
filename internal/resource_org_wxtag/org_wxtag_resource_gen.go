@@ -5,6 +5,7 @@ package resource_org_wxtag
 import (
 	"context"
 	"fmt"
+	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -143,10 +144,11 @@ func OrgWxtagResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "if `type`!=`vlan_id` and `type`!=`specs`, list of values to match",
 				MarkdownDescription: "if `type`!=`vlan_id` and `type`!=`specs`, list of values to match",
 			},
-			"vlan_id": schema.Int64Attribute{
-				Optional:            true,
-				Description:         "if `type`==`vlan_id`",
-				MarkdownDescription: "if `type`==`vlan_id`",
+			"vlan_id": schema.StringAttribute{
+				Optional: true,
+				Validators: []validator.String{
+					stringvalidator.Any(mistvalidator.ParseVlanId(), mistvalidator.ParseVar()),
+				},
 			},
 		},
 	}
@@ -166,7 +168,7 @@ type OrgWxtagModel struct {
 	Subnet      types.String `tfsdk:"subnet"`
 	Type        types.String `tfsdk:"type"`
 	Values      types.List   `tfsdk:"values"`
-	VlanId      types.Int64  `tfsdk:"vlan_id"`
+	VlanId      types.String `tfsdk:"vlan_id"`
 }
 
 var _ basetypes.ObjectTypable = SpecsType{}

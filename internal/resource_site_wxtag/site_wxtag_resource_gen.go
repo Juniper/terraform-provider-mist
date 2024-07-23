@@ -5,6 +5,7 @@ package resource_site_wxtag
 import (
 	"context"
 	"fmt"
+	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -146,10 +147,11 @@ func SiteWxtagResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "if `type`!=`vlan_id` and `type`!=`specs`, list of values to match",
 				MarkdownDescription: "if `type`!=`vlan_id` and `type`!=`specs`, list of values to match",
 			},
-			"vlan_id": schema.Int64Attribute{
-				Optional:            true,
-				Description:         "if `type`==`vlan_id`",
-				MarkdownDescription: "if `type`==`vlan_id`",
+			"vlan_id": schema.StringAttribute{
+				Optional: true,
+				Validators: []validator.String{
+					stringvalidator.Any(mistvalidator.ParseVlanId(), mistvalidator.ParseVar()),
+				},
 			},
 		},
 	}

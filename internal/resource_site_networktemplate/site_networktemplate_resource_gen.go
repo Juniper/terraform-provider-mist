@@ -5,6 +5,7 @@ package resource_site_networktemplate
 import (
 	"context"
 	"fmt"
+	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
@@ -383,8 +384,11 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "optional for pure switching, required when L3 / routing features are used",
 							MarkdownDescription: "optional for pure switching, required when L3 / routing features are used",
 						},
-						"vlan_id": schema.Int64Attribute{
+						"vlan_id": schema.StringAttribute{
 							Required: true,
+							Validators: []validator.String{
+								stringvalidator.Any(mistvalidator.ParseVlanId(), mistvalidator.ParseVar()),
+							},
 						},
 					},
 					CustomType: NetworksType{
@@ -7119,12 +7123,12 @@ func (t NetworksType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 		return nil, diags
 	}
 
-	vlanIdVal, ok := vlanIdAttribute.(basetypes.Int64Value)
+	vlanIdVal, ok := vlanIdAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`vlan_id expected to be basetypes.Int64Value, was: %T`, vlanIdAttribute))
+			fmt.Sprintf(`vlan_id expected to be basetypes.StringValue, was: %T`, vlanIdAttribute))
 	}
 
 	if diags.HasError() {
@@ -7267,12 +7271,12 @@ func NewNetworksValue(attributeTypes map[string]attr.Type, attributes map[string
 		return NewNetworksValueUnknown(), diags
 	}
 
-	vlanIdVal, ok := vlanIdAttribute.(basetypes.Int64Value)
+	vlanIdVal, ok := vlanIdAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`vlan_id expected to be basetypes.Int64Value, was: %T`, vlanIdAttribute))
+			fmt.Sprintf(`vlan_id expected to be basetypes.StringValue, was: %T`, vlanIdAttribute))
 	}
 
 	if diags.HasError() {
@@ -7359,7 +7363,7 @@ type NetworksValue struct {
 	Isolation       basetypes.BoolValue   `tfsdk:"isolation"`
 	IsolationVlanId basetypes.StringValue `tfsdk:"isolation_vlan_id"`
 	Subnet          basetypes.StringValue `tfsdk:"subnet"`
-	VlanId          basetypes.Int64Value  `tfsdk:"vlan_id"`
+	VlanId          basetypes.StringValue `tfsdk:"vlan_id"`
 	state           attr.ValueState
 }
 
@@ -7372,7 +7376,7 @@ func (v NetworksValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 	attrTypes["isolation"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["isolation_vlan_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["subnet"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["vlan_id"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["vlan_id"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
@@ -7445,7 +7449,7 @@ func (v NetworksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 		"isolation":         basetypes.BoolType{},
 		"isolation_vlan_id": basetypes.StringType{},
 		"subnet":            basetypes.StringType{},
-		"vlan_id":           basetypes.Int64Type{},
+		"vlan_id":           basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -7515,7 +7519,7 @@ func (v NetworksValue) AttributeTypes(ctx context.Context) map[string]attr.Type 
 		"isolation":         basetypes.BoolType{},
 		"isolation_vlan_id": basetypes.StringType{},
 		"subnet":            basetypes.StringType{},
-		"vlan_id":           basetypes.Int64Type{},
+		"vlan_id":           basetypes.StringType{},
 	}
 }
 

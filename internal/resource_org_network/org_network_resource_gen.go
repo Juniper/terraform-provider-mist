@@ -5,6 +5,7 @@ package resource_org_network
 import (
 	"context"
 	"fmt"
+	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -15,7 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
-	"regexp"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -33,9 +33,15 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"gateway": schema.StringAttribute{
 				Optional: true,
+				Validators: []validator.String{
+					stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar()),
+				},
 			},
 			"gateway6": schema.StringAttribute{
 				Optional: true,
+				Validators: []validator.String{
+					stringvalidator.Any(mistvalidator.ParseIp(false, true), mistvalidator.ParseVar()),
+				},
 			},
 			"id": schema.StringAttribute{
 				Computed: true,
@@ -141,6 +147,9 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"name": schema.StringAttribute{
 				Required: true,
+				Validators: []validator.String{
+					stringvalidator.All(stringvalidator.LengthBetween(2, 32), mistvalidator.ParseName()),
+				},
 			},
 			"org_id": schema.StringAttribute{
 				Required: true,
@@ -154,11 +163,14 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 			"subnet": schema.StringAttribute{
 				Required: true,
 				Validators: []validator.String{
-					stringvalidator.RegexMatches(regexp.MustCompile(`([\d{1,3}\.]+)/(\d{2})`), "subnet must be a CIDR (e.g. 192.168.1.0/24)"),
+					stringvalidator.Any(mistvalidator.ParseCidr(true, false), mistvalidator.ParseVar()),
 				},
 			},
 			"subnet6": schema.StringAttribute{
 				Optional: true,
+				Validators: []validator.String{
+					stringvalidator.Any(mistvalidator.ParseCidr(false, true), mistvalidator.ParseVar()),
+				},
 			},
 			"tenants": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
@@ -179,8 +191,11 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 					mapvalidator.SizeAtLeast(1),
 				},
 			},
-			"vlan_id": schema.Int64Attribute{
+			"vlan_id": schema.StringAttribute{
 				Optional: true,
+				Validators: []validator.String{
+					stringvalidator.Any(mistvalidator.ParseVlanId(), mistvalidator.ParseVar()),
+				},
 			},
 			"vpn_access": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
@@ -261,7 +276,7 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"source_nat": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
-								"exteral_ip": schema.StringAttribute{
+								"external_ip": schema.StringAttribute{
 									Optional: true,
 								},
 							},
@@ -351,7 +366,7 @@ type OrgNetworkModel struct {
 	Subnet               types.String        `tfsdk:"subnet"`
 	Subnet6              types.String        `tfsdk:"subnet6"`
 	Tenants              types.Map           `tfsdk:"tenants"`
-	VlanId               types.Int64         `tfsdk:"vlan_id"`
+	VlanId               types.String        `tfsdk:"vlan_id"`
 	VpnAccess            types.Map           `tfsdk:"vpn_access"`
 }
 
@@ -3701,22 +3716,22 @@ func (t SourceNatType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 
 	attributes := in.Attributes()
 
-	exteralIpAttribute, ok := attributes["exteral_ip"]
+	externalIpAttribute, ok := attributes["external_ip"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`exteral_ip is missing from object`)
+			`external_ip is missing from object`)
 
 		return nil, diags
 	}
 
-	exteralIpVal, ok := exteralIpAttribute.(basetypes.StringValue)
+	externalIpVal, ok := externalIpAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`exteral_ip expected to be basetypes.StringValue, was: %T`, exteralIpAttribute))
+			fmt.Sprintf(`external_ip expected to be basetypes.StringValue, was: %T`, externalIpAttribute))
 	}
 
 	if diags.HasError() {
@@ -3724,8 +3739,8 @@ func (t SourceNatType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 	}
 
 	return SourceNatValue{
-		ExteralIp: exteralIpVal,
-		state:     attr.ValueStateKnown,
+		ExternalIp: externalIpVal,
+		state:      attr.ValueStateKnown,
 	}, diags
 }
 
@@ -3792,22 +3807,22 @@ func NewSourceNatValue(attributeTypes map[string]attr.Type, attributes map[strin
 		return NewSourceNatValueUnknown(), diags
 	}
 
-	exteralIpAttribute, ok := attributes["exteral_ip"]
+	externalIpAttribute, ok := attributes["external_ip"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`exteral_ip is missing from object`)
+			`external_ip is missing from object`)
 
 		return NewSourceNatValueUnknown(), diags
 	}
 
-	exteralIpVal, ok := exteralIpAttribute.(basetypes.StringValue)
+	externalIpVal, ok := externalIpAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`exteral_ip expected to be basetypes.StringValue, was: %T`, exteralIpAttribute))
+			fmt.Sprintf(`external_ip expected to be basetypes.StringValue, was: %T`, externalIpAttribute))
 	}
 
 	if diags.HasError() {
@@ -3815,8 +3830,8 @@ func NewSourceNatValue(attributeTypes map[string]attr.Type, attributes map[strin
 	}
 
 	return SourceNatValue{
-		ExteralIp: exteralIpVal,
-		state:     attr.ValueStateKnown,
+		ExternalIp: externalIpVal,
+		state:      attr.ValueStateKnown,
 	}, diags
 }
 
@@ -3888,8 +3903,8 @@ func (t SourceNatType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = SourceNatValue{}
 
 type SourceNatValue struct {
-	ExteralIp basetypes.StringValue `tfsdk:"exteral_ip"`
-	state     attr.ValueState
+	ExternalIp basetypes.StringValue `tfsdk:"external_ip"`
+	state      attr.ValueState
 }
 
 func (v SourceNatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
@@ -3898,7 +3913,7 @@ func (v SourceNatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 	var val tftypes.Value
 	var err error
 
-	attrTypes["exteral_ip"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["external_ip"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
@@ -3906,13 +3921,13 @@ func (v SourceNatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 	case attr.ValueStateKnown:
 		vals := make(map[string]tftypes.Value, 1)
 
-		val, err = v.ExteralIp.ToTerraformValue(ctx)
+		val, err = v.ExternalIp.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["exteral_ip"] = val
+		vals["external_ip"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -3944,7 +3959,7 @@ func (v SourceNatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 	var diags diag.Diagnostics
 
 	attributeTypes := map[string]attr.Type{
-		"exteral_ip": basetypes.StringType{},
+		"external_ip": basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -3958,7 +3973,7 @@ func (v SourceNatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"exteral_ip": v.ExteralIp,
+			"external_ip": v.ExternalIp,
 		})
 
 	return objVal, diags
@@ -3979,7 +3994,7 @@ func (v SourceNatValue) Equal(o attr.Value) bool {
 		return true
 	}
 
-	if !v.ExteralIp.Equal(other.ExteralIp) {
+	if !v.ExternalIp.Equal(other.ExternalIp) {
 		return false
 	}
 
@@ -3996,6 +4011,6 @@ func (v SourceNatValue) Type(ctx context.Context) attr.Type {
 
 func (v SourceNatValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"exteral_ip": basetypes.StringType{},
+		"external_ip": basetypes.StringType{},
 	}
 }
