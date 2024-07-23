@@ -15,7 +15,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 	var diags diag.Diagnostics
 	unset := make(map[string]interface{})
 
-	if plan.ApUpdownThreshold.ValueInt64Pointer() != nil {
+	if !plan.Analytic.IsNull() && !plan.Analytic.IsUnknown() {
 		data.Analytic = analyticTerraformToSdk(ctx, &diags, plan.Analytic)
 	} else {
 		unset["-analytic"] = ""
@@ -75,7 +75,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 		unset["-engagement"] = ""
 	}
 
-	if plan.GatewayMgmt.IsNull() && !plan.GatewayMgmt.IsUnknown() {
+	if !plan.GatewayMgmt.IsNull() && !plan.GatewayMgmt.IsUnknown() {
 		data.GatewayMgmt = gatewayMgmtTerraformToSdk(ctx, &diags, plan.GatewayMgmt)
 	} else {
 		unset["-gateway_mgmt"] = ""

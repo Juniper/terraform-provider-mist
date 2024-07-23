@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -609,8 +610,10 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					"admin_sshkeys": schema.ListAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
+						Computed:            true,
 						Description:         "for SSR only, as direct root access is not allowed",
 						MarkdownDescription: "for SSR only, as direct root access is not allowed",
+						Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 					},
 					"app_probing": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
@@ -735,6 +738,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					"probe_hosts": schema.ListAttribute{
 						ElementType: types.StringType,
 						Optional:    true,
+						Computed:    true,
+						Default:     listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 					},
 					"root_password": schema.StringAttribute{
 						Optional:            true,
