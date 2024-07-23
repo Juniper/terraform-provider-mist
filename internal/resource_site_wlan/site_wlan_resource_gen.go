@@ -544,7 +544,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						Description:         "additional VLAN IDs (on the LAN side or from other WLANs) should we be forwarding bonjour queries/responses",
 						MarkdownDescription: "additional VLAN IDs (on the LAN side or from other WLANs) should we be forwarding bonjour queries/responses",
 						Validators: []validator.List{
-							listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseVlanId(), mistvalidator.ParseVar())),
+							listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseInt(1, 4094), mistvalidator.ParseVar())),
 						},
 					},
 					"enabled": schema.BoolAttribute{
@@ -793,7 +793,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 					"default_vlan_id": schema.StringAttribute{
 						Optional: true,
 						Validators: []validator.String{
-							stringvalidator.Any(mistvalidator.ParseVlanId(), mistvalidator.ParseVar()),
+							stringvalidator.Any(mistvalidator.ParseInt(1, 4094), mistvalidator.ParseVar()),
 						},
 					},
 					"enabled": schema.BoolAttribute{
@@ -824,7 +824,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						ElementType: types.StringType,
 						Optional:    true,
 						Validators: []validator.List{
-							listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseVlanId(), mistvalidator.ParseVar())),
+							listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseInt(1, 4094), mistvalidator.ParseVar())),
 						},
 					},
 				},
@@ -1946,7 +1946,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 			"vlan_id": schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					stringvalidator.Any(mistvalidator.ParseVlanId(), mistvalidator.ParseVar()),
+					stringvalidator.Any(mistvalidator.ParseInt(1, 4094), mistvalidator.ParseVar()),
 				},
 			},
 			"vlan_ids": schema.ListAttribute{
@@ -1956,7 +1956,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "vlan_ids to use when there’s no match from RA",
 				MarkdownDescription: "vlan_ids to use when there’s no match from RA",
 				Validators: []validator.List{
-					listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseVlanId(), mistvalidator.ParseVar())),
+					listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseInt(1, 4094), mistvalidator.ParseVar())),
 				},
 				Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 			},

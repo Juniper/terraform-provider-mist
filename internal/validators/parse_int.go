@@ -8,26 +8,29 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 )
 
-var _ validator.String = ParseVlanValidator{}
+var _ validator.String = ParseIntValidator{}
 
-type ParseVlanValidator struct{}
+type ParseIntValidator struct {
+	min int
+	max int
+}
 
-func (o ParseVlanValidator) Description(_ context.Context) string {
+func (o ParseIntValidator) Description(_ context.Context) string {
 	return "Ensures that user submitted VLAN ID is either a valid VLAN ID string (1-4094) or contains a Variable"
 }
 
-func (o ParseVlanValidator) MarkdownDescription(ctx context.Context) string {
+func (o ParseIntValidator) MarkdownDescription(ctx context.Context) string {
 	return o.Description(ctx)
 }
 
-func (o ParseVlanValidator) ValidateString(_ context.Context, req validator.StringRequest, resp *validator.StringResponse) {
+func (o ParseIntValidator) ValidateString(_ context.Context, req validator.StringRequest, resp *validator.StringResponse) {
 	if req.ConfigValue.IsNull() || req.ConfigValue.IsUnknown() {
 		return
 	}
 
 	value := req.ConfigValue.ValueString()
 	if vlan, e := strconv.Atoi(value); e == nil {
-		if vlan < 1 || vlan > 4094 {
+		if vlan < o.min || vlan > o.max {
 			resp.Diagnostics.Append(validatordiag.InvalidAttributeValueDiagnostic(
 				req.Path,
 				"value must be an Integer between 1 and 4094 or must contain a variable (\"{{...}}\")",
@@ -38,6 +41,9 @@ func (o ParseVlanValidator) ValidateString(_ context.Context, req validator.Stri
 	}
 }
 
-func ParseVlanId() validator.String {
-	return ParseVlanValidator{}
+func ParseInt(min int, max int) validator.String {
+	return ParseIntValidator{
+		min: min,
+		max: max,
+	}
 }
