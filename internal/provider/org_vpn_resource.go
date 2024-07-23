@@ -189,8 +189,8 @@ func (r *orgVpnResource) Delete(ctx context.Context, req resource.DeleteRequest,
 	tflog.Info(ctx, "Starting Vpn Delete: vpn_id "+state.Id.ValueString())
 	orgId := uuid.MustParse(state.OrgId.ValueString())
 	vpnId := uuid.MustParse(state.Id.ValueString())
-	_, err := r.client.OrgsVPNs().DeleteOrgVpn(ctx, orgId, vpnId)
-	if err != nil {
+	httpr, err := r.client.OrgsVPNs().DeleteOrgVpn(ctx, orgId, vpnId)
+	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting Vpn",
 			"Could not delete Vpn, unexpected error: "+err.Error(),

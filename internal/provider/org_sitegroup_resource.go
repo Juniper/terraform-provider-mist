@@ -192,8 +192,8 @@ func (r *orgSiteGroupResource) Delete(ctx context.Context, req resource.DeleteRe
 	orgId := uuid.MustParse(state.OrgId.ValueString())
 	sitegroupId := uuid.MustParse(state.Id.ValueString())
 	tflog.Info(ctx, "Starting SiteGroup Delete: sitegroup_id "+state.Id.ValueString())
-	_, err := r.client.OrgsSitegroups().DeleteOrgSiteGroup(ctx, orgId, sitegroupId)
-	if err != nil {
+	httpr, err := r.client.OrgsSitegroups().DeleteOrgSiteGroup(ctx, orgId, sitegroupId)
+	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting SiteGroup",
 			"Could not delete SiteGroup, unexpected error: "+err.Error(),

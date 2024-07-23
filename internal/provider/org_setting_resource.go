@@ -217,8 +217,8 @@ func (r *orgSettingResource) Delete(ctx context.Context, req resource.DeleteRequ
 		)
 		return
 	}
-	_, err = r.client.OrgsSetting().UpdateOrgSettings(ctx, orgId, orgSetting)
-	if err != nil {
+	httpr, err := r.client.OrgsSetting().UpdateOrgSettings(ctx, orgId, orgSetting)
+	if httpr.Response.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting orgSetting",
 			"Could not delete orgSetting, unexpected error: "+err.Error(),

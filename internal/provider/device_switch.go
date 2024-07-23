@@ -280,8 +280,8 @@ func (r *deviceSwitchResource) Delete(ctx context.Context, req resource.DeleteRe
 		return
 	}
 
-	data, err := r.client.SitesDevices().UpdateSiteDevice(ctx, siteId, deviceId, &device_switch)
-	if data.Response.StatusCode != 200 && err != nil {
+	httpr, err := r.client.SitesDevices().UpdateSiteDevice(ctx, siteId, deviceId, &device_switch)
+	if httpr.Response.StatusCode != 404 && httpr.Response.StatusCode != 200 && err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting device_switch",
 			"Could not delete device_switch, unexpected error: "+err.Error(),

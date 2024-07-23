@@ -193,8 +193,8 @@ func (r *orgWxRuleResource) Delete(ctx context.Context, req resource.DeleteReque
 	orgId := uuid.MustParse(state.OrgId.ValueString())
 	wxruleId := uuid.MustParse(state.Id.ValueString())
 	tflog.Info(ctx, "Starting WxRule Delete: wxrule_id "+state.Id.ValueString())
-	_, err := r.client.OrgsWxRules().DeleteOrgWxRule(ctx, orgId, wxruleId)
-	if err != nil {
+	httpr, err := r.client.OrgsWxRules().DeleteOrgWxRule(ctx, orgId, wxruleId)
+	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting WxRule",
 			"Could not delete WxRule, unexpected error: "+err.Error(),

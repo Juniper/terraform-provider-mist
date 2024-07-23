@@ -193,8 +193,8 @@ func (r *orgWlanTemplateResource) Delete(ctx context.Context, req resource.Delet
 	tflog.Info(ctx, "Starting WlanTemplate Delete: wlantemplate_id "+state.Id.ValueString())
 	orgId := uuid.MustParse(state.OrgId.ValueString())
 	wlantemplateId := uuid.MustParse(state.Id.ValueString())
-	_, err := r.client.OrgsWLANTemplates().DeleteOrgTemplate(ctx, orgId, wlantemplateId)
-	if err != nil {
+	httpr, err := r.client.OrgsWLANTemplates().DeleteOrgTemplate(ctx, orgId, wlantemplateId)
+	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting WlanTemplate",
 			"Could not delete WlanTemplate, unexpected error: "+err.Error(),

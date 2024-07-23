@@ -279,8 +279,8 @@ func (r *deviceApResource) Delete(ctx context.Context, req resource.DeleteReques
 		return
 	}
 
-	data, err := r.client.SitesDevices().UpdateSiteDevice(ctx, siteId, deviceId, &device_ap)
-	if data.Response.StatusCode != 200 && err != nil {
+	httpr, err := r.client.SitesDevices().UpdateSiteDevice(ctx, siteId, deviceId, &device_ap)
+	if httpr.Response.StatusCode != 404 && httpr.Response.StatusCode != 200 && err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting device_ap",
 			"Could not delete device_ap, unexpected error: "+err.Error(),

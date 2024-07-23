@@ -190,8 +190,8 @@ func (r *orgOrgServicepolicyResource) Delete(ctx context.Context, req resource.D
 	tflog.Info(ctx, "Starting OrgServicepolicy Delete: servicepolicy_id "+state.Id.ValueString())
 	orgId := uuid.MustParse(state.OrgId.ValueString())
 	servicepolicyId := uuid.MustParse(state.Id.ValueString())
-	_, err := r.client.OrgsServicePolicies().DeleteOrgServicePolicy(ctx, orgId, servicepolicyId)
-	if err != nil {
+	httpr, err := r.client.OrgsServicePolicies().DeleteOrgServicePolicy(ctx, orgId, servicepolicyId)
+	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting servicepolicy",
 			"Could not delete servicepolicy, unexpected error: "+err.Error(),

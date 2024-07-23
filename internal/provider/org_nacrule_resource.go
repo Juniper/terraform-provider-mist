@@ -241,8 +241,8 @@ func (r *orgNacRuleResource) Delete(ctx context.Context, req resource.DeleteRequ
 		return
 	}
 	tflog.Info(ctx, "Starting NacRule Delete: nacrule_id "+state.Id.ValueString())
-	_, err = r.client.OrgsNACRules().DeleteOrgNacRule(ctx, orgId, nacruleId)
-	if err != nil {
+	httpr, err := r.client.OrgsNACRules().DeleteOrgNacRule(ctx, orgId, nacruleId)
+	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting NacRule",
 			"Could not delete NacRule, unexpected error: "+err.Error(),

@@ -198,8 +198,8 @@ func (r *siteWxTagResource) Delete(ctx context.Context, req resource.DeleteReque
 	wxtagId := uuid.MustParse(state.Id.ValueString())
 
 	tflog.Info(ctx, "Starting WxTag Delete: wxtag_id "+state.Id.ValueString())
-	_, err := r.client.SitesWxTags().DeleteSiteWxTag(ctx, siteId, wxtagId)
-	if err != nil {
+	httpr, err := r.client.SitesWxTags().DeleteSiteWxTag(ctx, siteId, wxtagId)
+	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting WxTag",
 			"Could not delete WxTag, unexpected error: "+err.Error(),

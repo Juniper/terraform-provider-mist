@@ -244,8 +244,8 @@ func (r *orgGatewaytemplateResource) Delete(ctx context.Context, req resource.De
 		return
 	}
 	tflog.Info(ctx, "Starting GatewayTemplate Delete: gatewaytemplate_id "+state.Id.ValueString())
-	_, err = r.client.OrgsGatewayTemplates().DeleteOrgGatewayTemplate(ctx, orgId, templateId)
-	if err != nil {
+	httpr, err := r.client.OrgsGatewayTemplates().DeleteOrgGatewayTemplate(ctx, orgId, templateId)
+	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting GatewayTemplate",
 			"Could not delete GatewayTemplate, unexpected error: "+err.Error(),

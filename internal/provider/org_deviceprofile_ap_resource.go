@@ -269,8 +269,8 @@ func (r *orgDeviceprofileApResource) Delete(ctx context.Context, req resource.De
 		return
 	}
 	tflog.Info(ctx, "Starting DeviceprofileAp Delete: deviceprofile_ap_id "+state.Id.ValueString())
-	_, err = r.client.OrgsDeviceProfiles().DeleteOrgDeviceProfile(ctx, orgId, deviceprofile_apId)
-	if err != nil {
+	httpr, err := r.client.OrgsDeviceProfiles().DeleteOrgDeviceProfile(ctx, orgId, deviceprofile_apId)
+	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting DeviceprofileAp",
 			"Could not delete DeviceprofileAp, unexpected error: "+err.Error(),

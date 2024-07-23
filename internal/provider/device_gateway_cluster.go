@@ -288,8 +288,8 @@ func (r *deviceGatewayClusterResource) Delete(ctx context.Context, req resource.
 		return
 	}
 
-	_, err = r.client.SitesDevicesWANCluster().DeleteSiteDeviceHaCluster(ctx, siteId, deviceId)
-	if err != nil {
+	httpr, err := r.client.SitesDevicesWANCluster().DeleteSiteDeviceHaCluster(ctx, siteId, deviceId)
+	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting device_gateway_cluster",
 			"Could not delete device_gateway_cluster, unexpected error: "+err.Error(),

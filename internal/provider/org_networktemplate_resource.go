@@ -193,8 +193,8 @@ func (r *orgNetworkTemplateResource) Delete(ctx context.Context, req resource.De
 	orgId := uuid.MustParse(state.OrgId.ValueString())
 	templateId := uuid.MustParse(state.Id.ValueString())
 	tflog.Info(ctx, "Starting NetworkTemplate Delete: networktemplate_id "+state.Id.ValueString())
-	_, err := r.client.OrgsNetworkTemplates().DeleteOrgNetworkTemplate(ctx, orgId, templateId)
-	if err != nil {
+	httpr, err := r.client.OrgsNetworkTemplates().DeleteOrgNetworkTemplate(ctx, orgId, templateId)
+	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting NetworkTemplate",
 			"Could not delete NetworkTemplate, unexpected error: "+err.Error(),

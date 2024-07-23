@@ -280,8 +280,8 @@ func (r *deviceGatewayResource) Delete(ctx context.Context, req resource.DeleteR
 		return
 	}
 
-	data, err := r.client.SitesDevices().UpdateSiteDevice(ctx, siteId, deviceId, &device_gateway)
-	if data.Response.StatusCode != 200 && err != nil {
+	httpr, err := r.client.SitesDevices().UpdateSiteDevice(ctx, siteId, deviceId, &device_gateway)
+	if httpr.Response.StatusCode != 404 && httpr.Response.StatusCode != 200 && err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting device_gateway",
 			"Could not delete device_gateway, unexpected error: "+err.Error(),

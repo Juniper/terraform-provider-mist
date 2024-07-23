@@ -191,8 +191,8 @@ func (r *orgNetworkResource) Delete(ctx context.Context, req resource.DeleteRequ
 	orgId := uuid.MustParse(state.OrgId.ValueString())
 	networkId := uuid.MustParse(state.Id.ValueString())
 	tflog.Info(ctx, "Starting Network Delete: network_id "+state.Id.ValueString())
-	_, err := r.client.OrgsNetworks().DeleteOrgNetwork(ctx, orgId, networkId)
-	if err != nil {
+	httpr, err := r.client.OrgsNetworks().DeleteOrgNetwork(ctx, orgId, networkId)
+	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting network",
 			"Could not delete network, unexpected error: "+err.Error(),

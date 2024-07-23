@@ -190,8 +190,8 @@ func (r *orgOrgServiceResource) Delete(ctx context.Context, req resource.DeleteR
 	tflog.Info(ctx, "Starting OrgService Delete: service_id "+state.Id.ValueString())
 	orgId := uuid.MustParse(state.OrgId.ValueString())
 	serviceId := uuid.MustParse(state.Id.ValueString())
-	_, err := r.client.OrgsServices().DeleteOrgService(ctx, orgId, serviceId)
-	if err != nil {
+	httpr, err := r.client.OrgsServices().DeleteOrgService(ctx, orgId, serviceId)
+	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting service",
 			"Could not delete service, unexpected error: "+err.Error(),

@@ -193,8 +193,8 @@ func (r *siteWxRuleResource) Delete(ctx context.Context, req resource.DeleteRequ
 	siteId := uuid.MustParse(state.SiteId.ValueString())
 	wxruleId := uuid.MustParse(state.Id.ValueString())
 	tflog.Info(ctx, "Starting WxRule Delete: wxrule_id "+state.Id.ValueString())
-	_, err := r.client.SitesWxRules().DeleteSiteWxRule(ctx, siteId, wxruleId)
-	if err != nil {
+	httpr, err := r.client.SitesWxRules().DeleteSiteWxRule(ctx, siteId, wxruleId)
+	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting WxRule",
 			"Could not delete WxRule, unexpected error: "+err.Error(),

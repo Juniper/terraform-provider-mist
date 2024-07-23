@@ -192,8 +192,8 @@ func (r *orgOrgIdpprofileResource) Delete(ctx context.Context, req resource.Dele
 	tflog.Info(ctx, "Starting OrgIdpprofile Delete: idpprofile_id "+state.Id.ValueString())
 	orgId := uuid.MustParse(state.OrgId.ValueString())
 	idpprofileId := uuid.MustParse(state.Id.ValueString())
-	_, err := r.client.OrgsIDPProfiles().DeleteOrgIdpProfile(ctx, orgId, idpprofileId)
-	if err != nil {
+	httpr, err := r.client.OrgsIDPProfiles().DeleteOrgIdpProfile(ctx, orgId, idpprofileId)
+	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting idpprofile",
 			"Could not delete idpprofile, unexpected error: "+err.Error(),

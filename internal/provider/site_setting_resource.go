@@ -189,8 +189,8 @@ func (r *siteSettingResource) Delete(ctx context.Context, req resource.DeleteReq
 	siteSetting, e := resource_site_setting.DeleteTerraformToSdk(ctx)
 	diags.Append(e...)
 	siteId := uuid.MustParse(state.SiteId.ValueString())
-	_, err := r.client.SitesSetting().UpdateSiteSettings(ctx, siteId, siteSetting)
-	if err != nil {
+	httpr, err := r.client.SitesSetting().UpdateSiteSettings(ctx, siteId, siteSetting)
+	if httpr.Response.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting siteSetting",
 			"Could not delete siteSetting, unexpected error: "+err.Error(),

@@ -186,8 +186,8 @@ func (r *orgResource) Delete(ctx context.Context, req resource.DeleteRequest, re
 	orgId := uuid.MustParse(state.Id.ValueString())
 
 	tflog.Info(ctx, "Starting Org Delete: org_id "+state.Id.ValueString())
-	_, err := r.client.Orgs().DeleteOrg(ctx, orgId)
-	if err != nil {
+	httpr, err := r.client.Orgs().DeleteOrg(ctx, orgId)
+	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting org",
 			"Could not delete org, unexpected error: "+err.Error(),

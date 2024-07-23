@@ -189,8 +189,8 @@ func (r *siteNetworkTemplateResource) Delete(ctx context.Context, req resource.D
 	resp.Diagnostics.Append(diags...)
 
 	siteId := uuid.MustParse(state.SiteId.ValueString())
-	_, err := r.client.SitesSetting().UpdateSiteSettings(ctx, siteId, networktemplate)
-	if err != nil {
+	httpr, err := r.client.SitesSetting().UpdateSiteSettings(ctx, siteId, networktemplate)
+	if httpr.Response.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting NetworkTemplate",
 			"Could not delete NetworkTemplate, unexpected error: "+err.Error(),

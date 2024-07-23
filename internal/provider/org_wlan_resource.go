@@ -190,8 +190,8 @@ func (r *orgWlanResource) Delete(ctx context.Context, req resource.DeleteRequest
 	tflog.Info(ctx, "Starting Wlan Delete: wlan_id "+state.Id.ValueString())
 	orgId := uuid.MustParse(state.OrgId.ValueString())
 	wlanId := uuid.MustParse(state.Id.ValueString())
-	_, err := r.client.OrgsWlans().DeleteOrgWlan(ctx, orgId, wlanId)
-	if err != nil {
+	httpr, err := r.client.OrgsWlans().DeleteOrgWlan(ctx, orgId, wlanId)
+	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting Wlan",
 			"Could not delete Wlan, unexpected error: "+err.Error(),

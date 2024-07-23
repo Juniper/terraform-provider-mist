@@ -203,7 +203,7 @@ func (r *orgInventoryResource) Delete(ctx context.Context, req resource.DeleteRe
 	unclaim_body.Op = models.InventoryUpdateOperationEnum_DELETE
 	unclaim_body.Serials = serials
 	unclaim_response, err := r.client.OrgsInventory().UpdateOrgInventoryAssignment(ctx, orgId, &unclaim_body)
-	if err != nil {
+	if unclaim_response.Response.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
 			"Error Unclaiming Devices from the Org Inventory",
 			"Could not Unclaim devices, unexpected error: "+err.Error(),

@@ -187,8 +187,8 @@ func (r *siteResource) Delete(ctx context.Context, req resource.DeleteRequest, r
 
 	siteId := uuid.MustParse(state.Id.String())
 	tflog.Info(ctx, "Starting Site Delete: site_id "+state.Id.ValueString())
-	_, err := r.client.Sites().DeleteSite(ctx, siteId)
-	if err != nil {
+	httpr, err := r.client.Sites().DeleteSite(ctx, siteId)
+	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting site",
 			"Could not delete site, unexpected error: "+err.Error(),

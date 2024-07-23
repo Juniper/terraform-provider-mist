@@ -190,8 +190,8 @@ func (r *orgRfTemplateResource) Delete(ctx context.Context, req resource.DeleteR
 	orgId := uuid.MustParse(state.OrgId.ValueString())
 	rftemplateId := uuid.MustParse(state.Id.ValueString())
 	tflog.Info(ctx, "Starting RfTemplate Delete: rftemplate_id "+state.Id.ValueString())
-	_, err := r.client.OrgsRFTemplates().DeleteOrgRfTemplate(ctx, orgId, rftemplateId)
-	if err != nil {
+	httpr, err := r.client.OrgsRFTemplates().DeleteOrgRfTemplate(ctx, orgId, rftemplateId)
+	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting RfTemplate",
 			"Could not delete RfTemplate, unexpected error: "+err.Error(),

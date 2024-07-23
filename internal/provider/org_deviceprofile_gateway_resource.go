@@ -268,8 +268,8 @@ func (r *orgDeviceprofileGatewayResource) Delete(ctx context.Context, req resour
 		return
 	}
 	tflog.Info(ctx, "Starting DeviceprofileGateway Delete: deviceprofile_gateway_id "+state.Id.ValueString())
-	_, err = r.client.OrgsDeviceProfiles().DeleteOrgDeviceProfile(ctx, orgId, deviceprofile_gatewayId)
-	if err != nil {
+	httpr, err := r.client.OrgsDeviceProfiles().DeleteOrgDeviceProfile(ctx, orgId, deviceprofile_gatewayId)
+	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting DeviceprofileGateway",
 			"Could not delete DeviceprofileGateway, unexpected error: "+err.Error(),

@@ -190,8 +190,8 @@ func (r *orgNacTagResource) Delete(ctx context.Context, req resource.DeleteReque
 	orgId := uuid.MustParse(state.OrgId.ValueString())
 	nactagId := uuid.MustParse(state.Id.ValueString())
 	tflog.Info(ctx, "Starting NacTag Delete: nactag_id "+state.Id.ValueString())
-	_, err := r.client.OrgsNACTags().DeleteOrgNacTag(ctx, orgId, nactagId)
-	if err != nil {
+	httpr, err := r.client.OrgsNACTags().DeleteOrgNacTag(ctx, orgId, nactagId)
+	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting NacTag",
 			"Could not delete NacTag, unexpected error: "+err.Error(),
