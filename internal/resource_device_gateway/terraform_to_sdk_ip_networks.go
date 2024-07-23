@@ -61,8 +61,8 @@ func networksTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d base
 			data.Tenants = resource_org_network.TenantTerraformToSdk(ctx, diags, plan.Tenants)
 		}
 
-		if plan.VlanId.ValueInt64Pointer() != nil {
-			data.VlanId = models.ToPointer(int(plan.VlanId.ValueInt64()))
+		if plan.VlanId.ValueStringPointer() != nil {
+			data.VlanId = models.ToPointer(models.NetworkVlanIdContainer.FromString(plan.VlanId.ValueString()))
 		}
 
 		if !plan.VpnAccess.IsNull() && !plan.VpnAccess.IsUnknown() {

@@ -24,7 +24,7 @@ func SdkToTerraform(ctx context.Context, data models.WxlanTag) (SiteWxtagModel, 
 	var specs types.List = types.ListNull(SpecsValue{}.Type(ctx))
 	var subnet types.String
 	var values types.List = types.ListNull(types.StringType)
-	var vlan_id types.Int64
+	var vlan_id types.String
 
 	if data.LastIps != nil {
 		last_ips = mist_transform.ListOfStringSdkToTerraform(ctx, data.LastIps)
@@ -54,7 +54,7 @@ func SdkToTerraform(ctx context.Context, data models.WxlanTag) (SiteWxtagModel, 
 		values = mist_transform.ListOfStringSdkToTerraform(ctx, data.Values)
 	}
 	if data.VlanId != nil {
-		vlan_id = types.Int64Value(int64(*data.VlanId))
+		vlan_id = types.StringValue(data.VlanId.String())
 	}
 
 	state.Id = types.StringValue(data.Id.String())

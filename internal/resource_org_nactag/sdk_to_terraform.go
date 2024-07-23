@@ -11,7 +11,7 @@ import (
 	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
-func SdkToTerraform(ctx context.Context, data models.NacTag) (OrgNactagModel, diag.Diagnostics) {
+func SdkToTerraform(ctx context.Context, data *models.NacTag) (OrgNactagModel, diag.Diagnostics) {
 	var state OrgNactagModel
 	var diags diag.Diagnostics
 

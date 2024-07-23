@@ -19,7 +19,7 @@ func syntheticTestVlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 
 		var custom_test_urls basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 		var disabled basetypes.BoolValue
-		var vlan_ids basetypes.ListValue
+		var vlan_ids basetypes.ListValue = mist_transform.ListOfIntSdkToTerraformEmpty(ctx)
 
 		if d.CustomTestUrls != nil && len(d.CustomTestUrls) > 0 {
 			custom_test_urls = mist_transform.ListOfStringSdkToTerraform(ctx, d.CustomTestUrls)

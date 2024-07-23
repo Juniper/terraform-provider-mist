@@ -28,7 +28,15 @@ func bonjourServicesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics,
 func bonjourTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, plan BonjourValue) *models.WlanBonjour {
 
 	data := models.WlanBonjour{}
-	data.AdditionalVlanIds = mist_transform.ListOfIntTerraformToSdk(ctx, plan.AdditionalVlanIds)
+
+	var items []models.WlanBonjourAdditionalVlanIds
+	for _, item := range plan.AdditionalVlanIds.Elements() {
+		var item_interface interface{} = item
+		i := item_interface.(basetypes.StringValue)
+		v := models.WlanBonjourAdditionalVlanIdsContainer.FromString(i.ValueString())
+		items = append(items, v)
+	}
+	data.AdditionalVlanIds = items
 	data.Services = bonjourServicesTerraformToSdk(ctx, diags, plan.Services)
 	data.Enabled = plan.Enabled.ValueBoolPointer()
 

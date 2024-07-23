@@ -5,6 +5,7 @@ package resource_site_wlan
 import (
 	"context"
 	"fmt"
+	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
@@ -538,10 +539,13 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 			"bonjour": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"additional_vlan_ids": schema.ListAttribute{
-						ElementType:         types.Int64Type,
+						ElementType:         types.StringType,
 						Required:            true,
 						Description:         "additional VLAN IDs (on the LAN side or from other WLANs) should we be forwarding bonjour queries/responses",
 						MarkdownDescription: "additional VLAN IDs (on the LAN side or from other WLANs) should we be forwarding bonjour queries/responses",
+						Validators: []validator.List{
+							vlanidvalidator.ParseListOfVlanId(),
+						},
 					},
 					"enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -783,7 +787,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 							stringvalidator.LengthBetween(8, 63),
 						},
 					},
-					"default_vlan_id": schema.Int64Attribute{
+					"default_vlan_id": schema.StringAttribute{
 						Optional: true,
 					},
 					"enabled": schema.BoolAttribute{
@@ -811,7 +815,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						Default: stringdefault.StaticString("radius"),
 					},
 					"vlan_ids": schema.ListAttribute{
-						ElementType: types.Int64Type,
+						ElementType: types.StringType,
 						Optional:    true,
 					},
 				},
@@ -826,15 +830,8 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"dynamic_vlan": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
-					"default_vlan_id": schema.Int64Attribute{
-						Optional:            true,
-						Computed:            true,
-						Description:         "vlan_id to use when there’s no match from RADIUS",
-						MarkdownDescription: "vlan_id to use when there’s no match from RADIUS",
-						Validators: []validator.Int64{
-							int64validator.Between(1, 4094),
-						},
-						Default: int64default.StaticInt64(999),
+					"default_vlan_id": schema.StringAttribute{
+						Optional: true,
 					},
 					"enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -844,7 +841,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						Default:             booldefault.StaticBool(false),
 					},
 					"local_vlan_ids": schema.ListAttribute{
-						ElementType:         types.Int64Type,
+						ElementType:         types.StringType,
 						Optional:            true,
 						Description:         "vlan_ids to be locally bridged",
 						MarkdownDescription: "vlan_ids to be locally bridged",
@@ -1935,20 +1932,22 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "if vlan tagging is enabled",
 				Default:             booldefault.StaticBool(false),
 			},
-			"vlan_id": schema.Int64Attribute{
+			"vlan_id": schema.StringAttribute{
 				Optional: true,
-				Computed: true,
-				Validators: []validator.Int64{
-					int64validator.Between(1, 4094),
+				Validators: []validator.String{
+					stringvalidator.Any(mistvalidator.ParseVlanId(), mistvalidator.ParseVar()),
 				},
 			},
 			"vlan_ids": schema.ListAttribute{
-				ElementType:         types.Int64Type,
+				ElementType:         types.StringType,
 				Optional:            true,
 				Computed:            true,
 				Description:         "vlan_ids to use when there’s no match from RA",
 				MarkdownDescription: "vlan_ids to use when there’s no match from RA",
-				Default:             listdefault.StaticValue(types.ListValueMust(types.Int64Type, []attr.Value{})),
+				Validators: []validator.List{
+					vlanidvalidator.ParseListOfVlanId(),
+				},
+				Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 			},
 			"vlan_pooling": schema.BoolAttribute{
 				Optional:            true,
@@ -2094,7 +2093,7 @@ type SiteWlanModel struct {
 	Thumbnail                          types.String            `tfsdk:"thumbnail"`
 	UseEapolV1                         types.Bool              `tfsdk:"use_eapol_v1"`
 	VlanEnabled                        types.Bool              `tfsdk:"vlan_enabled"`
-	VlanId                             types.Int64             `tfsdk:"vlan_id"`
+	VlanId                             types.String            `tfsdk:"vlan_id"`
 	VlanIds                            types.List              `tfsdk:"vlan_ids"`
 	VlanPooling                        types.Bool              `tfsdk:"vlan_pooling"`
 	WlanLimitDown                      types.Int64             `tfsdk:"wlan_limit_down"`
@@ -7210,7 +7209,7 @@ func (v BonjourValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 	var err error
 
 	attrTypes["additional_vlan_ids"] = basetypes.ListType{
-		ElemType: types.Int64Type,
+		ElemType: types.StringType,
 	}.TerraformType(ctx)
 	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["services"] = basetypes.MapType{
@@ -7305,14 +7304,14 @@ func (v BonjourValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 		)
 	}
 
-	additionalVlanIdsVal, d := types.ListValue(types.Int64Type, v.AdditionalVlanIds.Elements())
+	additionalVlanIdsVal, d := types.ListValue(types.StringType, v.AdditionalVlanIds.Elements())
 
 	diags.Append(d...)
 
 	if d.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"additional_vlan_ids": basetypes.ListType{
-				ElemType: types.Int64Type,
+				ElemType: types.StringType,
 			},
 			"enabled": basetypes.BoolType{},
 			"services": basetypes.MapType{
@@ -7323,7 +7322,7 @@ func (v BonjourValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 
 	attributeTypes := map[string]attr.Type{
 		"additional_vlan_ids": basetypes.ListType{
-			ElemType: types.Int64Type,
+			ElemType: types.StringType,
 		},
 		"enabled": basetypes.BoolType{},
 		"services": basetypes.MapType{
@@ -7391,7 +7390,7 @@ func (v BonjourValue) Type(ctx context.Context) attr.Type {
 func (v BonjourValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"additional_vlan_ids": basetypes.ListType{
-			ElemType: types.Int64Type,
+			ElemType: types.StringType,
 		},
 		"enabled": basetypes.BoolType{},
 		"services": basetypes.MapType{
@@ -9413,12 +9412,12 @@ func (t DynamicPskType) ValueFromObject(ctx context.Context, in basetypes.Object
 		return nil, diags
 	}
 
-	defaultVlanIdVal, ok := defaultVlanIdAttribute.(basetypes.Int64Value)
+	defaultVlanIdVal, ok := defaultVlanIdAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`default_vlan_id expected to be basetypes.Int64Value, was: %T`, defaultVlanIdAttribute))
+			fmt.Sprintf(`default_vlan_id expected to be basetypes.StringValue, was: %T`, defaultVlanIdAttribute))
 	}
 
 	enabledAttribute, ok := attributes["enabled"]
@@ -9599,12 +9598,12 @@ func NewDynamicPskValue(attributeTypes map[string]attr.Type, attributes map[stri
 		return NewDynamicPskValueUnknown(), diags
 	}
 
-	defaultVlanIdVal, ok := defaultVlanIdAttribute.(basetypes.Int64Value)
+	defaultVlanIdVal, ok := defaultVlanIdAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`default_vlan_id expected to be basetypes.Int64Value, was: %T`, defaultVlanIdAttribute))
+			fmt.Sprintf(`default_vlan_id expected to be basetypes.StringValue, was: %T`, defaultVlanIdAttribute))
 	}
 
 	enabledAttribute, ok := attributes["enabled"]
@@ -9763,7 +9762,7 @@ var _ basetypes.ObjectValuable = DynamicPskValue{}
 
 type DynamicPskValue struct {
 	DefaultPsk    basetypes.StringValue `tfsdk:"default_psk"`
-	DefaultVlanId basetypes.Int64Value  `tfsdk:"default_vlan_id"`
+	DefaultVlanId basetypes.StringValue `tfsdk:"default_vlan_id"`
 	Enabled       basetypes.BoolValue   `tfsdk:"enabled"`
 	ForceLookup   basetypes.BoolValue   `tfsdk:"force_lookup"`
 	Source        basetypes.StringValue `tfsdk:"source"`
@@ -9778,12 +9777,12 @@ func (v DynamicPskValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	var err error
 
 	attrTypes["default_psk"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["default_vlan_id"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["default_vlan_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["force_lookup"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["source"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["vlan_ids"] = basetypes.ListType{
-		ElemType: types.Int64Type,
+		ElemType: types.StringType,
 	}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
@@ -9869,31 +9868,31 @@ func (v DynamicPskValue) String() string {
 func (v DynamicPskValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	vlanIdsVal, d := types.ListValue(types.Int64Type, v.VlanIds.Elements())
+	vlanIdsVal, d := types.ListValue(types.StringType, v.VlanIds.Elements())
 
 	diags.Append(d...)
 
 	if d.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"default_psk":     basetypes.StringType{},
-			"default_vlan_id": basetypes.Int64Type{},
+			"default_vlan_id": basetypes.StringType{},
 			"enabled":         basetypes.BoolType{},
 			"force_lookup":    basetypes.BoolType{},
 			"source":          basetypes.StringType{},
 			"vlan_ids": basetypes.ListType{
-				ElemType: types.Int64Type,
+				ElemType: types.StringType,
 			},
 		}), diags
 	}
 
 	attributeTypes := map[string]attr.Type{
 		"default_psk":     basetypes.StringType{},
-		"default_vlan_id": basetypes.Int64Type{},
+		"default_vlan_id": basetypes.StringType{},
 		"enabled":         basetypes.BoolType{},
 		"force_lookup":    basetypes.BoolType{},
 		"source":          basetypes.StringType{},
 		"vlan_ids": basetypes.ListType{
-			ElemType: types.Int64Type,
+			ElemType: types.StringType,
 		},
 	}
 
@@ -9972,12 +9971,12 @@ func (v DynamicPskValue) Type(ctx context.Context) attr.Type {
 func (v DynamicPskValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"default_psk":     basetypes.StringType{},
-		"default_vlan_id": basetypes.Int64Type{},
+		"default_vlan_id": basetypes.StringType{},
 		"enabled":         basetypes.BoolType{},
 		"force_lookup":    basetypes.BoolType{},
 		"source":          basetypes.StringType{},
 		"vlan_ids": basetypes.ListType{
-			ElemType: types.Int64Type,
+			ElemType: types.StringType,
 		},
 	}
 }
@@ -10017,12 +10016,12 @@ func (t DynamicVlanType) ValueFromObject(ctx context.Context, in basetypes.Objec
 		return nil, diags
 	}
 
-	defaultVlanIdVal, ok := defaultVlanIdAttribute.(basetypes.Int64Value)
+	defaultVlanIdVal, ok := defaultVlanIdAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`default_vlan_id expected to be basetypes.Int64Value, was: %T`, defaultVlanIdAttribute))
+			fmt.Sprintf(`default_vlan_id expected to be basetypes.StringValue, was: %T`, defaultVlanIdAttribute))
 	}
 
 	enabledAttribute, ok := attributes["enabled"]
@@ -10184,12 +10183,12 @@ func NewDynamicVlanValue(attributeTypes map[string]attr.Type, attributes map[str
 		return NewDynamicVlanValueUnknown(), diags
 	}
 
-	defaultVlanIdVal, ok := defaultVlanIdAttribute.(basetypes.Int64Value)
+	defaultVlanIdVal, ok := defaultVlanIdAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`default_vlan_id expected to be basetypes.Int64Value, was: %T`, defaultVlanIdAttribute))
+			fmt.Sprintf(`default_vlan_id expected to be basetypes.StringValue, was: %T`, defaultVlanIdAttribute))
 	}
 
 	enabledAttribute, ok := attributes["enabled"]
@@ -10346,7 +10345,7 @@ func (t DynamicVlanType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = DynamicVlanValue{}
 
 type DynamicVlanValue struct {
-	DefaultVlanId   basetypes.Int64Value  `tfsdk:"default_vlan_id"`
+	DefaultVlanId   basetypes.StringValue `tfsdk:"default_vlan_id"`
 	Enabled         basetypes.BoolValue   `tfsdk:"enabled"`
 	LocalVlanIds    basetypes.ListValue   `tfsdk:"local_vlan_ids"`
 	DynamicVlanType basetypes.StringValue `tfsdk:"type"`
@@ -10360,10 +10359,10 @@ func (v DynamicVlanValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 	var val tftypes.Value
 	var err error
 
-	attrTypes["default_vlan_id"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["default_vlan_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["local_vlan_ids"] = basetypes.ListType{
-		ElemType: types.Int64Type,
+		ElemType: types.StringType,
 	}.TerraformType(ctx)
 	attrTypes["type"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["vlans"] = basetypes.MapType{
@@ -10445,16 +10444,16 @@ func (v DynamicVlanValue) String() string {
 func (v DynamicVlanValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	localVlanIdsVal, d := types.ListValue(types.Int64Type, v.LocalVlanIds.Elements())
+	localVlanIdsVal, d := types.ListValue(types.StringType, v.LocalVlanIds.Elements())
 
 	diags.Append(d...)
 
 	if d.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
-			"default_vlan_id": basetypes.Int64Type{},
+			"default_vlan_id": basetypes.StringType{},
 			"enabled":         basetypes.BoolType{},
 			"local_vlan_ids": basetypes.ListType{
-				ElemType: types.Int64Type,
+				ElemType: types.StringType,
 			},
 			"type": basetypes.StringType{},
 			"vlans": basetypes.MapType{
@@ -10469,10 +10468,10 @@ func (v DynamicVlanValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 
 	if d.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
-			"default_vlan_id": basetypes.Int64Type{},
+			"default_vlan_id": basetypes.StringType{},
 			"enabled":         basetypes.BoolType{},
 			"local_vlan_ids": basetypes.ListType{
-				ElemType: types.Int64Type,
+				ElemType: types.StringType,
 			},
 			"type": basetypes.StringType{},
 			"vlans": basetypes.MapType{
@@ -10482,10 +10481,10 @@ func (v DynamicVlanValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 	}
 
 	attributeTypes := map[string]attr.Type{
-		"default_vlan_id": basetypes.Int64Type{},
+		"default_vlan_id": basetypes.StringType{},
 		"enabled":         basetypes.BoolType{},
 		"local_vlan_ids": basetypes.ListType{
-			ElemType: types.Int64Type,
+			ElemType: types.StringType,
 		},
 		"type": basetypes.StringType{},
 		"vlans": basetypes.MapType{
@@ -10562,10 +10561,10 @@ func (v DynamicVlanValue) Type(ctx context.Context) attr.Type {
 
 func (v DynamicVlanValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"default_vlan_id": basetypes.Int64Type{},
+		"default_vlan_id": basetypes.StringType{},
 		"enabled":         basetypes.BoolType{},
 		"local_vlan_ids": basetypes.ListType{
-			ElemType: types.Int64Type,
+			ElemType: types.StringType,
 		},
 		"type": basetypes.StringType{},
 		"vlans": basetypes.MapType{

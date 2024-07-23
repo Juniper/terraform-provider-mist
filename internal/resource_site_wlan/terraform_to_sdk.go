@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
 func TerraformToSdk(ctx context.Context, plan *SiteWlanModel) (*models.Wlan, diag.Diagnostics) {
@@ -474,14 +475,20 @@ func TerraformToSdk(ctx context.Context, plan *SiteWlanModel) (*models.Wlan, dia
 	if plan.VlanId.IsNull() || plan.VlanId.IsUnknown() {
 		unset["-vlan_id"] = ""
 	} else {
-		data.VlanId = models.NewOptional(models.ToPointer(int(plan.VlanId.ValueInt64())))
+		data.VlanId = models.ToPointer(models.WlanVlanIdContainer.FromString(plan.VlanId.ValueString()))
 	}
 
 	if plan.VlanIds.IsNull() || plan.VlanIds.IsUnknown() {
 		unset["-vlan_ids"] = ""
 	} else {
-		vlan_ids := vlanIdsTerraformToSdk(ctx, &diags, plan.VlanIds)
-		data.VlanIds = vlan_ids
+		var items []models.WlanVlanIds
+		for _, item := range plan.VlanIds.Elements() {
+			var item_interface interface{} = item
+			i := item_interface.(basetypes.StringValue)
+			v := models.WlanVlanIdsContainer.FromString(i.ValueString())
+			items = append(items, v)
+		}
+		data.VlanIds = items
 	}
 
 	if plan.VlanPooling.IsNull() || plan.VlanPooling.IsUnknown() {

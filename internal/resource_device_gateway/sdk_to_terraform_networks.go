@@ -29,7 +29,7 @@ func NetworksSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m []mo
 		var subnet basetypes.StringValue
 		var subnet6 basetypes.StringValue
 		var tenants basetypes.MapValue = types.MapNull(mist_network.TenantsValue{}.Type(ctx))
-		var vlan_id basetypes.Int64Value
+		var vlan_id basetypes.StringValue
 		var vpn_access basetypes.MapValue = types.MapNull(mist_network.VpnAccessValue{}.Type(ctx))
 
 		if d.DisallowMistServices != nil {
@@ -64,7 +64,7 @@ func NetworksSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m []mo
 			tenants = mist_network.TenantSdkToTerraform(ctx, diags, d.Tenants)
 		}
 		if d.VlanId != nil {
-			vlan_id = types.Int64Value(int64(*d.VlanId))
+			vlan_id = types.StringValue(d.VlanId.String())
 		}
 		if d.VpnAccess != nil && len(d.VpnAccess) > 0 {
 			vpn_access = mist_network.VpnSdkToTerraform(ctx, diags, d.VpnAccess)

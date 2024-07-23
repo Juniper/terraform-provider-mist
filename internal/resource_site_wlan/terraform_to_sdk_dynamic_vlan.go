@@ -11,11 +11,11 @@ import (
 
 func dynamicVlanTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, plan DynamicVlanValue) *models.WlanDynamicVlan {
 
-	var local_vlan_ids []int
+	var local_vlan_ids []models.WlanDynamicVlanLocalVlanIds
 	for _, item := range plan.LocalVlanIds.Elements() {
 		var item_interface interface{} = item
-		i := item_interface.(basetypes.Int64Value)
-		j := int(i.ValueInt64())
+		i := item_interface.(basetypes.StringValue)
+		j := models.WlanDynamicVlanLocalVlanIdsContainer.FromString(i.ValueString())
 		local_vlan_ids = append(local_vlan_ids, j)
 	}
 
@@ -27,7 +27,8 @@ func dynamicVlanTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, pla
 	}
 
 	data := models.WlanDynamicVlan{}
-	data.DefaultVlanId = models.NewOptional(models.ToPointer(int(plan.DefaultVlanId.ValueInt64())))
+	v := models.ToPointer(models.WlanDynamicVlanDefaultVlanIdContainer.FromString(plan.DefaultVlanId.ValueString()))
+	data.DefaultVlanId = models.NewOptional(v)
 	data.Enabled = plan.Enabled.ValueBoolPointer()
 	data.LocalVlanIds = local_vlan_ids
 	data.Type = models.ToPointer(models.WlanDynamicVlanTypeEnum(string(plan.DynamicVlanType.ValueString())))

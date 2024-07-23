@@ -170,7 +170,7 @@ type SiteWxtagModel struct {
 	Subnet      types.String `tfsdk:"subnet"`
 	Type        types.String `tfsdk:"type"`
 	Values      types.List   `tfsdk:"values"`
-	VlanId      types.Int64  `tfsdk:"vlan_id"`
+	VlanId      types.String `tfsdk:"vlan_id"`
 }
 
 var _ basetypes.ObjectTypable = SpecsType{}

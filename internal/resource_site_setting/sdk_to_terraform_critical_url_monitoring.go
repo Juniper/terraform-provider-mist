@@ -15,13 +15,13 @@ func criticalUrlMonitoringMonitorSdkToTerraform(ctx context.Context, diags *diag
 	var data_list = []MonitorsValue{}
 	for _, d := range l {
 		var url basetypes.StringValue
-		var vlan_id basetypes.Int64Value
+		var vlan_id basetypes.StringValue
 
 		if d.Url != nil {
 			url = types.StringValue(*d.Url)
 		}
 		if d.VlanId != nil {
-			vlan_id = types.Int64Value(int64(*d.VlanId))
+			vlan_id = types.StringValue(d.VlanId.String())
 		}
 
 		data_map_attr_type := MonitorsValue{}.AttributeTypes(ctx)

@@ -790,7 +790,7 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 								mapvalidator.SizeAtLeast(1),
 							},
 						},
-						"vlan_id": schema.Int64Attribute{
+						"vlan_id": schema.StringAttribute{
 							Optional: true,
 						},
 						"vpn_access": schema.MapNestedAttribute{
@@ -869,7 +869,7 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 									},
 									"source_nat": schema.SingleNestedAttribute{
 										Attributes: map[string]schema.Attribute{
-											"exteral_ip": schema.StringAttribute{
+											"external_ip": schema.StringAttribute{
 												Optional: true,
 											},
 										},
@@ -10666,12 +10666,12 @@ func (t NetworksType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 		return nil, diags
 	}
 
-	vlanIdVal, ok := vlanIdAttribute.(basetypes.Int64Value)
+	vlanIdVal, ok := vlanIdAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`vlan_id expected to be basetypes.Int64Value, was: %T`, vlanIdAttribute))
+			fmt.Sprintf(`vlan_id expected to be basetypes.StringValue, was: %T`, vlanIdAttribute))
 	}
 
 	vpnAccessAttribute, ok := attributes["vpn_access"]
@@ -10985,12 +10985,12 @@ func NewNetworksValue(attributeTypes map[string]attr.Type, attributes map[string
 		return NewNetworksValueUnknown(), diags
 	}
 
-	vlanIdVal, ok := vlanIdAttribute.(basetypes.Int64Value)
+	vlanIdVal, ok := vlanIdAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`vlan_id expected to be basetypes.Int64Value, was: %T`, vlanIdAttribute))
+			fmt.Sprintf(`vlan_id expected to be basetypes.StringValue, was: %T`, vlanIdAttribute))
 	}
 
 	vpnAccessAttribute, ok := attributes["vpn_access"]
@@ -11112,7 +11112,7 @@ type NetworksValue struct {
 	Subnet               basetypes.StringValue `tfsdk:"subnet"`
 	Subnet6              basetypes.StringValue `tfsdk:"subnet6"`
 	Tenants              basetypes.MapValue    `tfsdk:"tenants"`
-	VlanId               basetypes.Int64Value  `tfsdk:"vlan_id"`
+	VlanId               basetypes.StringValue `tfsdk:"vlan_id"`
 	VpnAccess            basetypes.MapValue    `tfsdk:"vpn_access"`
 	state                attr.ValueState
 }
@@ -11142,7 +11142,7 @@ func (v NetworksValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 	attrTypes["tenants"] = basetypes.MapType{
 		ElemType: TenantsValue{}.Type(ctx),
 	}.TerraformType(ctx)
-	attrTypes["vlan_id"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["vlan_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["vpn_access"] = basetypes.MapType{
 		ElemType: VpnAccessValue{}.Type(ctx),
 	}.TerraformType(ctx)
@@ -11411,7 +11411,7 @@ func (v NetworksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"tenants": basetypes.MapType{
 				ElemType: TenantsValue{}.Type(ctx),
 			},
-			"vlan_id": basetypes.Int64Type{},
+			"vlan_id": basetypes.StringType{},
 			"vpn_access": basetypes.MapType{
 				ElemType: VpnAccessValue{}.Type(ctx),
 			},
@@ -11438,7 +11438,7 @@ func (v NetworksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 		"tenants": basetypes.MapType{
 			ElemType: TenantsValue{}.Type(ctx),
 		},
-		"vlan_id": basetypes.Int64Type{},
+		"vlan_id": basetypes.StringType{},
 		"vpn_access": basetypes.MapType{
 			ElemType: VpnAccessValue{}.Type(ctx),
 		},
@@ -11572,7 +11572,7 @@ func (v NetworksValue) AttributeTypes(ctx context.Context) map[string]attr.Type 
 		"tenants": basetypes.MapType{
 			ElemType: TenantsValue{}.Type(ctx),
 		},
-		"vlan_id": basetypes.Int64Type{},
+		"vlan_id": basetypes.StringType{},
 		"vpn_access": basetypes.MapType{
 			ElemType: VpnAccessValue{}.Type(ctx),
 		},
@@ -14925,22 +14925,22 @@ func (t SourceNatType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 
 	attributes := in.Attributes()
 
-	exteralIpAttribute, ok := attributes["exteral_ip"]
+	externalIpAttribute, ok := attributes["external_ip"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`exteral_ip is missing from object`)
+			`external_ip is missing from object`)
 
 		return nil, diags
 	}
 
-	exteralIpVal, ok := exteralIpAttribute.(basetypes.StringValue)
+	externalIpVal, ok := externalIpAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`exteral_ip expected to be basetypes.StringValue, was: %T`, exteralIpAttribute))
+			fmt.Sprintf(`external_ip expected to be basetypes.StringValue, was: %T`, externalIpAttribute))
 	}
 
 	if diags.HasError() {
@@ -14948,8 +14948,8 @@ func (t SourceNatType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 	}
 
 	return SourceNatValue{
-		ExteralIp: exteralIpVal,
-		state:     attr.ValueStateKnown,
+		ExternalIp: externalIpVal,
+		state:      attr.ValueStateKnown,
 	}, diags
 }
 
@@ -15016,22 +15016,22 @@ func NewSourceNatValue(attributeTypes map[string]attr.Type, attributes map[strin
 		return NewSourceNatValueUnknown(), diags
 	}
 
-	exteralIpAttribute, ok := attributes["exteral_ip"]
+	externalIpAttribute, ok := attributes["external_ip"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`exteral_ip is missing from object`)
+			`external_ip is missing from object`)
 
 		return NewSourceNatValueUnknown(), diags
 	}
 
-	exteralIpVal, ok := exteralIpAttribute.(basetypes.StringValue)
+	externalIpVal, ok := externalIpAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`exteral_ip expected to be basetypes.StringValue, was: %T`, exteralIpAttribute))
+			fmt.Sprintf(`external_ip expected to be basetypes.StringValue, was: %T`, externalIpAttribute))
 	}
 
 	if diags.HasError() {
@@ -15039,8 +15039,8 @@ func NewSourceNatValue(attributeTypes map[string]attr.Type, attributes map[strin
 	}
 
 	return SourceNatValue{
-		ExteralIp: exteralIpVal,
-		state:     attr.ValueStateKnown,
+		ExternalIp: externalIpVal,
+		state:      attr.ValueStateKnown,
 	}, diags
 }
 
@@ -15112,8 +15112,8 @@ func (t SourceNatType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = SourceNatValue{}
 
 type SourceNatValue struct {
-	ExteralIp basetypes.StringValue `tfsdk:"exteral_ip"`
-	state     attr.ValueState
+	ExternalIp basetypes.StringValue `tfsdk:"external_ip"`
+	state      attr.ValueState
 }
 
 func (v SourceNatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
@@ -15122,7 +15122,7 @@ func (v SourceNatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 	var val tftypes.Value
 	var err error
 
-	attrTypes["exteral_ip"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["external_ip"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
@@ -15130,13 +15130,13 @@ func (v SourceNatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 	case attr.ValueStateKnown:
 		vals := make(map[string]tftypes.Value, 1)
 
-		val, err = v.ExteralIp.ToTerraformValue(ctx)
+		val, err = v.ExternalIp.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["exteral_ip"] = val
+		vals["external_ip"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -15168,7 +15168,7 @@ func (v SourceNatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 	var diags diag.Diagnostics
 
 	attributeTypes := map[string]attr.Type{
-		"exteral_ip": basetypes.StringType{},
+		"external_ip": basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -15182,7 +15182,7 @@ func (v SourceNatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"exteral_ip": v.ExteralIp,
+			"external_ip": v.ExternalIp,
 		})
 
 	return objVal, diags
@@ -15203,7 +15203,7 @@ func (v SourceNatValue) Equal(o attr.Value) bool {
 		return true
 	}
 
-	if !v.ExteralIp.Equal(other.ExteralIp) {
+	if !v.ExternalIp.Equal(other.ExternalIp) {
 		return false
 	}
 
@@ -15220,7 +15220,7 @@ func (v SourceNatValue) Type(ctx context.Context) attr.Type {
 
 func (v SourceNatValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"exteral_ip": basetypes.StringType{},
+		"external_ip": basetypes.StringType{},
 	}
 }
 

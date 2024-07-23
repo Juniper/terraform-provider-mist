@@ -83,8 +83,8 @@ func TerraformToSdk(ctx context.Context, plan *OrgNetworkModel) (*models.Network
 		unset["-tenants"] = ""
 	}
 
-	if plan.VlanId.ValueInt64Pointer() != nil {
-		data.VlanId = models.ToPointer(int(plan.VlanId.ValueInt64()))
+	if plan.VlanId.ValueStringPointer() != nil {
+		data.VlanId = models.ToPointer(models.NetworkVlanIdContainer.FromString(plan.VlanId.ValueString()))
 	} else {
 		unset["-vlan_id"] = ""
 	}

@@ -41,7 +41,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteWxtagModel) (*models.WxlanTag
 		data.Values = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Values)
 	}
 	if !plan.VlanId.IsNull() && !plan.VlanId.IsUnknown() {
-		data.VlanId = models.ToPointer(int(plan.VlanId.ValueInt64()))
+		data.VlanId = models.ToPointer(models.WxlanTagVlanIdContainer.FromString(plan.VlanId.ValueString()))
 	}
 
 	return &data, diags

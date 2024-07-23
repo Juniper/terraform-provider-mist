@@ -7,8 +7,10 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
 func SdkToTerraform(ctx context.Context, data *models.Wlan) (SiteWlanModel, diag.Diagnostics) {
@@ -501,17 +503,24 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (SiteWlanModel, diag
 		state.VlanEnabled = types.BoolNull()
 	}
 
-	if data.VlanId.IsValueSet() && data.VlanId.Value() != nil {
-		state.VlanId = types.Int64Value(int64(*data.VlanId.Value()))
+	if data.VlanId != nil {
+		state.VlanId = types.StringValue(string(data.VlanId.String()))
 	} else {
-		state.VlanId = types.Int64Null()
+		state.VlanId = types.StringNull()
 	}
 
 	if data.VlanIds != nil {
-		state.VlanIds = vlanIdsSkToTerraform(ctx, &diags, data.VlanIds)
+		var list []attr.Value
+		for _, v := range data.VlanIds {
+			list = append(list, types.StringValue(string(v.String())))
+		}
+		r, e := types.ListValue(basetypes.StringType{}, list)
+		diags.Append(e...)
+		state.VlanIds = r
 	} else {
-		state.VlanIds = mist_transform.ListOfIntSdkToTerraformEmpty(ctx)
+		state.VlanIds = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 	}
+
 	if data.VlanPooling != nil {
 		state.VlanPooling = types.BoolValue(*data.VlanPooling)
 	} else {

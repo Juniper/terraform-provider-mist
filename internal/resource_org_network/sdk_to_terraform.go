@@ -29,7 +29,7 @@ func SdkToTerraform(ctx context.Context, data models.Network) (OrgNetworkModel, 
 	var subnet basetypes.StringValue
 	var subnet6 basetypes.StringValue
 	var tenants basetypes.MapValue = types.MapNull(TenantsValue{}.Type(ctx))
-	var vlan_id basetypes.Int64Value
+	var vlan_id basetypes.StringValue
 	var vpn_access basetypes.MapValue = types.MapNull(VpnAccessValue{}.Type(ctx))
 
 	if data.DisallowMistServices != nil {
@@ -70,7 +70,7 @@ func SdkToTerraform(ctx context.Context, data models.Network) (OrgNetworkModel, 
 		tenants = TenantSdkToTerraform(ctx, &diags, data.Tenants)
 	}
 	if data.VlanId != nil {
-		vlan_id = types.Int64Value(int64(*data.VlanId))
+		vlan_id = types.StringValue(data.VlanId.String())
 	}
 	if data.VpnAccess != nil && len(data.VpnAccess) > 0 {
 		vpn_access = VpnSdkToTerraform(ctx, &diags, data.VpnAccess)

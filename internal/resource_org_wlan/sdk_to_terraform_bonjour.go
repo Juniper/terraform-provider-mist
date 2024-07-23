@@ -49,12 +49,18 @@ func bonjourServicesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics,
 }
 
 func bonjourSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.WlanBonjour) BonjourValue {
-	var additional_vlan_ids basetypes.ListValue = types.ListNull(types.Int64Type)
+	var additional_vlan_ids basetypes.ListValue = types.ListNull(types.StringType)
 	var enabled basetypes.BoolValue
 	var services basetypes.MapValue = types.MapNull(ServicesValue{}.Type(ctx))
 
 	if d != nil && d.AdditionalVlanIds != nil {
-		additional_vlan_ids = mist_transform.ListOfIntSdkToTerraform(ctx, d.AdditionalVlanIds)
+		var items []attr.Value
+		var items_type attr.Type = basetypes.StringType{}
+		for _, item := range d.AdditionalVlanIds {
+			items = append(items, types.StringValue(item.String()))
+		}
+		list, _ := types.ListValue(items_type, items)
+		additional_vlan_ids = list
 	}
 	if d != nil && d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)

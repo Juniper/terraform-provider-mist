@@ -6648,9 +6648,9 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: FixedBindingsValue{}.Type(ctx),
 			},
 			"gateway":    basetypes.StringType{},
-			"ip_end":    basetypes.StringType{},
+			"ip_end":     basetypes.StringType{},
 			"ip_end6":    basetypes.StringType{},
-			"ip_start":  basetypes.StringType{},
+			"ip_start":   basetypes.StringType{},
 			"ip_start6":  basetypes.StringType{},
 			"lease_time": basetypes.Int64Type{},
 			"options": basetypes.MapType{
@@ -6663,7 +6663,7 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"servers6": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"type": basetypes.StringType{},
+			"type":  basetypes.StringType{},
 			"type6": basetypes.StringType{},
 			"vendor_encapulated": basetypes.MapType{
 				ElemType: VendorEncapulatedValue{}.Type(ctx),
@@ -6687,9 +6687,9 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: FixedBindingsValue{}.Type(ctx),
 			},
 			"gateway":    basetypes.StringType{},
-			"ip_end":    basetypes.StringType{},
+			"ip_end":     basetypes.StringType{},
 			"ip_end6":    basetypes.StringType{},
-			"ip_start":  basetypes.StringType{},
+			"ip_start":   basetypes.StringType{},
 			"ip_start6":  basetypes.StringType{},
 			"lease_time": basetypes.Int64Type{},
 			"options": basetypes.MapType{
@@ -6702,7 +6702,7 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"servers6": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"type": basetypes.StringType{},
+			"type":  basetypes.StringType{},
 			"type6": basetypes.StringType{},
 			"vendor_encapulated": basetypes.MapType{
 				ElemType: VendorEncapulatedValue{}.Type(ctx),
@@ -6726,9 +6726,9 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: FixedBindingsValue{}.Type(ctx),
 			},
 			"gateway":    basetypes.StringType{},
-			"ip_end":    basetypes.StringType{},
+			"ip_end":     basetypes.StringType{},
 			"ip_end6":    basetypes.StringType{},
-			"ip_start":  basetypes.StringType{},
+			"ip_start":   basetypes.StringType{},
 			"ip_start6":  basetypes.StringType{},
 			"lease_time": basetypes.Int64Type{},
 			"options": basetypes.MapType{
@@ -6741,7 +6741,7 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"servers6": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"type": basetypes.StringType{},
+			"type":  basetypes.StringType{},
 			"type6": basetypes.StringType{},
 			"vendor_encapulated": basetypes.MapType{
 				ElemType: VendorEncapulatedValue{}.Type(ctx),
@@ -6765,9 +6765,9 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: FixedBindingsValue{}.Type(ctx),
 			},
 			"gateway":    basetypes.StringType{},
-			"ip_end":    basetypes.StringType{},
+			"ip_end":     basetypes.StringType{},
 			"ip_end6":    basetypes.StringType{},
-			"ip_start":  basetypes.StringType{},
+			"ip_start":   basetypes.StringType{},
 			"ip_start6":  basetypes.StringType{},
 			"lease_time": basetypes.Int64Type{},
 			"options": basetypes.MapType{
@@ -6780,7 +6780,7 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"servers6": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"type": basetypes.StringType{},
+			"type":  basetypes.StringType{},
 			"type6": basetypes.StringType{},
 			"vendor_encapulated": basetypes.MapType{
 				ElemType: VendorEncapulatedValue{}.Type(ctx),
@@ -6799,9 +6799,9 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			ElemType: FixedBindingsValue{}.Type(ctx),
 		},
 		"gateway":    basetypes.StringType{},
-		"ip_end":    basetypes.StringType{},
+		"ip_end":     basetypes.StringType{},
 		"ip_end6":    basetypes.StringType{},
-		"ip_start":  basetypes.StringType{},
+		"ip_start":   basetypes.StringType{},
 		"ip_start6":  basetypes.StringType{},
 		"lease_time": basetypes.Int64Type{},
 		"options": basetypes.MapType{
@@ -6814,7 +6814,7 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 		"servers6": basetypes.ListType{
 			ElemType: types.StringType,
 		},
-		"type": basetypes.StringType{},
+		"type":  basetypes.StringType{},
 		"type6": basetypes.StringType{},
 		"vendor_encapulated": basetypes.MapType{
 			ElemType: VendorEncapulatedValue{}.Type(ctx),
@@ -6836,16 +6836,16 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"dns_suffix":         dnsSuffixVal,
 			"fixed_bindings":     fixedBindings,
 			"gateway":            v.Gateway,
-			"ip_end":            v.IpEnd4,
+			"ip_end":             v.IpEnd4,
 			"ip_end6":            v.IpEnd6,
-			"ip_start":          v.IpStart4,
+			"ip_start":           v.IpStart4,
 			"ip_start6":          v.IpStart6,
 			"lease_time":         v.LeaseTime,
 			"options":            options,
 			"server_id_override": v.ServerIdOverride,
-			"servers":           serversVal,
+			"servers":            serversVal,
 			"servers6":           servers6Val,
-			"type":              v.Type4,
+			"type":               v.Type4,
 			"type6":              v.Type6,
 			"vendor_encapulated": vendorEncapulated,
 		})
@@ -6955,9 +6955,9 @@ func (v ConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 			ElemType: FixedBindingsValue{}.Type(ctx),
 		},
 		"gateway":    basetypes.StringType{},
-		"ip_end":    basetypes.StringType{},
+		"ip_end":     basetypes.StringType{},
 		"ip_end6":    basetypes.StringType{},
-		"ip_start":  basetypes.StringType{},
+		"ip_start":   basetypes.StringType{},
 		"ip_start6":  basetypes.StringType{},
 		"lease_time": basetypes.Int64Type{},
 		"options": basetypes.MapType{
@@ -6970,7 +6970,7 @@ func (v ConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 		"servers6": basetypes.ListType{
 			ElemType: types.StringType,
 		},
-		"type": basetypes.StringType{},
+		"type":  basetypes.StringType{},
 		"type6": basetypes.StringType{},
 		"vendor_encapulated": basetypes.MapType{
 			ElemType: VendorEncapulatedValue{}.Type(ctx),
@@ -9368,9 +9368,9 @@ func (v OverwritesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"action":                         v.Action,
+			"action":   v.Action,
 			"matching": ipdProfileOverwriteMatching,
-			"name":                           v.Name,
+			"name":     v.Name,
 		})
 
 	return objVal, diags
@@ -14907,27 +14907,6 @@ func (v VpnAccessValue) AttributeTypes(ctx context.Context) map[string]attr.Type
 	}
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 var _ basetypes.ObjectTypable = SourceNatType{}
 
 type SourceNatType struct {
@@ -14953,7 +14932,7 @@ func (t SourceNatType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 
 	attributes := in.Attributes()
 
-	exteralIpAttribute, ok := attributes["external_ip"]
+	externalIpAttribute, ok := attributes["external_ip"]
 
 	if !ok {
 		diags.AddError(
@@ -14963,12 +14942,12 @@ func (t SourceNatType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 		return nil, diags
 	}
 
-	exteralIpVal, ok := exteralIpAttribute.(basetypes.StringValue)
+	externalIpVal, ok := externalIpAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`external_ip expected to be basetypes.StringValue, was: %T`, exteralIpAttribute))
+			fmt.Sprintf(`external_ip expected to be basetypes.StringValue, was: %T`, externalIpAttribute))
 	}
 
 	if diags.HasError() {
@@ -14976,8 +14955,8 @@ func (t SourceNatType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 	}
 
 	return SourceNatValue{
-		ExteralIp: exteralIpVal,
-		state:     attr.ValueStateKnown,
+		ExternalIp: externalIpVal,
+		state:      attr.ValueStateKnown,
 	}, diags
 }
 
@@ -15044,7 +15023,7 @@ func NewSourceNatValue(attributeTypes map[string]attr.Type, attributes map[strin
 		return NewSourceNatValueUnknown(), diags
 	}
 
-	exteralIpAttribute, ok := attributes["external_ip"]
+	externalIpAttribute, ok := attributes["external_ip"]
 
 	if !ok {
 		diags.AddError(
@@ -15054,12 +15033,12 @@ func NewSourceNatValue(attributeTypes map[string]attr.Type, attributes map[strin
 		return NewSourceNatValueUnknown(), diags
 	}
 
-	exteralIpVal, ok := exteralIpAttribute.(basetypes.StringValue)
+	externalIpVal, ok := externalIpAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`external_ip expected to be basetypes.StringValue, was: %T`, exteralIpAttribute))
+			fmt.Sprintf(`external_ip expected to be basetypes.StringValue, was: %T`, externalIpAttribute))
 	}
 
 	if diags.HasError() {
@@ -15067,8 +15046,8 @@ func NewSourceNatValue(attributeTypes map[string]attr.Type, attributes map[strin
 	}
 
 	return SourceNatValue{
-		ExteralIp: exteralIpVal,
-		state:     attr.ValueStateKnown,
+		ExternalIp: externalIpVal,
+		state:      attr.ValueStateKnown,
 	}, diags
 }
 
@@ -15140,8 +15119,8 @@ func (t SourceNatType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = SourceNatValue{}
 
 type SourceNatValue struct {
-	ExteralIp basetypes.StringValue `tfsdk:"external_ip"`
-	state     attr.ValueState
+	ExternalIp basetypes.StringValue `tfsdk:"external_ip"`
+	state      attr.ValueState
 }
 
 func (v SourceNatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
@@ -15158,7 +15137,7 @@ func (v SourceNatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 	case attr.ValueStateKnown:
 		vals := make(map[string]tftypes.Value, 1)
 
-		val, err = v.ExteralIp.ToTerraformValue(ctx)
+		val, err = v.ExternalIp.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -15210,7 +15189,7 @@ func (v SourceNatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"external_ip": v.ExteralIp,
+			"external_ip": v.ExternalIp,
 		})
 
 	return objVal, diags
@@ -15231,7 +15210,7 @@ func (v SourceNatValue) Equal(o attr.Value) bool {
 		return true
 	}
 
-	if !v.ExteralIp.Equal(other.ExteralIp) {
+	if !v.ExternalIp.Equal(other.ExternalIp) {
 		return false
 	}
 
@@ -15251,27 +15230,6 @@ func (v SourceNatValue) AttributeTypes(ctx context.Context) map[string]attr.Type
 		"external_ip": basetypes.StringType{},
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 var _ basetypes.ObjectTypable = OobIpConfigType{}
 
@@ -19980,7 +19938,7 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"networks":           networksVal,
 			"outer_vlan_id":      v.OuterVlanId,
 			"poe_disabled":       v.PoeDisabled,
-			"ip_config":     portIpConfig,
+			"ip_config":          portIpConfig,
 			"port_network":       v.PortNetwork,
 			"preserve_dscp":      v.PreserveDscp,
 			"redundant":          v.Redundant,
@@ -22067,27 +22025,6 @@ func (v VpnPathsValue) AttributeTypes(ctx context.Context) map[string]attr.Type 
 	}
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 var _ basetypes.ObjectTypable = WanSourceNatType{}
 
 type WanSourceNatType struct {
@@ -23207,7 +23144,7 @@ func (v TermsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"action":                       action,
+			"action":   action,
 			"matching": routingPolicyTermMatching,
 		})
 
@@ -30321,9 +30258,9 @@ func (v AutoProvisionValue) ToObjectValue(ctx context.Context) (basetypes.Object
 		map[string]attr.Value{
 			"primary":   autoProvisionPrimary,
 			"secondary": autoProvisionSecondary,
-			"enable":                   v.Enable,
-			"latlng":                   latlng,
-			"region":                   v.Region,
+			"enable":    v.Enable,
+			"latlng":    latlng,
+			"region":    v.Region,
 		})
 
 	return objVal, diags
