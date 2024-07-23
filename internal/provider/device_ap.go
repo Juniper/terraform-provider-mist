@@ -151,15 +151,18 @@ func (r *deviceApResource) Read(ctx context.Context, req resource.ReadRequest, r
 		return
 	}
 
-	data, err := r.client.SitesDevices().GetSiteDevice(ctx, siteId, deviceId)
-	if data.Response.StatusCode != 200 && err != nil {
+	httpr, err := r.client.SitesDevices().GetSiteDevice(ctx, siteId, deviceId)
+	if httpr.Response.StatusCode == 404 {
+		resp.State.RemoveResource(ctx)
+		return
+	} else if httpr.Response.StatusCode != 200 && err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting device_ap",
 			"Could not get device_ap, unexpected error: "+err.Error(),
 		)
 		return
 	}
-	body, _ := io.ReadAll(data.Response.Body)
+	body, _ := io.ReadAll(httpr.Response.Body)
 	mist_ap := models.DeviceAp{}
 	json.Unmarshal(body, &mist_ap)
 

@@ -251,8 +251,8 @@ func (r *orgDeviceprofileAssignResource) Delete(ctx context.Context, req resourc
 		return
 	}
 
-	httpr, err := r.unassign(ctx, orgId, deviceprofileId, macs_to_unassign)
-	if httpr.StatusCode != 404 && err != nil {
+	_, err = r.unassign(ctx, orgId, deviceprofileId, macs_to_unassign)
+	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting Deviceprofile Assignment",
 			"Could not delete Deviceprofile Assignment, unexpected error: "+err.Error(),

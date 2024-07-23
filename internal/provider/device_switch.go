@@ -150,8 +150,11 @@ func (r *deviceSwitchResource) Read(ctx context.Context, req resource.ReadReques
 		return
 	}
 
-	data, err := r.client.SitesDevices().GetSiteDevice(ctx, siteId, deviceId)
-	if data.Response.StatusCode != 200 && err != nil {
+	httpr, err := r.client.SitesDevices().GetSiteDevice(ctx, siteId, deviceId)
+	if httpr.Response.StatusCode == 404 {
+		resp.State.RemoveResource(ctx)
+		return
+	} else if httpr.Response.StatusCode != 200 && err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting device_switch",
 			"Could not get device_switch, unexpected error: "+err.Error(),
@@ -159,7 +162,7 @@ func (r *deviceSwitchResource) Read(ctx context.Context, req resource.ReadReques
 		return
 	}
 
-	body, _ := io.ReadAll(data.Response.Body)
+	body, _ := io.ReadAll(httpr.Response.Body)
 	mist_switch := models.DeviceSwitch{}
 	json.Unmarshal(body, &mist_switch)
 

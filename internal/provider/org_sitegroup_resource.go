@@ -110,15 +110,18 @@ func (r *orgSiteGroupResource) Read(ctx context.Context, req resource.ReadReques
 	orgId := uuid.MustParse(state.OrgId.ValueString())
 	sitegroupId := uuid.MustParse(state.Id.ValueString())
 	tflog.Info(ctx, "Starting SiteGroup Read: sitegroup_id "+state.Id.ValueString())
-	data, err := r.client.OrgsSitegroups().GetOrgSiteGroup(ctx, orgId, sitegroupId)
-	if err != nil {
+	httpr, err := r.client.OrgsSitegroups().GetOrgSiteGroup(ctx, orgId, sitegroupId)
+	if httpr.Response.StatusCode == 404 {
+		resp.State.RemoveResource(ctx)
+		return
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting SiteGroup",
 			"Could not get SiteGroup, unexpected error: "+err.Error(),
 		)
 		return
 	}
-	state, diags = resource_org_sitegroup.SdkToTerraform(&data.Data)
+	state, diags = resource_org_sitegroup.SdkToTerraform(&httpr.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

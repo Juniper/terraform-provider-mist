@@ -108,15 +108,18 @@ func (r *siteResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 
 	siteId := uuid.MustParse(state.Id.String())
 	tflog.Info(ctx, "Starting Site Read: site_id "+state.Id.ValueString())
-	data, err := r.client.Sites().GetSiteInfo(ctx, siteId)
-	if err != nil {
+	httpr, err := r.client.Sites().GetSiteInfo(ctx, siteId)
+	if httpr.Response.StatusCode == 404 {
+		resp.State.RemoveResource(ctx)
+		return
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting site",
 			"Could not get site, unexpected error: "+err.Error(),
 		)
 		return
 	}
-	state, diags = resource_site.SdkToTerraform(ctx, &data.Data)
+	state, diags = resource_site.SdkToTerraform(ctx, &httpr.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

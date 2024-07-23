@@ -108,15 +108,18 @@ func (r *siteWlanResource) Read(ctx context.Context, req resource.ReadRequest, r
 	tflog.Info(ctx, "Starting Wlan Read: wlan_id "+state.Id.ValueString())
 	siteId := uuid.MustParse(state.SiteId.ValueString())
 	wlanId := uuid.MustParse(state.Id.ValueString())
-	data, err := r.client.SitesWlans().GetSiteWlan(ctx, siteId, wlanId)
-	if err != nil {
+	httpr, err := r.client.SitesWlans().GetSiteWlan(ctx, siteId, wlanId)
+	if httpr.Response.StatusCode == 404 {
+		resp.State.RemoveResource(ctx)
+		return
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting Wlan",
 			"Could not get Wlan, unexpected error: "+err.Error(),
 		)
 		return
 	}
-	state, diags = resource_site_wlan.SdkToTerraform(ctx, &data.Data)
+	state, diags = resource_site_wlan.SdkToTerraform(ctx, &httpr.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

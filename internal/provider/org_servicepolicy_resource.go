@@ -109,15 +109,18 @@ func (r *orgOrgServicepolicyResource) Read(ctx context.Context, req resource.Rea
 	tflog.Info(ctx, "Starting OrgServicepolicy Read: servicepolicy_id "+state.Id.ValueString())
 	orgId := uuid.MustParse(state.OrgId.ValueString())
 	servicepolicyId := uuid.MustParse(state.Id.ValueString())
-	data, err := r.client.OrgsServicePolicies().GetOrgServicePolicy(ctx, orgId, servicepolicyId)
-	if err != nil {
+	httpr, err := r.client.OrgsServicePolicies().GetOrgServicePolicy(ctx, orgId, servicepolicyId)
+	if httpr.Response.StatusCode == 404 {
+		resp.State.RemoveResource(ctx)
+		return
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting servicepolicy",
 			"Could not get servicepolicy, unexpected error: "+err.Error(),
 		)
 		return
 	}
-	state, diags = resource_org_servicepolicy.SdkToTerraform(ctx, &data.Data)
+	state, diags = resource_org_servicepolicy.SdkToTerraform(ctx, &httpr.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

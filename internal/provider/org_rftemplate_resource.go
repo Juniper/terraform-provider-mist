@@ -109,15 +109,18 @@ func (r *orgRfTemplateResource) Read(ctx context.Context, req resource.ReadReque
 	orgId := uuid.MustParse(state.OrgId.ValueString())
 	rftemplateId := uuid.MustParse(state.Id.ValueString())
 	tflog.Info(ctx, "Starting RfTemplate Read: rftemplate_id "+state.Id.ValueString())
-	data, err := r.client.OrgsRFTemplates().GetOrgRfTemplate(ctx, orgId, rftemplateId)
-	if err != nil {
+	httpr, err := r.client.OrgsRFTemplates().GetOrgRfTemplate(ctx, orgId, rftemplateId)
+	if httpr.Response.StatusCode == 404 {
+		resp.State.RemoveResource(ctx)
+		return
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting RfTemplate",
 			"Could not get RfTemplate, unexpected error: "+err.Error(),
 		)
 		return
 	}
-	state, diags = resource_org_rftemplate.SdkToTerraform(ctx, data.Data)
+	state, diags = resource_org_rftemplate.SdkToTerraform(ctx, httpr.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

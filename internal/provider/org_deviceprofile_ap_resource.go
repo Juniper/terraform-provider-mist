@@ -143,8 +143,11 @@ func (r *orgDeviceprofileApResource) Read(ctx context.Context, req resource.Read
 		return
 	}
 	tflog.Info(ctx, "Starting DeviceprofileAp Read: deviceprofile_ap_id "+state.Id.ValueString())
-	data, err := r.client.OrgsDeviceProfiles().GetOrgDeviceProfile(ctx, orgId, deviceprofile_apId)
-	if data.Response.StatusCode != 200 && err != nil {
+	httpr, err := r.client.OrgsDeviceProfiles().GetOrgDeviceProfile(ctx, orgId, deviceprofile_apId)
+	if httpr.Response.StatusCode == 404 {
+		resp.State.RemoveResource(ctx)
+		return
+	} else if httpr.Response.StatusCode != 200 && err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting DeviceprofileAp",
 			"Could not get DeviceprofileAp, unexpected error: "+err.Error(),
@@ -152,7 +155,7 @@ func (r *orgDeviceprofileApResource) Read(ctx context.Context, req resource.Read
 		return
 	}
 
-	body, _ := io.ReadAll(data.Response.Body)
+	body, _ := io.ReadAll(httpr.Response.Body)
 	mist_deviceprofile_ap := models.DeviceprofileAp{}
 	err = json.Unmarshal(body, &mist_deviceprofile_ap)
 	if err != nil {

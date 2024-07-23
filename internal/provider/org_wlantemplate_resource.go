@@ -112,15 +112,18 @@ func (r *orgWlanTemplateResource) Read(ctx context.Context, req resource.ReadReq
 	tflog.Info(ctx, "Starting WlanTemplate Read: wlantemplate_id "+state.Id.ValueString())
 	orgId := uuid.MustParse(state.OrgId.ValueString())
 	wlantemplateId := uuid.MustParse(state.Id.ValueString())
-	data, err := r.client.OrgsWLANTemplates().GetOrgTemplate(ctx, orgId, wlantemplateId)
-	if err != nil {
+	httpr, err := r.client.OrgsWLANTemplates().GetOrgTemplate(ctx, orgId, wlantemplateId)
+	if httpr.Response.StatusCode == 404 {
+		resp.State.RemoveResource(ctx)
+		return
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting WlanTemplate",
 			"Could not get WlanTemplate, unexpected error: "+err.Error(),
 		)
 		return
 	}
-	state, diags = resource_org_wlantemplate.SdkToTerraform(ctx, data.Data)
+	state, diags = resource_org_wlantemplate.SdkToTerraform(ctx, httpr.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

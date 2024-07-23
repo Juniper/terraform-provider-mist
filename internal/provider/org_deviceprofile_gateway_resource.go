@@ -142,8 +142,11 @@ func (r *orgDeviceprofileGatewayResource) Read(ctx context.Context, req resource
 		return
 	}
 	tflog.Info(ctx, "Starting DeviceprofileGateway Read: deviceprofile_gateway_id "+state.Id.ValueString())
-	data, err := r.client.OrgsDeviceProfiles().GetOrgDeviceProfile(ctx, orgId, deviceprofile_gatewayId)
-	if data.Response.StatusCode != 200 && err != nil {
+	httpr, err := r.client.OrgsDeviceProfiles().GetOrgDeviceProfile(ctx, orgId, deviceprofile_gatewayId)
+	if httpr.Response.StatusCode == 404 {
+		resp.State.RemoveResource(ctx)
+		return
+	} else if httpr.Response.StatusCode != 200 && err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting DeviceprofileGateway",
 			"Could not get DeviceprofileGateway, unexpected error: "+err.Error(),
@@ -151,7 +154,7 @@ func (r *orgDeviceprofileGatewayResource) Read(ctx context.Context, req resource
 		return
 	}
 
-	body, _ := io.ReadAll(data.Response.Body)
+	body, _ := io.ReadAll(httpr.Response.Body)
 	mist_deviceprofile_gateway := models.DeviceprofileGateway{}
 	err = json.Unmarshal(body, &mist_deviceprofile_gateway)
 	if err != nil {

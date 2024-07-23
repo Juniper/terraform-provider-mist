@@ -111,15 +111,18 @@ func (r *orgOrgIdpprofileResource) Read(ctx context.Context, req resource.ReadRe
 	tflog.Info(ctx, "Starting OrgIdpprofile Read: idpprofile_id "+state.Id.ValueString())
 	orgId := uuid.MustParse(state.OrgId.ValueString())
 	idpprofileId := uuid.MustParse(state.Id.ValueString())
-	data, err := r.client.OrgsIDPProfiles().GetOrgIdpProfile(ctx, orgId, idpprofileId)
-	if err != nil {
+	httpr, err := r.client.OrgsIDPProfiles().GetOrgIdpProfile(ctx, orgId, idpprofileId)
+	if httpr.Response.StatusCode == 404 {
+		resp.State.RemoveResource(ctx)
+		return
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting idpprofile",
 			"Could not get idpprofile, unexpected error: "+err.Error(),
 		)
 		return
 	}
-	state, diags = resource_org_idpprofile.SdkToTerraform(ctx, &data.Data)
+	state, diags = resource_org_idpprofile.SdkToTerraform(ctx, &httpr.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

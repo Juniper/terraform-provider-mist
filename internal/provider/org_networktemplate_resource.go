@@ -69,7 +69,15 @@ func (r *orgNetworkTemplateResource) Create(ctx context.Context, req resource.Cr
 		return
 	}
 
-	orgId := uuid.MustParse(plan.OrgId.ValueString())
+	orgId, err := uuid.Parse(plan.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error getting org_networktemplate orgId from state",
+			"Could not get org_networktemplate orgId, unexpected error: "+err.Error(),
+		)
+		return
+	}
+
 	networktemplate, diags := resource_org_networktemplate.TerraformToSdk(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -110,17 +118,36 @@ func (r *orgNetworkTemplateResource) Read(ctx context.Context, req resource.Read
 
 	tflog.Info(ctx, "Starting NetworkTemplate Read: networktemplate_id "+state.Id.ValueString())
 
-	orgId := uuid.MustParse(state.OrgId.ValueString())
-	templateId := uuid.MustParse(state.Id.ValueString())
-	data, err := r.client.OrgsNetworkTemplates().GetOrgNetworkTemplate(ctx, orgId, templateId)
+	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error getting org_networktemplate orgId from state",
+			"Could not get org_networktemplate orgId, unexpected error: "+err.Error(),
+		)
+		return
+	}
+
+	templateId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error getting org_networktemplate templateId from state",
+			"Could not get org_networktemplate templateId, unexpected error: "+err.Error(),
+		)
+		return
+	}
+
+	httpr, err := r.client.OrgsNetworkTemplates().GetOrgNetworkTemplate(ctx, orgId, templateId)
+	if httpr.Response.StatusCode == 404 {
+		resp.State.RemoveResource(ctx)
+		return
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting NetworkTemplate",
 			"Could not get NetworkTemplate, unexpected error: "+err.Error(),
 		)
 		return
 	}
-	state, diags = resource_org_networktemplate.SdkToTerraform(ctx, data.Data)
+	state, diags = resource_org_networktemplate.SdkToTerraform(ctx, httpr.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -148,8 +175,24 @@ func (r *orgNetworkTemplateResource) Update(ctx context.Context, req resource.Up
 		return
 	}
 
-	orgId := uuid.MustParse(state.OrgId.ValueString())
-	templateId := uuid.MustParse(state.Id.ValueString())
+	orgId, err := uuid.Parse(state.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error getting org_networktemplate orgId from state",
+			"Could not get org_networktemplate orgId, unexpected error: "+err.Error(),
+		)
+		return
+	}
+
+	templateId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error getting org_networktemplate templateId from state",
+			"Could not get org_networktemplate templateId, unexpected error: "+err.Error(),
+		)
+		return
+	}
+
 	networktemplate, diags := resource_org_networktemplate.TerraformToSdk(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

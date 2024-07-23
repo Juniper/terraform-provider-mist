@@ -66,7 +66,15 @@ func (r *orgNetworkResource) Create(ctx context.Context, req resource.CreateRequ
 		return
 	}
 
-	orgId := uuid.MustParse(plan.OrgId.ValueString())
+	orgId, err := uuid.Parse(plan.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error getting network orgId from plan",
+			"Could not get network orgId, unexpected error: "+err.Error(),
+		)
+		return
+	}
+
 	network, diags := resource_org_network.TerraformToSdk(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -107,18 +115,36 @@ func (r *orgNetworkResource) Read(ctx context.Context, req resource.ReadRequest,
 		return
 	}
 
-	orgId := uuid.MustParse(state.OrgId.ValueString())
-	networkId := uuid.MustParse(state.Id.ValueString())
-	tflog.Info(ctx, "Starting Network Read: network_id "+state.Id.ValueString())
-	data, err := r.client.OrgsNetworks().GetOrgNetwork(ctx, orgId, networkId)
+	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error getting network orgId from plan",
+			"Could not get network orgId, unexpected error: "+err.Error(),
+		)
+		return
+	}
+	networkId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error getting network networkId from plan",
+			"Could not get network networkId, unexpected error: "+err.Error(),
+		)
+		return
+	}
+
+	tflog.Info(ctx, "Starting Network Read: network_id "+state.Id.ValueString())
+	httpr, err := r.client.OrgsNetworks().GetOrgNetwork(ctx, orgId, networkId)
+	if httpr.Response.StatusCode == 404 {
+		resp.State.RemoveResource(ctx)
+		return
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting network",
 			"Could not get network, unexpected error: "+err.Error(),
 		)
 		return
 	}
-	state, diags = resource_org_network.SdkToTerraform(ctx, data.Data)
+	state, diags = resource_org_network.SdkToTerraform(ctx, httpr.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -146,8 +172,23 @@ func (r *orgNetworkResource) Update(ctx context.Context, req resource.UpdateRequ
 		return
 	}
 
-	orgId := uuid.MustParse(state.OrgId.ValueString())
-	networkId := uuid.MustParse(state.Id.ValueString())
+	orgId, err := uuid.Parse(state.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error getting network orgId from plan",
+			"Could not get network orgId, unexpected error: "+err.Error(),
+		)
+		return
+	}
+	networkId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error getting network networkId from plan",
+			"Could not get network networkId, unexpected error: "+err.Error(),
+		)
+		return
+	}
+
 	network, diags := resource_org_network.TerraformToSdk(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -188,8 +229,23 @@ func (r *orgNetworkResource) Delete(ctx context.Context, req resource.DeleteRequ
 		return
 	}
 
-	orgId := uuid.MustParse(state.OrgId.ValueString())
-	networkId := uuid.MustParse(state.Id.ValueString())
+	orgId, err := uuid.Parse(state.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error getting network orgId from plan",
+			"Could not get network orgId, unexpected error: "+err.Error(),
+		)
+		return
+	}
+	networkId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error getting network networkId from plan",
+			"Could not get network networkId, unexpected error: "+err.Error(),
+		)
+		return
+	}
+
 	tflog.Info(ctx, "Starting Network Delete: network_id "+state.Id.ValueString())
 	httpr, err := r.client.OrgsNetworks().DeleteOrgNetwork(ctx, orgId, networkId)
 	if httpr.StatusCode != 404 && err != nil {

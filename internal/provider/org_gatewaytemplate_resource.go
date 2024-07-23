@@ -134,15 +134,18 @@ func (r *orgGatewaytemplateResource) Read(ctx context.Context, req resource.Read
 		return
 	}
 	tflog.Info(ctx, "Starting GatewayTemplate Read: gatewaytemplate_id "+state.Id.ValueString())
-	data, err := r.client.OrgsGatewayTemplates().GetOrgGatewayTemplate(ctx, orgId, templateId)
-	if err != nil {
+	httpr, err := r.client.OrgsGatewayTemplates().GetOrgGatewayTemplate(ctx, orgId, templateId)
+	if httpr.Response.StatusCode == 404 {
+		resp.State.RemoveResource(ctx)
+		return
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting GatewayTemplate",
 			"Could not get GatewayTemplate, unexpected error: "+err.Error(),
 		)
 		return
 	}
-	state, diags = resource_org_gatewaytemplate.SdkToTerraform(ctx, &data.Data)
+	state, diags = resource_org_gatewaytemplate.SdkToTerraform(ctx, &httpr.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

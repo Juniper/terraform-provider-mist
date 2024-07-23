@@ -122,15 +122,18 @@ func (r *orgSettingResource) Read(ctx context.Context, req resource.ReadRequest,
 		)
 		return
 	}
-	data, err := r.client.OrgsSetting().GetOrgSettings(ctx, orgId)
-	if err != nil {
+	httpr, err := r.client.OrgsSetting().GetOrgSettings(ctx, orgId)
+	if httpr.Response.StatusCode == 404 {
+		resp.State.RemoveResource(ctx)
+		return
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting orgSetting",
 			"Could not get orgSetting, unexpected error: "+err.Error(),
 		)
 		return
 	}
-	state, diags = resource_org_setting.SdkToTerraform(ctx, &data.Data)
+	state, diags = resource_org_setting.SdkToTerraform(ctx, &httpr.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

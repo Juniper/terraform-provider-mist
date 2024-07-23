@@ -114,15 +114,18 @@ func (r *orgWxTagResource) Read(ctx context.Context, req resource.ReadRequest, r
 	tflog.Info(ctx, "Starting WxTag Read: wxtag_id "+state.Id.ValueString())
 	orgId := uuid.MustParse(state.OrgId.ValueString())
 	wxtagId := uuid.MustParse(state.Id.ValueString())
-	data, err := r.client.OrgsWxTags().GetOrgWxTag(ctx, orgId, wxtagId)
-	if err != nil {
+	httpr, err := r.client.OrgsWxTags().GetOrgWxTag(ctx, orgId, wxtagId)
+	if httpr.Response.StatusCode == 404 {
+		resp.State.RemoveResource(ctx)
+		return
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting WxTag",
 			"Could not get WxTag, unexpected error: "+err.Error(),
 		)
 		return
 	}
-	state, diags = resource_org_wxtag.SdkToTerraform(ctx, data.Data)
+	state, diags = resource_org_wxtag.SdkToTerraform(ctx, httpr.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

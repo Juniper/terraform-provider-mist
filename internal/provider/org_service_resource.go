@@ -109,15 +109,18 @@ func (r *orgOrgServiceResource) Read(ctx context.Context, req resource.ReadReque
 	tflog.Info(ctx, "Starting OrgService Read: service_id "+state.Id.ValueString())
 	orgId := uuid.MustParse(state.OrgId.ValueString())
 	serviceId := uuid.MustParse(state.Id.ValueString())
-	data, err := r.client.OrgsServices().GetOrgService(ctx, orgId, serviceId)
-	if err != nil {
+	httpr, err := r.client.OrgsServices().GetOrgService(ctx, orgId, serviceId)
+	if httpr.Response.StatusCode == 404 {
+		resp.State.RemoveResource(ctx)
+		return
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting service",
 			"Could not get service, unexpected error: "+err.Error(),
 		)
 		return
 	}
-	state, diags = resource_org_service.SdkToTerraform(ctx, &data.Data)
+	state, diags = resource_org_service.SdkToTerraform(ctx, &httpr.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

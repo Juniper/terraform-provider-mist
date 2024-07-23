@@ -131,15 +131,18 @@ func (r *orgNacRuleResource) Read(ctx context.Context, req resource.ReadRequest,
 		return
 	}
 	tflog.Info(ctx, "Starting NacRule Read: nacrule_id "+state.Id.ValueString())
-	data, err := r.client.OrgsNACRules().GetOrgNacRule(ctx, orgId, nacruleId)
-	if err != nil {
+	httpr, err := r.client.OrgsNACRules().GetOrgNacRule(ctx, orgId, nacruleId)
+	if httpr.Response.StatusCode == 404 {
+		resp.State.RemoveResource(ctx)
+		return
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting NacRule",
 			"Could not get NacRule, unexpected error: "+err.Error(),
 		)
 		return
 	}
-	state, diags = resource_org_nacrule.SdkToTerraform(ctx, data.Data)
+	state, diags = resource_org_nacrule.SdkToTerraform(ctx, httpr.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

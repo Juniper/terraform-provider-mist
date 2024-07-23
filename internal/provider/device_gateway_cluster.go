@@ -143,8 +143,11 @@ func (r *deviceGatewayClusterResource) Read(ctx context.Context, req resource.Re
 		return
 	}
 
-	data, err := r.client.SitesDevicesWANCluster().GetSiteDeviceHaClusterNode(ctx, siteId, deviceId)
-	if err != nil {
+	httpr, err := r.client.SitesDevicesWANCluster().GetSiteDeviceHaClusterNode(ctx, siteId, deviceId)
+	if httpr.Response.StatusCode == 404 {
+		resp.State.RemoveResource(ctx)
+		return
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting device_gateway_cluster",
 			"Could not get device_gateway_cluster, unexpected error: "+err.Error(),
@@ -152,7 +155,7 @@ func (r *deviceGatewayClusterResource) Read(ctx context.Context, req resource.Re
 		return
 	}
 
-	state, diags = resource_device_gateway_cluster.SdkToTerraform(ctx, siteId, deviceId, &data.Data)
+	state, diags = resource_device_gateway_cluster.SdkToTerraform(ctx, siteId, deviceId, &httpr.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

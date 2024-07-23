@@ -66,7 +66,15 @@ func (r *orgNacTagResource) Create(ctx context.Context, req resource.CreateReque
 		return
 	}
 
-	orgId := uuid.MustParse(plan.OrgId.ValueString())
+	orgId, err := uuid.Parse(plan.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error getting nactag orgId from plan",
+			"Could not get nactag orgId, unexpected error: "+err.Error(),
+		)
+		return
+	}
+
 	nactag, diags := resource_org_nactag.TerraformToSdk(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -75,7 +83,6 @@ func (r *orgNacTagResource) Create(ctx context.Context, req resource.CreateReque
 
 	data, err := r.client.OrgsNACTags().CreateOrgNacTag(ctx, orgId, &nactag)
 	if err != nil {
-		//url, _ := httpr.Location()
 		resp.Diagnostics.AddError(
 			"Error creating NacTag",
 			"Could not create NacTag, unexpected error: "+err.Error(),
@@ -83,7 +90,7 @@ func (r *orgNacTagResource) Create(ctx context.Context, req resource.CreateReque
 		return
 	}
 
-	state, diags = resource_org_nactag.SdkToTerraform(ctx, data.Data)
+	state, diags = resource_org_nactag.SdkToTerraform(ctx, &data.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -106,18 +113,36 @@ func (r *orgNacTagResource) Read(ctx context.Context, req resource.ReadRequest, 
 		return
 	}
 
-	orgId := uuid.MustParse(state.OrgId.ValueString())
-	nactagId := uuid.MustParse(state.Id.ValueString())
-	tflog.Info(ctx, "Starting NacTag Read: nactag_id "+state.Id.ValueString())
-	data, err := r.client.OrgsNACTags().GetOrgNacTag(ctx, orgId, nactagId)
+	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error getting nactag orgId from plan",
+			"Could not get nactag orgId, unexpected error: "+err.Error(),
+		)
+		return
+	}
+	nactagId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error getting nactag nactagId from plan",
+			"Could not get nactag nactagId, unexpected error: "+err.Error(),
+		)
+		return
+	}
+
+	tflog.Info(ctx, "Starting NacTag Read: nactag_id "+state.Id.ValueString())
+	httpr, err := r.client.OrgsNACTags().GetOrgNacTag(ctx, orgId, nactagId)
+	if httpr.Response.StatusCode == 404 {
+		resp.State.RemoveResource(ctx)
+		return
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting NacTag",
 			"Could not get NacTag, unexpected error: "+err.Error(),
 		)
 		return
 	}
-	state, diags = resource_org_nactag.SdkToTerraform(ctx, data.Data)
+	state, diags = resource_org_nactag.SdkToTerraform(ctx, &httpr.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -151,8 +176,23 @@ func (r *orgNacTagResource) Update(ctx context.Context, req resource.UpdateReque
 		return
 	}
 
-	orgId := uuid.MustParse(state.OrgId.ValueString())
-	nactagId := uuid.MustParse(state.Id.ValueString())
+	orgId, err := uuid.Parse(state.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error getting nactag orgId from plan",
+			"Could not get nactag orgId, unexpected error: "+err.Error(),
+		)
+		return
+	}
+	nactagId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error getting nactag nactagId from plan",
+			"Could not get nactag nactagId, unexpected error: "+err.Error(),
+		)
+		return
+	}
+
 	tflog.Info(ctx, "Starting NacTag Update for NacTag "+state.Id.ValueString())
 	data, err := r.client.OrgsNACTags().
 		UpdateOrgNacTag(ctx, orgId, nactagId, &nactag)
@@ -164,7 +204,7 @@ func (r *orgNacTagResource) Update(ctx context.Context, req resource.UpdateReque
 		return
 	}
 
-	state, diags = resource_org_nactag.SdkToTerraform(ctx, data.Data)
+	state, diags = resource_org_nactag.SdkToTerraform(ctx, &data.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -187,8 +227,23 @@ func (r *orgNacTagResource) Delete(ctx context.Context, req resource.DeleteReque
 		return
 	}
 
-	orgId := uuid.MustParse(state.OrgId.ValueString())
-	nactagId := uuid.MustParse(state.Id.ValueString())
+	orgId, err := uuid.Parse(state.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error getting nactag orgId from plan",
+			"Could not get nactag orgId, unexpected error: "+err.Error(),
+		)
+		return
+	}
+	nactagId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error getting nactag nactagId from plan",
+			"Could not get nactag nactagId, unexpected error: "+err.Error(),
+		)
+		return
+	}
+
 	tflog.Info(ctx, "Starting NacTag Delete: nactag_id "+state.Id.ValueString())
 	httpr, err := r.client.OrgsNACTags().DeleteOrgNacTag(ctx, orgId, nactagId)
 	if httpr.StatusCode != 404 && err != nil {

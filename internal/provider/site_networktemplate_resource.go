@@ -108,15 +108,18 @@ func (r *siteNetworkTemplateResource) Read(ctx context.Context, req resource.Rea
 
 	tflog.Info(ctx, "Starting NetworkTemplate Read: networktemplate_id "+state.SiteId.ValueString())
 	siteId := uuid.MustParse(state.SiteId.ValueString())
-	data, err := r.client.SitesSetting().GetSiteSetting(ctx, siteId)
-	if err != nil {
+	httpr, err := r.client.SitesSetting().GetSiteSetting(ctx, siteId)
+	if httpr.Response.StatusCode == 404 {
+		resp.State.RemoveResource(ctx)
+		return
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting NetworkTemplate",
 			"Could not get NetworkTemplate, unexpected error: "+err.Error(),
 		)
 		return
 	}
-	state, diags = resource_site_networktemplate.SdkToTerraform(ctx, &data.Data)
+	state, diags = resource_site_networktemplate.SdkToTerraform(ctx, &httpr.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
