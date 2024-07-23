@@ -209,6 +209,9 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting",
 				MarkdownDescription: "Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting",
+				Validators: []validator.List{
+					listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar())),
+				},
 			},
 			"dns_suffix": schema.ListAttribute{
 				ElementType:         types.StringType,
@@ -265,9 +268,12 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						"via": schema.StringAttribute{
-							Optional:            true,
+							Required:            true,
 							Description:         "next-hop IP Address",
 							MarkdownDescription: "next-hop IP Address",
+							Validators: []validator.String{
+								stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar()),
+							},
 						},
 					},
 					CustomType: ExtraRoutesType{
@@ -278,7 +284,7 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Optional: true,
 				Validators: []validator.Map{
-					mapvalidator.SizeAtLeast(1),
+					mapvalidator.SizeAtLeast(1), mapvalidator.KeysAre(stringvalidator.Any(mistvalidator.ParseCidr(true, false), mistvalidator.ParseVar())),
 				},
 			},
 			"extra_routes6": schema.MapNestedAttribute{
@@ -330,9 +336,12 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						"via": schema.StringAttribute{
-							Optional:            true,
+							Required:            true,
 							Description:         "next-hop IP Address",
 							MarkdownDescription: "next-hop IP Address",
+							Validators: []validator.String{
+								stringvalidator.Any(mistvalidator.ParseIp(false, true), mistvalidator.ParseVar()),
+							},
 						},
 					},
 					CustomType: ExtraRoutes6Type{
@@ -345,7 +354,7 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "Property key is the destination CIDR (e.g. \"2a02:1234:420a:10c9::/64\")",
 				MarkdownDescription: "Property key is the destination CIDR (e.g. \"2a02:1234:420a:10c9::/64\")",
 				Validators: []validator.Map{
-					mapvalidator.SizeAtLeast(1),
+					mapvalidator.SizeAtLeast(1), mapvalidator.KeysAre(stringvalidator.Any(mistvalidator.ParseCidr(false, true), mistvalidator.ParseVar())),
 				},
 			},
 			"mist_nac": schema.SingleNestedAttribute{
@@ -383,6 +392,9 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "optional for pure switching, required when L3 / routing features are used",
 							MarkdownDescription: "optional for pure switching, required when L3 / routing features are used",
+							Validators: []validator.String{
+								stringvalidator.Any(mistvalidator.ParseCidr(false, true), mistvalidator.ParseVar()),
+							},
 						},
 						"vlan_id": schema.StringAttribute{
 							Required: true,
@@ -401,7 +413,7 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "Property key is network name",
 				MarkdownDescription: "Property key is network name",
 				Validators: []validator.Map{
-					mapvalidator.SizeAtLeast(1),
+					mapvalidator.SizeAtLeast(1), mapvalidator.KeysAre(stringvalidator.All(stringvalidator.LengthBetween(2, 32), mistvalidator.ParseName())),
 				},
 			},
 			"ntp_servers": schema.ListAttribute{
@@ -2372,9 +2384,12 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"via": schema.StringAttribute{
-										Optional:            true,
+										Required:            true,
 										Description:         "Next-hop address",
 										MarkdownDescription: "Next-hop address",
+										Validators: []validator.String{
+											stringvalidator.Any(mistvalidator.ParseIp(false, true), mistvalidator.ParseVar()),
+										},
 									},
 								},
 								CustomType: VrfExtraRoutesType{
@@ -2387,7 +2402,7 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Property key is the destination CIDR (e.g. \"10.0.0.0/8\")",
 							MarkdownDescription: "Property key is the destination CIDR (e.g. \"10.0.0.0/8\")",
 							Validators: []validator.Map{
-								mapvalidator.SizeAtLeast(1),
+								mapvalidator.SizeAtLeast(1), mapvalidator.KeysAre(stringvalidator.Any(mistvalidator.ParseCidr(false, true), mistvalidator.ParseVar())),
 							},
 						},
 					},
@@ -2401,7 +2416,7 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "Property key is the network name",
 				MarkdownDescription: "Property key is the network name",
 				Validators: []validator.Map{
-					mapvalidator.SizeAtLeast(1),
+					mapvalidator.SizeAtLeast(1), mapvalidator.KeysAre(stringvalidator.Any(mistvalidator.ParseCidr(false, true), mistvalidator.ParseVar())),
 				},
 			},
 			"vs_instance": schema.SingleNestedAttribute{
