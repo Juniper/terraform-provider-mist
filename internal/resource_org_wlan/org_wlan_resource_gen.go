@@ -543,6 +543,9 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 						Required:            true,
 						Description:         "additional VLAN IDs (on the LAN side or from other WLANs) should we be forwarding bonjour queries/responses",
 						MarkdownDescription: "additional VLAN IDs (on the LAN side or from other WLANs) should we be forwarding bonjour queries/responses",
+						Validators: []validator.List{
+							listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseVlanId(), mistvalidator.ParseVar())),
+						},
 					},
 					"enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -682,6 +685,9 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"ip": schema.StringAttribute{
 							Required: true,
+							Validators: []validator.String{
+								stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar()),
+							},
 						},
 						"port": schema.Int64Attribute{
 							Optional: true,
@@ -786,6 +792,9 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"default_vlan_id": schema.StringAttribute{
 						Optional: true,
+						Validators: []validator.String{
+							stringvalidator.Any(mistvalidator.ParseVlanId(), mistvalidator.ParseVar()),
+						},
 					},
 					"enabled": schema.BoolAttribute{
 						Optional: true,
@@ -814,6 +823,9 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 					"vlan_ids": schema.ListAttribute{
 						ElementType: types.StringType,
 						Optional:    true,
+						Validators: []validator.List{
+							listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseVlanId(), mistvalidator.ParseVar())),
+						},
 					},
 				},
 				CustomType: DynamicPskType{
@@ -1681,7 +1693,10 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "list of CIDRs",
 				MarkdownDescription: "list of CIDRs",
-				Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+				Validators: []validator.List{
+					listvalidator.ValueStringsAre(mistvalidator.ParseCidr(true, false)),
+				},
+				Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 			},
 			"portal_api_secret": schema.StringAttribute{
 				Computed:            true,
@@ -1917,7 +1932,6 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				Default:  stringdefault.StaticString(""),
 			},
 			"thumbnail": schema.StringAttribute{
-				Optional:            true,
 				Computed:            true,
 				Description:         "Url of portal background image thumbnail",
 				MarkdownDescription: "Url of portal background image thumbnail",
@@ -1949,7 +1963,10 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "vlan_ids to use when there’s no match from RA",
 				MarkdownDescription: "vlan_ids to use when there’s no match from RA",
-				Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+				Validators: []validator.List{
+					listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseVlanId(), mistvalidator.ParseVar())),
+				},
+				Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 			},
 			"vlan_pooling": schema.BoolAttribute{
 				Optional:            true,
