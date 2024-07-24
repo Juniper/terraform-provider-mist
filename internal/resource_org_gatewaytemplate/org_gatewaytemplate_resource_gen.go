@@ -1917,6 +1917,7 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",
+												"critical",
 												"strict",
 												"standard",
 											),
