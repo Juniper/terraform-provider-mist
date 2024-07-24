@@ -84,11 +84,11 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (SiteWlanModel, diag
 	var portal PortalValue = NewPortalValueNull()
 	var portal_allowed_hostnames types.List = types.ListNull(types.StringType)
 	var portal_allowed_subnets types.List = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
-	var portal_api_secret types.String = types.StringValue("")
+	var portal_api_secret types.String
 	var portal_denied_hostnames types.List = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
-	var portal_image types.String = types.StringValue("")
-	var portal_sso_url types.String = types.StringValue("")
-	var portal_template_url types.String = types.StringValue("")
+	var portal_image types.String
+	var portal_sso_url types.String
+	var portal_template_url types.String
 	var qos QosValue
 	var radsec RadsecValue = NewRadsecValueNull()
 	var roam_mode types.String
@@ -96,7 +96,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (SiteWlanModel, diag
 	var site_id types.String = types.StringValue("")
 	var sle_excluded types.Bool
 	var ssid types.String
-	var thumbnail types.String = types.StringValue("")
+	var thumbnail types.String
 	var use_eapol_v1 types.Bool
 	var vlan_enabled types.Bool
 	var vlan_id types.String

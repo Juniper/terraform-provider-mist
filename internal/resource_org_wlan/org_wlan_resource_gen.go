@@ -840,7 +840,7 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 			"dynamic_vlan": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"default_vlan_id": schema.StringAttribute{
-						Optional: true,
+						Required: true,
 						Validators: []validator.String{
 							stringvalidator.Any(mistvalidator.ParseInt(1, 4094), mistvalidator.ParseVar()),
 						},
@@ -855,8 +855,12 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 					"local_vlan_ids": schema.ListAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
+						Computed:            true,
 						Description:         "vlan_ids to be locally bridged",
 						MarkdownDescription: "vlan_ids to be locally bridged",
+						Validators: []validator.List{
+							listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseInt(1, 4094), mistvalidator.ParseVar())),
+						},
 					},
 					"type": schema.StringAttribute{
 						Optional:            true,
@@ -877,6 +881,9 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "map between vlan_id (as string) to airespace interface names (comma-separated) or null for stndard mapping\n  * if `dynamic_vlan.type`==`standard`, property key is the Vlan ID and property value is \"\"\n  * if `dynamic_vlan.type`==`airespace-interface-name`, property key is the Vlan ID and property value is the Airespace Interface Name",
 						MarkdownDescription: "map between vlan_id (as string) to airespace interface names (comma-separated) or null for stndard mapping\n  * if `dynamic_vlan.type`==`standard`, property key is the Vlan ID and property value is \"\"\n  * if `dynamic_vlan.type`==`airespace-interface-name`, property key is the Vlan ID and property value is the Airespace Interface Name",
+						Validators: []validator.Map{
+							mapvalidator.SizeAtLeast(1), mapvalidator.KeysAre(stringvalidator.Any(mistvalidator.ParseInt(1, 4094), mistvalidator.ParseVar())),
+						},
 					},
 				},
 				CustomType: DynamicVlanType{
@@ -1438,25 +1445,6 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "passphrase",
 						Default:             stringdefault.StaticString(""),
 					},
-					"portal_api_secret": schema.StringAttribute{
-						Optional:            true,
-						Computed:            true,
-						Description:         "api secret (auto-generated) that can be used to sign guest authorization requests",
-						MarkdownDescription: "api secret (auto-generated) that can be used to sign guest authorization requests",
-						Default:             stringdefault.StaticString(""),
-					},
-					"portal_image": schema.StringAttribute{
-						Optional:            true,
-						Computed:            true,
-						Description:         "Url of portal background image",
-						MarkdownDescription: "Url of portal background image",
-						Default:             stringdefault.StaticString(""),
-					},
-					"portal_sso_url": schema.StringAttribute{
-						Optional:            true,
-						Description:         "for SAML, this is used as the ACS URL",
-						MarkdownDescription: "for SAML, this is used as the ACS URL",
-					},
 					"predefined_sponsors_enabled": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
@@ -1702,7 +1690,6 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "api secret (auto-generated) that can be used to sign guest authorization requests",
 				MarkdownDescription: "api secret (auto-generated) that can be used to sign guest authorization requests",
-				Default:             stringdefault.StaticString(""),
 			},
 			"portal_denied_hostnames": schema.ListAttribute{
 				ElementType:         types.StringType,
@@ -1716,17 +1703,14 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "Url of portal background image",
 				MarkdownDescription: "Url of portal background image",
-				Default:             stringdefault.StaticString(""),
 			},
 			"portal_sso_url": schema.StringAttribute{
 				Computed: true,
 			},
 			"portal_template_url": schema.StringAttribute{
-				Optional:            true,
 				Computed:            true,
 				Description:         "N.B portal_template will be forked out of wlan objects soon. To fetch portal_template, please query portal_template_url. To update portal_template, use Wlan Portal Template.",
 				MarkdownDescription: "N.B portal_template will be forked out of wlan objects soon. To fetch portal_template, please query portal_template_url. To update portal_template, use Wlan Portal Template.",
-				Default:             stringdefault.StaticString(""),
 			},
 			"qos": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -1911,9 +1895,6 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "WLAN operating schedule, default is disabled",
 				MarkdownDescription: "WLAN operating schedule, default is disabled",
 			},
-			"site_id": schema.StringAttribute{
-				Computed: true,
-			},
 			"sle_excluded": schema.BoolAttribute{
 				Optional:            true,
 				Computed:            true,
@@ -1927,15 +1908,12 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "the name of the SSID",
 			},
 			"template_id": schema.StringAttribute{
-				Optional: true,
-				Computed: true,
-				Default:  stringdefault.StaticString(""),
+				Required: true,
 			},
 			"thumbnail": schema.StringAttribute{
 				Computed:            true,
 				Description:         "Url of portal background image thumbnail",
 				MarkdownDescription: "Url of portal background image thumbnail",
-				Default:             stringdefault.StaticString(""),
 			},
 			"use_eapol_v1": schema.BoolAttribute{
 				Optional:            true,
@@ -2106,7 +2084,6 @@ type OrgWlanModel struct {
 	Radsec                             RadsecValue             `tfsdk:"radsec"`
 	RoamMode                           types.String            `tfsdk:"roam_mode"`
 	Schedule                           ScheduleValue           `tfsdk:"schedule"`
-	SiteId                             types.String            `tfsdk:"site_id"`
 	SleExcluded                        types.Bool              `tfsdk:"sle_excluded"`
 	Ssid                               types.String            `tfsdk:"ssid"`
 	TemplateId                         types.String            `tfsdk:"template_id"`
@@ -12810,60 +12787,6 @@ func (t PortalType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 			fmt.Sprintf(`password expected to be basetypes.StringValue, was: %T`, passwordAttribute))
 	}
 
-	portalApiSecretAttribute, ok := attributes["portal_api_secret"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`portal_api_secret is missing from object`)
-
-		return nil, diags
-	}
-
-	portalApiSecretVal, ok := portalApiSecretAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`portal_api_secret expected to be basetypes.StringValue, was: %T`, portalApiSecretAttribute))
-	}
-
-	portalImageAttribute, ok := attributes["portal_image"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`portal_image is missing from object`)
-
-		return nil, diags
-	}
-
-	portalImageVal, ok := portalImageAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`portal_image expected to be basetypes.StringValue, was: %T`, portalImageAttribute))
-	}
-
-	portalSsoUrlAttribute, ok := attributes["portal_sso_url"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`portal_sso_url is missing from object`)
-
-		return nil, diags
-	}
-
-	portalSsoUrlVal, ok := portalSsoUrlAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`portal_sso_url expected to be basetypes.StringValue, was: %T`, portalSsoUrlAttribute))
-	}
-
 	predefinedSponsorsEnabledAttribute, ok := attributes["predefined_sponsors_enabled"]
 
 	if !ok {
@@ -13434,9 +13357,6 @@ func (t PortalType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 		PassphraseEnabled:           passphraseEnabledVal,
 		PassphraseExpire:            passphraseExpireVal,
 		Password:                    passwordVal,
-		PortalApiSecret:             portalApiSecretVal,
-		PortalImage:                 portalImageVal,
-		PortalSsoUrl:                portalSsoUrlVal,
 		PredefinedSponsorsEnabled:   predefinedSponsorsEnabledVal,
 		Privacy:                     privacyVal,
 		PuzzelPassword:              puzzelPasswordVal,
@@ -14307,60 +14227,6 @@ func NewPortalValue(attributeTypes map[string]attr.Type, attributes map[string]a
 			fmt.Sprintf(`password expected to be basetypes.StringValue, was: %T`, passwordAttribute))
 	}
 
-	portalApiSecretAttribute, ok := attributes["portal_api_secret"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`portal_api_secret is missing from object`)
-
-		return NewPortalValueUnknown(), diags
-	}
-
-	portalApiSecretVal, ok := portalApiSecretAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`portal_api_secret expected to be basetypes.StringValue, was: %T`, portalApiSecretAttribute))
-	}
-
-	portalImageAttribute, ok := attributes["portal_image"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`portal_image is missing from object`)
-
-		return NewPortalValueUnknown(), diags
-	}
-
-	portalImageVal, ok := portalImageAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`portal_image expected to be basetypes.StringValue, was: %T`, portalImageAttribute))
-	}
-
-	portalSsoUrlAttribute, ok := attributes["portal_sso_url"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`portal_sso_url is missing from object`)
-
-		return NewPortalValueUnknown(), diags
-	}
-
-	portalSsoUrlVal, ok := portalSsoUrlAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`portal_sso_url expected to be basetypes.StringValue, was: %T`, portalSsoUrlAttribute))
-	}
-
 	predefinedSponsorsEnabledAttribute, ok := attributes["predefined_sponsors_enabled"]
 
 	if !ok {
@@ -14931,9 +14797,6 @@ func NewPortalValue(attributeTypes map[string]attr.Type, attributes map[string]a
 		PassphraseEnabled:           passphraseEnabledVal,
 		PassphraseExpire:            passphraseExpireVal,
 		Password:                    passwordVal,
-		PortalApiSecret:             portalApiSecretVal,
-		PortalImage:                 portalImageVal,
-		PortalSsoUrl:                portalSsoUrlVal,
 		PredefinedSponsorsEnabled:   predefinedSponsorsEnabledVal,
 		Privacy:                     privacyVal,
 		PuzzelPassword:              puzzelPasswordVal,
@@ -15078,9 +14941,6 @@ type PortalValue struct {
 	PassphraseEnabled           basetypes.BoolValue    `tfsdk:"passphrase_enabled"`
 	PassphraseExpire            basetypes.Float64Value `tfsdk:"passphrase_expire"`
 	Password                    basetypes.StringValue  `tfsdk:"password"`
-	PortalApiSecret             basetypes.StringValue  `tfsdk:"portal_api_secret"`
-	PortalImage                 basetypes.StringValue  `tfsdk:"portal_image"`
-	PortalSsoUrl                basetypes.StringValue  `tfsdk:"portal_sso_url"`
 	PredefinedSponsorsEnabled   basetypes.BoolValue    `tfsdk:"predefined_sponsors_enabled"`
 	Privacy                     basetypes.BoolValue    `tfsdk:"privacy"`
 	PuzzelPassword              basetypes.StringValue  `tfsdk:"puzzel_password"`
@@ -15114,7 +14974,7 @@ type PortalValue struct {
 }
 
 func (v PortalValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 75)
+	attrTypes := make(map[string]tftypes.Type, 72)
 
 	var val tftypes.Value
 	var err error
@@ -15170,9 +15030,6 @@ func (v PortalValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 	attrTypes["passphrase_enabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["passphrase_expire"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["password"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["portal_api_secret"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["portal_image"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["portal_sso_url"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["predefined_sponsors_enabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["privacy"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["puzzel_password"] = basetypes.StringType{}.TerraformType(ctx)
@@ -15211,7 +15068,7 @@ func (v PortalValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 75)
+		vals := make(map[string]tftypes.Value, 72)
 
 		val, err = v.AmazonClientId.ToTerraformValue(ctx)
 
@@ -15557,30 +15414,6 @@ func (v PortalValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 
 		vals["password"] = val
 
-		val, err = v.PortalApiSecret.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["portal_api_secret"] = val
-
-		val, err = v.PortalImage.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["portal_image"] = val
-
-		val, err = v.PortalSsoUrl.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["portal_sso_url"] = val
-
 		val, err = v.PredefinedSponsorsEnabled.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -15899,9 +15732,6 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"passphrase_enabled":          basetypes.BoolType{},
 			"passphrase_expire":           basetypes.Float64Type{},
 			"password":                    basetypes.StringType{},
-			"portal_api_secret":           basetypes.StringType{},
-			"portal_image":                basetypes.StringType{},
-			"portal_sso_url":              basetypes.StringType{},
 			"predefined_sponsors_enabled": basetypes.BoolType{},
 			"privacy":                     basetypes.BoolType{},
 			"puzzel_password":             basetypes.StringType{},
@@ -15995,9 +15825,6 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"passphrase_enabled":          basetypes.BoolType{},
 			"passphrase_expire":           basetypes.Float64Type{},
 			"password":                    basetypes.StringType{},
-			"portal_api_secret":           basetypes.StringType{},
-			"portal_image":                basetypes.StringType{},
-			"portal_sso_url":              basetypes.StringType{},
 			"predefined_sponsors_enabled": basetypes.BoolType{},
 			"privacy":                     basetypes.BoolType{},
 			"puzzel_password":             basetypes.StringType{},
@@ -16091,9 +15918,6 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"passphrase_enabled":          basetypes.BoolType{},
 			"passphrase_expire":           basetypes.Float64Type{},
 			"password":                    basetypes.StringType{},
-			"portal_api_secret":           basetypes.StringType{},
-			"portal_image":                basetypes.StringType{},
-			"portal_sso_url":              basetypes.StringType{},
 			"predefined_sponsors_enabled": basetypes.BoolType{},
 			"privacy":                     basetypes.BoolType{},
 			"puzzel_password":             basetypes.StringType{},
@@ -16187,9 +16011,6 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"passphrase_enabled":          basetypes.BoolType{},
 			"passphrase_expire":           basetypes.Float64Type{},
 			"password":                    basetypes.StringType{},
-			"portal_api_secret":           basetypes.StringType{},
-			"portal_image":                basetypes.StringType{},
-			"portal_sso_url":              basetypes.StringType{},
 			"predefined_sponsors_enabled": basetypes.BoolType{},
 			"privacy":                     basetypes.BoolType{},
 			"puzzel_password":             basetypes.StringType{},
@@ -16283,9 +16104,6 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"passphrase_enabled":          basetypes.BoolType{},
 			"passphrase_expire":           basetypes.Float64Type{},
 			"password":                    basetypes.StringType{},
-			"portal_api_secret":           basetypes.StringType{},
-			"portal_image":                basetypes.StringType{},
-			"portal_sso_url":              basetypes.StringType{},
 			"predefined_sponsors_enabled": basetypes.BoolType{},
 			"privacy":                     basetypes.BoolType{},
 			"puzzel_password":             basetypes.StringType{},
@@ -16379,9 +16197,6 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"passphrase_enabled":          basetypes.BoolType{},
 			"passphrase_expire":           basetypes.Float64Type{},
 			"password":                    basetypes.StringType{},
-			"portal_api_secret":           basetypes.StringType{},
-			"portal_image":                basetypes.StringType{},
-			"portal_sso_url":              basetypes.StringType{},
 			"predefined_sponsors_enabled": basetypes.BoolType{},
 			"privacy":                     basetypes.BoolType{},
 			"puzzel_password":             basetypes.StringType{},
@@ -16470,9 +16285,6 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 		"passphrase_enabled":          basetypes.BoolType{},
 		"passphrase_expire":           basetypes.Float64Type{},
 		"password":                    basetypes.StringType{},
-		"portal_api_secret":           basetypes.StringType{},
-		"portal_image":                basetypes.StringType{},
-		"portal_sso_url":              basetypes.StringType{},
 		"predefined_sponsors_enabled": basetypes.BoolType{},
 		"privacy":                     basetypes.BoolType{},
 		"puzzel_password":             basetypes.StringType{},
@@ -16562,9 +16374,6 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"passphrase_enabled":             v.PassphraseEnabled,
 			"passphrase_expire":              v.PassphraseExpire,
 			"password":                       v.Password,
-			"portal_api_secret":              v.PortalApiSecret,
-			"portal_image":                   v.PortalImage,
-			"portal_sso_url":                 v.PortalSsoUrl,
 			"predefined_sponsors_enabled":    v.PredefinedSponsorsEnabled,
 			"privacy":                        v.Privacy,
 			"puzzel_password":                v.PuzzelPassword,
@@ -16786,18 +16595,6 @@ func (v PortalValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.PortalApiSecret.Equal(other.PortalApiSecret) {
-		return false
-	}
-
-	if !v.PortalImage.Equal(other.PortalImage) {
-		return false
-	}
-
-	if !v.PortalSsoUrl.Equal(other.PortalSsoUrl) {
-		return false
-	}
-
 	if !v.PredefinedSponsorsEnabled.Equal(other.PredefinedSponsorsEnabled) {
 		return false
 	}
@@ -16978,9 +16775,6 @@ func (v PortalValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 		"passphrase_enabled":          basetypes.BoolType{},
 		"passphrase_expire":           basetypes.Float64Type{},
 		"password":                    basetypes.StringType{},
-		"portal_api_secret":           basetypes.StringType{},
-		"portal_image":                basetypes.StringType{},
-		"portal_sso_url":              basetypes.StringType{},
 		"predefined_sponsors_enabled": basetypes.BoolType{},
 		"privacy":                     basetypes.BoolType{},
 		"puzzel_password":             basetypes.StringType{},
