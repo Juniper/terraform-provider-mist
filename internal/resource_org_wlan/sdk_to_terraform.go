@@ -93,7 +93,6 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	var radsec RadsecValue = NewRadsecValueNull()
 	var roam_mode types.String
 	var schedule ScheduleValue = NewScheduleValueNull()
-	var site_id types.String = types.StringValue("")
 	var sle_excluded types.Bool
 	var ssid types.String
 	var template_id types.String
@@ -414,10 +413,6 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 		schedule = scheduleSkToTerraform(ctx, &diags, data.Schedule)
 	}
 
-	if data.SiteId != nil {
-		site_id = types.StringValue(data.SiteId.String())
-	}
-
 	if data.SleExcluded != nil {
 		sle_excluded = types.BoolValue(*data.SleExcluded)
 	}
@@ -562,7 +557,6 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	state.Radsec = radsec
 	state.RoamMode = roam_mode
 	state.Schedule = schedule
-	state.SiteId = site_id
 	state.SleExcluded = sle_excluded
 	state.Ssid = ssid
 	state.TemplateId = template_id
