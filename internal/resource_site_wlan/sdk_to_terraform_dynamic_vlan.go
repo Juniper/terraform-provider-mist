@@ -3,6 +3,7 @@ package resource_site_wlan
 import (
 	"context"
 
+	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -15,7 +16,7 @@ func dynamicVlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 
 	var default_vlan_id basetypes.StringValue
 	var enabled basetypes.BoolValue
-	var local_vlan_ids basetypes.ListValue = types.ListNull(types.StringType)
+	var local_vlan_ids basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 	var type_dynamic_vlan basetypes.StringValue
 	var vlans basetypes.MapValue = types.MapNull(types.StringType)
 
