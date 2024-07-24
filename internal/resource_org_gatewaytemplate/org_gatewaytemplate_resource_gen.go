@@ -1046,13 +1046,13 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 					"node1": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
 							"ip": schema.StringAttribute{
-								Required: true,
+								Optional: true,
 								Validators: []validator.String{
 									mistvalidator.ParseIp(true, false),
 								},
 							},
 							"netmask": schema.StringAttribute{
-								Required:            true,
+								Optional:            true,
 								Description:         "used only if `subnet` is not specified in `networks`",
 								MarkdownDescription: "used only if `subnet` is not specified in `networks`",
 								Validators: []validator.String{
