@@ -57,9 +57,6 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	var passphrase_enabled basetypes.BoolValue
 	var passphrase_expire basetypes.Float64Value
 	var password basetypes.StringValue
-	var portal_api_secret basetypes.StringValue = types.StringValue("")
-	var portal_image basetypes.StringValue = types.StringValue("")
-	var portal_sso_url basetypes.StringValue
 	var predefined_sponsors_enabled basetypes.BoolValue
 	var privacy basetypes.BoolValue
 	var puzzel_password basetypes.StringValue
@@ -219,15 +216,6 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	if d != nil && d.Password.Value() != nil {
 		password = types.StringValue(*d.Password.Value())
 	}
-	if d != nil && d.PortalApiSecret != nil {
-		portal_api_secret = types.StringValue(*d.PortalApiSecret)
-	}
-	if d != nil && d.PortalImage != nil {
-		portal_image = types.StringValue(*d.PortalImage)
-	}
-	if d != nil && d.PortalSsoUrl != nil {
-		portal_sso_url = types.StringValue(*d.PortalSsoUrl)
-	}
 	if d != nil && d.PredefinedSponsorsEnabled != nil {
 		predefined_sponsors_enabled = types.BoolValue(*d.PredefinedSponsorsEnabled)
 	}
@@ -365,9 +353,6 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 		"passphrase_enabled":             passphrase_enabled,
 		"passphrase_expire":              passphrase_expire,
 		"password":                       password,
-		"portal_api_secret":              portal_api_secret,
-		"portal_image":                   portal_image,
-		"portal_sso_url":                 portal_sso_url,
 		"predefined_sponsors_enabled":    predefined_sponsors_enabled,
 		"privacy":                        privacy,
 		"puzzel_password":                puzzel_password,
