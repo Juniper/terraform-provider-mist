@@ -17,496 +17,426 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (SiteWlanModel, diag
 	var state SiteWlanModel
 	var diags diag.Diagnostics
 
+	var acct_immediate_update types.Bool = types.BoolValue(false)
+	var acct_interim_interval types.Int64
+	var acct_servers types.List = types.ListNull(AcctServersValue{}.Type(ctx))
+	var airwatch AirwatchValue = NewAirwatchValueNull()
+	var allow_ipv6_ndp types.Bool = types.BoolValue(true)
+	var allow_mdns types.Bool = types.BoolValue(false)
+	var allow_ssdp types.Bool = types.BoolValue(false)
+	var ap_ids types.List = mist_transform.ListOfUuidSdkToTerraformEmpty(ctx)
+	var app_limit AppLimitValue = NewAppLimitValueNull()
+	var app_qos AppQosValue = NewAppQosValueNull()
+	var apply_to types.String
+	var arp_filter types.Bool
+	var auth AuthValue = NewAuthValueNull()
+	var auth_server_selection types.String
+	var auth_servers types.List = types.ListNull(AuthServersValue{}.Type(ctx))
+	var auth_servers_nas_id types.String
+	var auth_servers_nas_ip types.String
+	var auth_servers_retries types.Int64
+	var auth_servers_timeout types.Int64
+	var band_steer types.Bool
+	var band_steer_force_band5 types.Bool
+	var bands types.List = types.ListNull(types.StringType)
+	var block_blacklist_clients types.Bool
+	var bonjour BonjourValue = NewBonjourValueNull()
+	var cisco_cwa CiscoCwaValue = NewCiscoCwaValueNull()
+	var client_limit_down types.Int64
+	var client_limit_down_enabled types.Bool
+	var client_limit_up types.Int64
+	var client_limit_up_enabled types.Bool
+	var coa_servers types.List = types.ListNull(CoaServersValue{}.Type(ctx))
+	var disable_11ax types.Bool
+	var disable_ht_vht_rates types.Bool
+	var disable_uapsd types.Bool
+	var disable_v1_roam_notify types.Bool
+	var disable_v2_roam_notify types.Bool
+	var disable_wmm types.Bool
+	var dns_server_rewrite DnsServerRewriteValue = NewDnsServerRewriteValueNull()
+	var dtim types.Int64
+	var dynamic_psk DynamicPskValue = NewDynamicPskValueNull()
+	var dynamic_vlan DynamicVlanValue = NewDynamicVlanValueNull()
+	var enable_local_keycaching types.Bool
+	var enable_wireless_bridging types.Bool
+	var enable_wireless_bridging_dhcp_tracking types.Bool
+	var enabled types.Bool
+	var fast_dot1x_timers types.Bool
+	var hide_ssid types.Bool
+	var hostname_ie types.Bool
+	var hotspot20 Hotspot20Value = NewHotspot20ValueNull()
+	var id types.String
+	var inject_dhcp_option_82 InjectDhcpOption82Value = NewInjectDhcpOption82ValueNull()
+	var interface_wlan types.String
+	var isolation types.Bool
+	var l2_isolation types.Bool
+	var legacy_overds types.Bool
+	var limit_bcast types.Bool
+	var limit_probe_response types.Bool
+	var max_idletime types.Int64
+	var mist_nac MistNacValue = NewMistNacValueNull()
+	var msp_id types.String = types.StringValue("")
+	var mxtunnel_ids types.List = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+	var mxtunnel_name types.List = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+	var no_static_dns types.Bool
+	var no_static_ip types.Bool
+	var org_id types.String
+	var portal PortalValue = NewPortalValueNull()
+	var portal_allowed_hostnames types.List = types.ListNull(types.StringType)
+	var portal_allowed_subnets types.List = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+	var portal_api_secret types.String = types.StringValue("")
+	var portal_denied_hostnames types.List = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+	var portal_image types.String = types.StringValue("")
+	var portal_sso_url types.String = types.StringValue("")
+	var portal_template_url types.String = types.StringValue("")
+	var qos QosValue
+	var radsec RadsecValue = NewRadsecValueNull()
+	var roam_mode types.String
+	var schedule ScheduleValue = NewScheduleValueNull()
+	var site_id types.String = types.StringValue("")
+	var sle_excluded types.Bool
+	var ssid types.String
+	var thumbnail types.String = types.StringValue("")
+	var use_eapol_v1 types.Bool
+	var vlan_enabled types.Bool
+	var vlan_id types.String
+	var vlan_ids types.List = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+	var vlan_pooling types.Bool
+	var wlan_limit_down types.Int64
+	var wlan_limit_down_enabled types.Bool
+	var wlan_limit_up types.Int64
+	var wlan_limit_up_enabled types.Bool
+	var wxtag_ids types.List = mist_transform.ListOfUuidSdkToTerraformEmpty(ctx)
+	var wxtunnel_id types.String = types.StringValue("")
+	var wxtunnel_remote_id types.String = types.StringValue("")
+
 	if data.AcctImmediateUpdate != nil {
-		state.AcctImmediateUpdate = types.BoolValue(*data.AcctImmediateUpdate)
-	} else {
-		state.AcctImmediateUpdate = types.BoolNull()
+		acct_immediate_update = types.BoolValue(*data.AcctImmediateUpdate)
 	}
 
 	if data.AcctInterimInterval != nil {
-		state.AcctInterimInterval = types.Int64Value(int64(*data.AcctInterimInterval))
-	} else {
-		state.AcctInterimInterval = types.Int64Null()
+		acct_interim_interval = types.Int64Value(int64(*data.AcctInterimInterval))
 	}
 
 	if data.AcctServers != nil {
-		state.AcctServers = radiusServersAcctSdkToTerraform(ctx, &diags, data.AcctServers)
-	} else {
-		state.AcctServers = types.ListNull(AcctServersValue{}.Type(ctx))
+		acct_servers = radiusServersAcctSdkToTerraform(ctx, &diags, data.AcctServers)
 	}
 
 	if data.Airwatch != nil {
-		state.Airwatch = airwatchSdkToTerraform(ctx, &diags, data.Airwatch)
-	} else {
-		state.Airwatch = NewAirwatchValueNull()
+		airwatch = airwatchSdkToTerraform(ctx, &diags, data.Airwatch)
 	}
 
 	if data.AllowIpv6Ndp != nil {
-		state.AllowIpv6Ndp = types.BoolValue(*data.AllowIpv6Ndp)
-	} else {
-		state.AllowIpv6Ndp = types.BoolNull()
+		allow_ipv6_ndp = types.BoolValue(*data.AllowIpv6Ndp)
 	}
 
 	if data.AllowMdns != nil {
-		state.AllowMdns = types.BoolValue(*data.AllowMdns)
-	} else {
-		state.AllowMdns = types.BoolValue(false)
+		allow_mdns = types.BoolValue(*data.AllowMdns)
 	}
 
 	if data.AllowSsdp != nil {
-		state.AllowSsdp = types.BoolValue(*data.AllowSsdp)
-	} else {
-		state.AllowSsdp = types.BoolValue(false)
+		allow_ssdp = types.BoolValue(*data.AllowSsdp)
 	}
 
 	if data.ApIds.IsValueSet() && data.ApIds.Value() != nil {
-		state.ApIds = mist_transform.ListOfUuidSdkToTerraform(ctx, *data.ApIds.Value())
-	} else {
-		state.ApIds = mist_transform.ListOfUuidSdkToTerraformEmpty(ctx)
+		ap_ids = mist_transform.ListOfUuidSdkToTerraform(ctx, *data.ApIds.Value())
 	}
 
 	if data.AppLimit != nil {
-		state.AppLimit = appLimitSdkToTerraform(ctx, &diags, data.AppLimit)
-	} else {
-		state.AppLimit = NewAppLimitValueNull()
+		app_limit = appLimitSdkToTerraform(ctx, &diags, data.AppLimit)
 	}
 
 	if data.AppQos != nil {
-		state.AppQos = appQosSdkToTerraform(ctx, &diags, *data.AppQos)
-	} else {
-		state.AppQos = NewAppQosValueNull()
+		app_qos = appQosSdkToTerraform(ctx, &diags, *data.AppQos)
 	}
 
 	if data.ApplyTo != nil {
-		state.ApplyTo = types.StringValue(string(*data.ApplyTo))
-	} else {
-		state.ApplyTo = types.StringNull()
+		apply_to = types.StringValue(string(*data.ApplyTo))
 	}
 
 	if data.ArpFilter != nil {
-		state.ArpFilter = types.BoolValue(*data.ArpFilter)
-	} else {
-		state.ArpFilter = types.BoolNull()
+		arp_filter = types.BoolValue(*data.ArpFilter)
 	}
 
 	if data.Auth != nil {
-		state.Auth = authSdkToTerraform(ctx, &diags, data.Auth)
-	} else {
-		state.Auth = NewAuthValueNull()
+		auth = authSdkToTerraform(ctx, &diags, data.Auth)
 	}
 
 	if data.AuthServerSelection != nil {
-		state.AuthServerSelection = types.StringValue(string(*data.AuthServerSelection))
-	} else {
-		state.AuthServerSelection = types.StringNull()
+		auth_server_selection = types.StringValue(string(*data.AuthServerSelection))
 	}
 
 	if data.AuthServers != nil {
-		state.AuthServers = radiusServersAuthSdkToTerraform(ctx, &diags, data.AuthServers)
-	} else {
-		state.AuthServers = types.ListNull(AuthServersValue{}.Type(ctx))
+		auth_servers = radiusServersAuthSdkToTerraform(ctx, &diags, data.AuthServers)
 	}
 
 	if data.AuthServersNasId.IsValueSet() && data.AuthServersNasId.Value() != nil {
-		state.AuthServersNasId = types.StringValue(*data.AuthServersNasId.Value())
-	} else {
-		state.AuthServersNasId = types.StringNull()
+		auth_servers_nas_id = types.StringValue(*data.AuthServersNasId.Value())
 	}
 
 	if data.AuthServersNasIp.IsValueSet() && data.AuthServersNasIp.Value() != nil {
-		state.AuthServersNasIp = types.StringValue(*data.AuthServersNasIp.Value())
-	} else {
-		state.AuthServersNasIp = types.StringNull()
+		auth_servers_nas_ip = types.StringValue(*data.AuthServersNasIp.Value())
 	}
 
 	if data.AuthServersRetries != nil {
-		state.AuthServersRetries = types.Int64Value(int64(*data.AuthServersRetries))
-	} else {
-		state.AuthServersRetries = types.Int64Null()
+		auth_servers_retries = types.Int64Value(int64(*data.AuthServersRetries))
 	}
 
 	if data.AuthServersTimeout != nil {
-		state.AuthServersTimeout = types.Int64Value(int64(*data.AuthServersTimeout))
-	} else {
-		state.AuthServersTimeout = types.Int64Null()
+		auth_servers_timeout = types.Int64Value(int64(*data.AuthServersTimeout))
 	}
 
 	if data.BandSteer != nil {
-		state.BandSteer = types.BoolValue(*data.BandSteer)
-	} else {
-		state.BandSteer = types.BoolNull()
+		band_steer = types.BoolValue(*data.BandSteer)
 	}
 
 	if data.BandSteerForceBand5 != nil {
-		state.BandSteerForceBand5 = types.BoolValue(*data.BandSteerForceBand5)
-	} else {
-		state.BandSteerForceBand5 = types.BoolNull()
+		band_steer_force_band5 = types.BoolValue(*data.BandSteerForceBand5)
 	}
 
 	if data.Bands != nil {
-		state.Bands = bandsSdkToTerraform(ctx, &diags, data.Bands)
-	} else {
-		state.Bands = types.ListNull(types.StringType)
+		bands = bandsSdkToTerraform(ctx, &diags, data.Bands)
 	}
 
 	if data.BlockBlacklistClients != nil {
-		state.BlockBlacklistClients = types.BoolValue(*data.BlockBlacklistClients)
-	} else {
-		state.BlockBlacklistClients = types.BoolNull()
+		block_blacklist_clients = types.BoolValue(*data.BlockBlacklistClients)
 	}
 
 	if data.Bonjour != nil {
-		state.Bonjour = bonjourSdkToTerraform(ctx, &diags, data.Bonjour)
-	} else {
-		state.Bonjour = NewBonjourValueNull()
+		bonjour = bonjourSdkToTerraform(ctx, &diags, data.Bonjour)
 	}
 
 	if data.CiscoCwa != nil {
-		state.CiscoCwa = ciscoCwaSdkToTerraform(ctx, &diags, data.CiscoCwa)
-	} else {
-		state.CiscoCwa = NewCiscoCwaValueNull()
+		cisco_cwa = ciscoCwaSdkToTerraform(ctx, &diags, data.CiscoCwa)
 	}
 
 	if data.ClientLimitDown != nil {
-		state.ClientLimitDown = types.Int64Value(int64(*data.ClientLimitDown))
-	} else {
-		state.ClientLimitDown = types.Int64Null()
+		client_limit_down = types.Int64Value(int64(*data.ClientLimitDown))
 	}
 
 	if data.ClientLimitDownEnabled != nil {
-		state.ClientLimitDownEnabled = types.BoolValue(*data.ClientLimitDownEnabled)
-	} else {
-		state.ClientLimitDownEnabled = types.BoolNull()
+		client_limit_down_enabled = types.BoolValue(*data.ClientLimitDownEnabled)
 	}
 
 	if data.ClientLimitUp != nil {
-		state.ClientLimitUp = types.Int64Value(int64(*data.ClientLimitUp))
-	} else {
-		state.ClientLimitUp = types.Int64Null()
+		client_limit_up = types.Int64Value(int64(*data.ClientLimitUp))
 	}
 
 	if data.ClientLimitUpEnabled != nil {
-		state.ClientLimitUpEnabled = types.BoolValue(*data.ClientLimitUpEnabled)
-	} else {
-		state.ClientLimitUpEnabled = types.BoolNull()
+		client_limit_up_enabled = types.BoolValue(*data.ClientLimitUpEnabled)
 	}
 
 	if data.CoaServers.IsValueSet() && data.CoaServers.Value() != nil {
-		state.CoaServers = coaServersSdkToTerraform(ctx, &diags, *data.CoaServers.Value())
-	} else {
-		state.CoaServers = types.ListNull(CoaServersValue{}.Type(ctx))
+		coa_servers = coaServersSdkToTerraform(ctx, &diags, *data.CoaServers.Value())
 	}
 
 	if data.Disable11ax != nil {
-		state.Disable11ax = types.BoolValue(*data.Disable11ax)
-	} else {
-		state.Disable11ax = types.BoolNull()
+		disable_11ax = types.BoolValue(*data.Disable11ax)
 	}
 
 	if data.DisableHtVhtRates != nil {
-		state.DisableHtVhtRates = types.BoolValue(*data.DisableHtVhtRates)
-	} else {
-		state.DisableHtVhtRates = types.BoolNull()
+		disable_ht_vht_rates = types.BoolValue(*data.DisableHtVhtRates)
 	}
 
 	if data.DisableUapsd != nil {
-		state.DisableUapsd = types.BoolValue(*data.DisableUapsd)
-	} else {
-		state.DisableUapsd = types.BoolNull()
+		disable_uapsd = types.BoolValue(*data.DisableUapsd)
 	}
 
 	if data.DisableV1RoamNotify != nil {
-		state.DisableV1RoamNotify = types.BoolValue(*data.DisableV1RoamNotify)
-	} else {
-		state.DisableV1RoamNotify = types.BoolNull()
+		disable_v1_roam_notify = types.BoolValue(*data.DisableV1RoamNotify)
 	}
 
 	if data.DisableV2RoamNotify != nil {
-		state.DisableV2RoamNotify = types.BoolValue(*data.DisableV2RoamNotify)
-	} else {
-		state.DisableV2RoamNotify = types.BoolNull()
+		disable_v2_roam_notify = types.BoolValue(*data.DisableV2RoamNotify)
 	}
 
 	if data.DisableWmm != nil {
-		state.DisableWmm = types.BoolValue(*data.DisableWmm)
-	} else {
-		state.DisableWmm = types.BoolNull()
+		disable_wmm = types.BoolValue(*data.DisableWmm)
 	}
 
 	if data.DnsServerRewrite.IsValueSet() && data.DnsServerRewrite.Value() != nil {
-		state.DnsServerRewrite = dnsServerRewriteSdkToTerraform(ctx, &diags, data.DnsServerRewrite.Value())
-	} else {
-		state.DnsServerRewrite = NewDnsServerRewriteValueNull()
+		dns_server_rewrite = dnsServerRewriteSdkToTerraform(ctx, &diags, data.DnsServerRewrite.Value())
 	}
 
 	if data.Dtim != nil {
-		state.Dtim = types.Int64Value(int64(*data.Dtim))
-	} else {
-		state.Dtim = types.Int64Null()
+		dtim = types.Int64Value(int64(*data.Dtim))
 	}
 
 	if data.DynamicPsk.IsValueSet() && data.DynamicPsk.Value() != nil {
-		state.DynamicPsk = dynamicPskSdkToTerraform(ctx, &diags, data.DynamicPsk.Value())
-	} else {
-		state.DynamicPsk = NewDynamicPskValueNull()
+		dynamic_psk = dynamicPskSdkToTerraform(ctx, &diags, data.DynamicPsk.Value())
 	}
 
 	if data.DynamicVlan.IsValueSet() && data.DynamicVlan.Value() != nil {
-		state.DynamicVlan = dynamicVlanSdkToTerraform(ctx, &diags, data.DynamicVlan.Value())
-	} else {
-		state.DynamicVlan = NewDynamicVlanValueNull()
+		dynamic_vlan = dynamicVlanSdkToTerraform(ctx, &diags, data.DynamicVlan.Value())
 	}
 
 	if data.EnableLocalKeycaching != nil {
-		state.EnableLocalKeycaching = types.BoolValue(*data.EnableLocalKeycaching)
-	} else {
-		state.EnableLocalKeycaching = types.BoolNull()
+		enable_local_keycaching = types.BoolValue(*data.EnableLocalKeycaching)
 	}
 
 	if data.EnableWirelessBridging != nil {
-		state.EnableWirelessBridging = types.BoolValue(*data.EnableWirelessBridging)
-	} else {
-		state.EnableWirelessBridging = types.BoolNull()
+		enable_wireless_bridging = types.BoolValue(*data.EnableWirelessBridging)
 	}
 
 	if data.EnableWirelessBridgingDhcpTracking != nil {
-		state.EnableWirelessBridgingDhcpTracking = types.BoolValue(*data.EnableWirelessBridgingDhcpTracking)
-	} else {
-		state.EnableWirelessBridgingDhcpTracking = types.BoolNull()
+		enable_wireless_bridging_dhcp_tracking = types.BoolValue(*data.EnableWirelessBridgingDhcpTracking)
 	}
 
 	if data.Enabled != nil {
-		state.Enabled = types.BoolValue(*data.Enabled)
-	} else {
-		state.Enabled = types.BoolNull()
+		enabled = types.BoolValue(*data.Enabled)
 	}
 
 	if data.FastDot1xTimers != nil {
-		state.FastDot1xTimers = types.BoolValue(*data.FastDot1xTimers)
-	} else {
-		state.FastDot1xTimers = types.BoolNull()
+		fast_dot1x_timers = types.BoolValue(*data.FastDot1xTimers)
 	}
 
 	if data.HideSsid != nil {
-		state.HideSsid = types.BoolValue(*data.HideSsid)
-	} else {
-		state.HideSsid = types.BoolNull()
+		hide_ssid = types.BoolValue(*data.HideSsid)
 	}
 
 	if data.HostnameIe != nil {
-		state.HostnameIe = types.BoolValue(*data.HostnameIe)
-	} else {
-		state.HostnameIe = types.BoolNull()
+		hostname_ie = types.BoolValue(*data.HostnameIe)
 	}
 
 	if data.Hotspot20 != nil {
-		state.Hotspot20 = hotspot20SdkToTerraform(ctx, &diags, data.Hotspot20)
-	} else {
-		state.Hotspot20 = NewHotspot20ValueNull()
+		hotspot20 = hotspot20SdkToTerraform(ctx, &diags, data.Hotspot20)
 	}
+
 	if data.Id != nil {
-		state.Id = types.StringValue(data.Id.String())
-	} else {
-		state.Id = types.StringNull()
+		id = types.StringValue(data.Id.String())
 	}
 
 	if data.InjectDhcpOption82 != nil {
-		state.InjectDhcpOption82 = injectDhcpOption82dkToTerraform(ctx, &diags, data.InjectDhcpOption82)
-	} else {
-		state.InjectDhcpOption82 = NewInjectDhcpOption82ValueNull()
+		inject_dhcp_option_82 = injectDhcpOption82dkToTerraform(ctx, &diags, data.InjectDhcpOption82)
 	}
 
 	if data.Interface != nil {
-		state.Interface = types.StringValue(string(*data.Interface))
-	} else {
-		state.Interface = types.StringNull()
-	}
-	if data.Isolation != nil {
-		state.Isolation = types.BoolValue(*data.Isolation)
-	} else {
-		state.Isolation = types.BoolNull()
+		interface_wlan = types.StringValue(string(*data.Interface))
 	}
 
 	if data.Isolation != nil {
-		state.L2Isolation = types.BoolValue(*data.Isolation)
-	} else {
-		state.Isolation = types.BoolNull()
+		isolation = types.BoolValue(*data.Isolation)
+	}
+
+	if data.Isolation != nil {
+		l2_isolation = types.BoolValue(*data.Isolation)
 	}
 
 	if data.LegacyOverds != nil {
-		state.LegacyOverds = types.BoolValue(*data.LegacyOverds)
-	} else {
-		state.LegacyOverds = types.BoolNull()
+		legacy_overds = types.BoolValue(*data.LegacyOverds)
 	}
 
 	if data.LimitBcast != nil {
-		state.LimitBcast = types.BoolValue(*data.LimitBcast)
-	} else {
-		state.LimitBcast = types.BoolNull()
+		limit_bcast = types.BoolValue(*data.LimitBcast)
 	}
 
 	if data.LimitProbeResponse != nil {
-		state.LimitProbeResponse = types.BoolValue(*data.LimitProbeResponse)
-	} else {
-		state.LimitProbeResponse = types.BoolNull()
+		limit_probe_response = types.BoolValue(*data.LimitProbeResponse)
 	}
 
 	if data.MaxIdletime != nil {
-		state.MaxIdletime = types.Int64Value(int64(*data.MaxIdletime))
-	} else {
-		state.MaxIdletime = types.Int64Null()
+		max_idletime = types.Int64Value(int64(*data.MaxIdletime))
 	}
 
 	if data.MistNac != nil {
-		state.MistNac = mistNacdSkToTerraform(ctx, &diags, data.MistNac)
-	} else {
-		state.MistNac = NewMistNacValueNull()
+		mist_nac = mistNacdSkToTerraform(ctx, &diags, data.MistNac)
 	}
 
 	if data.MspId != nil {
-		state.MspId = types.StringValue(data.MspId.String())
-	} else {
-		state.MspId = types.StringValue("")
+		msp_id = types.StringValue(data.MspId.String())
 	}
 
 	if data.MxtunnelIds != nil {
-		state.MxtunnelIds = mist_transform.ListOfStringSdkToTerraform(ctx, data.MxtunnelIds)
-	} else {
-		state.MxtunnelIds = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+		mxtunnel_ids = mist_transform.ListOfStringSdkToTerraform(ctx, data.MxtunnelIds)
 	}
 
 	if data.MxtunnelName != nil {
-		state.MxtunnelName = mist_transform.ListOfStringSdkToTerraform(ctx, data.MxtunnelName)
-	} else {
-		state.MxtunnelName = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+		mxtunnel_name = mist_transform.ListOfStringSdkToTerraform(ctx, data.MxtunnelName)
 	}
 
 	if data.NoStaticDns != nil {
-		state.NoStaticDns = types.BoolValue(*data.NoStaticDns)
-	} else {
-		state.NoStaticDns = types.BoolNull()
+		no_static_dns = types.BoolValue(*data.NoStaticDns)
 	}
 
 	if data.NoStaticIp != nil {
-		state.NoStaticIp = types.BoolValue(*data.NoStaticIp)
-	} else {
-		state.NoStaticIp = types.BoolNull()
+		no_static_ip = types.BoolValue(*data.NoStaticIp)
 	}
 
 	if data.OrgId != nil {
-		state.OrgId = types.StringValue(data.OrgId.String())
-	} else {
-		state.OrgId = types.StringNull()
+		org_id = types.StringValue(data.OrgId.String())
 	}
 
 	if data.Portal != nil {
-		state.Portal = portalSkToTerraform(ctx, &diags, data.Portal)
-	} else {
-		state.Portal = NewPortalValueNull()
+		portal = portalSkToTerraform(ctx, &diags, data.Portal)
 	}
 
 	if data.PortalAllowedHostnames != nil {
-		state.PortalAllowedHostnames = mist_transform.ListOfStringSdkToTerraform(ctx, data.PortalAllowedHostnames)
-	} else {
-		state.PortalAllowedHostnames = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+		portal_allowed_hostnames = mist_transform.ListOfStringSdkToTerraform(ctx, data.PortalAllowedHostnames)
 	}
-
 	if data.PortalAllowedSubnets != nil {
-		state.PortalAllowedSubnets = mist_transform.ListOfStringSdkToTerraform(ctx, data.PortalAllowedSubnets)
-	} else {
-		state.PortalAllowedSubnets = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+		portal_allowed_subnets = mist_transform.ListOfStringSdkToTerraform(ctx, data.PortalAllowedSubnets)
 	}
 
 	if data.PortalApiSecret.IsValueSet() && data.PortalApiSecret.Value() != nil {
-		state.PortalApiSecret = types.StringValue(*data.PortalApiSecret.Value())
-	} else {
-		state.PortalApiSecret = types.StringValue("")
+		portal_api_secret = types.StringValue(*data.PortalApiSecret.Value())
 	}
 
 	if data.PortalDeniedHostnames != nil {
-		state.PortalDeniedHostnames = mist_transform.ListOfStringSdkToTerraform(ctx, data.PortalDeniedHostnames)
-	} else {
-		state.PortalDeniedHostnames = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+		portal_denied_hostnames = mist_transform.ListOfStringSdkToTerraform(ctx, data.PortalDeniedHostnames)
 	}
 
 	if data.PortalImage.IsValueSet() && data.PortalImage.Value() != nil {
-		state.PortalImage = types.StringValue(*data.PortalImage.Value())
-	} else {
-		state.PortalImage = types.StringValue("")
+		portal_image = types.StringValue(*data.PortalImage.Value())
 	}
 
 	if data.PortalSsoUrl.IsValueSet() && data.PortalSsoUrl.Value() != nil {
-		state.PortalSsoUrl = types.StringValue(*data.PortalSsoUrl.Value())
-	} else {
-		state.PortalSsoUrl = types.StringValue("")
+		portal_sso_url = types.StringValue(*data.PortalSsoUrl.Value())
 	}
 
 	if data.PortalTemplateUrl.IsValueSet() && data.PortalTemplateUrl.Value() != nil {
-		state.PortalTemplateUrl = types.StringValue(*data.PortalTemplateUrl.Value())
-	} else {
-		state.PortalTemplateUrl = types.StringValue("")
+		portal_template_url = types.StringValue(*data.PortalTemplateUrl.Value())
 	}
 
 	if data.Qos != nil {
-		state.Qos = qosSkToTerraform(ctx, &diags, data.Qos)
-	} else {
-		state.Qos = NewQosValueNull()
+		qos = qosSkToTerraform(ctx, &diags, data.Qos)
 	}
 
 	if data.Radsec != nil {
-		state.Radsec = radsecSkToTerraform(ctx, &diags, data.Radsec)
-	} else {
-		state.Radsec = NewRadsecValueNull()
+		radsec = radsecSkToTerraform(ctx, &diags, data.Radsec)
 	}
 
 	if data.RoamMode != nil {
-		state.RoamMode = types.StringValue(string(*data.RoamMode))
-	} else {
-		state.RoamMode = types.StringNull()
+		roam_mode = types.StringValue(string(*data.RoamMode))
 	}
 
 	if data.Schedule != nil {
-		state.Schedule = scheduleSkToTerraform(ctx, &diags, data.Schedule)
-	} else {
-		state.Schedule = NewScheduleValueNull()
+		schedule = scheduleSkToTerraform(ctx, &diags, data.Schedule)
 	}
 
 	if data.SiteId != nil {
-		state.SiteId = types.StringValue(data.SiteId.String())
-	} else {
-		state.SiteId = types.StringValue("")
+		site_id = types.StringValue(data.SiteId.String())
 	}
 
 	if data.SleExcluded != nil {
-		state.SleExcluded = types.BoolValue(*data.SleExcluded)
-	} else {
-		state.SleExcluded = types.BoolNull()
+		sle_excluded = types.BoolValue(*data.SleExcluded)
 	}
 
-	state.Ssid = types.StringValue(data.Ssid)
+	ssid = types.StringValue(data.Ssid)
 
 	if data.Thumbnail.IsValueSet() && data.Thumbnail.Value() != nil {
-		state.Thumbnail = types.StringValue(*data.Thumbnail.Value())
-	} else {
-		state.Thumbnail = types.StringValue("")
+		thumbnail = types.StringValue(*data.Thumbnail.Value())
 	}
 
 	if data.UseEapolV1 != nil {
-		state.UseEapolV1 = types.BoolValue(*data.UseEapolV1)
-	} else {
-		state.UseEapolV1 = types.BoolNull()
+		use_eapol_v1 = types.BoolValue(*data.UseEapolV1)
 	}
 
 	if data.VlanEnabled != nil {
-		state.VlanEnabled = types.BoolValue(*data.VlanEnabled)
-	} else {
-		state.VlanEnabled = types.BoolNull()
+		vlan_enabled = types.BoolValue(*data.VlanEnabled)
 	}
 
 	if data.VlanId != nil {
-		state.VlanId = types.StringValue(string(data.VlanId.String()))
-	} else {
-		state.VlanId = types.StringNull()
+		vlan_id = types.StringValue(string(data.VlanId.String()))
 	}
 
 	if data.VlanIds != nil {
@@ -516,57 +446,133 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (SiteWlanModel, diag
 		}
 		r, e := types.ListValue(basetypes.StringType{}, list)
 		diags.Append(e...)
-		state.VlanIds = r
-	} else {
-		state.VlanIds = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+		vlan_ids = r
 	}
 
 	if data.VlanPooling != nil {
-		state.VlanPooling = types.BoolValue(*data.VlanPooling)
-	} else {
-		state.VlanPooling = types.BoolNull()
+		vlan_pooling = types.BoolValue(*data.VlanPooling)
 	}
 
 	if data.WlanLimitDown.IsValueSet() && data.WlanLimitDown.Value() != nil {
-		state.WlanLimitDown = types.Int64Value(int64(*data.WlanLimitDown.Value()))
-	} else {
-		state.WlanLimitDown = types.Int64Null()
+		wlan_limit_down = types.Int64Value(int64(*data.WlanLimitDown.Value()))
 	}
 
 	if data.WlanLimitDownEnabled != nil {
-		state.WlanLimitDownEnabled = types.BoolValue(*data.WlanLimitDownEnabled)
-	} else {
-		state.WlanLimitDownEnabled = types.BoolNull()
+		wlan_limit_down_enabled = types.BoolValue(*data.WlanLimitDownEnabled)
 	}
 
 	if data.WlanLimitUp.IsValueSet() && data.WlanLimitUp.Value() != nil {
-		state.WlanLimitUp = types.Int64Value(int64(*data.WlanLimitUp.Value()))
-	} else {
-		state.WlanLimitUp = types.Int64Null()
+		wlan_limit_up = types.Int64Value(int64(*data.WlanLimitUp.Value()))
 	}
 
 	if data.WlanLimitUpEnabled != nil {
-		state.WlanLimitUpEnabled = types.BoolValue(*data.WlanLimitUpEnabled)
-	} else {
-		state.WlanLimitUpEnabled = types.BoolNull()
+		wlan_limit_up_enabled = types.BoolValue(*data.WlanLimitUpEnabled)
 	}
 
 	if data.WxtagIds.IsValueSet() && data.WxtagIds.Value() != nil {
-		state.WxtagIds = mist_transform.ListOfUuidSdkToTerraform(ctx, *data.WxtagIds.Value())
-	} else {
-		state.WxtagIds = mist_transform.ListOfUuidSdkToTerraformEmpty(ctx)
+		wxtag_ids = mist_transform.ListOfUuidSdkToTerraform(ctx, *data.WxtagIds.Value())
 	}
 
 	if data.WxtunnelId.IsValueSet() && data.WxtunnelId.Value() != nil {
-		state.WxtunnelId = types.StringValue(*data.WxtunnelId.Value())
-	} else {
-		state.WxtunnelId = types.StringValue("")
+		wxtunnel_id = types.StringValue(*data.WxtunnelId.Value())
 	}
+
 	if data.WxtunnelRemoteId.IsValueSet() && data.WxtunnelRemoteId.Value() != nil {
-		state.WxtunnelRemoteId = types.StringValue(*data.WxtunnelRemoteId.Value())
-	} else {
-		state.WxtunnelRemoteId = types.StringValue("")
+		wxtunnel_remote_id = types.StringValue(*data.WxtunnelRemoteId.Value())
 	}
+
+	state.AcctImmediateUpdate = acct_immediate_update
+	state.AcctInterimInterval = acct_interim_interval
+	state.AcctServers = acct_servers
+	state.Airwatch = airwatch
+	state.AllowIpv6Ndp = allow_ipv6_ndp
+	state.AllowMdns = allow_mdns
+	state.AllowSsdp = allow_ssdp
+	state.ApIds = ap_ids
+	state.AppLimit = app_limit
+	state.AppQos = app_qos
+	state.ApplyTo = apply_to
+	state.ArpFilter = arp_filter
+	state.Auth = auth
+	state.AuthServerSelection = auth_server_selection
+	state.AuthServers = auth_servers
+	state.AuthServersNasId = auth_servers_nas_id
+	state.AuthServersNasIp = auth_servers_nas_ip
+	state.AuthServersRetries = auth_servers_retries
+	state.AuthServersTimeout = auth_servers_timeout
+	state.BandSteer = band_steer
+	state.BandSteerForceBand5 = band_steer_force_band5
+	state.Bands = bands
+	state.BlockBlacklistClients = block_blacklist_clients
+	state.Bonjour = bonjour
+	state.CiscoCwa = cisco_cwa
+	state.ClientLimitDown = client_limit_down
+	state.ClientLimitDownEnabled = client_limit_down_enabled
+	state.ClientLimitUp = client_limit_up
+	state.ClientLimitUpEnabled = client_limit_up_enabled
+	state.CoaServers = coa_servers
+	state.Disable11ax = disable_11ax
+	state.DisableHtVhtRates = disable_ht_vht_rates
+	state.DisableUapsd = disable_uapsd
+	state.DisableV1RoamNotify = disable_v1_roam_notify
+	state.DisableV2RoamNotify = disable_v2_roam_notify
+	state.DisableWmm = disable_wmm
+	state.DnsServerRewrite = dns_server_rewrite
+	state.Dtim = dtim
+	state.DynamicPsk = dynamic_psk
+	state.DynamicVlan = dynamic_vlan
+	state.EnableLocalKeycaching = enable_local_keycaching
+	state.EnableWirelessBridging = enable_wireless_bridging
+	state.EnableWirelessBridgingDhcpTracking = enable_wireless_bridging_dhcp_tracking
+	state.Enabled = enabled
+	state.FastDot1xTimers = fast_dot1x_timers
+	state.HideSsid = hide_ssid
+	state.HostnameIe = hostname_ie
+	state.Hotspot20 = hotspot20
+	state.Id = id
+	state.InjectDhcpOption82 = inject_dhcp_option_82
+	state.Interface = interface_wlan
+	state.Isolation = isolation
+	state.L2Isolation = l2_isolation
+	state.LegacyOverds = legacy_overds
+	state.LimitBcast = limit_bcast
+	state.LimitProbeResponse = limit_probe_response
+	state.MaxIdletime = max_idletime
+	state.MistNac = mist_nac
+	state.MspId = msp_id
+	state.MxtunnelIds = mxtunnel_ids
+	state.MxtunnelName = mxtunnel_name
+	state.NoStaticDns = no_static_dns
+	state.NoStaticIp = no_static_ip
+	state.OrgId = org_id
+	state.Portal = portal
+	state.PortalAllowedHostnames = portal_allowed_hostnames
+	state.PortalAllowedSubnets = portal_allowed_subnets
+	state.PortalApiSecret = portal_api_secret
+	state.PortalDeniedHostnames = portal_denied_hostnames
+	state.PortalImage = portal_image
+	state.PortalSsoUrl = portal_sso_url
+	state.PortalTemplateUrl = portal_template_url
+	state.Qos = qos
+	state.Radsec = radsec
+	state.RoamMode = roam_mode
+	state.Schedule = schedule
+	state.SiteId = site_id
+	state.SleExcluded = sle_excluded
+	state.Ssid = ssid
+	state.Thumbnail = thumbnail
+	state.UseEapolV1 = use_eapol_v1
+	state.VlanEnabled = vlan_enabled
+	state.VlanId = vlan_id
+	state.VlanIds = vlan_ids
+	state.VlanPooling = vlan_pooling
+	state.WlanLimitDown = wlan_limit_down
+	state.WlanLimitDownEnabled = wlan_limit_down_enabled
+	state.WlanLimitUp = wlan_limit_up
+	state.WlanLimitUpEnabled = wlan_limit_up_enabled
+	state.WxtagIds = wxtag_ids
+	state.WxtunnelId = wxtunnel_id
+	state.WxtunnelRemoteId = wxtunnel_remote_id
 
 	return state, diags
 }
