@@ -405,13 +405,10 @@ Optional:
 <a id="nestedatt--oob_ip_config--node1"></a>
 ### Nested Schema for `oob_ip_config.node1`
 
-Required:
+Optional:
 
 - `ip` (String)
 - `netmask` (String) used only if `subnet` is not specified in `networks`
-
-Optional:
-
 - `network` (String) optional, the network to be used for mgmt
 - `type` (String)
 - `use_mgmt_vrf` (Boolean) if supported on the platform. If enabled, DNS will be using this routing-instance, too

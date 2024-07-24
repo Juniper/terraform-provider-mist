@@ -114,7 +114,6 @@ dynamic_psk allows PSK to be selected at runtime depending on context (wlan/site
 - `portal_allowed_hostnames` (List of String) list of hostnames without http(s):// (matched by substring)
 - `portal_allowed_subnets` (List of String) list of CIDRs
 - `portal_denied_hostnames` (List of String) list of hostnames without http(s):// (matched by substring), this takes precedence over portal_allowed_hostnames
-- `portal_template_url` (String) N.B portal_template will be forked out of wlan objects soon. To fetch portal_template, please query portal_template_url. To update portal_template, use Wlan Portal Template.
 - `qos` (Attributes) (see [below for nested schema](#nestedatt--qos))
 - `radsec` (Attributes) Radsec settings (see [below for nested schema](#nestedatt--radsec))
 - `roam_mode` (String)
@@ -141,6 +140,7 @@ dynamic_psk allows PSK to be selected at runtime depending on context (wlan/site
 - `portal_api_secret` (String) api secret (auto-generated) that can be used to sign guest authorization requests
 - `portal_image` (String) Url of portal background image
 - `portal_sso_url` (String)
+- `portal_template_url` (String) N.B portal_template will be forked out of wlan objects soon. To fetch portal_template, please query portal_template_url. To update portal_template, use Wlan Portal Template.
 - `thumbnail` (String) Url of portal background image thumbnail
 
 <a id="nestedatt--acct_servers"></a>
@@ -329,9 +329,12 @@ Optional:
 <a id="nestedatt--dynamic_vlan"></a>
 ### Nested Schema for `dynamic_vlan`
 
-Optional:
+Required:
 
 - `default_vlan_id` (String)
+
+Optional:
+
 - `enabled` (Boolean) whether to enable dynamic vlan
 - `local_vlan_ids` (List of String) vlan_ids to be locally bridged
 - `type` (String) standard (using Tunnel-Private-Group-ID, widely supported), airespace-interface-name (Airespace/Cisco)
@@ -429,9 +432,6 @@ Facebook OAuth2 app secret. If facebook_client_id was provided, provide a corres
 - `passphrase_enabled` (Boolean) whether password is enabled
 - `passphrase_expire` (Number) interval for which guest remains authorized using passphrase auth (in minutes), if not provided, uses `expire`
 - `password` (String, Sensitive) passphrase
-- `portal_api_secret` (String) api secret (auto-generated) that can be used to sign guest authorization requests
-- `portal_image` (String) Url of portal background image
-- `portal_sso_url` (String) for SAML, this is used as the ACS URL
 - `predefined_sponsors_enabled` (Boolean) whether to show list of sponsor emails mentioned in `sponsors` object as a dropdown. If both `sponsor_notify_all` and `predefined_sponsors_enabled` are false, behaviour is acc to `sponsor_email_domains`
 - `privacy` (Boolean)
 - `puzzel_password` (String, Sensitive) when `sms_provider`==`puzzel`
