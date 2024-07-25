@@ -104,7 +104,7 @@ func (d *deviceApStatsDataSource) Read(ctx context.Context, req datasource.ReadR
 		start = &start_int
 	}
 
-	data, err := d.client.OrgsDevicesStats().ListOrgDevicesStats(ctx, orgId, mType, status, siteId, mac, nil, nil, fields, page, limit, start, end, duration)
+	data, err := d.client.OrgsStatsDevices().ListOrgDevicesStats(ctx, orgId, mType, status, siteId, mac, nil, nil, fields, page, limit, start, end, duration)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting AP Stats",

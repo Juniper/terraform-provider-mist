@@ -112,7 +112,7 @@ func (d *deviceSwitchStatsDataSource) Read(ctx context.Context, req datasource.R
 		start = &start_int
 	}
 
-	data, err := d.client.OrgsDevicesStats().ListOrgDevicesStats(ctx, orgId, mType, status, siteId, mac, evpnTopoId, evpnUnused, fields, page, limit, start, end, duration)
+	data, err := d.client.OrgsStatsDevices().ListOrgDevicesStats(ctx, orgId, mType, status, siteId, mac, evpnTopoId, evpnUnused, fields, page, limit, start, end, duration)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting Switch Stats",
