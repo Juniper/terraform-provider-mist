@@ -12,26 +12,35 @@ import (
 func oobIpConfigNode1TerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.GatewayOobIpConfigNode1 {
 	data := models.GatewayOobIpConfigNode1{}
 	if !d.IsNull() && !d.IsUnknown() {
+		plan, e := NewNode1Value(d.AttributeTypes(ctx), d.Attributes())
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			if plan.Gateway.ValueStringPointer() != nil {
+				data.Gateway = plan.Gateway.ValueStringPointer()
+			}
+			if plan.Ip.ValueStringPointer() != nil {
+				data.Ip = plan.Ip.ValueStringPointer()
+			}
+			if plan.Netmask.ValueStringPointer() != nil {
+				data.Netmask = plan.Netmask.ValueStringPointer()
+			}
+			if plan.Network.ValueStringPointer() != nil {
+				data.Network = plan.Network.ValueStringPointer()
+			}
 
-		plan := NewNode1ValueMust(d.AttributeTypes(ctx), d.Attributes())
-		if plan.Ip.ValueStringPointer() != nil {
-			data.Ip = plan.Ip.ValueStringPointer()
-		}
-		if plan.Netmask.ValueStringPointer() != nil {
-			data.Netmask = plan.Netmask.ValueStringPointer()
-		}
-		if plan.Network.ValueStringPointer() != nil {
-			data.Network = plan.Network.ValueStringPointer()
-		}
-
-		if plan.Node1Type.ValueStringPointer() != nil {
-			data.Type = (*models.IpTypeEnum)(plan.Node1Type.ValueStringPointer())
-		}
-		if plan.UseMgmtVrf.ValueBoolPointer() != nil {
-			data.UseMgmtVrf = plan.UseMgmtVrf.ValueBoolPointer()
-		}
-		if plan.UseMgmtVrfForHostOut.ValueBoolPointer() != nil {
-			data.UseMgmtVrfForHostOut = plan.UseMgmtVrfForHostOut.ValueBoolPointer()
+			if plan.Node1Type.ValueStringPointer() != nil {
+				data.Type = (*models.IpTypeEnum)(plan.Node1Type.ValueStringPointer())
+			}
+			if plan.UseMgmtVrf.ValueBoolPointer() != nil {
+				data.UseMgmtVrf = plan.UseMgmtVrf.ValueBoolPointer()
+			}
+			if plan.UseMgmtVrfForHostOut.ValueBoolPointer() != nil {
+				data.UseMgmtVrfForHostOut = plan.UseMgmtVrfForHostOut.ValueBoolPointer()
+			}
+			if plan.VlanId.ValueStringPointer() != nil {
+				data.VlanId = plan.VlanId.ValueStringPointer()
+			}
 		}
 	}
 
@@ -41,6 +50,9 @@ func oobIpConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d O
 
 	data := models.GatewayOobIpConfig{}
 
+	if d.Gateway.ValueStringPointer() != nil {
+		data.Gateway = d.Gateway.ValueStringPointer()
+	}
 	if d.Ip.ValueStringPointer() != nil {
 		data.Ip = d.Ip.ValueStringPointer()
 	}
@@ -61,6 +73,9 @@ func oobIpConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d O
 	}
 	if d.UseMgmtVrfForHostOut.ValueBoolPointer() != nil {
 		data.UseMgmtVrfForHostOut = d.UseMgmtVrfForHostOut.ValueBoolPointer()
+	}
+	if d.VlanId.ValueStringPointer() != nil {
+		data.VlanId = d.VlanId.ValueStringPointer()
 	}
 
 	return &data

@@ -12,13 +12,18 @@ import (
 )
 
 func oobIpConfigsNode1SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.GatewayOobIpConfigNode1) basetypes.ObjectValue {
+	var gateway basetypes.StringValue
 	var ip basetypes.StringValue
 	var netmask basetypes.StringValue
 	var network basetypes.StringValue
 	var type_oob basetypes.StringValue = types.StringValue("dhcp")
 	var use_mgmt_vrf basetypes.BoolValue = types.BoolValue(false)
 	var use_mgmt_vrf_for_host_out basetypes.BoolValue = types.BoolValue(false)
+	var vlan_id basetypes.StringValue
 
+	if d != nil && d.Gateway != nil {
+		gateway = types.StringValue(*d.Gateway)
+	}
 	if d != nil && d.Ip != nil {
 		ip = types.StringValue(*d.Ip)
 	}
@@ -37,15 +42,20 @@ func oobIpConfigsNode1SdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 	if d != nil && d.UseMgmtVrfForHostOut != nil {
 		use_mgmt_vrf_for_host_out = types.BoolValue(*d.UseMgmtVrfForHostOut)
 	}
+	if d != nil && d.VlanId != nil {
+		vlan_id = types.StringValue(*d.VlanId)
+	}
 
-	data_map_attr_type := OobIpConfigValue{}.AttributeTypes(ctx)
+	data_map_attr_type := Node1Value{}.AttributeTypes(ctx)
 	data_map_value := map[string]attr.Value{
+		"gateway":                   gateway,
 		"ip":                        ip,
 		"netmask":                   netmask,
 		"network":                   network,
 		"type":                      type_oob,
 		"use_mgmt_vrf":              use_mgmt_vrf,
 		"use_mgmt_vrf_for_host_out": use_mgmt_vrf_for_host_out,
+		"vlan_id":                   vlan_id,
 	}
 	data, e := basetypes.NewObjectValue(data_map_attr_type, data_map_value)
 	diags.Append(e...)
@@ -54,6 +64,7 @@ func oobIpConfigsNode1SdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 }
 
 func oobIpConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.GatewayOobIpConfig) OobIpConfigValue {
+	var gateway basetypes.StringValue
 	var ip basetypes.StringValue
 	var netmask basetypes.StringValue
 	var network basetypes.StringValue
@@ -61,7 +72,11 @@ func oobIpConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	var type_oob basetypes.StringValue = types.StringValue("dhcp")
 	var use_mgmt_vrf basetypes.BoolValue = types.BoolValue(false)
 	var use_mgmt_vrf_for_host_out basetypes.BoolValue = types.BoolValue(false)
+	var vlan_id basetypes.StringValue
 
+	if d != nil && d.Gateway != nil {
+		gateway = types.StringValue(*d.Gateway)
+	}
 	if d != nil && d.Ip != nil {
 		ip = types.StringValue(*d.Ip)
 	}
@@ -83,9 +98,13 @@ func oobIpConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	if d != nil && d.UseMgmtVrfForHostOut != nil {
 		use_mgmt_vrf_for_host_out = types.BoolValue(*d.UseMgmtVrfForHostOut)
 	}
+	if d != nil && d.VlanId != nil {
+		vlan_id = types.StringValue(*d.VlanId)
+	}
 
 	data_map_attr_type := OobIpConfigValue{}.AttributeTypes(ctx)
 	data_map_value := map[string]attr.Value{
+		"gateway":                   gateway,
 		"ip":                        ip,
 		"netmask":                   netmask,
 		"network":                   network,
@@ -93,6 +112,7 @@ func oobIpConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 		"type":                      type_oob,
 		"use_mgmt_vrf":              use_mgmt_vrf,
 		"use_mgmt_vrf_for_host_out": use_mgmt_vrf_for_host_out,
+		"vlan_id":                   vlan_id,
 	}
 	data, e := NewOobIpConfigValue(data_map_attr_type, data_map_value)
 	diags.Append(e...)

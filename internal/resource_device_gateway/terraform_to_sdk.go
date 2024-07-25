@@ -51,7 +51,13 @@ func TerraformToSdk(ctx context.Context, plan *DeviceGatewayModel) (models.MistD
 	if plan.ExtraRoutes.IsNull() || plan.ExtraRoutes.IsUnknown() {
 		unset["-extra_routes"] = ""
 	} else {
-		data.ExtraRoutes = extraRouteTerraformToSdk(ctx, &diags, plan.ExtraRoutes)
+		data.ExtraRoutes = extraRoutesTerraformToSdk(ctx, &diags, plan.ExtraRoutes)
+	}
+
+	if plan.ExtraRoutes6.IsNull() || plan.ExtraRoutes6.IsUnknown() {
+		unset["-extra_routes6"] = ""
+	} else {
+		data.ExtraRoutes6 = extraRoutesTerraformToSdk(ctx, &diags, plan.ExtraRoutes6)
 	}
 
 	if plan.IdpProfiles.IsNull() || plan.IdpProfiles.IsUnknown() {

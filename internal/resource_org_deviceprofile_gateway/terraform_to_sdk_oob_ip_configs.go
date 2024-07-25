@@ -16,6 +16,9 @@ func oobIpConfigNode1TerraformToSdk(ctx context.Context, diags *diag.Diagnostics
 		if e != nil {
 			diags.Append(e...)
 		} else {
+			if plan.Gateway.ValueStringPointer() != nil {
+				data.Gateway = plan.Gateway.ValueStringPointer()
+			}
 			if plan.Ip.ValueStringPointer() != nil {
 				data.Ip = plan.Ip.ValueStringPointer()
 			}
@@ -35,14 +38,21 @@ func oobIpConfigNode1TerraformToSdk(ctx context.Context, diags *diag.Diagnostics
 			if plan.UseMgmtVrfForHostOut.ValueBoolPointer() != nil {
 				data.UseMgmtVrfForHostOut = plan.UseMgmtVrfForHostOut.ValueBoolPointer()
 			}
+			if plan.VlanId.ValueStringPointer() != nil {
+				data.VlanId = plan.VlanId.ValueStringPointer()
+			}
 		}
 	}
+
 	return &data
 }
 func oobIpConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d OobIpConfigValue) *models.GatewayOobIpConfig {
 
 	data := models.GatewayOobIpConfig{}
 
+	if d.Gateway.ValueStringPointer() != nil {
+		data.Gateway = d.Gateway.ValueStringPointer()
+	}
 	if d.Ip.ValueStringPointer() != nil {
 		data.Ip = d.Ip.ValueStringPointer()
 	}
@@ -63,6 +73,9 @@ func oobIpConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d O
 	}
 	if d.UseMgmtVrfForHostOut.ValueBoolPointer() != nil {
 		data.UseMgmtVrfForHostOut = d.UseMgmtVrfForHostOut.ValueBoolPointer()
+	}
+	if d.VlanId.ValueStringPointer() != nil {
+		data.VlanId = d.VlanId.ValueStringPointer()
 	}
 
 	return &data
