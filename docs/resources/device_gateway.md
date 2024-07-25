@@ -50,7 +50,8 @@ resource "mist_device_gateway" "gateway_one" {
 - `dhcpd_config` (Attributes) (see [below for nested schema](#nestedatt--dhcpd_config))
 - `dns_servers` (List of String) Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting
 - `dns_suffix` (List of String) Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting
-- `extra_routes` (Attributes Map) (see [below for nested schema](#nestedatt--extra_routes))
+- `extra_routes` (Attributes Map) Property key is the destination CIDR (e.g. "10.0.0.0/8") (see [below for nested schema](#nestedatt--extra_routes))
+- `extra_routes6` (Attributes Map) Property key is the destination CIDR (e.g. "2a02:1234:420a:10c9::/64") (see [below for nested schema](#nestedatt--extra_routes6))
 - `idp_profiles` (Attributes Map) Property key is the profile name (see [below for nested schema](#nestedatt--idp_profiles))
 - `ip_configs` (Attributes Map) Property key is the network name (see [below for nested schema](#nestedatt--ip_configs))
 - `managed` (Boolean)
@@ -206,6 +207,14 @@ Optional:
 
 <a id="nestedatt--extra_routes"></a>
 ### Nested Schema for `extra_routes`
+
+Required:
+
+- `via` (String)
+
+
+<a id="nestedatt--extra_routes6"></a>
+### Nested Schema for `extra_routes6`
 
 Required:
 
@@ -394,25 +403,29 @@ Optional:
 
 Optional:
 
-- `ip` (String)
-- `netmask` (String) used only if `subnet` is not specified in `networks`
+- `gateway` (String) if `type`==`static`
+- `ip` (String) if `type`==`static`
+- `netmask` (String) if `type`==`static`
 - `network` (String) optional, the network to be used for mgmt
 - `node1` (Attributes) for HA Cluster, node1 can have different IP Config (see [below for nested schema](#nestedatt--oob_ip_config--node1))
 - `type` (String)
-- `use_mgmt_vrf` (Boolean) f supported on the platform. If enabled, DNS will be using this routing-instance, too
+- `use_mgmt_vrf` (Boolean) if supported on the platform. If enabled, DNS will be using this routing-instance, too
 - `use_mgmt_vrf_for_host_out` (Boolean) for host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired,
+- `vlan_id` (String)
 
 <a id="nestedatt--oob_ip_config--node1"></a>
 ### Nested Schema for `oob_ip_config.node1`
 
 Optional:
 
+- `gateway` (String) if `type`==`static`
 - `ip` (String)
 - `netmask` (String) used only if `subnet` is not specified in `networks`
 - `network` (String) optional, the network to be used for mgmt
 - `type` (String)
 - `use_mgmt_vrf` (Boolean) if supported on the platform. If enabled, DNS will be using this routing-instance, too
 - `use_mgmt_vrf_for_host_out` (Boolean) whether to use `mgmt_junos` for host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired
+- `vlan_id` (String)
 
 
 

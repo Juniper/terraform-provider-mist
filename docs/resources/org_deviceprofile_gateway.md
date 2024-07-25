@@ -116,7 +116,8 @@ resource "mist_org_deviceprofile_gateway" "deviceprofile_gw_one" {
 - `dns_override` (Boolean)
 - `dns_servers` (List of String) Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting
 - `dns_suffix` (List of String) Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting
-- `extra_routes` (Attributes Map) (see [below for nested schema](#nestedatt--extra_routes))
+- `extra_routes` (Attributes Map) Property key is the destination CIDR (e.g. "10.0.0.0/8") (see [below for nested schema](#nestedatt--extra_routes))
+- `extra_routes6` (Attributes Map) Property key is the destination CIDR (e.g. "2a02:1234:420a:10c9::/64") (see [below for nested schema](#nestedatt--extra_routes6))
 - `idp_profiles` (Attributes Map) Property key is the profile name (see [below for nested schema](#nestedatt--idp_profiles))
 - `ip_configs` (Attributes Map) Property key is the network name (see [below for nested schema](#nestedatt--ip_configs))
 - `modified_time` (Number)
@@ -228,9 +229,12 @@ should overwrite the Sever Identifier option (i.e. DHCP option 54) in DHCP respo
 <a id="nestedatt--dhcpd_config--config--fixed_bindings"></a>
 ### Nested Schema for `dhcpd_config.config.fixed_bindings`
 
-Optional:
+Required:
 
 - `ip` (String)
+
+Optional:
+
 - `name` (String)
 
 
@@ -257,7 +261,15 @@ Optional:
 <a id="nestedatt--extra_routes"></a>
 ### Nested Schema for `extra_routes`
 
-Optional:
+Required:
+
+- `via` (String)
+
+
+<a id="nestedatt--extra_routes6"></a>
+### Nested Schema for `extra_routes6`
+
+Required:
 
 - `via` (String)
 
@@ -298,10 +310,13 @@ Optional:
 <a id="nestedatt--ip_configs"></a>
 ### Nested Schema for `ip_configs`
 
-Optional:
+Required:
 
 - `ip` (String)
 - `netmask` (String)
+
+Optional:
+
 - `secondary_ips` (List of String) optional list of secondary IPs in CIDR format
 - `type` (String)
 
@@ -312,6 +327,7 @@ Optional:
 Required:
 
 - `name` (String)
+- `subnet` (String)
 
 Optional:
 
@@ -322,7 +338,6 @@ Optional:
 - `internet_access` (Attributes) whether this network has direct internet access (see [below for nested schema](#nestedatt--networks--internet_access))
 - `isolation` (Boolean) whether to allow clients in the network to talk to each other
 - `routed_for_networks` (List of String) for a Network (usually LAN), it can be routable to other networks (e.g. OSPF)
-- `subnet` (String)
 - `subnet6` (String)
 - `tenants` (Attributes Map) (see [below for nested schema](#nestedatt--networks--tenants))
 - `vlan_id` (String)
@@ -434,25 +449,29 @@ Optional:
 
 Optional:
 
-- `ip` (String)
-- `netmask` (String) used only if `subnet` is not specified in `networks`
+- `gateway` (String) if `type`==`static`
+- `ip` (String) if `type`==`static`
+- `netmask` (String) if `type`==`static`
 - `network` (String) optional, the network to be used for mgmt
 - `node1` (Attributes) for HA Cluster, node1 can have different IP Config (see [below for nested schema](#nestedatt--oob_ip_config--node1))
 - `type` (String)
-- `use_mgmt_vrf` (Boolean) f supported on the platform. If enabled, DNS will be using this routing-instance, too
+- `use_mgmt_vrf` (Boolean) if supported on the platform. If enabled, DNS will be using this routing-instance, too
 - `use_mgmt_vrf_for_host_out` (Boolean) for host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired,
+- `vlan_id` (String)
 
 <a id="nestedatt--oob_ip_config--node1"></a>
 ### Nested Schema for `oob_ip_config.node1`
 
 Optional:
 
+- `gateway` (String) if `type`==`static`
 - `ip` (String)
 - `netmask` (String) used only if `subnet` is not specified in `networks`
 - `network` (String) optional, the network to be used for mgmt
 - `type` (String)
 - `use_mgmt_vrf` (Boolean) if supported on the platform. If enabled, DNS will be using this routing-instance, too
 - `use_mgmt_vrf_for_host_out` (Boolean) whether to use `mgmt_junos` for host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired
+- `vlan_id` (String)
 
 
 
