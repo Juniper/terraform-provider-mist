@@ -9,12 +9,12 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func extraRouteNextQualifiedTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.ExtraRoutePropertiesNextQualifiedProperties {
-	data := make(map[string]models.ExtraRoutePropertiesNextQualifiedProperties)
+func extraRouteNextQualifiedTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.ExtraRouteNextQualifiedProperties {
+	data := make(map[string]models.ExtraRouteNextQualifiedProperties)
 	for k, v := range d.Elements() {
 		var v_interface interface{} = v
 		v_plan := v_interface.(NextQualifiedValue)
-		v_data := models.ExtraRoutePropertiesNextQualifiedProperties{}
+		v_data := models.ExtraRouteNextQualifiedProperties{}
 		if v_plan.Metric.ValueInt64Pointer() != nil {
 			v_data.Metric = models.NewOptional(models.ToPointer(int(v_plan.Metric.ValueInt64())))
 		}
@@ -25,13 +25,13 @@ func extraRouteNextQualifiedTerraformToSdk(ctx context.Context, diags *diag.Diag
 	}
 	return data
 }
-func extraRoutesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.ExtraRouteProperties {
-	data := make(map[string]models.ExtraRouteProperties)
+func extraRoutesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.ExtraRoute {
+	data := make(map[string]models.ExtraRoute)
 	for k, v := range d.Elements() {
 		var v_interface interface{} = v
 		v_plan := v_interface.(ExtraRoutesValue)
 
-		v_data := models.ExtraRouteProperties{}
+		v_data := models.ExtraRoute{}
 		if v_plan.Discard.ValueBoolPointer() != nil {
 			v_data.Discard = models.ToPointer(v_plan.Discard.ValueBool())
 		}

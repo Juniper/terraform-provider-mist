@@ -22,6 +22,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileGateway) (Org
 	var dns_servers types.List = types.ListNull(types.StringType)
 	var dns_suffix types.List = types.ListNull(types.StringType)
 	var extra_routes types.Map = types.MapNull(ExtraRoutesValue{}.Type(ctx))
+	var extra_routes6 types.Map = types.MapNull(ExtraRoutes6Value{}.Type(ctx))
 	var id types.String
 	var idp_profiles types.Map = types.MapNull(IdpProfilesValue{}.Type(ctx))
 	var ip_configs types.Map = types.MapNull(IpConfigsValue{}.Type(ctx))
@@ -60,6 +61,9 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileGateway) (Org
 	}
 	if data.ExtraRoutes != nil && len(data.ExtraRoutes) > 0 {
 		extra_routes = extraRoutesSdkToTerraform(ctx, &diags, data.ExtraRoutes)
+	}
+	if data.ExtraRoutes6 != nil && len(data.ExtraRoutes6) > 0 {
+		extra_routes6 = extraRoutes6SdkToTerraform(ctx, &diags, data.ExtraRoutes6)
 	}
 	if data.Id != nil {
 		id = types.StringValue(data.Id.String())
@@ -117,6 +121,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileGateway) (Org
 	state.DnsServers = dns_servers
 	state.DnsSuffix = dns_suffix
 	state.ExtraRoutes = extra_routes
+	state.ExtraRoutes6 = extra_routes6
 	state.Id = id
 	state.IdpProfiles = idp_profiles
 	state.IpConfigs = ip_configs

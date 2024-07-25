@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func extraRoute6NextQualifiedSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.ExtraRoute6PropertiesNextQualifiedProperties) basetypes.MapValue {
+func extraRoute6NextQualifiedSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.ExtraRoute6NextQualifiedProperties) basetypes.MapValue {
 
 	state_value_map_value := make(map[string]attr.Value)
 	for k, d := range m {
@@ -40,7 +40,7 @@ func extraRoute6NextQualifiedSdkToTerraform(ctx context.Context, diags *diag.Dia
 	diags.Append(e...)
 	return state_result_map
 }
-func extraRoutes6SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.ExtraRoute6Properties) basetypes.MapValue {
+func extraRoutes6SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.ExtraRoute6) basetypes.MapValue {
 
 	state_value_map_value := make(map[string]attr.Value)
 	for k, d := range m {
