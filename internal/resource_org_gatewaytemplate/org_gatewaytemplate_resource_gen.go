@@ -2179,6 +2179,7 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 						"services": schema.ListAttribute{
 							ElementType: types.StringType,
 							Optional:    true,
+							Computed:    true,
 							Validators: []validator.List{
 								listvalidator.UniqueValues(),
 							},
@@ -2186,6 +2187,7 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 						"tenants": schema.ListAttribute{
 							ElementType: types.StringType,
 							Optional:    true,
+							Computed:    true,
 							Validators: []validator.List{
 								listvalidator.UniqueValues(),
 							},
