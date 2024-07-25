@@ -153,26 +153,26 @@ func tunnelConfigIpsecProposalSdkToTerraform(ctx context.Context, diags *diag.Di
 }
 
 func tunnelConfigNodeSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.GatewayTemplateTunnelNode, data_map_attr_type map[string]attr.Type) basetypes.ObjectValue {
-	var hosts basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
-	var internal_ips basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
-	var probe_ips basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
-	var remote_ids basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
-	var wan_names basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+	var hosts basetypes.ListValue = types.ListNull(types.StringType)
+	var internal_ips basetypes.ListValue = types.ListNull(types.StringType)
+	var probe_ips basetypes.ListValue = types.ListNull(types.StringType)
+	var remote_ids basetypes.ListValue = types.ListNull(types.StringType)
+	var wan_names basetypes.ListValue = types.ListNull(types.StringType)
 
 	if d.Hosts != nil {
 		hosts = mist_transform.ListOfStringSdkToTerraform(ctx, d.Hosts)
 	}
 	if d.InternalIps != nil {
-		internal_ips = mist_transform.ListOfStringSdkToTerraform(ctx, d.Hosts)
+		internal_ips = mist_transform.ListOfStringSdkToTerraform(ctx, d.InternalIps)
 	}
 	if d.ProbeIps != nil {
-		probe_ips = mist_transform.ListOfStringSdkToTerraform(ctx, d.Hosts)
+		probe_ips = mist_transform.ListOfStringSdkToTerraform(ctx, d.ProbeIps)
 	}
 	if d.RemoteIds != nil {
-		remote_ids = mist_transform.ListOfStringSdkToTerraform(ctx, d.Hosts)
+		remote_ids = mist_transform.ListOfStringSdkToTerraform(ctx, d.RemoteIds)
 	}
 	if d.WanNames != nil {
-		wan_names = mist_transform.ListOfStringSdkToTerraform(ctx, d.Hosts)
+		wan_names = mist_transform.ListOfStringSdkToTerraform(ctx, d.WanNames)
 	}
 
 	data_map_value := map[string]attr.Value{
