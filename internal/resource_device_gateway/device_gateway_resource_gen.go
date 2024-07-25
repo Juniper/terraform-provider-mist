@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
@@ -188,7 +189,13 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "if `type`!=`external`or `via`==`wan`networks where we expect BGP neighbor to connect to/from",
 							MarkdownDescription: "if `type`!=`external`or `via`==`wan`networks where we expect BGP neighbor to connect to/from",
-							Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+							Validators: []validator.List{
+								listvalidator.Any(
+									mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtMapKey("type"), types.StringValue("external")),
+									mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtMapKey("via"), types.StringValue("wan")),
+								),
+							},
+							Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 						},
 						"no_readvertise_to_overlay": schema.BoolAttribute{
 							Optional:            true,
@@ -230,6 +237,11 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "if `via`==`wan`",
 							MarkdownDescription: "if `via`==`wan`",
+							Validators: []validator.String{
+								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("via"), types.StringValue("wan")),
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("via"), types.StringValue("lan")),
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("via"), types.StringValue("wan")),
+							},
 						},
 					},
 					CustomType: BgpConfigType{
@@ -261,6 +273,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									MarkdownDescription: "if `type`==`local` - optional, if not defined, system one will be used",
 									Validators: []validator.List{
 										listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar())),
+										mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("relay")),
 									},
 								},
 								"dns_suffix": schema.ListAttribute{
@@ -269,7 +282,10 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									Computed:            true,
 									Description:         "if `type`==`local` - optional, if not defined, system one will be used",
 									MarkdownDescription: "if `type`==`local` - optional, if not defined, system one will be used",
-									Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+									Validators: []validator.List{
+										mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("relay")),
+									},
+									Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 								},
 								"fixed_bindings": schema.MapNestedAttribute{
 									NestedObject: schema.NestedAttributeObject{
@@ -294,7 +310,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									Description:         "Property key is the MAC Address",
 									MarkdownDescription: "Property key is the MAC Address",
 									Validators: []validator.Map{
-										mapvalidator.SizeAtLeast(1), mapvalidator.KeysAre(mistvalidator.ParseMac()),
+										mapvalidator.SizeAtLeast(1),
+										mapvalidator.KeysAre(mistvalidator.ParseMac()),
+										mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("relay")),
 									},
 								},
 								"gateway": schema.StringAttribute{
@@ -303,6 +321,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									MarkdownDescription: "if `type`==`local` - optional, `ip` will be used if not provided",
 									Validators: []validator.String{
 										stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar()),
+										mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("relay")),
 									},
 								},
 								"ip_end": schema.StringAttribute{
@@ -311,6 +330,8 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									MarkdownDescription: "if `type`==`local`",
 									Validators: []validator.String{
 										stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar()),
+										mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("local")),
+										mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("relay")),
 									},
 								},
 								"ip_end6": schema.StringAttribute{
@@ -319,6 +340,8 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									MarkdownDescription: "if `type6`==`local`",
 									Validators: []validator.String{
 										stringvalidator.Any(mistvalidator.ParseIp(false, true), mistvalidator.ParseVar()),
+										mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type6"), types.StringValue("local")),
+										mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type6"), types.StringValue("relay")),
 									},
 								},
 								"ip_start": schema.StringAttribute{
@@ -327,6 +350,8 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									MarkdownDescription: "if `type`==`local`",
 									Validators: []validator.String{
 										stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar()),
+										mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("local")),
+										mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("relay")),
 									},
 								},
 								"ip_start6": schema.StringAttribute{
@@ -335,6 +360,8 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									MarkdownDescription: "if `type6`==`local`",
 									Validators: []validator.String{
 										stringvalidator.Any(mistvalidator.ParseIp(false, true), mistvalidator.ParseVar()),
+										mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type6"), types.StringValue("local")),
+										mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type6"), types.StringValue("relay")),
 									},
 								},
 								"lease_time": schema.Int64Attribute{
@@ -398,6 +425,8 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									MarkdownDescription: "if `type`==`relay`",
 									Validators: []validator.List{
 										listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar())),
+										mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("relay")),
+										mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("local")),
 									},
 									Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 								},
@@ -409,6 +438,8 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									MarkdownDescription: "if `type6`==`relay`",
 									Validators: []validator.List{
 										listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseIp(false, true), mistvalidator.ParseVar())),
+										mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type6"), types.StringValue("relay")),
+										mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type6"), types.StringValue("local")),
 									},
 									Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 								},
@@ -533,9 +564,34 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 						},
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "Property key is the destination CIDR (e.g. \"10.0.0.0/8\")",
+				MarkdownDescription: "Property key is the destination CIDR (e.g. \"10.0.0.0/8\")",
 				Validators: []validator.Map{
 					mapvalidator.SizeAtLeast(1), mapvalidator.KeysAre(stringvalidator.Any(mistvalidator.ParseCidr(true, false), mistvalidator.ParseVar())),
+				},
+			},
+			"extra_routes6": schema.MapNestedAttribute{
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"via": schema.StringAttribute{
+							Required: true,
+							Validators: []validator.String{
+								stringvalidator.Any(mistvalidator.ParseIp(false, true), mistvalidator.ParseVar()),
+							},
+						},
+					},
+					CustomType: ExtraRoutes6Type{
+						ObjectType: types.ObjectType{
+							AttrTypes: ExtraRoutes6Value{}.AttributeTypes(ctx),
+						},
+					},
+				},
+				Optional:            true,
+				Description:         "Property key is the destination CIDR (e.g. \"2a02:1234:420a:10c9::/64\")",
+				MarkdownDescription: "Property key is the destination CIDR (e.g. \"2a02:1234:420a:10c9::/64\")",
+				Validators: []validator.Map{
+					mapvalidator.SizeAtLeast(1), mapvalidator.KeysAre(stringvalidator.Any(mistvalidator.ParseCidr(false, true), mistvalidator.ParseVar())),
 				},
 			},
 			"idp_profiles": schema.MapNestedAttribute{
@@ -649,12 +705,16 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Required: true,
 							Validators: []validator.String{
 								stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar()),
+								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static")),
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("dhcp")),
 							},
 						},
 						"netmask": schema.StringAttribute{
 							Required: true,
 							Validators: []validator.String{
 								stringvalidator.Any(mistvalidator.ParseNetmask(true, true), mistvalidator.ParseVar()),
+								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static")),
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("dhcp")),
 							},
 						},
 						"secondary_ips": schema.ListAttribute{
@@ -1069,31 +1129,63 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"oob_ip_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
-					"ip": schema.StringAttribute{
-						Optional: true,
+					"gateway": schema.StringAttribute{
+						Optional:            true,
+						Description:         "if `type`==`static`",
+						MarkdownDescription: "if `type`==`static`",
 						Validators: []validator.String{
 							mistvalidator.ParseIp(true, false),
+							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static")),
+							mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("dhcp")),
+						},
+					},
+					"ip": schema.StringAttribute{
+						Optional:            true,
+						Description:         "if `type`==`static`",
+						MarkdownDescription: "if `type`==`static`",
+						Validators: []validator.String{
+							mistvalidator.ParseIp(true, false),
+							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static")),
+							mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("dhcp")),
 						},
 					},
 					"netmask": schema.StringAttribute{
 						Optional:            true,
-						Description:         "used only if `subnet` is not specified in `networks`",
-						MarkdownDescription: "used only if `subnet` is not specified in `networks`",
+						Description:         "if `type`==`static`",
+						MarkdownDescription: "if `type`==`static`",
 						Validators: []validator.String{
 							stringvalidator.Any(mistvalidator.ParseNetmask(true, true), mistvalidator.ParseVar()),
+							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static")),
+							mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("dhcp")),
 						},
 					},
 					"network": schema.StringAttribute{
 						Optional:            true,
 						Description:         "optional, the network to be used for mgmt",
 						MarkdownDescription: "optional, the network to be used for mgmt",
+						Validators: []validator.String{
+							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static")),
+							mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("dhcp")),
+						},
 					},
 					"node1": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
+							"gateway": schema.StringAttribute{
+								Optional:            true,
+								Description:         "if `type`==`static`",
+								MarkdownDescription: "if `type`==`static`",
+								Validators: []validator.String{
+									mistvalidator.ParseIp(true, false),
+									mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static")),
+									mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("dhcp")),
+								},
+							},
 							"ip": schema.StringAttribute{
 								Optional: true,
 								Validators: []validator.String{
 									mistvalidator.ParseIp(true, false),
+									mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static")),
+									mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("dhcp")),
 								},
 							},
 							"netmask": schema.StringAttribute{
@@ -1102,12 +1194,18 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 								MarkdownDescription: "used only if `subnet` is not specified in `networks`",
 								Validators: []validator.String{
 									stringvalidator.Any(mistvalidator.ParseNetmask(true, true), mistvalidator.ParseVar()),
+									mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static")),
+									mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("dhcp")),
 								},
 							},
 							"network": schema.StringAttribute{
 								Optional:            true,
 								Description:         "optional, the network to be used for mgmt",
 								MarkdownDescription: "optional, the network to be used for mgmt",
+								Validators: []validator.String{
+									mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static")),
+									mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("dhcp")),
+								},
 							},
 							"type": schema.StringAttribute{
 								Optional: true,
@@ -1135,6 +1233,12 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 								MarkdownDescription: "whether to use `mgmt_junos` for host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired",
 								Default:             booldefault.StaticBool(false),
 							},
+							"vlan_id": schema.StringAttribute{
+								Optional: true,
+								Validators: []validator.String{
+									stringvalidator.Any(mistvalidator.ParseInt(1, 4094), mistvalidator.ParseVar()),
+								},
+							},
 						},
 						CustomType: Node1Type{
 							ObjectType: types.ObjectType{
@@ -1160,8 +1264,8 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 					"use_mgmt_vrf": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "f supported on the platform. If enabled, DNS will be using this routing-instance, too",
-						MarkdownDescription: "f supported on the platform. If enabled, DNS will be using this routing-instance, too",
+						Description:         "if supported on the platform. If enabled, DNS will be using this routing-instance, too",
+						MarkdownDescription: "if supported on the platform. If enabled, DNS will be using this routing-instance, too",
 						Default:             booldefault.StaticBool(false),
 					},
 					"use_mgmt_vrf_for_host_out": schema.BoolAttribute{
@@ -1170,6 +1274,12 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 						Description:         "for host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired,",
 						MarkdownDescription: "for host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired,",
 						Default:             booldefault.StaticBool(false),
+					},
+					"vlan_id": schema.StringAttribute{
+						Optional: true,
+						Validators: []validator.String{
+							stringvalidator.Any(mistvalidator.ParseInt(1, 4094), mistvalidator.ParseVar()),
+						},
 					},
 				},
 				CustomType: OobIpConfigType{
@@ -1202,13 +1312,24 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 										Optional:            true,
 										Description:         "if `type`==`local`, if a different gateway is desired",
 										MarkdownDescription: "if `type`==`local`, if a different gateway is desired",
+										Validators: []validator.String{
+											stringvalidator.Any(mistvalidator.ParseIp(true, true), mistvalidator.ParseVar()),
+											mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("wan")),
+											mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("vpn")),
+											mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("tunnel")),
+										},
 									},
 									"internet_access": schema.BoolAttribute{
 										Optional:            true,
 										Computed:            true,
 										Description:         "when `type`==`vpn`, if this vpn path can be used for internet",
 										MarkdownDescription: "when `type`==`vpn`, if this vpn path can be used for internet",
-										Default:             booldefault.StaticBool(false),
+										Validators: []validator.Bool{
+											mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("wan")),
+											mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("local")),
+											mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("tunnel")),
+										},
+										Default: booldefault.StaticBool(false),
 									},
 									"name": schema.StringAttribute{
 										Optional: true,
@@ -1219,7 +1340,13 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 										Computed:            true,
 										Description:         "if `type`==`local`",
 										MarkdownDescription: "if `type`==`local`",
-										Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+										Validators: []validator.List{
+											mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("local")),
+											mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("wan")),
+											mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("vpn")),
+											mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("tunnel")),
+										},
+										Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 									},
 									"target_ips": schema.ListAttribute{
 										ElementType:         types.StringType,
@@ -1227,7 +1354,12 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 										Computed:            true,
 										Description:         "if `type`==`local`, if destination IP is to be replaced",
 										MarkdownDescription: "if `type`==`local`, if destination IP is to be replaced",
-										Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+										Validators: []validator.List{
+											mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("wan")),
+											mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("vpn")),
+											mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("tunnel")),
+										},
+										Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 									},
 									"type": schema.StringAttribute{
 										Optional: true,
@@ -1311,6 +1443,8 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									"vdsl",
 									"adsl",
 								),
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("broadband")),
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("dsl")),
 							},
 							Default: stringdefault.StaticString("vdsl"),
 						},
@@ -1319,14 +1453,22 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "if `wan_type`==`dsl`\n16 bit int",
 							MarkdownDescription: "if `wan_type`==`dsl`\n16 bit int",
-							Default:             int64default.StaticInt64(35),
+							Validators: []validator.Int64{
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("broadband")),
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("lte")),
+							},
+							Default: int64default.StaticInt64(35),
 						},
 						"dsl_vpi": schema.Int64Attribute{
 							Optional:            true,
 							Computed:            true,
 							Description:         "if `wan_type`==`dsl`\n8 bit int",
 							MarkdownDescription: "if `wan_type`==`dsl`\n8 bit int",
-							Default:             int64default.StaticInt64(0),
+							Validators: []validator.Int64{
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("broadband")),
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("lte")),
+							},
+							Default: int64default.StaticInt64(0),
 						},
 						"duplex": schema.StringAttribute{
 							Optional: true,
@@ -1345,6 +1487,10 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "if `wan_type`==`lte`",
 							MarkdownDescription: "if `wan_type`==`lte`",
+							Validators: []validator.String{
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("broadband")),
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("dsl")),
+							},
 						},
 						"lte_auth": schema.StringAttribute{
 							Optional:            true,
@@ -1358,6 +1504,8 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									"chap",
 									"pap",
 								),
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("broadband")),
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("dsl")),
 							},
 							Default: stringdefault.StaticString("none"),
 						},
@@ -1369,11 +1517,19 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Sensitive:           true,
 							Description:         "if `wan_type`==`lte`",
 							MarkdownDescription: "if `wan_type`==`lte`",
+							Validators: []validator.String{
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("broadband")),
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("dsl")),
+							},
 						},
 						"lte_username": schema.StringAttribute{
 							Optional:            true,
 							Description:         "if `wan_type`==`lte`",
 							MarkdownDescription: "if `wan_type`==`lte`",
+							Validators: []validator.String{
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("broadband")),
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("dsl")),
+							},
 						},
 						"mtu": schema.Int64Attribute{
 							Optional: true,
@@ -1382,6 +1538,12 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "name that we'll use to derive config",
 							MarkdownDescription: "name that we'll use to derive config",
+							Validators: []validator.String{
+								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("wan")),
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("lan")),
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("ha_data")),
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("ha_control")),
+							},
 						},
 						"networks": schema.ListAttribute{
 							ElementType:         types.StringType,
@@ -1389,7 +1551,13 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "if `usage`==`lan`",
 							MarkdownDescription: "if `usage`==`lan`",
-							Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+							Validators: []validator.List{
+								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("lan")),
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("wan")),
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("ha_data")),
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("ha_control")),
+							},
+							Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 						},
 						"outer_vlan_id": schema.Int64Attribute{
 							Optional:            true,
@@ -1422,11 +1590,19 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"ip": schema.StringAttribute{
 									Optional: true,
+									Validators: []validator.String{
+										stringvalidator.Any(mistvalidator.ParseIp(true, true), mistvalidator.ParseVar()),
+										mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static")),
+									},
 								},
 								"netmask": schema.StringAttribute{
 									Optional:            true,
 									Description:         "used only if `subnet` is not specified in `networks`",
 									MarkdownDescription: "used only if `subnet` is not specified in `networks`",
+									Validators: []validator.String{
+										stringvalidator.Any(mistvalidator.ParseNetmask(true, true), mistvalidator.ParseVar()),
+										mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static")),
+									},
 								},
 								"network": schema.StringAttribute{
 									Optional:            true,
@@ -1438,6 +1614,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									Sensitive:           true,
 									Description:         "if `type`==`pppoe`",
 									MarkdownDescription: "if `type`==`pppoe`",
+									Validators: []validator.String{
+										mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("pppoe")),
+									},
 								},
 								"pppoe_auth": schema.StringAttribute{
 									Optional:            true,
@@ -1451,6 +1630,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 											"chap",
 											"pap",
 										),
+										mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("pppoe")),
 									},
 									Default: stringdefault.StaticString("none"),
 								},
@@ -1458,6 +1638,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									Optional:            true,
 									Description:         "if `type`==`pppoe`",
 									MarkdownDescription: "if `type`==`pppoe`",
+									Validators: []validator.String{
+										mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("pppoe")),
+									},
 								},
 								"type": schema.StringAttribute{
 									Optional: true,
@@ -1486,6 +1669,11 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "if `usage`==`lan`",
 							MarkdownDescription: "if `usage`==`lan`",
+							Validators: []validator.String{
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("wan")),
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("ha_data")),
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("ha_control")),
+							},
 						},
 						"preserve_dscp": schema.BoolAttribute{
 							Optional:            true,
@@ -1660,6 +1848,8 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									"default",
 									"max",
 								),
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("lte")),
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("dsl")),
 							},
 							Default: stringdefault.StaticString("recommended"),
 						},
@@ -1704,6 +1894,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									"dsl",
 									"lte",
 								),
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("lan")),
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("ha_data")),
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("ha_control")),
 							},
 							Default: stringdefault.StaticString("broadband"),
 						},
@@ -2006,6 +2199,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",
+												"critical",
 												"strict",
 												"standard",
 											),
@@ -2185,6 +2379,12 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "Only if:\n* `provider`== `custom-ipsec`",
 							MarkdownDescription: "Only if:\n* `provider`== `custom-ipsec`",
+							Validators: []validator.Int64{
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("zscaler-ipsec")),
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("zscaler-gre")),
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("jse-ipsec")),
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("customer-gre")),
+							},
 						},
 						"ike_mode": schema.StringAttribute{
 							Optional:            true,
@@ -2197,6 +2397,10 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									"main",
 									"aggressive",
 								),
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("zscaler-ipsec")),
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("zscaler-gre")),
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("jse-ipsec")),
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("customer-gre")),
 							},
 							Default: stringdefault.StaticString("main"),
 						},
@@ -2261,11 +2465,23 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "if `provider`== `custom-ipsec`",
 							MarkdownDescription: "if `provider`== `custom-ipsec`",
+							Validators: []validator.List{
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("zscaler-ipsec")),
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("zscaler-gre")),
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("jse-ipsec")),
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("customer-gre")),
+							},
 						},
 						"ipsec_lifetime": schema.Int64Attribute{
 							Optional:            true,
 							Description:         "if `provider`== `custom-ipsec`",
 							MarkdownDescription: "if `provider`== `custom-ipsec`",
+							Validators: []validator.Int64{
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("zscaler-ipsec")),
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("zscaler-gre")),
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("jse-ipsec")),
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("customer-gre")),
+							},
 						},
 						"ipsec_proposals": schema.ListNestedAttribute{
 							NestedObject: schema.NestedAttributeObject{
@@ -2328,11 +2544,21 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "Only if:\n* `provider`== `custom-ipsec`",
 							MarkdownDescription: "Only if:\n* `provider`== `custom-ipsec`",
+							Validators: []validator.List{
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("zscaler-ipsec")),
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("zscaler-gre")),
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("jse-ipsec")),
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("customer-gre")),
+							},
 						},
 						"local_id": schema.StringAttribute{
 							Optional:            true,
 							Description:         "Only if:\n* `provider`== `zscaler-ipsec`\n* `provider`==`jse-ipsec`\n* `provider`== `custom-ipsec`",
 							MarkdownDescription: "Only if:\n* `provider`== `zscaler-ipsec`\n* `provider`==`jse-ipsec`\n* `provider`== `custom-ipsec`",
+							Validators: []validator.String{
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("zscaler-gre")),
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("customer-gre")),
+							},
 						},
 						"mode": schema.StringAttribute{
 							Optional: true,
@@ -2718,6 +2944,7 @@ type DeviceGatewayModel struct {
 	DnsServers            types.List                 `tfsdk:"dns_servers"`
 	DnsSuffix             types.List                 `tfsdk:"dns_suffix"`
 	ExtraRoutes           types.Map                  `tfsdk:"extra_routes"`
+	ExtraRoutes6          types.Map                  `tfsdk:"extra_routes6"`
 	IdpProfiles           types.Map                  `tfsdk:"idp_profiles"`
 	Image1Url             types.String               `tfsdk:"image1_url"`
 	Image2Url             types.String               `tfsdk:"image2_url"`
@@ -8623,6 +8850,330 @@ func (v ExtraRoutesValue) Type(ctx context.Context) attr.Type {
 }
 
 func (v ExtraRoutesValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"via": basetypes.StringType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = ExtraRoutes6Type{}
+
+type ExtraRoutes6Type struct {
+	basetypes.ObjectType
+}
+
+func (t ExtraRoutes6Type) Equal(o attr.Type) bool {
+	other, ok := o.(ExtraRoutes6Type)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t ExtraRoutes6Type) String() string {
+	return "ExtraRoutes6Type"
+}
+
+func (t ExtraRoutes6Type) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	viaAttribute, ok := attributes["via"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`via is missing from object`)
+
+		return nil, diags
+	}
+
+	viaVal, ok := viaAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`via expected to be basetypes.StringValue, was: %T`, viaAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return ExtraRoutes6Value{
+		Via:   viaVal,
+		state: attr.ValueStateKnown,
+	}, diags
+}
+
+func NewExtraRoutes6ValueNull() ExtraRoutes6Value {
+	return ExtraRoutes6Value{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewExtraRoutes6ValueUnknown() ExtraRoutes6Value {
+	return ExtraRoutes6Value{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewExtraRoutes6Value(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (ExtraRoutes6Value, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing ExtraRoutes6Value Attribute Value",
+				"While creating a ExtraRoutes6Value value, a missing attribute value was detected. "+
+					"A ExtraRoutes6Value must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("ExtraRoutes6Value Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid ExtraRoutes6Value Attribute Type",
+				"While creating a ExtraRoutes6Value value, an invalid attribute value was detected. "+
+					"A ExtraRoutes6Value must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("ExtraRoutes6Value Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("ExtraRoutes6Value Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra ExtraRoutes6Value Attribute Value",
+				"While creating a ExtraRoutes6Value value, an extra attribute value was detected. "+
+					"A ExtraRoutes6Value must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra ExtraRoutes6Value Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewExtraRoutes6ValueUnknown(), diags
+	}
+
+	viaAttribute, ok := attributes["via"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`via is missing from object`)
+
+		return NewExtraRoutes6ValueUnknown(), diags
+	}
+
+	viaVal, ok := viaAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`via expected to be basetypes.StringValue, was: %T`, viaAttribute))
+	}
+
+	if diags.HasError() {
+		return NewExtraRoutes6ValueUnknown(), diags
+	}
+
+	return ExtraRoutes6Value{
+		Via:   viaVal,
+		state: attr.ValueStateKnown,
+	}, diags
+}
+
+func NewExtraRoutes6ValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) ExtraRoutes6Value {
+	object, diags := NewExtraRoutes6Value(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewExtraRoutes6ValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t ExtraRoutes6Type) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewExtraRoutes6ValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewExtraRoutes6ValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewExtraRoutes6ValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewExtraRoutes6ValueMust(ExtraRoutes6Value{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t ExtraRoutes6Type) ValueType(ctx context.Context) attr.Value {
+	return ExtraRoutes6Value{}
+}
+
+var _ basetypes.ObjectValuable = ExtraRoutes6Value{}
+
+type ExtraRoutes6Value struct {
+	Via   basetypes.StringValue `tfsdk:"via"`
+	state attr.ValueState
+}
+
+func (v ExtraRoutes6Value) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 1)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["via"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 1)
+
+		val, err = v.Via.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["via"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v ExtraRoutes6Value) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v ExtraRoutes6Value) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v ExtraRoutes6Value) String() string {
+	return "ExtraRoutes6Value"
+}
+
+func (v ExtraRoutes6Value) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"via": basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"via": v.Via,
+		})
+
+	return objVal, diags
+}
+
+func (v ExtraRoutes6Value) Equal(o attr.Value) bool {
+	other, ok := o.(ExtraRoutes6Value)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Via.Equal(other.Via) {
+		return false
+	}
+
+	return true
+}
+
+func (v ExtraRoutes6Value) Type(ctx context.Context) attr.Type {
+	return ExtraRoutes6Type{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v ExtraRoutes6Value) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"via": basetypes.StringType{},
 	}
@@ -15834,6 +16385,24 @@ func (t OobIpConfigType) ValueFromObject(ctx context.Context, in basetypes.Objec
 
 	attributes := in.Attributes()
 
+	gatewayAttribute, ok := attributes["gateway"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`gateway is missing from object`)
+
+		return nil, diags
+	}
+
+	gatewayVal, ok := gatewayAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`gateway expected to be basetypes.StringValue, was: %T`, gatewayAttribute))
+	}
+
 	ipAttribute, ok := attributes["ip"]
 
 	if !ok {
@@ -15960,11 +16529,30 @@ func (t OobIpConfigType) ValueFromObject(ctx context.Context, in basetypes.Objec
 			fmt.Sprintf(`use_mgmt_vrf_for_host_out expected to be basetypes.BoolValue, was: %T`, useMgmtVrfForHostOutAttribute))
 	}
 
+	vlanIdAttribute, ok := attributes["vlan_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`vlan_id is missing from object`)
+
+		return nil, diags
+	}
+
+	vlanIdVal, ok := vlanIdAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`vlan_id expected to be basetypes.StringValue, was: %T`, vlanIdAttribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
 
 	return OobIpConfigValue{
+		Gateway:              gatewayVal,
 		Ip:                   ipVal,
 		Netmask:              netmaskVal,
 		Network:              networkVal,
@@ -15972,6 +16560,7 @@ func (t OobIpConfigType) ValueFromObject(ctx context.Context, in basetypes.Objec
 		OobIpConfigType:      typeVal,
 		UseMgmtVrf:           useMgmtVrfVal,
 		UseMgmtVrfForHostOut: useMgmtVrfForHostOutVal,
+		VlanId:               vlanIdVal,
 		state:                attr.ValueStateKnown,
 	}, diags
 }
@@ -16039,6 +16628,24 @@ func NewOobIpConfigValue(attributeTypes map[string]attr.Type, attributes map[str
 		return NewOobIpConfigValueUnknown(), diags
 	}
 
+	gatewayAttribute, ok := attributes["gateway"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`gateway is missing from object`)
+
+		return NewOobIpConfigValueUnknown(), diags
+	}
+
+	gatewayVal, ok := gatewayAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`gateway expected to be basetypes.StringValue, was: %T`, gatewayAttribute))
+	}
+
 	ipAttribute, ok := attributes["ip"]
 
 	if !ok {
@@ -16165,11 +16772,30 @@ func NewOobIpConfigValue(attributeTypes map[string]attr.Type, attributes map[str
 			fmt.Sprintf(`use_mgmt_vrf_for_host_out expected to be basetypes.BoolValue, was: %T`, useMgmtVrfForHostOutAttribute))
 	}
 
+	vlanIdAttribute, ok := attributes["vlan_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`vlan_id is missing from object`)
+
+		return NewOobIpConfigValueUnknown(), diags
+	}
+
+	vlanIdVal, ok := vlanIdAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`vlan_id expected to be basetypes.StringValue, was: %T`, vlanIdAttribute))
+	}
+
 	if diags.HasError() {
 		return NewOobIpConfigValueUnknown(), diags
 	}
 
 	return OobIpConfigValue{
+		Gateway:              gatewayVal,
 		Ip:                   ipVal,
 		Netmask:              netmaskVal,
 		Network:              networkVal,
@@ -16177,6 +16803,7 @@ func NewOobIpConfigValue(attributeTypes map[string]attr.Type, attributes map[str
 		OobIpConfigType:      typeVal,
 		UseMgmtVrf:           useMgmtVrfVal,
 		UseMgmtVrfForHostOut: useMgmtVrfForHostOutVal,
+		VlanId:               vlanIdVal,
 		state:                attr.ValueStateKnown,
 	}, diags
 }
@@ -16249,6 +16876,7 @@ func (t OobIpConfigType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = OobIpConfigValue{}
 
 type OobIpConfigValue struct {
+	Gateway              basetypes.StringValue `tfsdk:"gateway"`
 	Ip                   basetypes.StringValue `tfsdk:"ip"`
 	Netmask              basetypes.StringValue `tfsdk:"netmask"`
 	Network              basetypes.StringValue `tfsdk:"network"`
@@ -16256,15 +16884,17 @@ type OobIpConfigValue struct {
 	OobIpConfigType      basetypes.StringValue `tfsdk:"type"`
 	UseMgmtVrf           basetypes.BoolValue   `tfsdk:"use_mgmt_vrf"`
 	UseMgmtVrfForHostOut basetypes.BoolValue   `tfsdk:"use_mgmt_vrf_for_host_out"`
+	VlanId               basetypes.StringValue `tfsdk:"vlan_id"`
 	state                attr.ValueState
 }
 
 func (v OobIpConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 7)
+	attrTypes := make(map[string]tftypes.Type, 9)
 
 	var val tftypes.Value
 	var err error
 
+	attrTypes["gateway"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["ip"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["netmask"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["network"] = basetypes.StringType{}.TerraformType(ctx)
@@ -16274,12 +16904,21 @@ func (v OobIpConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 	attrTypes["type"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["use_mgmt_vrf"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["use_mgmt_vrf_for_host_out"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["vlan_id"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 7)
+		vals := make(map[string]tftypes.Value, 9)
+
+		val, err = v.Gateway.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["gateway"] = val
 
 		val, err = v.Ip.ToTerraformValue(ctx)
 
@@ -16337,6 +16976,14 @@ func (v OobIpConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 
 		vals["use_mgmt_vrf_for_host_out"] = val
 
+		val, err = v.VlanId.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["vlan_id"] = val
+
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
@@ -16388,6 +17035,7 @@ func (v OobIpConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 	}
 
 	attributeTypes := map[string]attr.Type{
+		"gateway": basetypes.StringType{},
 		"ip":      basetypes.StringType{},
 		"netmask": basetypes.StringType{},
 		"network": basetypes.StringType{},
@@ -16397,6 +17045,7 @@ func (v OobIpConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 		"type":                      basetypes.StringType{},
 		"use_mgmt_vrf":              basetypes.BoolType{},
 		"use_mgmt_vrf_for_host_out": basetypes.BoolType{},
+		"vlan_id":                   basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -16410,6 +17059,7 @@ func (v OobIpConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
+			"gateway":                   v.Gateway,
 			"ip":                        v.Ip,
 			"netmask":                   v.Netmask,
 			"network":                   v.Network,
@@ -16417,6 +17067,7 @@ func (v OobIpConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 			"type":                      v.OobIpConfigType,
 			"use_mgmt_vrf":              v.UseMgmtVrf,
 			"use_mgmt_vrf_for_host_out": v.UseMgmtVrfForHostOut,
+			"vlan_id":                   v.VlanId,
 		})
 
 	return objVal, diags
@@ -16435,6 +17086,10 @@ func (v OobIpConfigValue) Equal(o attr.Value) bool {
 
 	if v.state != attr.ValueStateKnown {
 		return true
+	}
+
+	if !v.Gateway.Equal(other.Gateway) {
+		return false
 	}
 
 	if !v.Ip.Equal(other.Ip) {
@@ -16465,6 +17120,10 @@ func (v OobIpConfigValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.VlanId.Equal(other.VlanId) {
+		return false
+	}
+
 	return true
 }
 
@@ -16478,6 +17137,7 @@ func (v OobIpConfigValue) Type(ctx context.Context) attr.Type {
 
 func (v OobIpConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
+		"gateway": basetypes.StringType{},
 		"ip":      basetypes.StringType{},
 		"netmask": basetypes.StringType{},
 		"network": basetypes.StringType{},
@@ -16487,6 +17147,7 @@ func (v OobIpConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Ty
 		"type":                      basetypes.StringType{},
 		"use_mgmt_vrf":              basetypes.BoolType{},
 		"use_mgmt_vrf_for_host_out": basetypes.BoolType{},
+		"vlan_id":                   basetypes.StringType{},
 	}
 }
 
@@ -16514,6 +17175,24 @@ func (t Node1Type) ValueFromObject(ctx context.Context, in basetypes.ObjectValue
 	var diags diag.Diagnostics
 
 	attributes := in.Attributes()
+
+	gatewayAttribute, ok := attributes["gateway"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`gateway is missing from object`)
+
+		return nil, diags
+	}
+
+	gatewayVal, ok := gatewayAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`gateway expected to be basetypes.StringValue, was: %T`, gatewayAttribute))
+	}
 
 	ipAttribute, ok := attributes["ip"]
 
@@ -16623,17 +17302,37 @@ func (t Node1Type) ValueFromObject(ctx context.Context, in basetypes.ObjectValue
 			fmt.Sprintf(`use_mgmt_vrf_for_host_out expected to be basetypes.BoolValue, was: %T`, useMgmtVrfForHostOutAttribute))
 	}
 
+	vlanIdAttribute, ok := attributes["vlan_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`vlan_id is missing from object`)
+
+		return nil, diags
+	}
+
+	vlanIdVal, ok := vlanIdAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`vlan_id expected to be basetypes.StringValue, was: %T`, vlanIdAttribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
 
 	return Node1Value{
+		Gateway:              gatewayVal,
 		Ip:                   ipVal,
 		Netmask:              netmaskVal,
 		Network:              networkVal,
 		Node1Type:            typeVal,
 		UseMgmtVrf:           useMgmtVrfVal,
 		UseMgmtVrfForHostOut: useMgmtVrfForHostOutVal,
+		VlanId:               vlanIdVal,
 		state:                attr.ValueStateKnown,
 	}, diags
 }
@@ -16701,6 +17400,24 @@ func NewNode1Value(attributeTypes map[string]attr.Type, attributes map[string]at
 		return NewNode1ValueUnknown(), diags
 	}
 
+	gatewayAttribute, ok := attributes["gateway"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`gateway is missing from object`)
+
+		return NewNode1ValueUnknown(), diags
+	}
+
+	gatewayVal, ok := gatewayAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`gateway expected to be basetypes.StringValue, was: %T`, gatewayAttribute))
+	}
+
 	ipAttribute, ok := attributes["ip"]
 
 	if !ok {
@@ -16809,17 +17526,37 @@ func NewNode1Value(attributeTypes map[string]attr.Type, attributes map[string]at
 			fmt.Sprintf(`use_mgmt_vrf_for_host_out expected to be basetypes.BoolValue, was: %T`, useMgmtVrfForHostOutAttribute))
 	}
 
+	vlanIdAttribute, ok := attributes["vlan_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`vlan_id is missing from object`)
+
+		return NewNode1ValueUnknown(), diags
+	}
+
+	vlanIdVal, ok := vlanIdAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`vlan_id expected to be basetypes.StringValue, was: %T`, vlanIdAttribute))
+	}
+
 	if diags.HasError() {
 		return NewNode1ValueUnknown(), diags
 	}
 
 	return Node1Value{
+		Gateway:              gatewayVal,
 		Ip:                   ipVal,
 		Netmask:              netmaskVal,
 		Network:              networkVal,
 		Node1Type:            typeVal,
 		UseMgmtVrf:           useMgmtVrfVal,
 		UseMgmtVrfForHostOut: useMgmtVrfForHostOutVal,
+		VlanId:               vlanIdVal,
 		state:                attr.ValueStateKnown,
 	}, diags
 }
@@ -16892,33 +17629,45 @@ func (t Node1Type) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = Node1Value{}
 
 type Node1Value struct {
+	Gateway              basetypes.StringValue `tfsdk:"gateway"`
 	Ip                   basetypes.StringValue `tfsdk:"ip"`
 	Netmask              basetypes.StringValue `tfsdk:"netmask"`
 	Network              basetypes.StringValue `tfsdk:"network"`
 	Node1Type            basetypes.StringValue `tfsdk:"type"`
 	UseMgmtVrf           basetypes.BoolValue   `tfsdk:"use_mgmt_vrf"`
 	UseMgmtVrfForHostOut basetypes.BoolValue   `tfsdk:"use_mgmt_vrf_for_host_out"`
+	VlanId               basetypes.StringValue `tfsdk:"vlan_id"`
 	state                attr.ValueState
 }
 
 func (v Node1Value) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 6)
+	attrTypes := make(map[string]tftypes.Type, 8)
 
 	var val tftypes.Value
 	var err error
 
+	attrTypes["gateway"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["ip"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["netmask"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["network"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["type"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["use_mgmt_vrf"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["use_mgmt_vrf_for_host_out"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["vlan_id"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 6)
+		vals := make(map[string]tftypes.Value, 8)
+
+		val, err = v.Gateway.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["gateway"] = val
 
 		val, err = v.Ip.ToTerraformValue(ctx)
 
@@ -16968,6 +17717,14 @@ func (v Node1Value) ToTerraformValue(ctx context.Context) (tftypes.Value, error)
 
 		vals["use_mgmt_vrf_for_host_out"] = val
 
+		val, err = v.VlanId.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["vlan_id"] = val
+
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
@@ -16998,12 +17755,14 @@ func (v Node1Value) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 	var diags diag.Diagnostics
 
 	attributeTypes := map[string]attr.Type{
+		"gateway":                   basetypes.StringType{},
 		"ip":                        basetypes.StringType{},
 		"netmask":                   basetypes.StringType{},
 		"network":                   basetypes.StringType{},
 		"type":                      basetypes.StringType{},
 		"use_mgmt_vrf":              basetypes.BoolType{},
 		"use_mgmt_vrf_for_host_out": basetypes.BoolType{},
+		"vlan_id":                   basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -17017,12 +17776,14 @@ func (v Node1Value) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
+			"gateway":                   v.Gateway,
 			"ip":                        v.Ip,
 			"netmask":                   v.Netmask,
 			"network":                   v.Network,
 			"type":                      v.Node1Type,
 			"use_mgmt_vrf":              v.UseMgmtVrf,
 			"use_mgmt_vrf_for_host_out": v.UseMgmtVrfForHostOut,
+			"vlan_id":                   v.VlanId,
 		})
 
 	return objVal, diags
@@ -17041,6 +17802,10 @@ func (v Node1Value) Equal(o attr.Value) bool {
 
 	if v.state != attr.ValueStateKnown {
 		return true
+	}
+
+	if !v.Gateway.Equal(other.Gateway) {
+		return false
 	}
 
 	if !v.Ip.Equal(other.Ip) {
@@ -17067,6 +17832,10 @@ func (v Node1Value) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.VlanId.Equal(other.VlanId) {
+		return false
+	}
+
 	return true
 }
 
@@ -17080,12 +17849,14 @@ func (v Node1Value) Type(ctx context.Context) attr.Type {
 
 func (v Node1Value) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
+		"gateway":                   basetypes.StringType{},
 		"ip":                        basetypes.StringType{},
 		"netmask":                   basetypes.StringType{},
 		"network":                   basetypes.StringType{},
 		"type":                      basetypes.StringType{},
 		"use_mgmt_vrf":              basetypes.BoolType{},
 		"use_mgmt_vrf_for_host_out": basetypes.BoolType{},
+		"vlan_id":                   basetypes.StringType{},
 	}
 }
 
