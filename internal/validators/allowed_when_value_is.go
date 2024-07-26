@@ -13,34 +13,34 @@ import (
 )
 
 var (
-	_ NineTypesValidator = ForbiddenWhenValueIsValidator{}
+	_ NineTypesValidator = AllowedWhenValueIsValidator{}
 )
 
-type ForbiddenWhenValueIsValidator struct {
+type AllowedWhenValueIsValidator struct {
 	Expression path.Expression
 	Value      attr.Value
 }
 
-type ForbiddenWhenValueIsRequest struct {
+type AllowedWhenValueIsRequest struct {
 	Config         tfsdk.Config
 	ConfigValue    attr.Value
 	Path           path.Path
 	PathExpression path.Expression
 }
 
-type ForbiddenWhenValueIsResponse struct {
+type AllowedWhenValueIsResponse struct {
 	Diagnostics diag.Diagnostics
 }
 
-func (o ForbiddenWhenValueIsValidator) Description(_ context.Context) string {
+func (o AllowedWhenValueIsValidator) Description(_ context.Context) string {
 	return fmt.Sprintf("Ensures that no value is supplied when attribute at %q has value %s", o.Expression, o.Value)
 }
 
-func (o ForbiddenWhenValueIsValidator) MarkdownDescription(ctx context.Context) string {
+func (o AllowedWhenValueIsValidator) MarkdownDescription(ctx context.Context) string {
 	return o.Description(ctx)
 }
 
-func (o ForbiddenWhenValueIsValidator) Validate(ctx context.Context, req ForbiddenWhenValueIsRequest, resp *ForbiddenWhenValueIsResponse) {
+func (o AllowedWhenValueIsValidator) Validate(ctx context.Context, req AllowedWhenValueIsRequest, resp *AllowedWhenValueIsResponse) {
 	// can't proceed while value is unknown
 	if req.ConfigValue.IsUnknown() {
 		return
@@ -75,158 +75,153 @@ func (o ForbiddenWhenValueIsValidator) Validate(ctx context.Context, req Forbidd
 			}
 
 			// Unknown attributes can't satisfy the valueIs condition
-			if mpVal.IsUnknown() {
-				return
-			}
-
-			// is the forbidden value found in the matched path?
-			if o.Value.Equal(mpVal) {
+			if mpVal.IsUnknown() || !o.Value.Equal(mpVal) {
 				resp.Diagnostics.Append(validatordiag.InvalidAttributeCombinationDiagnostic(
 					req.Path,
-					fmt.Sprintf("attribute %q must not be set when %q has value %s, got: %q", req.Path, mp, mpVal, req.ConfigValue),
+					fmt.Sprintf("attribute %q must be set to %q when %q has value, got: %q", mp, o.Value, req.Path, mpVal),
 				))
 			}
 		}
 	}
 }
 
-func (o ForbiddenWhenValueIsValidator) ValidateBool(ctx context.Context, req validator.BoolRequest, resp *validator.BoolResponse) {
-	validateReq := ForbiddenWhenValueIsRequest{
+func (o AllowedWhenValueIsValidator) ValidateBool(ctx context.Context, req validator.BoolRequest, resp *validator.BoolResponse) {
+	validateReq := AllowedWhenValueIsRequest{
 		Config:         req.Config,
 		ConfigValue:    req.ConfigValue,
 		Path:           req.Path,
 		PathExpression: req.PathExpression,
 	}
 
-	validateResp := &ForbiddenWhenValueIsResponse{}
+	validateResp := &AllowedWhenValueIsResponse{}
 
 	o.Validate(ctx, validateReq, validateResp)
 
 	resp.Diagnostics.Append(validateResp.Diagnostics...)
 }
 
-func (o ForbiddenWhenValueIsValidator) ValidateFloat64(ctx context.Context, req validator.Float64Request, resp *validator.Float64Response) {
-	validateReq := ForbiddenWhenValueIsRequest{
+func (o AllowedWhenValueIsValidator) ValidateFloat64(ctx context.Context, req validator.Float64Request, resp *validator.Float64Response) {
+	validateReq := AllowedWhenValueIsRequest{
 		Config:         req.Config,
 		ConfigValue:    req.ConfigValue,
 		Path:           req.Path,
 		PathExpression: req.PathExpression,
 	}
 
-	validateResp := &ForbiddenWhenValueIsResponse{}
+	validateResp := &AllowedWhenValueIsResponse{}
 
 	o.Validate(ctx, validateReq, validateResp)
 
 	resp.Diagnostics.Append(validateResp.Diagnostics...)
 }
 
-func (o ForbiddenWhenValueIsValidator) ValidateInt64(ctx context.Context, req validator.Int64Request, resp *validator.Int64Response) {
-	validateReq := ForbiddenWhenValueIsRequest{
+func (o AllowedWhenValueIsValidator) ValidateInt64(ctx context.Context, req validator.Int64Request, resp *validator.Int64Response) {
+	validateReq := AllowedWhenValueIsRequest{
 		Config:         req.Config,
 		ConfigValue:    req.ConfigValue,
 		Path:           req.Path,
 		PathExpression: req.PathExpression,
 	}
 
-	validateResp := &ForbiddenWhenValueIsResponse{}
+	validateResp := &AllowedWhenValueIsResponse{}
 
 	o.Validate(ctx, validateReq, validateResp)
 
 	resp.Diagnostics.Append(validateResp.Diagnostics...)
 }
 
-func (o ForbiddenWhenValueIsValidator) ValidateList(ctx context.Context, req validator.ListRequest, resp *validator.ListResponse) {
-	validateReq := ForbiddenWhenValueIsRequest{
+func (o AllowedWhenValueIsValidator) ValidateList(ctx context.Context, req validator.ListRequest, resp *validator.ListResponse) {
+	validateReq := AllowedWhenValueIsRequest{
 		Config:         req.Config,
 		ConfigValue:    req.ConfigValue,
 		Path:           req.Path,
 		PathExpression: req.PathExpression,
 	}
 
-	validateResp := &ForbiddenWhenValueIsResponse{}
+	validateResp := &AllowedWhenValueIsResponse{}
 
 	o.Validate(ctx, validateReq, validateResp)
 
 	resp.Diagnostics.Append(validateResp.Diagnostics...)
 }
 
-func (o ForbiddenWhenValueIsValidator) ValidateMap(ctx context.Context, req validator.MapRequest, resp *validator.MapResponse) {
-	validateReq := ForbiddenWhenValueIsRequest{
+func (o AllowedWhenValueIsValidator) ValidateMap(ctx context.Context, req validator.MapRequest, resp *validator.MapResponse) {
+	validateReq := AllowedWhenValueIsRequest{
 		Config:         req.Config,
 		ConfigValue:    req.ConfigValue,
 		Path:           req.Path,
 		PathExpression: req.PathExpression,
 	}
 
-	validateResp := &ForbiddenWhenValueIsResponse{}
+	validateResp := &AllowedWhenValueIsResponse{}
 
 	o.Validate(ctx, validateReq, validateResp)
 
 	resp.Diagnostics.Append(validateResp.Diagnostics...)
 }
 
-func (o ForbiddenWhenValueIsValidator) ValidateNumber(ctx context.Context, req validator.NumberRequest, resp *validator.NumberResponse) {
-	validateReq := ForbiddenWhenValueIsRequest{
+func (o AllowedWhenValueIsValidator) ValidateNumber(ctx context.Context, req validator.NumberRequest, resp *validator.NumberResponse) {
+	validateReq := AllowedWhenValueIsRequest{
 		Config:         req.Config,
 		ConfigValue:    req.ConfigValue,
 		Path:           req.Path,
 		PathExpression: req.PathExpression,
 	}
 
-	validateResp := &ForbiddenWhenValueIsResponse{}
+	validateResp := &AllowedWhenValueIsResponse{}
 
 	o.Validate(ctx, validateReq, validateResp)
 
 	resp.Diagnostics.Append(validateResp.Diagnostics...)
 }
 
-func (o ForbiddenWhenValueIsValidator) ValidateObject(ctx context.Context, req validator.ObjectRequest, resp *validator.ObjectResponse) {
-	validateReq := ForbiddenWhenValueIsRequest{
+func (o AllowedWhenValueIsValidator) ValidateObject(ctx context.Context, req validator.ObjectRequest, resp *validator.ObjectResponse) {
+	validateReq := AllowedWhenValueIsRequest{
 		Config:         req.Config,
 		ConfigValue:    req.ConfigValue,
 		Path:           req.Path,
 		PathExpression: req.PathExpression,
 	}
 
-	validateResp := &ForbiddenWhenValueIsResponse{}
+	validateResp := &AllowedWhenValueIsResponse{}
 
 	o.Validate(ctx, validateReq, validateResp)
 
 	resp.Diagnostics.Append(validateResp.Diagnostics...)
 }
 
-func (o ForbiddenWhenValueIsValidator) ValidateSet(ctx context.Context, req validator.SetRequest, resp *validator.SetResponse) {
-	validateReq := ForbiddenWhenValueIsRequest{
+func (o AllowedWhenValueIsValidator) ValidateSet(ctx context.Context, req validator.SetRequest, resp *validator.SetResponse) {
+	validateReq := AllowedWhenValueIsRequest{
 		Config:         req.Config,
 		ConfigValue:    req.ConfigValue,
 		Path:           req.Path,
 		PathExpression: req.PathExpression,
 	}
 
-	validateResp := &ForbiddenWhenValueIsResponse{}
+	validateResp := &AllowedWhenValueIsResponse{}
 
 	o.Validate(ctx, validateReq, validateResp)
 
 	resp.Diagnostics.Append(validateResp.Diagnostics...)
 }
 
-func (o ForbiddenWhenValueIsValidator) ValidateString(ctx context.Context, req validator.StringRequest, resp *validator.StringResponse) {
-	validateReq := ForbiddenWhenValueIsRequest{
+func (o AllowedWhenValueIsValidator) ValidateString(ctx context.Context, req validator.StringRequest, resp *validator.StringResponse) {
+	validateReq := AllowedWhenValueIsRequest{
 		Config:         req.Config,
 		ConfigValue:    req.ConfigValue,
 		Path:           req.Path,
 		PathExpression: req.PathExpression,
 	}
 
-	validateResp := &ForbiddenWhenValueIsResponse{}
+	validateResp := &AllowedWhenValueIsResponse{}
 
 	o.Validate(ctx, validateReq, validateResp)
 
 	resp.Diagnostics.Append(validateResp.Diagnostics...)
 }
 
-func ForbiddenWhenValueIs(expression path.Expression, value attr.Value) ForbiddenWhenValueIsValidator {
-	return ForbiddenWhenValueIsValidator{
+func AllowedWhenValueIs(expression path.Expression, value attr.Value) AllowedWhenValueIsValidator {
+	return AllowedWhenValueIsValidator{
 		Expression: expression,
 		Value:      value,
 	}

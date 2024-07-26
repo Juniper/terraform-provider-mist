@@ -27,18 +27,6 @@ type RequiredWhenValueIsRequest struct {
 	PathExpression path.Expression
 }
 
-type NineTypesValidator interface {
-	validator.Bool
-	validator.Float64
-	validator.Int64
-	validator.List
-	validator.Map
-	validator.Number
-	validator.Object
-	validator.Set
-	validator.String
-}
-
 type RequiredWhenValueIsResponse struct {
 	Diagnostics diag.Diagnostics
 }
@@ -72,7 +60,7 @@ func (o RequiredWhenValueIsValidator) Validate(ctx context.Context, req Required
 		}
 
 		for _, mp := range matchedPaths {
-			// If the user specifies the same attribute this apstra_validator is applied to,
+			// If the user specifies the same attribute this mist_validator is applied to,
 			// also as part of the input, skip it
 			if mp.Equal(req.Path) {
 				continue
