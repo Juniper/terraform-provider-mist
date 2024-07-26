@@ -12,15 +12,45 @@ import (
 
 func TerraformToSdk(ctx context.Context, plan *OrgNacruleModel) (models.NacRule, diag.Diagnostics) {
 	var diags diag.Diagnostics
+
+	unset := make(map[string]interface{})
 	data := models.NacRule{}
 
-	data.Action = *models.ToPointer(models.NacRuleActionEnum(plan.Action.ValueString()))
-	data.ApplyTags = mist_transform.ListOfStringTerraformToSdk(ctx, plan.ApplyTags)
-	data.Enabled = models.ToPointer(plan.Enabled.ValueBool())
-	data.Matching = matchingTerraformToSdk(ctx, &diags, plan.Matching)
-	data.Name = plan.Name.ValueString()
-	data.NotMatching = notMatchingTerraformToSdk(ctx, &diags, plan.NotMatching)
-	data.Order = models.ToPointer(int(plan.Order.ValueInt64()))
+	if !plan.Action.IsNull() && !plan.Action.IsUnknown() {
+		data.Action = *models.ToPointer(models.NacRuleActionEnum(plan.Action.ValueString()))
+	} else {
+		unset["-action"] = ""
+	}
+	if !plan.ApplyTags.IsNull() && !plan.ApplyTags.IsUnknown() {
+		data.ApplyTags = mist_transform.ListOfStringTerraformToSdk(ctx, plan.ApplyTags)
+	} else {
+		unset["-apply_tags"] = ""
+	}
+	if !plan.Enabled.IsNull() && !plan.Enabled.IsUnknown() {
+		data.Enabled = models.ToPointer(plan.Enabled.ValueBool())
+	} else {
+		unset["-enabled"] = ""
+	}
+	if !plan.Matching.IsNull() && !plan.Matching.IsUnknown() {
+		data.Matching = matchingTerraformToSdk(ctx, &diags, plan.Matching)
+	} else {
+		unset["-matching"] = ""
+	}
+	if !plan.Name.IsNull() && !plan.Name.IsUnknown() {
+		data.Name = plan.Name.ValueString()
+	} else {
+		unset["-name"] = ""
+	}
+	if !plan.NotMatching.IsNull() && !plan.NotMatching.IsUnknown() {
+		data.NotMatching = notMatchingTerraformToSdk(ctx, &diags, plan.NotMatching)
+	} else {
+		unset["-not_matching"] = ""
+	}
+	if !plan.Order.IsNull() && !plan.Order.IsUnknown() {
+		data.Order = models.ToPointer(int(plan.Order.ValueInt64()))
+	} else {
+		unset["-order"] = ""
+	}
 
 	return data, diags
 }
