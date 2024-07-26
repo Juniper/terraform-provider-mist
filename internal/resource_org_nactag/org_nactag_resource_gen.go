@@ -29,11 +29,17 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "if `type`==`egress_vlan_names`, list of egress vlans to return",
 				MarkdownDescription: "if `type`==`egress_vlan_names`, list of egress vlans to return",
+				Validators: []validator.List{
+					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("egress_vlan_names")),
+				},
 			},
 			"gbp_tag": schema.Int64Attribute{
 				Optional:            true,
 				Description:         "if `type`==`gbp_tag`",
 				MarkdownDescription: "if `type`==`gbp_tag`",
+				Validators: []validator.Int64{
+					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("gbp_tag")),
+				},
 			},
 			"id": schema.StringAttribute{
 				Computed: true,
