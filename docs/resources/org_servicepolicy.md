@@ -46,7 +46,7 @@ resource "mist_org_servicepolicy" "servicepolicy_one" {
 - `ewf` (Attributes List) (see [below for nested schema](#nestedatt--ewf))
 - `idp` (Attributes) (see [below for nested schema](#nestedatt--idp))
 - `local_routing` (Boolean) access within the same VRF
-- `path_preferences` (String) by default, we derive all paths available and use them
+- `path_preference` (String) by default, we derive all paths available and use them
 optionally, you can customize by using `path_preference`
 - `services` (List of String)
 - `tenants` (List of String)

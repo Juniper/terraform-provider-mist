@@ -44,7 +44,7 @@ Read-Only:
 - `modified_time` (Number)
 - `name` (String)
 - `org_id` (String)
-- `path_preferences` (String) by default, we derive all paths available and use them
+- `path_preference` (String) by default, we derive all paths available and use them
 optionally, you can customize by using `path_preference`
 - `services` (List of String)
 - `tenants` (List of String)

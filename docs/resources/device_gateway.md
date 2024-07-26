@@ -146,7 +146,7 @@ Optional:
 Optional:
 
 - `config` (Attributes Map) (see [below for nested schema](#nestedatt--dhcpd_config--config))
-- `enabled` (Boolean) if set to `true`, disable the DHCP server
+- `enabled` (Boolean) if set to `true`, enable the DHCP server
 
 <a id="nestedatt--dhcpd_config--config"></a>
 ### Nested Schema for `dhcpd_config.config`
@@ -406,7 +406,6 @@ Optional:
 - `gateway` (String) if `type`==`static`
 - `ip` (String) if `type`==`static`
 - `netmask` (String) if `type`==`static`
-- `network` (String) optional, the network to be used for mgmt
 - `node1` (Attributes) for HA Cluster, node1 can have different IP Config (see [below for nested schema](#nestedatt--oob_ip_config--node1))
 - `type` (String)
 - `use_mgmt_vrf` (Boolean) if supported on the platform. If enabled, DNS will be using this routing-instance, too
@@ -421,7 +420,6 @@ Optional:
 - `gateway` (String) if `type`==`static`
 - `ip` (String)
 - `netmask` (String) used only if `subnet` is not specified in `networks`
-- `network` (String) optional, the network to be used for mgmt
 - `type` (String)
 - `use_mgmt_vrf` (Boolean) if supported on the platform. If enabled, DNS will be using this routing-instance, too
 - `use_mgmt_vrf_for_host_out` (Boolean) whether to use `mgmt_junos` for host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired
@@ -443,14 +441,14 @@ Optional:
 Optional:
 
 - `cost` (Number)
-- `disabled` (Boolean) For SSR Only. `true`` if this specific path is undesired
-- `gateway_ip` (String) if `type`==`local`, if a different gateway is desired
-- `internet_access` (Boolean) when `type`==`vpn`, if this vpn path can be used for internet
-- `name` (String)
-- `networks` (List of String) if `type`==`local`
+- `disabled` (Boolean) For SSR Only. `true`, if this specific path is undesired
+- `gateway_ip` (String) only if `type`==`local`, if a different gateway is desired
+- `internet_access` (Boolean) only if `type`==`vpn`, if this vpn path can be used for internet
+- `name` (String) required when * `type`==`vpn`: the name of the VPN Path to use * `type`==`wan`: the name of the WAN interface to use
+- `networks` (List of String) required when `type`==`local`
 - `target_ips` (List of String) if `type`==`local`, if destination IP is to be replaced
 - `type` (String)
-- `wan_name` (String) Spoke's outgoing wan
+- `wan_name` (String) required when`type`==`tunnel`, optional if `type`==`vpn` wan
 
 
 
@@ -660,7 +658,7 @@ Optional:
 - `idp` (Attributes) (see [below for nested schema](#nestedatt--service_policies--idp))
 - `local_routing` (Boolean) access within the same VRF
 - `name` (String)
-- `path_preferences` (String) by default, we derive all paths available and use them
+- `path_preference` (String) by default, we derive all paths available and use them
 optionally, you can customize by using `path_preference`
 - `servicepolicy_id` (String) used to link servicepolicy defined at org level and overwrite some attributes
 - `services` (List of String)

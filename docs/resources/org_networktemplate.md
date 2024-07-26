@@ -266,11 +266,11 @@ NOTE: this features requires uplink device to also a be Juniper device and `inte
 
 Optional:
 
-- `input_networks_ingress` (List of String) at least one of the `ingress_port_ids`, `egress_port_ids` or `ingress_networks ` should be specified
-- `input_port_ids_egress` (List of String) at least one of the `ingress_port_ids`, `egress_port_ids` or `ingress_networks ` should be specified
-- `input_port_ids_ingress` (List of String) at least one of the `ingress_port_ids`, `egress_port_ids` or `ingress_networks ` should be specified
-- `output_network` (String)
-- `output_port_id` (String) exaclty on of the `output_port_id` or `output_network` should be provided
+- `input_networks_ingress` (List of String) at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified
+- `input_port_ids_egress` (List of String) at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified
+- `input_port_ids_ingress` (List of String) at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified
+- `output_network` (String) exaclty one of the `output_port_id` or `output_network` should be provided
+- `output_port_id` (String) exaclty one of the `output_port_id` or `output_network` should be provided
 
 
 <a id="nestedatt--port_usages"></a>
@@ -289,19 +289,19 @@ When it is not defined, it means using the system’s default setting which depe
 - `disable_autoneg` (Boolean) Only if `mode`!=`dynamic` if speed and duplex are specified, whether to disable autonegotiation
 - `disabled` (Boolean) Only if `mode`!=`dynamic` whether the port is disabled
 - `duplex` (String) Only if `mode`!=`dynamic` link connection mode
-- `dynamic_vlan_networks` (List of String) Only if `mode`!=`dynamic` if dynamic vlan is used, specify the possible networks/vlans RADIUS can return
+- `dynamic_vlan_networks` (List of String) Only if `mode`!=`dynamic` and `port_auth`==`dot1x`, if dynamic vlan is used, specify the possible networks/vlans RADIUS can return
 - `enable_mac_auth` (Boolean) Only if `mode`!=`dynamic` and `port_auth`==`dot1x` whether to enable MAC Auth
-- `enable_qos` (Boolean)
+- `enable_qos` (Boolean) Only if `mode`!=`dynamic`
 - `guest_network` (String) Only if `mode`!=`dynamic` and `port_auth`==`dot1x` which network to put the device into if the device cannot do dot1x. default is null (i.e. not allowed)
 - `inter_switch_link` (Boolean) Only if `mode`!=`dynamic` inter_switch_link is used together with "isolation" under networks
 NOTE: inter_switch_link works only between Juniper device. This has to be applied to both ports connected together
 - `mac_auth_only` (Boolean) Only if `mode`!=`dynamic` and `enable_mac_auth`==`true`
-- `mac_auth_protocol` (String) if `enable_mac_auth` ==`true`. This type is ignored if mist_nac is enabled.
+- `mac_auth_protocol` (String) Only if `mode`!=`dynamic` and `enable_mac_auth` ==`true`. This type is ignored if mist_nac is enabled.
 - `mac_limit` (Number) Only if `mode`!=`dynamic` max number of mac addresses, default is 0 for unlimited, otherwise range is 1 or higher, with upper bound constrained by platform
 - `mode` (String) `mode`==`dynamic` must only be used with the port usage with the name `dynamic`
 - `mtu` (Number) Only if `mode`!=`dynamic` media maximum transmission unit (MTU) is the largest data unit that can be forwarded without fragmentation. The default value is 1514.
 - `networks` (List of String) Only if `mode`==`trunk`, the list of network/vlans
-- `persist_mac` (Boolean) Only if `mode`!=`dynamic` and `mode`==`access` and `port_auth`!=`dot1x` whether the port should retain dynamically learned MAC addresses
+- `persist_mac` (Boolean) Only if `mode`==`access` and `port_auth`!=`dot1x` whether the port should retain dynamically learned MAC addresses
 - `poe_disabled` (Boolean) Only if `mode`!=`dynamic` whether PoE capabilities are disabled for a port
 - `port_auth` (String) Only if `mode`!=`dynamic` if dot1x is desired, set to dot1x
 - `port_network` (String) Only if `mode`!=`dynamic` native network/vlan for untagged traffic
@@ -774,11 +774,11 @@ Optional:
 
 Optional:
 
-- `input_networks_ingress` (List of String) at least one of the `ingress_port_ids`, `egress_port_ids` or `ingress_networks ` should be specified
-- `input_port_ids_egress` (List of String) at least one of the `ingress_port_ids`, `egress_port_ids` or `ingress_networks ` should be specified
-- `input_port_ids_ingress` (List of String) at least one of the `ingress_port_ids`, `egress_port_ids` or `ingress_networks ` should be specified
-- `output_network` (String)
-- `output_port_id` (String) exaclty on of the `output_port_id` or `output_network` should be provided
+- `input_networks_ingress` (List of String) at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified
+- `input_port_ids_egress` (List of String) at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified
+- `input_port_ids_ingress` (List of String) at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified
+- `output_network` (String) exaclty one of the `output_port_id` or `output_network` should be provided
+- `output_port_id` (String) exaclty one of the `output_port_id` or `output_network` should be provided
 
 
 
