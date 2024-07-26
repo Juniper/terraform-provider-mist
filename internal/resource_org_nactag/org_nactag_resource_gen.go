@@ -71,7 +71,7 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 			"name": schema.StringAttribute{
 				Required: true,
 				Validators: []validator.String{
-					stringvalidator.All(stringvalidator.LengthBetween(2, 32), mistvalidator.ParseName()),
+					stringvalidator.LengthBetween(1, 32),
 				},
 			},
 			"org_id": schema.StringAttribute{
