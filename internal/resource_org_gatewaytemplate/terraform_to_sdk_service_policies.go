@@ -108,8 +108,8 @@ func servicePoliciesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics,
 		if plan.Name.ValueStringPointer() != nil {
 			data.Name = models.ToPointer(plan.Name.ValueString())
 		}
-		if plan.PathPreferences.ValueStringPointer() != nil {
-			data.PathPreferences = models.ToPointer(plan.PathPreferences.ValueString())
+		if plan.PathPreference.ValueStringPointer() != nil {
+			data.PathPreference = models.ToPointer(plan.PathPreference.ValueString())
 		}
 		if plan.ServicepolicyId.ValueStringPointer() != nil {
 			service_policy_id, e := uuid.Parse(plan.ServicepolicyId.ValueString())

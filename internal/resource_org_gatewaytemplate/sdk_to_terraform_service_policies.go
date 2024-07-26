@@ -109,7 +109,7 @@ func servicePoliciesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics,
 		var idp basetypes.ObjectValue = types.ObjectNull(IdpValue{}.AttributeTypes(ctx))
 		var local_routing basetypes.BoolValue = types.BoolValue(false)
 		var name basetypes.StringValue
-		var path_preferences basetypes.StringValue
+		var path_preference basetypes.StringValue
 		var servicepolicy_id basetypes.StringValue
 		var services basetypes.ListValue = mist_transform.ListOfStringSdkToTerraform(ctx, v.Services)
 		var tenants basetypes.ListValue = mist_transform.ListOfStringSdkToTerraform(ctx, v.Tenants)
@@ -132,8 +132,8 @@ func servicePoliciesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics,
 		if v.Name != nil {
 			name = types.StringValue(*v.Name)
 		}
-		if v.PathPreferences != nil {
-			path_preferences = types.StringValue(*v.PathPreferences)
+		if v.PathPreference != nil {
+			path_preference = types.StringValue(*v.PathPreference)
 		}
 		if v.ServicepolicyId != nil {
 			servicepolicy_id = types.StringValue(v.ServicepolicyId.String())
@@ -147,7 +147,7 @@ func servicePoliciesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics,
 			"idp":              idp,
 			"local_routing":    local_routing,
 			"name":             name,
-			"path_preferences": path_preferences,
+			"path_preference":  path_preference,
 			"servicepolicy_id": servicepolicy_id,
 			"services":         services,
 			"tenants":          tenants,

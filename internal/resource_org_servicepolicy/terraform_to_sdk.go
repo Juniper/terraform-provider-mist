@@ -51,8 +51,8 @@ func TerraformToSdk(ctx context.Context, plan *OrgServicepolicyModel) (models.Or
 		data.Name = plan.Name.ValueStringPointer()
 	}
 
-	if plan.PathPreferences.ValueStringPointer() != nil {
-		data.PathPreferences = plan.PathPreferences.ValueStringPointer()
+	if plan.PathPreference.ValueStringPointer() != nil {
+		data.PathPreference = plan.PathPreference.ValueStringPointer()
 	} else {
 		unset["-path_preferences"] = ""
 	}

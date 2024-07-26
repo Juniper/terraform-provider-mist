@@ -112,7 +112,7 @@ func OrgServicepoliciesDataSourceSchema(ctx context.Context) schema.Schema {
 						"org_id": schema.StringAttribute{
 							Computed: true,
 						},
-						"path_preferences": schema.StringAttribute{
+						"path_preference": schema.StringAttribute{
 							Computed:            true,
 							Description:         "by default, we derive all paths available and use them\noptionally, you can customize by using `path_preference`",
 							MarkdownDescription: "by default, we derive all paths available and use them\noptionally, you can customize by using `path_preference`",
@@ -348,22 +348,22 @@ func (t OrgServicepoliciesType) ValueFromObject(ctx context.Context, in basetype
 			fmt.Sprintf(`org_id expected to be basetypes.StringValue, was: %T`, orgIdAttribute))
 	}
 
-	pathPreferencesAttribute, ok := attributes["path_preferences"]
+	pathPreferenceAttribute, ok := attributes["path_preference"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`path_preferences is missing from object`)
+			`path_preference is missing from object`)
 
 		return nil, diags
 	}
 
-	pathPreferencesVal, ok := pathPreferencesAttribute.(basetypes.StringValue)
+	pathPreferenceVal, ok := pathPreferenceAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`path_preferences expected to be basetypes.StringValue, was: %T`, pathPreferencesAttribute))
+			fmt.Sprintf(`path_preference expected to be basetypes.StringValue, was: %T`, pathPreferenceAttribute))
 	}
 
 	servicesAttribute, ok := attributes["services"]
@@ -407,20 +407,20 @@ func (t OrgServicepoliciesType) ValueFromObject(ctx context.Context, in basetype
 	}
 
 	return OrgServicepoliciesValue{
-		Action:          actionVal,
-		Appqoe:          appqoeVal,
-		CreatedTime:     createdTimeVal,
-		Ewf:             ewfVal,
-		Id:              idVal,
-		Idp:             idpVal,
-		LocalRouting:    localRoutingVal,
-		ModifiedTime:    modifiedTimeVal,
-		Name:            nameVal,
-		OrgId:           orgIdVal,
-		PathPreferences: pathPreferencesVal,
-		Services:        servicesVal,
-		Tenants:         tenantsVal,
-		state:           attr.ValueStateKnown,
+		Action:         actionVal,
+		Appqoe:         appqoeVal,
+		CreatedTime:    createdTimeVal,
+		Ewf:            ewfVal,
+		Id:             idVal,
+		Idp:            idpVal,
+		LocalRouting:   localRoutingVal,
+		ModifiedTime:   modifiedTimeVal,
+		Name:           nameVal,
+		OrgId:          orgIdVal,
+		PathPreference: pathPreferenceVal,
+		Services:       servicesVal,
+		Tenants:        tenantsVal,
+		state:          attr.ValueStateKnown,
 	}, diags
 }
 
@@ -667,22 +667,22 @@ func NewOrgServicepoliciesValue(attributeTypes map[string]attr.Type, attributes 
 			fmt.Sprintf(`org_id expected to be basetypes.StringValue, was: %T`, orgIdAttribute))
 	}
 
-	pathPreferencesAttribute, ok := attributes["path_preferences"]
+	pathPreferenceAttribute, ok := attributes["path_preference"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`path_preferences is missing from object`)
+			`path_preference is missing from object`)
 
 		return NewOrgServicepoliciesValueUnknown(), diags
 	}
 
-	pathPreferencesVal, ok := pathPreferencesAttribute.(basetypes.StringValue)
+	pathPreferenceVal, ok := pathPreferenceAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`path_preferences expected to be basetypes.StringValue, was: %T`, pathPreferencesAttribute))
+			fmt.Sprintf(`path_preference expected to be basetypes.StringValue, was: %T`, pathPreferenceAttribute))
 	}
 
 	servicesAttribute, ok := attributes["services"]
@@ -726,20 +726,20 @@ func NewOrgServicepoliciesValue(attributeTypes map[string]attr.Type, attributes 
 	}
 
 	return OrgServicepoliciesValue{
-		Action:          actionVal,
-		Appqoe:          appqoeVal,
-		CreatedTime:     createdTimeVal,
-		Ewf:             ewfVal,
-		Id:              idVal,
-		Idp:             idpVal,
-		LocalRouting:    localRoutingVal,
-		ModifiedTime:    modifiedTimeVal,
-		Name:            nameVal,
-		OrgId:           orgIdVal,
-		PathPreferences: pathPreferencesVal,
-		Services:        servicesVal,
-		Tenants:         tenantsVal,
-		state:           attr.ValueStateKnown,
+		Action:         actionVal,
+		Appqoe:         appqoeVal,
+		CreatedTime:    createdTimeVal,
+		Ewf:            ewfVal,
+		Id:             idVal,
+		Idp:            idpVal,
+		LocalRouting:   localRoutingVal,
+		ModifiedTime:   modifiedTimeVal,
+		Name:           nameVal,
+		OrgId:          orgIdVal,
+		PathPreference: pathPreferenceVal,
+		Services:       servicesVal,
+		Tenants:        tenantsVal,
+		state:          attr.ValueStateKnown,
 	}, diags
 }
 
@@ -811,20 +811,20 @@ func (t OrgServicepoliciesType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = OrgServicepoliciesValue{}
 
 type OrgServicepoliciesValue struct {
-	Action          basetypes.StringValue `tfsdk:"action"`
-	Appqoe          basetypes.ObjectValue `tfsdk:"appqoe"`
-	CreatedTime     basetypes.NumberValue `tfsdk:"created_time"`
-	Ewf             basetypes.ListValue   `tfsdk:"ewf"`
-	Id              basetypes.StringValue `tfsdk:"id"`
-	Idp             basetypes.ObjectValue `tfsdk:"idp"`
-	LocalRouting    basetypes.BoolValue   `tfsdk:"local_routing"`
-	ModifiedTime    basetypes.NumberValue `tfsdk:"modified_time"`
-	Name            basetypes.StringValue `tfsdk:"name"`
-	OrgId           basetypes.StringValue `tfsdk:"org_id"`
-	PathPreferences basetypes.StringValue `tfsdk:"path_preferences"`
-	Services        basetypes.ListValue   `tfsdk:"services"`
-	Tenants         basetypes.ListValue   `tfsdk:"tenants"`
-	state           attr.ValueState
+	Action         basetypes.StringValue `tfsdk:"action"`
+	Appqoe         basetypes.ObjectValue `tfsdk:"appqoe"`
+	CreatedTime    basetypes.NumberValue `tfsdk:"created_time"`
+	Ewf            basetypes.ListValue   `tfsdk:"ewf"`
+	Id             basetypes.StringValue `tfsdk:"id"`
+	Idp            basetypes.ObjectValue `tfsdk:"idp"`
+	LocalRouting   basetypes.BoolValue   `tfsdk:"local_routing"`
+	ModifiedTime   basetypes.NumberValue `tfsdk:"modified_time"`
+	Name           basetypes.StringValue `tfsdk:"name"`
+	OrgId          basetypes.StringValue `tfsdk:"org_id"`
+	PathPreference basetypes.StringValue `tfsdk:"path_preference"`
+	Services       basetypes.ListValue   `tfsdk:"services"`
+	Tenants        basetypes.ListValue   `tfsdk:"tenants"`
+	state          attr.ValueState
 }
 
 func (v OrgServicepoliciesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
@@ -849,7 +849,7 @@ func (v OrgServicepoliciesValue) ToTerraformValue(ctx context.Context) (tftypes.
 	attrTypes["modified_time"] = basetypes.NumberType{}.TerraformType(ctx)
 	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["org_id"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["path_preferences"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["path_preference"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["services"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
@@ -943,13 +943,13 @@ func (v OrgServicepoliciesValue) ToTerraformValue(ctx context.Context) (tftypes.
 
 		vals["org_id"] = val
 
-		val, err = v.PathPreferences.ToTerraformValue(ctx)
+		val, err = v.PathPreference.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["path_preferences"] = val
+		vals["path_preference"] = val
 
 		val, err = v.Services.ToTerraformValue(ctx)
 
@@ -1085,11 +1085,11 @@ func (v OrgServicepoliciesValue) ToObjectValue(ctx context.Context) (basetypes.O
 			"idp": basetypes.ObjectType{
 				AttrTypes: IdpValue{}.AttributeTypes(ctx),
 			},
-			"local_routing":    basetypes.BoolType{},
-			"modified_time":    basetypes.NumberType{},
-			"name":             basetypes.StringType{},
-			"org_id":           basetypes.StringType{},
-			"path_preferences": basetypes.StringType{},
+			"local_routing":   basetypes.BoolType{},
+			"modified_time":   basetypes.NumberType{},
+			"name":            basetypes.StringType{},
+			"org_id":          basetypes.StringType{},
+			"path_preference": basetypes.StringType{},
 			"services": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -1117,11 +1117,11 @@ func (v OrgServicepoliciesValue) ToObjectValue(ctx context.Context) (basetypes.O
 			"idp": basetypes.ObjectType{
 				AttrTypes: IdpValue{}.AttributeTypes(ctx),
 			},
-			"local_routing":    basetypes.BoolType{},
-			"modified_time":    basetypes.NumberType{},
-			"name":             basetypes.StringType{},
-			"org_id":           basetypes.StringType{},
-			"path_preferences": basetypes.StringType{},
+			"local_routing":   basetypes.BoolType{},
+			"modified_time":   basetypes.NumberType{},
+			"name":            basetypes.StringType{},
+			"org_id":          basetypes.StringType{},
+			"path_preference": basetypes.StringType{},
 			"services": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -1144,11 +1144,11 @@ func (v OrgServicepoliciesValue) ToObjectValue(ctx context.Context) (basetypes.O
 		"idp": basetypes.ObjectType{
 			AttrTypes: IdpValue{}.AttributeTypes(ctx),
 		},
-		"local_routing":    basetypes.BoolType{},
-		"modified_time":    basetypes.NumberType{},
-		"name":             basetypes.StringType{},
-		"org_id":           basetypes.StringType{},
-		"path_preferences": basetypes.StringType{},
+		"local_routing":   basetypes.BoolType{},
+		"modified_time":   basetypes.NumberType{},
+		"name":            basetypes.StringType{},
+		"org_id":          basetypes.StringType{},
+		"path_preference": basetypes.StringType{},
 		"services": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -1168,19 +1168,19 @@ func (v OrgServicepoliciesValue) ToObjectValue(ctx context.Context) (basetypes.O
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"action":           v.Action,
-			"appqoe":           appqoe,
-			"created_time":     v.CreatedTime,
-			"ewf":              ewf,
-			"id":               v.Id,
-			"idp":              idp,
-			"local_routing":    v.LocalRouting,
-			"modified_time":    v.ModifiedTime,
-			"name":             v.Name,
-			"org_id":           v.OrgId,
-			"path_preferences": v.PathPreferences,
-			"services":         servicesVal,
-			"tenants":          tenantsVal,
+			"action":          v.Action,
+			"appqoe":          appqoe,
+			"created_time":    v.CreatedTime,
+			"ewf":             ewf,
+			"id":              v.Id,
+			"idp":             idp,
+			"local_routing":   v.LocalRouting,
+			"modified_time":   v.ModifiedTime,
+			"name":            v.Name,
+			"org_id":          v.OrgId,
+			"path_preference": v.PathPreference,
+			"services":        servicesVal,
+			"tenants":         tenantsVal,
 		})
 
 	return objVal, diags
@@ -1241,7 +1241,7 @@ func (v OrgServicepoliciesValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.PathPreferences.Equal(other.PathPreferences) {
+	if !v.PathPreference.Equal(other.PathPreference) {
 		return false
 	}
 
@@ -1278,11 +1278,11 @@ func (v OrgServicepoliciesValue) AttributeTypes(ctx context.Context) map[string]
 		"idp": basetypes.ObjectType{
 			AttrTypes: IdpValue{}.AttributeTypes(ctx),
 		},
-		"local_routing":    basetypes.BoolType{},
-		"modified_time":    basetypes.NumberType{},
-		"name":             basetypes.StringType{},
-		"org_id":           basetypes.StringType{},
-		"path_preferences": basetypes.StringType{},
+		"local_routing":   basetypes.BoolType{},
+		"modified_time":   basetypes.NumberType{},
+		"name":            basetypes.StringType{},
+		"org_id":          basetypes.StringType{},
+		"path_preference": basetypes.StringType{},
 		"services": basetypes.ListType{
 			ElemType: types.StringType,
 		},

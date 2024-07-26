@@ -138,7 +138,7 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 			"org_id": schema.StringAttribute{
 				Required: true,
 			},
-			"path_preferences": schema.StringAttribute{
+			"path_preference": schema.StringAttribute{
 				Optional:            true,
 				Description:         "by default, we derive all paths available and use them\noptionally, you can customize by using `path_preference`",
 				MarkdownDescription: "by default, we derive all paths available and use them\noptionally, you can customize by using `path_preference`",
@@ -162,17 +162,17 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 }
 
 type OrgServicepolicyModel struct {
-	Action          types.String `tfsdk:"action"`
-	Appqoe          AppqoeValue  `tfsdk:"appqoe"`
-	Ewf             types.List   `tfsdk:"ewf"`
-	Id              types.String `tfsdk:"id"`
-	Idp             IdpValue     `tfsdk:"idp"`
-	LocalRouting    types.Bool   `tfsdk:"local_routing"`
-	Name            types.String `tfsdk:"name"`
-	OrgId           types.String `tfsdk:"org_id"`
-	PathPreferences types.String `tfsdk:"path_preferences"`
-	Services        types.List   `tfsdk:"services"`
-	Tenants         types.List   `tfsdk:"tenants"`
+	Action         types.String `tfsdk:"action"`
+	Appqoe         AppqoeValue  `tfsdk:"appqoe"`
+	Ewf            types.List   `tfsdk:"ewf"`
+	Id             types.String `tfsdk:"id"`
+	Idp            IdpValue     `tfsdk:"idp"`
+	LocalRouting   types.Bool   `tfsdk:"local_routing"`
+	Name           types.String `tfsdk:"name"`
+	OrgId          types.String `tfsdk:"org_id"`
+	PathPreference types.String `tfsdk:"path_preference"`
+	Services       types.List   `tfsdk:"services"`
+	Tenants        types.List   `tfsdk:"tenants"`
 }
 
 var _ basetypes.ObjectTypable = AppqoeType{}

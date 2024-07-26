@@ -22,7 +22,7 @@ func SdkToTerraform(ctx context.Context, d *models.OrgServicePolicy) (OrgService
 	var local_routing types.Bool
 	var name types.String
 	var org_id types.String
-	var path_preferences types.String
+	var path_preference types.String
 	var services types.List = types.ListNull(types.StringType)
 	var tenants types.List = types.ListNull(types.StringType)
 
@@ -48,8 +48,8 @@ func SdkToTerraform(ctx context.Context, d *models.OrgServicePolicy) (OrgService
 	}
 	org_id = types.StringValue(d.OrgId.String())
 
-	if d.PathPreferences != nil {
-		path_preferences = types.StringValue(*d.PathPreferences)
+	if d.PathPreference != nil {
+		path_preference = types.StringValue(*d.PathPreference)
 	}
 	if d.Services != nil {
 		services = mist_transform.ListOfStringSdkToTerraform(ctx, d.Services)
@@ -66,7 +66,7 @@ func SdkToTerraform(ctx context.Context, d *models.OrgServicePolicy) (OrgService
 	state.LocalRouting = local_routing
 	state.Name = name
 	state.OrgId = org_id
-	state.PathPreferences = path_preferences
+	state.PathPreference = path_preference
 	state.Services = services
 	state.Tenants = tenants
 

@@ -43,7 +43,7 @@ func servicepolicieSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 	var modified_time basetypes.NumberValue
 	var name types.String
 	var org_id types.String
-	var path_preferences types.String
+	var path_preference types.String
 	var services types.List = types.ListNull(types.StringType)
 	var tenants types.List = types.ListNull(types.StringType)
 
@@ -75,8 +75,8 @@ func servicepolicieSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 	}
 	org_id = types.StringValue(d.OrgId.String())
 
-	if d.PathPreferences != nil {
-		path_preferences = types.StringValue(*d.PathPreferences)
+	if d.PathPreference != nil {
+		path_preference = types.StringValue(*d.PathPreference)
 	}
 	if d.Services != nil {
 		services = mist_transform.ListOfStringSdkToTerraform(ctx, d.Services)
@@ -87,19 +87,19 @@ func servicepolicieSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 
 	data_map_attr_type := OrgServicepoliciesValue{}.AttributeTypes(ctx)
 	data_map_value := map[string]attr.Value{
-		"created_time":     created_time,
-		"action":           action,
-		"appqoe":           appqoe,
-		"ewf":              ewf,
-		"id":               id,
-		"idp":              idp,
-		"local_routing":    local_routing,
-		"modified_time":    modified_time,
-		"name":             name,
-		"org_id":           org_id,
-		"path_preferences": path_preferences,
-		"services":         services,
-		"tenants":          tenants,
+		"created_time":    created_time,
+		"action":          action,
+		"appqoe":          appqoe,
+		"ewf":             ewf,
+		"id":              id,
+		"idp":             idp,
+		"local_routing":   local_routing,
+		"modified_time":   modified_time,
+		"name":            name,
+		"org_id":          org_id,
+		"path_preference": path_preference,
+		"services":        services,
+		"tenants":         tenants,
 	}
 	data, e := NewOrgServicepoliciesValue(data_map_attr_type, data_map_value)
 	diags.Append(e...)
