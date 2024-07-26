@@ -524,8 +524,8 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 					"enabled": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "if set to `true`, disable the DHCP server",
-						MarkdownDescription: "if set to `true`, disable the DHCP server",
+						Description:         "if set to `true`, enable the DHCP server",
+						MarkdownDescription: "if set to `true`, enable the DHCP server",
 						Default:             booldefault.StaticBool(false),
 					},
 				},
@@ -1159,15 +1159,6 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("dhcp")),
 						},
 					},
-					"network": schema.StringAttribute{
-						Optional:            true,
-						Description:         "optional, the network to be used for mgmt",
-						MarkdownDescription: "optional, the network to be used for mgmt",
-						Validators: []validator.String{
-							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static")),
-							mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("dhcp")),
-						},
-					},
 					"node1": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
 							"gateway": schema.StringAttribute{
@@ -1202,10 +1193,6 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 								Optional:            true,
 								Description:         "optional, the network to be used for mgmt",
 								MarkdownDescription: "optional, the network to be used for mgmt",
-								Validators: []validator.String{
-									mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static")),
-									mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("dhcp")),
-								},
 							},
 							"type": schema.StringAttribute{
 								Optional: true,
@@ -16441,24 +16428,6 @@ func (t OobIpConfigType) ValueFromObject(ctx context.Context, in basetypes.Objec
 			fmt.Sprintf(`netmask expected to be basetypes.StringValue, was: %T`, netmaskAttribute))
 	}
 
-	networkAttribute, ok := attributes["network"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`network is missing from object`)
-
-		return nil, diags
-	}
-
-	networkVal, ok := networkAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`network expected to be basetypes.StringValue, was: %T`, networkAttribute))
-	}
-
 	node1Attribute, ok := attributes["node1"]
 
 	if !ok {
@@ -16557,7 +16526,6 @@ func (t OobIpConfigType) ValueFromObject(ctx context.Context, in basetypes.Objec
 		Gateway:              gatewayVal,
 		Ip:                   ipVal,
 		Netmask:              netmaskVal,
-		Network:              networkVal,
 		Node1:                node1Val,
 		OobIpConfigType:      typeVal,
 		UseMgmtVrf:           useMgmtVrfVal,
@@ -16684,24 +16652,6 @@ func NewOobIpConfigValue(attributeTypes map[string]attr.Type, attributes map[str
 			fmt.Sprintf(`netmask expected to be basetypes.StringValue, was: %T`, netmaskAttribute))
 	}
 
-	networkAttribute, ok := attributes["network"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`network is missing from object`)
-
-		return NewOobIpConfigValueUnknown(), diags
-	}
-
-	networkVal, ok := networkAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`network expected to be basetypes.StringValue, was: %T`, networkAttribute))
-	}
-
 	node1Attribute, ok := attributes["node1"]
 
 	if !ok {
@@ -16800,7 +16750,6 @@ func NewOobIpConfigValue(attributeTypes map[string]attr.Type, attributes map[str
 		Gateway:              gatewayVal,
 		Ip:                   ipVal,
 		Netmask:              netmaskVal,
-		Network:              networkVal,
 		Node1:                node1Val,
 		OobIpConfigType:      typeVal,
 		UseMgmtVrf:           useMgmtVrfVal,
@@ -16881,7 +16830,6 @@ type OobIpConfigValue struct {
 	Gateway              basetypes.StringValue `tfsdk:"gateway"`
 	Ip                   basetypes.StringValue `tfsdk:"ip"`
 	Netmask              basetypes.StringValue `tfsdk:"netmask"`
-	Network              basetypes.StringValue `tfsdk:"network"`
 	Node1                basetypes.ObjectValue `tfsdk:"node1"`
 	OobIpConfigType      basetypes.StringValue `tfsdk:"type"`
 	UseMgmtVrf           basetypes.BoolValue   `tfsdk:"use_mgmt_vrf"`
@@ -16891,7 +16839,7 @@ type OobIpConfigValue struct {
 }
 
 func (v OobIpConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 9)
+	attrTypes := make(map[string]tftypes.Type, 8)
 
 	var val tftypes.Value
 	var err error
@@ -16899,7 +16847,6 @@ func (v OobIpConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 	attrTypes["gateway"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["ip"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["netmask"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["network"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["node1"] = basetypes.ObjectType{
 		AttrTypes: Node1Value{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
@@ -16912,7 +16859,7 @@ func (v OobIpConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 9)
+		vals := make(map[string]tftypes.Value, 8)
 
 		val, err = v.Gateway.ToTerraformValue(ctx)
 
@@ -16937,14 +16884,6 @@ func (v OobIpConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 		}
 
 		vals["netmask"] = val
-
-		val, err = v.Network.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["network"] = val
 
 		val, err = v.Node1.ToTerraformValue(ctx)
 
@@ -17040,7 +16979,6 @@ func (v OobIpConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 		"gateway": basetypes.StringType{},
 		"ip":      basetypes.StringType{},
 		"netmask": basetypes.StringType{},
-		"network": basetypes.StringType{},
 		"node1": basetypes.ObjectType{
 			AttrTypes: Node1Value{}.AttributeTypes(ctx),
 		},
@@ -17064,7 +17002,6 @@ func (v OobIpConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 			"gateway":                   v.Gateway,
 			"ip":                        v.Ip,
 			"netmask":                   v.Netmask,
-			"network":                   v.Network,
 			"node1":                     node1,
 			"type":                      v.OobIpConfigType,
 			"use_mgmt_vrf":              v.UseMgmtVrf,
@@ -17099,10 +17036,6 @@ func (v OobIpConfigValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.Netmask.Equal(other.Netmask) {
-		return false
-	}
-
-	if !v.Network.Equal(other.Network) {
 		return false
 	}
 
@@ -17142,7 +17075,6 @@ func (v OobIpConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Ty
 		"gateway": basetypes.StringType{},
 		"ip":      basetypes.StringType{},
 		"netmask": basetypes.StringType{},
-		"network": basetypes.StringType{},
 		"node1": basetypes.ObjectType{
 			AttrTypes: Node1Value{}.AttributeTypes(ctx),
 		},

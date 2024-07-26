@@ -195,8 +195,8 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		if d.PoeDisabled != nil {
 			poe_disabled = types.BoolValue(*d.PoeDisabled)
 		}
-		if d.PortAuth != nil {
-			port_auth = types.StringValue(*d.PortAuth)
+		if d.PortAuth.Value() != nil {
+			port_auth = types.StringValue(string(*d.PortAuth.Value()))
 		}
 		if d.PortNetwork != nil {
 			port_network = types.StringValue(*d.PortNetwork)

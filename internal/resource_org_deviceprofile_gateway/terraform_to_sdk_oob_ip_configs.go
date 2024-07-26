@@ -25,10 +25,6 @@ func oobIpConfigNode1TerraformToSdk(ctx context.Context, diags *diag.Diagnostics
 			if plan.Netmask.ValueStringPointer() != nil {
 				data.Netmask = plan.Netmask.ValueStringPointer()
 			}
-			if plan.Network.ValueStringPointer() != nil {
-				data.Network = plan.Network.ValueStringPointer()
-			}
-
 			if plan.Node1Type.ValueStringPointer() != nil {
 				data.Type = (*models.IpTypeEnum)(plan.Node1Type.ValueStringPointer())
 			}
@@ -58,9 +54,6 @@ func oobIpConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d O
 	}
 	if d.Netmask.ValueStringPointer() != nil {
 		data.Netmask = d.Netmask.ValueStringPointer()
-	}
-	if d.Network.ValueStringPointer() != nil {
-		data.Network = d.Network.ValueStringPointer()
 	}
 	if !d.Node1.IsNull() && !d.Node1.IsUnknown() {
 		data.Node1 = oobIpConfigNode1TerraformToSdk(ctx, diags, d.Node1)

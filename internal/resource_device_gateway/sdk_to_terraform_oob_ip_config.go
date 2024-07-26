@@ -15,7 +15,6 @@ func oobIpConfigsNode1SdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 	var gateway basetypes.StringValue
 	var ip basetypes.StringValue
 	var netmask basetypes.StringValue
-	var network basetypes.StringValue
 	var type_oob basetypes.StringValue = types.StringValue("dhcp")
 	var use_mgmt_vrf basetypes.BoolValue = types.BoolValue(false)
 	var use_mgmt_vrf_for_host_out basetypes.BoolValue = types.BoolValue(false)
@@ -29,9 +28,6 @@ func oobIpConfigsNode1SdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 	}
 	if d != nil && d.Netmask != nil {
 		netmask = types.StringValue(*d.Netmask)
-	}
-	if d != nil && d.Network != nil {
-		network = types.StringValue(*d.Network)
 	}
 	if d != nil && d.Type != nil {
 		type_oob = types.StringValue(string(*d.Type))
@@ -51,7 +47,6 @@ func oobIpConfigsNode1SdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 		"gateway":                   gateway,
 		"ip":                        ip,
 		"netmask":                   netmask,
-		"network":                   network,
 		"type":                      type_oob,
 		"use_mgmt_vrf":              use_mgmt_vrf,
 		"use_mgmt_vrf_for_host_out": use_mgmt_vrf_for_host_out,
@@ -67,7 +62,6 @@ func oobIpConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	var gateway basetypes.StringValue
 	var ip basetypes.StringValue
 	var netmask basetypes.StringValue
-	var network basetypes.StringValue
 	var node1 basetypes.ObjectValue = types.ObjectNull(Node1Value{}.AttributeTypes(ctx))
 	var type_oob basetypes.StringValue = types.StringValue("dhcp")
 	var use_mgmt_vrf basetypes.BoolValue = types.BoolValue(false)
@@ -82,9 +76,6 @@ func oobIpConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	}
 	if d != nil && d.Netmask != nil {
 		netmask = types.StringValue(*d.Netmask)
-	}
-	if d != nil && d.Network != nil {
-		network = types.StringValue(*d.Network)
 	}
 	if d != nil && d.Node1 != nil {
 		node1 = oobIpConfigsNode1SdkToTerraform(ctx, diags, d.Node1)
@@ -107,7 +98,6 @@ func oobIpConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 		"gateway":                   gateway,
 		"ip":                        ip,
 		"netmask":                   netmask,
-		"network":                   network,
 		"node1":                     node1,
 		"type":                      type_oob,
 		"use_mgmt_vrf":              use_mgmt_vrf,
