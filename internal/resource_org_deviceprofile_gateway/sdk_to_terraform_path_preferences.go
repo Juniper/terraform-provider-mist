@@ -20,7 +20,7 @@ func pathPreferencePathsSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 		var cost basetypes.Int64Value
 		var disabled basetypes.BoolValue
 		var gateway_ip basetypes.StringValue
-		var internet_access basetypes.BoolValue = types.BoolValue(false)
+		var internet_access basetypes.BoolValue
 		var name basetypes.StringValue
 		var networks basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 		var target_ips basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)

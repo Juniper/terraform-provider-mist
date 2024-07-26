@@ -1189,11 +1189,6 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("dhcp")),
 								},
 							},
-							"network": schema.StringAttribute{
-								Optional:            true,
-								Description:         "optional, the network to be used for mgmt",
-								MarkdownDescription: "optional, the network to be used for mgmt",
-							},
 							"type": schema.StringAttribute{
 								Optional: true,
 								Computed: true,
@@ -1292,46 +1287,43 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									},
 									"disabled": schema.BoolAttribute{
 										Optional:            true,
-										Description:         "For SSR Only. `true`` if this specific path is undesired",
-										MarkdownDescription: "For SSR Only. `true`` if this specific path is undesired",
+										Description:         "For SSR Only. `true`, if this specific path is undesired",
+										MarkdownDescription: "For SSR Only. `true`, if this specific path is undesired",
 									},
 									"gateway_ip": schema.StringAttribute{
 										Optional:            true,
-										Description:         "if `type`==`local`, if a different gateway is desired",
-										MarkdownDescription: "if `type`==`local`, if a different gateway is desired",
+										Description:         "only if `type`==`local`, if a different gateway is desired",
+										MarkdownDescription: "only if `type`==`local`, if a different gateway is desired",
 										Validators: []validator.String{
 											stringvalidator.Any(mistvalidator.ParseIp(true, true), mistvalidator.ParseVar()),
-											mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("wan")),
-											mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("vpn")),
-											mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("tunnel")),
+											mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("local")),
 										},
 									},
 									"internet_access": schema.BoolAttribute{
 										Optional:            true,
-										Computed:            true,
-										Description:         "when `type`==`vpn`, if this vpn path can be used for internet",
-										MarkdownDescription: "when `type`==`vpn`, if this vpn path can be used for internet",
+										Description:         "only if `type`==`vpn`, if this vpn path can be used for internet",
+										MarkdownDescription: "only if `type`==`vpn`, if this vpn path can be used for internet",
 										Validators: []validator.Bool{
-											mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("wan")),
-											mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("local")),
-											mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("tunnel")),
+											mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("vpn")),
 										},
-										Default: booldefault.StaticBool(false),
 									},
 									"name": schema.StringAttribute{
-										Optional: true,
+										Optional:            true,
+										Description:         "required when * `type`==`vpn`: the name of the VPN Path to use * `type`==`wan`: the name of the WAN interface to use",
+										MarkdownDescription: "required when * `type`==`vpn`: the name of the VPN Path to use * `type`==`wan`: the name of the WAN interface to use",
+										Validators: []validator.String{
+											mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("vpn")),
+											mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("wan")),
+										},
 									},
 									"networks": schema.ListAttribute{
 										ElementType:         types.StringType,
 										Optional:            true,
 										Computed:            true,
-										Description:         "if `type`==`local`",
-										MarkdownDescription: "if `type`==`local`",
+										Description:         "required when `type`==`local`",
+										MarkdownDescription: "required when `type`==`local`",
 										Validators: []validator.List{
-											mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("local")),
-											mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("wan")),
-											mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("vpn")),
-											mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("tunnel")),
+											mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("local")),
 										},
 										Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 									},
@@ -1342,9 +1334,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 										Description:         "if `type`==`local`, if destination IP is to be replaced",
 										MarkdownDescription: "if `type`==`local`, if destination IP is to be replaced",
 										Validators: []validator.List{
-											mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("wan")),
-											mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("vpn")),
-											mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("tunnel")),
+											mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("local")),
 										},
 										Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 									},
@@ -1362,8 +1352,12 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									},
 									"wan_name": schema.StringAttribute{
 										Optional:            true,
-										Description:         "Spoke's outgoing wan",
-										MarkdownDescription: "Spoke's outgoing wan",
+										Description:         "required when`type`==`tunnel`, optional if `type`==`vpn` wan",
+										MarkdownDescription: "required when`type`==`tunnel`, optional if `type`==`vpn` wan",
+										Validators: []validator.String{
+											mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("tunnel")),
+											mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("vpn")),
+										},
 									},
 								},
 								CustomType: PathsType{
@@ -17164,24 +17158,6 @@ func (t Node1Type) ValueFromObject(ctx context.Context, in basetypes.ObjectValue
 			fmt.Sprintf(`netmask expected to be basetypes.StringValue, was: %T`, netmaskAttribute))
 	}
 
-	networkAttribute, ok := attributes["network"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`network is missing from object`)
-
-		return nil, diags
-	}
-
-	networkVal, ok := networkAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`network expected to be basetypes.StringValue, was: %T`, networkAttribute))
-	}
-
 	typeAttribute, ok := attributes["type"]
 
 	if !ok {
@@ -17262,7 +17238,6 @@ func (t Node1Type) ValueFromObject(ctx context.Context, in basetypes.ObjectValue
 		Gateway:              gatewayVal,
 		Ip:                   ipVal,
 		Netmask:              netmaskVal,
-		Network:              networkVal,
 		Node1Type:            typeVal,
 		UseMgmtVrf:           useMgmtVrfVal,
 		UseMgmtVrfForHostOut: useMgmtVrfForHostOutVal,
@@ -17388,24 +17363,6 @@ func NewNode1Value(attributeTypes map[string]attr.Type, attributes map[string]at
 			fmt.Sprintf(`netmask expected to be basetypes.StringValue, was: %T`, netmaskAttribute))
 	}
 
-	networkAttribute, ok := attributes["network"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`network is missing from object`)
-
-		return NewNode1ValueUnknown(), diags
-	}
-
-	networkVal, ok := networkAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`network expected to be basetypes.StringValue, was: %T`, networkAttribute))
-	}
-
 	typeAttribute, ok := attributes["type"]
 
 	if !ok {
@@ -17486,7 +17443,6 @@ func NewNode1Value(attributeTypes map[string]attr.Type, attributes map[string]at
 		Gateway:              gatewayVal,
 		Ip:                   ipVal,
 		Netmask:              netmaskVal,
-		Network:              networkVal,
 		Node1Type:            typeVal,
 		UseMgmtVrf:           useMgmtVrfVal,
 		UseMgmtVrfForHostOut: useMgmtVrfForHostOutVal,
@@ -17566,7 +17522,6 @@ type Node1Value struct {
 	Gateway              basetypes.StringValue `tfsdk:"gateway"`
 	Ip                   basetypes.StringValue `tfsdk:"ip"`
 	Netmask              basetypes.StringValue `tfsdk:"netmask"`
-	Network              basetypes.StringValue `tfsdk:"network"`
 	Node1Type            basetypes.StringValue `tfsdk:"type"`
 	UseMgmtVrf           basetypes.BoolValue   `tfsdk:"use_mgmt_vrf"`
 	UseMgmtVrfForHostOut basetypes.BoolValue   `tfsdk:"use_mgmt_vrf_for_host_out"`
@@ -17575,7 +17530,7 @@ type Node1Value struct {
 }
 
 func (v Node1Value) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 8)
+	attrTypes := make(map[string]tftypes.Type, 7)
 
 	var val tftypes.Value
 	var err error
@@ -17583,7 +17538,6 @@ func (v Node1Value) ToTerraformValue(ctx context.Context) (tftypes.Value, error)
 	attrTypes["gateway"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["ip"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["netmask"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["network"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["type"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["use_mgmt_vrf"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["use_mgmt_vrf_for_host_out"] = basetypes.BoolType{}.TerraformType(ctx)
@@ -17593,7 +17547,7 @@ func (v Node1Value) ToTerraformValue(ctx context.Context) (tftypes.Value, error)
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 8)
+		vals := make(map[string]tftypes.Value, 7)
 
 		val, err = v.Gateway.ToTerraformValue(ctx)
 
@@ -17618,14 +17572,6 @@ func (v Node1Value) ToTerraformValue(ctx context.Context) (tftypes.Value, error)
 		}
 
 		vals["netmask"] = val
-
-		val, err = v.Network.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["network"] = val
 
 		val, err = v.Node1Type.ToTerraformValue(ctx)
 
@@ -17692,7 +17638,6 @@ func (v Node1Value) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 		"gateway":                   basetypes.StringType{},
 		"ip":                        basetypes.StringType{},
 		"netmask":                   basetypes.StringType{},
-		"network":                   basetypes.StringType{},
 		"type":                      basetypes.StringType{},
 		"use_mgmt_vrf":              basetypes.BoolType{},
 		"use_mgmt_vrf_for_host_out": basetypes.BoolType{},
@@ -17713,7 +17658,6 @@ func (v Node1Value) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 			"gateway":                   v.Gateway,
 			"ip":                        v.Ip,
 			"netmask":                   v.Netmask,
-			"network":                   v.Network,
 			"type":                      v.Node1Type,
 			"use_mgmt_vrf":              v.UseMgmtVrf,
 			"use_mgmt_vrf_for_host_out": v.UseMgmtVrfForHostOut,
@@ -17750,10 +17694,6 @@ func (v Node1Value) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.Network.Equal(other.Network) {
-		return false
-	}
-
 	if !v.Node1Type.Equal(other.Node1Type) {
 		return false
 	}
@@ -17786,7 +17726,6 @@ func (v Node1Value) AttributeTypes(ctx context.Context) map[string]attr.Type {
 		"gateway":                   basetypes.StringType{},
 		"ip":                        basetypes.StringType{},
 		"netmask":                   basetypes.StringType{},
-		"network":                   basetypes.StringType{},
 		"type":                      basetypes.StringType{},
 		"use_mgmt_vrf":              basetypes.BoolType{},
 		"use_mgmt_vrf_for_host_out": basetypes.BoolType{},
