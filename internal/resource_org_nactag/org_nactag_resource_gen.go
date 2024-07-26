@@ -6,6 +6,7 @@ import (
 	"context"
 	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -58,7 +59,7 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 						"user_name",
 						"usermac_label",
 					),
-					stringvalidator.LengthAtLeast(1),
+					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("match")),
 				},
 			},
 			"match_all": schema.BoolAttribute{
@@ -82,22 +83,34 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "if `type`==`radius_attrs`, user can specify a list of one or more standard attributes in the field \"radius_attrs\". \nIt is the responsibility of the user to provide a syntactically correct string, otherwise it may not work as expected.\nNote that it is allowed to have more than one radius_attrs in the result of a given rule.",
 				MarkdownDescription: "if `type`==`radius_attrs`, user can specify a list of one or more standard attributes in the field \"radius_attrs\". \nIt is the responsibility of the user to provide a syntactically correct string, otherwise it may not work as expected.\nNote that it is allowed to have more than one radius_attrs in the result of a given rule.",
+				Validators: []validator.List{
+					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("radius_attrs")),
+				},
 			},
 			"radius_group": schema.StringAttribute{
 				Optional:            true,
 				Description:         "if `type`==`radius_group`",
 				MarkdownDescription: "if `type`==`radius_group`",
+				Validators: []validator.String{
+					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("radius_group")),
+				},
 			},
 			"radius_vendor_attrs": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
 				Description:         "if `type`==`radius_vendor_attrs`, user can specify a list of one or more vendor-specific attributes in the field \"radius_vendor_attrs\". \nIt is the responsibility of the user to provide a syntactically correct string, otherwise it may not work as expected.\nNote that it is allowed to have more than one radius_vendor_attrs in the result of a given rule.",
 				MarkdownDescription: "if `type`==`radius_vendor_attrs`, user can specify a list of one or more vendor-specific attributes in the field \"radius_vendor_attrs\". \nIt is the responsibility of the user to provide a syntactically correct string, otherwise it may not work as expected.\nNote that it is allowed to have more than one radius_vendor_attrs in the result of a given rule.",
+				Validators: []validator.List{
+					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("radius_vendor_attrs")),
+				},
 			},
 			"session_timeout": schema.Int64Attribute{
 				Optional:            true,
 				Description:         "if `type`==`session_timeout, in seconds",
 				MarkdownDescription: "if `type`==`session_timeout, in seconds",
+				Validators: []validator.Int64{
+					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("session_timeout")),
+				},
 			},
 			"type": schema.StringAttribute{
 				Required: true,
@@ -121,11 +134,17 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "if `type`==`match`",
 				MarkdownDescription: "if `type`==`match`",
+				Validators: []validator.List{
+					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("match")),
+				},
 			},
 			"vlan": schema.StringAttribute{
 				Optional:            true,
 				Description:         "if `type`==`vlan`",
 				MarkdownDescription: "if `type`==`vlan`",
+				Validators: []validator.String{
+					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("vlan")),
+				},
 			},
 		},
 	}
