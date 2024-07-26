@@ -78,7 +78,10 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "Acct port of RADIUS server",
 							MarkdownDescription: "Acct port of RADIUS server",
-							Default:             int64default.StaticInt64(1813),
+							Validators: []validator.Int64{
+								int64validator.Between(1, 65535),
+							},
+							Default: int64default.StaticInt64(1813),
 						},
 						"secret": schema.StringAttribute{
 							Required:            true,
@@ -466,7 +469,10 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "Auth port of RADIUS server",
 							MarkdownDescription: "Auth port of RADIUS server",
-							Default:             int64default.StaticInt64(1812),
+							Validators: []validator.Int64{
+								int64validator.Between(1, 65535),
+							},
+							Default: int64default.StaticInt64(1812),
 						},
 						"secret": schema.StringAttribute{
 							Required:            true,
