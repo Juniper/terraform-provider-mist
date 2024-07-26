@@ -129,6 +129,18 @@ func TerraformToSdk(ctx context.Context, plan *OrgDeviceprofileGatewayModel) (mo
 		data.TunnelProviderOptions = &tunnel_provider_options
 	}
 
+	if plan.VrfConfig.IsNull() || plan.VrfConfig.IsUnknown() {
+		unset["-vrf_config"] = ""
+	} else {
+		data.VrfConfig = vrfConfigTerraformToSdk(ctx, &diags, plan.VrfConfig)
+	}
+
+	if plan.VrfInstances.IsNull() || plan.VrfInstances.IsUnknown() {
+		unset["-vrf_instances"] = ""
+	} else {
+		data.VrfInstances = vrfInstancesTerraformToSdk(ctx, &diags, plan.VrfInstances)
+	}
+
 	data.Type = models.ToPointer(models.DeviceTypeGatewayEnum_GATEWAY)
 	data.AdditionalProperties = unset
 

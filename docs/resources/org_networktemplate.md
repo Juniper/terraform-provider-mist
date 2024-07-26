@@ -866,11 +866,11 @@ Optional:
 
 Optional:
 
+- `extra_routes` (Attributes Map) Property key is the destination CIDR (e.g. "10.0.0.0/8") (see [below for nested schema](#nestedatt--vrf_instances--extra_routes))
 - `networks` (List of String)
-- `vrf_extra_routes` (Attributes Map) Property key is the destination CIDR (e.g. "10.0.0.0/8") (see [below for nested schema](#nestedatt--vrf_instances--vrf_extra_routes))
 
-<a id="nestedatt--vrf_instances--vrf_extra_routes"></a>
-### Nested Schema for `vrf_instances.vrf_extra_routes`
+<a id="nestedatt--vrf_instances--extra_routes"></a>
+### Nested Schema for `vrf_instances.extra_routes`
 
 Required:
 

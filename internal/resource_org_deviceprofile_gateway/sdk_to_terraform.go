@@ -40,6 +40,8 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileGateway) (Org
 	var tunnel_configs types.Map = types.MapNull(TunnelConfigsValue{}.Type(ctx))
 	var tunnel_provider_options TunnelProviderOptionsValue = NewTunnelProviderOptionsValueNull()
 	var type_template types.String
+	var vrf_config VrfConfigValue = NewVrfConfigValueNull()
+	var vrf_instances types.Map = types.MapNull(VrfInstancesValue{}.Type(ctx))
 
 	if data.AdditionalConfigCmds != nil {
 		additional_config_cmds = mist_transform.ListOfStringSdkToTerraform(ctx, data.AdditionalConfigCmds)
@@ -113,6 +115,12 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileGateway) (Org
 	if data.Type != nil {
 		type_template = types.StringValue(string(*data.Type))
 	}
+	if data.VrfConfig != nil {
+		vrf_config = vrfConfigSdkToTerraform(ctx, &diags, data.VrfConfig)
+	}
+	if data.VrfInstances != nil && len(data.VrfInstances) > 0 {
+		vrf_instances = vrfInstancesSdkToTerraform(ctx, &diags, data.VrfInstances)
+	}
 
 	state.AdditionalConfigCmds = additional_config_cmds
 	state.BgpConfig = bgp_config
@@ -139,6 +147,8 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileGateway) (Org
 	state.TunnelConfigs = tunnel_configs
 	state.TunnelProviderOptions = tunnel_provider_options
 	state.Type = type_template
+	state.VrfConfig = vrf_config
+	state.VrfInstances = vrf_instances
 
 	return state, diags
 }

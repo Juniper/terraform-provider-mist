@@ -1,4 +1,4 @@
-package resource_device_switch
+package resource_org_gatewaytemplate
 
 import (
 	"context"
@@ -34,18 +34,15 @@ func vrfInstanceExtraRouteTerraformToSdk(ctx context.Context, diags *diag.Diagno
 	return data
 }
 
-func vrfInstancesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.SwitchVrfInstance {
-	data := make(map[string]models.SwitchVrfInstance)
+func vrfInstancesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.GatewayVrfInstance {
+	data := make(map[string]models.GatewayVrfInstance)
 	for item_name, item_value := range d.Elements() {
 		var item_interface interface{} = item_value
 		item_obj := item_interface.(VrfInstancesValue)
 
-		data_item := models.SwitchVrfInstance{}
+		data_item := models.GatewayVrfInstance{}
 		if !item_obj.Networks.IsNull() && !item_obj.Networks.IsUnknown() {
 			data_item.Networks = mist_transform.ListOfStringTerraformToSdk(ctx, item_obj.Networks)
-		}
-		if !item_obj.VrfExtraRoutes.IsNull() && !item_obj.VrfExtraRoutes.IsUnknown() {
-			data_item.ExtraRoutes = vrfInstanceExtraRouteTerraformToSdk(ctx, diags, item_obj.VrfExtraRoutes)
 		}
 
 		data[item_name] = data_item

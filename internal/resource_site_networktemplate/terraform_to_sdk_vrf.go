@@ -34,13 +34,13 @@ func vrfInstanceExtraRouteTerraformToSdk(ctx context.Context, diags *diag.Diagno
 	return data
 }
 
-func vrfInstancesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.VrfInstance {
-	data := make(map[string]models.VrfInstance)
+func vrfInstancesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.SwitchVrfInstance {
+	data := make(map[string]models.SwitchVrfInstance)
 	for item_name, item_value := range d.Elements() {
 		var item_interface interface{} = item_value
 		item_obj := item_interface.(VrfInstancesValue)
 
-		data_item := models.VrfInstance{}
+		data_item := models.SwitchVrfInstance{}
 		if !item_obj.Networks.IsNull() && !item_obj.Networks.IsUnknown() {
 			data_item.Networks = mist_transform.ListOfStringTerraformToSdk(ctx, item_obj.Networks)
 		}

@@ -45,6 +45,8 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceGateway) (DeviceGate
 	var tunnel_configs types.Map = types.MapNull(TunnelConfigsValue{}.Type(ctx))
 	var tunnel_provider_options TunnelProviderOptionsValue = NewTunnelProviderOptionsValueNull()
 	var vars types.Map = types.MapNull(types.StringType)
+	var vrf_config VrfConfigValue = NewVrfConfigValueNull()
+	var vrf_instances types.Map = types.MapNull(VrfInstancesValue{}.Type(ctx))
 	var x types.Float64
 	var y types.Float64
 
@@ -143,6 +145,12 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceGateway) (DeviceGate
 	if data.Vars != nil && len(data.Vars) > 0 {
 		vars = varsSdkToTerraform(ctx, &diags, data.Vars)
 	}
+	if data.VrfConfig != nil {
+		vrf_config = vrfConfigSdkToTerraform(ctx, &diags, data.VrfConfig)
+	}
+	if data.VrfInstances != nil && len(data.VrfInstances) > 0 {
+		vrf_instances = vrfInstancesSdkToTerraform(ctx, &diags, data.VrfInstances)
+	}
 	if data.X != nil {
 		x = types.Float64Value(float64(*data.X))
 	}
@@ -196,6 +204,8 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceGateway) (DeviceGate
 	state.TunnelConfigs = tunnel_configs
 	state.TunnelProviderOptions = tunnel_provider_options
 	state.Vars = vars
+	state.VrfConfig = vrf_config
+	state.VrfInstances = vrf_instances
 	state.X = x
 	state.Y = y
 	state.Type = device_type

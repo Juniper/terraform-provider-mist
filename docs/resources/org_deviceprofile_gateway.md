@@ -132,6 +132,8 @@ resource "mist_org_deviceprofile_gateway" "deviceprofile_gw_one" {
 - `service_policies` (Attributes List) (see [below for nested schema](#nestedatt--service_policies))
 - `tunnel_configs` (Attributes Map) Property key is the tunnel name (see [below for nested schema](#nestedatt--tunnel_configs))
 - `tunnel_provider_options` (Attributes) (see [below for nested schema](#nestedatt--tunnel_provider_options))
+- `vrf_config` (Attributes) (see [below for nested schema](#nestedatt--vrf_config))
+- `vrf_instances` (Attributes Map) Property key is the network name (see [below for nested schema](#nestedatt--vrf_instances))
 
 ### Read-Only
 
@@ -925,5 +927,23 @@ Optional:
 - `enforce_authentication` (Boolean)
 - `subnets` (List of String)
 - `upload_mbps` (Number) the download bandwidth cap of the link, in Mbps
+
+
+
+
+<a id="nestedatt--vrf_config"></a>
+### Nested Schema for `vrf_config`
+
+Optional:
+
+- `enabled` (Boolean) whether to enable VRF (when supported on the device)
+
+
+<a id="nestedatt--vrf_instances"></a>
+### Nested Schema for `vrf_instances`
+
+Optional:
+
+- `networks` (List of String)
 
 

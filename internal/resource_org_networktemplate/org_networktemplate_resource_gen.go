@@ -2550,7 +2550,7 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								listvalidator.UniqueValues(),
 							},
 						},
-						"vrf_extra_routes": schema.MapNestedAttribute{
+						"extra_routes": schema.MapNestedAttribute{
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"via": schema.StringAttribute{
@@ -2586,7 +2586,7 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "Property key is the network name",
 				MarkdownDescription: "Property key is the network name",
 				Validators: []validator.Map{
-					mapvalidator.SizeAtLeast(1), mapvalidator.KeysAre(stringvalidator.Any(mistvalidator.ParseCidr(false, true), mistvalidator.ParseVar())),
+					mapvalidator.SizeAtLeast(1), mapvalidator.KeysAre(mistvalidator.ParseName()),
 				},
 			},
 		},
@@ -33178,12 +33178,12 @@ func (t VrfInstancesType) ValueFromObject(ctx context.Context, in basetypes.Obje
 			fmt.Sprintf(`networks expected to be basetypes.ListValue, was: %T`, networksAttribute))
 	}
 
-	vrfExtraRoutesAttribute, ok := attributes["vrf_extra_routes"]
+	vrfExtraRoutesAttribute, ok := attributes["extra_routes"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`vrf_extra_routes is missing from object`)
+			`extra_routes is missing from object`)
 
 		return nil, diags
 	}
@@ -33193,7 +33193,7 @@ func (t VrfInstancesType) ValueFromObject(ctx context.Context, in basetypes.Obje
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`vrf_extra_routes expected to be basetypes.MapValue, was: %T`, vrfExtraRoutesAttribute))
+			fmt.Sprintf(`extra_routes expected to be basetypes.MapValue, was: %T`, vrfExtraRoutesAttribute))
 	}
 
 	if diags.HasError() {
@@ -33288,12 +33288,12 @@ func NewVrfInstancesValue(attributeTypes map[string]attr.Type, attributes map[st
 			fmt.Sprintf(`networks expected to be basetypes.ListValue, was: %T`, networksAttribute))
 	}
 
-	vrfExtraRoutesAttribute, ok := attributes["vrf_extra_routes"]
+	vrfExtraRoutesAttribute, ok := attributes["extra_routes"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`vrf_extra_routes is missing from object`)
+			`extra_routes is missing from object`)
 
 		return NewVrfInstancesValueUnknown(), diags
 	}
@@ -33303,7 +33303,7 @@ func NewVrfInstancesValue(attributeTypes map[string]attr.Type, attributes map[st
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`vrf_extra_routes expected to be basetypes.MapValue, was: %T`, vrfExtraRoutesAttribute))
+			fmt.Sprintf(`extra_routes expected to be basetypes.MapValue, was: %T`, vrfExtraRoutesAttribute))
 	}
 
 	if diags.HasError() {
@@ -33386,7 +33386,7 @@ var _ basetypes.ObjectValuable = VrfInstancesValue{}
 
 type VrfInstancesValue struct {
 	Networks       basetypes.ListValue `tfsdk:"networks"`
-	VrfExtraRoutes basetypes.MapValue  `tfsdk:"vrf_extra_routes"`
+	VrfExtraRoutes basetypes.MapValue  `tfsdk:"extra_routes"`
 	state          attr.ValueState
 }
 
@@ -33399,7 +33399,7 @@ func (v VrfInstancesValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 	attrTypes["networks"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
-	attrTypes["vrf_extra_routes"] = basetypes.MapType{
+	attrTypes["extra_routes"] = basetypes.MapType{
 		ElemType: VrfExtraRoutesValue{}.Type(ctx),
 	}.TerraformType(ctx)
 
@@ -33423,7 +33423,7 @@ func (v VrfInstancesValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["vrf_extra_routes"] = val
+		vals["extra_routes"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -33492,7 +33492,7 @@ func (v VrfInstancesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 			"networks": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"vrf_extra_routes": basetypes.MapType{
+			"extra_routes": basetypes.MapType{
 				ElemType: VrfExtraRoutesValue{}.Type(ctx),
 			},
 		}), diags
@@ -33502,7 +33502,7 @@ func (v VrfInstancesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 		"networks": basetypes.ListType{
 			ElemType: types.StringType,
 		},
-		"vrf_extra_routes": basetypes.MapType{
+		"extra_routes": basetypes.MapType{
 			ElemType: VrfExtraRoutesValue{}.Type(ctx),
 		},
 	}
@@ -33518,8 +33518,8 @@ func (v VrfInstancesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"networks":         networksVal,
-			"vrf_extra_routes": vrfExtraRoutes,
+			"networks":     networksVal,
+			"extra_routes": vrfExtraRoutes,
 		})
 
 	return objVal, diags
@@ -33564,7 +33564,7 @@ func (v VrfInstancesValue) AttributeTypes(ctx context.Context) map[string]attr.T
 		"networks": basetypes.ListType{
 			ElemType: types.StringType,
 		},
-		"vrf_extra_routes": basetypes.MapType{
+		"extra_routes": basetypes.MapType{
 			ElemType: VrfExtraRoutesValue{}.Type(ctx),
 		},
 	}

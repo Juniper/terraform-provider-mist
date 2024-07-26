@@ -130,6 +130,18 @@ func TerraformToSdk(ctx context.Context, plan *DeviceGatewayModel) (models.MistD
 		unset["-vars"] = ""
 	}
 
+	if plan.VrfConfig.IsNull() || plan.VrfConfig.IsUnknown() {
+		unset["-vrf_config"] = ""
+	} else {
+		data.VrfConfig = vrfConfigTerraformToSdk(ctx, &diags, plan.VrfConfig)
+	}
+
+	if plan.VrfInstances.IsNull() || plan.VrfInstances.IsUnknown() {
+		unset["-vrf_instances"] = ""
+	} else {
+		data.VrfInstances = vrfInstancesTerraformToSdk(ctx, &diags, plan.VrfInstances)
+	}
+
 	if !plan.X.IsNull() && !plan.X.IsUnknown() {
 		data.X = plan.X.ValueFloat64Pointer()
 	} else {

@@ -187,11 +187,11 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	if data.VirtualChassis != nil {
 		virtual_chassis = virtualChassisSdkToTerraform(ctx, &diags, data.VirtualChassis)
 	}
-	if data.VrfConfig != nil {
-		vrf_config = vrfConfigSdkToTerraform(ctx, &diags, data.VrfConfig)
-	}
 	if data.Vars != nil && len(data.Vars) > 0 {
 		vars = varsSdkToTerraform(ctx, &diags, data.Vars)
+	}
+	if data.VrfConfig != nil {
+		vrf_config = vrfConfigSdkToTerraform(ctx, &diags, data.VrfConfig)
 	}
 	if data.VrfInstances != nil && len(data.VrfInstances) > 0 {
 		vrf_instances = vrfInstancesSdkToTerraform(ctx, &diags, data.VrfInstances)

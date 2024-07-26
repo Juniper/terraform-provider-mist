@@ -42,6 +42,7 @@ resource "mist_org_nacrule" "nacrule_one" {
 
 - `action` (String)
 - `name` (String)
+- `order` (Number) the order of the rule, lower value implies higher priority
 - `org_id` (String)
 
 ### Optional
@@ -50,7 +51,6 @@ resource "mist_org_nacrule" "nacrule_one" {
 - `enabled` (Boolean) enabled or not
 - `matching` (Attributes) (see [below for nested schema](#nestedatt--matching))
 - `not_matching` (Attributes) (see [below for nested schema](#nestedatt--not_matching))
-- `order` (Number) the order of the rule, lower value implies higher priority
 
 ### Read-Only
 
