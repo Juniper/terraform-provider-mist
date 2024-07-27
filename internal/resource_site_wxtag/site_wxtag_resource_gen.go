@@ -94,7 +94,7 @@ func SiteWxtagResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"subnets": schema.ListAttribute{
 							ElementType:         types.StringType,
-							Optional:            true,
+							Required:            true,
 							Description:         "matched destination subnets and/or IP Addresses",
 							MarkdownDescription: "matched destination subnets and/or IP Addresses",
 							Validators: []validator.List{

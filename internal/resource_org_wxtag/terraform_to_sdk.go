@@ -12,7 +12,7 @@ import (
 
 func TerraformToSdk(ctx context.Context, plan *OrgWxtagModel) (*models.WxlanTag, diag.Diagnostics) {
 	var diags diag.Diagnostics
-	specs := specsTerraformToSdk(ctx, &diags, plan.Specs)
+
 	unset := make(map[string]interface{})
 	data := models.WxlanTag{}
 
@@ -37,7 +37,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgWxtagModel) (*models.WxlanTag,
 	}
 
 	if !plan.Specs.IsNull() && !plan.Specs.IsUnknown() {
-		data.Specs = specs
+		data.Specs = specsTerraformToSdk(ctx, &diags, plan.Specs)
 	} else {
 		unset["-specs"] = ""
 	}

@@ -17,7 +17,7 @@ func SiteWxruleResourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"action": schema.StringAttribute{
-				Optional:            true,
+				Required:            true,
 				Description:         "type of action, allow / block",
 				MarkdownDescription: "type of action, allow / block",
 				Validators: []validator.String{
