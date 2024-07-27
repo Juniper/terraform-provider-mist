@@ -133,8 +133,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 			"device_updown_threshold": schema.Int64Attribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "enable threshold-based device down delivery via \n1) device-updowns webhooks topic, \n2) Mist Alert Framework; e.g. send AP/SW/GW down event only if AP/SW/GW Up is not seen within the threshold in minutes; 0 - 240, default is 0 (trigger immediate)",
-				MarkdownDescription: "enable threshold-based device down delivery via \n1) device-updowns webhooks topic, \n2) Mist Alert Framework; e.g. send AP/SW/GW down event only if AP/SW/GW Up is not seen within the threshold in minutes; 0 - 240, default is 0 (trigger immediate)",
+				Description:         "enable threshold-based device down delivery via\n  * device-updowns webhooks topic, \n  * Mist Alert Framework; e.g. send AP/SW/GW down event only if AP/SW/GW Up is not seen within the threshold in minutes; 0 - 240, default is 0 (trigger immediate)",
+				MarkdownDescription: "enable threshold-based device down delivery via\n  * device-updowns webhooks topic, \n  * Mist Alert Framework; e.g. send AP/SW/GW down event only if AP/SW/GW Up is not seen within the threshold in minutes; 0 - 240, default is 0 (trigger immediate)",
 				Validators: []validator.Int64{
 					int64validator.Between(0, 30),
 				},
@@ -313,8 +313,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 								"user_realms": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Optional:            true,
-									Description:         "which realm should trigger this IDP.\nwe extract user realm from\n1. Username-AVP (`mist.com` from john@mist.com)\n2. Cert CN",
-									MarkdownDescription: "which realm should trigger this IDP.\nwe extract user realm from\n1. Username-AVP (`mist.com` from john@mist.com)\n2. Cert CN",
+									Description:         "which realm should trigger this IDP. User Realm is extracted from:\n  * Username-AVP (`mist.com` from john@mist.com)\n  * Cert CN",
+									MarkdownDescription: "which realm should trigger this IDP. User Realm is extracted from:\n  * Username-AVP (`mist.com` from john@mist.com)\n  * Cert CN",
 								},
 							},
 							CustomType: IdpsType{

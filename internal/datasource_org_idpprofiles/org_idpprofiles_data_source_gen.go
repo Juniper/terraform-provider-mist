@@ -47,8 +47,8 @@ func OrgIdpprofilesDataSourceSchema(ctx context.Context) schema.Schema {
 								Attributes: map[string]schema.Attribute{
 									"action": schema.StringAttribute{
 										Computed:            true,
-										Description:         "- alert (default) \n- drop: siliently dropping packets\n- close: notify client/server to close connection",
-										MarkdownDescription: "- alert (default) \n- drop: siliently dropping packets\n- close: notify client/server to close connection",
+										Description:         "Possible values:\n  * alert (default) \n  * drop: siliently dropping packets\n  * close: notify client/server to close connection",
+										MarkdownDescription: "Possible values:\n  * alert (default) \n  * drop: siliently dropping packets\n  * close: notify client/server to close connection",
 									},
 									"matching": schema.SingleNestedAttribute{
 										Attributes: map[string]schema.Attribute{

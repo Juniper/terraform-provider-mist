@@ -52,8 +52,8 @@ func OrgIdpprofileResourceSchema(ctx context.Context) schema.Schema {
 						"action": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "- alert (default) \n- drop: siliently dropping packets\n- close: notify client/server to close connection",
-							MarkdownDescription: "- alert (default) \n- drop: siliently dropping packets\n- close: notify client/server to close connection",
+							Description:         "Possible values:\n  * alert (default) \n  * drop: siliently dropping packets\n  * close: notify client/server to close connection",
+							MarkdownDescription: "Possible values:\n  * alert (default) \n  * drop: siliently dropping packets\n  * close: notify client/server to close connection",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",

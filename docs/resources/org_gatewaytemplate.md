@@ -285,9 +285,10 @@ Optional:
 
 Optional:
 
-- `action` (String) - alert (default) 
-- drop: siliently dropping packets
-- close: notify client/server to close connection
+- `action` (String) Possible values:
+  * alert (default) 
+  * drop: siliently dropping packets
+  * close: notify client/server to close connection
 - `matching` (Attributes) (see [below for nested schema](#nestedatt--idp_profiles--overwrites--matching))
 - `name` (String)
 
@@ -793,16 +794,17 @@ Optional:
 Optional:
 
 - `auth_algo` (String)
-- `dh_group` (String) * 1
-* 2 (1024-bit)
-* 5
-* 14 (default, 2048-bit)
-* 15 (3072-bit)
-* 16 (4096-bit)
-* 19 (256-bit ECP)
-* 20 (384-bit ECP)
-* 21 (521-bit ECP)
-* 24 (2048-bit ECP)
+- `dh_group` (String) possible values: 
+  * 1
+  * 2 (1024-bit)
+  * 5
+  * 14 (default, 2048-bit)
+  * 15 (3072-bit)
+  * 16 (4096-bit)
+  * 19 (256-bit ECP)
+  * 20 (384-bit ECP)
+  * 21 (521-bit ECP)
+  * 24 (2048-bit ECP)
 - `enc_algo` (String)
 
 
@@ -812,9 +814,7 @@ Optional:
 Optional:
 
 - `auth_algo` (String)
-- `dh_group` (String) Only if `provider`== `custom-ipsec`
-
-Values:
+- `dh_group` (String) Only if `provider`== `custom-ipsec`. Possible values:
   * 1 
   * 2 (1024-bit)
   * 5

@@ -41,9 +41,9 @@ resource "mist_org_vpn" "vpn_one" {
 - `cloudshark` (Attributes) (see [below for nested schema](#nestedatt--cloudshark))
 - `cradlepoint` (Attributes) (see [below for nested schema](#nestedatt--cradlepoint))
 - `device_cert` (Attributes) common device cert, optional (see [below for nested schema](#nestedatt--device_cert))
-- `device_updown_threshold` (Number) enable threshold-based device down delivery via 
-1) device-updowns webhooks topic, 
-2) Mist Alert Framework; e.g. send AP/SW/GW down event only if AP/SW/GW Up is not seen within the threshold in minutes; 0 - 240, default is 0 (trigger immediate)
+- `device_updown_threshold` (Number) enable threshold-based device down delivery via
+  * device-updowns webhooks topic, 
+  * Mist Alert Framework; e.g. send AP/SW/GW down event only if AP/SW/GW Up is not seen within the threshold in minutes; 0 - 240, default is 0 (trigger immediate)
 - `disable_pcap` (Boolean) whether to disallow Mist to analyze pcap files (this is required for marvis pcap)
 - `disable_remote_shell` (Boolean) whether to disable remote shell access for an entire org
 - `gateway_updown_threshold` (Number) enable threshold-based device down delivery for Gateway devices only. When configured it takes effect for GW devices and `device_updown_threshold` is ignored.
@@ -184,10 +184,9 @@ Optional:
 
 - `exclude_realms` (List of String) when the IDP of mxedge_proxy type, exclude the following realms from proxying in addition to other valid home realms in this org
 - `id` (String)
-- `user_realms` (List of String) which realm should trigger this IDP.
-we extract user realm from
-1. Username-AVP (`mist.com` from john@mist.com)
-2. Cert CN
+- `user_realms` (List of String) which realm should trigger this IDP. User Realm is extracted from:
+  * Username-AVP (`mist.com` from john@mist.com)
+  * Cert CN
 
 
 <a id="nestedatt--mist_nac--server_cert"></a>

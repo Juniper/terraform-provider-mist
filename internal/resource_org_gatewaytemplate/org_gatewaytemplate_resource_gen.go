@@ -622,8 +622,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 									"action": schema.StringAttribute{
 										Optional:            true,
 										Computed:            true,
-										Description:         "- alert (default) \n- drop: siliently dropping packets\n- close: notify client/server to close connection",
-										MarkdownDescription: "- alert (default) \n- drop: siliently dropping packets\n- close: notify client/server to close connection",
+										Description:         "Possible values:\n  * alert (default) \n  * drop: siliently dropping packets\n  * close: notify client/server to close connection",
+										MarkdownDescription: "Possible values:\n  * alert (default) \n  * drop: siliently dropping packets\n  * close: notify client/server to close connection",
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",
@@ -2312,8 +2312,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 									"dh_group": schema.StringAttribute{
 										Optional:            true,
 										Computed:            true,
-										Description:         "* 1\n* 2 (1024-bit)\n* 5\n* 14 (default, 2048-bit)\n* 15 (3072-bit)\n* 16 (4096-bit)\n* 19 (256-bit ECP)\n* 20 (384-bit ECP)\n* 21 (521-bit ECP)\n* 24 (2048-bit ECP)",
-										MarkdownDescription: "* 1\n* 2 (1024-bit)\n* 5\n* 14 (default, 2048-bit)\n* 15 (3072-bit)\n* 16 (4096-bit)\n* 19 (256-bit ECP)\n* 20 (384-bit ECP)\n* 21 (521-bit ECP)\n* 24 (2048-bit ECP)",
+										Description:         "possible values: \n  * 1\n  * 2 (1024-bit)\n  * 5\n  * 14 (default, 2048-bit)\n  * 15 (3072-bit)\n  * 16 (4096-bit)\n  * 19 (256-bit ECP)\n  * 20 (384-bit ECP)\n  * 21 (521-bit ECP)\n  * 24 (2048-bit ECP)",
+										MarkdownDescription: "possible values: \n  * 1\n  * 2 (1024-bit)\n  * 5\n  * 14 (default, 2048-bit)\n  * 15 (3072-bit)\n  * 16 (4096-bit)\n  * 19 (256-bit ECP)\n  * 20 (384-bit ECP)\n  * 21 (521-bit ECP)\n  * 24 (2048-bit ECP)",
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",
@@ -2391,8 +2391,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 									"dh_group": schema.StringAttribute{
 										Optional:            true,
 										Computed:            true,
-										Description:         "Only if `provider`== `custom-ipsec`\n\nValues:\n  * 1 \n  * 2 (1024-bit)\n  * 5\n  * 14 (default, 2048-bit)\n  * 15 (3072-bit)\n  * 16 (4096-bit)\n  * 19 (256-bit ECP)\n  * 20 (384-bit ECP)\n  * 21 (521-bit ECP)\n  * 24 (2048-bit ECP)",
-										MarkdownDescription: "Only if `provider`== `custom-ipsec`\n\nValues:\n  * 1 \n  * 2 (1024-bit)\n  * 5\n  * 14 (default, 2048-bit)\n  * 15 (3072-bit)\n  * 16 (4096-bit)\n  * 19 (256-bit ECP)\n  * 20 (384-bit ECP)\n  * 21 (521-bit ECP)\n  * 24 (2048-bit ECP)",
+										Description:         "Only if `provider`== `custom-ipsec`. Possible values:\n  * 1 \n  * 2 (1024-bit)\n  * 5\n  * 14 (default, 2048-bit)\n  * 15 (3072-bit)\n  * 16 (4096-bit)\n  * 19 (256-bit ECP)\n  * 20 (384-bit ECP)\n  * 21 (521-bit ECP)\n  * 24 (2048-bit ECP)",
+										MarkdownDescription: "Only if `provider`== `custom-ipsec`. Possible values:\n  * 1 \n  * 2 (1024-bit)\n  * 5\n  * 14 (default, 2048-bit)\n  * 15 (3072-bit)\n  * 16 (4096-bit)\n  * 19 (256-bit ECP)\n  * 20 (384-bit ECP)\n  * 21 (521-bit ECP)\n  * 24 (2048-bit ECP)",
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",

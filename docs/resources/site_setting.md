@@ -73,7 +73,7 @@ It triggers when, in a Z minute window, there are more than Y distinct client en
 - `ssr` (Attributes) (see [below for nested schema](#nestedatt--ssr))
 - `switch_updown_threshold` (Number) enable threshold-based device down delivery for Switch devices only. When configured it takes effect for SW devices and `device_updown_threshold` is ignored.
 - `synthetic_test` (Attributes) (see [below for nested schema](#nestedatt--synthetic_test))
-- `track_anonymous_devices` (Boolean) whether to track anonymous BLE assets (requires ‘track_asset’ enabled)
+- `track_anonymous_devices` (Boolean) whether to track anonymous BLE assets (requires ‘track_asset'  enabled)
 - `uplink_port_config` (Attributes) (see [below for nested schema](#nestedatt--uplink_port_config))
 - `vars` (Map of String) a dictionary of name->value, the vars can then be used in Wlans. This can overwrite those from Site Vars
 - `vna` (Attributes) (see [below for nested schema](#nestedatt--vna))
@@ -161,7 +161,7 @@ Optional:
 - `enabled` (Boolean)
 - `hours` (Attributes) hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun). 
 
-**Note**: If the dow is not defined then it\u2019\s treated as 00:00-23:59. (see [below for nested schema](#nestedatt--config_push_policy--push_window--hours))
+**Note**: If the dow is not defined then it'\ s treated as 00:00-23:59. (see [below for nested schema](#nestedatt--config_push_policy--push_window--hours))
 
 <a id="nestedatt--config_push_policy--push_window--hours"></a>
 ### Nested Schema for `config_push_policy.push_window.hours`
@@ -206,7 +206,7 @@ Optional:
 - `dwell_tags` (Attributes) add tags to visits within the duration (in seconds), available tags (passerby, bounce, engaged, stationed) (see [below for nested schema](#nestedatt--engagement--dwell_tags))
 - `hours` (Attributes) hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun). 
 
-**Note**: If the dow is not defined then it\u2019\s treated as 00:00-23:59. (see [below for nested schema](#nestedatt--engagement--hours))
+**Note**: If the dow is not defined then it'\ s treated as 00:00-23:59. (see [below for nested schema](#nestedatt--engagement--hours))
 - `max_dwell` (Number) max time, default is 43200(12h), max is 68400 (18h)
 - `min_dwell` (Number) min time
 

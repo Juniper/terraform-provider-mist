@@ -47,9 +47,10 @@ Read-Only:
 
 Read-Only:
 
-- `action` (String) - alert (default) 
-- drop: siliently dropping packets
-- close: notify client/server to close connection
+- `action` (String) Possible values:
+  * alert (default) 
+  * drop: siliently dropping packets
+  * close: notify client/server to close connection
 - `matching` (Attributes) (see [below for nested schema](#nestedatt--org_idpprofiles--overwrites--matching))
 - `name` (String)
 

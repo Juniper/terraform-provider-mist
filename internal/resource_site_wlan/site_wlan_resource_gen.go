@@ -504,15 +504,15 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 			"auth_servers_retries": schema.Int64Attribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "radius auth session retries. Following fast timers are set if “fast_dot1x_timers” knob is enabled. ‘retries’ are set to value of auth_servers_retries. ‘max-requests’ is also set when setting auth_servers_retries and is set to default value to 3.",
-				MarkdownDescription: "radius auth session retries. Following fast timers are set if “fast_dot1x_timers” knob is enabled. ‘retries’ are set to value of auth_servers_retries. ‘max-requests’ is also set when setting auth_servers_retries and is set to default value to 3.",
+				Description:         "radius auth session retries. Following fast timers are set if “fast_dot1x_timers” knob is enabled. ‘retries'  are set to value of auth_servers_retries. ‘max-requests’ is also set when setting auth_servers_retries and is set to default value to 3.",
+				MarkdownDescription: "radius auth session retries. Following fast timers are set if “fast_dot1x_timers” knob is enabled. ‘retries'  are set to value of auth_servers_retries. ‘max-requests’ is also set when setting auth_servers_retries and is set to default value to 3.",
 				Default:             int64default.StaticInt64(2),
 			},
 			"auth_servers_timeout": schema.Int64Attribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "radius auth session timeout. Following fast timers are set if “fast_dot1x_timers” knob is enabled. ‘quite-period’ and ‘transmit-period’ are set to half the value of auth_servers_timeout. ‘supplicant-timeout’ is also set when setting auth_servers_timeout and is set to default value of 10.",
-				MarkdownDescription: "radius auth session timeout. Following fast timers are set if “fast_dot1x_timers” knob is enabled. ‘quite-period’ and ‘transmit-period’ are set to half the value of auth_servers_timeout. ‘supplicant-timeout’ is also set when setting auth_servers_timeout and is set to default value of 10.",
+				Description:         "radius auth session timeout. Following fast timers are set if “fast_dot1x_timers” knob is enabled. ‘quite-period'  and ‘transmit-period’ are set to half the value of auth_servers_timeout. ‘supplicant-timeout’ is also set when setting auth_servers_timeout and is set to default value of 10.",
+				MarkdownDescription: "radius auth session timeout. Following fast timers are set if “fast_dot1x_timers” knob is enabled. ‘quite-period'  and ‘transmit-period’ are set to half the value of auth_servers_timeout. ‘supplicant-timeout’ is also set when setting auth_servers_timeout and is set to default value of 10.",
 				Default:             int64default.StaticInt64(5),
 			},
 			"band_steer": schema.BoolAttribute{
@@ -840,8 +840,8 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "for dynamic PSK where we get per_user PSK from Radius\ndynamic_psk allows PSK to be selected at runtime depending on context (wlan/site/user/...) thus following configurations are assumed (currently)\n- PSK will come from RADIUS server\n- AP sends client MAC as username ans password (i.e. `enable_mac_auth` is assumed)\n- AP sends BSSID:SSID as Caller-Station-ID\n- `auth_servers` is required\n- PSK will come from cloud WLC if source is cloud_psks\n- default_psk will be used if cloud WLC is not available\n- `multi_psk_only` and `psk` is ignored\n- `pairwise` can only be wpa2-ccmp (for now, wpa3 support on the roadmap)",
-				MarkdownDescription: "for dynamic PSK where we get per_user PSK from Radius\ndynamic_psk allows PSK to be selected at runtime depending on context (wlan/site/user/...) thus following configurations are assumed (currently)\n- PSK will come from RADIUS server\n- AP sends client MAC as username ans password (i.e. `enable_mac_auth` is assumed)\n- AP sends BSSID:SSID as Caller-Station-ID\n- `auth_servers` is required\n- PSK will come from cloud WLC if source is cloud_psks\n- default_psk will be used if cloud WLC is not available\n- `multi_psk_only` and `psk` is ignored\n- `pairwise` can only be wpa2-ccmp (for now, wpa3 support on the roadmap)",
+				Description:         "for dynamic PSK where we get per_user PSK from Radius. dynamic_psk allows PSK to be selected at runtime depending on context (wlan/site/user/...) thus following configurations are assumed (currently)\n  * PSK will come from RADIUS server\n  * AP sends client MAC as username ans password (i.e. `enable_mac_auth` is assumed)\n  * AP sends BSSID:SSID as Caller-Station-ID\n  * `auth_servers` is required\n  * PSK will come from cloud WLC if source is cloud_psks\n  * default_psk will be used if cloud WLC is not available\n  * `multi_psk_only` and `psk` is ignored\n  * `pairwise` can only be wpa2-ccmp (for now, wpa3 support on the roadmap)",
+				MarkdownDescription: "for dynamic PSK where we get per_user PSK from Radius. dynamic_psk allows PSK to be selected at runtime depending on context (wlan/site/user/...) thus following configurations are assumed (currently)\n  * PSK will come from RADIUS server\n  * AP sends client MAC as username ans password (i.e. `enable_mac_auth` is assumed)\n  * AP sends BSSID:SSID as Caller-Station-ID\n  * `auth_servers` is required\n  * PSK will come from cloud WLC if source is cloud_psks\n  * default_psk will be used if cloud WLC is not available\n  * `multi_psk_only` and `psk` is ignored\n  * `pairwise` can only be wpa2-ccmp (for now, wpa3 support on the roadmap)",
 			},
 			"dynamic_vlan": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -932,8 +932,8 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 			"fast_dot1x_timers": schema.BoolAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "if set to true, sets default fast-timers with values calculated from ‘auth_servers_timeout’ and ‘auth_server_retries’.",
-				MarkdownDescription: "if set to true, sets default fast-timers with values calculated from ‘auth_servers_timeout’ and ‘auth_server_retries’.",
+				Description:         "if set to true, sets default fast-timers with values calculated from ‘auth_servers_timeout’ and ‘auth_server_retries' .",
+				MarkdownDescription: "if set to true, sets default fast-timers with values calculated from ‘auth_servers_timeout’ and ‘auth_server_retries' .",
 				Default:             booldefault.StaticBool(false),
 			},
 			"hide_ssid": schema.BoolAttribute{
@@ -1888,8 +1888,8 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional:            true,
-						Description:         "hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun). \n\n**Note**: If the dow is not defined then it\\u2019\\s treated as 00:00-23:59.",
-						MarkdownDescription: "hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun). \n\n**Note**: If the dow is not defined then it\\u2019\\s treated as 00:00-23:59.",
+						Description:         "hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun). \n\n**Note**: If the dow is not defined then it'\\ s treated as 00:00-23:59.",
+						MarkdownDescription: "hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun). \n\n**Note**: If the dow is not defined then it'\\ s treated as 00:00-23:59.",
 					},
 				},
 				CustomType: ScheduleType{

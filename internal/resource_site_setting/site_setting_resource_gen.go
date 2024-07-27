@@ -405,8 +405,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 									},
 								},
 								Optional:            true,
-								Description:         "hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun). \n\n**Note**: If the dow is not defined then it\\u2019\\s treated as 00:00-23:59.",
-								MarkdownDescription: "hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun). \n\n**Note**: If the dow is not defined then it\\u2019\\s treated as 00:00-23:59.",
+								Description:         "hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun). \n\n**Note**: If the dow is not defined then it'\\ s treated as 00:00-23:59.",
+								MarkdownDescription: "hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun). \n\n**Note**: If the dow is not defined then it'\\ s treated as 00:00-23:59.",
 							},
 						},
 						CustomType: PushWindowType{
@@ -574,8 +574,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional:            true,
-						Description:         "hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun). \n\n**Note**: If the dow is not defined then it\\u2019\\s treated as 00:00-23:59.",
-						MarkdownDescription: "hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun). \n\n**Note**: If the dow is not defined then it\\u2019\\s treated as 00:00-23:59.",
+						Description:         "hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun). \n\n**Note**: If the dow is not defined then it'\\ s treated as 00:00-23:59.",
+						MarkdownDescription: "hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun). \n\n**Note**: If the dow is not defined then it'\\ s treated as 00:00-23:59.",
 					},
 					"max_dwell": schema.Int64Attribute{
 						Optional:            true,
@@ -1198,8 +1198,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 			"track_anonymous_devices": schema.BoolAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "whether to track anonymous BLE assets (requires ‘track_asset’ enabled)",
-				MarkdownDescription: "whether to track anonymous BLE assets (requires ‘track_asset’ enabled)",
+				Description:         "whether to track anonymous BLE assets (requires ‘track_asset'  enabled)",
+				MarkdownDescription: "whether to track anonymous BLE assets (requires ‘track_asset'  enabled)",
 				Default:             booldefault.StaticBool(false),
 			},
 			"uplink_port_config": schema.SingleNestedAttribute{
