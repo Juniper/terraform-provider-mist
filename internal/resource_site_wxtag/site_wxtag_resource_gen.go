@@ -77,26 +77,50 @@ func SiteWxtagResourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "matched destination port, \"0\" means any",
 							MarkdownDescription: "matched destination port, \"0\" means any",
-							Default:             stringdefault.StaticString("0"),
+							Validators: []validator.String{
+								mistvalidator.ParseInt(0, 65535),
+							},
+							Default: stringdefault.StaticString("0"),
 						},
 						"protocol": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
 							Description:         "tcp / udp / icmp / gre / any / \":protocol_number\", `protocol_number` is between 1-254",
 							MarkdownDescription: "tcp / udp / icmp / gre / any / \":protocol_number\", `protocol_number` is between 1-254",
-							Default:             stringdefault.StaticString("any"),
+							Validators: []validator.String{
+								stringvalidator.Any(stringvalidator.OneOf("tcp", "udp", "icmp", "gre", "any"), mistvalidator.ParseInt(1, 254)),
+							},
+							Default: stringdefault.StaticString("any"),
 						},
 						"subnets": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Optional:            true,
 							Description:         "matched destination subnets and/or IP Addresses",
 							MarkdownDescription: "matched destination subnets and/or IP Addresses",
+							Validators: []validator.List{
+								listvalidator.SizeAtLeast(1),
+								listvalidator.ValueStringsAre(
+									stringvalidator.Any(
+										mistvalidator.ParseCidr(true, true),
+										mistvalidator.ParseIp(true, true),
+										mistvalidator.ParseVar(),
+									),
+								),
+							},
 						},
 					},
 					CustomType: SpecsType{
 						ObjectType: types.ObjectType{
 							AttrTypes: SpecsValue{}.AttributeTypes(ctx),
 						},
+					},
+					Validators: []validator.Object{
+						mistvalidator.AtLeastNOf(
+							1,
+							path.MatchRelative().AtName("port_range"),
+							path.MatchRelative().AtName("protocol"),
+							path.MatchRelative().AtName("subnets"),
+						),
 					},
 				},
 				Optional:            true,

@@ -44,11 +44,11 @@ resource "mist_site_wxrule" "wxrule_one" {
 - `dst_allow_wxtags` (List of String) tag list to indicate these tags are allowed access
 - `dst_deny_wxtags` (List of String) tag list to indicate these tags are blocked access
 - `enabled` (Boolean)
-- `org_id` (String)
 - `template_id` (String) Only for Org Level WxRule
 
 ### Read-Only
 
 - `id` (String) The ID of this resource.
+- `org_id` (String)
 
 
