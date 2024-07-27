@@ -36,16 +36,30 @@ resource "mist_org_wxtag" "wtag_one" {
 
 ### Optional
 
-- `last_ips` (List of String)
-- `mac` (String)
-- `match` (String)
-- `op` (String)
-- `resource_mac` (String)
-- `services` (List of String)
-- `specs` (Attributes List) if `type`==`specs` (see [below for nested schema](#nestedatt--specs))
-- `subnet` (String)
-- `values` (List of String) if `type`!=`vlan_id` and `type`!=`specs`, list of values to match
-- `vlan_id` (String)
+- `mac` (String) if `type`==`client`, Client MAC Address
+- `match` (String) required if `type`==`match`
+- `op` (String) required if `type`==`match`, type of tag (inclusive/exclusive)
+- `specs` (Attributes List) if `type`==`spec` (see [below for nested schema](#nestedatt--specs))
+- `values` (List of String) required if `type`==`match` and
+* `match`==`ap_id`: list of AP IDs
+* `match`==`app`: list of Application Names
+* `match`==`asset_mac`: list of Asset MAC Addresses
+* `match`==`client_mac`: list of Client MAC Addresses
+* `match`==`hostname`: list of Resources Hostnames
+* `match`==`ip_range_subnet`: list of IP Addresses and/or CIDRs
+* `match`==`psk_name`: list of PSK Names
+* `match`==`psk_role`: list of PSK Roles
+* `match`==`port`: list of Ports or Port Ranges
+* `match`==`radius_attr`: list of RADIUS Attributes. The values are [ “6=1”, “26=10.2.3.4” ], this support other RADIUS attributes where we know the type
+* `match`==`radius_class`: list of RADIUS Classes. This matches the ATTR-Class(25)
+* `match`==`radius_group`: list of RADIUS Groups. This is a smart tag that matches RADIUS-Filter-ID, Airespace-ACL-Name (VendorID=14179, VendorType=6) / Aruba-User-Role (VendorID=14823, VendorType=1)
+* `match`==`radius_username`: list of RADIUS Usernames. This matches the ATTR-User-Name(1)
+* `match`==`sdkclient_uuid`: list of SDK UUIDs
+* `match`==`wlan_id`: list of WLAN IDs
+
+**Notes**:
+Variables are not allowed
+- `vlan_id` (String) if `type`==`vlan_id`, VLAN ID or variable
 
 ### Read-Only
 
@@ -56,8 +70,8 @@ resource "mist_org_wxtag" "wtag_one" {
 
 Optional:
 
-- `port_range` (String) matched dst port, "0" means any
+- `port_range` (String) matched destination port, "0" means any
 - `protocol` (String) tcp / udp / icmp / gre / any / ":protocol_number", `protocol_number` is between 1-254
-- `subnets` (List of String) matched dst subnet
+- `subnets` (List of String) matched destination subnets and/or IP Addresses
 
 

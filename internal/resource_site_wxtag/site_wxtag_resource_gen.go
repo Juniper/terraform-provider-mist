@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -26,35 +27,23 @@ func SiteWxtagResourceSchema(ctx context.Context) schema.Schema {
 			"id": schema.StringAttribute{
 				Computed: true,
 			},
-			"last_ips": schema.ListAttribute{
-				ElementType: types.StringType,
-				Optional:    true,
-				Validators: []validator.List{
-					listvalidator.UniqueValues(),
+			"mac": schema.StringAttribute{
+				Optional:            true,
+				Description:         "if `type`==`client`, Client MAC Address",
+				MarkdownDescription: "if `type`==`client`, Client MAC Address",
+				Validators: []validator.String{
+					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("client")),
+					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("client")),
 				},
 			},
-			"mac": schema.StringAttribute{
-				Optional: true,
-			},
 			"match": schema.StringAttribute{
-				Optional: true,
+				Optional:            true,
+				Description:         "required if `type`==`match`",
+				MarkdownDescription: "required if `type`==`match`",
 				Validators: []validator.String{
-					stringvalidator.OneOf(
-						"",
-						"ap_id",
-						"app",
-						"asset_mac",
-						"client_mac",
-						"hostname",
-						"ip_range_subnet",
-						"port",
-						"radius_attr",
-						"radius_group",
-						"radius_username",
-						"wlan_id",
-						"psk_name",
-						"psk_role",
-					),
+					stringvalidator.OneOf("ap_id", "app", "asset_mac", "client_mac", "hostname", "ip_range_subnet", "port", "psk_name", "psk_role", "radius_attr", "radius_class", "radius_group", "radius_username", "sdkclient_uuid", "wlan_id"),
+					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("match")),
+					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("match")),
 				},
 			},
 			"name": schema.StringAttribute{
@@ -63,29 +52,19 @@ func SiteWxtagResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "The name",
 			},
 			"op": schema.StringAttribute{
-				Optional: true,
-				Computed: true,
+				Optional:            true,
+				Computed:            true,
+				Description:         "required if `type`==`match`, type of tag (inclusive/exclusive)",
+				MarkdownDescription: "required if `type`==`match`, type of tag (inclusive/exclusive)",
 				Validators: []validator.String{
-					stringvalidator.OneOf(
-						"",
-						"in",
-						"not_in",
-					),
+					stringvalidator.OneOf("in", "not_in"),
+					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("match")),
+					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("match")),
 				},
 				Default: stringdefault.StaticString("in"),
 			},
 			"org_id": schema.StringAttribute{
-				Optional: true,
-			},
-			"resource_mac": schema.StringAttribute{
-				Optional: true,
-			},
-			"services": schema.ListAttribute{
-				ElementType: types.StringType,
-				Optional:    true,
-				Validators: []validator.List{
-					listvalidator.UniqueValues(),
-				},
+				Computed: true,
 			},
 			"site_id": schema.StringAttribute{
 				Required: true,
@@ -96,8 +75,8 @@ func SiteWxtagResourceSchema(ctx context.Context) schema.Schema {
 						"port_range": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "matched dst port, \"0\" means any",
-							MarkdownDescription: "matched dst port, \"0\" means any",
+							Description:         "matched destination port, \"0\" means any",
+							MarkdownDescription: "matched destination port, \"0\" means any",
 							Default:             stringdefault.StaticString("0"),
 						},
 						"protocol": schema.StringAttribute{
@@ -110,8 +89,8 @@ func SiteWxtagResourceSchema(ctx context.Context) schema.Schema {
 						"subnets": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Optional:            true,
-							Description:         "matched dst subnet",
-							MarkdownDescription: "matched dst subnet",
+							Description:         "matched destination subnets and/or IP Addresses",
+							MarkdownDescription: "matched destination subnets and/or IP Addresses",
 						},
 					},
 					CustomType: SpecsType{
@@ -121,17 +100,17 @@ func SiteWxtagResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "if `type`==`specs`",
-				MarkdownDescription: "if `type`==`specs`",
-			},
-			"subnet": schema.StringAttribute{
-				Optional: true,
+				Description:         "if `type`==`spec`",
+				MarkdownDescription: "if `type`==`spec`",
+				Validators: []validator.List{
+					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("spec")),
+					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("spec")),
+				},
 			},
 			"type": schema.StringAttribute{
 				Required: true,
 				Validators: []validator.String{
 					stringvalidator.OneOf(
-						"",
 						"match",
 						"client",
 						"resource",
@@ -144,11 +123,32 @@ func SiteWxtagResourceSchema(ctx context.Context) schema.Schema {
 			"values": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
-				Description:         "if `type`!=`vlan_id` and `type`!=`specs`, list of values to match",
-				MarkdownDescription: "if `type`!=`vlan_id` and `type`!=`specs`, list of values to match",
+				Description:         "required if `type`==`match` and\n* `match`==`ap_id`: list of AP IDs\n* `match`==`app`: list of Application Names\n* `match`==`asset_mac`: list of Asset MAC Addresses\n* `match`==`client_mac`: list of Client MAC Addresses\n* `match`==`hostname`: list of Resources Hostnames\n* `match`==`ip_range_subnet`: list of IP Addresses and/or CIDRs\n* `match`==`psk_name`: list of PSK Names\n* `match`==`psk_role`: list of PSK Roles\n* `match`==`port`: list of Ports or Port Ranges\n* `match`==`radius_attr`: list of RADIUS Attributes. The values are [ “6=1”, “26=10.2.3.4” ], this support other RADIUS attributes where we know the type\n* `match`==`radius_class`: list of RADIUS Classes. This matches the ATTR-Class(25)\n* `match`==`radius_group`: list of RADIUS Groups. This is a smart tag that matches RADIUS-Filter-ID, Airespace-ACL-Name (VendorID=14179, VendorType=6) / Aruba-User-Role (VendorID=14823, VendorType=1)\n* `match`==`radius_username`: list of RADIUS Usernames. This matches the ATTR-User-Name(1)\n* `match`==`sdkclient_uuid`: list of SDK UUIDs\n* `match`==`wlan_id`: list of WLAN IDs\n\n**Notes**:\nVariables are not allowed",
+				MarkdownDescription: "required if `type`==`match` and\n* `match`==`ap_id`: list of AP IDs\n* `match`==`app`: list of Application Names\n* `match`==`asset_mac`: list of Asset MAC Addresses\n* `match`==`client_mac`: list of Client MAC Addresses\n* `match`==`hostname`: list of Resources Hostnames\n* `match`==`ip_range_subnet`: list of IP Addresses and/or CIDRs\n* `match`==`psk_name`: list of PSK Names\n* `match`==`psk_role`: list of PSK Roles\n* `match`==`port`: list of Ports or Port Ranges\n* `match`==`radius_attr`: list of RADIUS Attributes. The values are [ “6=1”, “26=10.2.3.4” ], this support other RADIUS attributes where we know the type\n* `match`==`radius_class`: list of RADIUS Classes. This matches the ATTR-Class(25)\n* `match`==`radius_group`: list of RADIUS Groups. This is a smart tag that matches RADIUS-Filter-ID, Airespace-ACL-Name (VendorID=14179, VendorType=6) / Aruba-User-Role (VendorID=14823, VendorType=1)\n* `match`==`radius_username`: list of RADIUS Usernames. This matches the ATTR-User-Name(1)\n* `match`==`sdkclient_uuid`: list of SDK UUIDs\n* `match`==`wlan_id`: list of WLAN IDs\n\n**Notes**:\nVariables are not allowed",
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("match"), types.StringValue("ap_id")),
+					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("match"), types.StringValue("app")),
+					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("match"), types.StringValue("asset_mac")),
+					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("match"), types.StringValue("client_mac")),
+					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("match"), types.StringValue("hostname")),
+					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("match"), types.StringValue("ip_range_subnet")),
+					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("match"), types.StringValue("psk_name")),
+					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("match"), types.StringValue("psk_role")),
+					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("match"), types.StringValue("port")),
+					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("match"), types.StringValue("radius_attr")),
+					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("match"), types.StringValue("radius_class")),
+
+					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("match"), types.StringValue("radius_group")),
+					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("match"), types.StringValue("radius_username")),
+					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("match"), types.StringValue("sdkclient_uuid")),
+					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("match"), types.StringValue("wlan_id")),
+				},
 			},
 			"vlan_id": schema.StringAttribute{
-				Optional: true,
+				Optional:            true,
+				Description:         "if `type`==`vlan_id`, VLAN ID or variable",
+				MarkdownDescription: "if `type`==`vlan_id`, VLAN ID or variable",
 				Validators: []validator.String{
 					stringvalidator.Any(mistvalidator.ParseInt(1, 4094), mistvalidator.ParseVar()),
 				},
@@ -158,21 +158,17 @@ func SiteWxtagResourceSchema(ctx context.Context) schema.Schema {
 }
 
 type SiteWxtagModel struct {
-	Id          types.String `tfsdk:"id"`
-	LastIps     types.List   `tfsdk:"last_ips"`
-	Mac         types.String `tfsdk:"mac"`
-	Match       types.String `tfsdk:"match"`
-	Name        types.String `tfsdk:"name"`
-	Op          types.String `tfsdk:"op"`
-	OrgId       types.String `tfsdk:"org_id"`
-	ResourceMac types.String `tfsdk:"resource_mac"`
-	Services    types.List   `tfsdk:"services"`
-	SiteId      types.String `tfsdk:"site_id"`
-	Specs       types.List   `tfsdk:"specs"`
-	Subnet      types.String `tfsdk:"subnet"`
-	Type        types.String `tfsdk:"type"`
-	Values      types.List   `tfsdk:"values"`
-	VlanId      types.String `tfsdk:"vlan_id"`
+	Id     types.String `tfsdk:"id"`
+	Mac    types.String `tfsdk:"mac"`
+	Match  types.String `tfsdk:"match"`
+	Name   types.String `tfsdk:"name"`
+	Op     types.String `tfsdk:"op"`
+	OrgId  types.String `tfsdk:"org_id"`
+	SiteId types.String `tfsdk:"site_id"`
+	Specs  types.List   `tfsdk:"specs"`
+	Type   types.String `tfsdk:"type"`
+	Values types.List   `tfsdk:"values"`
+	VlanId types.String `tfsdk:"vlan_id"`
 }
 
 var _ basetypes.ObjectTypable = SpecsType{}

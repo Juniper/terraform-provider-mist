@@ -13,47 +13,49 @@ import (
 func TerraformToSdk(ctx context.Context, plan *OrgWxtagModel) (*models.WxlanTag, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	specs := specsTerraformToSdk(ctx, &diags, plan.Specs)
-
+	unset := make(map[string]interface{})
 	data := models.WxlanTag{}
 
-	if plan.Mac.ValueStringPointer() != nil {
+	if !plan.Mac.IsNull() && !plan.Mac.IsUnknown() {
 		data.Mac = models.NewOptional(models.ToPointer(plan.Mac.ValueString()))
+	} else {
+		unset["-mac"] = ""
 	}
 
-	if plan.Match.ValueStringPointer() != nil {
+	if !plan.Match.IsNull() && !plan.Match.IsUnknown() {
 		data.Match = models.ToPointer(models.WxlanTagMatchEnum(plan.Match.ValueString()))
+	} else {
+		unset["-match"] = ""
 	}
 
 	data.Name = plan.Name.ValueString()
 
-	data.Op = models.ToPointer(models.WxlanTagOperationEnum(plan.Op.ValueString()))
-
-	if plan.ResourceMac.ValueStringPointer() != nil {
-		data.ResourceMac = models.NewOptional(models.ToPointer(plan.ResourceMac.ValueString()))
-	}
-
-	if !plan.Services.IsNull() && !plan.Services.IsUnknown() {
-		data.Services = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Services)
+	if !plan.Op.IsNull() && !plan.Op.IsUnknown() {
+		data.Op = models.ToPointer(models.WxlanTagOperationEnum(plan.Op.ValueString()))
+	} else {
+		unset["-op"] = ""
 	}
 
 	if !plan.Specs.IsNull() && !plan.Specs.IsUnknown() {
 		data.Specs = specs
-	}
-
-	if plan.Subnet.ValueStringPointer() != nil {
-		data.Subnet = models.ToPointer(plan.Subnet.ValueString())
+	} else {
+		unset["-specs"] = ""
 	}
 
 	data.Type = models.WxlanTagTypeEnum(plan.Type.ValueString())
 
 	if !plan.Values.IsNull() && !plan.Values.IsUnknown() {
 		data.Values = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Values)
+	} else {
+		unset["-values"] = ""
 	}
 
-	if plan.VlanId.ValueStringPointer() != nil {
+	if !plan.VlanId.IsNull() && !plan.VlanId.IsUnknown() {
 		data.VlanId = models.ToPointer(models.WxlanTagVlanIdContainer.FromString(plan.VlanId.ValueString()))
+	} else {
+		unset["-vlan_id"] = ""
 	}
 
+	data.AdditionalProperties = unset
 	return &data, diags
-
 }
