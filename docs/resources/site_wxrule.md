@@ -32,13 +32,13 @@ resource "mist_site_wxrule" "wxrule_one" {
 
 ### Required
 
+- `action` (String) type of action, allow / block
 - `order` (Number) the order how rules would be looked up, > 0 and bigger order got matched first, -1 means LAST, uniqueness not checked
 - `site_id` (String)
 - `src_wxtags` (List of String) tag list to determine if this rule would match
 
 ### Optional
 
-- `action` (String) type of action, allow / block
 - `apply_tags` (List of String)
 - `blocked_apps` (List of String) blocked apps (always blocking, ignoring action), the key of Get Application List
 - `dst_allow_wxtags` (List of String) tag list to indicate these tags are allowed access

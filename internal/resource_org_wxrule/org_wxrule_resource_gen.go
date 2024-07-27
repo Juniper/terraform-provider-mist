@@ -17,7 +17,7 @@ func OrgWxruleResourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"action": schema.StringAttribute{
-				Optional:            true,
+				Required:            true,
 				Description:         "type of action, allow / block",
 				MarkdownDescription: "type of action, allow / block",
 				Validators: []validator.String{
@@ -76,7 +76,7 @@ func OrgWxruleResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "tag list to determine if this rule would match",
 			},
 			"template_id": schema.StringAttribute{
-				Optional:            true,
+				Required:            true,
 				Description:         "Only for Org Level WxRule",
 				MarkdownDescription: "Only for Org Level WxRule",
 			},
