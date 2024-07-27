@@ -4,8 +4,10 @@ package resource_org
 
 import (
 	"context"
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -15,7 +17,7 @@ func OrgResourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"alarmtemplate_id": schema.StringAttribute{
-				Computed: true,
+				Optional: true,
 			},
 			"allow_mist": schema.BoolAttribute{
 				Optional: true,
@@ -48,7 +50,10 @@ func OrgResourceSchema(ctx context.Context) schema.Schema {
 			"session_expiry": schema.Int64Attribute{
 				Optional: true,
 				Computed: true,
-				Default:  int64default.StaticInt64(1440),
+				Validators: []validator.Int64{
+					int64validator.Between(10, 20160),
+				},
+				Default: int64default.StaticInt64(1440),
 			},
 		},
 	}
