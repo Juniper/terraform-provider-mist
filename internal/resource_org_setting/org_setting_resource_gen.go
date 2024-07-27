@@ -34,8 +34,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					"no_reveal": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "by default, API hides password/secrets when the user doesn't have write access\n* `true`: API will hide passwords/secrets for all users\n* `false`: API will hide passwords/secrets for read-only users",
-						MarkdownDescription: "by default, API hides password/secrets when the user doesn't have write access\n* `true`: API will hide passwords/secrets for all users\n* `false`: API will hide passwords/secrets for read-only users",
+						Description:         "by default, API hides password/secrets when the user doesn't have write access\n  * `true`: API will hide passwords/secrets for all users\n  * `false`: API will hide passwords/secrets for read-only users",
+						MarkdownDescription: "by default, API hides password/secrets when the user doesn't have write access\n  * `true`: API will hide passwords/secrets for all users\n  * `false`: API will hide passwords/secrets for read-only users",
 						Default:             booldefault.StaticBool(false),
 					},
 				},

@@ -69,8 +69,8 @@ resource "mist_org_vpn" "vpn_one" {
 Optional:
 
 - `no_reveal` (Boolean) by default, API hides password/secrets when the user doesn't have write access
-* `true`: API will hide passwords/secrets for all users
-* `false`: API will hide passwords/secrets for read-only users
+  * `true`: API will hide passwords/secrets for all users
+  * `false`: API will hide passwords/secrets for read-only users
 
 
 <a id="nestedatt--celona"></a>

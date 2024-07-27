@@ -62,8 +62,8 @@ list of applications are available through:
 - `ssr_relaxed_tcp_state_enforcement` (Boolean)
 - `traffic_class` (String) when `traffic_type`==`custom`
 - `traffic_type` (String) values from `/api/v1/consts/traffic_types`
-* when `type`==`apps`, we'll choose traffic_type automatically
-* when `type`==`addresses` or `type`==`hostnames`, you can provide your own settings (optional)
+  * when `type`==`apps`, we''ll choose traffic_type automatically
+  * when `type`==`addresses` or `type`==`hostnames`, you can provide your own settings (optional)
 - `type` (String)
 - `urls` (List of String) when `type`==`urls
 no need for spec as URL can encode the ports being used`

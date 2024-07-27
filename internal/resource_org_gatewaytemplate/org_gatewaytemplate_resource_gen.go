@@ -44,8 +44,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 						"bfd_minimum_interval": schema.Int64Attribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "when bfd_multiplier is configured alone\ndefault:\n* 1000 if `type`==`external``\n* 350 `type`==`internal`",
-							MarkdownDescription: "when bfd_multiplier is configured alone\ndefault:\n* 1000 if `type`==`external``\n* 350 `type`==`internal`",
+							Description:         "when bfd_multiplier is configured alone. Default:\n  * 1000 if `type`==`external`\n  * 350 `type`==`internal`",
+							MarkdownDescription: "when bfd_multiplier is configured alone. Default:\n  * 1000 if `type`==`external`\n  * 350 `type`==`internal`",
 							Validators: []validator.Int64{
 								int64validator.Between(1, 255000),
 							},
@@ -497,8 +497,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 									Optional:            true,
-									Description:         "Property key is <enterprise number>:<sub option code>, with\n* enterprise number: 1-65535 (https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers)\n* sub option code: 1-255, sub-option code",
-									MarkdownDescription: "Property key is <enterprise number>:<sub option code>, with\n* enterprise number: 1-65535 (https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers)\n* sub option code: 1-255, sub-option code",
+									Description:         "Property key is <enterprise number>:<sub option code>, with\n  * enterprise number: 1-65535 (https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers)\n  * sub option code: 1-255, sub-option code'",
+									MarkdownDescription: "Property key is <enterprise number>:<sub option code>, with\n  * enterprise number: 1-65535 (https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers)\n  * sub option code: 1-255, sub-option code'",
 									Validators: []validator.Map{
 										mapvalidator.SizeAtLeast(1),
 									},
@@ -1264,8 +1264,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 									},
 									"name": schema.StringAttribute{
 										Optional:            true,
-										Description:         "required when * `type`==`vpn`: the name of the VPN Path to use * `type`==`wan`: the name of the WAN interface to use",
-										MarkdownDescription: "required when * `type`==`vpn`: the name of the VPN Path to use * `type`==`wan`: the name of the WAN interface to use",
+										Description:         "required when \n  * `type`==`vpn`: the name of the VPN Path to use \n  * `type`==`wan`: the name of the WAN interface to use'",
+										MarkdownDescription: "required when \n  * `type`==`vpn`: the name of the VPN Path to use \n  * `type`==`wan`: the name of the WAN interface to use'",
 										Validators: []validator.String{
 											mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("vpn")),
 											mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("wan")),
@@ -2268,8 +2268,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"ike_lifetime": schema.Int64Attribute{
 							Optional:            true,
-							Description:         "Only if:\n* `provider`== `custom-ipsec`",
-							MarkdownDescription: "Only if:\n* `provider`== `custom-ipsec`",
+							Description:         "Only if `provider`== `custom-ipsec`",
+							MarkdownDescription: "Only if `provider`== `custom-ipsec`",
 							Validators: []validator.Int64{
 								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("zscaler-ipsec")),
 								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("zscaler-gre")),
@@ -2280,8 +2280,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 						"ike_mode": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "Only if:\n* `provider`== `custom-ipsec`",
-							MarkdownDescription: "Only if:\n* `provider`== `custom-ipsec`",
+							Description:         "Only if `provider`== `custom-ipsec`",
+							MarkdownDescription: "Only if `provider`== `custom-ipsec`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -2312,8 +2312,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 									"dh_group": schema.StringAttribute{
 										Optional:            true,
 										Computed:            true,
-										Description:         "* 1 \n* 2 (1024-bit) \n* 5\n* 14 (default, 2048-bit)\n* 15 (3072-bit) \n* 16 (4096-bit)\n* 19 (256-bit ECP)\n* 20 (384-bit ECP)\n* 21 (521-bit ECP) \n* 24 (2048-bit ECP)",
-										MarkdownDescription: "* 1 \n* 2 (1024-bit) \n* 5\n* 14 (default, 2048-bit)\n* 15 (3072-bit) \n* 16 (4096-bit)\n* 19 (256-bit ECP)\n* 20 (384-bit ECP)\n* 21 (521-bit ECP) \n* 24 (2048-bit ECP)",
+										Description:         "* 1\n* 2 (1024-bit)\n* 5\n* 14 (default, 2048-bit)\n* 15 (3072-bit)\n* 16 (4096-bit)\n* 19 (256-bit ECP)\n* 20 (384-bit ECP)\n* 21 (521-bit ECP)\n* 24 (2048-bit ECP)",
+										MarkdownDescription: "* 1\n* 2 (1024-bit)\n* 5\n* 14 (default, 2048-bit)\n* 15 (3072-bit)\n* 16 (4096-bit)\n* 19 (256-bit ECP)\n* 20 (384-bit ECP)\n* 21 (521-bit ECP)\n* 24 (2048-bit ECP)",
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",
@@ -2391,8 +2391,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 									"dh_group": schema.StringAttribute{
 										Optional:            true,
 										Computed:            true,
-										Description:         "Only if:\n* `provider`== `custom-ipsec`\nValues:\n* 1 \n* 2 (1024-bit) \n* 5\n* 14 (default, 2048-bit) \n* 15 (3072-bit) \n* 16 (4096-bit)\n* 19 (256-bit ECP)\n* 20 (384-bit ECP)\n* 21 (521-bit ECP) \n* 24 (2048-bit ECP)",
-										MarkdownDescription: "Only if:\n* `provider`== `custom-ipsec`\nValues:\n* 1 \n* 2 (1024-bit) \n* 5\n* 14 (default, 2048-bit) \n* 15 (3072-bit) \n* 16 (4096-bit)\n* 19 (256-bit ECP)\n* 20 (384-bit ECP)\n* 21 (521-bit ECP) \n* 24 (2048-bit ECP)",
+										Description:         "Only if `provider`== `custom-ipsec`\n\nValues:\n  * 1 \n  * 2 (1024-bit)\n  * 5\n  * 14 (default, 2048-bit)\n  * 15 (3072-bit)\n  * 16 (4096-bit)\n  * 19 (256-bit ECP)\n  * 20 (384-bit ECP)\n  * 21 (521-bit ECP)\n  * 24 (2048-bit ECP)",
+										MarkdownDescription: "Only if `provider`== `custom-ipsec`\n\nValues:\n  * 1 \n  * 2 (1024-bit)\n  * 5\n  * 14 (default, 2048-bit)\n  * 15 (3072-bit)\n  * 16 (4096-bit)\n  * 19 (256-bit ECP)\n  * 20 (384-bit ECP)\n  * 21 (521-bit ECP)\n  * 24 (2048-bit ECP)",
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",
@@ -2433,8 +2433,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional:            true,
-							Description:         "Only if:\n* `provider`== `custom-ipsec`",
-							MarkdownDescription: "Only if:\n* `provider`== `custom-ipsec`",
+							Description:         "Only if  `provider`== `custom-ipsec`",
+							MarkdownDescription: "Only if  `provider`== `custom-ipsec`",
 							Validators: []validator.List{
 								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("zscaler-ipsec")),
 								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("zscaler-gre")),
@@ -2444,8 +2444,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"local_id": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Only if:\n* `provider`== `zscaler-ipsec`\n* `provider`==`jse-ipsec`\n* `provider`== `custom-ipsec`",
-							MarkdownDescription: "Only if:\n* `provider`== `zscaler-ipsec`\n* `provider`==`jse-ipsec`\n* `provider`== `custom-ipsec`",
+							Description:         "Only if:\n  * `provider`== `zscaler-ipsec`\n  * `provider`==`jse-ipsec`\n  * `provider`== `custom-ipsec`",
+							MarkdownDescription: "Only if:\n  * `provider`== `zscaler-ipsec`\n  * `provider`==`jse-ipsec`\n  * `provider`== `custom-ipsec`",
 							Validators: []validator.String{
 								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("zscaler-gre")),
 								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("customer-gre")),
@@ -2472,8 +2472,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 								"internal_ips": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Optional:            true,
-									Description:         "Only if:\n* `provider`== `zscaler-gre` \n* `provider`== `custom-gre`",
-									MarkdownDescription: "Only if:\n* `provider`== `zscaler-gre` \n* `provider`== `custom-gre`",
+									Description:         "Only if:\n  * `provider`== `zscaler-gre`\n  * `provider`== `custom-gre`",
+									MarkdownDescription: "Only if:\n  * `provider`== `zscaler-gre`\n  * `provider`== `custom-gre`",
 								},
 								"probe_ips": schema.ListAttribute{
 									ElementType: types.StringType,
@@ -2485,8 +2485,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 								"remote_ids": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Optional:            true,
-									Description:         "Only if:\n* `provider`== `custom-ipsec`",
-									MarkdownDescription: "Only if:\n* `provider`== `custom-ipsec`",
+									Description:         "Only if `provider`== `custom-ipsec`",
+									MarkdownDescription: "Only if `provider`== `custom-ipsec`",
 								},
 								"wan_names": schema.ListAttribute{
 									ElementType: types.StringType,
@@ -2536,13 +2536,13 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional:            true,
-							Description:         "Only if:\n* `provider`== `custom-ipsec`",
-							MarkdownDescription: "Only if:\n* `provider`== `custom-ipsec`",
+							Description:         "Only if `provider`== `custom-ipsec`",
+							MarkdownDescription: "Only if `provider`== `custom-ipsec`",
 						},
 						"protocol": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Only if:\n* `provider`== `custom-ipsec`",
-							MarkdownDescription: "Only if:\n* `provider`== `custom-ipsec`",
+							Description:         "Only if `provider`== `custom-ipsec`",
+							MarkdownDescription: "Only if `provider`== `custom-ipsec`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -2567,8 +2567,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 						"psk": schema.StringAttribute{
 							Optional:            true,
 							Sensitive:           true,
-							Description:         "Only if:\n* `provider`== `zscaler-ipsec`\n* `provider`==`jse-ipsec`\n* `provider`== `custom-ipsec`",
-							MarkdownDescription: "Only if:\n* `provider`== `zscaler-ipsec`\n* `provider`==`jse-ipsec`\n* `provider`== `custom-ipsec`",
+							Description:         "Only if:\n  * `provider`== `zscaler-ipsec`\n  * `provider`==`jse-ipsec`\n  * `provider`== `custom-ipsec`",
+							MarkdownDescription: "Only if:\n  * `provider`== `zscaler-ipsec`\n  * `provider`==`jse-ipsec`\n  * `provider`== `custom-ipsec`",
 						},
 						"secondary": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
@@ -2579,8 +2579,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 								"internal_ips": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Optional:            true,
-									Description:         "Only if:\n* `provider`== `zscaler-gre` \n* `provider`== `custom-gre`",
-									MarkdownDescription: "Only if:\n* `provider`== `zscaler-gre` \n* `provider`== `custom-gre`",
+									Description:         "Only if:\n  * `provider`== `zscaler-gre`\n  * `provider`== `custom-gre`",
+									MarkdownDescription: "Only if:\n  * `provider`== `zscaler-gre`\n  * `provider`== `custom-gre`",
 								},
 								"probe_ips": schema.ListAttribute{
 									ElementType: types.StringType,
@@ -2592,8 +2592,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 								"remote_ids": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Optional:            true,
-									Description:         "Only if:\n* `provider`== `custom-ipsec`",
-									MarkdownDescription: "Only if:\n* `provider`== `custom-ipsec`",
+									Description:         "Only if `provider`== `custom-ipsec`",
+									MarkdownDescription: "Only if `provider`== `custom-ipsec`",
 								},
 								"wan_names": schema.ListAttribute{
 									ElementType: types.StringType,
@@ -2610,8 +2610,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 						"version": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "Only if:\n* `provider`== `custom-gre` \n* `provider`== `custom-ipsec`",
-							MarkdownDescription: "Only if:\n* `provider`== `custom-gre` \n* `provider`== `custom-ipsec`",
+							Description:         "Only if:\n  * `provider`== `custom-gre`\n  * `provider`== `custom-ipsec`",
+							MarkdownDescription: "Only if:\n  * `provider`== `custom-gre`\n  * `provider`== `custom-ipsec`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",

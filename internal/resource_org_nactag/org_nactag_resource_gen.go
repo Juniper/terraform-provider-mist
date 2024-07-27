@@ -71,8 +71,8 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 			"match_all": schema.BoolAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "This field is applicable only when `type`==`match`\n* `false`: means it is sufficient to match any of the values (i.e., match-any behavior)\n* `true`: means all values should be matched (i.e., match-all behavior)\n\n\nCurrently it makes sense to set this field to `true` only if the `match`==`idp_role` or `match`==`usermac_label`",
-				MarkdownDescription: "This field is applicable only when `type`==`match`\n* `false`: means it is sufficient to match any of the values (i.e., match-any behavior)\n* `true`: means all values should be matched (i.e., match-all behavior)\n\n\nCurrently it makes sense to set this field to `true` only if the `match`==`idp_role` or `match`==`usermac_label`",
+				Description:         "This field is applicable only when `type`==`match`\n  * `false`: means it is sufficient to match any of the values (i.e., match-any behavior)\n  * `true`: means all values should be matched (i.e., match-all behavior)\n\n\nCurrently it makes sense to set this field to `true` only if the `match`==`idp_role` or `match`==`usermac_label`'",
+				MarkdownDescription: "This field is applicable only when `type`==`match`\n  * `false`: means it is sufficient to match any of the values (i.e., match-any behavior)\n  * `true`: means all values should be matched (i.e., match-all behavior)\n\n\nCurrently it makes sense to set this field to `true` only if the `match`==`idp_role` or `match`==`usermac_label`'",
 				Default:             booldefault.StaticBool(false),
 			},
 			"name": schema.StringAttribute{

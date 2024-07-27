@@ -339,7 +339,7 @@ Optional:
 - `local_vlan_ids` (List of String) vlan_ids to be locally bridged
 - `type` (String) standard (using Tunnel-Private-Group-ID, widely supported), airespace-interface-name (Airespace/Cisco)
 - `vlans` (Map of String) map between vlan_id (as string) to airespace interface names (comma-separated) or null for stndard mapping
-  * if `dynamic_vlan.type`==`standard`, property key is the Vlan ID and property value is ""
+  * if `dynamic_vlan.type`==`standard`, property key is the Vlan ID and property value is \"\"
   * if `dynamic_vlan.type`==`airespace-interface-name`, property key is the Vlan ID and property value is the Airespace Interface Name
 
 
@@ -371,12 +371,12 @@ Optional:
 Optional:
 
 - `enabled` (Boolean) when enabled:
-* `auth_servers` is ignored
-* `acct_servers` is ignored
-* `auth_servers_*` are ignored
-* `coa_servers` is ignored
-* `radsec` is ignored
-* `coa_enabled` is assumed
+  * `auth_servers` is ignored
+  * `acct_servers` is ignored
+  * `auth_servers_*` are ignored
+  * `coa_servers` is ignored
+  * `radsec` is ignored
+  * `coa_enabled` is assumed'
 
 
 <a id="nestedatt--portal"></a>
@@ -508,7 +508,7 @@ Optional:
 - `enabled` (Boolean)
 - `hours` (Attributes) hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun). 
 
-**Note**: If the dow is not defined then it’s treated as 00:00-23:59. (see [below for nested schema](#nestedatt--schedule--hours))
+**Note**: If the dow is not defined then it\u2019\s treated as 00:00-23:59. (see [below for nested schema](#nestedatt--schedule--hours))
 
 <a id="nestedatt--schedule--hours"></a>
 ### Nested Schema for `schedule.hours`

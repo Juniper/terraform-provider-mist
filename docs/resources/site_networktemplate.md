@@ -143,14 +143,15 @@ Optional:
 - `type`==`mac`
 - `type`==`static_gbp` if from matching mac
 - `network` (String) if:
-- `type`==`mac` (optional. default is `any`)
-- `type`==`subnet` (optional. default is `any`)
-- `type`==`network`
-- `type`==`resource` (optional. default is `any`)
-- `type`==`static_gbp` if from matching network (vlan)
-- `radius_group` (String) required if 
-- `type`==`radius_group` 
-- `type`==`static_gbp` if from matching radius_group
+  * `type`==`mac` (optional. default is `any`)
+  * `type`==`subnet` (optional. default is `any`)
+  * `type`==`network`
+  * `type`==`resource` (optional. default is `any`)
+  * `type`==`static_gbp` if from matching network (vlan)'
+- `radius_group` (String) required if:
+  * `type`==`radius_group`
+  * `type`==`static_gbp`
+if from matching radius_group
 - `specs` (Attributes List) if `type`==`resource`
 empty means unrestricted, i.e. any (see [below for nested schema](#nestedatt--acl_tags--specs))
 - `subnets` (List of String) if 

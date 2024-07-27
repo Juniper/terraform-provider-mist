@@ -40,11 +40,11 @@ resource "mist_org_nactag" "tag_one" {
 - `gbp_tag` (Number) if `type`==`gbp_tag`
 - `match` (String) if `type`==`match`
 - `match_all` (Boolean) This field is applicable only when `type`==`match`
-* `false`: means it is sufficient to match any of the values (i.e., match-any behavior)
-* `true`: means all values should be matched (i.e., match-all behavior)
+  * `false`: means it is sufficient to match any of the values (i.e., match-any behavior)
+  * `true`: means all values should be matched (i.e., match-all behavior)
 
 
-Currently it makes sense to set this field to `true` only if the `match`==`idp_role` or `match`==`usermac_label`
+Currently it makes sense to set this field to `true` only if the `match`==`idp_role` or `match`==`usermac_label`'
 - `radius_attrs` (List of String) if `type`==`radius_attrs`, user can specify a list of one or more standard attributes in the field "radius_attrs". 
 It is the responsibility of the user to provide a syntactically correct string, otherwise it may not work as expected.
 Note that it is allowed to have more than one radius_attrs in the result of a given rule.

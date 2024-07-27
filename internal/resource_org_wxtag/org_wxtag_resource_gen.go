@@ -132,6 +132,7 @@ func OrgWxtagResourceSchema(ctx context.Context) schema.Schema {
 				Required: true,
 				Validators: []validator.String{
 					stringvalidator.OneOf(
+						"",
 						"match",
 						"client",
 						"resource",

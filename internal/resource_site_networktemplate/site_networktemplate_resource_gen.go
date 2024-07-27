@@ -102,16 +102,16 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"network": schema.StringAttribute{
 							Optional:            true,
-							Description:         "if:\n- `type`==`mac` (optional. default is `any`)\n- `type`==`subnet` (optional. default is `any`)\n- `type`==`network`\n- `type`==`resource` (optional. default is `any`)\n- `type`==`static_gbp` if from matching network (vlan)",
-							MarkdownDescription: "if:\n- `type`==`mac` (optional. default is `any`)\n- `type`==`subnet` (optional. default is `any`)\n- `type`==`network`\n- `type`==`resource` (optional. default is `any`)\n- `type`==`static_gbp` if from matching network (vlan)",
+							Description:         "if:\n  * `type`==`mac` (optional. default is `any`)\n  * `type`==`subnet` (optional. default is `any`)\n  * `type`==`network`\n  * `type`==`resource` (optional. default is `any`)\n  * `type`==`static_gbp` if from matching network (vlan)'",
+							MarkdownDescription: "if:\n  * `type`==`mac` (optional. default is `any`)\n  * `type`==`subnet` (optional. default is `any`)\n  * `type`==`network`\n  * `type`==`resource` (optional. default is `any`)\n  * `type`==`static_gbp` if from matching network (vlan)'",
 							Validators: []validator.String{
 								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("network")),
 							},
 						},
 						"radius_group": schema.StringAttribute{
 							Optional:            true,
-							Description:         "required if \n- `type`==`radius_group` \n- `type`==`static_gbp` if from matching radius_group",
-							MarkdownDescription: "required if \n- `type`==`radius_group` \n- `type`==`static_gbp` if from matching radius_group",
+							Description:         "required if:\n  * `type`==`radius_group`\n  * `type`==`static_gbp`\nif from matching radius_group",
+							MarkdownDescription: "required if:\n  * `type`==`radius_group`\n  * `type`==`static_gbp`\nif from matching radius_group",
 							Validators: []validator.String{
 								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("radius_group")),
 							},

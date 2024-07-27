@@ -141,10 +141,9 @@ resource "mist_org_gatewaytemplate" "gatewaytemplate_one" {
 Optional:
 
 - `auth_key` (String)
-- `bfd_minimum_interval` (Number) when bfd_multiplier is configured alone
-default:
-* 1000 if `type`==`external``
-* 350 `type`==`internal`
+- `bfd_minimum_interval` (Number) when bfd_multiplier is configured alone. Default:
+  * 1000 if `type`==`external`
+  * 350 `type`==`internal`
 - `bfd_multiplier` (Number) when bfd_minimum_interval_is_configured alone
 - `communities` (Attributes List) (see [below for nested schema](#nestedatt--bgp_config--communities))
 - `disable_bfd` (Boolean) BFD provides faster path failure detection and is enabled by default
@@ -220,8 +219,8 @@ should overwrite the Sever Identifier option (i.e. DHCP option 54) in DHCP respo
 - `type` (String) DHCP Server (local) or DHCP Relay (relay)
 - `type6` (String) DHCP Server (local) or DHCP Relay (relay)
 - `vendor_encapulated` (Attributes Map) Property key is <enterprise number>:<sub option code>, with
-* enterprise number: 1-65535 (https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers)
-* sub option code: 1-255, sub-option code (see [below for nested schema](#nestedatt--dhcpd_config--config--vendor_encapulated))
+  * enterprise number: 1-65535 (https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers)
+  * sub option code: 1-255, sub-option code' (see [below for nested schema](#nestedatt--dhcpd_config--config--vendor_encapulated))
 
 <a id="nestedatt--dhcpd_config--config--fixed_bindings"></a>
 ### Nested Schema for `dhcpd_config.config.fixed_bindings`
@@ -487,7 +486,9 @@ Optional:
 - `disabled` (Boolean) For SSR Only. `true`, if this specific path is undesired
 - `gateway_ip` (String) only if `type`==`local`, if a different gateway is desired
 - `internet_access` (Boolean) only if `type`==`vpn`, if this vpn path can be used for internet
-- `name` (String) required when * `type`==`vpn`: the name of the VPN Path to use * `type`==`wan`: the name of the WAN interface to use
+- `name` (String) required when 
+  * `type`==`vpn`: the name of the VPN Path to use 
+  * `type`==`wan`: the name of the WAN interface to use'
 - `networks` (List of String) required when `type`==`local`
 - `target_ips` (List of String) if `type`==`local`, if destination IP is to be replaced
 - `type` (String)
@@ -724,33 +725,28 @@ Optional:
 Optional:
 
 - `auto_provision` (Attributes) (see [below for nested schema](#nestedatt--tunnel_configs--auto_provision))
-- `ike_lifetime` (Number) Only if:
-* `provider`== `custom-ipsec`
-- `ike_mode` (String) Only if:
-* `provider`== `custom-ipsec`
+- `ike_lifetime` (Number) Only if `provider`== `custom-ipsec`
+- `ike_mode` (String) Only if `provider`== `custom-ipsec`
 - `ike_proposals` (Attributes List) if `provider`== `custom-ipsec` (see [below for nested schema](#nestedatt--tunnel_configs--ike_proposals))
 - `ipsec_lifetime` (Number) if `provider`== `custom-ipsec`
-- `ipsec_proposals` (Attributes List) Only if:
-* `provider`== `custom-ipsec` (see [below for nested schema](#nestedatt--tunnel_configs--ipsec_proposals))
+- `ipsec_proposals` (Attributes List) Only if  `provider`== `custom-ipsec` (see [below for nested schema](#nestedatt--tunnel_configs--ipsec_proposals))
 - `local_id` (String) Only if:
-* `provider`== `zscaler-ipsec`
-* `provider`==`jse-ipsec`
-* `provider`== `custom-ipsec`
+  * `provider`== `zscaler-ipsec`
+  * `provider`==`jse-ipsec`
+  * `provider`== `custom-ipsec`
 - `mode` (String)
 - `primary` (Attributes) (see [below for nested schema](#nestedatt--tunnel_configs--primary))
-- `probe` (Attributes) Only if:
-* `provider`== `custom-ipsec` (see [below for nested schema](#nestedatt--tunnel_configs--probe))
-- `protocol` (String) Only if:
-* `provider`== `custom-ipsec`
+- `probe` (Attributes) Only if `provider`== `custom-ipsec` (see [below for nested schema](#nestedatt--tunnel_configs--probe))
+- `protocol` (String) Only if `provider`== `custom-ipsec`
 - `provider` (String)
 - `psk` (String, Sensitive) Only if:
-* `provider`== `zscaler-ipsec`
-* `provider`==`jse-ipsec`
-* `provider`== `custom-ipsec`
+  * `provider`== `zscaler-ipsec`
+  * `provider`==`jse-ipsec`
+  * `provider`== `custom-ipsec`
 - `secondary` (Attributes) (see [below for nested schema](#nestedatt--tunnel_configs--secondary))
 - `version` (String) Only if:
-* `provider`== `custom-gre` 
-* `provider`== `custom-ipsec`
+  * `provider`== `custom-gre`
+  * `provider`== `custom-ipsec`
 
 <a id="nestedatt--tunnel_configs--auto_provision"></a>
 ### Nested Schema for `tunnel_configs.auto_provision`
@@ -797,15 +793,15 @@ Optional:
 Optional:
 
 - `auth_algo` (String)
-- `dh_group` (String) * 1 
-* 2 (1024-bit) 
+- `dh_group` (String) * 1
+* 2 (1024-bit)
 * 5
 * 14 (default, 2048-bit)
-* 15 (3072-bit) 
+* 15 (3072-bit)
 * 16 (4096-bit)
 * 19 (256-bit ECP)
 * 20 (384-bit ECP)
-* 21 (521-bit ECP) 
+* 21 (521-bit ECP)
 * 24 (2048-bit ECP)
 - `enc_algo` (String)
 
@@ -816,19 +812,19 @@ Optional:
 Optional:
 
 - `auth_algo` (String)
-- `dh_group` (String) Only if:
-* `provider`== `custom-ipsec`
+- `dh_group` (String) Only if `provider`== `custom-ipsec`
+
 Values:
-* 1 
-* 2 (1024-bit) 
-* 5
-* 14 (default, 2048-bit) 
-* 15 (3072-bit) 
-* 16 (4096-bit)
-* 19 (256-bit ECP)
-* 20 (384-bit ECP)
-* 21 (521-bit ECP) 
-* 24 (2048-bit ECP)
+  * 1 
+  * 2 (1024-bit)
+  * 5
+  * 14 (default, 2048-bit)
+  * 15 (3072-bit)
+  * 16 (4096-bit)
+  * 19 (256-bit ECP)
+  * 20 (384-bit ECP)
+  * 21 (521-bit ECP)
+  * 24 (2048-bit ECP)
 - `enc_algo` (String)
 
 
@@ -839,11 +835,10 @@ Optional:
 
 - `hosts` (List of String)
 - `internal_ips` (List of String) Only if:
-* `provider`== `zscaler-gre` 
-* `provider`== `custom-gre`
+  * `provider`== `zscaler-gre`
+  * `provider`== `custom-gre`
 - `probe_ips` (List of String)
-- `remote_ids` (List of String) Only if:
-* `provider`== `custom-ipsec`
+- `remote_ids` (List of String) Only if `provider`== `custom-ipsec`
 - `wan_names` (List of String)
 
 
@@ -865,11 +860,10 @@ Optional:
 
 - `hosts` (List of String)
 - `internal_ips` (List of String) Only if:
-* `provider`== `zscaler-gre` 
-* `provider`== `custom-gre`
+  * `provider`== `zscaler-gre`
+  * `provider`== `custom-gre`
 - `probe_ips` (List of String)
-- `remote_ids` (List of String) Only if:
-* `provider`== `custom-ipsec`
+- `remote_ids` (List of String) Only if `provider`== `custom-ipsec`
 - `wan_names` (List of String)
 
 
