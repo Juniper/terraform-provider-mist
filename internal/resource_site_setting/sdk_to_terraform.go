@@ -7,7 +7,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
 	mist_list "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
@@ -45,8 +44,8 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	var synthetic_test SyntheticTestValue = NewSyntheticTestValueNull()
 	var track_anonymous_devices types.Bool
 	var uplink_port_config UplinkPortConfigValue = NewUplinkPortConfigValueNull()
-	var vars types.Map = basetypes.NewMapNull(types.StringType)
-	// var vs_instance VsInstanceValue = NewVsInstanceValueNull()
+	var vars types.Map = types.MapNull(types.StringType)
+	var vs_instance types.Map = types.MapNull(VsInstanceValue{}.Type(ctx))
 	var vna VnaValue = NewVnaValueNull()
 	var watched_station_url types.String
 	var whitelist_url types.String
@@ -91,8 +90,8 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 		critical_url_monitoring = criticalUrlMonitoringSdkToTerraform(ctx, &diags, data.CriticalUrlMonitoring)
 	}
 
-	if data.DeviceUpdownThreshold != nil {
-		device_updown_threshold = types.Int64Value(int64(*data.DeviceUpdownThreshold))
+	if data.DeviceUpdownThreshold.Value() != nil {
+		device_updown_threshold = types.Int64Value(int64(*data.DeviceUpdownThreshold.Value()))
 	}
 
 	if data.DisabledSystemDefinedPortUsages != nil {
@@ -180,11 +179,15 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	}
 
 	if data.Vna != nil {
-		state.Vna = vnaSdkToTerraform(ctx, &diags, data.Vna)
+		vna = vnaSdkToTerraform(ctx, &diags, data.Vna)
+	}
+
+	if data.VsInstance != nil {
+		vs_instance = vsInstanceSdkToTerraform(ctx, &diags, data.VsInstance)
 	}
 
 	if data.WanVna != nil {
-		state.WanVna = wanVnaSdkToTerraform(ctx, &diags, data.WanVna)
+		wan_van = wanVnaSdkToTerraform(ctx, &diags, data.WanVna)
 	}
 
 	if data.WatchedStationUrl != nil {
@@ -204,7 +207,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	}
 
 	if data.WiredVna != nil {
-		state.WiredVna = wiredVnaSdkToTerraform(ctx, &diags, data.WiredVna)
+		wired_vna = wiredVnaSdkToTerraform(ctx, &diags, data.WiredVna)
 	}
 
 	if data.ZoneOccupancyAlert != nil {
@@ -242,6 +245,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	state.UplinkPortConfig = uplink_port_config
 	state.Vars = vars
 	state.Vna = vna
+	state.VsInstance = vs_instance
 	state.WanVna = wan_van
 	state.WatchedStationUrl = watched_station_url
 	state.WhitelistUrl = whitelist_url

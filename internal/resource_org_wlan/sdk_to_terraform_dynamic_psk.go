@@ -37,7 +37,7 @@ func dynamicPskSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 	if d != nil && d.VlanIds != nil {
 		var list []attr.Value
 		for _, v := range d.VlanIds {
-			list = append(list, types.StringValue(string(v.String())))
+			list = append(list, types.StringValue(v.String()))
 		}
 		r, e := types.ListValue(basetypes.StringType{}, list)
 		diags.Append(e...)

@@ -26,7 +26,14 @@ func syntheticTestVlansTerraformToSdk(ctx context.Context, diags *diag.Diagnosti
 		}
 
 		if !plan.VlanIds.IsNull() && !plan.VlanIds.IsUnknown() {
-			data.VlanIds = mist_transform.ListOfIntTerraformToSdk(ctx, plan.VlanIds)
+			var items []models.SynthetictestPropertiesVlanIds
+			for _, item := range plan.VlanIds.Elements() {
+				var item_interface interface{} = item
+				i := item_interface.(basetypes.StringValue)
+				v := models.SynthetictestPropertiesVlanIdsContainer.FromString(i.ValueString())
+				items = append(items, v)
+			}
+			data.VlanIds = items
 		}
 
 		data_list = append(data_list, data)

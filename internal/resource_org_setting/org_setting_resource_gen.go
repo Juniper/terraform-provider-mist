@@ -5,6 +5,7 @@ package resource_org_setting
 import (
 	"context"
 	"fmt"
+	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -624,13 +625,16 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 									Default:             booldefault.StaticBool(false),
 								},
 								"vlan_ids": schema.ListAttribute{
-									ElementType: types.Int64Type,
+									ElementType: types.StringType,
 									Optional:    true,
 									Computed:    true,
 									Validators: []validator.List{
 										listvalidator.SizeAtLeast(1),
-										listvalidator.ValueInt64sAre(
-											int64validator.Between(1, 4094),
+										listvalidator.ValueStringsAre(
+											stringvalidator.Any(
+												mistvalidator.ParseInt(1, 4094),
+												mistvalidator.ParseVar(),
+											),
 										),
 									},
 								},
@@ -9565,7 +9569,7 @@ func (v VlansValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error)
 	}.TerraformType(ctx)
 	attrTypes["disabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["vlan_ids"] = basetypes.ListType{
-		ElemType: types.Int64Type,
+		ElemType: types.StringType,
 	}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
@@ -9638,12 +9642,12 @@ func (v VlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 			},
 			"disabled": basetypes.BoolType{},
 			"vlan_ids": basetypes.ListType{
-				ElemType: types.Int64Type,
+				ElemType: types.StringType,
 			},
 		}), diags
 	}
 
-	vlanIdsVal, d := types.ListValue(types.Int64Type, v.VlanIds.Elements())
+	vlanIdsVal, d := types.ListValue(types.StringType, v.VlanIds.Elements())
 
 	diags.Append(d...)
 
@@ -9654,7 +9658,7 @@ func (v VlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 			},
 			"disabled": basetypes.BoolType{},
 			"vlan_ids": basetypes.ListType{
-				ElemType: types.Int64Type,
+				ElemType: types.StringType,
 			},
 		}), diags
 	}
@@ -9665,7 +9669,7 @@ func (v VlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 		},
 		"disabled": basetypes.BoolType{},
 		"vlan_ids": basetypes.ListType{
-			ElemType: types.Int64Type,
+			ElemType: types.StringType,
 		},
 	}
 
@@ -9733,7 +9737,7 @@ func (v VlansValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 		},
 		"disabled": basetypes.BoolType{},
 		"vlan_ids": basetypes.ListType{
-			ElemType: types.Int64Type,
+			ElemType: types.StringType,
 		},
 	}
 }

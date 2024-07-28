@@ -69,8 +69,8 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	if data.DeviceCert != nil {
 		device_cert = deviceCertSdkToTerraform(ctx, &diags, data.DeviceCert)
 	}
-	if data.DeviceUpdownThreshold != nil {
-		device_updown_threshold = types.Int64Value(int64(*data.DeviceUpdownThreshold))
+	if data.DeviceUpdownThreshold.Value() != nil {
+		device_updown_threshold = types.Int64Value(int64(*data.DeviceUpdownThreshold.Value()))
 	}
 	if data.DisablePcap != nil {
 		disable_pcap = types.BoolValue(*data.DisablePcap)

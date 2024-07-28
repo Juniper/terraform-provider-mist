@@ -19,7 +19,7 @@ func syntheticTestVlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 
 		var custom_test_urls basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 		var disabled basetypes.BoolValue
-		var vlan_ids basetypes.ListValue = mist_transform.ListOfIntSdkToTerraformEmpty(ctx)
+		var vlan_ids basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 
 		if d.CustomTestUrls != nil && len(d.CustomTestUrls) > 0 {
 			custom_test_urls = mist_transform.ListOfStringSdkToTerraform(ctx, d.CustomTestUrls)
@@ -28,7 +28,11 @@ func syntheticTestVlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 			disabled = types.BoolValue(*d.Disabled)
 		}
 		if d.VlanIds != nil {
-			vlan_ids = mist_transform.ListOfIntSdkToTerraform(ctx, d.VlanIds)
+			var items []attr.Value
+			for _, item := range d.VlanIds {
+				items = append(items, types.StringValue(item.String()))
+			}
+			vlan_ids, _ = types.ListValue(basetypes.StringType{}, items)
 		}
 
 		data_map_attr_type := VlansValue{}.AttributeTypes(ctx)

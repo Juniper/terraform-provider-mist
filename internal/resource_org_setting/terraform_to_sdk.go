@@ -57,7 +57,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgSettingModel) (*models.OrgSett
 	}
 
 	if plan.DeviceUpdownThreshold.ValueInt64Pointer() != nil {
-		data.DeviceUpdownThreshold = models.ToPointer(int(plan.DeviceUpdownThreshold.ValueInt64()))
+		data.DeviceUpdownThreshold = models.NewOptional(models.ToPointer(int(plan.DeviceUpdownThreshold.ValueInt64())))
 	} else {
 		unset["-device_updown_threshold"] = ""
 	}

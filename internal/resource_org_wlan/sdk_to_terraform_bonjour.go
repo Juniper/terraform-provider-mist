@@ -55,11 +55,10 @@ func bonjourSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 
 	if d != nil && d.AdditionalVlanIds != nil {
 		var items []attr.Value
-		var items_type attr.Type = basetypes.StringType{}
 		for _, item := range d.AdditionalVlanIds {
 			items = append(items, types.StringValue(item.String()))
 		}
-		list, _ := types.ListValue(items_type, items)
+		list, _ := types.ListValue(basetypes.StringType{}, items)
 		additional_vlan_ids = list
 	}
 	if d != nil && d.Enabled != nil {

@@ -442,7 +442,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	if data.VlanIds != nil {
 		var list []attr.Value
 		for _, v := range data.VlanIds {
-			list = append(list, types.StringValue(string(v.String())))
+			list = append(list, types.StringValue(v.String()))
 		}
 		r, e := types.ListValue(basetypes.StringType{}, list)
 		diags.Append(e...)
