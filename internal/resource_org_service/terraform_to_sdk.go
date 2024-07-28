@@ -52,8 +52,8 @@ func TerraformToSdk(ctx context.Context, plan *OrgServiceModel) (models.Service,
 	if plan.Description.ValueStringPointer() != nil {
 		data.Description = plan.Description.ValueStringPointer()
 	}
-	if plan.Dscp.ValueInt64Pointer() != nil {
-		data.Dscp = models.ToPointer(int(plan.Dscp.ValueInt64()))
+	if plan.Dscp.ValueStringPointer() != nil {
+		data.Dscp = models.ToPointer(models.ServiceDscpContainer.FromString(plan.Dscp.ValueString()))
 	}
 	if plan.FailoverPolicy.ValueStringPointer() != nil {
 		data.FailoverPolicy = models.ToPointer(models.ServiceFailoverPolicyEnum(plan.FailoverPolicy.ValueString()))
@@ -61,14 +61,14 @@ func TerraformToSdk(ctx context.Context, plan *OrgServiceModel) (models.Service,
 	if !plan.Hostnames.IsNull() && !plan.Hostnames.IsUnknown() {
 		data.Hostnames = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Hostnames)
 	}
-	if plan.MaxJitter.ValueInt64Pointer() != nil {
-		data.MaxJitter = models.ToPointer(int(plan.MaxJitter.ValueInt64()))
+	if plan.MaxJitter.ValueStringPointer() != nil {
+		data.MaxJitter = models.ToPointer(models.ServiceMaxJitterContainer.FromString(plan.MaxJitter.ValueString()))
 	}
-	if plan.MaxLatency.ValueInt64Pointer() != nil {
-		data.MaxLatency = models.ToPointer(int(plan.MaxLatency.ValueInt64()))
+	if plan.MaxLatency.ValueStringPointer() != nil {
+		data.MaxLatency = models.ToPointer(models.ServiceMaxLatencyContainer.FromString(plan.MaxLatency.ValueString()))
 	}
-	if plan.MaxLoss.ValueInt64Pointer() != nil {
-		data.MaxLoss = models.ToPointer(int(plan.MaxLoss.ValueInt64()))
+	if plan.MaxLoss.ValueStringPointer() != nil {
+		data.MaxLoss = models.ToPointer(models.ServiceMaxLossContainer.FromString(plan.MaxLoss.ValueString()))
 	}
 	if plan.SleEnabled.ValueBoolPointer() != nil {
 		data.SleEnabled = plan.SleEnabled.ValueBoolPointer()

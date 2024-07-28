@@ -53,13 +53,13 @@ func SdkToTerraform(ctx context.Context, d *models.Service) (OrgServiceModel, di
 	var app_subcategories types.List = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 	var apps types.List = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 	var description types.String
-	var dscp types.Int64
+	var dscp types.String
 	var failover_policy types.String
 	var hostnames types.List = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 	var id types.String
-	var max_jitter types.Int64
-	var max_latency types.Int64
-	var max_loss types.Int64
+	var max_jitter types.String
+	var max_latency types.String
+	var max_loss types.String
 	var name types.String
 	var org_id types.String
 	var sle_enabled types.Bool
@@ -86,7 +86,7 @@ func SdkToTerraform(ctx context.Context, d *models.Service) (OrgServiceModel, di
 		description = types.StringValue(string(*d.Description))
 	}
 	if d.Dscp != nil {
-		dscp = types.Int64Value(int64(*d.Dscp))
+		dscp = types.StringValue(d.Dscp.String())
 	}
 	if d.FailoverPolicy != nil {
 		failover_policy = types.StringValue(string(*d.FailoverPolicy))
@@ -98,13 +98,13 @@ func SdkToTerraform(ctx context.Context, d *models.Service) (OrgServiceModel, di
 		id = types.StringValue(string(d.Id.String()))
 	}
 	if d.MaxJitter != nil {
-		max_jitter = types.Int64Value(int64(*d.MaxJitter))
+		max_jitter = types.StringValue(d.MaxJitter.String())
 	}
 	if d.MaxLatency != nil {
-		max_latency = types.Int64Value(int64(*d.MaxLatency))
+		max_latency = types.StringValue(d.MaxLatency.String())
 	}
 	if d.MaxLoss != nil {
-		max_loss = types.Int64Value(int64(*d.MaxLoss))
+		max_loss = types.StringValue(d.MaxLoss.String())
 	}
 	if d.Name != nil {
 		name = types.StringValue(string(*d.Name))
