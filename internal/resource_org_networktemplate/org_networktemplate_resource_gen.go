@@ -255,7 +255,7 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						"metric": schema.Int64Attribute{
 							Optional: true,
 							Validators: []validator.Int64{
-								int64validator.Between(0, 4294967295),
+								int64validator.Between(0, 2147483647),
 							},
 						},
 						"next_qualified": schema.MapNestedAttribute{
@@ -287,7 +287,7 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						"preference": schema.Int64Attribute{
 							Optional: true,
 							Validators: []validator.Int64{
-								int64validator.Between(0, 4294967295),
+								int64validator.Between(0, 2147483647),
 							},
 						},
 						"via": schema.StringAttribute{
@@ -323,7 +323,7 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						"metric": schema.Int64Attribute{
 							Optional: true,
 							Validators: []validator.Int64{
-								int64validator.Between(0, 4294967295),
+								int64validator.Between(0, 2147483647),
 							},
 						},
 						"next_qualified": schema.MapNestedAttribute{
@@ -355,7 +355,7 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						"preference": schema.Int64Attribute{
 							Optional: true,
 							Validators: []validator.Int64{
-								int64validator.Between(0, 4294967295),
+								int64validator.Between(0, 2147483647),
 							},
 						},
 						"via": schema.StringAttribute{

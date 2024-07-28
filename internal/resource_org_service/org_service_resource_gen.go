@@ -112,14 +112,14 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 				Optional: true,
 				Validators: []validator.String{
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("custom")),
-					stringvalidator.Any(mistvalidator.ParseInt(0, 4294967295), mistvalidator.ParseVar()),
+					stringvalidator.Any(mistvalidator.ParseInt(0, 2147483647), mistvalidator.ParseVar()),
 				},
 			},
 			"max_latency": schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("custom")),
-					stringvalidator.Any(mistvalidator.ParseInt(0, 4294967295), mistvalidator.ParseVar()),
+					stringvalidator.Any(mistvalidator.ParseInt(0, 2147483647), mistvalidator.ParseVar()),
 				},
 			},
 			"max_loss": schema.StringAttribute{

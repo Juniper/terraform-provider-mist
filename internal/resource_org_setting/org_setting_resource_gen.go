@@ -693,7 +693,7 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					"as_base": schema.Int64Attribute{
 						Optional: true,
 						Validators: []validator.Int64{
-							int64validator.Between(1, 4294967295),
+							int64validator.Between(1, 2147483647),
 						},
 					},
 					"st_subnet": schema.StringAttribute{
