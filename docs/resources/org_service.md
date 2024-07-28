@@ -40,33 +40,29 @@ resource "mist_org_service" "service_one" {
 
 ### Optional
 
-- `addresses` (List of String) if `type`==`custom`, ip subnets
-- `app_categories` (List of String) when `type`==`app_categories`
-list of application categories are available through /api/v1/const/app_categories
-- `app_subcategories` (List of String) when `type`==`app_categories`
-list of application categories are available through /api/v1/const/app_subcategories
-- `apps` (List of String) when `type`==`apps`
-list of applications are available through:
-  - /api/v1/const/applications,
-  - /api/v1/const/gateway_applications
-  - /insight/top_app_by-bytes?wired=true
+- `addresses` (List of String) if `type`==`custom`, ip subnets (e.g. 10.0.0.0/8)
+- `app_categories` (List of String) when `type`==`app_categories`, list of application categories are available through /api/v1/const/app_categories
+- `app_subcategories` (List of String) when `type`==`app_categories`, list of application categories are available through /api/v1/const/app_subcategories
+- `apps` (List of String) when `type`==`apps`, list of applications are available through:
+  * /api/v1/const/applications
+  * /api/v1/const/gateway_applications
+  * /insight/top_app_by-bytes?wired=true
 - `description` (String)
-- `dscp` (Number) when `traffic_type`==`custom`
+- `dscp` (String)
 - `failover_policy` (String)
 - `hostnames` (List of String) if `type`==`custom`, web filtering
-- `max_jitter` (Number) when `traffic_type`==`custom`, for uplink selection
-- `max_latency` (Number) when `traffic_type`==`custom`, for uplink selection
-- `max_loss` (Number) when `traffic_type`==`custom`, for uplink selection
+- `max_jitter` (String)
+- `max_latency` (String)
+- `max_loss` (String)
 - `sle_enabled` (Boolean) whether to enable measure SLE
-- `specs` (Attributes List) (see [below for nested schema](#nestedatt--specs))
+- `specs` (Attributes List) when `type`==`custom`, optional, if it doesn't exist, http and https is assumed (see [below for nested schema](#nestedatt--specs))
 - `ssr_relaxed_tcp_state_enforcement` (Boolean)
 - `traffic_class` (String) when `traffic_type`==`custom`
 - `traffic_type` (String) values from `/api/v1/consts/traffic_types`
   * when `type`==`apps`, we''ll choose traffic_type automatically
   * when `type`==`addresses` or `type`==`hostnames`, you can provide your own settings (optional)
 - `type` (String)
-- `urls` (List of String) when `type`==`urls
-no need for spec as URL can encode the ports being used`
+- `urls` (List of String) when `type`==`urls`, no need for spec as URL can encode the ports being used
 
 ### Read-Only
 
@@ -77,7 +73,7 @@ no need for spec as URL can encode the ports being used`
 
 Optional:
 
-- `port_range` (String)
+- `port_range` (String) port number, port range, or variable
 - `protocol` (String) `https`/ `tcp` / `udp` / `icmp` / `gre` / `any` / `:protocol_number`.
 `protocol_number` is between 1-254
 

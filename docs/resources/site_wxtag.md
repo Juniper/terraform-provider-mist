@@ -59,7 +59,7 @@ resource "mist_site_wxtag" "wtag_one" {
 
 **Notes**:
 Variables are not allowed
-- `vlan_id` (String) if `type`==`vlan_id`, VLAN ID or variable
+- `vlan_id` (String)
 
 ### Read-Only
 

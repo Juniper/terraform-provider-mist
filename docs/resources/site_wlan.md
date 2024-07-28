@@ -57,8 +57,8 @@ resource "mist_site_wlan" "wlan_one" {
 - `auth_servers` (Attributes List) list of RADIUS authentication servers, at least one is needed if `auth type`==`eap`, order matters where the first one is treated as primary (see [below for nested schema](#nestedatt--auth_servers))
 - `auth_servers_nas_id` (String) optional, up to 48 bytes, will be dynamically generated if not provided. used only for authentication servers
 - `auth_servers_nas_ip` (String) optional, NAS-IP-ADDRESS to use
-- `auth_servers_retries` (Number) radius auth session retries. Following fast timers are set if “fast_dot1x_timers” knob is enabled. ‘retries'  are set to value of auth_servers_retries. ‘max-requests’ is also set when setting auth_servers_retries and is set to default value to 3.
-- `auth_servers_timeout` (Number) radius auth session timeout. Following fast timers are set if “fast_dot1x_timers” knob is enabled. ‘quite-period'  and ‘transmit-period’ are set to half the value of auth_servers_timeout. ‘supplicant-timeout’ is also set when setting auth_servers_timeout and is set to default value of 10.
+- `auth_servers_retries` (Number) radius auth session retries. Following fast timers are set if “fast_dot1x_timers” knob is enabled. ‘retries’  are set to value of auth_servers_retries. ‘max-requests’ is also set when setting auth_servers_retries and is set to default value to 3.
+- `auth_servers_timeout` (Number) radius auth session timeout. Following fast timers are set if “fast_dot1x_timers” knob is enabled. ‘quite-period’  and ‘transmit-period’ are set to half the value of auth_servers_timeout. ‘supplicant-timeout’ is also set when setting auth_servers_timeout and is set to default value of 10.
 - `band_steer` (Boolean) whether to enable band_steering, this works only when band==both
 - `band_steer_force_band5` (Boolean) force dual_band capable client to connect to 5G
 - `bands` (List of String) list of radios that the wlan should apply to
@@ -92,7 +92,7 @@ resource "mist_site_wlan" "wlan_one" {
 - `enable_wireless_bridging` (Boolean) by default, we'd inspect all DHCP packets and drop those unrelated to the wireless client itself in the case where client is a wireless bridge (DHCP packets for other MACs will need to be orwarded), wireless_bridging can be enabled
 - `enable_wireless_bridging_dhcp_tracking` (Boolean) if the client bridge is doing DHCP on behalf of other devices (L2-NAT), enable dhcp_tracking will cut down DHCP response packets to be forwarded to wireless
 - `enabled` (Boolean) if this wlan is enabled
-- `fast_dot1x_timers` (Boolean) if set to true, sets default fast-timers with values calculated from ‘auth_servers_timeout’ and ‘auth_server_retries' .
+- `fast_dot1x_timers` (Boolean) if set to true, sets default fast-timers with values calculated from ‘auth_servers_timeout’ and ‘auth_server_retries’ .
 - `hide_ssid` (Boolean) whether to hide SSID in beacon
 - `hostname_ie` (Boolean) include hostname inside IE in AP beacons / probe responses
 - `hotspot20` (Attributes) hostspot 2.0 wlan settings (see [below for nested schema](#nestedatt--hotspot20))
@@ -507,7 +507,7 @@ Optional:
 - `enabled` (Boolean)
 - `hours` (Attributes) hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun). 
 
-**Note**: If the dow is not defined then it'\ s treated as 00:00-23:59. (see [below for nested schema](#nestedatt--schedule--hours))
+**Note**: If the dow is not defined then it\u2019\ s treated as 00:00-23:59. (see [below for nested schema](#nestedatt--schedule--hours))
 
 <a id="nestedatt--schedule--hours"></a>
 ### Nested Schema for `schedule.hours`

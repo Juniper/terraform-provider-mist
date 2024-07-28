@@ -49,7 +49,6 @@ resource "mist_org_vpn" "vpn_one" {
 - `gateway_updown_threshold` (Number) enable threshold-based device down delivery for Gateway devices only. When configured it takes effect for GW devices and `device_updown_threshold` is ignored.
 - `installer` (Attributes) (see [below for nested schema](#nestedatt--installer))
 - `jcloud` (Attributes) (see [below for nested schema](#nestedatt--jcloud))
-- `juniper` (Attributes) (see [below for nested schema](#nestedatt--juniper))
 - `mgmt` (Attributes) management-related properties (see [below for nested schema](#nestedatt--mgmt))
 - `mist_nac` (Attributes) (see [below for nested schema](#nestedatt--mist_nac))
 - `mxedge_fips_enabled` (Boolean)
@@ -62,6 +61,10 @@ resource "mist_org_vpn" "vpn_one" {
 - `synthetic_test` (Attributes) (see [below for nested schema](#nestedatt--synthetic_test))
 - `ui_idle_timeout` (Number) automatically logout the user when UI session is inactive. `0` means disabled
 - `vpn_options` (Attributes) (see [below for nested schema](#nestedatt--vpn_options))
+
+### Read-Only
+
+- `juniper` (Attributes) (see [below for nested schema](#nestedatt--juniper))
 
 <a id="nestedatt--api_policy"></a>
 ### Nested Schema for `api_policy`
@@ -76,7 +79,7 @@ Optional:
 <a id="nestedatt--celona"></a>
 ### Nested Schema for `celona`
 
-Optional:
+Required:
 
 - `api_key` (String)
 - `api_prefix` (String)
@@ -85,16 +88,19 @@ Optional:
 <a id="nestedatt--cloudshark"></a>
 ### Nested Schema for `cloudshark`
 
-Optional:
+Required:
 
 - `apitoken` (String, Sensitive)
+
+Optional:
+
 - `url` (String) if using CS Enteprise
 
 
 <a id="nestedatt--cradlepoint"></a>
 ### Nested Schema for `cradlepoint`
 
-Optional:
+Required:
 
 - `cp_api_id` (String)
 - `cp_api_key` (String, Sensitive)
@@ -105,7 +111,7 @@ Optional:
 <a id="nestedatt--device_cert"></a>
 ### Nested Schema for `device_cert`
 
-Optional:
+Required:
 
 - `cert` (String)
 - `key` (String, Sensitive)
@@ -125,28 +131,11 @@ Optional:
 <a id="nestedatt--jcloud"></a>
 ### Nested Schema for `jcloud`
 
-Optional:
+Required:
 
 - `org_apitoken` (String) JCloud Org Token
 - `org_apitoken_name` (String) JCloud Org Token Name
 - `org_id` (String) JCloud Org ID
-
-
-<a id="nestedatt--juniper"></a>
-### Nested Schema for `juniper`
-
-Optional:
-
-- `accounts` (Attributes List) (see [below for nested schema](#nestedatt--juniper--accounts))
-
-<a id="nestedatt--juniper--accounts"></a>
-### Nested Schema for `juniper.accounts`
-
-Optional:
-
-- `linked_by` (String)
-- `name` (String)
-
 
 
 <a id="nestedatt--mgmt"></a>
@@ -239,7 +228,7 @@ Optional:
 Optional:
 
 - `disable_local_ssh` (Boolean) whether to disable local SSH (by default, local SSH is enabled with allow_mist in Org is enabled
-- `fips_zeroize_password` (String) password required to zeroize devices (FIPS) on site level
+- `fips_zeroize_password` (String, Sensitive) password required to zeroize devices (FIPS) on site level
 - `limit_ssh_access` (Boolean) whether to allow certain SSH keys to SSH into the AP (see Site:Setting)
 
 
@@ -287,5 +276,21 @@ Optional:
 
 - `as_base` (Number)
 - `st_subnet` (String) equiring /12 or bigger to support 16 private IPs for 65535 gateways
+
+
+<a id="nestedatt--juniper"></a>
+### Nested Schema for `juniper`
+
+Read-Only:
+
+- `accounts` (Attributes List) (see [below for nested schema](#nestedatt--juniper--accounts))
+
+<a id="nestedatt--juniper--accounts"></a>
+### Nested Schema for `juniper.accounts`
+
+Read-Only:
+
+- `linked_by` (String)
+- `name` (String)
 
 

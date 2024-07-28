@@ -171,9 +171,7 @@ func SiteWxtagResourceSchema(ctx context.Context) schema.Schema {
 				},
 			},
 			"vlan_id": schema.StringAttribute{
-				Optional:            true,
-				Description:         "if `type`==`vlan_id`, VLAN ID or variable",
-				MarkdownDescription: "if `type`==`vlan_id`, VLAN ID or variable",
+				Optional: true,
 				Validators: []validator.String{
 					stringvalidator.Any(mistvalidator.ParseInt(1, 4094), mistvalidator.ParseVar()),
 				},
