@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -26,8 +27,13 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 		Attributes: map[string]schema.Attribute{
 			"ap_updown_threshold": schema.Int64Attribute{
 				Optional:            true,
+				Computed:            true,
 				Description:         "enable threshold-based device down delivery for AP devices only. When configured it takes effect for AP devices and `device_updown_threshold` is ignored.",
 				MarkdownDescription: "enable threshold-based device down delivery for AP devices only. When configured it takes effect for AP devices and `device_updown_threshold` is ignored.",
+				Validators: []validator.Int64{
+					int64validator.Between(0, 240),
+				},
+				Default: int64default.StaticInt64(0),
 			},
 			"api_policy": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -49,16 +55,20 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 			"cacerts": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
+				Computed:            true,
 				Description:         "list of PEM-encoded ca certs",
 				MarkdownDescription: "list of PEM-encoded ca certs",
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+				},
 			},
 			"celona": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"api_key": schema.StringAttribute{
-						Optional: true,
+						Required: true,
 					},
 					"api_prefix": schema.StringAttribute{
-						Optional: true,
+						Required: true,
 					},
 				},
 				CustomType: CelonaType{
@@ -71,7 +81,7 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 			"cloudshark": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"apitoken": schema.StringAttribute{
-						Optional:  true,
+						Required:  true,
 						Sensitive: true,
 					},
 					"url": schema.StringAttribute{
@@ -90,17 +100,17 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 			"cradlepoint": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"cp_api_id": schema.StringAttribute{
-						Optional: true,
+						Required: true,
 					},
 					"cp_api_key": schema.StringAttribute{
-						Optional:  true,
+						Required:  true,
 						Sensitive: true,
 					},
 					"ecm_api_id": schema.StringAttribute{
-						Optional: true,
+						Required: true,
 					},
 					"ecm_api_key": schema.StringAttribute{
-						Optional:  true,
+						Required:  true,
 						Sensitive: true,
 					},
 				},
@@ -114,10 +124,10 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 			"device_cert": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"cert": schema.StringAttribute{
-						Optional: true,
+						Required: true,
 					},
 					"key": schema.StringAttribute{
-						Optional:  true,
+						Required:  true,
 						Sensitive: true,
 					},
 				},
@@ -136,7 +146,7 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "enable threshold-based device down delivery via\n  * device-updowns webhooks topic, \n  * Mist Alert Framework; e.g. send AP/SW/GW down event only if AP/SW/GW Up is not seen within the threshold in minutes; 0 - 240, default is 0 (trigger immediate)",
 				MarkdownDescription: "enable threshold-based device down delivery via\n  * device-updowns webhooks topic, \n  * Mist Alert Framework; e.g. send AP/SW/GW down event only if AP/SW/GW Up is not seen within the threshold in minutes; 0 - 240, default is 0 (trigger immediate)",
 				Validators: []validator.Int64{
-					int64validator.Between(0, 30),
+					int64validator.Between(0, 240),
 				},
 				Default: int64default.StaticInt64(0),
 			},
@@ -156,8 +166,13 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"gateway_updown_threshold": schema.Int64Attribute{
 				Optional:            true,
+				Computed:            true,
 				Description:         "enable threshold-based device down delivery for Gateway devices only. When configured it takes effect for GW devices and `device_updown_threshold` is ignored.",
 				MarkdownDescription: "enable threshold-based device down delivery for Gateway devices only. When configured it takes effect for GW devices and `device_updown_threshold` is ignored.",
+				Validators: []validator.Int64{
+					int64validator.Between(0, 240),
+				},
+				Default: int64default.StaticInt64(0),
 			},
 			"installer": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -171,6 +186,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						ElementType: types.StringType,
 						Optional:    true,
 						Computed:    true,
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"grace_period": schema.Int64Attribute{
 						Optional: true,
@@ -186,17 +204,17 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 			"jcloud": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"org_apitoken": schema.StringAttribute{
-						Optional:            true,
+						Required:            true,
 						Description:         "JCloud Org Token",
 						MarkdownDescription: "JCloud Org Token",
 					},
 					"org_apitoken_name": schema.StringAttribute{
-						Optional:            true,
+						Required:            true,
 						Description:         "JCloud Org Token Name",
 						MarkdownDescription: "JCloud Org Token Name",
 					},
 					"org_id": schema.StringAttribute{
-						Optional:            true,
+						Required:            true,
 						Description:         "JCloud Org ID",
 						MarkdownDescription: "JCloud Org ID",
 					},
@@ -214,10 +232,10 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						NestedObject: schema.NestedAttributeObject{
 							Attributes: map[string]schema.Attribute{
 								"linked_by": schema.StringAttribute{
-									Optional: true,
+									Computed: true,
 								},
 								"name": schema.StringAttribute{
-									Optional: true,
+									Computed: true,
 								},
 							},
 							CustomType: AccountsType{
@@ -226,7 +244,7 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 						},
-						Optional: true,
+						Computed: true,
 					},
 				},
 				CustomType: JuniperType{
@@ -234,15 +252,19 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: JuniperValue{}.AttributeTypes(ctx),
 					},
 				},
-				Optional: true,
+				Computed: true,
 			},
 			"mgmt": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"mxtunnel_ids": schema.ListAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
+						Computed:            true,
 						Description:         "list of Mist Tunnels",
 						MarkdownDescription: "list of Mist Tunnels",
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"use_mxtunnel": schema.BoolAttribute{
 						Optional:            true,
@@ -273,8 +295,12 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					"cacerts": schema.ListAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
+						Computed:            true,
 						Description:         "list of PEM-encoded ca certs",
 						MarkdownDescription: "list of PEM-encoded ca certs",
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"default_idp_id": schema.StringAttribute{
 						Optional:            true,
@@ -304,8 +330,12 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 								"exclude_realms": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Optional:            true,
+									Computed:            true,
 									Description:         "when the IDP of mxedge_proxy type, exclude the following realms from proxying in addition to other valid home realms in this org",
 									MarkdownDescription: "when the IDP of mxedge_proxy type, exclude the following realms from proxying in addition to other valid home realms in this org",
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 								"id": schema.StringAttribute{
 									Optional: true,
@@ -313,8 +343,12 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 								"user_realms": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Optional:            true,
+									Computed:            true,
 									Description:         "which realm should trigger this IDP. User Realm is extracted from:\n  * Username-AVP (`mist.com` from john@mist.com)\n  * Cert CN",
 									MarkdownDescription: "which realm should trigger this IDP. User Realm is extracted from:\n  * Username-AVP (`mist.com` from john@mist.com)\n  * Cert CN",
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 							},
 							CustomType: IdpsType{
@@ -324,6 +358,10 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional: true,
+						Computed: true,
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"server_cert": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
@@ -514,6 +552,7 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"fips_zeroize_password": schema.StringAttribute{
 						Optional:            true,
+						Sensitive:           true,
 						Description:         "password required to zeroize devices (FIPS) on site level",
 						MarkdownDescription: "password required to zeroize devices (FIPS) on site level",
 					},
@@ -551,8 +590,13 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"switch_updown_threshold": schema.Int64Attribute{
 				Optional:            true,
+				Computed:            true,
 				Description:         "enable threshold-based device down delivery for Switch devices only. When configured it takes effect for SW devices and `device_updown_threshold` is ignored.",
 				MarkdownDescription: "enable threshold-based device down delivery for Switch devices only. When configured it takes effect for SW devices and `device_updown_threshold` is ignored.",
+				Validators: []validator.Int64{
+					int64validator.Between(0, 240),
+				},
+				Default: int64default.StaticInt64(0),
 			},
 			"synthetic_test": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -567,6 +611,10 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 								"custom_test_urls": schema.ListAttribute{
 									ElementType: types.StringType,
 									Optional:    true,
+									Computed:    true,
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 								"disabled": schema.BoolAttribute{
 									Optional:            true,
@@ -578,6 +626,13 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 								"vlan_ids": schema.ListAttribute{
 									ElementType: types.Int64Type,
 									Optional:    true,
+									Computed:    true,
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+										listvalidator.ValueInt64sAre(
+											int64validator.Between(1, 4094),
+										),
+									},
 								},
 							},
 							CustomType: VlansType{

@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
@@ -29,10 +30,11 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 				ElementType:         types.StringType,
 				Optional:            true,
 				Computed:            true,
-				Description:         "if `type`==`custom`, ip subnets",
-				MarkdownDescription: "if `type`==`custom`, ip subnets",
+				Description:         "if `type`==`custom`, ip subnets (e.g. 10.0.0.0/8)",
+				MarkdownDescription: "if `type`==`custom`, ip subnets (e.g. 10.0.0.0/8)",
 				Validators: []validator.List{
 					listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseCidr(true, false), mistvalidator.ParseVar())),
+					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("custom")),
 				},
 				Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 			},
@@ -40,33 +42,44 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 				ElementType:         types.StringType,
 				Optional:            true,
 				Computed:            true,
-				Description:         "when `type`==`app_categories`\nlist of application categories are available through /api/v1/const/app_categories",
-				MarkdownDescription: "when `type`==`app_categories`\nlist of application categories are available through /api/v1/const/app_categories",
-				Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+				Description:         "when `type`==`app_categories`, list of application categories are available through /api/v1/const/app_categories",
+				MarkdownDescription: "when `type`==`app_categories`, list of application categories are available through /api/v1/const/app_categories",
+				Validators: []validator.List{
+					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("app_categories")),
+				},
+				Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 			},
 			"app_subcategories": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
 				Computed:            true,
-				Description:         "when `type`==`app_categories`\nlist of application categories are available through /api/v1/const/app_subcategories",
-				MarkdownDescription: "when `type`==`app_categories`\nlist of application categories are available through /api/v1/const/app_subcategories",
-				Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+				Description:         "when `type`==`app_categories`, list of application categories are available through /api/v1/const/app_subcategories",
+				MarkdownDescription: "when `type`==`app_categories`, list of application categories are available through /api/v1/const/app_subcategories",
+				Validators: []validator.List{
+					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("app_categories")),
+				},
+				Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 			},
 			"apps": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
 				Computed:            true,
-				Description:         "when `type`==`apps`\nlist of applications are available through:\n  - /api/v1/const/applications,\n  - /api/v1/const/gateway_applications\n  - /insight/top_app_by-bytes?wired=true",
-				MarkdownDescription: "when `type`==`apps`\nlist of applications are available through:\n  - /api/v1/const/applications,\n  - /api/v1/const/gateway_applications\n  - /insight/top_app_by-bytes?wired=true",
-				Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+				Description:         "when `type`==`apps`, list of applications are available through:\n  * /api/v1/const/applications\n  * /api/v1/const/gateway_applications\n  * /insight/top_app_by-bytes?wired=true",
+				MarkdownDescription: "when `type`==`apps`, list of applications are available through:\n  * /api/v1/const/applications\n  * /api/v1/const/gateway_applications\n  * /insight/top_app_by-bytes?wired=true",
+				Validators: []validator.List{
+					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("apps")),
+				},
+				Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 			},
 			"description": schema.StringAttribute{
 				Optional: true,
 			},
-			"dscp": schema.Int64Attribute{
-				Optional:            true,
-				Description:         "when `traffic_type`==`custom`",
-				MarkdownDescription: "when `traffic_type`==`custom`",
+			"dscp": schema.StringAttribute{
+				Optional: true,
+				Validators: []validator.String{
+					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("custom")),
+					stringvalidator.Any(mistvalidator.ParseInt(0, 63), mistvalidator.ParseVar()),
+				},
 			},
 			"failover_policy": schema.StringAttribute{
 				Optional: true,
@@ -87,25 +100,34 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "if `type`==`custom`, web filtering",
 				MarkdownDescription: "if `type`==`custom`, web filtering",
-				Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+				Validators: []validator.List{
+					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("custom")),
+				},
+				Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 			},
 			"id": schema.StringAttribute{
 				Computed: true,
 			},
-			"max_jitter": schema.Int64Attribute{
-				Optional:            true,
-				Description:         "when `traffic_type`==`custom`, for uplink selection",
-				MarkdownDescription: "when `traffic_type`==`custom`, for uplink selection",
+			"max_jitter": schema.StringAttribute{
+				Optional: true,
+				Validators: []validator.String{
+					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("custom")),
+					stringvalidator.Any(mistvalidator.ParseInt(0, 4294967295), mistvalidator.ParseVar()),
+				},
 			},
-			"max_latency": schema.Int64Attribute{
-				Optional:            true,
-				Description:         "when `traffic_type`==`custom`, for uplink selection",
-				MarkdownDescription: "when `traffic_type`==`custom`, for uplink selection",
+			"max_latency": schema.StringAttribute{
+				Optional: true,
+				Validators: []validator.String{
+					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("custom")),
+					stringvalidator.Any(mistvalidator.ParseInt(0, 4294967295), mistvalidator.ParseVar()),
+				},
 			},
-			"max_loss": schema.Int64Attribute{
-				Optional:            true,
-				Description:         "when `traffic_type`==`custom`, for uplink selection",
-				MarkdownDescription: "when `traffic_type`==`custom`, for uplink selection",
+			"max_loss": schema.StringAttribute{
+				Optional: true,
+				Validators: []validator.String{
+					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("custom")),
+					stringvalidator.Any(mistvalidator.ParseInt(0, 100), mistvalidator.ParseVar()),
+				},
 			},
 			"name": schema.StringAttribute{
 				Required: true,
@@ -127,7 +149,20 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"port_range": schema.StringAttribute{
-							Optional: true,
+							Optional:            true,
+							Description:         "port number, port range, or variable",
+							MarkdownDescription: "port number, port range, or variable",
+							Validators: []validator.String{
+								mistvalidator.AllowedWhenValueIsIn(
+									path.MatchRelative().AtParent().AtName("protocol"),
+									[]attr.Value{
+										types.StringValue("tcp"),
+										types.StringValue("udp"),
+									},
+								),
+								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("protocol"), types.StringValue("tcp")),
+								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("protocol"), types.StringValue("udp")),
+							},
 						},
 						"protocol": schema.StringAttribute{
 							Optional:            true,
@@ -146,7 +181,13 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 						},
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "when `type`==`custom`, optional, if it doesn't exist, http and https is assumed",
+				MarkdownDescription: "when `type`==`custom`, optional, if it doesn't exist, http and https is assumed",
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("custom")),
+				},
 			},
 			"ssr_relaxed_tcp_state_enforcement": schema.BoolAttribute{
 				Optional: true,
@@ -159,6 +200,7 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "when `traffic_type`==`custom`",
 				MarkdownDescription: "when `traffic_type`==`custom`",
 				Validators: []validator.String{
+					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("custom")),
 					stringvalidator.OneOf(
 						"",
 						"best_effort",
@@ -174,7 +216,17 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "values from `/api/v1/consts/traffic_types`\n  * when `type`==`apps`, we''ll choose traffic_type automatically\n  * when `type`==`addresses` or `type`==`hostnames`, you can provide your own settings (optional)",
 				MarkdownDescription: "values from `/api/v1/consts/traffic_types`\n  * when `type`==`apps`, we''ll choose traffic_type automatically\n  * when `type`==`addresses` or `type`==`hostnames`, you can provide your own settings (optional)",
-				Default:             stringdefault.StaticString("data_best_effort"),
+				Validators: []validator.String{
+					mistvalidator.AllowedWhenValueIsIn(
+						path.MatchRelative().AtParent().AtName("type"),
+						[]attr.Value{
+							types.StringValue("custom"),
+							types.StringValue("hostnames"),
+							types.StringValue("apps"),
+						},
+					),
+				},
+				Default: stringdefault.StaticString("data_best_effort"),
 			},
 			"type": schema.StringAttribute{
 				Optional: true,
@@ -194,9 +246,13 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 				ElementType:         types.StringType,
 				Optional:            true,
 				Computed:            true,
-				Description:         "when `type`==`urls\nno need for spec as URL can encode the ports being used`",
-				MarkdownDescription: "when `type`==`urls\nno need for spec as URL can encode the ports being used`",
-				Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+				Description:         "when `type`==`urls`, no need for spec as URL can encode the ports being used",
+				MarkdownDescription: "when `type`==`urls`, no need for spec as URL can encode the ports being used",
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("custom")),
+				},
+				Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 			},
 		},
 	}
@@ -208,13 +264,13 @@ type OrgServiceModel struct {
 	AppSubcategories              types.List   `tfsdk:"app_subcategories"`
 	Apps                          types.List   `tfsdk:"apps"`
 	Description                   types.String `tfsdk:"description"`
-	Dscp                          types.Int64  `tfsdk:"dscp"`
+	Dscp                          types.String `tfsdk:"dscp"`
 	FailoverPolicy                types.String `tfsdk:"failover_policy"`
 	Hostnames                     types.List   `tfsdk:"hostnames"`
 	Id                            types.String `tfsdk:"id"`
-	MaxJitter                     types.Int64  `tfsdk:"max_jitter"`
-	MaxLatency                    types.Int64  `tfsdk:"max_latency"`
-	MaxLoss                       types.Int64  `tfsdk:"max_loss"`
+	MaxJitter                     types.String `tfsdk:"max_jitter"`
+	MaxLatency                    types.String `tfsdk:"max_latency"`
+	MaxLoss                       types.String `tfsdk:"max_loss"`
 	Name                          types.String `tfsdk:"name"`
 	OrgId                         types.String `tfsdk:"org_id"`
 	SleEnabled                    types.Bool   `tfsdk:"sle_enabled"`
