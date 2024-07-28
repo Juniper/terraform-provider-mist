@@ -13,34 +13,34 @@ import (
 )
 
 var (
-	_ NineTypesValidator = AllowedWhenValueIsValidator{}
+	_ NineTypesValidator = AllowedWhenValueIsInValidator{}
 )
 
-type AllowedWhenValueIsValidator struct {
+type AllowedWhenValueIsInValidator struct {
 	Expression path.Expression
-	Value      attr.Value
+	Values     []attr.Value
 }
 
-type AllowedWhenValueIsRequest struct {
+type AllowedWhenValueIsInRequest struct {
 	Config         tfsdk.Config
 	ConfigValue    attr.Value
 	Path           path.Path
 	PathExpression path.Expression
 }
 
-type AllowedWhenValueIsResponse struct {
+type AllowedWhenValueIsInResponse struct {
 	Diagnostics diag.Diagnostics
 }
 
-func (o AllowedWhenValueIsValidator) Description(_ context.Context) string {
-	return fmt.Sprintf("Ensures that no value is supplied when attribute at %q has value different from %s", o.Expression, o.Value)
+func (o AllowedWhenValueIsInValidator) Description(_ context.Context) string {
+	return fmt.Sprintf("Ensures that no value is supplied when attribute at %q has value not in %s", o.Expression, o.Values)
 }
 
-func (o AllowedWhenValueIsValidator) MarkdownDescription(ctx context.Context) string {
+func (o AllowedWhenValueIsInValidator) MarkdownDescription(ctx context.Context) string {
 	return o.Description(ctx)
 }
 
-func (o AllowedWhenValueIsValidator) Validate(ctx context.Context, req AllowedWhenValueIsRequest, resp *AllowedWhenValueIsResponse) {
+func (o AllowedWhenValueIsInValidator) Validate(ctx context.Context, req AllowedWhenValueIsInRequest, resp *AllowedWhenValueIsInResponse) {
 	// can't proceed while value is unknown
 	if req.ConfigValue.IsUnknown() {
 		return
@@ -74,155 +74,161 @@ func (o AllowedWhenValueIsValidator) Validate(ctx context.Context, req AllowedWh
 				continue // Collect all errors
 			}
 
-			// Unknown attributes can't satisfy the valueIs condition
-			if mpVal.IsUnknown() || !o.Value.Equal(mpVal) {
+			// Unknown attributes can't satisfy the ValueIsIn condition
+			allowed := false
+			for _, val := range o.Values {
+				if !mpVal.IsUnknown() && val.Equal(mpVal) {
+					allowed = true
+				}
+			}
+			if !allowed {
 				resp.Diagnostics.Append(validatordiag.InvalidAttributeCombinationDiagnostic(
 					req.Path,
-					fmt.Sprintf("attribute %q must be set to %q when %q has value, got: %q", mp, o.Value, req.Path, mpVal),
+					fmt.Sprintf("attribute %q is only allowed when %q has value in %q, got: %q", mp, req.Path, o.Values, mpVal),
 				))
 			}
 		}
 	}
 }
 
-func (o AllowedWhenValueIsValidator) ValidateBool(ctx context.Context, req validator.BoolRequest, resp *validator.BoolResponse) {
-	validateReq := AllowedWhenValueIsRequest{
+func (o AllowedWhenValueIsInValidator) ValidateBool(ctx context.Context, req validator.BoolRequest, resp *validator.BoolResponse) {
+	validateReq := AllowedWhenValueIsInRequest{
 		Config:         req.Config,
 		ConfigValue:    req.ConfigValue,
 		Path:           req.Path,
 		PathExpression: req.PathExpression,
 	}
 
-	validateResp := &AllowedWhenValueIsResponse{}
+	validateResp := &AllowedWhenValueIsInResponse{}
 
 	o.Validate(ctx, validateReq, validateResp)
 
 	resp.Diagnostics.Append(validateResp.Diagnostics...)
 }
 
-func (o AllowedWhenValueIsValidator) ValidateFloat64(ctx context.Context, req validator.Float64Request, resp *validator.Float64Response) {
-	validateReq := AllowedWhenValueIsRequest{
+func (o AllowedWhenValueIsInValidator) ValidateFloat64(ctx context.Context, req validator.Float64Request, resp *validator.Float64Response) {
+	validateReq := AllowedWhenValueIsInRequest{
 		Config:         req.Config,
 		ConfigValue:    req.ConfigValue,
 		Path:           req.Path,
 		PathExpression: req.PathExpression,
 	}
 
-	validateResp := &AllowedWhenValueIsResponse{}
+	validateResp := &AllowedWhenValueIsInResponse{}
 
 	o.Validate(ctx, validateReq, validateResp)
 
 	resp.Diagnostics.Append(validateResp.Diagnostics...)
 }
 
-func (o AllowedWhenValueIsValidator) ValidateInt64(ctx context.Context, req validator.Int64Request, resp *validator.Int64Response) {
-	validateReq := AllowedWhenValueIsRequest{
+func (o AllowedWhenValueIsInValidator) ValidateInt64(ctx context.Context, req validator.Int64Request, resp *validator.Int64Response) {
+	validateReq := AllowedWhenValueIsInRequest{
 		Config:         req.Config,
 		ConfigValue:    req.ConfigValue,
 		Path:           req.Path,
 		PathExpression: req.PathExpression,
 	}
 
-	validateResp := &AllowedWhenValueIsResponse{}
+	validateResp := &AllowedWhenValueIsInResponse{}
 
 	o.Validate(ctx, validateReq, validateResp)
 
 	resp.Diagnostics.Append(validateResp.Diagnostics...)
 }
 
-func (o AllowedWhenValueIsValidator) ValidateList(ctx context.Context, req validator.ListRequest, resp *validator.ListResponse) {
-	validateReq := AllowedWhenValueIsRequest{
+func (o AllowedWhenValueIsInValidator) ValidateList(ctx context.Context, req validator.ListRequest, resp *validator.ListResponse) {
+	validateReq := AllowedWhenValueIsInRequest{
 		Config:         req.Config,
 		ConfigValue:    req.ConfigValue,
 		Path:           req.Path,
 		PathExpression: req.PathExpression,
 	}
 
-	validateResp := &AllowedWhenValueIsResponse{}
+	validateResp := &AllowedWhenValueIsInResponse{}
 
 	o.Validate(ctx, validateReq, validateResp)
 
 	resp.Diagnostics.Append(validateResp.Diagnostics...)
 }
 
-func (o AllowedWhenValueIsValidator) ValidateMap(ctx context.Context, req validator.MapRequest, resp *validator.MapResponse) {
-	validateReq := AllowedWhenValueIsRequest{
+func (o AllowedWhenValueIsInValidator) ValidateMap(ctx context.Context, req validator.MapRequest, resp *validator.MapResponse) {
+	validateReq := AllowedWhenValueIsInRequest{
 		Config:         req.Config,
 		ConfigValue:    req.ConfigValue,
 		Path:           req.Path,
 		PathExpression: req.PathExpression,
 	}
 
-	validateResp := &AllowedWhenValueIsResponse{}
+	validateResp := &AllowedWhenValueIsInResponse{}
 
 	o.Validate(ctx, validateReq, validateResp)
 
 	resp.Diagnostics.Append(validateResp.Diagnostics...)
 }
 
-func (o AllowedWhenValueIsValidator) ValidateNumber(ctx context.Context, req validator.NumberRequest, resp *validator.NumberResponse) {
-	validateReq := AllowedWhenValueIsRequest{
+func (o AllowedWhenValueIsInValidator) ValidateNumber(ctx context.Context, req validator.NumberRequest, resp *validator.NumberResponse) {
+	validateReq := AllowedWhenValueIsInRequest{
 		Config:         req.Config,
 		ConfigValue:    req.ConfigValue,
 		Path:           req.Path,
 		PathExpression: req.PathExpression,
 	}
 
-	validateResp := &AllowedWhenValueIsResponse{}
+	validateResp := &AllowedWhenValueIsInResponse{}
 
 	o.Validate(ctx, validateReq, validateResp)
 
 	resp.Diagnostics.Append(validateResp.Diagnostics...)
 }
 
-func (o AllowedWhenValueIsValidator) ValidateObject(ctx context.Context, req validator.ObjectRequest, resp *validator.ObjectResponse) {
-	validateReq := AllowedWhenValueIsRequest{
+func (o AllowedWhenValueIsInValidator) ValidateObject(ctx context.Context, req validator.ObjectRequest, resp *validator.ObjectResponse) {
+	validateReq := AllowedWhenValueIsInRequest{
 		Config:         req.Config,
 		ConfigValue:    req.ConfigValue,
 		Path:           req.Path,
 		PathExpression: req.PathExpression,
 	}
 
-	validateResp := &AllowedWhenValueIsResponse{}
+	validateResp := &AllowedWhenValueIsInResponse{}
 
 	o.Validate(ctx, validateReq, validateResp)
 
 	resp.Diagnostics.Append(validateResp.Diagnostics...)
 }
 
-func (o AllowedWhenValueIsValidator) ValidateSet(ctx context.Context, req validator.SetRequest, resp *validator.SetResponse) {
-	validateReq := AllowedWhenValueIsRequest{
+func (o AllowedWhenValueIsInValidator) ValidateSet(ctx context.Context, req validator.SetRequest, resp *validator.SetResponse) {
+	validateReq := AllowedWhenValueIsInRequest{
 		Config:         req.Config,
 		ConfigValue:    req.ConfigValue,
 		Path:           req.Path,
 		PathExpression: req.PathExpression,
 	}
 
-	validateResp := &AllowedWhenValueIsResponse{}
+	validateResp := &AllowedWhenValueIsInResponse{}
 
 	o.Validate(ctx, validateReq, validateResp)
 
 	resp.Diagnostics.Append(validateResp.Diagnostics...)
 }
 
-func (o AllowedWhenValueIsValidator) ValidateString(ctx context.Context, req validator.StringRequest, resp *validator.StringResponse) {
-	validateReq := AllowedWhenValueIsRequest{
+func (o AllowedWhenValueIsInValidator) ValidateString(ctx context.Context, req validator.StringRequest, resp *validator.StringResponse) {
+	validateReq := AllowedWhenValueIsInRequest{
 		Config:         req.Config,
 		ConfigValue:    req.ConfigValue,
 		Path:           req.Path,
 		PathExpression: req.PathExpression,
 	}
 
-	validateResp := &AllowedWhenValueIsResponse{}
+	validateResp := &AllowedWhenValueIsInResponse{}
 
 	o.Validate(ctx, validateReq, validateResp)
 
 	resp.Diagnostics.Append(validateResp.Diagnostics...)
 }
 
-func AllowedWhenValueIs(expression path.Expression, value attr.Value) AllowedWhenValueIsValidator {
-	return AllowedWhenValueIsValidator{
+func AllowedWhenValueIsIn(expression path.Expression, values []attr.Value) AllowedWhenValueIsInValidator {
+	return AllowedWhenValueIsInValidator{
 		Expression: expression,
-		Value:      value,
+		Values:     values,
 	}
 }
