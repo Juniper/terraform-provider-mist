@@ -104,7 +104,6 @@ port_mirroring can be added under device/site settings. It takes interface and p
 - `uplink_port_config` (Attributes) (see [below for nested schema](#nestedatt--uplink_port_config))
 - `vrf_config` (Attributes) (see [below for nested schema](#nestedatt--vrf_config))
 - `vrf_instances` (Attributes Map) Property key is the network name (see [below for nested schema](#nestedatt--vrf_instances))
-- `vs_instance` (Attributes) (see [below for nested schema](#nestedatt--vs_instance))
 
 <a id="nestedatt--acl_policies"></a>
 ### Nested Schema for `acl_policies`
@@ -878,14 +877,5 @@ Optional:
 Required:
 
 - `via` (String) Next-hop address
-
-
-
-<a id="nestedatt--vs_instance"></a>
-### Nested Schema for `vs_instance`
-
-Optional:
-
-- `networks` (List of String)
 
 

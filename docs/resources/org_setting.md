@@ -256,7 +256,7 @@ Optional:
 
 - `custom_test_urls` (List of String)
 - `disabled` (Boolean) for some vlans where we don't want this to run
-- `vlan_ids` (List of Number)
+- `vlan_ids` (List of String)
 
 
 <a id="nestedatt--synthetic_test--wan_speedtest"></a>

@@ -131,8 +131,8 @@ Optional:
 
 - `auth` (Attributes) (see [below for nested schema](#nestedatt--client_bridge--auth))
 - `enabled` (Boolean) when acted as client bridge:
-* only 5G radio can be used
-* will not serve as AP on any radios
+  * only 5G radio can be used
+  * will not serve as AP on any radios
 - `ssid` (String)
 
 <a id="nestedatt--client_bridge--auth"></a>
@@ -315,8 +315,7 @@ Optional:
 Optional:
 
 - `cacert` (String) only if `type`==`imagotag`
-- `channel` (Number) only if `type`==`imagotag`
-channel selection, not needed by default, required for manual channel override only
+- `channel` (Number) only if `type`==`imagotag`, channel selection, not needed by default, required for manual channel override only
 - `enabled` (Boolean) whether to enable any usb config
 - `host` (String) only if `type`==`imagotag`
 - `port` (Number) only if `type`==`imagotag`
