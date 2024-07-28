@@ -116,7 +116,7 @@ Optional:
 - `port` (Number) Only if `type`==`imagotag` or `type`==`native`
 - `type` (String) note: ble_config will be ingored if esl_config is enabled and with native mode.
 - `verify_cert` (Boolean) Only if `type`==`imagotag` or `type`==`native`
-- `vlan_id` (Number) Only if `type`==`solum` or `type`==`hansho`
+- `vlan_id` (Number) Only if `type`==`solum` or `type`==`hanshow`
 
 
 <a id="nestedatt--ip_config"></a>
@@ -274,8 +274,7 @@ Optional:
 Optional:
 
 - `cacert` (String) only if `type`==`imagotag`
-- `channel` (Number) only if `type`==`imagotag`
-channel selection, not needed by default, required for manual channel override only
+- `channel` (Number) only if `type`==`imagotag`, channel selection, not needed by default, required for manual channel override only
 - `enabled` (Boolean) whether to enable any usb config
 - `host` (String) only if `type`==`imagotag`
 - `port` (Number) only if `type`==`imagotag`
