@@ -163,13 +163,16 @@ Optional:
 <a id="nestedatt--airwatch"></a>
 ### Nested Schema for `airwatch`
 
-Optional:
+Required:
 
 - `api_key` (String) API Key
 - `console_url` (String) console URL
-- `enabled` (Boolean)
 - `password` (String, Sensitive) password
 - `username` (String) username
+
+Optional:
+
+- `enabled` (Boolean)
 
 
 <a id="nestedatt--app_limit"></a>
