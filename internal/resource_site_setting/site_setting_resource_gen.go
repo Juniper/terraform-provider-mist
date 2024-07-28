@@ -7,9 +7,12 @@ import (
 	"fmt"
 	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
@@ -45,8 +48,13 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"ap_updown_threshold": schema.Int64Attribute{
 				Optional:            true,
+				Computed:            true,
 				Description:         "enable threshold-based device down delivery for AP devices only. When configured it takes effect for AP devices and `device_updown_threshold` is ignored.",
 				MarkdownDescription: "enable threshold-based device down delivery for AP devices only. When configured it takes effect for AP devices and `device_updown_threshold` is ignored.",
+				Validators: []validator.Int64{
+					int64validator.Between(0, 240),
+				},
+				Default: int64default.StaticInt64(0),
 			},
 			"auto_upgrade": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -56,6 +64,9 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "custom versions for different models. Property key is the model name (e.g. \"AP41\")",
 						MarkdownDescription: "custom versions for different models. Property key is the model name (e.g. \"AP41\")",
+						Validators: []validator.Map{
+							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("version"), types.StringValue("custom")),
+						},
 					},
 					"day_of_week": schema.StringAttribute{
 						Optional: true,
@@ -127,7 +138,10 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "required if `beacon_rate_mode`==`custom`, 1-10, in number-beacons-per-second",
 						MarkdownDescription: "required if `beacon_rate_mode`==`custom`, 1-10, in number-beacons-per-second",
-						Default:             int64default.StaticInt64(0),
+						Validators: []validator.Int64{
+							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("beacon_rate_mode"), types.StringValue("custom")),
+						},
+						Default: int64default.StaticInt64(0),
 					},
 					"beacon_rate_mode": schema.StringAttribute{
 						Optional: true,
@@ -146,20 +160,30 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "list of AP BLE location beam numbers (1-8) which should be disabled at the AP and not transmit location information (where beam 1 is oriented at the top the AP, growing counter-clock-wise, with 9 being the omni BLE beam)",
 						MarkdownDescription: "list of AP BLE location beam numbers (1-8) which should be disabled at the AP and not transmit location information (where beam 1 is oriented at the top the AP, growing counter-clock-wise, with 9 being the omni BLE beam)",
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+							listvalidator.ValueInt64sAre(int64validator.Between(1, 8)),
+						},
 					},
 					"custom_ble_packet_enabled": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
 						Description:         "can be enabled if `beacon_enabled`==`true`, whether to send custom packet",
 						MarkdownDescription: "can be enabled if `beacon_enabled`==`true`, whether to send custom packet",
-						Default:             booldefault.StaticBool(false),
+						Validators: []validator.Bool{
+							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("beacon_enabled"), types.BoolValue(true)),
+						},
+						Default: booldefault.StaticBool(false),
 					},
 					"custom_ble_packet_frame": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
 						Description:         "The custom frame to be sent out in this beacon. The frame must be a hexstring",
 						MarkdownDescription: "The custom frame to be sent out in this beacon. The frame must be a hexstring",
-						Default:             stringdefault.StaticString(""),
+						Validators: []validator.String{
+							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("custom_ble_packet_enabled"), types.BoolValue(true)),
+						},
+						Default: stringdefault.StaticString(""),
 					},
 					"custom_ble_packet_freq_msec": schema.Int64Attribute{
 						Optional:            true,
@@ -167,7 +191,7 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Description:         "Frequency (msec) of data emitted by custom ble beacon",
 						MarkdownDescription: "Frequency (msec) of data emitted by custom ble beacon",
 						Validators: []validator.Int64{
-							int64validator.AtLeast(0),
+							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("custom_ble_packet_enabled"), types.BoolValue(true)),
 						},
 						Default: int64default.StaticInt64(0),
 					},
@@ -191,28 +215,40 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "only if `beacon_enabled`==`false`, Whether Eddystone-UID beacon is enabled",
 						MarkdownDescription: "only if `beacon_enabled`==`false`, Whether Eddystone-UID beacon is enabled",
-						Default:             booldefault.StaticBool(false),
+						Validators: []validator.Bool{
+							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("beacon_enabled"), types.BoolValue(false)),
+						},
+						Default: booldefault.StaticBool(false),
 					},
 					"eddystone_uid_freq_msec": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
 						Description:         "Frequency (msec) of data emmit by Eddystone-UID beacon",
 						MarkdownDescription: "Frequency (msec) of data emmit by Eddystone-UID beacon",
-						Default:             int64default.StaticInt64(0),
+						Validators: []validator.Int64{
+							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("eddystone_uid_enabled"), types.BoolValue(true)),
+						},
+						Default: int64default.StaticInt64(0),
 					},
 					"eddystone_uid_instance": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
 						Description:         "Eddystone-UID instance for the device",
 						MarkdownDescription: "Eddystone-UID instance for the device",
-						Default:             stringdefault.StaticString(""),
+						Validators: []validator.String{
+							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("eddystone_uid_enabled"), types.BoolValue(true)),
+						},
+						Default: stringdefault.StaticString(""),
 					},
 					"eddystone_uid_namespace": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
 						Description:         "Eddystone-UID namespace",
 						MarkdownDescription: "Eddystone-UID namespace",
-						Default:             stringdefault.StaticString(""),
+						Validators: []validator.String{
+							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("eddystone_uid_enabled"), types.BoolValue(true)),
+						},
+						Default: stringdefault.StaticString(""),
 					},
 					"eddystone_url_adv_power": schema.Int64Attribute{
 						Optional:            true,
@@ -227,28 +263,40 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					"eddystone_url_beams": schema.StringAttribute{
 						Optional: true,
 						Computed: true,
-						Default:  stringdefault.StaticString(""),
+						Validators: []validator.String{
+							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("eddystone_url_enabled"), types.BoolValue(true)),
+						},
+						Default: stringdefault.StaticString(""),
 					},
 					"eddystone_url_enabled": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
 						Description:         "only if `beacon_enabled`==`false`, Whether Eddystone-URL beacon is enabled",
 						MarkdownDescription: "only if `beacon_enabled`==`false`, Whether Eddystone-URL beacon is enabled",
-						Default:             booldefault.StaticBool(false),
+						Validators: []validator.Bool{
+							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("beacon_enabled"), types.BoolValue(false)),
+						},
+						Default: booldefault.StaticBool(false),
 					},
 					"eddystone_url_freq_msec": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
 						Description:         "Frequency (msec) of data emit by Eddystone-UID beacon",
 						MarkdownDescription: "Frequency (msec) of data emit by Eddystone-UID beacon",
-						Default:             int64default.StaticInt64(0),
+						Validators: []validator.Int64{
+							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("eddystone_url_enabled"), types.BoolValue(true)),
+						},
+						Default: int64default.StaticInt64(0),
 					},
 					"eddystone_url_url": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
 						Description:         "URL pointed by Eddystone-URL beacon",
 						MarkdownDescription: "URL pointed by Eddystone-URL beacon",
-						Default:             stringdefault.StaticString(""),
+						Validators: []validator.String{
+							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("eddystone_url_enabled"), types.BoolValue(true)),
+						},
+						Default: stringdefault.StaticString(""),
 					},
 					"ibeacon_adv_power": schema.Int64Attribute{
 						Optional:            true,
@@ -263,21 +311,30 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					"ibeacon_beams": schema.StringAttribute{
 						Optional: true,
 						Computed: true,
-						Default:  stringdefault.StaticString(""),
+						Validators: []validator.String{
+							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("ibeacon_enabled"), types.BoolValue(true)),
+						},
+						Default: stringdefault.StaticString(""),
 					},
 					"ibeacon_enabled": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
 						Description:         "can be enabled if `beacon_enabled`==`true`, whether to send iBeacon",
 						MarkdownDescription: "can be enabled if `beacon_enabled`==`true`, whether to send iBeacon",
-						Default:             booldefault.StaticBool(false),
+						Validators: []validator.Bool{
+							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("beacon_enabled"), types.BoolValue(true)),
+						},
+						Default: booldefault.StaticBool(false),
 					},
 					"ibeacon_freq_msec": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
 						Description:         "Frequency (msec) of data emmit for iBeacon",
 						MarkdownDescription: "Frequency (msec) of data emmit for iBeacon",
-						Default:             int64default.StaticInt64(0),
+						Validators: []validator.Int64{
+							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("ibeacon_enabled"), types.BoolValue(true)),
+						},
+						Default: int64default.StaticInt64(0),
 					},
 					"ibeacon_major": schema.Int64Attribute{
 						Optional:            true,
@@ -285,7 +342,7 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Description:         "Major number for iBeacon",
 						MarkdownDescription: "Major number for iBeacon",
 						Validators: []validator.Int64{
-							int64validator.Between(1, 65535),
+							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("ibeacon_enabled"), types.BoolValue(true)),
 						},
 						Default: int64default.StaticInt64(0),
 					},
@@ -295,7 +352,7 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Description:         "Minor number for iBeacon",
 						MarkdownDescription: "Minor number for iBeacon",
 						Validators: []validator.Int64{
-							int64validator.Between(1, 65535),
+							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("ibeacon_enabled"), types.BoolValue(true)),
 						},
 						Default: int64default.StaticInt64(0),
 					},
@@ -304,7 +361,10 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "optional, if not specified, the same UUID as the beacon will be used",
 						MarkdownDescription: "optional, if not specified, the same UUID as the beacon will be used",
-						Default:             stringdefault.StaticString(""),
+						Validators: []validator.String{
+							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("ibeacon_enabled"), types.BoolValue(true)),
+						},
+						Default: stringdefault.StaticString(""),
 					},
 					"power": schema.Int64Attribute{
 						Optional:            true,
@@ -405,8 +465,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 									},
 								},
 								Optional:            true,
-								Description:         "hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun). \n\n**Note**: If the dow is not defined then it'\\ s treated as 00:00-23:59.",
-								MarkdownDescription: "hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun). \n\n**Note**: If the dow is not defined then it'\\ s treated as 00:00-23:59.",
+								Description:         "hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun). \n\n**Note**: If the dow is not defined then it\\u2019\\ s treated as 00:00-23:59.",
+								MarkdownDescription: "hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun). \n\n**Note**: If the dow is not defined then it\\u2019\\ s treated as 00:00-23:59.",
 							},
 						},
 						CustomType: PushWindowType{
@@ -455,6 +515,10 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional: true,
+						Computed: true,
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 				},
 				CustomType: CriticalUrlMonitoringType{
@@ -472,7 +536,7 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "sending AP_DISCONNECTED event in device-updowns only if AP_CONNECTED is not seen within the threshold, in minutes",
 				MarkdownDescription: "sending AP_DISCONNECTED event in device-updowns only if AP_CONNECTED is not seen within the threshold, in minutes",
 				Validators: []validator.Int64{
-					int64validator.Between(0, 30),
+					int64validator.Between(0, 240),
 				},
 				Default: int64default.StaticInt64(0),
 			},
@@ -574,8 +638,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional:            true,
-						Description:         "hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun). \n\n**Note**: If the dow is not defined then it'\\ s treated as 00:00-23:59.",
-						MarkdownDescription: "hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun). \n\n**Note**: If the dow is not defined then it'\\ s treated as 00:00-23:59.",
+						Description:         "hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun). \n\n**Note**: If the dow is not defined then it\\u2019\\ s treated as 00:00-23:59.",
+						MarkdownDescription: "hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun). \n\n**Note**: If the dow is not defined then it\\u2019\\ s treated as 00:00-23:59.",
 					},
 					"max_dwell": schema.Int64Attribute{
 						Optional:            true,
@@ -613,7 +677,10 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "for SSR only, as direct root access is not allowed",
 						MarkdownDescription: "for SSR only, as direct root access is not allowed",
-						Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
+						Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 					},
 					"app_probing": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
@@ -625,9 +692,12 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 								NestedObject: schema.NestedAttributeObject{
 									Attributes: map[string]schema.Attribute{
 										"address": schema.StringAttribute{
-											Optional:            true,
+											Required:            true,
 											Description:         "if `protocol`==`icmp`",
 											MarkdownDescription: "if `protocol`==`icmp`",
+											Validators: []validator.String{
+												mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("protocol"), types.StringValue("icmp")),
+											},
 										},
 										"app_type": schema.StringAttribute{
 											Optional: true,
@@ -637,6 +707,10 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 											Optional:            true,
 											Description:         "if `protocol`==`http`",
 											MarkdownDescription: "if `protocol`==`http`",
+											Validators: []validator.List{
+												listvalidator.SizeAtLeast(1),
+												mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("protocol"), types.StringValue("http")),
+											},
 										},
 										"name": schema.StringAttribute{
 											Optional: true,
@@ -660,6 +734,9 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 											Optional:            true,
 											Description:         "if `protocol`==`http`",
 											MarkdownDescription: "if `protocol`==`http`",
+											Validators: []validator.String{
+												mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("protocol"), types.StringValue("http")),
+											},
 										},
 										"vrf": schema.StringAttribute{
 											Optional: true,
@@ -672,6 +749,9 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 									},
 								},
 								Optional: true,
+								Validators: []validator.List{
+									listvalidator.SizeAtLeast(1),
+								},
 							},
 							"enabled": schema.BoolAttribute{
 								Optional: true,
@@ -765,15 +845,23 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"gateway_updown_threshold": schema.Int64Attribute{
 				Optional:            true,
+				Computed:            true,
 				Description:         "enable threshold-based device down delivery for Gateway devices only. When configured it takes effect for GW devices and `device_updown_threshold` is ignored.",
 				MarkdownDescription: "enable threshold-based device down delivery for Gateway devices only. When configured it takes effect for GW devices and `device_updown_threshold` is ignored.",
+				Validators: []validator.Int64{
+					int64validator.Between(0, 240),
+				},
+				Default: int64default.StaticInt64(0),
 			},
 			"led": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"brightness": schema.Int64Attribute{
 						Optional: true,
 						Computed: true,
-						Default:  int64default.StaticInt64(255),
+						Validators: []validator.Int64{
+							int64validator.Between(0, 255),
+						},
+						Default: int64default.StaticInt64(255),
 					},
 					"enabled": schema.BoolAttribute{
 						Optional: true,
@@ -911,6 +999,9 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "list of BSSIDs to whitelist. Ex: \"cc-:8e-:6f-:d4-:bf-:16\", \"cc-8e-6f-d4-bf-16\", \"cc-73-*\", \"cc:82:*\"",
 						MarkdownDescription: "list of BSSIDs to whitelist. Ex: \"cc-:8e-:6f-:d4-:bf-:16\", \"cc-8e-6f-d4-bf-16\", \"cc-73-*\", \"cc:82:*\"",
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"whitelisted_ssids": schema.ListAttribute{
 						ElementType:         types.StringType,
@@ -918,6 +1009,9 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "list of SSIDs to whitelist",
 						MarkdownDescription: "list of SSIDs to whitelist",
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 				},
 				CustomType: RogueType{
@@ -1067,8 +1161,7 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "Set of heuristic rules will be enabled when marvis subscription is not available.\nIt triggers when, in a Z minute window, there are more than Y distinct client encountring over X failures",
 			},
 			"site_id": schema.StringAttribute{
-				Optional: true,
-				Computed: true,
+				Required: true,
 			},
 			"skyatp": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -1108,8 +1201,12 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 			"ssh_keys": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
+				Computed:            true,
 				Description:         "when limit_ssh_access = true in Org Setting, list of SSH public keys provided by Mist Support to install onto APs (see Org:Setting)",
 				MarkdownDescription: "when limit_ssh_access = true in Org Setting, list of SSH public keys provided by Mist Support to install onto APs (see Org:Setting)",
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+				},
 			},
 			"ssr": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -1130,8 +1227,13 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"switch_updown_threshold": schema.Int64Attribute{
 				Optional:            true,
+				Computed:            true,
 				Description:         "enable threshold-based device down delivery for Switch devices only. When configured it takes effect for SW devices and `device_updown_threshold` is ignored.",
 				MarkdownDescription: "enable threshold-based device down delivery for Switch devices only. When configured it takes effect for SW devices and `device_updown_threshold` is ignored.",
+				Validators: []validator.Int64{
+					int64validator.Between(0, 240),
+				},
+				Default: int64default.StaticInt64(0),
 			},
 			"synthetic_test": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -1146,6 +1248,10 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 								"custom_test_urls": schema.ListAttribute{
 									ElementType: types.StringType,
 									Optional:    true,
+									Computed:    true,
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 								"disabled": schema.BoolAttribute{
 									Optional:            true,
@@ -1155,8 +1261,15 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 									Default:             booldefault.StaticBool(false),
 								},
 								"vlan_ids": schema.ListAttribute{
-									ElementType: types.Int64Type,
+									ElementType: types.StringType,
 									Optional:    true,
+									Computed:    true,
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+										listvalidator.ValueInt64sAre(
+											int64validator.Between(1, 4094),
+										),
+									},
 								},
 							},
 							CustomType: VlansType{
@@ -1166,6 +1279,9 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional: true,
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"wan_speedtest": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
@@ -1198,8 +1314,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 			"track_anonymous_devices": schema.BoolAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "whether to track anonymous BLE assets (requires ‘track_asset'  enabled)",
-				MarkdownDescription: "whether to track anonymous BLE assets (requires ‘track_asset'  enabled)",
+				Description:         "whether to track anonymous BLE assets (requires ‘track_asset’  enabled)",
+				MarkdownDescription: "whether to track anonymous BLE assets (requires ‘track_asset’  enabled)",
 				Default:             booldefault.StaticBool(false),
 			},
 			"uplink_port_config": schema.SingleNestedAttribute{
@@ -1249,19 +1365,30 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Optional: true,
 			},
-			"vs_instance": schema.SingleNestedAttribute{
-				Attributes: map[string]schema.Attribute{
-					"networks": schema.ListAttribute{
-						ElementType: types.StringType,
-						Optional:    true,
+			"vs_instance": schema.MapNestedAttribute{
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"networks": schema.ListAttribute{
+							ElementType: types.StringType,
+							Optional:    true,
+							Computed:    true,
+							Validators: []validator.List{
+								listvalidator.SizeAtLeast(1),
+							},
+						},
+					},
+					CustomType: VsInstanceType{
+						ObjectType: types.ObjectType{
+							AttrTypes: VsInstanceValue{}.AttributeTypes(ctx),
+						},
 					},
 				},
-				CustomType: VsInstanceType{
-					ObjectType: types.ObjectType{
-						AttrTypes: VsInstanceValue{}.AttributeTypes(ctx),
-					},
+				Optional:            true,
+				Description:         "optional, for EX9200 only to seggregate virtual-switches. Property key is the instance name",
+				MarkdownDescription: "optional, for EX9200 only to seggregate virtual-switches. Property key is the instance name",
+				Validators: []validator.Map{
+					mapvalidator.SizeAtLeast(1),
 				},
-				Optional: true,
 			},
 			"wan_vna": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -1445,6 +1572,9 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "list of email addresses to send email notifications when the alert threshold is reached",
 						MarkdownDescription: "list of email addresses to send email notifications when the alert threshold is reached",
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -1511,7 +1641,7 @@ type SiteSettingModel struct {
 	UplinkPortConfig                UplinkPortConfigValue      `tfsdk:"uplink_port_config"`
 	Vars                            types.Map                  `tfsdk:"vars"`
 	Vna                             VnaValue                   `tfsdk:"vna"`
-	VsInstance                      VsInstanceValue            `tfsdk:"vs_instance"`
+	VsInstance                      types.Map                  `tfsdk:"vs_instance"`
 	WanVna                          WanVnaValue                `tfsdk:"wan_vna"`
 	WatchedStationUrl               types.String               `tfsdk:"watched_station_url"`
 	WhitelistUrl                    types.String               `tfsdk:"whitelist_url"`
@@ -16771,7 +16901,7 @@ func (v VlansValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error)
 	}.TerraformType(ctx)
 	attrTypes["disabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["vlan_ids"] = basetypes.ListType{
-		ElemType: types.Int64Type,
+		ElemType: types.StringType,
 	}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
@@ -16844,12 +16974,12 @@ func (v VlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 			},
 			"disabled": basetypes.BoolType{},
 			"vlan_ids": basetypes.ListType{
-				ElemType: types.Int64Type,
+				ElemType: types.StringType,
 			},
 		}), diags
 	}
 
-	vlanIdsVal, d := types.ListValue(types.Int64Type, v.VlanIds.Elements())
+	vlanIdsVal, d := types.ListValue(types.StringType, v.VlanIds.Elements())
 
 	diags.Append(d...)
 
@@ -16860,7 +16990,7 @@ func (v VlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 			},
 			"disabled": basetypes.BoolType{},
 			"vlan_ids": basetypes.ListType{
-				ElemType: types.Int64Type,
+				ElemType: types.StringType,
 			},
 		}), diags
 	}
@@ -16871,7 +17001,7 @@ func (v VlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 		},
 		"disabled": basetypes.BoolType{},
 		"vlan_ids": basetypes.ListType{
-			ElemType: types.Int64Type,
+			ElemType: types.StringType,
 		},
 	}
 
@@ -16939,7 +17069,7 @@ func (v VlansValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 		},
 		"disabled": basetypes.BoolType{},
 		"vlan_ids": basetypes.ListType{
-			ElemType: types.Int64Type,
+			ElemType: types.StringType,
 		},
 	}
 }

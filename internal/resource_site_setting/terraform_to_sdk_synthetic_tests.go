@@ -11,15 +11,31 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func syntheticTestVlansTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, l basetypes.ListValue) []models.SynthetictestProperties {
+func syntheticTestVlansTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.SynthetictestProperties {
 	var data_list []models.SynthetictestProperties
-	for _, v := range l.Elements() {
+	for _, v := range d.Elements() {
 		var v_interface interface{} = v
 		plan := v_interface.(VlansValue)
 		data := models.SynthetictestProperties{}
-		data.CustomTestUrls = mist_transform.ListOfStringTerraformToSdk(ctx, plan.CustomTestUrls)
-		data.Disabled = plan.Disabled.ValueBoolPointer()
-		data.VlanIds = mist_transform.ListOfIntTerraformToSdk(ctx, plan.VlanIds)
+
+		if !plan.CustomTestUrls.IsNull() && !plan.CustomTestUrls.IsUnknown() {
+			data.CustomTestUrls = mist_transform.ListOfStringTerraformToSdk(ctx, plan.CustomTestUrls)
+		}
+
+		if plan.Disabled.ValueBoolPointer() != nil {
+			data.Disabled = plan.Disabled.ValueBoolPointer()
+		}
+
+		if !plan.VlanIds.IsNull() && !plan.VlanIds.IsUnknown() {
+			var items []models.SynthetictestPropertiesVlanIds
+			for _, item := range plan.VlanIds.Elements() {
+				var item_interface interface{} = item
+				i := item_interface.(basetypes.StringValue)
+				v := models.SynthetictestPropertiesVlanIdsContainer.FromString(i.ValueString())
+				items = append(items, v)
+			}
+			data.VlanIds = items
+		}
 
 		data_list = append(data_list, data)
 	}
@@ -29,10 +45,13 @@ func syntheticTestVlansTerraformToSdk(ctx context.Context, diags *diag.Diagnosti
 func syntheticTestTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d SyntheticTestValue) *models.SynthetictestConfig {
 	data := models.SynthetictestConfig{}
 
-	data.Disabled = d.Disabled.ValueBoolPointer()
+	if d.Disabled.ValueBoolPointer() != nil {
+		data.Disabled = d.Disabled.ValueBoolPointer()
+	}
 
-	vlans := syntheticTestVlansTerraformToSdk(ctx, diags, d.Vlans)
-	data.Vlans = vlans
+	if !d.Vlans.IsNull() && !d.Vlans.IsUnknown() {
+		data.Vlans = syntheticTestVlansTerraformToSdk(ctx, diags, d.Vlans)
+	}
 
 	return &data
 }

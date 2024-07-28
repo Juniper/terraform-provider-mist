@@ -58,7 +58,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 	}
 
 	if plan.DeviceUpdownThreshold.ValueInt64Pointer() != nil {
-		data.DeviceUpdownThreshold = models.ToPointer(int(plan.DeviceUpdownThreshold.ValueInt64()))
+		data.DeviceUpdownThreshold = models.NewOptional(models.ToPointer(int(plan.DeviceUpdownThreshold.ValueInt64())))
 	} else {
 		unset["-device_updown_threshold"] = ""
 	}
@@ -195,6 +195,12 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 		data.Vna = vnaTerraformToSdk(ctx, &diags, plan.Vna)
 	} else {
 		unset["-vna"] = ""
+	}
+
+	if !plan.VsInstance.IsNull() && !plan.VsInstance.IsUnknown() {
+		data.VsInstance = vsInstanceTerraformToSdk(ctx, &diags, plan.VsInstance)
+	} else {
+		unset["-vs_instance"] = ""
 	}
 
 	if !plan.WanVna.IsNull() && !plan.WanVna.IsUnknown() {
