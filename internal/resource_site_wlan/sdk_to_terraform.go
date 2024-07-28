@@ -82,7 +82,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (SiteWlanModel, diag
 	var no_static_ip types.Bool
 	var org_id types.String
 	var portal PortalValue = NewPortalValueNull()
-	var portal_allowed_hostnames types.List = types.ListNull(types.StringType)
+	var portal_allowed_hostnames types.List = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 	var portal_allowed_subnets types.List = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 	var portal_api_secret types.String
 	var portal_denied_hostnames types.List = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
