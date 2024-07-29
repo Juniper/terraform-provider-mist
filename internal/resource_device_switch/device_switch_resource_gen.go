@@ -126,7 +126,22 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 										Computed:            true,
 										Description:         "matched dst port, \"0\" means any",
 										MarkdownDescription: "matched dst port, \"0\" means any",
-										Default:             stringdefault.StaticString("80"),
+										Validators: []validator.String{
+											mistvalidator.AllowedWhenValueIsIn(
+												path.MatchRelative().AtParent().AtName("protocol"),
+												[]attr.Value{
+													types.StringValue("tcp"),
+													types.StringValue("udp"),
+												},
+											),
+											mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("protocol"), types.StringValue("tcp")),
+											mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("protocol"), types.StringValue("udp")),
+											stringvalidator.Any(
+												mistvalidator.ParseInt(0, 65535),
+												mistvalidator.ParseRangeOfInt(0, 65535),
+											),
+										},
+										Default: stringdefault.StaticString("80"),
 									},
 									"protocol": schema.StringAttribute{
 										Optional:            true,
