@@ -17,7 +17,7 @@ type ParseIntValidator struct {
 }
 
 func (o ParseIntValidator) Description(_ context.Context) string {
-	return "Ensures that user submitted VLAN ID is either a valid VLAN ID string (1-4094) or contains a Variable"
+	return "Ensures that user submitted value is is between the min and max values"
 }
 
 func (o ParseIntValidator) MarkdownDescription(ctx context.Context) string {
@@ -34,7 +34,7 @@ func (o ParseIntValidator) ValidateString(_ context.Context, req validator.Strin
 	if e != nil || int_value < o.min || int_value > o.max {
 		resp.Diagnostics.Append(validatordiag.InvalidAttributeValueDiagnostic(
 			req.Path,
-			fmt.Sprintf("value must be an Integer between %s and %s", strconv.Itoa(o.min), strconv.Itoa(o.max)),
+			fmt.Sprintf("must be an Integer between %s and %s", strconv.Itoa(o.min), strconv.Itoa(o.max)),
 			str_value,
 		))
 		return
