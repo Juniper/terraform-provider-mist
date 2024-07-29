@@ -14,14 +14,22 @@ import (
 
 func dynamicVlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.WlanDynamicVlan) DynamicVlanValue {
 
-	var default_vlan_id basetypes.StringValue
+	var default_vlan_ids basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 	var enabled basetypes.BoolValue
 	var local_vlan_ids basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 	var type_dynamic_vlan basetypes.StringValue
 	var vlans basetypes.MapValue = types.MapNull(types.StringType)
 
-	if d != nil && d.DefaultVlanId != nil {
-		default_vlan_id = types.StringValue(d.DefaultVlanId.String())
+	if d != nil && d.DefaultVlanIds != nil {
+		var items []attr.Value
+		var items_type attr.Type = basetypes.StringType{}
+		for _, item := range d.DefaultVlanIds {
+			items = append(items, types.StringValue(item.String()))
+		}
+		list, e := types.ListValue(items_type, items)
+		diags.Append(e...)
+		default_vlan_ids = list
+
 	}
 	if d != nil && d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
@@ -48,11 +56,11 @@ func dynamicVlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 
 	data_map_attr_type := DynamicVlanValue{}.AttributeTypes(ctx)
 	data_map_value := map[string]attr.Value{
-		"default_vlan_id": default_vlan_id,
-		"enabled":         enabled,
-		"local_vlan_ids":  local_vlan_ids,
-		"type":            type_dynamic_vlan,
-		"vlans":           vlans,
+		"default_vlan_ids": default_vlan_ids,
+		"enabled":          enabled,
+		"local_vlan_ids":   local_vlan_ids,
+		"type":             type_dynamic_vlan,
+		"vlans":            vlans,
 	}
 	data, e := NewDynamicVlanValue(data_map_attr_type, data_map_value)
 	diags.Append(e...)
