@@ -1,4 +1,4 @@
-package datasource_countries
+package datasource_const_countries
 
 import (
 	"context"
@@ -21,7 +21,7 @@ func SdkToTerraform(ctx context.Context, l []models.ConstCountry) (basetypes.Set
 		elements = append(elements, elem)
 	}
 
-	dataSet, err := types.SetValue(CountriesValue{}.Type(ctx), elements)
+	dataSet, err := types.SetValue(ConstCountriesValue{}.Type(ctx), elements)
 	if err != nil {
 		diags.Append(err...)
 	}
@@ -29,9 +29,9 @@ func SdkToTerraform(ctx context.Context, l []models.ConstCountry) (basetypes.Set
 	return dataSet, diags
 }
 
-func countrySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.ConstCountry) CountriesValue {
-	o, _ := NewCountriesValue(
-		CountriesValue{}.AttributeTypes(ctx),
+func countrySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.ConstCountry) ConstCountriesValue {
+	o, _ := NewConstCountriesValue(
+		ConstCountriesValue{}.AttributeTypes(ctx),
 		map[string]attr.Value{
 			"alpha2":    types.StringValue(d.Alpha2),
 			"certified": types.BoolValue(d.Certified),

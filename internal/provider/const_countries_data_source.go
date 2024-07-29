@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/Juniper/terraform-provider-mist/internal/datasource_countries"
+	"github.com/Juniper/terraform-provider-mist/internal/datasource_const_countries"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 
@@ -14,17 +14,17 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-var _ datasource.DataSource = (*countriesDataSource)(nil)
+var _ datasource.DataSource = (*constCountriesDataSource)(nil)
 
-func NewCountriesDataSource() datasource.DataSource {
-	return &countriesDataSource{}
+func NewConstCountriesDataSource() datasource.DataSource {
+	return &constCountriesDataSource{}
 }
 
-type countriesDataSource struct {
+type constCountriesDataSource struct {
 	client mistapi.ClientInterface
 }
 
-func (d *countriesDataSource) Configure(ctx context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
+func (d *constCountriesDataSource) Configure(ctx context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
 	tflog.Info(ctx, "Configuring Mist AP Stats")
 	if req.ProviderData == nil {
 		return
@@ -41,20 +41,20 @@ func (d *countriesDataSource) Configure(ctx context.Context, req datasource.Conf
 
 	d.client = client
 }
-func (d *countriesDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_countries"
+func (d *constCountriesDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_const_countries"
 }
 
-func (d *countriesDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *constCountriesDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryConst + "This data source provides the of Countries." +
+		MarkdownDescription: docCategoryConst + "This data source provides the of ConstCountries." +
 			"This information can be used to define the Country in the RF templates (`mist_org_rftemplate`)",
-		Attributes: datasource_countries.CountriesDataSourceSchema(ctx).Attributes,
+		Attributes: datasource_const_countries.ConstCountriesDataSourceSchema(ctx).Attributes,
 	}
 }
 
-func (d *countriesDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var ds datasource_countries.CountriesModel
+func (d *constCountriesDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var ds datasource_const_countries.ConstCountriesModel
 
 	// Read Terraform configuration data into the model
 	resp.Diagnostics.Append(req.Config.Get(ctx, &ds)...)
@@ -72,13 +72,13 @@ func (d *countriesDataSource) Read(ctx context.Context, req datasource.ReadReque
 		)
 		return
 	}
-	countries, diags := datasource_countries.SdkToTerraform(ctx, data.Data)
+	constCountries, diags := datasource_const_countries.SdkToTerraform(ctx, data.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	if err := resp.State.SetAttribute(ctx, path.Root("countries"), countries); err != nil {
+	if err := resp.State.SetAttribute(ctx, path.Root("const_countries"), constCountries); err != nil {
 		resp.Diagnostics.Append(err...)
 		return
 	}

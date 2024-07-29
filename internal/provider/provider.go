@@ -249,7 +249,7 @@ func (p *mistProvider) Metadata(ctx context.Context, req provider.MetadataReques
 
 func (p *mistProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
-		NewCountriesDataSource,
+		NewConstCountriesDataSource,
 		NewDeviceApStatsDataSource,
 		NewDeviceSwitchStatsDataSource,
 		NewDeviceGatewayStatsDataSource,
