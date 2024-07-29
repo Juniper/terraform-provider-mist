@@ -252,6 +252,7 @@ func (p *mistProvider) DataSources(ctx context.Context) []func() datasource.Data
 		NewConstAppCategoriesDataSource,
 		NewConstAppSubCategoriesDataSource,
 		NewConstCountriesDataSource,
+		NewConstTrafficTypesDataSource,
 		NewDeviceApStatsDataSource,
 		NewDeviceSwitchStatsDataSource,
 		NewDeviceGatewayStatsDataSource,

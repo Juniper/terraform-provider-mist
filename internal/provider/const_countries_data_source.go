@@ -64,7 +64,7 @@ func (d *constCountriesDataSource) Read(ctx context.Context, req datasource.Read
 	}
 
 	// Read API call logic
-	data, err := d.client.ConstantsMisc().ListCountryCodes(ctx)
+	data, err := d.client.ConstantsDefinitions().ListCountryCodes(ctx)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting AP Stats",
