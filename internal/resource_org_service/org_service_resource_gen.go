@@ -216,19 +216,9 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 			"traffic_type": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "values from `/api/v1/consts/traffic_types`\n  * when `type`==`apps`, we''ll choose traffic_type automatically\n  * when `type`==`addresses` or `type`==`hostnames`, you can provide your own settings (optional)",
-				MarkdownDescription: "values from `/api/v1/consts/traffic_types`\n  * when `type`==`apps`, we''ll choose traffic_type automatically\n  * when `type`==`addresses` or `type`==`hostnames`, you can provide your own settings (optional)",
-				Validators: []validator.String{
-					mistvalidator.AllowedWhenValueIsIn(
-						path.MatchRelative().AtParent().AtName("type"),
-						[]attr.Value{
-							types.StringValue("custom"),
-							types.StringValue("hostnames"),
-							types.StringValue("apps"),
-						},
-					),
-				},
-				Default: stringdefault.StaticString("data_best_effort"),
+				Description:         "values from `/api/v1/consts/traffic_types`",
+				MarkdownDescription: "values from `/api/v1/consts/traffic_types`",
+				Default:             stringdefault.StaticString("data_best_effort"),
 			},
 			"type": schema.StringAttribute{
 				Optional:            true,

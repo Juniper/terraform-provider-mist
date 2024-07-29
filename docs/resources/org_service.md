@@ -59,8 +59,6 @@ resource "mist_org_service" "service_one" {
 - `ssr_relaxed_tcp_state_enforcement` (Boolean)
 - `traffic_class` (String) when `traffic_type`==`custom`. enum: `best_effort`, `high`, `low`, `medium`
 - `traffic_type` (String) values from `/api/v1/consts/traffic_types`
-  * when `type`==`apps`, we''ll choose traffic_type automatically
-  * when `type`==`addresses` or `type`==`hostnames`, you can provide your own settings (optional)
 - `type` (String) enum: `app_categories`, `apps`, `custom`, `urls`
 - `urls` (List of String) when `type`==`urls`, no need for spec as URL can encode the ports being used
 
