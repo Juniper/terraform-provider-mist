@@ -34,7 +34,7 @@ data "mist_org_servicepolicies" "servicepolicies" {
 
 Read-Only:
 
-- `action` (String)
+- `action` (String) enum: `allow`, `deny`
 - `appqoe` (Attributes) For SRX Only (see [below for nested schema](#nestedatt--org_servicepolicies--appqoe))
 - `created_time` (Number)
 - `ewf` (Attributes List) (see [below for nested schema](#nestedatt--org_servicepolicies--ewf))
@@ -65,7 +65,7 @@ Read-Only:
 - `alert_only` (Boolean)
 - `block_message` (String)
 - `enabled` (Boolean)
-- `profile` (String)
+- `profile` (String) enum: `critical`, `standard`, `strict`
 
 
 <a id="nestedatt--org_servicepolicies--idp"></a>

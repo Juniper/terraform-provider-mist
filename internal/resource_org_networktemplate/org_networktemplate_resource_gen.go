@@ -36,8 +36,10 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"action": schema.StringAttribute{
-										Optional: true,
-										Computed: true,
+										Optional:            true,
+										Computed:            true,
+										Description:         "enum: `allow`, `deny`",
+										MarkdownDescription: "enum: `allow`, `deny`",
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",
@@ -157,18 +159,20 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						"type": schema.StringAttribute{
-							Required: true,
+							Required:            true,
+							Description:         "enum: `any`, `dynamic_gbp`, `mac`, `network`, `radius_group`, `resource`, `static_gbp`, `subnet`",
+							MarkdownDescription: "enum: `any`, `dynamic_gbp`, `mac`, `network`, `radius_group`, `resource`, `static_gbp`, `subnet`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
+									"any",
+									"dynamic_gbp",
 									"mac",
-									"subnet",
 									"network",
 									"radius_group",
-									"any",
 									"resource",
-									"dynamic_gbp",
 									"static_gbp",
+									"subnet",
 								),
 							},
 						},
@@ -617,8 +621,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						"duplex": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "Only if `mode`!=`dynamic` link connection mode",
-							MarkdownDescription: "Only if `mode`!=`dynamic` link connection mode",
+							Description:         "Only if `mode`!=`dynamic` link connection mode. enum: `auto`, `full`, `half`",
+							MarkdownDescription: "Only if `mode`!=`dynamic` link connection mode. enum: `auto`, `full`, `half`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -695,8 +699,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						"mac_auth_protocol": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "Only if `mode`!=`dynamic` and `enable_mac_auth` ==`true`. This type is ignored if mist_nac is enabled.",
-							MarkdownDescription: "Only if `mode`!=`dynamic` and `enable_mac_auth` ==`true`. This type is ignored if mist_nac is enabled.",
+							Description:         "Only if `mode`!=`dynamic` and `enable_mac_auth` ==`true`. This type is ignored if mist_nac is enabled. enum: `eap-md5`, `eap-peap`, `pap`",
+							MarkdownDescription: "Only if `mode`!=`dynamic` and `enable_mac_auth` ==`true`. This type is ignored if mist_nac is enabled. enum: `eap-md5`, `eap-peap`, `pap`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -722,15 +726,15 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"mode": schema.StringAttribute{
 							Optional:            true,
-							Description:         "`mode`==`dynamic` must only be used with the port usage with the name `dynamic`",
-							MarkdownDescription: "`mode`==`dynamic` must only be used with the port usage with the name `dynamic`",
+							Description:         "`mode`==`dynamic` must only be used with the port usage with the name `dynamic`. enum: `access`, `dynamic`, `inet`, `trunk`",
+							MarkdownDescription: "`mode`==`dynamic` must only be used with the port usage with the name `dynamic`. enum: `access`, `dynamic`, `inet`, `trunk`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
 									"access",
-									"trunk",
-									"inet",
 									"dynamic",
+									"inet",
+									"trunk",
 								),
 							},
 						},
@@ -777,8 +781,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"port_auth": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Only if `mode`!=`dynamic` if dot1x is desired, set to dot1x",
-							MarkdownDescription: "Only if `mode`!=`dynamic` if dot1x is desired, set to dot1x",
+							Description:         "Only if `mode`!=`dynamic` if dot1x is desired, set to dot1x. enum: `dot1x`",
+							MarkdownDescription: "Only if `mode`!=`dynamic` if dot1x is desired, set to dot1x. enum: `dot1x`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -820,8 +824,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						"reset_default_when": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "Only if `mode`==`dynamic` Control when the DPC port should be changed to the default port usage\nConfiguring to none will let the DPC port keep at the current port usage.",
-							MarkdownDescription: "Only if `mode`==`dynamic` Control when the DPC port should be changed to the default port usage\nConfiguring to none will let the DPC port keep at the current port usage.",
+							Description:         "Only if `mode`==`dynamic` Control when the DPC port should be changed to the default port usage. enum: `link_down`, `none` (let the DPC port keep at the current port usage)",
+							MarkdownDescription: "Only if `mode`==`dynamic` Control when the DPC port should be changed to the default port usage. enum: `link_down`, `none` (let the DPC port keep at the current port usage)",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -850,20 +854,22 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										MarkdownDescription: "\"[0:3]\":\"abcdef\" -> \"abc\"\n\"split(.)[1]\": \"a.b.c\" -> \"b\"\n\"split(-)[1][0:3]: \"a1234-b5678-c90\" -> \"b56\"",
 									},
 									"src": schema.StringAttribute{
-										Required: true,
+										Required:            true,
+										Description:         "enum: `link_peermac`, `lldp_chassis_id`, `lldp_hardware_revision`, `lldp_manufacturer_name`, `lldp_oui`, `lldp_serial_number`, `lldp_system_name`, `radius_dynamicfilter`, `radius_usermac`, `radius_username`",
+										MarkdownDescription: "enum: `link_peermac`, `lldp_chassis_id`, `lldp_hardware_revision`, `lldp_manufacturer_name`, `lldp_oui`, `lldp_serial_number`, `lldp_system_name`, `radius_dynamicfilter`, `radius_usermac`, `radius_username`",
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",
+												"link_peermac",
 												"lldp_chassis_id",
-												"lldp_system_name",
-												"lldp_serial_number",
 												"lldp_hardware_revision",
 												"lldp_manufacturer_name",
 												"lldp_oui",
-												"radius_username",
-												"radius_usermac",
+												"lldp_serial_number",
+												"lldp_system_name",
 												"radius_dynamicfilter",
-												"link_peermac",
+												"radius_usermac",
+												"radius_username",
 											),
 										},
 									},
@@ -1001,12 +1007,14 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									Optional: true,
 								},
 								"keywrap_format": schema.StringAttribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "enum: `ascii`, `hex`",
+									MarkdownDescription: "enum: `ascii`, `hex`",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
-											"hex",
 											"ascii",
+											"hex",
 										),
 									},
 								},
@@ -1056,12 +1064,14 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									Optional: true,
 								},
 								"keywrap_format": schema.StringAttribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "enum: `ascii`, `hex`",
+									MarkdownDescription: "enum: `ascii`, `hex`",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
-											"hex",
 											"ascii",
+											"hex",
 										),
 									},
 								},
@@ -1171,25 +1181,27 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								NestedObject: schema.NestedAttributeObject{
 									Attributes: map[string]schema.Attribute{
 										"facility": schema.StringAttribute{
-											Optional: true,
-											Computed: true,
+											Optional:            true,
+											Computed:            true,
+											Description:         "enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`",
+											MarkdownDescription: "enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`",
 											Validators: []validator.String{
 												stringvalidator.OneOf(
 													"",
 													"any",
 													"authorization",
-													"conflict-log",
 													"change-log",
 													"config",
+													"conflict-log",
 													"daemon",
 													"dfc",
-													"kernel",
-													"interactive-commands",
-													"ftp",
-													"firewall",
 													"external",
-													"pfe",
+													"firewall",
+													"ftp",
+													"interactive-commands",
+													"kernel",
 													"ntp",
+													"pfe",
 													"security",
 													"user",
 												),
@@ -1197,19 +1209,21 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											Default: stringdefault.StaticString("any"),
 										},
 										"severity": schema.StringAttribute{
-											Optional: true,
-											Computed: true,
+											Optional:            true,
+											Computed:            true,
+											Description:         "enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`",
+											MarkdownDescription: "enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`",
 											Validators: []validator.String{
 												stringvalidator.OneOf(
 													"",
-													"any",
 													"alert",
-													"emergency",
+													"any",
 													"critical",
-													"warning",
+													"emergency",
+													"error",
 													"info",
 													"notice",
-													"error",
+													"warning",
 												),
 											},
 											Default: stringdefault.StaticString("any"),
@@ -1259,25 +1273,27 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									NestedObject: schema.NestedAttributeObject{
 										Attributes: map[string]schema.Attribute{
 											"facility": schema.StringAttribute{
-												Optional: true,
-												Computed: true,
+												Optional:            true,
+												Computed:            true,
+												Description:         "enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`",
+												MarkdownDescription: "enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`",
 												Validators: []validator.String{
 													stringvalidator.OneOf(
 														"",
 														"any",
 														"authorization",
-														"conflict-log",
 														"change-log",
 														"config",
+														"conflict-log",
 														"daemon",
 														"dfc",
-														"kernel",
-														"interactive-commands",
-														"ftp",
-														"firewall",
 														"external",
-														"pfe",
+														"firewall",
+														"ftp",
+														"interactive-commands",
+														"kernel",
 														"ntp",
+														"pfe",
 														"security",
 														"user",
 													),
@@ -1285,19 +1301,21 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 												Default: stringdefault.StaticString("any"),
 											},
 											"severity": schema.StringAttribute{
-												Optional: true,
-												Computed: true,
+												Optional:            true,
+												Computed:            true,
+												Description:         "enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`",
+												MarkdownDescription: "enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`",
 												Validators: []validator.String{
 													stringvalidator.OneOf(
 														"",
-														"any",
 														"alert",
-														"emergency",
+														"any",
 														"critical",
-														"warning",
+														"emergency",
+														"error",
 														"info",
 														"notice",
-														"error",
+														"warning",
 													),
 												},
 												Default: stringdefault.StaticString("any"),
@@ -1349,25 +1367,27 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									NestedObject: schema.NestedAttributeObject{
 										Attributes: map[string]schema.Attribute{
 											"facility": schema.StringAttribute{
-												Optional: true,
-												Computed: true,
+												Optional:            true,
+												Computed:            true,
+												Description:         "enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`",
+												MarkdownDescription: "enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`",
 												Validators: []validator.String{
 													stringvalidator.OneOf(
 														"",
 														"any",
 														"authorization",
-														"conflict-log",
 														"change-log",
 														"config",
+														"conflict-log",
 														"daemon",
 														"dfc",
-														"kernel",
-														"interactive-commands",
-														"ftp",
-														"firewall",
 														"external",
-														"pfe",
+														"firewall",
+														"ftp",
+														"interactive-commands",
+														"kernel",
 														"ntp",
+														"pfe",
 														"security",
 														"user",
 													),
@@ -1375,19 +1395,21 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 												Default: stringdefault.StaticString("any"),
 											},
 											"severity": schema.StringAttribute{
-												Optional: true,
-												Computed: true,
+												Optional:            true,
+												Computed:            true,
+												Description:         "enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`",
+												MarkdownDescription: "enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`",
 												Validators: []validator.String{
 													stringvalidator.OneOf(
 														"",
-														"any",
 														"alert",
-														"emergency",
+														"any",
 														"critical",
-														"warning",
+														"emergency",
+														"error",
 														"info",
 														"notice",
-														"error",
+														"warning",
 													),
 												},
 												Default: stringdefault.StaticString("any"),
@@ -1405,25 +1427,27 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									Optional: true,
 								},
 								"facility": schema.StringAttribute{
-									Optional: true,
-									Computed: true,
+									Optional:            true,
+									Computed:            true,
+									Description:         "enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`",
+									MarkdownDescription: "enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
 											"any",
 											"authorization",
-											"conflict-log",
 											"change-log",
 											"config",
+											"conflict-log",
 											"daemon",
 											"dfc",
-											"kernel",
-											"interactive-commands",
-											"ftp",
-											"firewall",
 											"external",
-											"pfe",
+											"firewall",
+											"ftp",
+											"interactive-commands",
+											"kernel",
 											"ntp",
+											"pfe",
 											"security",
 											"user",
 										),
@@ -1442,13 +1466,15 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									Default:  int64default.StaticInt64(514),
 								},
 								"protocol": schema.StringAttribute{
-									Optional: true,
-									Computed: true,
+									Optional:            true,
+									Computed:            true,
+									Description:         "enum: `tcp`, `udp`",
+									MarkdownDescription: "enum: `tcp`, `udp`",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
-											"udp",
 											"tcp",
+											"udp",
 										),
 									},
 									Default: stringdefault.StaticString("udp"),
@@ -1457,19 +1483,21 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									Optional: true,
 								},
 								"severity": schema.StringAttribute{
-									Optional: true,
-									Computed: true,
+									Optional:            true,
+									Computed:            true,
+									Description:         "enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`",
+									MarkdownDescription: "enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
-											"any",
 											"alert",
-											"emergency",
+											"any",
 											"critical",
-											"warning",
+											"emergency",
+											"error",
 											"info",
 											"notice",
-											"error",
+											"warning",
 										),
 									},
 									Default: stringdefault.StaticString("any"),
@@ -1495,7 +1523,9 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						Optional: true,
 					},
 					"time_format": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "enum: `millisecond`, `year`, `year millisecond`",
+						MarkdownDescription: "enum: `millisecond`, `year`, `year millisecond`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -1512,25 +1542,27 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									NestedObject: schema.NestedAttributeObject{
 										Attributes: map[string]schema.Attribute{
 											"facility": schema.StringAttribute{
-												Optional: true,
-												Computed: true,
+												Optional:            true,
+												Computed:            true,
+												Description:         "enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`",
+												MarkdownDescription: "enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`",
 												Validators: []validator.String{
 													stringvalidator.OneOf(
 														"",
 														"any",
 														"authorization",
-														"conflict-log",
 														"change-log",
 														"config",
+														"conflict-log",
 														"daemon",
 														"dfc",
-														"kernel",
-														"interactive-commands",
-														"ftp",
-														"firewall",
 														"external",
-														"pfe",
+														"firewall",
+														"ftp",
+														"interactive-commands",
+														"kernel",
 														"ntp",
+														"pfe",
 														"security",
 														"user",
 													),
@@ -1538,19 +1570,21 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 												Default: stringdefault.StaticString("any"),
 											},
 											"severity": schema.StringAttribute{
-												Optional: true,
-												Computed: true,
+												Optional:            true,
+												Computed:            true,
+												Description:         "enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`",
+												MarkdownDescription: "enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`",
 												Validators: []validator.String{
 													stringvalidator.OneOf(
 														"",
-														"any",
 														"alert",
-														"emergency",
+														"any",
 														"critical",
-														"warning",
+														"emergency",
+														"error",
 														"info",
 														"notice",
-														"error",
+														"warning",
 													),
 												},
 												Default: stringdefault.StaticString("any"),
@@ -1620,12 +1654,14 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						Default:  booldefault.StaticBool(true),
 					},
 					"engine_id": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "enum: `engine-id-suffix`, `local`, `use-default-ip-address`, `use_mac-address`",
+						MarkdownDescription: "enum: `engine-id-suffix`, `local`, `use-default-ip-address`, `use_mac-address`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
-								"local",
 								"engine-id-suffix",
+								"local",
 								"use-default-ip-address",
 								"use_mac-address",
 							),
@@ -1659,14 +1695,16 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									Optional:    true,
 								},
 								"version": schema.StringAttribute{
-									Optional: true,
-									Computed: true,
+									Optional:            true,
+									Computed:            true,
+									Description:         "enum: `all`, `v1`, `v2`",
+									MarkdownDescription: "enum: `all`, `v1`, `v2`",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
+											"all",
 											"v1",
 											"v2",
-											"all",
 										),
 									},
 									Default: stringdefault.StaticString("v2"),
@@ -1720,12 +1758,14 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											Optional: true,
 										},
 										"type": schema.StringAttribute{
-											Optional: true,
+											Optional:            true,
+											Description:         "enum: `inform`, `trap`",
+											MarkdownDescription: "enum: `inform`, `trap`",
 											Validators: []validator.String{
 												stringvalidator.OneOf(
 													"",
-													"trap",
 													"inform",
+													"trap",
 												),
 											},
 										},
@@ -1811,7 +1851,9 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								NestedObject: schema.NestedAttributeObject{
 									Attributes: map[string]schema.Attribute{
 										"message_processing_model": schema.StringAttribute{
-											Optional: true,
+											Optional:            true,
+											Description:         "enum: `v1`, `v2c`, `v3`",
+											MarkdownDescription: "enum: `v1`, `v2c`, `v3`",
 											Validators: []validator.String{
 												stringvalidator.OneOf(
 													"",
@@ -1830,7 +1872,9 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											MarkdownDescription: "refer to profile-name in notify_filter",
 										},
 										"security_level": schema.StringAttribute{
-											Optional: true,
+											Optional:            true,
+											Description:         "enum: `authentication`, `none`, `privacy`",
+											MarkdownDescription: "enum: `authentication`, `none`, `privacy`",
 											Validators: []validator.String{
 												stringvalidator.OneOf(
 													"",
@@ -1841,7 +1885,9 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											},
 										},
 										"security_model": schema.StringAttribute{
-											Optional: true,
+											Optional:            true,
+											Description:         "enum: `usm`, `v1`, `v2c`",
+											MarkdownDescription: "enum: `usm`, `v1`, `v2c`",
 											Validators: []validator.String{
 												stringvalidator.OneOf(
 													"",
@@ -1868,12 +1914,14 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							"usm": schema.SingleNestedAttribute{
 								Attributes: map[string]schema.Attribute{
 									"engine_type": schema.StringAttribute{
-										Optional: true,
+										Optional:            true,
+										Description:         "enum: `local_engine`, `remote_engine`",
+										MarkdownDescription: "enum: `local_engine`, `remote_engine`",
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",
-												"remote_engine",
 												"local_engine",
+												"remote_engine",
 											),
 										},
 									},
@@ -1905,18 +1953,18 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 												},
 												"authentication_type": schema.StringAttribute{
 													Optional:            true,
-													Description:         "sha224, sha256, sha384, sha512 are supported in 21.1 and newer release",
-													MarkdownDescription: "sha224, sha256, sha384, sha512 are supported in 21.1 and newer release",
+													Description:         "sha224, sha256, sha384, sha512 are supported in 21.1 and newer release. enum: `authentication_md5`, `authentication_none`, `authentication_sha`, `authentication_sha224`, `authentication_sha256`, `authentication_sha384`, `authentication_sha512`",
+													MarkdownDescription: "sha224, sha256, sha384, sha512 are supported in 21.1 and newer release. enum: `authentication_md5`, `authentication_none`, `authentication_sha`, `authentication_sha224`, `authentication_sha256`, `authentication_sha384`, `authentication_sha512`",
 													Validators: []validator.String{
 														stringvalidator.OneOf(
 															"",
 															"authentication_md5",
+															"authentication_none",
 															"authentication_sha",
 															"authentication_sha224",
 															"authentication_sha256",
 															"authentication_sha384",
 															"authentication_sha512",
-															"authentication_none",
 														),
 													},
 												},
@@ -1933,13 +1981,15 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 													},
 												},
 												"encryption_type": schema.StringAttribute{
-													Optional: true,
+													Optional:            true,
+													Description:         "enum: `privacy-3des`, `privacy-aes128`, `privacy-des`, `privacy-none`",
+													MarkdownDescription: "enum: `privacy-3des`, `privacy-aes128`, `privacy-des`, `privacy-none`",
 													Validators: []validator.String{
 														stringvalidator.OneOf(
 															"",
+															"privacy-3des",
 															"privacy-aes128",
 															"privacy-des",
-															"privacy-3des",
 															"privacy-none",
 														),
 													},
@@ -1995,18 +2045,22 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "refer to view name",
 															},
 															"security_level": schema.StringAttribute{
-																Optional: true,
+																Optional:            true,
+																Description:         "enum: `authentication`, `none`, `privacy`",
+																MarkdownDescription: "enum: `authentication`, `none`, `privacy`",
 																Validators: []validator.String{
 																	stringvalidator.OneOf(
 																		"",
-																		"privacy",
 																		"authentication",
 																		"none",
+																		"privacy",
 																	),
 																},
 															},
 															"security_model": schema.StringAttribute{
-																Optional: true,
+																Optional:            true,
+																Description:         "enum: `any`, `usm`, `v1`, `v2c`",
+																MarkdownDescription: "enum: `any`, `usm`, `v1`, `v2c`",
 																Validators: []validator.String{
 																	stringvalidator.OneOf(
 																		"",
@@ -2018,7 +2072,9 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 																},
 															},
 															"type": schema.StringAttribute{
-																Optional: true,
+																Optional:            true,
+																Description:         "enum: `context_prefix`, `default_context_prefix`",
+																MarkdownDescription: "enum: `context_prefix`, `default_context_prefix`",
 																Validators: []validator.String{
 																	stringvalidator.OneOf(
 																		"",
@@ -2053,7 +2109,9 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									"security_to_group": schema.SingleNestedAttribute{
 										Attributes: map[string]schema.Attribute{
 											"security_model": schema.StringAttribute{
-												Optional: true,
+												Optional:            true,
+												Description:         "enum: `usm`, `v1`, `v2c`",
+												MarkdownDescription: "enum: `usm`, `v1`, `v2c`",
 												Validators: []validator.String{
 													stringvalidator.OneOf(
 														"",
@@ -2209,8 +2267,10 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 												Default:             booldefault.StaticBool(false),
 											},
 											"duplex": schema.StringAttribute{
-												Optional: true,
-												Computed: true,
+												Optional:            true,
+												Computed:            true,
+												Description:         "enum: `auto`, `full`, `half`",
+												MarkdownDescription: "enum: `auto`, `full`, `half`",
 												Validators: []validator.String{
 													stringvalidator.OneOf(
 														"",
@@ -2247,17 +2307,19 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 												Default:  booldefault.StaticBool(false),
 											},
 											"speed": schema.StringAttribute{
-												Optional: true,
-												Computed: true,
+												Optional:            true,
+												Computed:            true,
+												Description:         "enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `auto`",
+												MarkdownDescription: "enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `auto`",
 												Validators: []validator.String{
 													stringvalidator.OneOf(
 														"",
-														"auto",
-														"10m",
 														"100m",
+														"10m",
 														"1g",
 														"2.5g",
 														"5g",
+														"auto",
 													),
 												},
 												Default: stringdefault.StaticString("auto"),
@@ -2376,15 +2438,17 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											Default:             stringdefault.StaticString("0"),
 										},
 										"protocol": schema.StringAttribute{
-											Optional: true,
-											Computed: true,
+											Optional:            true,
+											Computed:            true,
+											Description:         "enum: `any`, `icmp`, `tcp`, `udp`",
+											MarkdownDescription: "enum: `any`, `icmp`, `tcp`, `udp`",
 											Validators: []validator.String{
 												stringvalidator.OneOf(
 													"",
+													"any",
+													"icmp",
 													"tcp",
 													"udp",
-													"icmp",
-													"any",
 												),
 											},
 											Default: stringdefault.StaticString("any"),
@@ -2434,15 +2498,17 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					"tacacs": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
 							"default_role": schema.StringAttribute{
-								Optional: true,
-								Computed: true,
+								Optional:            true,
+								Computed:            true,
+								Description:         "enum: `admin`, `helpdesk`, `none`, `read`",
+								MarkdownDescription: "enum: `admin`, `helpdesk`, `none`, `read`",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
 										"admin",
+										"helpdesk",
 										"none",
 										"read",
-										"helpdesk",
 									),
 								},
 								Default: stringdefault.StaticString("none"),

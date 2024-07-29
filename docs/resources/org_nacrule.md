@@ -40,7 +40,7 @@ resource "mist_org_nacrule" "nacrule_one" {
 
 ### Required
 
-- `action` (String)
+- `action` (String) enum: `allow`, `block`
 - `name` (String)
 - `order` (Number) the order of the rule, lower value implies higher priority
 - `org_id` (String)
@@ -61,7 +61,7 @@ resource "mist_org_nacrule" "nacrule_one" {
 
 Optional:
 
-- `auth_type` (String)
+- `auth_type` (String) enum: `cert`, `device-auth`, `eap-teap`, `eap-tls`, `eap-ttls`, `idp`, `mab`, `psk`
 - `nactags` (List of String)
 - `port_types` (List of String)
 - `site_ids` (List of String) list of site ids to match
@@ -74,7 +74,7 @@ Optional:
 
 Optional:
 
-- `auth_type` (String)
+- `auth_type` (String) enum: `cert`, `device-auth`, `eap-teap`, `eap-tls`, `eap-ttls`, `idp`, `mab`, `psk`
 - `nactags` (List of String)
 - `port_types` (List of String)
 - `site_ids` (List of String) list of site ids to match

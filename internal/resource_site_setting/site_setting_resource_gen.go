@@ -69,18 +69,20 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						},
 					},
 					"day_of_week": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`",
+						MarkdownDescription: "enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
 								"any",
-								"mon",
-								"tue",
-								"wed",
-								"thu",
 								"fri",
+								"mon",
 								"sat",
 								"sun",
+								"thu",
+								"tue",
+								"wed",
 							),
 						},
 					},
@@ -99,14 +101,14 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					"version": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "desired version",
-						MarkdownDescription: "desired version",
+						Description:         "desired version. enum: `beta`, `custom`, `stable`",
+						MarkdownDescription: "desired version. enum: `beta`, `custom`, `stable`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
 								"beta",
-								"stable",
 								"custom",
+								"stable",
 							),
 						},
 						Default: stringdefault.StaticString("stable"),
@@ -144,13 +146,15 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Default: int64default.StaticInt64(0),
 					},
 					"beacon_rate_mode": schema.StringAttribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "enum: `custom`, `default`",
+						MarkdownDescription: "enum: `custom`, `default`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
-								"default",
 								"custom",
+								"default",
 							),
 						},
 						Default: stringdefault.StaticString("default"),
@@ -377,13 +381,15 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Default: int64default.StaticInt64(9),
 					},
 					"power_mode": schema.StringAttribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "enum: `custom`, `default`",
+						MarkdownDescription: "enum: `custom`, `default`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
-								"default",
 								"custom",
+								"default",
 							),
 						},
 						Default: stringdefault.StaticString("default"),
@@ -719,8 +725,10 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 											Optional: true,
 										},
 										"protocol": schema.StringAttribute{
-											Optional: true,
-											Computed: true,
+											Optional:            true,
+											Computed:            true,
+											Description:         "enum: `http`, `udp`",
+											MarkdownDescription: "enum: `http`, `udp`",
 											Validators: []validator.String{
 												stringvalidator.OneOf(
 													"",
@@ -772,18 +780,20 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					"auto_signature_update": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
 							"day_of_week": schema.StringAttribute{
-								Optional: true,
+								Optional:            true,
+								Description:         "enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`",
+								MarkdownDescription: "enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
 										"any",
-										"mon",
-										"tue",
-										"wed",
-										"thu",
 										"fri",
+										"mon",
 										"sat",
 										"sun",
+										"thu",
+										"tue",
+										"wed",
 									),
 								},
 							},
@@ -1529,14 +1539,14 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"proxy_arp": schema.StringAttribute{
 						Optional:            true,
-						Description:         "default / enabled / disabled",
-						MarkdownDescription: "default / enabled / disabled",
+						Description:         "enum: `default`, `disabled`, `enabled`",
+						MarkdownDescription: "enum: `default`, `disabled`, `enabled`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
 								"default",
-								"enabled",
 								"disabled",
+								"enabled",
 							),
 						},
 					},

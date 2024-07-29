@@ -25,8 +25,10 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"action": schema.StringAttribute{
-				Optional: true,
-				Computed: true,
+				Optional:            true,
+				Computed:            true,
+				Description:         "enum: `allow`, `deny`",
+				MarkdownDescription: "enum: `allow`, `deny`",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -68,14 +70,16 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 							Default:  booldefault.StaticBool(false),
 						},
 						"profile": schema.StringAttribute{
-							Optional: true,
-							Computed: true,
+							Optional:            true,
+							Computed:            true,
+							Description:         "enum: `critical`, `standard`, `strict`",
+							MarkdownDescription: "enum: `critical`, `standard`, `strict`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
 									"critical",
-									"strict",
 									"standard",
+									"strict",
 								),
 							},
 							Default: stringdefault.StaticString("strict"),

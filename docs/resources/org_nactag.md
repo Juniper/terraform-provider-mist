@@ -31,14 +31,14 @@ resource "mist_org_nactag" "tag_one" {
 
 - `name` (String)
 - `org_id` (String)
-- `type` (String)
+- `type` (String) enum: `egress_vlan_names`, `gbp_tag`, `match`, `radius_attrs`, `radius_group`, `radius_vendor_attrs`, `session_timeout`, `vlan`
 
 ### Optional
 
 - `allow_usermac_override` (Boolean) can be set to true to allow the override by usermac result
 - `egress_vlan_names` (List of String) if `type`==`egress_vlan_names`, list of egress vlans to return
 - `gbp_tag` (Number) if `type`==`gbp_tag`
-- `match` (String) if `type`==`match`
+- `match` (String) if `type`==`match`. enum: `cert_cn`, `cert_issuer`, `cert_san`, `cert_serial`, `cert_sub`, `client_mac`, `idp_role`, `mdm_status`, `radius_group`, `realm`, `ssid`, `user_name`, `usermac_label`
 - `match_all` (Boolean) This field is applicable only when `type`==`match`
   * `false`: means it is sufficient to match any of the values (i.e., match-any behavior)
   * `true`: means all values should be matched (i.e., match-all behavior)

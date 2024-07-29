@@ -25,7 +25,9 @@ func OrgServicepoliciesDataSourceSchema(ctx context.Context) schema.Schema {
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"action": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							Description:         "enum: `allow`, `deny`",
+							MarkdownDescription: "enum: `allow`, `deny`",
 						},
 						"appqoe": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
@@ -58,7 +60,9 @@ func OrgServicepoliciesDataSourceSchema(ctx context.Context) schema.Schema {
 										Computed: true,
 									},
 									"profile": schema.StringAttribute{
-										Computed: true,
+										Computed:            true,
+										Description:         "enum: `critical`, `standard`, `strict`",
+										MarkdownDescription: "enum: `critical`, `standard`, `strict`",
 									},
 								},
 								CustomType: EwfType{

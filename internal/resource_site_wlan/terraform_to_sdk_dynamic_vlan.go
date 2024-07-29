@@ -27,8 +27,7 @@ func dynamicVlanTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, pla
 	}
 
 	data := models.WlanDynamicVlan{}
-	v := models.ToPointer(models.WlanDynamicVlanDefaultVlanIdContainer.FromString(plan.DefaultVlanId.ValueString()))
-	data.DefaultVlanId = models.NewOptional(v)
+	data.DefaultVlanId = models.ToPointer(models.WlanDynamicVlanDefaultVlanIdContainer.FromString(plan.DefaultVlanId.ValueString()))
 	data.Enabled = plan.Enabled.ValueBoolPointer()
 	data.LocalVlanIds = local_vlan_ids
 	data.Type = models.ToPointer(models.WlanDynamicVlanTypeEnum(string(plan.DynamicVlanType.ValueString())))

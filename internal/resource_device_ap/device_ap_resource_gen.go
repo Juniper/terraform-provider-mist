@@ -81,13 +81,15 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 						Default: int64default.StaticInt64(0),
 					},
 					"beacon_rate_mode": schema.StringAttribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "enum: `custom`, `default`",
+						MarkdownDescription: "enum: `custom`, `default`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
-								"default",
 								"custom",
+								"default",
 							),
 						},
 						Default: stringdefault.StaticString("default"),
@@ -314,13 +316,15 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 						Default: int64default.StaticInt64(9),
 					},
 					"power_mode": schema.StringAttribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "enum: `custom`, `default`",
+						MarkdownDescription: "enum: `custom`, `default`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
-								"default",
 								"custom",
+								"default",
 							),
 						},
 						Default: stringdefault.StaticString("default"),
@@ -364,8 +368,8 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 							"type": schema.StringAttribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "wpa2-AES/CCMPp is assumed when `type`==`psk`",
-								MarkdownDescription: "wpa2-AES/CCMPp is assumed when `type`==`psk`",
+								Description:         "wpa2-AES/CCMPp is assumed when `type`==`psk`. enum: `open`, `psk`",
+								MarkdownDescription: "wpa2-AES/CCMPp is assumed when `type`==`psk`. enum: `open`, `psk`",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
@@ -507,15 +511,15 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"type": schema.StringAttribute{
 						Optional:            true,
-						Description:         "note: ble_config will be ingored if esl_config is enabled and with native mode.",
-						MarkdownDescription: "note: ble_config will be ingored if esl_config is enabled and with native mode.",
+						Description:         "note: ble_config will be ingored if esl_config is enabled and with native mode. enum: `hanshow`, `imagotag`, `native`, `solum`",
+						MarkdownDescription: "note: ble_config will be ingored if esl_config is enabled and with native mode. enum: `hanshow`, `imagotag`, `native`, `solum`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
-								"imagotag",
 								"hanshow",
-								"solum",
+								"imagotag",
 								"native",
+								"solum",
 							),
 						},
 					},
@@ -655,27 +659,31 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 						},
 					},
 					"type": schema.StringAttribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "enum: `dhcp`, `static`",
+						MarkdownDescription: "enum: `dhcp`, `static`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
-								"static",
 								"dhcp",
+								"static",
 							),
 						},
 						Default: stringdefault.StaticString("dhcp"),
 					},
 					"type6": schema.StringAttribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "enum: `autoconf`, `dhcp`, `disabled`, `static`",
+						MarkdownDescription: "enum: `autoconf`, `dhcp`, `disabled`, `static`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
+								"autoconf",
+								"dhcp",
 								"disabled",
 								"static",
-								"dhcp",
-								"autoconf",
 							),
 						},
 						Default: stringdefault.StaticString("disabled"),
@@ -758,7 +766,9 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 						},
 					},
 					"role": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "enum: `base`, `remote`",
+						MarkdownDescription: "enum: `base`, `remote`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -873,16 +883,18 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 						},
 					},
 					"antenna_mode": schema.StringAttribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
+						MarkdownDescription: "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
-								"default",
 								"1x1",
 								"2x2",
 								"3x3",
 								"4x4",
+								"default",
 							),
 						},
 						Default: stringdefault.StaticString("default"),
@@ -903,16 +915,18 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 								Default: int64default.StaticInt64(0),
 							},
 							"antenna_mode": schema.StringAttribute{
-								Optional: true,
-								Computed: true,
+								Optional:            true,
+								Computed:            true,
+								Description:         "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
+								MarkdownDescription: "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
-										"default",
 										"1x1",
 										"2x2",
 										"3x3",
 										"4x4",
+										"default",
 									),
 								},
 								Default: stringdefault.StaticString("default"),
@@ -920,8 +934,8 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 							"bandwidth": schema.Int64Attribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "channel width for the 2.4GHz band",
-								MarkdownDescription: "channel width for the 2.4GHz band",
+								Description:         "channel width for the 2.4GHz band. enum: `20`, `40`",
+								MarkdownDescription: "channel width for the 2.4GHz band. enum: `20`, `40`",
 								Validators: []validator.Int64{
 									int64validator.OneOf(
 										20,
@@ -984,14 +998,16 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 								Default: int64default.StaticInt64(8),
 							},
 							"preamble": schema.StringAttribute{
-								Optional: true,
-								Computed: true,
+								Optional:            true,
+								Computed:            true,
+								Description:         "enum: `auto`, `long`, `short`",
+								MarkdownDescription: "enum: `auto`, `long`, `short`",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
-										"short",
-										"long",
 										"auto",
+										"long",
+										"short",
 									),
 								},
 								Default: stringdefault.StaticString("short"),
@@ -1007,7 +1023,9 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "Radio Band AP settings",
 					},
 					"band_24_usage": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "enum: `24`, `5`, `6`, `auto`",
+						MarkdownDescription: "enum: `24`, `5`, `6`, `auto`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -1034,24 +1052,26 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 								Default: int64default.StaticInt64(0),
 							},
 							"antenna_mode": schema.StringAttribute{
-								Optional: true,
-								Computed: true,
+								Optional:            true,
+								Computed:            true,
+								Description:         "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
+								MarkdownDescription: "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
-										"default",
 										"1x1",
 										"2x2",
 										"3x3",
 										"4x4",
+										"default",
 									),
 								},
 								Default: stringdefault.StaticString("default"),
 							},
 							"bandwidth": schema.Int64Attribute{
 								Optional:            true,
-								Description:         "channel width for the 5GHz band",
-								MarkdownDescription: "channel width for the 5GHz band",
+								Description:         "channel width for the 5GHz band. enum: `20`, `40`, `80`",
+								MarkdownDescription: "channel width for the 5GHz band. enum: `20`, `40`, `80`",
 								Validators: []validator.Int64{
 									int64validator.OneOf(
 										20,
@@ -1111,14 +1131,16 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 								Default: int64default.StaticInt64(8),
 							},
 							"preamble": schema.StringAttribute{
-								Optional: true,
-								Computed: true,
+								Optional:            true,
+								Computed:            true,
+								Description:         "enum: `auto`, `long`, `short`",
+								MarkdownDescription: "enum: `auto`, `long`, `short`",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
-										"short",
-										"long",
 										"auto",
+										"long",
+										"short",
 									),
 								},
 								Default: stringdefault.StaticString("short"),
@@ -1149,24 +1171,26 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 								Default: int64default.StaticInt64(0),
 							},
 							"antenna_mode": schema.StringAttribute{
-								Optional: true,
-								Computed: true,
+								Optional:            true,
+								Computed:            true,
+								Description:         "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
+								MarkdownDescription: "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
-										"default",
 										"1x1",
 										"2x2",
 										"3x3",
 										"4x4",
+										"default",
 									),
 								},
 								Default: stringdefault.StaticString("default"),
 							},
 							"bandwidth": schema.Int64Attribute{
 								Optional:            true,
-								Description:         "channel width for the 5GHz band",
-								MarkdownDescription: "channel width for the 5GHz band",
+								Description:         "channel width for the 5GHz band. enum: `20`, `40`, `80`",
+								MarkdownDescription: "channel width for the 5GHz band. enum: `20`, `40`, `80`",
 								Validators: []validator.Int64{
 									int64validator.OneOf(
 										20,
@@ -1226,14 +1250,16 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 								Default: int64default.StaticInt64(8),
 							},
 							"preamble": schema.StringAttribute{
-								Optional: true,
-								Computed: true,
+								Optional:            true,
+								Computed:            true,
+								Description:         "enum: `auto`, `long`, `short`",
+								MarkdownDescription: "enum: `auto`, `long`, `short`",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
-										"short",
-										"long",
 										"auto",
+										"long",
+										"short",
 									),
 								},
 								Default: stringdefault.StaticString("short"),
@@ -1264,16 +1290,18 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 								Default: int64default.StaticInt64(0),
 							},
 							"antenna_mode": schema.StringAttribute{
-								Optional: true,
-								Computed: true,
+								Optional:            true,
+								Computed:            true,
+								Description:         "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
+								MarkdownDescription: "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
-										"default",
 										"1x1",
 										"2x2",
 										"3x3",
 										"4x4",
+										"default",
 									),
 								},
 								Default: stringdefault.StaticString("default"),
@@ -1281,8 +1309,8 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 							"bandwidth": schema.Int64Attribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "channel width for the 6GHz band",
-								MarkdownDescription: "channel width for the 6GHz band",
+								Description:         "channel width for the 6GHz band. enum: `20`, `40`, `80`, `160`",
+								MarkdownDescription: "channel width for the 6GHz band. enum: `20`, `40`, `80`, `160`",
 								Validators: []validator.Int64{
 									int64validator.OneOf(
 										20,
@@ -1344,14 +1372,16 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 								Default: int64default.StaticInt64(8),
 							},
 							"preamble": schema.StringAttribute{
-								Optional: true,
-								Computed: true,
+								Optional:            true,
+								Computed:            true,
+								Description:         "enum: `auto`, `long`, `short`",
+								MarkdownDescription: "enum: `auto`, `long`, `short`",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
-										"short",
-										"long",
 										"auto",
+										"long",
+										"short",
 									),
 								},
 								Default: stringdefault.StaticString("short"),
@@ -1405,8 +1435,8 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"type": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Device Type",
-				MarkdownDescription: "Device Type",
+				Description:         "Device Type. enum: `ap`",
+				MarkdownDescription: "Device Type. enum: `ap`",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -1494,14 +1524,14 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"type": schema.StringAttribute{
 						Optional:            true,
-						Description:         "usb config type",
-						MarkdownDescription: "usb config type",
+						Description:         "usb config type. enum: `hanshow`, `imagotag`, `solum`",
+						MarkdownDescription: "usb config type. enum: `hanshow`, `imagotag`, `solum`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
+								"hanshow",
 								"imagotag",
 								"solum",
-								"hanshow",
 							),
 						},
 					},

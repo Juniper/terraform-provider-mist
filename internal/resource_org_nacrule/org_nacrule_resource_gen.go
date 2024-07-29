@@ -23,7 +23,9 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"action": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "enum: `allow`, `block`",
+				MarkdownDescription: "enum: `allow`, `block`",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -54,18 +56,20 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 			"matching": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"auth_type": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "enum: `cert`, `device-auth`, `eap-teap`, `eap-tls`, `eap-ttls`, `idp`, `mab`, `psk`",
+						MarkdownDescription: "enum: `cert`, `device-auth`, `eap-teap`, `eap-tls`, `eap-ttls`, `idp`, `mab`, `psk`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
 								"cert",
+								"device-auth",
+								"eap-teap",
+								"eap-tls",
+								"eap-ttls",
 								"idp",
 								"mab",
 								"psk",
-								"device-auth",
-								"eap-tls",
-								"eap-ttls",
-								"eap-teap",
 							),
 						},
 					},
@@ -112,18 +116,20 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 			"not_matching": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"auth_type": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "enum: `cert`, `device-auth`, `eap-teap`, `eap-tls`, `eap-ttls`, `idp`, `mab`, `psk`",
+						MarkdownDescription: "enum: `cert`, `device-auth`, `eap-teap`, `eap-tls`, `eap-ttls`, `idp`, `mab`, `psk`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
 								"cert",
+								"device-auth",
+								"eap-teap",
+								"eap-tls",
+								"eap-ttls",
 								"idp",
 								"mab",
 								"psk",
-								"device-auth",
-								"eap-tls",
-								"eap-ttls",
-								"eap-teap",
 							),
 						},
 					},

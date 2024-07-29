@@ -44,8 +44,8 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 						"bfd_minimum_interval": schema.Int64Attribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "when bfd_multiplier is configured alone\ndefault:\n* 1000 if `type`==`external``\n* 350 `type`==`internal`",
-							MarkdownDescription: "when bfd_multiplier is configured alone\ndefault:\n* 1000 if `type`==`external``\n* 350 `type`==`internal`",
+							Description:         "when bfd_multiplier is configured alone. Default:\n  * 1000 if `type`==`external`\n  * 350 `type`==`internal`",
+							MarkdownDescription: "when bfd_multiplier is configured alone. Default:\n  * 1000 if `type`==`external`\n  * 350 `type`==`internal`",
 							Validators: []validator.Int64{
 								int64validator.Between(1, 255000),
 							},
@@ -205,12 +205,14 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Default:             booldefault.StaticBool(false),
 						},
 						"type": schema.StringAttribute{
-							Optional: true,
+							Optional:            true,
+							Description:         "enum: `external`, `internal`",
+							MarkdownDescription: "enum: `external`, `internal`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
-									"internal",
 									"external",
+									"internal",
 								),
 								stringvalidator.LengthAtLeast(1),
 							},
@@ -218,8 +220,8 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 						"via": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "network name",
-							MarkdownDescription: "network name",
+							Description:         "network name. enum: `lan`, `vpn`, `wan`",
+							MarkdownDescription: "network name. enum: `lan`, `vpn`, `wan`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -375,16 +377,18 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 									NestedObject: schema.NestedAttributeObject{
 										Attributes: map[string]schema.Attribute{
 											"type": schema.StringAttribute{
-												Optional: true,
+												Optional:            true,
+												Description:         "enum: `boolean`, `hex`, `int16`, `int32`, `ip`, `string`, `uint16`, `uint32`",
+												MarkdownDescription: "enum: `boolean`, `hex`, `int16`, `int32`, `ip`, `string`, `uint16`, `uint32`",
 												Validators: []validator.String{
 													stringvalidator.OneOf(
 														"",
-														"string",
 														"boolean",
-														"ip",
 														"hex",
 														"int16",
 														"int32",
+														"ip",
+														"string",
 														"uint16",
 														"uint32",
 													),
@@ -443,14 +447,14 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 								"type": schema.StringAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "DHCP Server (local) or DHCP Relay (relay)",
-									MarkdownDescription: "DHCP Server (local) or DHCP Relay (relay)",
+									Description:         "enum: `local` (DHCP Server), `none`, `relay` (DHCP Relay)",
+									MarkdownDescription: "enum: `local` (DHCP Server), `none`, `relay` (DHCP Relay)",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
 											"local",
-											"relay",
 											"none",
+											"relay",
 										),
 									},
 									Default: stringdefault.StaticString("local"),
@@ -458,14 +462,14 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 								"type6": schema.StringAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "DHCP Server (local) or DHCP Relay (relay)",
-									MarkdownDescription: "DHCP Server (local) or DHCP Relay (relay)",
+									Description:         "enum: `local` (DHCP Server), `none`, `relay` (DHCP Relay)",
+									MarkdownDescription: "enum: `local` (DHCP Server), `none`, `relay` (DHCP Relay)",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
 											"local",
-											"relay",
 											"none",
+											"relay",
 										),
 									},
 									Default: stringdefault.StaticString("none"),
@@ -474,16 +478,18 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 									NestedObject: schema.NestedAttributeObject{
 										Attributes: map[string]schema.Attribute{
 											"type": schema.StringAttribute{
-												Optional: true,
+												Optional:            true,
+												Description:         "enum: `boolean`, `hex`, `int16`, `int32`, `ip`, `string`, `uint16`, `uint32`",
+												MarkdownDescription: "enum: `boolean`, `hex`, `int16`, `int32`, `ip`, `string`, `uint16`, `uint32`",
 												Validators: []validator.String{
 													stringvalidator.OneOf(
 														"",
-														"string",
 														"boolean",
-														"ip",
 														"hex",
 														"int16",
 														"int32",
+														"ip",
+														"string",
 														"uint16",
 														"uint32",
 													),
@@ -500,8 +506,8 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 									Optional:            true,
-									Description:         "Property key is <enterprise number>:<sub option code>, with\n* enterprise number: 1-65535 (https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers)\n* sub option code: 1-255, sub-option code",
-									MarkdownDescription: "Property key is <enterprise number>:<sub option code>, with\n* enterprise number: 1-65535 (https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers)\n* sub option code: 1-255, sub-option code",
+									Description:         "Property key is <enterprise number>:<sub option code>, with\n  * enterprise number: 1-65535 (https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers)\n  * sub option code: 1-255, sub-option code'",
+									MarkdownDescription: "Property key is <enterprise number>:<sub option code>, with\n  * enterprise number: 1-65535 (https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers)\n  * sub option code: 1-255, sub-option code'",
 									Validators: []validator.Map{
 										mapvalidator.SizeAtLeast(1),
 									},
@@ -603,13 +609,15 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"base_profile": schema.StringAttribute{
-							Optional: true,
+							Optional:            true,
+							Description:         "enum: `critical`, `standard`, `strict`",
+							MarkdownDescription: "enum: `critical`, `standard`, `strict`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
 									"critical",
-									"strict",
 									"standard",
+									"strict",
 								),
 							},
 						},
@@ -625,14 +633,14 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 									"action": schema.StringAttribute{
 										Optional:            true,
 										Computed:            true,
-										Description:         "- alert (default) \n- drop: siliently dropping packets\n- close: notify client/server to close connection",
-										MarkdownDescription: "- alert (default) \n- drop: siliently dropping packets\n- close: notify client/server to close connection",
+										Description:         "enum:\n  * alert (default)\n  * drop: siliently dropping packets\n  * close: notify client/server to close connection",
+										MarkdownDescription: "enum:\n  * alert (default)\n  * drop: siliently dropping packets\n  * close: notify client/server to close connection",
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",
 												"alert",
-												"drop",
 												"close",
+												"drop",
 											),
 										},
 										Default: stringdefault.StaticString("alert"),
@@ -713,13 +721,15 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 						},
 						"type": schema.StringAttribute{
-							Optional: true,
-							Computed: true,
+							Optional:            true,
+							Computed:            true,
+							Description:         "enum: `dhcp`, `static`",
+							MarkdownDescription: "enum: `dhcp`, `static`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
-									"static",
 									"dhcp",
+									"static",
 								),
 							},
 							Default: stringdefault.StaticString("dhcp"),
@@ -1151,13 +1161,15 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							"type": schema.StringAttribute{
-								Optional: true,
-								Computed: true,
+								Optional:            true,
+								Computed:            true,
+								Description:         "enum: `dhcp`, `static`",
+								MarkdownDescription: "enum: `dhcp`, `static`",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
-										"static",
 										"dhcp",
+										"static",
 									),
 								},
 								Default: stringdefault.StaticString("dhcp"),
@@ -1193,13 +1205,15 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "for HA Cluster, node1 can have different IP Config",
 					},
 					"type": schema.StringAttribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "enum: `dhcp`, `static`",
+						MarkdownDescription: "enum: `dhcp`, `static`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
-								"static",
 								"dhcp",
+								"static",
 							),
 						},
 						Default: stringdefault.StaticString("dhcp"),
@@ -1270,8 +1284,8 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 									},
 									"name": schema.StringAttribute{
 										Optional:            true,
-										Description:         "required when * `type`==`vpn`: the name of the VPN Path to use * `type`==`wan`: the name of the WAN interface to use",
-										MarkdownDescription: "required when * `type`==`vpn`: the name of the VPN Path to use * `type`==`wan`: the name of the WAN interface to use",
+										Description:         "required when \n  * `type`==`vpn`: the name of the VPN Path to use \n  * `type`==`wan`: the name of the WAN interface to use'",
+										MarkdownDescription: "required when \n  * `type`==`vpn`: the name of the VPN Path to use \n  * `type`==`wan`: the name of the WAN interface to use'",
 										Validators: []validator.String{
 											mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("vpn")),
 											mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("wan")),
@@ -1300,14 +1314,16 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 										Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 									},
 									"type": schema.StringAttribute{
-										Optional: true,
+										Optional:            true,
+										Description:         "enum: `local`, `tunnel`, `vpn`, `wan`",
+										MarkdownDescription: "enum: `local`, `tunnel`, `vpn`, `wan`",
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",
 												"local",
-												"wan",
-												"vpn",
 												"tunnel",
+												"vpn",
+												"wan",
 											),
 										},
 									},
@@ -1330,14 +1346,16 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Optional: true,
 						},
 						"strategy": schema.StringAttribute{
-							Optional: true,
-							Computed: true,
+							Optional:            true,
+							Computed:            true,
+							Description:         "enum: `ecmp`, `ordered`, `weighted`",
+							MarkdownDescription: "enum: `ecmp`, `ordered`, `weighted`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
+									"ecmp",
 									"ordered",
 									"weighted",
-									"ecmp",
 								),
 							},
 							Default: stringdefault.StaticString("ordered"),
@@ -1377,8 +1395,8 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 						"dsl_type": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "if `wan_type`==`lte`",
-							MarkdownDescription: "if `wan_type`==`lte`",
+							Description:         "if `wan_type`==`lte`. enum: `adsl`, `vdsl`",
+							MarkdownDescription: "if `wan_type`==`lte`. enum: `adsl`, `vdsl`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -1413,14 +1431,16 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Default: int64default.StaticInt64(0),
 						},
 						"duplex": schema.StringAttribute{
-							Optional: true,
-							Computed: true,
+							Optional:            true,
+							Computed:            true,
+							Description:         "enum: `auto`, `full`, `half`",
+							MarkdownDescription: "enum: `auto`, `full`, `half`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
-									"half",
-									"full",
 									"auto",
+									"full",
+									"half",
 								),
 							},
 							Default: stringdefault.StaticString("auto"),
@@ -1437,8 +1457,8 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 						"lte_auth": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "if `wan_type`==`lte`",
-							MarkdownDescription: "if `wan_type`==`lte`",
+							Description:         "if `wan_type`==`lte`. enum: `chap`, `none`, `pap`",
+							MarkdownDescription: "if `wan_type`==`lte`. enum: `chap`, `none`, `pap`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -1563,8 +1583,8 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 								"pppoe_auth": schema.StringAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "if `type`==`pppoe`",
-									MarkdownDescription: "if `type`==`pppoe`",
+									Description:         "if `type`==`pppoe`. enum: `chap`, `none`, `pap`",
+									MarkdownDescription: "if `type`==`pppoe`. enum: `chap`, `none`, `pap`",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -1585,14 +1605,16 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 									},
 								},
 								"type": schema.StringAttribute{
-									Optional: true,
-									Computed: true,
+									Optional:            true,
+									Computed:            true,
+									Description:         "enum: `dhcp`, `pppoe`, `static`",
+									MarkdownDescription: "enum: `dhcp`, `pppoe`, `static`",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
 											"dhcp",
-											"static",
 											"pppoe",
+											"static",
 										),
 									},
 									Default: stringdefault.StaticString("dhcp"),
@@ -1689,15 +1711,15 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"usage": schema.StringAttribute{
 							Required:            true,
-							Description:         "port usage name",
-							MarkdownDescription: "port usage name",
+							Description:         "port usage name. enum: `ha_control`, `ha_data`, `lan`, `wan`",
+							MarkdownDescription: "port usage name. enum: `ha_control`, `ha_data`, `lan`, `wan`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
+									"ha_control",
+									"ha_data",
 									"lan",
 									"wan",
-									"ha_data",
-									"ha_control",
 								),
 							},
 						},
@@ -1710,13 +1732,15 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"bfd_profile": schema.StringAttribute{
-										Optional: true,
-										Computed: true,
+										Optional:            true,
+										Computed:            true,
+										Description:         "enum: `broadband`, `lte`",
+										MarkdownDescription: "enum: `broadband`, `lte`",
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",
-												"lte",
 												"broadband",
+												"lte",
 											),
 										},
 										Default: stringdefault.StaticString("broadband"),
@@ -1734,13 +1758,15 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 										MarkdownDescription: "for a given VPN, when `path_selection.strategy`==`simple`, the preference for a path (lower is preferred)",
 									},
 									"role": schema.StringAttribute{
-										Optional: true,
-										Computed: true,
+										Optional:            true,
+										Computed:            true,
+										Description:         "enum: `hub`, `spoke`",
+										MarkdownDescription: "enum: `hub`, `spoke`",
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",
-												"spoke",
 												"hub",
+												"spoke",
 											),
 										},
 										Default: stringdefault.StaticString("spoke"),
@@ -1781,8 +1807,8 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 						"wan_arp_policer": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "when `wan_type`==`broadband`",
-							MarkdownDescription: "when `wan_type`==`broadband`",
+							Description:         "when `wan_type`==`broadband`. enum: `default`, `max`, `recommended`",
+							MarkdownDescription: "when `wan_type`==`broadband`. enum: `default`, `max`, `recommended`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -1827,8 +1853,8 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 						"wan_type": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "if `usage`==`wan`",
-							MarkdownDescription: "if `usage`==`wan`",
+							Description:         "if `usage`==`wan`. enum: `broadband`, `dsl`, `lte`",
+							MarkdownDescription: "if `usage`==`wan`. enum: `broadband`, `dsl`, `lte`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -2049,8 +2075,10 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"action": schema.StringAttribute{
-							Optional: true,
-							Computed: true,
+							Optional:            true,
+							Computed:            true,
+							Description:         "enum: `allow`, `deny`",
+							MarkdownDescription: "enum: `allow`, `deny`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -2092,14 +2120,16 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 										Default:  booldefault.StaticBool(false),
 									},
 									"profile": schema.StringAttribute{
-										Optional: true,
-										Computed: true,
+										Optional:            true,
+										Computed:            true,
+										Description:         "enum: `critical`, `standard`, `strict`",
+										MarkdownDescription: "enum: `critical`, `standard`, `strict`",
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",
 												"critical",
-												"strict",
 												"standard",
+												"strict",
 											),
 										},
 										Default: stringdefault.StaticString("strict"),
@@ -2251,15 +2281,17 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 									Optional: true,
 								},
 								"region": schema.StringAttribute{
-									Optional: true,
-									Computed: true,
+									Optional:            true,
+									Computed:            true,
+									Description:         "enum: `APAC`, `Americas`, `EMEA`, `auto`",
+									MarkdownDescription: "enum: `APAC`, `Americas`, `EMEA`, `auto`",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
-											"auto",
-											"EMEA",
-											"Americas",
 											"APAC",
+											"Americas",
+											"EMEA",
+											"auto",
 										),
 									},
 									Default: stringdefault.StaticString("auto"),
@@ -2274,8 +2306,8 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"ike_lifetime": schema.Int64Attribute{
 							Optional:            true,
-							Description:         "Only if:\n* `provider`== `custom-ipsec`",
-							MarkdownDescription: "Only if:\n* `provider`== `custom-ipsec`",
+							Description:         "Only if `provider`== `custom-ipsec`",
+							MarkdownDescription: "Only if `provider`== `custom-ipsec`",
 							Validators: []validator.Int64{
 								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("zscaler-ipsec")),
 								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("zscaler-gre")),
@@ -2286,8 +2318,8 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 						"ike_mode": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "Only if:\n* `provider`== `custom-ipsec`",
-							MarkdownDescription: "Only if:\n* `provider`== `custom-ipsec`",
+							Description:         "Only if `provider`== `custom-ipsec`. enum: `aggressive`, `main`",
+							MarkdownDescription: "Only if `provider`== `custom-ipsec`. enum: `aggressive`, `main`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -2305,49 +2337,53 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"auth_algo": schema.StringAttribute{
-										Optional: true,
+										Optional:            true,
+										Description:         "enum: `md5`, `sha1`, `sha2`",
+										MarkdownDescription: "enum: `md5`, `sha1`, `sha2`",
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",
+												"md5",
 												"sha1",
 												"sha2",
-												"md5",
 											),
 										},
 									},
 									"dh_group": schema.StringAttribute{
 										Optional:            true,
 										Computed:            true,
-										Description:         "* 1 \n* 2 (1024-bit) \n* 5\n* 14 (default, 2048-bit)\n* 15 (3072-bit) \n* 16 (4096-bit)\n* 19 (256-bit ECP)\n* 20 (384-bit ECP)\n* 21 (521-bit ECP) \n* 24 (2048-bit ECP)",
-										MarkdownDescription: "* 1 \n* 2 (1024-bit) \n* 5\n* 14 (default, 2048-bit)\n* 15 (3072-bit) \n* 16 (4096-bit)\n* 19 (256-bit ECP)\n* 20 (384-bit ECP)\n* 21 (521-bit ECP) \n* 24 (2048-bit ECP)",
+										Description:         "enum:\n  * 1\n  * 2 (1024-bit)\n  * 5\n  * 14 (default, 2048-bit)\n  * 15 (3072-bit)\n  * 16 (4096-bit)\n  * 19 (256-bit ECP)\n  * 20 (384-bit ECP)\n  * 21 (521-bit ECP)\n  * 24 (2048-bit ECP)",
+										MarkdownDescription: "enum:\n  * 1\n  * 2 (1024-bit)\n  * 5\n  * 14 (default, 2048-bit)\n  * 15 (3072-bit)\n  * 16 (4096-bit)\n  * 19 (256-bit ECP)\n  * 20 (384-bit ECP)\n  * 21 (521-bit ECP)\n  * 24 (2048-bit ECP)",
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",
 												"1",
-												"2",
-												"5",
 												"14",
 												"15",
 												"16",
 												"19",
+												"2",
 												"20",
 												"21",
 												"24",
+												"5",
 											),
 										},
 										Default: stringdefault.StaticString("14"),
 									},
 									"enc_algo": schema.StringAttribute{
-										Optional: true,
-										Computed: true,
+										Optional:            true,
+										Computed:            true,
+										Description:         "enum: `3des`, `aes128`, `aes256`, `aes_gcm128`, `aes_gcm256`",
+										MarkdownDescription: "enum: `3des`, `aes128`, `aes256`, `aes_gcm128`, `aes_gcm256`",
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",
-												"aes256",
 												"3des",
 												"aes128",
-												"aes_gcm256",
+												"aes256",
 												"aes_gcm128",
+												"aes_gcm256",
 											),
 										},
 										Default: stringdefault.StaticString("aes256"),
@@ -2384,21 +2420,23 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"auth_algo": schema.StringAttribute{
-										Optional: true,
+										Optional:            true,
+										Description:         "enum: `md5`, `sha1`, `sha2`",
+										MarkdownDescription: "enum: `md5`, `sha1`, `sha2`",
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",
+												"md5",
 												"sha1",
 												"sha2",
-												"md5",
 											),
 										},
 									},
 									"dh_group": schema.StringAttribute{
 										Optional:            true,
 										Computed:            true,
-										Description:         "Only if:\n* `provider`== `custom-ipsec`\nValues:\n* 1 \n* 2 (1024-bit) \n* 5\n* 14 (default, 2048-bit) \n* 15 (3072-bit) \n* 16 (4096-bit)\n* 19 (256-bit ECP)\n* 20 (384-bit ECP)\n* 21 (521-bit ECP) \n* 24 (2048-bit ECP)",
-										MarkdownDescription: "Only if:\n* `provider`== `custom-ipsec`\nValues:\n* 1 \n* 2 (1024-bit) \n* 5\n* 14 (default, 2048-bit) \n* 15 (3072-bit) \n* 16 (4096-bit)\n* 19 (256-bit ECP)\n* 20 (384-bit ECP)\n* 21 (521-bit ECP) \n* 24 (2048-bit ECP)",
+										Description:         "Only if `provider`== `custom-ipsec`. enum:\n  * 1\n  * 2 (1024-bit)\n  * 5\n  * 14 (default, 2048-bit)\n  * 15 (3072-bit)\n  * 16 (4096-bit)\n  * 19 (256-bit ECP)\n  * 20 (384-bit ECP)\n  * 21 (521-bit ECP)\n  * 24 (2048-bit ECP)",
+										MarkdownDescription: "Only if `provider`== `custom-ipsec`. enum:\n  * 1\n  * 2 (1024-bit)\n  * 5\n  * 14 (default, 2048-bit)\n  * 15 (3072-bit)\n  * 16 (4096-bit)\n  * 19 (256-bit ECP)\n  * 20 (384-bit ECP)\n  * 21 (521-bit ECP)\n  * 24 (2048-bit ECP)",
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",
@@ -2417,16 +2455,18 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 										Default: stringdefault.StaticString("14"),
 									},
 									"enc_algo": schema.StringAttribute{
-										Optional: true,
-										Computed: true,
+										Optional:            true,
+										Computed:            true,
+										Description:         "enum: `3des`, `aes128`, `aes256`, `aes_gcm128`, `aes_gcm256`",
+										MarkdownDescription: "enum: `3des`, `aes128`, `aes256`, `aes_gcm128`, `aes_gcm256`",
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",
-												"aes256",
 												"3des",
 												"aes128",
-												"aes_gcm256",
+												"aes256",
 												"aes_gcm128",
+												"aes_gcm256",
 											),
 										},
 										Default: stringdefault.StaticString("aes256"),
@@ -2439,8 +2479,8 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional:            true,
-							Description:         "Only if:\n* `provider`== `custom-ipsec`",
-							MarkdownDescription: "Only if:\n* `provider`== `custom-ipsec`",
+							Description:         "Only if  `provider`== `custom-ipsec`",
+							MarkdownDescription: "Only if  `provider`== `custom-ipsec`",
 							Validators: []validator.List{
 								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("zscaler-ipsec")),
 								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("zscaler-gre")),
@@ -2450,21 +2490,23 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"local_id": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Only if:\n* `provider`== `zscaler-ipsec`\n* `provider`==`jse-ipsec`\n* `provider`== `custom-ipsec`",
-							MarkdownDescription: "Only if:\n* `provider`== `zscaler-ipsec`\n* `provider`==`jse-ipsec`\n* `provider`== `custom-ipsec`",
+							Description:         "Only if:\n  * `provider`== `zscaler-ipsec`\n  * `provider`==`jse-ipsec`\n  * `provider`== `custom-ipsec`",
+							MarkdownDescription: "Only if:\n  * `provider`== `zscaler-ipsec`\n  * `provider`==`jse-ipsec`\n  * `provider`== `custom-ipsec`",
 							Validators: []validator.String{
 								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("zscaler-gre")),
 								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("customer-gre")),
 							},
 						},
 						"mode": schema.StringAttribute{
-							Optional: true,
-							Computed: true,
+							Optional:            true,
+							Computed:            true,
+							Description:         "enum: `active-active`, `active-standby`",
+							MarkdownDescription: "enum: `active-active`, `active-standby`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
-									"active-standby",
 									"active-active",
+									"active-standby",
 								),
 							},
 							Default: stringdefault.StaticString("active-standby"),
@@ -2478,8 +2520,8 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 								"internal_ips": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Optional:            true,
-									Description:         "Only if:\n* `provider`== `zscaler-gre` \n* `provider`== `custom-gre`",
-									MarkdownDescription: "Only if:\n* `provider`== `zscaler-gre` \n* `provider`== `custom-gre`",
+									Description:         "Only if:\n  * `provider`== `zscaler-gre`\n  * `provider`== `custom-gre`",
+									MarkdownDescription: "Only if:\n  * `provider`== `zscaler-gre`\n  * `provider`== `custom-gre`",
 								},
 								"probe_ips": schema.ListAttribute{
 									ElementType: types.StringType,
@@ -2491,8 +2533,8 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 								"remote_ids": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Optional:            true,
-									Description:         "Only if:\n* `provider`== `custom-ipsec`",
-									MarkdownDescription: "Only if:\n* `provider`== `custom-ipsec`",
+									Description:         "Only if `provider`== `custom-ipsec`",
+									MarkdownDescription: "Only if `provider`== `custom-ipsec`",
 								},
 								"wan_names": schema.ListAttribute{
 									ElementType: types.StringType,
@@ -2524,13 +2566,15 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 									MarkdownDescription: "time within which to complete the connectivity check",
 								},
 								"type": schema.StringAttribute{
-									Optional: true,
-									Computed: true,
+									Optional:            true,
+									Computed:            true,
+									Description:         "enum: `http`, `icmp`",
+									MarkdownDescription: "enum: `http`, `icmp`",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
-											"icmp",
 											"http",
+											"icmp",
 										),
 									},
 									Default: stringdefault.StaticString("icmp"),
@@ -2542,39 +2586,41 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional:            true,
-							Description:         "Only if:\n* `provider`== `custom-ipsec`",
-							MarkdownDescription: "Only if:\n* `provider`== `custom-ipsec`",
+							Description:         "Only if `provider`== `custom-ipsec`",
+							MarkdownDescription: "Only if `provider`== `custom-ipsec`",
 						},
 						"protocol": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Only if:\n* `provider`== `custom-ipsec`",
-							MarkdownDescription: "Only if:\n* `provider`== `custom-ipsec`",
+							Description:         "Only if `provider`== `custom-ipsec`. enum: `gre`, `ipsec`",
+							MarkdownDescription: "Only if `provider`== `custom-ipsec`. enum: `gre`, `ipsec`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
-									"ipsec",
 									"gre",
+									"ipsec",
 								),
 							},
 						},
 						"provider": schema.StringAttribute{
-							Optional: true,
+							Optional:            true,
+							Description:         "enum: `custom-ipsec`, `customer-gre`, `jse-ipsec`, `zscaler-gre`, `zscaler-ipsec`",
+							MarkdownDescription: "enum: `custom-ipsec`, `customer-gre`, `jse-ipsec`, `zscaler-gre`, `zscaler-ipsec`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
-									"zscaler-ipsec",
-									"zscaler-gre",
+									"custom-ipsec",
 									"customer-gre",
 									"jse-ipsec",
-									"custom-ipsec",
+									"zscaler-gre",
+									"zscaler-ipsec",
 								),
 							},
 						},
 						"psk": schema.StringAttribute{
 							Optional:            true,
 							Sensitive:           true,
-							Description:         "Only if:\n* `provider`== `zscaler-ipsec`\n* `provider`==`jse-ipsec`\n* `provider`== `custom-ipsec`",
-							MarkdownDescription: "Only if:\n* `provider`== `zscaler-ipsec`\n* `provider`==`jse-ipsec`\n* `provider`== `custom-ipsec`",
+							Description:         "Only if:\n  * `provider`== `zscaler-ipsec`\n  * `provider`==`jse-ipsec`\n  * `provider`== `custom-ipsec`",
+							MarkdownDescription: "Only if:\n  * `provider`== `zscaler-ipsec`\n  * `provider`==`jse-ipsec`\n  * `provider`== `custom-ipsec`",
 						},
 						"secondary": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
@@ -2585,8 +2631,8 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 								"internal_ips": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Optional:            true,
-									Description:         "Only if:\n* `provider`== `zscaler-gre` \n* `provider`== `custom-gre`",
-									MarkdownDescription: "Only if:\n* `provider`== `zscaler-gre` \n* `provider`== `custom-gre`",
+									Description:         "Only if:\n  * `provider`== `zscaler-gre`\n  * `provider`== `custom-gre`",
+									MarkdownDescription: "Only if:\n  * `provider`== `zscaler-gre`\n  * `provider`== `custom-gre`",
 								},
 								"probe_ips": schema.ListAttribute{
 									ElementType: types.StringType,
@@ -2598,8 +2644,8 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 								"remote_ids": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Optional:            true,
-									Description:         "Only if:\n* `provider`== `custom-ipsec`",
-									MarkdownDescription: "Only if:\n* `provider`== `custom-ipsec`",
+									Description:         "Only if `provider`== `custom-ipsec`",
+									MarkdownDescription: "Only if `provider`== `custom-ipsec`",
 								},
 								"wan_names": schema.ListAttribute{
 									ElementType: types.StringType,
@@ -2616,8 +2662,8 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 						"version": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "Only if:\n* `provider`== `custom-gre` \n* `provider`== `custom-ipsec`",
-							MarkdownDescription: "Only if:\n* `provider`== `custom-gre` \n* `provider`== `custom-ipsec`",
+							Description:         "Only if `provider`== `custom-gre` or `provider`== `custom-ipsec`. enum: `1`, `2`",
+							MarkdownDescription: "Only if `provider`== `custom-gre` or `provider`== `custom-ipsec`. enum: `1`, `2`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -2803,8 +2849,8 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"type": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Device Type",
-				MarkdownDescription: "Device Type",
+				Description:         "Device Type. enum: `gateway`",
+				MarkdownDescription: "Device Type. enum: `gateway`",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -2848,7 +2894,7 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "Property key is the network name",
 				MarkdownDescription: "Property key is the network name",
 				Validators: []validator.Map{
-					mapvalidator.SizeAtLeast(1),
+					mapvalidator.SizeAtLeast(1), mapvalidator.KeysAre(mistvalidator.ParseName()),
 				},
 			},
 		},

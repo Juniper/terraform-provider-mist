@@ -58,7 +58,7 @@ Note: legacy, new config moved to ESL Config. (see [below for nested schema](#ne
 ### Read-Only
 
 - `id` (String) The ID of this resource.
-- `type` (String) Device Type
+- `type` (String) Device Type. enum: `ap`
 
 <a id="nestedatt--aeroscout"></a>
 ### Nested Schema for `aeroscout`
@@ -77,7 +77,7 @@ Optional:
 
 - `beacon_enabled` (Boolean) whether Mist beacons is enabled
 - `beacon_rate` (Number) required if `beacon_rate_mode`==`custom`, 1-10, in number-beacons-per-second
-- `beacon_rate_mode` (String)
+- `beacon_rate_mode` (String) enum: `custom`, `default`
 - `beam_disabled` (List of Number) list of AP BLE location beam numbers (1-8) which should be disabled at the AP and not transmit location information (where beam 1 is oriented at the top the AP, growing counter-clock-wise, with 9 being the omni BLE beam)
 - `custom_ble_packet_enabled` (Boolean) can be enabled if `beacon_enabled`==`true`, whether to send custom packet
 - `custom_ble_packet_frame` (String) The custom frame to be sent out in this beacon. The frame must be a hexstring
@@ -101,7 +101,7 @@ Optional:
 - `ibeacon_minor` (Number) Minor number for iBeacon
 - `ibeacon_uuid` (String) optional, if not specified, the same UUID as the beacon will be used
 - `power` (Number) required if `power_mode`==`custom`
-- `power_mode` (String)
+- `power_mode` (String) enum: `custom`, `default`
 
 
 <a id="nestedatt--esl_config"></a>
@@ -114,7 +114,7 @@ Optional:
 - `enabled` (Boolean) usb_config is ignored if esl_config enabled
 - `host` (String) Only if `type`==`imagotag` or `type`==`native`
 - `port` (Number) Only if `type`==`imagotag` or `type`==`native`
-- `type` (String) note: ble_config will be ingored if esl_config is enabled and with native mode.
+- `type` (String) note: ble_config will be ingored if esl_config is enabled and with native mode. enum: `hanshow`, `imagotag`, `native`, `solum`
 - `verify_cert` (Boolean) Only if `type`==`imagotag` or `type`==`native`
 - `vlan_id` (Number) Only if `type`==`solum` or `type`==`hanshow`
 
@@ -133,8 +133,8 @@ Optional:
 - `mtu` (Number)
 - `netmask` (String) required if `type`==`static`
 - `netmask6` (String)
-- `type` (String)
-- `type6` (String)
+- `type` (String) enum: `dhcp`, `static`
+- `type6` (String) enum: `autoconf`, `dhcp`, `disabled`, `static`
 - `vlan_id` (Number) management vlan id, default is 1 (untagged)
 
 
@@ -154,7 +154,7 @@ Optional:
 
 - `enabled` (Boolean) whether mesh is enabled on this AP
 - `group` (Number) mesh group, base AP(s) will only allow remote AP(s) in the same mesh group to join, 1-9, optional
-- `role` (String)
+- `role` (String) enum: `base`, `remote`
 
 
 <a id="nestedatt--pwr_config"></a>
@@ -175,9 +175,9 @@ Optional:
 - `ant_gain_24` (Number) antenna gain for 2.4G - for models with external antenna only
 - `ant_gain_5` (Number) antenna gain for 5G - for models with external antenna only
 - `ant_gain_6` (Number) antenna gain for 6G - for models with external antenna only
-- `antenna_mode` (String)
+- `antenna_mode` (String) enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`
 - `band_24` (Attributes) Radio Band AP settings (see [below for nested schema](#nestedatt--radio_config--band_24))
-- `band_24_usage` (String)
+- `band_24_usage` (String) enum: `24`, `5`, `6`, `auto`
 - `band_5` (Attributes) Radio Band AP settings (see [below for nested schema](#nestedatt--radio_config--band_5))
 - `band_5_on_24_radio` (Attributes) Radio Band AP settings (see [below for nested schema](#nestedatt--radio_config--band_5_on_24_radio))
 - `band_6` (Attributes) Radio Band AP settings (see [below for nested schema](#nestedatt--radio_config--band_6))
@@ -192,15 +192,15 @@ Optional:
 
 - `allow_rrm_disable` (Boolean)
 - `ant_gain` (Number)
-- `antenna_mode` (String)
-- `bandwidth` (Number) channel width for the 2.4GHz band
+- `antenna_mode` (String) enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`
+- `bandwidth` (Number) channel width for the 2.4GHz band. enum: `20`, `40`
 - `channel` (Number) For Device. (primary) channel for the band, 0 means using the Site Setting
 - `channels` (List of Number) For RFTemplates. List of channels, null or empty array means auto
 - `disabled` (Boolean) whether to disable the radio
 - `power` (Number) TX power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …
 - `power_max` (Number) when power=0, max tx power to use, HW-specific values will be used if not set
 - `power_min` (Number) when power=0, min tx power to use, HW-specific values will be used if not set
-- `preamble` (String)
+- `preamble` (String) enum: `auto`, `long`, `short`
 
 
 <a id="nestedatt--radio_config--band_5"></a>
@@ -210,15 +210,15 @@ Optional:
 
 - `allow_rrm_disable` (Boolean)
 - `ant_gain` (Number)
-- `antenna_mode` (String)
-- `bandwidth` (Number) channel width for the 5GHz band
+- `antenna_mode` (String) enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`
+- `bandwidth` (Number) channel width for the 5GHz band. enum: `20`, `40`, `80`
 - `channel` (Number) For Device. (primary) channel for the band, 0 means using the Site Setting
 - `channels` (List of Number) For RFTemplates. List of channels, null or empty array means auto
 - `disabled` (Boolean) whether to disable the radio
 - `power` (Number) TX power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …
 - `power_max` (Number) when power=0, max tx power to use, HW-specific values will be used if not set
 - `power_min` (Number) when power=0, min tx power to use, HW-specific values will be used if not set
-- `preamble` (String)
+- `preamble` (String) enum: `auto`, `long`, `short`
 
 
 <a id="nestedatt--radio_config--band_5_on_24_radio"></a>
@@ -228,15 +228,15 @@ Optional:
 
 - `allow_rrm_disable` (Boolean)
 - `ant_gain` (Number)
-- `antenna_mode` (String)
-- `bandwidth` (Number) channel width for the 5GHz band
+- `antenna_mode` (String) enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`
+- `bandwidth` (Number) channel width for the 5GHz band. enum: `20`, `40`, `80`
 - `channel` (Number) For Device. (primary) channel for the band, 0 means using the Site Setting
 - `channels` (List of Number) For RFTemplates. List of channels, null or empty array means auto
 - `disabled` (Boolean) whether to disable the radio
 - `power` (Number) TX power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …
 - `power_max` (Number) when power=0, max tx power to use, HW-specific values will be used if not set
 - `power_min` (Number) when power=0, min tx power to use, HW-specific values will be used if not set
-- `preamble` (String)
+- `preamble` (String) enum: `auto`, `long`, `short`
 
 
 <a id="nestedatt--radio_config--band_6"></a>
@@ -246,15 +246,15 @@ Optional:
 
 - `allow_rrm_disable` (Boolean)
 - `ant_gain` (Number)
-- `antenna_mode` (String)
-- `bandwidth` (Number) channel width for the 6GHz band
+- `antenna_mode` (String) enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`
+- `bandwidth` (Number) channel width for the 6GHz band. enum: `20`, `40`, `80`, `160`
 - `channel` (Number) For Device. (primary) channel for the band, 0 means using the Site Setting
 - `channels` (List of Number) For RFTemplates. List of channels, null or empty array means auto
 - `disabled` (Boolean) whether to disable the radio
 - `power` (Number) TX power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …
 - `power_max` (Number) when power=0, max tx power to use, HW-specific values will be used if not set
 - `power_min` (Number) when power=0, min tx power to use, HW-specific values will be used if not set
-- `preamble` (String)
+- `preamble` (String) enum: `auto`, `long`, `short`
 - `standard_power` (Boolean) for 6GHz Only, standard-power operation, AFC (Automatic Frequency Coordination) will be performed and we'll fallback to Low Power Indoor if AFC failed
 
 
@@ -278,7 +278,7 @@ Optional:
 - `enabled` (Boolean) whether to enable any usb config
 - `host` (String) only if `type`==`imagotag`
 - `port` (Number) only if `type`==`imagotag`
-- `type` (String) usb config type
+- `type` (String) usb config type. enum: `hanshow`, `imagotag`, `solum`
 - `verify_cert` (Boolean) only if `type`==`imagotag`, whether to turn on SSL verification
 - `vlan_id` (Number) only if `type`==`solum` or `type`==`hanshow`
 

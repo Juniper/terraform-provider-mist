@@ -34,7 +34,7 @@ data "mist_org_idpprofiles" "idpprofiles" {
 
 Read-Only:
 
-- `base_profile` (String)
+- `base_profile` (String) enum: `critical`, `standard`, `strict`
 - `created_time` (Number)
 - `id` (String)
 - `modified_time` (Number)
@@ -47,8 +47,8 @@ Read-Only:
 
 Read-Only:
 
-- `action` (String) Possible values:
-  * alert (default) 
+- `action` (String) enum:
+  * alert (default)
   * drop: siliently dropping packets
   * close: notify client/server to close connection
 - `matching` (Attributes) (see [below for nested schema](#nestedatt--org_idpprofiles--overwrites--matching))

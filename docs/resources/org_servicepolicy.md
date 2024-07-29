@@ -41,7 +41,7 @@ resource "mist_org_servicepolicy" "servicepolicy_one" {
 
 ### Optional
 
-- `action` (String)
+- `action` (String) enum: `allow`, `deny`
 - `appqoe` (Attributes) For SRX Only (see [below for nested schema](#nestedatt--appqoe))
 - `ewf` (Attributes List) (see [below for nested schema](#nestedatt--ewf))
 - `idp` (Attributes) (see [below for nested schema](#nestedatt--idp))
@@ -71,7 +71,7 @@ Optional:
 - `alert_only` (Boolean)
 - `block_message` (String)
 - `enabled` (Boolean)
-- `profile` (String)
+- `profile` (String) enum: `critical`, `standard`, `strict`
 
 
 <a id="nestedatt--idp"></a>

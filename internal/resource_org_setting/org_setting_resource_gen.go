@@ -392,8 +392,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					"use_ip_version": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "by default NAS devices(switches/aps) and proxies(mxedge) are configured to reach mist-nac via IPv4",
-						MarkdownDescription: "by default NAS devices(switches/aps) and proxies(mxedge) are configured to reach mist-nac via IPv4",
+						Description:         "by default NAS devices(switches/aps) and proxies(mxedge) are configured to reach mist-nac via IPv4. enum: `v4`, `v6`",
+						MarkdownDescription: "by default NAS devices(switches/aps) and proxies(mxedge) are configured to reach mist-nac via IPv4. enum: `v4`, `v6`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -435,28 +435,32 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						Sensitive: true,
 					},
 					"oob_ip_type": schema.StringAttribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "enum: `dhcp`, `disabled`, `static`",
+						MarkdownDescription: "enum: `dhcp`, `disabled`, `static`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
 								"dhcp",
-								"static",
 								"disabled",
+								"static",
 							),
 						},
 						Default: stringdefault.StaticString("dhcp"),
 					},
 					"oob_ip_type6": schema.StringAttribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "enum: `autoconf`, `dhcp`, `disabled`, `static`",
+						MarkdownDescription: "enum: `autoconf`, `dhcp`, `disabled`, `static`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
 								"autoconf",
 								"dhcp",
-								"static",
 								"disabled",
+								"static",
 							),
 						},
 						Default: stringdefault.StaticString("autoconf"),
@@ -594,10 +598,7 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "enable threshold-based device down delivery for Switch devices only. When configured it takes effect for SW devices and `device_updown_threshold` is ignored.",
 				MarkdownDescription: "enable threshold-based device down delivery for Switch devices only. When configured it takes effect for SW devices and `device_updown_threshold` is ignored.",
-				Validators: []validator.Int64{
-					int64validator.Between(0, 240),
-				},
-				Default: int64default.StaticInt64(0),
+				Default:             int64default.StaticInt64(0),
 			},
 			"synthetic_test": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{

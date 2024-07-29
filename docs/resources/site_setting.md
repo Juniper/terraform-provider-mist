@@ -108,10 +108,10 @@ Optional:
 Optional:
 
 - `custom_versions` (Map of String) custom versions for different models. Property key is the model name (e.g. "AP41")
-- `day_of_week` (String)
+- `day_of_week` (String) enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`
 - `enabled` (Boolean) whether auto upgrade should happen (Note that Mist may auto-upgrade if the version is not supported)
 - `time_of_day` (String) any / HH:MM (24-hour format), upgrade will happen within up to 1-hour from this time
-- `version` (String) desired version
+- `version` (String) desired version. enum: `beta`, `custom`, `stable`
 
 
 <a id="nestedatt--ble_config"></a>
@@ -121,7 +121,7 @@ Optional:
 
 - `beacon_enabled` (Boolean) whether Mist beacons is enabled
 - `beacon_rate` (Number) required if `beacon_rate_mode`==`custom`, 1-10, in number-beacons-per-second
-- `beacon_rate_mode` (String)
+- `beacon_rate_mode` (String) enum: `custom`, `default`
 - `beam_disabled` (List of Number) list of AP BLE location beam numbers (1-8) which should be disabled at the AP and not transmit location information (where beam 1 is oriented at the top the AP, growing counter-clock-wise, with 9 being the omni BLE beam)
 - `custom_ble_packet_enabled` (Boolean) can be enabled if `beacon_enabled`==`true`, whether to send custom packet
 - `custom_ble_packet_frame` (String) The custom frame to be sent out in this beacon. The frame must be a hexstring
@@ -145,7 +145,7 @@ Optional:
 - `ibeacon_minor` (Number) Minor number for iBeacon
 - `ibeacon_uuid` (String) optional, if not specified, the same UUID as the beacon will be used
 - `power` (Number) required if `power_mode`==`custom`
-- `power_mode` (String)
+- `power_mode` (String) enum: `custom`, `default`
 
 
 <a id="nestedatt--config_push_policy"></a>
@@ -287,7 +287,7 @@ Optional:
 - `hostname` (List of String) if `protocol`==`http`
 - `name` (String)
 - `network` (String)
-- `protocol` (String)
+- `protocol` (String) enum: `http`, `udp`
 - `url` (String) if `protocol`==`http`
 - `vrf` (String)
 
@@ -298,7 +298,7 @@ Optional:
 
 Optional:
 
-- `day_of_week` (String)
+- `day_of_week` (String) enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`
 - `enable` (Boolean)
 - `time_of_day` (String) optional, Mist will decide the timing
 
@@ -521,7 +521,7 @@ Optional:
 - `mesh_enabled` (Boolean) whether to enable Mesh feature for the site
 - `mesh_psk` (String, Sensitive) optional passphrase of mesh networking, default is generated randomly
 - `mesh_ssid` (String) optional ssid of mesh networking, default is based on site_id
-- `proxy_arp` (String) default / enabled / disabled
+- `proxy_arp` (String) enum: `default`, `disabled`, `enabled`
 
 
 <a id="nestedatt--wired_vna"></a>

@@ -40,8 +40,10 @@ func OrgVpnResourceSchema(ctx context.Context) schema.Schema {
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"bfd_profile": schema.StringAttribute{
-							Optional: true,
-							Computed: true,
+							Optional:            true,
+							Computed:            true,
+							Description:         "enum: `broadband`, `lte`",
+							MarkdownDescription: "enum: `broadband`, `lte`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",

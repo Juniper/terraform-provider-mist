@@ -158,7 +158,7 @@ port_mirroring can be added under device/site settings. It takes interface and p
 - `model` (String) device Model
 - `org_id` (String)
 - `serial` (String) device Serial
-- `type` (String) Device Type
+- `type` (String) Device Type. enum: `switch`
 
 <a id="nestedatt--acl_policies"></a>
 ### Nested Schema for `acl_policies`
@@ -176,7 +176,7 @@ Optional:
 
 Optional:
 
-- `action` (String)
+- `action` (String) enum: `allow`, `deny`
 - `dst_tag` (String)
 
 
@@ -186,7 +186,7 @@ Optional:
 
 Required:
 
-- `type` (String)
+- `type` (String) enum: `any`, `dynamic_gbp`, `mac`, `network`, `radius_group`, `resource`, `static_gbp`, `subnet`
 
 Optional:
 
@@ -197,14 +197,15 @@ Optional:
 - `type`==`mac`
 - `type`==`static_gbp` if from matching mac
 - `network` (String) if:
-- `type`==`mac` (optional. default is `any`)
-- `type`==`subnet` (optional. default is `any`)
-- `type`==`network`
-- `type`==`resource` (optional. default is `any`)
-- `type`==`static_gbp` if from matching network (vlan)
-- `radius_group` (String) required if 
-- `type`==`radius_group` 
-- `type`==`static_gbp` if from matching radius_group
+  * `type`==`mac` (optional. default is `any`)
+  * `type`==`subnet` (optional. default is `any`)
+  * `type`==`network`
+  * `type`==`resource` (optional. default is `any`)
+  * `type`==`static_gbp` if from matching network (vlan)'
+- `radius_group` (String) required if:
+  * `type`==`radius_group`
+  * `type`==`static_gbp`
+if from matching radius_group
 - `specs` (Attributes List) if `type`==`resource`
 empty means unrestricted, i.e. any (see [below for nested schema](#nestedatt--acl_tags--specs))
 - `subnets` (List of String) if 
@@ -261,11 +262,11 @@ Optional:
 should overwrite the Sever Identifier option (i.e. DHCP option 54) in DHCP responses with its own IP address.
 - `servers` (List of String) if `type`==`relay`
 - `servers6` (List of String) if `type6`==`relay`
-- `type` (String) DHCP Server (local) or DHCP Relay (relay)
-- `type6` (String) DHCP Server (local) or DHCP Relay (relay)
+- `type` (String) enum: `local` (DHCP Server), `none`, `relay` (DHCP Relay)
+- `type6` (String) enum: `local` (DHCP Server), `none`, `relay` (DHCP Relay)
 - `vendor_encapulated` (Attributes Map) Property key is <enterprise number>:<sub option code>, with
-* enterprise number: 1-65535 (https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers)
-* sub option code: 1-255, sub-option code (see [below for nested schema](#nestedatt--dhcpd_config--config--vendor_encapulated))
+  * enterprise number: 1-65535 (https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers)
+  * sub option code: 1-255, sub-option code' (see [below for nested schema](#nestedatt--dhcpd_config--config--vendor_encapulated))
 
 <a id="nestedatt--dhcpd_config--config--fixed_bindings"></a>
 ### Nested Schema for `dhcpd_config.config.fixed_bindings`
@@ -284,7 +285,7 @@ Optional:
 
 Optional:
 
-- `type` (String)
+- `type` (String) enum: `boolean`, `hex`, `int16`, `int32`, `ip`, `string`, `uint16`, `uint32`
 - `value` (String)
 
 
@@ -293,7 +294,7 @@ Optional:
 
 Optional:
 
-- `type` (String)
+- `type` (String) enum: `boolean`, `hex`, `int16`, `int32`, `ip`, `string`, `uint16`, `uint32`
 - `value` (String)
 
 
@@ -305,7 +306,7 @@ Optional:
 Optional:
 
 - `enabled` (Boolean)
-- `role` (String)
+- `role` (String) enum: `access`, `core`, `distribution`
 
 
 <a id="nestedatt--extra_routes"></a>
@@ -369,7 +370,7 @@ Optional:
 - `ip` (String)
 - `netmask` (String) used only if `subnet` is not specified in `networks`
 - `network` (String) the network where this mgmt IP reside, this will be used as default network for outbound-ssh, dns, ntp, dns, tacplus, radius, syslog, snmp
-- `type` (String)
+- `type` (String) enum: `dhcp`, `static`
 
 
 <a id="nestedatt--mist_nac"></a>
@@ -405,7 +406,7 @@ Optional:
 - `ip` (String)
 - `netmask` (String) used only if `subnet` is not specified in `networks`
 - `network` (String) optional, the network to be used for mgmt
-- `type` (String)
+- `type` (String) enum: `dhcp`, `static`
 - `use_mgmt_vrf` (Boolean) f supported on the platform. If enabled, DNS will be using this routing-instance, too
 - `use_mgmt_vrf_for_host_out` (Boolean) for host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired,
 
@@ -438,8 +439,8 @@ Optional:
 - `ip6` (String) required if `type6`==`static`
 - `netmask` (String) optional, `subnet` from `network` definition will be used if defined
 - `netmask6` (String) optional, `subnet` from `network` definition will be used if defined
-- `type` (String)
-- `type6` (String)
+- `type` (String) enum: `dhcp`, `static`
+- `type6` (String) enum: `autoconf`, `dhcp`, `disabled`, `static`
 
 
 <a id="nestedatt--port_config"></a>
@@ -460,13 +461,13 @@ Optional:
 - `critical` (Boolean) if want to generate port up/down alarm
 - `description` (String)
 - `disable_autoneg` (Boolean) if `speed` and `duplex` are specified, whether to disable autonegotiation
-- `duplex` (String)
+- `duplex` (String) enum: `auto`, `full`, `half`
 - `dynamic_usage` (String) Enable dynamic usage for this port. Set to `dynamic` to enable.
 - `esilag` (Boolean)
 - `mtu` (Number) media maximum transmission unit (MTU) is the largest data unit that can be forwarded without fragmentation
 - `no_local_overwrite` (Boolean) prevent helpdesk to override the port config
 - `poe_disabled` (Boolean)
-- `speed` (String)
+- `speed` (String) enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `auto`
 
 
 <a id="nestedatt--port_mirroring"></a>
@@ -496,7 +497,7 @@ When it is not defined, it means using the system’s default setting which depe
 - `description` (String) Only if `mode`!=`dynamic`
 - `disable_autoneg` (Boolean) Only if `mode`!=`dynamic` if speed and duplex are specified, whether to disable autonegotiation
 - `disabled` (Boolean) Only if `mode`!=`dynamic` whether the port is disabled
-- `duplex` (String) Only if `mode`!=`dynamic` link connection mode
+- `duplex` (String) Only if `mode`!=`dynamic` link connection mode. enum: `auto`, `full`, `half`
 - `dynamic_vlan_networks` (List of String) Only if `mode`!=`dynamic` and `port_auth`==`dot1x`, if dynamic vlan is used, specify the possible networks/vlans RADIUS can return
 - `enable_mac_auth` (Boolean) Only if `mode`!=`dynamic` and `port_auth`==`dot1x` whether to enable MAC Auth
 - `enable_qos` (Boolean) Only if `mode`!=`dynamic`
@@ -504,19 +505,18 @@ When it is not defined, it means using the system’s default setting which depe
 - `inter_switch_link` (Boolean) Only if `mode`!=`dynamic` inter_switch_link is used together with "isolation" under networks
 NOTE: inter_switch_link works only between Juniper device. This has to be applied to both ports connected together
 - `mac_auth_only` (Boolean) Only if `mode`!=`dynamic` and `enable_mac_auth`==`true`
-- `mac_auth_protocol` (String) Only if `mode`!=`dynamic` and `enable_mac_auth` ==`true`. This type is ignored if mist_nac is enabled.
+- `mac_auth_protocol` (String) Only if `mode`!=`dynamic` and `enable_mac_auth` ==`true`. This type is ignored if mist_nac is enabled. enum: `eap-md5`, `eap-peap`, `pap`
 - `mac_limit` (Number) Only if `mode`!=`dynamic` max number of mac addresses, default is 0 for unlimited, otherwise range is 1 or higher, with upper bound constrained by platform
-- `mode` (String) `mode`==`dynamic` must only be used with the port usage with the name `dynamic`
+- `mode` (String) `mode`==`dynamic` must only be used with the port usage with the name `dynamic`. enum: `access`, `dynamic`, `inet`, `trunk`
 - `mtu` (Number) Only if `mode`!=`dynamic` media maximum transmission unit (MTU) is the largest data unit that can be forwarded without fragmentation. The default value is 1514.
 - `networks` (List of String) Only if `mode`==`trunk`, the list of network/vlans
 - `persist_mac` (Boolean) Only if `mode`==`access` and `port_auth`!=`dot1x` whether the port should retain dynamically learned MAC addresses
 - `poe_disabled` (Boolean) Only if `mode`!=`dynamic` whether PoE capabilities are disabled for a port
-- `port_auth` (String) Only if `mode`!=`dynamic` if dot1x is desired, set to dot1x
+- `port_auth` (String) Only if `mode`!=`dynamic` if dot1x is desired, set to dot1x. enum: `dot1x`
 - `port_network` (String) Only if `mode`!=`dynamic` native network/vlan for untagged traffic
 - `reauth_interval` (Number) Only if `mode`!=`dynamic` and `port_auth`=`dot1x` reauthentication interval range
 - `rejected_network` (String) Only if `mode`!=`dynamic` and `port_auth`==`dot1x` when radius server reject / fails
-- `reset_default_when` (String) Only if `mode`==`dynamic` Control when the DPC port should be changed to the default port usage
-Configuring to none will let the DPC port keep at the current port usage.
+- `reset_default_when` (String) Only if `mode`==`dynamic` Control when the DPC port should be changed to the default port usage. enum: `link_down`, `none` (let the DPC port keep at the current port usage)
 - `rules` (Attributes List) Only if `mode`==`dynamic` (see [below for nested schema](#nestedatt--port_usages--rules))
 - `speed` (String) Only if `mode`!=`dynamic` speed, default is auto to automatically negotiate speed
 - `storm_control` (Attributes) Switch storm control
@@ -529,7 +529,7 @@ Only if `mode`!=`dynamic` (see [below for nested schema](#nestedatt--port_usages
 
 Required:
 
-- `src` (String)
+- `src` (String) enum: `link_peermac`, `lldp_chassis_id`, `lldp_hardware_revision`, `lldp_manufacturer_name`, `lldp_oui`, `lldp_serial_number`, `lldp_system_name`, `radius_dynamicfilter`, `radius_usermac`, `radius_username`
 
 Optional:
 
@@ -581,7 +581,7 @@ Required:
 Optional:
 
 - `keywrap_enabled` (Boolean)
-- `keywrap_format` (String)
+- `keywrap_format` (String) enum: `ascii`, `hex`
 - `keywrap_kek` (String)
 - `keywrap_mack` (String)
 - `port` (Number) Acct port of RADIUS server
@@ -598,7 +598,7 @@ Required:
 Optional:
 
 - `keywrap_enabled` (Boolean)
-- `keywrap_format` (String)
+- `keywrap_format` (String) enum: `ascii`, `hex`
 - `keywrap_kek` (String)
 - `keywrap_mack` (String)
 - `port` (Number) Auth port of RADIUS server
@@ -617,7 +617,7 @@ Optional:
 - `network` (String) if source_address is configured, will use the vlan firstly otherwise use source_ip
 - `send_to_all_servers` (Boolean)
 - `servers` (Attributes List) (see [below for nested schema](#nestedatt--remote_syslog--servers))
-- `time_format` (String)
+- `time_format` (String) enum: `millisecond`, `year`, `year millisecond`
 - `users` (Attributes List) (see [below for nested schema](#nestedatt--remote_syslog--users))
 
 <a id="nestedatt--remote_syslog--archive"></a>
@@ -641,8 +641,8 @@ Optional:
 
 Optional:
 
-- `facility` (String)
-- `severity` (String)
+- `facility` (String) enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`
+- `severity` (String) enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`
 
 
 
@@ -672,8 +672,8 @@ Optional:
 
 Optional:
 
-- `facility` (String)
-- `severity` (String)
+- `facility` (String) enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`
+- `severity` (String) enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`
 
 
 
@@ -684,13 +684,13 @@ Optional:
 
 - `contents` (Attributes List) (see [below for nested schema](#nestedatt--remote_syslog--servers--contents))
 - `explicit_priority` (Boolean)
-- `facility` (String)
+- `facility` (String) enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`
 - `host` (String)
 - `match` (String)
 - `port` (Number)
-- `protocol` (String)
+- `protocol` (String) enum: `tcp`, `udp`
 - `routing_instance` (String)
-- `severity` (String)
+- `severity` (String) enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`
 - `source_address` (String) if source_address is configured, will use the vlan firstly otherwise use source_ip
 - `structured_data` (Boolean)
 - `tag` (String)
@@ -700,8 +700,8 @@ Optional:
 
 Optional:
 
-- `facility` (String)
-- `severity` (String)
+- `facility` (String) enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`
+- `severity` (String) enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`
 
 
 
@@ -719,8 +719,8 @@ Optional:
 
 Optional:
 
-- `facility` (String)
-- `severity` (String)
+- `facility` (String) enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`
+- `severity` (String) enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`
 
 
 
@@ -734,7 +734,7 @@ Optional:
 - `contact` (String)
 - `description` (String)
 - `enabled` (Boolean)
-- `engine_id` (String)
+- `engine_id` (String) enum: `engine-id-suffix`, `local`, `use-default-ip-address`, `use_mac-address`
 - `location` (String)
 - `name` (String)
 - `network` (String)
@@ -760,7 +760,7 @@ Optional:
 - `categories` (List of String)
 - `group_name` (String) Categories list can refer to https://www.juniper.net/documentation/software/topics/task/configuration/snmp_trap-groups-configuring-junos-nm.html
 - `targets` (List of String)
-- `version` (String)
+- `version` (String) enum: `all`, `v1`, `v2`
 
 
 <a id="nestedatt--snmp_config--v2c_config"></a>
@@ -793,7 +793,7 @@ Optional:
 
 - `name` (String)
 - `tag` (String)
-- `type` (String)
+- `type` (String) enum: `inform`, `trap`
 
 
 <a id="nestedatt--snmp_config--v3_config--notify_filter"></a>
@@ -832,11 +832,11 @@ Optional:
 
 Optional:
 
-- `message_processing_model` (String)
+- `message_processing_model` (String) enum: `v1`, `v2c`, `v3`
 - `name` (String)
 - `notify_filter` (String) refer to profile-name in notify_filter
-- `security_level` (String)
-- `security_model` (String)
+- `security_level` (String) enum: `authentication`, `none`, `privacy`
+- `security_model` (String) enum: `usm`, `v1`, `v2c`
 - `security_name` (String) refer to security_name in usm
 
 
@@ -845,7 +845,7 @@ Optional:
 
 Optional:
 
-- `engine_type` (String)
+- `engine_type` (String) enum: `local_engine`, `remote_engine`
 - `engineid` (String) required only if `engine_type`==`remote_engine`
 - `users` (Attributes List) (see [below for nested schema](#nestedatt--snmp_config--v3_config--usm--users))
 
@@ -856,10 +856,10 @@ Optional:
 
 - `authentication_password` (String, Sensitive) Not required if `authentication_type`==`authentication_none`
 include alphabetic, numeric, and special characters, but it cannot include control characters.
-- `authentication_type` (String) sha224, sha256, sha384, sha512 are supported in 21.1 and newer release
+- `authentication_type` (String) sha224, sha256, sha384, sha512 are supported in 21.1 and newer release. enum: `authentication_md5`, `authentication_none`, `authentication_sha`, `authentication_sha224`, `authentication_sha256`, `authentication_sha384`, `authentication_sha512`
 - `encryption_password` (String, Sensitive) Not required if `encryption_type`==`privacy-none`
 include alphabetic, numeric, and special characters, but it cannot include control characters
-- `encryption_type` (String)
+- `encryption_type` (String) enum: `privacy-3des`, `privacy-aes128`, `privacy-des`, `privacy-none`
 - `name` (String)
 
 
@@ -888,9 +888,9 @@ Optional:
 - `context_prefix` (String) only required if `type`==`context_prefix`
 - `notify_view` (String) refer to view name
 - `read_view` (String) refer to view name
-- `security_level` (String)
-- `security_model` (String)
-- `type` (String)
+- `security_level` (String) enum: `authentication`, `none`, `privacy`
+- `security_model` (String) enum: `any`, `usm`, `v1`, `v2c`
+- `type` (String) enum: `context_prefix`, `default_context_prefix`
 - `write_view` (String) refer to view name
 
 
@@ -901,7 +901,7 @@ Optional:
 Optional:
 
 - `content` (Attributes List) (see [below for nested schema](#nestedatt--snmp_config--v3_config--vacm--security_to_group--content))
-- `security_model` (String)
+- `security_model` (String) enum: `usm`, `v1`, `v2c`
 
 <a id="nestedatt--snmp_config--v3_config--vacm--security_to_group--content"></a>
 ### Nested Schema for `snmp_config.v3_config.vacm.security_to_group.content`
@@ -931,7 +931,7 @@ Optional:
 
 Optional:
 
-- `type` (String)
+- `type` (String) enum: `rstp`, `vstp`
 
 
 <a id="nestedatt--switch_mgmt"></a>
@@ -964,7 +964,7 @@ e.g. ntp / dns / traffic to mist will be allowed by default
 Optional:
 
 - `port_range` (String) matched dst port, "0" means any
-- `protocol` (String)
+- `protocol` (String) enum: `any`, `icmp`, `tcp`, `udp`
 - `subnet` (List of String)
 
 
@@ -975,7 +975,7 @@ Optional:
 Optional:
 
 - `acct_servers` (Attributes List) (see [below for nested schema](#nestedatt--switch_mgmt--tacacs--acct_servers))
-- `default_role` (String)
+- `default_role` (String) enum: `admin`, `helpdesk`, `none`, `read`
 - `enabled` (Boolean)
 - `network` (String) which network the TACACS server resides
 - `tacplus_servers` (Attributes List) (see [below for nested schema](#nestedatt--switch_mgmt--tacacs--tacplus_servers))
@@ -1019,7 +1019,7 @@ Optional:
 
 - `mac` (String) fpc0, same as the mac of device_id
 - `member_id` (Number)
-- `vc_role` (String) Both vc_role master and backup will be matched to routing-engine role in Junos preprovisioned VC config
+- `vc_role` (String) Both vc_role master and backup will be matched to routing-engine role in Junos preprovisioned VC config. enum: `backup`, `linecard`, `master`
 
 
 

@@ -55,28 +55,32 @@ func OrgMxEdgeResourceSchema(ctx context.Context) schema.Schema {
 						Sensitive: true,
 					},
 					"oob_ip_type": schema.StringAttribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "enum: `dhcp`, `disabled`, `static`",
+						MarkdownDescription: "enum: `dhcp`, `disabled`, `static`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
 								"dhcp",
-								"static",
 								"disabled",
+								"static",
 							),
 						},
 						Default: stringdefault.StaticString("dhcp"),
 					},
 					"oob_ip_type6": schema.StringAttribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "enum: `autoconf`, `dhcp`, `disabled`, `static`",
+						MarkdownDescription: "enum: `autoconf`, `dhcp`, `disabled`, `static`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
 								"autoconf",
 								"dhcp",
-								"static",
 								"disabled",
+								"static",
 							),
 						},
 						Default: stringdefault.StaticString("autoconf"),
@@ -149,25 +153,29 @@ func OrgMxEdgeResourceSchema(ctx context.Context) schema.Schema {
 						Optional: true,
 					},
 					"type": schema.StringAttribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "enum: `dhcp`, `static`",
+						MarkdownDescription: "enum: `dhcp`, `static`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
-								"static",
 								"dhcp",
+								"static",
 							),
 						},
 						Default: stringdefault.StaticString("dhcp"),
 					},
 					"type6": schema.StringAttribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "enum: `dhcp`, `static`",
+						MarkdownDescription: "enum: `dhcp`, `static`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
-								"static",
 								"dhcp",
+								"static",
 							),
 						},
 						Default: stringdefault.StaticString("dhcp"),
@@ -224,8 +232,10 @@ func OrgMxEdgeResourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "list of DHCP servers; required if `type`==`relay`",
 						},
 						"type": schema.StringAttribute{
-							Optional: true,
-							Computed: true,
+							Optional:            true,
+							Computed:            true,
+							Description:         "enum: `relay`",
+							MarkdownDescription: "enum: `relay`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",

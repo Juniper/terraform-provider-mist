@@ -161,7 +161,7 @@ see https://www.openssl.org/docs/man1.1.1/man3/SSL_CTX_set_security_level.html#D
 For strict GDPR compliancy NAC POD failover would only happen between the PODs located within the EU environment, and no authentication would take place outside of EU. This is an org setting that is applicable to WLANs, switch templates, mxedge clusters that have mist_nac enabled
 - `idps` (Attributes List) (see [below for nested schema](#nestedatt--mist_nac--idps))
 - `server_cert` (Attributes) radius server cert to be presented in EAP TLS (see [below for nested schema](#nestedatt--mist_nac--server_cert))
-- `use_ip_version` (String) by default NAS devices(switches/aps) and proxies(mxedge) are configured to reach mist-nac via IPv4
+- `use_ip_version` (String) by default NAS devices(switches/aps) and proxies(mxedge) are configured to reach mist-nac via IPv4. enum: `v4`, `v6`
 - `use_ssl_port` (Boolean) By default NAS devices (switches/aps) and proxies(mxedge) are configured to use port TCP2083(radsec) to reach mist-nac. 
 Set `use_ssl_port`==`true` to override that port with TCP43 (ssl), 
 This is a org level setting that is applicable to wlans, switch_templates, and mxedge_clusters that have mist-nac enabled
@@ -196,8 +196,8 @@ Optional:
 
 - `fips_enabled` (Boolean)
 - `mist_password` (String, Sensitive)
-- `oob_ip_type` (String)
-- `oob_ip_type6` (String)
+- `oob_ip_type` (String) enum: `dhcp`, `disabled`, `static`
+- `oob_ip_type6` (String) enum: `autoconf`, `dhcp`, `disabled`, `static`
 - `root_password` (String, Sensitive)
 
 

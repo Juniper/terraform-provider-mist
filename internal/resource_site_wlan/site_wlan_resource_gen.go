@@ -59,12 +59,14 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 							Optional: true,
 						},
 						"keywrap_format": schema.StringAttribute{
-							Optional: true,
+							Optional:            true,
+							Description:         "enum: `ascii`, `hex`",
+							MarkdownDescription: "enum: `ascii`, `hex`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
-									"hex",
 									"ascii",
+									"hex",
 								),
 							},
 						},
@@ -321,13 +323,15 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "app qos wlan settings",
 			},
 			"apply_to": schema.StringAttribute{
-				Optional: true,
+				Optional:            true,
+				Description:         "enum: `aps`, `site`, `wxtags`",
+				MarkdownDescription: "enum: `aps`, `site`, `wxtags`",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
+						"aps",
 						"site",
 						"wxtags",
-						"aps",
 					),
 				},
 			},
@@ -376,8 +380,8 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 					"key_idx": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "when type=wep",
-						MarkdownDescription: "when type=wep",
+						Description:         "when `type`==`wep`",
+						MarkdownDescription: "when `type`==`wep`",
 						Validators: []validator.Int64{
 							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("wep")),
 						},
@@ -396,8 +400,8 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 					"multi_psk_only": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "whether to only use multi_psk",
-						MarkdownDescription: "whether to only use multi_psk",
+						Description:         "when `type`==`psk`, whether to only use multi_psk",
+						MarkdownDescription: "when `type`==`psk`, whether to only use multi_psk",
 						Validators: []validator.Bool{
 							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("multi_psk_only"), types.BoolValue(true)),
 						},
@@ -406,8 +410,8 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 					"owe": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "`enabled` means transition mode",
-						MarkdownDescription: "`enabled` means transition mode",
+						Description:         "if `type`==`open`. enum: `disabled`, `enabled` (means transition mode), `required`",
+						MarkdownDescription: "if `type`==`open`. enum: `disabled`, `enabled` (means transition mode), `required`",
 						Validators: []validator.String{
 							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("open")),
 						},
@@ -417,8 +421,8 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						ElementType:         types.StringType,
 						Optional:            true,
 						Computed:            true,
-						Description:         "when type=psk / eap, one or more of wpa2-ccmp / wpa1-tkip / wpa1-ccmp / wpa2-tkip",
-						MarkdownDescription: "when type=psk / eap, one or more of wpa2-ccmp / wpa1-tkip / wpa1-ccmp / wpa2-tkip",
+						Description:         "when `type`=`psk` or `type`=`eap`, one or more of `wpa1-ccmp`, `wpa1-tkip`, `wpa2-ccmp`, `wpa2-tkip`, `wpa3`",
+						MarkdownDescription: "when `type`=`psk` or `type`=`eap`, one or more of `wpa1-ccmp`, `wpa1-tkip`, `wpa2-ccmp`, `wpa2-tkip`, `wpa3`",
 						Validators: []validator.List{
 							mistvalidator.AllowedWhenValueIsIn(
 								path.MatchRelative().AtParent().AtName("type"),
@@ -435,16 +439,16 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 					"private_wlan": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "whether private wlan is enabled. only applicable to multi_psk mode",
-						MarkdownDescription: "whether private wlan is enabled. only applicable to multi_psk mode",
+						Description:         "when `multi_psk_only`==`true`, whether private wlan is enabled",
+						MarkdownDescription: "when `multi_psk_only`==`true`, whether private wlan is enabled",
 						Default:             booldefault.StaticBool(false),
 					},
 					"psk": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
 						Sensitive:           true,
-						Description:         "when type=psk, 8-64 characters, or 64 hex characters",
-						MarkdownDescription: "when type=psk, 8-64 characters, or 64 hex characters",
+						Description:         "when `type`==`psk`, 8-64 characters, or 64 hex characters",
+						MarkdownDescription: "when `type`==`psk`, 8-64 characters, or 64 hex characters",
 						Validators: []validator.String{
 							stringvalidator.LengthBetween(8, 64),
 							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("psk")),
@@ -452,18 +456,20 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						Default: stringdefault.StaticString(""),
 					},
 					"type": schema.StringAttribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "enum: `eap`, `eap192`, `open`, `psk`, `psk-tkip`, `psk-wpa2-tkip`, `wep`",
+						MarkdownDescription: "enum: `eap`, `eap192`, `open`, `psk`, `psk-tkip`, `psk-wpa2-tkip`, `wep`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
-								"open",
-								"psk",
-								"wep",
 								"eap",
 								"eap192",
+								"open",
+								"psk",
 								"psk-tkip",
 								"psk-wpa2-tkip",
+								"wep",
 							),
 						},
 						Default: stringdefault.StaticString("open"),
@@ -488,8 +494,8 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 			"auth_server_selection": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "When ordered, AP will prefer and go back to the first server if possible",
-				MarkdownDescription: "When ordered, AP will prefer and go back to the first server if possible",
+				Description:         "When ordered, AP will prefer and go back to the first server if possible. enum: `ordered`, `unordered`",
+				MarkdownDescription: "When ordered, AP will prefer and go back to the first server if possible. enum: `ordered`, `unordered`",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -511,12 +517,14 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 							Optional: true,
 						},
 						"keywrap_format": schema.StringAttribute{
-							Optional: true,
+							Optional:            true,
+							Description:         "enum: `ascii`, `hex`",
+							MarkdownDescription: "enum: `ascii`, `hex`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
-									"hex",
 									"ascii",
+									"hex",
 								),
 							},
 						},
@@ -645,14 +653,14 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 								"scope": schema.StringAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "how bonjour services should be discovered for the same WLAN",
-									MarkdownDescription: "how bonjour services should be discovered for the same WLAN",
+									Description:         "how bonjour services should be discovered for the same WLAN. enum: `same_ap`, `same_map`, `same_site`",
+									MarkdownDescription: "how bonjour services should be discovered for the same WLAN. enum: `same_ap`, `same_map`, `same_site`",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
-											"same_site",
-											"same_map",
 											"same_ap",
+											"same_map",
+											"same_site",
 										),
 									},
 									Default: stringdefault.StaticString("same_site"),
@@ -736,6 +744,9 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "kbps",
 				MarkdownDescription: "kbps",
+				Validators: []validator.Int64{
+					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("client_limit_down_enabled"), types.BoolValue(true)),
+				},
 			},
 			"client_limit_down_enabled": schema.BoolAttribute{
 				Optional:            true,
@@ -748,6 +759,9 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "kbps",
 				MarkdownDescription: "kbps",
+				Validators: []validator.Int64{
+					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("client_limit_up_enabled"), types.BoolValue(true)),
+				},
 			},
 			"client_limit_up_enabled": schema.BoolAttribute{
 				Optional:            true,
@@ -904,13 +918,15 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						Default:             booldefault.StaticBool(false),
 					},
 					"source": schema.StringAttribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "enum: `cloud_psks`, `radius`",
+						MarkdownDescription: "enum: `cloud_psks`, `radius`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
-								"radius",
 								"cloud_psks",
+								"radius",
 							),
 						},
 						Default: stringdefault.StaticString("radius"),
@@ -960,13 +976,13 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 					"type": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "standard (using Tunnel-Private-Group-ID, widely supported), airespace-interface-name (Airespace/Cisco)",
-						MarkdownDescription: "standard (using Tunnel-Private-Group-ID, widely supported), airespace-interface-name (Airespace/Cisco)",
+						Description:         "standard (using Tunnel-Private-Group-ID, widely supported), airespace-interface-name (Airespace/Cisco). enum: `airespace-interface-name`, `standard`",
+						MarkdownDescription: "standard (using Tunnel-Private-Group-ID, widely supported), airespace-interface-name (Airespace/Cisco). enum: `airespace-interface-name`, `standard`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
-								"standard",
 								"airespace-interface-name",
+								"standard",
 							),
 						},
 						Default: stringdefault.StaticString("standard"),
@@ -1108,8 +1124,8 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 			"interface": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "where this WLAN will be connected to",
-				MarkdownDescription: "where this WLAN will be connected to",
+				Description:         "where this WLAN will be connected to. enum: `all`, `eth0`, `eth1`, `eth2`, `eth3`, `mxtunnel`, `site_mxedge`, `wxtunnel`",
+				MarkdownDescription: "where this WLAN will be connected to. enum: `all`, `eth0`, `eth1`, `eth2`, `eth3`, `mxtunnel`, `site_mxedge`, `wxtunnel`",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -1118,9 +1134,9 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						"eth1",
 						"eth2",
 						"eth3",
-						"wxtunnel",
 						"mxtunnel",
 						"site_mxedge",
+						"wxtunnel",
 					),
 				},
 				Default: stringdefault.StaticString("all"),
@@ -1274,13 +1290,13 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 					"auth": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "authentication scheme",
-						MarkdownDescription: "authentication scheme",
+						Description:         "authentication scheme. enum: `external`, `none`, `sso`",
+						MarkdownDescription: "authentication scheme. enum: `external`, `none`, `sso`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
-								"none",
 								"external",
+								"none",
 								"sso",
 							),
 						},
@@ -1603,18 +1619,20 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						Default:  stringdefault.StaticString(""),
 					},
 					"sms_provider": schema.StringAttribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "enum: `broadnet`, `clickatell`, `gupshup`, `manual`, `puzzel`, `telstra`, `twilio`",
+						MarkdownDescription: "enum: `broadnet`, `clickatell`, `gupshup`, `manual`, `puzzel`, `telstra`, `twilio`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
-								"manual",
-								"twilio",
 								"broadnet",
 								"clickatell",
-								"puzzel",
 								"gupshup",
+								"manual",
+								"puzzel",
 								"telstra",
+								"twilio",
 							),
 						},
 						Default: stringdefault.StaticString("manual"),
@@ -1717,8 +1735,10 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						Default:             stringdefault.StaticString(""),
 					},
 					"sso_nameid_format": schema.StringAttribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "enum: `email`, `unspecified`",
+						MarkdownDescription: "enum: `email`, `unspecified`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -1828,8 +1848,10 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 			"qos": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"class": schema.StringAttribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "enum: `background`, `best_effort`, `video`, `voice`",
+						MarkdownDescription: "enum: `background`, `best_effort`, `video`, `voice`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -1949,14 +1971,16 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "Radsec settings",
 			},
 			"roam_mode": schema.StringAttribute{
-				Optional: true,
-				Computed: true,
+				Optional:            true,
+				Computed:            true,
+				Description:         "enum: `11r`, `OKC`, `none`",
+				MarkdownDescription: "enum: `11r`, `OKC`, `none`",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
-						"none",
-						"OKC",
 						"11r",
+						"OKC",
+						"none",
 					),
 				},
 				Default: stringdefault.StaticString("none"),

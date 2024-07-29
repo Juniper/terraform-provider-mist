@@ -60,7 +60,7 @@ resource "mist_org_setting" "terraform_test" {
 
 Optional:
 
-- `bfd_profile` (String)
+- `bfd_profile` (String) enum: `broadband`, `lte`
 - `ip` (String) if different from the wan port
 - `pod` (Number)
 

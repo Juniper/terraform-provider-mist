@@ -24,13 +24,15 @@ func OrgIdpprofileResourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"base_profile": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "enum: `critical`, `standard`, `strict`",
+				MarkdownDescription: "enum: `critical`, `standard`, `strict`",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
 						"critical",
-						"strict",
 						"standard",
+						"strict",
 					),
 				},
 			},
@@ -52,14 +54,14 @@ func OrgIdpprofileResourceSchema(ctx context.Context) schema.Schema {
 						"action": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "Possible values:\n  * alert (default) \n  * drop: siliently dropping packets\n  * close: notify client/server to close connection",
-							MarkdownDescription: "Possible values:\n  * alert (default) \n  * drop: siliently dropping packets\n  * close: notify client/server to close connection",
+							Description:         "enum:\n  * alert (default)\n  * drop: siliently dropping packets\n  * close: notify client/server to close connection",
+							MarkdownDescription: "enum:\n  * alert (default)\n  * drop: siliently dropping packets\n  * close: notify client/server to close connection",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
 									"alert",
-									"drop",
 									"close",
+									"drop",
 								),
 							},
 							Default: stringdefault.StaticString("alert"),

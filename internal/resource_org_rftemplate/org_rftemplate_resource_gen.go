@@ -57,16 +57,18 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 						Default: int64default.StaticInt64(0),
 					},
 					"antenna_mode": schema.StringAttribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
+						MarkdownDescription: "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
-								"default",
 								"1x1",
 								"2x2",
 								"3x3",
 								"4x4",
+								"default",
 							),
 						},
 						Default: stringdefault.StaticString("default"),
@@ -74,8 +76,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					"bandwidth": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "channel width for the 2.4GHz band",
-						MarkdownDescription: "channel width for the 2.4GHz band",
+						Description:         "channel width for the 2.4GHz band. enum: `20`, `40`",
+						MarkdownDescription: "channel width for the 2.4GHz band. enum: `20`, `40`",
 						Validators: []validator.Int64{
 							int64validator.OneOf(
 								20,
@@ -129,14 +131,16 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 						Default: int64default.StaticInt64(8),
 					},
 					"preamble": schema.StringAttribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "enum: `auto`, `long`, `short`",
+						MarkdownDescription: "enum: `auto`, `long`, `short`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
-								"short",
-								"long",
 								"auto",
+								"long",
+								"short",
 							),
 						},
 						Default: stringdefault.StaticString("short"),
@@ -152,7 +156,9 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "Radio Band AP settings",
 			},
 			"band_24_usage": schema.StringAttribute{
-				Optional: true,
+				Optional:            true,
+				Description:         "enum: `24`, `5`, `6`, `auto`",
+				MarkdownDescription: "enum: `24`, `5`, `6`, `auto`",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -179,24 +185,26 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 						Default: int64default.StaticInt64(0),
 					},
 					"antenna_mode": schema.StringAttribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
+						MarkdownDescription: "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
-								"default",
 								"1x1",
 								"2x2",
 								"3x3",
 								"4x4",
+								"default",
 							),
 						},
 						Default: stringdefault.StaticString("default"),
 					},
 					"bandwidth": schema.Int64Attribute{
 						Optional:            true,
-						Description:         "channel width for the 5GHz band",
-						MarkdownDescription: "channel width for the 5GHz band",
+						Description:         "channel width for the 5GHz band. enum: `20`, `40`, `80`",
+						MarkdownDescription: "channel width for the 5GHz band. enum: `20`, `40`, `80`",
 						Validators: []validator.Int64{
 							int64validator.OneOf(
 								20,
@@ -250,14 +258,16 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 						Default: int64default.StaticInt64(8),
 					},
 					"preamble": schema.StringAttribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "enum: `auto`, `long`, `short`",
+						MarkdownDescription: "enum: `auto`, `long`, `short`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
-								"short",
-								"long",
 								"auto",
+								"long",
+								"short",
 							),
 						},
 						Default: stringdefault.StaticString("short"),
@@ -288,24 +298,26 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 						Default: int64default.StaticInt64(0),
 					},
 					"antenna_mode": schema.StringAttribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
+						MarkdownDescription: "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
-								"default",
 								"1x1",
 								"2x2",
 								"3x3",
 								"4x4",
+								"default",
 							),
 						},
 						Default: stringdefault.StaticString("default"),
 					},
 					"bandwidth": schema.Int64Attribute{
 						Optional:            true,
-						Description:         "channel width for the 5GHz band",
-						MarkdownDescription: "channel width for the 5GHz band",
+						Description:         "channel width for the 5GHz band. enum: `20`, `40`, `80`",
+						MarkdownDescription: "channel width for the 5GHz band. enum: `20`, `40`, `80`",
 						Validators: []validator.Int64{
 							int64validator.OneOf(
 								20,
@@ -358,14 +370,16 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 						Default: int64default.StaticInt64(8),
 					},
 					"preamble": schema.StringAttribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "enum: `auto`, `long`, `short`",
+						MarkdownDescription: "enum: `auto`, `long`, `short`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
-								"short",
-								"long",
 								"auto",
+								"long",
+								"short",
 							),
 						},
 						Default: stringdefault.StaticString("short"),
@@ -396,16 +410,18 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 						Default: int64default.StaticInt64(0),
 					},
 					"antenna_mode": schema.StringAttribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
+						MarkdownDescription: "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
-								"default",
 								"1x1",
 								"2x2",
 								"3x3",
 								"4x4",
+								"default",
 							),
 						},
 						Default: stringdefault.StaticString("default"),
@@ -413,8 +429,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					"bandwidth": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "channel width for the 6GHz band",
-						MarkdownDescription: "channel width for the 6GHz band",
+						Description:         "channel width for the 6GHz band. enum: `20`, `40`, `80`, `160`",
+						MarkdownDescription: "channel width for the 6GHz band. enum: `20`, `40`, `80`, `160`",
 						Validators: []validator.Int64{
 							int64validator.OneOf(
 								20,
@@ -470,14 +486,16 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 						Default: int64default.StaticInt64(8),
 					},
 					"preamble": schema.StringAttribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "enum: `auto`, `long`, `short`",
+						MarkdownDescription: "enum: `auto`, `long`, `short`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
-								"short",
-								"long",
 								"auto",
+								"long",
+								"short",
 							),
 						},
 						Default: stringdefault.StaticString("short"),
@@ -535,16 +553,18 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 									Default: int64default.StaticInt64(0),
 								},
 								"antenna_mode": schema.StringAttribute{
-									Optional: true,
-									Computed: true,
+									Optional:            true,
+									Computed:            true,
+									Description:         "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
+									MarkdownDescription: "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
-											"default",
 											"1x1",
 											"2x2",
 											"3x3",
 											"4x4",
+											"default",
 										),
 									},
 									Default: stringdefault.StaticString("default"),
@@ -552,8 +572,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								"bandwidth": schema.Int64Attribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "channel width for the 2.4GHz band",
-									MarkdownDescription: "channel width for the 2.4GHz band",
+									Description:         "channel width for the 2.4GHz band. enum: `20`, `40`",
+									MarkdownDescription: "channel width for the 2.4GHz band. enum: `20`, `40`",
 									Validators: []validator.Int64{
 										int64validator.OneOf(
 											20,
@@ -606,14 +626,16 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 									Default: int64default.StaticInt64(8),
 								},
 								"preamble": schema.StringAttribute{
-									Optional: true,
-									Computed: true,
+									Optional:            true,
+									Computed:            true,
+									Description:         "enum: `auto`, `long`, `short`",
+									MarkdownDescription: "enum: `auto`, `long`, `short`",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
-											"short",
-											"long",
 											"auto",
+											"long",
+											"short",
 										),
 									},
 									Default: stringdefault.StaticString("short"),
@@ -629,7 +651,9 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "Radio Band AP settings",
 						},
 						"band_24_usage": schema.StringAttribute{
-							Optional: true,
+							Optional:            true,
+							Description:         "enum: `24`, `5`, `6`, `auto`",
+							MarkdownDescription: "enum: `24`, `5`, `6`, `auto`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -656,24 +680,26 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 									Default: int64default.StaticInt64(0),
 								},
 								"antenna_mode": schema.StringAttribute{
-									Optional: true,
-									Computed: true,
+									Optional:            true,
+									Computed:            true,
+									Description:         "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
+									MarkdownDescription: "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
-											"default",
 											"1x1",
 											"2x2",
 											"3x3",
 											"4x4",
+											"default",
 										),
 									},
 									Default: stringdefault.StaticString("default"),
 								},
 								"bandwidth": schema.Int64Attribute{
 									Optional:            true,
-									Description:         "channel width for the 5GHz band",
-									MarkdownDescription: "channel width for the 5GHz band",
+									Description:         "channel width for the 5GHz band. enum: `20`, `40`, `80`",
+									MarkdownDescription: "channel width for the 5GHz band. enum: `20`, `40`, `80`",
 									Validators: []validator.Int64{
 										int64validator.OneOf(
 											20,
@@ -726,14 +752,16 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 									Default: int64default.StaticInt64(8),
 								},
 								"preamble": schema.StringAttribute{
-									Optional: true,
-									Computed: true,
+									Optional:            true,
+									Computed:            true,
+									Description:         "enum: `auto`, `long`, `short`",
+									MarkdownDescription: "enum: `auto`, `long`, `short`",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
-											"short",
-											"long",
 											"auto",
+											"long",
+											"short",
 										),
 									},
 									Default: stringdefault.StaticString("short"),
@@ -764,24 +792,26 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 									Default: int64default.StaticInt64(0),
 								},
 								"antenna_mode": schema.StringAttribute{
-									Optional: true,
-									Computed: true,
+									Optional:            true,
+									Computed:            true,
+									Description:         "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
+									MarkdownDescription: "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
-											"default",
 											"1x1",
 											"2x2",
 											"3x3",
 											"4x4",
+											"default",
 										),
 									},
 									Default: stringdefault.StaticString("default"),
 								},
 								"bandwidth": schema.Int64Attribute{
 									Optional:            true,
-									Description:         "channel width for the 5GHz band",
-									MarkdownDescription: "channel width for the 5GHz band",
+									Description:         "channel width for the 5GHz band. enum: `20`, `40`, `80`",
+									MarkdownDescription: "channel width for the 5GHz band. enum: `20`, `40`, `80`",
 									Validators: []validator.Int64{
 										int64validator.OneOf(
 											20,
@@ -834,14 +864,16 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 									Default: int64default.StaticInt64(8),
 								},
 								"preamble": schema.StringAttribute{
-									Optional: true,
-									Computed: true,
+									Optional:            true,
+									Computed:            true,
+									Description:         "enum: `auto`, `long`, `short`",
+									MarkdownDescription: "enum: `auto`, `long`, `short`",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
-											"short",
-											"long",
 											"auto",
+											"long",
+											"short",
 										),
 									},
 									Default: stringdefault.StaticString("short"),
@@ -872,16 +904,18 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 									Default: int64default.StaticInt64(0),
 								},
 								"antenna_mode": schema.StringAttribute{
-									Optional: true,
-									Computed: true,
+									Optional:            true,
+									Computed:            true,
+									Description:         "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
+									MarkdownDescription: "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
-											"default",
 											"1x1",
 											"2x2",
 											"3x3",
 											"4x4",
+											"default",
 										),
 									},
 									Default: stringdefault.StaticString("default"),
@@ -889,8 +923,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								"bandwidth": schema.Int64Attribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "channel width for the 6GHz band",
-									MarkdownDescription: "channel width for the 6GHz band",
+									Description:         "channel width for the 6GHz band. enum: `20`, `40`, `80`, `160`",
+									MarkdownDescription: "channel width for the 6GHz band. enum: `20`, `40`, `80`, `160`",
 									Validators: []validator.Int64{
 										int64validator.OneOf(
 											20,
@@ -945,14 +979,16 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 									Default: int64default.StaticInt64(8),
 								},
 								"preamble": schema.StringAttribute{
-									Optional: true,
-									Computed: true,
+									Optional:            true,
+									Computed:            true,
+									Description:         "enum: `auto`, `long`, `short`",
+									MarkdownDescription: "enum: `auto`, `long`, `short`",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
-											"short",
-											"long",
 											"auto",
+											"long",
+											"short",
 										),
 									},
 									Default: stringdefault.StaticString("short"),

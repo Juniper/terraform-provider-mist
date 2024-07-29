@@ -38,8 +38,8 @@ func OrgWxtagResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"match": schema.StringAttribute{
 				Optional:            true,
-				Description:         "required if `type`==`match`",
-				MarkdownDescription: "required if `type`==`match`",
+				Description:         "required if `type`==`match`. enum: `ap_id`, `app`, `asset_mac`, `client_mac`, `hostname`, `ip_range_subnet`, `port`, `psk_name`, `psk_role`, `radius_attr`, `radius_class`, `radius_group`, `radius_username`, `sdkclient_uuid`, `wlan_id`",
+				MarkdownDescription: "required if `type`==`match`. enum: `ap_id`, `app`, `asset_mac`, `client_mac`, `hostname`, `ip_range_subnet`, `port`, `psk_name`, `psk_role`, `radius_attr`, `radius_class`, `radius_group`, `radius_username`, `sdkclient_uuid`, `wlan_id`",
 				Validators: []validator.String{
 					stringvalidator.OneOf("ap_id", "app", "asset_mac", "client_mac", "hostname", "ip_range_subnet", "port", "psk_name", "psk_role", "radius_attr", "radius_class", "radius_group", "radius_username", "sdkclient_uuid", "wlan_id"),
 					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("match")),
@@ -54,8 +54,8 @@ func OrgWxtagResourceSchema(ctx context.Context) schema.Schema {
 			"op": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "required if `type`==`match`, type of tag (inclusive/exclusive)",
-				MarkdownDescription: "required if `type`==`match`, type of tag (inclusive/exclusive)",
+				Description:         "required if `type`==`match`, type of tag (inclusive/exclusive). enum: `in`, `not_in`",
+				MarkdownDescription: "required if `type`==`match`, type of tag (inclusive/exclusive). enum: `in`, `not_in`",
 				Validators: []validator.String{
 					stringvalidator.OneOf("in", "not_in"),
 					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("match")),
@@ -129,15 +129,17 @@ func OrgWxtagResourceSchema(ctx context.Context) schema.Schema {
 				},
 			},
 			"type": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "enum: `client`, `match`, `resource`, `spec`, `subnet`, `vlan`",
+				MarkdownDescription: "enum: `client`, `match`, `resource`, `spec`, `subnet`, `vlan`",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
-						"match",
 						"client",
+						"match",
 						"resource",
-						"subnet",
 						"spec",
+						"subnet",
 						"vlan",
 					),
 				},

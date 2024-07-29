@@ -44,7 +44,7 @@ resource "mist_org_idpprofile" "idpprofile_one" {
 
 ### Required
 
-- `base_profile` (String)
+- `base_profile` (String) enum: `critical`, `standard`, `strict`
 - `name` (String)
 - `org_id` (String)
 
@@ -65,8 +65,8 @@ Required:
 
 Optional:
 
-- `action` (String) Possible values:
-  * alert (default) 
+- `action` (String) enum:
+  * alert (default)
   * drop: siliently dropping packets
   * close: notify client/server to close connection
 - `matching` (Attributes) (see [below for nested schema](#nestedatt--overwrites--matching))

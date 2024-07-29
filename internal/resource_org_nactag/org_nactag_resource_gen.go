@@ -46,8 +46,8 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"match": schema.StringAttribute{
 				Optional:            true,
-				Description:         "if `type`==`match`",
-				MarkdownDescription: "if `type`==`match`",
+				Description:         "if `type`==`match`. enum: `cert_cn`, `cert_issuer`, `cert_san`, `cert_serial`, `cert_sub`, `client_mac`, `idp_role`, `mdm_status`, `radius_group`, `realm`, `ssid`, `user_name`, `usermac_label`",
+				MarkdownDescription: "if `type`==`match`. enum: `cert_cn`, `cert_issuer`, `cert_san`, `cert_serial`, `cert_sub`, `client_mac`, `idp_role`, `mdm_status`, `radius_group`, `realm`, `ssid`, `user_name`, `usermac_label`",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -119,18 +119,20 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 				},
 			},
 			"type": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "enum: `egress_vlan_names`, `gbp_tag`, `match`, `radius_attrs`, `radius_group`, `radius_vendor_attrs`, `session_timeout`, `vlan`",
+				MarkdownDescription: "enum: `egress_vlan_names`, `gbp_tag`, `match`, `radius_attrs`, `radius_group`, `radius_vendor_attrs`, `session_timeout`, `vlan`",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
 						"egress_vlan_names",
-						"match",
-						"vlan",
 						"gbp_tag",
+						"match",
 						"radius_attrs",
 						"radius_group",
 						"radius_vendor_attrs",
 						"session_timeout",
+						"vlan",
 					),
 					stringvalidator.LengthAtLeast(1),
 				},

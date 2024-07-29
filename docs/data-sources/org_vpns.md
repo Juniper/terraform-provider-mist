@@ -46,6 +46,6 @@ Read-Only:
 
 Read-Only:
 
-- `bfd_profile` (String)
+- `bfd_profile` (String) enum: `broadband`, `lte`
 - `ip` (String) if different from the wan port
 - `pod` (Number)

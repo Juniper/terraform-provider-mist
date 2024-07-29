@@ -52,10 +52,10 @@ resource "mist_org_wlan" "wlan_one" {
 - `ap_ids` (List of String) list of device ids
 - `app_limit` (Attributes) bandwidth limiting for apps (applies to up/down) (see [below for nested schema](#nestedatt--app_limit))
 - `app_qos` (Attributes) app qos wlan settings (see [below for nested schema](#nestedatt--app_qos))
-- `apply_to` (String)
+- `apply_to` (String) enum: `aps`, `site`, `wxtags`
 - `arp_filter` (Boolean) whether to enable smart arp filter
 - `auth` (Attributes) authentication wlan settings (see [below for nested schema](#nestedatt--auth))
-- `auth_server_selection` (String) When ordered, AP will prefer and go back to the first server if possible
+- `auth_server_selection` (String) When ordered, AP will prefer and go back to the first server if possible. enum: `ordered`, `unordered`
 - `auth_servers` (Attributes List) list of RADIUS authentication servers, at least one is needed if `auth type`==`eap`, order matters where the first one is treated as primary (see [below for nested schema](#nestedatt--auth_servers))
 - `auth_servers_nas_id` (String) optional, up to 48 bytes, will be dynamically generated if not provided. used only for authentication servers
 - `auth_servers_nas_ip` (String) optional, NAS-IP-ADDRESS to use
@@ -99,7 +99,7 @@ resource "mist_org_wlan" "wlan_one" {
 - `hostname_ie` (Boolean) include hostname inside IE in AP beacons / probe responses
 - `hotspot20` (Attributes) hostspot 2.0 wlan settings (see [below for nested schema](#nestedatt--hotspot20))
 - `inject_dhcp_option_82` (Attributes) (see [below for nested schema](#nestedatt--inject_dhcp_option_82))
-- `interface` (String) where this WLAN will be connected to
+- `interface` (String) where this WLAN will be connected to. enum: `all`, `eth0`, `eth1`, `eth2`, `eth3`, `mxtunnel`, `site_mxedge`, `wxtunnel`
 - `isolation` (Boolean) whether to stop clients to talk to each other
 - `l2_isolation` (Boolean) if isolation is enabled, whether to deny clients to talk to L2 on the LAN
 - `legacy_overds` (Boolean) legacy devices requires the Over-DS (for Fast BSS Transition) bit set (while our chip doesn’t support it). Warning! Enabling this will cause problem for iOS devices.
@@ -117,7 +117,7 @@ resource "mist_org_wlan" "wlan_one" {
 - `portal_denied_hostnames` (List of String) list of hostnames without http(s):// (matched by substring), this takes precedence over portal_allowed_hostnames
 - `qos` (Attributes) (see [below for nested schema](#nestedatt--qos))
 - `radsec` (Attributes) Radsec settings (see [below for nested schema](#nestedatt--radsec))
-- `roam_mode` (String)
+- `roam_mode` (String) enum: `11r`, `OKC`, `none`
 - `schedule` (Attributes) WLAN operating schedule, default is disabled (see [below for nested schema](#nestedatt--schedule))
 - `sle_excluded` (Boolean) whether to exclude this WLAN from SLE metrics
 - `use_eapol_v1` (Boolean) if `auth.type`==’eap’ or ‘psk’, should only be set for legacy client, such as pre-2004, 802.11b devices
@@ -154,7 +154,7 @@ Required:
 Optional:
 
 - `keywrap_enabled` (Boolean)
-- `keywrap_format` (String)
+- `keywrap_format` (String) enum: `ascii`, `hex`
 - `keywrap_kek` (String)
 - `keywrap_mack` (String)
 - `port` (Number) Acct port of RADIUS server
@@ -227,14 +227,14 @@ Optional:
 - `anticlog_threshold` (Number) SAE anti-clogging token threshold
 - `eap_reauth` (Boolean) whether to trigger EAP reauth when the session ends
 - `enable_mac_auth` (Boolean) whether to enable MAC Auth, uses the same auth_servers
-- `key_idx` (Number) when type=wep
+- `key_idx` (Number) when `type`==`wep`
 - `keys` (List of String) when type=wep, four 10-character or 26-character hex string, null can be used. All keys, if provided, have to be in the same length
-- `multi_psk_only` (Boolean) whether to only use multi_psk
-- `owe` (String) `enabled` means transition mode
-- `pairwise` (List of String) when type=psk / eap, one or more of wpa2-ccmp / wpa1-tkip / wpa1-ccmp / wpa2-tkip
-- `private_wlan` (Boolean) whether private wlan is enabled. only applicable to multi_psk mode
-- `psk` (String, Sensitive) when type=psk, 8-64 characters, or 64 hex characters
-- `type` (String)
+- `multi_psk_only` (Boolean) when `type`==`psk`, whether to only use multi_psk
+- `owe` (String) if `type`==`open`. enum: `disabled`, `enabled` (means transition mode), `required`
+- `pairwise` (List of String) when `type`=`psk` or `type`=`eap`, one or more of `wpa1-ccmp`, `wpa1-tkip`, `wpa2-ccmp`, `wpa2-tkip`, `wpa3`
+- `private_wlan` (Boolean) when `multi_psk_only`==`true`, whether private wlan is enabled
+- `psk` (String, Sensitive) when `type`==`psk`, 8-64 characters, or 64 hex characters
+- `type` (String) enum: `eap`, `eap192`, `open`, `psk`, `psk-tkip`, `psk-wpa2-tkip`, `wep`
 - `wep_as_secondary_auth` (Boolean) enable WEP as secondary auth
 
 
@@ -249,7 +249,7 @@ Required:
 Optional:
 
 - `keywrap_enabled` (Boolean)
-- `keywrap_format` (String)
+- `keywrap_format` (String) enum: `ascii`, `hex`
 - `keywrap_kek` (String)
 - `keywrap_mack` (String)
 - `port` (Number) Auth port of RADIUS server
@@ -275,7 +275,7 @@ Optional:
 
 - `disable_local` (Boolean) whether to prevent wireless clients to discover bonjour devices on the same WLAN
 - `radius_groups` (List of String) optional, if the service is further restricted for certain RADIUS groups
-- `scope` (String) how bonjour services should be discovered for the same WLAN
+- `scope` (String) how bonjour services should be discovered for the same WLAN. enum: `same_ap`, `same_map`, `same_site`
 
 
 
@@ -325,7 +325,7 @@ Optional:
 - `enabled` (Boolean)
 - `force_lookup` (Boolean) when 11r is enabled, we'll try to use the cached PMK, this can be disabled
 `false` means auto
-- `source` (String)
+- `source` (String) enum: `cloud_psks`, `radius`
 - `vlan_ids` (List of String)
 
 
@@ -340,7 +340,7 @@ Optional:
 
 - `enabled` (Boolean) whether to enable dynamic vlan
 - `local_vlan_ids` (List of String) vlan_ids to be locally bridged
-- `type` (String) standard (using Tunnel-Private-Group-ID, widely supported), airespace-interface-name (Airespace/Cisco)
+- `type` (String) standard (using Tunnel-Private-Group-ID, widely supported), airespace-interface-name (Airespace/Cisco). enum: `airespace-interface-name`, `standard`
 - `vlans` (Map of String) map between vlan_id (as string) to airespace interface names (comma-separated) or null for stndard mapping
   * if `dynamic_vlan.type`==`standard`, property key is the Vlan ID and property value is \"\"
   * if `dynamic_vlan.type`==`airespace-interface-name`, property key is the Vlan ID and property value is the Airespace Interface Name
@@ -392,7 +392,7 @@ Optional:
 - `amazon_email_domains` (List of String) Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.
 - `amazon_enabled` (Boolean) whether amazon is enabled as a login method
 - `amazon_expire` (Number) interval for which guest remains authorized using amazon auth (in minutes), if not provided, uses expire`
-- `auth` (String) authentication scheme
+- `auth` (String) authentication scheme. enum: `external`, `none`, `sso`
 - `azure_client_id` (String) Required if `azure_enabled`==`true`.
 Azure active directory app client id
 - `azure_client_secret` (String) Required if `azure_enabled`==`true`.
@@ -443,7 +443,7 @@ Facebook OAuth2 app secret. If facebook_client_id was provided, provide a corres
 - `sms_enabled` (Boolean) whether sms is enabled as a login method
 - `sms_expire` (Number) interval for which guest remains authorized using sms auth (in minutes), if not provided, uses expire`
 - `sms_message_format` (String)
-- `sms_provider` (String)
+- `sms_provider` (String) enum: `broadnet`, `clickatell`, `gupshup`, `manual`, `puzzel`, `telstra`, `twilio`
 - `sponsor_auto_approve` (Boolean) whether to automatically approve guest and allow sponsor to revoke guest access, needs predefined_sponsors_enabled enabled and sponsor_notify_all disabled
 - `sponsor_email_domains` (List of String) list of domain allowed for sponsor email. Required if `sponsor_enabled` is `true` and `sponsors` is empty.
 - `sponsor_enabled` (Boolean) whether sponsor is enabled
@@ -459,7 +459,7 @@ Property key is the sponsor email, Property value is the sponsor name
 - `sso_idp_sign_algo` (String) signing algorithm for SAML Assertion
 - `sso_idp_sso_url` (String) IDP Single-Sign-On URL
 - `sso_issuer` (String) IDP issuer URL
-- `sso_nameid_format` (String)
+- `sso_nameid_format` (String) enum: `email`, `unspecified`
 - `telstra_client_id` (String) when `sms_provider`==`telstra`, Client ID provided by Telstra
 - `telstra_client_secret` (String) when `sms_provider`==`telstra`, Client secret provided by Telstra
 - `twilio_auth_token` (String) when `sms_provider`==`twilio`, Auth token account with twilio account
@@ -472,7 +472,7 @@ Property key is the sponsor email, Property value is the sponsor name
 
 Optional:
 
-- `class` (String)
+- `class` (String) enum: `background`, `best_effort`, `video`, `voice`
 - `overwrite` (Boolean) whether to overwrite QoS
 
 

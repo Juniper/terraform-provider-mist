@@ -32,13 +32,13 @@ resource "mist_org_wxtag" "wtag_one" {
 
 - `name` (String) The name
 - `org_id` (String)
-- `type` (String)
+- `type` (String) enum: `client`, `match`, `resource`, `spec`, `subnet`, `vlan`
 
 ### Optional
 
 - `mac` (String) if `type`==`client`, Client MAC Address
-- `match` (String) required if `type`==`match`
-- `op` (String) required if `type`==`match`, type of tag (inclusive/exclusive)
+- `match` (String) required if `type`==`match`. enum: `ap_id`, `app`, `asset_mac`, `client_mac`, `hostname`, `ip_range_subnet`, `port`, `psk_name`, `psk_role`, `radius_attr`, `radius_class`, `radius_group`, `radius_username`, `sdkclient_uuid`, `wlan_id`
+- `op` (String) required if `type`==`match`, type of tag (inclusive/exclusive). enum: `in`, `not_in`
 - `specs` (Attributes List) if `type`==`spec` (see [below for nested schema](#nestedatt--specs))
 - `values` (List of String) required if `type`==`match` and
   * `match`==`ap_id`: list of AP IDs

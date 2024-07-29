@@ -18,8 +18,8 @@ func OrgWxruleResourceSchema(ctx context.Context) schema.Schema {
 		Attributes: map[string]schema.Attribute{
 			"action": schema.StringAttribute{
 				Required:            true,
-				Description:         "type of action, allow / block",
-				MarkdownDescription: "type of action, allow / block",
+				Description:         "type of action, allow / block. enum: `allow`, `block`",
+				MarkdownDescription: "type of action, allow / block. enum: `allow`, `block`",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",

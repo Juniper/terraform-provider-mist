@@ -25,7 +25,9 @@ func OrgIdpprofilesDataSourceSchema(ctx context.Context) schema.Schema {
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"base_profile": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							Description:         "enum: `critical`, `standard`, `strict`",
+							MarkdownDescription: "enum: `critical`, `standard`, `strict`",
 						},
 						"created_time": schema.NumberAttribute{
 							Computed: true,
@@ -47,8 +49,8 @@ func OrgIdpprofilesDataSourceSchema(ctx context.Context) schema.Schema {
 								Attributes: map[string]schema.Attribute{
 									"action": schema.StringAttribute{
 										Computed:            true,
-										Description:         "Possible values:\n  * alert (default) \n  * drop: siliently dropping packets\n  * close: notify client/server to close connection",
-										MarkdownDescription: "Possible values:\n  * alert (default) \n  * drop: siliently dropping packets\n  * close: notify client/server to close connection",
+										Description:         "enum:\n  * alert (default)\n  * drop: siliently dropping packets\n  * close: notify client/server to close connection",
+										MarkdownDescription: "enum:\n  * alert (default)\n  * drop: siliently dropping packets\n  * close: notify client/server to close connection",
 									},
 									"matching": schema.SingleNestedAttribute{
 										Attributes: map[string]schema.Attribute{

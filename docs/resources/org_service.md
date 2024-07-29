@@ -49,7 +49,7 @@ resource "mist_org_service" "service_one" {
   * /insight/top_app_by-bytes?wired=true
 - `description` (String)
 - `dscp` (String)
-- `failover_policy` (String)
+- `failover_policy` (String) enum: `non_revertable`, `none`, `revertable`
 - `hostnames` (List of String) if `type`==`custom`, web filtering
 - `max_jitter` (String)
 - `max_latency` (String)
@@ -57,11 +57,11 @@ resource "mist_org_service" "service_one" {
 - `sle_enabled` (Boolean) whether to enable measure SLE
 - `specs` (Attributes List) when `type`==`custom`, optional, if it doesn't exist, http and https is assumed (see [below for nested schema](#nestedatt--specs))
 - `ssr_relaxed_tcp_state_enforcement` (Boolean)
-- `traffic_class` (String) when `traffic_type`==`custom`
+- `traffic_class` (String) when `traffic_type`==`custom`. enum: `best_effort`, `high`, `low`, `medium`
 - `traffic_type` (String) values from `/api/v1/consts/traffic_types`
   * when `type`==`apps`, we''ll choose traffic_type automatically
   * when `type`==`addresses` or `type`==`hostnames`, you can provide your own settings (optional)
-- `type` (String)
+- `type` (String) enum: `app_categories`, `apps`, `custom`, `urls`
 - `urls` (List of String) when `type`==`urls`, no need for spec as URL can encode the ports being used
 
 ### Read-Only

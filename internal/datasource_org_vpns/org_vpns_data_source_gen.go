@@ -45,7 +45,9 @@ func OrgVpnsDataSourceSchema(ctx context.Context) schema.Schema {
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"bfd_profile": schema.StringAttribute{
-										Computed: true,
+										Computed:            true,
+										Description:         "enum: `broadband`, `lte`",
+										MarkdownDescription: "enum: `broadband`, `lte`",
 									},
 									"ip": schema.StringAttribute{
 										Computed:            true,

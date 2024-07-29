@@ -82,14 +82,16 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 				},
 			},
 			"failover_policy": schema.StringAttribute{
-				Optional: true,
-				Computed: true,
+				Optional:            true,
+				Computed:            true,
+				Description:         "enum: `non_revertable`, `none`, `revertable`",
+				MarkdownDescription: "enum: `non_revertable`, `none`, `revertable`",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
-						"revertable",
 						"non_revertable",
 						"none",
+						"revertable",
 					),
 				},
 				Default: stringdefault.StaticString("revertable"),
@@ -197,8 +199,8 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 			"traffic_class": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "when `traffic_type`==`custom`",
-				MarkdownDescription: "when `traffic_type`==`custom`",
+				Description:         "when `traffic_type`==`custom`. enum: `best_effort`, `high`, `low`, `medium`",
+				MarkdownDescription: "when `traffic_type`==`custom`. enum: `best_effort`, `high`, `low`, `medium`",
 				Validators: []validator.String{
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("custom")),
 					stringvalidator.OneOf(
@@ -229,13 +231,15 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 				Default: stringdefault.StaticString("data_best_effort"),
 			},
 			"type": schema.StringAttribute{
-				Optional: true,
-				Computed: true,
+				Optional:            true,
+				Computed:            true,
+				Description:         "enum: `app_categories`, `apps`, `custom`, `urls`",
+				MarkdownDescription: "enum: `app_categories`, `apps`, `custom`, `urls`",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
-						"apps",
 						"app_categories",
+						"apps",
 						"custom",
 						"urls",
 					),

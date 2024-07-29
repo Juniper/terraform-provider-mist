@@ -33,7 +33,7 @@ resource "mist_org_wxrule" "wxrule_one" {
 
 ### Required
 
-- `action` (String) type of action, allow / block
+- `action` (String) type of action, allow / block. enum: `allow`, `block`
 - `order` (Number) the order how rules would be looked up, > 0 and bigger order got matched first, -1 means LAST, uniqueness not checked
 - `org_id` (String)
 - `src_wxtags` (List of String) tag list to determine if this rule would match
