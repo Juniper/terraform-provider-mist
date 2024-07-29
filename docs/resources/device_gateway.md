@@ -452,7 +452,7 @@ Optional:
 - `networks` (List of String) required when `type`==`local`
 - `target_ips` (List of String) if `type`==`local`, if destination IP is to be replaced
 - `type` (String) enum: `local`, `tunnel`, `vpn`, `wan`
-- `wan_name` (String) required when`type`==`tunnel`, optional if `type`==`vpn` wan
+- `wan_name` (String) required when`type`==`tunnel`
 
 
 

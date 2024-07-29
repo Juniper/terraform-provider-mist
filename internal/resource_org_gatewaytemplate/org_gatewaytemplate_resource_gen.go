@@ -1323,10 +1323,9 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 									},
 									"wan_name": schema.StringAttribute{
 										Optional:            true,
-										Description:         "required when`type`==`tunnel`, optional if `type`==`vpn` wan",
-										MarkdownDescription: "required when`type`==`tunnel`, optional if `type`==`vpn` wan",
+										Description:         "required when`type`==`tunnel`",
+										MarkdownDescription: "required when`type`==`tunnel`",
 										Validators: []validator.String{
-											mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("tunnel")),
 											mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("vpn")),
 										},
 									},
