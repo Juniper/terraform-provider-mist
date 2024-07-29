@@ -164,6 +164,10 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 								),
 								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("protocol"), types.StringValue("tcp")),
 								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("protocol"), types.StringValue("udp")),
+								stringvalidator.Any(
+									mistvalidator.ParseInt(0, 65535),
+									mistvalidator.ParseRangeOfInt(0, 65535),
+								),
 							},
 						},
 						"protocol": schema.StringAttribute{
