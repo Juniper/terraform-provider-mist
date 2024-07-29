@@ -2,6 +2,7 @@ package mistvalidator
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/helpers/validatordiag"
@@ -28,16 +29,15 @@ func (o ParseIntValidator) ValidateString(_ context.Context, req validator.Strin
 		return
 	}
 
-	value := req.ConfigValue.ValueString()
-	if vlan, e := strconv.Atoi(value); e == nil {
-		if vlan < o.min || vlan > o.max {
-			resp.Diagnostics.Append(validatordiag.InvalidAttributeValueDiagnostic(
-				req.Path,
-				"value must be an Integer between 1 and 4094 or must contain a variable (\"{{...}}\")",
-				value,
-			))
-			return
-		}
+	str_value := req.ConfigValue.ValueString()
+	int_value, e := strconv.Atoi(str_value)
+	if e != nil || int_value < o.min || int_value > o.max {
+		resp.Diagnostics.Append(validatordiag.InvalidAttributeValueDiagnostic(
+			req.Path,
+			fmt.Sprintf("value must be an Integer between %s and %s", strconv.Itoa(o.min), strconv.Itoa(o.max)),
+			str_value,
+		))
+		return
 	}
 }
 
