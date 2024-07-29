@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -37,8 +38,12 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 			"apply_tags": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
+				Computed:            true,
 				Description:         "all optional, this goes into Access-Accept",
 				MarkdownDescription: "all optional, this goes into Access-Accept",
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+				},
 			},
 			"enabled": schema.BoolAttribute{
 				Optional:            true,
@@ -76,28 +81,48 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 					"nactags": schema.ListAttribute{
 						ElementType: types.StringType,
 						Optional:    true,
+						Computed:    true,
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"port_types": schema.ListAttribute{
 						ElementType: types.StringType,
 						Optional:    true,
+						Computed:    true,
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"site_ids": schema.ListAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
+						Computed:            true,
 						Description:         "list of site ids to match",
 						MarkdownDescription: "list of site ids to match",
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"sitegroup_ids": schema.ListAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
+						Computed:            true,
 						Description:         "list of sitegroup ids to match",
 						MarkdownDescription: "list of sitegroup ids to match",
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"vendor": schema.ListAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
+						Computed:            true,
 						Description:         "list of vendors to match",
 						MarkdownDescription: "list of vendors to match",
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 				},
 				CustomType: MatchingType{
@@ -136,28 +161,48 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 					"nactags": schema.ListAttribute{
 						ElementType: types.StringType,
 						Optional:    true,
+						Computed:    true,
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"port_types": schema.ListAttribute{
 						ElementType: types.StringType,
 						Optional:    true,
+						Computed:    true,
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"site_ids": schema.ListAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
+						Computed:            true,
 						Description:         "list of site ids to match",
 						MarkdownDescription: "list of site ids to match",
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"sitegroup_ids": schema.ListAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
+						Computed:            true,
 						Description:         "list of sitegroup ids to match",
 						MarkdownDescription: "list of sitegroup ids to match",
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"vendor": schema.ListAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
+						Computed:            true,
 						Description:         "list of vendors to match",
 						MarkdownDescription: "list of vendors to match",
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 				},
 				CustomType: NotMatchingType{

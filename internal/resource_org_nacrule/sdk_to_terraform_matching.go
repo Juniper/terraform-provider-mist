@@ -29,11 +29,11 @@ func matchingPortTypesSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 func matchingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.NacRuleMatching) MatchingValue {
 
 	var auth_type basetypes.StringValue
-	var nactags basetypes.ListValue = types.ListNull(types.StringType)
-	var port_types basetypes.ListValue = types.ListNull(types.StringType)
-	var site_ids basetypes.ListValue = types.ListNull(types.StringType)
-	var sitegroup_ids basetypes.ListValue = types.ListNull(types.StringType)
-	var vendor basetypes.ListValue = types.ListNull(types.StringType)
+	var nactags basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+	var port_types basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+	var site_ids basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+	var sitegroup_ids basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+	var vendor basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 
 	if d.AuthType != nil {
 		auth_type = types.StringValue(string(*d.AuthType))
@@ -72,11 +72,11 @@ func matchingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mod
 func notMatchingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.NacRuleMatching) NotMatchingValue {
 
 	var auth_type basetypes.StringValue
-	var nactags basetypes.ListValue = types.ListNull(types.StringType)
-	var port_types basetypes.ListValue = types.ListNull(types.StringType)
-	var site_ids basetypes.ListValue = types.ListNull(types.StringType)
-	var sitegroup_ids basetypes.ListValue = types.ListNull(types.StringType)
-	var vendor basetypes.ListValue = types.ListNull(types.StringType)
+	var nactags basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+	var port_types basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+	var site_ids basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+	var sitegroup_ids basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+	var vendor basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 
 	if d.AuthType != nil {
 		auth_type = types.StringValue(string(*d.AuthType))
