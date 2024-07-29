@@ -957,7 +957,11 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "Default VLAN ID(s) can be a number, a range of VLAN IDs, a variable or multiple numbers, ranges or variables as a VLAN pool. Default VLAN as a pool of VLANS requires 0.14.x or newer firmware",
 						Validators: []validator.List{
 							listvalidator.ValueStringsAre(
-								stringvalidator.Any(mistvalidator.ParseInt(1, 4094), mistvalidator.ParseVar()),
+								stringvalidator.Any(
+									mistvalidator.ParseInt(1, 4094),
+									mistvalidator.ParseRangeOfInt(1, 4094),
+									mistvalidator.ParseVar(),
+								),
 							),
 						},
 					},
