@@ -26,8 +26,16 @@ func dynamicVlanTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, pla
 		vlans[k] = v_plan.ValueString()
 	}
 
+	var default_vlan_ids []models.WlanDynamicVlanDefaultVlanIds
+	for _, item := range plan.DefaultVlanIds.Elements() {
+		var item_interface interface{} = item
+		i := item_interface.(basetypes.StringValue)
+		j := models.WlanDynamicVlanDefaultVlanIdsContainer.FromString(i.ValueString())
+		default_vlan_ids = append(default_vlan_ids, j)
+	}
+
 	data := models.WlanDynamicVlan{}
-	data.DefaultVlanId = models.ToPointer(models.WlanDynamicVlanDefaultVlanIdContainer.FromString(plan.DefaultVlanId.ValueString()))
+	data.DefaultVlanIds = default_vlan_ids
 	data.Enabled = plan.Enabled.ValueBoolPointer()
 	data.LocalVlanIds = local_vlan_ids
 	data.Type = models.ToPointer(models.WlanDynamicVlanTypeEnum(string(plan.DynamicVlanType.ValueString())))

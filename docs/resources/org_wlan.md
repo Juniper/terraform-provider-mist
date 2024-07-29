@@ -334,7 +334,7 @@ Optional:
 
 Required:
 
-- `default_vlan_id` (String)
+- `default_vlan_ids` (List of String) Default VLAN ID(s) can be a number, a range of VLAN IDs, a variable or multiple numbers, ranges or variables as a VLAN pool. Default VLAN as a pool of VLANS requires 0.14.x or newer firmware
 
 Optional:
 
