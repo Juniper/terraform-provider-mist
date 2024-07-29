@@ -75,7 +75,10 @@ func OrgWxtagResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "matched destination port, \"0\" means any",
 							MarkdownDescription: "matched destination port, \"0\" means any",
 							Validators: []validator.String{
-								mistvalidator.ParseInt(0, 65535),
+								stringvalidator.Any(
+									mistvalidator.ParseInt(0, 65535),
+									mistvalidator.ParseRangeOfInt(0, 65535),
+								),
 							},
 							Default: stringdefault.StaticString("0"),
 						},
