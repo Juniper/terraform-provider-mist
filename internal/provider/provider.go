@@ -60,6 +60,7 @@ func (p *mistProvider) Schema(ctx context.Context, req provider.SchemaRequest, r
 			"apitoken": schema.StringAttribute{
 				MarkdownDescription: "For Api Token authentication, the Mist API Token",
 				Optional:            true,
+				Sensitive:           true,
 			},
 			"username": schema.StringAttribute{
 				MarkdownDescription: "For username/password authentication, the Mist Account username",
@@ -68,6 +69,7 @@ func (p *mistProvider) Schema(ctx context.Context, req provider.SchemaRequest, r
 			"password": schema.StringAttribute{
 				MarkdownDescription: "For username/password authentication, the Mist Account password",
 				Optional:            true,
+				Sensitive:           true,
 			},
 		},
 	}

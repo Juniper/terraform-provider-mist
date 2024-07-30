@@ -37,6 +37,6 @@ provider "mist" {
 
 ### Optional
 
-- `apitoken` (String) For Api Token authentication, the Mist API Token
-- `password` (String) For username/password authentication, the Mist Account password
+- `apitoken` (String, Sensitive) For Api Token authentication, the Mist API Token
+- `password` (String, Sensitive) For username/password authentication, the Mist Account password
 - `username` (String) For username/password authentication, the Mist Account username
