@@ -1,6 +1,11 @@
 package provider
 
 const (
+	envHost              = "MIST_HOST"
+	envApitoken          = "MIST_API_TOKEN"
+	envUsername          = "MIST_USERNAME"
+	envPassword          = "MIST_PASSWORD"
+	envApiTimeout        = "MIST_API_TIMEOUT"
 	docCategorySeparator = " --- "
 	docCategorySite      = "Site" + docCategorySeparator
 	docCategoryOrg       = "Org" + docCategorySeparator

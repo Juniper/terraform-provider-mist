@@ -1,0 +1,42 @@
+---
+page_title: "Provider: Mist"
+description: |-
+    The Mist Provider allows Terraform to manage Juniper Mist.
+---
+
+# {{ .ProviderShortName | title }} Provider
+
+{{ .Description }}
+
+## Configuration
+
+### Provider configuration stanza
+
+{{ tffile "examples/provider/example.tf" }}
+
+### Credentials
+
+Users are encouraged to pass the API Token or the username and password via the 
+environment variables (see below). If authentication information are provided 
+in the provider configuration and in the environment variables, the Provider
+configuration will be used.
+
+Please consider whether writing credentials to a configuration file is
+acceptable in your environment.
+
+### Proxy Support
+
+HTTP, HTTPS, and SOCKS5 proxies are supported through the `HTTP_PROXY` and
+`HTTPS_PROXY` environment variables or the lowercase versions of those
+variables. The value of each may be either a complete URL or a "host[:port]",
+in which case the "http" scheme is assumed.
+
+Hosts which should be omitted from the proxy configuration may be listed in
+the `NO_PROXY` (or `no_proxy`) environment variable ([details](https://github.com/golang/go/blob/682a1d2176b02337460aeede0ff9e49429525195/src/vendor/golang.org/x/net/http/httpproxy/proxy.go#L38C1-L50C13)).
+
+### Additional Environment Variables
+
+Provider attributes which have been omitted from the configuration
+may be set via environment variables: `MIST_API_TIMEOUT`.
+
+{{ .SchemaMarkdown | trimspace }}
