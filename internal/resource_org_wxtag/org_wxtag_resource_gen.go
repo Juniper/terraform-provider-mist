@@ -77,7 +77,7 @@ func OrgWxtagResourceSchema(ctx context.Context) schema.Schema {
 							Validators: []validator.String{
 								stringvalidator.Any(
 									mistvalidator.ParseInt(0, 65535),
-									mistvalidator.ParseRangeOfInt(0, 65535),
+									mistvalidator.ParseRangeOfInt(0, 65535, true),
 								),
 							},
 							Default: stringdefault.StaticString("0"),

@@ -959,7 +959,7 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 							listvalidator.ValueStringsAre(
 								stringvalidator.Any(
 									mistvalidator.ParseInt(1, 4094),
-									mistvalidator.ParseRangeOfInt(1, 4094),
+									mistvalidator.ParseRangeOfInt(1, 4094, false),
 									mistvalidator.ParseVar(),
 								),
 							),

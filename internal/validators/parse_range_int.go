@@ -13,8 +13,9 @@ import (
 var _ validator.String = ParseRangeOfIntValidator{}
 
 type ParseRangeOfIntValidator struct {
-	min int
-	max int
+	min           int
+	max           int
+	equal_allowed bool
 }
 
 func (o ParseRangeOfIntValidator) Description(_ context.Context) string {
@@ -55,7 +56,7 @@ func (o ParseRangeOfIntValidator) ValidateString(_ context.Context, req validato
 
 	value_one, _ := strconv.Atoi(values[0])
 	value_two, _ := strconv.Atoi(values[1])
-	if value_one >= value_two {
+	if (!o.equal_allowed && value_one >= value_two) || (o.equal_allowed && value_one > value_two) {
 		resp.Diagnostics.Append(validatordiag.InvalidAttributeValueDiagnostic(
 			req.Path,
 			fmt.Sprintf("must be a range of Integers between %s and %s, meaning the first value must be lower than the second value", strconv.Itoa(o.min), strconv.Itoa(o.max)),
@@ -65,9 +66,10 @@ func (o ParseRangeOfIntValidator) ValidateString(_ context.Context, req validato
 	}
 }
 
-func ParseRangeOfInt(min int, max int) validator.String {
+func ParseRangeOfInt(min int, max int, equalAlloweds bool) validator.String {
 	return ParseRangeOfIntValidator{
-		min: min,
-		max: max,
+		min:           min,
+		max:           max,
+		equal_allowed: equalAlloweds,
 	}
 }
