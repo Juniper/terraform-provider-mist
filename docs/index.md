@@ -22,8 +22,8 @@ terraform {
 }
 
 provider "mist" {
-  host     = local.envs["HOST"]
-  apitoken = local.envs["APITOKEN"]
+  host     = "api.mist.com"
+  apitoken = "xxxxxxxxxxxxxxxxxxxxxxxxxxx"
 }
 ```
 
