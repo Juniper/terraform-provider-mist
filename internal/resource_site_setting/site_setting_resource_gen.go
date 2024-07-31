@@ -691,8 +691,10 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					"app_probing": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
 							"apps": schema.ListAttribute{
-								ElementType: types.StringType,
-								Optional:    true,
+								ElementType:         types.StringType,
+								Optional:            true,
+								Description:         "app-keys from /api/v1/const/applications",
+								MarkdownDescription: "app-keys from /api/v1/const/applications",
 							},
 							"custom_apps": schema.ListNestedAttribute{
 								NestedObject: schema.NestedAttributeObject{

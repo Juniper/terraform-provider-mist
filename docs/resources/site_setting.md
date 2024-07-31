@@ -270,7 +270,7 @@ Optional:
 
 Optional:
 
-- `apps` (List of String)
+- `apps` (List of String) app-keys from /api/v1/const/applications
 - `custom_apps` (Attributes List) (see [below for nested schema](#nestedatt--gateway_mgmt--app_probing--custom_apps))
 - `enabled` (Boolean)
 
