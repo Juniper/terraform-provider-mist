@@ -2,12 +2,12 @@
 page_title: "mist_const_app_sub_categories Data Source - terraform-provider-mist"
 subcategory: "Constants"
 description: |-
-  This data source provides the of ConstAppSubCategories.This information can be used to define the Country in the RF templates (mist_org_rftemplate)
+  This data source provides the of ConstAppSubCategories.This information can be used as app_subcategories in the mist_org_service resource
 ---
 
 # mist_const_app_sub_categories (Data Source)
 
-This data source provides the of ConstAppSubCategories.This information can be used to define the Country in the RF templates (`mist_org_rftemplate`)
+This data source provides the of ConstAppSubCategories.This information can be used as `app_subcategories` in the `mist_org_service` resource
 
 
 ## Example Usage
