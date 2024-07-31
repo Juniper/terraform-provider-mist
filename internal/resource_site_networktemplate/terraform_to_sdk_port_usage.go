@@ -13,22 +13,26 @@ import (
 
 func portUsageScTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) models.SwitchPortUsageStormControl {
 	data := models.SwitchPortUsageStormControl{}
-	if d.IsNull() || d.IsUnknown() {
-		return data
-	} else {
-		var sc_attr_interface interface{} = d
-		v_plan := sc_attr_interface.(StormControlValue)
-		if v_plan.NoMulticast.ValueBoolPointer() != nil {
-			data.NoMulticast = models.ToPointer(v_plan.NoMulticast.ValueBool())
-		}
-		if v_plan.NoRegisteredMulticast.ValueBoolPointer() != nil {
-			data.NoRegisteredMulticast = models.ToPointer(v_plan.NoRegisteredMulticast.ValueBool())
-		}
-		if v_plan.NoUnknownUnicast.ValueBoolPointer() != nil {
-			data.NoUnknownUnicast = models.ToPointer(v_plan.NoUnknownUnicast.ValueBool())
-		}
-		if v_plan.Percentage.ValueInt64Pointer() != nil {
-			data.Percentage = models.ToPointer(int(v_plan.Percentage.ValueInt64()))
+	if !d.IsNull() && !d.IsUnknown() {
+		v_plan, e := NewStormControlValue(d.AttributeTypes(ctx), d.Attributes())
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			if v_plan.NoBroadcast.ValueBoolPointer() != nil {
+				data.NoBroadcast = models.ToPointer(v_plan.NoBroadcast.ValueBool())
+			}
+			if v_plan.NoMulticast.ValueBoolPointer() != nil {
+				data.NoMulticast = models.ToPointer(v_plan.NoMulticast.ValueBool())
+			}
+			if v_plan.NoRegisteredMulticast.ValueBoolPointer() != nil {
+				data.NoRegisteredMulticast = models.ToPointer(v_plan.NoRegisteredMulticast.ValueBool())
+			}
+			if v_plan.NoUnknownUnicast.ValueBoolPointer() != nil {
+				data.NoUnknownUnicast = models.ToPointer(v_plan.NoUnknownUnicast.ValueBool())
+			}
+			if v_plan.Percentage.ValueInt64Pointer() != nil {
+				data.Percentage = models.ToPointer(int(v_plan.Percentage.ValueInt64()))
+			}
 		}
 	}
 	return data
