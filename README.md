@@ -7,31 +7,23 @@
 - [Go](https://golang.org/doc/install) >= 1.21
 - [Mist API Go package](https://pkg.go.dev/github.com/tmunzer/mistapi-go) >= 0.2.5
 
-## Building The Provider
+## Getting Started
 
-1. Clone the repository
-1. Enter the repository directory
-1. Build the provider using the Go `install` command:
+### Install Terraform
+Instructions for popular operating systems can be found [here](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli).
 
-```shell
-go install
-```
-
-## Using the provider
-
-There are two ways to get and use the provider.
-
-* Downloading & installing it from registry.terraform.io
-* Building it from source
-
-### From registry 
-To install this provider, copy and paste this code into your Terraform configuration. Then, run terraform init.
+### Create a Terraform configuration
+The terraform configuration must:
+* be named with a .tf file extension.
+* reference this provider by its global address (`registry.terraform.io/Juniper/mist`) or just `Juniper/mist`.
+* include a provider configuration block which tells the provider which Mist Cloud must be used and which credentials to use.
+  
 
 ```terraform
 terraform {
   required_providers {
     mist = {
-      source = "registry.terraform.io/juniper/mist"
+      source = "registry.terraform.io/Juniper/mist"
     }
   }
 }
@@ -42,50 +34,28 @@ provider "mist" {
 }
 ```
 
-### From build
-1. Clone this repository
-2. From the `terraform-provider-mist` folder, do 
-  * `go mod tidy` to install the depencies
-  * `go install .` to install the provider
-3. create a `.terraformrc` file in your home folder with (replace `<home_folder_path>` with your actual home folder paht):
-```terraform
-provider_installation {
-  dev_overrides {
-    "registry.terraform.io/juniper/mist" = "<home_folder_path>/go/bin/",
-
-  }
-  direct {}
-}
-```
-4. Create a terraform configuration file (must be name with the `.tf` extension):
-```terraform
-terraform {
-  required_providers {
-    mist = {
-      source = "registry.terraform.io/juniper/mist"
-    }
-  }
-}
-
-provider "mist" {
-  host     = "api.mist.com"
-  apitoken = "xxxxxxxxxxxxxxxxxxxxxxxxx"
-}
+### Terraform Init
+Run the following at a command prompt while in the same directory as the configuration file to fetch the Apstra provider plugin.
+```console
+terraform init
 ```
 
-
-## Developing the Provider
-
-If you wish to work on the provider, you'll first need [Go](http://www.golang.org) installed on your machine (see [Requirements](#requirements) above).
-
-To compile the provider, run `go install`. This will build the provider and put the provider binary in the `$GOPATH/bin` directory.
-
-To generate or update documentation, run `go generate`.
-
-In order to run the full suite of Acceptance tests, run `make testacc`.
-
-*Note:* Acceptance tests create real resources, and often cost money to run.
-
-```shell
-make testacc
+### Credentials
+Mist credentials can be supplied in the provider configuration block or through environment variables (recommended):
+* API Token:
+```console
+export MIST_APITOKEN=<apitoken>
 ```
+* Username and Password
+```console
+export MIST_USERNAME=<username>
+export MIST_PASSWORD=<password>
+```
+
+### Start configuring resources
+Full documentation for provider, resources and data sources can be found [here](https://registry.terraform.io/providers/Juniper/mist/latest/docs).
+
+See the open issues for a full list of proposed features (and known issues).
+
+
+
