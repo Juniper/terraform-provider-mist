@@ -3,6 +3,8 @@ package provider
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 
@@ -14,6 +16,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/float64validator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
@@ -48,6 +51,7 @@ type mistProviderModel struct {
 	Username   types.String  `tfsdk:"username"`
 	Password   types.String  `tfsdk:"password"`
 	ApiTimeout types.Float64 `tfsdk:"api_timeout"`
+	Proxy      types.String  `tfsdk:"proxy"`
 }
 
 func (p *mistProvider) Schema(ctx context.Context, req provider.SchemaRequest, resp *provider.SchemaResponse) {
@@ -68,26 +72,22 @@ func (p *mistProvider) Schema(ctx context.Context, req provider.SchemaRequest, r
 			"* APAC 01 (api.ac5.mist.com)",
 		Attributes: map[string]schema.Attribute{
 			"host": schema.StringAttribute{
-				MarkdownDescription: "URL of the Mist Cloud, e.g. `api.mist.com`.\n" +
-					"It is also possible to pass the Mist Cloud host with the environment variable `" + envHost + "`.",
-				Required: true,
+				MarkdownDescription: "URL of the Mist Cloud, e.g. `api.mist.com`.",
+				Optional:            true,
 			},
 			"apitoken": schema.StringAttribute{
-				MarkdownDescription: "For API Token authentication, the Mist API Token.\n" +
-					"The preferred approach is to pass the API Token as environment variables `" + envApitoken + "`.",
-				Optional:  true,
-				Sensitive: true,
+				MarkdownDescription: "For API Token authentication, the Mist API Token.",
+				Optional:            true,
+				Sensitive:           true,
 			},
 			"username": schema.StringAttribute{
-				MarkdownDescription: "For username/password authentication, the Mist Account username.\n" +
-					"The preferred approach is to pass the API Token as environment variables `" + envUsername + "`.",
-				Optional: true,
+				MarkdownDescription: "For username/password authentication, the Mist Account username.",
+				Optional:            true,
 			},
 			"password": schema.StringAttribute{
-				MarkdownDescription: "For username/password authentication, the Mist Account password.\n" +
-					"The preferred approach is to pass the API Token as environment variables `" + envPassword + "`.",
-				Optional:  true,
-				Sensitive: true,
+				MarkdownDescription: "For username/password authentication, the Mist Account password.",
+				Optional:            true,
+				Sensitive:           true,
 			},
 			"api_timeout": schema.Float64Attribute{
 				MarkdownDescription: fmt.Sprintf("Timeout in seconds for completing API transactions "+
@@ -97,7 +97,106 @@ func (p *mistProvider) Schema(ctx context.Context, req provider.SchemaRequest, r
 				Optional:   true,
 				Validators: []validator.Float64{float64validator.AtLeast(0)},
 			},
+			"proxy": schema.StringAttribute{
+				MarkdownDescription: "Requests use the configured proxy to reach the Mist Cloud.\n" +
+					"The value may be either a complete URL or a `[username:password@]host[:port]`, in which case the `http` scheme is assumed. " +
+					"The schemes `http`, `https`, and `socks5` are supported.",
+				Optional: true,
+			},
 		},
+	}
+}
+
+func (p *mistProviderModel) fromEnv(_ context.Context, diags *diag.Diagnostics) {
+	if s, ok := os.LookupEnv(envHost); ok && p.Host.IsNull() {
+		if !strings.HasPrefix(s, "api.") {
+			diags.AddError(fmt.Sprintf("error parsing environment variable %q", envHost),
+				fmt.Sprintf("The configured Mist Host does not match the supported Clouds; got %q", s))
+		}
+		p.Host = types.StringValue(s)
+	}
+
+	if s, ok := os.LookupEnv(envApitoken); ok && p.Apitoken.IsNull() {
+		if len(s) < 1 {
+			diags.AddError(fmt.Sprintf("error parsing environment variable %q", envApitoken),
+				fmt.Sprintf("minimum string length 1; got %q", s))
+		}
+		p.Apitoken = types.StringValue(s)
+	}
+
+	if s, ok := os.LookupEnv(envUsername); ok && p.Username.IsNull() {
+		if len(s) < 1 {
+			diags.AddError(fmt.Sprintf("error parsing environment variable %q", envUsername),
+				fmt.Sprintf("minimum string length 1; got %q", s))
+		}
+		p.Username = types.StringValue(s)
+	}
+
+	if s, ok := os.LookupEnv(envPassword); ok && p.Password.IsNull() {
+		if len(s) < 1 {
+			diags.AddError(fmt.Sprintf("error parsing environment variable %q", envPassword),
+				fmt.Sprintf("minimum string length 1; got %q", s))
+		}
+		p.Password = types.StringValue(s)
+	}
+
+	if s, ok := os.LookupEnv(envApiTimeout); ok && p.ApiTimeout.IsNull() {
+		v, err := strconv.ParseFloat(s, 64)
+		if err != nil {
+			diags.AddError(fmt.Sprintf("error parsing environment variable %q", envApiTimeout), err.Error())
+		}
+		if v < 0 {
+			diags.AddError(fmt.Sprintf("invalid value in environment variable %q", envApiTimeout),
+				fmt.Sprintf("minimum permitted value is 0, got %d", int64(v)))
+		}
+		p.ApiTimeout = types.Float64Value(v)
+	}
+
+	if s, ok := os.LookupEnv(envProxy); ok && p.Proxy.IsNull() {
+		if len(s) < 1 {
+			diags.AddError(fmt.Sprintf("error parsing environment variable %q", envProxy),
+				fmt.Sprintf("minimum string length 1; got %q", s))
+		}
+		p.Proxy = types.StringValue(s)
+	}
+}
+
+func (p *mistProviderModel) validateConfig(_ context.Context, diags *diag.Diagnostics) {
+	if p.Host.ValueString() == "" {
+		diags.AddAttributeError(
+			path.Root("host"),
+			"Missing MIST API Host",
+			"The provider cannot create the MIST API client because there is a missing or empty value for the MIST API host. "+
+				"Set the host value in the configuration or use the `"+envHost+"` environment variable. "+
+				"If either is already set, ensure the value is not empty.",
+		)
+	}
+
+	if p.Apitoken.ValueString() == "" && (p.Username.ValueString() == "" && p.Password.ValueString() == "") {
+		diags.AddError(
+			"Missing MIST API Authentication",
+			"The provider cannot create the MIST API client because the authentication configuration is missing. "+
+				"Set the Authentication values in the configuration or in the environment variables: "+
+				" * apitoken (environment variable `"+envApitoken+"`)"+
+				" * username and password (environment variables`"+envUsername+"` and `"+envPassword+"`)"+
+				"If either is already set, ensure the value is not empty.",
+		)
+	} else if p.Apitoken.ValueString() == "" && (p.Username.ValueString() != "" && p.Password.ValueString() == "") {
+		diags.AddAttributeError(
+			path.Root("username"),
+			"Missing MIST API Password",
+			"The provider cannot create the MIST API client because there is a  a missing or empty value for the MIST Username whereas the MIST Password is configured. "+
+				"Set the host value in the configuration or use the `"+envUsername+"` environment variable. "+
+				"If either is already set, ensure the value is not empty.",
+		)
+	} else if p.Apitoken.ValueString() == "" && (p.Username.ValueString() == "" && p.Password.ValueString() != "") {
+		diags.AddAttributeError(
+			path.Root("password"),
+			"Missing MIST API Password",
+			"The provider cannot create the MIST API client because there is a  a missing or empty value for the MIST Password whereas the MIST Username is configured. "+
+				"Set the host value in the configuration or use the `"+envPassword+"` environment variable. "+
+				"If either is already set, ensure the value is not empty.",
+		)
 	}
 }
 
@@ -109,83 +208,39 @@ func (p *mistProvider) Configure(ctx context.Context, req provider.ConfigureRequ
 		return
 	}
 
-	host := os.Getenv(envHost)
-	if !config.Host.IsNull() {
-		host = config.Host.ValueString()
-	}
-
-	apitoken := os.Getenv(envApitoken)
-	if !config.Apitoken.IsNull() {
-		apitoken = config.Apitoken.ValueString()
-	}
-
-	username := os.Getenv(envUsername)
-	if !config.Username.IsNull() {
-		username = config.Username.ValueString()
-	}
-
-	password := os.Getenv(envPassword)
-	if !config.Password.IsNull() {
-		password = config.Password.ValueString()
-	}
-
-	var api_timeout float64 = 10
-	if s, ok := os.LookupEnv(envApiTimeout); ok && config.ApiTimeout.IsNull() {
-		v, err := strconv.ParseFloat(s, 64)
-		if err != nil {
-			diags.AddError(fmt.Sprintf("error parsing environment variable %q", envApiTimeout), err.Error())
-		}
-		if v < 0 {
-			diags.AddError(fmt.Sprintf("invalid value in environment variable %q", envApiTimeout),
-				fmt.Sprintf("minimum permitted value is 0, got %d", int64(v)))
-		}
-		config.ApiTimeout = types.Float64Value(v)
-	} else if !config.ApiTimeout.IsNull() {
-		api_timeout = config.ApiTimeout.ValueFloat64()
-	}
-
-	if host == "" {
-		resp.Diagnostics.AddAttributeError(
-			path.Root("host"),
-			"Missing MIST API Host",
-			"The provider cannot create the MIST API client because there is a missing or empty value for the MIST API host. "+
-				"Set the host value in the configuration or use the `"+envHost+"` environment variable. "+
-				"If either is already set, ensure the value is not empty.",
-		)
-	}
-	if apitoken == "" && (username == "" && password == "") {
-		resp.Diagnostics.AddError(
-			"Missing MIST API Authentication",
-			"The provider cannot create the MIST API client because the authentication configuration is missing. "+
-				"Set the Authentication values in the configuration or in the environment variables: "+
-				" * apitoken (environment variable `"+envApitoken+"`)"+
-				" * username and password (environment variables`"+envUsername+"` and `"+envPassword+"`)"+
-				"If either is already set, ensure the value is not empty.",
-		)
-	} else if apitoken == "" && (username != "" && password == "") {
-		resp.Diagnostics.AddAttributeError(
-			path.Root("username"),
-			"Missing MIST API Password",
-			"The provider cannot create the MIST API client because there is a  a missing or empty value for the MIST Username whereas the MIST Password is configured. "+
-				"Set the host value in the configuration or use the `"+envUsername+"` environment variable. "+
-				"If either is already set, ensure the value is not empty.",
-		)
-	} else if apitoken == "" && (username == "" && password != "") {
-		resp.Diagnostics.AddAttributeError(
-			path.Root("password"),
-			"Missing MIST API Password",
-			"The provider cannot create the MIST API client because there is a  a missing or empty value for the MIST Password whereas the MIST Username is configured. "+
-				"Set the host value in the configuration or use the `"+envPassword+"` environment variable. "+
-				"If either is already set, ensure the value is not empty.",
-		)
-	}
-
+	// Retrieve missing config elements from environment
+	config.fromEnv(ctx, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
+	config.validateConfig(ctx, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if config.ApiTimeout.IsNull() {
+		config.ApiTimeout = types.Float64Value(defaultApiTimeout)
+	}
+
+	var proxy_url *url.URL
+	if !config.Proxy.IsNull() {
+		proxy_string := config.Proxy.ValueString()
+		if !strings.HasPrefix(proxy_string, "http://") &&
+			!strings.HasPrefix(proxy_string, "https://") &&
+			!strings.HasPrefix(proxy_string, "socks5://") {
+			proxy_string = "http://" + proxy_string
+		}
+		u, err := url.Parse(proxy_string)
+		if err != nil {
+			resp.Diagnostics.AddError("Unable to parse proxy configuration", err.Error())
+			return
+		}
+		proxy_url = u
+	}
+
 	var mist_cloud mistapi.Environment
-	switch host {
+	switch config.Host.ValueString() {
 	case "api.mist.com":
 		mist_cloud = mistapi.MIST_GLOBAL_01
 	case "api.gc1.mist.com":
@@ -208,46 +263,52 @@ func (p *mistProvider) Configure(ctx context.Context, req provider.ConfigureRequ
 		resp.Diagnostics.AddAttributeError(
 			path.Root("host"),
 			"Wrong Mist Host",
-			"The configured host \""+host+"\" is not a valid Mist Host. Please refer to the documentation to get the possible values",
+			"The configured host \""+config.Host.ValueString()+"\" is not a valid Mist Host. Please refer to the documentation to get the possible values",
 		)
 		return
 	}
 
-	var client mistapi.ClientInterface
+	var DefaultTransport http.RoundTripper = http.DefaultTransport
+	if proxy_url != nil {
+		DefaultTransport = &http.Transport{
+			Proxy: http.ProxyURL(proxy_url),
+		}
+	}
 	var client_config mistapi.Configuration
+	var cloud_config mistapi.ConfigurationOptions = mistapi.WithEnvironment(mist_cloud)
+	var http_config mistapi.ConfigurationOptions = mistapi.WithHttpConfiguration(
+		mistapi.CreateHttpConfiguration(
+			mistapi.WithTimeout(config.ApiTimeout.ValueFloat64()),
+			mistapi.WithTransport(DefaultTransport),
+		),
+	)
 
 	// configure the client for API Token Auth
-	if apitoken != "" {
+	if config.Apitoken.ValueString() != "" {
 		client_config = mistapi.CreateConfiguration(
-			mistapi.WithHttpConfiguration(
-				mistapi.CreateHttpConfiguration(
-					mistapi.WithTimeout(api_timeout),
-				),
-			),
-			mistapi.WithEnvironment(mist_cloud),
+			http_config,
+			cloud_config,
 			mistapi.WithApiTokenCredentials(
-				mistapi.NewApiTokenCredentials("Token "+apitoken),
+				mistapi.NewApiTokenCredentials("Token "+config.Apitoken.ValueString()),
 			),
 		)
+
 		// configure the client for Basic Auth + CSRF
 	} else {
 		// Initiate the login API Call
 		tmp_client := mistapi.NewClient(
 			mistapi.CreateConfiguration(
-				mistapi.WithHttpConfiguration(
-					mistapi.CreateHttpConfiguration(
-						mistapi.WithTimeout(api_timeout),
-					),
-				),
-				mistapi.WithEnvironment(mist_cloud),
+				http_config,
+				cloud_config,
 				mistapi.WithBasicAuthCredentials(
-					mistapi.NewBasicAuthCredentials(username, password),
+					mistapi.NewBasicAuthCredentials(config.Username.ValueString(), config.Password.ValueString()),
 				),
 			),
 		)
+
 		body := models.Login{}
-		body.Email = username
-		body.Password = password
+		body.Email = config.Username.ValueString()
+		body.Password = config.Password.ValueString()
 		apiResponse, err := tmp_client.AdminsLogin().Login(ctx, &body)
 		if err != nil {
 			resp.Diagnostics.AddError("Authentication Error", err.Error())
@@ -267,14 +328,10 @@ func (p *mistProvider) Configure(ctx context.Context, req provider.ConfigureRequ
 							csrfToken_string := strings.Split(cVal, "=")[1]
 							csrfToken := mistapi.NewCsrfTokenCredentials(string(csrfToken_string))
 							client_config = mistapi.CreateConfiguration(
-								mistapi.WithHttpConfiguration(
-									mistapi.CreateHttpConfiguration(
-										mistapi.WithTimeout(api_timeout),
-									),
-								),
-								mistapi.WithEnvironment(mist_cloud),
+								http_config,
+								cloud_config,
 								mistapi.WithBasicAuthCredentials(
-									mistapi.NewBasicAuthCredentials(username, password),
+									mistapi.NewBasicAuthCredentials(config.Username.ValueString(), config.Password.ValueString()),
 								),
 								mistapi.WithCsrfTokenCredentials(csrfToken),
 							)
@@ -292,7 +349,7 @@ func (p *mistProvider) Configure(ctx context.Context, req provider.ConfigureRequ
 	}
 
 	// Use the  configuration to create the client and test the credentials
-	client = mistapi.NewClient(client_config)
+	var client mistapi.ClientInterface = mistapi.NewClient(client_config)
 	_, err := client.SelfAccount().GetSelf(ctx)
 	if err != nil {
 		resp.Diagnostics.AddError("Authentication Error", err.Error())

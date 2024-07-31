@@ -26,17 +26,18 @@ acceptable in your environment.
 
 ### Proxy Support
 
-HTTP, HTTPS, and SOCKS5 proxies are supported through the `HTTP_PROXY` and
-`HTTPS_PROXY` environment variables or the lowercase versions of those
-variables. The value of each may be either a complete URL or a "host[:port]",
-in which case the "http" scheme is assumed.
-
-Hosts which should be omitted from the proxy configuration may be listed in
-the `NO_PROXY` (or `no_proxy`) environment variable ([details](https://github.com/golang/go/blob/682a1d2176b02337460aeede0ff9e49429525195/src/vendor/golang.org/x/net/http/httpproxy/proxy.go#L38C1-L50C13)).
-
-### Additional Environment Variables
-
-Provider attributes which have been omitted from the configuration
-may be set via environment variables: `MIST_API_TIMEOUT`.
+HTTP, HTTPS, and SOCKS5 proxies are supported through the `MIST_PROXY` environment
+ variables or the `proxy` provider configuration attribute.
 
 {{ .SchemaMarkdown | trimspace }}
+
+### Environment Variables
+
+| Varibale Name | Provider attribute | Type | Description |
+| ---- | ---- | ---- | ---- |
+| `MIST_HOST` | `host` | String | URL of the Mist Cloud, e.g. `api.mist.com`. See above for the list of supported Clouds.|
+| `MIST_API_TOKEN` | `apitoken` | String | For API Token authentication, the Mist API Token. |
+| `MIST_USERNAME` | `username` | String | For username/password authentication, the Mist Account password. |
+| `MIST_PASSWORD` | `password` | String | For username/password authentication, the Mist Account password. |
+| `MIST_PROXY` | `proxy` | String | Requests use the configured proxy to reach the Mist Cloud. The value may be either a complete URL or a `[username:password@]host[:port]`, in which case the `http` scheme is assumed. The schemes `http`, `https`, and `socks5` are supported. |
+| `MIST_API_TIMEOUT` | `api_timeout` | Int | Timeout in seconds for completing API transactions with the Mist Cloud. Omit for default value of 10 seconds. Value of 0 results in infinite timeout. |
