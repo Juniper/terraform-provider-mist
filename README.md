@@ -48,7 +48,7 @@ provider "mist" {
   * `go mod tidy` to install the depencies
   * `go install .` to install the provider
 3. create a `.terraformrc` file in your home folder with (replace `<home_folder_path>` with your actual home folder paht):
-```
+```terraform
 provider_installation {
   dev_overrides {
     "registry.terraform.io/juniper/mist" = "<home_folder_path>/go/bin/",
