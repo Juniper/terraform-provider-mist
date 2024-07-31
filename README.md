@@ -19,9 +19,7 @@ go install
 
 ## Using the provider
 
-This provider is not yet published in the terraform repository, and must be installed from the build.
-
-<!-- There are two ways to get and use the provider.
+There are two ways to get and use the provider.
 
 * Downloading & installing it from registry.terraform.io
 * Building it from source
@@ -39,10 +37,10 @@ terraform {
 }
 
 provider "mist" {
-  host     = local.envs["HOST"]
-  apitoken = local.envs["APITOKEN"]
+  host     = "api.mist.com"
+  apitoken = "xxxxxxxxxxxxxxxxxxxxxxxxx"
 }
-``` -->
+```
 
 ### From build
 1. Clone this repository
@@ -70,8 +68,8 @@ terraform {
 }
 
 provider "mist" {
-  host     = local.envs["HOST"]
-  apitoken = local.envs["APITOKEN"]
+  host     = "api.mist.com"
+  apitoken = "xxxxxxxxxxxxxxxxxxxxxxxxx"
 }
 ```
 
