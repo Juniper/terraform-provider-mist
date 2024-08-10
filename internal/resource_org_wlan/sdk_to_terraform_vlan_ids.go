@@ -10,7 +10,7 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func vlanIdsSkToTerraform(ctx context.Context, diags *diag.Diagnostics, data []models.WlanDynamicPskVlanIds) basetypes.ListValue {
+func vlanIdsSkToTerraform(ctx context.Context, diags *diag.Diagnostics, data []models.VlanIdWithVariable) basetypes.ListValue {
 
 	var list []attr.Value
 	for _, v := range data {

@@ -11,7 +11,7 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func usbStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ApStatsUsbStat) basetypes.ObjectValue {
+func usbStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.StatsApUsbStat) basetypes.ObjectValue {
 	var channel basetypes.Int64Value
 	var connected basetypes.BoolValue
 	var last_activity basetypes.Int64Value

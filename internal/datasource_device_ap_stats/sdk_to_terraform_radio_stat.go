@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func radioStatBandSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ApRadioStats) basetypes.ObjectValue {
+func radioStatBandSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ApRadioStat) basetypes.ObjectValue {
 
 	var bandwidth basetypes.Int64Value
 	var channel basetypes.Int64Value
@@ -119,7 +119,7 @@ func radioStatBandSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d
 	return data
 }
 
-func radioStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ApStatsRadioStat) basetypes.ObjectValue {
+func radioStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.StatsApRadioStat) basetypes.ObjectValue {
 
 	var band_24 basetypes.ObjectValue = types.ObjectNull(BandValue{}.AttributeTypes(ctx))
 	var band_5 basetypes.ObjectValue = types.ObjectNull(BandValue{}.AttributeTypes(ctx))

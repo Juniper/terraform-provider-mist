@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 )
 
-func TerraformToSdk(ctx context.Context, plan *OrgDeviceprofileGatewayModel) (models.Deviceprofile2, diag.Diagnostics) {
+func TerraformToSdk(ctx context.Context, plan *OrgDeviceprofileGatewayModel) (models.Deviceprofile, diag.Diagnostics) {
 	data := models.DeviceprofileGateway{}
 	var diags diag.Diagnostics
 	unset := make(map[string]interface{})

@@ -11,7 +11,7 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func iotStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.ApStatsIotStatAdditionalProperties) basetypes.MapValue {
+func iotStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.StatsApIotStatAdditionalProperties) basetypes.MapValue {
 	map_attr_values := make(map[string]attr.Value)
 	for k, d := range m {
 		var value basetypes.Int64Value

@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func serviceStatusSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.GatewayStatsServiceStatus) basetypes.ObjectValue {
+func serviceStatusSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.StatsGatewayServiceStatus) basetypes.ObjectValue {
 
 	var appid_install_result basetypes.StringValue
 	var appid_install_timestamp basetypes.StringValue

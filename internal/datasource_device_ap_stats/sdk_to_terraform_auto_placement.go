@@ -12,7 +12,7 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func autoPlacementInfoProbaSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ApStatsAutoPlacementInfoProbabilitySurface) basetypes.ObjectValue {
+func autoPlacementInfoProbaSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.StatsApAutoPlacementInfoProbabilitySurface) basetypes.ObjectValue {
 	var radius basetypes.NumberValue
 	var radius_m basetypes.NumberValue
 	var x basetypes.Float64Value
@@ -39,7 +39,7 @@ func autoPlacementInfoProbaSdkToTerraform(ctx context.Context, diags *diag.Diagn
 	return data
 }
 
-func autoPlacementInfoSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ApStatsAutoPlacementInfo) basetypes.ObjectValue {
+func autoPlacementInfoSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.StatsApAutoPlacementInfo) basetypes.ObjectValue {
 	var cluster_number basetypes.Int64Value
 	var orientation_stats basetypes.Int64Value
 	var probability_surface basetypes.ObjectValue = types.ObjectNull(ProbabilitySurfaceValue{}.AttributeTypes(ctx))
@@ -66,7 +66,7 @@ func autoPlacementInfoSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 	return data
 }
 
-func autoPlacementSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ApStatsAutoPlacement) basetypes.ObjectValue {
+func autoPlacementSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.StatsApAutoPlacement) basetypes.ObjectValue {
 	var info basetypes.ObjectValue = types.ObjectNull(InfoValue{}.AttributeTypes(ctx))
 	var recommended_anchor basetypes.BoolValue
 	var status basetypes.StringValue

@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func SwitchRedundancySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ApStatsSwitchRedundancy) basetypes.ObjectValue {
+func SwitchRedundancySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.StatsApSwitchRedundancy) basetypes.ObjectValue {
 
 	var num_redundant_aps basetypes.Int64Value
 

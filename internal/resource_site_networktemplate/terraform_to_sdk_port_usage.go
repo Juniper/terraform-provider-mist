@@ -137,7 +137,7 @@ func portUsageTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d bas
 			new_pu.PoeDisabled = models.ToPointer(pu_attr_value.PoeDisabled.ValueBool())
 		}
 		if pu_attr_value.PortAuth.ValueStringPointer() != nil {
-			new_pu.PortAuth = models.NewOptional(models.ToPointer(models.SwitchPortUsageDot1XEnum(pu_attr_value.PortAuth.ValueString())))
+			new_pu.PortAuth = models.NewOptional(models.ToPointer(models.SwitchPortUsageDot1xEnum(pu_attr_value.PortAuth.ValueString())))
 		}
 		if pu_attr_value.PortNetwork.ValueStringPointer() != nil {
 			new_pu.PortNetwork = models.ToPointer(pu_attr_value.PortNetwork.ValueString())

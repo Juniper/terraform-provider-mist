@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func vcSetupInfoSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SwitchStatsVcSetupInfo) basetypes.ObjectValue {
+func vcSetupInfoSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.StatsSwitchVcSetupInfo) basetypes.ObjectValue {
 
 	var config_type basetypes.StringValue
 	var err_missing_dev_id_fpc basetypes.BoolValue

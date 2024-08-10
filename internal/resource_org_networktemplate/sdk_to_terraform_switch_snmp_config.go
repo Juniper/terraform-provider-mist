@@ -86,7 +86,7 @@ func snmpTrapGroupsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 
 // //////////////////////////////////
 // ////////// V2
-func snmpV2cSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.SnmpConfigV2CConfig) basetypes.ListValue {
+func snmpV2cSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.SnmpConfigV2cConfig) basetypes.ListValue {
 	var data_list = []V2cConfigValue{}
 	for _, d := range l {
 		var authorization basetypes.StringValue

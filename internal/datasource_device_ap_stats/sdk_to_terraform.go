@@ -15,7 +15,7 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func SdkToTerraform(ctx context.Context, l []models.ListOrgDevicesStatsResponse) (basetypes.SetValue, diag.Diagnostics) {
+func SdkToTerraform(ctx context.Context, l []models.StatsDevice) (basetypes.SetValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	var elements []attr.Value
@@ -24,7 +24,7 @@ func SdkToTerraform(ctx context.Context, l []models.ListOrgDevicesStatsResponse)
 		if e != nil {
 			diags.AddError("Unable to Marshal AP Stats", e.Error())
 		} else {
-			ap := models.ApStats{}
+			ap := models.StatsAp{}
 			e := json.Unmarshal(ap_js, &ap)
 			if e != nil {
 				diags.AddError("Unable to unMarshal AP Stats", e.Error())
@@ -42,7 +42,7 @@ func SdkToTerraform(ctx context.Context, l []models.ListOrgDevicesStatsResponse)
 	return dataSet, diags
 }
 
-func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ApStats) DeviceApStatsValue {
+func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.StatsAp) DeviceApStatsValue {
 
 	var auto_placement basetypes.ObjectValue = types.ObjectNull(AutoPlacementValue{}.AttributeTypes(ctx))
 	var auto_upgrade_stat basetypes.ObjectValue = types.ObjectNull(AutoUpgradeStatValue{}.AttributeTypes(ctx))

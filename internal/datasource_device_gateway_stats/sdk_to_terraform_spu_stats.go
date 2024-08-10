@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func spuStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.GatewayStatsSpuItem) basetypes.ListValue {
+func spuStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.StatsGatewaySpuItem) basetypes.ListValue {
 
 	var data_list = []SpuStatValue{}
 	for _, d := range l {

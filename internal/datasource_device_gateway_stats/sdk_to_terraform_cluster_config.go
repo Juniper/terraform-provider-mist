@@ -13,7 +13,7 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func clusterConfigControlLinkInfoSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ClusterConfigStatsControlLinkInfo) basetypes.ObjectValue {
+func clusterConfigControlLinkInfoSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.StatsClusterConfigControlLinkInfo) basetypes.ObjectValue {
 	var name basetypes.StringValue
 	var status basetypes.StringValue
 
@@ -36,7 +36,7 @@ func clusterConfigControlLinkInfoSdkToTerraform(ctx context.Context, diags *diag
 	return data
 }
 
-func clusterConfigStatsEthernetConnectionSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.ClusterConfigStatsEthernetConnectionItem) basetypes.ListValue {
+func clusterConfigStatsEthernetConnectionSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.StatsClusterConfigEthernetConnectionItem) basetypes.ListValue {
 	var data_list = []EthernetConnectionValue{}
 	for _, d := range l {
 
@@ -64,7 +64,7 @@ func clusterConfigStatsEthernetConnectionSdkToTerraform(ctx context.Context, dia
 	return r
 }
 
-func clusterConfigFabricLinkInfoSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ClusterConfigStatsFabricLinkInfo) basetypes.ObjectValue {
+func clusterConfigFabricLinkInfoSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.StatsClusterConfigFabricLinkInfo) basetypes.ObjectValue {
 	var data_plane_notified_status basetypes.StringValue
 	var interface_link basetypes.ListValue = types.ListNull(types.StringType)
 	var internal_status basetypes.StringValue
@@ -101,7 +101,7 @@ func clusterConfigFabricLinkInfoSdkToTerraform(ctx context.Context, diags *diag.
 	return data
 }
 
-func clusterConfigStatsRedundancySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.ClusterConfigStatsRedundancyGroupInfoItem) basetypes.ListValue {
+func clusterConfigStatsRedundancySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.StatsClusterConfigRedundancyGroupInfoItem) basetypes.ListValue {
 	var data_list = []RedundancyGroupInformationValue{}
 	for _, d := range l {
 
@@ -134,7 +134,7 @@ func clusterConfigStatsRedundancySdkToTerraform(ctx context.Context, diags *diag
 	return r
 }
 
-func clusterConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ClusterConfigStats) basetypes.ObjectValue {
+func clusterConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.StatsClusterConfig) basetypes.ObjectValue {
 	var configuration basetypes.StringValue
 	var control_link_info basetypes.ObjectValue = types.ObjectNull(ControlLinkInfoValue{}.AttributeTypes(ctx))
 	var ethernet_connection basetypes.ListValue = types.ListNull(EthernetConnectionValue{}.Type(ctx))

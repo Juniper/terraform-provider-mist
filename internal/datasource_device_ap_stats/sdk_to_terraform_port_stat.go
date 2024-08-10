@@ -12,7 +12,7 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func portStatdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.ApStatsPortStat) basetypes.MapValue {
+func portStatdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.StatsApPortStat) basetypes.MapValue {
 	map_attr_values := make(map[string]attr.Value)
 	for k, d := range m {
 		var full_duplex basetypes.BoolValue

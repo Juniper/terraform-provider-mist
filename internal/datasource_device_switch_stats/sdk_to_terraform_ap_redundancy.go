@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func apRedundancyModuleSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.SwitchStatsApRedundancyModule) basetypes.MapValue {
+func apRedundancyModuleSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.StatsSwitchApRedundancyModule) basetypes.MapValue {
 
 	map_attr_values := make(map[string]attr.Value)
 	for k, d := range m {
@@ -39,7 +39,7 @@ func apRedundancyModuleSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 	return state_result
 }
 
-func apRedundancySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SwitchStatsApRedundancy) basetypes.ObjectValue {
+func apRedundancySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.StatsSwitchApRedundancy) basetypes.ObjectValue {
 
 	var modules basetypes.MapValue = types.MapNull(ModulesValue{}.Type(ctx))
 	var num_aps basetypes.Int64Value

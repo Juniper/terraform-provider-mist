@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func cradlepointSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.AccountCradlepointConfig) CradlepointValue {
+func cradlepointSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.OrgSettingCradlepoint) CradlepointValue {
 
 	var cp_api_id basetypes.StringValue
 	var cp_api_key basetypes.StringValue

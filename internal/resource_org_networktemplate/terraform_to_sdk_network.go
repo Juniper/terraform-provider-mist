@@ -17,7 +17,7 @@ func NetworksTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d base
 
 		net_data := models.SwitchNetwork{}
 		if net_plan.VlanId.ValueStringPointer() != nil {
-			net_data.VlanId = models.SwitchNetworkVlanIdContainer.FromString(net_plan.VlanId.ValueString())
+			net_data.VlanId = models.VlanIdWithVariableContainer.FromString(net_plan.VlanId.ValueString())
 		}
 		if net_plan.Subnet.ValueStringPointer() != nil {
 			net_data.Subnet = models.ToPointer(net_plan.Subnet.ValueString())

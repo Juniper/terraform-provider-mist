@@ -11,7 +11,7 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func clusterStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.GatewayStatsCluster) basetypes.ObjectValue {
+func clusterStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.StatsGatewayCluster) basetypes.ObjectValue {
 	var state basetypes.StringValue
 
 	if d.State.Value() != nil {

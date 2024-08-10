@@ -213,8 +213,8 @@ func switchMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 	var tacacs basetypes.ObjectValue = types.ObjectNull(TacacsValue{}.AttributeTypes(ctx))
 
 	if d != nil {
-		if d.ConfigRevert != nil {
-			config_revert = types.Int64Value(int64(*d.ConfigRevert))
+		if d.ConfigRevertTimer != nil {
+			config_revert = types.Int64Value(int64(*d.ConfigRevertTimer))
 		}
 		if d.ProtectRe != nil {
 			protect_re = switchMgmtProtectReSdkToTerraform(ctx, diags, d.ProtectRe)

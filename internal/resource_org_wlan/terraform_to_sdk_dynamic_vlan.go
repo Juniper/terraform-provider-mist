@@ -11,11 +11,11 @@ import (
 
 func dynamicVlanTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, plan DynamicVlanValue) *models.WlanDynamicVlan {
 
-	var local_vlan_ids []models.WlanDynamicVlanLocalVlanIds
+	var local_vlan_ids []models.VlanIdWithVariable
 	for _, item := range plan.LocalVlanIds.Elements() {
 		var item_interface interface{} = item
 		i := item_interface.(basetypes.StringValue)
-		j := models.WlanDynamicVlanLocalVlanIdsContainer.FromString(i.ValueString())
+		j := models.VlanIdWithVariableContainer.FromString(i.ValueString())
 		local_vlan_ids = append(local_vlan_ids, j)
 	}
 
@@ -26,11 +26,11 @@ func dynamicVlanTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, pla
 		vlans[k] = v_plan.ValueString()
 	}
 
-	var default_vlan_ids []models.WlanDynamicVlanDefaultVlanIds
+	var default_vlan_ids []models.WlanDynamicVlanDefaultVlanId
 	for _, item := range plan.DefaultVlanIds.Elements() {
 		var item_interface interface{} = item
 		i := item_interface.(basetypes.StringValue)
-		j := models.WlanDynamicVlanDefaultVlanIdsContainer.FromString(i.ValueString())
+		j := models.WlanDynamicVlanDefaultVlanIdContainer.FromString(i.ValueString())
 		default_vlan_ids = append(default_vlan_ids, j)
 	}
 

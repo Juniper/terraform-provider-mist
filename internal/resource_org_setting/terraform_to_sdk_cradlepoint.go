@@ -8,8 +8,8 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func cradlepointTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d CradlepointValue) *models.AccountCradlepointConfig {
-	data := models.AccountCradlepointConfig{}
+func cradlepointTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d CradlepointValue) *models.OrgSettingCradlepoint {
+	data := models.OrgSettingCradlepoint{}
 
 	if d.CpApiId.ValueStringPointer() != nil {
 		data.CpApiId = d.CpApiId.ValueStringPointer()

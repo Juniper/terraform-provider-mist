@@ -61,12 +61,12 @@ func snmpConfigTrapGroupsTerraformToSdk(ctx context.Context, diags *diag.Diagnos
 
 // //////////////////////////////////
 // ////////// V2c
-func snmpConfigV2cTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.SnmpConfigV2CConfig {
-	var data_list []models.SnmpConfigV2CConfig
+func snmpConfigV2cTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.SnmpConfigV2cConfig {
+	var data_list []models.SnmpConfigV2cConfig
 	for _, v := range d.Elements() {
 		var v_interface interface{} = v
 		plan := v_interface.(V2cConfigValue)
-		data := models.SnmpConfigV2CConfig{}
+		data := models.SnmpConfigV2cConfig{}
 		if plan.Authorization.ValueStringPointer() != nil {
 			data.Authorization = plan.Authorization.ValueStringPointer()
 		}

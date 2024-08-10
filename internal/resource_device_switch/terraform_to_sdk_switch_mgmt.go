@@ -145,7 +145,7 @@ func switchMgmtTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d Sw
 	} else {
 
 		if d.ConfigRevert.ValueInt64Pointer() != nil {
-			data.ConfigRevert = models.ToPointer(int(d.ConfigRevert.ValueInt64()))
+			data.ConfigRevertTimer = models.ToPointer(int(d.ConfigRevert.ValueInt64()))
 		}
 		if !d.ProtectRe.IsNull() && !d.ProtectRe.IsUnknown() {
 			data.ProtectRe = switchMgmtProtectReTerraformToSdk(ctx, diags, d.ProtectRe)

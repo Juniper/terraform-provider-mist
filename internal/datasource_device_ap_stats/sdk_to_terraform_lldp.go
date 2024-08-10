@@ -14,7 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func lldpSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ApStatsLldpStat) basetypes.ObjectValue {
+func lldpSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.StatsApLldpStat) basetypes.ObjectValue {
 
 	var chassis_id basetypes.StringValue
 	var lldp_med_supported basetypes.BoolValue

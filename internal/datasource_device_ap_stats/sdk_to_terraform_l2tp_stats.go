@@ -11,7 +11,7 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func l2tpStatsSessionSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.ApStatsL2TpStatSession) basetypes.ListValue {
+func l2tpStatsSessionSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.StatsApL2tpStatSession) basetypes.ListValue {
 	var data_list = []SessionsValue{}
 	for _, d := range l {
 		var local_sid basetypes.Int64Value
@@ -48,7 +48,7 @@ func l2tpStatsSessionSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 	return r
 }
 
-func l2tpStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.ApStatsL2TpStat) basetypes.MapValue {
+func l2tpStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.StatsApL2tpStat) basetypes.MapValue {
 	map_attr_values := make(map[string]attr.Value)
 	for k, d := range m {
 		var sessions basetypes.ListValue = types.ListUnknown(SessionsValue{}.Type(ctx))

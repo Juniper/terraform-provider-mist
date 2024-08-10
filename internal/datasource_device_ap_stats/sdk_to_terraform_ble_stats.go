@@ -13,7 +13,7 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func bleStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ApStatsBle) basetypes.ObjectValue {
+func bleStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.StatsApBle) basetypes.ObjectValue {
 	var beacon_enabled basetypes.BoolValue
 	var beacon_rate basetypes.Int64Value
 	var eddystone_uid_enabled basetypes.BoolValue

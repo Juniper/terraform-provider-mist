@@ -29,11 +29,11 @@ func bonjourTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, plan Bo
 
 	data := models.WlanBonjour{}
 
-	var items []models.WlanBonjourAdditionalVlanIds
+	var items []models.VlanIdWithVariable
 	for _, item := range plan.AdditionalVlanIds.Elements() {
 		var item_interface interface{} = item
 		i := item_interface.(basetypes.StringValue)
-		v := models.WlanBonjourAdditionalVlanIdsContainer.FromString(i.ValueString())
+		v := models.VlanIdWithVariableContainer.FromString(i.ValueString())
 		items = append(items, v)
 	}
 	data.AdditionalVlanIds = items

@@ -479,17 +479,17 @@ func TerraformToSdk(ctx context.Context, plan *OrgWlanModel) (*models.Wlan, diag
 	if plan.VlanId.IsNull() || plan.VlanId.IsUnknown() {
 		unset["-vlan_id"] = ""
 	} else {
-		data.VlanId = models.ToPointer(models.WlanVlanIdContainer.FromString(plan.VlanId.ValueString()))
+		data.VlanId = models.ToPointer(models.VlanIdWithVariableContainer.FromString(plan.VlanId.ValueString()))
 	}
 
 	if plan.VlanIds.IsNull() || plan.VlanIds.IsUnknown() {
 		unset["-vlan_ids"] = ""
 	} else {
-		var items []models.WlanVlanIds
+		var items []models.VlanIdWithVariable
 		for _, item := range plan.VlanIds.Elements() {
 			var item_interface interface{} = item
 			i := item_interface.(basetypes.StringValue)
-			v := models.WlanVlanIdsContainer.FromString(i.ValueString())
+			v := models.VlanIdWithVariableContainer.FromString(i.ValueString())
 			items = append(items, v)
 		}
 		data.VlanIds = items

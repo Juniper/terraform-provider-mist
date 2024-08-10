@@ -11,7 +11,7 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func envStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ApStatsEnvStat) basetypes.ObjectValue {
+func envStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.StatsApEnvStat) basetypes.ObjectValue {
 	var accel_x basetypes.Float64Value
 	var accel_y basetypes.Float64Value
 	var accel_z basetypes.Float64Value

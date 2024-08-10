@@ -11,7 +11,7 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func eslStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ApStatsEslStat) basetypes.ObjectValue {
+func eslStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.StatsApEslStat) basetypes.ObjectValue {
 	var channel basetypes.Int64Value
 	var connected basetypes.BoolValue
 	var type_esl basetypes.StringValue

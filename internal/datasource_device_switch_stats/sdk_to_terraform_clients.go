@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func clientsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.SwitchStatsClientItem) basetypes.ListValue {
+func clientsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.StatsSwitchClientItem) basetypes.ListValue {
 
 	var data_list = []ClientsValue{}
 

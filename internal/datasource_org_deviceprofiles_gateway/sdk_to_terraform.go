@@ -13,7 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func SdkToTerraform(ctx context.Context, l []models.ListOrgDeviceProfilesResponse) (basetypes.SetValue, diag.Diagnostics) {
+func SdkToTerraform(ctx context.Context, l []models.Deviceprofile) (basetypes.SetValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	var elements []attr.Value

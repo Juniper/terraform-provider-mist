@@ -84,7 +84,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgNetworkModel) (*models.Network
 	}
 
 	if plan.VlanId.ValueStringPointer() != nil {
-		data.VlanId = models.ToPointer(models.NetworkVlanIdContainer.FromString(plan.VlanId.ValueString()))
+		data.VlanId = models.ToPointer(models.VlanIdWithVariableContainer.FromString(plan.VlanId.ValueString()))
 	} else {
 		unset["-vlan_id"] = ""
 	}

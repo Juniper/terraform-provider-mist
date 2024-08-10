@@ -17,7 +17,7 @@ func criticalUrlMonitoringMonitorsTerraformToSdk(ctx context.Context, diags *dia
 		data := models.SiteSettingCriticalUrlMonitoringMonitor{}
 		data.Url = plan.Url.ValueStringPointer()
 		if !plan.VlanId.IsNull() && !plan.VlanId.IsUnknown() {
-			data.VlanId = models.ToPointer(models.SiteSettingCriticalUrlMonitoringMonitorVlanIdContainer.FromString(plan.VlanId.ValueString()))
+			data.VlanId = models.ToPointer(models.VlanIdWithVariableContainer.FromString(plan.VlanId.ValueString()))
 		}
 
 		data_list = append(data_list, data)

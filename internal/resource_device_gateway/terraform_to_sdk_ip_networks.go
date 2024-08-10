@@ -62,7 +62,7 @@ func networksTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d base
 		}
 
 		if plan.VlanId.ValueStringPointer() != nil {
-			data.VlanId = models.ToPointer(models.NetworkVlanIdContainer.FromString(plan.VlanId.ValueString()))
+			data.VlanId = models.ToPointer(models.VlanIdWithVariableContainer.FromString(plan.VlanId.ValueString()))
 		}
 
 		if !plan.VpnAccess.IsNull() && !plan.VpnAccess.IsUnknown() {

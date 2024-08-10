@@ -13,7 +13,7 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func SdkToTerraform(ctx context.Context, l []models.ListOrgDevicesStatsResponse) (basetypes.SetValue, diag.Diagnostics) {
+func SdkToTerraform(ctx context.Context, l []models.StatsDevice) (basetypes.SetValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	var elements []attr.Value
@@ -22,7 +22,7 @@ func SdkToTerraform(ctx context.Context, l []models.ListOrgDevicesStatsResponse)
 		if e != nil {
 			diags.AddError("Unable to Marshal Switch Stats", e.Error())
 		} else {
-			sw := models.SwitchStats{}
+			sw := models.StatsSwitch{}
 			e := json.Unmarshal(sw_js, &sw)
 			if e != nil {
 				diags.AddError("Unable to unMarshal Switch Stats", e.Error())
@@ -40,7 +40,7 @@ func SdkToTerraform(ctx context.Context, l []models.ListOrgDevicesStatsResponse)
 	return dataSet, diags
 }
 
-func deviceSwitchStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SwitchStats) DeviceSwitchStatsValue {
+func deviceSwitchStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.StatsSwitch) DeviceSwitchStatsValue {
 
 	var ap_redundancy basetypes.ObjectValue = types.ObjectNull(ApRedundancyValue{}.AttributeTypes(ctx))
 	var arp_table_stats basetypes.ObjectValue = types.ObjectNull(ArpTableStatsValue{}.AttributeTypes(ctx))
