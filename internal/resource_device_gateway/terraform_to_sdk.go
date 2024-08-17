@@ -16,11 +16,15 @@ func TerraformToSdk(ctx context.Context, plan *DeviceGatewayModel) (models.MistD
 	var diags diag.Diagnostics
 	unset := make(map[string]interface{})
 
-	map_id, e := uuid.Parse(plan.MapId.ValueString())
-	if e == nil {
-		data.MapId = &map_id
+	if len(plan.MapId.ValueString()) > 0 {
+		map_id, e := uuid.Parse(plan.MapId.ValueString())
+		if e == nil {
+			data.MapId = &map_id
+		} else {
+			diags.AddError("Bad value for map_id", e.Error())
+		}
 	} else {
-		unset["map_id"] = nil
+		unset["-map_id"] = nil
 	}
 
 	data.Name = plan.Name.ValueStringPointer()
