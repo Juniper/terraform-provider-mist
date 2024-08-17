@@ -42,12 +42,13 @@ func TerraformToSdk(ctx context.Context, plan *SiteWxruleModel) (*models.WxlanRu
 
 	if len(plan.TemplateId.ValueString()) > 0 {
 		template_id, e := uuid.Parse(plan.TemplateId.ValueString())
-		if e != nil {
-			diags.AddError("Unable to convert IdpprofileId", e.Error())
-		} else {
+		if e == nil {
 			data.TemplateId = models.ToPointer(template_id)
+		} else {
+			diags.AddError("Bad value for idpprofile_id", e.Error())
 		}
 	}
+
 	return &data, diags
 
 }

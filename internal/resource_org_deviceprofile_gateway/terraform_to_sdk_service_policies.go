@@ -61,10 +61,10 @@ func idpConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d bas
 		} else {
 			if plan.IdpprofileId.ValueStringPointer() != nil {
 				idp_profile_id, e := uuid.Parse(plan.IdpprofileId.ValueString())
-				if e != nil {
-					diags.AddError("Unable to convert IdpprofileId", e.Error())
-				} else {
+				if e == nil {
 					data.IdpprofileId = models.ToPointer(idp_profile_id)
+				} else {
+					diags.AddError("Bad value for idpprofile_id", e.Error())
 				}
 			}
 
@@ -116,10 +116,10 @@ func servicePoliciesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics,
 		}
 		if plan.ServicepolicyId.ValueStringPointer() != nil {
 			service_policy_id, e := uuid.Parse(plan.ServicepolicyId.ValueString())
-			if e != nil {
-				diags.AddError("Unable to convert ServicepolicyId", e.Error())
-			} else {
+			if e == nil {
 				data.ServicepolicyId = models.ToPointer(service_policy_id)
+			} else {
+				diags.AddError("Bad value for servicepolicy_id", e.Error())
 			}
 		}
 

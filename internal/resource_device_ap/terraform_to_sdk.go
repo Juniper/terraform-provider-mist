@@ -16,17 +16,26 @@ func TerraformToSdk(ctx context.Context, plan *DeviceApModel) (models.MistDevice
 	var diags diag.Diagnostics
 	unset := make(map[string]interface{})
 
-	deviceprofile_id, e := uuid.Parse(plan.DeviceprofileId.ValueString())
-	if e == nil {
-		data.DeviceprofileId = models.NewOptional(&deviceprofile_id)
+	if len(plan.DeviceprofileId.ValueString()) > 0 {
+		deviceprofile_id, e := uuid.Parse(plan.DeviceprofileId.ValueString())
+		if e == nil {
+			data.DeviceprofileId = models.NewOptional(&deviceprofile_id)
+		} else {
+			diags.AddError("Bad value for deviceprofile_id", e.Error())
+		}
 	} else {
-		unset["deviceprofile_id"] = nil
+		unset["-deviceprofile_id"] = nil
 	}
-	map_id, e := uuid.Parse(plan.MapId.ValueString())
-	if e == nil {
-		data.MapId = &map_id
+
+	if len(plan.MapId.ValueString()) > 0 {
+		map_id, e := uuid.Parse(plan.MapId.ValueString())
+		if e == nil {
+			data.MapId = &map_id
+		} else {
+			diags.AddError("Bad value for map_id", e.Error())
+		}
 	} else {
-		unset["map_id"] = nil
+		unset["-map_id"] = nil
 	}
 
 	data.Name = plan.Name.ValueStringPointer()

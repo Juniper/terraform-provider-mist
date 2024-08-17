@@ -24,10 +24,10 @@ func mistNacIdpsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d b
 
 		if plan.Id.ValueStringPointer() != nil {
 			id_uuid, e := uuid.Parse(plan.Id.String())
-			if e != nil {
-				diags.AddWarning("Unable to parse Nac Idp UUID", e.Error())
-			} else {
+			if e == nil {
 				data.Id = models.ToPointer(id_uuid)
+			} else {
+				diags.AddWarning("Unable to parse Nac Idp UUID", e.Error())
 			}
 		}
 
