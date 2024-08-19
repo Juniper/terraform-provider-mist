@@ -1,6 +1,6 @@
 ---
 page_title: "mist_org_wxrule Resource - terraform-provider-mist"
-subcategory: "WLAN"
+subcategory: "Wi-Fi Assurance"
 description: |-
   This resource manages the Org WxRules (WxLAN policies).A WxLAN policy is a set of rules and settings that can be applied to devices in a network to determine how they are treated. it provides support for access policies, network segmentation, role-based policies, micro-segmentation, and least privilege. WxLAN policies are used to allow or deny specific users from accessing specific resources in a wireless network.
 ---

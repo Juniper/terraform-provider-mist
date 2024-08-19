@@ -1,6 +1,6 @@
 ---
 page_title: "mist_site_wlan Resource - terraform-provider-mist"
-subcategory: "WLAN"
+subcategory: "Wi-Fi Assurance"
 description: |-
   This resource manages the Site Wlans.The WLAN object contains all the required configuration to broadcast an SSID (Authentication, VLAN, ...)
 ---

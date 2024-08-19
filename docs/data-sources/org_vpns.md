@@ -1,6 +1,6 @@
 ---
 page_title: "mist_org_vpns Data Source - terraform-provider-mist"
-subcategory: "WLAN"
+subcategory: "Wi-Fi Assurance"
 description: |-
   This data source provide the list of the Org VPNs.
 ---
