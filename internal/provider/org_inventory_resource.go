@@ -290,7 +290,7 @@ func (r *orgInventoryResource) updateInventory(ctx context.Context, orgId *uuid.
 			assign_body := models.InventoryUpdate{}
 			assign_body.Op = models.InventoryUpdateOperationEnum_ASSIGN
 			assign_body.Macs = assign[k]
-			tflog.Error(ctx, "devices "+strings.Join(assign[k], ", ")+" to "+k)
+			tflog.Info(ctx, "devices "+strings.Join(assign[k], ", ")+" to "+k)
 			assign_body.SiteId = models.ToPointer(uuid.MustParse(k))
 
 			assign_response, err := r.client.OrgsInventory().UpdateOrgInventoryAssignment(ctx, *orgId, &assign_body)
