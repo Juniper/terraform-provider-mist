@@ -11,7 +11,7 @@ const (
 	docCategorySite      = "Site" + docCategorySeparator
 	docCategoryOrg       = "Org" + docCategorySeparator
 	docCategoryDevices   = "Devices" + docCategorySeparator
-	docCategoryWlan      = "WLAN" + docCategorySeparator
+	docCategoryWlan      = "Wi-Fi Assurance" + docCategorySeparator
 	docCategoryWan       = "WAN Assurance" + docCategorySeparator
 	docCategoryWired     = "Wired Assurance" + docCategorySeparator
 	docCategoryNac       = "Access Assurance" + docCategorySeparator

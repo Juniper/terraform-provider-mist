@@ -28,7 +28,7 @@ type orgSitegroupsDataSource struct {
 }
 
 func (d *orgSitegroupsDataSource) Configure(ctx context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
-	tflog.Info(ctx, "Configuring Mist AP Stats")
+	tflog.Info(ctx, "Configuring Mist Org Site Groups Datasource client")
 	if req.ProviderData == nil {
 		return
 	}

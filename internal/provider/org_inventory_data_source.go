@@ -28,7 +28,7 @@ type orgInventoryDataSource struct {
 }
 
 func (d *orgInventoryDataSource) Configure(ctx context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
-	tflog.Info(ctx, "Configuring Mist AP Stats")
+	tflog.Info(ctx, "Configuring Mist Org Inventory Datasource client")
 	if req.ProviderData == nil {
 		return
 	}

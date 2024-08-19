@@ -28,7 +28,7 @@ type orgRftemplatesDataSource struct {
 }
 
 func (d *orgRftemplatesDataSource) Configure(ctx context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
-	tflog.Info(ctx, "Configuring Mist AP Stats")
+	tflog.Info(ctx, "Configuring Mist Org Rf Templates Datasource client")
 	if req.ProviderData == nil {
 		return
 	}

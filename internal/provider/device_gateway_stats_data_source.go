@@ -28,7 +28,7 @@ type deviceGatewayStatsDataSource struct {
 }
 
 func (d *deviceGatewayStatsDataSource) Configure(ctx context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
-	tflog.Info(ctx, "Configuring Mist AP Stats")
+	tflog.Info(ctx, "Configuring Mist Org Gateway Stats Datasource client")
 	if req.ProviderData == nil {
 		return
 	}

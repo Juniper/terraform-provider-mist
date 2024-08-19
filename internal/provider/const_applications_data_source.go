@@ -25,7 +25,7 @@ type constApplicationsDataSource struct {
 }
 
 func (d *constApplicationsDataSource) Configure(ctx context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
-	tflog.Info(ctx, "Configuring Mist AP Stats")
+	tflog.Info(ctx, "Configuring Mist Org Constant Applications Datasource client")
 	if req.ProviderData == nil {
 		return
 	}

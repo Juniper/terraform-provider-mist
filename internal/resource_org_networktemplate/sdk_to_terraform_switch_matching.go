@@ -207,7 +207,6 @@ func switchMatchingRulesSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 			tflog.Error(ctx, "switchMatchingRulesSdkToTerraform", map[string]interface{}{
 				"summary": f.Summary(),
 				"error":   f.Detail()})
-
 		}
 	}
 	diags.Append(e...)

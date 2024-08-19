@@ -25,7 +25,7 @@ type constAppSubCategoriesDataSource struct {
 }
 
 func (d *constAppSubCategoriesDataSource) Configure(ctx context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
-	tflog.Info(ctx, "Configuring Mist AP Stats")
+	tflog.Info(ctx, "Configuring Mist Org Constant App Sub Categories Datasource client")
 	if req.ProviderData == nil {
 		return
 	}
