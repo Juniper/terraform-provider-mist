@@ -9,14 +9,16 @@ import (
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_wxtag"
 
 	"github.com/google/uuid"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 var (
-	_ resource.Resource              = &orgWxTagResource{}
-	_ resource.ResourceWithConfigure = &orgWxTagResource{}
+	_ resource.Resource                = &orgWxTagResource{}
+	_ resource.ResourceWithConfigure   = &orgWxTagResource{}
+	_ resource.ResourceWithImportState = &orgWxTagResource{}
 )
 
 func NewOrgWxTag() resource.Resource {
@@ -206,4 +208,18 @@ func (r *orgWxTagResource) Delete(ctx context.Context, req resource.DeleteReques
 		)
 		return
 	}
+}
+
+func (r *orgWxTagResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+
+	_, err := uuid.Parse(req.ID)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error getting org id from import",
+			"Could not get org id, unexpected error: "+err.Error(),
+		)
+		return
+	}
+
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), req.ID)...)
 }

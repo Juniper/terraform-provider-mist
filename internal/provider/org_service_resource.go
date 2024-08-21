@@ -9,14 +9,16 @@ import (
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_service"
 
 	"github.com/google/uuid"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 var (
-	_ resource.Resource              = &orgOrgServiceResource{}
-	_ resource.ResourceWithConfigure = &orgOrgServiceResource{}
+	_ resource.Resource                = &orgOrgServiceResource{}
+	_ resource.ResourceWithConfigure   = &orgOrgServiceResource{}
+	_ resource.ResourceWithImportState = &orgOrgServiceResource{}
 )
 
 func NewOrgServiceResource() resource.Resource {
@@ -201,4 +203,18 @@ func (r *orgOrgServiceResource) Delete(ctx context.Context, req resource.DeleteR
 		)
 		return
 	}
+}
+
+func (r *orgOrgServiceResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+
+	_, err := uuid.Parse(req.ID)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error getting org id from import",
+			"Could not get org id, unexpected error: "+err.Error(),
+		)
+		return
+	}
+
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), req.ID)...)
 }

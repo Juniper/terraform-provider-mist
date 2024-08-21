@@ -10,6 +10,7 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/google/uuid"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -17,8 +18,9 @@ import (
 )
 
 var (
-	_ resource.Resource              = &orgDeviceprofileAssignResource{}
-	_ resource.ResourceWithConfigure = &orgDeviceprofileAssignResource{}
+	_ resource.Resource                = &orgDeviceprofileAssignResource{}
+	_ resource.ResourceWithConfigure   = &orgDeviceprofileAssignResource{}
+	_ resource.ResourceWithImportState = &orgDeviceprofileAssignResource{}
 )
 
 func NewOrgDeviceprofileAssign() resource.Resource {
@@ -284,4 +286,18 @@ func (r *orgDeviceprofileAssignResource) unassign(ctx context.Context, orgId uui
 	} else {
 		return nil, nil
 	}
+}
+
+func (r *orgDeviceprofileAssignResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+
+	_, err := uuid.Parse(req.ID)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error getting org id from import",
+			"Could not get org id, unexpected error: "+err.Error(),
+		)
+		return
+	}
+
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), req.ID)...)
 }

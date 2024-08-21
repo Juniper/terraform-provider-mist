@@ -9,14 +9,16 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi"
 
 	"github.com/google/uuid"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 var (
-	_ resource.Resource              = &orgResource{}
-	_ resource.ResourceWithConfigure = &orgResource{}
+	_ resource.Resource                = &orgResource{}
+	_ resource.ResourceWithConfigure   = &orgResource{}
+	_ resource.ResourceWithImportState = &orgResource{}
 )
 
 func NewOrgResource() resource.Resource {
@@ -104,7 +106,15 @@ func (r *orgResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 		return
 	}
 
-	orgId := uuid.MustParse(state.Id.ValueString())
+	orgId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error getting org id from plan",
+			"Could not get org id, unexpected error: "+err.Error(),
+		)
+		return
+	}
+
 	tflog.Info(ctx, "Starting Org Read: org_id "+state.Id.ValueString())
 	httpr, err := r.client.Orgs().GetOrg(ctx, orgId)
 	if httpr.Response.StatusCode == 404 {
@@ -145,7 +155,15 @@ func (r *orgResource) Update(ctx context.Context, req resource.UpdateRequest, re
 		return
 	}
 
-	orgId := uuid.MustParse(state.Id.ValueString())
+	orgId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error getting org id from plan",
+			"Could not get org id, unexpected error: "+err.Error(),
+		)
+		return
+	}
+
 	org, diags := resource_org.TerraformToSdk(&plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -186,7 +204,14 @@ func (r *orgResource) Delete(ctx context.Context, req resource.DeleteRequest, re
 		return
 	}
 
-	orgId := uuid.MustParse(state.Id.ValueString())
+	orgId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error getting org id from plan",
+			"Could not get org id, unexpected error: "+err.Error(),
+		)
+		return
+	}
 
 	tflog.Info(ctx, "Starting Org Delete: org_id "+state.Id.ValueString())
 	httpr, err := r.client.Orgs().DeleteOrg(ctx, orgId)
@@ -197,4 +222,18 @@ func (r *orgResource) Delete(ctx context.Context, req resource.DeleteRequest, re
 		)
 		return
 	}
+}
+
+func (r *orgResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+
+	_, err := uuid.Parse(req.ID)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error getting org id from import",
+			"Could not get org id, unexpected error: "+err.Error(),
+		)
+		return
+	}
+
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), req.ID)...)
 }

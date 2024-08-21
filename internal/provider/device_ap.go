@@ -13,14 +13,16 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/google/uuid"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 var (
-	_ resource.Resource              = &deviceApResource{}
-	_ resource.ResourceWithConfigure = &deviceApResource{}
+	_ resource.Resource                = &deviceApResource{}
+	_ resource.ResourceWithConfigure   = &deviceApResource{}
+	_ resource.ResourceWithImportState = &deviceApResource{}
 )
 
 func NewDeviceApResource() resource.Resource {
@@ -32,7 +34,7 @@ type deviceApResource struct {
 }
 
 func (r *deviceApResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
-	tflog.Info(ctx, "Configuring Mist DeviceAp client")
+	tflog.Info(ctx, "Configuring Mist DeviceAp Resource client")
 	if req.ProviderData == nil {
 		return
 	}
@@ -290,4 +292,18 @@ func (r *deviceApResource) Delete(ctx context.Context, req resource.DeleteReques
 		)
 		return
 	}
+}
+
+func (r *deviceApResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+
+	_, err := uuid.Parse(req.ID)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error getting org id from import",
+			"Could not get org id, unexpected error: "+err.Error(),
+		)
+		return
+	}
+
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), req.ID)...)
 }

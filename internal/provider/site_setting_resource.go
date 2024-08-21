@@ -9,14 +9,16 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi"
 
 	"github.com/google/uuid"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 var (
-	_ resource.Resource              = &siteSettingResource{}
-	_ resource.ResourceWithConfigure = &siteSettingResource{}
+	_ resource.Resource                = &siteSettingResource{}
+	_ resource.ResourceWithConfigure   = &siteSettingResource{}
+	_ resource.ResourceWithImportState = &siteSettingResource{}
 )
 
 func NewSiteSettingResource() resource.Resource {
@@ -200,4 +202,18 @@ func (r *siteSettingResource) Delete(ctx context.Context, req resource.DeleteReq
 		)
 		return
 	}
+}
+
+func (r *siteSettingResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+
+	_, err := uuid.Parse(req.ID)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error getting org id from import",
+			"Could not get org id, unexpected error: "+err.Error(),
+		)
+		return
+	}
+
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), req.ID)...)
 }

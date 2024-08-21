@@ -9,14 +9,16 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi"
 
 	"github.com/google/uuid"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 var (
-	_ resource.Resource              = &siteWlanResource{}
-	_ resource.ResourceWithConfigure = &siteWlanResource{}
+	_ resource.Resource                = &siteWlanResource{}
+	_ resource.ResourceWithConfigure   = &siteWlanResource{}
+	_ resource.ResourceWithImportState = &siteWlanResource{}
 )
 
 func NewSiteWlan() resource.Resource {
@@ -200,4 +202,18 @@ func (r *siteWlanResource) Delete(ctx context.Context, req resource.DeleteReques
 		)
 		return
 	}
+}
+
+func (r *siteWlanResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+
+	_, err := uuid.Parse(req.ID)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error getting org id from import",
+			"Could not get org id, unexpected error: "+err.Error(),
+		)
+		return
+	}
+
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), req.ID)...)
 }
