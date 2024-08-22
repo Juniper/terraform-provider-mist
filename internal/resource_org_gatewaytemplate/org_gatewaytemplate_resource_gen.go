@@ -303,8 +303,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 									Optional:            true,
-									Description:         "Property key is the MAC Address",
-									MarkdownDescription: "Property key is the MAC Address",
+									Description:         "Property key is the MAC Address. Format is `[0-9a-f]{12}` (e.g \"5684dae9ac8b\")",
+									MarkdownDescription: "Property key is the MAC Address. Format is `[0-9a-f]{12}` (e.g \"5684dae9ac8b\")",
 									Validators: []validator.Map{
 										mapvalidator.SizeAtLeast(1),
 										mapvalidator.KeysAre(mistvalidator.ParseMac()),
