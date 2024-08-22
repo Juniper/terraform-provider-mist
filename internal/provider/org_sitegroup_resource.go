@@ -76,7 +76,14 @@ func (r *orgSiteGroupResource) Create(ctx context.Context, req resource.CreateRe
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	orgId := uuid.MustParse(plan.OrgId.ValueString())
+	orgId, err := uuid.Parse(plan.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"org_sitegroup\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	data, err := r.client.OrgsSitegroups().CreateOrgSiteGroup(ctx, orgId, sitegroup)
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -109,8 +116,22 @@ func (r *orgSiteGroupResource) Read(ctx context.Context, req resource.ReadReques
 		return
 	}
 
-	orgId := uuid.MustParse(state.OrgId.ValueString())
-	sitegroupId := uuid.MustParse(state.Id.ValueString())
+	orgId, err := uuid.Parse(state.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"org_sitegroup\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
+	sitegroupId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"id\" value for \"org_sitegroup\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	tflog.Info(ctx, "Starting SiteGroup Read: sitegroup_id "+state.Id.ValueString())
 	httpr, err := r.client.OrgsSitegroups().GetOrgSiteGroup(ctx, orgId, sitegroupId)
 	if httpr.Response.StatusCode == 404 {
@@ -152,8 +173,22 @@ func (r *orgSiteGroupResource) Update(ctx context.Context, req resource.UpdateRe
 		return
 	}
 
-	orgId := uuid.MustParse(state.OrgId.ValueString())
-	sitegroupId := uuid.MustParse(state.Id.ValueString())
+	orgId, err := uuid.Parse(state.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"org_sitegroup\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
+	sitegroupId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"id\" value for \"org_sitegroup\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	sitegroup_name := models.NameString{}
 	sitegroup_name.Name = plan.Name.ValueStringPointer()
 	resp.Diagnostics.Append(diags...)
@@ -194,8 +229,22 @@ func (r *orgSiteGroupResource) Delete(ctx context.Context, req resource.DeleteRe
 		return
 	}
 
-	orgId := uuid.MustParse(state.OrgId.ValueString())
-	sitegroupId := uuid.MustParse(state.Id.ValueString())
+	orgId, err := uuid.Parse(state.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"org_sitegroup\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
+	sitegroupId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"id\" value for \"org_sitegroup\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	tflog.Info(ctx, "Starting SiteGroup Delete: sitegroup_id "+state.Id.ValueString())
 	httpr, err := r.client.OrgsSitegroups().DeleteOrgSiteGroup(ctx, orgId, sitegroupId)
 	if httpr.StatusCode != 404 && err != nil {
@@ -212,8 +261,8 @@ func (r *orgSiteGroupResource) ImportState(ctx context.Context, req resource.Imp
 	_, err := uuid.Parse(req.ID)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org id from import",
-			"Could not get org id, unexpected error: "+err.Error(),
+			"Invalid \"id\" value for \"org\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}

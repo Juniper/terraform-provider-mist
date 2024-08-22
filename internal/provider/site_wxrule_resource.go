@@ -71,7 +71,14 @@ func (r *siteWxRuleResource) Create(ctx context.Context, req resource.CreateRequ
 		return
 	}
 
-	siteId := uuid.MustParse(plan.SiteId.ValueString())
+	siteId, err := uuid.Parse(plan.SiteId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"site_id\" value for \"site_wxrule\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	wxrule, diags := resource_site_wxrule.TerraformToSdk(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -111,8 +118,22 @@ func (r *siteWxRuleResource) Read(ctx context.Context, req resource.ReadRequest,
 		return
 	}
 
-	siteId := uuid.MustParse(state.SiteId.ValueString())
-	wxruleId := uuid.MustParse(state.Id.ValueString())
+	siteId, err := uuid.Parse(state.SiteId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"site_id\" value for \"site_wxrule\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
+	wxruleId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"id\" value for \"site_wxrule\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	tflog.Info(ctx, "Starting WxRule Read: wxrule_id "+state.Id.ValueString())
 	httpr, err := r.client.SitesWxRules().GetSiteWxRule(ctx, siteId, wxruleId)
 	if httpr.Response.StatusCode == 404 {
@@ -159,8 +180,22 @@ func (r *siteWxRuleResource) Update(ctx context.Context, req resource.UpdateRequ
 		return
 	}
 
-	siteId := uuid.MustParse(state.SiteId.ValueString())
-	wxruleId := uuid.MustParse(state.Id.ValueString())
+	siteId, err := uuid.Parse(state.SiteId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"site_id\" value for \"site_wxrule\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
+	wxruleId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"id\" value for \"site_wxrule\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	tflog.Info(ctx, "Starting WxRule Update for WxRule "+state.Id.ValueString())
 	data, err := r.client.SitesWxRules().UpdateSiteWxRule(ctx, siteId, wxruleId, wxrule)
 
@@ -195,8 +230,22 @@ func (r *siteWxRuleResource) Delete(ctx context.Context, req resource.DeleteRequ
 		return
 	}
 
-	siteId := uuid.MustParse(state.SiteId.ValueString())
-	wxruleId := uuid.MustParse(state.Id.ValueString())
+	siteId, err := uuid.Parse(state.SiteId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"site_id\" value for \"site_wxrule\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
+	wxruleId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"id\" value for \"site_wxrule\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	tflog.Info(ctx, "Starting WxRule Delete: wxrule_id "+state.Id.ValueString())
 	httpr, err := r.client.SitesWxRules().DeleteSiteWxRule(ctx, siteId, wxruleId)
 	if httpr.StatusCode != 404 && err != nil {
@@ -213,8 +262,8 @@ func (r *siteWxRuleResource) ImportState(ctx context.Context, req resource.Impor
 	_, err := uuid.Parse(req.ID)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org id from import",
-			"Could not get org id, unexpected error: "+err.Error(),
+			"Invalid \"site_id\" value for \"site_wxrule\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}

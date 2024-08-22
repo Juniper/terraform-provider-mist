@@ -78,8 +78,8 @@ func (r *deviceGatewayClusterResource) Create(ctx context.Context, req resource.
 	siteId, err := uuid.Parse(plan.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting device_gateway_cluster site_id from plan",
-			"Could not get device_gateway_cluster site_id, unexpected error: "+err.Error(),
+			"Invalid \"site_id\" value for \"device_gateway_cluster\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -87,8 +87,8 @@ func (r *deviceGatewayClusterResource) Create(ctx context.Context, req resource.
 	deviceId, err := uuid.Parse(plan.DeviceId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting device_gateway_cluster device_id from plan",
-			"Could not get device_gateway_cluster device_id, unexpected error: "+err.Error(),
+			"Invalid \"device_id\" value for \"device_gateway_cluster\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -130,8 +130,8 @@ func (r *deviceGatewayClusterResource) Read(ctx context.Context, req resource.Re
 	siteId, err := uuid.Parse(state.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting device_gateway_cluster site_id from state",
-			"Could not get device_gateway_cluster site_id, unexpected error: "+err.Error(),
+			"Invalid \"site_id\" value for \"device_gateway_cluster\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -139,8 +139,8 @@ func (r *deviceGatewayClusterResource) Read(ctx context.Context, req resource.Re
 	deviceId, err := uuid.Parse(state.DeviceId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting device_gateway_cluster device_id from state",
-			"Could not get device_gateway_cluster device_id, unexpected error: "+err.Error(),
+			"Invalid \"device_id\" value for \"device_gateway_cluster\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -197,8 +197,8 @@ func (r *deviceGatewayClusterResource) Update(ctx context.Context, req resource.
 	siteIdState, err := uuid.Parse(state.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting device_gateway_cluster site_id from state",
-			"Could not get device_gateway_cluster site_id, unexpected error: "+err.Error(),
+			"Invalid \"site_id\" value for \"device_gateway_cluster\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -206,8 +206,8 @@ func (r *deviceGatewayClusterResource) Update(ctx context.Context, req resource.
 	deviceIdState, err := uuid.Parse(state.DeviceId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting device_gateway_cluster device_id from state",
-			"Could not get device_gateway_cluster device_id, unexpected error: "+err.Error(),
+			"Invalid \"device_id\" value for \"device_gateway_cluster\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -227,8 +227,8 @@ func (r *deviceGatewayClusterResource) Update(ctx context.Context, req resource.
 	siteIdPlan, err := uuid.Parse(plan.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting device_gateway_cluster site_id from state",
-			"Could not get device_gateway_cluster site_id, unexpected error: "+err.Error(),
+			"Invalid \"site_id\" value for \"device_gateway_cluster\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -236,8 +236,8 @@ func (r *deviceGatewayClusterResource) Update(ctx context.Context, req resource.
 	deviceIdPlan, err := uuid.Parse(plan.DeviceId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting device_gateway_cluster device_id from state",
-			"Could not get device_gateway_cluster device_id, unexpected error: "+err.Error(),
+			"Invalid \"device_id\" value for \"device_gateway_cluster\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -278,8 +278,8 @@ func (r *deviceGatewayClusterResource) Delete(ctx context.Context, req resource.
 	siteId, err := uuid.Parse(state.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting device_gateway_cluster site_id from state",
-			"Could not get device_gateway_cluster site_id, unexpected error: "+err.Error(),
+			"Invalid \"site_id\" value for \"device_gateway_cluster\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -287,8 +287,8 @@ func (r *deviceGatewayClusterResource) Delete(ctx context.Context, req resource.
 	deviceId, err := uuid.Parse(state.DeviceId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting device_gateway_cluster device_id from state",
-			"Could not get device_gateway_cluster device_id, unexpected error: "+err.Error(),
+			"Invalid \"device_id\" value for \"device_gateway_cluster\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -308,8 +308,8 @@ func (r *deviceGatewayClusterResource) ImportState(ctx context.Context, req reso
 	_, err := uuid.Parse(req.ID)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org id from import",
-			"Could not get org id, unexpected error: "+err.Error(),
+			"Invalid \"id\" value for \"device_gateway_cluster\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}

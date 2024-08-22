@@ -74,7 +74,14 @@ func (r *orgRfTemplateResource) Create(ctx context.Context, req resource.CreateR
 		return
 	}
 
-	orgId := uuid.MustParse(plan.OrgId.ValueString())
+	orgId, err := uuid.Parse(plan.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"org_rftemplate\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	data, err := r.client.OrgsRFTemplates().CreateOrgRfTemplate(ctx, orgId, rftemplate)
 	if err != nil {
 		//url, _ := httpr.Location()
@@ -108,8 +115,22 @@ func (r *orgRfTemplateResource) Read(ctx context.Context, req resource.ReadReque
 		return
 	}
 
-	orgId := uuid.MustParse(state.OrgId.ValueString())
-	rftemplateId := uuid.MustParse(state.Id.ValueString())
+	orgId, err := uuid.Parse(state.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"org_rftemplate\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
+	rftemplateId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"id\" value for \"org_inventory\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	tflog.Info(ctx, "Starting RfTemplate Read: rftemplate_id "+state.Id.ValueString())
 	httpr, err := r.client.OrgsRFTemplates().GetOrgRfTemplate(ctx, orgId, rftemplateId)
 	if httpr.Response.StatusCode == 404 {
@@ -156,8 +177,22 @@ func (r *orgRfTemplateResource) Update(ctx context.Context, req resource.UpdateR
 		return
 	}
 
-	orgId := uuid.MustParse(state.OrgId.ValueString())
-	rftemplateId := uuid.MustParse(state.Id.ValueString())
+	orgId, err := uuid.Parse(state.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"org_rftemplate\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
+	rftemplateId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"id\" value for \"org_inventory\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	tflog.Info(ctx, "Starting RfTemplate Update for RfTemplate "+state.Id.ValueString())
 	data, err := r.client.OrgsRFTemplates().UpdateOrgRfTemplate(ctx, orgId, rftemplateId, rftemplate)
 
@@ -192,8 +227,22 @@ func (r *orgRfTemplateResource) Delete(ctx context.Context, req resource.DeleteR
 		return
 	}
 
-	orgId := uuid.MustParse(state.OrgId.ValueString())
-	rftemplateId := uuid.MustParse(state.Id.ValueString())
+	orgId, err := uuid.Parse(state.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"org_rftemplate\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
+	rftemplateId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"id\" value for \"org_inventory\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	tflog.Info(ctx, "Starting RfTemplate Delete: rftemplate_id "+state.Id.ValueString())
 	httpr, err := r.client.OrgsRFTemplates().DeleteOrgRfTemplate(ctx, orgId, rftemplateId)
 	if httpr.StatusCode != 404 && err != nil {
@@ -210,8 +259,8 @@ func (r *orgRfTemplateResource) ImportState(ctx context.Context, req resource.Im
 	_, err := uuid.Parse(req.ID)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org id from import",
-			"Could not get org id, unexpected error: "+err.Error(),
+			"Invalid \"id\" value for \"org\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}

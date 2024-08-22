@@ -74,7 +74,14 @@ func (r *orgOrgServiceResource) Create(ctx context.Context, req resource.CreateR
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	orgId := uuid.MustParse(plan.OrgId.ValueString())
+	orgId, err := uuid.Parse(plan.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"org_service\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	tflog.Info(ctx, "Starting OrgService Create for Org "+plan.OrgId.ValueString())
 	data, err := r.client.OrgsServices().CreateOrgService(ctx, orgId, &service)
 
@@ -109,8 +116,22 @@ func (r *orgOrgServiceResource) Read(ctx context.Context, req resource.ReadReque
 	}
 
 	tflog.Info(ctx, "Starting OrgService Read: service_id "+state.Id.ValueString())
-	orgId := uuid.MustParse(state.OrgId.ValueString())
-	serviceId := uuid.MustParse(state.Id.ValueString())
+	orgId, err := uuid.Parse(state.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"org_service\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
+	serviceId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"id\" value for \"org_service\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	httpr, err := r.client.OrgsServices().GetOrgService(ctx, orgId, serviceId)
 	if httpr.Response.StatusCode == 404 {
 		resp.State.RemoveResource(ctx)
@@ -157,8 +178,22 @@ func (r *orgOrgServiceResource) Update(ctx context.Context, req resource.UpdateR
 	}
 
 	tflog.Info(ctx, "Starting OrgService Update for OrgService "+plan.Id.ValueString())
-	orgId := uuid.MustParse(state.OrgId.ValueString())
-	serviceId := uuid.MustParse(state.Id.ValueString())
+	orgId, err := uuid.Parse(state.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"org_service\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
+	serviceId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"id\" value for \"org_service\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	data, err := r.client.OrgsServices().UpdateOrgService(ctx, orgId, serviceId, &service)
 
 	if err != nil {
@@ -193,8 +228,22 @@ func (r *orgOrgServiceResource) Delete(ctx context.Context, req resource.DeleteR
 	}
 
 	tflog.Info(ctx, "Starting OrgService Delete: service_id "+state.Id.ValueString())
-	orgId := uuid.MustParse(state.OrgId.ValueString())
-	serviceId := uuid.MustParse(state.Id.ValueString())
+	orgId, err := uuid.Parse(state.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"org_service\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
+	serviceId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"id\" value for \"org_service\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	httpr, err := r.client.OrgsServices().DeleteOrgService(ctx, orgId, serviceId)
 	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
@@ -210,8 +259,8 @@ func (r *orgOrgServiceResource) ImportState(ctx context.Context, req resource.Im
 	_, err := uuid.Parse(req.ID)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org id from import",
-			"Could not get org id, unexpected error: "+err.Error(),
+			"Invalid \"id\" value for \"org_service\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}

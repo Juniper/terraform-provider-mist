@@ -75,8 +75,8 @@ func (r *orgDeviceprofileAssignResource) Create(ctx context.Context, req resourc
 	orgId, err := uuid.Parse(plan.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org_deviceprofile_assign org_id from plan",
-			"Could not get org_deviceprofile_assign org_id, unexpected error: "+err.Error(),
+			"Invalid \"org_id\" value for \"org_deviceprofile_assign\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -84,8 +84,8 @@ func (r *orgDeviceprofileAssignResource) Create(ctx context.Context, req resourc
 	deviceprofileId, err := uuid.Parse(plan.DeviceprofileId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org_deviceprofile_assign org_id from plan",
-			"Could not get org_deviceprofile_assign org_id, unexpected error: "+err.Error(),
+			"Invalid \"org_id\" value for \"org_deviceprofile_assign\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -160,16 +160,16 @@ func (r *orgDeviceprofileAssignResource) Update(ctx context.Context, req resourc
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org_deviceprofile_assign org_id from state",
-			"Could not get org_deviceprofile_assign org_id, unexpected error: "+err.Error(),
+			"Invalid \"org_id\" value for \"org_deviceprofile_assign\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
 	deviceprofileId, err := uuid.Parse(state.DeviceprofileId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org_deviceprofile_assign deviceprofile_assign_id from state",
-			"Could not get org_deviceprofile_assign deviceprofile_assign_id, unexpected error: "+err.Error(),
+			"Invalid \"deviceprofile_assign_id\" value for \"org_deviceprofile_assign\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -232,16 +232,16 @@ func (r *orgDeviceprofileAssignResource) Delete(ctx context.Context, req resourc
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org_deviceprofile_assign org_id from state",
-			"Could not get org_deviceprofile_assign org_id, unexpected error: "+err.Error(),
+			"Invalid \"org_id\" value for \"org_deviceprofile_assign\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
 	deviceprofileId, err := uuid.Parse(state.DeviceprofileId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org_deviceprofile_assign deviceprofile_assign_id from state",
-			"Could not get org_deviceprofile_assign deviceprofile_assign_id, unexpected error: "+err.Error(),
+			"Invalid \"deviceprofile_assign_id\" value for \"org_deviceprofile_assign\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -293,8 +293,8 @@ func (r *orgDeviceprofileAssignResource) ImportState(ctx context.Context, req re
 	_, err := uuid.Parse(req.ID)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org id from import",
-			"Could not get org id, unexpected error: "+err.Error(),
+			"Invalid \"id\" value for \"org\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}

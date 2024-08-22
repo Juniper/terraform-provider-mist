@@ -81,8 +81,8 @@ func (r *deviceGatewayResource) Create(ctx context.Context, req resource.CreateR
 	siteId, err := uuid.Parse(plan.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting device_gateway site_id from plan",
-			"Could not get device_gateway site_id, unexpected error: "+err.Error(),
+			"Invalid \"site_id\" value for \"device_gateway\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -90,8 +90,8 @@ func (r *deviceGatewayResource) Create(ctx context.Context, req resource.CreateR
 	deviceId, err := uuid.Parse(plan.DeviceId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting device_gateway device_id from plan",
-			"Could not get device_gateway device_id, unexpected error: "+err.Error(),
+			"Invalid \"device_id\" value for \"device_gateway\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -137,8 +137,8 @@ func (r *deviceGatewayResource) Read(ctx context.Context, req resource.ReadReque
 	siteId, err := uuid.Parse(state.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting device_gateway site_id from state",
-			"Could not get device_gateway site_id, unexpected error: "+err.Error(),
+			"Invalid \"site_id\" value for \"device_gateway\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -146,8 +146,8 @@ func (r *deviceGatewayResource) Read(ctx context.Context, req resource.ReadReque
 	deviceId, err := uuid.Parse(state.DeviceId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting device_gateway device_id from state",
-			"Could not get device_gateway device_id, unexpected error: "+err.Error(),
+			"Invalid \"device_id\" value for \"device_gateway\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -208,8 +208,8 @@ func (r *deviceGatewayResource) Update(ctx context.Context, req resource.UpdateR
 	siteId, err := uuid.Parse(plan.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting device_gateway site_id from state",
-			"Could not get device_gateway site_id, unexpected error: "+err.Error(),
+			"Invalid \"site_id\" value for \"device_gateway\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -217,8 +217,8 @@ func (r *deviceGatewayResource) Update(ctx context.Context, req resource.UpdateR
 	deviceId, err := uuid.Parse(plan.DeviceId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting device_gateway device_id from state",
-			"Could not get device_gateway device_id, unexpected error: "+err.Error(),
+			"Invalid \"device_id\" value for \"device_gateway\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -270,8 +270,8 @@ func (r *deviceGatewayResource) Delete(ctx context.Context, req resource.DeleteR
 	siteId, err := uuid.Parse(state.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting device_gateway site_id from state",
-			"Could not get device_gateway site_id, unexpected error: "+err.Error(),
+			"Invalid \"site_id\" value for \"device_gateway\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -279,8 +279,8 @@ func (r *deviceGatewayResource) Delete(ctx context.Context, req resource.DeleteR
 	deviceId, err := uuid.Parse(state.DeviceId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting device_gateway device_id from state",
-			"Could not get device_gateway device_id, unexpected error: "+err.Error(),
+			"Invalid \"device_id\" value for \"device_gateway\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -300,8 +300,8 @@ func (r *deviceGatewayResource) ImportState(ctx context.Context, req resource.Im
 	_, err := uuid.Parse(req.ID)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org id from import",
-			"Could not get org id, unexpected error: "+err.Error(),
+			"Invalid \"id\" value for \"org\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}

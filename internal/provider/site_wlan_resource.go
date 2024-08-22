@@ -74,7 +74,14 @@ func (r *siteWlanResource) Create(ctx context.Context, req resource.CreateReques
 		return
 	}
 
-	siteId := uuid.MustParse(plan.SiteId.ValueString())
+	siteId, err := uuid.Parse(plan.SiteId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"site_id\" value for \"site_wlan\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	data, err := r.client.SitesWlans().CreateSiteWlan(ctx, siteId, wlan)
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -108,8 +115,22 @@ func (r *siteWlanResource) Read(ctx context.Context, req resource.ReadRequest, r
 	}
 
 	tflog.Info(ctx, "Starting Wlan Read: wlan_id "+state.Id.ValueString())
-	siteId := uuid.MustParse(state.SiteId.ValueString())
-	wlanId := uuid.MustParse(state.Id.ValueString())
+	siteId, err := uuid.Parse(state.SiteId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"site_id\" value for \"site_wlan\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
+	wlanId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"id\" value for \"site_wlan\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	httpr, err := r.client.SitesWlans().GetSiteWlan(ctx, siteId, wlanId)
 	if httpr.Response.StatusCode == 404 {
 		resp.State.RemoveResource(ctx)
@@ -156,8 +177,22 @@ func (r *siteWlanResource) Update(ctx context.Context, req resource.UpdateReques
 	}
 
 	tflog.Info(ctx, "Starting Wlan Update for Wlan "+state.Id.ValueString())
-	siteId := uuid.MustParse(state.SiteId.ValueString())
-	wlanId := uuid.MustParse(state.Id.ValueString())
+	siteId, err := uuid.Parse(state.SiteId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"site_id\" value for \"site_wlan\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
+	wlanId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"id\" value for \"site_wlan\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	data, err := r.client.SitesWlans().UpdateSiteWlan(ctx, siteId, wlanId, wlan)
 
 	if err != nil {
@@ -192,8 +227,22 @@ func (r *siteWlanResource) Delete(ctx context.Context, req resource.DeleteReques
 	}
 
 	tflog.Info(ctx, "Starting Wlan Delete: wlan_id "+state.Id.ValueString())
-	siteId := uuid.MustParse(state.SiteId.ValueString())
-	wlanId := uuid.MustParse(state.Id.ValueString())
+	siteId, err := uuid.Parse(state.SiteId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"site_id\" value for \"site_wlan\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
+	wlanId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"id\" value for \"site_wlan\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	httpr, err := r.client.SitesWlans().DeleteSiteWlan(ctx, siteId, wlanId)
 	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
@@ -209,8 +258,8 @@ func (r *siteWlanResource) ImportState(ctx context.Context, req resource.ImportS
 	_, err := uuid.Parse(req.ID)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org id from import",
-			"Could not get org id, unexpected error: "+err.Error(),
+			"Invalid \"site_id\" value for \"site_wlan\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}

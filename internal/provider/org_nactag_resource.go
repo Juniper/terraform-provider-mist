@@ -71,8 +71,8 @@ func (r *orgNacTagResource) Create(ctx context.Context, req resource.CreateReque
 	orgId, err := uuid.Parse(plan.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting nactag orgId from plan",
-			"Could not get nactag orgId, unexpected error: "+err.Error(),
+			"Invalid \"orgId\" value for \"nactag\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -118,16 +118,16 @@ func (r *orgNacTagResource) Read(ctx context.Context, req resource.ReadRequest, 
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting nactag orgId from plan",
-			"Could not get nactag orgId, unexpected error: "+err.Error(),
+			"Invalid \"orgId\" value for \"nactag\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
 	nactagId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting nactag nactagId from plan",
-			"Could not get nactag nactagId, unexpected error: "+err.Error(),
+			"Invalid \"nactagId\" value for \"nactag\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -181,16 +181,16 @@ func (r *orgNacTagResource) Update(ctx context.Context, req resource.UpdateReque
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting nactag orgId from plan",
-			"Could not get nactag orgId, unexpected error: "+err.Error(),
+			"Invalid \"orgId\" value for \"nactag\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
 	nactagId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting nactag nactagId from plan",
-			"Could not get nactag nactagId, unexpected error: "+err.Error(),
+			"Invalid \"nactagId\" value for \"nactag\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -232,16 +232,16 @@ func (r *orgNacTagResource) Delete(ctx context.Context, req resource.DeleteReque
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting nactag orgId from plan",
-			"Could not get nactag orgId, unexpected error: "+err.Error(),
+			"Invalid \"orgId\" value for \"nactag\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
 	nactagId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting nactag nactagId from plan",
-			"Could not get nactag nactagId, unexpected error: "+err.Error(),
+			"Invalid \"nactagId\" value for \"nactag\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -262,8 +262,8 @@ func (r *orgNacTagResource) ImportState(ctx context.Context, req resource.Import
 	_, err := uuid.Parse(req.ID)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org id from import",
-			"Could not get org id, unexpected error: "+err.Error(),
+			"Invalid \"id\" value for \"org\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}

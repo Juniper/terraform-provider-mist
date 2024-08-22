@@ -71,8 +71,8 @@ func (r *orgNetworkResource) Create(ctx context.Context, req resource.CreateRequ
 	orgId, err := uuid.Parse(plan.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting network orgId from plan",
-			"Could not get network orgId, unexpected error: "+err.Error(),
+			"Invalid \"orgId\" value for \"network\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -120,16 +120,16 @@ func (r *orgNetworkResource) Read(ctx context.Context, req resource.ReadRequest,
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting network orgId from plan",
-			"Could not get network orgId, unexpected error: "+err.Error(),
+			"Invalid \"orgId\" value for \"network\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
 	networkId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting network networkId from plan",
-			"Could not get network networkId, unexpected error: "+err.Error(),
+			"Invalid \"networkId\" value for \"network\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -177,16 +177,16 @@ func (r *orgNetworkResource) Update(ctx context.Context, req resource.UpdateRequ
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting network orgId from plan",
-			"Could not get network orgId, unexpected error: "+err.Error(),
+			"Invalid \"orgId\" value for \"network\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
 	networkId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting network networkId from plan",
-			"Could not get network networkId, unexpected error: "+err.Error(),
+			"Invalid \"networkId\" value for \"network\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -234,16 +234,16 @@ func (r *orgNetworkResource) Delete(ctx context.Context, req resource.DeleteRequ
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting network orgId from plan",
-			"Could not get network orgId, unexpected error: "+err.Error(),
+			"Invalid \"orgId\" value for \"network\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
 	networkId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting network networkId from plan",
-			"Could not get network networkId, unexpected error: "+err.Error(),
+			"Invalid \"networkId\" value for \"network\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -264,8 +264,8 @@ func (r *orgNetworkResource) ImportState(ctx context.Context, req resource.Impor
 	_, err := uuid.Parse(req.ID)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org id from import",
-			"Could not get org id, unexpected error: "+err.Error(),
+			"Invalid \"id\" value for \"org\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}

@@ -77,8 +77,8 @@ func (r *orgSettingResource) Create(ctx context.Context, req resource.CreateRequ
 	orgId, err := uuid.Parse(plan.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org_id",
-			"Could not get org_id, unexpected error: "+err.Error(),
+			"Invalid \"org_id\" value for \"org_setting\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -119,8 +119,8 @@ func (r *orgSettingResource) Read(ctx context.Context, req resource.ReadRequest,
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org_id",
-			"Could not get org_id, unexpected error: "+err.Error(),
+			"Invalid \"org_id\" value for \"org_setting\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -173,8 +173,8 @@ func (r *orgSettingResource) Update(ctx context.Context, req resource.UpdateRequ
 	orgId, err := uuid.Parse(plan.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org_id",
-			"Could not get org_id, unexpected error: "+err.Error(),
+			"Invalid \"org_id\" value for \"org_setting\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -217,8 +217,8 @@ func (r *orgSettingResource) Delete(ctx context.Context, req resource.DeleteRequ
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org_id",
-			"Could not get org_id, unexpected error: "+err.Error(),
+			"Invalid \"org_id\" value for \"org_setting\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -237,8 +237,8 @@ func (r *orgSettingResource) ImportState(ctx context.Context, req resource.Impor
 	_, err := uuid.Parse(req.ID)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org id from import",
-			"Could not get org id, unexpected error: "+err.Error(),
+			"Invalid \"org_id\" value for \"org_setting\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}

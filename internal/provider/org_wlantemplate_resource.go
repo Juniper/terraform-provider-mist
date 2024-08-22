@@ -78,7 +78,14 @@ func (r *orgWlanTemplateResource) Create(ctx context.Context, req resource.Creat
 		return
 	}
 
-	orgId := uuid.MustParse(plan.OrgId.ValueString())
+	orgId, err := uuid.Parse(plan.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"org_wlantemplate\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	data, err := r.client.OrgsWLANTemplates().CreateOrgTemplate(ctx, orgId, wlantemplate)
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -112,8 +119,22 @@ func (r *orgWlanTemplateResource) Read(ctx context.Context, req resource.ReadReq
 	}
 
 	tflog.Info(ctx, "Starting WlanTemplate Read: wlantemplate_id "+state.Id.ValueString())
-	orgId := uuid.MustParse(state.OrgId.ValueString())
-	wlantemplateId := uuid.MustParse(state.Id.ValueString())
+	orgId, err := uuid.Parse(state.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"org_wlantemplate\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
+	wlantemplateId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"id\" value for \"org_wlantemplate\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	httpr, err := r.client.OrgsWLANTemplates().GetOrgTemplate(ctx, orgId, wlantemplateId)
 	if httpr.Response.StatusCode == 404 {
 		resp.State.RemoveResource(ctx)
@@ -160,8 +181,22 @@ func (r *orgWlanTemplateResource) Update(ctx context.Context, req resource.Updat
 	}
 
 	tflog.Info(ctx, "Starting WlanTemplate Update for WlanTemplate "+state.Id.ValueString())
-	orgId := uuid.MustParse(state.OrgId.ValueString())
-	wlantemplateId := uuid.MustParse(state.Id.ValueString())
+	orgId, err := uuid.Parse(state.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"org_wlantemplate\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
+	wlantemplateId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"id\" value for \"org_wlantemplate\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	data, err := r.client.OrgsWLANTemplates().UpdateOrgTemplate(ctx, orgId, wlantemplateId, wlantemplate)
 
 	if err != nil {
@@ -196,8 +231,22 @@ func (r *orgWlanTemplateResource) Delete(ctx context.Context, req resource.Delet
 	}
 
 	tflog.Info(ctx, "Starting WlanTemplate Delete: wlantemplate_id "+state.Id.ValueString())
-	orgId := uuid.MustParse(state.OrgId.ValueString())
-	wlantemplateId := uuid.MustParse(state.Id.ValueString())
+	orgId, err := uuid.Parse(state.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"org_wlantemplate\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
+	wlantemplateId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"id\" value for \"org_wlantemplate\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	httpr, err := r.client.OrgsWLANTemplates().DeleteOrgTemplate(ctx, orgId, wlantemplateId)
 	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
@@ -213,8 +262,8 @@ func (r *orgWlanTemplateResource) ImportState(ctx context.Context, req resource.
 	_, err := uuid.Parse(req.ID)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org id from import",
-			"Could not get org id, unexpected error: "+err.Error(),
+			"Invalid \"id\" value for \"org_wlantemplate\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}

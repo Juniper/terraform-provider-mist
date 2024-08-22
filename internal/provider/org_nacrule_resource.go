@@ -78,8 +78,8 @@ func (r *orgNacRuleResource) Create(ctx context.Context, req resource.CreateRequ
 	orgId, err := uuid.Parse(plan.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org_nacrule org_id from plan",
-			"Could not get org_nacrule org_id, unexpected error: "+err.Error(),
+			"Invalid \"org_id\" value for \"org_nacrule\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -119,16 +119,16 @@ func (r *orgNacRuleResource) Read(ctx context.Context, req resource.ReadRequest,
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org_nacrule org_id from state",
-			"Could not get org_nacrule org_id, unexpected error: "+err.Error(),
+			"Invalid \"org_id\" value for \"org_nacrule\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
 	nacruleId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org_nacrule nacrule_id from state",
-			"Could not get org_nacrule nacrule_id, unexpected error: "+err.Error(),
+			"Invalid \"nacrule_id\" value for \"org_nacrule\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -181,16 +181,16 @@ func (r *orgNacRuleResource) Update(ctx context.Context, req resource.UpdateRequ
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org_nacrule org_id from state",
-			"Could not get org_nacrule org_id, unexpected error: "+err.Error(),
+			"Invalid \"org_id\" value for \"org_nacrule\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
 	nacruleId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org_nacrule nacrule_id from state",
-			"Could not get org_nacrule nacrule_id, unexpected error: "+err.Error(),
+			"Invalid \"nacrule_id\" value for \"org_nacrule\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -232,16 +232,16 @@ func (r *orgNacRuleResource) Delete(ctx context.Context, req resource.DeleteRequ
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org_nacrule org_id from state",
-			"Could not get org_nacrule org_id, unexpected error: "+err.Error(),
+			"Invalid \"org_id\" value for \"org_nacrule\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
 	nacruleId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org_nacrule nacrule_id from state",
-			"Could not get org_nacrule nacrule_id, unexpected error: "+err.Error(),
+			"Invalid \"nacrule_id\" value for \"org_nacrule\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -261,8 +261,8 @@ func (r *orgNacRuleResource) ImportState(ctx context.Context, req resource.Impor
 	_, err := uuid.Parse(req.ID)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org id from import",
-			"Could not get org id, unexpected error: "+err.Error(),
+			"Invalid \"id\" value for \"org\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}

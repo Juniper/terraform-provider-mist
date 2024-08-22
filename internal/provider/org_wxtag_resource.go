@@ -79,7 +79,14 @@ func (r *orgWxTagResource) Create(ctx context.Context, req resource.CreateReques
 		return
 	}
 
-	orgId := uuid.MustParse(plan.OrgId.ValueString())
+	orgId, err := uuid.Parse(plan.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"org_wxtag\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	data, err := r.client.OrgsWxTags().CreateOrgWxTag(ctx, orgId, wxtag)
 	if err != nil {
 		//url, _ := httpr.Location()
@@ -114,8 +121,22 @@ func (r *orgWxTagResource) Read(ctx context.Context, req resource.ReadRequest, r
 	}
 
 	tflog.Info(ctx, "Starting WxTag Read: wxtag_id "+state.Id.ValueString())
-	orgId := uuid.MustParse(state.OrgId.ValueString())
-	wxtagId := uuid.MustParse(state.Id.ValueString())
+	orgId, err := uuid.Parse(state.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"org_wxtag\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
+	wxtagId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"id\" value for \"org_wxtag\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	httpr, err := r.client.OrgsWxTags().GetOrgWxTag(ctx, orgId, wxtagId)
 	if httpr.Response.StatusCode == 404 {
 		resp.State.RemoveResource(ctx)
@@ -162,8 +183,22 @@ func (r *orgWxTagResource) Update(ctx context.Context, req resource.UpdateReques
 	}
 
 	tflog.Info(ctx, "Starting WxTag Update for WxTag "+state.Id.ValueString())
-	orgId := uuid.MustParse(state.OrgId.ValueString())
-	wxtagId := uuid.MustParse(state.Id.ValueString())
+	orgId, err := uuid.Parse(state.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"org_wxtag\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
+	wxtagId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"id\" value for \"org_wxtag\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	data, err := r.client.OrgsWxTags().UpdateOrgWxTag(ctx, orgId, wxtagId, wxtag)
 
 	if err != nil {
@@ -198,8 +233,22 @@ func (r *orgWxTagResource) Delete(ctx context.Context, req resource.DeleteReques
 	}
 
 	tflog.Info(ctx, "Starting WxTag Delete: wxtag_id "+state.Id.ValueString())
-	orgId := uuid.MustParse(state.OrgId.ValueString())
-	wxtagId := uuid.MustParse(state.Id.ValueString())
+	orgId, err := uuid.Parse(state.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"org_wxtag\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
+	wxtagId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"id\" value for \"org_wxtag\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	httpr, err := r.client.OrgsWxTags().DeleteOrgWxTag(ctx, orgId, wxtagId)
 	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
@@ -215,8 +264,8 @@ func (r *orgWxTagResource) ImportState(ctx context.Context, req resource.ImportS
 	_, err := uuid.Parse(req.ID)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org id from import",
-			"Could not get org id, unexpected error: "+err.Error(),
+			"Invalid \"id\" value for \"org_wxtag\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}

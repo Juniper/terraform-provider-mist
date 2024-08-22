@@ -74,8 +74,8 @@ func (r *orgGatewaytemplateResource) Create(ctx context.Context, req resource.Cr
 	orgId, err := uuid.Parse(plan.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting mist_gatewaytemplate org_id from plan",
-			"Could not get mist_gatewaytemplate org_id, unexpected error: "+err.Error(),
+			"Invalid \"org_id\" value for \"org_gatewaytemplate\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -121,8 +121,8 @@ func (r *orgGatewaytemplateResource) Read(ctx context.Context, req resource.Read
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting mist_gatewaytemplate org_id from state",
-			"Could not get mist_gatewaytemplate org_id, unexpected error: "+err.Error(),
+			"Invalid \"org_id\" value for \"org_gatewaytemplate\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -130,8 +130,8 @@ func (r *orgGatewaytemplateResource) Read(ctx context.Context, req resource.Read
 	templateId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting mist_gatewaytemplate gatewaytemplate_id from state",
-			"Could not get mist_gatewaytemplate gatewaytemplate_id, unexpected error: "+err.Error(),
+			"Invalid \"gatewaytemplate_id\" value for \"org_gatewaytemplate\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -178,16 +178,16 @@ func (r *orgGatewaytemplateResource) Update(ctx context.Context, req resource.Up
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting mist_gatewaytemplate org_id from state",
-			"Could not get mist_gatewaytemplate org_id, unexpected error: "+err.Error(),
+			"Invalid \"org_id\" value for \"org_gatewaytemplate\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
 	templateId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting mist_gatewaytemplate gatewaytemplate_id from state",
-			"Could not get mist_gatewaytemplate gatewaytemplate_id, unexpected error: "+err.Error(),
+			"Invalid \"gatewaytemplate_id\" value for \"org_gatewaytemplate\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -235,16 +235,16 @@ func (r *orgGatewaytemplateResource) Delete(ctx context.Context, req resource.De
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting mist_gatewaytemplate org_id from state",
-			"Could not get mist_gatewaytemplate org_id, unexpected error: "+err.Error(),
+			"Invalid \"org_id\" value for \"org_gatewaytemplate\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
 	templateId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting mist_gatewaytemplate gatewaytemplate_id from state",
-			"Could not get mist_gatewaytemplate gatewaytemplate_id, unexpected error: "+err.Error(),
+			"Invalid \"gatewaytemplate_id\" value for \"org_gatewaytemplate\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -264,8 +264,8 @@ func (r *orgGatewaytemplateResource) ImportState(ctx context.Context, req resour
 	_, err := uuid.Parse(req.ID)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org id from import",
-			"Could not get org id, unexpected error: "+err.Error(),
+			"Invalid \"id\" value for \"org\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}

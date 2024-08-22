@@ -74,7 +74,14 @@ func (r *orgVpnResource) Create(ctx context.Context, req resource.CreateRequest,
 		return
 	}
 
-	orgId := uuid.MustParse(plan.OrgId.ValueString())
+	orgId, err := uuid.Parse(plan.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"org_vpn\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	data, err := r.client.OrgsVPNs().CreateOrgVpns(ctx, orgId, vpn)
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -108,8 +115,22 @@ func (r *orgVpnResource) Read(ctx context.Context, req resource.ReadRequest, res
 	}
 
 	tflog.Info(ctx, "Starting Vpn Read: vpn_id "+state.Id.ValueString())
-	orgId := uuid.MustParse(state.OrgId.ValueString())
-	vpnId := uuid.MustParse(state.Id.ValueString())
+	orgId, err := uuid.Parse(state.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"org_vpn\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
+	vpnId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"id\" value for \"org_vpn\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	httpr, err := r.client.OrgsVPNs().GetOrgVpn(ctx, orgId, vpnId)
 	if httpr.Response.StatusCode == 404 {
 		resp.State.RemoveResource(ctx)
@@ -156,8 +177,22 @@ func (r *orgVpnResource) Update(ctx context.Context, req resource.UpdateRequest,
 	}
 
 	tflog.Info(ctx, "Starting Vpn Update for Vpn "+state.Id.ValueString())
-	orgId := uuid.MustParse(state.OrgId.ValueString())
-	vpnId := uuid.MustParse(state.Id.ValueString())
+	orgId, err := uuid.Parse(state.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"org_vpn\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
+	vpnId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"id\" value for \"org_vpn\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	data, err := r.client.OrgsVPNs().UpdateOrgVpn(ctx, orgId, vpnId, vpn)
 
 	if err != nil {
@@ -192,8 +227,22 @@ func (r *orgVpnResource) Delete(ctx context.Context, req resource.DeleteRequest,
 	}
 
 	tflog.Info(ctx, "Starting Vpn Delete: vpn_id "+state.Id.ValueString())
-	orgId := uuid.MustParse(state.OrgId.ValueString())
-	vpnId := uuid.MustParse(state.Id.ValueString())
+	orgId, err := uuid.Parse(state.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"org_vpn\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
+	vpnId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"id\" value for \"org_vpn\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	httpr, err := r.client.OrgsVPNs().DeleteOrgVpn(ctx, orgId, vpnId)
 	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
@@ -209,8 +258,8 @@ func (r *orgVpnResource) ImportState(ctx context.Context, req resource.ImportSta
 	_, err := uuid.Parse(req.ID)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org id from import",
-			"Could not get org id, unexpected error: "+err.Error(),
+			"Invalid \"id\" value for \"org\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}

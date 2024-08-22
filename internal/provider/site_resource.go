@@ -73,7 +73,14 @@ func (r *siteResource) Create(ctx context.Context, req resource.CreateRequest, r
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	orgId := uuid.MustParse(plan.OrgId.ValueString())
+	orgId, err := uuid.Parse(plan.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"site\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	tflog.Info(ctx, "Starting Site Create for Org "+plan.OrgId.ValueString())
 	data, err := r.client.OrgsSites().CreateOrgSite(ctx, orgId, site)
 
@@ -108,7 +115,14 @@ func (r *siteResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 		return
 	}
 
-	siteId := uuid.MustParse(state.Id.String())
+	siteId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"id\" value for \"site\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	tflog.Info(ctx, "Starting Site Read: site_id "+state.Id.ValueString())
 	httpr, err := r.client.Sites().GetSiteInfo(ctx, siteId)
 	if httpr.Response.StatusCode == 404 {
@@ -155,7 +169,14 @@ func (r *siteResource) Update(ctx context.Context, req resource.UpdateRequest, r
 		return
 	}
 
-	siteId := uuid.MustParse(state.Id.String())
+	siteId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"id\" value for \"site\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	tflog.Info(ctx, "Starting Site Update for Site "+state.Id.ValueString())
 	data, err := r.client.Sites().UpdateSiteInfo(ctx, siteId, site)
 
@@ -190,7 +211,14 @@ func (r *siteResource) Delete(ctx context.Context, req resource.DeleteRequest, r
 		return
 	}
 
-	siteId := uuid.MustParse(state.Id.String())
+	siteId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"id\" value for \"site\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	tflog.Info(ctx, "Starting Site Delete: site_id "+state.Id.ValueString())
 	httpr, err := r.client.Sites().DeleteSite(ctx, siteId)
 	if httpr.StatusCode != 404 && err != nil {
@@ -207,8 +235,8 @@ func (r *siteResource) ImportState(ctx context.Context, req resource.ImportState
 	_, err := uuid.Parse(req.ID)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org id from import",
-			"Could not get org id, unexpected error: "+err.Error(),
+			"Invalid \"id\" value for \"site\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}

@@ -73,7 +73,14 @@ func (r *siteWxTagResource) Create(ctx context.Context, req resource.CreateReque
 		return
 	}
 
-	siteId := uuid.MustParse(plan.SiteId.ValueString())
+	siteId, err := uuid.Parse(plan.SiteId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"site_id\" value for \"site_wxtag\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	wxtag, diags := resource_site_wxtag.TerraformToSdk(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -114,8 +121,22 @@ func (r *siteWxTagResource) Read(ctx context.Context, req resource.ReadRequest, 
 		return
 	}
 
-	siteId := uuid.MustParse(state.SiteId.ValueString())
-	wxtagId := uuid.MustParse(state.Id.ValueString())
+	siteId, err := uuid.Parse(state.SiteId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"site_id\" value for \"site_wxtag\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
+	wxtagId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"id\" value for \"site_wxtag\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 
 	tflog.Info(ctx, "Starting WxTag Read: wxtag_id "+state.Id.ValueString())
 	httpr, err := r.client.SitesWxTags().GetSiteWxTag(ctx, siteId, wxtagId)
@@ -157,8 +178,22 @@ func (r *siteWxTagResource) Update(ctx context.Context, req resource.UpdateReque
 		return
 	}
 
-	siteId := uuid.MustParse(state.SiteId.ValueString())
-	wxtagId := uuid.MustParse(state.Id.ValueString())
+	siteId, err := uuid.Parse(state.SiteId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"site_id\" value for \"site_wxtag\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
+	wxtagId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"id\" value for \"site_wxtag\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	wxtag, diags := resource_site_wxtag.TerraformToSdk(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -199,8 +234,22 @@ func (r *siteWxTagResource) Delete(ctx context.Context, req resource.DeleteReque
 		return
 	}
 
-	siteId := uuid.MustParse(state.SiteId.ValueString())
-	wxtagId := uuid.MustParse(state.Id.ValueString())
+	siteId, err := uuid.Parse(state.SiteId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"site_id\" value for \"site_wxtag\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
+	wxtagId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"id\" value for \"site_wxtag\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 
 	tflog.Info(ctx, "Starting WxTag Delete: wxtag_id "+state.Id.ValueString())
 	httpr, err := r.client.SitesWxTags().DeleteSiteWxTag(ctx, siteId, wxtagId)
@@ -218,8 +267,8 @@ func (r *siteWxTagResource) ImportState(ctx context.Context, req resource.Import
 	_, err := uuid.Parse(req.ID)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org id from import",
-			"Could not get org id, unexpected error: "+err.Error(),
+			"Invalid \"site_id\" value for \"site_wxtag\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}

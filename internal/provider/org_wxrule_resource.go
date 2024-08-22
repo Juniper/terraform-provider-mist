@@ -77,7 +77,14 @@ func (r *orgWxRuleResource) Create(ctx context.Context, req resource.CreateReque
 		return
 	}
 
-	orgId := uuid.MustParse(plan.OrgId.ValueString())
+	orgId, err := uuid.Parse(plan.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"org_wxrule\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	data, err := r.client.OrgsWxRules().CreateOrgWxRule(ctx, orgId, wxrule)
 	if err != nil {
 		//url, _ := httpr.Location()
@@ -112,8 +119,22 @@ func (r *orgWxRuleResource) Read(ctx context.Context, req resource.ReadRequest, 
 	}
 
 	tflog.Info(ctx, "Starting WxRule Read: wxrule_id "+state.Id.ValueString())
-	orgId := uuid.MustParse(state.OrgId.ValueString())
-	wxruleId := uuid.MustParse(state.Id.ValueString())
+	orgId, err := uuid.Parse(state.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"org_wxrule\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
+	wxruleId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"id\" value for \"org_wxrule\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	httpr, err := r.client.OrgsWxRules().GetOrgWxRule(ctx, orgId, wxruleId)
 	if httpr.Response.StatusCode == 404 {
 		resp.State.RemoveResource(ctx)
@@ -159,8 +180,22 @@ func (r *orgWxRuleResource) Update(ctx context.Context, req resource.UpdateReque
 		return
 	}
 
-	orgId := uuid.MustParse(state.OrgId.ValueString())
-	wxruleId := uuid.MustParse(state.Id.ValueString())
+	orgId, err := uuid.Parse(state.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"org_wxrule\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
+	wxruleId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"id\" value for \"org_wxrule\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	tflog.Info(ctx, "Starting WxRule Update for WxRule "+state.Id.ValueString())
 	data, err := r.client.OrgsWxRules().UpdateOrgWxRule(ctx, orgId, wxruleId, wxrule)
 
@@ -195,8 +230,22 @@ func (r *orgWxRuleResource) Delete(ctx context.Context, req resource.DeleteReque
 		return
 	}
 
-	orgId := uuid.MustParse(state.OrgId.ValueString())
-	wxruleId := uuid.MustParse(state.Id.ValueString())
+	orgId, err := uuid.Parse(state.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"org_wxrule\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
+	wxruleId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"id\" value for \"org_wxrule\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	tflog.Info(ctx, "Starting WxRule Delete: wxrule_id "+state.Id.ValueString())
 	httpr, err := r.client.OrgsWxRules().DeleteOrgWxRule(ctx, orgId, wxruleId)
 	if httpr.StatusCode != 404 && err != nil {
@@ -213,8 +262,8 @@ func (r *orgWxRuleResource) ImportState(ctx context.Context, req resource.Import
 	_, err := uuid.Parse(req.ID)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org id from import",
-			"Could not get org id, unexpected error: "+err.Error(),
+			"Invalid \"id\" value for \"org_wxrule\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}

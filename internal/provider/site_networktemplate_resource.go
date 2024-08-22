@@ -75,7 +75,14 @@ func (r *siteNetworkTemplateResource) Create(ctx context.Context, req resource.C
 		return
 	}
 
-	siteId := uuid.MustParse(plan.SiteId.ValueString())
+	siteId, err := uuid.Parse(plan.SiteId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"site_id\" value for \"site_networktemplate\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	data, err := r.client.SitesSetting().UpdateSiteSettings(ctx, siteId, networktemplate)
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -109,7 +116,14 @@ func (r *siteNetworkTemplateResource) Read(ctx context.Context, req resource.Rea
 	}
 
 	tflog.Info(ctx, "Starting NetworkTemplate Read: networktemplate_id "+state.SiteId.ValueString())
-	siteId := uuid.MustParse(state.SiteId.ValueString())
+	siteId, err := uuid.Parse(state.SiteId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"site_id\" value for \"site_networktemplate\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	httpr, err := r.client.SitesSetting().GetSiteSetting(ctx, siteId)
 	if httpr.Response.StatusCode == 404 {
 		resp.State.RemoveResource(ctx)
@@ -156,7 +170,14 @@ func (r *siteNetworkTemplateResource) Update(ctx context.Context, req resource.U
 	}
 
 	tflog.Info(ctx, "Starting NetworkTemplate Update for Site "+state.SiteId.ValueString())
-	siteId := uuid.MustParse(state.SiteId.ValueString())
+	siteId, err := uuid.Parse(state.SiteId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"site_id\" value for \"site_networktemplate\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	data, err := r.client.SitesSetting().UpdateSiteSettings(ctx, siteId, networktemplate)
 
 	if err != nil {
@@ -193,7 +214,14 @@ func (r *siteNetworkTemplateResource) Delete(ctx context.Context, req resource.D
 	networktemplate, diags := resource_site_networktemplate.DeleteTerraformToSdk(ctx)
 	resp.Diagnostics.Append(diags...)
 
-	siteId := uuid.MustParse(state.SiteId.ValueString())
+	siteId, err := uuid.Parse(state.SiteId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"site_id\" value for \"site_networktemplate\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	httpr, err := r.client.SitesSetting().UpdateSiteSettings(ctx, siteId, networktemplate)
 	if httpr.Response.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
@@ -209,8 +237,8 @@ func (r *siteNetworkTemplateResource) ImportState(ctx context.Context, req resou
 	_, err := uuid.Parse(req.ID)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org id from import",
-			"Could not get org id, unexpected error: "+err.Error(),
+			"Invalid \"site_id\" value for \"site_networktemplate\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}

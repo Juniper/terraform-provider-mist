@@ -76,7 +76,14 @@ func (r *orgOrgIdpprofileResource) Create(ctx context.Context, req resource.Crea
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	orgId := uuid.MustParse(plan.OrgId.ValueString())
+	orgId, err := uuid.Parse(plan.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"org_idpprofile\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	tflog.Info(ctx, "Starting OrgIdpprofile Create for Org "+plan.OrgId.ValueString())
 	data, err := r.client.OrgsIDPProfiles().CreateOrgIdpProfile(ctx, orgId, &idpprofile)
 
@@ -111,8 +118,23 @@ func (r *orgOrgIdpprofileResource) Read(ctx context.Context, req resource.ReadRe
 	}
 
 	tflog.Info(ctx, "Starting OrgIdpprofile Read: idpprofile_id "+state.Id.ValueString())
-	orgId := uuid.MustParse(state.OrgId.ValueString())
-	idpprofileId := uuid.MustParse(state.Id.ValueString())
+	orgId, err := uuid.Parse(state.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"org_idpprofile\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
+	idpprofileId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"id\" value for \"org_idpprofile\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
+
 	httpr, err := r.client.OrgsIDPProfiles().GetOrgIdpProfile(ctx, orgId, idpprofileId)
 	if httpr.Response.StatusCode == 404 {
 		resp.State.RemoveResource(ctx)
@@ -159,8 +181,22 @@ func (r *orgOrgIdpprofileResource) Update(ctx context.Context, req resource.Upda
 	}
 
 	tflog.Info(ctx, "Starting OrgIdpprofile Update for OrgIdpprofile "+plan.Id.ValueString())
-	orgId := uuid.MustParse(state.OrgId.ValueString())
-	idpprofileId := uuid.MustParse(state.Id.ValueString())
+	orgId, err := uuid.Parse(state.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"org_idpprofile\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
+	idpprofileId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"id\" value for \"org_idpprofile\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	data, err := r.client.OrgsIDPProfiles().UpdateOrgIdpProfile(ctx, orgId, idpprofileId, &idpprofile)
 
 	if err != nil {
@@ -195,8 +231,22 @@ func (r *orgOrgIdpprofileResource) Delete(ctx context.Context, req resource.Dele
 	}
 
 	tflog.Info(ctx, "Starting OrgIdpprofile Delete: idpprofile_id "+state.Id.ValueString())
-	orgId := uuid.MustParse(state.OrgId.ValueString())
-	idpprofileId := uuid.MustParse(state.Id.ValueString())
+	orgId, err := uuid.Parse(state.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"org_idpprofile\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
+	idpprofileId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"id\" value for \"org_idpprofile\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	httpr, err := r.client.OrgsIDPProfiles().DeleteOrgIdpProfile(ctx, orgId, idpprofileId)
 	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
@@ -212,8 +262,8 @@ func (r *orgOrgIdpprofileResource) ImportState(ctx context.Context, req resource
 	_, err := uuid.Parse(req.ID)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org id from import",
-			"Could not get org id, unexpected error: "+err.Error(),
+			"Invalid \"id\" value for \"org\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}

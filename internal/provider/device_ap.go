@@ -81,8 +81,8 @@ func (r *deviceApResource) Create(ctx context.Context, req resource.CreateReques
 	siteId, err := uuid.Parse(plan.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting device_ap site_id from plan",
-			"Could not get device_ap site_id, unexpected error: "+err.Error(),
+			"Invalid \"site_id\" value for \"device_ap\" resource",
+			"Could parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -90,8 +90,8 @@ func (r *deviceApResource) Create(ctx context.Context, req resource.CreateReques
 	deviceId, err := uuid.Parse(plan.DeviceId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting device_ap device_id from plan",
-			"Could not get device_ap device_id, unexpected error: "+err.Error(),
+			"Invalid \"device_id\" value for \"device_ap\" resource",
+			"Could parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -138,8 +138,8 @@ func (r *deviceApResource) Read(ctx context.Context, req resource.ReadRequest, r
 	siteId, err := uuid.Parse(state.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting device_ap site_id from state",
-			"Could not get device_ap site_id, unexpected error: "+err.Error(),
+			"Invalid \"site_id\" value for \"device_ap\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -147,8 +147,8 @@ func (r *deviceApResource) Read(ctx context.Context, req resource.ReadRequest, r
 	deviceId, err := uuid.Parse(state.DeviceId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting device_ap device_id from state",
-			"Could not get device_ap device_id, unexpected error: "+err.Error(),
+			"Invalid \"device_id\" value for \"device_ap\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -207,8 +207,8 @@ func (r *deviceApResource) Update(ctx context.Context, req resource.UpdateReques
 	siteId, err := uuid.Parse(plan.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting device_ap site_id from state",
-			"Could not get device_ap site_id, unexpected error: "+err.Error(),
+			"Invalid \"site_id\" value for \"device_ap\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -216,8 +216,8 @@ func (r *deviceApResource) Update(ctx context.Context, req resource.UpdateReques
 	deviceId, err := uuid.Parse(plan.DeviceId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting device_ap device_id from state",
-			"Could not get device_ap device_id, unexpected error: "+err.Error(),
+			"Invalid \"device_id\" value for \"device_ap\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -269,8 +269,8 @@ func (r *deviceApResource) Delete(ctx context.Context, req resource.DeleteReques
 	siteId, err := uuid.Parse(state.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting device_ap site_id from state",
-			"Could not get device_ap site_id, unexpected error: "+err.Error(),
+			"Invalid \"site_id\" value for \"device_ap\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -278,8 +278,8 @@ func (r *deviceApResource) Delete(ctx context.Context, req resource.DeleteReques
 	deviceId, err := uuid.Parse(state.DeviceId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting device_ap device_id from state",
-			"Could not get device_ap device_id, unexpected error: "+err.Error(),
+			"Invalid \"device_id\" value for \"device_ap\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -299,8 +299,8 @@ func (r *deviceApResource) ImportState(ctx context.Context, req resource.ImportS
 	_, err := uuid.Parse(req.ID)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org id from import",
-			"Could not get org id, unexpected error: "+err.Error(),
+			"Invalid \"id\" value for \"device_ap\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}

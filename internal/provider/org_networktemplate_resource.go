@@ -74,8 +74,8 @@ func (r *orgNetworkTemplateResource) Create(ctx context.Context, req resource.Cr
 	orgId, err := uuid.Parse(plan.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org_networktemplate orgId from state",
-			"Could not get org_networktemplate orgId, unexpected error: "+err.Error(),
+			"Invalid \"orgId\" value for \"org_networktemplate\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -123,8 +123,8 @@ func (r *orgNetworkTemplateResource) Read(ctx context.Context, req resource.Read
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org_networktemplate orgId from state",
-			"Could not get org_networktemplate orgId, unexpected error: "+err.Error(),
+			"Invalid \"orgId\" value for \"org_networktemplate\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -132,8 +132,8 @@ func (r *orgNetworkTemplateResource) Read(ctx context.Context, req resource.Read
 	templateId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org_networktemplate templateId from state",
-			"Could not get org_networktemplate templateId, unexpected error: "+err.Error(),
+			"Invalid \"templateId\" value for \"org_networktemplate\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -180,8 +180,8 @@ func (r *orgNetworkTemplateResource) Update(ctx context.Context, req resource.Up
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org_networktemplate orgId from state",
-			"Could not get org_networktemplate orgId, unexpected error: "+err.Error(),
+			"Invalid \"orgId\" value for \"org_networktemplate\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -189,8 +189,8 @@ func (r *orgNetworkTemplateResource) Update(ctx context.Context, req resource.Up
 	templateId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org_networktemplate templateId from state",
-			"Could not get org_networktemplate templateId, unexpected error: "+err.Error(),
+			"Invalid \"templateId\" value for \"org_networktemplate\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -235,8 +235,22 @@ func (r *orgNetworkTemplateResource) Delete(ctx context.Context, req resource.De
 		return
 	}
 
-	orgId := uuid.MustParse(state.OrgId.ValueString())
-	templateId := uuid.MustParse(state.Id.ValueString())
+	orgId, err := uuid.Parse(state.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"org_inventory\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
+	templateId, err := uuid.Parse(state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"id\" value for \"org_inventory\" resource",
+			"Could not parse the UUID: "+err.Error(),
+		)
+		return
+	}
 	tflog.Info(ctx, "Starting NetworkTemplate Delete: networktemplate_id "+state.Id.ValueString())
 	httpr, err := r.client.OrgsNetworkTemplates().DeleteOrgNetworkTemplate(ctx, orgId, templateId)
 	if httpr.StatusCode != 404 && err != nil {
@@ -253,8 +267,8 @@ func (r *orgNetworkTemplateResource) ImportState(ctx context.Context, req resour
 	_, err := uuid.Parse(req.ID)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org id from import",
-			"Could not get org id, unexpected error: "+err.Error(),
+			"Invalid \"id\" value for \"org\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}

@@ -75,8 +75,8 @@ func (r *orgInventoryResource) Create(ctx context.Context, req resource.CreateRe
 	orgId, err := uuid.Parse(plan.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org_inventory org_id from plan",
-			"Could not get org_inventory org_id, unexpected error: "+err.Error(),
+			"Invalid \"org_id\" value for \"org_inventory\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -114,8 +114,8 @@ func (r *orgInventoryResource) Read(ctx context.Context, req resource.ReadReques
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org_inventory org_id from state",
-			"Could not get org_inventory org_id, unexpected error: "+err.Error(),
+			"Invalid \"org_id\" value for \"org_inventory\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -151,8 +151,8 @@ func (r *orgInventoryResource) Update(ctx context.Context, req resource.UpdateRe
 	orgId, err := uuid.Parse(plan.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org_inventory org_id from plan",
-			"Could not get org_inventory org_id, unexpected error: "+err.Error(),
+			"Invalid \"org_id\" value for \"org_inventory\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -196,8 +196,8 @@ func (r *orgInventoryResource) Delete(ctx context.Context, req resource.DeleteRe
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org_inventory org_id from state",
-			"Could not get org_inventory org_id, unexpected error: "+err.Error(),
+			"Invalid \"org_id\" value for \"org_inventory\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -334,6 +334,7 @@ func (r *orgInventoryResource) refreshInventory(ctx context.Context, orgId *uuid
 			"Could not get Inventory, unexpected error: "+err.Error(),
 		)
 	}
+	tflog.Debug(ctx, "-----", map[string]interface{}{"data": data})
 	state, e := resource_org_inventory.SdkToTerraform(ctx, orgId.String(), data.Data, plan)
 	diags.Append(e...)
 
@@ -345,8 +346,8 @@ func (r *orgInventoryResource) ImportState(ctx context.Context, req resource.Imp
 	_, err := uuid.Parse(req.ID)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org id from import",
-			"Could not get org id, unexpected error: "+err.Error(),
+			"Invalid \"id\" value for \"org\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}

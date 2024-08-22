@@ -68,8 +68,8 @@ func (d *orgSitegroupsDataSource) Read(ctx context.Context, req datasource.ReadR
 	orgId, err := uuid.Parse(ds.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org_id from ds",
-			"Could not get org_id, unexpected error: "+err.Error(),
+			"Invalid \"org_id\" value for \"org_sitegroups\" data_source",
+			"Could parse the UUID: "+err.Error(),
 		)
 		return
 	}

@@ -81,8 +81,8 @@ func (r *deviceSwitchResource) Create(ctx context.Context, req resource.CreateRe
 	siteId, err := uuid.Parse(plan.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting device_switch site_id from plan",
-			"Could not get device_switch site_id, unexpected error: "+err.Error(),
+			"Invalid \"site_id\" value for \"device_switch\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -90,8 +90,8 @@ func (r *deviceSwitchResource) Create(ctx context.Context, req resource.CreateRe
 	deviceId, err := uuid.Parse(plan.DeviceId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting device_switch device_id from plan",
-			"Could not get device_switch device_id, unexpected error: "+err.Error(),
+			"Invalid \"device_id\" value for \"device_switch\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -137,8 +137,8 @@ func (r *deviceSwitchResource) Read(ctx context.Context, req resource.ReadReques
 	siteId, err := uuid.Parse(state.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting device_switch site_id from state",
-			"Could not get device_switch site_id, unexpected error: "+err.Error(),
+			"Invalid \"site_id\" value for \"device_switch\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -146,8 +146,8 @@ func (r *deviceSwitchResource) Read(ctx context.Context, req resource.ReadReques
 	deviceId, err := uuid.Parse(state.DeviceId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting device_switch device_id from state",
-			"Could not get device_switch device_id, unexpected error: "+err.Error(),
+			"Invalid \"device_id\" value for \"device_switch\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -208,8 +208,8 @@ func (r *deviceSwitchResource) Update(ctx context.Context, req resource.UpdateRe
 	siteId, err := uuid.Parse(plan.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting device_switch site_id from state",
-			"Could not get device_switch site_id, unexpected error: "+err.Error(),
+			"Invalid \"site_id\" value for \"device_switch\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -217,8 +217,8 @@ func (r *deviceSwitchResource) Update(ctx context.Context, req resource.UpdateRe
 	deviceId, err := uuid.Parse(plan.DeviceId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting device_switch device_id from state",
-			"Could not get device_switch device_id, unexpected error: "+err.Error(),
+			"Invalid \"device_id\" value for \"device_switch\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -270,8 +270,8 @@ func (r *deviceSwitchResource) Delete(ctx context.Context, req resource.DeleteRe
 	siteId, err := uuid.Parse(state.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting device_switch site_id from state",
-			"Could not get device_switch site_id, unexpected error: "+err.Error(),
+			"Invalid \"site_id\" value for \"device_switch\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -279,8 +279,8 @@ func (r *deviceSwitchResource) Delete(ctx context.Context, req resource.DeleteRe
 	deviceId, err := uuid.Parse(state.DeviceId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting device_switch device_id from state",
-			"Could not get device_switch device_id, unexpected error: "+err.Error(),
+			"Invalid \"device_id\" value for \"device_switch\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
@@ -300,8 +300,8 @@ func (r *deviceSwitchResource) ImportState(ctx context.Context, req resource.Imp
 	_, err := uuid.Parse(req.ID)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org id from import",
-			"Could not get org id, unexpected error: "+err.Error(),
+			"Invalid \"id\" value for \"org\" resource",
+			"Could not parse the UUID: "+err.Error(),
 		)
 		return
 	}
