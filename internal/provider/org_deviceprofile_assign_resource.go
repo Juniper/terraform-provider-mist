@@ -136,6 +136,55 @@ func (r *orgDeviceprofileAssignResource) Read(ctx context.Context, req resource.
 		return
 	}
 
+	orgId, err := uuid.Parse(state.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"org_deviceprofile_assign\" resource",
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
+		)
+		return
+	}
+	deviceprofileId, err := uuid.Parse(state.DeviceprofileId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"deviceprofile_id\" value for \"org_deviceprofile_assign\" resource",
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.DeviceprofileId.ValueString(), err.Error()),
+		)
+		return
+	}
+
+	var serial string
+	var model string
+	var mType models.DeviceTypeEnum
+	var mac string
+	var siteId string
+	var vcMac string
+	var vc bool = true
+	var unassigned bool
+	var limit int = 1000
+	var page int
+	tflog.Info(ctx, "Starting Inventory Read: org_id  "+orgId.String())
+	data, err := r.client.OrgsInventory().GetOrgInventory(ctx, orgId, &serial, &model, &mType, &mac, &siteId, &vcMac, &vc, &unassigned, &limit, &page)
+	if err != nil {
+		diags.AddError(
+			"Error refreshing Inventory",
+			"Could not get Inventory, unexpected error: "+err.Error(),
+		)
+	}
+
+	var macs []types.String
+	for _, dev := range data.Data {
+		if dev.DeviceprofileId.Value() != nil && *dev.DeviceprofileId.Value() == deviceprofileId.String() {
+			macs = append(macs, types.StringValue(*dev.Mac))
+		}
+	}
+	tmp, e := types.ListValueFrom(ctx, types.StringType, macs)
+	if e != nil {
+		resp.Diagnostics.Append(e...)
+	} else {
+		state.Macs = tmp
+	}
+
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
