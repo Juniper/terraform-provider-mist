@@ -22,15 +22,15 @@ func DeviceGatewayClusterResourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"device_id": schema.StringAttribute{
-				Required: true,
+				Computed: true,
 			},
 			"nodes": schema.ListNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"mac": schema.StringAttribute{
 							Required:            true,
-							Description:         "when replacing a noce, either mac has to remain the same as existing cluster",
-							MarkdownDescription: "when replacing a noce, either mac has to remain the same as existing cluster",
+							Description:         "when replacing a ndce, either mac has to remain the same as existing cluster",
+							MarkdownDescription: "when replacing a node, either mac has to remain the same as existing cluster",
 							Validators: []validator.String{
 								stringvalidator.LengthAtLeast(1),
 							},

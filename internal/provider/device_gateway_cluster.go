@@ -85,14 +85,19 @@ func (r *deviceGatewayClusterResource) Create(ctx context.Context, req resource.
 		return
 	}
 
-	deviceId, err := uuid.Parse(plan.DeviceId.ValueString())
+	// Generate the device_id based on the node0 MAC Address
+	var nodes []resource_device_gateway_cluster.NodesValue
+	plan.Nodes.ElementsAs(ctx, &nodes, false)
+	mac := "00000000-0000-0000-1000-" + nodes[0].Mac.ValueString()
+	deviceId, err := uuid.Parse(mac)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"device_id\" value for \"device_gateway_cluster\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.DeviceId.ValueString(), err.Error()),
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", deviceId, err.Error()),
 		)
 		return
 	}
+
 	tflog.Info(ctx, "Starting DeviceGatewayCluster Create on Site "+plan.SiteId.ValueString()+" for device "+plan.DeviceId.ValueString())
 	data, err := r.client.SitesDevicesWANCluster().CreateSiteDeviceHaCluster(ctx, siteId, deviceId, device_gateway_cluster)
 
