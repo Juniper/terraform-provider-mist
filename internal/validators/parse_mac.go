@@ -31,7 +31,7 @@ func (o ParseMacValidator) ValidateString(_ context.Context, req validator.Strin
 	if is_valid, err := regexp.MatchString(re_variable, value); !is_valid || err != nil {
 		resp.Diagnostics.Append(validatordiag.InvalidAttributeValueDiagnostic(
 			req.Path,
-			"value is not a valid MAC Address; format is \"5684dae9ac8b\"",
+			"value is not a valid MAC Address; format is \"[0-9a-f]{12}\" (e.g \"5684dae9ac8b\")",
 			value,
 		))
 		return
