@@ -250,7 +250,7 @@ Optional:
 
 - `dns_servers` (List of String) if `type`==`local` - optional, if not defined, system one will be used
 - `dns_suffix` (List of String) if `type`==`local` - optional, if not defined, system one will be used
-- `fixed_bindings` (Attributes Map) Property key is the MAC Address (see [below for nested schema](#nestedatt--dhcpd_config--config--fixed_bindings))
+- `fixed_bindings` (Attributes Map) Property key is the MAC Address. Format is `[0-9a-f]{12}` (e.g "5684dae9ac8b") (see [below for nested schema](#nestedatt--dhcpd_config--config--fixed_bindings))
 - `gateway` (String) if `type`==`local` - optional, `ip` will be used if not provided
 - `ip_end` (String) if `type`==`local`
 - `ip_end6` (String) if `type6`==`local`

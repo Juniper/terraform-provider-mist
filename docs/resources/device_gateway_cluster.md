@@ -36,7 +36,7 @@ resource "mist_device_gateway_cluster" "cluster_one" {
 
 ### Required
 
-- `nodes` (Attributes List) (see [below for nested schema](#nestedatt--nodes))
+- `nodes` (Attributes List) when replacing a node, either mac has to remain the same as existing cluster (see [below for nested schema](#nestedatt--nodes))
 - `site_id` (String)
 
 ### Read-Only
@@ -48,6 +48,6 @@ resource "mist_device_gateway_cluster" "cluster_one" {
 
 Required:
 
-- `mac` (String) when replacing a node, either mac has to remain the same as existing cluster
+- `mac` (String) Gateway MAC Address. Format is `[0-9a-f]{12}` (e.g "5684dae9ac8b")
 
 
