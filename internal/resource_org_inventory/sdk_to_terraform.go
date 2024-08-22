@@ -81,15 +81,26 @@ func SdkToTerraform(ctx context.Context, orgId string, data []models.Inventory, 
 		devices_tmp[data.Magic.ValueString()] = data
 	}
 
-	for _, dev_plan_attr := range plan.Devices.Elements() {
-		var dpi interface{} = dev_plan_attr
-		var device = dpi.(DevicesValue)
-		device_magic := device.Magic
-		dev_from_mist, ok := devices_tmp[device_magic.ValueString()]
-		if ok {
-			devices_out = append(devices_out, dev_from_mist)
-		} else {
-			devices_out = append(devices_out, device)
+	// If it is for an Import (no plan.OrgId), then return all the claimed devices
+	// otherwise, just return the devices from the plan to be sure to not unclaim
+	// devices not managed by TF
+	if plan.OrgId.ValueStringPointer() == nil {
+		for _, dev := range devices_tmp {
+			if dev.Magic.ValueString() != "" {
+				devices_out = append(devices_out, dev)
+			}
+		}
+	} else {
+		for _, dev_plan_attr := range plan.Devices.Elements() {
+			var dpi interface{} = dev_plan_attr
+			var device = dpi.(DevicesValue)
+			device_magic := device.Magic
+			dev_from_mist, ok := devices_tmp[device_magic.ValueString()]
+			if ok {
+				devices_out = append(devices_out, dev_from_mist)
+			} else {
+				devices_out = append(devices_out, device)
+			}
 		}
 	}
 

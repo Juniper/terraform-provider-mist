@@ -87,7 +87,7 @@ func (r *orgInventoryResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
-	/////////////////////// Check
+	/////////////////////// Sync, required to get missing devices info (MAC, Serial, ...)
 	state, diags = r.refreshInventory(ctx, &orgId, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -103,7 +103,7 @@ func (r *orgInventoryResource) Create(ctx context.Context, req resource.CreateRe
 }
 
 func (r *orgInventoryResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state resource_org_inventory.OrgInventoryModel
+	var state, comp resource_org_inventory.OrgInventoryModel
 
 	diags := resp.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
@@ -111,7 +111,19 @@ func (r *orgInventoryResource) Read(ctx context.Context, req resource.ReadReques
 		return
 	}
 
-	orgId, err := uuid.Parse(state.OrgId.ValueString())
+	var orgIdString string
+	// if it's an "Import" process, keep the "comp" var empty and remove the "import." prefic
+	// otherwise, set the comp var with the current state
+	// the comp var is used to only report information about the devices managed by TF. This
+	// is currently the only way to be sure to not delete them from the Org
+	if strings.HasPrefix(state.OrgId.ValueString(), "import") {
+		orgIdString = strings.Split(state.OrgId.ValueString(), ".")[1]
+	} else {
+		orgIdString = state.OrgId.ValueString()
+		comp = state
+	}
+
+	orgId, err := uuid.Parse(orgIdString)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"org_id\" value for \"org_inventory\" resource",
@@ -119,7 +131,7 @@ func (r *orgInventoryResource) Read(ctx context.Context, req resource.ReadReques
 		)
 		return
 	}
-	state, diags = r.refreshInventory(ctx, &orgId, &state)
+	state, diags = r.refreshInventory(ctx, &orgId, &comp)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -161,7 +173,7 @@ func (r *orgInventoryResource) Update(ctx context.Context, req resource.UpdateRe
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	/////////////////////// Check
+	/////////////////////// Sync, required to get missing devices info (MAC, Serial, ...)
 	state, diags = r.refreshInventory(ctx, &orgId, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -212,7 +224,7 @@ func (r *orgInventoryResource) Delete(ctx context.Context, req resource.DeleteRe
 		)
 		return
 	}
-	tflog.Info(ctx, "response for API Call to unclaim devices:", map[string]interface{}{
+	tflog.Debug(ctx, "response for API Call to unclaim devices:", map[string]interface{}{
 		"Error":   strings.Join(unclaim_response.Data.Error, ", "),
 		"Reason":  strings.Join(unclaim_response.Data.Reason, ", "),
 		"Success": strings.Join(unclaim_response.Data.Success, ", "),
@@ -245,7 +257,7 @@ func (r *orgInventoryResource) updateInventory(ctx context.Context, orgId *uuid.
 	}
 	/////////////////////// UNCLAIM
 	if len(unclaim) > 0 {
-		tflog.Info(ctx, "Starting to Unclaim devices: ", map[string]interface{}{"serials": strings.Join(unclaim, ", ")})
+		tflog.Debug(ctx, "Starting to Unclaim devices: ", map[string]interface{}{"serials": strings.Join(unclaim, ", ")})
 
 		unclaim_body := models.InventoryUpdate{}
 		unclaim_body.Op = models.InventoryUpdateOperationEnum_DELETE
@@ -257,7 +269,7 @@ func (r *orgInventoryResource) updateInventory(ctx context.Context, orgId *uuid.
 				"Could not Unclaim devices, unexpected error: "+err.Error(),
 			)
 		}
-		tflog.Info(ctx, "response for API Call to unclaim devices:", map[string]interface{}{
+		tflog.Debug(ctx, "response for API Call to unclaim devices:", map[string]interface{}{
 			"Error":   strings.Join(unclaim_response.Data.Error, ", "),
 			"Reason":  strings.Join(unclaim_response.Data.Reason, ", "),
 			"Success": strings.Join(unclaim_response.Data.Success, ", "),
@@ -265,13 +277,13 @@ func (r *orgInventoryResource) updateInventory(ctx context.Context, orgId *uuid.
 	}
 	/////////////////////// UNASSIGN
 	if len(unassign) > 0 {
-		tflog.Info(ctx, "Starting to Unassign devices: ", map[string]interface{}{"macs": strings.Join(unassign, ", ")})
+		tflog.Debug(ctx, "Starting to Unassign devices: ", map[string]interface{}{"macs": strings.Join(unassign, ", ")})
 
 		unassign_body := models.InventoryUpdate{}
 		unassign_body.Op = models.InventoryUpdateOperationEnum_UNASSIGN
 		unassign_body.Macs = unassign
 		unassign_response, err := r.client.OrgsInventory().UpdateOrgInventoryAssignment(ctx, *orgId, &unassign_body)
-		tflog.Info(ctx, "response for API Call to claim devices:", map[string]interface{}{
+		tflog.Debug(ctx, "response for API Call to claim devices:", map[string]interface{}{
 			"Error":   strings.Join(unassign_response.Data.Error, ", "),
 			"Reason":  strings.Join(unassign_response.Data.Reason, ", "),
 			"Success": strings.Join(unassign_response.Data.Success, ", "),
@@ -287,7 +299,7 @@ func (r *orgInventoryResource) updateInventory(ctx context.Context, orgId *uuid.
 	/////////////////////// ASSIGN
 	if len(assign) > 0 {
 		for k, v := range assign {
-			tflog.Info(ctx, "Starting to Assign devices to site "+k+": ", map[string]interface{}{"macs": strings.Join(v, ", ")})
+			tflog.Debug(ctx, "Starting to Assign devices to site "+k+": ", map[string]interface{}{"macs": strings.Join(v, ", ")})
 
 			assign_body := models.InventoryUpdate{}
 			assign_body.Op = models.InventoryUpdateOperationEnum_ASSIGN
@@ -302,7 +314,7 @@ func (r *orgInventoryResource) updateInventory(ctx context.Context, orgId *uuid.
 					"Could not Assign devices, unexpected error: "+err.Error(),
 				)
 			}
-			tflog.Info(ctx, "response for API Call to assign devices:", map[string]interface{}{
+			tflog.Debug(ctx, "response for API Call to assign devices:", map[string]interface{}{
 				"Error":   strings.Join(assign_response.Data.Error, ", "),
 				"Reason":  strings.Join(assign_response.Data.Reason, ", "),
 				"Success": strings.Join(assign_response.Data.Success, ", "),
@@ -334,7 +346,6 @@ func (r *orgInventoryResource) refreshInventory(ctx context.Context, orgId *uuid
 			"Could not get Inventory, unexpected error: "+err.Error(),
 		)
 	}
-	tflog.Debug(ctx, "-----", map[string]interface{}{"data": data})
 	state, e := resource_org_inventory.SdkToTerraform(ctx, orgId.String(), data.Data, plan)
 	diags.Append(e...)
 
@@ -346,11 +357,12 @@ func (r *orgInventoryResource) ImportState(ctx context.Context, req resource.Imp
 	_, err := uuid.Parse(req.ID)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", req.ID, err.Error()),
+			"Invalid \"id\" value for \"org_inventory\" resource",
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" must be a valid Org Id.", req.ID, err.Error()),
 		)
 		return
 	}
 
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("org_id"), req.ID)...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("org_id"), "import."+req.ID)...)
+
 }
