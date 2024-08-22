@@ -230,7 +230,7 @@ func (r *orgResource) ImportState(ctx context.Context, req resource.ImportStateR
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"id\" value for \"org\" resource",
-			fmt.Sprintf("Could not parse the UUID: "+err.Error()+". Import \"id\" must be a valid Org Id, got %s", req.ID),
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" must be a valid Org Id.", req.ID, err.Error()),
 		)
 		return
 	}
