@@ -53,8 +53,13 @@ func (r *deviceGatewayClusterResource) Metadata(ctx context.Context, req resourc
 
 func (r *deviceGatewayClusterResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryDevices + "This resource manages the Gateway Clusters." +
-			"It can be used to form or unset a cluster with two Gateways assigned to the same site." +
+		MarkdownDescription: docCategoryDevices + "This resource can be used to form or delete a Gateway" +
+			" Clusters. It can be used with two Gateways assigned to the same site.\n" +
+			"Once the Cluster is formed, it can be create just like a Gateway with the `mist_device_gateway` resource:\n" +
+			"1. Claim the gateways and assign them to a site with the `mist_org_inventory` resource\n" +
+			"2. Form the Cluster with the `mist_device_gateway_cluster` resource by providing the `site_id` and the two nodes " +
+			"MAC Addresses (the first in the list will be the node0)\n" +
+			"3. Configure the Cluster with the `mist_device_gateway` resource\n\n" +
 			"Please check the Juniper Documentation first to validate the cabling between the Gateways",
 		Attributes: resource_device_gateway_cluster.DeviceGatewayClusterResourceSchema(ctx).Attributes,
 	}

@@ -2,12 +2,21 @@
 page_title: "mist_device_gateway_cluster Resource - terraform-provider-mist"
 subcategory: "Devices"
 description: |-
-  This resource manages the Gateway Clusters.It can be used to form or unset a cluster with two Gateways assigned to the same site.Please check the Juniper Documentation first to validate the cabling between the Gateways
+  This resource can be used to form or delete a Gateway Clusters. It can be used with two Gateways assigned to the same site.
+  Once the Cluster is formed, it can be create just like a Gateway with the mist_device_gateway resource:
+  Claim the gateways and assign them to a site with the mist_org_inventory resourceForm the Cluster with the mist_device_gateway_cluster resource by providing the site_id and the two nodes MAC Addresses (the first in the list will be the node0)Configure the Cluster with the mist_device_gateway resource
+  Please check the Juniper Documentation first to validate the cabling between the Gateways
 ---
 
 # mist_device_gateway_cluster (Resource)
 
-This resource manages the Gateway Clusters.It can be used to form or unset a cluster with two Gateways assigned to the same site.Please check the Juniper Documentation first to validate the cabling between the Gateways
+This resource can be used to form or delete a Gateway Clusters. It can be used with two Gateways assigned to the same site.
+Once the Cluster is formed, it can be create just like a Gateway with the `mist_device_gateway` resource:
+1. Claim the gateways and assign them to a site with the `mist_org_inventory` resource
+2. Form the Cluster with the `mist_device_gateway_cluster` resource by providing the `site_id` and the two nodes MAC Addresses (the first in the list will be the node0)
+3. Configure the Cluster with the `mist_device_gateway` resource
+
+Please check the Juniper Documentation first to validate the cabling between the Gateways
 
 
 ## Example Usage
@@ -15,7 +24,6 @@ This resource manages the Gateway Clusters.It can be used to form or unset a clu
 ```terraform
 resource "mist_device_gateway_cluster" "cluster_one" {
   site_id   = mist_site.terraform_site2.id
-  device_id = "00000000-0000-0000-1000-4c96143de700"
   nodes = [
     { mac = "4c961000000" },
     { mac = "4c961000001" }
@@ -28,15 +36,18 @@ resource "mist_device_gateway_cluster" "cluster_one" {
 
 ### Required
 
-- `device_id` (String)
 - `nodes` (Attributes List) (see [below for nested schema](#nestedatt--nodes))
 - `site_id` (String)
+
+### Read-Only
+
+- `device_id` (String)
 
 <a id="nestedatt--nodes"></a>
 ### Nested Schema for `nodes`
 
 Required:
 
-- `mac` (String) when replacing a noce, either mac has to remain the same as existing cluster
+- `mac` (String) when replacing a node, either mac has to remain the same as existing cluster
 
 
