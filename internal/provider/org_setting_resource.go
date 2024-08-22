@@ -78,7 +78,7 @@ func (r *orgSettingResource) Create(ctx context.Context, req resource.CreateRequ
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"org_id\" value for \"org_setting\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -120,7 +120,7 @@ func (r *orgSettingResource) Read(ctx context.Context, req resource.ReadRequest,
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"org_id\" value for \"org_setting\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -174,7 +174,7 @@ func (r *orgSettingResource) Update(ctx context.Context, req resource.UpdateRequ
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"org_id\" value for \"org_setting\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -218,7 +218,7 @@ func (r *orgSettingResource) Delete(ctx context.Context, req resource.DeleteRequ
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"org_id\" value for \"org_setting\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -238,7 +238,7 @@ func (r *orgSettingResource) ImportState(ctx context.Context, req resource.Impor
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"org_id\" value for \"org_setting\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			fmt.Sprintf("Could not parse the UUID: "+err.Error()+". Import \"id\" must be a valid Org Id, got %s", req.ID),
 		)
 		return
 	}

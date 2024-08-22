@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 
@@ -71,8 +72,8 @@ func (r *orgNacTagResource) Create(ctx context.Context, req resource.CreateReque
 	orgId, err := uuid.Parse(plan.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"orgId\" value for \"nactag\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			"Invalid \"org_id\" value for \"org_nactag\" resource",
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -118,16 +119,16 @@ func (r *orgNacTagResource) Read(ctx context.Context, req resource.ReadRequest, 
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"orgId\" value for \"nactag\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			"Invalid \"org_id\" value for \"org_nactag\" resource",
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 	nactagId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"nactagId\" value for \"nactag\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			"Invalid \"id\" value for \"org_nactag\" resource",
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -181,16 +182,16 @@ func (r *orgNacTagResource) Update(ctx context.Context, req resource.UpdateReque
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"orgId\" value for \"nactag\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			"Invalid \"org_id\" value for \"org_nactag\" resource",
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 	nactagId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"nactagId\" value for \"nactag\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			"Invalid \"id\" value for \"org_nactag\" resource",
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -232,16 +233,16 @@ func (r *orgNacTagResource) Delete(ctx context.Context, req resource.DeleteReque
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"orgId\" value for \"nactag\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			"Invalid \"org_id\" value for \"org_nactag\" resource",
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 	nactagId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"nactagId\" value for \"nactag\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			"Invalid \"id\" value for \"org_nactag\" resource",
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -259,14 +260,31 @@ func (r *orgNacTagResource) Delete(ctx context.Context, req resource.DeleteReque
 
 func (r *orgNacTagResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 
-	_, err := uuid.Parse(req.ID)
-	if err != nil {
+	importIds := strings.Split(req.ID, ".")
+	if len(importIds) != 2 {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			"Invalid \"id\" value for \"org_nactag\" resource",
+			"import \"id\" format must be \"{org_id}.{nactag_id}\"",
 		)
 		return
 	}
+	_, err := uuid.Parse(importIds[0])
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"org_nactag\" resource",
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{nactag_id}\"", importIds[0], err.Error()),
+		)
+		return
+	}
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("org_id"), importIds[0])...)
 
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), req.ID)...)
+	_, err = uuid.Parse(importIds[1])
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"id\" value for \"org_nactag\" resource",
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{nactag_id}\"", importIds[1], err.Error()),
+		)
+		return
+	}
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), importIds[1])...)
 }

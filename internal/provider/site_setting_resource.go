@@ -78,7 +78,7 @@ func (r *siteSettingResource) Create(ctx context.Context, req resource.CreateReq
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"site_id\" value for \"site_setting\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -120,7 +120,7 @@ func (r *siteSettingResource) Read(ctx context.Context, req resource.ReadRequest
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"site_id\" value for \"site_setting\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -174,7 +174,7 @@ func (r *siteSettingResource) Update(ctx context.Context, req resource.UpdateReq
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"site_id\" value for \"site_setting\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -218,7 +218,7 @@ func (r *siteSettingResource) Delete(ctx context.Context, req resource.DeleteReq
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"site_id\" value for \"site_setting\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -237,8 +237,8 @@ func (r *siteSettingResource) ImportState(ctx context.Context, req resource.Impo
 	_, err := uuid.Parse(req.ID)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"site_id\" value for \"site_setting\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			"Invalid \"id\" value for \"site_setting\" resource",
+			fmt.Sprintf("Could not parse the UUID: "+err.Error()+". Import \"id\" must be  a valid Site Id, got %s", req.ID),
 		)
 		return
 	}

@@ -79,7 +79,7 @@ func (r *siteNetworkTemplateResource) Create(ctx context.Context, req resource.C
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"site_id\" value for \"site_networktemplate\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -120,7 +120,7 @@ func (r *siteNetworkTemplateResource) Read(ctx context.Context, req resource.Rea
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"site_id\" value for \"site_networktemplate\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -174,7 +174,7 @@ func (r *siteNetworkTemplateResource) Update(ctx context.Context, req resource.U
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"site_id\" value for \"site_networktemplate\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -218,7 +218,7 @@ func (r *siteNetworkTemplateResource) Delete(ctx context.Context, req resource.D
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"site_id\" value for \"site_networktemplate\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -237,8 +237,8 @@ func (r *siteNetworkTemplateResource) ImportState(ctx context.Context, req resou
 	_, err := uuid.Parse(req.ID)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"site_id\" value for \"site_networktemplate\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			"Invalid \"id\" value for \"site_networktemplate\" resource",
+			fmt.Sprintf("Could not parse the UUID: "+err.Error()+". Import \"id\" must be  a valid Site Id, got %s", req.ID),
 		)
 		return
 	}

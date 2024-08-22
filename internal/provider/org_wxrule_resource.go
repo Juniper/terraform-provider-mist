@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 
@@ -81,7 +82,7 @@ func (r *orgWxRuleResource) Create(ctx context.Context, req resource.CreateReque
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"org_id\" value for \"org_wxrule\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -123,7 +124,7 @@ func (r *orgWxRuleResource) Read(ctx context.Context, req resource.ReadRequest, 
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"org_id\" value for \"org_wxrule\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -131,7 +132,7 @@ func (r *orgWxRuleResource) Read(ctx context.Context, req resource.ReadRequest, 
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"id\" value for \"org_wxrule\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -184,7 +185,7 @@ func (r *orgWxRuleResource) Update(ctx context.Context, req resource.UpdateReque
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"org_id\" value for \"org_wxrule\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -192,7 +193,7 @@ func (r *orgWxRuleResource) Update(ctx context.Context, req resource.UpdateReque
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"id\" value for \"org_wxrule\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -234,7 +235,7 @@ func (r *orgWxRuleResource) Delete(ctx context.Context, req resource.DeleteReque
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"org_id\" value for \"org_wxrule\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -242,7 +243,7 @@ func (r *orgWxRuleResource) Delete(ctx context.Context, req resource.DeleteReque
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"id\" value for \"org_wxrule\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -259,14 +260,31 @@ func (r *orgWxRuleResource) Delete(ctx context.Context, req resource.DeleteReque
 
 func (r *orgWxRuleResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 
-	_, err := uuid.Parse(req.ID)
-	if err != nil {
+	importIds := strings.Split(req.ID, ".")
+	if len(importIds) != 2 {
 		resp.Diagnostics.AddError(
 			"Invalid \"id\" value for \"org_wxrule\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			"import \"id\" format must be \"{org_id}.{wxrule_id}\"",
 		)
 		return
 	}
+	_, err := uuid.Parse(importIds[0])
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"org_wxrule\" resource",
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{wxrule_id}\"", importIds[0], err.Error()),
+		)
+		return
+	}
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("org_id"), importIds[0])...)
 
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), req.ID)...)
+	_, err = uuid.Parse(importIds[1])
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"id\" value for \"org_wxrule\" resource",
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{wxrule_id}\"", importIds[1], err.Error()),
+		)
+		return
+	}
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), importIds[1])...)
 }

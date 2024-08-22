@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 
@@ -71,8 +72,8 @@ func (r *orgNetworkResource) Create(ctx context.Context, req resource.CreateRequ
 	orgId, err := uuid.Parse(plan.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"orgId\" value for \"network\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			"Invalid \"org_id\" value for \"org_network\" resource",
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -120,16 +121,16 @@ func (r *orgNetworkResource) Read(ctx context.Context, req resource.ReadRequest,
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"orgId\" value for \"network\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			"Invalid \"org_id\" value for \"org_network\" resource",
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 	networkId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"networkId\" value for \"network\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			"Invalid \"id\" value for \"org_network\" resource",
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -177,16 +178,16 @@ func (r *orgNetworkResource) Update(ctx context.Context, req resource.UpdateRequ
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"orgId\" value for \"network\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			"Invalid \"org_id\" value for \"org_network\" resource",
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 	networkId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"networkId\" value for \"network\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			"Invalid \"id\" value for \"org_network\" resource",
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -234,16 +235,16 @@ func (r *orgNetworkResource) Delete(ctx context.Context, req resource.DeleteRequ
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"orgId\" value for \"network\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			"Invalid \"org_id\" value for \"org_network\" resource",
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 	networkId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"networkId\" value for \"network\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			"Invalid \"id\" value for \"org_network\" resource",
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -261,14 +262,31 @@ func (r *orgNetworkResource) Delete(ctx context.Context, req resource.DeleteRequ
 
 func (r *orgNetworkResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 
-	_, err := uuid.Parse(req.ID)
-	if err != nil {
+	importIds := strings.Split(req.ID, ".")
+	if len(importIds) != 2 {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			"Invalid \"id\" value for \"org_network\" resource",
+			"import \"id\" format must be \"{org_id}.{network_id}\"",
 		)
 		return
 	}
+	_, err := uuid.Parse(importIds[0])
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"org_network\" resource",
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{network_id}\"", importIds[0], err.Error()),
+		)
+		return
+	}
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("org_id"), importIds[0])...)
 
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), req.ID)...)
+	_, err = uuid.Parse(importIds[1])
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"id\" value for \"org_network\" resource",
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{network_id}\"", importIds[1], err.Error()),
+		)
+		return
+	}
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), importIds[1])...)
 }

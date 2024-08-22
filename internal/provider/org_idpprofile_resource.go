@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 
@@ -80,7 +81,7 @@ func (r *orgOrgIdpprofileResource) Create(ctx context.Context, req resource.Crea
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"org_id\" value for \"org_idpprofile\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -122,7 +123,7 @@ func (r *orgOrgIdpprofileResource) Read(ctx context.Context, req resource.ReadRe
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"org_id\" value for \"org_idpprofile\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -130,7 +131,7 @@ func (r *orgOrgIdpprofileResource) Read(ctx context.Context, req resource.ReadRe
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"id\" value for \"org_idpprofile\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -185,7 +186,7 @@ func (r *orgOrgIdpprofileResource) Update(ctx context.Context, req resource.Upda
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"org_id\" value for \"org_idpprofile\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -193,7 +194,7 @@ func (r *orgOrgIdpprofileResource) Update(ctx context.Context, req resource.Upda
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"id\" value for \"org_idpprofile\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -235,7 +236,7 @@ func (r *orgOrgIdpprofileResource) Delete(ctx context.Context, req resource.Dele
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"org_id\" value for \"org_idpprofile\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -243,7 +244,7 @@ func (r *orgOrgIdpprofileResource) Delete(ctx context.Context, req resource.Dele
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"id\" value for \"org_idpprofile\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -259,14 +260,31 @@ func (r *orgOrgIdpprofileResource) Delete(ctx context.Context, req resource.Dele
 
 func (r *orgOrgIdpprofileResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 
-	_, err := uuid.Parse(req.ID)
-	if err != nil {
+	importIds := strings.Split(req.ID, ".")
+	if len(importIds) != 2 {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			"Invalid \"id\" value for \"org_idpprofile\" resource",
+			"import \"id\" format must be \"{org_id}.{deviceprofile_ap_id}\"",
 		)
 		return
 	}
+	_, err := uuid.Parse(importIds[0])
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"org_idpprofile\" resource",
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{deviceprofile_ap_id}\"", importIds[0], err.Error()),
+		)
+		return
+	}
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("org_id"), importIds[0])...)
 
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), req.ID)...)
+	_, err = uuid.Parse(importIds[1])
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"id\" value for \"org_idpprofile\" resource",
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{deviceprofile_ap_id}\"", importIds[1], err.Error()),
+		)
+		return
+	}
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), importIds[1])...)
 }

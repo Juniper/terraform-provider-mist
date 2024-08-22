@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 
@@ -75,7 +76,7 @@ func (r *siteWxRuleResource) Create(ctx context.Context, req resource.CreateRequ
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"site_id\" value for \"site_wxrule\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -122,7 +123,7 @@ func (r *siteWxRuleResource) Read(ctx context.Context, req resource.ReadRequest,
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"site_id\" value for \"site_wxrule\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -130,7 +131,7 @@ func (r *siteWxRuleResource) Read(ctx context.Context, req resource.ReadRequest,
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"id\" value for \"site_wxrule\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -184,7 +185,7 @@ func (r *siteWxRuleResource) Update(ctx context.Context, req resource.UpdateRequ
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"site_id\" value for \"site_wxrule\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -192,7 +193,7 @@ func (r *siteWxRuleResource) Update(ctx context.Context, req resource.UpdateRequ
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"id\" value for \"site_wxrule\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -234,7 +235,7 @@ func (r *siteWxRuleResource) Delete(ctx context.Context, req resource.DeleteRequ
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"site_id\" value for \"site_wxrule\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -242,7 +243,7 @@ func (r *siteWxRuleResource) Delete(ctx context.Context, req resource.DeleteRequ
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"id\" value for \"site_wxrule\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -259,14 +260,31 @@ func (r *siteWxRuleResource) Delete(ctx context.Context, req resource.DeleteRequ
 
 func (r *siteWxRuleResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 
-	_, err := uuid.Parse(req.ID)
-	if err != nil {
+	importIds := strings.Split(req.ID, ".")
+	if len(importIds) != 2 {
 		resp.Diagnostics.AddError(
-			"Invalid \"site_id\" value for \"site_wxrule\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			"Invalid \"id\" value for \"site_wxrule\" resource",
+			"import \"id\" format must be \"{site_id}.{wxrule_id}\"",
 		)
 		return
 	}
+	_, err := uuid.Parse(importIds[0])
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"site_id\" value for \"site_wxrule\" resource",
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" format must be \"{site_id}.{wxrule_id}\"", importIds[0], err.Error()),
+		)
+		return
+	}
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("site_id"), importIds[0])...)
 
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), req.ID)...)
+	_, err = uuid.Parse(importIds[1])
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"id\" value for \"site_wxrule\" resource",
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" format must be \"{site_id}.{wxrule_id}\"", importIds[1], err.Error()),
+		)
+		return
+	}
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), importIds[1])...)
 }

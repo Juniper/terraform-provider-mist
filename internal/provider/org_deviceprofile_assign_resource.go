@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_deviceprofile_assign"
 
@@ -76,7 +77,7 @@ func (r *orgDeviceprofileAssignResource) Create(ctx context.Context, req resourc
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"org_id\" value for \"org_deviceprofile_assign\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -85,7 +86,7 @@ func (r *orgDeviceprofileAssignResource) Create(ctx context.Context, req resourc
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"org_id\" value for \"org_deviceprofile_assign\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -128,6 +129,7 @@ func (r *orgDeviceprofileAssignResource) Create(ctx context.Context, req resourc
 func (r *orgDeviceprofileAssignResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var state resource_org_deviceprofile_assign.OrgDeviceprofileAssignModel
 
+	// TODO: really read the device info to get the profile assignements
 	diags := resp.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -161,15 +163,15 @@ func (r *orgDeviceprofileAssignResource) Update(ctx context.Context, req resourc
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"org_id\" value for \"org_deviceprofile_assign\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 	deviceprofileId, err := uuid.Parse(state.DeviceprofileId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"deviceprofile_assign_id\" value for \"org_deviceprofile_assign\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			"Invalid \"deviceprofile_id\" value for \"org_deviceprofile_assign\" resource",
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.DeviceprofileId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -233,15 +235,15 @@ func (r *orgDeviceprofileAssignResource) Delete(ctx context.Context, req resourc
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"org_id\" value for \"org_deviceprofile_assign\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 	deviceprofileId, err := uuid.Parse(state.DeviceprofileId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"deviceprofile_assign_id\" value for \"org_deviceprofile_assign\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			"Invalid \"deviceprofile_id\" value for \"org_deviceprofile_assign\" resource",
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.DeviceprofileId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -290,14 +292,31 @@ func (r *orgDeviceprofileAssignResource) unassign(ctx context.Context, orgId uui
 
 func (r *orgDeviceprofileAssignResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 
-	_, err := uuid.Parse(req.ID)
-	if err != nil {
+	importIds := strings.Split(req.ID, ".")
+	if len(importIds) != 2 {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org\" resource",
-			"Could not parse the UUID: "+err.Error(),
+			"Invalid \"id\" value for \"org_deviceprofile_assign\" resource",
+			"import \"id\" format must be \"{org_id}.{deviceprofile_id}\"",
 		)
 		return
 	}
+	_, err := uuid.Parse(importIds[0])
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"org_deviceprofile_assign\" resource",
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{deviceprofile_id}\"", importIds[0], err.Error()),
+		)
+		return
+	}
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("org_id"), importIds[0])...)
 
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), req.ID)...)
+	_, err = uuid.Parse(importIds[1])
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"id\" value for \"org_deviceprofile_assign\" resource",
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{deviceprofile_id}\"", importIds[1], err.Error()),
+		)
+		return
+	}
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("deviceprofile_id"), importIds[1])...)
 }
