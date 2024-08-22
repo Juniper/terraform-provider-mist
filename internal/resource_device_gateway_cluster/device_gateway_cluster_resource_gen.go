@@ -5,8 +5,8 @@ package resource_device_gateway_cluster
 import (
 	"context"
 	"fmt"
+	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
-	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -29,10 +29,10 @@ func DeviceGatewayClusterResourceSchema(ctx context.Context) schema.Schema {
 					Attributes: map[string]schema.Attribute{
 						"mac": schema.StringAttribute{
 							Required:            true,
-							Description:         "when replacing a ndce, either mac has to remain the same as existing cluster",
-							MarkdownDescription: "when replacing a node, either mac has to remain the same as existing cluster",
+							Description:         "Gateway MAC Address. Format is `[0-9a-f]{12}` (e.g \"5684dae9ac8b\")",
+							MarkdownDescription: "Gateway MAC Address. Format is `[0-9a-f]{12}` (e.g \"5684dae9ac8b\")",
 							Validators: []validator.String{
-								stringvalidator.LengthAtLeast(1),
+								mistvalidator.ParseMac(),
 							},
 						},
 					},
@@ -42,7 +42,9 @@ func DeviceGatewayClusterResourceSchema(ctx context.Context) schema.Schema {
 						},
 					},
 				},
-				Required: true,
+				Required:            true,
+				Description:         "when replacing a node, either mac has to remain the same as existing cluster",
+				MarkdownDescription: "when replacing a node, either mac has to remain the same as existing cluster",
 				Validators: []validator.List{
 					listvalidator.SizeBetween(1, 2),
 					listvalidator.UniqueValues(),
