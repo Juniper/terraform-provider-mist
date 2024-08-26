@@ -82,7 +82,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteModel) (*models.Site, diag.Di
 			diags.AddError("Bad value for rftemplate_id", e.Error())
 		}
 	} else {
-		unset["-rftemplate_id"] = nil
+		unset["rftemplate_id"] = nil
 	}
 
 	if len(plan.SecpolicyId.ValueString()) > 0 {
