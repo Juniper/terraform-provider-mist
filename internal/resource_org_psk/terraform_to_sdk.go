@@ -51,7 +51,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgPskModel) (models.Psk, diag.Di
 		unset["-max_usage"] = ""
 	}
 
-	data.Name = plan.Name.String()
+	data.Name = plan.Name.ValueString()
 
 	if !plan.Note.IsNull() && !plan.Note.IsUnknown() {
 		data.Note = plan.Note.ValueStringPointer()

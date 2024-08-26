@@ -45,7 +45,7 @@ func TerraformToSdk(ctx context.Context, plan *SitePskModel) (models.Psk, diag.D
 		unset["-macs"] = ""
 	}
 
-	data.Name = plan.Name.String()
+	data.Name = plan.Name.ValueString()
 
 	if !plan.Note.IsNull() && !plan.Note.IsUnknown() {
 		data.Note = plan.Note.ValueStringPointer()

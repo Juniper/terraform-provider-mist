@@ -16,7 +16,7 @@ func SdkToTerraform(ctx context.Context, d *models.Psk) (OrgPskModel, diag.Diagn
 	var diags diag.Diagnostics
 
 	var email types.String
-	var expire_time types.Int64
+	var expire_time types.Int64 = types.Int64Value(0)
 	var expiry_notification_time types.Int64
 	var id types.String
 	var mac types.String

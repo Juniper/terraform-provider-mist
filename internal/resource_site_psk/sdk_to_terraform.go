@@ -16,7 +16,7 @@ func SdkToTerraform(ctx context.Context, d *models.Psk) (SitePskModel, diag.Diag
 	var diags diag.Diagnostics
 
 	var email types.String
-	var expire_time types.Int64
+	var expire_time types.Int64 = types.Int64Value(0)
 	var expiry_notification_time types.Int64
 	var id types.String
 	var mac types.String
@@ -30,6 +30,7 @@ func SdkToTerraform(ctx context.Context, d *models.Psk) (SitePskModel, diag.Diag
 	var passphrase types.String
 	var role types.String
 	var ssid types.String
+	var site_id types.String
 	var usage types.String
 	var vlan_id types.String
 
@@ -78,6 +79,8 @@ func SdkToTerraform(ctx context.Context, d *models.Psk) (SitePskModel, diag.Diag
 
 	ssid = types.StringValue(d.Ssid)
 
+	site_id = types.StringValue(string(d.SiteId.String()))
+
 	usage = types.StringValue(string(*d.Usage))
 
 	if d.VlanId != nil {
@@ -99,6 +102,7 @@ func SdkToTerraform(ctx context.Context, d *models.Psk) (SitePskModel, diag.Diag
 	state.OrgId = org_id
 	state.Role = role
 	state.Ssid = ssid
+	state.SiteId = site_id
 	state.Usage = usage
 	state.VlanId = vlan_id
 
