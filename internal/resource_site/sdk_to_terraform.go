@@ -31,6 +31,7 @@ func SdkToTerraform(ctx context.Context, data *models.Site) (SiteModel, diag.Dia
 	var rftemplate_id basetypes.StringValue
 	var secpolicy_id basetypes.StringValue
 	var sitetemplate_id basetypes.StringValue
+	var sitegroup_ids basetypes.ListValue = types.ListNull(types.StringType)
 
 	if data.Address != nil {
 		address = types.StringValue(*data.Address)
@@ -79,6 +80,19 @@ func SdkToTerraform(ctx context.Context, data *models.Site) (SiteModel, diag.Dia
 	if data.SitetemplateId.Value() != nil && data.SitetemplateId.Value().String() != "00000000-0000-0000-0000-000000000000" {
 		sitetemplate_id = types.StringValue(data.SitetemplateId.Value().String())
 	}
+	if data.SitegroupIds != nil {
+		var items []attr.Value
+		var items_type attr.Type = basetypes.StringType{}
+		for _, item := range data.SitegroupIds {
+			items = append(items, types.StringValue(item.String()))
+		}
+		list, e := types.ListValue(items_type, items)
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			sitegroup_ids = list
+		}
+	}
 
 	state.Address = address
 	state.Latlng = latlng
@@ -92,12 +106,7 @@ func SdkToTerraform(ctx context.Context, data *models.Site) (SiteModel, diag.Dia
 	state.RftemplateId = rftemplate_id
 	state.SecpolicyId = secpolicy_id
 	state.SitetemplateId = sitetemplate_id
+	state.SitegroupIds = sitegroup_ids
 
-	var items []attr.Value
-	var items_type attr.Type = basetypes.StringType{}
-	for _, item := range data.SitegroupIds {
-		items = append(items, types.StringValue(item.String()))
-	}
-	state.SitegroupIds, _ = types.ListValue(items_type, items)
 	return state, diags
 }

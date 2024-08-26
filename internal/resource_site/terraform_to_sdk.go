@@ -30,7 +30,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteModel) (*models.Site, diag.Di
 
 	data.Notes = plan.Notes.ValueStringPointer()
 
-	if len(plan.AlarmtemplateId.ValueString()) > 0 {
+	if !plan.AlarmtemplateId.IsNull() && !plan.AlarmtemplateId.IsUnknown() {
 		alarmtemplate_id, e := uuid.Parse(plan.AlarmtemplateId.ValueString())
 		if e == nil {
 			data.AlarmtemplateId = models.NewOptional(&alarmtemplate_id)
@@ -41,7 +41,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteModel) (*models.Site, diag.Di
 		unset["-alarmtemplate_id"] = ""
 	}
 
-	if len(plan.AptemplateId.ValueString()) > 0 {
+	if !plan.AptemplateId.IsNull() && !plan.AptemplateId.IsUnknown() {
 		aptemplate_id, e := uuid.Parse(plan.AptemplateId.ValueString())
 		if e == nil {
 			data.AptemplateId = models.NewOptional(&aptemplate_id)
@@ -52,7 +52,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteModel) (*models.Site, diag.Di
 		unset["-aptemplate_id"] = ""
 	}
 
-	if len(plan.GatewaytemplateId.ValueString()) > 0 {
+	if !plan.GatewaytemplateId.IsNull() && !plan.GatewaytemplateId.IsUnknown() {
 		gatewaytemplate_id, e := uuid.Parse(plan.GatewaytemplateId.ValueString())
 		if e == nil {
 			data.GatewaytemplateId = models.NewOptional(&gatewaytemplate_id)
@@ -63,7 +63,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteModel) (*models.Site, diag.Di
 		unset["-gatewaytemplate_id"] = ""
 	}
 
-	if len(plan.NetworktemplateId.ValueString()) > 0 {
+	if !plan.NetworktemplateId.IsNull() && !plan.NetworktemplateId.IsUnknown() {
 		networktemplate_id, e := uuid.Parse(plan.NetworktemplateId.ValueString())
 		if e == nil {
 			data.NetworktemplateId = models.NewOptional(&networktemplate_id)
@@ -74,7 +74,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteModel) (*models.Site, diag.Di
 		unset["-networktemplate_id"] = ""
 	}
 
-	if len(plan.RftemplateId.ValueString()) > 0 {
+	if !plan.RftemplateId.IsNull() && !plan.RftemplateId.IsUnknown() {
 		rftemplate_id, e := uuid.Parse(plan.RftemplateId.ValueString())
 		if e == nil {
 			data.RftemplateId = models.NewOptional(&rftemplate_id)
@@ -85,7 +85,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteModel) (*models.Site, diag.Di
 		unset["rftemplate_id"] = nil
 	}
 
-	if len(plan.SecpolicyId.ValueString()) > 0 {
+	if !plan.SecpolicyId.IsNull() && !plan.SecpolicyId.IsUnknown() {
 		secpolicy_id, e := uuid.Parse(plan.SecpolicyId.ValueString())
 		if e == nil {
 			data.SecpolicyId = models.NewOptional(&secpolicy_id)
@@ -96,7 +96,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteModel) (*models.Site, diag.Di
 		unset["-secpolicy_id"] = ""
 	}
 
-	if len(plan.SitetemplateId.ValueString()) > 0 {
+	if !plan.SitetemplateId.IsNull() && !plan.SitetemplateId.IsUnknown() {
 		sitetemplate_id, e := uuid.Parse(plan.SitetemplateId.ValueString())
 		if e == nil {
 			data.SitetemplateId = models.NewOptional(&sitetemplate_id)
@@ -107,11 +107,15 @@ func TerraformToSdk(ctx context.Context, plan *SiteModel) (*models.Site, diag.Di
 		unset["-sitetemplate_id"] = ""
 	}
 
-	var items []uuid.UUID
-	for _, item := range plan.SitegroupIds.Elements() {
-		items = append(items, uuid.MustParse(item.String()))
+	if !plan.SitegroupIds.IsNull() && !plan.SitegroupIds.IsUnknown() {
+		var items []uuid.UUID
+		for _, item := range plan.SitegroupIds.Elements() {
+			items = append(items, uuid.MustParse(item.String()))
+		}
+		data.SitegroupIds = items
+	} else {
+		unset["-sitegroup_ids"] = ""
 	}
-	data.SitegroupIds = items
 
 	data.AdditionalProperties = unset
 	return &data, diags
