@@ -42,6 +42,7 @@ resource "mist_org_webhook" "webhook_one" {
 
 - `name` (String) name of the webhook
 - `org_id` (String)
+- `topics` (List of String) enum: `alarms`, `audits`, `client-info`, `client-join`, `client-sessions`, `device-updowns`, `device-events`, `mxedge-events`, `nac-accounting`, `nac_events`
 - `url` (String)
 
 ### Optional
@@ -63,7 +64,6 @@ when `secret` is provided, two  HTTP headers will be added:
   * X-Mist-Signature: HMAC_SHA1(secret, body)
 - `splunk_token` (String, Sensitive) required if `type`=`splunk`
 If splunk_token is not defined for a type Splunk webhook, it will not send, regardless if the webhook receiver is configured to accept it.'
-- `topics` (List of String) enum: `alarms`, `audits`, `client-info`, `client-join`, `client-sessions`, `device-updowns`, `device-events`, `mxedge-events`, `nac-accounting`, `nac_events`
 - `type` (String) enum: `aws-sns`, `google-pubsub`, `http-post`, `oauth2`, `splunk`
 - `verify_cert` (Boolean) when url uses HTTPS, whether to verify the certificate
 

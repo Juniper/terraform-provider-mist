@@ -42,6 +42,7 @@ resource "mist_site_webhook" "webhook_one" {
 
 - `name` (String) name of the webhook
 - `site_id` (String)
+- `topics` (List of String) enum: `alarms`, `asset-raw`, `asset-raw-rssi`, `audits`, `client-info`, `client-join`, `client-latency`, `client-sessions`, `device-updowns`, `device-events`, `discovered-raw-rssi`, `location`, `location_asset`, `location_centrak`, `location_client`, `location_sdk`, `location_unclient`, `mxedge-events`, `nac-accounting`, `nac_events`, `occupancy-alerts`, `rssizone`, `sdkclient_scan_data`, `site_sle`, `vbeacon`, `wifi-conn-raw`, `wifi-unconn-raw`, `zone`
 - `url` (String)
 
 ### Optional
@@ -63,7 +64,6 @@ when `secret` is provided, two  HTTP headers will be added:
   * X-Mist-Signature: HMAC_SHA1(secret, body)
 - `splunk_token` (String, Sensitive) required if `type`=`splunk`
 If splunk_token is not defined for a type Splunk webhook, it will not send, regardless if the webhook receiver is configured to accept it.'
-- `topics` (List of String) enum: `alarms`, `asset-raw`, `asset-raw-rssi`, `audits`, `client-info`, `client-join`, `client-latency`, `client-sessions`, `device-updowns`, `device-events`, `discovered-raw-rssi`, `location`, `location_asset`, `location_centrak`, `location_client`, `location_sdk`, `location_unclient`, `mxedge-events`, `nac-accounting`, `nac_events`, `occupancy-alerts`, `rssizone`, `sdkclient_scan_data`, `site_sle`, `vbeacon`, `wifi-conn-raw`, `wifi-unconn-raw`, `zone`
 - `type` (String) enum: `aws-sns`, `google-pubsub`, `http-post`, `oauth2`, `splunk`
 - `verify_cert` (Boolean) when url uses HTTPS, whether to verify the certificate
 
