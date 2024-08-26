@@ -1,6 +1,6 @@
 ---
 page_title: "mist_org Resource - terraform-provider-mist"
-subcategory: "WAN Assurance"
+subcategory: "Org"
 description: |-
   This resource manages the Mist Organization.An organization usually represents a customer - which has inventories, licenses.An Organization can contain multiple sites. A site usually represents a deployment at the same location (a campus, an office).
 ---
@@ -40,3 +40,20 @@ resource "mist_org" "org_one" {
 - `orggroup_ids` (List of String)
 
 
+
+## Import
+Using terraform import, import `mist_org` using the `import` command:
+```shell
+# Gateway cluster can be imported by specifying the org_id
+terraform import mist_org.org_one 17b46405-3a6d-4715-8bb4-6bb6d06f316a
+```
+
+
+In Terraform v1.5.0 and later, use an import block to import `mist_org` with `id`=`{org_id}` :
+
+```tf
+import {
+  to = mist_org.org_one
+  id = "17b46405-3a6d-4715-8bb4-6bb6d06f316a"
+}
+```
