@@ -392,6 +392,10 @@ func (p *mistProvider) DataSources(ctx context.Context) []func() datasource.Data
 		NewOrgDeviceprofilesGatewayDataSource,
 		NewOrgServicepoliciesDataSource,
 		NewOrgIdpprofilesDataSource,
+		NewOrgPsksDataSource,
+		NewSitePsksDataSource,
+		NewOrgWebhooksDataSource,
+		NewSiteWebhooksDataSource,
 	}
 }
 
@@ -428,5 +432,9 @@ func (p *mistProvider) Resources(ctx context.Context) []func() resource.Resource
 		NewOrgSettingResource,
 		NewOrgServicepolicyResource,
 		NewOrgIdpprofileResource,
+		NewOrgPsk,
+		NewSitePsk,
+		NewOrgWebhook,
+		NewSiteWebhook,
 	}
 }
