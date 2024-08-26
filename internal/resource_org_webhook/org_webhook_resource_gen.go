@@ -127,7 +127,7 @@ func OrgWebhookResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"topics": schema.ListAttribute{
 				ElementType:         types.StringType,
-				Optional:            true,
+				Required:            true,
 				Description:         "enum: `alarms`, `audits`, `client-info`, `client-join`, `client-sessions`, `device-updowns`, `device-events`, `mxedge-events`, `nac-accounting`, `nac_events`",
 				MarkdownDescription: "enum: `alarms`, `audits`, `client-info`, `client-join`, `client-sessions`, `device-updowns`, `device-events`, `mxedge-events`, `nac-accounting`, `nac_events`",
 				Validators: []validator.List{

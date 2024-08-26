@@ -8,6 +8,7 @@ import (
 	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
 func TerraformToSdk(ctx context.Context, plan *SiteWebhookModel) (models.Webhook, diag.Diagnostics) {
@@ -94,7 +95,9 @@ func TerraformToSdk(ctx context.Context, plan *SiteWebhookModel) (models.Webhook
 	if !plan.Topics.IsNull() && !plan.Topics.IsUnknown() {
 		var items []models.WebhookTopicEnum
 		for _, v := range plan.Topics.Elements() {
-			t := models.WebhookTopicEnum(v.String())
+			var s_interface interface{} = v
+			s := s_interface.(basetypes.StringValue)
+			t := models.WebhookTopicEnum(s.ValueString())
 			items = append(items, t)
 		}
 		data.Topics = items
