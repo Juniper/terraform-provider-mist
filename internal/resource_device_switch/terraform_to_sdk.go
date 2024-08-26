@@ -90,7 +90,7 @@ func TerraformToSdk(ctx context.Context, plan *DeviceSwitchModel) (models.MistDe
 			diags.AddError("Bad value for map_id", e.Error())
 		}
 	} else {
-		unset["-map_id"] = nil
+		unset["-map_id"] = ""
 	}
 
 	data.Name = models.ToPointer(plan.Name.ValueString())

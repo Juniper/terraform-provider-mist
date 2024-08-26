@@ -24,7 +24,7 @@ func TerraformToSdk(ctx context.Context, plan *DeviceGatewayModel) (models.MistD
 			diags.AddError("Bad value for map_id", e.Error())
 		}
 	} else {
-		unset["-map_id"] = nil
+		unset["-map_id"] = ""
 	}
 
 	data.Name = plan.Name.ValueStringPointer()

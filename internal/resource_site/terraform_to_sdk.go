@@ -38,7 +38,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteModel) (*models.Site, diag.Di
 			diags.AddError("Bad value for alarmtemplate_id", e.Error())
 		}
 	} else {
-		unset["-alarmtemplate_id"] = nil
+		unset["-alarmtemplate_id"] = ""
 	}
 
 	if len(plan.AptemplateId.ValueString()) > 0 {
@@ -49,7 +49,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteModel) (*models.Site, diag.Di
 			diags.AddError("Bad value for aptemplate_id", e.Error())
 		}
 	} else {
-		unset["-aptemplate_id"] = nil
+		unset["-aptemplate_id"] = ""
 	}
 
 	if len(plan.GatewaytemplateId.ValueString()) > 0 {
@@ -60,7 +60,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteModel) (*models.Site, diag.Di
 			diags.AddError("Bad value for gatewaytemplate_id", e.Error())
 		}
 	} else {
-		unset["-gatewaytemplate_id"] = nil
+		unset["-gatewaytemplate_id"] = ""
 	}
 
 	if len(plan.NetworktemplateId.ValueString()) > 0 {
@@ -71,7 +71,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteModel) (*models.Site, diag.Di
 			diags.AddError("Bad value for networktemplate_id", e.Error())
 		}
 	} else {
-		unset["-networktemplate_id"] = nil
+		unset["-networktemplate_id"] = ""
 	}
 
 	if len(plan.RftemplateId.ValueString()) > 0 {
@@ -93,7 +93,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteModel) (*models.Site, diag.Di
 			diags.AddError("Bad value for secpolicy_id", e.Error())
 		}
 	} else {
-		unset["-secpolicy_id"] = nil
+		unset["-secpolicy_id"] = ""
 	}
 
 	if len(plan.SitetemplateId.ValueString()) > 0 {
@@ -104,7 +104,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteModel) (*models.Site, diag.Di
 			diags.AddError("Bad value for sitetemplate_id", e.Error())
 		}
 	} else {
-		unset["-sitetemplate_id"] = nil
+		unset["-sitetemplate_id"] = ""
 	}
 
 	var items []uuid.UUID
