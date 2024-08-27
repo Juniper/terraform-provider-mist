@@ -3,7 +3,7 @@ terraform import mist_org_wlantemplate.wlantemplate_one 17b46405-3a6d-4715-8bb4-
 ```
 
 
-In Terraform v1.5.0 and later, use an import block to import `mist_org_wlantemplate` with `id`=`{org_id}.{wlantemplate_id}`:
+In Terraform v1.5.0 and later, use an import block to import `mist_org_wlantemplate` with `id={org_id}.{wlantemplate_id}`:
 
 ```tf
 import {

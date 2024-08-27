@@ -1,5 +1,5 @@
 
-resource "mist_site_setting" "networktemplate_one" {
+resource "mist_site_networktemplate" "networktemplate_one" {
   site_id      = mist_site.terraform_test.id
   dns_servers = ["8.8.8.8", "1.1.1.1"]
   dns_suffix  = ["mycorp.com"]

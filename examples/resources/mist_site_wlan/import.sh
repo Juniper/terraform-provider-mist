@@ -3,7 +3,7 @@ terraform import mist_site_wlan.wlan_one 17b46405-3a6d-4715-8bb4-6bb6d06f316a.d3
 ```
 
 
-In Terraform v1.5.0 and later, use an import block to import `mist_site_wlan` with `id`=`{site_id}.{wlan_id}`:
+In Terraform v1.5.0 and later, use an import block to import `mist_site_wlan` with `id={site_id}.{wlan_id}`:
 
 ```tf
 import {

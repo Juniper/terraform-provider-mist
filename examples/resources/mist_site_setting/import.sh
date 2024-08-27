@@ -3,7 +3,7 @@ terraform import mist_site_setting.site_setting_one 17b46405-3a6d-4715-8bb4-6bb6
 ```
 
 
-In Terraform v1.5.0 and later, use an import block to import `mist_site_setting` with `id`=`{site_id}`:
+In Terraform v1.5.0 and later, use an import block to import `mist_site_setting` with `id={site_id}`:
 
 ```tf
 import {

@@ -3,7 +3,7 @@ terraform import mist_org_servicepolicy.servicepolicy_one 17b46405-3a6d-4715-8bb
 ```
 
 
-In Terraform v1.5.0 and later, use an import block to import `mist_org_servicepolicy` with `id`=`{org_id}.{servicepolicy_id}`:
+In Terraform v1.5.0 and later, use an import block to import `mist_org_servicepolicy` with `id={org_id}.{servicepolicy_id}`:
 
 ```tf
 import {

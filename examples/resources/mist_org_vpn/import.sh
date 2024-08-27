@@ -3,7 +3,7 @@ terraform import mist_org_vpn.vpn_one 17b46405-3a6d-4715-8bb4-6bb6d06f316a.d3c42
 ```
 
 
-In Terraform v1.5.0 and later, use an import block to import `mist_org_vpn` with `id`=`{org_id}.{vpn_id}`:
+In Terraform v1.5.0 and later, use an import block to import `mist_org_vpn` with `id={org_id}.{vpn_id}`:
 
 ```tf
 import {

@@ -3,7 +3,7 @@ terraform import mist_org_idpprofile.idpprofile_one 17b46405-3a6d-4715-8bb4-6bb6
 ```
 
 
-In Terraform v1.5.0 and later, use an import block to import `mist_org_idpprofile` with `id`=`{org_id}.{idpprofile_id}`:
+In Terraform v1.5.0 and later, use an import block to import `mist_org_idpprofile` with `id={org_id}.{idpprofile_id}`:
 
 ```tf
 import {
