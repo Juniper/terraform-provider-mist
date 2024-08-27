@@ -22,17 +22,18 @@ func TerraformToSdk(ctx context.Context, macs_plan basetypes.ListValue, macs_sta
 func diffList(ctx context.Context, list_one basetypes.ListValue, list_two basetypes.ListValue) []string {
 	var diff []string
 	for _, elo := range list_one.Elements() {
+		var so_interface interface{} = elo
+		so := so_interface.(basetypes.StringValue)
 		in_both := false
 		for _, elt := range list_two.Elements() {
-			if elo.String() == elt.String() {
+			var st_interface interface{} = elt
+			st := st_interface.(basetypes.StringValue)
+			if so.Equal(st) {
 				in_both = true
-				break
 			}
 		}
 		if !in_both {
-			var s_interface interface{} = elo
-			s := s_interface.(basetypes.StringValue)
-			diff = append(diff, s.ValueString())
+			diff = append(diff, so.ValueString())
 		}
 	}
 	return diff

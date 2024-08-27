@@ -159,7 +159,7 @@ func (r *orgDeviceprofileAssignResource) Read(ctx context.Context, req resource.
 	var mac string
 	var siteId string
 	var vcMac string
-	var vc bool = true
+	var vc bool = false
 	var unassigned bool
 	var limit int = 1000
 	var page int
@@ -298,7 +298,7 @@ func (r *orgDeviceprofileAssignResource) Delete(ctx context.Context, req resourc
 	}
 
 	plan_macs := types.ListNull(types.StringType)
-	macs_to_unassign, _, e := resource_org_deviceprofile_assign.TerraformToSdk(ctx, plan_macs, state.Macs)
+	_, macs_to_unassign, e := resource_org_deviceprofile_assign.TerraformToSdk(ctx, plan_macs, state.Macs)
 	if e != nil {
 		diags.Append(e...)
 		return
