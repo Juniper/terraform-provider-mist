@@ -15,7 +15,7 @@ func SdkToTerraform(ctx context.Context, siteId uuid.UUID, deviceId uuid.UUID, d
 	var state DeviceGatewayClusterModel
 	var diags diag.Diagnostics
 
-	var device_id types.String = types.StringValue(deviceId.String())
+	var id types.String = types.StringValue(deviceId.String())
 	var nodes types.List = types.ListNull(NodesValue{}.Type(ctx))
 	var site_id types.String = types.StringValue(siteId.String())
 
@@ -38,7 +38,7 @@ func SdkToTerraform(ctx context.Context, siteId uuid.UUID, deviceId uuid.UUID, d
 	nodes, e := types.ListValueFrom(ctx, data_list_type, nodes_list)
 	diags.Append(e...)
 
-	state.DeviceId = device_id
+	state.Id = id
 	state.Nodes = nodes
 	state.SiteId = site_id
 

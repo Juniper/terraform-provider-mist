@@ -41,7 +41,7 @@ resource "mist_device_gateway_cluster" "cluster_one" {
 
 ### Read-Only
 
-- `device_id` (String)
+- `id` (String) The ID of this resource.
 
 <a id="nestedatt--nodes"></a>
 ### Nested Schema for `nodes`
