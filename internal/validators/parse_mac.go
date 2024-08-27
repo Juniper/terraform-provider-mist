@@ -25,7 +25,7 @@ func (o ParseMacValidator) ValidateString(_ context.Context, req validator.Strin
 		return
 	}
 
-	re_variable := `[0-9a-f]{12}`
+	re_variable := `^[0-9a-f]{12}$`
 
 	value := req.ConfigValue.ValueString()
 	if is_valid, err := regexp.MatchString(re_variable, value); !is_valid || err != nil {
