@@ -3,7 +3,7 @@
 ## Requirements
 - [Terraform](https://developer.hashicorp.com/terraform/downloads) >= 1.0
 - [Go](https://golang.org/doc/install) >= 1.21
-- [Mist API Go package](https://pkg.go.dev/github.com/tmunzer/mistapi-go) >= 0.2.5
+- [Mist API Go package](https://pkg.go.dev/github.com/tmunzer/mistapi-go) >= 0.3.2
 
 ## Getting Started
 
