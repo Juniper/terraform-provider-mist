@@ -61,7 +61,7 @@ terraform import mist_org_wxrule.wxrule_one 17b46405-3a6d-4715-8bb4-6bb6d06f316a
 ```
 
 
-In Terraform v1.5.0 and later, use an import block to import `mist_org_wxrule` with `id`=`{org_id}.{wxrule_id}`:
+In Terraform v1.5.0 and later, use an import block to import `mist_org_wxrule` with `id={org_id}.{wxrule_id}`:
 
 ```tf
 import {

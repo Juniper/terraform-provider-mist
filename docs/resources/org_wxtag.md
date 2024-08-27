@@ -87,7 +87,7 @@ terraform import mist_org_wxtag.wxtag_one 17b46405-3a6d-4715-8bb4-6bb6d06f316a.d
 ```
 
 
-In Terraform v1.5.0 and later, use an import block to import `mist_org_wxtag` with `id`=`{org_id}.{wxtag_id}`:
+In Terraform v1.5.0 and later, use an import block to import `mist_org_wxtag` with `id={org_id}.{wxtag_id}`:
 
 ```tf
 import {

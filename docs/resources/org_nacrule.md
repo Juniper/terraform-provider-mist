@@ -91,7 +91,7 @@ terraform import mist_org_nacrule.nacrule_one 17b46405-3a6d-4715-8bb4-6bb6d06f31
 ```
 
 
-In Terraform v1.5.0 and later, use an import block to import `mist_org_nacrule` with `id`=`{org_id}.{nacrule_id}`:
+In Terraform v1.5.0 and later, use an import block to import `mist_org_nacrule` with `id={org_id}.{nacrule_id}`:
 
 ```tf
 import {

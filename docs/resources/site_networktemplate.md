@@ -13,7 +13,7 @@ This resource manages the Site Network configuration (Switch configuration).The 
 ## Example Usage
 
 ```terraform
-resource "mist_site_setting" "networktemplate_one" {
+resource "mist_site_networktemplate" "networktemplate_one" {
   site_id      = mist_site.terraform_test.id
   dns_servers = ["8.8.8.8", "1.1.1.1"]
   dns_suffix  = ["mycorp.com"]
@@ -878,3 +878,20 @@ Required:
 - `via` (String) Next-hop address
 
 
+
+## Import
+Using terraform import, import `mist_site_networktemplate` using the `import` command:
+```shell
+# Gateway cluster can be imported by specifying the site_id
+terraform import mist_site_networktemplate.networktemplate_one 17b46405-3a6d-4715-8bb4-6bb6d06f316a
+```
+
+
+In Terraform v1.5.0 and later, use an import block to import `mist_site_networktemplate` with `id={site_id}`:
+
+```tf
+import {
+  to = mist_site_networktemplate.networktemplate_one
+  id = "17b46405-3a6d-4715-8bb4-6bb6d06f316a"
+}
+```

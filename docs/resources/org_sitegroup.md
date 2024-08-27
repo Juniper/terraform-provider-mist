@@ -41,7 +41,7 @@ terraform import mist_org_sitegroup.sitegroup_one 17b46405-3a6d-4715-8bb4-6bb6d0
 ```
 
 
-In Terraform v1.5.0 and later, use an import block to import `mist_org_sitegroup` with `id`=`{org_id}.{sitegroup_id}`:
+In Terraform v1.5.0 and later, use an import block to import `mist_org_sitegroup` with `id={org_id}.{sitegroup_id}`:
 
 ```tf
 import {

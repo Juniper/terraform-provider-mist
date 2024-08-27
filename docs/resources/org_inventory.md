@@ -41,22 +41,19 @@ resource "mist_org_inventory" "inventory_one" {
 <a id="nestedatt--devices"></a>
 ### Nested Schema for `devices`
 
-Required:
-
-- `claim_code` (String)
-
 Optional:
 
-- `org_id` (String)
-- `site_id` (String) site id if assigned, null if not assigned
+- `claim_code` (String) Device Claim Code. Required for claimed devices
+- `mac` (String) Device MAC address. Required to assign adopted devices to site. Cannot be specified when `claim_code` is used
+- `site_id` (String) Site ID. Used to assign device to a Site
 
 Read-Only:
 
 - `hostname` (String) Device Hostname
 - `id` (String) Mist Device ID
-- `mac` (String) MAC address
-- `model` (String) device model
-- `serial` (String) device serial
+- `model` (String) Device model
+- `org_id` (String)
+- `serial` (String) Device serial
 - `type` (String)
 - `vc_mac` (String) Virtual Chassis MAC Address
 
@@ -70,7 +67,7 @@ terraform import mist_org_inventory.inventory_one 17b46405-3a6d-4715-8bb4-6bb6d0
 ```
 
 
-In Terraform v1.5.0 and later, use an import block to import `mist_org_inventory` with `id`=`{org_id}`:
+In Terraform v1.5.0 and later, use an import block to import `mist_org_inventory` with `id={org_id}`:
 
 ```tf
 import {

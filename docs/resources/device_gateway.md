@@ -922,7 +922,7 @@ terraform import mist_device_gateway.gateway_one 17b46405-3a6d-4715-8bb4-6bb6d06
 ```
 
 
-In Terraform v1.5.0 and later, use an import block to import `mist_device_gateway` with `id`=`{site_id}.{device_id}`:
+In Terraform v1.5.0 and later, use an import block to import `mist_device_gateway` with `id={site_id}.{device_id}`:
 
 ```tf
 import {
