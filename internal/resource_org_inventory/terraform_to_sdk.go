@@ -6,7 +6,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 func genDeviceMap(devices *basetypes.ListValue) map[string]DevicesValue {
@@ -57,7 +56,6 @@ func TerraformToSdk(ctx context.Context, devices_plan *basetypes.ListValue, devi
 		var dpi interface{} = dev_plan_attr
 		var dev_plan = dpi.(DevicesValue)
 
-		var op string
 		var already_claimed bool = false
 		var magic string = strings.ToUpper(dev_plan.Magic.ValueString())
 		var mac string = strings.ToUpper(dev_plan.Mac.ValueString())
@@ -66,15 +64,10 @@ func TerraformToSdk(ctx context.Context, devices_plan *basetypes.ListValue, devi
 			// for already claimed devices
 			already_claimed = true
 			assign, unassign = processAction(&dev_plan, &dev_state, assign, unassign)
-			tflog.Warn(ctx, "FOUND MAGIC "+magic+"with op "+op)
 		} else if dev_state, ok = stateMap[mac]; ok {
 			// for already adopted devices
 			already_claimed = true
 			assign, unassign = processAction(&dev_plan, &dev_state, assign, unassign)
-			tflog.Warn(ctx, "FOUND MAC "+mac+"with op "+op)
-		} else {
-			tflog.Warn(ctx, "NOT FOUND MAC "+mac+" OR MAGIC "+magic)
-
 		}
 
 		if !already_claimed && !dev_plan.Magic.IsNull() && !dev_plan.Magic.IsUnknown() {
@@ -90,8 +83,11 @@ func TerraformToSdk(ctx context.Context, devices_plan *basetypes.ListValue, devi
 		var dsi interface{} = dev_state_attr
 		var dev_state = dsi.(DevicesValue)
 		var magic string = strings.ToUpper(dev_state.Magic.ValueString())
+		var mac string = strings.ToUpper(dev_state.Mac.ValueString())
 		if _, ok := planMap[magic]; magic != "" && !ok {
 			unclaim = append(unclaim, dev_state.Serial.ValueString())
+		} else if dev_state, ok = stateMap[mac]; !ok {
+			unassign = append(unassign, mac)
 		}
 	}
 

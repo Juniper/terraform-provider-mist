@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
@@ -312,6 +313,8 @@ func (r *orgInventoryResource) updateInventory(ctx context.Context, orgId *uuid.
 			assign_body := models.InventoryUpdate{}
 			assign_body.Op = models.InventoryUpdateOperationEnum_ASSIGN
 			assign_body.Macs = assign[k]
+			assign_body.DisableAutoConfig = types.BoolValue(false).ValueBoolPointer()
+			assign_body.Managed = types.BoolValue(true).ValueBoolPointer()
 			tflog.Info(ctx, "devices "+strings.Join(assign[k], ", ")+" to "+k)
 			siteId, err := uuid.Parse(k)
 			if err != nil {

@@ -90,21 +90,21 @@ func (r *deviceGatewayClusterResource) Create(ctx context.Context, req resource.
 		return
 	}
 
-	// Generate the device_id based on the node0 MAC Address
+	// Generate the id of the cluster based on the node0 MAC Address
 	var nodes []resource_device_gateway_cluster.NodesValue
 	plan.Nodes.ElementsAs(ctx, &nodes, false)
 	mac := "00000000-0000-0000-1000-" + nodes[0].Mac.ValueString()
-	deviceId, err := uuid.Parse(mac)
+	id, err := uuid.Parse(mac)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"device_id\" value for \"device_gateway_cluster\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", deviceId, err.Error()),
+			"Invalid \"id\" value for \"device_gateway_cluster\" resource",
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", id, err.Error()),
 		)
 		return
 	}
 
-	tflog.Info(ctx, "Starting DeviceGatewayCluster Create on Site "+plan.SiteId.ValueString()+" for device "+plan.DeviceId.ValueString())
-	data, err := r.client.SitesDevicesWANCluster().CreateSiteDeviceHaCluster(ctx, siteId, deviceId, device_gateway_cluster)
+	tflog.Info(ctx, "Starting DeviceGatewayCluster Create on Site "+plan.SiteId.ValueString()+" for device "+plan.Id.ValueString())
+	data, err := r.client.SitesDevicesWANCluster().CreateSiteDeviceHaCluster(ctx, siteId, id, device_gateway_cluster)
 
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -114,7 +114,7 @@ func (r *deviceGatewayClusterResource) Create(ctx context.Context, req resource.
 		return
 	}
 
-	state, diags = resource_device_gateway_cluster.SdkToTerraform(ctx, siteId, deviceId, &data.Data)
+	state, diags = resource_device_gateway_cluster.SdkToTerraform(ctx, siteId, id, &data.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -137,7 +137,7 @@ func (r *deviceGatewayClusterResource) Read(ctx context.Context, req resource.Re
 		return
 	}
 
-	tflog.Info(ctx, "Starting DeviceGatewayCluster Read: device_gateway_cluster_id "+state.DeviceId.ValueString())
+	tflog.Info(ctx, "Starting DeviceGatewayCluster Read: device_gateway_cluster_id "+state.Id.ValueString())
 	siteId, err := uuid.Parse(state.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -147,16 +147,16 @@ func (r *deviceGatewayClusterResource) Read(ctx context.Context, req resource.Re
 		return
 	}
 
-	deviceId, err := uuid.Parse(state.DeviceId.ValueString())
+	id, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"device_id\" value for \"device_gateway_cluster\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.DeviceId.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"device_gateway_cluster\" resource",
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
 
-	httpr, err := r.client.SitesDevicesWANCluster().GetSiteDeviceHaClusterNode(ctx, siteId, deviceId)
+	httpr, err := r.client.SitesDevicesWANCluster().GetSiteDeviceHaClusterNode(ctx, siteId, id)
 	if httpr.Response.StatusCode == 404 {
 		resp.State.RemoveResource(ctx)
 		return
@@ -168,7 +168,7 @@ func (r *deviceGatewayClusterResource) Read(ctx context.Context, req resource.Re
 		return
 	}
 
-	state, diags = resource_device_gateway_cluster.SdkToTerraform(ctx, siteId, deviceId, &httpr.Data)
+	state, diags = resource_device_gateway_cluster.SdkToTerraform(ctx, siteId, id, &httpr.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -203,7 +203,7 @@ func (r *deviceGatewayClusterResource) Update(ctx context.Context, req resource.
 		return
 	}
 
-	tflog.Info(ctx, "Starting DeviceGatewayCluster Update for DeviceGatewayCluster "+state.DeviceId.ValueString())
+	tflog.Info(ctx, "Starting DeviceGatewayCluster Update for DeviceGatewayCluster "+state.Id.ValueString())
 
 	siteIdState, err := uuid.Parse(state.SiteId.ValueString())
 	if err != nil {
@@ -214,18 +214,18 @@ func (r *deviceGatewayClusterResource) Update(ctx context.Context, req resource.
 		return
 	}
 
-	deviceIdState, err := uuid.Parse(state.DeviceId.ValueString())
+	idState, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"device_id\" value for \"device_gateway_cluster\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.DeviceId.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"device_gateway_cluster\" resource",
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
 	// if the device Id or the Nodes changed, delete the cluster then recreate it
 	// otherwise it means it's only the site id that changed, and there is no need to recreate the cluster
-	if !plan.DeviceId.Equal(state.DeviceId) || !plan.Nodes.Equal(state.Nodes) {
-		_, err = r.client.SitesDevicesWANCluster().DeleteSiteDeviceHaCluster(ctx, siteIdState, deviceIdState)
+	if !plan.Id.Equal(state.Id) || !plan.Nodes.Equal(state.Nodes) {
+		_, err = r.client.SitesDevicesWANCluster().DeleteSiteDeviceHaCluster(ctx, siteIdState, idState)
 	}
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -244,15 +244,15 @@ func (r *deviceGatewayClusterResource) Update(ctx context.Context, req resource.
 		return
 	}
 
-	deviceIdPlan, err := uuid.Parse(plan.DeviceId.ValueString())
+	idPlan, err := uuid.Parse(plan.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"device_id\" value for \"device_gateway_cluster\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.DeviceId.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"device_gateway_cluster\" resource",
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.Id.ValueString(), err.Error()),
 		)
 		return
 	}
-	data, err := r.client.SitesDevicesWANCluster().CreateSiteDeviceHaCluster(ctx, siteIdPlan, deviceIdPlan, device_gateway_cluster)
+	data, err := r.client.SitesDevicesWANCluster().CreateSiteDeviceHaCluster(ctx, siteIdPlan, idPlan, device_gateway_cluster)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error updating device_gateway_cluster",
@@ -261,7 +261,7 @@ func (r *deviceGatewayClusterResource) Update(ctx context.Context, req resource.
 		return
 	}
 
-	state, diags = resource_device_gateway_cluster.SdkToTerraform(ctx, siteIdPlan, deviceIdPlan, &data.Data)
+	state, diags = resource_device_gateway_cluster.SdkToTerraform(ctx, siteIdPlan, idPlan, &data.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -284,7 +284,7 @@ func (r *deviceGatewayClusterResource) Delete(ctx context.Context, req resource.
 		return
 	}
 
-	tflog.Info(ctx, "Starting DeviceGatewayCluster Delete: device_gateway_cluster_id "+state.DeviceId.ValueString())
+	tflog.Info(ctx, "Starting DeviceGatewayCluster Delete: device_gateway_cluster_id "+state.Id.ValueString())
 
 	siteId, err := uuid.Parse(state.SiteId.ValueString())
 	if err != nil {
@@ -295,16 +295,16 @@ func (r *deviceGatewayClusterResource) Delete(ctx context.Context, req resource.
 		return
 	}
 
-	deviceId, err := uuid.Parse(state.DeviceId.ValueString())
+	id, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"device_id\" value for \"device_gateway_cluster\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.DeviceId.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"device_gateway_cluster\" resource",
+			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
 
-	httpr, err := r.client.SitesDevicesWANCluster().DeleteSiteDeviceHaCluster(ctx, siteId, deviceId)
+	httpr, err := r.client.SitesDevicesWANCluster().DeleteSiteDeviceHaCluster(ctx, siteId, id)
 	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting device_gateway_cluster",

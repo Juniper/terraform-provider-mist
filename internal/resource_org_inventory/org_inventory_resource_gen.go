@@ -32,8 +32,8 @@ func OrgInventoryResourceSchema(ctx context.Context) schema.Schema {
 						"mac": schema.StringAttribute{
 							Computed:            true,
 							Optional:            true,
-							Description:         "Device MAC address. Required to assign adopted devices to site. Cannot be specified when `claim_code` is used",
-							MarkdownDescription: "Device MAC address. Required to assign adopted devices to site. Cannot be specified when `claim_code` is used",
+							Description:         "Device MAC address. Required to assign adopted devices to site. Removing an adopted device from the list will not release it, but will unassign it from the site. Cannot be specified when `claim_code` is used",
+							MarkdownDescription: "Device MAC address. Required to assign adopted devices to site. Removing an adopted device from the list will not release it, but will unassign it from the site. Cannot be specified when `claim_code` is used",
 							Validators: []validator.String{
 								stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("claim_code")),
 								mistvalidator.ParseMac(),
@@ -51,8 +51,8 @@ func OrgInventoryResourceSchema(ctx context.Context) schema.Schema {
 						"claim_code": schema.StringAttribute{
 							Computed:            true,
 							Optional:            true,
-							Description:         "Device Claim Code. Required for claimed devices",
-							MarkdownDescription: "Device Claim Code. Required for claimed devices",
+							Description:         "Device Claim Code. Required for claimed devices. Removing an adopted device from the list will release it",
+							MarkdownDescription: "Device Claim Code. Required for claimed devices. Removing an adopted device from the list will release it",
 							Validators: []validator.String{
 								stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("claim_code")),
 								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("mac"), types.StringNull()),

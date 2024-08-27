@@ -21,7 +21,7 @@ import (
 func DeviceGatewayClusterResourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
-			"device_id": schema.StringAttribute{
+			"id": schema.StringAttribute{
 				Computed: true,
 			},
 			"nodes": schema.ListNestedAttribute{
@@ -58,9 +58,9 @@ func DeviceGatewayClusterResourceSchema(ctx context.Context) schema.Schema {
 }
 
 type DeviceGatewayClusterModel struct {
-	DeviceId types.String `tfsdk:"device_id"`
-	Nodes    types.List   `tfsdk:"nodes"`
-	SiteId   types.String `tfsdk:"site_id"`
+	Id     types.String `tfsdk:"id"`
+	Nodes  types.List   `tfsdk:"nodes"`
+	SiteId types.String `tfsdk:"site_id"`
 }
 
 var _ basetypes.ObjectTypable = NodesType{}
