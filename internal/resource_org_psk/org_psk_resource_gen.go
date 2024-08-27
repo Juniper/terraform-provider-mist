@@ -57,8 +57,9 @@ func OrgPskResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "if `usage`==`macs`, this list contains N number of client mac addresses or mac patterns(11:22:*) or both. This list is capped at 5000",
 				Validators: []validator.List{
 					listvalidator.SizeAtMost(5000),
-					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("usage"),
-						types.StringValue("macs")),
+					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("macs")),
+					listvalidator.ValueStringsAre(mistvalidator.ParseMac()),
+					listvalidator.UniqueValues(),
 				},
 			},
 			"max_usage": schema.Int64Attribute{
