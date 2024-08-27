@@ -12,11 +12,22 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
+func checkVcSiteId(device *DevicesValue, vcmac_to_site map[string]types.String) {
+	if device.VcMac.ValueString() != "" && device.SiteId.ValueString() == "" {
+		var vcMac string = strings.ToUpper(device.VcMac.ValueString())
+		if site_id, ok := vcmac_to_site[vcMac]; ok {
+			device.SiteId = site_id
+		}
+
+	}
+}
+
 func SdkToTerraform(ctx context.Context, orgId string, data []models.Inventory, plan *OrgInventoryModel) (OrgInventoryModel, diag.Diagnostics) {
 	var state OrgInventoryModel
 	var diags diag.Diagnostics
 	var devices_out []attr.Value
 	devices_tmp := make(map[string]DevicesValue)
+	vcmac_to_site := make(map[string]types.String)
 
 	state.OrgId = types.StringValue(orgId)
 
@@ -88,6 +99,10 @@ func SdkToTerraform(ctx context.Context, orgId string, data []models.Inventory, 
 			// for adopted devices
 			devices_tmp[nMac] = newDevice
 		}
+
+		if newDevice.VcMac.Equal(newDevice.Mac) {
+			vcmac_to_site[nMac] = newDevice.SiteId
+		}
 	}
 
 	// If it is for an Import (no plan.OrgId), then return all the claimed devices
@@ -95,6 +110,7 @@ func SdkToTerraform(ctx context.Context, orgId string, data []models.Inventory, 
 	// devices not managed by TF
 	if plan.OrgId.ValueStringPointer() == nil {
 		for _, dev := range devices_tmp {
+			checkVcSiteId(&dev, vcmac_to_site)
 			devices_out = append(devices_out, dev)
 		}
 	} else {
@@ -106,8 +122,10 @@ func SdkToTerraform(ctx context.Context, orgId string, data []models.Inventory, 
 			var mac string = strings.ToUpper(device.Mac.ValueString())
 
 			if dev_from_mist, ok := devices_tmp[magic]; ok {
+				checkVcSiteId(&dev_from_mist, vcmac_to_site)
 				devices_out = append(devices_out, dev_from_mist)
 			} else if dev_from_mist, ok := devices_tmp[mac]; ok {
+				checkVcSiteId(&dev_from_mist, vcmac_to_site)
 				devices_out = append(devices_out, dev_from_mist)
 			}
 		}

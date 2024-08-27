@@ -52,8 +52,8 @@ resource "mist_org_inventory" "inventory_one" {
 
 Optional:
 
-- `claim_code` (String) Device Claim Code. Required for claimed devices
-- `mac` (String) Device MAC address. Required to assign adopted devices to site. Cannot be specified when `claim_code` is used
+- `claim_code` (String) Device Claim Code. Required for claimed devices. Removing an adopted device from the list will release it
+- `mac` (String) Device MAC address. Required to assign adopted devices to site. Removing an adopted device from the list will not release it, but will unassign it from the site. Cannot be specified when `claim_code` is used
 - `site_id` (String) Site ID. Used to assign device to a Site
 
 Read-Only:
