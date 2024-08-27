@@ -5,8 +5,6 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
-
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
@@ -20,7 +18,6 @@ func SdkToTerraform(ctx context.Context, d *models.Psk) (SitePskModel, diag.Diag
 	var expiry_notification_time types.Int64
 	var id types.String
 	var mac types.String
-	var macs types.List = types.ListNull(types.StringType)
 	var name types.String
 	var note types.String
 	var notify_expiry types.Bool
@@ -48,9 +45,6 @@ func SdkToTerraform(ctx context.Context, d *models.Psk) (SitePskModel, diag.Diag
 	}
 	if d.Mac != nil {
 		mac = types.StringValue(*d.Mac)
-	}
-	if d.Macs != nil {
-		macs = mist_transform.ListOfStringSdkToTerraform(ctx, d.Macs)
 	}
 
 	name = types.StringValue(d.Name)
@@ -92,7 +86,6 @@ func SdkToTerraform(ctx context.Context, d *models.Psk) (SitePskModel, diag.Diag
 	state.ExpiryNotificationTime = expiry_notification_time
 	state.Id = id
 	state.Mac = mac
-	state.Macs = macs
 	state.Name = name
 	state.Note = note
 	state.NotifyExpiry = notify_expiry

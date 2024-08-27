@@ -75,12 +75,6 @@ func SitePsksDataSourceSchema(ctx context.Context) schema.Schema {
 							Description:         "if `usage`==`single`, the mac that this PSK ties to, empty if `auto-binding`",
 							MarkdownDescription: "if `usage`==`single`, the mac that this PSK ties to, empty if `auto-binding`",
 						},
-						"macs": schema.ListAttribute{
-							ElementType:         types.StringType,
-							Computed:            true,
-							Description:         "if `usage`==`macs`, this list contains N number of client mac addresses or mac patterns(11:22:*) or both. This list is capped at 5000",
-							MarkdownDescription: "if `usage`==`macs`, this list contains N number of client mac addresses or mac patterns(11:22:*) or both. This list is capped at 5000",
-						},
 						"modified_time": schema.NumberAttribute{
 							Computed: true,
 						},
@@ -309,24 +303,6 @@ func (t SitePsksType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 			fmt.Sprintf(`mac expected to be basetypes.StringValue, was: %T`, macAttribute))
 	}
 
-	macsAttribute, ok := attributes["macs"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`macs is missing from object`)
-
-		return nil, diags
-	}
-
-	macsVal, ok := macsAttribute.(basetypes.ListValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`macs expected to be basetypes.ListValue, was: %T`, macsAttribute))
-	}
-
 	modifiedTimeAttribute, ok := attributes["modified_time"]
 
 	if !ok {
@@ -573,7 +549,6 @@ func (t SitePsksType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 		ExpiryNotificationTime: expiryNotificationTimeVal,
 		Id:                     idVal,
 		Mac:                    macVal,
-		Macs:                   macsVal,
 		ModifiedTime:           modifiedTimeVal,
 		Name:                   nameVal,
 		Note:                   noteVal,
@@ -780,24 +755,6 @@ func NewSitePsksValue(attributeTypes map[string]attr.Type, attributes map[string
 			fmt.Sprintf(`mac expected to be basetypes.StringValue, was: %T`, macAttribute))
 	}
 
-	macsAttribute, ok := attributes["macs"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`macs is missing from object`)
-
-		return NewSitePsksValueUnknown(), diags
-	}
-
-	macsVal, ok := macsAttribute.(basetypes.ListValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`macs expected to be basetypes.ListValue, was: %T`, macsAttribute))
-	}
-
 	modifiedTimeAttribute, ok := attributes["modified_time"]
 
 	if !ok {
@@ -1044,7 +1001,6 @@ func NewSitePsksValue(attributeTypes map[string]attr.Type, attributes map[string
 		ExpiryNotificationTime: expiryNotificationTimeVal,
 		Id:                     idVal,
 		Mac:                    macVal,
-		Macs:                   macsVal,
 		ModifiedTime:           modifiedTimeVal,
 		Name:                   nameVal,
 		Note:                   noteVal,
@@ -1137,7 +1093,6 @@ type SitePsksValue struct {
 	ExpiryNotificationTime basetypes.Int64Value  `tfsdk:"expiry_notification_time"`
 	Id                     basetypes.StringValue `tfsdk:"id"`
 	Mac                    basetypes.StringValue `tfsdk:"mac"`
-	Macs                   basetypes.ListValue   `tfsdk:"macs"`
 	ModifiedTime           basetypes.NumberValue `tfsdk:"modified_time"`
 	Name                   basetypes.StringValue `tfsdk:"name"`
 	Note                   basetypes.StringValue `tfsdk:"note"`
@@ -1155,7 +1110,7 @@ type SitePsksValue struct {
 }
 
 func (v SitePsksValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 21)
+	attrTypes := make(map[string]tftypes.Type, 20)
 
 	var val tftypes.Value
 	var err error
@@ -1167,9 +1122,6 @@ func (v SitePsksValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 	attrTypes["expiry_notification_time"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["mac"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["macs"] = basetypes.ListType{
-		ElemType: types.StringType,
-	}.TerraformType(ctx)
 	attrTypes["modified_time"] = basetypes.NumberType{}.TerraformType(ctx)
 	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["note"] = basetypes.StringType{}.TerraformType(ctx)
@@ -1188,7 +1140,7 @@ func (v SitePsksValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 21)
+		vals := make(map[string]tftypes.Value, 20)
 
 		val, err = v.AdminSsoId.ToTerraformValue(ctx)
 
@@ -1245,14 +1197,6 @@ func (v SitePsksValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 		}
 
 		vals["mac"] = val
-
-		val, err = v.Macs.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["macs"] = val
 
 		val, err = v.ModifiedTime.ToTerraformValue(ctx)
 
@@ -1387,38 +1331,6 @@ func (v SitePsksValue) String() string {
 func (v SitePsksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	macsVal, d := types.ListValue(types.StringType, v.Macs.Elements())
-
-	diags.Append(d...)
-
-	if d.HasError() {
-		return types.ObjectUnknown(map[string]attr.Type{
-			"admin_sso_id":             basetypes.StringType{},
-			"created_time":             basetypes.NumberType{},
-			"email":                    basetypes.StringType{},
-			"expire_time":              basetypes.Int64Type{},
-			"expiry_notification_time": basetypes.Int64Type{},
-			"id":                       basetypes.StringType{},
-			"mac":                      basetypes.StringType{},
-			"macs": basetypes.ListType{
-				ElemType: types.StringType,
-			},
-			"modified_time":            basetypes.NumberType{},
-			"name":                     basetypes.StringType{},
-			"note":                     basetypes.StringType{},
-			"notify_expiry":            basetypes.BoolType{},
-			"notify_on_create_or_edit": basetypes.BoolType{},
-			"old_passphrase":           basetypes.StringType{},
-			"org_id":                   basetypes.StringType{},
-			"passphrase":               basetypes.StringType{},
-			"role":                     basetypes.StringType{},
-			"site_id":                  basetypes.StringType{},
-			"ssid":                     basetypes.StringType{},
-			"usage":                    basetypes.StringType{},
-			"vlan_id":                  basetypes.StringType{},
-		}), diags
-	}
-
 	attributeTypes := map[string]attr.Type{
 		"admin_sso_id":             basetypes.StringType{},
 		"created_time":             basetypes.NumberType{},
@@ -1427,9 +1339,6 @@ func (v SitePsksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 		"expiry_notification_time": basetypes.Int64Type{},
 		"id":                       basetypes.StringType{},
 		"mac":                      basetypes.StringType{},
-		"macs": basetypes.ListType{
-			ElemType: types.StringType,
-		},
 		"modified_time":            basetypes.NumberType{},
 		"name":                     basetypes.StringType{},
 		"note":                     basetypes.StringType{},
@@ -1463,7 +1372,6 @@ func (v SitePsksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"expiry_notification_time": v.ExpiryNotificationTime,
 			"id":                       v.Id,
 			"mac":                      v.Mac,
-			"macs":                     macsVal,
 			"modified_time":            v.ModifiedTime,
 			"name":                     v.Name,
 			"note":                     v.Note,
@@ -1522,10 +1430,6 @@ func (v SitePsksValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.Mac.Equal(other.Mac) {
-		return false
-	}
-
-	if !v.Macs.Equal(other.Macs) {
 		return false
 	}
 
@@ -1601,9 +1505,6 @@ func (v SitePsksValue) AttributeTypes(ctx context.Context) map[string]attr.Type 
 		"expiry_notification_time": basetypes.Int64Type{},
 		"id":                       basetypes.StringType{},
 		"mac":                      basetypes.StringType{},
-		"macs": basetypes.ListType{
-			ElemType: types.StringType,
-		},
 		"modified_time":            basetypes.NumberType{},
 		"name":                     basetypes.StringType{},
 		"note":                     basetypes.StringType{},

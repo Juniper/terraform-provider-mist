@@ -5,8 +5,6 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
-
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 )
 
@@ -37,12 +35,6 @@ func TerraformToSdk(ctx context.Context, plan *SitePskModel) (models.Psk, diag.D
 		data.Mac = plan.Mac.ValueStringPointer()
 	} else {
 		unset["-mac"] = ""
-	}
-
-	if !plan.Macs.IsNull() && !plan.Macs.IsUnknown() {
-		data.Macs = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Macs)
-	} else {
-		unset["-macs"] = ""
 	}
 
 	data.Name = plan.Name.ValueString()

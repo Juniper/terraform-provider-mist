@@ -5,7 +5,6 @@ package resource_site_psk
 import (
 	"context"
 	"github.com/Juniper/terraform-provider-mist/internal/validators"
-	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
@@ -48,17 +47,6 @@ func SitePskResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "if `usage`==`single`, the mac that this PSK ties to, empty if `auto-binding`",
 				Validators: []validator.String{
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("single")), mistvalidator.ParseMac(),
-				},
-			},
-			"macs": schema.ListAttribute{
-				ElementType:         types.StringType,
-				Optional:            true,
-				Description:         "if `usage`==`macs`, this list contains N number of client mac addresses or mac patterns(11:22:*) or both. This list is capped at 5000",
-				MarkdownDescription: "if `usage`==`macs`, this list contains N number of client mac addresses or mac patterns(11:22:*) or both. This list is capped at 5000",
-				Validators: []validator.List{
-					listvalidator.SizeAtMost(5000),
-					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("usage"),
-						types.StringValue("macs")),
 				},
 			},
 			"name": schema.StringAttribute{
@@ -114,11 +102,10 @@ func SitePskResourceSchema(ctx context.Context) schema.Schema {
 			"usage": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "enum: `macs`, `multi`, `single`",
-				MarkdownDescription: "enum: `macs`, `multi`, `single`",
+				Description:         "enum: `multi`, `single`",
+				MarkdownDescription: "enum: `multi`, `single`",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
-						"macs",
 						"multi",
 						"single",
 					),
@@ -141,7 +128,6 @@ type SitePskModel struct {
 	ExpiryNotificationTime types.Int64  `tfsdk:"expiry_notification_time"`
 	Id                     types.String `tfsdk:"id"`
 	Mac                    types.String `tfsdk:"mac"`
-	Macs                   types.List   `tfsdk:"macs"`
 	Name                   types.String `tfsdk:"name"`
 	Note                   types.String `tfsdk:"note"`
 	NotifyExpiry           types.Bool   `tfsdk:"notify_expiry"`
