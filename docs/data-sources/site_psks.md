@@ -50,7 +50,6 @@ Read-Only:
 - `expiry_notification_time` (Number) Number of days before psk is expired. Used as to when to start sending reminder notification when the psk is about to expire
 - `id` (String)
 - `mac` (String) if `usage`==`single`, the mac that this PSK ties to, empty if `auto-binding`
-- `macs` (List of String) if `usage`==`macs`, this list contains N number of client mac addresses or mac patterns(11:22:*) or both. This list is capped at 5000
 - `modified_time` (Number)
 - `name` (String)
 - `note` (String)

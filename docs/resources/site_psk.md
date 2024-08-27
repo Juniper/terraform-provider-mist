@@ -38,13 +38,12 @@ resource "mist_site_psk" "psk_one" {
 - `expire_time` (Number) Expire time for this PSK key (epoch time in seconds). Default `null` (as no expiration)
 - `expiry_notification_time` (Number) Number of days before psk is expired. Used as to when to start sending reminder notification when the psk is about to expire
 - `mac` (String) if `usage`==`single`, the mac that this PSK ties to, empty if `auto-binding`
-- `macs` (List of String) if `usage`==`macs`, this list contains N number of client mac addresses or mac patterns(11:22:*) or both. This list is capped at 5000
 - `note` (String)
 - `notify_expiry` (Boolean) If set to true, reminder notification will be sent when psk is about to expire
 - `notify_on_create_or_edit` (Boolean) If set to true, notification will be sent when psk is created or edited
 - `old_passphrase` (String, Sensitive) previous passphrase of the PSK if it has been rotated
 - `role` (String)
-- `usage` (String) enum: `macs`, `multi`, `single`
+- `usage` (String) enum: `multi`, `single`
 - `vlan_id` (String)
 
 ### Read-Only
