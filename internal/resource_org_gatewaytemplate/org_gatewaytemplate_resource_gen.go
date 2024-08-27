@@ -1388,8 +1388,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 						"dsl_type": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "if `wan_type`==`lte`. enum: `adsl`, `vdsl`",
-							MarkdownDescription: "if `wan_type`==`lte`. enum: `adsl`, `vdsl`",
+							Description:         "if `wan_type`==`dsl`. enum: `adsl`, `vdsl`",
+							MarkdownDescription: "if `wan_type`==`dsl`. enum: `adsl`, `vdsl`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -1397,7 +1397,7 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 									"adsl",
 								),
 								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("broadband")),
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("dsl")),
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("lte")),
 							},
 							Default: stringdefault.StaticString("vdsl"),
 						},
