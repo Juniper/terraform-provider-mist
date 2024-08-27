@@ -7,15 +7,17 @@ import (
 	"fmt"
 	"strings"
 
+	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
+	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
-
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
 
 func OrgInventoryResourceSchema(ctx context.Context) schema.Schema {
@@ -29,31 +31,42 @@ func OrgInventoryResourceSchema(ctx context.Context) schema.Schema {
 					Attributes: map[string]schema.Attribute{
 						"mac": schema.StringAttribute{
 							Computed:            true,
-							Description:         "MAC address",
-							MarkdownDescription: "MAC address",
+							Optional:            true,
+							Description:         "Device MAC address. Required to assign adopted devices to site. Cannot be specified when `claim_code` is used",
+							MarkdownDescription: "Device MAC address. Required to assign adopted devices to site. Cannot be specified when `claim_code` is used",
+							Validators: []validator.String{
+								stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("claim_code")),
+								mistvalidator.ParseMac(),
+								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("claim_code"), types.StringNull()),
+							},
 						},
 						"model": schema.StringAttribute{
 							Computed:            true,
-							Description:         "device model",
-							MarkdownDescription: "device model",
+							Description:         "Device model",
+							MarkdownDescription: "Device model",
 						},
 						"org_id": schema.StringAttribute{
-							Optional: true,
 							Computed: true,
 						},
 						"claim_code": schema.StringAttribute{
-							Required: true,
+							Computed:            true,
+							Optional:            true,
+							Description:         "Device Claim Code. Required for claimed devices",
+							MarkdownDescription: "Device Claim Code. Required for claimed devices",
+							Validators: []validator.String{
+								stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("claim_code")),
+								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("mac"), types.StringNull()),
+							},
 						},
 						"serial": schema.StringAttribute{
 							Computed:            true,
-							Description:         "device serial",
-							MarkdownDescription: "device serial",
+							Description:         "Device serial",
+							MarkdownDescription: "Device serial",
 						},
 						"site_id": schema.StringAttribute{
 							Optional:            true,
-							Computed:            true,
-							Description:         "site id if assigned, null if not assigned",
-							MarkdownDescription: "site id if assigned, null if not assigned",
+							Description:         "Site ID. Used to assign device to a Site",
+							MarkdownDescription: "Site ID. Used to assign device to a Site",
 						},
 						"type": schema.StringAttribute{
 							Computed: true,
@@ -90,6 +103,9 @@ func OrgInventoryResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Optional: true,
 				Computed: true,
+				Validators: []validator.List{
+					listvalidator.UniqueValues(),
+				},
 			},
 		},
 	}

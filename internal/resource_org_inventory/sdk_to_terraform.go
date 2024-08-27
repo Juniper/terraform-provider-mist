@@ -2,6 +2,7 @@ package resource_org_inventory
 
 import (
 	"context"
+	"strings"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -75,10 +76,18 @@ func SdkToTerraform(ctx context.Context, orgId string, data []models.Inventory, 
 			"hostname":   hostname,
 			"id":         id,
 		}
-		data, e := NewDevicesValue(data_map_attr_type, data_map_value)
+		newDevice, e := NewDevicesValue(data_map_attr_type, data_map_value)
 		diags.Append(e...)
 
-		devices_tmp[data.Magic.ValueString()] = data
+		var nMagic string = strings.ToUpper(newDevice.Magic.ValueString())
+		var nMac string = strings.ToUpper(newDevice.Mac.ValueString())
+		if nMagic != "" {
+			// for claimed devices
+			devices_tmp[nMagic] = newDevice
+		} else {
+			// for adopted devices
+			devices_tmp[nMac] = newDevice
+		}
 	}
 
 	// If it is for an Import (no plan.OrgId), then return all the claimed devices
@@ -86,20 +95,20 @@ func SdkToTerraform(ctx context.Context, orgId string, data []models.Inventory, 
 	// devices not managed by TF
 	if plan.OrgId.ValueStringPointer() == nil {
 		for _, dev := range devices_tmp {
-			if dev.Magic.ValueString() != "" {
-				devices_out = append(devices_out, dev)
-			}
+			devices_out = append(devices_out, dev)
 		}
 	} else {
 		for _, dev_plan_attr := range plan.Devices.Elements() {
 			var dpi interface{} = dev_plan_attr
 			var device = dpi.(DevicesValue)
-			device_magic := device.Magic
-			dev_from_mist, ok := devices_tmp[device_magic.ValueString()]
-			if ok {
+
+			var magic string = strings.ToUpper(device.Magic.ValueString())
+			var mac string = strings.ToUpper(device.Mac.ValueString())
+
+			if dev_from_mist, ok := devices_tmp[magic]; ok {
 				devices_out = append(devices_out, dev_from_mist)
-			} else {
-				devices_out = append(devices_out, device)
+			} else if dev_from_mist, ok := devices_tmp[mac]; ok {
+				devices_out = append(devices_out, dev_from_mist)
 			}
 		}
 	}

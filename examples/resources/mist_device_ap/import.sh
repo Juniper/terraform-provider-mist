@@ -3,7 +3,7 @@ terraform import mist_device_ap.ap_one 17b46405-3a6d-4715-8bb4-6bb6d06f316a.d3c4
 ```
 
 
-In Terraform v1.5.0 and later, use an import block to import `mist_device_ap` with `id`=`{site_id}.{device_id}`:
+In Terraform v1.5.0 and later, use an import block to import `mist_device_ap` with `id={site_id}.{device_id}`:
 
 ```tf
 import {

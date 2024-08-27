@@ -236,6 +236,13 @@ func (r *orgInventoryResource) updateInventory(ctx context.Context, orgId *uuid.
 
 	claim, unclaim, unassign, assign_claim, assign, e := resource_org_inventory.TerraformToSdk(ctx, &plan.Devices, &state.Devices)
 	diags.Append(e...)
+
+	tflog.Debug(ctx, "updateInventory", map[string]interface{}{
+		"claim":    strings.Join(claim, ", "),
+		"unclaim":  strings.Join(unclaim, ", "),
+		"unassign": strings.Join(unassign, ", "),
+		"assign":   len(assign),
+	})
 	/////////////////////// CLAIM
 	if len(claim) > 0 {
 		tflog.Info(ctx, "Starting to Claim devices")
@@ -257,6 +264,7 @@ func (r *orgInventoryResource) updateInventory(ctx context.Context, orgId *uuid.
 	}
 	/////////////////////// UNCLAIM
 	if len(unclaim) > 0 {
+		tflog.Debug(ctx, "------------UNCLAIM", map[string]interface{}{"unclaim": strings.Join(unclaim, ", "), "len": len(unclaim)})
 		tflog.Debug(ctx, "Starting to Unclaim devices: ", map[string]interface{}{"serials": strings.Join(unclaim, ", ")})
 
 		unclaim_body := models.InventoryUpdate{}
@@ -305,7 +313,14 @@ func (r *orgInventoryResource) updateInventory(ctx context.Context, orgId *uuid.
 			assign_body.Op = models.InventoryUpdateOperationEnum_ASSIGN
 			assign_body.Macs = assign[k]
 			tflog.Info(ctx, "devices "+strings.Join(assign[k], ", ")+" to "+k)
-			assign_body.SiteId = models.ToPointer(uuid.MustParse(k))
+			siteId, err := uuid.Parse(k)
+			if err != nil {
+				diags.AddError(
+					"Invalid \"site_id\" value for \"org_inventory\" resource",
+					fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
+				)
+			}
+			assign_body.SiteId = models.ToPointer(siteId)
 
 			assign_response, err := r.client.OrgsInventory().UpdateOrgInventoryAssignment(ctx, *orgId, &assign_body)
 			if err != nil {
