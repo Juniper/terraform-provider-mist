@@ -73,7 +73,7 @@ func (p *mistProvider) Schema(ctx context.Context, req provider.SchemaRequest, r
 		Attributes: map[string]schema.Attribute{
 			"host": schema.StringAttribute{
 				MarkdownDescription: "URL of the Mist Cloud, e.g. `api.mist.com`.",
-				Optional:            true,
+				Required:            true,
 			},
 			"apitoken": schema.StringAttribute{
 				MarkdownDescription: "For API Token authentication, the Mist API Token.",
