@@ -30,6 +30,7 @@ description: |-
 
 {{ if .HasImport }}
 ## Import
-Using terraform import, import `{{.Name}}` using the `import` command:
+Using `terraform import`, import `{{.Name}}` with:
 {{ codefile "shell" .ImportFile }}
+
 {{- end }}
