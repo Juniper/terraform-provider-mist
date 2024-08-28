@@ -160,7 +160,6 @@ func (r *orgInventoryResource) Update(ctx context.Context, req resource.UpdateRe
 		return
 	}
 
-	/////////////////////// Update
 	orgId, err := uuid.Parse(plan.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -169,11 +168,13 @@ func (r *orgInventoryResource) Update(ctx context.Context, req resource.UpdateRe
 		)
 		return
 	}
+	/////////////////////// Update
 	diags = r.updateInventory(ctx, &orgId, &plan, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
 	/////////////////////// Sync, required to get missing devices info (MAC, Serial, ...)
 	state, diags = r.refreshInventory(ctx, &orgId, &plan)
 	resp.Diagnostics.Append(diags...)
@@ -312,7 +313,7 @@ func (r *orgInventoryResource) updateInventory(ctx context.Context, orgId *uuid.
 
 			assign_body := models.InventoryUpdate{}
 			assign_body.Op = models.InventoryUpdateOperationEnum_ASSIGN
-			assign_body.Macs = assign[k]
+			assign_body.Macs = v
 			assign_body.DisableAutoConfig = types.BoolValue(false).ValueBoolPointer()
 			assign_body.Managed = types.BoolValue(true).ValueBoolPointer()
 			tflog.Info(ctx, "devices "+strings.Join(assign[k], ", ")+" to "+k)
