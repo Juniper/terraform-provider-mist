@@ -1,2 +1,2 @@
-# Gateway cluster can be imported by specifying the org_id
+# Organization can be imported by specifying the org_id
 terraform import mist_org.org_one 17b46405-3a6d-4715-8bb4-6bb6d06f316a

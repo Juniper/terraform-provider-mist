@@ -85,6 +85,6 @@ Optional:
 ## Import
 Using terraform import, import `mist_org_idpprofile` using the `import` command:
 ```shell
-# Gateway cluster can be imported by specifying the org_id and the idpprofile_id
+# IDP Profile can be imported by specifying the org_id and the idpprofile_id
 terraform import mist_org_idpprofile.idpprofile_one 17b46405-3a6d-4715-8bb4-6bb6d06f316a.d3c42998-9012-4859-9743-6b9bee475309
 ```
