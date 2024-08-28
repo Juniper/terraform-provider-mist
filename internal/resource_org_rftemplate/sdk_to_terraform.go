@@ -13,43 +13,78 @@ func SdkToTerraform(ctx context.Context, data models.RfTemplate) (OrgRftemplateM
 	var state OrgRftemplateModel
 	var diags diag.Diagnostics
 
-	state.Id = types.StringValue(data.Id.String())
-	state.OrgId = types.StringValue(data.OrgId.String())
-	state.Name = types.StringValue(data.Name)
+	var ant_gain_24 types.Int64
+	var ant_gain_5 types.Int64
+	var ant_gain_6 types.Int64
+	var band_24 Band24Value = NewBand24ValueNull()
+	var band_24_usage types.String
+	var band_5 Band5Value = NewBand5ValueNull()
+	var band_5_on_24_radio Band5On24RadioValue
+	var band_6 Band6Value = NewBand6ValueNull()
+	var country_code types.String
+	var id types.String
+	var model_specific types.Map = types.MapNull(ModelSpecificValue{}.Type(ctx))
+	var name types.String
+	var org_id types.String
+	var scanning_enabled types.Bool
 
-	state.AntGain24 = types.Int64Value(int64(*data.AntGain24))
-
-	state.AntGain5 = types.Int64Value(int64(*data.AntGain5))
-
-	state.AntGain6 = types.Int64Value(int64(*data.AntGain6))
-
+	if data.AntGain24 != nil {
+		ant_gain_24 = types.Int64Value(int64(*data.AntGain24))
+	}
+	if data.AntGain5 != nil {
+		ant_gain_5 = types.Int64Value(int64(*data.AntGain5))
+	}
+	if data.AntGain6 != nil {
+		ant_gain_6 = types.Int64Value(int64(*data.AntGain6))
+	}
 	if data.Band24 != nil {
-		state.Band24 = band24SdkToTerraform(ctx, &diags, data.Band24)
-	} else {
-		state.Band24 = NewBand24ValueNull()
+		band_24 = band24SdkToTerraform(ctx, &diags, data.Band24)
 	}
-
-	state.Band24Usage = types.StringValue(string(*data.Band24Usage))
-
+	if data.Band24Usage != nil {
+		band_24_usage = types.StringValue(string(*data.Band24Usage))
+	}
 	if data.Band5 != nil {
-		state.Band5 = band5SdkToTerraform(ctx, &diags, data.Band5)
-	} else {
-		state.Band5 = NewBand5ValueNull()
+		band_5 = band5SdkToTerraform(ctx, &diags, data.Band5)
 	}
-
+	if data.Band5On24Radio != nil {
+		band_5_on_24_radio = band5On24RadioSdkToTerraform(ctx, &diags, data.Band5On24Radio)
+	}
 	if data.Band6 != nil {
-		state.Band6 = band6SdkToTerraform(ctx, &diags, data.Band6)
-	} else {
-		state.Band6 = NewBand6ValueNull()
+		band_6 = band6SdkToTerraform(ctx, &diags, data.Band6)
 	}
-
-	state.CountryCode = types.StringValue(*data.CountryCode)
-
+	if data.CountryCode != nil {
+		country_code = types.StringValue(*data.CountryCode)
+	}
+	if data.Id != nil {
+		id = types.StringValue(data.Id.String())
+	}
 	if data.ModelSpecific != nil && len(data.ModelSpecific) > 0 {
-		state.ModelSpecific = modelSpecificSdkToTerraform(ctx, &diags, data.ModelSpecific)
-	} else {
-		state.ModelSpecific = types.MapNull(ModelSpecificValue{}.Type(ctx))
+		model_specific = modelSpecificSdkToTerraform(ctx, &diags, data.ModelSpecific)
 	}
+
+	name = types.StringValue(data.Name)
+
+	if data.OrgId != nil {
+		org_id = types.StringValue(data.OrgId.String())
+	}
+	if data.ScanningEnabled != nil {
+		scanning_enabled = types.BoolValue(*data.ScanningEnabled)
+	}
+
+	state.AntGain24 = ant_gain_24
+	state.AntGain5 = ant_gain_5
+	state.AntGain6 = ant_gain_6
+	state.Band24 = band_24
+	state.Band24Usage = band_24_usage
+	state.Band5 = band_5
+	state.Band5On24Radio = band_5_on_24_radio
+	state.Band6 = band_6
+	state.CountryCode = country_code
+	state.Id = id
+	state.ModelSpecific = model_specific
+	state.Name = name
+	state.OrgId = org_id
+	state.ScanningEnabled = scanning_enabled
 
 	return state, diags
 }

@@ -35,6 +35,12 @@ func TerraformToSdk(ctx context.Context, plan *OrgRftemplateModel) (*models.RfTe
 		data.Band5 = band5TerraformToSdk(ctx, &diags, plan.Band5)
 	}
 
+	if plan.Band5On24Radio.IsNull() || plan.Band5On24Radio.IsUnknown() {
+		unset["-band_5_on_24_radio"] = ""
+	} else {
+		data.Band5On24Radio = band5On24RadioTerraformToSdk(ctx, &diags, plan.Band5On24Radio)
+	}
+
 	if plan.Band6.IsNull() || plan.Band6.IsUnknown() {
 		unset["-band_6"] = ""
 	} else {
