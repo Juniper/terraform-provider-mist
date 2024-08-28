@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -35,9 +34,8 @@ func OrgInventoryResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Device MAC address. Required to assign adopted devices to site. Removing an adopted device from the list will not release it, but will unassign it from the site. Cannot be specified when `claim_code` is used",
 							MarkdownDescription: "Device MAC address. Required to assign adopted devices to site. Removing an adopted device from the list will not release it, but will unassign it from the site. Cannot be specified when `claim_code` is used",
 							Validators: []validator.String{
-								stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("claim_code")),
 								mistvalidator.ParseMac(),
-								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("claim_code"), types.StringNull()),
+								// mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("claim_code"), types.StringValue("")),
 							},
 						},
 						"model": schema.StringAttribute{
@@ -54,8 +52,8 @@ func OrgInventoryResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Device Claim Code. Required for claimed devices. Removing an adopted device from the list will release it",
 							MarkdownDescription: "Device Claim Code. Required for claimed devices. Removing an adopted device from the list will release it",
 							Validators: []validator.String{
-								stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("claim_code")),
-								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("mac"), types.StringNull()),
+								stringvalidator.LengthAtLeast(15),
+								// mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("mac"), types.StringNull()),
 							},
 						},
 						"serial": schema.StringAttribute{

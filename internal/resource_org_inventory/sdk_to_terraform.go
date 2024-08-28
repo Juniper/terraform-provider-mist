@@ -129,12 +129,12 @@ func SdkToTerraform(ctx context.Context, orgId string, data []models.Inventory, 
 				checkVcSiteId(&dev_from_mist, vcmac_to_site)
 				devices_out = append(devices_out, dev_from_mist)
 			} else if magic != "" {
-				diags.AddError(
+				diags.AddWarning(
 					"Device not in the Org Inventory",
 					fmt.Sprintf("Device with Claim Code %s is not in the Org Inventory", magic),
 				)
 			} else {
-				diags.AddError(
+				diags.AddWarning(
 					"Device not in the Org Inventory",
 					fmt.Sprintf("Device with MAC Address %s is not in the Org Inventory", mac),
 				)
