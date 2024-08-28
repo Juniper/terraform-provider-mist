@@ -509,7 +509,7 @@ Optional:
 - `description` (String)
 - `disable_autoneg` (Boolean)
 - `disabled` (Boolean) port admin up (true) / down (false)
-- `dsl_type` (String) if `wan_type`==`lte`. enum: `adsl`, `vdsl`
+- `dsl_type` (String) if `wan_type`==`dsl`. enum: `adsl`, `vdsl`
 - `dsl_vci` (Number) if `wan_type`==`dsl`
 16 bit int
 - `dsl_vpi` (Number) if `wan_type`==`dsl`
@@ -940,14 +940,4 @@ Using terraform import, import `mist_org_gatewaytemplate` using the `import` com
 ```shell
 # Gateway cluster can be imported by specifying the org_id and the gatewaytemplate_id
 terraform import mist_org_gatewaytemplate.gatewaytemplate_one 17b46405-3a6d-4715-8bb4-6bb6d06f316a.d3c42998-9012-4859-9743-6b9bee475309
-```
-
-
-In Terraform v1.5.0 and later, use an import block to import `mist_org_gatewaytemplate` with `id={org_id}.{gatewaytemplate_id}`:
-
-```tf
-import {
-  to = mist_org_gatewaytemplate.gatewaytemplate_one
-  id = "17b46405-3a6d-4715-8bb4-6bb6d06f316a.d3c42998-9012-4859-9743-6b9bee475309"
-}
 ```
