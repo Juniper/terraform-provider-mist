@@ -435,6 +435,7 @@ Facebook OAuth2 app secret. If facebook_client_id was provided, provide a corres
 - `passphrase_expire` (Number) interval for which guest remains authorized using passphrase auth (in minutes), if not provided, uses `expire`
 - `password` (String, Sensitive) passphrase
 - `predefined_sponsors_enabled` (Boolean) whether to show list of sponsor emails mentioned in `sponsors` object as a dropdown. If both `sponsor_notify_all` and `predefined_sponsors_enabled` are false, behaviour is acc to `sponsor_email_domains`
+- `predefined_sponsors_hide_email` (Boolean) whether to hide sponsor’s email from list of sponsors
 - `privacy` (Boolean)
 - `puzzel_password` (String, Sensitive) when `sms_provider`==`puzzel`
 - `puzzel_service_id` (String) when `sms_provider`==`puzzel`
@@ -447,7 +448,7 @@ Facebook OAuth2 app secret. If facebook_client_id was provided, provide a corres
 - `sponsor_email_domains` (List of String) list of domain allowed for sponsor email. Required if `sponsor_enabled` is `true` and `sponsors` is empty.
 - `sponsor_enabled` (Boolean) whether sponsor is enabled
 - `sponsor_expire` (Number) interval for which guest remains authorized using sponsor auth (in minutes), if not provided, uses expire`
-- `sponsor_link_validity_duration` (Number) how long to remain valid sponsored guest request approve/deny link received in email, in minutes.
+- `sponsor_link_validity_duration` (String) how long to remain valid sponsored guest request approve/deny link received in email, in minutes.
 - `sponsor_notify_all` (Boolean) whether to notify all sponsors that are mentioned in `sponsors` object. Both `sponsor_notify_all` and `predefined_sponsors_enabled` should be true in order to notify sponsors. If true, email sent to 10 sponsors in no particular order.
 - `sponsor_status_notify` (Boolean) if enabled, guest will get email about sponsor's action (approve/deny)
 - `sponsors` (Map of String) object of allowed sponsors email with name. Required if `sponsor_enabled` is `true` and `sponsor_email_domains` is empty.
