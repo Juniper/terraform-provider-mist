@@ -318,8 +318,8 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 		isolation = types.BoolValue(*data.Isolation)
 	}
 
-	if data.Isolation != nil {
-		l2_isolation = types.BoolValue(*data.Isolation)
+	if data.L2Isolation != nil {
+		l2_isolation = types.BoolValue(*data.L2Isolation)
 	}
 
 	if data.LegacyOverds != nil {

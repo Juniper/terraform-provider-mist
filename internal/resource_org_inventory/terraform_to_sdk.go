@@ -74,6 +74,7 @@ func processAdoptedDevice(planDevice *DevicesValue, stateMap *map[string]Devices
 
 	return op, planDevice.Mac.ValueString(), siteId
 }
+
 func TerraformToSdk(ctx context.Context, devices_plan *basetypes.ListValue, devices_state *basetypes.ListValue) ([]string, []string, []string, map[string]string, map[string][]string, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	var claim []string
