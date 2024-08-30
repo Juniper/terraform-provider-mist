@@ -58,6 +58,7 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	var passphrase_expire basetypes.Float64Value
 	var password basetypes.StringValue
 	var predefined_sponsors_enabled basetypes.BoolValue
+	var predefined_sponsors_hide_email basetypes.BoolValue
 	var privacy basetypes.BoolValue
 	var puzzel_password basetypes.StringValue
 	var puzzel_service_id basetypes.StringValue
@@ -70,7 +71,7 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	var sponsor_email_domains basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 	var sponsor_enabled basetypes.BoolValue
 	var sponsor_expire basetypes.Float64Value
-	var sponsor_link_validity_duration basetypes.Int64Value
+	var sponsor_link_validity_duration basetypes.StringValue
 	var sponsor_notify_all basetypes.BoolValue
 	var sponsor_status_notify basetypes.BoolValue
 	var sponsors basetypes.MapValue = types.MapNull(types.StringType)
@@ -219,6 +220,9 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	if d != nil && d.PredefinedSponsorsEnabled != nil {
 		predefined_sponsors_enabled = types.BoolValue(*d.PredefinedSponsorsEnabled)
 	}
+	if d != nil && d.PredefinedSponsorsHideEmail != nil {
+		predefined_sponsors_hide_email = types.BoolValue(*d.PredefinedSponsorsHideEmail)
+	}
 	if d != nil && d.Privacy != nil {
 		privacy = types.BoolValue(*d.Privacy)
 	}
@@ -256,7 +260,7 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 		sponsor_expire = types.Float64Value(*d.SponsorExpire.Value())
 	}
 	if d != nil && d.SponsorLinkValidityDuration != nil {
-		sponsor_link_validity_duration = types.Int64Value(int64(*d.SponsorLinkValidityDuration))
+		sponsor_link_validity_duration = types.StringValue(*d.SponsorLinkValidityDuration)
 	}
 	if d != nil && d.SponsorNotifyAll != nil {
 		sponsor_notify_all = types.BoolValue(*d.SponsorNotifyAll)
@@ -266,8 +270,10 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	}
 	if d != nil && d.Sponsors != nil {
 		sponsors_attr := make(map[string]attr.Value)
-		for k, v := range d.Sponsors {
-			sponsors_attr[k] = types.StringValue(string(v))
+		if s, ok := d.Sponsors.AsMapOfString(); ok {
+			for k, v := range *s {
+				sponsors_attr[k] = types.StringValue(string(v))
+			}
 		}
 		sponsors = types.MapValueMust(types.StringType, sponsors_attr)
 	}
@@ -354,6 +360,7 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 		"passphrase_expire":              passphrase_expire,
 		"password":                       password,
 		"predefined_sponsors_enabled":    predefined_sponsors_enabled,
+		"predefined_sponsors_hide_email": predefined_sponsors_hide_email,
 		"privacy":                        privacy,
 		"puzzel_password":                puzzel_password,
 		"puzzel_service_id":              puzzel_service_id,

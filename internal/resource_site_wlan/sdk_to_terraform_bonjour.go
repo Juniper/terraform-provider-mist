@@ -2,6 +2,7 @@ package resource_site_wlan
 
 import (
 	"context"
+	"strings"
 
 	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
@@ -53,10 +54,10 @@ func bonjourSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 	var enabled basetypes.BoolValue
 	var services basetypes.MapValue = types.MapNull(ServicesValue{}.Type(ctx))
 
-	if d != nil && d.AdditionalVlanIds != nil {
+	if d != nil {
 		var items []attr.Value
-		for _, item := range d.AdditionalVlanIds {
-			items = append(items, types.StringValue(item.String()))
+		for _, item := range strings.Split(d.AdditionalVlanIds, ",") {
+			items = append(items, types.StringValue(item))
 		}
 		list, _ := types.ListValue(basetypes.StringType{}, items)
 		additional_vlan_ids = list

@@ -16,7 +16,7 @@ import (
 func ciscoCwaSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.WlanCiscoCwa) CiscoCwaValue {
 	var allowed_hostnames basetypes.ListValue = mist_transform.ListOfIntSdkToTerraformEmpty(ctx)
 	var allowed_subnets basetypes.ListValue = mist_transform.ListOfIntSdkToTerraformEmpty(ctx)
-	var blocked_subnets basetypes.ListValue = mist_transform.ListOfIntSdkToTerraformEmpty(ctx)
+	var blocked_subnets basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 	var enabled basetypes.BoolValue
 
 	if d != nil && d.AllowedHostnames != nil {

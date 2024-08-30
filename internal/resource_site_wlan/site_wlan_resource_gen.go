@@ -1391,8 +1391,10 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"email_enabled": schema.BoolAttribute{
 						Optional:            true,
+						Computed:            true,
 						Description:         "whether email (access code verification) is enabled as a login method",
 						MarkdownDescription: "whether email (access code verification) is enabled as a login method",
+						Default:             booldefault.StaticBool(false),
 					},
 					"enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -1581,10 +1583,17 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "whether to show list of sponsor emails mentioned in `sponsors` object as a dropdown. If both `sponsor_notify_all` and `predefined_sponsors_enabled` are false, behaviour is acc to `sponsor_email_domains`",
 						Default:             booldefault.StaticBool(true),
 					},
+					"predefined_sponsors_hide_email": schema.BoolAttribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "whether to hide sponsor’s email from list of sponsors",
+						MarkdownDescription: "whether to hide sponsor’s email from list of sponsors",
+						Default:             booldefault.StaticBool(false),
+					},
 					"privacy": schema.BoolAttribute{
 						Optional: true,
 						Computed: true,
-						Default:  booldefault.StaticBool(true),
+						Default:  booldefault.StaticBool(false),
 					},
 					"puzzel_password": schema.StringAttribute{
 						Optional:            true,
@@ -1625,7 +1634,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 					"sms_message_format": schema.StringAttribute{
 						Optional: true,
 						Computed: true,
-						Default:  stringdefault.StaticString(""),
+						Default:  stringdefault.StaticString("Code {{code}} expires in {{duration}} minutes."),
 					},
 					"sms_provider": schema.StringAttribute{
 						Optional:            true,
@@ -1675,12 +1684,12 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "interval for which guest remains authorized using sponsor auth (in minutes), if not provided, uses expire`",
 						Default:             float64default.StaticFloat64(0),
 					},
-					"sponsor_link_validity_duration": schema.Int64Attribute{
+					"sponsor_link_validity_duration": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
 						Description:         "how long to remain valid sponsored guest request approve/deny link received in email, in minutes.",
 						MarkdownDescription: "how long to remain valid sponsored guest request approve/deny link received in email, in minutes.",
-						Default:             int64default.StaticInt64(60),
+						Default:             stringdefault.StaticString("60"),
 					},
 					"sponsor_notify_all": schema.BoolAttribute{
 						Optional:            true,
@@ -1727,7 +1736,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "signing algorithm for SAML Assertion",
 						MarkdownDescription: "signing algorithm for SAML Assertion",
-						Default:             stringdefault.StaticString(""),
+						Default:             stringdefault.StaticString("sha1"),
 					},
 					"sso_idp_sso_url": schema.StringAttribute{
 						Optional:            true,
@@ -13006,6 +13015,24 @@ func (t PortalType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 			fmt.Sprintf(`predefined_sponsors_enabled expected to be basetypes.BoolValue, was: %T`, predefinedSponsorsEnabledAttribute))
 	}
 
+	predefinedSponsorsHideEmailAttribute, ok := attributes["predefined_sponsors_hide_email"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`predefined_sponsors_hide_email is missing from object`)
+
+		return nil, diags
+	}
+
+	predefinedSponsorsHideEmailVal, ok := predefinedSponsorsHideEmailAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`predefined_sponsors_hide_email expected to be basetypes.BoolValue, was: %T`, predefinedSponsorsHideEmailAttribute))
+	}
+
 	privacyAttribute, ok := attributes["privacy"]
 
 	if !ok {
@@ -13232,12 +13259,12 @@ func (t PortalType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 		return nil, diags
 	}
 
-	sponsorLinkValidityDurationVal, ok := sponsorLinkValidityDurationAttribute.(basetypes.Int64Value)
+	sponsorLinkValidityDurationVal, ok := sponsorLinkValidityDurationAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`sponsor_link_validity_duration expected to be basetypes.Int64Value, was: %T`, sponsorLinkValidityDurationAttribute))
+			fmt.Sprintf(`sponsor_link_validity_duration expected to be basetypes.StringValue, was: %T`, sponsorLinkValidityDurationAttribute))
 	}
 
 	sponsorNotifyAllAttribute, ok := attributes["sponsor_notify_all"]
@@ -13559,6 +13586,7 @@ func (t PortalType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 		PassphraseExpire:            passphraseExpireVal,
 		Password:                    passwordVal,
 		PredefinedSponsorsEnabled:   predefinedSponsorsEnabledVal,
+		PredefinedSponsorsHideEmail: predefinedSponsorsHideEmailVal,
 		Privacy:                     privacyVal,
 		PuzzelPassword:              puzzelPasswordVal,
 		PuzzelServiceId:             puzzelServiceIdVal,
@@ -14446,6 +14474,24 @@ func NewPortalValue(attributeTypes map[string]attr.Type, attributes map[string]a
 			fmt.Sprintf(`predefined_sponsors_enabled expected to be basetypes.BoolValue, was: %T`, predefinedSponsorsEnabledAttribute))
 	}
 
+	predefinedSponsorsHideEmailAttribute, ok := attributes["predefined_sponsors_hide_email"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`predefined_sponsors_hide_email is missing from object`)
+
+		return NewPortalValueUnknown(), diags
+	}
+
+	predefinedSponsorsHideEmailVal, ok := predefinedSponsorsHideEmailAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`predefined_sponsors_hide_email expected to be basetypes.BoolValue, was: %T`, predefinedSponsorsHideEmailAttribute))
+	}
+
 	privacyAttribute, ok := attributes["privacy"]
 
 	if !ok {
@@ -14672,12 +14718,12 @@ func NewPortalValue(attributeTypes map[string]attr.Type, attributes map[string]a
 		return NewPortalValueUnknown(), diags
 	}
 
-	sponsorLinkValidityDurationVal, ok := sponsorLinkValidityDurationAttribute.(basetypes.Int64Value)
+	sponsorLinkValidityDurationVal, ok := sponsorLinkValidityDurationAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`sponsor_link_validity_duration expected to be basetypes.Int64Value, was: %T`, sponsorLinkValidityDurationAttribute))
+			fmt.Sprintf(`sponsor_link_validity_duration expected to be basetypes.StringValue, was: %T`, sponsorLinkValidityDurationAttribute))
 	}
 
 	sponsorNotifyAllAttribute, ok := attributes["sponsor_notify_all"]
@@ -14999,6 +15045,7 @@ func NewPortalValue(attributeTypes map[string]attr.Type, attributes map[string]a
 		PassphraseExpire:            passphraseExpireVal,
 		Password:                    passwordVal,
 		PredefinedSponsorsEnabled:   predefinedSponsorsEnabledVal,
+		PredefinedSponsorsHideEmail: predefinedSponsorsHideEmailVal,
 		Privacy:                     privacyVal,
 		PuzzelPassword:              puzzelPasswordVal,
 		PuzzelServiceId:             puzzelServiceIdVal,
@@ -15143,6 +15190,7 @@ type PortalValue struct {
 	PassphraseExpire            basetypes.Float64Value `tfsdk:"passphrase_expire"`
 	Password                    basetypes.StringValue  `tfsdk:"password"`
 	PredefinedSponsorsEnabled   basetypes.BoolValue    `tfsdk:"predefined_sponsors_enabled"`
+	PredefinedSponsorsHideEmail basetypes.BoolValue    `tfsdk:"predefined_sponsors_hide_email"`
 	Privacy                     basetypes.BoolValue    `tfsdk:"privacy"`
 	PuzzelPassword              basetypes.StringValue  `tfsdk:"puzzel_password"`
 	PuzzelServiceId             basetypes.StringValue  `tfsdk:"puzzel_service_id"`
@@ -15155,7 +15203,7 @@ type PortalValue struct {
 	SponsorEmailDomains         basetypes.ListValue    `tfsdk:"sponsor_email_domains"`
 	SponsorEnabled              basetypes.BoolValue    `tfsdk:"sponsor_enabled"`
 	SponsorExpire               basetypes.Float64Value `tfsdk:"sponsor_expire"`
-	SponsorLinkValidityDuration basetypes.Int64Value   `tfsdk:"sponsor_link_validity_duration"`
+	SponsorLinkValidityDuration basetypes.StringValue  `tfsdk:"sponsor_link_validity_duration"`
 	SponsorNotifyAll            basetypes.BoolValue    `tfsdk:"sponsor_notify_all"`
 	SponsorStatusNotify         basetypes.BoolValue    `tfsdk:"sponsor_status_notify"`
 	Sponsors                    basetypes.MapValue     `tfsdk:"sponsors"`
@@ -15175,7 +15223,7 @@ type PortalValue struct {
 }
 
 func (v PortalValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 72)
+	attrTypes := make(map[string]tftypes.Type, 73)
 
 	var val tftypes.Value
 	var err error
@@ -15232,6 +15280,7 @@ func (v PortalValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 	attrTypes["passphrase_expire"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["password"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["predefined_sponsors_enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["predefined_sponsors_hide_email"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["privacy"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["puzzel_password"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["puzzel_service_id"] = basetypes.StringType{}.TerraformType(ctx)
@@ -15246,7 +15295,7 @@ func (v PortalValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 	}.TerraformType(ctx)
 	attrTypes["sponsor_enabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["sponsor_expire"] = basetypes.Float64Type{}.TerraformType(ctx)
-	attrTypes["sponsor_link_validity_duration"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["sponsor_link_validity_duration"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["sponsor_notify_all"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["sponsor_status_notify"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["sponsors"] = basetypes.MapType{
@@ -15269,7 +15318,7 @@ func (v PortalValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 72)
+		vals := make(map[string]tftypes.Value, 73)
 
 		val, err = v.AmazonClientId.ToTerraformValue(ctx)
 
@@ -15623,6 +15672,14 @@ func (v PortalValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 
 		vals["predefined_sponsors_enabled"] = val
 
+		val, err = v.PredefinedSponsorsHideEmail.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["predefined_sponsors_hide_email"] = val
+
 		val, err = v.Privacy.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -15928,27 +15985,28 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"microsoft_email_domains": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"microsoft_enabled":           basetypes.BoolType{},
-			"microsoft_expire":            basetypes.Float64Type{},
-			"passphrase_enabled":          basetypes.BoolType{},
-			"passphrase_expire":           basetypes.Float64Type{},
-			"password":                    basetypes.StringType{},
-			"predefined_sponsors_enabled": basetypes.BoolType{},
-			"privacy":                     basetypes.BoolType{},
-			"puzzel_password":             basetypes.StringType{},
-			"puzzel_service_id":           basetypes.StringType{},
-			"puzzel_username":             basetypes.StringType{},
-			"sms_enabled":                 basetypes.BoolType{},
-			"sms_expire":                  basetypes.Float64Type{},
-			"sms_message_format":          basetypes.StringType{},
-			"sms_provider":                basetypes.StringType{},
-			"sponsor_auto_approve":        basetypes.BoolType{},
+			"microsoft_enabled":              basetypes.BoolType{},
+			"microsoft_expire":               basetypes.Float64Type{},
+			"passphrase_enabled":             basetypes.BoolType{},
+			"passphrase_expire":              basetypes.Float64Type{},
+			"password":                       basetypes.StringType{},
+			"predefined_sponsors_enabled":    basetypes.BoolType{},
+			"predefined_sponsors_hide_email": basetypes.BoolType{},
+			"privacy":                        basetypes.BoolType{},
+			"puzzel_password":                basetypes.StringType{},
+			"puzzel_service_id":              basetypes.StringType{},
+			"puzzel_username":                basetypes.StringType{},
+			"sms_enabled":                    basetypes.BoolType{},
+			"sms_expire":                     basetypes.Float64Type{},
+			"sms_message_format":             basetypes.StringType{},
+			"sms_provider":                   basetypes.StringType{},
+			"sponsor_auto_approve":           basetypes.BoolType{},
 			"sponsor_email_domains": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"sponsor_enabled":                basetypes.BoolType{},
 			"sponsor_expire":                 basetypes.Float64Type{},
-			"sponsor_link_validity_duration": basetypes.Int64Type{},
+			"sponsor_link_validity_duration": basetypes.StringType{},
 			"sponsor_notify_all":             basetypes.BoolType{},
 			"sponsor_status_notify":          basetypes.BoolType{},
 			"sponsors": basetypes.MapType{
@@ -16021,27 +16079,28 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"microsoft_email_domains": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"microsoft_enabled":           basetypes.BoolType{},
-			"microsoft_expire":            basetypes.Float64Type{},
-			"passphrase_enabled":          basetypes.BoolType{},
-			"passphrase_expire":           basetypes.Float64Type{},
-			"password":                    basetypes.StringType{},
-			"predefined_sponsors_enabled": basetypes.BoolType{},
-			"privacy":                     basetypes.BoolType{},
-			"puzzel_password":             basetypes.StringType{},
-			"puzzel_service_id":           basetypes.StringType{},
-			"puzzel_username":             basetypes.StringType{},
-			"sms_enabled":                 basetypes.BoolType{},
-			"sms_expire":                  basetypes.Float64Type{},
-			"sms_message_format":          basetypes.StringType{},
-			"sms_provider":                basetypes.StringType{},
-			"sponsor_auto_approve":        basetypes.BoolType{},
+			"microsoft_enabled":              basetypes.BoolType{},
+			"microsoft_expire":               basetypes.Float64Type{},
+			"passphrase_enabled":             basetypes.BoolType{},
+			"passphrase_expire":              basetypes.Float64Type{},
+			"password":                       basetypes.StringType{},
+			"predefined_sponsors_enabled":    basetypes.BoolType{},
+			"predefined_sponsors_hide_email": basetypes.BoolType{},
+			"privacy":                        basetypes.BoolType{},
+			"puzzel_password":                basetypes.StringType{},
+			"puzzel_service_id":              basetypes.StringType{},
+			"puzzel_username":                basetypes.StringType{},
+			"sms_enabled":                    basetypes.BoolType{},
+			"sms_expire":                     basetypes.Float64Type{},
+			"sms_message_format":             basetypes.StringType{},
+			"sms_provider":                   basetypes.StringType{},
+			"sponsor_auto_approve":           basetypes.BoolType{},
 			"sponsor_email_domains": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"sponsor_enabled":                basetypes.BoolType{},
 			"sponsor_expire":                 basetypes.Float64Type{},
-			"sponsor_link_validity_duration": basetypes.Int64Type{},
+			"sponsor_link_validity_duration": basetypes.StringType{},
 			"sponsor_notify_all":             basetypes.BoolType{},
 			"sponsor_status_notify":          basetypes.BoolType{},
 			"sponsors": basetypes.MapType{
@@ -16114,27 +16173,28 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"microsoft_email_domains": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"microsoft_enabled":           basetypes.BoolType{},
-			"microsoft_expire":            basetypes.Float64Type{},
-			"passphrase_enabled":          basetypes.BoolType{},
-			"passphrase_expire":           basetypes.Float64Type{},
-			"password":                    basetypes.StringType{},
-			"predefined_sponsors_enabled": basetypes.BoolType{},
-			"privacy":                     basetypes.BoolType{},
-			"puzzel_password":             basetypes.StringType{},
-			"puzzel_service_id":           basetypes.StringType{},
-			"puzzel_username":             basetypes.StringType{},
-			"sms_enabled":                 basetypes.BoolType{},
-			"sms_expire":                  basetypes.Float64Type{},
-			"sms_message_format":          basetypes.StringType{},
-			"sms_provider":                basetypes.StringType{},
-			"sponsor_auto_approve":        basetypes.BoolType{},
+			"microsoft_enabled":              basetypes.BoolType{},
+			"microsoft_expire":               basetypes.Float64Type{},
+			"passphrase_enabled":             basetypes.BoolType{},
+			"passphrase_expire":              basetypes.Float64Type{},
+			"password":                       basetypes.StringType{},
+			"predefined_sponsors_enabled":    basetypes.BoolType{},
+			"predefined_sponsors_hide_email": basetypes.BoolType{},
+			"privacy":                        basetypes.BoolType{},
+			"puzzel_password":                basetypes.StringType{},
+			"puzzel_service_id":              basetypes.StringType{},
+			"puzzel_username":                basetypes.StringType{},
+			"sms_enabled":                    basetypes.BoolType{},
+			"sms_expire":                     basetypes.Float64Type{},
+			"sms_message_format":             basetypes.StringType{},
+			"sms_provider":                   basetypes.StringType{},
+			"sponsor_auto_approve":           basetypes.BoolType{},
 			"sponsor_email_domains": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"sponsor_enabled":                basetypes.BoolType{},
 			"sponsor_expire":                 basetypes.Float64Type{},
-			"sponsor_link_validity_duration": basetypes.Int64Type{},
+			"sponsor_link_validity_duration": basetypes.StringType{},
 			"sponsor_notify_all":             basetypes.BoolType{},
 			"sponsor_status_notify":          basetypes.BoolType{},
 			"sponsors": basetypes.MapType{
@@ -16207,27 +16267,28 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"microsoft_email_domains": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"microsoft_enabled":           basetypes.BoolType{},
-			"microsoft_expire":            basetypes.Float64Type{},
-			"passphrase_enabled":          basetypes.BoolType{},
-			"passphrase_expire":           basetypes.Float64Type{},
-			"password":                    basetypes.StringType{},
-			"predefined_sponsors_enabled": basetypes.BoolType{},
-			"privacy":                     basetypes.BoolType{},
-			"puzzel_password":             basetypes.StringType{},
-			"puzzel_service_id":           basetypes.StringType{},
-			"puzzel_username":             basetypes.StringType{},
-			"sms_enabled":                 basetypes.BoolType{},
-			"sms_expire":                  basetypes.Float64Type{},
-			"sms_message_format":          basetypes.StringType{},
-			"sms_provider":                basetypes.StringType{},
-			"sponsor_auto_approve":        basetypes.BoolType{},
+			"microsoft_enabled":              basetypes.BoolType{},
+			"microsoft_expire":               basetypes.Float64Type{},
+			"passphrase_enabled":             basetypes.BoolType{},
+			"passphrase_expire":              basetypes.Float64Type{},
+			"password":                       basetypes.StringType{},
+			"predefined_sponsors_enabled":    basetypes.BoolType{},
+			"predefined_sponsors_hide_email": basetypes.BoolType{},
+			"privacy":                        basetypes.BoolType{},
+			"puzzel_password":                basetypes.StringType{},
+			"puzzel_service_id":              basetypes.StringType{},
+			"puzzel_username":                basetypes.StringType{},
+			"sms_enabled":                    basetypes.BoolType{},
+			"sms_expire":                     basetypes.Float64Type{},
+			"sms_message_format":             basetypes.StringType{},
+			"sms_provider":                   basetypes.StringType{},
+			"sponsor_auto_approve":           basetypes.BoolType{},
 			"sponsor_email_domains": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"sponsor_enabled":                basetypes.BoolType{},
 			"sponsor_expire":                 basetypes.Float64Type{},
-			"sponsor_link_validity_duration": basetypes.Int64Type{},
+			"sponsor_link_validity_duration": basetypes.StringType{},
 			"sponsor_notify_all":             basetypes.BoolType{},
 			"sponsor_status_notify":          basetypes.BoolType{},
 			"sponsors": basetypes.MapType{
@@ -16300,27 +16361,28 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"microsoft_email_domains": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"microsoft_enabled":           basetypes.BoolType{},
-			"microsoft_expire":            basetypes.Float64Type{},
-			"passphrase_enabled":          basetypes.BoolType{},
-			"passphrase_expire":           basetypes.Float64Type{},
-			"password":                    basetypes.StringType{},
-			"predefined_sponsors_enabled": basetypes.BoolType{},
-			"privacy":                     basetypes.BoolType{},
-			"puzzel_password":             basetypes.StringType{},
-			"puzzel_service_id":           basetypes.StringType{},
-			"puzzel_username":             basetypes.StringType{},
-			"sms_enabled":                 basetypes.BoolType{},
-			"sms_expire":                  basetypes.Float64Type{},
-			"sms_message_format":          basetypes.StringType{},
-			"sms_provider":                basetypes.StringType{},
-			"sponsor_auto_approve":        basetypes.BoolType{},
+			"microsoft_enabled":              basetypes.BoolType{},
+			"microsoft_expire":               basetypes.Float64Type{},
+			"passphrase_enabled":             basetypes.BoolType{},
+			"passphrase_expire":              basetypes.Float64Type{},
+			"password":                       basetypes.StringType{},
+			"predefined_sponsors_enabled":    basetypes.BoolType{},
+			"predefined_sponsors_hide_email": basetypes.BoolType{},
+			"privacy":                        basetypes.BoolType{},
+			"puzzel_password":                basetypes.StringType{},
+			"puzzel_service_id":              basetypes.StringType{},
+			"puzzel_username":                basetypes.StringType{},
+			"sms_enabled":                    basetypes.BoolType{},
+			"sms_expire":                     basetypes.Float64Type{},
+			"sms_message_format":             basetypes.StringType{},
+			"sms_provider":                   basetypes.StringType{},
+			"sponsor_auto_approve":           basetypes.BoolType{},
 			"sponsor_email_domains": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"sponsor_enabled":                basetypes.BoolType{},
 			"sponsor_expire":                 basetypes.Float64Type{},
-			"sponsor_link_validity_duration": basetypes.Int64Type{},
+			"sponsor_link_validity_duration": basetypes.StringType{},
 			"sponsor_notify_all":             basetypes.BoolType{},
 			"sponsor_status_notify":          basetypes.BoolType{},
 			"sponsors": basetypes.MapType{
@@ -16393,27 +16455,28 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"microsoft_email_domains": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"microsoft_enabled":           basetypes.BoolType{},
-			"microsoft_expire":            basetypes.Float64Type{},
-			"passphrase_enabled":          basetypes.BoolType{},
-			"passphrase_expire":           basetypes.Float64Type{},
-			"password":                    basetypes.StringType{},
-			"predefined_sponsors_enabled": basetypes.BoolType{},
-			"privacy":                     basetypes.BoolType{},
-			"puzzel_password":             basetypes.StringType{},
-			"puzzel_service_id":           basetypes.StringType{},
-			"puzzel_username":             basetypes.StringType{},
-			"sms_enabled":                 basetypes.BoolType{},
-			"sms_expire":                  basetypes.Float64Type{},
-			"sms_message_format":          basetypes.StringType{},
-			"sms_provider":                basetypes.StringType{},
-			"sponsor_auto_approve":        basetypes.BoolType{},
+			"microsoft_enabled":              basetypes.BoolType{},
+			"microsoft_expire":               basetypes.Float64Type{},
+			"passphrase_enabled":             basetypes.BoolType{},
+			"passphrase_expire":              basetypes.Float64Type{},
+			"password":                       basetypes.StringType{},
+			"predefined_sponsors_enabled":    basetypes.BoolType{},
+			"predefined_sponsors_hide_email": basetypes.BoolType{},
+			"privacy":                        basetypes.BoolType{},
+			"puzzel_password":                basetypes.StringType{},
+			"puzzel_service_id":              basetypes.StringType{},
+			"puzzel_username":                basetypes.StringType{},
+			"sms_enabled":                    basetypes.BoolType{},
+			"sms_expire":                     basetypes.Float64Type{},
+			"sms_message_format":             basetypes.StringType{},
+			"sms_provider":                   basetypes.StringType{},
+			"sponsor_auto_approve":           basetypes.BoolType{},
 			"sponsor_email_domains": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"sponsor_enabled":                basetypes.BoolType{},
 			"sponsor_expire":                 basetypes.Float64Type{},
-			"sponsor_link_validity_duration": basetypes.Int64Type{},
+			"sponsor_link_validity_duration": basetypes.StringType{},
 			"sponsor_notify_all":             basetypes.BoolType{},
 			"sponsor_status_notify":          basetypes.BoolType{},
 			"sponsors": basetypes.MapType{
@@ -16481,27 +16544,28 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 		"microsoft_email_domains": basetypes.ListType{
 			ElemType: types.StringType,
 		},
-		"microsoft_enabled":           basetypes.BoolType{},
-		"microsoft_expire":            basetypes.Float64Type{},
-		"passphrase_enabled":          basetypes.BoolType{},
-		"passphrase_expire":           basetypes.Float64Type{},
-		"password":                    basetypes.StringType{},
-		"predefined_sponsors_enabled": basetypes.BoolType{},
-		"privacy":                     basetypes.BoolType{},
-		"puzzel_password":             basetypes.StringType{},
-		"puzzel_service_id":           basetypes.StringType{},
-		"puzzel_username":             basetypes.StringType{},
-		"sms_enabled":                 basetypes.BoolType{},
-		"sms_expire":                  basetypes.Float64Type{},
-		"sms_message_format":          basetypes.StringType{},
-		"sms_provider":                basetypes.StringType{},
-		"sponsor_auto_approve":        basetypes.BoolType{},
+		"microsoft_enabled":              basetypes.BoolType{},
+		"microsoft_expire":               basetypes.Float64Type{},
+		"passphrase_enabled":             basetypes.BoolType{},
+		"passphrase_expire":              basetypes.Float64Type{},
+		"password":                       basetypes.StringType{},
+		"predefined_sponsors_enabled":    basetypes.BoolType{},
+		"predefined_sponsors_hide_email": basetypes.BoolType{},
+		"privacy":                        basetypes.BoolType{},
+		"puzzel_password":                basetypes.StringType{},
+		"puzzel_service_id":              basetypes.StringType{},
+		"puzzel_username":                basetypes.StringType{},
+		"sms_enabled":                    basetypes.BoolType{},
+		"sms_expire":                     basetypes.Float64Type{},
+		"sms_message_format":             basetypes.StringType{},
+		"sms_provider":                   basetypes.StringType{},
+		"sponsor_auto_approve":           basetypes.BoolType{},
 		"sponsor_email_domains": basetypes.ListType{
 			ElemType: types.StringType,
 		},
 		"sponsor_enabled":                basetypes.BoolType{},
 		"sponsor_expire":                 basetypes.Float64Type{},
-		"sponsor_link_validity_duration": basetypes.Int64Type{},
+		"sponsor_link_validity_duration": basetypes.StringType{},
 		"sponsor_notify_all":             basetypes.BoolType{},
 		"sponsor_status_notify":          basetypes.BoolType{},
 		"sponsors": basetypes.MapType{
@@ -16576,6 +16640,7 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"passphrase_expire":              v.PassphraseExpire,
 			"password":                       v.Password,
 			"predefined_sponsors_enabled":    v.PredefinedSponsorsEnabled,
+			"predefined_sponsors_hide_email": v.PredefinedSponsorsHideEmail,
 			"privacy":                        v.Privacy,
 			"puzzel_password":                v.PuzzelPassword,
 			"puzzel_service_id":              v.PuzzelServiceId,
@@ -16800,6 +16865,10 @@ func (v PortalValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.PredefinedSponsorsHideEmail.Equal(other.PredefinedSponsorsHideEmail) {
+		return false
+	}
+
 	if !v.Privacy.Equal(other.Privacy) {
 		return false
 	}
@@ -16971,27 +17040,28 @@ func (v PortalValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 		"microsoft_email_domains": basetypes.ListType{
 			ElemType: types.StringType,
 		},
-		"microsoft_enabled":           basetypes.BoolType{},
-		"microsoft_expire":            basetypes.Float64Type{},
-		"passphrase_enabled":          basetypes.BoolType{},
-		"passphrase_expire":           basetypes.Float64Type{},
-		"password":                    basetypes.StringType{},
-		"predefined_sponsors_enabled": basetypes.BoolType{},
-		"privacy":                     basetypes.BoolType{},
-		"puzzel_password":             basetypes.StringType{},
-		"puzzel_service_id":           basetypes.StringType{},
-		"puzzel_username":             basetypes.StringType{},
-		"sms_enabled":                 basetypes.BoolType{},
-		"sms_expire":                  basetypes.Float64Type{},
-		"sms_message_format":          basetypes.StringType{},
-		"sms_provider":                basetypes.StringType{},
-		"sponsor_auto_approve":        basetypes.BoolType{},
+		"microsoft_enabled":              basetypes.BoolType{},
+		"microsoft_expire":               basetypes.Float64Type{},
+		"passphrase_enabled":             basetypes.BoolType{},
+		"passphrase_expire":              basetypes.Float64Type{},
+		"password":                       basetypes.StringType{},
+		"predefined_sponsors_enabled":    basetypes.BoolType{},
+		"predefined_sponsors_hide_email": basetypes.BoolType{},
+		"privacy":                        basetypes.BoolType{},
+		"puzzel_password":                basetypes.StringType{},
+		"puzzel_service_id":              basetypes.StringType{},
+		"puzzel_username":                basetypes.StringType{},
+		"sms_enabled":                    basetypes.BoolType{},
+		"sms_expire":                     basetypes.Float64Type{},
+		"sms_message_format":             basetypes.StringType{},
+		"sms_provider":                   basetypes.StringType{},
+		"sponsor_auto_approve":           basetypes.BoolType{},
 		"sponsor_email_domains": basetypes.ListType{
 			ElemType: types.StringType,
 		},
 		"sponsor_enabled":                basetypes.BoolType{},
 		"sponsor_expire":                 basetypes.Float64Type{},
-		"sponsor_link_validity_duration": basetypes.Int64Type{},
+		"sponsor_link_validity_duration": basetypes.StringType{},
 		"sponsor_notify_all":             basetypes.BoolType{},
 		"sponsor_status_notify":          basetypes.BoolType{},
 		"sponsors": basetypes.MapType{

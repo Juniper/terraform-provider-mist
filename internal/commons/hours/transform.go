@@ -16,14 +16,45 @@ import (
 
 func HoursSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.Hours) basetypes.ObjectValue {
 	r_attr_type := HoursValue{}.AttributeTypes(ctx)
+
+	var mon types.String
+	var tue types.String
+	var wed types.String
+	var thu types.String
+	var fri types.String
+	var sat types.String
+	var sun types.String
+
+	if d.Mon != nil {
+		mon = types.StringValue(*d.Mon)
+	}
+	if d.Tue != nil {
+		tue = types.StringValue(*d.Tue)
+	}
+	if d.Wed != nil {
+		wed = types.StringValue(*d.Wed)
+	}
+	if d.Thu != nil {
+		thu = types.StringValue(*d.Thu)
+	}
+	if d.Fri != nil {
+		fri = types.StringValue(*d.Fri)
+	}
+	if d.Sat != nil {
+		sat = types.StringValue(*d.Sat)
+	}
+	if d.Sun != nil {
+		sun = types.StringValue(*d.Sun)
+	}
+
 	r_attr_value := map[string]attr.Value{
-		"mon": types.StringValue(*d.Mon),
-		"tue": types.StringValue(*d.Tue),
-		"wed": types.StringValue(*d.Wed),
-		"thu": types.StringValue(*d.Thu),
-		"fri": types.StringValue(*d.Fri),
-		"sat": types.StringValue(*d.Sat),
-		"sun": types.StringValue(*d.Sun),
+		"mon": mon,
+		"tue": tue,
+		"wed": wed,
+		"thu": thu,
+		"fri": fri,
+		"sat": sat,
+		"sun": sun,
 	}
 	r, e := basetypes.NewObjectValue(r_attr_type, r_attr_value)
 	diags.Append(e...)

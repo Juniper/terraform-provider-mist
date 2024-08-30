@@ -78,10 +78,10 @@ func portalTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, plan Por
 	data.SponsorEmailDomains = mist_transform.ListOfStringTerraformToSdk(ctx, plan.SponsorEmailDomains)
 	data.SponsorEnabled = plan.SponsorEnabled.ValueBoolPointer()
 	data.SponsorExpire = models.NewOptional(models.ToPointer(plan.SponsorExpire.ValueFloat64()))
-	data.SponsorLinkValidityDuration = models.ToPointer(int(plan.SponsorLinkValidityDuration.ValueInt64()))
+	data.SponsorLinkValidityDuration = plan.SponsorLinkValidityDuration.ValueStringPointer()
 	data.SponsorNotifyAll = plan.SponsorNotifyAll.ValueBoolPointer()
 	data.SponsorStatusNotify = plan.SponsorStatusNotify.ValueBoolPointer()
-	data.Sponsors = sponsors
+	data.Sponsors = models.ToPointer(models.WlanPortalSponsorsContainer.FromMapOfString(sponsors))
 	data.SsoDefaultRole = plan.SsoDefaultRole.ValueStringPointer()
 	data.SsoForcedRole = plan.SsoForcedRole.ValueStringPointer()
 	data.SsoIdpCert = plan.SsoIdpCert.ValueStringPointer()
