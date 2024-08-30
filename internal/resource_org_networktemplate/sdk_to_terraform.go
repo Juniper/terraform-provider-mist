@@ -125,8 +125,8 @@ func SdkToTerraform(ctx context.Context, data models.NetworkTemplate) (OrgNetwor
 	state.Networks = networks
 	state.PortMirroring = port_mirroring
 	state.PortUsages = port_usages
-	state.RemoteSyslog = remote_syslog
 	state.RadiusConfig = radius_config
+	state.RemoteSyslog = remote_syslog
 	state.SnmpConfig = snmp_config
 	state.SwitchMatching = switch_matching
 	state.SwitchMgmt = switch_mgmt

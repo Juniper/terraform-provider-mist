@@ -33,11 +33,23 @@ func TerraformToSdk(ctx context.Context, plan *OrgNetworktemplateModel) (models.
 		data.AclTags = acl_tags
 	}
 
-	data.AdditionalConfigCmds = mist_transform.ListOfStringTerraformToSdk(ctx, plan.AdditionalConfigCmds)
+	if plan.AdditionalConfigCmds.IsNull() || plan.AdditionalConfigCmds.IsUnknown() {
+		unset["-additional_config_cmds"] = ""
+	} else {
+		data.AdditionalConfigCmds = mist_transform.ListOfStringTerraformToSdk(ctx, plan.AdditionalConfigCmds)
+	}
 
-	data.DnsServers = mist_transform.ListOfStringTerraformToSdk(ctx, plan.DnsServers)
+	if plan.DnsServers.IsNull() || plan.DnsServers.IsUnknown() {
+		unset["-dns_servers"] = ""
+	} else {
+		data.DnsServers = mist_transform.ListOfStringTerraformToSdk(ctx, plan.DnsServers)
+	}
 
-	data.DnsSuffix = mist_transform.ListOfStringTerraformToSdk(ctx, plan.DnsSuffix)
+	if plan.DnsSuffix.IsNull() || plan.DnsSuffix.IsUnknown() {
+		unset["-dns_suffix"] = ""
+	} else {
+		data.DnsSuffix = mist_transform.ListOfStringTerraformToSdk(ctx, plan.DnsSuffix)
+	}
 
 	if plan.DhcpSnooping.IsNull() || plan.DhcpSnooping.IsUnknown() {
 		unset["-dhcp_snooping"] = ""
@@ -74,7 +86,11 @@ func TerraformToSdk(ctx context.Context, plan *OrgNetworktemplateModel) (models.
 		data.Networks = networks
 	}
 
-	data.NtpServers = mist_transform.ListOfStringTerraformToSdk(ctx, plan.NtpServers)
+	if plan.NtpServers.IsNull() || plan.NtpServers.IsUnknown() {
+		unset["-ntp_servers"] = ""
+	} else {
+		data.NtpServers = mist_transform.ListOfStringTerraformToSdk(ctx, plan.NtpServers)
+	}
 
 	if plan.PortMirroring.IsNull() || plan.PortMirroring.IsUnknown() {
 		unset["-port_mirrorings"] = ""
