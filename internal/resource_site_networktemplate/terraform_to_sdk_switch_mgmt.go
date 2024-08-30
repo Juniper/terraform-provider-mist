@@ -136,6 +136,26 @@ func switchMgmtTacacsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics
 		return &data
 	}
 }
+
+func switchLocalAccountUsersTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.ConfigSwitchLocalAccountsUser {
+	data := make(map[string]models.ConfigSwitchLocalAccountsUser)
+	for item_name, item_value := range d.Elements() {
+		var item_interface interface{} = item_value
+		item_obj := item_interface.(LocalAccountsValue)
+
+		data_item := models.ConfigSwitchLocalAccountsUser{}
+		if item_obj.Password.ValueStringPointer() != nil {
+			data_item.Password = item_obj.Password.ValueStringPointer()
+		}
+		if item_obj.Role.ValueStringPointer() != nil {
+			data_item.Role = (*models.ConfigSwitchLocalAccountsUserRoleEnum)(item_obj.Role.ValueStringPointer())
+		}
+
+		data[item_name] = data_item
+	}
+	return data
+}
+
 func switchMgmtTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d SwitchMgmtValue) *models.SwitchMgmt {
 
 	data := models.SwitchMgmt{}
@@ -143,8 +163,29 @@ func switchMgmtTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d Sw
 		return &data
 	} else {
 
-		if d.ConfigRevert.ValueInt64Pointer() != nil {
-			data.ConfigRevertTimer = models.ToPointer(int(d.ConfigRevert.ValueInt64()))
+		if d.ApAffinityThreshold.ValueInt64Pointer() != nil {
+			data.ApAffinityThreshold = models.ToPointer(int(d.ApAffinityThreshold.ValueInt64()))
+		}
+		if d.CliBanner.ValueStringPointer() != nil {
+			data.CliBanner = d.CliBanner.ValueStringPointer()
+		}
+		if d.CliIdleTimeout.ValueInt64Pointer() != nil {
+			data.CliIdleTimeout = models.ToPointer(int(d.CliIdleTimeout.ValueInt64()))
+		}
+		if d.ConfigRevertTimer.ValueInt64Pointer() != nil {
+			data.ConfigRevertTimer = models.ToPointer(int(d.ConfigRevertTimer.ValueInt64()))
+		}
+		if d.DhcpOptionFqdn.ValueBoolPointer() != nil {
+			data.DhcpOptionFqdn = d.DhcpOptionFqdn.ValueBoolPointer()
+		}
+		if !d.LocalAccounts.IsNull() && !d.LocalAccounts.IsUnknown() {
+			data.LocalAccounts = switchLocalAccountUsersTerraformToSdk(ctx, diags, d.LocalAccounts)
+		}
+		if d.MxedgeProxyHost.ValueStringPointer() != nil {
+			data.MxedgeProxyHost = d.MxedgeProxyHost.ValueStringPointer()
+		}
+		if d.MxedgeProxyPort.ValueInt64Pointer() != nil {
+			data.MxedgeProxyPort = models.ToPointer(int(d.MxedgeProxyPort.ValueInt64()))
 		}
 		if !d.ProtectRe.IsNull() && !d.ProtectRe.IsUnknown() {
 			data.ProtectRe = switchMgmtProtectReTerraformToSdk(ctx, diags, d.ProtectRe)
@@ -154,6 +195,9 @@ func switchMgmtTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d Sw
 		}
 		if !d.Tacacs.IsNull() && !d.Tacacs.IsUnknown() {
 			data.Tacacs = switchMgmtTacacsTerraformToSdk(ctx, diags, d.Tacacs)
+		}
+		if d.UseMxedgeProxy.ValueBoolPointer() != nil {
+			data.UseMxedgeProxy = d.UseMxedgeProxy.ValueBoolPointer()
 		}
 
 		return &data

@@ -23,7 +23,7 @@ func vrfInstanceExtraRouteTerraformToSdk(ctx context.Context, diags *diag.Diagno
 	data := make(map[string]models.VrfExtraRoute)
 	for item_name, item_value := range d.Elements() {
 		var item_interface interface{} = item_value
-		item_obj := item_interface.(ExtraRoutesValue)
+		item_obj := item_interface.(VrfExtraRoutesValue)
 
 		data_item := models.VrfExtraRoute{}
 		if item_obj.Via.ValueStringPointer() != nil {

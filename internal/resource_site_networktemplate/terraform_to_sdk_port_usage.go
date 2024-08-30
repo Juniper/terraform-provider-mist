@@ -164,6 +164,12 @@ func portUsageTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d bas
 		if pu_attr_value.StpEdge.ValueBoolPointer() != nil {
 			new_pu.StpEdge = models.ToPointer(pu_attr_value.StpEdge.ValueBool())
 		}
+		if pu_attr_value.StpNoRootPort.ValueBoolPointer() != nil {
+			new_pu.StpNoRootPort = pu_attr_value.StpNoRootPort.ValueBoolPointer()
+		}
+		if pu_attr_value.StpP2p.ValueBoolPointer() != nil {
+			new_pu.StpP2p = pu_attr_value.StpP2p.ValueBoolPointer()
+		}
 		if pu_attr_value.VoipNetwork.ValueStringPointer() != nil {
 			new_pu.VoipNetwork = models.ToPointer(pu_attr_value.VoipNetwork.ValueString())
 		}

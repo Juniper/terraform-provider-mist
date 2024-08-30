@@ -30,6 +30,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteNetworkt
 	var port_usages types.Map = types.MapNull(PortUsagesValue{}.Type(ctx))
 	var radius_config RadiusConfigValue = NewRadiusConfigValueNull()
 	var remote_syslog RemoteSyslogValue = NewRemoteSyslogValueNull()
+	var remove_existing_configs types.Bool
 	var snmp_config SnmpConfigValue = NewSnmpConfigValueNull()
 	var siteId types.String = types.StringValue(data.SiteId.String())
 	var switch_matching SwitchMatchingValue = NewSwitchMatchingValueNull()
@@ -79,6 +80,9 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteNetworkt
 	if data.RadiusConfig != nil {
 		radius_config = radiusConfigSdkToTerraform(ctx, &diags, data.RadiusConfig)
 	}
+	if data.RemoveExistingConfigs != nil {
+		remove_existing_configs = types.BoolValue(*data.RemoveExistingConfigs)
+	}
 	if data.RemoteSyslog != nil {
 		remote_syslog = remoteSyslogSdkToTerraform(ctx, &diags, data.RemoteSyslog)
 	}
@@ -94,7 +98,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteNetworkt
 	if data.VrfConfig != nil {
 		vrf_config = vrfConfigSdkToTerraform(ctx, &diags, data.VrfConfig)
 	}
-	if data.VrfInstances != nil && len(data.VrfInstances) > 0 {
+	if data.VrfInstances != nil {
 		vrf_instances = vrfInstancesSdkToTerraform(ctx, &diags, data.VrfInstances)
 	}
 
@@ -111,8 +115,9 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteNetworkt
 	state.Networks = networks
 	state.PortMirroring = port_mirroring
 	state.PortUsages = port_usages
-	state.RemoteSyslog = remote_syslog
 	state.RadiusConfig = radius_config
+	state.RemoteSyslog = remote_syslog
+	state.RemoveExistingConfigs = remove_existing_configs
 	state.SnmpConfig = snmp_config
 	state.SiteId = siteId
 	state.SwitchMatching = switch_matching
