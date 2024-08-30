@@ -14,24 +14,18 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func SdkToTerraform(ctx context.Context, l []models.OrgServicePolicy) (basetypes.SetValue, diag.Diagnostics) {
+func SdkToTerraform(ctx context.Context, l *[]models.OrgServicePolicy, elements *[]attr.Value) diag.Diagnostics {
 	var diags diag.Diagnostics
 
-	var elements []attr.Value
-	for _, d := range l {
-		elem := servicepolicieSdkToTerraform(ctx, &diags, d)
-		elements = append(elements, elem)
+	for _, d := range *l {
+		elem := servicepolicieSdkToTerraform(ctx, &diags, &d)
+		*elements = append(*elements, elem)
 	}
 
-	dataSet, err := types.SetValue(OrgServicepoliciesValue{}.Type(ctx), elements)
-	if err != nil {
-		diags.Append(err...)
-	}
-
-	return dataSet, diags
+	return diags
 }
 
-func servicepolicieSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.OrgServicePolicy) OrgServicepoliciesValue {
+func servicepolicieSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.OrgServicePolicy) OrgServicepoliciesValue {
 
 	var action types.String
 	var appqoe basetypes.ObjectValue = types.ObjectNull(AppqoeValue{}.AttributeTypes(ctx))

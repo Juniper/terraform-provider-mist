@@ -3,17 +3,19 @@ package provider
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
-
-	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/Juniper/terraform-provider-mist/internal/datasource_site_psks"
 
 	"github.com/google/uuid"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
@@ -73,28 +75,74 @@ func (d *sitePsksDataSource) Read(ctx context.Context, req datasource.ReadReques
 		return
 	}
 
-	var name *string = ds.Name.ValueStringPointer()
-	var limit *int = models.ToPointer(1000)
-	var page *int
-	var ssid *string = ds.Ssid.ValueStringPointer()
-	var role *string = ds.Role.ValueStringPointer()
+	var name string
+	var ssid string
+	var role string
 
-	data, err := d.client.SitesPsks().ListSitePsks(ctx, siteId, name, ssid, role, page, limit)
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Error getting AP Stats",
-			"Could not get AP Stats, unexpected error: "+err.Error(),
-		)
-		return
+	if ds.Name.ValueStringPointer() != nil {
+		name = ds.Name.ValueString()
+	}
+	if ds.Ssid.ValueStringPointer() != nil {
+		ssid = ds.Ssid.ValueString()
+	}
+	if ds.Role.ValueStringPointer() != nil {
+		role = ds.Role.ValueString()
 	}
 
-	deviceApStat, diags := datasource_site_psks.SdkToTerraform(ctx, data.Data)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
+	var limit int = 1000
+	var page int = 0
+	var total int = 9999
+	var elements []attr.Value
+	var diags diag.Diagnostics
+
+	for limit*page < total {
+		page += 1
+		tflog.Debug(ctx, "Pagination Info", map[string]interface{}{
+			"page":  page,
+			"limit": limit,
+			"total": total,
+		})
+		data, err := d.client.SitesPsks().ListSitePsks(ctx, siteId, &name, &ssid, &role, &page, &limit)
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Error getting Site PSKs list",
+				"Could not get the list of Site PSKs, unexpected error: "+err.Error(),
+			)
+			return
+		}
+
+		limit_string := data.Response.Header.Get("X-Page-Limit")
+		if limit, err = strconv.Atoi(limit_string); err != nil {
+			resp.Diagnostics.AddError(
+				"Error extracting HTTP Response Headers",
+				"Could not convert X-Page-Limit value into int, unexcpected error: "+err.Error(),
+			)
+			return
+		}
+
+		total_string := data.Response.Header.Get("X-Page-Total")
+		if total, err = strconv.Atoi(total_string); err != nil {
+			resp.Diagnostics.AddError(
+				"Error extracting HTTP Response Headers",
+				"Could not convert X-Page-Total value into int, unexcpected error: "+err.Error(),
+			)
+			return
+		}
+
+		diags = datasource_site_psks.SdkToTerraform(ctx, &data.Data, &elements)
+		resp.Diagnostics.Append(diags...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+
 	}
 
-	if err := resp.State.SetAttribute(ctx, path.Root("site_psks"), deviceApStat); err != nil {
+	dataSet, diags := types.SetValue(datasource_site_psks.SitePsksValue{}.Type(ctx), elements)
+	if diags != nil {
+		diags.Append(diags...)
+	}
+
+	if err := resp.State.SetAttribute(ctx, path.Root("site_psks"), dataSet); err != nil {
 		resp.Diagnostics.Append(err...)
 		return
 	}

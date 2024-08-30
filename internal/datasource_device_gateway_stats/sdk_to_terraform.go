@@ -2,7 +2,6 @@ package datasource_device_gateway_stats
 
 import (
 	"context"
-	"encoding/json"
 	"math/big"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -13,31 +12,15 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func SdkToTerraform(ctx context.Context, l []models.StatsDevice) (basetypes.SetValue, diag.Diagnostics) {
+func SdkToTerraform(ctx context.Context, l *[]models.StatsGateway, elements *[]attr.Value) diag.Diagnostics {
 	var diags diag.Diagnostics
 
-	var elements []attr.Value
-	for _, d := range l {
-		gw_js, e := d.MarshalJSON()
-		if e != nil {
-			diags.AddError("Unable to unMarshal Gateway Stats", e.Error())
-		} else {
-			gw := models.StatsGateway{}
-			e := json.Unmarshal(gw_js, &gw)
-			if e != nil {
-				diags.AddError("Unable to unMarshal Switch Stats", e.Error())
-			}
-			elem := deviceGatewayStatSdkToTerraform(ctx, &diags, &gw)
-			elements = append(elements, elem)
-		}
+	for _, d := range *l {
+		elem := deviceGatewayStatSdkToTerraform(ctx, &diags, &d)
+		*elements = append(*elements, elem)
 	}
 
-	dataSet, err := types.SetValue(DeviceGatewayStatsValue{}.Type(ctx), elements)
-	if err != nil {
-		diags.Append(err...)
-	}
-
-	return dataSet, diags
+	return diags
 }
 
 func deviceGatewayStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.StatsGateway) DeviceGatewayStatsValue {

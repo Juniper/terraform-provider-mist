@@ -12,24 +12,18 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func SdkToTerraform(ctx context.Context, l []models.Vpn) (basetypes.SetValue, diag.Diagnostics) {
+func SdkToTerraform(ctx context.Context, l *[]models.Vpn, elements *[]attr.Value) diag.Diagnostics {
 	var diags diag.Diagnostics
 
-	var elements []attr.Value
-	for _, d := range l {
-		elem := vpnSdkToTerraform(ctx, &diags, d)
-		elements = append(elements, elem)
+	for _, d := range *l {
+		elem := vpnSdkToTerraform(ctx, &diags, &d)
+		*elements = append(*elements, elem)
 	}
 
-	dataSet, err := types.SetValue(OrgVpnsValue{}.Type(ctx), elements)
-	if err != nil {
-		diags.Append(err...)
-	}
-
-	return dataSet, diags
+	return diags
 }
 
-func vpnSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.Vpn) OrgVpnsValue {
+func vpnSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.Vpn) OrgVpnsValue {
 	var created_time basetypes.NumberValue
 	var id basetypes.StringValue
 	var modified_time basetypes.NumberValue

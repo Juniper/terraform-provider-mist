@@ -12,24 +12,18 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func SdkToTerraform(ctx context.Context, l []models.GatewayTemplate) (basetypes.SetValue, diag.Diagnostics) {
+func SdkToTerraform(ctx context.Context, l *[]models.GatewayTemplate, elements *[]attr.Value) diag.Diagnostics {
 	var diags diag.Diagnostics
 
-	var elements []attr.Value
-	for _, d := range l {
-		elem := gatewaytemplateSdkToTerraform(ctx, &diags, d)
-		elements = append(elements, elem)
+	for _, d := range *l {
+		elem := gatewaytemplateSdkToTerraform(ctx, &diags, &d)
+		*elements = append(*elements, elem)
 	}
 
-	dataSet, err := types.SetValue(OrgGatewaytemplatesValue{}.Type(ctx), elements)
-	if err != nil {
-		diags.Append(err...)
-	}
-
-	return dataSet, diags
+	return diags
 }
 
-func gatewaytemplateSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.GatewayTemplate) OrgGatewaytemplatesValue {
+func gatewaytemplateSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.GatewayTemplate) OrgGatewaytemplatesValue {
 
 	var created_time basetypes.NumberValue
 	var id basetypes.StringValue

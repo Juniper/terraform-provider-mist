@@ -12,24 +12,18 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func SdkToTerraform(ctx context.Context, l []models.NacRule) (basetypes.SetValue, diag.Diagnostics) {
+func SdkToTerraform(ctx context.Context, l *[]models.NacRule, elements *[]attr.Value) diag.Diagnostics {
 	var diags diag.Diagnostics
 
-	var elements []attr.Value
-	for _, d := range l {
-		elem := nacruleSdkToTerraform(ctx, &diags, d)
-		elements = append(elements, elem)
+	for _, d := range *l {
+		elem := nacruleSdkToTerraform(ctx, &diags, &d)
+		*elements = append(*elements, elem)
 	}
 
-	dataSet, err := types.SetValue(OrgNacrulesValue{}.Type(ctx), elements)
-	if err != nil {
-		diags.Append(err...)
-	}
-
-	return dataSet, diags
+	return diags
 }
 
-func nacruleSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.NacRule) OrgNacrulesValue {
+func nacruleSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.NacRule) OrgNacrulesValue {
 
 	var created_time basetypes.NumberValue
 	var id basetypes.StringValue

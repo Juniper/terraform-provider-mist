@@ -13,24 +13,17 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func SdkToTerraform(ctx context.Context, l []models.Webhook) (basetypes.SetValue, diag.Diagnostics) {
+func SdkToTerraform(ctx context.Context, l *[]models.Webhook, elements *[]attr.Value) diag.Diagnostics {
 	var diags diag.Diagnostics
 
-	var elements []attr.Value
-	for _, d := range l {
-		elem := webhookSdkToTerraform(ctx, &diags, d)
-		elements = append(elements, elem)
+	for _, d := range *l {
+		elem := webhookSdkToTerraform(ctx, &diags, &d)
+		*elements = append(*elements, elem)
 	}
 
-	dataSet, err := types.SetValue(OrgWebhooksValue{}.Type(ctx), elements)
-	if err != nil {
-		diags.Append(err...)
-	}
-
-	return dataSet, diags
+	return diags
 }
-
-func webhookSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.Webhook) OrgWebhooksValue {
+func webhookSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.Webhook) OrgWebhooksValue {
 	var state OrgWebhooksValue
 
 	var enabled types.Bool

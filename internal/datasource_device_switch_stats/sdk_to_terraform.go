@@ -2,7 +2,6 @@ package datasource_device_switch_stats
 
 import (
 	"context"
-	"encoding/json"
 	"math/big"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -13,31 +12,15 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func SdkToTerraform(ctx context.Context, l []models.StatsDevice) (basetypes.SetValue, diag.Diagnostics) {
+func SdkToTerraform(ctx context.Context, l *[]models.StatsSwitch, elements *[]attr.Value) diag.Diagnostics {
 	var diags diag.Diagnostics
 
-	var elements []attr.Value
-	for _, d := range l {
-		sw_js, e := d.MarshalJSON()
-		if e != nil {
-			diags.AddError("Unable to Marshal Switch Stats", e.Error())
-		} else {
-			sw := models.StatsSwitch{}
-			e := json.Unmarshal(sw_js, &sw)
-			if e != nil {
-				diags.AddError("Unable to unMarshal Switch Stats", e.Error())
-			}
-			elem := deviceSwitchStatSdkToTerraform(ctx, &diags, &sw)
-			elements = append(elements, elem)
-		}
+	for _, d := range *l {
+		elem := deviceSwitchStatSdkToTerraform(ctx, &diags, &d)
+		*elements = append(*elements, elem)
 	}
 
-	dataSet, err := types.SetValue(DeviceSwitchStatsValue{}.Type(ctx), elements)
-	if err != nil {
-		diags.Append(err...)
-	}
-
-	return dataSet, diags
+	return diags
 }
 
 func deviceSwitchStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.StatsSwitch) DeviceSwitchStatsValue {

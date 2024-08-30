@@ -12,24 +12,18 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func SdkToTerraform(ctx context.Context, l []models.Network) (basetypes.SetValue, diag.Diagnostics) {
+func SdkToTerraform(ctx context.Context, l *[]models.Network, elements *[]attr.Value) diag.Diagnostics {
 	var diags diag.Diagnostics
 
-	var elements []attr.Value
-	for _, d := range l {
-		elem := networkSdkToTerraform(ctx, &diags, d)
-		elements = append(elements, elem)
+	for _, d := range *l {
+		elem := networkSdkToTerraform(ctx, &diags, &d)
+		*elements = append(*elements, elem)
 	}
 
-	dataSet, err := types.SetValue(OrgNetworksValue{}.Type(ctx), elements)
-	if err != nil {
-		diags.Append(err...)
-	}
-
-	return dataSet, diags
+	return diags
 }
 
-func networkSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.Network) OrgNetworksValue {
+func networkSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.Network) OrgNetworksValue {
 
 	var created_time basetypes.NumberValue
 	var id basetypes.StringValue

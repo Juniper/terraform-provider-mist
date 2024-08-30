@@ -25,6 +25,14 @@ data "mist_org_nactags" "nactags" {
 
 - `org_id` (String)
 
+### Optional
+
+- `limit` (Number)
+- `match` (String) Type of NAC Tag
+- `name` (String) Name of NAC Tag
+- `page` (Number)
+- `type` (String) Type of NAC Tag
+
 ### Read-Only
 
 - `org_nactags` (Attributes Set) (see [below for nested schema](#nestedatt--org_nactags))
@@ -34,8 +42,30 @@ data "mist_org_nactags" "nactags" {
 
 Read-Only:
 
+- `allow_usermac_override` (Boolean) can be set to true to allow the override by usermac result
 - `created_time` (Number)
+- `egress_vlan_names` (List of String) if `type`==`egress_vlan_names`, list of egress vlans to return
+- `gbp_tag` (Number) if `type`==`gbp_tag`
 - `id` (String)
+- `match` (String) if `type`==`match`. enum: `cert_cn`, `cert_issuer`, `cert_san`, `cert_serial`, `cert_sub`, `client_mac`, `idp_role`, `mdm_status`, `radius_group`, `realm`, `ssid`, `user_name`, `usermac_label`
+- `match_all` (Boolean) This field is applicable only when `type`==`match`
+  * `false`: means it is sufficient to match any of the values (i.e., match-any behavior)
+  * `true`: means all values should be matched (i.e., match-all behavior)
+
+
+Currently it makes sense to set this field to `true` only if the `match`==`idp_role` or `match`==`usermac_label`'
 - `modified_time` (Number)
 - `name` (String)
 - `org_id` (String)
+- `radius_attrs` (List of String) if `type`==`radius_attrs`, user can specify a list of one or more standard attributes in the field "radius_attrs". 
+It is the responsibility of the user to provide a syntactically correct string, otherwise it may not work as expected.
+Note that it is allowed to have more than one radius_attrs in the result of a given rule.
+- `radius_group` (String) if `type`==`radius_group`
+- `radius_vendor_attrs` (List of String) if `type`==`radius_vendor_attrs`, user can specify a list of one or more vendor-specific attributes in the field "radius_vendor_attrs". 
+It is the responsibility of the user to provide a syntactically correct string, otherwise it may not work as expected.
+Note that it is allowed to have more than one radius_vendor_attrs in the result of a given rule.
+- `session_timeout` (Number) if `type`==`session_timeout, in seconds
+- `type` (String) enum: `egress_vlan_names`, `gbp_tag`, `match`, `radius_attrs`, `radius_group`, `radius_vendor_attrs`, `session_timeout`, `username_attr`, `vlan`
+- `username_attr` (String)
+- `values` (List of String) if `type`==`match`
+- `vlan` (String) if `type`==`vlan`

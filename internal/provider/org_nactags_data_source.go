@@ -3,17 +3,19 @@ package provider
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
-
-	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/Juniper/terraform-provider-mist/internal/datasource_org_nactags"
 
 	"github.com/google/uuid"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
@@ -73,25 +75,74 @@ func (d *orgNactagsDataSource) Read(ctx context.Context, req datasource.ReadRequ
 		return
 	}
 
-	var limit *int = models.ToPointer(1000)
-	var page *int
+	var mType string
+	var name string
+	var match string
 
-	data, err := d.client.OrgsNACTags().ListOrgNacTags(ctx, orgId, nil, nil, nil, page, limit)
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Error getting AP Stats",
-			"Could not get AP Stats, unexpected error: "+err.Error(),
-		)
-		return
+	if ds.Type.ValueStringPointer() != nil {
+		mType = ds.Type.ValueString()
+	}
+	if ds.Name.ValueStringPointer() != nil {
+		name = ds.Name.ValueString()
+	}
+	if ds.Match.ValueStringPointer() != nil {
+		match = ds.Match.ValueString()
 	}
 
-	deviceApStat, diags := datasource_org_nactags.SdkToTerraform(ctx, data.Data)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
+	var limit int = 1000
+	var page int = 0
+	var total int = 9999
+	var elements []attr.Value
+	var diags diag.Diagnostics
+
+	for limit*page < total {
+		page += 1
+		tflog.Debug(ctx, "Pagination Info", map[string]interface{}{
+			"page":  page,
+			"limit": limit,
+			"total": total,
+		})
+		data, err := d.client.OrgsNACTags().ListOrgNacTags(ctx, orgId, &mType, &name, &match, &page, &limit)
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Error getting Org NAC Tags list",
+				"Could not get the list of Org NAC Tags, unexpected error: "+err.Error(),
+			)
+			return
+		}
+
+		limit_string := data.Response.Header.Get("X-Page-Limit")
+		if limit, err = strconv.Atoi(limit_string); err != nil {
+			resp.Diagnostics.AddError(
+				"Error extracting HTTP Response Headers",
+				"Could not convert X-Page-Limit value into int, unexcpected error: "+err.Error(),
+			)
+			return
+		}
+
+		total_string := data.Response.Header.Get("X-Page-Total")
+		if total, err = strconv.Atoi(total_string); err != nil {
+			resp.Diagnostics.AddError(
+				"Error extracting HTTP Response Headers",
+				"Could not convert X-Page-Total value into int, unexcpected error: "+err.Error(),
+			)
+			return
+		}
+
+		diags = datasource_org_nactags.SdkToTerraform(ctx, &data.Data, &elements)
+		resp.Diagnostics.Append(diags...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+
 	}
 
-	if err := resp.State.SetAttribute(ctx, path.Root("org_nactags"), deviceApStat); err != nil {
+	dataSet, diags := types.SetValue(datasource_org_nactags.OrgNactagsValue{}.Type(ctx), elements)
+	if diags != nil {
+		diags.Append(diags...)
+	}
+
+	if err := resp.State.SetAttribute(ctx, path.Root("org_nactags"), dataSet); err != nil {
 		resp.Diagnostics.Append(err...)
 		return
 	}

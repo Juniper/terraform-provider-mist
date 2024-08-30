@@ -12,24 +12,18 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func SdkToTerraform(ctx context.Context, l []models.WxlanTag) (basetypes.SetValue, diag.Diagnostics) {
+func SdkToTerraform(ctx context.Context, l *[]models.WxlanTag, elements *[]attr.Value) diag.Diagnostics {
 	var diags diag.Diagnostics
 
-	var elements []attr.Value
-	for _, d := range l {
-		elem := wxtagSdkToTerraform(ctx, &diags, d)
-		elements = append(elements, elem)
+	for _, d := range *l {
+		elem := wxtagSdkToTerraform(ctx, &diags, &d)
+		*elements = append(*elements, elem)
 	}
 
-	dataSet, err := types.SetValue(OrgWxtagsValue{}.Type(ctx), elements)
-	if err != nil {
-		diags.Append(err...)
-	}
-
-	return dataSet, diags
+	return diags
 }
 
-func wxtagSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.WxlanTag) OrgWxtagsValue {
+func wxtagSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.WxlanTag) OrgWxtagsValue {
 
 	var created_time basetypes.NumberValue
 	var id basetypes.StringValue

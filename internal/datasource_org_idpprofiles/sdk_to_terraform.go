@@ -11,24 +11,18 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func SdkToTerraform(ctx context.Context, l []models.IdpProfile) (basetypes.SetValue, diag.Diagnostics) {
+func SdkToTerraform(ctx context.Context, l *[]models.IdpProfile, elements *[]attr.Value) diag.Diagnostics {
 	var diags diag.Diagnostics
 
-	var elements []attr.Value
-	for _, d := range l {
-		elem := servicepolicieSdkToTerraform(ctx, &diags, d)
-		elements = append(elements, elem)
+	for _, d := range *l {
+		elem := servicepolicieSdkToTerraform(ctx, &diags, &d)
+		*elements = append(*elements, elem)
 	}
 
-	dataSet, err := types.SetValue(OrgIdpprofilesValue{}.Type(ctx), elements)
-	if err != nil {
-		diags.Append(err...)
-	}
-
-	return dataSet, diags
+	return diags
 }
 
-func servicepolicieSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.IdpProfile) OrgIdpprofilesValue {
+func servicepolicieSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.IdpProfile) OrgIdpprofilesValue {
 
 	var base_profile types.String
 	var created_time basetypes.NumberValue

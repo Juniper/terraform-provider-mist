@@ -2,6 +2,7 @@ package datasource_org_psks
 
 import (
 	"context"
+	"math/big"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -13,26 +14,22 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func SdkToTerraform(ctx context.Context, l []models.Psk) (basetypes.SetValue, diag.Diagnostics) {
+func SdkToTerraform(ctx context.Context, l *[]models.Psk, elements *[]attr.Value) diag.Diagnostics {
 	var diags diag.Diagnostics
 
-	var elements []attr.Value
-	for _, d := range l {
-		elem := pskSdkToTerraform(ctx, &diags, d)
-		elements = append(elements, elem)
+	for _, d := range *l {
+		elem := pskSdkToTerraform(ctx, &diags, &d)
+		*elements = append(*elements, elem)
 	}
 
-	dataSet, err := types.SetValue(OrgPsksValue{}.Type(ctx), elements)
-	if err != nil {
-		diags.Append(err...)
-	}
-
-	return dataSet, diags
+	return diags
 }
 
-func pskSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.Psk) OrgPsksValue {
+func pskSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.Psk) OrgPsksValue {
 	var state OrgPsksValue
 
+	var admin_sso_id types.String
+	var created_time basetypes.NumberValue
 	var email types.String
 	var expire_time types.Int64
 	var expiry_notification_time types.Int64
@@ -40,6 +37,7 @@ func pskSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.Ps
 	var mac types.String
 	var macs types.List = types.ListNull(types.StringType)
 	var max_usage types.Int64
+	var modified_time basetypes.NumberValue
 	var name types.String
 	var note types.String
 	var notify_expiry types.Bool
@@ -52,6 +50,12 @@ func pskSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.Ps
 	var usage types.String
 	var vlan_id types.String
 
+	if d.AdminSsoId != nil {
+		admin_sso_id = types.StringValue(*d.AdminSsoId)
+	}
+	if d.CreatedTime != nil {
+		created_time = types.NumberValue(big.NewFloat(*d.CreatedTime))
+	}
 	if d.Email != nil {
 		email = types.StringValue(*d.Email)
 	}
@@ -72,6 +76,9 @@ func pskSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.Ps
 	}
 	if d.MaxUsage != nil {
 		max_usage = types.Int64Value(int64(*d.MaxUsage))
+	}
+	if d.ModifiedTime != nil {
+		modified_time = types.NumberValue(big.NewFloat(*d.ModifiedTime))
 	}
 
 	name = types.StringValue(d.Name)
@@ -108,6 +115,8 @@ func pskSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.Ps
 
 	data_map_attr_type := OrgPsksValue{}.AttributeTypes(ctx)
 	data_map_value := map[string]attr.Value{
+		"admin_sso_id":             admin_sso_id,
+		"created_time":             created_time,
 		"email":                    email,
 		"expire_time":              expire_time,
 		"expiry_notification_time": expiry_notification_time,
@@ -115,6 +124,7 @@ func pskSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.Ps
 		"mac":                      mac,
 		"macs":                     macs,
 		"max_usage":                max_usage,
+		"modified_time":            modified_time,
 		"name":                     name,
 		"note":                     note,
 		"notify_expiry":            notify_expiry,

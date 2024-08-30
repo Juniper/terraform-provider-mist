@@ -2,7 +2,10 @@ package provider
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"io"
+	"strconv"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 
@@ -11,9 +14,12 @@ import (
 	"github.com/Juniper/terraform-provider-mist/internal/datasource_org_deviceprofiles_ap"
 
 	"github.com/google/uuid"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
@@ -76,26 +82,66 @@ func (d *orgDeviceprofilesApDataSource) Read(ctx context.Context, req datasource
 		return
 	}
 
-	var limit *int = models.ToPointer(1000)
-	var page *int
-	mType := models.ToPointer(models.DeviceTypeEnum("ap"))
+	var mType models.DeviceTypeEnum = models.DeviceTypeEnum("ap")
 
-	data, err := d.client.OrgsDeviceProfiles().ListOrgDeviceProfiles(ctx, orgId, mType, page, limit)
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Error getting AP Stats",
-			"Could not get AP Stats, unexpected error: "+err.Error(),
-		)
-		return
+	var limit int = 1000
+	var page int = 0
+	var total int = 9999
+	var elements []attr.Value
+	var diags diag.Diagnostics
+
+	for limit*page < total {
+		page += 1
+		tflog.Debug(ctx, "Pagination Info", map[string]interface{}{
+			"page":  page,
+			"limit": limit,
+			"total": total,
+		})
+		data, err := d.client.OrgsDeviceProfiles().ListOrgDeviceProfiles(ctx, orgId, &mType, &page, &limit)
+		if data.Response.StatusCode != 200 && err != nil {
+			resp.Diagnostics.AddError(
+				"Error getting AP Device Profiles",
+				"Could not get the list of AP Device Profiles, unexpected error: "+err.Error(),
+			)
+			return
+		}
+
+		limit_string := data.Response.Header.Get("X-Page-Limit")
+		if limit, err = strconv.Atoi(limit_string); err != nil {
+			resp.Diagnostics.AddError(
+				"Error extracting HTTP Response Headers",
+				"Could not convert X-Page-Limit value into int, unexcpected error: "+err.Error(),
+			)
+			return
+		}
+
+		total_string := data.Response.Header.Get("X-Page-Total")
+		if total, err = strconv.Atoi(total_string); err != nil {
+			resp.Diagnostics.AddError(
+				"Error extracting HTTP Response Headers",
+				"Could not convert X-Page-Total value into int, unexcpected error: "+err.Error(),
+			)
+			return
+		}
+
+		body, _ := io.ReadAll(data.Response.Body)
+		mist_deviceprofiles := []models.DeviceprofileAp{}
+		json.Unmarshal(body, &mist_deviceprofiles)
+
+		diags = datasource_org_deviceprofiles_ap.SdkToTerraform(ctx, &mist_deviceprofiles, &elements)
+		resp.Diagnostics.Append(diags...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+
 	}
 
-	deviceApStat, diags := datasource_org_deviceprofiles_ap.SdkToTerraform(ctx, data.Data)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
+	dataSet, diags := types.SetValue(datasource_org_deviceprofiles_ap.OrgDeviceprofilesApValue{}.Type(ctx), elements)
+	if diags != nil {
+		diags.Append(diags...)
 	}
 
-	if err := resp.State.SetAttribute(ctx, path.Root("deviceprofiles"), deviceApStat); err != nil {
+	if err := resp.State.SetAttribute(ctx, path.Root("deviceprofiles"), dataSet); err != nil {
 		resp.Diagnostics.Append(err...)
 		return
 	}

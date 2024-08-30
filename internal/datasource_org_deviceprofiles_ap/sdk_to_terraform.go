@@ -2,7 +2,6 @@ package datasource_org_deviceprofiles_ap
 
 import (
 	"context"
-	"encoding/json"
 	"math/big"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -13,31 +12,15 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func SdkToTerraform(ctx context.Context, l []models.Deviceprofile) (basetypes.SetValue, diag.Diagnostics) {
+func SdkToTerraform(ctx context.Context, l *[]models.DeviceprofileAp, elements *[]attr.Value) diag.Diagnostics {
 	var diags diag.Diagnostics
 
-	var elements []attr.Value
-	for _, d := range l {
-		ap_js, e := d.MarshalJSON()
-		if e != nil {
-			diags.AddError("Unable to Marshal Deviceprofile AP", e.Error())
-		} else {
-			deviceprofile := models.DeviceprofileAp{}
-			e := json.Unmarshal(ap_js, &deviceprofile)
-			if e != nil {
-				diags.AddError("Unable to unMarshal AP Stats", e.Error())
-			}
-			elem := deviceprofileApSdkToTerraform(ctx, &diags, &deviceprofile)
-			elements = append(elements, elem)
-		}
+	for _, d := range *l {
+		elem := deviceprofileApSdkToTerraform(ctx, &diags, &d)
+		*elements = append(*elements, elem)
 	}
 
-	dataSet, err := types.SetValue(OrgDeviceprofilesApValue{}.Type(ctx), elements)
-	if err != nil {
-		diags.Append(err...)
-	}
-
-	return dataSet, diags
+	return diags
 }
 
 func deviceprofileApSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.DeviceprofileAp) OrgDeviceprofilesApValue {

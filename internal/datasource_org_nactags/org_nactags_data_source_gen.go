@@ -5,8 +5,10 @@ package datasource_org_nactags
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
@@ -18,17 +20,59 @@ import (
 func OrgNactagsDataSourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
+			"limit": schema.Int64Attribute{
+				Optional: true,
+				Validators: []validator.Int64{
+					int64validator.AtLeast(0),
+				},
+			},
+			"match": schema.StringAttribute{
+				Optional:            true,
+				Description:         "Type of NAC Tag",
+				MarkdownDescription: "Type of NAC Tag",
+			},
+			"name": schema.StringAttribute{
+				Optional:            true,
+				Description:         "Name of NAC Tag",
+				MarkdownDescription: "Name of NAC Tag",
+			},
 			"org_id": schema.StringAttribute{
 				Required: true,
 			},
 			"org_nactags": schema.SetNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
+						"allow_usermac_override": schema.BoolAttribute{
+							Computed:            true,
+							Description:         "can be set to true to allow the override by usermac result",
+							MarkdownDescription: "can be set to true to allow the override by usermac result",
+						},
 						"created_time": schema.NumberAttribute{
 							Computed: true,
 						},
+						"egress_vlan_names": schema.ListAttribute{
+							ElementType:         types.StringType,
+							Computed:            true,
+							Description:         "if `type`==`egress_vlan_names`, list of egress vlans to return",
+							MarkdownDescription: "if `type`==`egress_vlan_names`, list of egress vlans to return",
+						},
+						"gbp_tag": schema.Int64Attribute{
+							Computed:            true,
+							Description:         "if `type`==`gbp_tag`",
+							MarkdownDescription: "if `type`==`gbp_tag`",
+						},
 						"id": schema.StringAttribute{
 							Computed: true,
+						},
+						"match": schema.StringAttribute{
+							Computed:            true,
+							Description:         "if `type`==`match`. enum: `cert_cn`, `cert_issuer`, `cert_san`, `cert_serial`, `cert_sub`, `client_mac`, `idp_role`, `mdm_status`, `radius_group`, `realm`, `ssid`, `user_name`, `usermac_label`",
+							MarkdownDescription: "if `type`==`match`. enum: `cert_cn`, `cert_issuer`, `cert_san`, `cert_serial`, `cert_sub`, `client_mac`, `idp_role`, `mdm_status`, `radius_group`, `realm`, `ssid`, `user_name`, `usermac_label`",
+						},
+						"match_all": schema.BoolAttribute{
+							Computed:            true,
+							Description:         "This field is applicable only when `type`==`match`\n  * `false`: means it is sufficient to match any of the values (i.e., match-any behavior)\n  * `true`: means all values should be matched (i.e., match-all behavior)\n\n\nCurrently it makes sense to set this field to `true` only if the `match`==`idp_role` or `match`==`usermac_label`'",
+							MarkdownDescription: "This field is applicable only when `type`==`match`\n  * `false`: means it is sufficient to match any of the values (i.e., match-any behavior)\n  * `true`: means all values should be matched (i.e., match-all behavior)\n\n\nCurrently it makes sense to set this field to `true` only if the `match`==`idp_role` or `match`==`usermac_label`'",
 						},
 						"modified_time": schema.NumberAttribute{
 							Computed: true,
@@ -39,6 +83,47 @@ func OrgNactagsDataSourceSchema(ctx context.Context) schema.Schema {
 						"org_id": schema.StringAttribute{
 							Computed: true,
 						},
+						"radius_attrs": schema.ListAttribute{
+							ElementType:         types.StringType,
+							Computed:            true,
+							Description:         "if `type`==`radius_attrs`, user can specify a list of one or more standard attributes in the field \"radius_attrs\". \nIt is the responsibility of the user to provide a syntactically correct string, otherwise it may not work as expected.\nNote that it is allowed to have more than one radius_attrs in the result of a given rule.",
+							MarkdownDescription: "if `type`==`radius_attrs`, user can specify a list of one or more standard attributes in the field \"radius_attrs\". \nIt is the responsibility of the user to provide a syntactically correct string, otherwise it may not work as expected.\nNote that it is allowed to have more than one radius_attrs in the result of a given rule.",
+						},
+						"radius_group": schema.StringAttribute{
+							Computed:            true,
+							Description:         "if `type`==`radius_group`",
+							MarkdownDescription: "if `type`==`radius_group`",
+						},
+						"radius_vendor_attrs": schema.ListAttribute{
+							ElementType:         types.StringType,
+							Computed:            true,
+							Description:         "if `type`==`radius_vendor_attrs`, user can specify a list of one or more vendor-specific attributes in the field \"radius_vendor_attrs\". \nIt is the responsibility of the user to provide a syntactically correct string, otherwise it may not work as expected.\nNote that it is allowed to have more than one radius_vendor_attrs in the result of a given rule.",
+							MarkdownDescription: "if `type`==`radius_vendor_attrs`, user can specify a list of one or more vendor-specific attributes in the field \"radius_vendor_attrs\". \nIt is the responsibility of the user to provide a syntactically correct string, otherwise it may not work as expected.\nNote that it is allowed to have more than one radius_vendor_attrs in the result of a given rule.",
+						},
+						"session_timeout": schema.Int64Attribute{
+							Computed:            true,
+							Description:         "if `type`==`session_timeout, in seconds",
+							MarkdownDescription: "if `type`==`session_timeout, in seconds",
+						},
+						"type": schema.StringAttribute{
+							Computed:            true,
+							Description:         "enum: `egress_vlan_names`, `gbp_tag`, `match`, `radius_attrs`, `radius_group`, `radius_vendor_attrs`, `session_timeout`, `username_attr`, `vlan`",
+							MarkdownDescription: "enum: `egress_vlan_names`, `gbp_tag`, `match`, `radius_attrs`, `radius_group`, `radius_vendor_attrs`, `session_timeout`, `username_attr`, `vlan`",
+						},
+						"username_attr": schema.StringAttribute{
+							Computed: true,
+						},
+						"values": schema.ListAttribute{
+							ElementType:         types.StringType,
+							Computed:            true,
+							Description:         "if `type`==`match`",
+							MarkdownDescription: "if `type`==`match`",
+						},
+						"vlan": schema.StringAttribute{
+							Computed:            true,
+							Description:         "if `type`==`vlan`",
+							MarkdownDescription: "if `type`==`vlan`",
+						},
 					},
 					CustomType: OrgNactagsType{
 						ObjectType: types.ObjectType{
@@ -48,13 +133,29 @@ func OrgNactagsDataSourceSchema(ctx context.Context) schema.Schema {
 				},
 				Computed: true,
 			},
+			"page": schema.Int64Attribute{
+				Optional: true,
+				Validators: []validator.Int64{
+					int64validator.AtLeast(1),
+				},
+			},
+			"type": schema.StringAttribute{
+				Optional:            true,
+				Description:         "Type of NAC Tag",
+				MarkdownDescription: "Type of NAC Tag",
+			},
 		},
 	}
 }
 
 type OrgNactagsModel struct {
+	Limit      types.Int64  `tfsdk:"limit"`
+	Match      types.String `tfsdk:"match"`
+	Name       types.String `tfsdk:"name"`
 	OrgId      types.String `tfsdk:"org_id"`
 	OrgNactags types.Set    `tfsdk:"org_nactags"`
+	Page       types.Int64  `tfsdk:"page"`
+	Type       types.String `tfsdk:"type"`
 }
 
 var _ basetypes.ObjectTypable = OrgNactagsType{}
@@ -82,6 +183,24 @@ func (t OrgNactagsType) ValueFromObject(ctx context.Context, in basetypes.Object
 
 	attributes := in.Attributes()
 
+	allowUsermacOverrideAttribute, ok := attributes["allow_usermac_override"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`allow_usermac_override is missing from object`)
+
+		return nil, diags
+	}
+
+	allowUsermacOverrideVal, ok := allowUsermacOverrideAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`allow_usermac_override expected to be basetypes.BoolValue, was: %T`, allowUsermacOverrideAttribute))
+	}
+
 	createdTimeAttribute, ok := attributes["created_time"]
 
 	if !ok {
@@ -100,6 +219,42 @@ func (t OrgNactagsType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`created_time expected to be basetypes.NumberValue, was: %T`, createdTimeAttribute))
 	}
 
+	egressVlanNamesAttribute, ok := attributes["egress_vlan_names"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`egress_vlan_names is missing from object`)
+
+		return nil, diags
+	}
+
+	egressVlanNamesVal, ok := egressVlanNamesAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`egress_vlan_names expected to be basetypes.ListValue, was: %T`, egressVlanNamesAttribute))
+	}
+
+	gbpTagAttribute, ok := attributes["gbp_tag"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`gbp_tag is missing from object`)
+
+		return nil, diags
+	}
+
+	gbpTagVal, ok := gbpTagAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`gbp_tag expected to be basetypes.Int64Value, was: %T`, gbpTagAttribute))
+	}
+
 	idAttribute, ok := attributes["id"]
 
 	if !ok {
@@ -116,6 +271,42 @@ func (t OrgNactagsType) ValueFromObject(ctx context.Context, in basetypes.Object
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`id expected to be basetypes.StringValue, was: %T`, idAttribute))
+	}
+
+	matchAttribute, ok := attributes["match"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`match is missing from object`)
+
+		return nil, diags
+	}
+
+	matchVal, ok := matchAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`match expected to be basetypes.StringValue, was: %T`, matchAttribute))
+	}
+
+	matchAllAttribute, ok := attributes["match_all"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`match_all is missing from object`)
+
+		return nil, diags
+	}
+
+	matchAllVal, ok := matchAllAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`match_all expected to be basetypes.BoolValue, was: %T`, matchAllAttribute))
 	}
 
 	modifiedTimeAttribute, ok := attributes["modified_time"]
@@ -172,17 +363,174 @@ func (t OrgNactagsType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`org_id expected to be basetypes.StringValue, was: %T`, orgIdAttribute))
 	}
 
+	radiusAttrsAttribute, ok := attributes["radius_attrs"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`radius_attrs is missing from object`)
+
+		return nil, diags
+	}
+
+	radiusAttrsVal, ok := radiusAttrsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`radius_attrs expected to be basetypes.ListValue, was: %T`, radiusAttrsAttribute))
+	}
+
+	radiusGroupAttribute, ok := attributes["radius_group"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`radius_group is missing from object`)
+
+		return nil, diags
+	}
+
+	radiusGroupVal, ok := radiusGroupAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`radius_group expected to be basetypes.StringValue, was: %T`, radiusGroupAttribute))
+	}
+
+	radiusVendorAttrsAttribute, ok := attributes["radius_vendor_attrs"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`radius_vendor_attrs is missing from object`)
+
+		return nil, diags
+	}
+
+	radiusVendorAttrsVal, ok := radiusVendorAttrsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`radius_vendor_attrs expected to be basetypes.ListValue, was: %T`, radiusVendorAttrsAttribute))
+	}
+
+	sessionTimeoutAttribute, ok := attributes["session_timeout"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`session_timeout is missing from object`)
+
+		return nil, diags
+	}
+
+	sessionTimeoutVal, ok := sessionTimeoutAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`session_timeout expected to be basetypes.Int64Value, was: %T`, sessionTimeoutAttribute))
+	}
+
+	typeAttribute, ok := attributes["type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`type is missing from object`)
+
+		return nil, diags
+	}
+
+	typeVal, ok := typeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, typeAttribute))
+	}
+
+	usernameAttrAttribute, ok := attributes["username_attr"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`username_attr is missing from object`)
+
+		return nil, diags
+	}
+
+	usernameAttrVal, ok := usernameAttrAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`username_attr expected to be basetypes.StringValue, was: %T`, usernameAttrAttribute))
+	}
+
+	valuesAttribute, ok := attributes["values"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`values is missing from object`)
+
+		return nil, diags
+	}
+
+	valuesVal, ok := valuesAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`values expected to be basetypes.ListValue, was: %T`, valuesAttribute))
+	}
+
+	vlanAttribute, ok := attributes["vlan"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`vlan is missing from object`)
+
+		return nil, diags
+	}
+
+	vlanVal, ok := vlanAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`vlan expected to be basetypes.StringValue, was: %T`, vlanAttribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
 
 	return OrgNactagsValue{
-		CreatedTime:  createdTimeVal,
-		Id:           idVal,
-		ModifiedTime: modifiedTimeVal,
-		Name:         nameVal,
-		OrgId:        orgIdVal,
-		state:        attr.ValueStateKnown,
+		AllowUsermacOverride: allowUsermacOverrideVal,
+		CreatedTime:          createdTimeVal,
+		EgressVlanNames:      egressVlanNamesVal,
+		GbpTag:               gbpTagVal,
+		Id:                   idVal,
+		Match:                matchVal,
+		MatchAll:             matchAllVal,
+		ModifiedTime:         modifiedTimeVal,
+		Name:                 nameVal,
+		OrgId:                orgIdVal,
+		RadiusAttrs:          radiusAttrsVal,
+		RadiusGroup:          radiusGroupVal,
+		RadiusVendorAttrs:    radiusVendorAttrsVal,
+		SessionTimeout:       sessionTimeoutVal,
+		OrgNactagsType:       typeVal,
+		UsernameAttr:         usernameAttrVal,
+		Values:               valuesVal,
+		Vlan:                 vlanVal,
+		state:                attr.ValueStateKnown,
 	}, diags
 }
 
@@ -249,6 +597,24 @@ func NewOrgNactagsValue(attributeTypes map[string]attr.Type, attributes map[stri
 		return NewOrgNactagsValueUnknown(), diags
 	}
 
+	allowUsermacOverrideAttribute, ok := attributes["allow_usermac_override"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`allow_usermac_override is missing from object`)
+
+		return NewOrgNactagsValueUnknown(), diags
+	}
+
+	allowUsermacOverrideVal, ok := allowUsermacOverrideAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`allow_usermac_override expected to be basetypes.BoolValue, was: %T`, allowUsermacOverrideAttribute))
+	}
+
 	createdTimeAttribute, ok := attributes["created_time"]
 
 	if !ok {
@@ -267,6 +633,42 @@ func NewOrgNactagsValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`created_time expected to be basetypes.NumberValue, was: %T`, createdTimeAttribute))
 	}
 
+	egressVlanNamesAttribute, ok := attributes["egress_vlan_names"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`egress_vlan_names is missing from object`)
+
+		return NewOrgNactagsValueUnknown(), diags
+	}
+
+	egressVlanNamesVal, ok := egressVlanNamesAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`egress_vlan_names expected to be basetypes.ListValue, was: %T`, egressVlanNamesAttribute))
+	}
+
+	gbpTagAttribute, ok := attributes["gbp_tag"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`gbp_tag is missing from object`)
+
+		return NewOrgNactagsValueUnknown(), diags
+	}
+
+	gbpTagVal, ok := gbpTagAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`gbp_tag expected to be basetypes.Int64Value, was: %T`, gbpTagAttribute))
+	}
+
 	idAttribute, ok := attributes["id"]
 
 	if !ok {
@@ -283,6 +685,42 @@ func NewOrgNactagsValue(attributeTypes map[string]attr.Type, attributes map[stri
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`id expected to be basetypes.StringValue, was: %T`, idAttribute))
+	}
+
+	matchAttribute, ok := attributes["match"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`match is missing from object`)
+
+		return NewOrgNactagsValueUnknown(), diags
+	}
+
+	matchVal, ok := matchAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`match expected to be basetypes.StringValue, was: %T`, matchAttribute))
+	}
+
+	matchAllAttribute, ok := attributes["match_all"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`match_all is missing from object`)
+
+		return NewOrgNactagsValueUnknown(), diags
+	}
+
+	matchAllVal, ok := matchAllAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`match_all expected to be basetypes.BoolValue, was: %T`, matchAllAttribute))
 	}
 
 	modifiedTimeAttribute, ok := attributes["modified_time"]
@@ -339,17 +777,174 @@ func NewOrgNactagsValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`org_id expected to be basetypes.StringValue, was: %T`, orgIdAttribute))
 	}
 
+	radiusAttrsAttribute, ok := attributes["radius_attrs"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`radius_attrs is missing from object`)
+
+		return NewOrgNactagsValueUnknown(), diags
+	}
+
+	radiusAttrsVal, ok := radiusAttrsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`radius_attrs expected to be basetypes.ListValue, was: %T`, radiusAttrsAttribute))
+	}
+
+	radiusGroupAttribute, ok := attributes["radius_group"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`radius_group is missing from object`)
+
+		return NewOrgNactagsValueUnknown(), diags
+	}
+
+	radiusGroupVal, ok := radiusGroupAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`radius_group expected to be basetypes.StringValue, was: %T`, radiusGroupAttribute))
+	}
+
+	radiusVendorAttrsAttribute, ok := attributes["radius_vendor_attrs"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`radius_vendor_attrs is missing from object`)
+
+		return NewOrgNactagsValueUnknown(), diags
+	}
+
+	radiusVendorAttrsVal, ok := radiusVendorAttrsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`radius_vendor_attrs expected to be basetypes.ListValue, was: %T`, radiusVendorAttrsAttribute))
+	}
+
+	sessionTimeoutAttribute, ok := attributes["session_timeout"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`session_timeout is missing from object`)
+
+		return NewOrgNactagsValueUnknown(), diags
+	}
+
+	sessionTimeoutVal, ok := sessionTimeoutAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`session_timeout expected to be basetypes.Int64Value, was: %T`, sessionTimeoutAttribute))
+	}
+
+	typeAttribute, ok := attributes["type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`type is missing from object`)
+
+		return NewOrgNactagsValueUnknown(), diags
+	}
+
+	typeVal, ok := typeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, typeAttribute))
+	}
+
+	usernameAttrAttribute, ok := attributes["username_attr"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`username_attr is missing from object`)
+
+		return NewOrgNactagsValueUnknown(), diags
+	}
+
+	usernameAttrVal, ok := usernameAttrAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`username_attr expected to be basetypes.StringValue, was: %T`, usernameAttrAttribute))
+	}
+
+	valuesAttribute, ok := attributes["values"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`values is missing from object`)
+
+		return NewOrgNactagsValueUnknown(), diags
+	}
+
+	valuesVal, ok := valuesAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`values expected to be basetypes.ListValue, was: %T`, valuesAttribute))
+	}
+
+	vlanAttribute, ok := attributes["vlan"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`vlan is missing from object`)
+
+		return NewOrgNactagsValueUnknown(), diags
+	}
+
+	vlanVal, ok := vlanAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`vlan expected to be basetypes.StringValue, was: %T`, vlanAttribute))
+	}
+
 	if diags.HasError() {
 		return NewOrgNactagsValueUnknown(), diags
 	}
 
 	return OrgNactagsValue{
-		CreatedTime:  createdTimeVal,
-		Id:           idVal,
-		ModifiedTime: modifiedTimeVal,
-		Name:         nameVal,
-		OrgId:        orgIdVal,
-		state:        attr.ValueStateKnown,
+		AllowUsermacOverride: allowUsermacOverrideVal,
+		CreatedTime:          createdTimeVal,
+		EgressVlanNames:      egressVlanNamesVal,
+		GbpTag:               gbpTagVal,
+		Id:                   idVal,
+		Match:                matchVal,
+		MatchAll:             matchAllVal,
+		ModifiedTime:         modifiedTimeVal,
+		Name:                 nameVal,
+		OrgId:                orgIdVal,
+		RadiusAttrs:          radiusAttrsVal,
+		RadiusGroup:          radiusGroupVal,
+		RadiusVendorAttrs:    radiusVendorAttrsVal,
+		SessionTimeout:       sessionTimeoutVal,
+		OrgNactagsType:       typeVal,
+		UsernameAttr:         usernameAttrVal,
+		Values:               valuesVal,
+		Vlan:                 vlanVal,
+		state:                attr.ValueStateKnown,
 	}, diags
 }
 
@@ -421,31 +1016,73 @@ func (t OrgNactagsType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = OrgNactagsValue{}
 
 type OrgNactagsValue struct {
-	CreatedTime  basetypes.NumberValue `tfsdk:"created_time"`
-	Id           basetypes.StringValue `tfsdk:"id"`
-	ModifiedTime basetypes.NumberValue `tfsdk:"modified_time"`
-	Name         basetypes.StringValue `tfsdk:"name"`
-	OrgId        basetypes.StringValue `tfsdk:"org_id"`
-	state        attr.ValueState
+	AllowUsermacOverride basetypes.BoolValue   `tfsdk:"allow_usermac_override"`
+	CreatedTime          basetypes.NumberValue `tfsdk:"created_time"`
+	EgressVlanNames      basetypes.ListValue   `tfsdk:"egress_vlan_names"`
+	GbpTag               basetypes.Int64Value  `tfsdk:"gbp_tag"`
+	Id                   basetypes.StringValue `tfsdk:"id"`
+	Match                basetypes.StringValue `tfsdk:"match"`
+	MatchAll             basetypes.BoolValue   `tfsdk:"match_all"`
+	ModifiedTime         basetypes.NumberValue `tfsdk:"modified_time"`
+	Name                 basetypes.StringValue `tfsdk:"name"`
+	OrgId                basetypes.StringValue `tfsdk:"org_id"`
+	RadiusAttrs          basetypes.ListValue   `tfsdk:"radius_attrs"`
+	RadiusGroup          basetypes.StringValue `tfsdk:"radius_group"`
+	RadiusVendorAttrs    basetypes.ListValue   `tfsdk:"radius_vendor_attrs"`
+	SessionTimeout       basetypes.Int64Value  `tfsdk:"session_timeout"`
+	OrgNactagsType       basetypes.StringValue `tfsdk:"type"`
+	UsernameAttr         basetypes.StringValue `tfsdk:"username_attr"`
+	Values               basetypes.ListValue   `tfsdk:"values"`
+	Vlan                 basetypes.StringValue `tfsdk:"vlan"`
+	state                attr.ValueState
 }
 
 func (v OrgNactagsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 6)
+	attrTypes := make(map[string]tftypes.Type, 18)
 
 	var val tftypes.Value
 	var err error
 
+	attrTypes["allow_usermac_override"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["created_time"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["egress_vlan_names"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["gbp_tag"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["id"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["match"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["match_all"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["modified_time"] = basetypes.NumberType{}.TerraformType(ctx)
 	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["org_id"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["radius_attrs"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["radius_group"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["radius_vendor_attrs"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["session_timeout"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["type"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["username_attr"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["values"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["vlan"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 6)
+		vals := make(map[string]tftypes.Value, 18)
+
+		val, err = v.AllowUsermacOverride.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["allow_usermac_override"] = val
 
 		val, err = v.CreatedTime.ToTerraformValue(ctx)
 
@@ -455,6 +1092,22 @@ func (v OrgNactagsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 		vals["created_time"] = val
 
+		val, err = v.EgressVlanNames.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["egress_vlan_names"] = val
+
+		val, err = v.GbpTag.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["gbp_tag"] = val
+
 		val, err = v.Id.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -462,6 +1115,22 @@ func (v OrgNactagsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 		}
 
 		vals["id"] = val
+
+		val, err = v.Match.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["match"] = val
+
+		val, err = v.MatchAll.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["match_all"] = val
 
 		val, err = v.ModifiedTime.ToTerraformValue(ctx)
 
@@ -486,6 +1155,70 @@ func (v OrgNactagsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 		}
 
 		vals["org_id"] = val
+
+		val, err = v.RadiusAttrs.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["radius_attrs"] = val
+
+		val, err = v.RadiusGroup.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["radius_group"] = val
+
+		val, err = v.RadiusVendorAttrs.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["radius_vendor_attrs"] = val
+
+		val, err = v.SessionTimeout.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["session_timeout"] = val
+
+		val, err = v.OrgNactagsType.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["type"] = val
+
+		val, err = v.UsernameAttr.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["username_attr"] = val
+
+		val, err = v.Values.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["values"] = val
+
+		val, err = v.Vlan.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["vlan"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -516,12 +1249,173 @@ func (v OrgNactagsValue) String() string {
 func (v OrgNactagsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
+	egressVlanNamesVal, d := types.ListValue(types.StringType, v.EgressVlanNames.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"allow_usermac_override": basetypes.BoolType{},
+			"created_time":           basetypes.NumberType{},
+			"egress_vlan_names": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"gbp_tag":       basetypes.Int64Type{},
+			"id":            basetypes.StringType{},
+			"match":         basetypes.StringType{},
+			"match_all":     basetypes.BoolType{},
+			"modified_time": basetypes.NumberType{},
+			"name":          basetypes.StringType{},
+			"org_id":        basetypes.StringType{},
+			"radius_attrs": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"radius_group": basetypes.StringType{},
+			"radius_vendor_attrs": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"session_timeout": basetypes.Int64Type{},
+			"type":            basetypes.StringType{},
+			"username_attr":   basetypes.StringType{},
+			"values": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"vlan": basetypes.StringType{},
+		}), diags
+	}
+
+	radiusAttrsVal, d := types.ListValue(types.StringType, v.RadiusAttrs.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"allow_usermac_override": basetypes.BoolType{},
+			"created_time":           basetypes.NumberType{},
+			"egress_vlan_names": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"gbp_tag":       basetypes.Int64Type{},
+			"id":            basetypes.StringType{},
+			"match":         basetypes.StringType{},
+			"match_all":     basetypes.BoolType{},
+			"modified_time": basetypes.NumberType{},
+			"name":          basetypes.StringType{},
+			"org_id":        basetypes.StringType{},
+			"radius_attrs": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"radius_group": basetypes.StringType{},
+			"radius_vendor_attrs": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"session_timeout": basetypes.Int64Type{},
+			"type":            basetypes.StringType{},
+			"username_attr":   basetypes.StringType{},
+			"values": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"vlan": basetypes.StringType{},
+		}), diags
+	}
+
+	radiusVendorAttrsVal, d := types.ListValue(types.StringType, v.RadiusVendorAttrs.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"allow_usermac_override": basetypes.BoolType{},
+			"created_time":           basetypes.NumberType{},
+			"egress_vlan_names": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"gbp_tag":       basetypes.Int64Type{},
+			"id":            basetypes.StringType{},
+			"match":         basetypes.StringType{},
+			"match_all":     basetypes.BoolType{},
+			"modified_time": basetypes.NumberType{},
+			"name":          basetypes.StringType{},
+			"org_id":        basetypes.StringType{},
+			"radius_attrs": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"radius_group": basetypes.StringType{},
+			"radius_vendor_attrs": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"session_timeout": basetypes.Int64Type{},
+			"type":            basetypes.StringType{},
+			"username_attr":   basetypes.StringType{},
+			"values": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"vlan": basetypes.StringType{},
+		}), diags
+	}
+
+	valuesVal, d := types.ListValue(types.StringType, v.Values.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"allow_usermac_override": basetypes.BoolType{},
+			"created_time":           basetypes.NumberType{},
+			"egress_vlan_names": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"gbp_tag":       basetypes.Int64Type{},
+			"id":            basetypes.StringType{},
+			"match":         basetypes.StringType{},
+			"match_all":     basetypes.BoolType{},
+			"modified_time": basetypes.NumberType{},
+			"name":          basetypes.StringType{},
+			"org_id":        basetypes.StringType{},
+			"radius_attrs": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"radius_group": basetypes.StringType{},
+			"radius_vendor_attrs": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"session_timeout": basetypes.Int64Type{},
+			"type":            basetypes.StringType{},
+			"username_attr":   basetypes.StringType{},
+			"values": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"vlan": basetypes.StringType{},
+		}), diags
+	}
+
 	attributeTypes := map[string]attr.Type{
-		"created_time":  basetypes.NumberType{},
+		"allow_usermac_override": basetypes.BoolType{},
+		"created_time":           basetypes.NumberType{},
+		"egress_vlan_names": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"gbp_tag":       basetypes.Int64Type{},
 		"id":            basetypes.StringType{},
+		"match":         basetypes.StringType{},
+		"match_all":     basetypes.BoolType{},
 		"modified_time": basetypes.NumberType{},
 		"name":          basetypes.StringType{},
 		"org_id":        basetypes.StringType{},
+		"radius_attrs": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"radius_group": basetypes.StringType{},
+		"radius_vendor_attrs": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"session_timeout": basetypes.Int64Type{},
+		"type":            basetypes.StringType{},
+		"username_attr":   basetypes.StringType{},
+		"values": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"vlan": basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -535,11 +1429,24 @@ func (v OrgNactagsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"created_time":  v.CreatedTime,
-			"id":            v.Id,
-			"modified_time": v.ModifiedTime,
-			"name":          v.Name,
-			"org_id":        v.OrgId,
+			"allow_usermac_override": v.AllowUsermacOverride,
+			"created_time":           v.CreatedTime,
+			"egress_vlan_names":      egressVlanNamesVal,
+			"gbp_tag":                v.GbpTag,
+			"id":                     v.Id,
+			"match":                  v.Match,
+			"match_all":              v.MatchAll,
+			"modified_time":          v.ModifiedTime,
+			"name":                   v.Name,
+			"org_id":                 v.OrgId,
+			"radius_attrs":           radiusAttrsVal,
+			"radius_group":           v.RadiusGroup,
+			"radius_vendor_attrs":    radiusVendorAttrsVal,
+			"session_timeout":        v.SessionTimeout,
+			"type":                   v.OrgNactagsType,
+			"username_attr":          v.UsernameAttr,
+			"values":                 valuesVal,
+			"vlan":                   v.Vlan,
 		})
 
 	return objVal, diags
@@ -560,11 +1467,31 @@ func (v OrgNactagsValue) Equal(o attr.Value) bool {
 		return true
 	}
 
+	if !v.AllowUsermacOverride.Equal(other.AllowUsermacOverride) {
+		return false
+	}
+
 	if !v.CreatedTime.Equal(other.CreatedTime) {
 		return false
 	}
 
+	if !v.EgressVlanNames.Equal(other.EgressVlanNames) {
+		return false
+	}
+
+	if !v.GbpTag.Equal(other.GbpTag) {
+		return false
+	}
+
 	if !v.Id.Equal(other.Id) {
+		return false
+	}
+
+	if !v.Match.Equal(other.Match) {
+		return false
+	}
+
+	if !v.MatchAll.Equal(other.MatchAll) {
 		return false
 	}
 
@@ -577,6 +1504,38 @@ func (v OrgNactagsValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.OrgId.Equal(other.OrgId) {
+		return false
+	}
+
+	if !v.RadiusAttrs.Equal(other.RadiusAttrs) {
+		return false
+	}
+
+	if !v.RadiusGroup.Equal(other.RadiusGroup) {
+		return false
+	}
+
+	if !v.RadiusVendorAttrs.Equal(other.RadiusVendorAttrs) {
+		return false
+	}
+
+	if !v.SessionTimeout.Equal(other.SessionTimeout) {
+		return false
+	}
+
+	if !v.OrgNactagsType.Equal(other.OrgNactagsType) {
+		return false
+	}
+
+	if !v.UsernameAttr.Equal(other.UsernameAttr) {
+		return false
+	}
+
+	if !v.Values.Equal(other.Values) {
+		return false
+	}
+
+	if !v.Vlan.Equal(other.Vlan) {
 		return false
 	}
 
@@ -593,10 +1552,31 @@ func (v OrgNactagsValue) Type(ctx context.Context) attr.Type {
 
 func (v OrgNactagsValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"created_time":  basetypes.NumberType{},
+		"allow_usermac_override": basetypes.BoolType{},
+		"created_time":           basetypes.NumberType{},
+		"egress_vlan_names": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"gbp_tag":       basetypes.Int64Type{},
 		"id":            basetypes.StringType{},
+		"match":         basetypes.StringType{},
+		"match_all":     basetypes.BoolType{},
 		"modified_time": basetypes.NumberType{},
 		"name":          basetypes.StringType{},
 		"org_id":        basetypes.StringType{},
+		"radius_attrs": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"radius_group": basetypes.StringType{},
+		"radius_vendor_attrs": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"session_timeout": basetypes.Int64Type{},
+		"type":            basetypes.StringType{},
+		"username_attr":   basetypes.StringType{},
+		"values": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"vlan": basetypes.StringType{},
 	}
 }

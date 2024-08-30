@@ -2,6 +2,7 @@ package datasource_site_psks
 
 import (
 	"context"
+	"math/big"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -11,31 +12,28 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func SdkToTerraform(ctx context.Context, l []models.Psk) (basetypes.SetValue, diag.Diagnostics) {
+func SdkToTerraform(ctx context.Context, l *[]models.Psk, elements *[]attr.Value) diag.Diagnostics {
 	var diags diag.Diagnostics
 
-	var elements []attr.Value
-	for _, d := range l {
-		elem := pskSdkToTerraform(ctx, &diags, d)
-		elements = append(elements, elem)
+	for _, d := range *l {
+		elem := pskSdkToTerraform(ctx, &diags, &d)
+		*elements = append(*elements, elem)
 	}
 
-	dataSet, err := types.SetValue(SitePsksValue{}.Type(ctx), elements)
-	if err != nil {
-		diags.Append(err...)
-	}
-
-	return dataSet, diags
+	return diags
 }
 
-func pskSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.Psk) SitePsksValue {
+func pskSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.Psk) SitePsksValue {
 	var state SitePsksValue
 
+	var admin_sso_id types.String
+	var created_time basetypes.NumberValue
 	var email types.String
 	var expire_time types.Int64
 	var expiry_notification_time types.Int64
 	var id types.String
 	var mac types.String
+	var modified_time basetypes.NumberValue
 	var name types.String
 	var note types.String
 	var notify_expiry types.Bool
@@ -49,6 +47,12 @@ func pskSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.Ps
 	var usage types.String
 	var vlan_id types.String
 
+	if d.AdminSsoId != nil {
+		admin_sso_id = types.StringValue(*d.AdminSsoId)
+	}
+	if d.CreatedTime != nil {
+		created_time = types.NumberValue(big.NewFloat(*d.CreatedTime))
+	}
 	if d.Email != nil {
 		email = types.StringValue(*d.Email)
 	}
@@ -63,6 +67,9 @@ func pskSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.Ps
 	}
 	if d.Mac != nil {
 		mac = types.StringValue(*d.Mac)
+	}
+	if d.ModifiedTime != nil {
+		modified_time = types.NumberValue(big.NewFloat(*d.ModifiedTime))
 	}
 
 	name = types.StringValue(d.Name)
@@ -103,11 +110,14 @@ func pskSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.Ps
 
 	data_map_attr_type := SitePsksValue{}.AttributeTypes(ctx)
 	data_map_value := map[string]attr.Value{
+		"admin_sso_id":             admin_sso_id,
+		"created_time":             created_time,
 		"email":                    email,
 		"expire_time":              expire_time,
 		"expiry_notification_time": expiry_notification_time,
 		"id":                       id,
 		"mac":                      mac,
+		"modified_time":            modified_time,
 		"name":                     name,
 		"note":                     note,
 		"notify_expiry":            notify_expiry,
