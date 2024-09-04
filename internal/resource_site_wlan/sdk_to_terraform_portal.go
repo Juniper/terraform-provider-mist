@@ -58,7 +58,7 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	var passphrase_expire basetypes.Float64Value
 	var password basetypes.StringValue
 	var predefined_sponsors_enabled basetypes.BoolValue
-	var predefined_sponsors_hide_email basetypes.BoolValue
+	var predefined_sponsors_hide_email basetypes.BoolValue = basetypes.NewBoolValue(false)
 	var privacy basetypes.BoolValue
 	var puzzel_password basetypes.StringValue
 	var puzzel_service_id basetypes.StringValue
