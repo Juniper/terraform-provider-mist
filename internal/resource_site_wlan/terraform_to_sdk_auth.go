@@ -13,8 +13,8 @@ func authKeysTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, plan b
 	var items []string
 	for _, v := range plan.Elements() {
 		var v_inteface interface{} = v
-		v_plan := v_inteface.(string)
-		items = append(items, v_plan)
+		v_plan := v_inteface.(basetypes.StringValue)
+		items = append(items, v_plan.ValueString())
 	}
 	return items
 }
@@ -22,8 +22,8 @@ func authPairwiseTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, pl
 	var items []models.WlanAuthPairwiseItemEnum
 	for _, v := range plan.Elements() {
 		var v_inteface interface{} = v
-		v_plan := v_inteface.(models.WlanAuthPairwiseItemEnum)
-		items = append(items, v_plan)
+		v_plan := v_inteface.(basetypes.StringValue)
+		items = append(items, (models.WlanAuthPairwiseItemEnum)(v_plan.ValueString()))
 	}
 	return items
 }
