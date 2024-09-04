@@ -23,6 +23,7 @@ func SdkToTerraform(ctx context.Context, l *[]models.Webhook, elements *[]attr.V
 
 	return diags
 }
+
 func webhookSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.Webhook) OrgWebhooksValue {
 	var state OrgWebhooksValue
 

@@ -58,10 +58,10 @@ func TerraformToSdk(ctx context.Context, plan *SiteWlanModel) (*models.Wlan, dia
 		data.AllowMdns = plan.AllowMdns.ValueBoolPointer()
 	}
 
-	if plan.AllowMdns.IsNull() || plan.AllowMdns.IsUnknown() {
+	if plan.AllowSsdp.IsNull() || plan.AllowSsdp.IsUnknown() {
 		unset["-allow_ssdp"] = ""
 	} else {
-		data.AllowMdns = plan.AllowMdns.ValueBoolPointer()
+		data.AllowSsdp = plan.AllowSsdp.ValueBoolPointer()
 	}
 
 	if plan.ApIds.IsNull() || plan.ApIds.IsUnknown() {
