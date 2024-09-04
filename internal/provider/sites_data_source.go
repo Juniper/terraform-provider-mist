@@ -90,7 +90,7 @@ func (d *sitesDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 			"limit": limit,
 			"total": total,
 		})
-		data, err := d.client.OrgsSites().ListOrgSites(ctx, orgId, &page, &limit)
+		data, err := d.client.OrgsSites().ListOrgSites(ctx, orgId, &limit, &page)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error getting Org Sites list",
