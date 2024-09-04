@@ -96,7 +96,7 @@ func (d *orgDeviceprofilesGatewayDataSource) Read(ctx context.Context, req datas
 			"limit": limit,
 			"total": total,
 		})
-		data, err := d.client.OrgsDeviceProfiles().ListOrgDeviceProfiles(ctx, orgId, &mType, &page, &limit)
+		data, err := d.client.OrgsDeviceProfiles().ListOrgDeviceProfiles(ctx, orgId, &mType, &limit, &page)
 		if data.Response.StatusCode != 200 && err != nil {
 			resp.Diagnostics.AddError(
 				"Error getting Org Gateway Device Profiles",

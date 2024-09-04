@@ -97,7 +97,7 @@ func (d *orgDeviceprofilesApDataSource) Read(ctx context.Context, req datasource
 			"limit": limit,
 			"total": total,
 		})
-		data, err := d.client.OrgsDeviceProfiles().ListOrgDeviceProfiles(ctx, orgId, &mType, &page, &limit)
+		data, err := d.client.OrgsDeviceProfiles().ListOrgDeviceProfiles(ctx, orgId, &mType, &limit, &page)
 		if data.Response.StatusCode != 200 && err != nil {
 			resp.Diagnostics.AddError(
 				"Error getting AP Device Profiles",
