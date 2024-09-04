@@ -29,6 +29,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceGateway) (DeviceGate
 	var image2_url types.String
 	var image3_url types.String
 	var ip_configs types.Map = types.MapNull(IpConfigsValue{}.Type(ctx))
+	var managed types.Bool
 	var map_id types.String
 	var name types.String
 	var networks types.List = types.ListNull(NetworksValue{}.Type(ctx))
@@ -96,6 +97,9 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceGateway) (DeviceGate
 	}
 	if data.IpConfigs != nil && len(data.IpConfigs) > 0 {
 		ip_configs = ipConfigsSdkToTerraform(ctx, &diags, data.IpConfigs)
+	}
+	if data.Managed != nil {
+		managed = types.BoolValue(*data.Managed)
 	}
 	if data.MapId != nil {
 		map_id = types.StringValue(data.MapId.String())
@@ -188,6 +192,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceGateway) (DeviceGate
 	state.Image2Url = image2_url
 	state.Image3Url = image3_url
 	state.IpConfigs = ip_configs
+	state.Managed = managed
 	state.MapId = map_id
 	state.Name = name
 	state.Networks = networks

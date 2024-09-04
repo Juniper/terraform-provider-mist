@@ -76,6 +76,12 @@ func TerraformToSdk(ctx context.Context, plan *DeviceGatewayModel) (models.MistD
 		data.IpConfigs = ipConfigsTerraformToSdk(ctx, &diags, plan.IpConfigs)
 	}
 
+	if plan.Managed.IsNull() || plan.Managed.IsUnknown() {
+		unset["-managed"] = ""
+	} else {
+		data.Managed = plan.Managed.ValueBoolPointer()
+	}
+
 	if plan.Networks.IsNull() || plan.Networks.IsUnknown() {
 		unset["-networks"] = ""
 	} else {
