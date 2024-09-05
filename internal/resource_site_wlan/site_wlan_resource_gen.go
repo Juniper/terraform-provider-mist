@@ -1709,8 +1709,8 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						ElementType:         types.StringType,
 						Optional:            true,
 						Computed:            true,
-						Description:         "object of allowed sponsors email with name. Required if `sponsor_enabled` is `true` and `sponsor_email_domains` is empty.\nProperty key is the sponsor email, Property value is the sponsor name",
-						MarkdownDescription: "object of allowed sponsors email with name. Required if `sponsor_enabled` is `true` and `sponsor_email_domains` is empty.\nProperty key is the sponsor email, Property value is the sponsor name",
+						Description:         "object of allowed sponsors email with name. Required if `sponsor_enabled`\n            is `true` and `sponsor_email_domains` is empty.\n\n            Property key is the sponsor email, Property value is the sponsor name",
+						MarkdownDescription: "object of allowed sponsors email with name. Required if `sponsor_enabled`\n            is `true` and `sponsor_email_domains` is empty.\n\n            Property key is the sponsor email, Property value is the sponsor name",
 					},
 					"sso_default_role": schema.StringAttribute{
 						Optional:            true,
@@ -1991,14 +1991,14 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 			"roam_mode": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "enum: `11r`, `OKC`, `none`",
-				MarkdownDescription: "enum: `11r`, `OKC`, `none`",
+				Description:         "enum: `11r`, `OKC`, `NONE`",
+				MarkdownDescription: "enum: `11r`, `OKC`, `NONE`",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
 						"11r",
 						"OKC",
-						"none",
+						"NONE",
 					),
 				},
 				Default: stringdefault.StaticString("none"),
