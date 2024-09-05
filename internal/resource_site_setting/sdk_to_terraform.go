@@ -32,6 +32,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	var occupancy OccupancyValue = NewOccupancyValueNull()
 	var persist_config_on_device types.Bool
 	var proxy ProxyValue = NewProxyValueNull()
+	var remove_existing_configs types.Bool
 	var report_gatt types.Bool
 	var rogue RogueValue = NewRogueValueNull()
 	var rtsa RtsaValue = NewRtsaValueNull()
@@ -124,6 +125,10 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 
 	if data.Proxy != nil {
 		proxy = proxySdkToTerraform(ctx, &diags, data.Proxy)
+	}
+
+	if data.RemoveExistingConfigs != nil {
+		remove_existing_configs = types.BoolValue(*data.RemoveExistingConfigs)
 	}
 
 	if data.ReportGatt != nil {
@@ -231,6 +236,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	state.Occupancy = occupancy
 	state.PersistConfigOnDevice = persist_config_on_device
 	state.Proxy = proxy
+	state.RemoveExistingConfigs = remove_existing_configs
 	state.ReportGatt = report_gatt
 	state.Rogue = rogue
 	state.Rtsa = rtsa

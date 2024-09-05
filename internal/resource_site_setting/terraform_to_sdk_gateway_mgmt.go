@@ -85,15 +85,26 @@ func gatewayMgmtTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d G
 	if d.ConfigRevertTimer.ValueInt64Pointer() != nil {
 		data.ConfigRevertTimer = models.ToPointer(int(d.ConfigRevertTimer.ValueInt64()))
 	}
+
+	if d.DisableConsole.ValueBoolPointer() != nil {
+		data.DisableConsole = d.DisableConsole.ValueBoolPointer()
+	}
+	if d.DisableOob.ValueBoolPointer() != nil {
+		data.DisableOob = d.DisableOob.ValueBoolPointer()
+	}
+
 	if !d.ProbeHosts.IsNull() && !d.ProbeHosts.IsUnknown() {
 		data.ProbeHosts = mist_transform.ListOfStringTerraformToSdk(ctx, d.ProbeHosts)
 	}
+
 	if d.RootPassword.ValueStringPointer() != nil {
 		data.RootPassword = d.RootPassword.ValueStringPointer()
 	}
+
 	if d.SecurityLogSourceAddress.ValueStringPointer() != nil {
 		data.SecurityLogSourceAddress = d.SecurityLogSourceAddress.ValueStringPointer()
 	}
+
 	if d.SecurityLogSourceInterface.ValueStringPointer() != nil {
 		data.SecurityLogSourceInterface = d.SecurityLogSourceInterface.ValueStringPointer()
 	}

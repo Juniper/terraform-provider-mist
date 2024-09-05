@@ -113,6 +113,12 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 
 	}
 
+	if plan.RemoveExistingConfigs.ValueBoolPointer() != nil {
+		data.RemoveExistingConfigs = plan.RemoveExistingConfigs.ValueBoolPointer()
+	} else {
+		unset["remove_existing_configs"] = ""
+	}
+
 	if plan.ReportGatt.ValueBoolPointer() != nil {
 		data.ReportGatt = plan.ReportGatt.ValueBoolPointer()
 	} else {

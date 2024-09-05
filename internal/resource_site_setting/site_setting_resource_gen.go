@@ -539,8 +539,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 			"device_updown_threshold": schema.Int64Attribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "sending AP_DISCONNECTED event in device-updowns only if AP_CONNECTED is not seen within the threshold, in minutes",
-				MarkdownDescription: "sending AP_DISCONNECTED event in device-updowns only if AP_CONNECTED is not seen within the threshold, in minutes",
+				Description:         "by default, device_updown_thresold, if set, will apply to all devices types if different values for specific device type is desired, use the following",
+				MarkdownDescription: "by default, device_updown_thresold, if set, will apply to all devices types if different values for specific device type is desired, use the following",
 				Validators: []validator.Int64{
 					int64validator.Between(0, 240),
 				},
@@ -828,6 +828,20 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						},
 						Default: int64default.StaticInt64(10),
 					},
+					"disable_console": schema.BoolAttribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "for both SSR and SRX disable console port",
+						MarkdownDescription: "for both SSR and SRX disable console port",
+						Default:             booldefault.StaticBool(false),
+					},
+					"disable_oob": schema.BoolAttribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "for both SSR and SRX disable management interface",
+						MarkdownDescription: "for both SSR and SRX disable management interface",
+						Default:             booldefault.StaticBool(false),
+					},
 					"probe_hosts": schema.ListAttribute{
 						ElementType: types.StringType,
 						Optional:    true,
@@ -962,6 +976,13 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Proxy Configuration to talk to Mist",
 				MarkdownDescription: "Proxy Configuration to talk to Mist",
+			},
+			"remove_existing_configs": schema.BoolAttribute{
+				Optional:            true,
+				Computed:            true,
+				Description:         "by default, when we configure a device, we only clean up config we generates. Remove existing configs if enabled",
+				MarkdownDescription: "by default, when we configure a device, we only clean up config we generates. Remove existing configs if enabled",
+				Default:             booldefault.StaticBool(false),
 			},
 			"report_gatt": schema.BoolAttribute{
 				Optional:            true,
@@ -1639,6 +1660,7 @@ type SiteSettingModel struct {
 	OrgId                           types.String               `tfsdk:"org_id"`
 	PersistConfigOnDevice           types.Bool                 `tfsdk:"persist_config_on_device"`
 	Proxy                           ProxyValue                 `tfsdk:"proxy"`
+	RemoveExistingConfigs           types.Bool                 `tfsdk:"remove_existing_configs"`
 	ReportGatt                      types.Bool                 `tfsdk:"report_gatt"`
 	Rogue                           RogueValue                 `tfsdk:"rogue"`
 	Rtsa                            RtsaValue                  `tfsdk:"rtsa"`
@@ -8329,6 +8351,42 @@ func (t GatewayMgmtType) ValueFromObject(ctx context.Context, in basetypes.Objec
 			fmt.Sprintf(`config_revert_timer expected to be basetypes.Int64Value, was: %T`, configRevertTimerAttribute))
 	}
 
+	disableConsoleAttribute, ok := attributes["disable_console"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disable_console is missing from object`)
+
+		return nil, diags
+	}
+
+	disableConsoleVal, ok := disableConsoleAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disable_console expected to be basetypes.BoolValue, was: %T`, disableConsoleAttribute))
+	}
+
+	disableOobAttribute, ok := attributes["disable_oob"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disable_oob is missing from object`)
+
+		return nil, diags
+	}
+
+	disableOobVal, ok := disableOobAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disable_oob expected to be basetypes.BoolValue, was: %T`, disableOobAttribute))
+	}
+
 	probeHostsAttribute, ok := attributes["probe_hosts"]
 
 	if !ok {
@@ -8411,6 +8469,8 @@ func (t GatewayMgmtType) ValueFromObject(ctx context.Context, in basetypes.Objec
 		AppUsage:                   appUsageVal,
 		AutoSignatureUpdate:        autoSignatureUpdateVal,
 		ConfigRevertTimer:          configRevertTimerVal,
+		DisableConsole:             disableConsoleVal,
+		DisableOob:                 disableOobVal,
 		ProbeHosts:                 probeHostsVal,
 		RootPassword:               rootPasswordVal,
 		SecurityLogSourceAddress:   securityLogSourceAddressVal,
@@ -8572,6 +8632,42 @@ func NewGatewayMgmtValue(attributeTypes map[string]attr.Type, attributes map[str
 			fmt.Sprintf(`config_revert_timer expected to be basetypes.Int64Value, was: %T`, configRevertTimerAttribute))
 	}
 
+	disableConsoleAttribute, ok := attributes["disable_console"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disable_console is missing from object`)
+
+		return NewGatewayMgmtValueUnknown(), diags
+	}
+
+	disableConsoleVal, ok := disableConsoleAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disable_console expected to be basetypes.BoolValue, was: %T`, disableConsoleAttribute))
+	}
+
+	disableOobAttribute, ok := attributes["disable_oob"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disable_oob is missing from object`)
+
+		return NewGatewayMgmtValueUnknown(), diags
+	}
+
+	disableOobVal, ok := disableOobAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disable_oob expected to be basetypes.BoolValue, was: %T`, disableOobAttribute))
+	}
+
 	probeHostsAttribute, ok := attributes["probe_hosts"]
 
 	if !ok {
@@ -8654,6 +8750,8 @@ func NewGatewayMgmtValue(attributeTypes map[string]attr.Type, attributes map[str
 		AppUsage:                   appUsageVal,
 		AutoSignatureUpdate:        autoSignatureUpdateVal,
 		ConfigRevertTimer:          configRevertTimerVal,
+		DisableConsole:             disableConsoleVal,
+		DisableOob:                 disableOobVal,
 		ProbeHosts:                 probeHostsVal,
 		RootPassword:               rootPasswordVal,
 		SecurityLogSourceAddress:   securityLogSourceAddressVal,
@@ -8735,6 +8833,8 @@ type GatewayMgmtValue struct {
 	AppUsage                   basetypes.BoolValue   `tfsdk:"app_usage"`
 	AutoSignatureUpdate        basetypes.ObjectValue `tfsdk:"auto_signature_update"`
 	ConfigRevertTimer          basetypes.Int64Value  `tfsdk:"config_revert_timer"`
+	DisableConsole             basetypes.BoolValue   `tfsdk:"disable_console"`
+	DisableOob                 basetypes.BoolValue   `tfsdk:"disable_oob"`
 	ProbeHosts                 basetypes.ListValue   `tfsdk:"probe_hosts"`
 	RootPassword               basetypes.StringValue `tfsdk:"root_password"`
 	SecurityLogSourceAddress   basetypes.StringValue `tfsdk:"security_log_source_address"`
@@ -8743,7 +8843,7 @@ type GatewayMgmtValue struct {
 }
 
 func (v GatewayMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 9)
+	attrTypes := make(map[string]tftypes.Type, 11)
 
 	var val tftypes.Value
 	var err error
@@ -8759,6 +8859,8 @@ func (v GatewayMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 		AttrTypes: AutoSignatureUpdateValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
 	attrTypes["config_revert_timer"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["disable_console"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["disable_oob"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["probe_hosts"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
@@ -8770,7 +8872,7 @@ func (v GatewayMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 9)
+		vals := make(map[string]tftypes.Value, 11)
 
 		val, err = v.AdminSshkeys.ToTerraformValue(ctx)
 
@@ -8811,6 +8913,22 @@ func (v GatewayMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 		}
 
 		vals["config_revert_timer"] = val
+
+		val, err = v.DisableConsole.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["disable_console"] = val
+
+		val, err = v.DisableOob.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["disable_oob"] = val
 
 		val, err = v.ProbeHosts.ToTerraformValue(ctx)
 
@@ -8932,6 +9050,8 @@ func (v GatewayMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 				AttrTypes: AutoSignatureUpdateValue{}.AttributeTypes(ctx),
 			},
 			"config_revert_timer": basetypes.Int64Type{},
+			"disable_console":     basetypes.BoolType{},
+			"disable_oob":         basetypes.BoolType{},
 			"probe_hosts": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -8958,6 +9078,8 @@ func (v GatewayMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 				AttrTypes: AutoSignatureUpdateValue{}.AttributeTypes(ctx),
 			},
 			"config_revert_timer": basetypes.Int64Type{},
+			"disable_console":     basetypes.BoolType{},
+			"disable_oob":         basetypes.BoolType{},
 			"probe_hosts": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -8979,6 +9101,8 @@ func (v GatewayMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 			AttrTypes: AutoSignatureUpdateValue{}.AttributeTypes(ctx),
 		},
 		"config_revert_timer": basetypes.Int64Type{},
+		"disable_console":     basetypes.BoolType{},
+		"disable_oob":         basetypes.BoolType{},
 		"probe_hosts": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -9003,6 +9127,8 @@ func (v GatewayMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 			"app_usage":                     v.AppUsage,
 			"auto_signature_update":         autoSignatureUpdate,
 			"config_revert_timer":           v.ConfigRevertTimer,
+			"disable_console":               v.DisableConsole,
+			"disable_oob":                   v.DisableOob,
 			"probe_hosts":                   probeHostsVal,
 			"root_password":                 v.RootPassword,
 			"security_log_source_address":   v.SecurityLogSourceAddress,
@@ -9047,6 +9173,14 @@ func (v GatewayMgmtValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.DisableConsole.Equal(other.DisableConsole) {
+		return false
+	}
+
+	if !v.DisableOob.Equal(other.DisableOob) {
+		return false
+	}
+
 	if !v.ProbeHosts.Equal(other.ProbeHosts) {
 		return false
 	}
@@ -9087,6 +9221,8 @@ func (v GatewayMgmtValue) AttributeTypes(ctx context.Context) map[string]attr.Ty
 			AttrTypes: AutoSignatureUpdateValue{}.AttributeTypes(ctx),
 		},
 		"config_revert_timer": basetypes.Int64Type{},
+		"disable_console":     basetypes.BoolType{},
+		"disable_oob":         basetypes.BoolType{},
 		"probe_hosts": basetypes.ListType{
 			ElemType: types.StringType,
 		},

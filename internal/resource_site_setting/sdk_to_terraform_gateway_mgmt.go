@@ -130,6 +130,8 @@ func gatewayMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 	var app_usage basetypes.BoolValue
 	var auto_signature_update basetypes.ObjectValue = types.ObjectNull(AutoSignatureUpdateValue{}.AttributeTypes(ctx))
 	var config_revert_timer basetypes.Int64Value
+	var disable_console basetypes.BoolValue
+	var disable_oob basetypes.BoolValue
 	var probe_hosts basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 	var root_password basetypes.StringValue
 	var security_log_source_address basetypes.StringValue
@@ -149,6 +151,12 @@ func gatewayMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 	}
 	if d.ConfigRevertTimer != nil {
 		config_revert_timer = types.Int64Value(int64(*d.ConfigRevertTimer))
+	}
+	if d.DisableConsole != nil {
+		disable_console = types.BoolValue(*d.DisableConsole)
+	}
+	if d.DisableOob != nil {
+		disable_oob = types.BoolValue(*d.DisableOob)
 	}
 	if d.ProbeHosts != nil {
 		probe_hosts = mist_transform.ListOfStringSdkToTerraform(ctx, d.ProbeHosts)
@@ -170,6 +178,8 @@ func gatewayMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 		"app_usage":                     app_usage,
 		"auto_signature_update":         auto_signature_update,
 		"config_revert_timer":           config_revert_timer,
+		"disable_console":               disable_console,
+		"disable_oob":                   disable_oob,
 		"probe_hosts":                   probe_hosts,
 		"root_password":                 root_password,
 		"security_log_source_address":   security_log_source_address,
