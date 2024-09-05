@@ -117,7 +117,7 @@ resource "mist_org_wlan" "wlan_one" {
 - `portal_denied_hostnames` (List of String) list of hostnames without http(s):// (matched by substring), this takes precedence over portal_allowed_hostnames
 - `qos` (Attributes) (see [below for nested schema](#nestedatt--qos))
 - `radsec` (Attributes) Radsec settings (see [below for nested schema](#nestedatt--radsec))
-- `roam_mode` (String) enum: `11r`, `OKC`, `none`
+- `roam_mode` (String) enum: `11r`, `OKC`, `NONE`
 - `schedule` (Attributes) WLAN operating schedule, default is disabled (see [below for nested schema](#nestedatt--schedule))
 - `sle_excluded` (Boolean) whether to exclude this WLAN from SLE metrics
 - `use_eapol_v1` (Boolean) if `auth.type`==’eap’ or ‘psk’, should only be set for legacy client, such as pre-2004, 802.11b devices
@@ -452,8 +452,10 @@ Facebook OAuth2 app secret. If facebook_client_id was provided, provide a corres
 - `sponsor_link_validity_duration` (String) how long to remain valid sponsored guest request approve/deny link received in email, in minutes.
 - `sponsor_notify_all` (Boolean) whether to notify all sponsors that are mentioned in `sponsors` object. Both `sponsor_notify_all` and `predefined_sponsors_enabled` should be true in order to notify sponsors. If true, email sent to 10 sponsors in no particular order.
 - `sponsor_status_notify` (Boolean) if enabled, guest will get email about sponsor's action (approve/deny)
-- `sponsors` (Map of String) object of allowed sponsors email with name. Required if `sponsor_enabled` is `true` and `sponsor_email_domains` is empty.
-Property key is the sponsor email, Property value is the sponsor name
+- `sponsors` (Map of String) object of allowed sponsors email with name. Required if `sponsor_enabled`
+            is `true` and `sponsor_email_domains` is empty.
+
+            Property key is the sponsor email, Property value is the sponsor name
 - `sso_default_role` (String) default role to assign if there’s no match. By default, an assertion is treated as invalid when there’s no role matched
 - `sso_forced_role` (String)
 - `sso_idp_cert` (String) IDP Cert (used to verify the signed response)
