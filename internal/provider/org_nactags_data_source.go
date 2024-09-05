@@ -102,7 +102,7 @@ func (d *orgNactagsDataSource) Read(ctx context.Context, req datasource.ReadRequ
 			"limit": limit,
 			"total": total,
 		})
-		data, err := d.client.OrgsNACTags().ListOrgNacTags(ctx, orgId, &mType, &name, &match, &page, &limit)
+		data, err := d.client.OrgsNACTags().ListOrgNacTags(ctx, orgId, &mType, &name, &match, &limit, &page)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error getting Org NAC Tags list",

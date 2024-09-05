@@ -92,7 +92,7 @@ func (d *orgWlantemplatesDataSource) Read(ctx context.Context, req datasource.Re
 			"limit": limit,
 			"total": total,
 		})
-		data, err := d.client.OrgsWLANTemplates().ListOrgTemplates(ctx, orgId, &page, &limit)
+		data, err := d.client.OrgsWLANTemplates().ListOrgTemplates(ctx, orgId, &limit, &page)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error getting Org WLAN Templates list",

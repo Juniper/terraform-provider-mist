@@ -88,7 +88,7 @@ func (d *orgServicesDataSource) Read(ctx context.Context, req datasource.ReadReq
 			"limit": limit,
 			"total": total,
 		})
-		data, err := d.client.OrgsServices().ListOrgServices(ctx, orgId, &page, &limit)
+		data, err := d.client.OrgsServices().ListOrgServices(ctx, orgId, &limit, &page)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error getting Org Services list",

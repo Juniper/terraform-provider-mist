@@ -88,7 +88,7 @@ func (d *orgNetworksDataSource) Read(ctx context.Context, req datasource.ReadReq
 			"limit": limit,
 			"total": total,
 		})
-		data, err := d.client.OrgsNetworks().ListOrgNetworks(ctx, orgId, &page, &limit)
+		data, err := d.client.OrgsNetworks().ListOrgNetworks(ctx, orgId, &limit, &page)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error getting Org Networks list",

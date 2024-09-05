@@ -129,11 +129,11 @@ func (d *deviceSwitchStatsDataSource) Read(ctx context.Context, req datasource.R
 			nil,
 			nil,
 			&fields,
-			&page,
-			&limit,
 			&start,
 			&end,
 			&duration,
+			&limit,
+			&page,
 		)
 
 		if data.Response.StatusCode != 200 && err != nil {

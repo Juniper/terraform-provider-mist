@@ -102,7 +102,7 @@ func (d *orgPsksDataSource) Read(ctx context.Context, req datasource.ReadRequest
 			"limit": limit,
 			"total": total,
 		})
-		data, err := d.client.OrgsPsks().ListOrgPsks(ctx, orgId, &name, &ssid, &role, &page, &limit)
+		data, err := d.client.OrgsPsks().ListOrgPsks(ctx, orgId, &name, &ssid, &role, &limit, &page)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error getting Org PSKs list",

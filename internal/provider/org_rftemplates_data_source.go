@@ -88,7 +88,7 @@ func (d *orgRftemplatesDataSource) Read(ctx context.Context, req datasource.Read
 			"limit": limit,
 			"total": total,
 		})
-		data, err := d.client.OrgsRFTemplates().ListOrgRfTemplates(ctx, orgId, &page, &limit)
+		data, err := d.client.OrgsRFTemplates().ListOrgRfTemplates(ctx, orgId, &limit, &page)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error getting Org RF Templates list",

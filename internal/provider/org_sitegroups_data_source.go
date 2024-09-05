@@ -89,7 +89,7 @@ func (d *orgSitegroupsDataSource) Read(ctx context.Context, req datasource.ReadR
 			"limit": limit,
 			"total": total,
 		})
-		data, err := d.client.OrgsSitegroups().ListOrgSiteGroups(ctx, orgId, &page, &limit)
+		data, err := d.client.OrgsSitegroups().ListOrgSiteGroups(ctx, orgId, &limit, &page)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error getting Org Site Groups list",

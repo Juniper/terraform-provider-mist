@@ -93,7 +93,7 @@ func (d *orgWxtagsDataSource) Read(ctx context.Context, req datasource.ReadReque
 			"limit": limit,
 			"total": total,
 		})
-		data, err := d.client.OrgsWxTags().ListOrgWxTags(ctx, orgId, &page, &limit)
+		data, err := d.client.OrgsWxTags().ListOrgWxTags(ctx, orgId, &limit, &page)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error getting Org WxTags list",

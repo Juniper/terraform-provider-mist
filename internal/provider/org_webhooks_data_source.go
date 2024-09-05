@@ -87,7 +87,7 @@ func (d *orgWebhooksDataSource) Read(ctx context.Context, req datasource.ReadReq
 			"limit": limit,
 			"total": total,
 		})
-		data, err := d.client.OrgsWebhooks().ListOrgWebhooks(ctx, orgId, &page, &limit)
+		data, err := d.client.OrgsWebhooks().ListOrgWebhooks(ctx, orgId, &limit, &page)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error getting Org Webhooks list",

@@ -87,7 +87,7 @@ func (d *siteWebhooksDataSource) Read(ctx context.Context, req datasource.ReadRe
 			"limit": limit,
 			"total": total,
 		})
-		data, err := d.client.SitesWebhooks().ListSiteWebhooks(ctx, siteId, &page, &limit)
+		data, err := d.client.SitesWebhooks().ListSiteWebhooks(ctx, siteId, &limit, &page)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error getting Site Webhooks list",

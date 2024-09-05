@@ -91,7 +91,7 @@ func (d *orgIdpprofilesDataSource) Read(ctx context.Context, req datasource.Read
 			"limit": limit,
 			"total": total,
 		})
-		data, err := d.client.OrgsIDPProfiles().ListOrgIdpProfiles(ctx, orgId, &page, &limit)
+		data, err := d.client.OrgsIDPProfiles().ListOrgIdpProfiles(ctx, orgId, &limit, &page)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error getting Org IDP Profiles list",

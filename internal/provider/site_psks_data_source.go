@@ -102,7 +102,7 @@ func (d *sitePsksDataSource) Read(ctx context.Context, req datasource.ReadReques
 			"limit": limit,
 			"total": total,
 		})
-		data, err := d.client.SitesPsks().ListSitePsks(ctx, siteId, &name, &ssid, &role, &page, &limit)
+		data, err := d.client.SitesPsks().ListSitePsks(ctx, siteId, &name, &ssid, &role, &limit, &page)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error getting Site PSKs list",

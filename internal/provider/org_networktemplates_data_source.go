@@ -91,7 +91,7 @@ func (d *orgNetworktemplatesDataSource) Read(ctx context.Context, req datasource
 			"limit": limit,
 			"total": total,
 		})
-		data, err := d.client.OrgsNetworkTemplates().ListOrgNetworkTemplates(ctx, orgId, &page, &limit)
+		data, err := d.client.OrgsNetworkTemplates().ListOrgNetworkTemplates(ctx, orgId, &limit, &page)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error getting Org Network Templates list",

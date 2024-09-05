@@ -89,7 +89,7 @@ func (d *orgGatewaytemplatesDataSource) Read(ctx context.Context, req datasource
 			"limit": limit,
 			"total": total,
 		})
-		data, err := d.client.OrgsGatewayTemplates().ListOrgGatewayTemplates(ctx, orgId, &page, &limit)
+		data, err := d.client.OrgsGatewayTemplates().ListOrgGatewayTemplates(ctx, orgId, &limit, &page)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error getting Org Gateway Templates list",

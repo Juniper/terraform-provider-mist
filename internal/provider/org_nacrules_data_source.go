@@ -89,7 +89,7 @@ func (d *orgNacrulesDataSource) Read(ctx context.Context, req datasource.ReadReq
 			"limit": limit,
 			"total": total,
 		})
-		data, err := d.client.OrgsNACRules().ListOrgNacRules(ctx, orgId, &page, &limit)
+		data, err := d.client.OrgsNACRules().ListOrgNacRules(ctx, orgId, &limit, &page)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error getting Org NAC Rules list",
