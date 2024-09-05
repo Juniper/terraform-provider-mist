@@ -700,7 +700,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 								NestedObject: schema.NestedAttributeObject{
 									Attributes: map[string]schema.Attribute{
 										"address": schema.StringAttribute{
-											Required:            true,
+											Optional:            true,
+											Computed:            true,
 											Description:         "if `protocol`==`icmp`",
 											MarkdownDescription: "if `protocol`==`icmp`",
 											Validators: []validator.String{
