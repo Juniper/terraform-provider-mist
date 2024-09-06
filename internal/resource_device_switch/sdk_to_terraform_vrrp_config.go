@@ -21,11 +21,11 @@ func vrrpGroupsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 			priority = types.Int64Value(int64(*d.Priority))
 		}
 
-		data_map_attr_type := GroupsValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
+		item_map_attr_type := GroupsValue{}.AttributeTypes(ctx)
+		item_map_value := map[string]attr.Value{
 			"priority": priority,
 		}
-		data, e := NewGroupsValue(data_map_attr_type, data_map_value)
+		data, e := NewGroupsValue(item_map_attr_type, item_map_value)
 		diags.Append(e...)
 
 		data_map_value[k] = data

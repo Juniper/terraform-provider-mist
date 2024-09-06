@@ -218,12 +218,12 @@ func switchLocalAccountUserSdkToTerraform(ctx context.Context, diags *diag.Diagn
 			role = types.StringValue(string(*d.Role))
 		}
 
-		data_map_attr_type := LocalAccountsValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
+		item_map_attr_type := LocalAccountsValue{}.AttributeTypes(ctx)
+		item_map_value := map[string]attr.Value{
 			"password": password,
 			"role":     role,
 		}
-		data, e := NewLocalAccountsValue(data_map_attr_type, data_map_value)
+		data, e := NewLocalAccountsValue(item_map_attr_type, item_map_value)
 		diags.Append(e...)
 
 		data_map_value[k] = data
