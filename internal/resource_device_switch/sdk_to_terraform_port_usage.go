@@ -127,6 +127,8 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		var speed basetypes.StringValue
 		var storm_control basetypes.ObjectValue = types.ObjectNull(StormControlValue{}.AttributeTypes(ctx))
 		var stp_edge basetypes.BoolValue
+		var stp_no_root_port basetypes.BoolValue
+		var stp_p2p basetypes.BoolValue
 		var voip_network basetypes.StringValue
 
 		if d.AllNetworks != nil {
@@ -222,6 +224,12 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		if d.StpEdge != nil {
 			stp_edge = types.BoolValue(*d.StpEdge)
 		}
+		if d.StpNoRootPort != nil {
+			stp_no_root_port = types.BoolValue(*d.StpNoRootPort)
+		}
+		if d.StpP2p != nil {
+			stp_p2p = types.BoolValue(*d.StpP2p)
+		}
 		if d.VoipNetwork != nil {
 			voip_network = types.StringValue(*d.VoipNetwork)
 		}
@@ -259,6 +267,8 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 			"speed":                                           speed,
 			"storm_control":                                   storm_control,
 			"stp_edge":                                        stp_edge,
+			"stp_no_root_port":                                stp_no_root_port,
+			"stp_p2p":                                         stp_p2p,
 			"voip_network":                                    voip_network,
 		}
 		data, e := NewPortUsagesValue(data_map_attr_type, data_map_value)

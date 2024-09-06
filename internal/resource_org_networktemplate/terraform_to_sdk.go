@@ -120,6 +120,12 @@ func TerraformToSdk(ctx context.Context, plan *OrgNetworktemplateModel) (models.
 		data.RemoteSyslog = remote_syslog
 	}
 
+	if plan.RemoveExistingConfigs.IsNull() || plan.RemoveExistingConfigs.IsUnknown() {
+		unset["-remove_existing_configs"] = ""
+	} else {
+		data.RemoveExistingConfigs = plan.RemoveExistingConfigs.ValueBoolPointer()
+	}
+
 	if plan.SnmpConfig.IsNull() || plan.SnmpConfig.IsUnknown() {
 		unset["-snmp_config"] = ""
 	} else {

@@ -49,6 +49,7 @@ func switchMgmtProtecCustomtReSdkToTerraform(ctx context.Context, diags *diag.Di
 
 	return r
 }
+
 func switchMgmtProtectReSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ProtectRe) basetypes.ObjectValue {
 
 	var allowed_services basetypes.ListValue = types.ListNull(types.StringType)
@@ -125,6 +126,7 @@ func switchMgmtTacacsAcctSdkToTerraform(ctx context.Context, diags *diag.Diagnos
 
 	return acct_state_list
 }
+
 func switchMgmtTacacsAuthSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.TacacsAuthServer) basetypes.ListValue {
 
 	var acct_value_list []attr.Value
@@ -167,6 +169,7 @@ func switchMgmtTacacsAuthSdkToTerraform(ctx context.Context, diags *diag.Diagnos
 
 	return acct_state_list
 }
+
 func switchMgmtTacacsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.Tacacs) basetypes.ObjectValue {
 
 	var default_role basetypes.StringValue
@@ -205,16 +208,75 @@ func switchMgmtTacacsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 	diags.Append(e...)
 	return o
 }
+
+func switchLocalAccountUserSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.ConfigSwitchLocalAccountsUser) basetypes.MapValue {
+	data_map_value := make(map[string]attr.Value)
+	for k, d := range m {
+		var password basetypes.StringValue
+		var role basetypes.StringValue
+
+		if d.Password != nil {
+			password = types.StringValue(*d.Password)
+		}
+		if d.Role != nil {
+			role = types.StringValue(string(*d.Role))
+		}
+
+		item_map_attr_type := LocalAccountsValue{}.AttributeTypes(ctx)
+		item_map_value := map[string]attr.Value{
+			"password": password,
+			"role":     role,
+		}
+		data, e := NewLocalAccountsValue(item_map_attr_type, item_map_value)
+		diags.Append(e...)
+
+		data_map_value[k] = data
+	}
+	state_type := LocalAccountsValue{}.Type(ctx)
+	state_result, e := types.MapValueFrom(ctx, state_type, data_map_value)
+	diags.Append(e...)
+	return state_result
+}
+
 func switchMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SwitchMgmt) SwitchMgmtValue {
 
-	var config_revert basetypes.Int64Value
+	var ap_affinity_threshold basetypes.Int64Value
+	var cli_banner basetypes.StringValue
+	var cli_idle_timeout basetypes.Int64Value
+	var config_revert_timer basetypes.Int64Value
+	var dhcp_option_fqdn basetypes.BoolValue
+	var local_accounts basetypes.MapValue = types.MapNull(LocalAccountsValue{}.Type(ctx))
+	var mxedge_proxy_host basetypes.StringValue
+	var mxedge_proxy_port basetypes.Int64Value
 	var protect_re basetypes.ObjectValue = types.ObjectNull(ProtectReValue{}.AttributeTypes(ctx))
 	var root_password basetypes.StringValue
 	var tacacs basetypes.ObjectValue = types.ObjectNull(TacacsValue{}.AttributeTypes(ctx))
+	var use_mxedge_proxy basetypes.BoolValue
 
 	if d != nil {
+		if d.ApAffinityThreshold != nil {
+			ap_affinity_threshold = types.Int64Value(int64(*d.ApAffinityThreshold))
+		}
+		if d.CliBanner != nil {
+			cli_banner = types.StringValue(*d.CliBanner)
+		}
 		if d.ConfigRevertTimer != nil {
-			config_revert = types.Int64Value(int64(*d.ConfigRevertTimer))
+			config_revert_timer = types.Int64Value(int64(*d.ConfigRevertTimer))
+		}
+		if d.CliIdleTimeout != nil {
+			cli_idle_timeout = types.Int64Value(int64(*d.CliIdleTimeout))
+		}
+		if d.DhcpOptionFqdn != nil {
+			dhcp_option_fqdn = types.BoolValue(*d.DhcpOptionFqdn)
+		}
+		if d.LocalAccounts != nil {
+			local_accounts = switchLocalAccountUserSdkToTerraform(ctx, diags, d.LocalAccounts)
+		}
+		if d.MxedgeProxyHost != nil {
+			mxedge_proxy_host = types.StringValue(*d.MxedgeProxyHost)
+		}
+		if d.MxedgeProxyPort != nil {
+			mxedge_proxy_port = types.Int64Value(int64(*d.MxedgeProxyPort))
 		}
 		if d.ProtectRe != nil {
 			protect_re = switchMgmtProtectReSdkToTerraform(ctx, diags, d.ProtectRe)
@@ -225,14 +287,25 @@ func switchMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 		if d.Tacacs != nil {
 			tacacs = switchMgmtTacacsSdkToTerraform(ctx, diags, d.Tacacs)
 		}
+		if d.UseMxedgeProxy != nil {
+			use_mxedge_proxy = types.BoolValue(*d.UseMxedgeProxy)
+		}
 	}
 
 	data_map_attr_type := SwitchMgmtValue{}.AttributeTypes(ctx)
 	data_map_value := map[string]attr.Value{
-		"config_revert": config_revert,
-		"protect_re":    protect_re,
-		"root_password": root_password,
-		"tacacs":        tacacs,
+		"ap_affinity_threshold": ap_affinity_threshold,
+		"cli_banner":            cli_banner,
+		"cli_idle_timeout":      cli_idle_timeout,
+		"config_revert_timer":   config_revert_timer,
+		"dhcp_option_fqdn":      dhcp_option_fqdn,
+		"local_accounts":        local_accounts,
+		"mxedge_proxy_host":     mxedge_proxy_host,
+		"mxedge_proxy_port":     mxedge_proxy_port,
+		"protect_re":            protect_re,
+		"root_password":         root_password,
+		"tacacs":                tacacs,
+		"use_mxedge_proxy":      use_mxedge_proxy,
 	}
 	data, e := NewSwitchMgmtValue(data_map_attr_type, data_map_value)
 	diags.Append(e...)

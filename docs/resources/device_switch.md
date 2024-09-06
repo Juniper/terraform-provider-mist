@@ -138,7 +138,7 @@ port_mirroring can be added under device/site settings. It takes interface and p
 - `router_id` (String) used for OSPF / BGP / EVPN
 - `snmp_config` (Attributes) (see [below for nested schema](#nestedatt--snmp_config))
 - `stp_config` (Attributes) (see [below for nested schema](#nestedatt--stp_config))
-- `switch_mgmt` (Attributes) (see [below for nested schema](#nestedatt--switch_mgmt))
+- `switch_mgmt` (Attributes) Switch settings (see [below for nested schema](#nestedatt--switch_mgmt))
 - `use_router_id_as_source_ip` (Boolean) whether to use it for snmp / syslog / tacplus / radius
 - `vars` (Map of String) a dictionary of name->value, the vars can then be used in Wlans. This can overwrite those from Site Vars
 - `virtual_chassis` (Attributes) required for preprovisioned Virtual Chassis (see [below for nested schema](#nestedatt--virtual_chassis))
@@ -522,6 +522,8 @@ NOTE: inter_switch_link works only between Juniper device. This has to be applie
 - `storm_control` (Attributes) Switch storm control
 Only if `mode`!=`dynamic` (see [below for nested schema](#nestedatt--port_usages--storm_control))
 - `stp_edge` (Boolean) Only if `mode`!=`dynamic` when enabled, the port is not expected to receive BPDU frames
+- `stp_no_root_port` (Boolean)
+- `stp_p2p` (Boolean)
 - `voip_network` (String) Only if `mode`!=`dynamic` network/vlan for voip traffic, must also set port_network. to authenticate device, set port_auth
 
 <a id="nestedatt--port_usages--rules"></a>
@@ -939,12 +941,29 @@ Optional:
 
 Optional:
 
-- `config_revert` (Number)
+- `ap_affinity_threshold` (Number) ap_affinity_threshold ap_affinity_threshold can be added as a field under site/setting. By default this value is set to 12. If the field is set in both site/setting and org/setting, the value from site/setting will be used.
+- `cli_banner` (String) Set Banners for switches. Allows markup formatting
+- `cli_idle_timeout` (Number) Sets timeout for switches
+- `config_revert_timer` (Number) the rollback timer for commit confirmed
+- `dhcp_option_fqdn` (Boolean) Enable to provide the FQDN with DHCP option 81
+- `local_accounts` (Attributes Map) Property key is the user name. For Local user authentication (see [below for nested schema](#nestedatt--switch_mgmt--local_accounts))
+- `mxedge_proxy_host` (String)
+- `mxedge_proxy_port` (Number)
 - `protect_re` (Attributes) restrict inbound-traffic to host
 when enabled, all traffic that is not essential to our operation will be dropped 
 e.g. ntp / dns / traffic to mist will be allowed by default, if dhcpd is enabled, we'll make sure it works (see [below for nested schema](#nestedatt--switch_mgmt--protect_re))
 - `root_password` (String, Sensitive)
 - `tacacs` (Attributes) (see [below for nested schema](#nestedatt--switch_mgmt--tacacs))
+- `use_mxedge_proxy` (Boolean) to use mxedge as proxy
+
+<a id="nestedatt--switch_mgmt--local_accounts"></a>
+### Nested Schema for `switch_mgmt.local_accounts`
+
+Optional:
+
+- `password` (String, Sensitive)
+- `role` (String) enum: `admin`, `helpdesk`, `none`, `read`
+
 
 <a id="nestedatt--switch_mgmt--protect_re"></a>
 ### Nested Schema for `switch_mgmt.protect_re`

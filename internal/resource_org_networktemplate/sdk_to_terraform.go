@@ -33,6 +33,7 @@ func SdkToTerraform(ctx context.Context, data models.NetworkTemplate) (OrgNetwor
 	var port_usages types.Map = types.MapNull(PortUsagesValue{}.Type(ctx))
 	var radius_config RadiusConfigValue = NewRadiusConfigValueNull()
 	var remote_syslog RemoteSyslogValue = NewRemoteSyslogValueNull()
+	var remove_existing_configs types.Bool
 	var snmp_config SnmpConfigValue = NewSnmpConfigValueNull()
 	var switch_matching SwitchMatchingValue = NewSwitchMatchingValueNull()
 	var switch_mgmt SwitchMgmtValue = NewSwitchMgmtValueNull()
@@ -81,7 +82,7 @@ func SdkToTerraform(ctx context.Context, data models.NetworkTemplate) (OrgNetwor
 	if data.OrgId != nil {
 		org_id = types.StringValue(data.OrgId.String())
 	}
-	if data.PortMirroring != nil && len(data.PortMirroring) > 0 {
+	if data.PortMirroring != nil {
 		port_mirroring = portMirroringSdkToTerraform(ctx, &diags, data.PortMirroring)
 	}
 	if data.PortUsages != nil && len(data.PortUsages) > 0 {
@@ -92,6 +93,9 @@ func SdkToTerraform(ctx context.Context, data models.NetworkTemplate) (OrgNetwor
 	}
 	if data.RemoteSyslog != nil {
 		remote_syslog = remoteSyslogSdkToTerraform(ctx, &diags, data.RemoteSyslog)
+	}
+	if data.RemoveExistingConfigs != nil {
+		state.RemoveExistingConfigs = types.BoolValue(*data.RemoveExistingConfigs)
 	}
 	if data.SnmpConfig != nil {
 		snmp_config = snmpConfigSdkToTerraform(ctx, &diags, data.SnmpConfig)
@@ -127,6 +131,7 @@ func SdkToTerraform(ctx context.Context, data models.NetworkTemplate) (OrgNetwor
 	state.PortUsages = port_usages
 	state.RadiusConfig = radius_config
 	state.RemoteSyslog = remote_syslog
+	state.RemoveExistingConfigs = remove_existing_configs
 	state.SnmpConfig = snmp_config
 	state.SwitchMatching = switch_matching
 	state.SwitchMgmt = switch_mgmt

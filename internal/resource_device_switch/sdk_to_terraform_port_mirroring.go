@@ -17,9 +17,9 @@ func portMirroringSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m
 	map_item_value := make(map[string]attr.Value)
 	map_item_type := PortMirroringValue{}.Type(ctx)
 	for k, d := range m {
-		var input_networks_ingress basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
-		var input_port_ids_egress basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
-		var input_port_ids_ingress basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+		var input_networks_ingress basetypes.ListValue = types.ListNull(types.StringType)
+		var input_port_ids_egress basetypes.ListValue = types.ListNull(types.StringType)
+		var input_port_ids_ingress basetypes.ListValue = types.ListNull(types.StringType)
 		var output_network basetypes.StringValue
 		var output_port_id basetypes.StringValue
 
@@ -39,15 +39,14 @@ func portMirroringSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m
 			output_port_id = types.StringValue(*d.OutputPortId)
 		}
 
-		data_map_attr_type := PortMirroringValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
+		item_map_value := map[string]attr.Value{
 			"input_networks_ingress": input_networks_ingress,
 			"input_port_ids_egress":  input_port_ids_egress,
 			"input_port_ids_ingress": input_port_ids_ingress,
 			"output_network":         output_network,
 			"output_port_id":         output_port_id,
 		}
-		data, e := NewPortMirroringValue(data_map_attr_type, data_map_value)
+		data, e := NewPortMirroringValue(PortMirroringValue{}.AttributeTypes(ctx), item_map_value)
 		diags.Append(e...)
 
 		map_item_value[k] = data

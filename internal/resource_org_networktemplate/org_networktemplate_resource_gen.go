@@ -482,48 +482,30 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						"input_networks_ingress": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Optional:            true,
-							Computed:            true,
 							Description:         "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
 							MarkdownDescription: "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
-							Validators: []validator.List{
-								listvalidator.SizeAtLeast(1),
-							},
 						},
 						"input_port_ids_egress": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Optional:            true,
-							Computed:            true,
 							Description:         "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
 							MarkdownDescription: "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
-							Validators: []validator.List{
-								listvalidator.SizeAtLeast(1),
-							},
 						},
 						"input_port_ids_ingress": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Optional:            true,
-							Computed:            true,
 							Description:         "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
 							MarkdownDescription: "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
-							Validators: []validator.List{
-								listvalidator.SizeAtLeast(1),
-							},
 						},
 						"output_network": schema.StringAttribute{
 							Optional:            true,
 							Description:         "exaclty one of the `output_port_id` or `output_network` should be provided",
 							MarkdownDescription: "exaclty one of the `output_port_id` or `output_network` should be provided",
-							Validators: []validator.String{
-								stringvalidator.LengthAtLeast(2),
-							},
 						},
 						"output_port_id": schema.StringAttribute{
 							Optional:            true,
 							Description:         "exaclty one of the `output_port_id` or `output_network` should be provided",
 							MarkdownDescription: "exaclty one of the `output_port_id` or `output_network` should be provided",
-							Validators: []validator.String{
-								stringvalidator.LengthAtLeast(2),
-							},
 						},
 					},
 					CustomType: PortMirroringType{
@@ -1645,6 +1627,13 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
+			},
+			"remove_existing_configs": schema.BoolAttribute{
+				Optional:            true,
+				Computed:            true,
+				Description:         "by default, when we configure a device, we only clean up config we generates. Remove existing configs if enabled",
+				MarkdownDescription: "by default, when we configure a device, we only clean up config we generates. Remove existing configs if enabled",
+				Default:             booldefault.StaticBool(false),
 			},
 			"snmp_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -2772,29 +2761,30 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 }
 
 type OrgNetworktemplateModel struct {
-	AclPolicies          types.List          `tfsdk:"acl_policies"`
-	AclTags              types.Map           `tfsdk:"acl_tags"`
-	AdditionalConfigCmds types.List          `tfsdk:"additional_config_cmds"`
-	DhcpSnooping         DhcpSnoopingValue   `tfsdk:"dhcp_snooping"`
-	DnsServers           types.List          `tfsdk:"dns_servers"`
-	DnsSuffix            types.List          `tfsdk:"dns_suffix"`
-	ExtraRoutes          types.Map           `tfsdk:"extra_routes"`
-	ExtraRoutes6         types.Map           `tfsdk:"extra_routes6"`
-	Id                   types.String        `tfsdk:"id"`
-	MistNac              MistNacValue        `tfsdk:"mist_nac"`
-	Name                 types.String        `tfsdk:"name"`
-	Networks             types.Map           `tfsdk:"networks"`
-	NtpServers           types.List          `tfsdk:"ntp_servers"`
-	OrgId                types.String        `tfsdk:"org_id"`
-	PortMirroring        types.Map           `tfsdk:"port_mirroring"`
-	PortUsages           types.Map           `tfsdk:"port_usages"`
-	RadiusConfig         RadiusConfigValue   `tfsdk:"radius_config"`
-	RemoteSyslog         RemoteSyslogValue   `tfsdk:"remote_syslog"`
-	SnmpConfig           SnmpConfigValue     `tfsdk:"snmp_config"`
-	SwitchMatching       SwitchMatchingValue `tfsdk:"switch_matching"`
-	SwitchMgmt           SwitchMgmtValue     `tfsdk:"switch_mgmt"`
-	VrfConfig            VrfConfigValue      `tfsdk:"vrf_config"`
-	VrfInstances         types.Map           `tfsdk:"vrf_instances"`
+	AclPolicies           types.List          `tfsdk:"acl_policies"`
+	AclTags               types.Map           `tfsdk:"acl_tags"`
+	AdditionalConfigCmds  types.List          `tfsdk:"additional_config_cmds"`
+	DhcpSnooping          DhcpSnoopingValue   `tfsdk:"dhcp_snooping"`
+	DnsServers            types.List          `tfsdk:"dns_servers"`
+	DnsSuffix             types.List          `tfsdk:"dns_suffix"`
+	ExtraRoutes           types.Map           `tfsdk:"extra_routes"`
+	ExtraRoutes6          types.Map           `tfsdk:"extra_routes6"`
+	Id                    types.String        `tfsdk:"id"`
+	MistNac               MistNacValue        `tfsdk:"mist_nac"`
+	Name                  types.String        `tfsdk:"name"`
+	Networks              types.Map           `tfsdk:"networks"`
+	NtpServers            types.List          `tfsdk:"ntp_servers"`
+	OrgId                 types.String        `tfsdk:"org_id"`
+	PortMirroring         types.Map           `tfsdk:"port_mirroring"`
+	PortUsages            types.Map           `tfsdk:"port_usages"`
+	RadiusConfig          RadiusConfigValue   `tfsdk:"radius_config"`
+	RemoteSyslog          RemoteSyslogValue   `tfsdk:"remote_syslog"`
+	RemoveExistingConfigs types.Bool          `tfsdk:"remove_existing_configs"`
+	SnmpConfig            SnmpConfigValue     `tfsdk:"snmp_config"`
+	SwitchMatching        SwitchMatchingValue `tfsdk:"switch_matching"`
+	SwitchMgmt            SwitchMgmtValue     `tfsdk:"switch_mgmt"`
+	VrfConfig             VrfConfigValue      `tfsdk:"vrf_config"`
+	VrfInstances          types.Map           `tfsdk:"vrf_instances"`
 }
 
 var _ basetypes.ObjectTypable = AclPoliciesType{}

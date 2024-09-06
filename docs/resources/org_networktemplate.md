@@ -103,6 +103,7 @@ port_mirroring can be added under device/site settings. It takes interface and p
 - `port_usages` (Attributes Map) (see [below for nested schema](#nestedatt--port_usages))
 - `radius_config` (Attributes) Junos Radius config (see [below for nested schema](#nestedatt--radius_config))
 - `remote_syslog` (Attributes) (see [below for nested schema](#nestedatt--remote_syslog))
+- `remove_existing_configs` (Boolean) by default, when we configure a device, we only clean up config we generates. Remove existing configs if enabled
 - `snmp_config` (Attributes) (see [below for nested schema](#nestedatt--snmp_config))
 - `switch_matching` (Attributes) Switch template (see [below for nested schema](#nestedatt--switch_matching))
 - `switch_mgmt` (Attributes) Switch settings (see [below for nested schema](#nestedatt--switch_mgmt))
