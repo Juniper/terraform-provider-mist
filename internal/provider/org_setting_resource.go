@@ -52,7 +52,7 @@ func (r *orgSettingResource) Metadata(ctx context.Context, req resource.Metadata
 
 func (r *orgSettingResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategorySite + "This resource manages the Org Settings." +
+		MarkdownDescription: docCategoryOrg + "This resource manages the Org Settings." +
 			"The Org Settings can be used to customize the Org configuration",
 		Attributes: resource_org_setting.OrgSettingResourceSchema(ctx).Attributes,
 	}
