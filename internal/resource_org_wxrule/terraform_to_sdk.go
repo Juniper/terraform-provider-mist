@@ -38,6 +38,8 @@ func TerraformToSdk(ctx context.Context, plan *OrgWxruleModel) (*models.WxlanRul
 	}
 	if !plan.SrcWxtags.IsNull() && !plan.SrcWxtags.IsUnknown() {
 		data.SrcWxtags = mist_transform.ListOfStringTerraformToSdk(ctx, plan.SrcWxtags)
+	} else {
+		data.SrcWxtags = make([]string, 0)
 	}
 
 	if len(plan.TemplateId.ValueString()) > 0 {

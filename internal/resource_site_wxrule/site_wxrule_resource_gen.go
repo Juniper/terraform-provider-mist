@@ -5,6 +5,7 @@ package resource_site_wxrule
 import (
 	"context"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -31,24 +32,36 @@ func SiteWxruleResourceSchema(ctx context.Context) schema.Schema {
 			"apply_tags": schema.ListAttribute{
 				ElementType: types.StringType,
 				Optional:    true,
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+				},
 			},
 			"blocked_apps": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
 				Description:         "blocked apps (always blocking, ignoring action), the key of Get Application List",
 				MarkdownDescription: "blocked apps (always blocking, ignoring action), the key of Get Application List",
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+				},
 			},
 			"dst_allow_wxtags": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
 				Description:         "tag list to indicate these tags are allowed access",
 				MarkdownDescription: "tag list to indicate these tags are allowed access",
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+				},
 			},
 			"dst_deny_wxtags": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
 				Description:         "tag list to indicate these tags are blocked access",
 				MarkdownDescription: "tag list to indicate these tags are blocked access",
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+				},
 			},
 			"enabled": schema.BoolAttribute{
 				Optional: true,
@@ -74,9 +87,12 @@ func SiteWxruleResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"src_wxtags": schema.ListAttribute{
 				ElementType:         types.StringType,
-				Required:            true,
+				Optional:            true,
 				Description:         "tag list to determine if this rule would match",
 				MarkdownDescription: "tag list to determine if this rule would match",
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+				},
 			},
 			"template_id": schema.StringAttribute{
 				Optional:            true,

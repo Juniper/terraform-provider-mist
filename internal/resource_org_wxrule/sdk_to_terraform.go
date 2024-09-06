@@ -26,22 +26,22 @@ func SdkToTerraform(ctx context.Context, data *models.WxlanRule) (OrgWxruleModel
 	if data.Action != nil {
 		action = types.StringValue(string(*data.Action))
 	}
-	if data.ApplyTags != nil {
+	if data.ApplyTags != nil && len(data.ApplyTags) > 0 {
 		apply_tags = mist_transform.ListOfStringSdkToTerraform(ctx, data.ApplyTags)
 	}
-	if data.BlockedApps != nil {
+	if data.BlockedApps != nil && len(data.BlockedApps) > 0 {
 		blocked_apps = mist_transform.ListOfStringSdkToTerraform(ctx, data.BlockedApps)
 	}
-	if data.DstAllowWxtags != nil {
+	if data.DstAllowWxtags != nil && len(data.DstAllowWxtags) > 0 {
 		dst_allow_wxtags = mist_transform.ListOfStringSdkToTerraform(ctx, data.DstAllowWxtags)
 	}
-	if data.DstDenyWxtags != nil {
+	if data.DstDenyWxtags != nil && len(data.DstDenyWxtags) > 0 {
 		dst_deny_wxtags = mist_transform.ListOfStringSdkToTerraform(ctx, data.DstDenyWxtags)
 	}
 	if data.Enabled != nil {
 		enabled = types.BoolValue(*data.Enabled)
 	}
-	if data.SrcWxtags != nil {
+	if data.SrcWxtags != nil && len(data.SrcWxtags) > 0 {
 		src_wxtags = mist_transform.ListOfStringSdkToTerraform(ctx, data.SrcWxtags)
 	}
 
