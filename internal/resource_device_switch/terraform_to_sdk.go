@@ -138,7 +138,7 @@ func TerraformToSdk(ctx context.Context, plan *DeviceSwitchModel) (models.MistDe
 	}
 
 	if plan.PortMirroring.IsNull() || plan.PortMirroring.IsUnknown() {
-		unset["-port_mirrorings"] = ""
+		unset["-port_mirroring"] = ""
 	} else {
 		data.PortMirroring = portMirroringTerraformToSdk(ctx, &diags, plan.PortMirroring)
 	}

@@ -91,7 +91,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteNetworktemplateModel) (*model
 	}
 
 	if plan.PortMirroring.IsNull() || plan.PortMirroring.IsUnknown() {
-		unset["-port_mirrorings"] = ""
+		unset["-port_mirroring"] = ""
 	} else {
 		port_mirroring := portMirroringTerraformToSdk(ctx, &diags, plan.PortMirroring)
 		data.PortMirroring = port_mirroring
