@@ -1,6 +1,6 @@
 ---
 page_title: "mist_org_setting Resource - terraform-provider-mist"
-subcategory: "Site"
+subcategory: "Org"
 description: |-
   This resource manages the Org Settings.The Org Settings can be used to customize the Org configuration
 ---

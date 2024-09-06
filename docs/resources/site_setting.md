@@ -52,7 +52,7 @@ resource "mist_site_setting" "site_one" {
 - `config_auto_revert` (Boolean) whether to enable ap auto config revert
 - `config_push_policy` (Attributes) mist also uses some heuristic rules to prevent destructive configs from being pushed (see [below for nested schema](#nestedatt--config_push_policy))
 - `critical_url_monitoring` (Attributes) you can define some URLs that's critical to site operaitons the latency will be captured and considered for site health (see [below for nested schema](#nestedatt--critical_url_monitoring))
-- `device_updown_threshold` (Number) sending AP_DISCONNECTED event in device-updowns only if AP_CONNECTED is not seen within the threshold, in minutes
+- `device_updown_threshold` (Number) by default, device_updown_thresold, if set, will apply to all devices types if different values for specific device type is desired, use the following
 - `disabled_system_defined_port_usages` (List of String) if some system-default port usages are not desired - namely, ap / iot / uplink
 - `engagement` (Attributes) **Note**: if hours does not exist, it’s treated as everyday of the week, 00:00-23:59. Currently we don’t allow multiple ranges for the same day
 
@@ -65,6 +65,7 @@ resource "mist_site_setting" "site_one" {
 - `occupancy` (Attributes) Occupancy Analytics settings (see [below for nested schema](#nestedatt--occupancy))
 - `persist_config_on_device` (Boolean) whether to store the config on AP
 - `proxy` (Attributes) Proxy Configuration to talk to Mist (see [below for nested schema](#nestedatt--proxy))
+- `remove_existing_configs` (Boolean) by default, when we configure a device, we only clean up config we generates. Remove existing configs if enabled
 - `report_gatt` (Boolean) whether AP should periodically connect to BLE devices and report GATT device info (device name, manufacturer name, serial number, battery %, temperature, humidity)
 - `rogue` (Attributes) Rogue site settings (see [below for nested schema](#nestedatt--rogue))
 - `rtsa` (Attributes) managed mobility (see [below for nested schema](#nestedatt--rtsa))
@@ -260,6 +261,8 @@ Optional:
 - `app_usage` (Boolean) consumes uplink bandwidth, requires WA license
 - `auto_signature_update` (Attributes) (see [below for nested schema](#nestedatt--gateway_mgmt--auto_signature_update))
 - `config_revert_timer` (Number) he rollback timer for commit confirmed
+- `disable_console` (Boolean) for both SSR and SRX disable console port
+- `disable_oob` (Boolean) for both SSR and SRX disable management interface
 - `probe_hosts` (List of String)
 - `root_password` (String, Sensitive) for SRX only
 - `security_log_source_address` (String)
@@ -277,12 +280,9 @@ Optional:
 <a id="nestedatt--gateway_mgmt--app_probing--custom_apps"></a>
 ### Nested Schema for `gateway_mgmt.app_probing.custom_apps`
 
-Required:
-
-- `address` (String) if `protocol`==`icmp`
-
 Optional:
 
+- `address` (String) if `protocol`==`icmp`
 - `app_type` (String)
 - `hostname` (List of String) if `protocol`==`http`
 - `name` (String)
