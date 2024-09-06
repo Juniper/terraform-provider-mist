@@ -484,48 +484,30 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						"input_networks_ingress": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Optional:            true,
-							Computed:            true,
 							Description:         "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
 							MarkdownDescription: "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
-							Validators: []validator.List{
-								listvalidator.SizeAtLeast(1),
-							},
 						},
 						"input_port_ids_egress": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Optional:            true,
-							Computed:            true,
 							Description:         "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
 							MarkdownDescription: "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
-							Validators: []validator.List{
-								listvalidator.SizeAtLeast(1),
-							},
 						},
 						"input_port_ids_ingress": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Optional:            true,
-							Computed:            true,
 							Description:         "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
 							MarkdownDescription: "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
-							Validators: []validator.List{
-								listvalidator.SizeAtLeast(1),
-							},
 						},
 						"output_network": schema.StringAttribute{
 							Optional:            true,
 							Description:         "exaclty one of the `output_port_id` or `output_network` should be provided",
 							MarkdownDescription: "exaclty one of the `output_port_id` or `output_network` should be provided",
-							Validators: []validator.String{
-								stringvalidator.LengthAtLeast(2),
-							},
 						},
 						"output_port_id": schema.StringAttribute{
 							Optional:            true,
 							Description:         "exaclty one of the `output_port_id` or `output_network` should be provided",
 							MarkdownDescription: "exaclty one of the `output_port_id` or `output_network` should be provided",
-							Validators: []validator.String{
-								stringvalidator.LengthAtLeast(2),
-							},
 						},
 					},
 					CustomType: PortMirroringType{

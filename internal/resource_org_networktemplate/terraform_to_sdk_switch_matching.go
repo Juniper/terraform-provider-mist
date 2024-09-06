@@ -18,15 +18,25 @@ func switchMatchingRulesPortMirroringTerraformToSdk(ctx context.Context, diags *
 		var plan_interface interface{} = v
 		plan_obj := plan_interface.(PortMirroringValue)
 		item_obj := models.SwitchPortMirroringProperty{}
+
 		if !plan_obj.InputNetworksIngress.IsNull() && !plan_obj.InputNetworksIngress.IsUnknown() {
 			item_obj.InputNetworksIngress = mist_transform.ListOfStringTerraformToSdk(ctx, plan_obj.InputNetworksIngress)
+		} else {
+			item_obj.InputNetworksIngress = make([]string, 0)
 		}
+
 		if !plan_obj.InputPortIdsEgress.IsNull() && !plan_obj.InputPortIdsEgress.IsUnknown() {
 			item_obj.InputPortIdsEgress = mist_transform.ListOfStringTerraformToSdk(ctx, plan_obj.InputPortIdsEgress)
+		} else {
+			item_obj.InputPortIdsEgress = make([]string, 0)
 		}
+
 		if !plan_obj.InputPortIdsIngress.IsNull() && !plan_obj.InputPortIdsIngress.IsUnknown() {
 			item_obj.InputPortIdsIngress = mist_transform.ListOfStringTerraformToSdk(ctx, plan_obj.InputPortIdsIngress)
+		} else {
+			item_obj.InputPortIdsIngress = make([]string, 0)
 		}
+
 		if plan_obj.OutputPortId.ValueStringPointer() != nil {
 			item_obj.OutputPortId = models.ToPointer(plan_obj.OutputPortId.ValueString())
 		}
