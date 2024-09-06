@@ -30,7 +30,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteNetworkt
 	var port_usages types.Map = types.MapNull(PortUsagesValue{}.Type(ctx))
 	var radius_config RadiusConfigValue = NewRadiusConfigValueNull()
 	var remote_syslog RemoteSyslogValue = NewRemoteSyslogValueNull()
-	var remove_existing_configs types.Bool
+	var remove_existing_configs types.Bool = types.BoolValue(false)
 	var snmp_config SnmpConfigValue = NewSnmpConfigValueNull()
 	var siteId types.String = types.StringValue(data.SiteId.String())
 	var switch_matching SwitchMatchingValue = NewSwitchMatchingValueNull()

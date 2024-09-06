@@ -33,7 +33,7 @@ func SdkToTerraform(ctx context.Context, data models.NetworkTemplate) (OrgNetwor
 	var port_usages types.Map = types.MapNull(PortUsagesValue{}.Type(ctx))
 	var radius_config RadiusConfigValue = NewRadiusConfigValueNull()
 	var remote_syslog RemoteSyslogValue = NewRemoteSyslogValueNull()
-	var remove_existing_configs types.Bool
+	var remove_existing_configs types.Bool = types.BoolValue(false)
 	var snmp_config SnmpConfigValue = NewSnmpConfigValueNull()
 	var switch_matching SwitchMatchingValue = NewSwitchMatchingValueNull()
 	var switch_mgmt SwitchMgmtValue = NewSwitchMgmtValueNull()
