@@ -482,18 +482,21 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						"input_networks_ingress": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Optional:            true,
+							Computed:            true,
 							Description:         "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
 							MarkdownDescription: "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
 						},
 						"input_port_ids_egress": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Optional:            true,
+							Computed:            true,
 							Description:         "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
 							MarkdownDescription: "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
 						},
 						"input_port_ids_ingress": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Optional:            true,
+							Computed:            true,
 							Description:         "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
 							MarkdownDescription: "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
 						},
@@ -2363,18 +2366,21 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											"input_networks_ingress": schema.ListAttribute{
 												ElementType:         types.StringType,
 												Optional:            true,
+												Computed:            true,
 												Description:         "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
 												MarkdownDescription: "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
 											},
 											"input_port_ids_egress": schema.ListAttribute{
 												ElementType:         types.StringType,
 												Optional:            true,
+												Computed:            true,
 												Description:         "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
 												MarkdownDescription: "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
 											},
 											"input_port_ids_ingress": schema.ListAttribute{
 												ElementType:         types.StringType,
 												Optional:            true,
+												Computed:            true,
 												Description:         "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
 												MarkdownDescription: "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
 											},
@@ -2393,6 +2399,19 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											ObjectType: types.ObjectType{
 												AttrTypes: PortMirroringValue{}.AttributeTypes(ctx),
 											},
+										},
+										Validators: []validator.Object{
+											mistvalidator.AtLeastNOf(
+												1,
+												path.MatchRelative().AtName("input_networks_ingress"),
+												path.MatchRelative().AtName("input_port_ids_egress"),
+												path.MatchRelative().AtName("input_port_ids_ingress"),
+											),
+											mistvalidator.AtMostNOf(
+												1,
+												path.MatchRelative().AtName("output_network"),
+												path.MatchRelative().AtName("output_port_id"),
+											),
 										},
 									},
 									Optional:            true,

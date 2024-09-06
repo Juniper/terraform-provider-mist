@@ -22,15 +22,13 @@ func TerraformToSdk(ctx context.Context, plan *OrgNetworktemplateModel) (models.
 	if plan.AclPolicies.IsNull() || plan.AclPolicies.IsUnknown() {
 		unset["-acl_policies"] = ""
 	} else {
-		acl_policies := aclPoliciesTerraformToSdk(ctx, &diags, plan.AclPolicies)
-		data.AclPolicies = acl_policies
+		data.AclPolicies = aclPoliciesTerraformToSdk(ctx, &diags, plan.AclPolicies)
 	}
 
 	if plan.AclTags.IsNull() || plan.AclTags.IsUnknown() {
 		unset["-acl_tags"] = ""
 	} else {
-		acl_tags := actTagsTerraformToSdk(ctx, &diags, plan.AclTags)
-		data.AclTags = acl_tags
+		data.AclTags = actTagsTerraformToSdk(ctx, &diags, plan.AclTags)
 	}
 
 	if plan.AdditionalConfigCmds.IsNull() || plan.AdditionalConfigCmds.IsUnknown() {
@@ -54,36 +52,31 @@ func TerraformToSdk(ctx context.Context, plan *OrgNetworktemplateModel) (models.
 	if plan.DhcpSnooping.IsNull() || plan.DhcpSnooping.IsUnknown() {
 		unset["-dhcp_snooping"] = ""
 	} else {
-		dhcp_snooping := dhcpSnoopingTerraformToSdk(ctx, &diags, plan.DhcpSnooping)
-		data.DhcpSnooping = dhcp_snooping
+		data.DhcpSnooping = dhcpSnoopingTerraformToSdk(ctx, &diags, plan.DhcpSnooping)
 	}
 
 	if plan.ExtraRoutes.IsNull() || plan.ExtraRoutes.IsUnknown() {
 		unset["-extra_routes"] = ""
 	} else {
-		extra_routes := extraRoutesTerraformToSdk(ctx, &diags, plan.ExtraRoutes)
-		data.ExtraRoutes = extra_routes
+		data.ExtraRoutes = extraRoutesTerraformToSdk(ctx, &diags, plan.ExtraRoutes)
 	}
 
 	if plan.ExtraRoutes6.IsNull() || plan.ExtraRoutes6.IsUnknown() {
 		unset["-extra_routes6"] = ""
 	} else {
-		extra_routes6 := extraRoutes6TerraformToSdk(ctx, &diags, plan.ExtraRoutes6)
-		data.ExtraRoutes6 = extra_routes6
+		data.ExtraRoutes6 = extraRoutes6TerraformToSdk(ctx, &diags, plan.ExtraRoutes6)
 	}
 
 	if plan.MistNac.IsNull() || plan.MistNac.IsUnknown() {
 		unset["-mist_nac"] = ""
 	} else {
-		mist_nac := mistNacTerraformToSdk(ctx, &diags, plan.MistNac)
-		data.MistNac = mist_nac
+		data.MistNac = mistNacTerraformToSdk(ctx, &diags, plan.MistNac)
 	}
 
 	if plan.Networks.IsNull() || plan.Networks.IsUnknown() {
 		unset["-networks"] = ""
 	} else {
-		networks := NetworksTerraformToSdk(ctx, &diags, plan.Networks)
-		data.Networks = networks
+		data.Networks = NetworksTerraformToSdk(ctx, &diags, plan.Networks)
 	}
 
 	if plan.NtpServers.IsNull() || plan.NtpServers.IsUnknown() {
@@ -95,15 +88,13 @@ func TerraformToSdk(ctx context.Context, plan *OrgNetworktemplateModel) (models.
 	if plan.PortMirroring.IsNull() || plan.PortMirroring.IsUnknown() {
 		unset["-port_mirroring"] = ""
 	} else {
-		port_mirroring := portMirroringTerraformToSdk(ctx, &diags, plan.PortMirroring)
-		data.PortMirroring = port_mirroring
+		data.PortMirroring = portMirroringTerraformToSdk(ctx, &diags, plan.PortMirroring)
 	}
 
 	if plan.PortUsages.IsNull() || plan.PortUsages.IsUnknown() {
 		unset["-port_usages"] = ""
 	} else {
-		port_usages := portUsageTerraformToSdk(ctx, &diags, plan.PortUsages)
-		data.PortUsages = port_usages
+		data.PortUsages = portUsageTerraformToSdk(ctx, &diags, plan.PortUsages)
 	}
 
 	if plan.RadiusConfig.IsNull() || plan.RadiusConfig.IsUnknown() {
@@ -116,8 +107,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgNetworktemplateModel) (models.
 	if plan.RemoteSyslog.IsNull() || plan.RemoteSyslog.IsUnknown() {
 		unset["-remote_syslog"] = ""
 	} else {
-		remote_syslog := remoteSyslogTerraformToSdk(ctx, &diags, plan.RemoteSyslog)
-		data.RemoteSyslog = remote_syslog
+		data.RemoteSyslog = remoteSyslogTerraformToSdk(ctx, &diags, plan.RemoteSyslog)
 	}
 
 	if plan.RemoveExistingConfigs.IsNull() || plan.RemoveExistingConfigs.IsUnknown() {
@@ -129,36 +119,31 @@ func TerraformToSdk(ctx context.Context, plan *OrgNetworktemplateModel) (models.
 	if plan.SnmpConfig.IsNull() || plan.SnmpConfig.IsUnknown() {
 		unset["-snmp_config"] = ""
 	} else {
-		snmp_config := snmpConfigTerraformToSdk(ctx, &diags, plan.SnmpConfig)
-		data.SnmpConfig = snmp_config
+		data.SnmpConfig = snmpConfigTerraformToSdk(ctx, &diags, plan.SnmpConfig)
 	}
 
 	if plan.SwitchMatching.IsNull() || plan.SwitchMatching.IsUnknown() {
 		unset["-switch_matching"] = ""
 	} else {
-		switch_matching := switchMatchingTerraformToSdk(ctx, &diags, plan.SwitchMatching)
-		data.SwitchMatching = switch_matching
+		data.SwitchMatching = switchMatchingTerraformToSdk(ctx, &diags, plan.SwitchMatching)
 	}
 
 	if plan.SwitchMgmt.IsNull() || plan.SwitchMgmt.IsUnknown() {
 		unset["-switch_mgmt"] = ""
 	} else {
-		switch_mgmt := switchMgmtTerraformToSdk(ctx, &diags, plan.SwitchMgmt)
-		data.SwitchMgmt = switch_mgmt
+		data.SwitchMgmt = switchMgmtTerraformToSdk(ctx, &diags, plan.SwitchMgmt)
 	}
 
 	if plan.VrfConfig.IsNull() || plan.VrfConfig.IsUnknown() {
 		unset["-vrf_config"] = ""
 	} else {
-		vrf_config := vrfConfigTerraformToSdk(ctx, &diags, plan.VrfConfig)
-		data.VrfConfig = vrf_config
+		data.VrfConfig = vrfConfigTerraformToSdk(ctx, &diags, plan.VrfConfig)
 	}
 
 	if plan.VrfInstances.IsNull() || plan.VrfInstances.IsUnknown() {
 		unset["-vrf_instances"] = ""
 	} else {
-		vrf_instances := vrfInstancesTerraformToSdk(ctx, &diags, plan.VrfInstances)
-		data.VrfInstances = vrf_instances
+		data.VrfInstances = vrfInstancesTerraformToSdk(ctx, &diags, plan.VrfInstances)
 	}
 
 	data.AdditionalProperties = unset
