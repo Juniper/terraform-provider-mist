@@ -2001,7 +2001,7 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 						"NONE",
 					),
 				},
-				Default: stringdefault.StaticString("none"),
+				Default: stringdefault.StaticString("NONE"),
 			},
 			"schedule": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
