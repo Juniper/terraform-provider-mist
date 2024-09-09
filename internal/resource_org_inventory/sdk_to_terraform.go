@@ -2,7 +2,6 @@ package resource_org_inventory
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -128,16 +127,6 @@ func SdkToTerraform(ctx context.Context, orgId string, data []models.Inventory, 
 			} else if dev_from_mist, ok := devices_tmp[mac]; ok {
 				checkVcSiteId(&dev_from_mist, vcmac_to_site)
 				devices_out = append(devices_out, dev_from_mist)
-			} else if magic != "" {
-				diags.AddWarning(
-					"Device not in the Org Inventory",
-					fmt.Sprintf("Device with Claim Code %s is not in the Org Inventory", magic),
-				)
-			} else {
-				diags.AddWarning(
-					"Device not in the Org Inventory",
-					fmt.Sprintf("Device with MAC Address %s is not in the Org Inventory", mac),
-				)
 			}
 		}
 	}
