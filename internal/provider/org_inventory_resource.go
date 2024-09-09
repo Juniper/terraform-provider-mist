@@ -357,7 +357,7 @@ func (r *orgInventoryResource) claimDevices(ctx context.Context, orgId uuid.UUID
 
 	if len(claim_response.Data.Duplicated) > 0 {
 		for _, claim_code := range claim_response.Data.Duplicated {
-			diags.AddWarning("Duplicated Device", fmt.Sprintf("Device %s was already claimed. It has beed added to the Inventory state.", claim_code))
+			diags.AddWarning("Duplicated Device", fmt.Sprintf("Device %s was already claimed. It has been added to the Inventory state.", claim_code))
 		}
 	}
 	processResponseInventoryError(claim_response.Data, diags)
