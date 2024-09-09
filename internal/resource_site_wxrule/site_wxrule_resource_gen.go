@@ -94,11 +94,6 @@ func SiteWxruleResourceSchema(ctx context.Context) schema.Schema {
 					listvalidator.SizeAtLeast(1),
 				},
 			},
-			"template_id": schema.StringAttribute{
-				Optional:            true,
-				Description:         "Only for Org Level WxRule",
-				MarkdownDescription: "Only for Org Level WxRule",
-			},
 		},
 	}
 }
@@ -115,5 +110,4 @@ type SiteWxruleModel struct {
 	OrgId          types.String `tfsdk:"org_id"`
 	SiteId         types.String `tfsdk:"site_id"`
 	SrcWxtags      types.List   `tfsdk:"src_wxtags"`
-	TemplateId     types.String `tfsdk:"template_id"`
 }

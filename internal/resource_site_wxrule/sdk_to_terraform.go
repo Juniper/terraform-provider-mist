@@ -47,7 +47,6 @@ func SdkToTerraform(ctx context.Context, data models.WxlanRule) (SiteWxruleModel
 
 	state.Id = types.StringValue(data.Id.String())
 	state.OrgId = types.StringValue(data.OrgId.String())
-	state.TemplateId = types.StringValue(data.TemplateId.String())
 	state.Order = types.Int64Value(int64(data.Order))
 
 	state.Action = action

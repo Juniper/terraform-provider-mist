@@ -7,7 +7,6 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 )
 
@@ -40,15 +39,6 @@ func TerraformToSdk(ctx context.Context, plan *SiteWxruleModel) (*models.WxlanRu
 		data.SrcWxtags = mist_transform.ListOfStringTerraformToSdk(ctx, plan.SrcWxtags)
 	} else {
 		data.SrcWxtags = make([]string, 0)
-	}
-
-	if len(plan.TemplateId.ValueString()) > 0 {
-		template_id, e := uuid.Parse(plan.TemplateId.ValueString())
-		if e == nil {
-			data.TemplateId = models.ToPointer(template_id)
-		} else {
-			diags.AddError("Bad value for idpprofile_id", e.Error())
-		}
 	}
 
 	return &data, diags
