@@ -686,7 +686,7 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
-						Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+						Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 					},
 					"app_probing": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
@@ -714,12 +714,13 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 										"hostname": schema.ListAttribute{
 											ElementType:         types.StringType,
 											Optional:            true,
+											Computed:            true,
 											Description:         "if `protocol`==`http`",
 											MarkdownDescription: "if `protocol`==`http`",
 											Validators: []validator.List{
-												listvalidator.SizeAtLeast(1),
 												mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("protocol"), types.StringValue("http")),
 											},
+											Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 										},
 										"name": schema.StringAttribute{
 											Optional: true,
@@ -846,7 +847,7 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						ElementType: types.StringType,
 						Optional:    true,
 						Computed:    true,
-						Default:     listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+						Default:     listdefault.StaticValue(types.ListNull(types.StringType)),
 					},
 					"root_password": schema.StringAttribute{
 						Optional:            true,

@@ -65,14 +65,14 @@ func gatewayMgmtAppProbingCustomSdkToTerraform(ctx context.Context, diags *diag.
 
 		data_list = append(data_list, data)
 	}
-	data_list_type := VlansValue{}.Type(ctx)
+	data_list_type := CustomAppsValue{}.Type(ctx)
 	r, e := types.ListValueFrom(ctx, data_list_type, data_list)
 	diags.Append(e...)
 	return r
 }
 
 func gatewayMgmtAppProbingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.AppProbing) basetypes.ObjectValue {
-	var apps basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+	var apps basetypes.ListValue = types.ListNull(types.StringType)
 	var custom_apps basetypes.ListValue
 	var enabled basetypes.BoolValue
 
