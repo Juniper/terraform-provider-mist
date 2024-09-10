@@ -31,8 +31,8 @@ func OrgInventoryResourceSchema(ctx context.Context) schema.Schema {
 						"mac": schema.StringAttribute{
 							Computed:            true,
 							Optional:            true,
-							Description:         "Device MAC address. Required to assign adopted devices to site. Removing an adopted device from the list will not release it, but will unassign it from the site. Cannot be specified when `claim_code` is used",
-							MarkdownDescription: "Device MAC address. Required to assign adopted devices to site. Removing an adopted device from the list will not release it, but will unassign it from the site. Cannot be specified when `claim_code` is used",
+							Description:         "Device MAC address. Required to assign adopted devices to site. Removing an adopted device from the list will not release it, but will unassign it from the site. Cannot be specified when `claim_code` is used. Format is `[0-9a-f]{12}` (e.g `5684dae9ac8b`)",
+							MarkdownDescription: "Device MAC address. Required to assign adopted devices to site. Removing an adopted device from the list will not release it, but will unassign it from the site. Cannot be specified when `claim_code` is used. Format is `[0-9a-f]{12}` (e.g `5684dae9ac8b`)",
 							Validators: []validator.String{
 								mistvalidator.ParseMac(),
 								// mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("claim_code"), types.StringValue("")),
@@ -49,10 +49,10 @@ func OrgInventoryResourceSchema(ctx context.Context) schema.Schema {
 						"claim_code": schema.StringAttribute{
 							Computed:            true,
 							Optional:            true,
-							Description:         "Device Claim Code. Required for claimed devices. Removing an adopted device from the list will release it",
-							MarkdownDescription: "Device Claim Code. Required for claimed devices. Removing an adopted device from the list will release it",
+							Description:         "Device Claim Code. Required for claimed devices. Removing an adopted device from the list will release it. Format is `[0-9A-Z]{15}` (e.g `01234ABCDE56789`)",
+							MarkdownDescription: "Device Claim Code. Required for claimed devices. Removing an adopted device from the list will release it. Format is `[0-9A-Z]{15}` (e.g `01234ABCDE56789`)",
 							Validators: []validator.String{
-								stringvalidator.LengthAtLeast(15),
+								mistvalidator.ParseMac(),
 								// mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("mac"), types.StringNull()),
 							},
 						},

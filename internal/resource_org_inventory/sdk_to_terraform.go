@@ -2,6 +2,7 @@ package resource_org_inventory
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -14,7 +15,7 @@ import (
 
 func checkVcSiteId(device *DevicesValue, vcmac_to_site map[string]types.String) {
 	if device.VcMac.ValueString() != "" && device.SiteId.ValueString() == "" {
-		var vcMac string = strings.ToUpper(device.VcMac.ValueString())
+		var vcMac string = strings.ToLower(device.VcMac.ValueString())
 		if site_id, ok := vcmac_to_site[vcMac]; ok {
 			device.SiteId = site_id
 		}
@@ -26,7 +27,8 @@ func SdkToTerraform(ctx context.Context, orgId string, data []models.Inventory, 
 	var state OrgInventoryModel
 	var diags diag.Diagnostics
 	var devices_out []attr.Value
-	devices_tmp := make(map[string]DevicesValue)
+	devices_map_magic := make(map[string]*DevicesValue)
+	devices_map_mac := make(map[string]*DevicesValue)
 	vcmac_to_site := make(map[string]types.String)
 
 	state.OrgId = types.StringValue(orgId)
@@ -91,13 +93,14 @@ func SdkToTerraform(ctx context.Context, orgId string, data []models.Inventory, 
 		diags.Append(e...)
 
 		var nMagic string = strings.ToUpper(newDevice.Magic.ValueString())
-		var nMac string = strings.ToUpper(newDevice.Mac.ValueString())
+		var nMac string = strings.ToLower(newDevice.Mac.ValueString())
 		if nMagic != "" {
 			// for claimed devices
-			devices_tmp[nMagic] = newDevice
+			devices_map_magic[nMagic] = &newDevice
+			devices_map_mac[nMac] = &newDevice
 		} else {
 			// for adopted devices
-			devices_tmp[nMac] = newDevice
+			devices_map_mac[nMac] = &newDevice
 		}
 
 		if newDevice.VcMac.Equal(newDevice.Mac) {
@@ -109,24 +112,28 @@ func SdkToTerraform(ctx context.Context, orgId string, data []models.Inventory, 
 	// otherwise, just return the devices from the plan to be sure to not unclaim
 	// devices not managed by TF
 	if plan.OrgId.ValueStringPointer() == nil {
-		for _, dev := range devices_tmp {
-			checkVcSiteId(&dev, vcmac_to_site)
-			devices_out = append(devices_out, dev)
+		for _, dev := range devices_map_mac {
+			checkVcSiteId(dev, vcmac_to_site)
+			devices_out = append(devices_out, *dev)
 		}
 	} else {
 		for _, dev_plan_attr := range plan.Devices.Elements() {
 			var dpi interface{} = dev_plan_attr
 			var device = dpi.(DevicesValue)
 
-			var magic string = strings.ToUpper(device.Magic.ValueString())
-			var mac string = strings.ToUpper(device.Mac.ValueString())
+			var magic string = strings.ReplaceAll(strings.ToUpper(device.Magic.ValueString()), "-", "")
+			var mac string = strings.ToLower(device.Mac.ValueString())
 
-			if dev_from_mist, ok := devices_tmp[magic]; ok {
-				checkVcSiteId(&dev_from_mist, vcmac_to_site)
-				devices_out = append(devices_out, dev_from_mist)
-			} else if dev_from_mist, ok := devices_tmp[mac]; ok {
-				checkVcSiteId(&dev_from_mist, vcmac_to_site)
-				devices_out = append(devices_out, dev_from_mist)
+			if dev_from_mist, ok := devices_map_magic[magic]; ok {
+				checkVcSiteId(dev_from_mist, vcmac_to_site)
+				devices_out = append(devices_out, *dev_from_mist)
+			} else if dev_from_mist, ok := devices_map_mac[mac]; ok {
+				checkVcSiteId(dev_from_mist, vcmac_to_site)
+				devices_out = append(devices_out, *dev_from_mist)
+			} else if magic != "" {
+				diags.AddError("Device not found", fmt.Sprintf("Unable to find device with Claim Code \"%s\" in the Org Inventory", magic))
+			} else {
+				diags.AddError("Device not found", fmt.Sprintf("Unable to find device with MAC \"%s\" in the Org Inventory", mac))
 			}
 		}
 	}

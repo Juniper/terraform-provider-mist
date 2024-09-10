@@ -326,7 +326,7 @@ func processResponseInventoryError(response models.ResponseInventory, diags *dia
 
 		diags.AddError(
 			"Error Claiming Devices to the Org Inventory",
-			fmt.Sprintf("Could not Claim devices %s: %s", claim_code, reason),
+			fmt.Sprintf("Could not Claim devices %s. API Response: %s", claim_code, reason),
 		)
 	}
 }
