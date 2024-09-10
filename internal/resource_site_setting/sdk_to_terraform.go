@@ -18,7 +18,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	var analytic AnalyticValue = NewAnalyticValueNull()
 	var ap_updown_threshold types.Int64
 	var auto_upgrade AutoUpgradeValue = NewAutoUpgradeValueNull()
-	var blacklist_url types.String
+	var blacklist_url types.String = types.StringValue("")
 	var ble_config BleConfigValue = NewBleConfigValueNull()
 	var config_auto_revert types.Bool
 	var config_push_policy ConfigPushPolicyValue = NewConfigPushPolicyValueNull()
@@ -48,8 +48,8 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	var vars types.Map = types.MapNull(types.StringType)
 	var vs_instance types.Map = types.MapNull(VsInstanceValue{}.Type(ctx))
 	var vna VnaValue = NewVnaValueNull()
-	var watched_station_url types.String
-	var whitelist_url types.String
+	var watched_station_url types.String = types.StringValue("")
+	var whitelist_url types.String = types.StringValue("")
 	var wids WidsValue = NewWidsValueNull()
 	var wifi WifiValue = NewWifiValueNull()
 	var wan_van WanVnaValue = NewWanVnaValueNull()
@@ -57,7 +57,6 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	var zone_occupancy_alert ZoneOccupancyAlertValue = NewZoneOccupancyAlertValueNull()
 
 	state.SiteId = types.StringValue(data.SiteId.String())
-	state.OrgId = types.StringValue(data.OrgId.String())
 
 	if data.Analytic != nil {
 		analytic = analyticSdkToTerraform(ctx, &diags, data.Analytic)

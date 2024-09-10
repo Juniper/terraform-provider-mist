@@ -15,7 +15,7 @@ func genDeviceMap(devices *basetypes.ListValue) map[string]DevicesValue {
 		var dsi interface{} = v
 		var dev = dsi.(DevicesValue)
 		var magic string = strings.ReplaceAll(strings.ToUpper(dev.Magic.ValueString()), "-", "")
-		var mac string = strings.ToUpper(dev.Mac.ValueString())
+		var mac string = strings.ToLower(dev.Mac.ValueString())
 		if magic != "" {
 			// for claimed devices
 			deviceMap[magic] = dev

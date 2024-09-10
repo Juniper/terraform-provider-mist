@@ -125,6 +125,7 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"blacklist_url": schema.StringAttribute{
 				Computed: true,
+				Default: stringdefault.StaticString(""),
 			},
 			"ble_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -707,6 +708,7 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 											Validators: []validator.String{
 												mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("protocol"), types.StringValue("icmp")),
 											},
+											Default: stringdefault.StaticString(""),
 										},
 										"app_type": schema.StringAttribute{
 											Optional: true,
@@ -952,9 +954,6 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Occupancy Analytics settings",
 				MarkdownDescription: "Occupancy Analytics settings",
-			},
-			"org_id": schema.StringAttribute{
-				Computed: true,
 			},
 			"persist_config_on_device": schema.BoolAttribute{
 				Optional:            true,
@@ -1242,6 +1241,7 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 				},
+				Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 			},
 			"ssr": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -1442,9 +1442,11 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"watched_station_url": schema.StringAttribute{
 				Computed: true,
+				Default: stringdefault.StaticString(""),
 			},
 			"whitelist_url": schema.StringAttribute{
 				Computed: true,
+				Default: stringdefault.StaticString(""),
 			},
 			"wids": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -1658,7 +1660,6 @@ type SiteSettingModel struct {
 	GatewayUpdownThreshold          types.Int64                `tfsdk:"gateway_updown_threshold"`
 	Led                             LedValue                   `tfsdk:"led"`
 	Occupancy                       OccupancyValue             `tfsdk:"occupancy"`
-	OrgId                           types.String               `tfsdk:"org_id"`
 	PersistConfigOnDevice           types.Bool                 `tfsdk:"persist_config_on_device"`
 	Proxy                           ProxyValue                 `tfsdk:"proxy"`
 	RemoveExistingConfigs           types.Bool                 `tfsdk:"remove_existing_configs"`
