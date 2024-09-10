@@ -86,16 +86,10 @@ func (r *orgInventoryResource) Create(ctx context.Context, req resource.CreateRe
 	/////////////////////// Update
 	diags = r.updateInventory(ctx, &orgId, &plan, &state)
 	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
 
 	/////////////////////// Sync, required to get missing devices info (MAC, Serial, ...)
 	state, diags = r.refreshInventory(ctx, &orgId, &plan)
 	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
 
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
@@ -136,9 +130,6 @@ func (r *orgInventoryResource) Read(ctx context.Context, req resource.ReadReques
 	}
 	state, diags = r.refreshInventory(ctx, &orgId, &comp)
 	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
 
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
@@ -173,16 +164,10 @@ func (r *orgInventoryResource) Update(ctx context.Context, req resource.UpdateRe
 	/////////////////////// Update
 	diags = r.updateInventory(ctx, &orgId, &plan, &state)
 	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
 
 	/////////////////////// Sync, required to get missing devices info (MAC, Serial, ...)
 	state, diags = r.refreshInventory(ctx, &orgId, &plan)
 	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
 
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
@@ -226,7 +211,6 @@ func (r *orgInventoryResource) Delete(ctx context.Context, req resource.DeleteRe
 			"Error Unclaiming Devices from the Org Inventory",
 			"Unable to unclaim the devices, unexpected error: "+err.Error(),
 		)
-		return
 	}
 	tflog.Debug(ctx, "response for API Call to unclaim devices:", map[string]interface{}{
 		"Error":   strings.Join(unclaim_response.Data.Error, ", "),
