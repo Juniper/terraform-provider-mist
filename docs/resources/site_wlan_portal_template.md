@@ -45,7 +45,7 @@ resource "mist_site_wlan_portal_template" "wlan_one" {
 
 - `portal_template` (Attributes) portal template wlan settings (see [below for nested schema](#nestedatt--portal_template))
 - `site_id` (String)
-- `wlan_id` (String)
+- `wlan_id` (String) Site WLAN ID
 
 <a id="nestedatt--portal_template"></a>
 ### Nested Schema for `portal_template`
