@@ -7,6 +7,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 
+	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_idpprofile"
 
 	"github.com/google/uuid"
@@ -80,18 +81,19 @@ func (r *orgOrgIdpprofileResource) Create(ctx context.Context, req resource.Crea
 	orgId, err := uuid.Parse(plan.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_idpprofile\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_idpprofile\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 	tflog.Info(ctx, "Starting OrgIdpprofile Create for Org "+plan.OrgId.ValueString())
 	data, err := r.client.OrgsIDPProfiles().CreateOrgIdpProfile(ctx, orgId, &idpprofile)
 
-	if err != nil {
+	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+	if api_err != "" {
 		resp.Diagnostics.AddError(
-			"Error creating idpprofile",
-			"Could not create idpprofile, unexpected error: "+err.Error(),
+			"Error creating \"mist_org_idpprofile\" resource",
+			fmt.Sprintf("Unable to create the IDP Profile. %s", api_err),
 		)
 		return
 	}
@@ -122,16 +124,16 @@ func (r *orgOrgIdpprofileResource) Read(ctx context.Context, req resource.ReadRe
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_idpprofile\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_idpprofile\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 	idpprofileId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org_idpprofile\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"mist_org_idpprofile\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -142,8 +144,8 @@ func (r *orgOrgIdpprofileResource) Read(ctx context.Context, req resource.ReadRe
 		return
 	} else if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting idpprofile",
-			"Could not get idpprofile, unexpected error: "+err.Error(),
+			"Error getting \"mist_org_idpprofile\" resource",
+			"Unable to get the IDP Profile, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -185,25 +187,26 @@ func (r *orgOrgIdpprofileResource) Update(ctx context.Context, req resource.Upda
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_idpprofile\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_idpprofile\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 	idpprofileId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org_idpprofile\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"mist_org_idpprofile\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
 	data, err := r.client.OrgsIDPProfiles().UpdateOrgIdpProfile(ctx, orgId, idpprofileId, &idpprofile)
 
-	if err != nil {
+	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+	if api_err != "" {
 		resp.Diagnostics.AddError(
-			"Error updating idpprofile",
-			"Could not update idpprofile, unexpected error: "+err.Error(),
+			"Error updating \"mist_org_idpprofile\" resource",
+			fmt.Sprintf("Unable to update the IDP Profile. %s", api_err),
 		)
 		return
 	}
@@ -235,24 +238,24 @@ func (r *orgOrgIdpprofileResource) Delete(ctx context.Context, req resource.Dele
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_idpprofile\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_idpprofile\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 	idpprofileId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org_idpprofile\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"mist_org_idpprofile\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
 	httpr, err := r.client.OrgsIDPProfiles().DeleteOrgIdpProfile(ctx, orgId, idpprofileId)
 	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
-			"Error deleting idpprofile",
-			"Could not delete idpprofile, unexpected error: "+err.Error(),
+			"Error deleting \"mist_org_idpprofile\" resource",
+			"Unable to delete the IDP Profile, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -263,7 +266,7 @@ func (r *orgOrgIdpprofileResource) ImportState(ctx context.Context, req resource
 	importIds := strings.Split(req.ID, ".")
 	if len(importIds) != 2 {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org_idpprofile\" resource",
+			"Invalid \"id\" value for \"mist_org_idpprofile\" resource",
 			"import \"id\" format must be \"{org_id}.{deviceprofile_ap_id}\"",
 		)
 		return
@@ -271,8 +274,8 @@ func (r *orgOrgIdpprofileResource) ImportState(ctx context.Context, req resource
 	_, err := uuid.Parse(importIds[0])
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_idpprofile\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{deviceprofile_ap_id}\"", importIds[0], err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_idpprofile\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{deviceprofile_ap_id}\"", importIds[0], err.Error()),
 		)
 		return
 	}
@@ -281,8 +284,8 @@ func (r *orgOrgIdpprofileResource) ImportState(ctx context.Context, req resource
 	_, err = uuid.Parse(importIds[1])
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org_idpprofile\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{deviceprofile_ap_id}\"", importIds[1], err.Error()),
+			"Invalid \"id\" value for \"mist_org_idpprofile\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{deviceprofile_ap_id}\"", importIds[1], err.Error()),
 		)
 		return
 	}

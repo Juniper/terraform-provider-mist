@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/Juniper/terraform-provider-mist/internal/resource_org_wlan_portal_template"
+	"github.com/Juniper/terraform-provider-mist/internal/resource_site_wlan_portal_template"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 
@@ -15,20 +15,20 @@ import (
 )
 
 var (
-	_ resource.Resource              = &orgWlanPortalTemplateResource{}
-	_ resource.ResourceWithConfigure = &orgWlanPortalTemplateResource{}
+	_ resource.Resource              = &siteWlanPortalTemplateResource{}
+	_ resource.ResourceWithConfigure = &siteWlanPortalTemplateResource{}
 )
 
-func NewOrgWlanPortalTemplate() resource.Resource {
-	return &orgWlanPortalTemplateResource{}
+func NewSiteWlanPortalTemplate() resource.Resource {
+	return &siteWlanPortalTemplateResource{}
 }
 
-type orgWlanPortalTemplateResource struct {
+type siteWlanPortalTemplateResource struct {
 	client mistapi.ClientInterface
 }
 
-func (r *orgWlanPortalTemplateResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
-	tflog.Info(ctx, "Configuring Mist Org WLAN Portal Template client")
+func (r *siteWlanPortalTemplateResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+	tflog.Info(ctx, "Configuring Mist Site WLAN Portal Template client")
 	if req.ProviderData == nil {
 		return
 	}
@@ -44,11 +44,11 @@ func (r *orgWlanPortalTemplateResource) Configure(ctx context.Context, req resou
 
 	r.client = client
 }
-func (r *orgWlanPortalTemplateResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_org_wlan_portal_template"
+func (r *siteWlanPortalTemplateResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_site_wlan_portal_template"
 }
 
-func (r *orgWlanPortalTemplateResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *siteWlanPortalTemplateResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryWlan + "This resource is used customize the WLAN Guest Portal." +
 			"The WLAN Portal Template can be used to define:\n" +
@@ -60,13 +60,13 @@ func (r *orgWlanPortalTemplateResource) Schema(ctx context.Context, req resource
 			"The resource states is directly generated based on the resource plan." +
 			"* There is no option to delete or revert the changes. Deleting the resource will just remove it from the states. " +
 			"Once removed, it is possible to create a new one. It will replace the previous template",
-		Attributes: resource_org_wlan_portal_template.OrgWlanPortalTemplateResourceSchema(ctx).Attributes,
+		Attributes: resource_site_wlan_portal_template.SiteWlanPortalTemplateResourceSchema(ctx).Attributes,
 	}
 }
 
-func (r *orgWlanPortalTemplateResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	tflog.Info(ctx, "Starting Org WLAN Portal Template Create")
-	var plan, state resource_org_wlan_portal_template.OrgWlanPortalTemplateModel
+func (r *siteWlanPortalTemplateResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	tflog.Info(ctx, "Starting Site WLAN Portal Template Create")
+	var plan, state resource_site_wlan_portal_template.SiteWlanPortalTemplateModel
 
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
@@ -74,11 +74,11 @@ func (r *orgWlanPortalTemplateResource) Create(ctx context.Context, req resource
 		return
 	}
 
-	orgId, err := uuid.Parse(plan.OrgId.ValueString())
+	siteId, err := uuid.Parse(plan.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_wlan_portal_template\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
+			"Invalid \"site_id\" value for \"mist_site_wlan_portal_template\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", plan.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -86,28 +86,28 @@ func (r *orgWlanPortalTemplateResource) Create(ctx context.Context, req resource
 	wlanId, err := uuid.Parse(plan.WlanId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"wlan_id\" value for \"org_wlan_portal_template\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
+			"Invalid \"wlan_id\" value for \"mist_site_wlan_portal_template\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", plan.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
 
-	template, diags := resource_org_wlan_portal_template.TerraformToSdk(ctx, &plan)
+	template, diags := resource_site_wlan_portal_template.TerraformToSdk(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	_, err = r.client.OrgsWlans().UpdateOrgWlanPortalTemplate(ctx, orgId, wlanId, &template)
+	_, err = r.client.SitesWlans().UpdateSiteWlanPortalTemplate(ctx, siteId, wlanId, &template)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error creating Wlan",
-			"Could not create Wlan, unexpected error: "+err.Error(),
+			"Error creating \"mist_site_wlan_portal_template\" resource",
+			"Unable to create the WLAN Portal Template, unexpected error: "+err.Error(),
 		)
 		return
 	}
 
-	state.OrgId = plan.OrgId
+	state.SiteId = plan.SiteId
 	state.WlanId = plan.WlanId
 	state.PortalTemplate = plan.PortalTemplate
 
@@ -119,13 +119,13 @@ func (r *orgWlanPortalTemplateResource) Create(ctx context.Context, req resource
 
 }
 
-func (r *orgWlanPortalTemplateResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *siteWlanPortalTemplateResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 
 }
 
-func (r *orgWlanPortalTemplateResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	tflog.Info(ctx, "Starting Org WLAN Portal Template Update")
-	var state, plan resource_org_wlan_portal_template.OrgWlanPortalTemplateModel
+func (r *siteWlanPortalTemplateResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	tflog.Info(ctx, "Starting Site WLAN Portal Template Update")
+	var state, plan resource_site_wlan_portal_template.SiteWlanPortalTemplateModel
 
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
@@ -133,11 +133,11 @@ func (r *orgWlanPortalTemplateResource) Update(ctx context.Context, req resource
 		return
 	}
 
-	orgId, err := uuid.Parse(plan.OrgId.ValueString())
+	siteId, err := uuid.Parse(plan.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_wlan_portal_template\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
+			"Invalid \"site_id\" value for \"mist_site_wlan_portal_template\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", plan.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -145,28 +145,28 @@ func (r *orgWlanPortalTemplateResource) Update(ctx context.Context, req resource
 	wlanId, err := uuid.Parse(plan.WlanId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"wlan_id\" value for \"org_wlan_portal_template\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
+			"Invalid \"wlan_id\" value for \"mist_site_wlan_portal_template\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", plan.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
 
-	template, diags := resource_org_wlan_portal_template.TerraformToSdk(ctx, &plan)
+	template, diags := resource_site_wlan_portal_template.TerraformToSdk(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	_, err = r.client.OrgsWlans().UpdateOrgWlanPortalTemplate(ctx, orgId, wlanId, &template)
+	_, err = r.client.SitesWlans().UpdateSiteWlanPortalTemplate(ctx, siteId, wlanId, &template)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error creating Wlan",
-			"Could not create Wlan, unexpected error: "+err.Error(),
+			"Error creating \"mist_site_wlan_portal_template\" resource",
+			"Unable to create the WLAN Portal Template, unexpected error: "+err.Error(),
 		)
 		return
 	}
 
-	state.OrgId = plan.OrgId
+	state.SiteId = plan.SiteId
 	state.WlanId = plan.WlanId
 	state.PortalTemplate = plan.PortalTemplate
 
@@ -177,8 +177,8 @@ func (r *orgWlanPortalTemplateResource) Update(ctx context.Context, req resource
 	}
 }
 
-func (r *orgWlanPortalTemplateResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state resource_org_wlan_portal_template.OrgWlanPortalTemplateModel
+func (r *siteWlanPortalTemplateResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state resource_site_wlan_portal_template.SiteWlanPortalTemplateModel
 
 	diags := resp.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
@@ -186,11 +186,11 @@ func (r *orgWlanPortalTemplateResource) Delete(ctx context.Context, req resource
 		return
 	}
 
-	orgId, err := uuid.Parse(state.OrgId.ValueString())
+	siteId, err := uuid.Parse(state.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_wlan_portal_template\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
+			"Invalid \"site_id\" value for \"mist_site_wlan_portal_template\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -198,23 +198,23 @@ func (r *orgWlanPortalTemplateResource) Delete(ctx context.Context, req resource
 	wlanId, err := uuid.Parse(state.WlanId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"wlan_id\" value for \"org_wlan_portal_template\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
+			"Invalid \"wlan_id\" value for \"mist_site_wlan_portal_template\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
 
-	template, diags := resource_org_wlan_portal_template.DeleteTerraformToSdk(ctx)
+	template, diags := resource_site_wlan_portal_template.DeleteTerraformToSdk(ctx)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	httpr, err := r.client.OrgsWlans().UpdateOrgWlanPortalTemplate(ctx, orgId, wlanId, template)
+	httpr, err := r.client.SitesWlans().UpdateSiteWlanPortalTemplate(ctx, siteId, wlanId, template)
 	if httpr.Response.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
-			"Error deleting Wlan",
-			"Could not delete Wlan, unexpected error: "+err.Error(),
+			"Error deleting \"mist_site_wlan_portal_template\" resource",
+			"Unable to delete the WLAN Portal Temaplate, unexpected error: "+err.Error(),
 		)
 		return
 	}

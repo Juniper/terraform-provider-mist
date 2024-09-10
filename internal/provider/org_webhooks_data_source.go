@@ -91,7 +91,7 @@ func (d *orgWebhooksDataSource) Read(ctx context.Context, req datasource.ReadReq
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error getting Org Webhooks list",
-				"Could not get the list of Org Webhooks, unexpected error: "+err.Error(),
+				"Unable to get the the list of Org Webhooks, unexpected error: "+err.Error(),
 			)
 			return
 		}
@@ -100,7 +100,7 @@ func (d *orgWebhooksDataSource) Read(ctx context.Context, req datasource.ReadReq
 		if limit, err = strconv.Atoi(limit_string); err != nil {
 			resp.Diagnostics.AddError(
 				"Error extracting HTTP Response Headers",
-				"Could not convert X-Page-Limit value into int, unexcpected error: "+err.Error(),
+				"Unable to convert the X-Page-Limit value into int, unexcpected error: "+err.Error(),
 			)
 			return
 		}
@@ -109,7 +109,7 @@ func (d *orgWebhooksDataSource) Read(ctx context.Context, req datasource.ReadReq
 		if total, err = strconv.Atoi(total_string); err != nil {
 			resp.Diagnostics.AddError(
 				"Error extracting HTTP Response Headers",
-				"Could not convert X-Page-Total value into int, unexcpected error: "+err.Error(),
+				"Unable to convert the X-Page-Total value into int, unexcpected error: "+err.Error(),
 			)
 			return
 		}

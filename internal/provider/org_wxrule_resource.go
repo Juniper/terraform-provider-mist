@@ -7,6 +7,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 
+	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_wxrule"
 
 	"github.com/google/uuid"
@@ -81,17 +82,18 @@ func (r *orgWxRuleResource) Create(ctx context.Context, req resource.CreateReque
 	orgId, err := uuid.Parse(plan.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_wxrule\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_wxrule\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 	data, err := r.client.OrgsWxRules().CreateOrgWxRule(ctx, orgId, wxrule)
-	if err != nil {
-		//url, _ := httpr.Location()
+
+	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+	if api_err != "" {
 		resp.Diagnostics.AddError(
-			"Error creating WxRule",
-			"Could not create WxRule, unexpected error: "+err.Error(),
+			"Error creating \"mist_org_wxrule\" resource",
+			fmt.Sprintf("Unable to create the WxRule. %s", api_err),
 		)
 		return
 	}
@@ -123,16 +125,16 @@ func (r *orgWxRuleResource) Read(ctx context.Context, req resource.ReadRequest, 
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_wxrule\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_wxrule\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 	wxruleId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org_wxrule\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"mist_org_wxrule\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -142,8 +144,8 @@ func (r *orgWxRuleResource) Read(ctx context.Context, req resource.ReadRequest, 
 		return
 	} else if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting WxRule",
-			"Could not get WxRule, unexpected error: "+err.Error(),
+			"Error getting \"mist_org_wxrule\" resource",
+			"Unable to get the WxRule, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -184,26 +186,27 @@ func (r *orgWxRuleResource) Update(ctx context.Context, req resource.UpdateReque
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_wxrule\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_wxrule\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 	wxruleId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org_wxrule\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"mist_org_wxrule\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
 	tflog.Info(ctx, "Starting WxRule Update for WxRule "+state.Id.ValueString())
 	data, err := r.client.OrgsWxRules().UpdateOrgWxRule(ctx, orgId, wxruleId, wxrule)
 
-	if err != nil {
+	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+	if api_err != "" {
 		resp.Diagnostics.AddError(
-			"Error updating WxRule",
-			"Could not update WxRule, unexpected error: "+err.Error(),
+			"Error updating \"mist_org_wxrule\" resource",
+			fmt.Sprintf("Unable to update the WxRule. %s", api_err),
 		)
 		return
 	}
@@ -234,16 +237,16 @@ func (r *orgWxRuleResource) Delete(ctx context.Context, req resource.DeleteReque
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_wxrule\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_wxrule\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 	wxruleId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org_wxrule\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"mist_org_wxrule\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -251,8 +254,8 @@ func (r *orgWxRuleResource) Delete(ctx context.Context, req resource.DeleteReque
 	httpr, err := r.client.OrgsWxRules().DeleteOrgWxRule(ctx, orgId, wxruleId)
 	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
-			"Error deleting WxRule",
-			"Could not delete WxRule, unexpected error: "+err.Error(),
+			"Error deleting \"mist_org_wxrule\" resource",
+			"Unable to delete the WxRule, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -263,7 +266,7 @@ func (r *orgWxRuleResource) ImportState(ctx context.Context, req resource.Import
 	importIds := strings.Split(req.ID, ".")
 	if len(importIds) != 2 {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org_wxrule\" resource",
+			"Invalid \"id\" value for \"mist_org_wxrule\" resource",
 			"import \"id\" format must be \"{org_id}.{wxrule_id}\"",
 		)
 		return
@@ -271,8 +274,8 @@ func (r *orgWxRuleResource) ImportState(ctx context.Context, req resource.Import
 	_, err := uuid.Parse(importIds[0])
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_wxrule\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{wxrule_id}\"", importIds[0], err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_wxrule\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{wxrule_id}\"", importIds[0], err.Error()),
 		)
 		return
 	}
@@ -281,8 +284,8 @@ func (r *orgWxRuleResource) ImportState(ctx context.Context, req resource.Import
 	_, err = uuid.Parse(importIds[1])
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org_wxrule\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{wxrule_id}\"", importIds[1], err.Error()),
+			"Invalid \"id\" value for \"mist_org_wxrule\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{wxrule_id}\"", importIds[1], err.Error()),
 		)
 		return
 	}

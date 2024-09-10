@@ -10,6 +10,7 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
+	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_deviceprofile_gateway"
 
 	"github.com/google/uuid"
@@ -83,18 +84,22 @@ func (r *orgDeviceprofileGatewayResource) Create(ctx context.Context, req resour
 	orgId, err := uuid.Parse(plan.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_deviceprofile_gateway\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_deviceprofile_gateway\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 	data, err := r.client.OrgsDeviceProfiles().CreateOrgDeviceProfiles(ctx, orgId, &deviceprofile_gateway)
-	if data.Response.StatusCode != 200 && err != nil {
-		resp.Diagnostics.AddError(
-			"Error creating DeviceprofileGateway",
-			"Could not create DeviceprofileGateway, unexpected error: "+err.Error(),
-		)
-		return
+	if data.Response.StatusCode != 200 {
+
+		api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+		if api_err != "" {
+			resp.Diagnostics.AddError(
+				"Error creating \"mist_org_deviceprofile_gateway\" resource",
+				fmt.Sprintf("Unable to create the Gateway Profile. %s", api_err),
+			)
+			return
+		}
 	}
 
 	body, _ := io.ReadAll(data.Response.Body)
@@ -131,16 +136,16 @@ func (r *orgDeviceprofileGatewayResource) Read(ctx context.Context, req resource
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_deviceprofile_gateway\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_deviceprofile_gateway\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 	deviceprofile_gatewayId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org_deviceprofile_gateway\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"mist_org_deviceprofile_gateway\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -151,8 +156,8 @@ func (r *orgDeviceprofileGatewayResource) Read(ctx context.Context, req resource
 		return
 	} else if httpr.Response.StatusCode != 200 && err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting DeviceprofileGateway",
-			"Could not get DeviceprofileGateway, unexpected error: "+err.Error(),
+			"Error getting \"mist_org_deviceprofile_gateway\" resource",
+			"Unable to get the Gateway Device Profile, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -202,28 +207,32 @@ func (r *orgDeviceprofileGatewayResource) Update(ctx context.Context, req resour
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_deviceprofile_gateway\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_deviceprofile_gateway\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 	deviceprofile_gatewayId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org_deviceprofile_gateway\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"mist_org_deviceprofile_gateway\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
 	tflog.Info(ctx, "Starting DeviceprofileGateway Update for DeviceprofileGateway "+state.Id.ValueString())
 	data, err := r.client.OrgsDeviceProfiles().UpdateOrgDeviceProfile(ctx, orgId, deviceprofile_gatewayId, &deviceprofile_gateway)
 
-	if data.Response.StatusCode != 200 && err != nil {
-		resp.Diagnostics.AddError(
-			"Error updating DeviceprofileGateway",
-			"Could not update DeviceprofileGateway, unexpected error: "+err.Error(),
-		)
-		return
+	if data.Response.StatusCode != 200 {
+
+		api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+		if api_err != "" {
+			resp.Diagnostics.AddError(
+				"Error updating \"mist_org_deviceprofile_gateway\" resource",
+				fmt.Sprintf("Unable to update the Gateway Profile. %s", api_err),
+			)
+			return
+		}
 	}
 
 	body, _ := io.ReadAll(data.Response.Body)
@@ -260,16 +269,16 @@ func (r *orgDeviceprofileGatewayResource) Delete(ctx context.Context, req resour
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_deviceprofile_gateway\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_deviceprofile_gateway\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 	deviceprofile_gatewayId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org_deviceprofile_gateway\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"mist_org_deviceprofile_gateway\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -277,8 +286,8 @@ func (r *orgDeviceprofileGatewayResource) Delete(ctx context.Context, req resour
 	httpr, err := r.client.OrgsDeviceProfiles().DeleteOrgDeviceProfile(ctx, orgId, deviceprofile_gatewayId)
 	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
-			"Error deleting DeviceprofileGateway",
-			"Could not delete DeviceprofileGateway, unexpected error: "+err.Error(),
+			"Error deleting \"mist_org_deviceprofile_gateway\" resource",
+			"Unable to delete the Gateway Device Profile, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -289,7 +298,7 @@ func (r *orgDeviceprofileGatewayResource) ImportState(ctx context.Context, req r
 	importIds := strings.Split(req.ID, ".")
 	if len(importIds) != 2 {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org_deviceprofile_gateway\" resource",
+			"Invalid \"id\" value for \"mist_org_deviceprofile_gateway\" resource",
 			"import \"id\" format must be \"{org_id}.{deviceprofile_gateway_id}\"",
 		)
 		return
@@ -297,8 +306,8 @@ func (r *orgDeviceprofileGatewayResource) ImportState(ctx context.Context, req r
 	_, err := uuid.Parse(importIds[0])
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_deviceprofile_gateway\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{deviceprofile_gateway_id}\"", importIds[0], err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_deviceprofile_gateway\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{deviceprofile_gateway_id}\"", importIds[0], err.Error()),
 		)
 		return
 	}
@@ -307,8 +316,8 @@ func (r *orgDeviceprofileGatewayResource) ImportState(ctx context.Context, req r
 	_, err = uuid.Parse(importIds[1])
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org_deviceprofile_gateway\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{deviceprofile_gateway_id}\"", importIds[1], err.Error()),
+			"Invalid \"id\" value for \"mist_org_deviceprofile_gateway\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{deviceprofile_gateway_id}\"", importIds[1], err.Error()),
 		)
 		return
 	}

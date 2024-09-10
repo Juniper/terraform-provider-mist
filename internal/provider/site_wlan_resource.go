@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_site_wlan"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
@@ -78,16 +79,18 @@ func (r *siteWlanResource) Create(ctx context.Context, req resource.CreateReques
 	siteId, err := uuid.Parse(plan.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"site_id\" value for \"site_wlan\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.SiteId.ValueString(), err.Error()),
+			"Invalid \"site_id\" value for \"mist_site_wlan\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", plan.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
 	data, err := r.client.SitesWlans().CreateSiteWlan(ctx, siteId, wlan)
-	if err != nil {
+
+	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+	if api_err != "" {
 		resp.Diagnostics.AddError(
-			"Error creating Wlan",
-			"Could not create Wlan, unexpected error: "+err.Error(),
+			"Error creating \"mist_site_wlan\" resource",
+			fmt.Sprintf("Unable to creaate the WLAN. %s", api_err),
 		)
 		return
 	}
@@ -119,16 +122,16 @@ func (r *siteWlanResource) Read(ctx context.Context, req resource.ReadRequest, r
 	siteId, err := uuid.Parse(state.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"site_id\" value for \"site_wlan\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
+			"Invalid \"site_id\" value for \"mist_site_wlan\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
 	wlanId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"site_wlan\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"mist_site_wlan\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -138,8 +141,8 @@ func (r *siteWlanResource) Read(ctx context.Context, req resource.ReadRequest, r
 		return
 	} else if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting Wlan",
-			"Could not get Wlan, unexpected error: "+err.Error(),
+			"Error getting \"mist_site_wlan\" resource",
+			"Unable to get the Wlan, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -181,25 +184,26 @@ func (r *siteWlanResource) Update(ctx context.Context, req resource.UpdateReques
 	siteId, err := uuid.Parse(state.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"site_id\" value for \"site_wlan\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.SiteId.ValueString(), err.Error()),
+			"Invalid \"site_id\" value for \"mist_site_wlan\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", plan.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
 	wlanId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"site_wlan\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"mist_site_wlan\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
 	data, err := r.client.SitesWlans().UpdateSiteWlan(ctx, siteId, wlanId, wlan)
 
-	if err != nil {
+	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+	if api_err != "" {
 		resp.Diagnostics.AddError(
-			"Error updating Wlan",
-			"Could not update Wlan, unexpected error: "+err.Error(),
+			"Error updating \"mist_site_wlan\" resource",
+			fmt.Sprintf("Unable to update the WLAN. %s", api_err),
 		)
 		return
 	}
@@ -231,24 +235,24 @@ func (r *siteWlanResource) Delete(ctx context.Context, req resource.DeleteReques
 	siteId, err := uuid.Parse(state.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"site_id\" value for \"site_wlan\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
+			"Invalid \"site_id\" value for \"mist_site_wlan\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
 	wlanId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"site_wlan\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"mist_site_wlan\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
 	httpr, err := r.client.SitesWlans().DeleteSiteWlan(ctx, siteId, wlanId)
 	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
-			"Error deleting Wlan",
-			"Could not delete Wlan, unexpected error: "+err.Error(),
+			"Error deleting \"mist_site_wlan\" resource",
+			"Unable to delete the Wlan, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -259,7 +263,7 @@ func (r *siteWlanResource) ImportState(ctx context.Context, req resource.ImportS
 	importIds := strings.Split(req.ID, ".")
 	if len(importIds) != 2 {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"site_wlan\" resource",
+			"Invalid \"id\" value for \"mist_site_wlan\" resource",
 			"import \"id\" format must be \"{site_id}.{wlan_id}\"",
 		)
 		return
@@ -267,8 +271,8 @@ func (r *siteWlanResource) ImportState(ctx context.Context, req resource.ImportS
 	_, err := uuid.Parse(importIds[0])
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"site_id\" value for \"site_wlan\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" format must be \"{site_id}.{wlan_id}\"", importIds[0], err.Error()),
+			"Invalid \"site_id\" value for \"mist_site_wlan\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s. Import \"id\" format must be \"{site_id}.{wlan_id}\"", importIds[0], err.Error()),
 		)
 		return
 	}
@@ -277,8 +281,8 @@ func (r *siteWlanResource) ImportState(ctx context.Context, req resource.ImportS
 	_, err = uuid.Parse(importIds[1])
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"site_wlan\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" format must be \"{site_id}.{wlan_id}\"", importIds[1], err.Error()),
+			"Invalid \"id\" value for \"mist_site_wlan\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s. Import \"id\" format must be \"{site_id}.{wlan_id}\"", importIds[1], err.Error()),
 		)
 		return
 	}

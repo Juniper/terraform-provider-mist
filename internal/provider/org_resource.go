@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
@@ -75,10 +76,12 @@ func (r *orgResource) Create(ctx context.Context, req resource.CreateRequest, re
 		return
 	}
 	data, err := r.client.Orgs().CreateOrg(ctx, org)
-	if err != nil {
+
+	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+	if api_err != "" {
 		resp.Diagnostics.AddError(
-			"Error creating org",
-			"Could not create org, unexpected error: "+err.Error(),
+			"Error creating \"mist_org\" resource",
+			fmt.Sprintf("Unable to create the Org. %s", api_err),
 		)
 		return
 	}
@@ -109,8 +112,8 @@ func (r *orgResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 	orgId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"mist_org\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -122,8 +125,8 @@ func (r *orgResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 		return
 	} else if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting org",
-			"Could not get org, unexpected error: "+err.Error(),
+			"Error getting \"mist_org\" resource",
+			"Unable to get the Org, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -158,8 +161,8 @@ func (r *orgResource) Update(ctx context.Context, req resource.UpdateRequest, re
 	orgId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"mist_org\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -173,10 +176,11 @@ func (r *orgResource) Update(ctx context.Context, req resource.UpdateRequest, re
 	tflog.Info(ctx, "Starting Org Update for Org "+orgId.String())
 	data, err := r.client.Orgs().UpdateOrg(ctx, orgId, org)
 
-	if err != nil {
+	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+	if api_err != "" {
 		resp.Diagnostics.AddError(
-			"Error updating site",
-			"Could not update site, unexpected error: "+err.Error(),
+			"Error updating \"mist_org\" resource",
+			fmt.Sprintf("Unable to update the Org. %s", api_err),
 		)
 		return
 	}
@@ -207,8 +211,8 @@ func (r *orgResource) Delete(ctx context.Context, req resource.DeleteRequest, re
 	orgId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"mist_org\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -217,8 +221,8 @@ func (r *orgResource) Delete(ctx context.Context, req resource.DeleteRequest, re
 	httpr, err := r.client.Orgs().DeleteOrg(ctx, orgId)
 	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
-			"Error deleting org",
-			"Could not delete org, unexpected error: "+err.Error(),
+			"Error deleting \"mist_org\" resource",
+			"Unable to delete the Org, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -229,8 +233,8 @@ func (r *orgResource) ImportState(ctx context.Context, req resource.ImportStateR
 	_, err := uuid.Parse(req.ID)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" must be a valid Org Id.", req.ID, err.Error()),
+			"Invalid \"id\" value for \"mist_org\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s. Import \"id\" must be a valid Org Id.", req.ID, err.Error()),
 		)
 		return
 	}

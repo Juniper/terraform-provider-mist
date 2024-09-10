@@ -139,7 +139,7 @@ func (d *deviceSwitchStatsDataSource) Read(ctx context.Context, req datasource.R
 		if data.Response.StatusCode != 200 && err != nil {
 			resp.Diagnostics.AddError(
 				"Error getting Switch Stats",
-				"Could not get Switch Stats, unexpected error: "+err.Error(),
+				"Unable to get the Switch Stats, unexpected error: "+err.Error(),
 			)
 			return
 		}
@@ -148,7 +148,7 @@ func (d *deviceSwitchStatsDataSource) Read(ctx context.Context, req datasource.R
 		if limit, err = strconv.Atoi(limit_string); err != nil {
 			resp.Diagnostics.AddError(
 				"Error extracting HTTP Response Headers",
-				"Could not convert X-Page-Limit value into int, unexcpected error: "+err.Error(),
+				"Unable to convert the X-Page-Limit value into int, unexcpected error: "+err.Error(),
 			)
 			return
 		}
@@ -157,7 +157,7 @@ func (d *deviceSwitchStatsDataSource) Read(ctx context.Context, req datasource.R
 		if total, err = strconv.Atoi(total_string); err != nil {
 			resp.Diagnostics.AddError(
 				"Error extracting HTTP Response Headers",
-				"Could not convert X-Page-Total value into int, unexcpected error: "+err.Error(),
+				"Unable to convert the X-Page-Total value into int, unexcpected error: "+err.Error(),
 			)
 			return
 		}

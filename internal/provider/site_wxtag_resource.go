@@ -7,6 +7,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 
+	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_site_wxtag"
 
 	"github.com/google/uuid"
@@ -77,8 +78,8 @@ func (r *siteWxTagResource) Create(ctx context.Context, req resource.CreateReque
 	siteId, err := uuid.Parse(plan.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"site_id\" value for \"site_wxtag\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.SiteId.ValueString(), err.Error()),
+			"Invalid \"site_id\" value for \"mist_site_wxtag\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", plan.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -89,12 +90,12 @@ func (r *siteWxTagResource) Create(ctx context.Context, req resource.CreateReque
 	}
 
 	data, err := r.client.SitesWxTags().CreateSiteWxTag(ctx, siteId, wxtag)
-	//.SitesWxTagsAPI().CreateSiteWxTag(ctx, plan.SiteId.ValueString()).WxlanTag(*wxtag)
-	if err != nil {
-		//url, _ := httpr.Location()
+
+	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+	if api_err != "" {
 		resp.Diagnostics.AddError(
-			"Error updating WxTag",
-			"Could not update WxTag, unexpected error: "+err.Error(),
+			"Error creating \"mist_site_wxtag\" resource",
+			fmt.Sprintf("Unable to create the WxTag. %s", api_err),
 		)
 		return
 	}
@@ -125,16 +126,16 @@ func (r *siteWxTagResource) Read(ctx context.Context, req resource.ReadRequest, 
 	siteId, err := uuid.Parse(state.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"site_id\" value for \"site_wxtag\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
+			"Invalid \"site_id\" value for \"mist_site_wxtag\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
 	wxtagId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"site_wxtag\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"mist_site_wxtag\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -146,8 +147,8 @@ func (r *siteWxTagResource) Read(ctx context.Context, req resource.ReadRequest, 
 		return
 	} else if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting WxTag",
-			"Could not get WxTag, unexpected error: "+err.Error(),
+			"Error getting \"mist_site_wxtag\" resource",
+			"Unable to get the WxTag, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -182,16 +183,16 @@ func (r *siteWxTagResource) Update(ctx context.Context, req resource.UpdateReque
 	siteId, err := uuid.Parse(state.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"site_id\" value for \"site_wxtag\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.SiteId.ValueString(), err.Error()),
+			"Invalid \"site_id\" value for \"mist_site_wxtag\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", plan.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
 	wxtagId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"site_wxtag\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"mist_site_wxtag\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -204,10 +205,11 @@ func (r *siteWxTagResource) Update(ctx context.Context, req resource.UpdateReque
 	tflog.Info(ctx, "Starting WxTag Update for WxTag "+state.Id.ValueString())
 	data, err := r.client.SitesWxTags().UpdateSiteWxTag(ctx, siteId, wxtagId, wxtag)
 
-	if err != nil {
+	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+	if api_err != "" {
 		resp.Diagnostics.AddError(
-			"Error updating WxTag",
-			"Could not update WxTag, unexpected error: "+err.Error(),
+			"Error updating \"mist_site_wxtag\" resource",
+			fmt.Sprintf("Unable to update the WxTag. %s", api_err),
 		)
 		return
 	}
@@ -238,16 +240,16 @@ func (r *siteWxTagResource) Delete(ctx context.Context, req resource.DeleteReque
 	siteId, err := uuid.Parse(state.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"site_id\" value for \"site_wxtag\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
+			"Invalid \"site_id\" value for \"mist_site_wxtag\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
 	wxtagId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"site_wxtag\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"mist_site_wxtag\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -256,8 +258,8 @@ func (r *siteWxTagResource) Delete(ctx context.Context, req resource.DeleteReque
 	httpr, err := r.client.SitesWxTags().DeleteSiteWxTag(ctx, siteId, wxtagId)
 	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
-			"Error deleting WxTag",
-			"Could not delete WxTag, unexpected error: "+err.Error(),
+			"Error deleting \"mist_site_wxtag\" resource",
+			"Unable to delete the WxTag, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -268,7 +270,7 @@ func (r *siteWxTagResource) ImportState(ctx context.Context, req resource.Import
 	importIds := strings.Split(req.ID, ".")
 	if len(importIds) != 2 {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"site_wxtag\" resource",
+			"Invalid \"id\" value for \"mist_site_wxtag\" resource",
 			"import \"id\" format must be \"{site_id}.{wxrule_id}\"",
 		)
 		return
@@ -276,8 +278,8 @@ func (r *siteWxTagResource) ImportState(ctx context.Context, req resource.Import
 	_, err := uuid.Parse(importIds[0])
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"site_id\" value for \"site_wxtag\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" format must be \"{site_id}.{wxrule_id}\"", importIds[0], err.Error()),
+			"Invalid \"site_id\" value for \"mist_site_wxtag\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s. Import \"id\" format must be \"{site_id}.{wxrule_id}\"", importIds[0], err.Error()),
 		)
 		return
 	}
@@ -286,8 +288,8 @@ func (r *siteWxTagResource) ImportState(ctx context.Context, req resource.Import
 	_, err = uuid.Parse(importIds[1])
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"site_wxtag\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" format must be \"{site_id}.{wxrule_id}\"", importIds[1], err.Error()),
+			"Invalid \"id\" value for \"mist_site_wxtag\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s. Import \"id\" format must be \"{site_id}.{wxrule_id}\"", importIds[1], err.Error()),
 		)
 		return
 	}

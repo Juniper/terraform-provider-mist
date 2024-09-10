@@ -7,6 +7,7 @@ import (
 	"io"
 	"strings"
 
+	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_device_switch"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
@@ -82,8 +83,8 @@ func (r *deviceSwitchResource) Create(ctx context.Context, req resource.CreateRe
 	siteId, err := uuid.Parse(plan.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"site_id\" value for \"device_switch\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.SiteId.ValueString(), err.Error()),
+			"Invalid \"site_id\" value for \"mist_device_switch\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", plan.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -91,8 +92,8 @@ func (r *deviceSwitchResource) Create(ctx context.Context, req resource.CreateRe
 	deviceId, err := uuid.Parse(plan.DeviceId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"device_id\" value for \"device_switch\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.DeviceId.ValueString(), err.Error()),
+			"Invalid \"device_id\" value for \"mist_device_switch\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", plan.DeviceId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -100,12 +101,15 @@ func (r *deviceSwitchResource) Create(ctx context.Context, req resource.CreateRe
 	tflog.Info(ctx, "Starting DeviceSwitch Create on Site "+plan.SiteId.ValueString()+" for device "+plan.DeviceId.ValueString())
 	data, err := r.client.SitesDevices().UpdateSiteDevice(ctx, siteId, deviceId, &device_switch)
 
-	if data.Response.StatusCode != 200 && err != nil {
-		resp.Diagnostics.AddError(
-			"Error creating device_switch",
-			"Could not create device_switch, unexpected error: "+err.Error(),
-		)
-		return
+	if data.Response.StatusCode != 200 {
+		api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+		if api_err != "" {
+			resp.Diagnostics.AddError(
+				"Error creating \"mist_device_switch\" resource",
+				fmt.Sprintf("Unable to create the Switch. %s", api_err),
+			)
+			return
+		}
 	}
 
 	body, _ := io.ReadAll(data.Response.Body)
@@ -138,8 +142,8 @@ func (r *deviceSwitchResource) Read(ctx context.Context, req resource.ReadReques
 	siteId, err := uuid.Parse(state.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"site_id\" value for \"device_switch\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
+			"Invalid \"site_id\" value for \"mist_device_switch\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -147,8 +151,8 @@ func (r *deviceSwitchResource) Read(ctx context.Context, req resource.ReadReques
 	deviceId, err := uuid.Parse(state.DeviceId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"device_id\" value for \"device_switch\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.DeviceId.ValueString(), err.Error()),
+			"Invalid \"device_id\" value for \"mist_device_switch\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.DeviceId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -159,8 +163,8 @@ func (r *deviceSwitchResource) Read(ctx context.Context, req resource.ReadReques
 		return
 	} else if httpr.Response.StatusCode != 200 && err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting device_switch",
-			"Could not get device_switch, unexpected error: "+err.Error(),
+			"Error getting \"mist_device_switch\" resource",
+			"Unable to get the Switch, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -209,8 +213,8 @@ func (r *deviceSwitchResource) Update(ctx context.Context, req resource.UpdateRe
 	siteId, err := uuid.Parse(plan.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"site_id\" value for \"device_switch\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.SiteId.ValueString(), err.Error()),
+			"Invalid \"site_id\" value for \"mist_device_switch\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", plan.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -218,20 +222,23 @@ func (r *deviceSwitchResource) Update(ctx context.Context, req resource.UpdateRe
 	deviceId, err := uuid.Parse(plan.DeviceId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"device_id\" value for \"device_switch\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.DeviceId.ValueString(), err.Error()),
+			"Invalid \"device_id\" value for \"mist_device_switch\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", plan.DeviceId.ValueString(), err.Error()),
 		)
 		return
 	}
 
 	data, err := r.client.SitesDevices().UpdateSiteDevice(ctx, siteId, deviceId, &device_switch)
 
-	if data.Response.StatusCode != 200 && err != nil {
-		resp.Diagnostics.AddError(
-			"Error updating device_switch",
-			"Could not update device_switch, unexpected error: "+err.Error(),
-		)
-		return
+	if data.Response.StatusCode != 200 {
+		api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+		if api_err != "" {
+			resp.Diagnostics.AddError(
+				"Error updating \"mist_device_switch\" resource",
+				fmt.Sprintf("Unable to update the Switch. %s", api_err),
+			)
+			return
+		}
 	}
 
 	body, _ := io.ReadAll(data.Response.Body)
@@ -271,8 +278,8 @@ func (r *deviceSwitchResource) Delete(ctx context.Context, req resource.DeleteRe
 	siteId, err := uuid.Parse(state.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"site_id\" value for \"device_switch\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
+			"Invalid \"site_id\" value for \"mist_device_switch\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -280,8 +287,8 @@ func (r *deviceSwitchResource) Delete(ctx context.Context, req resource.DeleteRe
 	deviceId, err := uuid.Parse(state.DeviceId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"device_id\" value for \"device_switch\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.DeviceId.ValueString(), err.Error()),
+			"Invalid \"device_id\" value for \"mist_device_switch\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.DeviceId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -289,8 +296,8 @@ func (r *deviceSwitchResource) Delete(ctx context.Context, req resource.DeleteRe
 	httpr, err := r.client.SitesDevices().UpdateSiteDevice(ctx, siteId, deviceId, &device_switch)
 	if httpr.Response.StatusCode != 404 && httpr.Response.StatusCode != 200 && err != nil {
 		resp.Diagnostics.AddError(
-			"Error deleting device_switch",
-			"Could not delete device_switch, unexpected error: "+err.Error(),
+			"Error deleting\"mist_device_switch\" resource",
+			"Unable to delete the Switch, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -301,7 +308,7 @@ func (r *deviceSwitchResource) ImportState(ctx context.Context, req resource.Imp
 	importIds := strings.Split(req.ID, ".")
 	if len(importIds) != 2 {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"device_switch\" resource",
+			"Invalid \"id\" value for \"mist_device_switch\" resource",
 			"Import \"id\" format must be \"{site_id}.{device_id}\"",
 		)
 		return
@@ -309,8 +316,8 @@ func (r *deviceSwitchResource) ImportState(ctx context.Context, req resource.Imp
 	_, err := uuid.Parse(importIds[0])
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"site_id\" value for \"device_switch\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" format must be \"{site_id}.{device_id}\"", importIds[0], err.Error()),
+			"Invalid \"site_id\" value for \"mist_device_switch\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s. Import \"id\" format must be \"{site_id}.{device_id}\"", importIds[0], err.Error()),
 		)
 		return
 	}
@@ -319,8 +326,8 @@ func (r *deviceSwitchResource) ImportState(ctx context.Context, req resource.Imp
 	_, err = uuid.Parse(importIds[1])
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"device_switch\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" format must be \"{site_id}.{device_id}\"", importIds[1], err.Error()),
+			"Invalid \"id\" value for \"mist_device_switch\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s. Import \"id\" format must be \"{site_id}.{device_id}\"", importIds[1], err.Error()),
 		)
 		return
 	}

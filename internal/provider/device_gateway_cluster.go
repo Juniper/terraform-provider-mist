@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_device_gateway_cluster"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
@@ -84,8 +85,8 @@ func (r *deviceGatewayClusterResource) Create(ctx context.Context, req resource.
 	siteId, err := uuid.Parse(plan.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"site_id\" value for \"device_gateway_cluster\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.SiteId.ValueString(), err.Error()),
+			"Invalid \"site_id\" value for \"mist_device_gateway_cluster\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", plan.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -97,8 +98,8 @@ func (r *deviceGatewayClusterResource) Create(ctx context.Context, req resource.
 	id, err := uuid.Parse(mac)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"device_gateway_cluster\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", id, err.Error()),
+			"Invalid \"id\" value for \"mist_device_gateway_cluster\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", id, err.Error()),
 		)
 		return
 	}
@@ -106,10 +107,11 @@ func (r *deviceGatewayClusterResource) Create(ctx context.Context, req resource.
 	tflog.Info(ctx, "Starting DeviceGatewayCluster Create on Site "+plan.SiteId.ValueString()+" for device "+plan.Id.ValueString())
 	data, err := r.client.SitesDevicesWANCluster().CreateSiteDeviceHaCluster(ctx, siteId, id, device_gateway_cluster)
 
-	if err != nil {
+	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+	if api_err != "" {
 		resp.Diagnostics.AddError(
-			"Error creating device_gateway_cluster",
-			"Could not create device_gateway_cluster, unexpected error: "+err.Error(),
+			"Error creating \"mist_device_gateway_cluster\" resource",
+			fmt.Sprintf("Unable to create the Gateway Cluster. %s", api_err),
 		)
 		return
 	}
@@ -141,8 +143,8 @@ func (r *deviceGatewayClusterResource) Read(ctx context.Context, req resource.Re
 	siteId, err := uuid.Parse(state.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"site_id\" value for \"device_gateway_cluster\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
+			"Invalid \"site_id\" value for \"mist_device_gateway_cluster\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -150,8 +152,8 @@ func (r *deviceGatewayClusterResource) Read(ctx context.Context, req resource.Re
 	id, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"device_gateway_cluster\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"mist_device_gateway_cluster\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -162,8 +164,8 @@ func (r *deviceGatewayClusterResource) Read(ctx context.Context, req resource.Re
 		return
 	} else if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting device_gateway_cluster",
-			"Could not get device_gateway_cluster, unexpected error: "+err.Error(),
+			"Error getting \"mist_device_gateway_cluster\" resource",
+			"Unable to get the Gateway Cluster, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -208,8 +210,8 @@ func (r *deviceGatewayClusterResource) Update(ctx context.Context, req resource.
 	siteIdState, err := uuid.Parse(state.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"site_id\" value for \"device_gateway_cluster\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.SiteId.ValueString(), err.Error()),
+			"Invalid \"site_id\" value for \"mist_device_gateway_cluster\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", plan.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -217,8 +219,8 @@ func (r *deviceGatewayClusterResource) Update(ctx context.Context, req resource.
 	idState, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"device_gateway_cluster\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"mist_device_gateway_cluster\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -226,20 +228,20 @@ func (r *deviceGatewayClusterResource) Update(ctx context.Context, req resource.
 	// otherwise it means it's only the site id that changed, and there is no need to recreate the cluster
 	if !plan.Id.Equal(state.Id) || !plan.Nodes.Equal(state.Nodes) {
 		_, err = r.client.SitesDevicesWANCluster().DeleteSiteDeviceHaCluster(ctx, siteIdState, idState)
-	}
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Error deleting device_gateway_cluster to apply the cluster changes",
-			"Could not delete device_gateway_cluster, unexpected error: "+err.Error(),
-		)
-		return
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Error deleting  \"mist_device_gateway_cluster\" resource to apply the cluster changes",
+				"Unable to delete Gateway Cluster, unexpected error: "+err.Error(),
+			)
+			return
+		}
 	}
 
 	siteIdPlan, err := uuid.Parse(plan.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"site_id\" value for \"device_gateway_cluster\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.SiteId.ValueString(), err.Error()),
+			"Invalid \"site_id\" value for \"mist_device_gateway_cluster\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", plan.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -247,18 +249,21 @@ func (r *deviceGatewayClusterResource) Update(ctx context.Context, req resource.
 	idPlan, err := uuid.Parse(plan.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"device_gateway_cluster\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.Id.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"mist_device_gateway_cluster\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", plan.Id.ValueString(), err.Error()),
 		)
 		return
 	}
 	data, err := r.client.SitesDevicesWANCluster().CreateSiteDeviceHaCluster(ctx, siteIdPlan, idPlan, device_gateway_cluster)
 	if err != nil {
-		resp.Diagnostics.AddError(
-			"Error updating device_gateway_cluster",
-			"Could not update device_gateway_cluster, unexpected error: "+err.Error(),
-		)
-		return
+		api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+		if api_err != "" {
+			resp.Diagnostics.AddError(
+				"Error creating \"mist_device_gateway_cluster\" resource",
+				fmt.Sprintf("Unable to update the Gateway Cluster. %s", api_err),
+			)
+			return
+		}
 	}
 
 	state, diags = resource_device_gateway_cluster.SdkToTerraform(ctx, siteIdPlan, idPlan, &data.Data)
@@ -289,8 +294,8 @@ func (r *deviceGatewayClusterResource) Delete(ctx context.Context, req resource.
 	siteId, err := uuid.Parse(state.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"site_id\" value for \"device_gateway_cluster\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
+			"Invalid \"site_id\" value for \"mist_device_gateway_cluster\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -298,8 +303,8 @@ func (r *deviceGatewayClusterResource) Delete(ctx context.Context, req resource.
 	id, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"device_gateway_cluster\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"mist_device_gateway_cluster\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -307,8 +312,8 @@ func (r *deviceGatewayClusterResource) Delete(ctx context.Context, req resource.
 	httpr, err := r.client.SitesDevicesWANCluster().DeleteSiteDeviceHaCluster(ctx, siteId, id)
 	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
-			"Error deleting device_gateway_cluster",
-			"Could not delete device_gateway_cluster, unexpected error: "+err.Error(),
+			"Error deleting \"mist_device_gateway_cluster\" resource",
+			"Unable to delete the Gateway Cluster, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -319,7 +324,7 @@ func (r *deviceGatewayClusterResource) ImportState(ctx context.Context, req reso
 	importIds := strings.Split(req.ID, ".")
 	if len(importIds) != 2 {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"device_gateway_cluster\" resource",
+			"Invalid \"id\" value for \"mist_device_gateway_cluster\" resource",
 			"import \"id\" format must be \"{site_id}.{cluster_id}\"",
 		)
 		return
@@ -327,8 +332,8 @@ func (r *deviceGatewayClusterResource) ImportState(ctx context.Context, req reso
 	_, err := uuid.Parse(importIds[0])
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"site_id\" value for \"device_gateway_cluster\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" format must be \"{site_id}.{cluster_id}\"", importIds[0], err.Error()),
+			"Invalid \"site_id\" value for \"mist_device_gateway_cluster\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s. Import \"id\" format must be \"{site_id}.{cluster_id}\"", importIds[0], err.Error()),
 		)
 		return
 	}
@@ -337,8 +342,8 @@ func (r *deviceGatewayClusterResource) ImportState(ctx context.Context, req reso
 	_, err = uuid.Parse(importIds[1])
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"device_gateway_cluster\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" format must be \"{site_id}.{cluster_id}\"", importIds[1], err.Error()),
+			"Invalid \"id\" value for \"mist_device_gateway_cluster\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s. Import \"id\" format must be \"{site_id}.{cluster_id}\"", importIds[1], err.Error()),
 		)
 		return
 	}

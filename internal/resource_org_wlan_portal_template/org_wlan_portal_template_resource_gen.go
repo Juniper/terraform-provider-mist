@@ -1229,7 +1229,7 @@ func OrgWlanPortalTemplateResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "portal template wlan settings",
 			},
 			"wlan_id": schema.StringAttribute{
-				Required: true,
+				Required:            true,
 				Description:         "Site WLAN ID",
 				MarkdownDescription: "Site WLAN ID",
 			},

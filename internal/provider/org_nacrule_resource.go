@@ -7,6 +7,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 
+	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_nacrule"
 
 	"github.com/google/uuid"
@@ -79,17 +80,18 @@ func (r *orgNacRuleResource) Create(ctx context.Context, req resource.CreateRequ
 	orgId, err := uuid.Parse(plan.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_nacrule\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_nacrule\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 	data, err := r.client.OrgsNACRules().CreateOrgNacRule(ctx, orgId, &nacrule)
-	if err != nil {
-		//url, _ := httpr.Location()
+
+	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+	if api_err != "" {
 		resp.Diagnostics.AddError(
-			"Error creating NacRule",
-			"Could not create NacRule, unexpected error: "+err.Error(),
+			"Error creating \"mist_org_nacrule\" resource",
+			fmt.Sprintf("Unable to create the NAC Rule. %s", api_err),
 		)
 		return
 	}
@@ -120,16 +122,16 @@ func (r *orgNacRuleResource) Read(ctx context.Context, req resource.ReadRequest,
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_nacrule\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_nacrule\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 	nacruleId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org_nacrule\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"mist_org_nacrule\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -140,8 +142,8 @@ func (r *orgNacRuleResource) Read(ctx context.Context, req resource.ReadRequest,
 		return
 	} else if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting NacRule",
-			"Could not get NacRule, unexpected error: "+err.Error(),
+			"Error getting \"mist_org_nacrule\" resource",
+			"Unable to get the NAC Rule, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -182,31 +184,31 @@ func (r *orgNacRuleResource) Update(ctx context.Context, req resource.UpdateRequ
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_nacrule\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_nacrule\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 	nacruleId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org_nacrule\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"mist_org_nacrule\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
+
 	tflog.Info(ctx, "Starting NacRule Update for NacRule "+state.Id.ValueString())
-	data, err := r.client.OrgsNACRules().
-		UpdateOrgNacRule(ctx, orgId, nacruleId, &nacrule)
+	data, err := r.client.OrgsNACRules().UpdateOrgNacRule(ctx, orgId, nacruleId, &nacrule)
 
-	if err != nil {
+	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+	if api_err != "" {
 		resp.Diagnostics.AddError(
-			"Error updating NacRule",
-			"Could not update NacRule, unexpected error: "+err.Error(),
+			"Error updating \"mist_org_nacrule\" resource",
+			fmt.Sprintf("Unable to update the NAC Rule. %s", api_err),
 		)
 		return
 	}
-
 	state, diags = resource_org_nacrule.SdkToTerraform(ctx, data.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -233,16 +235,16 @@ func (r *orgNacRuleResource) Delete(ctx context.Context, req resource.DeleteRequ
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_nacrule\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_nacrule\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 	nacruleId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org_nacrule\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"mist_org_nacrule\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -250,8 +252,8 @@ func (r *orgNacRuleResource) Delete(ctx context.Context, req resource.DeleteRequ
 	httpr, err := r.client.OrgsNACRules().DeleteOrgNacRule(ctx, orgId, nacruleId)
 	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
-			"Error deleting NacRule",
-			"Could not delete NacRule, unexpected error: "+err.Error(),
+			"Error deleting\"mist_org_nacrule\" resource",
+			"Unable to delete the NAC Rule, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -262,7 +264,7 @@ func (r *orgNacRuleResource) ImportState(ctx context.Context, req resource.Impor
 	importIds := strings.Split(req.ID, ".")
 	if len(importIds) != 2 {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org_nacrule\" resource",
+			"Invalid \"id\" value for \"mist_org_nacrule\" resource",
 			"import \"id\" format must be \"{org_id}.{nacrule_id}\"",
 		)
 		return
@@ -270,8 +272,8 @@ func (r *orgNacRuleResource) ImportState(ctx context.Context, req resource.Impor
 	_, err := uuid.Parse(importIds[0])
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_nacrule\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{nacrule_id}\"", importIds[0], err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_nacrule\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{nacrule_id}\"", importIds[0], err.Error()),
 		)
 		return
 	}
@@ -280,8 +282,8 @@ func (r *orgNacRuleResource) ImportState(ctx context.Context, req resource.Impor
 	_, err = uuid.Parse(importIds[1])
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org_nacrule\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{nacrule_id}\"", importIds[1], err.Error()),
+			"Invalid \"id\" value for \"mist_org_nacrule\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{nacrule_id}\"", importIds[1], err.Error()),
 		)
 		return
 	}

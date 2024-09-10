@@ -7,6 +7,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 
+	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_site_webhook"
 
 	"github.com/google/uuid"
@@ -71,8 +72,8 @@ func (r *siteWebhookResource) Create(ctx context.Context, req resource.CreateReq
 	siteId, err := uuid.Parse(plan.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"site_id\" value for \"site_webhook\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.SiteId.ValueString(), err.Error()),
+			"Invalid \"site_id\" value for \"mist_site_webhook\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", plan.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -84,10 +85,12 @@ func (r *siteWebhookResource) Create(ctx context.Context, req resource.CreateReq
 	}
 
 	data, err := r.client.SitesWebhooks().CreateSiteWebhook(ctx, siteId, &webhook)
-	if err != nil {
+
+	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+	if api_err != "" {
 		resp.Diagnostics.AddError(
-			"Error creating Webhook",
-			"Could not create Webhook, unexpected error: "+err.Error(),
+			"Error creating \"mist_site_webhook\" resource",
+			fmt.Sprintf("Unable to creaate the Webhook. %s", api_err),
 		)
 		return
 	}
@@ -118,16 +121,16 @@ func (r *siteWebhookResource) Read(ctx context.Context, req resource.ReadRequest
 	siteId, err := uuid.Parse(state.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"site_id\" value for \"site_webhook\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
+			"Invalid \"site_id\" value for mist_site_webhook\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
 	webhookId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"site_webhook\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			"Invalid \"id\" value for mist_site_webhook\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -139,8 +142,8 @@ func (r *siteWebhookResource) Read(ctx context.Context, req resource.ReadRequest
 		return
 	} else if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting Webhook",
-			"Could not get Webhook, unexpected error: "+err.Error(),
+			"Error getting \"mist_site_webhook\" resource",
+			"Unable to get the Webhook, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -181,27 +184,28 @@ func (r *siteWebhookResource) Update(ctx context.Context, req resource.UpdateReq
 	siteId, err := uuid.Parse(state.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"site_id\" value for \"site_webhook\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
+			"Invalid \"site_id\" value for mist_site_webhook\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
 	webhookId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"site_webhook\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"mist_site_webhook\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
 
 	tflog.Info(ctx, "Starting Webhook Update for Webhook "+state.Id.ValueString())
-	data, err := r.client.SitesWebhooks().
-		UpdateSiteWebhook(ctx, siteId, webhookId, &webhook)
-	if err != nil {
+	data, err := r.client.SitesWebhooks().UpdateSiteWebhook(ctx, siteId, webhookId, &webhook)
+
+	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+	if api_err != "" {
 		resp.Diagnostics.AddError(
-			"Error updating Webhook",
-			"Could not update Webhook, unexpected error: "+err.Error(),
+			"Error updating \"mist_site_webhook\" resource",
+			fmt.Sprintf("Unable to update the Webhook. %s", api_err),
 		)
 		return
 	}
@@ -232,16 +236,16 @@ func (r *siteWebhookResource) Delete(ctx context.Context, req resource.DeleteReq
 	siteId, err := uuid.Parse(state.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"site_id\" value for \"site_webhook\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
+			"Invalid \"site_id\" value for \"mist_site_webhook\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
 	webhookId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"site_webhook\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"mist_site_webhook\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -250,8 +254,8 @@ func (r *siteWebhookResource) Delete(ctx context.Context, req resource.DeleteReq
 	httpr, err := r.client.SitesWebhooks().DeleteSiteWebhook(ctx, siteId, webhookId)
 	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
-			"Error deleting Webhook",
-			"Could not delete Webhook, unexpected error: "+err.Error(),
+			"Error deleting \"mist_site_webhook\" resource",
+			"Unable to delete the Webhook, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -262,7 +266,7 @@ func (r *siteWebhookResource) ImportState(ctx context.Context, req resource.Impo
 	importIds := strings.Split(req.ID, ".")
 	if len(importIds) != 2 {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"site_webhook\" resource",
+			"Invalid \"id\" value for \"mist_site_webhook\" resource",
 			"import \"id\" format must be \"{site_id}.{webhook_id}\"",
 		)
 		return
@@ -270,8 +274,8 @@ func (r *siteWebhookResource) ImportState(ctx context.Context, req resource.Impo
 	_, err := uuid.Parse(importIds[0])
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"site_id\" value for \"site_webhook\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" format must be \"{site_id}.{webhook_id}\"", importIds[0], err.Error()),
+			"Invalid \"site_id\" value for \"mist_site_webhook\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s. Import \"id\" format must be \"{site_id}.{webhook_id}\"", importIds[0], err.Error()),
 		)
 		return
 	}
@@ -280,8 +284,8 @@ func (r *siteWebhookResource) ImportState(ctx context.Context, req resource.Impo
 	_, err = uuid.Parse(importIds[1])
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"site_webhook\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" format must be \"{site_id}.{webhook_id}\"", importIds[1], err.Error()),
+			"Invalid \"id\" value for \"mist_site_webhook\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s. Import \"id\" format must be \"{site_id}.{webhook_id}\"", importIds[1], err.Error()),
 		)
 		return
 	}

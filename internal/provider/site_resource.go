@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_site"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
@@ -76,18 +77,19 @@ func (r *siteResource) Create(ctx context.Context, req resource.CreateRequest, r
 	orgId, err := uuid.Parse(plan.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"site\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
+			"Invalid \"org_id\" value for \"mist_site\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 	tflog.Info(ctx, "Starting Site Create for Org "+plan.OrgId.ValueString())
 	data, err := r.client.OrgsSites().CreateOrgSite(ctx, orgId, site)
 
-	if err != nil {
+	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+	if api_err != "" {
 		resp.Diagnostics.AddError(
-			"Error creating site",
-			"Could not create site, unexpected error: "+err.Error(),
+			"Error creating \"mist_site\" resource",
+			fmt.Sprintf("Unable to create the Mist Site in the org \"%s\". %s", orgId.String(), api_err),
 		)
 		return
 	}
@@ -118,8 +120,8 @@ func (r *siteResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 	siteId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"site\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"mist_site\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -130,8 +132,8 @@ func (r *siteResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 		return
 	} else if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting site",
-			"Could not get site, unexpected error: "+err.Error(),
+			"Error getting \"mist_site\" resource",
+			"Unable to get the Site, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -172,18 +174,19 @@ func (r *siteResource) Update(ctx context.Context, req resource.UpdateRequest, r
 	siteId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"site\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"mist_site\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
 	tflog.Info(ctx, "Starting Site Update for Site "+state.Id.ValueString())
 	data, err := r.client.Sites().UpdateSiteInfo(ctx, siteId, site)
 
-	if err != nil {
+	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+	if api_err != "" {
 		resp.Diagnostics.AddError(
-			"Error updating site",
-			"Could not update site, unexpected error: "+err.Error(),
+			"Error updating \"mist_site\" resource",
+			fmt.Sprintf("Unable to update the Mist Site. %s", api_err),
 		)
 		return
 	}
@@ -214,8 +217,8 @@ func (r *siteResource) Delete(ctx context.Context, req resource.DeleteRequest, r
 	siteId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"site\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"mist_site\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -223,8 +226,8 @@ func (r *siteResource) Delete(ctx context.Context, req resource.DeleteRequest, r
 	httpr, err := r.client.Sites().DeleteSite(ctx, siteId)
 	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
-			"Error deleting site",
-			"Could not delete site, unexpected error: "+err.Error(),
+			"Error deleting \"mist_site\" resource",
+			"Unable to delete the site, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -235,8 +238,8 @@ func (r *siteResource) ImportState(ctx context.Context, req resource.ImportState
 	_, err := uuid.Parse(req.ID)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"site\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" must be a valid Site Id.", req.ID, err.Error()),
+			"Invalid \"id\" value for \"mist_site\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s. Import \"id\" must be a valid Site Id.", req.ID, err.Error()),
 		)
 		return
 	}

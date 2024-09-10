@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_sitegroup"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
@@ -80,16 +81,18 @@ func (r *orgSiteGroupResource) Create(ctx context.Context, req resource.CreateRe
 	orgId, err := uuid.Parse(plan.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_sitegroup\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_sitegroup\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 	data, err := r.client.OrgsSitegroups().CreateOrgSiteGroup(ctx, orgId, sitegroup)
-	if err != nil {
+
+	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+	if api_err != "" {
 		resp.Diagnostics.AddError(
-			"Error creating SiteGroup",
-			"Could not create SiteGroup, unexpected error: "+err.Error(),
+			"Error creating \"mist_org_sitegroup\" resource",
+			fmt.Sprintf("Unable to create the SiteGroup. %s", api_err),
 		)
 		return
 	}
@@ -120,16 +123,16 @@ func (r *orgSiteGroupResource) Read(ctx context.Context, req resource.ReadReques
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_sitegroup\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_sitegroup\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 	sitegroupId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org_sitegroup\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"mist_org_sitegroup\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -140,8 +143,8 @@ func (r *orgSiteGroupResource) Read(ctx context.Context, req resource.ReadReques
 		return
 	} else if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting SiteGroup",
-			"Could not get SiteGroup, unexpected error: "+err.Error(),
+			"Error getting \"mist_org_sitegroup\" resource",
+			"Unable to get the SiteGroup, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -177,16 +180,16 @@ func (r *orgSiteGroupResource) Update(ctx context.Context, req resource.UpdateRe
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_sitegroup\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_sitegroup\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 	sitegroupId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org_sitegroup\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"mist_org_sitegroup\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -199,10 +202,11 @@ func (r *orgSiteGroupResource) Update(ctx context.Context, req resource.UpdateRe
 	tflog.Info(ctx, "Starting SiteGroup Update for Site "+plan.Id.ValueString())
 	data, err := r.client.OrgsSitegroups().UpdateOrgSiteGroup(ctx, orgId, sitegroupId, &sitegroup_name)
 
-	if err != nil {
+	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+	if api_err != "" {
 		resp.Diagnostics.AddError(
-			"Error updating SiteGroup",
-			"Could not update SiteGroup, unexpected error: "+err.Error(),
+			"Error updating \"mist_org_sitegroup\" resource",
+			fmt.Sprintf("Unable to update the SiteGroup. %s", api_err),
 		)
 		return
 	}
@@ -233,16 +237,16 @@ func (r *orgSiteGroupResource) Delete(ctx context.Context, req resource.DeleteRe
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_sitegroup\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_sitegroup\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 	sitegroupId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org_sitegroup\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"mist_org_sitegroup\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -250,8 +254,8 @@ func (r *orgSiteGroupResource) Delete(ctx context.Context, req resource.DeleteRe
 	httpr, err := r.client.OrgsSitegroups().DeleteOrgSiteGroup(ctx, orgId, sitegroupId)
 	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
-			"Error deleting SiteGroup",
-			"Could not delete SiteGroup, unexpected error: "+err.Error(),
+			"Error deleting \"mist_org_sitegroup\" resource",
+			"Unable to delete the SiteGroup, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -262,7 +266,7 @@ func (r *orgSiteGroupResource) ImportState(ctx context.Context, req resource.Imp
 	importIds := strings.Split(req.ID, ".")
 	if len(importIds) != 2 {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org_sitegroup\" resource",
+			"Invalid \"id\" value for \"mist_org_sitegroup\" resource",
 			"import \"id\" format must be \"{org_id}.{sitegroup_id}\"",
 		)
 		return
@@ -270,8 +274,8 @@ func (r *orgSiteGroupResource) ImportState(ctx context.Context, req resource.Imp
 	_, err := uuid.Parse(importIds[0])
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_sitegroup\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{sitegroup_id}\"", importIds[0], err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_sitegroup\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{sitegroup_id}\"", importIds[0], err.Error()),
 		)
 		return
 	}
@@ -280,8 +284,8 @@ func (r *orgSiteGroupResource) ImportState(ctx context.Context, req resource.Imp
 	_, err = uuid.Parse(importIds[1])
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org_sitegroup\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{sitegroup_id}\"", importIds[1], err.Error()),
+			"Invalid \"id\" value for \"mist_org_sitegroup\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{sitegroup_id}\"", importIds[1], err.Error()),
 		)
 		return
 	}

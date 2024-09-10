@@ -7,6 +7,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 
+	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_site_psk"
 
 	"github.com/google/uuid"
@@ -71,8 +72,8 @@ func (r *sitePskResource) Create(ctx context.Context, req resource.CreateRequest
 	siteId, err := uuid.Parse(plan.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"site_id\" value for \"site_psk\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.SiteId.ValueString(), err.Error()),
+			"Invalid \"site_id\" value for \"mist_site_psk\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", plan.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -84,10 +85,12 @@ func (r *sitePskResource) Create(ctx context.Context, req resource.CreateRequest
 	}
 
 	data, err := r.client.SitesPsks().CreateSitePsk(ctx, siteId, &psk)
-	if err != nil {
+
+	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+	if api_err != "" {
 		resp.Diagnostics.AddError(
-			"Error creating Psk",
-			"Could not create Psk, unexpected error: "+err.Error(),
+			"Error creating \"mist_site_psk\" resource",
+			fmt.Sprintf("Unable to create the PSK. %s", api_err),
 		)
 		return
 	}
@@ -119,7 +122,7 @@ func (r *sitePskResource) Read(ctx context.Context, req resource.ReadRequest, re
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"site_id\" value for \"site_psk\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -127,7 +130,7 @@ func (r *sitePskResource) Read(ctx context.Context, req resource.ReadRequest, re
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"id\" value for \"site_psk\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -139,8 +142,8 @@ func (r *sitePskResource) Read(ctx context.Context, req resource.ReadRequest, re
 		return
 	} else if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting Psk",
-			"Could not get Psk, unexpected error: "+err.Error(),
+			"Error getting \"mist_site_psk\" resource",
+			"Unable to get the Psk, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -182,7 +185,7 @@ func (r *sitePskResource) Update(ctx context.Context, req resource.UpdateRequest
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"site_id\" value for \"site_psk\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -190,18 +193,19 @@ func (r *sitePskResource) Update(ctx context.Context, req resource.UpdateRequest
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"id\" value for \"site_psk\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
 
 	tflog.Info(ctx, "Starting Psk Update for Psk "+state.Id.ValueString())
-	data, err := r.client.SitesPsks().
-		UpdateSitePsk(ctx, siteId, pskId, &psk)
-	if err != nil {
+	data, err := r.client.SitesPsks().UpdateSitePsk(ctx, siteId, pskId, &psk)
+
+	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+	if api_err != "" {
 		resp.Diagnostics.AddError(
-			"Error updating Psk",
-			"Could not update Psk, unexpected error: "+err.Error(),
+			"Error updating \"mist_site_psk\" resource",
+			fmt.Sprintf("Unable to update the PSK. %s", api_err),
 		)
 		return
 	}
@@ -232,16 +236,16 @@ func (r *sitePskResource) Delete(ctx context.Context, req resource.DeleteRequest
 	siteId, err := uuid.Parse(state.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"site_id\" value for \"site_psk\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
+			"Invalid \"site_id\" value for \"mist_site_psk\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
 	pskId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"site_psk\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"mist_site_psk\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -250,8 +254,8 @@ func (r *sitePskResource) Delete(ctx context.Context, req resource.DeleteRequest
 	httpr, err := r.client.SitesPsks().DeleteSitePsk(ctx, siteId, pskId)
 	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
-			"Error deleting Psk",
-			"Could not delete Psk, unexpected error: "+err.Error(),
+			"Error deleting \"mist_site_psk\" resource",
+			"Unable to delete the Psk, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -262,7 +266,7 @@ func (r *sitePskResource) ImportState(ctx context.Context, req resource.ImportSt
 	importIds := strings.Split(req.ID, ".")
 	if len(importIds) != 2 {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"site_psk\" resource",
+			"Invalid \"id\" value for \"mist_site_psk\" resource",
 			"import \"id\" format must be \"{site_id}.{psk_id}\"",
 		)
 		return
@@ -270,8 +274,8 @@ func (r *sitePskResource) ImportState(ctx context.Context, req resource.ImportSt
 	_, err := uuid.Parse(importIds[0])
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"site_id\" value for \"site_psk\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" format must be \"{site_id}.{psk_id}\"", importIds[0], err.Error()),
+			"Invalid \"site_id\" value for \"mist_site_psk\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s. Import \"id\" format must be \"{site_id}.{psk_id}\"", importIds[0], err.Error()),
 		)
 		return
 	}
@@ -280,8 +284,8 @@ func (r *sitePskResource) ImportState(ctx context.Context, req resource.ImportSt
 	_, err = uuid.Parse(importIds[1])
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"site_psk\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" format must be \"{site_id}.{psk_id}\"", importIds[1], err.Error()),
+			"Invalid \"id\" value for \"mist_site_psk\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s. Import \"id\" format must be \"{site_id}.{psk_id}\"", importIds[1], err.Error()),
 		)
 		return
 	}

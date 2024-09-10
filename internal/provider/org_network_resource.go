@@ -7,6 +7,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 
+	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_network"
 
 	"github.com/google/uuid"
@@ -72,8 +73,8 @@ func (r *orgNetworkResource) Create(ctx context.Context, req resource.CreateRequ
 	orgId, err := uuid.Parse(plan.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_network\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_network\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -87,10 +88,11 @@ func (r *orgNetworkResource) Create(ctx context.Context, req resource.CreateRequ
 	tflog.Info(ctx, "Starting Network Create for Org "+plan.OrgId.String())
 	data, err := r.client.OrgsNetworks().CreateOrgNetwork(ctx, orgId, network)
 
-	if err != nil {
+	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+	if api_err != "" {
 		resp.Diagnostics.AddError(
-			"Error creating network",
-			"Could not create network, unexpected error: "+err.Error(),
+			"Error creating \"mist_org_network\" resource",
+			fmt.Sprintf("Unable to create the Network. %s", api_err),
 		)
 		return
 	}
@@ -121,16 +123,16 @@ func (r *orgNetworkResource) Read(ctx context.Context, req resource.ReadRequest,
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_network\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_network\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 	networkId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org_network\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"mist_org_network\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -142,8 +144,8 @@ func (r *orgNetworkResource) Read(ctx context.Context, req resource.ReadRequest,
 		return
 	} else if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting network",
-			"Could not get network, unexpected error: "+err.Error(),
+			"Error getting \"mist_org_network\" resource",
+			"Unable to get the Network, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -178,16 +180,16 @@ func (r *orgNetworkResource) Update(ctx context.Context, req resource.UpdateRequ
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_network\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_network\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 	networkId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org_network\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"mist_org_network\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -201,10 +203,11 @@ func (r *orgNetworkResource) Update(ctx context.Context, req resource.UpdateRequ
 	tflog.Info(ctx, "Starting Network Update for Network "+state.Id.ValueString())
 	data, err := r.client.OrgsNetworks().UpdateOrgNetwork(ctx, orgId, networkId, network)
 
-	if err != nil {
+	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+	if api_err != "" {
 		resp.Diagnostics.AddError(
-			"Error updating network",
-			"Could not update network, unexpected error: "+err.Error(),
+			"Error updating \"mist_org_network\" resource",
+			fmt.Sprintf("Unable to update the Network. %s", api_err),
 		)
 		return
 	}
@@ -235,16 +238,16 @@ func (r *orgNetworkResource) Delete(ctx context.Context, req resource.DeleteRequ
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_network\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_network\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 	networkId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org_network\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"mist_org_network\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -253,8 +256,8 @@ func (r *orgNetworkResource) Delete(ctx context.Context, req resource.DeleteRequ
 	httpr, err := r.client.OrgsNetworks().DeleteOrgNetwork(ctx, orgId, networkId)
 	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
-			"Error deleting network",
-			"Could not delete network, unexpected error: "+err.Error(),
+			"Error deleting \"mist_org_network\" resource",
+			"Unable to delete the Network, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -265,7 +268,7 @@ func (r *orgNetworkResource) ImportState(ctx context.Context, req resource.Impor
 	importIds := strings.Split(req.ID, ".")
 	if len(importIds) != 2 {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org_network\" resource",
+			"Invalid \"id\" value for \"mist_org_network\" resource",
 			"import \"id\" format must be \"{org_id}.{network_id}\"",
 		)
 		return
@@ -273,8 +276,8 @@ func (r *orgNetworkResource) ImportState(ctx context.Context, req resource.Impor
 	_, err := uuid.Parse(importIds[0])
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_network\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{network_id}\"", importIds[0], err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_network\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{network_id}\"", importIds[0], err.Error()),
 		)
 		return
 	}
@@ -283,8 +286,8 @@ func (r *orgNetworkResource) ImportState(ctx context.Context, req resource.Impor
 	_, err = uuid.Parse(importIds[1])
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org_network\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{network_id}\"", importIds[1], err.Error()),
+			"Invalid \"id\" value for \"mist_org_network\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{network_id}\"", importIds[1], err.Error()),
 		)
 		return
 	}

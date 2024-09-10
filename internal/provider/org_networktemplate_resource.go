@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_networktemplate"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
@@ -75,8 +76,8 @@ func (r *orgNetworkTemplateResource) Create(ctx context.Context, req resource.Cr
 	orgId, err := uuid.Parse(plan.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_networktemplate\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_networktemplate\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -88,10 +89,12 @@ func (r *orgNetworkTemplateResource) Create(ctx context.Context, req resource.Cr
 	}
 
 	data, err := r.client.OrgsNetworkTemplates().CreateOrgNetworkTemplate(ctx, orgId, &networktemplate)
-	if err != nil {
+
+	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+	if api_err != "" {
 		resp.Diagnostics.AddError(
-			"Error creating NetworkTemplate",
-			"Could not create NetworkTemplate, unexpected error: "+err.Error(),
+			"Error creating \"mist_org_networktemplate\" resource",
+			fmt.Sprintf("Unable to create the Network Template. %s", api_err),
 		)
 		return
 	}
@@ -124,8 +127,8 @@ func (r *orgNetworkTemplateResource) Read(ctx context.Context, req resource.Read
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_networktemplate\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_networktemplate\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -133,8 +136,8 @@ func (r *orgNetworkTemplateResource) Read(ctx context.Context, req resource.Read
 	templateId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org_networktemplate\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"mist_org_networktemplate\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -145,8 +148,8 @@ func (r *orgNetworkTemplateResource) Read(ctx context.Context, req resource.Read
 		return
 	} else if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting NetworkTemplate",
-			"Could not get NetworkTemplate, unexpected error: "+err.Error(),
+			"Error getting \"mist_org_networktemplate\" resource",
+			"Unable to get the Network Template, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -181,8 +184,8 @@ func (r *orgNetworkTemplateResource) Update(ctx context.Context, req resource.Up
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_networktemplate\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_networktemplate\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -190,8 +193,8 @@ func (r *orgNetworkTemplateResource) Update(ctx context.Context, req resource.Up
 	templateId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org_networktemplate\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"mist_org_networktemplate\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -205,10 +208,11 @@ func (r *orgNetworkTemplateResource) Update(ctx context.Context, req resource.Up
 	tflog.Info(ctx, "Starting NetworkTemplate Update for NetworkTemplate "+state.Id.ValueString())
 	data, err := r.client.OrgsNetworkTemplates().UpdateOrgNetworkTemplates(ctx, orgId, templateId, &networktemplate)
 
-	if err != nil {
+	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+	if api_err != "" {
 		resp.Diagnostics.AddError(
-			"Error updating NetworkTemplate",
-			"Could not update NetworkTemplate, unexpected error: "+err.Error(),
+			"Error updating \"mist_org_networktemplate\" resource",
+			fmt.Sprintf("Unable to update the Network Template. %s", api_err),
 		)
 		return
 	}
@@ -239,16 +243,16 @@ func (r *orgNetworkTemplateResource) Delete(ctx context.Context, req resource.De
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_networktemplate\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_networktemplate\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 	templateId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org_networktemplate\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"mist_org_networktemplate\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -256,8 +260,8 @@ func (r *orgNetworkTemplateResource) Delete(ctx context.Context, req resource.De
 	httpr, err := r.client.OrgsNetworkTemplates().DeleteOrgNetworkTemplate(ctx, orgId, templateId)
 	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
-			"Error deleting NetworkTemplate",
-			"Could not delete NetworkTemplate, unexpected error: "+err.Error(),
+			"Error deleting \"mist_org_networktemplate\" resource",
+			"Unable to delete the Network Template, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -268,7 +272,7 @@ func (r *orgNetworkTemplateResource) ImportState(ctx context.Context, req resour
 	importIds := strings.Split(req.ID, ".")
 	if len(importIds) != 2 {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org_networktemplate\" resource",
+			"Invalid \"id\" value for \"mist_org_networktemplate\" resource",
 			"import \"id\" format must be \"{org_id}.{networktemplate_id}\"",
 		)
 		return
@@ -276,8 +280,8 @@ func (r *orgNetworkTemplateResource) ImportState(ctx context.Context, req resour
 	_, err := uuid.Parse(importIds[0])
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_networktemplate\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{networktemplate_id}\"", importIds[0], err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_networktemplate\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{networktemplate_id}\"", importIds[0], err.Error()),
 		)
 		return
 	}
@@ -286,8 +290,8 @@ func (r *orgNetworkTemplateResource) ImportState(ctx context.Context, req resour
 	_, err = uuid.Parse(importIds[1])
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org_networktemplate\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{networktemplate_id}\"", importIds[1], err.Error()),
+			"Invalid \"id\" value for \"mist_org_networktemplate\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{networktemplate_id}\"", importIds[1], err.Error()),
 		)
 		return
 	}

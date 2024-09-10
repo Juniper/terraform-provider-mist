@@ -7,6 +7,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 
+	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_nactag"
 
 	"github.com/google/uuid"
@@ -72,8 +73,8 @@ func (r *orgNacTagResource) Create(ctx context.Context, req resource.CreateReque
 	orgId, err := uuid.Parse(plan.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_nactag\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_nactag\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -85,10 +86,12 @@ func (r *orgNacTagResource) Create(ctx context.Context, req resource.CreateReque
 	}
 
 	data, err := r.client.OrgsNACTags().CreateOrgNacTag(ctx, orgId, &nactag)
-	if err != nil {
+
+	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+	if api_err != "" {
 		resp.Diagnostics.AddError(
-			"Error creating NacTag",
-			"Could not create NacTag, unexpected error: "+err.Error(),
+			"Error creating \"mist_org_nactag\" resource",
+			fmt.Sprintf("Unable to create the NAC Tag. %s", api_err),
 		)
 		return
 	}
@@ -119,16 +122,16 @@ func (r *orgNacTagResource) Read(ctx context.Context, req resource.ReadRequest, 
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_nactag\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_nactag\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 	nactagId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org_nactag\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"mist_org_nactag\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -140,8 +143,8 @@ func (r *orgNacTagResource) Read(ctx context.Context, req resource.ReadRequest, 
 		return
 	} else if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting NacTag",
-			"Could not get NacTag, unexpected error: "+err.Error(),
+			"Error getting \"mist_org_nactag\" resource",
+			"Unable to get the NAC Tag, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -182,27 +185,28 @@ func (r *orgNacTagResource) Update(ctx context.Context, req resource.UpdateReque
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_nactag\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_nactag\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 	nactagId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org_nactag\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"mist_org_nactag\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
 
 	tflog.Info(ctx, "Starting NacTag Update for NacTag "+state.Id.ValueString())
-	data, err := r.client.OrgsNACTags().
-		UpdateOrgNacTag(ctx, orgId, nactagId, &nactag)
-	if err != nil {
+	data, err := r.client.OrgsNACTags().UpdateOrgNacTag(ctx, orgId, nactagId, &nactag)
+
+	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+	if api_err != "" {
 		resp.Diagnostics.AddError(
-			"Error updating NacTag",
-			"Could not update NacTag, unexpected error: "+err.Error(),
+			"Error updating \"mist_org_nactag\" resource",
+			fmt.Sprintf("Unable to update the NAC Tag. %s", api_err),
 		)
 		return
 	}
@@ -233,16 +237,16 @@ func (r *orgNacTagResource) Delete(ctx context.Context, req resource.DeleteReque
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_nactag\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_nactag\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 	nactagId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org_nactag\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
+			"Invalid \"id\" value for \"mist_org_nactag\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -251,8 +255,8 @@ func (r *orgNacTagResource) Delete(ctx context.Context, req resource.DeleteReque
 	httpr, err := r.client.OrgsNACTags().DeleteOrgNacTag(ctx, orgId, nactagId)
 	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
-			"Error deleting NacTag",
-			"Could not delete NacTag, unexpected error: "+err.Error(),
+			"Error deleting \"mist_org_nactag\" resource",
+			"Unable to delete the NAC Tag, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -263,7 +267,7 @@ func (r *orgNacTagResource) ImportState(ctx context.Context, req resource.Import
 	importIds := strings.Split(req.ID, ".")
 	if len(importIds) != 2 {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org_nactag\" resource",
+			"Invalid \"id\" value for \"mist_org_nactag\" resource",
 			"import \"id\" format must be \"{org_id}.{nactag_id}\"",
 		)
 		return
@@ -271,8 +275,8 @@ func (r *orgNacTagResource) ImportState(ctx context.Context, req resource.Import
 	_, err := uuid.Parse(importIds[0])
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_nactag\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{nactag_id}\"", importIds[0], err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_nactag\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{nactag_id}\"", importIds[0], err.Error()),
 		)
 		return
 	}
@@ -281,8 +285,8 @@ func (r *orgNacTagResource) ImportState(ctx context.Context, req resource.Import
 	_, err = uuid.Parse(importIds[1])
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org_nactag\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{nactag_id}\"", importIds[1], err.Error()),
+			"Invalid \"id\" value for \"mist_org_nactag\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{nactag_id}\"", importIds[1], err.Error()),
 		)
 		return
 	}

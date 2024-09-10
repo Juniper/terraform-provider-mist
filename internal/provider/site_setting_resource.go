@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_site_setting"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
@@ -77,17 +78,18 @@ func (r *siteSettingResource) Create(ctx context.Context, req resource.CreateReq
 	siteId, err := uuid.Parse(plan.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"site_id\" value for \"site_setting\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.SiteId.ValueString(), err.Error()),
+			"Invalid \"site_id\" value fo \"mist_site_setting\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", plan.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
 	data, err := r.client.SitesSetting().UpdateSiteSettings(ctx, siteId, siteSetting)
 
-	if err != nil {
+	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+	if api_err != "" {
 		resp.Diagnostics.AddError(
-			"Error creating siteSetting",
-			"Could not create siteSetting, unexpected error: "+err.Error(),
+			"Error creatin \"mist_site_setting\" resource",
+			fmt.Sprintf("Unable to create the Mist Site Setting. %s", api_err),
 		)
 		return
 	}
@@ -119,8 +121,8 @@ func (r *siteSettingResource) Read(ctx context.Context, req resource.ReadRequest
 	siteId, err := uuid.Parse(state.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"site_id\" value for \"site_setting\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
+			"Invalid \"site_id\" value fo \"mist_site_setting\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -130,8 +132,8 @@ func (r *siteSettingResource) Read(ctx context.Context, req resource.ReadRequest
 		return
 	} else if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting siteSetting",
-			"Could not get siteSetting, unexpected error: "+err.Error(),
+			"Error getting \"mist_site_setting\" resource",
+			"Unable to get the siteSetting, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -173,17 +175,18 @@ func (r *siteSettingResource) Update(ctx context.Context, req resource.UpdateReq
 	siteId, err := uuid.Parse(state.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"site_id\" value for \"site_setting\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.SiteId.ValueString(), err.Error()),
+			"Invalid \"site_id\" value fo \"mist_site_setting\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", plan.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
 	data, err := r.client.SitesSetting().UpdateSiteSettings(ctx, siteId, siteSetting)
 
-	if err != nil {
+	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+	if api_err != "" {
 		resp.Diagnostics.AddError(
-			"Error updating siteSetting",
-			"Could not update siteSetting, unexpected error: "+err.Error(),
+			"Error creating \"mist_site_setting\" resource",
+			fmt.Sprintf("Unable to create the Mist Site Setting. %s", api_err),
 		)
 		return
 	}
@@ -217,16 +220,16 @@ func (r *siteSettingResource) Delete(ctx context.Context, req resource.DeleteReq
 	siteId, err := uuid.Parse(state.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"site_id\" value for \"site_setting\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
+			"Invalid \"site_id\" value fo \"mist_site_setting\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
 	httpr, err := r.client.SitesSetting().UpdateSiteSettings(ctx, siteId, siteSetting)
 	if httpr.Response.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
-			"Error deleting siteSetting",
-			"Could not delete siteSetting, unexpected error: "+err.Error(),
+			"Error deleting \"mist_site_setting\" resource",
+			"Unable to delete the siteSetting, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -237,8 +240,8 @@ func (r *siteSettingResource) ImportState(ctx context.Context, req resource.Impo
 	_, err := uuid.Parse(req.ID)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"site_setting\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" must be a valid Site Id.", req.ID, err.Error()),
+			"Invalid \"id\" value fo \"mist_site_setting\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s. Import \"id\" must be a valid Site Id.", req.ID, err.Error()),
 		)
 		return
 	}

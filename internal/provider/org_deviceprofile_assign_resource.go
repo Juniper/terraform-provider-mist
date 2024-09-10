@@ -76,8 +76,8 @@ func (r *orgDeviceprofileAssignResource) Create(ctx context.Context, req resourc
 	orgId, err := uuid.Parse(plan.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_deviceprofile_assign\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_deviceprofile_assign\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -85,8 +85,8 @@ func (r *orgDeviceprofileAssignResource) Create(ctx context.Context, req resourc
 	deviceprofileId, err := uuid.Parse(plan.DeviceprofileId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_deviceprofile_assign\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_deviceprofile_assign\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -102,7 +102,7 @@ func (r *orgDeviceprofileAssignResource) Create(ctx context.Context, req resourc
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error Unassigning devices to Deviceprofile",
-				"Could not Unassign devices to Deviceprofile, unexpected error: "+err.Error(),
+				"Unable to unassign the devices to Deviceprofile, unexpected error: "+err.Error(),
 			)
 			return
 		}
@@ -139,16 +139,16 @@ func (r *orgDeviceprofileAssignResource) Read(ctx context.Context, req resource.
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_deviceprofile_assign\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_deviceprofile_assign\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 	deviceprofileId, err := uuid.Parse(state.DeviceprofileId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"deviceprofile_id\" value for \"org_deviceprofile_assign\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.DeviceprofileId.ValueString(), err.Error()),
+			"Invalid \"deviceprofile_id\" value for \"mist_org_deviceprofile_assign\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.DeviceprofileId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -168,7 +168,7 @@ func (r *orgDeviceprofileAssignResource) Read(ctx context.Context, req resource.
 	if err != nil {
 		diags.AddError(
 			"Error refreshing Inventory",
-			"Could not get Inventory, unexpected error: "+err.Error(),
+			"Unable to get the Inventory, unexpected error: "+err.Error(),
 		)
 	}
 
@@ -211,16 +211,16 @@ func (r *orgDeviceprofileAssignResource) Update(ctx context.Context, req resourc
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_deviceprofile_assign\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_deviceprofile_assign\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 	deviceprofileId, err := uuid.Parse(state.DeviceprofileId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"deviceprofile_id\" value for \"org_deviceprofile_assign\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.DeviceprofileId.ValueString(), err.Error()),
+			"Invalid \"deviceprofile_id\" value for \"mist_org_deviceprofile_assign\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.DeviceprofileId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -236,7 +236,7 @@ func (r *orgDeviceprofileAssignResource) Update(ctx context.Context, req resourc
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error Assigning devices to Deviceprofile",
-				"Could not Assign devices to Deviceprofile, unexpected error: "+err.Error(),
+				"Unable to Assign the Device Profile to the Devices, unexpected error: "+err.Error(),
 			)
 			return
 		}
@@ -247,7 +247,7 @@ func (r *orgDeviceprofileAssignResource) Update(ctx context.Context, req resourc
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error Unassigning devices to Deviceprofile",
-				"Could not Unassign devices to Deviceprofile, unexpected error: "+err.Error(),
+				"Unable to unassign the Device Profile from the Devices, unexpected error: "+err.Error(),
 			)
 			return
 		}
@@ -283,16 +283,16 @@ func (r *orgDeviceprofileAssignResource) Delete(ctx context.Context, req resourc
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_deviceprofile_assign\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_deviceprofile_assign\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 	deviceprofileId, err := uuid.Parse(state.DeviceprofileId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"deviceprofile_id\" value for \"org_deviceprofile_assign\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.DeviceprofileId.ValueString(), err.Error()),
+			"Invalid \"deviceprofile_id\" value for \"mist_org_deviceprofile_assign\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.DeviceprofileId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -307,8 +307,8 @@ func (r *orgDeviceprofileAssignResource) Delete(ctx context.Context, req resourc
 	_, err = r.unassign(ctx, orgId, deviceprofileId, macs_to_unassign)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error deleting Deviceprofile Assignment",
-			"Could not delete Deviceprofile Assignment, unexpected error: "+err.Error(),
+			"Error deleting \"mist_org_deviceprofile_assign\" resource",
+			"Unable to delete the Deviceprofile Assignment, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -344,7 +344,7 @@ func (r *orgDeviceprofileAssignResource) ImportState(ctx context.Context, req re
 	importIds := strings.Split(req.ID, ".")
 	if len(importIds) != 2 {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org_deviceprofile_assign\" resource",
+			"Invalid \"id\" value for \"mist_org_deviceprofile_assign\" resource",
 			"import \"id\" format must be \"{org_id}.{deviceprofile_id}\"",
 		)
 		return
@@ -352,8 +352,8 @@ func (r *orgDeviceprofileAssignResource) ImportState(ctx context.Context, req re
 	_, err := uuid.Parse(importIds[0])
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_deviceprofile_assign\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{deviceprofile_id}\"", importIds[0], err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_deviceprofile_assign\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{deviceprofile_id}\"", importIds[0], err.Error()),
 		)
 		return
 	}
@@ -362,8 +362,8 @@ func (r *orgDeviceprofileAssignResource) ImportState(ctx context.Context, req re
 	_, err = uuid.Parse(importIds[1])
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"org_deviceprofile_assign\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{deviceprofile_id}\"", importIds[1], err.Error()),
+			"Invalid \"id\" value for \"mist_org_deviceprofile_assign\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{deviceprofile_id}\"", importIds[1], err.Error()),
 		)
 		return
 	}

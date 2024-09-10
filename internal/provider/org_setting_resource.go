@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_setting"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
@@ -77,17 +78,18 @@ func (r *orgSettingResource) Create(ctx context.Context, req resource.CreateRequ
 	orgId, err := uuid.Parse(plan.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_setting\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_setting\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 	data, err := r.client.OrgsSetting().UpdateOrgSettings(ctx, orgId, orgSetting)
 
-	if err != nil {
+	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+	if api_err != "" {
 		resp.Diagnostics.AddError(
-			"Error creating orgSetting",
-			"Could not create orgSetting, unexpected error: "+err.Error(),
+			"Error creating \"mist_org_setting\" resource",
+			fmt.Sprintf("Unable to create the Org Setting. %s", api_err),
 		)
 		return
 	}
@@ -119,8 +121,8 @@ func (r *orgSettingResource) Read(ctx context.Context, req resource.ReadRequest,
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_setting\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_setting\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -130,8 +132,8 @@ func (r *orgSettingResource) Read(ctx context.Context, req resource.ReadRequest,
 		return
 	} else if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting orgSetting",
-			"Could not get orgSetting, unexpected error: "+err.Error(),
+			"Error getting \"mist_org_setting\" resource",
+			"Unable to get the orgSetting, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -173,17 +175,18 @@ func (r *orgSettingResource) Update(ctx context.Context, req resource.UpdateRequ
 	orgId, err := uuid.Parse(plan.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_setting\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_setting\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 	data, err := r.client.OrgsSetting().UpdateOrgSettings(ctx, orgId, orgSetting)
 
-	if err != nil {
+	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+	if api_err != "" {
 		resp.Diagnostics.AddError(
-			"Error updating orgSetting",
-			"Could not update orgSetting, unexpected error: "+err.Error(),
+			"Error updating \"mist_org_setting\" resource",
+			fmt.Sprintf("Unable to update the Org Setting. %s", api_err),
 		)
 		return
 	}
@@ -217,16 +220,16 @@ func (r *orgSettingResource) Delete(ctx context.Context, req resource.DeleteRequ
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_setting\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_setting\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 	httpr, err := r.client.OrgsSetting().UpdateOrgSettings(ctx, orgId, orgSetting)
 	if httpr.Response.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
-			"Error deleting orgSetting",
-			"Could not delete orgSetting, unexpected error: "+err.Error(),
+			"Error deleting \"mist_org_setting\" resource",
+			"Unable to delete the orgSetting, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -237,8 +240,8 @@ func (r *orgSettingResource) ImportState(ctx context.Context, req resource.Impor
 	_, err := uuid.Parse(req.ID)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_setting\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" must be a valid Org Id.", req.ID, err.Error()),
+			"Invalid \"org_id\" value for \"mist_org_setting\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s. Import \"id\" must be a valid Org Id.", req.ID, err.Error()),
 		)
 		return
 	}

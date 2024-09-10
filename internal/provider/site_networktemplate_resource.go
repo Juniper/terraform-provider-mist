@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_site_networktemplate"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
@@ -78,16 +79,18 @@ func (r *siteNetworkTemplateResource) Create(ctx context.Context, req resource.C
 	siteId, err := uuid.Parse(plan.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"site_id\" value for \"site_networktemplate\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.SiteId.ValueString(), err.Error()),
+			"Invalid \"site_id\" value for \"mist_site_networktemplate\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", plan.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
 	data, err := r.client.SitesSetting().UpdateSiteSettings(ctx, siteId, networktemplate)
-	if err != nil {
+
+	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+	if api_err != "" {
 		resp.Diagnostics.AddError(
-			"Error creating NetworkTemplate",
-			"Could not create NetworkTemplate, unexpected error: "+err.Error(),
+			"Error creating \"mist_site_networktemplate\" resource",
+			fmt.Sprintf("Unable to create the Network Template. %s", api_err),
 		)
 		return
 	}
@@ -119,8 +122,8 @@ func (r *siteNetworkTemplateResource) Read(ctx context.Context, req resource.Rea
 	siteId, err := uuid.Parse(state.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"site_id\" value for \"site_networktemplate\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
+			"Invalid \"site_id\" value for \"mist_site_networktemplate\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -130,8 +133,8 @@ func (r *siteNetworkTemplateResource) Read(ctx context.Context, req resource.Rea
 		return
 	} else if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting NetworkTemplate",
-			"Could not get NetworkTemplate, unexpected error: "+err.Error(),
+			"Error getting \"mist_site_networktemplate\" resource",
+			"Unable to get the NetworkTemplate, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -173,17 +176,18 @@ func (r *siteNetworkTemplateResource) Update(ctx context.Context, req resource.U
 	siteId, err := uuid.Parse(state.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"site_id\" value for \"site_networktemplate\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.SiteId.ValueString(), err.Error()),
+			"Invalid \"site_id\" value for \"mist_site_networktemplate\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", plan.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
 	data, err := r.client.SitesSetting().UpdateSiteSettings(ctx, siteId, networktemplate)
 
-	if err != nil {
+	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+	if api_err != "" {
 		resp.Diagnostics.AddError(
-			"Error updating NetworkTemplate",
-			"Could not update NetworkTemplate, unexpected error: "+err.Error(),
+			"Error updateing \"mist_site_networktemplate\" resource",
+			fmt.Sprintf("Unable to update the Network Template. %s", api_err),
 		)
 		return
 	}
@@ -217,16 +221,16 @@ func (r *siteNetworkTemplateResource) Delete(ctx context.Context, req resource.D
 	siteId, err := uuid.Parse(state.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"site_id\" value for \"site_networktemplate\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
+			"Invalid \"site_id\" value for \"mist_site_networktemplate\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
 	httpr, err := r.client.SitesSetting().UpdateSiteSettings(ctx, siteId, networktemplate)
 	if httpr.Response.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
-			"Error deleting NetworkTemplate",
-			"Could not delete NetworkTemplate, unexpected error: "+err.Error(),
+			"Error deleting \"mist_site_networktemplate\" resource",
+			"Unable to delete the NetworkTemplate, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -237,8 +241,8 @@ func (r *siteNetworkTemplateResource) ImportState(ctx context.Context, req resou
 	_, err := uuid.Parse(req.ID)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"site_networktemplate\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" must be a valid Site Id.", req.ID, err.Error()),
+			"Invalid \"id\" value for \"mist_site_networktemplate\" resource",
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s. Import \"id\" must be a valid Site Id.", req.ID, err.Error()),
 		)
 		return
 	}

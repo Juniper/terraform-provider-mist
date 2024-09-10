@@ -68,7 +68,7 @@ func (d *constAppSubCategoriesDataSource) Read(ctx context.Context, req datasour
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting AP Stats",
-			"Could not get AP Stats, unexpected error: "+err.Error(),
+			"Unable to get the AP Stats, unexpected error: "+err.Error(),
 		)
 		return
 	}

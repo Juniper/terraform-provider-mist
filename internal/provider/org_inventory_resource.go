@@ -79,7 +79,7 @@ func (r *orgInventoryResource) Create(ctx context.Context, req resource.CreateRe
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"org_id\" value for \"org_inventory\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -130,7 +130,7 @@ func (r *orgInventoryResource) Read(ctx context.Context, req resource.ReadReques
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"org_id\" value for \"org_inventory\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -166,7 +166,7 @@ func (r *orgInventoryResource) Update(ctx context.Context, req resource.UpdateRe
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"org_id\" value for \"org_inventory\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -213,7 +213,7 @@ func (r *orgInventoryResource) Delete(ctx context.Context, req resource.DeleteRe
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"org_id\" value for \"org_inventory\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -224,7 +224,7 @@ func (r *orgInventoryResource) Delete(ctx context.Context, req resource.DeleteRe
 	if unclaim_response.Response.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
 			"Error Unclaiming Devices from the Org Inventory",
-			"Could not Unclaim devices, unexpected error: "+err.Error(),
+			"Unable to unclaim the devices, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -298,7 +298,7 @@ func (r *orgInventoryResource) refreshInventory(ctx context.Context, orgId *uuid
 	if err != nil {
 		diags.AddError(
 			"Error refreshing Inventory",
-			"Could not get Inventory, unexpected error: "+err.Error(),
+			"Unable to get the Inventory, unexpected error: "+err.Error(),
 		)
 	}
 	tflog.Debug(ctx, "refreshInventory", map[string]interface{}{"inventory": data.Data})
@@ -326,7 +326,7 @@ func processResponseInventoryError(response models.ResponseInventory, diags *dia
 
 		diags.AddError(
 			"Error Claiming Devices to the Org Inventory",
-			fmt.Sprintf("Could not Claim devices %s. API Response: %s", claim_code, reason),
+			fmt.Sprintf("Unable to claim the devices %s. API Response: %s", claim_code, reason),
 		)
 	}
 }
@@ -348,7 +348,7 @@ func (r *orgInventoryResource) claimDevices(ctx context.Context, orgId uuid.UUID
 	} else if err != nil {
 		diags.AddError(
 			"Error Claiming Devices to the Org Inventory",
-			"Could not Claim devices, unexpected error: "+err.Error(),
+			"Unable to claim the devices, unexpected error: "+err.Error(),
 		)
 		return nil
 	}
@@ -374,7 +374,7 @@ func (r *orgInventoryResource) unclaimDevices(ctx context.Context, orgId uuid.UU
 	if err != nil {
 		diags.AddError(
 			"Error Unclaiming Devices from the Org Inventory",
-			"Could not Unclaim devices, unexpected error: "+err.Error(),
+			"Unable to unclaim the devices, unexpected error: "+err.Error(),
 		)
 	}
 	tflog.Debug(ctx, "response for API Call to unclaim devices:", map[string]interface{}{
@@ -400,7 +400,7 @@ func (r *orgInventoryResource) unassignDevices(ctx context.Context, orgId uuid.U
 	if err != nil {
 		diags.AddError(
 			"Error Unassigning Devices from the Org Inventory",
-			"Could not Unassign devices, unexpected error: "+err.Error(),
+			"Unable to unassign the devices, unexpected error: "+err.Error(),
 		)
 	}
 }
@@ -419,7 +419,7 @@ func (r *orgInventoryResource) assignDevices(ctx context.Context, orgId uuid.UUI
 		if err != nil {
 			diags.AddError(
 				"Invalid \"site_id\" value for \"org_inventory\" resource",
-				fmt.Sprintf("Could not parse the UUID \"%s\": %s", orgId.String(), err.Error()),
+				fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", orgId.String(), err.Error()),
 			)
 		}
 		assign_body.SiteId = models.ToPointer(siteId)
@@ -428,7 +428,7 @@ func (r *orgInventoryResource) assignDevices(ctx context.Context, orgId uuid.UUI
 		if err != nil {
 			diags.AddError(
 				"Error Assigning Devices to the Org Inventory",
-				"Could not Assign devices, unexpected error: "+err.Error(),
+				"Unable to assign the devices, unexpected error: "+err.Error(),
 			)
 		}
 		tflog.Debug(ctx, "response for API Call to assign devices:", map[string]interface{}{
@@ -445,7 +445,7 @@ func (r *orgInventoryResource) ImportState(ctx context.Context, req resource.Imp
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"id\" value for \"org_inventory\" resource",
-			fmt.Sprintf("Could not parse the UUID \"%s\": %s. Import \"id\" must be a valid Org Id.", req.ID, err.Error()),
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s. Import \"id\" must be a valid Org Id.", req.ID, err.Error()),
 		)
 		return
 	}
