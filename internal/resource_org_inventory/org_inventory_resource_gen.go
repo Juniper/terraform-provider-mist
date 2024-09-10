@@ -52,7 +52,7 @@ func OrgInventoryResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Device Claim Code. Required for claimed devices. Removing an adopted device from the list will release it. Format is `[0-9A-Z]{15}` (e.g `01234ABCDE56789`)",
 							MarkdownDescription: "Device Claim Code. Required for claimed devices. Removing an adopted device from the list will release it. Format is `[0-9A-Z]{15}` (e.g `01234ABCDE56789`)",
 							Validators: []validator.String{
-								mistvalidator.ParseMac(),
+								mistvalidator.ParseMagic(),
 								// mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("mac"), types.StringNull()),
 							},
 						},
