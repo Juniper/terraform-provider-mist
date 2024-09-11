@@ -4,13 +4,13 @@ import (
 	"context"
 	"fmt"
 
+	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_wlan_portal_image"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/google/uuid"
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -71,7 +71,7 @@ func (r *orgWlanPortalImageResource) Create(ctx context.Context, req resource.Cr
 	orgId, err := uuid.Parse(plan.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_wlan_portal_image\" resource",
+			"Invalid \"org_id\" value for \"mist_org_wlan_portal_image\" resource",
 			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
 		)
 		return
@@ -80,25 +80,30 @@ func (r *orgWlanPortalImageResource) Create(ctx context.Context, req resource.Cr
 	wlanId, err := uuid.Parse(plan.WlanId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"wlan_id\" value for \"org_wlan_portal_image\" resource",
+			"Invalid \"wlan_id\" value for \"mist_org_wlan_portal_image\" resource",
 			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	file := getFile(plan.File.ValueString(), &resp.Diagnostics)
-	if resp.Diagnostics.HasError() {
+	file, err := models.GetFile(plan.File.ValueString())
+	if err != nil {
+		diags.AddError(
+			"Invalid \"file\" value for \"mist_org_wlan_portal_image\" resource",
+			fmt.Sprintf("Could not open file \"%s\": %s", plan.File.ValueString(), err.Error()),
+		)
 		return
 	}
-
 	var json string = ""
-	_, err = r.client.OrgsWlans().UploadOrgWlanPortalImage(ctx, orgId, wlanId, file, &json)
-	if err != nil {
+
+	data, err := r.client.OrgsWlans().UploadOrgWlanPortalImage(ctx, orgId, wlanId, file, &json)
+
+	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
+	if api_err != "" {
 		resp.Diagnostics.AddError(
-			"Error uploadting Wlan Portal Image",
-			"Could not create Wlan, unexpected error: "+err.Error(),
+			"Error creating \"mist_org_wlan_portal_image\" resource",
+			fmt.Sprintf("Unable to creaate the Portal Image. %s", api_err),
 		)
 		return
 	}
@@ -132,7 +137,7 @@ func (r *orgWlanPortalImageResource) Update(ctx context.Context, req resource.Up
 	orgId, err := uuid.Parse(plan.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_wlan_portal_image\" resource",
+			"Invalid \"org_id\" value for \"mist_org_wlan_portal_image\" resource",
 			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
 		)
 		return
@@ -141,21 +146,30 @@ func (r *orgWlanPortalImageResource) Update(ctx context.Context, req resource.Up
 	wlanId, err := uuid.Parse(plan.WlanId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"wlan_id\" value for \"org_wlan_portal_image\" resource",
+			"Invalid \"wlan_id\" value for \"mist_org_wlan_portal_image\" resource",
 			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 
-	var json string
-	var file models.FileWrapper
-	file.File = []byte(plan.File.ValueString())
-
-	_, err = r.client.OrgsWlans().UploadOrgWlanPortalImage(ctx, orgId, wlanId, file, &json)
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	file, err := models.GetFile(plan.File.ValueString())
 	if err != nil {
+		diags.AddError(
+			"Invalid \"file\" value for \"mist_org_wlan_portal_image\" resource",
+			fmt.Sprintf("Could not open file \"%s\": %s", plan.File.ValueString(), err.Error()),
+		)
+		return
+	}
+	var json string = ""
+
+	data, err := r.client.OrgsWlans().UploadOrgWlanPortalImage(ctx, orgId, wlanId, file, &json)
+
+	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
+	if api_err != "" {
 		resp.Diagnostics.AddError(
-			"Error uploadting Wlan Portal Image",
-			"Could not create Wlan, unexpected error: "+err.Error(),
+			"Error creating \"mist_org_wlan_portal_image\" resource",
+			fmt.Sprintf("Unable to update the Portal Image. %s", api_err),
 		)
 		return
 	}
@@ -184,7 +198,7 @@ func (r *orgWlanPortalImageResource) Delete(ctx context.Context, req resource.De
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_wlan_portal_image\" resource",
+			"Invalid \"org_id\" value for \"mist_org_wlan_portal_image\" resource",
 			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
@@ -193,7 +207,7 @@ func (r *orgWlanPortalImageResource) Delete(ctx context.Context, req resource.De
 	wlanId, err := uuid.Parse(state.WlanId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"wlan_id\" value for \"org_wlan_portal_image\" resource",
+			"Invalid \"wlan_id\" value for \"mist_org_wlan_portal_image\" resource",
 			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
@@ -202,20 +216,9 @@ func (r *orgWlanPortalImageResource) Delete(ctx context.Context, req resource.De
 	httpr, err := r.client.OrgsWlans().DeleteOrgWlanPortalImage(ctx, orgId, wlanId)
 	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
-			"Error deleting Wlan Portal Image",
-			"Could not delete Wlan, unexpected error: "+err.Error(),
+			"Error deleting \"mist_org_wlan_portal_image\" resource",
+			"Could not delete Portal Image, unexpected error: "+err.Error(),
 		)
 		return
 	}
-}
-
-func getFile(fileData string, diags *diag.Diagnostics) models.FileWrapper {
-	file, err := models.GetFile(fileData)
-	if err != nil {
-		diags.AddError(
-			"Invalid \"file\" value for \"org_wlan_portal_image\" resource",
-			fmt.Sprintf("Could not open file \"%s\": %s", fileData, err.Error()),
-		)
-	}
-	return file
 }

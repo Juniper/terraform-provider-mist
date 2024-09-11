@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_site_wlan_portal_image"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
@@ -16,9 +17,8 @@ import (
 )
 
 var (
-	_ resource.Resource                = &siteWlanPortalImageResource{}
-	_ resource.ResourceWithConfigure   = &siteWlanPortalImageResource{}
-	_ resource.ResourceWithImportState = &siteWlanPortalImageResource{}
+	_ resource.Resource              = &siteWlanPortalImageResource{}
+	_ resource.ResourceWithConfigure = &siteWlanPortalImageResource{}
 )
 
 func NewSiteWlanPortalImage() resource.Resource {
@@ -30,7 +30,7 @@ type siteWlanPortalImageResource struct {
 }
 
 func (r *siteWlanPortalImageResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
-	tflog.Info(ctx, "Configuring Mist Site WLAN Portal Image client")
+	tflog.Info(ctx, "Configuring Mist Org WLAN Portal Image client")
 	if req.ProviderData == nil {
 		return
 	}
@@ -52,14 +52,14 @@ func (r *siteWlanPortalImageResource) Metadata(ctx context.Context, req resource
 
 func (r *siteWlanPortalImageResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryWlan + "This resource manages the Site Wlans." +
+		MarkdownDescription: docCategoryWlan + "This resource is used to upload a WLAN Captive Web Portal background image." +
 			"The WLAN object contains all the required configuration to broadcast an SSID (Authentication, VLAN, ...)",
 		Attributes: resource_site_wlan_portal_image.SiteWlanPortalImageResourceSchema(ctx).Attributes,
 	}
 }
 
 func (r *siteWlanPortalImageResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	tflog.Info(ctx, "Starting Site WLAN Portal Image Create")
+	tflog.Info(ctx, "Starting Org WLAN Portal Image Create")
 	var plan, state resource_site_wlan_portal_image.SiteWlanPortalImageModel
 
 	diags := req.Plan.Get(ctx, &plan)
@@ -71,7 +71,7 @@ func (r *siteWlanPortalImageResource) Create(ctx context.Context, req resource.C
 	siteId, err := uuid.Parse(plan.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"site_id\" value for \"site_wlan_portal_image\" resource",
+			"Invalid \"site_id\" value for \"mist_site_wlan_portal_image\" resource",
 			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.SiteId.ValueString(), err.Error()),
 		)
 		return
@@ -80,21 +80,30 @@ func (r *siteWlanPortalImageResource) Create(ctx context.Context, req resource.C
 	wlanId, err := uuid.Parse(plan.WlanId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"wlan_id\" value for \"site_wlan_portal_image\" resource",
+			"Invalid \"wlan_id\" value for \"mist_site_wlan_portal_image\" resource",
 			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
 
-	var json string
-	var file models.FileWrapper
-	file.File = []byte(plan.File.ValueString())
-
-	_, err = r.client.SitesWlans().UploadSiteWlanPortalImage(ctx, siteId, wlanId, file, &json)
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	file, err := models.GetFile(plan.File.ValueString())
 	if err != nil {
+		diags.AddError(
+			"Invalid \"file\" value for \"mist_site_wlan_portal_image\" resource",
+			fmt.Sprintf("Could not open file \"%s\": %s", plan.File.ValueString(), err.Error()),
+		)
+		return
+	}
+	var json string = ""
+
+	data, err := r.client.SitesWlans().UploadSiteWlanPortalImage(ctx, siteId, wlanId, file, &json)
+
+	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
+	if api_err != "" {
 		resp.Diagnostics.AddError(
-			"Error creating Wlan",
-			"Could not create Wlan, unexpected error: "+err.Error(),
+			"Error creating \"mist_site_wlan_portal_image\" resource",
+			fmt.Sprintf("Unable to creaate the Portal Image. %s", api_err),
 		)
 		return
 	}
@@ -117,7 +126,7 @@ func (r *siteWlanPortalImageResource) Read(ctx context.Context, req resource.Rea
 
 func (r *siteWlanPortalImageResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var state, plan resource_site_wlan_portal_image.SiteWlanPortalImageModel
-	tflog.Info(ctx, "Starting Site WLAN Portal Image Update")
+	tflog.Info(ctx, "Starting Org WLAN Portal Image Update")
 
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
@@ -128,7 +137,7 @@ func (r *siteWlanPortalImageResource) Update(ctx context.Context, req resource.U
 	siteId, err := uuid.Parse(plan.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"site_id\" value for \"site_wlan_portal_image\" resource",
+			"Invalid \"site_id\" value for \"mist_site_wlan_portal_image\" resource",
 			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.SiteId.ValueString(), err.Error()),
 		)
 		return
@@ -137,21 +146,30 @@ func (r *siteWlanPortalImageResource) Update(ctx context.Context, req resource.U
 	wlanId, err := uuid.Parse(plan.WlanId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"wlan_id\" value for \"site_wlan_portal_image\" resource",
+			"Invalid \"wlan_id\" value for \"mist_site_wlan_portal_image\" resource",
 			fmt.Sprintf("Could not parse the UUID \"%s\": %s", plan.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
 
-	var json string
-	var file models.FileWrapper
-	file.File = []byte(plan.File.ValueString())
-
-	_, err = r.client.SitesWlans().UploadSiteWlanPortalImage(ctx, siteId, wlanId, file, &json)
+	// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	file, err := models.GetFile(plan.File.ValueString())
 	if err != nil {
+		diags.AddError(
+			"Invalid \"file\" value for \"mist_site_wlan_portal_image\" resource",
+			fmt.Sprintf("Could not open file \"%s\": %s", plan.File.ValueString(), err.Error()),
+		)
+		return
+	}
+	var json string = ""
+
+	data, err := r.client.SitesWlans().UploadSiteWlanPortalImage(ctx, siteId, wlanId, file, &json)
+
+	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
+	if api_err != "" {
 		resp.Diagnostics.AddError(
-			"Error creating Wlan",
-			"Could not create Wlan, unexpected error: "+err.Error(),
+			"Error creating \"mist_site_wlan_portal_image\" resource",
+			fmt.Sprintf("Unable to update the Portal Image. %s", api_err),
 		)
 		return
 	}
@@ -180,7 +198,7 @@ func (r *siteWlanPortalImageResource) Delete(ctx context.Context, req resource.D
 	siteId, err := uuid.Parse(state.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"site_id\" value for \"site_wlan_portal_image\" resource",
+			"Invalid \"site_id\" value for \"mist_site_wlan_portal_image\" resource",
 			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
 		)
 		return
@@ -189,17 +207,17 @@ func (r *siteWlanPortalImageResource) Delete(ctx context.Context, req resource.D
 	wlanId, err := uuid.Parse(state.WlanId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"wlan_id\" value for \"site_wlan_portal_image\" resource",
+			"Invalid \"wlan_id\" value for \"mist_site_wlan_portal_image\" resource",
 			fmt.Sprintf("Could not parse the UUID \"%s\": %s", state.SiteId.ValueString(), err.Error()),
 		)
 		return
 	}
 
-	_, err := r.client.SitesWlans().DeleteSiteWlan()
+	httpr, err := r.client.SitesWlans().DeleteSiteWlanPortalImage(ctx, siteId, wlanId)
 	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
-			"Error deleting Wlan",
-			"Could not delete Wlan, unexpected error: "+err.Error(),
+			"Error deleting \"mist_site_wlan_portal_image\" resource",
+			"Could not delete Portal Image, unexpected error: "+err.Error(),
 		)
 		return
 	}
