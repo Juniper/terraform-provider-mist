@@ -733,13 +733,13 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 										"protocol": schema.StringAttribute{
 											Optional:            true,
 											Computed:            true,
-											Description:         "enum: `http`, `udp`",
-											MarkdownDescription: "enum: `http`, `udp`",
+											Description:         "enum: `http`, `icmp`",
+											MarkdownDescription: "enum: `http`, `icmp`",
 											Validators: []validator.String{
 												stringvalidator.OneOf(
 													"",
 													"http",
-													"udp",
+													"icmp",
 												),
 											},
 											Default: stringdefault.StaticString("http"),

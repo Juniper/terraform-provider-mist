@@ -91,7 +91,6 @@ It triggers when, in a Z minute window, there are more than Y distinct client en
 ### Read-Only
 
 - `blacklist_url` (String)
-- `org_id` (String)
 - `watched_station_url` (String)
 - `whitelist_url` (String)
 
@@ -287,7 +286,7 @@ Optional:
 - `hostname` (List of String) if `protocol`==`http`
 - `name` (String)
 - `network` (String)
-- `protocol` (String) enum: `http`, `udp`
+- `protocol` (String) enum: `http`, `icmp`
 - `url` (String) if `protocol`==`http`
 - `vrf` (String)
 
