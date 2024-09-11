@@ -125,7 +125,7 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"blacklist_url": schema.StringAttribute{
 				Computed: true,
-				Default: stringdefault.StaticString(""),
+				Default:  stringdefault.StaticString(""),
 			},
 			"ble_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -1442,11 +1442,11 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"watched_station_url": schema.StringAttribute{
 				Computed: true,
-				Default: stringdefault.StaticString(""),
+				Default:  stringdefault.StaticString(""),
 			},
 			"whitelist_url": schema.StringAttribute{
 				Computed: true,
-				Default: stringdefault.StaticString(""),
+				Default:  stringdefault.StaticString(""),
 			},
 			"wids": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
