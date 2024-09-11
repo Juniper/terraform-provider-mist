@@ -94,13 +94,10 @@ func SdkToTerraform(ctx context.Context, orgId string, data []models.Inventory, 
 
 		var nMagic string = strings.ToUpper(newDevice.Magic.ValueString())
 		var nMac string = strings.ToLower(newDevice.Mac.ValueString())
+		devices_map_mac[nMac] = &newDevice
 		if nMagic != "" {
 			// for claimed devices
 			devices_map_magic[nMagic] = &newDevice
-			devices_map_mac[nMac] = &newDevice
-		} else {
-			// for adopted devices
-			devices_map_mac[nMac] = &newDevice
 		}
 
 		if newDevice.VcMac.Equal(newDevice.Mac) {
@@ -114,7 +111,7 @@ func SdkToTerraform(ctx context.Context, orgId string, data []models.Inventory, 
 	if plan.OrgId.ValueStringPointer() == nil {
 		for _, dev := range devices_map_mac {
 			checkVcSiteId(dev, vcmac_to_site)
-			devices_out = append(devices_out, *dev)
+			devices_out = append(devices_out, dev)
 		}
 	} else {
 		for _, dev_plan_attr := range plan.Devices.Elements() {
