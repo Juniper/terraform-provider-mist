@@ -78,7 +78,7 @@ func (o AllowedWhenValueIsValidator) Validate(ctx context.Context, req AllowedWh
 			if mpVal.IsUnknown() || !o.Value.Equal(mpVal) {
 				resp.Diagnostics.Append(validatordiag.InvalidAttributeCombinationDiagnostic(
 					req.Path,
-					fmt.Sprintf("attribute %q must be set to %q when %q has value, got: %q", mp, o.Value, req.Path, mpVal),
+					fmt.Sprintf("attribute %s must be set to %s when %s has value, got: %s", mp, o.Value, req.Path, mpVal.String()),
 				))
 			}
 		}

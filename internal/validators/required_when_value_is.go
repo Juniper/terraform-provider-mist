@@ -82,7 +82,7 @@ func (o RequiredWhenValueIsValidator) Validate(ctx context.Context, req Required
 				resp.Diagnostics.AddAttributeError(
 					req.Path,
 					"Missing required attribute",
-					fmt.Sprintf("Attribute %q required when %q has value %q.", req.Path, mp.String(), mpVal.String()),
+					fmt.Sprintf("Attribute %s required when %s has value %s.", req.Path, mp.String(), mpVal.String()),
 				)
 			}
 		}
