@@ -519,7 +519,9 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 						},
-						Optional: true,
+						Optional:            true,
+						Description:         "Property key is the network name",
+						MarkdownDescription: "Property key is the network name",
 						Validators: []validator.Map{
 							mapvalidator.SizeAtLeast(1),
 						},
