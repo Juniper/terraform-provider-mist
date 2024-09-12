@@ -230,9 +230,11 @@ func portalTemplateTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, 
 		portalTemplateLocalesTerraformToSdk(ctx, diags, plan, &data)
 	}
 
-	if !plan.Logo.IsNull() && !plan.Logo.IsUnknown() {
+	if !plan.Logo.IsNull() && !plan.Logo.IsUnknown() && len(plan.Logo.ValueString()) > 0 {
 		logo := getLogo(ctx, diags, plan.Logo.ValueString())
 		data.Logo = models.NewOptional(models.ToPointer(logo))
+	} else {
+		data.Logo = models.NewOptional(models.ToPointer(""))
 	}
 
 	if !plan.Message.IsNull() && !plan.Message.IsUnknown() {
