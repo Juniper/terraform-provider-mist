@@ -128,10 +128,13 @@ Optional:
 <a id="nestedatt--acl_policies--actions"></a>
 ### Nested Schema for `acl_policies.actions`
 
+Required:
+
+- `dst_tag` (String)
+
 Optional:
 
 - `action` (String) enum: `allow`, `deny`
-- `dst_tag` (String)
 
 
 
@@ -763,7 +766,7 @@ Optional:
 
 - `type` (String) enum: `dhcp`, `static`
 - `use_mgmt_vrf` (Boolean) f supported on the platform. If enabled, DNS will be using this routing-instance, too
-- `use_mgmt_vrf_for_host_out` (Boolean) for host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired,
+- `use_mgmt_vrf_for_host_out` (Boolean) for host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired
 
 
 <a id="nestedatt--switch_matching--rules--port_config"></a>
