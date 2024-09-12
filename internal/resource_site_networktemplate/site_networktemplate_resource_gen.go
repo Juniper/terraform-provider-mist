@@ -1645,8 +1645,7 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 				Default:             booldefault.StaticBool(false),
 			},
 			"site_id": schema.StringAttribute{
-				Optional: true,
-				Computed: true,
+				Required: true,
 			},
 			"snmp_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
