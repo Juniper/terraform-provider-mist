@@ -4,6 +4,9 @@ package resource_site_wlan_portal_image
 
 import (
 	"context"
+	"github.com/Juniper/terraform-provider-mist/internal/validators"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -14,14 +17,21 @@ func SiteWlanPortalImageResourceSchema(ctx context.Context) schema.Schema {
 		Attributes: map[string]schema.Attribute{
 			"file": schema.StringAttribute{
 				Required:            true,
-				Description:         "binary file",
-				MarkdownDescription: "binary file",
+				Description:         "path to the background image file. File must be a `jpeg`, `jpg` or `png` image`",
+				MarkdownDescription: "path to the background image file. File must be a `jpeg`, `jpg` or `png` image`",
+				Validators: []validator.String{
+					stringvalidator.Any(
+						mistvalidator.ParseImageType(true, true),
+					),
+				},
 			},
 			"site_id": schema.StringAttribute{
-				Optional: true,
+				Required: true,
 			},
 			"wlan_id": schema.StringAttribute{
-				Optional: true,
+				Required:            true,
+				Description:         "Site WLAN ID",
+				MarkdownDescription: "Site WLAN ID",
 			},
 		},
 	}

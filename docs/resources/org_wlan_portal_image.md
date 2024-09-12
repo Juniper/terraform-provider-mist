@@ -25,11 +25,8 @@ resource "mist_org_wlan_portal_image" "wlan_one" {
 
 ### Required
 
-- `file` (String) binary file
-
-### Optional
-
+- `file` (String) path to the background image file. File must be a `jpeg`, `jpg` or `png` image`
 - `org_id` (String)
-- `wlan_id` (String)
+- `wlan_id` (String) Org WLAN ID
 
 
