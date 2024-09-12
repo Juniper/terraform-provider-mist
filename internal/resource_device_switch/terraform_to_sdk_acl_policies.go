@@ -22,7 +22,7 @@ func aclPolicyActionsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics
 			data_item.Action = models.ToPointer(models.AllowDenyEnum(v_plan.Action.ValueString()))
 		}
 		if v_plan.DstTag.ValueStringPointer() != nil {
-			data_item.DstTag = models.ToPointer(v_plan.DstTag.ValueString())
+			data_item.DstTag = v_plan.DstTag.ValueString()
 		}
 		data = append(data, data_item)
 	}

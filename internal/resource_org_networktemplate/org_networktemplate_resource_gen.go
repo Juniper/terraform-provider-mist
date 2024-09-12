@@ -50,7 +50,7 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										Default: stringdefault.StaticString("allow"),
 									},
 									"dst_tag": schema.StringAttribute{
-										Required: true,
+										Optional: true,
 									},
 								},
 								CustomType: ActionsType{
@@ -149,7 +149,17 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										Description:         "`tcp` / `udp` / `icmp` / `gre` / `any` / `:protocol_number`. `protocol_number` is between 1-254",
 										MarkdownDescription: "`tcp` / `udp` / `icmp` / `gre` / `any` / `:protocol_number`. `protocol_number` is between 1-254",
 										Validators: []validator.String{
-											stringvalidator.Any(stringvalidator.OneOf("https", "tcp", "udp", "icmp", "gre", "any"), mistvalidator.ParseInt(1, 254)),
+											stringvalidator.Any(
+												stringvalidator.OneOf(
+													"https",
+													"tcp",
+													"udp",
+													"icmp",
+													"gre",
+													"any",
+												),
+												mistvalidator.ParseInt(1, 254),
+											),
 										},
 										Default: stringdefault.StaticString("any"),
 									},
@@ -648,7 +658,7 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
 								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x")),
 							},
-							Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+							Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 						},
 						"enable_mac_auth": schema.BoolAttribute{
 							Optional:            true,
@@ -760,7 +770,7 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							Validators: []validator.List{
 								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("trunk")),
 							},
-							Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+							Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 						},
 						"persist_mac": schema.BoolAttribute{
 							Optional:            true,
@@ -2231,6 +2241,37 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									Description:         "additional CLI commands to append to the generated Junos config\n\n**Note**: no check is done",
 									MarkdownDescription: "additional CLI commands to append to the generated Junos config\n\n**Note**: no check is done",
 								},
+								"ip_config": schema.SingleNestedAttribute{
+									Attributes: map[string]schema.Attribute{
+										"network": schema.StringAttribute{
+											Optional:            true,
+											Description:         "VLAN Name for the management interface",
+											MarkdownDescription: "VLAN Name for the management interface",
+										},
+										"type": schema.StringAttribute{
+											Optional:            true,
+											Computed:            true,
+											Description:         "enum: `dhcp`, `static`",
+											MarkdownDescription: "enum: `dhcp`, `static`",
+											Validators: []validator.String{
+												stringvalidator.OneOf(
+													"",
+													"dhcp",
+													"static",
+												),
+											},
+											Default: stringdefault.StaticString("dhcp"),
+										},
+									},
+									CustomType: IpConfigType{
+										ObjectType: types.ObjectType{
+											AttrTypes: IpConfigValue{}.AttributeTypes(ctx),
+										},
+									},
+									Optional:            true,
+									Description:         "In-Band Management interface configuration",
+									MarkdownDescription: "In-Band Management interface configuration",
+								},
 								"match_role": schema.StringAttribute{
 									Optional:            true,
 									Description:         "role to match",
@@ -2246,6 +2287,46 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"name": schema.StringAttribute{
 									Optional: true,
+								},
+								"oob_ip_config": schema.SingleNestedAttribute{
+									Attributes: map[string]schema.Attribute{
+										"type": schema.StringAttribute{
+											Optional:            true,
+											Computed:            true,
+											Description:         "enum: `dhcp`, `static`",
+											MarkdownDescription: "enum: `dhcp`, `static`",
+											Validators: []validator.String{
+												stringvalidator.OneOf(
+													"",
+													"dhcp",
+													"static",
+												),
+											},
+											Default: stringdefault.StaticString("dhcp"),
+										},
+										"use_mgmt_vrf": schema.BoolAttribute{
+											Optional:            true,
+											Computed:            true,
+											Description:         "f supported on the platform. If enabled, DNS will be using this routing-instance, too",
+											MarkdownDescription: "f supported on the platform. If enabled, DNS will be using this routing-instance, too",
+											Default:             booldefault.StaticBool(false),
+										},
+										"use_mgmt_vrf_for_host_out": schema.BoolAttribute{
+											Optional:            true,
+											Computed:            true,
+											Description:         "for host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired,",
+											MarkdownDescription: "for host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired,",
+											Default:             booldefault.StaticBool(false),
+										},
+									},
+									CustomType: OobIpConfigType{
+										ObjectType: types.ObjectType{
+											AttrTypes: OobIpConfigValue{}.AttributeTypes(ctx),
+										},
+									},
+									Optional:            true,
+									Description:         "Out-of-Band Management interface configuration",
+									MarkdownDescription: "Out-of-Band Management interface configuration",
 								},
 								"port_config": schema.MapNestedAttribute{
 									NestedObject: schema.NestedAttributeObject{
@@ -2542,7 +2623,7 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								Computed:            true,
 								Description:         "optionally, services we'll allow",
 								MarkdownDescription: "optionally, services we'll allow",
-								Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+								Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 							},
 							"custom": schema.ListNestedAttribute{
 								NestedObject: schema.NestedAttributeObject{
@@ -2574,7 +2655,7 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											ElementType: types.StringType,
 											Optional:    true,
 											Computed:    true,
-											Default:     listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+											Default:     listdefault.StaticValue(types.ListNull(types.StringType)),
 										},
 									},
 									CustomType: CustomType{
@@ -2598,7 +2679,7 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								Computed:            true,
 								Description:         "host/subnets we'll allow traffic to/from",
 								MarkdownDescription: "host/subnets we'll allow traffic to/from",
-								Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+								Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 							},
 						},
 						CustomType: ProtectReType{
@@ -28152,6 +28233,24 @@ func (t MatchingRulesType) ValueFromObject(ctx context.Context, in basetypes.Obj
 			fmt.Sprintf(`additional_config_cmds expected to be basetypes.ListValue, was: %T`, additionalConfigCmdsAttribute))
 	}
 
+	ipConfigAttribute, ok := attributes["ip_config"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ip_config is missing from object`)
+
+		return nil, diags
+	}
+
+	ipConfigVal, ok := ipConfigAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ip_config expected to be basetypes.ObjectValue, was: %T`, ipConfigAttribute))
+	}
+
 	matchRoleAttribute, ok := attributes["match_role"]
 
 	if !ok {
@@ -28224,6 +28323,24 @@ func (t MatchingRulesType) ValueFromObject(ctx context.Context, in basetypes.Obj
 			fmt.Sprintf(`name expected to be basetypes.StringValue, was: %T`, nameAttribute))
 	}
 
+	oobIpConfigAttribute, ok := attributes["oob_ip_config"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`oob_ip_config is missing from object`)
+
+		return nil, diags
+	}
+
+	oobIpConfigVal, ok := oobIpConfigAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`oob_ip_config expected to be basetypes.ObjectValue, was: %T`, oobIpConfigAttribute))
+	}
+
 	portConfigAttribute, ok := attributes["port_config"]
 
 	if !ok {
@@ -28266,10 +28383,12 @@ func (t MatchingRulesType) ValueFromObject(ctx context.Context, in basetypes.Obj
 
 	return MatchingRulesValue{
 		AdditionalConfigCmds: additionalConfigCmdsVal,
+		IpConfig:             ipConfigVal,
 		MatchRole:            matchRoleVal,
 		MatchType:            matchTypeVal,
 		MatchValue:           matchValueVal,
 		Name:                 nameVal,
+		OobIpConfig:          oobIpConfigVal,
 		PortConfig:           portConfigVal,
 		PortMirroring:        portMirroringVal,
 		state:                attr.ValueStateKnown,
@@ -28357,6 +28476,24 @@ func NewMatchingRulesValue(attributeTypes map[string]attr.Type, attributes map[s
 			fmt.Sprintf(`additional_config_cmds expected to be basetypes.ListValue, was: %T`, additionalConfigCmdsAttribute))
 	}
 
+	ipConfigAttribute, ok := attributes["ip_config"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ip_config is missing from object`)
+
+		return NewMatchingRulesValueUnknown(), diags
+	}
+
+	ipConfigVal, ok := ipConfigAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ip_config expected to be basetypes.ObjectValue, was: %T`, ipConfigAttribute))
+	}
+
 	matchRoleAttribute, ok := attributes["match_role"]
 
 	if !ok {
@@ -28429,6 +28566,24 @@ func NewMatchingRulesValue(attributeTypes map[string]attr.Type, attributes map[s
 			fmt.Sprintf(`name expected to be basetypes.StringValue, was: %T`, nameAttribute))
 	}
 
+	oobIpConfigAttribute, ok := attributes["oob_ip_config"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`oob_ip_config is missing from object`)
+
+		return NewMatchingRulesValueUnknown(), diags
+	}
+
+	oobIpConfigVal, ok := oobIpConfigAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`oob_ip_config expected to be basetypes.ObjectValue, was: %T`, oobIpConfigAttribute))
+	}
+
 	portConfigAttribute, ok := attributes["port_config"]
 
 	if !ok {
@@ -28471,10 +28626,12 @@ func NewMatchingRulesValue(attributeTypes map[string]attr.Type, attributes map[s
 
 	return MatchingRulesValue{
 		AdditionalConfigCmds: additionalConfigCmdsVal,
+		IpConfig:             ipConfigVal,
 		MatchRole:            matchRoleVal,
 		MatchType:            matchTypeVal,
 		MatchValue:           matchValueVal,
 		Name:                 nameVal,
+		OobIpConfig:          oobIpConfigVal,
 		PortConfig:           portConfigVal,
 		PortMirroring:        portMirroringVal,
 		state:                attr.ValueStateKnown,
@@ -28550,17 +28707,19 @@ var _ basetypes.ObjectValuable = MatchingRulesValue{}
 
 type MatchingRulesValue struct {
 	AdditionalConfigCmds basetypes.ListValue   `tfsdk:"additional_config_cmds"`
+	IpConfig             basetypes.ObjectValue `tfsdk:"ip_config"`
 	MatchRole            basetypes.StringValue `tfsdk:"match_role"`
 	MatchType            basetypes.StringValue `tfsdk:"match_type"`
 	MatchValue           basetypes.StringValue `tfsdk:"match_value"`
 	Name                 basetypes.StringValue `tfsdk:"name"`
+	OobIpConfig          basetypes.ObjectValue `tfsdk:"oob_ip_config"`
 	PortConfig           basetypes.MapValue    `tfsdk:"port_config"`
 	PortMirroring        basetypes.MapValue    `tfsdk:"port_mirroring"`
 	state                attr.ValueState
 }
 
 func (v MatchingRulesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 7)
+	attrTypes := make(map[string]tftypes.Type, 9)
 
 	var val tftypes.Value
 	var err error
@@ -28568,10 +28727,16 @@ func (v MatchingRulesValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 	attrTypes["additional_config_cmds"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
+	attrTypes["ip_config"] = basetypes.ObjectType{
+		AttrTypes: IpConfigValue{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
 	attrTypes["match_role"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["match_type"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["match_value"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["oob_ip_config"] = basetypes.ObjectType{
+		AttrTypes: OobIpConfigValue{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
 	attrTypes["port_config"] = basetypes.MapType{
 		ElemType: PortConfigValue{}.Type(ctx),
 	}.TerraformType(ctx)
@@ -28583,7 +28748,7 @@ func (v MatchingRulesValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 7)
+		vals := make(map[string]tftypes.Value, 9)
 
 		val, err = v.AdditionalConfigCmds.ToTerraformValue(ctx)
 
@@ -28592,6 +28757,14 @@ func (v MatchingRulesValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 		}
 
 		vals["additional_config_cmds"] = val
+
+		val, err = v.IpConfig.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["ip_config"] = val
 
 		val, err = v.MatchRole.ToTerraformValue(ctx)
 
@@ -28624,6 +28797,14 @@ func (v MatchingRulesValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 		}
 
 		vals["name"] = val
+
+		val, err = v.OobIpConfig.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["oob_ip_config"] = val
 
 		val, err = v.PortConfig.ToTerraformValue(ctx)
 
@@ -28669,6 +28850,48 @@ func (v MatchingRulesValue) String() string {
 
 func (v MatchingRulesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
+
+	var ipConfig basetypes.ObjectValue
+
+	if v.IpConfig.IsNull() {
+		ipConfig = types.ObjectNull(
+			IpConfigValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.IpConfig.IsUnknown() {
+		ipConfig = types.ObjectUnknown(
+			IpConfigValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.IpConfig.IsNull() && !v.IpConfig.IsUnknown() {
+		ipConfig = types.ObjectValueMust(
+			IpConfigValue{}.AttributeTypes(ctx),
+			v.IpConfig.Attributes(),
+		)
+	}
+
+	var oobIpConfig basetypes.ObjectValue
+
+	if v.OobIpConfig.IsNull() {
+		oobIpConfig = types.ObjectNull(
+			OobIpConfigValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.OobIpConfig.IsUnknown() {
+		oobIpConfig = types.ObjectUnknown(
+			OobIpConfigValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.OobIpConfig.IsNull() && !v.OobIpConfig.IsUnknown() {
+		oobIpConfig = types.ObjectValueMust(
+			OobIpConfigValue{}.AttributeTypes(ctx),
+			v.OobIpConfig.Attributes(),
+		)
+	}
 
 	portConfig := types.MapValueMust(
 		PortConfigType{
@@ -28737,10 +28960,16 @@ func (v MatchingRulesValue) ToObjectValue(ctx context.Context) (basetypes.Object
 			"additional_config_cmds": basetypes.ListType{
 				ElemType: types.StringType,
 			},
+			"ip_config": basetypes.ObjectType{
+				AttrTypes: IpConfigValue{}.AttributeTypes(ctx),
+			},
 			"match_role":  basetypes.StringType{},
 			"match_type":  basetypes.StringType{},
 			"match_value": basetypes.StringType{},
 			"name":        basetypes.StringType{},
+			"oob_ip_config": basetypes.ObjectType{
+				AttrTypes: OobIpConfigValue{}.AttributeTypes(ctx),
+			},
 			"port_config": basetypes.MapType{
 				ElemType: PortConfigValue{}.Type(ctx),
 			},
@@ -28754,10 +28983,16 @@ func (v MatchingRulesValue) ToObjectValue(ctx context.Context) (basetypes.Object
 		"additional_config_cmds": basetypes.ListType{
 			ElemType: types.StringType,
 		},
+		"ip_config": basetypes.ObjectType{
+			AttrTypes: IpConfigValue{}.AttributeTypes(ctx),
+		},
 		"match_role":  basetypes.StringType{},
 		"match_type":  basetypes.StringType{},
 		"match_value": basetypes.StringType{},
 		"name":        basetypes.StringType{},
+		"oob_ip_config": basetypes.ObjectType{
+			AttrTypes: OobIpConfigValue{}.AttributeTypes(ctx),
+		},
 		"port_config": basetypes.MapType{
 			ElemType: PortConfigValue{}.Type(ctx),
 		},
@@ -28778,10 +29013,12 @@ func (v MatchingRulesValue) ToObjectValue(ctx context.Context) (basetypes.Object
 		attributeTypes,
 		map[string]attr.Value{
 			"additional_config_cmds": additionalConfigCmdsVal,
+			"ip_config":              ipConfig,
 			"match_role":             v.MatchRole,
 			"match_type":             v.MatchType,
 			"match_value":            v.MatchValue,
 			"name":                   v.Name,
+			"oob_ip_config":          oobIpConfig,
 			"port_config":            portConfig,
 			"port_mirroring":         portMirroring,
 		})
@@ -28808,6 +29045,10 @@ func (v MatchingRulesValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.IpConfig.Equal(other.IpConfig) {
+		return false
+	}
+
 	if !v.MatchRole.Equal(other.MatchRole) {
 		return false
 	}
@@ -28821,6 +29062,10 @@ func (v MatchingRulesValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.Name.Equal(other.Name) {
+		return false
+	}
+
+	if !v.OobIpConfig.Equal(other.OobIpConfig) {
 		return false
 	}
 
@@ -28848,16 +29093,835 @@ func (v MatchingRulesValue) AttributeTypes(ctx context.Context) map[string]attr.
 		"additional_config_cmds": basetypes.ListType{
 			ElemType: types.StringType,
 		},
+		"ip_config": basetypes.ObjectType{
+			AttrTypes: IpConfigValue{}.AttributeTypes(ctx),
+		},
 		"match_role":  basetypes.StringType{},
 		"match_type":  basetypes.StringType{},
 		"match_value": basetypes.StringType{},
 		"name":        basetypes.StringType{},
+		"oob_ip_config": basetypes.ObjectType{
+			AttrTypes: OobIpConfigValue{}.AttributeTypes(ctx),
+		},
 		"port_config": basetypes.MapType{
 			ElemType: PortConfigValue{}.Type(ctx),
 		},
 		"port_mirroring": basetypes.MapType{
 			ElemType: PortMirroringValue{}.Type(ctx),
 		},
+	}
+}
+
+var _ basetypes.ObjectTypable = IpConfigType{}
+
+type IpConfigType struct {
+	basetypes.ObjectType
+}
+
+func (t IpConfigType) Equal(o attr.Type) bool {
+	other, ok := o.(IpConfigType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t IpConfigType) String() string {
+	return "IpConfigType"
+}
+
+func (t IpConfigType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	networkAttribute, ok := attributes["network"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`network is missing from object`)
+
+		return nil, diags
+	}
+
+	networkVal, ok := networkAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`network expected to be basetypes.StringValue, was: %T`, networkAttribute))
+	}
+
+	typeAttribute, ok := attributes["type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`type is missing from object`)
+
+		return nil, diags
+	}
+
+	typeVal, ok := typeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, typeAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return IpConfigValue{
+		Network:      networkVal,
+		IpConfigType: typeVal,
+		state:        attr.ValueStateKnown,
+	}, diags
+}
+
+func NewIpConfigValueNull() IpConfigValue {
+	return IpConfigValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewIpConfigValueUnknown() IpConfigValue {
+	return IpConfigValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewIpConfigValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (IpConfigValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing IpConfigValue Attribute Value",
+				"While creating a IpConfigValue value, a missing attribute value was detected. "+
+					"A IpConfigValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("IpConfigValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid IpConfigValue Attribute Type",
+				"While creating a IpConfigValue value, an invalid attribute value was detected. "+
+					"A IpConfigValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("IpConfigValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("IpConfigValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra IpConfigValue Attribute Value",
+				"While creating a IpConfigValue value, an extra attribute value was detected. "+
+					"A IpConfigValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra IpConfigValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewIpConfigValueUnknown(), diags
+	}
+
+	networkAttribute, ok := attributes["network"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`network is missing from object`)
+
+		return NewIpConfigValueUnknown(), diags
+	}
+
+	networkVal, ok := networkAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`network expected to be basetypes.StringValue, was: %T`, networkAttribute))
+	}
+
+	typeAttribute, ok := attributes["type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`type is missing from object`)
+
+		return NewIpConfigValueUnknown(), diags
+	}
+
+	typeVal, ok := typeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, typeAttribute))
+	}
+
+	if diags.HasError() {
+		return NewIpConfigValueUnknown(), diags
+	}
+
+	return IpConfigValue{
+		Network:      networkVal,
+		IpConfigType: typeVal,
+		state:        attr.ValueStateKnown,
+	}, diags
+}
+
+func NewIpConfigValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) IpConfigValue {
+	object, diags := NewIpConfigValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewIpConfigValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t IpConfigType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewIpConfigValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewIpConfigValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewIpConfigValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewIpConfigValueMust(IpConfigValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t IpConfigType) ValueType(ctx context.Context) attr.Value {
+	return IpConfigValue{}
+}
+
+var _ basetypes.ObjectValuable = IpConfigValue{}
+
+type IpConfigValue struct {
+	Network      basetypes.StringValue `tfsdk:"network"`
+	IpConfigType basetypes.StringValue `tfsdk:"type"`
+	state        attr.ValueState
+}
+
+func (v IpConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 2)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["network"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["type"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 2)
+
+		val, err = v.Network.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["network"] = val
+
+		val, err = v.IpConfigType.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["type"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v IpConfigValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v IpConfigValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v IpConfigValue) String() string {
+	return "IpConfigValue"
+}
+
+func (v IpConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"network": basetypes.StringType{},
+		"type":    basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"network": v.Network,
+			"type":    v.IpConfigType,
+		})
+
+	return objVal, diags
+}
+
+func (v IpConfigValue) Equal(o attr.Value) bool {
+	other, ok := o.(IpConfigValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Network.Equal(other.Network) {
+		return false
+	}
+
+	if !v.IpConfigType.Equal(other.IpConfigType) {
+		return false
+	}
+
+	return true
+}
+
+func (v IpConfigValue) Type(ctx context.Context) attr.Type {
+	return IpConfigType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v IpConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"network": basetypes.StringType{},
+		"type":    basetypes.StringType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = OobIpConfigType{}
+
+type OobIpConfigType struct {
+	basetypes.ObjectType
+}
+
+func (t OobIpConfigType) Equal(o attr.Type) bool {
+	other, ok := o.(OobIpConfigType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t OobIpConfigType) String() string {
+	return "OobIpConfigType"
+}
+
+func (t OobIpConfigType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	typeAttribute, ok := attributes["type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`type is missing from object`)
+
+		return nil, diags
+	}
+
+	typeVal, ok := typeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, typeAttribute))
+	}
+
+	useMgmtVrfAttribute, ok := attributes["use_mgmt_vrf"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`use_mgmt_vrf is missing from object`)
+
+		return nil, diags
+	}
+
+	useMgmtVrfVal, ok := useMgmtVrfAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`use_mgmt_vrf expected to be basetypes.BoolValue, was: %T`, useMgmtVrfAttribute))
+	}
+
+	useMgmtVrfForHostOutAttribute, ok := attributes["use_mgmt_vrf_for_host_out"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`use_mgmt_vrf_for_host_out is missing from object`)
+
+		return nil, diags
+	}
+
+	useMgmtVrfForHostOutVal, ok := useMgmtVrfForHostOutAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`use_mgmt_vrf_for_host_out expected to be basetypes.BoolValue, was: %T`, useMgmtVrfForHostOutAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return OobIpConfigValue{
+		OobIpConfigType:      typeVal,
+		UseMgmtVrf:           useMgmtVrfVal,
+		UseMgmtVrfForHostOut: useMgmtVrfForHostOutVal,
+		state:                attr.ValueStateKnown,
+	}, diags
+}
+
+func NewOobIpConfigValueNull() OobIpConfigValue {
+	return OobIpConfigValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewOobIpConfigValueUnknown() OobIpConfigValue {
+	return OobIpConfigValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewOobIpConfigValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (OobIpConfigValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing OobIpConfigValue Attribute Value",
+				"While creating a OobIpConfigValue value, a missing attribute value was detected. "+
+					"A OobIpConfigValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("OobIpConfigValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid OobIpConfigValue Attribute Type",
+				"While creating a OobIpConfigValue value, an invalid attribute value was detected. "+
+					"A OobIpConfigValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("OobIpConfigValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("OobIpConfigValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra OobIpConfigValue Attribute Value",
+				"While creating a OobIpConfigValue value, an extra attribute value was detected. "+
+					"A OobIpConfigValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra OobIpConfigValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewOobIpConfigValueUnknown(), diags
+	}
+
+	typeAttribute, ok := attributes["type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`type is missing from object`)
+
+		return NewOobIpConfigValueUnknown(), diags
+	}
+
+	typeVal, ok := typeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, typeAttribute))
+	}
+
+	useMgmtVrfAttribute, ok := attributes["use_mgmt_vrf"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`use_mgmt_vrf is missing from object`)
+
+		return NewOobIpConfigValueUnknown(), diags
+	}
+
+	useMgmtVrfVal, ok := useMgmtVrfAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`use_mgmt_vrf expected to be basetypes.BoolValue, was: %T`, useMgmtVrfAttribute))
+	}
+
+	useMgmtVrfForHostOutAttribute, ok := attributes["use_mgmt_vrf_for_host_out"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`use_mgmt_vrf_for_host_out is missing from object`)
+
+		return NewOobIpConfigValueUnknown(), diags
+	}
+
+	useMgmtVrfForHostOutVal, ok := useMgmtVrfForHostOutAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`use_mgmt_vrf_for_host_out expected to be basetypes.BoolValue, was: %T`, useMgmtVrfForHostOutAttribute))
+	}
+
+	if diags.HasError() {
+		return NewOobIpConfigValueUnknown(), diags
+	}
+
+	return OobIpConfigValue{
+		OobIpConfigType:      typeVal,
+		UseMgmtVrf:           useMgmtVrfVal,
+		UseMgmtVrfForHostOut: useMgmtVrfForHostOutVal,
+		state:                attr.ValueStateKnown,
+	}, diags
+}
+
+func NewOobIpConfigValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) OobIpConfigValue {
+	object, diags := NewOobIpConfigValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewOobIpConfigValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t OobIpConfigType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewOobIpConfigValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewOobIpConfigValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewOobIpConfigValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewOobIpConfigValueMust(OobIpConfigValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t OobIpConfigType) ValueType(ctx context.Context) attr.Value {
+	return OobIpConfigValue{}
+}
+
+var _ basetypes.ObjectValuable = OobIpConfigValue{}
+
+type OobIpConfigValue struct {
+	OobIpConfigType      basetypes.StringValue `tfsdk:"type"`
+	UseMgmtVrf           basetypes.BoolValue   `tfsdk:"use_mgmt_vrf"`
+	UseMgmtVrfForHostOut basetypes.BoolValue   `tfsdk:"use_mgmt_vrf_for_host_out"`
+	state                attr.ValueState
+}
+
+func (v OobIpConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 3)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["type"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["use_mgmt_vrf"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["use_mgmt_vrf_for_host_out"] = basetypes.BoolType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 3)
+
+		val, err = v.OobIpConfigType.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["type"] = val
+
+		val, err = v.UseMgmtVrf.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["use_mgmt_vrf"] = val
+
+		val, err = v.UseMgmtVrfForHostOut.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["use_mgmt_vrf_for_host_out"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v OobIpConfigValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v OobIpConfigValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v OobIpConfigValue) String() string {
+	return "OobIpConfigValue"
+}
+
+func (v OobIpConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"type":                      basetypes.StringType{},
+		"use_mgmt_vrf":              basetypes.BoolType{},
+		"use_mgmt_vrf_for_host_out": basetypes.BoolType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"type":                      v.OobIpConfigType,
+			"use_mgmt_vrf":              v.UseMgmtVrf,
+			"use_mgmt_vrf_for_host_out": v.UseMgmtVrfForHostOut,
+		})
+
+	return objVal, diags
+}
+
+func (v OobIpConfigValue) Equal(o attr.Value) bool {
+	other, ok := o.(OobIpConfigValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.OobIpConfigType.Equal(other.OobIpConfigType) {
+		return false
+	}
+
+	if !v.UseMgmtVrf.Equal(other.UseMgmtVrf) {
+		return false
+	}
+
+	if !v.UseMgmtVrfForHostOut.Equal(other.UseMgmtVrfForHostOut) {
+		return false
+	}
+
+	return true
+}
+
+func (v OobIpConfigValue) Type(ctx context.Context) attr.Type {
+	return OobIpConfigType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v OobIpConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"type":                      basetypes.StringType{},
+		"use_mgmt_vrf":              basetypes.BoolType{},
+		"use_mgmt_vrf_for_host_out": basetypes.BoolType{},
 	}
 }
 

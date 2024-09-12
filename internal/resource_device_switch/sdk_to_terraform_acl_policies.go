@@ -23,9 +23,7 @@ func actionsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []mod
 		if d.Action != nil {
 			action = types.StringValue(string(*d.Action))
 		}
-		if d.DstTag != nil {
-			dst_tag = types.StringValue(*d.DstTag)
-		}
+		dst_tag = types.StringValue(d.DstTag)
 
 		data_map_attr_type := ActionsValue{}.AttributeTypes(ctx)
 		data_map_value := map[string]attr.Value{

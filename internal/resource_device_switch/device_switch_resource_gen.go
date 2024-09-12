@@ -149,7 +149,17 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 										Description:         "`tcp` / `udp` / `icmp` / `gre` / `any` / `:protocol_number`. `protocol_number` is between 1-254",
 										MarkdownDescription: "`tcp` / `udp` / `icmp` / `gre` / `any` / `:protocol_number`. `protocol_number` is between 1-254",
 										Validators: []validator.String{
-											stringvalidator.Any(stringvalidator.OneOf("https", "tcp", "udp", "icmp", "gre", "any"), mistvalidator.ParseInt(1, 254)),
+											stringvalidator.Any(
+												stringvalidator.OneOf(
+													"https",
+													"tcp",
+													"udp",
+													"icmp",
+													"gre",
+													"any",
+												),
+												mistvalidator.ParseInt(1, 254),
+											),
 										},
 										Default: stringdefault.StaticString("any"),
 									},
@@ -167,6 +177,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						"subnets": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Optional:            true,
+							Computed:            true,
 							Description:         "if \n- `type`==`subnet` \n- `type`==`resource` (optional. default is `any`)\n- `type`==`static_gbp` if from matching subnet",
 							MarkdownDescription: "if \n- `type`==`subnet` \n- `type`==`resource` (optional. default is `any`)\n- `type`==`static_gbp` if from matching subnet",
 							Validators: []validator.List{
@@ -210,6 +221,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "additional CLI commands to append to the generated Junos config\n\n**Note**: no check is done",
 				MarkdownDescription: "additional CLI commands to append to the generated Junos config\n\n**Note**: no check is done",
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+				},
 			},
 			"device_id": schema.StringAttribute{
 				Required: true,
@@ -1384,7 +1398,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
 								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x")),
 							},
-							Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+							Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 						},
 						"enable_mac_auth": schema.BoolAttribute{
 							Optional:            true,
@@ -1496,7 +1510,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Validators: []validator.List{
 								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("trunk")),
 							},
-							Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+							Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 						},
 						"persist_mac": schema.BoolAttribute{
 							Optional:            true,
@@ -3082,7 +3096,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 								Computed:            true,
 								Description:         "optionally, services we'll allow",
 								MarkdownDescription: "optionally, services we'll allow",
-								Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+								Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 							},
 							"custom": schema.ListNestedAttribute{
 								NestedObject: schema.NestedAttributeObject{
@@ -3136,7 +3150,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 								Computed:            true,
 								Description:         "host/subnets we'll allow traffic to/from",
 								MarkdownDescription: "host/subnets we'll allow traffic to/from",
-								Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+								Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 							},
 						},
 						CustomType: ProtectReType{
