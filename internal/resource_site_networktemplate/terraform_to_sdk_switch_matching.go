@@ -98,6 +98,41 @@ func switchMatchingRulesPortConfigTerraformToSdk(ctx context.Context, diags *dia
 	}
 	return data
 }
+func switchMatchingRulesIpConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.SwitchMatchingRuleIpConfig {
+	data := models.SwitchMatchingRuleIpConfig{}
+	if !d.IsNull() && !d.IsUnknown() {
+		item, e := NewIpConfigValue(IpConfigValue{}.AttributeTypes(ctx), d.Attributes())
+		diags.Append(e...)
+		if e == nil {
+			if item.IpConfigType.ValueStringPointer() != nil {
+				data.Type = (*models.IpTypeEnum)(item.IpConfigType.ValueStringPointer())
+			}
+			if item.Network.ValueStringPointer() != nil {
+				data.Network = item.Network.ValueStringPointer()
+			}
+		}
+	}
+	return &data
+}
+func switchMatchingRulesOobIpConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.SwitchMatchingRuleOobIpConfig {
+	data := models.SwitchMatchingRuleOobIpConfig{}
+	if !d.IsNull() && !d.IsUnknown() {
+		item, e := NewOobIpConfigValue(OobIpConfigValue{}.AttributeTypes(ctx), d.Attributes())
+		diags.Append(e...)
+		if e == nil {
+			if item.OobIpConfigType.ValueStringPointer() != nil {
+				data.Type = (*models.IpTypeEnum)(item.OobIpConfigType.ValueStringPointer())
+			}
+			if item.UseMgmtVrf.ValueBoolPointer() != nil {
+				data.UseMgmtVrf = item.UseMgmtVrf.ValueBoolPointer()
+			}
+			if item.UseMgmtVrfForHostOut.ValueBoolPointer() != nil {
+				data.UseMgmtVrfForHostOut = item.UseMgmtVrfForHostOut.ValueBoolPointer()
+			}
+		}
+	}
+	return &data
+}
 func switchMatchingRulesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.SwitchMatchingRule {
 
 	var data []models.SwitchMatchingRule
@@ -120,6 +155,12 @@ func switchMatchingRulesTerraformToSdk(ctx context.Context, diags *diag.Diagnost
 		}
 		if !plan_obj.PortMirroring.IsNull() && !plan_obj.PortMirroring.IsUnknown() {
 			item_obj.PortMirroring = switchMatchingRulesPortMirroringTerraformToSdk(ctx, diags, plan_obj.PortMirroring)
+		}
+		if !plan_obj.IpConfig.IsNull() && !plan_obj.IpConfig.IsUnknown() {
+			item_obj.IpConfig = switchMatchingRulesIpConfigTerraformToSdk(ctx, diags, plan_obj.IpConfig)
+		}
+		if !plan_obj.OobIpConfig.IsNull() && !plan_obj.OobIpConfig.IsUnknown() {
+			item_obj.OobIpConfig = switchMatchingRulesOobIpConfigTerraformToSdk(ctx, diags, plan_obj.OobIpConfig)
 		}
 
 		match := map[string]interface{}{}

@@ -729,13 +729,34 @@ Optional:
 - `additional_config_cmds` (List of String) additional CLI commands to append to the generated Junos config
 
 **Note**: no check is done
+- `ip_config` (Attributes) In-Band Management interface configuration (see [below for nested schema](#nestedatt--switch_matching--rules--ip_config))
 - `match_role` (String) role to match
 - `match_type` (String) 'property key define the type of matching, value is the string to match. e.g: `match_name[0:3]`, `match_name[2:6]`, `match_model`,  `match_model[0-6]`
 - `match_value` (String)
 - `name` (String)
+- `oob_ip_config` (Attributes) Out-of-Band Management interface configuration (see [below for nested schema](#nestedatt--switch_matching--rules--oob_ip_config))
 - `port_config` (Attributes Map) Propery key is the interface name or interface range (see [below for nested schema](#nestedatt--switch_matching--rules--port_config))
 - `port_mirroring` (Attributes Map) Property key is the port mirroring instance name
 port_mirroring can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. (see [below for nested schema](#nestedatt--switch_matching--rules--port_mirroring))
+
+<a id="nestedatt--switch_matching--rules--ip_config"></a>
+### Nested Schema for `switch_matching.rules.ip_config`
+
+Optional:
+
+- `network` (String) VLAN Name for the management interface
+- `type` (String) enum: `dhcp`, `static`
+
+
+<a id="nestedatt--switch_matching--rules--oob_ip_config"></a>
+### Nested Schema for `switch_matching.rules.oob_ip_config`
+
+Optional:
+
+- `type` (String) enum: `dhcp`, `static`
+- `use_mgmt_vrf` (Boolean) f supported on the platform. If enabled, DNS will be using this routing-instance, too
+- `use_mgmt_vrf_for_host_out` (Boolean) for host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired,
+
 
 <a id="nestedatt--switch_matching--rules--port_config"></a>
 ### Nested Schema for `switch_matching.rules.port_config`

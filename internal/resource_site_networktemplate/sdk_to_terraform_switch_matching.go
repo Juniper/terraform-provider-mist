@@ -149,6 +149,57 @@ func switchMatchingRulesPortConfigSdkToTerraform(ctx context.Context, diags *dia
 	diags.Append(e...)
 	return r
 }
+func switchMatchingRulesIpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SwitchMatchingRuleIpConfig) basetypes.ObjectValue {
+	var network basetypes.StringValue
+	var ip_type basetypes.StringValue
+
+	if d.Network != nil {
+		network = types.StringValue(*d.Network)
+	}
+	if d.Type != nil {
+		ip_type = types.StringValue(string(*d.Type))
+	}
+
+	data_map_attr_type := IpConfigValue{}.AttributeTypes(ctx)
+	data_map_value := map[string]attr.Value{
+		"network": network,
+		"type":    ip_type,
+	}
+	data, e := NewIpConfigValue(data_map_attr_type, data_map_value)
+	diags.Append(e...)
+
+	o, e := data.ToObjectValue(ctx)
+	diags.Append(e...)
+	return o
+}
+func switchMatchingRulesOobIpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SwitchMatchingRuleOobIpConfig) basetypes.ObjectValue {
+	var oob_ip_type basetypes.StringValue
+	var use_mgmt_vrf basetypes.BoolValue
+	var use_mgmt_vrf_for_host_out basetypes.BoolValue
+
+	if d.Type != nil {
+		oob_ip_type = types.StringValue(string(*d.Type))
+	}
+	if d.UseMgmtVrf != nil {
+		use_mgmt_vrf = types.BoolValue(*d.UseMgmtVrf)
+	}
+	if d.UseMgmtVrfForHostOut != nil {
+		use_mgmt_vrf_for_host_out = types.BoolValue(*d.UseMgmtVrfForHostOut)
+	}
+
+	data_map_attr_type := OobIpConfigValue{}.AttributeTypes(ctx)
+	data_map_value := map[string]attr.Value{
+		"type":                      oob_ip_type,
+		"use_mgmt_vrf":              use_mgmt_vrf,
+		"use_mgmt_vrf_for_host_out": use_mgmt_vrf_for_host_out,
+	}
+	data, e := NewOobIpConfigValue(data_map_attr_type, data_map_value)
+	diags.Append(e...)
+
+	o, e := data.ToObjectValue(ctx)
+	diags.Append(e...)
+	return o
+}
 func switchMatchingRulesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.SwitchMatchingRule) basetypes.ListValue {
 	var data_list = []MatchingRulesValue{}
 
@@ -161,6 +212,8 @@ func switchMatchingRulesSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 		var name basetypes.StringValue
 		var port_config basetypes.MapValue = types.MapNull(PortConfigValue{}.Type(ctx))
 		var port_mirroring basetypes.MapValue = types.MapNull(PortMirroringValue{}.Type(ctx))
+		var ip_config basetypes.ObjectValue = types.ObjectNull(IpConfigValue{}.AttributeTypes(ctx))
+		var oob_ip_config basetypes.ObjectValue = types.ObjectNull(OobIpConfigValue{}.AttributeTypes(ctx))
 
 		for key, value := range d.AdditionalProperties {
 			if strings.HasPrefix(key, "match_") {
@@ -184,6 +237,12 @@ func switchMatchingRulesSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 		if d.PortMirroring != nil && len(d.PortMirroring) > 0 {
 			port_mirroring = switchMatchingRulesPortMirroringSdkToTerraform(ctx, diags, d.PortMirroring)
 		}
+		if d.IpConfig != nil {
+			ip_config = switchMatchingRulesIpConfigSdkToTerraform(ctx, diags, d.IpConfig)
+		}
+		if d.OobIpConfig != nil {
+			oob_ip_config = switchMatchingRulesOobIpConfigSdkToTerraform(ctx, diags, d.OobIpConfig)
+		}
 
 		data_map_attr_type := MatchingRulesValue{}.AttributeTypes(ctx)
 		data_map_value := map[string]attr.Value{
@@ -194,6 +253,8 @@ func switchMatchingRulesSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 			"name":                   name,
 			"port_config":            port_config,
 			"port_mirroring":         port_mirroring,
+			"ip_config":              ip_config,
+			"oob_ip_config":          oob_ip_config,
 		}
 		data, e := NewMatchingRulesValue(data_map_attr_type, data_map_value)
 		diags.Append(e...)
