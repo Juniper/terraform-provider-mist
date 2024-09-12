@@ -50,7 +50,7 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										Default: stringdefault.StaticString("allow"),
 									},
 									"dst_tag": schema.StringAttribute{
-										Optional: true,
+										Required: true,
 									},
 								},
 								CustomType: ActionsType{
@@ -177,6 +177,7 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						"subnets": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Optional:            true,
+							Computed:            true,
 							Description:         "if \n- `type`==`subnet` \n- `type`==`resource` (optional. default is `any`)\n- `type`==`static_gbp` if from matching subnet",
 							MarkdownDescription: "if \n- `type`==`subnet` \n- `type`==`resource` (optional. default is `any`)\n- `type`==`static_gbp` if from matching subnet",
 							Validators: []validator.List{
@@ -220,6 +221,9 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "additional CLI commands to append to the generated Junos config\n\n**Note**: no check is done",
 				MarkdownDescription: "additional CLI commands to append to the generated Junos config\n\n**Note**: no check is done",
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+				},
 			},
 			"dhcp_snooping": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -2562,6 +2566,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										"subnet": schema.ListAttribute{
 											ElementType: types.StringType,
 											Optional:    true,
+											Computed:    true,
+											Default:     listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 										},
 									},
 									CustomType: CustomType{
