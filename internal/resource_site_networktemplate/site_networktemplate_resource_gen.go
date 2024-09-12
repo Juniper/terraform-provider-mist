@@ -50,7 +50,7 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										Default: stringdefault.StaticString("allow"),
 									},
 									"dst_tag": schema.StringAttribute{
-										Optional: true,
+										Required: true,
 									},
 								},
 								CustomType: ActionsType{
@@ -2310,8 +2310,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										"use_mgmt_vrf_for_host_out": schema.BoolAttribute{
 											Optional:            true,
 											Computed:            true,
-											Description:         "for host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired,",
-											MarkdownDescription: "for host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired,",
+											Description:         "for host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired",
+											MarkdownDescription: "for host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired",
 											Default:             booldefault.StaticBool(false),
 										},
 									},
