@@ -168,8 +168,8 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 			"allow_ssdp": schema.BoolAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "only applicable when `limit_bcast`==`tru`e, which allows SSDP",
-				MarkdownDescription: "only applicable when `limit_bcast`==`tru`e, which allows SSDP",
+				Description:         "only applicable when `limit_bcast`==`true`, which allows SSDP",
+				MarkdownDescription: "only applicable when `limit_bcast`==`true`, which allows SSDP",
 				Validators: []validator.Bool{
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("limit_bcast"), types.BoolValue(true)),
 				},
@@ -606,8 +606,19 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 			"bands": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
-				Description:         "list of radios that the wlan should apply to",
-				MarkdownDescription: "list of radios that the wlan should apply to",
+				Description:         "list of radios that the wlan should apply to. enum: `24`, `5`, `6`",
+				MarkdownDescription: "list of radios that the wlan should apply to. enum: `24`, `5`, `6`",
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+					listvalidator.UniqueValues(),
+					listvalidator.ValueStringsAre(
+						stringvalidator.OneOf(
+							"24",
+							"5",
+							"6",
+						),
+					),
+				},
 			},
 			"block_blacklist_clients": schema.BoolAttribute{
 				Optional:            true,
