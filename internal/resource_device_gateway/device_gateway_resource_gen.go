@@ -34,6 +34,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "additional CLI commands to append to the generated Junos config\n\n**Note**: no check is done",
 				MarkdownDescription: "additional CLI commands to append to the generated Junos config\n\n**Note**: no check is done",
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+				},
 			},
 			"bgp_config": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
