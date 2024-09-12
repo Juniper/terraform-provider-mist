@@ -2,11 +2,43 @@ package resource_site_wlan_portal_template
 
 import (
 	"context"
+	"encoding/base64"
+	"fmt"
+	"io"
+	"net/http"
+	"os"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 )
+
+func getLogo(ctx context.Context, diags *diag.Diagnostics, filepath string) string {
+	var filestring string
+	file, err := os.Open(filepath)
+	if err != nil {
+		diags.AddError(
+			"Invalid \"logo\" value for \"mist_site_wlan_portal_template\" resource",
+			fmt.Sprintf("Unable to open the file \"%s\": %s", filepath, err.Error()),
+		)
+		return filestring
+	}
+
+	defer file.Close()
+	file_data, err := io.ReadAll(file)
+	if err != nil {
+		diags.AddError(
+			"Invalid \"logo\" value for \"mist_site_wlan_portal_template\" resource",
+			fmt.Sprintf("Unable to read the file \"%s\": %s", filepath, err.Error()),
+		)
+		return filestring
+	}
+
+	contentType := http.DetectContentType(file_data)
+	imgBase64Str := base64.StdEncoding.EncodeToString(file_data)
+	filestring = fmt.Sprintf("data:%s;base64,%s", contentType, imgBase64Str)
+	return filestring
+}
 
 func portalTemplateTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, plan *PortalTemplateValue) *models.WlanPortalTemplateSetting {
 
@@ -194,6 +226,11 @@ func portalTemplateTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, 
 
 	if !plan.Locales.IsNull() && !plan.Locales.IsUnknown() {
 		portalTemplateLocalesTerraformToSdk(ctx, diags, plan, &data)
+	}
+
+	if !plan.Logo.IsNull() && !plan.Logo.IsUnknown() {
+		logo := getLogo(ctx, diags, plan.Logo.ValueString())
+		data.Logo = models.NewOptional(models.ToPointer(logo))
 	}
 
 	if !plan.Message.IsNull() && !plan.Message.IsUnknown() {

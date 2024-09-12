@@ -45,7 +45,7 @@ resource "mist_org_wlan_portal_template" "wlan_one" {
 
 - `org_id` (String)
 - `portal_template` (Attributes) portal template wlan settings (see [below for nested schema](#nestedatt--portal_template))
-- `wlan_id` (String) Site WLAN ID
+- `wlan_id` (String) Org WLAN ID
 
 <a id="nestedatt--portal_template"></a>
 ### Nested Schema for `portal_template`
@@ -107,6 +107,7 @@ Optional:
   `he-IL`, `hi-IN`, `hr-HR`, `hu-HU`, `id-ID`, `it-IT`, `ja-J^`, `ko-KT`, `ms-MY`, `nb-NO`, `nl-NL`, 
   `pl-PL`, `pt-BR`, `pt-PT`, `ro-RO`, `ru-RU`, `sk-SK`, `sv-SE`, `th-TH`, `tr-TR`, `uk-UA`, `vi-VN`, 
   `zh-Hans`, `zh-Hant` (see [below for nested schema](#nestedatt--portal_template--locales))
+- `logo` (String) path to the background image file. File must be a `png` image less than 100kB and image dimension must be less 500px x 200px (width x height).
 - `message` (String)
 - `multi_auth` (Boolean)
 - `name` (Boolean) whether name field is required
@@ -286,6 +287,5 @@ Optional:
 - `tos_error` (String) error message when tos not accepted
 - `tos_link` (String) label of the link to go to tos
 - `tos_text` (String) text of the Terms of Service
-- `uth_button_amazon` (String) label for Amazon auth button
 
 

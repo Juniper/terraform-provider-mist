@@ -5,6 +5,7 @@ package resource_site_wlan_portal_template
 import (
 	"context"
 	"fmt"
+	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -757,11 +758,6 @@ func SiteWlanPortalTemplateResourceSchema(ctx context.Context) schema.Schema {
 									Description:         "text of the Terms of Service",
 									MarkdownDescription: "text of the Terms of Service",
 								},
-								"uth_button_amazon": schema.StringAttribute{
-									Optional:            true,
-									Description:         "label for Amazon auth button",
-									MarkdownDescription: "label for Amazon auth button",
-								},
 							},
 							CustomType: LocalesType{
 								ObjectType: types.ObjectType{
@@ -770,17 +766,33 @@ func SiteWlanPortalTemplateResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional:            true,
-						Description:         "Can be used to localize the portal based on the User Agent. Allowed property key values are:\n      \"ar\", \"ca-ES\", \"cs-CZ\", \"da-DK\", \"de-DE\", \"el-GR\", \"en-GB\", \"en-US\", \"es-ES\", \n      \"fi-FI\", \"fr-FR\", \"he-IL\", \"hi-IN\", \"hr-HR\", \"hu-HU\", \"id-ID\", \"it-IT\", \"ja-JP\", \n      \"ko-KR\", \"ms-MY\", \"nb-NO\", \"nl-NL\", \"pl-PL\", \"pt-BR\", \"pt-PT\", \"ro-RO\", \"ru-RU\", \n      \"sk-SK\", \"sv-SE\", \"th-TH\", \"tr-TR\", \"uk-UA\", \"vi-VN\", \"zh-Hans\", \"zh-Hant\",",
-						MarkdownDescription: "Can be used to localize the portal based on the User Agent. Allowed property key values are:\n      \"ar\", \"ca-ES\", \"cs-CZ\", \"da-DK\", \"de-DE\", \"el-GR\", \"en-GB\", \"en-US\", \"es-ES\", \n      \"fi-FI\", \"fr-FR\", \"he-IL\", \"hi-IN\", \"hr-HR\", \"hu-HU\", \"id-ID\", \"it-IT\", \"ja-JP\", \n      \"ko-KR\", \"ms-MY\", \"nb-NO\", \"nl-NL\", \"pl-PL\", \"pt-BR\", \"pt-PT\", \"ro-RO\", \"ru-RU\", \n      \"sk-SK\", \"sv-SE\", \"th-TH\", \"tr-TR\", \"uk-UA\", \"vi-VN\", \"zh-Hans\", \"zh-Hant\",",
+						Description:         "Can be used to localize the portal based on the User Agent. Allowed property key values are:\n  `ar`, `ca-ES`, `cs-CZ`, `da-DK`, `de-DE`, `el-GR`, `en-GB`, `en-US`, `es-ES`, `fi-FI`, `fr-FR`, \n  `he-IL`, `hi-IN`, `hr-HR`, `hu-HU`, `id-ID`, `it-IT`, `ja-J^`, `ko-KT`, `ms-MY`, `nb-NO`, `nl-NL`, \n  `pl-PL`, `pt-BR`, `pt-PT`, `ro-RO`, `ru-RU`, `sk-SK`, `sv-SE`, `th-TH`, `tr-TR`, `uk-UA`, `vi-VN`, \n  `zh-Hans`, `zh-Hant`",
+						MarkdownDescription: "Can be used to localize the portal based on the User Agent. Allowed property key values are:\n  `ar`, `ca-ES`, `cs-CZ`, `da-DK`, `de-DE`, `el-GR`, `en-GB`, `en-US`, `es-ES`, `fi-FI`, `fr-FR`, \n  `he-IL`, `hi-IN`, `hr-HR`, `hu-HU`, `id-ID`, `it-IT`, `ja-J^`, `ko-KT`, `ms-MY`, `nb-NO`, `nl-NL`, \n  `pl-PL`, `pt-BR`, `pt-PT`, `ro-RO`, `ru-RU`, `sk-SK`, `sv-SE`, `th-TH`, `tr-TR`, `uk-UA`, `vi-VN`, \n  `zh-Hans`, `zh-Hant`",
 						Validators: []validator.Map{
 							mapvalidator.SizeAtLeast(1),
-							mapvalidator.KeysAre(stringvalidator.OneOf(
-								"ar", "ca-ES", "cs-CZ", "da-DK", "de-DE", "el-GR", "en-GB", "en-US", "es-ES",
-								"fi-FI", "fr-FR", "he-IL", "hi-IN", "hr-HR", "hu-HU", "id-ID", "it-IT", "ja-JP",
-								"ko-KR", "ms-MY", "nb-NO", "nl-NL", "pl-PL", "pt-BR", "pt-PT", "ro-RO", "ru-RU",
-								"sk-SK", "sv-SE", "th-TH", "tr-TR", "uk-UA", "vi-VN", "zh-Hans", "zh-Hant",
-							)),
+							mapvalidator.KeysAre(
+								stringvalidator.OneOf(
+									"ar", "ca-ES", "cs-CZ", "da-DK", "de-DE", "el-GR", "en-GB", "en-US", "es-ES",
+									"fi-FI", "fr-FR", "he-IL", "hi-IN", "hr-HR", "hu-HU", "id-ID", "it-IT", "ja-JP",
+									"ko-KR", "ms-MY", "nb-NO", "nl-NL", "pl-PL", "pt-BR", "pt-PT", "ro-RO", "ru-RU",
+									"sk-SK", "sv-SE", "th-TH", "tr-TR", "uk-UA", "vi-VN", "zh-Hans", "zh-Hant",
+								),
+							),
 						},
+					},
+					"logo": schema.StringAttribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "path to the background image file. File must be a `png` image`",
+						MarkdownDescription: "path to the background image file. File must be a `png` image`",
+						Validators: []validator.String{
+							stringvalidator.All(
+								mistvalidator.ParseImageType(true, false),
+								mistvalidator.ParseImageSize(100000),
+								mistvalidator.ParseImageDimension(500, 200),
+							),
+						},
+						Default: stringdefault.StaticString(""),
 					},
 					"message": schema.StringAttribute{
 						Optional: true,
@@ -1001,7 +1013,7 @@ func SiteWlanPortalTemplateResourceSchema(ctx context.Context) schema.Schema {
 					"sms_country_format": schema.StringAttribute{
 						Optional: true,
 						Computed: true,
-						Default:  stringdefault.StaticString("1"),
+						Default:  stringdefault.StaticString("+1"),
 					},
 					"sms_have_access_code": schema.StringAttribute{
 						Optional:            true,
@@ -2186,6 +2198,24 @@ func (t PortalTemplateType) ValueFromObject(ctx context.Context, in basetypes.Ob
 			fmt.Sprintf(`locales expected to be basetypes.MapValue, was: %T`, localesAttribute))
 	}
 
+	logoAttribute, ok := attributes["logo"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`logo is missing from object`)
+
+		return nil, diags
+	}
+
+	logoVal, ok := logoAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`logo expected to be basetypes.StringValue, was: %T`, logoAttribute))
+	}
+
 	messageAttribute, ok := attributes["message"]
 
 	if !ok {
@@ -3502,6 +3532,7 @@ func (t PortalTemplateType) ValueFromObject(ctx context.Context, in basetypes.Ob
 		Field4label:              field4labelVal,
 		Field4required:           field4requiredVal,
 		Locales:                  localesVal,
+		Logo:                     logoVal,
 		Message:                  messageVal,
 		MultiAuth:                multiAuthVal,
 		Name:                     nameVal,
@@ -4557,6 +4588,24 @@ func NewPortalTemplateValue(attributeTypes map[string]attr.Type, attributes map[
 			fmt.Sprintf(`locales expected to be basetypes.MapValue, was: %T`, localesAttribute))
 	}
 
+	logoAttribute, ok := attributes["logo"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`logo is missing from object`)
+
+		return NewPortalTemplateValueUnknown(), diags
+	}
+
+	logoVal, ok := logoAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`logo expected to be basetypes.StringValue, was: %T`, logoAttribute))
+	}
+
 	messageAttribute, ok := attributes["message"]
 
 	if !ok {
@@ -5873,6 +5922,7 @@ func NewPortalTemplateValue(attributeTypes map[string]attr.Type, attributes map[
 		Field4label:              field4labelVal,
 		Field4required:           field4requiredVal,
 		Locales:                  localesVal,
+		Logo:                     logoVal,
 		Message:                  messageVal,
 		MultiAuth:                multiAuthVal,
 		Name:                     nameVal,
@@ -6066,6 +6116,7 @@ type PortalTemplateValue struct {
 	Field4label              basetypes.StringValue `tfsdk:"field4label"`
 	Field4required           basetypes.BoolValue   `tfsdk:"field4required"`
 	Locales                  basetypes.MapValue    `tfsdk:"locales"`
+	Logo                     basetypes.StringValue `tfsdk:"logo"`
 	Message                  basetypes.StringValue `tfsdk:"message"`
 	MultiAuth                basetypes.BoolValue   `tfsdk:"multi_auth"`
 	Name                     basetypes.BoolValue   `tfsdk:"name"`
@@ -6140,7 +6191,7 @@ type PortalTemplateValue struct {
 }
 
 func (v PortalTemplateValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 121)
+	attrTypes := make(map[string]tftypes.Type, 122)
 
 	var val tftypes.Value
 	var err error
@@ -6198,6 +6249,7 @@ func (v PortalTemplateValue) ToTerraformValue(ctx context.Context) (tftypes.Valu
 	attrTypes["locales"] = basetypes.MapType{
 		ElemType: LocalesValue{}.Type(ctx),
 	}.TerraformType(ctx)
+	attrTypes["logo"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["message"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["multi_auth"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["name"] = basetypes.BoolType{}.TerraformType(ctx)
@@ -6273,7 +6325,7 @@ func (v PortalTemplateValue) ToTerraformValue(ctx context.Context) (tftypes.Valu
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 121)
+		vals := make(map[string]tftypes.Value, 122)
 
 		val, err = v.AccessCodeAlternateEmail.ToTerraformValue(ctx)
 
@@ -6682,6 +6734,14 @@ func (v PortalTemplateValue) ToTerraformValue(ctx context.Context) (tftypes.Valu
 		}
 
 		vals["locales"] = val
+
+		val, err = v.Logo.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["logo"] = val
 
 		val, err = v.Message.ToTerraformValue(ctx)
 
@@ -7355,6 +7415,7 @@ func (v PortalTemplateValue) ToObjectValue(ctx context.Context) (basetypes.Objec
 		"locales": basetypes.MapType{
 			ElemType: LocalesValue{}.Type(ctx),
 		},
+		"logo":                        basetypes.StringType{},
 		"message":                     basetypes.StringType{},
 		"multi_auth":                  basetypes.BoolType{},
 		"name":                        basetypes.BoolType{},
@@ -7489,6 +7550,7 @@ func (v PortalTemplateValue) ToObjectValue(ctx context.Context) (basetypes.Objec
 			"field4label":                 v.Field4label,
 			"field4required":              v.Field4required,
 			"locales":                     locales,
+			"logo":                        v.Logo,
 			"message":                     v.Message,
 			"multi_auth":                  v.MultiAuth,
 			"name":                        v.Name,
@@ -7780,6 +7842,10 @@ func (v PortalTemplateValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.Locales.Equal(other.Locales) {
+		return false
+	}
+
+	if !v.Logo.Equal(other.Logo) {
 		return false
 	}
 
@@ -8129,6 +8195,7 @@ func (v PortalTemplateValue) AttributeTypes(ctx context.Context) map[string]attr
 		"locales": basetypes.MapType{
 			ElemType: LocalesValue{}.Type(ctx),
 		},
+		"logo":                        basetypes.StringType{},
 		"message":                     basetypes.StringType{},
 		"multi_auth":                  basetypes.BoolType{},
 		"name":                        basetypes.BoolType{},
@@ -9919,24 +9986,6 @@ func (t LocalesType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 			fmt.Sprintf(`tos_text expected to be basetypes.StringValue, was: %T`, tosTextAttribute))
 	}
 
-	uthButtonAmazonAttribute, ok := attributes["uth_button_amazon"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`uth_button_amazon is missing from object`)
-
-		return nil, diags
-	}
-
-	uthButtonAmazonVal, ok := uthButtonAmazonAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`uth_button_amazon expected to be basetypes.StringValue, was: %T`, uthButtonAmazonAttribute))
-	}
-
 	if diags.HasError() {
 		return nil, diags
 	}
@@ -10036,7 +10085,6 @@ func (t LocalesType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 		TosError:                 tosErrorVal,
 		TosLink:                  tosLinkVal,
 		TosText:                  tosTextVal,
-		UthButtonAmazon:          uthButtonAmazonVal,
 		state:                    attr.ValueStateKnown,
 	}, diags
 }
@@ -11796,24 +11844,6 @@ func NewLocalesValue(attributeTypes map[string]attr.Type, attributes map[string]
 			fmt.Sprintf(`tos_text expected to be basetypes.StringValue, was: %T`, tosTextAttribute))
 	}
 
-	uthButtonAmazonAttribute, ok := attributes["uth_button_amazon"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`uth_button_amazon is missing from object`)
-
-		return NewLocalesValueUnknown(), diags
-	}
-
-	uthButtonAmazonVal, ok := uthButtonAmazonAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`uth_button_amazon expected to be basetypes.StringValue, was: %T`, uthButtonAmazonAttribute))
-	}
-
 	if diags.HasError() {
 		return NewLocalesValueUnknown(), diags
 	}
@@ -11913,7 +11943,6 @@ func NewLocalesValue(attributeTypes map[string]attr.Type, attributes map[string]
 		TosError:                 tosErrorVal,
 		TosLink:                  tosLinkVal,
 		TosText:                  tosTextVal,
-		UthButtonAmazon:          uthButtonAmazonVal,
 		state:                    attr.ValueStateKnown,
 	}, diags
 }
@@ -12080,12 +12109,11 @@ type LocalesValue struct {
 	TosError                 basetypes.StringValue `tfsdk:"tos_error"`
 	TosLink                  basetypes.StringValue `tfsdk:"tos_link"`
 	TosText                  basetypes.StringValue `tfsdk:"tos_text"`
-	UthButtonAmazon          basetypes.StringValue `tfsdk:"uth_button_amazon"`
 	state                    attr.ValueState
 }
 
 func (v LocalesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 95)
+	attrTypes := make(map[string]tftypes.Type, 94)
 
 	var val tftypes.Value
 	var err error
@@ -12184,13 +12212,12 @@ func (v LocalesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 	attrTypes["tos_error"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["tos_link"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["tos_text"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["uth_button_amazon"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 95)
+		vals := make(map[string]tftypes.Value, 94)
 
 		val, err = v.AuthButtonAmazon.ToTerraformValue(ctx)
 
@@ -12944,14 +12971,6 @@ func (v LocalesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 
 		vals["tos_text"] = val
 
-		val, err = v.UthButtonAmazon.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["uth_button_amazon"] = val
-
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
@@ -13076,7 +13095,6 @@ func (v LocalesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 		"tos_error":                   basetypes.StringType{},
 		"tos_link":                    basetypes.StringType{},
 		"tos_text":                    basetypes.StringType{},
-		"uth_button_amazon":           basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -13184,7 +13202,6 @@ func (v LocalesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 			"tos_error":                   v.TosError,
 			"tos_link":                    v.TosLink,
 			"tos_text":                    v.TosText,
-			"uth_button_amazon":           v.UthButtonAmazon,
 		})
 
 	return objVal, diags
@@ -13581,10 +13598,6 @@ func (v LocalesValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.UthButtonAmazon.Equal(other.UthButtonAmazon) {
-		return false
-	}
-
 	return true
 }
 
@@ -13692,6 +13705,5 @@ func (v LocalesValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 		"tos_error":                   basetypes.StringType{},
 		"tos_link":                    basetypes.StringType{},
 		"tos_text":                    basetypes.StringType{},
-		"uth_button_amazon":           basetypes.StringType{},
 	}
 }
