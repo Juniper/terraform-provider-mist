@@ -452,7 +452,7 @@ Optional:
 - `networks` (List of String) required when `type`==`local`
 - `target_ips` (List of String) if `type`==`local`, if destination IP is to be replaced
 - `type` (String) enum: `local`, `tunnel`, `vpn`, `wan`
-- `wan_name` (String) required when`type`==`tunnel`
+- `wan_name` (String) optional if `type`==`vpn`
 
 
 
@@ -465,6 +465,13 @@ Required:
 
 Optional:
 
+- `ae_disable_lacp` (Boolean) if `aggregated`==`true`. To disable LCP support for the AE interface
+- `ae_idx` (String) if `aggregated`==`true`. Users could force to use the designated AE name (must be an integer between 0 and 127)
+- `ae_lacp_force_up` (Boolean) For SRX Only, if `aggregated`==`true`.Sets the state of the interface as UP when the peer has limited LACP capability.\n
+Use case: When a device connected to this AE port is ZTPing for the first time, it will not have LACP configured on the other end\n
+Note: Turning this on will enable force-up on one of the interfaces in the bundle only
+- `aggregated` (Boolean)
+- `critical` (Boolean) if want to generate port up/down alarm, set it to true
 - `description` (String)
 - `disable_autoneg` (Boolean)
 - `disabled` (Boolean) port admin up (true) / down (false)
@@ -715,6 +722,7 @@ Optional:
   * `provider`==`jse-ipsec`
   * `provider`== `custom-ipsec`
 - `mode` (String) enum: `active-active`, `active-standby`
+- `networks` (List of String) networks reachable via this tunnel
 - `primary` (Attributes) (see [below for nested schema](#nestedatt--tunnel_configs--primary))
 - `probe` (Attributes) Only if `provider`== `custom-ipsec` (see [below for nested schema](#nestedatt--tunnel_configs--probe))
 - `protocol` (String) Only if `provider`== `custom-ipsec`. enum: `gre`, `ipsec`
