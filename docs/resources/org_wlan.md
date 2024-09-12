@@ -18,6 +18,7 @@ resource "mist_org_wlan" "wlan_one" {
   org_id      = mist_org.terraform_test.id
   template_id = mist_org_wlantemplate.test101.id
   bands             = ["5", "6"]
+  vlan_enabled      = true
   vlan_id           = 143
   wlan_limit_up     = 10000
   wlan_limit_down   = 20000
@@ -48,7 +49,7 @@ resource "mist_org_wlan" "wlan_one" {
 - `airwatch` (Attributes) airwatch wlan settings (see [below for nested schema](#nestedatt--airwatch))
 - `allow_ipv6_ndp` (Boolean) only applicable when limit_bcast==true, which allows or disallows ipv6 Neighbor Discovery packets to go through
 - `allow_mdns` (Boolean) only applicable when limit_bcast==true, which allows mDNS / Bonjour packets to go through
-- `allow_ssdp` (Boolean) only applicable when `limit_bcast`==`tru`e, which allows SSDP
+- `allow_ssdp` (Boolean) only applicable when `limit_bcast`==`true`, which allows SSDP
 - `ap_ids` (List of String) list of device ids
 - `app_limit` (Attributes) bandwidth limiting for apps (applies to up/down) (see [below for nested schema](#nestedatt--app_limit))
 - `app_qos` (Attributes) app qos wlan settings (see [below for nested schema](#nestedatt--app_qos))
@@ -63,7 +64,7 @@ resource "mist_org_wlan" "wlan_one" {
 - `auth_servers_timeout` (Number) radius auth session timeout. Following fast timers are set if “fast_dot1x_timers” knob is enabled. ‘quite-period’  and ‘transmit-period’ are set to half the value of auth_servers_timeout. ‘supplicant-timeout’ is also set when setting auth_servers_timeout and is set to default value of 10.
 - `band_steer` (Boolean) whether to enable band_steering, this works only when band==both
 - `band_steer_force_band5` (Boolean) force dual_band capable client to connect to 5G
-- `bands` (List of String) list of radios that the wlan should apply to
+- `bands` (List of String) list of radios that the wlan should apply to. enum: `24`, `5`, `6`
 - `block_blacklist_clients` (Boolean) whether to block the clients in the blacklist (up to first 256 macs)
 - `bonjour` (Attributes) bonjour gateway wlan settings (see [below for nested schema](#nestedatt--bonjour))
 - `cisco_cwa` (Attributes) Cisco CWA (central web authentication) required RADIUS with COA in order to work. See CWA: https://www.cisco.com/c/en/us/support/docs/security/identity-services-engine/115732-central-web-auth-00.html (see [below for nested schema](#nestedatt--cisco_cwa))
