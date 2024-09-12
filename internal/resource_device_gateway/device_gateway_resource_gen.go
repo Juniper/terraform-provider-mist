@@ -195,7 +195,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtMapKey("via"), types.StringValue("wan")),
 								),
 							},
-							Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+							Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 						},
 						"no_readvertise_to_overlay": schema.BoolAttribute{
 							Optional:            true,
@@ -287,7 +287,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									Validators: []validator.List{
 										mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("relay")),
 									},
-									Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+									Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 								},
 								"fixed_bindings": schema.MapNestedAttribute{
 									NestedObject: schema.NestedAttributeObject{
@@ -432,7 +432,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 										mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("relay")),
 										mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("local")),
 									},
-									Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+									Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 								},
 								"servers6": schema.ListAttribute{
 									ElementType:         types.StringType,
@@ -445,7 +445,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 										mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type6"), types.StringValue("relay")),
 										mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type6"), types.StringValue("local")),
 									},
-									Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+									Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 								},
 								"type": schema.StringAttribute{
 									Optional:            true,
@@ -731,7 +731,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "optional list of secondary IPs in CIDR format",
 							MarkdownDescription: "optional list of secondary IPs in CIDR format",
-							Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+							Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 						},
 						"type": schema.StringAttribute{
 							Optional:            true,
@@ -1037,7 +1037,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 										Computed:            true,
 										Description:         "by default, the routes are only readvertised toward the same vrf on spoke\nto allow it to be leaked to other vrfs",
 										MarkdownDescription: "by default, the routes are only readvertised toward the same vrf on spoke\nto allow it to be leaked to other vrfs",
-										Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+										Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 									},
 									"routed": schema.BoolAttribute{
 										Optional:            true,
@@ -1339,7 +1339,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 										Validators: []validator.List{
 											mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("local")),
 										},
-										Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+										Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 									},
 									"target_ips": schema.ListAttribute{
 										ElementType:         types.StringType,
@@ -1350,7 +1350,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 										Validators: []validator.List{
 											mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("local")),
 										},
-										Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+										Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 									},
 									"type": schema.StringAttribute{
 										Optional:            true,
@@ -1368,8 +1368,8 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									},
 									"wan_name": schema.StringAttribute{
 										Optional:            true,
-										Description:         "required when`type`==`tunnel`",
-										MarkdownDescription: "required when`type`==`tunnel`",
+										Description:         "optional if `type`==`vpn`",
+										MarkdownDescription: "optional if `type`==`vpn`",
 										Validators: []validator.String{
 											mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("vpn")),
 										},
@@ -1415,6 +1415,37 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 			"port_config": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
+						"ae_disable_lacp": schema.BoolAttribute{
+							Optional:            true,
+							Computed:            true,
+							Description:         "if `aggregated`==`true`. To disable LCP support for the AE interface",
+							MarkdownDescription: "if `aggregated`==`true`. To disable LCP support for the AE interface",
+							Default:             booldefault.StaticBool(false),
+						},
+						"ae_idx": schema.StringAttribute{
+							Optional:            true,
+							Description:         "if `aggregated`==`true`. Users could force to use the designated AE name (must be an integer between 0 and 127)",
+							MarkdownDescription: "if `aggregated`==`true`. Users could force to use the designated AE name (must be an integer between 0 and 127)",
+						},
+						"ae_lacp_force_up": schema.BoolAttribute{
+							Optional:            true,
+							Computed:            true,
+							Description:         "For SRX Only, if `aggregated`==`true`.Sets the state of the interface as UP when the peer has limited LACP capability.\\n\nUse case: When a device connected to this AE port is ZTPing for the first time, it will not have LACP configured on the other end\\n\nNote: Turning this on will enable force-up on one of the interfaces in the bundle only",
+							MarkdownDescription: "For SRX Only, if `aggregated`==`true`.Sets the state of the interface as UP when the peer has limited LACP capability.\\n\nUse case: When a device connected to this AE port is ZTPing for the first time, it will not have LACP configured on the other end\\n\nNote: Turning this on will enable force-up on one of the interfaces in the bundle only",
+							Default:             booldefault.StaticBool(false),
+						},
+						"aggregated": schema.BoolAttribute{
+							Optional: true,
+							Computed: true,
+							Default:  booldefault.StaticBool(false),
+						},
+						"critical": schema.BoolAttribute{
+							Optional:            true,
+							Computed:            true,
+							Description:         "if want to generate port up/down alarm, set it to true",
+							MarkdownDescription: "if want to generate port up/down alarm, set it to true",
+							Default:             booldefault.StaticBool(false),
+						},
 						"description": schema.StringAttribute{
 							Optional: true,
 						},
@@ -1557,7 +1588,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("ha_data")),
 								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("ha_control")),
 							},
-							Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+							Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 						},
 						"outer_vlan_id": schema.Int64Attribute{
 							Optional:            true,
@@ -1705,7 +1736,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "SSR only - supporting vlan-based redundancy (matching the size of `networks`)",
 							MarkdownDescription: "SSR only - supporting vlan-based redundancy (matching the size of `networks`)",
-							Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+							Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 						},
 						"speed": schema.StringAttribute{
 							Optional: true,
@@ -2595,6 +2626,12 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 								),
 							},
 							Default: stringdefault.StaticString("active-standby"),
+						},
+						"networks": schema.ListAttribute{
+							ElementType:         types.StringType,
+							Optional:            true,
+							Description:         "networks reachable via this tunnel",
+							MarkdownDescription: "networks reachable via this tunnel",
 						},
 						"primary": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
@@ -7133,9 +7170,9 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: FixedBindingsValue{}.Type(ctx),
 			},
 			"gateway":    basetypes.StringType{},
-			"ip_end":     basetypes.StringType{},
+			"ip_end":    basetypes.StringType{},
 			"ip_end6":    basetypes.StringType{},
-			"ip_start":   basetypes.StringType{},
+			"ip_start":  basetypes.StringType{},
 			"ip_start6":  basetypes.StringType{},
 			"lease_time": basetypes.Int64Type{},
 			"options": basetypes.MapType{
@@ -7148,7 +7185,7 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"servers6": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"type":  basetypes.StringType{},
+			"type": basetypes.StringType{},
 			"type6": basetypes.StringType{},
 			"vendor_encapulated": basetypes.MapType{
 				ElemType: VendorEncapulatedValue{}.Type(ctx),
@@ -7172,9 +7209,9 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: FixedBindingsValue{}.Type(ctx),
 			},
 			"gateway":    basetypes.StringType{},
-			"ip_end":     basetypes.StringType{},
+			"ip_end":    basetypes.StringType{},
 			"ip_end6":    basetypes.StringType{},
-			"ip_start":   basetypes.StringType{},
+			"ip_start":  basetypes.StringType{},
 			"ip_start6":  basetypes.StringType{},
 			"lease_time": basetypes.Int64Type{},
 			"options": basetypes.MapType{
@@ -7187,7 +7224,7 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"servers6": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"type":  basetypes.StringType{},
+			"type": basetypes.StringType{},
 			"type6": basetypes.StringType{},
 			"vendor_encapulated": basetypes.MapType{
 				ElemType: VendorEncapulatedValue{}.Type(ctx),
@@ -7211,9 +7248,9 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: FixedBindingsValue{}.Type(ctx),
 			},
 			"gateway":    basetypes.StringType{},
-			"ip_end":     basetypes.StringType{},
+			"ip_end":    basetypes.StringType{},
 			"ip_end6":    basetypes.StringType{},
-			"ip_start":   basetypes.StringType{},
+			"ip_start":  basetypes.StringType{},
 			"ip_start6":  basetypes.StringType{},
 			"lease_time": basetypes.Int64Type{},
 			"options": basetypes.MapType{
@@ -7226,7 +7263,7 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"servers6": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"type":  basetypes.StringType{},
+			"type": basetypes.StringType{},
 			"type6": basetypes.StringType{},
 			"vendor_encapulated": basetypes.MapType{
 				ElemType: VendorEncapulatedValue{}.Type(ctx),
@@ -7250,9 +7287,9 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: FixedBindingsValue{}.Type(ctx),
 			},
 			"gateway":    basetypes.StringType{},
-			"ip_end":     basetypes.StringType{},
+			"ip_end":    basetypes.StringType{},
 			"ip_end6":    basetypes.StringType{},
-			"ip_start":   basetypes.StringType{},
+			"ip_start":  basetypes.StringType{},
 			"ip_start6":  basetypes.StringType{},
 			"lease_time": basetypes.Int64Type{},
 			"options": basetypes.MapType{
@@ -7265,7 +7302,7 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"servers6": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"type":  basetypes.StringType{},
+			"type": basetypes.StringType{},
 			"type6": basetypes.StringType{},
 			"vendor_encapulated": basetypes.MapType{
 				ElemType: VendorEncapulatedValue{}.Type(ctx),
@@ -7284,9 +7321,9 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			ElemType: FixedBindingsValue{}.Type(ctx),
 		},
 		"gateway":    basetypes.StringType{},
-		"ip_end":     basetypes.StringType{},
+		"ip_end":    basetypes.StringType{},
 		"ip_end6":    basetypes.StringType{},
-		"ip_start":   basetypes.StringType{},
+		"ip_start":  basetypes.StringType{},
 		"ip_start6":  basetypes.StringType{},
 		"lease_time": basetypes.Int64Type{},
 		"options": basetypes.MapType{
@@ -7299,7 +7336,7 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 		"servers6": basetypes.ListType{
 			ElemType: types.StringType,
 		},
-		"type":  basetypes.StringType{},
+		"type": basetypes.StringType{},
 		"type6": basetypes.StringType{},
 		"vendor_encapulated": basetypes.MapType{
 			ElemType: VendorEncapulatedValue{}.Type(ctx),
@@ -7321,16 +7358,16 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"dns_suffix":         dnsSuffixVal,
 			"fixed_bindings":     fixedBindings,
 			"gateway":            v.Gateway,
-			"ip_end":             v.IpEnd4,
+			"ip_end":            v.IpEnd4,
 			"ip_end6":            v.IpEnd6,
-			"ip_start":           v.IpStart4,
+			"ip_start":          v.IpStart4,
 			"ip_start6":          v.IpStart6,
 			"lease_time":         v.LeaseTime,
 			"options":            options,
 			"server_id_override": v.ServerIdOverride,
-			"servers":            serversVal,
+			"servers":           serversVal,
 			"servers6":           servers6Val,
-			"type":               v.Type4,
+			"type":              v.Type4,
 			"type6":              v.Type6,
 			"vendor_encapulated": vendorEncapulated,
 		})
@@ -7440,9 +7477,9 @@ func (v ConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 			ElemType: FixedBindingsValue{}.Type(ctx),
 		},
 		"gateway":    basetypes.StringType{},
-		"ip_end":     basetypes.StringType{},
+		"ip_end":    basetypes.StringType{},
 		"ip_end6":    basetypes.StringType{},
-		"ip_start":   basetypes.StringType{},
+		"ip_start":  basetypes.StringType{},
 		"ip_start6":  basetypes.StringType{},
 		"lease_time": basetypes.Int64Type{},
 		"options": basetypes.MapType{
@@ -7455,7 +7492,7 @@ func (v ConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 		"servers6": basetypes.ListType{
 			ElemType: types.StringType,
 		},
-		"type":  basetypes.StringType{},
+		"type": basetypes.StringType{},
 		"type6": basetypes.StringType{},
 		"vendor_encapulated": basetypes.MapType{
 			ElemType: VendorEncapulatedValue{}.Type(ctx),
@@ -10342,9 +10379,9 @@ func (v OverwritesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"action":   v.Action,
+			"action":                         v.Action,
 			"matching": ipdProfileOverwriteMatching,
-			"name":     v.Name,
+			"name":                           v.Name,
 		})
 
 	return objVal, diags
@@ -16105,6 +16142,27 @@ func (v VpnAccessValue) AttributeTypes(ctx context.Context) map[string]attr.Type
 	}
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 var _ basetypes.ObjectTypable = SourceNatType{}
 
 type SourceNatType struct {
@@ -16428,6 +16486,27 @@ func (v SourceNatValue) AttributeTypes(ctx context.Context) map[string]attr.Type
 		"external_ip": basetypes.StringType{},
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 var _ basetypes.ObjectTypable = OobIpConfigType{}
 
@@ -19078,6 +19157,96 @@ func (t PortConfigType) ValueFromObject(ctx context.Context, in basetypes.Object
 
 	attributes := in.Attributes()
 
+	aeDisableLacpAttribute, ok := attributes["ae_disable_lacp"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ae_disable_lacp is missing from object`)
+
+		return nil, diags
+	}
+
+	aeDisableLacpVal, ok := aeDisableLacpAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ae_disable_lacp expected to be basetypes.BoolValue, was: %T`, aeDisableLacpAttribute))
+	}
+
+	aeIdxAttribute, ok := attributes["ae_idx"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ae_idx is missing from object`)
+
+		return nil, diags
+	}
+
+	aeIdxVal, ok := aeIdxAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ae_idx expected to be basetypes.StringValue, was: %T`, aeIdxAttribute))
+	}
+
+	aeLacpForceUpAttribute, ok := attributes["ae_lacp_force_up"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ae_lacp_force_up is missing from object`)
+
+		return nil, diags
+	}
+
+	aeLacpForceUpVal, ok := aeLacpForceUpAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ae_lacp_force_up expected to be basetypes.BoolValue, was: %T`, aeLacpForceUpAttribute))
+	}
+
+	aggregatedAttribute, ok := attributes["aggregated"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`aggregated is missing from object`)
+
+		return nil, diags
+	}
+
+	aggregatedVal, ok := aggregatedAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`aggregated expected to be basetypes.BoolValue, was: %T`, aggregatedAttribute))
+	}
+
+	criticalAttribute, ok := attributes["critical"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`critical is missing from object`)
+
+		return nil, diags
+	}
+
+	criticalVal, ok := criticalAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`critical expected to be basetypes.BoolValue, was: %T`, criticalAttribute))
+	}
+
 	descriptionAttribute, ok := attributes["description"]
 
 	if !ok {
@@ -19713,6 +19882,11 @@ func (t PortConfigType) ValueFromObject(ctx context.Context, in basetypes.Object
 	}
 
 	return PortConfigValue{
+		AeDisableLacp:   aeDisableLacpVal,
+		AeIdx:           aeIdxVal,
+		AeLacpForceUp:   aeLacpForceUpVal,
+		Aggregated:      aggregatedVal,
+		Critical:        criticalVal,
 		Description:     descriptionVal,
 		DisableAutoneg:  disableAutonegVal,
 		Disabled:        disabledVal,
@@ -19815,6 +19989,96 @@ func NewPortConfigValue(attributeTypes map[string]attr.Type, attributes map[stri
 		return NewPortConfigValueUnknown(), diags
 	}
 
+	aeDisableLacpAttribute, ok := attributes["ae_disable_lacp"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ae_disable_lacp is missing from object`)
+
+		return NewPortConfigValueUnknown(), diags
+	}
+
+	aeDisableLacpVal, ok := aeDisableLacpAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ae_disable_lacp expected to be basetypes.BoolValue, was: %T`, aeDisableLacpAttribute))
+	}
+
+	aeIdxAttribute, ok := attributes["ae_idx"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ae_idx is missing from object`)
+
+		return NewPortConfigValueUnknown(), diags
+	}
+
+	aeIdxVal, ok := aeIdxAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ae_idx expected to be basetypes.StringValue, was: %T`, aeIdxAttribute))
+	}
+
+	aeLacpForceUpAttribute, ok := attributes["ae_lacp_force_up"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ae_lacp_force_up is missing from object`)
+
+		return NewPortConfigValueUnknown(), diags
+	}
+
+	aeLacpForceUpVal, ok := aeLacpForceUpAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ae_lacp_force_up expected to be basetypes.BoolValue, was: %T`, aeLacpForceUpAttribute))
+	}
+
+	aggregatedAttribute, ok := attributes["aggregated"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`aggregated is missing from object`)
+
+		return NewPortConfigValueUnknown(), diags
+	}
+
+	aggregatedVal, ok := aggregatedAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`aggregated expected to be basetypes.BoolValue, was: %T`, aggregatedAttribute))
+	}
+
+	criticalAttribute, ok := attributes["critical"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`critical is missing from object`)
+
+		return NewPortConfigValueUnknown(), diags
+	}
+
+	criticalVal, ok := criticalAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`critical expected to be basetypes.BoolValue, was: %T`, criticalAttribute))
+	}
+
 	descriptionAttribute, ok := attributes["description"]
 
 	if !ok {
@@ -20450,6 +20714,11 @@ func NewPortConfigValue(attributeTypes map[string]attr.Type, attributes map[stri
 	}
 
 	return PortConfigValue{
+		AeDisableLacp:   aeDisableLacpVal,
+		AeIdx:           aeIdxVal,
+		AeLacpForceUp:   aeLacpForceUpVal,
+		Aggregated:      aggregatedVal,
+		Critical:        criticalVal,
 		Description:     descriptionVal,
 		DisableAutoneg:  disableAutonegVal,
 		Disabled:        disabledVal,
@@ -20557,6 +20826,11 @@ func (t PortConfigType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = PortConfigValue{}
 
 type PortConfigValue struct {
+	AeDisableLacp   basetypes.BoolValue   `tfsdk:"ae_disable_lacp"`
+	AeIdx           basetypes.StringValue `tfsdk:"ae_idx"`
+	AeLacpForceUp   basetypes.BoolValue   `tfsdk:"ae_lacp_force_up"`
+	Aggregated      basetypes.BoolValue   `tfsdk:"aggregated"`
+	Critical        basetypes.BoolValue   `tfsdk:"critical"`
 	Description     basetypes.StringValue `tfsdk:"description"`
 	DisableAutoneg  basetypes.BoolValue   `tfsdk:"disable_autoneg"`
 	Disabled        basetypes.BoolValue   `tfsdk:"disabled"`
@@ -20596,11 +20870,16 @@ type PortConfigValue struct {
 }
 
 func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 35)
+	attrTypes := make(map[string]tftypes.Type, 40)
 
 	var val tftypes.Value
 	var err error
 
+	attrTypes["ae_disable_lacp"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["ae_idx"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["ae_lacp_force_up"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["aggregated"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["critical"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["description"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["disable_autoneg"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["disabled"] = basetypes.BoolType{}.TerraformType(ctx)
@@ -20653,7 +20932,47 @@ func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 35)
+		vals := make(map[string]tftypes.Value, 40)
+
+		val, err = v.AeDisableLacp.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["ae_disable_lacp"] = val
+
+		val, err = v.AeIdx.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["ae_idx"] = val
+
+		val, err = v.AeLacpForceUp.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["ae_lacp_force_up"] = val
+
+		val, err = v.Aggregated.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["aggregated"] = val
+
+		val, err = v.Critical.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["critical"] = val
 
 		val, err = v.Description.ToTerraformValue(ctx)
 
@@ -21062,20 +21381,25 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 
 	if d.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
-			"description":     basetypes.StringType{},
-			"disable_autoneg": basetypes.BoolType{},
-			"disabled":        basetypes.BoolType{},
-			"dsl_type":        basetypes.StringType{},
-			"dsl_vci":         basetypes.Int64Type{},
-			"dsl_vpi":         basetypes.Int64Type{},
-			"duplex":          basetypes.StringType{},
-			"lte_apn":         basetypes.StringType{},
-			"lte_auth":        basetypes.StringType{},
-			"lte_backup":      basetypes.BoolType{},
-			"lte_password":    basetypes.StringType{},
-			"lte_username":    basetypes.StringType{},
-			"mtu":             basetypes.Int64Type{},
-			"name":            basetypes.StringType{},
+			"ae_disable_lacp":  basetypes.BoolType{},
+			"ae_idx":           basetypes.StringType{},
+			"ae_lacp_force_up": basetypes.BoolType{},
+			"aggregated":       basetypes.BoolType{},
+			"critical":         basetypes.BoolType{},
+			"description":      basetypes.StringType{},
+			"disable_autoneg":  basetypes.BoolType{},
+			"disabled":         basetypes.BoolType{},
+			"dsl_type":         basetypes.StringType{},
+			"dsl_vci":          basetypes.Int64Type{},
+			"dsl_vpi":          basetypes.Int64Type{},
+			"duplex":           basetypes.StringType{},
+			"lte_apn":          basetypes.StringType{},
+			"lte_auth":         basetypes.StringType{},
+			"lte_backup":       basetypes.BoolType{},
+			"lte_password":     basetypes.StringType{},
+			"lte_username":     basetypes.StringType{},
+			"mtu":              basetypes.Int64Type{},
+			"name":             basetypes.StringType{},
 			"networks": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -21118,20 +21442,25 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 
 	if d.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
-			"description":     basetypes.StringType{},
-			"disable_autoneg": basetypes.BoolType{},
-			"disabled":        basetypes.BoolType{},
-			"dsl_type":        basetypes.StringType{},
-			"dsl_vci":         basetypes.Int64Type{},
-			"dsl_vpi":         basetypes.Int64Type{},
-			"duplex":          basetypes.StringType{},
-			"lte_apn":         basetypes.StringType{},
-			"lte_auth":        basetypes.StringType{},
-			"lte_backup":      basetypes.BoolType{},
-			"lte_password":    basetypes.StringType{},
-			"lte_username":    basetypes.StringType{},
-			"mtu":             basetypes.Int64Type{},
-			"name":            basetypes.StringType{},
+			"ae_disable_lacp":  basetypes.BoolType{},
+			"ae_idx":           basetypes.StringType{},
+			"ae_lacp_force_up": basetypes.BoolType{},
+			"aggregated":       basetypes.BoolType{},
+			"critical":         basetypes.BoolType{},
+			"description":      basetypes.StringType{},
+			"disable_autoneg":  basetypes.BoolType{},
+			"disabled":         basetypes.BoolType{},
+			"dsl_type":         basetypes.StringType{},
+			"dsl_vci":          basetypes.Int64Type{},
+			"dsl_vpi":          basetypes.Int64Type{},
+			"duplex":           basetypes.StringType{},
+			"lte_apn":          basetypes.StringType{},
+			"lte_auth":         basetypes.StringType{},
+			"lte_backup":       basetypes.BoolType{},
+			"lte_password":     basetypes.StringType{},
+			"lte_username":     basetypes.StringType{},
+			"mtu":              basetypes.Int64Type{},
+			"name":             basetypes.StringType{},
 			"networks": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -21169,20 +21498,25 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 	}
 
 	attributeTypes := map[string]attr.Type{
-		"description":     basetypes.StringType{},
-		"disable_autoneg": basetypes.BoolType{},
-		"disabled":        basetypes.BoolType{},
-		"dsl_type":        basetypes.StringType{},
-		"dsl_vci":         basetypes.Int64Type{},
-		"dsl_vpi":         basetypes.Int64Type{},
-		"duplex":          basetypes.StringType{},
-		"lte_apn":         basetypes.StringType{},
-		"lte_auth":        basetypes.StringType{},
-		"lte_backup":      basetypes.BoolType{},
-		"lte_password":    basetypes.StringType{},
-		"lte_username":    basetypes.StringType{},
-		"mtu":             basetypes.Int64Type{},
-		"name":            basetypes.StringType{},
+		"ae_disable_lacp":  basetypes.BoolType{},
+		"ae_idx":           basetypes.StringType{},
+		"ae_lacp_force_up": basetypes.BoolType{},
+		"aggregated":       basetypes.BoolType{},
+		"critical":         basetypes.BoolType{},
+		"description":      basetypes.StringType{},
+		"disable_autoneg":  basetypes.BoolType{},
+		"disabled":         basetypes.BoolType{},
+		"dsl_type":         basetypes.StringType{},
+		"dsl_vci":          basetypes.Int64Type{},
+		"dsl_vpi":          basetypes.Int64Type{},
+		"duplex":           basetypes.StringType{},
+		"lte_apn":          basetypes.StringType{},
+		"lte_auth":         basetypes.StringType{},
+		"lte_backup":       basetypes.BoolType{},
+		"lte_password":     basetypes.StringType{},
+		"lte_username":     basetypes.StringType{},
+		"mtu":              basetypes.Int64Type{},
+		"name":             basetypes.StringType{},
 		"networks": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -21229,6 +21563,11 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
+			"ae_disable_lacp":    v.AeDisableLacp,
+			"ae_idx":             v.AeIdx,
+			"ae_lacp_force_up":   v.AeLacpForceUp,
+			"aggregated":         v.Aggregated,
+			"critical":           v.Critical,
 			"description":        v.Description,
 			"disable_autoneg":    v.DisableAutoneg,
 			"disabled":           v.Disabled,
@@ -21246,7 +21585,7 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"networks":           networksVal,
 			"outer_vlan_id":      v.OuterVlanId,
 			"poe_disabled":       v.PoeDisabled,
-			"ip_config":          portIpConfig,
+			"ip_config":     portIpConfig,
 			"port_network":       v.PortNetwork,
 			"preserve_dscp":      v.PreserveDscp,
 			"redundant":          v.Redundant,
@@ -21282,6 +21621,26 @@ func (v PortConfigValue) Equal(o attr.Value) bool {
 
 	if v.state != attr.ValueStateKnown {
 		return true
+	}
+
+	if !v.AeDisableLacp.Equal(other.AeDisableLacp) {
+		return false
+	}
+
+	if !v.AeIdx.Equal(other.AeIdx) {
+		return false
+	}
+
+	if !v.AeLacpForceUp.Equal(other.AeLacpForceUp) {
+		return false
+	}
+
+	if !v.Aggregated.Equal(other.Aggregated) {
+		return false
+	}
+
+	if !v.Critical.Equal(other.Critical) {
+		return false
 	}
 
 	if !v.Description.Equal(other.Description) {
@@ -21437,20 +21796,25 @@ func (v PortConfigValue) Type(ctx context.Context) attr.Type {
 
 func (v PortConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"description":     basetypes.StringType{},
-		"disable_autoneg": basetypes.BoolType{},
-		"disabled":        basetypes.BoolType{},
-		"dsl_type":        basetypes.StringType{},
-		"dsl_vci":         basetypes.Int64Type{},
-		"dsl_vpi":         basetypes.Int64Type{},
-		"duplex":          basetypes.StringType{},
-		"lte_apn":         basetypes.StringType{},
-		"lte_auth":        basetypes.StringType{},
-		"lte_backup":      basetypes.BoolType{},
-		"lte_password":    basetypes.StringType{},
-		"lte_username":    basetypes.StringType{},
-		"mtu":             basetypes.Int64Type{},
-		"name":            basetypes.StringType{},
+		"ae_disable_lacp":  basetypes.BoolType{},
+		"ae_idx":           basetypes.StringType{},
+		"ae_lacp_force_up": basetypes.BoolType{},
+		"aggregated":       basetypes.BoolType{},
+		"critical":         basetypes.BoolType{},
+		"description":      basetypes.StringType{},
+		"disable_autoneg":  basetypes.BoolType{},
+		"disabled":         basetypes.BoolType{},
+		"dsl_type":         basetypes.StringType{},
+		"dsl_vci":          basetypes.Int64Type{},
+		"dsl_vpi":          basetypes.Int64Type{},
+		"duplex":           basetypes.StringType{},
+		"lte_apn":          basetypes.StringType{},
+		"lte_auth":         basetypes.StringType{},
+		"lte_backup":       basetypes.BoolType{},
+		"lte_password":     basetypes.StringType{},
+		"lte_username":     basetypes.StringType{},
+		"mtu":              basetypes.Int64Type{},
+		"name":             basetypes.StringType{},
 		"networks": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -23332,6 +23696,27 @@ func (v VpnPathsValue) AttributeTypes(ctx context.Context) map[string]attr.Type 
 		},
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 var _ basetypes.ObjectTypable = WanSourceNatType{}
 
@@ -25369,7 +25754,7 @@ func (v TermsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"action":   action,
+			"action":                       action,
 			"matching": routingPolicyTermMatching,
 		})
 
@@ -30825,6 +31210,24 @@ func (t TunnelConfigsType) ValueFromObject(ctx context.Context, in basetypes.Obj
 			fmt.Sprintf(`mode expected to be basetypes.StringValue, was: %T`, modeAttribute))
 	}
 
+	networksAttribute, ok := attributes["networks"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`networks is missing from object`)
+
+		return nil, diags
+	}
+
+	networksVal, ok := networksAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`networks expected to be basetypes.ListValue, was: %T`, networksAttribute))
+	}
+
 	primaryAttribute, ok := attributes["primary"]
 
 	if !ok {
@@ -30964,6 +31367,7 @@ func (t TunnelConfigsType) ValueFromObject(ctx context.Context, in basetypes.Obj
 		IpsecProposals: ipsecProposalsVal,
 		LocalId:        localIdVal,
 		Mode:           modeVal,
+		Networks:       networksVal,
 		Primary:        primaryVal,
 		Probe:          probeVal,
 		Protocol:       protocolVal,
@@ -31182,6 +31586,24 @@ func NewTunnelConfigsValue(attributeTypes map[string]attr.Type, attributes map[s
 			fmt.Sprintf(`mode expected to be basetypes.StringValue, was: %T`, modeAttribute))
 	}
 
+	networksAttribute, ok := attributes["networks"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`networks is missing from object`)
+
+		return NewTunnelConfigsValueUnknown(), diags
+	}
+
+	networksVal, ok := networksAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`networks expected to be basetypes.ListValue, was: %T`, networksAttribute))
+	}
+
 	primaryAttribute, ok := attributes["primary"]
 
 	if !ok {
@@ -31321,6 +31743,7 @@ func NewTunnelConfigsValue(attributeTypes map[string]attr.Type, attributes map[s
 		IpsecProposals: ipsecProposalsVal,
 		LocalId:        localIdVal,
 		Mode:           modeVal,
+		Networks:       networksVal,
 		Primary:        primaryVal,
 		Probe:          probeVal,
 		Protocol:       protocolVal,
@@ -31408,6 +31831,7 @@ type TunnelConfigsValue struct {
 	IpsecProposals basetypes.ListValue   `tfsdk:"ipsec_proposals"`
 	LocalId        basetypes.StringValue `tfsdk:"local_id"`
 	Mode           basetypes.StringValue `tfsdk:"mode"`
+	Networks       basetypes.ListValue   `tfsdk:"networks"`
 	Primary        basetypes.ObjectValue `tfsdk:"primary"`
 	Probe          basetypes.ObjectValue `tfsdk:"probe"`
 	Protocol       basetypes.StringValue `tfsdk:"protocol"`
@@ -31419,7 +31843,7 @@ type TunnelConfigsValue struct {
 }
 
 func (v TunnelConfigsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 15)
+	attrTypes := make(map[string]tftypes.Type, 16)
 
 	var val tftypes.Value
 	var err error
@@ -31438,6 +31862,9 @@ func (v TunnelConfigsValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 	}.TerraformType(ctx)
 	attrTypes["local_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["mode"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["networks"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
 	attrTypes["primary"] = basetypes.ObjectType{
 		AttrTypes: PrimaryValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
@@ -31456,7 +31883,7 @@ func (v TunnelConfigsValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 15)
+		vals := make(map[string]tftypes.Value, 16)
 
 		val, err = v.AutoProvision.ToTerraformValue(ctx)
 
@@ -31521,6 +31948,14 @@ func (v TunnelConfigsValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 		}
 
 		vals["mode"] = val
+
+		val, err = v.Networks.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["networks"] = val
 
 		val, err = v.Primary.ToTerraformValue(ctx)
 
@@ -31749,6 +32184,45 @@ func (v TunnelConfigsValue) ToObjectValue(ctx context.Context) (basetypes.Object
 		)
 	}
 
+	networksVal, d := types.ListValue(types.StringType, v.Networks.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"auto_provision": basetypes.ObjectType{
+				AttrTypes: AutoProvisionValue{}.AttributeTypes(ctx),
+			},
+			"ike_lifetime": basetypes.Int64Type{},
+			"ike_mode":     basetypes.StringType{},
+			"ike_proposals": basetypes.ListType{
+				ElemType: IkeProposalsValue{}.Type(ctx),
+			},
+			"ipsec_lifetime": basetypes.Int64Type{},
+			"ipsec_proposals": basetypes.ListType{
+				ElemType: IpsecProposalsValue{}.Type(ctx),
+			},
+			"local_id": basetypes.StringType{},
+			"mode":     basetypes.StringType{},
+			"networks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"primary": basetypes.ObjectType{
+				AttrTypes: PrimaryValue{}.AttributeTypes(ctx),
+			},
+			"probe": basetypes.ObjectType{
+				AttrTypes: ProbeValue{}.AttributeTypes(ctx),
+			},
+			"protocol": basetypes.StringType{},
+			"provider": basetypes.StringType{},
+			"psk":      basetypes.StringType{},
+			"secondary": basetypes.ObjectType{
+				AttrTypes: SecondaryValue{}.AttributeTypes(ctx),
+			},
+			"version": basetypes.StringType{},
+		}), diags
+	}
+
 	attributeTypes := map[string]attr.Type{
 		"auto_provision": basetypes.ObjectType{
 			AttrTypes: AutoProvisionValue{}.AttributeTypes(ctx),
@@ -31764,6 +32238,9 @@ func (v TunnelConfigsValue) ToObjectValue(ctx context.Context) (basetypes.Object
 		},
 		"local_id": basetypes.StringType{},
 		"mode":     basetypes.StringType{},
+		"networks": basetypes.ListType{
+			ElemType: types.StringType,
+		},
 		"primary": basetypes.ObjectType{
 			AttrTypes: PrimaryValue{}.AttributeTypes(ctx),
 		},
@@ -31798,6 +32275,7 @@ func (v TunnelConfigsValue) ToObjectValue(ctx context.Context) (basetypes.Object
 			"ipsec_proposals": ipsecProposals,
 			"local_id":        v.LocalId,
 			"mode":            v.Mode,
+			"networks":        networksVal,
 			"primary":         primary,
 			"probe":           probe,
 			"protocol":        v.Protocol,
@@ -31857,6 +32335,10 @@ func (v TunnelConfigsValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.Networks.Equal(other.Networks) {
+		return false
+	}
+
 	if !v.Primary.Equal(other.Primary) {
 		return false
 	}
@@ -31912,6 +32394,9 @@ func (v TunnelConfigsValue) AttributeTypes(ctx context.Context) map[string]attr.
 		},
 		"local_id": basetypes.StringType{},
 		"mode":     basetypes.StringType{},
+		"networks": basetypes.ListType{
+			ElemType: types.StringType,
+		},
 		"primary": basetypes.ObjectType{
 			AttrTypes: PrimaryValue{}.AttributeTypes(ctx),
 		},
@@ -32483,9 +32968,9 @@ func (v AutoProvisionValue) ToObjectValue(ctx context.Context) (basetypes.Object
 		map[string]attr.Value{
 			"primary":   autoProvisionPrimary,
 			"secondary": autoProvisionSecondary,
-			"enable":    v.Enable,
-			"latlng":    latlng,
-			"region":    v.Region,
+			"enable":                   v.Enable,
+			"latlng":                   latlng,
+			"region":                   v.Region,
 		})
 
 	return objVal, diags

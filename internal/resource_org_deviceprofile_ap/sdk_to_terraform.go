@@ -72,9 +72,9 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileAp) (OrgDevic
 	if data.Mesh != nil {
 		mesh = meshSdkToTerraform(ctx, &diags, data.Mesh)
 	}
-	if data.Name.Value() != nil {
-		name = types.StringValue(*data.Name.Value())
-	}
+
+	name = types.StringValue(*data.Name)
+
 	if data.NtpServers != nil {
 		ntp_servers = mist_list.ListOfStringSdkToTerraform(ctx, data.NtpServers)
 	}
@@ -103,9 +103,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileAp) (OrgDevic
 		vars = varsSdkToTerraform(ctx, &diags, data.Vars)
 	}
 
-	if data.Type != nil {
-		profile_type = types.StringValue(string(*data.Type))
-	}
+	profile_type = types.StringValue(string(data.Type))
 
 	state.Aeroscout = aeroscout
 	state.BleConfig = ble_config

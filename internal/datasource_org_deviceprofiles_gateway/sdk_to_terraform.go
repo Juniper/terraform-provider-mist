@@ -45,7 +45,7 @@ func deviceprofileApSdkToTerraform(ctx context.Context, diags *diag.Diagnostics,
 	if d.OrgId != nil {
 		org_id = types.StringValue(d.OrgId.String())
 	}
-	deviceprofile_type = types.StringValue(string(*d.Type))
+	deviceprofile_type = types.StringValue(string(d.Type))
 
 	data_map_attr_type := OrgDeviceprofilesGatewayValue{}.AttributeTypes(ctx)
 	data_map_value := map[string]attr.Value{

@@ -158,9 +158,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceAp) (DeviceApModel, 
 		y = types.Float64Value(float64(*data.Y))
 	}
 
-	if data.Type != nil {
-		device_type = types.StringValue(string(*data.Type))
-	}
+	device_type = types.StringValue(string(data.Type))
 
 	if data.Serial != nil {
 		serial = types.StringValue(*data.Serial)

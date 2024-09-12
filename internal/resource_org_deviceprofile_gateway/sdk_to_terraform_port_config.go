@@ -172,6 +172,11 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 	port_usage_type := PortConfigValue{}.AttributeTypes(ctx)
 	state_value_map := make(map[string]attr.Value)
 	for k, v := range d {
+		var ae_disable_lacp basetypes.BoolValue = types.BoolValue(false)
+		var ae_idx basetypes.StringValue
+		var ae_lacp_force_up basetypes.BoolValue = types.BoolValue(false)
+		var aggregated basetypes.BoolValue = types.BoolValue(false)
+		var critical basetypes.BoolValue = types.BoolValue(false)
 		var description basetypes.StringValue
 		var disable_autoneg basetypes.BoolValue = types.BoolValue(false)
 		var disabled basetypes.BoolValue = types.BoolValue(false)
@@ -208,6 +213,21 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 		var wan_source_nat basetypes.ObjectValue = types.ObjectNull(WanSourceNatValue{}.AttributeTypes(ctx))
 		var wan_type basetypes.StringValue = types.StringValue("broadband")
 
+		if v.AeDisableLacp != nil {
+			ae_disable_lacp = types.BoolValue(*v.AeDisableLacp)
+		}
+		if v.AeIdx.Value() != nil {
+			ae_idx = types.StringValue(*v.AeIdx.Value())
+		}
+		if v.AeLacpForceUp != nil {
+			ae_lacp_force_up = types.BoolValue(*v.AeLacpForceUp)
+		}
+		if v.Aggregated != nil {
+			aggregated = types.BoolValue(*v.Aggregated)
+		}
+		if v.Critical != nil {
+			critical = types.BoolValue(*v.Critical)
+		}
 		if v.Description != nil {
 			description = types.StringValue(*v.Description)
 		}
@@ -306,6 +326,11 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 		}
 
 		var port_usage_state = map[string]attr.Value{
+			"ae_disable_lacp":    ae_disable_lacp,
+			"ae_idx":             ae_idx,
+			"ae_lacp_force_up":   ae_lacp_force_up,
+			"aggregated":         aggregated,
+			"critical":           critical,
 			"description":        description,
 			"disable_autoneg":    disable_autoneg,
 			"disabled":           disabled,

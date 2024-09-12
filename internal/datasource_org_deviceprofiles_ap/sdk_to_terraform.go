@@ -41,11 +41,11 @@ func deviceprofileApSdkToTerraform(ctx context.Context, diags *diag.Diagnostics,
 	if d.ModifiedTime != nil {
 		modified_time = types.NumberValue(big.NewFloat(*d.ModifiedTime))
 	}
-	name = types.StringValue(*d.Name.Value())
+	name = types.StringValue(*d.Name)
 	if d.OrgId != nil {
 		org_id = types.StringValue(d.OrgId.String())
 	}
-	deviceprofile_type = types.StringValue(string(*d.Type))
+	deviceprofile_type = types.StringValue(string(d.Type))
 
 	data_map_attr_type := OrgDeviceprofilesApValue{}.AttributeTypes(ctx)
 	data_map_value := map[string]attr.Value{

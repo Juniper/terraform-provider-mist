@@ -112,9 +112,9 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileGateway) (Org
 	if data.TunnelProviderOptions != nil {
 		tunnel_provider_options = tunnelProviderSdkToTerraform(ctx, &diags, data.TunnelProviderOptions)
 	}
-	if data.Type != nil {
-		type_template = types.StringValue(string(*data.Type))
-	}
+
+	type_template = types.StringValue(string(data.Type))
+
 	if data.VrfConfig != nil {
 		vrf_config = vrfConfigSdkToTerraform(ctx, &diags, data.VrfConfig)
 	}

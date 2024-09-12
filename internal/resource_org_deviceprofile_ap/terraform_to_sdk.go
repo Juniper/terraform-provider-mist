@@ -15,7 +15,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgDeviceprofileApModel) (models.
 	var diags diag.Diagnostics
 	unset := make(map[string]interface{})
 
-	data.Name = models.NewOptional(plan.Name.ValueStringPointer())
+	data.Name = plan.Name.ValueStringPointer()
 
 	if !plan.Aeroscout.IsNull() && !plan.Aeroscout.IsUnknown() {
 		aeroscout := aeroscoutTerraformToSdk(ctx, &diags, plan.Aeroscout)
@@ -119,7 +119,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgDeviceprofileApModel) (models.
 		unset["-vars"] = ""
 	}
 
-	data.Type = models.ToPointer(models.DeviceTypeApEnum_AP)
+	data.Type = string(models.ConstDeviceTypeApEnum_AP)
 
 	data.AdditionalProperties = unset
 

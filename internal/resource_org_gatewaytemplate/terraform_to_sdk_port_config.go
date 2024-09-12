@@ -114,6 +114,21 @@ func portConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d ba
 		plan := v_interface.(PortConfigValue)
 		data := models.GatewayPortConfig{}
 
+		if plan.AeDisableLacp.ValueBoolPointer() != nil {
+			data.AeDisableLacp = plan.AeDisableLacp.ValueBoolPointer()
+		}
+		if plan.AeIdx.ValueStringPointer() != nil {
+			data.AeIdx = models.NewOptional(plan.AeIdx.ValueStringPointer())
+		}
+		if plan.AeLacpForceUp.ValueBoolPointer() != nil {
+			data.AeLacpForceUp = plan.AeLacpForceUp.ValueBoolPointer()
+		}
+		if plan.Aggregated.ValueBoolPointer() != nil {
+			data.Aggregated = plan.Aggregated.ValueBoolPointer()
+		}
+		if plan.Critical.ValueBoolPointer() != nil {
+			data.Critical = plan.Critical.ValueBoolPointer()
+		}
 		if plan.Usage.ValueStringPointer() != nil {
 			data.Usage = models.GatewayPortUsageEnum(plan.Usage.ValueString())
 		}

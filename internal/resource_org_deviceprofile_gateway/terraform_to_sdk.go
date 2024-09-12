@@ -141,7 +141,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgDeviceprofileGatewayModel) (mo
 		data.VrfInstances = vrfInstancesTerraformToSdk(ctx, &diags, plan.VrfInstances)
 	}
 
-	data.Type = models.ToPointer(models.DeviceTypeGatewayEnum_GATEWAY)
+	data.Type = string(models.ConstDeviceTypeGatewayEnum_GATEWAY)
 	data.AdditionalProperties = unset
 
 	deviceprofile := models.DeviceprofileContainer.FromDeviceprofileGateway(data)
