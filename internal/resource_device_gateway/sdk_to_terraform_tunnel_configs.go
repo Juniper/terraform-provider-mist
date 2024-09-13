@@ -228,6 +228,7 @@ func tunnelConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m
 		var ipsec_proposals basetypes.ListValue = types.ListNull(IpsecProposalsValue{}.Type(ctx))
 		var local_id basetypes.StringValue
 		var mode basetypes.StringValue = types.StringValue("active-standby")
+		var networks basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 		var primary basetypes.ObjectValue = types.ObjectNull(PrimaryValue{}.AttributeTypes(ctx))
 		var probe basetypes.ObjectValue = types.ObjectNull(ProbeValue{}.AttributeTypes(ctx))
 		var protocol basetypes.StringValue
@@ -259,6 +260,9 @@ func tunnelConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m
 		}
 		if d.Mode != nil {
 			mode = types.StringValue(string(*d.Mode))
+		}
+		if d.Networks != nil {
+			networks = mist_transform.ListOfStringSdkToTerraform(ctx, d.Networks)
 		}
 		if d.Primary != nil {
 			primary = tunnelConfigNodeSdkToTerraform(ctx, diags, *d.Primary, PrimaryValue{}.AttributeTypes(ctx))
@@ -292,6 +296,7 @@ func tunnelConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m
 			"ipsec_proposals": ipsec_proposals,
 			"local_id":        local_id,
 			"mode":            mode,
+			"networks":        networks,
 			"primary":         primary,
 			"probe":           probe,
 			"protocol":        protocol,

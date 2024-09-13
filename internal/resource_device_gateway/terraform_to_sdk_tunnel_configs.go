@@ -199,8 +199,8 @@ func tunnelConfigsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d
 
 		data := models.TunnelConfigs{}
 
-		auto_provision := tunnelConfigsAutoProvisionTerraformToSdk(ctx, diags, plan.AutoProvision)
 		if !plan.AutoProvision.IsNull() && !plan.AutoProvision.IsUnknown() {
+			auto_provision := tunnelConfigsAutoProvisionTerraformToSdk(ctx, diags, plan.AutoProvision)
 			data.AutoProvision = &auto_provision
 		}
 
@@ -211,31 +211,38 @@ func tunnelConfigsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d
 			data.IkeMode = models.ToPointer(models.GatewayTemplateTunnelIkeModeEnum(plan.IkeMode.ValueString()))
 		}
 
-		ike_proposals := gatewayTemplateTunnelIkeProposalTerraformToSdk(ctx, diags, plan.IkeProposals)
-		if !plan.IkeProposals.IsNull() && !plan.IkeProposals.IsUnknown() {
-			data.IkeProposals = ike_proposals
-		}
-
 		if plan.IpsecLifetime.ValueInt64Pointer() != nil {
 			data.IpsecLifetime = models.ToPointer(int(plan.IpsecLifetime.ValueInt64()))
 		}
 
-		primary := gatewayTemplateTunnelPrimaryProbeTerraformToSdk(ctx, diags, plan.Primary)
-		if !plan.Primary.IsNull() && !plan.Primary.IsUnknown() {
-			data.Primary = &primary
-		}
-
-		ipsec_proposals := gatewayTemplateTunnelIpsecProposalTerraformToSdk(ctx, diags, plan.IpsecProposals)
-		if !plan.IpsecProposals.IsNull() && !plan.IpsecProposals.IsUnknown() {
-			data.IpsecProposals = ipsec_proposals
+		if !plan.IkeProposals.IsNull() && !plan.IkeProposals.IsUnknown() {
+			ike_proposals := gatewayTemplateTunnelIkeProposalTerraformToSdk(ctx, diags, plan.IkeProposals)
+			data.IkeProposals = ike_proposals
 		}
 
 		if plan.LocalId.ValueStringPointer() != nil {
 			data.LocalId = models.ToPointer(plan.LocalId.ValueString())
 		}
+		if plan.Mode.ValueStringPointer() != nil {
+			data.Mode = (*models.GatewayTemplateTunnelModeEnum)(plan.Mode.ValueStringPointer())
+		}
 
-		probe := gatewayTemplateTunnelProbeTerraformToSdk(ctx, diags, plan.Probe)
+		if !plan.Networks.IsNull() && !plan.Networks.IsUnknown() {
+			data.Networks = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Networks)
+		}
+
+		if !plan.Primary.IsNull() && !plan.Primary.IsUnknown() {
+			primary := gatewayTemplateTunnelPrimaryProbeTerraformToSdk(ctx, diags, plan.Primary)
+			data.Primary = &primary
+		}
+
+		if !plan.IpsecProposals.IsNull() && !plan.IpsecProposals.IsUnknown() {
+			ipsec_proposals := gatewayTemplateTunnelIpsecProposalTerraformToSdk(ctx, diags, plan.IpsecProposals)
+			data.IpsecProposals = ipsec_proposals
+		}
+
 		if !plan.Probe.IsNull() && !plan.Probe.IsUnknown() {
+			probe := gatewayTemplateTunnelProbeTerraformToSdk(ctx, diags, plan.Probe)
 			data.Probe = &probe
 		}
 
@@ -249,8 +256,8 @@ func tunnelConfigsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d
 			data.Psk = models.ToPointer(plan.Psk.ValueString())
 		}
 
-		secondary := gatewayTemplateTunnelSecondaryProbeTerraformToSdk(ctx, diags, plan.Secondary)
 		if !plan.Secondary.IsNull() && !plan.Secondary.IsUnknown() {
+			secondary := gatewayTemplateTunnelSecondaryProbeTerraformToSdk(ctx, diags, plan.Secondary)
 			data.Secondary = &secondary
 		}
 
