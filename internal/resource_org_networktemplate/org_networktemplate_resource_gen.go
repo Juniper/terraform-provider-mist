@@ -494,6 +494,9 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"org_id": schema.StringAttribute{
 				Required: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"port_mirroring": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
@@ -715,6 +718,11 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("enable_mac_auth"), types.BoolValue(true)),
 							},
 						},
+						"mac_auth_preferred": schema.BoolAttribute{
+							Optional:            true,
+							Description:         "Only if `mode`!=`dynamic` + `enable_mac_auth`==`true` + `mac_auth_only`==`false`, dot1x will be given priority then mac_auth. Enable this to prefer mac_auth over dot1x.",
+							MarkdownDescription: "Only if `mode`!=`dynamic` + `enable_mac_auth`==`true` + `mac_auth_only`==`false`, dot1x will be given priority then mac_auth. Enable this to prefer mac_auth over dot1x.",
+						},
 						"mac_auth_protocol": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
@@ -831,15 +839,6 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							},
 							Default: int64default.StaticInt64(3600),
 						},
-						"rejected_network": schema.StringAttribute{
-							Optional:            true,
-							Description:         "Only if `mode`!=`dynamic` and `port_auth`==`dot1x` when radius server reject / fails",
-							MarkdownDescription: "Only if `mode`!=`dynamic` and `port_auth`==`dot1x` when radius server reject / fails",
-							Validators: []validator.String{
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
-								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x")),
-							},
-						},
 						"reset_default_when": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
@@ -909,6 +908,24 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "Only if `mode`==`dynamic`",
 							Validators: []validator.List{
 								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
+							},
+						},
+						"server_fail_network": schema.StringAttribute{
+							Optional:            true,
+							Description:         "Only if `mode`!=`dynamic` and `port_auth`==`dot1x` sets server fail fallback vlan",
+							MarkdownDescription: "Only if `mode`!=`dynamic` and `port_auth`==`dot1x` sets server fail fallback vlan",
+							Validators: []validator.String{
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
+								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x")),
+							},
+						},
+						"server_reject_network": schema.StringAttribute{
+							Optional:            true,
+							Description:         "Only if `mode`!=`dynamic` and `port_auth`==`dot1x` when radius server reject / fails",
+							MarkdownDescription: "Only if `mode`!=`dynamic` and `port_auth`==`dot1x` when radius server reject / fails",
+							Validators: []validator.String{
+								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
+								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x")),
 							},
 						},
 						"speed": schema.StringAttribute{
@@ -1119,6 +1136,13 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										int64validator.Between(1, 65535),
 									},
 									Default: int64default.StaticInt64(1812),
+								},
+								"require_message_authenticator": schema.BoolAttribute{
+									Optional:            true,
+									Computed:            true,
+									Description:         "whether to require Message-Authenticator in requests",
+									MarkdownDescription: "whether to require Message-Authenticator in requests",
+									Default:             booldefault.StaticBool(false),
 								},
 								"secret": schema.StringAttribute{
 									Required:            true,
@@ -2571,6 +2595,9 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						Description:         "Enable to provide the FQDN with DHCP option 81",
 						MarkdownDescription: "Enable to provide the FQDN with DHCP option 81",
 						Default:             booldefault.StaticBool(false),
+					},
+					"disable_oob_down_alarm": schema.BoolAttribute{
+						Optional: true,
 					},
 					"local_accounts": schema.MapNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{
@@ -8890,6 +8917,24 @@ func (t PortUsagesType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`mac_auth_only expected to be basetypes.BoolValue, was: %T`, macAuthOnlyAttribute))
 	}
 
+	macAuthPreferredAttribute, ok := attributes["mac_auth_preferred"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`mac_auth_preferred is missing from object`)
+
+		return nil, diags
+	}
+
+	macAuthPreferredVal, ok := macAuthPreferredAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`mac_auth_preferred expected to be basetypes.BoolValue, was: %T`, macAuthPreferredAttribute))
+	}
+
 	macAuthProtocolAttribute, ok := attributes["mac_auth_protocol"]
 
 	if !ok {
@@ -9070,24 +9115,6 @@ func (t PortUsagesType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`reauth_interval expected to be basetypes.Int64Value, was: %T`, reauthIntervalAttribute))
 	}
 
-	rejectedNetworkAttribute, ok := attributes["rejected_network"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`rejected_network is missing from object`)
-
-		return nil, diags
-	}
-
-	rejectedNetworkVal, ok := rejectedNetworkAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`rejected_network expected to be basetypes.StringValue, was: %T`, rejectedNetworkAttribute))
-	}
-
 	resetDefaultWhenAttribute, ok := attributes["reset_default_when"]
 
 	if !ok {
@@ -9122,6 +9149,42 @@ func (t PortUsagesType) ValueFromObject(ctx context.Context, in basetypes.Object
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`rules expected to be basetypes.ListValue, was: %T`, rulesAttribute))
+	}
+
+	serverFailNetworkAttribute, ok := attributes["server_fail_network"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`server_fail_network is missing from object`)
+
+		return nil, diags
+	}
+
+	serverFailNetworkVal, ok := serverFailNetworkAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`server_fail_network expected to be basetypes.StringValue, was: %T`, serverFailNetworkAttribute))
+	}
+
+	serverRejectNetworkAttribute, ok := attributes["server_reject_network"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`server_reject_network is missing from object`)
+
+		return nil, diags
+	}
+
+	serverRejectNetworkVal, ok := serverRejectNetworkAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`server_reject_network expected to be basetypes.StringValue, was: %T`, serverRejectNetworkAttribute))
 	}
 
 	speedAttribute, ok := attributes["speed"]
@@ -9252,6 +9315,7 @@ func (t PortUsagesType) ValueFromObject(ctx context.Context, in basetypes.Object
 		GuestNetwork:                             guestNetworkVal,
 		InterSwitchLink:                          interSwitchLinkVal,
 		MacAuthOnly:                              macAuthOnlyVal,
+		MacAuthPreferred:                         macAuthPreferredVal,
 		MacAuthProtocol:                          macAuthProtocolVal,
 		MacLimit:                                 macLimitVal,
 		Mode:                                     modeVal,
@@ -9262,9 +9326,10 @@ func (t PortUsagesType) ValueFromObject(ctx context.Context, in basetypes.Object
 		PortAuth:                                 portAuthVal,
 		PortNetwork:                              portNetworkVal,
 		ReauthInterval:                           reauthIntervalVal,
-		RejectedNetwork:                          rejectedNetworkVal,
 		ResetDefaultWhen:                         resetDefaultWhenVal,
 		Rules:                                    rulesVal,
+		ServerFailNetwork:                        serverFailNetworkVal,
+		ServerRejectNetwork:                      serverRejectNetworkVal,
 		Speed:                                    speedVal,
 		StormControl:                             stormControlVal,
 		StpEdge:                                  stpEdgeVal,
@@ -9608,6 +9673,24 @@ func NewPortUsagesValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`mac_auth_only expected to be basetypes.BoolValue, was: %T`, macAuthOnlyAttribute))
 	}
 
+	macAuthPreferredAttribute, ok := attributes["mac_auth_preferred"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`mac_auth_preferred is missing from object`)
+
+		return NewPortUsagesValueUnknown(), diags
+	}
+
+	macAuthPreferredVal, ok := macAuthPreferredAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`mac_auth_preferred expected to be basetypes.BoolValue, was: %T`, macAuthPreferredAttribute))
+	}
+
 	macAuthProtocolAttribute, ok := attributes["mac_auth_protocol"]
 
 	if !ok {
@@ -9788,24 +9871,6 @@ func NewPortUsagesValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`reauth_interval expected to be basetypes.Int64Value, was: %T`, reauthIntervalAttribute))
 	}
 
-	rejectedNetworkAttribute, ok := attributes["rejected_network"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`rejected_network is missing from object`)
-
-		return NewPortUsagesValueUnknown(), diags
-	}
-
-	rejectedNetworkVal, ok := rejectedNetworkAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`rejected_network expected to be basetypes.StringValue, was: %T`, rejectedNetworkAttribute))
-	}
-
 	resetDefaultWhenAttribute, ok := attributes["reset_default_when"]
 
 	if !ok {
@@ -9840,6 +9905,42 @@ func NewPortUsagesValue(attributeTypes map[string]attr.Type, attributes map[stri
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`rules expected to be basetypes.ListValue, was: %T`, rulesAttribute))
+	}
+
+	serverFailNetworkAttribute, ok := attributes["server_fail_network"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`server_fail_network is missing from object`)
+
+		return NewPortUsagesValueUnknown(), diags
+	}
+
+	serverFailNetworkVal, ok := serverFailNetworkAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`server_fail_network expected to be basetypes.StringValue, was: %T`, serverFailNetworkAttribute))
+	}
+
+	serverRejectNetworkAttribute, ok := attributes["server_reject_network"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`server_reject_network is missing from object`)
+
+		return NewPortUsagesValueUnknown(), diags
+	}
+
+	serverRejectNetworkVal, ok := serverRejectNetworkAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`server_reject_network expected to be basetypes.StringValue, was: %T`, serverRejectNetworkAttribute))
 	}
 
 	speedAttribute, ok := attributes["speed"]
@@ -9970,6 +10071,7 @@ func NewPortUsagesValue(attributeTypes map[string]attr.Type, attributes map[stri
 		GuestNetwork:                             guestNetworkVal,
 		InterSwitchLink:                          interSwitchLinkVal,
 		MacAuthOnly:                              macAuthOnlyVal,
+		MacAuthPreferred:                         macAuthPreferredVal,
 		MacAuthProtocol:                          macAuthProtocolVal,
 		MacLimit:                                 macLimitVal,
 		Mode:                                     modeVal,
@@ -9980,9 +10082,10 @@ func NewPortUsagesValue(attributeTypes map[string]attr.Type, attributes map[stri
 		PortAuth:                                 portAuthVal,
 		PortNetwork:                              portNetworkVal,
 		ReauthInterval:                           reauthIntervalVal,
-		RejectedNetwork:                          rejectedNetworkVal,
 		ResetDefaultWhen:                         resetDefaultWhenVal,
 		Rules:                                    rulesVal,
+		ServerFailNetwork:                        serverFailNetworkVal,
+		ServerRejectNetwork:                      serverRejectNetworkVal,
 		Speed:                                    speedVal,
 		StormControl:                             stormControlVal,
 		StpEdge:                                  stpEdgeVal,
@@ -10076,6 +10179,7 @@ type PortUsagesValue struct {
 	GuestNetwork                             basetypes.StringValue `tfsdk:"guest_network"`
 	InterSwitchLink                          basetypes.BoolValue   `tfsdk:"inter_switch_link"`
 	MacAuthOnly                              basetypes.BoolValue   `tfsdk:"mac_auth_only"`
+	MacAuthPreferred                         basetypes.BoolValue   `tfsdk:"mac_auth_preferred"`
 	MacAuthProtocol                          basetypes.StringValue `tfsdk:"mac_auth_protocol"`
 	MacLimit                                 basetypes.Int64Value  `tfsdk:"mac_limit"`
 	Mode                                     basetypes.StringValue `tfsdk:"mode"`
@@ -10086,9 +10190,10 @@ type PortUsagesValue struct {
 	PortAuth                                 basetypes.StringValue `tfsdk:"port_auth"`
 	PortNetwork                              basetypes.StringValue `tfsdk:"port_network"`
 	ReauthInterval                           basetypes.Int64Value  `tfsdk:"reauth_interval"`
-	RejectedNetwork                          basetypes.StringValue `tfsdk:"rejected_network"`
 	ResetDefaultWhen                         basetypes.StringValue `tfsdk:"reset_default_when"`
 	Rules                                    basetypes.ListValue   `tfsdk:"rules"`
+	ServerFailNetwork                        basetypes.StringValue `tfsdk:"server_fail_network"`
+	ServerRejectNetwork                      basetypes.StringValue `tfsdk:"server_reject_network"`
 	Speed                                    basetypes.StringValue `tfsdk:"speed"`
 	StormControl                             basetypes.ObjectValue `tfsdk:"storm_control"`
 	StpEdge                                  basetypes.BoolValue   `tfsdk:"stp_edge"`
@@ -10099,7 +10204,7 @@ type PortUsagesValue struct {
 }
 
 func (v PortUsagesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 34)
+	attrTypes := make(map[string]tftypes.Type, 36)
 
 	var val tftypes.Value
 	var err error
@@ -10121,6 +10226,7 @@ func (v PortUsagesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	attrTypes["guest_network"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["inter_switch_link"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["mac_auth_only"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["mac_auth_preferred"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["mac_auth_protocol"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["mac_limit"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["mode"] = basetypes.StringType{}.TerraformType(ctx)
@@ -10133,11 +10239,12 @@ func (v PortUsagesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	attrTypes["port_auth"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["port_network"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["reauth_interval"] = basetypes.Int64Type{}.TerraformType(ctx)
-	attrTypes["rejected_network"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["reset_default_when"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["rules"] = basetypes.ListType{
 		ElemType: RulesValue{}.Type(ctx),
 	}.TerraformType(ctx)
+	attrTypes["server_fail_network"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["server_reject_network"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["speed"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["storm_control"] = basetypes.ObjectType{
 		AttrTypes: StormControlValue{}.AttributeTypes(ctx),
@@ -10151,7 +10258,7 @@ func (v PortUsagesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 34)
+		vals := make(map[string]tftypes.Value, 36)
 
 		val, err = v.AllNetworks.ToTerraformValue(ctx)
 
@@ -10273,6 +10380,14 @@ func (v PortUsagesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 		vals["mac_auth_only"] = val
 
+		val, err = v.MacAuthPreferred.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["mac_auth_preferred"] = val
+
 		val, err = v.MacAuthProtocol.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -10353,14 +10468,6 @@ func (v PortUsagesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 		vals["reauth_interval"] = val
 
-		val, err = v.RejectedNetwork.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["rejected_network"] = val
-
 		val, err = v.ResetDefaultWhen.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -10376,6 +10483,22 @@ func (v PortUsagesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 		}
 
 		vals["rules"] = val
+
+		val, err = v.ServerFailNetwork.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["server_fail_network"] = val
+
+		val, err = v.ServerRejectNetwork.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["server_reject_network"] = val
 
 		val, err = v.Speed.ToTerraformValue(ctx)
 
@@ -10522,15 +10645,16 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"dynamic_vlan_networks": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"enable_mac_auth":   basetypes.BoolType{},
-			"enable_qos":        basetypes.BoolType{},
-			"guest_network":     basetypes.StringType{},
-			"inter_switch_link": basetypes.BoolType{},
-			"mac_auth_only":     basetypes.BoolType{},
-			"mac_auth_protocol": basetypes.StringType{},
-			"mac_limit":         basetypes.Int64Type{},
-			"mode":              basetypes.StringType{},
-			"mtu":               basetypes.Int64Type{},
+			"enable_mac_auth":    basetypes.BoolType{},
+			"enable_qos":         basetypes.BoolType{},
+			"guest_network":      basetypes.StringType{},
+			"inter_switch_link":  basetypes.BoolType{},
+			"mac_auth_only":      basetypes.BoolType{},
+			"mac_auth_preferred": basetypes.BoolType{},
+			"mac_auth_protocol":  basetypes.StringType{},
+			"mac_limit":          basetypes.Int64Type{},
+			"mode":               basetypes.StringType{},
+			"mtu":                basetypes.Int64Type{},
 			"networks": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -10539,12 +10663,13 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"port_auth":          basetypes.StringType{},
 			"port_network":       basetypes.StringType{},
 			"reauth_interval":    basetypes.Int64Type{},
-			"rejected_network":   basetypes.StringType{},
 			"reset_default_when": basetypes.StringType{},
 			"rules": basetypes.ListType{
 				ElemType: RulesValue{}.Type(ctx),
 			},
-			"speed": basetypes.StringType{},
+			"server_fail_network":   basetypes.StringType{},
+			"server_reject_network": basetypes.StringType{},
+			"speed":                 basetypes.StringType{},
 			"storm_control": basetypes.ObjectType{
 				AttrTypes: StormControlValue{}.AttributeTypes(ctx),
 			},
@@ -10573,15 +10698,16 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"dynamic_vlan_networks": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"enable_mac_auth":   basetypes.BoolType{},
-			"enable_qos":        basetypes.BoolType{},
-			"guest_network":     basetypes.StringType{},
-			"inter_switch_link": basetypes.BoolType{},
-			"mac_auth_only":     basetypes.BoolType{},
-			"mac_auth_protocol": basetypes.StringType{},
-			"mac_limit":         basetypes.Int64Type{},
-			"mode":              basetypes.StringType{},
-			"mtu":               basetypes.Int64Type{},
+			"enable_mac_auth":    basetypes.BoolType{},
+			"enable_qos":         basetypes.BoolType{},
+			"guest_network":      basetypes.StringType{},
+			"inter_switch_link":  basetypes.BoolType{},
+			"mac_auth_only":      basetypes.BoolType{},
+			"mac_auth_preferred": basetypes.BoolType{},
+			"mac_auth_protocol":  basetypes.StringType{},
+			"mac_limit":          basetypes.Int64Type{},
+			"mode":               basetypes.StringType{},
+			"mtu":                basetypes.Int64Type{},
 			"networks": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -10590,12 +10716,13 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"port_auth":          basetypes.StringType{},
 			"port_network":       basetypes.StringType{},
 			"reauth_interval":    basetypes.Int64Type{},
-			"rejected_network":   basetypes.StringType{},
 			"reset_default_when": basetypes.StringType{},
 			"rules": basetypes.ListType{
 				ElemType: RulesValue{}.Type(ctx),
 			},
-			"speed": basetypes.StringType{},
+			"server_fail_network":   basetypes.StringType{},
+			"server_reject_network": basetypes.StringType{},
+			"speed":                 basetypes.StringType{},
 			"storm_control": basetypes.ObjectType{
 				AttrTypes: StormControlValue{}.AttributeTypes(ctx),
 			},
@@ -10619,15 +10746,16 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		"dynamic_vlan_networks": basetypes.ListType{
 			ElemType: types.StringType,
 		},
-		"enable_mac_auth":   basetypes.BoolType{},
-		"enable_qos":        basetypes.BoolType{},
-		"guest_network":     basetypes.StringType{},
-		"inter_switch_link": basetypes.BoolType{},
-		"mac_auth_only":     basetypes.BoolType{},
-		"mac_auth_protocol": basetypes.StringType{},
-		"mac_limit":         basetypes.Int64Type{},
-		"mode":              basetypes.StringType{},
-		"mtu":               basetypes.Int64Type{},
+		"enable_mac_auth":    basetypes.BoolType{},
+		"enable_qos":         basetypes.BoolType{},
+		"guest_network":      basetypes.StringType{},
+		"inter_switch_link":  basetypes.BoolType{},
+		"mac_auth_only":      basetypes.BoolType{},
+		"mac_auth_preferred": basetypes.BoolType{},
+		"mac_auth_protocol":  basetypes.StringType{},
+		"mac_limit":          basetypes.Int64Type{},
+		"mode":               basetypes.StringType{},
+		"mtu":                basetypes.Int64Type{},
 		"networks": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -10636,12 +10764,13 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		"port_auth":          basetypes.StringType{},
 		"port_network":       basetypes.StringType{},
 		"reauth_interval":    basetypes.Int64Type{},
-		"rejected_network":   basetypes.StringType{},
 		"reset_default_when": basetypes.StringType{},
 		"rules": basetypes.ListType{
 			ElemType: RulesValue{}.Type(ctx),
 		},
-		"speed": basetypes.StringType{},
+		"server_fail_network":   basetypes.StringType{},
+		"server_reject_network": basetypes.StringType{},
+		"speed":                 basetypes.StringType{},
 		"storm_control": basetypes.ObjectType{
 			AttrTypes: StormControlValue{}.AttributeTypes(ctx),
 		},
@@ -10677,6 +10806,7 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"guest_network":                                   v.GuestNetwork,
 			"inter_switch_link":                               v.InterSwitchLink,
 			"mac_auth_only":                                   v.MacAuthOnly,
+			"mac_auth_preferred":                              v.MacAuthPreferred,
 			"mac_auth_protocol":                               v.MacAuthProtocol,
 			"mac_limit":                                       v.MacLimit,
 			"mode":                                            v.Mode,
@@ -10687,9 +10817,10 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"port_auth":                                       v.PortAuth,
 			"port_network":                                    v.PortNetwork,
 			"reauth_interval":                                 v.ReauthInterval,
-			"rejected_network":                                v.RejectedNetwork,
 			"reset_default_when":                              v.ResetDefaultWhen,
 			"rules":                                           rules,
+			"server_fail_network":                             v.ServerFailNetwork,
+			"server_reject_network":                           v.ServerRejectNetwork,
 			"speed":                                           v.Speed,
 			"storm_control":                                   stormControl,
 			"stp_edge":                                        v.StpEdge,
@@ -10776,6 +10907,10 @@ func (v PortUsagesValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.MacAuthPreferred.Equal(other.MacAuthPreferred) {
+		return false
+	}
+
 	if !v.MacAuthProtocol.Equal(other.MacAuthProtocol) {
 		return false
 	}
@@ -10816,15 +10951,19 @@ func (v PortUsagesValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.RejectedNetwork.Equal(other.RejectedNetwork) {
-		return false
-	}
-
 	if !v.ResetDefaultWhen.Equal(other.ResetDefaultWhen) {
 		return false
 	}
 
 	if !v.Rules.Equal(other.Rules) {
+		return false
+	}
+
+	if !v.ServerFailNetwork.Equal(other.ServerFailNetwork) {
+		return false
+	}
+
+	if !v.ServerRejectNetwork.Equal(other.ServerRejectNetwork) {
 		return false
 	}
 
@@ -10877,15 +11016,16 @@ func (v PortUsagesValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"dynamic_vlan_networks": basetypes.ListType{
 			ElemType: types.StringType,
 		},
-		"enable_mac_auth":   basetypes.BoolType{},
-		"enable_qos":        basetypes.BoolType{},
-		"guest_network":     basetypes.StringType{},
-		"inter_switch_link": basetypes.BoolType{},
-		"mac_auth_only":     basetypes.BoolType{},
-		"mac_auth_protocol": basetypes.StringType{},
-		"mac_limit":         basetypes.Int64Type{},
-		"mode":              basetypes.StringType{},
-		"mtu":               basetypes.Int64Type{},
+		"enable_mac_auth":    basetypes.BoolType{},
+		"enable_qos":         basetypes.BoolType{},
+		"guest_network":      basetypes.StringType{},
+		"inter_switch_link":  basetypes.BoolType{},
+		"mac_auth_only":      basetypes.BoolType{},
+		"mac_auth_preferred": basetypes.BoolType{},
+		"mac_auth_protocol":  basetypes.StringType{},
+		"mac_limit":          basetypes.Int64Type{},
+		"mode":               basetypes.StringType{},
+		"mtu":                basetypes.Int64Type{},
 		"networks": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -10894,12 +11034,13 @@ func (v PortUsagesValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"port_auth":          basetypes.StringType{},
 		"port_network":       basetypes.StringType{},
 		"reauth_interval":    basetypes.Int64Type{},
-		"rejected_network":   basetypes.StringType{},
 		"reset_default_when": basetypes.StringType{},
 		"rules": basetypes.ListType{
 			ElemType: RulesValue{}.Type(ctx),
 		},
-		"speed": basetypes.StringType{},
+		"server_fail_network":   basetypes.StringType{},
+		"server_reject_network": basetypes.StringType{},
+		"speed":                 basetypes.StringType{},
 		"storm_control": basetypes.ObjectType{
 			AttrTypes: StormControlValue{}.AttributeTypes(ctx),
 		},
@@ -13641,6 +13782,24 @@ func (t AuthServersType) ValueFromObject(ctx context.Context, in basetypes.Objec
 			fmt.Sprintf(`port expected to be basetypes.Int64Value, was: %T`, portAttribute))
 	}
 
+	requireMessageAuthenticatorAttribute, ok := attributes["require_message_authenticator"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`require_message_authenticator is missing from object`)
+
+		return nil, diags
+	}
+
+	requireMessageAuthenticatorVal, ok := requireMessageAuthenticatorAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`require_message_authenticator expected to be basetypes.BoolValue, was: %T`, requireMessageAuthenticatorAttribute))
+	}
+
 	secretAttribute, ok := attributes["secret"]
 
 	if !ok {
@@ -13664,14 +13823,15 @@ func (t AuthServersType) ValueFromObject(ctx context.Context, in basetypes.Objec
 	}
 
 	return AuthServersValue{
-		Host:           hostVal,
-		KeywrapEnabled: keywrapEnabledVal,
-		KeywrapFormat:  keywrapFormatVal,
-		KeywrapKek:     keywrapKekVal,
-		KeywrapMack:    keywrapMackVal,
-		Port:           portVal,
-		Secret:         secretVal,
-		state:          attr.ValueStateKnown,
+		Host:                        hostVal,
+		KeywrapEnabled:              keywrapEnabledVal,
+		KeywrapFormat:               keywrapFormatVal,
+		KeywrapKek:                  keywrapKekVal,
+		KeywrapMack:                 keywrapMackVal,
+		Port:                        portVal,
+		RequireMessageAuthenticator: requireMessageAuthenticatorVal,
+		Secret:                      secretVal,
+		state:                       attr.ValueStateKnown,
 	}, diags
 }
 
@@ -13846,6 +14006,24 @@ func NewAuthServersValue(attributeTypes map[string]attr.Type, attributes map[str
 			fmt.Sprintf(`port expected to be basetypes.Int64Value, was: %T`, portAttribute))
 	}
 
+	requireMessageAuthenticatorAttribute, ok := attributes["require_message_authenticator"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`require_message_authenticator is missing from object`)
+
+		return NewAuthServersValueUnknown(), diags
+	}
+
+	requireMessageAuthenticatorVal, ok := requireMessageAuthenticatorAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`require_message_authenticator expected to be basetypes.BoolValue, was: %T`, requireMessageAuthenticatorAttribute))
+	}
+
 	secretAttribute, ok := attributes["secret"]
 
 	if !ok {
@@ -13869,14 +14047,15 @@ func NewAuthServersValue(attributeTypes map[string]attr.Type, attributes map[str
 	}
 
 	return AuthServersValue{
-		Host:           hostVal,
-		KeywrapEnabled: keywrapEnabledVal,
-		KeywrapFormat:  keywrapFormatVal,
-		KeywrapKek:     keywrapKekVal,
-		KeywrapMack:    keywrapMackVal,
-		Port:           portVal,
-		Secret:         secretVal,
-		state:          attr.ValueStateKnown,
+		Host:                        hostVal,
+		KeywrapEnabled:              keywrapEnabledVal,
+		KeywrapFormat:               keywrapFormatVal,
+		KeywrapKek:                  keywrapKekVal,
+		KeywrapMack:                 keywrapMackVal,
+		Port:                        portVal,
+		RequireMessageAuthenticator: requireMessageAuthenticatorVal,
+		Secret:                      secretVal,
+		state:                       attr.ValueStateKnown,
 	}, diags
 }
 
@@ -13948,18 +14127,19 @@ func (t AuthServersType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = AuthServersValue{}
 
 type AuthServersValue struct {
-	Host           basetypes.StringValue `tfsdk:"host"`
-	KeywrapEnabled basetypes.BoolValue   `tfsdk:"keywrap_enabled"`
-	KeywrapFormat  basetypes.StringValue `tfsdk:"keywrap_format"`
-	KeywrapKek     basetypes.StringValue `tfsdk:"keywrap_kek"`
-	KeywrapMack    basetypes.StringValue `tfsdk:"keywrap_mack"`
-	Port           basetypes.Int64Value  `tfsdk:"port"`
-	Secret         basetypes.StringValue `tfsdk:"secret"`
-	state          attr.ValueState
+	Host                        basetypes.StringValue `tfsdk:"host"`
+	KeywrapEnabled              basetypes.BoolValue   `tfsdk:"keywrap_enabled"`
+	KeywrapFormat               basetypes.StringValue `tfsdk:"keywrap_format"`
+	KeywrapKek                  basetypes.StringValue `tfsdk:"keywrap_kek"`
+	KeywrapMack                 basetypes.StringValue `tfsdk:"keywrap_mack"`
+	Port                        basetypes.Int64Value  `tfsdk:"port"`
+	RequireMessageAuthenticator basetypes.BoolValue   `tfsdk:"require_message_authenticator"`
+	Secret                      basetypes.StringValue `tfsdk:"secret"`
+	state                       attr.ValueState
 }
 
 func (v AuthServersValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 7)
+	attrTypes := make(map[string]tftypes.Type, 8)
 
 	var val tftypes.Value
 	var err error
@@ -13970,13 +14150,14 @@ func (v AuthServersValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 	attrTypes["keywrap_kek"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["keywrap_mack"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["port"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["require_message_authenticator"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["secret"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 7)
+		vals := make(map[string]tftypes.Value, 8)
 
 		val, err = v.Host.ToTerraformValue(ctx)
 
@@ -14026,6 +14207,14 @@ func (v AuthServersValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 
 		vals["port"] = val
 
+		val, err = v.RequireMessageAuthenticator.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["require_message_authenticator"] = val
+
 		val, err = v.Secret.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -14064,13 +14253,14 @@ func (v AuthServersValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 	var diags diag.Diagnostics
 
 	attributeTypes := map[string]attr.Type{
-		"host":            basetypes.StringType{},
-		"keywrap_enabled": basetypes.BoolType{},
-		"keywrap_format":  basetypes.StringType{},
-		"keywrap_kek":     basetypes.StringType{},
-		"keywrap_mack":    basetypes.StringType{},
-		"port":            basetypes.Int64Type{},
-		"secret":          basetypes.StringType{},
+		"host":                          basetypes.StringType{},
+		"keywrap_enabled":               basetypes.BoolType{},
+		"keywrap_format":                basetypes.StringType{},
+		"keywrap_kek":                   basetypes.StringType{},
+		"keywrap_mack":                  basetypes.StringType{},
+		"port":                          basetypes.Int64Type{},
+		"require_message_authenticator": basetypes.BoolType{},
+		"secret":                        basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -14084,13 +14274,14 @@ func (v AuthServersValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"host":            v.Host,
-			"keywrap_enabled": v.KeywrapEnabled,
-			"keywrap_format":  v.KeywrapFormat,
-			"keywrap_kek":     v.KeywrapKek,
-			"keywrap_mack":    v.KeywrapMack,
-			"port":            v.Port,
-			"secret":          v.Secret,
+			"host":                          v.Host,
+			"keywrap_enabled":               v.KeywrapEnabled,
+			"keywrap_format":                v.KeywrapFormat,
+			"keywrap_kek":                   v.KeywrapKek,
+			"keywrap_mack":                  v.KeywrapMack,
+			"port":                          v.Port,
+			"require_message_authenticator": v.RequireMessageAuthenticator,
+			"secret":                        v.Secret,
 		})
 
 	return objVal, diags
@@ -14135,6 +14326,10 @@ func (v AuthServersValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.RequireMessageAuthenticator.Equal(other.RequireMessageAuthenticator) {
+		return false
+	}
+
 	if !v.Secret.Equal(other.Secret) {
 		return false
 	}
@@ -14152,13 +14347,14 @@ func (v AuthServersValue) Type(ctx context.Context) attr.Type {
 
 func (v AuthServersValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"host":            basetypes.StringType{},
-		"keywrap_enabled": basetypes.BoolType{},
-		"keywrap_format":  basetypes.StringType{},
-		"keywrap_kek":     basetypes.StringType{},
-		"keywrap_mack":    basetypes.StringType{},
-		"port":            basetypes.Int64Type{},
-		"secret":          basetypes.StringType{},
+		"host":                          basetypes.StringType{},
+		"keywrap_enabled":               basetypes.BoolType{},
+		"keywrap_format":                basetypes.StringType{},
+		"keywrap_kek":                   basetypes.StringType{},
+		"keywrap_mack":                  basetypes.StringType{},
+		"port":                          basetypes.Int64Type{},
+		"require_message_authenticator": basetypes.BoolType{},
+		"secret":                        basetypes.StringType{},
 	}
 }
 
@@ -31139,6 +31335,24 @@ func (t SwitchMgmtType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`dhcp_option_fqdn expected to be basetypes.BoolValue, was: %T`, dhcpOptionFqdnAttribute))
 	}
 
+	disableOobDownAlarmAttribute, ok := attributes["disable_oob_down_alarm"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disable_oob_down_alarm is missing from object`)
+
+		return nil, diags
+	}
+
+	disableOobDownAlarmVal, ok := disableOobDownAlarmAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disable_oob_down_alarm expected to be basetypes.BoolValue, was: %T`, disableOobDownAlarmAttribute))
+	}
+
 	localAccountsAttribute, ok := attributes["local_accounts"]
 
 	if !ok {
@@ -31275,6 +31489,7 @@ func (t SwitchMgmtType) ValueFromObject(ctx context.Context, in basetypes.Object
 		CliIdleTimeout:      cliIdleTimeoutVal,
 		ConfigRevertTimer:   configRevertTimerVal,
 		DhcpOptionFqdn:      dhcpOptionFqdnVal,
+		DisableOobDownAlarm: disableOobDownAlarmVal,
 		LocalAccounts:       localAccountsVal,
 		MxedgeProxyHost:     mxedgeProxyHostVal,
 		MxedgeProxyPort:     mxedgeProxyPortVal,
@@ -31439,6 +31654,24 @@ func NewSwitchMgmtValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`dhcp_option_fqdn expected to be basetypes.BoolValue, was: %T`, dhcpOptionFqdnAttribute))
 	}
 
+	disableOobDownAlarmAttribute, ok := attributes["disable_oob_down_alarm"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disable_oob_down_alarm is missing from object`)
+
+		return NewSwitchMgmtValueUnknown(), diags
+	}
+
+	disableOobDownAlarmVal, ok := disableOobDownAlarmAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disable_oob_down_alarm expected to be basetypes.BoolValue, was: %T`, disableOobDownAlarmAttribute))
+	}
+
 	localAccountsAttribute, ok := attributes["local_accounts"]
 
 	if !ok {
@@ -31575,6 +31808,7 @@ func NewSwitchMgmtValue(attributeTypes map[string]attr.Type, attributes map[stri
 		CliIdleTimeout:      cliIdleTimeoutVal,
 		ConfigRevertTimer:   configRevertTimerVal,
 		DhcpOptionFqdn:      dhcpOptionFqdnVal,
+		DisableOobDownAlarm: disableOobDownAlarmVal,
 		LocalAccounts:       localAccountsVal,
 		MxedgeProxyHost:     mxedgeProxyHostVal,
 		MxedgeProxyPort:     mxedgeProxyPortVal,
@@ -31659,6 +31893,7 @@ type SwitchMgmtValue struct {
 	CliIdleTimeout      basetypes.Int64Value  `tfsdk:"cli_idle_timeout"`
 	ConfigRevertTimer   basetypes.Int64Value  `tfsdk:"config_revert_timer"`
 	DhcpOptionFqdn      basetypes.BoolValue   `tfsdk:"dhcp_option_fqdn"`
+	DisableOobDownAlarm basetypes.BoolValue   `tfsdk:"disable_oob_down_alarm"`
 	LocalAccounts       basetypes.MapValue    `tfsdk:"local_accounts"`
 	MxedgeProxyHost     basetypes.StringValue `tfsdk:"mxedge_proxy_host"`
 	MxedgeProxyPort     basetypes.Int64Value  `tfsdk:"mxedge_proxy_port"`
@@ -31670,7 +31905,7 @@ type SwitchMgmtValue struct {
 }
 
 func (v SwitchMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 12)
+	attrTypes := make(map[string]tftypes.Type, 13)
 
 	var val tftypes.Value
 	var err error
@@ -31680,6 +31915,7 @@ func (v SwitchMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	attrTypes["cli_idle_timeout"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["config_revert_timer"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["dhcp_option_fqdn"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["disable_oob_down_alarm"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["local_accounts"] = basetypes.MapType{
 		ElemType: LocalAccountsValue{}.Type(ctx),
 	}.TerraformType(ctx)
@@ -31698,7 +31934,7 @@ func (v SwitchMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 12)
+		vals := make(map[string]tftypes.Value, 13)
 
 		val, err = v.ApAffinityThreshold.ToTerraformValue(ctx)
 
@@ -31739,6 +31975,14 @@ func (v SwitchMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 		}
 
 		vals["dhcp_option_fqdn"] = val
+
+		val, err = v.DisableOobDownAlarm.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["disable_oob_down_alarm"] = val
 
 		val, err = v.LocalAccounts.ToTerraformValue(ctx)
 
@@ -31897,11 +32141,12 @@ func (v SwitchMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 	}
 
 	attributeTypes := map[string]attr.Type{
-		"ap_affinity_threshold": basetypes.Int64Type{},
-		"cli_banner":            basetypes.StringType{},
-		"cli_idle_timeout":      basetypes.Int64Type{},
-		"config_revert_timer":   basetypes.Int64Type{},
-		"dhcp_option_fqdn":      basetypes.BoolType{},
+		"ap_affinity_threshold":  basetypes.Int64Type{},
+		"cli_banner":             basetypes.StringType{},
+		"cli_idle_timeout":       basetypes.Int64Type{},
+		"config_revert_timer":    basetypes.Int64Type{},
+		"dhcp_option_fqdn":       basetypes.BoolType{},
+		"disable_oob_down_alarm": basetypes.BoolType{},
 		"local_accounts": basetypes.MapType{
 			ElemType: LocalAccountsValue{}.Type(ctx),
 		},
@@ -31928,18 +32173,19 @@ func (v SwitchMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"ap_affinity_threshold": v.ApAffinityThreshold,
-			"cli_banner":            v.CliBanner,
-			"cli_idle_timeout":      v.CliIdleTimeout,
-			"config_revert_timer":   v.ConfigRevertTimer,
-			"dhcp_option_fqdn":      v.DhcpOptionFqdn,
-			"local_accounts":        localAccounts,
-			"mxedge_proxy_host":     v.MxedgeProxyHost,
-			"mxedge_proxy_port":     v.MxedgeProxyPort,
-			"protect_re":            protectRe,
-			"root_password":         v.RootPassword,
-			"tacacs":                tacacs,
-			"use_mxedge_proxy":      v.UseMxedgeProxy,
+			"ap_affinity_threshold":  v.ApAffinityThreshold,
+			"cli_banner":             v.CliBanner,
+			"cli_idle_timeout":       v.CliIdleTimeout,
+			"config_revert_timer":    v.ConfigRevertTimer,
+			"dhcp_option_fqdn":       v.DhcpOptionFqdn,
+			"disable_oob_down_alarm": v.DisableOobDownAlarm,
+			"local_accounts":         localAccounts,
+			"mxedge_proxy_host":      v.MxedgeProxyHost,
+			"mxedge_proxy_port":      v.MxedgeProxyPort,
+			"protect_re":             protectRe,
+			"root_password":          v.RootPassword,
+			"tacacs":                 tacacs,
+			"use_mxedge_proxy":       v.UseMxedgeProxy,
 		})
 
 	return objVal, diags
@@ -31977,6 +32223,10 @@ func (v SwitchMgmtValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.DhcpOptionFqdn.Equal(other.DhcpOptionFqdn) {
+		return false
+	}
+
+	if !v.DisableOobDownAlarm.Equal(other.DisableOobDownAlarm) {
 		return false
 	}
 
@@ -32021,11 +32271,12 @@ func (v SwitchMgmtValue) Type(ctx context.Context) attr.Type {
 
 func (v SwitchMgmtValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"ap_affinity_threshold": basetypes.Int64Type{},
-		"cli_banner":            basetypes.StringType{},
-		"cli_idle_timeout":      basetypes.Int64Type{},
-		"config_revert_timer":   basetypes.Int64Type{},
-		"dhcp_option_fqdn":      basetypes.BoolType{},
+		"ap_affinity_threshold":  basetypes.Int64Type{},
+		"cli_banner":             basetypes.StringType{},
+		"cli_idle_timeout":       basetypes.Int64Type{},
+		"config_revert_timer":    basetypes.Int64Type{},
+		"dhcp_option_fqdn":       basetypes.BoolType{},
+		"disable_oob_down_alarm": basetypes.BoolType{},
 		"local_accounts": basetypes.MapType{
 			ElemType: LocalAccountsValue{}.Type(ctx),
 		},
