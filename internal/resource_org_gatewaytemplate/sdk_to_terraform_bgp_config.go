@@ -119,6 +119,7 @@ func bgpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map
 		var networks basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 		var no_readvertise_to_overlay basetypes.BoolValue = types.BoolValue(false)
 		var type_bgp basetypes.StringValue
+		var tunnel_name basetypes.StringValue
 		var via basetypes.StringValue = types.StringValue("lan")
 		var vpn_name basetypes.StringValue
 		var wan_name basetypes.StringValue
@@ -177,6 +178,9 @@ func bgpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map
 		if d.Type != nil {
 			type_bgp = types.StringValue(string(*d.Type))
 		}
+		if d.TunnelName != nil {
+			tunnel_name = types.StringValue(*d.TunnelName)
+		}
 		if d.Via != nil {
 			via = types.StringValue(string(*d.Via))
 		}
@@ -207,6 +211,7 @@ func bgpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map
 			"networks":                  networks,
 			"no_readvertise_to_overlay": no_readvertise_to_overlay,
 			"type":                      type_bgp,
+			"tunnel_name":               tunnel_name,
 			"via":                       via,
 			"vpn_name":                  vpn_name,
 			"wan_name":                  wan_name,

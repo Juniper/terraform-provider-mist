@@ -5,8 +5,6 @@ package resource_org_gatewaytemplate
 import (
 	"context"
 	"fmt"
-	"strings"
-
 	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
@@ -25,6 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -210,6 +209,11 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "by default, we'll re-advertise all learned BGP routers toward overlay",
 							Default:             booldefault.StaticBool(false),
 						},
+						"tunnel_name": schema.StringAttribute{
+							Optional:            true,
+							Description:         "if `type`==`tunnel`",
+							MarkdownDescription: "if `type`==`tunnel`",
+						},
 						"type": schema.StringAttribute{
 							Optional:            true,
 							Description:         "enum: `external`, `internal`",
@@ -226,12 +230,13 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 						"via": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "network name. enum: `lan`, `vpn`, `wan`",
-							MarkdownDescription: "network name. enum: `lan`, `vpn`, `wan`",
+							Description:         "network name. enum: `lan`, `tunnel`, `vpn`, `wan`",
+							MarkdownDescription: "network name. enum: `lan`, `tunnel`, `vpn`, `wan`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
 									"lan",
+									"tunnel",
 									"vpn",
 									"wan",
 								),
@@ -1256,6 +1261,9 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"org_id": schema.StringAttribute{
 				Required: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"path_preferences": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
@@ -2316,22 +2324,6 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 									},
 									Optional: true,
 								},
-								"region": schema.StringAttribute{
-									Optional:            true,
-									Computed:            true,
-									Description:         "enum: `APAC`, `Americas`, `EMEA`, `auto`",
-									MarkdownDescription: "enum: `APAC`, `Americas`, `EMEA`, `auto`",
-									Validators: []validator.String{
-										stringvalidator.OneOf(
-											"",
-											"APAC",
-											"Americas",
-											"EMEA",
-											"auto",
-										),
-									},
-									Default: stringdefault.StaticString("auto"),
-								},
 							},
 							CustomType: AutoProvisionType{
 								ObjectType: types.ObjectType{
@@ -3307,6 +3299,24 @@ func (t BgpConfigType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 			fmt.Sprintf(`no_readvertise_to_overlay expected to be basetypes.BoolValue, was: %T`, noReadvertiseToOverlayAttribute))
 	}
 
+	tunnelNameAttribute, ok := attributes["tunnel_name"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`tunnel_name is missing from object`)
+
+		return nil, diags
+	}
+
+	tunnelNameVal, ok := tunnelNameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`tunnel_name expected to be basetypes.StringValue, was: %T`, tunnelNameAttribute))
+	}
+
 	typeAttribute, ok := attributes["type"]
 
 	if !ok {
@@ -3401,6 +3411,7 @@ func (t BgpConfigType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 		Neighbors:              neighborsVal,
 		Networks:               networksVal,
 		NoReadvertiseToOverlay: noReadvertiseToOverlayVal,
+		TunnelName:             tunnelNameVal,
 		BgpConfigType:          typeVal,
 		Via:                    viaVal,
 		VpnName:                vpnNameVal,
@@ -3778,6 +3789,24 @@ func NewBgpConfigValue(attributeTypes map[string]attr.Type, attributes map[strin
 			fmt.Sprintf(`no_readvertise_to_overlay expected to be basetypes.BoolValue, was: %T`, noReadvertiseToOverlayAttribute))
 	}
 
+	tunnelNameAttribute, ok := attributes["tunnel_name"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`tunnel_name is missing from object`)
+
+		return NewBgpConfigValueUnknown(), diags
+	}
+
+	tunnelNameVal, ok := tunnelNameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`tunnel_name expected to be basetypes.StringValue, was: %T`, tunnelNameAttribute))
+	}
+
 	typeAttribute, ok := attributes["type"]
 
 	if !ok {
@@ -3872,6 +3901,7 @@ func NewBgpConfigValue(attributeTypes map[string]attr.Type, attributes map[strin
 		Neighbors:              neighborsVal,
 		Networks:               networksVal,
 		NoReadvertiseToOverlay: noReadvertiseToOverlayVal,
+		TunnelName:             tunnelNameVal,
 		BgpConfigType:          typeVal,
 		Via:                    viaVal,
 		VpnName:                vpnNameVal,
@@ -3965,6 +3995,7 @@ type BgpConfigValue struct {
 	Neighbors              basetypes.MapValue    `tfsdk:"neighbors"`
 	Networks               basetypes.ListValue   `tfsdk:"networks"`
 	NoReadvertiseToOverlay basetypes.BoolValue   `tfsdk:"no_readvertise_to_overlay"`
+	TunnelName             basetypes.StringValue `tfsdk:"tunnel_name"`
 	BgpConfigType          basetypes.StringValue `tfsdk:"type"`
 	Via                    basetypes.StringValue `tfsdk:"via"`
 	VpnName                basetypes.StringValue `tfsdk:"vpn_name"`
@@ -3973,7 +4004,7 @@ type BgpConfigValue struct {
 }
 
 func (v BgpConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 21)
+	attrTypes := make(map[string]tftypes.Type, 22)
 
 	var val tftypes.Value
 	var err error
@@ -4001,6 +4032,7 @@ func (v BgpConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
 	attrTypes["no_readvertise_to_overlay"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["tunnel_name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["type"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["via"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["vpn_name"] = basetypes.StringType{}.TerraformType(ctx)
@@ -4010,7 +4042,7 @@ func (v BgpConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 21)
+		vals := make(map[string]tftypes.Value, 22)
 
 		val, err = v.AuthKey.ToTerraformValue(ctx)
 
@@ -4147,6 +4179,14 @@ func (v BgpConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 		}
 
 		vals["no_readvertise_to_overlay"] = val
+
+		val, err = v.TunnelName.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["tunnel_name"] = val
 
 		val, err = v.BgpConfigType.ToTerraformValue(ctx)
 
@@ -4296,6 +4336,7 @@ func (v BgpConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 				ElemType: types.StringType,
 			},
 			"no_readvertise_to_overlay": basetypes.BoolType{},
+			"tunnel_name":               basetypes.StringType{},
 			"type":                      basetypes.StringType{},
 			"via":                       basetypes.StringType{},
 			"vpn_name":                  basetypes.StringType{},
@@ -4327,6 +4368,7 @@ func (v BgpConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 			ElemType: types.StringType,
 		},
 		"no_readvertise_to_overlay": basetypes.BoolType{},
+		"tunnel_name":               basetypes.StringType{},
 		"type":                      basetypes.StringType{},
 		"via":                       basetypes.StringType{},
 		"vpn_name":                  basetypes.StringType{},
@@ -4361,6 +4403,7 @@ func (v BgpConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 			"neighbors":                 neighbors,
 			"networks":                  networksVal,
 			"no_readvertise_to_overlay": v.NoReadvertiseToOverlay,
+			"tunnel_name":               v.TunnelName,
 			"type":                      v.BgpConfigType,
 			"via":                       v.Via,
 			"vpn_name":                  v.VpnName,
@@ -4453,6 +4496,10 @@ func (v BgpConfigValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.TunnelName.Equal(other.TunnelName) {
+		return false
+	}
+
 	if !v.BgpConfigType.Equal(other.BgpConfigType) {
 		return false
 	}
@@ -4505,6 +4552,7 @@ func (v BgpConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Type
 			ElemType: types.StringType,
 		},
 		"no_readvertise_to_overlay": basetypes.BoolType{},
+		"tunnel_name":               basetypes.StringType{},
 		"type":                      basetypes.StringType{},
 		"via":                       basetypes.StringType{},
 		"vpn_name":                  basetypes.StringType{},
@@ -7063,9 +7111,9 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: FixedBindingsValue{}.Type(ctx),
 			},
 			"gateway":    basetypes.StringType{},
-			"ip_end":     basetypes.StringType{},
+			"ip_end":    basetypes.StringType{},
 			"ip_end6":    basetypes.StringType{},
-			"ip_start":   basetypes.StringType{},
+			"ip_start":  basetypes.StringType{},
 			"ip_start6":  basetypes.StringType{},
 			"lease_time": basetypes.Int64Type{},
 			"options": basetypes.MapType{
@@ -7078,7 +7126,7 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"servers6": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"type":  basetypes.StringType{},
+			"type": basetypes.StringType{},
 			"type6": basetypes.StringType{},
 			"vendor_encapulated": basetypes.MapType{
 				ElemType: VendorEncapulatedValue{}.Type(ctx),
@@ -7102,9 +7150,9 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: FixedBindingsValue{}.Type(ctx),
 			},
 			"gateway":    basetypes.StringType{},
-			"ip_end":     basetypes.StringType{},
+			"ip_end":    basetypes.StringType{},
 			"ip_end6":    basetypes.StringType{},
-			"ip_start":   basetypes.StringType{},
+			"ip_start":  basetypes.StringType{},
 			"ip_start6":  basetypes.StringType{},
 			"lease_time": basetypes.Int64Type{},
 			"options": basetypes.MapType{
@@ -7117,7 +7165,7 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"servers6": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"type":  basetypes.StringType{},
+			"type": basetypes.StringType{},
 			"type6": basetypes.StringType{},
 			"vendor_encapulated": basetypes.MapType{
 				ElemType: VendorEncapulatedValue{}.Type(ctx),
@@ -7141,9 +7189,9 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: FixedBindingsValue{}.Type(ctx),
 			},
 			"gateway":    basetypes.StringType{},
-			"ip_end":     basetypes.StringType{},
+			"ip_end":    basetypes.StringType{},
 			"ip_end6":    basetypes.StringType{},
-			"ip_start":   basetypes.StringType{},
+			"ip_start":  basetypes.StringType{},
 			"ip_start6":  basetypes.StringType{},
 			"lease_time": basetypes.Int64Type{},
 			"options": basetypes.MapType{
@@ -7156,7 +7204,7 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"servers6": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"type":  basetypes.StringType{},
+			"type": basetypes.StringType{},
 			"type6": basetypes.StringType{},
 			"vendor_encapulated": basetypes.MapType{
 				ElemType: VendorEncapulatedValue{}.Type(ctx),
@@ -7180,9 +7228,9 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: FixedBindingsValue{}.Type(ctx),
 			},
 			"gateway":    basetypes.StringType{},
-			"ip_end":     basetypes.StringType{},
+			"ip_end":    basetypes.StringType{},
 			"ip_end6":    basetypes.StringType{},
-			"ip_start":   basetypes.StringType{},
+			"ip_start":  basetypes.StringType{},
 			"ip_start6":  basetypes.StringType{},
 			"lease_time": basetypes.Int64Type{},
 			"options": basetypes.MapType{
@@ -7195,7 +7243,7 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"servers6": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"type":  basetypes.StringType{},
+			"type": basetypes.StringType{},
 			"type6": basetypes.StringType{},
 			"vendor_encapulated": basetypes.MapType{
 				ElemType: VendorEncapulatedValue{}.Type(ctx),
@@ -7214,9 +7262,9 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			ElemType: FixedBindingsValue{}.Type(ctx),
 		},
 		"gateway":    basetypes.StringType{},
-		"ip_end":     basetypes.StringType{},
+		"ip_end":    basetypes.StringType{},
 		"ip_end6":    basetypes.StringType{},
-		"ip_start":   basetypes.StringType{},
+		"ip_start":  basetypes.StringType{},
 		"ip_start6":  basetypes.StringType{},
 		"lease_time": basetypes.Int64Type{},
 		"options": basetypes.MapType{
@@ -7229,7 +7277,7 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 		"servers6": basetypes.ListType{
 			ElemType: types.StringType,
 		},
-		"type":  basetypes.StringType{},
+		"type": basetypes.StringType{},
 		"type6": basetypes.StringType{},
 		"vendor_encapulated": basetypes.MapType{
 			ElemType: VendorEncapulatedValue{}.Type(ctx),
@@ -7251,16 +7299,16 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"dns_suffix":         dnsSuffixVal,
 			"fixed_bindings":     fixedBindings,
 			"gateway":            v.Gateway,
-			"ip_end":             v.IpEnd4,
+			"ip_end":            v.IpEnd4,
 			"ip_end6":            v.IpEnd6,
-			"ip_start":           v.IpStart4,
+			"ip_start":          v.IpStart4,
 			"ip_start6":          v.IpStart6,
 			"lease_time":         v.LeaseTime,
 			"options":            options,
 			"server_id_override": v.ServerIdOverride,
-			"servers":            serversVal,
+			"servers":           serversVal,
 			"servers6":           servers6Val,
-			"type":               v.Type4,
+			"type":              v.Type4,
 			"type6":              v.Type6,
 			"vendor_encapulated": vendorEncapulated,
 		})
@@ -7370,9 +7418,9 @@ func (v ConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 			ElemType: FixedBindingsValue{}.Type(ctx),
 		},
 		"gateway":    basetypes.StringType{},
-		"ip_end":     basetypes.StringType{},
+		"ip_end":    basetypes.StringType{},
 		"ip_end6":    basetypes.StringType{},
-		"ip_start":   basetypes.StringType{},
+		"ip_start":  basetypes.StringType{},
 		"ip_start6":  basetypes.StringType{},
 		"lease_time": basetypes.Int64Type{},
 		"options": basetypes.MapType{
@@ -7385,7 +7433,7 @@ func (v ConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 		"servers6": basetypes.ListType{
 			ElemType: types.StringType,
 		},
-		"type":  basetypes.StringType{},
+		"type": basetypes.StringType{},
 		"type6": basetypes.StringType{},
 		"vendor_encapulated": basetypes.MapType{
 			ElemType: VendorEncapulatedValue{}.Type(ctx),
@@ -10107,9 +10155,9 @@ func (v OverwritesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"action":   v.Action,
+			"action":                         v.Action,
 			"matching": ipdProfileOverwriteMatching,
-			"name":     v.Name,
+			"name":                           v.Name,
 		})
 
 	return objVal, diags
@@ -15646,6 +15694,27 @@ func (v VpnAccessValue) AttributeTypes(ctx context.Context) map[string]attr.Type
 	}
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 var _ basetypes.ObjectTypable = SourceNatType{}
 
 type SourceNatType struct {
@@ -15969,6 +16038,27 @@ func (v SourceNatValue) AttributeTypes(ctx context.Context) map[string]attr.Type
 		"external_ip": basetypes.StringType{},
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 var _ basetypes.ObjectTypable = OobIpConfigType{}
 
@@ -21047,7 +21137,7 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"networks":           networksVal,
 			"outer_vlan_id":      v.OuterVlanId,
 			"poe_disabled":       v.PoeDisabled,
-			"ip_config":          portIpConfig,
+			"ip_config":     portIpConfig,
 			"port_network":       v.PortNetwork,
 			"preserve_dscp":      v.PreserveDscp,
 			"redundant":          v.Redundant,
@@ -23159,6 +23249,27 @@ func (v VpnPathsValue) AttributeTypes(ctx context.Context) map[string]attr.Type 
 	}
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 var _ basetypes.ObjectTypable = WanSourceNatType{}
 
 type WanSourceNatType struct {
@@ -24278,7 +24389,7 @@ func (v TermsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"action":   action,
+			"action":                       action,
 			"matching": routingPolicyTermMatching,
 		})
 
@@ -31034,24 +31145,6 @@ func (t AutoProvisionType) ValueFromObject(ctx context.Context, in basetypes.Obj
 			fmt.Sprintf(`latlng expected to be basetypes.ObjectValue, was: %T`, latlngAttribute))
 	}
 
-	regionAttribute, ok := attributes["region"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`region is missing from object`)
-
-		return nil, diags
-	}
-
-	regionVal, ok := regionAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`region expected to be basetypes.StringValue, was: %T`, regionAttribute))
-	}
-
 	if diags.HasError() {
 		return nil, diags
 	}
@@ -31061,7 +31154,6 @@ func (t AutoProvisionType) ValueFromObject(ctx context.Context, in basetypes.Obj
 		AutoProvisionSecondary: autoProvisionSecondaryVal,
 		Enable:                 enableVal,
 		Latlng:                 latlngVal,
-		Region:                 regionVal,
 		state:                  attr.ValueStateKnown,
 	}, diags
 }
@@ -31201,24 +31293,6 @@ func NewAutoProvisionValue(attributeTypes map[string]attr.Type, attributes map[s
 			fmt.Sprintf(`latlng expected to be basetypes.ObjectValue, was: %T`, latlngAttribute))
 	}
 
-	regionAttribute, ok := attributes["region"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`region is missing from object`)
-
-		return NewAutoProvisionValueUnknown(), diags
-	}
-
-	regionVal, ok := regionAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`region expected to be basetypes.StringValue, was: %T`, regionAttribute))
-	}
-
 	if diags.HasError() {
 		return NewAutoProvisionValueUnknown(), diags
 	}
@@ -31228,7 +31302,6 @@ func NewAutoProvisionValue(attributeTypes map[string]attr.Type, attributes map[s
 		AutoProvisionSecondary: autoProvisionSecondaryVal,
 		Enable:                 enableVal,
 		Latlng:                 latlngVal,
-		Region:                 regionVal,
 		state:                  attr.ValueStateKnown,
 	}, diags
 }
@@ -31305,12 +31378,11 @@ type AutoProvisionValue struct {
 	AutoProvisionSecondary basetypes.ObjectValue `tfsdk:"secondary"`
 	Enable                 basetypes.BoolValue   `tfsdk:"enable"`
 	Latlng                 basetypes.ObjectValue `tfsdk:"latlng"`
-	Region                 basetypes.StringValue `tfsdk:"region"`
 	state                  attr.ValueState
 }
 
 func (v AutoProvisionValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 5)
+	attrTypes := make(map[string]tftypes.Type, 4)
 
 	var val tftypes.Value
 	var err error
@@ -31325,13 +31397,12 @@ func (v AutoProvisionValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 	attrTypes["latlng"] = basetypes.ObjectType{
 		AttrTypes: LatlngValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
-	attrTypes["region"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 5)
+		vals := make(map[string]tftypes.Value, 4)
 
 		val, err = v.AutoProvisionPrimary.ToTerraformValue(ctx)
 
@@ -31364,14 +31435,6 @@ func (v AutoProvisionValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 		}
 
 		vals["latlng"] = val
-
-		val, err = v.Region.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["region"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -31476,7 +31539,6 @@ func (v AutoProvisionValue) ToObjectValue(ctx context.Context) (basetypes.Object
 		"latlng": basetypes.ObjectType{
 			AttrTypes: LatlngValue{}.AttributeTypes(ctx),
 		},
-		"region": basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -31492,9 +31554,8 @@ func (v AutoProvisionValue) ToObjectValue(ctx context.Context) (basetypes.Object
 		map[string]attr.Value{
 			"primary":   autoProvisionPrimary,
 			"secondary": autoProvisionSecondary,
-			"enable":    v.Enable,
-			"latlng":    latlng,
-			"region":    v.Region,
+			"enable":                   v.Enable,
+			"latlng":                   latlng,
 		})
 
 	return objVal, diags
@@ -31531,10 +31592,6 @@ func (v AutoProvisionValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.Region.Equal(other.Region) {
-		return false
-	}
-
 	return true
 }
 
@@ -31558,7 +31615,6 @@ func (v AutoProvisionValue) AttributeTypes(ctx context.Context) map[string]attr.
 		"latlng": basetypes.ObjectType{
 			AttrTypes: LatlngValue{}.AttributeTypes(ctx),
 		},
-		"region": basetypes.StringType{},
 	}
 }
 

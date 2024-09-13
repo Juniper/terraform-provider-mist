@@ -69,10 +69,6 @@ func tunnelConfigsAutoProvisionTerraformToSdk(ctx context.Context, diags *diag.D
 			data.Primary = tunnelConfigsAutoProvisionPrimaryTerraformToSdk(ctx, diags, plan.AutoProvisionPrimary)
 		}
 
-		if plan.Region.ValueStringPointer() != nil {
-			data.Region = models.ToPointer(models.TunnelConfigsAutoProvisionRegionEnum(plan.Region.ValueString()))
-		}
-
 		if !plan.AutoProvisionSecondary.IsNull() && !plan.AutoProvisionSecondary.IsUnknown() {
 			data.Secondary = tunnelConfigsAutoProvisionSecondaryTerraformToSdk(ctx, diags, plan.AutoProvisionSecondary)
 		}
