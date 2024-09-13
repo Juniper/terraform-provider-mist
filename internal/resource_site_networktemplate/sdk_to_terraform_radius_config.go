@@ -67,6 +67,7 @@ func radiusServersAuthSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 		var keywrap_kek basetypes.StringValue
 		var keywrap_mack basetypes.StringValue
 		var port basetypes.Int64Value = types.Int64Value(int64(*d.Port))
+		var require_message_authenticator basetypes.BoolValue
 		var secret basetypes.StringValue = types.StringValue(d.Secret)
 
 		if d.KeywrapEnabled != nil {
@@ -81,16 +82,20 @@ func radiusServersAuthSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 		if d.KeywrapMack != nil {
 			keywrap_mack = types.StringValue(*d.KeywrapMack)
 		}
+		if d.RequireMessageAuthenticator != nil {
+			require_message_authenticator = types.BoolValue(*d.RequireMessageAuthenticator)
+		}
 
 		data_map_attr_type := AuthServersValue{}.AttributeTypes(ctx)
 		data_map_value := map[string]attr.Value{
-			"host":            host,
-			"keywrap_enabled": keywrap_enabled,
-			"keywrap_format":  keywrap_format,
-			"keywrap_kek":     keywrap_kek,
-			"keywrap_mack":    keywrap_mack,
-			"port":            port,
-			"secret":          secret,
+			"host":                          host,
+			"keywrap_enabled":               keywrap_enabled,
+			"keywrap_format":                keywrap_format,
+			"keywrap_kek":                   keywrap_kek,
+			"keywrap_mack":                  keywrap_mack,
+			"port":                          port,
+			"secret":                        secret,
+			"require_message_authenticator": require_message_authenticator,
 		}
 		data, e := NewAcctServersValue(data_map_attr_type, data_map_value)
 		diags.Append(e...)

@@ -178,6 +178,9 @@ func switchMgmtTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d Sw
 		if d.DhcpOptionFqdn.ValueBoolPointer() != nil {
 			data.DhcpOptionFqdn = d.DhcpOptionFqdn.ValueBoolPointer()
 		}
+		if d.DisableOobDownAlarm.ValueBoolPointer() != nil {
+			data.DisableOobDownAlarm = d.DisableOobDownAlarm.ValueBoolPointer()
+		}
 		if !d.LocalAccounts.IsNull() && !d.LocalAccounts.IsUnknown() {
 			data.LocalAccounts = switchLocalAccountUsersTerraformToSdk(ctx, diags, d.LocalAccounts)
 		}
