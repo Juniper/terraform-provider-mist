@@ -17,7 +17,8 @@ func gatewayMgmtAppProbingCustomSdkToTerraform(ctx context.Context, diags *diag.
 	for _, d := range l {
 		var address basetypes.StringValue
 		var app_type basetypes.StringValue
-		var hostname basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+		var hostnames basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+		var key basetypes.StringValue
 		var name basetypes.StringValue
 		var network basetypes.StringValue
 		var protocol basetypes.StringValue
@@ -30,8 +31,11 @@ func gatewayMgmtAppProbingCustomSdkToTerraform(ctx context.Context, diags *diag.
 		if d.AppType != nil {
 			app_type = types.StringValue(*d.AppType)
 		}
-		if d.Hostname != nil {
-			hostname = mist_transform.ListOfStringSdkToTerraform(ctx, d.Hostname)
+		if d.Hostnames != nil {
+			hostnames = mist_transform.ListOfStringSdkToTerraform(ctx, d.Hostnames)
+		}
+		if d.Key != nil {
+			key = types.StringValue(*d.Key)
 		}
 		if d.Name != nil {
 			name = types.StringValue(*d.Name)
@@ -51,14 +55,15 @@ func gatewayMgmtAppProbingCustomSdkToTerraform(ctx context.Context, diags *diag.
 
 		data_map_attr_type := CustomAppsValue{}.AttributeTypes(ctx)
 		data_map_value := map[string]attr.Value{
-			"address":  address,
-			"app_type": app_type,
-			"hostname": hostname,
-			"name":     name,
-			"network":  network,
-			"protocol": protocol,
-			"url":      url,
-			"vrf":      vrf,
+			"address":   address,
+			"app_type":  app_type,
+			"hostnames": hostnames,
+			"key":       key,
+			"name":      name,
+			"network":   network,
+			"protocol":  protocol,
+			"url":       url,
+			"vrf":       vrf,
 		}
 		data, e := NewCustomAppsValue(data_map_attr_type, data_map_value)
 		diags.Append(e...)
@@ -73,7 +78,7 @@ func gatewayMgmtAppProbingCustomSdkToTerraform(ctx context.Context, diags *diag.
 
 func gatewayMgmtAppProbingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.AppProbing) basetypes.ObjectValue {
 	var apps basetypes.ListValue = types.ListNull(types.StringType)
-	var custom_apps basetypes.ListValue
+	var custom_apps basetypes.ListValue = types.ListNull(CustomAppsValue{}.Type(ctx))
 	var enabled basetypes.BoolValue
 
 	if d.Apps != nil {

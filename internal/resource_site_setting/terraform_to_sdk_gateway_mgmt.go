@@ -17,16 +17,18 @@ func gatewayMgmtAppProbingCustomTerraformToSdk(ctx context.Context, diags *diag.
 		plan := v_interface.(CustomAppsValue)
 		data := models.AppProbingCustomApp{}
 
-		data.Address = plan.Address.ValueStringPointer()
-		data.AppType = plan.AppType.ValueStringPointer()
-		if !plan.Hostname.IsNull() && !plan.Hostname.IsUnknown() {
-			data.Hostname = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Hostname)
-			data.Key = &data.Hostname[0]
-		}
 		data.Name = plan.Name.ValueStringPointer()
-		data.Network = plan.Network.ValueStringPointer()
 		data.Protocol = (*models.AppProbingCustomAppProtocolEnum)(plan.Protocol.ValueStringPointer())
-		data.Url = plan.Url.ValueStringPointer()
+
+		data.Hostnames = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Hostnames)
+		if len(data.Hostnames) > 0 {
+			data.Key = &data.Hostnames[0]
+		}
+		if plan.Protocol.ValueString() == "icmp" {
+			data.Address = plan.Key.ValueStringPointer()
+		}
+
+		data.Network = plan.Network.ValueStringPointer()
 		data.Vrf = plan.Vrf.ValueStringPointer()
 
 		data_list = append(data_list, data)
