@@ -241,6 +241,7 @@ func switchMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 	var cli_idle_timeout basetypes.Int64Value
 	var config_revert_timer basetypes.Int64Value
 	var dhcp_option_fqdn basetypes.BoolValue
+	var disable_oob_down_alarm basetypes.BoolValue
 	var local_accounts basetypes.MapValue = types.MapNull(LocalAccountsValue{}.Type(ctx))
 	var mxedge_proxy_host basetypes.StringValue
 	var mxedge_proxy_port basetypes.Int64Value
@@ -264,6 +265,9 @@ func switchMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 		}
 		if d.DhcpOptionFqdn != nil {
 			dhcp_option_fqdn = types.BoolValue(*d.DhcpOptionFqdn)
+		}
+		if d.DisableOobDownAlarm != nil {
+			disable_oob_down_alarm = types.BoolValue(*d.DisableOobDownAlarm)
 		}
 		if d.LocalAccounts != nil {
 			local_accounts = switchLocalAccountUserSdkToTerraform(ctx, diags, d.LocalAccounts)
@@ -290,18 +294,19 @@ func switchMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 
 	data_map_attr_type := SwitchMgmtValue{}.AttributeTypes(ctx)
 	data_map_value := map[string]attr.Value{
-		"ap_affinity_threshold": ap_affinity_threshold,
-		"cli_banner":            cli_banner,
-		"cli_idle_timeout":      cli_idle_timeout,
-		"config_revert_timer":   config_revert_timer,
-		"dhcp_option_fqdn":      dhcp_option_fqdn,
-		"local_accounts":        local_accounts,
-		"mxedge_proxy_host":     mxedge_proxy_host,
-		"mxedge_proxy_port":     mxedge_proxy_port,
-		"protect_re":            protect_re,
-		"root_password":         root_password,
-		"tacacs":                tacacs,
-		"use_mxedge_proxy":      use_mxedge_proxy,
+		"ap_affinity_threshold":  ap_affinity_threshold,
+		"cli_banner":             cli_banner,
+		"cli_idle_timeout":       cli_idle_timeout,
+		"config_revert_timer":    config_revert_timer,
+		"dhcp_option_fqdn":       dhcp_option_fqdn,
+		"disable_oob_down_alarm": disable_oob_down_alarm,
+		"local_accounts":         local_accounts,
+		"mxedge_proxy_host":      mxedge_proxy_host,
+		"mxedge_proxy_port":      mxedge_proxy_port,
+		"protect_re":             protect_re,
+		"root_password":          root_password,
+		"tacacs":                 tacacs,
+		"use_mxedge_proxy":       use_mxedge_proxy,
 	}
 	data, e := NewSwitchMgmtValue(data_map_attr_type, data_map_value)
 	diags.Append(e...)
