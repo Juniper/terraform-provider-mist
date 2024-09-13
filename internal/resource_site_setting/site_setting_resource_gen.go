@@ -721,8 +721,14 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 											MarkdownDescription: "if `protocol`==`http`",
 											Validators: []validator.List{
 												mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("protocol"), types.StringValue("http")),
+												listvalidator.SizeAtLeast(1),
+												listvalidator.SizeAtMost(1),
 											},
 											Default: listdefault.StaticValue(types.ListNull(types.StringType)),
+										},
+										"key": schema.StringAttribute{
+											Optional:  true,
+											Sensitive: true,
 										},
 										"name": schema.StringAttribute{
 											Optional: true,
@@ -9804,6 +9810,24 @@ func (t CustomAppsType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`hostname expected to be basetypes.ListValue, was: %T`, hostnameAttribute))
 	}
 
+	keyAttribute, ok := attributes["key"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`key is missing from object`)
+
+		return nil, diags
+	}
+
+	keyVal, ok := keyAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`key expected to be basetypes.StringValue, was: %T`, keyAttribute))
+	}
+
 	nameAttribute, ok := attributes["name"]
 
 	if !ok {
@@ -9902,6 +9926,7 @@ func (t CustomAppsType) ValueFromObject(ctx context.Context, in basetypes.Object
 		Address:  addressVal,
 		AppType:  appTypeVal,
 		Hostname: hostnameVal,
+		Key:      keyVal,
 		Name:     nameVal,
 		Network:  networkVal,
 		Protocol: protocolVal,
@@ -10028,6 +10053,24 @@ func NewCustomAppsValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`hostname expected to be basetypes.ListValue, was: %T`, hostnameAttribute))
 	}
 
+	keyAttribute, ok := attributes["key"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`key is missing from object`)
+
+		return NewCustomAppsValueUnknown(), diags
+	}
+
+	keyVal, ok := keyAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`key expected to be basetypes.StringValue, was: %T`, keyAttribute))
+	}
+
 	nameAttribute, ok := attributes["name"]
 
 	if !ok {
@@ -10126,6 +10169,7 @@ func NewCustomAppsValue(attributeTypes map[string]attr.Type, attributes map[stri
 		Address:  addressVal,
 		AppType:  appTypeVal,
 		Hostname: hostnameVal,
+		Key:      keyVal,
 		Name:     nameVal,
 		Network:  networkVal,
 		Protocol: protocolVal,
@@ -10206,6 +10250,7 @@ type CustomAppsValue struct {
 	Address  basetypes.StringValue `tfsdk:"address"`
 	AppType  basetypes.StringValue `tfsdk:"app_type"`
 	Hostname basetypes.ListValue   `tfsdk:"hostname"`
+	Key      basetypes.StringValue `tfsdk:"key"`
 	Name     basetypes.StringValue `tfsdk:"name"`
 	Network  basetypes.StringValue `tfsdk:"network"`
 	Protocol basetypes.StringValue `tfsdk:"protocol"`
@@ -10215,7 +10260,7 @@ type CustomAppsValue struct {
 }
 
 func (v CustomAppsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 8)
+	attrTypes := make(map[string]tftypes.Type, 9)
 
 	var val tftypes.Value
 	var err error
@@ -10225,6 +10270,7 @@ func (v CustomAppsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	attrTypes["hostname"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
+	attrTypes["key"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["network"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["protocol"] = basetypes.StringType{}.TerraformType(ctx)
@@ -10235,7 +10281,7 @@ func (v CustomAppsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 8)
+		vals := make(map[string]tftypes.Value, 9)
 
 		val, err = v.Address.ToTerraformValue(ctx)
 
@@ -10260,6 +10306,14 @@ func (v CustomAppsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 		}
 
 		vals["hostname"] = val
+
+		val, err = v.Key.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["key"] = val
 
 		val, err = v.Name.ToTerraformValue(ctx)
 
@@ -10341,6 +10395,7 @@ func (v CustomAppsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"hostname": basetypes.ListType{
 				ElemType: types.StringType,
 			},
+			"key":      basetypes.StringType{},
 			"name":     basetypes.StringType{},
 			"network":  basetypes.StringType{},
 			"protocol": basetypes.StringType{},
@@ -10355,6 +10410,7 @@ func (v CustomAppsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		"hostname": basetypes.ListType{
 			ElemType: types.StringType,
 		},
+		"key":      basetypes.StringType{},
 		"name":     basetypes.StringType{},
 		"network":  basetypes.StringType{},
 		"protocol": basetypes.StringType{},
@@ -10376,6 +10432,7 @@ func (v CustomAppsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"address":  v.Address,
 			"app_type": v.AppType,
 			"hostname": hostnameVal,
+			"key":      v.Key,
 			"name":     v.Name,
 			"network":  v.Network,
 			"protocol": v.Protocol,
@@ -10410,6 +10467,10 @@ func (v CustomAppsValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.Hostname.Equal(other.Hostname) {
+		return false
+	}
+
+	if !v.Key.Equal(other.Key) {
 		return false
 	}
 
@@ -10451,6 +10512,7 @@ func (v CustomAppsValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"hostname": basetypes.ListType{
 			ElemType: types.StringType,
 		},
+		"key":      basetypes.StringType{},
 		"name":     basetypes.StringType{},
 		"network":  basetypes.StringType{},
 		"protocol": basetypes.StringType{},

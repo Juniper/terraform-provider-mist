@@ -64,7 +64,11 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 	}
 
 	if !plan.DisabledSystemDefinedPortUsages.IsNull() && !plan.DisabledSystemDefinedPortUsages.IsUnknown() {
-		data.DisabledSystemDefinedPortUsages = mist_transform.ListOfStringTerraformToSdk(ctx, plan.DisabledSystemDefinedPortUsages)
+		var items []models.SystemDefinedPortUsagesEnum
+		for _, item := range plan.DisabledSystemDefinedPortUsages.Elements() {
+			items = append(items, models.SystemDefinedPortUsagesEnum(item.String()))
+		}
+		data.DisabledSystemDefinedPortUsages = items
 	} else {
 		unset["-disabled_system_defined_port_usages"] = ""
 	}

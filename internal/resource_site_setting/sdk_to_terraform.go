@@ -5,8 +5,10 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
 	mist_list "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
@@ -95,7 +97,13 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	}
 
 	if data.DisabledSystemDefinedPortUsages != nil {
-		disabled_system_defined_port_usages = mist_list.ListOfStringSdkToTerraform(ctx, data.DisabledSystemDefinedPortUsages)
+		var items []attr.Value
+		var items_type attr.Type = basetypes.StringType{}
+		for _, item := range data.DisabledSystemDefinedPortUsages {
+			items = append(items, types.StringValue(string(item)))
+		}
+		list, _ := types.ListValue(items_type, items)
+		disabled_system_defined_port_usages = list
 	}
 
 	if data.Engagement != nil {
