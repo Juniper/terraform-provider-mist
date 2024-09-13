@@ -111,6 +111,7 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		var guest_network basetypes.StringValue
 		var inter_switch_link basetypes.BoolValue
 		var mac_auth_only basetypes.BoolValue
+		var mac_auth_preferred basetypes.BoolValue
 		var mac_auth_protocol basetypes.StringValue
 		var mac_limit basetypes.Int64Value
 		var mode basetypes.StringValue
@@ -121,9 +122,10 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		var port_auth basetypes.StringValue
 		var port_network basetypes.StringValue
 		var reauth_interval basetypes.Int64Value
-		var rejected_network basetypes.StringValue
 		var reset_default_when basetypes.StringValue
 		var rules basetypes.ListValue = types.ListNull(RulesValue{}.Type(ctx))
+		var server_fail_network basetypes.StringValue
+		var server_reject_network basetypes.StringValue
 		var speed basetypes.StringValue
 		var storm_control basetypes.ObjectValue = types.ObjectNull(StormControlValue{}.AttributeTypes(ctx))
 		var stp_edge basetypes.BoolValue
@@ -176,6 +178,9 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		if d.MacAuthOnly != nil {
 			mac_auth_only = types.BoolValue(*d.MacAuthOnly)
 		}
+		if d.MacAuthPreferred != nil {
+			mac_auth_preferred = types.BoolValue(*d.MacAuthPreferred)
+		}
 		if d.MacAuthProtocol != nil {
 			mac_auth_protocol = types.StringValue(string(*d.MacAuthProtocol))
 		}
@@ -206,14 +211,17 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		if d.ReauthInterval != nil {
 			reauth_interval = types.Int64Value(int64(*d.ReauthInterval))
 		}
-		if d.RejectedNetwork.Value() != nil {
-			rejected_network = types.StringValue(*d.RejectedNetwork.Value())
-		}
 		if d.ResetDefaultWhen != nil {
 			reset_default_when = types.StringValue(string(*d.ResetDefaultWhen))
 		}
 		if d.Rules != nil {
 			rules = portUsageRulesSdkToTerraform(ctx, diags, d.Rules)
+		}
+		if d.ServerFailNetwork.Value() != nil {
+			server_fail_network = types.StringValue(*d.ServerFailNetwork.Value())
+		}
+		if d.ServerRejectNetwork.Value() != nil {
+			server_reject_network = types.StringValue(*d.ServerRejectNetwork.Value())
 		}
 		if d.Speed != nil {
 			speed = types.StringValue(*d.Speed)
@@ -251,6 +259,7 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 			"guest_network":                                   guest_network,
 			"inter_switch_link":                               inter_switch_link,
 			"mac_auth_only":                                   mac_auth_only,
+			"mac_auth_preferred":                              mac_auth_preferred,
 			"mac_auth_protocol":                               mac_auth_protocol,
 			"mac_limit":                                       mac_limit,
 			"mode":                                            mode,
@@ -261,9 +270,10 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 			"port_auth":                                       port_auth,
 			"port_network":                                    port_network,
 			"reauth_interval":                                 reauth_interval,
-			"rejected_network":                                rejected_network,
 			"reset_default_when":                              reset_default_when,
 			"rules":                                           rules,
+			"server_fail_network":                             server_fail_network,
+			"server_reject_network":                           server_reject_network,
 			"speed":                                           speed,
 			"storm_control":                                   storm_control,
 			"stp_edge":                                        stp_edge,

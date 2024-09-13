@@ -13,15 +13,15 @@ import (
 
 func stpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.SwitchStpConfig) StpConfigValue {
 
-	var type_stp basetypes.StringValue
+	var vstp_enabled basetypes.BoolValue
 
-	if d.Type != nil {
-		type_stp = types.StringValue(string(*d.Type))
+	if d.VstpEnabled != nil {
+		vstp_enabled = types.BoolValue(*d.VstpEnabled)
 	}
 
 	data_map_attr_type := StpConfigValue{}.AttributeTypes(ctx)
 	data_map_value := map[string]attr.Value{
-		"type": type_stp,
+		"vstp_enabled": vstp_enabled,
 	}
 	data, e := NewStpConfigValue(data_map_attr_type, data_map_value)
 	diags.Append(e...)

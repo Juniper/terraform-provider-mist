@@ -61,14 +61,16 @@ func radiusServersAcctSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 func radiusServersAuthSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.RadiusAuthServer) basetypes.ListValue {
 	var auth_value_list []attr.Value
 	for _, d := range l {
-		var host basetypes.StringValue = types.StringValue(d.Host)
+		var host basetypes.StringValue
 		var keywrap_enabled basetypes.BoolValue
 		var keywrap_format basetypes.StringValue
 		var keywrap_kek basetypes.StringValue
 		var keywrap_mack basetypes.StringValue
-		var port basetypes.Int64Value = types.Int64Value(int64(*d.Port))
-		var secret basetypes.StringValue = types.StringValue(d.Secret)
+		var port basetypes.Int64Value
+		var require_message_authenticator basetypes.BoolValue
+		var secret basetypes.StringValue
 
+		host = types.StringValue(d.Host)
 		if d.KeywrapEnabled != nil {
 			keywrap_enabled = types.BoolValue(*d.KeywrapEnabled)
 		}
@@ -81,16 +83,22 @@ func radiusServersAuthSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 		if d.KeywrapMack != nil {
 			keywrap_mack = types.StringValue(*d.KeywrapMack)
 		}
+		port = types.Int64Value(int64(*d.Port))
+		if d.RequireMessageAuthenticator != nil {
+			require_message_authenticator = types.BoolValue(*d.RequireMessageAuthenticator)
+		}
+		secret = types.StringValue(d.Secret)
 
 		data_map_attr_type := AuthServersValue{}.AttributeTypes(ctx)
 		data_map_value := map[string]attr.Value{
-			"host":            host,
-			"keywrap_enabled": keywrap_enabled,
-			"keywrap_format":  keywrap_format,
-			"keywrap_kek":     keywrap_kek,
-			"keywrap_mack":    keywrap_mack,
-			"port":            port,
-			"secret":          secret,
+			"host":                          host,
+			"keywrap_enabled":               keywrap_enabled,
+			"keywrap_format":                keywrap_format,
+			"keywrap_kek":                   keywrap_kek,
+			"keywrap_mack":                  keywrap_mack,
+			"port":                          port,
+			"require_message_authenticator": require_message_authenticator,
+			"secret":                        secret,
 		}
 		data, e := NewAcctServersValue(data_map_attr_type, data_map_value)
 		diags.Append(e...)

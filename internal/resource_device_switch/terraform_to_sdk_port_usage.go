@@ -115,6 +115,9 @@ func portUsageTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d bas
 		if pu_attr_value.MacAuthOnly.ValueBoolPointer() != nil {
 			new_pu.MacAuthOnly = models.ToPointer(pu_attr_value.MacAuthOnly.ValueBool())
 		}
+		if pu_attr_value.MacAuthPreferred.ValueBoolPointer() != nil {
+			new_pu.MacAuthPreferred = models.ToPointer(pu_attr_value.MacAuthPreferred.ValueBool())
+		}
 		if pu_attr_value.MacAuthProtocol.ValueStringPointer() != nil {
 			new_pu.MacAuthProtocol = models.ToPointer(models.SwitchPortUsageMacAuthProtocolEnum(pu_attr_value.MacAuthProtocol.ValueString()))
 		}
@@ -145,14 +148,17 @@ func portUsageTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d bas
 		if pu_attr_value.ReauthInterval.ValueInt64Pointer() != nil {
 			new_pu.ReauthInterval = models.ToPointer(int(pu_attr_value.ReauthInterval.ValueInt64()))
 		}
-		if pu_attr_value.RejectedNetwork.ValueStringPointer() != nil {
-			new_pu.RejectedNetwork = models.NewOptional(models.ToPointer(pu_attr_value.RejectedNetwork.ValueString()))
-		}
 		if !pu_attr_value.Rules.IsNull() && !pu_attr_value.Rules.IsUnknown() {
 			new_pu.Rules = portUsageRulesTerraformToSdk(ctx, diags, pu_attr_value.Rules)
 		}
 		if pu_attr_value.ResetDefaultWhen.ValueStringPointer() != nil {
 			new_pu.ResetDefaultWhen = models.ToPointer(models.SwitchPortUsageDynamicResetDefaultWhenEnum(pu_attr_value.ResetDefaultWhen.ValueString()))
+		}
+		if pu_attr_value.ServerFailNetwork.ValueStringPointer() != nil {
+			new_pu.ServerFailNetwork = models.NewOptional(models.ToPointer(pu_attr_value.ServerFailNetwork.ValueString()))
+		}
+		if pu_attr_value.ServerRejectNetwork.ValueStringPointer() != nil {
+			new_pu.ServerRejectNetwork = models.NewOptional(models.ToPointer(pu_attr_value.ServerRejectNetwork.ValueString()))
 		}
 		if pu_attr_value.Speed.ValueStringPointer() != nil {
 			new_pu.Speed = models.ToPointer(pu_attr_value.Speed.ValueString())

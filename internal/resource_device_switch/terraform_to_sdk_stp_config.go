@@ -12,8 +12,8 @@ func stpConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d Stp
 
 	data := models.SwitchStpConfig{}
 
-	if d.StpConfigType.ValueStringPointer() != nil {
-		data.Type = models.ToPointer(models.SwitchStpConfigTypeEnum(d.StpConfigType.ValueString()))
+	if d.VstpEnabled.ValueBoolPointer() != nil {
+		data.VstpEnabled = d.VstpEnabled.ValueBoolPointer()
 	}
 
 	return &data

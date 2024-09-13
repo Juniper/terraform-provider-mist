@@ -60,6 +60,9 @@ func radiusAuthServersTerraformToSdk(ctx context.Context, diags *diag.Diagnostic
 		if srv_plan.KeywrapMack.ValueStringPointer() != nil {
 			srv_data.KeywrapMack = models.ToPointer(srv_plan.KeywrapMack.ValueString())
 		}
+		if srv_plan.RequireMessageAuthenticator.ValueBoolPointer() != nil {
+			srv_data.RequireMessageAuthenticator = models.ToPointer(srv_plan.RequireMessageAuthenticator.ValueBool())
+		}
 		data = append(data, srv_data)
 	}
 	return data
