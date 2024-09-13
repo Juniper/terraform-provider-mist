@@ -279,16 +279,25 @@ Optional:
 <a id="nestedatt--gateway_mgmt--app_probing--custom_apps"></a>
 ### Nested Schema for `gateway_mgmt.app_probing.custom_apps`
 
+Required:
+
+- `hostnames` (List of String) Only 1 entry is allowed:
+    * if `protocol`==`http`: URL (e.g. `http://test.com` or `https://test.com`)
+    * if `protocol`==`icmp`: IP Address (e.g. `1.2.3.4`)
+- `name` (String)
+- `protocol` (String) enum: `http`, `icmp`
+
 Optional:
 
-- `address` (String) if `protocol`==`icmp`
 - `app_type` (String)
-- `hostname` (List of String) if `protocol`==`http`
-- `name` (String)
 - `network` (String)
-- `protocol` (String) enum: `http`, `icmp`
-- `url` (String) if `protocol`==`http`
 - `vrf` (String)
+
+Read-Only:
+
+- `address` (String)
+- `key` (String)
+- `url` (String)
 
 
 

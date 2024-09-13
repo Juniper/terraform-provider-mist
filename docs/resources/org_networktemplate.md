@@ -301,6 +301,7 @@ When it is not defined, it means using the system’s default setting which depe
 - `inter_switch_link` (Boolean) Only if `mode`!=`dynamic` inter_switch_link is used together with "isolation" under networks
 NOTE: inter_switch_link works only between Juniper device. This has to be applied to both ports connected together
 - `mac_auth_only` (Boolean) Only if `mode`!=`dynamic` and `enable_mac_auth`==`true`
+- `mac_auth_preferred` (Boolean) Only if `mode`!=`dynamic` + `enable_mac_auth`==`true` + `mac_auth_only`==`false`, dot1x will be given priority then mac_auth. Enable this to prefer mac_auth over dot1x.
 - `mac_auth_protocol` (String) Only if `mode`!=`dynamic` and `enable_mac_auth` ==`true`. This type is ignored if mist_nac is enabled. enum: `eap-md5`, `eap-peap`, `pap`
 - `mac_limit` (Number) Only if `mode`!=`dynamic` max number of mac addresses, default is 0 for unlimited, otherwise range is 1 or higher, with upper bound constrained by platform
 - `mode` (String) `mode`==`dynamic` must only be used with the port usage with the name `dynamic`. enum: `access`, `dynamic`, `inet`, `trunk`
@@ -311,9 +312,10 @@ NOTE: inter_switch_link works only between Juniper device. This has to be applie
 - `port_auth` (String) Only if `mode`!=`dynamic` if dot1x is desired, set to dot1x. enum: `dot1x`
 - `port_network` (String) Only if `mode`!=`dynamic` native network/vlan for untagged traffic
 - `reauth_interval` (Number) Only if `mode`!=`dynamic` and `port_auth`=`dot1x` reauthentication interval range
-- `rejected_network` (String) Only if `mode`!=`dynamic` and `port_auth`==`dot1x` when radius server reject / fails
 - `reset_default_when` (String) Only if `mode`==`dynamic` Control when the DPC port should be changed to the default port usage. enum: `link_down`, `none` (let the DPC port keep at the current port usage)
 - `rules` (Attributes List) Only if `mode`==`dynamic` (see [below for nested schema](#nestedatt--port_usages--rules))
+- `server_fail_network` (String) Only if `mode`!=`dynamic` and `port_auth`==`dot1x` sets server fail fallback vlan
+- `server_reject_network` (String) Only if `mode`!=`dynamic` and `port_auth`==`dot1x` when radius server reject / fails
 - `speed` (String) Only if `mode`!=`dynamic` speed, default is auto to automatically negotiate speed
 - `storm_control` (Attributes) Switch storm control
 Only if `mode`!=`dynamic` (see [below for nested schema](#nestedatt--port_usages--storm_control))
@@ -400,6 +402,7 @@ Optional:
 - `keywrap_kek` (String)
 - `keywrap_mack` (String)
 - `port` (Number) Auth port of RADIUS server
+- `require_message_authenticator` (Boolean) whether to require Message-Authenticator in requests
 
 
 
@@ -820,6 +823,7 @@ Optional:
 - `cli_idle_timeout` (Number) Sets timeout for switches
 - `config_revert_timer` (Number) the rollback timer for commit confirmed
 - `dhcp_option_fqdn` (Boolean) Enable to provide the FQDN with DHCP option 81
+- `disable_oob_down_alarm` (Boolean)
 - `local_accounts` (Attributes Map) Property key is the user name. For Local user authentication (see [below for nested schema](#nestedatt--switch_mgmt--local_accounts))
 - `mxedge_proxy_host` (String)
 - `mxedge_proxy_port` (Number)

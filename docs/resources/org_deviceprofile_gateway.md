@@ -165,8 +165,9 @@ for v6 neighbors, to exchange v4 nexthop, which allows dual-stack support, enabl
 - `neighbors` (Attributes Map) if per-neighbor as is desired. Property key is the neighbor address (see [below for nested schema](#nestedatt--bgp_config--neighbors))
 - `networks` (List of String) if `type`!=`external`or `via`==`wan`networks where we expect BGP neighbor to connect to/from
 - `no_readvertise_to_overlay` (Boolean) by default, we'll re-advertise all learned BGP routers toward overlay
+- `tunnel_name` (String) if `type`==`tunnel`
 - `type` (String) enum: `external`, `internal`
-- `via` (String) network name. enum: `lan`, `vpn`, `wan`
+- `via` (String) network name. enum: `lan`, `tunnel`, `vpn`, `wan`
 - `vpn_name` (String)
 - `wan_name` (String) if `via`==`wan`
 
@@ -768,7 +769,6 @@ Optional:
 - `enable` (Boolean)
 - `latlng` (Attributes) (see [below for nested schema](#nestedatt--tunnel_configs--auto_provision--latlng))
 - `primary` (Attributes) (see [below for nested schema](#nestedatt--tunnel_configs--auto_provision--primary))
-- `region` (String) enum: `APAC`, `Americas`, `EMEA`, `auto`
 - `secondary` (Attributes) (see [below for nested schema](#nestedatt--tunnel_configs--auto_provision--secondary))
 
 <a id="nestedatt--tunnel_configs--auto_provision--latlng"></a>

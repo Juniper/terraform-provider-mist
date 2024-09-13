@@ -55,6 +55,7 @@ resource "mist_org_vpn" "vpn_one" {
 - `mxedge_mgmt` (Attributes) (see [below for nested schema](#nestedatt--mxedge_mgmt))
 - `password_policy` (Attributes) password policy (see [below for nested schema](#nestedatt--password_policy))
 - `pcap` (Attributes) (see [below for nested schema](#nestedatt--pcap))
+- `port_channelization` (Attributes) (see [below for nested schema](#nestedatt--port_channelization))
 - `security` (Attributes) (see [below for nested schema](#nestedatt--security))
 - `switch_mgmt` (Attributes) (see [below for nested schema](#nestedatt--switch_mgmt))
 - `switch_updown_threshold` (Number) enable threshold-based device down delivery for Switch devices only. When configured it takes effect for SW devices and `device_updown_threshold` is ignored.
@@ -155,10 +156,13 @@ Optional:
 
 - `cacerts` (List of String) list of PEM-encoded ca certs
 - `default_idp_id` (String) use this IDP when no explicit realm present in the incoming username/CN OR when no IDP is explicitly mapped to the incoming realm.
+- `disable_rsae_algorithms` (Boolean) to disable RSAE_PSS_SHA256, RSAE_PSS_SHA384, RSAE_PSS_SHA512 from server side. see https://www.openssl.org/docs/man3.0/man1/openssl-ciphers.html
 - `eap_ssl_security_level` (Number) eap ssl security level
 see https://www.openssl.org/docs/man1.1.1/man3/SSL_CTX_set_security_level.html#DEFAULT-CALLBACK-BEHAVIOUR
 - `eu_only` (Boolean) By default NAC POD failover considers all NAC pods available around the globe, i.e. EU, US, or APAC based, failover happens based on geo IP of the originating site.
 For strict GDPR compliancy NAC POD failover would only happen between the PODs located within the EU environment, and no authentication would take place outside of EU. This is an org setting that is applicable to WLANs, switch templates, mxedge clusters that have mist_nac enabled
+- `idp_machine_cert_lookup_field` (String) allow customer to choose the EAP-TLS client certificate's field to use for IDP Machine Groups lookup
+- `idp_user_cert_lookup_field` (String) allow customer to choose the EAP-TLS client certificate's field to use for IDP User Groups lookup
 - `idps` (Attributes List) (see [below for nested schema](#nestedatt--mist_nac--idps))
 - `server_cert` (Attributes) radius server cert to be presented in EAP TLS (see [below for nested schema](#nestedatt--mist_nac--server_cert))
 - `use_ip_version` (String) by default NAS devices(switches/aps) and proxies(mxedge) are configured to reach mist-nac via IPv4. enum: `v4`, `v6`
@@ -207,7 +211,7 @@ Optional:
 Optional:
 
 - `enabled` (Boolean) whether the policy is enabled
-- `freshness` (Number) days, required if password policy is enabled
+- `expiry_in_days` (Number) password expiry in days
 - `min_length` (Number) required password length
 - `requires_special_char` (Boolean) whether to require special character
 - `requires_two_factor_auth` (Boolean) whether to require two-factor auth
@@ -220,6 +224,15 @@ Optional:
 
 - `bucket` (String)
 - `max_pkt_len` (Number) max_len of non-management packets to capture
+
+
+<a id="nestedatt--port_channelization"></a>
+### Nested Schema for `port_channelization`
+
+Optional:
+
+- `config` (Map of String) Property key is the interface name or range (e.g. `et-0/0/47`, `et-0/0/48-49`), Property value is the interface speed (e.g. `25g`, `50g`)
+- `enabled` (Boolean)
 
 
 <a id="nestedatt--security"></a>
