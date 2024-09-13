@@ -21,6 +21,7 @@ func gatewayMgmtAppProbingCustomTerraformToSdk(ctx context.Context, diags *diag.
 		data.AppType = plan.AppType.ValueStringPointer()
 		if !plan.Hostname.IsNull() && !plan.Hostname.IsUnknown() {
 			data.Hostname = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Hostname)
+			data.Key = &data.Hostname[0]
 		}
 		data.Name = plan.Name.ValueStringPointer()
 		data.Network = plan.Network.ValueStringPointer()
