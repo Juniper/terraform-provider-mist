@@ -15,8 +15,8 @@ func passwordPolicyTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, 
 		data.Enabled = d.Enabled.ValueBoolPointer()
 	}
 
-	if d.Freshness.ValueInt64Pointer() != nil {
-		data.Freshness = models.ToPointer(int(d.Freshness.ValueInt64()))
+	if d.ExpiryInDays.ValueInt64Pointer() != nil {
+		data.ExpiryInDays = models.ToPointer(int(d.ExpiryInDays.ValueInt64()))
 	}
 
 	if d.MinLength.ValueInt64Pointer() != nil {

@@ -14,7 +14,7 @@ import (
 func passwordPolicySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.OrgSettingPasswordPolicy) PasswordPolicyValue {
 
 	var enabled basetypes.BoolValue
-	var freshness basetypes.Int64Value
+	var expiry_in_days basetypes.Int64Value
 	var min_length basetypes.Int64Value
 	var requires_special_char basetypes.BoolValue
 	var requires_two_factor_auth basetypes.BoolValue
@@ -22,8 +22,8 @@ func passwordPolicySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 	if d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
-	if d.Freshness != nil {
-		freshness = types.Int64Value(int64(*d.Freshness))
+	if d.ExpiryInDays != nil {
+		expiry_in_days = types.Int64Value(int64(*d.ExpiryInDays))
 	}
 	if d.MinLength != nil {
 		min_length = types.Int64Value(int64(*d.MinLength))
@@ -38,7 +38,7 @@ func passwordPolicySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 	data_map_attr_type := PasswordPolicyValue{}.AttributeTypes(ctx)
 	data_map_value := map[string]attr.Value{
 		"enabled":                  enabled,
-		"freshness":                freshness,
+		"expiry_in_days":           expiry_in_days,
 		"min_length":               min_length,
 		"requires_special_char":    requires_special_char,
 		"requires_two_factor_auth": requires_two_factor_auth,

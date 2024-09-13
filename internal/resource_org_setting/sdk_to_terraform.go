@@ -37,6 +37,7 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	var org_id types.String
 	var password_policy PasswordPolicyValue = NewPasswordPolicyValueNull()
 	var pcap PcapValue = NewPcapValueNull()
+	var port_channelization PortChannelizationValue = NewPortChannelizationValueNull()
 	// var pcap_bucket_verified types.Bool
 	var security SecurityValue = NewSecurityValueNull()
 	var switch_mgmt SwitchMgmtValue = NewSwitchMgmtValueNull()
@@ -114,6 +115,9 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	if data.Pcap != nil {
 		pcap = pcapSdkToTerraform(ctx, &diags, data.Pcap)
 	}
+	if data.PortChannelization != nil {
+		port_channelization = PortChannelSdkToTerraform(ctx, &diags, data.PortChannelization)
+	}
 	// if data.PcapBucketVerified != nil {
 	// 	pcap_bucket_verified = types.BoolValue(*data.PcapBucketVerified)
 	// }
@@ -159,6 +163,7 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	state.OrgId = org_id
 	state.PasswordPolicy = password_policy
 	state.Pcap = pcap
+	state.PortChannelization = port_channelization
 	// state.PcapBucketVerified = pcap_bucket_verified
 	state.Security = security
 	state.SwitchMgmt = switch_mgmt

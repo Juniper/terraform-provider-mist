@@ -308,6 +308,13 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						Description:         "use this IDP when no explicit realm present in the incoming username/CN OR when no IDP is explicitly mapped to the incoming realm.",
 						MarkdownDescription: "use this IDP when no explicit realm present in the incoming username/CN OR when no IDP is explicitly mapped to the incoming realm.",
 					},
+					"disable_rsae_algorithms": schema.BoolAttribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "to disable RSAE_PSS_SHA256, RSAE_PSS_SHA384, RSAE_PSS_SHA512 from server side. see https://www.openssl.org/docs/man3.0/man1/openssl-ciphers.html",
+						MarkdownDescription: "to disable RSAE_PSS_SHA256, RSAE_PSS_SHA384, RSAE_PSS_SHA512 from server side. see https://www.openssl.org/docs/man3.0/man1/openssl-ciphers.html",
+						Default:             booldefault.StaticBool(false),
+					},
 					"eap_ssl_security_level": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
@@ -324,6 +331,38 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						Description:         "By default NAC POD failover considers all NAC pods available around the globe, i.e. EU, US, or APAC based, failover happens based on geo IP of the originating site.\nFor strict GDPR compliancy NAC POD failover would only happen between the PODs located within the EU environment, and no authentication would take place outside of EU. This is an org setting that is applicable to WLANs, switch templates, mxedge clusters that have mist_nac enabled",
 						MarkdownDescription: "By default NAC POD failover considers all NAC pods available around the globe, i.e. EU, US, or APAC based, failover happens based on geo IP of the originating site.\nFor strict GDPR compliancy NAC POD failover would only happen between the PODs located within the EU environment, and no authentication would take place outside of EU. This is an org setting that is applicable to WLANs, switch templates, mxedge clusters that have mist_nac enabled",
 						Default:             booldefault.StaticBool(false),
+					},
+					"idp_machine_cert_lookup_field": schema.StringAttribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "allow customer to choose the EAP-TLS client certificate's field to use for IDP Machine Groups lookup",
+						MarkdownDescription: "allow customer to choose the EAP-TLS client certificate's field to use for IDP Machine Groups lookup",
+						Validators: []validator.String{
+							stringvalidator.OneOf(
+								"",
+								"automatic",
+								"email",
+								"upn",
+								"cn",
+							),
+						},
+						Default: stringdefault.StaticString("automatic"),
+					},
+					"idp_user_cert_lookup_field": schema.StringAttribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "allow customer to choose the EAP-TLS client certificate's field to use for IDP User Groups lookup",
+						MarkdownDescription: "allow customer to choose the EAP-TLS client certificate's field to use for IDP User Groups lookup",
+						Validators: []validator.String{
+							stringvalidator.OneOf(
+								"",
+								"automatic",
+								"email",
+								"upn",
+								"cn",
+							),
+						},
+						Default: stringdefault.StaticString("automatic"),
 					},
 					"idps": schema.ListNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{
@@ -489,10 +528,10 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "whether the policy is enabled",
 						Default:             booldefault.StaticBool(false),
 					},
-					"freshness": schema.Int64Attribute{
+					"expiry_in_days": schema.Int64Attribute{
 						Optional:            true,
-						Description:         "days, required if password policy is enabled",
-						MarkdownDescription: "days, required if password policy is enabled",
+						Description:         "password expiry in days",
+						MarkdownDescription: "password expiry in days",
 					},
 					"min_length": schema.Int64Attribute{
 						Optional:            true,
@@ -544,6 +583,27 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 				CustomType: PcapType{
 					ObjectType: types.ObjectType{
 						AttrTypes: PcapValue{}.AttributeTypes(ctx),
+					},
+				},
+				Optional: true,
+			},
+			"port_channelization": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"config": schema.MapAttribute{
+						ElementType:         types.StringType,
+						Optional:            true,
+						Description:         "Property key is the interface name or range (e.g. `et-0/0/47`, `et-0/0/48-49`), Property value is the interface speed (e.g. `25g`, `50g`)",
+						MarkdownDescription: "Property key is the interface name or range (e.g. `et-0/0/47`, `et-0/0/48-49`), Property value is the interface speed (e.g. `25g`, `50g`)",
+					},
+					"enabled": schema.BoolAttribute{
+						Optional: true,
+						Computed: true,
+						Default:  booldefault.StaticBool(false),
+					},
+				},
+				CustomType: PortChannelizationType{
+					ObjectType: types.ObjectType{
+						AttrTypes: PortChannelizationValue{}.AttributeTypes(ctx),
 					},
 				},
 				Optional: true,
@@ -717,33 +777,34 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 }
 
 type OrgSettingModel struct {
-	ApUpdownThreshold      types.Int64         `tfsdk:"ap_updown_threshold"`
-	ApiPolicy              ApiPolicyValue      `tfsdk:"api_policy"`
-	Cacerts                types.List          `tfsdk:"cacerts"`
-	Celona                 CelonaValue         `tfsdk:"celona"`
-	Cloudshark             CloudsharkValue     `tfsdk:"cloudshark"`
-	Cradlepoint            CradlepointValue    `tfsdk:"cradlepoint"`
-	DeviceCert             DeviceCertValue     `tfsdk:"device_cert"`
-	DeviceUpdownThreshold  types.Int64         `tfsdk:"device_updown_threshold"`
-	DisablePcap            types.Bool          `tfsdk:"disable_pcap"`
-	DisableRemoteShell     types.Bool          `tfsdk:"disable_remote_shell"`
-	GatewayUpdownThreshold types.Int64         `tfsdk:"gateway_updown_threshold"`
-	Installer              InstallerValue      `tfsdk:"installer"`
-	Jcloud                 JcloudValue         `tfsdk:"jcloud"`
-	Juniper                JuniperValue        `tfsdk:"juniper"`
-	Mgmt                   MgmtValue           `tfsdk:"mgmt"`
-	MistNac                MistNacValue        `tfsdk:"mist_nac"`
-	MxedgeFipsEnabled      types.Bool          `tfsdk:"mxedge_fips_enabled"`
-	MxedgeMgmt             MxedgeMgmtValue     `tfsdk:"mxedge_mgmt"`
-	OrgId                  types.String        `tfsdk:"org_id"`
-	PasswordPolicy         PasswordPolicyValue `tfsdk:"password_policy"`
-	Pcap                   PcapValue           `tfsdk:"pcap"`
-	Security               SecurityValue       `tfsdk:"security"`
-	SwitchMgmt             SwitchMgmtValue     `tfsdk:"switch_mgmt"`
-	SwitchUpdownThreshold  types.Int64         `tfsdk:"switch_updown_threshold"`
-	SyntheticTest          SyntheticTestValue  `tfsdk:"synthetic_test"`
-	UiIdleTimeout          types.Int64         `tfsdk:"ui_idle_timeout"`
-	VpnOptions             VpnOptionsValue     `tfsdk:"vpn_options"`
+	ApUpdownThreshold      types.Int64             `tfsdk:"ap_updown_threshold"`
+	ApiPolicy              ApiPolicyValue          `tfsdk:"api_policy"`
+	Cacerts                types.List              `tfsdk:"cacerts"`
+	Celona                 CelonaValue             `tfsdk:"celona"`
+	Cloudshark             CloudsharkValue         `tfsdk:"cloudshark"`
+	Cradlepoint            CradlepointValue        `tfsdk:"cradlepoint"`
+	DeviceCert             DeviceCertValue         `tfsdk:"device_cert"`
+	DeviceUpdownThreshold  types.Int64             `tfsdk:"device_updown_threshold"`
+	DisablePcap            types.Bool              `tfsdk:"disable_pcap"`
+	DisableRemoteShell     types.Bool              `tfsdk:"disable_remote_shell"`
+	GatewayUpdownThreshold types.Int64             `tfsdk:"gateway_updown_threshold"`
+	Installer              InstallerValue          `tfsdk:"installer"`
+	Jcloud                 JcloudValue             `tfsdk:"jcloud"`
+	Juniper                JuniperValue            `tfsdk:"juniper"`
+	Mgmt                   MgmtValue               `tfsdk:"mgmt"`
+	MistNac                MistNacValue            `tfsdk:"mist_nac"`
+	MxedgeFipsEnabled      types.Bool              `tfsdk:"mxedge_fips_enabled"`
+	MxedgeMgmt             MxedgeMgmtValue         `tfsdk:"mxedge_mgmt"`
+	OrgId                  types.String            `tfsdk:"org_id"`
+	PasswordPolicy         PasswordPolicyValue     `tfsdk:"password_policy"`
+	Pcap                   PcapValue               `tfsdk:"pcap"`
+	PortChannelization     PortChannelizationValue `tfsdk:"port_channelization"`
+	Security               SecurityValue           `tfsdk:"security"`
+	SwitchMgmt             SwitchMgmtValue         `tfsdk:"switch_mgmt"`
+	SwitchUpdownThreshold  types.Int64             `tfsdk:"switch_updown_threshold"`
+	SyntheticTest          SyntheticTestValue      `tfsdk:"synthetic_test"`
+	UiIdleTimeout          types.Int64             `tfsdk:"ui_idle_timeout"`
+	VpnOptions             VpnOptionsValue         `tfsdk:"vpn_options"`
 }
 
 var _ basetypes.ObjectTypable = ApiPolicyType{}
@@ -4893,6 +4954,24 @@ func (t MistNacType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 			fmt.Sprintf(`default_idp_id expected to be basetypes.StringValue, was: %T`, defaultIdpIdAttribute))
 	}
 
+	disableRsaeAlgorithmsAttribute, ok := attributes["disable_rsae_algorithms"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disable_rsae_algorithms is missing from object`)
+
+		return nil, diags
+	}
+
+	disableRsaeAlgorithmsVal, ok := disableRsaeAlgorithmsAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disable_rsae_algorithms expected to be basetypes.BoolValue, was: %T`, disableRsaeAlgorithmsAttribute))
+	}
+
 	eapSslSecurityLevelAttribute, ok := attributes["eap_ssl_security_level"]
 
 	if !ok {
@@ -4927,6 +5006,42 @@ func (t MistNacType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`eu_only expected to be basetypes.BoolValue, was: %T`, euOnlyAttribute))
+	}
+
+	idpMachineCertLookupFieldAttribute, ok := attributes["idp_machine_cert_lookup_field"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`idp_machine_cert_lookup_field is missing from object`)
+
+		return nil, diags
+	}
+
+	idpMachineCertLookupFieldVal, ok := idpMachineCertLookupFieldAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`idp_machine_cert_lookup_field expected to be basetypes.StringValue, was: %T`, idpMachineCertLookupFieldAttribute))
+	}
+
+	idpUserCertLookupFieldAttribute, ok := attributes["idp_user_cert_lookup_field"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`idp_user_cert_lookup_field is missing from object`)
+
+		return nil, diags
+	}
+
+	idpUserCertLookupFieldVal, ok := idpUserCertLookupFieldAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`idp_user_cert_lookup_field expected to be basetypes.StringValue, was: %T`, idpUserCertLookupFieldAttribute))
 	}
 
 	idpsAttribute, ok := attributes["idps"]
@@ -5006,15 +5121,18 @@ func (t MistNacType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 	}
 
 	return MistNacValue{
-		Cacerts:             cacertsVal,
-		DefaultIdpId:        defaultIdpIdVal,
-		EapSslSecurityLevel: eapSslSecurityLevelVal,
-		EuOnly:              euOnlyVal,
-		Idps:                idpsVal,
-		ServerCert:          serverCertVal,
-		UseIpVersion:        useIpVersionVal,
-		UseSslPort:          useSslPortVal,
-		state:               attr.ValueStateKnown,
+		Cacerts:                   cacertsVal,
+		DefaultIdpId:              defaultIdpIdVal,
+		DisableRsaeAlgorithms:     disableRsaeAlgorithmsVal,
+		EapSslSecurityLevel:       eapSslSecurityLevelVal,
+		EuOnly:                    euOnlyVal,
+		IdpMachineCertLookupField: idpMachineCertLookupFieldVal,
+		IdpUserCertLookupField:    idpUserCertLookupFieldVal,
+		Idps:                      idpsVal,
+		ServerCert:                serverCertVal,
+		UseIpVersion:              useIpVersionVal,
+		UseSslPort:                useSslPortVal,
+		state:                     attr.ValueStateKnown,
 	}, diags
 }
 
@@ -5117,6 +5235,24 @@ func NewMistNacValue(attributeTypes map[string]attr.Type, attributes map[string]
 			fmt.Sprintf(`default_idp_id expected to be basetypes.StringValue, was: %T`, defaultIdpIdAttribute))
 	}
 
+	disableRsaeAlgorithmsAttribute, ok := attributes["disable_rsae_algorithms"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disable_rsae_algorithms is missing from object`)
+
+		return NewMistNacValueUnknown(), diags
+	}
+
+	disableRsaeAlgorithmsVal, ok := disableRsaeAlgorithmsAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disable_rsae_algorithms expected to be basetypes.BoolValue, was: %T`, disableRsaeAlgorithmsAttribute))
+	}
+
 	eapSslSecurityLevelAttribute, ok := attributes["eap_ssl_security_level"]
 
 	if !ok {
@@ -5151,6 +5287,42 @@ func NewMistNacValue(attributeTypes map[string]attr.Type, attributes map[string]
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`eu_only expected to be basetypes.BoolValue, was: %T`, euOnlyAttribute))
+	}
+
+	idpMachineCertLookupFieldAttribute, ok := attributes["idp_machine_cert_lookup_field"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`idp_machine_cert_lookup_field is missing from object`)
+
+		return NewMistNacValueUnknown(), diags
+	}
+
+	idpMachineCertLookupFieldVal, ok := idpMachineCertLookupFieldAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`idp_machine_cert_lookup_field expected to be basetypes.StringValue, was: %T`, idpMachineCertLookupFieldAttribute))
+	}
+
+	idpUserCertLookupFieldAttribute, ok := attributes["idp_user_cert_lookup_field"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`idp_user_cert_lookup_field is missing from object`)
+
+		return NewMistNacValueUnknown(), diags
+	}
+
+	idpUserCertLookupFieldVal, ok := idpUserCertLookupFieldAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`idp_user_cert_lookup_field expected to be basetypes.StringValue, was: %T`, idpUserCertLookupFieldAttribute))
 	}
 
 	idpsAttribute, ok := attributes["idps"]
@@ -5230,15 +5402,18 @@ func NewMistNacValue(attributeTypes map[string]attr.Type, attributes map[string]
 	}
 
 	return MistNacValue{
-		Cacerts:             cacertsVal,
-		DefaultIdpId:        defaultIdpIdVal,
-		EapSslSecurityLevel: eapSslSecurityLevelVal,
-		EuOnly:              euOnlyVal,
-		Idps:                idpsVal,
-		ServerCert:          serverCertVal,
-		UseIpVersion:        useIpVersionVal,
-		UseSslPort:          useSslPortVal,
-		state:               attr.ValueStateKnown,
+		Cacerts:                   cacertsVal,
+		DefaultIdpId:              defaultIdpIdVal,
+		DisableRsaeAlgorithms:     disableRsaeAlgorithmsVal,
+		EapSslSecurityLevel:       eapSslSecurityLevelVal,
+		EuOnly:                    euOnlyVal,
+		IdpMachineCertLookupField: idpMachineCertLookupFieldVal,
+		IdpUserCertLookupField:    idpUserCertLookupFieldVal,
+		Idps:                      idpsVal,
+		ServerCert:                serverCertVal,
+		UseIpVersion:              useIpVersionVal,
+		UseSslPort:                useSslPortVal,
+		state:                     attr.ValueStateKnown,
 	}, diags
 }
 
@@ -5310,19 +5485,22 @@ func (t MistNacType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = MistNacValue{}
 
 type MistNacValue struct {
-	Cacerts             basetypes.ListValue   `tfsdk:"cacerts"`
-	DefaultIdpId        basetypes.StringValue `tfsdk:"default_idp_id"`
-	EapSslSecurityLevel basetypes.Int64Value  `tfsdk:"eap_ssl_security_level"`
-	EuOnly              basetypes.BoolValue   `tfsdk:"eu_only"`
-	Idps                basetypes.ListValue   `tfsdk:"idps"`
-	ServerCert          basetypes.ObjectValue `tfsdk:"server_cert"`
-	UseIpVersion        basetypes.StringValue `tfsdk:"use_ip_version"`
-	UseSslPort          basetypes.BoolValue   `tfsdk:"use_ssl_port"`
-	state               attr.ValueState
+	Cacerts                   basetypes.ListValue   `tfsdk:"cacerts"`
+	DefaultIdpId              basetypes.StringValue `tfsdk:"default_idp_id"`
+	DisableRsaeAlgorithms     basetypes.BoolValue   `tfsdk:"disable_rsae_algorithms"`
+	EapSslSecurityLevel       basetypes.Int64Value  `tfsdk:"eap_ssl_security_level"`
+	EuOnly                    basetypes.BoolValue   `tfsdk:"eu_only"`
+	IdpMachineCertLookupField basetypes.StringValue `tfsdk:"idp_machine_cert_lookup_field"`
+	IdpUserCertLookupField    basetypes.StringValue `tfsdk:"idp_user_cert_lookup_field"`
+	Idps                      basetypes.ListValue   `tfsdk:"idps"`
+	ServerCert                basetypes.ObjectValue `tfsdk:"server_cert"`
+	UseIpVersion              basetypes.StringValue `tfsdk:"use_ip_version"`
+	UseSslPort                basetypes.BoolValue   `tfsdk:"use_ssl_port"`
+	state                     attr.ValueState
 }
 
 func (v MistNacValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 8)
+	attrTypes := make(map[string]tftypes.Type, 11)
 
 	var val tftypes.Value
 	var err error
@@ -5331,8 +5509,11 @@ func (v MistNacValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
 	attrTypes["default_idp_id"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["disable_rsae_algorithms"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["eap_ssl_security_level"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["eu_only"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["idp_machine_cert_lookup_field"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["idp_user_cert_lookup_field"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["idps"] = basetypes.ListType{
 		ElemType: IdpsValue{}.Type(ctx),
 	}.TerraformType(ctx)
@@ -5346,7 +5527,7 @@ func (v MistNacValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 8)
+		vals := make(map[string]tftypes.Value, 11)
 
 		val, err = v.Cacerts.ToTerraformValue(ctx)
 
@@ -5364,6 +5545,14 @@ func (v MistNacValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 
 		vals["default_idp_id"] = val
 
+		val, err = v.DisableRsaeAlgorithms.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["disable_rsae_algorithms"] = val
+
 		val, err = v.EapSslSecurityLevel.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -5379,6 +5568,22 @@ func (v MistNacValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 		}
 
 		vals["eu_only"] = val
+
+		val, err = v.IdpMachineCertLookupField.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["idp_machine_cert_lookup_field"] = val
+
+		val, err = v.IdpUserCertLookupField.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["idp_user_cert_lookup_field"] = val
 
 		val, err = v.Idps.ToTerraformValue(ctx)
 
@@ -5500,9 +5705,12 @@ func (v MistNacValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 			"cacerts": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"default_idp_id":         basetypes.StringType{},
-			"eap_ssl_security_level": basetypes.Int64Type{},
-			"eu_only":                basetypes.BoolType{},
+			"default_idp_id":                basetypes.StringType{},
+			"disable_rsae_algorithms":       basetypes.BoolType{},
+			"eap_ssl_security_level":        basetypes.Int64Type{},
+			"eu_only":                       basetypes.BoolType{},
+			"idp_machine_cert_lookup_field": basetypes.StringType{},
+			"idp_user_cert_lookup_field":    basetypes.StringType{},
 			"idps": basetypes.ListType{
 				ElemType: IdpsValue{}.Type(ctx),
 			},
@@ -5518,9 +5726,12 @@ func (v MistNacValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 		"cacerts": basetypes.ListType{
 			ElemType: types.StringType,
 		},
-		"default_idp_id":         basetypes.StringType{},
-		"eap_ssl_security_level": basetypes.Int64Type{},
-		"eu_only":                basetypes.BoolType{},
+		"default_idp_id":                basetypes.StringType{},
+		"disable_rsae_algorithms":       basetypes.BoolType{},
+		"eap_ssl_security_level":        basetypes.Int64Type{},
+		"eu_only":                       basetypes.BoolType{},
+		"idp_machine_cert_lookup_field": basetypes.StringType{},
+		"idp_user_cert_lookup_field":    basetypes.StringType{},
 		"idps": basetypes.ListType{
 			ElemType: IdpsValue{}.Type(ctx),
 		},
@@ -5542,14 +5753,17 @@ func (v MistNacValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"cacerts":                cacertsVal,
-			"default_idp_id":         v.DefaultIdpId,
-			"eap_ssl_security_level": v.EapSslSecurityLevel,
-			"eu_only":                v.EuOnly,
-			"idps":                   idps,
-			"server_cert":            serverCert,
-			"use_ip_version":         v.UseIpVersion,
-			"use_ssl_port":           v.UseSslPort,
+			"cacerts":                       cacertsVal,
+			"default_idp_id":                v.DefaultIdpId,
+			"disable_rsae_algorithms":       v.DisableRsaeAlgorithms,
+			"eap_ssl_security_level":        v.EapSslSecurityLevel,
+			"eu_only":                       v.EuOnly,
+			"idp_machine_cert_lookup_field": v.IdpMachineCertLookupField,
+			"idp_user_cert_lookup_field":    v.IdpUserCertLookupField,
+			"idps":                          idps,
+			"server_cert":                   serverCert,
+			"use_ip_version":                v.UseIpVersion,
+			"use_ssl_port":                  v.UseSslPort,
 		})
 
 	return objVal, diags
@@ -5578,11 +5792,23 @@ func (v MistNacValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.DisableRsaeAlgorithms.Equal(other.DisableRsaeAlgorithms) {
+		return false
+	}
+
 	if !v.EapSslSecurityLevel.Equal(other.EapSslSecurityLevel) {
 		return false
 	}
 
 	if !v.EuOnly.Equal(other.EuOnly) {
+		return false
+	}
+
+	if !v.IdpMachineCertLookupField.Equal(other.IdpMachineCertLookupField) {
+		return false
+	}
+
+	if !v.IdpUserCertLookupField.Equal(other.IdpUserCertLookupField) {
 		return false
 	}
 
@@ -5618,9 +5844,12 @@ func (v MistNacValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 		"cacerts": basetypes.ListType{
 			ElemType: types.StringType,
 		},
-		"default_idp_id":         basetypes.StringType{},
-		"eap_ssl_security_level": basetypes.Int64Type{},
-		"eu_only":                basetypes.BoolType{},
+		"default_idp_id":                basetypes.StringType{},
+		"disable_rsae_algorithms":       basetypes.BoolType{},
+		"eap_ssl_security_level":        basetypes.Int64Type{},
+		"eu_only":                       basetypes.BoolType{},
+		"idp_machine_cert_lookup_field": basetypes.StringType{},
+		"idp_user_cert_lookup_field":    basetypes.StringType{},
 		"idps": basetypes.ListType{
 			ElemType: IdpsValue{}.Type(ctx),
 		},
@@ -7131,22 +7360,22 @@ func (t PasswordPolicyType) ValueFromObject(ctx context.Context, in basetypes.Ob
 			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
 	}
 
-	freshnessAttribute, ok := attributes["freshness"]
+	expiryInDaysAttribute, ok := attributes["expiry_in_days"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`freshness is missing from object`)
+			`expiry_in_days is missing from object`)
 
 		return nil, diags
 	}
 
-	freshnessVal, ok := freshnessAttribute.(basetypes.Int64Value)
+	expiryInDaysVal, ok := expiryInDaysAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`freshness expected to be basetypes.Int64Value, was: %T`, freshnessAttribute))
+			fmt.Sprintf(`expiry_in_days expected to be basetypes.Int64Value, was: %T`, expiryInDaysAttribute))
 	}
 
 	minLengthAttribute, ok := attributes["min_length"]
@@ -7209,7 +7438,7 @@ func (t PasswordPolicyType) ValueFromObject(ctx context.Context, in basetypes.Ob
 
 	return PasswordPolicyValue{
 		Enabled:               enabledVal,
-		Freshness:             freshnessVal,
+		ExpiryInDays:          expiryInDaysVal,
 		MinLength:             minLengthVal,
 		RequiresSpecialChar:   requiresSpecialCharVal,
 		RequiresTwoFactorAuth: requiresTwoFactorAuthVal,
@@ -7298,22 +7527,22 @@ func NewPasswordPolicyValue(attributeTypes map[string]attr.Type, attributes map[
 			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
 	}
 
-	freshnessAttribute, ok := attributes["freshness"]
+	expiryInDaysAttribute, ok := attributes["expiry_in_days"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`freshness is missing from object`)
+			`expiry_in_days is missing from object`)
 
 		return NewPasswordPolicyValueUnknown(), diags
 	}
 
-	freshnessVal, ok := freshnessAttribute.(basetypes.Int64Value)
+	expiryInDaysVal, ok := expiryInDaysAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`freshness expected to be basetypes.Int64Value, was: %T`, freshnessAttribute))
+			fmt.Sprintf(`expiry_in_days expected to be basetypes.Int64Value, was: %T`, expiryInDaysAttribute))
 	}
 
 	minLengthAttribute, ok := attributes["min_length"]
@@ -7376,7 +7605,7 @@ func NewPasswordPolicyValue(attributeTypes map[string]attr.Type, attributes map[
 
 	return PasswordPolicyValue{
 		Enabled:               enabledVal,
-		Freshness:             freshnessVal,
+		ExpiryInDays:          expiryInDaysVal,
 		MinLength:             minLengthVal,
 		RequiresSpecialChar:   requiresSpecialCharVal,
 		RequiresTwoFactorAuth: requiresTwoFactorAuthVal,
@@ -7453,7 +7682,7 @@ var _ basetypes.ObjectValuable = PasswordPolicyValue{}
 
 type PasswordPolicyValue struct {
 	Enabled               basetypes.BoolValue  `tfsdk:"enabled"`
-	Freshness             basetypes.Int64Value `tfsdk:"freshness"`
+	ExpiryInDays          basetypes.Int64Value `tfsdk:"expiry_in_days"`
 	MinLength             basetypes.Int64Value `tfsdk:"min_length"`
 	RequiresSpecialChar   basetypes.BoolValue  `tfsdk:"requires_special_char"`
 	RequiresTwoFactorAuth basetypes.BoolValue  `tfsdk:"requires_two_factor_auth"`
@@ -7467,7 +7696,7 @@ func (v PasswordPolicyValue) ToTerraformValue(ctx context.Context) (tftypes.Valu
 	var err error
 
 	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["freshness"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["expiry_in_days"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["min_length"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["requires_special_char"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["requires_two_factor_auth"] = basetypes.BoolType{}.TerraformType(ctx)
@@ -7486,13 +7715,13 @@ func (v PasswordPolicyValue) ToTerraformValue(ctx context.Context) (tftypes.Valu
 
 		vals["enabled"] = val
 
-		val, err = v.Freshness.ToTerraformValue(ctx)
+		val, err = v.ExpiryInDays.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["freshness"] = val
+		vals["expiry_in_days"] = val
 
 		val, err = v.MinLength.ToTerraformValue(ctx)
 
@@ -7549,7 +7778,7 @@ func (v PasswordPolicyValue) ToObjectValue(ctx context.Context) (basetypes.Objec
 
 	attributeTypes := map[string]attr.Type{
 		"enabled":                  basetypes.BoolType{},
-		"freshness":                basetypes.Int64Type{},
+		"expiry_in_days":           basetypes.Int64Type{},
 		"min_length":               basetypes.Int64Type{},
 		"requires_special_char":    basetypes.BoolType{},
 		"requires_two_factor_auth": basetypes.BoolType{},
@@ -7567,7 +7796,7 @@ func (v PasswordPolicyValue) ToObjectValue(ctx context.Context) (basetypes.Objec
 		attributeTypes,
 		map[string]attr.Value{
 			"enabled":                  v.Enabled,
-			"freshness":                v.Freshness,
+			"expiry_in_days":           v.ExpiryInDays,
 			"min_length":               v.MinLength,
 			"requires_special_char":    v.RequiresSpecialChar,
 			"requires_two_factor_auth": v.RequiresTwoFactorAuth,
@@ -7595,7 +7824,7 @@ func (v PasswordPolicyValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.Freshness.Equal(other.Freshness) {
+	if !v.ExpiryInDays.Equal(other.ExpiryInDays) {
 		return false
 	}
 
@@ -7625,7 +7854,7 @@ func (v PasswordPolicyValue) Type(ctx context.Context) attr.Type {
 func (v PasswordPolicyValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"enabled":                  basetypes.BoolType{},
-		"freshness":                basetypes.Int64Type{},
+		"expiry_in_days":           basetypes.Int64Type{},
 		"min_length":               basetypes.Int64Type{},
 		"requires_special_char":    basetypes.BoolType{},
 		"requires_two_factor_auth": basetypes.BoolType{},
@@ -8008,6 +8237,404 @@ func (v PcapValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"bucket":      basetypes.StringType{},
 		"max_pkt_len": basetypes.Int64Type{},
+	}
+}
+
+var _ basetypes.ObjectTypable = PortChannelizationType{}
+
+type PortChannelizationType struct {
+	basetypes.ObjectType
+}
+
+func (t PortChannelizationType) Equal(o attr.Type) bool {
+	other, ok := o.(PortChannelizationType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t PortChannelizationType) String() string {
+	return "PortChannelizationType"
+}
+
+func (t PortChannelizationType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	configAttribute, ok := attributes["config"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`config is missing from object`)
+
+		return nil, diags
+	}
+
+	configVal, ok := configAttribute.(basetypes.MapValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`config expected to be basetypes.MapValue, was: %T`, configAttribute))
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return PortChannelizationValue{
+		Config:  configVal,
+		Enabled: enabledVal,
+		state:   attr.ValueStateKnown,
+	}, diags
+}
+
+func NewPortChannelizationValueNull() PortChannelizationValue {
+	return PortChannelizationValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewPortChannelizationValueUnknown() PortChannelizationValue {
+	return PortChannelizationValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewPortChannelizationValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (PortChannelizationValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing PortChannelizationValue Attribute Value",
+				"While creating a PortChannelizationValue value, a missing attribute value was detected. "+
+					"A PortChannelizationValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("PortChannelizationValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid PortChannelizationValue Attribute Type",
+				"While creating a PortChannelizationValue value, an invalid attribute value was detected. "+
+					"A PortChannelizationValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("PortChannelizationValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("PortChannelizationValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra PortChannelizationValue Attribute Value",
+				"While creating a PortChannelizationValue value, an extra attribute value was detected. "+
+					"A PortChannelizationValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra PortChannelizationValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewPortChannelizationValueUnknown(), diags
+	}
+
+	configAttribute, ok := attributes["config"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`config is missing from object`)
+
+		return NewPortChannelizationValueUnknown(), diags
+	}
+
+	configVal, ok := configAttribute.(basetypes.MapValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`config expected to be basetypes.MapValue, was: %T`, configAttribute))
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return NewPortChannelizationValueUnknown(), diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	if diags.HasError() {
+		return NewPortChannelizationValueUnknown(), diags
+	}
+
+	return PortChannelizationValue{
+		Config:  configVal,
+		Enabled: enabledVal,
+		state:   attr.ValueStateKnown,
+	}, diags
+}
+
+func NewPortChannelizationValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) PortChannelizationValue {
+	object, diags := NewPortChannelizationValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewPortChannelizationValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t PortChannelizationType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewPortChannelizationValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewPortChannelizationValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewPortChannelizationValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewPortChannelizationValueMust(PortChannelizationValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t PortChannelizationType) ValueType(ctx context.Context) attr.Value {
+	return PortChannelizationValue{}
+}
+
+var _ basetypes.ObjectValuable = PortChannelizationValue{}
+
+type PortChannelizationValue struct {
+	Config  basetypes.MapValue  `tfsdk:"config"`
+	Enabled basetypes.BoolValue `tfsdk:"enabled"`
+	state   attr.ValueState
+}
+
+func (v PortChannelizationValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 2)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["config"] = basetypes.MapType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 2)
+
+		val, err = v.Config.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["config"] = val
+
+		val, err = v.Enabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enabled"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v PortChannelizationValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v PortChannelizationValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v PortChannelizationValue) String() string {
+	return "PortChannelizationValue"
+}
+
+func (v PortChannelizationValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	configVal, d := types.MapValue(types.StringType, v.Config.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"config": basetypes.MapType{
+				ElemType: types.StringType,
+			},
+			"enabled": basetypes.BoolType{},
+		}), diags
+	}
+
+	attributeTypes := map[string]attr.Type{
+		"config": basetypes.MapType{
+			ElemType: types.StringType,
+		},
+		"enabled": basetypes.BoolType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"config":  configVal,
+			"enabled": v.Enabled,
+		})
+
+	return objVal, diags
+}
+
+func (v PortChannelizationValue) Equal(o attr.Value) bool {
+	other, ok := o.(PortChannelizationValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Config.Equal(other.Config) {
+		return false
+	}
+
+	if !v.Enabled.Equal(other.Enabled) {
+		return false
+	}
+
+	return true
+}
+
+func (v PortChannelizationValue) Type(ctx context.Context) attr.Type {
+	return PortChannelizationType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v PortChannelizationValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"config": basetypes.MapType{
+			ElemType: types.StringType,
+		},
+		"enabled": basetypes.BoolType{},
 	}
 }
 

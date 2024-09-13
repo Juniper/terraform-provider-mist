@@ -74,6 +74,10 @@ func mistNacTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d MistN
 		data.DefaultIdpId = d.DefaultIdpId.ValueStringPointer()
 	}
 
+	if d.DisableRsaeAlgorithms.ValueBoolPointer() != nil {
+		data.DisableRsaeAlgorithms = d.DisableRsaeAlgorithms.ValueBoolPointer()
+	}
+
 	if d.EapSslSecurityLevel.ValueInt64Pointer() != nil {
 		data.EapSslSecurityLevel = models.ToPointer(int(d.EapSslSecurityLevel.ValueInt64()))
 	}
@@ -84,6 +88,14 @@ func mistNacTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d MistN
 
 	if !d.Idps.IsNull() && !d.Idps.IsUnknown() {
 		data.Idps = mistNacIdpsTerraformToSdk(ctx, diags, d.Idps)
+	}
+
+	if d.IdpMachineCertLookupField.ValueStringPointer() != nil {
+		data.IdpMachineCertLookupField = (*models.IdpMachineCertLookupFieldEnum)(d.IdpMachineCertLookupField.ValueStringPointer())
+	}
+
+	if d.IdpUserCertLookupField.ValueStringPointer() != nil {
+		data.IdpUserCertLookupField = (*models.IdpUserCertLookupFieldEnum)(d.IdpUserCertLookupField.ValueStringPointer())
 	}
 
 	if !d.ServerCert.IsNull() && !d.ServerCert.IsUnknown() {

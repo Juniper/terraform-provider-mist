@@ -75,9 +75,12 @@ func mistNacServerCertSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 func mistNacSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.OrgSettingMistNac) MistNacValue {
 	var cacerts basetypes.ListValue = types.ListNull(types.StringType)
 	var default_idp_id basetypes.StringValue
+	var disable_rsae_algorithms basetypes.BoolValue
 	var eap_ssl_security_level basetypes.Int64Value
 	var eu_only basetypes.BoolValue
 	var idps basetypes.ListValue = types.ListNull(IdpsValue{}.Type(ctx))
+	var idp_machine_cert_lookup_field basetypes.StringValue
+	var idp_user_cert_lookup_field basetypes.StringValue
 	var server_cert basetypes.ObjectValue = types.ObjectNull(ServerCertValue{}.AttributeTypes(ctx))
 	var use_ip_version basetypes.StringValue
 	var use_ssl_port basetypes.BoolValue
@@ -88,6 +91,9 @@ func mistNacSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 	if d.DefaultIdpId != nil {
 		default_idp_id = types.StringValue(*d.DefaultIdpId)
 	}
+	if d.DisableRsaeAlgorithms != nil {
+		disable_rsae_algorithms = types.BoolValue(*d.DisableRsaeAlgorithms)
+	}
 	if d.EapSslSecurityLevel != nil {
 		eap_ssl_security_level = types.Int64Value(int64(*d.EapSslSecurityLevel))
 	}
@@ -96,6 +102,12 @@ func mistNacSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 	}
 	if d.Idps != nil {
 		idps = mistNacIdpsSdkToTerraform(ctx, diags, d.Idps)
+	}
+	if d.IdpMachineCertLookupField != nil {
+		idp_machine_cert_lookup_field = types.StringValue(string(*d.IdpMachineCertLookupField))
+	}
+	if d.IdpUserCertLookupField != nil {
+		idp_user_cert_lookup_field = types.StringValue(string(*d.IdpUserCertLookupField))
 	}
 	if d.ServerCert != nil {
 		server_cert = mistNacServerCertSdkToTerraform(ctx, diags, d.ServerCert)
@@ -109,14 +121,17 @@ func mistNacSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 
 	data_map_attr_type := MistNacValue{}.AttributeTypes(ctx)
 	data_map_value := map[string]attr.Value{
-		"cacerts":                cacerts,
-		"default_idp_id":         default_idp_id,
-		"eap_ssl_security_level": eap_ssl_security_level,
-		"eu_only":                eu_only,
-		"idps":                   idps,
-		"server_cert":            server_cert,
-		"use_ip_version":         use_ip_version,
-		"use_ssl_port":           use_ssl_port,
+		"cacerts":                       cacerts,
+		"default_idp_id":                default_idp_id,
+		"disable_rsae_algorithms":       disable_rsae_algorithms,
+		"eap_ssl_security_level":        eap_ssl_security_level,
+		"eu_only":                       eu_only,
+		"idps":                          idps,
+		"idp_machine_cert_lookup_field": idp_machine_cert_lookup_field,
+		"idp_user_cert_lookup_field":    idp_user_cert_lookup_field,
+		"server_cert":                   server_cert,
+		"use_ip_version":                use_ip_version,
+		"use_ssl_port":                  use_ssl_port,
 	}
 	data, e := NewMistNacValue(data_map_attr_type, data_map_value)
 	diags.Append(e...)
