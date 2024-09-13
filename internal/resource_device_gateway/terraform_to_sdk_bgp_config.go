@@ -119,6 +119,9 @@ func bgpConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d bas
 		if plan.NoReadvertiseToOverlay.ValueBoolPointer() != nil {
 			data.NoReadvertiseToOverlay = models.ToPointer(plan.NoReadvertiseToOverlay.ValueBool())
 		}
+		if plan.TunnelName.ValueStringPointer() != nil {
+			data.TunnelName = plan.TunnelName.ValueStringPointer()
+		}
 		if plan.BgpConfigType.ValueStringPointer() != nil {
 			data.Type = models.ToPointer(models.BgpConfigTypeEnum(plan.BgpConfigType.ValueString()))
 		}
