@@ -65,9 +65,6 @@ func tunnelConfigAutoProvSdkToTerraform(ctx context.Context, diags *diag.Diagnos
 		latlng, _ = tmp.ToObjectValue(ctx)
 
 	}
-	if d.Region != nil {
-		region = types.StringValue(string(*d.Region))
-	}
 
 	data_map_attr_type := AutoProvisionValue{}.AttributeTypes(ctx)
 	data_map_value := map[string]attr.Value{

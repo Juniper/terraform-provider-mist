@@ -122,6 +122,9 @@ func bgpConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d bas
 		if plan.BgpConfigType.ValueStringPointer() != nil {
 			data.Type = models.ToPointer(models.BgpConfigTypeEnum(plan.BgpConfigType.ValueString()))
 		}
+		if plan.TunnelName.ValueStringPointer() != nil {
+			data.TunnelName = plan.TunnelName.ValueStringPointer()
+		}
 		if plan.Via.ValueStringPointer() != nil {
 			data.Via = models.ToPointer(models.BgpConfigViaEnum(plan.Via.ValueString()))
 		}
