@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/Juniper/terraform-provider-mist/internal/validators"
+	"github.com/Juniper/terraform-provider-mist/internal/planmodifiers"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
@@ -17,6 +18,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
@@ -704,6 +706,9 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 											Computed:            true,
 											Description:         " ",
 											MarkdownDescription: " ",
+											PlanModifiers: []planmodifier.String{
+												mistplanmodifiers.OnlyRefreshIfValueHasChanged(path.MatchRelative().AtParent().AtName("hostnames")),
+											},
 										},
 										"app_type": schema.StringAttribute{
 											Optional: true,
@@ -720,6 +725,9 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 										},
 										"key": schema.StringAttribute{
 											Computed: true,
+											PlanModifiers: []planmodifier.String{
+												mistplanmodifiers.OnlyRefreshIfValueHasChanged(path.MatchRelative().AtParent().AtName("hostnames")),
+											},
 										},
 										"name": schema.StringAttribute{
 											Required: true,
@@ -743,6 +751,9 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 											Computed:            true,
 											Description:         " ",
 											MarkdownDescription: " ",
+											PlanModifiers: []planmodifier.String{
+												mistplanmodifiers.OnlyRefreshIfValueHasChanged(path.MatchRelative().AtParent().AtName("hostnames")),
+											},
 										},
 										"vrf": schema.StringAttribute{
 											Optional: true,
