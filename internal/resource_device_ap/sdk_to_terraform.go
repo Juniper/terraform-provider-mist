@@ -19,17 +19,16 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceAp) (DeviceApModel, 
 	var ble_config BleConfigValue = NewBleConfigValueNull()
 	var centrak CentrakValue = NewCentrakValueNull()
 	var client_bridge ClientBridgeValue = NewClientBridgeValueNull()
-	var deviceprofile_id types.String
 	var disable_eth1 types.Bool
 	var disable_eth2 types.Bool
 	var disable_eth3 types.Bool
 	var disable_module types.Bool
 	var esl_config EslConfigValue = NewEslConfigValueNull()
 	var height types.Float64
-	var deviceId types.String
 	var image1_url types.String
 	var image2_url types.String
 	var image3_url types.String
+	var device_id types.String
 	var ip_config IpConfigValue = NewIpConfigValueNull()
 	var led LedValue = NewLedValueNull()
 	var locked types.Bool
@@ -67,9 +66,6 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceAp) (DeviceApModel, 
 	if data.ClientBridge != nil {
 		client_bridge = clientBridgeSdkToTerraform(ctx, &diags, data.ClientBridge)
 	}
-	if data.DeviceprofileId.Value() != nil {
-		deviceprofile_id = types.StringValue(data.DeviceprofileId.Value().String())
-	}
 	if data.DisableEth1 != nil {
 		disable_eth1 = types.BoolValue(*data.DisableEth1)
 	}
@@ -89,7 +85,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceAp) (DeviceApModel, 
 		height = types.Float64Value(float64(*data.Height))
 	}
 	if data.Id != nil {
-		deviceId = types.StringValue(data.Id.String())
+		device_id = types.StringValue(data.Id.String())
 	}
 	if data.Image1Url.Value() != nil {
 		image1_url = types.StringValue(*data.Image1Url.Value())
@@ -179,10 +175,9 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceAp) (DeviceApModel, 
 	state.DisableEth2 = disable_eth2
 	state.DisableEth3 = disable_eth3
 	state.DisableModule = disable_module
-	state.DeviceprofileId = deviceprofile_id
 	state.EslConfig = esl_config
 	state.Height = height
-	state.DeviceId = deviceId
+	state.DeviceId = device_id
 	state.Image1Url = image1_url
 	state.Image2Url = image2_url
 	state.Image3Url = image3_url

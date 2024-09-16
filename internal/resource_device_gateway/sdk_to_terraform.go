@@ -17,13 +17,12 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceGateway) (DeviceGate
 
 	var additional_config_cmds types.List = types.ListNull(types.StringType)
 	var bgp_config types.Map = types.MapNull(BgpConfigValue{}.Type(ctx))
-	var deviceprofile_id types.String
 	var dhcpd_config DhcpdConfigValue = NewDhcpdConfigValueNull()
 	var dns_servers types.List = types.ListNull(types.StringType)
 	var dns_suffix types.List = types.ListNull(types.StringType)
 	var extra_routes types.Map = types.MapNull(ExtraRoutesValue{}.Type(ctx))
 	var extra_routes6 types.Map = types.MapNull(ExtraRoutes6Value{}.Type(ctx))
-	var deviceId types.String
+	var device_id types.String
 	var idp_profiles types.Map = types.MapNull(IdpProfilesValue{}.Type(ctx))
 	var image1_url types.String
 	var image2_url types.String
@@ -62,9 +61,6 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceGateway) (DeviceGate
 	if data.BgpConfig != nil && len(data.BgpConfig) > 0 {
 		bgp_config = bgpConfigSdkToTerraform(ctx, &diags, data.BgpConfig)
 	}
-	if data.DeviceprofileId != nil {
-		deviceprofile_id = types.StringValue(data.DeviceprofileId.String())
-	}
 	if data.DhcpdConfig != nil {
 		dhcpd_config = dhcpdConfigSdkToTerraform(ctx, &diags, data.DhcpdConfig)
 	}
@@ -81,7 +77,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceGateway) (DeviceGate
 		extra_routes6 = extraRoutes6SdkToTerraform(ctx, &diags, data.ExtraRoutes6)
 	}
 	if data.Id != nil {
-		deviceId = types.StringValue(data.Id.String())
+		device_id = types.StringValue(data.Id.String())
 	}
 	if data.IdpProfiles != nil && len(data.IdpProfiles) > 0 {
 		idp_profiles = idpProfileSdkToTerraform(ctx, &diags, data.IdpProfiles)
@@ -178,13 +174,12 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceGateway) (DeviceGate
 
 	state.AdditionalConfigCmds = additional_config_cmds
 	state.BgpConfig = bgp_config
-	state.DeviceprofileId = deviceprofile_id
 	state.DhcpdConfig = dhcpd_config
 	state.DnsServers = dns_servers
 	state.DnsSuffix = dns_suffix
 	state.ExtraRoutes = extra_routes
 	state.ExtraRoutes6 = extra_routes6
-	state.DeviceId = deviceId
+	state.DeviceId = device_id
 	state.IdpProfiles = idp_profiles
 	state.Image1Url = image1_url
 	state.Image2Url = image2_url

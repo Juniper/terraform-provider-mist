@@ -274,9 +274,6 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"deviceprofile_id": schema.StringAttribute{
-				Computed: true,
-			},
 			"dhcpd_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"config": schema.MapNestedAttribute{
@@ -3048,7 +3045,6 @@ type DeviceGatewayModel struct {
 	AdditionalConfigCmds  types.List                 `tfsdk:"additional_config_cmds"`
 	BgpConfig             types.Map                  `tfsdk:"bgp_config"`
 	DeviceId              types.String               `tfsdk:"device_id"`
-	DeviceprofileId       types.String               `tfsdk:"deviceprofile_id"`
 	DhcpdConfig           DhcpdConfigValue           `tfsdk:"dhcpd_config"`
 	DnsServers            types.List                 `tfsdk:"dns_servers"`
 	DnsSuffix             types.List                 `tfsdk:"dns_suffix"`

@@ -233,9 +233,6 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"deviceprofile_id": schema.StringAttribute{
-				Computed: true,
-			},
 			"dhcp_snooping": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"all_networks": schema.BoolAttribute{
@@ -3494,7 +3491,6 @@ type DeviceSwitchModel struct {
 	AclTags               types.Map           `tfsdk:"acl_tags"`
 	AdditionalConfigCmds  types.List          `tfsdk:"additional_config_cmds"`
 	DeviceId              types.String        `tfsdk:"device_id"`
-	DeviceprofileId       types.String        `tfsdk:"deviceprofile_id"`
 	DhcpSnooping          DhcpSnoopingValue   `tfsdk:"dhcp_snooping"`
 	DhcpdConfig           DhcpdConfigValue    `tfsdk:"dhcpd_config"`
 	DisableAutoConfig     types.Bool          `tfsdk:"disable_auto_config"`

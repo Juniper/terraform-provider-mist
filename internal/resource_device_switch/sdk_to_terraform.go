@@ -18,7 +18,6 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	var acl_policies types.List = types.ListNull(AclPoliciesValue{}.Type(ctx))
 	var acl_tags types.Map = types.MapNull(AclTagsValue{}.Type(ctx))
 	var additional_config_cmds types.List = types.ListNull(types.StringType)
-	var deviceprofile_id types.String
 	var dhcp_snooping DhcpSnoopingValue = NewDhcpSnoopingValueNull()
 	var dhcpd_config DhcpdConfigValue = NewDhcpdConfigValueNull()
 	var device_id types.String
@@ -102,9 +101,6 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	}
 	if data.Id != nil {
 		device_id = types.StringValue(data.Id.String())
-	}
-	if data.DeviceprofileId != nil {
-		deviceprofile_id = types.StringValue(data.DeviceprofileId.String())
 	}
 	if data.Image1Url.Value() != nil {
 		image1_url = types.StringValue(*data.Image1Url.Value())
@@ -225,7 +221,6 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	state.AclTags = acl_tags
 	state.AdditionalConfigCmds = additional_config_cmds
 	state.DeviceId = device_id
-	state.DeviceprofileId = deviceprofile_id
 	state.DhcpSnooping = dhcp_snooping
 	state.DhcpdConfig = dhcpd_config
 	state.DisableAutoConfig = disable_auto_config

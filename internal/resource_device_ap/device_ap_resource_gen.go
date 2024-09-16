@@ -5,8 +5,6 @@ package resource_device_ap
 import (
 	"context"
 	"fmt"
-	"strings"
-
 	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
@@ -23,6 +21,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -414,12 +413,6 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"device_id": schema.StringAttribute{
 				Required: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"deviceprofile_id": schema.StringAttribute{
-				Computed: true,
 			},
 			"disable_eth1": schema.BoolAttribute{
 				Optional:            true,
@@ -1605,7 +1598,6 @@ type DeviceApModel struct {
 	Centrak          CentrakValue          `tfsdk:"centrak"`
 	ClientBridge     ClientBridgeValue     `tfsdk:"client_bridge"`
 	DeviceId         types.String          `tfsdk:"device_id"`
-	DeviceprofileId  types.String          `tfsdk:"deviceprofile_id"`
 	DisableEth1      types.Bool            `tfsdk:"disable_eth1"`
 	DisableEth2      types.Bool            `tfsdk:"disable_eth2"`
 	DisableEth3      types.Bool            `tfsdk:"disable_eth3"`
