@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func ospfAreasConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.OspfAreasNetwork) basetypes.MapValue {
+func ospfAreasNetworksSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.OspfAreasNetwork) basetypes.MapValue {
 	state_value_map_value := make(map[string]attr.Value)
 	for k, d := range m {
 		var auth_keys basetypes.MapValue
@@ -107,7 +107,7 @@ func ospfAreasSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map
 			include_loopback = types.BoolValue(*d.IncludeLoopback)
 		}
 		if d.Networks != nil {
-			networks = ospfAreasConfigSdkToTerraform(ctx, diags, d.Networks)
+			networks = ospfAreasNetworksSdkToTerraform(ctx, diags, d.Networks)
 		}
 		if d.Type != nil {
 			area_type = types.StringValue(string(*d.Type))
