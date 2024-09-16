@@ -103,11 +103,11 @@ func servicePoliciesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics,
 
 	for _, v := range d {
 
-		var action basetypes.StringValue = types.StringValue("allow")
+		var action basetypes.StringValue
 		var appqoe basetypes.ObjectValue = types.ObjectNull(AppqoeValue{}.AttributeTypes(ctx))
 		var ewf basetypes.ListValue = types.ListNull(EwfValue{}.Type(ctx))
 		var idp basetypes.ObjectValue = types.ObjectNull(IdpValue{}.AttributeTypes(ctx))
-		var local_routing basetypes.BoolValue = types.BoolValue(false)
+		var local_routing basetypes.BoolValue
 		var name basetypes.StringValue
 		var path_preference basetypes.StringValue
 		var servicepolicy_id basetypes.StringValue

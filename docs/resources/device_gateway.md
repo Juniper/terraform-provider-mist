@@ -77,7 +77,6 @@ resource "mist_device_gateway" "gateway_one" {
 
 ### Read-Only
 
-- `deviceprofile_id` (String)
 - `image1_url` (String)
 - `image2_url` (String)
 - `image3_url` (String)
@@ -664,17 +663,17 @@ Optional:
 
 Optional:
 
-- `action` (String) enum: `allow`, `deny`
+- `action` (String) Required when `servicepolicy_id` is not defined, optional otherwise (override the servicepolicy action). enum: `allow`, `deny`
 - `appqoe` (Attributes) For SRX Only (see [below for nested schema](#nestedatt--service_policies--appqoe))
 - `ewf` (Attributes List) (see [below for nested schema](#nestedatt--service_policies--ewf))
 - `idp` (Attributes) (see [below for nested schema](#nestedatt--service_policies--idp))
 - `local_routing` (Boolean) access within the same VRF
-- `name` (String)
+- `name` (String) Required when `servicepolicy_id` is not defined, optional otherwise (override the servicepolicy name)
 - `path_preference` (String) by default, we derive all paths available and use them
 optionally, you can customize by using `path_preference`
 - `servicepolicy_id` (String) used to link servicepolicy defined at org level and overwrite some attributes
-- `services` (List of String)
-- `tenants` (List of String)
+- `services` (List of String) Required when `servicepolicy_id` is not defined. List of Applications / Desctinations
+- `tenants` (List of String) Required when `servicepolicy_id` is not defined. List of Networks / Users
 
 <a id="nestedatt--service_policies--appqoe"></a>
 ### Nested Schema for `service_policies.appqoe`

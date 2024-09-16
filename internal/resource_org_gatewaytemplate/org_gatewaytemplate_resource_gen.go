@@ -2120,17 +2120,16 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 					Attributes: map[string]schema.Attribute{
 						"action": schema.StringAttribute{
 							Optional:            true,
-							Computed:            true,
-							Description:         "enum: `allow`, `deny`",
-							MarkdownDescription: "enum: `allow`, `deny`",
+							Description:         "Required when `servicepolicy_id` is not defined, optional otherwise (override the servicepolicy action). enum: `allow`, `deny`",
+							MarkdownDescription: "Required when `servicepolicy_id` is not defined, optional otherwise (override the servicepolicy action). enum: `allow`, `deny`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
 									"allow",
 									"deny",
 								),
+								mistvalidator.RequiredWhenValueIsNull(path.MatchRelative().AtParent().AtName("servicepolicy_id")),
 							},
-							Default: stringdefault.StaticString("allow"),
 						},
 						"appqoe": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
@@ -2219,13 +2218,16 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"local_routing": schema.BoolAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "access within the same VRF",
 							MarkdownDescription: "access within the same VRF",
-							Default:             booldefault.StaticBool(false),
 						},
 						"name": schema.StringAttribute{
-							Optional: true,
+							Optional:            true,
+							Description:         "Required when `servicepolicy_id` is not defined, optional otherwise (override the servicepolicy name)",
+							MarkdownDescription: "Required when `servicepolicy_id` is not defined, optional otherwise (override the servicepolicy name)",
+							Validators: []validator.String{
+								mistvalidator.RequiredWhenValueIsNull(path.MatchRelative().AtParent().AtName("servicepolicy_id")),
+							},
 						},
 						"path_preference": schema.StringAttribute{
 							Optional:            true,
@@ -2238,19 +2240,25 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "used to link servicepolicy defined at org level and overwrite some attributes",
 						},
 						"services": schema.ListAttribute{
-							ElementType: types.StringType,
-							Optional:    true,
-							Computed:    true,
+							ElementType:         types.StringType,
+							Optional:            true,
+							Computed:            true,
+							Description:         "Required when `servicepolicy_id` is not defined. List of Applications / Desctinations",
+							MarkdownDescription: "Required when `servicepolicy_id` is not defined. List of Applications / Desctinations",
 							Validators: []validator.List{
 								listvalidator.UniqueValues(),
+								mistvalidator.RequiredWhenValueIsNull(path.MatchRelative().AtParent().AtName("servicepolicy_id")),
 							},
 						},
 						"tenants": schema.ListAttribute{
-							ElementType: types.StringType,
-							Optional:    true,
-							Computed:    true,
+							ElementType:         types.StringType,
+							Optional:            true,
+							Computed:            true,
+							Description:         "Required when `servicepolicy_id` is not defined. List of Networks / Users",
+							MarkdownDescription: "Required when `servicepolicy_id` is not defined. List of Networks / Users",
 							Validators: []validator.List{
 								listvalidator.UniqueValues(),
+								mistvalidator.RequiredWhenValueIsNull(path.MatchRelative().AtParent().AtName("servicepolicy_id")),
 							},
 						},
 					},

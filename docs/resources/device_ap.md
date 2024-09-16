@@ -62,7 +62,6 @@ Note: legacy, new config moved to ESL Config. (see [below for nested schema](#ne
 
 ### Read-Only
 
-- `deviceprofile_id` (String)
 - `image1_url` (String)
 - `image2_url` (String)
 - `image3_url` (String)

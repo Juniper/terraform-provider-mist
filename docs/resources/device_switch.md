@@ -150,7 +150,6 @@ port_mirroring can be added under device/site settings. It takes interface and p
 
 ### Read-Only
 
-- `deviceprofile_id` (String)
 - `image1_url` (String)
 - `image2_url` (String)
 - `image3_url` (String)
