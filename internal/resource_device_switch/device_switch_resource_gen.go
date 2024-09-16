@@ -39,7 +39,6 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 								Attributes: map[string]schema.Attribute{
 									"action": schema.StringAttribute{
 										Optional:            true,
-										Computed:            true,
 										Description:         "enum: `allow`, `deny`",
 										MarkdownDescription: "enum: `allow`, `deny`",
 										Validators: []validator.String{
@@ -49,7 +48,6 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 												"deny",
 											),
 										},
-										Default: stringdefault.StaticString("allow"),
 									},
 									"dst_tag": schema.StringAttribute{
 										Required: true,
@@ -754,11 +752,20 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 			"ip_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"dns": schema.ListAttribute{
-						ElementType: types.StringType,
-						Optional:    true,
-						Computed:    true,
+						ElementType:         types.StringType,
+						Optional:            true,
+						Computed:            true,
+						Description:         "Required when `type`==`static`",
+						MarkdownDescription: "Required when `type`==`static`",
 						Validators: []validator.List{
+							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static")),
+							mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("dhcp")),
 							listvalidator.UniqueValues(),
+							listvalidator.SizeAtLeast(1),
+							listvalidator.SizeAtMost(2),
+							listvalidator.ValueStringsAre(
+								stringvalidator.Any(mistvalidator.ParseIp(true, true), mistvalidator.ParseVar()),
+							),
 						},
 					},
 					"dns_suffix": schema.ListAttribute{
@@ -766,6 +773,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						Optional:    true,
 						Computed:    true,
 						Validators: []validator.List{
+							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static")),
+							mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("dhcp")),
 							listvalidator.UniqueValues(),
 						},
 					},
@@ -995,51 +1004,151 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"ospf_config": schema.SingleNestedAttribute{
-				Attributes: map[string]schema.Attribute{
-					"areas": schema.MapNestedAttribute{
-						NestedObject: schema.NestedAttributeObject{
-							Attributes: map[string]schema.Attribute{
-								"no_summary": schema.BoolAttribute{
-									Optional:            true,
-									Description:         "for a stub/nssa area, where to avoid forwarding type-3 LSA to this area",
-									MarkdownDescription: "for a stub/nssa area, where to avoid forwarding type-3 LSA to this area",
+			"ospf_areas": schema.MapNestedAttribute{
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"include_loopback": schema.BoolAttribute{
+							Optional: true,
+							Computed: true,
+							Default:  booldefault.StaticBool(false),
+						},
+						"networks": schema.MapNestedAttribute{
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"auth_keys": schema.MapAttribute{
+										ElementType:         types.StringType,
+										Optional:            true,
+										Description:         "Required if `auth_type`==`md5`. Property key is the key number",
+										MarkdownDescription: "Required if `auth_type`==`md5`. Property key is the key number",
+										Validators: []validator.Map{
+											mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("auth_type"), types.StringValue("md5")),
+										},
+									},
+									"auth_password": schema.StringAttribute{
+										Optional:            true,
+										Description:         "Required if `auth_type`==`password`, the password, max length is 8",
+										MarkdownDescription: "Required if `auth_type`==`password`, the password, max length is 8",
+										Validators: []validator.String{
+											mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("auth_type"), types.StringValue("password")),
+											stringvalidator.LengthAtLeast(1),
+											stringvalidator.LengthAtMost(8),
+										},
+									},
+									"auth_type": schema.StringAttribute{
+										Optional:            true,
+										Computed:            true,
+										Description:         "auth type. enum: `md5`, `none`, `password`",
+										MarkdownDescription: "auth type. enum: `md5`, `none`, `password`",
+										Validators: []validator.String{
+											stringvalidator.OneOf(
+												"",
+												"md5",
+												"none",
+												"password",
+											),
+										},
+										Default: stringdefault.StaticString("none"),
+									},
+									"bfd_minimum_interval": schema.Int64Attribute{
+										Optional: true,
+										Validators: []validator.Int64{
+											int64validator.Between(1, 255000),
+										},
+									},
+									"dead_interval": schema.Int64Attribute{
+										Optional: true,
+										Validators: []validator.Int64{
+											int64validator.Between(1, 65535),
+										},
+									},
+									"export_policy": schema.StringAttribute{
+										Optional: true,
+									},
+									"hello_interval": schema.Int64Attribute{
+										Optional: true,
+										Validators: []validator.Int64{
+											int64validator.Between(1, 255),
+										},
+									},
+									"import_policy": schema.StringAttribute{
+										Optional: true,
+									},
+									"interface_type": schema.StringAttribute{
+										Optional:            true,
+										Computed:            true,
+										Description:         "interface type (nbma = non-broadcast multi-access). enum: `broadcast`, `nbma`, `p2mp`, `p2p`",
+										MarkdownDescription: "interface type (nbma = non-broadcast multi-access). enum: `broadcast`, `nbma`, `p2mp`, `p2p`",
+										Validators: []validator.String{
+											stringvalidator.OneOf(
+												"",
+												"broadcast",
+												"nbma",
+												"p2mp",
+												"p2p",
+											),
+										},
+										Default: stringdefault.StaticString("broadcast"),
+									},
+									"metric": schema.Int64Attribute{
+										Optional: true,
+										Validators: []validator.Int64{
+											int64validator.Between(1, 65535),
+										},
+									},
+									"no_readvertise_to_overlay": schema.BoolAttribute{
+										Optional:            true,
+										Computed:            true,
+										Description:         "by default, we'll re-advertise all learned OSPF routes toward overlay",
+										MarkdownDescription: "by default, we'll re-advertise all learned OSPF routes toward overlay",
+										Default:             booldefault.StaticBool(false),
+									},
+									"passive": schema.BoolAttribute{
+										Optional:            true,
+										Computed:            true,
+										Description:         "whether to send OSPF-Hello",
+										MarkdownDescription: "whether to send OSPF-Hello",
+										Default:             booldefault.StaticBool(false),
+									},
+								},
+								CustomType: OspfNetworksType{
+									ObjectType: types.ObjectType{
+										AttrTypes: OspfNetworksValue{}.AttributeTypes(ctx),
+									},
 								},
 							},
-							CustomType: AreasType{
-								ObjectType: types.ObjectType{
-									AttrTypes: AreasValue{}.AttributeTypes(ctx),
-								},
+							Required: true,
+							Validators: []validator.Map{
+								mapvalidator.SizeAtLeast(1),
 							},
 						},
-						Optional:            true,
-						Description:         "OSPF areas to run on this device and the corresponding per-area-specific configs. Property key is the area",
-						MarkdownDescription: "OSPF areas to run on this device and the corresponding per-area-specific configs. Property key is the area",
-						Validators: []validator.Map{
-							mapvalidator.SizeAtLeast(1),
+						"type": schema.StringAttribute{
+							Optional:            true,
+							Computed:            true,
+							Description:         "OSPF type. enum: `default`, `nssa`, `stub`",
+							MarkdownDescription: "OSPF type. enum: `default`, `nssa`, `stub`",
+							Validators: []validator.String{
+								stringvalidator.OneOf(
+									"",
+									"default",
+									"nssa",
+									"stub",
+								),
+							},
+							Default: stringdefault.StaticString("default"),
 						},
 					},
-					"enabled": schema.BoolAttribute{
-						Optional:            true,
-						Description:         "whether to rung OSPF on this device",
-						MarkdownDescription: "whether to rung OSPF on this device",
-					},
-					"reference_bandwidth": schema.StringAttribute{
-						Optional:            true,
-						Computed:            true,
-						Description:         "Bandwidth for calculating metric defaults (9600..4000000000000)",
-						MarkdownDescription: "Bandwidth for calculating metric defaults (9600..4000000000000)",
-						Default:             stringdefault.StaticString("100M"),
-					},
-				},
-				CustomType: OspfConfigType{
-					ObjectType: types.ObjectType{
-						AttrTypes: OspfConfigValue{}.AttributeTypes(ctx),
+					CustomType: OspfAreasType{
+						ObjectType: types.ObjectType{
+							AttrTypes: OspfAreasValue{}.AttributeTypes(ctx),
+						},
 					},
 				},
 				Optional:            true,
-				Description:         "Junos OSPF config",
-				MarkdownDescription: "Junos OSPF config",
+				Description:         "Junos OSPF areas",
+				MarkdownDescription: "Junos OSPF areas",
+				Validators: []validator.Map{
+					mapvalidator.SizeAtLeast(1),
+				},
 			},
 			"other_ip_configs": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
@@ -3535,7 +3644,7 @@ type DeviceSwitchModel struct {
 	NtpServers            types.List          `tfsdk:"ntp_servers"`
 	OobIpConfig           OobIpConfigValue    `tfsdk:"oob_ip_config"`
 	OrgId                 types.String        `tfsdk:"org_id"`
-	OspfConfig            OspfConfigValue     `tfsdk:"ospf_config"`
+	OspfAreas             types.Map           `tfsdk:"ospf_areas"`
 	OtherIpConfigs        types.Map           `tfsdk:"other_ip_configs"`
 	PortConfig            types.Map           `tfsdk:"port_config"`
 	PortMirroring         types.Map           `tfsdk:"port_mirroring"`
@@ -13359,14 +13468,14 @@ func (v OobIpConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Ty
 	}
 }
 
-var _ basetypes.ObjectTypable = OspfConfigType{}
+var _ basetypes.ObjectTypable = OspfAreasType{}
 
-type OspfConfigType struct {
+type OspfAreasType struct {
 	basetypes.ObjectType
 }
 
-func (t OspfConfigType) Equal(o attr.Type) bool {
-	other, ok := o.(OspfConfigType)
+func (t OspfAreasType) Equal(o attr.Type) bool {
+	other, ok := o.(OspfAreasType)
 
 	if !ok {
 		return false
@@ -13375,94 +13484,94 @@ func (t OspfConfigType) Equal(o attr.Type) bool {
 	return t.ObjectType.Equal(other.ObjectType)
 }
 
-func (t OspfConfigType) String() string {
-	return "OspfConfigType"
+func (t OspfAreasType) String() string {
+	return "OspfAreasType"
 }
 
-func (t OspfConfigType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+func (t OspfAreasType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	attributes := in.Attributes()
 
-	areasAttribute, ok := attributes["areas"]
+	includeLoopbackAttribute, ok := attributes["include_loopback"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`areas is missing from object`)
+			`include_loopback is missing from object`)
 
 		return nil, diags
 	}
 
-	areasVal, ok := areasAttribute.(basetypes.MapValue)
+	includeLoopbackVal, ok := includeLoopbackAttribute.(basetypes.BoolValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`areas expected to be basetypes.MapValue, was: %T`, areasAttribute))
+			fmt.Sprintf(`include_loopback expected to be basetypes.BoolValue, was: %T`, includeLoopbackAttribute))
 	}
 
-	enabledAttribute, ok := attributes["enabled"]
+	ospfNetworksAttribute, ok := attributes["networks"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`enabled is missing from object`)
+			`networks is missing from object`)
 
 		return nil, diags
 	}
 
-	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+	ospfNetworksVal, ok := ospfNetworksAttribute.(basetypes.MapValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+			fmt.Sprintf(`networks expected to be basetypes.MapValue, was: %T`, ospfNetworksAttribute))
 	}
 
-	referenceBandwidthAttribute, ok := attributes["reference_bandwidth"]
+	typeAttribute, ok := attributes["type"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`reference_bandwidth is missing from object`)
+			`type is missing from object`)
 
 		return nil, diags
 	}
 
-	referenceBandwidthVal, ok := referenceBandwidthAttribute.(basetypes.StringValue)
+	typeVal, ok := typeAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`reference_bandwidth expected to be basetypes.StringValue, was: %T`, referenceBandwidthAttribute))
+			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, typeAttribute))
 	}
 
 	if diags.HasError() {
 		return nil, diags
 	}
 
-	return OspfConfigValue{
-		Areas:              areasVal,
-		Enabled:            enabledVal,
-		ReferenceBandwidth: referenceBandwidthVal,
-		state:              attr.ValueStateKnown,
+	return OspfAreasValue{
+		IncludeLoopback: includeLoopbackVal,
+		OspfNetworks:    ospfNetworksVal,
+		OspfAreasType:   typeVal,
+		state:           attr.ValueStateKnown,
 	}, diags
 }
 
-func NewOspfConfigValueNull() OspfConfigValue {
-	return OspfConfigValue{
+func NewOspfAreasValueNull() OspfAreasValue {
+	return OspfAreasValue{
 		state: attr.ValueStateNull,
 	}
 }
 
-func NewOspfConfigValueUnknown() OspfConfigValue {
-	return OspfConfigValue{
+func NewOspfAreasValueUnknown() OspfAreasValue {
+	return OspfAreasValue{
 		state: attr.ValueStateUnknown,
 	}
 }
 
-func NewOspfConfigValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (OspfConfigValue, diag.Diagnostics) {
+func NewOspfAreasValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (OspfAreasValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
@@ -13473,11 +13582,11 @@ func NewOspfConfigValue(attributeTypes map[string]attr.Type, attributes map[stri
 
 		if !ok {
 			diags.AddError(
-				"Missing OspfConfigValue Attribute Value",
-				"While creating a OspfConfigValue value, a missing attribute value was detected. "+
-					"A OspfConfigValue must contain values for all attributes, even if null or unknown. "+
+				"Missing OspfAreasValue Attribute Value",
+				"While creating a OspfAreasValue value, a missing attribute value was detected. "+
+					"A OspfAreasValue must contain values for all attributes, even if null or unknown. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("OspfConfigValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+					fmt.Sprintf("OspfAreasValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
 			)
 
 			continue
@@ -13485,12 +13594,12 @@ func NewOspfConfigValue(attributeTypes map[string]attr.Type, attributes map[stri
 
 		if !attributeType.Equal(attribute.Type(ctx)) {
 			diags.AddError(
-				"Invalid OspfConfigValue Attribute Type",
-				"While creating a OspfConfigValue value, an invalid attribute value was detected. "+
-					"A OspfConfigValue must use a matching attribute type for the value. "+
+				"Invalid OspfAreasValue Attribute Type",
+				"While creating a OspfAreasValue value, an invalid attribute value was detected. "+
+					"A OspfAreasValue must use a matching attribute type for the value. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("OspfConfigValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
-					fmt.Sprintf("OspfConfigValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+					fmt.Sprintf("OspfAreasValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("OspfAreasValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
 			)
 		}
 	}
@@ -13500,87 +13609,87 @@ func NewOspfConfigValue(attributeTypes map[string]attr.Type, attributes map[stri
 
 		if !ok {
 			diags.AddError(
-				"Extra OspfConfigValue Attribute Value",
-				"While creating a OspfConfigValue value, an extra attribute value was detected. "+
-					"A OspfConfigValue must not contain values beyond the expected attribute types. "+
+				"Extra OspfAreasValue Attribute Value",
+				"While creating a OspfAreasValue value, an extra attribute value was detected. "+
+					"A OspfAreasValue must not contain values beyond the expected attribute types. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("Extra OspfConfigValue Attribute Name: %s", name),
+					fmt.Sprintf("Extra OspfAreasValue Attribute Name: %s", name),
 			)
 		}
 	}
 
 	if diags.HasError() {
-		return NewOspfConfigValueUnknown(), diags
+		return NewOspfAreasValueUnknown(), diags
 	}
 
-	areasAttribute, ok := attributes["areas"]
+	includeLoopbackAttribute, ok := attributes["include_loopback"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`areas is missing from object`)
+			`include_loopback is missing from object`)
 
-		return NewOspfConfigValueUnknown(), diags
+		return NewOspfAreasValueUnknown(), diags
 	}
 
-	areasVal, ok := areasAttribute.(basetypes.MapValue)
+	includeLoopbackVal, ok := includeLoopbackAttribute.(basetypes.BoolValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`areas expected to be basetypes.MapValue, was: %T`, areasAttribute))
+			fmt.Sprintf(`include_loopback expected to be basetypes.BoolValue, was: %T`, includeLoopbackAttribute))
 	}
 
-	enabledAttribute, ok := attributes["enabled"]
+	ospfNetworksAttribute, ok := attributes["networks"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`enabled is missing from object`)
+			`networks is missing from object`)
 
-		return NewOspfConfigValueUnknown(), diags
+		return NewOspfAreasValueUnknown(), diags
 	}
 
-	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+	ospfNetworksVal, ok := ospfNetworksAttribute.(basetypes.MapValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+			fmt.Sprintf(`networks expected to be basetypes.MapValue, was: %T`, ospfNetworksAttribute))
 	}
 
-	referenceBandwidthAttribute, ok := attributes["reference_bandwidth"]
+	typeAttribute, ok := attributes["type"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`reference_bandwidth is missing from object`)
+			`type is missing from object`)
 
-		return NewOspfConfigValueUnknown(), diags
+		return NewOspfAreasValueUnknown(), diags
 	}
 
-	referenceBandwidthVal, ok := referenceBandwidthAttribute.(basetypes.StringValue)
+	typeVal, ok := typeAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`reference_bandwidth expected to be basetypes.StringValue, was: %T`, referenceBandwidthAttribute))
+			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, typeAttribute))
 	}
 
 	if diags.HasError() {
-		return NewOspfConfigValueUnknown(), diags
+		return NewOspfAreasValueUnknown(), diags
 	}
 
-	return OspfConfigValue{
-		Areas:              areasVal,
-		Enabled:            enabledVal,
-		ReferenceBandwidth: referenceBandwidthVal,
-		state:              attr.ValueStateKnown,
+	return OspfAreasValue{
+		IncludeLoopback: includeLoopbackVal,
+		OspfNetworks:    ospfNetworksVal,
+		OspfAreasType:   typeVal,
+		state:           attr.ValueStateKnown,
 	}, diags
 }
 
-func NewOspfConfigValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) OspfConfigValue {
-	object, diags := NewOspfConfigValue(attributeTypes, attributes)
+func NewOspfAreasValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) OspfAreasValue {
+	object, diags := NewOspfAreasValue(attributeTypes, attributes)
 
 	if diags.HasError() {
 		// This could potentially be added to the diag package.
@@ -13594,15 +13703,15 @@ func NewOspfConfigValueMust(attributeTypes map[string]attr.Type, attributes map[
 				diagnostic.Detail()))
 		}
 
-		panic("NewOspfConfigValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+		panic("NewOspfAreasValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
 	}
 
 	return object
 }
 
-func (t OspfConfigType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+func (t OspfAreasType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
 	if in.Type() == nil {
-		return NewOspfConfigValueNull(), nil
+		return NewOspfAreasValueNull(), nil
 	}
 
 	if !in.Type().Equal(t.TerraformType(ctx)) {
@@ -13610,11 +13719,11 @@ func (t OspfConfigType) ValueFromTerraform(ctx context.Context, in tftypes.Value
 	}
 
 	if !in.IsKnown() {
-		return NewOspfConfigValueUnknown(), nil
+		return NewOspfAreasValueUnknown(), nil
 	}
 
 	if in.IsNull() {
-		return NewOspfConfigValueNull(), nil
+		return NewOspfAreasValueNull(), nil
 	}
 
 	attributes := map[string]attr.Value{}
@@ -13637,33 +13746,33 @@ func (t OspfConfigType) ValueFromTerraform(ctx context.Context, in tftypes.Value
 		attributes[k] = a
 	}
 
-	return NewOspfConfigValueMust(OspfConfigValue{}.AttributeTypes(ctx), attributes), nil
+	return NewOspfAreasValueMust(OspfAreasValue{}.AttributeTypes(ctx), attributes), nil
 }
 
-func (t OspfConfigType) ValueType(ctx context.Context) attr.Value {
-	return OspfConfigValue{}
+func (t OspfAreasType) ValueType(ctx context.Context) attr.Value {
+	return OspfAreasValue{}
 }
 
-var _ basetypes.ObjectValuable = OspfConfigValue{}
+var _ basetypes.ObjectValuable = OspfAreasValue{}
 
-type OspfConfigValue struct {
-	Areas              basetypes.MapValue    `tfsdk:"areas"`
-	Enabled            basetypes.BoolValue   `tfsdk:"enabled"`
-	ReferenceBandwidth basetypes.StringValue `tfsdk:"reference_bandwidth"`
-	state              attr.ValueState
+type OspfAreasValue struct {
+	IncludeLoopback basetypes.BoolValue   `tfsdk:"include_loopback"`
+	OspfNetworks    basetypes.MapValue    `tfsdk:"networks"`
+	OspfAreasType   basetypes.StringValue `tfsdk:"type"`
+	state           attr.ValueState
 }
 
-func (v OspfConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+func (v OspfAreasValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
 	attrTypes := make(map[string]tftypes.Type, 3)
 
 	var val tftypes.Value
 	var err error
 
-	attrTypes["areas"] = basetypes.MapType{
-		ElemType: AreasValue{}.Type(ctx),
+	attrTypes["include_loopback"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["networks"] = basetypes.MapType{
+		ElemType: OspfNetworksValue{}.Type(ctx),
 	}.TerraformType(ctx)
-	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["reference_bandwidth"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["type"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
@@ -13671,29 +13780,29 @@ func (v OspfConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	case attr.ValueStateKnown:
 		vals := make(map[string]tftypes.Value, 3)
 
-		val, err = v.Areas.ToTerraformValue(ctx)
+		val, err = v.IncludeLoopback.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["areas"] = val
+		vals["include_loopback"] = val
 
-		val, err = v.Enabled.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["enabled"] = val
-
-		val, err = v.ReferenceBandwidth.ToTerraformValue(ctx)
+		val, err = v.OspfNetworks.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["reference_bandwidth"] = val
+		vals["networks"] = val
+
+		val, err = v.OspfAreasType.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["type"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -13709,56 +13818,56 @@ func (v OspfConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	}
 }
 
-func (v OspfConfigValue) IsNull() bool {
+func (v OspfAreasValue) IsNull() bool {
 	return v.state == attr.ValueStateNull
 }
 
-func (v OspfConfigValue) IsUnknown() bool {
+func (v OspfAreasValue) IsUnknown() bool {
 	return v.state == attr.ValueStateUnknown
 }
 
-func (v OspfConfigValue) String() string {
-	return "OspfConfigValue"
+func (v OspfAreasValue) String() string {
+	return "OspfAreasValue"
 }
 
-func (v OspfConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+func (v OspfAreasValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	areas := types.MapValueMust(
-		AreasType{
+	ospfNetworks := types.MapValueMust(
+		OspfNetworksType{
 			basetypes.ObjectType{
-				AttrTypes: AreasValue{}.AttributeTypes(ctx),
+				AttrTypes: OspfNetworksValue{}.AttributeTypes(ctx),
 			},
 		},
-		v.Areas.Elements(),
+		v.OspfNetworks.Elements(),
 	)
 
-	if v.Areas.IsNull() {
-		areas = types.MapNull(
-			AreasType{
+	if v.OspfNetworks.IsNull() {
+		ospfNetworks = types.MapNull(
+			OspfNetworksType{
 				basetypes.ObjectType{
-					AttrTypes: AreasValue{}.AttributeTypes(ctx),
+					AttrTypes: OspfNetworksValue{}.AttributeTypes(ctx),
 				},
 			},
 		)
 	}
 
-	if v.Areas.IsUnknown() {
-		areas = types.MapUnknown(
-			AreasType{
+	if v.OspfNetworks.IsUnknown() {
+		ospfNetworks = types.MapUnknown(
+			OspfNetworksType{
 				basetypes.ObjectType{
-					AttrTypes: AreasValue{}.AttributeTypes(ctx),
+					AttrTypes: OspfNetworksValue{}.AttributeTypes(ctx),
 				},
 			},
 		)
 	}
 
 	attributeTypes := map[string]attr.Type{
-		"areas": basetypes.MapType{
-			ElemType: AreasValue{}.Type(ctx),
+		"include_loopback": basetypes.BoolType{},
+		"networks": basetypes.MapType{
+			ElemType: OspfNetworksValue{}.Type(ctx),
 		},
-		"enabled":             basetypes.BoolType{},
-		"reference_bandwidth": basetypes.StringType{},
+		"type": basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -13772,16 +13881,16 @@ func (v OspfConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"areas":               areas,
-			"enabled":             v.Enabled,
-			"reference_bandwidth": v.ReferenceBandwidth,
+			"include_loopback": v.IncludeLoopback,
+			"networks":         ospfNetworks,
+			"type":             v.OspfAreasType,
 		})
 
 	return objVal, diags
 }
 
-func (v OspfConfigValue) Equal(o attr.Value) bool {
-	other, ok := o.(OspfConfigValue)
+func (v OspfAreasValue) Equal(o attr.Value) bool {
+	other, ok := o.(OspfAreasValue)
 
 	if !ok {
 		return false
@@ -13795,47 +13904,47 @@ func (v OspfConfigValue) Equal(o attr.Value) bool {
 		return true
 	}
 
-	if !v.Areas.Equal(other.Areas) {
+	if !v.IncludeLoopback.Equal(other.IncludeLoopback) {
 		return false
 	}
 
-	if !v.Enabled.Equal(other.Enabled) {
+	if !v.OspfNetworks.Equal(other.OspfNetworks) {
 		return false
 	}
 
-	if !v.ReferenceBandwidth.Equal(other.ReferenceBandwidth) {
+	if !v.OspfAreasType.Equal(other.OspfAreasType) {
 		return false
 	}
 
 	return true
 }
 
-func (v OspfConfigValue) Type(ctx context.Context) attr.Type {
-	return OspfConfigType{
+func (v OspfAreasValue) Type(ctx context.Context) attr.Type {
+	return OspfAreasType{
 		basetypes.ObjectType{
 			AttrTypes: v.AttributeTypes(ctx),
 		},
 	}
 }
 
-func (v OspfConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+func (v OspfAreasValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"areas": basetypes.MapType{
-			ElemType: AreasValue{}.Type(ctx),
+		"include_loopback": basetypes.BoolType{},
+		"networks": basetypes.MapType{
+			ElemType: OspfNetworksValue{}.Type(ctx),
 		},
-		"enabled":             basetypes.BoolType{},
-		"reference_bandwidth": basetypes.StringType{},
+		"type": basetypes.StringType{},
 	}
 }
 
-var _ basetypes.ObjectTypable = AreasType{}
+var _ basetypes.ObjectTypable = OspfNetworksType{}
 
-type AreasType struct {
+type OspfNetworksType struct {
 	basetypes.ObjectType
 }
 
-func (t AreasType) Equal(o attr.Type) bool {
-	other, ok := o.(AreasType)
+func (t OspfNetworksType) Equal(o attr.Type) bool {
+	other, ok := o.(OspfNetworksType)
 
 	if !ok {
 		return false
@@ -13844,56 +13953,265 @@ func (t AreasType) Equal(o attr.Type) bool {
 	return t.ObjectType.Equal(other.ObjectType)
 }
 
-func (t AreasType) String() string {
-	return "AreasType"
+func (t OspfNetworksType) String() string {
+	return "OspfNetworksType"
 }
 
-func (t AreasType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+func (t OspfNetworksType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	attributes := in.Attributes()
 
-	noSummaryAttribute, ok := attributes["no_summary"]
+	authKeysAttribute, ok := attributes["auth_keys"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`no_summary is missing from object`)
+			`auth_keys is missing from object`)
 
 		return nil, diags
 	}
 
-	noSummaryVal, ok := noSummaryAttribute.(basetypes.BoolValue)
+	authKeysVal, ok := authKeysAttribute.(basetypes.MapValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`no_summary expected to be basetypes.BoolValue, was: %T`, noSummaryAttribute))
+			fmt.Sprintf(`auth_keys expected to be basetypes.MapValue, was: %T`, authKeysAttribute))
+	}
+
+	authPasswordAttribute, ok := attributes["auth_password"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`auth_password is missing from object`)
+
+		return nil, diags
+	}
+
+	authPasswordVal, ok := authPasswordAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`auth_password expected to be basetypes.StringValue, was: %T`, authPasswordAttribute))
+	}
+
+	authTypeAttribute, ok := attributes["auth_type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`auth_type is missing from object`)
+
+		return nil, diags
+	}
+
+	authTypeVal, ok := authTypeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`auth_type expected to be basetypes.StringValue, was: %T`, authTypeAttribute))
+	}
+
+	bfdMinimumIntervalAttribute, ok := attributes["bfd_minimum_interval"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`bfd_minimum_interval is missing from object`)
+
+		return nil, diags
+	}
+
+	bfdMinimumIntervalVal, ok := bfdMinimumIntervalAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`bfd_minimum_interval expected to be basetypes.Int64Value, was: %T`, bfdMinimumIntervalAttribute))
+	}
+
+	deadIntervalAttribute, ok := attributes["dead_interval"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`dead_interval is missing from object`)
+
+		return nil, diags
+	}
+
+	deadIntervalVal, ok := deadIntervalAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`dead_interval expected to be basetypes.Int64Value, was: %T`, deadIntervalAttribute))
+	}
+
+	exportPolicyAttribute, ok := attributes["export_policy"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`export_policy is missing from object`)
+
+		return nil, diags
+	}
+
+	exportPolicyVal, ok := exportPolicyAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`export_policy expected to be basetypes.StringValue, was: %T`, exportPolicyAttribute))
+	}
+
+	helloIntervalAttribute, ok := attributes["hello_interval"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`hello_interval is missing from object`)
+
+		return nil, diags
+	}
+
+	helloIntervalVal, ok := helloIntervalAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`hello_interval expected to be basetypes.Int64Value, was: %T`, helloIntervalAttribute))
+	}
+
+	importPolicyAttribute, ok := attributes["import_policy"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`import_policy is missing from object`)
+
+		return nil, diags
+	}
+
+	importPolicyVal, ok := importPolicyAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`import_policy expected to be basetypes.StringValue, was: %T`, importPolicyAttribute))
+	}
+
+	interfaceTypeAttribute, ok := attributes["interface_type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`interface_type is missing from object`)
+
+		return nil, diags
+	}
+
+	interfaceTypeVal, ok := interfaceTypeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`interface_type expected to be basetypes.StringValue, was: %T`, interfaceTypeAttribute))
+	}
+
+	metricAttribute, ok := attributes["metric"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`metric is missing from object`)
+
+		return nil, diags
+	}
+
+	metricVal, ok := metricAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`metric expected to be basetypes.Int64Value, was: %T`, metricAttribute))
+	}
+
+	noReadvertiseToOverlayAttribute, ok := attributes["no_readvertise_to_overlay"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`no_readvertise_to_overlay is missing from object`)
+
+		return nil, diags
+	}
+
+	noReadvertiseToOverlayVal, ok := noReadvertiseToOverlayAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`no_readvertise_to_overlay expected to be basetypes.BoolValue, was: %T`, noReadvertiseToOverlayAttribute))
+	}
+
+	passiveAttribute, ok := attributes["passive"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`passive is missing from object`)
+
+		return nil, diags
+	}
+
+	passiveVal, ok := passiveAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`passive expected to be basetypes.BoolValue, was: %T`, passiveAttribute))
 	}
 
 	if diags.HasError() {
 		return nil, diags
 	}
 
-	return AreasValue{
-		NoSummary: noSummaryVal,
-		state:     attr.ValueStateKnown,
+	return OspfNetworksValue{
+		AuthKeys:               authKeysVal,
+		AuthPassword:           authPasswordVal,
+		AuthType:               authTypeVal,
+		BfdMinimumInterval:     bfdMinimumIntervalVal,
+		DeadInterval:           deadIntervalVal,
+		ExportPolicy:           exportPolicyVal,
+		HelloInterval:          helloIntervalVal,
+		ImportPolicy:           importPolicyVal,
+		InterfaceType:          interfaceTypeVal,
+		Metric:                 metricVal,
+		NoReadvertiseToOverlay: noReadvertiseToOverlayVal,
+		Passive:                passiveVal,
+		state:                  attr.ValueStateKnown,
 	}, diags
 }
 
-func NewAreasValueNull() AreasValue {
-	return AreasValue{
+func NewOspfNetworksValueNull() OspfNetworksValue {
+	return OspfNetworksValue{
 		state: attr.ValueStateNull,
 	}
 }
 
-func NewAreasValueUnknown() AreasValue {
-	return AreasValue{
+func NewOspfNetworksValueUnknown() OspfNetworksValue {
+	return OspfNetworksValue{
 		state: attr.ValueStateUnknown,
 	}
 }
 
-func NewAreasValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (AreasValue, diag.Diagnostics) {
+func NewOspfNetworksValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (OspfNetworksValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
@@ -13904,11 +14222,11 @@ func NewAreasValue(attributeTypes map[string]attr.Type, attributes map[string]at
 
 		if !ok {
 			diags.AddError(
-				"Missing AreasValue Attribute Value",
-				"While creating a AreasValue value, a missing attribute value was detected. "+
-					"A AreasValue must contain values for all attributes, even if null or unknown. "+
+				"Missing OspfNetworksValue Attribute Value",
+				"While creating a OspfNetworksValue value, a missing attribute value was detected. "+
+					"A OspfNetworksValue must contain values for all attributes, even if null or unknown. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("AreasValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+					fmt.Sprintf("OspfNetworksValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
 			)
 
 			continue
@@ -13916,12 +14234,12 @@ func NewAreasValue(attributeTypes map[string]attr.Type, attributes map[string]at
 
 		if !attributeType.Equal(attribute.Type(ctx)) {
 			diags.AddError(
-				"Invalid AreasValue Attribute Type",
-				"While creating a AreasValue value, an invalid attribute value was detected. "+
-					"A AreasValue must use a matching attribute type for the value. "+
+				"Invalid OspfNetworksValue Attribute Type",
+				"While creating a OspfNetworksValue value, an invalid attribute value was detected. "+
+					"A OspfNetworksValue must use a matching attribute type for the value. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("AreasValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
-					fmt.Sprintf("AreasValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+					fmt.Sprintf("OspfNetworksValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("OspfNetworksValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
 			)
 		}
 	}
@@ -13931,49 +14249,258 @@ func NewAreasValue(attributeTypes map[string]attr.Type, attributes map[string]at
 
 		if !ok {
 			diags.AddError(
-				"Extra AreasValue Attribute Value",
-				"While creating a AreasValue value, an extra attribute value was detected. "+
-					"A AreasValue must not contain values beyond the expected attribute types. "+
+				"Extra OspfNetworksValue Attribute Value",
+				"While creating a OspfNetworksValue value, an extra attribute value was detected. "+
+					"A OspfNetworksValue must not contain values beyond the expected attribute types. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("Extra AreasValue Attribute Name: %s", name),
+					fmt.Sprintf("Extra OspfNetworksValue Attribute Name: %s", name),
 			)
 		}
 	}
 
 	if diags.HasError() {
-		return NewAreasValueUnknown(), diags
+		return NewOspfNetworksValueUnknown(), diags
 	}
 
-	noSummaryAttribute, ok := attributes["no_summary"]
+	authKeysAttribute, ok := attributes["auth_keys"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`no_summary is missing from object`)
+			`auth_keys is missing from object`)
 
-		return NewAreasValueUnknown(), diags
+		return NewOspfNetworksValueUnknown(), diags
 	}
 
-	noSummaryVal, ok := noSummaryAttribute.(basetypes.BoolValue)
+	authKeysVal, ok := authKeysAttribute.(basetypes.MapValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`no_summary expected to be basetypes.BoolValue, was: %T`, noSummaryAttribute))
+			fmt.Sprintf(`auth_keys expected to be basetypes.MapValue, was: %T`, authKeysAttribute))
+	}
+
+	authPasswordAttribute, ok := attributes["auth_password"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`auth_password is missing from object`)
+
+		return NewOspfNetworksValueUnknown(), diags
+	}
+
+	authPasswordVal, ok := authPasswordAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`auth_password expected to be basetypes.StringValue, was: %T`, authPasswordAttribute))
+	}
+
+	authTypeAttribute, ok := attributes["auth_type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`auth_type is missing from object`)
+
+		return NewOspfNetworksValueUnknown(), diags
+	}
+
+	authTypeVal, ok := authTypeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`auth_type expected to be basetypes.StringValue, was: %T`, authTypeAttribute))
+	}
+
+	bfdMinimumIntervalAttribute, ok := attributes["bfd_minimum_interval"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`bfd_minimum_interval is missing from object`)
+
+		return NewOspfNetworksValueUnknown(), diags
+	}
+
+	bfdMinimumIntervalVal, ok := bfdMinimumIntervalAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`bfd_minimum_interval expected to be basetypes.Int64Value, was: %T`, bfdMinimumIntervalAttribute))
+	}
+
+	deadIntervalAttribute, ok := attributes["dead_interval"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`dead_interval is missing from object`)
+
+		return NewOspfNetworksValueUnknown(), diags
+	}
+
+	deadIntervalVal, ok := deadIntervalAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`dead_interval expected to be basetypes.Int64Value, was: %T`, deadIntervalAttribute))
+	}
+
+	exportPolicyAttribute, ok := attributes["export_policy"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`export_policy is missing from object`)
+
+		return NewOspfNetworksValueUnknown(), diags
+	}
+
+	exportPolicyVal, ok := exportPolicyAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`export_policy expected to be basetypes.StringValue, was: %T`, exportPolicyAttribute))
+	}
+
+	helloIntervalAttribute, ok := attributes["hello_interval"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`hello_interval is missing from object`)
+
+		return NewOspfNetworksValueUnknown(), diags
+	}
+
+	helloIntervalVal, ok := helloIntervalAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`hello_interval expected to be basetypes.Int64Value, was: %T`, helloIntervalAttribute))
+	}
+
+	importPolicyAttribute, ok := attributes["import_policy"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`import_policy is missing from object`)
+
+		return NewOspfNetworksValueUnknown(), diags
+	}
+
+	importPolicyVal, ok := importPolicyAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`import_policy expected to be basetypes.StringValue, was: %T`, importPolicyAttribute))
+	}
+
+	interfaceTypeAttribute, ok := attributes["interface_type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`interface_type is missing from object`)
+
+		return NewOspfNetworksValueUnknown(), diags
+	}
+
+	interfaceTypeVal, ok := interfaceTypeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`interface_type expected to be basetypes.StringValue, was: %T`, interfaceTypeAttribute))
+	}
+
+	metricAttribute, ok := attributes["metric"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`metric is missing from object`)
+
+		return NewOspfNetworksValueUnknown(), diags
+	}
+
+	metricVal, ok := metricAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`metric expected to be basetypes.Int64Value, was: %T`, metricAttribute))
+	}
+
+	noReadvertiseToOverlayAttribute, ok := attributes["no_readvertise_to_overlay"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`no_readvertise_to_overlay is missing from object`)
+
+		return NewOspfNetworksValueUnknown(), diags
+	}
+
+	noReadvertiseToOverlayVal, ok := noReadvertiseToOverlayAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`no_readvertise_to_overlay expected to be basetypes.BoolValue, was: %T`, noReadvertiseToOverlayAttribute))
+	}
+
+	passiveAttribute, ok := attributes["passive"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`passive is missing from object`)
+
+		return NewOspfNetworksValueUnknown(), diags
+	}
+
+	passiveVal, ok := passiveAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`passive expected to be basetypes.BoolValue, was: %T`, passiveAttribute))
 	}
 
 	if diags.HasError() {
-		return NewAreasValueUnknown(), diags
+		return NewOspfNetworksValueUnknown(), diags
 	}
 
-	return AreasValue{
-		NoSummary: noSummaryVal,
-		state:     attr.ValueStateKnown,
+	return OspfNetworksValue{
+		AuthKeys:               authKeysVal,
+		AuthPassword:           authPasswordVal,
+		AuthType:               authTypeVal,
+		BfdMinimumInterval:     bfdMinimumIntervalVal,
+		DeadInterval:           deadIntervalVal,
+		ExportPolicy:           exportPolicyVal,
+		HelloInterval:          helloIntervalVal,
+		ImportPolicy:           importPolicyVal,
+		InterfaceType:          interfaceTypeVal,
+		Metric:                 metricVal,
+		NoReadvertiseToOverlay: noReadvertiseToOverlayVal,
+		Passive:                passiveVal,
+		state:                  attr.ValueStateKnown,
 	}, diags
 }
 
-func NewAreasValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) AreasValue {
-	object, diags := NewAreasValue(attributeTypes, attributes)
+func NewOspfNetworksValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) OspfNetworksValue {
+	object, diags := NewOspfNetworksValue(attributeTypes, attributes)
 
 	if diags.HasError() {
 		// This could potentially be added to the diag package.
@@ -13987,15 +14514,15 @@ func NewAreasValueMust(attributeTypes map[string]attr.Type, attributes map[strin
 				diagnostic.Detail()))
 		}
 
-		panic("NewAreasValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+		panic("NewOspfNetworksValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
 	}
 
 	return object
 }
 
-func (t AreasType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+func (t OspfNetworksType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
 	if in.Type() == nil {
-		return NewAreasValueNull(), nil
+		return NewOspfNetworksValueNull(), nil
 	}
 
 	if !in.Type().Equal(t.TerraformType(ctx)) {
@@ -14003,11 +14530,11 @@ func (t AreasType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (at
 	}
 
 	if !in.IsKnown() {
-		return NewAreasValueUnknown(), nil
+		return NewOspfNetworksValueUnknown(), nil
 	}
 
 	if in.IsNull() {
-		return NewAreasValueNull(), nil
+		return NewOspfNetworksValueNull(), nil
 	}
 
 	attributes := map[string]attr.Value{}
@@ -14030,41 +14557,153 @@ func (t AreasType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (at
 		attributes[k] = a
 	}
 
-	return NewAreasValueMust(AreasValue{}.AttributeTypes(ctx), attributes), nil
+	return NewOspfNetworksValueMust(OspfNetworksValue{}.AttributeTypes(ctx), attributes), nil
 }
 
-func (t AreasType) ValueType(ctx context.Context) attr.Value {
-	return AreasValue{}
+func (t OspfNetworksType) ValueType(ctx context.Context) attr.Value {
+	return OspfNetworksValue{}
 }
 
-var _ basetypes.ObjectValuable = AreasValue{}
+var _ basetypes.ObjectValuable = OspfNetworksValue{}
 
-type AreasValue struct {
-	NoSummary basetypes.BoolValue `tfsdk:"no_summary"`
-	state     attr.ValueState
+type OspfNetworksValue struct {
+	AuthKeys               basetypes.MapValue    `tfsdk:"auth_keys"`
+	AuthPassword           basetypes.StringValue `tfsdk:"auth_password"`
+	AuthType               basetypes.StringValue `tfsdk:"auth_type"`
+	BfdMinimumInterval     basetypes.Int64Value  `tfsdk:"bfd_minimum_interval"`
+	DeadInterval           basetypes.Int64Value  `tfsdk:"dead_interval"`
+	ExportPolicy           basetypes.StringValue `tfsdk:"export_policy"`
+	HelloInterval          basetypes.Int64Value  `tfsdk:"hello_interval"`
+	ImportPolicy           basetypes.StringValue `tfsdk:"import_policy"`
+	InterfaceType          basetypes.StringValue `tfsdk:"interface_type"`
+	Metric                 basetypes.Int64Value  `tfsdk:"metric"`
+	NoReadvertiseToOverlay basetypes.BoolValue   `tfsdk:"no_readvertise_to_overlay"`
+	Passive                basetypes.BoolValue   `tfsdk:"passive"`
+	state                  attr.ValueState
 }
 
-func (v AreasValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 1)
+func (v OspfNetworksValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 12)
 
 	var val tftypes.Value
 	var err error
 
-	attrTypes["no_summary"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["auth_keys"] = basetypes.MapType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["auth_password"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["auth_type"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["bfd_minimum_interval"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["dead_interval"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["export_policy"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["hello_interval"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["import_policy"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["interface_type"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["metric"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["no_readvertise_to_overlay"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["passive"] = basetypes.BoolType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 1)
+		vals := make(map[string]tftypes.Value, 12)
 
-		val, err = v.NoSummary.ToTerraformValue(ctx)
+		val, err = v.AuthKeys.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["no_summary"] = val
+		vals["auth_keys"] = val
+
+		val, err = v.AuthPassword.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["auth_password"] = val
+
+		val, err = v.AuthType.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["auth_type"] = val
+
+		val, err = v.BfdMinimumInterval.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["bfd_minimum_interval"] = val
+
+		val, err = v.DeadInterval.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["dead_interval"] = val
+
+		val, err = v.ExportPolicy.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["export_policy"] = val
+
+		val, err = v.HelloInterval.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["hello_interval"] = val
+
+		val, err = v.ImportPolicy.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["import_policy"] = val
+
+		val, err = v.InterfaceType.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["interface_type"] = val
+
+		val, err = v.Metric.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["metric"] = val
+
+		val, err = v.NoReadvertiseToOverlay.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["no_readvertise_to_overlay"] = val
+
+		val, err = v.Passive.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["passive"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -14080,23 +14719,59 @@ func (v AreasValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error)
 	}
 }
 
-func (v AreasValue) IsNull() bool {
+func (v OspfNetworksValue) IsNull() bool {
 	return v.state == attr.ValueStateNull
 }
 
-func (v AreasValue) IsUnknown() bool {
+func (v OspfNetworksValue) IsUnknown() bool {
 	return v.state == attr.ValueStateUnknown
 }
 
-func (v AreasValue) String() string {
-	return "AreasValue"
+func (v OspfNetworksValue) String() string {
+	return "OspfNetworksValue"
 }
 
-func (v AreasValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+func (v OspfNetworksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
+	authKeysVal, d := types.MapValue(types.StringType, v.AuthKeys.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"auth_keys": basetypes.MapType{
+				ElemType: types.StringType,
+			},
+			"auth_password":             basetypes.StringType{},
+			"auth_type":                 basetypes.StringType{},
+			"bfd_minimum_interval":      basetypes.Int64Type{},
+			"dead_interval":             basetypes.Int64Type{},
+			"export_policy":             basetypes.StringType{},
+			"hello_interval":            basetypes.Int64Type{},
+			"import_policy":             basetypes.StringType{},
+			"interface_type":            basetypes.StringType{},
+			"metric":                    basetypes.Int64Type{},
+			"no_readvertise_to_overlay": basetypes.BoolType{},
+			"passive":                   basetypes.BoolType{},
+		}), diags
+	}
+
 	attributeTypes := map[string]attr.Type{
-		"no_summary": basetypes.BoolType{},
+		"auth_keys": basetypes.MapType{
+			ElemType: types.StringType,
+		},
+		"auth_password":             basetypes.StringType{},
+		"auth_type":                 basetypes.StringType{},
+		"bfd_minimum_interval":      basetypes.Int64Type{},
+		"dead_interval":             basetypes.Int64Type{},
+		"export_policy":             basetypes.StringType{},
+		"hello_interval":            basetypes.Int64Type{},
+		"import_policy":             basetypes.StringType{},
+		"interface_type":            basetypes.StringType{},
+		"metric":                    basetypes.Int64Type{},
+		"no_readvertise_to_overlay": basetypes.BoolType{},
+		"passive":                   basetypes.BoolType{},
 	}
 
 	if v.IsNull() {
@@ -14110,14 +14785,25 @@ func (v AreasValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"no_summary": v.NoSummary,
+			"auth_keys":                 authKeysVal,
+			"auth_password":             v.AuthPassword,
+			"auth_type":                 v.AuthType,
+			"bfd_minimum_interval":      v.BfdMinimumInterval,
+			"dead_interval":             v.DeadInterval,
+			"export_policy":             v.ExportPolicy,
+			"hello_interval":            v.HelloInterval,
+			"import_policy":             v.ImportPolicy,
+			"interface_type":            v.InterfaceType,
+			"metric":                    v.Metric,
+			"no_readvertise_to_overlay": v.NoReadvertiseToOverlay,
+			"passive":                   v.Passive,
 		})
 
 	return objVal, diags
 }
 
-func (v AreasValue) Equal(o attr.Value) bool {
-	other, ok := o.(AreasValue)
+func (v OspfNetworksValue) Equal(o attr.Value) bool {
+	other, ok := o.(OspfNetworksValue)
 
 	if !ok {
 		return false
@@ -14131,24 +14817,81 @@ func (v AreasValue) Equal(o attr.Value) bool {
 		return true
 	}
 
-	if !v.NoSummary.Equal(other.NoSummary) {
+	if !v.AuthKeys.Equal(other.AuthKeys) {
+		return false
+	}
+
+	if !v.AuthPassword.Equal(other.AuthPassword) {
+		return false
+	}
+
+	if !v.AuthType.Equal(other.AuthType) {
+		return false
+	}
+
+	if !v.BfdMinimumInterval.Equal(other.BfdMinimumInterval) {
+		return false
+	}
+
+	if !v.DeadInterval.Equal(other.DeadInterval) {
+		return false
+	}
+
+	if !v.ExportPolicy.Equal(other.ExportPolicy) {
+		return false
+	}
+
+	if !v.HelloInterval.Equal(other.HelloInterval) {
+		return false
+	}
+
+	if !v.ImportPolicy.Equal(other.ImportPolicy) {
+		return false
+	}
+
+	if !v.InterfaceType.Equal(other.InterfaceType) {
+		return false
+	}
+
+	if !v.Metric.Equal(other.Metric) {
+		return false
+	}
+
+	if !v.NoReadvertiseToOverlay.Equal(other.NoReadvertiseToOverlay) {
+		return false
+	}
+
+	if !v.Passive.Equal(other.Passive) {
 		return false
 	}
 
 	return true
 }
 
-func (v AreasValue) Type(ctx context.Context) attr.Type {
-	return AreasType{
+func (v OspfNetworksValue) Type(ctx context.Context) attr.Type {
+	return OspfNetworksType{
 		basetypes.ObjectType{
 			AttrTypes: v.AttributeTypes(ctx),
 		},
 	}
 }
 
-func (v AreasValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+func (v OspfNetworksValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"no_summary": basetypes.BoolType{},
+		"auth_keys": basetypes.MapType{
+			ElemType: types.StringType,
+		},
+		"auth_password":             basetypes.StringType{},
+		"auth_type":                 basetypes.StringType{},
+		"bfd_minimum_interval":      basetypes.Int64Type{},
+		"dead_interval":             basetypes.Int64Type{},
+		"export_policy":             basetypes.StringType{},
+		"hello_interval":            basetypes.Int64Type{},
+		"import_policy":             basetypes.StringType{},
+		"interface_type":            basetypes.StringType{},
+		"metric":                    basetypes.Int64Type{},
+		"no_readvertise_to_overlay": basetypes.BoolType{},
+		"passive":                   basetypes.BoolType{},
 	}
 }
 

@@ -126,7 +126,7 @@ resource "mist_device_switch" "switch_one" {
 - `ntp_servers` (List of String) list of NTP servers specific to this device. By default, those in Site Settings will be used
 - `oob_ip_config` (Attributes) - If HA configuration: key parameter will be nodeX (eg: node1)
 - If there are 2 routing engines, re1 mgmt IP has to be set separately (if desired): key parameter = `re1` (see [below for nested schema](#nestedatt--oob_ip_config))
-- `ospf_config` (Attributes) Junos OSPF config (see [below for nested schema](#nestedatt--ospf_config))
+- `ospf_areas` (Attributes Map) Junos OSPF areas (see [below for nested schema](#nestedatt--ospf_areas))
 - `other_ip_configs` (Attributes Map) Property key is the network name (see [below for nested schema](#nestedatt--other_ip_configs))
 - `port_config` (Attributes Map) Property key is the port name or range (e.g. "ge-0/0/0-10") (see [below for nested schema](#nestedatt--port_config))
 - `port_mirroring` (Attributes Map) Property key is the port mirroring instance name
@@ -366,7 +366,7 @@ Optional:
 
 Optional:
 
-- `dns` (List of String)
+- `dns` (List of String) Required when `type`==`static`
 - `dns_suffix` (List of String)
 - `gateway` (String)
 - `ip` (String)
@@ -413,21 +413,35 @@ Optional:
 - `use_mgmt_vrf_for_host_out` (Boolean) for host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired
 
 
-<a id="nestedatt--ospf_config"></a>
-### Nested Schema for `ospf_config`
+<a id="nestedatt--ospf_areas"></a>
+### Nested Schema for `ospf_areas`
+
+Required:
+
+- `networks` (Attributes Map) (see [below for nested schema](#nestedatt--ospf_areas--networks))
 
 Optional:
 
-- `areas` (Attributes Map) OSPF areas to run on this device and the corresponding per-area-specific configs. Property key is the area (see [below for nested schema](#nestedatt--ospf_config--areas))
-- `enabled` (Boolean) whether to rung OSPF on this device
-- `reference_bandwidth` (String) Bandwidth for calculating metric defaults (9600..4000000000000)
+- `include_loopback` (Boolean)
+- `type` (String) OSPF type. enum: `default`, `nssa`, `stub`
 
-<a id="nestedatt--ospf_config--areas"></a>
-### Nested Schema for `ospf_config.areas`
+<a id="nestedatt--ospf_areas--networks"></a>
+### Nested Schema for `ospf_areas.networks`
 
 Optional:
 
-- `no_summary` (Boolean) for a stub/nssa area, where to avoid forwarding type-3 LSA to this area
+- `auth_keys` (Map of String) Required if `auth_type`==`md5`. Property key is the key number
+- `auth_password` (String) Required if `auth_type`==`password`, the password, max length is 8
+- `auth_type` (String) auth type. enum: `md5`, `none`, `password`
+- `bfd_minimum_interval` (Number)
+- `dead_interval` (Number)
+- `export_policy` (String)
+- `hello_interval` (Number)
+- `import_policy` (String)
+- `interface_type` (String) interface type (nbma = non-broadcast multi-access). enum: `broadcast`, `nbma`, `p2mp`, `p2p`
+- `metric` (Number)
+- `no_readvertise_to_overlay` (Boolean) by default, we'll re-advertise all learned OSPF routes toward overlay
+- `passive` (Boolean) whether to send OSPF-Hello
 
 
 

@@ -83,6 +83,12 @@ func TerraformToSdk(ctx context.Context, plan *SiteNetworktemplateModel) (*model
 		data.NtpServers = mist_transform.ListOfStringTerraformToSdk(ctx, plan.NtpServers)
 	}
 
+	if plan.OspfAreas.IsNull() || plan.OspfAreas.IsUnknown() {
+		unset["-ospf_areas"] = ""
+	} else {
+		data.OspfAreas = ospfAreasTerraformToSdk(ctx, &diags, plan.OspfAreas)
+	}
+
 	if plan.PortMirroring.IsNull() || plan.PortMirroring.IsUnknown() {
 		unset["-port_mirroring"] = ""
 	} else {

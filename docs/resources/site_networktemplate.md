@@ -96,6 +96,7 @@ resource "mist_site_networktemplate" "networktemplate_one" {
 - `mist_nac` (Attributes) enable mist_nac to use radsec (see [below for nested schema](#nestedatt--mist_nac))
 - `networks` (Attributes Map) Property key is network name (see [below for nested schema](#nestedatt--networks))
 - `ntp_servers` (List of String) list of NTP servers
+- `ospf_areas` (Attributes Map) Junos OSPF areas (see [below for nested schema](#nestedatt--ospf_areas))
 - `port_mirroring` (Attributes Map) Property key is the port mirroring instance name
 port_mirroring can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. (see [below for nested schema](#nestedatt--port_mirroring))
 - `port_usages` (Attributes Map) (see [below for nested schema](#nestedatt--port_usages))
@@ -259,6 +260,38 @@ Optional:
 NOTE: this features requires uplink device to also a be Juniper device and `inter_switch_link` to be set
 - `isolation_vlan_id` (String)
 - `subnet` (String) optional for pure switching, required when L3 / routing features are used
+
+
+<a id="nestedatt--ospf_areas"></a>
+### Nested Schema for `ospf_areas`
+
+Required:
+
+- `ospf_networks` (Attributes Map) (see [below for nested schema](#nestedatt--ospf_areas--ospf_networks))
+
+Optional:
+
+- `include_loopback` (Boolean)
+- `type` (String) OSPF type. enum: `default`, `nssa`, `stub`
+
+<a id="nestedatt--ospf_areas--ospf_networks"></a>
+### Nested Schema for `ospf_areas.ospf_networks`
+
+Optional:
+
+- `auth_keys` (Map of String) Required if `auth_type`==`md5`. Property key is the key number
+- `auth_password` (String) Required if `auth_type`==`password`, the password, max length is 8
+- `auth_type` (String) auth type. enum: `md5`, `none`, `password`
+- `bfd_minimum_interval` (Number)
+- `dead_interval` (Number)
+- `export_policy` (String)
+- `hello_interval` (Number)
+- `import_policy` (String)
+- `interface_type` (String) interface type (nbma = non-broadcast multi-access). enum: `broadcast`, `nbma`, `p2mp`, `p2p`
+- `metric` (Number)
+- `no_readvertise_to_overlay` (Boolean) by default, we'll re-advertise all learned OSPF routes toward overlay
+- `passive` (Boolean) whether to send OSPF-Hello
+
 
 
 <a id="nestedatt--port_mirroring"></a>

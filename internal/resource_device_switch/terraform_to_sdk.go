@@ -119,10 +119,10 @@ func TerraformToSdk(ctx context.Context, plan *DeviceSwitchModel) (models.MistDe
 		data.OobIpConfig = oobIpConfigTerraformToSdk(ctx, &diags, plan.OobIpConfig)
 	}
 
-	if plan.OspfConfig.IsNull() || plan.OspfConfig.IsUnknown() {
-		unset["-ospf_config"] = ""
+	if plan.OspfAreas.IsNull() || plan.OspfAreas.IsUnknown() {
+		unset["-ospf_areas"] = ""
 	} else {
-		data.OspfConfig = ospfConfigTerraformToSdk(ctx, &diags, plan.OspfConfig)
+		data.OspfAreas = ospfAreasTerraformToSdk(ctx, &diags, plan.OspfAreas)
 	}
 
 	if plan.OtherIpConfigs.IsNull() || plan.OtherIpConfigs.IsUnknown() {

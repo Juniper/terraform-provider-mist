@@ -29,6 +29,7 @@ func SdkToTerraform(ctx context.Context, data models.NetworkTemplate) (OrgNetwor
 	var networks types.Map = types.MapNull(NetworksValue{}.Type(ctx))
 	var ntp_servers types.List = types.ListNull(types.StringType)
 	var org_id types.String
+	var ospf_areas types.Map = types.MapNull(OspfAreasValue{}.Type(ctx))
 	var port_mirroring types.Map = types.MapNull(PortMirroringValue{}.Type(ctx))
 	var port_usages types.Map = types.MapNull(PortUsagesValue{}.Type(ctx))
 	var radius_config RadiusConfigValue = NewRadiusConfigValueNull()
@@ -82,6 +83,9 @@ func SdkToTerraform(ctx context.Context, data models.NetworkTemplate) (OrgNetwor
 	if data.OrgId != nil {
 		org_id = types.StringValue(data.OrgId.String())
 	}
+	if data.OspfAreas != nil {
+		ospf_areas = ospfAreasSdkToTerraform(ctx, &diags, data.OspfAreas)
+	}
 	if data.PortMirroring != nil {
 		port_mirroring = portMirroringSdkToTerraform(ctx, &diags, data.PortMirroring)
 	}
@@ -127,6 +131,7 @@ func SdkToTerraform(ctx context.Context, data models.NetworkTemplate) (OrgNetwor
 	state.MistNac = mist_nac
 	state.NtpServers = ntp_servers
 	state.Networks = networks
+	state.OspfAreas = ospf_areas
 	state.PortMirroring = port_mirroring
 	state.PortUsages = port_usages
 	state.RadiusConfig = radius_config

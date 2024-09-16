@@ -26,6 +26,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteNetworkt
 	var mist_nac MistNacValue = NewMistNacValueNull()
 	var networks types.Map = types.MapNull(NetworksValue{}.Type(ctx))
 	var ntp_servers types.List = types.ListNull(types.StringType)
+	var ospf_areas types.Map = types.MapNull(OspfAreasValue{}.Type(ctx))
 	var port_mirroring types.Map = types.MapNull(PortMirroringValue{}.Type(ctx))
 	var port_usages types.Map = types.MapNull(PortUsagesValue{}.Type(ctx))
 	var radius_config RadiusConfigValue = NewRadiusConfigValueNull()
@@ -71,6 +72,9 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteNetworkt
 	if data.NtpServers != nil {
 		ntp_servers = mist_transform.ListOfStringSdkToTerraform(ctx, data.NtpServers)
 	}
+	if data.OspfAreas != nil {
+		ospf_areas = ospfAreasSdkToTerraform(ctx, &diags, data.OspfAreas)
+	}
 	if data.PortMirroring != nil && len(data.PortMirroring) > 0 {
 		port_mirroring = portMirroringSdkToTerraform(ctx, &diags, data.PortMirroring)
 	}
@@ -113,6 +117,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteNetworkt
 	state.MistNac = mist_nac
 	state.NtpServers = ntp_servers
 	state.Networks = networks
+	state.OspfAreas = ospf_areas
 	state.PortMirroring = port_mirroring
 	state.PortUsages = port_usages
 	state.RadiusConfig = radius_config
