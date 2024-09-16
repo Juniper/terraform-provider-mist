@@ -111,7 +111,10 @@ func (m OnlyRefreshIfValueHasChangedModifier) PlanModifyString(ctx context.Conte
 			return
 		}
 		for _, mp := range matchedPaths {
-			attr, _ := req.Config.Schema.AttributeAtPath(ctx, mp)
+			attr, e := req.Plan.Schema.AttributeAtPath(ctx, mp)
+			if e != nil {
+				continue
+			}
 			attr_type := attr.GetType().String()
 
 			switch attr_type {
