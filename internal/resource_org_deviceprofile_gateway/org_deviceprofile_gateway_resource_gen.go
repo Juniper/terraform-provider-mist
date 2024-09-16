@@ -2898,6 +2898,9 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 						"gateway",
 					),
 				},
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"vrf_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{

@@ -27,9 +27,9 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	var evpn_config EvpnConfigValue = NewEvpnConfigValueNull()
 	var extra_routes types.Map = types.MapNull(ExtraRoutesValue{}.Type(ctx))
 	var extra_routes6 types.Map = types.MapNull(ExtraRoutes6Value{}.Type(ctx))
-	var image1_url types.String
-	var image2_url types.String
-	var image3_url types.String
+	var image1_url types.String = types.StringValue("")
+	var image2_url types.String = types.StringValue("")
+	var image3_url types.String = types.StringValue("")
 	var ip_config IpConfigValue = NewIpConfigValueNull()
 	var managed types.Bool
 	var map_id types.String

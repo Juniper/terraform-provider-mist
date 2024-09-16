@@ -1326,6 +1326,9 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 						"ap",
 					),
 				},
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"uplink_port_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{

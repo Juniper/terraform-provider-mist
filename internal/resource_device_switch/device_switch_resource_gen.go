@@ -735,12 +735,21 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"image1_url": schema.StringAttribute{
 				Computed: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"image2_url": schema.StringAttribute{
 				Computed: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"image3_url": schema.StringAttribute{
 				Computed: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"ip_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -814,6 +823,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "device MAC address",
 				MarkdownDescription: "device MAC address",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"managed": schema.BoolAttribute{
 				Optional:            true,
@@ -849,6 +861,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "device Model",
 				MarkdownDescription: "device Model",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"name": schema.StringAttribute{
 				Required: true,
@@ -2428,6 +2443,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "device Serial",
 				MarkdownDescription: "device Serial",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"site_id": schema.StringAttribute{
 				Required: true,
@@ -3299,6 +3317,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "Device Type. enum: `switch`",
 				MarkdownDescription: "Device Type. enum: `switch`",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",

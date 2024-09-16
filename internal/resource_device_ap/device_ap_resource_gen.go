@@ -568,12 +568,21 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"image1_url": schema.StringAttribute{
 				Computed: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"image2_url": schema.StringAttribute{
 				Computed: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"image3_url": schema.StringAttribute{
 				Computed: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"ip_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -602,7 +611,10 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 						Description:         "required if `type`==`static`",
 						MarkdownDescription: "required if `type`==`static`",
 						Validators: []validator.String{
-							stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar()),
+							stringvalidator.Any(
+								mistvalidator.ParseIp(true, false),
+								mistvalidator.ParseVar(),
+							),
 							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static")),
 							mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("dhcp")),
 						},
@@ -741,6 +753,9 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "device MAC address",
 				MarkdownDescription: "device MAC address",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"map_id": schema.StringAttribute{
 				Optional:            true,
@@ -808,6 +823,9 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"org_id": schema.StringAttribute{
 				Computed: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"orientation": schema.Int64Attribute{
 				Optional:            true,
@@ -1428,6 +1446,9 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "device Serial",
 				MarkdownDescription: "device Serial",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"site_id": schema.StringAttribute{
 				Required: true,
@@ -1436,6 +1457,9 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "Device Type. enum: `ap`",
 				MarkdownDescription: "Device Type. enum: `ap`",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",

@@ -24,9 +24,9 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceGateway) (DeviceGate
 	var extra_routes6 types.Map = types.MapNull(ExtraRoutes6Value{}.Type(ctx))
 	var device_id types.String
 	var idp_profiles types.Map = types.MapNull(IdpProfilesValue{}.Type(ctx))
-	var image1_url types.String
-	var image2_url types.String
-	var image3_url types.String
+	var image1_url types.String = types.StringValue("")
+	var image2_url types.String = types.StringValue("")
+	var image3_url types.String = types.StringValue("")
 	var ip_configs types.Map = types.MapNull(IpConfigsValue{}.Type(ctx))
 	var managed types.Bool
 	var map_id types.String

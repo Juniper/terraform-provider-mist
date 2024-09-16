@@ -25,10 +25,10 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceAp) (DeviceApModel, 
 	var disable_module types.Bool
 	var esl_config EslConfigValue = NewEslConfigValueNull()
 	var height types.Float64
-	var image1_url types.String
-	var image2_url types.String
-	var image3_url types.String
 	var device_id types.String
+	var image1_url types.String = types.StringValue("")
+	var image2_url types.String = types.StringValue("")
+	var image3_url types.String = types.StringValue("")
 	var ip_config IpConfigValue = NewIpConfigValueNull()
 	var led LedValue = NewLedValueNull()
 	var locked types.Bool

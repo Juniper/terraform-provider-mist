@@ -713,12 +713,21 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"image1_url": schema.StringAttribute{
 				Computed: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"image2_url": schema.StringAttribute{
 				Computed: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"image3_url": schema.StringAttribute{
 				Computed: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"ip_configs": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
@@ -779,6 +788,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "device MAC address",
 				MarkdownDescription: "device MAC address",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"managed": schema.BoolAttribute{
 				Optional: true,
@@ -792,6 +804,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "device Model",
 				MarkdownDescription: "device Model",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"msp_id": schema.StringAttribute{
 				Optional: true,
@@ -2200,6 +2215,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "device Serial",
 				MarkdownDescription: "device Serial",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"service_policies": schema.ListNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
@@ -2975,6 +2993,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "Device Type. enum: `gateway`",
 				MarkdownDescription: "Device Type. enum: `gateway`",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
