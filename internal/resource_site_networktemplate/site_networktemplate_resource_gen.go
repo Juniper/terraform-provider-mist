@@ -496,6 +496,7 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									"auth_keys": schema.MapAttribute{
 										ElementType:         types.StringType,
 										Optional:            true,
+										Computed:            true,
 										Description:         "Required if `auth_type`==`md5`. Property key is the key number",
 										MarkdownDescription: "Required if `auth_type`==`md5`. Property key is the key number",
 										Validators: []validator.Map{

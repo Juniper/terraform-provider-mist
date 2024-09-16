@@ -133,9 +133,9 @@ func dhcpdConfigConfigsTerraformToSdk(ctx context.Context, diags *diag.Diagnosti
 	return data_map
 }
 
-func dhcpdConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d DhcpdConfigValue) *models.DhcpdConfig {
+func dhcpdConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d DhcpdConfigValue) *models.SwitchDhcpdConfig {
 
-	data := models.DhcpdConfig{}
+	data := models.SwitchDhcpdConfig{}
 
 	if d.Enabled.ValueBoolPointer() != nil {
 		data.Enabled = models.ToPointer(d.Enabled.ValueBool())

@@ -335,7 +335,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 									MarkdownDescription: "if `type`==`local`",
 									Validators: []validator.String{
 										stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar()),
-										mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("local")),
+										mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("server")),
 										mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("relay")),
 									},
 								},
@@ -345,7 +345,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 									MarkdownDescription: "if `type6`==`local`",
 									Validators: []validator.String{
 										stringvalidator.Any(mistvalidator.ParseIp(false, true), mistvalidator.ParseVar()),
-										mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type6"), types.StringValue("local")),
+										mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type6"), types.StringValue("server")),
 										mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type6"), types.StringValue("relay")),
 									},
 								},
@@ -355,7 +355,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 									MarkdownDescription: "if `type`==`local`",
 									Validators: []validator.String{
 										stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar()),
-										mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("local")),
+										mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("server")),
 										mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("relay")),
 									},
 								},
@@ -365,7 +365,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 									MarkdownDescription: "if `type6`==`local`",
 									Validators: []validator.String{
 										stringvalidator.Any(mistvalidator.ParseIp(false, true), mistvalidator.ParseVar()),
-										mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type6"), types.StringValue("local")),
+										mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type6"), types.StringValue("server")),
 										mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type6"), types.StringValue("relay")),
 									},
 								},
@@ -427,51 +427,51 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 								"servers": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Optional:            true,
+									Computed:            true,
 									Description:         "if `type`==`relay`",
 									MarkdownDescription: "if `type`==`relay`",
 									Validators: []validator.List{
 										listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar())),
 										mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("relay")),
-										mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("local")),
+										mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("server")),
 									},
 								},
 								"servers6": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Optional:            true,
+									Computed:            true,
 									Description:         "if `type6`==`relay`",
 									MarkdownDescription: "if `type6`==`relay`",
 									Validators: []validator.List{
 										listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseIp(false, true), mistvalidator.ParseVar())),
 										mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type6"), types.StringValue("relay")),
-										mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type6"), types.StringValue("local")),
+										mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type6"), types.StringValue("server")),
 									},
 								},
 								"type": schema.StringAttribute{
 									Optional:            true,
-									Computed:            true,
-									Description:         "enum: `local` (DHCP Server), `none`, `relay` (DHCP Relay)",
-									MarkdownDescription: "enum: `local` (DHCP Server), `none`, `relay` (DHCP Relay)",
+									Description:         "enum: `none`, `relay` (DHCP Relay), `server` (DHCP Server)",
+									MarkdownDescription: "enum: `none`, `relay` (DHCP Relay), `server` (DHCP Server)",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
-											"local",
 											"none",
 											"relay",
+											"server",
 										),
 									},
-									Default: stringdefault.StaticString("local"),
 								},
 								"type6": schema.StringAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "enum: `local` (DHCP Server), `none`, `relay` (DHCP Relay)",
-									MarkdownDescription: "enum: `local` (DHCP Server), `none`, `relay` (DHCP Relay)",
+									Description:         "enum: `none`, `relay` (DHCP Relay), `server` (DHCP Server)",
+									MarkdownDescription: "enum: `none`, `relay` (DHCP Relay), `server` (DHCP Server)",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
-											"local",
 											"none",
 											"relay",
+											"server",
 										),
 									},
 									Default: stringdefault.StaticString("none"),
@@ -526,6 +526,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "Property key is the network name",
 						Validators: []validator.Map{
 							mapvalidator.SizeAtLeast(1),
+							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("enabled"), types.BoolValue(true)),
 						},
 					},
 					"enabled": schema.BoolAttribute{
@@ -1018,6 +1019,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 									"auth_keys": schema.MapAttribute{
 										ElementType:         types.StringType,
 										Optional:            true,
+										Computed:            true,
 										Description:         "Required if `auth_type`==`md5`. Property key is the key number",
 										MarkdownDescription: "Required if `auth_type`==`md5`. Property key is the key number",
 										Validators: []validator.Map{
@@ -3435,6 +3437,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						"switch",
 					),
 				},
+				Default: stringdefault.StaticString("switch"),
 			},
 			"use_router_id_as_source_ip": schema.BoolAttribute{
 				Optional:            true,

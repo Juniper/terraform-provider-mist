@@ -123,7 +123,7 @@ func dhcpdConfigConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 			var server_id_override basetypes.BoolValue = types.BoolValue(false)
 			var servers basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 			var servers6 basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
-			var type4 basetypes.StringValue = types.StringValue("local")
+			var type4 basetypes.StringValue
 			var type6 basetypes.StringValue = types.StringValue("none")
 			var vendor_encapulated basetypes.MapValue = types.MapNull(VendorEncapulatedValue{}.Type(ctx))
 
@@ -207,7 +207,7 @@ func dhcpdConfigConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 	return r
 }
 
-func dhcpdConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.DhcpdConfig) DhcpdConfigValue {
+func dhcpdConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SwitchDhcpdConfig) DhcpdConfigValue {
 
 	var config basetypes.MapValue = types.MapNull(ConfigValue{}.Type(ctx))
 	var enabled basetypes.BoolValue = types.BoolValue(false)

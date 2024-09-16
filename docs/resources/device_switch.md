@@ -264,8 +264,8 @@ Optional:
 should overwrite the Sever Identifier option (i.e. DHCP option 54) in DHCP responses with its own IP address.
 - `servers` (List of String) if `type`==`relay`
 - `servers6` (List of String) if `type6`==`relay`
-- `type` (String) enum: `local` (DHCP Server), `none`, `relay` (DHCP Relay)
-- `type6` (String) enum: `local` (DHCP Server), `none`, `relay` (DHCP Relay)
+- `type` (String) enum: `none`, `relay` (DHCP Relay), `server` (DHCP Server)
+- `type6` (String) enum: `none`, `relay` (DHCP Relay), `server` (DHCP Server)
 - `vendor_encapulated` (Attributes Map) Property key is <enterprise number>:<sub option code>, with
   * enterprise number: 1-65535 (https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers)
   * sub option code: 1-255, sub-option code' (see [below for nested schema](#nestedatt--dhcpd_config--config--vendor_encapulated))
