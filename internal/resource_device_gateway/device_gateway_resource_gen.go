@@ -3010,7 +3010,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 						"gateway",
 					),
 				},
-				Default: stringdefault.StaticString("ap"),
+				Default: stringdefault.StaticString("gateway"),
 			},
 			"vars": schema.MapAttribute{
 				ElementType:         types.StringType,
