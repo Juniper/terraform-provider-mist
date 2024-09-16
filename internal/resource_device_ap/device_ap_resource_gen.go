@@ -1466,6 +1466,7 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 						"ap",
 					),
 				},
+				Default: stringdefault.StaticString("ap"),
 			},
 			"uplink_port_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{

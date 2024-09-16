@@ -2909,6 +2909,7 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 						"gateway",
 					),
 				},
+				Default: stringdefault.StaticString("gateway"),
 			},
 			"vrf_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
