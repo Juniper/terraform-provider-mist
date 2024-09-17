@@ -876,7 +876,7 @@ Optional:
 
 Optional:
 
-- `allowed_services` (List of String) optionally, services we'll allow
+- `allowed_services` (List of String) optionally, services we'll allow. enum: `icmp`, `ssh`
 - `custom` (Attributes List) (see [below for nested schema](#nestedatt--switch_mgmt--protect_re--custom))
 - `enabled` (Boolean) when enabled, all traffic that is not essential to our operation will be dropped
 e.g. ntp / dns / traffic to mist will be allowed by default
@@ -888,8 +888,8 @@ e.g. ntp / dns / traffic to mist will be allowed by default
 
 Optional:
 
-- `port_range` (String) matched dst port, "0" means any
-- `protocol` (String) enum: `any`, `icmp`, `tcp`, `udp`
+- `port_range` (String) matched dst port, "0" means any. Note: For `protocol`==`any` and  `port_range`==`any`, configure `trusted_hosts` instead
+- `protocol` (String) enum: `any`, `icmp`, `tcp`, `udp`. Note: For `protocol`==`any` and  `port_range`==`any`, configure `trusted_hosts` instead
 - `subnet` (List of String)
 
 

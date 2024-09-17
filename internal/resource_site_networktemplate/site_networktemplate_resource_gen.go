@@ -2790,9 +2790,17 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								ElementType:         types.StringType,
 								Optional:            true,
 								Computed:            true,
-								Description:         "optionally, services we'll allow",
-								MarkdownDescription: "optionally, services we'll allow",
-								Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
+								Description:         "optionally, services we'll allow. enum: `icmp`, `ssh`",
+								MarkdownDescription: "optionally, services we'll allow. enum: `icmp`, `ssh`",
+								Validators: []validator.List{
+									listvalidator.ValueStringsAre(
+										stringvalidator.OneOf(
+											"icmp",
+											"ssh",
+										),
+									),
+								},
+								Default: listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 							},
 							"custom": schema.ListNestedAttribute{
 								NestedObject: schema.NestedAttributeObject{
@@ -2800,15 +2808,18 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										"port_range": schema.StringAttribute{
 											Optional:            true,
 											Computed:            true,
-											Description:         "matched dst port, \"0\" means any",
-											MarkdownDescription: "matched dst port, \"0\" means any",
-											Default:             stringdefault.StaticString("0"),
+											Description:         "matched dst port, \"0\" means any. Note: For `protocol`==`any` and  `port_range`==`any`, configure `trusted_hosts` instead",
+											MarkdownDescription: "matched dst port, \"0\" means any. Note: For `protocol`==`any` and  `port_range`==`any`, configure `trusted_hosts` instead",
+											Validators: []validator.String{
+												stringvalidator.Any(mistvalidator.ParseRangeOfInt(0, 65535, true), mistvalidator.ParseInt(0, 65535)),
+											},
+											Default: stringdefault.StaticString("0"),
 										},
 										"protocol": schema.StringAttribute{
 											Optional:            true,
 											Computed:            true,
-											Description:         "enum: `any`, `icmp`, `tcp`, `udp`",
-											MarkdownDescription: "enum: `any`, `icmp`, `tcp`, `udp`",
+											Description:         "enum: `any`, `icmp`, `tcp`, `udp`. Note: For `protocol`==`any` and  `port_range`==`any`, configure `trusted_hosts` instead",
+											MarkdownDescription: "enum: `any`, `icmp`, `tcp`, `udp`. Note: For `protocol`==`any` and  `port_range`==`any`, configure `trusted_hosts` instead",
 											Validators: []validator.String{
 												stringvalidator.OneOf(
 													"",
@@ -2824,7 +2835,15 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											ElementType: types.StringType,
 											Optional:    true,
 											Computed:    true,
-											Default:     listdefault.StaticValue(types.ListNull(types.StringType)),
+											Validators: []validator.List{
+												listvalidator.ValueStringsAre(
+													stringvalidator.Any(
+														mistvalidator.ParseCidr(true, true),
+														mistvalidator.ParseIp(true, true),
+													),
+												),
+											},
+											Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 										},
 									},
 									CustomType: CustomType{
@@ -2834,6 +2853,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									},
 								},
 								Optional: true,
+								Computed: true,
+								Default:  listdefault.StaticValue(basetypes.NewListValueMust(CustomValue{}.Type(ctx), []attr.Value{})),
 							},
 							"enabled": schema.BoolAttribute{
 								Optional:            true,
@@ -2848,7 +2869,7 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								Computed:            true,
 								Description:         "host/subnets we'll allow traffic to/from",
 								MarkdownDescription: "host/subnets we'll allow traffic to/from",
-								Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
+								Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 							},
 						},
 						CustomType: ProtectReType{
