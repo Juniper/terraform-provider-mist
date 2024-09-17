@@ -80,6 +80,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+				},
 			},
 			"acl_tags": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
@@ -96,10 +99,12 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						"macs": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Optional:            true,
+							Computed:            true,
 							Description:         "required if \n- `type`==`mac`\n- `type`==`static_gbp` if from matching mac",
 							MarkdownDescription: "required if \n- `type`==`mac`\n- `type`==`static_gbp` if from matching mac",
 							Validators: []validator.List{
 								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("mac")),
+								listvalidator.SizeAtLeast(1),
 							},
 						},
 						"network": schema.StringAttribute{
@@ -173,6 +178,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "if `type`==`resource`\nempty means unrestricted, i.e. any",
 							MarkdownDescription: "if `type`==`resource`\nempty means unrestricted, i.e. any",
+							Validators: []validator.List{
+								listvalidator.SizeAtLeast(1),
+							},
 						},
 						"subnets": schema.ListAttribute{
 							ElementType:         types.StringType,
@@ -182,6 +190,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "if \n- `type`==`subnet` \n- `type`==`resource` (optional. default is `any`)\n- `type`==`static_gbp` if from matching subnet",
 							Validators: []validator.List{
 								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("subnet")),
+								listvalidator.SizeAtLeast(1),
 							},
 						},
 						"type": schema.StringAttribute{
@@ -256,6 +265,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "if `all_networks`==`false`, list of network with DHCP snooping enabled",
 						Validators: []validator.List{
 							mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("all_networks"), types.BoolValue(true)),
+							listvalidator.SizeAtLeast(1),
 						},
 					},
 				},
@@ -557,7 +567,13 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting",
 				MarkdownDescription: "Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting",
 				Validators: []validator.List{
-					listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar())),
+					listvalidator.ValueStringsAre(
+						stringvalidator.Any(
+							mistvalidator.ParseIp(true, false),
+							mistvalidator.ParseVar(),
+						),
+					),
+					listvalidator.SizeAtLeast(1),
 				},
 			},
 			"dns_suffix": schema.ListAttribute{
@@ -565,6 +581,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting",
 				MarkdownDescription: "Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting",
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+				},
 			},
 			"evpn_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -916,7 +935,11 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "Property key is network name",
 				MarkdownDescription: "Property key is network name",
 				Validators: []validator.Map{
-					mapvalidator.SizeAtLeast(1), mapvalidator.KeysAre(stringvalidator.All(stringvalidator.LengthBetween(2, 32), mistvalidator.ParseName())),
+					mapvalidator.SizeAtLeast(1),
+					mapvalidator.KeysAre(stringvalidator.All(
+						stringvalidator.LengthBetween(2, 32),
+						mistvalidator.ParseName()),
+					),
 				},
 			},
 			"notes": schema.StringAttribute{
@@ -927,6 +950,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "list of NTP servers specific to this device. By default, those in Site Settings will be used",
 				MarkdownDescription: "list of NTP servers specific to this device. By default, those in Site Settings will be used",
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+				},
 			},
 			"oob_ip_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -1374,6 +1400,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
 							MarkdownDescription: "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
+							Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 						},
 						"input_port_ids_egress": schema.ListAttribute{
 							ElementType:         types.StringType,
@@ -1381,6 +1408,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
 							MarkdownDescription: "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
+							Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 						},
 						"input_port_ids_ingress": schema.ListAttribute{
 							ElementType:         types.StringType,
@@ -1388,6 +1416,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
 							MarkdownDescription: "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
+							Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 						},
 						"output_network": schema.StringAttribute{
 							Optional:            true,
@@ -1717,8 +1746,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 									"none",
 									"link_down",
 								),
-								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("mode"),
-									types.StringValue("dynamic")),
+								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
 							},
 							Default: stringdefault.StaticString("link_down"),
 						},
@@ -1963,7 +1991,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						},
 						Optional: true,
 						Validators: []validator.List{
-							listvalidator.UniqueValues(),
+							listvalidator.SizeAtLeast(1),
 						},
 					},
 					"auth_servers": schema.ListNestedAttribute{
@@ -2028,7 +2056,6 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						Optional: true,
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
-							listvalidator.UniqueValues(),
 						},
 					},
 					"auth_servers_retries": schema.Int64Attribute{
@@ -3290,11 +3317,11 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 											},
 											Default: stringdefault.StaticString("any"),
 										},
-										"subnet": schema.ListAttribute{
+										"subnets": schema.ListAttribute{
 											ElementType: types.StringType,
-											Optional:    true,
-											Computed:    true,
+											Required:    true,
 											Validators: []validator.List{
+												listvalidator.SizeAtLeast(1),
 												listvalidator.ValueStringsAre(
 													stringvalidator.Any(
 														mistvalidator.ParseCidr(true, true),
@@ -3302,7 +3329,6 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 													),
 												),
 											},
-											Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 										},
 									},
 									CustomType: CustomType{
@@ -3396,6 +3422,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 									},
 								},
 								Optional: true,
+								Validators: []validator.List{
+									listvalidator.SizeAtLeast(1),
+								},
 							},
 							"tacplus_servers": schema.ListNestedAttribute{
 								NestedObject: schema.NestedAttributeObject{
@@ -3423,6 +3452,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 									},
 								},
 								Optional: true,
+								Validators: []validator.List{
+									listvalidator.SizeAtLeast(1),
+								},
 							},
 						},
 						CustomType: TacacsType{
@@ -3576,7 +3608,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Property key is the destination CIDR (e.g. \"10.0.0.0/8\")",
 							MarkdownDescription: "Property key is the destination CIDR (e.g. \"10.0.0.0/8\")",
 							Validators: []validator.Map{
-								mapvalidator.SizeAtLeast(1), mapvalidator.KeysAre(stringvalidator.Any(mistvalidator.ParseCidr(false, true), mistvalidator.ParseVar())),
+								mapvalidator.SizeAtLeast(1),
+								mapvalidator.KeysAre(stringvalidator.Any(mistvalidator.ParseCidr(false, true), mistvalidator.ParseVar())),
 							},
 						},
 					},
@@ -3590,7 +3623,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "Property key is the network name",
 				MarkdownDescription: "Property key is the network name",
 				Validators: []validator.Map{
-					mapvalidator.SizeAtLeast(1), mapvalidator.KeysAre(mistvalidator.ParseName()),
+					mapvalidator.SizeAtLeast(1),
+					mapvalidator.KeysAre(mistvalidator.ParseName()),
 				},
 			},
 			"vrrp_config": schema.SingleNestedAttribute{
@@ -39057,22 +39091,22 @@ func (t CustomType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 			fmt.Sprintf(`protocol expected to be basetypes.StringValue, was: %T`, protocolAttribute))
 	}
 
-	subnetAttribute, ok := attributes["subnet"]
+	subnetsAttribute, ok := attributes["subnets"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`subnet is missing from object`)
+			`subnets is missing from object`)
 
 		return nil, diags
 	}
 
-	subnetVal, ok := subnetAttribute.(basetypes.ListValue)
+	subnetsVal, ok := subnetsAttribute.(basetypes.ListValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`subnet expected to be basetypes.ListValue, was: %T`, subnetAttribute))
+			fmt.Sprintf(`subnets expected to be basetypes.ListValue, was: %T`, subnetsAttribute))
 	}
 
 	if diags.HasError() {
@@ -39082,7 +39116,7 @@ func (t CustomType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 	return CustomValue{
 		PortRange: portRangeVal,
 		Protocol:  protocolVal,
-		Subnet:    subnetVal,
+		Subnets:   subnetsVal,
 		state:     attr.ValueStateKnown,
 	}, diags
 }
@@ -39186,22 +39220,22 @@ func NewCustomValue(attributeTypes map[string]attr.Type, attributes map[string]a
 			fmt.Sprintf(`protocol expected to be basetypes.StringValue, was: %T`, protocolAttribute))
 	}
 
-	subnetAttribute, ok := attributes["subnet"]
+	subnetsAttribute, ok := attributes["subnets"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`subnet is missing from object`)
+			`subnets is missing from object`)
 
 		return NewCustomValueUnknown(), diags
 	}
 
-	subnetVal, ok := subnetAttribute.(basetypes.ListValue)
+	subnetsVal, ok := subnetsAttribute.(basetypes.ListValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`subnet expected to be basetypes.ListValue, was: %T`, subnetAttribute))
+			fmt.Sprintf(`subnets expected to be basetypes.ListValue, was: %T`, subnetsAttribute))
 	}
 
 	if diags.HasError() {
@@ -39211,7 +39245,7 @@ func NewCustomValue(attributeTypes map[string]attr.Type, attributes map[string]a
 	return CustomValue{
 		PortRange: portRangeVal,
 		Protocol:  protocolVal,
-		Subnet:    subnetVal,
+		Subnets:   subnetsVal,
 		state:     attr.ValueStateKnown,
 	}, diags
 }
@@ -39286,7 +39320,7 @@ var _ basetypes.ObjectValuable = CustomValue{}
 type CustomValue struct {
 	PortRange basetypes.StringValue `tfsdk:"port_range"`
 	Protocol  basetypes.StringValue `tfsdk:"protocol"`
-	Subnet    basetypes.ListValue   `tfsdk:"subnet"`
+	Subnets   basetypes.ListValue   `tfsdk:"subnets"`
 	state     attr.ValueState
 }
 
@@ -39298,7 +39332,7 @@ func (v CustomValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 
 	attrTypes["port_range"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["protocol"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["subnet"] = basetypes.ListType{
+	attrTypes["subnets"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
 
@@ -39324,13 +39358,13 @@ func (v CustomValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 
 		vals["protocol"] = val
 
-		val, err = v.Subnet.ToTerraformValue(ctx)
+		val, err = v.Subnets.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["subnet"] = val
+		vals["subnets"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -39361,7 +39395,7 @@ func (v CustomValue) String() string {
 func (v CustomValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	subnetVal, d := types.ListValue(types.StringType, v.Subnet.Elements())
+	subnetsVal, d := types.ListValue(types.StringType, v.Subnets.Elements())
 
 	diags.Append(d...)
 
@@ -39369,7 +39403,7 @@ func (v CustomValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 		return types.ObjectUnknown(map[string]attr.Type{
 			"port_range": basetypes.StringType{},
 			"protocol":   basetypes.StringType{},
-			"subnet": basetypes.ListType{
+			"subnets": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 		}), diags
@@ -39378,7 +39412,7 @@ func (v CustomValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 	attributeTypes := map[string]attr.Type{
 		"port_range": basetypes.StringType{},
 		"protocol":   basetypes.StringType{},
-		"subnet": basetypes.ListType{
+		"subnets": basetypes.ListType{
 			ElemType: types.StringType,
 		},
 	}
@@ -39396,7 +39430,7 @@ func (v CustomValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 		map[string]attr.Value{
 			"port_range": v.PortRange,
 			"protocol":   v.Protocol,
-			"subnet":     subnetVal,
+			"subnets":    subnetsVal,
 		})
 
 	return objVal, diags
@@ -39425,7 +39459,7 @@ func (v CustomValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.Subnet.Equal(other.Subnet) {
+	if !v.Subnets.Equal(other.Subnets) {
 		return false
 	}
 
@@ -39444,7 +39478,7 @@ func (v CustomValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"port_range": basetypes.StringType{},
 		"protocol":   basetypes.StringType{},
-		"subnet": basetypes.ListType{
+		"subnets": basetypes.ListType{
 			ElemType: types.StringType,
 		},
 	}

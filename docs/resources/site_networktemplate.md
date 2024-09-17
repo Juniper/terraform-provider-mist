@@ -886,11 +886,14 @@ e.g. ntp / dns / traffic to mist will be allowed by default
 <a id="nestedatt--switch_mgmt--protect_re--custom"></a>
 ### Nested Schema for `switch_mgmt.protect_re.custom`
 
+Required:
+
+- `subnets` (List of String)
+
 Optional:
 
 - `port_range` (String) matched dst port, "0" means any. Note: For `protocol`==`any` and  `port_range`==`any`, configure `trusted_hosts` instead
 - `protocol` (String) enum: `any`, `icmp`, `tcp`, `udp`. Note: For `protocol`==`any` and  `port_range`==`any`, configure `trusted_hosts` instead
-- `subnet` (List of String)
 
 
 

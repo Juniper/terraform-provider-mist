@@ -278,7 +278,7 @@ func switchMatchingRulesSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 func switchMatchingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SwitchMatching) SwitchMatchingValue {
 
 	var enable basetypes.BoolValue
-	var rules basetypes.ListValue = types.ListNull(RulesValue{}.Type(ctx))
+	var rules basetypes.ListValue = types.ListNull(MatchingRulesValue{}.Type(ctx))
 
 	if d != nil && d.Enable != nil {
 		enable = types.BoolValue(*d.Enable)

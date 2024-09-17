@@ -24,8 +24,8 @@ func switchMgmtProtectReCustomTerraformToSdk(ctx context.Context, diags *diag.Di
 		if item_obj.Protocol.ValueStringPointer() != nil {
 			data_item.Protocol = models.ToPointer(models.ProtectReCustomProtocolEnum(item_obj.Protocol.ValueString()))
 		}
-		if !item_obj.Subnet.IsNull() && !item_obj.Subnet.IsUnknown() {
-			data_item.Subnet = mist_transform.ListOfStringTerraformToSdk(ctx, item_obj.Subnet)
+		if !item_obj.Subnets.IsNull() && !item_obj.Subnets.IsUnknown() {
+			data_item.Subnets = mist_transform.ListOfStringTerraformToSdk(ctx, item_obj.Subnets)
 		}
 
 		data = append(data, data_item)
@@ -44,7 +44,11 @@ func switchMgmtProtectReTerraformToSdk(ctx context.Context, diags *diag.Diagnost
 		item_obj := item_interface.(ProtectReValue)
 
 		if !item_obj.AllowedServices.IsNull() && !item_obj.AllowedServices.IsUnknown() {
-			data.AllowedServices = mist_transform.ListOfStringTerraformToSdk(ctx, item_obj.AllowedServices)
+			var items []models.ProtectReAllowedServiceEnum
+			for _, item := range item_obj.AllowedServices.Elements() {
+				items = append(items, models.ProtectReAllowedServiceEnum(item.String()))
+			}
+			data.AllowedServices = items
 		}
 		if !item_obj.Custom.IsNull() && !item_obj.Custom.IsUnknown() {
 			data.Custom = switchMgmtProtectReCustomTerraformToSdk(ctx, diags, item_obj.Custom)

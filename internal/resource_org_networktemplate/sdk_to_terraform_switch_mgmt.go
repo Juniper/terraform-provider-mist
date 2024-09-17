@@ -20,7 +20,7 @@ func switchMgmtProtecCustomtReSdkToTerraform(ctx context.Context, diags *diag.Di
 
 		var port_range basetypes.StringValue
 		var protocol basetypes.StringValue
-		var subnet basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+		var subnets basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 
 		if d.PortRange != nil {
 			port_range = types.StringValue(*d.PortRange)
@@ -28,15 +28,15 @@ func switchMgmtProtecCustomtReSdkToTerraform(ctx context.Context, diags *diag.Di
 		if d.Protocol != nil {
 			protocol = types.StringValue(string(*d.Protocol))
 		}
-		if d.Subnet != nil {
-			subnet = mist_transform.ListOfStringSdkToTerraform(ctx, d.Subnet)
+		if d.Subnets != nil {
+			subnets = mist_transform.ListOfStringSdkToTerraform(ctx, d.Subnets)
 		}
 
 		data_map_attr_type := CustomValue{}.AttributeTypes(ctx)
 		data_map_value := map[string]attr.Value{
 			"port_range": port_range,
 			"protocol":   protocol,
-			"subnet":     subnet,
+			"subnets":    subnets,
 		}
 		data, e := NewCustomValue(data_map_attr_type, data_map_value)
 		diags.Append(e...)
@@ -57,7 +57,13 @@ func switchMgmtProtectReSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 	var trusted_hosts basetypes.ListValue = types.ListNull(types.StringType)
 
 	if d.AllowedServices != nil {
-		allowed_services = mist_transform.ListOfStringSdkToTerraform(ctx, d.AllowedServices)
+		var items []attr.Value
+		var items_type attr.Type = basetypes.StringType{}
+		for _, item := range d.AllowedServices {
+			items = append(items, types.StringValue(string(item)))
+		}
+		list, _ := types.ListValue(items_type, items)
+		allowed_services = list
 	}
 	if d.Custom != nil {
 		custom = switchMgmtProtecCustomtReSdkToTerraform(ctx, diags, d.Custom)
