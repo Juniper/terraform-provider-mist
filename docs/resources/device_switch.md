@@ -250,14 +250,14 @@ Optional:
 
 Optional:
 
-- `dns_servers` (List of String) if `type`==`local` - optional, if not defined, system one will be used
-- `dns_suffix` (List of String) if `type`==`local` - optional, if not defined, system one will be used
+- `dns_servers` (List of String) if `type`==`server` - optional, if not defined, system one will be used
+- `dns_suffix` (List of String) if `type`==`server` - optional, if not defined, system one will be used
 - `fixed_bindings` (Attributes Map) Property key is the MAC Address. Format is `[0-9a-f]{12}` (e.g "5684dae9ac8b") (see [below for nested schema](#nestedatt--dhcpd_config--config--fixed_bindings))
-- `gateway` (String) if `type`==`local` - optional, `ip` will be used if not provided
-- `ip_end` (String) if `type`==`local`
-- `ip_end6` (String) if `type6`==`local`
-- `ip_start` (String) if `type`==`local`
-- `ip_start6` (String) if `type6`==`local`
+- `gateway` (String) if `type`==`server` - optional, `ip` will be used if not provided
+- `ip_end` (String) if `type`==`server`
+- `ip_end6` (String) if `type6`==`server`
+- `ip_start` (String) if `type`==`server`
+- `ip_start6` (String) if `type6`==`server`
 - `lease_time` (Number) in seconds, lease time has to be between 3600 [1hr] - 604800 [1 week], default is 86400 [1 day]
 - `options` (Attributes Map) Property key is the DHCP option number (see [below for nested schema](#nestedatt--dhcpd_config--config--options))
 - `server_id_override` (Boolean) `server_id_override`==`true` means the device, when acts as DHCP relay and forwards DHCP responses from DHCP server to clients, 
@@ -755,7 +755,7 @@ Optional:
 - `contact` (String)
 - `description` (String)
 - `enabled` (Boolean)
-- `engine_id` (String) enum: `engine-id-suffix`, `local`, `use-default-ip-address`, `use_mac-address`
+- `engine_id` (String) enum: `engine-id-suffix`, `server`, `use-default-ip-address`, `use_mac-address`
 - `location` (String)
 - `name` (String)
 - `network` (String)

@@ -275,8 +275,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 									ElementType:         types.StringType,
 									Optional:            true,
 									Computed:            true,
-									Description:         "if `type`==`local` - optional, if not defined, system one will be used",
-									MarkdownDescription: "if `type`==`local` - optional, if not defined, system one will be used",
+									Description:         "if `type`==`server` - optional, if not defined, system one will be used",
+									MarkdownDescription: "if `type`==`server` - optional, if not defined, system one will be used",
 									Validators: []validator.List{
 										listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar())),
 										mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("relay")),
@@ -286,8 +286,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 									ElementType:         types.StringType,
 									Optional:            true,
 									Computed:            true,
-									Description:         "if `type`==`local` - optional, if not defined, system one will be used",
-									MarkdownDescription: "if `type`==`local` - optional, if not defined, system one will be used",
+									Description:         "if `type`==`server` - optional, if not defined, system one will be used",
+									MarkdownDescription: "if `type`==`server` - optional, if not defined, system one will be used",
 									Validators: []validator.List{
 										mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("relay")),
 									},
@@ -322,8 +322,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"gateway": schema.StringAttribute{
 									Optional:            true,
-									Description:         "if `type`==`local` - optional, `ip` will be used if not provided",
-									MarkdownDescription: "if `type`==`local` - optional, `ip` will be used if not provided",
+									Description:         "if `type`==`server` - optional, `ip` will be used if not provided",
+									MarkdownDescription: "if `type`==`server` - optional, `ip` will be used if not provided",
 									Validators: []validator.String{
 										stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar()),
 										mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("relay")),
@@ -331,8 +331,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"ip_end": schema.StringAttribute{
 									Optional:            true,
-									Description:         "if `type`==`local`",
-									MarkdownDescription: "if `type`==`local`",
+									Description:         "if `type`==`server`",
+									MarkdownDescription: "if `type`==`server`",
 									Validators: []validator.String{
 										stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar()),
 										mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("server")),
@@ -341,8 +341,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"ip_end6": schema.StringAttribute{
 									Optional:            true,
-									Description:         "if `type6`==`local`",
-									MarkdownDescription: "if `type6`==`local`",
+									Description:         "if `type6`==`server`",
+									MarkdownDescription: "if `type6`==`server`",
 									Validators: []validator.String{
 										stringvalidator.Any(mistvalidator.ParseIp(false, true), mistvalidator.ParseVar()),
 										mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type6"), types.StringValue("server")),
@@ -351,8 +351,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"ip_start": schema.StringAttribute{
 									Optional:            true,
-									Description:         "if `type`==`local`",
-									MarkdownDescription: "if `type`==`local`",
+									Description:         "if `type`==`server`",
+									MarkdownDescription: "if `type`==`server`",
 									Validators: []validator.String{
 										stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar()),
 										mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("server")),
@@ -361,8 +361,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"ip_start6": schema.StringAttribute{
 									Optional:            true,
-									Description:         "if `type6`==`local`",
-									MarkdownDescription: "if `type6`==`local`",
+									Description:         "if `type6`==`server`",
+									MarkdownDescription: "if `type6`==`server`",
 									Validators: []validator.String{
 										stringvalidator.Any(mistvalidator.ParseIp(false, true), mistvalidator.ParseVar()),
 										mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type6"), types.StringValue("server")),
@@ -2595,8 +2595,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"engine_id": schema.StringAttribute{
 						Optional:            true,
-						Description:         "enum: `engine-id-suffix`, `local`, `use-default-ip-address`, `use_mac-address`",
-						MarkdownDescription: "enum: `engine-id-suffix`, `local`, `use-default-ip-address`, `use_mac-address`",
+						Description:         "enum: `engine-id-suffix`, `server`, `use-default-ip-address`, `use_mac-address`",
+						MarkdownDescription: "enum: `engine-id-suffix`, `server`, `use-default-ip-address`, `use_mac-address`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
