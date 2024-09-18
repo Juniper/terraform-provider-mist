@@ -7,11 +7,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -50,20 +51,18 @@ func OrgWxruleResourceSchema(ctx context.Context) schema.Schema {
 			"dst_allow_wxtags": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
+				Computed:            true,
 				Description:         "tag list to indicate these tags are allowed access",
 				MarkdownDescription: "tag list to indicate these tags are allowed access",
-				Validators: []validator.List{
-					listvalidator.SizeAtLeast(1),
-				},
+				Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 			},
 			"dst_deny_wxtags": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
+				Computed:            true,
 				Description:         "tag list to indicate these tags are blocked access",
 				MarkdownDescription: "tag list to indicate these tags are blocked access",
-				Validators: []validator.List{
-					listvalidator.SizeAtLeast(1),
-				},
+				Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 			},
 			"enabled": schema.BoolAttribute{
 				Optional: true,
@@ -72,9 +71,6 @@ func OrgWxruleResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"id": schema.StringAttribute{
 				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"order": schema.Int64Attribute{
 				Required:            true,
@@ -90,11 +86,10 @@ func OrgWxruleResourceSchema(ctx context.Context) schema.Schema {
 			"src_wxtags": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
+				Computed:            true,
 				Description:         "tag list to determine if this rule would match",
 				MarkdownDescription: "tag list to determine if this rule would match",
-				Validators: []validator.List{
-					listvalidator.SizeAtLeast(1),
-				},
+				Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 			},
 			"template_id": schema.StringAttribute{
 				Required:            true,

@@ -42,7 +42,6 @@ func SdkToTerraform(ctx context.Context, data models.WxlanTag) (SiteWxtagModel, 
 	}
 
 	state.Id = types.StringValue(data.Id.String())
-	state.OrgId = types.StringValue(data.OrgId.String())
 	state.SiteId = types.StringValue(data.SiteId.String())
 
 	state.Name = types.StringValue(data.Name)

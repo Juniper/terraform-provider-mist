@@ -26,8 +26,14 @@ func TerraformToSdk(ctx context.Context, plan *SiteWxruleModel) (*models.WxlanRu
 	if !plan.DstAllowWxtags.IsNull() && !plan.DstAllowWxtags.IsUnknown() {
 		data.DstAllowWxtags = mist_transform.ListOfStringTerraformToSdk(ctx, plan.DstAllowWxtags)
 	}
+	if data.DstAllowWxtags == nil {
+		data.DstAllowWxtags = make([]string, 0)
+	}
 	if !plan.DstDenyWxtags.IsNull() && !plan.DstDenyWxtags.IsUnknown() {
 		data.DstDenyWxtags = mist_transform.ListOfStringTerraformToSdk(ctx, plan.DstDenyWxtags)
+	}
+	if data.DstDenyWxtags == nil {
+		data.DstDenyWxtags = make([]string, 0)
 	}
 	if !plan.Enabled.IsNull() && !plan.Enabled.IsUnknown() {
 		data.Enabled = plan.Enabled.ValueBoolPointer()
@@ -37,7 +43,8 @@ func TerraformToSdk(ctx context.Context, plan *SiteWxruleModel) (*models.WxlanRu
 	}
 	if !plan.SrcWxtags.IsNull() && !plan.SrcWxtags.IsUnknown() {
 		data.SrcWxtags = mist_transform.ListOfStringTerraformToSdk(ctx, plan.SrcWxtags)
-	} else {
+	}
+	if data.SrcWxtags == nil {
 		data.SrcWxtags = make([]string, 0)
 	}
 

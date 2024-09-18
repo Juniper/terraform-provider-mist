@@ -5,21 +5,18 @@ package resource_site_wxtag
 import (
 	"context"
 	"fmt"
-	"strings"
-
 	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -29,9 +26,6 @@ func SiteWxtagResourceSchema(ctx context.Context) schema.Schema {
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"mac": schema.StringAttribute{
 				Optional:            true,
@@ -68,9 +62,6 @@ func SiteWxtagResourceSchema(ctx context.Context) schema.Schema {
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("match")),
 				},
 				Default: stringdefault.StaticString("in"),
-			},
-			"org_id": schema.StringAttribute{
-				Computed: true,
 			},
 			"site_id": schema.StringAttribute{
 				Required: true,
@@ -197,7 +188,6 @@ type SiteWxtagModel struct {
 	Match  types.String `tfsdk:"match"`
 	Name   types.String `tfsdk:"name"`
 	Op     types.String `tfsdk:"op"`
-	OrgId  types.String `tfsdk:"org_id"`
 	SiteId types.String `tfsdk:"site_id"`
 	Specs  types.List   `tfsdk:"specs"`
 	Type   types.String `tfsdk:"type"`

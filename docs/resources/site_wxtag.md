@@ -64,7 +64,6 @@ Variables are not allowed
 ### Read-Only
 
 - `id` (String) The ID of this resource.
-- `org_id` (String)
 
 <a id="nestedatt--specs"></a>
 ### Nested Schema for `specs`
