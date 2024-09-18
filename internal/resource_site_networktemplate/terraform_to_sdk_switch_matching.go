@@ -37,6 +37,9 @@ func switchMatchingRulesPortMirroringTerraformToSdk(ctx context.Context, diags *
 			item_obj.InputPortIdsIngress = make([]string, 0)
 		}
 
+		if plan_obj.OutputNetwork.ValueStringPointer() != nil {
+			item_obj.OutputNetwork = models.ToPointer(plan_obj.OutputNetwork.ValueString())
+		}
 		if plan_obj.OutputPortId.ValueStringPointer() != nil {
 			item_obj.OutputPortId = models.ToPointer(plan_obj.OutputPortId.ValueString())
 		}

@@ -2665,6 +2665,7 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 												Computed:            true,
 												Description:         "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
 												MarkdownDescription: "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
+												Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 											},
 											"input_port_ids_egress": schema.ListAttribute{
 												ElementType:         types.StringType,
@@ -2672,6 +2673,7 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 												Computed:            true,
 												Description:         "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
 												MarkdownDescription: "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
+												Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 											},
 											"input_port_ids_ingress": schema.ListAttribute{
 												ElementType:         types.StringType,
@@ -2679,6 +2681,7 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 												Computed:            true,
 												Description:         "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
 												MarkdownDescription: "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
+												Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 											},
 											"output_network": schema.StringAttribute{
 												Optional:            true,

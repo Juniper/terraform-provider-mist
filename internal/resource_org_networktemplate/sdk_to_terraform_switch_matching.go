@@ -25,13 +25,13 @@ func switchMatchingRulesPortMirroringSdkToTerraform(ctx context.Context, diags *
 		var output_network basetypes.StringValue
 		var output_port_id basetypes.StringValue
 
-		if d.InputNetworksIngress != nil && len(d.InputNetworksIngress) > 0 {
+		if d.InputNetworksIngress != nil {
 			input_networks_ingress = mist_transform.ListOfStringSdkToTerraform(ctx, d.InputNetworksIngress)
 		}
-		if d.InputPortIdsEgress != nil && len(d.InputPortIdsEgress) > 0 {
+		if d.InputPortIdsEgress != nil {
 			input_port_ids_egress = mist_transform.ListOfStringSdkToTerraform(ctx, d.InputPortIdsEgress)
 		}
-		if d.InputPortIdsIngress != nil && len(d.InputPortIdsIngress) > 0 {
+		if d.InputPortIdsIngress != nil {
 			input_port_ids_ingress = mist_transform.ListOfStringSdkToTerraform(ctx, d.InputPortIdsIngress)
 		}
 		if d.OutputNetwork != nil {
