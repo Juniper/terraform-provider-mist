@@ -14,7 +14,9 @@ import (
 func idpProfileMatchingSeverityTerraformToSdk(ctx context.Context, list basetypes.ListValue) []models.IdpProfileMatchingSeverityValueEnum {
 	var items []models.IdpProfileMatchingSeverityValueEnum
 	for _, item := range list.Elements() {
-		s := models.IdpProfileMatchingSeverityValueEnum(item.String())
+		var iface interface{} = item
+		val := iface.(basetypes.StringValue)
+		s := models.IdpProfileMatchingSeverityValueEnum(val.ValueString())
 		items = append(items, s)
 	}
 	return items

@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -110,7 +111,9 @@ func TerraformToSdk(ctx context.Context, plan *SiteModel) (*models.Site, diag.Di
 	if !plan.SitegroupIds.IsNull() && !plan.SitegroupIds.IsUnknown() {
 		var items []uuid.UUID
 		for _, item := range plan.SitegroupIds.Elements() {
-			items = append(items, uuid.MustParse(item.String()))
+			var iface interface{} = item
+			val := iface.(basetypes.StringValue)
+			items = append(items, uuid.MustParse(val.ValueString()))
 		}
 		data.SitegroupIds = items
 	} else {

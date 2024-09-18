@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
 	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
@@ -66,7 +67,9 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 	if !plan.DisabledSystemDefinedPortUsages.IsNull() && !plan.DisabledSystemDefinedPortUsages.IsUnknown() {
 		var items []models.SystemDefinedPortUsagesEnum
 		for _, item := range plan.DisabledSystemDefinedPortUsages.Elements() {
-			items = append(items, models.SystemDefinedPortUsagesEnum(item.String()))
+			var iface interface{} = item
+			val := iface.(basetypes.StringValue)
+			items = append(items, models.SystemDefinedPortUsagesEnum(val.ValueString()))
 		}
 		data.DisabledSystemDefinedPortUsages = items
 	} else {
