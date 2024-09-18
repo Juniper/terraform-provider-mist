@@ -45,7 +45,9 @@ func switchMgmtProtectReTerraformToSdk(ctx context.Context, diags *diag.Diagnost
 		if !item_obj.AllowedServices.IsNull() && !item_obj.AllowedServices.IsUnknown() {
 			var items []models.ProtectReAllowedServiceEnum
 			for _, item := range item_obj.AllowedServices.Elements() {
-				items = append(items, models.ProtectReAllowedServiceEnum(item.String()))
+				var iface interface{} = item
+				val := iface.(basetypes.StringValue)
+				items = append(items, models.ProtectReAllowedServiceEnum(val.ValueString()))
 			}
 			data.AllowedServices = items
 		}
