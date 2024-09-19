@@ -18,18 +18,38 @@ func TerraformToSdk(ctx context.Context, plan *SiteModel) (*models.Site, diag.Di
 	data := models.Site{}
 	data.Name = plan.Name.ValueString()
 
-	data.Address = models.ToPointer(plan.Address.ValueString())
+	if (!plan.Address.IsNull()) && !plan.Address.IsUnknown() {
+		data.Address = models.ToPointer(plan.Address.ValueString())
+	} else {
+		unset["-address"] = ""
+	}
 
-	var data_latlng models.LatLng
-	data_latlng.Lat = plan.Latlng.Lat.ValueFloat64()
-	data_latlng.Lng = plan.Latlng.Lng.ValueFloat64()
-	data.Latlng = models.ToPointer(data_latlng)
+	if (!plan.Latlng.IsNull()) && !plan.Latlng.IsUnknown() {
+		var data_latlng models.LatLng
+		data_latlng.Lat = plan.Latlng.Lat.ValueFloat64()
+		data_latlng.Lng = plan.Latlng.Lng.ValueFloat64()
+		data.Latlng = models.ToPointer(data_latlng)
+	} else {
+		unset["-latlng"] = ""
+	}
 
-	data.CountryCode = plan.CountryCode.ValueStringPointer()
+	if (!plan.CountryCode.IsNull()) && !plan.CountryCode.IsUnknown() {
+		data.CountryCode = plan.CountryCode.ValueStringPointer()
+	} else {
+		unset["-country_code"] = ""
+	}
 
-	data.Timezone = plan.Timezone.ValueStringPointer()
+	if (!plan.Timezone.IsNull()) && !plan.Timezone.IsUnknown() {
+		data.Timezone = plan.Timezone.ValueStringPointer()
+	} else {
+		unset["-timezone"] = ""
+	}
 
-	data.Notes = plan.Notes.ValueStringPointer()
+	if (!plan.Notes.IsNull()) && !plan.Notes.IsUnknown() {
+		data.Notes = plan.Notes.ValueStringPointer()
+	} else {
+		unset["-notes"] = ""
+	}
 
 	if !plan.AlarmtemplateId.IsNull() && !plan.AlarmtemplateId.IsUnknown() {
 		alarmtemplate_id, e := uuid.Parse(plan.AlarmtemplateId.ValueString())

@@ -34,11 +34,23 @@ func TerraformToSdk(ctx context.Context, plan *OrgDeviceprofileGatewayModel) (mo
 		data.DhcpdConfig = &dhcpd_config
 	}
 
-	data.DnsOverride = plan.DnsOverride.ValueBoolPointer()
+	if plan.DnsOverride.IsNull() || plan.DnsOverride.IsUnknown() {
+		unset["-dns_override"] = ""
+	} else {
+		data.DnsOverride = plan.DnsOverride.ValueBoolPointer()
+	}
 
-	data.DnsServers = mist_transform.ListOfStringTerraformToSdk(ctx, plan.DnsServers)
+	if plan.DnsServers.IsNull() || plan.DnsServers.IsUnknown() {
+		unset["-dns_servers"] = ""
+	} else {
+		data.DnsServers = mist_transform.ListOfStringTerraformToSdk(ctx, plan.DnsServers)
+	}
 
-	data.DnsSuffix = mist_transform.ListOfStringTerraformToSdk(ctx, plan.DnsSuffix)
+	if plan.DnsSuffix.IsNull() || plan.DnsSuffix.IsUnknown() {
+		unset["-dns_suffix"] = ""
+	} else {
+		data.DnsSuffix = mist_transform.ListOfStringTerraformToSdk(ctx, plan.DnsSuffix)
+	}
 
 	if plan.ExtraRoutes.IsNull() || plan.ExtraRoutes.IsUnknown() {
 		unset["-extra_routes"] = ""
@@ -74,9 +86,17 @@ func TerraformToSdk(ctx context.Context, plan *OrgDeviceprofileGatewayModel) (mo
 		data.Networks = networks
 	}
 
-	data.NtpOverride = plan.NtpOverride.ValueBoolPointer()
+	if plan.NtpOverride.IsNull() || plan.NtpOverride.IsUnknown() {
+		unset["-ntp_override"] = ""
+	} else {
+		data.NtpOverride = plan.NtpOverride.ValueBoolPointer()
+	}
 
-	data.NtpServers = mist_transform.ListOfStringTerraformToSdk(ctx, plan.NtpServers)
+	if plan.NtpServers.IsNull() || plan.NtpServers.IsUnknown() {
+		unset["-ntp_servers"] = ""
+	} else {
+		data.NtpServers = mist_transform.ListOfStringTerraformToSdk(ctx, plan.NtpServers)
+	}
 
 	if plan.OobIpConfig.IsNull() || plan.OobIpConfig.IsUnknown() {
 		unset["-oob_ip_config"] = ""
@@ -99,7 +119,11 @@ func TerraformToSdk(ctx context.Context, plan *OrgDeviceprofileGatewayModel) (mo
 		data.PortConfig = port_config
 	}
 
-	data.RouterId = plan.RouterId.ValueStringPointer()
+	if plan.RouterId.IsNull() || plan.RouterId.IsUnknown() {
+		unset["-router_id"] = ""
+	} else {
+		data.RouterId = plan.RouterId.ValueStringPointer()
+	}
 
 	if plan.RoutingPolicies.IsNull() || plan.RoutingPolicies.IsUnknown() {
 		unset["-routing_policies"] = ""

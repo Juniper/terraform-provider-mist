@@ -27,8 +27,16 @@ func TerraformToSdk(ctx context.Context, plan *DeviceGatewayModel) (models.MistD
 		unset["-map_id"] = ""
 	}
 
-	data.Name = plan.Name.ValueStringPointer()
-	data.Notes = plan.Notes.ValueStringPointer()
+	if plan.Name.IsNull() || plan.Name.IsUnknown() {
+		unset["-name"] = ""
+	} else {
+		data.Name = plan.Name.ValueStringPointer()
+	}
+	if plan.Notes.IsNull() || plan.Notes.IsUnknown() {
+		unset["-notes"] = ""
+	} else {
+		data.Notes = plan.Notes.ValueStringPointer()
+	}
 
 	if plan.AdditionalConfigCmds.IsNull() || plan.AdditionalConfigCmds.IsUnknown() {
 		unset["-additional_config_cmds"] = ""
@@ -48,9 +56,17 @@ func TerraformToSdk(ctx context.Context, plan *DeviceGatewayModel) (models.MistD
 		data.DhcpdConfig = dhcpdConfigTerraformToSdk(ctx, &diags, plan.DhcpdConfig)
 	}
 
-	data.DnsServers = mist_transform.ListOfStringTerraformToSdk(ctx, plan.DnsServers)
+	if plan.DnsServers.IsNull() || plan.DnsServers.IsUnknown() {
+		unset["-dns_servers"] = ""
+	} else {
+		data.DnsServers = mist_transform.ListOfStringTerraformToSdk(ctx, plan.DnsServers)
+	}
 
-	data.DnsSuffix = mist_transform.ListOfStringTerraformToSdk(ctx, plan.DnsSuffix)
+	if plan.DnsSuffix.IsNull() || plan.DnsSuffix.IsUnknown() {
+		unset["-dns_suffix"] = ""
+	} else {
+		data.DnsSuffix = mist_transform.ListOfStringTerraformToSdk(ctx, plan.DnsSuffix)
+	}
 
 	if plan.ExtraRoutes.IsNull() || plan.ExtraRoutes.IsUnknown() {
 		unset["-extra_routes"] = ""
@@ -88,7 +104,11 @@ func TerraformToSdk(ctx context.Context, plan *DeviceGatewayModel) (models.MistD
 		data.Networks = networksTerraformToSdk(ctx, &diags, plan.Networks)
 	}
 
-	data.NtpServers = mist_transform.ListOfStringTerraformToSdk(ctx, plan.NtpServers)
+	if plan.NtpServers.IsNull() || plan.NtpServers.IsUnknown() {
+		unset["-ntp_servers"] = ""
+	} else {
+		data.NtpServers = mist_transform.ListOfStringTerraformToSdk(ctx, plan.NtpServers)
+	}
 
 	if plan.OobIpConfig.IsNull() || plan.OobIpConfig.IsUnknown() {
 		unset["-oob_ip_config"] = ""
@@ -108,7 +128,11 @@ func TerraformToSdk(ctx context.Context, plan *DeviceGatewayModel) (models.MistD
 		data.PortConfig = portConfigTerraformToSdk(ctx, &diags, plan.PortConfig)
 	}
 
-	data.RouterId = plan.RouterId.ValueStringPointer()
+	if plan.RouterId.IsNull() || plan.RouterId.IsUnknown() {
+		unset["-router_id"] = ""
+	} else {
+		data.RouterId = plan.RouterId.ValueStringPointer()
+	}
 
 	if plan.RoutingPolicies.IsNull() || plan.RoutingPolicies.IsUnknown() {
 		unset["-routing_policies"] = ""

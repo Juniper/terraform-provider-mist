@@ -28,7 +28,11 @@ func TerraformToSdk(ctx context.Context, plan *DeviceSwitchModel) (models.MistDe
 		data.AclTags = actTagsTerraformToSdk(ctx, &diags, plan.AclTags)
 	}
 
-	data.AdditionalConfigCmds = mist_transform.ListOfStringTerraformToSdk(ctx, plan.AdditionalConfigCmds)
+	if plan.AdditionalConfigCmds.IsNull() || plan.AdditionalConfigCmds.IsUnknown() {
+		unset["-additional_config_cmds"] = ""
+	} else {
+		data.AdditionalConfigCmds = mist_transform.ListOfStringTerraformToSdk(ctx, plan.AdditionalConfigCmds)
+	}
 
 	if plan.DhcpSnooping.IsNull() || plan.DhcpSnooping.IsUnknown() {
 		unset["-dhcp_snooping"] = ""
@@ -48,9 +52,17 @@ func TerraformToSdk(ctx context.Context, plan *DeviceSwitchModel) (models.MistDe
 		data.DisableAutoConfig = plan.DisableAutoConfig.ValueBoolPointer()
 	}
 
-	data.DnsServers = mist_transform.ListOfStringTerraformToSdk(ctx, plan.DnsServers)
+	if plan.DnsServers.IsNull() || plan.DnsServers.IsUnknown() {
+		unset["-dns_servers"] = ""
+	} else {
+		data.DnsServers = mist_transform.ListOfStringTerraformToSdk(ctx, plan.DnsServers)
+	}
 
-	data.DnsSuffix = mist_transform.ListOfStringTerraformToSdk(ctx, plan.DnsSuffix)
+	if plan.DnsSuffix.IsNull() || plan.DnsSuffix.IsUnknown() {
+		unset["-dns_suffix"] = ""
+	} else {
+		data.DnsSuffix = mist_transform.ListOfStringTerraformToSdk(ctx, plan.DnsSuffix)
+	}
 
 	if plan.ExtraRoutes.IsNull() || plan.ExtraRoutes.IsUnknown() {
 		unset["-extra_routes"] = ""
@@ -109,9 +121,17 @@ func TerraformToSdk(ctx context.Context, plan *DeviceSwitchModel) (models.MistDe
 		data.Networks = networks
 	}
 
-	data.Notes = plan.Notes.ValueStringPointer()
+	if plan.Notes.IsNull() || plan.Notes.IsUnknown() {
+		unset["-notes"] = ""
+	} else {
+		data.Notes = plan.Notes.ValueStringPointer()
+	}
 
-	data.NtpServers = mist_transform.ListOfStringTerraformToSdk(ctx, plan.NtpServers)
+	if plan.NtpServers.IsNull() || plan.NtpServers.IsUnknown() {
+		unset["-ntp_servers"] = ""
+	} else {
+		data.NtpServers = mist_transform.ListOfStringTerraformToSdk(ctx, plan.NtpServers)
+	}
 
 	if plan.OobIpConfig.IsNull() || plan.OobIpConfig.IsUnknown() {
 		unset["-oob_ip_config"] = ""

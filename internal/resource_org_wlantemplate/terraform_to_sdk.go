@@ -12,17 +12,36 @@ import (
 
 func TerraformToSdk(ctx context.Context, plan *OrgWlantemplateModel) (*models.Template, diag.Diagnostics) {
 	var diags diag.Diagnostics
+	unset := make(map[string]interface{})
 
 	data := models.Template{}
+
 	data.Name = plan.Name.ValueString()
 
-	data.Applies = appliesTerraformToSdk(ctx, &diags, plan.Applies)
+	if !plan.Applies.IsNull() && !plan.Applies.IsUnknown() {
+		data.Applies = appliesTerraformToSdk(ctx, &diags, plan.Applies)
+	} else {
+		unset["-applies"] = ""
+	}
 
-	data.DeviceprofileIds = mist_transform.ListOfUuidTerraformToSdk(ctx, plan.DeviceprofileIds)
+	if !plan.DeviceprofileIds.IsNull() && !plan.DeviceprofileIds.IsUnknown() {
+		data.DeviceprofileIds = mist_transform.ListOfUuidTerraformToSdk(ctx, plan.DeviceprofileIds)
+	} else {
+		unset["-deviceprofile_ids"] = ""
+	}
 
-	data.Exceptions = exceptionsTerraformToSdk(ctx, &diags, plan.Exceptions)
+	if !plan.Exceptions.IsNull() && !plan.Exceptions.IsUnknown() {
+		data.Exceptions = exceptionsTerraformToSdk(ctx, &diags, plan.Exceptions)
+	} else {
+		unset["-exceptions"] = ""
+	}
 
-	data.FilterByDeviceprofile = models.ToPointer(plan.FilterByDeviceprofile.ValueBool())
+	if !plan.FilterByDeviceprofile.IsNull() && !plan.FilterByDeviceprofile.IsUnknown() {
+		data.FilterByDeviceprofile = models.ToPointer(plan.FilterByDeviceprofile.ValueBool())
+	} else {
+		unset["-filter_by_deviceprofile"] = ""
+	}
 
+	data.AdditionalProperties = unset
 	return &data, diags
 }
