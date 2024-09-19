@@ -251,11 +251,12 @@ func (r *orgWxRuleResource) Delete(ctx context.Context, req resource.DeleteReque
 		return
 	}
 	tflog.Info(ctx, "Starting WxRule Delete: wxrule_id "+state.Id.ValueString())
-	httpr, err := r.client.OrgsWxRules().DeleteOrgWxRule(ctx, orgId, wxruleId)
-	if httpr.StatusCode != 404 && err != nil {
+	data, err := r.client.OrgsWxRules().DeleteOrgWxRule(ctx, orgId, wxruleId)
+	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && api_err != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_wxrule\" resource",
-			"Unable to delete the WxRule, unexpected error: "+err.Error(),
+			fmt.Sprintf("Unable to delete the WxRule. %s", api_err),
 		)
 		return
 	}

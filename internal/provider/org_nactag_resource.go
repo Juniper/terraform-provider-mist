@@ -252,11 +252,12 @@ func (r *orgNacTagResource) Delete(ctx context.Context, req resource.DeleteReque
 	}
 
 	tflog.Info(ctx, "Starting NacTag Delete: nactag_id "+state.Id.ValueString())
-	httpr, err := r.client.OrgsNACTags().DeleteOrgNacTag(ctx, orgId, nactagId)
-	if httpr.StatusCode != 404 && err != nil {
+	data, err := r.client.OrgsNACTags().DeleteOrgNacTag(ctx, orgId, nactagId)
+	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && api_err != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_nactag\" resource",
-			"Unable to delete the NAC Tag, unexpected error: "+err.Error(),
+			fmt.Sprintf("Unable to delete the NAC Tag. %s", api_err),
 		)
 		return
 	}

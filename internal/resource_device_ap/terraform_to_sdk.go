@@ -28,7 +28,12 @@ func TerraformToSdk(ctx context.Context, plan *DeviceApModel) (models.MistDevice
 	}
 
 	data.Name = plan.Name.ValueStringPointer()
-	data.Notes = plan.Notes.ValueStringPointer()
+
+	if !plan.Notes.IsNull() && !plan.Notes.IsUnknown() {
+		data.Notes = plan.Notes.ValueStringPointer()
+	} else {
+		unset["-notes"] = ""
+	}
 
 	if !plan.Aeroscout.IsNull() && !plan.Aeroscout.IsUnknown() {
 		aeroscout := aeroscoutTerraformToSdk(ctx, &diags, plan.Aeroscout)

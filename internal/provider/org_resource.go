@@ -218,11 +218,12 @@ func (r *orgResource) Delete(ctx context.Context, req resource.DeleteRequest, re
 	}
 
 	tflog.Info(ctx, "Starting Org Delete: org_id "+state.Id.ValueString())
-	httpr, err := r.client.Orgs().DeleteOrg(ctx, orgId)
-	if httpr.StatusCode != 404 && err != nil {
+	data, err := r.client.Orgs().DeleteOrg(ctx, orgId)
+	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && api_err != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org\" resource",
-			"Unable to delete the Org, unexpected error: "+err.Error(),
+			fmt.Sprintf("Unable to delete the Org. %s", api_err),
 		)
 		return
 	}

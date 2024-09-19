@@ -225,11 +225,12 @@ func (r *orgSettingResource) Delete(ctx context.Context, req resource.DeleteRequ
 		)
 		return
 	}
-	httpr, err := r.client.OrgsSetting().UpdateOrgSettings(ctx, orgId, orgSetting)
-	if httpr.Response.StatusCode != 404 && err != nil {
+	data, err := r.client.OrgsSetting().UpdateOrgSettings(ctx, orgId, orgSetting)
+	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+	if data.Response.StatusCode != 404 && api_err != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_setting\" resource",
-			"Unable to delete the orgSetting, unexpected error: "+err.Error(),
+			fmt.Sprintf("Unable to delete the Org Setting. %s", api_err),
 		)
 		return
 	}

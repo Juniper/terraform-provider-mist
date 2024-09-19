@@ -309,11 +309,12 @@ func (r *deviceGatewayClusterResource) Delete(ctx context.Context, req resource.
 		return
 	}
 
-	httpr, err := r.client.SitesDevicesWANCluster().DeleteSiteDeviceHaCluster(ctx, siteId, id)
-	if httpr.StatusCode != 404 && err != nil {
+	data, err := r.client.SitesDevicesWANCluster().DeleteSiteDeviceHaCluster(ctx, siteId, id)
+	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && api_err != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_device_gateway_cluster\" resource",
-			"Unable to delete the Gateway Cluster, unexpected error: "+err.Error(),
+			fmt.Sprintf("Unable to delete the Gateway Cluster. %s", api_err),
 		)
 		return
 	}

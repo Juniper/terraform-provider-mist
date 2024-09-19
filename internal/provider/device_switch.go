@@ -293,11 +293,12 @@ func (r *deviceSwitchResource) Delete(ctx context.Context, req resource.DeleteRe
 		return
 	}
 
-	httpr, err := r.client.SitesDevices().UpdateSiteDevice(ctx, siteId, deviceId, &device_switch)
-	if httpr.Response.StatusCode != 404 && httpr.Response.StatusCode != 200 && err != nil {
+	data, err := r.client.SitesDevices().UpdateSiteDevice(ctx, siteId, deviceId, &device_switch)
+	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+	if data.Response.StatusCode != 404 && api_err != "" {
 		resp.Diagnostics.AddError(
-			"Error deleting\"mist_device_switch\" resource",
-			"Unable to delete the Switch, unexpected error: "+err.Error(),
+			"Error deleting \"mist_device_switch\" resource",
+			fmt.Sprintf("Unable to delete the Switch. %s", api_err),
 		)
 		return
 	}

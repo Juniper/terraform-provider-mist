@@ -248,11 +248,12 @@ func (r *orgOrgServicepolicyResource) Delete(ctx context.Context, req resource.D
 		)
 		return
 	}
-	httpr, err := r.client.OrgsServicePolicies().DeleteOrgServicePolicy(ctx, orgId, servicepolicyId)
-	if httpr.StatusCode != 404 && err != nil {
+	data, err := r.client.OrgsServicePolicies().DeleteOrgServicePolicy(ctx, orgId, servicepolicyId)
+	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && api_err != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_servicepolicy\" resource",
-			"Unable to delete the Service Policy, unexpected error: "+err.Error(),
+			fmt.Sprintf("Unable to delete the Service Policy. %s", api_err),
 		)
 		return
 	}

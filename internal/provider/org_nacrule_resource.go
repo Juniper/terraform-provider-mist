@@ -249,11 +249,12 @@ func (r *orgNacRuleResource) Delete(ctx context.Context, req resource.DeleteRequ
 		return
 	}
 	tflog.Info(ctx, "Starting NacRule Delete: nacrule_id "+state.Id.ValueString())
-	httpr, err := r.client.OrgsNACRules().DeleteOrgNacRule(ctx, orgId, nacruleId)
-	if httpr.StatusCode != 404 && err != nil {
+	data, err := r.client.OrgsNACRules().DeleteOrgNacRule(ctx, orgId, nacruleId)
+	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && api_err != "" {
 		resp.Diagnostics.AddError(
-			"Error deleting\"mist_org_nacrule\" resource",
-			"Unable to delete the NAC Rule, unexpected error: "+err.Error(),
+			"Error deleting \"mist_org_nacrule\" resource",
+			fmt.Sprintf("Unable to delete the NAC Rule. %s", api_err),
 		)
 		return
 	}

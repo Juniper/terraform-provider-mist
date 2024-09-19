@@ -252,11 +252,12 @@ func (r *orgGatewaytemplateResource) Delete(ctx context.Context, req resource.De
 		return
 	}
 	tflog.Info(ctx, "Starting GatewayTemplate Delete: gatewaytemplate_id "+state.Id.ValueString())
-	httpr, err := r.client.OrgsGatewayTemplates().DeleteOrgGatewayTemplate(ctx, orgId, templateId)
-	if httpr.StatusCode != 404 && err != nil {
+	data, err := r.client.OrgsGatewayTemplates().DeleteOrgGatewayTemplate(ctx, orgId, templateId)
+	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && api_err != "" {
 		resp.Diagnostics.AddError(
-			"Error deleting\"mist_org_gatewaytemplate\" resource",
-			"Unable to delete the Gateway Template, unexpected error: "+err.Error(),
+			"Error deleting \"mist_org_gatewaytemplate\" resource",
+			fmt.Sprintf("Unable to delete the Gateway Template. %s", api_err),
 		)
 		return
 	}

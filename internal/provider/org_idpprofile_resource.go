@@ -251,11 +251,12 @@ func (r *orgOrgIdpprofileResource) Delete(ctx context.Context, req resource.Dele
 		)
 		return
 	}
-	httpr, err := r.client.OrgsIDPProfiles().DeleteOrgIdpProfile(ctx, orgId, idpprofileId)
-	if httpr.StatusCode != 404 && err != nil {
+	data, err := r.client.OrgsIDPProfiles().DeleteOrgIdpProfile(ctx, orgId, idpprofileId)
+	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && api_err != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_idpprofile\" resource",
-			"Unable to delete the IDP Profile, unexpected error: "+err.Error(),
+			fmt.Sprintf("Unable to delete the IDP Profile. %s", api_err),
 		)
 		return
 	}

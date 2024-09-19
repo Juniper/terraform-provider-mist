@@ -248,11 +248,12 @@ func (r *orgOrgServiceResource) Delete(ctx context.Context, req resource.DeleteR
 		)
 		return
 	}
-	httpr, err := r.client.OrgsServices().DeleteOrgService(ctx, orgId, serviceId)
-	if httpr.StatusCode != 404 && err != nil {
+	data, err := r.client.OrgsServices().DeleteOrgService(ctx, orgId, serviceId)
+	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && api_err != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_service\" resource",
-			"Unable to delete the Service, unexpected error: "+err.Error(),
+			fmt.Sprintf("Unable to delete the Service. %s", api_err),
 		)
 		return
 	}

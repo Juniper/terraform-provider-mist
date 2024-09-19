@@ -251,11 +251,12 @@ func (r *siteWebhookResource) Delete(ctx context.Context, req resource.DeleteReq
 	}
 
 	tflog.Info(ctx, "Starting Webhook Delete: webhook_id "+state.Id.ValueString())
-	httpr, err := r.client.SitesWebhooks().DeleteSiteWebhook(ctx, siteId, webhookId)
-	if httpr.StatusCode != 404 && err != nil {
+	data, err := r.client.SitesWebhooks().DeleteSiteWebhook(ctx, siteId, webhookId)
+	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && api_err != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_site_webhook\" resource",
-			"Unable to delete the Webhook, unexpected error: "+err.Error(),
+			fmt.Sprintf("Unable to delete the Webhook. %s", api_err),
 		)
 		return
 	}

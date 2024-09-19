@@ -284,11 +284,12 @@ func (r *orgDeviceprofileApResource) Delete(ctx context.Context, req resource.De
 		return
 	}
 	tflog.Info(ctx, "Starting DeviceprofileAp Delete: deviceprofile_ap_id "+state.Id.ValueString())
-	httpr, err := r.client.OrgsDeviceProfiles().DeleteOrgDeviceProfile(ctx, orgId, deviceprofile_apId)
-	if httpr.StatusCode != 404 && err != nil {
+	data, err := r.client.OrgsDeviceProfiles().DeleteOrgDeviceProfile(ctx, orgId, deviceprofile_apId)
+	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && api_err != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_deviceprofile_ap\" resource",
-			"Unable to delete the AP Device Profile, unexpected error: "+err.Error(),
+			fmt.Sprintf("Unable to delete the AP Device Profile. %s", api_err),
 		)
 		return
 	}

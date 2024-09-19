@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_site_wlan_portal_template"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
@@ -210,11 +211,12 @@ func (r *siteWlanPortalTemplateResource) Delete(ctx context.Context, req resourc
 		return
 	}
 
-	httpr, err := r.client.SitesWlans().UpdateSiteWlanPortalTemplate(ctx, siteId, wlanId, template)
-	if httpr.Response.StatusCode != 404 && err != nil {
+	data, err := r.client.SitesWlans().UpdateSiteWlanPortalTemplate(ctx, siteId, wlanId, template)
+	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+	if data.Response.StatusCode != 404 && api_err != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_site_wlan_portal_template\" resource",
-			"Unable to delete the WLAN Portal Temaplate, unexpected error: "+err.Error(),
+			fmt.Sprintf("Unable to delete the WLAN Portal Temaplate. %s", api_err),
 		)
 		return
 	}

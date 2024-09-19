@@ -293,11 +293,12 @@ func (r *deviceGatewayResource) Delete(ctx context.Context, req resource.DeleteR
 		return
 	}
 
-	httpr, err := r.client.SitesDevices().UpdateSiteDevice(ctx, siteId, deviceId, &device_gateway)
-	if httpr.Response.StatusCode != 404 && httpr.Response.StatusCode != 200 && err != nil {
+	data, err := r.client.SitesDevices().UpdateSiteDevice(ctx, siteId, deviceId, &device_gateway)
+	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+	if data.Response.StatusCode != 404 && api_err != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_device_gateway\" resource",
-			"Unable to delete the Gateway, unexpected error: "+err.Error(),
+			fmt.Sprintf("Unable to delete the Gateway. %s", api_err),
 		)
 		return
 	}

@@ -283,11 +283,12 @@ func (r *orgDeviceprofileGatewayResource) Delete(ctx context.Context, req resour
 		return
 	}
 	tflog.Info(ctx, "Starting DeviceprofileGateway Delete: deviceprofile_gateway_id "+state.Id.ValueString())
-	httpr, err := r.client.OrgsDeviceProfiles().DeleteOrgDeviceProfile(ctx, orgId, deviceprofile_gatewayId)
-	if httpr.StatusCode != 404 && err != nil {
+	data, err := r.client.OrgsDeviceProfiles().DeleteOrgDeviceProfile(ctx, orgId, deviceprofile_gatewayId)
+	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && api_err != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_deviceprofile_gateway\" resource",
-			"Unable to delete the Gateway Device Profile, unexpected error: "+err.Error(),
+			fmt.Sprintf("Unable to delete the Gateway Device Profile. %s", api_err),
 		)
 		return
 	}

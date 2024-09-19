@@ -253,11 +253,12 @@ func (r *orgWxTagResource) Delete(ctx context.Context, req resource.DeleteReques
 		)
 		return
 	}
-	httpr, err := r.client.OrgsWxTags().DeleteOrgWxTag(ctx, orgId, wxtagId)
-	if httpr.StatusCode != 404 && err != nil {
+	data, err := r.client.OrgsWxTags().DeleteOrgWxTag(ctx, orgId, wxtagId)
+	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && api_err != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_wxtag\" resource",
-			"Unable to delete the WxTag, unexpected error: "+err.Error(),
+			fmt.Sprintf("Unable to delete the WxTag. %s", api_err),
 		)
 		return
 	}

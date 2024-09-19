@@ -223,11 +223,12 @@ func (r *siteResource) Delete(ctx context.Context, req resource.DeleteRequest, r
 		return
 	}
 	tflog.Info(ctx, "Starting Site Delete: site_id "+state.Id.ValueString())
-	httpr, err := r.client.Sites().DeleteSite(ctx, siteId)
-	if httpr.StatusCode != 404 && err != nil {
+	data, err := r.client.Sites().DeleteSite(ctx, siteId)
+	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && api_err != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_site\" resource",
-			"Unable to delete the site, unexpected error: "+err.Error(),
+			fmt.Sprintf("Unable to delete the Site. %s", api_err),
 		)
 		return
 	}

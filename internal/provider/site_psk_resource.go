@@ -251,11 +251,12 @@ func (r *sitePskResource) Delete(ctx context.Context, req resource.DeleteRequest
 	}
 
 	tflog.Info(ctx, "Starting Psk Delete: psk_id "+state.Id.ValueString())
-	httpr, err := r.client.SitesPsks().DeleteSitePsk(ctx, siteId, pskId)
-	if httpr.StatusCode != 404 && err != nil {
+	data, err := r.client.SitesPsks().DeleteSitePsk(ctx, siteId, pskId)
+	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && api_err != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_site_psk\" resource",
-			"Unable to delete the Psk, unexpected error: "+err.Error(),
+			fmt.Sprintf("Unable to delete the PSK. %s", api_err),
 		)
 		return
 	}

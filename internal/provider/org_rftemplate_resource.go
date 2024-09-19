@@ -248,11 +248,12 @@ func (r *orgRfTemplateResource) Delete(ctx context.Context, req resource.DeleteR
 		return
 	}
 	tflog.Info(ctx, "Starting RfTemplate Delete: rftemplate_id "+state.Id.ValueString())
-	httpr, err := r.client.OrgsRFTemplates().DeleteOrgRfTemplate(ctx, orgId, rftemplateId)
-	if httpr.StatusCode != 404 && err != nil {
+	data, err := r.client.OrgsRFTemplates().DeleteOrgRfTemplate(ctx, orgId, rftemplateId)
+	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && api_err != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_rftemplate\" resource",
-			"Unable to delete the RF Template, unexpected error: "+err.Error(),
+			fmt.Sprintf("Unable to delete the RF Template. %s", api_err),
 		)
 		return
 	}

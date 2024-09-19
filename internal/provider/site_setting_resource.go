@@ -225,11 +225,12 @@ func (r *siteSettingResource) Delete(ctx context.Context, req resource.DeleteReq
 		)
 		return
 	}
-	httpr, err := r.client.SitesSetting().UpdateSiteSettings(ctx, siteId, siteSetting)
-	if httpr.Response.StatusCode != 404 && err != nil {
+	data, err := r.client.SitesSetting().UpdateSiteSettings(ctx, siteId, siteSetting)
+	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+	if data.Response.StatusCode != 404 && api_err != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_site_setting\" resource",
-			"Unable to delete the siteSetting, unexpected error: "+err.Error(),
+			fmt.Sprintf("Unable to delete the Site Setting. %s", api_err),
 		)
 		return
 	}

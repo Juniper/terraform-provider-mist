@@ -249,11 +249,12 @@ func (r *orgWlanResource) Delete(ctx context.Context, req resource.DeleteRequest
 		)
 		return
 	}
-	httpr, err := r.client.OrgsWlans().DeleteOrgWlan(ctx, orgId, wlanId)
-	if httpr.StatusCode != 404 && err != nil {
+	data, err := r.client.OrgsWlans().DeleteOrgWlan(ctx, orgId, wlanId)
+	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && api_err != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_wlan\" resource",
-			"Unable to delete the Wlan, unexpected error: "+err.Error(),
+			fmt.Sprintf("Unable to delete the WLAN. %s", api_err),
 		)
 		return
 	}
