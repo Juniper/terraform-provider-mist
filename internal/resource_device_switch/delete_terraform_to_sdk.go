@@ -18,8 +18,9 @@ func DeleteTerraformToSdk(ctx context.Context) (models.MistDevice, diag.Diagnost
 	for k := range tmp.Attributes {
 		unset["-"+k] = ""
 	}
-	data.AdditionalProperties = unset
 
+	data.Type = string(models.DeviceTypeEnum_ENUMSWITCH)
+	data.AdditionalProperties = unset
 	mist_device := models.MistDeviceContainer.FromDeviceSwitch(data)
 	return mist_device, diags
 }

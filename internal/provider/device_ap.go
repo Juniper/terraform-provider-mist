@@ -294,7 +294,7 @@ func (r *deviceApResource) Delete(ctx context.Context, req resource.DeleteReques
 
 	data, err := r.client.SitesDevices().UpdateSiteDevice(ctx, siteId, deviceId, &device_ap)
 	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if data.Response.StatusCode != 404 && api_err != "" {
+	if data.Response.StatusCode != 200 && data.Response.StatusCode != 404 && api_err != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_device_ap\" resource",
 			fmt.Sprintf("Unable to delete the Wireless Access Point. %s", api_err),
