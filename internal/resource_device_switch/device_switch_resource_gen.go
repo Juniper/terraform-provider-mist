@@ -1449,10 +1449,11 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Property key is the port mirroring instance name\nport_mirroring can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output.",
-				MarkdownDescription: "Property key is the port mirroring instance name\nport_mirroring can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output.",
+				Description:         "Property key is the port mirroring instance name (Maximum: 4)\nport_mirroring can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output.",
+				MarkdownDescription: "Property key is the port mirroring instance name (Maximum: 4)\nport_mirroring can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output.",
 				Validators: []validator.Map{
 					mapvalidator.SizeAtLeast(1),
+					mapvalidator.SizeAtMost(4),
 				},
 			},
 			"port_usages": schema.MapNestedAttribute{

@@ -129,7 +129,7 @@ resource "mist_device_switch" "switch_one" {
 - `ospf_areas` (Attributes Map) Junos OSPF areas (see [below for nested schema](#nestedatt--ospf_areas))
 - `other_ip_configs` (Attributes Map) Property key is the network name (see [below for nested schema](#nestedatt--other_ip_configs))
 - `port_config` (Attributes Map) Property key is the port name or range (e.g. "ge-0/0/0-10") (see [below for nested schema](#nestedatt--port_config))
-- `port_mirroring` (Attributes Map) Property key is the port mirroring instance name
+- `port_mirroring` (Attributes Map) Property key is the port mirroring instance name (Maximum: 4)
 port_mirroring can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. (see [below for nested schema](#nestedatt--port_mirroring))
 - `port_usages` (Attributes Map) (see [below for nested schema](#nestedatt--port_usages))
 - `radius_config` (Attributes) Junos Radius config (see [below for nested schema](#nestedatt--radius_config))
