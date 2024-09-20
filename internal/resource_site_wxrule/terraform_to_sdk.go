@@ -47,6 +47,13 @@ func TerraformToSdk(ctx context.Context, plan *SiteWxruleModel) (*models.WxlanRu
 		data.DstDenyWxtags = make([]string, 0)
 	}
 
+	if !plan.DstWxtags.IsNull() && !plan.DstWxtags.IsUnknown() {
+		data.DstWxtags = mist_transform.ListOfStringTerraformToSdk(ctx, plan.DstWxtags)
+	}
+	if data.DstWxtags == nil {
+		data.DstWxtags = make([]string, 0)
+	}
+
 	if !plan.Enabled.IsNull() && !plan.Enabled.IsUnknown() {
 		data.Enabled = plan.Enabled.ValueBoolPointer()
 	}

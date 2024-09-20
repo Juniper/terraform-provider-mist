@@ -52,16 +52,24 @@ func SiteWxruleResourceSchema(ctx context.Context) schema.Schema {
 				ElementType:         types.StringType,
 				Optional:            true,
 				Computed:            true,
-				Description:         "tag list to indicate these tags are allowed access",
-				MarkdownDescription: "tag list to indicate these tags are allowed access",
+				Description:         "List of WxTag UUID to indicate these tags are allowed access",
+				MarkdownDescription: "List of WxTag UUID to indicate these tags are allowed access",
 				Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 			},
 			"dst_deny_wxtags": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
 				Computed:            true,
-				Description:         "tag list to indicate these tags are blocked access",
-				MarkdownDescription: "tag list to indicate these tags are blocked access",
+				Description:         "List of WxTag UUID to indicate these tags are blocked access",
+				MarkdownDescription: "List of WxTag UUID to indicate these tags are blocked access",
+				Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
+			},
+			"dst_wxtags": schema.ListAttribute{
+				ElementType:         types.StringType,
+				Optional:            true,
+				Computed:            true,
+				Description:         "List of WxTag UUID",
+				MarkdownDescription: "List of WxTag UUID",
 				Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 			},
 			"enabled": schema.BoolAttribute{
@@ -87,8 +95,8 @@ func SiteWxruleResourceSchema(ctx context.Context) schema.Schema {
 				ElementType:         types.StringType,
 				Optional:            true,
 				Computed:            true,
-				Description:         "tag list to determine if this rule would match",
-				MarkdownDescription: "tag list to determine if this rule would match",
+				Description:         "List of WxTag UUID to determine if this rule would match",
+				MarkdownDescription: "List of WxTag UUID to determine if this rule would match",
 				Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 			},
 			"template_id": schema.StringAttribute{
@@ -106,6 +114,7 @@ type SiteWxruleModel struct {
 	BlockedApps    types.List   `tfsdk:"blocked_apps"`
 	DstAllowWxtags types.List   `tfsdk:"dst_allow_wxtags"`
 	DstDenyWxtags  types.List   `tfsdk:"dst_deny_wxtags"`
+	DstWxtags      types.List   `tfsdk:"dst_wxtags"`
 	Enabled        types.Bool   `tfsdk:"enabled"`
 	Id             types.String `tfsdk:"id"`
 	Order          types.Int64  `tfsdk:"order"`
