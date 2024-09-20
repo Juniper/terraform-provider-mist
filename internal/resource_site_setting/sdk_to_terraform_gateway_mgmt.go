@@ -12,6 +12,82 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
+func gatewayMgmtProtecCustomtReSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.ProtectReCustom) basetypes.ListValue {
+	var data_list = []CustomValue{}
+
+	for _, d := range l {
+
+		var port_range basetypes.StringValue
+		var protocol basetypes.StringValue
+		var subnets basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+
+		if d.PortRange != nil {
+			port_range = types.StringValue(*d.PortRange)
+		}
+		if d.Protocol != nil {
+			protocol = types.StringValue(string(*d.Protocol))
+		}
+		if d.Subnets != nil {
+			subnets = mist_transform.ListOfStringSdkToTerraform(ctx, d.Subnets)
+		}
+
+		data_map_attr_type := CustomValue{}.AttributeTypes(ctx)
+		data_map_value := map[string]attr.Value{
+			"port_range": port_range,
+			"protocol":   protocol,
+			"subnets":    subnets,
+		}
+		data, e := NewCustomValue(data_map_attr_type, data_map_value)
+		diags.Append(e...)
+
+		data_list = append(data_list, data)
+	}
+	data_list_type := CustomValue{}.Type(ctx)
+	r, e := types.ListValueFrom(ctx, data_list_type, data_list)
+	diags.Append(e...)
+
+	return r
+}
+func gatewayMgmtProtectReSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ProtectRe) basetypes.ObjectValue {
+	var allowed_services basetypes.ListValue = types.ListNull(types.StringType)
+	var custom basetypes.ListValue = basetypes.NewListValueMust(CustomValue{}.Type(ctx), []attr.Value{})
+	var enabled basetypes.BoolValue
+	var trusted_hosts basetypes.ListValue = types.ListNull(types.StringType)
+
+	if d.AllowedServices != nil {
+		var items []attr.Value
+		var items_type attr.Type = basetypes.StringType{}
+		for _, item := range d.AllowedServices {
+			items = append(items, types.StringValue(string(item)))
+		}
+		list, _ := types.ListValue(items_type, items)
+		allowed_services = list
+	}
+	if d.Custom != nil {
+		custom = gatewayMgmtProtecCustomtReSdkToTerraform(ctx, diags, d.Custom)
+	}
+	if d.Enabled != nil {
+		enabled = types.BoolValue(*d.Enabled)
+	}
+	if d.TrustedHosts != nil {
+		trusted_hosts = mist_transform.ListOfStringSdkToTerraform(ctx, d.TrustedHosts)
+	}
+
+	data_map_attr_type := ProtectReValue{}.AttributeTypes(ctx)
+	data_map_value := map[string]attr.Value{
+		"allowed_services": allowed_services,
+		"custom":           custom,
+		"enabled":          enabled,
+		"trusted_hosts":    trusted_hosts,
+	}
+	data, e := NewProtectReValue(data_map_attr_type, data_map_value)
+	diags.Append(e...)
+
+	o, e := data.ToObjectValue(ctx)
+	diags.Append(e...)
+	return o
+}
+
 func gatewayMgmtAppProbingCustomSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.AppProbingCustomApp) basetypes.ListValue {
 	var data_list = []CustomAppsValue{}
 	for _, d := range l {
@@ -21,6 +97,7 @@ func gatewayMgmtAppProbingCustomSdkToTerraform(ctx context.Context, diags *diag.
 		var key basetypes.StringValue
 		var name basetypes.StringValue
 		var network basetypes.StringValue
+		var packet_size basetypes.Int64Value
 		var protocol basetypes.StringValue
 		var url basetypes.StringValue
 		var vrf basetypes.StringValue
@@ -43,6 +120,9 @@ func gatewayMgmtAppProbingCustomSdkToTerraform(ctx context.Context, diags *diag.
 		if d.Network != nil {
 			network = types.StringValue(*d.Network)
 		}
+		if d.PacketSize != nil {
+			packet_size = types.Int64Value(int64(*d.PacketSize))
+		}
 		if d.Protocol != nil {
 			protocol = types.StringValue(string(*d.Protocol))
 		}
@@ -55,15 +135,16 @@ func gatewayMgmtAppProbingCustomSdkToTerraform(ctx context.Context, diags *diag.
 
 		data_map_attr_type := CustomAppsValue{}.AttributeTypes(ctx)
 		data_map_value := map[string]attr.Value{
-			"address":   address,
-			"app_type":  app_type,
-			"hostnames": hostnames,
-			"key":       key,
-			"name":      name,
-			"network":   network,
-			"protocol":  protocol,
-			"url":       url,
-			"vrf":       vrf,
+			"address":     address,
+			"app_type":    app_type,
+			"hostnames":   hostnames,
+			"key":         key,
+			"name":        name,
+			"network":     network,
+			"packet_size": packet_size,
+			"protocol":    protocol,
+			"url":         url,
+			"vrf":         vrf,
 		}
 		data, e := NewCustomAppsValue(data_map_attr_type, data_map_value)
 		diags.Append(e...)
@@ -129,6 +210,7 @@ func gatewayMgmtAutoSignatureUpdateSdkToTerraform(ctx context.Context, diags *di
 
 	return data
 }
+
 func gatewayMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteSettingGatewayMgmt) GatewayMgmtValue {
 	var admin_sshkeys basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 	var app_probing basetypes.ObjectValue = types.ObjectNull(AppProbingValue{}.AttributeTypes(ctx))
@@ -138,6 +220,7 @@ func gatewayMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 	var disable_console basetypes.BoolValue
 	var disable_oob basetypes.BoolValue
 	var probe_hosts basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+	var protect_re basetypes.ObjectValue = types.ObjectNull(ProtectReValue{}.AttributeTypes(ctx))
 	var root_password basetypes.StringValue
 	var security_log_source_address basetypes.StringValue
 	var security_log_source_interface basetypes.StringValue
@@ -166,6 +249,9 @@ func gatewayMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 	if d.ProbeHosts != nil {
 		probe_hosts = mist_transform.ListOfStringSdkToTerraform(ctx, d.ProbeHosts)
 	}
+	if d.ProtectRe != nil {
+		protect_re = gatewayMgmtProtectReSdkToTerraform(ctx, diags, d.ProtectRe)
+	}
 	if d.RootPassword != nil {
 		root_password = types.StringValue(*d.RootPassword)
 	}
@@ -186,6 +272,7 @@ func gatewayMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 		"disable_console":               disable_console,
 		"disable_oob":                   disable_oob,
 		"probe_hosts":                   probe_hosts,
+		"protect_re":                    protect_re,
 		"root_password":                 root_password,
 		"security_log_source_address":   security_log_source_address,
 		"security_log_source_interface": security_log_source_interface,

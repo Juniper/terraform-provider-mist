@@ -735,6 +735,14 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 										"network": schema.StringAttribute{
 											Optional: true,
 										},
+										"packet_size": schema.Int64Attribute{
+											Optional:            true,
+											Description:         "if `protocol`==`icmp`",
+											MarkdownDescription: "if `protocol`==`icmp`",
+											Validators: []validator.Int64{
+												int64validator.Between(0, 65400),
+											},
+										},
 										"protocol": schema.StringAttribute{
 											Required:            true,
 											Description:         "enum: `http`, `icmp`",
@@ -853,6 +861,102 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Optional:    true,
 						Computed:    true,
 						Default:     listdefault.StaticValue(types.ListNull(types.StringType)),
+					},
+					"protect_re": schema.SingleNestedAttribute{
+						Attributes: map[string]schema.Attribute{
+							"allowed_services": schema.ListAttribute{
+								ElementType:         types.StringType,
+								Optional:            true,
+								Computed:            true,
+								Description:         "optionally, services we'll allow. enum: `icmp`, `ssh`",
+								MarkdownDescription: "optionally, services we'll allow. enum: `icmp`, `ssh`",
+								Validators: []validator.List{
+									listvalidator.ValueStringsAre(
+										stringvalidator.OneOf(
+											"icmp",
+											"ssh",
+										),
+									),
+								},
+								Default: listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
+							},
+							"custom": schema.ListNestedAttribute{
+								NestedObject: schema.NestedAttributeObject{
+									Attributes: map[string]schema.Attribute{
+										"port_range": schema.StringAttribute{
+											Optional:            true,
+											Computed:            true,
+											Description:         "matched dst port, \"0\" means any. Note: For `protocol`==`any` and  `port_range`==`any`, configure `trusted_hosts` instead",
+											MarkdownDescription: "matched dst port, \"0\" means any. Note: For `protocol`==`any` and  `port_range`==`any`, configure `trusted_hosts` instead",
+											Validators: []validator.String{
+												stringvalidator.Any(mistvalidator.ParseRangeOfInt(0, 65535, true), mistvalidator.ParseInt(0, 65535)),
+											},
+											Default: stringdefault.StaticString("0"),
+										},
+										"protocol": schema.StringAttribute{
+											Optional:            true,
+											Computed:            true,
+											Description:         "enum: `any`, `icmp`, `tcp`, `udp`. Note: For `protocol`==`any` and  `port_range`==`any`, configure `trusted_hosts` instead",
+											MarkdownDescription: "enum: `any`, `icmp`, `tcp`, `udp`. Note: For `protocol`==`any` and  `port_range`==`any`, configure `trusted_hosts` instead",
+											Validators: []validator.String{
+												stringvalidator.OneOf(
+													"",
+													"any",
+													"icmp",
+													"tcp",
+													"udp",
+												),
+											},
+											Default: stringdefault.StaticString("any"),
+										},
+										"subnets": schema.ListAttribute{
+											ElementType: types.StringType,
+											Required:    true,
+											Validators: []validator.List{
+												listvalidator.SizeAtLeast(1),
+												listvalidator.ValueStringsAre(
+													stringvalidator.Any(
+														mistvalidator.ParseCidr(true, true),
+														mistvalidator.ParseIp(true, true),
+													),
+												),
+											},
+										},
+									},
+									CustomType: CustomType{
+										ObjectType: types.ObjectType{
+											AttrTypes: CustomValue{}.AttributeTypes(ctx),
+										},
+									},
+								},
+								Optional: true,
+								Computed: true,
+								Default:  listdefault.StaticValue(basetypes.NewListValueMust(CustomValue{}.Type(ctx), []attr.Value{})),
+							},
+							"enabled": schema.BoolAttribute{
+								Optional:            true,
+								Computed:            true,
+								Description:         "when enabled, all traffic that is not essential to our operation will be dropped\ne.g. ntp / dns / traffic to mist will be allowed by default\n     if dhcpd is enabled, we'll make sure it works",
+								MarkdownDescription: "when enabled, all traffic that is not essential to our operation will be dropped\ne.g. ntp / dns / traffic to mist will be allowed by default\n     if dhcpd is enabled, we'll make sure it works",
+								Default:             booldefault.StaticBool(false),
+							},
+							"trusted_hosts": schema.ListAttribute{
+								ElementType:         types.StringType,
+								Optional:            true,
+								Computed:            true,
+								Description:         "host/subnets we'll allow traffic to/from",
+								MarkdownDescription: "host/subnets we'll allow traffic to/from",
+								Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
+							},
+						},
+						CustomType: ProtectReType{
+							ObjectType: types.ObjectType{
+								AttrTypes: ProtectReValue{}.AttributeTypes(ctx),
+							},
+						},
+						Optional:            true,
+						Description:         "restrict inbound-traffic to host\nwhen enabled, all traffic that is not essential to our operation will be dropped \ne.g. ntp / dns / traffic to mist will be allowed by default, if dhcpd is enabled, we'll make sure it works",
+						MarkdownDescription: "restrict inbound-traffic to host\nwhen enabled, all traffic that is not essential to our operation will be dropped \ne.g. ntp / dns / traffic to mist will be allowed by default, if dhcpd is enabled, we'll make sure it works",
 					},
 					"root_password": schema.StringAttribute{
 						Optional:            true,
@@ -8410,6 +8514,24 @@ func (t GatewayMgmtType) ValueFromObject(ctx context.Context, in basetypes.Objec
 			fmt.Sprintf(`probe_hosts expected to be basetypes.ListValue, was: %T`, probeHostsAttribute))
 	}
 
+	protectReAttribute, ok := attributes["protect_re"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`protect_re is missing from object`)
+
+		return nil, diags
+	}
+
+	protectReVal, ok := protectReAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`protect_re expected to be basetypes.ObjectValue, was: %T`, protectReAttribute))
+	}
+
 	rootPasswordAttribute, ok := attributes["root_password"]
 
 	if !ok {
@@ -8477,6 +8599,7 @@ func (t GatewayMgmtType) ValueFromObject(ctx context.Context, in basetypes.Objec
 		DisableConsole:             disableConsoleVal,
 		DisableOob:                 disableOobVal,
 		ProbeHosts:                 probeHostsVal,
+		ProtectRe:                  protectReVal,
 		RootPassword:               rootPasswordVal,
 		SecurityLogSourceAddress:   securityLogSourceAddressVal,
 		SecurityLogSourceInterface: securityLogSourceInterfaceVal,
@@ -8691,6 +8814,24 @@ func NewGatewayMgmtValue(attributeTypes map[string]attr.Type, attributes map[str
 			fmt.Sprintf(`probe_hosts expected to be basetypes.ListValue, was: %T`, probeHostsAttribute))
 	}
 
+	protectReAttribute, ok := attributes["protect_re"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`protect_re is missing from object`)
+
+		return NewGatewayMgmtValueUnknown(), diags
+	}
+
+	protectReVal, ok := protectReAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`protect_re expected to be basetypes.ObjectValue, was: %T`, protectReAttribute))
+	}
+
 	rootPasswordAttribute, ok := attributes["root_password"]
 
 	if !ok {
@@ -8758,6 +8899,7 @@ func NewGatewayMgmtValue(attributeTypes map[string]attr.Type, attributes map[str
 		DisableConsole:             disableConsoleVal,
 		DisableOob:                 disableOobVal,
 		ProbeHosts:                 probeHostsVal,
+		ProtectRe:                  protectReVal,
 		RootPassword:               rootPasswordVal,
 		SecurityLogSourceAddress:   securityLogSourceAddressVal,
 		SecurityLogSourceInterface: securityLogSourceInterfaceVal,
@@ -8841,6 +8983,7 @@ type GatewayMgmtValue struct {
 	DisableConsole             basetypes.BoolValue   `tfsdk:"disable_console"`
 	DisableOob                 basetypes.BoolValue   `tfsdk:"disable_oob"`
 	ProbeHosts                 basetypes.ListValue   `tfsdk:"probe_hosts"`
+	ProtectRe                  basetypes.ObjectValue `tfsdk:"protect_re"`
 	RootPassword               basetypes.StringValue `tfsdk:"root_password"`
 	SecurityLogSourceAddress   basetypes.StringValue `tfsdk:"security_log_source_address"`
 	SecurityLogSourceInterface basetypes.StringValue `tfsdk:"security_log_source_interface"`
@@ -8848,7 +8991,7 @@ type GatewayMgmtValue struct {
 }
 
 func (v GatewayMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 11)
+	attrTypes := make(map[string]tftypes.Type, 12)
 
 	var val tftypes.Value
 	var err error
@@ -8869,6 +9012,9 @@ func (v GatewayMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 	attrTypes["probe_hosts"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
+	attrTypes["protect_re"] = basetypes.ObjectType{
+		AttrTypes: ProtectReValue{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
 	attrTypes["root_password"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["security_log_source_address"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["security_log_source_interface"] = basetypes.StringType{}.TerraformType(ctx)
@@ -8877,7 +9023,7 @@ func (v GatewayMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 11)
+		vals := make(map[string]tftypes.Value, 12)
 
 		val, err = v.AdminSshkeys.ToTerraformValue(ctx)
 
@@ -8942,6 +9088,14 @@ func (v GatewayMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 		}
 
 		vals["probe_hosts"] = val
+
+		val, err = v.ProtectRe.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["protect_re"] = val
 
 		val, err = v.RootPassword.ToTerraformValue(ctx)
 
@@ -9038,6 +9192,27 @@ func (v GatewayMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 		)
 	}
 
+	var protectRe basetypes.ObjectValue
+
+	if v.ProtectRe.IsNull() {
+		protectRe = types.ObjectNull(
+			ProtectReValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.ProtectRe.IsUnknown() {
+		protectRe = types.ObjectUnknown(
+			ProtectReValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.ProtectRe.IsNull() && !v.ProtectRe.IsUnknown() {
+		protectRe = types.ObjectValueMust(
+			ProtectReValue{}.AttributeTypes(ctx),
+			v.ProtectRe.Attributes(),
+		)
+	}
+
 	adminSshkeysVal, d := types.ListValue(types.StringType, v.AdminSshkeys.Elements())
 
 	diags.Append(d...)
@@ -9059,6 +9234,9 @@ func (v GatewayMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 			"disable_oob":         basetypes.BoolType{},
 			"probe_hosts": basetypes.ListType{
 				ElemType: types.StringType,
+			},
+			"protect_re": basetypes.ObjectType{
+				AttrTypes: ProtectReValue{}.AttributeTypes(ctx),
 			},
 			"root_password":                 basetypes.StringType{},
 			"security_log_source_address":   basetypes.StringType{},
@@ -9088,6 +9266,9 @@ func (v GatewayMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 			"probe_hosts": basetypes.ListType{
 				ElemType: types.StringType,
 			},
+			"protect_re": basetypes.ObjectType{
+				AttrTypes: ProtectReValue{}.AttributeTypes(ctx),
+			},
 			"root_password":                 basetypes.StringType{},
 			"security_log_source_address":   basetypes.StringType{},
 			"security_log_source_interface": basetypes.StringType{},
@@ -9110,6 +9291,9 @@ func (v GatewayMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 		"disable_oob":         basetypes.BoolType{},
 		"probe_hosts": basetypes.ListType{
 			ElemType: types.StringType,
+		},
+		"protect_re": basetypes.ObjectType{
+			AttrTypes: ProtectReValue{}.AttributeTypes(ctx),
 		},
 		"root_password":                 basetypes.StringType{},
 		"security_log_source_address":   basetypes.StringType{},
@@ -9135,6 +9319,7 @@ func (v GatewayMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 			"disable_console":               v.DisableConsole,
 			"disable_oob":                   v.DisableOob,
 			"probe_hosts":                   probeHostsVal,
+			"protect_re":                    protectRe,
 			"root_password":                 v.RootPassword,
 			"security_log_source_address":   v.SecurityLogSourceAddress,
 			"security_log_source_interface": v.SecurityLogSourceInterface,
@@ -9190,6 +9375,10 @@ func (v GatewayMgmtValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.ProtectRe.Equal(other.ProtectRe) {
+		return false
+	}
+
 	if !v.RootPassword.Equal(other.RootPassword) {
 		return false
 	}
@@ -9230,6 +9419,9 @@ func (v GatewayMgmtValue) AttributeTypes(ctx context.Context) map[string]attr.Ty
 		"disable_oob":         basetypes.BoolType{},
 		"probe_hosts": basetypes.ListType{
 			ElemType: types.StringType,
+		},
+		"protect_re": basetypes.ObjectType{
+			AttrTypes: ProtectReValue{}.AttributeTypes(ctx),
 		},
 		"root_password":                 basetypes.StringType{},
 		"security_log_source_address":   basetypes.StringType{},
@@ -9861,6 +10053,24 @@ func (t CustomAppsType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`network expected to be basetypes.StringValue, was: %T`, networkAttribute))
 	}
 
+	packetSizeAttribute, ok := attributes["packet_size"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`packet_size is missing from object`)
+
+		return nil, diags
+	}
+
+	packetSizeVal, ok := packetSizeAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`packet_size expected to be basetypes.Int64Value, was: %T`, packetSizeAttribute))
+	}
+
 	protocolAttribute, ok := attributes["protocol"]
 
 	if !ok {
@@ -9920,16 +10130,17 @@ func (t CustomAppsType) ValueFromObject(ctx context.Context, in basetypes.Object
 	}
 
 	return CustomAppsValue{
-		Address:   addressVal,
-		AppType:   appTypeVal,
-		Hostnames: hostnamesVal,
-		Key:       keyVal,
-		Name:      nameVal,
-		Network:   networkVal,
-		Protocol:  protocolVal,
-		Url:       urlVal,
-		Vrf:       vrfVal,
-		state:     attr.ValueStateKnown,
+		Address:    addressVal,
+		AppType:    appTypeVal,
+		Hostnames:  hostnamesVal,
+		Key:        keyVal,
+		Name:       nameVal,
+		Network:    networkVal,
+		PacketSize: packetSizeVal,
+		Protocol:   protocolVal,
+		Url:        urlVal,
+		Vrf:        vrfVal,
+		state:      attr.ValueStateKnown,
 	}, diags
 }
 
@@ -10104,6 +10315,24 @@ func NewCustomAppsValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`network expected to be basetypes.StringValue, was: %T`, networkAttribute))
 	}
 
+	packetSizeAttribute, ok := attributes["packet_size"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`packet_size is missing from object`)
+
+		return NewCustomAppsValueUnknown(), diags
+	}
+
+	packetSizeVal, ok := packetSizeAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`packet_size expected to be basetypes.Int64Value, was: %T`, packetSizeAttribute))
+	}
+
 	protocolAttribute, ok := attributes["protocol"]
 
 	if !ok {
@@ -10163,16 +10392,17 @@ func NewCustomAppsValue(attributeTypes map[string]attr.Type, attributes map[stri
 	}
 
 	return CustomAppsValue{
-		Address:   addressVal,
-		AppType:   appTypeVal,
-		Hostnames: hostnamesVal,
-		Key:       keyVal,
-		Name:      nameVal,
-		Network:   networkVal,
-		Protocol:  protocolVal,
-		Url:       urlVal,
-		Vrf:       vrfVal,
-		state:     attr.ValueStateKnown,
+		Address:    addressVal,
+		AppType:    appTypeVal,
+		Hostnames:  hostnamesVal,
+		Key:        keyVal,
+		Name:       nameVal,
+		Network:    networkVal,
+		PacketSize: packetSizeVal,
+		Protocol:   protocolVal,
+		Url:        urlVal,
+		Vrf:        vrfVal,
+		state:      attr.ValueStateKnown,
 	}, diags
 }
 
@@ -10244,20 +10474,21 @@ func (t CustomAppsType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = CustomAppsValue{}
 
 type CustomAppsValue struct {
-	Address   basetypes.StringValue `tfsdk:"address"`
-	AppType   basetypes.StringValue `tfsdk:"app_type"`
-	Hostnames basetypes.ListValue   `tfsdk:"hostnames"`
-	Key       basetypes.StringValue `tfsdk:"key"`
-	Name      basetypes.StringValue `tfsdk:"name"`
-	Network   basetypes.StringValue `tfsdk:"network"`
-	Protocol  basetypes.StringValue `tfsdk:"protocol"`
-	Url       basetypes.StringValue `tfsdk:"url"`
-	Vrf       basetypes.StringValue `tfsdk:"vrf"`
-	state     attr.ValueState
+	Address    basetypes.StringValue `tfsdk:"address"`
+	AppType    basetypes.StringValue `tfsdk:"app_type"`
+	Hostnames  basetypes.ListValue   `tfsdk:"hostnames"`
+	Key        basetypes.StringValue `tfsdk:"key"`
+	Name       basetypes.StringValue `tfsdk:"name"`
+	Network    basetypes.StringValue `tfsdk:"network"`
+	PacketSize basetypes.Int64Value  `tfsdk:"packet_size"`
+	Protocol   basetypes.StringValue `tfsdk:"protocol"`
+	Url        basetypes.StringValue `tfsdk:"url"`
+	Vrf        basetypes.StringValue `tfsdk:"vrf"`
+	state      attr.ValueState
 }
 
 func (v CustomAppsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 9)
+	attrTypes := make(map[string]tftypes.Type, 10)
 
 	var val tftypes.Value
 	var err error
@@ -10270,6 +10501,7 @@ func (v CustomAppsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	attrTypes["key"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["network"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["packet_size"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["protocol"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["url"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["vrf"] = basetypes.StringType{}.TerraformType(ctx)
@@ -10278,7 +10510,7 @@ func (v CustomAppsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 9)
+		vals := make(map[string]tftypes.Value, 10)
 
 		val, err = v.Address.ToTerraformValue(ctx)
 
@@ -10327,6 +10559,14 @@ func (v CustomAppsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 		}
 
 		vals["network"] = val
+
+		val, err = v.PacketSize.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["packet_size"] = val
 
 		val, err = v.Protocol.ToTerraformValue(ctx)
 
@@ -10392,12 +10632,13 @@ func (v CustomAppsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"hostnames": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"key":      basetypes.StringType{},
-			"name":     basetypes.StringType{},
-			"network":  basetypes.StringType{},
-			"protocol": basetypes.StringType{},
-			"url":      basetypes.StringType{},
-			"vrf":      basetypes.StringType{},
+			"key":         basetypes.StringType{},
+			"name":        basetypes.StringType{},
+			"network":     basetypes.StringType{},
+			"packet_size": basetypes.Int64Type{},
+			"protocol":    basetypes.StringType{},
+			"url":         basetypes.StringType{},
+			"vrf":         basetypes.StringType{},
 		}), diags
 	}
 
@@ -10407,12 +10648,13 @@ func (v CustomAppsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		"hostnames": basetypes.ListType{
 			ElemType: types.StringType,
 		},
-		"key":      basetypes.StringType{},
-		"name":     basetypes.StringType{},
-		"network":  basetypes.StringType{},
-		"protocol": basetypes.StringType{},
-		"url":      basetypes.StringType{},
-		"vrf":      basetypes.StringType{},
+		"key":         basetypes.StringType{},
+		"name":        basetypes.StringType{},
+		"network":     basetypes.StringType{},
+		"packet_size": basetypes.Int64Type{},
+		"protocol":    basetypes.StringType{},
+		"url":         basetypes.StringType{},
+		"vrf":         basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -10426,15 +10668,16 @@ func (v CustomAppsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"address":   v.Address,
-			"app_type":  v.AppType,
-			"hostnames": hostnamesVal,
-			"key":       v.Key,
-			"name":      v.Name,
-			"network":   v.Network,
-			"protocol":  v.Protocol,
-			"url":       v.Url,
-			"vrf":       v.Vrf,
+			"address":     v.Address,
+			"app_type":    v.AppType,
+			"hostnames":   hostnamesVal,
+			"key":         v.Key,
+			"name":        v.Name,
+			"network":     v.Network,
+			"packet_size": v.PacketSize,
+			"protocol":    v.Protocol,
+			"url":         v.Url,
+			"vrf":         v.Vrf,
 		})
 
 	return objVal, diags
@@ -10479,6 +10722,10 @@ func (v CustomAppsValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.PacketSize.Equal(other.PacketSize) {
+		return false
+	}
+
 	if !v.Protocol.Equal(other.Protocol) {
 		return false
 	}
@@ -10509,12 +10756,13 @@ func (v CustomAppsValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"hostnames": basetypes.ListType{
 			ElemType: types.StringType,
 		},
-		"key":      basetypes.StringType{},
-		"name":     basetypes.StringType{},
-		"network":  basetypes.StringType{},
-		"protocol": basetypes.StringType{},
-		"url":      basetypes.StringType{},
-		"vrf":      basetypes.StringType{},
+		"key":         basetypes.StringType{},
+		"name":        basetypes.StringType{},
+		"network":     basetypes.StringType{},
+		"packet_size": basetypes.Int64Type{},
+		"protocol":    basetypes.StringType{},
+		"url":         basetypes.StringType{},
+		"vrf":         basetypes.StringType{},
 	}
 }
 
@@ -10949,6 +11197,1034 @@ func (v AutoSignatureUpdateValue) AttributeTypes(ctx context.Context) map[string
 		"day_of_week": basetypes.StringType{},
 		"enable":      basetypes.BoolType{},
 		"time_of_day": basetypes.StringType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = ProtectReType{}
+
+type ProtectReType struct {
+	basetypes.ObjectType
+}
+
+func (t ProtectReType) Equal(o attr.Type) bool {
+	other, ok := o.(ProtectReType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t ProtectReType) String() string {
+	return "ProtectReType"
+}
+
+func (t ProtectReType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	allowedServicesAttribute, ok := attributes["allowed_services"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`allowed_services is missing from object`)
+
+		return nil, diags
+	}
+
+	allowedServicesVal, ok := allowedServicesAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`allowed_services expected to be basetypes.ListValue, was: %T`, allowedServicesAttribute))
+	}
+
+	customAttribute, ok := attributes["custom"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`custom is missing from object`)
+
+		return nil, diags
+	}
+
+	customVal, ok := customAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`custom expected to be basetypes.ListValue, was: %T`, customAttribute))
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	trustedHostsAttribute, ok := attributes["trusted_hosts"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`trusted_hosts is missing from object`)
+
+		return nil, diags
+	}
+
+	trustedHostsVal, ok := trustedHostsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`trusted_hosts expected to be basetypes.ListValue, was: %T`, trustedHostsAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return ProtectReValue{
+		AllowedServices: allowedServicesVal,
+		Custom:          customVal,
+		Enabled:         enabledVal,
+		TrustedHosts:    trustedHostsVal,
+		state:           attr.ValueStateKnown,
+	}, diags
+}
+
+func NewProtectReValueNull() ProtectReValue {
+	return ProtectReValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewProtectReValueUnknown() ProtectReValue {
+	return ProtectReValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewProtectReValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (ProtectReValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing ProtectReValue Attribute Value",
+				"While creating a ProtectReValue value, a missing attribute value was detected. "+
+					"A ProtectReValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("ProtectReValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid ProtectReValue Attribute Type",
+				"While creating a ProtectReValue value, an invalid attribute value was detected. "+
+					"A ProtectReValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("ProtectReValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("ProtectReValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra ProtectReValue Attribute Value",
+				"While creating a ProtectReValue value, an extra attribute value was detected. "+
+					"A ProtectReValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra ProtectReValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewProtectReValueUnknown(), diags
+	}
+
+	allowedServicesAttribute, ok := attributes["allowed_services"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`allowed_services is missing from object`)
+
+		return NewProtectReValueUnknown(), diags
+	}
+
+	allowedServicesVal, ok := allowedServicesAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`allowed_services expected to be basetypes.ListValue, was: %T`, allowedServicesAttribute))
+	}
+
+	customAttribute, ok := attributes["custom"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`custom is missing from object`)
+
+		return NewProtectReValueUnknown(), diags
+	}
+
+	customVal, ok := customAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`custom expected to be basetypes.ListValue, was: %T`, customAttribute))
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return NewProtectReValueUnknown(), diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	trustedHostsAttribute, ok := attributes["trusted_hosts"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`trusted_hosts is missing from object`)
+
+		return NewProtectReValueUnknown(), diags
+	}
+
+	trustedHostsVal, ok := trustedHostsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`trusted_hosts expected to be basetypes.ListValue, was: %T`, trustedHostsAttribute))
+	}
+
+	if diags.HasError() {
+		return NewProtectReValueUnknown(), diags
+	}
+
+	return ProtectReValue{
+		AllowedServices: allowedServicesVal,
+		Custom:          customVal,
+		Enabled:         enabledVal,
+		TrustedHosts:    trustedHostsVal,
+		state:           attr.ValueStateKnown,
+	}, diags
+}
+
+func NewProtectReValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) ProtectReValue {
+	object, diags := NewProtectReValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewProtectReValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t ProtectReType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewProtectReValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewProtectReValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewProtectReValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewProtectReValueMust(ProtectReValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t ProtectReType) ValueType(ctx context.Context) attr.Value {
+	return ProtectReValue{}
+}
+
+var _ basetypes.ObjectValuable = ProtectReValue{}
+
+type ProtectReValue struct {
+	AllowedServices basetypes.ListValue `tfsdk:"allowed_services"`
+	Custom          basetypes.ListValue `tfsdk:"custom"`
+	Enabled         basetypes.BoolValue `tfsdk:"enabled"`
+	TrustedHosts    basetypes.ListValue `tfsdk:"trusted_hosts"`
+	state           attr.ValueState
+}
+
+func (v ProtectReValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 4)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["allowed_services"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["custom"] = basetypes.ListType{
+		ElemType: CustomValue{}.Type(ctx),
+	}.TerraformType(ctx)
+	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["trusted_hosts"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 4)
+
+		val, err = v.AllowedServices.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["allowed_services"] = val
+
+		val, err = v.Custom.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["custom"] = val
+
+		val, err = v.Enabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enabled"] = val
+
+		val, err = v.TrustedHosts.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["trusted_hosts"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v ProtectReValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v ProtectReValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v ProtectReValue) String() string {
+	return "ProtectReValue"
+}
+
+func (v ProtectReValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	custom := types.ListValueMust(
+		CustomType{
+			basetypes.ObjectType{
+				AttrTypes: CustomValue{}.AttributeTypes(ctx),
+			},
+		},
+		v.Custom.Elements(),
+	)
+
+	if v.Custom.IsNull() {
+		custom = types.ListNull(
+			CustomType{
+				basetypes.ObjectType{
+					AttrTypes: CustomValue{}.AttributeTypes(ctx),
+				},
+			},
+		)
+	}
+
+	if v.Custom.IsUnknown() {
+		custom = types.ListUnknown(
+			CustomType{
+				basetypes.ObjectType{
+					AttrTypes: CustomValue{}.AttributeTypes(ctx),
+				},
+			},
+		)
+	}
+
+	allowedServicesVal, d := types.ListValue(types.StringType, v.AllowedServices.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"allowed_services": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"custom": basetypes.ListType{
+				ElemType: CustomValue{}.Type(ctx),
+			},
+			"enabled": basetypes.BoolType{},
+			"trusted_hosts": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	trustedHostsVal, d := types.ListValue(types.StringType, v.TrustedHosts.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"allowed_services": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"custom": basetypes.ListType{
+				ElemType: CustomValue{}.Type(ctx),
+			},
+			"enabled": basetypes.BoolType{},
+			"trusted_hosts": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	attributeTypes := map[string]attr.Type{
+		"allowed_services": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"custom": basetypes.ListType{
+			ElemType: CustomValue{}.Type(ctx),
+		},
+		"enabled": basetypes.BoolType{},
+		"trusted_hosts": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"allowed_services": allowedServicesVal,
+			"custom":           custom,
+			"enabled":          v.Enabled,
+			"trusted_hosts":    trustedHostsVal,
+		})
+
+	return objVal, diags
+}
+
+func (v ProtectReValue) Equal(o attr.Value) bool {
+	other, ok := o.(ProtectReValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.AllowedServices.Equal(other.AllowedServices) {
+		return false
+	}
+
+	if !v.Custom.Equal(other.Custom) {
+		return false
+	}
+
+	if !v.Enabled.Equal(other.Enabled) {
+		return false
+	}
+
+	if !v.TrustedHosts.Equal(other.TrustedHosts) {
+		return false
+	}
+
+	return true
+}
+
+func (v ProtectReValue) Type(ctx context.Context) attr.Type {
+	return ProtectReType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v ProtectReValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"allowed_services": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"custom": basetypes.ListType{
+			ElemType: CustomValue{}.Type(ctx),
+		},
+		"enabled": basetypes.BoolType{},
+		"trusted_hosts": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+	}
+}
+
+var _ basetypes.ObjectTypable = CustomType{}
+
+type CustomType struct {
+	basetypes.ObjectType
+}
+
+func (t CustomType) Equal(o attr.Type) bool {
+	other, ok := o.(CustomType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t CustomType) String() string {
+	return "CustomType"
+}
+
+func (t CustomType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	portRangeAttribute, ok := attributes["port_range"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`port_range is missing from object`)
+
+		return nil, diags
+	}
+
+	portRangeVal, ok := portRangeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`port_range expected to be basetypes.StringValue, was: %T`, portRangeAttribute))
+	}
+
+	protocolAttribute, ok := attributes["protocol"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`protocol is missing from object`)
+
+		return nil, diags
+	}
+
+	protocolVal, ok := protocolAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`protocol expected to be basetypes.StringValue, was: %T`, protocolAttribute))
+	}
+
+	subnetsAttribute, ok := attributes["subnets"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`subnets is missing from object`)
+
+		return nil, diags
+	}
+
+	subnetsVal, ok := subnetsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`subnets expected to be basetypes.ListValue, was: %T`, subnetsAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return CustomValue{
+		PortRange: portRangeVal,
+		Protocol:  protocolVal,
+		Subnets:   subnetsVal,
+		state:     attr.ValueStateKnown,
+	}, diags
+}
+
+func NewCustomValueNull() CustomValue {
+	return CustomValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewCustomValueUnknown() CustomValue {
+	return CustomValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewCustomValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (CustomValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing CustomValue Attribute Value",
+				"While creating a CustomValue value, a missing attribute value was detected. "+
+					"A CustomValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("CustomValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid CustomValue Attribute Type",
+				"While creating a CustomValue value, an invalid attribute value was detected. "+
+					"A CustomValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("CustomValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("CustomValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra CustomValue Attribute Value",
+				"While creating a CustomValue value, an extra attribute value was detected. "+
+					"A CustomValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra CustomValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewCustomValueUnknown(), diags
+	}
+
+	portRangeAttribute, ok := attributes["port_range"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`port_range is missing from object`)
+
+		return NewCustomValueUnknown(), diags
+	}
+
+	portRangeVal, ok := portRangeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`port_range expected to be basetypes.StringValue, was: %T`, portRangeAttribute))
+	}
+
+	protocolAttribute, ok := attributes["protocol"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`protocol is missing from object`)
+
+		return NewCustomValueUnknown(), diags
+	}
+
+	protocolVal, ok := protocolAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`protocol expected to be basetypes.StringValue, was: %T`, protocolAttribute))
+	}
+
+	subnetsAttribute, ok := attributes["subnets"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`subnets is missing from object`)
+
+		return NewCustomValueUnknown(), diags
+	}
+
+	subnetsVal, ok := subnetsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`subnets expected to be basetypes.ListValue, was: %T`, subnetsAttribute))
+	}
+
+	if diags.HasError() {
+		return NewCustomValueUnknown(), diags
+	}
+
+	return CustomValue{
+		PortRange: portRangeVal,
+		Protocol:  protocolVal,
+		Subnets:   subnetsVal,
+		state:     attr.ValueStateKnown,
+	}, diags
+}
+
+func NewCustomValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) CustomValue {
+	object, diags := NewCustomValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewCustomValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t CustomType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewCustomValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewCustomValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewCustomValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewCustomValueMust(CustomValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t CustomType) ValueType(ctx context.Context) attr.Value {
+	return CustomValue{}
+}
+
+var _ basetypes.ObjectValuable = CustomValue{}
+
+type CustomValue struct {
+	PortRange basetypes.StringValue `tfsdk:"port_range"`
+	Protocol  basetypes.StringValue `tfsdk:"protocol"`
+	Subnets   basetypes.ListValue   `tfsdk:"subnets"`
+	state     attr.ValueState
+}
+
+func (v CustomValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 3)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["port_range"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["protocol"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["subnets"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 3)
+
+		val, err = v.PortRange.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["port_range"] = val
+
+		val, err = v.Protocol.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["protocol"] = val
+
+		val, err = v.Subnets.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["subnets"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v CustomValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v CustomValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v CustomValue) String() string {
+	return "CustomValue"
+}
+
+func (v CustomValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	subnetsVal, d := types.ListValue(types.StringType, v.Subnets.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"port_range": basetypes.StringType{},
+			"protocol":   basetypes.StringType{},
+			"subnets": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	attributeTypes := map[string]attr.Type{
+		"port_range": basetypes.StringType{},
+		"protocol":   basetypes.StringType{},
+		"subnets": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"port_range": v.PortRange,
+			"protocol":   v.Protocol,
+			"subnets":    subnetsVal,
+		})
+
+	return objVal, diags
+}
+
+func (v CustomValue) Equal(o attr.Value) bool {
+	other, ok := o.(CustomValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.PortRange.Equal(other.PortRange) {
+		return false
+	}
+
+	if !v.Protocol.Equal(other.Protocol) {
+		return false
+	}
+
+	if !v.Subnets.Equal(other.Subnets) {
+		return false
+	}
+
+	return true
+}
+
+func (v CustomValue) Type(ctx context.Context) attr.Type {
+	return CustomType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v CustomValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"port_range": basetypes.StringType{},
+		"protocol":   basetypes.StringType{},
+		"subnets": basetypes.ListType{
+			ElemType: types.StringType,
+		},
 	}
 }
 

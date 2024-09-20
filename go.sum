@@ -157,6 +157,8 @@ github.com/stretchr/testify v1.9.0 h1:HtqpIVDClZ4nwg75+f6Lvsy/wHu+3BoSGCbBAcpTsT
 github.com/stretchr/testify v1.9.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf8C91i36aY=
 github.com/tmunzer/mistapi-go v0.3.24 h1:BE8KahnKIwLB9GzC31OikWzd/7d/fKNAT1vol/P+KEg=
 github.com/tmunzer/mistapi-go v0.3.24/go.mod h1:48zrTq/p+Shri8YNOzthmnK+lzMTqql4t4QaRt1vTmg=
+github.com/tmunzer/mistapi-go v0.3.25 h1:gNjlFg6HbjGZsEHvyiKksAiObFNleOforS7flBFZzBw=
+github.com/tmunzer/mistapi-go v0.3.25/go.mod h1:48zrTq/p+Shri8YNOzthmnK+lzMTqql4t4QaRt1vTmg=
 github.com/vmihailenco/msgpack/v5 v5.4.1 h1:cQriyiUvjTwOHg8QZaPihLWeRAAVoCpE00IUPn0Bjt8=
 github.com/vmihailenco/msgpack/v5 v5.4.1/go.mod h1:GaZTsDaehaPpQVyxrf5mtQlH+pc21PIudVV/E3rRQok=
 github.com/vmihailenco/tagparser/v2 v2.0.0 h1:y09buUbR+b5aycVFQs/g70pqKVZNBmxwAhO7/IwNM9g=
