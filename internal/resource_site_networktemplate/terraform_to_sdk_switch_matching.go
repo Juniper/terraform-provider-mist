@@ -11,42 +11,6 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func switchMatchingRulesPortMirroringTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.SwitchPortMirroringProperty {
-
-	data := make(map[string]models.SwitchPortMirroringProperty)
-	for k, v := range d.Elements() {
-		var plan_interface interface{} = v
-		plan_obj := plan_interface.(PortMirroringValue)
-		item_obj := models.SwitchPortMirroringProperty{}
-
-		if !plan_obj.InputNetworksIngress.IsNull() && !plan_obj.InputNetworksIngress.IsUnknown() {
-			item_obj.InputNetworksIngress = mist_transform.ListOfStringTerraformToSdk(ctx, plan_obj.InputNetworksIngress)
-		} else {
-			item_obj.InputNetworksIngress = make([]string, 0)
-		}
-
-		if !plan_obj.InputPortIdsEgress.IsNull() && !plan_obj.InputPortIdsEgress.IsUnknown() {
-			item_obj.InputPortIdsEgress = mist_transform.ListOfStringTerraformToSdk(ctx, plan_obj.InputPortIdsEgress)
-		} else {
-			item_obj.InputPortIdsEgress = make([]string, 0)
-		}
-
-		if !plan_obj.InputPortIdsIngress.IsNull() && !plan_obj.InputPortIdsIngress.IsUnknown() {
-			item_obj.InputPortIdsIngress = mist_transform.ListOfStringTerraformToSdk(ctx, plan_obj.InputPortIdsIngress)
-		} else {
-			item_obj.InputPortIdsIngress = make([]string, 0)
-		}
-
-		if plan_obj.OutputNetwork.ValueStringPointer() != nil {
-			item_obj.OutputNetwork = models.ToPointer(plan_obj.OutputNetwork.ValueString())
-		}
-		if plan_obj.OutputPortId.ValueStringPointer() != nil {
-			item_obj.OutputPortId = models.ToPointer(plan_obj.OutputPortId.ValueString())
-		}
-		data[k] = item_obj
-	}
-	return data
-}
 func switchMatchingRulesPortConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.JunosPortConfig {
 
 	data := make(map[string]models.JunosPortConfig)
@@ -157,7 +121,7 @@ func switchMatchingRulesTerraformToSdk(ctx context.Context, diags *diag.Diagnost
 			item_obj.PortConfig = switchMatchingRulesPortConfigTerraformToSdk(ctx, diags, plan_obj.PortConfig)
 		}
 		if !plan_obj.PortMirroring.IsNull() && !plan_obj.PortMirroring.IsUnknown() {
-			item_obj.PortMirroring = switchMatchingRulesPortMirroringTerraformToSdk(ctx, diags, plan_obj.PortMirroring)
+			item_obj.PortMirroring = portMirroringTerraformToSdk(ctx, diags, plan_obj.PortMirroring)
 		}
 		if !plan_obj.IpConfig.IsNull() && !plan_obj.IpConfig.IsUnknown() {
 			item_obj.IpConfig = switchMatchingRulesIpConfigTerraformToSdk(ctx, diags, plan_obj.IpConfig)
