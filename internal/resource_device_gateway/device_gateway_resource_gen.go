@@ -1921,7 +1921,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("lte")),
 								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("dsl")),
 							},
-							Default: stringdefault.StaticString("recommended"),
+							Default: stringdefault.StaticString("default"),
 						},
 						"wan_ext_ip": schema.StringAttribute{
 							Optional:            true,

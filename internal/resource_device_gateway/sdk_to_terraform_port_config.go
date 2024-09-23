@@ -209,7 +209,7 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 		var usage basetypes.StringValue = types.StringValue(string(v.Usage))
 		var vlan_id basetypes.Int64Value
 		var vpn_paths basetypes.MapValue = types.MapNull(VpnPathsValue{}.Type(ctx))
-		var wan_arp_policer basetypes.StringValue = types.StringValue("recommended")
+		var wan_arp_policer basetypes.StringValue = types.StringValue("default")
 		var wan_ext_ip basetypes.StringValue
 		var wan_source_nat basetypes.ObjectValue = types.ObjectNull(WanSourceNatValue{}.AttributeTypes(ctx))
 		var wan_type basetypes.StringValue = types.StringValue("broadband")
