@@ -440,5 +440,6 @@ func (p *mistProvider) Resources(ctx context.Context) []func() resource.Resource
 		NewOrgWlanPortalTemplate,
 		NewSiteWlanPortalImage,
 		NewSiteWlanPortalTemplate,
+		NewOrgApitoken,
 	}
 }
