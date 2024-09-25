@@ -263,6 +263,9 @@ Optional:
 - `disable_console` (Boolean) for both SSR and SRX disable console port
 - `disable_oob` (Boolean) for both SSR and SRX disable management interface
 - `probe_hosts` (List of String)
+- `protect_re` (Attributes) restrict inbound-traffic to host
+when enabled, all traffic that is not essential to our operation will be dropped 
+e.g. ntp / dns / traffic to mist will be allowed by default, if dhcpd is enabled, we'll make sure it works (see [below for nested schema](#nestedatt--gateway_mgmt--protect_re))
 - `root_password` (String, Sensitive) for SRX only
 - `security_log_source_address` (String)
 - `security_log_source_interface` (String)
@@ -291,6 +294,7 @@ Optional:
 
 - `app_type` (String)
 - `network` (String)
+- `packet_size` (Number) if `protocol`==`icmp`
 - `vrf` (String)
 
 Read-Only:
@@ -309,6 +313,32 @@ Optional:
 - `day_of_week` (String) enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`
 - `enable` (Boolean)
 - `time_of_day` (String) optional, Mist will decide the timing
+
+
+<a id="nestedatt--gateway_mgmt--protect_re"></a>
+### Nested Schema for `gateway_mgmt.protect_re`
+
+Optional:
+
+- `allowed_services` (List of String) optionally, services we'll allow. enum: `icmp`, `ssh`
+- `custom` (Attributes List) (see [below for nested schema](#nestedatt--gateway_mgmt--protect_re--custom))
+- `enabled` (Boolean) when enabled, all traffic that is not essential to our operation will be dropped
+e.g. ntp / dns / traffic to mist will be allowed by default
+     if dhcpd is enabled, we'll make sure it works
+- `trusted_hosts` (List of String) host/subnets we'll allow traffic to/from
+
+<a id="nestedatt--gateway_mgmt--protect_re--custom"></a>
+### Nested Schema for `gateway_mgmt.protect_re.custom`
+
+Required:
+
+- `subnets` (List of String)
+
+Optional:
+
+- `port_range` (String) matched dst port, "0" means any. Note: For `protocol`==`any` and  `port_range`==`any`, configure `trusted_hosts` instead
+- `protocol` (String) enum: `any`, `icmp`, `tcp`, `udp`. Note: For `protocol`==`any` and  `port_range`==`any`, configure `trusted_hosts` instead
+
 
 
 
