@@ -1,6 +1,6 @@
 
 resource "mist_site_setting" "site_one" {
-  site_id = mist_site.terraform_site.id
+  site_id                 = mist_site.terraform_site.id
   ap_updown_threshold     = 5
   device_updown_threshold = 5
   auto_upgrade = {
@@ -9,7 +9,7 @@ resource "mist_site_setting" "site_one" {
     time_of_day = "02:00"
     version     = "beta"
   }
-  config_auto_revert = true
+  config_auto_revert       = true
   persist_config_on_device = true
   proxy = {
     url = "http://myproxy:3128"
