@@ -103,7 +103,7 @@ func (r *orgWlanPortalImageResource) Create(ctx context.Context, req resource.Cr
 	if api_err != "" {
 		resp.Diagnostics.AddError(
 			"Error creating \"mist_org_wlan_portal_image\" resource",
-			fmt.Sprintf("Unable to creaate the Portal Image. %s", api_err),
+			fmt.Sprintf("Unable to create the Portal Image. %s", api_err),
 		)
 		return
 	}

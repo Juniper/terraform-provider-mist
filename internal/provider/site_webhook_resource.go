@@ -90,7 +90,7 @@ func (r *siteWebhookResource) Create(ctx context.Context, req resource.CreateReq
 	if api_err != "" {
 		resp.Diagnostics.AddError(
 			"Error creating \"mist_site_webhook\" resource",
-			fmt.Sprintf("Unable to creaate the Webhook. %s", api_err),
+			fmt.Sprintf("Unable to create the Webhook. %s", api_err),
 		)
 		return
 	}
