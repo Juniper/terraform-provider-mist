@@ -170,6 +170,30 @@ func TerraformToSdk(ctx context.Context, plan *OrgSettingModel) (*models.OrgSett
 		unset["-vpn_options"] = ""
 	}
 
+	if !plan.WanPma.IsNull() && !plan.WanPma.IsUnknown() {
+		if plan.WanPma.Enabled.ValueBoolPointer() != nil {
+			data.WanPma.Enabled = plan.WanPma.Enabled.ValueBoolPointer()
+		}
+	} else {
+		unset["-wan_pma"] = ""
+	}
+
+	if !plan.WiredPma.IsNull() && !plan.WiredPma.IsUnknown() {
+		if plan.WiredPma.Enabled.ValueBoolPointer() != nil {
+			data.WiredPma.Enabled = plan.WiredPma.Enabled.ValueBoolPointer()
+		}
+	} else {
+		unset["-wired_pma"] = ""
+	}
+
+	if !plan.WirelessPma.IsNull() && !plan.WirelessPma.IsUnknown() {
+		if plan.WirelessPma.Enabled.ValueBoolPointer() != nil {
+			data.WirelessPma.Enabled = plan.WirelessPma.Enabled.ValueBoolPointer()
+		}
+	} else {
+		unset["-wireless_pma"] = ""
+	}
+
 	data.AdditionalProperties = unset
 
 	return &data, diags

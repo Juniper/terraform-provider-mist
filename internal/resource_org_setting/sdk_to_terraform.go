@@ -45,6 +45,9 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	var synthetic_test SyntheticTestValue = NewSyntheticTestValueNull()
 	var ui_idle_timeout types.Int64
 	var vpn_options VpnOptionsValue = NewVpnOptionsValueNull()
+	var wan_pma WanPmaValue = NewWanPmaValueNull()
+	var wired_pma WiredPmaValue = NewWiredPmaValueNull()
+	var wireless_pma WirelessPmaValue = NewWirelessPmaValueNull()
 
 	if data.ApUpdownThreshold.Value() != nil {
 		ap_updown_threshold = types.Int64Value(int64(*data.ApUpdownThreshold.Value()))
@@ -139,6 +142,15 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	if data.VpnOptions != nil {
 		vpn_options = vpnOptionsSdkToTerraform(ctx, &diags, data.VpnOptions)
 	}
+	if data.WanPma != nil && data.WanPma.Enabled != nil {
+		wan_pma.Enabled = types.BoolValue(*data.WanPma.Enabled)
+	}
+	if data.WiredPma != nil && data.WiredPma.Enabled != nil {
+		wired_pma.Enabled = types.BoolValue(*data.WiredPma.Enabled)
+	}
+	if data.WirelessPma != nil && data.WirelessPma.Enabled != nil {
+		wireless_pma.Enabled = types.BoolValue(*data.WirelessPma.Enabled)
+	}
 
 	state.ApUpdownThreshold = ap_updown_threshold
 	state.ApiPolicy = api_policy
@@ -171,6 +183,9 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	state.SyntheticTest = synthetic_test
 	state.UiIdleTimeout = ui_idle_timeout
 	state.VpnOptions = vpn_options
+	state.WanPma = wan_pma
+	state.WiredPma = wired_pma
+	state.WirelessPma = wireless_pma
 
 	return state, diags
 }

@@ -772,6 +772,51 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Optional: true,
 			},
+			"wan_pma": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"enabled": schema.BoolAttribute{
+						Optional: true,
+						Computed: true,
+						Default:  booldefault.StaticBool(false),
+					},
+				},
+				CustomType: WanPmaType{
+					ObjectType: types.ObjectType{
+						AttrTypes: WanPmaValue{}.AttributeTypes(ctx),
+					},
+				},
+				Optional: true,
+			},
+			"wired_pma": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"enabled": schema.BoolAttribute{
+						Optional: true,
+						Computed: true,
+						Default:  booldefault.StaticBool(false),
+					},
+				},
+				CustomType: WiredPmaType{
+					ObjectType: types.ObjectType{
+						AttrTypes: WiredPmaValue{}.AttributeTypes(ctx),
+					},
+				},
+				Optional: true,
+			},
+			"wireless_pma": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"enabled": schema.BoolAttribute{
+						Optional: true,
+						Computed: true,
+						Default:  booldefault.StaticBool(true),
+					},
+				},
+				CustomType: WirelessPmaType{
+					ObjectType: types.ObjectType{
+						AttrTypes: WirelessPmaValue{}.AttributeTypes(ctx),
+					},
+				},
+				Optional: true,
+			},
 		},
 	}
 }
@@ -805,6 +850,9 @@ type OrgSettingModel struct {
 	SyntheticTest          SyntheticTestValue      `tfsdk:"synthetic_test"`
 	UiIdleTimeout          types.Int64             `tfsdk:"ui_idle_timeout"`
 	VpnOptions             VpnOptionsValue         `tfsdk:"vpn_options"`
+	WanPma                 WanPmaValue             `tfsdk:"wan_pma"`
+	WiredPma               WiredPmaValue           `tfsdk:"wired_pma"`
+	WirelessPma            WirelessPmaValue        `tfsdk:"wireless_pma"`
 }
 
 var _ basetypes.ObjectTypable = ApiPolicyType{}
@@ -11125,5 +11173,977 @@ func (v VpnOptionsValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 	return map[string]attr.Type{
 		"as_base":   basetypes.Int64Type{},
 		"st_subnet": basetypes.StringType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = WanPmaType{}
+
+type WanPmaType struct {
+	basetypes.ObjectType
+}
+
+func (t WanPmaType) Equal(o attr.Type) bool {
+	other, ok := o.(WanPmaType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t WanPmaType) String() string {
+	return "WanPmaType"
+}
+
+func (t WanPmaType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return WanPmaValue{
+		Enabled: enabledVal,
+		state:   attr.ValueStateKnown,
+	}, diags
+}
+
+func NewWanPmaValueNull() WanPmaValue {
+	return WanPmaValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewWanPmaValueUnknown() WanPmaValue {
+	return WanPmaValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewWanPmaValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (WanPmaValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing WanPmaValue Attribute Value",
+				"While creating a WanPmaValue value, a missing attribute value was detected. "+
+					"A WanPmaValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("WanPmaValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid WanPmaValue Attribute Type",
+				"While creating a WanPmaValue value, an invalid attribute value was detected. "+
+					"A WanPmaValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("WanPmaValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("WanPmaValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra WanPmaValue Attribute Value",
+				"While creating a WanPmaValue value, an extra attribute value was detected. "+
+					"A WanPmaValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra WanPmaValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewWanPmaValueUnknown(), diags
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return NewWanPmaValueUnknown(), diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	if diags.HasError() {
+		return NewWanPmaValueUnknown(), diags
+	}
+
+	return WanPmaValue{
+		Enabled: enabledVal,
+		state:   attr.ValueStateKnown,
+	}, diags
+}
+
+func NewWanPmaValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) WanPmaValue {
+	object, diags := NewWanPmaValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewWanPmaValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t WanPmaType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewWanPmaValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewWanPmaValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewWanPmaValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewWanPmaValueMust(WanPmaValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t WanPmaType) ValueType(ctx context.Context) attr.Value {
+	return WanPmaValue{}
+}
+
+var _ basetypes.ObjectValuable = WanPmaValue{}
+
+type WanPmaValue struct {
+	Enabled basetypes.BoolValue `tfsdk:"enabled"`
+	state   attr.ValueState
+}
+
+func (v WanPmaValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 1)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 1)
+
+		val, err = v.Enabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enabled"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v WanPmaValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v WanPmaValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v WanPmaValue) String() string {
+	return "WanPmaValue"
+}
+
+func (v WanPmaValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"enabled": basetypes.BoolType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"enabled": v.Enabled,
+		})
+
+	return objVal, diags
+}
+
+func (v WanPmaValue) Equal(o attr.Value) bool {
+	other, ok := o.(WanPmaValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Enabled.Equal(other.Enabled) {
+		return false
+	}
+
+	return true
+}
+
+func (v WanPmaValue) Type(ctx context.Context) attr.Type {
+	return WanPmaType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v WanPmaValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"enabled": basetypes.BoolType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = WiredPmaType{}
+
+type WiredPmaType struct {
+	basetypes.ObjectType
+}
+
+func (t WiredPmaType) Equal(o attr.Type) bool {
+	other, ok := o.(WiredPmaType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t WiredPmaType) String() string {
+	return "WiredPmaType"
+}
+
+func (t WiredPmaType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return WiredPmaValue{
+		Enabled: enabledVal,
+		state:   attr.ValueStateKnown,
+	}, diags
+}
+
+func NewWiredPmaValueNull() WiredPmaValue {
+	return WiredPmaValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewWiredPmaValueUnknown() WiredPmaValue {
+	return WiredPmaValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewWiredPmaValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (WiredPmaValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing WiredPmaValue Attribute Value",
+				"While creating a WiredPmaValue value, a missing attribute value was detected. "+
+					"A WiredPmaValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("WiredPmaValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid WiredPmaValue Attribute Type",
+				"While creating a WiredPmaValue value, an invalid attribute value was detected. "+
+					"A WiredPmaValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("WiredPmaValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("WiredPmaValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra WiredPmaValue Attribute Value",
+				"While creating a WiredPmaValue value, an extra attribute value was detected. "+
+					"A WiredPmaValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra WiredPmaValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewWiredPmaValueUnknown(), diags
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return NewWiredPmaValueUnknown(), diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	if diags.HasError() {
+		return NewWiredPmaValueUnknown(), diags
+	}
+
+	return WiredPmaValue{
+		Enabled: enabledVal,
+		state:   attr.ValueStateKnown,
+	}, diags
+}
+
+func NewWiredPmaValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) WiredPmaValue {
+	object, diags := NewWiredPmaValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewWiredPmaValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t WiredPmaType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewWiredPmaValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewWiredPmaValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewWiredPmaValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewWiredPmaValueMust(WiredPmaValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t WiredPmaType) ValueType(ctx context.Context) attr.Value {
+	return WiredPmaValue{}
+}
+
+var _ basetypes.ObjectValuable = WiredPmaValue{}
+
+type WiredPmaValue struct {
+	Enabled basetypes.BoolValue `tfsdk:"enabled"`
+	state   attr.ValueState
+}
+
+func (v WiredPmaValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 1)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 1)
+
+		val, err = v.Enabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enabled"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v WiredPmaValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v WiredPmaValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v WiredPmaValue) String() string {
+	return "WiredPmaValue"
+}
+
+func (v WiredPmaValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"enabled": basetypes.BoolType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"enabled": v.Enabled,
+		})
+
+	return objVal, diags
+}
+
+func (v WiredPmaValue) Equal(o attr.Value) bool {
+	other, ok := o.(WiredPmaValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Enabled.Equal(other.Enabled) {
+		return false
+	}
+
+	return true
+}
+
+func (v WiredPmaValue) Type(ctx context.Context) attr.Type {
+	return WiredPmaType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v WiredPmaValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"enabled": basetypes.BoolType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = WirelessPmaType{}
+
+type WirelessPmaType struct {
+	basetypes.ObjectType
+}
+
+func (t WirelessPmaType) Equal(o attr.Type) bool {
+	other, ok := o.(WirelessPmaType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t WirelessPmaType) String() string {
+	return "WirelessPmaType"
+}
+
+func (t WirelessPmaType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return WirelessPmaValue{
+		Enabled: enabledVal,
+		state:   attr.ValueStateKnown,
+	}, diags
+}
+
+func NewWirelessPmaValueNull() WirelessPmaValue {
+	return WirelessPmaValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewWirelessPmaValueUnknown() WirelessPmaValue {
+	return WirelessPmaValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewWirelessPmaValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (WirelessPmaValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing WirelessPmaValue Attribute Value",
+				"While creating a WirelessPmaValue value, a missing attribute value was detected. "+
+					"A WirelessPmaValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("WirelessPmaValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid WirelessPmaValue Attribute Type",
+				"While creating a WirelessPmaValue value, an invalid attribute value was detected. "+
+					"A WirelessPmaValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("WirelessPmaValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("WirelessPmaValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra WirelessPmaValue Attribute Value",
+				"While creating a WirelessPmaValue value, an extra attribute value was detected. "+
+					"A WirelessPmaValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra WirelessPmaValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewWirelessPmaValueUnknown(), diags
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return NewWirelessPmaValueUnknown(), diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	if diags.HasError() {
+		return NewWirelessPmaValueUnknown(), diags
+	}
+
+	return WirelessPmaValue{
+		Enabled: enabledVal,
+		state:   attr.ValueStateKnown,
+	}, diags
+}
+
+func NewWirelessPmaValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) WirelessPmaValue {
+	object, diags := NewWirelessPmaValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewWirelessPmaValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t WirelessPmaType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewWirelessPmaValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewWirelessPmaValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewWirelessPmaValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewWirelessPmaValueMust(WirelessPmaValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t WirelessPmaType) ValueType(ctx context.Context) attr.Value {
+	return WirelessPmaValue{}
+}
+
+var _ basetypes.ObjectValuable = WirelessPmaValue{}
+
+type WirelessPmaValue struct {
+	Enabled basetypes.BoolValue `tfsdk:"enabled"`
+	state   attr.ValueState
+}
+
+func (v WirelessPmaValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 1)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 1)
+
+		val, err = v.Enabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enabled"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v WirelessPmaValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v WirelessPmaValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v WirelessPmaValue) String() string {
+	return "WirelessPmaValue"
+}
+
+func (v WirelessPmaValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"enabled": basetypes.BoolType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"enabled": v.Enabled,
+		})
+
+	return objVal, diags
+}
+
+func (v WirelessPmaValue) Equal(o attr.Value) bool {
+	other, ok := o.(WirelessPmaValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Enabled.Equal(other.Enabled) {
+		return false
+	}
+
+	return true
+}
+
+func (v WirelessPmaValue) Type(ctx context.Context) attr.Type {
+	return WirelessPmaType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v WirelessPmaValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"enabled": basetypes.BoolType{},
 	}
 }
