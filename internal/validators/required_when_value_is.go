@@ -55,7 +55,7 @@ func (o RequiredWhenValueIsValidator) Validate(ctx context.Context, req Required
 	for _, expression := range mergedExpressions {
 		matchedPaths, diags := req.Config.PathMatches(ctx, expression)
 		resp.Diagnostics.Append(diags...)
-		if diags.HasError() {
+		if resp.Diagnostics.HasError() {
 			return
 		}
 
@@ -67,9 +67,8 @@ func (o RequiredWhenValueIsValidator) Validate(ctx context.Context, req Required
 			}
 
 			var mpVal attr.Value
-			diags = req.Config.GetAttribute(ctx, mp, &mpVal)
-			resp.Diagnostics.Append(diags...)
-			if diags.HasError() {
+			resp.Diagnostics.Append(req.Config.GetAttribute(ctx, mp, &mpVal)...)
+			if resp.Diagnostics.HasError() {
 				continue // Collect all errors
 			}
 

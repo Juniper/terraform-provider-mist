@@ -56,7 +56,7 @@ func (o AllowedWhenValueIsValidator) Validate(ctx context.Context, req AllowedWh
 	for _, expression := range mergedExpressions {
 		matchedPaths, diags := req.Config.PathMatches(ctx, expression)
 		resp.Diagnostics.Append(diags...)
-		if diags.HasError() {
+		if resp.Diagnostics.HasError() {
 			return
 		}
 
@@ -70,7 +70,7 @@ func (o AllowedWhenValueIsValidator) Validate(ctx context.Context, req AllowedWh
 			// get the attribute we'll be checking against
 			var mpVal attr.Value
 			resp.Diagnostics.Append(req.Config.GetAttribute(ctx, mp, &mpVal)...)
-			if diags.HasError() {
+			if resp.Diagnostics.HasError() {
 				continue // Collect all errors
 			}
 
@@ -78,7 +78,7 @@ func (o AllowedWhenValueIsValidator) Validate(ctx context.Context, req AllowedWh
 			if mpVal.IsUnknown() || !o.Value.Equal(mpVal) {
 				resp.Diagnostics.Append(validatordiag.InvalidAttributeCombinationDiagnostic(
 					req.Path,
-					fmt.Sprintf("attribute %s must be set to %s when %s has value, got: %s", mp, o.Value, req.Path, mpVal.String()),
+					fmt.Sprintf("attribute %s is only allowed when %s has value in %s, got: %s", req.Path, mp, o.Value, mpVal.String()),
 				))
 			}
 		}
