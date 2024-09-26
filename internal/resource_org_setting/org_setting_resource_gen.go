@@ -716,7 +716,7 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 							"enabled": schema.BoolAttribute{
 								Optional: true,
 							},
-							"time_od_fay": schema.StringAttribute{
+							"time_of_day": schema.StringAttribute{
 								Optional:            true,
 								Computed:            true,
 								Description:         "any / HH:MM (24-hour format)",
@@ -10461,22 +10461,22 @@ func (t WanSpeedtestType) ValueFromObject(ctx context.Context, in basetypes.Obje
 			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
 	}
 
-	timeOdFayAttribute, ok := attributes["time_od_fay"]
+	timeOfDayAttribute, ok := attributes["time_of_day"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`time_od_fay is missing from object`)
+			`time_of_day is missing from object`)
 
 		return nil, diags
 	}
 
-	timeOdFayVal, ok := timeOdFayAttribute.(basetypes.StringValue)
+	timeOfDayVal, ok := timeOfDayAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`time_od_fay expected to be basetypes.StringValue, was: %T`, timeOdFayAttribute))
+			fmt.Sprintf(`time_of_day expected to be basetypes.StringValue, was: %T`, timeOfDayAttribute))
 	}
 
 	if diags.HasError() {
@@ -10485,7 +10485,7 @@ func (t WanSpeedtestType) ValueFromObject(ctx context.Context, in basetypes.Obje
 
 	return WanSpeedtestValue{
 		Enabled:   enabledVal,
-		TimeOdFay: timeOdFayVal,
+		TimeOfDay: timeOfDayVal,
 		state:     attr.ValueStateKnown,
 	}, diags
 }
@@ -10571,22 +10571,22 @@ func NewWanSpeedtestValue(attributeTypes map[string]attr.Type, attributes map[st
 			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
 	}
 
-	timeOdFayAttribute, ok := attributes["time_od_fay"]
+	timeOfDayAttribute, ok := attributes["time_of_day"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`time_od_fay is missing from object`)
+			`time_of_day is missing from object`)
 
 		return NewWanSpeedtestValueUnknown(), diags
 	}
 
-	timeOdFayVal, ok := timeOdFayAttribute.(basetypes.StringValue)
+	timeOfDayVal, ok := timeOfDayAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`time_od_fay expected to be basetypes.StringValue, was: %T`, timeOdFayAttribute))
+			fmt.Sprintf(`time_of_day expected to be basetypes.StringValue, was: %T`, timeOfDayAttribute))
 	}
 
 	if diags.HasError() {
@@ -10595,7 +10595,7 @@ func NewWanSpeedtestValue(attributeTypes map[string]attr.Type, attributes map[st
 
 	return WanSpeedtestValue{
 		Enabled:   enabledVal,
-		TimeOdFay: timeOdFayVal,
+		TimeOfDay: timeOfDayVal,
 		state:     attr.ValueStateKnown,
 	}, diags
 }
@@ -10669,7 +10669,7 @@ var _ basetypes.ObjectValuable = WanSpeedtestValue{}
 
 type WanSpeedtestValue struct {
 	Enabled   basetypes.BoolValue   `tfsdk:"enabled"`
-	TimeOdFay basetypes.StringValue `tfsdk:"time_od_fay"`
+	TimeOfDay basetypes.StringValue `tfsdk:"time_of_day"`
 	state     attr.ValueState
 }
 
@@ -10680,7 +10680,7 @@ func (v WanSpeedtestValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 	var err error
 
 	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["time_od_fay"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["time_of_day"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
@@ -10696,13 +10696,13 @@ func (v WanSpeedtestValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 
 		vals["enabled"] = val
 
-		val, err = v.TimeOdFay.ToTerraformValue(ctx)
+		val, err = v.TimeOfDay.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["time_od_fay"] = val
+		vals["time_of_day"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -10735,7 +10735,7 @@ func (v WanSpeedtestValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 
 	attributeTypes := map[string]attr.Type{
 		"enabled":     basetypes.BoolType{},
-		"time_od_fay": basetypes.StringType{},
+		"time_of_day": basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -10750,7 +10750,7 @@ func (v WanSpeedtestValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 		attributeTypes,
 		map[string]attr.Value{
 			"enabled":     v.Enabled,
-			"time_od_fay": v.TimeOdFay,
+			"time_of_day": v.TimeOfDay,
 		})
 
 	return objVal, diags
@@ -10775,7 +10775,7 @@ func (v WanSpeedtestValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.TimeOdFay.Equal(other.TimeOdFay) {
+	if !v.TimeOfDay.Equal(other.TimeOfDay) {
 		return false
 	}
 
@@ -10793,7 +10793,7 @@ func (v WanSpeedtestValue) Type(ctx context.Context) attr.Type {
 func (v WanSpeedtestValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"enabled":     basetypes.BoolType{},
-		"time_od_fay": basetypes.StringType{},
+		"time_of_day": basetypes.StringType{},
 	}
 }
 

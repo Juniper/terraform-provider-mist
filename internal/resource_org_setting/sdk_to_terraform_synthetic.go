@@ -59,11 +59,11 @@ func syntheticTestWanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 	if d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
-	if d.TimeOdFay != nil {
-		time_of_day = types.StringValue(*d.TimeOdFay)
+	if d.TimeOfDay != nil {
+		time_of_day = types.StringValue(*d.TimeOfDay)
 	}
 
-	data_map_attr_type := ServerCertValue{}.AttributeTypes(ctx)
+	data_map_attr_type := WanSpeedtestValue{}.AttributeTypes(ctx)
 	data_map_value := map[string]attr.Value{
 		"enabled":     enabled,
 		"time_of_day": time_of_day,

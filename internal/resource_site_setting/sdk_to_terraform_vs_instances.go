@@ -25,7 +25,7 @@ func vsInstanceSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		data_map_value := map[string]attr.Value{
 			"networks": networks,
 		}
-		data, e := NewVlansValue(data_map_attr_type, data_map_value)
+		data, e := NewVsInstanceValue(data_map_attr_type, data_map_value)
 		diags.Append(e...)
 
 		state_value_map[k] = data

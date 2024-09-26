@@ -51,8 +51,8 @@ func syntheticTestWanTerraformToSdk(ctx context.Context, diags *diag.Diagnostics
 				data.Enabled = plan.Enabled.ValueBoolPointer()
 			}
 
-			if plan.TimeOdFay.ValueStringPointer() != nil {
-				data.TimeOdFay = plan.TimeOdFay.ValueStringPointer()
+			if plan.TimeOfDay.ValueStringPointer() != nil {
+				data.TimeOfDay = plan.TimeOfDay.ValueStringPointer()
 			}
 		}
 	}

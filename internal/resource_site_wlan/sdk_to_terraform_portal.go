@@ -287,7 +287,7 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 		sso_idp_cert = types.StringValue(*d.SsoIdpCert)
 	}
 	if d != nil && d.SsoIdpSignAlgo != nil {
-		sso_idp_sign_algo = types.StringValue(*d.SsoIdpSignAlgo)
+		sso_idp_sign_algo = types.StringValue(string(*d.SsoIdpSignAlgo))
 	}
 	if d != nil && d.SsoIdpSsoUrl != nil {
 		sso_idp_sso_url = types.StringValue(*d.SsoIdpSsoUrl)

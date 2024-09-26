@@ -85,7 +85,7 @@ func portalTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, plan Por
 	data.SsoDefaultRole = plan.SsoDefaultRole.ValueStringPointer()
 	data.SsoForcedRole = plan.SsoForcedRole.ValueStringPointer()
 	data.SsoIdpCert = plan.SsoIdpCert.ValueStringPointer()
-	data.SsoIdpSignAlgo = plan.SsoIdpSignAlgo.ValueStringPointer()
+	data.SsoIdpSignAlgo = (*models.WlanPortalIdpSignAlgoEnum)(plan.SsoIdpSignAlgo.ValueStringPointer())
 	data.SsoIdpSsoUrl = plan.SsoIdpSsoUrl.ValueStringPointer()
 	data.SsoIssuer = plan.SsoIssuer.ValueStringPointer()
 	data.SsoNameidFormat = models.ToPointer(models.WlanPortalSsoNameidFormatEnum(string(plan.SsoNameidFormat.ValueString())))
