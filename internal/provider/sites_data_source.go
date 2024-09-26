@@ -52,7 +52,7 @@ func (d *sitesDataSource) Metadata(ctx context.Context, req datasource.MetadataR
 
 func (d *sitesDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategorySite + "This datasource provides the list of sites in a Mist Organization." +
+		MarkdownDescription: docCategorySite + "This datasource provides the list of sites in a Mist Organization.\n" +
 			"A site represents a project, a deployment. A site contains a set of Maps, Wlans, Policies, Zones, ...",
 		Attributes: datasource_sites.SitesDataSourceSchema(ctx).Attributes,
 	}

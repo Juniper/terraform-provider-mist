@@ -2,12 +2,14 @@
 page_title: "mist_sites Data Source - terraform-provider-mist"
 subcategory: "Site"
 description: |-
-  This datasource provides the list of sites in a Mist Organization.A site represents a project, a deployment. A site contains a set of Maps, Wlans, Policies, Zones, ...
+  This datasource provides the list of sites in a Mist Organization.
+  A site represents a project, a deployment. A site contains a set of Maps, Wlans, Policies, Zones, ...
 ---
 
 # mist_sites (Data Source)
 
-This datasource provides the list of sites in a Mist Organization.A site represents a project, a deployment. A site contains a set of Maps, Wlans, Policies, Zones, ...
+This datasource provides the list of sites in a Mist Organization.
+A site represents a project, a deployment. A site contains a set of Maps, Wlans, Policies, Zones, ...
 
 
 ## Example Usage

@@ -2,12 +2,14 @@
 page_title: "mist_org_wlan Resource - terraform-provider-mist"
 subcategory: "Wi-Fi Assurance"
 description: |-
-  This resource manages the Org Wlans.The WLAN object contains all the required configuration to broadcast an SSID (Authentication, VLAN, ...)
+  This resource manages the Org Wlans.
+  The WLAN object contains all the required configuration to broadcast an SSID (Authentication, VLAN, ...)
 ---
 
 # mist_org_wlan (Resource)
 
-This resource manages the Org Wlans.The WLAN object contains all the required configuration to broadcast an SSID (Authentication, VLAN, ...)
+This resource manages the Org Wlans.
+The WLAN object contains all the required configuration to broadcast an SSID (Authentication, VLAN, ...)
 
 
 ## Example Usage

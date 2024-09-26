@@ -55,7 +55,7 @@ func (r *orgWlanResource) Metadata(ctx context.Context, req resource.MetadataReq
 
 func (r *orgWlanResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryWlan + "This resource manages the Org Wlans." +
+		MarkdownDescription: docCategoryWlan + "This resource manages the Org Wlans.\n" +
 			"The WLAN object contains all the required configuration to broadcast an SSID (Authentication, VLAN, ...)",
 		Attributes: resource_org_wlan.OrgWlanResourceSchema(ctx).Attributes,
 	}

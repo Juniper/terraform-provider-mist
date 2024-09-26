@@ -47,7 +47,7 @@ func (d *constAppCategoriesDataSource) Metadata(ctx context.Context, req datasou
 
 func (d *constAppCategoriesDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryConst + "This data source provides the of ConstAppCategories." +
+		MarkdownDescription: docCategoryConst + "This data source provides the of ConstAppCategories.\n" +
 			"This information can be used as `app_categories` in the `mist_org_service` resource",
 		Attributes: datasource_const_app_categories.ConstAppCategoriesDataSourceSchema(ctx).Attributes,
 	}

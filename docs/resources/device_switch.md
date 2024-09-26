@@ -2,12 +2,14 @@
 page_title: "mist_device_switch Resource - terraform-provider-mist"
 subcategory: "Devices"
 description: |-
-  This resource manages the Switch configuration.It can be used to define specific configuration at the device level or to override Org/Site Network template settings.
+  This resource manages the Switch configuration.
+  It can be used to define specific configuration at the device level or to override Org/Site Network template settings.
 ---
 
 # mist_device_switch (Resource)
 
-This resource manages the Switch configuration.It can be used to define specific configuration at the device level or to override Org/Site Network template settings.
+This resource manages the Switch configuration.
+It can be used to define specific configuration at the device level or to override Org/Site Network template settings.
 
 
 ## Example Usage

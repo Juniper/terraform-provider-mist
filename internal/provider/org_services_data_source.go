@@ -52,7 +52,7 @@ func (d *orgServicesDataSource) Metadata(ctx context.Context, req datasource.Met
 
 func (d *orgServicesDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryWan + "This data source provides the list of WAN Assurance Services (Applications)." +
+		MarkdownDescription: docCategoryWan + "This data source provides the list of WAN Assurance Services (Applications).\n" +
 			"The Services are used in the `service_policies` from the Gateway configuration and Gateway templates ",
 		Attributes: datasource_org_services.OrgServicesDataSourceSchema(ctx).Attributes,
 	}

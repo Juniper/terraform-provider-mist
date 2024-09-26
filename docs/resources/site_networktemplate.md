@@ -2,12 +2,14 @@
 page_title: "mist_site_networktemplate Resource - terraform-provider-mist"
 subcategory: "Wired Assurance"
 description: |-
-  This resource manages the Site Network configuration (Switch configuration).The Site Network template can be used to override the Org Network template assign to the site, or to configure common switch settings accross the site without having to create an Org Network template.
+  This resource manages the Site Network configuration (Switch configuration).
+  The Site Network template can be used to override the Org Network template assign to the site, or to configure common switch settings accross the site without having to create an Org Network template.
 ---
 
 # mist_site_networktemplate (Resource)
 
-This resource manages the Site Network configuration (Switch configuration).The Site Network template can be used to override the Org Network template assign to the site, or to configure common switch settings accross the site without having to create an Org Network template.
+This resource manages the Site Network configuration (Switch configuration).
+The Site Network template can be used to override the Org Network template assign to the site, or to configure common switch settings accross the site without having to create an Org Network template.
 
 
 ## Example Usage

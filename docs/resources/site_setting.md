@@ -2,12 +2,14 @@
 page_title: "mist_site_setting Resource - terraform-provider-mist"
 subcategory: "Site"
 description: |-
-  This resource manages the Site Settings.The Site Settings can used to customize the Site configuration and assign Site Variables (Sites Variables can be reused in configuration templates)
+  This resource manages the Site Settings.
+  The Site Settings can used to customize the Site configuration and assign Site Variables (Sites Variables can be reused in configuration templates)
 ---
 
 # mist_site_setting (Resource)
 
-This resource manages the Site Settings.The Site Settings can used to customize the Site configuration and assign Site Variables (Sites Variables can be reused in configuration templates)
+This resource manages the Site Settings.
+The Site Settings can used to customize the Site configuration and assign Site Variables (Sites Variables can be reused in configuration templates)
 
 
 ## Example Usage

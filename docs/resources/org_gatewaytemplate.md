@@ -2,12 +2,14 @@
 page_title: "mist_org_gatewaytemplate Resource - terraform-provider-mist"
 subcategory: "WAN Assurance"
 description: |-
-  This resource manages the Gateway Templates.A Gateway template is used to define the static ip address and subnet mask of the hub device, along with the gateway. It also allows for the selection of options such as enabling source nat and overriding the public ip for the hub if needed. the endpoint selected in the gateway template ties the hub and spoke devices together and creates the auto-vpn tunnel.
+  This resource manages the Gateway Templates.
+  A Gateway template is used to define the static ip address and subnet mask of the hub device, along with the gateway. It also allows for the selection of options such as enabling source nat and overriding the public ip for the hub if needed. the endpoint selected in the gateway template ties the hub and spoke devices together and creates the auto-vpn tunnel.
 ---
 
 # mist_org_gatewaytemplate (Resource)
 
-This resource manages the Gateway Templates.A Gateway template is used to define the static ip address and subnet mask of the hub device, along with the gateway. It also allows for the selection of options such as enabling source nat and overriding the public ip for the hub if needed. the endpoint selected in the gateway template ties the hub and spoke devices together and creates the auto-vpn tunnel.
+This resource manages the Gateway Templates.
+A Gateway template is used to define the static ip address and subnet mask of the hub device, along with the gateway. It also allows for the selection of options such as enabling source nat and overriding the public ip for the hub if needed. the endpoint selected in the gateway template ties the hub and spoke devices together and creates the auto-vpn tunnel.
 
 
 ## Example Usage

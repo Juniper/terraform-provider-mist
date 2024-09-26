@@ -57,7 +57,7 @@ func (r *orgDeviceprofileGatewayResource) Metadata(ctx context.Context, req reso
 
 func (r *orgDeviceprofileGatewayResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryDevices + "This resource manages the Gateway Device Profiles (HUB Profiles)." +
+		MarkdownDescription: docCategoryDevices + "This resource manages the Gateway Device Profiles (HUB Profiles).\n" +
 			"A HUB profile is a configuration profile that automates the creation of overlay networks and defines the attributes of a hub device in a network. " +
 			"It includes settings for wan interfaces, lan interfaces, dns servers, traffic steering preferences, application policies, and routing options. " +
 			"HUB profiles are used to create consistent configurations for hub devices and ensure efficient connectivity between hubs and spokes in a network.",

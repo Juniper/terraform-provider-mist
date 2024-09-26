@@ -54,7 +54,7 @@ func (r *deviceGatewayClusterResource) Metadata(ctx context.Context, req resourc
 
 func (r *deviceGatewayClusterResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryDevices + "This resource can be used to form or delete a Gateway" +
+		MarkdownDescription: docCategoryDevices + "This resource can be used to form or delete a Gateway\n" +
 			" Clusters. It can be used with two Gateways assigned to the same site.\n" +
 			"Once the Cluster is formed, it can be create just like a Gateway with the `mist_device_gateway` resource:\n" +
 			"1. Claim the gateways and assign them to a site with the `mist_org_inventory` resource\n" +

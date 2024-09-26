@@ -2,12 +2,14 @@
 page_title: "mist_org_rftemplates Data Source - terraform-provider-mist"
 subcategory: "Wi-Fi Assurance"
 description: |-
-  This resource provides the list of RF Templates.The RF Templates can be used to define Wireless Access Points radio configuration, and can be assigned to the sites
+  This resource provides the list of RF Templates.
+  The RF Templates can be used to define Wireless Access Points radio configuration, and can be assigned to the sites
 ---
 
 # mist_org_rftemplates (Data Source)
 
-This resource provides the list of RF Templates.The RF Templates can be used to define Wireless Access Points radio configuration, and can be assigned to the sites
+This resource provides the list of RF Templates.
+The RF Templates can be used to define Wireless Access Points radio configuration, and can be assigned to the sites
 
 
 ## Example Usage

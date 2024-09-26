@@ -52,7 +52,7 @@ func (d *orgGatewaytemplatesDataSource) Metadata(ctx context.Context, req dataso
 
 func (d *orgGatewaytemplatesDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryWan + "This data source provides the list of Gateway Templates." +
+		MarkdownDescription: docCategoryWan + "This data source provides the list of Gateway Templates.\n" +
 			"A Gateway template can be used to define generic gateway configuration at the org level and" +
 			"be applied to one or multiple Sites. It works like a blueprint of the network of the site.",
 		Attributes: datasource_org_gatewaytemplates.OrgGatewaytemplatesDataSourceSchema(ctx).Attributes,

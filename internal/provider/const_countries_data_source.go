@@ -47,7 +47,7 @@ func (d *constCountriesDataSource) Metadata(ctx context.Context, req datasource.
 
 func (d *constCountriesDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryConst + "This data source provides the of ConstCountries." +
+		MarkdownDescription: docCategoryConst + "This data source provides the of ConstCountries.\n" +
 			"This information can be used to define the Country in the RF templates (`mist_org_rftemplate`)",
 		Attributes: datasource_const_countries.ConstCountriesDataSourceSchema(ctx).Attributes,
 	}

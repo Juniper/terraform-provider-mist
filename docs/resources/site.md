@@ -2,12 +2,14 @@
 page_title: "mist_site Resource - terraform-provider-mist"
 subcategory: "Site"
 description: |-
-  This resources manages the Site basic information.This resource can be used to assign templates to a site, or to change basic information (e.g. Site Address)
+  This resources manages the Site basic information.
+  This resource can be used to assign templates to a site, or to change basic information (e.g. Site Address)
 ---
 
 # mist_site (Resource)
 
-This resources manages the Site basic information.This resource can be used to assign templates to a site, or to change basic information (e.g. Site Address)
+This resources manages the Site basic information.
+This resource can be used to assign templates to a site, or to change basic information (e.g. Site Address)
 
 
 ## Example Usage

@@ -2,12 +2,14 @@
 page_title: "mist_org_network Resource - terraform-provider-mist"
 subcategory: "WAN Assurance"
 description: |-
-  This resource manages the WAN Assurance Networks.The Networks are used in the service_policies from the Gateway configuration and Gateway templates
+  This resource manages the WAN Assurance Networks.
+  The Networks are used in the service_policies from the Gateway configuration and Gateway templates
 ---
 
 # mist_org_network (Resource)
 
-This resource manages the WAN Assurance Networks.The Networks are used in the `service_policies` from the Gateway configuration and Gateway templates
+This resource manages the WAN Assurance Networks.
+The Networks are used in the `service_policies` from the Gateway configuration and Gateway templates
 
 
 ## Example Usage

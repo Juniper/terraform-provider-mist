@@ -59,7 +59,7 @@ func (r *orgInventoryResource) Metadata(ctx context.Context, req resource.Metada
 
 func (r *orgInventoryResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryDevices + "This resource manages the Org inventory." +
+		MarkdownDescription: docCategoryDevices + "This resource manages the Org inventory.\n" +
 			"It can be used to claim, unclaim, assign, unassign, reassign devices",
 		Attributes: resource_org_inventory.OrgInventoryResourceSchema(ctx).Attributes,
 	}

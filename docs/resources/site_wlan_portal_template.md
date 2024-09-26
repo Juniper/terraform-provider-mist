@@ -2,7 +2,8 @@
 page_title: "mist_site_wlan_portal_template Resource - terraform-provider-mist"
 subcategory: "Wi-Fi Assurance"
 description: |-
-  This resource is used customize the WLAN Guest Portal.The WLAN Portal Template can be used to define:
+  This resource is used customize the WLAN Guest Portal.
+  The WLAN Portal Template can be used to define:
   Guest Authentication methods and parameters (access duration, ...)Default values of the text fields and labels on the portalValues of the text fields and labels based on the User Agent (locales property)
   Notes:
   There is no feedback from the API, so there is no possibility to validate the changes. The resource states is directly generated based on the resource plan.* There is no option to delete or revert the changes. Deleting the resource will just remove it from the states. Once removed, it is possible to create a new one. It will replace the previous template
@@ -10,7 +11,8 @@ description: |-
 
 # mist_site_wlan_portal_template (Resource)
 
-This resource is used customize the WLAN Guest Portal.The WLAN Portal Template can be used to define:
+This resource is used customize the WLAN Guest Portal.
+The WLAN Portal Template can be used to define:
 * Guest Authentication methods and parameters (access duration, ...)
 * Default values of the text fields and labels on the portal
 * Values of the text fields and labels based on the User Agent (`locales` property)

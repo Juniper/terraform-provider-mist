@@ -2,12 +2,14 @@
 page_title: "mist_org_wlan_portal_image Resource - terraform-provider-mist"
 subcategory: "Wi-Fi Assurance"
 description: |-
-  This resource is used to upload a WLAN Captive Web Portal background image.The WLAN object contains all the required configuration to broadcast an SSID (Authentication, VLAN, ...)
+  This resource is used to upload a WLAN Captive Web Portal background image.
+  The WLAN object contains all the required configuration to broadcast an SSID (Authentication, VLAN, ...)
 ---
 
 # mist_org_wlan_portal_image (Resource)
 
-This resource is used to upload a WLAN Captive Web Portal background image.The WLAN object contains all the required configuration to broadcast an SSID (Authentication, VLAN, ...)
+This resource is used to upload a WLAN Captive Web Portal background image.
+The WLAN object contains all the required configuration to broadcast an SSID (Authentication, VLAN, ...)
 
 
 ## Example Usage

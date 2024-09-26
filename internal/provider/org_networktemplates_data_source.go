@@ -52,7 +52,7 @@ func (d *orgNetworktemplatesDataSource) Metadata(ctx context.Context, req dataso
 
 func (d *orgNetworktemplatesDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryWired + "This data source provides the list of Org Network Templates (Switch templates)." +
+		MarkdownDescription: docCategoryWired + "This data source provides the list of Org Network Templates (Switch templates).\n" +
 			"A network template is a predefined configuration that provides a consistent and reusable set of network settings for devices within an organization. " +
 			"It includes various parameters such as ip addressing, vlan configurations, routing protocols, security policies, and other network-specific settings. " +
 			"Network templates simplify the deployment and management of switches by ensuring consistent configurations across multiple devices and sites. " +

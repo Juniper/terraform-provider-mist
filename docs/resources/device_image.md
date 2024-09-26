@@ -2,12 +2,14 @@
 page_title: "mist_device_image Resource - terraform-provider-mist"
 subcategory: "Wi-Fi Assurance"
 description: |-
-  This resource is used to upload a Device picture.This resource can be used to add a picture to a Wireless Access point, a Switch or a Gateway. A Maximum of 3 pictures can be uploaded.
+  This resource is used to upload a Device picture.
+  This resource can be used to add a picture to a Wireless Access point, a Switch or a Gateway. A Maximum of 3 pictures can be uploaded.
 ---
 
 # mist_device_image (Resource)
 
-This resource is used to upload a Device picture.This resource can be used to add a picture to a Wireless Access point, a Switch or a Gateway. A Maximum of 3 pictures can be uploaded.
+This resource is used to upload a Device picture.
+This resource can be used to add a picture to a Wireless Access point, a Switch or a Gateway. A Maximum of 3 pictures can be uploaded.
 
 
 ## Example Usage

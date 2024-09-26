@@ -54,7 +54,7 @@ func (r *orgWxRuleResource) Metadata(ctx context.Context, req resource.MetadataR
 
 func (r *orgWxRuleResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryWlan + "This resource manages the Org WxRules (WxLAN policies)." +
+		MarkdownDescription: docCategoryWlan + "This resource manages the Org WxRules (WxLAN policies).\n" +
 			"A WxLAN policy is a set of rules and settings that can be applied to devices in a network to determine " +
 			"how they are treated. it provides support for access policies, network segmentation, role-based policies, " +
 			"micro-segmentation, and least privilege. " +

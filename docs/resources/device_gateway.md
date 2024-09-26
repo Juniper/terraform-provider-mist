@@ -2,12 +2,14 @@
 page_title: "mist_device_gateway Resource - terraform-provider-mist"
 subcategory: "Devices"
 description: |-
-  This resource manages the Gateway configuration.It can be used to define specific configuration at the device level or to override Org Gateway template settings.
+  This resource manages the Gateway configuration.
+  It can be used to define specific configuration at the device level or to override Org Gateway template settings.
 ---
 
 # mist_device_gateway (Resource)
 
-This resource manages the Gateway configuration.It can be used to define specific configuration at the device level or to override Org Gateway template settings.
+This resource manages the Gateway configuration.
+It can be used to define specific configuration at the device level or to override Org Gateway template settings.
 
 
 ## Example Usage

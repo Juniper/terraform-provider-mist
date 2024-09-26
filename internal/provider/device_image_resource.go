@@ -52,7 +52,7 @@ func (r *deviceImageResource) Metadata(ctx context.Context, req resource.Metadat
 
 func (r *deviceImageResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryWlan + "This resource is used to upload a Device picture." +
+		MarkdownDescription: docCategoryWlan + "This resource is used to upload a Device picture.\n" +
 			"This resource can be used to add a picture to a Wireless Access point, a Switch or " +
 			"a Gateway. A Maximum of 3 pictures can be uploaded.",
 		Attributes: resource_device_image.DeviceImageResourceSchema(ctx).Attributes,

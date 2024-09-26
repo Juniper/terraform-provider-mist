@@ -2,12 +2,14 @@
 page_title: "mist_org_gatewaytemplates Data Source - terraform-provider-mist"
 subcategory: "WAN Assurance"
 description: |-
-  This data source provides the list of Gateway Templates.A Gateway template can be used to define generic gateway configuration at the org level andbe applied to one or multiple Sites. It works like a blueprint of the network of the site.
+  This data source provides the list of Gateway Templates.
+  A Gateway template can be used to define generic gateway configuration at the org level andbe applied to one or multiple Sites. It works like a blueprint of the network of the site.
 ---
 
 # mist_org_gatewaytemplates (Data Source)
 
-This data source provides the list of Gateway Templates.A Gateway template can be used to define generic gateway configuration at the org level andbe applied to one or multiple Sites. It works like a blueprint of the network of the site.
+This data source provides the list of Gateway Templates.
+A Gateway template can be used to define generic gateway configuration at the org level andbe applied to one or multiple Sites. It works like a blueprint of the network of the site.
 
 
 ## Example Usage

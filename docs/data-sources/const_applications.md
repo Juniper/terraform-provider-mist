@@ -2,12 +2,14 @@
 page_title: "mist_const_applications Data Source - terraform-provider-mist"
 subcategory: "Constants"
 description: |-
-  This data source provides the of ConstApplications.This information can be used as apps in the mist_org_service resource, the mist_site_setting resource (mist_site_setting.gateway_mgmt.app_probing.apps) or in the mist_org_setting resource (mist_org_setting.gateway_mgmt.app_probing.apps)
+  This data source provides the of ConstApplications.
+  This information can be used as apps in the mist_org_service resource, the mist_site_setting resource (mist_site_setting.gateway_mgmt.app_probing.apps) or in the mist_org_setting resource (mist_org_setting.gateway_mgmt.app_probing.apps)
 ---
 
 # mist_const_applications (Data Source)
 
-This data source provides the of ConstApplications.This information can be used as `apps` in the `mist_org_service` resource, the `mist_site_setting` resource (`mist_site_setting.gateway_mgmt.app_probing.apps`) or in the `mist_org_setting` resource (`mist_org_setting.gateway_mgmt.app_probing.apps`)
+This data source provides the of ConstApplications.
+This information can be used as `apps` in the `mist_org_service` resource, the `mist_site_setting` resource (`mist_site_setting.gateway_mgmt.app_probing.apps`) or in the `mist_org_setting` resource (`mist_org_setting.gateway_mgmt.app_probing.apps`)
 
 
 ## Example Usage

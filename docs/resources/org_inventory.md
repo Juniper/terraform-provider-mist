@@ -2,12 +2,14 @@
 page_title: "mist_org_inventory Resource - terraform-provider-mist"
 subcategory: "Devices"
 description: |-
-  This resource manages the Org inventory.It can be used to claim, unclaim, assign, unassign, reassign devices
+  This resource manages the Org inventory.
+  It can be used to claim, unclaim, assign, unassign, reassign devices
 ---
 
 # mist_org_inventory (Resource)
 
-This resource manages the Org inventory.It can be used to claim, unclaim, assign, unassign, reassign devices
+This resource manages the Org inventory.
+It can be used to claim, unclaim, assign, unassign, reassign devices
 
 
 ## Example Usage

@@ -2,12 +2,14 @@
 page_title: "mist_org_services Data Source - terraform-provider-mist"
 subcategory: "WAN Assurance"
 description: |-
-  This data source provides the list of WAN Assurance Services (Applications).The Services are used in the service_policies from the Gateway configuration and Gateway templates
+  This data source provides the list of WAN Assurance Services (Applications).
+  The Services are used in the service_policies from the Gateway configuration and Gateway templates
 ---
 
 # mist_org_services (Data Source)
 
-This data source provides the list of WAN Assurance Services (Applications).The Services are used in the `service_policies` from the Gateway configuration and Gateway templates
+This data source provides the list of WAN Assurance Services (Applications).
+The Services are used in the `service_policies` from the Gateway configuration and Gateway templates
 
 
 ## Example Usage

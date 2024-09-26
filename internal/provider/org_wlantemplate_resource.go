@@ -54,7 +54,7 @@ func (r *orgWlanTemplateResource) Metadata(ctx context.Context, req resource.Met
 
 func (r *orgWlanTemplateResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryWlan + "This resource manages the Org WLAN Templates." +
+		MarkdownDescription: docCategoryWlan + "This resource manages the Org WLAN Templates.\n" +
 			"A WLAN template is a collection of WLANs, tunneling policies, and wxlan policies. " +
 			"It is used to create and manage wlan configurations at an organizational level. " +
 			"WLAN templates allow for modular, scalable, and easy-to-manage configuration of ssids and their application to specific sites, " +

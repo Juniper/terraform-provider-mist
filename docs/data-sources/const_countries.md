@@ -2,12 +2,14 @@
 page_title: "mist_const_countries Data Source - terraform-provider-mist"
 subcategory: "Constants"
 description: |-
-  This data source provides the of ConstCountries.This information can be used to define the Country in the RF templates (mist_org_rftemplate)
+  This data source provides the of ConstCountries.
+  This information can be used to define the Country in the RF templates (mist_org_rftemplate)
 ---
 
 # mist_const_countries (Data Source)
 
-This data source provides the of ConstCountries.This information can be used to define the Country in the RF templates (`mist_org_rftemplate`)
+This data source provides the of ConstCountries.
+This information can be used to define the Country in the RF templates (`mist_org_rftemplate`)
 
 
 ## Example Usage

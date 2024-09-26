@@ -52,7 +52,7 @@ func (d *orgServicepoliciesDataSource) Metadata(ctx context.Context, req datasou
 
 func (d *orgServicepoliciesDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryWan + "This data source provides the list of WAN Assurance Service Policies (Application Policiess)." +
+		MarkdownDescription: docCategoryWan + "This data source provides the list of WAN Assurance Service Policies (Application Policiess).\n" +
 			"The Service Policies are used in the `servicepolicy_policies` from the Gateway configuration and Gateway templates." +
 			"They can be used to manage common policies betweeen multiples configurations",
 		Attributes: datasource_org_servicepolicies.OrgServicepoliciesDataSourceSchema(ctx).Attributes,

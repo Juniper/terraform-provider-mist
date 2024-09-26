@@ -58,7 +58,7 @@ func (r *deviceGatewayResource) Metadata(ctx context.Context, req resource.Metad
 
 func (r *deviceGatewayResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryDevices + "This resource manages the Gateway configuration." +
+		MarkdownDescription: docCategoryDevices + "This resource manages the Gateway configuration.\n" +
 			"It can be used to define specific configuration at the device level or to override Org Gateway template settings.",
 		Attributes: resource_device_gateway.DeviceGatewayResourceSchema(ctx).Attributes,
 	}

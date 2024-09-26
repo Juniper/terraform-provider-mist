@@ -2,12 +2,14 @@
 page_title: "mist_const_app_categories Data Source - terraform-provider-mist"
 subcategory: "Constants"
 description: |-
-  This data source provides the of ConstAppCategories.This information can be used as app_categories in the mist_org_service resource
+  This data source provides the of ConstAppCategories.
+  This information can be used as app_categories in the mist_org_service resource
 ---
 
 # mist_const_app_categories (Data Source)
 
-This data source provides the of ConstAppCategories.This information can be used as `app_categories` in the `mist_org_service` resource
+This data source provides the of ConstAppCategories.
+This information can be used as `app_categories` in the `mist_org_service` resource
 
 
 ## Example Usage

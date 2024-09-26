@@ -52,7 +52,7 @@ func (r *siteWlanPortalImageResource) Metadata(ctx context.Context, req resource
 
 func (r *siteWlanPortalImageResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryWlan + "This resource is used to upload a WLAN Captive Web Portal background image." +
+		MarkdownDescription: docCategoryWlan + "This resource is used to upload a WLAN Captive Web Portal background image.\n" +
 			"The WLAN object contains all the required configuration to broadcast an SSID (Authentication, VLAN, ...)",
 		Attributes: resource_site_wlan_portal_image.SiteWlanPortalImageResourceSchema(ctx).Attributes,
 	}

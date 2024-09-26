@@ -410,6 +410,7 @@ func (p *mistProvider) Resources(ctx context.Context) []func() resource.Resource
 		NewOrgInventory,
 		NewOrgNacTag,
 		NewOrgNacRule,
+		NewOrgNacIdp,
 		NewOrgRfTemplate,
 		NewOrgVpn,
 		NewOrgWlanTemplate,
@@ -442,5 +443,7 @@ func (p *mistProvider) Resources(ctx context.Context) []func() resource.Resource
 		NewSiteWlanPortalImage,
 		NewSiteWlanPortalTemplate,
 		NewOrgApitoken,
+		NewOrgSso,
+		NewOrgSsoRole,
 	}
 }

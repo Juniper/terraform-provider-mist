@@ -53,7 +53,7 @@ func (r *siteSettingResource) Metadata(ctx context.Context, req resource.Metadat
 
 func (r *siteSettingResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategorySite + "This resource manages the Site Settings." +
+		MarkdownDescription: docCategorySite + "This resource manages the Site Settings.\n" +
 			"The Site Settings can used to customize the Site configuration and assign Site Variables (Sites Variables can be reused in configuration templates) ",
 		Attributes: resource_site_setting.SiteSettingResourceSchema(ctx).Attributes,
 	}

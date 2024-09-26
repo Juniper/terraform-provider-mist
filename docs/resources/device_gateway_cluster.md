@@ -2,7 +2,8 @@
 page_title: "mist_device_gateway_cluster Resource - terraform-provider-mist"
 subcategory: "Devices"
 description: |-
-  This resource can be used to form or delete a Gateway Clusters. It can be used with two Gateways assigned to the same site.
+  This resource can be used to form or delete a Gateway
+  Clusters. It can be used with two Gateways assigned to the same site.
   Once the Cluster is formed, it can be create just like a Gateway with the mist_device_gateway resource:
   Claim the gateways and assign them to a site with the mist_org_inventory resourceForm the Cluster with the mist_device_gateway_cluster resource by providing the site_id and the two nodes MAC Addresses (the first in the list will be the node0)Configure the Cluster with the mist_device_gateway resource
   Please check the Juniper Documentation first to validate the cabling between the Gateways
@@ -10,7 +11,8 @@ description: |-
 
 # mist_device_gateway_cluster (Resource)
 
-This resource can be used to form or delete a Gateway Clusters. It can be used with two Gateways assigned to the same site.
+This resource can be used to form or delete a Gateway
+ Clusters. It can be used with two Gateways assigned to the same site.
 Once the Cluster is formed, it can be create just like a Gateway with the `mist_device_gateway` resource:
 1. Claim the gateways and assign them to a site with the `mist_org_inventory` resource
 2. Form the Cluster with the `mist_device_gateway_cluster` resource by providing the `site_id` and the two nodes MAC Addresses (the first in the list will be the node0)
