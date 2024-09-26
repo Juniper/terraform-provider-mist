@@ -26,10 +26,14 @@ resource "mist_site" "juniper_france" {
     lat = 48.899268
     lng = 2.214447
   }
-  sitegroup_ids      = [mist_org_sitegroup.test_group.id, mist_org_sitegroup.test_group2.id]
-  networktemplate_id = mist_org_networktemplate.switch_template.id
-  rftemplate_id      = mist_org_rftemplate.test_rf.id
-  gatewaytemplate_id = mist_org_gatewaytemplate.test-api.id
+  sitegroup_ids = [
+    mist_org_sitegroup.test_group.id,
+    mist_org_sitegroup.test_group2.id
+  ]
+  networktemplate_id = mist_org_networktemplate.networktemplate_one.id
+  rftemplate_id      = mist_org_rftemplate.rftemplate_one.id
+  gatewaytemplate_id = mist_org_gatewaytemplate.gatewaytemplate_one.id
+  alarmtemplate_id   = mist_org_alarmtemplate.alarmtemplate_one.id
 }
 ```
 

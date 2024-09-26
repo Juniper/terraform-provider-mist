@@ -16,7 +16,8 @@ An organization usually represents a customer - which has inventories, licenses.
 
 ```terraform
 resource "mist_org" "org_one" {
-  name = "Org One"
+  name             = "Org One"
+  alarmtemplate_id = mist_org_alarmtemplate.alarmtemplate_one.id
 }
 ```
 
