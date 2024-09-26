@@ -426,6 +426,7 @@ func (p *mistProvider) Resources(ctx context.Context) []func() resource.Resource
 		NewDeviceSwitchResource,
 		NewDeviceGatewayResource,
 		NewDeviceGatewayClusterResource,
+		NewDeviceImage,
 		NewOrgDeviceprofileAp,
 		NewOrgDeviceprofileAssign,
 		NewOrgDeviceprofileGateway,

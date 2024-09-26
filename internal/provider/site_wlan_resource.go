@@ -90,7 +90,7 @@ func (r *siteWlanResource) Create(ctx context.Context, req resource.CreateReques
 	if api_err != "" {
 		resp.Diagnostics.AddError(
 			"Error creating \"mist_site_wlan\" resource",
-			fmt.Sprintf("Unable to creaate the WLAN. %s", api_err),
+			fmt.Sprintf("Unable to create the WLAN. %s", api_err),
 		)
 		return
 	}
