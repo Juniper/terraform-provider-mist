@@ -9,7 +9,7 @@ require (
 	github.com/hashicorp/terraform-plugin-framework-validators v0.13.0
 	github.com/hashicorp/terraform-plugin-go v0.24.0
 	github.com/hashicorp/terraform-plugin-log v0.9.0
-	github.com/tmunzer/mistapi-go v0.3.30
+	github.com/tmunzer/mistapi-go v0.3.34
 	golang.org/x/net v0.29.0
 )
 
