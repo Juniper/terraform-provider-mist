@@ -2,14 +2,14 @@
 page_title: "mist_org_nacidp_metadata Data Source - terraform-provider-mist"
 subcategory: "Access Assurance"
 description: |-
-  This data source provides the list of AP Device Profiles.
-  AP Device profiles for aps are used to specify a configuration that can be applied to a select set of aps from any site in the organization. They allow for efficient application of configurations based on ap groups, wlan groups, RF settings, and sites. Device profiles enable various use cases such as activating ethernet passthrough, applying different rf settings, applying mesh configuration, activating specific features like esl or vble, and more.
+  This data source provides the NAC IDP Metadata information.
+  The provided information (entity_id, acs_url, logout_url and metadata) are the informationrequired to configure the IDP
 ---
 
 # mist_org_nacidp_metadata (Data Source)
 
-This data source provides the list of AP Device Profiles.
-AP Device profiles for aps are used to specify a configuration that can be applied to a select set of aps from any site in the organization. They allow for efficient application of configurations based on ap groups, wlan groups, RF settings, and sites. Device profiles enable various use cases such as activating ethernet passthrough, applying different rf settings, applying mesh configuration, activating specific features like esl or vble, and more.
+This data source provides the NAC IDP Metadata information.
+The provided information (`entity_id`, `acs_url`, `logout_url` and `metadata`) are the informationrequired to configure the IDP
 
 
 ## Example Usage
