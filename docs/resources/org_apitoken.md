@@ -1,6 +1,6 @@
 ---
 page_title: "mist_org_apitoken Resource - terraform-provider-mist"
-subcategory: "Access Assurance"
+subcategory: "Org"
 description: |-
   This resource manages Org API Tokens.
   Org API token is a unique identifier used by an application to authenticate and access a service's API. These tokens are used to authenticate requests made to the API server and ensure secure access to the API. They are not bound to any specific user and provide access to the organization as a whole.

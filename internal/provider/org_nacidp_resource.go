@@ -61,7 +61,8 @@ func (r *orgNacIdpResource) Schema(ctx context.Context, req resource.SchemaReque
 			"IMPORTANT:\n" +
 			"* Once created, the NAC IDP must be registered in the `mist_org_setting` resource (full path: `mist_org_setting.mist_nac.idps`).\n" +
 			"* The associated REALMS are configured under `mist_org_setting.mist_nac.idps`\n" +
-			"* To make the IDP the Default IDP, set the IDP ID under `mist_org_setting.mist_nac.default_idp_id`",
+			"* To make the IDP the Default IDP, set the IDP ID under `mist_org_setting.mist_nac.default_idp_id`\n\n" +
+			"For SAML IDP, the NAC IDP Metadata can be retrieved with the `mist_org_nacidp_metadata` data source.",
 		Attributes: resource_org_nacidp.OrgNacidpResourceSchema(ctx).Attributes,
 	}
 }

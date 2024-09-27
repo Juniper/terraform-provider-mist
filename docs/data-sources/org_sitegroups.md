@@ -1,6 +1,6 @@
 ---
 page_title: "mist_org_sitegroups Data Source - terraform-provider-mist"
-subcategory: "Wi-Fi Assurance"
+subcategory: "Org"
 description: |-
   This data source provides the list of Org Site Groups (sitegroups).
   A site group is a feature that allows users to group multiple sites together based on regions, functions, or other parameters for efficient management of devices. Sites can exist in multiple groups simultaneously, and site groups can be used to ensure consistent settings, manage administrator access, and apply specific templates to groups of sites.

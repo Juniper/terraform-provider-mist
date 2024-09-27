@@ -1,15 +1,18 @@
 ---
 page_title: "mist_org_deviceprofile_ap Resource - terraform-provider-mist"
-subcategory: "Devices"
+subcategory: "Wi-Fi Assurance"
 description: |-
   This resource manages the AP Device Profiles.
   AP Device profiles for aps are used to specify a configuration that can be applied to a select set of aps from any site in the organization. They allow for efficient application of configurations based on ap groups, wlan groups, RF settings, and sites. Device profiles enable various use cases such as activating ethernet passthrough, applying different rf settings, applying mesh configuration, activating specific features like esl or vble, and more.
+  The AP Devide Profile can be assigned to a gateway with the mist_org_deviceprofile_assign resource.
 ---
 
 # mist_org_deviceprofile_ap (Resource)
 
 This resource manages the AP Device Profiles.
 AP Device profiles for aps are used to specify a configuration that can be applied to a select set of aps from any site in the organization. They allow for efficient application of configurations based on ap groups, wlan groups, RF settings, and sites. Device profiles enable various use cases such as activating ethernet passthrough, applying different rf settings, applying mesh configuration, activating specific features like esl or vble, and more.
+
+The AP Devide Profile can be assigned to a gateway with the `mist_org_deviceprofile_assign` resource.
 
 
 ## Example Usage

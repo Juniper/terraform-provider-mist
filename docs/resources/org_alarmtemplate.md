@@ -1,6 +1,6 @@
 ---
 page_title: "mist_org_alarmtemplate Resource - terraform-provider-mist"
-subcategory: "WAN Assurance"
+subcategory: "Org"
 description: |-
   This resource manages Alarm Templates.
   An Alarm Template is a set of Alarm Rules that could be applied to one or more sites (while each site can only pick one Alarm Template), or to the whole org.

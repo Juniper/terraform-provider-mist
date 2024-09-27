@@ -57,11 +57,12 @@ func (r *orgDeviceprofileApResource) Metadata(ctx context.Context, req resource.
 
 func (r *orgDeviceprofileApResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryDevices + "This resource manages the AP Device Profiles.\n" +
+		MarkdownDescription: docCategoryWlan + "This resource manages the AP Device Profiles.\n" +
 			"AP Device profiles for aps are used to specify a configuration that can be applied to a select set of aps from any site in the organization. " +
 			"They allow for efficient application of configurations based on ap groups, wlan groups, RF settings, and sites. " +
 			"Device profiles enable various use cases such as activating ethernet passthrough, applying different rf settings, applying mesh configuration, " +
-			"activating specific features like esl or vble, and more.",
+			"activating specific features like esl or vble, and more.\n\n" +
+			"The AP Devide Profile can be assigned to a gateway with the `mist_org_deviceprofile_assign` resource.",
 		Attributes: resource_org_deviceprofile_ap.OrgDeviceprofileApResourceSchema(ctx).Attributes,
 	}
 }

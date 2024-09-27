@@ -52,7 +52,7 @@ func (d *orgSitegroupsDataSource) Metadata(ctx context.Context, req datasource.M
 
 func (d *orgSitegroupsDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryWlan + "This data source provides the list of Org Site Groups (sitegroups).\n" +
+		MarkdownDescription: docCategoryOrg + "This data source provides the list of Org Site Groups (sitegroups).\n" +
 			"A site group is a feature that allows users to group multiple sites together based on regions, functions, or other parameters for efficient management of devices. " +
 			"Sites can exist in multiple groups simultaneously, and site groups can be used to ensure consistent settings, manage administrator access, and apply specific templates to groups of sites.",
 		Attributes: datasource_org_sitegroups.OrgSitegroupsDataSourceSchema(ctx).Attributes,

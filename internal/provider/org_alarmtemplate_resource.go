@@ -54,7 +54,7 @@ func (r *orgOrgAlarmtemplateResource) Metadata(ctx context.Context, req resource
 }
 func (r *orgOrgAlarmtemplateResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryWan + "This resource manages Alarm Templates.\n" +
+		MarkdownDescription: docCategoryOrg + "This resource manages Alarm Templates.\n" +
 			"An Alarm Template is a set of Alarm Rules that could be applied to one or more " +
 			"sites (while each site can only pick one Alarm Template), or to the whole org.\n\n" +
 			"Once created, the Alarm template must be assigned with the `alarmtemplate_id` attribute to one of the following\n" +

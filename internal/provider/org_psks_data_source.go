@@ -52,7 +52,7 @@ func (d *orgPsksDataSource) Metadata(ctx context.Context, req datasource.Metadat
 
 func (d *orgPsksDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryWan + "This data source provides the list of WAN Assurance Psks.\n" +
+		MarkdownDescription: docCategoryWlan + "This data source provides the list of WAN Assurance Psks.\n" +
 			"The Psks are used in the `service_policies` from the Gateway configuration and Gateway templates ",
 		Attributes: datasource_org_psks.OrgPsksDataSourceSchema(ctx).Attributes,
 	}
