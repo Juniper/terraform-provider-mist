@@ -36,12 +36,12 @@ func OrgResourceSchema(ctx context.Context) schema.Schema {
 				Computed: true,
 			},
 			"msp_logo_url": schema.StringAttribute{
-				Optional:            true,
+				Computed:            true,
 				Description:         "logo uploaded by the MSP with advanced tier, only present if provided",
 				MarkdownDescription: "logo uploaded by the MSP with advanced tier, only present if provided",
 			},
 			"msp_name": schema.StringAttribute{
-				Optional:            true,
+				Computed:            true,
 				Description:         "name of the msp the org belongs to",
 				MarkdownDescription: "name of the msp the org belongs to",
 			},
