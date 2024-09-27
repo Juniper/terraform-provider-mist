@@ -6,6 +6,7 @@ description: |-
   Org API token is a unique identifier used by an application to authenticate and access a service's API. These tokens are used to authenticate requests made to the API server and ensure secure access to the API. They are not bound to any specific user and provide access to the organization as a whole.
   Organization tokens support different privileges and can only be used for the specific organization they are generated for.
   Rate limiting is done on an individual token basis, so if one token reaches its rate limit, it does not impact other tokens.
+  The SSO Metadata can be retrieved with the mist_org_sso_metadata data source.
 ---
 
 # mist_org_sso (Resource)
@@ -14,6 +15,8 @@ This resource manages Org API Tokens.
 Org API token is a unique identifier used by an application to authenticate and access a service's API. These tokens are used to authenticate requests made to the API server and ensure secure access to the API. They are not bound to any specific user and provide access to the organization as a whole. 
 Organization tokens support different privileges and can only be used for the specific organization they are generated for.
 Rate limiting is done on an individual token basis, so if one token reaches its rate limit, it does not impact other tokens.
+
+The SSO Metadata can be retrieved with the `mist_org_sso_metadata` data source.
 
 
 ## Example Usage

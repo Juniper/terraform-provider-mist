@@ -7,6 +7,7 @@ description: |-
   Mist Access Assurance can also retrieve group membership from the IDP, and use this information in the NAC Rules (mist_org_nacrule resource)
   IMPORTANT:
   Once created, the NAC IDP must be registered in the mist_org_setting resource (full path: mist_org_setting.mist_nac.idps).The associated REALMS are configured under mist_org_setting.mist_nac.idpsTo make the IDP the Default IDP, set the IDP ID under mist_org_setting.mist_nac.default_idp_id
+  For SAML IDP, the NAC IDP Metadata can be retrieved with the mist_org_nacidp_metadata data source.
 ---
 
 # mist_org_nacidp (Resource)
@@ -19,6 +20,8 @@ IMPORTANT:
 * Once created, the NAC IDP must be registered in the `mist_org_setting` resource (full path: `mist_org_setting.mist_nac.idps`).
 * The associated REALMS are configured under `mist_org_setting.mist_nac.idps`
 * To make the IDP the Default IDP, set the IDP ID under `mist_org_setting.mist_nac.default_idp_id`
+
+For SAML IDP, the NAC IDP Metadata can be retrieved with the `mist_org_nacidp_metadata` data source.
 
 
 ## Example Usage
