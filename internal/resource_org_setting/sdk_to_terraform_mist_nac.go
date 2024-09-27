@@ -16,7 +16,7 @@ func mistNacIdpsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l [
 
 	var data_list = []IdpsValue{}
 	for _, d := range l {
-		var exclude_realms basetypes.ListValue = types.ListNull(types.StringType)
+		var exclude_realms basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 		var id basetypes.StringValue
 		var user_realms basetypes.ListValue = types.ListNull(types.StringType)
 
@@ -73,7 +73,7 @@ func mistNacServerCertSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 }
 
 func mistNacSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.OrgSettingMistNac) MistNacValue {
-	var cacerts basetypes.ListValue = types.ListNull(types.StringType)
+	var cacerts basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 	var default_idp_id basetypes.StringValue
 	var disable_rsae_algorithms basetypes.BoolValue
 	var eap_ssl_security_level basetypes.Int64Value

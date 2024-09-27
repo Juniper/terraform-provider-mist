@@ -378,12 +378,13 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 									},
 								},
 								"id": schema.StringAttribute{
-									Optional: true,
+									Required:            true,
+									Description:         "ID of the `mist_nacidp`",
+									MarkdownDescription: "ID of the `mist_nacidp`",
 								},
 								"user_realms": schema.ListAttribute{
 									ElementType:         types.StringType,
-									Optional:            true,
-									Computed:            true,
+									Required:            true,
 									Description:         "which realm should trigger this IDP. User Realm is extracted from:\n  * Username-AVP (`mist.com` from john@mist.com)\n  * Cert CN",
 									MarkdownDescription: "which realm should trigger this IDP. User Realm is extracted from:\n  * Username-AVP (`mist.com` from john@mist.com)\n  * Cert CN",
 									Validators: []validator.List{

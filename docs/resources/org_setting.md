@@ -210,13 +210,16 @@ This is a org level setting that is applicable to wlans, switch_templates, and m
 <a id="nestedatt--mist_nac--idps"></a>
 ### Nested Schema for `mist_nac.idps`
 
-Optional:
+Required:
 
-- `exclude_realms` (List of String) when the IDP of mxedge_proxy type, exclude the following realms from proxying in addition to other valid home realms in this org
-- `id` (String)
+- `id` (String) ID of the `mist_nacidp`
 - `user_realms` (List of String) which realm should trigger this IDP. User Realm is extracted from:
   * Username-AVP (`mist.com` from john@mist.com)
   * Cert CN
+
+Optional:
+
+- `exclude_realms` (List of String) when the IDP of mxedge_proxy type, exclude the following realms from proxying in addition to other valid home realms in this org
 
 
 <a id="nestedatt--mist_nac--server_cert"></a>
@@ -315,7 +318,7 @@ Optional:
 Optional:
 
 - `enabled` (Boolean)
-- `time_od_fay` (String) any / HH:MM (24-hour format)
+- `time_of_day` (String) any / HH:MM (24-hour format)
 
 
 
