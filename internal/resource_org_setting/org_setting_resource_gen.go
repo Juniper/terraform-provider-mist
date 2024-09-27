@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
@@ -402,6 +403,7 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						Computed: true,
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
+							mistvalidator.RequiredWhenValueIsNotNull(path.MatchRelative().AtParent().AtName("default_idp_id")),
 						},
 					},
 					"server_cert": schema.SingleNestedAttribute{
