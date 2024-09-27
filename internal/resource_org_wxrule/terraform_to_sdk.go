@@ -58,12 +58,15 @@ func TerraformToSdk(ctx context.Context, plan *OrgWxruleModel) (*models.WxlanRul
 	if !plan.Enabled.IsNull() && !plan.Enabled.IsUnknown() {
 		data.Enabled = plan.Enabled.ValueBoolPointer()
 	}
+
 	if !plan.Order.IsNull() && !plan.Order.IsUnknown() {
 		data.Order = int(plan.Order.ValueInt64())
 	}
+
 	if !plan.SrcWxtags.IsNull() && !plan.SrcWxtags.IsUnknown() {
 		data.SrcWxtags = mist_transform.ListOfStringTerraformToSdk(ctx, plan.SrcWxtags)
-	} else {
+	}
+	if data.SrcWxtags == nil {
 		data.SrcWxtags = make([]string, 0)
 	}
 

@@ -33,10 +33,10 @@ func SdkToTerraform(ctx context.Context, data *models.WxlanRule) (OrgWxruleModel
 	if data.BlockedApps != nil && len(data.BlockedApps) > 0 {
 		blocked_apps = mist_transform.ListOfStringSdkToTerraform(ctx, data.BlockedApps)
 	}
-	if data.DstAllowWxtags != nil && len(data.DstAllowWxtags) > 0 {
+	if data.DstAllowWxtags != nil {
 		dst_allow_wxtags = mist_transform.ListOfStringSdkToTerraform(ctx, data.DstAllowWxtags)
 	}
-	if data.DstDenyWxtags != nil && len(data.DstDenyWxtags) > 0 {
+	if data.DstDenyWxtags != nil {
 		dst_deny_wxtags = mist_transform.ListOfStringSdkToTerraform(ctx, data.DstDenyWxtags)
 	}
 	if data.DstWxtags != nil {
@@ -45,7 +45,7 @@ func SdkToTerraform(ctx context.Context, data *models.WxlanRule) (OrgWxruleModel
 	if data.Enabled != nil {
 		enabled = types.BoolValue(*data.Enabled)
 	}
-	if data.SrcWxtags != nil && len(data.SrcWxtags) > 0 {
+	if data.SrcWxtags != nil {
 		src_wxtags = mist_transform.ListOfStringSdkToTerraform(ctx, data.SrcWxtags)
 	}
 
