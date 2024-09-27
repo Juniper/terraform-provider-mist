@@ -26,7 +26,6 @@ func OrgWxruleResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "type of action, allow / block. enum: `allow`, `block`",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
-						"",
 						"allow",
 						"block",
 					),
@@ -85,7 +84,10 @@ func OrgWxruleResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "the order how rules would be looked up, > 0 and bigger order got matched first, -1 means LAST, uniqueness not checked",
 				MarkdownDescription: "the order how rules would be looked up, > 0 and bigger order got matched first, -1 means LAST, uniqueness not checked",
 				Validators: []validator.Int64{
-					int64validator.AtLeast(1),
+					int64validator.Any(
+						int64validator.Between(-1, -1),
+						int64validator.AtLeast(1),
+					),
 				},
 			},
 			"org_id": schema.StringAttribute{

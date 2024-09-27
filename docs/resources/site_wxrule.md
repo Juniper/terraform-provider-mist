@@ -47,7 +47,6 @@ resource "mist_site_wxrule" "wxrule_one" {
 - `dst_wxtags` (List of String) List of WxTag UUID
 - `enabled` (Boolean)
 - `src_wxtags` (List of String) List of WxTag UUID to determine if this rule would match
-- `template_id` (String) Only for Org Level WxRule
 
 ### Read-Only
 

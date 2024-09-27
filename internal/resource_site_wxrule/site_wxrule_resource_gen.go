@@ -26,7 +26,6 @@ func SiteWxruleResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "type of action, allow / block. enum: `allow`, `block`",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
-						"",
 						"allow",
 						"block",
 					),
@@ -85,7 +84,10 @@ func SiteWxruleResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "the order how rules would be looked up, > 0 and bigger order got matched first, -1 means LAST, uniqueness not checked",
 				MarkdownDescription: "the order how rules would be looked up, > 0 and bigger order got matched first, -1 means LAST, uniqueness not checked",
 				Validators: []validator.Int64{
-					int64validator.AtLeast(1),
+					int64validator.Any(
+						int64validator.Between(-1, -1),
+						int64validator.AtLeast(1),
+					),
 				},
 			},
 			"site_id": schema.StringAttribute{
@@ -98,11 +100,6 @@ func SiteWxruleResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "List of WxTag UUID to determine if this rule would match",
 				MarkdownDescription: "List of WxTag UUID to determine if this rule would match",
 				Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
-			},
-			"template_id": schema.StringAttribute{
-				Optional:            true,
-				Description:         "Only for Org Level WxRule",
-				MarkdownDescription: "Only for Org Level WxRule",
 			},
 		},
 	}
@@ -120,5 +117,4 @@ type SiteWxruleModel struct {
 	Order          types.Int64  `tfsdk:"order"`
 	SiteId         types.String `tfsdk:"site_id"`
 	SrcWxtags      types.List   `tfsdk:"src_wxtags"`
-	TemplateId     types.String `tfsdk:"template_id"`
 }
