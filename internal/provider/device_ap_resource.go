@@ -331,5 +331,5 @@ func (r *deviceApResource) ImportState(ctx context.Context, req resource.ImportS
 		)
 		return
 	}
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), importIds[1])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("device_id"), importIds[1])...)
 }
