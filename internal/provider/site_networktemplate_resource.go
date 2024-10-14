@@ -247,5 +247,5 @@ func (r *siteNetworkTemplateResource) ImportState(ctx context.Context, req resou
 		return
 	}
 
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), req.ID)...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("site_id"), req.ID)...)
 }
