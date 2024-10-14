@@ -13,6 +13,28 @@ import (
 	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
+func syntheticTestWanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SynthetictestConfigWanSpeedtest) basetypes.ObjectValue {
+	var enabled basetypes.BoolValue
+	var time_od_fay basetypes.StringValue
+
+	if d != nil && d.Enabled != nil {
+		enabled = types.BoolValue(*d.Enabled)
+	}
+	if d != nil && d.TimeOfDay != nil {
+		time_od_fay = types.StringValue(*d.TimeOfDay)
+	}
+
+	data_map_attr_type := WanSpeedtestValue{}.AttributeTypes(ctx)
+	data_map_value := map[string]attr.Value{
+		"enabled":     enabled,
+		"time_od_fay": time_od_fay,
+	}
+	data, e := basetypes.NewObjectValue(data_map_attr_type, data_map_value)
+	diags.Append(e...)
+
+	return data
+}
+
 func synthteticTestVlansSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.SynthetictestProperties) basetypes.ListValue {
 	var data_list = []VlansValue{}
 	for _, d := range l {
@@ -55,6 +77,7 @@ func synthteticTestSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 
 	var disabled basetypes.BoolValue
 	var vlans basetypes.ListValue = types.ListNull(VlansValue{}.Type(ctx))
+	var wan_speedtest basetypes.ObjectValue = types.ObjectNull(WanSpeedtestValue{}.AttributeTypes(ctx))
 
 	if d != nil && d.Disabled != nil {
 		disabled = types.BoolValue(*d.Disabled)
@@ -62,11 +85,15 @@ func synthteticTestSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 	if d != nil && d.Vlans != nil {
 		vlans = synthteticTestVlansSdkToTerraform(ctx, diags, d.Vlans)
 	}
+	if d != nil && d.WanSpeedtest != nil {
+		wan_speedtest = syntheticTestWanSdkToTerraform(ctx, diags, d.WanSpeedtest)
+	}
 
 	data_map_attr_type := SyntheticTestValue{}.AttributeTypes(ctx)
 	data_map_value := map[string]attr.Value{
-		"disabled": disabled,
-		"vlans":    vlans,
+		"disabled":      disabled,
+		"vlans":         vlans,
+		"wan_speedtest": wan_speedtest,
 	}
 	data, e := NewSyntheticTestValue(data_map_attr_type, data_map_value)
 	diags.Append(e...)

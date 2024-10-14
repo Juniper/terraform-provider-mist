@@ -11,6 +11,20 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
+func syntheticTestWanTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.SynthetictestConfigWanSpeedtest {
+	data := models.SynthetictestConfigWanSpeedtest{}
+	if !d.IsNull() && !d.IsUnknown() {
+		vd, e := NewWanSpeedtestValue(WanSpeedtestValue{}.AttributeTypes(ctx), d.Attributes())
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			data.Enabled = vd.Enabled.ValueBoolPointer()
+			data.TimeOfDay = vd.TimeOdFay.ValueStringPointer()
+		}
+	}
+	return &data
+}
+
 func syntheticTestVlansTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.SynthetictestProperties {
 	var data_list []models.SynthetictestProperties
 	for _, v := range d.Elements() {
@@ -51,6 +65,10 @@ func syntheticTestTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d
 
 	if !d.Vlans.IsNull() && !d.Vlans.IsUnknown() {
 		data.Vlans = syntheticTestVlansTerraformToSdk(ctx, diags, d.Vlans)
+	}
+
+	if !d.WanSpeedtest.IsNull() && !d.WanSpeedtest.IsUnknown() {
+		data.WanSpeedtest = syntheticTestWanTerraformToSdk(ctx, diags, d.WanSpeedtest)
 	}
 
 	return &data
