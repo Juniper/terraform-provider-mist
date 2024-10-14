@@ -81,6 +81,7 @@ func (d *orgInventoryDataSource) Read(ctx context.Context, req datasource.ReadRe
 	var serial string
 	var siteId string
 	var unassigned bool
+	var vc bool
 	var vcMac string
 
 	if !ds.Mac.IsNull() && !ds.Mac.IsUnknown() {
@@ -101,6 +102,9 @@ func (d *orgInventoryDataSource) Read(ctx context.Context, req datasource.ReadRe
 	if !ds.VcMac.IsNull() && !ds.VcMac.IsUnknown() {
 		vcMac = ds.VcMac.ValueString()
 	}
+	if !ds.Vc.IsNull() && !ds.Vc.IsUnknown() {
+		vc = ds.Vc.ValueBool()
+	}
 
 	var limit int = 1000
 	var page int = 0
@@ -116,7 +120,7 @@ func (d *orgInventoryDataSource) Read(ctx context.Context, req datasource.ReadRe
 			"total": total,
 		})
 		// Read API call logic
-		data, err := d.client.OrgsInventory().GetOrgInventory(ctx, orgId, &serial, &model, nil, &mac, &siteId, &vcMac, nil, &unassigned, &limit, &page)
+		data, err := d.client.OrgsInventory().GetOrgInventory(ctx, orgId, &serial, &model, nil, &mac, &siteId, &vcMac, &vc, &unassigned, &limit, &page)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error getting Org Inventory",
@@ -150,13 +154,13 @@ func (d *orgInventoryDataSource) Read(ctx context.Context, req datasource.ReadRe
 		}
 	}
 
-	dataSet, diags := types.SetValue(datasource_org_inventory.OrgInventoryValue{}.Type(ctx), elements)
+	dataSet, diags := types.SetValue(datasource_org_inventory.DevicesValue{}.Type(ctx), elements)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	if err := resp.State.SetAttribute(ctx, path.Root("org_inventory"), dataSet); err != nil {
+	if err := resp.State.SetAttribute(ctx, path.Root("devices"), dataSet); err != nil {
 		resp.Diagnostics.Append(err...)
 		return
 	}

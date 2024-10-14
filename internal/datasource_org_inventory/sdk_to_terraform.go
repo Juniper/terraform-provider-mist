@@ -2,6 +2,7 @@ package datasource_org_inventory
 
 import (
 	"context"
+	"math/big"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -22,11 +23,11 @@ func SdkToTerraform(ctx context.Context, l *[]models.Inventory, elements *[]attr
 	return diags
 }
 
-func inventorySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.Inventory) OrgInventoryValue {
+func inventorySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.Inventory) DevicesValue {
 	var adopted basetypes.BoolValue
 	var claim_code basetypes.StringValue
 	var connected basetypes.BoolValue
-	var created_time basetypes.Int64Value
+	var created_time basetypes.NumberValue
 	var deviceprofile_id basetypes.StringValue
 	var hostname basetypes.StringValue
 	var hw_rev basetypes.StringValue
@@ -34,12 +35,13 @@ func inventorySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d mod
 	var jsi basetypes.BoolValue
 	var mac basetypes.StringValue
 	var model basetypes.StringValue
-	var modified_time basetypes.Int64Value
+	var modified_time basetypes.NumberValue
 	var name basetypes.StringValue
 	var org_id basetypes.StringValue
 	var serial basetypes.StringValue
 	var site_id basetypes.StringValue
 	var sku basetypes.StringValue
+	var device_type basetypes.StringValue
 	var vc_mac basetypes.StringValue
 
 	if d.Adopted != nil {
@@ -49,7 +51,7 @@ func inventorySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d mod
 		connected = types.BoolValue(*d.Connected)
 	}
 	if d.CreatedTime != nil {
-		created_time = types.Int64Value(int64(*d.CreatedTime))
+		created_time = types.NumberValue(big.NewFloat(*d.CreatedTime))
 	}
 	if d.DeviceprofileId.Value() != nil {
 		deviceprofile_id = types.StringValue(*d.DeviceprofileId.Value())
@@ -76,7 +78,7 @@ func inventorySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d mod
 		model = types.StringValue(*d.Model)
 	}
 	if d.ModifiedTime != nil {
-		modified_time = types.Int64Value(int64(*d.ModifiedTime))
+		modified_time = types.NumberValue(big.NewFloat(*d.ModifiedTime))
 	}
 	if d.Name != nil {
 		name = types.StringValue(*d.Name)
@@ -93,11 +95,14 @@ func inventorySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d mod
 	if d.Sku != nil {
 		sku = types.StringValue(*d.Sku)
 	}
+	if d.Type != nil {
+		device_type = types.StringValue(string(*d.Type))
+	}
 	if d.VcMac != nil {
 		vc_mac = types.StringValue(*d.VcMac)
 	}
 
-	data_map_attr_type := OrgInventoryValue{}.AttributeTypes(ctx)
+	data_map_attr_type := DevicesValue{}.AttributeTypes(ctx)
 	data_map_value := map[string]attr.Value{
 		"adopted":          adopted,
 		"claim_code":       claim_code,
@@ -116,9 +121,10 @@ func inventorySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d mod
 		"serial":           serial,
 		"site_id":          site_id,
 		"sku":              sku,
+		"type":             device_type,
 		"vc_mac":           vc_mac,
 	}
-	data, e := NewOrgInventoryValue(data_map_attr_type, data_map_value)
+	data, e := NewDevicesValue(data_map_attr_type, data_map_value)
 	diags.Append(e...)
 
 	return data

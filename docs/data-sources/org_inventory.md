@@ -37,10 +37,10 @@ data "mist_org_inventory" "inventory" {
 
 ### Read-Only
 
-- `org_inventory` (Attributes Set) (see [below for nested schema](#nestedatt--org_inventory))
+- `devices` (Attributes Set) (see [below for nested schema](#nestedatt--devices))
 
-<a id="nestedatt--org_inventory"></a>
-### Nested Schema for `org_inventory`
+<a id="nestedatt--devices"></a>
+### Nested Schema for `devices`
 
 Read-Only:
 
@@ -62,4 +62,5 @@ whether the switch/gateway is adopted
 - `serial` (String) device serial
 - `site_id` (String)
 - `sku` (String) device stock keeping unit
-- `vc_mac` (String) only if `type`==`switch`, MAC Address of the Virtual Chassis
+- `type` (String) enum: `ap`, `gateway`, `switch`
+- `vc_mac` (String) if `type`==`switch` and device part of a Virtual Chassis, MAC Address of the Virtual Chassis. if `type`==`gateway` and device part of a Clust, MAC Address of the Cluster

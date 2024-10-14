@@ -18,20 +18,7 @@ import (
 func OrgInventoryDataSourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
-			"mac": schema.StringAttribute{
-				Optional:            true,
-				Description:         "MAC address",
-				MarkdownDescription: "MAC address",
-			},
-			"model": schema.StringAttribute{
-				Optional:            true,
-				Description:         "device model",
-				MarkdownDescription: "device model",
-			},
-			"org_id": schema.StringAttribute{
-				Required: true,
-			},
-			"org_inventory": schema.SetNestedAttribute{
+			"devices": schema.SetNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"adopted": schema.BoolAttribute{
@@ -49,7 +36,7 @@ func OrgInventoryDataSourceSchema(ctx context.Context) schema.Schema {
 							Description:         "whether the device is connected",
 							MarkdownDescription: "whether the device is connected",
 						},
-						"created_time": schema.Int64Attribute{
+						"created_time": schema.NumberAttribute{
 							Computed:            true,
 							Description:         "inventory created time, in epoch",
 							MarkdownDescription: "inventory created time, in epoch",
@@ -87,7 +74,7 @@ func OrgInventoryDataSourceSchema(ctx context.Context) schema.Schema {
 							Description:         "device model",
 							MarkdownDescription: "device model",
 						},
-						"modified_time": schema.Int64Attribute{
+						"modified_time": schema.NumberAttribute{
 							Computed:            true,
 							Description:         "inventory last modified time, in epoch",
 							MarkdownDescription: "inventory last modified time, in epoch",
@@ -113,19 +100,37 @@ func OrgInventoryDataSourceSchema(ctx context.Context) schema.Schema {
 							Description:         "device stock keeping unit",
 							MarkdownDescription: "device stock keeping unit",
 						},
+						"type": schema.StringAttribute{
+							Computed:            true,
+							Description:         "enum: `ap`, `gateway`, `switch`",
+							MarkdownDescription: "enum: `ap`, `gateway`, `switch`",
+						},
 						"vc_mac": schema.StringAttribute{
 							Computed:            true,
-							Description:         "only if `type`==`switch`, MAC Address of the Virtual Chassis",
-							MarkdownDescription: "only if `type`==`switch`, MAC Address of the Virtual Chassis",
+							Description:         "if `type`==`switch` and device part of a Virtual Chassis, MAC Address of the Virtual Chassis. if `type`==`gateway` and device part of a Clust, MAC Address of the Cluster",
+							MarkdownDescription: "if `type`==`switch` and device part of a Virtual Chassis, MAC Address of the Virtual Chassis. if `type`==`gateway` and device part of a Clust, MAC Address of the Cluster",
 						},
 					},
-					CustomType: OrgInventoryType{
+					CustomType: DevicesType{
 						ObjectType: types.ObjectType{
-							AttrTypes: OrgInventoryValue{}.AttributeTypes(ctx),
+							AttrTypes: DevicesValue{}.AttributeTypes(ctx),
 						},
 					},
 				},
 				Computed: true,
+			},
+			"mac": schema.StringAttribute{
+				Optional:            true,
+				Description:         "MAC address",
+				MarkdownDescription: "MAC address",
+			},
+			"model": schema.StringAttribute{
+				Optional:            true,
+				Description:         "device model",
+				MarkdownDescription: "device model",
+			},
+			"org_id": schema.StringAttribute{
+				Required: true,
 			},
 			"serial": schema.StringAttribute{
 				Optional:            true,
@@ -157,25 +162,25 @@ func OrgInventoryDataSourceSchema(ctx context.Context) schema.Schema {
 }
 
 type OrgInventoryModel struct {
-	Mac          types.String `tfsdk:"mac"`
-	Model        types.String `tfsdk:"model"`
-	OrgId        types.String `tfsdk:"org_id"`
-	OrgInventory types.Set    `tfsdk:"org_inventory"`
-	Serial       types.String `tfsdk:"serial"`
-	SiteId       types.String `tfsdk:"site_id"`
-	Unassigned   types.Bool   `tfsdk:"unassigned"`
-	Vc           types.Bool   `tfsdk:"vc"`
-	VcMac        types.String `tfsdk:"vc_mac"`
+	Devices    types.Set    `tfsdk:"devices"`
+	Mac        types.String `tfsdk:"mac"`
+	Model      types.String `tfsdk:"model"`
+	OrgId      types.String `tfsdk:"org_id"`
+	Serial     types.String `tfsdk:"serial"`
+	SiteId     types.String `tfsdk:"site_id"`
+	Unassigned types.Bool   `tfsdk:"unassigned"`
+	Vc         types.Bool   `tfsdk:"vc"`
+	VcMac      types.String `tfsdk:"vc_mac"`
 }
 
-var _ basetypes.ObjectTypable = OrgInventoryType{}
+var _ basetypes.ObjectTypable = DevicesType{}
 
-type OrgInventoryType struct {
+type DevicesType struct {
 	basetypes.ObjectType
 }
 
-func (t OrgInventoryType) Equal(o attr.Type) bool {
-	other, ok := o.(OrgInventoryType)
+func (t DevicesType) Equal(o attr.Type) bool {
+	other, ok := o.(DevicesType)
 
 	if !ok {
 		return false
@@ -184,11 +189,11 @@ func (t OrgInventoryType) Equal(o attr.Type) bool {
 	return t.ObjectType.Equal(other.ObjectType)
 }
 
-func (t OrgInventoryType) String() string {
-	return "OrgInventoryType"
+func (t DevicesType) String() string {
+	return "DevicesType"
 }
 
-func (t OrgInventoryType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+func (t DevicesType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	attributes := in.Attributes()
@@ -257,12 +262,12 @@ func (t OrgInventoryType) ValueFromObject(ctx context.Context, in basetypes.Obje
 		return nil, diags
 	}
 
-	createdTimeVal, ok := createdTimeAttribute.(basetypes.Int64Value)
+	createdTimeVal, ok := createdTimeAttribute.(basetypes.NumberValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`created_time expected to be basetypes.Int64Value, was: %T`, createdTimeAttribute))
+			fmt.Sprintf(`created_time expected to be basetypes.NumberValue, was: %T`, createdTimeAttribute))
 	}
 
 	deviceprofileIdAttribute, ok := attributes["deviceprofile_id"]
@@ -401,12 +406,12 @@ func (t OrgInventoryType) ValueFromObject(ctx context.Context, in basetypes.Obje
 		return nil, diags
 	}
 
-	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.Int64Value)
+	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.NumberValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`modified_time expected to be basetypes.Int64Value, was: %T`, modifiedTimeAttribute))
+			fmt.Sprintf(`modified_time expected to be basetypes.NumberValue, was: %T`, modifiedTimeAttribute))
 	}
 
 	nameAttribute, ok := attributes["name"]
@@ -499,6 +504,24 @@ func (t OrgInventoryType) ValueFromObject(ctx context.Context, in basetypes.Obje
 			fmt.Sprintf(`sku expected to be basetypes.StringValue, was: %T`, skuAttribute))
 	}
 
+	typeAttribute, ok := attributes["type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`type is missing from object`)
+
+		return nil, diags
+	}
+
+	typeVal, ok := typeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, typeAttribute))
+	}
+
 	vcMacAttribute, ok := attributes["vc_mac"]
 
 	if !ok {
@@ -521,7 +544,7 @@ func (t OrgInventoryType) ValueFromObject(ctx context.Context, in basetypes.Obje
 		return nil, diags
 	}
 
-	return OrgInventoryValue{
+	return DevicesValue{
 		Adopted:         adoptedVal,
 		ClaimCode:       claimCodeVal,
 		Connected:       connectedVal,
@@ -539,24 +562,25 @@ func (t OrgInventoryType) ValueFromObject(ctx context.Context, in basetypes.Obje
 		Serial:          serialVal,
 		SiteId:          siteIdVal,
 		Sku:             skuVal,
+		DevicesType:     typeVal,
 		VcMac:           vcMacVal,
 		state:           attr.ValueStateKnown,
 	}, diags
 }
 
-func NewOrgInventoryValueNull() OrgInventoryValue {
-	return OrgInventoryValue{
+func NewDevicesValueNull() DevicesValue {
+	return DevicesValue{
 		state: attr.ValueStateNull,
 	}
 }
 
-func NewOrgInventoryValueUnknown() OrgInventoryValue {
-	return OrgInventoryValue{
+func NewDevicesValueUnknown() DevicesValue {
+	return DevicesValue{
 		state: attr.ValueStateUnknown,
 	}
 }
 
-func NewOrgInventoryValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (OrgInventoryValue, diag.Diagnostics) {
+func NewDevicesValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (DevicesValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
@@ -567,11 +591,11 @@ func NewOrgInventoryValue(attributeTypes map[string]attr.Type, attributes map[st
 
 		if !ok {
 			diags.AddError(
-				"Missing OrgInventoryValue Attribute Value",
-				"While creating a OrgInventoryValue value, a missing attribute value was detected. "+
-					"A OrgInventoryValue must contain values for all attributes, even if null or unknown. "+
+				"Missing DevicesValue Attribute Value",
+				"While creating a DevicesValue value, a missing attribute value was detected. "+
+					"A DevicesValue must contain values for all attributes, even if null or unknown. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("OrgInventoryValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+					fmt.Sprintf("DevicesValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
 			)
 
 			continue
@@ -579,12 +603,12 @@ func NewOrgInventoryValue(attributeTypes map[string]attr.Type, attributes map[st
 
 		if !attributeType.Equal(attribute.Type(ctx)) {
 			diags.AddError(
-				"Invalid OrgInventoryValue Attribute Type",
-				"While creating a OrgInventoryValue value, an invalid attribute value was detected. "+
-					"A OrgInventoryValue must use a matching attribute type for the value. "+
+				"Invalid DevicesValue Attribute Type",
+				"While creating a DevicesValue value, an invalid attribute value was detected. "+
+					"A DevicesValue must use a matching attribute type for the value. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("OrgInventoryValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
-					fmt.Sprintf("OrgInventoryValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+					fmt.Sprintf("DevicesValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("DevicesValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
 			)
 		}
 	}
@@ -594,17 +618,17 @@ func NewOrgInventoryValue(attributeTypes map[string]attr.Type, attributes map[st
 
 		if !ok {
 			diags.AddError(
-				"Extra OrgInventoryValue Attribute Value",
-				"While creating a OrgInventoryValue value, an extra attribute value was detected. "+
-					"A OrgInventoryValue must not contain values beyond the expected attribute types. "+
+				"Extra DevicesValue Attribute Value",
+				"While creating a DevicesValue value, an extra attribute value was detected. "+
+					"A DevicesValue must not contain values beyond the expected attribute types. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("Extra OrgInventoryValue Attribute Name: %s", name),
+					fmt.Sprintf("Extra DevicesValue Attribute Name: %s", name),
 			)
 		}
 	}
 
 	if diags.HasError() {
-		return NewOrgInventoryValueUnknown(), diags
+		return NewDevicesValueUnknown(), diags
 	}
 
 	adoptedAttribute, ok := attributes["adopted"]
@@ -614,7 +638,7 @@ func NewOrgInventoryValue(attributeTypes map[string]attr.Type, attributes map[st
 			"Attribute Missing",
 			`adopted is missing from object`)
 
-		return NewOrgInventoryValueUnknown(), diags
+		return NewDevicesValueUnknown(), diags
 	}
 
 	adoptedVal, ok := adoptedAttribute.(basetypes.BoolValue)
@@ -632,7 +656,7 @@ func NewOrgInventoryValue(attributeTypes map[string]attr.Type, attributes map[st
 			"Attribute Missing",
 			`claim_code is missing from object`)
 
-		return NewOrgInventoryValueUnknown(), diags
+		return NewDevicesValueUnknown(), diags
 	}
 
 	claimCodeVal, ok := claimCodeAttribute.(basetypes.StringValue)
@@ -650,7 +674,7 @@ func NewOrgInventoryValue(attributeTypes map[string]attr.Type, attributes map[st
 			"Attribute Missing",
 			`connected is missing from object`)
 
-		return NewOrgInventoryValueUnknown(), diags
+		return NewDevicesValueUnknown(), diags
 	}
 
 	connectedVal, ok := connectedAttribute.(basetypes.BoolValue)
@@ -668,15 +692,15 @@ func NewOrgInventoryValue(attributeTypes map[string]attr.Type, attributes map[st
 			"Attribute Missing",
 			`created_time is missing from object`)
 
-		return NewOrgInventoryValueUnknown(), diags
+		return NewDevicesValueUnknown(), diags
 	}
 
-	createdTimeVal, ok := createdTimeAttribute.(basetypes.Int64Value)
+	createdTimeVal, ok := createdTimeAttribute.(basetypes.NumberValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`created_time expected to be basetypes.Int64Value, was: %T`, createdTimeAttribute))
+			fmt.Sprintf(`created_time expected to be basetypes.NumberValue, was: %T`, createdTimeAttribute))
 	}
 
 	deviceprofileIdAttribute, ok := attributes["deviceprofile_id"]
@@ -686,7 +710,7 @@ func NewOrgInventoryValue(attributeTypes map[string]attr.Type, attributes map[st
 			"Attribute Missing",
 			`deviceprofile_id is missing from object`)
 
-		return NewOrgInventoryValueUnknown(), diags
+		return NewDevicesValueUnknown(), diags
 	}
 
 	deviceprofileIdVal, ok := deviceprofileIdAttribute.(basetypes.StringValue)
@@ -704,7 +728,7 @@ func NewOrgInventoryValue(attributeTypes map[string]attr.Type, attributes map[st
 			"Attribute Missing",
 			`hostname is missing from object`)
 
-		return NewOrgInventoryValueUnknown(), diags
+		return NewDevicesValueUnknown(), diags
 	}
 
 	hostnameVal, ok := hostnameAttribute.(basetypes.StringValue)
@@ -722,7 +746,7 @@ func NewOrgInventoryValue(attributeTypes map[string]attr.Type, attributes map[st
 			"Attribute Missing",
 			`hw_rev is missing from object`)
 
-		return NewOrgInventoryValueUnknown(), diags
+		return NewDevicesValueUnknown(), diags
 	}
 
 	hwRevVal, ok := hwRevAttribute.(basetypes.StringValue)
@@ -740,7 +764,7 @@ func NewOrgInventoryValue(attributeTypes map[string]attr.Type, attributes map[st
 			"Attribute Missing",
 			`id is missing from object`)
 
-		return NewOrgInventoryValueUnknown(), diags
+		return NewDevicesValueUnknown(), diags
 	}
 
 	idVal, ok := idAttribute.(basetypes.StringValue)
@@ -758,7 +782,7 @@ func NewOrgInventoryValue(attributeTypes map[string]attr.Type, attributes map[st
 			"Attribute Missing",
 			`jsi is missing from object`)
 
-		return NewOrgInventoryValueUnknown(), diags
+		return NewDevicesValueUnknown(), diags
 	}
 
 	jsiVal, ok := jsiAttribute.(basetypes.BoolValue)
@@ -776,7 +800,7 @@ func NewOrgInventoryValue(attributeTypes map[string]attr.Type, attributes map[st
 			"Attribute Missing",
 			`mac is missing from object`)
 
-		return NewOrgInventoryValueUnknown(), diags
+		return NewDevicesValueUnknown(), diags
 	}
 
 	macVal, ok := macAttribute.(basetypes.StringValue)
@@ -794,7 +818,7 @@ func NewOrgInventoryValue(attributeTypes map[string]attr.Type, attributes map[st
 			"Attribute Missing",
 			`model is missing from object`)
 
-		return NewOrgInventoryValueUnknown(), diags
+		return NewDevicesValueUnknown(), diags
 	}
 
 	modelVal, ok := modelAttribute.(basetypes.StringValue)
@@ -812,15 +836,15 @@ func NewOrgInventoryValue(attributeTypes map[string]attr.Type, attributes map[st
 			"Attribute Missing",
 			`modified_time is missing from object`)
 
-		return NewOrgInventoryValueUnknown(), diags
+		return NewDevicesValueUnknown(), diags
 	}
 
-	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.Int64Value)
+	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.NumberValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`modified_time expected to be basetypes.Int64Value, was: %T`, modifiedTimeAttribute))
+			fmt.Sprintf(`modified_time expected to be basetypes.NumberValue, was: %T`, modifiedTimeAttribute))
 	}
 
 	nameAttribute, ok := attributes["name"]
@@ -830,7 +854,7 @@ func NewOrgInventoryValue(attributeTypes map[string]attr.Type, attributes map[st
 			"Attribute Missing",
 			`name is missing from object`)
 
-		return NewOrgInventoryValueUnknown(), diags
+		return NewDevicesValueUnknown(), diags
 	}
 
 	nameVal, ok := nameAttribute.(basetypes.StringValue)
@@ -848,7 +872,7 @@ func NewOrgInventoryValue(attributeTypes map[string]attr.Type, attributes map[st
 			"Attribute Missing",
 			`org_id is missing from object`)
 
-		return NewOrgInventoryValueUnknown(), diags
+		return NewDevicesValueUnknown(), diags
 	}
 
 	orgIdVal, ok := orgIdAttribute.(basetypes.StringValue)
@@ -866,7 +890,7 @@ func NewOrgInventoryValue(attributeTypes map[string]attr.Type, attributes map[st
 			"Attribute Missing",
 			`serial is missing from object`)
 
-		return NewOrgInventoryValueUnknown(), diags
+		return NewDevicesValueUnknown(), diags
 	}
 
 	serialVal, ok := serialAttribute.(basetypes.StringValue)
@@ -884,7 +908,7 @@ func NewOrgInventoryValue(attributeTypes map[string]attr.Type, attributes map[st
 			"Attribute Missing",
 			`site_id is missing from object`)
 
-		return NewOrgInventoryValueUnknown(), diags
+		return NewDevicesValueUnknown(), diags
 	}
 
 	siteIdVal, ok := siteIdAttribute.(basetypes.StringValue)
@@ -902,7 +926,7 @@ func NewOrgInventoryValue(attributeTypes map[string]attr.Type, attributes map[st
 			"Attribute Missing",
 			`sku is missing from object`)
 
-		return NewOrgInventoryValueUnknown(), diags
+		return NewDevicesValueUnknown(), diags
 	}
 
 	skuVal, ok := skuAttribute.(basetypes.StringValue)
@@ -913,6 +937,24 @@ func NewOrgInventoryValue(attributeTypes map[string]attr.Type, attributes map[st
 			fmt.Sprintf(`sku expected to be basetypes.StringValue, was: %T`, skuAttribute))
 	}
 
+	typeAttribute, ok := attributes["type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`type is missing from object`)
+
+		return NewDevicesValueUnknown(), diags
+	}
+
+	typeVal, ok := typeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, typeAttribute))
+	}
+
 	vcMacAttribute, ok := attributes["vc_mac"]
 
 	if !ok {
@@ -920,7 +962,7 @@ func NewOrgInventoryValue(attributeTypes map[string]attr.Type, attributes map[st
 			"Attribute Missing",
 			`vc_mac is missing from object`)
 
-		return NewOrgInventoryValueUnknown(), diags
+		return NewDevicesValueUnknown(), diags
 	}
 
 	vcMacVal, ok := vcMacAttribute.(basetypes.StringValue)
@@ -932,10 +974,10 @@ func NewOrgInventoryValue(attributeTypes map[string]attr.Type, attributes map[st
 	}
 
 	if diags.HasError() {
-		return NewOrgInventoryValueUnknown(), diags
+		return NewDevicesValueUnknown(), diags
 	}
 
-	return OrgInventoryValue{
+	return DevicesValue{
 		Adopted:         adoptedVal,
 		ClaimCode:       claimCodeVal,
 		Connected:       connectedVal,
@@ -953,13 +995,14 @@ func NewOrgInventoryValue(attributeTypes map[string]attr.Type, attributes map[st
 		Serial:          serialVal,
 		SiteId:          siteIdVal,
 		Sku:             skuVal,
+		DevicesType:     typeVal,
 		VcMac:           vcMacVal,
 		state:           attr.ValueStateKnown,
 	}, diags
 }
 
-func NewOrgInventoryValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) OrgInventoryValue {
-	object, diags := NewOrgInventoryValue(attributeTypes, attributes)
+func NewDevicesValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) DevicesValue {
+	object, diags := NewDevicesValue(attributeTypes, attributes)
 
 	if diags.HasError() {
 		// This could potentially be added to the diag package.
@@ -973,15 +1016,15 @@ func NewOrgInventoryValueMust(attributeTypes map[string]attr.Type, attributes ma
 				diagnostic.Detail()))
 		}
 
-		panic("NewOrgInventoryValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+		panic("NewDevicesValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
 	}
 
 	return object
 }
 
-func (t OrgInventoryType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+func (t DevicesType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
 	if in.Type() == nil {
-		return NewOrgInventoryValueNull(), nil
+		return NewDevicesValueNull(), nil
 	}
 
 	if !in.Type().Equal(t.TerraformType(ctx)) {
@@ -989,11 +1032,11 @@ func (t OrgInventoryType) ValueFromTerraform(ctx context.Context, in tftypes.Val
 	}
 
 	if !in.IsKnown() {
-		return NewOrgInventoryValueUnknown(), nil
+		return NewDevicesValueUnknown(), nil
 	}
 
 	if in.IsNull() {
-		return NewOrgInventoryValueNull(), nil
+		return NewDevicesValueNull(), nil
 	}
 
 	attributes := map[string]attr.Value{}
@@ -1016,20 +1059,20 @@ func (t OrgInventoryType) ValueFromTerraform(ctx context.Context, in tftypes.Val
 		attributes[k] = a
 	}
 
-	return NewOrgInventoryValueMust(OrgInventoryValue{}.AttributeTypes(ctx), attributes), nil
+	return NewDevicesValueMust(DevicesValue{}.AttributeTypes(ctx), attributes), nil
 }
 
-func (t OrgInventoryType) ValueType(ctx context.Context) attr.Value {
-	return OrgInventoryValue{}
+func (t DevicesType) ValueType(ctx context.Context) attr.Value {
+	return DevicesValue{}
 }
 
-var _ basetypes.ObjectValuable = OrgInventoryValue{}
+var _ basetypes.ObjectValuable = DevicesValue{}
 
-type OrgInventoryValue struct {
+type DevicesValue struct {
 	Adopted         basetypes.BoolValue   `tfsdk:"adopted"`
 	ClaimCode       basetypes.StringValue `tfsdk:"claim_code"`
 	Connected       basetypes.BoolValue   `tfsdk:"connected"`
-	CreatedTime     basetypes.Int64Value  `tfsdk:"created_time"`
+	CreatedTime     basetypes.NumberValue `tfsdk:"created_time"`
 	DeviceprofileId basetypes.StringValue `tfsdk:"deviceprofile_id"`
 	Hostname        basetypes.StringValue `tfsdk:"hostname"`
 	HwRev           basetypes.StringValue `tfsdk:"hw_rev"`
@@ -1037,18 +1080,19 @@ type OrgInventoryValue struct {
 	Jsi             basetypes.BoolValue   `tfsdk:"jsi"`
 	Mac             basetypes.StringValue `tfsdk:"mac"`
 	Model           basetypes.StringValue `tfsdk:"model"`
-	ModifiedTime    basetypes.Int64Value  `tfsdk:"modified_time"`
+	ModifiedTime    basetypes.NumberValue `tfsdk:"modified_time"`
 	Name            basetypes.StringValue `tfsdk:"name"`
 	OrgId           basetypes.StringValue `tfsdk:"org_id"`
 	Serial          basetypes.StringValue `tfsdk:"serial"`
 	SiteId          basetypes.StringValue `tfsdk:"site_id"`
 	Sku             basetypes.StringValue `tfsdk:"sku"`
+	DevicesType     basetypes.StringValue `tfsdk:"type"`
 	VcMac           basetypes.StringValue `tfsdk:"vc_mac"`
 	state           attr.ValueState
 }
 
-func (v OrgInventoryValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 18)
+func (v DevicesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 19)
 
 	var val tftypes.Value
 	var err error
@@ -1056,7 +1100,7 @@ func (v OrgInventoryValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 	attrTypes["adopted"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["claim_code"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["connected"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["created_time"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["created_time"] = basetypes.NumberType{}.TerraformType(ctx)
 	attrTypes["deviceprofile_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["hostname"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["hw_rev"] = basetypes.StringType{}.TerraformType(ctx)
@@ -1064,19 +1108,20 @@ func (v OrgInventoryValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 	attrTypes["jsi"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["mac"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["model"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["modified_time"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["modified_time"] = basetypes.NumberType{}.TerraformType(ctx)
 	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["org_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["serial"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["site_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["sku"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["type"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["vc_mac"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 18)
+		vals := make(map[string]tftypes.Value, 19)
 
 		val, err = v.Adopted.ToTerraformValue(ctx)
 
@@ -1214,6 +1259,14 @@ func (v OrgInventoryValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 
 		vals["sku"] = val
 
+		val, err = v.DevicesType.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["type"] = val
+
 		val, err = v.VcMac.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -1236,26 +1289,26 @@ func (v OrgInventoryValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 	}
 }
 
-func (v OrgInventoryValue) IsNull() bool {
+func (v DevicesValue) IsNull() bool {
 	return v.state == attr.ValueStateNull
 }
 
-func (v OrgInventoryValue) IsUnknown() bool {
+func (v DevicesValue) IsUnknown() bool {
 	return v.state == attr.ValueStateUnknown
 }
 
-func (v OrgInventoryValue) String() string {
-	return "OrgInventoryValue"
+func (v DevicesValue) String() string {
+	return "DevicesValue"
 }
 
-func (v OrgInventoryValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+func (v DevicesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	attributeTypes := map[string]attr.Type{
 		"adopted":          basetypes.BoolType{},
 		"claim_code":       basetypes.StringType{},
 		"connected":        basetypes.BoolType{},
-		"created_time":     basetypes.Int64Type{},
+		"created_time":     basetypes.NumberType{},
 		"deviceprofile_id": basetypes.StringType{},
 		"hostname":         basetypes.StringType{},
 		"hw_rev":           basetypes.StringType{},
@@ -1263,12 +1316,13 @@ func (v OrgInventoryValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 		"jsi":              basetypes.BoolType{},
 		"mac":              basetypes.StringType{},
 		"model":            basetypes.StringType{},
-		"modified_time":    basetypes.Int64Type{},
+		"modified_time":    basetypes.NumberType{},
 		"name":             basetypes.StringType{},
 		"org_id":           basetypes.StringType{},
 		"serial":           basetypes.StringType{},
 		"site_id":          basetypes.StringType{},
 		"sku":              basetypes.StringType{},
+		"type":             basetypes.StringType{},
 		"vc_mac":           basetypes.StringType{},
 	}
 
@@ -1300,14 +1354,15 @@ func (v OrgInventoryValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 			"serial":           v.Serial,
 			"site_id":          v.SiteId,
 			"sku":              v.Sku,
+			"type":             v.DevicesType,
 			"vc_mac":           v.VcMac,
 		})
 
 	return objVal, diags
 }
 
-func (v OrgInventoryValue) Equal(o attr.Value) bool {
-	other, ok := o.(OrgInventoryValue)
+func (v DevicesValue) Equal(o attr.Value) bool {
+	other, ok := o.(DevicesValue)
 
 	if !ok {
 		return false
@@ -1389,6 +1444,10 @@ func (v OrgInventoryValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.DevicesType.Equal(other.DevicesType) {
+		return false
+	}
+
 	if !v.VcMac.Equal(other.VcMac) {
 		return false
 	}
@@ -1396,20 +1455,20 @@ func (v OrgInventoryValue) Equal(o attr.Value) bool {
 	return true
 }
 
-func (v OrgInventoryValue) Type(ctx context.Context) attr.Type {
-	return OrgInventoryType{
+func (v DevicesValue) Type(ctx context.Context) attr.Type {
+	return DevicesType{
 		basetypes.ObjectType{
 			AttrTypes: v.AttributeTypes(ctx),
 		},
 	}
 }
 
-func (v OrgInventoryValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+func (v DevicesValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"adopted":          basetypes.BoolType{},
 		"claim_code":       basetypes.StringType{},
 		"connected":        basetypes.BoolType{},
-		"created_time":     basetypes.Int64Type{},
+		"created_time":     basetypes.NumberType{},
 		"deviceprofile_id": basetypes.StringType{},
 		"hostname":         basetypes.StringType{},
 		"hw_rev":           basetypes.StringType{},
@@ -1417,12 +1476,13 @@ func (v OrgInventoryValue) AttributeTypes(ctx context.Context) map[string]attr.T
 		"jsi":              basetypes.BoolType{},
 		"mac":              basetypes.StringType{},
 		"model":            basetypes.StringType{},
-		"modified_time":    basetypes.Int64Type{},
+		"modified_time":    basetypes.NumberType{},
 		"name":             basetypes.StringType{},
 		"org_id":           basetypes.StringType{},
 		"serial":           basetypes.StringType{},
 		"site_id":          basetypes.StringType{},
 		"sku":              basetypes.StringType{},
+		"type":             basetypes.StringType{},
 		"vc_mac":           basetypes.StringType{},
 	}
 }
