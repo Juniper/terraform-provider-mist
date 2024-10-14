@@ -247,5 +247,5 @@ func (r *siteSettingResource) ImportState(ctx context.Context, req resource.Impo
 		return
 	}
 
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), req.ID)...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("site_id"), req.ID)...)
 }
