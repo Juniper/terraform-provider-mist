@@ -2,11 +2,11 @@ package provider
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"io"
+	"strconv"
 	"strings"
 
+	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_inventory"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
@@ -356,15 +356,14 @@ func (r *orgInventoryResource) claimDevices(ctx context.Context, orgId uuid.UUID
 	tflog.Info(ctx, "Starting to Claim devices")
 	claim_response, err := r.client.OrgsInventory().AddOrgInventory(ctx, orgId, claim)
 
-	if claim_response.Response.StatusCode == 400 {
-		bodyBytes, _ := io.ReadAll(claim_response.Response.Body)
-		error_response := models.ResponseInventory{}
-		json.Unmarshal(bodyBytes, &error_response)
-
-		logResponseInventory(ctx, "Error response for API Call to claim devices:", error_response)
-		processResponseInventoryError(error_response, diags)
-
-		return nil
+	api_err := mist_api_error.ProcessInventoryApiError(ctx, "claim", claim_response.Response.StatusCode, claim_response.Response.Body, err)
+	if len(api_err) > 0 {
+		for _, err_value := range api_err {
+			diags.AddError(
+				"Error Claiming Devices to the Org Inventory",
+				err_value,
+			)
+		}
 	} else if err != nil {
 		diags.AddError(
 			"Error Claiming Devices to the Org Inventory",
@@ -391,9 +390,18 @@ func (r *orgInventoryResource) unclaimDevices(ctx context.Context, orgId uuid.UU
 	unclaim_body.Op = models.InventoryUpdateOperationEnum_DELETE
 	unclaim_body.Serials = unclaim
 	unclaim_response, err := r.client.OrgsInventory().UpdateOrgInventoryAssignment(ctx, orgId, &unclaim_body)
-	if err != nil {
+
+	api_err := mist_api_error.ProcessInventoryApiError(ctx, "unclaim", unclaim_response.Response.StatusCode, unclaim_response.Response.Body, err)
+	if len(api_err) > 0 {
+		for _, err_value := range api_err {
+			diags.AddError(
+				"Error when releasing Devices from the Org Inventory",
+				err_value,
+			)
+		}
+	} else if err != nil {
 		diags.AddError(
-			"Error Unclaiming Devices from the Org Inventory",
+			"Error when releasing Devices from the Org Inventory",
 			"Unable to unclaim the devices, unexpected error: "+err.Error(),
 		)
 	}
@@ -411,18 +419,27 @@ func (r *orgInventoryResource) unassignDevices(ctx context.Context, orgId uuid.U
 	unassign_body.Op = models.InventoryUpdateOperationEnum_UNASSIGN
 	unassign_body.Macs = unassign
 	unassign_response, err := r.client.OrgsInventory().UpdateOrgInventoryAssignment(ctx, orgId, &unassign_body)
+
+	api_err := mist_api_error.ProcessInventoryApiError(ctx, "unassign", unassign_response.Response.StatusCode, unassign_response.Response.Body, err)
+	if len(api_err) > 0 {
+		for _, err_value := range api_err {
+			diags.AddError(
+				"Error when unassigning Devices from a Site to the Org Inventory",
+				err_value,
+			)
+		}
+	} else if err != nil {
+		diags.AddError(
+			"Error when unassigning Devices from a Site to the Org Inventory",
+			"Unable to unassign the devices, unexpected error: "+err.Error(),
+		)
+	}
+
 	tflog.Debug(ctx, "response for API Call to claim devices:", map[string]interface{}{
 		"Error":   strings.Join(unassign_response.Data.Error, ", "),
 		"Reason":  strings.Join(unassign_response.Data.Reason, ", "),
 		"Success": strings.Join(unassign_response.Data.Success, ", "),
 	})
-
-	if err != nil {
-		diags.AddError(
-			"Error Unassigning Devices from the Org Inventory",
-			"Unable to unassign the devices, unexpected error: "+err.Error(),
-		)
-	}
 }
 
 func (r *orgInventoryResource) assignDevices(ctx context.Context, orgId uuid.UUID, assign map[string][]string, diags *diag.Diagnostics) {
@@ -445,12 +462,22 @@ func (r *orgInventoryResource) assignDevices(ctx context.Context, orgId uuid.UUI
 		assign_body.SiteId = models.ToPointer(siteId)
 
 		assign_response, err := r.client.OrgsInventory().UpdateOrgInventoryAssignment(ctx, orgId, &assign_body)
-		if err != nil {
+
+		api_err := mist_api_error.ProcessInventoryApiError(ctx, "assign", assign_response.Response.StatusCode, assign_response.Response.Body, err)
+		if len(api_err) > 0 {
+			for _, err_value := range api_err {
+				diags.AddError(
+					"Error when assigning Devices from the Org Inventory to a Site",
+					err_value,
+				)
+			}
+		} else if err != nil {
 			diags.AddError(
-				"Error Assigning Devices to the Org Inventory",
+				"Error when assigning Devices from the Org Inventory to a Site",
 				"Unable to assign the devices, unexpected error: "+err.Error(),
 			)
 		}
+
 		tflog.Debug(ctx, "response for API Call to assign devices:", map[string]interface{}{
 			"Error":   strings.Join(assign_response.Data.Error, ", "),
 			"Reason":  strings.Join(assign_response.Data.Reason, ", "),
