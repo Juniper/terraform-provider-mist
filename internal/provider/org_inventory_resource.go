@@ -264,6 +264,7 @@ func (r *orgInventoryResource) updateInventory(ctx context.Context, orgId *uuid.
 }
 
 func (r *orgInventoryResource) refreshInventory(ctx context.Context, orgId *uuid.UUID, plan *resource_org_inventory.OrgInventoryModel) (resource_org_inventory.OrgInventoryModel, diag.Diagnostics) {
+	var state resource_org_inventory.OrgInventoryModel
 	var diags diag.Diagnostics
 
 	tflog.Info(ctx, "Starting Inventory state refresh: org_id  "+orgId.String())
@@ -275,18 +276,53 @@ func (r *orgInventoryResource) refreshInventory(ctx context.Context, orgId *uuid
 	var vcMac string
 	var vc bool = true
 	var unassigned bool
+
 	var limit int = 1000
-	var page int
+	var page int = 0
+	var total int = 9999
+	var elements []models.Inventory
+
 	tflog.Info(ctx, "Starting Inventory Read: org_id  "+orgId.String())
-	data, err := r.client.OrgsInventory().GetOrgInventory(ctx, *orgId, &serial, &model, &mType, &mac, &siteId, &vcMac, &vc, &unassigned, &limit, &page)
-	if err != nil {
-		diags.AddError(
-			"Error refreshing Inventory",
-			"Unable to get the Inventory, unexpected error: "+err.Error(),
-		)
+
+	for limit*page < total {
+		page += 1
+		tflog.Debug(ctx, "Pagination Info", map[string]interface{}{
+			"page":  page,
+			"limit": limit,
+			"total": total,
+		})
+		// Read API call logic
+		data, err := r.client.OrgsInventory().GetOrgInventory(ctx, *orgId, &serial, &model, &mType, &mac, &siteId, &vcMac, &vc, &unassigned, &limit, &page)
+		if err != nil {
+			diags.AddError(
+				"Error refreshing Inventory",
+				"Unable to get the Inventory, unexpected error: "+err.Error(),
+			)
+			return state, diags
+		}
+
+		limit_string := data.Response.Header.Get("X-Page-Limit")
+		if limit, err = strconv.Atoi(limit_string); err != nil {
+			diags.AddError(
+				"Error refreshing Inventory",
+				"Unable to convert the X-Page-Limit value into int, unexcpected error: "+err.Error(),
+			)
+			return state, diags
+		}
+
+		total_string := data.Response.Header.Get("X-Page-Total")
+		if total, err = strconv.Atoi(total_string); err != nil {
+			diags.AddError(
+				"Error refreshing Inventory",
+				"Unable to convert the X-Page-Total value into int, unexcpected error: "+err.Error(),
+			)
+			return state, diags
+		}
+
+		elements = append(elements, data.Data...)
 	}
-	tflog.Debug(ctx, "refreshInventory", map[string]interface{}{"inventory": data.Data})
-	state, e := resource_org_inventory.SdkToTerraform(ctx, orgId.String(), data.Data, plan)
+
+	state, e := resource_org_inventory.SdkToTerraform(ctx, orgId.String(), elements, plan)
 	diags.Append(e...)
 
 	return state, diags
