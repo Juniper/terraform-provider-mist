@@ -32,14 +32,14 @@ resource "mist_org" "org_one" {
 
 - `alarmtemplate_id` (String)
 - `allow_mist` (Boolean)
-- `msp_logo_url` (String) logo uploaded by the MSP with advanced tier, only present if provided
-- `msp_name` (String) name of the msp the org belongs to
 - `session_expiry` (Number)
 
 ### Read-Only
 
 - `id` (String) The ID of this resource.
 - `msp_id` (String)
+- `msp_logo_url` (String) logo uploaded by the MSP with advanced tier, only present if provided
+- `msp_name` (String) name of the msp the org belongs to
 - `orggroup_ids` (List of String)
 
 
