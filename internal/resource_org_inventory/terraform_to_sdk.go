@@ -9,134 +9,220 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func genDeviceMap(devices *basetypes.ListValue) (map[string]*DevicesValue, map[string]*DevicesValue) {
-	devices_map_magic := make(map[string]*DevicesValue)
-	devices_map_mac := make(map[string]*DevicesValue)
-	for _, v := range devices.Elements() {
-		var dsi interface{} = v
-		var dev = dsi.(DevicesValue)
-		var magic string = strings.ReplaceAll(strings.ToUpper(dev.Magic.ValueString()), "-", "")
-		var mac string = strings.ToLower(dev.Mac.ValueString())
-		devices_map_mac[mac] = &dev
-		if magic != "" {
-			// for claimed devices
-			devices_map_magic[magic] = &dev
-		}
-	}
-	return devices_map_magic, devices_map_mac
-}
+func processAction(planSiteId *basetypes.StringValue, stateSiteId *basetypes.StringValue) string {
+	/*
+		Function to define the required action for a specific device (assign/unassign/nothing)
 
-func processAction(planDevice *DevicesValue, stateDevice *DevicesValue) string {
+		parameters:
+			planSiteId : *basetypes.StringValue
+				planed siteId for the device
+			stateSiteId : *basetypes.StringValue
+				planed siteId for the device
 
-	if stateDevice != nil && stateDevice.SiteId.Equal(planDevice.SiteId) {
+		returns:
+			string
+				the op to apply to the device (assign/unassign/nothing)
+	*/
+	if stateSiteId.ValueString() == planSiteId.ValueString() {
 		return ""
-	} else if planDevice.SiteId.ValueStringPointer() == nil {
-		// Planned Site ID nil > must be unassigned
+	} else if planSiteId.IsNull() || planSiteId.IsUnknown() || planSiteId.ValueString() == "" {
+		// Planned Site ID is not set > must be unassigned
 		return "unassign"
-		//*unassign = append(*unassign, stateDevice.Mac.ValueString())
 	} else {
-		// Planned Site ID not not nil > must be assigned or reassiogned
+		// Planned Site ID is set > must be assigned or reassiogned
 		return "assign"
-		// (*assign)[planDevice.SiteId.ValueString()] = append((*assign)[planDevice.SiteId.ValueString()], stateDevice.Mac.ValueString())
 	}
 }
 
-func processClaimedDevice(planDevice *DevicesValue, stateMap *map[string]*DevicesValue) (string, string, string) {
-	var op, siteId, mac string
-	var magic string = strings.ToUpper(planDevice.Magic.ValueString())
+func findDeviceInState(
+	planDeviceInfo string,
+	planDeviceSiteId basetypes.StringValue,
+	stateMap *map[string]DevicesValue,
+) (string, string, bool) {
+	/*
+		Function to find a device in the list coming from the Mist Inventory based on the Claim Code
+		or the MAC Address
 
-	if stateDevice, ok := (*stateMap)[magic]; ok {
+		parameters:
+			planDeviceInfo : string
+				the planed device Claim Code or MAC Address
+			planDeviceSiteId : basetypes.StringValue
+				the planed device Site ID
+			stateMap : *map[string]DevicesValue
+				map of the devices in the Mist inventory. The key may be the device Claim Code or MAC address
+				(depeending on the value type in planDeviceInfo) and the value is DeviceValue
+
+		returns:
+			string
+				the op to apply to the device (assign/unassign/nothing)
+			string
+				the device MAC Address (required for assign/unassign ops)
+			bool
+				if the device is already claimed (only used when planDeviceInfo is a claim code)
+	*/
+	var op, mac string
+	var alreadyClaimed bool = false
+
+	if stateDevice, ok := (*stateMap)[strings.ToUpper(planDeviceInfo)]; ok {
 		// for already claimed devices
-		op = processAction(planDevice, stateDevice)
+		op = processAction(&planDeviceSiteId, &stateDevice.SiteId)
 		mac = stateDevice.Mac.ValueString()
-	} else if planDevice.SiteId.ValueString() != "" {
+		alreadyClaimed = true
+	} else if !planDeviceSiteId.IsNull() && !planDeviceSiteId.IsUnknown() && planDeviceSiteId.ValueString() != "" {
 		// for devices not claimed with the site_id set
 		op = "assign"
 	}
-	siteId = planDevice.SiteId.ValueString()
 
-	return op, mac, siteId
+	return op, mac, alreadyClaimed
 }
 
-func processAdoptedDevice(planDevice *DevicesValue, stateMap *map[string]*DevicesValue) (string, string, string) {
-	var op, siteId string
-	var mac string = strings.ToLower(planDevice.Mac.ValueString())
+func processPlanedDevices(
+	diags *diag.Diagnostics,
+	planDevices *basetypes.MapValue,
+	stateDevicesMap *map[string]DevicesValue,
+	claim *[]string,
+	unassign *[]string,
+	assignClaim *map[string]string,
+	assign *map[string][]string,
+) {
+	/*
+		Function to process the planed devices and detect which type of action should by applied. Depending
+		on the required action, the device will be added to one of the required list
 
-	if stateDevice, ok := (*stateMap)[mac]; ok {
-		// or adopted devices that are already known
-		op = processAction(planDevice, stateDevice)
-	} else if planDevice.SiteId.ValueString() != "" {
-		// for adopted devices that are unknown and have the site_id set
-		op = "assign"
+		parameters:
+			diads: *diag.Diagnostics
+			planDevices : *basetypes.MapValue
+				map of devices in the plan. Key is the device Claim Code or MAC Address, Value is a DeviceVvalue Nested
+				Object with the SiteId, the UnclaimWhenDestroyed bit and the information retrieved from the Mist Inventory
+			stateDevicesMap : *map[string]DevicesValue
+				map of devices in the plan. Key is the device Claim Code or MAC Address, Value is a DeviceVvalue Nested
+				Object with the SiteId, the UnclaimWhenDestroyed bit and the information retrieved from the Mist Inventory
+			claim : *[]string
+				list of claim codes (string) that must be claimed to the Mist Org
+			unassign : *[]string
+				list of MAC Address (string) that must be unassigned from Mist Sites
+			assignClaim : *map[string]string
+				map of  ClaimCodes / SiteId of the devices that must be claimed then assigned to a site. This is required
+				because we don't have the device MAC address at this time (we only have the claim code, the MAC addresss
+				which is required for the "assign" op will be known after the claim)
+				the key is the device Claim Code'
+				the value is the site id where the device must be assigned to after the claim
+			assign : *map[string][]string
+				map of siteId / list of MAC address (string) that must be assigned to a site
+				the key is the siteId where the device(s) must be claimed to
+				the value is a list of MAC Address that must be assigned to the site
+	*/
+	for deviceInfo, d := range planDevices.Elements() {
+		var op, mac string
+		var alreadyClaimed bool
+
+		var di interface{} = d
+		var planDevice = di.(DevicesValue)
+		var deviceSiteId = planDevice.SiteId
+
+		op, mac, alreadyClaimed = findDeviceInState(deviceInfo, deviceSiteId, stateDevicesMap)
+		isClaimCode, isMac := DetectDeviceInfoType(diags, deviceInfo)
+		if !alreadyClaimed && isClaimCode {
+			(*claim) = append((*claim), deviceInfo)
+			if op == "assign" {
+				(*assignClaim)[strings.ToUpper(deviceInfo)] = deviceSiteId.ValueString()
+			}
+			// } else if !alreadyClaimed && isMac {
+			// 	diags.AddError(
+			// 		"Unable to process the \"org_inventory\" resource",
+			// 		fmt.Sprintf("unable to find a device with the MAC Address %s in the Org Inventory", deviceInfo),
+			// 	)
+		} else if alreadyClaimed || isMac {
+			if isMac {
+				mac = deviceInfo
+			}
+			switch op {
+			case "assign":
+				(*assign)[deviceSiteId.ValueString()] = append((*assign)[deviceSiteId.ValueString()], mac)
+			case "unassign":
+				(*unassign) = append((*unassign), mac)
+			}
+		} else if !isClaimCode && !isMac {
+			diags.AddError(
+				"Unable to process a device in \"mist_org_inventory\"",
+				fmt.Sprintf("Invalid Claim Code / MAC Address format. Got: \"%s\"", deviceInfo),
+			)
+		}
 	}
-	siteId = planDevice.SiteId.ValueString()
-
-	return op, planDevice.Mac.ValueString(), siteId
 }
 
-func TerraformToSdk(ctx context.Context, devices_plan *basetypes.ListValue, devices_state *basetypes.ListValue) ([]string, []string, []string, map[string]string, map[string][]string, diag.Diagnostics) {
+func processUnplanedDevices(
+	planDevicesMap *map[string]DevicesValue,
+	stateDevices *basetypes.MapValue,
+	unclaim *[]string,
+) {
+	/*
+		Function to process the planed devices and detect which devices must be unclaimed
+
+		parameters:
+			planDevicesMap : *map[string]DeviceValue
+				map of the devices in the Plan. The key may be the device Claim Code or MAC address
+				(depeending on the value type in planDeviceInfo) and the value is DeviceValue
+			stateDevices : *basetypes.MapValue
+				map of devices in the state (claimed / managed by the provider). Key is the device Claim Code
+				or MAC Address, Value is a Nested Object with the SiteId and the UnclaimWhenDestroyed bit
+			unclaim : *[]string
+				list of serial numbers (serial) that must be unclaim from the Mist Inventory
+	*/
+
+	for deviceInfo, d := range stateDevices.Elements() {
+		var di interface{} = d
+		var device = di.(DevicesValue)
+		var UnclaimWhenDestroyed = device.UnclaimWhenDestroyed.ValueBool()
+
+		if _, ok := (*planDevicesMap)[strings.ToUpper(deviceInfo)]; !ok && UnclaimWhenDestroyed {
+			(*unclaim) = append((*unclaim), device.Serial.ValueString())
+		}
+	}
+}
+
+func TerraformToSdk(
+	ctx context.Context,
+	stateInventory *OrgInventoryModel,
+	planInventory *OrgInventoryModel,
+) ([]string, []string, []string, map[string]string, map[string][]string, diag.Diagnostics) {
 	var diags diag.Diagnostics
+	// var knownDevice
 	var claim []string
 	var unclaim []string
 	var unassign []string
-	assign_claim := make(map[string]string)
+	assignClaim := make(map[string]string)
 	assign := make(map[string][]string)
 
-	devices_plan_magic, devices_plan_mac := genDeviceMap(devices_plan)
-	devices_state_magic, devices_state_mac := genDeviceMap(devices_state)
-
 	// process devices in the plan
-	// check if they must be claimed/assigned/unassigned
-	for i, dev_plan_attr := range devices_plan.Elements() {
-		var dpi interface{} = dev_plan_attr
-		var dev_plan = dpi.(DevicesValue)
-		var op, mac, siteId string
-
-		if dev_plan.Magic.ValueString() != "" {
-			op, mac, siteId = processClaimedDevice(&dev_plan, &devices_state_magic)
-		} else if dev_plan.Mac.ValueString() != "" {
-			op, mac, siteId = processAdoptedDevice(&dev_plan, &devices_state_mac)
-		} else {
-			diags.AddError(
-				"Unable to process device in \"mist_org_inventory\"",
-				fmt.Sprintf("Claim Code and MAC Address not found for the device mist_org_inventory.devices[%s]", string(i)),
-			)
-		}
-
-		// if the device is not claimed (unknown MAC Address), we will need to claim it to get the MAC address
-		if mac == "" && dev_plan.Magic.ValueString() != "" {
-			claim = append(claim, dev_plan.Magic.ValueString())
-			if siteId != "" {
-				assign_claim[dev_plan.Magic.ValueString()] = siteId
-			}
-		} else {
-			switch op {
-			case "assign":
-				assign[siteId] = append(assign[siteId], mac)
-			case "unassign":
-				unassign = append(unassign, mac)
-			}
-		}
-	}
+	// check if devices must be claimed/assigned/unassigned
+	stateDevicesMap := GenDeviceMap(&stateInventory.Devices)
+	processPlanedDevices(&diags, &planInventory.Devices, &stateDevicesMap, &claim, &unassign, &assignClaim, &assign)
 
 	// process devices in the state
-	// check if they must be unclaimed
-	for _, dev_state_attr := range devices_state.Elements() {
-		var dsi interface{} = dev_state_attr
-		var dev_state = dsi.(DevicesValue)
-		var magic string = strings.ToUpper(dev_state.Magic.ValueString())
-		var mac string = strings.ToLower(dev_state.Mac.ValueString())
-		// does not unclaim devices not "cloud ready" (without claim code)
-		if magic != "" {
-			_, magic_ok := devices_plan_magic[magic]
-			_, mac_ok := devices_plan_mac[mac]
-			// if we are not able to find the device in the plan based
-			// on its claim code or its mac, we'll unclaim it
-			if !magic_ok && !mac_ok {
-				unclaim = append(unclaim, dev_state.Serial.ValueString())
-			}
+	// check if devices must be unclaimed
+	planDevicesMap := GenDeviceMap(&planInventory.Devices)
+	processUnplanedDevices(&planDevicesMap, &stateInventory.Devices, &unclaim)
+
+	return claim, unclaim, unassign, assignClaim, assign, diags
+}
+
+func DeleteOrgInventory(
+	ctx context.Context,
+	stateInventory *OrgInventoryModel,
+) ([]string, diag.Diagnostics) {
+	var diags diag.Diagnostics
+	var unclaim []string
+
+	for _, d := range stateInventory.Devices.Elements() {
+		var di interface{} = d
+		var device = di.(DevicesValue)
+		var UnclaimWhenDestroyed = device.UnclaimWhenDestroyed.ValueBool()
+
+		if UnclaimWhenDestroyed {
+			unclaim = append(unclaim, device.Serial.ValueString())
 		}
 	}
 
-	return claim, unclaim, unassign, assign_claim, assign, diags
+	return unclaim, diags
 }

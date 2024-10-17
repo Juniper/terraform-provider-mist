@@ -47,26 +47,31 @@ resource "mist_org_inventory" "inventory_one" {
 
 ### Optional
 
-- `devices` (Attributes List) (see [below for nested schema](#nestedatt--devices))
+- `devices` (Attributes Map) Can be the device Claim Code or the device MAC Address:
+  * Claim Code: used to claim the device to the Mist Organization and manage it. Format is `[0-9A-Z]{15}` (e.g `01234ABCDE56789`)
+  * MAC Address: used to managed a device already in the Mist Organization (claimed or adopted devices). Format is `[0-9a-f]{12}` (e.g `5684dae9ac8b`)
+Removing a device from the list will NOT release it unless `unclaim_when_destroyed` is set to `true` (see [below for nested schema](#nestedatt--devices))
 
 <a id="nestedatt--devices"></a>
 ### Nested Schema for `devices`
 
 Optional:
 
-- `claim_code` (String) Device Claim Code. Required for claimed devices. Removing an adopted device from the list will release it. Format is `[0-9A-Z]{15}` (e.g `01234ABCDE56789`)
-- `mac` (String) Device MAC address. Required to assign adopted devices to site. Removing an adopted device from the list will not release it, but will unassign it from the site. Cannot be specified when `claim_code` is used. Format is `[0-9a-f]{12}` (e.g `5684dae9ac8b`)
 - `site_id` (String) Site ID. Used to assign device to a Site
+- `unclaim_when_destroyed` (Boolean) Unclaim the device from the Mist Organization when removed from the provider inventory. Default is `false`
 
 Read-Only:
 
-- `hostname` (String) Device Hostname
-- `id` (String) Mist Device ID
-- `model` (String) Device model
+- `claim_code` (String) device claim code
+- `deviceprofile_id` (String) deviceprofile id if assigned, null if not assigned
+- `hostname` (String) hostname reported by the device
+- `id` (String) device id
+- `mac` (String) device MAC address
+- `model` (String) device model
 - `org_id` (String)
-- `serial` (String) Device serial
-- `type` (String)
-- `vc_mac` (String) Virtual Chassis MAC Address
+- `serial` (String) device serial
+- `type` (String) enum: `ap`, `gateway`, `switch`
+- `vc_mac` (String) if `type`==`switch` and device part of a Virtual Chassis, MAC Address of the Virtual Chassis. if `type`==`gateway` and device part of a Clust, MAC Address of the Cluster
 
 
 

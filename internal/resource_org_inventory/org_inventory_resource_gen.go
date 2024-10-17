@@ -7,92 +7,118 @@ import (
 	"fmt"
 	"strings"
 
-	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
-	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
+	"github.com/Juniper/terraform-provider-mist/internal/validators"
+	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
+
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
 
 func OrgInventoryResourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
-			"org_id": schema.StringAttribute{
-				Required: true,
-			},
-			"devices": schema.ListNestedAttribute{
+			"devices": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
+						"deviceprofile_id": schema.StringAttribute{
+							Computed:            true,
+							Description:         "deviceprofile id if assigned, null if not assigned",
+							MarkdownDescription: "deviceprofile id if assigned, null if not assigned",
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
+							},
+						},
+						"hostname": schema.StringAttribute{
+							Computed:            true,
+							Description:         "hostname reported by the device",
+							MarkdownDescription: "hostname reported by the device",
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
+							},
+						},
+						"id": schema.StringAttribute{
+							Computed:            true,
+							Description:         "device id",
+							MarkdownDescription: "device id",
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
+							},
+						},
 						"mac": schema.StringAttribute{
 							Computed:            true,
-							Optional:            true,
-							Description:         "Device MAC address. Required to assign adopted devices to site. Removing an adopted device from the list will not release it, but will unassign it from the site. Cannot be specified when `claim_code` is used. Format is `[0-9a-f]{12}` (e.g `5684dae9ac8b`)",
-							MarkdownDescription: "Device MAC address. Required to assign adopted devices to site. Removing an adopted device from the list will not release it, but will unassign it from the site. Cannot be specified when `claim_code` is used. Format is `[0-9a-f]{12}` (e.g `5684dae9ac8b`)",
-							Validators: []validator.String{
-								mistvalidator.ParseMac(),
-								// mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("claim_code"), types.StringValue("")),
+							Description:         "device MAC address",
+							MarkdownDescription: "device MAC address",
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
+							},
+						},
+						"claim_code": schema.StringAttribute{
+							Computed:            true,
+							Description:         "device claim code",
+							MarkdownDescription: "device claim code",
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
 							},
 						},
 						"model": schema.StringAttribute{
 							Computed:            true,
-							Description:         "Device model",
-							MarkdownDescription: "Device model",
+							Description:         "device model",
+							MarkdownDescription: "device model",
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
+							},
 						},
 						"org_id": schema.StringAttribute{
 							Computed: true,
-						},
-						"claim_code": schema.StringAttribute{
-							Computed:            true,
-							Optional:            true,
-							Description:         "Device Claim Code. Required for claimed devices. Removing an adopted device from the list will release it. Format is `[0-9A-Z]{15}` (e.g `01234ABCDE56789`)",
-							MarkdownDescription: "Device Claim Code. Required for claimed devices. Removing an adopted device from the list will release it. Format is `[0-9A-Z]{15}` (e.g `01234ABCDE56789`)",
-							Validators: []validator.String{
-								mistvalidator.ParseMagic(),
-								// mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("mac"), types.StringNull()),
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
 							},
 						},
 						"serial": schema.StringAttribute{
 							Computed:            true,
-							Description:         "Device serial",
-							MarkdownDescription: "Device serial",
+							Description:         "device serial",
+							MarkdownDescription: "device serial",
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
+							},
 						},
 						"site_id": schema.StringAttribute{
 							Optional:            true,
+							Computed:            true,
 							Description:         "Site ID. Used to assign device to a Site",
 							MarkdownDescription: "Site ID. Used to assign device to a Site",
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
+							},
 						},
 						"type": schema.StringAttribute{
-							Computed: true,
-							Validators: []validator.String{
-								stringvalidator.OneOf(
-									"",
-									"ap",
-									"switch",
-									"gateway",
-								),
+							Computed:            true,
+							Description:         "enum: `ap`, `gateway`, `switch`",
+							MarkdownDescription: "enum: `ap`, `gateway`, `switch`",
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
 							},
+						},
+						"unclaim_when_destroyed": schema.BoolAttribute{
+							Optional:            true,
+							Computed:            true,
+							Description:         "Unclaim the device from the Mist Organization when removed from the provider inventory. Default is `false`",
+							MarkdownDescription: "Unclaim the device from the Mist Organization when removed from the provider inventory. Default is `false`",
+							Default:             booldefault.StaticBool(false),
 						},
 						"vc_mac": schema.StringAttribute{
 							Computed:            true,
-							Description:         "Virtual Chassis MAC Address",
-							MarkdownDescription: "Virtual Chassis MAC Address",
-						},
-						"hostname": schema.StringAttribute{
-							Computed:            true,
-							Description:         "Device Hostname",
-							MarkdownDescription: "Device Hostname",
-						},
-						"id": schema.StringAttribute{
-							Computed:            true,
-							Description:         "Mist Device ID",
-							MarkdownDescription: "Mist Device ID",
+							Description:         "if `type`==`switch` and device part of a Virtual Chassis, MAC Address of the Virtual Chassis. if `type`==`gateway` and device part of a Clust, MAC Address of the Cluster",
+							MarkdownDescription: "if `type`==`switch` and device part of a Virtual Chassis, MAC Address of the Virtual Chassis. if `type`==`gateway` and device part of a Clust, MAC Address of the Cluster",
 							PlanModifiers: []planmodifier.String{
 								stringplanmodifier.UseStateForUnknown(),
 							},
@@ -104,19 +130,29 @@ func OrgInventoryResourceSchema(ctx context.Context) schema.Schema {
 						},
 					},
 				},
-				Optional: true,
-				Computed: true,
-				Validators: []validator.List{
-					listvalidator.UniqueValues(),
+				Optional:            true,
+				Computed:            true,
+				Description:         "Can be the device Claim Code or the device MAC Address:\n  * Claim Code: used to claim the device to the Mist Organization and manage it. Format is `[0-9A-Z]{15}` (e.g `01234ABCDE56789`)\n  * MAC Address: used to managed a device already in the Mist Organization (claimed or adopted devices). Format is `[0-9a-f]{12}` (e.g `5684dae9ac8b`)\nRemoving a device from the list will NOT release it unless `unclaim_when_destroyed` is set to `true`",
+				MarkdownDescription: "Can be the device Claim Code or the device MAC Address:\n  * Claim Code: used to claim the device to the Mist Organization and manage it. Format is `[0-9A-Z]{15}` (e.g `01234ABCDE56789`)\n  * MAC Address: used to managed a device already in the Mist Organization (claimed or adopted devices). Format is `[0-9a-f]{12}` (e.g `5684dae9ac8b`)\nRemoving a device from the list will NOT release it unless `unclaim_when_destroyed` is set to `true`",
+				Validators: []validator.Map{
+					mapvalidator.KeysAre(
+						stringvalidator.Any(
+							mistvalidator.ParseMagic(),
+							mistvalidator.ParseMac(),
+						),
+					),
 				},
+			},
+			"org_id": schema.StringAttribute{
+				Required: true,
 			},
 		},
 	}
 }
 
 type OrgInventoryModel struct {
+	Devices types.Map    `tfsdk:"devices"`
 	OrgId   types.String `tfsdk:"org_id"`
-	Devices types.List   `tfsdk:"devices"`
 }
 
 var _ basetypes.ObjectTypable = DevicesType{}
@@ -143,6 +179,60 @@ func (t DevicesType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 	var diags diag.Diagnostics
 
 	attributes := in.Attributes()
+
+	deviceprofileIdAttribute, ok := attributes["deviceprofile_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`deviceprofile_id is missing from object`)
+
+		return nil, diags
+	}
+
+	deviceprofileIdVal, ok := deviceprofileIdAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`deviceprofile_id expected to be basetypes.StringValue, was: %T`, deviceprofileIdAttribute))
+	}
+
+	hostnameAttribute, ok := attributes["hostname"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`hostname is missing from object`)
+
+		return nil, diags
+	}
+
+	hostnameVal, ok := hostnameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`hostname expected to be basetypes.StringValue, was: %T`, hostnameAttribute))
+	}
+
+	idAttribute, ok := attributes["id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`id is missing from object`)
+
+		return nil, diags
+	}
+
+	idVal, ok := idAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`id expected to be basetypes.StringValue, was: %T`, idAttribute))
+	}
 
 	macAttribute, ok := attributes["mac"]
 
@@ -252,7 +342,7 @@ func (t DevicesType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 			fmt.Sprintf(`site_id expected to be basetypes.StringValue, was: %T`, siteIdAttribute))
 	}
 
-	deviceTypeAttribute, ok := attributes["type"]
+	typeAttribute, ok := attributes["type"]
 
 	if !ok {
 		diags.AddError(
@@ -262,12 +352,30 @@ func (t DevicesType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 		return nil, diags
 	}
 
-	deviceTypeVal, ok := deviceTypeAttribute.(basetypes.StringValue)
+	typeVal, ok := typeAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, deviceTypeAttribute))
+			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, typeAttribute))
+	}
+
+	unclaimWhenDestroyedAttribute, ok := attributes["unclaim_when_destroyed"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`unclaim_when_destroyed is missing from object`)
+
+		return nil, diags
+	}
+
+	unclaimWhenDestroyedVal, ok := unclaimWhenDestroyedAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`unclaim_when_destroyed expected to be basetypes.BoolValue, was: %T`, unclaimWhenDestroyedAttribute))
 	}
 
 	vcMacAttribute, ok := attributes["vc_mac"]
@@ -288,54 +396,24 @@ func (t DevicesType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 			fmt.Sprintf(`vc_mac expected to be basetypes.StringValue, was: %T`, vcMacAttribute))
 	}
 
-	hostnameAttribute, ok := attributes["hostname"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`hostname is missing from object`)
-
+	if diags.HasError() {
 		return nil, diags
-	}
-
-	hostnameVal, ok := hostnameAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`hostname expected to be basetypes.StringValue, was: %T`, hostnameAttribute))
-	}
-
-	deviceIdAttribute, ok := attributes["id"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`id is missing from object`)
-
-		return nil, diags
-	}
-
-	deviceIdVal, ok := deviceIdAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`id expected to be basetypes.StringValue, was: %T`, deviceIdAttribute))
 	}
 
 	return DevicesValue{
-		Magic:      claim_codeVal,
-		Mac:        macVal,
-		Model:      modelVal,
-		OrgId:      orgIdVal,
-		Serial:     serialVal,
-		SiteId:     siteIdVal,
-		DeviceType: deviceTypeVal,
-		VcMac:      vcMacVal,
-		Hostname:   hostnameVal,
-		Id:         deviceIdVal,
-		state:      attr.ValueStateKnown,
+		DeviceprofileId:      deviceprofileIdVal,
+		Hostname:             hostnameVal,
+		Id:                   idVal,
+		Mac:                  macVal,
+		Magic:                claim_codeVal,
+		Model:                modelVal,
+		OrgId:                orgIdVal,
+		Serial:               serialVal,
+		SiteId:               siteIdVal,
+		DevicesType:          typeVal,
+		UnclaimWhenDestroyed: unclaimWhenDestroyedVal,
+		VcMac:                vcMacVal,
+		state:                attr.ValueStateKnown,
 	}, diags
 }
 
@@ -402,22 +480,58 @@ func NewDevicesValue(attributeTypes map[string]attr.Type, attributes map[string]
 		return NewDevicesValueUnknown(), diags
 	}
 
-	claim_codeAttribute, ok := attributes["claim_code"]
+	deviceprofileIdAttribute, ok := attributes["deviceprofile_id"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`claim_code is missing from object`)
+			`deviceprofile_id is missing from object`)
 
 		return NewDevicesValueUnknown(), diags
 	}
 
-	claim_codeVal, ok := claim_codeAttribute.(basetypes.StringValue)
+	deviceprofileIdVal, ok := deviceprofileIdAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`claim_code expected to be basetypes.StringValue, was: %T`, claim_codeAttribute))
+			fmt.Sprintf(`deviceprofile_id expected to be basetypes.StringValue, was: %T`, deviceprofileIdAttribute))
+	}
+
+	hostnameAttribute, ok := attributes["hostname"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`hostname is missing from object`)
+
+		return NewDevicesValueUnknown(), diags
+	}
+
+	hostnameVal, ok := hostnameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`hostname expected to be basetypes.StringValue, was: %T`, hostnameAttribute))
+	}
+
+	idAttribute, ok := attributes["id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`id is missing from object`)
+
+		return NewDevicesValueUnknown(), diags
+	}
+
+	idVal, ok := idAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`id expected to be basetypes.StringValue, was: %T`, idAttribute))
 	}
 
 	macAttribute, ok := attributes["mac"]
@@ -436,6 +550,24 @@ func NewDevicesValue(attributeTypes map[string]attr.Type, attributes map[string]
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`mac expected to be basetypes.StringValue, was: %T`, macAttribute))
+	}
+
+	claim_codeAttribute, ok := attributes["claim_code"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`claim_code is missing from object`)
+
+		return NewDevicesValueUnknown(), diags
+	}
+
+	claim_codeVal, ok := claim_codeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`claim_code expected to be basetypes.StringValue, was: %T`, claim_codeAttribute))
 	}
 
 	modelAttribute, ok := attributes["model"]
@@ -510,7 +642,7 @@ func NewDevicesValue(attributeTypes map[string]attr.Type, attributes map[string]
 			fmt.Sprintf(`site_id expected to be basetypes.StringValue, was: %T`, siteIdAttribute))
 	}
 
-	deviceTypeAttribute, ok := attributes["type"]
+	typeAttribute, ok := attributes["type"]
 
 	if !ok {
 		diags.AddError(
@@ -520,12 +652,30 @@ func NewDevicesValue(attributeTypes map[string]attr.Type, attributes map[string]
 		return NewDevicesValueUnknown(), diags
 	}
 
-	deviceTypeVal, ok := deviceTypeAttribute.(basetypes.StringValue)
+	typeVal, ok := typeAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, deviceTypeAttribute))
+			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, typeAttribute))
+	}
+
+	unclaimWhenDestroyedAttribute, ok := attributes["unclaim_when_destroyed"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`unclaim_when_destroyed is missing from object`)
+
+		return NewDevicesValueUnknown(), diags
+	}
+
+	unclaimWhenDestroyedVal, ok := unclaimWhenDestroyedAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`unclaim_when_destroyed expected to be basetypes.BoolValue, was: %T`, unclaimWhenDestroyedAttribute))
 	}
 
 	vcMacAttribute, ok := attributes["vc_mac"]
@@ -546,58 +696,24 @@ func NewDevicesValue(attributeTypes map[string]attr.Type, attributes map[string]
 			fmt.Sprintf(`vc_mac expected to be basetypes.StringValue, was: %T`, vcMacAttribute))
 	}
 
-	hostnameAttribute, ok := attributes["hostname"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`hostname is missing from object`)
-
-		return NewDevicesValueUnknown(), diags
-	}
-
-	hostnameVal, ok := hostnameAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`hostname expected to be basetypes.StringValue, was: %T`, hostnameAttribute))
-	}
-
-	deviceIdAttribute, ok := attributes["id"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`id is missing from object`)
-
-		return NewDevicesValueUnknown(), diags
-	}
-
-	deviceIdVal, ok := deviceIdAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`id expected to be basetypes.StringValue, was: %T`, deviceIdAttribute))
-	}
-
 	if diags.HasError() {
 		return NewDevicesValueUnknown(), diags
 	}
 
 	return DevicesValue{
-		Magic:      claim_codeVal,
-		Mac:        macVal,
-		Model:      modelVal,
-		OrgId:      orgIdVal,
-		Serial:     serialVal,
-		SiteId:     siteIdVal,
-		DeviceType: deviceTypeVal,
-		VcMac:      vcMacVal,
-		Hostname:   hostnameVal,
-		Id:         deviceIdVal,
-		state:      attr.ValueStateKnown,
+		DeviceprofileId:      deviceprofileIdVal,
+		Hostname:             hostnameVal,
+		Id:                   idVal,
+		Mac:                  macVal,
+		Magic:                claim_codeVal,
+		Model:                modelVal,
+		OrgId:                orgIdVal,
+		Serial:               serialVal,
+		SiteId:               siteIdVal,
+		DevicesType:          typeVal,
+		UnclaimWhenDestroyed: unclaimWhenDestroyedVal,
+		VcMac:                vcMacVal,
+		state:                attr.ValueStateKnown,
 	}, diags
 }
 
@@ -669,49 +785,69 @@ func (t DevicesType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = DevicesValue{}
 
 type DevicesValue struct {
-	Magic      basetypes.StringValue `tfsdk:"claim_code"`
-	Mac        basetypes.StringValue `tfsdk:"mac"`
-	Model      basetypes.StringValue `tfsdk:"model"`
-	OrgId      basetypes.StringValue `tfsdk:"org_id"`
-	Serial     basetypes.StringValue `tfsdk:"serial"`
-	SiteId     basetypes.StringValue `tfsdk:"site_id"`
-	DeviceType basetypes.StringValue `tfsdk:"type"`
-	VcMac      basetypes.StringValue `tfsdk:"vc_mac"`
-	Hostname   basetypes.StringValue `tfsdk:"hostname"`
-	Id         basetypes.StringValue `tfsdk:"id"`
-	state      attr.ValueState
+	DeviceprofileId      basetypes.StringValue `tfsdk:"deviceprofile_id"`
+	Hostname             basetypes.StringValue `tfsdk:"hostname"`
+	Id                   basetypes.StringValue `tfsdk:"id"`
+	Mac                  basetypes.StringValue `tfsdk:"mac"`
+	Magic                basetypes.StringValue `tfsdk:"claim_code"`
+	Model                basetypes.StringValue `tfsdk:"model"`
+	OrgId                basetypes.StringValue `tfsdk:"org_id"`
+	Serial               basetypes.StringValue `tfsdk:"serial"`
+	SiteId               basetypes.StringValue `tfsdk:"site_id"`
+	DevicesType          basetypes.StringValue `tfsdk:"type"`
+	UnclaimWhenDestroyed basetypes.BoolValue   `tfsdk:"unclaim_when_destroyed"`
+	VcMac                basetypes.StringValue `tfsdk:"vc_mac"`
+	state                attr.ValueState
 }
 
 func (v DevicesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 3)
+	attrTypes := make(map[string]tftypes.Type, 12)
 
 	var val tftypes.Value
 	var err error
 
-	attrTypes["claim_code"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["deviceprofile_id"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["hostname"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["mac"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["claim_code"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["model"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["org_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["serial"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["site_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["type"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["unclaim_when_destroyed"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["vc_mac"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["hostname"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["id"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 8)
+		vals := make(map[string]tftypes.Value, 12)
 
-		val, err = v.Magic.ToTerraformValue(ctx)
+		val, err = v.DeviceprofileId.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["claim_code"] = val
+		vals["deviceprofile_id"] = val
+
+		val, err = v.Hostname.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["hostname"] = val
+
+		val, err = v.Id.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["id"] = val
 
 		val, err = v.Mac.ToTerraformValue(ctx)
 
@@ -720,6 +856,14 @@ func (v DevicesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 		}
 
 		vals["mac"] = val
+
+		val, err = v.Magic.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["claim_code"] = val
 
 		val, err = v.Model.ToTerraformValue(ctx)
 
@@ -753,13 +897,21 @@ func (v DevicesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 
 		vals["site_id"] = val
 
-		val, err = v.DeviceType.ToTerraformValue(ctx)
+		val, err = v.DevicesType.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
 		vals["type"] = val
+
+		val, err = v.UnclaimWhenDestroyed.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["unclaim_when_destroyed"] = val
 
 		val, err = v.VcMac.ToTerraformValue(ctx)
 
@@ -768,22 +920,6 @@ func (v DevicesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 		}
 
 		vals["vc_mac"] = val
-
-		val, err = v.Hostname.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["hostname"] = val
-
-		val, err = v.Id.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["id"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -815,16 +951,18 @@ func (v DevicesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 	var diags diag.Diagnostics
 
 	attributeTypes := map[string]attr.Type{
-		"claim_code": basetypes.StringType{},
-		"mac":        basetypes.StringType{},
-		"model":      basetypes.StringType{},
-		"org_id":     basetypes.StringType{},
-		"serial":     basetypes.StringType{},
-		"site_id":    basetypes.StringType{},
-		"type":       basetypes.StringType{},
-		"vc_mac":     basetypes.StringType{},
-		"hostname":   basetypes.StringType{},
-		"id":         basetypes.StringType{},
+		"deviceprofile_id":       basetypes.StringType{},
+		"hostname":               basetypes.StringType{},
+		"id":                     basetypes.StringType{},
+		"mac":                    basetypes.StringType{},
+		"claim_code":             basetypes.StringType{},
+		"model":                  basetypes.StringType{},
+		"org_id":                 basetypes.StringType{},
+		"serial":                 basetypes.StringType{},
+		"site_id":                basetypes.StringType{},
+		"type":                   basetypes.StringType{},
+		"unclaim_when_destroyed": basetypes.BoolType{},
+		"vc_mac":                 basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -838,16 +976,18 @@ func (v DevicesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"claim_code": v.Magic,
-			"mac":        v.Mac,
-			"model":      v.Model,
-			"org_id":     v.OrgId,
-			"serial":     v.Serial,
-			"site_id":    v.SiteId,
-			"type":       v.DeviceType,
-			"vc_mac":     v.VcMac,
-			"hostname":   v.Hostname,
-			"id":         v.Id,
+			"deviceprofile_id":       v.DeviceprofileId,
+			"hostname":               v.Hostname,
+			"id":                     v.Id,
+			"mac":                    v.Mac,
+			"claim_code":             v.Magic,
+			"model":                  v.Model,
+			"org_id":                 v.OrgId,
+			"serial":                 v.Serial,
+			"site_id":                v.SiteId,
+			"type":                   v.DevicesType,
+			"unclaim_when_destroyed": v.UnclaimWhenDestroyed,
+			"vc_mac":                 v.VcMac,
 		})
 
 	return objVal, diags
@@ -868,11 +1008,23 @@ func (v DevicesValue) Equal(o attr.Value) bool {
 		return true
 	}
 
-	if !v.Magic.Equal(other.Magic) {
+	if !v.DeviceprofileId.Equal(other.DeviceprofileId) {
+		return false
+	}
+
+	if !v.Hostname.Equal(other.Hostname) {
+		return false
+	}
+
+	if !v.Id.Equal(other.Id) {
 		return false
 	}
 
 	if !v.Mac.Equal(other.Mac) {
+		return false
+	}
+
+	if !v.Magic.Equal(other.Magic) {
 		return false
 	}
 
@@ -892,15 +1044,11 @@ func (v DevicesValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.DeviceType.Equal(other.DeviceType) {
+	if !v.DevicesType.Equal(other.DevicesType) {
 		return false
 	}
 
-	if !v.Hostname.Equal(other.Hostname) {
-		return false
-	}
-
-	if !v.Id.Equal(other.Id) {
+	if !v.UnclaimWhenDestroyed.Equal(other.UnclaimWhenDestroyed) {
 		return false
 	}
 
@@ -921,15 +1069,17 @@ func (v DevicesValue) Type(ctx context.Context) attr.Type {
 
 func (v DevicesValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"claim_code": basetypes.StringType{},
-		"mac":        basetypes.StringType{},
-		"model":      basetypes.StringType{},
-		"org_id":     basetypes.StringType{},
-		"serial":     basetypes.StringType{},
-		"site_id":    basetypes.StringType{},
-		"type":       basetypes.StringType{},
-		"vc_mac":     basetypes.StringType{},
-		"hostname":   basetypes.StringType{},
-		"id":         basetypes.StringType{},
+		"deviceprofile_id":       basetypes.StringType{},
+		"hostname":               basetypes.StringType{},
+		"id":                     basetypes.StringType{},
+		"mac":                    basetypes.StringType{},
+		"claim_code":             basetypes.StringType{},
+		"model":                  basetypes.StringType{},
+		"org_id":                 basetypes.StringType{},
+		"serial":                 basetypes.StringType{},
+		"site_id":                basetypes.StringType{},
+		"type":                   basetypes.StringType{},
+		"unclaim_when_destroyed": basetypes.BoolType{},
+		"vc_mac":                 basetypes.StringType{},
 	}
 }

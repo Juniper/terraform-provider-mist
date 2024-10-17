@@ -96,7 +96,6 @@ func (r *orgInventoryResource) Create(ctx context.Context, req resource.CreateRe
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
 }
 
 func (r *orgInventoryResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -187,11 +186,16 @@ func (r *orgInventoryResource) Delete(ctx context.Context, req resource.DeleteRe
 		return
 	}
 
-	var serials []string
-	for _, v := range state.Devices.Elements() {
-		var vi interface{} = v
-		var dev_state = vi.(resource_org_inventory.DevicesValue)
-		serials = append(serials, dev_state.Serial.ValueString())
+	// var serials []string
+	// for _, v := range state.Devices.Elements() {
+	// 	var vi interface{} = v
+	// 	var dev_state = vi.(resource_org_inventory.DevicesValue)
+	// 	serials = append(serials, dev_state.Serial.ValueString())
+	// }
+	serials, diags := resource_org_inventory.DeleteOrgInventory(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
 	}
 
 	orgId, err := uuid.Parse(state.OrgId.ValueString())
@@ -222,7 +226,7 @@ func (r *orgInventoryResource) Delete(ctx context.Context, req resource.DeleteRe
 func (r *orgInventoryResource) updateInventory(ctx context.Context, orgId *uuid.UUID, plan *resource_org_inventory.OrgInventoryModel, state *resource_org_inventory.OrgInventoryModel) diag.Diagnostics {
 	var diags diag.Diagnostics
 
-	claim, unclaim, unassign, assign_claim, assign, e := resource_org_inventory.TerraformToSdk(ctx, &plan.Devices, &state.Devices)
+	claim, unclaim, unassign, assign_claim, assign, e := resource_org_inventory.TerraformToSdk(ctx, state, plan)
 	if e != nil {
 		diags.Append(e...)
 		return diags
@@ -242,7 +246,7 @@ func (r *orgInventoryResource) updateInventory(ctx context.Context, orgId *uuid.
 			return diags
 		}
 		for _, v := range inventory_added {
-			site_id, ok := assign_claim[v.Magic]
+			site_id, ok := assign_claim[strings.ToUpper(v.Magic)]
 			if ok {
 				assign[site_id] = append(assign[site_id], v.Mac)
 			}
@@ -322,7 +326,7 @@ func (r *orgInventoryResource) refreshInventory(ctx context.Context, orgId *uuid
 		elements = append(elements, data.Data...)
 	}
 
-	state, e := resource_org_inventory.SdkToTerraform(ctx, orgId.String(), elements, plan)
+	state, e := resource_org_inventory.SdkToTerraform(ctx, orgId.String(), &elements, plan)
 	diags.Append(e...)
 
 	return state, diags
@@ -456,33 +460,34 @@ func (r *orgInventoryResource) assignDevices(ctx context.Context, orgId uuid.UUI
 		if err != nil {
 			diags.AddError(
 				"Invalid \"site_id\" value for \"org_inventory\" resource",
-				fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", orgId.String(), err.Error()),
+				fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", siteId.String(), err.Error()),
 			)
-		}
-		assign_body.SiteId = models.ToPointer(siteId)
+		} else {
+			assign_body.SiteId = models.ToPointer(siteId)
 
-		assign_response, err := r.client.OrgsInventory().UpdateOrgInventoryAssignment(ctx, orgId, &assign_body)
+			assign_response, err := r.client.OrgsInventory().UpdateOrgInventoryAssignment(ctx, orgId, &assign_body)
 
-		api_err := mist_api_error.ProcessInventoryApiError(ctx, "assign", assign_response.Response.StatusCode, assign_response.Response.Body, err)
-		if len(api_err) > 0 {
-			for _, err_value := range api_err {
+			api_err := mist_api_error.ProcessInventoryApiError(ctx, "assign", assign_response.Response.StatusCode, assign_response.Response.Body, err)
+			if len(api_err) > 0 {
+				for _, err_value := range api_err {
+					diags.AddError(
+						"Error when assigning Devices from the Org Inventory to a Site",
+						err_value,
+					)
+				}
+			} else if err != nil {
 				diags.AddError(
 					"Error when assigning Devices from the Org Inventory to a Site",
-					err_value,
+					"Unable to assign the devices, unexpected error: "+err.Error(),
 				)
 			}
-		} else if err != nil {
-			diags.AddError(
-				"Error when assigning Devices from the Org Inventory to a Site",
-				"Unable to assign the devices, unexpected error: "+err.Error(),
-			)
-		}
 
-		tflog.Debug(ctx, "response for API Call to assign devices:", map[string]interface{}{
-			"Error":   strings.Join(assign_response.Data.Error, ", "),
-			"Reason":  strings.Join(assign_response.Data.Reason, ", "),
-			"Success": strings.Join(assign_response.Data.Success, ", "),
-		})
+			tflog.Debug(ctx, "response for API Call to assign devices:", map[string]interface{}{
+				"Error":   strings.Join(assign_response.Data.Error, ", "),
+				"Reason":  strings.Join(assign_response.Data.Reason, ", "),
+				"Success": strings.Join(assign_response.Data.Success, ", "),
+			})
+		}
 	}
 }
 
