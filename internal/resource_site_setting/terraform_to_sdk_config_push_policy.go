@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	hours "github.com/Juniper/terraform-provider-mist/internal/commons/hours"
+	mist_hours "github.com/Juniper/terraform-provider-mist/internal/commons/hours"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
@@ -21,7 +21,7 @@ func pushPolicyPushWindowConfigTerraformToSdk(ctx context.Context, diags *diag.D
 		} else {
 			data.Enabled = vd.Enabled.ValueBoolPointer()
 
-			hours := hours.HoursTerraformToSdk(ctx, diags, vd.Hours)
+			hours := mist_hours.HoursTerraformToSdk(ctx, diags, vd.Hours)
 			data.Hours = hours
 		}
 	}
