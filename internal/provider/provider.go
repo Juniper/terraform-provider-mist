@@ -17,6 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/float64validator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/function"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
@@ -30,7 +31,10 @@ const (
 	defaultApiTimeout = 10
 )
 
-var _ provider.Provider = (*mistProvider)(nil)
+var (
+	_ provider.Provider              = &mistProvider{}
+	_ provider.ProviderWithFunctions = &mistProvider{}
+)
 
 func New() func() provider.Provider {
 	return func() provider.Provider {
@@ -40,9 +44,6 @@ func New() func() provider.Provider {
 
 type mistProvider struct {
 	version string
-}
-type mistProviderData struct {
-	client mistapi.ClientInterface
 }
 
 type mistProviderModel struct {
@@ -449,5 +450,13 @@ func (p *mistProvider) Resources(ctx context.Context) []func() resource.Resource
 		NewOrgSso,
 		NewOrgSsoRole,
 		NewOrgAlarmtemplateResource,
+	}
+}
+
+func (p *mistProvider) Functions(_ context.Context) []func() function.Function {
+	return []func() function.Function{
+		NewSearchInventoryByClaimcodeFunction,
+		NewSearchInventoryByMacFunction,
+		NewSearchInventoryBySerialFunction,
 	}
 }
