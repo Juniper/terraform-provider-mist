@@ -15,26 +15,24 @@ It can be used to claim, unclaim, assign, unassign, reassign devices
 ## Example Usage
 
 ```terraform
-resource "mist_org_inventory" "inventory_one" {
+resource "mist_org_inventory" "inventory" {
   org_id = mist_org.terraform_test.id
-  devices = [
-    // for to claim and man devices, use the claim code
-    {
-      claim_code = "<device_claim_code>"
-      site_id    = mist_site.terraform_site.id
-    },
-    {
-      claim_code = "<device_claim_code>"
-    },
-    // for adopted devices
-    {
-      mac     = "<device_mac_address>"
+  devices = {
+    # Device Claim Code
+    "CPKL2EXXXXXXXXX" = {}
+    "G87JHBFXXXXXXXX" = {
       site_id = mist_site.terraform_site.id
-    },
-    {
-      mac = "<device_mac_address>"
-    },
-  ]
+      unclaim_when_destroyed = true
+    }
+    # MAC Address
+    "2c2131000000" = {
+      site_id                = mist_site.terraform_site.id
+      unclaim_when_destroyed = true
+    }
+    "2c2131000001" = {
+      unclaim_when_destroyed = false
+    }    
+  }
 }
 ```
 
