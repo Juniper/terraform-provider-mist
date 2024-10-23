@@ -5,13 +5,13 @@ package resource_org_inventory
 import (
 	"context"
 	"fmt"
-	"strings"
-
 	"github.com/Juniper/terraform-provider-mist/internal/validators"
+	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -19,6 +19,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -26,7 +27,127 @@ import (
 func OrgInventoryResourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
-			"devices": schema.MapNestedAttribute{
+			"devices": schema.ListNestedAttribute{
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"deviceprofile_id": schema.StringAttribute{
+							Computed:            true,
+							Description:         "deviceprofile id if assigned, null if not assigned",
+							MarkdownDescription: "deviceprofile id if assigned, null if not assigned",
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
+							},
+						},
+						"hostname": schema.StringAttribute{
+							Computed:            true,
+							Description:         "hostname reported by the device",
+							MarkdownDescription: "hostname reported by the device",
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
+							},
+						},
+						"id": schema.StringAttribute{
+							Computed:            true,
+							Description:         "device id",
+							MarkdownDescription: "device id",
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
+							},
+						},
+						"mac": schema.StringAttribute{
+							Optional:            true,
+							Computed:            true,
+							Description:         "used to managed a device already in the Mist Organization (claimed or adopted devices). Format is `[0-9a-f]{12}` (e.g `5684dae9ac8b`)",
+							MarkdownDescription: "used to managed a device already in the Mist Organization (claimed or adopted devices). Format is `[0-9a-f]{12}` (e.g `5684dae9ac8b`)",
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
+							},
+							Validators: []validator.String{
+								mistvalidator.ParseMacValidator{},
+								mistvalidator.AllowedWhenValueIsNull(path.MatchRelative().AtParent().AtName("claim_code")),
+							},
+						},
+						"claim_code": schema.StringAttribute{
+							Optional:            true,
+							Computed:            true,
+							Description:         "used to claim the device to the Mist Organization and manage it. Format is `[0-9A-Z]{15}` (e.g `01234ABCDE56789`)",
+							MarkdownDescription: "used to claim the device to the Mist Organization and manage it. Format is `[0-9A-Z]{15}` (e.g `01234ABCDE56789`)",
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
+							},
+							Validators: []validator.String{
+								mistvalidator.ParseMagicValidator{},
+								mistvalidator.AllowedWhenValueIsNull(path.MatchRelative().AtParent().AtName("mac")),
+							},
+						},
+						"model": schema.StringAttribute{
+							Computed:            true,
+							Description:         "device model",
+							MarkdownDescription: "device model",
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
+							},
+						},
+						"org_id": schema.StringAttribute{
+							Computed: true,
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
+							},
+						},
+						"serial": schema.StringAttribute{
+							Computed:            true,
+							Description:         "device serial",
+							MarkdownDescription: "device serial",
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
+							},
+						},
+						"site_id": schema.StringAttribute{
+							Optional:            true,
+							Computed:            true,
+							Description:         "Site ID. Used to assign device to a Site",
+							MarkdownDescription: "Site ID. Used to assign device to a Site",
+						},
+						"type": schema.StringAttribute{
+							Computed:            true,
+							Description:         "enum: `ap`, `gateway`, `switch`",
+							MarkdownDescription: "enum: `ap`, `gateway`, `switch`",
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
+							},
+						},
+						"unclaim_when_destroyed": schema.BoolAttribute{
+							Optional:            true,
+							Computed:            true,
+							Description:         "Unclaim the device from the Mist Organization when removed from the provider inventory. Default is `false`",
+							MarkdownDescription: "Unclaim the device from the Mist Organization when removed from the provider inventory. Default is `false`",
+							Default:             booldefault.StaticBool(false),
+						},
+						"vc_mac": schema.StringAttribute{
+							Computed:            true,
+							Description:         "if `type`==`switch` and device part of a Virtual Chassis, MAC Address of the Virtual Chassis. if `type`==`gateway` and device part of a Clust, MAC Address of the Cluster",
+							MarkdownDescription: "if `type`==`switch` and device part of a Virtual Chassis, MAC Address of the Virtual Chassis. if `type`==`gateway` and device part of a Clust, MAC Address of the Cluster",
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
+							},
+						},
+					},
+					CustomType: DevicesType{
+						ObjectType: types.ObjectType{
+							AttrTypes: DevicesValue{}.AttributeTypes(ctx),
+						},
+					},
+				},
+				Optional:            true,
+				Computed:            true,
+				Description:         "**DEPRECATED** List of devices to manage. Exactly one of `claim_code` or `mac` field must be set",
+				MarkdownDescription: "**DEPRECATED** List of devices to manage. Exactly one of `claim_code` or `mac` field must be set",
+				Validators: []validator.List{
+					mistvalidator.AllowedWhenValueIsNull(path.MatchRelative().AtParent().AtName("inventory")),
+					listvalidator.SizeAtLeast(1),
+				},
+			},
+			"inventory": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"deviceprofile_id": schema.StringAttribute{
@@ -96,9 +217,6 @@ func OrgInventoryResourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "Site ID. Used to assign device to a Site",
 							MarkdownDescription: "Site ID. Used to assign device to a Site",
-							PlanModifiers: []planmodifier.String{
-								stringplanmodifier.UseStateForUnknown(),
-							},
 						},
 						"type": schema.StringAttribute{
 							Computed:            true,
@@ -124,17 +242,18 @@ func OrgInventoryResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 					},
-					CustomType: DevicesType{
+					CustomType: InventoryType{
 						ObjectType: types.ObjectType{
-							AttrTypes: DevicesValue{}.AttributeTypes(ctx),
+							AttrTypes: InventoryValue{}.AttributeTypes(ctx),
 						},
 					},
 				},
 				Optional:            true,
 				Computed:            true,
-				Description:         "Can be the device Claim Code or the device MAC Address:\n  * Claim Code: used to claim the device to the Mist Organization and manage it. Format is `[0-9A-Z]{15}` (e.g `01234ABCDE56789`)\n  * MAC Address: used to managed a device already in the Mist Organization (claimed or adopted devices). Format is `[0-9a-f]{12}` (e.g `5684dae9ac8b`)\nRemoving a device from the list will NOT release it unless `unclaim_when_destroyed` is set to `true`",
-				MarkdownDescription: "Can be the device Claim Code or the device MAC Address:\n  * Claim Code: used to claim the device to the Mist Organization and manage it. Format is `[0-9A-Z]{15}` (e.g `01234ABCDE56789`)\n  * MAC Address: used to managed a device already in the Mist Organization (claimed or adopted devices). Format is `[0-9a-f]{12}` (e.g `5684dae9ac8b`)\nRemoving a device from the list will NOT release it unless `unclaim_when_destroyed` is set to `true`",
+				Description:         "Property key can be the device Claim Code or the device MAC Address:\n  * Claim Code: used to claim the device to the Mist Organization and manage it. Format is `[0-9A-Z]{15}` (e.g `01234ABCDE56789`)\n  * MAC Address: used to managed a device already in the Mist Organization (claimed or adopted devices). Format is `[0-9a-f]{12}` (e.g `5684dae9ac8b`)\n\n    >",
+				MarkdownDescription: "Property key can be the device Claim Code or the device MAC Address:\n  * Claim Code: used to claim the device to the Mist Organization and manage it. Format is `[0-9A-Z]{15}` (e.g `01234ABCDE56789`)\n  * MAC Address: used to managed a device already in the Mist Organization (claimed or adopted devices). Format is `[0-9a-f]{12}` (e.g `5684dae9ac8b`)\n\n    >",
 				Validators: []validator.Map{
+					mistvalidator.AllowedWhenValueIsNull(path.MatchRelative().AtParent().AtName("devices")),
 					mapvalidator.KeysAre(
 						stringvalidator.Any(
 							mistvalidator.ParseMagic(),
@@ -151,8 +270,9 @@ func OrgInventoryResourceSchema(ctx context.Context) schema.Schema {
 }
 
 type OrgInventoryModel struct {
-	Devices types.Map    `tfsdk:"devices"`
-	OrgId   types.String `tfsdk:"org_id"`
+	Devices   types.List   `tfsdk:"devices"`
+	Inventory types.Map    `tfsdk:"inventory"`
+	OrgId     types.String `tfsdk:"org_id"`
 }
 
 var _ basetypes.ObjectTypable = DevicesType{}
@@ -1068,6 +1188,935 @@ func (v DevicesValue) Type(ctx context.Context) attr.Type {
 }
 
 func (v DevicesValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"deviceprofile_id":       basetypes.StringType{},
+		"hostname":               basetypes.StringType{},
+		"id":                     basetypes.StringType{},
+		"mac":                    basetypes.StringType{},
+		"claim_code":             basetypes.StringType{},
+		"model":                  basetypes.StringType{},
+		"org_id":                 basetypes.StringType{},
+		"serial":                 basetypes.StringType{},
+		"site_id":                basetypes.StringType{},
+		"type":                   basetypes.StringType{},
+		"unclaim_when_destroyed": basetypes.BoolType{},
+		"vc_mac":                 basetypes.StringType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = InventoryType{}
+
+type InventoryType struct {
+	basetypes.ObjectType
+}
+
+func (t InventoryType) Equal(o attr.Type) bool {
+	other, ok := o.(InventoryType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t InventoryType) String() string {
+	return "InventoryType"
+}
+
+func (t InventoryType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	deviceprofileIdAttribute, ok := attributes["deviceprofile_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`deviceprofile_id is missing from object`)
+
+		return nil, diags
+	}
+
+	deviceprofileIdVal, ok := deviceprofileIdAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`deviceprofile_id expected to be basetypes.StringValue, was: %T`, deviceprofileIdAttribute))
+	}
+
+	hostnameAttribute, ok := attributes["hostname"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`hostname is missing from object`)
+
+		return nil, diags
+	}
+
+	hostnameVal, ok := hostnameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`hostname expected to be basetypes.StringValue, was: %T`, hostnameAttribute))
+	}
+
+	idAttribute, ok := attributes["id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`id is missing from object`)
+
+		return nil, diags
+	}
+
+	idVal, ok := idAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`id expected to be basetypes.StringValue, was: %T`, idAttribute))
+	}
+
+	macAttribute, ok := attributes["mac"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`mac is missing from object`)
+
+		return nil, diags
+	}
+
+	macVal, ok := macAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`mac expected to be basetypes.StringValue, was: %T`, macAttribute))
+	}
+
+	claim_codeAttribute, ok := attributes["claim_code"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`claim_code is missing from object`)
+
+		return nil, diags
+	}
+
+	claim_codeVal, ok := claim_codeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`claim_code expected to be basetypes.StringValue, was: %T`, claim_codeAttribute))
+	}
+
+	modelAttribute, ok := attributes["model"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`model is missing from object`)
+
+		return nil, diags
+	}
+
+	modelVal, ok := modelAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`model expected to be basetypes.StringValue, was: %T`, modelAttribute))
+	}
+
+	orgIdAttribute, ok := attributes["org_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`org_id is missing from object`)
+
+		return nil, diags
+	}
+
+	orgIdVal, ok := orgIdAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`org_id expected to be basetypes.StringValue, was: %T`, orgIdAttribute))
+	}
+
+	serialAttribute, ok := attributes["serial"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`serial is missing from object`)
+
+		return nil, diags
+	}
+
+	serialVal, ok := serialAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`serial expected to be basetypes.StringValue, was: %T`, serialAttribute))
+	}
+
+	siteIdAttribute, ok := attributes["site_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`site_id is missing from object`)
+
+		return nil, diags
+	}
+
+	siteIdVal, ok := siteIdAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`site_id expected to be basetypes.StringValue, was: %T`, siteIdAttribute))
+	}
+
+	typeAttribute, ok := attributes["type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`type is missing from object`)
+
+		return nil, diags
+	}
+
+	typeVal, ok := typeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, typeAttribute))
+	}
+
+	unclaimWhenDestroyedAttribute, ok := attributes["unclaim_when_destroyed"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`unclaim_when_destroyed is missing from object`)
+
+		return nil, diags
+	}
+
+	unclaimWhenDestroyedVal, ok := unclaimWhenDestroyedAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`unclaim_when_destroyed expected to be basetypes.BoolValue, was: %T`, unclaimWhenDestroyedAttribute))
+	}
+
+	vcMacAttribute, ok := attributes["vc_mac"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`vc_mac is missing from object`)
+
+		return nil, diags
+	}
+
+	vcMacVal, ok := vcMacAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`vc_mac expected to be basetypes.StringValue, was: %T`, vcMacAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return InventoryValue{
+		DeviceprofileId:      deviceprofileIdVal,
+		Hostname:             hostnameVal,
+		Id:                   idVal,
+		Mac:                  macVal,
+		Magic:                claim_codeVal,
+		Model:                modelVal,
+		OrgId:                orgIdVal,
+		Serial:               serialVal,
+		SiteId:               siteIdVal,
+		InventoryType:        typeVal,
+		UnclaimWhenDestroyed: unclaimWhenDestroyedVal,
+		VcMac:                vcMacVal,
+		state:                attr.ValueStateKnown,
+	}, diags
+}
+
+func NewInventoryValueNull() InventoryValue {
+	return InventoryValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewInventoryValueUnknown() InventoryValue {
+	return InventoryValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewInventoryValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (InventoryValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing InventoryValue Attribute Value",
+				"While creating a InventoryValue value, a missing attribute value was detected. "+
+					"A InventoryValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("InventoryValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid InventoryValue Attribute Type",
+				"While creating a InventoryValue value, an invalid attribute value was detected. "+
+					"A InventoryValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("InventoryValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("InventoryValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra InventoryValue Attribute Value",
+				"While creating a InventoryValue value, an extra attribute value was detected. "+
+					"A InventoryValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra InventoryValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewInventoryValueUnknown(), diags
+	}
+
+	deviceprofileIdAttribute, ok := attributes["deviceprofile_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`deviceprofile_id is missing from object`)
+
+		return NewInventoryValueUnknown(), diags
+	}
+
+	deviceprofileIdVal, ok := deviceprofileIdAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`deviceprofile_id expected to be basetypes.StringValue, was: %T`, deviceprofileIdAttribute))
+	}
+
+	hostnameAttribute, ok := attributes["hostname"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`hostname is missing from object`)
+
+		return NewInventoryValueUnknown(), diags
+	}
+
+	hostnameVal, ok := hostnameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`hostname expected to be basetypes.StringValue, was: %T`, hostnameAttribute))
+	}
+
+	idAttribute, ok := attributes["id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`id is missing from object`)
+
+		return NewInventoryValueUnknown(), diags
+	}
+
+	idVal, ok := idAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`id expected to be basetypes.StringValue, was: %T`, idAttribute))
+	}
+
+	macAttribute, ok := attributes["mac"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`mac is missing from object`)
+
+		return NewInventoryValueUnknown(), diags
+	}
+
+	macVal, ok := macAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`mac expected to be basetypes.StringValue, was: %T`, macAttribute))
+	}
+
+	claim_codeAttribute, ok := attributes["claim_code"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`claim_code is missing from object`)
+
+		return NewInventoryValueUnknown(), diags
+	}
+
+	claim_codeVal, ok := claim_codeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`claim_code expected to be basetypes.StringValue, was: %T`, claim_codeAttribute))
+	}
+
+	modelAttribute, ok := attributes["model"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`model is missing from object`)
+
+		return NewInventoryValueUnknown(), diags
+	}
+
+	modelVal, ok := modelAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`model expected to be basetypes.StringValue, was: %T`, modelAttribute))
+	}
+
+	orgIdAttribute, ok := attributes["org_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`org_id is missing from object`)
+
+		return NewInventoryValueUnknown(), diags
+	}
+
+	orgIdVal, ok := orgIdAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`org_id expected to be basetypes.StringValue, was: %T`, orgIdAttribute))
+	}
+
+	serialAttribute, ok := attributes["serial"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`serial is missing from object`)
+
+		return NewInventoryValueUnknown(), diags
+	}
+
+	serialVal, ok := serialAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`serial expected to be basetypes.StringValue, was: %T`, serialAttribute))
+	}
+
+	siteIdAttribute, ok := attributes["site_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`site_id is missing from object`)
+
+		return NewInventoryValueUnknown(), diags
+	}
+
+	siteIdVal, ok := siteIdAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`site_id expected to be basetypes.StringValue, was: %T`, siteIdAttribute))
+	}
+
+	typeAttribute, ok := attributes["type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`type is missing from object`)
+
+		return NewInventoryValueUnknown(), diags
+	}
+
+	typeVal, ok := typeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, typeAttribute))
+	}
+
+	unclaimWhenDestroyedAttribute, ok := attributes["unclaim_when_destroyed"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`unclaim_when_destroyed is missing from object`)
+
+		return NewInventoryValueUnknown(), diags
+	}
+
+	unclaimWhenDestroyedVal, ok := unclaimWhenDestroyedAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`unclaim_when_destroyed expected to be basetypes.BoolValue, was: %T`, unclaimWhenDestroyedAttribute))
+	}
+
+	vcMacAttribute, ok := attributes["vc_mac"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`vc_mac is missing from object`)
+
+		return NewInventoryValueUnknown(), diags
+	}
+
+	vcMacVal, ok := vcMacAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`vc_mac expected to be basetypes.StringValue, was: %T`, vcMacAttribute))
+	}
+
+	if diags.HasError() {
+		return NewInventoryValueUnknown(), diags
+	}
+
+	return InventoryValue{
+		DeviceprofileId:      deviceprofileIdVal,
+		Hostname:             hostnameVal,
+		Id:                   idVal,
+		Mac:                  macVal,
+		Magic:                claim_codeVal,
+		Model:                modelVal,
+		OrgId:                orgIdVal,
+		Serial:               serialVal,
+		SiteId:               siteIdVal,
+		InventoryType:        typeVal,
+		UnclaimWhenDestroyed: unclaimWhenDestroyedVal,
+		VcMac:                vcMacVal,
+		state:                attr.ValueStateKnown,
+	}, diags
+}
+
+func NewInventoryValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) InventoryValue {
+	object, diags := NewInventoryValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewInventoryValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t InventoryType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewInventoryValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewInventoryValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewInventoryValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewInventoryValueMust(InventoryValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t InventoryType) ValueType(ctx context.Context) attr.Value {
+	return InventoryValue{}
+}
+
+var _ basetypes.ObjectValuable = InventoryValue{}
+
+type InventoryValue struct {
+	DeviceprofileId      basetypes.StringValue `tfsdk:"deviceprofile_id"`
+	Hostname             basetypes.StringValue `tfsdk:"hostname"`
+	Id                   basetypes.StringValue `tfsdk:"id"`
+	Mac                  basetypes.StringValue `tfsdk:"mac"`
+	Magic                basetypes.StringValue `tfsdk:"claim_code"`
+	Model                basetypes.StringValue `tfsdk:"model"`
+	OrgId                basetypes.StringValue `tfsdk:"org_id"`
+	Serial               basetypes.StringValue `tfsdk:"serial"`
+	SiteId               basetypes.StringValue `tfsdk:"site_id"`
+	InventoryType        basetypes.StringValue `tfsdk:"type"`
+	UnclaimWhenDestroyed basetypes.BoolValue   `tfsdk:"unclaim_when_destroyed"`
+	VcMac                basetypes.StringValue `tfsdk:"vc_mac"`
+	state                attr.ValueState
+}
+
+func (v InventoryValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 12)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["deviceprofile_id"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["hostname"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["id"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["mac"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["claim_code"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["model"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["org_id"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["serial"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["site_id"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["type"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["unclaim_when_destroyed"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["vc_mac"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 12)
+
+		val, err = v.DeviceprofileId.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["deviceprofile_id"] = val
+
+		val, err = v.Hostname.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["hostname"] = val
+
+		val, err = v.Id.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["id"] = val
+
+		val, err = v.Mac.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["mac"] = val
+
+		val, err = v.Magic.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["claim_code"] = val
+
+		val, err = v.Model.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["model"] = val
+
+		val, err = v.OrgId.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["org_id"] = val
+
+		val, err = v.Serial.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["serial"] = val
+
+		val, err = v.SiteId.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["site_id"] = val
+
+		val, err = v.InventoryType.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["type"] = val
+
+		val, err = v.UnclaimWhenDestroyed.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["unclaim_when_destroyed"] = val
+
+		val, err = v.VcMac.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["vc_mac"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v InventoryValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v InventoryValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v InventoryValue) String() string {
+	return "InventoryValue"
+}
+
+func (v InventoryValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"deviceprofile_id":       basetypes.StringType{},
+		"hostname":               basetypes.StringType{},
+		"id":                     basetypes.StringType{},
+		"mac":                    basetypes.StringType{},
+		"claim_code":             basetypes.StringType{},
+		"model":                  basetypes.StringType{},
+		"org_id":                 basetypes.StringType{},
+		"serial":                 basetypes.StringType{},
+		"site_id":                basetypes.StringType{},
+		"type":                   basetypes.StringType{},
+		"unclaim_when_destroyed": basetypes.BoolType{},
+		"vc_mac":                 basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"deviceprofile_id":       v.DeviceprofileId,
+			"hostname":               v.Hostname,
+			"id":                     v.Id,
+			"mac":                    v.Mac,
+			"claim_code":             v.Magic,
+			"model":                  v.Model,
+			"org_id":                 v.OrgId,
+			"serial":                 v.Serial,
+			"site_id":                v.SiteId,
+			"type":                   v.InventoryType,
+			"unclaim_when_destroyed": v.UnclaimWhenDestroyed,
+			"vc_mac":                 v.VcMac,
+		})
+
+	return objVal, diags
+}
+
+func (v InventoryValue) Equal(o attr.Value) bool {
+	other, ok := o.(InventoryValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.DeviceprofileId.Equal(other.DeviceprofileId) {
+		return false
+	}
+
+	if !v.Hostname.Equal(other.Hostname) {
+		return false
+	}
+
+	if !v.Id.Equal(other.Id) {
+		return false
+	}
+
+	if !v.Mac.Equal(other.Mac) {
+		return false
+	}
+
+	if !v.Magic.Equal(other.Magic) {
+		return false
+	}
+
+	if !v.Model.Equal(other.Model) {
+		return false
+	}
+
+	if !v.OrgId.Equal(other.OrgId) {
+		return false
+	}
+
+	if !v.Serial.Equal(other.Serial) {
+		return false
+	}
+
+	if !v.SiteId.Equal(other.SiteId) {
+		return false
+	}
+
+	if !v.InventoryType.Equal(other.InventoryType) {
+		return false
+	}
+
+	if !v.UnclaimWhenDestroyed.Equal(other.UnclaimWhenDestroyed) {
+		return false
+	}
+
+	if !v.VcMac.Equal(other.VcMac) {
+		return false
+	}
+
+	return true
+}
+
+func (v InventoryValue) Type(ctx context.Context) attr.Type {
+	return InventoryType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v InventoryValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"deviceprofile_id":       basetypes.StringType{},
 		"hostname":               basetypes.StringType{},

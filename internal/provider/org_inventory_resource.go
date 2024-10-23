@@ -59,8 +59,16 @@ func (r *orgInventoryResource) Metadata(ctx context.Context, req resource.Metada
 
 func (r *orgInventoryResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryDevices + "This resource manages the Org inventory.\n" +
-			"It can be used to claim, unclaim, assign, unassign, reassign devices",
+		MarkdownDescription: docCategoryDevices +
+			"This resource manages the Org Inventory.\n" +
+			"It can be used to claim, unclaim, assign, unassign, reassign devices.\n\n" +
+			"->Removing a device from the `devices` list or `inventory` map will NOT release it unless `unclaim_when_destroyed` is set to `true`\n\n" +
+			"~> **WARNING** The `devices` attribute (list) is deprecated and is replaced by the `inventory` attribute (map) as " +
+			"it can generate \"inconsistent result after apply\" errors. If this happen, is is required to force a refresh of the " +
+			"state to synchronise the new list.\n\n" +
+			"The `devices` attribute will generate inconsistent result after apply when \n" +
+			"* a device other than the last one is removed from the list\n" +
+			"* a device is added somewhere other than the end of the list",
 		Attributes: resource_org_inventory.OrgInventoryResourceSchema(ctx).Attributes,
 	}
 }
@@ -457,7 +465,7 @@ func (r *orgInventoryResource) assignDevices(ctx context.Context, orgId uuid.UUI
 		assign_body.Managed = types.BoolValue(true).ValueBoolPointer()
 		tflog.Info(ctx, "devices "+strings.Join(assign[k], ", ")+" to "+k)
 		siteId, err := uuid.Parse(k)
-		if err != nil {
+		if err != nil && k != "" {
 			diags.AddError(
 				"Invalid \"site_id\" value for \"org_inventory\" resource",
 				fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", siteId.String(), err.Error()),

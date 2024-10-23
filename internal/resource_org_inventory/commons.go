@@ -3,30 +3,28 @@ package resource_org_inventory
 import (
 	"fmt"
 	"regexp"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func GenDeviceMap(devices *basetypes.MapValue) map[string]DevicesValue {
+func GenDeviceMap(devices *basetypes.MapValue) map[string]InventoryValue {
 	/*
-		Generate maps to easily find the devices retrieved in the Mist inventory based on the
-		Claim Code or the MAC Address
+		Generate a map[string]InventoryValue from the basetypes.MapValue
 
 		parameters:
 			deivces: *basetypes.SetValue
 				SetNested with each devices in the Inventory of the Mist Org
 
 		returns:
-			map[string]DevicesValue
+			map[string]InventoryValue
 				key is the device Claim Code or MAC Address, value is the DeviceValue
 	*/
-	devices_map := make(map[string]DevicesValue)
+	devices_map := make(map[string]InventoryValue)
 	for key, v := range devices.Elements() {
 		var dsi interface{} = v
-		var dev = dsi.(DevicesValue)
-		devices_map[strings.ToUpper(key)] = dev
+		var dev = dsi.(InventoryValue)
+		devices_map[key] = dev
 	}
 	return devices_map
 }

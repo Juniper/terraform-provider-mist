@@ -37,7 +37,7 @@ func processAction(planSiteId *basetypes.StringValue, stateSiteId *basetypes.Str
 func findDeviceInState(
 	planDeviceInfo string,
 	planDeviceSiteId basetypes.StringValue,
-	stateMap *map[string]DevicesValue,
+	stateMap *map[string]InventoryValue,
 ) (string, string, bool) {
 	/*
 		Function to find a device in the list coming from the Mist Inventory based on the Claim Code
@@ -48,7 +48,7 @@ func findDeviceInState(
 				the planed device Claim Code or MAC Address
 			planDeviceSiteId : basetypes.StringValue
 				the planed device Site ID
-			stateMap : *map[string]DevicesValue
+			stateMap : *map[string]InventoryValue
 				map of the devices in the Mist inventory. The key may be the device Claim Code or MAC address
 				(depeending on the value type in planDeviceInfo) and the value is DeviceValue
 
@@ -79,7 +79,7 @@ func findDeviceInState(
 func processPlanedDevices(
 	diags *diag.Diagnostics,
 	planDevices *basetypes.MapValue,
-	stateDevicesMap *map[string]DevicesValue,
+	stateDevicesMap *map[string]InventoryValue,
 	claim *[]string,
 	unassign *[]string,
 	assignClaim *map[string]string,
@@ -94,7 +94,7 @@ func processPlanedDevices(
 			planDevices : *basetypes.MapValue
 				map of devices in the plan. Key is the device Claim Code or MAC Address, Value is a DeviceVvalue Nested
 				Object with the SiteId, the UnclaimWhenDestroyed bit and the information retrieved from the Mist Inventory
-			stateDevicesMap : *map[string]DevicesValue
+			stateDevicesMap : *map[string]InventoryValue
 				map of devices in the plan. Key is the device Claim Code or MAC Address, Value is a DeviceVvalue Nested
 				Object with the SiteId, the UnclaimWhenDestroyed bit and the information retrieved from the Mist Inventory
 			claim : *[]string
@@ -117,7 +117,7 @@ func processPlanedDevices(
 		var alreadyClaimed bool
 
 		var di interface{} = d
-		var planDevice = di.(DevicesValue)
+		var planDevice = di.(InventoryValue)
 		var deviceSiteId = planDevice.SiteId
 
 		op, mac, alreadyClaimed = findDeviceInState(deviceInfo, deviceSiteId, stateDevicesMap)
@@ -152,7 +152,7 @@ func processPlanedDevices(
 }
 
 func processUnplanedDevices(
-	planDevicesMap *map[string]DevicesValue,
+	planDevicesMap *map[string]InventoryValue,
 	stateDevices *basetypes.MapValue,
 	unclaim *[]string,
 ) {
@@ -172,7 +172,7 @@ func processUnplanedDevices(
 
 	for deviceInfo, d := range stateDevices.Elements() {
 		var di interface{} = d
-		var device = di.(DevicesValue)
+		var device = di.(InventoryValue)
 		var UnclaimWhenDestroyed = device.UnclaimWhenDestroyed.ValueBool()
 
 		if _, ok := (*planDevicesMap)[strings.ToUpper(deviceInfo)]; !ok && UnclaimWhenDestroyed {
@@ -181,7 +181,7 @@ func processUnplanedDevices(
 	}
 }
 
-func TerraformToSdk(
+func mapTerraformToSdk(
 	ctx context.Context,
 	stateInventory *OrgInventoryModel,
 	planInventory *OrgInventoryModel,
@@ -196,15 +196,28 @@ func TerraformToSdk(
 
 	// process devices in the plan
 	// check if devices must be claimed/assigned/unassigned
-	stateDevicesMap := GenDeviceMap(&stateInventory.Devices)
-	processPlanedDevices(&diags, &planInventory.Devices, &stateDevicesMap, &claim, &unassign, &assignClaim, &assign)
+	stateDevicesMap := GenDeviceMap(&stateInventory.Inventory)
+	processPlanedDevices(&diags, &planInventory.Inventory, &stateDevicesMap, &claim, &unassign, &assignClaim, &assign)
 
 	// process devices in the state
 	// check if devices must be unclaimed
-	planDevicesMap := GenDeviceMap(&planInventory.Devices)
-	processUnplanedDevices(&planDevicesMap, &stateInventory.Devices, &unclaim)
+	planDevicesMap := GenDeviceMap(&planInventory.Inventory)
+	processUnplanedDevices(&planDevicesMap, &stateInventory.Inventory, &unclaim)
 
 	return claim, unclaim, unassign, assignClaim, assign, diags
+}
+
+func TerraformToSdk(
+	ctx context.Context,
+	stateInventory *OrgInventoryModel,
+	planInventory *OrgInventoryModel,
+) ([]string, []string, []string, map[string]string, map[string][]string, diag.Diagnostics) {
+
+	if !planInventory.Devices.IsNull() && !planInventory.Devices.IsUnknown() {
+		return legacyTerraformToSdk(ctx, &stateInventory.Devices, &planInventory.Devices)
+	} else {
+		return mapTerraformToSdk(ctx, stateInventory, planInventory)
+	}
 }
 
 func DeleteOrgInventory(
@@ -214,13 +227,25 @@ func DeleteOrgInventory(
 	var diags diag.Diagnostics
 	var unclaim []string
 
-	for _, d := range stateInventory.Devices.Elements() {
-		var di interface{} = d
-		var device = di.(DevicesValue)
-		var UnclaimWhenDestroyed = device.UnclaimWhenDestroyed.ValueBool()
+	if !stateInventory.Devices.IsNull() && !stateInventory.Devices.IsUnknown() {
+		for _, d := range stateInventory.Devices.Elements() {
+			var di interface{} = d
+			var device = di.(DevicesValue)
+			var UnclaimWhenDestroyed = device.UnclaimWhenDestroyed.ValueBool()
 
-		if UnclaimWhenDestroyed {
-			unclaim = append(unclaim, device.Serial.ValueString())
+			if UnclaimWhenDestroyed {
+				unclaim = append(unclaim, device.Serial.ValueString())
+			}
+		}
+	} else {
+		for _, d := range stateInventory.Inventory.Elements() {
+			var di interface{} = d
+			var device = di.(InventoryValue)
+			var UnclaimWhenDestroyed = device.UnclaimWhenDestroyed.ValueBool()
+
+			if UnclaimWhenDestroyed {
+				unclaim = append(unclaim, device.Serial.ValueString())
+			}
 		}
 	}
 
