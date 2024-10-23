@@ -37,10 +37,10 @@ data "mist_org_inventory" "inventory" {
 
 ### Read-Only
 
-- `devices` (Attributes Set) List of devices (see [below for nested schema](#nestedatt--devices))
+- `org_inventory` (Attributes Set) List of devices (see [below for nested schema](#nestedatt--org_inventory))
 
-<a id="nestedatt--devices"></a>
-### Nested Schema for `devices`
+<a id="nestedatt--org_inventory"></a>
+### Nested Schema for `org_inventory`
 
 Read-Only:
 
@@ -48,6 +48,7 @@ Read-Only:
 whether the switch/gateway is adopted
 - `claim_code` (String) device claim code
 - `connected` (Boolean) whether the device is connected
+- `created_time` (Number) when the object has been created, in epoch
 - `deviceprofile_id` (String) deviceprofile id if assigned, null if not assigned
 - `hostname` (String) hostname reported by the device
 - `hw_rev` (String) device hardware revision number
@@ -55,6 +56,7 @@ whether the switch/gateway is adopted
 - `jsi` (Boolean)
 - `mac` (String) device MAC address
 - `model` (String) device model
+- `modified_time` (Number) when the object has been modified for the last time, in epoch
 - `name` (String) device name if configured
 - `org_id` (String)
 - `serial` (String) device serial

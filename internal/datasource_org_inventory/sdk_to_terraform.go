@@ -23,7 +23,7 @@ func SdkToTerraform(ctx context.Context, l *[]models.Inventory, elements *[]attr
 	return diags
 }
 
-func inventorySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.Inventory) DevicesValue {
+func inventorySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.Inventory) OrgInventoryValue {
 	var adopted basetypes.BoolValue
 	var claim_code basetypes.StringValue
 	var connected basetypes.BoolValue
@@ -102,7 +102,7 @@ func inventorySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d mod
 		vc_mac = types.StringValue(*d.VcMac)
 	}
 
-	data_map_attr_type := DevicesValue{}.AttributeTypes(ctx)
+	data_map_attr_type := OrgInventoryValue{}.AttributeTypes(ctx)
 	data_map_value := map[string]attr.Value{
 		"adopted":          adopted,
 		"claim_code":       claim_code,
@@ -124,7 +124,7 @@ func inventorySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d mod
 		"type":             device_type,
 		"vc_mac":           vc_mac,
 	}
-	data, e := NewDevicesValue(data_map_attr_type, data_map_value)
+	data, e := NewOrgInventoryValue(data_map_attr_type, data_map_value)
 	diags.Append(e...)
 
 	return data

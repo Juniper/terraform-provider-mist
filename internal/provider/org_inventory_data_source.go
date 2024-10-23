@@ -154,13 +154,13 @@ func (d *orgInventoryDataSource) Read(ctx context.Context, req datasource.ReadRe
 		}
 	}
 
-	dataSet, diags := types.SetValue(datasource_org_inventory.DevicesValue{}.Type(ctx), elements)
+	dataSet, diags := types.SetValue(datasource_org_inventory.OrgInventoryValue{}.Type(ctx), elements)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	if err := resp.State.SetAttribute(ctx, path.Root("devices"), dataSet); err != nil {
+	if err := resp.State.SetAttribute(ctx, path.Root("org_inventory"), dataSet); err != nil {
 		resp.Diagnostics.Append(err...)
 		return
 	}
