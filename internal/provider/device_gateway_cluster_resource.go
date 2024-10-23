@@ -227,11 +227,13 @@ func (r *deviceGatewayClusterResource) Update(ctx context.Context, req resource.
 	// if the device Id or the Nodes changed, delete the cluster then recreate it
 	// otherwise it means it's only the site id that changed, and there is no need to recreate the cluster
 	if !plan.Id.Equal(state.Id) || !plan.Nodes.Equal(state.Nodes) {
-		_, err = r.client.SitesDevicesWANCluster().DeleteSiteDeviceHaCluster(ctx, siteIdState, idState)
-		if err != nil {
+		data, err := r.client.SitesDevicesWANCluster().DeleteSiteDeviceHaCluster(ctx, siteIdState, idState)
+		api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
+		// if the device is not found or if the device is not a cluster, skipping the error
+		if data.StatusCode != 404 && api_err != "not a ha cluster" {
 			resp.Diagnostics.AddError(
-				"Error deleting  \"mist_device_gateway_cluster\" resource to apply the cluster changes",
-				"Unable to delete Gateway Cluster, unexpected error: "+err.Error(),
+				"Error deleting \"mist_device_gateway_cluster\" resource",
+				fmt.Sprintf("Unable to delete the Gateway Cluster. %s", api_err),
 			)
 			return
 		}

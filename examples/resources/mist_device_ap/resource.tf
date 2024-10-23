@@ -1,6 +1,6 @@
 
 resource "mist_device_ap" "ap_one" {
   name      = "test_ap"
-  device_id = mist_org_inventory.inventory.devices[0].id
-  site_id   = mist_org_inventory.inventory.devices[0].site_id
+  device_id = provider::mist::search_inventory_by_claimcode(resource.mist_org_inventory.inventory, "CPKL2EXXXXXXXXX").id
+  site_id   = provider::mist::search_inventory_by_claimcode(resource.mist_org_inventory.inventory, "CPKL2EXXXXXXXXX").site_id
 }

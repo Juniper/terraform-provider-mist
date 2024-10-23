@@ -54,7 +54,7 @@ func (r *orgResource) Metadata(ctx context.Context, req resource.MetadataRequest
 func (r *orgResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryOrg + "This resource manages the Mist Organization.\n" +
-			"An organization usually represents a customer - which has inventories, licenses." +
+			"An organization usually represents a customer - which has inventories, licenses. " +
 			"An Organization can contain multiple sites. A site usually represents a deployment at the same location (a campus, an office).",
 		Attributes: resource_org.OrgResourceSchema(ctx).Attributes,
 	}
