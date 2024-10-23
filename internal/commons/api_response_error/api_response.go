@@ -31,7 +31,7 @@ func ProcessApiErrorInventory(ctx context.Context, status_code int, body io.Read
 
 func ProcessApiError(ctx context.Context, status_code int, body io.ReadCloser, err error) string {
 	var error_response string = ""
-	if status_code == 400 {
+	if status_code >= 300 {
 		bodyBytes, e := io.ReadAll(body)
 		if e == nil {
 			error_body := ErrorDetail{}
