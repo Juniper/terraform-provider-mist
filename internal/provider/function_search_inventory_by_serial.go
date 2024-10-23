@@ -7,8 +7,9 @@ import (
 
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_inventory"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/function"
-	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 var _ function.Function = &SearchInventoryBySerialFunction{}
@@ -25,8 +26,8 @@ func (f *SearchInventoryBySerialFunction) Metadata(ctx context.Context, req func
 
 func (f *SearchInventoryBySerialFunction) Definition(ctx context.Context, req function.DefinitionRequest, resp *function.DefinitionResponse) {
 	resp.Definition = function.Definition{
-		Summary: docCategoryDevices + "Parse an RFC3339 timestamp string into an object",
-		MarkdownDescription: "Given `mist_org_inventory.devices` Map and a Serial Number string, will return the Device object having the provided Serial Number." +
+		Summary: docCategoryDevices + "Retrieve a device in the `mist_org_inventory` resource based on its Serial Number",
+		MarkdownDescription: "Given `mist_org_inventory` resource and a Serial Number string, will return the Device object having the provided Serial Number." +
 			"The response object will contain all the information from the Mist Inventory:\n" +
 			"* `claim_code`: Claim Code of the device \n" +
 			"* `deviceprofile_id`: deviceprofile id if assigned\n" +
@@ -40,14 +41,18 @@ func (f *SearchInventoryBySerialFunction) Definition(ctx context.Context, req fu
 			"* `type`: Type of device\n" +
 			"* `unclaim_when_destroyed`: If the device will be unclaimed when removed from the `mist_org_inventory` resource\n" +
 			"* `vc_mac`: only if `type`==`switch` of `type`==`gateway`, MAC Address of the Virtual Chassis Primary switch or the Gateway Cluster Master\n\n" +
-			"> NOTE: \n> The search function is case-insensitive\n",
+			"-> The search function is case-insensitive\n",
 
 		Parameters: []function.Parameter{
-			function.MapParameter{
-				Name:                "devices",
-				Description:         "Device Map from the `mist_org_inventory` resource (full path `mist_org_inventory.devices`)",
-				MarkdownDescription: "Device Map from the `mist_org_inventory` resource (full path `mist_org_inventory.devices`)",
-				ElementType:         resource_org_inventory.DevicesValue{}.Type(ctx),
+			function.ObjectParameter{
+				Name:                "inventory",
+				Description:         "`mist_org_inventory` resource",
+				MarkdownDescription: "`mist_org_inventory` resource",
+				AttributeTypes: map[string]attr.Type{
+					"org_id":    types.StringType,
+					"devices":   types.ListType{ElemType: resource_org_inventory.DevicesValue{}.Type(ctx)},
+					"inventory": types.MapType{ElemType: resource_org_inventory.InventoryValue{}.Type(ctx)},
+				},
 			},
 			function.StringParameter{
 				Name:                "serial",
@@ -62,27 +67,36 @@ func (f *SearchInventoryBySerialFunction) Definition(ctx context.Context, req fu
 }
 
 func (f *SearchInventoryBySerialFunction) Run(ctx context.Context, req function.RunRequest, resp *function.RunResponse) {
-	var devices basetypes.MapValue
+	var inventory resource_org_inventory.OrgInventoryModel
 	var serial string
 
-	resp.Error = function.ConcatFuncErrors(resp.Error, req.Arguments.Get(ctx, &devices, &serial))
+	resp.Error = function.ConcatFuncErrors(resp.Error, req.Arguments.Get(ctx, &inventory, &serial))
 	if resp.Error != nil {
 		return
 	}
 
-	if devices.IsNull() || devices.IsUnknown() || len(devices.Elements()) == 0 {
-		resp.Error = function.NewArgumentFuncError(0, "The inventory provided is emtpy")
-	}
-
-	for _, v := range devices.Elements() {
-		var vi interface{} = v
-		device := vi.(resource_org_inventory.DevicesValue)
-		if !device.Serial.IsNull() && !device.Serial.IsUnknown() && strings.EqualFold(device.Serial.ValueString(), serial) {
-			resp.Error = resp.Result.Set(ctx, &device)
-			return
+	if !inventory.Devices.IsNull() && !inventory.Devices.IsUnknown() && len(inventory.Devices.Elements()) > 0 {
+		for _, v := range inventory.Devices.Elements() {
+			var vi interface{} = v
+			device := vi.(resource_org_inventory.DevicesValue)
+			if !device.Serial.IsNull() && !device.Serial.IsUnknown() && strings.EqualFold(device.Serial.ValueString(), serial) {
+				resp.Error = resp.Result.Set(ctx, &device)
+				return
+			}
 		}
+	} else if !inventory.Inventory.IsNull() && !inventory.Inventory.IsUnknown() && len(inventory.Inventory.Elements()) > 0 {
+		for _, v := range inventory.Inventory.Elements() {
+			var vi interface{} = v
+			device := vi.(resource_org_inventory.InventoryValue)
+			if !device.Serial.IsNull() && !device.Serial.IsUnknown() && strings.EqualFold(device.Serial.ValueString(), serial) {
+				resp.Error = resp.Result.Set(ctx, &device)
+				return
+			}
+		}
+	} else {
+		resp.Error = function.NewArgumentFuncError(0, "The provided inventory is emtpy")
 	}
 
-	resp.Error = function.NewArgumentFuncError(0, fmt.Sprintf("Unable to find a device with Serial \"%s\" in the provided inventory", serial))
+	resp.Error = function.NewArgumentFuncError(1, fmt.Sprintf("Unable to find a device with Serial \"%s\" in the provided inventory", serial))
 
 }
