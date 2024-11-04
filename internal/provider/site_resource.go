@@ -127,7 +127,7 @@ func (r *siteResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 	}
 	tflog.Info(ctx, "Starting Site Read: site_id "+state.Id.ValueString())
 	httpr, err := r.client.Sites().GetSiteInfo(ctx, siteId)
-	if httpr.Response.StatusCode == 404 {
+	if httpr.Response.StatusCode == 404 || httpr.Response.StatusCode == 403 {
 		resp.State.RemoveResource(ctx)
 		return
 	} else if err != nil {

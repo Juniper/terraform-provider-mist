@@ -127,7 +127,7 @@ func (r *siteSettingResource) Read(ctx context.Context, req resource.ReadRequest
 		return
 	}
 	httpr, err := r.client.SitesSetting().GetSiteSetting(ctx, siteId)
-	if httpr.Response.StatusCode == 404 {
+	if httpr.Response.StatusCode == 404 || httpr.Response.StatusCode == 403 {
 		resp.State.RemoveResource(ctx)
 		return
 	} else if err != nil {
