@@ -88,6 +88,12 @@ func TerraformToSdk(ctx context.Context, plan *DeviceSwitchModel) (models.MistDe
 		data.IpConfig = ipConfigTerraformToSdk(ctx, &diags, plan.IpConfig)
 	}
 
+	if plan.LocalPortConfig.IsNull() || plan.LocalPortConfig.IsUnknown() {
+		unset["-local_port_config"] = ""
+	} else {
+		data.LocalPortConfig = LocalPortConfigTerraformToSdk(ctx, &diags, plan.LocalPortConfig)
+	}
+
 	if plan.Managed.IsNull() || plan.Managed.IsUnknown() {
 		unset["-managed"] = ""
 	} else {

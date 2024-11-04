@@ -13,15 +13,15 @@ import (
 
 func stpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.SwitchStpConfig) StpConfigValue {
 
-	var vstp_enabled basetypes.BoolValue
+	var bridge_priority basetypes.StringValue
 
-	if d.VstpEnabled != nil {
-		vstp_enabled = types.BoolValue(*d.VstpEnabled)
+	if d.BridgePriority != nil {
+		bridge_priority = types.StringValue(*d.BridgePriority)
 	}
 
 	data_map_attr_type := StpConfigValue{}.AttributeTypes(ctx)
 	data_map_value := map[string]attr.Value{
-		"vstp_enabled": vstp_enabled,
+		"bridge_priority": bridge_priority,
 	}
 	data, e := NewStpConfigValue(data_map_attr_type, data_map_value)
 	diags.Append(e...)

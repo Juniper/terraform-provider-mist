@@ -120,6 +120,7 @@ resource "mist_device_switch" "switch_one" {
 - `extra_routes` (Attributes Map) (see [below for nested schema](#nestedatt--extra_routes))
 - `extra_routes6` (Attributes Map) Property key is the destination CIDR (e.g. "2a02:1234:420a:10c9::/64") (see [below for nested schema](#nestedatt--extra_routes6))
 - `ip_config` (Attributes) Junos IP Config (see [below for nested schema](#nestedatt--ip_config))
+- `local_port_config` (Attributes Map) Local port override, overriding the port configuration from `port_config`. Property key is the port name or range (e.g. "ge-0/0/0-10") (see [below for nested schema](#nestedatt--local_port_config))
 - `managed` (Boolean) for an adopted switch, we don’t overwrite their existing configs automatically
 - `map_id` (String) map where the device belongs to
 - `mist_nac` (Attributes) enable mist_nac to use radsec (see [below for nested schema](#nestedatt--mist_nac))
@@ -131,8 +132,8 @@ resource "mist_device_switch" "switch_one" {
 - `ospf_areas` (Attributes Map) Junos OSPF areas (see [below for nested schema](#nestedatt--ospf_areas))
 - `other_ip_configs` (Attributes Map) Property key is the network name (see [below for nested schema](#nestedatt--other_ip_configs))
 - `port_config` (Attributes Map) Property key is the port name or range (e.g. "ge-0/0/0-10") (see [below for nested schema](#nestedatt--port_config))
-- `port_mirroring` (Attributes Map) Property key is the port mirroring instance name (Maximum: 4)
-port_mirroring can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. (see [below for nested schema](#nestedatt--port_mirroring))
+- `port_mirroring` (Attributes Map) Property key is the port mirroring instance name
+port_mirroring can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 port mirrorings is allowed (see [below for nested schema](#nestedatt--port_mirroring))
 - `port_usages` (Attributes Map) (see [below for nested schema](#nestedatt--port_usages))
 - `radius_config` (Attributes) Junos Radius config (see [below for nested schema](#nestedatt--radius_config))
 - `remote_syslog` (Attributes) (see [below for nested schema](#nestedatt--remote_syslog))
@@ -190,12 +191,22 @@ Optional:
 
 Required:
 
-- `type` (String) enum: `any`, `dynamic_gbp`, `mac`, `network`, `radius_group`, `resource`, `static_gbp`, `subnet`
+- `type` (String) enum: 
+  * `any`: matching anything not identified
+  * `dynamic_gbp`: from the gbp_tag received from RADIUS
+  * `gbp_resource`: can only be used in `dst_tags`
+  * `mac`
+  * `network`
+  * `radius_group`
+  * `resource`: can only be used in `dst_tags`
+  * `static_gbp`: applying gbp tag against matching conditions
+  * `subnet`'
 
 Optional:
 
 - `gbp_tag` (Number) required if
 - `type`==`dynamic_gbp` (gbp_tag received from RADIUS)
+- `type`==`gbp_resource`
 - `type`==`static_gbp` (applying gbp tag against matching conditions)
 - `macs` (List of String) required if 
 - `type`==`mac`
@@ -210,7 +221,7 @@ Optional:
   * `type`==`radius_group`
   * `type`==`static_gbp`
 if from matching radius_group
-- `specs` (Attributes List) if `type`==`resource`
+- `specs` (Attributes List) if `type`==`resource` or `type`==`gbp_resource`
 empty means unrestricted, i.e. any (see [below for nested schema](#nestedatt--acl_tags--specs))
 - `subnets` (List of String) if 
 - `type`==`subnet` 
@@ -252,23 +263,23 @@ Optional:
 
 Optional:
 
-- `dns_servers` (List of String) if `type`==`local` - optional, if not defined, system one will be used
-- `dns_suffix` (List of String) if `type`==`local` - optional, if not defined, system one will be used
-- `fixed_bindings` (Attributes Map) Property key is the MAC Address. Format is `[0-9a-f]{12}` (e.g "5684dae9ac8b") (see [below for nested schema](#nestedatt--dhcpd_config--config--fixed_bindings))
-- `gateway` (String) if `type`==`local` - optional, `ip` will be used if not provided
-- `ip_end` (String) if `type`==`local`
-- `ip_end6` (String) if `type6`==`local`
-- `ip_start` (String) if `type`==`local`
-- `ip_start6` (String) if `type6`==`local`
+- `dns_servers` (List of String) if `type`==`server` or `type6`==`server` - optional, if not defined, system one will be used
+- `dns_suffix` (List of String) if `type`==`server` or `type6`==`server` - optional, if not defined, system one will be used
+- `fixed_bindings` (Attributes Map) if `type`==`server` or `type6`==`server`. Property key is the MAC Address. Format is `[0-9a-f]{12}` (e.g "5684dae9ac8b") (see [below for nested schema](#nestedatt--dhcpd_config--config--fixed_bindings))
+- `gateway` (String) if `type`==`server`  - optional, `ip` will be used if not provided
+- `ip_end` (String) if `type`==`server`
+- `ip_end6` (String) if `type6`==`server`
+- `ip_start` (String) if `type`==`server`
+- `ip_start6` (String) if `type6`==`server`
 - `lease_time` (Number) in seconds, lease time has to be between 3600 [1hr] - 604800 [1 week], default is 86400 [1 day]
-- `options` (Attributes Map) Property key is the DHCP option number (see [below for nested schema](#nestedatt--dhcpd_config--config--options))
+- `options` (Attributes Map) if `type`==`server` or `type6`==`server`. Property key is the DHCP option number (see [below for nested schema](#nestedatt--dhcpd_config--config--options))
 - `server_id_override` (Boolean) `server_id_override`==`true` means the device, when acts as DHCP relay and forwards DHCP responses from DHCP server to clients, 
 should overwrite the Sever Identifier option (i.e. DHCP option 54) in DHCP responses with its own IP address.
 - `servers` (List of String) if `type`==`relay`
 - `servers6` (List of String) if `type6`==`relay`
 - `type` (String) enum: `none`, `relay` (DHCP Relay), `server` (DHCP Server)
 - `type6` (String) enum: `none`, `relay` (DHCP Relay), `server` (DHCP Server)
-- `vendor_encapulated` (Attributes Map) Property key is <enterprise number>:<sub option code>, with
+- `vendor_encapulated` (Attributes Map) if `type`==`server` or `type6`==`server`. Property key is <enterprise number>:<sub option code>, with
   * enterprise number: 1-65535 (https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers)
   * sub option code: 1-255, sub-option code' (see [below for nested schema](#nestedatt--dhcpd_config--config--vendor_encapulated))
 
@@ -375,6 +386,26 @@ Optional:
 - `netmask` (String) used only if `subnet` is not specified in `networks`
 - `network` (String) the network where this mgmt IP reside, this will be used as default network for outbound-ssh, dns, ntp, dns, tacplus, radius, syslog, snmp
 - `type` (String) enum: `dhcp`, `static`
+
+
+<a id="nestedatt--local_port_config"></a>
+### Nested Schema for `local_port_config`
+
+Required:
+
+- `usage` (String) port usage name. 
+
+If EVPN is used, use `evpn_uplink`or `evpn_downlink`
+
+Optional:
+
+- `critical` (Boolean) if want to generate port up/down alarm
+- `description` (String)
+- `disable_autoneg` (Boolean) if `speed` and `duplex` are specified, whether to disable autonegotiation
+- `duplex` (String) enum: `auto`, `full`, `half`
+- `mtu` (Number) media maximum transmission unit (MTU) is the largest data unit that can be forwarded without fragmentation
+- `poe_disabled` (Boolean)
+- `speed` (String) enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `auto`
 
 
 <a id="nestedatt--mist_nac"></a>
@@ -544,6 +575,7 @@ Only if `mode`!=`dynamic` (see [below for nested schema](#nestedatt--port_usages
 - `stp_edge` (Boolean) Only if `mode`!=`dynamic` when enabled, the port is not expected to receive BPDU frames
 - `stp_no_root_port` (Boolean)
 - `stp_p2p` (Boolean)
+- `use_vstp` (Boolean) if this is connected to a vstp network
 - `voip_network` (String) Only if `mode`!=`dynamic` network/vlan for voip traffic, must also set port_network. to authenticate device, set port_auth
 
 <a id="nestedatt--port_usages--rules"></a>
@@ -586,8 +618,6 @@ Optional:
 - `auth_servers` (Attributes List) (see [below for nested schema](#nestedatt--radius_config--auth_servers))
 - `auth_servers_retries` (Number) radius auth session retries
 - `auth_servers_timeout` (Number) radius auth session timeout
-- `coa_enabled` (Boolean)
-- `coa_port` (Number)
 - `network` (String) use `network`or `source_ip`
 which network the RADIUS server resides, if there's static IP for this network, we'd use it as source-ip
 - `source_ip` (String) use `network`or `source_ip`
@@ -954,7 +984,7 @@ Optional:
 
 Optional:
 
-- `vstp_enabled` (Boolean) ignored for switches participating in EVPN
+- `bridge_priority` (String) Switch STP priority: from `0k` to `15k`
 
 
 <a id="nestedatt--switch_mgmt"></a>

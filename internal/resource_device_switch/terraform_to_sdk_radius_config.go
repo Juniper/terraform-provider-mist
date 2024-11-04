@@ -68,9 +68,9 @@ func radiusAuthServersTerraformToSdk(ctx context.Context, diags *diag.Diagnostic
 	return data
 }
 
-func radiusConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d RadiusConfigValue) *models.RadiusConfig {
+func radiusConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d RadiusConfigValue) *models.SwitchRadiusConfig {
 
-	data := models.RadiusConfig{}
+	data := models.SwitchRadiusConfig{}
 	if d.AcctInterimInterval.ValueInt64Pointer() != nil {
 		data.AcctInterimInterval = models.ToPointer(int(d.AcctInterimInterval.ValueInt64()))
 	}
@@ -82,12 +82,6 @@ func radiusConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d 
 	}
 	if d.AuthServersTimeout.ValueInt64Pointer() != nil {
 		data.AuthServersTimeout = models.ToPointer(int(d.AuthServersTimeout.ValueInt64()))
-	}
-	if d.CoaEnabled.ValueBoolPointer() != nil {
-		data.CoaEnabled = models.ToPointer(d.CoaEnabled.ValueBool())
-	}
-	if d.CoaPort.ValueInt64Pointer() != nil {
-		data.CoaPort = models.ToPointer(int(d.CoaPort.ValueInt64()))
 	}
 	if d.Network.ValueStringPointer() != nil {
 		data.Network = models.ToPointer(d.Network.ValueString())

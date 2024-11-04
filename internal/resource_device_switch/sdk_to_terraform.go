@@ -31,6 +31,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	var image2_url types.String = types.StringValue("")
 	var image3_url types.String = types.StringValue("")
 	var ip_config IpConfigValue = NewIpConfigValueNull()
+	var local_port_config types.Map = types.MapNull(LocalPortConfigValue{}.Type(ctx))
 	var managed types.Bool
 	var map_id types.String
 	var mist_nac MistNacValue = NewMistNacValueNull()
@@ -113,6 +114,9 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	}
 	if data.IpConfig != nil {
 		ip_config = ipConfigSdkToTerraform(ctx, &diags, data.IpConfig)
+	}
+	if data.LocalPortConfig != nil {
+		local_port_config = localPortConfigSdkToTerraform(ctx, &diags, data.LocalPortConfig)
 	}
 	if data.Managed != nil {
 		managed = types.BoolValue(*data.Managed)
@@ -233,6 +237,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	state.Image2Url = image2_url
 	state.Image3Url = image3_url
 	state.IpConfig = ip_config
+	state.LocalPortConfig = local_port_config
 	state.Managed = managed
 	state.MapId = map_id
 	state.MistNac = mist_nac

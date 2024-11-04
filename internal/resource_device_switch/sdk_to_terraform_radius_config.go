@@ -112,14 +112,12 @@ func radiusServersAuthSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 	return auth_state_list
 }
 
-func radiusConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.RadiusConfig) RadiusConfigValue {
+func radiusConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SwitchRadiusConfig) RadiusConfigValue {
 	var acct_interim_interval basetypes.Int64Value
 	var acct_servers basetypes.ListValue = types.ListNull(AcctServersValue{}.Type(ctx))
 	var auth_servers basetypes.ListValue = types.ListNull(AuthServersValue{}.Type(ctx))
 	var auth_servers_retries basetypes.Int64Value
 	var auth_servers_timeout basetypes.Int64Value
-	var coa_enabled basetypes.BoolValue
-	var coa_port basetypes.Int64Value
 	var network basetypes.StringValue
 	var source_ip basetypes.StringValue
 
@@ -138,12 +136,6 @@ func radiusConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	if d != nil && d.AuthServersTimeout != nil {
 		auth_servers_timeout = types.Int64Value(int64(*d.AuthServersTimeout))
 	}
-	if d != nil && d.CoaEnabled != nil {
-		coa_enabled = types.BoolValue(*d.CoaEnabled)
-	}
-	if d != nil && d.CoaPort != nil {
-		coa_port = types.Int64Value(int64(*d.CoaPort))
-	}
 	if d != nil && d.Network != nil {
 		network = types.StringValue(*d.Network)
 	}
@@ -158,8 +150,6 @@ func radiusConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 		"auth_servers":          auth_servers,
 		"auth_servers_retries":  auth_servers_retries,
 		"auth_servers_timeout":  auth_servers_timeout,
-		"coa_enabled":           coa_enabled,
-		"coa_port":              coa_port,
 		"network":               network,
 		"source_ip":             source_ip,
 	}
