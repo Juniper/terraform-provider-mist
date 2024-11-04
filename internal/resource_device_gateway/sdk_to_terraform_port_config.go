@@ -370,7 +370,7 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 		if v.WanExtIp != nil {
 			wan_ext_ip = types.StringValue(*v.WanExtIp)
 		}
-		if v.WanExtraRoutes != nil {
+		if v.WanExtraRoutes != nil && len(v.WanExtraRoutes) > 0 {
 			wan_extra_routes = wanExtraRoutesPortConfigIpConfigSdkToTerraform(ctx, diags, v.WanExtraRoutes)
 		}
 		if v.WanProbeOverride != nil {
