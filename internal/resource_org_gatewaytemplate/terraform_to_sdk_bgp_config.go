@@ -11,28 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func bgpConfigCommunitiesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.BgpConfigCommunity {
-
-	var data_list []models.BgpConfigCommunity
-	for _, v := range d.Elements() {
-		var v_interface interface{} = v
-		plan := v_interface.(CommunitiesValue)
-		data := models.BgpConfigCommunity{}
-		if plan.Id.ValueStringPointer() != nil {
-			data.Id = plan.Id.ValueStringPointer()
-		}
-		if plan.LocalPreference.ValueInt64Pointer() != nil {
-			data.LocalPreference = models.ToPointer(int(plan.LocalPreference.ValueInt64()))
-		}
-		if plan.VpnName.ValueStringPointer() != nil {
-			data.VpnName = plan.VpnName.ValueStringPointer()
-		}
-
-		data_list = append(data_list, data)
-	}
-	return data_list
-}
-
 func bgpConfigNeighborsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.BgpConfigNeighbors {
 	data_map := make(map[string]models.BgpConfigNeighbors)
 	for k, v := range d.Elements() {
@@ -79,9 +57,6 @@ func bgpConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d bas
 		}
 		if plan.BfdMultiplier.ValueInt64Pointer() != nil {
 			data.BfdMultiplier = models.NewOptional(models.ToPointer(int(plan.BfdMultiplier.ValueInt64())))
-		}
-		if !plan.Communities.IsNull() && !plan.Communities.IsUnknown() {
-			data.Communities = bgpConfigCommunitiesTerraformToSdk(ctx, diags, plan.Communities)
 		}
 		if plan.DisableBfd.ValueBoolPointer() != nil {
 			data.DisableBfd = models.ToPointer(plan.DisableBfd.ValueBool())

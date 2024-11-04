@@ -135,7 +135,7 @@ resource "mist_org_gatewaytemplate" "gatewaytemplate_one" {
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
+- `id` (String) Unique ID of the object instance in the Mist Organnization
 
 <a id="nestedatt--bgp_config"></a>
 ### Nested Schema for `bgp_config`
@@ -147,7 +147,6 @@ Optional:
   * 1000 if `type`==`external`
   * 350 `type`==`internal`
 - `bfd_multiplier` (Number) when bfd_minimum_interval_is_configured alone
-- `communities` (Attributes List) (see [below for nested schema](#nestedatt--bgp_config--communities))
 - `disable_bfd` (Boolean) BFD provides faster path failure detection and is enabled by default
 - `export` (String)
 - `export_policy` (String) default export policies if no per-neighbor policies defined
@@ -167,16 +166,6 @@ for v6 neighbors, to exchange v4 nexthop, which allows dual-stack support, enabl
 - `via` (String) network name. enum: `lan`, `tunnel`, `vpn`, `wan`
 - `vpn_name` (String)
 - `wan_name` (String) if `via`==`wan`
-
-<a id="nestedatt--bgp_config--communities"></a>
-### Nested Schema for `bgp_config.communities`
-
-Optional:
-
-- `id` (String)
-- `local_preference` (Number)
-- `vpn_name` (String)
-
 
 <a id="nestedatt--bgp_config--neighbors"></a>
 ### Nested Schema for `bgp_config.neighbors`
@@ -205,23 +194,23 @@ Optional:
 
 Optional:
 
-- `dns_servers` (List of String) if `type`==`local` - optional, if not defined, system one will be used
-- `dns_suffix` (List of String) if `type`==`local` - optional, if not defined, system one will be used
-- `fixed_bindings` (Attributes Map) Property key is the MAC Address. Format is `[0-9a-f]{12}` (e.g "5684dae9ac8b") (see [below for nested schema](#nestedatt--dhcpd_config--config--fixed_bindings))
+- `dns_servers` (List of String) if `type`==`local` or `type6`==`local` - optional, if not defined, system one will be used
+- `dns_suffix` (List of String) if `type`==`local` or `type6`==`local` - optional, if not defined, system one will be used
+- `fixed_bindings` (Attributes Map) if `type`==`local` or `type6`==`local`. Property key is the MAC Address. Format is `[0-9a-f]{12}` (e.g "5684dae9ac8b") (see [below for nested schema](#nestedatt--dhcpd_config--config--fixed_bindings))
 - `gateway` (String) if `type`==`local` - optional, `ip` will be used if not provided
 - `ip_end` (String) if `type`==`local`
 - `ip_end6` (String) if `type6`==`local`
 - `ip_start` (String) if `type`==`local`
 - `ip_start6` (String) if `type6`==`local`
 - `lease_time` (Number) in seconds, lease time has to be between 3600 [1hr] - 604800 [1 week], default is 86400 [1 day]
-- `options` (Attributes Map) Property key is the DHCP option number (see [below for nested schema](#nestedatt--dhcpd_config--config--options))
+- `options` (Attributes Map) if `type`==`local` or `type6`==`local`. Property key is the DHCP option number (see [below for nested schema](#nestedatt--dhcpd_config--config--options))
 - `server_id_override` (Boolean) `server_id_override`==`true` means the device, when acts as DHCP relay and forwards DHCP responses from DHCP server to clients, 
 should overwrite the Sever Identifier option (i.e. DHCP option 54) in DHCP responses with its own IP address.
 - `servers` (List of String) if `type`==`relay`
 - `servers6` (List of String) if `type6`==`relay`
 - `type` (String) enum: `local` (DHCP Server), `none`, `relay` (DHCP Relay)
 - `type6` (String) enum: `local` (DHCP Server), `none`, `relay` (DHCP Relay)
-- `vendor_encapulated` (Attributes Map) Property key is <enterprise number>:<sub option code>, with
+- `vendor_encapulated` (Attributes Map) if `type`==`local` or `type6`==`local`. Property key is <enterprise number>:<sub option code>, with
   * enterprise number: 1-65535 (https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers)
   * sub option code: 1-255, sub-option code' (see [below for nested schema](#nestedatt--dhcpd_config--config--vendor_encapulated))
 
@@ -337,6 +326,7 @@ Optional:
 - `internal_access` (Attributes) (see [below for nested schema](#nestedatt--networks--internal_access))
 - `internet_access` (Attributes) whether this network has direct internet access (see [below for nested schema](#nestedatt--networks--internet_access))
 - `isolation` (Boolean) whether to allow clients in the network to talk to each other
+- `multicast` (Attributes) whether to enable multicast support (only PIM-sparse mode is supported) (see [below for nested schema](#nestedatt--networks--multicast))
 - `routed_for_networks` (List of String) for a Network (usually LAN), it can be routable to other networks (e.g. OSPF)
 - `subnet6` (String)
 - `tenants` (Attributes Map) (see [below for nested schema](#nestedatt--networks--tenants))
@@ -380,6 +370,24 @@ Optional:
 - `internal_ip` (String)
 - `name` (String)
 - `wan_name` (String) If not set, we configure the nat policies against all WAN ports for simplicity
+
+
+
+<a id="nestedatt--networks--multicast"></a>
+### Nested Schema for `networks.multicast`
+
+Optional:
+
+- `disable_igmp` (Boolean) if the network will only be the soruce of the multicast traffic, IGMP can be disabled
+- `enabled` (Boolean)
+- `groups` (Attributes Map) Group address to RP (rendezvous point) mapping. Property Key is the CIDR (example "225.1.0.3/32") (see [below for nested schema](#nestedatt--networks--multicast--groups))
+
+<a id="nestedatt--networks--multicast--groups"></a>
+### Nested Schema for `networks.multicast.groups`
+
+Optional:
+
+- `rp_ip` (String) RP (rendezvous point) IP Address
 
 
 
@@ -547,9 +555,11 @@ Note: Turning this on will enable force-up on one of the interfaces in the bundl
 - `svr_port_range` (String) for SSR only
 - `traffic_shaping` (Attributes) (see [below for nested schema](#nestedatt--port_config--traffic_shaping))
 - `vlan_id` (Number) if WAN interface is on a VLAN
-- `vpn_paths` (Attributes Map) (see [below for nested schema](#nestedatt--port_config--vpn_paths))
+- `vpn_paths` (Attributes Map) Property key is the VPN name (see [below for nested schema](#nestedatt--port_config--vpn_paths))
 - `wan_arp_policer` (String) when `wan_type`==`broadband`. enum: `default`, `max`, `recommended`
 - `wan_ext_ip` (String) optional, if spoke should reach this port by a different IP
+- `wan_extra_routes` (Attributes Map) Property Key is the destianation CIDR (e.g "100.100.100.0/24") (see [below for nested schema](#nestedatt--port_config--wan_extra_routes))
+- `wan_probe_override` (Attributes) if `usage`==`wan` (see [below for nested schema](#nestedatt--port_config--wan_probe_override))
 - `wan_source_nat` (Attributes) optional, by default, source-NAT is performed on all WAN Ports using the interface-ip (see [below for nested schema](#nestedatt--port_config--wan_source_nat))
 - `wan_type` (String) if `usage`==`wan`. enum: `broadband`, `dsl`, `lte`
 
@@ -585,10 +595,11 @@ sum must be equal to 100
 
 Optional:
 
-- `bfd_profile` (String) enum: `broadband`, `lte`
-- `bfd_use_tunnel_mode` (Boolean) whether to use tunnel mode. SSR only
-- `preference` (Number) for a given VPN, when `path_selection.strategy`==`simple`, the preference for a path (lower is preferred)
-- `role` (String) enum: `hub`, `spoke`
+- `bfd_profile` (String) Only if the VPN `type`==`hub_spoke`. enum: `broadband`, `lte`
+- `bfd_use_tunnel_mode` (Boolean) Only if the VPN `type`==`hub_spoke`. Whether to use tunnel mode. SSR only
+- `link_name` (String) Only if the VPN `type`==`mesh`
+- `preference` (Number) Only if the VPN `type`==`hub_spoke`. For a given VPN, when `path_selection.strategy`==`simple`, the preference for a path (lower is preferred)
+- `role` (String) Only if the VPN `type`==`hub_spoke`. enum: `hub`, `spoke`
 - `traffic_shaping` (Attributes) (see [below for nested schema](#nestedatt--port_config--vpn_paths--traffic_shaping))
 
 <a id="nestedatt--port_config--vpn_paths--traffic_shaping"></a>
@@ -600,6 +611,23 @@ Optional:
 sum must be equal to 100
 - `enabled` (Boolean)
 
+
+
+<a id="nestedatt--port_config--wan_extra_routes"></a>
+### Nested Schema for `port_config.wan_extra_routes`
+
+Optional:
+
+- `via` (String)
+
+
+<a id="nestedatt--port_config--wan_probe_override"></a>
+### Nested Schema for `port_config.wan_probe_override`
+
+Optional:
+
+- `ips` (List of String)
+- `probe_profile` (String) enum: `broadband`, `lte`
 
 
 <a id="nestedatt--port_config--wan_source_nat"></a>

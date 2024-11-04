@@ -63,48 +63,12 @@ func bgpConfigNeighborsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 	return state_result_map
 }
 
-func bgpConfigCommunitiesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.BgpConfigCommunity) basetypes.ListValue {
-	var data_list = []CommunitiesValue{}
-
-	for _, d := range l {
-		var id basetypes.StringValue
-		var local_preference basetypes.Int64Value
-		var vpn_name basetypes.StringValue
-
-		if d.Id != nil {
-			id = types.StringValue(*d.Id)
-		}
-		if d.LocalPreference != nil {
-			local_preference = types.Int64Value(int64(*d.LocalPreference))
-		}
-		if d.VpnName != nil {
-			vpn_name = types.StringValue(*d.VpnName)
-		}
-
-		data_map_attr_type := CommunitiesValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
-			"id":               id,
-			"local_preference": local_preference,
-			"vpn_name":         vpn_name,
-		}
-		data, e := NewCommunitiesValue(data_map_attr_type, data_map_value)
-		diags.Append(e...)
-
-		data_list = append(data_list, data)
-	}
-	data_list_type := CommunitiesValue{}.Type(ctx)
-	r, e := types.ListValueFrom(ctx, data_list_type, data_list)
-	diags.Append(e...)
-	return r
-}
-
 func bgpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.BgpConfig) basetypes.MapValue {
 	state_value_map := make(map[string]attr.Value)
 	for k, d := range m {
 		var auth_key basetypes.StringValue
 		var bfd_minimum_interval basetypes.Int64Value = types.Int64Value(350)
 		var bfd_multiplier basetypes.Int64Value = types.Int64Value(3)
-		var communities basetypes.ListValue = types.ListNull(CommunitiesValue{}.Type(ctx))
 		var disable_bfd basetypes.BoolValue = types.BoolValue(false)
 		var export basetypes.StringValue
 		var export_policy basetypes.StringValue
@@ -132,9 +96,6 @@ func bgpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map
 		}
 		if d.BfdMultiplier.Value() != nil {
 			bfd_multiplier = types.Int64Value(int64(*d.BfdMultiplier.Value()))
-		}
-		if d.Communities != nil {
-			communities = bgpConfigCommunitiesSdkToTerraform(ctx, diags, d.Communities)
 		}
 		if d.DisableBfd != nil {
 			disable_bfd = types.BoolValue(*d.DisableBfd)
@@ -196,7 +157,6 @@ func bgpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map
 			"auth_key":                  auth_key,
 			"bfd_minimum_interval":      bfd_minimum_interval,
 			"bfd_multiplier":            bfd_multiplier,
-			"communities":               communities,
 			"disable_bfd":               disable_bfd,
 			"export":                    export,
 			"export_policy":             export_policy,

@@ -77,7 +77,7 @@ func SdkToTerraform(ctx context.Context, data *models.GatewayTemplate) (OrgGatew
 		ip_configs = ipConfigsSdkToTerraform(ctx, &diags, data.IpConfigs)
 	}
 	if data.Networks != nil {
-		networks = NetworksSdkToTerraform(ctx, &diags, data.Networks)
+		networks = networksSdkToTerraform(ctx, &diags, data.Networks)
 	}
 	if data.NtpOverride != nil {
 		ntp_override = types.BoolValue(*data.NtpOverride)
