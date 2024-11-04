@@ -14,7 +14,55 @@ import (
 	mist_network "github.com/Juniper/terraform-provider-mist/internal/resource_org_network"
 )
 
-func NetworksSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m []models.Network) basetypes.ListValue {
+func multicastNetworksSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.NetworkMulticast) basetypes.ObjectValue {
+
+	var disable_igmp basetypes.BoolValue
+	var enabled basetypes.BoolValue
+	var groups basetypes.MapValue = types.MapNull(GroupsValue{}.Type(ctx))
+
+	if d != nil && d.DisableIgmp != nil {
+		disable_igmp = types.BoolValue(*d.DisableIgmp)
+	}
+	if d != nil && d.Enabled != nil {
+		enabled = types.BoolValue(*d.Enabled)
+	}
+	if d != nil && d.Groups != nil {
+		r_map_value := make(map[string]attr.Value)
+		for k, v := range d.Groups {
+			var rp_ip types.String
+			if v.RpIp != nil {
+				rp_ip = types.StringValue(*v.RpIp)
+			}
+			data_map_attr_type := GroupsValue{}.AttributeTypes(ctx)
+			data_map_value := map[string]attr.Value{
+				"rp_ip": rp_ip,
+			}
+			data, e := NewGroupsValue(data_map_attr_type, data_map_value)
+			diags.Append(e...)
+
+			r_map_value[k] = data
+		}
+		r, e := types.MapValueFrom(ctx, GroupsValue{}.Type(ctx), r_map_value)
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			groups = r
+		}
+	}
+
+	data_map_attr_type := IpdProfileOverwriteMatchingValue{}.AttributeTypes(ctx)
+	data_map_value := map[string]attr.Value{
+		"disable_igmp": disable_igmp,
+		"enabled":      enabled,
+		"groups":       groups,
+	}
+	data, e := basetypes.NewObjectValue(data_map_attr_type, data_map_value)
+	diags.Append(e...)
+
+	return data
+}
+
+func networksSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m []models.Network) basetypes.ListValue {
 	var data_list = []NetworksValue{}
 
 	for _, d := range m {
@@ -25,6 +73,7 @@ func NetworksSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m []mo
 		var internet_access basetypes.ObjectValue = types.ObjectNull(mist_network.InternetAccessValue{}.AttributeTypes(ctx))
 		var isolation basetypes.BoolValue
 		var name basetypes.StringValue
+		var multicast MulticastValue = NewMulticastValueNull()
 		var routed_for_networks basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 		var subnet basetypes.StringValue
 		var subnet6 basetypes.StringValue
@@ -78,6 +127,7 @@ func NetworksSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m []mo
 			"internal_access":        internal_access,
 			"internet_access":        internet_access,
 			"isolation":              isolation,
+			"multicast":              multicast,
 			"name":                   name,
 			"routed_for_networks":    routed_for_networks,
 			"subnet":                 subnet,

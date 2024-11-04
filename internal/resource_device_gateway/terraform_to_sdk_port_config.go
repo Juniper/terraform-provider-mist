@@ -11,6 +11,39 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
+func wanExtraRoutesPortVpnPathTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.WanExtraRoutes {
+	data_map := make(map[string]models.WanExtraRoutes)
+	for k, v := range d.Elements() {
+		var v_interface interface{} = v
+		plan := v_interface.(WanExtraRoutesValue)
+		data := models.WanExtraRoutes{}
+		if plan.Via.ValueStringPointer() != nil {
+			data.Via = plan.Via.ValueStringPointer()
+		}
+
+		data_map[k] = data
+	}
+	return data_map
+}
+func wanProbeOverridePortVpnPathTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.GatewayWanProbeOverride {
+	data := models.GatewayWanProbeOverride{}
+	if d.IsNull() || d.IsUnknown() {
+		return nil
+	} else {
+		plan, e := NewWanProbeOverrideValue(d.AttributeTypes(ctx), d.Attributes())
+		if e != nil {
+			diags.Append(e...)
+			return nil
+		}
+		if plan.Ips.IsNull() && !plan.Ips.IsUnknown() {
+			data.Ips = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Ips)
+		}
+		if plan.ProbeProfile.ValueStringPointer() != nil {
+			data.ProbeProfile = (*models.GatewayWanProbeOverrideProbeProfileEnum)(plan.ProbeProfile.ValueStringPointer())
+		}
+		return &data
+	}
+}
 func gatewayPortVpnPathTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.GatewayPortVpnPath {
 	data_map := make(map[string]models.GatewayPortVpnPath)
 	for k, v := range d.Elements() {
@@ -22,6 +55,12 @@ func gatewayPortVpnPathTerraformToSdk(ctx context.Context, diags *diag.Diagnosti
 		}
 		if plan.BfdUseTunnelMode.ValueBoolPointer() != nil {
 			data.BfdUseTunnelMode = models.ToPointer(plan.BfdUseTunnelMode.ValueBool())
+		}
+		if plan.LinkName.ValueStringPointer() != nil {
+			data.LinkName = plan.LinkName.ValueStringPointer()
+		}
+		if plan.Preference.ValueInt64Pointer() != nil {
+			data.Preference = models.ToPointer(int(plan.Preference.ValueInt64()))
 		}
 		if plan.Role.ValueStringPointer() != nil {
 			data.Role = models.ToPointer(models.GatewayPortVpnPathRoleEnum(plan.Role.ValueString()))
@@ -226,6 +265,8 @@ func portConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d ba
 			data.WanExtIp = models.ToPointer(plan.WanExtIp.ValueString())
 		}
 
+		data.WanExtraRoutes = wanExtraRoutesPortVpnPathTerraformToSdk(ctx, diags, plan.WanExtraRoutes)
+		data.WanProbeOverride = wanProbeOverridePortVpnPathTerraformToSdk(ctx, diags, plan.WanProbeOverride)
 		data.WanSourceNat = portConfigWanSourceNatTerraformToSdk(ctx, diags, plan.WanSourceNat)
 
 		if plan.WanType.ValueStringPointer() != nil {

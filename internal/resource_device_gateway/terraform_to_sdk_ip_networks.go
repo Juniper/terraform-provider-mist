@@ -12,6 +12,37 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
+func mulitcastNetworksTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.NetworkMulticast {
+	data := models.NetworkMulticast{}
+	if !d.IsNull() && !d.IsUnknown() {
+		plan, e := NewMulticastValue(d.AttributeTypes(ctx), d.Attributes())
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			if plan.DisableIgmp.ValueBoolPointer() != nil {
+				data.DisableIgmp = plan.DisableIgmp.ValueBoolPointer()
+			}
+			if plan.Enabled.ValueBoolPointer() != nil {
+				data.Enabled = plan.Enabled.ValueBoolPointer()
+			}
+			if !plan.Groups.IsNull() && !plan.Groups.IsUnknown() {
+				group_map := make(map[string]models.NetworkMulticastGroup)
+				for k, v := range plan.Groups.Elements() {
+					var v_interface interface{} = v
+					p := v_interface.(GroupsValue)
+					g := models.NetworkMulticastGroup{}
+					if p.RpIp.ValueStringPointer() != nil {
+						g.RpIp = p.RpIp.ValueStringPointer()
+					}
+					group_map[k] = g
+				}
+				data.Groups = group_map
+			}
+		}
+	}
+	return &data
+}
+
 func networksTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.Network {
 	var data_list []models.Network
 	for _, v := range d.Elements() {
@@ -43,6 +74,9 @@ func networksTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d base
 
 		if plan.Isolation.ValueBoolPointer() != nil {
 			data.Isolation = models.ToPointer(plan.Isolation.ValueBool())
+		}
+		if !plan.Multicast.IsNull() && !plan.Multicast.IsUnknown() {
+			data.Multicast = mulitcastNetworksTerraformToSdk(ctx, diags, plan.Multicast)
 		}
 		if plan.Name.ValueStringPointer() != nil {
 			data.Name = plan.Name.ValueString()

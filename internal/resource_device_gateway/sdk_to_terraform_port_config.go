@@ -13,6 +13,50 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
+func wanExtraRoutesPortConfigIpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.WanExtraRoutes) basetypes.MapValue {
+	state_value_map := make(map[string]attr.Value)
+	for k, d := range m {
+
+		var via basetypes.StringValue
+		if d.Via != nil {
+			via = types.StringValue(*d.Via)
+		}
+		data_map_attr_type := WanExtraRoutesValue{}.AttributeTypes(ctx)
+		data_map_value := map[string]attr.Value{
+			"via": via,
+		}
+		data, e := NewWanExtraRoutesValue(data_map_attr_type, data_map_value)
+		diags.Append(e...)
+
+		state_value_map[k] = data
+	}
+	state_type := WanExtraRoutesValue{}.Type(ctx)
+	state_result, e := types.MapValueFrom(ctx, state_type, state_value_map)
+	diags.Append(e...)
+	return state_result
+}
+func wanProbeOverridePortConfigIpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, g *models.GatewayWanProbeOverride) basetypes.ObjectValue {
+	var ips basetypes.ListValue = types.ListNull(types.StringType)
+	var probe_profile basetypes.StringValue
+
+	if g != nil && g.Ips != nil {
+		ips = mist_transform.ListOfStringSdkToTerraform(ctx, g.Ips)
+	}
+	if g != nil && g.ProbeProfile != nil {
+		probe_profile = types.StringValue(string(*g.ProbeProfile))
+	}
+
+	r_attr_type := WanProbeOverrideValue{}.AttributeTypes(ctx)
+	r_attr_value := map[string]attr.Value{
+		"ips":           ips,
+		"probe_profile": probe_profile,
+	}
+
+	r, e := basetypes.NewObjectValue(r_attr_type, r_attr_value)
+	diags.Append(e...)
+
+	return r
+}
 func portConfigIpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, g *models.GatewayPortConfigIpConfig) basetypes.ObjectValue {
 	var dns basetypes.ListValue = types.ListNull(types.StringType)
 	var dns_suffix basetypes.ListValue = types.ListNull(types.StringType)
@@ -107,6 +151,7 @@ func portConfigVpnPathsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 
 		var bfd_profile basetypes.StringValue = types.StringValue("broadband")
 		var bfd_use_tunnel_mode basetypes.BoolValue = types.BoolValue(false)
+		var link_name basetypes.StringValue
 		var preference basetypes.Int64Value
 		var role basetypes.StringValue = types.StringValue("spoke")
 		var traffic_shaping basetypes.ObjectValue = types.ObjectNull(TrafficShapingValue{}.AttributeTypes(ctx))
@@ -116,6 +161,9 @@ func portConfigVpnPathsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 		}
 		if v.BfdUseTunnelMode != nil {
 			bfd_use_tunnel_mode = types.BoolValue(*v.BfdUseTunnelMode)
+		}
+		if v.LinkName != nil {
+			link_name = types.StringValue(*v.LinkName)
 		}
 		if v.Preference != nil {
 			preference = types.Int64Value(int64(*v.Preference))
@@ -130,6 +178,7 @@ func portConfigVpnPathsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 		var port_usage_state = map[string]attr.Value{
 			"bfd_profile":         bfd_profile,
 			"bfd_use_tunnel_mode": bfd_use_tunnel_mode,
+			"link_name":           link_name,
 			"preference":          preference,
 			"role":                role,
 			"traffic_shaping":     traffic_shaping,
@@ -211,6 +260,8 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 		var vpn_paths basetypes.MapValue = types.MapNull(VpnPathsValue{}.Type(ctx))
 		var wan_arp_policer basetypes.StringValue = types.StringValue("default")
 		var wan_ext_ip basetypes.StringValue
+		var wan_extra_routes basetypes.MapValue = types.MapNull(WanExtraRoutesValue{}.Type(ctx))
+		var wan_probe_override basetypes.ObjectValue = types.ObjectNull(WanProbeOverrideValue{}.AttributeTypes(ctx))
 		var wan_source_nat basetypes.ObjectValue = types.ObjectNull(WanSourceNatValue{}.AttributeTypes(ctx))
 		var wan_type basetypes.StringValue = types.StringValue("broadband")
 
@@ -319,6 +370,12 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 		if v.WanExtIp != nil {
 			wan_ext_ip = types.StringValue(*v.WanExtIp)
 		}
+		if v.WanExtraRoutes != nil {
+			wan_extra_routes = wanExtraRoutesPortConfigIpConfigSdkToTerraform(ctx, diags, v.WanExtraRoutes)
+		}
+		if v.WanProbeOverride != nil {
+			wan_probe_override = wanProbeOverridePortConfigIpConfigSdkToTerraform(ctx, diags, v.WanProbeOverride)
+		}
 		if v.WanSourceNat != nil {
 			wan_source_nat = portConfigWanSourceNatSdkToTerraform(ctx, diags, v.WanSourceNat)
 		}
@@ -365,6 +422,8 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 			"vpn_paths":          vpn_paths,
 			"wan_arp_policer":    wan_arp_policer,
 			"wan_ext_ip":         wan_ext_ip,
+			"wan_extra_routes":   wan_extra_routes,
+			"wan_probe_override": wan_probe_override,
 			"wan_source_nat":     wan_source_nat,
 			"wan_type":           wan_type,
 		}

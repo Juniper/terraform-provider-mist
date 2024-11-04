@@ -104,7 +104,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceGateway) (DeviceGate
 		name = types.StringValue(*data.Name)
 	}
 	if data.Networks != nil {
-		networks = NetworksSdkToTerraform(ctx, &diags, data.Networks)
+		networks = networksSdkToTerraform(ctx, &diags, data.Networks)
 	}
 	if data.Notes != nil {
 		notes = types.StringValue(*data.Notes)
