@@ -541,9 +541,9 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 					"enabled": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "if set to `true`, enable the DHCP server",
-						MarkdownDescription: "if set to `true`, enable the DHCP server",
-						Default:             booldefault.StaticBool(false),
+						Description:         "if set to `false`, disable the DHCP server",
+						MarkdownDescription: "if set to `false`, disable the DHCP server",
+						Default:             booldefault.StaticBool(true),
 					},
 				},
 				CustomType: DhcpdConfigType{

@@ -210,7 +210,7 @@ func dhcpdConfigConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 func dhcpdConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.DhcpdConfig) DhcpdConfigValue {
 
 	var config basetypes.MapValue = types.MapNull(ConfigValue{}.Type(ctx))
-	var enabled basetypes.BoolValue = types.BoolValue(false)
+	var enabled basetypes.BoolValue = types.BoolValue(true)
 
 	if len(d.AdditionalProperties) > 0 {
 		config = dhcpdConfigConfigsSdkToTerraform(ctx, diags, d.AdditionalProperties)

@@ -198,7 +198,7 @@ Optional:
 Optional:
 
 - `config` (Attributes Map) Property key is the network name (see [below for nested schema](#nestedatt--dhcpd_config--config))
-- `enabled` (Boolean) if set to `true`, enable the DHCP server
+- `enabled` (Boolean) if set to `false`, disable the DHCP server
 
 <a id="nestedatt--dhcpd_config--config"></a>
 ### Nested Schema for `dhcpd_config.config`
