@@ -88,7 +88,7 @@ func SdkToTerraform(ctx context.Context, d *models.Webhook) (OrgWebhookModel, di
 		var items []attr.Value
 		var items_type attr.Type = basetypes.StringType{}
 		for _, item := range d.Topics {
-			items = append(items, types.StringValue(string(item)))
+			items = append(items, types.StringValue(item))
 		}
 		list, _ := types.ListValue(items_type, items)
 		topics = list
