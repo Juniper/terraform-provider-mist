@@ -8,6 +8,7 @@ import (
 	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -228,6 +229,33 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Optional: true,
 			},
+			"jcloud_ra": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"org_apitoken": schema.StringAttribute{
+						Optional:            true,
+						Description:         "JCloud Routing Assurance Org Token",
+						MarkdownDescription: "JCloud Routing Assurance Org Token",
+					},
+					"org_apitoken_name": schema.StringAttribute{
+						Optional:            true,
+						Description:         "JCloud Routing Assurance Org Token Name",
+						MarkdownDescription: "JCloud Routing Assurance Org Token Name",
+					},
+					"org_id": schema.StringAttribute{
+						Optional:            true,
+						Description:         "JCloud Routing Assurance Org ID",
+						MarkdownDescription: "JCloud Routing Assurance Org ID",
+					},
+				},
+				CustomType: JcloudRaType{
+					ObjectType: types.ObjectType{
+						AttrTypes: JcloudRaValue{}.AttributeTypes(ctx),
+					},
+				},
+				Optional:            true,
+				Description:         "JCloud Routing Assurance connexion",
+				MarkdownDescription: "JCloud Routing Assurance connexion",
+			},
 			"juniper": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"accounts": schema.ListNestedAttribute{
@@ -336,15 +364,14 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					"idp_machine_cert_lookup_field": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "allow customer to choose the EAP-TLS client certificate's field to use for IDP Machine Groups lookup",
-						MarkdownDescription: "allow customer to choose the EAP-TLS client certificate's field to use for IDP Machine Groups lookup",
+						Description:         "allow customer to choose the EAP-TLS client certificate's field to use for IDP Machine Groups lookup. enum: `automatic`, `cn`, `dns`",
+						MarkdownDescription: "allow customer to choose the EAP-TLS client certificate's field to use for IDP Machine Groups lookup. enum: `automatic`, `cn`, `dns`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
 								"automatic",
-								"email",
-								"upn",
 								"cn",
+								"dns",
 							),
 						},
 						Default: stringdefault.StaticString("automatic"),
@@ -352,15 +379,15 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					"idp_user_cert_lookup_field": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "allow customer to choose the EAP-TLS client certificate's field to use for IDP User Groups lookup",
-						MarkdownDescription: "allow customer to choose the EAP-TLS client certificate's field to use for IDP User Groups lookup",
+						Description:         "allow customer to choose the EAP-TLS client certificate's field\nto use for IDP User Groups lookup. enum: `automatic`, `cn`, `email`, `upn`",
+						MarkdownDescription: "allow customer to choose the EAP-TLS client certificate's field\nto use for IDP User Groups lookup. enum: `automatic`, `cn`, `email`, `upn`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
 								"automatic",
+								"cn",
 								"email",
 								"upn",
-								"cn",
 							),
 						},
 						Default: stringdefault.StaticString("automatic"),
@@ -519,6 +546,35 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Optional: true,
 			},
+			"optic_port_config": schema.MapNestedAttribute{
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"channelized": schema.BoolAttribute{
+							Optional:            true,
+							Computed:            true,
+							Description:         "enable channelization",
+							MarkdownDescription: "enable channelization",
+							Default:             booldefault.StaticBool(false),
+						},
+						"speed": schema.StringAttribute{
+							Optional:            true,
+							Description:         "interface speed (e.g. `25g`, `50g`), use the chassis speed by default",
+							MarkdownDescription: "interface speed (e.g. `25g`, `50g`), use the chassis speed by default",
+						},
+					},
+					CustomType: OpticPortConfigType{
+						ObjectType: types.ObjectType{
+							AttrTypes: OpticPortConfigValue{}.AttributeTypes(ctx),
+						},
+					},
+				},
+				Optional:            true,
+				Description:         "Property key is the interface name or range (e.g. `et-0/0/47`, `et-0/0/48-49`)",
+				MarkdownDescription: "Property key is the interface name or range (e.g. `et-0/0/47`, `et-0/0/48-49`)",
+				Validators: []validator.Map{
+					mapvalidator.SizeAtLeast(1),
+				},
+			},
 			"org_id": schema.StringAttribute{
 				Required: true,
 			},
@@ -586,27 +642,6 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 				CustomType: PcapType{
 					ObjectType: types.ObjectType{
 						AttrTypes: PcapValue{}.AttributeTypes(ctx),
-					},
-				},
-				Optional: true,
-			},
-			"port_channelization": schema.SingleNestedAttribute{
-				Attributes: map[string]schema.Attribute{
-					"config": schema.MapAttribute{
-						ElementType:         types.StringType,
-						Optional:            true,
-						Description:         "Property key is the interface name or range (e.g. `et-0/0/47`, `et-0/0/48-49`), Property value is the interface speed (e.g. `25g`, `50g`)",
-						MarkdownDescription: "Property key is the interface name or range (e.g. `et-0/0/47`, `et-0/0/48-49`), Property value is the interface speed (e.g. `25g`, `50g`)",
-					},
-					"enabled": schema.BoolAttribute{
-						Optional: true,
-						Computed: true,
-						Default:  booldefault.StaticBool(false),
-					},
-				},
-				CustomType: PortChannelizationType{
-					ObjectType: types.ObjectType{
-						AttrTypes: PortChannelizationValue{}.AttributeTypes(ctx),
 					},
 				},
 				Optional: true,
@@ -825,37 +860,38 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 }
 
 type OrgSettingModel struct {
-	ApUpdownThreshold      types.Int64             `tfsdk:"ap_updown_threshold"`
-	ApiPolicy              ApiPolicyValue          `tfsdk:"api_policy"`
-	Cacerts                types.List              `tfsdk:"cacerts"`
-	Celona                 CelonaValue             `tfsdk:"celona"`
-	Cloudshark             CloudsharkValue         `tfsdk:"cloudshark"`
-	Cradlepoint            CradlepointValue        `tfsdk:"cradlepoint"`
-	DeviceCert             DeviceCertValue         `tfsdk:"device_cert"`
-	DeviceUpdownThreshold  types.Int64             `tfsdk:"device_updown_threshold"`
-	DisablePcap            types.Bool              `tfsdk:"disable_pcap"`
-	DisableRemoteShell     types.Bool              `tfsdk:"disable_remote_shell"`
-	GatewayUpdownThreshold types.Int64             `tfsdk:"gateway_updown_threshold"`
-	Installer              InstallerValue          `tfsdk:"installer"`
-	Jcloud                 JcloudValue             `tfsdk:"jcloud"`
-	Juniper                JuniperValue            `tfsdk:"juniper"`
-	Mgmt                   MgmtValue               `tfsdk:"mgmt"`
-	MistNac                MistNacValue            `tfsdk:"mist_nac"`
-	MxedgeFipsEnabled      types.Bool              `tfsdk:"mxedge_fips_enabled"`
-	MxedgeMgmt             MxedgeMgmtValue         `tfsdk:"mxedge_mgmt"`
-	OrgId                  types.String            `tfsdk:"org_id"`
-	PasswordPolicy         PasswordPolicyValue     `tfsdk:"password_policy"`
-	Pcap                   PcapValue               `tfsdk:"pcap"`
-	PortChannelization     PortChannelizationValue `tfsdk:"port_channelization"`
-	Security               SecurityValue           `tfsdk:"security"`
-	SwitchMgmt             SwitchMgmtValue         `tfsdk:"switch_mgmt"`
-	SwitchUpdownThreshold  types.Int64             `tfsdk:"switch_updown_threshold"`
-	SyntheticTest          SyntheticTestValue      `tfsdk:"synthetic_test"`
-	UiIdleTimeout          types.Int64             `tfsdk:"ui_idle_timeout"`
-	VpnOptions             VpnOptionsValue         `tfsdk:"vpn_options"`
-	WanPma                 WanPmaValue             `tfsdk:"wan_pma"`
-	WiredPma               WiredPmaValue           `tfsdk:"wired_pma"`
-	WirelessPma            WirelessPmaValue        `tfsdk:"wireless_pma"`
+	ApUpdownThreshold      types.Int64         `tfsdk:"ap_updown_threshold"`
+	ApiPolicy              ApiPolicyValue      `tfsdk:"api_policy"`
+	Cacerts                types.List          `tfsdk:"cacerts"`
+	Celona                 CelonaValue         `tfsdk:"celona"`
+	Cloudshark             CloudsharkValue     `tfsdk:"cloudshark"`
+	Cradlepoint            CradlepointValue    `tfsdk:"cradlepoint"`
+	DeviceCert             DeviceCertValue     `tfsdk:"device_cert"`
+	DeviceUpdownThreshold  types.Int64         `tfsdk:"device_updown_threshold"`
+	DisablePcap            types.Bool          `tfsdk:"disable_pcap"`
+	DisableRemoteShell     types.Bool          `tfsdk:"disable_remote_shell"`
+	GatewayUpdownThreshold types.Int64         `tfsdk:"gateway_updown_threshold"`
+	Installer              InstallerValue      `tfsdk:"installer"`
+	Jcloud                 JcloudValue         `tfsdk:"jcloud"`
+	JcloudRa               JcloudRaValue       `tfsdk:"jcloud_ra"`
+	Juniper                JuniperValue        `tfsdk:"juniper"`
+	Mgmt                   MgmtValue           `tfsdk:"mgmt"`
+	MistNac                MistNacValue        `tfsdk:"mist_nac"`
+	MxedgeFipsEnabled      types.Bool          `tfsdk:"mxedge_fips_enabled"`
+	MxedgeMgmt             MxedgeMgmtValue     `tfsdk:"mxedge_mgmt"`
+	OpticPortConfig        types.Map           `tfsdk:"optic_port_config"`
+	OrgId                  types.String        `tfsdk:"org_id"`
+	PasswordPolicy         PasswordPolicyValue `tfsdk:"password_policy"`
+	Pcap                   PcapValue           `tfsdk:"pcap"`
+	Security               SecurityValue       `tfsdk:"security"`
+	SwitchMgmt             SwitchMgmtValue     `tfsdk:"switch_mgmt"`
+	SwitchUpdownThreshold  types.Int64         `tfsdk:"switch_updown_threshold"`
+	SyntheticTest          SyntheticTestValue  `tfsdk:"synthetic_test"`
+	UiIdleTimeout          types.Int64         `tfsdk:"ui_idle_timeout"`
+	VpnOptions             VpnOptionsValue     `tfsdk:"vpn_options"`
+	WanPma                 WanPmaValue         `tfsdk:"wan_pma"`
+	WiredPma               WiredPmaValue       `tfsdk:"wired_pma"`
+	WirelessPma            WirelessPmaValue    `tfsdk:"wireless_pma"`
 }
 
 var _ basetypes.ObjectTypable = ApiPolicyType{}
@@ -3745,6 +3781,440 @@ func (v JcloudValue) Type(ctx context.Context) attr.Type {
 }
 
 func (v JcloudValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"org_apitoken":      basetypes.StringType{},
+		"org_apitoken_name": basetypes.StringType{},
+		"org_id":            basetypes.StringType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = JcloudRaType{}
+
+type JcloudRaType struct {
+	basetypes.ObjectType
+}
+
+func (t JcloudRaType) Equal(o attr.Type) bool {
+	other, ok := o.(JcloudRaType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t JcloudRaType) String() string {
+	return "JcloudRaType"
+}
+
+func (t JcloudRaType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	orgApitokenAttribute, ok := attributes["org_apitoken"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`org_apitoken is missing from object`)
+
+		return nil, diags
+	}
+
+	orgApitokenVal, ok := orgApitokenAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`org_apitoken expected to be basetypes.StringValue, was: %T`, orgApitokenAttribute))
+	}
+
+	orgApitokenNameAttribute, ok := attributes["org_apitoken_name"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`org_apitoken_name is missing from object`)
+
+		return nil, diags
+	}
+
+	orgApitokenNameVal, ok := orgApitokenNameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`org_apitoken_name expected to be basetypes.StringValue, was: %T`, orgApitokenNameAttribute))
+	}
+
+	orgIdAttribute, ok := attributes["org_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`org_id is missing from object`)
+
+		return nil, diags
+	}
+
+	orgIdVal, ok := orgIdAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`org_id expected to be basetypes.StringValue, was: %T`, orgIdAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return JcloudRaValue{
+		OrgApitoken:     orgApitokenVal,
+		OrgApitokenName: orgApitokenNameVal,
+		OrgId:           orgIdVal,
+		state:           attr.ValueStateKnown,
+	}, diags
+}
+
+func NewJcloudRaValueNull() JcloudRaValue {
+	return JcloudRaValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewJcloudRaValueUnknown() JcloudRaValue {
+	return JcloudRaValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewJcloudRaValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (JcloudRaValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing JcloudRaValue Attribute Value",
+				"While creating a JcloudRaValue value, a missing attribute value was detected. "+
+					"A JcloudRaValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("JcloudRaValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid JcloudRaValue Attribute Type",
+				"While creating a JcloudRaValue value, an invalid attribute value was detected. "+
+					"A JcloudRaValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("JcloudRaValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("JcloudRaValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra JcloudRaValue Attribute Value",
+				"While creating a JcloudRaValue value, an extra attribute value was detected. "+
+					"A JcloudRaValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra JcloudRaValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewJcloudRaValueUnknown(), diags
+	}
+
+	orgApitokenAttribute, ok := attributes["org_apitoken"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`org_apitoken is missing from object`)
+
+		return NewJcloudRaValueUnknown(), diags
+	}
+
+	orgApitokenVal, ok := orgApitokenAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`org_apitoken expected to be basetypes.StringValue, was: %T`, orgApitokenAttribute))
+	}
+
+	orgApitokenNameAttribute, ok := attributes["org_apitoken_name"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`org_apitoken_name is missing from object`)
+
+		return NewJcloudRaValueUnknown(), diags
+	}
+
+	orgApitokenNameVal, ok := orgApitokenNameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`org_apitoken_name expected to be basetypes.StringValue, was: %T`, orgApitokenNameAttribute))
+	}
+
+	orgIdAttribute, ok := attributes["org_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`org_id is missing from object`)
+
+		return NewJcloudRaValueUnknown(), diags
+	}
+
+	orgIdVal, ok := orgIdAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`org_id expected to be basetypes.StringValue, was: %T`, orgIdAttribute))
+	}
+
+	if diags.HasError() {
+		return NewJcloudRaValueUnknown(), diags
+	}
+
+	return JcloudRaValue{
+		OrgApitoken:     orgApitokenVal,
+		OrgApitokenName: orgApitokenNameVal,
+		OrgId:           orgIdVal,
+		state:           attr.ValueStateKnown,
+	}, diags
+}
+
+func NewJcloudRaValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) JcloudRaValue {
+	object, diags := NewJcloudRaValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewJcloudRaValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t JcloudRaType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewJcloudRaValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewJcloudRaValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewJcloudRaValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewJcloudRaValueMust(JcloudRaValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t JcloudRaType) ValueType(ctx context.Context) attr.Value {
+	return JcloudRaValue{}
+}
+
+var _ basetypes.ObjectValuable = JcloudRaValue{}
+
+type JcloudRaValue struct {
+	OrgApitoken     basetypes.StringValue `tfsdk:"org_apitoken"`
+	OrgApitokenName basetypes.StringValue `tfsdk:"org_apitoken_name"`
+	OrgId           basetypes.StringValue `tfsdk:"org_id"`
+	state           attr.ValueState
+}
+
+func (v JcloudRaValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 3)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["org_apitoken"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["org_apitoken_name"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["org_id"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 3)
+
+		val, err = v.OrgApitoken.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["org_apitoken"] = val
+
+		val, err = v.OrgApitokenName.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["org_apitoken_name"] = val
+
+		val, err = v.OrgId.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["org_id"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v JcloudRaValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v JcloudRaValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v JcloudRaValue) String() string {
+	return "JcloudRaValue"
+}
+
+func (v JcloudRaValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"org_apitoken":      basetypes.StringType{},
+		"org_apitoken_name": basetypes.StringType{},
+		"org_id":            basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"org_apitoken":      v.OrgApitoken,
+			"org_apitoken_name": v.OrgApitokenName,
+			"org_id":            v.OrgId,
+		})
+
+	return objVal, diags
+}
+
+func (v JcloudRaValue) Equal(o attr.Value) bool {
+	other, ok := o.(JcloudRaValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.OrgApitoken.Equal(other.OrgApitoken) {
+		return false
+	}
+
+	if !v.OrgApitokenName.Equal(other.OrgApitokenName) {
+		return false
+	}
+
+	if !v.OrgId.Equal(other.OrgId) {
+		return false
+	}
+
+	return true
+}
+
+func (v JcloudRaValue) Type(ctx context.Context) attr.Type {
+	return JcloudRaType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v JcloudRaValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"org_apitoken":      basetypes.StringType{},
 		"org_apitoken_name": basetypes.StringType{},
@@ -7368,6 +7838,385 @@ func (v MxedgeMgmtValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 	}
 }
 
+var _ basetypes.ObjectTypable = OpticPortConfigType{}
+
+type OpticPortConfigType struct {
+	basetypes.ObjectType
+}
+
+func (t OpticPortConfigType) Equal(o attr.Type) bool {
+	other, ok := o.(OpticPortConfigType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t OpticPortConfigType) String() string {
+	return "OpticPortConfigType"
+}
+
+func (t OpticPortConfigType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	channelizedAttribute, ok := attributes["channelized"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`channelized is missing from object`)
+
+		return nil, diags
+	}
+
+	channelizedVal, ok := channelizedAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`channelized expected to be basetypes.BoolValue, was: %T`, channelizedAttribute))
+	}
+
+	speedAttribute, ok := attributes["speed"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`speed is missing from object`)
+
+		return nil, diags
+	}
+
+	speedVal, ok := speedAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`speed expected to be basetypes.StringValue, was: %T`, speedAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return OpticPortConfigValue{
+		Channelized: channelizedVal,
+		Speed:       speedVal,
+		state:       attr.ValueStateKnown,
+	}, diags
+}
+
+func NewOpticPortConfigValueNull() OpticPortConfigValue {
+	return OpticPortConfigValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewOpticPortConfigValueUnknown() OpticPortConfigValue {
+	return OpticPortConfigValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewOpticPortConfigValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (OpticPortConfigValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing OpticPortConfigValue Attribute Value",
+				"While creating a OpticPortConfigValue value, a missing attribute value was detected. "+
+					"A OpticPortConfigValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("OpticPortConfigValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid OpticPortConfigValue Attribute Type",
+				"While creating a OpticPortConfigValue value, an invalid attribute value was detected. "+
+					"A OpticPortConfigValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("OpticPortConfigValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("OpticPortConfigValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra OpticPortConfigValue Attribute Value",
+				"While creating a OpticPortConfigValue value, an extra attribute value was detected. "+
+					"A OpticPortConfigValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra OpticPortConfigValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewOpticPortConfigValueUnknown(), diags
+	}
+
+	channelizedAttribute, ok := attributes["channelized"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`channelized is missing from object`)
+
+		return NewOpticPortConfigValueUnknown(), diags
+	}
+
+	channelizedVal, ok := channelizedAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`channelized expected to be basetypes.BoolValue, was: %T`, channelizedAttribute))
+	}
+
+	speedAttribute, ok := attributes["speed"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`speed is missing from object`)
+
+		return NewOpticPortConfigValueUnknown(), diags
+	}
+
+	speedVal, ok := speedAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`speed expected to be basetypes.StringValue, was: %T`, speedAttribute))
+	}
+
+	if diags.HasError() {
+		return NewOpticPortConfigValueUnknown(), diags
+	}
+
+	return OpticPortConfigValue{
+		Channelized: channelizedVal,
+		Speed:       speedVal,
+		state:       attr.ValueStateKnown,
+	}, diags
+}
+
+func NewOpticPortConfigValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) OpticPortConfigValue {
+	object, diags := NewOpticPortConfigValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewOpticPortConfigValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t OpticPortConfigType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewOpticPortConfigValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewOpticPortConfigValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewOpticPortConfigValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewOpticPortConfigValueMust(OpticPortConfigValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t OpticPortConfigType) ValueType(ctx context.Context) attr.Value {
+	return OpticPortConfigValue{}
+}
+
+var _ basetypes.ObjectValuable = OpticPortConfigValue{}
+
+type OpticPortConfigValue struct {
+	Channelized basetypes.BoolValue   `tfsdk:"channelized"`
+	Speed       basetypes.StringValue `tfsdk:"speed"`
+	state       attr.ValueState
+}
+
+func (v OpticPortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 2)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["channelized"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["speed"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 2)
+
+		val, err = v.Channelized.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["channelized"] = val
+
+		val, err = v.Speed.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["speed"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v OpticPortConfigValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v OpticPortConfigValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v OpticPortConfigValue) String() string {
+	return "OpticPortConfigValue"
+}
+
+func (v OpticPortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"channelized": basetypes.BoolType{},
+		"speed":       basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"channelized": v.Channelized,
+			"speed":       v.Speed,
+		})
+
+	return objVal, diags
+}
+
+func (v OpticPortConfigValue) Equal(o attr.Value) bool {
+	other, ok := o.(OpticPortConfigValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Channelized.Equal(other.Channelized) {
+		return false
+	}
+
+	if !v.Speed.Equal(other.Speed) {
+		return false
+	}
+
+	return true
+}
+
+func (v OpticPortConfigValue) Type(ctx context.Context) attr.Type {
+	return OpticPortConfigType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v OpticPortConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"channelized": basetypes.BoolType{},
+		"speed":       basetypes.StringType{},
+	}
+}
+
 var _ basetypes.ObjectTypable = PasswordPolicyType{}
 
 type PasswordPolicyType struct {
@@ -8288,404 +9137,6 @@ func (v PcapValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"bucket":      basetypes.StringType{},
 		"max_pkt_len": basetypes.Int64Type{},
-	}
-}
-
-var _ basetypes.ObjectTypable = PortChannelizationType{}
-
-type PortChannelizationType struct {
-	basetypes.ObjectType
-}
-
-func (t PortChannelizationType) Equal(o attr.Type) bool {
-	other, ok := o.(PortChannelizationType)
-
-	if !ok {
-		return false
-	}
-
-	return t.ObjectType.Equal(other.ObjectType)
-}
-
-func (t PortChannelizationType) String() string {
-	return "PortChannelizationType"
-}
-
-func (t PortChannelizationType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
-	var diags diag.Diagnostics
-
-	attributes := in.Attributes()
-
-	configAttribute, ok := attributes["config"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`config is missing from object`)
-
-		return nil, diags
-	}
-
-	configVal, ok := configAttribute.(basetypes.MapValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`config expected to be basetypes.MapValue, was: %T`, configAttribute))
-	}
-
-	enabledAttribute, ok := attributes["enabled"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`enabled is missing from object`)
-
-		return nil, diags
-	}
-
-	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
-	}
-
-	if diags.HasError() {
-		return nil, diags
-	}
-
-	return PortChannelizationValue{
-		Config:  configVal,
-		Enabled: enabledVal,
-		state:   attr.ValueStateKnown,
-	}, diags
-}
-
-func NewPortChannelizationValueNull() PortChannelizationValue {
-	return PortChannelizationValue{
-		state: attr.ValueStateNull,
-	}
-}
-
-func NewPortChannelizationValueUnknown() PortChannelizationValue {
-	return PortChannelizationValue{
-		state: attr.ValueStateUnknown,
-	}
-}
-
-func NewPortChannelizationValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (PortChannelizationValue, diag.Diagnostics) {
-	var diags diag.Diagnostics
-
-	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
-	ctx := context.Background()
-
-	for name, attributeType := range attributeTypes {
-		attribute, ok := attributes[name]
-
-		if !ok {
-			diags.AddError(
-				"Missing PortChannelizationValue Attribute Value",
-				"While creating a PortChannelizationValue value, a missing attribute value was detected. "+
-					"A PortChannelizationValue must contain values for all attributes, even if null or unknown. "+
-					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("PortChannelizationValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
-			)
-
-			continue
-		}
-
-		if !attributeType.Equal(attribute.Type(ctx)) {
-			diags.AddError(
-				"Invalid PortChannelizationValue Attribute Type",
-				"While creating a PortChannelizationValue value, an invalid attribute value was detected. "+
-					"A PortChannelizationValue must use a matching attribute type for the value. "+
-					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("PortChannelizationValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
-					fmt.Sprintf("PortChannelizationValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
-			)
-		}
-	}
-
-	for name := range attributes {
-		_, ok := attributeTypes[name]
-
-		if !ok {
-			diags.AddError(
-				"Extra PortChannelizationValue Attribute Value",
-				"While creating a PortChannelizationValue value, an extra attribute value was detected. "+
-					"A PortChannelizationValue must not contain values beyond the expected attribute types. "+
-					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("Extra PortChannelizationValue Attribute Name: %s", name),
-			)
-		}
-	}
-
-	if diags.HasError() {
-		return NewPortChannelizationValueUnknown(), diags
-	}
-
-	configAttribute, ok := attributes["config"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`config is missing from object`)
-
-		return NewPortChannelizationValueUnknown(), diags
-	}
-
-	configVal, ok := configAttribute.(basetypes.MapValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`config expected to be basetypes.MapValue, was: %T`, configAttribute))
-	}
-
-	enabledAttribute, ok := attributes["enabled"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`enabled is missing from object`)
-
-		return NewPortChannelizationValueUnknown(), diags
-	}
-
-	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
-	}
-
-	if diags.HasError() {
-		return NewPortChannelizationValueUnknown(), diags
-	}
-
-	return PortChannelizationValue{
-		Config:  configVal,
-		Enabled: enabledVal,
-		state:   attr.ValueStateKnown,
-	}, diags
-}
-
-func NewPortChannelizationValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) PortChannelizationValue {
-	object, diags := NewPortChannelizationValue(attributeTypes, attributes)
-
-	if diags.HasError() {
-		// This could potentially be added to the diag package.
-		diagsStrings := make([]string, 0, len(diags))
-
-		for _, diagnostic := range diags {
-			diagsStrings = append(diagsStrings, fmt.Sprintf(
-				"%s | %s | %s",
-				diagnostic.Severity(),
-				diagnostic.Summary(),
-				diagnostic.Detail()))
-		}
-
-		panic("NewPortChannelizationValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
-	}
-
-	return object
-}
-
-func (t PortChannelizationType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
-	if in.Type() == nil {
-		return NewPortChannelizationValueNull(), nil
-	}
-
-	if !in.Type().Equal(t.TerraformType(ctx)) {
-		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
-	}
-
-	if !in.IsKnown() {
-		return NewPortChannelizationValueUnknown(), nil
-	}
-
-	if in.IsNull() {
-		return NewPortChannelizationValueNull(), nil
-	}
-
-	attributes := map[string]attr.Value{}
-
-	val := map[string]tftypes.Value{}
-
-	err := in.As(&val)
-
-	if err != nil {
-		return nil, err
-	}
-
-	for k, v := range val {
-		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
-
-		if err != nil {
-			return nil, err
-		}
-
-		attributes[k] = a
-	}
-
-	return NewPortChannelizationValueMust(PortChannelizationValue{}.AttributeTypes(ctx), attributes), nil
-}
-
-func (t PortChannelizationType) ValueType(ctx context.Context) attr.Value {
-	return PortChannelizationValue{}
-}
-
-var _ basetypes.ObjectValuable = PortChannelizationValue{}
-
-type PortChannelizationValue struct {
-	Config  basetypes.MapValue  `tfsdk:"config"`
-	Enabled basetypes.BoolValue `tfsdk:"enabled"`
-	state   attr.ValueState
-}
-
-func (v PortChannelizationValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 2)
-
-	var val tftypes.Value
-	var err error
-
-	attrTypes["config"] = basetypes.MapType{
-		ElemType: types.StringType,
-	}.TerraformType(ctx)
-	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
-
-	objectType := tftypes.Object{AttributeTypes: attrTypes}
-
-	switch v.state {
-	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 2)
-
-		val, err = v.Config.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["config"] = val
-
-		val, err = v.Enabled.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["enabled"] = val
-
-		if err := tftypes.ValidateValue(objectType, vals); err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		return tftypes.NewValue(objectType, vals), nil
-	case attr.ValueStateNull:
-		return tftypes.NewValue(objectType, nil), nil
-	case attr.ValueStateUnknown:
-		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
-	default:
-		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
-	}
-}
-
-func (v PortChannelizationValue) IsNull() bool {
-	return v.state == attr.ValueStateNull
-}
-
-func (v PortChannelizationValue) IsUnknown() bool {
-	return v.state == attr.ValueStateUnknown
-}
-
-func (v PortChannelizationValue) String() string {
-	return "PortChannelizationValue"
-}
-
-func (v PortChannelizationValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
-	var diags diag.Diagnostics
-
-	configVal, d := types.MapValue(types.StringType, v.Config.Elements())
-
-	diags.Append(d...)
-
-	if d.HasError() {
-		return types.ObjectUnknown(map[string]attr.Type{
-			"config": basetypes.MapType{
-				ElemType: types.StringType,
-			},
-			"enabled": basetypes.BoolType{},
-		}), diags
-	}
-
-	attributeTypes := map[string]attr.Type{
-		"config": basetypes.MapType{
-			ElemType: types.StringType,
-		},
-		"enabled": basetypes.BoolType{},
-	}
-
-	if v.IsNull() {
-		return types.ObjectNull(attributeTypes), diags
-	}
-
-	if v.IsUnknown() {
-		return types.ObjectUnknown(attributeTypes), diags
-	}
-
-	objVal, diags := types.ObjectValue(
-		attributeTypes,
-		map[string]attr.Value{
-			"config":  configVal,
-			"enabled": v.Enabled,
-		})
-
-	return objVal, diags
-}
-
-func (v PortChannelizationValue) Equal(o attr.Value) bool {
-	other, ok := o.(PortChannelizationValue)
-
-	if !ok {
-		return false
-	}
-
-	if v.state != other.state {
-		return false
-	}
-
-	if v.state != attr.ValueStateKnown {
-		return true
-	}
-
-	if !v.Config.Equal(other.Config) {
-		return false
-	}
-
-	if !v.Enabled.Equal(other.Enabled) {
-		return false
-	}
-
-	return true
-}
-
-func (v PortChannelizationValue) Type(ctx context.Context) attr.Type {
-	return PortChannelizationType{
-		basetypes.ObjectType{
-			AttrTypes: v.AttributeTypes(ctx),
-		},
-	}
-}
-
-func (v PortChannelizationValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
-	return map[string]attr.Type{
-		"config": basetypes.MapType{
-			ElemType: types.StringType,
-		},
-		"enabled": basetypes.BoolType{},
 	}
 }
 

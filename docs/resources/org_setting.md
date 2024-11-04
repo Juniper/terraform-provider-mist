@@ -83,13 +83,14 @@ resource "mist_org_setting" "terraform_test" {
 - `gateway_updown_threshold` (Number) enable threshold-based device down delivery for Gateway devices only. When configured it takes effect for GW devices and `device_updown_threshold` is ignored.
 - `installer` (Attributes) (see [below for nested schema](#nestedatt--installer))
 - `jcloud` (Attributes) (see [below for nested schema](#nestedatt--jcloud))
+- `jcloud_ra` (Attributes) JCloud Routing Assurance connexion (see [below for nested schema](#nestedatt--jcloud_ra))
 - `mgmt` (Attributes) management-related properties (see [below for nested schema](#nestedatt--mgmt))
 - `mist_nac` (Attributes) (see [below for nested schema](#nestedatt--mist_nac))
 - `mxedge_fips_enabled` (Boolean)
 - `mxedge_mgmt` (Attributes) (see [below for nested schema](#nestedatt--mxedge_mgmt))
+- `optic_port_config` (Attributes Map) Property key is the interface name or range (e.g. `et-0/0/47`, `et-0/0/48-49`) (see [below for nested schema](#nestedatt--optic_port_config))
 - `password_policy` (Attributes) password policy (see [below for nested schema](#nestedatt--password_policy))
 - `pcap` (Attributes) (see [below for nested schema](#nestedatt--pcap))
-- `port_channelization` (Attributes) (see [below for nested schema](#nestedatt--port_channelization))
 - `security` (Attributes) (see [below for nested schema](#nestedatt--security))
 - `switch_mgmt` (Attributes) (see [below for nested schema](#nestedatt--switch_mgmt))
 - `switch_updown_threshold` (Number) enable threshold-based device down delivery for Switch devices only. When configured it takes effect for SW devices and `device_updown_threshold` is ignored.
@@ -176,6 +177,16 @@ Required:
 - `org_id` (String) JCloud Org ID
 
 
+<a id="nestedatt--jcloud_ra"></a>
+### Nested Schema for `jcloud_ra`
+
+Optional:
+
+- `org_apitoken` (String) JCloud Routing Assurance Org Token
+- `org_apitoken_name` (String) JCloud Routing Assurance Org Token Name
+- `org_id` (String) JCloud Routing Assurance Org ID
+
+
 <a id="nestedatt--mgmt"></a>
 ### Nested Schema for `mgmt`
 
@@ -198,8 +209,9 @@ Optional:
 see https://www.openssl.org/docs/man1.1.1/man3/SSL_CTX_set_security_level.html#DEFAULT-CALLBACK-BEHAVIOUR
 - `eu_only` (Boolean) By default NAC POD failover considers all NAC pods available around the globe, i.e. EU, US, or APAC based, failover happens based on geo IP of the originating site.
 For strict GDPR compliancy NAC POD failover would only happen between the PODs located within the EU environment, and no authentication would take place outside of EU. This is an org setting that is applicable to WLANs, switch templates, mxedge clusters that have mist_nac enabled
-- `idp_machine_cert_lookup_field` (String) allow customer to choose the EAP-TLS client certificate's field to use for IDP Machine Groups lookup
-- `idp_user_cert_lookup_field` (String) allow customer to choose the EAP-TLS client certificate's field to use for IDP User Groups lookup
+- `idp_machine_cert_lookup_field` (String) allow customer to choose the EAP-TLS client certificate's field to use for IDP Machine Groups lookup. enum: `automatic`, `cn`, `dns`
+- `idp_user_cert_lookup_field` (String) allow customer to choose the EAP-TLS client certificate's field
+to use for IDP User Groups lookup. enum: `automatic`, `cn`, `email`, `upn`
 - `idps` (Attributes List) (see [below for nested schema](#nestedatt--mist_nac--idps))
 - `server_cert` (Attributes) radius server cert to be presented in EAP TLS (see [below for nested schema](#nestedatt--mist_nac--server_cert))
 - `use_ip_version` (String) by default NAS devices(switches/aps) and proxies(mxedge) are configured to reach mist-nac via IPv4. enum: `v4`, `v6`
@@ -245,6 +257,15 @@ Optional:
 - `root_password` (String, Sensitive)
 
 
+<a id="nestedatt--optic_port_config"></a>
+### Nested Schema for `optic_port_config`
+
+Optional:
+
+- `channelized` (Boolean) enable channelization
+- `speed` (String) interface speed (e.g. `25g`, `50g`), use the chassis speed by default
+
+
 <a id="nestedatt--password_policy"></a>
 ### Nested Schema for `password_policy`
 
@@ -264,15 +285,6 @@ Optional:
 
 - `bucket` (String)
 - `max_pkt_len` (Number) max_len of non-management packets to capture
-
-
-<a id="nestedatt--port_channelization"></a>
-### Nested Schema for `port_channelization`
-
-Optional:
-
-- `config` (Map of String) Property key is the interface name or range (e.g. `et-0/0/47`, `et-0/0/48-49`), Property value is the interface speed (e.g. `25g`, `50g`)
-- `enabled` (Boolean)
 
 
 <a id="nestedatt--security"></a>

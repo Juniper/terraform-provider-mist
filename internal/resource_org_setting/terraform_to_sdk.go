@@ -86,6 +86,12 @@ func TerraformToSdk(ctx context.Context, plan *OrgSettingModel) (*models.OrgSett
 		unset["-installer"] = ""
 	}
 
+	if !plan.JcloudRa.IsNull() && !plan.JcloudRa.IsUnknown() {
+		data.JcloudRa = jcloudRaTerraformToSdk(ctx, &diags, plan.JcloudRa)
+	} else {
+		unset["-jcloud_ra"] = ""
+	}
+
 	if !plan.Jcloud.IsNull() && !plan.Jcloud.IsUnknown() {
 		data.Jcloud = jcloudTerraformToSdk(ctx, &diags, plan.Jcloud)
 	} else {
@@ -120,6 +126,12 @@ func TerraformToSdk(ctx context.Context, plan *OrgSettingModel) (*models.OrgSett
 		data.MxedgeMgmt = mxEdgeMgmtTerraformToSdk(ctx, &diags, plan.MxedgeMgmt)
 	} else {
 		unset["-mxedge_mgmt"] = ""
+	}
+
+	if !plan.OpticPortConfig.IsNull() && !plan.OpticPortConfig.IsUnknown() {
+		data.OpticPortConfig = opticPortConfigTerraformToSdk(ctx, &diags, plan.OpticPortConfig)
+	} else {
+		unset["-optic_port_config"] = ""
 	}
 
 	if !plan.PasswordPolicy.IsNull() && !plan.PasswordPolicy.IsUnknown() {

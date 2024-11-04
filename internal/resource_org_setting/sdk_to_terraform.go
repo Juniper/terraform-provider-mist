@@ -28,16 +28,17 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	var gateway_updown_threshold types.Int64
 	var installer InstallerValue = NewInstallerValueNull()
 	var jcloud JcloudValue = NewJcloudValueNull()
+	var jcloud_ra JcloudRaValue = NewJcloudRaValueNull()
 	var juniper JuniperValue = NewJuniperValueNull()
 	var mgmt MgmtValue = NewMgmtValueNull()
 	var mist_nac MistNacValue = NewMistNacValueNull()
 	// var msp_id types.String
 	var mxedge_fips_enabled types.Bool
 	var mxedge_mgmt MxedgeMgmtValue
+	var optic_port_config types.Map = types.MapNull(OpticPortConfigValue{}.Type(ctx))
 	var org_id types.String
 	var password_policy PasswordPolicyValue = NewPasswordPolicyValueNull()
 	var pcap PcapValue = NewPcapValueNull()
-	var port_channelization PortChannelizationValue = NewPortChannelizationValueNull()
 	// var pcap_bucket_verified types.Bool
 	var security SecurityValue = NewSecurityValueNull()
 	var switch_mgmt SwitchMgmtValue = NewSwitchMgmtValueNull()
@@ -91,6 +92,9 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	if data.Jcloud != nil {
 		jcloud = jcloudSdkToTerraform(ctx, &diags, data.Jcloud)
 	}
+	if data.JcloudRa != nil {
+		jcloud_ra = jcloudRaSdkToTerraform(ctx, &diags, data.JcloudRa)
+	}
 	if data.Juniper != nil {
 		juniper = juniperSdkToTerraform(ctx, &diags, data.Juniper)
 	}
@@ -109,6 +113,9 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	if data.MxedgeMgmt != nil {
 		mxedge_mgmt = mxedgeMgmtSdkToTerraform(ctx, &diags, data.MxedgeMgmt)
 	}
+	if data.OpticPortConfig != nil {
+		optic_port_config = opticPortConfigSdkToTerraform(ctx, &diags, data.OpticPortConfig)
+	}
 	if data.OrgId != nil {
 		org_id = types.StringValue(data.OrgId.String())
 	}
@@ -117,9 +124,6 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	}
 	if data.Pcap != nil {
 		pcap = pcapSdkToTerraform(ctx, &diags, data.Pcap)
-	}
-	if data.PortChannelization != nil {
-		port_channelization = PortChannelSdkToTerraform(ctx, &diags, data.PortChannelization)
 	}
 	// if data.PcapBucketVerified != nil {
 	// 	pcap_bucket_verified = types.BoolValue(*data.PcapBucketVerified)
@@ -166,16 +170,17 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	state.GatewayUpdownThreshold = gateway_updown_threshold
 	state.Installer = installer
 	state.Jcloud = jcloud
+	state.JcloudRa = jcloud_ra
 	state.Juniper = juniper
 	state.Mgmt = mgmt
 	state.MistNac = mist_nac
 	// state.MspId = msp_id
 	state.MxedgeFipsEnabled = mxedge_fips_enabled
 	state.MxedgeMgmt = mxedge_mgmt
+	state.OpticPortConfig = optic_port_config
 	state.OrgId = org_id
 	state.PasswordPolicy = password_policy
 	state.Pcap = pcap
-	state.PortChannelization = port_channelization
 	// state.PcapBucketVerified = pcap_bucket_verified
 	state.Security = security
 	state.SwitchMgmt = switch_mgmt
