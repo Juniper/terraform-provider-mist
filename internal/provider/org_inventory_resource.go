@@ -386,9 +386,16 @@ func (r *orgInventoryResource) claimDevices(ctx context.Context, orgId uuid.UUID
 
 	logResponseInventory(ctx, "Success response for API Call to claim devices:", claim_response.Data)
 
-	if len(claim_response.Data.Duplicated) > 0 {
-		for _, claim_code := range claim_response.Data.Duplicated {
-			diags.AddWarning("Duplicated Device", fmt.Sprintf("Device %s was already claimed. It has been added to the Inventory state.", claim_code))
+	if len(claim_response.Data.InventoryDuplicated) > 0 {
+		for _, duplicatedDevice := range claim_response.Data.InventoryDuplicated {
+			diags.AddWarning("Duplicated Device", fmt.Sprintf("Device %s was already claimed (MAC: %s, Serial: %s, Model: %s). It has been imported into the Inventory state.", duplicatedDevice.Magic, duplicatedDevice.Mac, duplicatedDevice.Serial, duplicatedDevice.Model))
+			var tmp models.ResponseInventoryInventoryAddedItems
+			tmp.Mac = duplicatedDevice.Mac
+			tmp.Magic = duplicatedDevice.Magic
+			tmp.Model = duplicatedDevice.Model
+			tmp.Serial = duplicatedDevice.Serial
+			tmp.Type = duplicatedDevice.Type
+			claim_response.Data.InventoryAdded = append(claim_response.Data.InventoryAdded, tmp)
 		}
 	}
 	processResponseInventoryError(claim_response.Data, diags)
