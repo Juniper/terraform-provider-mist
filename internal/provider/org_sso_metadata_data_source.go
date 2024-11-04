@@ -80,7 +80,7 @@ func (d *orgSsoMetadataDataSource) Read(ctx context.Context, req datasource.Read
 		return
 	}
 
-	data, err := d.client.OrgsSSO().GetOrgSsoSamlMetadata(ctx, orgId, ssoId)
+	data, err := d.client.OrgsSSO().GetOrgSamlMetadata(ctx, orgId, ssoId)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting SSO Metadata",

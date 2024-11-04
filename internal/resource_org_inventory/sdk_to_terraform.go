@@ -108,7 +108,7 @@ func processMistInventory(
 			hostname = types.StringValue(*d.Hostname)
 		}
 		if d.Id != nil {
-			id = types.StringValue(*d.Id)
+			id = types.StringValue(d.Id.String())
 		}
 
 		data_map_attr_type := InventoryValue{}.AttributeTypes(ctx)

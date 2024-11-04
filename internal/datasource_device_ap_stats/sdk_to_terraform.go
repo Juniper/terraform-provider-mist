@@ -202,8 +202,8 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	if d.NumClients.Value() != nil {
 		num_clients = types.Int64Value(int64(*d.NumClients.Value()))
 	}
-	if d.OrgId.Value() != nil {
-		org_id = types.StringValue(d.OrgId.Value().String())
+	if d.OrgId != nil {
+		org_id = types.StringValue(d.OrgId.String())
 	}
 	if d.PortStat.Value() != nil && len(*d.PortStat.Value()) > 0 {
 		port_stat = portStatdkToTerraform(ctx, diags, *d.PortStat.Value())

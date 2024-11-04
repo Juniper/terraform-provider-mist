@@ -80,7 +80,7 @@ func (d *orgNacidpMetadataDataSource) Read(ctx context.Context, req datasource.R
 		return
 	}
 
-	data, err := d.client.OrgsSSO().GetOrgSsoSamlMetadata(ctx, orgId, nacidpId)
+	data, err := d.client.OrgsSSO().GetOrgSamlMetadata(ctx, orgId, nacidpId)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting NAC IDP Metadata",
