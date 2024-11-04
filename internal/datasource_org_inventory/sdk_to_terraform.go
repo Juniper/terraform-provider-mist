@@ -63,7 +63,7 @@ func inventorySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d mod
 		hw_rev = types.StringValue(*d.HwRev)
 	}
 	if d.Id != nil {
-		id = types.StringValue(*d.Id)
+		id = types.StringValue(d.Id.String())
 	}
 	if d.Jsi != nil {
 		jsi = types.BoolValue(*d.Jsi)
