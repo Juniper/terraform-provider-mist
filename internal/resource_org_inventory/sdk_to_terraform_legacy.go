@@ -80,18 +80,18 @@ func legacyProcessMistInventory(
 
 		data_map_attr_type := DevicesValue{}.AttributeTypes(ctx)
 		data_map_value := map[string]attr.Value{
-			"claim_code":             claim_code,
 			"deviceprofile_id":       deviceprofile_id,
+			"hostname":               hostname,
+			"id":                     id,
 			"mac":                    mac,
+			"claim_code":             claim_code,
 			"model":                  model,
 			"org_id":                 org_id,
 			"serial":                 serial,
 			"site_id":                site_id,
 			"type":                   device_type,
-			"vc_mac":                 vc_mac,
-			"hostname":               hostname,
 			"unclaim_when_destroyed": unclaim_when_destroyed,
-			"id":                     id,
+			"vc_mac":                 vc_mac,
 		}
 		newDevice, e := NewDevicesValue(data_map_attr_type, data_map_value)
 		diags.Append(e...)

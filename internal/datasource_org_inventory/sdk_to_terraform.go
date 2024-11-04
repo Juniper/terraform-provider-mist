@@ -2,7 +2,6 @@ package datasource_org_inventory
 
 import (
 	"context"
-	"math/big"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -27,7 +26,6 @@ func inventorySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d mod
 	var adopted basetypes.BoolValue
 	var claim_code basetypes.StringValue
 	var connected basetypes.BoolValue
-	var created_time basetypes.NumberValue
 	var deviceprofile_id basetypes.StringValue
 	var hostname basetypes.StringValue
 	var hw_rev basetypes.StringValue
@@ -35,7 +33,6 @@ func inventorySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d mod
 	var jsi basetypes.BoolValue
 	var mac basetypes.StringValue
 	var model basetypes.StringValue
-	var modified_time basetypes.NumberValue
 	var name basetypes.StringValue
 	var org_id basetypes.StringValue
 	var serial basetypes.StringValue
@@ -49,9 +46,6 @@ func inventorySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d mod
 	}
 	if d.Connected != nil {
 		connected = types.BoolValue(*d.Connected)
-	}
-	if d.CreatedTime != nil {
-		created_time = types.NumberValue(big.NewFloat(*d.CreatedTime))
 	}
 	if d.DeviceprofileId.Value() != nil {
 		deviceprofile_id = types.StringValue(*d.DeviceprofileId.Value())
@@ -76,9 +70,6 @@ func inventorySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d mod
 	}
 	if d.Model != nil {
 		model = types.StringValue(*d.Model)
-	}
-	if d.ModifiedTime != nil {
-		modified_time = types.NumberValue(big.NewFloat(*d.ModifiedTime))
 	}
 	if d.Name != nil {
 		name = types.StringValue(*d.Name)
@@ -107,7 +98,6 @@ func inventorySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d mod
 		"adopted":          adopted,
 		"claim_code":       claim_code,
 		"connected":        connected,
-		"created_time":     created_time,
 		"deviceprofile_id": deviceprofile_id,
 		"hostname":         hostname,
 		"hw_rev":           hw_rev,
@@ -115,7 +105,6 @@ func inventorySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d mod
 		"jsi":              jsi,
 		"mac":              mac,
 		"model":            model,
-		"modified_time":    modified_time,
 		"name":             name,
 		"org_id":           org_id,
 		"serial":           serial,
