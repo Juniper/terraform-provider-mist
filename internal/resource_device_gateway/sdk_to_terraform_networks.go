@@ -14,7 +14,7 @@ import (
 	mist_network "github.com/Juniper/terraform-provider-mist/internal/resource_org_network"
 )
 
-func multicastNetworksSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.NetworkMulticast) basetypes.ObjectValue {
+func multicastNetworksSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.NetworkMulticast) MulticastValue {
 
 	var disable_igmp basetypes.BoolValue
 	var enabled basetypes.BoolValue
@@ -50,13 +50,12 @@ func multicastNetworksSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 		}
 	}
 
-	data_map_attr_type := IpdProfileOverwriteMatchingValue{}.AttributeTypes(ctx)
 	data_map_value := map[string]attr.Value{
 		"disable_igmp": disable_igmp,
 		"enabled":      enabled,
 		"groups":       groups,
 	}
-	data, e := basetypes.NewObjectValue(data_map_attr_type, data_map_value)
+	data, e := NewMulticastValue(MulticastValue{}.AttributeTypes(ctx), data_map_value)
 	diags.Append(e...)
 
 	return data
@@ -98,6 +97,9 @@ func networksSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m []mo
 		}
 		if d.Isolation != nil {
 			isolation = types.BoolValue(*d.Isolation)
+		}
+		if d.Multicast != nil {
+			multicast = multicastNetworksSdkToTerraform(ctx, diags, d.Multicast)
 		}
 		name = types.StringValue(d.Name)
 		if d.RoutedForNetworks != nil {
