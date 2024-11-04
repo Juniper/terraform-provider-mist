@@ -93,12 +93,11 @@ func TerraformToSdk(ctx context.Context, plan *SiteWebhookModel) (models.Webhook
 	}
 
 	if !plan.Topics.IsNull() && !plan.Topics.IsUnknown() {
-		var items []models.WebhookTopicEnum
+		var items []string
 		for _, v := range plan.Topics.Elements() {
 			var s_interface interface{} = v
 			s := s_interface.(basetypes.StringValue)
-			t := models.WebhookTopicEnum(s.ValueString())
-			items = append(items, t)
+			items = append(items, s.ValueString())
 		}
 		data.Topics = items
 	} else {
