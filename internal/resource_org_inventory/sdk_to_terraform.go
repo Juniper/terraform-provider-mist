@@ -224,16 +224,16 @@ func processSync(
 				checkVcSiteId(deviceFromMist, mistSiteIdByVcMac)
 				deviceFromMist.UnclaimWhenDestroyed = device.UnclaimWhenDestroyed
 				newStateDevices[deviceInfo] = deviceFromMist
-			} else {
-				diags.AddError("Device not found", fmt.Sprintf("Unable to find device with the Claim Code \"%s\" in the Org Inventory", deviceInfo))
+				//} else {
+				//	diags.AddError("Device not found", fmt.Sprintf("Unable to find device with the Claim Code \"%s\" in the Org Inventory", deviceInfo))
 			}
 		} else if isMac {
 			if deviceFromMist, ok := (*mistDevicesByMac)[strings.ToUpper(deviceInfo)]; ok {
 				checkVcSiteId(deviceFromMist, mistSiteIdByVcMac)
 				deviceFromMist.UnclaimWhenDestroyed = device.UnclaimWhenDestroyed
 				newStateDevices[deviceInfo] = deviceFromMist
-			} else {
-				diags.AddError("Device not found", fmt.Sprintf("Unable to find device with the MAC Address \"%s\" in the Org Inventory", deviceInfo))
+				//} else {
+				//	diags.AddError("Device not found", fmt.Sprintf("Unable to find device with the MAC Address \"%s\" in the Org Inventory", deviceInfo))
 			}
 		} else {
 			diags.AddError(
