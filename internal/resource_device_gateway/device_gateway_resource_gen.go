@@ -409,7 +409,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									Description:         "if `type`==`relay`",
 									MarkdownDescription: "if `type`==`relay`",
 									Validators: []validator.List{
-										listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar())),
+										listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseIp(true, true), mistvalidator.ParseVar())),
 										mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("relay")),
 									},
 									Default: listdefault.StaticValue(types.ListNull(types.StringType)),
@@ -421,7 +421,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									Description:         "if `type6`==`relay`",
 									MarkdownDescription: "if `type6`==`relay`",
 									Validators: []validator.List{
-										listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseIp(false, true), mistvalidator.ParseVar())),
+										listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseIp(true, true), mistvalidator.ParseVar())),
 										mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type6"), types.StringValue("relay")),
 									},
 									Default: listdefault.StaticValue(types.ListNull(types.StringType)),
