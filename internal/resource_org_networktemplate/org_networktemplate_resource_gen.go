@@ -95,8 +95,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					Attributes: map[string]schema.Attribute{
 						"gbp_tag": schema.Int64Attribute{
 							Optional:            true,
-							Description:         "required if\n- `type`==`dynamic_gbp` (gbp_tag received from RADIUS)\n- `type`==`static_gbp` (applying gbp tag against matching conditions)",
-							MarkdownDescription: "required if\n- `type`==`dynamic_gbp` (gbp_tag received from RADIUS)\n- `type`==`static_gbp` (applying gbp tag against matching conditions)",
+							Description:         "required if\n- `type`==`dynamic_gbp` (gbp_tag received from RADIUS)\n- `type`==`gbp_resource`\n- `type`==`static_gbp` (applying gbp tag against matching conditions)",
+							MarkdownDescription: "required if\n- `type`==`dynamic_gbp` (gbp_tag received from RADIUS)\n- `type`==`gbp_resource`\n- `type`==`static_gbp` (applying gbp tag against matching conditions)",
 							Validators: []validator.Int64{
 								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("dynamic_gbp")),
 								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static_gbp")),
@@ -182,8 +182,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional:            true,
-							Description:         "if `type`==`resource`\nempty means unrestricted, i.e. any",
-							MarkdownDescription: "if `type`==`resource`\nempty means unrestricted, i.e. any",
+							Description:         "if `type`==`resource` or `type`==`gbp_resource`\nempty means unrestricted, i.e. any",
+							MarkdownDescription: "if `type`==`resource` or `type`==`gbp_resource`\nempty means unrestricted, i.e. any",
 							Validators: []validator.List{
 								listvalidator.SizeAtLeast(1),
 							},
@@ -201,13 +201,14 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"type": schema.StringAttribute{
 							Required:            true,
-							Description:         "enum: `any`, `dynamic_gbp`, `mac`, `network`, `radius_group`, `resource`, `static_gbp`, `subnet`",
-							MarkdownDescription: "enum: `any`, `dynamic_gbp`, `mac`, `network`, `radius_group`, `resource`, `static_gbp`, `subnet`",
+							Description:         "enum: \n  * `any`: matching anything not identified\n  * `dynamic_gbp`: from the gbp_tag received from RADIUS\n  * `gbp_resource`: can only be used in `dst_tags`\n  * `mac`\n  * `network`\n  * `radius_group`\n  * `resource`: can only be used in `dst_tags`\n  * `static_gbp`: applying gbp tag against matching conditions\n  * `subnet`'",
+							MarkdownDescription: "enum: \n  * `any`: matching anything not identified\n  * `dynamic_gbp`: from the gbp_tag received from RADIUS\n  * `gbp_resource`: can only be used in `dst_tags`\n  * `mac`\n  * `network`\n  * `radius_group`\n  * `resource`: can only be used in `dst_tags`\n  * `static_gbp`: applying gbp tag against matching conditions\n  * `subnet`'",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
 									"any",
 									"dynamic_gbp",
+									"gbp_resource",
 									"mac",
 									"network",
 									"radius_group",
@@ -439,7 +440,9 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 				},
 			},
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Unique ID of the object instance in the Mist Organnization",
+				MarkdownDescription: "Unique ID of the object instance in the Mist Organnization",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -733,8 +736,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Property key is the port mirroring instance name (Maximum: 4)\nport_mirroring can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output.",
-				MarkdownDescription: "Property key is the port mirroring instance name (Maximum: 4)\nport_mirroring can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output.",
+				Description:         "Property key is the port mirroring instance name\nport_mirroring can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 port mirrorings is allowed",
+				MarkdownDescription: "Property key is the port mirroring instance name\nport_mirroring can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 port mirrorings is allowed",
 				Validators: []validator.Map{
 					mapvalidator.SizeAtLeast(1),
 					mapvalidator.SizeAtMost(4),
@@ -1190,6 +1193,13 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							Computed: true,
 							Default:  booldefault.StaticBool(false),
 						},
+						"use_vstp": schema.BoolAttribute{
+							Optional:            true,
+							Computed:            true,
+							Description:         "if this is connected to a vstp network",
+							MarkdownDescription: "if this is connected to a vstp network",
+							Default:             booldefault.StaticBool(false),
+						},
 						"voip_network": schema.StringAttribute{
 							Optional:            true,
 							Description:         "Only if `mode`!=`dynamic` network/vlan for voip traffic, must also set port_network. to authenticate device, set port_auth",
@@ -1356,19 +1366,6 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						Description:         "radius auth session timeout",
 						MarkdownDescription: "radius auth session timeout",
 						Default:             int64default.StaticInt64(5),
-					},
-					"coa_enabled": schema.BoolAttribute{
-						Optional: true,
-						Computed: true,
-						Default:  booldefault.StaticBool(false),
-					},
-					"coa_port": schema.Int64Attribute{
-						Optional: true,
-						Computed: true,
-						Validators: []validator.Int64{
-							int64validator.Between(1, 65535),
-						},
-						Default: int64default.StaticInt64(3799),
 					},
 					"network": schema.StringAttribute{
 						Optional:            true,
@@ -2715,8 +2712,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 									Optional:            true,
-									Description:         "Property key is the port mirroring instance name (Maximum: 4)\nport_mirroring can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output.",
-									MarkdownDescription: "Property key is the port mirroring instance name (Maximum: 4)\nport_mirroring can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output.",
+									Description:         "Property key is the port mirroring instance name\nport_mirroring can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 port mirrorings is allowed",
+									MarkdownDescription: "Property key is the port mirroring instance name\nport_mirroring can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 port mirrorings is allowed",
 									Validators: []validator.Map{
 										mapvalidator.SizeAtLeast(1),
 										mapvalidator.SizeAtMost(4),
@@ -10920,6 +10917,24 @@ func (t PortUsagesType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`stp_p2p expected to be basetypes.BoolValue, was: %T`, stpP2pAttribute))
 	}
 
+	useVstpAttribute, ok := attributes["use_vstp"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`use_vstp is missing from object`)
+
+		return nil, diags
+	}
+
+	useVstpVal, ok := useVstpAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`use_vstp expected to be basetypes.BoolValue, was: %T`, useVstpAttribute))
+	}
+
 	voipNetworkAttribute, ok := attributes["voip_network"]
 
 	if !ok {
@@ -10978,6 +10993,7 @@ func (t PortUsagesType) ValueFromObject(ctx context.Context, in basetypes.Object
 		StpEdge:                                  stpEdgeVal,
 		StpNoRootPort:                            stpNoRootPortVal,
 		StpP2p:                                   stpP2pVal,
+		UseVstp:                                  useVstpVal,
 		VoipNetwork:                              voipNetworkVal,
 		state:                                    attr.ValueStateKnown,
 	}, diags
@@ -11676,6 +11692,24 @@ func NewPortUsagesValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`stp_p2p expected to be basetypes.BoolValue, was: %T`, stpP2pAttribute))
 	}
 
+	useVstpAttribute, ok := attributes["use_vstp"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`use_vstp is missing from object`)
+
+		return NewPortUsagesValueUnknown(), diags
+	}
+
+	useVstpVal, ok := useVstpAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`use_vstp expected to be basetypes.BoolValue, was: %T`, useVstpAttribute))
+	}
+
 	voipNetworkAttribute, ok := attributes["voip_network"]
 
 	if !ok {
@@ -11734,6 +11768,7 @@ func NewPortUsagesValue(attributeTypes map[string]attr.Type, attributes map[stri
 		StpEdge:                                  stpEdgeVal,
 		StpNoRootPort:                            stpNoRootPortVal,
 		StpP2p:                                   stpP2pVal,
+		UseVstp:                                  useVstpVal,
 		VoipNetwork:                              voipNetworkVal,
 		state:                                    attr.ValueStateKnown,
 	}, diags
@@ -11842,12 +11877,13 @@ type PortUsagesValue struct {
 	StpEdge                                  basetypes.BoolValue   `tfsdk:"stp_edge"`
 	StpNoRootPort                            basetypes.BoolValue   `tfsdk:"stp_no_root_port"`
 	StpP2p                                   basetypes.BoolValue   `tfsdk:"stp_p2p"`
+	UseVstp                                  basetypes.BoolValue   `tfsdk:"use_vstp"`
 	VoipNetwork                              basetypes.StringValue `tfsdk:"voip_network"`
 	state                                    attr.ValueState
 }
 
 func (v PortUsagesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 36)
+	attrTypes := make(map[string]tftypes.Type, 37)
 
 	var val tftypes.Value
 	var err error
@@ -11895,13 +11931,14 @@ func (v PortUsagesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	attrTypes["stp_edge"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["stp_no_root_port"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["stp_p2p"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["use_vstp"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["voip_network"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 36)
+		vals := make(map[string]tftypes.Value, 37)
 
 		val, err = v.AllNetworks.ToTerraformValue(ctx)
 
@@ -12183,6 +12220,14 @@ func (v PortUsagesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 		vals["stp_p2p"] = val
 
+		val, err = v.UseVstp.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["use_vstp"] = val
+
 		val, err = v.VoipNetwork.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -12319,6 +12364,7 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"stp_edge":         basetypes.BoolType{},
 			"stp_no_root_port": basetypes.BoolType{},
 			"stp_p2p":          basetypes.BoolType{},
+			"use_vstp":         basetypes.BoolType{},
 			"voip_network":     basetypes.StringType{},
 		}), diags
 	}
@@ -12372,6 +12418,7 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"stp_edge":         basetypes.BoolType{},
 			"stp_no_root_port": basetypes.BoolType{},
 			"stp_p2p":          basetypes.BoolType{},
+			"use_vstp":         basetypes.BoolType{},
 			"voip_network":     basetypes.StringType{},
 		}), diags
 	}
@@ -12420,6 +12467,7 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		"stp_edge":         basetypes.BoolType{},
 		"stp_no_root_port": basetypes.BoolType{},
 		"stp_p2p":          basetypes.BoolType{},
+		"use_vstp":         basetypes.BoolType{},
 		"voip_network":     basetypes.StringType{},
 	}
 
@@ -12469,6 +12517,7 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"stp_edge":                                        v.StpEdge,
 			"stp_no_root_port":                                v.StpNoRootPort,
 			"stp_p2p":                                         v.StpP2p,
+			"use_vstp":                                        v.UseVstp,
 			"voip_network":                                    v.VoipNetwork,
 		})
 
@@ -12630,6 +12679,10 @@ func (v PortUsagesValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.UseVstp.Equal(other.UseVstp) {
+		return false
+	}
+
 	if !v.VoipNetwork.Equal(other.VoipNetwork) {
 		return false
 	}
@@ -12690,6 +12743,7 @@ func (v PortUsagesValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"stp_edge":         basetypes.BoolType{},
 		"stp_no_root_port": basetypes.BoolType{},
 		"stp_p2p":          basetypes.BoolType{},
+		"use_vstp":         basetypes.BoolType{},
 		"voip_network":     basetypes.StringType{},
 	}
 }
@@ -13919,42 +13973,6 @@ func (t RadiusConfigType) ValueFromObject(ctx context.Context, in basetypes.Obje
 			fmt.Sprintf(`auth_servers_timeout expected to be basetypes.Int64Value, was: %T`, authServersTimeoutAttribute))
 	}
 
-	coaEnabledAttribute, ok := attributes["coa_enabled"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`coa_enabled is missing from object`)
-
-		return nil, diags
-	}
-
-	coaEnabledVal, ok := coaEnabledAttribute.(basetypes.BoolValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`coa_enabled expected to be basetypes.BoolValue, was: %T`, coaEnabledAttribute))
-	}
-
-	coaPortAttribute, ok := attributes["coa_port"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`coa_port is missing from object`)
-
-		return nil, diags
-	}
-
-	coaPortVal, ok := coaPortAttribute.(basetypes.Int64Value)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`coa_port expected to be basetypes.Int64Value, was: %T`, coaPortAttribute))
-	}
-
 	networkAttribute, ok := attributes["network"]
 
 	if !ok {
@@ -14001,8 +14019,6 @@ func (t RadiusConfigType) ValueFromObject(ctx context.Context, in basetypes.Obje
 		AuthServers:         authServersVal,
 		AuthServersRetries:  authServersRetriesVal,
 		AuthServersTimeout:  authServersTimeoutVal,
-		CoaEnabled:          coaEnabledVal,
-		CoaPort:             coaPortVal,
 		Network:             networkVal,
 		SourceIp:            sourceIpVal,
 		state:               attr.ValueStateKnown,
@@ -14162,42 +14178,6 @@ func NewRadiusConfigValue(attributeTypes map[string]attr.Type, attributes map[st
 			fmt.Sprintf(`auth_servers_timeout expected to be basetypes.Int64Value, was: %T`, authServersTimeoutAttribute))
 	}
 
-	coaEnabledAttribute, ok := attributes["coa_enabled"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`coa_enabled is missing from object`)
-
-		return NewRadiusConfigValueUnknown(), diags
-	}
-
-	coaEnabledVal, ok := coaEnabledAttribute.(basetypes.BoolValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`coa_enabled expected to be basetypes.BoolValue, was: %T`, coaEnabledAttribute))
-	}
-
-	coaPortAttribute, ok := attributes["coa_port"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`coa_port is missing from object`)
-
-		return NewRadiusConfigValueUnknown(), diags
-	}
-
-	coaPortVal, ok := coaPortAttribute.(basetypes.Int64Value)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`coa_port expected to be basetypes.Int64Value, was: %T`, coaPortAttribute))
-	}
-
 	networkAttribute, ok := attributes["network"]
 
 	if !ok {
@@ -14244,8 +14224,6 @@ func NewRadiusConfigValue(attributeTypes map[string]attr.Type, attributes map[st
 		AuthServers:         authServersVal,
 		AuthServersRetries:  authServersRetriesVal,
 		AuthServersTimeout:  authServersTimeoutVal,
-		CoaEnabled:          coaEnabledVal,
-		CoaPort:             coaPortVal,
 		Network:             networkVal,
 		SourceIp:            sourceIpVal,
 		state:               attr.ValueStateKnown,
@@ -14325,15 +14303,13 @@ type RadiusConfigValue struct {
 	AuthServers         basetypes.ListValue   `tfsdk:"auth_servers"`
 	AuthServersRetries  basetypes.Int64Value  `tfsdk:"auth_servers_retries"`
 	AuthServersTimeout  basetypes.Int64Value  `tfsdk:"auth_servers_timeout"`
-	CoaEnabled          basetypes.BoolValue   `tfsdk:"coa_enabled"`
-	CoaPort             basetypes.Int64Value  `tfsdk:"coa_port"`
 	Network             basetypes.StringValue `tfsdk:"network"`
 	SourceIp            basetypes.StringValue `tfsdk:"source_ip"`
 	state               attr.ValueState
 }
 
 func (v RadiusConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 9)
+	attrTypes := make(map[string]tftypes.Type, 7)
 
 	var val tftypes.Value
 	var err error
@@ -14347,8 +14323,6 @@ func (v RadiusConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 	}.TerraformType(ctx)
 	attrTypes["auth_servers_retries"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["auth_servers_timeout"] = basetypes.Int64Type{}.TerraformType(ctx)
-	attrTypes["coa_enabled"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["coa_port"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["network"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["source_ip"] = basetypes.StringType{}.TerraformType(ctx)
 
@@ -14356,7 +14330,7 @@ func (v RadiusConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 9)
+		vals := make(map[string]tftypes.Value, 7)
 
 		val, err = v.AcctInterimInterval.ToTerraformValue(ctx)
 
@@ -14397,22 +14371,6 @@ func (v RadiusConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 		}
 
 		vals["auth_servers_timeout"] = val
-
-		val, err = v.CoaEnabled.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["coa_enabled"] = val
-
-		val, err = v.CoaPort.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["coa_port"] = val
 
 		val, err = v.Network.ToTerraformValue(ctx)
 
@@ -14527,8 +14485,6 @@ func (v RadiusConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 		},
 		"auth_servers_retries": basetypes.Int64Type{},
 		"auth_servers_timeout": basetypes.Int64Type{},
-		"coa_enabled":          basetypes.BoolType{},
-		"coa_port":             basetypes.Int64Type{},
 		"network":              basetypes.StringType{},
 		"source_ip":            basetypes.StringType{},
 	}
@@ -14549,8 +14505,6 @@ func (v RadiusConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 			"auth_servers":          authServers,
 			"auth_servers_retries":  v.AuthServersRetries,
 			"auth_servers_timeout":  v.AuthServersTimeout,
-			"coa_enabled":           v.CoaEnabled,
-			"coa_port":              v.CoaPort,
 			"network":               v.Network,
 			"source_ip":             v.SourceIp,
 		})
@@ -14593,14 +14547,6 @@ func (v RadiusConfigValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.CoaEnabled.Equal(other.CoaEnabled) {
-		return false
-	}
-
-	if !v.CoaPort.Equal(other.CoaPort) {
-		return false
-	}
-
 	if !v.Network.Equal(other.Network) {
 		return false
 	}
@@ -14631,8 +14577,6 @@ func (v RadiusConfigValue) AttributeTypes(ctx context.Context) map[string]attr.T
 		},
 		"auth_servers_retries": basetypes.Int64Type{},
 		"auth_servers_timeout": basetypes.Int64Type{},
-		"coa_enabled":          basetypes.BoolType{},
-		"coa_port":             basetypes.Int64Type{},
 		"network":              basetypes.StringType{},
 		"source_ip":            basetypes.StringType{},
 	}

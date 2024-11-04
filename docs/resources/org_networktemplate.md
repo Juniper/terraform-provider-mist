@@ -101,8 +101,8 @@ resource "mist_org_networktemplate" "networktemplate_one" {
 - `networks` (Attributes Map) Property key is network name (see [below for nested schema](#nestedatt--networks))
 - `ntp_servers` (List of String) list of NTP servers specific to this device. By default, those in Site Settings will be used
 - `ospf_areas` (Attributes Map) Junos OSPF areas (see [below for nested schema](#nestedatt--ospf_areas))
-- `port_mirroring` (Attributes Map) Property key is the port mirroring instance name (Maximum: 4)
-port_mirroring can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. (see [below for nested schema](#nestedatt--port_mirroring))
+- `port_mirroring` (Attributes Map) Property key is the port mirroring instance name
+port_mirroring can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 port mirrorings is allowed (see [below for nested schema](#nestedatt--port_mirroring))
 - `port_usages` (Attributes Map) (see [below for nested schema](#nestedatt--port_usages))
 - `radius_config` (Attributes) Junos Radius config (see [below for nested schema](#nestedatt--radius_config))
 - `remote_syslog` (Attributes) (see [below for nested schema](#nestedatt--remote_syslog))
@@ -115,7 +115,7 @@ port_mirroring can be added under device/site settings. It takes interface and p
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
+- `id` (String) Unique ID of the object instance in the Mist Organnization
 
 <a id="nestedatt--acl_policies"></a>
 ### Nested Schema for `acl_policies`
@@ -146,12 +146,22 @@ Optional:
 
 Required:
 
-- `type` (String) enum: `any`, `dynamic_gbp`, `mac`, `network`, `radius_group`, `resource`, `static_gbp`, `subnet`
+- `type` (String) enum: 
+  * `any`: matching anything not identified
+  * `dynamic_gbp`: from the gbp_tag received from RADIUS
+  * `gbp_resource`: can only be used in `dst_tags`
+  * `mac`
+  * `network`
+  * `radius_group`
+  * `resource`: can only be used in `dst_tags`
+  * `static_gbp`: applying gbp tag against matching conditions
+  * `subnet`'
 
 Optional:
 
 - `gbp_tag` (Number) required if
 - `type`==`dynamic_gbp` (gbp_tag received from RADIUS)
+- `type`==`gbp_resource`
 - `type`==`static_gbp` (applying gbp tag against matching conditions)
 - `macs` (List of String) required if 
 - `type`==`mac`
@@ -166,7 +176,7 @@ Optional:
   * `type`==`radius_group`
   * `type`==`static_gbp`
 if from matching radius_group
-- `specs` (Attributes List) if `type`==`resource`
+- `specs` (Attributes List) if `type`==`resource` or `type`==`gbp_resource`
 empty means unrestricted, i.e. any (see [below for nested schema](#nestedatt--acl_tags--specs))
 - `subnets` (List of String) if 
 - `type`==`subnet` 
@@ -357,6 +367,7 @@ Only if `mode`!=`dynamic` (see [below for nested schema](#nestedatt--port_usages
 - `stp_edge` (Boolean) Only if `mode`!=`dynamic` when enabled, the port is not expected to receive BPDU frames
 - `stp_no_root_port` (Boolean)
 - `stp_p2p` (Boolean)
+- `use_vstp` (Boolean) if this is connected to a vstp network
 - `voip_network` (String) Only if `mode`!=`dynamic` network/vlan for voip traffic, must also set port_network. to authenticate device, set port_auth
 
 <a id="nestedatt--port_usages--rules"></a>
@@ -399,8 +410,6 @@ Optional:
 - `auth_servers` (Attributes List) (see [below for nested schema](#nestedatt--radius_config--auth_servers))
 - `auth_servers_retries` (Number) radius auth session retries
 - `auth_servers_timeout` (Number) radius auth session timeout
-- `coa_enabled` (Boolean)
-- `coa_port` (Number)
 - `network` (String) use `network`or `source_ip`
 which network the RADIUS server resides, if there's static IP for this network, we'd use it as source-ip
 - `source_ip` (String) use `network`or `source_ip`
@@ -785,8 +794,8 @@ Optional:
 - `name` (String)
 - `oob_ip_config` (Attributes) Out-of-Band Management interface configuration (see [below for nested schema](#nestedatt--switch_matching--rules--oob_ip_config))
 - `port_config` (Attributes Map) Propery key is the interface name or interface range (see [below for nested schema](#nestedatt--switch_matching--rules--port_config))
-- `port_mirroring` (Attributes Map) Property key is the port mirroring instance name (Maximum: 4)
-port_mirroring can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. (see [below for nested schema](#nestedatt--switch_matching--rules--port_mirroring))
+- `port_mirroring` (Attributes Map) Property key is the port mirroring instance name
+port_mirroring can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 port mirrorings is allowed (see [below for nested schema](#nestedatt--switch_matching--rules--port_mirroring))
 
 <a id="nestedatt--switch_matching--rules--ip_config"></a>
 ### Nested Schema for `switch_matching.rules.ip_config`

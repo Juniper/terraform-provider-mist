@@ -131,6 +131,7 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		var stp_edge basetypes.BoolValue
 		var stp_no_root_port basetypes.BoolValue
 		var stp_p2p basetypes.BoolValue
+		var use_vsftp basetypes.BoolValue
 		var voip_network basetypes.StringValue
 
 		if d.AllNetworks != nil {
@@ -238,6 +239,9 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		if d.StpP2p != nil {
 			stp_p2p = types.BoolValue(*d.StpP2p)
 		}
+		if d.UseVstp != nil {
+			use_vsftp = types.BoolValue(*d.UseVstp)
+		}
 		if d.VoipNetwork != nil {
 			voip_network = types.StringValue(*d.VoipNetwork)
 		}
@@ -279,6 +283,7 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 			"stp_edge":                                        stp_edge,
 			"stp_no_root_port":                                stp_no_root_port,
 			"stp_p2p":                                         stp_p2p,
+			"use_vsftp":                                       use_vsftp,
 			"voip_network":                                    voip_network,
 		}
 		data, e := NewPortUsagesValue(data_map_attr_type, data_map_value)
