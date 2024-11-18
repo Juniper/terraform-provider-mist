@@ -344,7 +344,7 @@ NOTE: inter_switch_link works only between Juniper device. This has to be applie
 - `mac_auth_preferred` (Boolean) Only if `mode`!=`dynamic` + `enable_mac_auth`==`true` + `mac_auth_only`==`false`, dot1x will be given priority then mac_auth. Enable this to prefer mac_auth over dot1x.
 - `mac_auth_protocol` (String) Only if `mode`!=`dynamic` and `enable_mac_auth` ==`true`. This type is ignored if mist_nac is enabled. enum: `eap-md5`, `eap-peap`, `pap`
 - `mac_limit` (Number) Only if `mode`!=`dynamic` max number of mac addresses, default is 0 for unlimited, otherwise range is 1 or higher, with upper bound constrained by platform
-- `mode` (String) `mode`==`dynamic` must only be used with the port usage with the name `dynamic`. enum: `access`, `dynamic`, `inet`, `trunk`
+- `mode` (String) `mode`==`dynamic` must only be used if the port usage name is `dynamic`. enum: `access`, `dynamic`, `inet`, `trunk`
 - `mtu` (Number) Only if `mode`!=`dynamic` media maximum transmission unit (MTU) is the largest data unit that can be forwarded without fragmentation. The default value is 1514.
 - `networks` (List of String) Only if `mode`==`trunk`, the list of network/vlans
 - `persist_mac` (Boolean) Only if `mode`==`access` and `port_auth`!=`dot1x` whether the port should retain dynamically learned MAC addresses
@@ -356,7 +356,7 @@ NOTE: inter_switch_link works only between Juniper device. This has to be applie
 - `rules` (Attributes List) Only if `mode`==`dynamic` (see [below for nested schema](#nestedatt--port_usages--rules))
 - `server_fail_network` (String) Only if `mode`!=`dynamic` and `port_auth`==`dot1x` sets server fail fallback vlan
 - `server_reject_network` (String) Only if `mode`!=`dynamic` and `port_auth`==`dot1x` when radius server reject / fails
-- `speed` (String) Only if `mode`!=`dynamic` speed, default is auto to automatically negotiate speed
+- `speed` (String) Only if `mode`!=`dynamic` speed, default is auto to automatically negotiate speed enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`,`auto`
 - `storm_control` (Attributes) Switch storm control
 Only if `mode`!=`dynamic` (see [below for nested schema](#nestedatt--port_usages--storm_control))
 - `stp_edge` (Boolean) Only if `mode`!=`dynamic` when enabled, the port is not expected to receive BPDU frames
@@ -835,7 +835,7 @@ Optional:
 - `mtu` (Number) media maximum transmission unit (MTU) is the largest data unit that can be forwarded without fragmentation
 - `no_local_overwrite` (Boolean) prevent helpdesk to override the port config
 - `poe_disabled` (Boolean)
-- `speed` (String) enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `auto`
+- `speed` (String) enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`,`auto`
 
 
 <a id="nestedatt--switch_matching--rules--port_mirroring"></a>
