@@ -62,7 +62,7 @@ func VpnSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[strin
 		if d.SourceNat != nil {
 			source_nat = sourceNatSdkToTerraform(ctx, diags, d.SourceNat)
 		}
-		if d.StaticNat != nil && len(d.StaticNat) > 0 {
+		if d.StaticNat != nil {
 			static_nat = staticNatSdkToTerraform(ctx, diags, d.StaticNat)
 		}
 		if d.SummarizedSubnet != nil {

@@ -9,14 +9,23 @@ import (
 )
 
 func InternetAccessTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d InternetAccessValue) *models.NetworkInternetAccess {
-	destination_nat := destinationNatTerraformToSdk(ctx, diags, d.DestinationNat)
-	static_nat := staticNatTerraformToSdk(ctx, diags, d.StaticNat)
 	data := models.NetworkInternetAccess{}
-	data.CreateSimpleServicePolicy = d.CreateSimpleServicePolicy.ValueBoolPointer()
-	data.DestinationNat = destination_nat
-	data.Enabled = d.Enabled.ValueBoolPointer()
-	data.Restricted = d.Restricted.ValueBoolPointer()
-	data.StaticNat = static_nat
+
+	if !d.CreateSimpleServicePolicy.IsNull() && !d.CreateSimpleServicePolicy.IsUnknown() {
+		data.CreateSimpleServicePolicy = d.CreateSimpleServicePolicy.ValueBoolPointer()
+	}
+	if !d.DestinationNat.IsNull() && !d.DestinationNat.IsUnknown() {
+		data.DestinationNat = destinationNatTerraformToSdk(ctx, diags, d.DestinationNat)
+	}
+	if !d.Enabled.IsNull() && !d.Enabled.IsUnknown() {
+		data.Enabled = d.Enabled.ValueBoolPointer()
+	}
+	if !d.StaticNat.IsNull() && !d.StaticNat.IsUnknown() {
+		data.StaticNat = staticNatTerraformToSdk(ctx, diags, d.StaticNat)
+	}
+	if !d.Restricted.IsNull() && !d.Restricted.IsUnknown() {
+		data.Restricted = d.Restricted.ValueBoolPointer()
+	}
 
 	return &data
 }

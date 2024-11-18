@@ -39,16 +39,14 @@ func TerraformToSdk(ctx context.Context, plan *OrgNetworkModel) (*models.Network
 		unset["-gateway6"] = ""
 	}
 
-	internal_access := InternalAccessTerraformToSdk(ctx, &diags, plan.InternalAccess)
 	if !plan.InternalAccess.IsNull() && !plan.InternalAccess.IsUnknown() {
-		data.InternalAccess = internal_access
+		data.InternalAccess = InternalAccessTerraformToSdk(ctx, &diags, plan.InternalAccess)
 	} else {
 		unset["-internal_access"] = ""
 	}
 
-	internet_access := InternetAccessTerraformToSdk(ctx, &diags, plan.InternetAccess)
 	if !plan.InternetAccess.IsNull() && !plan.InternetAccess.IsUnknown() {
-		data.InternetAccess = internet_access
+		data.InternetAccess = InternetAccessTerraformToSdk(ctx, &diags, plan.InternetAccess)
 	} else {
 		unset["-internet_access"] = ""
 	}
