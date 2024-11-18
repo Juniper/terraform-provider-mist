@@ -393,19 +393,60 @@ Optional:
 
 Required:
 
-- `usage` (String) port usage name. 
-
-If EVPN is used, use `evpn_uplink`or `evpn_downlink`
+- `usage` (String) port usage name.
 
 Optional:
 
-- `critical` (Boolean) if want to generate port up/down alarm
+- `all_networks` (Boolean) Only if `mode`==`trunk` whether to trunk all network/vlans
+- `allow_dhcpd` (Boolean) If DHCP snooping is enabled, whether DHCP server is allowed on the interfaces with.
+All the interfaces from port configs using this port usage are effected. Please notice that allow_dhcpd is a tri_state.
+When it is not defined, it means using the system's default setting which depends on whether the port is a access or trunk port.
+- `allow_multiple_supplicants` (Boolean)
+- `bypass_auth_when_server_down` (Boolean) Only if `port_auth`==`dot1x` bypass auth for known clients if set to true when RADIUS server is down
+- `bypass_auth_when_server_down_for_unkonwn_client` (Boolean) Only if `port_auth`=`dot1x` bypass auth for all (including unknown clients) if set to true when RADIUS server is down
 - `description` (String)
-- `disable_autoneg` (Boolean) if `speed` and `duplex` are specified, whether to disable autonegotiation
-- `duplex` (String) enum: `auto`, `full`, `half`
-- `mtu` (Number) media maximum transmission unit (MTU) is the largest data unit that can be forwarded without fragmentation
-- `poe_disabled` (Boolean)
-- `speed` (String) enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `auto`
+- `disable_autoneg` (Boolean) Only if `mode`!=`dynamic` if speed and duplex are specified, whether to disable autonegotiation
+- `disabled` (Boolean) whether the port is disabled
+- `duplex` (String) link connection mode. enum: `auto`, `full`, `half`
+- `dynamic_vlan_networks` (List of String) Only if `port_auth`==`dot1x`, if dynamic vlan is used, specify the possible networks/vlans RADIUS can return
+- `enable_mac_auth` (Boolean) Only if `port_auth`==`dot1x` whether to enable MAC Auth
+- `enable_qos` (Boolean)
+- `guest_network` (String) Only if `port_auth`==`dot1x` which network to put the device into if the device cannot do dot1x. default is null (i.e. not allowed)
+- `inter_switch_link` (Boolean) inter_switch_link is used together with "isolation" under networks
+NOTE: inter_switch_link works only between Juniper device. This has to be applied to both ports connected together
+- `mac_auth_only` (Boolean) Only if `enable_mac_auth`==`true`
+- `mac_auth_preferred` (Boolean) Only if `enable_mac_auth`==`true` + `mac_auth_only`==`false`, dot1x will be given priority then mac_auth. Enable this to prefer mac_auth over dot1x.
+- `mac_auth_protocol` (String) Only if `enable_mac_auth` ==`true`. This type is ignored if mist_nac is enabled. enum: `eap-md5`, `eap-peap`, `pap`
+- `mac_limit` (Number) max number of mac addresses, default is 0 for unlimited, otherwise range is 1 or higher, with upper bound constrained by platform
+- `mode` (String) enum: `access`, `inet`, `trunk`
+- `mtu` (Number) media maximum transmission unit (MTU) is the largest data unit that can be forwarded without fragmentation. The default value is 1514.
+- `networks` (List of String) Only if `mode`==`trunk`, the list of network/vlans
+- `persist_mac` (Boolean) Only if `mode`==`access` and `port_auth`!=`dot1x` whether the port should retain dynamically learned MAC addresses
+- `poe_disabled` (Boolean) whether PoE capabilities are disabled for a port
+- `port_auth` (String) if dot1x is desired, set to dot1x. enum: `dot1x`
+- `port_network` (String) native network/vlan for untagged traffic
+- `reauth_interval` (Number) Only if `port_auth`=`dot1x` reauthentication interval range
+- `server_fail_network` (String) Only if `port_auth`==`dot1x` sets server fail fallback vlan
+- `server_reject_network` (String) Only if `port_auth`==`dot1x` when radius server reject / fails
+- `speed` (String) enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`,`auto`
+- `storm_control` (Attributes) Switch storm control (see [below for nested schema](#nestedatt--local_port_config--storm_control))
+- `stp_edge` (Boolean) when enabled, the port is not expected to receive BPDU frames
+- `stp_no_root_port` (Boolean)
+- `stp_p2p` (Boolean)
+- `use_vstp` (Boolean) if this is connected to a vstp network
+- `voip_network` (String) network/vlan for voip traffic, must also set port_network. to authenticate device, set port_auth
+
+<a id="nestedatt--local_port_config--storm_control"></a>
+### Nested Schema for `local_port_config.storm_control`
+
+Optional:
+
+- `no_broadcast` (Boolean) whether to disable storm control on broadcast traffic
+- `no_multicast` (Boolean) whether to disable storm control on multicast traffic
+- `no_registered_multicast` (Boolean) whether to disable storm control on registered multicast traffic
+- `no_unknown_unicast` (Boolean) whether to disable storm control on unknown unicast traffic
+- `percentage` (Number) bandwidth-percentage, configures the storm control level as a percentage of the available bandwidth
+
 
 
 <a id="nestedatt--mist_nac"></a>
@@ -497,9 +538,7 @@ Optional:
 
 Required:
 
-- `usage` (String) port usage name. 
-
-If EVPN is used, use `evpn_uplink`or `evpn_downlink`
+- `usage` (String) port usage name. If EVPN is used, use `evpn_uplink`or `evpn_downlink`
 
 Optional:
 
@@ -516,7 +555,7 @@ Optional:
 - `mtu` (Number) media maximum transmission unit (MTU) is the largest data unit that can be forwarded without fragmentation
 - `no_local_overwrite` (Boolean) prevent helpdesk to override the port config
 - `poe_disabled` (Boolean)
-- `speed` (String) enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `auto`
+- `speed` (String) enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`,`auto`
 
 
 <a id="nestedatt--port_mirroring"></a>
@@ -537,9 +576,9 @@ Optional:
 Optional:
 
 - `all_networks` (Boolean) Only if `mode`==`trunk` whether to trunk all network/vlans
-- `allow_dhcpd` (Boolean) Only if `mode`!=`dynamic` if DHCP snooping is enabled, whether DHCP server is allowed on the interfaces with. All the interfaces from port configs using this port usage are effected. Please notice that allow_dhcpd is a tri_state.
-
-When it is not defined, it means using the system’s default setting which depends on whether the port is a access or trunk port.
+- `allow_dhcpd` (Boolean) Only if `mode`!=`dynamic`. If DHCP snooping is enabled, whether DHCP server is allowed on the interfaces with.
+All the interfaces from port configs using this port usage are effected. Please notice that allow_dhcpd is a tri_state.
+When it is not defined, it means using the system's default setting which depends on whether the port is a access or trunk port.
 - `allow_multiple_supplicants` (Boolean) Only if `mode`!=`dynamic`
 - `bypass_auth_when_server_down` (Boolean) Only if `mode`!=`dynamic` and `port_auth`==`dot1x` bypass auth for known clients if set to true when RADIUS server is down
 - `bypass_auth_when_server_down_for_unkonwn_client` (Boolean) Only if `mode`!=`dynamic` and `port_auth`=`dot1x` bypass auth for all (including unknown clients) if set to true when RADIUS server is down
@@ -557,7 +596,7 @@ NOTE: inter_switch_link works only between Juniper device. This has to be applie
 - `mac_auth_preferred` (Boolean) Only if `mode`!=`dynamic` + `enable_mac_auth`==`true` + `mac_auth_only`==`false`, dot1x will be given priority then mac_auth. Enable this to prefer mac_auth over dot1x.
 - `mac_auth_protocol` (String) Only if `mode`!=`dynamic` and `enable_mac_auth` ==`true`. This type is ignored if mist_nac is enabled. enum: `eap-md5`, `eap-peap`, `pap`
 - `mac_limit` (Number) Only if `mode`!=`dynamic` max number of mac addresses, default is 0 for unlimited, otherwise range is 1 or higher, with upper bound constrained by platform
-- `mode` (String) `mode`==`dynamic` must only be used with the port usage with the name `dynamic`. enum: `access`, `dynamic`, `inet`, `trunk`
+- `mode` (String) `mode`==`dynamic` must only be used if the port usage name is `dynamic`. enum: `access`, `dynamic`, `inet`, `trunk`
 - `mtu` (Number) Only if `mode`!=`dynamic` media maximum transmission unit (MTU) is the largest data unit that can be forwarded without fragmentation. The default value is 1514.
 - `networks` (List of String) Only if `mode`==`trunk`, the list of network/vlans
 - `persist_mac` (Boolean) Only if `mode`==`access` and `port_auth`!=`dot1x` whether the port should retain dynamically learned MAC addresses
@@ -569,7 +608,7 @@ NOTE: inter_switch_link works only between Juniper device. This has to be applie
 - `rules` (Attributes List) Only if `mode`==`dynamic` (see [below for nested schema](#nestedatt--port_usages--rules))
 - `server_fail_network` (String) Only if `mode`!=`dynamic` and `port_auth`==`dot1x` sets server fail fallback vlan
 - `server_reject_network` (String) Only if `mode`!=`dynamic` and `port_auth`==`dot1x` when radius server reject / fails
-- `speed` (String) Only if `mode`!=`dynamic` speed, default is auto to automatically negotiate speed
+- `speed` (String) Only if `mode`!=`dynamic` speed, default is auto to automatically negotiate speed enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`,`auto`
 - `storm_control` (Attributes) Switch storm control
 Only if `mode`!=`dynamic` (see [below for nested schema](#nestedatt--port_usages--storm_control))
 - `stp_edge` (Boolean) Only if `mode`!=`dynamic` when enabled, the port is not expected to receive BPDU frames
