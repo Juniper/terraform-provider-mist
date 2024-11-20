@@ -1,6 +1,6 @@
 ---
 page_title: "mist_device_switch_stats Data Source - terraform-provider-mist"
-subcategory: "Wired Assurance"
+subcategory: "Devices"
 description: |-
   This data source provides the list of Switches with their statistics.
 ---

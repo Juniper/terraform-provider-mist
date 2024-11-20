@@ -59,7 +59,8 @@ func (r *deviceSwitchResource) Metadata(ctx context.Context, req resource.Metada
 func (r *deviceSwitchResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryDevices + "This resource manages the Switch configuration.\n" +
-			"It can be used to define specific configuration at the device level or to override Org/Site Network template settings.",
+			"It can be used to define specific configuration at the device level or to override Org/Site Network template settings.\n\n" +
+			"~> **WARNING** For **adopted** devices, make sure to set `managed`=`true` to allow Mist to manage the switch",
 		Attributes: resource_device_switch.DeviceSwitchResourceSchema(ctx).Attributes,
 	}
 }

@@ -225,7 +225,7 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 			server_reject_network = types.StringValue(*d.ServerRejectNetwork.Value())
 		}
 		if d.Speed != nil {
-			speed = types.StringValue(*d.Speed)
+			speed = types.StringValue(string(*d.Speed))
 		}
 		if d.StormControl != nil {
 			storm_control = portUsageStormControlSdkToTerraform(ctx, diags, *d.StormControl)

@@ -937,8 +937,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"mode": schema.StringAttribute{
 							Optional:            true,
-							Description:         "`mode`==`dynamic` must only be used with the port usage with the name `dynamic`. enum: `access`, `dynamic`, `inet`, `trunk`",
-							MarkdownDescription: "`mode`==`dynamic` must only be used with the port usage with the name `dynamic`. enum: `access`, `dynamic`, `inet`, `trunk`",
+							Description:         "`mode`==`dynamic` must only be used if the port usage name is `dynamic`. enum: `access`, `dynamic`, `inet`, `trunk`",
+							MarkdownDescription: "`mode`==`dynamic` must only be used if the port usage name is `dynamic`. enum: `access`, `dynamic`, `inet`, `trunk`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -1114,11 +1114,13 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"speed": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Only if `mode`!=`dynamic` speed, default is auto to automatically negotiate speed",
-							MarkdownDescription: "Only if `mode`!=`dynamic` speed, default is auto to automatically negotiate speed",
+							Computed:            true,
+							Description:         "Only if `mode`!=`dynamic` speed, default is auto to automatically negotiate speed enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`,`auto`",
+							MarkdownDescription: "Only if `mode`!=`dynamic` speed, default is auto to automatically negotiate speed enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`,`auto`",
 							Validators: []validator.String{
 								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
 							},
+							Default: stringdefault.StaticString("auto"),
 						},
 						"storm_control": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
@@ -2620,16 +2622,20 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											"speed": schema.StringAttribute{
 												Optional:            true,
 												Computed:            true,
-												Description:         "enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `auto`",
-												MarkdownDescription: "enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `auto`",
+												Description:         "enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`,`auto`",
+												MarkdownDescription: "enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`,`auto`",
 												Validators: []validator.String{
 													stringvalidator.OneOf(
 														"",
-														"100m",
 														"10m",
+														"100m",
 														"1g",
 														"2.5g",
 														"5g",
+														"10g",
+														"25g",
+														"40g",
+														"100g",
 														"auto",
 													),
 												},

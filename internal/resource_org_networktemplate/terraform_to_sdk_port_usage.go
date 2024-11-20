@@ -161,7 +161,7 @@ func portUsageTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d bas
 			new_pu.ServerRejectNetwork = models.NewOptional(models.ToPointer(pu_attr_value.ServerRejectNetwork.ValueString()))
 		}
 		if pu_attr_value.Speed.ValueStringPointer() != nil {
-			new_pu.Speed = models.ToPointer(pu_attr_value.Speed.ValueString())
+			new_pu.Speed = (*models.SwitchPortUsageSpeedEnum)(pu_attr_value.Speed.ValueStringPointer())
 		}
 		if !pu_attr_value.StormControl.IsNull() && !pu_attr_value.StormControl.IsUnknown() {
 			storm_control := portUsageScTerraformToSdk(ctx, diags, pu_attr_value.StormControl)

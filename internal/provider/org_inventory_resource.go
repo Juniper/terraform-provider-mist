@@ -18,7 +18,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
@@ -465,11 +464,6 @@ func (r *orgInventoryResource) assignDevices(ctx context.Context, orgId uuid.UUI
 	for k, v := range assign {
 		tflog.Debug(ctx, "Starting to Assign devices to site "+k+": ", map[string]interface{}{"macs": strings.Join(v, ", ")})
 
-		assign_body := models.InventoryUpdate{}
-		assign_body.Op = models.InventoryUpdateOperationEnum_ASSIGN
-		assign_body.Macs = v
-		assign_body.DisableAutoConfig = types.BoolValue(false).ValueBoolPointer()
-		assign_body.Managed = types.BoolValue(true).ValueBoolPointer()
 		tflog.Info(ctx, "devices "+strings.Join(assign[k], ", ")+" to "+k)
 		siteId, err := uuid.Parse(k)
 		if err != nil && k != "" {
@@ -478,9 +472,15 @@ func (r *orgInventoryResource) assignDevices(ctx context.Context, orgId uuid.UUI
 				fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", siteId.String(), err.Error()),
 			)
 		} else {
-			assign_body.SiteId = models.ToPointer(siteId)
-
-			assign_response, err := r.client.OrgsInventory().UpdateOrgInventoryAssignment(ctx, orgId, &assign_body)
+			body := models.InventoryUpdate{
+				DisableAutoConfig: models.ToPointer(false),
+				Macs:              v,
+				Managed:           models.ToPointer(true),
+				NoReassign:        models.ToPointer(false),
+				Op:                models.InventoryUpdateOperationEnum("assign"),
+				SiteId:            models.ToPointer(siteId),
+			}
+			assign_response, err := r.client.OrgsInventory().UpdateOrgInventoryAssignment(ctx, orgId, &body)
 
 			api_err := mist_api_error.ProcessInventoryApiError(ctx, "assign", assign_response.Response.StatusCode, assign_response.Response.Body, err)
 			if len(api_err) > 0 {
