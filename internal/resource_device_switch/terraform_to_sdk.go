@@ -70,12 +70,6 @@ func TerraformToSdk(ctx context.Context, plan *DeviceSwitchModel) (models.MistDe
 		data.ExtraRoutes = extraRoutesTerraformToSdk(ctx, &diags, plan.ExtraRoutes)
 	}
 
-	if plan.EvpnConfig.IsNull() || plan.EvpnConfig.IsUnknown() {
-		unset["-evpn_config"] = ""
-	} else {
-		data.EvpnConfig = evpnConfigTerraformToSdk(ctx, &diags, plan.EvpnConfig)
-	}
-
 	if plan.ExtraRoutes6.IsNull() || plan.ExtraRoutes6.IsUnknown() {
 		unset["-extra_routes6"] = ""
 	} else {

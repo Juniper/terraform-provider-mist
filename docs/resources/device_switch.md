@@ -4,12 +4,15 @@ subcategory: "Devices"
 description: |-
   This resource manages the Switch configuration.
   It can be used to define specific configuration at the device level or to override Org/Site Network template settings.
+  ~> WARNING For adopted devices, make sure to set managed=true to allow Mist to manage the switch
 ---
 
 # mist_device_switch (Resource)
 
 This resource manages the Switch configuration.
 It can be used to define specific configuration at the device level or to override Org/Site Network template settings.
+
+~> **WARNING** For **adopted** devices, make sure to set `managed`=`true` to allow Mist to manage the switch
 
 
 ## Example Usage
@@ -116,7 +119,6 @@ resource "mist_device_switch" "switch_one" {
 - `disable_auto_config` (Boolean) for a claimed switch, we control the configs by default. This option (disables the behavior)
 - `dns_servers` (List of String) Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting
 - `dns_suffix` (List of String) Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting
-- `evpn_config` (Attributes) EVPN Junos settings (see [below for nested schema](#nestedatt--evpn_config))
 - `extra_routes` (Attributes Map) (see [below for nested schema](#nestedatt--extra_routes))
 - `extra_routes6` (Attributes Map) Property key is the destination CIDR (e.g. "2a02:1234:420a:10c9::/64") (see [below for nested schema](#nestedatt--extra_routes6))
 - `ip_config` (Attributes) Junos IP Config (see [below for nested schema](#nestedatt--ip_config))
@@ -130,11 +132,11 @@ resource "mist_device_switch" "switch_one" {
 - `oob_ip_config` (Attributes) - If HA configuration: key parameter will be nodeX (eg: node1)
 - If there are 2 routing engines, re1 mgmt IP has to be set separately (if desired): key parameter = `re1` (see [below for nested schema](#nestedatt--oob_ip_config))
 - `ospf_areas` (Attributes Map) Junos OSPF areas (see [below for nested schema](#nestedatt--ospf_areas))
-- `other_ip_configs` (Attributes Map) Property key is the network name (see [below for nested schema](#nestedatt--other_ip_configs))
+- `other_ip_configs` (Attributes Map) Property key is the network name. Defines the additional IP Addresses configured on the device. (see [below for nested schema](#nestedatt--other_ip_configs))
 - `port_config` (Attributes Map) Property key is the port name or range (e.g. "ge-0/0/0-10") (see [below for nested schema](#nestedatt--port_config))
 - `port_mirroring` (Attributes Map) Property key is the port mirroring instance name
 port_mirroring can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 port mirrorings is allowed (see [below for nested schema](#nestedatt--port_mirroring))
-- `port_usages` (Attributes Map) (see [below for nested schema](#nestedatt--port_usages))
+- `port_usages` (Attributes Map) Property key is the port usage name. Defines the profiles of port configuration configured on the switch (see [below for nested schema](#nestedatt--port_usages))
 - `radius_config` (Attributes) Junos Radius config (see [below for nested schema](#nestedatt--radius_config))
 - `remote_syslog` (Attributes) (see [below for nested schema](#nestedatt--remote_syslog))
 - `role` (String)
@@ -153,6 +155,7 @@ port_mirroring can be added under device/site settings. It takes interface and p
 
 ### Read-Only
 
+- `evpn_config` (Attributes) EVPN Junos settings (see [below for nested schema](#nestedatt--evpn_config))
 - `image1_url` (String)
 - `image2_url` (String)
 - `image3_url` (String)
@@ -315,15 +318,6 @@ Optional:
 
 
 
-<a id="nestedatt--evpn_config"></a>
-### Nested Schema for `evpn_config`
-
-Optional:
-
-- `enabled` (Boolean)
-- `role` (String) enum: `access`, `core`, `distribution`
-
-
 <a id="nestedatt--extra_routes"></a>
 ### Nested Schema for `extra_routes`
 
@@ -467,10 +461,13 @@ Required:
 
 Optional:
 
+- `gateway` (String) only required for EVPN-VXLAN networks, IPv4 Virtual Gateway
+- `gateway6` (String) only required for EVPN-VXLAN networks, IPv6 Virtual Gateway
 - `isolation` (Boolean) whether to stop clients to talk to each other, default is false (when enabled, a unique isolation_vlan_id is required)
 NOTE: this features requires uplink device to also a be Juniper device and `inter_switch_link` to be set
 - `isolation_vlan_id` (String)
 - `subnet` (String) optional for pure switching, required when L3 / routing features are used
+- `subnet6` (String) optional for pure switching, required when L3 / routing features are used
 
 
 <a id="nestedatt--oob_ip_config"></a>
@@ -1175,6 +1172,16 @@ Optional:
 Optional:
 
 - `priority` (Number)
+
+
+
+<a id="nestedatt--evpn_config"></a>
+### Nested Schema for `evpn_config`
+
+Read-Only:
+
+- `enabled` (Boolean)
+- `role` (String) enum: `access`, `collapsed-core`, `core`, `distribution`, `esilag-access`, `none`
 
 
 
