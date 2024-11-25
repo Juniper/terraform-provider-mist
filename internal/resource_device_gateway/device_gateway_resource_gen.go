@@ -1237,21 +1237,18 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 										"static",
 									),
 								},
-								Default: stringdefault.StaticString("dhcp"),
 							},
 							"use_mgmt_vrf": schema.BoolAttribute{
 								Optional:            true,
 								Computed:            true,
 								Description:         "if supported on the platform. If enabled, DNS will be using this routing-instance, too",
 								MarkdownDescription: "if supported on the platform. If enabled, DNS will be using this routing-instance, too",
-								Default:             booldefault.StaticBool(false),
 							},
 							"use_mgmt_vrf_for_host_out": schema.BoolAttribute{
 								Optional:            true,
 								Computed:            true,
 								Description:         "whether to use `mgmt_junos` for host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired",
 								MarkdownDescription: "whether to use `mgmt_junos` for host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired",
-								Default:             booldefault.StaticBool(false),
 							},
 							"vlan_id": schema.StringAttribute{
 								Optional: true,
@@ -1281,21 +1278,18 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 								"static",
 							),
 						},
-						Default: stringdefault.StaticString("dhcp"),
 					},
 					"use_mgmt_vrf": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
 						Description:         "if supported on the platform. If enabled, DNS will be using this routing-instance, too",
 						MarkdownDescription: "if supported on the platform. If enabled, DNS will be using this routing-instance, too",
-						Default:             booldefault.StaticBool(false),
 					},
 					"use_mgmt_vrf_for_host_out": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
 						Description:         "for host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired",
 						MarkdownDescription: "for host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired",
-						Default:             booldefault.StaticBool(false),
 					},
 					"vlan_id": schema.StringAttribute{
 						Optional: true,
@@ -1956,6 +1950,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 								"ips": schema.ListAttribute{
 									ElementType: types.StringType,
 									Optional:    true,
+									Validators: []validator.List{
+										listvalidator.UniqueValues(),
+									},
 								},
 								"probe_profile": schema.StringAttribute{
 									Optional:            true,
