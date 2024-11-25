@@ -19,8 +19,17 @@ func NetworksTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d base
 		if net_plan.VlanId.ValueStringPointer() != nil {
 			net_data.VlanId = models.VlanIdWithVariableContainer.FromString(net_plan.VlanId.ValueString())
 		}
+		if net_plan.Gateway.ValueStringPointer() != nil {
+			net_data.Gateway = models.ToPointer(net_plan.Gateway.ValueString())
+		}
+		if net_plan.Gateway6.ValueStringPointer() != nil {
+			net_data.Gateway6 = models.ToPointer(net_plan.Gateway6.ValueString())
+		}
 		if net_plan.Subnet.ValueStringPointer() != nil {
 			net_data.Subnet = models.ToPointer(net_plan.Subnet.ValueString())
+		}
+		if net_plan.Subnet6.ValueStringPointer() != nil {
+			net_data.Subnet6 = models.ToPointer(net_plan.Subnet6.ValueString())
 		}
 		if net_plan.Isolation.ValueBoolPointer() != nil {
 			net_data.Isolation = models.ToPointer(net_plan.Isolation.ValueBool())
