@@ -6,71 +6,163 @@ description: |-
 
 # Create and manage a Campus Fabric IP Clos EVPN Topology with the Mist Provider.
 
-## 1. Build the Topology
-Use this `mist_org_evpn_topology` resource to create the EVPN Topology. 
+## 1. Build the topology
+Use the `mist_org_evpn_topology` or  `mist_site_evpn_topology` resource to create the EVPN Topology.
 
 ```terraform
-resource "mist_org_site_evpn_topology" "evpn_one" {
-  name = "evpn_one"
+resource "mist_site_evpn_topology" "evpn_one" {
+  site_id = mist_site.site_evpn.id
+  name    = "evpn_one"
   evpn_options = {
-    routed_at = "core"
     overlay = {
       as = 65000
     },
     core_as_border        = true
     auto_loopback_subnet  = "172.16.192.0/24"
-    auto_loopback_subnet6 = "fd33:ab00:2::/64"
-    per_vlan_vga_v4_mac   = false
     underlay = {
       as_base  = 65001
       use_ipv6 = false
       subnet   = "10.255.240.0/20"
     }
-    auto_router_id_subnet = "172.16.254.0/23"
   }
-  switches = [
-    {
-      mac  = "020004000001"
+  pod_names = {
+    "1" = "Pod 1"
+  }
+  switches = {
+    "020004000000" = {
       role = "core"
     },
-    {
-      mac  = "02000400002"
+    "020004000001" = {
       role = "core"
     },
-    {
-      mac  = "02000400003"
+    "020004000002" = {
       role = "distribution"
+      pod  = 1
     },
-    {
-      mac  = "02000400004"
+    "020004000003" = {
       role = "distribution"
+      pod  = 1
     },
-    {
-      mac  = "02000400005"
+    "020004000004" = {
       role = "access"
+      pod  = 1
     },
-    {
-      mac  = "02000400006"
+    "020004000005"  = {
       role = "access"
+      pod  = 1
     }
-  ]
+  }
 }
-
 ```
 
-## 2. Update the device port configs
+## 2. Update the network template
+Create or Update the `mist_site_networktemplate`. This will be used to define:
+* the Virtual Network Identifiers that will be used in the topology in the `networks` object, with 
+  * the Virtual Network Identifier in `vlan_id`
+  * the Virtual Network Subnet in  `subnet`
+* the VRF instances with
+  * the networks belonging to the VRF instance
+  * (optional) the addtional routes
+* the port usages that will be assigned to the switches:
+  * `x-esilag` (the name can be changed) will be used to configure the ESI-LAG links between the Core and Distribution switches
+  * (optional) the access port profiles
+
+
+```terraform
+resource "mist_site_networktemplate" "networktemplate_one" {
+  site_id = mist_site.terraform_test.id
+  networks = {
+    vlan1099 = {
+      vlan_id = 1099
+      subnet  = "10.99.99.0/24"
+    },
+    vlan1088 = {
+      vlan_id = 1088
+      subnet  = "10.88.88.0/24"
+    },
+    vlan1033 = {
+      vlan_id = 1033
+      subnet  = "10.33.33.0/24"
+    }
+  }
+  vrf_instances = {
+    "customera" = {
+      networks = ["vlan1099"]
+      extra_routes = {
+        "0.0.0.0/0" : {
+          via = "10.99.99.254"
+        }
+      }
+    }
+    "customerb" = {
+      networks = ["vlan1088"]
+      extra_routes = {
+        "0.0.0.0/0" : {
+          via = "10.88.88.254"
+        }
+      }
+    }
+    "devices" = {
+      networks = ["vlan1033"]
+      extra_routes = {
+        "0.0.0.0/0" : {
+          via = "10.33.33.254"
+        }
+      }
+    }
+  }
+  port_usages = {
+    l2fabricexit = {
+      mode         = "trunk"
+      all_networks = false
+      networks = [
+        "vlan1099",
+        "vlan1088",
+        "vlan1033"
+      ]
+      mtu = "9018"
+    }
+    vlan1099 = {
+      mode         = "access"
+      port_network = "vlan1099"
+    },
+    vlan1088 = {
+      mode         = "access"
+      port_network = "vlan1088"
+    },
+    vlan1033 = {
+      mode         = "access"
+      port_network = "vlan1033"
+    }
+  }
+}
+```
+
+## 3. Update the device port configs
 Update the `mist_device_switch` resources to configure the `port_usages` and assign the corresponding profile to the ports you have used (or plan to use) to inter-connect the switches by assigning them the `evpn_uplink` or `evpn_downlink` profiles:
 
+
+!> When defining the `port_config` with the `evpn_uplink` or `evpn_downlink` usages, the interfaces in the interface range must be ordered based on the remote switch MAC Address with the lower MAC Address first
+
 ### Core Switches
+* Switch `name`
+* Switch `port_config`:
   * Links to the Distribution layer configured with `usage`=`evpn_downlink`
+  * (optional) Links the border gateway with an ESI-LAG link
 
 ```terraform
 resource "mist_device_switch" "switch_core_01" {
-  device_id = provider::mist::search_inventory_by_mac(resource.mist_org_inventory.inventory, "020004000001").id
-  site_id   = provider::mist::search_inventory_by_mac(resource.mist_org_inventory.inventory, "020004000001").id.site_id
+  device_id = provider::mist::search_inventory_by_mac(resource.mist_org_inventory.inventory, "020004000000").id
+  site_id   = provider::mist::search_inventory_by_mac(resource.mist_org_inventory.inventory, "020004000000").id.site_id
   name      = "core-01"
   port_config = {
-    "ge-0/0/0,ge-0/0/1" = {
+    "ge-0/0/0" = {
+      usage        = "l2fabricexit"
+      aggregated   = true
+      esilag       = true
+      ae_idx       = 0
+    }
+    "ge-0/0/2,ge-0/0/1" = {
       usage = "evpn_downlink"
     }
   }
@@ -79,13 +171,15 @@ resource "mist_device_switch" "switch_core_01" {
 
 
 ### Distribution Switches
+* Switch `name`
+* Switch `port_config`:
   * Links to the Core layer configured with `usage`=`evpn_uplink`
   * Links to the Access layer configured with `usage`=`evpn_downlink`
 
 ```terraform
 resource "mist_device_switch" "switch_distri_01" {
-  device_id = provider::mist::search_inventory_by_mac(resource.mist_org_inventory.inventory, "020004000003").id
-  site_id   = provider::mist::search_inventory_by_mac(resource.mist_org_inventory.inventory, "020004000003").id.site_id
+  device_id = provider::mist::search_inventory_by_mac(resource.mist_org_inventory.inventory, "020004000002").id
+  site_id   = provider::mist::search_inventory_by_mac(resource.mist_org_inventory.inventory, "020004000002").id.site_id
   name      = "distri-01"
   port_config = {
     "ge-0/0/0,ge-0/0/1" = {
@@ -100,17 +194,49 @@ resource "mist_device_switch" "switch_distri_01" {
 
 
 ### Access Switches
+* Switch `name`
+* Switch `port_config`:
   * Links to the Distribution layer configured with `usage`=`evpn_uplink`
+  * Access port switches based on your requirements
+* Switch `other_ip_configs`:
+  * Configure a static IP Address for each network. The IP Addresses must be the same accros each Access Switches.
+* Switch `vrf_config` with `enabled`=`true`
 
 ```terraform
 resource "mist_device_switch" "switch_access_01" {
-  device_id = provider::mist::search_inventory_by_mac(resource.mist_org_inventory.inventory, "020004000005").id
-  site_id   = provider::mist::search_inventory_by_mac(resource.mist_org_inventory.inventory, "020004000005").id.site_id
+  device_id = provider::mist::search_inventory_by_mac(resource.mist_org_inventory.inventory, "020004000004").id
+  site_id   = provider::mist::search_inventory_by_mac(resource.mist_org_inventory.inventory, "020004000004").id.site_id
   name      = "access-01"
   port_config = {
-    "ge-0/0/0,ge-0/0/1" = {
+    "ge-0/0/2,ge-0/0/1" = {
       usage = "evpn_uplink"
     }
+    "ge-0/0/3" = {
+      usage = "vlan1088"
+    }
+  }
+  other_ip_configs = {
+    "vlan1099" = {
+      type    = "static"
+      ip      = "10.99.99.1"
+      netmask = "255.255.255.0"
+      evpn_anycast = true
+    }
+    "vlan1088" = {
+      type    = "static"
+      ip      = "10.88.88.1"
+      netmask = "255.255.255.0"
+      evpn_anycast = true
+    }
+    "vlan1033" = {
+      type    = "static"
+      ip      = "10.33.33.1"
+      netmask = "255.255.255.0"
+      evpn_anycast = true
+    }
+  }
+  vrf_config = {
+    enabled = true
   }
 }
 ```

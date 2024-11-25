@@ -16,3 +16,4 @@ You can build and manage a campus fabric using the Mist Provider with the `mist_
 
 For more information about each EPVN Topology architecture, please refer to the [Juniper Documentation](https://www.juniper.net/documentation/us/en/software/mist/mist-wired/topics/concept/choose-campus-fabric-topology.html)
 
+-> The EVPN Multihoming architecture can only be created at the site level with the `mist_site_evpn_topology` resource. The two others can be created at the site or at the org level with the `mist_site_evpn_topology` or `mist_org_evpn_topology` resources.
