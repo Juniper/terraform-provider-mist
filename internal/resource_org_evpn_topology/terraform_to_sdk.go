@@ -23,7 +23,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgEvpnTopologyModel) (*models.Ev
 		data.Name = plan.Name.ValueStringPointer()
 	}
 
-	if !plan.PodNames.IsNull() && !plan.PodNames.IsUnknown() {
+	if !plan.PodNames.IsNull() && !plan.PodNames.IsUnknown() && len(plan.PodNames.Elements()) > 0 {
 		for k, v := range plan.PodNames.Elements() {
 			var s_interface interface{} = v
 			s := s_interface.(basetypes.StringValue)
