@@ -73,24 +73,23 @@ resource "mist_site_site_evpn_topology" "evpn_one" {
 
 - `name` (String)
 - `site_id` (String)
-- `switches` (Attributes List) (see [below for nested schema](#nestedatt--switches))
+- `switches` (Attributes Map) Property key can be the switch MAC Address (see [below for nested schema](#nestedatt--switches))
 
 ### Optional
 
 - `evpn_options` (Attributes) EVPN Options (see [below for nested schema](#nestedatt--evpn_options))
-- `org_id` (String)
 - `pod_names` (Map of String) Property key is the pod number
 
 ### Read-Only
 
 - `id` (String) Unique ID of the object instance in the Mist Organnization
+- `org_id` (String)
 
 <a id="nestedatt--switches"></a>
 ### Nested Schema for `switches`
 
 Required:
 
-- `mac` (String)
 - `role` (String) use `role`==`none` to remove a switch from the topology. enum: `access`, `collapsed-core`, `core`, `distribution`, `esilag-access`, `none`
 
 Optional:
@@ -104,17 +103,11 @@ if you want to limit the pods, you can specify pods.
 Read-Only:
 
 - `deviceprofile_id` (String)
-- `downlink_ips` (List of String)
-- `downlinks` (List of String)
-- `esilaglinks` (List of String)
 - `evpn_id` (Number)
+- `mac` (String)
 - `model` (String)
 - `router_id` (String)
 - `site_id` (String)
-- `suggested_downlinks` (List of String)
-- `suggested_esilaglinks` (List of String)
-- `suggested_uplinks` (List of String)
-- `uplinks` (List of String)
 
 
 <a id="nestedatt--evpn_options"></a>

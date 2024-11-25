@@ -23,12 +23,14 @@ func TerraformToSdk(ctx context.Context, plan *SiteEvpnTopologyModel) (*models.E
 		data.Name = plan.Name.ValueStringPointer()
 	}
 
-	if !plan.PodNames.IsNull() && !plan.PodNames.IsUnknown() {
+	if !plan.PodNames.IsNull() && !plan.PodNames.IsUnknown() && len(plan.PodNames.Elements()) > 0 {
+		data_map := make(map[string]string)
 		for k, v := range plan.PodNames.Elements() {
 			var s_interface interface{} = v
 			s := s_interface.(basetypes.StringValue)
-			data.PodNames[k] = s.ValueString()
+			data_map[k] = s.ValueString()
 		}
+		data.PodNames = data_map
 	} else {
 		unset["-pod_names"] = ""
 	}
@@ -37,6 +39,8 @@ func TerraformToSdk(ctx context.Context, plan *SiteEvpnTopologyModel) (*models.E
 	} else {
 		unset["-switches"] = ""
 	}
+
+	data.Overwrite = models.ToPointer(true)
 
 	data.AdditionalProperties = unset
 	return &data, diags

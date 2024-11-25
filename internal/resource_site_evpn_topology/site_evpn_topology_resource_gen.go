@@ -193,6 +193,7 @@ func SiteEvpnTopologyResourceSchema(ctx context.Context) schema.Schema {
 			"pod_names": schema.MapAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
+				Computed:            true,
 				Description:         "Property key is the pod number",
 				MarkdownDescription: "Property key is the pod number",
 			},
