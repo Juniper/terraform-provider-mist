@@ -141,10 +141,10 @@ func legacySdkToTerraform(
 			deviceFromMist.UnclaimWhenDestroyed = device.UnclaimWhenDestroyed
 			devicesOut = append(devicesOut, *deviceFromMist)
 		} else if magic != "" {
-			diags.AddError("Device not found", fmt.Sprintf("Unable to find device with Claim Code \"%s\" in the Org Inventory", magic))
+			diags.AddWarning("Device not found", fmt.Sprintf("Unable to find device with Claim Code \"%s\" in the Org Inventory", magic))
 			devicesOut = append(devicesOut, NewDevicesValueNull())
 		} else if mac != "" {
-			diags.AddError("Device not found", fmt.Sprintf("Unable to find device with MAC \"%s\" in the Org Inventory", mac))
+			diags.AddWarning("Device not found", fmt.Sprintf("Unable to find device with MAC \"%s\" in the Org Inventory", mac))
 			devicesOut = append(devicesOut, NewDevicesValueNull())
 		}
 	}
