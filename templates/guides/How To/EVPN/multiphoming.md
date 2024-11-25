@@ -1,0 +1,213 @@
+---
+page_title: "EVPN Multihoming"
+description: |-
+  Process to follow to create and manage an EVPN Multihoming EVPN Topology with the Mist Provider.
+---
+
+# Create and manage an EVPN Multihoming EVPN Topology with the Mist Provider.
+
+!> EVPN Multihoming architecture can only be create at the Site level with the `mist_site_evpn_topology` resource
+
+## 1. Build the topology
+Use the `mist_site_evpn_topology` resource to create the EVPN Topology.
+
+```terraform
+resource "mist_site_evpn_topology" "evpn_one" {
+  site_id = mist_site.site_evpn.id
+  name = "evpn_one"
+  evpn_options = {
+    overlay = {
+      as = 65000
+    }
+    core_as_border = true
+    underlay = {
+      as_base  = 65001
+      use_ipv6 = false
+      subnet   = "10.255.240.0/20"
+    }
+    auto_router_id_subnet = "172.16.254.0/23"
+  }
+  switches = {
+    020004000000 = {
+      role = "collapsed-core"
+    },
+    020004000001 = {
+      role = "collapsed-core"
+    },
+    020004000002 = {
+      role = "esilag-access"
+    },
+    020004000003 = {
+      role = "esilag-access"
+    },
+  }
+}
+```
+
+## 2. Update the network template
+Create or Update the `mist_site_networktemplate`. This will be used to define:
+* the Virtual Network Identifiers that will be used in the topology in the `networks` object, with 
+  * the Virtual Network Identifier in `vlan_id`
+  * the Virtual Network Subnet in  `subnet`
+  * the Virtual Gateway in `gateway`. This IP Address will be shared across the Collapsed-Core switches
+* the VRF instances with
+  * the networks belonging to the VRF instance
+  * (optional) the addtional routes
+* the port usages that will be assigned to the switches:
+  * `x-esilag` (the name can be changed) will be used to configure the ESI-LAG links between the Core and Distribution switches
+  * (optional) the access port profiles
+
+-> Since the EVPN-VXLAN related configuration are mostly defined per site, it is recommended to use the `mist_site_networktemplate` to configure them. However, it is still possible to use a `mist_org_networktempalte`.
+
+```terraform
+resource "mist_site_networktemplate" "networktemplate_one" {
+  site_id = mist_site.terraform_test.id
+  networks = {
+    vlan1099 = {
+      vlan_id = 1099
+      subnet  = "10.99.99.0/24"
+      gateway = "10.99.99.1"
+    },
+    vlan1088 = {
+      vlan_id = 1088
+      subnet  = "10.88.88.0/24"
+      gateway = "10.88.88.1"
+    },
+    vlan1033 = {
+      vlan_id = 1033
+      subnet  = "10.33.33.0/24"
+      gateway = "10.33.33.1"
+    }
+  }
+  vrf_instances = {
+    "customera" = {
+      networks = ["vlan1099"]
+      extra_routes = {
+        "0.0.0.0/0" : {
+          via = "10.99.99.254"
+        }
+      }
+    }
+    "customerb" = {
+      networks = ["vlan1088"]
+      extra_routes = {
+        "0.0.0.0/0" : {
+          via = "10.88.88.254"
+        }
+      }
+    }
+    "devices" = {
+      networks = ["vlan1033"]
+      extra_routes = {
+        "0.0.0.0/0" : {
+          via = "10.33.33.254"
+        }
+      }
+    }
+  }
+  port_usages = {
+    x-esilag = {
+      mode         = "trunk"
+      all_networks = true
+      mtu          = "9100"
+    },
+    vlan1099 = {
+      mode         = "access"
+      port_network = "vlan1099"
+    },
+    vlan1088 = {
+      mode         = "access"
+      port_network = "vlan1088"
+    },
+    vlan1033 = {
+      mode         = "access"
+      port_network = "vlan1033"
+    }
+  }
+  vrf_config = {
+    enabled = true
+  }
+}
+```
+
+## 3. Update the device port configs
+Update the `mist_device_switch` resources to configure the `port_usages` and assign the corresponding profile to the ports you have used (or plan to use) to inter-connect the switches by assigning them the ESI-LAG, `evpn_uplink` or `evpn_downlink` profiles:
+
+
+### Collapsed-Core Switches
+* Switch `name`
+* Switch `port_config`:
+  * Links to other Cores with 1 x `evpn_downlink` and 1 x `evpn_uplink`
+  * Links to each Distribution switch with `usage`=`<esilag name>`, `aggregated` and `esilag` to `true` and `ae_idx` configured
+* Switch `other_ip_configs`:
+  * Configure a static IP Address for each network. This IP Address must be different from the Shared IP Address configured in the `mist_site_networktemplate`
+
+```terraform
+resource "mist_device_switch" "switch_core_01" {
+  device_id = provider::mist::search_inventory_by_mac(resource.mist_org_inventory.inventory, "020004000000").id
+  site_id   = provider::mist::search_inventory_by_mac(resource.mist_org_inventory.inventory, "020004000000").id.site_id
+  name      = "core-01"
+  port_config = {
+    "ge-0/0/0" = {
+      usage = "evpn_uplink"
+    },
+    "ge-0/0/1" = {
+      usage = "evpn_downlink"
+    },
+    "ge-0/0/2" = {
+      usage      = "x-esilag"
+      aggregated = true
+      esilag     = true
+      ae_idx     = 0
+    },
+    "ge-0/0/3" = {
+      usage      = "x-esilag"
+      aggregated = true
+      esilag     = true
+      ae_idx     = 1
+    }
+  }
+  other_ip_configs = {
+    "vlan1099" = {
+      type    = "static"
+      ip      = "10.99.99.2"
+      netmask = "255.255.255.0"
+    }
+    "vlan1088" = {
+      type    = "static"
+      ip      = "10.88.88.2"
+      netmask = "255.255.255.0"
+    }
+    "vlan1033" = {
+      type    = "static"
+      ip      = "10.33.33.2"
+      netmask = "255.255.255.0"
+    }
+  }
+}
+```
+
+### Distribution Switches
+* Switch `name`
+* Switch `port_config`:
+  * Links to the Core layer configured with `usage`=`<esilag name>`, `aggregated` and `esilag` to `true` and `ae_idx` configured
+  * Access port switches based on your requirements
+
+```terraform
+resource "mist_device_switch" "switch_distri_01" {
+  device_id = provider::mist::search_inventory_by_mac(resource.mist_org_inventory.inventory, "020004000002").id
+  site_id   = provider::mist::search_inventory_by_mac(resource.mist_org_inventory.inventory, "020004000002").id.site_id
+  name      = "distri-01"
+  port_config = {
+    "ge-0/0/0,ge-0/0/1" = {
+      usage      = "x-esilag"
+      aggregated = true
+      esilag     = true
+      ae_idx     = 0
+    }
+    "ge-0/0/3" = {
+      usage = "vlan1099"
+    }
+  }
+}
+```

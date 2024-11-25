@@ -451,6 +451,8 @@ func (p *mistProvider) Resources(ctx context.Context) []func() resource.Resource
 		NewOrgSso,
 		NewOrgSsoRole,
 		NewOrgAlarmtemplateResource,
+		NewOrgEvpnTopologyResource,
+		NewSiteEvpnTopologyResource,
 	}
 }
 

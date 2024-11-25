@@ -56,7 +56,7 @@ func (d *deviceSwitchStatsDataSource) Metadata(ctx context.Context, req datasour
 
 func (d *deviceSwitchStatsDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryWired + "This data source provides the list of Switches with their statistics.",
+		MarkdownDescription: docCategoryDevices + "This data source provides the list of Switches with their statistics.",
 		Attributes:          datasource_device_switch_stats.DeviceSwitchStatsDataSourceSchema(ctx).Attributes,
 	}
 }

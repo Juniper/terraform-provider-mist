@@ -59,7 +59,8 @@ func (r *deviceGatewayResource) Metadata(ctx context.Context, req resource.Metad
 func (r *deviceGatewayResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryDevices + "This resource manages the Gateway configuration.\n" +
-			"It can be used to define specific configuration at the device level or to override Org Gateway template settings.",
+			"It can be used to define specific configuration at the device level or to override Org Gateway template settings.\n\n" +
+			"~> **WARNING** For **adopted** devices, make sure to set `managed`=`true` to allow Mist to manage the gateway",
 		Attributes: resource_device_gateway.DeviceGatewayResourceSchema(ctx).Attributes,
 	}
 }

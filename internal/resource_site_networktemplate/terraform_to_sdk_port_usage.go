@@ -3,6 +3,7 @@ package resource_site_networktemplate
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
@@ -175,6 +176,14 @@ func portUsageTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d bas
 		}
 		if pu_attr_value.StpP2p.ValueBoolPointer() != nil {
 			new_pu.StpP2p = pu_attr_value.StpP2p.ValueBoolPointer()
+		}
+		if pu_attr_value.UiEvpntopoId.ValueStringPointer() != nil {
+			ui_evpntopo_id, e := uuid.Parse(pu_attr_value.UiEvpntopoId.ValueString())
+			if e == nil {
+				new_pu.UiEvpntopoId = &ui_evpntopo_id
+			} else {
+				diags.AddError("Bad value for ui_evpntopo_id", e.Error())
+			}
 		}
 		if pu_attr_value.UseVstp.ValueBoolPointer() != nil {
 			new_pu.UseVstp = pu_attr_value.UseVstp.ValueBoolPointer()

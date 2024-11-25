@@ -103,7 +103,7 @@ resource "mist_org_networktemplate" "networktemplate_one" {
 - `ospf_areas` (Attributes Map) Junos OSPF areas (see [below for nested schema](#nestedatt--ospf_areas))
 - `port_mirroring` (Attributes Map) Property key is the port mirroring instance name
 port_mirroring can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 port mirrorings is allowed (see [below for nested schema](#nestedatt--port_mirroring))
-- `port_usages` (Attributes Map) (see [below for nested schema](#nestedatt--port_usages))
+- `port_usages` (Attributes Map) Property key is the port usage name. Defines the profiles of port configuration configured on the switch (see [below for nested schema](#nestedatt--port_usages))
 - `radius_config` (Attributes) Junos Radius config (see [below for nested schema](#nestedatt--radius_config))
 - `remote_syslog` (Attributes) (see [below for nested schema](#nestedatt--remote_syslog))
 - `remove_existing_configs` (Boolean) by default, when we configure a device, we only clean up config we generates. Remove existing configs if enabled
@@ -273,10 +273,13 @@ Required:
 
 Optional:
 
+- `gateway` (String) only required for EVPN-VXLAN networks, IPv4 Virtual Gateway
+- `gateway6` (String) only required for EVPN-VXLAN networks, IPv6 Virtual Gateway
 - `isolation` (Boolean) whether to stop clients to talk to each other, default is false (when enabled, a unique isolation_vlan_id is required)
 NOTE: this features requires uplink device to also a be Juniper device and `inter_switch_link` to be set
 - `isolation_vlan_id` (String)
 - `subnet` (String) optional for pure switching, required when L3 / routing features are used
+- `subnet6` (String) optional for pure switching, required when L3 / routing features are used
 
 
 <a id="nestedatt--ospf_areas"></a>
@@ -329,9 +332,9 @@ Optional:
 Optional:
 
 - `all_networks` (Boolean) Only if `mode`==`trunk` whether to trunk all network/vlans
-- `allow_dhcpd` (Boolean) Only if `mode`!=`dynamic` if DHCP snooping is enabled, whether DHCP server is allowed on the interfaces with. All the interfaces from port configs using this port usage are effected. Please notice that allow_dhcpd is a tri_state.
-
-When it is not defined, it means using the system’s default setting which depends on whether the port is a access or trunk port.
+- `allow_dhcpd` (Boolean) Only if `mode`!=`dynamic`. If DHCP snooping is enabled, whether DHCP server is allowed on the interfaces with.
+All the interfaces from port configs using this port usage are effected. Please notice that allow_dhcpd is a tri_state.
+When it is not defined, it means using the system's default setting which depends on whether the port is a access or trunk port.
 - `allow_multiple_supplicants` (Boolean) Only if `mode`!=`dynamic`
 - `bypass_auth_when_server_down` (Boolean) Only if `mode`!=`dynamic` and `port_auth`==`dot1x` bypass auth for known clients if set to true when RADIUS server is down
 - `bypass_auth_when_server_down_for_unkonwn_client` (Boolean) Only if `mode`!=`dynamic` and `port_auth`=`dot1x` bypass auth for all (including unknown clients) if set to true when RADIUS server is down
@@ -367,6 +370,7 @@ Only if `mode`!=`dynamic` (see [below for nested schema](#nestedatt--port_usages
 - `stp_edge` (Boolean) Only if `mode`!=`dynamic` when enabled, the port is not expected to receive BPDU frames
 - `stp_no_root_port` (Boolean)
 - `stp_p2p` (Boolean)
+- `ui_evpntopo_id` (String) optional for Campus Fabric Core-Distribution ESI-LAG profile. Helper used by the UI to select this port profile as the ESI-Lag between Distribution and Access switches
 - `use_vstp` (Boolean) if this is connected to a vstp network
 - `voip_network` (String) Only if `mode`!=`dynamic` network/vlan for voip traffic, must also set port_network. to authenticate device, set port_auth
 
@@ -821,9 +825,7 @@ Optional:
 
 Required:
 
-- `usage` (String) port usage name. 
-
-If EVPN is used, use `evpn_uplink`or `evpn_downlink`
+- `usage` (String) port usage name. If EVPN is used, use `evpn_uplink`or `evpn_downlink`
 
 Optional:
 

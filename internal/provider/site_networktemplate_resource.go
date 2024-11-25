@@ -55,7 +55,11 @@ func (r *siteNetworkTemplateResource) Schema(ctx context.Context, req resource.S
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryWired + "This resource manages the Site Network configuration (Switch configuration).\n" +
 			"The Site Network template can be used to override the Org Network template assign to the site, " +
-			"or to configure common switch settings accross the site without having to create an Org Network template.",
+			"or to configure common switch settings accross the site without having to create an Org Network template.\n\n" +
+			"~> When using the Mist APIs, all the switch settings defined at the site level are stored under the site settings with all the rest of the site configuration " +
+			"(`/api/v1/sites/{site_id}/setting` Mist API Endpoint). To simplify this resource, the `mist_site_networktemplate` resource has been created to centralize all " +
+			"the site level switches related settings.\n\n" +
+			"!> Only ONE `mist_site_networktemplate` resource can be configured per site. If multiple ones are configured, only the last one defined we be succesfully deployed to Mist",
 		Attributes: resource_site_networktemplate.SiteNetworktemplateResourceSchema(ctx).Attributes,
 	}
 }

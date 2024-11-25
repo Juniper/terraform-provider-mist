@@ -589,18 +589,21 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 			"evpn_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"enabled": schema.BoolAttribute{
-						Optional: true,
+						Computed: true,
 					},
 					"role": schema.StringAttribute{
-						Optional:            true,
-						Description:         "enum: `access`, `core`, `distribution`",
-						MarkdownDescription: "enum: `access`, `core`, `distribution`",
+						Computed:            true,
+						Description:         "enum: `access`, `collapsed-core`, `core`, `distribution`, `esilag-access`, `none`",
+						MarkdownDescription: "enum: `access`, `collapsed-core`, `core`, `distribution`, `esilag-access`, `none`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
 								"access",
+								"collapsed-core",
 								"core",
 								"distribution",
+								"esilag-access",
+								"none",
 							),
 						},
 					},
@@ -610,7 +613,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: EvpnConfigValue{}.AttributeTypes(ctx),
 					},
 				},
-				Optional:            true,
+				Computed:            true,
 				Description:         "EVPN Junos settings",
 				MarkdownDescription: "EVPN Junos settings",
 			},
@@ -1226,6 +1229,16 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 			"networks": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
+						"gateway": schema.StringAttribute{
+							Optional:            true,
+							Description:         "only required for EVPN-VXLAN networks, IPv4 Virtual Gateway",
+							MarkdownDescription: "only required for EVPN-VXLAN networks, IPv4 Virtual Gateway",
+						},
+						"gateway6": schema.StringAttribute{
+							Optional:            true,
+							Description:         "only required for EVPN-VXLAN networks, IPv6 Virtual Gateway",
+							MarkdownDescription: "only required for EVPN-VXLAN networks, IPv6 Virtual Gateway",
+						},
 						"isolation": schema.BoolAttribute{
 							Optional:            true,
 							Computed:            true,
@@ -1243,6 +1256,11 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Validators: []validator.String{
 								stringvalidator.Any(mistvalidator.ParseCidr(false, true), mistvalidator.ParseVar()),
 							},
+						},
+						"subnet6": schema.StringAttribute{
+							Optional:            true,
+							Description:         "optional for pure switching, required when L3 / routing features are used",
+							MarkdownDescription: "optional for pure switching, required when L3 / routing features are used",
 						},
 						"vlan_id": schema.StringAttribute{
 							Required: true,
@@ -1594,8 +1612,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Property key is the network name",
-				MarkdownDescription: "Property key is the network name",
+				Description:         "Property key is the network name. Defines the additional IP Addresses configured on the device.",
+				MarkdownDescription: "Property key is the network name. Defines the additional IP Addresses configured on the device.",
 				Validators: []validator.Map{
 					mapvalidator.SizeAtLeast(1),
 				},
@@ -1615,10 +1633,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"ae_lacp_slow": schema.BoolAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "to use fast timeout",
 							MarkdownDescription: "to use fast timeout",
-							Default:             booldefault.StaticBool(true),
 						},
 						"aggregated": schema.BoolAttribute{
 							Optional: true,
@@ -2258,7 +2274,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						},
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "Property key is the port usage name. Defines the profiles of port configuration configured on the switch",
+				MarkdownDescription: "Property key is the port usage name. Defines the profiles of port configuration configured on the switch",
 				Validators: []validator.Map{
 					mapvalidator.SizeAtLeast(1),
 				},
@@ -2899,6 +2917,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"router_id": schema.StringAttribute{
 				Optional:            true,
+				Computed:            true,
 				Description:         "used for OSPF / BGP / EVPN",
 				MarkdownDescription: "used for OSPF / BGP / EVPN",
 			},
@@ -15670,6 +15689,42 @@ func (t NetworksType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 
 	attributes := in.Attributes()
 
+	gatewayAttribute, ok := attributes["gateway"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`gateway is missing from object`)
+
+		return nil, diags
+	}
+
+	gatewayVal, ok := gatewayAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`gateway expected to be basetypes.StringValue, was: %T`, gatewayAttribute))
+	}
+
+	gateway6Attribute, ok := attributes["gateway6"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`gateway6 is missing from object`)
+
+		return nil, diags
+	}
+
+	gateway6Val, ok := gateway6Attribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`gateway6 expected to be basetypes.StringValue, was: %T`, gateway6Attribute))
+	}
+
 	isolationAttribute, ok := attributes["isolation"]
 
 	if !ok {
@@ -15724,6 +15779,24 @@ func (t NetworksType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 			fmt.Sprintf(`subnet expected to be basetypes.StringValue, was: %T`, subnetAttribute))
 	}
 
+	subnet6Attribute, ok := attributes["subnet6"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`subnet6 is missing from object`)
+
+		return nil, diags
+	}
+
+	subnet6Val, ok := subnet6Attribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`subnet6 expected to be basetypes.StringValue, was: %T`, subnet6Attribute))
+	}
+
 	vlanIdAttribute, ok := attributes["vlan_id"]
 
 	if !ok {
@@ -15747,9 +15820,12 @@ func (t NetworksType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 	}
 
 	return NetworksValue{
+		Gateway:         gatewayVal,
+		Gateway6:        gateway6Val,
 		Isolation:       isolationVal,
 		IsolationVlanId: isolationVlanIdVal,
 		Subnet:          subnetVal,
+		Subnet6:         subnet6Val,
 		VlanId:          vlanIdVal,
 		state:           attr.ValueStateKnown,
 	}, diags
@@ -15818,6 +15894,42 @@ func NewNetworksValue(attributeTypes map[string]attr.Type, attributes map[string
 		return NewNetworksValueUnknown(), diags
 	}
 
+	gatewayAttribute, ok := attributes["gateway"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`gateway is missing from object`)
+
+		return NewNetworksValueUnknown(), diags
+	}
+
+	gatewayVal, ok := gatewayAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`gateway expected to be basetypes.StringValue, was: %T`, gatewayAttribute))
+	}
+
+	gateway6Attribute, ok := attributes["gateway6"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`gateway6 is missing from object`)
+
+		return NewNetworksValueUnknown(), diags
+	}
+
+	gateway6Val, ok := gateway6Attribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`gateway6 expected to be basetypes.StringValue, was: %T`, gateway6Attribute))
+	}
+
 	isolationAttribute, ok := attributes["isolation"]
 
 	if !ok {
@@ -15872,6 +15984,24 @@ func NewNetworksValue(attributeTypes map[string]attr.Type, attributes map[string
 			fmt.Sprintf(`subnet expected to be basetypes.StringValue, was: %T`, subnetAttribute))
 	}
 
+	subnet6Attribute, ok := attributes["subnet6"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`subnet6 is missing from object`)
+
+		return NewNetworksValueUnknown(), diags
+	}
+
+	subnet6Val, ok := subnet6Attribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`subnet6 expected to be basetypes.StringValue, was: %T`, subnet6Attribute))
+	}
+
 	vlanIdAttribute, ok := attributes["vlan_id"]
 
 	if !ok {
@@ -15895,9 +16025,12 @@ func NewNetworksValue(attributeTypes map[string]attr.Type, attributes map[string
 	}
 
 	return NetworksValue{
+		Gateway:         gatewayVal,
+		Gateway6:        gateway6Val,
 		Isolation:       isolationVal,
 		IsolationVlanId: isolationVlanIdVal,
 		Subnet:          subnetVal,
+		Subnet6:         subnet6Val,
 		VlanId:          vlanIdVal,
 		state:           attr.ValueStateKnown,
 	}, diags
@@ -15971,29 +16104,51 @@ func (t NetworksType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = NetworksValue{}
 
 type NetworksValue struct {
+	Gateway         basetypes.StringValue `tfsdk:"gateway"`
+	Gateway6        basetypes.StringValue `tfsdk:"gateway6"`
 	Isolation       basetypes.BoolValue   `tfsdk:"isolation"`
 	IsolationVlanId basetypes.StringValue `tfsdk:"isolation_vlan_id"`
 	Subnet          basetypes.StringValue `tfsdk:"subnet"`
+	Subnet6         basetypes.StringValue `tfsdk:"subnet6"`
 	VlanId          basetypes.StringValue `tfsdk:"vlan_id"`
 	state           attr.ValueState
 }
 
 func (v NetworksValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 4)
+	attrTypes := make(map[string]tftypes.Type, 7)
 
 	var val tftypes.Value
 	var err error
 
+	attrTypes["gateway"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["gateway6"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["isolation"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["isolation_vlan_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["subnet"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["subnet6"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["vlan_id"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 4)
+		vals := make(map[string]tftypes.Value, 7)
+
+		val, err = v.Gateway.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["gateway"] = val
+
+		val, err = v.Gateway6.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["gateway6"] = val
 
 		val, err = v.Isolation.ToTerraformValue(ctx)
 
@@ -16018,6 +16173,14 @@ func (v NetworksValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 		}
 
 		vals["subnet"] = val
+
+		val, err = v.Subnet6.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["subnet6"] = val
 
 		val, err = v.VlanId.ToTerraformValue(ctx)
 
@@ -16057,9 +16220,12 @@ func (v NetworksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 	var diags diag.Diagnostics
 
 	attributeTypes := map[string]attr.Type{
+		"gateway":           basetypes.StringType{},
+		"gateway6":          basetypes.StringType{},
 		"isolation":         basetypes.BoolType{},
 		"isolation_vlan_id": basetypes.StringType{},
 		"subnet":            basetypes.StringType{},
+		"subnet6":           basetypes.StringType{},
 		"vlan_id":           basetypes.StringType{},
 	}
 
@@ -16074,9 +16240,12 @@ func (v NetworksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
+			"gateway":           v.Gateway,
+			"gateway6":          v.Gateway6,
 			"isolation":         v.Isolation,
 			"isolation_vlan_id": v.IsolationVlanId,
 			"subnet":            v.Subnet,
+			"subnet6":           v.Subnet6,
 			"vlan_id":           v.VlanId,
 		})
 
@@ -16098,6 +16267,14 @@ func (v NetworksValue) Equal(o attr.Value) bool {
 		return true
 	}
 
+	if !v.Gateway.Equal(other.Gateway) {
+		return false
+	}
+
+	if !v.Gateway6.Equal(other.Gateway6) {
+		return false
+	}
+
 	if !v.Isolation.Equal(other.Isolation) {
 		return false
 	}
@@ -16107,6 +16284,10 @@ func (v NetworksValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.Subnet.Equal(other.Subnet) {
+		return false
+	}
+
+	if !v.Subnet6.Equal(other.Subnet6) {
 		return false
 	}
 
@@ -16127,9 +16308,12 @@ func (v NetworksValue) Type(ctx context.Context) attr.Type {
 
 func (v NetworksValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
+		"gateway":           basetypes.StringType{},
+		"gateway6":          basetypes.StringType{},
 		"isolation":         basetypes.BoolType{},
 		"isolation_vlan_id": basetypes.StringType{},
 		"subnet":            basetypes.StringType{},
+		"subnet6":           basetypes.StringType{},
 		"vlan_id":           basetypes.StringType{},
 	}
 }
