@@ -24,9 +24,9 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceGateway) (DeviceGate
 	var extra_routes6 types.Map = types.MapNull(ExtraRoutes6Value{}.Type(ctx))
 	var device_id types.String
 	var idp_profiles types.Map = types.MapNull(IdpProfilesValue{}.Type(ctx))
-	var image1_url types.String = types.StringValue("")
-	var image2_url types.String = types.StringValue("")
-	var image3_url types.String = types.StringValue("")
+	var image1_url types.String = types.StringValue("not_present")
+	var image2_url types.String = types.StringValue("not_present")
+	var image3_url types.String = types.StringValue("not_present")
 	var ip_configs types.Map = types.MapNull(IpConfigsValue{}.Type(ctx))
 	var managed types.Bool
 	var map_id types.String
@@ -83,13 +83,13 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceGateway) (DeviceGate
 		idp_profiles = idpProfileSdkToTerraform(ctx, &diags, data.IdpProfiles)
 	}
 	if data.Image1Url.Value() != nil {
-		image1_url = types.StringValue(*data.Image1Url.Value())
+		image1_url = types.StringValue("present")
 	}
 	if data.Image2Url.Value() != nil {
-		image2_url = types.StringValue(*data.Image2Url.Value())
+		image2_url = types.StringValue("present")
 	}
 	if data.Image3Url.Value() != nil {
-		image3_url = types.StringValue(*data.Image3Url.Value())
+		image3_url = types.StringValue("present")
 	}
 	if data.IpConfigs != nil && len(data.IpConfigs) > 0 {
 		ip_configs = ipConfigsSdkToTerraform(ctx, &diags, data.IpConfigs)

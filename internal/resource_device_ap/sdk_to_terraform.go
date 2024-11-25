@@ -26,9 +26,9 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceAp) (DeviceApModel, 
 	var esl_config EslConfigValue = NewEslConfigValueNull()
 	var height types.Float64
 	var device_id types.String
-	var image1_url types.String = types.StringValue("")
-	var image2_url types.String = types.StringValue("")
-	var image3_url types.String = types.StringValue("")
+	var image1_url types.String = types.StringValue("not_present")
+	var image2_url types.String = types.StringValue("not_present")
+	var image3_url types.String = types.StringValue("not_present")
 	var ip_config IpConfigValue = NewIpConfigValueNull()
 	var led LedValue = NewLedValueNull()
 	var locked types.Bool
@@ -88,13 +88,13 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceAp) (DeviceApModel, 
 		device_id = types.StringValue(data.Id.String())
 	}
 	if data.Image1Url.Value() != nil {
-		image1_url = types.StringValue(*data.Image1Url.Value())
+		image1_url = types.StringValue("present")
 	}
 	if data.Image2Url.Value() != nil {
-		image2_url = types.StringValue(*data.Image2Url.Value())
+		image2_url = types.StringValue("present")
 	}
 	if data.Image3Url.Value() != nil {
-		image3_url = types.StringValue(*data.Image3Url.Value())
+		image3_url = types.StringValue("present")
 	}
 	if data.IpConfig != nil {
 		ip_config = ipConfigSdkToTerraform(ctx, &diags, data.IpConfig)
