@@ -14,6 +14,7 @@ import (
 )
 
 func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.WlanPortal) PortalValue {
+	var allow_wlan_id_roam basetypes.BoolValue
 	var amazon_client_id basetypes.StringValue
 	var amazon_client_secret basetypes.StringValue
 	var amazon_email_domains basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
@@ -88,6 +89,9 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	var twilio_phone_number basetypes.StringValue
 	var twilio_sid basetypes.StringValue
 
+	if d != nil && d.AllowWlanIdRoam != nil {
+		allow_wlan_id_roam = types.BoolValue(*d.AllowWlanIdRoam)
+	}
 	if d != nil && d.AmazonClientId.Value() != nil {
 		amazon_client_id = types.StringValue(*d.AmazonClientId.Value())
 	}
@@ -316,6 +320,7 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 
 	data_map_attr_type := PortalValue{}.AttributeTypes(ctx)
 	data_map_value := map[string]attr.Value{
+		"allow_wlan_id_roam":             allow_wlan_id_roam,
 		"amazon_client_id":               amazon_client_id,
 		"amazon_client_secret":           amazon_client_secret,
 		"amazon_email_domains":           amazon_email_domains,

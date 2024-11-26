@@ -375,6 +375,12 @@ func TerraformToSdk(ctx context.Context, plan *OrgWlanModel) (*models.Wlan, diag
 		data.MaxIdletime = models.ToPointer(int(plan.MaxIdletime.ValueInt64()))
 	}
 
+	if plan.MaxNumClients.IsNull() || plan.MaxNumClients.IsUnknown() {
+		unset["-max_num_clients"] = ""
+	} else {
+		data.MaxNumClients = models.ToPointer(int(plan.MaxNumClients.ValueInt64()))
+	}
+
 	if plan.MistNac.IsNull() || plan.MistNac.IsUnknown() {
 		unset["-mist_nac"] = ""
 	} else {
@@ -443,6 +449,12 @@ func TerraformToSdk(ctx context.Context, plan *OrgWlanModel) (*models.Wlan, diag
 	} else {
 		radesc := radsecTerraformToSdk(ctx, &diags, plan.Radsec)
 		data.Radsec = radesc
+	}
+
+	if plan.Rateset.IsNull() || plan.Rateset.IsUnknown() {
+		unset["-rateset"] = ""
+	} else {
+		data.Rateset = ratesetTerraformToSdk(ctx, &diags, plan.Rateset)
 	}
 
 	if plan.RoamMode.IsNull() || plan.RoamMode.IsUnknown() {
