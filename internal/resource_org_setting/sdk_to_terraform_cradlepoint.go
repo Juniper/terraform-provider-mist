@@ -17,6 +17,7 @@ func cradlepointSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 	var cp_api_key basetypes.StringValue
 	var ecm_api_id basetypes.StringValue
 	var ecm_api_key basetypes.StringValue
+	var enable_lldp basetypes.BoolValue
 
 	if d.CpApiId != nil {
 		cp_api_id = types.StringValue(*d.CpApiId)
@@ -30,6 +31,9 @@ func cradlepointSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 	if d.EcmApiKey != nil {
 		ecm_api_key = types.StringValue(*d.EcmApiKey)
 	}
+	if d.EnableLldp != nil {
+		enable_lldp = types.BoolValue(*d.EnableLldp)
+	}
 
 	data_map_attr_type := CradlepointValue{}.AttributeTypes(ctx)
 	data_map_value := map[string]attr.Value{
@@ -37,6 +41,7 @@ func cradlepointSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 		"cp_api_key":  cp_api_key,
 		"ecm_api_id":  ecm_api_id,
 		"ecm_api_key": ecm_api_key,
+		"enable_lldp": enable_lldp,
 	}
 	data, e := NewCradlepointValue(data_map_attr_type, data_map_value)
 	diags.Append(e...)

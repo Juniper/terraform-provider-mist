@@ -44,12 +44,6 @@ func TerraformToSdk(ctx context.Context, plan *OrgSettingModel) (*models.OrgSett
 		unset["-cloudshark"] = ""
 	}
 
-	if !plan.Cradlepoint.IsNull() && !plan.Cradlepoint.IsUnknown() {
-		data.Cradlepoint = cradlepointTerraformToSdk(ctx, &diags, plan.Cradlepoint)
-	} else {
-		unset["-cradlepoint"] = ""
-	}
-
 	if !plan.DeviceCert.IsNull() && !plan.DeviceCert.IsUnknown() {
 		data.DeviceCert = deviceCertTerraformToSdk(ctx, &diags, plan.DeviceCert)
 	} else {

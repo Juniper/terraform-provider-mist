@@ -103,18 +103,21 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 			"cradlepoint": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"cp_api_id": schema.StringAttribute{
-						Required: true,
+						Computed: true,
 					},
 					"cp_api_key": schema.StringAttribute{
-						Required:  true,
+						Computed:  true,
 						Sensitive: true,
 					},
 					"ecm_api_id": schema.StringAttribute{
-						Required: true,
+						Computed: true,
 					},
 					"ecm_api_key": schema.StringAttribute{
-						Required:  true,
+						Computed:  true,
 						Sensitive: true,
+					},
+					"enable_lldp": schema.BoolAttribute{
+						Computed: true,
 					},
 				},
 				CustomType: CradlepointType{
@@ -122,7 +125,7 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: CradlepointValue{}.AttributeTypes(ctx),
 					},
 				},
-				Optional: true,
+				Computed: true,
 			},
 			"device_cert": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -2073,16 +2076,35 @@ func (t CradlepointType) ValueFromObject(ctx context.Context, in basetypes.Objec
 			fmt.Sprintf(`ecm_api_key expected to be basetypes.StringValue, was: %T`, ecmApiKeyAttribute))
 	}
 
+	enableLldpAttribute, ok := attributes["enable_lldp"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enable_lldp is missing from object`)
+
+		return nil, diags
+	}
+
+	enableLldpVal, ok := enableLldpAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enable_lldp expected to be basetypes.BoolValue, was: %T`, enableLldpAttribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
 
 	return CradlepointValue{
-		CpApiId:   cpApiIdVal,
-		CpApiKey:  cpApiKeyVal,
-		EcmApiId:  ecmApiIdVal,
-		EcmApiKey: ecmApiKeyVal,
-		state:     attr.ValueStateKnown,
+		CpApiId:    cpApiIdVal,
+		CpApiKey:   cpApiKeyVal,
+		EcmApiId:   ecmApiIdVal,
+		EcmApiKey:  ecmApiKeyVal,
+		EnableLldp: enableLldpVal,
+		state:      attr.ValueStateKnown,
 	}, diags
 }
 
@@ -2221,16 +2243,35 @@ func NewCradlepointValue(attributeTypes map[string]attr.Type, attributes map[str
 			fmt.Sprintf(`ecm_api_key expected to be basetypes.StringValue, was: %T`, ecmApiKeyAttribute))
 	}
 
+	enableLldpAttribute, ok := attributes["enable_lldp"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enable_lldp is missing from object`)
+
+		return NewCradlepointValueUnknown(), diags
+	}
+
+	enableLldpVal, ok := enableLldpAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enable_lldp expected to be basetypes.BoolValue, was: %T`, enableLldpAttribute))
+	}
+
 	if diags.HasError() {
 		return NewCradlepointValueUnknown(), diags
 	}
 
 	return CradlepointValue{
-		CpApiId:   cpApiIdVal,
-		CpApiKey:  cpApiKeyVal,
-		EcmApiId:  ecmApiIdVal,
-		EcmApiKey: ecmApiKeyVal,
-		state:     attr.ValueStateKnown,
+		CpApiId:    cpApiIdVal,
+		CpApiKey:   cpApiKeyVal,
+		EcmApiId:   ecmApiIdVal,
+		EcmApiKey:  ecmApiKeyVal,
+		EnableLldp: enableLldpVal,
+		state:      attr.ValueStateKnown,
 	}, diags
 }
 
@@ -2302,15 +2343,16 @@ func (t CradlepointType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = CradlepointValue{}
 
 type CradlepointValue struct {
-	CpApiId   basetypes.StringValue `tfsdk:"cp_api_id"`
-	CpApiKey  basetypes.StringValue `tfsdk:"cp_api_key"`
-	EcmApiId  basetypes.StringValue `tfsdk:"ecm_api_id"`
-	EcmApiKey basetypes.StringValue `tfsdk:"ecm_api_key"`
-	state     attr.ValueState
+	CpApiId    basetypes.StringValue `tfsdk:"cp_api_id"`
+	CpApiKey   basetypes.StringValue `tfsdk:"cp_api_key"`
+	EcmApiId   basetypes.StringValue `tfsdk:"ecm_api_id"`
+	EcmApiKey  basetypes.StringValue `tfsdk:"ecm_api_key"`
+	EnableLldp basetypes.BoolValue   `tfsdk:"enable_lldp"`
+	state      attr.ValueState
 }
 
 func (v CradlepointValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 4)
+	attrTypes := make(map[string]tftypes.Type, 5)
 
 	var val tftypes.Value
 	var err error
@@ -2319,12 +2361,13 @@ func (v CradlepointValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 	attrTypes["cp_api_key"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["ecm_api_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["ecm_api_key"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["enable_lldp"] = basetypes.BoolType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 4)
+		vals := make(map[string]tftypes.Value, 5)
 
 		val, err = v.CpApiId.ToTerraformValue(ctx)
 
@@ -2357,6 +2400,14 @@ func (v CradlepointValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 		}
 
 		vals["ecm_api_key"] = val
+
+		val, err = v.EnableLldp.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enable_lldp"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -2392,6 +2443,7 @@ func (v CradlepointValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 		"cp_api_key":  basetypes.StringType{},
 		"ecm_api_id":  basetypes.StringType{},
 		"ecm_api_key": basetypes.StringType{},
+		"enable_lldp": basetypes.BoolType{},
 	}
 
 	if v.IsNull() {
@@ -2409,6 +2461,7 @@ func (v CradlepointValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 			"cp_api_key":  v.CpApiKey,
 			"ecm_api_id":  v.EcmApiId,
 			"ecm_api_key": v.EcmApiKey,
+			"enable_lldp": v.EnableLldp,
 		})
 
 	return objVal, diags
@@ -2445,6 +2498,10 @@ func (v CradlepointValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.EnableLldp.Equal(other.EnableLldp) {
+		return false
+	}
+
 	return true
 }
 
@@ -2462,6 +2519,7 @@ func (v CradlepointValue) AttributeTypes(ctx context.Context) map[string]attr.Ty
 		"cp_api_key":  basetypes.StringType{},
 		"ecm_api_id":  basetypes.StringType{},
 		"ecm_api_key": basetypes.StringType{},
+		"enable_lldp": basetypes.BoolType{},
 	}
 }
 

@@ -73,7 +73,6 @@ resource "mist_org_setting" "terraform_test" {
 - `cacerts` (List of String) list of PEM-encoded ca certs
 - `celona` (Attributes) (see [below for nested schema](#nestedatt--celona))
 - `cloudshark` (Attributes) (see [below for nested schema](#nestedatt--cloudshark))
-- `cradlepoint` (Attributes) (see [below for nested schema](#nestedatt--cradlepoint))
 - `device_cert` (Attributes) common device cert, optional (see [below for nested schema](#nestedatt--device_cert))
 - `device_updown_threshold` (Number) enable threshold-based device down delivery via
   * device-updowns webhooks topic, 
@@ -103,6 +102,7 @@ resource "mist_org_setting" "terraform_test" {
 
 ### Read-Only
 
+- `cradlepoint` (Attributes) (see [below for nested schema](#nestedatt--cradlepoint))
 - `juniper` (Attributes) (see [below for nested schema](#nestedatt--juniper))
 
 <a id="nestedatt--api_policy"></a>
@@ -134,17 +134,6 @@ Required:
 Optional:
 
 - `url` (String) if using CS Enteprise
-
-
-<a id="nestedatt--cradlepoint"></a>
-### Nested Schema for `cradlepoint`
-
-Required:
-
-- `cp_api_id` (String)
-- `cp_api_key` (String, Sensitive)
-- `ecm_api_id` (String)
-- `ecm_api_key` (String, Sensitive)
 
 
 <a id="nestedatt--device_cert"></a>
@@ -365,6 +354,18 @@ Optional:
 Optional:
 
 - `enabled` (Boolean)
+
+
+<a id="nestedatt--cradlepoint"></a>
+### Nested Schema for `cradlepoint`
+
+Read-Only:
+
+- `cp_api_id` (String)
+- `cp_api_key` (String, Sensitive)
+- `ecm_api_id` (String)
+- `ecm_api_key` (String, Sensitive)
+- `enable_lldp` (Boolean)
 
 
 <a id="nestedatt--juniper"></a>
