@@ -128,7 +128,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceGateway) (DeviceGate
 		router_id = types.StringValue(*data.RouterId)
 	}
 	if data.RoutingPolicies != nil && len(data.RoutingPolicies) > 0 {
-		routing_policies = routingPolociesSdkToTerraform(ctx, &diags, data.RoutingPolicies)
+		routing_policies = routingPoliciesSdkToTerraform(ctx, &diags, data.RoutingPolicies)
 	}
 	if data.SiteId != nil {
 		site_id = types.StringValue(data.SiteId.String())
