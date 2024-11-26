@@ -11,10 +11,18 @@ import (
 func SdkToTerraform(ctx context.Context, data *models.SamlMetadata) OrgNacidpMetadataModel {
 	var ds OrgNacidpMetadataModel
 
-	ds.AcsUrl = types.StringValue(*data.AcsUrl)
-	ds.EntityId = types.StringValue(*data.EntityId)
-	ds.LogoutUrl = types.StringValue(*data.LogoutUrl)
-	ds.Metadata = types.StringValue(*data.Metadata)
+	if data.AcsUrl != nil {
+		ds.AcsUrl = types.StringValue(*data.AcsUrl)
+	}
+	if data.EntityId != nil {
+		ds.EntityId = types.StringValue(*data.EntityId)
+	}
+	if data.LogoutUrl != nil {
+		ds.LogoutUrl = types.StringValue(*data.LogoutUrl)
+	}
+	if data.Metadata != nil {
+		ds.Metadata = types.StringValue(*data.Metadata)
+	}
 
 	return ds
 }
