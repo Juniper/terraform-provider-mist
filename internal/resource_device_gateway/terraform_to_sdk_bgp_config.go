@@ -82,6 +82,9 @@ func bgpConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d bas
 		if plan.ImportPolicy.ValueStringPointer() != nil {
 			data.ImportPolicy = models.ToPointer(plan.ImportPolicy.ValueString())
 		}
+		if plan.LocalAs.ValueInt64Pointer() != nil {
+			data.LocalAs = models.ToPointer(int(plan.LocalAs.ValueInt64()))
+		}
 		if plan.NeighborAs.ValueInt64Pointer() != nil {
 			data.NeighborAs = models.ToPointer(int(plan.NeighborAs.ValueInt64()))
 		}
