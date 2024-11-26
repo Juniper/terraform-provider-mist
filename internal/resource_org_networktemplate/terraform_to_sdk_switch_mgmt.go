@@ -35,34 +35,32 @@ func switchMgmtProtectReCustomTerraformToSdk(ctx context.Context, diags *diag.Di
 
 func switchMgmtProtectReTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.ProtectRe {
 	data := models.ProtectRe{}
-	if d.IsNull() || d.IsUnknown() {
-		return &data
-	} else {
+	if !d.IsNull() && !d.IsUnknown() {
 		item, e := NewProtectReValue(ProtectReValue{}.AttributeTypes(ctx), d.Attributes())
-		diags.Append(e...)
-		var item_interface interface{} = item
-		item_obj := item_interface.(ProtectReValue)
-
-		if !item_obj.AllowedServices.IsNull() && !item_obj.AllowedServices.IsUnknown() {
-			var items []models.ProtectReAllowedServiceEnum
-			for _, item := range item_obj.AllowedServices.Elements() {
-				var iface interface{} = item
-				val := iface.(basetypes.StringValue)
-				items = append(items, models.ProtectReAllowedServiceEnum(val.ValueString()))
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			if !item.AllowedServices.IsNull() && !item.AllowedServices.IsUnknown() {
+				var items []models.ProtectReAllowedServiceEnum
+				for _, item := range item.AllowedServices.Elements() {
+					var iface interface{} = item
+					val := iface.(basetypes.StringValue)
+					items = append(items, models.ProtectReAllowedServiceEnum(val.ValueString()))
+				}
+				data.AllowedServices = items
 			}
-			data.AllowedServices = items
+			if !item.Custom.IsNull() && !item.Custom.IsUnknown() {
+				data.Custom = switchMgmtProtectReCustomTerraformToSdk(ctx, diags, item.Custom)
+			}
+			if item.Enabled.ValueBoolPointer() != nil {
+				data.Enabled = models.ToPointer(item.Enabled.ValueBool())
+			}
+			if !item.TrustedHosts.IsNull() && !item.TrustedHosts.IsUnknown() {
+				data.TrustedHosts = mist_transform.ListOfStringTerraformToSdk(ctx, item.TrustedHosts)
+			}
 		}
-		if !item_obj.Custom.IsNull() && !item_obj.Custom.IsUnknown() {
-			data.Custom = switchMgmtProtectReCustomTerraformToSdk(ctx, diags, item_obj.Custom)
-		}
-		if item_obj.Enabled.ValueBoolPointer() != nil {
-			data.Enabled = models.ToPointer(item_obj.Enabled.ValueBool())
-		}
-		if !item_obj.TrustedHosts.IsNull() && !item_obj.TrustedHosts.IsUnknown() {
-			data.TrustedHosts = mist_transform.ListOfStringTerraformToSdk(ctx, item_obj.TrustedHosts)
-		}
-		return &data
 	}
+	return &data
 }
 
 func TacacsAcctServersTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.TacacsAcctServer {
