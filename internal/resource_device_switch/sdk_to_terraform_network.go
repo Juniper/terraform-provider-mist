@@ -19,6 +19,9 @@ func NetworksSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[
 		var isolation basetypes.BoolValue
 		var isolation_vlan_id basetypes.StringValue
 		var subnet basetypes.StringValue
+		var subnet6 basetypes.StringValue
+		var gateway basetypes.StringValue
+		var gateway6 basetypes.StringValue
 		var vlan_id basetypes.StringValue
 
 		if d.Isolation != nil {
@@ -30,6 +33,15 @@ func NetworksSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[
 		if d.Subnet != nil {
 			subnet = types.StringValue(*d.Subnet)
 		}
+		if d.Subnet6 != nil {
+			subnet6 = types.StringValue(*d.Subnet6)
+		}
+		if d.Gateway != nil {
+			gateway = types.StringValue(*d.Gateway)
+		}
+		if d.Gateway6 != nil {
+			gateway6 = types.StringValue(*d.Gateway6)
+		}
 		vlan_id = types.StringValue(d.VlanId.String())
 
 		data_map_attr_type := NetworksValue{}.AttributeTypes(ctx)
@@ -37,6 +49,9 @@ func NetworksSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[
 			"isolation":         isolation,
 			"isolation_vlan_id": isolation_vlan_id,
 			"subnet":            subnet,
+			"subnet6":           subnet6,
+			"gateway":           gateway,
+			"gateway6":          gateway6,
 			"vlan_id":           vlan_id,
 		}
 		data, e := NewNetworksValue(data_map_attr_type, data_map_value)
