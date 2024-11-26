@@ -74,6 +74,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (SiteWlanModel, diag
 	var limit_bcast types.Bool
 	var limit_probe_response types.Bool
 	var max_idletime types.Int64
+	var max_num_clients types.Int64
 	var mist_nac MistNacValue = NewMistNacValueNull()
 	var msp_id types.String = types.StringValue("")
 	var mxtunnel_ids types.List = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
@@ -86,11 +87,12 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (SiteWlanModel, diag
 	var portal_allowed_subnets types.List = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 	var portal_api_secret types.String
 	var portal_denied_hostnames types.List = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
-	var portal_image types.String
+	var portal_image types.String = types.StringValue("not_present")
 	var portal_sso_url types.String
 	var portal_template_url types.String
 	var qos QosValue
 	var radsec RadsecValue = NewRadsecValueNull()
+	var rateset RatesetValue = NewRatesetValueNull()
 	var roam_mode types.String
 	var schedule ScheduleValue = NewScheduleValueNull()
 	var site_id types.String = types.StringValue("")
@@ -338,6 +340,10 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (SiteWlanModel, diag
 		max_idletime = types.Int64Value(int64(*data.MaxIdletime))
 	}
 
+	if data.MaxNumClients != nil {
+		max_num_clients = types.Int64Value(int64(*data.MaxNumClients))
+	}
+
 	if data.MistNac != nil {
 		mist_nac = mistNacdSkToTerraform(ctx, &diags, data.MistNac)
 	}
@@ -386,7 +392,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (SiteWlanModel, diag
 	}
 
 	if data.PortalImage.IsValueSet() && data.PortalImage.Value() != nil {
-		portal_image = types.StringValue(*data.PortalImage.Value())
+		portal_image = types.StringValue("present")
 	}
 
 	if data.PortalSsoUrl.IsValueSet() && data.PortalSsoUrl.Value() != nil {
@@ -403,6 +409,10 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (SiteWlanModel, diag
 
 	if data.Radsec != nil {
 		radsec = radsecSkToTerraform(ctx, &diags, data.Radsec)
+	}
+
+	if data.Rateset != nil {
+		rateset = ratesetSkToTerraform(ctx, &diags, data.Rateset)
 	}
 
 	if data.RoamMode != nil {
@@ -538,6 +548,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (SiteWlanModel, diag
 	state.LimitBcast = limit_bcast
 	state.LimitProbeResponse = limit_probe_response
 	state.MaxIdletime = max_idletime
+	state.MaxNumClients = max_num_clients
 	state.MistNac = mist_nac
 	state.MspId = msp_id
 	state.MxtunnelIds = mxtunnel_ids
@@ -555,6 +566,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (SiteWlanModel, diag
 	state.PortalTemplateUrl = portal_template_url
 	state.Qos = qos
 	state.Radsec = radsec
+	state.Rateset = rateset
 	state.RoamMode = roam_mode
 	state.Schedule = schedule
 	state.SiteId = site_id

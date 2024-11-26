@@ -21,6 +21,7 @@ func portalTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, plan Por
 	}
 
 	data := models.WlanPortal{}
+	data.AllowWlanIdRoam = plan.AllowWlanIdRoam.ValueBoolPointer()
 	data.AmazonClientId = models.NewOptional(plan.AmazonClientId.ValueStringPointer())
 	data.AmazonClientId = models.NewOptional(plan.AmazonClientId.ValueStringPointer())
 	data.AmazonClientSecret = models.NewOptional(plan.AmazonClientSecret.ValueStringPointer())

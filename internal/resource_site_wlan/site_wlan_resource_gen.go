@@ -17,9 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/float64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
@@ -186,7 +184,6 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 				},
-				Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 			},
 			"app_limit": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -545,6 +542,13 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 								int64validator.Between(1, 65535),
 							},
 							Default: int64default.StaticInt64(1812),
+						},
+						"require_message_authenticator": schema.BoolAttribute{
+							Optional:            true,
+							Computed:            true,
+							Description:         "whether to require Message-Authenticator in requests",
+							MarkdownDescription: "whether to require Message-Authenticator in requests",
+							Default:             booldefault.StaticBool(false),
 						},
 						"secret": schema.StringAttribute{
 							Required:            true,
@@ -1121,15 +1125,16 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "hostspot 2.0 wlan settings",
 			},
 			"id": schema.StringAttribute{
-				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
+				Computed:            true,
+				Description:         "Unique ID of the object instance in the Mist Organnization",
+				MarkdownDescription: "Unique ID of the object instance in the Mist Organnization",
 			},
 			"inject_dhcp_option_82": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"circuit_id": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "information to set in the `circuit_id` field of the DHCP Option 82. It is possible to use static string or the following variables (e.g. `{{SSID}}:{{AP_MAC}}`):\n  * {{AP_MAC}}\n  * {{AP_MAC_DASHED}}\n  * {{AP_MODEL}}\n  * {{AP_NAME}}\n  * {{SITE_NAME}}\n  * {{SSID}}",
+						MarkdownDescription: "information to set in the `circuit_id` field of the DHCP Option 82. It is possible to use static string or the following variables (e.g. `{{SSID}}:{{AP_MAC}}`):\n  * {{AP_MAC}}\n  * {{AP_MAC_DASHED}}\n  * {{AP_MODEL}}\n  * {{AP_NAME}}\n  * {{SITE_NAME}}\n  * {{SSID}}",
 					},
 					"enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -1214,6 +1219,16 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Default: int64default.StaticInt64(1800),
 			},
+			"max_num_clients": schema.Int64Attribute{
+				Optional:            true,
+				Computed:            true,
+				Description:         "maximum number of client connected to the SSID. `0` means unlimited",
+				MarkdownDescription: "maximum number of client connected to the SSID. `0` means unlimited",
+				Validators: []validator.Int64{
+					int64validator.Between(0, 128),
+				},
+				Default: int64default.StaticInt64(0),
+			},
 			"mist_nac": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"enabled": schema.BoolAttribute{
@@ -1233,7 +1248,6 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"msp_id": schema.StringAttribute{
 				Computed: true,
-				Default:  stringdefault.StaticString(""),
 			},
 			"mxtunnel_ids": schema.ListAttribute{
 				ElementType:         types.StringType,
@@ -1244,7 +1258,6 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 				},
-				Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 			},
 			"mxtunnel_name": schema.ListAttribute{
 				ElementType:         types.StringType,
@@ -1255,7 +1268,6 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 				},
-				Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 			},
 			"no_static_dns": schema.BoolAttribute{
 				Optional:            true,
@@ -1276,6 +1288,13 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"portal": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
+					"allow_wlan_id_roam": schema.BoolAttribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "whether to allow guest to connect to other Guest WLANs (with different `WLAN.ssid`) of same org without reauthentication (disable random_mac for seamless roaming)",
+						MarkdownDescription: "whether to allow guest to connect to other Guest WLANs (with different `WLAN.ssid`) of same org without reauthentication (disable random_mac for seamless roaming)",
+						Default:             booldefault.StaticBool(false),
+					},
 					"amazon_client_id": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
@@ -1296,7 +1315,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.",
 						MarkdownDescription: "Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.",
-						Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+						Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 					},
 					"amazon_enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -1453,7 +1472,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.",
 						MarkdownDescription: "Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.",
-						Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+						Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 					},
 					"facebook_enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -1503,7 +1522,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.",
 						MarkdownDescription: "Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.",
-						Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+						Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 					},
 					"google_enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -1554,7 +1573,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.",
 						MarkdownDescription: "Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.",
-						Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+						Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 					},
 					"microsoft_enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -1684,7 +1703,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "list of domain allowed for sponsor email. Required if `sponsor_enabled` is `true` and `sponsors` is empty.",
 						MarkdownDescription: "list of domain allowed for sponsor email. Required if `sponsor_enabled` is `true` and `sponsors` is empty.",
-						Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+						Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 					},
 					"sponsor_enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -1731,48 +1750,59 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 					"sso_default_role": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "default role to assign if there’s no match. By default, an assertion is treated as invalid when there’s no role matched",
-						MarkdownDescription: "default role to assign if there’s no match. By default, an assertion is treated as invalid when there’s no role matched",
+						Description:         "if `wlan_portal_auth`==`sso`, default role to assign if there’s no match. By default, an assertion is treated as invalid when there’s no role matched",
+						MarkdownDescription: "if `wlan_portal_auth`==`sso`, default role to assign if there’s no match. By default, an assertion is treated as invalid when there’s no role matched",
 						Default:             stringdefault.StaticString(""),
 					},
 					"sso_forced_role": schema.StringAttribute{
-						Optional: true,
-						Computed: true,
-						Default:  stringdefault.StaticString(""),
+						Optional:            true,
+						Computed:            true,
+						Description:         "if `wlan_portal_auth`==`sso`",
+						MarkdownDescription: "if `wlan_portal_auth`==`sso`",
+						Default:             stringdefault.StaticString(""),
 					},
 					"sso_idp_cert": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "IDP Cert (used to verify the signed response)",
-						MarkdownDescription: "IDP Cert (used to verify the signed response)",
+						Description:         "if `wlan_portal_auth`==`sso`, IDP Cert (used to verify the signed response)",
+						MarkdownDescription: "if `wlan_portal_auth`==`sso`, IDP Cert (used to verify the signed response)",
 						Default:             stringdefault.StaticString(""),
 					},
 					"sso_idp_sign_algo": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "signing algorithm for SAML Assertion",
-						MarkdownDescription: "signing algorithm for SAML Assertion",
-						Default:             stringdefault.StaticString("sha1"),
+						Description:         "if `wlan_portal_auth`==`sso`, Signing algorithm for SAML Assertion. enum: `sha1`, `sha256`, `sha384`, `sha512`",
+						MarkdownDescription: "if `wlan_portal_auth`==`sso`, Signing algorithm for SAML Assertion. enum: `sha1`, `sha256`, `sha384`, `sha512`",
+						Validators: []validator.String{
+							stringvalidator.OneOf(
+								"",
+								"sha1",
+								"sha256",
+								"sha384",
+								"sha512",
+							),
+						},
+						Default: stringdefault.StaticString("sha1"),
 					},
 					"sso_idp_sso_url": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "IDP Single-Sign-On URL",
-						MarkdownDescription: "IDP Single-Sign-On URL",
+						Description:         "if `wlan_portal_auth`==`sso`, IDP Single-Sign-On URL",
+						MarkdownDescription: "if `wlan_portal_auth`==`sso`, IDP Single-Sign-On URL",
 						Default:             stringdefault.StaticString(""),
 					},
 					"sso_issuer": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "IDP issuer URL",
-						MarkdownDescription: "IDP issuer URL",
+						Description:         "if `wlan_portal_auth`==`sso`, IDP issuer URL",
+						MarkdownDescription: "if `wlan_portal_auth`==`sso`, IDP issuer URL",
 						Default:             stringdefault.StaticString(""),
 					},
 					"sso_nameid_format": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "enum: `email`, `unspecified`",
-						MarkdownDescription: "enum: `email`, `unspecified`",
+						Description:         "if `wlan_portal_auth`==`sso`. enum: `email`, `unspecified`",
+						MarkdownDescription: "if `wlan_portal_auth`==`sso`. enum: `email`, `unspecified`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -1836,7 +1866,6 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 				},
-				Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 			},
 			"portal_allowed_subnets": schema.ListAttribute{
 				ElementType:         types.StringType,
@@ -1851,7 +1880,6 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						mistvalidator.ParseVar(),
 					),
 				},
-				Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 			},
 			"portal_api_secret": schema.StringAttribute{
 				Computed:            true,
@@ -1864,7 +1892,6 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "list of hostnames without http(s):// (matched by substring), this takes precedence over portal_allowed_hostnames",
 				MarkdownDescription: "list of hostnames without http(s):// (matched by substring), this takes precedence over portal_allowed_hostnames",
-				Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 			},
 			"portal_image": schema.StringAttribute{
 				Computed:            true,
@@ -2004,6 +2031,116 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "Radsec settings",
 				MarkdownDescription: "Radsec settings",
 			},
+			"rateset": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"band_24": schema.SingleNestedAttribute{
+						Attributes: map[string]schema.Attribute{
+							"ht": schema.StringAttribute{
+								Optional:            true,
+								Description:         "if `template`==`custom`. MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit), e.g. 00ff 00f0 001f limits HT rates to MCS 0-7 for 1 stream, MCS 4-7 for 2 stream (i.e. MCS 12-15), MCS 1-5 for 3 stream (i.e. MCS 16-20)",
+								MarkdownDescription: "if `template`==`custom`. MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit), e.g. 00ff 00f0 001f limits HT rates to MCS 0-7 for 1 stream, MCS 4-7 for 2 stream (i.e. MCS 12-15), MCS 1-5 for 3 stream (i.e. MCS 16-20)",
+								Validators: []validator.String{
+									mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("template"), types.StringValue("custom")),
+								},
+							},
+							"legacy": schema.ListAttribute{
+								ElementType:         types.StringType,
+								Optional:            true,
+								Description:         "if `template`==`custom`. List of supported rates (IE=1) and extended supported rates (IE=50) for custom template, append ‘b’ at the end to indicate a rate being basic/mandatory. If `template`==`custom` is configured and legacy does not define at least one basic rate, it will use `no-legacy` default values",
+								MarkdownDescription: "if `template`==`custom`. List of supported rates (IE=1) and extended supported rates (IE=50) for custom template, append ‘b’ at the end to indicate a rate being basic/mandatory. If `template`==`custom` is configured and legacy does not define at least one basic rate, it will use `no-legacy` default values",
+							},
+							"min_rssi": schema.Int64Attribute{
+								Optional:            true,
+								Description:         "Minimum RSSI for client to connect, 0 means not enforcing",
+								MarkdownDescription: "Minimum RSSI for client to connect, 0 means not enforcing",
+							},
+							"template": schema.StringAttribute{
+								Optional:            true,
+								Description:         "Data Rates template to apply. enum: \n  * `no-legacy`: no 11b\n  * `compatible`: all, like before, default setting that Broadcom/Atheros used\n  * `legacy-only`: disable 802.11n and 802.11ac\n  * `high-density`: no 11b, no low rates\n  * `custom`: user defined",
+								MarkdownDescription: "Data Rates template to apply. enum: \n  * `no-legacy`: no 11b\n  * `compatible`: all, like before, default setting that Broadcom/Atheros used\n  * `legacy-only`: disable 802.11n and 802.11ac\n  * `high-density`: no 11b, no low rates\n  * `custom`: user defined",
+								Validators: []validator.String{
+									stringvalidator.OneOf(
+										"",
+										"compatible",
+										"legacy-only",
+										"custom",
+										"no-legacy",
+									),
+								},
+							},
+							"vht": schema.StringAttribute{
+								Optional:            true,
+								Description:         "if `template`==`custom`. MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit), e.g. 03ff 01ff 00ff limits VHT rates to MCS 0-9 for 1 stream, MCS 0-8 for 2 streams, and MCS 0-7 for 3 streams.",
+								MarkdownDescription: "if `template`==`custom`. MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit), e.g. 03ff 01ff 00ff limits VHT rates to MCS 0-9 for 1 stream, MCS 0-8 for 2 streams, and MCS 0-7 for 3 streams.",
+								Validators: []validator.String{
+									mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("template"), types.StringValue("custom")),
+								},
+							},
+						},
+						CustomType: Band24Type{
+							ObjectType: types.ObjectType{
+								AttrTypes: Band24Value{}.AttributeTypes(ctx),
+							},
+						},
+						Optional:            true,
+						Description:         "data rates wlan settings",
+						MarkdownDescription: "data rates wlan settings",
+					},
+					"band_5": schema.SingleNestedAttribute{
+						Attributes: map[string]schema.Attribute{
+							"ht": schema.StringAttribute{
+								Optional:            true,
+								Description:         "if `template`==`custom`. MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit), e.g. 00ff 00f0 001f limits HT rates to MCS 0-7 for 1 stream, MCS 4-7 for 2 stream (i.e. MCS 12-15), MCS 1-5 for 3 stream (i.e. MCS 16-20)",
+								MarkdownDescription: "if `template`==`custom`. MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit), e.g. 00ff 00f0 001f limits HT rates to MCS 0-7 for 1 stream, MCS 4-7 for 2 stream (i.e. MCS 12-15), MCS 1-5 for 3 stream (i.e. MCS 16-20)",
+							},
+							"legacy": schema.ListAttribute{
+								ElementType:         types.StringType,
+								Optional:            true,
+								Description:         "if `template`==`custom`. List of supported rates (IE=1) and extended supported rates (IE=50) for custom template, append ‘b’ at the end to indicate a rate being basic/mandatory. If `template`==`custom` is configured and legacy does not define at least one basic rate, it will use `no-legacy` default values",
+								MarkdownDescription: "if `template`==`custom`. List of supported rates (IE=1) and extended supported rates (IE=50) for custom template, append ‘b’ at the end to indicate a rate being basic/mandatory. If `template`==`custom` is configured and legacy does not define at least one basic rate, it will use `no-legacy` default values",
+							},
+							"min_rssi": schema.Int64Attribute{
+								Optional:            true,
+								Description:         "Minimum RSSI for client to connect, 0 means not enforcing",
+								MarkdownDescription: "Minimum RSSI for client to connect, 0 means not enforcing",
+							},
+							"template": schema.StringAttribute{
+								Optional:            true,
+								Description:         "Data Rates template to apply. enum: \n  * `no-legacy`: no 11b\n  * `compatible`: all, like before, default setting that Broadcom/Atheros used\n  * `legacy-only`: disable 802.11n and 802.11ac\n  * `high-density`: no 11b, no low rates\n  * `custom`: user defined",
+								MarkdownDescription: "Data Rates template to apply. enum: \n  * `no-legacy`: no 11b\n  * `compatible`: all, like before, default setting that Broadcom/Atheros used\n  * `legacy-only`: disable 802.11n and 802.11ac\n  * `high-density`: no 11b, no low rates\n  * `custom`: user defined",
+								Validators: []validator.String{
+									stringvalidator.OneOf(
+										"",
+										"compatible",
+										"legacy-only",
+										"custom",
+										"no-legacy",
+									),
+								},
+							},
+							"vht": schema.StringAttribute{
+								Optional:            true,
+								Description:         "if `template`==`custom`. MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit), e.g. 03ff 01ff 00ff limits VHT rates to MCS 0-9 for 1 stream, MCS 0-8 for 2 streams, and MCS 0-7 for 3 streams.",
+								MarkdownDescription: "if `template`==`custom`. MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit), e.g. 03ff 01ff 00ff limits VHT rates to MCS 0-9 for 1 stream, MCS 0-8 for 2 streams, and MCS 0-7 for 3 streams.",
+							},
+						},
+						CustomType: Band5Type{
+							ObjectType: types.ObjectType{
+								AttrTypes: Band5Value{}.AttributeTypes(ctx),
+							},
+						},
+						Optional:            true,
+						Description:         "data rates wlan settings",
+						MarkdownDescription: "data rates wlan settings",
+					},
+				},
+				CustomType: RatesetType{
+					ObjectType: types.ObjectType{
+						AttrTypes: RatesetValue{}.AttributeTypes(ctx),
+					},
+				},
+				Optional: true,
+			},
 			"roam_mode": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
@@ -2013,8 +2150,8 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 					stringvalidator.OneOf(
 						"",
 						"11r",
-						"OKC",
 						"NONE",
+						"OKC",
 					),
 				},
 				Default: stringdefault.StaticString("NONE"),
@@ -2183,7 +2320,6 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 				Validators: []validator.List{
 					listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseInt(1, 4094), mistvalidator.ParseVar())),
 				},
-				Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 			},
 			"wxtunnel_id": schema.StringAttribute{
 				Optional:            true,
@@ -2261,6 +2397,7 @@ type SiteWlanModel struct {
 	LimitBcast                         types.Bool              `tfsdk:"limit_bcast"`
 	LimitProbeResponse                 types.Bool              `tfsdk:"limit_probe_response"`
 	MaxIdletime                        types.Int64             `tfsdk:"max_idletime"`
+	MaxNumClients                      types.Int64             `tfsdk:"max_num_clients"`
 	MistNac                            MistNacValue            `tfsdk:"mist_nac"`
 	MspId                              types.String            `tfsdk:"msp_id"`
 	MxtunnelIds                        types.List              `tfsdk:"mxtunnel_ids"`
@@ -2278,6 +2415,7 @@ type SiteWlanModel struct {
 	PortalTemplateUrl                  types.String            `tfsdk:"portal_template_url"`
 	Qos                                QosValue                `tfsdk:"qos"`
 	Radsec                             RadsecValue             `tfsdk:"radsec"`
+	Rateset                            RatesetValue            `tfsdk:"rateset"`
 	RoamMode                           types.String            `tfsdk:"roam_mode"`
 	Schedule                           ScheduleValue           `tfsdk:"schedule"`
 	SiteId                             types.String            `tfsdk:"site_id"`
@@ -6580,6 +6718,24 @@ func (t AuthServersType) ValueFromObject(ctx context.Context, in basetypes.Objec
 			fmt.Sprintf(`port expected to be basetypes.Int64Value, was: %T`, portAttribute))
 	}
 
+	requireMessageAuthenticatorAttribute, ok := attributes["require_message_authenticator"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`require_message_authenticator is missing from object`)
+
+		return nil, diags
+	}
+
+	requireMessageAuthenticatorVal, ok := requireMessageAuthenticatorAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`require_message_authenticator expected to be basetypes.BoolValue, was: %T`, requireMessageAuthenticatorAttribute))
+	}
+
 	secretAttribute, ok := attributes["secret"]
 
 	if !ok {
@@ -6603,14 +6759,15 @@ func (t AuthServersType) ValueFromObject(ctx context.Context, in basetypes.Objec
 	}
 
 	return AuthServersValue{
-		Host:           hostVal,
-		KeywrapEnabled: keywrapEnabledVal,
-		KeywrapFormat:  keywrapFormatVal,
-		KeywrapKek:     keywrapKekVal,
-		KeywrapMack:    keywrapMackVal,
-		Port:           portVal,
-		Secret:         secretVal,
-		state:          attr.ValueStateKnown,
+		Host:                        hostVal,
+		KeywrapEnabled:              keywrapEnabledVal,
+		KeywrapFormat:               keywrapFormatVal,
+		KeywrapKek:                  keywrapKekVal,
+		KeywrapMack:                 keywrapMackVal,
+		Port:                        portVal,
+		RequireMessageAuthenticator: requireMessageAuthenticatorVal,
+		Secret:                      secretVal,
+		state:                       attr.ValueStateKnown,
 	}, diags
 }
 
@@ -6785,6 +6942,24 @@ func NewAuthServersValue(attributeTypes map[string]attr.Type, attributes map[str
 			fmt.Sprintf(`port expected to be basetypes.Int64Value, was: %T`, portAttribute))
 	}
 
+	requireMessageAuthenticatorAttribute, ok := attributes["require_message_authenticator"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`require_message_authenticator is missing from object`)
+
+		return NewAuthServersValueUnknown(), diags
+	}
+
+	requireMessageAuthenticatorVal, ok := requireMessageAuthenticatorAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`require_message_authenticator expected to be basetypes.BoolValue, was: %T`, requireMessageAuthenticatorAttribute))
+	}
+
 	secretAttribute, ok := attributes["secret"]
 
 	if !ok {
@@ -6808,14 +6983,15 @@ func NewAuthServersValue(attributeTypes map[string]attr.Type, attributes map[str
 	}
 
 	return AuthServersValue{
-		Host:           hostVal,
-		KeywrapEnabled: keywrapEnabledVal,
-		KeywrapFormat:  keywrapFormatVal,
-		KeywrapKek:     keywrapKekVal,
-		KeywrapMack:    keywrapMackVal,
-		Port:           portVal,
-		Secret:         secretVal,
-		state:          attr.ValueStateKnown,
+		Host:                        hostVal,
+		KeywrapEnabled:              keywrapEnabledVal,
+		KeywrapFormat:               keywrapFormatVal,
+		KeywrapKek:                  keywrapKekVal,
+		KeywrapMack:                 keywrapMackVal,
+		Port:                        portVal,
+		RequireMessageAuthenticator: requireMessageAuthenticatorVal,
+		Secret:                      secretVal,
+		state:                       attr.ValueStateKnown,
 	}, diags
 }
 
@@ -6887,18 +7063,19 @@ func (t AuthServersType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = AuthServersValue{}
 
 type AuthServersValue struct {
-	Host           basetypes.StringValue `tfsdk:"host"`
-	KeywrapEnabled basetypes.BoolValue   `tfsdk:"keywrap_enabled"`
-	KeywrapFormat  basetypes.StringValue `tfsdk:"keywrap_format"`
-	KeywrapKek     basetypes.StringValue `tfsdk:"keywrap_kek"`
-	KeywrapMack    basetypes.StringValue `tfsdk:"keywrap_mack"`
-	Port           basetypes.Int64Value  `tfsdk:"port"`
-	Secret         basetypes.StringValue `tfsdk:"secret"`
-	state          attr.ValueState
+	Host                        basetypes.StringValue `tfsdk:"host"`
+	KeywrapEnabled              basetypes.BoolValue   `tfsdk:"keywrap_enabled"`
+	KeywrapFormat               basetypes.StringValue `tfsdk:"keywrap_format"`
+	KeywrapKek                  basetypes.StringValue `tfsdk:"keywrap_kek"`
+	KeywrapMack                 basetypes.StringValue `tfsdk:"keywrap_mack"`
+	Port                        basetypes.Int64Value  `tfsdk:"port"`
+	RequireMessageAuthenticator basetypes.BoolValue   `tfsdk:"require_message_authenticator"`
+	Secret                      basetypes.StringValue `tfsdk:"secret"`
+	state                       attr.ValueState
 }
 
 func (v AuthServersValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 7)
+	attrTypes := make(map[string]tftypes.Type, 8)
 
 	var val tftypes.Value
 	var err error
@@ -6909,13 +7086,14 @@ func (v AuthServersValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 	attrTypes["keywrap_kek"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["keywrap_mack"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["port"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["require_message_authenticator"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["secret"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 7)
+		vals := make(map[string]tftypes.Value, 8)
 
 		val, err = v.Host.ToTerraformValue(ctx)
 
@@ -6965,6 +7143,14 @@ func (v AuthServersValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 
 		vals["port"] = val
 
+		val, err = v.RequireMessageAuthenticator.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["require_message_authenticator"] = val
+
 		val, err = v.Secret.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -7003,13 +7189,14 @@ func (v AuthServersValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 	var diags diag.Diagnostics
 
 	attributeTypes := map[string]attr.Type{
-		"host":            basetypes.StringType{},
-		"keywrap_enabled": basetypes.BoolType{},
-		"keywrap_format":  basetypes.StringType{},
-		"keywrap_kek":     basetypes.StringType{},
-		"keywrap_mack":    basetypes.StringType{},
-		"port":            basetypes.Int64Type{},
-		"secret":          basetypes.StringType{},
+		"host":                          basetypes.StringType{},
+		"keywrap_enabled":               basetypes.BoolType{},
+		"keywrap_format":                basetypes.StringType{},
+		"keywrap_kek":                   basetypes.StringType{},
+		"keywrap_mack":                  basetypes.StringType{},
+		"port":                          basetypes.Int64Type{},
+		"require_message_authenticator": basetypes.BoolType{},
+		"secret":                        basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -7023,13 +7210,14 @@ func (v AuthServersValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"host":            v.Host,
-			"keywrap_enabled": v.KeywrapEnabled,
-			"keywrap_format":  v.KeywrapFormat,
-			"keywrap_kek":     v.KeywrapKek,
-			"keywrap_mack":    v.KeywrapMack,
-			"port":            v.Port,
-			"secret":          v.Secret,
+			"host":                          v.Host,
+			"keywrap_enabled":               v.KeywrapEnabled,
+			"keywrap_format":                v.KeywrapFormat,
+			"keywrap_kek":                   v.KeywrapKek,
+			"keywrap_mack":                  v.KeywrapMack,
+			"port":                          v.Port,
+			"require_message_authenticator": v.RequireMessageAuthenticator,
+			"secret":                        v.Secret,
 		})
 
 	return objVal, diags
@@ -7074,6 +7262,10 @@ func (v AuthServersValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.RequireMessageAuthenticator.Equal(other.RequireMessageAuthenticator) {
+		return false
+	}
+
 	if !v.Secret.Equal(other.Secret) {
 		return false
 	}
@@ -7091,13 +7283,14 @@ func (v AuthServersValue) Type(ctx context.Context) attr.Type {
 
 func (v AuthServersValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"host":            basetypes.StringType{},
-		"keywrap_enabled": basetypes.BoolType{},
-		"keywrap_format":  basetypes.StringType{},
-		"keywrap_kek":     basetypes.StringType{},
-		"keywrap_mack":    basetypes.StringType{},
-		"port":            basetypes.Int64Type{},
-		"secret":          basetypes.StringType{},
+		"host":                          basetypes.StringType{},
+		"keywrap_enabled":               basetypes.BoolType{},
+		"keywrap_format":                basetypes.StringType{},
+		"keywrap_kek":                   basetypes.StringType{},
+		"keywrap_mack":                  basetypes.StringType{},
+		"port":                          basetypes.Int64Type{},
+		"require_message_authenticator": basetypes.BoolType{},
+		"secret":                        basetypes.StringType{},
 	}
 }
 
@@ -12239,6 +12432,24 @@ func (t PortalType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 
 	attributes := in.Attributes()
 
+	allowWlanIdRoamAttribute, ok := attributes["allow_wlan_id_roam"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`allow_wlan_id_roam is missing from object`)
+
+		return nil, diags
+	}
+
+	allowWlanIdRoamVal, ok := allowWlanIdRoamAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`allow_wlan_id_roam expected to be basetypes.BoolValue, was: %T`, allowWlanIdRoamAttribute))
+	}
+
 	amazonClientIdAttribute, ok := attributes["amazon_client_id"]
 
 	if !ok {
@@ -13558,6 +13769,7 @@ func (t PortalType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 	}
 
 	return PortalValue{
+		AllowWlanIdRoam:             allowWlanIdRoamVal,
 		AmazonClientId:              amazonClientIdVal,
 		AmazonClientSecret:          amazonClientSecretVal,
 		AmazonEmailDomains:          amazonEmailDomainsVal,
@@ -13698,6 +13910,24 @@ func NewPortalValue(attributeTypes map[string]attr.Type, attributes map[string]a
 		return NewPortalValueUnknown(), diags
 	}
 
+	allowWlanIdRoamAttribute, ok := attributes["allow_wlan_id_roam"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`allow_wlan_id_roam is missing from object`)
+
+		return NewPortalValueUnknown(), diags
+	}
+
+	allowWlanIdRoamVal, ok := allowWlanIdRoamAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`allow_wlan_id_roam expected to be basetypes.BoolValue, was: %T`, allowWlanIdRoamAttribute))
+	}
+
 	amazonClientIdAttribute, ok := attributes["amazon_client_id"]
 
 	if !ok {
@@ -15017,6 +15247,7 @@ func NewPortalValue(attributeTypes map[string]attr.Type, attributes map[string]a
 	}
 
 	return PortalValue{
+		AllowWlanIdRoam:             allowWlanIdRoamVal,
 		AmazonClientId:              amazonClientIdVal,
 		AmazonClientSecret:          amazonClientSecretVal,
 		AmazonEmailDomains:          amazonEmailDomainsVal,
@@ -15162,6 +15393,7 @@ func (t PortalType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = PortalValue{}
 
 type PortalValue struct {
+	AllowWlanIdRoam             basetypes.BoolValue    `tfsdk:"allow_wlan_id_roam"`
 	AmazonClientId              basetypes.StringValue  `tfsdk:"amazon_client_id"`
 	AmazonClientSecret          basetypes.StringValue  `tfsdk:"amazon_client_secret"`
 	AmazonEmailDomains          basetypes.ListValue    `tfsdk:"amazon_email_domains"`
@@ -15239,11 +15471,12 @@ type PortalValue struct {
 }
 
 func (v PortalValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 73)
+	attrTypes := make(map[string]tftypes.Type, 74)
 
 	var val tftypes.Value
 	var err error
 
+	attrTypes["allow_wlan_id_roam"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["amazon_client_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["amazon_client_secret"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["amazon_email_domains"] = basetypes.ListType{
@@ -15334,7 +15567,15 @@ func (v PortalValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 73)
+		vals := make(map[string]tftypes.Value, 74)
+
+		val, err = v.AllowWlanIdRoam.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["allow_wlan_id_roam"] = val
 
 		val, err = v.AmazonClientId.ToTerraformValue(ctx)
 
@@ -15955,6 +16196,7 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 
 	if d.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
+			"allow_wlan_id_roam":   basetypes.BoolType{},
 			"amazon_client_id":     basetypes.StringType{},
 			"amazon_client_secret": basetypes.StringType{},
 			"amazon_email_domains": basetypes.ListType{
@@ -16049,6 +16291,7 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 
 	if d.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
+			"allow_wlan_id_roam":   basetypes.BoolType{},
 			"amazon_client_id":     basetypes.StringType{},
 			"amazon_client_secret": basetypes.StringType{},
 			"amazon_email_domains": basetypes.ListType{
@@ -16143,6 +16386,7 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 
 	if d.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
+			"allow_wlan_id_roam":   basetypes.BoolType{},
 			"amazon_client_id":     basetypes.StringType{},
 			"amazon_client_secret": basetypes.StringType{},
 			"amazon_email_domains": basetypes.ListType{
@@ -16237,6 +16481,7 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 
 	if d.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
+			"allow_wlan_id_roam":   basetypes.BoolType{},
 			"amazon_client_id":     basetypes.StringType{},
 			"amazon_client_secret": basetypes.StringType{},
 			"amazon_email_domains": basetypes.ListType{
@@ -16331,6 +16576,7 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 
 	if d.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
+			"allow_wlan_id_roam":   basetypes.BoolType{},
 			"amazon_client_id":     basetypes.StringType{},
 			"amazon_client_secret": basetypes.StringType{},
 			"amazon_email_domains": basetypes.ListType{
@@ -16425,6 +16671,7 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 
 	if d.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
+			"allow_wlan_id_roam":   basetypes.BoolType{},
 			"amazon_client_id":     basetypes.StringType{},
 			"amazon_client_secret": basetypes.StringType{},
 			"amazon_email_domains": basetypes.ListType{
@@ -16514,6 +16761,7 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 	}
 
 	attributeTypes := map[string]attr.Type{
+		"allow_wlan_id_roam":   basetypes.BoolType{},
 		"amazon_client_id":     basetypes.StringType{},
 		"amazon_client_secret": basetypes.StringType{},
 		"amazon_email_domains": basetypes.ListType{
@@ -16612,6 +16860,7 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
+			"allow_wlan_id_roam":             v.AllowWlanIdRoam,
 			"amazon_client_id":               v.AmazonClientId,
 			"amazon_client_secret":           v.AmazonClientSecret,
 			"amazon_email_domains":           amazonEmailDomainsVal,
@@ -16703,6 +16952,10 @@ func (v PortalValue) Equal(o attr.Value) bool {
 
 	if v.state != attr.ValueStateKnown {
 		return true
+	}
+
+	if !v.AllowWlanIdRoam.Equal(other.AllowWlanIdRoam) {
+		return false
 	}
 
 	if !v.AmazonClientId.Equal(other.AmazonClientId) {
@@ -17010,6 +17263,7 @@ func (v PortalValue) Type(ctx context.Context) attr.Type {
 
 func (v PortalValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
+		"allow_wlan_id_roam":   basetypes.BoolType{},
 		"amazon_client_id":     basetypes.StringType{},
 		"amazon_client_secret": basetypes.StringType{},
 		"amazon_email_domains": basetypes.ListType{
@@ -18712,6 +18966,1571 @@ func (v ServersValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"host": basetypes.StringType{},
 		"port": basetypes.Int64Type{},
+	}
+}
+
+var _ basetypes.ObjectTypable = RatesetType{}
+
+type RatesetType struct {
+	basetypes.ObjectType
+}
+
+func (t RatesetType) Equal(o attr.Type) bool {
+	other, ok := o.(RatesetType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t RatesetType) String() string {
+	return "RatesetType"
+}
+
+func (t RatesetType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	band24Attribute, ok := attributes["band_24"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`band_24 is missing from object`)
+
+		return nil, diags
+	}
+
+	band24Val, ok := band24Attribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`band_24 expected to be basetypes.ObjectValue, was: %T`, band24Attribute))
+	}
+
+	band5Attribute, ok := attributes["band_5"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`band_5 is missing from object`)
+
+		return nil, diags
+	}
+
+	band5Val, ok := band5Attribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`band_5 expected to be basetypes.ObjectValue, was: %T`, band5Attribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return RatesetValue{
+		Band24: band24Val,
+		Band5:  band5Val,
+		state:  attr.ValueStateKnown,
+	}, diags
+}
+
+func NewRatesetValueNull() RatesetValue {
+	return RatesetValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewRatesetValueUnknown() RatesetValue {
+	return RatesetValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewRatesetValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (RatesetValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing RatesetValue Attribute Value",
+				"While creating a RatesetValue value, a missing attribute value was detected. "+
+					"A RatesetValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("RatesetValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid RatesetValue Attribute Type",
+				"While creating a RatesetValue value, an invalid attribute value was detected. "+
+					"A RatesetValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("RatesetValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("RatesetValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra RatesetValue Attribute Value",
+				"While creating a RatesetValue value, an extra attribute value was detected. "+
+					"A RatesetValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra RatesetValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewRatesetValueUnknown(), diags
+	}
+
+	band24Attribute, ok := attributes["band_24"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`band_24 is missing from object`)
+
+		return NewRatesetValueUnknown(), diags
+	}
+
+	band24Val, ok := band24Attribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`band_24 expected to be basetypes.ObjectValue, was: %T`, band24Attribute))
+	}
+
+	band5Attribute, ok := attributes["band_5"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`band_5 is missing from object`)
+
+		return NewRatesetValueUnknown(), diags
+	}
+
+	band5Val, ok := band5Attribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`band_5 expected to be basetypes.ObjectValue, was: %T`, band5Attribute))
+	}
+
+	if diags.HasError() {
+		return NewRatesetValueUnknown(), diags
+	}
+
+	return RatesetValue{
+		Band24: band24Val,
+		Band5:  band5Val,
+		state:  attr.ValueStateKnown,
+	}, diags
+}
+
+func NewRatesetValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) RatesetValue {
+	object, diags := NewRatesetValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewRatesetValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t RatesetType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewRatesetValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewRatesetValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewRatesetValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewRatesetValueMust(RatesetValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t RatesetType) ValueType(ctx context.Context) attr.Value {
+	return RatesetValue{}
+}
+
+var _ basetypes.ObjectValuable = RatesetValue{}
+
+type RatesetValue struct {
+	Band24 basetypes.ObjectValue `tfsdk:"band_24"`
+	Band5  basetypes.ObjectValue `tfsdk:"band_5"`
+	state  attr.ValueState
+}
+
+func (v RatesetValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 2)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["band_24"] = basetypes.ObjectType{
+		AttrTypes: Band24Value{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
+	attrTypes["band_5"] = basetypes.ObjectType{
+		AttrTypes: Band5Value{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 2)
+
+		val, err = v.Band24.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["band_24"] = val
+
+		val, err = v.Band5.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["band_5"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v RatesetValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v RatesetValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v RatesetValue) String() string {
+	return "RatesetValue"
+}
+
+func (v RatesetValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	var band24 basetypes.ObjectValue
+
+	if v.Band24.IsNull() {
+		band24 = types.ObjectNull(
+			Band24Value{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.Band24.IsUnknown() {
+		band24 = types.ObjectUnknown(
+			Band24Value{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.Band24.IsNull() && !v.Band24.IsUnknown() {
+		band24 = types.ObjectValueMust(
+			Band24Value{}.AttributeTypes(ctx),
+			v.Band24.Attributes(),
+		)
+	}
+
+	var band5 basetypes.ObjectValue
+
+	if v.Band5.IsNull() {
+		band5 = types.ObjectNull(
+			Band5Value{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.Band5.IsUnknown() {
+		band5 = types.ObjectUnknown(
+			Band5Value{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.Band5.IsNull() && !v.Band5.IsUnknown() {
+		band5 = types.ObjectValueMust(
+			Band5Value{}.AttributeTypes(ctx),
+			v.Band5.Attributes(),
+		)
+	}
+
+	attributeTypes := map[string]attr.Type{
+		"band_24": basetypes.ObjectType{
+			AttrTypes: Band24Value{}.AttributeTypes(ctx),
+		},
+		"band_5": basetypes.ObjectType{
+			AttrTypes: Band5Value{}.AttributeTypes(ctx),
+		},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"band_24": band24,
+			"band_5":  band5,
+		})
+
+	return objVal, diags
+}
+
+func (v RatesetValue) Equal(o attr.Value) bool {
+	other, ok := o.(RatesetValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Band24.Equal(other.Band24) {
+		return false
+	}
+
+	if !v.Band5.Equal(other.Band5) {
+		return false
+	}
+
+	return true
+}
+
+func (v RatesetValue) Type(ctx context.Context) attr.Type {
+	return RatesetType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v RatesetValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"band_24": basetypes.ObjectType{
+			AttrTypes: Band24Value{}.AttributeTypes(ctx),
+		},
+		"band_5": basetypes.ObjectType{
+			AttrTypes: Band5Value{}.AttributeTypes(ctx),
+		},
+	}
+}
+
+var _ basetypes.ObjectTypable = Band24Type{}
+
+type Band24Type struct {
+	basetypes.ObjectType
+}
+
+func (t Band24Type) Equal(o attr.Type) bool {
+	other, ok := o.(Band24Type)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t Band24Type) String() string {
+	return "Band24Type"
+}
+
+func (t Band24Type) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	htAttribute, ok := attributes["ht"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ht is missing from object`)
+
+		return nil, diags
+	}
+
+	htVal, ok := htAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ht expected to be basetypes.StringValue, was: %T`, htAttribute))
+	}
+
+	legacyAttribute, ok := attributes["legacy"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`legacy is missing from object`)
+
+		return nil, diags
+	}
+
+	legacyVal, ok := legacyAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`legacy expected to be basetypes.ListValue, was: %T`, legacyAttribute))
+	}
+
+	minRssiAttribute, ok := attributes["min_rssi"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`min_rssi is missing from object`)
+
+		return nil, diags
+	}
+
+	minRssiVal, ok := minRssiAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`min_rssi expected to be basetypes.Int64Value, was: %T`, minRssiAttribute))
+	}
+
+	templateAttribute, ok := attributes["template"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`template is missing from object`)
+
+		return nil, diags
+	}
+
+	templateVal, ok := templateAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`template expected to be basetypes.StringValue, was: %T`, templateAttribute))
+	}
+
+	vhtAttribute, ok := attributes["vht"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`vht is missing from object`)
+
+		return nil, diags
+	}
+
+	vhtVal, ok := vhtAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`vht expected to be basetypes.StringValue, was: %T`, vhtAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return Band24Value{
+		Ht:       htVal,
+		Legacy:   legacyVal,
+		MinRssi:  minRssiVal,
+		Template: templateVal,
+		Vht:      vhtVal,
+		state:    attr.ValueStateKnown,
+	}, diags
+}
+
+func NewBand24ValueNull() Band24Value {
+	return Band24Value{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewBand24ValueUnknown() Band24Value {
+	return Band24Value{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewBand24Value(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (Band24Value, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing Band24Value Attribute Value",
+				"While creating a Band24Value value, a missing attribute value was detected. "+
+					"A Band24Value must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Band24Value Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid Band24Value Attribute Type",
+				"While creating a Band24Value value, an invalid attribute value was detected. "+
+					"A Band24Value must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Band24Value Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("Band24Value Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra Band24Value Attribute Value",
+				"While creating a Band24Value value, an extra attribute value was detected. "+
+					"A Band24Value must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra Band24Value Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewBand24ValueUnknown(), diags
+	}
+
+	htAttribute, ok := attributes["ht"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ht is missing from object`)
+
+		return NewBand24ValueUnknown(), diags
+	}
+
+	htVal, ok := htAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ht expected to be basetypes.StringValue, was: %T`, htAttribute))
+	}
+
+	legacyAttribute, ok := attributes["legacy"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`legacy is missing from object`)
+
+		return NewBand24ValueUnknown(), diags
+	}
+
+	legacyVal, ok := legacyAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`legacy expected to be basetypes.ListValue, was: %T`, legacyAttribute))
+	}
+
+	minRssiAttribute, ok := attributes["min_rssi"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`min_rssi is missing from object`)
+
+		return NewBand24ValueUnknown(), diags
+	}
+
+	minRssiVal, ok := minRssiAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`min_rssi expected to be basetypes.Int64Value, was: %T`, minRssiAttribute))
+	}
+
+	templateAttribute, ok := attributes["template"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`template is missing from object`)
+
+		return NewBand24ValueUnknown(), diags
+	}
+
+	templateVal, ok := templateAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`template expected to be basetypes.StringValue, was: %T`, templateAttribute))
+	}
+
+	vhtAttribute, ok := attributes["vht"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`vht is missing from object`)
+
+		return NewBand24ValueUnknown(), diags
+	}
+
+	vhtVal, ok := vhtAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`vht expected to be basetypes.StringValue, was: %T`, vhtAttribute))
+	}
+
+	if diags.HasError() {
+		return NewBand24ValueUnknown(), diags
+	}
+
+	return Band24Value{
+		Ht:       htVal,
+		Legacy:   legacyVal,
+		MinRssi:  minRssiVal,
+		Template: templateVal,
+		Vht:      vhtVal,
+		state:    attr.ValueStateKnown,
+	}, diags
+}
+
+func NewBand24ValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) Band24Value {
+	object, diags := NewBand24Value(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewBand24ValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t Band24Type) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewBand24ValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewBand24ValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewBand24ValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewBand24ValueMust(Band24Value{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t Band24Type) ValueType(ctx context.Context) attr.Value {
+	return Band24Value{}
+}
+
+var _ basetypes.ObjectValuable = Band24Value{}
+
+type Band24Value struct {
+	Ht       basetypes.StringValue `tfsdk:"ht"`
+	Legacy   basetypes.ListValue   `tfsdk:"legacy"`
+	MinRssi  basetypes.Int64Value  `tfsdk:"min_rssi"`
+	Template basetypes.StringValue `tfsdk:"template"`
+	Vht      basetypes.StringValue `tfsdk:"vht"`
+	state    attr.ValueState
+}
+
+func (v Band24Value) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 5)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["ht"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["legacy"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["min_rssi"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["template"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["vht"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 5)
+
+		val, err = v.Ht.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["ht"] = val
+
+		val, err = v.Legacy.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["legacy"] = val
+
+		val, err = v.MinRssi.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["min_rssi"] = val
+
+		val, err = v.Template.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["template"] = val
+
+		val, err = v.Vht.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["vht"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v Band24Value) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v Band24Value) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v Band24Value) String() string {
+	return "Band24Value"
+}
+
+func (v Band24Value) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	legacyVal, d := types.ListValue(types.StringType, v.Legacy.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"ht": basetypes.StringType{},
+			"legacy": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"min_rssi": basetypes.Int64Type{},
+			"template": basetypes.StringType{},
+			"vht":      basetypes.StringType{},
+		}), diags
+	}
+
+	attributeTypes := map[string]attr.Type{
+		"ht": basetypes.StringType{},
+		"legacy": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"min_rssi": basetypes.Int64Type{},
+		"template": basetypes.StringType{},
+		"vht":      basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"ht":       v.Ht,
+			"legacy":   legacyVal,
+			"min_rssi": v.MinRssi,
+			"template": v.Template,
+			"vht":      v.Vht,
+		})
+
+	return objVal, diags
+}
+
+func (v Band24Value) Equal(o attr.Value) bool {
+	other, ok := o.(Band24Value)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Ht.Equal(other.Ht) {
+		return false
+	}
+
+	if !v.Legacy.Equal(other.Legacy) {
+		return false
+	}
+
+	if !v.MinRssi.Equal(other.MinRssi) {
+		return false
+	}
+
+	if !v.Template.Equal(other.Template) {
+		return false
+	}
+
+	if !v.Vht.Equal(other.Vht) {
+		return false
+	}
+
+	return true
+}
+
+func (v Band24Value) Type(ctx context.Context) attr.Type {
+	return Band24Type{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v Band24Value) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"ht": basetypes.StringType{},
+		"legacy": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"min_rssi": basetypes.Int64Type{},
+		"template": basetypes.StringType{},
+		"vht":      basetypes.StringType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = Band5Type{}
+
+type Band5Type struct {
+	basetypes.ObjectType
+}
+
+func (t Band5Type) Equal(o attr.Type) bool {
+	other, ok := o.(Band5Type)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t Band5Type) String() string {
+	return "Band5Type"
+}
+
+func (t Band5Type) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	htAttribute, ok := attributes["ht"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ht is missing from object`)
+
+		return nil, diags
+	}
+
+	htVal, ok := htAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ht expected to be basetypes.StringValue, was: %T`, htAttribute))
+	}
+
+	legacyAttribute, ok := attributes["legacy"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`legacy is missing from object`)
+
+		return nil, diags
+	}
+
+	legacyVal, ok := legacyAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`legacy expected to be basetypes.ListValue, was: %T`, legacyAttribute))
+	}
+
+	minRssiAttribute, ok := attributes["min_rssi"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`min_rssi is missing from object`)
+
+		return nil, diags
+	}
+
+	minRssiVal, ok := minRssiAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`min_rssi expected to be basetypes.Int64Value, was: %T`, minRssiAttribute))
+	}
+
+	templateAttribute, ok := attributes["template"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`template is missing from object`)
+
+		return nil, diags
+	}
+
+	templateVal, ok := templateAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`template expected to be basetypes.StringValue, was: %T`, templateAttribute))
+	}
+
+	vhtAttribute, ok := attributes["vht"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`vht is missing from object`)
+
+		return nil, diags
+	}
+
+	vhtVal, ok := vhtAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`vht expected to be basetypes.StringValue, was: %T`, vhtAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return Band5Value{
+		Ht:       htVal,
+		Legacy:   legacyVal,
+		MinRssi:  minRssiVal,
+		Template: templateVal,
+		Vht:      vhtVal,
+		state:    attr.ValueStateKnown,
+	}, diags
+}
+
+func NewBand5ValueNull() Band5Value {
+	return Band5Value{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewBand5ValueUnknown() Band5Value {
+	return Band5Value{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewBand5Value(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (Band5Value, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing Band5Value Attribute Value",
+				"While creating a Band5Value value, a missing attribute value was detected. "+
+					"A Band5Value must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Band5Value Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid Band5Value Attribute Type",
+				"While creating a Band5Value value, an invalid attribute value was detected. "+
+					"A Band5Value must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Band5Value Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("Band5Value Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra Band5Value Attribute Value",
+				"While creating a Band5Value value, an extra attribute value was detected. "+
+					"A Band5Value must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra Band5Value Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewBand5ValueUnknown(), diags
+	}
+
+	htAttribute, ok := attributes["ht"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ht is missing from object`)
+
+		return NewBand5ValueUnknown(), diags
+	}
+
+	htVal, ok := htAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ht expected to be basetypes.StringValue, was: %T`, htAttribute))
+	}
+
+	legacyAttribute, ok := attributes["legacy"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`legacy is missing from object`)
+
+		return NewBand5ValueUnknown(), diags
+	}
+
+	legacyVal, ok := legacyAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`legacy expected to be basetypes.ListValue, was: %T`, legacyAttribute))
+	}
+
+	minRssiAttribute, ok := attributes["min_rssi"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`min_rssi is missing from object`)
+
+		return NewBand5ValueUnknown(), diags
+	}
+
+	minRssiVal, ok := minRssiAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`min_rssi expected to be basetypes.Int64Value, was: %T`, minRssiAttribute))
+	}
+
+	templateAttribute, ok := attributes["template"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`template is missing from object`)
+
+		return NewBand5ValueUnknown(), diags
+	}
+
+	templateVal, ok := templateAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`template expected to be basetypes.StringValue, was: %T`, templateAttribute))
+	}
+
+	vhtAttribute, ok := attributes["vht"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`vht is missing from object`)
+
+		return NewBand5ValueUnknown(), diags
+	}
+
+	vhtVal, ok := vhtAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`vht expected to be basetypes.StringValue, was: %T`, vhtAttribute))
+	}
+
+	if diags.HasError() {
+		return NewBand5ValueUnknown(), diags
+	}
+
+	return Band5Value{
+		Ht:       htVal,
+		Legacy:   legacyVal,
+		MinRssi:  minRssiVal,
+		Template: templateVal,
+		Vht:      vhtVal,
+		state:    attr.ValueStateKnown,
+	}, diags
+}
+
+func NewBand5ValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) Band5Value {
+	object, diags := NewBand5Value(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewBand5ValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t Band5Type) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewBand5ValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewBand5ValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewBand5ValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewBand5ValueMust(Band5Value{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t Band5Type) ValueType(ctx context.Context) attr.Value {
+	return Band5Value{}
+}
+
+var _ basetypes.ObjectValuable = Band5Value{}
+
+type Band5Value struct {
+	Ht       basetypes.StringValue `tfsdk:"ht"`
+	Legacy   basetypes.ListValue   `tfsdk:"legacy"`
+	MinRssi  basetypes.Int64Value  `tfsdk:"min_rssi"`
+	Template basetypes.StringValue `tfsdk:"template"`
+	Vht      basetypes.StringValue `tfsdk:"vht"`
+	state    attr.ValueState
+}
+
+func (v Band5Value) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 5)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["ht"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["legacy"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["min_rssi"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["template"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["vht"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 5)
+
+		val, err = v.Ht.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["ht"] = val
+
+		val, err = v.Legacy.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["legacy"] = val
+
+		val, err = v.MinRssi.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["min_rssi"] = val
+
+		val, err = v.Template.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["template"] = val
+
+		val, err = v.Vht.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["vht"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v Band5Value) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v Band5Value) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v Band5Value) String() string {
+	return "Band5Value"
+}
+
+func (v Band5Value) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	legacyVal, d := types.ListValue(types.StringType, v.Legacy.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"ht": basetypes.StringType{},
+			"legacy": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"min_rssi": basetypes.Int64Type{},
+			"template": basetypes.StringType{},
+			"vht":      basetypes.StringType{},
+		}), diags
+	}
+
+	attributeTypes := map[string]attr.Type{
+		"ht": basetypes.StringType{},
+		"legacy": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"min_rssi": basetypes.Int64Type{},
+		"template": basetypes.StringType{},
+		"vht":      basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"ht":       v.Ht,
+			"legacy":   legacyVal,
+			"min_rssi": v.MinRssi,
+			"template": v.Template,
+			"vht":      v.Vht,
+		})
+
+	return objVal, diags
+}
+
+func (v Band5Value) Equal(o attr.Value) bool {
+	other, ok := o.(Band5Value)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Ht.Equal(other.Ht) {
+		return false
+	}
+
+	if !v.Legacy.Equal(other.Legacy) {
+		return false
+	}
+
+	if !v.MinRssi.Equal(other.MinRssi) {
+		return false
+	}
+
+	if !v.Template.Equal(other.Template) {
+		return false
+	}
+
+	if !v.Vht.Equal(other.Vht) {
+		return false
+	}
+
+	return true
+}
+
+func (v Band5Value) Type(ctx context.Context) attr.Type {
+	return Band5Type{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v Band5Value) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"ht": basetypes.StringType{},
+		"legacy": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"min_rssi": basetypes.Int64Type{},
+		"template": basetypes.StringType{},
+		"vht":      basetypes.StringType{},
 	}
 }
 

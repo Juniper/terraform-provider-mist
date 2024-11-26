@@ -107,6 +107,7 @@ resource "mist_site_wlan" "wlan_one" {
 - `limit_bcast` (Boolean) whether to limit broadcast packets going to wireless (i.e. only allow certain bcast packets to go through)
 - `limit_probe_response` (Boolean) limit probe response base on some heuristic rules
 - `max_idletime` (Number) max idle time in seconds
+- `max_num_clients` (Number) maximum number of client connected to the SSID. `0` means unlimited
 - `mist_nac` (Attributes) (see [below for nested schema](#nestedatt--mist_nac))
 - `mxtunnel_ids` (List of String) when `interface`=`mxtunnel`, id of the Mist Tunnel
 - `mxtunnel_name` (List of String) when `interface`=`site_medge`, name of the mxtunnel that in mxtunnels under Site Setting
@@ -118,6 +119,7 @@ resource "mist_site_wlan" "wlan_one" {
 - `portal_denied_hostnames` (List of String) list of hostnames without http(s):// (matched by substring), this takes precedence over portal_allowed_hostnames
 - `qos` (Attributes) (see [below for nested schema](#nestedatt--qos))
 - `radsec` (Attributes) Radsec settings (see [below for nested schema](#nestedatt--radsec))
+- `rateset` (Attributes) (see [below for nested schema](#nestedatt--rateset))
 - `roam_mode` (String) enum: `11r`, `OKC`, `NONE`
 - `schedule` (Attributes) WLAN operating schedule, default is disabled (see [below for nested schema](#nestedatt--schedule))
 - `sle_excluded` (Boolean) whether to exclude this WLAN from SLE metrics
@@ -136,7 +138,7 @@ resource "mist_site_wlan" "wlan_one" {
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
+- `id` (String) Unique ID of the object instance in the Mist Organnization
 - `msp_id` (String)
 - `org_id` (String)
 - `portal_api_secret` (String) api secret (auto-generated) that can be used to sign guest authorization requests
@@ -255,6 +257,7 @@ Optional:
 - `keywrap_kek` (String)
 - `keywrap_mack` (String)
 - `port` (Number) Auth port of RADIUS server
+- `require_message_authenticator` (Boolean) whether to require Message-Authenticator in requests
 
 
 <a id="nestedatt--bonjour"></a>
@@ -366,7 +369,13 @@ Optional:
 
 Optional:
 
-- `circuit_id` (String)
+- `circuit_id` (String) information to set in the `circuit_id` field of the DHCP Option 82. It is possible to use static string or the following variables (e.g. `{{SSID}}:{{AP_MAC}}`):
+  * {{AP_MAC}}
+  * {{AP_MAC_DASHED}}
+  * {{AP_MODEL}}
+  * {{AP_NAME}}
+  * {{SITE_NAME}}
+  * {{SSID}}
 - `enabled` (Boolean) whether to inject option 82 when forwarding DHCP packets
 
 
@@ -389,6 +398,7 @@ Optional:
 
 Optional:
 
+- `allow_wlan_id_roam` (Boolean) whether to allow guest to connect to other Guest WLANs (with different `WLAN.ssid`) of same org without reauthentication (disable random_mac for seamless roaming)
 - `amazon_client_id` (String) amazon OAuth2 client id. This is optional. If not provided, it will use a default one.
 - `amazon_client_secret` (String) amazon OAuth2 client secret. If amazon_client_id was provided, provide a correspoinding value. Else leave blank.
 - `amazon_email_domains` (List of String) Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.
@@ -458,13 +468,13 @@ Facebook OAuth2 app secret. If facebook_client_id was provided, provide a corres
             is `true` and `sponsor_email_domains` is empty.
 
             Property key is the sponsor email, Property value is the sponsor name
-- `sso_default_role` (String) default role to assign if there’s no match. By default, an assertion is treated as invalid when there’s no role matched
-- `sso_forced_role` (String)
-- `sso_idp_cert` (String) IDP Cert (used to verify the signed response)
-- `sso_idp_sign_algo` (String) signing algorithm for SAML Assertion
-- `sso_idp_sso_url` (String) IDP Single-Sign-On URL
-- `sso_issuer` (String) IDP issuer URL
-- `sso_nameid_format` (String) enum: `email`, `unspecified`
+- `sso_default_role` (String) if `wlan_portal_auth`==`sso`, default role to assign if there’s no match. By default, an assertion is treated as invalid when there’s no role matched
+- `sso_forced_role` (String) if `wlan_portal_auth`==`sso`
+- `sso_idp_cert` (String) if `wlan_portal_auth`==`sso`, IDP Cert (used to verify the signed response)
+- `sso_idp_sign_algo` (String) if `wlan_portal_auth`==`sso`, Signing algorithm for SAML Assertion. enum: `sha1`, `sha256`, `sha384`, `sha512`
+- `sso_idp_sso_url` (String) if `wlan_portal_auth`==`sso`, IDP Single-Sign-On URL
+- `sso_issuer` (String) if `wlan_portal_auth`==`sso`, IDP issuer URL
+- `sso_nameid_format` (String) if `wlan_portal_auth`==`sso`. enum: `email`, `unspecified`
 - `telstra_client_id` (String) when `sms_provider`==`telstra`, Client ID provided by Telstra
 - `telstra_client_secret` (String) when `sms_provider`==`telstra`, Client secret provided by Telstra
 - `twilio_auth_token` (String) when `sms_provider`==`twilio`, Auth token account with twilio account
@@ -505,6 +515,49 @@ Optional:
 
 - `host` (String)
 - `port` (Number)
+
+
+
+<a id="nestedatt--rateset"></a>
+### Nested Schema for `rateset`
+
+Optional:
+
+- `band_24` (Attributes) data rates wlan settings (see [below for nested schema](#nestedatt--rateset--band_24))
+- `band_5` (Attributes) data rates wlan settings (see [below for nested schema](#nestedatt--rateset--band_5))
+
+<a id="nestedatt--rateset--band_24"></a>
+### Nested Schema for `rateset.band_24`
+
+Optional:
+
+- `ht` (String) if `template`==`custom`. MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit), e.g. 00ff 00f0 001f limits HT rates to MCS 0-7 for 1 stream, MCS 4-7 for 2 stream (i.e. MCS 12-15), MCS 1-5 for 3 stream (i.e. MCS 16-20)
+- `legacy` (List of String) if `template`==`custom`. List of supported rates (IE=1) and extended supported rates (IE=50) for custom template, append ‘b’ at the end to indicate a rate being basic/mandatory. If `template`==`custom` is configured and legacy does not define at least one basic rate, it will use `no-legacy` default values
+- `min_rssi` (Number) Minimum RSSI for client to connect, 0 means not enforcing
+- `template` (String) Data Rates template to apply. enum: 
+  * `no-legacy`: no 11b
+  * `compatible`: all, like before, default setting that Broadcom/Atheros used
+  * `legacy-only`: disable 802.11n and 802.11ac
+  * `high-density`: no 11b, no low rates
+  * `custom`: user defined
+- `vht` (String) if `template`==`custom`. MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit), e.g. 03ff 01ff 00ff limits VHT rates to MCS 0-9 for 1 stream, MCS 0-8 for 2 streams, and MCS 0-7 for 3 streams.
+
+
+<a id="nestedatt--rateset--band_5"></a>
+### Nested Schema for `rateset.band_5`
+
+Optional:
+
+- `ht` (String) if `template`==`custom`. MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit), e.g. 00ff 00f0 001f limits HT rates to MCS 0-7 for 1 stream, MCS 4-7 for 2 stream (i.e. MCS 12-15), MCS 1-5 for 3 stream (i.e. MCS 16-20)
+- `legacy` (List of String) if `template`==`custom`. List of supported rates (IE=1) and extended supported rates (IE=50) for custom template, append ‘b’ at the end to indicate a rate being basic/mandatory. If `template`==`custom` is configured and legacy does not define at least one basic rate, it will use `no-legacy` default values
+- `min_rssi` (Number) Minimum RSSI for client to connect, 0 means not enforcing
+- `template` (String) Data Rates template to apply. enum: 
+  * `no-legacy`: no 11b
+  * `compatible`: all, like before, default setting that Broadcom/Atheros used
+  * `legacy-only`: disable 802.11n and 802.11ac
+  * `high-density`: no 11b, no low rates
+  * `custom`: user defined
+- `vht` (String) if `template`==`custom`. MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit), e.g. 03ff 01ff 00ff limits VHT rates to MCS 0-9 for 1 stream, MCS 0-8 for 2 streams, and MCS 0-7 for 3 streams.
 
 
 
