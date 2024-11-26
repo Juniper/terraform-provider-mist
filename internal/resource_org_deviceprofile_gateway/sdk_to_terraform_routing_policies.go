@@ -13,7 +13,7 @@ import (
 	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
-func routingPolocyTermMatchingRouteExistsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.RoutingPolicyTermMatchingRouteExists) basetypes.ObjectValue {
+func routingPolicyTermMatchingRouteExistsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.RoutingPolicyTermMatchingRouteExists) basetypes.ObjectValue {
 	var route basetypes.StringValue
 	var vrf_name basetypes.StringValue = types.StringValue("default")
 
@@ -34,7 +34,7 @@ func routingPolocyTermMatchingRouteExistsSdkToTerraform(ctx context.Context, dia
 
 	return data
 }
-func routingPolocyTermMatchingVpnSlaSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.RoutingPolicyTermMatchingVpnPathSla) basetypes.ObjectValue {
+func routingPolicyTermMatchingVpnSlaSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.RoutingPolicyTermMatchingVpnPathSla) basetypes.ObjectValue {
 
 	var max_jitter basetypes.Int64Value
 	var max_latency basetypes.Int64Value
@@ -62,7 +62,7 @@ func routingPolocyTermMatchingVpnSlaSdkToTerraform(ctx context.Context, diags *d
 	return data
 
 }
-func routingPolocyTermMatchingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.RoutingPolicyTermMatching) basetypes.ObjectValue {
+func routingPolicyTermMatchingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.RoutingPolicyTermMatching) basetypes.ObjectValue {
 
 	var as_path basetypes.ListValue = types.ListNull(types.StringType)
 	var community basetypes.ListValue = types.ListNull(types.StringType)
@@ -90,7 +90,7 @@ func routingPolocyTermMatchingSdkToTerraform(ctx context.Context, diags *diag.Di
 		protocol = mist_transform.ListOfStringSdkToTerraform(ctx, d.Protocol)
 	}
 	if d.RouteExists != nil {
-		route_exists = routingPolocyTermMatchingRouteExistsSdkToTerraform(ctx, diags, *d.RouteExists)
+		route_exists = routingPolicyTermMatchingRouteExistsSdkToTerraform(ctx, diags, *d.RouteExists)
 	}
 	if d.VpnNeighborMac != nil {
 		vpn_neighbor_mac = mist_transform.ListOfStringSdkToTerraform(ctx, d.VpnNeighborMac)
@@ -99,7 +99,7 @@ func routingPolocyTermMatchingSdkToTerraform(ctx context.Context, diags *diag.Di
 		vpn_path = mist_transform.ListOfStringSdkToTerraform(ctx, d.VpnPath)
 	}
 	if d.VpnPathSla != nil {
-		vpn_path_sla = routingPolocyTermMatchingVpnSlaSdkToTerraform(ctx, diags, *d.VpnPathSla)
+		vpn_path_sla = routingPolicyTermMatchingVpnSlaSdkToTerraform(ctx, diags, *d.VpnPathSla)
 	}
 
 	data_map_attr_type := RoutingPolicyTermMatchingValue{}.AttributeTypes(ctx)
@@ -119,7 +119,7 @@ func routingPolocyTermMatchingSdkToTerraform(ctx context.Context, diags *diag.Di
 
 	return data
 }
-func routingPolocyTermActionSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.RoutingPolicyTermAction) basetypes.ObjectValue {
+func routingPolicyTermActionSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.RoutingPolicyTermAction) basetypes.ObjectValue {
 
 	var accept basetypes.BoolValue
 	var add_community basetypes.ListValue = types.ListNull(types.StringType)
@@ -177,18 +177,18 @@ func routingPolocyTermActionSdkToTerraform(ctx context.Context, diags *diag.Diag
 	return data
 }
 
-func routingPolocyTermsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.RoutingPolicyTerm) basetypes.ListValue {
+func routingPolicyTermsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.RoutingPolicyTerm) basetypes.ListValue {
 	var data_list = []TermsValue{}
 
 	for _, d := range l {
 		var action basetypes.ObjectValue = types.ObjectNull(ActionValue{}.AttributeTypes(ctx))
-		var matching basetypes.ObjectValue //= types.ObjectNull(RoutingPolicyTermMatchingValue{}.AttributeTypes(ctx))
+		var matching basetypes.ObjectValue = types.ObjectNull(RoutingPolicyTermMatchingValue{}.AttributeTypes(ctx))
 
 		if d.Action != nil {
-			action = routingPolocyTermActionSdkToTerraform(ctx, diags, *d.Action)
+			action = routingPolicyTermActionSdkToTerraform(ctx, diags, *d.Action)
 		}
 		if d.Matching != nil {
-			matching = routingPolocyTermMatchingSdkToTerraform(ctx, diags, *d.Matching)
+			matching = routingPolicyTermMatchingSdkToTerraform(ctx, diags, *d.Matching)
 		}
 
 		data_map_attr_type := TermsValue{}.AttributeTypes(ctx)
@@ -207,14 +207,14 @@ func routingPolocyTermsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 	return r
 }
 
-func routingPolociesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.RoutingPolicy) basetypes.MapValue {
+func routingPoliciesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.RoutingPolicy) basetypes.MapValue {
 	state_value_map := make(map[string]attr.Value)
 	for k, d := range m {
 
 		var terms basetypes.ListValue = types.ListNull(TermsValue{}.Type(ctx))
 
 		if d.Terms != nil {
-			terms = routingPolocyTermsSdkToTerraform(ctx, diags, d.Terms)
+			terms = routingPolicyTermsSdkToTerraform(ctx, diags, d.Terms)
 		}
 
 		data_map_attr_type := RoutingPoliciesValue{}.AttributeTypes(ctx)
