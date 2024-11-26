@@ -55,7 +55,7 @@ func (r *siteSettingResource) Schema(ctx context.Context, req resource.SchemaReq
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategorySite + "This resource manages the Site Settings.\n" +
 			"The Site Settings can used to customize the Site configuration and assign Site Variables (Sites Variables can be reused in configuration templates)\n\n" +
-			"~> When using the Mist APIs, all the switch settings defined at the site level are stored under the site settings with all the rest of the site configuration" +
+			"~> When using the Mist APIs, all the switch settings defined at the site level are stored under the site settings with all the rest of the site configuration " +
 			"(`/api/v1/sites/{site_id}/setting` Mist API Endpoint). To simplify this resource, all the site level switches related settings are " +
 			"moved into the `mist_site_networktemplate` resource\n\n" +
 			"!> Only ONE `mist_site_setting` resource can be configured per site. If multiple ones are configured, only the last one defined we be succesfully deployed to Mist",
