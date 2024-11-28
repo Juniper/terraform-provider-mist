@@ -478,11 +478,17 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "only required for EVPN-VXLAN networks, IPv4 Virtual Gateway",
 							MarkdownDescription: "only required for EVPN-VXLAN networks, IPv4 Virtual Gateway",
+							Validators: []validator.String{
+								stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar()),
+							},
 						},
 						"gateway6": schema.StringAttribute{
 							Optional:            true,
 							Description:         "only required for EVPN-VXLAN networks, IPv6 Virtual Gateway",
 							MarkdownDescription: "only required for EVPN-VXLAN networks, IPv6 Virtual Gateway",
+							Validators: []validator.String{
+								stringvalidator.Any(mistvalidator.ParseIp(false, true), mistvalidator.ParseVar()),
+							},
 						},
 						"isolation": schema.BoolAttribute{
 							Optional:            true,
@@ -499,13 +505,16 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "optional for pure switching, required when L3 / routing features are used",
 							MarkdownDescription: "optional for pure switching, required when L3 / routing features are used",
 							Validators: []validator.String{
-								stringvalidator.Any(mistvalidator.ParseCidr(false, true), mistvalidator.ParseVar()),
+								stringvalidator.Any(mistvalidator.ParseCidr(true, false), mistvalidator.ParseVar()),
 							},
 						},
 						"subnet6": schema.StringAttribute{
 							Optional:            true,
 							Description:         "optional for pure switching, required when L3 / routing features are used",
 							MarkdownDescription: "optional for pure switching, required when L3 / routing features are used",
+							Validators: []validator.String{
+								stringvalidator.Any(mistvalidator.ParseCidr(false, true), mistvalidator.ParseVar()),
+							},
 						},
 						"vlan_id": schema.StringAttribute{
 							Required: true,
