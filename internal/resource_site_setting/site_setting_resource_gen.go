@@ -376,10 +376,10 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					"power": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "required if `power_mode`==`custom`",
-						MarkdownDescription: "required if `power_mode`==`custom`",
+						Description:         "required if `power_mode`==`custom`; else use `power_mode` as default",
+						MarkdownDescription: "required if `power_mode`==`custom`; else use `power_mode` as default",
 						Validators: []validator.Int64{
-							int64validator.Between(1, 10),
+							int64validator.Between(2, 7),
 						},
 						Default: int64default.StaticInt64(9),
 					},
@@ -1430,7 +1430,7 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 							"enabled": schema.BoolAttribute{
 								Optional: true,
 							},
-							"time_od_fay": schema.StringAttribute{
+							"time_of_day": schema.StringAttribute{
 								Optional:            true,
 								Computed:            true,
 								Description:         "any / HH:MM (24-hour format)",
@@ -1752,47 +1752,46 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 }
 
 type SiteSettingModel struct {
-	Analytic                        AnalyticValue              `tfsdk:"analytic"`
-	ApUpdownThreshold               types.Int64                `tfsdk:"ap_updown_threshold"`
-	AutoUpgrade                     AutoUpgradeValue           `tfsdk:"auto_upgrade"`
-	BlacklistUrl                    types.String               `tfsdk:"blacklist_url"`
-	BleConfig                       BleConfigValue             `tfsdk:"ble_config"`
-	ConfigAutoRevert                types.Bool                 `tfsdk:"config_auto_revert"`
-	ConfigPushPolicy                ConfigPushPolicyValue      `tfsdk:"config_push_policy"`
-	CriticalUrlMonitoring           CriticalUrlMonitoringValue `tfsdk:"critical_url_monitoring"`
-	DeviceUpdownThreshold           types.Int64                `tfsdk:"device_updown_threshold"`
-	DisabledSystemDefinedPortUsages types.List                 `tfsdk:"disabled_system_defined_port_usages"`
-	Engagement                      EngagementValue            `tfsdk:"engagement"`
-	GatewayMgmt                     GatewayMgmtValue           `tfsdk:"gateway_mgmt"`
-	GatewayUpdownThreshold          types.Int64                `tfsdk:"gateway_updown_threshold"`
-	Led                             LedValue                   `tfsdk:"led"`
-	Occupancy                       OccupancyValue             `tfsdk:"occupancy"`
-	PersistConfigOnDevice           types.Bool                 `tfsdk:"persist_config_on_device"`
-	Proxy                           ProxyValue                 `tfsdk:"proxy"`
-	RemoveExistingConfigs           types.Bool                 `tfsdk:"remove_existing_configs"`
-	ReportGatt                      types.Bool                 `tfsdk:"report_gatt"`
-	Rogue                           RogueValue                 `tfsdk:"rogue"`
-	Rtsa                            RtsaValue                  `tfsdk:"rtsa"`
-	SimpleAlert                     SimpleAlertValue           `tfsdk:"simple_alert"`
-	SiteId                          types.String               `tfsdk:"site_id"`
-	Skyatp                          SkyatpValue                `tfsdk:"skyatp"`
-	SrxApp                          SrxAppValue                `tfsdk:"srx_app"`
-	SshKeys                         types.List                 `tfsdk:"ssh_keys"`
-	Ssr                             SsrValue                   `tfsdk:"ssr"`
-	SwitchUpdownThreshold           types.Int64                `tfsdk:"switch_updown_threshold"`
-	SyntheticTest                   SyntheticTestValue         `tfsdk:"synthetic_test"`
-	TrackAnonymousDevices           types.Bool                 `tfsdk:"track_anonymous_devices"`
-	UplinkPortConfig                UplinkPortConfigValue      `tfsdk:"uplink_port_config"`
-	Vars                            types.Map                  `tfsdk:"vars"`
-	Vna                             VnaValue                   `tfsdk:"vna"`
-	VsInstance                      types.Map                  `tfsdk:"vs_instance"`
-	WanVna                          WanVnaValue                `tfsdk:"wan_vna"`
-	WatchedStationUrl               types.String               `tfsdk:"watched_station_url"`
-	WhitelistUrl                    types.String               `tfsdk:"whitelist_url"`
-	Wids                            WidsValue                  `tfsdk:"wids"`
-	Wifi                            WifiValue                  `tfsdk:"wifi"`
-	WiredVna                        WiredVnaValue              `tfsdk:"wired_vna"`
-	ZoneOccupancyAlert              ZoneOccupancyAlertValue    `tfsdk:"zone_occupancy_alert"`
+	Analytic               AnalyticValue              `tfsdk:"analytic"`
+	ApUpdownThreshold      types.Int64                `tfsdk:"ap_updown_threshold"`
+	AutoUpgrade            AutoUpgradeValue           `tfsdk:"auto_upgrade"`
+	BlacklistUrl           types.String               `tfsdk:"blacklist_url"`
+	BleConfig              BleConfigValue             `tfsdk:"ble_config"`
+	ConfigAutoRevert       types.Bool                 `tfsdk:"config_auto_revert"`
+	ConfigPushPolicy       ConfigPushPolicyValue      `tfsdk:"config_push_policy"`
+	CriticalUrlMonitoring  CriticalUrlMonitoringValue `tfsdk:"critical_url_monitoring"`
+	DeviceUpdownThreshold  types.Int64                `tfsdk:"device_updown_threshold"`
+	Engagement             EngagementValue            `tfsdk:"engagement"`
+	GatewayMgmt            GatewayMgmtValue           `tfsdk:"gateway_mgmt"`
+	GatewayUpdownThreshold types.Int64                `tfsdk:"gateway_updown_threshold"`
+	Led                    LedValue                   `tfsdk:"led"`
+	Occupancy              OccupancyValue             `tfsdk:"occupancy"`
+	PersistConfigOnDevice  types.Bool                 `tfsdk:"persist_config_on_device"`
+	Proxy                  ProxyValue                 `tfsdk:"proxy"`
+	RemoveExistingConfigs  types.Bool                 `tfsdk:"remove_existing_configs"`
+	ReportGatt             types.Bool                 `tfsdk:"report_gatt"`
+	Rogue                  RogueValue                 `tfsdk:"rogue"`
+	Rtsa                   RtsaValue                  `tfsdk:"rtsa"`
+	SimpleAlert            SimpleAlertValue           `tfsdk:"simple_alert"`
+	SiteId                 types.String               `tfsdk:"site_id"`
+	Skyatp                 SkyatpValue                `tfsdk:"skyatp"`
+	SrxApp                 SrxAppValue                `tfsdk:"srx_app"`
+	SshKeys                types.List                 `tfsdk:"ssh_keys"`
+	Ssr                    SsrValue                   `tfsdk:"ssr"`
+	SwitchUpdownThreshold  types.Int64                `tfsdk:"switch_updown_threshold"`
+	SyntheticTest          SyntheticTestValue         `tfsdk:"synthetic_test"`
+	TrackAnonymousDevices  types.Bool                 `tfsdk:"track_anonymous_devices"`
+	UplinkPortConfig       UplinkPortConfigValue      `tfsdk:"uplink_port_config"`
+	Vars                   types.Map                  `tfsdk:"vars"`
+	Vna                    VnaValue                   `tfsdk:"vna"`
+	VsInstance             types.Map                  `tfsdk:"vs_instance"`
+	WanVna                 WanVnaValue                `tfsdk:"wan_vna"`
+	WatchedStationUrl      types.String               `tfsdk:"watched_station_url"`
+	WhitelistUrl           types.String               `tfsdk:"whitelist_url"`
+	Wids                   WidsValue                  `tfsdk:"wids"`
+	Wifi                   WifiValue                  `tfsdk:"wifi"`
+	WiredVna               WiredVnaValue              `tfsdk:"wired_vna"`
+	ZoneOccupancyAlert     ZoneOccupancyAlertValue    `tfsdk:"zone_occupancy_alert"`
 }
 
 var _ basetypes.ObjectTypable = AnalyticType{}
@@ -18603,22 +18602,22 @@ func (t WanSpeedtestType) ValueFromObject(ctx context.Context, in basetypes.Obje
 			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
 	}
 
-	timeOdFayAttribute, ok := attributes["time_od_fay"]
+	timeOfDayAttribute, ok := attributes["time_of_day"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`time_od_fay is missing from object`)
+			`time_of_day is missing from object`)
 
 		return nil, diags
 	}
 
-	timeOdFayVal, ok := timeOdFayAttribute.(basetypes.StringValue)
+	timeOfDayVal, ok := timeOfDayAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`time_od_fay expected to be basetypes.StringValue, was: %T`, timeOdFayAttribute))
+			fmt.Sprintf(`time_of_day expected to be basetypes.StringValue, was: %T`, timeOfDayAttribute))
 	}
 
 	if diags.HasError() {
@@ -18627,7 +18626,7 @@ func (t WanSpeedtestType) ValueFromObject(ctx context.Context, in basetypes.Obje
 
 	return WanSpeedtestValue{
 		Enabled:   enabledVal,
-		TimeOdFay: timeOdFayVal,
+		TimeOfDay: timeOfDayVal,
 		state:     attr.ValueStateKnown,
 	}, diags
 }
@@ -18713,22 +18712,22 @@ func NewWanSpeedtestValue(attributeTypes map[string]attr.Type, attributes map[st
 			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
 	}
 
-	timeOdFayAttribute, ok := attributes["time_od_fay"]
+	timeOfDayAttribute, ok := attributes["time_of_day"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`time_od_fay is missing from object`)
+			`time_of_day is missing from object`)
 
 		return NewWanSpeedtestValueUnknown(), diags
 	}
 
-	timeOdFayVal, ok := timeOdFayAttribute.(basetypes.StringValue)
+	timeOfDayVal, ok := timeOfDayAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`time_od_fay expected to be basetypes.StringValue, was: %T`, timeOdFayAttribute))
+			fmt.Sprintf(`time_of_day expected to be basetypes.StringValue, was: %T`, timeOfDayAttribute))
 	}
 
 	if diags.HasError() {
@@ -18737,7 +18736,7 @@ func NewWanSpeedtestValue(attributeTypes map[string]attr.Type, attributes map[st
 
 	return WanSpeedtestValue{
 		Enabled:   enabledVal,
-		TimeOdFay: timeOdFayVal,
+		TimeOfDay: timeOfDayVal,
 		state:     attr.ValueStateKnown,
 	}, diags
 }
@@ -18811,7 +18810,7 @@ var _ basetypes.ObjectValuable = WanSpeedtestValue{}
 
 type WanSpeedtestValue struct {
 	Enabled   basetypes.BoolValue   `tfsdk:"enabled"`
-	TimeOdFay basetypes.StringValue `tfsdk:"time_od_fay"`
+	TimeOfDay basetypes.StringValue `tfsdk:"time_of_day"`
 	state     attr.ValueState
 }
 
@@ -18822,7 +18821,7 @@ func (v WanSpeedtestValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 	var err error
 
 	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["time_od_fay"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["time_of_day"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
@@ -18838,13 +18837,13 @@ func (v WanSpeedtestValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 
 		vals["enabled"] = val
 
-		val, err = v.TimeOdFay.ToTerraformValue(ctx)
+		val, err = v.TimeOfDay.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["time_od_fay"] = val
+		vals["time_of_day"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -18877,7 +18876,7 @@ func (v WanSpeedtestValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 
 	attributeTypes := map[string]attr.Type{
 		"enabled":     basetypes.BoolType{},
-		"time_od_fay": basetypes.StringType{},
+		"time_of_day": basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -18892,7 +18891,7 @@ func (v WanSpeedtestValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 		attributeTypes,
 		map[string]attr.Value{
 			"enabled":     v.Enabled,
-			"time_od_fay": v.TimeOdFay,
+			"time_of_day": v.TimeOfDay,
 		})
 
 	return objVal, diags
@@ -18917,7 +18916,7 @@ func (v WanSpeedtestValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.TimeOdFay.Equal(other.TimeOdFay) {
+	if !v.TimeOfDay.Equal(other.TimeOfDay) {
 		return false
 	}
 
@@ -18935,7 +18934,7 @@ func (v WanSpeedtestValue) Type(ctx context.Context) attr.Type {
 func (v WanSpeedtestValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"enabled":     basetypes.BoolType{},
-		"time_od_fay": basetypes.StringType{},
+		"time_of_day": basetypes.StringType{},
 	}
 }
 

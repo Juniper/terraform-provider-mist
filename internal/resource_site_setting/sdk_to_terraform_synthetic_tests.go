@@ -15,19 +15,19 @@ import (
 
 func syntheticTestWanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SynthetictestConfigWanSpeedtest) basetypes.ObjectValue {
 	var enabled basetypes.BoolValue
-	var time_od_fay basetypes.StringValue
+	var time_of_day basetypes.StringValue
 
 	if d != nil && d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
 	if d != nil && d.TimeOfDay != nil {
-		time_od_fay = types.StringValue(*d.TimeOfDay)
+		time_of_day = types.StringValue(*d.TimeOfDay)
 	}
 
 	data_map_attr_type := WanSpeedtestValue{}.AttributeTypes(ctx)
 	data_map_value := map[string]attr.Value{
 		"enabled":     enabled,
-		"time_od_fay": time_od_fay,
+		"time_of_day": time_of_day,
 	}
 	data, e := basetypes.NewObjectValue(data_map_attr_type, data_map_value)
 	diags.Append(e...)

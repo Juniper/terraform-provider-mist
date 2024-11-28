@@ -152,7 +152,7 @@ Optional:
 - `ibeacon_major` (Number) Major number for iBeacon
 - `ibeacon_minor` (Number) Minor number for iBeacon
 - `ibeacon_uuid` (String) optional, if not specified, the same UUID as the beacon will be used
-- `power` (Number) required if `power_mode`==`custom`
+- `power` (Number) required if `power_mode`==`custom`; else use `power_mode` as default
 - `power_mode` (String) enum: `custom`, `default`
 
 
@@ -495,7 +495,7 @@ Optional:
 Optional:
 
 - `enabled` (Boolean)
-- `time_od_fay` (String) any / HH:MM (24-hour format)
+- `time_of_day` (String) any / HH:MM (24-hour format)
 
 
 
