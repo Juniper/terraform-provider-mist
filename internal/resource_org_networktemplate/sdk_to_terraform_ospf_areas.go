@@ -14,7 +14,7 @@ import (
 func ospfAreasNetworksSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.OspfAreasNetwork) basetypes.MapValue {
 	state_value_map_value := make(map[string]attr.Value)
 	for k, d := range m {
-		var auth_keys basetypes.MapValue
+		var auth_keys basetypes.MapValue = types.MapNull(types.StringType)
 		var auth_password basetypes.StringValue
 		var auth_type basetypes.StringValue
 		var bfd_minimum_interval basetypes.Int64Value
