@@ -2291,11 +2291,16 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional: true,
+							Validators: []validator.List{
+								mistvalidator.AllowedWhenValueIsNull(path.MatchRelative().AtParent().AtName("servicepolicy_id")),
+							},
 						},
 						"idp": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
 								"alert_only": schema.BoolAttribute{
 									Optional: true,
+									Computed: true,
+									Default:  booldefault.StaticBool(false),
 								},
 								"enabled": schema.BoolAttribute{
 									Optional: true,
@@ -2306,12 +2311,16 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 									Optional:            true,
 									Description:         "org_level IDP Profile can be used, this takes precedence over `profile`",
 									MarkdownDescription: "org_level IDP Profile can be used, this takes precedence over `profile`",
+									Validators: []validator.String{
+										mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("enabled"), types.BoolValue(true)),
+										mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("profile"), types.StringValue("Custom")),
+									},
 								},
 								"profile": schema.StringAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "`strict` (default) / `standard` / or keys from from idp_profiles",
-									MarkdownDescription: "`strict` (default) / `standard` / or keys from from idp_profiles",
+									Description:         "enum: `Custom`, `strict` (default), `standard` or keys from from idp_profiles",
+									MarkdownDescription: "enum: `Custom`, `strict` (default), `standard` or keys from from idp_profiles",
 									Default:             stringdefault.StaticString("strict"),
 								},
 							},
@@ -2321,6 +2330,9 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional: true,
+							Validators: []validator.Object{
+								mistvalidator.AllowedWhenValueIsNull(path.MatchRelative().AtParent().AtName("servicepolicy_id")),
+							},
 						},
 						"local_routing": schema.BoolAttribute{
 							Optional:            true,
@@ -2333,6 +2345,7 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "Required when `servicepolicy_id` is not defined, optional otherwise (override the servicepolicy name)",
 							Validators: []validator.String{
 								mistvalidator.RequiredWhenValueIsNull(path.MatchRelative().AtParent().AtName("servicepolicy_id")),
+								mistvalidator.AllowedWhenValueIsNull(path.MatchRelative().AtParent().AtName("servicepolicy_id")),
 							},
 						},
 						"path_preference": schema.StringAttribute{
