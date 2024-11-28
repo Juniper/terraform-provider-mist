@@ -754,7 +754,7 @@ Optional:
 - `alert_only` (Boolean)
 - `enabled` (Boolean)
 - `idpprofile_id` (String) org_level IDP Profile can be used, this takes precedence over `profile`
-- `profile` (String) `strict` (default) / `standard` / or keys from from idp_profiles
+- `profile` (String) enum: `Custom`, `strict` (default), `standard` or keys from from idp_profiles
 
 
 
