@@ -3,8 +3,10 @@ package resource_site_networktemplate
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
 	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
@@ -21,6 +23,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteNetworkt
 	var dhcp_snooping DhcpSnoopingValue = NewDhcpSnoopingValueNull()
 	var dns_servers types.List = types.ListNull(types.StringType)
 	var dns_suffix types.List = types.ListNull(types.StringType)
+	var disabled_system_defined_port_usages types.List = types.ListNull(types.StringType)
 	var extra_routes types.Map = types.MapNull(ExtraRoutesValue{}.Type(ctx))
 	var extra_routes6 types.Map = types.MapNull(ExtraRoutes6Value{}.Type(ctx))
 	var mist_nac MistNacValue = NewMistNacValueNull()
@@ -56,6 +59,15 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteNetworkt
 	}
 	if data.DnsSuffix != nil {
 		dns_suffix = mist_transform.ListOfStringSdkToTerraform(ctx, data.DnsSuffix)
+	}
+	if data.DisabledSystemDefinedPortUsages != nil {
+		var items []attr.Value
+		var items_type attr.Type = basetypes.StringType{}
+		for _, item := range data.DisabledSystemDefinedPortUsages {
+			items = append(items, types.StringValue(string(item)))
+		}
+		list, _ := types.ListValue(items_type, items)
+		disabled_system_defined_port_usages = list
 	}
 	if data.ExtraRoutes != nil && len(data.ExtraRoutes) > 0 {
 		extra_routes = extraRoutesSdkToTerraform(ctx, &diags, data.ExtraRoutes)
@@ -112,6 +124,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteNetworkt
 	state.DhcpSnooping = dhcp_snooping
 	state.DnsServers = dns_servers
 	state.DnsSuffix = dns_suffix
+	state.DisabledSystemDefinedPortUsages = disabled_system_defined_port_usages
 	state.ExtraRoutes = extra_routes
 	state.ExtraRoutes6 = extra_routes6
 	state.MistNac = mist_nac

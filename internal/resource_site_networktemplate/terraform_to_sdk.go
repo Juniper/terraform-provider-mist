@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
 	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
@@ -51,6 +52,18 @@ func TerraformToSdk(ctx context.Context, plan *SiteNetworktemplateModel) (*model
 		unset["-dhcp_snooping"] = ""
 	} else {
 		data.DhcpSnooping = dhcpSnoopingTerraformToSdk(ctx, &diags, plan.DhcpSnooping)
+	}
+
+	if plan.DisabledSystemDefinedPortUsages.IsNull() || plan.DisabledSystemDefinedPortUsages.IsUnknown() {
+		unset["-disabled_system_defined_port_usages"] = ""
+	} else {
+		var items []models.SystemDefinedPortUsagesEnum
+		for _, item := range plan.DisabledSystemDefinedPortUsages.Elements() {
+			var s_interface interface{} = item
+			s := s_interface.(basetypes.StringValue)
+			items = append(items, models.SystemDefinedPortUsagesEnum(s.ValueString()))
+		}
+		data.DisabledSystemDefinedPortUsages = items
 	}
 
 	if plan.ExtraRoutes.IsNull() || plan.ExtraRoutes.IsUnknown() {

@@ -97,6 +97,7 @@ resource "mist_site_networktemplate" "networktemplate_one" {
 
 **Note**: no check is done
 - `dhcp_snooping` (Attributes) (see [below for nested schema](#nestedatt--dhcp_snooping))
+- `disabled_system_defined_port_usages` (List of String) if some system-default port usages are not desired - namely, ap / iot / uplink
 - `dns_servers` (List of String) Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting
 - `dns_suffix` (List of String) Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting
 - `extra_routes` (Attributes Map) (see [below for nested schema](#nestedatt--extra_routes))

@@ -277,6 +277,12 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Optional: true,
 			},
+			"disabled_system_defined_port_usages": schema.ListAttribute{
+				ElementType:         types.StringType,
+				Optional:            true,
+				Description:         "if some system-default port usages are not desired - namely, ap / iot / uplink",
+				MarkdownDescription: "if some system-default port usages are not desired - namely, ap / iot / uplink",
+			},
 			"dns_servers": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
@@ -3158,30 +3164,31 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 }
 
 type SiteNetworktemplateModel struct {
-	AclPolicies           types.List            `tfsdk:"acl_policies"`
-	AclTags               types.Map             `tfsdk:"acl_tags"`
-	AdditionalConfigCmds  types.List            `tfsdk:"additional_config_cmds"`
-	DhcpSnooping          DhcpSnoopingValue     `tfsdk:"dhcp_snooping"`
-	DnsServers            types.List            `tfsdk:"dns_servers"`
-	DnsSuffix             types.List            `tfsdk:"dns_suffix"`
-	ExtraRoutes           types.Map             `tfsdk:"extra_routes"`
-	ExtraRoutes6          types.Map             `tfsdk:"extra_routes6"`
-	MistNac               MistNacValue          `tfsdk:"mist_nac"`
-	Networks              types.Map             `tfsdk:"networks"`
-	NtpServers            types.List            `tfsdk:"ntp_servers"`
-	OspfAreas             types.Map             `tfsdk:"ospf_areas"`
-	PortMirroring         types.Map             `tfsdk:"port_mirroring"`
-	PortUsages            types.Map             `tfsdk:"port_usages"`
-	RadiusConfig          RadiusConfigValue     `tfsdk:"radius_config"`
-	RemoteSyslog          RemoteSyslogValue     `tfsdk:"remote_syslog"`
-	RemoveExistingConfigs types.Bool            `tfsdk:"remove_existing_configs"`
-	SiteId                types.String          `tfsdk:"site_id"`
-	SnmpConfig            SnmpConfigValue       `tfsdk:"snmp_config"`
-	SwitchMatching        SwitchMatchingValue   `tfsdk:"switch_matching"`
-	SwitchMgmt            SwitchMgmtValue       `tfsdk:"switch_mgmt"`
-	UplinkPortConfig      UplinkPortConfigValue `tfsdk:"uplink_port_config"`
-	VrfConfig             VrfConfigValue        `tfsdk:"vrf_config"`
-	VrfInstances          types.Map             `tfsdk:"vrf_instances"`
+	AclPolicies                     types.List            `tfsdk:"acl_policies"`
+	AclTags                         types.Map             `tfsdk:"acl_tags"`
+	AdditionalConfigCmds            types.List            `tfsdk:"additional_config_cmds"`
+	DhcpSnooping                    DhcpSnoopingValue     `tfsdk:"dhcp_snooping"`
+	DisabledSystemDefinedPortUsages types.List            `tfsdk:"disabled_system_defined_port_usages"`
+	DnsServers                      types.List            `tfsdk:"dns_servers"`
+	DnsSuffix                       types.List            `tfsdk:"dns_suffix"`
+	ExtraRoutes                     types.Map             `tfsdk:"extra_routes"`
+	ExtraRoutes6                    types.Map             `tfsdk:"extra_routes6"`
+	MistNac                         MistNacValue          `tfsdk:"mist_nac"`
+	Networks                        types.Map             `tfsdk:"networks"`
+	NtpServers                      types.List            `tfsdk:"ntp_servers"`
+	OspfAreas                       types.Map             `tfsdk:"ospf_areas"`
+	PortMirroring                   types.Map             `tfsdk:"port_mirroring"`
+	PortUsages                      types.Map             `tfsdk:"port_usages"`
+	RadiusConfig                    RadiusConfigValue     `tfsdk:"radius_config"`
+	RemoteSyslog                    RemoteSyslogValue     `tfsdk:"remote_syslog"`
+	RemoveExistingConfigs           types.Bool            `tfsdk:"remove_existing_configs"`
+	SiteId                          types.String          `tfsdk:"site_id"`
+	SnmpConfig                      SnmpConfigValue       `tfsdk:"snmp_config"`
+	SwitchMatching                  SwitchMatchingValue   `tfsdk:"switch_matching"`
+	SwitchMgmt                      SwitchMgmtValue       `tfsdk:"switch_mgmt"`
+	UplinkPortConfig                UplinkPortConfigValue `tfsdk:"uplink_port_config"`
+	VrfConfig                       VrfConfigValue        `tfsdk:"vrf_config"`
+	VrfInstances                    types.Map             `tfsdk:"vrf_instances"`
 }
 
 var _ basetypes.ObjectTypable = AclPoliciesType{}

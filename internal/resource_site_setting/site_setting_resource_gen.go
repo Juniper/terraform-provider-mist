@@ -549,12 +549,6 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Default: int64default.StaticInt64(0),
 			},
-			"disabled_system_defined_port_usages": schema.ListAttribute{
-				ElementType:         types.StringType,
-				Optional:            true,
-				Description:         "if some system-default port usages are not desired - namely, ap / iot / uplink",
-				MarkdownDescription: "if some system-default port usages are not desired - namely, ap / iot / uplink",
-			},
 			"engagement": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"dwell_tag_names": schema.SingleNestedAttribute{
