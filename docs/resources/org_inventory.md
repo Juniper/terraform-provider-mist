@@ -76,7 +76,7 @@ resource "mist_org_inventory" "inventory" {
 
 ### Optional
 
-- `devices` (Attributes List) **DEPRECATED** List of devices to manage. Exactly one of `claim_code` or `mac` field must be set (see [below for nested schema](#nestedatt--devices))
+- `devices` (Attributes List, Deprecated) **DEPRECATED** List of devices to manage. Exactly one of `claim_code` or `mac` field must be set (see [below for nested schema](#nestedatt--devices))
 - `inventory` (Attributes Map) Property key can be the device Claim Code or the device MAC Address:
   * Claim Code: used to claim the device to the Mist Organization and manage it. Format is `[0-9A-Z]{15}` (e.g `01234ABCDE56789`)
   * MAC Address: used to managed a device already in the Mist Organization (claimed or adopted devices). Format is `[0-9a-f]{12}` (e.g `5684dae9ac8b`)
