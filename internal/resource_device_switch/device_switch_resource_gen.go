@@ -1348,8 +1348,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 					"use_mgmt_vrf": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "f supported on the platform. If enabled, DNS will be using this routing-instance, too",
-						MarkdownDescription: "f supported on the platform. If enabled, DNS will be using this routing-instance, too",
+						Description:         "if supported on the platform. If enabled, DNS will be using this routing-instance, too",
+						MarkdownDescription: "if supported on the platform. If enabled, DNS will be using this routing-instance, too",
 						Default:             booldefault.StaticBool(false),
 					},
 					"use_mgmt_vrf_for_host_out": schema.BoolAttribute{

@@ -480,7 +480,7 @@ Optional:
 - `netmask` (String) used only if `subnet` is not specified in `networks`
 - `network` (String) optional, the network to be used for mgmt
 - `type` (String) enum: `dhcp`, `static`
-- `use_mgmt_vrf` (Boolean) f supported on the platform. If enabled, DNS will be using this routing-instance, too
+- `use_mgmt_vrf` (Boolean) if supported on the platform. If enabled, DNS will be using this routing-instance, too
 - `use_mgmt_vrf_for_host_out` (Boolean) for host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired
 
 
