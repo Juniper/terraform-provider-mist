@@ -549,6 +549,13 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Default: int64default.StaticInt64(0),
 			},
+			"disabled_system_defined_port_usages": schema.ListAttribute{
+				ElementType:         types.StringType,
+				Optional:            true,
+				Description:         "if some system-default port usages are not desired - namely, ap / iot / uplink",
+				MarkdownDescription: "if some system-default port usages are not desired - namely, ap / iot / uplink",
+				DeprecationMessage:  "This attribute has been moved to the `mist_site_networktemplate` resource and has been deprecated in the `mist_site_setting` resource in version v0.2.7 of the Juniper-Mist Provider. It may be removed in future versions.\nPlease update your configurations to configure it in the `mist_site_networktemplate` resource.",
+			},
 			"engagement": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"dwell_tag_names": schema.SingleNestedAttribute{
@@ -1746,46 +1753,47 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 }
 
 type SiteSettingModel struct {
-	Analytic               AnalyticValue              `tfsdk:"analytic"`
-	ApUpdownThreshold      types.Int64                `tfsdk:"ap_updown_threshold"`
-	AutoUpgrade            AutoUpgradeValue           `tfsdk:"auto_upgrade"`
-	BlacklistUrl           types.String               `tfsdk:"blacklist_url"`
-	BleConfig              BleConfigValue             `tfsdk:"ble_config"`
-	ConfigAutoRevert       types.Bool                 `tfsdk:"config_auto_revert"`
-	ConfigPushPolicy       ConfigPushPolicyValue      `tfsdk:"config_push_policy"`
-	CriticalUrlMonitoring  CriticalUrlMonitoringValue `tfsdk:"critical_url_monitoring"`
-	DeviceUpdownThreshold  types.Int64                `tfsdk:"device_updown_threshold"`
-	Engagement             EngagementValue            `tfsdk:"engagement"`
-	GatewayMgmt            GatewayMgmtValue           `tfsdk:"gateway_mgmt"`
-	GatewayUpdownThreshold types.Int64                `tfsdk:"gateway_updown_threshold"`
-	Led                    LedValue                   `tfsdk:"led"`
-	Occupancy              OccupancyValue             `tfsdk:"occupancy"`
-	PersistConfigOnDevice  types.Bool                 `tfsdk:"persist_config_on_device"`
-	Proxy                  ProxyValue                 `tfsdk:"proxy"`
-	RemoveExistingConfigs  types.Bool                 `tfsdk:"remove_existing_configs"`
-	ReportGatt             types.Bool                 `tfsdk:"report_gatt"`
-	Rogue                  RogueValue                 `tfsdk:"rogue"`
-	Rtsa                   RtsaValue                  `tfsdk:"rtsa"`
-	SimpleAlert            SimpleAlertValue           `tfsdk:"simple_alert"`
-	SiteId                 types.String               `tfsdk:"site_id"`
-	Skyatp                 SkyatpValue                `tfsdk:"skyatp"`
-	SrxApp                 SrxAppValue                `tfsdk:"srx_app"`
-	SshKeys                types.List                 `tfsdk:"ssh_keys"`
-	Ssr                    SsrValue                   `tfsdk:"ssr"`
-	SwitchUpdownThreshold  types.Int64                `tfsdk:"switch_updown_threshold"`
-	SyntheticTest          SyntheticTestValue         `tfsdk:"synthetic_test"`
-	TrackAnonymousDevices  types.Bool                 `tfsdk:"track_anonymous_devices"`
-	UplinkPortConfig       UplinkPortConfigValue      `tfsdk:"uplink_port_config"`
-	Vars                   types.Map                  `tfsdk:"vars"`
-	Vna                    VnaValue                   `tfsdk:"vna"`
-	VsInstance             types.Map                  `tfsdk:"vs_instance"`
-	WanVna                 WanVnaValue                `tfsdk:"wan_vna"`
-	WatchedStationUrl      types.String               `tfsdk:"watched_station_url"`
-	WhitelistUrl           types.String               `tfsdk:"whitelist_url"`
-	Wids                   WidsValue                  `tfsdk:"wids"`
-	Wifi                   WifiValue                  `tfsdk:"wifi"`
-	WiredVna               WiredVnaValue              `tfsdk:"wired_vna"`
-	ZoneOccupancyAlert     ZoneOccupancyAlertValue    `tfsdk:"zone_occupancy_alert"`
+	Analytic                        AnalyticValue              `tfsdk:"analytic"`
+	ApUpdownThreshold               types.Int64                `tfsdk:"ap_updown_threshold"`
+	AutoUpgrade                     AutoUpgradeValue           `tfsdk:"auto_upgrade"`
+	BlacklistUrl                    types.String               `tfsdk:"blacklist_url"`
+	BleConfig                       BleConfigValue             `tfsdk:"ble_config"`
+	ConfigAutoRevert                types.Bool                 `tfsdk:"config_auto_revert"`
+	ConfigPushPolicy                ConfigPushPolicyValue      `tfsdk:"config_push_policy"`
+	CriticalUrlMonitoring           CriticalUrlMonitoringValue `tfsdk:"critical_url_monitoring"`
+	DeviceUpdownThreshold           types.Int64                `tfsdk:"device_updown_threshold"`
+	DisabledSystemDefinedPortUsages types.List                 `tfsdk:"disabled_system_defined_port_usages"`
+	Engagement                      EngagementValue            `tfsdk:"engagement"`
+	GatewayMgmt                     GatewayMgmtValue           `tfsdk:"gateway_mgmt"`
+	GatewayUpdownThreshold          types.Int64                `tfsdk:"gateway_updown_threshold"`
+	Led                             LedValue                   `tfsdk:"led"`
+	Occupancy                       OccupancyValue             `tfsdk:"occupancy"`
+	PersistConfigOnDevice           types.Bool                 `tfsdk:"persist_config_on_device"`
+	Proxy                           ProxyValue                 `tfsdk:"proxy"`
+	RemoveExistingConfigs           types.Bool                 `tfsdk:"remove_existing_configs"`
+	ReportGatt                      types.Bool                 `tfsdk:"report_gatt"`
+	Rogue                           RogueValue                 `tfsdk:"rogue"`
+	Rtsa                            RtsaValue                  `tfsdk:"rtsa"`
+	SimpleAlert                     SimpleAlertValue           `tfsdk:"simple_alert"`
+	SiteId                          types.String               `tfsdk:"site_id"`
+	Skyatp                          SkyatpValue                `tfsdk:"skyatp"`
+	SrxApp                          SrxAppValue                `tfsdk:"srx_app"`
+	SshKeys                         types.List                 `tfsdk:"ssh_keys"`
+	Ssr                             SsrValue                   `tfsdk:"ssr"`
+	SwitchUpdownThreshold           types.Int64                `tfsdk:"switch_updown_threshold"`
+	SyntheticTest                   SyntheticTestValue         `tfsdk:"synthetic_test"`
+	TrackAnonymousDevices           types.Bool                 `tfsdk:"track_anonymous_devices"`
+	UplinkPortConfig                UplinkPortConfigValue      `tfsdk:"uplink_port_config"`
+	Vars                            types.Map                  `tfsdk:"vars"`
+	Vna                             VnaValue                   `tfsdk:"vna"`
+	VsInstance                      types.Map                  `tfsdk:"vs_instance"`
+	WanVna                          WanVnaValue                `tfsdk:"wan_vna"`
+	WatchedStationUrl               types.String               `tfsdk:"watched_station_url"`
+	WhitelistUrl                    types.String               `tfsdk:"whitelist_url"`
+	Wids                            WidsValue                  `tfsdk:"wids"`
+	Wifi                            WifiValue                  `tfsdk:"wifi"`
+	WiredVna                        WiredVnaValue              `tfsdk:"wired_vna"`
+	ZoneOccupancyAlert              ZoneOccupancyAlertValue    `tfsdk:"zone_occupancy_alert"`
 }
 
 var _ basetypes.ObjectTypable = AnalyticType{}
