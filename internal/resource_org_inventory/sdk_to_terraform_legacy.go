@@ -39,7 +39,7 @@ func legacyProcessMistInventory(
 		var model basetypes.StringValue
 		var org_id basetypes.StringValue
 		var serial basetypes.StringValue
-		var site_id basetypes.StringValue = types.StringValue("")
+		var site_id basetypes.StringValue
 		var device_type basetypes.StringValue
 		var vc_mac basetypes.StringValue = types.StringValue("")
 		var unclaim_when_destroyed basetypes.BoolValue = types.BoolValue(false)
@@ -112,7 +112,7 @@ func legacySdkToTerraform(
 	ctx context.Context,
 	orgId string,
 	data *[]models.Inventory,
-	plan *OrgInventoryModel,
+	ref_inventory *OrgInventoryModel,
 ) (OrgInventoryModel, diag.Diagnostics) {
 	var newState OrgInventoryModel
 	var diags diag.Diagnostics
@@ -125,8 +125,8 @@ func legacySdkToTerraform(
 
 	newState.OrgId = types.StringValue(orgId)
 
-	for _, devPlanAttr := range plan.Devices.Elements() {
-		var dpi interface{} = devPlanAttr
+	for _, devref_inventoryAttr := range ref_inventory.Devices.Elements() {
+		var dpi interface{} = devref_inventoryAttr
 		var device = dpi.(DevicesValue)
 
 		var magic string = strings.ReplaceAll(strings.ToUpper(device.Magic.ValueString()), "-", "")

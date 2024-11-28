@@ -274,7 +274,7 @@ func (r *orgInventoryResource) updateInventory(ctx context.Context, orgId *uuid.
 	return diags
 }
 
-func (r *orgInventoryResource) refreshInventory(ctx context.Context, orgId *uuid.UUID, plan *resource_org_inventory.OrgInventoryModel) (resource_org_inventory.OrgInventoryModel, diag.Diagnostics) {
+func (r *orgInventoryResource) refreshInventory(ctx context.Context, orgId *uuid.UUID, ref_inventory *resource_org_inventory.OrgInventoryModel) (resource_org_inventory.OrgInventoryModel, diag.Diagnostics) {
 	var state resource_org_inventory.OrgInventoryModel
 	var diags diag.Diagnostics
 
@@ -333,7 +333,7 @@ func (r *orgInventoryResource) refreshInventory(ctx context.Context, orgId *uuid
 		elements = append(elements, data.Data...)
 	}
 
-	state, e := resource_org_inventory.SdkToTerraform(ctx, orgId.String(), &elements, plan)
+	state, e := resource_org_inventory.SdkToTerraform(ctx, orgId.String(), &elements, ref_inventory)
 	diags.Append(e...)
 
 	return state, diags

@@ -70,7 +70,7 @@ func processMistInventory(
 		var model basetypes.StringValue
 		var org_id basetypes.StringValue
 		var serial basetypes.StringValue
-		var site_id basetypes.StringValue = types.StringValue("")
+		var site_id basetypes.StringValue
 		var device_type basetypes.StringValue
 		var vc_mac basetypes.StringValue = types.StringValue("")
 		var hostname basetypes.StringValue = types.StringValue("")
@@ -186,7 +186,7 @@ func processImport(
 func processSync(
 	ctx context.Context,
 	diags *diag.Diagnostics,
-	planDevices *map[string]InventoryValue,
+	ref_inventoryDevices *map[string]InventoryValue,
 	mistDevicesByClaimCode *map[string]*InventoryValue,
 	mistDevicesByMac *map[string]*InventoryValue,
 	mistSiteIdByVcMac *map[string]types.String,
@@ -197,7 +197,7 @@ func processSync(
 		parameters:
 			ctx : context.Context
 			diags :  *diag.Diagnostics
-			planDevices : *basetypes.MapValue
+			ref_inventoryDevices : *basetypes.MapValue
 				map of ByClaimCode to save. Key is the device Claim Code, Value is a Nested Object with the SiteId
 				and the UnclaimWhenDestroyed bit
 			mistDevices : *basetypes.SetValue
@@ -213,7 +213,7 @@ func processSync(
 	*/
 	newStateDevices := make(map[string]attr.Value)
 
-	for deviceInfo, d := range *planDevices {
+	for deviceInfo, d := range *ref_inventoryDevices {
 		isClaimCode, isMac := DetectDeviceInfoType(diags, strings.ToUpper(deviceInfo))
 
 		var di interface{} = d
@@ -252,7 +252,7 @@ func mapSdkToTerraform(
 	ctx context.Context,
 	orgId string,
 	data *[]models.Inventory,
-	plan *OrgInventoryModel,
+	ref_inventory *OrgInventoryModel,
 ) (OrgInventoryModel, diag.Diagnostics) {
 	var state OrgInventoryModel
 	var diags diag.Diagnostics
@@ -265,23 +265,23 @@ func mapSdkToTerraform(
 	/*
 		The SetNested Devices is set/updated in both cases (done above)
 
-		If it's for an Import (no plan.OrgId), then generate the inventory with
+		If it's for an Import (no ref_inventory.OrgId), then generate the inventory with
 		- basetypes.StringValue OrgId with the import orgId
 		- SetNested	ByClaimCode with the list of devices with a claim code
 		- SetNested ByMac with the list of devices without a claim code
 
-		If it's for a Sync (plan.OrgId set)
-		- baetypes.StringValue OrgId with the plan.OrgId
-		- setNested ByClaimCode with the list of devices in the plan and in the Mist Inventory (and take the siteId from the inventory)
-		- setNested ByMac with the list of devices in the plan and in the Mist Inventory (and take the siteId from the inventory)
+		If it's for a Sync (ref_inventory.OrgId set)
+		- baetypes.StringValue OrgId with the ref_inventory.OrgId
+		- setNested ByClaimCode with the list of devices in the ref_inventory and in the Mist Inventory (and take the siteId from the inventory)
+		- setNested ByMac with the list of devices in the ref_inventory and in the Mist Inventory (and take the siteId from the inventory)
 	*/
-	if plan.OrgId.ValueStringPointer() == nil {
+	if ref_inventory.OrgId.ValueStringPointer() == nil {
 		state.OrgId = types.StringValue(orgId)
 		state.Inventory = processImport(ctx, &diags, &state.Inventory, &mistSiteIdByVcMac)
 	} else {
-		state.OrgId = plan.OrgId
-		planDevicesMap := GenDeviceMap(&plan.Inventory)
-		state.Inventory = processSync(ctx, &diags, &planDevicesMap, &mistDevicesByClaimCode, &mistDevicesbyMac, &mistSiteIdByVcMac)
+		state.OrgId = ref_inventory.OrgId
+		ref_inventoryDevicesMap := GenDeviceMap(&ref_inventory.Inventory)
+		state.Inventory = processSync(ctx, &diags, &ref_inventoryDevicesMap, &mistDevicesByClaimCode, &mistDevicesbyMac, &mistSiteIdByVcMac)
 	}
 
 	return state, diags
@@ -291,14 +291,14 @@ func SdkToTerraform(
 	ctx context.Context,
 	orgId string,
 	data *[]models.Inventory,
-	plan *OrgInventoryModel,
+	ref_inventory *OrgInventoryModel,
 ) (OrgInventoryModel, diag.Diagnostics) {
-	if !plan.Devices.IsNull() && !plan.Devices.IsUnknown() {
-		state, diags := legacySdkToTerraform(ctx, orgId, data, plan)
+	if !ref_inventory.Devices.IsNull() && !ref_inventory.Devices.IsUnknown() {
+		state, diags := legacySdkToTerraform(ctx, orgId, data, ref_inventory)
 		state.Inventory = basetypes.NewMapNull(InventoryValue{}.Type(ctx))
 		return state, diags
 	} else {
-		state, diags := mapSdkToTerraform(ctx, orgId, data, plan)
+		state, diags := mapSdkToTerraform(ctx, orgId, data, ref_inventory)
 		state.Devices = basetypes.NewListNull(DevicesValue{}.Type(ctx))
 		return state, diags
 	}

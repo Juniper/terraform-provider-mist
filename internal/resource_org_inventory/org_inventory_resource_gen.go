@@ -104,7 +104,6 @@ func OrgInventoryResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"site_id": schema.StringAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "Site ID. Used to assign device to a Site",
 							MarkdownDescription: "Site ID. Used to assign device to a Site",
 						},
@@ -142,7 +141,7 @@ func OrgInventoryResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "**DEPRECATED** List of devices to manage. Exactly one of `claim_code` or `mac` field must be set",
 				MarkdownDescription: "**DEPRECATED** List of devices to manage. Exactly one of `claim_code` or `mac` field must be set",
-				DeprecationMessage:  "`devices` list has been deprecated in version v0.2.0 of the Juniper-Mist Provider. It has been replaced with the `inventory` map and may be removed in future versions. Please update your configurations to use the new `inventory` map.",
+				DeprecationMessage:  "The `devices` attribute has been deprecated in version v0.2.0 of the Juniper-Mist Provider. It has been replaced with the `inventory` map and may be removed in future versions.\nPlease update your configurations to use the `inventory` attribute.",
 				Validators: []validator.List{
 					mistvalidator.AllowedWhenValueIsNull(path.MatchRelative().AtParent().AtName("inventory")),
 					listvalidator.SizeAtLeast(1),
@@ -215,7 +214,6 @@ func OrgInventoryResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"site_id": schema.StringAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "Site ID. Used to assign device to a Site",
 							MarkdownDescription: "Site ID. Used to assign device to a Site",
 						},
