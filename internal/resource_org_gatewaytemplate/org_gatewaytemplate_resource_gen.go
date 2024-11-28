@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -1202,17 +1203,13 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 							},
 							"use_mgmt_vrf": schema.BoolAttribute{
 								Optional:            true,
-								Computed:            true,
 								Description:         "if supported on the platform. If enabled, DNS will be using this routing-instance, too",
 								MarkdownDescription: "if supported on the platform. If enabled, DNS will be using this routing-instance, too",
-								Default:             booldefault.StaticBool(false),
 							},
 							"use_mgmt_vrf_for_host_out": schema.BoolAttribute{
 								Optional:            true,
-								Computed:            true,
 								Description:         "whether to use `mgmt_junos` for host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired",
 								MarkdownDescription: "whether to use `mgmt_junos` for host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired",
-								Default:             booldefault.StaticBool(false),
 							},
 							"vlan_id": schema.StringAttribute{
 								Optional: true,
@@ -1227,8 +1224,23 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional:            true,
+						Computed:            true,
 						Description:         "for HA Cluster, node1 can have different IP Config",
 						MarkdownDescription: "for HA Cluster, node1 can have different IP Config",
+						Default: objectdefault.StaticValue(
+							types.ObjectValueMust(
+								Node1Value{}.AttributeTypes(ctx),
+								map[string]attr.Value{
+									"gateway":                   types.StringNull(),
+									"ip":                        types.StringNull(),
+									"netmask":                   types.StringNull(),
+									"type":                      types.StringValue("dhcp"),
+									"use_mgmt_vrf":              types.BoolNull(),
+									"use_mgmt_vrf_for_host_out": types.BoolNull(),
+									"vlan_id":                   types.StringNull(),
+								},
+							),
+						),
 					},
 					"type": schema.StringAttribute{
 						Optional:            true,
@@ -1246,17 +1258,13 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"use_mgmt_vrf": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "if supported on the platform. If enabled, DNS will be using this routing-instance, too",
 						MarkdownDescription: "if supported on the platform. If enabled, DNS will be using this routing-instance, too",
-						Default:             booldefault.StaticBool(false),
 					},
 					"use_mgmt_vrf_for_host_out": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "for host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired",
 						MarkdownDescription: "for host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired",
-						Default:             booldefault.StaticBool(false),
 					},
 					"vlan_id": schema.StringAttribute{
 						Optional: true,
@@ -1271,8 +1279,35 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
+				Computed:            true,
 				Description:         "out-of-band (vme/em0/fxp0) IP config",
 				MarkdownDescription: "out-of-band (vme/em0/fxp0) IP config",
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						OobIpConfigValue{}.AttributeTypes(ctx),
+						map[string]attr.Value{
+							"gateway":                   types.StringNull(),
+							"ip":                        types.StringNull(),
+							"netmask":                   types.StringNull(),
+							"type":                      types.StringValue("dhcp"),
+							"use_mgmt_vrf":              types.BoolNull(),
+							"use_mgmt_vrf_for_host_out": types.BoolNull(),
+							"vlan_id":                   types.StringNull(),
+							"node1": types.ObjectValueMust(
+								Node1Value{}.AttributeTypes(ctx),
+								map[string]attr.Value{
+									"gateway":                   types.StringNull(),
+									"ip":                        types.StringNull(),
+									"netmask":                   types.StringNull(),
+									"type":                      types.StringValue("dhcp"),
+									"use_mgmt_vrf":              types.BoolNull(),
+									"use_mgmt_vrf_for_host_out": types.BoolNull(),
+									"vlan_id":                   types.StringNull(),
+								},
+							),
+						},
+					),
+				),
 			},
 			"org_id": schema.StringAttribute{
 				Required: true,
@@ -1917,6 +1952,9 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 								"ips": schema.ListAttribute{
 									ElementType: types.StringType,
 									Optional:    true,
+									Validators: []validator.List{
+										listvalidator.UniqueValues(),
+									},
 								},
 								"probe_profile": schema.StringAttribute{
 									Optional:            true,
@@ -2826,22 +2864,16 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 						Attributes: map[string]schema.Attribute{
 							"aup_acceptance_required": schema.BoolAttribute{
 								Optional: true,
-								Computed: true,
-								Default:  booldefault.StaticBool(true),
 							},
 							"aup_expire": schema.Int64Attribute{
 								Optional:            true,
-								Computed:            true,
 								Description:         "days before AUP is requested again",
 								MarkdownDescription: "days before AUP is requested again",
-								Default:             int64default.StaticInt64(1),
 							},
 							"aup_ssl_proxy": schema.BoolAttribute{
 								Optional:            true,
-								Computed:            true,
 								Description:         "proxy HTTPs traffic, requiring Zscaler cert to be installed in browser",
 								MarkdownDescription: "proxy HTTPs traffic, requiring Zscaler cert to be installed in browser",
-								Default:             booldefault.StaticBool(false),
 							},
 							"download_mbps": schema.Int64Attribute{
 								Optional:            true,
@@ -2850,22 +2882,16 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 							},
 							"enable_aup": schema.BoolAttribute{
 								Optional:            true,
-								Computed:            true,
 								Description:         "if `use_xff`==`true`, display Acceptable Use Policy (AUP)",
 								MarkdownDescription: "if `use_xff`==`true`, display Acceptable Use Policy (AUP)",
-								Default:             booldefault.StaticBool(false),
 							},
 							"enable_caution": schema.BoolAttribute{
 								Optional:            true,
-								Computed:            true,
 								Description:         "when `enforce_authentication`==`false`, display caution notification for non-authenticated users",
 								MarkdownDescription: "when `enforce_authentication`==`false`, display caution notification for non-authenticated users",
-								Default:             booldefault.StaticBool(false),
 							},
 							"enforce_authentication": schema.BoolAttribute{
 								Optional: true,
-								Computed: true,
-								Default:  booldefault.StaticBool(false),
 							},
 							"name": schema.StringAttribute{
 								Optional: true,

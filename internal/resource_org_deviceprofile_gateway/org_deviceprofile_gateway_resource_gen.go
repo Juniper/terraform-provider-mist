@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -179,7 +180,7 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 									mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtMapKey("via"), types.StringValue("wan")),
 								),
 							},
-							Default: listdefault.StaticValue(types.ListNull(types.StringType)),
+							Default: listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 						},
 						"no_readvertise_to_overlay": schema.BoolAttribute{
 							Optional:            true,
@@ -260,7 +261,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 									MarkdownDescription: "if `type`==`local` or `type6`==`local` - optional, if not defined, system one will be used",
 									Validators: []validator.List{
 										listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar())),
-										mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("relay")),
 									},
 								},
 								"dns_suffix": schema.ListAttribute{
@@ -269,10 +269,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 									Computed:            true,
 									Description:         "if `type`==`local` or `type6`==`local` - optional, if not defined, system one will be used",
 									MarkdownDescription: "if `type`==`local` or `type6`==`local` - optional, if not defined, system one will be used",
-									Validators: []validator.List{
-										mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("relay")),
-									},
-									Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 								},
 								"fixed_bindings": schema.MapNestedAttribute{
 									NestedObject: schema.NestedAttributeObject{
@@ -299,7 +295,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 									Validators: []validator.Map{
 										mapvalidator.SizeAtLeast(1),
 										mapvalidator.KeysAre(mistvalidator.ParseMac()),
-										mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("relay")),
 									},
 								},
 								"gateway": schema.StringAttribute{
@@ -308,7 +303,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 									MarkdownDescription: "if `type`==`local` - optional, `ip` will be used if not provided",
 									Validators: []validator.String{
 										stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar()),
-										mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("relay")),
 									},
 								},
 								"ip_end": schema.StringAttribute{
@@ -318,7 +312,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 									Validators: []validator.String{
 										stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar()),
 										mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("local")),
-										mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("relay")),
 									},
 								},
 								"ip_end6": schema.StringAttribute{
@@ -328,7 +321,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 									Validators: []validator.String{
 										stringvalidator.Any(mistvalidator.ParseIp(false, true), mistvalidator.ParseVar()),
 										mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type6"), types.StringValue("local")),
-										mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type6"), types.StringValue("relay")),
 									},
 								},
 								"ip_start": schema.StringAttribute{
@@ -338,7 +330,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 									Validators: []validator.String{
 										stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar()),
 										mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("local")),
-										mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("relay")),
 									},
 								},
 								"ip_start6": schema.StringAttribute{
@@ -348,7 +339,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 									Validators: []validator.String{
 										stringvalidator.Any(mistvalidator.ParseIp(false, true), mistvalidator.ParseVar()),
 										mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type6"), types.StringValue("local")),
-										mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type6"), types.StringValue("relay")),
 									},
 								},
 								"lease_time": schema.Int64Attribute{
@@ -415,9 +405,7 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 									Validators: []validator.List{
 										listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseIp(true, true), mistvalidator.ParseVar())),
 										mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("relay")),
-										mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("local")),
 									},
-									Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 								},
 								"servers6": schema.ListAttribute{
 									ElementType:         types.StringType,
@@ -428,9 +416,7 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 									Validators: []validator.List{
 										listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseIp(true, true), mistvalidator.ParseVar())),
 										mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type6"), types.StringValue("relay")),
-										mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type6"), types.StringValue("local")),
 									},
-									Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 								},
 								"type": schema.StringAttribute{
 									Optional:            true,
@@ -713,7 +699,7 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "optional list of secondary IPs in CIDR format",
 							MarkdownDescription: "optional list of secondary IPs in CIDR format",
-							Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
+							Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 						},
 						"type": schema.StringAttribute{
 							Optional:            true,
@@ -1035,7 +1021,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 										Computed:            true,
 										Description:         "by default, the routes are only readvertised toward the same vrf on spoke\nto allow it to be leaked to other vrfs",
 										MarkdownDescription: "by default, the routes are only readvertised toward the same vrf on spoke\nto allow it to be leaked to other vrfs",
-										Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 									},
 									"routed": schema.BoolAttribute{
 										Optional:            true,
@@ -1214,17 +1199,13 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 							},
 							"use_mgmt_vrf": schema.BoolAttribute{
 								Optional:            true,
-								Computed:            true,
 								Description:         "if supported on the platform. If enabled, DNS will be using this routing-instance, too",
 								MarkdownDescription: "if supported on the platform. If enabled, DNS will be using this routing-instance, too",
-								Default:             booldefault.StaticBool(false),
 							},
 							"use_mgmt_vrf_for_host_out": schema.BoolAttribute{
 								Optional:            true,
-								Computed:            true,
 								Description:         "whether to use `mgmt_junos` for host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired",
 								MarkdownDescription: "whether to use `mgmt_junos` for host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired",
-								Default:             booldefault.StaticBool(false),
 							},
 							"vlan_id": schema.StringAttribute{
 								Optional: true,
@@ -1239,8 +1220,23 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional:            true,
+						Computed:            true,
 						Description:         "for HA Cluster, node1 can have different IP Config",
 						MarkdownDescription: "for HA Cluster, node1 can have different IP Config",
+						Default: objectdefault.StaticValue(
+							types.ObjectValueMust(
+								Node1Value{}.AttributeTypes(ctx),
+								map[string]attr.Value{
+									"gateway":                   types.StringNull(),
+									"ip":                        types.StringNull(),
+									"netmask":                   types.StringNull(),
+									"type":                      types.StringValue("dhcp"),
+									"use_mgmt_vrf":              types.BoolNull(),
+									"use_mgmt_vrf_for_host_out": types.BoolNull(),
+									"vlan_id":                   types.StringNull(),
+								},
+							),
+						),
 					},
 					"type": schema.StringAttribute{
 						Optional:            true,
@@ -1258,17 +1254,13 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"use_mgmt_vrf": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "if supported on the platform. If enabled, DNS will be using this routing-instance, too",
 						MarkdownDescription: "if supported on the platform. If enabled, DNS will be using this routing-instance, too",
-						Default:             booldefault.StaticBool(false),
 					},
 					"use_mgmt_vrf_for_host_out": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "for host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired",
 						MarkdownDescription: "for host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired",
-						Default:             booldefault.StaticBool(false),
 					},
 					"vlan_id": schema.StringAttribute{
 						Optional: true,
@@ -1283,8 +1275,35 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
+				Computed:            true,
 				Description:         "out-of-band (vme/em0/fxp0) IP config",
 				MarkdownDescription: "out-of-band (vme/em0/fxp0) IP config",
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						OobIpConfigValue{}.AttributeTypes(ctx),
+						map[string]attr.Value{
+							"gateway":                   types.StringNull(),
+							"ip":                        types.StringNull(),
+							"netmask":                   types.StringNull(),
+							"type":                      types.StringValue("dhcp"),
+							"use_mgmt_vrf":              types.BoolNull(),
+							"use_mgmt_vrf_for_host_out": types.BoolNull(),
+							"vlan_id":                   types.StringNull(),
+							"node1": types.ObjectValueMust(
+								Node1Value{}.AttributeTypes(ctx),
+								map[string]attr.Value{
+									"gateway":                   types.StringNull(),
+									"ip":                        types.StringNull(),
+									"netmask":                   types.StringNull(),
+									"type":                      types.StringValue("dhcp"),
+									"use_mgmt_vrf":              types.BoolNull(),
+									"use_mgmt_vrf_for_host_out": types.BoolNull(),
+									"vlan_id":                   types.StringNull(),
+								},
+							),
+						},
+					),
+				),
 			},
 			"org_id": schema.StringAttribute{
 				Required: true,
@@ -1341,7 +1360,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 										Validators: []validator.List{
 											mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("local")),
 										},
-										Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 									},
 									"target_ips": schema.ListAttribute{
 										ElementType:         types.StringType,
@@ -1352,7 +1370,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 										Validators: []validator.List{
 											mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("local")),
 										},
-										Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 									},
 									"type": schema.StringAttribute{
 										Optional:            true,
@@ -1590,7 +1607,7 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("ha_data")),
 								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("ha_control")),
 							},
-							Default: listdefault.StaticValue(types.ListNull(types.StringType)),
+							Default: listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 						},
 						"outer_vlan_id": schema.Int64Attribute{
 							Optional:            true,
@@ -1719,8 +1736,10 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"redundant": schema.BoolAttribute{
 							Optional:            true,
+							Computed:            true,
 							Description:         "if HA mode",
 							MarkdownDescription: "if HA mode",
+							Default:             booldefault.StaticBool(false),
 						},
 						"reth_idx": schema.Int64Attribute{
 							Optional:            true,
@@ -1738,7 +1757,7 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "SSR only - supporting vlan-based redundancy (matching the size of `networks`)",
 							MarkdownDescription: "SSR only - supporting vlan-based redundancy (matching the size of `networks`)",
-							Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
+							Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 						},
 						"speed": schema.StringAttribute{
 							Optional: true,
@@ -1929,6 +1948,9 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 								"ips": schema.ListAttribute{
 									ElementType: types.StringType,
 									Optional:    true,
+									Validators: []validator.List{
+										listvalidator.UniqueValues(),
+									},
 								},
 								"probe_profile": schema.StringAttribute{
 									Optional:            true,

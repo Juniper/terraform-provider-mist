@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -1237,16 +1238,15 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 										"static",
 									),
 								},
+								Default: stringdefault.StaticString("dhcp"),
 							},
 							"use_mgmt_vrf": schema.BoolAttribute{
 								Optional:            true,
-								Computed:            true,
 								Description:         "if supported on the platform. If enabled, DNS will be using this routing-instance, too",
 								MarkdownDescription: "if supported on the platform. If enabled, DNS will be using this routing-instance, too",
 							},
 							"use_mgmt_vrf_for_host_out": schema.BoolAttribute{
 								Optional:            true,
-								Computed:            true,
 								Description:         "whether to use `mgmt_junos` for host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired",
 								MarkdownDescription: "whether to use `mgmt_junos` for host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired",
 							},
@@ -1263,8 +1263,23 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional:            true,
+						Computed:            true,
 						Description:         "for HA Cluster, node1 can have different IP Config",
 						MarkdownDescription: "for HA Cluster, node1 can have different IP Config",
+						Default: objectdefault.StaticValue(
+							types.ObjectValueMust(
+								Node1Value{}.AttributeTypes(ctx),
+								map[string]attr.Value{
+									"gateway":                   types.StringNull(),
+									"ip":                        types.StringNull(),
+									"netmask":                   types.StringNull(),
+									"type":                      types.StringValue("dhcp"),
+									"use_mgmt_vrf":              types.BoolNull(),
+									"use_mgmt_vrf_for_host_out": types.BoolNull(),
+									"vlan_id":                   types.StringNull(),
+								},
+							),
+						),
 					},
 					"type": schema.StringAttribute{
 						Optional:            true,
@@ -1278,16 +1293,17 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 								"static",
 							),
 						},
+						Default: stringdefault.StaticString("dhcp"),
 					},
 					"use_mgmt_vrf": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
 						Description:         "if supported on the platform. If enabled, DNS will be using this routing-instance, too",
 						MarkdownDescription: "if supported on the platform. If enabled, DNS will be using this routing-instance, too",
+						Default:             booldefault.StaticBool(false),
 					},
 					"use_mgmt_vrf_for_host_out": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "for host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired",
 						MarkdownDescription: "for host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired",
 					},
@@ -1304,8 +1320,35 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
+				Computed:            true,
 				Description:         "out-of-band (vme/em0/fxp0) IP config",
 				MarkdownDescription: "out-of-band (vme/em0/fxp0) IP config",
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						OobIpConfigValue{}.AttributeTypes(ctx),
+						map[string]attr.Value{
+							"gateway":                   types.StringNull(),
+							"ip":                        types.StringNull(),
+							"netmask":                   types.StringNull(),
+							"type":                      types.StringValue("dhcp"),
+							"use_mgmt_vrf":              types.BoolNull(),
+							"use_mgmt_vrf_for_host_out": types.BoolNull(),
+							"vlan_id":                   types.StringNull(),
+							"node1": types.ObjectValueMust(
+								Node1Value{}.AttributeTypes(ctx),
+								map[string]attr.Value{
+									"gateway":                   types.StringNull(),
+									"ip":                        types.StringNull(),
+									"netmask":                   types.StringNull(),
+									"type":                      types.StringValue("dhcp"),
+									"use_mgmt_vrf":              types.BoolNull(),
+									"use_mgmt_vrf_for_host_out": types.BoolNull(),
+									"vlan_id":                   types.StringNull(),
+								},
+							),
+						},
+					),
+				),
 			},
 			"org_id": schema.StringAttribute{
 				Computed: true,
@@ -1740,8 +1783,10 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"redundant": schema.BoolAttribute{
 							Optional:            true,
+							Computed:            true,
 							Description:         "if HA mode",
 							MarkdownDescription: "if HA mode",
+							Default:             booldefault.StaticBool(false),
 						},
 						"reth_idx": schema.Int64Attribute{
 							Optional:            true,
