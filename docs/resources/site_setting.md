@@ -61,7 +61,6 @@ resource "mist_site_setting" "site_one" {
 - `config_push_policy` (Attributes) mist also uses some heuristic rules to prevent destructive configs from being pushed (see [below for nested schema](#nestedatt--config_push_policy))
 - `critical_url_monitoring` (Attributes) you can define some URLs that's critical to site operaitons the latency will be captured and considered for site health (see [below for nested schema](#nestedatt--critical_url_monitoring))
 - `device_updown_threshold` (Number) by default, device_updown_thresold, if set, will apply to all devices types if different values for specific device type is desired, use the following
-- `disabled_system_defined_port_usages` (List of String, Deprecated) if some system-default port usages are not desired - namely, ap / iot / uplink
 - `engagement` (Attributes) **Note**: if hours does not exist, it’s treated as everyday of the week, 00:00-23:59. Currently we don’t allow multiple ranges for the same day
 
 **Note**: default values for `dwell_tags`: passerby (1,300) bounce (301, 14400) engaged (14401, 28800) stationed (28801, 42000)
