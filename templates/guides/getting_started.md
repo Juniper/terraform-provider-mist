@@ -8,7 +8,7 @@ description: |-
 # Getting Started
 
 
-This Guide provides a quick example tho show how to configure and use the Juniper-Mist provider to deploy a Mist Organization and Site with a working Wired and Wireless network.
+This Guide provides a quick example to show how to configure and use the Juniper-Mist provider to deploy a Mist Organization and Site with a working Wired and Wireless network.
 
 The complete example is available at the end of this page.
 
@@ -18,7 +18,7 @@ Before starting, create a new empty Folder we will use to store the configuratio
 
 In this folder, create an empty file `main.tf`. This file will be used to define the Terraform configuration with the HCL Language. This configuration will store all the objects and their definition we want to deploy during this guide.
 
-~> It is recommened to split the Terraform configuration into multiple files, but to simplify the example, all the configuration will be in the same file `main.tf`. 
+~> It is recommend to split the Terraform configuration into multiple files, but to simplify the example, all the configuration will be in the same file `main.tf`. 
 
 ### Configure the Provider
 The first step is to configure the provider. To perform this task, it is required to already have an account on any supported Mist Cloud (see [Supported Mist Clouds](https://registry.terraform.io/providers/Juniper/mist/latest/docs)) with a [User API Token](https://www.juniper.net/documentation/us/en/software/mist/automation-integration/topics/task/create-token-for-rest-api.html#task_wdg_4kw_dcc).
@@ -75,7 +75,7 @@ resource "mist_org_sitegroup" "sitegroup_one" {
 Next, we will use the [`mist_org_wlantemplate` resource](https://registry.terraform.io/providers/Juniper/mist/latest/docs/resources/org_wlantemplate) to create the WLAN Template, and assign it to the Site Group above.
 
 ```terraform
-resource "mist_org_wlantemplate" "wlantempalte_one" {
+resource "mist_org_wlantemplate" "wlantemplate_one" {
   name   = "My Provider WLAN Template"
   org_id = mist_org.org_one.id
   applies = {
@@ -92,7 +92,7 @@ Once we have the WLAN Template configuration, we can define the Org WLAN and ass
 resource "mist_org_wlan" "wlan_one" {
   ssid              = "My Provider WLAN"
   org_id      = mist_org.org_one.id
-  template_id = mist_org_wlantemplate.wlantempalte_one.id
+  template_id = mist_org_wlantemplate.wlantemplate_one.id
   auth = {
     type = "psk"
     psk  = "secretpsk"
@@ -171,7 +171,7 @@ Now all the configuration is done, we can create the Mist Site with the [`mist_s
 resource "mist_site" "site_one" {
   org_id       = mist_org.org_one.id
   name         = "Site One"
-  address      = "41 rue de Villiers, 92100 Neully sur Seine, France"
+  address      = "41 rue de Villiers, 92100 Neuilly sur Seine, France"
   country_code = "FR"
   sitegroup_ids = [
     mist_org_sitegroup.sitegroup_one.id
@@ -210,7 +210,7 @@ resource "mist_org_inventory" "inventory" {
 When you [installed Terraform](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli), this installed the Terraform CLI that will be used in this chapter.
 
 ### Initialize the Workspace
-Before beeing able to deploy the created configuration with Terraform, it is required to initialize the Terraform Workspace. The `terraform init` command initializes a working directory containing Terraform configuration files. This is the first command that should be run after writing a new Terraform configuration or cloning an existing one from version control. It is safe to run this command multiple times.
+Before being able to deploy the created configuration with Terraform, it is required to initialize the Terraform Workspace. The `terraform init` command initializes a working directory containing Terraform configuration files. This is the first command that should be run after writing a new Terraform configuration or cloning an existing one from version control. It is safe to run this command multiple times.
 
 Open a terminal and go to the directory where your `main.tf` file is located, then run `terraform init`
 
@@ -275,10 +275,10 @@ mist_org.org_one: Creation complete after 1s [id=e2e8566f-099c-4866-a44d-5c53565
 mist_org_sitegroup.sitegroup_one: Creating...
 mist_org_networktemplate.networktemplate_one: Creating...
 mist_org_sitegroup.sitegroup_one: Creation complete after 1s [id=01298c49-e81d-46fb-a5f3-ebd1a5ace2c9]
-mist_org_wlantemplate.wlantempalte_one: Creating...
+mist_org_wlantemplate.wlantemplate_one: Creating...
 mist_site.site_one: Creating...
 mist_org_networktemplate.networktemplate_one: Creation complete after 1s [id=5d176886-ff53-4f76-9dd3-49b5e78bba58]
-mist_org_wlantemplate.wlantempalte_one: Creation complete after 0s [id=a5d8648e-9952-4180-8ffe-1cb28c773fbf]
+mist_org_wlantemplate.wlantemplate_one: Creation complete after 0s [id=a5d8648e-9952-4180-8ffe-1cb28c773fbf]
 mist_site.site_one: Creation complete after 0s [id=e2cc354f-0da1-4941-bd73-329918983958]
 mist_org_wlan.wlan_one: Creating...
 mist_org_wlan.wlan_one: Creation complete after 0s [id=50b5b3bb-11f5-4eec-89fb-ed7b761d943b]
@@ -300,7 +300,7 @@ $ terraform destroy
 mist_org.org_one: Refreshing state... [id=e2e8566f-099c-4866-a44d-5c535656201a]
 mist_org_sitegroup.sitegroup_one: Refreshing state... [id=01298c49-e81d-46fb-a5f3-ebd1a5ace2c9]
 mist_org_networktemplate.networktemplate_one: Refreshing state... [id=5d176886-ff53-4f76-9dd3-49b5e78bba58]
-mist_org_wlantemplate.wlantempalte_one: Refreshing state... [id=a5d8648e-9952-4180-8ffe-1cb28c773fbf]
+mist_org_wlantemplate.wlantemplate_one: Refreshing state... [id=a5d8648e-9952-4180-8ffe-1cb28c773fbf]
 mist_site.site_one: Refreshing state... [id=e2cc354f-0da1-4941-bd73-329918983958]
 mist_org_wlan.wlan_one: Refreshing state... [id=50b5b3bb-11f5-4eec-89fb-ed7b761d943b]
 
@@ -324,8 +324,8 @@ mist_org_wlan.wlan_one: Destroying... [id=50b5b3bb-11f5-4eec-89fb-ed7b761d943b]
 mist_site.site_one: Destruction complete after 0s
 mist_org_wlan.wlan_one: Destruction complete after 0s
 mist_org_networktemplate.networktemplate_one: Destroying... [id=5d176886-ff53-4f76-9dd3-49b5e78bba58]
-mist_org_wlantemplate.wlantempalte_one: Destroying... [id=a5d8648e-9952-4180-8ffe-1cb28c773fbf]
-mist_org_wlantemplate.wlantempalte_one: Destruction complete after 0s
+mist_org_wlantemplate.wlantemplate_one: Destroying... [id=a5d8648e-9952-4180-8ffe-1cb28c773fbf]
+mist_org_wlantemplate.wlantemplate_one: Destruction complete after 0s
 mist_org_networktemplate.networktemplate_one: Destruction complete after 0s
 mist_org_sitegroup.sitegroup_one: Destroying... [id=01298c49-e81d-46fb-a5f3-ebd1a5ace2c9]
 mist_org_sitegroup.sitegroup_one: Destruction complete after 0s
@@ -365,7 +365,7 @@ resource "mist_org_sitegroup" "sitegroup_one" {
 }
 
 // Create the WLAN Template and the WLAN
-resource "mist_org_wlantemplate" "wlantempalte_one" {
+resource "mist_org_wlantemplate" "wlantemplate_one" {
   name   = "My Provider WLAN Template"
   org_id = mist_org.org_one.id
   applies = {
@@ -378,7 +378,7 @@ resource "mist_org_wlantemplate" "wlantempalte_one" {
 resource "mist_org_wlan" "wlan_one" {
   ssid        = "My Provider WLAN"
   org_id      = mist_org.org_one.id
-  template_id = mist_org_wlantemplate.wlantempalte_one.id
+  template_id = mist_org_wlantemplate.wlantemplate_one.id
   auth = {
     type = "psk"
     psk  = "secretpsk"
@@ -445,7 +445,7 @@ resource "mist_org_networktemplate" "networktemplate_one" {
 resource "mist_site" "site_one" {
   org_id       = mist_org.org_one.id
   name         = "Site One"
-  address      = "41 rue de Villiers, 92100 Neully sur Seine, France"
+  address      = "41 rue de Villiers, 92100 Neuilly sur Seine, France"
   country_code = "FR"
   sitegroup_ids = [
     mist_org_sitegroup.sitegroup_one.id
