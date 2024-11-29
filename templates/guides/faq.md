@@ -1,5 +1,6 @@
 ---
 page_title: "Common issues/FAQ"
+subcategory: "Guides"
 description: |-
   Common issues and frequently asked questions when using the provider.
 ---

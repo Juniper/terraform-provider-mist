@@ -62,7 +62,8 @@ func (p *mistProvider) Schema(ctx context.Context, req provider.SchemaRequest, r
 			"It is mainly focusing on day 0 and day 1 operations (provisionning and delpyment) but will be " +
 			"completed over time.\n\nUse the navigation tree to the left to read about the available resources " +
 			"and data sources.\n\nIt is possible to use API Token or Username/Password authentication (without 2FA)" +
-			", but only one method should be configured.\n\nThis version is supporting the following Mist Clouds:\n" +
+			", but only one method should be configured.\n\n## Supported Mist Clouds\n\nThis provider can be used with " +
+			"the following Mist Clouds:\n" +
 			"* Global 01 (api.mist.com)\n" +
 			"* Global 02 (api.gc1.mist.com)\n" +
 			"* Global 03 (api.ac2.mist.com)\n" +
