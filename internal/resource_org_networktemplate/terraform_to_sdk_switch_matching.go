@@ -2,6 +2,7 @@ package resource_org_networktemplate
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
@@ -111,9 +112,6 @@ func switchMatchingRulesTerraformToSdk(ctx context.Context, diags *diag.Diagnost
 		if !plan_obj.AdditionalConfigCmds.IsNull() && !plan_obj.AdditionalConfigCmds.IsUnknown() {
 			item_obj.AdditionalConfigCmds = mist_transform.ListOfStringTerraformToSdk(ctx, plan_obj.AdditionalConfigCmds)
 		}
-		if plan_obj.MatchRole.ValueStringPointer() != nil {
-			item_obj.MatchRole = models.ToPointer(plan_obj.MatchRole.ValueString())
-		}
 		if plan_obj.Name.ValueStringPointer() != nil {
 			item_obj.Name = models.ToPointer(plan_obj.Name.ValueString())
 		}
@@ -131,11 +129,36 @@ func switchMatchingRulesTerraformToSdk(ctx context.Context, diags *diag.Diagnost
 		}
 
 		match := map[string]interface{}{}
-		if plan_obj.MatchType.ValueStringPointer() != nil {
+		if plan_obj.MatchType.ValueStringPointer() != nil && plan_obj.MatchType.ValueString() != "" {
 			match_type := plan_obj.MatchType.ValueString()
-			match_value := plan_obj.MatchValue.ValueString()
-			match[match_type] = match_value
+			match[match_type] = plan_obj.MatchValue.ValueString()
 		}
+
+		if plan_obj.MatchModel.ValueStringPointer() != nil && plan_obj.MatchModel.ValueString() != "" {
+			match_type := fmt.Sprintf(
+				"match_model[0:%d]",
+				len(plan_obj.MatchModel.ValueString()),
+			)
+			match[match_type] = plan_obj.MatchModel.ValueString()
+		}
+
+		if plan_obj.MatchName.ValueStringPointer() != nil && plan_obj.MatchName.ValueString() != "" {
+			offset := 0
+			if plan_obj.MatchNameOffset.ValueInt64Pointer() != nil {
+				offset = int(plan_obj.MatchNameOffset.ValueInt64())
+			}
+			match_type := fmt.Sprintf(
+				"match_name[%d:%d]",
+				offset,
+				offset+len(plan_obj.MatchName.ValueString()),
+			)
+			match[match_type] = plan_obj.MatchName.ValueString()
+		}
+
+		if plan_obj.MatchRole.ValueStringPointer() != nil {
+			match["match_role"] = plan_obj.MatchRole.ValueString()
+		}
+
 		item_obj.AdditionalProperties = match
 
 		data = append(data, item_obj)

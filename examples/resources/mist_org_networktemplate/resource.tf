@@ -48,8 +48,9 @@ resource "mist_org_networktemplate" "networktemplate_one" {
     rules = [
       {
         name        = "switch_rule_one"
-        match_type  = "match_name[0:3]"
-        match_value = "abc"
+        match_name        = "corp"
+        match_name_offset = 3
+        match_role        = "core"
         port_config = {
           "ge-0/0/0-10" = {
             usage = "port_usage_one"
