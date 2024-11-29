@@ -164,12 +164,12 @@ func switchMatchingRulesSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 	for _, d := range l {
 
 		var additional_config_cmds basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
-		var match_model basetypes.StringValue
-		var match_name basetypes.StringValue
+		var match_model basetypes.StringValue = types.StringValue("")
+		var match_name basetypes.StringValue = types.StringValue("")
 		var match_name_offset basetypes.Int64Value = types.Int64Value(0)
 		var match_role basetypes.StringValue
-		var match_type basetypes.StringValue
-		var match_value basetypes.StringValue
+		var match_type basetypes.StringValue = types.StringValue("")
+		var match_value basetypes.StringValue = types.StringValue("")
 		var name basetypes.StringValue
 		var port_config basetypes.MapValue = types.MapNull(PortConfigValue{}.Type(ctx))
 		var port_mirroring basetypes.MapValue = types.MapNull(PortMirroringValue{}.Type(ctx))

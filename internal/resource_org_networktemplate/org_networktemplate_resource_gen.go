@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/objectvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -235,8 +236,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 			"additional_config_cmds": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
-				Description:         "additional CLI commands to append to the generated Junos config\n\n**Note**: no check is done",
-				MarkdownDescription: "additional CLI commands to append to the generated Junos config\n\n**Note**: no check is done",
+				Description:         "additional CLI commands to append to the generated Junos config. **Note**: no check is done",
+				MarkdownDescription: "additional CLI commands to append to the generated Junos config. **Note**: no check is done",
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 				},
@@ -2478,8 +2479,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									ElementType:         types.StringType,
 									Optional:            true,
 									Computed:            true,
-									Description:         "additional CLI commands to append to the generated Junos config\n\n**Note**: no check is done",
-									MarkdownDescription: "additional CLI commands to append to the generated Junos config\n\n**Note**: no check is done",
+									Description:         "additional CLI commands to append to the generated Junos config. **Note**: no check is done",
+									MarkdownDescription: "additional CLI commands to append to the generated Junos config. **Note**: no check is done",
 									Validators: []validator.List{
 										listvalidator.SizeAtLeast(1),
 									},
@@ -2520,6 +2521,9 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									Computed:            true,
 									Description:         "string the switch model must start with to use this rule. It is possible to combine with the `match_name` and `match_role` attributes",
 									MarkdownDescription: "string the switch model must start with to use this rule. It is possible to combine with the `match_name` and `match_role` attributes",
+									PlanModifiers: []planmodifier.String{
+										stringplanmodifier.UseStateForUnknown(),
+									},
 									Validators: []validator.String{
 										stringvalidator.LengthAtLeast(2),
 									},
@@ -2529,6 +2533,9 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									Computed:            true,
 									Description:         "string the switch name must start with to use this rule. Use the `match_name_offset` to indicate the first character of the switch name to compare to. It is possible to combine with the `match_model` and `match_role` attributes",
 									MarkdownDescription: "string the switch name must start with to use this rule. Use the `match_name_offset` to indicate the first character of the switch name to compare to. It is possible to combine with the `match_model` and `match_role` attributes",
+									PlanModifiers: []planmodifier.String{
+										stringplanmodifier.UseStateForUnknown(),
+									},
 									Validators: []validator.String{
 										stringvalidator.LengthAtLeast(2),
 									},
@@ -2554,6 +2561,9 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									Description:         "'property key define the type of matching, value is the string to match. e.g: `match_name[0:3]`, `match_name[2:6]`, `match_model`,  `match_model[0-6]`",
 									MarkdownDescription: "'property key define the type of matching, value is the string to match. e.g: `match_name[0:3]`, `match_name[2:6]`, `match_model`,  `match_model[0-6]`",
 									DeprecationMessage:  "The `match_type` attribute has been deprecated in version v0.2.8 of the Juniper-Mist Provider. It has been replaced with the `match_name`, `match_model` and `match_role`attribuites and may be removed in future versions.\nPlease update your configurations.",
+									PlanModifiers: []planmodifier.String{
+										stringplanmodifier.UseStateForUnknown(),
+									},
 									Validators: []validator.String{
 										mistvalidator.AllowedWhenValueIsNull(path.MatchRelative().AtParent().AtName("match_model")),
 										mistvalidator.AllowedWhenValueIsNull(path.MatchRelative().AtParent().AtName("match_name")),
@@ -2564,8 +2574,12 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									Optional:           true,
 									Computed:           true,
 									DeprecationMessage: "The `match_value` attribute has been deprecated in version v0.2.8 of the Juniper-Mist Provider. It has been replaced with the `match_name`, `match_model` and `match_role`attribuites and may be removed in future versions.\nPlease update your configurations.",
+									PlanModifiers: []planmodifier.String{
+										stringplanmodifier.UseStateForUnknown(),
+									},
 									Validators: []validator.String{
 										stringvalidator.LengthAtLeast(1),
+										mistvalidator.RequiredWhenValueIsNotNull(path.MatchRelative().AtParent().AtName("match_type")),
 									},
 								},
 								"name": schema.StringAttribute{
@@ -2801,8 +2815,18 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									AttrTypes: MatchingRulesValue{}.AttributeTypes(ctx),
 								},
 							},
+							Validators: []validator.Object{
+								objectvalidator.AtLeastOneOf(
+									path.MatchRelative().AtName("match_type"),
+									path.MatchRelative().AtName("match_model"),
+									path.MatchRelative().AtName("match_name"),
+									path.MatchRelative().AtName("match_role"),
+								),
+							},
 						},
-						Optional: true,
+						Optional:            true,
+						Description:         "list of rules to define custom switch configuration based on different criterias. Each list must have at least one of `match_model`, `match_name` or `match_role` must be defined",
+						MarkdownDescription: "list of rules to define custom switch configuration based on different criterias. Each list must have at least one of `match_model`, `match_name` or `match_role` must be defined",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
@@ -2814,8 +2838,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Switch template",
-				MarkdownDescription: "Switch template",
+				Description:         "defines custom switch configuration based on different criterias",
+				MarkdownDescription: "defines custom switch configuration based on different criterias",
 			},
 			"switch_mgmt": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{

@@ -90,9 +90,7 @@ resource "mist_org_networktemplate" "networktemplate_one" {
 
 - `acl_policies` (Attributes List) (see [below for nested schema](#nestedatt--acl_policies))
 - `acl_tags` (Attributes Map) ACL Tags to identify traffic source or destination. Key name is the tag name (see [below for nested schema](#nestedatt--acl_tags))
-- `additional_config_cmds` (List of String) additional CLI commands to append to the generated Junos config
-
-**Note**: no check is done
+- `additional_config_cmds` (List of String) additional CLI commands to append to the generated Junos config. **Note**: no check is done
 - `dhcp_snooping` (Attributes) (see [below for nested schema](#nestedatt--dhcp_snooping))
 - `dns_servers` (List of String) Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting
 - `dns_suffix` (List of String) Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting
@@ -109,7 +107,7 @@ port_mirroring can be added under device/site settings. It takes interface and p
 - `remote_syslog` (Attributes) (see [below for nested schema](#nestedatt--remote_syslog))
 - `remove_existing_configs` (Boolean) by default, when we configure a device, we only clean up config we generates. Remove existing configs if enabled
 - `snmp_config` (Attributes) (see [below for nested schema](#nestedatt--snmp_config))
-- `switch_matching` (Attributes) Switch template (see [below for nested schema](#nestedatt--switch_matching))
+- `switch_matching` (Attributes) defines custom switch configuration based on different criterias (see [below for nested schema](#nestedatt--switch_matching))
 - `switch_mgmt` (Attributes) Switch settings (see [below for nested schema](#nestedatt--switch_mgmt))
 - `vrf_config` (Attributes) (see [below for nested schema](#nestedatt--vrf_config))
 - `vrf_instances` (Attributes Map) Property key is the network name (see [below for nested schema](#nestedatt--vrf_instances))
@@ -782,16 +780,14 @@ Optional:
 Optional:
 
 - `enable` (Boolean)
-- `rules` (Attributes List) (see [below for nested schema](#nestedatt--switch_matching--rules))
+- `rules` (Attributes List) list of rules to define custom switch configuration based on different criterias. Each list must have at least one of `match_model`, `match_name` or `match_role` must be defined (see [below for nested schema](#nestedatt--switch_matching--rules))
 
 <a id="nestedatt--switch_matching--rules"></a>
 ### Nested Schema for `switch_matching.rules`
 
 Optional:
 
-- `additional_config_cmds` (List of String) additional CLI commands to append to the generated Junos config
-
-**Note**: no check is done
+- `additional_config_cmds` (List of String) additional CLI commands to append to the generated Junos config. **Note**: no check is done
 - `ip_config` (Attributes) In-Band Management interface configuration (see [below for nested schema](#nestedatt--switch_matching--rules--ip_config))
 - `match_model` (String) string the switch model must start with to use this rule. It is possible to combine with the `match_name` and `match_role` attributes
 - `match_name` (String) string the switch name must start with to use this rule. Use the `match_name_offset` to indicate the first character of the switch name to compare to. It is possible to combine with the `match_model` and `match_role` attributes
