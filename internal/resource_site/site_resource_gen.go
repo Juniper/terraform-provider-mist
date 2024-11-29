@@ -7,8 +7,7 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
@@ -46,10 +45,9 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "Gateway Template ID, used by gateways",
 			},
 			"id": schema.StringAttribute{
-				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
+				Computed:            true,
+				Description:         "Unique ID of the object instance in the Mist Organnization",
+				MarkdownDescription: "Unique ID of the object instance in the Mist Organnization",
 			},
 			"latlng": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -106,8 +104,10 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"timezone": schema.StringAttribute{
 				Optional:            true,
+				Computed:            true,
 				Description:         "Timezone the site is at",
 				MarkdownDescription: "Timezone the site is at",
+				Default:             stringdefault.StaticString("UTC"),
 			},
 		},
 	}
