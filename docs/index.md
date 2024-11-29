@@ -14,7 +14,9 @@ Use the navigation tree to the left to read about the available resources and da
 
 It is possible to use API Token or Username/Password authentication (without 2FA), but only one method should be configured.
 
-This version is supporting the following Mist Clouds:
+## Supported Mist Clouds
+
+This provider can be used with the following Mist Clouds:
 * Global 01 (api.mist.com)
 * Global 02 (api.gc1.mist.com)
 * Global 03 (api.ac2.mist.com)
@@ -26,7 +28,7 @@ This version is supporting the following Mist Clouds:
 
 ## Configuration
 
-### Provider configuration stanza
+### Provider configuration example
 
 ```terraform
 terraform {
