@@ -1,6 +1,6 @@
 ---
 page_title: "1. EVPN Topology Overview"
-subcategory: "Wired Assurance"
+subcategory: "How To"
 description: |-
   Process to follow to create and manage an EVPN Topology with the Mist Provider.
 ---
