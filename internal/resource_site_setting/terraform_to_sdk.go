@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
 	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
@@ -61,6 +62,18 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 		data.DeviceUpdownThreshold = models.NewOptional(models.ToPointer(int(plan.DeviceUpdownThreshold.ValueInt64())))
 	} else {
 		unset["-device_updown_threshold"] = ""
+	}
+
+	if !plan.DisabledSystemDefinedPortUsages.IsNull() && !plan.DisabledSystemDefinedPortUsages.IsUnknown() {
+		var items []models.SystemDefinedPortUsagesEnum
+		for _, item := range plan.DisabledSystemDefinedPortUsages.Elements() {
+			var iface interface{} = item
+			val := iface.(basetypes.StringValue)
+			items = append(items, models.SystemDefinedPortUsagesEnum(val.ValueString()))
+		}
+		data.DisabledSystemDefinedPortUsages = items
+	} else {
+		unset["-disabled_system_defined_port_usages"] = ""
 	}
 
 	if !plan.Engagement.IsNull() && !plan.Engagement.IsUnknown() {
