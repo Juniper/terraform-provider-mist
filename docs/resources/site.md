@@ -63,7 +63,7 @@ resource "mist_site" "juniper_france" {
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
+- `id` (String) Unique ID of the object instance in the Mist Organnization
 
 <a id="nestedatt--latlng"></a>
 ### Nested Schema for `latlng`
