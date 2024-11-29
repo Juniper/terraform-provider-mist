@@ -2,6 +2,7 @@ package resource_site_networktemplate
 
 import (
 	"context"
+	"strconv"
 	"strings"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -163,6 +164,9 @@ func switchMatchingRulesSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 	for _, d := range l {
 
 		var additional_config_cmds basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+		var match_model basetypes.StringValue
+		var match_name basetypes.StringValue
+		var match_name_offset basetypes.Int64Value = types.Int64Value(0)
 		var match_role basetypes.StringValue
 		var match_type basetypes.StringValue
 		var match_value basetypes.StringValue
@@ -173,7 +177,28 @@ func switchMatchingRulesSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 		var oob_ip_config basetypes.ObjectValue = types.ObjectNull(OobIpConfigValue{}.AttributeTypes(ctx))
 
 		for key, value := range d.AdditionalProperties {
-			if strings.HasPrefix(key, "match_") {
+			if strings.HasPrefix(key, "match_model") {
+				match_model = types.StringValue(value.(string))
+				// backward compatibility
+				match_type = types.StringValue(key)
+				match_value = types.StringValue(value.(string))
+			} else if strings.HasPrefix(key, "match_name") {
+				match_name = types.StringValue(value.(string))
+				if strings.Contains(key, "[") {
+					offset_string := strings.Split(strings.Split(key, "[")[1], ":")[0]
+					i, e := strconv.Atoi(offset_string)
+					if e != nil {
+						diags.AddWarning("Unable to extract the switch rule name offset", e.Error())
+					} else {
+						match_name_offset = types.Int64Value(int64(i))
+					}
+				}
+				// backward compatibility
+				match_type = types.StringValue(key)
+				match_value = types.StringValue(value.(string))
+			} else if strings.HasPrefix(key, "match_role") {
+				match_role = types.StringValue(value.(string))
+			} else if strings.HasPrefix(key, "match_") {
 				match_type = types.StringValue(key)
 				match_value = types.StringValue(value.(string))
 			}
@@ -181,9 +206,6 @@ func switchMatchingRulesSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 
 		if d.AdditionalConfigCmds != nil {
 			additional_config_cmds = mist_transform.ListOfStringSdkToTerraform(ctx, d.AdditionalConfigCmds)
-		}
-		if d.MatchRole != nil {
-			match_role = types.StringValue(*d.MatchRole)
 		}
 		if d.Name != nil {
 			name = types.StringValue(*d.Name)
@@ -204,6 +226,9 @@ func switchMatchingRulesSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 		data_map_attr_type := MatchingRulesValue{}.AttributeTypes(ctx)
 		data_map_value := map[string]attr.Value{
 			"additional_config_cmds": additional_config_cmds,
+			"match_model":            match_model,
+			"match_name":             match_name,
+			"match_name_offset":      match_name_offset,
 			"match_role":             match_role,
 			"match_type":             match_type,
 			"match_value":            match_value,

@@ -1,6 +1,6 @@
 
 resource "mist_site_networktemplate" "networktemplate_one" {
-  site_id      = mist_site.terraform_test.id
+  site_id     = mist_site.terraform_test.id
   dns_servers = ["8.8.8.8", "1.1.1.1"]
   dns_suffix  = ["mycorp.com"]
   ntp_servers = ["pool.ntp.org"]
@@ -46,9 +46,10 @@ resource "mist_site_networktemplate" "networktemplate_one" {
     enable = true
     rules = [
       {
-        name        = "switch_rule_one"
-        match_type  = "match_name[0:3]"
-        match_value = "abc"
+        name              = "switch_rule_one"
+        match_name        = "corp"
+        match_name_offset = 3
+        match_role        = "core"
         port_config = {
           "ge-0/0/0-10" = {
             usage = "port_usage_one"

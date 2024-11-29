@@ -2509,18 +2509,58 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									Description:         "In-Band Management interface configuration",
 									MarkdownDescription: "In-Band Management interface configuration",
 								},
+								"match_model": schema.StringAttribute{
+									Optional:            true,
+									Computed:            true,
+									Description:         "string the switch model must start with to use this rule. It is possible to combine with the `match_name` and `match_role` attributes",
+									MarkdownDescription: "string the switch model must start with to use this rule. It is possible to combine with the `match_name` and `match_role` attributes",
+									Validators: []validator.String{
+										stringvalidator.LengthAtLeast(2),
+									},
+								},
+								"match_name": schema.StringAttribute{
+									Optional:            true,
+									Computed:            true,
+									Description:         "string the switch name must start with to use this rule. Use the `match_name_offset` to indicate the first character of the switch name to compare to. It is possible to combine with the `match_model` and `match_role` attributes",
+									MarkdownDescription: "string the switch name must start with to use this rule. Use the `match_name_offset` to indicate the first character of the switch name to compare to. It is possible to combine with the `match_model` and `match_role` attributes",
+									Validators: []validator.String{
+										stringvalidator.LengthAtLeast(2),
+									},
+								},
+								"match_name_offset": schema.Int64Attribute{
+									Optional:            true,
+									Computed:            true,
+									Description:         "first character of the switch name to compare to the `match_name` value",
+									MarkdownDescription: "first character of the switch name to compare to the `match_name` value",
+									Validators: []validator.Int64{
+										int64validator.AtLeast(0),
+									},
+									Default: int64default.StaticInt64(0),
+								},
 								"match_role": schema.StringAttribute{
 									Optional:            true,
-									Description:         "role to match",
-									MarkdownDescription: "role to match",
+									Description:         "string the switch role must start with to use this rule. It is possible to combine with the `match_name` and `match_model` attributes",
+									MarkdownDescription: "string the switch role must start with to use this rule. It is possible to combine with the `match_name` and `match_model` attributes",
 								},
 								"match_type": schema.StringAttribute{
 									Optional:            true,
+									Computed:            true,
 									Description:         "'property key define the type of matching, value is the string to match. e.g: `match_name[0:3]`, `match_name[2:6]`, `match_model`,  `match_model[0-6]`",
 									MarkdownDescription: "'property key define the type of matching, value is the string to match. e.g: `match_name[0:3]`, `match_name[2:6]`, `match_model`,  `match_model[0-6]`",
+									DeprecationMessage:  "The `match_type` attribute has been deprecated in version v0.2.8 of the Juniper-Mist Provider. It has been replaced with the `match_name`, `match_model` and `match_role`attribuites and may be removed in future versions.\nPlease update your configurations.",
+									Validators: []validator.String{
+										mistvalidator.AllowedWhenValueIsNull(path.MatchRelative().AtParent().AtName("match_model")),
+										mistvalidator.AllowedWhenValueIsNull(path.MatchRelative().AtParent().AtName("match_name")),
+										mistvalidator.AllowedWhenValueIsNull(path.MatchRelative().AtParent().AtName("match_name_offset")),
+									},
 								},
 								"match_value": schema.StringAttribute{
-									Optional: true,
+									Optional:           true,
+									Computed:           true,
+									DeprecationMessage: "The `match_value` attribute has been deprecated in version v0.2.8 of the Juniper-Mist Provider. It has been replaced with the `match_name`, `match_model` and `match_role`attribuites and may be removed in future versions.\nPlease update your configurations.",
+									Validators: []validator.String{
+										stringvalidator.LengthAtLeast(1),
+									},
 								},
 								"name": schema.StringAttribute{
 									Optional: true,
@@ -2544,8 +2584,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										"use_mgmt_vrf": schema.BoolAttribute{
 											Optional:            true,
 											Computed:            true,
-											Description:         "f supported on the platform. If enabled, DNS will be using this routing-instance, too",
-											MarkdownDescription: "f supported on the platform. If enabled, DNS will be using this routing-instance, too",
+											Description:         "if supported on the platform. If enabled, DNS will be using this routing-instance, too",
+											MarkdownDescription: "if supported on the platform. If enabled, DNS will be using this routing-instance, too",
 											Default:             booldefault.StaticBool(false),
 										},
 										"use_mgmt_vrf_for_host_out": schema.BoolAttribute{
@@ -30315,6 +30355,60 @@ func (t MatchingRulesType) ValueFromObject(ctx context.Context, in basetypes.Obj
 			fmt.Sprintf(`ip_config expected to be basetypes.ObjectValue, was: %T`, ipConfigAttribute))
 	}
 
+	matchModelAttribute, ok := attributes["match_model"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`match_model is missing from object`)
+
+		return nil, diags
+	}
+
+	matchModelVal, ok := matchModelAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`match_model expected to be basetypes.StringValue, was: %T`, matchModelAttribute))
+	}
+
+	matchNameAttribute, ok := attributes["match_name"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`match_name is missing from object`)
+
+		return nil, diags
+	}
+
+	matchNameVal, ok := matchNameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`match_name expected to be basetypes.StringValue, was: %T`, matchNameAttribute))
+	}
+
+	matchNameOffsetAttribute, ok := attributes["match_name_offset"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`match_name_offset is missing from object`)
+
+		return nil, diags
+	}
+
+	matchNameOffsetVal, ok := matchNameOffsetAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`match_name_offset expected to be basetypes.Int64Value, was: %T`, matchNameOffsetAttribute))
+	}
+
 	matchRoleAttribute, ok := attributes["match_role"]
 
 	if !ok {
@@ -30448,6 +30542,9 @@ func (t MatchingRulesType) ValueFromObject(ctx context.Context, in basetypes.Obj
 	return MatchingRulesValue{
 		AdditionalConfigCmds: additionalConfigCmdsVal,
 		IpConfig:             ipConfigVal,
+		MatchModel:           matchModelVal,
+		MatchName:            matchNameVal,
+		MatchNameOffset:      matchNameOffsetVal,
 		MatchRole:            matchRoleVal,
 		MatchType:            matchTypeVal,
 		MatchValue:           matchValueVal,
@@ -30558,6 +30655,60 @@ func NewMatchingRulesValue(attributeTypes map[string]attr.Type, attributes map[s
 			fmt.Sprintf(`ip_config expected to be basetypes.ObjectValue, was: %T`, ipConfigAttribute))
 	}
 
+	matchModelAttribute, ok := attributes["match_model"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`match_model is missing from object`)
+
+		return NewMatchingRulesValueUnknown(), diags
+	}
+
+	matchModelVal, ok := matchModelAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`match_model expected to be basetypes.StringValue, was: %T`, matchModelAttribute))
+	}
+
+	matchNameAttribute, ok := attributes["match_name"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`match_name is missing from object`)
+
+		return NewMatchingRulesValueUnknown(), diags
+	}
+
+	matchNameVal, ok := matchNameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`match_name expected to be basetypes.StringValue, was: %T`, matchNameAttribute))
+	}
+
+	matchNameOffsetAttribute, ok := attributes["match_name_offset"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`match_name_offset is missing from object`)
+
+		return NewMatchingRulesValueUnknown(), diags
+	}
+
+	matchNameOffsetVal, ok := matchNameOffsetAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`match_name_offset expected to be basetypes.Int64Value, was: %T`, matchNameOffsetAttribute))
+	}
+
 	matchRoleAttribute, ok := attributes["match_role"]
 
 	if !ok {
@@ -30691,6 +30842,9 @@ func NewMatchingRulesValue(attributeTypes map[string]attr.Type, attributes map[s
 	return MatchingRulesValue{
 		AdditionalConfigCmds: additionalConfigCmdsVal,
 		IpConfig:             ipConfigVal,
+		MatchModel:           matchModelVal,
+		MatchName:            matchNameVal,
+		MatchNameOffset:      matchNameOffsetVal,
 		MatchRole:            matchRoleVal,
 		MatchType:            matchTypeVal,
 		MatchValue:           matchValueVal,
@@ -30772,6 +30926,9 @@ var _ basetypes.ObjectValuable = MatchingRulesValue{}
 type MatchingRulesValue struct {
 	AdditionalConfigCmds basetypes.ListValue   `tfsdk:"additional_config_cmds"`
 	IpConfig             basetypes.ObjectValue `tfsdk:"ip_config"`
+	MatchModel           basetypes.StringValue `tfsdk:"match_model"`
+	MatchName            basetypes.StringValue `tfsdk:"match_name"`
+	MatchNameOffset      basetypes.Int64Value  `tfsdk:"match_name_offset"`
 	MatchRole            basetypes.StringValue `tfsdk:"match_role"`
 	MatchType            basetypes.StringValue `tfsdk:"match_type"`
 	MatchValue           basetypes.StringValue `tfsdk:"match_value"`
@@ -30783,7 +30940,7 @@ type MatchingRulesValue struct {
 }
 
 func (v MatchingRulesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 9)
+	attrTypes := make(map[string]tftypes.Type, 12)
 
 	var val tftypes.Value
 	var err error
@@ -30794,6 +30951,9 @@ func (v MatchingRulesValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 	attrTypes["ip_config"] = basetypes.ObjectType{
 		AttrTypes: IpConfigValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
+	attrTypes["match_model"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["match_name"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["match_name_offset"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["match_role"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["match_type"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["match_value"] = basetypes.StringType{}.TerraformType(ctx)
@@ -30812,7 +30972,7 @@ func (v MatchingRulesValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 9)
+		vals := make(map[string]tftypes.Value, 12)
 
 		val, err = v.AdditionalConfigCmds.ToTerraformValue(ctx)
 
@@ -30829,6 +30989,30 @@ func (v MatchingRulesValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 		}
 
 		vals["ip_config"] = val
+
+		val, err = v.MatchModel.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["match_model"] = val
+
+		val, err = v.MatchName.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["match_name"] = val
+
+		val, err = v.MatchNameOffset.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["match_name_offset"] = val
 
 		val, err = v.MatchRole.ToTerraformValue(ctx)
 
@@ -31027,10 +31211,13 @@ func (v MatchingRulesValue) ToObjectValue(ctx context.Context) (basetypes.Object
 			"ip_config": basetypes.ObjectType{
 				AttrTypes: IpConfigValue{}.AttributeTypes(ctx),
 			},
-			"match_role":  basetypes.StringType{},
-			"match_type":  basetypes.StringType{},
-			"match_value": basetypes.StringType{},
-			"name":        basetypes.StringType{},
+			"match_model":       basetypes.StringType{},
+			"match_name":        basetypes.StringType{},
+			"match_name_offset": basetypes.Int64Type{},
+			"match_role":        basetypes.StringType{},
+			"match_type":        basetypes.StringType{},
+			"match_value":       basetypes.StringType{},
+			"name":              basetypes.StringType{},
 			"oob_ip_config": basetypes.ObjectType{
 				AttrTypes: OobIpConfigValue{}.AttributeTypes(ctx),
 			},
@@ -31050,10 +31237,13 @@ func (v MatchingRulesValue) ToObjectValue(ctx context.Context) (basetypes.Object
 		"ip_config": basetypes.ObjectType{
 			AttrTypes: IpConfigValue{}.AttributeTypes(ctx),
 		},
-		"match_role":  basetypes.StringType{},
-		"match_type":  basetypes.StringType{},
-		"match_value": basetypes.StringType{},
-		"name":        basetypes.StringType{},
+		"match_model":       basetypes.StringType{},
+		"match_name":        basetypes.StringType{},
+		"match_name_offset": basetypes.Int64Type{},
+		"match_role":        basetypes.StringType{},
+		"match_type":        basetypes.StringType{},
+		"match_value":       basetypes.StringType{},
+		"name":              basetypes.StringType{},
 		"oob_ip_config": basetypes.ObjectType{
 			AttrTypes: OobIpConfigValue{}.AttributeTypes(ctx),
 		},
@@ -31078,6 +31268,9 @@ func (v MatchingRulesValue) ToObjectValue(ctx context.Context) (basetypes.Object
 		map[string]attr.Value{
 			"additional_config_cmds": additionalConfigCmdsVal,
 			"ip_config":              ipConfig,
+			"match_model":            v.MatchModel,
+			"match_name":             v.MatchName,
+			"match_name_offset":      v.MatchNameOffset,
 			"match_role":             v.MatchRole,
 			"match_type":             v.MatchType,
 			"match_value":            v.MatchValue,
@@ -31110,6 +31303,18 @@ func (v MatchingRulesValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.IpConfig.Equal(other.IpConfig) {
+		return false
+	}
+
+	if !v.MatchModel.Equal(other.MatchModel) {
+		return false
+	}
+
+	if !v.MatchName.Equal(other.MatchName) {
+		return false
+	}
+
+	if !v.MatchNameOffset.Equal(other.MatchNameOffset) {
 		return false
 	}
 
@@ -31160,10 +31365,13 @@ func (v MatchingRulesValue) AttributeTypes(ctx context.Context) map[string]attr.
 		"ip_config": basetypes.ObjectType{
 			AttrTypes: IpConfigValue{}.AttributeTypes(ctx),
 		},
-		"match_role":  basetypes.StringType{},
-		"match_type":  basetypes.StringType{},
-		"match_value": basetypes.StringType{},
-		"name":        basetypes.StringType{},
+		"match_model":       basetypes.StringType{},
+		"match_name":        basetypes.StringType{},
+		"match_name_offset": basetypes.Int64Type{},
+		"match_role":        basetypes.StringType{},
+		"match_type":        basetypes.StringType{},
+		"match_value":       basetypes.StringType{},
+		"name":              basetypes.StringType{},
 		"oob_ip_config": basetypes.ObjectType{
 			AttrTypes: OobIpConfigValue{}.AttributeTypes(ctx),
 		},

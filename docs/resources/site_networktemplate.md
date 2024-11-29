@@ -22,7 +22,7 @@ The Site Network template can be used to override the Org Network template assig
 
 ```terraform
 resource "mist_site_networktemplate" "networktemplate_one" {
-  site_id      = mist_site.terraform_test.id
+  site_id     = mist_site.terraform_test.id
   dns_servers = ["8.8.8.8", "1.1.1.1"]
   dns_suffix  = ["mycorp.com"]
   ntp_servers = ["pool.ntp.org"]
@@ -68,9 +68,10 @@ resource "mist_site_networktemplate" "networktemplate_one" {
     enable = true
     rules = [
       {
-        name        = "switch_rule_one"
-        match_type  = "match_name[0:3]"
-        match_value = "abc"
+        name              = "switch_rule_one"
+        match_name        = "corp"
+        match_name_offset = 3
+        match_role        = "core"
         port_config = {
           "ge-0/0/0-10" = {
             usage = "port_usage_one"
@@ -794,9 +795,12 @@ Optional:
 
 **Note**: no check is done
 - `ip_config` (Attributes) In-Band Management interface configuration (see [below for nested schema](#nestedatt--switch_matching--rules--ip_config))
-- `match_role` (String) role to match
-- `match_type` (String) 'property key define the type of matching, value is the string to match. e.g: `match_name[0:3]`, `match_name[2:6]`, `match_model`,  `match_model[0-6]`
-- `match_value` (String)
+- `match_model` (String) string the switch model must start with to use this rule. It is possible to combine with the `match_name` and `match_role` attributes
+- `match_name` (String) string the switch name must start with to use this rule. Use the `match_name_offset` to indicate the first character of the switch name to compare to. It is possible to combine with the `match_model` and `match_role` attributes
+- `match_name_offset` (Number) first character of the switch name to compare to the `match_name` value
+- `match_role` (String) string the switch role must start with to use this rule. It is possible to combine with the `match_name` and `match_model` attributes
+- `match_type` (String, Deprecated) 'property key define the type of matching, value is the string to match. e.g: `match_name[0:3]`, `match_name[2:6]`, `match_model`,  `match_model[0-6]`
+- `match_value` (String, Deprecated)
 - `name` (String)
 - `oob_ip_config` (Attributes) Out-of-Band Management interface configuration (see [below for nested schema](#nestedatt--switch_matching--rules--oob_ip_config))
 - `port_config` (Attributes Map) Propery key is the interface name or interface range (see [below for nested schema](#nestedatt--switch_matching--rules--port_config))
@@ -818,7 +822,7 @@ Optional:
 Optional:
 
 - `type` (String) enum: `dhcp`, `static`
-- `use_mgmt_vrf` (Boolean) f supported on the platform. If enabled, DNS will be using this routing-instance, too
+- `use_mgmt_vrf` (Boolean) if supported on the platform. If enabled, DNS will be using this routing-instance, too
 - `use_mgmt_vrf_for_host_out` (Boolean) for host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired
 
 
