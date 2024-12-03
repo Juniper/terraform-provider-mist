@@ -5927,23 +5927,23 @@ func (t ConfigType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 	}
 
 	return ConfigValue{
-		DnsServers:        dnsServersVal,
-		DnsSuffix:         dnsSuffixVal,
-		FixedBindings:     fixedBindingsVal,
-		Gateway:           gatewayVal,
-		IpEnd4:            ipEnd4Val,
-		IpEnd6:            ipEnd6Val,
-		IpStart4:          ipStart4Val,
-		IpStart6:          ipStart6Val,
-		LeaseTime:         leaseTimeVal,
-		Options:           optionsVal,
-		ServerIdOverride:  serverIdOverrideVal,
-		Servers4:          serversVal,
-		Servers6:          servers6Val,
-		Type4:             typeVal,
-		Type6:             type6Val,
+		DnsServers:         dnsServersVal,
+		DnsSuffix:          dnsSuffixVal,
+		FixedBindings:      fixedBindingsVal,
+		Gateway:            gatewayVal,
+		IpEnd4:             ipEnd4Val,
+		IpEnd6:             ipEnd6Val,
+		IpStart4:           ipStart4Val,
+		IpStart6:           ipStart6Val,
+		LeaseTime:          leaseTimeVal,
+		Options:            optionsVal,
+		ServerIdOverride:   serverIdOverrideVal,
+		Servers4:           serversVal,
+		Servers6:           servers6Val,
+		Type4:              typeVal,
+		Type6:              type6Val,
 		VendorEncapsulated: vendorEncapsulatedVal,
-		state:             attr.ValueStateKnown,
+		state:              attr.ValueStateKnown,
 	}, diags
 }
 
@@ -6303,23 +6303,23 @@ func NewConfigValue(attributeTypes map[string]attr.Type, attributes map[string]a
 	}
 
 	return ConfigValue{
-		DnsServers:        dnsServersVal,
-		DnsSuffix:         dnsSuffixVal,
-		FixedBindings:     fixedBindingsVal,
-		Gateway:           gatewayVal,
-		IpEnd4:            ipEnd4Val,
-		IpEnd6:            ipEnd6Val,
-		IpStart4:          ipStart4Val,
-		IpStart6:          ipStart6Val,
-		LeaseTime:         leaseTimeVal,
-		Options:           optionsVal,
-		ServerIdOverride:  serverIdOverrideVal,
-		Servers4:          serversVal,
-		Servers6:          servers6Val,
-		Type4:             typeVal,
-		Type6:             type6Val,
+		DnsServers:         dnsServersVal,
+		DnsSuffix:          dnsSuffixVal,
+		FixedBindings:      fixedBindingsVal,
+		Gateway:            gatewayVal,
+		IpEnd4:             ipEnd4Val,
+		IpEnd6:             ipEnd6Val,
+		IpStart4:           ipStart4Val,
+		IpStart6:           ipStart6Val,
+		LeaseTime:          leaseTimeVal,
+		Options:            optionsVal,
+		ServerIdOverride:   serverIdOverrideVal,
+		Servers4:           serversVal,
+		Servers6:           servers6Val,
+		Type4:              typeVal,
+		Type6:              type6Val,
 		VendorEncapsulated: vendorEncapsulatedVal,
-		state:             attr.ValueStateKnown,
+		state:              attr.ValueStateKnown,
 	}, diags
 }
 
@@ -6391,23 +6391,23 @@ func (t ConfigType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = ConfigValue{}
 
 type ConfigValue struct {
-	DnsServers        basetypes.ListValue   `tfsdk:"dns_servers"`
-	DnsSuffix         basetypes.ListValue   `tfsdk:"dns_suffix"`
-	FixedBindings     basetypes.MapValue    `tfsdk:"fixed_bindings"`
-	Gateway           basetypes.StringValue `tfsdk:"gateway"`
-	IpEnd4            basetypes.StringValue `tfsdk:"ip_end"`
-	IpEnd6            basetypes.StringValue `tfsdk:"ip_end6"`
-	IpStart4          basetypes.StringValue `tfsdk:"ip_start"`
-	IpStart6          basetypes.StringValue `tfsdk:"ip_start6"`
-	LeaseTime         basetypes.Int64Value  `tfsdk:"lease_time"`
-	Options           basetypes.MapValue    `tfsdk:"options"`
-	ServerIdOverride  basetypes.BoolValue   `tfsdk:"server_id_override"`
-	Servers4          basetypes.ListValue   `tfsdk:"servers"`
-	Servers6          basetypes.ListValue   `tfsdk:"servers6"`
-	Type4             basetypes.StringValue `tfsdk:"type"`
-	Type6             basetypes.StringValue `tfsdk:"type6"`
+	DnsServers         basetypes.ListValue   `tfsdk:"dns_servers"`
+	DnsSuffix          basetypes.ListValue   `tfsdk:"dns_suffix"`
+	FixedBindings      basetypes.MapValue    `tfsdk:"fixed_bindings"`
+	Gateway            basetypes.StringValue `tfsdk:"gateway"`
+	IpEnd4             basetypes.StringValue `tfsdk:"ip_end"`
+	IpEnd6             basetypes.StringValue `tfsdk:"ip_end6"`
+	IpStart4           basetypes.StringValue `tfsdk:"ip_start"`
+	IpStart6           basetypes.StringValue `tfsdk:"ip_start6"`
+	LeaseTime          basetypes.Int64Value  `tfsdk:"lease_time"`
+	Options            basetypes.MapValue    `tfsdk:"options"`
+	ServerIdOverride   basetypes.BoolValue   `tfsdk:"server_id_override"`
+	Servers4           basetypes.ListValue   `tfsdk:"servers"`
+	Servers6           basetypes.ListValue   `tfsdk:"servers6"`
+	Type4              basetypes.StringValue `tfsdk:"type"`
+	Type6              basetypes.StringValue `tfsdk:"type6"`
 	VendorEncapsulated basetypes.MapValue    `tfsdk:"vendor_encapsulated"`
-	state             attr.ValueState
+	state              attr.ValueState
 }
 
 func (v ConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
@@ -6897,21 +6897,21 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"dns_servers":        dnsServersVal,
-			"dns_suffix":         dnsSuffixVal,
-			"fixed_bindings":     fixedBindings,
-			"gateway":            v.Gateway,
-			"ip_end":             v.IpEnd4,
-			"ip_end6":            v.IpEnd6,
-			"ip_start":           v.IpStart4,
-			"ip_start6":          v.IpStart6,
-			"lease_time":         v.LeaseTime,
-			"options":            options,
-			"server_id_override": v.ServerIdOverride,
-			"servers":            serversVal,
-			"servers6":           servers6Val,
-			"type":               v.Type4,
-			"type6":              v.Type6,
+			"dns_servers":         dnsServersVal,
+			"dns_suffix":          dnsSuffixVal,
+			"fixed_bindings":      fixedBindings,
+			"gateway":             v.Gateway,
+			"ip_end":              v.IpEnd4,
+			"ip_end6":             v.IpEnd6,
+			"ip_start":            v.IpStart4,
+			"ip_start6":           v.IpStart6,
+			"lease_time":          v.LeaseTime,
+			"options":             options,
+			"server_id_override":  v.ServerIdOverride,
+			"servers":             serversVal,
+			"servers6":            servers6Val,
+			"type":                v.Type4,
+			"type6":               v.Type6,
 			"vendor_encapsulated": vendorEncapsulated,
 		})
 
@@ -7868,8 +7868,8 @@ func (t VendorEncapsulatedType) ValueFromObject(ctx context.Context, in basetype
 
 	return VendorEncapsulatedValue{
 		VendorEncapsulatedType: typeVal,
-		Value:                 valueVal,
-		state:                 attr.ValueStateKnown,
+		Value:                  valueVal,
+		state:                  attr.ValueStateKnown,
 	}, diags
 }
 
@@ -7978,8 +7978,8 @@ func NewVendorEncapsulatedValue(attributeTypes map[string]attr.Type, attributes 
 
 	return VendorEncapsulatedValue{
 		VendorEncapsulatedType: typeVal,
-		Value:                 valueVal,
-		state:                 attr.ValueStateKnown,
+		Value:                  valueVal,
+		state:                  attr.ValueStateKnown,
 	}, diags
 }
 
@@ -8052,8 +8052,8 @@ var _ basetypes.ObjectValuable = VendorEncapsulatedValue{}
 
 type VendorEncapsulatedValue struct {
 	VendorEncapsulatedType basetypes.StringValue `tfsdk:"type"`
-	Value                 basetypes.StringValue `tfsdk:"value"`
-	state                 attr.ValueState
+	Value                  basetypes.StringValue `tfsdk:"value"`
+	state                  attr.ValueState
 }
 
 func (v VendorEncapsulatedValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
