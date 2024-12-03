@@ -448,7 +448,7 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 									},
 									Default: stringdefault.StaticString("none"),
 								},
-								"vendor_encapulated": schema.MapNestedAttribute{
+								"vendor_encapsulated": schema.MapNestedAttribute{
 									NestedObject: schema.NestedAttributeObject{
 										Attributes: map[string]schema.Attribute{
 											"type": schema.StringAttribute{
@@ -473,9 +473,9 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 												Optional: true,
 											},
 										},
-										CustomType: VendorEncapulatedType{
+										CustomType: VendorEncapsulatedType{
 											ObjectType: types.ObjectType{
-												AttrTypes: VendorEncapulatedValue{}.AttributeTypes(ctx),
+												AttrTypes: VendorEncapsulatedValue{}.AttributeTypes(ctx),
 											},
 										},
 									},
@@ -5904,22 +5904,22 @@ func (t ConfigType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 			fmt.Sprintf(`type6 expected to be basetypes.StringValue, was: %T`, type6Attribute))
 	}
 
-	vendorEncapulatedAttribute, ok := attributes["vendor_encapulated"]
+	vendorEncapsulatedAttribute, ok := attributes["vendor_encapsulated"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`vendor_encapulated is missing from object`)
+			`vendor_encapsulated is missing from object`)
 
 		return nil, diags
 	}
 
-	vendorEncapulatedVal, ok := vendorEncapulatedAttribute.(basetypes.MapValue)
+	vendorEncapsulatedVal, ok := vendorEncapsulatedAttribute.(basetypes.MapValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`vendor_encapulated expected to be basetypes.MapValue, was: %T`, vendorEncapulatedAttribute))
+			fmt.Sprintf(`vendor_encapsulated expected to be basetypes.MapValue, was: %T`, vendorEncapsulatedAttribute))
 	}
 
 	if diags.HasError() {
@@ -5942,7 +5942,7 @@ func (t ConfigType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 		Servers6:          servers6Val,
 		Type4:             typeVal,
 		Type6:             type6Val,
-		VendorEncapulated: vendorEncapulatedVal,
+		VendorEncapsulated: vendorEncapsulatedVal,
 		state:             attr.ValueStateKnown,
 	}, diags
 }
@@ -6280,22 +6280,22 @@ func NewConfigValue(attributeTypes map[string]attr.Type, attributes map[string]a
 			fmt.Sprintf(`type6 expected to be basetypes.StringValue, was: %T`, type6Attribute))
 	}
 
-	vendorEncapulatedAttribute, ok := attributes["vendor_encapulated"]
+	vendorEncapsulatedAttribute, ok := attributes["vendor_encapsulated"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`vendor_encapulated is missing from object`)
+			`vendor_encapsulated is missing from object`)
 
 		return NewConfigValueUnknown(), diags
 	}
 
-	vendorEncapulatedVal, ok := vendorEncapulatedAttribute.(basetypes.MapValue)
+	vendorEncapsulatedVal, ok := vendorEncapsulatedAttribute.(basetypes.MapValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`vendor_encapulated expected to be basetypes.MapValue, was: %T`, vendorEncapulatedAttribute))
+			fmt.Sprintf(`vendor_encapsulated expected to be basetypes.MapValue, was: %T`, vendorEncapsulatedAttribute))
 	}
 
 	if diags.HasError() {
@@ -6318,7 +6318,7 @@ func NewConfigValue(attributeTypes map[string]attr.Type, attributes map[string]a
 		Servers6:          servers6Val,
 		Type4:             typeVal,
 		Type6:             type6Val,
-		VendorEncapulated: vendorEncapulatedVal,
+		VendorEncapsulated: vendorEncapsulatedVal,
 		state:             attr.ValueStateKnown,
 	}, diags
 }
@@ -6406,7 +6406,7 @@ type ConfigValue struct {
 	Servers6          basetypes.ListValue   `tfsdk:"servers6"`
 	Type4             basetypes.StringValue `tfsdk:"type"`
 	Type6             basetypes.StringValue `tfsdk:"type6"`
-	VendorEncapulated basetypes.MapValue    `tfsdk:"vendor_encapulated"`
+	VendorEncapsulated basetypes.MapValue    `tfsdk:"vendor_encapsulated"`
 	state             attr.ValueState
 }
 
@@ -6443,8 +6443,8 @@ func (v ConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 	}.TerraformType(ctx)
 	attrTypes["type"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["type6"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["vendor_encapulated"] = basetypes.MapType{
-		ElemType: VendorEncapulatedValue{}.Type(ctx),
+	attrTypes["vendor_encapsulated"] = basetypes.MapType{
+		ElemType: VendorEncapsulatedValue{}.Type(ctx),
 	}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
@@ -6573,13 +6573,13 @@ func (v ConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 
 		vals["type6"] = val
 
-		val, err = v.VendorEncapulated.ToTerraformValue(ctx)
+		val, err = v.VendorEncapsulated.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["vendor_encapulated"] = val
+		vals["vendor_encapsulated"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -6668,30 +6668,30 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 		)
 	}
 
-	vendorEncapulated := types.MapValueMust(
-		VendorEncapulatedType{
+	vendorEncapsulated := types.MapValueMust(
+		VendorEncapsulatedType{
 			basetypes.ObjectType{
-				AttrTypes: VendorEncapulatedValue{}.AttributeTypes(ctx),
+				AttrTypes: VendorEncapsulatedValue{}.AttributeTypes(ctx),
 			},
 		},
-		v.VendorEncapulated.Elements(),
+		v.VendorEncapsulated.Elements(),
 	)
 
-	if v.VendorEncapulated.IsNull() {
-		vendorEncapulated = types.MapNull(
-			VendorEncapulatedType{
+	if v.VendorEncapsulated.IsNull() {
+		vendorEncapsulated = types.MapNull(
+			VendorEncapsulatedType{
 				basetypes.ObjectType{
-					AttrTypes: VendorEncapulatedValue{}.AttributeTypes(ctx),
+					AttrTypes: VendorEncapsulatedValue{}.AttributeTypes(ctx),
 				},
 			},
 		)
 	}
 
-	if v.VendorEncapulated.IsUnknown() {
-		vendorEncapulated = types.MapUnknown(
-			VendorEncapulatedType{
+	if v.VendorEncapsulated.IsUnknown() {
+		vendorEncapsulated = types.MapUnknown(
+			VendorEncapsulatedType{
 				basetypes.ObjectType{
-					AttrTypes: VendorEncapulatedValue{}.AttributeTypes(ctx),
+					AttrTypes: VendorEncapsulatedValue{}.AttributeTypes(ctx),
 				},
 			},
 		)
@@ -6730,8 +6730,8 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			},
 			"type":  basetypes.StringType{},
 			"type6": basetypes.StringType{},
-			"vendor_encapulated": basetypes.MapType{
-				ElemType: VendorEncapulatedValue{}.Type(ctx),
+			"vendor_encapsulated": basetypes.MapType{
+				ElemType: VendorEncapsulatedValue{}.Type(ctx),
 			},
 		}), diags
 	}
@@ -6769,8 +6769,8 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			},
 			"type":  basetypes.StringType{},
 			"type6": basetypes.StringType{},
-			"vendor_encapulated": basetypes.MapType{
-				ElemType: VendorEncapulatedValue{}.Type(ctx),
+			"vendor_encapsulated": basetypes.MapType{
+				ElemType: VendorEncapsulatedValue{}.Type(ctx),
 			},
 		}), diags
 	}
@@ -6808,8 +6808,8 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			},
 			"type":  basetypes.StringType{},
 			"type6": basetypes.StringType{},
-			"vendor_encapulated": basetypes.MapType{
-				ElemType: VendorEncapulatedValue{}.Type(ctx),
+			"vendor_encapsulated": basetypes.MapType{
+				ElemType: VendorEncapsulatedValue{}.Type(ctx),
 			},
 		}), diags
 	}
@@ -6847,8 +6847,8 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			},
 			"type":  basetypes.StringType{},
 			"type6": basetypes.StringType{},
-			"vendor_encapulated": basetypes.MapType{
-				ElemType: VendorEncapulatedValue{}.Type(ctx),
+			"vendor_encapsulated": basetypes.MapType{
+				ElemType: VendorEncapsulatedValue{}.Type(ctx),
 			},
 		}), diags
 	}
@@ -6881,8 +6881,8 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 		},
 		"type":  basetypes.StringType{},
 		"type6": basetypes.StringType{},
-		"vendor_encapulated": basetypes.MapType{
-			ElemType: VendorEncapulatedValue{}.Type(ctx),
+		"vendor_encapsulated": basetypes.MapType{
+			ElemType: VendorEncapsulatedValue{}.Type(ctx),
 		},
 	}
 
@@ -6912,7 +6912,7 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"servers6":           servers6Val,
 			"type":               v.Type4,
 			"type6":              v.Type6,
-			"vendor_encapulated": vendorEncapulated,
+			"vendor_encapsulated": vendorEncapsulated,
 		})
 
 	return objVal, diags
@@ -6993,7 +6993,7 @@ func (v ConfigValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.VendorEncapulated.Equal(other.VendorEncapulated) {
+	if !v.VendorEncapsulated.Equal(other.VendorEncapsulated) {
 		return false
 	}
 
@@ -7037,8 +7037,8 @@ func (v ConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 		},
 		"type":  basetypes.StringType{},
 		"type6": basetypes.StringType{},
-		"vendor_encapulated": basetypes.MapType{
-			ElemType: VendorEncapulatedValue{}.Type(ctx),
+		"vendor_encapsulated": basetypes.MapType{
+			ElemType: VendorEncapsulatedValue{}.Type(ctx),
 		},
 	}
 }
@@ -7801,14 +7801,14 @@ func (v OptionsValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	}
 }
 
-var _ basetypes.ObjectTypable = VendorEncapulatedType{}
+var _ basetypes.ObjectTypable = VendorEncapsulatedType{}
 
-type VendorEncapulatedType struct {
+type VendorEncapsulatedType struct {
 	basetypes.ObjectType
 }
 
-func (t VendorEncapulatedType) Equal(o attr.Type) bool {
-	other, ok := o.(VendorEncapulatedType)
+func (t VendorEncapsulatedType) Equal(o attr.Type) bool {
+	other, ok := o.(VendorEncapsulatedType)
 
 	if !ok {
 		return false
@@ -7817,11 +7817,11 @@ func (t VendorEncapulatedType) Equal(o attr.Type) bool {
 	return t.ObjectType.Equal(other.ObjectType)
 }
 
-func (t VendorEncapulatedType) String() string {
-	return "VendorEncapulatedType"
+func (t VendorEncapsulatedType) String() string {
+	return "VendorEncapsulatedType"
 }
 
-func (t VendorEncapulatedType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+func (t VendorEncapsulatedType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	attributes := in.Attributes()
@@ -7866,26 +7866,26 @@ func (t VendorEncapulatedType) ValueFromObject(ctx context.Context, in basetypes
 		return nil, diags
 	}
 
-	return VendorEncapulatedValue{
-		VendorEncapulatedType: typeVal,
+	return VendorEncapsulatedValue{
+		VendorEncapsulatedType: typeVal,
 		Value:                 valueVal,
 		state:                 attr.ValueStateKnown,
 	}, diags
 }
 
-func NewVendorEncapulatedValueNull() VendorEncapulatedValue {
-	return VendorEncapulatedValue{
+func NewVendorEncapsulatedValueNull() VendorEncapsulatedValue {
+	return VendorEncapsulatedValue{
 		state: attr.ValueStateNull,
 	}
 }
 
-func NewVendorEncapulatedValueUnknown() VendorEncapulatedValue {
-	return VendorEncapulatedValue{
+func NewVendorEncapsulatedValueUnknown() VendorEncapsulatedValue {
+	return VendorEncapsulatedValue{
 		state: attr.ValueStateUnknown,
 	}
 }
 
-func NewVendorEncapulatedValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (VendorEncapulatedValue, diag.Diagnostics) {
+func NewVendorEncapsulatedValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (VendorEncapsulatedValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
@@ -7896,11 +7896,11 @@ func NewVendorEncapulatedValue(attributeTypes map[string]attr.Type, attributes m
 
 		if !ok {
 			diags.AddError(
-				"Missing VendorEncapulatedValue Attribute Value",
-				"While creating a VendorEncapulatedValue value, a missing attribute value was detected. "+
-					"A VendorEncapulatedValue must contain values for all attributes, even if null or unknown. "+
+				"Missing VendorEncapsulatedValue Attribute Value",
+				"While creating a VendorEncapsulatedValue value, a missing attribute value was detected. "+
+					"A VendorEncapsulatedValue must contain values for all attributes, even if null or unknown. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("VendorEncapulatedValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+					fmt.Sprintf("VendorEncapsulatedValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
 			)
 
 			continue
@@ -7908,12 +7908,12 @@ func NewVendorEncapulatedValue(attributeTypes map[string]attr.Type, attributes m
 
 		if !attributeType.Equal(attribute.Type(ctx)) {
 			diags.AddError(
-				"Invalid VendorEncapulatedValue Attribute Type",
-				"While creating a VendorEncapulatedValue value, an invalid attribute value was detected. "+
-					"A VendorEncapulatedValue must use a matching attribute type for the value. "+
+				"Invalid VendorEncapsulatedValue Attribute Type",
+				"While creating a VendorEncapsulatedValue value, an invalid attribute value was detected. "+
+					"A VendorEncapsulatedValue must use a matching attribute type for the value. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("VendorEncapulatedValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
-					fmt.Sprintf("VendorEncapulatedValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+					fmt.Sprintf("VendorEncapsulatedValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("VendorEncapsulatedValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
 			)
 		}
 	}
@@ -7923,17 +7923,17 @@ func NewVendorEncapulatedValue(attributeTypes map[string]attr.Type, attributes m
 
 		if !ok {
 			diags.AddError(
-				"Extra VendorEncapulatedValue Attribute Value",
-				"While creating a VendorEncapulatedValue value, an extra attribute value was detected. "+
-					"A VendorEncapulatedValue must not contain values beyond the expected attribute types. "+
+				"Extra VendorEncapsulatedValue Attribute Value",
+				"While creating a VendorEncapsulatedValue value, an extra attribute value was detected. "+
+					"A VendorEncapsulatedValue must not contain values beyond the expected attribute types. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("Extra VendorEncapulatedValue Attribute Name: %s", name),
+					fmt.Sprintf("Extra VendorEncapsulatedValue Attribute Name: %s", name),
 			)
 		}
 	}
 
 	if diags.HasError() {
-		return NewVendorEncapulatedValueUnknown(), diags
+		return NewVendorEncapsulatedValueUnknown(), diags
 	}
 
 	typeAttribute, ok := attributes["type"]
@@ -7943,7 +7943,7 @@ func NewVendorEncapulatedValue(attributeTypes map[string]attr.Type, attributes m
 			"Attribute Missing",
 			`type is missing from object`)
 
-		return NewVendorEncapulatedValueUnknown(), diags
+		return NewVendorEncapsulatedValueUnknown(), diags
 	}
 
 	typeVal, ok := typeAttribute.(basetypes.StringValue)
@@ -7961,7 +7961,7 @@ func NewVendorEncapulatedValue(attributeTypes map[string]attr.Type, attributes m
 			"Attribute Missing",
 			`value is missing from object`)
 
-		return NewVendorEncapulatedValueUnknown(), diags
+		return NewVendorEncapsulatedValueUnknown(), diags
 	}
 
 	valueVal, ok := valueAttribute.(basetypes.StringValue)
@@ -7973,18 +7973,18 @@ func NewVendorEncapulatedValue(attributeTypes map[string]attr.Type, attributes m
 	}
 
 	if diags.HasError() {
-		return NewVendorEncapulatedValueUnknown(), diags
+		return NewVendorEncapsulatedValueUnknown(), diags
 	}
 
-	return VendorEncapulatedValue{
-		VendorEncapulatedType: typeVal,
+	return VendorEncapsulatedValue{
+		VendorEncapsulatedType: typeVal,
 		Value:                 valueVal,
 		state:                 attr.ValueStateKnown,
 	}, diags
 }
 
-func NewVendorEncapulatedValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) VendorEncapulatedValue {
-	object, diags := NewVendorEncapulatedValue(attributeTypes, attributes)
+func NewVendorEncapsulatedValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) VendorEncapsulatedValue {
+	object, diags := NewVendorEncapsulatedValue(attributeTypes, attributes)
 
 	if diags.HasError() {
 		// This could potentially be added to the diag package.
@@ -7998,15 +7998,15 @@ func NewVendorEncapulatedValueMust(attributeTypes map[string]attr.Type, attribut
 				diagnostic.Detail()))
 		}
 
-		panic("NewVendorEncapulatedValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+		panic("NewVendorEncapsulatedValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
 	}
 
 	return object
 }
 
-func (t VendorEncapulatedType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+func (t VendorEncapsulatedType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
 	if in.Type() == nil {
-		return NewVendorEncapulatedValueNull(), nil
+		return NewVendorEncapsulatedValueNull(), nil
 	}
 
 	if !in.Type().Equal(t.TerraformType(ctx)) {
@@ -8014,11 +8014,11 @@ func (t VendorEncapulatedType) ValueFromTerraform(ctx context.Context, in tftype
 	}
 
 	if !in.IsKnown() {
-		return NewVendorEncapulatedValueUnknown(), nil
+		return NewVendorEncapsulatedValueUnknown(), nil
 	}
 
 	if in.IsNull() {
-		return NewVendorEncapulatedValueNull(), nil
+		return NewVendorEncapsulatedValueNull(), nil
 	}
 
 	attributes := map[string]attr.Value{}
@@ -8041,22 +8041,22 @@ func (t VendorEncapulatedType) ValueFromTerraform(ctx context.Context, in tftype
 		attributes[k] = a
 	}
 
-	return NewVendorEncapulatedValueMust(VendorEncapulatedValue{}.AttributeTypes(ctx), attributes), nil
+	return NewVendorEncapsulatedValueMust(VendorEncapsulatedValue{}.AttributeTypes(ctx), attributes), nil
 }
 
-func (t VendorEncapulatedType) ValueType(ctx context.Context) attr.Value {
-	return VendorEncapulatedValue{}
+func (t VendorEncapsulatedType) ValueType(ctx context.Context) attr.Value {
+	return VendorEncapsulatedValue{}
 }
 
-var _ basetypes.ObjectValuable = VendorEncapulatedValue{}
+var _ basetypes.ObjectValuable = VendorEncapsulatedValue{}
 
-type VendorEncapulatedValue struct {
-	VendorEncapulatedType basetypes.StringValue `tfsdk:"type"`
+type VendorEncapsulatedValue struct {
+	VendorEncapsulatedType basetypes.StringValue `tfsdk:"type"`
 	Value                 basetypes.StringValue `tfsdk:"value"`
 	state                 attr.ValueState
 }
 
-func (v VendorEncapulatedValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+func (v VendorEncapsulatedValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
 	attrTypes := make(map[string]tftypes.Type, 2)
 
 	var val tftypes.Value
@@ -8071,7 +8071,7 @@ func (v VendorEncapulatedValue) ToTerraformValue(ctx context.Context) (tftypes.V
 	case attr.ValueStateKnown:
 		vals := make(map[string]tftypes.Value, 2)
 
-		val, err = v.VendorEncapulatedType.ToTerraformValue(ctx)
+		val, err = v.VendorEncapsulatedType.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -8101,19 +8101,19 @@ func (v VendorEncapulatedValue) ToTerraformValue(ctx context.Context) (tftypes.V
 	}
 }
 
-func (v VendorEncapulatedValue) IsNull() bool {
+func (v VendorEncapsulatedValue) IsNull() bool {
 	return v.state == attr.ValueStateNull
 }
 
-func (v VendorEncapulatedValue) IsUnknown() bool {
+func (v VendorEncapsulatedValue) IsUnknown() bool {
 	return v.state == attr.ValueStateUnknown
 }
 
-func (v VendorEncapulatedValue) String() string {
-	return "VendorEncapulatedValue"
+func (v VendorEncapsulatedValue) String() string {
+	return "VendorEncapsulatedValue"
 }
 
-func (v VendorEncapulatedValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+func (v VendorEncapsulatedValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	attributeTypes := map[string]attr.Type{
@@ -8132,15 +8132,15 @@ func (v VendorEncapulatedValue) ToObjectValue(ctx context.Context) (basetypes.Ob
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"type":  v.VendorEncapulatedType,
+			"type":  v.VendorEncapsulatedType,
 			"value": v.Value,
 		})
 
 	return objVal, diags
 }
 
-func (v VendorEncapulatedValue) Equal(o attr.Value) bool {
-	other, ok := o.(VendorEncapulatedValue)
+func (v VendorEncapsulatedValue) Equal(o attr.Value) bool {
+	other, ok := o.(VendorEncapsulatedValue)
 
 	if !ok {
 		return false
@@ -8154,7 +8154,7 @@ func (v VendorEncapulatedValue) Equal(o attr.Value) bool {
 		return true
 	}
 
-	if !v.VendorEncapulatedType.Equal(other.VendorEncapulatedType) {
+	if !v.VendorEncapsulatedType.Equal(other.VendorEncapsulatedType) {
 		return false
 	}
 
@@ -8165,15 +8165,15 @@ func (v VendorEncapulatedValue) Equal(o attr.Value) bool {
 	return true
 }
 
-func (v VendorEncapulatedValue) Type(ctx context.Context) attr.Type {
-	return VendorEncapulatedType{
+func (v VendorEncapsulatedValue) Type(ctx context.Context) attr.Type {
+	return VendorEncapsulatedType{
 		basetypes.ObjectType{
 			AttrTypes: v.AttributeTypes(ctx),
 		},
 	}
 }
 
-func (v VendorEncapulatedValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+func (v VendorEncapsulatedValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"type":  basetypes.StringType{},
 		"value": basetypes.StringType{},

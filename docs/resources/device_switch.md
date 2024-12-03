@@ -282,9 +282,9 @@ should overwrite the Sever Identifier option (i.e. DHCP option 54) in DHCP respo
 - `servers6` (List of String) if `type6`==`relay`
 - `type` (String) enum: `none`, `relay` (DHCP Relay), `server` (DHCP Server)
 - `type6` (String) enum: `none`, `relay` (DHCP Relay), `server` (DHCP Server)
-- `vendor_encapulated` (Attributes Map) if `type`==`server` or `type6`==`server`. Property key is <enterprise number>:<sub option code>, with
+- `vendor_encapsulated` (Attributes Map) if `type`==`server` or `type6`==`server`. Property key is <enterprise number>:<sub option code>, with
   * enterprise number: 1-65535 (https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers)
-  * sub option code: 1-255, sub-option code' (see [below for nested schema](#nestedatt--dhcpd_config--config--vendor_encapulated))
+  * sub option code: 1-255, sub-option code' (see [below for nested schema](#nestedatt--dhcpd_config--config--vendor_encapsulated))
 
 <a id="nestedatt--dhcpd_config--config--fixed_bindings"></a>
 ### Nested Schema for `dhcpd_config.config.fixed_bindings`
@@ -307,8 +307,8 @@ Optional:
 - `value` (String)
 
 
-<a id="nestedatt--dhcpd_config--config--vendor_encapulated"></a>
-### Nested Schema for `dhcpd_config.config.vendor_encapulated`
+<a id="nestedatt--dhcpd_config--config--vendor_encapsulated"></a>
+### Nested Schema for `dhcpd_config.config.vendor_encapsulated`
 
 Optional:
 

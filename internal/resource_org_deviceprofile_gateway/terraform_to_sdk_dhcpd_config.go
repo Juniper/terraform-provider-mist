@@ -53,11 +53,11 @@ func dhcpdConfigVendorOptionsTerraformToSdk(ctx context.Context, diags *diag.Dia
 	data_map := make(map[string]models.DhcpdConfigVendorOption)
 	for k, v := range d.Elements() {
 		var v_interface interface{} = v
-		plan := v_interface.(VendorEncapulatedValue)
+		plan := v_interface.(VendorEncapsulatedValue)
 
 		data := models.DhcpdConfigVendorOption{}
-		if plan.VendorEncapulatedType.ValueStringPointer() != nil {
-			data.Type = models.ToPointer(models.DhcpdConfigVendorOptionTypeEnum(plan.VendorEncapulatedType.ValueString()))
+		if plan.VendorEncapsulatedType.ValueStringPointer() != nil {
+			data.Type = models.ToPointer(models.DhcpdConfigVendorOptionTypeEnum(plan.VendorEncapsulatedType.ValueString()))
 		}
 		if plan.Value.ValueStringPointer() != nil {
 			data.Value = models.ToPointer(plan.Value.ValueString())
@@ -76,7 +76,7 @@ func dhcpdConfigConfigsTerraformToSdk(ctx context.Context, diags *diag.Diagnosti
 
 		fixed_bindings := dhcpdConfigFixedBindingsTerraformToSdk(ctx, diags, plan.FixedBindings)
 		options := dhcpdConfigOptionsTerraformToSdk(ctx, diags, plan.Options)
-		vendor_encapulated := dhcpdConfigVendorOptionsTerraformToSdk(ctx, diags, plan.VendorEncapulated)
+		vendor_encapsulated := dhcpdConfigVendorOptionsTerraformToSdk(ctx, diags, plan.VendorEncapsulated)
 
 		data := models.DhcpdConfigProperty{}
 		if !plan.DnsServers.IsNull() && !plan.DnsServers.IsUnknown() {
@@ -124,8 +124,8 @@ func dhcpdConfigConfigsTerraformToSdk(ctx context.Context, diags *diag.Diagnosti
 		if plan.Type6.ValueStringPointer() != nil {
 			data.Type6 = models.ToPointer(models.DhcpdConfigTypeEnum(plan.Type6.ValueString()))
 		}
-		if !plan.VendorEncapulated.IsNull() && !plan.VendorEncapulated.IsUnknown() {
-			data.VendorEncapulated = vendor_encapulated
+		if !plan.VendorEncapsulated.IsNull() && !plan.VendorEncapsulated.IsUnknown() {
+			data.VendorEncapsulated = vendor_encapsulated
 		}
 
 		data_map[k] = data

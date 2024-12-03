@@ -28,17 +28,17 @@ func dhcpdConfigVendorEncapsulatedSdkToTerraform(ctx context.Context, diags *dia
 			value = types.StringValue(*d.Value)
 		}
 
-		data_map_attr_type := VendorEncapulatedValue{}.AttributeTypes(ctx)
+		data_map_attr_type := VendorEncapsulatedValue{}.AttributeTypes(ctx)
 		data_map_value := map[string]attr.Value{
 			"type":  type_option,
 			"value": value,
 		}
-		data, e := NewVendorEncapulatedValue(data_map_attr_type, data_map_value)
+		data, e := NewVendorEncapsulatedValue(data_map_attr_type, data_map_value)
 		diags.Append(e...)
 
 		r_map_value[k] = data
 	}
-	state_result_map_type := VendorEncapulatedValue{}.Type(ctx)
+	state_result_map_type := VendorEncapsulatedValue{}.Type(ctx)
 	state_result_map, e := types.MapValueFrom(ctx, state_result_map_type, r_map_value)
 	diags.Append(e...)
 	return state_result_map
@@ -125,7 +125,7 @@ func dhcpdConfigConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 			var servers6 basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 			var type4 basetypes.StringValue = types.StringValue("local")
 			var type6 basetypes.StringValue = types.StringValue("none")
-			var vendor_encapulated basetypes.MapValue = types.MapNull(VendorEncapulatedValue{}.Type(ctx))
+			var vendor_encapsulated basetypes.MapValue = types.MapNull(VendorEncapsulatedValue{}.Type(ctx))
 
 			if d.DnsServers != nil {
 				dns_servers = mist_transform.ListOfStringSdkToTerraform(ctx, d.DnsServers)
@@ -172,28 +172,27 @@ func dhcpdConfigConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 			if d.Type6 != nil {
 				type6 = types.StringValue(string(*d.Type6))
 			}
-			if d.VendorEncapulated != nil && len(d.VendorEncapulated) > 0 {
 				vendor_encapulated = dhcpdConfigVendorEncapsulatedSdkToTerraform(ctx, diags, d.VendorEncapulated)
 			}
 
 			data_map_attr_type := ConfigValue{}.AttributeTypes(ctx)
 			data_map_value := map[string]attr.Value{
-				"dns_servers":        dns_servers,
-				"dns_suffix":         dns_suffix,
-				"fixed_bindings":     fixed_bindings,
-				"gateway":            gateway,
-				"ip_end":             ip_end,
-				"ip_end6":            ip_end6,
-				"ip_start":           ip_start,
-				"ip_start6":          ip_start6,
-				"lease_time":         lease_time,
-				"options":            options,
-				"server_id_override": server_id_override,
-				"servers":            servers,
-				"servers6":           servers6,
-				"type":               type4,
-				"type6":              type6,
-				"vendor_encapulated": vendor_encapulated,
+				"dns_servers":         dns_servers,
+				"dns_suffix":          dns_suffix,
+				"fixed_bindings":      fixed_bindings,
+				"gateway":             gateway,
+				"ip_end":              ip_end,
+				"ip_end6":             ip_end6,
+				"ip_start":            ip_start,
+				"ip_start6":           ip_start6,
+				"lease_time":          lease_time,
+				"options":             options,
+				"server_id_override":  server_id_override,
+				"servers":             servers,
+				"servers6":            servers6,
+				"type":                type4,
+				"type6":               type6,
+				"vendor_encapsulated": vendor_encapsulated,
 			}
 			data, e := NewConfigValue(data_map_attr_type, data_map_value)
 			diags.Append(e...)
