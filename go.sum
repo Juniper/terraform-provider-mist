@@ -15,8 +15,8 @@ github.com/Microsoft/go-winio v0.6.1 h1:9/kr64B9VUZrLm5YYwbGtUJnMgqWVOdUAXu6Migc
 github.com/Microsoft/go-winio v0.6.1/go.mod h1:LRdKpFKfdobln8UmuiYcKPot9D2v6svN5+sAH+4kjUM=
 github.com/ProtonMail/go-crypto v1.1.3 h1:nRBOetoydLeUb4nHajyO2bKqMLfWQ/ZPwkXqXxPxCFk=
 github.com/ProtonMail/go-crypto v1.1.3/go.mod h1:rA3QumHc/FZ8pAHreoekgiAbzpNsfQAosU5td4SnOrE=
-github.com/apimatic/go-core-runtime v0.0.25 h1:bEndGNqpBMZc9QSlUTcjw+RTrLEATi702N2raqPC44g=
-github.com/apimatic/go-core-runtime v0.0.25/go.mod h1:eYSG9icLyMjbPWq212ELOQ4PZdlT2RihZGXEaAZdx6Q=
+github.com/apimatic/go-core-runtime v0.0.26 h1:jf8yEXK4hIEQCwXrmLQORSrbKAMK9q2mpff/3+ueNiM=
+github.com/apimatic/go-core-runtime v0.0.26/go.mod h1:eYSG9icLyMjbPWq212ELOQ4PZdlT2RihZGXEaAZdx6Q=
 github.com/apparentlymart/go-textseg/v15 v15.0.0 h1:uYvfpb3DyLSCGWnctWKGj857c6ew1u1fNQOlOtuGxQY=
 github.com/apparentlymart/go-textseg/v15 v15.0.0/go.mod h1:K8XmNZdhEBkdlyDdvbmmsvpAG721bKi0joRfFdHIWJ4=
 github.com/armon/go-radix v1.0.0 h1:F4z6KzEeeQIMeLFa97iZU6vupzoecKdU5TX24SNppXI=
@@ -164,8 +164,8 @@ github.com/stretchr/testify v1.5.1/go.mod h1:5W2xD1RspED5o8YsWQXVCued0rvSQ+mT+I5
 github.com/stretchr/testify v1.7.2/go.mod h1:R6va5+xMeoiuVRoj+gSkQ7d3FALtqAAGI1FQKckRals=
 github.com/stretchr/testify v1.10.0 h1:Xv5erBjTwe/5IxqUQTdXv5kgmIvbHo3QQyRwhJsOfJA=
 github.com/stretchr/testify v1.10.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf8C91i36aY=
-github.com/tmunzer/mistapi-go v0.4.13 h1:GgbMrdHLbhP72314Akmx/Y5MQhxZLUuHNJ9wI6W4Bvk=
-github.com/tmunzer/mistapi-go v0.4.13/go.mod h1:TVRhm3dlcEAfvD3mZNST7VtgWBaWJICt3ynRAMYuF4U=
+github.com/tmunzer/mistapi-go v0.4.15 h1:HUh0CXwUNCGp1wYBCbISWeBj6udR/0KqXQjrQnGTvuM=
+github.com/tmunzer/mistapi-go v0.4.15/go.mod h1:/wcrAUOTKbC8CnSRPFzJT2ryFD+xTD6yFNJtwyl6tF8=
 github.com/vmihailenco/msgpack/v5 v5.4.1 h1:cQriyiUvjTwOHg8QZaPihLWeRAAVoCpE00IUPn0Bjt8=
 github.com/vmihailenco/msgpack/v5 v5.4.1/go.mod h1:GaZTsDaehaPpQVyxrf5mtQlH+pc21PIudVV/E3rRQok=
 github.com/vmihailenco/tagparser/v2 v2.0.0 h1:y09buUbR+b5aycVFQs/g70pqKVZNBmxwAhO7/IwNM9g=

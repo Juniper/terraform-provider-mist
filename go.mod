@@ -11,7 +11,7 @@ require (
 	github.com/hashicorp/terraform-plugin-framework-validators v0.15.0
 	github.com/hashicorp/terraform-plugin-go v0.25.0
 	github.com/hashicorp/terraform-plugin-log v0.9.0
-	github.com/tmunzer/mistapi-go v0.4.13
+	github.com/tmunzer/mistapi-go v0.4.15
 	golang.org/x/net v0.31.0
 )
 
@@ -23,7 +23,7 @@ require (
 	github.com/Masterminds/semver/v3 v3.3.1 // indirect
 	github.com/Masterminds/sprig/v3 v3.2.3 // indirect
 	github.com/ProtonMail/go-crypto v1.1.3 // indirect
-	github.com/apimatic/go-core-runtime v0.0.25 // indirect
+	github.com/apimatic/go-core-runtime v0.0.26 // indirect
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
 	github.com/armon/go-radix v1.0.0 // indirect
 	github.com/bgentry/speakeasy v0.2.0 // indirect

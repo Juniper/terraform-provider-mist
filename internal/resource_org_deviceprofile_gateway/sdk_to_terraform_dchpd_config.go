@@ -2,7 +2,6 @@ package resource_org_deviceprofile_gateway
 
 import (
 	"context"
-	"encoding/json"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -103,13 +102,10 @@ func dhcpdConfigFixedBindingsSdkToTerraform(ctx context.Context, diags *diag.Dia
 	return state_result
 }
 
-func dhcpdConfigConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]interface{}) basetypes.MapValue {
+func dhcpdConfigConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.DhcpdConfigProperty) basetypes.MapValue {
 	r_map_value := make(map[string]attr.Value)
-	for k, d_interface := range m {
+	for k, d := range m {
 		if k != "enabled" {
-			d_bytes, _ := json.Marshal(d_interface)
-			d := models.DhcpdConfigProperty{}
-			d.UnmarshalJSON(d_bytes)
 			var dns_servers basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 			var dns_suffix basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 			var fixed_bindings basetypes.MapValue = types.MapNull(FixedBindingsValue{}.Type(ctx))

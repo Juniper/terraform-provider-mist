@@ -128,7 +128,7 @@ func switchMatchingRulesTerraformToSdk(ctx context.Context, diags *diag.Diagnost
 			item_obj.OobIpConfig = switchMatchingRulesOobIpConfigTerraformToSdk(ctx, diags, plan_obj.OobIpConfig)
 		}
 
-		match := map[string]interface{}{}
+		match := make(map[string]string)
 		if plan_obj.MatchType.ValueStringPointer() != nil && plan_obj.MatchType.ValueString() != "" {
 			match_type := plan_obj.MatchType.ValueString()
 			match[match_type] = plan_obj.MatchValue.ValueString()

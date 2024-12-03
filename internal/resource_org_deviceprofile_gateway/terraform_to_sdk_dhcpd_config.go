@@ -68,8 +68,8 @@ func dhcpdConfigVendorOptionsTerraformToSdk(ctx context.Context, diags *diag.Dia
 	return data_map
 }
 
-func dhcpdConfigConfigsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]interface{} {
-	data_map := make(map[string]interface{})
+func dhcpdConfigConfigsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.DhcpdConfigProperty {
+	data_map := make(map[string]models.DhcpdConfigProperty)
 	for k, v := range d.Elements() {
 		var v_interface interface{} = v
 		plan := v_interface.(ConfigValue)

@@ -180,12 +180,12 @@ func switchMatchingRulesSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 
 		for key, value := range d.AdditionalProperties {
 			if strings.HasPrefix(key, "match_model") {
-				match_model = types.StringValue(value.(string))
+				match_model = types.StringValue(value)
 				// backward compatibility
 				match_type = types.StringValue(key)
-				match_value = types.StringValue(value.(string))
+				match_value = types.StringValue(value)
 			} else if strings.HasPrefix(key, "match_name") {
-				match_name = types.StringValue(value.(string))
+				match_name = types.StringValue(value)
 				if strings.Contains(key, "[") {
 					offset_string := strings.Split(strings.Split(key, "[")[1], ":")[0]
 					i, e := strconv.Atoi(offset_string)
@@ -197,12 +197,12 @@ func switchMatchingRulesSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 				}
 				// backward compatibility
 				match_type = types.StringValue(key)
-				match_value = types.StringValue(value.(string))
+				match_value = types.StringValue(value)
 			} else if strings.HasPrefix(key, "match_role") {
-				match_role = types.StringValue(value.(string))
+				match_role = types.StringValue(value)
 			} else if strings.HasPrefix(key, "match_") {
 				match_type = types.StringValue(key)
-				match_value = types.StringValue(value.(string))
+				match_value = types.StringValue(value)
 			}
 		}
 
