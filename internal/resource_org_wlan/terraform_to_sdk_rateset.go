@@ -9,81 +9,46 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func band24RatesetTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) models.WlanDatarates {
+func bandRatesetTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d RatesetValue) models.WlanDatarates {
 	data := models.WlanDatarates{}
 	if !d.IsNull() && !d.IsUnknown() {
 
-		item, e := NewBand24Value(Band24Value{}.AttributeTypes(ctx), d.Attributes())
-		if e != nil {
-			diags.Append(e...)
-		} else {
-			if item.Ht.ValueStringPointer() != nil {
-				data.Ht = models.NewOptional(item.Ht.ValueStringPointer())
-			}
-			if !item.Legacy.IsNull() && !item.Legacy.IsUnknown() {
-				var legacy []models.WlanDataratesLegacyItemEnum
-				for _, item := range item.Legacy.Elements() {
-					var s_interface interface{} = item
-					s := s_interface.(basetypes.StringValue)
-					legacy = append(legacy, models.WlanDataratesLegacyItemEnum(s.ValueString()))
-				}
-				data.Legacy = legacy
-			}
-			if item.MinRssi.ValueInt64Pointer() != nil {
-				data.MinRssi = models.ToPointer(int(item.MinRssi.ValueInt64()))
-			}
-			if item.Template.ValueStringPointer() != nil {
-				data.Template = models.NewOptional((*models.WlanDataratesTemplateEnum)(item.Template.ValueStringPointer()))
-			}
-			if item.Vht.ValueStringPointer() != nil {
-				data.Vht = models.NewOptional(item.Vht.ValueStringPointer())
-			}
+		if d.Ht.ValueStringPointer() != nil {
+			data.Ht = models.NewOptional(d.Ht.ValueStringPointer())
 		}
-	}
-	return data
-}
-func band5RatesetTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) models.WlanDatarates {
-	data := models.WlanDatarates{}
-	if !d.IsNull() && !d.IsUnknown() {
-
-		item, e := NewBand5Value(Band5Value{}.AttributeTypes(ctx), d.Attributes())
-		if e != nil {
-			diags.Append(e...)
-		} else {
-			if item.Ht.ValueStringPointer() != nil {
-				data.Ht = models.NewOptional(item.Ht.ValueStringPointer())
+		if !d.Legacy.IsNull() && !d.Legacy.IsUnknown() {
+			var legacy []models.WlanDataratesLegacyItemEnum
+			for _, item := range d.Legacy.Elements() {
+				var s_interface interface{} = item
+				s := s_interface.(basetypes.StringValue)
+				legacy = append(legacy, models.WlanDataratesLegacyItemEnum(s.ValueString()))
 			}
-			if !item.Legacy.IsNull() && !item.Legacy.IsUnknown() {
-				var legacy []models.WlanDataratesLegacyItemEnum
-				for _, item := range item.Legacy.Elements() {
-					var s_interface interface{} = item
-					s := s_interface.(basetypes.StringValue)
-					legacy = append(legacy, models.WlanDataratesLegacyItemEnum(s.ValueString()))
-				}
-				data.Legacy = legacy
-			}
-			if item.MinRssi.ValueInt64Pointer() != nil {
-				data.MinRssi = models.ToPointer(int(item.MinRssi.ValueInt64()))
-			}
-			if item.Template.ValueStringPointer() != nil {
-				data.Template = models.NewOptional((*models.WlanDataratesTemplateEnum)(item.Template.ValueStringPointer()))
-			}
-			if item.Vht.ValueStringPointer() != nil {
-				data.Vht = models.NewOptional(item.Vht.ValueStringPointer())
-			}
+			data.Legacy = legacy
+		}
+		if d.MinRssi.ValueInt64Pointer() != nil {
+			data.MinRssi = models.ToPointer(int(d.MinRssi.ValueInt64()))
+		}
+		if d.Template.ValueStringPointer() != nil {
+			data.Template = models.NewOptional((*models.WlanDataratesTemplateEnum)(d.Template.ValueStringPointer()))
+		}
+		if d.Vht.ValueStringPointer() != nil {
+			data.Vht = models.NewOptional(d.Vht.ValueStringPointer())
 		}
 	}
 	return data
 }
 
-func ratesetTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d RatesetValue) map[string]models.WlanDatarates {
+func ratesetTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, m basetypes.MapValue) map[string]models.WlanDatarates {
 	data := make(map[string]models.WlanDatarates)
 
-	if !d.Band24.IsNull() && !d.Band24.IsUnknown() {
-		data["24"] = band24RatesetTerraformToSdk(ctx, diags, d.Band24)
-	}
-	if !d.Band5.IsNull() && !d.Band5.IsUnknown() {
-		data["5"] = band5RatesetTerraformToSdk(ctx, diags, d.Band5)
+	for k, v := range m.Elements() {
+
+		var v_interface interface{} = v
+		d := v_interface.(RatesetValue)
+
+		if !d.IsNull() && !d.IsUnknown() {
+			data[k] = bandRatesetTerraformToSdk(ctx, diags, d)
+		}
 	}
 
 	return data

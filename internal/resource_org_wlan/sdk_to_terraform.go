@@ -92,7 +92,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	var portal_template_url types.String
 	var qos QosValue
 	var radsec RadsecValue = NewRadsecValueNull()
-	var rateset RatesetValue = NewRatesetValueNull()
+	var rateset types.Map = types.MapNull(RatesetValue{}.Type(ctx))
 	var roam_mode types.String
 	var schedule ScheduleValue = NewScheduleValueNull()
 	var sle_excluded types.Bool
