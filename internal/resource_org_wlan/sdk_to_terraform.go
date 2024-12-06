@@ -52,6 +52,8 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	var disable_uapsd types.Bool
 	var disable_v1_roam_notify types.Bool
 	var disable_v2_roam_notify types.Bool
+	var disable_when_gateway_unreachable types.Bool
+	var disable_when_mxtunnel_down types.Bool
 	var disable_wmm types.Bool
 	var dns_server_rewrite DnsServerRewriteValue = NewDnsServerRewriteValueNull()
 	var dtim types.Int64
@@ -93,6 +95,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	var qos QosValue
 	var radsec RadsecValue = NewRadsecValueNull()
 	var rateset types.Map = types.MapNull(RatesetValue{}.Type(ctx))
+	var reconnect_clients_when_roaming_mxcluster types.Bool
 	var roam_mode types.String
 	var schedule ScheduleValue = NewScheduleValueNull()
 	var sle_excluded types.Bool
@@ -250,6 +253,14 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 
 	if data.DisableV2RoamNotify != nil {
 		disable_v2_roam_notify = types.BoolValue(*data.DisableV2RoamNotify)
+	}
+
+	if data.DisableWhenGatewayUnreachable != nil {
+		disable_when_gateway_unreachable = types.BoolValue(*data.DisableWhenGatewayUnreachable)
+	}
+
+	if data.DisableWhenMxtunnelDown != nil {
+		disable_when_mxtunnel_down = types.BoolValue(*data.DisableWhenMxtunnelDown)
 	}
 
 	if data.DisableWmm != nil {
@@ -415,6 +426,10 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 		rateset = ratesetSkToTerraform(ctx, &diags, data.Rateset)
 	}
 
+	if data.ReconnectClientsWhenRoamingMxcluster != nil {
+		reconnect_clients_when_roaming_mxcluster = types.BoolValue(*data.ReconnectClientsWhenRoamingMxcluster)
+	}
+
 	if data.RoamMode != nil {
 		roam_mode = types.StringValue(string(*data.RoamMode))
 	}
@@ -526,6 +541,8 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	state.DisableUapsd = disable_uapsd
 	state.DisableV1RoamNotify = disable_v1_roam_notify
 	state.DisableV2RoamNotify = disable_v2_roam_notify
+	state.DisableWhenGatewayUnreachable = disable_when_gateway_unreachable
+	state.DisableWhenMxtunnelDown = disable_when_mxtunnel_down
 	state.DisableWmm = disable_wmm
 	state.DnsServerRewrite = dns_server_rewrite
 	state.Dtim = dtim
@@ -567,6 +584,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	state.Qos = qos
 	state.Radsec = radsec
 	state.Rateset = rateset
+	state.ReconnectClientsWhenRoamingMxcluster = reconnect_clients_when_roaming_mxcluster
 	state.RoamMode = roam_mode
 	state.Schedule = schedule
 	state.SleExcluded = sle_excluded

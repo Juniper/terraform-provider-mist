@@ -873,6 +873,18 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "disable sending v2 roam notification messages",
 				Default:             booldefault.StaticBool(false),
 			},
+			"disable_when_gateway_unreachable": schema.BoolAttribute{
+				Optional:            true,
+				Computed:            true,
+				Description:         "when any of the following is true, this WLAN will be disabled\n   * cannot get IP\n   * cannot obtain default gateway\n   * cannot reach default gateway",
+				MarkdownDescription: "when any of the following is true, this WLAN will be disabled\n   * cannot get IP\n   * cannot obtain default gateway\n   * cannot reach default gateway",
+				Default:             booldefault.StaticBool(false),
+			},
+			"disable_when_mxtunnel_down": schema.BoolAttribute{
+				Optional: true,
+				Computed: true,
+				Default:  booldefault.StaticBool(false),
+			},
 			"disable_wmm": schema.BoolAttribute{
 				Optional:            true,
 				Computed:            true,
@@ -2094,11 +2106,14 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"min_rssi": schema.Int64Attribute{
 							Optional:            true,
+							Computed:            true,
 							Description:         "Minimum RSSI for client to connect, 0 means not enforcing",
 							MarkdownDescription: "Minimum RSSI for client to connect, 0 means not enforcing",
+							Default:             int64default.StaticInt64(0),
 						},
 						"template": schema.StringAttribute{
 							Optional:            true,
+							Computed:            true,
 							Description:         "Data Rates template to apply. enum: \n  * `no-legacy`: no 11b\n  * `compatible`: all, like before, default setting that Broadcom/Atheros used\n  * `legacy-only`: disable 802.11n and 802.11ac\n  * `high-density`: no 11b, no low rates\n  * `custom`: user defined",
 							MarkdownDescription: "Data Rates template to apply. enum: \n  * `no-legacy`: no 11b\n  * `compatible`: all, like before, default setting that Broadcom/Atheros used\n  * `legacy-only`: disable 802.11n and 802.11ac\n  * `high-density`: no 11b, no low rates\n  * `custom`: user defined",
 							Validators: []validator.String{
@@ -2111,6 +2126,7 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 									"high-density",
 								),
 							},
+							Default: stringdefault.StaticString("compatible"),
 						},
 						"vht": schema.StringAttribute{
 							Optional:            true,
@@ -2136,6 +2152,13 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 						stringvalidator.OneOf("24", "5", "6"),
 					),
 				},
+			},
+			"reconnect_clients_when_roaming_mxcluster": schema.BoolAttribute{
+				Optional:            true,
+				Computed:            true,
+				Description:         "when different mxcluster is on different subnet, we'd want to disconnect clients (so they'll reconnect and get new IPs)",
+				MarkdownDescription: "when different mxcluster is on different subnet, we'd want to disconnect clients (so they'll reconnect and get new IPs)",
+				Default:             booldefault.StaticBool(false),
 			},
 			"roam_mode": schema.StringAttribute{
 				Optional:            true,
@@ -2337,100 +2360,103 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 }
 
 type OrgWlanModel struct {
-	AcctImmediateUpdate                types.Bool              `tfsdk:"acct_immediate_update"`
-	AcctInterimInterval                types.Int64             `tfsdk:"acct_interim_interval"`
-	AcctServers                        types.List              `tfsdk:"acct_servers"`
-	Airwatch                           AirwatchValue           `tfsdk:"airwatch"`
-	AllowIpv6Ndp                       types.Bool              `tfsdk:"allow_ipv6_ndp"`
-	AllowMdns                          types.Bool              `tfsdk:"allow_mdns"`
-	AllowSsdp                          types.Bool              `tfsdk:"allow_ssdp"`
-	ApIds                              types.List              `tfsdk:"ap_ids"`
-	AppLimit                           AppLimitValue           `tfsdk:"app_limit"`
-	AppQos                             AppQosValue             `tfsdk:"app_qos"`
-	ApplyTo                            types.String            `tfsdk:"apply_to"`
-	ArpFilter                          types.Bool              `tfsdk:"arp_filter"`
-	Auth                               AuthValue               `tfsdk:"auth"`
-	AuthServerSelection                types.String            `tfsdk:"auth_server_selection"`
-	AuthServers                        types.List              `tfsdk:"auth_servers"`
-	AuthServersNasId                   types.String            `tfsdk:"auth_servers_nas_id"`
-	AuthServersNasIp                   types.String            `tfsdk:"auth_servers_nas_ip"`
-	AuthServersRetries                 types.Int64             `tfsdk:"auth_servers_retries"`
-	AuthServersTimeout                 types.Int64             `tfsdk:"auth_servers_timeout"`
-	BandSteer                          types.Bool              `tfsdk:"band_steer"`
-	BandSteerForceBand5                types.Bool              `tfsdk:"band_steer_force_band5"`
-	Bands                              types.List              `tfsdk:"bands"`
-	BlockBlacklistClients              types.Bool              `tfsdk:"block_blacklist_clients"`
-	Bonjour                            BonjourValue            `tfsdk:"bonjour"`
-	CiscoCwa                           CiscoCwaValue           `tfsdk:"cisco_cwa"`
-	ClientLimitDown                    types.Int64             `tfsdk:"client_limit_down"`
-	ClientLimitDownEnabled             types.Bool              `tfsdk:"client_limit_down_enabled"`
-	ClientLimitUp                      types.Int64             `tfsdk:"client_limit_up"`
-	ClientLimitUpEnabled               types.Bool              `tfsdk:"client_limit_up_enabled"`
-	CoaServers                         types.List              `tfsdk:"coa_servers"`
-	Disable11ax                        types.Bool              `tfsdk:"disable_11ax"`
-	DisableHtVhtRates                  types.Bool              `tfsdk:"disable_ht_vht_rates"`
-	DisableUapsd                       types.Bool              `tfsdk:"disable_uapsd"`
-	DisableV1RoamNotify                types.Bool              `tfsdk:"disable_v1_roam_notify"`
-	DisableV2RoamNotify                types.Bool              `tfsdk:"disable_v2_roam_notify"`
-	DisableWmm                         types.Bool              `tfsdk:"disable_wmm"`
-	DnsServerRewrite                   DnsServerRewriteValue   `tfsdk:"dns_server_rewrite"`
-	Dtim                               types.Int64             `tfsdk:"dtim"`
-	DynamicPsk                         DynamicPskValue         `tfsdk:"dynamic_psk"`
-	DynamicVlan                        DynamicVlanValue        `tfsdk:"dynamic_vlan"`
-	EnableLocalKeycaching              types.Bool              `tfsdk:"enable_local_keycaching"`
-	EnableWirelessBridging             types.Bool              `tfsdk:"enable_wireless_bridging"`
-	EnableWirelessBridgingDhcpTracking types.Bool              `tfsdk:"enable_wireless_bridging_dhcp_tracking"`
-	Enabled                            types.Bool              `tfsdk:"enabled"`
-	FastDot1xTimers                    types.Bool              `tfsdk:"fast_dot1x_timers"`
-	HideSsid                           types.Bool              `tfsdk:"hide_ssid"`
-	HostnameIe                         types.Bool              `tfsdk:"hostname_ie"`
-	Hotspot20                          Hotspot20Value          `tfsdk:"hotspot20"`
-	Id                                 types.String            `tfsdk:"id"`
-	InjectDhcpOption82                 InjectDhcpOption82Value `tfsdk:"inject_dhcp_option_82"`
-	Interface                          types.String            `tfsdk:"interface"`
-	Isolation                          types.Bool              `tfsdk:"isolation"`
-	L2Isolation                        types.Bool              `tfsdk:"l2_isolation"`
-	LegacyOverds                       types.Bool              `tfsdk:"legacy_overds"`
-	LimitBcast                         types.Bool              `tfsdk:"limit_bcast"`
-	LimitProbeResponse                 types.Bool              `tfsdk:"limit_probe_response"`
-	MaxIdletime                        types.Int64             `tfsdk:"max_idletime"`
-	MaxNumClients                      types.Int64             `tfsdk:"max_num_clients"`
-	MistNac                            MistNacValue            `tfsdk:"mist_nac"`
-	MspId                              types.String            `tfsdk:"msp_id"`
-	MxtunnelIds                        types.List              `tfsdk:"mxtunnel_ids"`
-	MxtunnelName                       types.List              `tfsdk:"mxtunnel_name"`
-	NoStaticDns                        types.Bool              `tfsdk:"no_static_dns"`
-	NoStaticIp                         types.Bool              `tfsdk:"no_static_ip"`
-	OrgId                              types.String            `tfsdk:"org_id"`
-	Portal                             PortalValue             `tfsdk:"portal"`
-	PortalAllowedHostnames             types.List              `tfsdk:"portal_allowed_hostnames"`
-	PortalAllowedSubnets               types.List              `tfsdk:"portal_allowed_subnets"`
-	PortalApiSecret                    types.String            `tfsdk:"portal_api_secret"`
-	PortalDeniedHostnames              types.List              `tfsdk:"portal_denied_hostnames"`
-	PortalImage                        types.String            `tfsdk:"portal_image"`
-	PortalSsoUrl                       types.String            `tfsdk:"portal_sso_url"`
-	PortalTemplateUrl                  types.String            `tfsdk:"portal_template_url"`
-	Qos                                QosValue                `tfsdk:"qos"`
-	Radsec                             RadsecValue             `tfsdk:"radsec"`
-	Rateset                            types.Map               `tfsdk:"rateset"`
-	RoamMode                           types.String            `tfsdk:"roam_mode"`
-	Schedule                           ScheduleValue           `tfsdk:"schedule"`
-	SleExcluded                        types.Bool              `tfsdk:"sle_excluded"`
-	Ssid                               types.String            `tfsdk:"ssid"`
-	TemplateId                         types.String            `tfsdk:"template_id"`
-	Thumbnail                          types.String            `tfsdk:"thumbnail"`
-	UseEapolV1                         types.Bool              `tfsdk:"use_eapol_v1"`
-	VlanEnabled                        types.Bool              `tfsdk:"vlan_enabled"`
-	VlanId                             types.String            `tfsdk:"vlan_id"`
-	VlanIds                            types.List              `tfsdk:"vlan_ids"`
-	VlanPooling                        types.Bool              `tfsdk:"vlan_pooling"`
-	WlanLimitDown                      types.Int64             `tfsdk:"wlan_limit_down"`
-	WlanLimitDownEnabled               types.Bool              `tfsdk:"wlan_limit_down_enabled"`
-	WlanLimitUp                        types.Int64             `tfsdk:"wlan_limit_up"`
-	WlanLimitUpEnabled                 types.Bool              `tfsdk:"wlan_limit_up_enabled"`
-	WxtagIds                           types.List              `tfsdk:"wxtag_ids"`
-	WxtunnelId                         types.String            `tfsdk:"wxtunnel_id"`
-	WxtunnelRemoteId                   types.String            `tfsdk:"wxtunnel_remote_id"`
+	AcctImmediateUpdate                  types.Bool              `tfsdk:"acct_immediate_update"`
+	AcctInterimInterval                  types.Int64             `tfsdk:"acct_interim_interval"`
+	AcctServers                          types.List              `tfsdk:"acct_servers"`
+	Airwatch                             AirwatchValue           `tfsdk:"airwatch"`
+	AllowIpv6Ndp                         types.Bool              `tfsdk:"allow_ipv6_ndp"`
+	AllowMdns                            types.Bool              `tfsdk:"allow_mdns"`
+	AllowSsdp                            types.Bool              `tfsdk:"allow_ssdp"`
+	ApIds                                types.List              `tfsdk:"ap_ids"`
+	AppLimit                             AppLimitValue           `tfsdk:"app_limit"`
+	AppQos                               AppQosValue             `tfsdk:"app_qos"`
+	ApplyTo                              types.String            `tfsdk:"apply_to"`
+	ArpFilter                            types.Bool              `tfsdk:"arp_filter"`
+	Auth                                 AuthValue               `tfsdk:"auth"`
+	AuthServerSelection                  types.String            `tfsdk:"auth_server_selection"`
+	AuthServers                          types.List              `tfsdk:"auth_servers"`
+	AuthServersNasId                     types.String            `tfsdk:"auth_servers_nas_id"`
+	AuthServersNasIp                     types.String            `tfsdk:"auth_servers_nas_ip"`
+	AuthServersRetries                   types.Int64             `tfsdk:"auth_servers_retries"`
+	AuthServersTimeout                   types.Int64             `tfsdk:"auth_servers_timeout"`
+	BandSteer                            types.Bool              `tfsdk:"band_steer"`
+	BandSteerForceBand5                  types.Bool              `tfsdk:"band_steer_force_band5"`
+	Bands                                types.List              `tfsdk:"bands"`
+	BlockBlacklistClients                types.Bool              `tfsdk:"block_blacklist_clients"`
+	Bonjour                              BonjourValue            `tfsdk:"bonjour"`
+	CiscoCwa                             CiscoCwaValue           `tfsdk:"cisco_cwa"`
+	ClientLimitDown                      types.Int64             `tfsdk:"client_limit_down"`
+	ClientLimitDownEnabled               types.Bool              `tfsdk:"client_limit_down_enabled"`
+	ClientLimitUp                        types.Int64             `tfsdk:"client_limit_up"`
+	ClientLimitUpEnabled                 types.Bool              `tfsdk:"client_limit_up_enabled"`
+	CoaServers                           types.List              `tfsdk:"coa_servers"`
+	Disable11ax                          types.Bool              `tfsdk:"disable_11ax"`
+	DisableHtVhtRates                    types.Bool              `tfsdk:"disable_ht_vht_rates"`
+	DisableUapsd                         types.Bool              `tfsdk:"disable_uapsd"`
+	DisableV1RoamNotify                  types.Bool              `tfsdk:"disable_v1_roam_notify"`
+	DisableV2RoamNotify                  types.Bool              `tfsdk:"disable_v2_roam_notify"`
+	DisableWhenGatewayUnreachable        types.Bool              `tfsdk:"disable_when_gateway_unreachable"`
+	DisableWhenMxtunnelDown              types.Bool              `tfsdk:"disable_when_mxtunnel_down"`
+	DisableWmm                           types.Bool              `tfsdk:"disable_wmm"`
+	DnsServerRewrite                     DnsServerRewriteValue   `tfsdk:"dns_server_rewrite"`
+	Dtim                                 types.Int64             `tfsdk:"dtim"`
+	DynamicPsk                           DynamicPskValue         `tfsdk:"dynamic_psk"`
+	DynamicVlan                          DynamicVlanValue        `tfsdk:"dynamic_vlan"`
+	EnableLocalKeycaching                types.Bool              `tfsdk:"enable_local_keycaching"`
+	EnableWirelessBridging               types.Bool              `tfsdk:"enable_wireless_bridging"`
+	EnableWirelessBridgingDhcpTracking   types.Bool              `tfsdk:"enable_wireless_bridging_dhcp_tracking"`
+	Enabled                              types.Bool              `tfsdk:"enabled"`
+	FastDot1xTimers                      types.Bool              `tfsdk:"fast_dot1x_timers"`
+	HideSsid                             types.Bool              `tfsdk:"hide_ssid"`
+	HostnameIe                           types.Bool              `tfsdk:"hostname_ie"`
+	Hotspot20                            Hotspot20Value          `tfsdk:"hotspot20"`
+	Id                                   types.String            `tfsdk:"id"`
+	InjectDhcpOption82                   InjectDhcpOption82Value `tfsdk:"inject_dhcp_option_82"`
+	Interface                            types.String            `tfsdk:"interface"`
+	Isolation                            types.Bool              `tfsdk:"isolation"`
+	L2Isolation                          types.Bool              `tfsdk:"l2_isolation"`
+	LegacyOverds                         types.Bool              `tfsdk:"legacy_overds"`
+	LimitBcast                           types.Bool              `tfsdk:"limit_bcast"`
+	LimitProbeResponse                   types.Bool              `tfsdk:"limit_probe_response"`
+	MaxIdletime                          types.Int64             `tfsdk:"max_idletime"`
+	MaxNumClients                        types.Int64             `tfsdk:"max_num_clients"`
+	MistNac                              MistNacValue            `tfsdk:"mist_nac"`
+	MspId                                types.String            `tfsdk:"msp_id"`
+	MxtunnelIds                          types.List              `tfsdk:"mxtunnel_ids"`
+	MxtunnelName                         types.List              `tfsdk:"mxtunnel_name"`
+	NoStaticDns                          types.Bool              `tfsdk:"no_static_dns"`
+	NoStaticIp                           types.Bool              `tfsdk:"no_static_ip"`
+	OrgId                                types.String            `tfsdk:"org_id"`
+	Portal                               PortalValue             `tfsdk:"portal"`
+	PortalAllowedHostnames               types.List              `tfsdk:"portal_allowed_hostnames"`
+	PortalAllowedSubnets                 types.List              `tfsdk:"portal_allowed_subnets"`
+	PortalApiSecret                      types.String            `tfsdk:"portal_api_secret"`
+	PortalDeniedHostnames                types.List              `tfsdk:"portal_denied_hostnames"`
+	PortalImage                          types.String            `tfsdk:"portal_image"`
+	PortalSsoUrl                         types.String            `tfsdk:"portal_sso_url"`
+	PortalTemplateUrl                    types.String            `tfsdk:"portal_template_url"`
+	Qos                                  QosValue                `tfsdk:"qos"`
+	Radsec                               RadsecValue             `tfsdk:"radsec"`
+	Rateset                              types.Map               `tfsdk:"rateset"`
+	ReconnectClientsWhenRoamingMxcluster types.Bool              `tfsdk:"reconnect_clients_when_roaming_mxcluster"`
+	RoamMode                             types.String            `tfsdk:"roam_mode"`
+	Schedule                             ScheduleValue           `tfsdk:"schedule"`
+	SleExcluded                          types.Bool              `tfsdk:"sle_excluded"`
+	Ssid                                 types.String            `tfsdk:"ssid"`
+	TemplateId                           types.String            `tfsdk:"template_id"`
+	Thumbnail                            types.String            `tfsdk:"thumbnail"`
+	UseEapolV1                           types.Bool              `tfsdk:"use_eapol_v1"`
+	VlanEnabled                          types.Bool              `tfsdk:"vlan_enabled"`
+	VlanId                               types.String            `tfsdk:"vlan_id"`
+	VlanIds                              types.List              `tfsdk:"vlan_ids"`
+	VlanPooling                          types.Bool              `tfsdk:"vlan_pooling"`
+	WlanLimitDown                        types.Int64             `tfsdk:"wlan_limit_down"`
+	WlanLimitDownEnabled                 types.Bool              `tfsdk:"wlan_limit_down_enabled"`
+	WlanLimitUp                          types.Int64             `tfsdk:"wlan_limit_up"`
+	WlanLimitUpEnabled                   types.Bool              `tfsdk:"wlan_limit_up_enabled"`
+	WxtagIds                             types.List              `tfsdk:"wxtag_ids"`
+	WxtunnelId                           types.String            `tfsdk:"wxtunnel_id"`
+	WxtunnelRemoteId                     types.String            `tfsdk:"wxtunnel_remote_id"`
 }
 
 var _ basetypes.ObjectTypable = AcctServersType{}

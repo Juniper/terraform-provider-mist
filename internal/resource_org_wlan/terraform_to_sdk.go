@@ -244,6 +244,18 @@ func TerraformToSdk(ctx context.Context, plan *OrgWlanModel) (*models.Wlan, diag
 		data.DisableV2RoamNotify = plan.DisableV2RoamNotify.ValueBoolPointer()
 	}
 
+	if plan.DisableWhenGatewayUnreachable.IsNull() || plan.DisableWhenGatewayUnreachable.IsUnknown() {
+		unset["-disable_when_gateway_unreachable"] = ""
+	} else {
+		data.DisableWhenGatewayUnreachable = plan.DisableWhenGatewayUnreachable.ValueBoolPointer()
+	}
+
+	if plan.DisableWhenMxtunnelDown.IsNull() || plan.DisableWhenMxtunnelDown.IsUnknown() {
+		unset["-disable_when_mxtunnel_down"] = ""
+	} else {
+		data.DisableWhenMxtunnelDown = plan.DisableWhenMxtunnelDown.ValueBoolPointer()
+	}
+
 	if plan.DisableWmm.IsNull() || plan.DisableWmm.IsUnknown() {
 		unset["-disable_wmm"] = ""
 	} else {
@@ -455,6 +467,12 @@ func TerraformToSdk(ctx context.Context, plan *OrgWlanModel) (*models.Wlan, diag
 		unset["-rateset"] = ""
 	} else {
 		data.Rateset = ratesetTerraformToSdk(ctx, &diags, plan.Rateset)
+	}
+
+	if plan.ReconnectClientsWhenRoamingMxcluster.IsNull() || plan.ReconnectClientsWhenRoamingMxcluster.IsUnknown() {
+		unset["-reconnect_clients_when_roaming_mxcluster"] = ""
+	} else {
+		data.ReconnectClientsWhenRoamingMxcluster = plan.ReconnectClientsWhenRoamingMxcluster.ValueBoolPointer()
 	}
 
 	if plan.RoamMode.IsNull() || plan.RoamMode.IsUnknown() {
