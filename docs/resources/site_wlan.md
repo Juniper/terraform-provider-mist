@@ -78,6 +78,11 @@ resource "mist_site_wlan" "wlan_one" {
 - `disable_uapsd` (Boolean) whether to disable U-APSD
 - `disable_v1_roam_notify` (Boolean) disable sending v2 roam notification messages
 - `disable_v2_roam_notify` (Boolean) disable sending v2 roam notification messages
+- `disable_when_gateway_unreachable` (Boolean) when any of the following is true, this WLAN will be disabled
+   * cannot get IP
+   * cannot obtain default gateway
+   * cannot reach default gateway
+- `disable_when_mxtunnel_down` (Boolean)
 - `disable_wmm` (Boolean) whether to disable WMM
 - `dns_server_rewrite` (Attributes) for radius_group-based DNS server (rewrite DNS request depending on the Group RADIUS server returns) (see [below for nested schema](#nestedatt--dns_server_rewrite))
 - `dtim` (Number)
@@ -120,6 +125,7 @@ resource "mist_site_wlan" "wlan_one" {
 - `qos` (Attributes) (see [below for nested schema](#nestedatt--qos))
 - `radsec` (Attributes) Radsec settings (see [below for nested schema](#nestedatt--radsec))
 - `rateset` (Attributes Map) Property key is the RF band. enum: `24`, `5`, `6` (see [below for nested schema](#nestedatt--rateset))
+- `reconnect_clients_when_roaming_mxcluster` (Boolean) when different mxcluster is on different subnet, we'd want to disconnect clients (so they'll reconnect and get new IPs)
 - `roam_mode` (String) enum: `11r`, `OKC`, `NONE`
 - `schedule` (Attributes) WLAN operating schedule, default is disabled (see [below for nested schema](#nestedatt--schedule))
 - `sle_excluded` (Boolean) whether to exclude this WLAN from SLE metrics
@@ -167,16 +173,13 @@ Optional:
 <a id="nestedatt--airwatch"></a>
 ### Nested Schema for `airwatch`
 
-Required:
+Optional:
 
 - `api_key` (String) API Key
 - `console_url` (String) console URL
+- `enabled` (Boolean)
 - `password` (String, Sensitive) password
 - `username` (String) username
-
-Optional:
-
-- `enabled` (Boolean)
 
 
 <a id="nestedatt--app_limit"></a>

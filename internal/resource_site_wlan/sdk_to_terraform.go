@@ -19,7 +19,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (SiteWlanModel, diag
 
 	var acct_immediate_update types.Bool = types.BoolValue(false)
 	var acct_interim_interval types.Int64
-	var acct_servers types.List = types.ListNull(AcctServersValue{}.Type(ctx))
+	var acct_servers types.List = types.ListValueMust(AcctServersValue{}.Type(ctx), []attr.Value{})
 	var airwatch AirwatchValue = NewAirwatchValueNull()
 	var allow_ipv6_ndp types.Bool = types.BoolValue(true)
 	var allow_mdns types.Bool = types.BoolValue(false)
@@ -31,7 +31,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (SiteWlanModel, diag
 	var arp_filter types.Bool
 	var auth AuthValue = NewAuthValueNull()
 	var auth_server_selection types.String
-	var auth_servers types.List = types.ListNull(AuthServersValue{}.Type(ctx))
+	var auth_servers types.List = types.ListValueMust(AuthServersValue{}.Type(ctx), []attr.Value{})
 	var auth_servers_nas_id types.String
 	var auth_servers_nas_ip types.String
 	var auth_servers_retries types.Int64
@@ -46,7 +46,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (SiteWlanModel, diag
 	var client_limit_down_enabled types.Bool
 	var client_limit_up types.Int64
 	var client_limit_up_enabled types.Bool
-	var coa_servers types.List = types.ListNull(CoaServersValue{}.Type(ctx))
+	var coa_servers types.List = types.ListValueMust(CoaServersValue{}.Type(ctx), []attr.Value{})
 	var disable_11ax types.Bool
 	var disable_ht_vht_rates types.Bool
 	var disable_uapsd types.Bool
@@ -87,11 +87,11 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (SiteWlanModel, diag
 	var portal PortalValue = NewPortalValueNull()
 	var portal_allowed_hostnames types.List = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 	var portal_allowed_subnets types.List = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
-	var portal_api_secret types.String
+	var portal_api_secret types.String = types.StringValue("")
 	var portal_denied_hostnames types.List = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 	var portal_image types.String = types.StringValue("not_present")
-	var portal_sso_url types.String
-	var portal_template_url types.String
+	var portal_sso_url types.String = types.StringValue("")
+	var portal_template_url types.String = types.StringValue("")
 	var qos QosValue
 	var radsec RadsecValue = NewRadsecValueNull()
 	var rateset types.Map = types.MapNull(RatesetValue{}.Type(ctx))
@@ -101,7 +101,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (SiteWlanModel, diag
 	var site_id types.String = types.StringValue("")
 	var sle_excluded types.Bool
 	var ssid types.String
-	var thumbnail types.String
+	var thumbnail types.String = types.StringValue("")
 	var use_eapol_v1 types.Bool
 	var vlan_enabled types.Bool
 	var vlan_id types.String

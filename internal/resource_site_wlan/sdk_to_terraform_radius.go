@@ -38,7 +38,6 @@ func radiusServersAcctSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 			port = types.Int64Value(int64(*d.Port))
 		}
 
-		data_map_attr_type := AcctServersValue{}.AttributeTypes(ctx)
 		data_map_value := map[string]attr.Value{
 			"host":            host,
 			"keywrap_enabled": keywrap_enabled,
@@ -48,14 +47,13 @@ func radiusServersAcctSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 			"port":            port,
 			"secret":          secret,
 		}
-		data, e := NewAcctServersValue(data_map_attr_type, data_map_value)
+		data, e := NewAcctServersValue(AcctServersValue{}.AttributeTypes(ctx), data_map_value)
 		diags.Append(e...)
 
 		acct_value_list = append(acct_value_list, data)
 	}
 
-	acct_state_list_type := AcctServersValue{}.Type(ctx)
-	acct_state_list, e := types.ListValueFrom(ctx, acct_state_list_type, acct_value_list)
+	acct_state_list, e := types.ListValueFrom(ctx, AcctServersValue{}.Type(ctx), acct_value_list)
 	diags.Append(e...)
 
 	return acct_state_list
@@ -92,7 +90,6 @@ func radiusServersAuthSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 			require_message_authenticator = types.BoolValue(*d.RequireMessageAuthenticator)
 		}
 
-		data_map_attr_type := AuthServersValue{}.AttributeTypes(ctx)
 		data_map_value := map[string]attr.Value{
 			"host":                          host,
 			"keywrap_enabled":               keywrap_enabled,
@@ -103,14 +100,13 @@ func radiusServersAuthSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 			"require_message_authenticator": require_message_authenticator,
 			"secret":                        secret,
 		}
-		data, e := NewAuthServersValue(data_map_attr_type, data_map_value)
+		data, e := NewAuthServersValue(AuthServersValue{}.AttributeTypes(ctx), data_map_value)
 		diags.Append(e...)
 
 		auth_value_list = append(auth_value_list, data)
 	}
 
-	auth_state_list_type := AuthServersValue{}.Type(ctx)
-	auth_state_list, e := types.ListValueFrom(ctx, auth_state_list_type, auth_value_list)
+	auth_state_list, e := types.ListValueFrom(ctx, AuthServersValue{}.Type(ctx), auth_value_list)
 	diags.Append(e...)
 
 	return auth_state_list
