@@ -57,7 +57,9 @@ func bonjourSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 	if d != nil {
 		var items []attr.Value
 		for _, item := range strings.Split(d.AdditionalVlanIds, ",") {
-			items = append(items, types.StringValue(item))
+			if item != "" {
+				items = append(items, types.StringValue(item))
+			}
 		}
 		list, _ := types.ListValue(basetypes.StringType{}, items)
 		additional_vlan_ids = list
