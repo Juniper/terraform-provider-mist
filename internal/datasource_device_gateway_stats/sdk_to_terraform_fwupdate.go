@@ -23,7 +23,7 @@ func fwupdateSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mod
 		progress = types.Int64Value(int64(*d.Progress.Value()))
 	}
 	if d.Status.Value() != nil {
-		status = types.StringValue(*d.Status.Value())
+		status = types.StringValue(string(*d.Status.Value()))
 	}
 	if d.StatusId.Value() != nil {
 		status_id = types.Int64Value(int64(*d.StatusId.Value()))
