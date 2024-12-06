@@ -59,7 +59,9 @@ func OrgAlarmtemplateResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "Delivery object to configure the alarm delivery",
 			},
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Unique ID of the object instance in the Mist Organnization",
+				MarkdownDescription: "Unique ID of the object instance in the Mist Organnization",
 			},
 			"name": schema.StringAttribute{
 				Required:            true,
@@ -77,11 +79,9 @@ func OrgAlarmtemplateResourceSchema(ctx context.Context) schema.Schema {
 								"additional_emails": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Optional:            true,
+									Computed:            true,
 									Description:         "List of additional email string to deliver the alarms via emails",
 									MarkdownDescription: "List of additional email string to deliver the alarms via emails",
-									Validators: []validator.List{
-										listvalidator.SizeAtLeast(1),
-									},
 								},
 								"enabled": schema.BoolAttribute{
 									Required:            true,
