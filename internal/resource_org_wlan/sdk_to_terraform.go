@@ -2,6 +2,7 @@ package resource_org_wlan
 
 import (
 	"context"
+	"strings"
 
 	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
@@ -91,7 +92,6 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	var portal_denied_hostnames types.List = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 	var portal_image types.String = types.StringValue("not_present")
 	var portal_sso_url types.String
-	var portal_template_url types.String
 	var qos QosValue
 	var radsec RadsecValue = NewRadsecValueNull()
 	var rateset types.Map = types.MapNull(RatesetValue{}.Type(ctx))
@@ -101,7 +101,6 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	var sle_excluded types.Bool
 	var ssid types.String
 	var template_id types.String
-	var thumbnail types.String
 	var use_eapol_v1 types.Bool
 	var vlan_enabled types.Bool
 	var vlan_id types.String
@@ -231,8 +230,8 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 		client_limit_up_enabled = types.BoolValue(*data.ClientLimitUpEnabled)
 	}
 
-	if data.CoaServers.IsValueSet() && data.CoaServers.Value() != nil {
-		coa_servers = coaServersSdkToTerraform(ctx, &diags, *data.CoaServers.Value())
+	if len(data.CoaServers) > 0 {
+		coa_servers = coaServersSdkToTerraform(ctx, &diags, data.CoaServers)
 	}
 
 	if data.Disable11ax != nil {
@@ -410,10 +409,6 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 		portal_sso_url = types.StringValue(*data.PortalSsoUrl.Value())
 	}
 
-	if data.PortalTemplateUrl.IsValueSet() && data.PortalTemplateUrl.Value() != nil {
-		portal_template_url = types.StringValue(*data.PortalTemplateUrl.Value())
-	}
-
 	if data.Qos != nil {
 		qos = qosSkToTerraform(ctx, &diags, data.Qos)
 	}
@@ -448,10 +443,6 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 		template_id = types.StringValue(data.TemplateId.Value().String())
 	}
 
-	if data.Thumbnail.IsValueSet() && data.Thumbnail.Value() != nil {
-		thumbnail = types.StringValue(*data.Thumbnail.Value())
-	}
-
 	if data.UseEapolV1 != nil {
 		use_eapol_v1 = types.BoolValue(*data.UseEapolV1)
 	}
@@ -466,8 +457,14 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 
 	if data.VlanIds != nil {
 		var list []attr.Value
-		for _, v := range data.VlanIds {
-			list = append(list, types.StringValue(v.String()))
+		if vlan_ids_as_string, ok := data.VlanIds.AsString(); ok {
+			for _, vlan := range strings.Split(*vlan_ids_as_string, ",") {
+				list = append(list, types.StringValue(vlan))
+			}
+		} else if vlan_ids_as_list, ok := data.VlanIds.AsArrayOfVlanIdWithVariable2(); ok {
+			for _, v := range *vlan_ids_as_list {
+				list = append(list, types.StringValue(v.String()))
+			}
 		}
 		r, e := types.ListValue(basetypes.StringType{}, list)
 		diags.Append(e...)
@@ -580,7 +577,6 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	state.PortalDeniedHostnames = portal_denied_hostnames
 	state.PortalImage = portal_image
 	state.PortalSsoUrl = portal_sso_url
-	state.PortalTemplateUrl = portal_template_url
 	state.Qos = qos
 	state.Radsec = radsec
 	state.Rateset = rateset
@@ -590,7 +586,6 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	state.SleExcluded = sle_excluded
 	state.Ssid = ssid
 	state.TemplateId = template_id
-	state.Thumbnail = thumbnail
 	state.UseEapolV1 = use_eapol_v1
 	state.VlanEnabled = vlan_enabled
 	state.VlanId = vlan_id

@@ -19,12 +19,12 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	var amazon_client_secret basetypes.StringValue
 	var amazon_email_domains basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 	var amazon_enabled basetypes.BoolValue
-	var amazon_expire basetypes.Float64Value
+	var amazon_expire basetypes.Int64Value
 	var auth basetypes.StringValue
 	var azure_client_id basetypes.StringValue
 	var azure_client_secret basetypes.StringValue
 	var azure_enabled basetypes.BoolValue
-	var azure_expire basetypes.Float64Value
+	var azure_expire basetypes.Int64Value
 	var azure_tenant_id basetypes.StringValue
 	var broadnet_password basetypes.StringValue
 	var broadnet_sid basetypes.StringValue
@@ -34,29 +34,29 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	var cross_site basetypes.BoolValue
 	var email_enabled basetypes.BoolValue
 	var enabled basetypes.BoolValue
-	var expire basetypes.Float64Value
+	var expire basetypes.Int64Value
 	var external_portal_url basetypes.StringValue = types.StringValue("")
 	var facebook_client_id basetypes.StringValue
 	var facebook_client_secret basetypes.StringValue
 	var facebook_email_domains basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 	var facebook_enabled basetypes.BoolValue
-	var facebook_expire basetypes.Float64Value
+	var facebook_expire basetypes.Int64Value
 	var forward basetypes.BoolValue
 	var forward_url basetypes.StringValue
 	var google_client_id basetypes.StringValue
 	var google_client_secret basetypes.StringValue
 	var google_email_domains basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 	var google_enabled basetypes.BoolValue
-	var google_expire basetypes.Float64Value
+	var google_expire basetypes.Int64Value
 	var gupshup_password basetypes.StringValue
 	var gupshup_userid basetypes.StringValue
 	var microsoft_client_id basetypes.StringValue
 	var microsoft_client_secret basetypes.StringValue
 	var microsoft_email_domains basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 	var microsoft_enabled basetypes.BoolValue
-	var microsoft_expire basetypes.Float64Value
+	var microsoft_expire basetypes.Int64Value
 	var passphrase_enabled basetypes.BoolValue
-	var passphrase_expire basetypes.Float64Value
+	var passphrase_expire basetypes.Int64Value
 	var password basetypes.StringValue
 	var predefined_sponsors_enabled basetypes.BoolValue
 	var predefined_sponsors_hide_email basetypes.BoolValue = basetypes.NewBoolValue(false)
@@ -65,13 +65,13 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	var puzzel_service_id basetypes.StringValue
 	var puzzel_username basetypes.StringValue
 	var sms_enabled basetypes.BoolValue
-	var sms_expire basetypes.Float64Value
+	var sms_expire basetypes.Int64Value
 	var sms_message_format basetypes.StringValue
 	var sms_provider basetypes.StringValue
 	var sponsor_auto_approve basetypes.BoolValue
 	var sponsor_email_domains basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 	var sponsor_enabled basetypes.BoolValue
-	var sponsor_expire basetypes.Float64Value
+	var sponsor_expire basetypes.Int64Value
 	var sponsor_link_validity_duration basetypes.StringValue
 	var sponsor_notify_all basetypes.BoolValue
 	var sponsor_status_notify basetypes.BoolValue
@@ -105,7 +105,7 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 		amazon_enabled = types.BoolValue(*d.AmazonEnabled)
 	}
 	if d != nil && d.AmazonExpire.Value() != nil {
-		amazon_expire = types.Float64Value(*d.AmazonExpire.Value())
+		amazon_expire = types.Int64Value(int64(*d.AmazonExpire.Value()))
 	}
 	if d != nil && d.Auth != nil {
 		auth = types.StringValue(string(*d.Auth))
@@ -120,7 +120,7 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 		azure_enabled = types.BoolValue(*d.AzureEnabled)
 	}
 	if d != nil && d.AzureExpire.Value() != nil {
-		azure_expire = types.Float64Value(*d.AzureExpire.Value())
+		azure_expire = types.Int64Value(int64(*d.AzureExpire.Value()))
 	}
 	if d != nil && d.AzureTenantId.Value() != nil {
 		azure_tenant_id = types.StringValue(*d.AzureTenantId.Value())
@@ -150,7 +150,7 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 		enabled = types.BoolValue(*d.Enabled)
 	}
 	if d != nil && d.Expire != nil {
-		expire = types.Float64Value(*d.Expire)
+		expire = types.Int64Value(int64(*d.Expire))
 	}
 	if d != nil && d.ExternalPortalUrl != nil {
 		external_portal_url = types.StringValue(*d.ExternalPortalUrl)
@@ -168,7 +168,7 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 		facebook_enabled = types.BoolValue(*d.FacebookEnabled)
 	}
 	if d != nil && d.FacebookExpire.Value() != nil {
-		facebook_expire = types.Float64Value(*d.FacebookExpire.Value())
+		facebook_expire = types.Int64Value(int64(*d.FacebookExpire.Value()))
 	}
 	if d != nil && d.Forward != nil {
 		forward = types.BoolValue(*d.Forward)
@@ -189,7 +189,7 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 		google_enabled = types.BoolValue(*d.GoogleEnabled)
 	}
 	if d != nil && d.GoogleExpire.Value() != nil {
-		google_expire = types.Float64Value(*d.GoogleExpire.Value())
+		google_expire = types.Int64Value(int64(*d.GoogleExpire.Value()))
 	}
 	if d != nil && d.GupshupPassword != nil {
 		gupshup_password = types.StringValue(*d.GupshupPassword)
@@ -210,13 +210,13 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 		microsoft_enabled = types.BoolValue(*d.MicrosoftEnabled)
 	}
 	if d != nil && d.MicrosoftExpire.Value() != nil {
-		microsoft_expire = types.Float64Value(*d.MicrosoftExpire.Value())
+		microsoft_expire = types.Int64Value(int64(*d.MicrosoftExpire.Value()))
 	}
 	if d != nil && d.PassphraseEnabled != nil {
 		passphrase_enabled = types.BoolValue(*d.PassphraseEnabled)
 	}
 	if d != nil && d.PassphraseExpire.Value() != nil {
-		passphrase_expire = types.Float64Value(*d.PassphraseExpire.Value())
+		passphrase_expire = types.Int64Value(int64(*d.PassphraseExpire.Value()))
 	}
 	if d != nil && d.Password.Value() != nil {
 		password = types.StringValue(*d.Password.Value())
@@ -243,7 +243,7 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 		sms_enabled = types.BoolValue(*d.SmsEnabled)
 	}
 	if d != nil && d.SmsExpire.Value() != nil {
-		sms_expire = types.Float64Value(*d.SmsExpire.Value())
+		sms_expire = types.Int64Value(int64(*d.SmsExpire.Value()))
 	}
 	if d != nil && d.SmsMessageFormat != nil {
 		sms_message_format = types.StringValue(*d.SmsMessageFormat)
@@ -261,7 +261,7 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 		sponsor_enabled = types.BoolValue(*d.SponsorEnabled)
 	}
 	if d != nil && d.SponsorExpire.Value() != nil {
-		sponsor_expire = types.Float64Value(*d.SponsorExpire.Value())
+		sponsor_expire = types.Int64Value(int64(*d.SponsorExpire.Value()))
 	}
 	if d != nil && d.SponsorLinkValidityDuration != nil {
 		sponsor_link_validity_duration = types.StringValue(*d.SponsorLinkValidityDuration)

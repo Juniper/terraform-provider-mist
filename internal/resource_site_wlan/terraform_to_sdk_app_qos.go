@@ -15,9 +15,15 @@ func appQosAppsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, plan
 		var v_interface interface{} = v
 		v_plan := v_interface.(AppsValue)
 		data := models.WlanAppQosAppsProperties{}
-		data.Dscp = models.ToPointer(int(v_plan.Dscp.ValueInt64()))
-		data.DstSubnet = v_plan.DstSubnet.ValueStringPointer()
-		data.SrcSubnet = v_plan.SrcSubnet.ValueStringPointer()
+		if v_plan.Dscp.ValueInt64Pointer() != nil {
+			data.Dscp = models.ToPointer(int(v_plan.Dscp.ValueInt64()))
+		}
+		if v_plan.DstSubnet.ValueStringPointer() != nil {
+			data.DstSubnet = v_plan.DstSubnet.ValueStringPointer()
+		}
+		if v_plan.SrcSubnet.ValueStringPointer() != nil {
+			data.SrcSubnet = v_plan.SrcSubnet.ValueStringPointer()
+		}
 		data_map[k] = data
 	}
 	return data_map
@@ -28,11 +34,21 @@ func appQosOthersTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, pl
 		var v_interface interface{} = v
 		v_plan := v_interface.(OthersValue)
 		data := models.WlanAppQosOthersItem{}
-		data.Dscp = models.ToPointer(int(v_plan.Dscp.ValueInt64()))
-		data.DstSubnet = v_plan.DstSubnet.ValueStringPointer()
-		data.PortRanges = v_plan.PortRanges.ValueStringPointer()
-		data.Protocol = v_plan.Protocol.ValueStringPointer()
-		data.SrcSubnet = v_plan.SrcSubnet.ValueStringPointer()
+		if v_plan.Dscp.ValueInt64Pointer() != nil {
+			data.Dscp = models.ToPointer(int(v_plan.Dscp.ValueInt64()))
+		}
+		if v_plan.DstSubnet.ValueStringPointer() != nil {
+			data.DstSubnet = v_plan.DstSubnet.ValueStringPointer()
+		}
+		if v_plan.PortRanges.ValueStringPointer() != nil {
+			data.PortRanges = v_plan.PortRanges.ValueStringPointer()
+		}
+		if v_plan.Protocol.ValueStringPointer() != nil {
+			data.Protocol = v_plan.Protocol.ValueStringPointer()
+		}
+		if v_plan.SrcSubnet.ValueStringPointer() != nil {
+			data.SrcSubnet = v_plan.SrcSubnet.ValueStringPointer()
+		}
 		data_list = append(data_list, data)
 	}
 	return data_list

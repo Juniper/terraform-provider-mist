@@ -28,13 +28,24 @@ func radsecServersTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d
 func radsecTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d RadsecValue) *models.Radsec {
 	data := models.Radsec{}
 
-	data.CoaEnabled = d.CoaEnabled.ValueBoolPointer()
-	data.Enabled = d.Enabled.ValueBoolPointer()
-	data.IdleTimeout = models.ToPointer(int(d.IdleTimeout.ValueInt64()))
-	data.MxclusterIds = mist_transform.ListOfUuidTerraformToSdk(ctx, d.MxclusterIds)
-	data.ProxyHosts = mist_transform.ListOfStringTerraformToSdk(ctx, d.ProxyHosts)
-	data.ServerName = d.ServerName.ValueStringPointer()
-
+	if d.CoaEnabled.ValueBoolPointer() != nil {
+		data.CoaEnabled = d.CoaEnabled.ValueBoolPointer()
+	}
+	if d.Enabled.ValueBoolPointer() != nil {
+		data.Enabled = d.Enabled.ValueBoolPointer()
+	}
+	if d.IdleTimeout.ValueInt64Pointer() != nil {
+		data.IdleTimeout = models.ToPointer(int(d.IdleTimeout.ValueInt64()))
+	}
+	if !d.MxclusterIds.IsNull() && !d.MxclusterIds.IsUnknown() {
+		data.MxclusterIds = mist_transform.ListOfUuidTerraformToSdk(ctx, d.MxclusterIds)
+	}
+	if !d.ProxyHosts.IsNull() && !d.ProxyHosts.IsUnknown() {
+		data.ProxyHosts = mist_transform.ListOfStringTerraformToSdk(ctx, d.ProxyHosts)
+	}
+	if d.ServerName.ValueStringPointer() != nil {
+		data.ServerName = d.ServerName.ValueStringPointer()
+	}
 	servers := radsecServersTerraformToSdk(ctx, diags, d.Servers)
 	data.Servers = servers
 

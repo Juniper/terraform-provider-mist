@@ -18,10 +18,15 @@ func bonjourServicesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics,
 		var v_interface interface{} = v
 		v_plan := v_interface.(ServicesValue)
 		v_data := models.WlanBonjourServiceProperties{}
-		v_data.DisableLocal = v_plan.DisableLocal.ValueBoolPointer()
-		v_data.RadiusGroups = mist_transform.ListOfStringTerraformToSdk(ctx, v_plan.RadiusGroups)
-		v_data.Scope = models.ToPointer(models.WlanBonjourServicePropertiesScopeEnum(string(v_plan.Scope.ValueString())))
-
+		if v_plan.DisableLocal.ValueBoolPointer() != nil {
+			v_data.DisableLocal = v_plan.DisableLocal.ValueBoolPointer()
+		}
+		if !v_plan.RadiusGroups.IsNull() && !v_plan.RadiusGroups.IsUnknown() {
+			v_data.RadiusGroups = mist_transform.ListOfStringTerraformToSdk(ctx, v_plan.RadiusGroups)
+		}
+		if v_plan.Scope.ValueStringPointer() != nil {
+			v_data.Scope = models.ToPointer(models.WlanBonjourServicePropertiesScopeEnum(string(v_plan.Scope.ValueString())))
+		}
 		data_map[k] = v_data
 	}
 	return data_map

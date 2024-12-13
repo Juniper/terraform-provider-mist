@@ -17,7 +17,6 @@ func dynamicPskSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 	var enabled basetypes.BoolValue
 	var force_lookup basetypes.BoolValue
 	var source basetypes.StringValue
-	var vlan_ids basetypes.ListValue = types.ListNull(types.StringType)
 
 	if d != nil && d.DefaultPsk != nil {
 		default_psk = types.StringValue(*d.DefaultPsk)
@@ -34,15 +33,6 @@ func dynamicPskSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 	if d != nil && d.Source != nil {
 		source = types.StringValue(string(*d.Source))
 	}
-	if d != nil && d.VlanIds != nil {
-		var list []attr.Value
-		for _, v := range d.VlanIds {
-			list = append(list, types.StringValue(string(v.String())))
-		}
-		r, e := types.ListValue(basetypes.StringType{}, list)
-		diags.Append(e...)
-		vlan_ids = r
-	}
 
 	data_map_attr_type := DynamicPskValue{}.AttributeTypes(ctx)
 	data_map_value := map[string]attr.Value{
@@ -51,7 +41,6 @@ func dynamicPskSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 		"enabled":         enabled,
 		"force_lookup":    force_lookup,
 		"source":          source,
-		"vlan_ids":        vlan_ids,
 	}
 	data, e := NewDynamicPskValue(data_map_attr_type, data_map_value)
 	diags.Append(e...)

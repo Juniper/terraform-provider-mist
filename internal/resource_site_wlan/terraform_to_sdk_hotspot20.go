@@ -22,12 +22,22 @@ func hotspot20TerraformToSdk(ctx context.Context, diags *diag.Diagnostics, plan 
 	}
 
 	data := models.WlanHotspot20{}
-	data.DomainName = mist_transform.ListOfStringTerraformToSdk(ctx, plan.DomainName)
-	data.Enabled = plan.Enabled.ValueBoolPointer()
-	data.NaiRealms = mist_transform.ListOfStringTerraformToSdk(ctx, plan.NaiRealms)
+	if !plan.DomainName.IsNull() && !plan.DomainName.IsUnknown() {
+		data.DomainName = mist_transform.ListOfStringTerraformToSdk(ctx, plan.DomainName)
+	}
+	if plan.Enabled.ValueBoolPointer() != nil {
+		data.Enabled = plan.Enabled.ValueBoolPointer()
+	}
+	if !plan.NaiRealms.IsNull() && !plan.NaiRealms.IsUnknown() {
+		data.NaiRealms = mist_transform.ListOfStringTerraformToSdk(ctx, plan.NaiRealms)
+	}
 	data.Operators = operators
-	data.Rcoi = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Rcoi)
-	data.VenueName = plan.VenueName.ValueStringPointer()
+	if !plan.Rcoi.IsNull() && !plan.Rcoi.IsUnknown() {
+		data.Rcoi = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Rcoi)
+	}
+	if plan.VenueName.ValueStringPointer() != nil {
+		data.VenueName = plan.VenueName.ValueStringPointer()
+	}
 
 	return &data
 }

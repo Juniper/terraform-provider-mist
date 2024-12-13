@@ -2,6 +2,7 @@ package resource_site_wlan
 
 import (
 	"context"
+	"strings"
 
 	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
@@ -24,7 +25,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (SiteWlanModel, diag
 	var allow_ipv6_ndp types.Bool = types.BoolValue(true)
 	var allow_mdns types.Bool = types.BoolValue(false)
 	var allow_ssdp types.Bool = types.BoolValue(false)
-	var ap_ids types.List = mist_transform.ListOfUuidSdkToTerraformEmpty(ctx)
+	var ap_ids types.List = types.ListNull(types.StringType)
 	var app_limit AppLimitValue = NewAppLimitValueNull()
 	var app_qos AppQosValue = NewAppQosValueNull()
 	var apply_to types.String
@@ -79,8 +80,8 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (SiteWlanModel, diag
 	var max_num_clients types.Int64
 	var mist_nac MistNacValue = NewMistNacValueNull()
 	var msp_id types.String = types.StringValue("")
-	var mxtunnel_ids types.List = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
-	var mxtunnel_name types.List = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+	var mxtunnel_ids types.List = types.ListNull(types.StringType)
+	var mxtunnel_name types.List = types.ListNull(types.StringType)
 	var no_static_dns types.Bool
 	var no_static_ip types.Bool
 	var org_id types.String
@@ -91,7 +92,6 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (SiteWlanModel, diag
 	var portal_denied_hostnames types.List = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 	var portal_image types.String = types.StringValue("not_present")
 	var portal_sso_url types.String = types.StringValue("")
-	var portal_template_url types.String = types.StringValue("")
 	var qos QosValue
 	var radsec RadsecValue = NewRadsecValueNull()
 	var rateset types.Map = types.MapNull(RatesetValue{}.Type(ctx))
@@ -101,7 +101,6 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (SiteWlanModel, diag
 	var site_id types.String = types.StringValue("")
 	var sle_excluded types.Bool
 	var ssid types.String
-	var thumbnail types.String = types.StringValue("")
 	var use_eapol_v1 types.Bool
 	var vlan_enabled types.Bool
 	var vlan_id types.String
@@ -123,8 +122,10 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (SiteWlanModel, diag
 		acct_interim_interval = types.Int64Value(int64(*data.AcctInterimInterval))
 	}
 
-	if data.AcctServers != nil {
+	if len(data.AcctServers) > 0 {
 		acct_servers = radiusServersAcctSdkToTerraform(ctx, &diags, data.AcctServers)
+	} else {
+		types.ListValueMust(AcctServersValue{}.Type(ctx), make([]attr.Value, 0))
 	}
 
 	if data.Airwatch != nil {
@@ -171,8 +172,10 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (SiteWlanModel, diag
 		auth_server_selection = types.StringValue(string(*data.AuthServerSelection))
 	}
 
-	if data.AuthServers != nil {
+	if len(data.AuthServers) > 0 {
 		auth_servers = radiusServersAuthSdkToTerraform(ctx, &diags, data.AuthServers)
+	} else {
+		auth_servers = types.ListValueMust(AuthServersValue{}.Type(ctx), make([]attr.Value, 0))
 	}
 
 	if data.AuthServersNasId.IsValueSet() && data.AuthServersNasId.Value() != nil {
@@ -231,8 +234,10 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (SiteWlanModel, diag
 		client_limit_up_enabled = types.BoolValue(*data.ClientLimitUpEnabled)
 	}
 
-	if data.CoaServers.IsValueSet() && data.CoaServers.Value() != nil {
-		coa_servers = coaServersSdkToTerraform(ctx, &diags, *data.CoaServers.Value())
+	if len(data.CoaServers) > 0 {
+		coa_servers = coaServersSdkToTerraform(ctx, &diags, data.CoaServers)
+	} else {
+		coa_servers = types.ListValueMust(CoaServersValue{}.Type(ctx), make([]attr.Value, 0))
 	}
 
 	if data.Disable11ax != nil {
@@ -363,11 +368,11 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (SiteWlanModel, diag
 		msp_id = types.StringValue(data.MspId.String())
 	}
 
-	if data.MxtunnelIds != nil {
+	if len(data.MxtunnelIds) > 0 {
 		mxtunnel_ids = mist_transform.ListOfStringSdkToTerraform(ctx, data.MxtunnelIds)
 	}
 
-	if data.MxtunnelName != nil {
+	if len(data.MxtunnelName) > 0 {
 		mxtunnel_name = mist_transform.ListOfStringSdkToTerraform(ctx, data.MxtunnelName)
 	}
 
@@ -410,10 +415,6 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (SiteWlanModel, diag
 		portal_sso_url = types.StringValue(*data.PortalSsoUrl.Value())
 	}
 
-	if data.PortalTemplateUrl.IsValueSet() && data.PortalTemplateUrl.Value() != nil {
-		portal_template_url = types.StringValue(*data.PortalTemplateUrl.Value())
-	}
-
 	if data.Qos != nil {
 		qos = qosSkToTerraform(ctx, &diags, data.Qos)
 	}
@@ -448,10 +449,6 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (SiteWlanModel, diag
 
 	ssid = types.StringValue(data.Ssid)
 
-	if data.Thumbnail.IsValueSet() && data.Thumbnail.Value() != nil {
-		thumbnail = types.StringValue(*data.Thumbnail.Value())
-	}
-
 	if data.UseEapolV1 != nil {
 		use_eapol_v1 = types.BoolValue(*data.UseEapolV1)
 	}
@@ -466,8 +463,14 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (SiteWlanModel, diag
 
 	if data.VlanIds != nil {
 		var list []attr.Value
-		for _, v := range data.VlanIds {
-			list = append(list, types.StringValue(string(v.String())))
+		if vlan_ids_as_string, ok := data.VlanIds.AsString(); ok {
+			for _, vlan := range strings.Split(*vlan_ids_as_string, ",") {
+				list = append(list, types.StringValue(vlan))
+			}
+		} else if vlan_ids_as_list, ok := data.VlanIds.AsArrayOfVlanIdWithVariable2(); ok {
+			for _, v := range *vlan_ids_as_list {
+				list = append(list, types.StringValue(v.String()))
+			}
 		}
 		r, e := types.ListValue(basetypes.StringType{}, list)
 		diags.Append(e...)
@@ -580,7 +583,6 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (SiteWlanModel, diag
 	state.PortalDeniedHostnames = portal_denied_hostnames
 	state.PortalImage = portal_image
 	state.PortalSsoUrl = portal_sso_url
-	state.PortalTemplateUrl = portal_template_url
 	state.Qos = qos
 	state.Radsec = radsec
 	state.Rateset = rateset
@@ -590,7 +592,6 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (SiteWlanModel, diag
 	state.SiteId = site_id
 	state.SleExcluded = sle_excluded
 	state.Ssid = ssid
-	state.Thumbnail = thumbnail
 	state.UseEapolV1 = use_eapol_v1
 	state.VlanEnabled = vlan_enabled
 	state.VlanId = vlan_id

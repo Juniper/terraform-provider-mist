@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/Juniper/terraform-provider-mist/internal/validators"
+	"github.com/hashicorp/terraform-plugin-framework-validators/boolvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
@@ -14,9 +15,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/float64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
@@ -106,10 +107,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "list of RADIUS accounting servers, optional, order matters where the first one is treated as primary",
 				MarkdownDescription: "list of RADIUS accounting servers, optional, order matters where the first one is treated as primary",
-				Validators: []validator.List{
-					listvalidator.SizeAtLeast(1),
-				},
-				Default: listdefault.StaticValue(types.ListValueMust(AcctServersValue{}.Type(ctx), []attr.Value{})),
+				Default:             listdefault.StaticValue(types.ListValueMust(AcctServersValue{}.Type(ctx), []attr.Value{})),
 			},
 			"airwatch": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -221,7 +219,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 				},
-				Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+				Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 			},
 			"app_limit": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -442,7 +440,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						Description:         "when `type`==`wep`",
 						MarkdownDescription: "when `type`==`wep`",
 						Validators: []validator.Int64{
-							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("wep")),
+							int64validator.Between(1, 4),
 						},
 						Default: int64default.StaticInt64(1),
 					},
@@ -453,8 +451,14 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						Description:         "when type=wep, four 10-character or 26-character hex string, null can be used. All keys, if provided, have to be in the same length",
 						MarkdownDescription: "when type=wep, four 10-character or 26-character hex string, null can be used. All keys, if provided, have to be in the same length",
 						Validators: []validator.List{
-							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("wep")),
+							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("wep")),
 						},
+						Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{
+							types.StringValue(""),
+							types.StringValue(""),
+							types.StringValue(""),
+							types.StringValue(""),
+						})),
 					},
 					"multi_psk_only": schema.BoolAttribute{
 						Optional:            true,
@@ -623,10 +627,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "list of RADIUS authentication servers, at least one is needed if `auth type`==`eap`, order matters where the first one is treated as primary",
 				MarkdownDescription: "list of RADIUS authentication servers, at least one is needed if `auth type`==`eap`, order matters where the first one is treated as primary",
-				Validators: []validator.List{
-					listvalidator.SizeAtLeast(1),
-				},
-				Default: listdefault.StaticValue(types.ListValueMust(AuthServersValue{}.Type(ctx), []attr.Value{})),
+				Default:             listdefault.StaticValue(types.ListValueMust(AuthServersValue{}.Type(ctx), []attr.Value{})),
 			},
 			"auth_servers_nas_id": schema.StringAttribute{
 				Optional:            true,
@@ -1055,13 +1056,6 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						},
 						Default: stringdefault.StaticString("radius"),
 					},
-					"vlan_ids": schema.ListAttribute{
-						ElementType: types.StringType,
-						Optional:    true,
-						Validators: []validator.List{
-							listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseInt(1, 4094), mistvalidator.ParseVar())),
-						},
-					},
 				},
 				CustomType: DynamicPskType{
 					ObjectType: types.ObjectType{
@@ -1092,10 +1086,15 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 					"enabled": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "whether to enable dynamic vlan",
-						MarkdownDescription: "whether to enable dynamic vlan",
+						Description:         "Requires `vlan_enabled`==`true` to be set to `true`. Whether to enable dynamic vlan",
+						MarkdownDescription: "Requires `vlan_enabled`==`true` to be set to `true`. Whether to enable dynamic vlan",
 						Validators: []validator.Bool{
-							mistvalidator.CannotBeTrueWhenValueIs(path.MatchRoot("vlan_enabled"), types.BoolValue(true)),
+							mistvalidator.CanOnlyTrueWhenValueIs(path.MatchRoot("vlan_enabled"), types.BoolValue(true)),
+							boolvalidator.Any(
+								mistvalidator.CanOnlyTrueWhenValueIs(path.MatchRoot("auth").AtName("enable_mac_auth"), types.BoolValue(true)),
+								mistvalidator.CanOnlyTrueWhenValueIs(path.MatchRoot("auth").AtName("type"), types.StringValue("eap")),
+								mistvalidator.CanOnlyTrueWhenValueIs(path.MatchRoot("auth").AtName("type"), types.StringValue("eap192")),
+							),
 						},
 						Default: booldefault.StaticBool(false),
 					},
@@ -1395,7 +1394,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 				},
-				Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+				Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 			},
 			"mxtunnel_name": schema.ListAttribute{
 				ElementType:         types.StringType,
@@ -1406,7 +1405,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 				},
-				Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+				Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 			},
 			"no_static_dns": schema.BoolAttribute{
 				Optional:            true,
@@ -1432,32 +1431,30 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 				Attributes: map[string]schema.Attribute{
 					"allow_wlan_id_roam": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
-						Description:         "whether to allow guest to connect to other Guest WLANs (with different `WLAN.ssid`) of same org without reauthentication (disable random_mac for seamless roaming)",
-						MarkdownDescription: "whether to allow guest to connect to other Guest WLANs (with different `WLAN.ssid`) of same org without reauthentication (disable random_mac for seamless roaming)",
-						Default:             booldefault.StaticBool(false),
+						Description:         "Optional if `amazon_enabled`==`true`. Whether to allow guest to connect to other Guest WLANs (with different `WLAN.ssid`) of same org without reauthentication (disable random_mac for seamless roaming)",
+						MarkdownDescription: "Optional if `amazon_enabled`==`true`. Whether to allow guest to connect to other Guest WLANs (with different `WLAN.ssid`) of same org without reauthentication (disable random_mac for seamless roaming)",
 					},
 					"amazon_client_id": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "amazon OAuth2 client id. This is optional. If not provided, it will use a default one.",
-						MarkdownDescription: "amazon OAuth2 client id. This is optional. If not provided, it will use a default one.",
+						Description:         "Optional if `amazon_enabled`==`true`. Amazon OAuth2 client id. This is optional. If not provided, it will use a default one.",
+						MarkdownDescription: "Optional if `amazon_enabled`==`true`. Amazon OAuth2 client id. This is optional. If not provided, it will use a default one.",
 						Default:             stringdefault.StaticString(""),
 					},
 					"amazon_client_secret": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "amazon OAuth2 client secret. If amazon_client_id was provided, provide a correspoinding value. Else leave blank.",
-						MarkdownDescription: "amazon OAuth2 client secret. If amazon_client_id was provided, provide a correspoinding value. Else leave blank.",
+						Description:         "Optional if `amazon_enabled`==`true`. Amazon OAuth2 client secret. If amazon_client_id was provided, provide a correspoinding value. Else leave blank.",
+						MarkdownDescription: "Optional if `amazon_enabled`==`true`. Amazon OAuth2 client secret. If amazon_client_id was provided, provide a correspoinding value. Else leave blank.",
 						Default:             stringdefault.StaticString(""),
 					},
 					"amazon_email_domains": schema.ListAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
 						Computed:            true,
-						Description:         "Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.",
-						MarkdownDescription: "Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.",
-						Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+						Description:         "Optional if `amazon_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.",
+						MarkdownDescription: "Optional if `amazon_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.",
+						Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 					},
 					"amazon_enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -1466,21 +1463,30 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "whether amazon is enabled as a login method",
 						Default:             booldefault.StaticBool(false),
 					},
-					"amazon_expire": schema.Float64Attribute{
+					"amazon_expire": schema.Int64Attribute{
 						Optional:            true,
-						Description:         "interval for which guest remains authorized using amazon auth (in minutes), if not provided, uses expire`",
-						MarkdownDescription: "interval for which guest remains authorized using amazon auth (in minutes), if not provided, uses expire`",
+						Description:         "Optional if `amazon_enabled`==`true`. Interval for which guest remains authorized using amazon auth (in minutes), if not provided, uses expire`",
+						MarkdownDescription: "Optional if `amazon_enabled`==`true`. Interval for which guest remains authorized using amazon auth (in minutes), if not provided, uses expire`",
 					},
 					"auth": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "authentication scheme. enum: `external`, `none`, `sso`",
-						MarkdownDescription: "authentication scheme. enum: `external`, `none`, `sso`",
+						Description:         "authentication scheme. enum: `amazon`, `azure`, `email`, `external`, `facebook`, `google`, `microsoft`, `multi`, `none`, `password`, `sponsor`, `sso`",
+						MarkdownDescription: "authentication scheme. enum: `amazon`, `azure`, `email`, `external`, `facebook`, `google`, `microsoft`, `multi`, `none`, `password`, `sponsor`, `sso`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
+								"amazon",
+								"azure",
+								"email",
 								"external",
+								"facebook",
+								"google",
+								"microsoft",
+								"multi",
 								"none",
+								"password",
+								"sponsor",
 								"sso",
 							),
 						},
@@ -1489,16 +1495,22 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 					"azure_client_id": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Required if `azure_enabled`==`true`.\nAzure active directory app client id",
-						MarkdownDescription: "Required if `azure_enabled`==`true`.\nAzure active directory app client id",
-						Default:             stringdefault.StaticString(""),
+						Description:         "Required if `azure_enabled`==`true`. Azure active directory app client id",
+						MarkdownDescription: "Required if `azure_enabled`==`true`. Azure active directory app client id",
+						Validators: []validator.String{
+							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("azure_enabled"), types.BoolValue(true)),
+						},
+						Default: stringdefault.StaticString(""),
 					},
 					"azure_client_secret": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Required if `azure_enabled`==`true`.\nAzure active directory app client secret",
-						MarkdownDescription: "Required if `azure_enabled`==`true`.\nAzure active directory app client secret",
-						Default:             stringdefault.StaticString(""),
+						Description:         "Required if `azure_enabled`==`true`. Azure active directory app client secret",
+						MarkdownDescription: "Required if `azure_enabled`==`true`. Azure active directory app client secret",
+						Validators: []validator.String{
+							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("azure_enabled"), types.BoolValue(true)),
+						},
+						Default: stringdefault.StaticString(""),
 					},
 					"azure_enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -1507,7 +1519,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "whether Azure Active Directory is enabled as a login method",
 						Default:             booldefault.StaticBool(false),
 					},
-					"azure_expire": schema.Float64Attribute{
+					"azure_expire": schema.Int64Attribute{
 						Optional:            true,
 						Description:         "interval for which guest remains authorized using azure auth (in minutes), if not provided, uses expire`",
 						MarkdownDescription: "interval for which guest remains authorized using azure auth (in minutes), if not provided, uses expire`",
@@ -1515,31 +1527,39 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 					"azure_tenant_id": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Required if `azure_enabled`==`true`.\nAzure active directory tenant id.",
-						MarkdownDescription: "Required if `azure_enabled`==`true`.\nAzure active directory tenant id.",
-						Default:             stringdefault.StaticString(""),
+						Description:         "Required if `azure_enabled`==`true`. Azure active directory tenant id.",
+						MarkdownDescription: "Required if `azure_enabled`==`true`. Azure active directory tenant id.",
+						Validators: []validator.String{
+							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("azure_enabled"), types.BoolValue(true)),
+						},
+						Default: stringdefault.StaticString(""),
 					},
 					"broadnet_password": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
 						Sensitive:           true,
-						Description:         "when `sms_provider`==`broadnet`",
-						MarkdownDescription: "when `sms_provider`==`broadnet`",
-						Default:             stringdefault.StaticString(""),
+						Description:         "Required if `sms_provider`==`broadnet`",
+						MarkdownDescription: "Required if `sms_provider`==`broadnet`",
+						Validators: []validator.String{
+							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("sms_provider"), types.StringValue("broadnet")),
+						},
+						Default: stringdefault.StaticString(""),
 					},
 					"broadnet_sid": schema.StringAttribute{
 						Optional:            true,
-						Computed:            true,
-						Description:         "when `sms_provider`==`broadnet`",
-						MarkdownDescription: "when `sms_provider`==`broadnet`",
-						Default:             stringdefault.StaticString("MIST"),
+						Description:         "Required if `sms_provider`==`broadnet`",
+						MarkdownDescription: "Required if `sms_provider`==`broadnet`",
+						Validators: []validator.String{
+							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("sms_provider"), types.StringValue("broadnet")),
+						},
 					},
 					"broadnet_user_id": schema.StringAttribute{
 						Optional:            true,
-						Computed:            true,
-						Description:         "when `sms_provider`==`broadnet`",
-						MarkdownDescription: "when `sms_provider`==`broadnet`",
-						Default:             stringdefault.StaticString(""),
+						Description:         "Required if `sms_provider`==`broadnet`",
+						MarkdownDescription: "Required if `sms_provider`==`broadnet`",
+						Validators: []validator.String{
+							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("sms_provider"), types.StringValue("broadnet")),
+						},
 					},
 					"bypass_when_cloud_down": schema.BoolAttribute{
 						Optional:            true,
@@ -1550,17 +1570,16 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"clickatell_api_key": schema.StringAttribute{
 						Optional:            true,
-						Computed:            true,
-						Description:         "when `sms_provider`==`clickatell`",
-						MarkdownDescription: "when `sms_provider`==`clickatell`",
-						Default:             stringdefault.StaticString(""),
+						Description:         "Required if `sms_provider`==`clickatell`",
+						MarkdownDescription: "Required if `sms_provider`==`clickatell`",
+						Validators: []validator.String{
+							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("sms_provider"), types.StringValue("clickatell")),
+						},
 					},
 					"cross_site": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "whether to allow guest to roam between WLANs (with same `WLAN.ssid`, regardless of variables) of different sites of same org without reauthentication (disable random_mac for seamless roaming)",
 						MarkdownDescription: "whether to allow guest to roam between WLANs (with same `WLAN.ssid`, regardless of variables) of different sites of same org without reauthentication (disable random_mac for seamless roaming)",
-						Default:             booldefault.StaticBool(false),
 					},
 					"email_enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -1576,41 +1595,50 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "whether guest portal is enabled",
 						Default:             booldefault.StaticBool(false),
 					},
-					"expire": schema.Float64Attribute{
+					"expire": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
 						Description:         "how long to remain authorized, in minutes",
 						MarkdownDescription: "how long to remain authorized, in minutes",
-						Default:             float64default.StaticFloat64(1440),
+						Default:             int64default.StaticInt64(1440),
 					},
 					"external_portal_url": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "external portal URL (e.g. https://host/url) where we can append our query parameters to",
-						MarkdownDescription: "external portal URL (e.g. https://host/url) where we can append our query parameters to",
-						Default:             stringdefault.StaticString(""),
+						Description:         "Required if `wlan_portal_auth`==`external`. External portal URL (e.g. https://host/url) where we can append our query parameters to",
+						MarkdownDescription: "Required if `wlan_portal_auth`==`external`. External portal URL (e.g. https://host/url) where we can append our query parameters to",
+						Validators: []validator.String{
+							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("auth"), types.StringValue("external")),
+						},
+						Default: stringdefault.StaticString(""),
 					},
 					"facebook_client_id": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Required if `facebook_enabled`==`true`.\nFacebook OAuth2 app id. This is optional. If not provided, it will use a default one.",
-						MarkdownDescription: "Required if `facebook_enabled`==`true`.\nFacebook OAuth2 app id. This is optional. If not provided, it will use a default one.",
-						Default:             stringdefault.StaticString(""),
+						Description:         "Required if `facebook_enabled`==`true`. Facebook OAuth2 app id. This is optional. If not provided, it will use a default one.",
+						MarkdownDescription: "Required if `facebook_enabled`==`true`. Facebook OAuth2 app id. This is optional. If not provided, it will use a default one.",
+						Validators: []validator.String{
+							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("facebook_enabled"), types.BoolValue(true)),
+						},
+						Default: stringdefault.StaticString(""),
 					},
 					"facebook_client_secret": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Required if `facebook_enabled`==`true`.\nFacebook OAuth2 app secret. If facebook_client_id was provided, provide a correspoinding value. Else leave blank.",
-						MarkdownDescription: "Required if `facebook_enabled`==`true`.\nFacebook OAuth2 app secret. If facebook_client_id was provided, provide a correspoinding value. Else leave blank.",
-						Default:             stringdefault.StaticString(""),
+						Description:         "Required if `facebook_enabled`==`true`. Facebook OAuth2 app secret. If facebook_client_id was provided, provide a correspoinding value. Else leave blank.",
+						MarkdownDescription: "Required if `facebook_enabled`==`true`. Facebook OAuth2 app secret. If facebook_client_id was provided, provide a correspoinding value. Else leave blank.",
+						Validators: []validator.String{
+							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("facebook_enabled"), types.BoolValue(true)),
+						},
+						Default: stringdefault.StaticString(""),
 					},
 					"facebook_email_domains": schema.ListAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
 						Computed:            true,
-						Description:         "Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.",
-						MarkdownDescription: "Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.",
-						Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+						Description:         "Optional if `facebook_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.",
+						MarkdownDescription: "Optional if `facebook_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.",
+						Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 					},
 					"facebook_enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -1619,10 +1647,10 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "whether facebook is enabled as a login method",
 						Default:             booldefault.StaticBool(false),
 					},
-					"facebook_expire": schema.Float64Attribute{
+					"facebook_expire": schema.Int64Attribute{
 						Optional:            true,
-						Description:         "interval for which guest remains authorized using facebook auth (in minutes), if not provided, uses expire`",
-						MarkdownDescription: "interval for which guest remains authorized using facebook auth (in minutes), if not provided, uses expire`",
+						Description:         "Optional if `facebook_enabled`==`true`. Interval for which guest remains authorized using facebook auth (in minutes), if not provided, uses expire`",
+						MarkdownDescription: "Optional if `facebook_enabled`==`true`. Interval for which guest remains authorized using facebook auth (in minutes), if not provided, uses expire`",
 					},
 					"forward": schema.BoolAttribute{
 						Optional:            true,
@@ -1636,7 +1664,10 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "the URL to forward the user to",
 						MarkdownDescription: "the URL to forward the user to",
-						Default:             stringdefault.StaticString(""),
+						Validators: []validator.String{
+							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("forward"), types.BoolValue(true)),
+						},
+						Default: stringdefault.StaticString(""),
 					},
 					"google_client_id": schema.StringAttribute{
 						Optional:            true,
@@ -1648,17 +1679,17 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 					"google_client_secret": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Google OAuth2 app secret. If google_client_id was provided, provide a correspoinding value. Else leave blank.",
-						MarkdownDescription: "Google OAuth2 app secret. If google_client_id was provided, provide a correspoinding value. Else leave blank.",
+						Description:         "Optional if `google_enabled`==`true`. Google OAuth2 app secret. If google_client_id was provided, provide a correspoinding value. Else leave blank.",
+						MarkdownDescription: "Optional if `google_enabled`==`true`. Google OAuth2 app secret. If google_client_id was provided, provide a correspoinding value. Else leave blank.",
 						Default:             stringdefault.StaticString(""),
 					},
 					"google_email_domains": schema.ListAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
 						Computed:            true,
-						Description:         "Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.",
-						MarkdownDescription: "Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.",
-						Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+						Description:         "Optional if `google_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.",
+						MarkdownDescription: "Optional if `google_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.",
+						Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 					},
 					"google_enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -1667,47 +1698,49 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "whether google is enabled as login method",
 						Default:             booldefault.StaticBool(false),
 					},
-					"google_expire": schema.Float64Attribute{
+					"google_expire": schema.Int64Attribute{
 						Optional:            true,
-						Description:         "interval for which guest remains authorized using google auth (in minutes), if not provided, uses expire`",
-						MarkdownDescription: "interval for which guest remains authorized using google auth (in minutes), if not provided, uses expire`",
+						Description:         "Optional if `google_enabled`==`true`. Interval for which guest remains authorized using google auth (in minutes), if not provided, uses expire`",
+						MarkdownDescription: "Optional if `google_enabled`==`true`. Interval for which guest remains authorized using google auth (in minutes), if not provided, uses expire`",
 					},
 					"gupshup_password": schema.StringAttribute{
 						Optional:            true,
-						Computed:            true,
 						Sensitive:           true,
-						Description:         "when `sms_provider`==`gupshup`",
-						MarkdownDescription: "when `sms_provider`==`gupshup`",
-						Default:             stringdefault.StaticString(""),
+						Description:         "Required if `sms_provider`==`gupshup`",
+						MarkdownDescription: "Required if `sms_provider`==`gupshup`",
+						Validators: []validator.String{
+							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("sms_provider"), types.StringValue("gupshup")),
+						},
 					},
 					"gupshup_userid": schema.StringAttribute{
 						Optional:            true,
-						Computed:            true,
-						Description:         "when `sms_provider`==`gupshup`",
-						MarkdownDescription: "when `sms_provider`==`gupshup`",
-						Default:             stringdefault.StaticString(""),
+						Description:         "Required if `sms_provider`==`gupshup`",
+						MarkdownDescription: "Required if `sms_provider`==`gupshup`",
+						Validators: []validator.String{
+							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("sms_provider"), types.StringValue("gupshup")),
+						},
 					},
 					"microsoft_client_id": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "microsoft 365 OAuth2 client id. This is optional. If not provided, it will use a default one.",
-						MarkdownDescription: "microsoft 365 OAuth2 client id. This is optional. If not provided, it will use a default one.",
+						Description:         "Optional if `microsoft_enabled`==`true`. Microsoft 365 OAuth2 client id. This is optional. If not provided, it will use a default one.",
+						MarkdownDescription: "Optional if `microsoft_enabled`==`true`. Microsoft 365 OAuth2 client id. This is optional. If not provided, it will use a default one.",
 						Default:             stringdefault.StaticString(""),
 					},
 					"microsoft_client_secret": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "microsoft 365 OAuth2 client secret. If microsoft_client_id was provided, provide a correspoinding value. Else leave blank.",
-						MarkdownDescription: "microsoft 365 OAuth2 client secret. If microsoft_client_id was provided, provide a correspoinding value. Else leave blank.",
+						Description:         "Optional if `microsoft_enabled`==`true`. Microsoft 365 OAuth2 client secret. If microsoft_client_id was provided, provide a correspoinding value. Else leave blank.",
+						MarkdownDescription: "Optional if `microsoft_enabled`==`true`. Microsoft 365 OAuth2 client secret. If microsoft_client_id was provided, provide a correspoinding value. Else leave blank.",
 						Default:             stringdefault.StaticString(""),
 					},
 					"microsoft_email_domains": schema.ListAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
 						Computed:            true,
-						Description:         "Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.",
-						MarkdownDescription: "Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.",
-						Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+						Description:         "Optional if `microsoft_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.",
+						MarkdownDescription: "Optional if `microsoft_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.",
+						Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 					},
 					"microsoft_enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -1716,30 +1749,33 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "whether microsoft 365 is enabled as a login method",
 						Default:             booldefault.StaticBool(false),
 					},
-					"microsoft_expire": schema.Float64Attribute{
+					"microsoft_expire": schema.Int64Attribute{
 						Optional:            true,
-						Description:         "interval for which guest remains authorized using microsoft auth (in minutes), if not provided, uses expire`",
-						MarkdownDescription: "interval for which guest remains authorized using microsoft auth (in minutes), if not provided, uses expire`",
+						Description:         "Optional if `microsoft_enabled`==`true`. Interval for which guest remains authorized using microsoft auth (in minutes), if not provided, uses expire`",
+						MarkdownDescription: "Optional if `microsoft_enabled`==`true`. Interval for which guest remains authorized using microsoft auth (in minutes), if not provided, uses expire`",
 					},
 					"passphrase_enabled": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "whether password is enabled",
-						MarkdownDescription: "whether password is enabled",
+						Description:         "Whether password is enabled",
+						MarkdownDescription: "Whether password is enabled",
 						Default:             booldefault.StaticBool(false),
 					},
-					"passphrase_expire": schema.Float64Attribute{
+					"passphrase_expire": schema.Int64Attribute{
 						Optional:            true,
-						Description:         "interval for which guest remains authorized using passphrase auth (in minutes), if not provided, uses `expire`",
-						MarkdownDescription: "interval for which guest remains authorized using passphrase auth (in minutes), if not provided, uses `expire`",
+						Description:         "Optional if `passphrase_enabled`==`true`. Interval for which guest remains authorized using passphrase auth (in minutes), if not provided, uses `expire`",
+						MarkdownDescription: "Optional if `passphrase_enabled`==`true`. Interval for which guest remains authorized using passphrase auth (in minutes), if not provided, uses `expire`",
 					},
 					"password": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
 						Sensitive:           true,
-						Description:         "passphrase",
-						MarkdownDescription: "passphrase",
-						Default:             stringdefault.StaticString(""),
+						Description:         "Required if `passphrase_enabled`==`true`.",
+						MarkdownDescription: "Required if `passphrase_enabled`==`true`.",
+						Validators: []validator.String{
+							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("passphrase_enabled"), types.BoolValue(true)),
+						},
+						Default: stringdefault.StaticString(""),
 					},
 					"predefined_sponsors_enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -1762,25 +1798,25 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"puzzel_password": schema.StringAttribute{
 						Optional:            true,
-						Computed:            true,
 						Sensitive:           true,
-						Description:         "when `sms_provider`==`puzzel`",
-						MarkdownDescription: "when `sms_provider`==`puzzel`",
-						Default:             stringdefault.StaticString(""),
+						Description:         "Required if `sms_provider`==`puzzel`",
+						MarkdownDescription: "Required if `sms_provider`==`puzzel`",
+						Validators: []validator.String{
+							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("sms_provider"), types.StringValue("puzzel")),
+						},
 					},
 					"puzzel_service_id": schema.StringAttribute{
 						Optional:            true,
-						Computed:            true,
-						Description:         "when `sms_provider`==`puzzel`",
-						MarkdownDescription: "when `sms_provider`==`puzzel`",
-						Default:             stringdefault.StaticString(""),
+						Description:         "Required if `sms_provider`==`puzzel`",
+						MarkdownDescription: "Required if `sms_provider`==`puzzel`",
 					},
 					"puzzel_username": schema.StringAttribute{
 						Optional:            true,
-						Computed:            true,
-						Description:         "when `sms_provider`==`puzzel`",
-						MarkdownDescription: "when `sms_provider`==`puzzel`",
-						Default:             stringdefault.StaticString(""),
+						Description:         "Required if `sms_provider`==`puzzel`",
+						MarkdownDescription: "Required if `sms_provider`==`puzzel`",
+						Validators: []validator.String{
+							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("sms_provider"), types.StringValue("puzzel")),
+						},
 					},
 					"sms_enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -1789,21 +1825,23 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "whether sms is enabled as a login method",
 						Default:             booldefault.StaticBool(false),
 					},
-					"sms_expire": schema.Float64Attribute{
+					"sms_expire": schema.Int64Attribute{
 						Optional:            true,
-						Description:         "interval for which guest remains authorized using sms auth (in minutes), if not provided, uses expire`",
-						MarkdownDescription: "interval for which guest remains authorized using sms auth (in minutes), if not provided, uses expire`",
+						Description:         "Optional if `sms_enabled`==`true`. Interval for which guest remains authorized using sms auth (in minutes), if not provided, uses expire`",
+						MarkdownDescription: "Optional if `sms_enabled`==`true`. Interval for which guest remains authorized using sms auth (in minutes), if not provided, uses expire`",
 					},
 					"sms_message_format": schema.StringAttribute{
-						Optional: true,
-						Computed: true,
-						Default:  stringdefault.StaticString("Code {{code}} expires in {{duration}} minutes."),
+						Optional:            true,
+						Computed:            true,
+						Description:         "Optional if `sms_enabled`==`true`. SMS Message format",
+						MarkdownDescription: "Optional if `sms_enabled`==`true`. SMS Message format",
+						Default:             stringdefault.StaticString("Code {{code}} expires in {{duration}} minutes."),
 					},
 					"sms_provider": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "enum: `broadnet`, `clickatell`, `gupshup`, `manual`, `puzzel`, `telstra`, `twilio`",
-						MarkdownDescription: "enum: `broadnet`, `clickatell`, `gupshup`, `manual`, `puzzel`, `telstra`, `twilio`",
+						Description:         "Optioanl if `sms_enabled`==`true`. enum: `broadnet`, `clickatell`, `gupshup`, `manual`, `puzzel`, `telstra`, `twilio`",
+						MarkdownDescription: "Optioanl if `sms_enabled`==`true`. enum: `broadnet`, `clickatell`, `gupshup`, `manual`, `puzzel`, `telstra`, `twilio`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -1815,15 +1853,14 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 								"telstra",
 								"twilio",
 							),
+							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("sms_enabled"), types.BoolValue(true)),
 						},
 						Default: stringdefault.StaticString("manual"),
 					},
 					"sponsor_auto_approve": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
-						Description:         "whether to automatically approve guest and allow sponsor to revoke guest access, needs predefined_sponsors_enabled enabled and sponsor_notify_all disabled",
-						MarkdownDescription: "whether to automatically approve guest and allow sponsor to revoke guest access, needs predefined_sponsors_enabled enabled and sponsor_notify_all disabled",
-						Default:             booldefault.StaticBool(false),
+						Description:         "Optional if `sponsor_enabled`==`true`. Whether to automatically approve guest and allow sponsor to revoke guest access, needs predefined_sponsors_enabled enabled and sponsor_notify_all disabled",
+						MarkdownDescription: "Optional if `sponsor_enabled`==`true`. Whether to automatically approve guest and allow sponsor to revoke guest access, needs predefined_sponsors_enabled enabled and sponsor_notify_all disabled",
 					},
 					"sponsor_email_domains": schema.ListAttribute{
 						ElementType:         types.StringType,
@@ -1840,30 +1877,30 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "whether sponsor is enabled",
 						Default:             booldefault.StaticBool(false),
 					},
-					"sponsor_expire": schema.Float64Attribute{
+					"sponsor_expire": schema.Int64Attribute{
 						Optional:            true,
-						Description:         "interval for which guest remains authorized using sponsor auth (in minutes), if not provided, uses expire`",
-						MarkdownDescription: "interval for which guest remains authorized using sponsor auth (in minutes), if not provided, uses expire`",
+						Description:         "Optional if `sponsor_enabled`==`true`. Interval for which guest remains authorized using sponsor auth (in minutes), if not provided, uses expire`",
+						MarkdownDescription: "Optional if `sponsor_enabled`==`true`. Interval for which guest remains authorized using sponsor auth (in minutes), if not provided, uses expire`",
 					},
 					"sponsor_link_validity_duration": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "how long to remain valid sponsored guest request approve/deny link received in email, in minutes.",
-						MarkdownDescription: "how long to remain valid sponsored guest request approve/deny link received in email, in minutes.",
+						Description:         "Optional if `sponsor_enabled`==`true`. How long to remain valid sponsored guest request approve/deny link received in email, in minutes.",
+						MarkdownDescription: "Optional if `sponsor_enabled`==`true`. How long to remain valid sponsored guest request approve/deny link received in email, in minutes.",
 						Default:             stringdefault.StaticString("60"),
 					},
 					"sponsor_notify_all": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "whether to notify all sponsors that are mentioned in `sponsors` object. Both `sponsor_notify_all` and `predefined_sponsors_enabled` should be true in order to notify sponsors. If true, email sent to 10 sponsors in no particular order.",
-						MarkdownDescription: "whether to notify all sponsors that are mentioned in `sponsors` object. Both `sponsor_notify_all` and `predefined_sponsors_enabled` should be true in order to notify sponsors. If true, email sent to 10 sponsors in no particular order.",
+						Description:         "Optional if `sponsor_enabled`==`true`. whether to notify all sponsors that are mentioned in `sponsors` object. Both `sponsor_notify_all` and `predefined_sponsors_enabled` should be true in order to notify sponsors. If true, email sent to 10 sponsors in no particular order.",
+						MarkdownDescription: "Optional if `sponsor_enabled`==`true`. whether to notify all sponsors that are mentioned in `sponsors` object. Both `sponsor_notify_all` and `predefined_sponsors_enabled` should be true in order to notify sponsors. If true, email sent to 10 sponsors in no particular order.",
 						Default:             booldefault.StaticBool(false),
 					},
 					"sponsor_status_notify": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "if enabled, guest will get email about sponsor's action (approve/deny)",
-						MarkdownDescription: "if enabled, guest will get email about sponsor's action (approve/deny)",
+						Description:         "Optional if `sponsor_enabled`==`true`. If enabled, guest will get email about sponsor's action (approve/deny)",
+						MarkdownDescription: "Optional if `sponsor_enabled`==`true`. If enabled, guest will get email about sponsor's action (approve/deny)",
 						Default:             booldefault.StaticBool(false),
 					},
 					"sponsors": schema.MapAttribute{
@@ -1876,29 +1913,32 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 					"sso_default_role": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "if `wlan_portal_auth`==`sso`, default role to assign if there’s no match. By default, an assertion is treated as invalid when there’s no role matched",
-						MarkdownDescription: "if `wlan_portal_auth`==`sso`, default role to assign if there’s no match. By default, an assertion is treated as invalid when there’s no role matched",
+						Description:         "Optionl if `wlan_portal_auth`==`sso`, default role to assign if there’s no match. By default, an assertion is treated as invalid when there’s no role matched",
+						MarkdownDescription: "Optionl if `wlan_portal_auth`==`sso`, default role to assign if there’s no match. By default, an assertion is treated as invalid when there’s no role matched",
 						Default:             stringdefault.StaticString(""),
 					},
 					"sso_forced_role": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "if `wlan_portal_auth`==`sso`",
-						MarkdownDescription: "if `wlan_portal_auth`==`sso`",
+						Description:         "Optionl if `wlan_portal_auth`==`sso`",
+						MarkdownDescription: "Optionl if `wlan_portal_auth`==`sso`",
 						Default:             stringdefault.StaticString(""),
 					},
 					"sso_idp_cert": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "if `wlan_portal_auth`==`sso`, IDP Cert (used to verify the signed response)",
-						MarkdownDescription: "if `wlan_portal_auth`==`sso`, IDP Cert (used to verify the signed response)",
-						Default:             stringdefault.StaticString(""),
+						Description:         "Required if `wlan_portal_auth`==`sso`. IDP Cert (used to verify the signed response)",
+						MarkdownDescription: "Required if `wlan_portal_auth`==`sso`. IDP Cert (used to verify the signed response)",
+						Validators: []validator.String{
+							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("auth"), types.StringValue("sso")),
+						},
+						Default: stringdefault.StaticString(""),
 					},
 					"sso_idp_sign_algo": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "if `wlan_portal_auth`==`sso`, Signing algorithm for SAML Assertion. enum: `sha1`, `sha256`, `sha384`, `sha512`",
-						MarkdownDescription: "if `wlan_portal_auth`==`sso`, Signing algorithm for SAML Assertion. enum: `sha1`, `sha256`, `sha384`, `sha512`",
+						Description:         "Optioanl if `wlan_portal_auth`==`sso`, Signing algorithm for SAML Assertion. enum: `sha1`, `sha256`, `sha384`, `sha512`",
+						MarkdownDescription: "Optioanl if `wlan_portal_auth`==`sso`, Signing algorithm for SAML Assertion. enum: `sha1`, `sha256`, `sha384`, `sha512`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -1913,22 +1953,28 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 					"sso_idp_sso_url": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "if `wlan_portal_auth`==`sso`, IDP Single-Sign-On URL",
-						MarkdownDescription: "if `wlan_portal_auth`==`sso`, IDP Single-Sign-On URL",
-						Default:             stringdefault.StaticString(""),
+						Description:         "Required if `wlan_portal_auth`==`sso`, IDP Single-Sign-On URL",
+						MarkdownDescription: "Required if `wlan_portal_auth`==`sso`, IDP Single-Sign-On URL",
+						Validators: []validator.String{
+							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("auth"), types.StringValue("sso")),
+						},
+						Default: stringdefault.StaticString(""),
 					},
 					"sso_issuer": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "if `wlan_portal_auth`==`sso`, IDP issuer URL",
-						MarkdownDescription: "if `wlan_portal_auth`==`sso`, IDP issuer URL",
-						Default:             stringdefault.StaticString(""),
+						Description:         "Required if `wlan_portal_auth`==`sso`, IDP issuer URL",
+						MarkdownDescription: "Required if `wlan_portal_auth`==`sso`, IDP issuer URL",
+						Validators: []validator.String{
+							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("auth"), types.StringValue("sso")),
+						},
+						Default: stringdefault.StaticString(""),
 					},
 					"sso_nameid_format": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "if `wlan_portal_auth`==`sso`. enum: `email`, `unspecified`",
-						MarkdownDescription: "if `wlan_portal_auth`==`sso`. enum: `email`, `unspecified`",
+						Description:         "Optional if `wlan_portal_auth`==`sso`. enum: `email`, `unspecified`",
+						MarkdownDescription: "Optional if `wlan_portal_auth`==`sso`. enum: `email`, `unspecified`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -1940,38 +1986,43 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"telstra_client_id": schema.StringAttribute{
 						Optional:            true,
-						Computed:            true,
-						Description:         "when `sms_provider`==`telstra`, Client ID provided by Telstra",
-						MarkdownDescription: "when `sms_provider`==`telstra`, Client ID provided by Telstra",
-						Default:             stringdefault.StaticString(""),
+						Description:         "Required if `sms_provider`==`telstra`, Client ID provided by Telstra",
+						MarkdownDescription: "Required if `sms_provider`==`telstra`, Client ID provided by Telstra",
+						Validators: []validator.String{
+							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("sms_provider"), types.StringValue("telstra")),
+						},
 					},
 					"telstra_client_secret": schema.StringAttribute{
 						Optional:            true,
-						Computed:            true,
-						Description:         "when `sms_provider`==`telstra`, Client secret provided by Telstra",
-						MarkdownDescription: "when `sms_provider`==`telstra`, Client secret provided by Telstra",
-						Default:             stringdefault.StaticString(""),
+						Description:         "Required if `sms_provider`==`telstra`, Client secret provided by Telstra",
+						MarkdownDescription: "Required if `sms_provider`==`telstra`, Client secret provided by Telstra",
+						Validators: []validator.String{
+							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("sms_provider"), types.StringValue("telstra")),
+						},
 					},
 					"twilio_auth_token": schema.StringAttribute{
 						Optional:            true,
-						Computed:            true,
-						Description:         "when `sms_provider`==`twilio`, Auth token account with twilio account",
-						MarkdownDescription: "when `sms_provider`==`twilio`, Auth token account with twilio account",
-						Default:             stringdefault.StaticString(""),
+						Description:         "Required if `sms_provider`==`twilio`, Auth token account with twilio account",
+						MarkdownDescription: "Required if `sms_provider`==`twilio`, Auth token account with twilio account",
+						Validators: []validator.String{
+							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("sms_provider"), types.StringValue("twilio")),
+						},
 					},
 					"twilio_phone_number": schema.StringAttribute{
 						Optional:            true,
-						Computed:            true,
-						Description:         "when `sms_provider`==`twilio`, Twilio phone number associated with the account. See example for accepted format.",
-						MarkdownDescription: "when `sms_provider`==`twilio`, Twilio phone number associated with the account. See example for accepted format.",
-						Default:             stringdefault.StaticString(""),
+						Description:         "Required if `sms_provider`==`twilio`, Twilio phone number associated with the account. See example for accepted format.",
+						MarkdownDescription: "Required if `sms_provider`==`twilio`, Twilio phone number associated with the account. See example for accepted format.",
+						Validators: []validator.String{
+							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("sms_provider"), types.StringValue("twilio")),
+						},
 					},
 					"twilio_sid": schema.StringAttribute{
 						Optional:            true,
-						Computed:            true,
-						Description:         "when `sms_provider`==`twilio`, Account SID provided by Twilio",
-						MarkdownDescription: "when `sms_provider`==`twilio`, Account SID provided by Twilio",
-						Default:             stringdefault.StaticString(""),
+						Description:         "Required if `sms_provider`==`twilio`, Account SID provided by Twilio",
+						MarkdownDescription: "Required if `sms_provider`==`twilio`, Account SID provided by Twilio",
+						Validators: []validator.String{
+							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("sms_provider"), types.StringValue("twilio")),
+						},
 					},
 				},
 				CustomType: PortalType{
@@ -1990,14 +2041,14 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 							"allow_wlan_id_roam":             types.BoolNull(),
 							"amazon_client_id":               types.StringValue(""),
 							"amazon_client_secret":           types.StringValue(""),
-							"amazon_email_domains":           types.ListValueMust(types.StringType, []attr.Value{}),
+							"amazon_email_domains":           types.ListNull(types.StringType),
 							"amazon_enabled":                 types.BoolValue(false),
-							"amazon_expire":                  types.Float64Null(),
+							"amazon_expire":                  types.Int64Null(),
 							"auth":                           types.StringValue("none"),
 							"azure_client_id":                types.StringValue(""),
 							"azure_client_secret":            types.StringValue(""),
 							"azure_enabled":                  types.BoolValue(false),
-							"azure_expire":                   types.Float64Null(),
+							"azure_expire":                   types.Int64Null(),
 							"azure_tenant_id":                types.StringValue(""),
 							"broadnet_sid":                   types.StringNull(),
 							"broadnet_password":              types.StringNull(),
@@ -2007,40 +2058,40 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 							"cross_site":                     types.BoolNull(),
 							"email_enabled":                  types.BoolValue(false),
 							"enabled":                        types.BoolValue(false),
-							"expire":                         types.Float64Value(1440),
+							"expire":                         types.Int64Value(1440),
 							"external_portal_url":            types.StringValue(""),
 							"facebook_client_id":             types.StringValue(""),
 							"facebook_client_secret":         types.StringValue(""),
-							"facebook_email_domains":         types.ListValueMust(types.StringType, []attr.Value{}),
+							"facebook_email_domains":         types.ListNull(types.StringType),
 							"facebook_enabled":               types.BoolValue(false),
-							"facebook_expire":                types.Float64Null(),
+							"facebook_expire":                types.Int64Null(),
 							"forward":                        types.BoolValue(false),
 							"forward_url":                    types.StringValue(""),
 							"google_client_id":               types.StringValue(""),
 							"google_client_secret":           types.StringValue(""),
-							"google_email_domains":           types.ListValueMust(types.StringType, []attr.Value{}),
+							"google_email_domains":           types.ListNull(types.StringType),
 							"google_enabled":                 types.BoolValue(false),
-							"google_expire":                  types.Float64Null(),
+							"google_expire":                  types.Int64Null(),
 							"gupshup_userid":                 types.StringNull(),
 							"gupshup_password":               types.StringNull(),
 							"microsoft_client_id":            types.StringValue(""),
 							"microsoft_client_secret":        types.StringValue(""),
-							"microsoft_email_domains":        types.ListValueMust(types.StringType, []attr.Value{}),
+							"microsoft_email_domains":        types.ListNull(types.StringType),
 							"microsoft_enabled":              types.BoolValue(false),
-							"microsoft_expire":               types.Float64Null(),
+							"microsoft_expire":               types.Int64Null(),
 							"passphrase_enabled":             types.BoolValue(false),
 							"password":                       types.StringValue(""),
 							"predefined_sponsors_enabled":    types.BoolValue(false),
 							"predefined_sponsors_hide_email": types.BoolValue(false),
 							"privacy":                        types.BoolValue(false),
 							"sms_enabled":                    types.BoolValue(false),
-							"sms_expire":                     types.Float64Null(),
+							"sms_expire":                     types.Int64Null(),
 							"sms_message_format":             types.StringValue("Code {{code}} expires in {{duration}} minutes."),
 							"sms_provider":                   types.StringValue("manual"),
 							"sponsor_auto_approve":           types.BoolNull(),
-							"sponsor_email_domains":          types.ListValueMust(types.StringType, []attr.Value{}),
+							"sponsor_email_domains":          types.ListNull(types.StringType),
 							"sponsor_enabled":                types.BoolValue(false),
-							"sponsor_expire":                 types.Float64Null(),
+							"sponsor_expire":                 types.Int64Null(),
 							"sponsor_link_validity_duration": types.StringValue("60"),
 							"sponsor_notify_all":             types.BoolValue(true),
 							"sponsor_status_notify":          types.BoolValue(false),
@@ -2052,7 +2103,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 							"sso_idp_sso_url":                types.StringValue(""),
 							"sso_issuer":                     types.StringValue(""),
 							"sso_nameid_format":              types.StringValue("email"),
-							"passphrase_expire":              types.Float64Null(),
+							"passphrase_expire":              types.Int64Null(),
 							"puzzel_username":                types.StringNull(),
 							"puzzel_password":                types.StringNull(),
 							"puzzel_service_id":              types.StringNull(),
@@ -2117,14 +2168,6 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"portal_sso_url": schema.StringAttribute{
 				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"portal_template_url": schema.StringAttribute{
-				Computed:            true,
-				Description:         "N.B portal_template will be forked out of wlan objects soon. To fetch portal_template, please query portal_template_url. To update portal_template, use Wlan Portal Template.",
-				MarkdownDescription: "N.B portal_template will be forked out of wlan objects soon. To fetch portal_template, please query portal_template_url. To update portal_template, use Wlan Portal Template.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -2370,6 +2413,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
+				Computed:            true,
 				Description:         "Property key is the RF band. enum: `24`, `5`, `6`",
 				MarkdownDescription: "Property key is the RF band. enum: `24`, `5`, `6`",
 				Validators: []validator.Map{
@@ -2378,6 +2422,43 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						stringvalidator.OneOf("24", "5", "6"),
 					),
 				},
+				Default: mapdefault.StaticValue(
+					types.MapValueMust(
+						RatesetValue{}.Type(ctx),
+						map[string]attr.Value{
+							"24": NewRatesetValueMust(
+								RatesetValue{}.AttributeTypes(ctx),
+								map[string]attr.Value{
+									"ht":       types.StringNull(),
+									"legacy":   types.ListValueMust(types.StringType, []attr.Value{}),
+									"min_rssi": types.Int64Value(0),
+									"template": types.StringValue("compatible"),
+									"vht":      types.StringNull(),
+								},
+							),
+							"5": NewRatesetValueMust(
+								RatesetValue{}.AttributeTypes(ctx),
+								map[string]attr.Value{
+									"ht":       types.StringNull(),
+									"legacy":   types.ListValueMust(types.StringType, []attr.Value{}),
+									"min_rssi": types.Int64Value(0),
+									"template": types.StringValue("compatible"),
+									"vht":      types.StringNull(),
+								},
+							),
+							"6": NewRatesetValueMust(
+								RatesetValue{}.AttributeTypes(ctx),
+								map[string]attr.Value{
+									"ht":       types.StringNull(),
+									"legacy":   types.ListValueMust(types.StringType, []attr.Value{}),
+									"min_rssi": types.Int64Value(0),
+									"template": types.StringValue("compatible"),
+									"vht":      types.StringNull(),
+								},
+							),
+						},
+					),
+				),
 			},
 			"reconnect_clients_when_roaming_mxcluster": schema.BoolAttribute{
 				Optional:            true,
@@ -2496,14 +2577,6 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "the name of the SSID",
 				MarkdownDescription: "the name of the SSID",
 			},
-			"thumbnail": schema.StringAttribute{
-				Computed:            true,
-				Description:         "Url of portal background image thumbnail",
-				MarkdownDescription: "Url of portal background image thumbnail",
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
 			"use_eapol_v1": schema.BoolAttribute{
 				Optional:            true,
 				Computed:            true,
@@ -2529,19 +2602,23 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 				ElementType:         types.StringType,
 				Optional:            true,
 				Computed:            true,
-				Description:         "vlan_ids to use when there’s no match from RA",
-				MarkdownDescription: "vlan_ids to use when there’s no match from RA",
+				Description:         "if `vlan_enabled`==`true` and `vlan_pooling`==`true`. List of VLAN IDs (comma separeted) to be used in the VLAN Pool",
+				MarkdownDescription: "if `vlan_enabled`==`true` and `vlan_pooling`==`true`. List of VLAN IDs (comma separeted) to be used in the VLAN Pool",
 				Validators: []validator.List{
 					listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseInt(1, 4094), mistvalidator.ParseVar())),
+					mistvalidator.RequiredWhenValueIs(path.MatchRoot("vlan_pooling"), types.BoolValue(true)),
 				},
 				Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 			},
 			"vlan_pooling": schema.BoolAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "vlan pooling allows AP to place client on different VLAN using a deterministic algorithm",
-				MarkdownDescription: "vlan pooling allows AP to place client on different VLAN using a deterministic algorithm",
-				Default:             booldefault.StaticBool(false),
+				Description:         "Requires `vlan_enabled`==`true` to be set to `true`. Vlan pooling allows AP to place client on different VLAN using a deterministic algorithm",
+				MarkdownDescription: "Requires `vlan_enabled`==`true` to be set to `true`. Vlan pooling allows AP to place client on different VLAN using a deterministic algorithm",
+				Validators: []validator.Bool{
+					mistvalidator.CanOnlyTrueWhenValueIs(path.MatchRoot("vlan_enabled"), types.BoolValue(true)),
+				},
+				Default: booldefault.StaticBool(false),
 			},
 			"wlan_limit_down": schema.Int64Attribute{
 				Optional:            true,
@@ -2681,7 +2758,6 @@ type SiteWlanModel struct {
 	PortalDeniedHostnames                types.List              `tfsdk:"portal_denied_hostnames"`
 	PortalImage                          types.String            `tfsdk:"portal_image"`
 	PortalSsoUrl                         types.String            `tfsdk:"portal_sso_url"`
-	PortalTemplateUrl                    types.String            `tfsdk:"portal_template_url"`
 	Qos                                  QosValue                `tfsdk:"qos"`
 	Radsec                               RadsecValue             `tfsdk:"radsec"`
 	Rateset                              types.Map               `tfsdk:"rateset"`
@@ -2691,7 +2767,6 @@ type SiteWlanModel struct {
 	SiteId                               types.String            `tfsdk:"site_id"`
 	SleExcluded                          types.Bool              `tfsdk:"sle_excluded"`
 	Ssid                                 types.String            `tfsdk:"ssid"`
-	Thumbnail                            types.String            `tfsdk:"thumbnail"`
 	UseEapolV1                           types.Bool              `tfsdk:"use_eapol_v1"`
 	VlanEnabled                          types.Bool              `tfsdk:"vlan_enabled"`
 	VlanId                               types.String            `tfsdk:"vlan_id"`
@@ -10130,24 +10205,6 @@ func (t DynamicPskType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`source expected to be basetypes.StringValue, was: %T`, sourceAttribute))
 	}
 
-	vlanIdsAttribute, ok := attributes["vlan_ids"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`vlan_ids is missing from object`)
-
-		return nil, diags
-	}
-
-	vlanIdsVal, ok := vlanIdsAttribute.(basetypes.ListValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`vlan_ids expected to be basetypes.ListValue, was: %T`, vlanIdsAttribute))
-	}
-
 	if diags.HasError() {
 		return nil, diags
 	}
@@ -10158,7 +10215,6 @@ func (t DynamicPskType) ValueFromObject(ctx context.Context, in basetypes.Object
 		Enabled:       enabledVal,
 		ForceLookup:   forceLookupVal,
 		Source:        sourceVal,
-		VlanIds:       vlanIdsVal,
 		state:         attr.ValueStateKnown,
 	}, diags
 }
@@ -10316,24 +10372,6 @@ func NewDynamicPskValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`source expected to be basetypes.StringValue, was: %T`, sourceAttribute))
 	}
 
-	vlanIdsAttribute, ok := attributes["vlan_ids"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`vlan_ids is missing from object`)
-
-		return NewDynamicPskValueUnknown(), diags
-	}
-
-	vlanIdsVal, ok := vlanIdsAttribute.(basetypes.ListValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`vlan_ids expected to be basetypes.ListValue, was: %T`, vlanIdsAttribute))
-	}
-
 	if diags.HasError() {
 		return NewDynamicPskValueUnknown(), diags
 	}
@@ -10344,7 +10382,6 @@ func NewDynamicPskValue(attributeTypes map[string]attr.Type, attributes map[stri
 		Enabled:       enabledVal,
 		ForceLookup:   forceLookupVal,
 		Source:        sourceVal,
-		VlanIds:       vlanIdsVal,
 		state:         attr.ValueStateKnown,
 	}, diags
 }
@@ -10422,12 +10459,11 @@ type DynamicPskValue struct {
 	Enabled       basetypes.BoolValue   `tfsdk:"enabled"`
 	ForceLookup   basetypes.BoolValue   `tfsdk:"force_lookup"`
 	Source        basetypes.StringValue `tfsdk:"source"`
-	VlanIds       basetypes.ListValue   `tfsdk:"vlan_ids"`
 	state         attr.ValueState
 }
 
 func (v DynamicPskValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 6)
+	attrTypes := make(map[string]tftypes.Type, 5)
 
 	var val tftypes.Value
 	var err error
@@ -10437,15 +10473,12 @@ func (v DynamicPskValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["force_lookup"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["source"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["vlan_ids"] = basetypes.ListType{
-		ElemType: types.StringType,
-	}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 6)
+		vals := make(map[string]tftypes.Value, 5)
 
 		val, err = v.DefaultPsk.ToTerraformValue(ctx)
 
@@ -10487,14 +10520,6 @@ func (v DynamicPskValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 		vals["source"] = val
 
-		val, err = v.VlanIds.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["vlan_ids"] = val
-
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
@@ -10524,32 +10549,12 @@ func (v DynamicPskValue) String() string {
 func (v DynamicPskValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	vlanIdsVal, d := types.ListValue(types.StringType, v.VlanIds.Elements())
-
-	diags.Append(d...)
-
-	if d.HasError() {
-		return types.ObjectUnknown(map[string]attr.Type{
-			"default_psk":     basetypes.StringType{},
-			"default_vlan_id": basetypes.StringType{},
-			"enabled":         basetypes.BoolType{},
-			"force_lookup":    basetypes.BoolType{},
-			"source":          basetypes.StringType{},
-			"vlan_ids": basetypes.ListType{
-				ElemType: types.StringType,
-			},
-		}), diags
-	}
-
 	attributeTypes := map[string]attr.Type{
 		"default_psk":     basetypes.StringType{},
 		"default_vlan_id": basetypes.StringType{},
 		"enabled":         basetypes.BoolType{},
 		"force_lookup":    basetypes.BoolType{},
 		"source":          basetypes.StringType{},
-		"vlan_ids": basetypes.ListType{
-			ElemType: types.StringType,
-		},
 	}
 
 	if v.IsNull() {
@@ -10568,7 +10573,6 @@ func (v DynamicPskValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"enabled":         v.Enabled,
 			"force_lookup":    v.ForceLookup,
 			"source":          v.Source,
-			"vlan_ids":        vlanIdsVal,
 		})
 
 	return objVal, diags
@@ -10609,10 +10613,6 @@ func (v DynamicPskValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.VlanIds.Equal(other.VlanIds) {
-		return false
-	}
-
 	return true
 }
 
@@ -10631,9 +10631,6 @@ func (v DynamicPskValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"enabled":         basetypes.BoolType{},
 		"force_lookup":    basetypes.BoolType{},
 		"source":          basetypes.StringType{},
-		"vlan_ids": basetypes.ListType{
-			ElemType: types.StringType,
-		},
 	}
 }
 
@@ -12802,12 +12799,12 @@ func (t PortalType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 		return nil, diags
 	}
 
-	amazonExpireVal, ok := amazonExpireAttribute.(basetypes.Float64Value)
+	amazonExpireVal, ok := amazonExpireAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`amazon_expire expected to be basetypes.Float64Value, was: %T`, amazonExpireAttribute))
+			fmt.Sprintf(`amazon_expire expected to be basetypes.Int64Value, was: %T`, amazonExpireAttribute))
 	}
 
 	authAttribute, ok := attributes["auth"]
@@ -12892,12 +12889,12 @@ func (t PortalType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 		return nil, diags
 	}
 
-	azureExpireVal, ok := azureExpireAttribute.(basetypes.Float64Value)
+	azureExpireVal, ok := azureExpireAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`azure_expire expected to be basetypes.Float64Value, was: %T`, azureExpireAttribute))
+			fmt.Sprintf(`azure_expire expected to be basetypes.Int64Value, was: %T`, azureExpireAttribute))
 	}
 
 	azureTenantIdAttribute, ok := attributes["azure_tenant_id"]
@@ -13072,12 +13069,12 @@ func (t PortalType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 		return nil, diags
 	}
 
-	expireVal, ok := expireAttribute.(basetypes.Float64Value)
+	expireVal, ok := expireAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`expire expected to be basetypes.Float64Value, was: %T`, expireAttribute))
+			fmt.Sprintf(`expire expected to be basetypes.Int64Value, was: %T`, expireAttribute))
 	}
 
 	externalPortalUrlAttribute, ok := attributes["external_portal_url"]
@@ -13180,12 +13177,12 @@ func (t PortalType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 		return nil, diags
 	}
 
-	facebookExpireVal, ok := facebookExpireAttribute.(basetypes.Float64Value)
+	facebookExpireVal, ok := facebookExpireAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`facebook_expire expected to be basetypes.Float64Value, was: %T`, facebookExpireAttribute))
+			fmt.Sprintf(`facebook_expire expected to be basetypes.Int64Value, was: %T`, facebookExpireAttribute))
 	}
 
 	forwardAttribute, ok := attributes["forward"]
@@ -13306,12 +13303,12 @@ func (t PortalType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 		return nil, diags
 	}
 
-	googleExpireVal, ok := googleExpireAttribute.(basetypes.Float64Value)
+	googleExpireVal, ok := googleExpireAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`google_expire expected to be basetypes.Float64Value, was: %T`, googleExpireAttribute))
+			fmt.Sprintf(`google_expire expected to be basetypes.Int64Value, was: %T`, googleExpireAttribute))
 	}
 
 	gupshupPasswordAttribute, ok := attributes["gupshup_password"]
@@ -13432,12 +13429,12 @@ func (t PortalType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 		return nil, diags
 	}
 
-	microsoftExpireVal, ok := microsoftExpireAttribute.(basetypes.Float64Value)
+	microsoftExpireVal, ok := microsoftExpireAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`microsoft_expire expected to be basetypes.Float64Value, was: %T`, microsoftExpireAttribute))
+			fmt.Sprintf(`microsoft_expire expected to be basetypes.Int64Value, was: %T`, microsoftExpireAttribute))
 	}
 
 	passphraseEnabledAttribute, ok := attributes["passphrase_enabled"]
@@ -13468,12 +13465,12 @@ func (t PortalType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 		return nil, diags
 	}
 
-	passphraseExpireVal, ok := passphraseExpireAttribute.(basetypes.Float64Value)
+	passphraseExpireVal, ok := passphraseExpireAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`passphrase_expire expected to be basetypes.Float64Value, was: %T`, passphraseExpireAttribute))
+			fmt.Sprintf(`passphrase_expire expected to be basetypes.Int64Value, was: %T`, passphraseExpireAttribute))
 	}
 
 	passwordAttribute, ok := attributes["password"]
@@ -13630,12 +13627,12 @@ func (t PortalType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 		return nil, diags
 	}
 
-	smsExpireVal, ok := smsExpireAttribute.(basetypes.Float64Value)
+	smsExpireVal, ok := smsExpireAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`sms_expire expected to be basetypes.Float64Value, was: %T`, smsExpireAttribute))
+			fmt.Sprintf(`sms_expire expected to be basetypes.Int64Value, was: %T`, smsExpireAttribute))
 	}
 
 	smsMessageFormatAttribute, ok := attributes["sms_message_format"]
@@ -13738,12 +13735,12 @@ func (t PortalType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 		return nil, diags
 	}
 
-	sponsorExpireVal, ok := sponsorExpireAttribute.(basetypes.Float64Value)
+	sponsorExpireVal, ok := sponsorExpireAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`sponsor_expire expected to be basetypes.Float64Value, was: %T`, sponsorExpireAttribute))
+			fmt.Sprintf(`sponsor_expire expected to be basetypes.Int64Value, was: %T`, sponsorExpireAttribute))
 	}
 
 	sponsorLinkValidityDurationAttribute, ok := attributes["sponsor_link_validity_duration"]
@@ -14280,12 +14277,12 @@ func NewPortalValue(attributeTypes map[string]attr.Type, attributes map[string]a
 		return NewPortalValueUnknown(), diags
 	}
 
-	amazonExpireVal, ok := amazonExpireAttribute.(basetypes.Float64Value)
+	amazonExpireVal, ok := amazonExpireAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`amazon_expire expected to be basetypes.Float64Value, was: %T`, amazonExpireAttribute))
+			fmt.Sprintf(`amazon_expire expected to be basetypes.Int64Value, was: %T`, amazonExpireAttribute))
 	}
 
 	authAttribute, ok := attributes["auth"]
@@ -14370,12 +14367,12 @@ func NewPortalValue(attributeTypes map[string]attr.Type, attributes map[string]a
 		return NewPortalValueUnknown(), diags
 	}
 
-	azureExpireVal, ok := azureExpireAttribute.(basetypes.Float64Value)
+	azureExpireVal, ok := azureExpireAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`azure_expire expected to be basetypes.Float64Value, was: %T`, azureExpireAttribute))
+			fmt.Sprintf(`azure_expire expected to be basetypes.Int64Value, was: %T`, azureExpireAttribute))
 	}
 
 	azureTenantIdAttribute, ok := attributes["azure_tenant_id"]
@@ -14550,12 +14547,12 @@ func NewPortalValue(attributeTypes map[string]attr.Type, attributes map[string]a
 		return NewPortalValueUnknown(), diags
 	}
 
-	expireVal, ok := expireAttribute.(basetypes.Float64Value)
+	expireVal, ok := expireAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`expire expected to be basetypes.Float64Value, was: %T`, expireAttribute))
+			fmt.Sprintf(`expire expected to be basetypes.Int64Value, was: %T`, expireAttribute))
 	}
 
 	externalPortalUrlAttribute, ok := attributes["external_portal_url"]
@@ -14658,12 +14655,12 @@ func NewPortalValue(attributeTypes map[string]attr.Type, attributes map[string]a
 		return NewPortalValueUnknown(), diags
 	}
 
-	facebookExpireVal, ok := facebookExpireAttribute.(basetypes.Float64Value)
+	facebookExpireVal, ok := facebookExpireAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`facebook_expire expected to be basetypes.Float64Value, was: %T`, facebookExpireAttribute))
+			fmt.Sprintf(`facebook_expire expected to be basetypes.Int64Value, was: %T`, facebookExpireAttribute))
 	}
 
 	forwardAttribute, ok := attributes["forward"]
@@ -14784,12 +14781,12 @@ func NewPortalValue(attributeTypes map[string]attr.Type, attributes map[string]a
 		return NewPortalValueUnknown(), diags
 	}
 
-	googleExpireVal, ok := googleExpireAttribute.(basetypes.Float64Value)
+	googleExpireVal, ok := googleExpireAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`google_expire expected to be basetypes.Float64Value, was: %T`, googleExpireAttribute))
+			fmt.Sprintf(`google_expire expected to be basetypes.Int64Value, was: %T`, googleExpireAttribute))
 	}
 
 	gupshupPasswordAttribute, ok := attributes["gupshup_password"]
@@ -14910,12 +14907,12 @@ func NewPortalValue(attributeTypes map[string]attr.Type, attributes map[string]a
 		return NewPortalValueUnknown(), diags
 	}
 
-	microsoftExpireVal, ok := microsoftExpireAttribute.(basetypes.Float64Value)
+	microsoftExpireVal, ok := microsoftExpireAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`microsoft_expire expected to be basetypes.Float64Value, was: %T`, microsoftExpireAttribute))
+			fmt.Sprintf(`microsoft_expire expected to be basetypes.Int64Value, was: %T`, microsoftExpireAttribute))
 	}
 
 	passphraseEnabledAttribute, ok := attributes["passphrase_enabled"]
@@ -14946,12 +14943,12 @@ func NewPortalValue(attributeTypes map[string]attr.Type, attributes map[string]a
 		return NewPortalValueUnknown(), diags
 	}
 
-	passphraseExpireVal, ok := passphraseExpireAttribute.(basetypes.Float64Value)
+	passphraseExpireVal, ok := passphraseExpireAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`passphrase_expire expected to be basetypes.Float64Value, was: %T`, passphraseExpireAttribute))
+			fmt.Sprintf(`passphrase_expire expected to be basetypes.Int64Value, was: %T`, passphraseExpireAttribute))
 	}
 
 	passwordAttribute, ok := attributes["password"]
@@ -15108,12 +15105,12 @@ func NewPortalValue(attributeTypes map[string]attr.Type, attributes map[string]a
 		return NewPortalValueUnknown(), diags
 	}
 
-	smsExpireVal, ok := smsExpireAttribute.(basetypes.Float64Value)
+	smsExpireVal, ok := smsExpireAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`sms_expire expected to be basetypes.Float64Value, was: %T`, smsExpireAttribute))
+			fmt.Sprintf(`sms_expire expected to be basetypes.Int64Value, was: %T`, smsExpireAttribute))
 	}
 
 	smsMessageFormatAttribute, ok := attributes["sms_message_format"]
@@ -15216,12 +15213,12 @@ func NewPortalValue(attributeTypes map[string]attr.Type, attributes map[string]a
 		return NewPortalValueUnknown(), diags
 	}
 
-	sponsorExpireVal, ok := sponsorExpireAttribute.(basetypes.Float64Value)
+	sponsorExpireVal, ok := sponsorExpireAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`sponsor_expire expected to be basetypes.Float64Value, was: %T`, sponsorExpireAttribute))
+			fmt.Sprintf(`sponsor_expire expected to be basetypes.Int64Value, was: %T`, sponsorExpireAttribute))
 	}
 
 	sponsorLinkValidityDurationAttribute, ok := attributes["sponsor_link_validity_duration"]
@@ -15663,80 +15660,80 @@ func (t PortalType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = PortalValue{}
 
 type PortalValue struct {
-	AllowWlanIdRoam             basetypes.BoolValue    `tfsdk:"allow_wlan_id_roam"`
-	AmazonClientId              basetypes.StringValue  `tfsdk:"amazon_client_id"`
-	AmazonClientSecret          basetypes.StringValue  `tfsdk:"amazon_client_secret"`
-	AmazonEmailDomains          basetypes.ListValue    `tfsdk:"amazon_email_domains"`
-	AmazonEnabled               basetypes.BoolValue    `tfsdk:"amazon_enabled"`
-	AmazonExpire                basetypes.Float64Value `tfsdk:"amazon_expire"`
-	Auth                        basetypes.StringValue  `tfsdk:"auth"`
-	AzureClientId               basetypes.StringValue  `tfsdk:"azure_client_id"`
-	AzureClientSecret           basetypes.StringValue  `tfsdk:"azure_client_secret"`
-	AzureEnabled                basetypes.BoolValue    `tfsdk:"azure_enabled"`
-	AzureExpire                 basetypes.Float64Value `tfsdk:"azure_expire"`
-	AzureTenantId               basetypes.StringValue  `tfsdk:"azure_tenant_id"`
-	BroadnetPassword            basetypes.StringValue  `tfsdk:"broadnet_password"`
-	BroadnetSid                 basetypes.StringValue  `tfsdk:"broadnet_sid"`
-	BroadnetUserId              basetypes.StringValue  `tfsdk:"broadnet_user_id"`
-	BypassWhenCloudDown         basetypes.BoolValue    `tfsdk:"bypass_when_cloud_down"`
-	ClickatellApiKey            basetypes.StringValue  `tfsdk:"clickatell_api_key"`
-	CrossSite                   basetypes.BoolValue    `tfsdk:"cross_site"`
-	EmailEnabled                basetypes.BoolValue    `tfsdk:"email_enabled"`
-	Enabled                     basetypes.BoolValue    `tfsdk:"enabled"`
-	Expire                      basetypes.Float64Value `tfsdk:"expire"`
-	ExternalPortalUrl           basetypes.StringValue  `tfsdk:"external_portal_url"`
-	FacebookClientId            basetypes.StringValue  `tfsdk:"facebook_client_id"`
-	FacebookClientSecret        basetypes.StringValue  `tfsdk:"facebook_client_secret"`
-	FacebookEmailDomains        basetypes.ListValue    `tfsdk:"facebook_email_domains"`
-	FacebookEnabled             basetypes.BoolValue    `tfsdk:"facebook_enabled"`
-	FacebookExpire              basetypes.Float64Value `tfsdk:"facebook_expire"`
-	Forward                     basetypes.BoolValue    `tfsdk:"forward"`
-	ForwardUrl                  basetypes.StringValue  `tfsdk:"forward_url"`
-	GoogleClientId              basetypes.StringValue  `tfsdk:"google_client_id"`
-	GoogleClientSecret          basetypes.StringValue  `tfsdk:"google_client_secret"`
-	GoogleEmailDomains          basetypes.ListValue    `tfsdk:"google_email_domains"`
-	GoogleEnabled               basetypes.BoolValue    `tfsdk:"google_enabled"`
-	GoogleExpire                basetypes.Float64Value `tfsdk:"google_expire"`
-	GupshupPassword             basetypes.StringValue  `tfsdk:"gupshup_password"`
-	GupshupUserid               basetypes.StringValue  `tfsdk:"gupshup_userid"`
-	MicrosoftClientId           basetypes.StringValue  `tfsdk:"microsoft_client_id"`
-	MicrosoftClientSecret       basetypes.StringValue  `tfsdk:"microsoft_client_secret"`
-	MicrosoftEmailDomains       basetypes.ListValue    `tfsdk:"microsoft_email_domains"`
-	MicrosoftEnabled            basetypes.BoolValue    `tfsdk:"microsoft_enabled"`
-	MicrosoftExpire             basetypes.Float64Value `tfsdk:"microsoft_expire"`
-	PassphraseEnabled           basetypes.BoolValue    `tfsdk:"passphrase_enabled"`
-	PassphraseExpire            basetypes.Float64Value `tfsdk:"passphrase_expire"`
-	Password                    basetypes.StringValue  `tfsdk:"password"`
-	PredefinedSponsorsEnabled   basetypes.BoolValue    `tfsdk:"predefined_sponsors_enabled"`
-	PredefinedSponsorsHideEmail basetypes.BoolValue    `tfsdk:"predefined_sponsors_hide_email"`
-	Privacy                     basetypes.BoolValue    `tfsdk:"privacy"`
-	PuzzelPassword              basetypes.StringValue  `tfsdk:"puzzel_password"`
-	PuzzelServiceId             basetypes.StringValue  `tfsdk:"puzzel_service_id"`
-	PuzzelUsername              basetypes.StringValue  `tfsdk:"puzzel_username"`
-	SmsEnabled                  basetypes.BoolValue    `tfsdk:"sms_enabled"`
-	SmsExpire                   basetypes.Float64Value `tfsdk:"sms_expire"`
-	SmsMessageFormat            basetypes.StringValue  `tfsdk:"sms_message_format"`
-	SmsProvider                 basetypes.StringValue  `tfsdk:"sms_provider"`
-	SponsorAutoApprove          basetypes.BoolValue    `tfsdk:"sponsor_auto_approve"`
-	SponsorEmailDomains         basetypes.ListValue    `tfsdk:"sponsor_email_domains"`
-	SponsorEnabled              basetypes.BoolValue    `tfsdk:"sponsor_enabled"`
-	SponsorExpire               basetypes.Float64Value `tfsdk:"sponsor_expire"`
-	SponsorLinkValidityDuration basetypes.StringValue  `tfsdk:"sponsor_link_validity_duration"`
-	SponsorNotifyAll            basetypes.BoolValue    `tfsdk:"sponsor_notify_all"`
-	SponsorStatusNotify         basetypes.BoolValue    `tfsdk:"sponsor_status_notify"`
-	Sponsors                    basetypes.MapValue     `tfsdk:"sponsors"`
-	SsoDefaultRole              basetypes.StringValue  `tfsdk:"sso_default_role"`
-	SsoForcedRole               basetypes.StringValue  `tfsdk:"sso_forced_role"`
-	SsoIdpCert                  basetypes.StringValue  `tfsdk:"sso_idp_cert"`
-	SsoIdpSignAlgo              basetypes.StringValue  `tfsdk:"sso_idp_sign_algo"`
-	SsoIdpSsoUrl                basetypes.StringValue  `tfsdk:"sso_idp_sso_url"`
-	SsoIssuer                   basetypes.StringValue  `tfsdk:"sso_issuer"`
-	SsoNameidFormat             basetypes.StringValue  `tfsdk:"sso_nameid_format"`
-	TelstraClientId             basetypes.StringValue  `tfsdk:"telstra_client_id"`
-	TelstraClientSecret         basetypes.StringValue  `tfsdk:"telstra_client_secret"`
-	TwilioAuthToken             basetypes.StringValue  `tfsdk:"twilio_auth_token"`
-	TwilioPhoneNumber           basetypes.StringValue  `tfsdk:"twilio_phone_number"`
-	TwilioSid                   basetypes.StringValue  `tfsdk:"twilio_sid"`
+	AllowWlanIdRoam             basetypes.BoolValue   `tfsdk:"allow_wlan_id_roam"`
+	AmazonClientId              basetypes.StringValue `tfsdk:"amazon_client_id"`
+	AmazonClientSecret          basetypes.StringValue `tfsdk:"amazon_client_secret"`
+	AmazonEmailDomains          basetypes.ListValue   `tfsdk:"amazon_email_domains"`
+	AmazonEnabled               basetypes.BoolValue   `tfsdk:"amazon_enabled"`
+	AmazonExpire                basetypes.Int64Value  `tfsdk:"amazon_expire"`
+	Auth                        basetypes.StringValue `tfsdk:"auth"`
+	AzureClientId               basetypes.StringValue `tfsdk:"azure_client_id"`
+	AzureClientSecret           basetypes.StringValue `tfsdk:"azure_client_secret"`
+	AzureEnabled                basetypes.BoolValue   `tfsdk:"azure_enabled"`
+	AzureExpire                 basetypes.Int64Value  `tfsdk:"azure_expire"`
+	AzureTenantId               basetypes.StringValue `tfsdk:"azure_tenant_id"`
+	BroadnetPassword            basetypes.StringValue `tfsdk:"broadnet_password"`
+	BroadnetSid                 basetypes.StringValue `tfsdk:"broadnet_sid"`
+	BroadnetUserId              basetypes.StringValue `tfsdk:"broadnet_user_id"`
+	BypassWhenCloudDown         basetypes.BoolValue   `tfsdk:"bypass_when_cloud_down"`
+	ClickatellApiKey            basetypes.StringValue `tfsdk:"clickatell_api_key"`
+	CrossSite                   basetypes.BoolValue   `tfsdk:"cross_site"`
+	EmailEnabled                basetypes.BoolValue   `tfsdk:"email_enabled"`
+	Enabled                     basetypes.BoolValue   `tfsdk:"enabled"`
+	Expire                      basetypes.Int64Value  `tfsdk:"expire"`
+	ExternalPortalUrl           basetypes.StringValue `tfsdk:"external_portal_url"`
+	FacebookClientId            basetypes.StringValue `tfsdk:"facebook_client_id"`
+	FacebookClientSecret        basetypes.StringValue `tfsdk:"facebook_client_secret"`
+	FacebookEmailDomains        basetypes.ListValue   `tfsdk:"facebook_email_domains"`
+	FacebookEnabled             basetypes.BoolValue   `tfsdk:"facebook_enabled"`
+	FacebookExpire              basetypes.Int64Value  `tfsdk:"facebook_expire"`
+	Forward                     basetypes.BoolValue   `tfsdk:"forward"`
+	ForwardUrl                  basetypes.StringValue `tfsdk:"forward_url"`
+	GoogleClientId              basetypes.StringValue `tfsdk:"google_client_id"`
+	GoogleClientSecret          basetypes.StringValue `tfsdk:"google_client_secret"`
+	GoogleEmailDomains          basetypes.ListValue   `tfsdk:"google_email_domains"`
+	GoogleEnabled               basetypes.BoolValue   `tfsdk:"google_enabled"`
+	GoogleExpire                basetypes.Int64Value  `tfsdk:"google_expire"`
+	GupshupPassword             basetypes.StringValue `tfsdk:"gupshup_password"`
+	GupshupUserid               basetypes.StringValue `tfsdk:"gupshup_userid"`
+	MicrosoftClientId           basetypes.StringValue `tfsdk:"microsoft_client_id"`
+	MicrosoftClientSecret       basetypes.StringValue `tfsdk:"microsoft_client_secret"`
+	MicrosoftEmailDomains       basetypes.ListValue   `tfsdk:"microsoft_email_domains"`
+	MicrosoftEnabled            basetypes.BoolValue   `tfsdk:"microsoft_enabled"`
+	MicrosoftExpire             basetypes.Int64Value  `tfsdk:"microsoft_expire"`
+	PassphraseEnabled           basetypes.BoolValue   `tfsdk:"passphrase_enabled"`
+	PassphraseExpire            basetypes.Int64Value  `tfsdk:"passphrase_expire"`
+	Password                    basetypes.StringValue `tfsdk:"password"`
+	PredefinedSponsorsEnabled   basetypes.BoolValue   `tfsdk:"predefined_sponsors_enabled"`
+	PredefinedSponsorsHideEmail basetypes.BoolValue   `tfsdk:"predefined_sponsors_hide_email"`
+	Privacy                     basetypes.BoolValue   `tfsdk:"privacy"`
+	PuzzelPassword              basetypes.StringValue `tfsdk:"puzzel_password"`
+	PuzzelServiceId             basetypes.StringValue `tfsdk:"puzzel_service_id"`
+	PuzzelUsername              basetypes.StringValue `tfsdk:"puzzel_username"`
+	SmsEnabled                  basetypes.BoolValue   `tfsdk:"sms_enabled"`
+	SmsExpire                   basetypes.Int64Value  `tfsdk:"sms_expire"`
+	SmsMessageFormat            basetypes.StringValue `tfsdk:"sms_message_format"`
+	SmsProvider                 basetypes.StringValue `tfsdk:"sms_provider"`
+	SponsorAutoApprove          basetypes.BoolValue   `tfsdk:"sponsor_auto_approve"`
+	SponsorEmailDomains         basetypes.ListValue   `tfsdk:"sponsor_email_domains"`
+	SponsorEnabled              basetypes.BoolValue   `tfsdk:"sponsor_enabled"`
+	SponsorExpire               basetypes.Int64Value  `tfsdk:"sponsor_expire"`
+	SponsorLinkValidityDuration basetypes.StringValue `tfsdk:"sponsor_link_validity_duration"`
+	SponsorNotifyAll            basetypes.BoolValue   `tfsdk:"sponsor_notify_all"`
+	SponsorStatusNotify         basetypes.BoolValue   `tfsdk:"sponsor_status_notify"`
+	Sponsors                    basetypes.MapValue    `tfsdk:"sponsors"`
+	SsoDefaultRole              basetypes.StringValue `tfsdk:"sso_default_role"`
+	SsoForcedRole               basetypes.StringValue `tfsdk:"sso_forced_role"`
+	SsoIdpCert                  basetypes.StringValue `tfsdk:"sso_idp_cert"`
+	SsoIdpSignAlgo              basetypes.StringValue `tfsdk:"sso_idp_sign_algo"`
+	SsoIdpSsoUrl                basetypes.StringValue `tfsdk:"sso_idp_sso_url"`
+	SsoIssuer                   basetypes.StringValue `tfsdk:"sso_issuer"`
+	SsoNameidFormat             basetypes.StringValue `tfsdk:"sso_nameid_format"`
+	TelstraClientId             basetypes.StringValue `tfsdk:"telstra_client_id"`
+	TelstraClientSecret         basetypes.StringValue `tfsdk:"telstra_client_secret"`
+	TwilioAuthToken             basetypes.StringValue `tfsdk:"twilio_auth_token"`
+	TwilioPhoneNumber           basetypes.StringValue `tfsdk:"twilio_phone_number"`
+	TwilioSid                   basetypes.StringValue `tfsdk:"twilio_sid"`
 	state                       attr.ValueState
 }
 
@@ -15753,12 +15750,12 @@ func (v PortalValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
 	attrTypes["amazon_enabled"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["amazon_expire"] = basetypes.Float64Type{}.TerraformType(ctx)
+	attrTypes["amazon_expire"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["auth"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["azure_client_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["azure_client_secret"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["azure_enabled"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["azure_expire"] = basetypes.Float64Type{}.TerraformType(ctx)
+	attrTypes["azure_expire"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["azure_tenant_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["broadnet_password"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["broadnet_sid"] = basetypes.StringType{}.TerraformType(ctx)
@@ -15768,7 +15765,7 @@ func (v PortalValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 	attrTypes["cross_site"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["email_enabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["expire"] = basetypes.Float64Type{}.TerraformType(ctx)
+	attrTypes["expire"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["external_portal_url"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["facebook_client_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["facebook_client_secret"] = basetypes.StringType{}.TerraformType(ctx)
@@ -15776,7 +15773,7 @@ func (v PortalValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
 	attrTypes["facebook_enabled"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["facebook_expire"] = basetypes.Float64Type{}.TerraformType(ctx)
+	attrTypes["facebook_expire"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["forward"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["forward_url"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["google_client_id"] = basetypes.StringType{}.TerraformType(ctx)
@@ -15785,7 +15782,7 @@ func (v PortalValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
 	attrTypes["google_enabled"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["google_expire"] = basetypes.Float64Type{}.TerraformType(ctx)
+	attrTypes["google_expire"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["gupshup_password"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["gupshup_userid"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["microsoft_client_id"] = basetypes.StringType{}.TerraformType(ctx)
@@ -15794,9 +15791,9 @@ func (v PortalValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
 	attrTypes["microsoft_enabled"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["microsoft_expire"] = basetypes.Float64Type{}.TerraformType(ctx)
+	attrTypes["microsoft_expire"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["passphrase_enabled"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["passphrase_expire"] = basetypes.Float64Type{}.TerraformType(ctx)
+	attrTypes["passphrase_expire"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["password"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["predefined_sponsors_enabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["predefined_sponsors_hide_email"] = basetypes.BoolType{}.TerraformType(ctx)
@@ -15805,7 +15802,7 @@ func (v PortalValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 	attrTypes["puzzel_service_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["puzzel_username"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["sms_enabled"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["sms_expire"] = basetypes.Float64Type{}.TerraformType(ctx)
+	attrTypes["sms_expire"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["sms_message_format"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["sms_provider"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["sponsor_auto_approve"] = basetypes.BoolType{}.TerraformType(ctx)
@@ -15813,7 +15810,7 @@ func (v PortalValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
 	attrTypes["sponsor_enabled"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["sponsor_expire"] = basetypes.Float64Type{}.TerraformType(ctx)
+	attrTypes["sponsor_expire"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["sponsor_link_validity_duration"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["sponsor_notify_all"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["sponsor_status_notify"] = basetypes.BoolType{}.TerraformType(ctx)
@@ -16473,12 +16470,12 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: types.StringType,
 			},
 			"amazon_enabled":         basetypes.BoolType{},
-			"amazon_expire":          basetypes.Float64Type{},
+			"amazon_expire":          basetypes.Int64Type{},
 			"auth":                   basetypes.StringType{},
 			"azure_client_id":        basetypes.StringType{},
 			"azure_client_secret":    basetypes.StringType{},
 			"azure_enabled":          basetypes.BoolType{},
-			"azure_expire":           basetypes.Float64Type{},
+			"azure_expire":           basetypes.Int64Type{},
 			"azure_tenant_id":        basetypes.StringType{},
 			"broadnet_password":      basetypes.StringType{},
 			"broadnet_sid":           basetypes.StringType{},
@@ -16488,7 +16485,7 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"cross_site":             basetypes.BoolType{},
 			"email_enabled":          basetypes.BoolType{},
 			"enabled":                basetypes.BoolType{},
-			"expire":                 basetypes.Float64Type{},
+			"expire":                 basetypes.Int64Type{},
 			"external_portal_url":    basetypes.StringType{},
 			"facebook_client_id":     basetypes.StringType{},
 			"facebook_client_secret": basetypes.StringType{},
@@ -16496,7 +16493,7 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: types.StringType,
 			},
 			"facebook_enabled":     basetypes.BoolType{},
-			"facebook_expire":      basetypes.Float64Type{},
+			"facebook_expire":      basetypes.Int64Type{},
 			"forward":              basetypes.BoolType{},
 			"forward_url":          basetypes.StringType{},
 			"google_client_id":     basetypes.StringType{},
@@ -16505,7 +16502,7 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: types.StringType,
 			},
 			"google_enabled":          basetypes.BoolType{},
-			"google_expire":           basetypes.Float64Type{},
+			"google_expire":           basetypes.Int64Type{},
 			"gupshup_password":        basetypes.StringType{},
 			"gupshup_userid":          basetypes.StringType{},
 			"microsoft_client_id":     basetypes.StringType{},
@@ -16514,9 +16511,9 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: types.StringType,
 			},
 			"microsoft_enabled":              basetypes.BoolType{},
-			"microsoft_expire":               basetypes.Float64Type{},
+			"microsoft_expire":               basetypes.Int64Type{},
 			"passphrase_enabled":             basetypes.BoolType{},
-			"passphrase_expire":              basetypes.Float64Type{},
+			"passphrase_expire":              basetypes.Int64Type{},
 			"password":                       basetypes.StringType{},
 			"predefined_sponsors_enabled":    basetypes.BoolType{},
 			"predefined_sponsors_hide_email": basetypes.BoolType{},
@@ -16525,7 +16522,7 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"puzzel_service_id":              basetypes.StringType{},
 			"puzzel_username":                basetypes.StringType{},
 			"sms_enabled":                    basetypes.BoolType{},
-			"sms_expire":                     basetypes.Float64Type{},
+			"sms_expire":                     basetypes.Int64Type{},
 			"sms_message_format":             basetypes.StringType{},
 			"sms_provider":                   basetypes.StringType{},
 			"sponsor_auto_approve":           basetypes.BoolType{},
@@ -16533,7 +16530,7 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: types.StringType,
 			},
 			"sponsor_enabled":                basetypes.BoolType{},
-			"sponsor_expire":                 basetypes.Float64Type{},
+			"sponsor_expire":                 basetypes.Int64Type{},
 			"sponsor_link_validity_duration": basetypes.StringType{},
 			"sponsor_notify_all":             basetypes.BoolType{},
 			"sponsor_status_notify":          basetypes.BoolType{},
@@ -16568,12 +16565,12 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: types.StringType,
 			},
 			"amazon_enabled":         basetypes.BoolType{},
-			"amazon_expire":          basetypes.Float64Type{},
+			"amazon_expire":          basetypes.Int64Type{},
 			"auth":                   basetypes.StringType{},
 			"azure_client_id":        basetypes.StringType{},
 			"azure_client_secret":    basetypes.StringType{},
 			"azure_enabled":          basetypes.BoolType{},
-			"azure_expire":           basetypes.Float64Type{},
+			"azure_expire":           basetypes.Int64Type{},
 			"azure_tenant_id":        basetypes.StringType{},
 			"broadnet_password":      basetypes.StringType{},
 			"broadnet_sid":           basetypes.StringType{},
@@ -16583,7 +16580,7 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"cross_site":             basetypes.BoolType{},
 			"email_enabled":          basetypes.BoolType{},
 			"enabled":                basetypes.BoolType{},
-			"expire":                 basetypes.Float64Type{},
+			"expire":                 basetypes.Int64Type{},
 			"external_portal_url":    basetypes.StringType{},
 			"facebook_client_id":     basetypes.StringType{},
 			"facebook_client_secret": basetypes.StringType{},
@@ -16591,7 +16588,7 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: types.StringType,
 			},
 			"facebook_enabled":     basetypes.BoolType{},
-			"facebook_expire":      basetypes.Float64Type{},
+			"facebook_expire":      basetypes.Int64Type{},
 			"forward":              basetypes.BoolType{},
 			"forward_url":          basetypes.StringType{},
 			"google_client_id":     basetypes.StringType{},
@@ -16600,7 +16597,7 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: types.StringType,
 			},
 			"google_enabled":          basetypes.BoolType{},
-			"google_expire":           basetypes.Float64Type{},
+			"google_expire":           basetypes.Int64Type{},
 			"gupshup_password":        basetypes.StringType{},
 			"gupshup_userid":          basetypes.StringType{},
 			"microsoft_client_id":     basetypes.StringType{},
@@ -16609,9 +16606,9 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: types.StringType,
 			},
 			"microsoft_enabled":              basetypes.BoolType{},
-			"microsoft_expire":               basetypes.Float64Type{},
+			"microsoft_expire":               basetypes.Int64Type{},
 			"passphrase_enabled":             basetypes.BoolType{},
-			"passphrase_expire":              basetypes.Float64Type{},
+			"passphrase_expire":              basetypes.Int64Type{},
 			"password":                       basetypes.StringType{},
 			"predefined_sponsors_enabled":    basetypes.BoolType{},
 			"predefined_sponsors_hide_email": basetypes.BoolType{},
@@ -16620,7 +16617,7 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"puzzel_service_id":              basetypes.StringType{},
 			"puzzel_username":                basetypes.StringType{},
 			"sms_enabled":                    basetypes.BoolType{},
-			"sms_expire":                     basetypes.Float64Type{},
+			"sms_expire":                     basetypes.Int64Type{},
 			"sms_message_format":             basetypes.StringType{},
 			"sms_provider":                   basetypes.StringType{},
 			"sponsor_auto_approve":           basetypes.BoolType{},
@@ -16628,7 +16625,7 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: types.StringType,
 			},
 			"sponsor_enabled":                basetypes.BoolType{},
-			"sponsor_expire":                 basetypes.Float64Type{},
+			"sponsor_expire":                 basetypes.Int64Type{},
 			"sponsor_link_validity_duration": basetypes.StringType{},
 			"sponsor_notify_all":             basetypes.BoolType{},
 			"sponsor_status_notify":          basetypes.BoolType{},
@@ -16663,12 +16660,12 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: types.StringType,
 			},
 			"amazon_enabled":         basetypes.BoolType{},
-			"amazon_expire":          basetypes.Float64Type{},
+			"amazon_expire":          basetypes.Int64Type{},
 			"auth":                   basetypes.StringType{},
 			"azure_client_id":        basetypes.StringType{},
 			"azure_client_secret":    basetypes.StringType{},
 			"azure_enabled":          basetypes.BoolType{},
-			"azure_expire":           basetypes.Float64Type{},
+			"azure_expire":           basetypes.Int64Type{},
 			"azure_tenant_id":        basetypes.StringType{},
 			"broadnet_password":      basetypes.StringType{},
 			"broadnet_sid":           basetypes.StringType{},
@@ -16678,7 +16675,7 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"cross_site":             basetypes.BoolType{},
 			"email_enabled":          basetypes.BoolType{},
 			"enabled":                basetypes.BoolType{},
-			"expire":                 basetypes.Float64Type{},
+			"expire":                 basetypes.Int64Type{},
 			"external_portal_url":    basetypes.StringType{},
 			"facebook_client_id":     basetypes.StringType{},
 			"facebook_client_secret": basetypes.StringType{},
@@ -16686,7 +16683,7 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: types.StringType,
 			},
 			"facebook_enabled":     basetypes.BoolType{},
-			"facebook_expire":      basetypes.Float64Type{},
+			"facebook_expire":      basetypes.Int64Type{},
 			"forward":              basetypes.BoolType{},
 			"forward_url":          basetypes.StringType{},
 			"google_client_id":     basetypes.StringType{},
@@ -16695,7 +16692,7 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: types.StringType,
 			},
 			"google_enabled":          basetypes.BoolType{},
-			"google_expire":           basetypes.Float64Type{},
+			"google_expire":           basetypes.Int64Type{},
 			"gupshup_password":        basetypes.StringType{},
 			"gupshup_userid":          basetypes.StringType{},
 			"microsoft_client_id":     basetypes.StringType{},
@@ -16704,9 +16701,9 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: types.StringType,
 			},
 			"microsoft_enabled":              basetypes.BoolType{},
-			"microsoft_expire":               basetypes.Float64Type{},
+			"microsoft_expire":               basetypes.Int64Type{},
 			"passphrase_enabled":             basetypes.BoolType{},
-			"passphrase_expire":              basetypes.Float64Type{},
+			"passphrase_expire":              basetypes.Int64Type{},
 			"password":                       basetypes.StringType{},
 			"predefined_sponsors_enabled":    basetypes.BoolType{},
 			"predefined_sponsors_hide_email": basetypes.BoolType{},
@@ -16715,7 +16712,7 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"puzzel_service_id":              basetypes.StringType{},
 			"puzzel_username":                basetypes.StringType{},
 			"sms_enabled":                    basetypes.BoolType{},
-			"sms_expire":                     basetypes.Float64Type{},
+			"sms_expire":                     basetypes.Int64Type{},
 			"sms_message_format":             basetypes.StringType{},
 			"sms_provider":                   basetypes.StringType{},
 			"sponsor_auto_approve":           basetypes.BoolType{},
@@ -16723,7 +16720,7 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: types.StringType,
 			},
 			"sponsor_enabled":                basetypes.BoolType{},
-			"sponsor_expire":                 basetypes.Float64Type{},
+			"sponsor_expire":                 basetypes.Int64Type{},
 			"sponsor_link_validity_duration": basetypes.StringType{},
 			"sponsor_notify_all":             basetypes.BoolType{},
 			"sponsor_status_notify":          basetypes.BoolType{},
@@ -16758,12 +16755,12 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: types.StringType,
 			},
 			"amazon_enabled":         basetypes.BoolType{},
-			"amazon_expire":          basetypes.Float64Type{},
+			"amazon_expire":          basetypes.Int64Type{},
 			"auth":                   basetypes.StringType{},
 			"azure_client_id":        basetypes.StringType{},
 			"azure_client_secret":    basetypes.StringType{},
 			"azure_enabled":          basetypes.BoolType{},
-			"azure_expire":           basetypes.Float64Type{},
+			"azure_expire":           basetypes.Int64Type{},
 			"azure_tenant_id":        basetypes.StringType{},
 			"broadnet_password":      basetypes.StringType{},
 			"broadnet_sid":           basetypes.StringType{},
@@ -16773,7 +16770,7 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"cross_site":             basetypes.BoolType{},
 			"email_enabled":          basetypes.BoolType{},
 			"enabled":                basetypes.BoolType{},
-			"expire":                 basetypes.Float64Type{},
+			"expire":                 basetypes.Int64Type{},
 			"external_portal_url":    basetypes.StringType{},
 			"facebook_client_id":     basetypes.StringType{},
 			"facebook_client_secret": basetypes.StringType{},
@@ -16781,7 +16778,7 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: types.StringType,
 			},
 			"facebook_enabled":     basetypes.BoolType{},
-			"facebook_expire":      basetypes.Float64Type{},
+			"facebook_expire":      basetypes.Int64Type{},
 			"forward":              basetypes.BoolType{},
 			"forward_url":          basetypes.StringType{},
 			"google_client_id":     basetypes.StringType{},
@@ -16790,7 +16787,7 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: types.StringType,
 			},
 			"google_enabled":          basetypes.BoolType{},
-			"google_expire":           basetypes.Float64Type{},
+			"google_expire":           basetypes.Int64Type{},
 			"gupshup_password":        basetypes.StringType{},
 			"gupshup_userid":          basetypes.StringType{},
 			"microsoft_client_id":     basetypes.StringType{},
@@ -16799,9 +16796,9 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: types.StringType,
 			},
 			"microsoft_enabled":              basetypes.BoolType{},
-			"microsoft_expire":               basetypes.Float64Type{},
+			"microsoft_expire":               basetypes.Int64Type{},
 			"passphrase_enabled":             basetypes.BoolType{},
-			"passphrase_expire":              basetypes.Float64Type{},
+			"passphrase_expire":              basetypes.Int64Type{},
 			"password":                       basetypes.StringType{},
 			"predefined_sponsors_enabled":    basetypes.BoolType{},
 			"predefined_sponsors_hide_email": basetypes.BoolType{},
@@ -16810,7 +16807,7 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"puzzel_service_id":              basetypes.StringType{},
 			"puzzel_username":                basetypes.StringType{},
 			"sms_enabled":                    basetypes.BoolType{},
-			"sms_expire":                     basetypes.Float64Type{},
+			"sms_expire":                     basetypes.Int64Type{},
 			"sms_message_format":             basetypes.StringType{},
 			"sms_provider":                   basetypes.StringType{},
 			"sponsor_auto_approve":           basetypes.BoolType{},
@@ -16818,7 +16815,7 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: types.StringType,
 			},
 			"sponsor_enabled":                basetypes.BoolType{},
-			"sponsor_expire":                 basetypes.Float64Type{},
+			"sponsor_expire":                 basetypes.Int64Type{},
 			"sponsor_link_validity_duration": basetypes.StringType{},
 			"sponsor_notify_all":             basetypes.BoolType{},
 			"sponsor_status_notify":          basetypes.BoolType{},
@@ -16853,12 +16850,12 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: types.StringType,
 			},
 			"amazon_enabled":         basetypes.BoolType{},
-			"amazon_expire":          basetypes.Float64Type{},
+			"amazon_expire":          basetypes.Int64Type{},
 			"auth":                   basetypes.StringType{},
 			"azure_client_id":        basetypes.StringType{},
 			"azure_client_secret":    basetypes.StringType{},
 			"azure_enabled":          basetypes.BoolType{},
-			"azure_expire":           basetypes.Float64Type{},
+			"azure_expire":           basetypes.Int64Type{},
 			"azure_tenant_id":        basetypes.StringType{},
 			"broadnet_password":      basetypes.StringType{},
 			"broadnet_sid":           basetypes.StringType{},
@@ -16868,7 +16865,7 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"cross_site":             basetypes.BoolType{},
 			"email_enabled":          basetypes.BoolType{},
 			"enabled":                basetypes.BoolType{},
-			"expire":                 basetypes.Float64Type{},
+			"expire":                 basetypes.Int64Type{},
 			"external_portal_url":    basetypes.StringType{},
 			"facebook_client_id":     basetypes.StringType{},
 			"facebook_client_secret": basetypes.StringType{},
@@ -16876,7 +16873,7 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: types.StringType,
 			},
 			"facebook_enabled":     basetypes.BoolType{},
-			"facebook_expire":      basetypes.Float64Type{},
+			"facebook_expire":      basetypes.Int64Type{},
 			"forward":              basetypes.BoolType{},
 			"forward_url":          basetypes.StringType{},
 			"google_client_id":     basetypes.StringType{},
@@ -16885,7 +16882,7 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: types.StringType,
 			},
 			"google_enabled":          basetypes.BoolType{},
-			"google_expire":           basetypes.Float64Type{},
+			"google_expire":           basetypes.Int64Type{},
 			"gupshup_password":        basetypes.StringType{},
 			"gupshup_userid":          basetypes.StringType{},
 			"microsoft_client_id":     basetypes.StringType{},
@@ -16894,9 +16891,9 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: types.StringType,
 			},
 			"microsoft_enabled":              basetypes.BoolType{},
-			"microsoft_expire":               basetypes.Float64Type{},
+			"microsoft_expire":               basetypes.Int64Type{},
 			"passphrase_enabled":             basetypes.BoolType{},
-			"passphrase_expire":              basetypes.Float64Type{},
+			"passphrase_expire":              basetypes.Int64Type{},
 			"password":                       basetypes.StringType{},
 			"predefined_sponsors_enabled":    basetypes.BoolType{},
 			"predefined_sponsors_hide_email": basetypes.BoolType{},
@@ -16905,7 +16902,7 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"puzzel_service_id":              basetypes.StringType{},
 			"puzzel_username":                basetypes.StringType{},
 			"sms_enabled":                    basetypes.BoolType{},
-			"sms_expire":                     basetypes.Float64Type{},
+			"sms_expire":                     basetypes.Int64Type{},
 			"sms_message_format":             basetypes.StringType{},
 			"sms_provider":                   basetypes.StringType{},
 			"sponsor_auto_approve":           basetypes.BoolType{},
@@ -16913,7 +16910,7 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: types.StringType,
 			},
 			"sponsor_enabled":                basetypes.BoolType{},
-			"sponsor_expire":                 basetypes.Float64Type{},
+			"sponsor_expire":                 basetypes.Int64Type{},
 			"sponsor_link_validity_duration": basetypes.StringType{},
 			"sponsor_notify_all":             basetypes.BoolType{},
 			"sponsor_status_notify":          basetypes.BoolType{},
@@ -16948,12 +16945,12 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: types.StringType,
 			},
 			"amazon_enabled":         basetypes.BoolType{},
-			"amazon_expire":          basetypes.Float64Type{},
+			"amazon_expire":          basetypes.Int64Type{},
 			"auth":                   basetypes.StringType{},
 			"azure_client_id":        basetypes.StringType{},
 			"azure_client_secret":    basetypes.StringType{},
 			"azure_enabled":          basetypes.BoolType{},
-			"azure_expire":           basetypes.Float64Type{},
+			"azure_expire":           basetypes.Int64Type{},
 			"azure_tenant_id":        basetypes.StringType{},
 			"broadnet_password":      basetypes.StringType{},
 			"broadnet_sid":           basetypes.StringType{},
@@ -16963,7 +16960,7 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"cross_site":             basetypes.BoolType{},
 			"email_enabled":          basetypes.BoolType{},
 			"enabled":                basetypes.BoolType{},
-			"expire":                 basetypes.Float64Type{},
+			"expire":                 basetypes.Int64Type{},
 			"external_portal_url":    basetypes.StringType{},
 			"facebook_client_id":     basetypes.StringType{},
 			"facebook_client_secret": basetypes.StringType{},
@@ -16971,7 +16968,7 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: types.StringType,
 			},
 			"facebook_enabled":     basetypes.BoolType{},
-			"facebook_expire":      basetypes.Float64Type{},
+			"facebook_expire":      basetypes.Int64Type{},
 			"forward":              basetypes.BoolType{},
 			"forward_url":          basetypes.StringType{},
 			"google_client_id":     basetypes.StringType{},
@@ -16980,7 +16977,7 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: types.StringType,
 			},
 			"google_enabled":          basetypes.BoolType{},
-			"google_expire":           basetypes.Float64Type{},
+			"google_expire":           basetypes.Int64Type{},
 			"gupshup_password":        basetypes.StringType{},
 			"gupshup_userid":          basetypes.StringType{},
 			"microsoft_client_id":     basetypes.StringType{},
@@ -16989,9 +16986,9 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: types.StringType,
 			},
 			"microsoft_enabled":              basetypes.BoolType{},
-			"microsoft_expire":               basetypes.Float64Type{},
+			"microsoft_expire":               basetypes.Int64Type{},
 			"passphrase_enabled":             basetypes.BoolType{},
-			"passphrase_expire":              basetypes.Float64Type{},
+			"passphrase_expire":              basetypes.Int64Type{},
 			"password":                       basetypes.StringType{},
 			"predefined_sponsors_enabled":    basetypes.BoolType{},
 			"predefined_sponsors_hide_email": basetypes.BoolType{},
@@ -17000,7 +16997,7 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"puzzel_service_id":              basetypes.StringType{},
 			"puzzel_username":                basetypes.StringType{},
 			"sms_enabled":                    basetypes.BoolType{},
-			"sms_expire":                     basetypes.Float64Type{},
+			"sms_expire":                     basetypes.Int64Type{},
 			"sms_message_format":             basetypes.StringType{},
 			"sms_provider":                   basetypes.StringType{},
 			"sponsor_auto_approve":           basetypes.BoolType{},
@@ -17008,7 +17005,7 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: types.StringType,
 			},
 			"sponsor_enabled":                basetypes.BoolType{},
-			"sponsor_expire":                 basetypes.Float64Type{},
+			"sponsor_expire":                 basetypes.Int64Type{},
 			"sponsor_link_validity_duration": basetypes.StringType{},
 			"sponsor_notify_all":             basetypes.BoolType{},
 			"sponsor_status_notify":          basetypes.BoolType{},
@@ -17038,12 +17035,12 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			ElemType: types.StringType,
 		},
 		"amazon_enabled":         basetypes.BoolType{},
-		"amazon_expire":          basetypes.Float64Type{},
+		"amazon_expire":          basetypes.Int64Type{},
 		"auth":                   basetypes.StringType{},
 		"azure_client_id":        basetypes.StringType{},
 		"azure_client_secret":    basetypes.StringType{},
 		"azure_enabled":          basetypes.BoolType{},
-		"azure_expire":           basetypes.Float64Type{},
+		"azure_expire":           basetypes.Int64Type{},
 		"azure_tenant_id":        basetypes.StringType{},
 		"broadnet_password":      basetypes.StringType{},
 		"broadnet_sid":           basetypes.StringType{},
@@ -17053,7 +17050,7 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 		"cross_site":             basetypes.BoolType{},
 		"email_enabled":          basetypes.BoolType{},
 		"enabled":                basetypes.BoolType{},
-		"expire":                 basetypes.Float64Type{},
+		"expire":                 basetypes.Int64Type{},
 		"external_portal_url":    basetypes.StringType{},
 		"facebook_client_id":     basetypes.StringType{},
 		"facebook_client_secret": basetypes.StringType{},
@@ -17061,7 +17058,7 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			ElemType: types.StringType,
 		},
 		"facebook_enabled":     basetypes.BoolType{},
-		"facebook_expire":      basetypes.Float64Type{},
+		"facebook_expire":      basetypes.Int64Type{},
 		"forward":              basetypes.BoolType{},
 		"forward_url":          basetypes.StringType{},
 		"google_client_id":     basetypes.StringType{},
@@ -17070,7 +17067,7 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			ElemType: types.StringType,
 		},
 		"google_enabled":          basetypes.BoolType{},
-		"google_expire":           basetypes.Float64Type{},
+		"google_expire":           basetypes.Int64Type{},
 		"gupshup_password":        basetypes.StringType{},
 		"gupshup_userid":          basetypes.StringType{},
 		"microsoft_client_id":     basetypes.StringType{},
@@ -17079,9 +17076,9 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			ElemType: types.StringType,
 		},
 		"microsoft_enabled":              basetypes.BoolType{},
-		"microsoft_expire":               basetypes.Float64Type{},
+		"microsoft_expire":               basetypes.Int64Type{},
 		"passphrase_enabled":             basetypes.BoolType{},
-		"passphrase_expire":              basetypes.Float64Type{},
+		"passphrase_expire":              basetypes.Int64Type{},
 		"password":                       basetypes.StringType{},
 		"predefined_sponsors_enabled":    basetypes.BoolType{},
 		"predefined_sponsors_hide_email": basetypes.BoolType{},
@@ -17090,7 +17087,7 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 		"puzzel_service_id":              basetypes.StringType{},
 		"puzzel_username":                basetypes.StringType{},
 		"sms_enabled":                    basetypes.BoolType{},
-		"sms_expire":                     basetypes.Float64Type{},
+		"sms_expire":                     basetypes.Int64Type{},
 		"sms_message_format":             basetypes.StringType{},
 		"sms_provider":                   basetypes.StringType{},
 		"sponsor_auto_approve":           basetypes.BoolType{},
@@ -17098,7 +17095,7 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			ElemType: types.StringType,
 		},
 		"sponsor_enabled":                basetypes.BoolType{},
-		"sponsor_expire":                 basetypes.Float64Type{},
+		"sponsor_expire":                 basetypes.Int64Type{},
 		"sponsor_link_validity_duration": basetypes.StringType{},
 		"sponsor_notify_all":             basetypes.BoolType{},
 		"sponsor_status_notify":          basetypes.BoolType{},
@@ -17540,12 +17537,12 @@ func (v PortalValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 			ElemType: types.StringType,
 		},
 		"amazon_enabled":         basetypes.BoolType{},
-		"amazon_expire":          basetypes.Float64Type{},
+		"amazon_expire":          basetypes.Int64Type{},
 		"auth":                   basetypes.StringType{},
 		"azure_client_id":        basetypes.StringType{},
 		"azure_client_secret":    basetypes.StringType{},
 		"azure_enabled":          basetypes.BoolType{},
-		"azure_expire":           basetypes.Float64Type{},
+		"azure_expire":           basetypes.Int64Type{},
 		"azure_tenant_id":        basetypes.StringType{},
 		"broadnet_password":      basetypes.StringType{},
 		"broadnet_sid":           basetypes.StringType{},
@@ -17555,7 +17552,7 @@ func (v PortalValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 		"cross_site":             basetypes.BoolType{},
 		"email_enabled":          basetypes.BoolType{},
 		"enabled":                basetypes.BoolType{},
-		"expire":                 basetypes.Float64Type{},
+		"expire":                 basetypes.Int64Type{},
 		"external_portal_url":    basetypes.StringType{},
 		"facebook_client_id":     basetypes.StringType{},
 		"facebook_client_secret": basetypes.StringType{},
@@ -17563,7 +17560,7 @@ func (v PortalValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 			ElemType: types.StringType,
 		},
 		"facebook_enabled":     basetypes.BoolType{},
-		"facebook_expire":      basetypes.Float64Type{},
+		"facebook_expire":      basetypes.Int64Type{},
 		"forward":              basetypes.BoolType{},
 		"forward_url":          basetypes.StringType{},
 		"google_client_id":     basetypes.StringType{},
@@ -17572,7 +17569,7 @@ func (v PortalValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 			ElemType: types.StringType,
 		},
 		"google_enabled":          basetypes.BoolType{},
-		"google_expire":           basetypes.Float64Type{},
+		"google_expire":           basetypes.Int64Type{},
 		"gupshup_password":        basetypes.StringType{},
 		"gupshup_userid":          basetypes.StringType{},
 		"microsoft_client_id":     basetypes.StringType{},
@@ -17581,9 +17578,9 @@ func (v PortalValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 			ElemType: types.StringType,
 		},
 		"microsoft_enabled":              basetypes.BoolType{},
-		"microsoft_expire":               basetypes.Float64Type{},
+		"microsoft_expire":               basetypes.Int64Type{},
 		"passphrase_enabled":             basetypes.BoolType{},
-		"passphrase_expire":              basetypes.Float64Type{},
+		"passphrase_expire":              basetypes.Int64Type{},
 		"password":                       basetypes.StringType{},
 		"predefined_sponsors_enabled":    basetypes.BoolType{},
 		"predefined_sponsors_hide_email": basetypes.BoolType{},
@@ -17592,7 +17589,7 @@ func (v PortalValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 		"puzzel_service_id":              basetypes.StringType{},
 		"puzzel_username":                basetypes.StringType{},
 		"sms_enabled":                    basetypes.BoolType{},
-		"sms_expire":                     basetypes.Float64Type{},
+		"sms_expire":                     basetypes.Int64Type{},
 		"sms_message_format":             basetypes.StringType{},
 		"sms_provider":                   basetypes.StringType{},
 		"sponsor_auto_approve":           basetypes.BoolType{},
@@ -17600,7 +17597,7 @@ func (v PortalValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 			ElemType: types.StringType,
 		},
 		"sponsor_enabled":                basetypes.BoolType{},
-		"sponsor_expire":                 basetypes.Float64Type{},
+		"sponsor_expire":                 basetypes.Int64Type{},
 		"sponsor_link_validity_duration": basetypes.StringType{},
 		"sponsor_notify_all":             basetypes.BoolType{},
 		"sponsor_status_notify":          basetypes.BoolType{},

@@ -134,8 +134,8 @@ resource "mist_org_wlan" "wlan_one" {
 - `use_eapol_v1` (Boolean) if `auth.type`==’eap’ or ‘psk’, should only be set for legacy client, such as pre-2004, 802.11b devices
 - `vlan_enabled` (Boolean) if vlan tagging is enabled
 - `vlan_id` (String)
-- `vlan_ids` (List of String) vlan_ids to use when there’s no match from RA
-- `vlan_pooling` (Boolean) vlan pooling allows AP to place client on different VLAN using a deterministic algorithm
+- `vlan_ids` (List of String) if `vlan_enabled`==`true` and `vlan_pooling`==`true`. List of VLAN IDs (comma separeted) to be used in the VLAN Pool
+- `vlan_pooling` (Boolean) Requires `vlan_enabled`==`true` to be set to `true`. Vlan pooling allows AP to place client on different VLAN using a deterministic algorithm
 - `wlan_limit_down` (Number) kbps
 - `wlan_limit_down_enabled` (Boolean) if downlink limiting for whole wlan is enabled
 - `wlan_limit_up` (Number) kbps
@@ -151,8 +151,6 @@ resource "mist_org_wlan" "wlan_one" {
 - `portal_api_secret` (String) api secret (auto-generated) that can be used to sign guest authorization requests
 - `portal_image` (String) Url of portal background image
 - `portal_sso_url` (String)
-- `portal_template_url` (String) N.B portal_template will be forked out of wlan objects soon. To fetch portal_template, please query portal_template_url. To update portal_template, use Wlan Portal Template.
-- `thumbnail` (String) Url of portal background image thumbnail
 
 <a id="nestedatt--acct_servers"></a>
 ### Nested Schema for `acct_servers`
@@ -174,16 +172,13 @@ Optional:
 <a id="nestedatt--airwatch"></a>
 ### Nested Schema for `airwatch`
 
-Required:
+Optional:
 
 - `api_key` (String) API Key
 - `console_url` (String) console URL
+- `enabled` (Boolean)
 - `password` (String, Sensitive) password
 - `username` (String) username
-
-Optional:
-
-- `enabled` (Boolean)
 
 
 <a id="nestedatt--app_limit"></a>
@@ -338,7 +333,6 @@ Optional:
 - `force_lookup` (Boolean) when 11r is enabled, we'll try to use the cached PMK, this can be disabled
 `false` means auto
 - `source` (String) enum: `cloud_psks`, `radius`
-- `vlan_ids` (List of String)
 
 
 <a id="nestedatt--dynamic_vlan"></a>
@@ -350,7 +344,7 @@ Required:
 
 Optional:
 
-- `enabled` (Boolean) whether to enable dynamic vlan
+- `enabled` (Boolean) Requires `vlan_enabled`==`true` to be set to `true`. Whether to enable dynamic vlan
 - `local_vlan_ids` (List of String) vlan_ids to be locally bridged
 - `type` (String) standard (using Tunnel-Private-Group-ID, widely supported), airespace-interface-name (Airespace/Cisco). enum: `airespace-interface-name`, `standard`
 - `vlans` (Map of String) map between vlan_id (as string) to airespace interface names (comma-separated) or null for stndard mapping
@@ -405,88 +399,83 @@ Optional:
 
 Optional:
 
-- `allow_wlan_id_roam` (Boolean) whether to allow guest to connect to other Guest WLANs (with different `WLAN.ssid`) of same org without reauthentication (disable random_mac for seamless roaming)
-- `amazon_client_id` (String) amazon OAuth2 client id. This is optional. If not provided, it will use a default one.
-- `amazon_client_secret` (String) amazon OAuth2 client secret. If amazon_client_id was provided, provide a correspoinding value. Else leave blank.
-- `amazon_email_domains` (List of String) Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.
+- `allow_wlan_id_roam` (Boolean) Optional if `amazon_enabled`==`true`. Whether to allow guest to connect to other Guest WLANs (with different `WLAN.ssid`) of same org without reauthentication (disable random_mac for seamless roaming)
+- `amazon_client_id` (String) Optional if `amazon_enabled`==`true`. Amazon OAuth2 client id. This is optional. If not provided, it will use a default one.
+- `amazon_client_secret` (String) Optional if `amazon_enabled`==`true`. Amazon OAuth2 client secret. If amazon_client_id was provided, provide a correspoinding value. Else leave blank.
+- `amazon_email_domains` (List of String) Optional if `amazon_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.
 - `amazon_enabled` (Boolean) whether amazon is enabled as a login method
-- `amazon_expire` (Number) interval for which guest remains authorized using amazon auth (in minutes), if not provided, uses expire`
-- `auth` (String) authentication scheme. enum: `external`, `none`, `sso`
-- `azure_client_id` (String) Required if `azure_enabled`==`true`.
-Azure active directory app client id
-- `azure_client_secret` (String) Required if `azure_enabled`==`true`.
-Azure active directory app client secret
+- `amazon_expire` (Number) Optional if `amazon_enabled`==`true`. Interval for which guest remains authorized using amazon auth (in minutes), if not provided, uses expire`
+- `auth` (String) authentication scheme. enum: `amazon`, `azure`, `email`, `external`, `facebook`, `google`, `microsoft`, `multi`, `none`, `password`, `sponsor`, `sso`
+- `azure_client_id` (String) Required if `azure_enabled`==`true`. Azure active directory app client id
+- `azure_client_secret` (String) Required if `azure_enabled`==`true`. Azure active directory app client secret
 - `azure_enabled` (Boolean) whether Azure Active Directory is enabled as a login method
 - `azure_expire` (Number) interval for which guest remains authorized using azure auth (in minutes), if not provided, uses expire`
-- `azure_tenant_id` (String) Required if `azure_enabled`==`true`.
-Azure active directory tenant id.
-- `broadnet_password` (String, Sensitive) when `sms_provider`==`broadnet`
-- `broadnet_sid` (String) when `sms_provider`==`broadnet`
-- `broadnet_user_id` (String) when `sms_provider`==`broadnet`
+- `azure_tenant_id` (String) Required if `azure_enabled`==`true`. Azure active directory tenant id.
+- `broadnet_password` (String, Sensitive) Required if `sms_provider`==`broadnet`
+- `broadnet_sid` (String) Required if `sms_provider`==`broadnet`
+- `broadnet_user_id` (String) Required if `sms_provider`==`broadnet`
 - `bypass_when_cloud_down` (Boolean) whether to bypass the guest portal when cloud not reachable (and apply the default policies)
-- `clickatell_api_key` (String) when `sms_provider`==`clickatell`
+- `clickatell_api_key` (String) Required if `sms_provider`==`clickatell`
 - `cross_site` (Boolean) whether to allow guest to roam between WLANs (with same `WLAN.ssid`, regardless of variables) of different sites of same org without reauthentication (disable random_mac for seamless roaming)
 - `email_enabled` (Boolean) whether email (access code verification) is enabled as a login method
 - `enabled` (Boolean) whether guest portal is enabled
 - `expire` (Number) how long to remain authorized, in minutes
-- `external_portal_url` (String) external portal URL (e.g. https://host/url) where we can append our query parameters to
-- `facebook_client_id` (String) Required if `facebook_enabled`==`true`.
-Facebook OAuth2 app id. This is optional. If not provided, it will use a default one.
-- `facebook_client_secret` (String) Required if `facebook_enabled`==`true`.
-Facebook OAuth2 app secret. If facebook_client_id was provided, provide a correspoinding value. Else leave blank.
-- `facebook_email_domains` (List of String) Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.
+- `external_portal_url` (String) Required if `wlan_portal_auth`==`external`. External portal URL (e.g. https://host/url) where we can append our query parameters to
+- `facebook_client_id` (String) Required if `facebook_enabled`==`true`. Facebook OAuth2 app id. This is optional. If not provided, it will use a default one.
+- `facebook_client_secret` (String) Required if `facebook_enabled`==`true`. Facebook OAuth2 app secret. If facebook_client_id was provided, provide a correspoinding value. Else leave blank.
+- `facebook_email_domains` (List of String) Optional if `facebook_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.
 - `facebook_enabled` (Boolean) whether facebook is enabled as a login method
-- `facebook_expire` (Number) interval for which guest remains authorized using facebook auth (in minutes), if not provided, uses expire`
+- `facebook_expire` (Number) Optional if `facebook_enabled`==`true`. Interval for which guest remains authorized using facebook auth (in minutes), if not provided, uses expire`
 - `forward` (Boolean) whether to forward the user to another URL after authorized
 - `forward_url` (String) the URL to forward the user to
 - `google_client_id` (String) Google OAuth2 app id. This is optional. If not provided, it will use a default one.
-- `google_client_secret` (String) Google OAuth2 app secret. If google_client_id was provided, provide a correspoinding value. Else leave blank.
-- `google_email_domains` (List of String) Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.
+- `google_client_secret` (String) Optional if `google_enabled`==`true`. Google OAuth2 app secret. If google_client_id was provided, provide a correspoinding value. Else leave blank.
+- `google_email_domains` (List of String) Optional if `google_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.
 - `google_enabled` (Boolean) whether google is enabled as login method
-- `google_expire` (Number) interval for which guest remains authorized using google auth (in minutes), if not provided, uses expire`
-- `gupshup_password` (String, Sensitive) when `sms_provider`==`gupshup`
-- `gupshup_userid` (String) when `sms_provider`==`gupshup`
-- `microsoft_client_id` (String) microsoft 365 OAuth2 client id. This is optional. If not provided, it will use a default one.
-- `microsoft_client_secret` (String) microsoft 365 OAuth2 client secret. If microsoft_client_id was provided, provide a correspoinding value. Else leave blank.
-- `microsoft_email_domains` (List of String) Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.
+- `google_expire` (Number) Optional if `google_enabled`==`true`. Interval for which guest remains authorized using google auth (in minutes), if not provided, uses expire`
+- `gupshup_password` (String, Sensitive) Required if `sms_provider`==`gupshup`
+- `gupshup_userid` (String) Required if `sms_provider`==`gupshup`
+- `microsoft_client_id` (String) Optional if `microsoft_enabled`==`true`. Microsoft 365 OAuth2 client id. This is optional. If not provided, it will use a default one.
+- `microsoft_client_secret` (String) Optional if `microsoft_enabled`==`true`. Microsoft 365 OAuth2 client secret. If microsoft_client_id was provided, provide a correspoinding value. Else leave blank.
+- `microsoft_email_domains` (List of String) Optional if `microsoft_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.
 - `microsoft_enabled` (Boolean) whether microsoft 365 is enabled as a login method
-- `microsoft_expire` (Number) interval for which guest remains authorized using microsoft auth (in minutes), if not provided, uses expire`
-- `passphrase_enabled` (Boolean) whether password is enabled
-- `passphrase_expire` (Number) interval for which guest remains authorized using passphrase auth (in minutes), if not provided, uses `expire`
-- `password` (String, Sensitive) passphrase
+- `microsoft_expire` (Number) Optional if `microsoft_enabled`==`true`. Interval for which guest remains authorized using microsoft auth (in minutes), if not provided, uses expire`
+- `passphrase_enabled` (Boolean) Whether password is enabled
+- `passphrase_expire` (Number) Optional if `passphrase_enabled`==`true`. Interval for which guest remains authorized using passphrase auth (in minutes), if not provided, uses `expire`
+- `password` (String, Sensitive) Required if `passphrase_enabled`==`true`.
 - `predefined_sponsors_enabled` (Boolean) whether to show list of sponsor emails mentioned in `sponsors` object as a dropdown. If both `sponsor_notify_all` and `predefined_sponsors_enabled` are false, behaviour is acc to `sponsor_email_domains`
 - `predefined_sponsors_hide_email` (Boolean) whether to hide sponsor’s email from list of sponsors
 - `privacy` (Boolean)
-- `puzzel_password` (String, Sensitive) when `sms_provider`==`puzzel`
-- `puzzel_service_id` (String) when `sms_provider`==`puzzel`
-- `puzzel_username` (String) when `sms_provider`==`puzzel`
+- `puzzel_password` (String, Sensitive) Required if `sms_provider`==`puzzel`
+- `puzzel_service_id` (String) Required if `sms_provider`==`puzzel`
+- `puzzel_username` (String) Required if `sms_provider`==`puzzel`
 - `sms_enabled` (Boolean) whether sms is enabled as a login method
-- `sms_expire` (Number) interval for which guest remains authorized using sms auth (in minutes), if not provided, uses expire`
-- `sms_message_format` (String)
-- `sms_provider` (String) enum: `broadnet`, `clickatell`, `gupshup`, `manual`, `puzzel`, `telstra`, `twilio`
-- `sponsor_auto_approve` (Boolean) whether to automatically approve guest and allow sponsor to revoke guest access, needs predefined_sponsors_enabled enabled and sponsor_notify_all disabled
+- `sms_expire` (Number) Optional if `sms_enabled`==`true`. Interval for which guest remains authorized using sms auth (in minutes), if not provided, uses expire`
+- `sms_message_format` (String) Optional if `sms_enabled`==`true`. SMS Message format
+- `sms_provider` (String) Optioanl if `sms_enabled`==`true`. enum: `broadnet`, `clickatell`, `gupshup`, `manual`, `puzzel`, `telstra`, `twilio`
+- `sponsor_auto_approve` (Boolean) Optional if `sponsor_enabled`==`true`. Whether to automatically approve guest and allow sponsor to revoke guest access, needs predefined_sponsors_enabled enabled and sponsor_notify_all disabled
 - `sponsor_email_domains` (List of String) list of domain allowed for sponsor email. Required if `sponsor_enabled` is `true` and `sponsors` is empty.
 - `sponsor_enabled` (Boolean) whether sponsor is enabled
-- `sponsor_expire` (Number) interval for which guest remains authorized using sponsor auth (in minutes), if not provided, uses expire`
-- `sponsor_link_validity_duration` (String) how long to remain valid sponsored guest request approve/deny link received in email, in minutes.
-- `sponsor_notify_all` (Boolean) whether to notify all sponsors that are mentioned in `sponsors` object. Both `sponsor_notify_all` and `predefined_sponsors_enabled` should be true in order to notify sponsors. If true, email sent to 10 sponsors in no particular order.
-- `sponsor_status_notify` (Boolean) if enabled, guest will get email about sponsor's action (approve/deny)
+- `sponsor_expire` (Number) Optional if `sponsor_enabled`==`true`. Interval for which guest remains authorized using sponsor auth (in minutes), if not provided, uses expire`
+- `sponsor_link_validity_duration` (String) Optional if `sponsor_enabled`==`true`. How long to remain valid sponsored guest request approve/deny link received in email, in minutes.
+- `sponsor_notify_all` (Boolean) Optional if `sponsor_enabled`==`true`. whether to notify all sponsors that are mentioned in `sponsors` object. Both `sponsor_notify_all` and `predefined_sponsors_enabled` should be true in order to notify sponsors. If true, email sent to 10 sponsors in no particular order.
+- `sponsor_status_notify` (Boolean) Optional if `sponsor_enabled`==`true`. If enabled, guest will get email about sponsor's action (approve/deny)
 - `sponsors` (Map of String) object of allowed sponsors email with name. Required if `sponsor_enabled`
             is `true` and `sponsor_email_domains` is empty.
 
             Property key is the sponsor email, Property value is the sponsor name
-- `sso_default_role` (String) if `wlan_portal_auth`==`sso`, default role to assign if there’s no match. By default, an assertion is treated as invalid when there’s no role matched
-- `sso_forced_role` (String) if `wlan_portal_auth`==`sso`
-- `sso_idp_cert` (String) if `wlan_portal_auth`==`sso`, IDP Cert (used to verify the signed response)
-- `sso_idp_sign_algo` (String) if `wlan_portal_auth`==`sso`, Signing algorithm for SAML Assertion. enum: `sha1`, `sha256`, `sha384`, `sha512`
-- `sso_idp_sso_url` (String) if `wlan_portal_auth`==`sso`, IDP Single-Sign-On URL
-- `sso_issuer` (String) if `wlan_portal_auth`==`sso`, IDP issuer URL
-- `sso_nameid_format` (String) if `wlan_portal_auth`==`sso`. enum: `email`, `unspecified`
-- `telstra_client_id` (String) when `sms_provider`==`telstra`, Client ID provided by Telstra
-- `telstra_client_secret` (String) when `sms_provider`==`telstra`, Client secret provided by Telstra
-- `twilio_auth_token` (String) when `sms_provider`==`twilio`, Auth token account with twilio account
-- `twilio_phone_number` (String) when `sms_provider`==`twilio`, Twilio phone number associated with the account. See example for accepted format.
-- `twilio_sid` (String) when `sms_provider`==`twilio`, Account SID provided by Twilio
+- `sso_default_role` (String) Optionl if `wlan_portal_auth`==`sso`, default role to assign if there’s no match. By default, an assertion is treated as invalid when there’s no role matched
+- `sso_forced_role` (String) Optionl if `wlan_portal_auth`==`sso`
+- `sso_idp_cert` (String) Required if `wlan_portal_auth`==`sso`. IDP Cert (used to verify the signed response)
+- `sso_idp_sign_algo` (String) Optioanl if `wlan_portal_auth`==`sso`, Signing algorithm for SAML Assertion. enum: `sha1`, `sha256`, `sha384`, `sha512`
+- `sso_idp_sso_url` (String) Required if `wlan_portal_auth`==`sso`, IDP Single-Sign-On URL
+- `sso_issuer` (String) Required if `wlan_portal_auth`==`sso`, IDP issuer URL
+- `sso_nameid_format` (String) Optional if `wlan_portal_auth`==`sso`. enum: `email`, `unspecified`
+- `telstra_client_id` (String) Required if `sms_provider`==`telstra`, Client ID provided by Telstra
+- `telstra_client_secret` (String) Required if `sms_provider`==`telstra`, Client secret provided by Telstra
+- `twilio_auth_token` (String) Required if `sms_provider`==`twilio`, Auth token account with twilio account
+- `twilio_phone_number` (String) Required if `sms_provider`==`twilio`, Twilio phone number associated with the account. See example for accepted format.
+- `twilio_sid` (String) Required if `sms_provider`==`twilio`, Account SID provided by Twilio
 
 
 <a id="nestedatt--qos"></a>

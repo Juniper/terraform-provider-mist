@@ -7,8 +7,6 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	"github.com/google/uuid"
-
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
@@ -17,7 +15,6 @@ func TerraformToSdk(ctx context.Context, plan *SiteWlanModel) (*models.Wlan, dia
 	var diags diag.Diagnostics
 	data := models.Wlan{}
 	data.Ssid = plan.Ssid.ValueString()
-	data.SiteId = models.ToPointer(uuid.MustParse(plan.SiteId.ValueString()))
 
 	unset := make(map[string]interface{})
 	if plan.AcctImmediateUpdate.IsNull() || plan.AcctImmediateUpdate.IsUnknown() {
@@ -32,7 +29,10 @@ func TerraformToSdk(ctx context.Context, plan *SiteWlanModel) (*models.Wlan, dia
 		data.AcctInterimInterval = models.ToPointer(int(plan.AcctInterimInterval.ValueInt64()))
 	}
 
-	if plan.AcctServers.IsNull() || plan.AcctServers.IsUnknown() {
+	// addsing len(plan.AcctServers.Elements()) == 0 because the
+	// default is an empty list meanings the plan.AcctServers is
+	// not null and not unknown
+	if plan.AcctServers.IsNull() || plan.AcctServers.IsUnknown() || len(plan.AcctServers.Elements()) == 0 {
 		unset["-acct_servers"] = ""
 	} else {
 		acct_servers := radiusAcctServersTerraformToSdk(ctx, &diags, plan.AcctServers)
@@ -109,7 +109,10 @@ func TerraformToSdk(ctx context.Context, plan *SiteWlanModel) (*models.Wlan, dia
 		data.AuthServerSelection = models.ToPointer(models.WlanAuthServerSelectionEnum(plan.AuthServerSelection.ValueString()))
 	}
 
-	if plan.AuthServers.IsNull() || plan.AuthServers.IsUnknown() {
+	// addsing len(plan.AuthServers.Elements()) == 0 because the
+	// default is an empty list meanings the plan.Authservers is
+	// not null and not unknown
+	if plan.AuthServers.IsNull() || plan.AuthServers.IsUnknown() || len(plan.AuthServers.Elements()) == 0 {
 		unset["-auth_servers"] = ""
 	} else {
 		auth_servers := radiusAuthServersTerraformToSdk(ctx, &diags, plan.AuthServers)
@@ -203,11 +206,13 @@ func TerraformToSdk(ctx context.Context, plan *SiteWlanModel) (*models.Wlan, dia
 		data.ClientLimitUpEnabled = plan.ClientLimitUpEnabled.ValueBoolPointer()
 	}
 
-	if plan.CoaServers.IsNull() || plan.CoaServers.IsUnknown() {
+	// addsing len(plan.CoaServers.Elements()) == 0 because the
+	// default is an empty list meanings the plan.CoaServers is
+	// not null and not unknown
+	if plan.CoaServers.IsNull() || plan.CoaServers.IsUnknown() || len(plan.CoaServers.Elements()) == 0 {
 		unset["-coa_servers"] = ""
 	} else {
-		coa_servers := coaServerTerraformToSdk(ctx, &diags, plan.CoaServers)
-		data.CoaServers = models.NewOptional(models.ToPointer(coa_servers))
+		data.CoaServers = coaServerTerraformToSdk(ctx, &diags, plan.CoaServers)
 	}
 
 	if plan.Disable11ax.IsNull() || plan.Disable11ax.IsUnknown() {
@@ -518,7 +523,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteWlanModel) (*models.Wlan, dia
 			v := models.VlanIdWithVariableContainer.FromString(i.ValueString())
 			items = append(items, v)
 		}
-		data.VlanIds = items
+		data.VlanIds = models.ToPointer(models.WlanVlanIdsContainer.FromArrayOfVlanIdWithVariable2(items))
 	}
 
 	if plan.VlanPooling.IsNull() || plan.VlanPooling.IsUnknown() {

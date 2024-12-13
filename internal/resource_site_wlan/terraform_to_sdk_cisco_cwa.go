@@ -13,10 +13,17 @@ import (
 func ciscoCwaTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, plan CiscoCwaValue) *models.WlanCiscoCwa {
 
 	data := models.WlanCiscoCwa{}
-	data.AllowedHostnames = mist_transform.ListOfStringTerraformToSdk(ctx, plan.AllowedHostnames)
-	data.AllowedSubnets = mist_transform.ListOfStringTerraformToSdk(ctx, plan.AllowedSubnets)
-	data.BlockedSubnets = mist_transform.ListOfStringTerraformToSdk(ctx, plan.BlockedSubnets)
-	data.Enabled = plan.Enabled.ValueBoolPointer()
-
+	if !plan.AllowedHostnames.IsNull() && !plan.AllowedHostnames.IsUnknown() {
+		data.AllowedHostnames = mist_transform.ListOfStringTerraformToSdk(ctx, plan.AllowedHostnames)
+	}
+	if !plan.AllowedSubnets.IsNull() && !plan.AllowedSubnets.IsUnknown() {
+		data.AllowedSubnets = mist_transform.ListOfStringTerraformToSdk(ctx, plan.AllowedSubnets)
+	}
+	if !plan.BlockedSubnets.IsNull() && !plan.BlockedSubnets.IsUnknown() {
+		data.BlockedSubnets = mist_transform.ListOfStringTerraformToSdk(ctx, plan.BlockedSubnets)
+	}
+	if plan.Enabled.ValueBoolPointer() != nil {
+		data.Enabled = plan.Enabled.ValueBoolPointer()
+	}
 	return &data
 }

@@ -47,7 +47,7 @@ func radsecSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	var mxcluster_ids basetypes.ListValue = mist_transform.ListOfUuidSdkToTerraformEmpty(ctx)
 	var proxy_hosts basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 	var server_name basetypes.StringValue
-	var servers basetypes.ListValue = types.ListNull(ServersValue{}.Type(ctx))
+	var servers basetypes.ListValue = types.ListValueMust(ServersValue{}.Type(ctx), []attr.Value{})
 	var use_mxedge basetypes.BoolValue
 	var use_site_mxedge basetypes.BoolValue
 

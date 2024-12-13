@@ -12,9 +12,14 @@ import (
 func authKeysTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, plan basetypes.ListValue) []string {
 	var items []string
 	for _, v := range plan.Elements() {
-		var v_inteface interface{} = v
-		v_plan := v_inteface.(basetypes.StringValue)
-		items = append(items, v_plan.ValueString())
+		if v != nil {
+			var v_inteface interface{} = v
+			v_plan := v_inteface.(basetypes.StringValue)
+			items = append(items, v_plan.ValueString())
+		} else {
+			var t string
+			items = append(items, t)
+		}
 	}
 	return items
 }
