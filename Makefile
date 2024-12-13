@@ -47,8 +47,10 @@ compliance:
     #(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
     #OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+	go get github.com/chrismarget-j/go-licenses || exit 1 ;\
 	go run github.com/chrismarget-j/go-licenses save   --ignore github.com/Juniper --ignore golang.org/x/sys --save_path Third_Party_Code --force ./... || exit 1 ;\
 	go run github.com/chrismarget-j/go-licenses report --ignore github.com/Juniper --ignore golang.org/x/sys --template .notices.tpl ./... > Third_Party_Code/NOTICES.md || exit 1 ;\
+    go mod tidy ;\
 
 doc:
 	tfplugindocs generate
