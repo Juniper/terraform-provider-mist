@@ -20,19 +20,19 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 
 	var acct_immediate_update types.Bool = types.BoolValue(false)
 	var acct_interim_interval types.Int64
-	var acct_servers types.List = types.ListNull(AcctServersValue{}.Type(ctx))
+	var acct_servers types.List = types.ListValueMust(AcctServersValue{}.Type(ctx), []attr.Value{})
 	var airwatch AirwatchValue = NewAirwatchValueNull()
 	var allow_ipv6_ndp types.Bool = types.BoolValue(true)
 	var allow_mdns types.Bool = types.BoolValue(false)
 	var allow_ssdp types.Bool = types.BoolValue(false)
-	var ap_ids types.List = mist_transform.ListOfUuidSdkToTerraformEmpty(ctx)
+	var ap_ids types.List = types.ListNull(types.StringType)
 	var app_limit AppLimitValue = NewAppLimitValueNull()
 	var app_qos AppQosValue = NewAppQosValueNull()
 	var apply_to types.String
 	var arp_filter types.Bool
 	var auth AuthValue = NewAuthValueNull()
 	var auth_server_selection types.String
-	var auth_servers types.List = types.ListNull(AuthServersValue{}.Type(ctx))
+	var auth_servers types.List = types.ListValueMust(AuthServersValue{}.Type(ctx), []attr.Value{})
 	var auth_servers_nas_id types.String
 	var auth_servers_nas_ip types.String
 	var auth_servers_retries types.Int64
@@ -47,7 +47,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	var client_limit_down_enabled types.Bool
 	var client_limit_up types.Int64
 	var client_limit_up_enabled types.Bool
-	var coa_servers types.List = types.ListNull(CoaServersValue{}.Type(ctx))
+	var coa_servers types.List = types.ListValueMust(CoaServersValue{}.Type(ctx), []attr.Value{})
 	var disable_11ax types.Bool
 	var disable_ht_vht_rates types.Bool
 	var disable_uapsd types.Bool
@@ -80,18 +80,18 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	var max_num_clients types.Int64
 	var mist_nac MistNacValue = NewMistNacValueNull()
 	var msp_id types.String = types.StringValue("")
-	var mxtunnel_ids types.List = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
-	var mxtunnel_name types.List = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+	var mxtunnel_ids types.List = types.ListNull(types.StringType)
+	var mxtunnel_name types.List = types.ListNull(types.StringType)
 	var no_static_dns types.Bool
 	var no_static_ip types.Bool
 	var org_id types.String
 	var portal PortalValue = NewPortalValueNull()
 	var portal_allowed_hostnames types.List = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 	var portal_allowed_subnets types.List = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
-	var portal_api_secret types.String
+	var portal_api_secret types.String = types.StringValue("")
 	var portal_denied_hostnames types.List = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 	var portal_image types.String = types.StringValue("not_present")
-	var portal_sso_url types.String
+	var portal_sso_url types.String = types.StringValue("")
 	var qos QosValue
 	var radsec RadsecValue = NewRadsecValueNull()
 	var rateset types.Map = types.MapNull(RatesetValue{}.Type(ctx))
@@ -122,8 +122,10 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 		acct_interim_interval = types.Int64Value(int64(*data.AcctInterimInterval))
 	}
 
-	if data.AcctServers != nil {
+	if len(data.AcctServers) > 0 {
 		acct_servers = radiusServersAcctSdkToTerraform(ctx, &diags, data.AcctServers)
+	} else {
+		types.ListValueMust(AcctServersValue{}.Type(ctx), make([]attr.Value, 0))
 	}
 
 	if data.Airwatch != nil {
@@ -142,7 +144,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 		allow_ssdp = types.BoolValue(*data.AllowSsdp)
 	}
 
-	if data.ApIds.IsValueSet() && data.ApIds.Value() != nil {
+	if data.ApIds.IsValueSet() && len(*data.ApIds.Value()) > 0 {
 		ap_ids = mist_transform.ListOfUuidSdkToTerraform(ctx, *data.ApIds.Value())
 	}
 
@@ -170,8 +172,10 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 		auth_server_selection = types.StringValue(string(*data.AuthServerSelection))
 	}
 
-	if data.AuthServers != nil {
+	if len(data.AuthServers) > 0 {
 		auth_servers = radiusServersAuthSdkToTerraform(ctx, &diags, data.AuthServers)
+	} else {
+		auth_servers = types.ListValueMust(AuthServersValue{}.Type(ctx), make([]attr.Value, 0))
 	}
 
 	if data.AuthServersNasId.IsValueSet() && data.AuthServersNasId.Value() != nil {
@@ -232,6 +236,8 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 
 	if len(data.CoaServers) > 0 {
 		coa_servers = coaServersSdkToTerraform(ctx, &diags, data.CoaServers)
+	} else {
+		coa_servers = types.ListValueMust(CoaServersValue{}.Type(ctx), make([]attr.Value, 0))
 	}
 
 	if data.Disable11ax != nil {
@@ -362,11 +368,11 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 		msp_id = types.StringValue(data.MspId.String())
 	}
 
-	if data.MxtunnelIds != nil {
+	if len(data.MxtunnelIds) > 0 {
 		mxtunnel_ids = mist_transform.ListOfStringSdkToTerraform(ctx, data.MxtunnelIds)
 	}
 
-	if data.MxtunnelName != nil {
+	if len(data.MxtunnelName) > 0 {
 		mxtunnel_name = mist_transform.ListOfStringSdkToTerraform(ctx, data.MxtunnelName)
 	}
 

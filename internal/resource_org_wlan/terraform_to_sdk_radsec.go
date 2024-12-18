@@ -46,6 +46,7 @@ func radsecTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d Radsec
 	if d.ServerName.ValueStringPointer() != nil {
 		data.ServerName = d.ServerName.ValueStringPointer()
 	}
+
 	servers := radsecServersTerraformToSdk(ctx, diags, d.Servers)
 	data.Servers = servers
 

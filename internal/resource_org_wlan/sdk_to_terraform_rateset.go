@@ -55,6 +55,7 @@ func bandRatesetSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d mo
 
 func ratesetSkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.WlanDatarates) basetypes.MapValue {
 	state_value_map := make(map[string]attr.Value)
+
 	for k, d := range m {
 		state_value_map[k] = bandRatesetSkToTerraform(ctx, diags, d)
 	}

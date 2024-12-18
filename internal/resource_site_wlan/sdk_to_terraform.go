@@ -144,7 +144,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (SiteWlanModel, diag
 		allow_ssdp = types.BoolValue(*data.AllowSsdp)
 	}
 
-	if data.ApIds.IsValueSet() && data.ApIds.Value() != nil {
+	if data.ApIds.IsValueSet() && len(*data.ApIds.Value()) > 0 {
 		ap_ids = mist_transform.ListOfUuidSdkToTerraform(ctx, *data.ApIds.Value())
 	}
 

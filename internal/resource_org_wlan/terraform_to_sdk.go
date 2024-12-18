@@ -15,9 +15,10 @@ import (
 
 func TerraformToSdk(ctx context.Context, plan *OrgWlanModel) (*models.Wlan, diag.Diagnostics) {
 	var diags diag.Diagnostics
-	unset := make(map[string]interface{})
 	data := models.Wlan{}
 	data.Ssid = plan.Ssid.ValueString()
+
+	unset := make(map[string]interface{})
 
 	if len(plan.TemplateId.ValueString()) > 0 {
 		data.TemplateId = models.NewOptional(models.ToPointer(uuid.MustParse(plan.TemplateId.ValueString())))

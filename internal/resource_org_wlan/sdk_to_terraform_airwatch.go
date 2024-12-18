@@ -14,7 +14,7 @@ import (
 func airwatchSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.WlanAirwatch) AirwatchValue {
 	var api_key basetypes.StringValue
 	var console_url basetypes.StringValue
-	var enabled basetypes.BoolValue = types.BoolValue(false)
+	var enabled basetypes.BoolValue
 	var password basetypes.StringValue
 	var username basetypes.StringValue
 
