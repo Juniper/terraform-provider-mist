@@ -137,7 +137,7 @@ func portConfigWanSourceNatTerraformToSdk(ctx context.Context, diags *diag.Diagn
 		return nil
 	} else {
 		plan := NewWanSourceNatValueMust(d.AttributeTypes(ctx), d.Attributes())
-		if plan.Disabled.IsNull() && !plan.Disabled.IsUnknown() {
+		if !plan.Disabled.IsNull() && !plan.Disabled.IsUnknown() {
 			data.Disabled = plan.Disabled.ValueBoolPointer()
 		}
 		if plan.NatPool.ValueStringPointer() != nil {
