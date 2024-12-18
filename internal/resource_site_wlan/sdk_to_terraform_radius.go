@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 func radiusServersAcctSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.RadiusAcctServer) basetypes.ListValue {
@@ -53,7 +52,6 @@ func radiusServersAcctSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 
 		acct_value_list = append(acct_value_list, data)
 	}
-	tflog.Warn(ctx, "----------------")
 
 	acct_state_list, e := types.ListValueFrom(ctx, AcctServersValue{}.Type(ctx), acct_value_list)
 	diags.Append(e...)
