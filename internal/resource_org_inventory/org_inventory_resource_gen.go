@@ -139,8 +139,8 @@ func OrgInventoryResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Optional:            true,
 				Computed:            true,
-				Description:         "**DEPRECATED** List of devices to manage. Exactly one of `claim_code` or `mac` field must be set",
-				MarkdownDescription: "**DEPRECATED** List of devices to manage. Exactly one of `claim_code` or `mac` field must be set",
+				Description:         "**DEPRECATED** The `devices` attribute has been deprecated in version v0.2.0 of the Juniper-Mist Provider. It has been replaced with the `inventory` map and may be removed in future versions. Please update your configurations to use the `inventory` attribute. List of devices to manage. Exactly one of `claim_code` or `mac` field must be set",
+				MarkdownDescription: "**DEPRECATED** The `devices` attribute has been deprecated in version v0.2.0 of the Juniper-Mist Provider. It has been replaced with the `inventory` map and may be removed in future versions. Please update your configurations to use the `inventory` attribute. List of devices to manage. Exactly one of `claim_code` or `mac` field must be set",
 				DeprecationMessage:  "The `devices` attribute has been deprecated in version v0.2.0 of the Juniper-Mist Provider. It has been replaced with the `inventory` map and may be removed in future versions.\nPlease update your configurations to use the `inventory` attribute.",
 				Validators: []validator.List{
 					mistvalidator.AllowedWhenValueIsNull(path.MatchRelative().AtParent().AtName("inventory")),
