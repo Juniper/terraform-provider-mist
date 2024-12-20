@@ -13,6 +13,9 @@ description: |-
 !> This release may generate multiple changes to the `org_wlan_resource` and `site_wlan_resource` resources during the first configuration sync. This is due to the new default values defined, and will not impact to actual SSID configuration deployed on the Access Points
 
 ## Changes
+### Documentation
+* improve `org_wlan_resource` and `site_wlan_resource` resources documentation
+
 ### WLAN resources default values
 Changes applied to `org_wlan_resource` and `site_wlan_resource` to reduce configuration drift when saving the WLAN from the Mist UI. These changes try to mimic the Mist UI default values, however, some of them are changing based on other parameter values which make it currently impossible to completely eliminate the configuration drift.
 
