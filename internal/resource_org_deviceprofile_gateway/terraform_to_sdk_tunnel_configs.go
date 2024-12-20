@@ -64,13 +64,13 @@ func tunnelConfigsAutoProvisionTerraformToSdk(ctx context.Context, diags *diag.D
 				data.Enable = models.ToPointer(plan.Enable.ValueBool())
 			}
 
-			var plan_latlng_interface interface{} = plan.Latlng
-			plan_latlng := plan_latlng_interface.(LatlngValue)
-
-			var latlng models.LatLng
-			latlng.Lat = plan_latlng.Lng.ValueFloat64()
-			latlng.Lng = plan_latlng.Lng.ValueFloat64()
 			if !plan.Latlng.IsNull() && !plan.Latlng.IsUnknown() {
+				var plan_latlng_interface interface{} = plan.Latlng
+				plan_latlng := plan_latlng_interface.(LatlngValue)
+
+				var latlng models.LatLng
+				latlng.Lat = plan_latlng.Lng.ValueFloat64()
+				latlng.Lng = plan_latlng.Lng.ValueFloat64()
 				data.Latlng = models.ToPointer(latlng)
 			}
 
@@ -244,6 +244,7 @@ func tunnelConfigsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d
 		if plan.LocalId.ValueStringPointer() != nil {
 			data.LocalId = models.ToPointer(plan.LocalId.ValueString())
 		}
+
 		if plan.Mode.ValueStringPointer() != nil {
 			data.Mode = (*models.GatewayTemplateTunnelModeEnum)(plan.Mode.ValueStringPointer())
 		}

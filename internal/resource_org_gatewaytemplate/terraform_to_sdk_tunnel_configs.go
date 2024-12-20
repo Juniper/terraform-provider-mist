@@ -16,14 +16,17 @@ func tunnelConfigsAutoProvisionPrimaryTerraformToSdk(ctx context.Context, diags 
 	if d.IsNull() || d.IsUnknown() {
 		return &data
 	} else {
-		plan := NewAutoProvisionPrimaryValueMust(d.AttributeTypes(ctx), d.Attributes())
-		if plan.NumHosts.ValueStringPointer() != nil {
-			data.NumHosts = models.ToPointer(plan.NumHosts.ValueString())
+		plan, e := NewAutoProvisionPrimaryValue(d.AttributeTypes(ctx), d.Attributes())
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			if plan.NumHosts.ValueStringPointer() != nil {
+				data.NumHosts = models.ToPointer(plan.NumHosts.ValueString())
+			}
+			if !plan.WanNames.IsNull() && !plan.WanNames.IsUnknown() {
+				data.WanNames = mist_transform.ListOfStringTerraformToSdk(ctx, plan.WanNames)
+			}
 		}
-		if !plan.WanNames.IsNull() && !plan.WanNames.IsUnknown() {
-			data.WanNames = mist_transform.ListOfStringTerraformToSdk(ctx, plan.WanNames)
-		}
-
 		return &data
 	}
 }
@@ -33,14 +36,17 @@ func tunnelConfigsAutoProvisionSecondaryTerraformToSdk(ctx context.Context, diag
 	if d.IsNull() || d.IsUnknown() {
 		return &data
 	} else {
-		plan := NewAutoProvisionSecondaryValueMust(d.AttributeTypes(ctx), d.Attributes())
-		if plan.NumHosts.ValueStringPointer() != nil {
-			data.NumHosts = models.ToPointer(plan.NumHosts.ValueString())
+		plan, e := NewAutoProvisionSecondaryValue(d.AttributeTypes(ctx), d.Attributes())
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			if plan.NumHosts.ValueStringPointer() != nil {
+				data.NumHosts = models.ToPointer(plan.NumHosts.ValueString())
+			}
+			if !plan.WanNames.IsNull() && !plan.WanNames.IsUnknown() {
+				data.WanNames = mist_transform.ListOfStringTerraformToSdk(ctx, plan.WanNames)
+			}
 		}
-		if !plan.WanNames.IsNull() && !plan.WanNames.IsUnknown() {
-			data.WanNames = mist_transform.ListOfStringTerraformToSdk(ctx, plan.WanNames)
-		}
-
 		return &data
 	}
 }
@@ -50,29 +56,32 @@ func tunnelConfigsAutoProvisionTerraformToSdk(ctx context.Context, diags *diag.D
 	if d.IsNull() || d.IsUnknown() {
 		return data
 	} else {
-		plan := NewAutoProvisionValueMust(d.AttributeTypes(ctx), d.Attributes())
-		if plan.Enable.ValueBoolPointer() != nil {
-			data.Enable = models.ToPointer(plan.Enable.ValueBool())
+		plan, e := NewAutoProvisionValue(d.AttributeTypes(ctx), d.Attributes())
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			if plan.Enable.ValueBoolPointer() != nil {
+				data.Enable = models.ToPointer(plan.Enable.ValueBool())
+			}
+
+			if !plan.Latlng.IsNull() && !plan.Latlng.IsUnknown() {
+				var plan_latlng_interface interface{} = plan.Latlng
+				plan_latlng := plan_latlng_interface.(LatlngValue)
+
+				var latlng models.LatLng
+				latlng.Lat = plan_latlng.Lng.ValueFloat64()
+				latlng.Lng = plan_latlng.Lng.ValueFloat64()
+				data.Latlng = models.ToPointer(latlng)
+			}
+
+			if !plan.AutoProvisionPrimary.IsNull() && !plan.AutoProvisionPrimary.IsUnknown() {
+				data.Primary = tunnelConfigsAutoProvisionPrimaryTerraformToSdk(ctx, diags, plan.AutoProvisionPrimary)
+			}
+
+			if !plan.AutoProvisionSecondary.IsNull() && !plan.AutoProvisionSecondary.IsUnknown() {
+				data.Secondary = tunnelConfigsAutoProvisionSecondaryTerraformToSdk(ctx, diags, plan.AutoProvisionSecondary)
+			}
 		}
-
-		var plan_latlng_interface interface{} = plan.Latlng
-		plan_latlng := plan_latlng_interface.(LatlngValue)
-
-		var latlng models.LatLng
-		latlng.Lat = plan_latlng.Lng.ValueFloat64()
-		latlng.Lng = plan_latlng.Lng.ValueFloat64()
-		if !plan.Latlng.IsNull() && !plan.Latlng.IsUnknown() {
-			data.Latlng = models.ToPointer(latlng)
-		}
-
-		if !plan.AutoProvisionPrimary.IsNull() && !plan.AutoProvisionPrimary.IsUnknown() {
-			data.Primary = tunnelConfigsAutoProvisionPrimaryTerraformToSdk(ctx, diags, plan.AutoProvisionPrimary)
-		}
-
-		if !plan.AutoProvisionSecondary.IsNull() && !plan.AutoProvisionSecondary.IsUnknown() {
-			data.Secondary = tunnelConfigsAutoProvisionSecondaryTerraformToSdk(ctx, diags, plan.AutoProvisionSecondary)
-		}
-
 		return data
 	}
 }
@@ -124,18 +133,22 @@ func gatewayTemplateTunnelProbeTerraformToSdk(ctx context.Context, diags *diag.D
 	if d.IsNull() || d.IsUnknown() {
 		return data
 	} else {
-		plan := NewProbeValueMust(d.AttributeTypes(ctx), d.Attributes())
-		if plan.Interval.ValueInt64Pointer() != nil {
-			data.Interval = models.ToPointer(int(plan.Interval.ValueInt64()))
-		}
-		if plan.Threshold.ValueInt64Pointer() != nil {
-			data.Threshold = models.ToPointer(int(plan.Threshold.ValueInt64()))
-		}
-		if plan.Timeout.ValueInt64Pointer() != nil {
-			data.Timeout = models.ToPointer(int(plan.Timeout.ValueInt64()))
-		}
-		if plan.ProbeType.ValueStringPointer() != nil {
-			data.Type = models.ToPointer(models.GatewayTemplateProbeTypeEnum(plan.ProbeType.ValueString()))
+		plan, e := NewProbeValue(d.AttributeTypes(ctx), d.Attributes())
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			if plan.Interval.ValueInt64Pointer() != nil {
+				data.Interval = models.ToPointer(int(plan.Interval.ValueInt64()))
+			}
+			if plan.Threshold.ValueInt64Pointer() != nil {
+				data.Threshold = models.ToPointer(int(plan.Threshold.ValueInt64()))
+			}
+			if plan.Timeout.ValueInt64Pointer() != nil {
+				data.Timeout = models.ToPointer(int(plan.Timeout.ValueInt64()))
+			}
+			if plan.ProbeType.ValueStringPointer() != nil {
+				data.Type = models.ToPointer(models.GatewayTemplateProbeTypeEnum(plan.ProbeType.ValueString()))
+			}
 		}
 		return data
 	}
@@ -146,21 +159,25 @@ func gatewayTemplateTunnelPrimaryProbeTerraformToSdk(ctx context.Context, diags 
 	if d.IsNull() || d.IsUnknown() {
 		return data
 	} else {
-		plan := NewPrimaryValueMust(d.AttributeTypes(ctx), d.Attributes())
-		if !plan.Hosts.IsNull() && !plan.Hosts.IsUnknown() {
-			data.Hosts = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Hosts)
-		}
-		if !plan.InternalIps.IsNull() && !plan.InternalIps.IsUnknown() {
-			data.InternalIps = mist_transform.ListOfStringTerraformToSdk(ctx, plan.InternalIps)
-		}
-		if !plan.ProbeIps.IsNull() && !plan.ProbeIps.IsUnknown() {
-			data.ProbeIps = mist_transform.ListOfStringTerraformToSdk(ctx, plan.ProbeIps)
-		}
-		if !plan.RemoteIds.IsNull() && !plan.RemoteIds.IsUnknown() {
-			data.RemoteIds = mist_transform.ListOfStringTerraformToSdk(ctx, plan.RemoteIds)
-		}
-		if !plan.WanNames.IsNull() && !plan.WanNames.IsUnknown() {
-			data.WanNames = mist_transform.ListOfStringTerraformToSdk(ctx, plan.WanNames)
+		plan, e := NewPrimaryValue(d.AttributeTypes(ctx), d.Attributes())
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			if !plan.Hosts.IsNull() && !plan.Hosts.IsUnknown() {
+				data.Hosts = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Hosts)
+			}
+			if !plan.InternalIps.IsNull() && !plan.InternalIps.IsUnknown() {
+				data.InternalIps = mist_transform.ListOfStringTerraformToSdk(ctx, plan.InternalIps)
+			}
+			if !plan.ProbeIps.IsNull() && !plan.ProbeIps.IsUnknown() {
+				data.ProbeIps = mist_transform.ListOfStringTerraformToSdk(ctx, plan.ProbeIps)
+			}
+			if !plan.RemoteIds.IsNull() && !plan.RemoteIds.IsUnknown() {
+				data.RemoteIds = mist_transform.ListOfStringTerraformToSdk(ctx, plan.RemoteIds)
+			}
+			if !plan.WanNames.IsNull() && !plan.WanNames.IsUnknown() {
+				data.WanNames = mist_transform.ListOfStringTerraformToSdk(ctx, plan.WanNames)
+			}
 		}
 		return data
 	}
@@ -171,21 +188,25 @@ func gatewayTemplateTunnelSecondaryProbeTerraformToSdk(ctx context.Context, diag
 	if d.IsNull() || d.IsUnknown() {
 		return data
 	} else {
-		plan := NewSecondaryValueMust(d.AttributeTypes(ctx), d.Attributes())
-		if !plan.Hosts.IsNull() && !plan.Hosts.IsUnknown() {
-			data.Hosts = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Hosts)
-		}
-		if !plan.InternalIps.IsNull() && !plan.InternalIps.IsUnknown() {
-			data.InternalIps = mist_transform.ListOfStringTerraformToSdk(ctx, plan.InternalIps)
-		}
-		if !plan.ProbeIps.IsNull() && !plan.ProbeIps.IsUnknown() {
-			data.ProbeIps = mist_transform.ListOfStringTerraformToSdk(ctx, plan.ProbeIps)
-		}
-		if !plan.RemoteIds.IsNull() && !plan.RemoteIds.IsUnknown() {
-			data.RemoteIds = mist_transform.ListOfStringTerraformToSdk(ctx, plan.RemoteIds)
-		}
-		if !plan.WanNames.IsNull() && !plan.WanNames.IsUnknown() {
-			data.WanNames = mist_transform.ListOfStringTerraformToSdk(ctx, plan.WanNames)
+		plan, e := NewSecondaryValue(d.AttributeTypes(ctx), d.Attributes())
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			if !plan.Hosts.IsNull() && !plan.Hosts.IsUnknown() {
+				data.Hosts = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Hosts)
+			}
+			if !plan.InternalIps.IsNull() && !plan.InternalIps.IsUnknown() {
+				data.InternalIps = mist_transform.ListOfStringTerraformToSdk(ctx, plan.InternalIps)
+			}
+			if !plan.ProbeIps.IsNull() && !plan.ProbeIps.IsUnknown() {
+				data.ProbeIps = mist_transform.ListOfStringTerraformToSdk(ctx, plan.ProbeIps)
+			}
+			if !plan.RemoteIds.IsNull() && !plan.RemoteIds.IsUnknown() {
+				data.RemoteIds = mist_transform.ListOfStringTerraformToSdk(ctx, plan.RemoteIds)
+			}
+			if !plan.WanNames.IsNull() && !plan.WanNames.IsUnknown() {
+				data.WanNames = mist_transform.ListOfStringTerraformToSdk(ctx, plan.WanNames)
+			}
 		}
 		return data
 	}

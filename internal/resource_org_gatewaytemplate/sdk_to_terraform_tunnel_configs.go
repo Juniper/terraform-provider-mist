@@ -36,17 +36,16 @@ func tunnelConfigAutoProvNodeSdkToTerraform(ctx context.Context, diags *diag.Dia
 
 func tunnelConfigAutoProvSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.TunnelConfigsAutoProvision) basetypes.ObjectValue {
 
-	var primary basetypes.ObjectValue = types.ObjectNull(PrimaryValue{}.AttributeTypes(ctx))
-	var secondary basetypes.ObjectValue = types.ObjectNull(SecondaryValue{}.AttributeTypes(ctx))
+	var primary basetypes.ObjectValue = types.ObjectNull(AutoProvisionPrimaryValue{}.AttributeTypes(ctx))
+	var secondary basetypes.ObjectValue = types.ObjectNull(AutoProvisionSecondaryValue{}.AttributeTypes(ctx))
 	var enable basetypes.BoolValue
 	var latlng basetypes.ObjectValue = types.ObjectNull(LatlngValue{}.AttributeTypes(ctx))
-	var region basetypes.StringValue = types.StringValue("auto")
 
 	if d.Primary != nil {
-		primary = tunnelConfigAutoProvNodeSdkToTerraform(ctx, diags, *d.Primary, PrimaryValue{}.AttributeTypes(ctx))
+		primary = tunnelConfigAutoProvNodeSdkToTerraform(ctx, diags, *d.Primary, AutoProvisionPrimaryValue{}.AttributeTypes(ctx))
 	}
 	if d.Secondary != nil {
-		secondary = tunnelConfigAutoProvNodeSdkToTerraform(ctx, diags, *d.Secondary, SecondaryValue{}.AttributeTypes(ctx))
+		secondary = tunnelConfigAutoProvNodeSdkToTerraform(ctx, diags, *d.Secondary, AutoProvisionSecondaryValue{}.AttributeTypes(ctx))
 	}
 	if d.Enable != nil {
 		enable = types.BoolValue(*d.Enable)
@@ -72,7 +71,6 @@ func tunnelConfigAutoProvSdkToTerraform(ctx context.Context, diags *diag.Diagnos
 		"secondary": secondary,
 		"enable":    enable,
 		"latlng":    latlng,
-		"region":    region,
 	}
 	data, e := basetypes.NewObjectValue(data_map_attr_type, data_map_value)
 	diags.Append(e...)

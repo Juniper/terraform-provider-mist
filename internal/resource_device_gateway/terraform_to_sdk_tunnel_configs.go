@@ -50,29 +50,32 @@ func tunnelConfigsAutoProvisionTerraformToSdk(ctx context.Context, diags *diag.D
 	if d.IsNull() || d.IsUnknown() {
 		return data
 	} else {
-		plan := NewAutoProvisionValueMust(d.AttributeTypes(ctx), d.Attributes())
-		if plan.Enable.ValueBoolPointer() != nil {
-			data.Enable = models.ToPointer(plan.Enable.ValueBool())
+		plan, e := NewAutoProvisionValue(d.AttributeTypes(ctx), d.Attributes())
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			if plan.Enable.ValueBoolPointer() != nil {
+				data.Enable = models.ToPointer(plan.Enable.ValueBool())
+			}
+
+			if !plan.Latlng.IsNull() && !plan.Latlng.IsUnknown() {
+				var plan_latlng_interface interface{} = plan.Latlng
+				plan_latlng := plan_latlng_interface.(LatlngValue)
+
+				var latlng models.LatLng
+				latlng.Lat = plan_latlng.Lng.ValueFloat64()
+				latlng.Lng = plan_latlng.Lng.ValueFloat64()
+				data.Latlng = models.ToPointer(latlng)
+			}
+
+			if !plan.AutoProvisionPrimary.IsNull() && !plan.AutoProvisionPrimary.IsUnknown() {
+				data.Primary = tunnelConfigsAutoProvisionPrimaryTerraformToSdk(ctx, diags, plan.AutoProvisionPrimary)
+			}
+
+			if !plan.AutoProvisionSecondary.IsNull() && !plan.AutoProvisionSecondary.IsUnknown() {
+				data.Secondary = tunnelConfigsAutoProvisionSecondaryTerraformToSdk(ctx, diags, plan.AutoProvisionSecondary)
+			}
 		}
-
-		var plan_latlng_interface interface{} = plan.Latlng
-		plan_latlng := plan_latlng_interface.(LatlngValue)
-
-		var latlng models.LatLng
-		latlng.Lat = plan_latlng.Lng.ValueFloat64()
-		latlng.Lng = plan_latlng.Lng.ValueFloat64()
-		if !plan.Latlng.IsNull() && !plan.Latlng.IsUnknown() {
-			data.Latlng = models.ToPointer(latlng)
-		}
-
-		if !plan.AutoProvisionPrimary.IsNull() && !plan.AutoProvisionPrimary.IsUnknown() {
-			data.Primary = tunnelConfigsAutoProvisionPrimaryTerraformToSdk(ctx, diags, plan.AutoProvisionPrimary)
-		}
-
-		if !plan.AutoProvisionSecondary.IsNull() && !plan.AutoProvisionSecondary.IsUnknown() {
-			data.Secondary = tunnelConfigsAutoProvisionSecondaryTerraformToSdk(ctx, diags, plan.AutoProvisionSecondary)
-		}
-
 		return data
 	}
 }
