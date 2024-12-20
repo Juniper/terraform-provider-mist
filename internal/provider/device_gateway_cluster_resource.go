@@ -9,6 +9,7 @@ import (
 	"github.com/Juniper/terraform-provider-mist/internal/resource_device_gateway_cluster"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
+	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -57,11 +58,12 @@ func (r *deviceGatewayClusterResource) Schema(ctx context.Context, req resource.
 		MarkdownDescription: docCategoryDevices + "This resource can be used to form or delete a Gateway\n" +
 			" Clusters. It can be used with two Gateways assigned to the same site.\n" +
 			"Once the Cluster is formed, it can be create just like a Gateway with the `mist_device_gateway` resource:\n" +
-			"1. Claim the gateways and assign them to a site with the `mist_org_inventory` resource\n" +
+			"1. Claim the gateways and assign them to the same site with the `mist_org_inventory` resource\n" +
 			"2. Form the Cluster with the `mist_device_gateway_cluster` resource by providing the `site_id` and the two nodes " +
 			"MAC Addresses (the first in the list will be the node0)\n" +
 			"3. Configure the Cluster with the `mist_device_gateway` resource\n\n" +
-			"Please check the Juniper Documentation first to validate the cabling between the Gateways",
+			"Please check the Juniper Documentation first to validate the cabling between the Gateways\n\n" +
+			"~> Both gateways must belong to the same site when creating the Gateway Cluster",
 		Attributes: resource_device_gateway_cluster.DeviceGatewayClusterResourceSchema(ctx).Attributes,
 	}
 }
@@ -108,15 +110,75 @@ func (r *deviceGatewayClusterResource) Create(ctx context.Context, req resource.
 	data, err := r.client.SitesDevicesWANCluster().CreateSiteDeviceHaCluster(ctx, siteId, id, device_gateway_cluster)
 
 	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+
 	if api_err != "" {
-		resp.Diagnostics.AddError(
-			"Error creating \"mist_device_gateway_cluster\" resource",
-			fmt.Sprintf("Unable to create the Gateway Cluster. %s", api_err),
-		)
-		return
+		PlannedNode0Mac := nodes[0].Mac.ValueString()
+		PlannedNode1Mac := nodes[1].Mac.ValueString()
+		// if the cluster already exists and the primary node is the same
+		// this can be detected because a cluster already exists with the node0 MAC Address UUID
+		if strings.Contains(api_err, "already belong to a ha cluster") {
+			existingGatewayCluster, sameNodes := r.checkClusterNodes(ctx, siteId, PlannedNode0Mac, PlannedNode1Mac)
+			// same nodes, same order
+			if existingGatewayCluster != nil && sameNodes {
+				state, diags = resource_device_gateway_cluster.SdkToTerraform(ctx, siteId, id, existingGatewayCluster)
+				// same node0, other node1
+			} else if existingGatewayCluster != nil {
+				mistNode1Mac := existingGatewayCluster.Nodes[1].Mac
+				resp.Diagnostics.AddError(
+					"Error creating \"mist_device_gateway_cluster\" resource",
+					fmt.Sprintf("The primary node %s already belong to a ha cluster with a different secondary node %s. Got %s", PlannedNode0Mac, mistNode1Mac, PlannedNode1Mac),
+				)
+				return
+				// other error
+			} else {
+				resp.Diagnostics.AddError(
+					"Error creating \"mist_device_gateway_cluster\" resource",
+					fmt.Sprintf("Unable to create the Gateway Cluster. %s", api_err),
+				)
+				return
+			}
+			// if the cluster already exists and we are suspecting a node invertion
+			// this can be detected because the node0 is assigned to the site but there is no device/cluster with its MAC Address
+		} else if strings.Contains(api_err, "resource not found") {
+			existingGatewayCluster, sameNodes := r.checkClusterNodes(ctx, siteId, PlannedNode1Mac, PlannedNode0Mac)
+			// same nodes, inverted order
+			if existingGatewayCluster != nil && sameNodes {
+				resp.Diagnostics.AddError(
+					"Error creating \"mist_device_gateway_cluster\" resource",
+					fmt.Sprintf("The nodes %s and %s already belong to the same Cluster, but the nodes are inverted", PlannedNode0Mac, PlannedNode1Mac),
+				)
+				return
+				// node1 already belongs to a cluster with another node
+			} else if existingGatewayCluster != nil {
+				mistOtherNodeMac := existingGatewayCluster.Nodes[1].Mac
+				resp.Diagnostics.AddError(
+					"Error creating \"mist_device_gateway_cluster\" resource",
+					fmt.Sprintf("The node %s already belong to a ha cluster with a different node %s. Got %s", PlannedNode1Mac, mistOtherNodeMac, PlannedNode0Mac),
+				)
+				return
+				// other error
+			} else {
+				resp.Diagnostics.AddError(
+					"Error creating \"mist_device_gateway_cluster\" resource",
+					fmt.Sprintf(
+						"Unable to create the Gateway Cluster. %s."+
+							"\nEither the node %s is not assigned to the correct site, either is already belongs to another cluster.",
+						api_err, PlannedNode0Mac),
+				)
+				return
+			}
+			// for any other error
+		} else {
+			resp.Diagnostics.AddError(
+				"Error creating \"mist_device_gateway_cluster\" resource",
+				fmt.Sprintf("Unable to create the Gateway Cluster. %s", api_err),
+			)
+			return
+		}
+	} else {
+		state, diags = resource_device_gateway_cluster.SdkToTerraform(ctx, siteId, id, &data.Data)
 	}
 
-	state, diags = resource_device_gateway_cluster.SdkToTerraform(ctx, siteId, id, &data.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -159,7 +221,10 @@ func (r *deviceGatewayClusterResource) Read(ctx context.Context, req resource.Re
 	}
 
 	httpr, err := r.client.SitesDevicesWANCluster().GetSiteDeviceHaClusterNode(ctx, siteId, id)
-	if httpr.Response.StatusCode == 404 {
+	if httpr.Response.StatusCode == 200 && len(httpr.Data.Nodes) == 0 {
+		resp.State.RemoveResource(ctx)
+		return
+	} else if httpr.Response.StatusCode == 404 {
 		resp.State.RemoveResource(ctx)
 		return
 	} else if err != nil {
@@ -313,7 +378,7 @@ func (r *deviceGatewayClusterResource) Delete(ctx context.Context, req resource.
 
 	data, err := r.client.SitesDevicesWANCluster().DeleteSiteDeviceHaCluster(ctx, siteId, id)
 	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && api_err != "" {
+	if data.StatusCode != 404 && api_err != "not a ha cluster" && api_err != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_device_gateway_cluster\" resource",
 			fmt.Sprintf("Unable to delete the Gateway Cluster. %s", api_err),
@@ -351,4 +416,61 @@ func (r *deviceGatewayClusterResource) ImportState(ctx context.Context, req reso
 		return
 	}
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), importIds[1])...)
+}
+
+// Additional functions
+
+func (r *deviceGatewayClusterResource) checkClusterNodes(
+	ctx context.Context,
+	siteId uuid.UUID,
+	node0Mac string,
+	node1Mac string,
+) (*models.GatewayCluster, bool) {
+	/*
+		function used when the provider tries to create the cluster and get an error response because the node already
+		belongs to another cluster. It will retrieve the MAC Address of the current cluster nodes, and compare them to the plan
+
+		parameters:
+			ctx: context.Context
+			siteId: uuid.UUID
+				planned siteId of the cluster
+			node0Mac: string
+				MAC Address of the planned node0
+			node1Mac: string
+				MAC Address of the planned node1
+
+		returns:
+			*models.GatewayCluster
+				If exact same nodes (and not inverted), returns the current gateway cluster response data
+			bool
+				if the current nodes (in Mist) are the planned nodes
+	*/
+	clusterId, e := uuid.Parse("00000000-0000-0000-1000-" + node0Mac)
+	if e == nil {
+		return r.checkClusterNode(ctx, siteId, clusterId, node0Mac, node1Mac)
+	}
+	return nil, false
+
+}
+
+func (r *deviceGatewayClusterResource) checkClusterNode(
+	ctx context.Context,
+	siteId uuid.UUID,
+	clusterId uuid.UUID,
+	primaryNodeMac string,
+	secondaryNodeMac string,
+) (*models.GatewayCluster, bool) {
+	httpr, err := r.client.SitesDevicesWANCluster().GetSiteDeviceHaClusterNode(ctx, siteId, clusterId)
+
+	if err == nil && len(httpr.ApiResponse.Data.Nodes) > 0 {
+		sameNodes := true
+		for _, node := range httpr.ApiResponse.Data.Nodes {
+			if node.Mac != primaryNodeMac && node.Mac != secondaryNodeMac {
+				sameNodes = false
+			}
+		}
+		return &httpr.Data, sameNodes
+	}
+	return nil, false
+
 }
