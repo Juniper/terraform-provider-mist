@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/apimatic/go-core-runtime/logger"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"os"
@@ -52,6 +53,7 @@ type mistProviderModel struct {
 	Username   types.String  `tfsdk:"username"`
 	Password   types.String  `tfsdk:"password"`
 	ApiTimeout types.Float64 `tfsdk:"api_timeout"`
+	ApiDebug   types.Bool    `tfsdk:"api_debug"`
 	Proxy      types.String  `tfsdk:"proxy"`
 }
 
@@ -90,6 +92,10 @@ func (p *mistProvider) Schema(ctx context.Context, req provider.SchemaRequest, r
 				MarkdownDescription: "For username/password authentication, the Mist Account password.",
 				Optional:            true,
 				Sensitive:           true,
+			},
+			"api_debug": schema.BoolAttribute{
+				MarkdownDescription: "Flag to enable debugging API calls. Default is false.",
+				Optional:            true,
 			},
 			"api_timeout": schema.Float64Attribute{
 				MarkdownDescription: fmt.Sprintf("Timeout in seconds for completing API transactions "+
@@ -160,6 +166,14 @@ func (p *mistProviderModel) fromEnv(_ context.Context, diags *diag.Diagnostics) 
 				fmt.Sprintf("minimum string length 1; got %q", s))
 		}
 		p.Proxy = types.StringValue(s)
+	}
+
+	if s, ok := os.LookupEnv(envDebug); ok && p.ApiDebug.IsNull() {
+		v, err := strconv.ParseBool(s)
+		if err != nil {
+			diags.AddError(fmt.Sprintf("error parsing MIST_API_DEBUG environment variable %q", envDebug), err.Error())
+		}
+		p.ApiDebug = types.BoolValue(v)
 	}
 }
 
@@ -276,36 +290,57 @@ func (p *mistProvider) Configure(ctx context.Context, req provider.ConfigureRequ
 			Proxy: http.ProxyURL(proxy_url),
 		}
 	}
+
 	var client_config mistapi.Configuration
-	var cloud_config mistapi.ConfigurationOptions = mistapi.WithEnvironment(mist_cloud)
-	var http_config mistapi.ConfigurationOptions = mistapi.WithHttpConfiguration(
+
+	var configOptions []mistapi.ConfigurationOptions
+	var tfLogger = NewTFlogger(ctx)
+	if config.ApiDebug.ValueBool() {
+		tfLogger.Warn("API Debugging enabled")
+		resp.Diagnostics.AddWarning("API Debugging enabled", "API debugging is enabled. Request and response bodies, headers, or other sensitive data may be logged. Use with caution.")
+		loggerConfig := mistapi.WithLoggerConfiguration(
+			mistapi.WithLogger(tfLogger),
+			mistapi.WithLevel(logger.Level_DEBUG),
+			mistapi.WithRequestConfiguration(
+				mistapi.WithRequestBody(true),
+				mistapi.WithRequestHeaders(true),
+			),
+			mistapi.WithResponseConfiguration(
+				mistapi.WithResponseHeaders(true),
+				mistapi.WithResponseBody(true),
+			),
+		)
+		configOptions = append(configOptions, loggerConfig)
+	}
+	configOptions = append(configOptions, mistapi.WithEnvironment(mist_cloud))
+
+	var httpConfig mistapi.ConfigurationOptions = mistapi.WithHttpConfiguration(
 		mistapi.CreateHttpConfiguration(
 			mistapi.WithTimeout(config.ApiTimeout.ValueFloat64()),
 			mistapi.WithTransport(DefaultTransport),
 		),
 	)
+	configOptions = append(configOptions, httpConfig)
 
 	// configure the client for API Token Auth
 	if config.Apitoken.ValueString() != "" {
-		client_config = mistapi.CreateConfiguration(
-			http_config,
-			cloud_config,
-			mistapi.WithApiTokenCredentials(
-				mistapi.NewApiTokenCredentials("Token "+config.Apitoken.ValueString()),
-			),
+
+		var apiTokenConfig = mistapi.WithApiTokenCredentials(
+			mistapi.NewApiTokenCredentials("Token " + config.Apitoken.ValueString()),
 		)
+		configOptions = append(configOptions, apiTokenConfig)
+
+		client_config = mistapi.CreateConfiguration(configOptions...)
 
 		// configure the client for Basic Auth + CSRF
 	} else {
 		// Initiate the login API Call
+		var basic_auth_config = mistapi.WithBasicAuthCredentials(
+			mistapi.NewBasicAuthCredentials(config.Username.ValueString(), config.Password.ValueString()),
+		)
+		configOptions = append(configOptions, basic_auth_config)
 		tmp_client := mistapi.NewClient(
-			mistapi.CreateConfiguration(
-				http_config,
-				cloud_config,
-				mistapi.WithBasicAuthCredentials(
-					mistapi.NewBasicAuthCredentials(config.Username.ValueString(), config.Password.ValueString()),
-				),
-			),
+			mistapi.CreateConfiguration(configOptions...),
 		)
 
 		body := models.Login{}
@@ -328,15 +363,11 @@ func (p *mistProvider) Configure(ctx context.Context, req provider.ConfigureRequ
 					for _, cVal := range strings.Split(cooky, ";") {
 						if strings.HasPrefix(cVal, "csrftoken") {
 							csrfToken_string := strings.Split(cVal, "=")[1]
-							csrfToken := mistapi.NewCsrfTokenCredentials(string(csrfToken_string))
-							client_config = mistapi.CreateConfiguration(
-								http_config,
-								cloud_config,
-								mistapi.WithBasicAuthCredentials(
-									mistapi.NewBasicAuthCredentials(config.Username.ValueString(), config.Password.ValueString()),
-								),
-								mistapi.WithCsrfTokenCredentials(csrfToken),
+							csrfTokenConfig := mistapi.WithCsrfTokenCredentials(
+								mistapi.NewCsrfTokenCredentials(csrfToken_string),
 							)
+							configOptions = append(configOptions, csrfTokenConfig)
+							client_config = mistapi.CreateConfiguration(configOptions...)
 							csrfTokenSet = true
 						}
 					}
