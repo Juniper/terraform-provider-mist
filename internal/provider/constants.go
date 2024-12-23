@@ -7,6 +7,7 @@ const (
 	envPassword          = "MIST_PASSWORD"
 	envApiTimeout        = "MIST_API_TIMEOUT"
 	envProxy             = "MIST_PROXY"
+	envDebug             = "MIST_API_DEBUG"
 	docCategorySeparator = " --- "
 	docCategorySite      = "Site" + docCategorySeparator
 	docCategoryOrg       = "Org" + docCategorySeparator
