@@ -65,6 +65,7 @@ HTTP, HTTPS, and SOCKS5 proxies are supported through the `MIST_PROXY` environme
 
 ### Optional
 
+- `api_debug` (Boolean) Flag to enable debugging API calls. Default is false.
 - `api_timeout` (Number) Timeout in seconds for completing API transactions with the Mist Cloud. Omit for default value of 10 seconds. Value of 0 results in infinite timeout.
 - `apitoken` (String, Sensitive) For API Token authentication, the Mist API Token.
 - `host` (String) URL of the Mist Cloud, e.g. `api.mist.com`.
