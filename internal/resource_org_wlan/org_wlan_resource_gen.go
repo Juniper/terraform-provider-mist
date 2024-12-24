@@ -1089,11 +1089,11 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 						Description:         "Requires `vlan_enabled`==`true` to be set to `true`. Whether to enable dynamic vlan",
 						MarkdownDescription: "Requires `vlan_enabled`==`true` to be set to `true`. Whether to enable dynamic vlan",
 						Validators: []validator.Bool{
-							mistvalidator.CanOnlyTrueWhenValueIs(path.MatchRoot("vlan_enabled"), types.BoolValue(true)),
+							mistvalidator.CanOnlyBeTrueWhenValueIs(path.MatchRoot("vlan_enabled"), types.BoolValue(true)),
 							boolvalidator.Any(
-								mistvalidator.CanOnlyTrueWhenValueIs(path.MatchRoot("auth").AtName("enable_mac_auth"), types.BoolValue(true)),
-								mistvalidator.CanOnlyTrueWhenValueIs(path.MatchRoot("auth").AtName("type"), types.StringValue("eap")),
-								mistvalidator.CanOnlyTrueWhenValueIs(path.MatchRoot("auth").AtName("type"), types.StringValue("eap192")),
+								mistvalidator.CanOnlyBeTrueWhenValueIs(path.MatchRoot("auth").AtName("enable_mac_auth"), types.BoolValue(true)),
+								mistvalidator.CanOnlyBeTrueWhenValueIs(path.MatchRoot("auth").AtName("type"), types.StringValue("eap")),
+								mistvalidator.CanOnlyBeTrueWhenValueIs(path.MatchRoot("auth").AtName("type"), types.StringValue("eap192")),
 							),
 						},
 						Default: booldefault.StaticBool(false),
@@ -2613,7 +2613,7 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "Requires `vlan_enabled`==`true` to be set to `true`. Vlan pooling allows AP to place client on different VLAN using a deterministic algorithm",
 				MarkdownDescription: "Requires `vlan_enabled`==`true` to be set to `true`. Vlan pooling allows AP to place client on different VLAN using a deterministic algorithm",
 				Validators: []validator.Bool{
-					mistvalidator.CanOnlyTrueWhenValueIs(path.MatchRoot("vlan_enabled"), types.BoolValue(true)),
+					mistvalidator.CanOnlyBeTrueWhenValueIs(path.MatchRoot("vlan_enabled"), types.BoolValue(true)),
 				},
 				Default: booldefault.StaticBool(false),
 			},

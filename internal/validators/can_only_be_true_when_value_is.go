@@ -14,34 +14,34 @@ import (
 )
 
 var (
-	_ NineTypesValidator = CanOnlyTrueWhenValueIsValidator{}
+	_ NineTypesValidator = CanOnlyBeTrueWhenValueIsValidator{}
 )
 
-type CanOnlyTrueWhenValueIsValidator struct {
+type CanOnlyBeTrueWhenValueIsValidator struct {
 	Expression path.Expression
 	Value      attr.Value
 }
 
-type CanOnlyTrueWhenValueIsRequest struct {
+type CanOnlyBeTrueWhenValueIsRequest struct {
 	Config         tfsdk.Config
 	ConfigValue    attr.Value
 	Path           path.Path
 	PathExpression path.Expression
 }
 
-type CanOnlyTrueWhenValueIsResponse struct {
+type CanOnlyBeTrueWhenValueIsResponse struct {
 	Diagnostics diag.Diagnostics
 }
 
-func (o CanOnlyTrueWhenValueIsValidator) Description(_ context.Context) string {
+func (o CanOnlyBeTrueWhenValueIsValidator) Description(_ context.Context) string {
 	return fmt.Sprintf("Ensures that no value is supplied when attribute at %q has value different from %s", o.Expression, o.Value)
 }
 
-func (o CanOnlyTrueWhenValueIsValidator) MarkdownDescription(ctx context.Context) string {
+func (o CanOnlyBeTrueWhenValueIsValidator) MarkdownDescription(ctx context.Context) string {
 	return o.Description(ctx)
 }
 
-func (o CanOnlyTrueWhenValueIsValidator) Validate(ctx context.Context, req CanOnlyTrueWhenValueIsRequest, resp *CanOnlyTrueWhenValueIsResponse) {
+func (o CanOnlyBeTrueWhenValueIsValidator) Validate(ctx context.Context, req CanOnlyBeTrueWhenValueIsRequest, resp *CanOnlyBeTrueWhenValueIsResponse) {
 	// can't proceed while value is unknown
 	if req.ConfigValue.IsUnknown() {
 		return
@@ -92,143 +92,143 @@ func (o CanOnlyTrueWhenValueIsValidator) Validate(ctx context.Context, req CanOn
 	}
 }
 
-func (o CanOnlyTrueWhenValueIsValidator) ValidateBool(ctx context.Context, req validator.BoolRequest, resp *validator.BoolResponse) {
-	validateReq := CanOnlyTrueWhenValueIsRequest{
+func (o CanOnlyBeTrueWhenValueIsValidator) ValidateBool(ctx context.Context, req validator.BoolRequest, resp *validator.BoolResponse) {
+	validateReq := CanOnlyBeTrueWhenValueIsRequest{
 		Config:         req.Config,
 		ConfigValue:    req.ConfigValue,
 		Path:           req.Path,
 		PathExpression: req.PathExpression,
 	}
 
-	validateResp := &CanOnlyTrueWhenValueIsResponse{}
+	validateResp := &CanOnlyBeTrueWhenValueIsResponse{}
 
 	o.Validate(ctx, validateReq, validateResp)
 
 	resp.Diagnostics.Append(validateResp.Diagnostics...)
 }
 
-func (o CanOnlyTrueWhenValueIsValidator) ValidateFloat64(ctx context.Context, req validator.Float64Request, resp *validator.Float64Response) {
-	validateReq := CanOnlyTrueWhenValueIsRequest{
+func (o CanOnlyBeTrueWhenValueIsValidator) ValidateFloat64(ctx context.Context, req validator.Float64Request, resp *validator.Float64Response) {
+	validateReq := CanOnlyBeTrueWhenValueIsRequest{
 		Config:         req.Config,
 		ConfigValue:    req.ConfigValue,
 		Path:           req.Path,
 		PathExpression: req.PathExpression,
 	}
 
-	validateResp := &CanOnlyTrueWhenValueIsResponse{}
+	validateResp := &CanOnlyBeTrueWhenValueIsResponse{}
 
 	o.Validate(ctx, validateReq, validateResp)
 
 	resp.Diagnostics.Append(validateResp.Diagnostics...)
 }
 
-func (o CanOnlyTrueWhenValueIsValidator) ValidateInt64(ctx context.Context, req validator.Int64Request, resp *validator.Int64Response) {
-	validateReq := CanOnlyTrueWhenValueIsRequest{
+func (o CanOnlyBeTrueWhenValueIsValidator) ValidateInt64(ctx context.Context, req validator.Int64Request, resp *validator.Int64Response) {
+	validateReq := CanOnlyBeTrueWhenValueIsRequest{
 		Config:         req.Config,
 		ConfigValue:    req.ConfigValue,
 		Path:           req.Path,
 		PathExpression: req.PathExpression,
 	}
 
-	validateResp := &CanOnlyTrueWhenValueIsResponse{}
+	validateResp := &CanOnlyBeTrueWhenValueIsResponse{}
 
 	o.Validate(ctx, validateReq, validateResp)
 
 	resp.Diagnostics.Append(validateResp.Diagnostics...)
 }
 
-func (o CanOnlyTrueWhenValueIsValidator) ValidateList(ctx context.Context, req validator.ListRequest, resp *validator.ListResponse) {
-	validateReq := CanOnlyTrueWhenValueIsRequest{
+func (o CanOnlyBeTrueWhenValueIsValidator) ValidateList(ctx context.Context, req validator.ListRequest, resp *validator.ListResponse) {
+	validateReq := CanOnlyBeTrueWhenValueIsRequest{
 		Config:         req.Config,
 		ConfigValue:    req.ConfigValue,
 		Path:           req.Path,
 		PathExpression: req.PathExpression,
 	}
 
-	validateResp := &CanOnlyTrueWhenValueIsResponse{}
+	validateResp := &CanOnlyBeTrueWhenValueIsResponse{}
 
 	o.Validate(ctx, validateReq, validateResp)
 
 	resp.Diagnostics.Append(validateResp.Diagnostics...)
 }
 
-func (o CanOnlyTrueWhenValueIsValidator) ValidateMap(ctx context.Context, req validator.MapRequest, resp *validator.MapResponse) {
-	validateReq := CanOnlyTrueWhenValueIsRequest{
+func (o CanOnlyBeTrueWhenValueIsValidator) ValidateMap(ctx context.Context, req validator.MapRequest, resp *validator.MapResponse) {
+	validateReq := CanOnlyBeTrueWhenValueIsRequest{
 		Config:         req.Config,
 		ConfigValue:    req.ConfigValue,
 		Path:           req.Path,
 		PathExpression: req.PathExpression,
 	}
 
-	validateResp := &CanOnlyTrueWhenValueIsResponse{}
+	validateResp := &CanOnlyBeTrueWhenValueIsResponse{}
 
 	o.Validate(ctx, validateReq, validateResp)
 
 	resp.Diagnostics.Append(validateResp.Diagnostics...)
 }
 
-func (o CanOnlyTrueWhenValueIsValidator) ValidateNumber(ctx context.Context, req validator.NumberRequest, resp *validator.NumberResponse) {
-	validateReq := CanOnlyTrueWhenValueIsRequest{
+func (o CanOnlyBeTrueWhenValueIsValidator) ValidateNumber(ctx context.Context, req validator.NumberRequest, resp *validator.NumberResponse) {
+	validateReq := CanOnlyBeTrueWhenValueIsRequest{
 		Config:         req.Config,
 		ConfigValue:    req.ConfigValue,
 		Path:           req.Path,
 		PathExpression: req.PathExpression,
 	}
 
-	validateResp := &CanOnlyTrueWhenValueIsResponse{}
+	validateResp := &CanOnlyBeTrueWhenValueIsResponse{}
 
 	o.Validate(ctx, validateReq, validateResp)
 
 	resp.Diagnostics.Append(validateResp.Diagnostics...)
 }
 
-func (o CanOnlyTrueWhenValueIsValidator) ValidateObject(ctx context.Context, req validator.ObjectRequest, resp *validator.ObjectResponse) {
-	validateReq := CanOnlyTrueWhenValueIsRequest{
+func (o CanOnlyBeTrueWhenValueIsValidator) ValidateObject(ctx context.Context, req validator.ObjectRequest, resp *validator.ObjectResponse) {
+	validateReq := CanOnlyBeTrueWhenValueIsRequest{
 		Config:         req.Config,
 		ConfigValue:    req.ConfigValue,
 		Path:           req.Path,
 		PathExpression: req.PathExpression,
 	}
 
-	validateResp := &CanOnlyTrueWhenValueIsResponse{}
+	validateResp := &CanOnlyBeTrueWhenValueIsResponse{}
 
 	o.Validate(ctx, validateReq, validateResp)
 
 	resp.Diagnostics.Append(validateResp.Diagnostics...)
 }
 
-func (o CanOnlyTrueWhenValueIsValidator) ValidateSet(ctx context.Context, req validator.SetRequest, resp *validator.SetResponse) {
-	validateReq := CanOnlyTrueWhenValueIsRequest{
+func (o CanOnlyBeTrueWhenValueIsValidator) ValidateSet(ctx context.Context, req validator.SetRequest, resp *validator.SetResponse) {
+	validateReq := CanOnlyBeTrueWhenValueIsRequest{
 		Config:         req.Config,
 		ConfigValue:    req.ConfigValue,
 		Path:           req.Path,
 		PathExpression: req.PathExpression,
 	}
 
-	validateResp := &CanOnlyTrueWhenValueIsResponse{}
+	validateResp := &CanOnlyBeTrueWhenValueIsResponse{}
 
 	o.Validate(ctx, validateReq, validateResp)
 
 	resp.Diagnostics.Append(validateResp.Diagnostics...)
 }
 
-func (o CanOnlyTrueWhenValueIsValidator) ValidateString(ctx context.Context, req validator.StringRequest, resp *validator.StringResponse) {
-	validateReq := CanOnlyTrueWhenValueIsRequest{
+func (o CanOnlyBeTrueWhenValueIsValidator) ValidateString(ctx context.Context, req validator.StringRequest, resp *validator.StringResponse) {
+	validateReq := CanOnlyBeTrueWhenValueIsRequest{
 		Config:         req.Config,
 		ConfigValue:    req.ConfigValue,
 		Path:           req.Path,
 		PathExpression: req.PathExpression,
 	}
 
-	validateResp := &CanOnlyTrueWhenValueIsResponse{}
+	validateResp := &CanOnlyBeTrueWhenValueIsResponse{}
 
 	o.Validate(ctx, validateReq, validateResp)
 
 	resp.Diagnostics.Append(validateResp.Diagnostics...)
 }
 
-func CanOnlyTrueWhenValueIs(expression path.Expression, value attr.Value) CanOnlyTrueWhenValueIsValidator {
-	return CanOnlyTrueWhenValueIsValidator{
+func CanOnlyBeTrueWhenValueIs(expression path.Expression, value attr.Value) CanOnlyBeTrueWhenValueIsValidator {
+	return CanOnlyBeTrueWhenValueIsValidator{
 		Expression: expression,
 		Value:      value,
 	}
