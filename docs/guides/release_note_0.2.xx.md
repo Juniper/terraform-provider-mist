@@ -1,22 +1,92 @@
 ---
 subcategory: "Release Notes"
-page_title: "v0.2.12"
+page_title: "v0.2.xx"
 description: |-
-    Release Notes for v0.2.12
+    Release Notes for v0.2.xx
 ---
 
-# Release Notes for v0.2.12
+# Release Notes for v0.2.xx
 
-**version**      : v0.2.12
+## Release Notes for v0.2.15
+**release date** : December 27th, 2024
+
+
+### Improvements
+* add the `api_debug` flag to the provider properties to enable the logging of the SDK Requests and Responses
+* improve the `mist_device_gateway`, `mist_deviceprofile_gateway` and `mist_org_gatewaytemplate` documentation
+* improve the `mist_device_gateway`, `mist_deviceprofile_gateway` and `mist_org_gatewaytemplate` validators
+
+### Fixes
+* fix the transformation of the `VlanIdWithVariable` SDK property. In some condition the value sent to the provider was an HEX string instead of the VLAN ID (or variable) value.
+
+### Changes
+* update the `mist_org_network` resource based on the OpenAPI changes:
+  * add the `internet_access.destination_nat.wan_name` attribute
+  * add the `internet_access.static_nat.wan_name` attribute
+  * add the `multicast` attribute
+
+* update the `mist_device_gateway`, `mist_deviceprofile_gateway` and `mist_org_gatewaytemplate` resource based on the OpenAPI changes:
+  * add the `internet_access.destination_nat.wan_name` attribute
+  * add the `internet_access.static_nat.wan_name` attribute
+  * add the `port_config.wan_networks` attribute
+  * add the `routing_policies.action.aggregate` attribute
+  * remove the `tunnel_configs.auto_provision.primary.num_hosts` and `tunnel_configs.auto_provision.secondary.num_hosts` attributes (this setting must be configured in the `tunnel_provider_options` object)
+  * add the `tunnel_configs.auto_provision.primary.probe_ips` attribute
+  * add the `tunnel_configs.auto_provision.secondary.probe_ips` attribute
+  * add the `tunnel_configs.auto_provision.provider` attribute
+  * add the `tunnel_configs.auto_provision.region` attribute
+  * change the `tunnel_configs.primary.hosts` attribute to `required`
+  * change the `tunnel_configs.primary.wan_names` attribute to `required`
+  * change the `tunnel_configs.secondary.hosts` attribute to `required`
+  * change the `tunnel_configs.secondary.wan_names` attribute to `required`
+  * replace the `tunnel_provider_options.jse.name` attributes to `tunnel_provider_options.jse.org_name` 
+  * rework the whole `tunnel_provider_options.zscaler` object to match the Mist API structure (see the resource documentation for more details)
+
+
+
+
+## Release Notes for v0.2.14
+**release date** : December 20th, 2024
+
+
+### Fixes
+* Fixing issue when `mist_org_wlan.ap_ids` or `mist_org_wlan.ap_ids` is present but has an `null` value
+
+
+
+
+
+
+
+## Release Notes for v0.2.13
+**release date** : December 20th, 2024
+
+### Improvements
+* `mist_device_gateway_cluster`: Improve the creation resource behavior when one of both of the cluster nodes already belong to a cluster.  The provider will no more raise an error when the existing cluster in the Mist Cloud is matching the planned cluster (same primary node, same secondary node).
+* `mist_org_inventory`: improve the deprecation message.
+
+### Fixes
+* [Issue 65](https://github.com/Juniper/terraform-provider-mist/issues/65): Fixing the `port_config.wan_source_nat` attribute in the `mist_device_gateway`, `mist_org_deviceprofile_gateway` and `mist_org_gatewaytemplate` resources 
+* [Issue 66](https://github.com/Juniper/terraform-provider-mist/issues/66): Fixing `mist_org_wlan` resource following the v0.2.12 changes 
+* [Issue 68](https://github.com/Juniper/terraform-provider-mist/issues/68): Fixing `tunnel_configs.auto_provision` attribute in `gateway` resources 
+* Fixing issue when removing `rftemplate_id` from the `mist_site` resource
+
+
+
+
+
+
+
+## Release Notes for v0.2.12
 **release date** : December 13th, 2024
 
 !> This release may generate multiple changes to the `org_wlan_resource` and `site_wlan_resource` resources during the first configuration sync. This is due to the new default values defined, and will not impact to actual SSID configuration deployed on the Access Points
 
-## Changes
-### Documentation
+### Changes
+#### Documentation
 * improve `org_wlan_resource` and `site_wlan_resource` resources documentation
 
-### WLAN resources default values
+#### WLAN resources default values
 Changes applied to `org_wlan_resource` and `site_wlan_resource` to reduce configuration drift when saving the WLAN from the Mist UI. These changes try to mimic the Mist UI default values, however, some of them are changing based on other parameter values which make it currently impossible to completely eliminate the configuration drift.
 
 List of the default value changes:
@@ -80,7 +150,7 @@ List of the default value changes:
 | `wlan_limit_down` | not set | `20000` |
 | `wlan_limit_up` | not set | `10000` |
 
-### WLAN resources validators
+#### WLAN resources validators
 Validators applied to the WLAN resources attributes have been updates to simplify the resource configuration and improve the configuration validity.
 
 List of the validator changes:
@@ -124,12 +194,12 @@ List of the validator changes:
 | `vlan_ids`| `listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseInt(1, 4094), mistvalidator.ParseVar())),` | `listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseInt(1, 4094), mistvalidator.ParseVar())),mistvalidator.RequiredWhenValueIs(path.MatchRoot("vlan_pooling"), types.BoolValue(true))` |
 | `vlan_pooling` | not set | `mistvalidator.CanOnlyTrueWhenValueIs(path.MatchRoot("vlan_enabled"), types.BoolValue(true))` |
 
-### Remove Attributes
+#### Remove Attributes
 | Attribute | Reason |
 | --------- | ----------- |
 | `dynamic_psk.vlan_ids` | OpenAPI Specification issue. This attribute is not supported by the Mist API |
 | `portal_template_url` | Read Only attribute returned by the Mist API. The returned URL has limited lifetime so it doesn't make sense to store it in the resource state |
 | `thumbnail` | Read Only attribute returned by the Mist API. The returned URL has limited lifetime so it doesn't make sense to store it in the resource state |
 
-## Fixes
+### Fixes
 * [Issue 63](https://github.com/Juniper/terraform-provider-mist/issues/63): Adding `Optional` type to `alarmtemplate.rules.delivery`to fix synchronisation issue
