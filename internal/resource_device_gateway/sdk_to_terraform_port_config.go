@@ -261,6 +261,7 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 		var wan_arp_policer basetypes.StringValue = types.StringValue("default")
 		var wan_ext_ip basetypes.StringValue
 		var wan_extra_routes basetypes.MapValue = types.MapNull(WanExtraRoutesValue{}.Type(ctx))
+		var wan_networks basetypes.ListValue = basetypes.NewListValueMust(types.StringType, []attr.Value{})
 		var wan_probe_override basetypes.ObjectValue = types.ObjectNull(WanProbeOverrideValue{}.AttributeTypes(ctx))
 		var wan_source_nat basetypes.ObjectValue = types.ObjectNull(WanSourceNatValue{}.AttributeTypes(ctx))
 		var wan_type basetypes.StringValue = types.StringValue("broadband")
@@ -373,6 +374,9 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 		if v.WanExtraRoutes != nil && len(v.WanExtraRoutes) > 0 {
 			wan_extra_routes = wanExtraRoutesPortConfigIpConfigSdkToTerraform(ctx, diags, v.WanExtraRoutes)
 		}
+		if v.WanNetworks != nil && len(v.WanNetworks) > 0 {
+			wan_networks = mist_transform.ListOfStringSdkToTerraform(ctx, v.WanNetworks)
+		}
 		if v.WanProbeOverride != nil {
 			wan_probe_override = wanProbeOverridePortConfigIpConfigSdkToTerraform(ctx, diags, v.WanProbeOverride)
 		}
@@ -423,6 +427,7 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 			"wan_arp_policer":    wan_arp_policer,
 			"wan_ext_ip":         wan_ext_ip,
 			"wan_extra_routes":   wan_extra_routes,
+			"wan_networks":       wan_networks,
 			"wan_probe_override": wan_probe_override,
 			"wan_source_nat":     wan_source_nat,
 			"wan_type":           wan_type,

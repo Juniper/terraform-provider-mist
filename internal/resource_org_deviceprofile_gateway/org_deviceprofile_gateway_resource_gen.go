@@ -35,8 +35,8 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 			"additional_config_cmds": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
-				Description:         "additional CLI commands to append to the generated Junos config\n\n**Note**: no check is done",
-				MarkdownDescription: "additional CLI commands to append to the generated Junos config\n\n**Note**: no check is done",
+				Description:         "additional CLI commands to append to the generated Junos config. **Note**: no check is done",
+				MarkdownDescription: "additional CLI commands to append to the generated Junos config. **Note**: no check is done",
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 				},
@@ -180,7 +180,7 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 									mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtMapKey("via"), types.StringValue("wan")),
 								),
 							},
-							Default: listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
+							Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 						},
 						"no_readvertise_to_overlay": schema.BoolAttribute{
 							Optional:            true,
@@ -269,6 +269,7 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 									Computed:            true,
 									Description:         "if `type`==`local` or `type6`==`local` - optional, if not defined, system one will be used",
 									MarkdownDescription: "if `type`==`local` or `type6`==`local` - optional, if not defined, system one will be used",
+									Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 								},
 								"fixed_bindings": schema.MapNestedAttribute{
 									NestedObject: schema.NestedAttributeObject{
@@ -406,6 +407,7 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 										listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseIp(true, true), mistvalidator.ParseVar())),
 										mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("relay")),
 									},
+									Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 								},
 								"servers6": schema.ListAttribute{
 									ElementType:         types.StringType,
@@ -417,6 +419,7 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 										listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseIp(true, true), mistvalidator.ParseVar())),
 										mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type6"), types.StringValue("relay")),
 									},
+									Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 								},
 								"type": schema.StringAttribute{
 									Optional:            true,
@@ -699,7 +702,7 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "optional list of secondary IPs in CIDR format",
 							MarkdownDescription: "optional list of secondary IPs in CIDR format",
-							Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
+							Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 						},
 						"type": schema.StringAttribute{
 							Optional:            true,
@@ -788,6 +791,11 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 											},
 											"port": schema.Int64Attribute{
 												Optional: true,
+											},
+											"wan_name": schema.StringAttribute{
+												Optional:            true,
+												Description:         "If not set, we configure the nat policies against all WAN ports for simplicity",
+												MarkdownDescription: "If not set, we configure the nat policies against all WAN ports for simplicity",
 											},
 										},
 										CustomType: DestinationNatType{
@@ -976,6 +984,11 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 												"port": schema.Int64Attribute{
 													Optional: true,
 												},
+												"wan_name": schema.StringAttribute{
+													Optional:            true,
+													Description:         "If not set, we configure the nat policies against all WAN ports for simplicity",
+													MarkdownDescription: "If not set, we configure the nat policies against all WAN ports for simplicity",
+												},
 											},
 											CustomType: DestinationNatType{
 												ObjectType: types.ObjectType{
@@ -1021,6 +1034,7 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 										Computed:            true,
 										Description:         "by default, the routes are only readvertised toward the same vrf on spoke\nto allow it to be leaked to other vrfs",
 										MarkdownDescription: "by default, the routes are only readvertised toward the same vrf on spoke\nto allow it to be leaked to other vrfs",
+										Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 									},
 									"routed": schema.BoolAttribute{
 										Optional:            true,
@@ -1360,6 +1374,7 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 										Validators: []validator.List{
 											mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("local")),
 										},
+										Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 									},
 									"target_ips": schema.ListAttribute{
 										ElementType:         types.StringType,
@@ -1370,6 +1385,7 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 										Validators: []validator.List{
 											mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("local")),
 										},
+										Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 									},
 									"type": schema.StringAttribute{
 										Optional:            true,
@@ -1599,15 +1615,15 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 							ElementType:         types.StringType,
 							Optional:            true,
 							Computed:            true,
-							Description:         "if `usage`==`lan`",
-							MarkdownDescription: "if `usage`==`lan`",
+							Description:         "if `usage`==`lan`, name of the `mist_org_network` resource",
+							MarkdownDescription: "if `usage`==`lan`, name of the `mist_org_network` resource",
 							Validators: []validator.List{
 								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("lan")),
 								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("wan")),
 								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("ha_data")),
 								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("ha_control")),
 							},
-							Default: listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
+							Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 						},
 						"outer_vlan_id": schema.Int64Attribute{
 							Optional:            true,
@@ -1757,7 +1773,7 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "SSR only - supporting vlan-based redundancy (matching the size of `networks`)",
 							MarkdownDescription: "SSR only - supporting vlan-based redundancy (matching the size of `networks`)",
-							Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
+							Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 						},
 						"speed": schema.StringAttribute{
 							Optional: true,
@@ -1904,8 +1920,8 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 						"wan_arp_policer": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "when `wan_type`==`broadband`. enum: `default`, `max`, `recommended`",
-							MarkdownDescription: "when `wan_type`==`broadband`. enum: `default`, `max`, `recommended`",
+							Description:         "Only when `wan_type`==`broadband`. enum: `default`, `max`, `recommended`",
+							MarkdownDescription: "Only when `wan_type`==`broadband`. enum: `default`, `max`, `recommended`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -1913,15 +1929,17 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 									"default",
 									"max",
 								),
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("lte")),
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("dsl")),
+								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("broadband")),
 							},
 							Default: stringdefault.StaticString("default"),
 						},
 						"wan_ext_ip": schema.StringAttribute{
 							Optional:            true,
-							Description:         "optional, if spoke should reach this port by a different IP",
-							MarkdownDescription: "optional, if spoke should reach this port by a different IP",
+							Description:         "Only if `usage`==`wan`, optional. If spoke should reach this port by a different IP",
+							MarkdownDescription: "Only if `usage`==`wan`, optional. If spoke should reach this port by a different IP",
+							Validators: []validator.String{
+								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("wan")),
+							},
 						},
 						"wan_extra_routes": schema.MapNestedAttribute{
 							NestedObject: schema.NestedAttributeObject{
@@ -1937,10 +1955,21 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional:            true,
-							Description:         "Property Key is the destianation CIDR (e.g \"100.100.100.0/24\")",
-							MarkdownDescription: "Property Key is the destianation CIDR (e.g \"100.100.100.0/24\")",
+							Description:         "Only if `usage`==`wan`. Property Key is the destianation CIDR (e.g \"100.100.100.0/24\")",
+							MarkdownDescription: "Only if `usage`==`wan`. Property Key is the destianation CIDR (e.g \"100.100.100.0/24\")",
 							Validators: []validator.Map{
 								mapvalidator.SizeAtLeast(1),
+								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("wan")),
+							},
+						},
+						"wan_networks": schema.ListAttribute{
+							ElementType:         types.StringType,
+							Optional:            true,
+							Computed:            true,
+							Description:         "Only if `usage`==`wan`. If some networks are connected to this WAN port, it can be added here so policies can be defined",
+							MarkdownDescription: "Only if `usage`==`wan`. If some networks are connected to this WAN port, it can be added here so policies can be defined",
+							Validators: []validator.List{
+								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("wan")),
 							},
 						},
 						"wan_probe_override": schema.SingleNestedAttribute{
@@ -1973,8 +2002,11 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional:            true,
-							Description:         "if `usage`==`wan`",
-							MarkdownDescription: "if `usage`==`wan`",
+							Description:         "Only if `usage`==`wan`",
+							MarkdownDescription: "Only if `usage`==`wan`",
+							Validators: []validator.Object{
+								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("wan")),
+							},
 						},
 						"wan_source_nat": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
@@ -1997,14 +2029,17 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional:            true,
-							Description:         "optional, by default, source-NAT is performed on all WAN Ports using the interface-ip",
-							MarkdownDescription: "optional, by default, source-NAT is performed on all WAN Ports using the interface-ip",
+							Description:         "Only if `usage`==`wan`, optional. By default, source-NAT is performed on all WAN Ports using the interface-ip",
+							MarkdownDescription: "Only if `usage`==`wan`, optional. By default, source-NAT is performed on all WAN Ports using the interface-ip",
+							Validators: []validator.Object{
+								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("wan")),
+							},
 						},
 						"wan_type": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "if `usage`==`wan`. enum: `broadband`, `dsl`, `lte`",
-							MarkdownDescription: "if `usage`==`wan`. enum: `broadband`, `dsl`, `lte`",
+							Description:         "Only if `usage`==`wan`. enum: `broadband`, `dsl`, `lte`",
+							MarkdownDescription: "Only if `usage`==`wan`. enum: `broadband`, `dsl`, `lte`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -2057,6 +2092,12 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 												Optional:            true,
 												Description:         "for SSR, hub decides how VRF routes are leaked on spoke",
 												MarkdownDescription: "for SSR, hub decides how VRF routes are leaked on spoke",
+											},
+											"aggregate": schema.ListAttribute{
+												ElementType:         types.StringType,
+												Optional:            true,
+												Description:         "route aggregation",
+												MarkdownDescription: "route aggregation",
 											},
 											"community": schema.ListAttribute{
 												ElementType:         types.StringType,
@@ -2396,8 +2437,13 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Attributes: map[string]schema.Attribute{
 								"primary": schema.SingleNestedAttribute{
 									Attributes: map[string]schema.Attribute{
-										"num_hosts": schema.StringAttribute{
-											Optional: true,
+										"probe_ips": schema.ListAttribute{
+											ElementType: types.StringType,
+											Optional:    true,
+											Validators: []validator.List{
+												listvalidator.SizeAtLeast(1),
+												listvalidator.UniqueValues(),
+											},
 										},
 										"wan_names": schema.ListAttribute{
 											ElementType:         types.StringType,
@@ -2415,8 +2461,13 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"secondary": schema.SingleNestedAttribute{
 									Attributes: map[string]schema.Attribute{
-										"num_hosts": schema.StringAttribute{
-											Optional: true,
+										"probe_ips": schema.ListAttribute{
+											ElementType: types.StringType,
+											Optional:    true,
+											Validators: []validator.List{
+												listvalidator.SizeAtLeast(1),
+												listvalidator.UniqueValues(),
+											},
 										},
 										"wan_names": schema.ListAttribute{
 											ElementType:         types.StringType,
@@ -2449,7 +2500,26 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 											AttrTypes: LatlngValue{}.AttributeTypes(ctx),
 										},
 									},
-									Optional: true,
+									Optional:            true,
+									Description:         "API override for POP selection",
+									MarkdownDescription: "API override for POP selection",
+								},
+								"provider": schema.StringAttribute{
+									Required:            true,
+									Description:         "enum: `jse-ipsec`, `zscaler-ipsec`",
+									MarkdownDescription: "enum: `jse-ipsec`, `zscaler-ipsec`",
+									Validators: []validator.String{
+										stringvalidator.OneOf(
+											"",
+											"jse-ipsec",
+											"zscaler-ipsec",
+										),
+									},
+								},
+								"region": schema.StringAttribute{
+									Optional:            true,
+									Description:         "API override for POP selection",
+									MarkdownDescription: "API override for POP selection",
 								},
 							},
 							CustomType: AutoProvisionType{
@@ -2461,30 +2531,24 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"ike_lifetime": schema.Int64Attribute{
 							Optional:            true,
-							Description:         "Only if `provider`== `custom-ipsec`",
-							MarkdownDescription: "Only if `provider`== `custom-ipsec`",
+							Description:         "Only if `provider`==`custom-ipsec`. Must be between 180 and 86400",
+							MarkdownDescription: "Only if `provider`==`custom-ipsec`. Must be between 180 and 86400",
 							Validators: []validator.Int64{
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("zscaler-ipsec")),
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("zscaler-gre")),
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("jse-ipsec")),
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("customer-gre")),
+								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("custom-ipsec")),
+								int64validator.Between(180, 86400),
 							},
 						},
 						"ike_mode": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "Only if `provider`== `custom-ipsec`. enum: `aggressive`, `main`",
-							MarkdownDescription: "Only if `provider`== `custom-ipsec`. enum: `aggressive`, `main`",
+							Description:         "Only if `provider`==`custom-ipsec`. enum: `aggressive`, `main`",
+							MarkdownDescription: "Only if `provider`==`custom-ipsec`. enum: `aggressive`, `main`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
 									"main",
 									"aggressive",
 								),
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("zscaler-ipsec")),
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("zscaler-gre")),
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("jse-ipsec")),
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("customer-gre")),
 							},
 							Default: stringdefault.StaticString("main"),
 						},
@@ -2551,24 +2615,19 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional:            true,
-							Description:         "if `provider`== `custom-ipsec`",
-							MarkdownDescription: "if `provider`== `custom-ipsec`",
+							Description:         "if `provider`==`custom-ipsec`",
+							MarkdownDescription: "if `provider`==`custom-ipsec`",
 							Validators: []validator.List{
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("zscaler-ipsec")),
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("zscaler-gre")),
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("jse-ipsec")),
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("customer-gre")),
+								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("custom-ipsec")),
 							},
 						},
 						"ipsec_lifetime": schema.Int64Attribute{
 							Optional:            true,
-							Description:         "if `provider`== `custom-ipsec`",
-							MarkdownDescription: "if `provider`== `custom-ipsec`",
+							Description:         "Only if `provider`==`custom-ipsec`. Must be between 180 and 86400",
+							MarkdownDescription: "Only if `provider`==`custom-ipsec`. Must be between 180 and 86400",
 							Validators: []validator.Int64{
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("zscaler-ipsec")),
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("zscaler-gre")),
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("jse-ipsec")),
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("customer-gre")),
+								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("custom-ipsec")),
+								int64validator.Between(180, 86400),
 							},
 						},
 						"ipsec_proposals": schema.ListNestedAttribute{
@@ -2590,8 +2649,8 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 									"dh_group": schema.StringAttribute{
 										Optional:            true,
 										Computed:            true,
-										Description:         "Only if `provider`== `custom-ipsec`. enum:\n  * 1\n  * 2 (1024-bit)\n  * 5\n  * 14 (default, 2048-bit)\n  * 15 (3072-bit)\n  * 16 (4096-bit)\n  * 19 (256-bit ECP)\n  * 20 (384-bit ECP)\n  * 21 (521-bit ECP)\n  * 24 (2048-bit ECP)",
-										MarkdownDescription: "Only if `provider`== `custom-ipsec`. enum:\n  * 1\n  * 2 (1024-bit)\n  * 5\n  * 14 (default, 2048-bit)\n  * 15 (3072-bit)\n  * 16 (4096-bit)\n  * 19 (256-bit ECP)\n  * 20 (384-bit ECP)\n  * 21 (521-bit ECP)\n  * 24 (2048-bit ECP)",
+										Description:         "Only if `provider`==`custom-ipsec`. enum:\n  * 1\n  * 2 (1024-bit)\n  * 5\n  * 14 (default, 2048-bit)\n  * 15 (3072-bit)\n  * 16 (4096-bit)\n  * 19 (256-bit ECP)\n  * 20 (384-bit ECP)\n  * 21 (521-bit ECP)\n  * 24 (2048-bit ECP)",
+										MarkdownDescription: "Only if `provider`==`custom-ipsec`. enum:\n  * 1\n  * 2 (1024-bit)\n  * 5\n  * 14 (default, 2048-bit)\n  * 15 (3072-bit)\n  * 16 (4096-bit)\n  * 19 (256-bit ECP)\n  * 20 (384-bit ECP)\n  * 21 (521-bit ECP)\n  * 24 (2048-bit ECP)",
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",
@@ -2634,29 +2693,27 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional:            true,
-							Description:         "Only if  `provider`== `custom-ipsec`",
-							MarkdownDescription: "Only if  `provider`== `custom-ipsec`",
+							Description:         "Only if  `provider`==`custom-ipsec`",
+							MarkdownDescription: "Only if  `provider`==`custom-ipsec`",
 							Validators: []validator.List{
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("zscaler-ipsec")),
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("zscaler-gre")),
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("jse-ipsec")),
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("customer-gre")),
+								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("custom-ipsec")),
 							},
 						},
 						"local_id": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Only if:\n  * `provider`== `zscaler-ipsec`\n  * `provider`==`jse-ipsec`\n  * `provider`== `custom-ipsec`",
-							MarkdownDescription: "Only if:\n  * `provider`== `zscaler-ipsec`\n  * `provider`==`jse-ipsec`\n  * `provider`== `custom-ipsec`",
+							Description:         "Required if `provider`==`zscaler-ipsec`, `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
+							MarkdownDescription: "Required if `provider`==`zscaler-ipsec`, `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
 							Validators: []validator.String{
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("zscaler-gre")),
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("customer-gre")),
+								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("zscaler-ipsec")),
+								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("jse-ipsec")),
+								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("customer-ipsec")),
 							},
 						},
 						"mode": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "enum: `active-active`, `active-standby`",
-							MarkdownDescription: "enum: `active-active`, `active-standby`",
+							Description:         "Required if `provider`==`zscaler-gre`, `provider`==`jse-ipsec`. enum: `active-active`, `active-standby`",
+							MarkdownDescription: "Required if `provider`==`zscaler-gre`, `provider`==`jse-ipsec`. enum: `active-active`, `active-standby`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -2670,20 +2727,23 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 							ElementType:         types.StringType,
 							Optional:            true,
 							Computed:            true,
-							Description:         "networks reachable via this tunnel",
-							MarkdownDescription: "networks reachable via this tunnel",
+							Description:         "if `provider`==`custom-ipsec`, networks reachable via this tunnel",
+							MarkdownDescription: "if `provider`==`custom-ipsec`, networks reachable via this tunnel",
+							Validators: []validator.List{
+								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("customer-ipsec")),
+							},
 						},
 						"primary": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
 								"hosts": schema.ListAttribute{
 									ElementType: types.StringType,
-									Optional:    true,
+									Required:    true,
 								},
 								"internal_ips": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Optional:            true,
-									Description:         "Only if:\n  * `provider`== `zscaler-gre`\n  * `provider`== `custom-gre`",
-									MarkdownDescription: "Only if:\n  * `provider`== `zscaler-gre`\n  * `provider`== `custom-gre`",
+									Description:         "Only if `provider`==`zscaler-gre`, `provider`==`jse-ipsec`, `provider`==`custom-ipsec` or `provider`==`custom-gre`",
+									MarkdownDescription: "Only if `provider`==`zscaler-gre`, `provider`==`jse-ipsec`, `provider`==`custom-ipsec` or `provider`==`custom-gre`",
 								},
 								"probe_ips": schema.ListAttribute{
 									ElementType: types.StringType,
@@ -2695,12 +2755,12 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 								"remote_ids": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Optional:            true,
-									Description:         "Only if `provider`== `custom-ipsec`",
-									MarkdownDescription: "Only if `provider`== `custom-ipsec`",
+									Description:         "Only if  `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
+									MarkdownDescription: "Only if  `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
 								},
 								"wan_names": schema.ListAttribute{
 									ElementType: types.StringType,
-									Optional:    true,
+									Required:    true,
 								},
 							},
 							CustomType: PrimaryType{
@@ -2708,7 +2768,9 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 									AttrTypes: PrimaryValue{}.AttributeTypes(ctx),
 								},
 							},
-							Optional: true,
+							Optional:            true,
+							Description:         "Only if `provider`==`zscaler-ipsec`, `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
+							MarkdownDescription: "Only if `provider`==`zscaler-ipsec`, `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
 						},
 						"probe": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
@@ -2748,13 +2810,13 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional:            true,
-							Description:         "Only if `provider`== `custom-ipsec`",
-							MarkdownDescription: "Only if `provider`== `custom-ipsec`",
+							Description:         "Only if `provider`==`custom-ipsec`",
+							MarkdownDescription: "Only if `provider`==`custom-ipsec`",
 						},
 						"protocol": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Only if `provider`== `custom-ipsec`. enum: `gre`, `ipsec`",
-							MarkdownDescription: "Only if `provider`== `custom-ipsec`. enum: `gre`, `ipsec`",
+							Description:         "Only if `provider`==`custom-ipsec`. enum: `gre`, `ipsec`",
+							MarkdownDescription: "Only if `provider`==`custom-ipsec`. enum: `gre`, `ipsec`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -2765,8 +2827,8 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"provider": schema.StringAttribute{
 							Optional:            true,
-							Description:         "enum: `custom-ipsec`, `customer-gre`, `jse-ipsec`, `zscaler-gre`, `zscaler-ipsec`",
-							MarkdownDescription: "enum: `custom-ipsec`, `customer-gre`, `jse-ipsec`, `zscaler-gre`, `zscaler-ipsec`",
+							Description:         "Only if `auto_provision.enabled`==`false`. enum: `custom-ipsec`, `customer-gre`, `jse-ipsec`, `zscaler-gre`, `zscaler-ipsec`",
+							MarkdownDescription: "Only if `auto_provision.enabled`==`false`. enum: `custom-ipsec`, `customer-gre`, `jse-ipsec`, `zscaler-gre`, `zscaler-ipsec`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -2781,20 +2843,25 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 						"psk": schema.StringAttribute{
 							Optional:            true,
 							Sensitive:           true,
-							Description:         "Only if:\n  * `provider`== `zscaler-ipsec`\n  * `provider`==`jse-ipsec`\n  * `provider`== `custom-ipsec`",
-							MarkdownDescription: "Only if:\n  * `provider`== `zscaler-ipsec`\n  * `provider`==`jse-ipsec`\n  * `provider`== `custom-ipsec`",
+							Description:         "Required if `provider`==`zscaler-ipsec`, `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
+							MarkdownDescription: "Required if `provider`==`zscaler-ipsec`, `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
+							Validators: []validator.String{
+								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("zscaler-ipsec")),
+								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("jse-ipsec")),
+								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("custom-ipsec")),
+							},
 						},
 						"secondary": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
 								"hosts": schema.ListAttribute{
 									ElementType: types.StringType,
-									Optional:    true,
+									Required:    true,
 								},
 								"internal_ips": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Optional:            true,
-									Description:         "Only if:\n  * `provider`== `zscaler-gre`\n  * `provider`== `custom-gre`",
-									MarkdownDescription: "Only if:\n  * `provider`== `zscaler-gre`\n  * `provider`== `custom-gre`",
+									Description:         "Only if `provider`==`zscaler-gre`, `provider`==`jse-ipsec`, `provider`==`custom-ipsec` or `provider`==`custom-gre`",
+									MarkdownDescription: "Only if `provider`==`zscaler-gre`, `provider`==`jse-ipsec`, `provider`==`custom-ipsec` or `provider`==`custom-gre`",
 								},
 								"probe_ips": schema.ListAttribute{
 									ElementType: types.StringType,
@@ -2806,12 +2873,12 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 								"remote_ids": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Optional:            true,
-									Description:         "Only if `provider`== `custom-ipsec`",
-									MarkdownDescription: "Only if `provider`== `custom-ipsec`",
+									Description:         "Only if  `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
+									MarkdownDescription: "Only if  `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
 								},
 								"wan_names": schema.ListAttribute{
 									ElementType: types.StringType,
-									Optional:    true,
+									Required:    true,
 								},
 							},
 							CustomType: SecondaryType{
@@ -2819,13 +2886,15 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 									AttrTypes: SecondaryValue{}.AttributeTypes(ctx),
 								},
 							},
-							Optional: true,
+							Optional:            true,
+							Description:         "Only if `provider`==`zscaler-ipsec`, `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
+							MarkdownDescription: "Only if `provider`==`zscaler-ipsec`, `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
 						},
 						"version": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "Only if `provider`== `custom-gre` or `provider`== `custom-ipsec`. enum: `1`, `2`",
-							MarkdownDescription: "Only if `provider`== `custom-gre` or `provider`== `custom-ipsec`. enum: `1`, `2`",
+							Description:         "Only if `provider`==`custom-gre` or `provider`==`custom-ipsec`. enum: `1`, `2`",
+							MarkdownDescription: "Only if `provider`==`custom-gre` or `provider`==`custom-ipsec`. enum: `1`, `2`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -2853,11 +2922,13 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 				Attributes: map[string]schema.Attribute{
 					"jse": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
-							"name": schema.StringAttribute{
-								Optional: true,
-							},
 							"num_users": schema.Int64Attribute{
 								Optional: true,
+							},
+							"org_name": schema.StringAttribute{
+								Optional:            true,
+								Description:         "JSE Organization name",
+								MarkdownDescription: "JSE Organization name",
 							},
 						},
 						CustomType: JseType{
@@ -2871,104 +2942,151 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"zscaler": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
-							"aup_acceptance_required": schema.BoolAttribute{
+							"aup_block_internet_until_accepted": schema.BoolAttribute{
 								Optional: true,
-								Computed: true,
-								Default:  booldefault.StaticBool(true),
 							},
-							"aup_expire": schema.Int64Attribute{
+							"aup_enabled": schema.BoolAttribute{
 								Optional:            true,
-								Computed:            true,
-								Description:         "days before AUP is requested again",
-								MarkdownDescription: "days before AUP is requested again",
-								Default:             int64default.StaticInt64(1),
+								Description:         "Can only be `true` when `auth_required`==`false`, display Acceptable Use Policy (AUP)",
+								MarkdownDescription: "Can only be `true` when `auth_required`==`false`, display Acceptable Use Policy (AUP)",
+								Validators: []validator.Bool{
+									mistvalidator.CannotBeTrueWhenValueIs(path.MatchRelative().AtParent().AtName("auth_required"), types.BoolValue(true)),
+								},
 							},
-							"aup_ssl_proxy": schema.BoolAttribute{
+							"aup_force_ssl_inspection": schema.BoolAttribute{
 								Optional:            true,
-								Computed:            true,
 								Description:         "proxy HTTPs traffic, requiring Zscaler cert to be installed in browser",
 								MarkdownDescription: "proxy HTTPs traffic, requiring Zscaler cert to be installed in browser",
-								Default:             booldefault.StaticBool(false),
 							},
-							"download_mbps": schema.Int64Attribute{
+							"aup_timeout_in_days": schema.Int64Attribute{
 								Optional:            true,
-								Description:         "the download bandwidth cap of the link, in Mbps",
-								MarkdownDescription: "the download bandwidth cap of the link, in Mbps",
+								Description:         "Required if `aup_enabled`==`true`. Days before AUP is requested again",
+								MarkdownDescription: "Required if `aup_enabled`==`true`. Days before AUP is requested again",
+								Validators: []validator.Int64{
+									int64validator.Between(1, 180),
+									mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("aup_enabled"), types.BoolValue(true)),
+								},
 							},
-							"enable_aup": schema.BoolAttribute{
+							"auth_required": schema.BoolAttribute{
 								Optional:            true,
-								Computed:            true,
-								Description:         "if `use_xff`==`true`, display Acceptable Use Policy (AUP)",
-								MarkdownDescription: "if `use_xff`==`true`, display Acceptable Use Policy (AUP)",
-								Default:             booldefault.StaticBool(false),
+								Description:         "Enable this option to authenticate users",
+								MarkdownDescription: "Enable this option to authenticate users",
 							},
-							"enable_caution": schema.BoolAttribute{
+							"caution_enabled": schema.BoolAttribute{
 								Optional:            true,
-								Computed:            true,
-								Description:         "when `enforce_authentication`==`false`, display caution notification for non-authenticated users",
-								MarkdownDescription: "when `enforce_authentication`==`false`, display caution notification for non-authenticated users",
-								Default:             booldefault.StaticBool(false),
+								Description:         "Can only be `true` when `auth_required`==`false`, display caution notification for non-authenticated users",
+								MarkdownDescription: "Can only be `true` when `auth_required`==`false`, display caution notification for non-authenticated users",
 							},
-							"enforce_authentication": schema.BoolAttribute{
-								Optional: true,
-								Computed: true,
-								Default:  booldefault.StaticBool(false),
+							"dn_bandwidth": schema.Float64Attribute{
+								Optional:            true,
+								Description:         "the download bandwidth cap of the link, in Mbps. Disabled if not set",
+								MarkdownDescription: "the download bandwidth cap of the link, in Mbps. Disabled if not set",
 							},
-							"name": schema.StringAttribute{
-								Optional: true,
+							"idle_time_in_minutes": schema.Int64Attribute{
+								Optional:            true,
+								Description:         "Required if `surrogate_IP`==`true`, idle Time to Disassociation",
+								MarkdownDescription: "Required if `surrogate_IP`==`true`, idle Time to Disassociation",
+								Validators: []validator.Int64{
+									int64validator.Between(0, 43200),
+									mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("surrogate_IP"), types.BoolValue(true)),
+								},
+							},
+							"ofw_enabled": schema.BoolAttribute{
+								Optional:            true,
+								Description:         "if `true`, enable the firewall control option",
+								MarkdownDescription: "if `true`, enable the firewall control option",
 							},
 							"sub_locations": schema.ListNestedAttribute{
 								NestedObject: schema.NestedAttributeObject{
 									Attributes: map[string]schema.Attribute{
-										"aup_acceptance_required": schema.BoolAttribute{
+										"aup_block_internet_until_accepted": schema.BoolAttribute{
 											Optional: true,
-											Computed: true,
-											Default:  booldefault.StaticBool(true),
 										},
-										"aup_expire": schema.Int64Attribute{
+										"aup_enabled": schema.BoolAttribute{
 											Optional:            true,
-											Computed:            true,
-											Description:         "days before AUP is requested again",
-											MarkdownDescription: "days before AUP is requested again",
-											Default:             int64default.StaticInt64(1),
+											Description:         "Can only be `true` when `auth_required`==`false`, display Acceptable Use Policy (AUP)",
+											MarkdownDescription: "Can only be `true` when `auth_required`==`false`, display Acceptable Use Policy (AUP)",
+											Validators: []validator.Bool{
+												mistvalidator.CannotBeTrueWhenValueIs(path.MatchRelative().AtParent().AtName("auth_required"), types.BoolValue(true)),
+											},
 										},
-										"aup_ssl_proxy": schema.BoolAttribute{
+										"aup_force_ssl_inspection": schema.BoolAttribute{
 											Optional:            true,
-											Computed:            true,
 											Description:         "proxy HTTPs traffic, requiring Zscaler cert to be installed in browser",
 											MarkdownDescription: "proxy HTTPs traffic, requiring Zscaler cert to be installed in browser",
-											Default:             booldefault.StaticBool(false),
 										},
-										"download_mbps": schema.Int64Attribute{
+										"aup_timeout_in_days": schema.Int64Attribute{
 											Optional:            true,
-											Description:         "the download bandwidth cap of the link, in Mbps",
-											MarkdownDescription: "the download bandwidth cap of the link, in Mbps",
+											Description:         "Required if `aup_enabled`==`true`. Days before AUP is requested again",
+											MarkdownDescription: "Required if `aup_enabled`==`true`. Days before AUP is requested again",
+											Validators: []validator.Int64{
+												int64validator.Between(1, 180),
+												mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("aup_enabled"), types.BoolValue(true)),
+											},
 										},
-										"enable_aup": schema.BoolAttribute{
+										"auth_required": schema.BoolAttribute{
 											Optional:            true,
-											Description:         "if `use_xff`==`true`, display Acceptable Use Policy (AUP)",
-											MarkdownDescription: "if `use_xff`==`true`, display Acceptable Use Policy (AUP)",
+											Description:         "Enable this option to authenticate users",
+											MarkdownDescription: "Enable this option to authenticate users",
 										},
-										"enable_caution": schema.BoolAttribute{
+										"caution_enabled": schema.BoolAttribute{
 											Optional:            true,
-											Computed:            true,
-											Description:         "when `enforce_authentication`==`false`, display caution notification for non-authenticated users",
-											MarkdownDescription: "when `enforce_authentication`==`false`, display caution notification for non-authenticated users",
-											Default:             booldefault.StaticBool(false),
+											Description:         "Can only be `true` when `auth_required`==`false`, display caution notification for non-authenticated users",
+											MarkdownDescription: "Can only be `true` when `auth_required`==`false`, display caution notification for non-authenticated users",
 										},
-										"enforce_authentication": schema.BoolAttribute{
-											Optional: true,
-											Computed: true,
-											Default:  booldefault.StaticBool(false),
-										},
-										"subnets": schema.ListAttribute{
-											ElementType: types.StringType,
-											Optional:    true,
-										},
-										"upload_mbps": schema.Int64Attribute{
+										"dn_bandwidth": schema.Float64Attribute{
 											Optional:            true,
-											Description:         "the download bandwidth cap of the link, in Mbps",
-											MarkdownDescription: "the download bandwidth cap of the link, in Mbps",
+											Description:         "the download bandwidth cap of the link, in Mbps. Disabled if not set",
+											MarkdownDescription: "the download bandwidth cap of the link, in Mbps. Disabled if not set",
+										},
+										"idle_time_in_minutes": schema.Int64Attribute{
+											Optional:            true,
+											Description:         "Required if `surrogate_IP`==`true`, idle Time to Disassociation",
+											MarkdownDescription: "Required if `surrogate_IP`==`true`, idle Time to Disassociation",
+											Validators: []validator.Int64{
+												int64validator.Between(0, 43200),
+												mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("surrogate_IP"), types.BoolValue(true)),
+											},
+										},
+										"name": schema.StringAttribute{
+											Optional:            true,
+											Description:         "Network name",
+											MarkdownDescription: "Network name",
+										},
+										"ofw_enabled": schema.BoolAttribute{
+											Optional:            true,
+											Description:         "if `true`, enable the firewall control option",
+											MarkdownDescription: "if `true`, enable the firewall control option",
+										},
+										"surrogate_ip": schema.BoolAttribute{
+											Optional:            true,
+											Description:         "Can only be `true` when `auth_required`==`true`. Map a user to a private IP address so it applies the user's policies, instead of the location's policies",
+											MarkdownDescription: "Can only be `true` when `auth_required`==`true`. Map a user to a private IP address so it applies the user's policies, instead of the location's policies",
+											Validators: []validator.Bool{
+												mistvalidator.CanOnlyBeTrueWhenValueIs(path.MatchRelative().AtParent().AtName("auth_required"), types.BoolValue(true)),
+											},
+										},
+										"surrogate_ip_enforced_for_known_browsers": schema.BoolAttribute{
+											Optional:            true,
+											Description:         "Can only be `true` when `surrogate_IP`==`true`, enforce surrogate IP for known browsers",
+											MarkdownDescription: "Can only be `true` when `surrogate_IP`==`true`, enforce surrogate IP for known browsers",
+											Validators: []validator.Bool{
+												mistvalidator.CanOnlyBeTrueWhenValueIs(path.MatchRelative().AtParent().AtName("surrogate_ip"), types.BoolValue(true)),
+											},
+										},
+										"surrogate_refresh_time_in_minutes": schema.Int64Attribute{
+											Optional:            true,
+											Description:         "Required if `surrogate_IP_enforced_for_known_browsers`==`true`, must be lower or equal than `idle_time_in_minutes`, refresh Time for re-validation of Surrogacy",
+											MarkdownDescription: "Required if `surrogate_IP_enforced_for_known_browsers`==`true`, must be lower or equal than `idle_time_in_minutes`, refresh Time for re-validation of Surrogacy",
+											Validators: []validator.Int64{
+												int64validator.Between(1, 43200),
+												mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("surrogate_refresh_time_in_minutes"), types.BoolValue(true)),
+											},
+										},
+										"up_bandwidth": schema.Float64Attribute{
+											Optional:            true,
+											Description:         "the download bandwidth cap of the link, in Mbps. Disabled if not set",
+											MarkdownDescription: "the download bandwidth cap of the link, in Mbps. Disabled if not set",
 										},
 									},
 									CustomType: SubLocationsType{
@@ -2978,15 +3096,40 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 									},
 								},
 								Optional:            true,
-								Description:         "if `use_xff`==`true`",
-								MarkdownDescription: "if `use_xff`==`true`",
+								Description:         "`sub-locations` can be used for specific uses cases to define different configuration based on the user network",
+								MarkdownDescription: "`sub-locations` can be used for specific uses cases to define different configuration based on the user network",
 							},
-							"upload_mbps": schema.Int64Attribute{
+							"surrogate_ip": schema.BoolAttribute{
 								Optional:            true,
-								Description:         "the download bandwidth cap of the link, in Mbps",
-								MarkdownDescription: "the download bandwidth cap of the link, in Mbps",
+								Description:         "Can only be `true` when `auth_required`==`true`. Map a user to a private IP address so it applies the user's policies, instead of the location's policies",
+								MarkdownDescription: "Can only be `true` when `auth_required`==`true`. Map a user to a private IP address so it applies the user's policies, instead of the location's policies",
+								Validators: []validator.Bool{
+									mistvalidator.CanOnlyBeTrueWhenValueIs(path.MatchRelative().AtParent().AtName("auth_required"), types.BoolValue(true)),
+								},
 							},
-							"use_xff": schema.BoolAttribute{
+							"surrogate_ip_enforced_for_known_browsers": schema.BoolAttribute{
+								Optional:            true,
+								Description:         "Can only be `true` when `surrogate_IP`==`true`, enforce surrogate IP for known browsers",
+								MarkdownDescription: "Can only be `true` when `surrogate_IP`==`true`, enforce surrogate IP for known browsers",
+								Validators: []validator.Bool{
+									mistvalidator.CanOnlyBeTrueWhenValueIs(path.MatchRelative().AtParent().AtName("surrogate_ip"), types.BoolValue(true)),
+								},
+							},
+							"surrogate_refresh_time_in_minutes": schema.Int64Attribute{
+								Optional:            true,
+								Description:         "Required if `surrogate_IP_enforced_for_known_browsers`==`true`, must be lower or equal than `idle_time_in_minutes`, refresh Time for re-validation of Surrogacy",
+								MarkdownDescription: "Required if `surrogate_IP_enforced_for_known_browsers`==`true`, must be lower or equal than `idle_time_in_minutes`, refresh Time for re-validation of Surrogacy",
+								Validators: []validator.Int64{
+									int64validator.Between(1, 43200),
+									mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("surrogate_refresh_time_in_minutes"), types.BoolValue(true)),
+								},
+							},
+							"up_bandwidth": schema.Float64Attribute{
+								Optional:            true,
+								Description:         "the download bandwidth cap of the link, in Mbps. Disabled if not set",
+								MarkdownDescription: "the download bandwidth cap of the link, in Mbps. Disabled if not set",
+							},
+							"xff_forward_enabled": schema.BoolAttribute{
 								Optional:            true,
 								Description:         "location uses proxy chaining to forward traffic",
 								MarkdownDescription: "location uses proxy chaining to forward traffic",
@@ -13077,6 +13220,24 @@ func (t DestinationNatType) ValueFromObject(ctx context.Context, in basetypes.Ob
 			fmt.Sprintf(`port expected to be basetypes.Int64Value, was: %T`, portAttribute))
 	}
 
+	wanNameAttribute, ok := attributes["wan_name"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`wan_name is missing from object`)
+
+		return nil, diags
+	}
+
+	wanNameVal, ok := wanNameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`wan_name expected to be basetypes.StringValue, was: %T`, wanNameAttribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
@@ -13085,6 +13246,7 @@ func (t DestinationNatType) ValueFromObject(ctx context.Context, in basetypes.Ob
 		InternalIp: internalIpVal,
 		Name:       nameVal,
 		Port:       portVal,
+		WanName:    wanNameVal,
 		state:      attr.ValueStateKnown,
 	}, diags
 }
@@ -13206,6 +13368,24 @@ func NewDestinationNatValue(attributeTypes map[string]attr.Type, attributes map[
 			fmt.Sprintf(`port expected to be basetypes.Int64Value, was: %T`, portAttribute))
 	}
 
+	wanNameAttribute, ok := attributes["wan_name"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`wan_name is missing from object`)
+
+		return NewDestinationNatValueUnknown(), diags
+	}
+
+	wanNameVal, ok := wanNameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`wan_name expected to be basetypes.StringValue, was: %T`, wanNameAttribute))
+	}
+
 	if diags.HasError() {
 		return NewDestinationNatValueUnknown(), diags
 	}
@@ -13214,6 +13394,7 @@ func NewDestinationNatValue(attributeTypes map[string]attr.Type, attributes map[
 		InternalIp: internalIpVal,
 		Name:       nameVal,
 		Port:       portVal,
+		WanName:    wanNameVal,
 		state:      attr.ValueStateKnown,
 	}, diags
 }
@@ -13289,11 +13470,12 @@ type DestinationNatValue struct {
 	InternalIp basetypes.StringValue `tfsdk:"internal_ip"`
 	Name       basetypes.StringValue `tfsdk:"name"`
 	Port       basetypes.Int64Value  `tfsdk:"port"`
+	WanName    basetypes.StringValue `tfsdk:"wan_name"`
 	state      attr.ValueState
 }
 
 func (v DestinationNatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 3)
+	attrTypes := make(map[string]tftypes.Type, 4)
 
 	var val tftypes.Value
 	var err error
@@ -13301,12 +13483,13 @@ func (v DestinationNatValue) ToTerraformValue(ctx context.Context) (tftypes.Valu
 	attrTypes["internal_ip"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["port"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["wan_name"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 3)
+		vals := make(map[string]tftypes.Value, 4)
 
 		val, err = v.InternalIp.ToTerraformValue(ctx)
 
@@ -13331,6 +13514,14 @@ func (v DestinationNatValue) ToTerraformValue(ctx context.Context) (tftypes.Valu
 		}
 
 		vals["port"] = val
+
+		val, err = v.WanName.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["wan_name"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -13365,6 +13556,7 @@ func (v DestinationNatValue) ToObjectValue(ctx context.Context) (basetypes.Objec
 		"internal_ip": basetypes.StringType{},
 		"name":        basetypes.StringType{},
 		"port":        basetypes.Int64Type{},
+		"wan_name":    basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -13381,6 +13573,7 @@ func (v DestinationNatValue) ToObjectValue(ctx context.Context) (basetypes.Objec
 			"internal_ip": v.InternalIp,
 			"name":        v.Name,
 			"port":        v.Port,
+			"wan_name":    v.WanName,
 		})
 
 	return objVal, diags
@@ -13413,6 +13606,10 @@ func (v DestinationNatValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.WanName.Equal(other.WanName) {
+		return false
+	}
+
 	return true
 }
 
@@ -13429,6 +13626,7 @@ func (v DestinationNatValue) AttributeTypes(ctx context.Context) map[string]attr
 		"internal_ip": basetypes.StringType{},
 		"name":        basetypes.StringType{},
 		"port":        basetypes.Int64Type{},
+		"wan_name":    basetypes.StringType{},
 	}
 }
 
@@ -19849,6 +20047,24 @@ func (t PortConfigType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`wan_extra_routes expected to be basetypes.MapValue, was: %T`, wanExtraRoutesAttribute))
 	}
 
+	wanNetworksAttribute, ok := attributes["wan_networks"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`wan_networks is missing from object`)
+
+		return nil, diags
+	}
+
+	wanNetworksVal, ok := wanNetworksAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`wan_networks expected to be basetypes.ListValue, was: %T`, wanNetworksAttribute))
+	}
+
 	wanProbeOverrideAttribute, ok := attributes["wan_probe_override"]
 
 	if !ok {
@@ -19947,6 +20163,7 @@ func (t PortConfigType) ValueFromObject(ctx context.Context, in basetypes.Object
 		WanArpPolicer:    wanArpPolicerVal,
 		WanExtIp:         wanExtIpVal,
 		WanExtraRoutes:   wanExtraRoutesVal,
+		WanNetworks:      wanNetworksVal,
 		WanProbeOverride: wanProbeOverrideVal,
 		WanSourceNat:     wanSourceNatVal,
 		WanType:          wanTypeVal,
@@ -20719,6 +20936,24 @@ func NewPortConfigValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`wan_extra_routes expected to be basetypes.MapValue, was: %T`, wanExtraRoutesAttribute))
 	}
 
+	wanNetworksAttribute, ok := attributes["wan_networks"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`wan_networks is missing from object`)
+
+		return NewPortConfigValueUnknown(), diags
+	}
+
+	wanNetworksVal, ok := wanNetworksAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`wan_networks expected to be basetypes.ListValue, was: %T`, wanNetworksAttribute))
+	}
+
 	wanProbeOverrideAttribute, ok := attributes["wan_probe_override"]
 
 	if !ok {
@@ -20817,6 +21052,7 @@ func NewPortConfigValue(attributeTypes map[string]attr.Type, attributes map[stri
 		WanArpPolicer:    wanArpPolicerVal,
 		WanExtIp:         wanExtIpVal,
 		WanExtraRoutes:   wanExtraRoutesVal,
+		WanNetworks:      wanNetworksVal,
 		WanProbeOverride: wanProbeOverrideVal,
 		WanSourceNat:     wanSourceNatVal,
 		WanType:          wanTypeVal,
@@ -20931,6 +21167,7 @@ type PortConfigValue struct {
 	WanArpPolicer    basetypes.StringValue `tfsdk:"wan_arp_policer"`
 	WanExtIp         basetypes.StringValue `tfsdk:"wan_ext_ip"`
 	WanExtraRoutes   basetypes.MapValue    `tfsdk:"wan_extra_routes"`
+	WanNetworks      basetypes.ListValue   `tfsdk:"wan_networks"`
 	WanProbeOverride basetypes.ObjectValue `tfsdk:"wan_probe_override"`
 	WanSourceNat     basetypes.ObjectValue `tfsdk:"wan_source_nat"`
 	WanType          basetypes.StringValue `tfsdk:"wan_type"`
@@ -20938,7 +21175,7 @@ type PortConfigValue struct {
 }
 
 func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 42)
+	attrTypes := make(map[string]tftypes.Type, 43)
 
 	var val tftypes.Value
 	var err error
@@ -20994,6 +21231,9 @@ func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	attrTypes["wan_extra_routes"] = basetypes.MapType{
 		ElemType: WanExtraRoutesValue{}.Type(ctx),
 	}.TerraformType(ctx)
+	attrTypes["wan_networks"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
 	attrTypes["wan_probe_override"] = basetypes.ObjectType{
 		AttrTypes: WanProbeOverrideValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
@@ -21006,7 +21246,7 @@ func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 42)
+		vals := make(map[string]tftypes.Value, 43)
 
 		val, err = v.AeDisableLacp.ToTerraformValue(ctx)
 
@@ -21320,6 +21560,14 @@ func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 		vals["wan_extra_routes"] = val
 
+		val, err = v.WanNetworks.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["wan_networks"] = val
+
 		val, err = v.WanProbeOverride.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -21572,6 +21820,9 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"wan_extra_routes": basetypes.MapType{
 				ElemType: WanExtraRoutesValue{}.Type(ctx),
 			},
+			"wan_networks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
 			"wan_probe_override": basetypes.ObjectType{
 				AttrTypes: WanProbeOverrideValue{}.AttributeTypes(ctx),
 			},
@@ -21639,6 +21890,79 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"wan_extra_routes": basetypes.MapType{
 				ElemType: WanExtraRoutesValue{}.Type(ctx),
 			},
+			"wan_networks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"wan_probe_override": basetypes.ObjectType{
+				AttrTypes: WanProbeOverrideValue{}.AttributeTypes(ctx),
+			},
+			"wan_source_nat": basetypes.ObjectType{
+				AttrTypes: WanSourceNatValue{}.AttributeTypes(ctx),
+			},
+			"wan_type": basetypes.StringType{},
+		}), diags
+	}
+
+	wanNetworksVal, d := types.ListValue(types.StringType, v.WanNetworks.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"ae_disable_lacp":  basetypes.BoolType{},
+			"ae_idx":           basetypes.StringType{},
+			"ae_lacp_force_up": basetypes.BoolType{},
+			"aggregated":       basetypes.BoolType{},
+			"critical":         basetypes.BoolType{},
+			"description":      basetypes.StringType{},
+			"disable_autoneg":  basetypes.BoolType{},
+			"disabled":         basetypes.BoolType{},
+			"dsl_type":         basetypes.StringType{},
+			"dsl_vci":          basetypes.Int64Type{},
+			"dsl_vpi":          basetypes.Int64Type{},
+			"duplex":           basetypes.StringType{},
+			"lte_apn":          basetypes.StringType{},
+			"lte_auth":         basetypes.StringType{},
+			"lte_backup":       basetypes.BoolType{},
+			"lte_password":     basetypes.StringType{},
+			"lte_username":     basetypes.StringType{},
+			"mtu":              basetypes.Int64Type{},
+			"name":             basetypes.StringType{},
+			"networks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"outer_vlan_id": basetypes.Int64Type{},
+			"poe_disabled":  basetypes.BoolType{},
+			"ip_config": basetypes.ObjectType{
+				AttrTypes: PortIpConfigValue{}.AttributeTypes(ctx),
+			},
+			"port_network":  basetypes.StringType{},
+			"preserve_dscp": basetypes.BoolType{},
+			"redundant":     basetypes.BoolType{},
+			"reth_idx":      basetypes.Int64Type{},
+			"reth_node":     basetypes.StringType{},
+			"reth_nodes": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"speed":              basetypes.StringType{},
+			"ssr_no_virtual_mac": basetypes.BoolType{},
+			"svr_port_range":     basetypes.StringType{},
+			"traffic_shaping": basetypes.ObjectType{
+				AttrTypes: TrafficShapingValue{}.AttributeTypes(ctx),
+			},
+			"usage":   basetypes.StringType{},
+			"vlan_id": basetypes.Int64Type{},
+			"vpn_paths": basetypes.MapType{
+				ElemType: VpnPathsValue{}.Type(ctx),
+			},
+			"wan_arp_policer": basetypes.StringType{},
+			"wan_ext_ip":      basetypes.StringType{},
+			"wan_extra_routes": basetypes.MapType{
+				ElemType: WanExtraRoutesValue{}.Type(ctx),
+			},
+			"wan_networks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
 			"wan_probe_override": basetypes.ObjectType{
 				AttrTypes: WanProbeOverrideValue{}.AttributeTypes(ctx),
 			},
@@ -21701,6 +22025,9 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		"wan_extra_routes": basetypes.MapType{
 			ElemType: WanExtraRoutesValue{}.Type(ctx),
 		},
+		"wan_networks": basetypes.ListType{
+			ElemType: types.StringType,
+		},
 		"wan_probe_override": basetypes.ObjectType{
 			AttrTypes: WanProbeOverrideValue{}.AttributeTypes(ctx),
 		},
@@ -21760,6 +22087,7 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"wan_arp_policer":    v.WanArpPolicer,
 			"wan_ext_ip":         v.WanExtIp,
 			"wan_extra_routes":   wanExtraRoutes,
+			"wan_networks":       wanNetworksVal,
 			"wan_probe_override": wanProbeOverride,
 			"wan_source_nat":     wanSourceNat,
 			"wan_type":           v.WanType,
@@ -21939,6 +22267,10 @@ func (v PortConfigValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.WanNetworks.Equal(other.WanNetworks) {
+		return false
+	}
+
 	if !v.WanProbeOverride.Equal(other.WanProbeOverride) {
 		return false
 	}
@@ -22014,6 +22346,9 @@ func (v PortConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"wan_ext_ip":      basetypes.StringType{},
 		"wan_extra_routes": basetypes.MapType{
 			ElemType: WanExtraRoutesValue{}.Type(ctx),
+		},
+		"wan_networks": basetypes.ListType{
+			ElemType: types.StringType,
 		},
 		"wan_probe_override": basetypes.ObjectType{
 			AttrTypes: WanProbeOverrideValue{}.AttributeTypes(ctx),
@@ -25898,6 +26233,24 @@ func (t ActionType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 			fmt.Sprintf(`add_target_vrfs expected to be basetypes.ListValue, was: %T`, addTargetVrfsAttribute))
 	}
 
+	aggregateAttribute, ok := attributes["aggregate"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`aggregate is missing from object`)
+
+		return nil, diags
+	}
+
+	aggregateVal, ok := aggregateAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`aggregate expected to be basetypes.ListValue, was: %T`, aggregateAttribute))
+	}
+
 	communityAttribute, ok := attributes["community"]
 
 	if !ok {
@@ -26014,6 +26367,7 @@ func (t ActionType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 		Accept:             acceptVal,
 		AddCommunity:       addCommunityVal,
 		AddTargetVrfs:      addTargetVrfsVal,
+		Aggregate:          aggregateVal,
 		Community:          communityVal,
 		ExcludeAsPath:      excludeAsPathVal,
 		ExcludeCommunity:   excludeCommunityVal,
@@ -26141,6 +26495,24 @@ func NewActionValue(attributeTypes map[string]attr.Type, attributes map[string]a
 			fmt.Sprintf(`add_target_vrfs expected to be basetypes.ListValue, was: %T`, addTargetVrfsAttribute))
 	}
 
+	aggregateAttribute, ok := attributes["aggregate"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`aggregate is missing from object`)
+
+		return NewActionValueUnknown(), diags
+	}
+
+	aggregateVal, ok := aggregateAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`aggregate expected to be basetypes.ListValue, was: %T`, aggregateAttribute))
+	}
+
 	communityAttribute, ok := attributes["community"]
 
 	if !ok {
@@ -26257,6 +26629,7 @@ func NewActionValue(attributeTypes map[string]attr.Type, attributes map[string]a
 		Accept:             acceptVal,
 		AddCommunity:       addCommunityVal,
 		AddTargetVrfs:      addTargetVrfsVal,
+		Aggregate:          aggregateVal,
 		Community:          communityVal,
 		ExcludeAsPath:      excludeAsPathVal,
 		ExcludeCommunity:   excludeCommunityVal,
@@ -26338,6 +26711,7 @@ type ActionValue struct {
 	Accept             basetypes.BoolValue   `tfsdk:"accept"`
 	AddCommunity       basetypes.ListValue   `tfsdk:"add_community"`
 	AddTargetVrfs      basetypes.ListValue   `tfsdk:"add_target_vrfs"`
+	Aggregate          basetypes.ListValue   `tfsdk:"aggregate"`
 	Community          basetypes.ListValue   `tfsdk:"community"`
 	ExcludeAsPath      basetypes.ListValue   `tfsdk:"exclude_as_path"`
 	ExcludeCommunity   basetypes.ListValue   `tfsdk:"exclude_community"`
@@ -26348,7 +26722,7 @@ type ActionValue struct {
 }
 
 func (v ActionValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 9)
+	attrTypes := make(map[string]tftypes.Type, 10)
 
 	var val tftypes.Value
 	var err error
@@ -26358,6 +26732,9 @@ func (v ActionValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
 	attrTypes["add_target_vrfs"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["aggregate"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
 	attrTypes["community"] = basetypes.ListType{
@@ -26381,7 +26758,7 @@ func (v ActionValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 9)
+		vals := make(map[string]tftypes.Value, 10)
 
 		val, err = v.Accept.ToTerraformValue(ctx)
 
@@ -26406,6 +26783,14 @@ func (v ActionValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 		}
 
 		vals["add_target_vrfs"] = val
+
+		val, err = v.Aggregate.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["aggregate"] = val
 
 		val, err = v.Community.ToTerraformValue(ctx)
 
@@ -26497,6 +26882,9 @@ func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"add_target_vrfs": basetypes.ListType{
 				ElemType: types.StringType,
 			},
+			"aggregate": basetypes.ListType{
+				ElemType: types.StringType,
+			},
 			"community": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -26527,6 +26915,44 @@ func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: types.StringType,
 			},
 			"add_target_vrfs": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"aggregate": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"community": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"exclude_as_path": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"exclude_community": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"export_communitites": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"local_preference": basetypes.StringType{},
+			"prepend_as_path": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	aggregateVal, d := types.ListValue(types.StringType, v.Aggregate.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"accept": basetypes.BoolType{},
+			"add_community": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"add_target_vrfs": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"aggregate": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"community": basetypes.ListType{
@@ -26561,6 +26987,9 @@ func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"add_target_vrfs": basetypes.ListType{
 				ElemType: types.StringType,
 			},
+			"aggregate": basetypes.ListType{
+				ElemType: types.StringType,
+			},
 			"community": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -26591,6 +27020,9 @@ func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: types.StringType,
 			},
 			"add_target_vrfs": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"aggregate": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"community": basetypes.ListType{
@@ -26625,6 +27057,9 @@ func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"add_target_vrfs": basetypes.ListType{
 				ElemType: types.StringType,
 			},
+			"aggregate": basetypes.ListType{
+				ElemType: types.StringType,
+			},
 			"community": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -26655,6 +27090,9 @@ func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 				ElemType: types.StringType,
 			},
 			"add_target_vrfs": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"aggregate": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"community": basetypes.ListType{
@@ -26689,6 +27127,9 @@ func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"add_target_vrfs": basetypes.ListType{
 				ElemType: types.StringType,
 			},
+			"aggregate": basetypes.ListType{
+				ElemType: types.StringType,
+			},
 			"community": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -26714,6 +27155,9 @@ func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			ElemType: types.StringType,
 		},
 		"add_target_vrfs": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"aggregate": basetypes.ListType{
 			ElemType: types.StringType,
 		},
 		"community": basetypes.ListType{
@@ -26748,6 +27192,7 @@ func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"accept":              v.Accept,
 			"add_community":       addCommunityVal,
 			"add_target_vrfs":     addTargetVrfsVal,
+			"aggregate":           aggregateVal,
 			"community":           communityVal,
 			"exclude_as_path":     excludeAsPathVal,
 			"exclude_community":   excludeCommunityVal,
@@ -26783,6 +27228,10 @@ func (v ActionValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.AddTargetVrfs.Equal(other.AddTargetVrfs) {
+		return false
+	}
+
+	if !v.Aggregate.Equal(other.Aggregate) {
 		return false
 	}
 
@@ -26828,6 +27277,9 @@ func (v ActionValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 			ElemType: types.StringType,
 		},
 		"add_target_vrfs": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"aggregate": basetypes.ListType{
 			ElemType: types.StringType,
 		},
 		"community": basetypes.ListType{
@@ -32523,6 +32975,42 @@ func (t AutoProvisionType) ValueFromObject(ctx context.Context, in basetypes.Obj
 			fmt.Sprintf(`latlng expected to be basetypes.ObjectValue, was: %T`, latlngAttribute))
 	}
 
+	providerAttribute, ok := attributes["provider"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`provider is missing from object`)
+
+		return nil, diags
+	}
+
+	providerVal, ok := providerAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`provider expected to be basetypes.StringValue, was: %T`, providerAttribute))
+	}
+
+	regionAttribute, ok := attributes["region"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`region is missing from object`)
+
+		return nil, diags
+	}
+
+	regionVal, ok := regionAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`region expected to be basetypes.StringValue, was: %T`, regionAttribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
@@ -32532,6 +33020,8 @@ func (t AutoProvisionType) ValueFromObject(ctx context.Context, in basetypes.Obj
 		AutoProvisionSecondary: autoProvisionSecondaryVal,
 		Enable:                 enableVal,
 		Latlng:                 latlngVal,
+		Provider:               providerVal,
+		Region:                 regionVal,
 		state:                  attr.ValueStateKnown,
 	}, diags
 }
@@ -32671,6 +33161,42 @@ func NewAutoProvisionValue(attributeTypes map[string]attr.Type, attributes map[s
 			fmt.Sprintf(`latlng expected to be basetypes.ObjectValue, was: %T`, latlngAttribute))
 	}
 
+	providerAttribute, ok := attributes["provider"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`provider is missing from object`)
+
+		return NewAutoProvisionValueUnknown(), diags
+	}
+
+	providerVal, ok := providerAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`provider expected to be basetypes.StringValue, was: %T`, providerAttribute))
+	}
+
+	regionAttribute, ok := attributes["region"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`region is missing from object`)
+
+		return NewAutoProvisionValueUnknown(), diags
+	}
+
+	regionVal, ok := regionAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`region expected to be basetypes.StringValue, was: %T`, regionAttribute))
+	}
+
 	if diags.HasError() {
 		return NewAutoProvisionValueUnknown(), diags
 	}
@@ -32680,6 +33206,8 @@ func NewAutoProvisionValue(attributeTypes map[string]attr.Type, attributes map[s
 		AutoProvisionSecondary: autoProvisionSecondaryVal,
 		Enable:                 enableVal,
 		Latlng:                 latlngVal,
+		Provider:               providerVal,
+		Region:                 regionVal,
 		state:                  attr.ValueStateKnown,
 	}, diags
 }
@@ -32756,11 +33284,13 @@ type AutoProvisionValue struct {
 	AutoProvisionSecondary basetypes.ObjectValue `tfsdk:"secondary"`
 	Enable                 basetypes.BoolValue   `tfsdk:"enable"`
 	Latlng                 basetypes.ObjectValue `tfsdk:"latlng"`
+	Provider               basetypes.StringValue `tfsdk:"provider"`
+	Region                 basetypes.StringValue `tfsdk:"region"`
 	state                  attr.ValueState
 }
 
 func (v AutoProvisionValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 4)
+	attrTypes := make(map[string]tftypes.Type, 6)
 
 	var val tftypes.Value
 	var err error
@@ -32775,12 +33305,14 @@ func (v AutoProvisionValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 	attrTypes["latlng"] = basetypes.ObjectType{
 		AttrTypes: LatlngValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
+	attrTypes["provider"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["region"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 4)
+		vals := make(map[string]tftypes.Value, 6)
 
 		val, err = v.AutoProvisionPrimary.ToTerraformValue(ctx)
 
@@ -32813,6 +33345,22 @@ func (v AutoProvisionValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 		}
 
 		vals["latlng"] = val
+
+		val, err = v.Provider.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["provider"] = val
+
+		val, err = v.Region.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["region"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -32917,6 +33465,8 @@ func (v AutoProvisionValue) ToObjectValue(ctx context.Context) (basetypes.Object
 		"latlng": basetypes.ObjectType{
 			AttrTypes: LatlngValue{}.AttributeTypes(ctx),
 		},
+		"provider": basetypes.StringType{},
+		"region":   basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -32934,6 +33484,8 @@ func (v AutoProvisionValue) ToObjectValue(ctx context.Context) (basetypes.Object
 			"secondary": autoProvisionSecondary,
 			"enable":    v.Enable,
 			"latlng":    latlng,
+			"provider":  v.Provider,
+			"region":    v.Region,
 		})
 
 	return objVal, diags
@@ -32970,6 +33522,14 @@ func (v AutoProvisionValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.Provider.Equal(other.Provider) {
+		return false
+	}
+
+	if !v.Region.Equal(other.Region) {
+		return false
+	}
+
 	return true
 }
 
@@ -32993,6 +33553,8 @@ func (v AutoProvisionValue) AttributeTypes(ctx context.Context) map[string]attr.
 		"latlng": basetypes.ObjectType{
 			AttrTypes: LatlngValue{}.AttributeTypes(ctx),
 		},
+		"provider": basetypes.StringType{},
+		"region":   basetypes.StringType{},
 	}
 }
 
@@ -33021,22 +33583,22 @@ func (t AutoProvisionPrimaryType) ValueFromObject(ctx context.Context, in basety
 
 	attributes := in.Attributes()
 
-	numHostsAttribute, ok := attributes["num_hosts"]
+	probeIpsAttribute, ok := attributes["probe_ips"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`num_hosts is missing from object`)
+			`probe_ips is missing from object`)
 
 		return nil, diags
 	}
 
-	numHostsVal, ok := numHostsAttribute.(basetypes.StringValue)
+	probeIpsVal, ok := probeIpsAttribute.(basetypes.ListValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`num_hosts expected to be basetypes.StringValue, was: %T`, numHostsAttribute))
+			fmt.Sprintf(`probe_ips expected to be basetypes.ListValue, was: %T`, probeIpsAttribute))
 	}
 
 	wanNamesAttribute, ok := attributes["wan_names"]
@@ -33062,7 +33624,7 @@ func (t AutoProvisionPrimaryType) ValueFromObject(ctx context.Context, in basety
 	}
 
 	return AutoProvisionPrimaryValue{
-		NumHosts: numHostsVal,
+		ProbeIps: probeIpsVal,
 		WanNames: wanNamesVal,
 		state:    attr.ValueStateKnown,
 	}, diags
@@ -33131,22 +33693,22 @@ func NewAutoProvisionPrimaryValue(attributeTypes map[string]attr.Type, attribute
 		return NewAutoProvisionPrimaryValueUnknown(), diags
 	}
 
-	numHostsAttribute, ok := attributes["num_hosts"]
+	probeIpsAttribute, ok := attributes["probe_ips"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`num_hosts is missing from object`)
+			`probe_ips is missing from object`)
 
 		return NewAutoProvisionPrimaryValueUnknown(), diags
 	}
 
-	numHostsVal, ok := numHostsAttribute.(basetypes.StringValue)
+	probeIpsVal, ok := probeIpsAttribute.(basetypes.ListValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`num_hosts expected to be basetypes.StringValue, was: %T`, numHostsAttribute))
+			fmt.Sprintf(`probe_ips expected to be basetypes.ListValue, was: %T`, probeIpsAttribute))
 	}
 
 	wanNamesAttribute, ok := attributes["wan_names"]
@@ -33172,7 +33734,7 @@ func NewAutoProvisionPrimaryValue(attributeTypes map[string]attr.Type, attribute
 	}
 
 	return AutoProvisionPrimaryValue{
-		NumHosts: numHostsVal,
+		ProbeIps: probeIpsVal,
 		WanNames: wanNamesVal,
 		state:    attr.ValueStateKnown,
 	}, diags
@@ -33246,8 +33808,8 @@ func (t AutoProvisionPrimaryType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = AutoProvisionPrimaryValue{}
 
 type AutoProvisionPrimaryValue struct {
-	NumHosts basetypes.StringValue `tfsdk:"num_hosts"`
-	WanNames basetypes.ListValue   `tfsdk:"wan_names"`
+	ProbeIps basetypes.ListValue `tfsdk:"probe_ips"`
+	WanNames basetypes.ListValue `tfsdk:"wan_names"`
 	state    attr.ValueState
 }
 
@@ -33257,7 +33819,9 @@ func (v AutoProvisionPrimaryValue) ToTerraformValue(ctx context.Context) (tftype
 	var val tftypes.Value
 	var err error
 
-	attrTypes["num_hosts"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["probe_ips"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
 	attrTypes["wan_names"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
@@ -33268,13 +33832,13 @@ func (v AutoProvisionPrimaryValue) ToTerraformValue(ctx context.Context) (tftype
 	case attr.ValueStateKnown:
 		vals := make(map[string]tftypes.Value, 2)
 
-		val, err = v.NumHosts.ToTerraformValue(ctx)
+		val, err = v.ProbeIps.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["num_hosts"] = val
+		vals["probe_ips"] = val
 
 		val, err = v.WanNames.ToTerraformValue(ctx)
 
@@ -33313,13 +33877,30 @@ func (v AutoProvisionPrimaryValue) String() string {
 func (v AutoProvisionPrimaryValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
+	probeIpsVal, d := types.ListValue(types.StringType, v.ProbeIps.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"probe_ips": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"wan_names": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
 	wanNamesVal, d := types.ListValue(types.StringType, v.WanNames.Elements())
 
 	diags.Append(d...)
 
 	if d.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
-			"num_hosts": basetypes.StringType{},
+			"probe_ips": basetypes.ListType{
+				ElemType: types.StringType,
+			},
 			"wan_names": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -33327,7 +33908,9 @@ func (v AutoProvisionPrimaryValue) ToObjectValue(ctx context.Context) (basetypes
 	}
 
 	attributeTypes := map[string]attr.Type{
-		"num_hosts": basetypes.StringType{},
+		"probe_ips": basetypes.ListType{
+			ElemType: types.StringType,
+		},
 		"wan_names": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -33344,7 +33927,7 @@ func (v AutoProvisionPrimaryValue) ToObjectValue(ctx context.Context) (basetypes
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"num_hosts": v.NumHosts,
+			"probe_ips": probeIpsVal,
 			"wan_names": wanNamesVal,
 		})
 
@@ -33366,7 +33949,7 @@ func (v AutoProvisionPrimaryValue) Equal(o attr.Value) bool {
 		return true
 	}
 
-	if !v.NumHosts.Equal(other.NumHosts) {
+	if !v.ProbeIps.Equal(other.ProbeIps) {
 		return false
 	}
 
@@ -33387,7 +33970,9 @@ func (v AutoProvisionPrimaryValue) Type(ctx context.Context) attr.Type {
 
 func (v AutoProvisionPrimaryValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"num_hosts": basetypes.StringType{},
+		"probe_ips": basetypes.ListType{
+			ElemType: types.StringType,
+		},
 		"wan_names": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -33419,22 +34004,22 @@ func (t AutoProvisionSecondaryType) ValueFromObject(ctx context.Context, in base
 
 	attributes := in.Attributes()
 
-	numHostsAttribute, ok := attributes["num_hosts"]
+	probeIpsAttribute, ok := attributes["probe_ips"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`num_hosts is missing from object`)
+			`probe_ips is missing from object`)
 
 		return nil, diags
 	}
 
-	numHostsVal, ok := numHostsAttribute.(basetypes.StringValue)
+	probeIpsVal, ok := probeIpsAttribute.(basetypes.ListValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`num_hosts expected to be basetypes.StringValue, was: %T`, numHostsAttribute))
+			fmt.Sprintf(`probe_ips expected to be basetypes.ListValue, was: %T`, probeIpsAttribute))
 	}
 
 	wanNamesAttribute, ok := attributes["wan_names"]
@@ -33460,7 +34045,7 @@ func (t AutoProvisionSecondaryType) ValueFromObject(ctx context.Context, in base
 	}
 
 	return AutoProvisionSecondaryValue{
-		NumHosts: numHostsVal,
+		ProbeIps: probeIpsVal,
 		WanNames: wanNamesVal,
 		state:    attr.ValueStateKnown,
 	}, diags
@@ -33529,22 +34114,22 @@ func NewAutoProvisionSecondaryValue(attributeTypes map[string]attr.Type, attribu
 		return NewAutoProvisionSecondaryValueUnknown(), diags
 	}
 
-	numHostsAttribute, ok := attributes["num_hosts"]
+	probeIpsAttribute, ok := attributes["probe_ips"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`num_hosts is missing from object`)
+			`probe_ips is missing from object`)
 
 		return NewAutoProvisionSecondaryValueUnknown(), diags
 	}
 
-	numHostsVal, ok := numHostsAttribute.(basetypes.StringValue)
+	probeIpsVal, ok := probeIpsAttribute.(basetypes.ListValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`num_hosts expected to be basetypes.StringValue, was: %T`, numHostsAttribute))
+			fmt.Sprintf(`probe_ips expected to be basetypes.ListValue, was: %T`, probeIpsAttribute))
 	}
 
 	wanNamesAttribute, ok := attributes["wan_names"]
@@ -33570,7 +34155,7 @@ func NewAutoProvisionSecondaryValue(attributeTypes map[string]attr.Type, attribu
 	}
 
 	return AutoProvisionSecondaryValue{
-		NumHosts: numHostsVal,
+		ProbeIps: probeIpsVal,
 		WanNames: wanNamesVal,
 		state:    attr.ValueStateKnown,
 	}, diags
@@ -33644,8 +34229,8 @@ func (t AutoProvisionSecondaryType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = AutoProvisionSecondaryValue{}
 
 type AutoProvisionSecondaryValue struct {
-	NumHosts basetypes.StringValue `tfsdk:"num_hosts"`
-	WanNames basetypes.ListValue   `tfsdk:"wan_names"`
+	ProbeIps basetypes.ListValue `tfsdk:"probe_ips"`
+	WanNames basetypes.ListValue `tfsdk:"wan_names"`
 	state    attr.ValueState
 }
 
@@ -33655,7 +34240,9 @@ func (v AutoProvisionSecondaryValue) ToTerraformValue(ctx context.Context) (tfty
 	var val tftypes.Value
 	var err error
 
-	attrTypes["num_hosts"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["probe_ips"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
 	attrTypes["wan_names"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
@@ -33666,13 +34253,13 @@ func (v AutoProvisionSecondaryValue) ToTerraformValue(ctx context.Context) (tfty
 	case attr.ValueStateKnown:
 		vals := make(map[string]tftypes.Value, 2)
 
-		val, err = v.NumHosts.ToTerraformValue(ctx)
+		val, err = v.ProbeIps.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["num_hosts"] = val
+		vals["probe_ips"] = val
 
 		val, err = v.WanNames.ToTerraformValue(ctx)
 
@@ -33711,13 +34298,30 @@ func (v AutoProvisionSecondaryValue) String() string {
 func (v AutoProvisionSecondaryValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
+	probeIpsVal, d := types.ListValue(types.StringType, v.ProbeIps.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"probe_ips": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"wan_names": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
 	wanNamesVal, d := types.ListValue(types.StringType, v.WanNames.Elements())
 
 	diags.Append(d...)
 
 	if d.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
-			"num_hosts": basetypes.StringType{},
+			"probe_ips": basetypes.ListType{
+				ElemType: types.StringType,
+			},
 			"wan_names": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -33725,7 +34329,9 @@ func (v AutoProvisionSecondaryValue) ToObjectValue(ctx context.Context) (basetyp
 	}
 
 	attributeTypes := map[string]attr.Type{
-		"num_hosts": basetypes.StringType{},
+		"probe_ips": basetypes.ListType{
+			ElemType: types.StringType,
+		},
 		"wan_names": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -33742,7 +34348,7 @@ func (v AutoProvisionSecondaryValue) ToObjectValue(ctx context.Context) (basetyp
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"num_hosts": v.NumHosts,
+			"probe_ips": probeIpsVal,
 			"wan_names": wanNamesVal,
 		})
 
@@ -33764,7 +34370,7 @@ func (v AutoProvisionSecondaryValue) Equal(o attr.Value) bool {
 		return true
 	}
 
-	if !v.NumHosts.Equal(other.NumHosts) {
+	if !v.ProbeIps.Equal(other.ProbeIps) {
 		return false
 	}
 
@@ -33785,7 +34391,9 @@ func (v AutoProvisionSecondaryValue) Type(ctx context.Context) attr.Type {
 
 func (v AutoProvisionSecondaryValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"num_hosts": basetypes.StringType{},
+		"probe_ips": basetypes.ListType{
+			ElemType: types.StringType,
+		},
 		"wan_names": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -37374,24 +37982,6 @@ func (t JseType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) 
 
 	attributes := in.Attributes()
 
-	nameAttribute, ok := attributes["name"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`name is missing from object`)
-
-		return nil, diags
-	}
-
-	nameVal, ok := nameAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`name expected to be basetypes.StringValue, was: %T`, nameAttribute))
-	}
-
 	numUsersAttribute, ok := attributes["num_users"]
 
 	if !ok {
@@ -37410,13 +38000,31 @@ func (t JseType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) 
 			fmt.Sprintf(`num_users expected to be basetypes.Int64Value, was: %T`, numUsersAttribute))
 	}
 
+	orgNameAttribute, ok := attributes["org_name"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`org_name is missing from object`)
+
+		return nil, diags
+	}
+
+	orgNameVal, ok := orgNameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`org_name expected to be basetypes.StringValue, was: %T`, orgNameAttribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
 
 	return JseValue{
-		Name:     nameVal,
 		NumUsers: numUsersVal,
+		OrgName:  orgNameVal,
 		state:    attr.ValueStateKnown,
 	}, diags
 }
@@ -37484,24 +38092,6 @@ func NewJseValue(attributeTypes map[string]attr.Type, attributes map[string]attr
 		return NewJseValueUnknown(), diags
 	}
 
-	nameAttribute, ok := attributes["name"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`name is missing from object`)
-
-		return NewJseValueUnknown(), diags
-	}
-
-	nameVal, ok := nameAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`name expected to be basetypes.StringValue, was: %T`, nameAttribute))
-	}
-
 	numUsersAttribute, ok := attributes["num_users"]
 
 	if !ok {
@@ -37520,13 +38110,31 @@ func NewJseValue(attributeTypes map[string]attr.Type, attributes map[string]attr
 			fmt.Sprintf(`num_users expected to be basetypes.Int64Value, was: %T`, numUsersAttribute))
 	}
 
+	orgNameAttribute, ok := attributes["org_name"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`org_name is missing from object`)
+
+		return NewJseValueUnknown(), diags
+	}
+
+	orgNameVal, ok := orgNameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`org_name expected to be basetypes.StringValue, was: %T`, orgNameAttribute))
+	}
+
 	if diags.HasError() {
 		return NewJseValueUnknown(), diags
 	}
 
 	return JseValue{
-		Name:     nameVal,
 		NumUsers: numUsersVal,
+		OrgName:  orgNameVal,
 		state:    attr.ValueStateKnown,
 	}, diags
 }
@@ -37599,8 +38207,8 @@ func (t JseType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = JseValue{}
 
 type JseValue struct {
-	Name     basetypes.StringValue `tfsdk:"name"`
 	NumUsers basetypes.Int64Value  `tfsdk:"num_users"`
+	OrgName  basetypes.StringValue `tfsdk:"org_name"`
 	state    attr.ValueState
 }
 
@@ -37610,22 +38218,14 @@ func (v JseValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
 	var val tftypes.Value
 	var err error
 
-	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["num_users"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["org_name"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
 		vals := make(map[string]tftypes.Value, 2)
-
-		val, err = v.Name.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["name"] = val
 
 		val, err = v.NumUsers.ToTerraformValue(ctx)
 
@@ -37634,6 +38234,14 @@ func (v JseValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
 		}
 
 		vals["num_users"] = val
+
+		val, err = v.OrgName.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["org_name"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -37665,8 +38273,8 @@ func (v JseValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, dia
 	var diags diag.Diagnostics
 
 	attributeTypes := map[string]attr.Type{
-		"name":      basetypes.StringType{},
 		"num_users": basetypes.Int64Type{},
+		"org_name":  basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -37680,8 +38288,8 @@ func (v JseValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, dia
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"name":      v.Name,
 			"num_users": v.NumUsers,
+			"org_name":  v.OrgName,
 		})
 
 	return objVal, diags
@@ -37702,11 +38310,11 @@ func (v JseValue) Equal(o attr.Value) bool {
 		return true
 	}
 
-	if !v.Name.Equal(other.Name) {
+	if !v.NumUsers.Equal(other.NumUsers) {
 		return false
 	}
 
-	if !v.NumUsers.Equal(other.NumUsers) {
+	if !v.OrgName.Equal(other.OrgName) {
 		return false
 	}
 
@@ -37723,8 +38331,8 @@ func (v JseValue) Type(ctx context.Context) attr.Type {
 
 func (v JseValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"name":      basetypes.StringType{},
 		"num_users": basetypes.Int64Type{},
+		"org_name":  basetypes.StringType{},
 	}
 }
 
@@ -37753,148 +38361,166 @@ func (t ZscalerType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 
 	attributes := in.Attributes()
 
-	aupAcceptanceRequiredAttribute, ok := attributes["aup_acceptance_required"]
+	aupBlockInternetUntilAcceptedAttribute, ok := attributes["aup_block_internet_until_accepted"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`aup_acceptance_required is missing from object`)
+			`aup_block_internet_until_accepted is missing from object`)
 
 		return nil, diags
 	}
 
-	aupAcceptanceRequiredVal, ok := aupAcceptanceRequiredAttribute.(basetypes.BoolValue)
+	aupBlockInternetUntilAcceptedVal, ok := aupBlockInternetUntilAcceptedAttribute.(basetypes.BoolValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`aup_acceptance_required expected to be basetypes.BoolValue, was: %T`, aupAcceptanceRequiredAttribute))
+			fmt.Sprintf(`aup_block_internet_until_accepted expected to be basetypes.BoolValue, was: %T`, aupBlockInternetUntilAcceptedAttribute))
 	}
 
-	aupExpireAttribute, ok := attributes["aup_expire"]
+	aupEnabledAttribute, ok := attributes["aup_enabled"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`aup_expire is missing from object`)
+			`aup_enabled is missing from object`)
 
 		return nil, diags
 	}
 
-	aupExpireVal, ok := aupExpireAttribute.(basetypes.Int64Value)
+	aupEnabledVal, ok := aupEnabledAttribute.(basetypes.BoolValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`aup_expire expected to be basetypes.Int64Value, was: %T`, aupExpireAttribute))
+			fmt.Sprintf(`aup_enabled expected to be basetypes.BoolValue, was: %T`, aupEnabledAttribute))
 	}
 
-	aupSslProxyAttribute, ok := attributes["aup_ssl_proxy"]
+	aupForceSslInspectionAttribute, ok := attributes["aup_force_ssl_inspection"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`aup_ssl_proxy is missing from object`)
+			`aup_force_ssl_inspection is missing from object`)
 
 		return nil, diags
 	}
 
-	aupSslProxyVal, ok := aupSslProxyAttribute.(basetypes.BoolValue)
+	aupForceSslInspectionVal, ok := aupForceSslInspectionAttribute.(basetypes.BoolValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`aup_ssl_proxy expected to be basetypes.BoolValue, was: %T`, aupSslProxyAttribute))
+			fmt.Sprintf(`aup_force_ssl_inspection expected to be basetypes.BoolValue, was: %T`, aupForceSslInspectionAttribute))
 	}
 
-	downloadMbpsAttribute, ok := attributes["download_mbps"]
+	aupTimeoutInDaysAttribute, ok := attributes["aup_timeout_in_days"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`download_mbps is missing from object`)
+			`aup_timeout_in_days is missing from object`)
 
 		return nil, diags
 	}
 
-	downloadMbpsVal, ok := downloadMbpsAttribute.(basetypes.Int64Value)
+	aupTimeoutInDaysVal, ok := aupTimeoutInDaysAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`download_mbps expected to be basetypes.Int64Value, was: %T`, downloadMbpsAttribute))
+			fmt.Sprintf(`aup_timeout_in_days expected to be basetypes.Int64Value, was: %T`, aupTimeoutInDaysAttribute))
 	}
 
-	enableAupAttribute, ok := attributes["enable_aup"]
+	authRequiredAttribute, ok := attributes["auth_required"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`enable_aup is missing from object`)
+			`auth_required is missing from object`)
 
 		return nil, diags
 	}
 
-	enableAupVal, ok := enableAupAttribute.(basetypes.BoolValue)
+	authRequiredVal, ok := authRequiredAttribute.(basetypes.BoolValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`enable_aup expected to be basetypes.BoolValue, was: %T`, enableAupAttribute))
+			fmt.Sprintf(`auth_required expected to be basetypes.BoolValue, was: %T`, authRequiredAttribute))
 	}
 
-	enableCautionAttribute, ok := attributes["enable_caution"]
+	cautionEnabledAttribute, ok := attributes["caution_enabled"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`enable_caution is missing from object`)
+			`caution_enabled is missing from object`)
 
 		return nil, diags
 	}
 
-	enableCautionVal, ok := enableCautionAttribute.(basetypes.BoolValue)
+	cautionEnabledVal, ok := cautionEnabledAttribute.(basetypes.BoolValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`enable_caution expected to be basetypes.BoolValue, was: %T`, enableCautionAttribute))
+			fmt.Sprintf(`caution_enabled expected to be basetypes.BoolValue, was: %T`, cautionEnabledAttribute))
 	}
 
-	enforceAuthenticationAttribute, ok := attributes["enforce_authentication"]
+	dnBandwidthAttribute, ok := attributes["dn_bandwidth"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`enforce_authentication is missing from object`)
+			`dn_bandwidth is missing from object`)
 
 		return nil, diags
 	}
 
-	enforceAuthenticationVal, ok := enforceAuthenticationAttribute.(basetypes.BoolValue)
+	dnBandwidthVal, ok := dnBandwidthAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`enforce_authentication expected to be basetypes.BoolValue, was: %T`, enforceAuthenticationAttribute))
+			fmt.Sprintf(`dn_bandwidth expected to be basetypes.Float64Value, was: %T`, dnBandwidthAttribute))
 	}
 
-	nameAttribute, ok := attributes["name"]
+	idleTimeInMinutesAttribute, ok := attributes["idle_time_in_minutes"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`name is missing from object`)
+			`idle_time_in_minutes is missing from object`)
 
 		return nil, diags
 	}
 
-	nameVal, ok := nameAttribute.(basetypes.StringValue)
+	idleTimeInMinutesVal, ok := idleTimeInMinutesAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`name expected to be basetypes.StringValue, was: %T`, nameAttribute))
+			fmt.Sprintf(`idle_time_in_minutes expected to be basetypes.Int64Value, was: %T`, idleTimeInMinutesAttribute))
+	}
+
+	ofwEnabledAttribute, ok := attributes["ofw_enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ofw_enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	ofwEnabledVal, ok := ofwEnabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ofw_enabled expected to be basetypes.BoolValue, was: %T`, ofwEnabledAttribute))
 	}
 
 	subLocationsAttribute, ok := attributes["sub_locations"]
@@ -37915,40 +38541,94 @@ func (t ZscalerType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 			fmt.Sprintf(`sub_locations expected to be basetypes.ListValue, was: %T`, subLocationsAttribute))
 	}
 
-	uploadMbpsAttribute, ok := attributes["upload_mbps"]
+	surrogateIpAttribute, ok := attributes["surrogate_ip"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`upload_mbps is missing from object`)
+			`surrogate_ip is missing from object`)
 
 		return nil, diags
 	}
 
-	uploadMbpsVal, ok := uploadMbpsAttribute.(basetypes.Int64Value)
+	surrogateIpVal, ok := surrogateIpAttribute.(basetypes.BoolValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`upload_mbps expected to be basetypes.Int64Value, was: %T`, uploadMbpsAttribute))
+			fmt.Sprintf(`surrogate_ip expected to be basetypes.BoolValue, was: %T`, surrogateIpAttribute))
 	}
 
-	useXffAttribute, ok := attributes["use_xff"]
+	surrogateIpEnforcedForKnownBrowsersAttribute, ok := attributes["surrogate_ip_enforced_for_known_browsers"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`use_xff is missing from object`)
+			`surrogate_ip_enforced_for_known_browsers is missing from object`)
 
 		return nil, diags
 	}
 
-	useXffVal, ok := useXffAttribute.(basetypes.BoolValue)
+	surrogateIpEnforcedForKnownBrowsersVal, ok := surrogateIpEnforcedForKnownBrowsersAttribute.(basetypes.BoolValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`use_xff expected to be basetypes.BoolValue, was: %T`, useXffAttribute))
+			fmt.Sprintf(`surrogate_ip_enforced_for_known_browsers expected to be basetypes.BoolValue, was: %T`, surrogateIpEnforcedForKnownBrowsersAttribute))
+	}
+
+	surrogateRefreshTimeInMinutesAttribute, ok := attributes["surrogate_refresh_time_in_minutes"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`surrogate_refresh_time_in_minutes is missing from object`)
+
+		return nil, diags
+	}
+
+	surrogateRefreshTimeInMinutesVal, ok := surrogateRefreshTimeInMinutesAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`surrogate_refresh_time_in_minutes expected to be basetypes.Int64Value, was: %T`, surrogateRefreshTimeInMinutesAttribute))
+	}
+
+	upBandwidthAttribute, ok := attributes["up_bandwidth"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`up_bandwidth is missing from object`)
+
+		return nil, diags
+	}
+
+	upBandwidthVal, ok := upBandwidthAttribute.(basetypes.Float64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`up_bandwidth expected to be basetypes.Float64Value, was: %T`, upBandwidthAttribute))
+	}
+
+	xffForwardEnabledAttribute, ok := attributes["xff_forward_enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`xff_forward_enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	xffForwardEnabledVal, ok := xffForwardEnabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`xff_forward_enabled expected to be basetypes.BoolValue, was: %T`, xffForwardEnabledAttribute))
 	}
 
 	if diags.HasError() {
@@ -37956,18 +38636,22 @@ func (t ZscalerType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 	}
 
 	return ZscalerValue{
-		AupAcceptanceRequired: aupAcceptanceRequiredVal,
-		AupExpire:             aupExpireVal,
-		AupSslProxy:           aupSslProxyVal,
-		DownloadMbps:          downloadMbpsVal,
-		EnableAup:             enableAupVal,
-		EnableCaution:         enableCautionVal,
-		EnforceAuthentication: enforceAuthenticationVal,
-		Name:                  nameVal,
-		SubLocations:          subLocationsVal,
-		UploadMbps:            uploadMbpsVal,
-		UseXff:                useXffVal,
-		state:                 attr.ValueStateKnown,
+		AupBlockInternetUntilAccepted:       aupBlockInternetUntilAcceptedVal,
+		AupEnabled:                          aupEnabledVal,
+		AupForceSslInspection:               aupForceSslInspectionVal,
+		AupTimeoutInDays:                    aupTimeoutInDaysVal,
+		AuthRequired:                        authRequiredVal,
+		CautionEnabled:                      cautionEnabledVal,
+		DnBandwidth:                         dnBandwidthVal,
+		IdleTimeInMinutes:                   idleTimeInMinutesVal,
+		OfwEnabled:                          ofwEnabledVal,
+		SubLocations:                        subLocationsVal,
+		SurrogateIp:                         surrogateIpVal,
+		SurrogateIpEnforcedForKnownBrowsers: surrogateIpEnforcedForKnownBrowsersVal,
+		SurrogateRefreshTimeInMinutes:       surrogateRefreshTimeInMinutesVal,
+		UpBandwidth:                         upBandwidthVal,
+		XffForwardEnabled:                   xffForwardEnabledVal,
+		state:                               attr.ValueStateKnown,
 	}, diags
 }
 
@@ -38034,148 +38718,166 @@ func NewZscalerValue(attributeTypes map[string]attr.Type, attributes map[string]
 		return NewZscalerValueUnknown(), diags
 	}
 
-	aupAcceptanceRequiredAttribute, ok := attributes["aup_acceptance_required"]
+	aupBlockInternetUntilAcceptedAttribute, ok := attributes["aup_block_internet_until_accepted"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`aup_acceptance_required is missing from object`)
+			`aup_block_internet_until_accepted is missing from object`)
 
 		return NewZscalerValueUnknown(), diags
 	}
 
-	aupAcceptanceRequiredVal, ok := aupAcceptanceRequiredAttribute.(basetypes.BoolValue)
+	aupBlockInternetUntilAcceptedVal, ok := aupBlockInternetUntilAcceptedAttribute.(basetypes.BoolValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`aup_acceptance_required expected to be basetypes.BoolValue, was: %T`, aupAcceptanceRequiredAttribute))
+			fmt.Sprintf(`aup_block_internet_until_accepted expected to be basetypes.BoolValue, was: %T`, aupBlockInternetUntilAcceptedAttribute))
 	}
 
-	aupExpireAttribute, ok := attributes["aup_expire"]
+	aupEnabledAttribute, ok := attributes["aup_enabled"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`aup_expire is missing from object`)
+			`aup_enabled is missing from object`)
 
 		return NewZscalerValueUnknown(), diags
 	}
 
-	aupExpireVal, ok := aupExpireAttribute.(basetypes.Int64Value)
+	aupEnabledVal, ok := aupEnabledAttribute.(basetypes.BoolValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`aup_expire expected to be basetypes.Int64Value, was: %T`, aupExpireAttribute))
+			fmt.Sprintf(`aup_enabled expected to be basetypes.BoolValue, was: %T`, aupEnabledAttribute))
 	}
 
-	aupSslProxyAttribute, ok := attributes["aup_ssl_proxy"]
+	aupForceSslInspectionAttribute, ok := attributes["aup_force_ssl_inspection"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`aup_ssl_proxy is missing from object`)
+			`aup_force_ssl_inspection is missing from object`)
 
 		return NewZscalerValueUnknown(), diags
 	}
 
-	aupSslProxyVal, ok := aupSslProxyAttribute.(basetypes.BoolValue)
+	aupForceSslInspectionVal, ok := aupForceSslInspectionAttribute.(basetypes.BoolValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`aup_ssl_proxy expected to be basetypes.BoolValue, was: %T`, aupSslProxyAttribute))
+			fmt.Sprintf(`aup_force_ssl_inspection expected to be basetypes.BoolValue, was: %T`, aupForceSslInspectionAttribute))
 	}
 
-	downloadMbpsAttribute, ok := attributes["download_mbps"]
+	aupTimeoutInDaysAttribute, ok := attributes["aup_timeout_in_days"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`download_mbps is missing from object`)
+			`aup_timeout_in_days is missing from object`)
 
 		return NewZscalerValueUnknown(), diags
 	}
 
-	downloadMbpsVal, ok := downloadMbpsAttribute.(basetypes.Int64Value)
+	aupTimeoutInDaysVal, ok := aupTimeoutInDaysAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`download_mbps expected to be basetypes.Int64Value, was: %T`, downloadMbpsAttribute))
+			fmt.Sprintf(`aup_timeout_in_days expected to be basetypes.Int64Value, was: %T`, aupTimeoutInDaysAttribute))
 	}
 
-	enableAupAttribute, ok := attributes["enable_aup"]
+	authRequiredAttribute, ok := attributes["auth_required"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`enable_aup is missing from object`)
+			`auth_required is missing from object`)
 
 		return NewZscalerValueUnknown(), diags
 	}
 
-	enableAupVal, ok := enableAupAttribute.(basetypes.BoolValue)
+	authRequiredVal, ok := authRequiredAttribute.(basetypes.BoolValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`enable_aup expected to be basetypes.BoolValue, was: %T`, enableAupAttribute))
+			fmt.Sprintf(`auth_required expected to be basetypes.BoolValue, was: %T`, authRequiredAttribute))
 	}
 
-	enableCautionAttribute, ok := attributes["enable_caution"]
+	cautionEnabledAttribute, ok := attributes["caution_enabled"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`enable_caution is missing from object`)
+			`caution_enabled is missing from object`)
 
 		return NewZscalerValueUnknown(), diags
 	}
 
-	enableCautionVal, ok := enableCautionAttribute.(basetypes.BoolValue)
+	cautionEnabledVal, ok := cautionEnabledAttribute.(basetypes.BoolValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`enable_caution expected to be basetypes.BoolValue, was: %T`, enableCautionAttribute))
+			fmt.Sprintf(`caution_enabled expected to be basetypes.BoolValue, was: %T`, cautionEnabledAttribute))
 	}
 
-	enforceAuthenticationAttribute, ok := attributes["enforce_authentication"]
+	dnBandwidthAttribute, ok := attributes["dn_bandwidth"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`enforce_authentication is missing from object`)
+			`dn_bandwidth is missing from object`)
 
 		return NewZscalerValueUnknown(), diags
 	}
 
-	enforceAuthenticationVal, ok := enforceAuthenticationAttribute.(basetypes.BoolValue)
+	dnBandwidthVal, ok := dnBandwidthAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`enforce_authentication expected to be basetypes.BoolValue, was: %T`, enforceAuthenticationAttribute))
+			fmt.Sprintf(`dn_bandwidth expected to be basetypes.Float64Value, was: %T`, dnBandwidthAttribute))
 	}
 
-	nameAttribute, ok := attributes["name"]
+	idleTimeInMinutesAttribute, ok := attributes["idle_time_in_minutes"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`name is missing from object`)
+			`idle_time_in_minutes is missing from object`)
 
 		return NewZscalerValueUnknown(), diags
 	}
 
-	nameVal, ok := nameAttribute.(basetypes.StringValue)
+	idleTimeInMinutesVal, ok := idleTimeInMinutesAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`name expected to be basetypes.StringValue, was: %T`, nameAttribute))
+			fmt.Sprintf(`idle_time_in_minutes expected to be basetypes.Int64Value, was: %T`, idleTimeInMinutesAttribute))
+	}
+
+	ofwEnabledAttribute, ok := attributes["ofw_enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ofw_enabled is missing from object`)
+
+		return NewZscalerValueUnknown(), diags
+	}
+
+	ofwEnabledVal, ok := ofwEnabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ofw_enabled expected to be basetypes.BoolValue, was: %T`, ofwEnabledAttribute))
 	}
 
 	subLocationsAttribute, ok := attributes["sub_locations"]
@@ -38196,40 +38898,94 @@ func NewZscalerValue(attributeTypes map[string]attr.Type, attributes map[string]
 			fmt.Sprintf(`sub_locations expected to be basetypes.ListValue, was: %T`, subLocationsAttribute))
 	}
 
-	uploadMbpsAttribute, ok := attributes["upload_mbps"]
+	surrogateIpAttribute, ok := attributes["surrogate_ip"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`upload_mbps is missing from object`)
+			`surrogate_ip is missing from object`)
 
 		return NewZscalerValueUnknown(), diags
 	}
 
-	uploadMbpsVal, ok := uploadMbpsAttribute.(basetypes.Int64Value)
+	surrogateIpVal, ok := surrogateIpAttribute.(basetypes.BoolValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`upload_mbps expected to be basetypes.Int64Value, was: %T`, uploadMbpsAttribute))
+			fmt.Sprintf(`surrogate_ip expected to be basetypes.BoolValue, was: %T`, surrogateIpAttribute))
 	}
 
-	useXffAttribute, ok := attributes["use_xff"]
+	surrogateIpEnforcedForKnownBrowsersAttribute, ok := attributes["surrogate_ip_enforced_for_known_browsers"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`use_xff is missing from object`)
+			`surrogate_ip_enforced_for_known_browsers is missing from object`)
 
 		return NewZscalerValueUnknown(), diags
 	}
 
-	useXffVal, ok := useXffAttribute.(basetypes.BoolValue)
+	surrogateIpEnforcedForKnownBrowsersVal, ok := surrogateIpEnforcedForKnownBrowsersAttribute.(basetypes.BoolValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`use_xff expected to be basetypes.BoolValue, was: %T`, useXffAttribute))
+			fmt.Sprintf(`surrogate_ip_enforced_for_known_browsers expected to be basetypes.BoolValue, was: %T`, surrogateIpEnforcedForKnownBrowsersAttribute))
+	}
+
+	surrogateRefreshTimeInMinutesAttribute, ok := attributes["surrogate_refresh_time_in_minutes"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`surrogate_refresh_time_in_minutes is missing from object`)
+
+		return NewZscalerValueUnknown(), diags
+	}
+
+	surrogateRefreshTimeInMinutesVal, ok := surrogateRefreshTimeInMinutesAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`surrogate_refresh_time_in_minutes expected to be basetypes.Int64Value, was: %T`, surrogateRefreshTimeInMinutesAttribute))
+	}
+
+	upBandwidthAttribute, ok := attributes["up_bandwidth"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`up_bandwidth is missing from object`)
+
+		return NewZscalerValueUnknown(), diags
+	}
+
+	upBandwidthVal, ok := upBandwidthAttribute.(basetypes.Float64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`up_bandwidth expected to be basetypes.Float64Value, was: %T`, upBandwidthAttribute))
+	}
+
+	xffForwardEnabledAttribute, ok := attributes["xff_forward_enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`xff_forward_enabled is missing from object`)
+
+		return NewZscalerValueUnknown(), diags
+	}
+
+	xffForwardEnabledVal, ok := xffForwardEnabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`xff_forward_enabled expected to be basetypes.BoolValue, was: %T`, xffForwardEnabledAttribute))
 	}
 
 	if diags.HasError() {
@@ -38237,18 +38993,22 @@ func NewZscalerValue(attributeTypes map[string]attr.Type, attributes map[string]
 	}
 
 	return ZscalerValue{
-		AupAcceptanceRequired: aupAcceptanceRequiredVal,
-		AupExpire:             aupExpireVal,
-		AupSslProxy:           aupSslProxyVal,
-		DownloadMbps:          downloadMbpsVal,
-		EnableAup:             enableAupVal,
-		EnableCaution:         enableCautionVal,
-		EnforceAuthentication: enforceAuthenticationVal,
-		Name:                  nameVal,
-		SubLocations:          subLocationsVal,
-		UploadMbps:            uploadMbpsVal,
-		UseXff:                useXffVal,
-		state:                 attr.ValueStateKnown,
+		AupBlockInternetUntilAccepted:       aupBlockInternetUntilAcceptedVal,
+		AupEnabled:                          aupEnabledVal,
+		AupForceSslInspection:               aupForceSslInspectionVal,
+		AupTimeoutInDays:                    aupTimeoutInDaysVal,
+		AuthRequired:                        authRequiredVal,
+		CautionEnabled:                      cautionEnabledVal,
+		DnBandwidth:                         dnBandwidthVal,
+		IdleTimeInMinutes:                   idleTimeInMinutesVal,
+		OfwEnabled:                          ofwEnabledVal,
+		SubLocations:                        subLocationsVal,
+		SurrogateIp:                         surrogateIpVal,
+		SurrogateIpEnforcedForKnownBrowsers: surrogateIpEnforcedForKnownBrowsersVal,
+		SurrogateRefreshTimeInMinutes:       surrogateRefreshTimeInMinutesVal,
+		UpBandwidth:                         upBandwidthVal,
+		XffForwardEnabled:                   xffForwardEnabledVal,
+		state:                               attr.ValueStateKnown,
 	}, diags
 }
 
@@ -38320,109 +39080,125 @@ func (t ZscalerType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = ZscalerValue{}
 
 type ZscalerValue struct {
-	AupAcceptanceRequired basetypes.BoolValue   `tfsdk:"aup_acceptance_required"`
-	AupExpire             basetypes.Int64Value  `tfsdk:"aup_expire"`
-	AupSslProxy           basetypes.BoolValue   `tfsdk:"aup_ssl_proxy"`
-	DownloadMbps          basetypes.Int64Value  `tfsdk:"download_mbps"`
-	EnableAup             basetypes.BoolValue   `tfsdk:"enable_aup"`
-	EnableCaution         basetypes.BoolValue   `tfsdk:"enable_caution"`
-	EnforceAuthentication basetypes.BoolValue   `tfsdk:"enforce_authentication"`
-	Name                  basetypes.StringValue `tfsdk:"name"`
-	SubLocations          basetypes.ListValue   `tfsdk:"sub_locations"`
-	UploadMbps            basetypes.Int64Value  `tfsdk:"upload_mbps"`
-	UseXff                basetypes.BoolValue   `tfsdk:"use_xff"`
-	state                 attr.ValueState
+	AupBlockInternetUntilAccepted       basetypes.BoolValue    `tfsdk:"aup_block_internet_until_accepted"`
+	AupEnabled                          basetypes.BoolValue    `tfsdk:"aup_enabled"`
+	AupForceSslInspection               basetypes.BoolValue    `tfsdk:"aup_force_ssl_inspection"`
+	AupTimeoutInDays                    basetypes.Int64Value   `tfsdk:"aup_timeout_in_days"`
+	AuthRequired                        basetypes.BoolValue    `tfsdk:"auth_required"`
+	CautionEnabled                      basetypes.BoolValue    `tfsdk:"caution_enabled"`
+	DnBandwidth                         basetypes.Float64Value `tfsdk:"dn_bandwidth"`
+	IdleTimeInMinutes                   basetypes.Int64Value   `tfsdk:"idle_time_in_minutes"`
+	OfwEnabled                          basetypes.BoolValue    `tfsdk:"ofw_enabled"`
+	SubLocations                        basetypes.ListValue    `tfsdk:"sub_locations"`
+	SurrogateIp                         basetypes.BoolValue    `tfsdk:"surrogate_ip"`
+	SurrogateIpEnforcedForKnownBrowsers basetypes.BoolValue    `tfsdk:"surrogate_ip_enforced_for_known_browsers"`
+	SurrogateRefreshTimeInMinutes       basetypes.Int64Value   `tfsdk:"surrogate_refresh_time_in_minutes"`
+	UpBandwidth                         basetypes.Float64Value `tfsdk:"up_bandwidth"`
+	XffForwardEnabled                   basetypes.BoolValue    `tfsdk:"xff_forward_enabled"`
+	state                               attr.ValueState
 }
 
 func (v ZscalerValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 11)
+	attrTypes := make(map[string]tftypes.Type, 15)
 
 	var val tftypes.Value
 	var err error
 
-	attrTypes["aup_acceptance_required"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["aup_expire"] = basetypes.Int64Type{}.TerraformType(ctx)
-	attrTypes["aup_ssl_proxy"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["download_mbps"] = basetypes.Int64Type{}.TerraformType(ctx)
-	attrTypes["enable_aup"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["enable_caution"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["enforce_authentication"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["aup_block_internet_until_accepted"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["aup_enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["aup_force_ssl_inspection"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["aup_timeout_in_days"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["auth_required"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["caution_enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["dn_bandwidth"] = basetypes.Float64Type{}.TerraformType(ctx)
+	attrTypes["idle_time_in_minutes"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["ofw_enabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["sub_locations"] = basetypes.ListType{
 		ElemType: SubLocationsValue{}.Type(ctx),
 	}.TerraformType(ctx)
-	attrTypes["upload_mbps"] = basetypes.Int64Type{}.TerraformType(ctx)
-	attrTypes["use_xff"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["surrogate_ip"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["surrogate_ip_enforced_for_known_browsers"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["surrogate_refresh_time_in_minutes"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["up_bandwidth"] = basetypes.Float64Type{}.TerraformType(ctx)
+	attrTypes["xff_forward_enabled"] = basetypes.BoolType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 11)
+		vals := make(map[string]tftypes.Value, 15)
 
-		val, err = v.AupAcceptanceRequired.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["aup_acceptance_required"] = val
-
-		val, err = v.AupExpire.ToTerraformValue(ctx)
+		val, err = v.AupBlockInternetUntilAccepted.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["aup_expire"] = val
+		vals["aup_block_internet_until_accepted"] = val
 
-		val, err = v.AupSslProxy.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["aup_ssl_proxy"] = val
-
-		val, err = v.DownloadMbps.ToTerraformValue(ctx)
+		val, err = v.AupEnabled.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["download_mbps"] = val
+		vals["aup_enabled"] = val
 
-		val, err = v.EnableAup.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["enable_aup"] = val
-
-		val, err = v.EnableCaution.ToTerraformValue(ctx)
+		val, err = v.AupForceSslInspection.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["enable_caution"] = val
+		vals["aup_force_ssl_inspection"] = val
 
-		val, err = v.EnforceAuthentication.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["enforce_authentication"] = val
-
-		val, err = v.Name.ToTerraformValue(ctx)
+		val, err = v.AupTimeoutInDays.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["name"] = val
+		vals["aup_timeout_in_days"] = val
+
+		val, err = v.AuthRequired.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["auth_required"] = val
+
+		val, err = v.CautionEnabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["caution_enabled"] = val
+
+		val, err = v.DnBandwidth.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["dn_bandwidth"] = val
+
+		val, err = v.IdleTimeInMinutes.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["idle_time_in_minutes"] = val
+
+		val, err = v.OfwEnabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["ofw_enabled"] = val
 
 		val, err = v.SubLocations.ToTerraformValue(ctx)
 
@@ -38432,21 +39208,45 @@ func (v ZscalerValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 
 		vals["sub_locations"] = val
 
-		val, err = v.UploadMbps.ToTerraformValue(ctx)
+		val, err = v.SurrogateIp.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["upload_mbps"] = val
+		vals["surrogate_ip"] = val
 
-		val, err = v.UseXff.ToTerraformValue(ctx)
+		val, err = v.SurrogateIpEnforcedForKnownBrowsers.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["use_xff"] = val
+		vals["surrogate_ip_enforced_for_known_browsers"] = val
+
+		val, err = v.SurrogateRefreshTimeInMinutes.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["surrogate_refresh_time_in_minutes"] = val
+
+		val, err = v.UpBandwidth.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["up_bandwidth"] = val
+
+		val, err = v.XffForwardEnabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["xff_forward_enabled"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -38507,19 +39307,23 @@ func (v ZscalerValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 	}
 
 	attributeTypes := map[string]attr.Type{
-		"aup_acceptance_required": basetypes.BoolType{},
-		"aup_expire":              basetypes.Int64Type{},
-		"aup_ssl_proxy":           basetypes.BoolType{},
-		"download_mbps":           basetypes.Int64Type{},
-		"enable_aup":              basetypes.BoolType{},
-		"enable_caution":          basetypes.BoolType{},
-		"enforce_authentication":  basetypes.BoolType{},
-		"name":                    basetypes.StringType{},
+		"aup_block_internet_until_accepted": basetypes.BoolType{},
+		"aup_enabled":                       basetypes.BoolType{},
+		"aup_force_ssl_inspection":          basetypes.BoolType{},
+		"aup_timeout_in_days":               basetypes.Int64Type{},
+		"auth_required":                     basetypes.BoolType{},
+		"caution_enabled":                   basetypes.BoolType{},
+		"dn_bandwidth":                      basetypes.Float64Type{},
+		"idle_time_in_minutes":              basetypes.Int64Type{},
+		"ofw_enabled":                       basetypes.BoolType{},
 		"sub_locations": basetypes.ListType{
 			ElemType: SubLocationsValue{}.Type(ctx),
 		},
-		"upload_mbps": basetypes.Int64Type{},
-		"use_xff":     basetypes.BoolType{},
+		"surrogate_ip": basetypes.BoolType{},
+		"surrogate_ip_enforced_for_known_browsers": basetypes.BoolType{},
+		"surrogate_refresh_time_in_minutes":        basetypes.Int64Type{},
+		"up_bandwidth":                             basetypes.Float64Type{},
+		"xff_forward_enabled":                      basetypes.BoolType{},
 	}
 
 	if v.IsNull() {
@@ -38533,17 +39337,21 @@ func (v ZscalerValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"aup_acceptance_required": v.AupAcceptanceRequired,
-			"aup_expire":              v.AupExpire,
-			"aup_ssl_proxy":           v.AupSslProxy,
-			"download_mbps":           v.DownloadMbps,
-			"enable_aup":              v.EnableAup,
-			"enable_caution":          v.EnableCaution,
-			"enforce_authentication":  v.EnforceAuthentication,
-			"name":                    v.Name,
-			"sub_locations":           subLocations,
-			"upload_mbps":             v.UploadMbps,
-			"use_xff":                 v.UseXff,
+			"aup_block_internet_until_accepted":        v.AupBlockInternetUntilAccepted,
+			"aup_enabled":                              v.AupEnabled,
+			"aup_force_ssl_inspection":                 v.AupForceSslInspection,
+			"aup_timeout_in_days":                      v.AupTimeoutInDays,
+			"auth_required":                            v.AuthRequired,
+			"caution_enabled":                          v.CautionEnabled,
+			"dn_bandwidth":                             v.DnBandwidth,
+			"idle_time_in_minutes":                     v.IdleTimeInMinutes,
+			"ofw_enabled":                              v.OfwEnabled,
+			"sub_locations":                            subLocations,
+			"surrogate_ip":                             v.SurrogateIp,
+			"surrogate_ip_enforced_for_known_browsers": v.SurrogateIpEnforcedForKnownBrowsers,
+			"surrogate_refresh_time_in_minutes":        v.SurrogateRefreshTimeInMinutes,
+			"up_bandwidth":                             v.UpBandwidth,
+			"xff_forward_enabled":                      v.XffForwardEnabled,
 		})
 
 	return objVal, diags
@@ -38564,35 +39372,39 @@ func (v ZscalerValue) Equal(o attr.Value) bool {
 		return true
 	}
 
-	if !v.AupAcceptanceRequired.Equal(other.AupAcceptanceRequired) {
+	if !v.AupBlockInternetUntilAccepted.Equal(other.AupBlockInternetUntilAccepted) {
 		return false
 	}
 
-	if !v.AupExpire.Equal(other.AupExpire) {
+	if !v.AupEnabled.Equal(other.AupEnabled) {
 		return false
 	}
 
-	if !v.AupSslProxy.Equal(other.AupSslProxy) {
+	if !v.AupForceSslInspection.Equal(other.AupForceSslInspection) {
 		return false
 	}
 
-	if !v.DownloadMbps.Equal(other.DownloadMbps) {
+	if !v.AupTimeoutInDays.Equal(other.AupTimeoutInDays) {
 		return false
 	}
 
-	if !v.EnableAup.Equal(other.EnableAup) {
+	if !v.AuthRequired.Equal(other.AuthRequired) {
 		return false
 	}
 
-	if !v.EnableCaution.Equal(other.EnableCaution) {
+	if !v.CautionEnabled.Equal(other.CautionEnabled) {
 		return false
 	}
 
-	if !v.EnforceAuthentication.Equal(other.EnforceAuthentication) {
+	if !v.DnBandwidth.Equal(other.DnBandwidth) {
 		return false
 	}
 
-	if !v.Name.Equal(other.Name) {
+	if !v.IdleTimeInMinutes.Equal(other.IdleTimeInMinutes) {
+		return false
+	}
+
+	if !v.OfwEnabled.Equal(other.OfwEnabled) {
 		return false
 	}
 
@@ -38600,11 +39412,23 @@ func (v ZscalerValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.UploadMbps.Equal(other.UploadMbps) {
+	if !v.SurrogateIp.Equal(other.SurrogateIp) {
 		return false
 	}
 
-	if !v.UseXff.Equal(other.UseXff) {
+	if !v.SurrogateIpEnforcedForKnownBrowsers.Equal(other.SurrogateIpEnforcedForKnownBrowsers) {
+		return false
+	}
+
+	if !v.SurrogateRefreshTimeInMinutes.Equal(other.SurrogateRefreshTimeInMinutes) {
+		return false
+	}
+
+	if !v.UpBandwidth.Equal(other.UpBandwidth) {
+		return false
+	}
+
+	if !v.XffForwardEnabled.Equal(other.XffForwardEnabled) {
 		return false
 	}
 
@@ -38621,19 +39445,23 @@ func (v ZscalerValue) Type(ctx context.Context) attr.Type {
 
 func (v ZscalerValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"aup_acceptance_required": basetypes.BoolType{},
-		"aup_expire":              basetypes.Int64Type{},
-		"aup_ssl_proxy":           basetypes.BoolType{},
-		"download_mbps":           basetypes.Int64Type{},
-		"enable_aup":              basetypes.BoolType{},
-		"enable_caution":          basetypes.BoolType{},
-		"enforce_authentication":  basetypes.BoolType{},
-		"name":                    basetypes.StringType{},
+		"aup_block_internet_until_accepted": basetypes.BoolType{},
+		"aup_enabled":                       basetypes.BoolType{},
+		"aup_force_ssl_inspection":          basetypes.BoolType{},
+		"aup_timeout_in_days":               basetypes.Int64Type{},
+		"auth_required":                     basetypes.BoolType{},
+		"caution_enabled":                   basetypes.BoolType{},
+		"dn_bandwidth":                      basetypes.Float64Type{},
+		"idle_time_in_minutes":              basetypes.Int64Type{},
+		"ofw_enabled":                       basetypes.BoolType{},
 		"sub_locations": basetypes.ListType{
 			ElemType: SubLocationsValue{}.Type(ctx),
 		},
-		"upload_mbps": basetypes.Int64Type{},
-		"use_xff":     basetypes.BoolType{},
+		"surrogate_ip": basetypes.BoolType{},
+		"surrogate_ip_enforced_for_known_browsers": basetypes.BoolType{},
+		"surrogate_refresh_time_in_minutes":        basetypes.Int64Type{},
+		"up_bandwidth":                             basetypes.Float64Type{},
+		"xff_forward_enabled":                      basetypes.BoolType{},
 	}
 }
 
@@ -38662,166 +39490,256 @@ func (t SubLocationsType) ValueFromObject(ctx context.Context, in basetypes.Obje
 
 	attributes := in.Attributes()
 
-	aupAcceptanceRequiredAttribute, ok := attributes["aup_acceptance_required"]
+	aupBlockInternetUntilAcceptedAttribute, ok := attributes["aup_block_internet_until_accepted"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`aup_acceptance_required is missing from object`)
+			`aup_block_internet_until_accepted is missing from object`)
 
 		return nil, diags
 	}
 
-	aupAcceptanceRequiredVal, ok := aupAcceptanceRequiredAttribute.(basetypes.BoolValue)
+	aupBlockInternetUntilAcceptedVal, ok := aupBlockInternetUntilAcceptedAttribute.(basetypes.BoolValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`aup_acceptance_required expected to be basetypes.BoolValue, was: %T`, aupAcceptanceRequiredAttribute))
+			fmt.Sprintf(`aup_block_internet_until_accepted expected to be basetypes.BoolValue, was: %T`, aupBlockInternetUntilAcceptedAttribute))
 	}
 
-	aupExpireAttribute, ok := attributes["aup_expire"]
+	aupEnabledAttribute, ok := attributes["aup_enabled"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`aup_expire is missing from object`)
+			`aup_enabled is missing from object`)
 
 		return nil, diags
 	}
 
-	aupExpireVal, ok := aupExpireAttribute.(basetypes.Int64Value)
+	aupEnabledVal, ok := aupEnabledAttribute.(basetypes.BoolValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`aup_expire expected to be basetypes.Int64Value, was: %T`, aupExpireAttribute))
+			fmt.Sprintf(`aup_enabled expected to be basetypes.BoolValue, was: %T`, aupEnabledAttribute))
 	}
 
-	aupSslProxyAttribute, ok := attributes["aup_ssl_proxy"]
+	aupForceSslInspectionAttribute, ok := attributes["aup_force_ssl_inspection"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`aup_ssl_proxy is missing from object`)
+			`aup_force_ssl_inspection is missing from object`)
 
 		return nil, diags
 	}
 
-	aupSslProxyVal, ok := aupSslProxyAttribute.(basetypes.BoolValue)
+	aupForceSslInspectionVal, ok := aupForceSslInspectionAttribute.(basetypes.BoolValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`aup_ssl_proxy expected to be basetypes.BoolValue, was: %T`, aupSslProxyAttribute))
+			fmt.Sprintf(`aup_force_ssl_inspection expected to be basetypes.BoolValue, was: %T`, aupForceSslInspectionAttribute))
 	}
 
-	downloadMbpsAttribute, ok := attributes["download_mbps"]
+	aupTimeoutInDaysAttribute, ok := attributes["aup_timeout_in_days"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`download_mbps is missing from object`)
+			`aup_timeout_in_days is missing from object`)
 
 		return nil, diags
 	}
 
-	downloadMbpsVal, ok := downloadMbpsAttribute.(basetypes.Int64Value)
+	aupTimeoutInDaysVal, ok := aupTimeoutInDaysAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`download_mbps expected to be basetypes.Int64Value, was: %T`, downloadMbpsAttribute))
+			fmt.Sprintf(`aup_timeout_in_days expected to be basetypes.Int64Value, was: %T`, aupTimeoutInDaysAttribute))
 	}
 
-	enableAupAttribute, ok := attributes["enable_aup"]
+	authRequiredAttribute, ok := attributes["auth_required"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`enable_aup is missing from object`)
+			`auth_required is missing from object`)
 
 		return nil, diags
 	}
 
-	enableAupVal, ok := enableAupAttribute.(basetypes.BoolValue)
+	authRequiredVal, ok := authRequiredAttribute.(basetypes.BoolValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`enable_aup expected to be basetypes.BoolValue, was: %T`, enableAupAttribute))
+			fmt.Sprintf(`auth_required expected to be basetypes.BoolValue, was: %T`, authRequiredAttribute))
 	}
 
-	enableCautionAttribute, ok := attributes["enable_caution"]
+	cautionEnabledAttribute, ok := attributes["caution_enabled"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`enable_caution is missing from object`)
+			`caution_enabled is missing from object`)
 
 		return nil, diags
 	}
 
-	enableCautionVal, ok := enableCautionAttribute.(basetypes.BoolValue)
+	cautionEnabledVal, ok := cautionEnabledAttribute.(basetypes.BoolValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`enable_caution expected to be basetypes.BoolValue, was: %T`, enableCautionAttribute))
+			fmt.Sprintf(`caution_enabled expected to be basetypes.BoolValue, was: %T`, cautionEnabledAttribute))
 	}
 
-	enforceAuthenticationAttribute, ok := attributes["enforce_authentication"]
+	dnBandwidthAttribute, ok := attributes["dn_bandwidth"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`enforce_authentication is missing from object`)
+			`dn_bandwidth is missing from object`)
 
 		return nil, diags
 	}
 
-	enforceAuthenticationVal, ok := enforceAuthenticationAttribute.(basetypes.BoolValue)
+	dnBandwidthVal, ok := dnBandwidthAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`enforce_authentication expected to be basetypes.BoolValue, was: %T`, enforceAuthenticationAttribute))
+			fmt.Sprintf(`dn_bandwidth expected to be basetypes.Float64Value, was: %T`, dnBandwidthAttribute))
 	}
 
-	subnetsAttribute, ok := attributes["subnets"]
+	idleTimeInMinutesAttribute, ok := attributes["idle_time_in_minutes"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`subnets is missing from object`)
+			`idle_time_in_minutes is missing from object`)
 
 		return nil, diags
 	}
 
-	subnetsVal, ok := subnetsAttribute.(basetypes.ListValue)
+	idleTimeInMinutesVal, ok := idleTimeInMinutesAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`subnets expected to be basetypes.ListValue, was: %T`, subnetsAttribute))
+			fmt.Sprintf(`idle_time_in_minutes expected to be basetypes.Int64Value, was: %T`, idleTimeInMinutesAttribute))
 	}
 
-	uploadMbpsAttribute, ok := attributes["upload_mbps"]
+	nameAttribute, ok := attributes["name"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`upload_mbps is missing from object`)
+			`name is missing from object`)
 
 		return nil, diags
 	}
 
-	uploadMbpsVal, ok := uploadMbpsAttribute.(basetypes.Int64Value)
+	nameVal, ok := nameAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`upload_mbps expected to be basetypes.Int64Value, was: %T`, uploadMbpsAttribute))
+			fmt.Sprintf(`name expected to be basetypes.StringValue, was: %T`, nameAttribute))
+	}
+
+	ofwEnabledAttribute, ok := attributes["ofw_enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ofw_enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	ofwEnabledVal, ok := ofwEnabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ofw_enabled expected to be basetypes.BoolValue, was: %T`, ofwEnabledAttribute))
+	}
+
+	surrogateIpAttribute, ok := attributes["surrogate_ip"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`surrogate_ip is missing from object`)
+
+		return nil, diags
+	}
+
+	surrogateIpVal, ok := surrogateIpAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`surrogate_ip expected to be basetypes.BoolValue, was: %T`, surrogateIpAttribute))
+	}
+
+	surrogateIpEnforcedForKnownBrowsersAttribute, ok := attributes["surrogate_ip_enforced_for_known_browsers"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`surrogate_ip_enforced_for_known_browsers is missing from object`)
+
+		return nil, diags
+	}
+
+	surrogateIpEnforcedForKnownBrowsersVal, ok := surrogateIpEnforcedForKnownBrowsersAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`surrogate_ip_enforced_for_known_browsers expected to be basetypes.BoolValue, was: %T`, surrogateIpEnforcedForKnownBrowsersAttribute))
+	}
+
+	surrogateRefreshTimeInMinutesAttribute, ok := attributes["surrogate_refresh_time_in_minutes"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`surrogate_refresh_time_in_minutes is missing from object`)
+
+		return nil, diags
+	}
+
+	surrogateRefreshTimeInMinutesVal, ok := surrogateRefreshTimeInMinutesAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`surrogate_refresh_time_in_minutes expected to be basetypes.Int64Value, was: %T`, surrogateRefreshTimeInMinutesAttribute))
+	}
+
+	upBandwidthAttribute, ok := attributes["up_bandwidth"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`up_bandwidth is missing from object`)
+
+		return nil, diags
+	}
+
+	upBandwidthVal, ok := upBandwidthAttribute.(basetypes.Float64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`up_bandwidth expected to be basetypes.Float64Value, was: %T`, upBandwidthAttribute))
 	}
 
 	if diags.HasError() {
@@ -38829,16 +39747,21 @@ func (t SubLocationsType) ValueFromObject(ctx context.Context, in basetypes.Obje
 	}
 
 	return SubLocationsValue{
-		AupAcceptanceRequired: aupAcceptanceRequiredVal,
-		AupExpire:             aupExpireVal,
-		AupSslProxy:           aupSslProxyVal,
-		DownloadMbps:          downloadMbpsVal,
-		EnableAup:             enableAupVal,
-		EnableCaution:         enableCautionVal,
-		EnforceAuthentication: enforceAuthenticationVal,
-		Subnets:               subnetsVal,
-		UploadMbps:            uploadMbpsVal,
-		state:                 attr.ValueStateKnown,
+		AupBlockInternetUntilAccepted:       aupBlockInternetUntilAcceptedVal,
+		AupEnabled:                          aupEnabledVal,
+		AupForceSslInspection:               aupForceSslInspectionVal,
+		AupTimeoutInDays:                    aupTimeoutInDaysVal,
+		AuthRequired:                        authRequiredVal,
+		CautionEnabled:                      cautionEnabledVal,
+		DnBandwidth:                         dnBandwidthVal,
+		IdleTimeInMinutes:                   idleTimeInMinutesVal,
+		Name:                                nameVal,
+		OfwEnabled:                          ofwEnabledVal,
+		SurrogateIp:                         surrogateIpVal,
+		SurrogateIpEnforcedForKnownBrowsers: surrogateIpEnforcedForKnownBrowsersVal,
+		SurrogateRefreshTimeInMinutes:       surrogateRefreshTimeInMinutesVal,
+		UpBandwidth:                         upBandwidthVal,
+		state:                               attr.ValueStateKnown,
 	}, diags
 }
 
@@ -38905,166 +39828,256 @@ func NewSubLocationsValue(attributeTypes map[string]attr.Type, attributes map[st
 		return NewSubLocationsValueUnknown(), diags
 	}
 
-	aupAcceptanceRequiredAttribute, ok := attributes["aup_acceptance_required"]
+	aupBlockInternetUntilAcceptedAttribute, ok := attributes["aup_block_internet_until_accepted"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`aup_acceptance_required is missing from object`)
+			`aup_block_internet_until_accepted is missing from object`)
 
 		return NewSubLocationsValueUnknown(), diags
 	}
 
-	aupAcceptanceRequiredVal, ok := aupAcceptanceRequiredAttribute.(basetypes.BoolValue)
+	aupBlockInternetUntilAcceptedVal, ok := aupBlockInternetUntilAcceptedAttribute.(basetypes.BoolValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`aup_acceptance_required expected to be basetypes.BoolValue, was: %T`, aupAcceptanceRequiredAttribute))
+			fmt.Sprintf(`aup_block_internet_until_accepted expected to be basetypes.BoolValue, was: %T`, aupBlockInternetUntilAcceptedAttribute))
 	}
 
-	aupExpireAttribute, ok := attributes["aup_expire"]
+	aupEnabledAttribute, ok := attributes["aup_enabled"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`aup_expire is missing from object`)
+			`aup_enabled is missing from object`)
 
 		return NewSubLocationsValueUnknown(), diags
 	}
 
-	aupExpireVal, ok := aupExpireAttribute.(basetypes.Int64Value)
+	aupEnabledVal, ok := aupEnabledAttribute.(basetypes.BoolValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`aup_expire expected to be basetypes.Int64Value, was: %T`, aupExpireAttribute))
+			fmt.Sprintf(`aup_enabled expected to be basetypes.BoolValue, was: %T`, aupEnabledAttribute))
 	}
 
-	aupSslProxyAttribute, ok := attributes["aup_ssl_proxy"]
+	aupForceSslInspectionAttribute, ok := attributes["aup_force_ssl_inspection"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`aup_ssl_proxy is missing from object`)
+			`aup_force_ssl_inspection is missing from object`)
 
 		return NewSubLocationsValueUnknown(), diags
 	}
 
-	aupSslProxyVal, ok := aupSslProxyAttribute.(basetypes.BoolValue)
+	aupForceSslInspectionVal, ok := aupForceSslInspectionAttribute.(basetypes.BoolValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`aup_ssl_proxy expected to be basetypes.BoolValue, was: %T`, aupSslProxyAttribute))
+			fmt.Sprintf(`aup_force_ssl_inspection expected to be basetypes.BoolValue, was: %T`, aupForceSslInspectionAttribute))
 	}
 
-	downloadMbpsAttribute, ok := attributes["download_mbps"]
+	aupTimeoutInDaysAttribute, ok := attributes["aup_timeout_in_days"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`download_mbps is missing from object`)
+			`aup_timeout_in_days is missing from object`)
 
 		return NewSubLocationsValueUnknown(), diags
 	}
 
-	downloadMbpsVal, ok := downloadMbpsAttribute.(basetypes.Int64Value)
+	aupTimeoutInDaysVal, ok := aupTimeoutInDaysAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`download_mbps expected to be basetypes.Int64Value, was: %T`, downloadMbpsAttribute))
+			fmt.Sprintf(`aup_timeout_in_days expected to be basetypes.Int64Value, was: %T`, aupTimeoutInDaysAttribute))
 	}
 
-	enableAupAttribute, ok := attributes["enable_aup"]
+	authRequiredAttribute, ok := attributes["auth_required"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`enable_aup is missing from object`)
+			`auth_required is missing from object`)
 
 		return NewSubLocationsValueUnknown(), diags
 	}
 
-	enableAupVal, ok := enableAupAttribute.(basetypes.BoolValue)
+	authRequiredVal, ok := authRequiredAttribute.(basetypes.BoolValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`enable_aup expected to be basetypes.BoolValue, was: %T`, enableAupAttribute))
+			fmt.Sprintf(`auth_required expected to be basetypes.BoolValue, was: %T`, authRequiredAttribute))
 	}
 
-	enableCautionAttribute, ok := attributes["enable_caution"]
+	cautionEnabledAttribute, ok := attributes["caution_enabled"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`enable_caution is missing from object`)
+			`caution_enabled is missing from object`)
 
 		return NewSubLocationsValueUnknown(), diags
 	}
 
-	enableCautionVal, ok := enableCautionAttribute.(basetypes.BoolValue)
+	cautionEnabledVal, ok := cautionEnabledAttribute.(basetypes.BoolValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`enable_caution expected to be basetypes.BoolValue, was: %T`, enableCautionAttribute))
+			fmt.Sprintf(`caution_enabled expected to be basetypes.BoolValue, was: %T`, cautionEnabledAttribute))
 	}
 
-	enforceAuthenticationAttribute, ok := attributes["enforce_authentication"]
+	dnBandwidthAttribute, ok := attributes["dn_bandwidth"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`enforce_authentication is missing from object`)
+			`dn_bandwidth is missing from object`)
 
 		return NewSubLocationsValueUnknown(), diags
 	}
 
-	enforceAuthenticationVal, ok := enforceAuthenticationAttribute.(basetypes.BoolValue)
+	dnBandwidthVal, ok := dnBandwidthAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`enforce_authentication expected to be basetypes.BoolValue, was: %T`, enforceAuthenticationAttribute))
+			fmt.Sprintf(`dn_bandwidth expected to be basetypes.Float64Value, was: %T`, dnBandwidthAttribute))
 	}
 
-	subnetsAttribute, ok := attributes["subnets"]
+	idleTimeInMinutesAttribute, ok := attributes["idle_time_in_minutes"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`subnets is missing from object`)
+			`idle_time_in_minutes is missing from object`)
 
 		return NewSubLocationsValueUnknown(), diags
 	}
 
-	subnetsVal, ok := subnetsAttribute.(basetypes.ListValue)
+	idleTimeInMinutesVal, ok := idleTimeInMinutesAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`subnets expected to be basetypes.ListValue, was: %T`, subnetsAttribute))
+			fmt.Sprintf(`idle_time_in_minutes expected to be basetypes.Int64Value, was: %T`, idleTimeInMinutesAttribute))
 	}
 
-	uploadMbpsAttribute, ok := attributes["upload_mbps"]
+	nameAttribute, ok := attributes["name"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`upload_mbps is missing from object`)
+			`name is missing from object`)
 
 		return NewSubLocationsValueUnknown(), diags
 	}
 
-	uploadMbpsVal, ok := uploadMbpsAttribute.(basetypes.Int64Value)
+	nameVal, ok := nameAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`upload_mbps expected to be basetypes.Int64Value, was: %T`, uploadMbpsAttribute))
+			fmt.Sprintf(`name expected to be basetypes.StringValue, was: %T`, nameAttribute))
+	}
+
+	ofwEnabledAttribute, ok := attributes["ofw_enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ofw_enabled is missing from object`)
+
+		return NewSubLocationsValueUnknown(), diags
+	}
+
+	ofwEnabledVal, ok := ofwEnabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ofw_enabled expected to be basetypes.BoolValue, was: %T`, ofwEnabledAttribute))
+	}
+
+	surrogateIpAttribute, ok := attributes["surrogate_ip"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`surrogate_ip is missing from object`)
+
+		return NewSubLocationsValueUnknown(), diags
+	}
+
+	surrogateIpVal, ok := surrogateIpAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`surrogate_ip expected to be basetypes.BoolValue, was: %T`, surrogateIpAttribute))
+	}
+
+	surrogateIpEnforcedForKnownBrowsersAttribute, ok := attributes["surrogate_ip_enforced_for_known_browsers"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`surrogate_ip_enforced_for_known_browsers is missing from object`)
+
+		return NewSubLocationsValueUnknown(), diags
+	}
+
+	surrogateIpEnforcedForKnownBrowsersVal, ok := surrogateIpEnforcedForKnownBrowsersAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`surrogate_ip_enforced_for_known_browsers expected to be basetypes.BoolValue, was: %T`, surrogateIpEnforcedForKnownBrowsersAttribute))
+	}
+
+	surrogateRefreshTimeInMinutesAttribute, ok := attributes["surrogate_refresh_time_in_minutes"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`surrogate_refresh_time_in_minutes is missing from object`)
+
+		return NewSubLocationsValueUnknown(), diags
+	}
+
+	surrogateRefreshTimeInMinutesVal, ok := surrogateRefreshTimeInMinutesAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`surrogate_refresh_time_in_minutes expected to be basetypes.Int64Value, was: %T`, surrogateRefreshTimeInMinutesAttribute))
+	}
+
+	upBandwidthAttribute, ok := attributes["up_bandwidth"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`up_bandwidth is missing from object`)
+
+		return NewSubLocationsValueUnknown(), diags
+	}
+
+	upBandwidthVal, ok := upBandwidthAttribute.(basetypes.Float64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`up_bandwidth expected to be basetypes.Float64Value, was: %T`, upBandwidthAttribute))
 	}
 
 	if diags.HasError() {
@@ -39072,16 +40085,21 @@ func NewSubLocationsValue(attributeTypes map[string]attr.Type, attributes map[st
 	}
 
 	return SubLocationsValue{
-		AupAcceptanceRequired: aupAcceptanceRequiredVal,
-		AupExpire:             aupExpireVal,
-		AupSslProxy:           aupSslProxyVal,
-		DownloadMbps:          downloadMbpsVal,
-		EnableAup:             enableAupVal,
-		EnableCaution:         enableCautionVal,
-		EnforceAuthentication: enforceAuthenticationVal,
-		Subnets:               subnetsVal,
-		UploadMbps:            uploadMbpsVal,
-		state:                 attr.ValueStateKnown,
+		AupBlockInternetUntilAccepted:       aupBlockInternetUntilAcceptedVal,
+		AupEnabled:                          aupEnabledVal,
+		AupForceSslInspection:               aupForceSslInspectionVal,
+		AupTimeoutInDays:                    aupTimeoutInDaysVal,
+		AuthRequired:                        authRequiredVal,
+		CautionEnabled:                      cautionEnabledVal,
+		DnBandwidth:                         dnBandwidthVal,
+		IdleTimeInMinutes:                   idleTimeInMinutesVal,
+		Name:                                nameVal,
+		OfwEnabled:                          ofwEnabledVal,
+		SurrogateIp:                         surrogateIpVal,
+		SurrogateIpEnforcedForKnownBrowsers: surrogateIpEnforcedForKnownBrowsersVal,
+		SurrogateRefreshTimeInMinutes:       surrogateRefreshTimeInMinutesVal,
+		UpBandwidth:                         upBandwidthVal,
+		state:                               attr.ValueStateKnown,
 	}, diags
 }
 
@@ -39153,113 +40171,161 @@ func (t SubLocationsType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = SubLocationsValue{}
 
 type SubLocationsValue struct {
-	AupAcceptanceRequired basetypes.BoolValue  `tfsdk:"aup_acceptance_required"`
-	AupExpire             basetypes.Int64Value `tfsdk:"aup_expire"`
-	AupSslProxy           basetypes.BoolValue  `tfsdk:"aup_ssl_proxy"`
-	DownloadMbps          basetypes.Int64Value `tfsdk:"download_mbps"`
-	EnableAup             basetypes.BoolValue  `tfsdk:"enable_aup"`
-	EnableCaution         basetypes.BoolValue  `tfsdk:"enable_caution"`
-	EnforceAuthentication basetypes.BoolValue  `tfsdk:"enforce_authentication"`
-	Subnets               basetypes.ListValue  `tfsdk:"subnets"`
-	UploadMbps            basetypes.Int64Value `tfsdk:"upload_mbps"`
-	state                 attr.ValueState
+	AupBlockInternetUntilAccepted       basetypes.BoolValue    `tfsdk:"aup_block_internet_until_accepted"`
+	AupEnabled                          basetypes.BoolValue    `tfsdk:"aup_enabled"`
+	AupForceSslInspection               basetypes.BoolValue    `tfsdk:"aup_force_ssl_inspection"`
+	AupTimeoutInDays                    basetypes.Int64Value   `tfsdk:"aup_timeout_in_days"`
+	AuthRequired                        basetypes.BoolValue    `tfsdk:"auth_required"`
+	CautionEnabled                      basetypes.BoolValue    `tfsdk:"caution_enabled"`
+	DnBandwidth                         basetypes.Float64Value `tfsdk:"dn_bandwidth"`
+	IdleTimeInMinutes                   basetypes.Int64Value   `tfsdk:"idle_time_in_minutes"`
+	Name                                basetypes.StringValue  `tfsdk:"name"`
+	OfwEnabled                          basetypes.BoolValue    `tfsdk:"ofw_enabled"`
+	SurrogateIp                         basetypes.BoolValue    `tfsdk:"surrogate_ip"`
+	SurrogateIpEnforcedForKnownBrowsers basetypes.BoolValue    `tfsdk:"surrogate_ip_enforced_for_known_browsers"`
+	SurrogateRefreshTimeInMinutes       basetypes.Int64Value   `tfsdk:"surrogate_refresh_time_in_minutes"`
+	UpBandwidth                         basetypes.Float64Value `tfsdk:"up_bandwidth"`
+	state                               attr.ValueState
 }
 
 func (v SubLocationsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 9)
+	attrTypes := make(map[string]tftypes.Type, 14)
 
 	var val tftypes.Value
 	var err error
 
-	attrTypes["aup_acceptance_required"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["aup_expire"] = basetypes.Int64Type{}.TerraformType(ctx)
-	attrTypes["aup_ssl_proxy"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["download_mbps"] = basetypes.Int64Type{}.TerraformType(ctx)
-	attrTypes["enable_aup"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["enable_caution"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["enforce_authentication"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["subnets"] = basetypes.ListType{
-		ElemType: types.StringType,
-	}.TerraformType(ctx)
-	attrTypes["upload_mbps"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["aup_block_internet_until_accepted"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["aup_enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["aup_force_ssl_inspection"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["aup_timeout_in_days"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["auth_required"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["caution_enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["dn_bandwidth"] = basetypes.Float64Type{}.TerraformType(ctx)
+	attrTypes["idle_time_in_minutes"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["ofw_enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["surrogate_ip"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["surrogate_ip_enforced_for_known_browsers"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["surrogate_refresh_time_in_minutes"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["up_bandwidth"] = basetypes.Float64Type{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 9)
+		vals := make(map[string]tftypes.Value, 14)
 
-		val, err = v.AupAcceptanceRequired.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["aup_acceptance_required"] = val
-
-		val, err = v.AupExpire.ToTerraformValue(ctx)
+		val, err = v.AupBlockInternetUntilAccepted.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["aup_expire"] = val
+		vals["aup_block_internet_until_accepted"] = val
 
-		val, err = v.AupSslProxy.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["aup_ssl_proxy"] = val
-
-		val, err = v.DownloadMbps.ToTerraformValue(ctx)
+		val, err = v.AupEnabled.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["download_mbps"] = val
+		vals["aup_enabled"] = val
 
-		val, err = v.EnableAup.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["enable_aup"] = val
-
-		val, err = v.EnableCaution.ToTerraformValue(ctx)
+		val, err = v.AupForceSslInspection.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["enable_caution"] = val
+		vals["aup_force_ssl_inspection"] = val
 
-		val, err = v.EnforceAuthentication.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["enforce_authentication"] = val
-
-		val, err = v.Subnets.ToTerraformValue(ctx)
+		val, err = v.AupTimeoutInDays.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["subnets"] = val
+		vals["aup_timeout_in_days"] = val
 
-		val, err = v.UploadMbps.ToTerraformValue(ctx)
+		val, err = v.AuthRequired.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["upload_mbps"] = val
+		vals["auth_required"] = val
+
+		val, err = v.CautionEnabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["caution_enabled"] = val
+
+		val, err = v.DnBandwidth.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["dn_bandwidth"] = val
+
+		val, err = v.IdleTimeInMinutes.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["idle_time_in_minutes"] = val
+
+		val, err = v.Name.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["name"] = val
+
+		val, err = v.OfwEnabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["ofw_enabled"] = val
+
+		val, err = v.SurrogateIp.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["surrogate_ip"] = val
+
+		val, err = v.SurrogateIpEnforcedForKnownBrowsers.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["surrogate_ip_enforced_for_known_browsers"] = val
+
+		val, err = v.SurrogateRefreshTimeInMinutes.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["surrogate_refresh_time_in_minutes"] = val
+
+		val, err = v.UpBandwidth.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["up_bandwidth"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -39290,38 +40356,21 @@ func (v SubLocationsValue) String() string {
 func (v SubLocationsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	subnetsVal, d := types.ListValue(types.StringType, v.Subnets.Elements())
-
-	diags.Append(d...)
-
-	if d.HasError() {
-		return types.ObjectUnknown(map[string]attr.Type{
-			"aup_acceptance_required": basetypes.BoolType{},
-			"aup_expire":              basetypes.Int64Type{},
-			"aup_ssl_proxy":           basetypes.BoolType{},
-			"download_mbps":           basetypes.Int64Type{},
-			"enable_aup":              basetypes.BoolType{},
-			"enable_caution":          basetypes.BoolType{},
-			"enforce_authentication":  basetypes.BoolType{},
-			"subnets": basetypes.ListType{
-				ElemType: types.StringType,
-			},
-			"upload_mbps": basetypes.Int64Type{},
-		}), diags
-	}
-
 	attributeTypes := map[string]attr.Type{
-		"aup_acceptance_required": basetypes.BoolType{},
-		"aup_expire":              basetypes.Int64Type{},
-		"aup_ssl_proxy":           basetypes.BoolType{},
-		"download_mbps":           basetypes.Int64Type{},
-		"enable_aup":              basetypes.BoolType{},
-		"enable_caution":          basetypes.BoolType{},
-		"enforce_authentication":  basetypes.BoolType{},
-		"subnets": basetypes.ListType{
-			ElemType: types.StringType,
-		},
-		"upload_mbps": basetypes.Int64Type{},
+		"aup_block_internet_until_accepted": basetypes.BoolType{},
+		"aup_enabled":                       basetypes.BoolType{},
+		"aup_force_ssl_inspection":          basetypes.BoolType{},
+		"aup_timeout_in_days":               basetypes.Int64Type{},
+		"auth_required":                     basetypes.BoolType{},
+		"caution_enabled":                   basetypes.BoolType{},
+		"dn_bandwidth":                      basetypes.Float64Type{},
+		"idle_time_in_minutes":              basetypes.Int64Type{},
+		"name":                              basetypes.StringType{},
+		"ofw_enabled":                       basetypes.BoolType{},
+		"surrogate_ip":                      basetypes.BoolType{},
+		"surrogate_ip_enforced_for_known_browsers": basetypes.BoolType{},
+		"surrogate_refresh_time_in_minutes":        basetypes.Int64Type{},
+		"up_bandwidth":                             basetypes.Float64Type{},
 	}
 
 	if v.IsNull() {
@@ -39335,15 +40384,20 @@ func (v SubLocationsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"aup_acceptance_required": v.AupAcceptanceRequired,
-			"aup_expire":              v.AupExpire,
-			"aup_ssl_proxy":           v.AupSslProxy,
-			"download_mbps":           v.DownloadMbps,
-			"enable_aup":              v.EnableAup,
-			"enable_caution":          v.EnableCaution,
-			"enforce_authentication":  v.EnforceAuthentication,
-			"subnets":                 subnetsVal,
-			"upload_mbps":             v.UploadMbps,
+			"aup_block_internet_until_accepted": v.AupBlockInternetUntilAccepted,
+			"aup_enabled":                       v.AupEnabled,
+			"aup_force_ssl_inspection":          v.AupForceSslInspection,
+			"aup_timeout_in_days":               v.AupTimeoutInDays,
+			"auth_required":                     v.AuthRequired,
+			"caution_enabled":                   v.CautionEnabled,
+			"dn_bandwidth":                      v.DnBandwidth,
+			"idle_time_in_minutes":              v.IdleTimeInMinutes,
+			"name":                              v.Name,
+			"ofw_enabled":                       v.OfwEnabled,
+			"surrogate_ip":                      v.SurrogateIp,
+			"surrogate_ip_enforced_for_known_browsers": v.SurrogateIpEnforcedForKnownBrowsers,
+			"surrogate_refresh_time_in_minutes":        v.SurrogateRefreshTimeInMinutes,
+			"up_bandwidth":                             v.UpBandwidth,
 		})
 
 	return objVal, diags
@@ -39364,39 +40418,59 @@ func (v SubLocationsValue) Equal(o attr.Value) bool {
 		return true
 	}
 
-	if !v.AupAcceptanceRequired.Equal(other.AupAcceptanceRequired) {
+	if !v.AupBlockInternetUntilAccepted.Equal(other.AupBlockInternetUntilAccepted) {
 		return false
 	}
 
-	if !v.AupExpire.Equal(other.AupExpire) {
+	if !v.AupEnabled.Equal(other.AupEnabled) {
 		return false
 	}
 
-	if !v.AupSslProxy.Equal(other.AupSslProxy) {
+	if !v.AupForceSslInspection.Equal(other.AupForceSslInspection) {
 		return false
 	}
 
-	if !v.DownloadMbps.Equal(other.DownloadMbps) {
+	if !v.AupTimeoutInDays.Equal(other.AupTimeoutInDays) {
 		return false
 	}
 
-	if !v.EnableAup.Equal(other.EnableAup) {
+	if !v.AuthRequired.Equal(other.AuthRequired) {
 		return false
 	}
 
-	if !v.EnableCaution.Equal(other.EnableCaution) {
+	if !v.CautionEnabled.Equal(other.CautionEnabled) {
 		return false
 	}
 
-	if !v.EnforceAuthentication.Equal(other.EnforceAuthentication) {
+	if !v.DnBandwidth.Equal(other.DnBandwidth) {
 		return false
 	}
 
-	if !v.Subnets.Equal(other.Subnets) {
+	if !v.IdleTimeInMinutes.Equal(other.IdleTimeInMinutes) {
 		return false
 	}
 
-	if !v.UploadMbps.Equal(other.UploadMbps) {
+	if !v.Name.Equal(other.Name) {
+		return false
+	}
+
+	if !v.OfwEnabled.Equal(other.OfwEnabled) {
+		return false
+	}
+
+	if !v.SurrogateIp.Equal(other.SurrogateIp) {
+		return false
+	}
+
+	if !v.SurrogateIpEnforcedForKnownBrowsers.Equal(other.SurrogateIpEnforcedForKnownBrowsers) {
+		return false
+	}
+
+	if !v.SurrogateRefreshTimeInMinutes.Equal(other.SurrogateRefreshTimeInMinutes) {
+		return false
+	}
+
+	if !v.UpBandwidth.Equal(other.UpBandwidth) {
 		return false
 	}
 
@@ -39413,17 +40487,20 @@ func (v SubLocationsValue) Type(ctx context.Context) attr.Type {
 
 func (v SubLocationsValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"aup_acceptance_required": basetypes.BoolType{},
-		"aup_expire":              basetypes.Int64Type{},
-		"aup_ssl_proxy":           basetypes.BoolType{},
-		"download_mbps":           basetypes.Int64Type{},
-		"enable_aup":              basetypes.BoolType{},
-		"enable_caution":          basetypes.BoolType{},
-		"enforce_authentication":  basetypes.BoolType{},
-		"subnets": basetypes.ListType{
-			ElemType: types.StringType,
-		},
-		"upload_mbps": basetypes.Int64Type{},
+		"aup_block_internet_until_accepted": basetypes.BoolType{},
+		"aup_enabled":                       basetypes.BoolType{},
+		"aup_force_ssl_inspection":          basetypes.BoolType{},
+		"aup_timeout_in_days":               basetypes.Int64Type{},
+		"auth_required":                     basetypes.BoolType{},
+		"caution_enabled":                   basetypes.BoolType{},
+		"dn_bandwidth":                      basetypes.Float64Type{},
+		"idle_time_in_minutes":              basetypes.Int64Type{},
+		"name":                              basetypes.StringType{},
+		"ofw_enabled":                       basetypes.BoolType{},
+		"surrogate_ip":                      basetypes.BoolType{},
+		"surrogate_ip_enforced_for_known_browsers": basetypes.BoolType{},
+		"surrogate_refresh_time_in_minutes":        basetypes.Int64Type{},
+		"up_bandwidth":                             basetypes.Float64Type{},
 	}
 }
 

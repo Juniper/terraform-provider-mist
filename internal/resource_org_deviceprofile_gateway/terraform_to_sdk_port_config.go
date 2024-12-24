@@ -65,7 +65,7 @@ func gatewayPortVpnPathTerraformToSdk(ctx context.Context, diags *diag.Diagnosti
 		if plan.Preference.ValueInt64Pointer() != nil {
 			data.Preference = models.ToPointer(int(plan.Preference.ValueInt64()))
 		}
-		if plan.TrafficShaping.IsNull() && !plan.TrafficShaping.IsUnknown() {
+		if !plan.TrafficShaping.IsNull() && !plan.TrafficShaping.IsUnknown() {
 			data.TrafficShaping = gatewayPortTrafficShapingTerraformToSdk(ctx, diags, plan.TrafficShaping)
 		}
 
@@ -265,6 +265,11 @@ func portConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d ba
 		}
 
 		data.WanExtraRoutes = wanExtraRoutesPortVpnPathTerraformToSdk(ctx, diags, plan.WanExtraRoutes)
+
+		if !plan.WanNetworks.IsNull() && !plan.WanNetworks.IsUnknown() {
+			data.WanNetworks = mist_transform.ListOfStringTerraformToSdk(ctx, plan.WanNetworks)
+		}
+
 		data.WanProbeOverride = wanProbeOverridePortVpnPathTerraformToSdk(ctx, diags, plan.WanProbeOverride)
 		data.WanSourceNat = portConfigWanSourceNatTerraformToSdk(ctx, diags, plan.WanSourceNat)
 

@@ -40,6 +40,7 @@ resource "mist_org_network" "network_one" {
 - `internal_access` (Attributes) (see [below for nested schema](#nestedatt--internal_access))
 - `internet_access` (Attributes) whether this network has direct internet access (see [below for nested schema](#nestedatt--internet_access))
 - `isolation` (Boolean) whether to allow clients in the network to talk to each other
+- `multicast` (Attributes) whether to enable multicast support (only PIM-sparse mode is supported) (see [below for nested schema](#nestedatt--multicast))
 - `routed_for_networks` (List of String) for a Network (usually LAN), it can be routable to other networks (e.g. OSPF)
 - `subnet6` (String)
 - `tenants` (Attributes Map) (see [below for nested schema](#nestedatt--tenants))
@@ -48,7 +49,7 @@ resource "mist_org_network" "network_one" {
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
+- `id` (String) Unique ID of the object instance in the Mist Organnization
 
 <a id="nestedatt--internal_access"></a>
 ### Nested Schema for `internal_access`
@@ -77,6 +78,7 @@ Optional:
 - `internal_ip` (String)
 - `name` (String)
 - `port` (Number)
+- `wan_name` (String) If not set, we configure the nat policies against all WAN ports for simplicity
 
 
 <a id="nestedatt--internet_access--static_nat"></a>
@@ -87,6 +89,24 @@ Optional:
 - `internal_ip` (String)
 - `name` (String)
 - `wan_name` (String) If not set, we configure the nat policies against all WAN ports for simplicity
+
+
+
+<a id="nestedatt--multicast"></a>
+### Nested Schema for `multicast`
+
+Optional:
+
+- `disable_igmp` (Boolean) if the network will only be the soruce of the multicast traffic, IGMP can be disabled
+- `enabled` (Boolean)
+- `groups` (Attributes Map) Group address to RP (rendezvous point) mapping. Property Key is the CIDR (example "225.1.0.3/32") (see [below for nested schema](#nestedatt--multicast--groups))
+
+<a id="nestedatt--multicast--groups"></a>
+### Nested Schema for `multicast.groups`
+
+Optional:
+
+- `rp_ip` (String) RP (rendezvous point) IP Address
 
 
 
@@ -129,6 +149,7 @@ Optional:
 - `internal_ip` (String)
 - `name` (String)
 - `port` (Number)
+- `wan_name` (String) If not set, we configure the nat policies against all WAN ports for simplicity
 
 
 <a id="nestedatt--vpn_access--source_nat"></a>

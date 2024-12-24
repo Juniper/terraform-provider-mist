@@ -106,9 +106,7 @@ resource "mist_org_gatewaytemplate" "gatewaytemplate_one" {
 
 ### Optional
 
-- `additional_config_cmds` (List of String) additional CLI commands to append to the generated Junos config
-
-**Note**: no check is done
+- `additional_config_cmds` (List of String) additional CLI commands to append to the generated Junos config. **Note**: no check is done
 - `bgp_config` (Attributes Map) (see [below for nested schema](#nestedatt--bgp_config))
 - `dhcpd_config` (Attributes) (see [below for nested schema](#nestedatt--dhcpd_config))
 - `dns_override` (Boolean)
@@ -360,6 +358,7 @@ Optional:
 - `internal_ip` (String)
 - `name` (String)
 - `port` (Number)
+- `wan_name` (String) If not set, we configure the nat policies against all WAN ports for simplicity
 
 
 <a id="nestedatt--networks--internet_access--static_nat"></a>
@@ -430,6 +429,7 @@ Optional:
 - `internal_ip` (String)
 - `name` (String)
 - `port` (Number)
+- `wan_name` (String) If not set, we configure the nat policies against all WAN ports for simplicity
 
 
 <a id="nestedatt--networks--vpn_access--source_nat"></a>
@@ -541,7 +541,7 @@ Note: Turning this on will enable force-up on one of the interfaces in the bundl
 - `lte_username` (String) if `wan_type`==`lte`
 - `mtu` (Number)
 - `name` (String) name that we'll use to derive config
-- `networks` (List of String) if `usage`==`lan`
+- `networks` (List of String) if `usage`==`lan`, name of the `mist_org_network` resource
 - `outer_vlan_id` (Number) for Q-in-Q
 - `poe_disabled` (Boolean)
 - `port_network` (String) if `usage`==`lan`
@@ -556,12 +556,13 @@ Note: Turning this on will enable force-up on one of the interfaces in the bundl
 - `traffic_shaping` (Attributes) (see [below for nested schema](#nestedatt--port_config--traffic_shaping))
 - `vlan_id` (Number) if WAN interface is on a VLAN
 - `vpn_paths` (Attributes Map) Property key is the VPN name (see [below for nested schema](#nestedatt--port_config--vpn_paths))
-- `wan_arp_policer` (String) when `wan_type`==`broadband`. enum: `default`, `max`, `recommended`
-- `wan_ext_ip` (String) optional, if spoke should reach this port by a different IP
-- `wan_extra_routes` (Attributes Map) Property Key is the destianation CIDR (e.g "100.100.100.0/24") (see [below for nested schema](#nestedatt--port_config--wan_extra_routes))
-- `wan_probe_override` (Attributes) if `usage`==`wan` (see [below for nested schema](#nestedatt--port_config--wan_probe_override))
-- `wan_source_nat` (Attributes) optional, by default, source-NAT is performed on all WAN Ports using the interface-ip (see [below for nested schema](#nestedatt--port_config--wan_source_nat))
-- `wan_type` (String) if `usage`==`wan`. enum: `broadband`, `dsl`, `lte`
+- `wan_arp_policer` (String) Only when `wan_type`==`broadband`. enum: `default`, `max`, `recommended`
+- `wan_ext_ip` (String) Only if `usage`==`wan`, optional. If spoke should reach this port by a different IP
+- `wan_extra_routes` (Attributes Map) Only if `usage`==`wan`. Property Key is the destianation CIDR (e.g "100.100.100.0/24") (see [below for nested schema](#nestedatt--port_config--wan_extra_routes))
+- `wan_networks` (List of String) Only if `usage`==`wan`. If some networks are connected to this WAN port, it can be added here so policies can be defined
+- `wan_probe_override` (Attributes) Only if `usage`==`wan` (see [below for nested schema](#nestedatt--port_config--wan_probe_override))
+- `wan_source_nat` (Attributes) Only if `usage`==`wan`, optional. By default, source-NAT is performed on all WAN Ports using the interface-ip (see [below for nested schema](#nestedatt--port_config--wan_source_nat))
+- `wan_type` (String) Only if `usage`==`wan`. enum: `broadband`, `dsl`, `lte`
 
 <a id="nestedatt--port_config--ip_config"></a>
 ### Nested Schema for `port_config.ip_config`
@@ -663,6 +664,7 @@ Optional:
 - `accept` (Boolean)
 - `add_community` (List of String)
 - `add_target_vrfs` (List of String) for SSR, hub decides how VRF routes are leaked on spoke
+- `aggregate` (List of String) route aggregation
 - `community` (List of String) when used as export policy, optional
 - `exclude_as_path` (List of String) when used as export policy, optional. To exclude certain AS
 - `exclude_community` (List of String)
@@ -764,36 +766,35 @@ Optional:
 Optional:
 
 - `auto_provision` (Attributes) (see [below for nested schema](#nestedatt--tunnel_configs--auto_provision))
-- `ike_lifetime` (Number) Only if `provider`== `custom-ipsec`
-- `ike_mode` (String) Only if `provider`== `custom-ipsec`. enum: `aggressive`, `main`
-- `ike_proposals` (Attributes List) if `provider`== `custom-ipsec` (see [below for nested schema](#nestedatt--tunnel_configs--ike_proposals))
-- `ipsec_lifetime` (Number) if `provider`== `custom-ipsec`
-- `ipsec_proposals` (Attributes List) Only if  `provider`== `custom-ipsec` (see [below for nested schema](#nestedatt--tunnel_configs--ipsec_proposals))
-- `local_id` (String) Only if:
-  * `provider`== `zscaler-ipsec`
-  * `provider`==`jse-ipsec`
-  * `provider`== `custom-ipsec`
-- `mode` (String) enum: `active-active`, `active-standby`
-- `networks` (List of String) networks reachable via this tunnel
-- `primary` (Attributes) (see [below for nested schema](#nestedatt--tunnel_configs--primary))
-- `probe` (Attributes) Only if `provider`== `custom-ipsec` (see [below for nested schema](#nestedatt--tunnel_configs--probe))
-- `protocol` (String) Only if `provider`== `custom-ipsec`. enum: `gre`, `ipsec`
-- `provider` (String) enum: `custom-ipsec`, `customer-gre`, `jse-ipsec`, `zscaler-gre`, `zscaler-ipsec`
-- `psk` (String, Sensitive) Only if:
-  * `provider`== `zscaler-ipsec`
-  * `provider`==`jse-ipsec`
-  * `provider`== `custom-ipsec`
-- `secondary` (Attributes) (see [below for nested schema](#nestedatt--tunnel_configs--secondary))
-- `version` (String) Only if `provider`== `custom-gre` or `provider`== `custom-ipsec`. enum: `1`, `2`
+- `ike_lifetime` (Number) Only if `provider`==`custom-ipsec`. Must be between 180 and 86400
+- `ike_mode` (String) Only if `provider`==`custom-ipsec`. enum: `aggressive`, `main`
+- `ike_proposals` (Attributes List) if `provider`==`custom-ipsec` (see [below for nested schema](#nestedatt--tunnel_configs--ike_proposals))
+- `ipsec_lifetime` (Number) Only if `provider`==`custom-ipsec`. Must be between 180 and 86400
+- `ipsec_proposals` (Attributes List) Only if  `provider`==`custom-ipsec` (see [below for nested schema](#nestedatt--tunnel_configs--ipsec_proposals))
+- `local_id` (String) Required if `provider`==`zscaler-ipsec`, `provider`==`jse-ipsec` or `provider`==`custom-ipsec`
+- `mode` (String) Required if `provider`==`zscaler-gre`, `provider`==`jse-ipsec`. enum: `active-active`, `active-standby`
+- `networks` (List of String) if `provider`==`custom-ipsec`, networks reachable via this tunnel
+- `primary` (Attributes) Only if `provider`==`zscaler-ipsec`, `provider`==`jse-ipsec` or `provider`==`custom-ipsec` (see [below for nested schema](#nestedatt--tunnel_configs--primary))
+- `probe` (Attributes) Only if `provider`==`custom-ipsec` (see [below for nested schema](#nestedatt--tunnel_configs--probe))
+- `protocol` (String) Only if `provider`==`custom-ipsec`. enum: `gre`, `ipsec`
+- `provider` (String) Only if `auto_provision.enabled`==`false`. enum: `custom-ipsec`, `customer-gre`, `jse-ipsec`, `zscaler-gre`, `zscaler-ipsec`
+- `psk` (String, Sensitive) Required if `provider`==`zscaler-ipsec`, `provider`==`jse-ipsec` or `provider`==`custom-ipsec`
+- `secondary` (Attributes) Only if `provider`==`zscaler-ipsec`, `provider`==`jse-ipsec` or `provider`==`custom-ipsec` (see [below for nested schema](#nestedatt--tunnel_configs--secondary))
+- `version` (String) Only if `provider`==`custom-gre` or `provider`==`custom-ipsec`. enum: `1`, `2`
 
 <a id="nestedatt--tunnel_configs--auto_provision"></a>
 ### Nested Schema for `tunnel_configs.auto_provision`
 
+Required:
+
+- `provider` (String) enum: `jse-ipsec`, `zscaler-ipsec`
+
 Optional:
 
 - `enable` (Boolean)
-- `latlng` (Attributes) (see [below for nested schema](#nestedatt--tunnel_configs--auto_provision--latlng))
+- `latlng` (Attributes) API override for POP selection (see [below for nested schema](#nestedatt--tunnel_configs--auto_provision--latlng))
 - `primary` (Attributes) (see [below for nested schema](#nestedatt--tunnel_configs--auto_provision--primary))
+- `region` (String) API override for POP selection
 - `secondary` (Attributes) (see [below for nested schema](#nestedatt--tunnel_configs--auto_provision--secondary))
 
 <a id="nestedatt--tunnel_configs--auto_provision--latlng"></a>
@@ -810,7 +811,7 @@ Required:
 
 Optional:
 
-- `num_hosts` (String)
+- `probe_ips` (List of String)
 - `wan_names` (List of String) optional, only needed if `vars_only`==`false`
 
 
@@ -819,7 +820,7 @@ Optional:
 
 Optional:
 
-- `num_hosts` (String)
+- `probe_ips` (List of String)
 - `wan_names` (List of String) optional, only needed if `vars_only`==`false`
 
 
@@ -850,7 +851,7 @@ Optional:
 Optional:
 
 - `auth_algo` (String) enum: `md5`, `sha1`, `sha2`
-- `dh_group` (String) Only if `provider`== `custom-ipsec`. enum:
+- `dh_group` (String) Only if `provider`==`custom-ipsec`. enum:
   * 1
   * 2 (1024-bit)
   * 5
@@ -867,15 +868,16 @@ Optional:
 <a id="nestedatt--tunnel_configs--primary"></a>
 ### Nested Schema for `tunnel_configs.primary`
 
-Optional:
+Required:
 
 - `hosts` (List of String)
-- `internal_ips` (List of String) Only if:
-  * `provider`== `zscaler-gre`
-  * `provider`== `custom-gre`
-- `probe_ips` (List of String)
-- `remote_ids` (List of String) Only if `provider`== `custom-ipsec`
 - `wan_names` (List of String)
+
+Optional:
+
+- `internal_ips` (List of String) Only if `provider`==`zscaler-gre`, `provider`==`jse-ipsec`, `provider`==`custom-ipsec` or `provider`==`custom-gre`
+- `probe_ips` (List of String)
+- `remote_ids` (List of String) Only if  `provider`==`jse-ipsec` or `provider`==`custom-ipsec`
 
 
 <a id="nestedatt--tunnel_configs--probe"></a>
@@ -892,15 +894,16 @@ Optional:
 <a id="nestedatt--tunnel_configs--secondary"></a>
 ### Nested Schema for `tunnel_configs.secondary`
 
-Optional:
+Required:
 
 - `hosts` (List of String)
-- `internal_ips` (List of String) Only if:
-  * `provider`== `zscaler-gre`
-  * `provider`== `custom-gre`
-- `probe_ips` (List of String)
-- `remote_ids` (List of String) Only if `provider`== `custom-ipsec`
 - `wan_names` (List of String)
+
+Optional:
+
+- `internal_ips` (List of String) Only if `provider`==`zscaler-gre`, `provider`==`jse-ipsec`, `provider`==`custom-ipsec` or `provider`==`custom-gre`
+- `probe_ips` (List of String)
+- `remote_ids` (List of String) Only if  `provider`==`jse-ipsec` or `provider`==`custom-ipsec`
 
 
 
@@ -917,8 +920,8 @@ Optional:
 
 Optional:
 
-- `name` (String)
 - `num_users` (Number)
+- `org_name` (String) JSE Organization name
 
 
 <a id="nestedatt--tunnel_provider_options--zscaler"></a>
@@ -926,32 +929,41 @@ Optional:
 
 Optional:
 
-- `aup_acceptance_required` (Boolean)
-- `aup_expire` (Number) days before AUP is requested again
-- `aup_ssl_proxy` (Boolean) proxy HTTPs traffic, requiring Zscaler cert to be installed in browser
-- `download_mbps` (Number) the download bandwidth cap of the link, in Mbps
-- `enable_aup` (Boolean) if `use_xff`==`true`, display Acceptable Use Policy (AUP)
-- `enable_caution` (Boolean) when `enforce_authentication`==`false`, display caution notification for non-authenticated users
-- `enforce_authentication` (Boolean)
-- `name` (String)
-- `sub_locations` (Attributes List) if `use_xff`==`true` (see [below for nested schema](#nestedatt--tunnel_provider_options--zscaler--sub_locations))
-- `upload_mbps` (Number) the download bandwidth cap of the link, in Mbps
-- `use_xff` (Boolean) location uses proxy chaining to forward traffic
+- `aup_block_internet_until_accepted` (Boolean)
+- `aup_enabled` (Boolean) Can only be `true` when `auth_required`==`false`, display Acceptable Use Policy (AUP)
+- `aup_force_ssl_inspection` (Boolean) proxy HTTPs traffic, requiring Zscaler cert to be installed in browser
+- `aup_timeout_in_days` (Number) Required if `aup_enabled`==`true`. Days before AUP is requested again
+- `auth_required` (Boolean) Enable this option to authenticate users
+- `caution_enabled` (Boolean) Can only be `true` when `auth_required`==`false`, display caution notification for non-authenticated users
+- `dn_bandwidth` (Number) the download bandwidth cap of the link, in Mbps. Disabled if not set
+- `idle_time_in_minutes` (Number) Required if `surrogate_IP`==`true`, idle Time to Disassociation
+- `ofw_enabled` (Boolean) if `true`, enable the firewall control option
+- `sub_locations` (Attributes List) `sub-locations` can be used for specific uses cases to define different configuration based on the user network (see [below for nested schema](#nestedatt--tunnel_provider_options--zscaler--sub_locations))
+- `surrogate_ip` (Boolean) Can only be `true` when `auth_required`==`true`. Map a user to a private IP address so it applies the user's policies, instead of the location's policies
+- `surrogate_ip_enforced_for_known_browsers` (Boolean) Can only be `true` when `surrogate_IP`==`true`, enforce surrogate IP for known browsers
+- `surrogate_refresh_time_in_minutes` (Number) Required if `surrogate_IP_enforced_for_known_browsers`==`true`, must be lower or equal than `idle_time_in_minutes`, refresh Time for re-validation of Surrogacy
+- `up_bandwidth` (Number) the download bandwidth cap of the link, in Mbps. Disabled if not set
+- `xff_forward_enabled` (Boolean) location uses proxy chaining to forward traffic
 
 <a id="nestedatt--tunnel_provider_options--zscaler--sub_locations"></a>
 ### Nested Schema for `tunnel_provider_options.zscaler.sub_locations`
 
 Optional:
 
-- `aup_acceptance_required` (Boolean)
-- `aup_expire` (Number) days before AUP is requested again
-- `aup_ssl_proxy` (Boolean) proxy HTTPs traffic, requiring Zscaler cert to be installed in browser
-- `download_mbps` (Number) the download bandwidth cap of the link, in Mbps
-- `enable_aup` (Boolean) if `use_xff`==`true`, display Acceptable Use Policy (AUP)
-- `enable_caution` (Boolean) when `enforce_authentication`==`false`, display caution notification for non-authenticated users
-- `enforce_authentication` (Boolean)
-- `subnets` (List of String)
-- `upload_mbps` (Number) the download bandwidth cap of the link, in Mbps
+- `aup_block_internet_until_accepted` (Boolean)
+- `aup_enabled` (Boolean) Can only be `true` when `auth_required`==`false`, display Acceptable Use Policy (AUP)
+- `aup_force_ssl_inspection` (Boolean) proxy HTTPs traffic, requiring Zscaler cert to be installed in browser
+- `aup_timeout_in_days` (Number) Required if `aup_enabled`==`true`. Days before AUP is requested again
+- `auth_required` (Boolean) Enable this option to authenticate users
+- `caution_enabled` (Boolean) Can only be `true` when `auth_required`==`false`, display caution notification for non-authenticated users
+- `dn_bandwidth` (Number) the download bandwidth cap of the link, in Mbps. Disabled if not set
+- `idle_time_in_minutes` (Number) Required if `surrogate_IP`==`true`, idle Time to Disassociation
+- `name` (String) Network name
+- `ofw_enabled` (Boolean) if `true`, enable the firewall control option
+- `surrogate_ip` (Boolean) Can only be `true` when `auth_required`==`true`. Map a user to a private IP address so it applies the user's policies, instead of the location's policies
+- `surrogate_ip_enforced_for_known_browsers` (Boolean) Can only be `true` when `surrogate_IP`==`true`, enforce surrogate IP for known browsers
+- `surrogate_refresh_time_in_minutes` (Number) Required if `surrogate_IP_enforced_for_known_browsers`==`true`, must be lower or equal than `idle_time_in_minutes`, refresh Time for re-validation of Surrogacy
+- `up_bandwidth` (Number) the download bandwidth cap of the link, in Mbps. Disabled if not set
 
 
 

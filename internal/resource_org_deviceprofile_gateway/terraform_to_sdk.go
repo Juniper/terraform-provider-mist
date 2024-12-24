@@ -149,8 +149,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgDeviceprofileGatewayModel) (mo
 	if plan.TunnelProviderOptions.IsNull() || plan.TunnelProviderOptions.IsUnknown() {
 		unset["-tunnel_provider_options"] = ""
 	} else {
-		tunnel_provider_options := tunnelProviderOptionsTerraformToSdk(ctx, &diags, plan.TunnelProviderOptions)
-		data.TunnelProviderOptions = &tunnel_provider_options
+		data.TunnelProviderOptions = tunnelProviderOptionsTerraformToSdk(ctx, &diags, plan.TunnelProviderOptions)
 	}
 
 	if plan.VrfConfig.IsNull() || plan.VrfConfig.IsUnknown() {

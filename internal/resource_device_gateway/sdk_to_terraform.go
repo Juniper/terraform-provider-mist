@@ -140,7 +140,9 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceGateway) (DeviceGate
 		tunnel_configs = tunnelConfigsSdkToTerraform(ctx, &diags, data.TunnelConfigs)
 	}
 	if data.TunnelProviderOptions != nil {
-		tunnel_provider_options = tunnelProviderSdkToTerraform(ctx, &diags, data.TunnelProviderOptions)
+		if tunnel_provider_options_tmp, ok := tunnelProviderSdkToTerraform(ctx, &diags, data.TunnelProviderOptions); ok {
+			tunnel_provider_options = tunnel_provider_options_tmp
+		}
 	}
 	if data.Vars != nil && len(data.Vars) > 0 {
 		vars = varsSdkToTerraform(ctx, &diags, data.Vars)

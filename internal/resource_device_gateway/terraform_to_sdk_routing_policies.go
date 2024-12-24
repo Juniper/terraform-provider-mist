@@ -26,6 +26,9 @@ func routingPolicyTermActionTerraformToSdk(ctx context.Context, diags *diag.Diag
 		if !plan.AddTargetVrfs.IsNull() && !plan.AddTargetVrfs.IsUnknown() {
 			data.AddTargetVrfs = mist_transform.ListOfStringTerraformToSdk(ctx, plan.AddTargetVrfs)
 		}
+		if !plan.Aggregate.IsNull() && !plan.Aggregate.IsUnknown() {
+			data.Aggregate = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Aggregate)
+		}
 		if !plan.Community.IsNull() && !plan.Community.IsUnknown() {
 			data.Community = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Community)
 		}

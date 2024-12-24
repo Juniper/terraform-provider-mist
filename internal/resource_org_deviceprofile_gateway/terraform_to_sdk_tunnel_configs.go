@@ -11,8 +11,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func tunnelConfigsAutoProvisionPrimaryTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.TunnelConfigsAutoProvisionNode {
-	data := models.TunnelConfigsAutoProvisionNode{}
+func tunnelConfigsAutoProvisionPrimaryTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.TunnelConfigAutoProvisionNode {
+	data := models.TunnelConfigAutoProvisionNode{}
 	if d.IsNull() || d.IsUnknown() {
 		return &data
 	} else {
@@ -20,8 +20,8 @@ func tunnelConfigsAutoProvisionPrimaryTerraformToSdk(ctx context.Context, diags 
 		if e != nil {
 			diags.Append(e...)
 		} else {
-			if plan.NumHosts.ValueStringPointer() != nil {
-				data.NumHosts = models.ToPointer(plan.NumHosts.ValueString())
+			if !plan.ProbeIps.IsNull() && !plan.ProbeIps.IsUnknown() {
+				data.ProbeIps = mist_transform.ListOfStringTerraformToSdk(ctx, plan.ProbeIps)
 			}
 			if !plan.WanNames.IsNull() && !plan.WanNames.IsUnknown() {
 				data.WanNames = mist_transform.ListOfStringTerraformToSdk(ctx, plan.WanNames)
@@ -31,8 +31,8 @@ func tunnelConfigsAutoProvisionPrimaryTerraformToSdk(ctx context.Context, diags 
 	}
 }
 
-func tunnelConfigsAutoProvisionSecondaryTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.TunnelConfigsAutoProvisionNode {
-	data := models.TunnelConfigsAutoProvisionNode{}
+func tunnelConfigsAutoProvisionSecondaryTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.TunnelConfigAutoProvisionNode {
+	data := models.TunnelConfigAutoProvisionNode{}
 	if d.IsNull() || d.IsUnknown() {
 		return &data
 	} else {
@@ -40,8 +40,8 @@ func tunnelConfigsAutoProvisionSecondaryTerraformToSdk(ctx context.Context, diag
 		if e != nil {
 			diags.Append(e...)
 		} else {
-			if plan.NumHosts.ValueStringPointer() != nil {
-				data.NumHosts = models.ToPointer(plan.NumHosts.ValueString())
+			if !plan.ProbeIps.IsNull() && !plan.ProbeIps.IsUnknown() {
+				data.ProbeIps = mist_transform.ListOfStringTerraformToSdk(ctx, plan.ProbeIps)
 			}
 			if !plan.WanNames.IsNull() && !plan.WanNames.IsUnknown() {
 				data.WanNames = mist_transform.ListOfStringTerraformToSdk(ctx, plan.WanNames)
@@ -51,8 +51,8 @@ func tunnelConfigsAutoProvisionSecondaryTerraformToSdk(ctx context.Context, diag
 	}
 }
 
-func tunnelConfigsAutoProvisionTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) models.TunnelConfigsAutoProvision {
-	data := models.TunnelConfigsAutoProvision{}
+func tunnelConfigsAutoProvisionTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) models.TunnelConfigAutoProvision {
+	data := models.TunnelConfigAutoProvision{}
 	if d.IsNull() || d.IsUnknown() {
 		return data
 	} else {
@@ -60,6 +60,13 @@ func tunnelConfigsAutoProvisionTerraformToSdk(ctx context.Context, diags *diag.D
 		if e != nil {
 			diags.Append(e...)
 		} else {
+			if !plan.AutoProvisionPrimary.IsNull() && !plan.AutoProvisionPrimary.IsUnknown() {
+				data.Primary = tunnelConfigsAutoProvisionPrimaryTerraformToSdk(ctx, diags, plan.AutoProvisionPrimary)
+			}
+
+			if !plan.AutoProvisionSecondary.IsNull() && !plan.AutoProvisionSecondary.IsUnknown() {
+				data.Secondary = tunnelConfigsAutoProvisionSecondaryTerraformToSdk(ctx, diags, plan.AutoProvisionSecondary)
+			}
 			if plan.Enable.ValueBoolPointer() != nil {
 				data.Enable = models.ToPointer(plan.Enable.ValueBool())
 			}
@@ -68,38 +75,39 @@ func tunnelConfigsAutoProvisionTerraformToSdk(ctx context.Context, diags *diag.D
 				var plan_latlng_interface interface{} = plan.Latlng
 				plan_latlng := plan_latlng_interface.(LatlngValue)
 
-				var latlng models.LatLng
+				var latlng models.TunnelConfigAutoProvisionLatLng
 				latlng.Lat = plan_latlng.Lng.ValueFloat64()
 				latlng.Lng = plan_latlng.Lng.ValueFloat64()
 				data.Latlng = models.ToPointer(latlng)
 			}
 
-			if !plan.AutoProvisionPrimary.IsNull() && !plan.AutoProvisionPrimary.IsUnknown() {
-				data.Primary = tunnelConfigsAutoProvisionPrimaryTerraformToSdk(ctx, diags, plan.AutoProvisionPrimary)
+			if plan.Provider.ValueStringPointer() != nil {
+				data.Provider = models.TunnelConfigAutoProvisionProviderEnum(*plan.Provider.ValueStringPointer())
 			}
 
-			if !plan.AutoProvisionSecondary.IsNull() && !plan.AutoProvisionSecondary.IsUnknown() {
-				data.Secondary = tunnelConfigsAutoProvisionSecondaryTerraformToSdk(ctx, diags, plan.AutoProvisionSecondary)
+			if plan.Region.ValueStringPointer() != nil {
+				data.Region = plan.Region.ValueStringPointer()
 			}
+
 		}
 		return data
 	}
 }
 
-func gatewayTemplateTunnelIkeProposalTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.GatewayTemplateTunnelIkeProposal {
-	var data_list []models.GatewayTemplateTunnelIkeProposal
+func gatewayTemplateTunnelIkeProposalTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.TunnelConfigIkeProposal {
+	var data_list []models.TunnelConfigIkeProposal
 	for _, v := range d.Elements() {
 		var v_interface interface{} = v
 		plan := v_interface.(IkeProposalsValue)
-		data := models.GatewayTemplateTunnelIkeProposal{}
+		data := models.TunnelConfigIkeProposal{}
 		if plan.AuthAlgo.ValueStringPointer() != nil {
-			data.AuthAlgo = models.ToPointer(models.TunnelConfigsAuthAlgoEnum(plan.AuthAlgo.ValueString()))
+			data.AuthAlgo = models.ToPointer(models.TunnelConfigAuthAlgoEnum(plan.AuthAlgo.ValueString()))
 		}
 		if plan.DhGroup.ValueStringPointer() != nil {
-			data.DhGroup = models.ToPointer(models.GatewayTemplateTunnelIkeDhGroupEnum(plan.DhGroup.ValueString()))
+			data.DhGroup = models.ToPointer(models.TunnelConfigIkeDhGroupEnum(plan.DhGroup.ValueString()))
 		}
 		if plan.EncAlgo.ValueStringPointer() != nil {
-			data.EncAlgo = models.NewOptional(models.ToPointer(models.TunnelConfigsEncAlgoEnum(plan.EncAlgo.ValueString())))
+			data.EncAlgo = models.NewOptional(models.ToPointer(models.TunnelConfigEncAlgoEnum(plan.EncAlgo.ValueString())))
 		}
 
 		data_list = append(data_list, data)
@@ -107,20 +115,20 @@ func gatewayTemplateTunnelIkeProposalTerraformToSdk(ctx context.Context, diags *
 	return data_list
 }
 
-func gatewayTemplateTunnelIpsecProposalTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.GatewayTemplateTunnelIpsecProposal {
-	var data_list []models.GatewayTemplateTunnelIpsecProposal
+func gatewayTemplateTunnelIpsecProposalTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.TunnelConfigIpsecProposal {
+	var data_list []models.TunnelConfigIpsecProposal
 	for _, v := range d.Elements() {
 		var v_interface interface{} = v
 		plan := v_interface.(IpsecProposalsValue)
-		data := models.GatewayTemplateTunnelIpsecProposal{}
+		data := models.TunnelConfigIpsecProposal{}
 		if plan.AuthAlgo.ValueStringPointer() != nil {
-			data.AuthAlgo = models.ToPointer(models.TunnelConfigsAuthAlgoEnum(plan.AuthAlgo.ValueString()))
+			data.AuthAlgo = models.ToPointer(models.TunnelConfigAuthAlgoEnum(plan.AuthAlgo.ValueString()))
 		}
 		if plan.DhGroup.ValueStringPointer() != nil {
-			data.DhGroup = models.ToPointer(models.TunnelConfigsDhGroupEnum(plan.DhGroup.ValueString()))
+			data.DhGroup = models.ToPointer(models.TunnelConfigDhGroupEnum(plan.DhGroup.ValueString()))
 		}
 		if plan.EncAlgo.ValueStringPointer() != nil {
-			data.EncAlgo = models.NewOptional(models.ToPointer(models.TunnelConfigsEncAlgoEnum(plan.EncAlgo.ValueString())))
+			data.EncAlgo = models.NewOptional(models.ToPointer(models.TunnelConfigEncAlgoEnum(plan.EncAlgo.ValueString())))
 		}
 
 		data_list = append(data_list, data)
@@ -128,8 +136,8 @@ func gatewayTemplateTunnelIpsecProposalTerraformToSdk(ctx context.Context, diags
 	return data_list
 }
 
-func gatewayTemplateTunnelProbeTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) models.GatewayTemplateTunnelProbe {
-	data := models.GatewayTemplateTunnelProbe{}
+func gatewayTemplateTunnelProbeTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) models.TunnelConfigProbe {
+	data := models.TunnelConfigProbe{}
 	if d.IsNull() || d.IsUnknown() {
 		return data
 	} else {
@@ -147,15 +155,15 @@ func gatewayTemplateTunnelProbeTerraformToSdk(ctx context.Context, diags *diag.D
 				data.Timeout = models.ToPointer(int(plan.Timeout.ValueInt64()))
 			}
 			if plan.ProbeType.ValueStringPointer() != nil {
-				data.Type = models.ToPointer(models.GatewayTemplateProbeTypeEnum(plan.ProbeType.ValueString()))
+				data.Type = models.ToPointer(models.TunnelConfigProbeTypeEnum(plan.ProbeType.ValueString()))
 			}
 		}
 		return data
 	}
 }
 
-func gatewayTemplateTunnelPrimaryProbeTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) models.GatewayTemplateTunnelNode {
-	data := models.GatewayTemplateTunnelNode{}
+func gatewayTemplateTunnelPrimaryProbeTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) models.TunnelConfigNode {
+	data := models.TunnelConfigNode{}
 	if d.IsNull() || d.IsUnknown() {
 		return data
 	} else {
@@ -183,8 +191,8 @@ func gatewayTemplateTunnelPrimaryProbeTerraformToSdk(ctx context.Context, diags 
 	}
 }
 
-func gatewayTemplateTunnelSecondaryProbeTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) models.GatewayTemplateTunnelNode {
-	data := models.GatewayTemplateTunnelNode{}
+func gatewayTemplateTunnelSecondaryProbeTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) models.TunnelConfigNode {
+	data := models.TunnelConfigNode{}
 	if d.IsNull() || d.IsUnknown() {
 		return data
 	} else {
@@ -212,13 +220,13 @@ func gatewayTemplateTunnelSecondaryProbeTerraformToSdk(ctx context.Context, diag
 	}
 }
 
-func tunnelConfigsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.TunnelConfigs {
-	data_map := make(map[string]models.TunnelConfigs)
+func tunnelConfigsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.TunnelConfig {
+	data_map := make(map[string]models.TunnelConfig)
 	for k, v := range d.Elements() {
 		var v_interface interface{} = v
 		plan := v_interface.(TunnelConfigsValue)
 
-		data := models.TunnelConfigs{}
+		data := models.TunnelConfig{}
 
 		if !plan.AutoProvision.IsNull() && !plan.AutoProvision.IsUnknown() {
 			auto_provision := tunnelConfigsAutoProvisionTerraformToSdk(ctx, diags, plan.AutoProvision)
@@ -229,7 +237,7 @@ func tunnelConfigsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d
 			data.IkeLifetime = models.ToPointer(int(plan.IkeLifetime.ValueInt64()))
 		}
 		if plan.IkeMode.ValueStringPointer() != nil {
-			data.IkeMode = models.ToPointer(models.GatewayTemplateTunnelIkeModeEnum(plan.IkeMode.ValueString()))
+			data.IkeMode = models.ToPointer(models.TunnelConfigIkeModeEnum(plan.IkeMode.ValueString()))
 		}
 
 		if plan.IpsecLifetime.ValueInt64Pointer() != nil {
@@ -246,7 +254,7 @@ func tunnelConfigsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d
 		}
 
 		if plan.Mode.ValueStringPointer() != nil {
-			data.Mode = (*models.GatewayTemplateTunnelModeEnum)(plan.Mode.ValueStringPointer())
+			data.Mode = (*models.TunnelConfigTunnelModeEnum)(plan.Mode.ValueStringPointer())
 		}
 
 		if !plan.Networks.IsNull() && !plan.Networks.IsUnknown() {
@@ -269,10 +277,10 @@ func tunnelConfigsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d
 		}
 
 		if plan.Protocol.ValueStringPointer() != nil {
-			data.Protocol = models.ToPointer(models.GatewayTemplateTunnelProtocolEnum(plan.Protocol.ValueString()))
+			data.Protocol = models.ToPointer(models.TunnelConfigProtocolEnum(plan.Protocol.ValueString()))
 		}
 		if plan.Provider.ValueStringPointer() != nil {
-			data.Provider = models.ToPointer(models.TunnelProviderOptionsNameEnum(plan.Provider.ValueString()))
+			data.Provider = models.ToPointer(models.TunnelConfigProviderEnum(plan.Provider.ValueString()))
 		}
 		if plan.Psk.ValueStringPointer() != nil {
 			data.Psk = models.ToPointer(plan.Psk.ValueString())
@@ -284,7 +292,7 @@ func tunnelConfigsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d
 		}
 
 		if plan.Version.ValueStringPointer() != nil {
-			data.Version = models.ToPointer(models.GatewayTemplateTunnelVersionEnum(plan.Version.ValueString()))
+			data.Version = models.ToPointer(models.TunnelConfigVersionEnum(plan.Version.ValueString()))
 		}
 
 		data_map[k] = data

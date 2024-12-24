@@ -124,6 +124,7 @@ func routingPolicyTermActionSdkToTerraform(ctx context.Context, diags *diag.Diag
 	var accept basetypes.BoolValue
 	var add_community basetypes.ListValue = types.ListNull(types.StringType)
 	var add_target_vrfs basetypes.ListValue = types.ListNull(types.StringType)
+	var aggregate basetypes.ListValue = types.ListNull(types.StringType)
 	var community basetypes.ListValue = types.ListNull(types.StringType)
 	var exclude_as_path basetypes.ListValue = types.ListNull(types.StringType)
 	var exclude_community basetypes.ListValue = types.ListNull(types.StringType)
@@ -139,6 +140,9 @@ func routingPolicyTermActionSdkToTerraform(ctx context.Context, diags *diag.Diag
 	}
 	if d.AddTargetVrfs != nil {
 		add_target_vrfs = mist_transform.ListOfStringSdkToTerraform(ctx, d.AddTargetVrfs)
+	}
+	if d.Aggregate != nil {
+		aggregate = mist_transform.ListOfStringSdkToTerraform(ctx, d.Aggregate)
 	}
 	if d.Community != nil {
 		community = mist_transform.ListOfStringSdkToTerraform(ctx, d.Community)
@@ -164,6 +168,7 @@ func routingPolicyTermActionSdkToTerraform(ctx context.Context, diags *diag.Diag
 		"accept":              accept,
 		"add_community":       add_community,
 		"add_target_vrfs":     add_target_vrfs,
+		"aggregate":           aggregate,
 		"community":           community,
 		"exclude_as_path":     exclude_as_path,
 		"exclude_community":   exclude_community,
