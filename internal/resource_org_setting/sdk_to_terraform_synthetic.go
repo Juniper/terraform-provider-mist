@@ -3,6 +3,7 @@ package resource_org_setting
 import (
 	"context"
 
+	mist_api "github.com/Juniper/terraform-provider-mist/internal/commons/api_response"
 	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -30,7 +31,7 @@ func syntheticTestVlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 		if d.VlanIds != nil {
 			var items []attr.Value
 			for _, item := range d.VlanIds {
-				items = append(items, types.StringValue(item.String()))
+				items = append(items, mist_api.VlanAsString(item))
 			}
 			vlan_ids, _ = types.ListValue(basetypes.StringType{}, items)
 		}

@@ -3,6 +3,7 @@ package resource_site_setting
 import (
 	"context"
 
+	mist_api "github.com/Juniper/terraform-provider-mist/internal/commons/api_response"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -51,7 +52,7 @@ func synthteticTestVlansSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 		if d.VlanIds != nil {
 			var items []attr.Value
 			for _, item := range d.VlanIds {
-				items = append(items, types.StringValue(item.String()))
+				items = append(items, mist_api.VlanAsString(item))
 			}
 			vlan_ids, _ = types.ListValue(basetypes.StringType{}, items)
 		}

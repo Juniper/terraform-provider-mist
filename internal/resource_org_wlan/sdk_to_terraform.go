@@ -4,6 +4,7 @@ import (
 	"context"
 	"strings"
 
+	mist_api "github.com/Juniper/terraform-provider-mist/internal/commons/api_response"
 	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -458,7 +459,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	}
 
 	if data.VlanId != nil {
-		vlan_id = types.StringValue(string(data.VlanId.String()))
+		vlan_id = mist_api.VlanAsString(*data.VlanId)
 	}
 
 	if data.VlanIds != nil {
@@ -469,7 +470,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 			}
 		} else if vlan_ids_as_list, ok := data.VlanIds.AsArrayOfVlanIdWithVariable2(); ok {
 			for _, v := range *vlan_ids_as_list {
-				list = append(list, types.StringValue(v.String()))
+				list = append(list, mist_api.VlanAsString(v))
 			}
 		}
 		r, e := types.ListValue(basetypes.StringType{}, list)

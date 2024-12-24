@@ -3,6 +3,7 @@ package resource_site_setting
 import (
 	"context"
 
+	mist_api "github.com/Juniper/terraform-provider-mist/internal/commons/api_response"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -21,7 +22,7 @@ func criticalUrlMonitoringMonitorSdkToTerraform(ctx context.Context, diags *diag
 			url = types.StringValue(*d.Url)
 		}
 		if d.VlanId != nil {
-			vlan_id = types.StringValue(d.VlanId.String())
+			vlan_id = mist_api.VlanAsString(*d.VlanId)
 		}
 
 		data_map_attr_type := MonitorsValue{}.AttributeTypes(ctx)

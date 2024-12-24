@@ -3,6 +3,7 @@ package resource_org_networktemplate
 import (
 	"context"
 
+	mist_api "github.com/Juniper/terraform-provider-mist/internal/commons/api_response"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -42,7 +43,7 @@ func NetworksSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[
 		if d.Subnet6 != nil {
 			subnet6 = types.StringValue(*d.Subnet6)
 		}
-		vlan_id = types.StringValue(d.VlanId.String())
+		vlan_id = mist_api.VlanAsString(d.VlanId)
 
 		data_map_attr_type := NetworksValue{}.AttributeTypes(ctx)
 		data_map_value := map[string]attr.Value{
