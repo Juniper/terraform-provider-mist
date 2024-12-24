@@ -5,7 +5,7 @@ go 1.22.7
 toolchain go1.23.3
 
 require (
-	github.com/apimatic/go-core-runtime v0.0.27
+	github.com/apimatic/go-core-runtime v0.0.28
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/terraform-plugin-docs v0.20.1
 	github.com/hashicorp/terraform-plugin-framework v1.13.0
@@ -13,7 +13,7 @@ require (
 	github.com/hashicorp/terraform-plugin-go v0.25.0
 	github.com/hashicorp/terraform-plugin-log v0.9.0
 	github.com/stretchr/testify v1.10.0
-	github.com/tmunzer/mistapi-go v0.4.22
+	github.com/tmunzer/mistapi-go v0.4.24
 	golang.org/x/net v0.32.0
 )
 
