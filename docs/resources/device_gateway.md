@@ -492,7 +492,7 @@ Note: Turning this on will enable force-up on one of the interfaces in the bundl
 - `lte_apn` (String) if `wan_type`==`lte`
 - `lte_auth` (String) if `wan_type`==`lte`. enum: `chap`, `none`, `pap`
 - `lte_backup` (Boolean)
-- `lte_password` (String) if `wan_type`==`lte`
+- `lte_password` (String, Sensitive) if `wan_type`==`lte`
 - `lte_username` (String) if `wan_type`==`lte`
 - `mtu` (Number)
 - `name` (String) name that we'll use to derive config
@@ -530,7 +530,7 @@ Optional:
 - `ip` (String)
 - `netmask` (String) used only if `subnet` is not specified in `networks`
 - `network` (String) optional, the network to be used for mgmt
-- `poser_password` (String) if `type`==`pppoe`
+- `poser_password` (String, Sensitive) if `type`==`pppoe`
 - `pppoe_auth` (String) if `type`==`pppoe`. enum: `chap`, `none`, `pap`
 - `pppoe_username` (String) if `type`==`pppoe`
 - `type` (String) enum: `dhcp`, `pppoe`, `static`
@@ -753,7 +753,7 @@ Optional:
 - `probe` (Attributes) Only if `provider`==`custom-ipsec` (see [below for nested schema](#nestedatt--tunnel_configs--probe))
 - `protocol` (String) Only if `provider`==`custom-ipsec`. enum: `gre`, `ipsec`
 - `provider` (String) Only if `auto_provision.enabled`==`false`. enum: `custom-ipsec`, `customer-gre`, `jse-ipsec`, `zscaler-gre`, `zscaler-ipsec`
-- `psk` (String) Required if `provider`==`zscaler-ipsec`, `provider`==`jse-ipsec` or `provider`==`custom-ipsec`
+- `psk` (String, Sensitive) Required if `provider`==`zscaler-ipsec`, `provider`==`jse-ipsec` or `provider`==`custom-ipsec`
 - `secondary` (Attributes) Only if `provider`==`zscaler-ipsec`, `provider`==`jse-ipsec` or `provider`==`custom-ipsec` (see [below for nested schema](#nestedatt--tunnel_configs--secondary))
 - `version` (String) Only if `provider`==`custom-gre` or `provider`==`custom-ipsec`. enum: `1`, `2`
 
