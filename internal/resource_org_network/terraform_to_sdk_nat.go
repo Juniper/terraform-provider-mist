@@ -18,6 +18,7 @@ func destinationNatTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, 
 		data.InternalIp = v_plan.InternalIp.ValueStringPointer()
 		data.Name = v_plan.Name.ValueStringPointer()
 		data.Port = models.ToPointer(int(v_plan.Port.ValueInt64()))
+		data.WanName = v_plan.WanName.ValueStringPointer()
 		data_map[k] = data
 	}
 	return data_map

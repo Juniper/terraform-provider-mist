@@ -17,6 +17,7 @@ func destinationNatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 		var internal_ip basetypes.StringValue
 		var name basetypes.StringValue
 		var port basetypes.Int64Value
+		var wan_name basetypes.StringValue
 
 		if v.InternalIp != nil {
 			internal_ip = types.StringValue(*v.InternalIp)
@@ -27,11 +28,15 @@ func destinationNatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 		if v.Port != nil {
 			port = types.Int64Value(int64(*v.Port))
 		}
+		if v.WanName != nil {
+			wan_name = types.StringValue(*v.WanName)
+		}
 
 		state_value_map_attr_value := map[string]attr.Value{
 			"internal_ip": internal_ip,
 			"name":        name,
 			"port":        port,
+			"wan_name":    wan_name,
 		}
 		n, e := NewDestinationNatValue(DestinationNatValue{}.AttributeTypes(ctx), state_value_map_attr_value)
 		diags.Append(e...)

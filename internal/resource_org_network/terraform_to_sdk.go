@@ -39,6 +39,12 @@ func TerraformToSdk(ctx context.Context, plan *OrgNetworkModel) (*models.Network
 		unset["-gateway6"] = ""
 	}
 
+	if plan.Multicast.IsNull() && !plan.InternalAccess.IsUnknown() {
+		data.Multicast = MulticastTerraformToSdk(ctx, &diags, plan.Multicast)
+	} else {
+		unset["-multicast"] = ""
+	}
+
 	if !plan.InternalAccess.IsNull() && !plan.InternalAccess.IsUnknown() {
 		data.InternalAccess = InternalAccessTerraformToSdk(ctx, &diags, plan.InternalAccess)
 	} else {

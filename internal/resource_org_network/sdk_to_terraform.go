@@ -17,6 +17,7 @@ func SdkToTerraform(ctx context.Context, data models.Network) (OrgNetworkModel, 
 	var diags diag.Diagnostics
 
 	var disallow_mist_services basetypes.BoolValue
+	var multicast MulticastValue = NewMulticastValueNull()
 	var gateway basetypes.StringValue
 	var gateway6 basetypes.StringValue
 	var id basetypes.StringValue
@@ -40,6 +41,9 @@ func SdkToTerraform(ctx context.Context, data models.Network) (OrgNetworkModel, 
 	}
 	if data.Gateway6 != nil {
 		gateway6 = types.StringValue(*data.Gateway6)
+	}
+	if data.Multicast != nil {
+		multicast = MutlicastSdkToTerraform(ctx, &diags, *data.Multicast)
 	}
 	if data.Id != nil {
 		id = types.StringValue(data.Id.String())
@@ -79,6 +83,7 @@ func SdkToTerraform(ctx context.Context, data models.Network) (OrgNetworkModel, 
 	state.DisallowMistServices = disallow_mist_services
 	state.Gateway = gateway
 	state.Gateway6 = gateway6
+	state.Multicast = multicast
 	state.Id = id
 	state.InternalAccess = internal_access
 	state.InternetAccess = internet_access
