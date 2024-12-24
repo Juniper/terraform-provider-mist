@@ -2,8 +2,8 @@
 ## github.com/apimatic/go-core-runtime
 
 * Name: github.com/apimatic/go-core-runtime
-* Version: v0.0.27
-* License: [MIT](https://github.com/apimatic/go-core-runtime/blob/v0.0.27/LICENSE)
+* Version: v0.0.28
+* License: [MIT](https://github.com/apimatic/go-core-runtime/blob/v0.0.28/LICENSE)
 
 ```
 MIT License
@@ -3766,8 +3766,8 @@ THE SOFTWARE.
 ## github.com/tmunzer/mistapi-go/mistapi
 
 * Name: github.com/tmunzer/mistapi-go/mistapi
-* Version: v0.4.22
-* License: [MIT](https://github.com/tmunzer/mistapi-go/blob/v0.4.22/LICENSE)
+* Version: v0.4.24
+* License: [MIT](https://github.com/tmunzer/mistapi-go/blob/v0.4.24/LICENSE)
 
 ```
 License: 
