@@ -37,7 +37,7 @@ func groupMutlicastSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 func MutlicastSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.NetworkMulticast) MulticastValue {
 	var disable_igmp basetypes.BoolValue
 	var enabled basetypes.BoolValue
-	var groups basetypes.MapValue
+	var groups basetypes.MapValue = types.MapNull(GroupsValue{}.Type(ctx))
 
 	if d.DisableIgmp != nil {
 		disable_igmp = types.BoolValue(*d.DisableIgmp)

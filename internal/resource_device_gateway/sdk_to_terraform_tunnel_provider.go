@@ -135,7 +135,7 @@ func tunnelProviderZscalerSdkToTerraform(ctx context.Context, diags *diag.Diagno
 	var dn_bandwidth basetypes.Float64Value
 	var idle_time_in_minutes basetypes.Int64Value
 	var ofw_enabled basetypes.BoolValue
-	var sub_locations basetypes.ListValue
+	var sub_locations basetypes.ListValue = types.ListNull(SubLocationsValue{}.Type(ctx))
 	var surrogate_ip basetypes.BoolValue
 	var surrogate_ip_enforced_for_known_browsers basetypes.BoolValue
 	var surrogate_refresh_time_in_minutes basetypes.Int64Value
