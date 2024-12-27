@@ -42,17 +42,17 @@ func (o ParseIpValidator) ValidateString(_ context.Context, req validator.String
 	ip := net.ParseIP(value)
 	if ip == nil {
 		resp.Diagnostics.Append(validatordiag.InvalidAttributeValueDiagnostic(
-			req.Path, "value must be an IP address", value))
+			req.Path, "value must be an IP Address", value))
 		return
 	}
 
 	switch {
 	case o.requireIpv4 && len(ip.To4()) != net.IPv4len:
 		resp.Diagnostics.Append(validatordiag.InvalidAttributeValueDiagnostic(
-			req.Path, "value is not an IPv4 CIDR prefix", value))
+			req.Path, "value is not an IPv4 Address", value))
 	case o.requireIpv6 && len(ip) != net.IPv6len:
 		resp.Diagnostics.Append(validatordiag.InvalidAttributeValueDiagnostic(
-			req.Path, "value is not an IPv6 CIDR prefix", value))
+			req.Path, "value is not an IPv6 Address", value))
 	}
 }
 

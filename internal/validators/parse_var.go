@@ -25,10 +25,8 @@ func (o ParseVarValidator) ValidateString(_ context.Context, req validator.Strin
 		return
 	}
 
-	re_variable := `\{\{\w*\}\}`
-
 	value := req.ConfigValue.ValueString()
-	if has_var, err := regexp.MatchString(re_variable, value); !has_var || err != nil {
+	if isVar := checkIsVar(value); !isVar {
 		resp.Diagnostics.Append(validatordiag.InvalidAttributeValueDiagnostic(
 			req.Path,
 			"value does not contain a valid Mist variable (\"{{...}}\")",
@@ -36,6 +34,15 @@ func (o ParseVarValidator) ValidateString(_ context.Context, req validator.Strin
 		))
 		return
 	}
+}
+
+func checkIsVar(value string) bool {
+	re_variable := `\{\{\w*\}\}`
+
+	if has_var, err := regexp.MatchString(re_variable, value); !has_var || err != nil {
+		return false
+	}
+	return true
 }
 
 func ParseVar() validator.String {
