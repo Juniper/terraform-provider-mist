@@ -7,9 +7,11 @@ import (
 	"fmt"
 	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/objectvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -73,39 +75,112 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 						Computed: true,
 						Default:  booldefault.StaticBool(false),
 					},
+					"enabled": schema.BoolAttribute{
+						Optional: true,
+					},
 					"destination_nat": schema.MapNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{
 							Attributes: map[string]schema.Attribute{
 								"internal_ip": schema.StringAttribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "The Destination NAT destination IP Address. Must be an IP (i.e. \"192.168.70.30\") or a Variable (i.e. \"{{myvar}}\")",
+									MarkdownDescription: "The Destination NAT destination IP Address. Must be an IP (i.e. \"192.168.70.30\") or a Variable (i.e. \"{{myvar}}\")",
+									Validators: []validator.String{
+										stringvalidator.Any(
+											mistvalidator.ParseIp(false, false),
+											mistvalidator.ParseVar(),
+										),
+									},
 								},
 								"name": schema.StringAttribute{
 									Optional: true,
 								},
-								"port": schema.Int64Attribute{
-									Optional: true,
+								"port": schema.StringAttribute{
+									Optional:            true,
+									Description:         "The Destination NAT destination IP Address. Must be a Port (i.e. \"443\") or a Variable (i.e. \"{{myvar}}\")",
+									MarkdownDescription: "The Destination NAT destination IP Address. Must be a Port (i.e. \"443\") or a Variable (i.e. \"{{myvar}}\")",
+									Validators: []validator.String{
+										stringvalidator.Any(
+											mistvalidator.ParseInt(0, 65535),
+											mistvalidator.ParseVar(),
+										),
+									},
 								},
 								"wan_name": schema.StringAttribute{
 									Optional:            true,
-									Description:         "If not set, we configure the nat policies against all WAN ports for simplicity",
-									MarkdownDescription: "If not set, we configure the nat policies against all WAN ports for simplicity",
+									Description:         "SRX Only. If not set, we configure the nat policies against all WAN ports for simplicity",
+									MarkdownDescription: "SRX Only. If not set, we configure the nat policies against all WAN ports for simplicity",
 								},
 							},
-							CustomType: DestinationNatType{
+							CustomType: InternetAccessDestinationNatType{
 								ObjectType: types.ObjectType{
-									AttrTypes: DestinationNatValue{}.AttributeTypes(ctx),
+									AttrTypes: InternetAccessDestinationNatValue{}.AttributeTypes(ctx),
+								},
+							},
+							Validators: []validator.Object{
+								objectvalidator.AtLeastOneOf(
+									path.MatchRelative().AtName("internal_ip"),
+									path.MatchRelative().AtName("port"),
+								),
+							},
+						},
+						Optional:            true,
+						Description:         "Property key can be an External IP (i.e. \"63.16.0.3\"), an External IP:Port (i.e. \"63.16.0.3:443\"), an External Port (i.e. \":443\"), an External CIDR (i.e. \"63.16.0.0/30\"), an External CIDR:Port (i.e. \"63.16.0.0/30:443\") or a Variable (i.e. \"{{myvar}}\"). At least one of the `internal_ip` or `port` must be defined",
+						MarkdownDescription: "Property key can be an External IP (i.e. \"63.16.0.3\"), an External IP:Port (i.e. \"63.16.0.3:443\"), an External Port (i.e. \":443\"), an External CIDR (i.e. \"63.16.0.0/30\"), an External CIDR:Port (i.e. \"63.16.0.0/30:443\") or a Variable (i.e. \"{{myvar}}\"). At least one of the `internal_ip` or `port` must be defined",
+						Validators: []validator.Map{
+							mapvalidator.KeysAre(
+								stringvalidator.Any(
+									mistvalidator.ParseIp(false, false),
+									mistvalidator.ParseIpPort(false, true),
+									mistvalidator.ParseCidr(false, false),
+									mistvalidator.ParseIpPort(false, true),
+									mistvalidator.ParseVar(),
+								),
+							),
+						},
+					},
+					"static_nat": schema.MapNestedAttribute{
+						NestedObject: schema.NestedAttributeObject{
+							Attributes: map[string]schema.Attribute{
+								"internal_ip": schema.StringAttribute{
+									Required:            true,
+									Description:         "The Static NAT destination IP Address. Must be an IP Address (i.e. \"192.168.70.3\") or a Variable (i.e. \"{{myvar}}\")",
+									MarkdownDescription: "The Static NAT destination IP Address. Must be an IP Address (i.e. \"192.168.70.3\") or a Variable (i.e. \"{{myvar}}\")",
+									Validators: []validator.String{
+										stringvalidator.Any(
+											mistvalidator.ParseIp(false, false),
+											mistvalidator.ParseCidr(false, false),
+											mistvalidator.ParseVar(),
+										),
+									},
+								},
+								"name": schema.StringAttribute{
+									Required: true,
+								},
+								"wan_name": schema.StringAttribute{
+									Optional:            true,
+									Description:         "SRX Only. If not set, we configure the nat policies against all WAN ports for simplicity. Can be a Variable (i.e. \"{{myvar}}\")",
+									MarkdownDescription: "SRX Only. If not set, we configure the nat policies against all WAN ports for simplicity. Can be a Variable (i.e. \"{{myvar}}\")",
+								},
+							},
+							CustomType: InternetAccessStaticNatType{
+								ObjectType: types.ObjectType{
+									AttrTypes: InternetAccessStaticNatValue{}.AttributeTypes(ctx),
 								},
 							},
 						},
 						Optional:            true,
-						Description:         "Property key may be an IP/Port (i.e. \"63.16.0.3:443\"), or a port (i.e. \":2222\")",
-						MarkdownDescription: "Property key may be an IP/Port (i.e. \"63.16.0.3:443\"), or a port (i.e. \":2222\")",
+						Description:         "Property key may be an External IP Address (i.e. \"63.16.0.3\"), a CIDR (i.e. \"63.16.0.12/20\") or a Variable (i.e. \"{{myvar}}\")",
+						MarkdownDescription: "Property key may be an External IP Address (i.e. \"63.16.0.3\"), a CIDR (i.e. \"63.16.0.12/20\") or a Variable (i.e. \"{{myvar}}\")",
 						Validators: []validator.Map{
-							mapvalidator.SizeAtLeast(1),
+							mapvalidator.KeysAre(
+								stringvalidator.Any(
+									mistvalidator.ParseIp(false, false),
+									mistvalidator.ParseCidr(false, false),
+									mistvalidator.ParseVar(),
+								),
+							),
 						},
-					},
-					"enabled": schema.BoolAttribute{
-						Optional: true,
 					},
 					"restricted": schema.BoolAttribute{
 						Optional:            true,
@@ -113,34 +188,6 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 						Description:         "by default, all access is allowed, to only allow certain traffic, make `restricted`=`true` and define service_policies",
 						MarkdownDescription: "by default, all access is allowed, to only allow certain traffic, make `restricted`=`true` and define service_policies",
 						Default:             booldefault.StaticBool(false),
-					},
-					"static_nat": schema.MapNestedAttribute{
-						NestedObject: schema.NestedAttributeObject{
-							Attributes: map[string]schema.Attribute{
-								"internal_ip": schema.StringAttribute{
-									Optional: true,
-								},
-								"name": schema.StringAttribute{
-									Optional: true,
-								},
-								"wan_name": schema.StringAttribute{
-									Optional:            true,
-									Description:         "If not set, we configure the nat policies against all WAN ports for simplicity",
-									MarkdownDescription: "If not set, we configure the nat policies against all WAN ports for simplicity",
-								},
-							},
-							CustomType: StaticNatType{
-								ObjectType: types.ObjectType{
-									AttrTypes: StaticNatValue{}.AttributeTypes(ctx),
-								},
-							},
-						},
-						Optional:            true,
-						Description:         "Property key may be an IP Address (i.e. \"172.16.0.1\"), and IP Address and Port (i.e. \"172.16.0.1:8443\") or a CIDR (i.e. \"172.16.0.12/20\")",
-						MarkdownDescription: "Property key may be an IP Address (i.e. \"172.16.0.1\"), and IP Address and Port (i.e. \"172.16.0.1:8443\") or a CIDR (i.e. \"172.16.0.12/20\")",
-						Validators: []validator.Map{
-							mapvalidator.SizeAtLeast(1),
-						},
 					},
 				},
 				CustomType: InternetAccessType{
@@ -244,7 +291,9 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 						},
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "Property key must be the user/tenant name (i.e. \"printer-1\") or a Variable (i.e. \"{{myvar}}\")",
+				MarkdownDescription: "Property key must be the user/tenant name (i.e. \"printer-1\") or a Variable (i.e. \"{{myvar}}\")",
 				Validators: []validator.Map{
 					mapvalidator.SizeAtLeast(1),
 				},
@@ -267,38 +316,6 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "whether to allow ping from vpn into this routed network",
 							MarkdownDescription: "whether to allow ping from vpn into this routed network",
-						},
-						"destination_nat": schema.MapNestedAttribute{
-							NestedObject: schema.NestedAttributeObject{
-								Attributes: map[string]schema.Attribute{
-									"internal_ip": schema.StringAttribute{
-										Optional: true,
-									},
-									"name": schema.StringAttribute{
-										Optional: true,
-									},
-									"port": schema.Int64Attribute{
-										Optional: true,
-									},
-									"wan_name": schema.StringAttribute{
-										Optional:            true,
-										Description:         "If not set, we configure the nat policies against all WAN ports for simplicity",
-										MarkdownDescription: "If not set, we configure the nat policies against all WAN ports for simplicity",
-									},
-								},
-								CustomType: DestinationNatType{
-									ObjectType: types.ObjectType{
-										AttrTypes: DestinationNatValue{}.AttributeTypes(ctx),
-									},
-								},
-							},
-							Optional:            true,
-							Computed:            true,
-							Description:         "Property key may be an IP/Port (i.e. \"63.16.0.3:443\"), or a port (i.e. \":2222\")",
-							MarkdownDescription: "Property key may be an IP/Port (i.e. \"63.16.0.3:443\"), or a port (i.e. \":2222\")",
-							Validators: []validator.Map{
-								mapvalidator.SizeAtLeast(1),
-							},
 						},
 						"nat_pool": schema.StringAttribute{
 							Optional:            true,
@@ -353,35 +370,6 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "if `routed`==`false` (usually at Spoke), but some hosts needs to be reachable from Hub",
 							MarkdownDescription: "if `routed`==`false` (usually at Spoke), but some hosts needs to be reachable from Hub",
 						},
-						"static_nat": schema.MapNestedAttribute{
-							NestedObject: schema.NestedAttributeObject{
-								Attributes: map[string]schema.Attribute{
-									"internal_ip": schema.StringAttribute{
-										Optional: true,
-									},
-									"name": schema.StringAttribute{
-										Optional: true,
-									},
-									"wan_name": schema.StringAttribute{
-										Optional:            true,
-										Description:         "If not set, we configure the nat policies against all WAN ports for simplicity",
-										MarkdownDescription: "If not set, we configure the nat policies against all WAN ports for simplicity",
-									},
-								},
-								CustomType: StaticNatType{
-									ObjectType: types.ObjectType{
-										AttrTypes: StaticNatValue{}.AttributeTypes(ctx),
-									},
-								},
-							},
-							Optional:            true,
-							Computed:            true,
-							Description:         "Property key may be an IP Address (i.e. \"172.16.0.1\"), and IP Address and Port (i.e. \"172.16.0.1:8443\") or a CIDR (i.e. \"172.16.0.12/20\")",
-							MarkdownDescription: "Property key may be an IP Address (i.e. \"172.16.0.1\"), and IP Address and Port (i.e. \"172.16.0.1:8443\") or a CIDR (i.e. \"172.16.0.12/20\")",
-							Validators: []validator.Map{
-								mapvalidator.SizeAtLeast(1),
-							},
-						},
 						"summarized_subnet": schema.StringAttribute{
 							Optional:            true,
 							Description:         "toward overlay\nhow HUB should deal with routes it received from Spokes",
@@ -396,6 +384,99 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "toward LAN-side OSPF peers",
 							MarkdownDescription: "toward LAN-side OSPF peers",
+						},
+						"destination_nat": schema.MapNestedAttribute{
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"internal_ip": schema.StringAttribute{
+										Optional:            true,
+										Description:         "The Destination NAT destination IP Address. Must be an IP (i.e. \"192.168.70.30\") or a Variable (i.e. \"{{myvar}}\")",
+										MarkdownDescription: "The Destination NAT destination IP Address. Must be an IP (i.e. \"192.168.70.30\") or a Variable (i.e. \"{{myvar}}\")",
+										Validators: []validator.String{
+											stringvalidator.Any(
+												mistvalidator.ParseIp(false, false),
+												mistvalidator.ParseVar(),
+											),
+										},
+									},
+									"name": schema.StringAttribute{
+										Optional: true,
+									},
+									"port": schema.StringAttribute{
+										Optional: true,
+										Validators: []validator.String{
+											stringvalidator.Any(
+												mistvalidator.ParseInt(0, 65535),
+												mistvalidator.ParseVar(),
+											),
+										},
+									},
+								},
+								CustomType: VpnAccessDestinationNatType{
+									ObjectType: types.ObjectType{
+										AttrTypes: VpnAccessDestinationNatValue{}.AttributeTypes(ctx),
+									},
+								},
+								Validators: []validator.Object{
+									objectvalidator.AtLeastOneOf(
+										path.MatchRelative().AtName("internal_ip"),
+										path.MatchRelative().AtName("port"),
+									),
+								},
+							},
+							Optional:            true,
+							Description:         "Property key can be an External IP (i.e. \"63.16.0.3\"), an External IP:Port (i.e. \"63.16.0.3:443\"), an External Port (i.e. \":443\"), an External CIDR (i.e. \"63.16.0.0/30\"), an External CIDR:Port (i.e. \"63.16.0.0/30:443\") or a Variable (i.e. \"{{myvar}}\"). At least one of the `internal_ip` or `port` must be defined",
+							MarkdownDescription: "Property key can be an External IP (i.e. \"63.16.0.3\"), an External IP:Port (i.e. \"63.16.0.3:443\"), an External Port (i.e. \":443\"), an External CIDR (i.e. \"63.16.0.0/30\"), an External CIDR:Port (i.e. \"63.16.0.0/30:443\") or a Variable (i.e. \"{{myvar}}\"). At least one of the `internal_ip` or `port` must be defined",
+							Validators: []validator.Map{
+								mapvalidator.KeysAre(
+									stringvalidator.Any(
+										mistvalidator.ParseIp(false, false),
+										mistvalidator.ParseIpPort(false, true),
+										mistvalidator.ParseCidr(false, false),
+										mistvalidator.ParseIpPort(false, true),
+										mistvalidator.ParseVar(),
+									),
+								),
+							},
+						},
+						"static_nat": schema.MapNestedAttribute{
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"internal_ip": schema.StringAttribute{
+										Required:            true,
+										Description:         "The Static NAT destination IP Address. Must be an IP Address (i.e. \"192.168.70.3\") or a Variable (i.e. \"{{myvar}}\")",
+										MarkdownDescription: "The Static NAT destination IP Address. Must be an IP Address (i.e. \"192.168.70.3\") or a Variable (i.e. \"{{myvar}}\")",
+										Validators: []validator.String{
+											stringvalidator.Any(
+												mistvalidator.ParseIp(false, false),
+												mistvalidator.ParseCidr(false, false),
+												mistvalidator.ParseVar(),
+											),
+										},
+									},
+									"name": schema.StringAttribute{
+										Required: true,
+									},
+								},
+								CustomType: VpnAccessStaticNatType{
+									ObjectType: types.ObjectType{
+										AttrTypes: VpnAccessStaticNatValue{}.AttributeTypes(ctx),
+									},
+								},
+							},
+							Optional:            true,
+							Computed:            true,
+							Description:         "Property key may be an External IP Address (i.e. \"63.16.0.3\"), a CIDR (i.e. \"63.16.0.12/20\") or a Variable (i.e. \"{{myvar}}\")",
+							MarkdownDescription: "Property key may be an External IP Address (i.e. \"63.16.0.3\"), a CIDR (i.e. \"63.16.0.12/20\") or a Variable (i.e. \"{{myvar}}\")",
+							Validators: []validator.Map{
+								mapvalidator.KeysAre(
+									stringvalidator.Any(
+										mistvalidator.ParseIp(false, false),
+										mistvalidator.ParseCidr(false, false),
+										mistvalidator.ParseVar(),
+									),
+								),
+							},
 						},
 					},
 					CustomType: VpnAccessType{
@@ -801,24 +882,6 @@ func (t InternetAccessType) ValueFromObject(ctx context.Context, in basetypes.Ob
 			fmt.Sprintf(`create_simple_service_policy expected to be basetypes.BoolValue, was: %T`, createSimpleServicePolicyAttribute))
 	}
 
-	destinationNatAttribute, ok := attributes["destination_nat"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`destination_nat is missing from object`)
-
-		return nil, diags
-	}
-
-	destinationNatVal, ok := destinationNatAttribute.(basetypes.MapValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`destination_nat expected to be basetypes.MapValue, was: %T`, destinationNatAttribute))
-	}
-
 	enabledAttribute, ok := attributes["enabled"]
 
 	if !ok {
@@ -835,6 +898,42 @@ func (t InternetAccessType) ValueFromObject(ctx context.Context, in basetypes.Ob
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	internetAccessDestinationNatAttribute, ok := attributes["destination_nat"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`destination_nat is missing from object`)
+
+		return nil, diags
+	}
+
+	internetAccessDestinationNatVal, ok := internetAccessDestinationNatAttribute.(basetypes.MapValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`destination_nat expected to be basetypes.MapValue, was: %T`, internetAccessDestinationNatAttribute))
+	}
+
+	internetAccessStaticNatAttribute, ok := attributes["static_nat"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`static_nat is missing from object`)
+
+		return nil, diags
+	}
+
+	internetAccessStaticNatVal, ok := internetAccessStaticNatAttribute.(basetypes.MapValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`static_nat expected to be basetypes.MapValue, was: %T`, internetAccessStaticNatAttribute))
 	}
 
 	restrictedAttribute, ok := attributes["restricted"]
@@ -855,35 +954,17 @@ func (t InternetAccessType) ValueFromObject(ctx context.Context, in basetypes.Ob
 			fmt.Sprintf(`restricted expected to be basetypes.BoolValue, was: %T`, restrictedAttribute))
 	}
 
-	staticNatAttribute, ok := attributes["static_nat"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`static_nat is missing from object`)
-
-		return nil, diags
-	}
-
-	staticNatVal, ok := staticNatAttribute.(basetypes.MapValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`static_nat expected to be basetypes.MapValue, was: %T`, staticNatAttribute))
-	}
-
 	if diags.HasError() {
 		return nil, diags
 	}
 
 	return InternetAccessValue{
-		CreateSimpleServicePolicy: createSimpleServicePolicyVal,
-		DestinationNat:            destinationNatVal,
-		Enabled:                   enabledVal,
-		Restricted:                restrictedVal,
-		StaticNat:                 staticNatVal,
-		state:                     attr.ValueStateKnown,
+		CreateSimpleServicePolicy:    createSimpleServicePolicyVal,
+		Enabled:                      enabledVal,
+		InternetAccessDestinationNat: internetAccessDestinationNatVal,
+		InternetAccessStaticNat:      internetAccessStaticNatVal,
+		Restricted:                   restrictedVal,
+		state:                        attr.ValueStateKnown,
 	}, diags
 }
 
@@ -968,24 +1049,6 @@ func NewInternetAccessValue(attributeTypes map[string]attr.Type, attributes map[
 			fmt.Sprintf(`create_simple_service_policy expected to be basetypes.BoolValue, was: %T`, createSimpleServicePolicyAttribute))
 	}
 
-	destinationNatAttribute, ok := attributes["destination_nat"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`destination_nat is missing from object`)
-
-		return NewInternetAccessValueUnknown(), diags
-	}
-
-	destinationNatVal, ok := destinationNatAttribute.(basetypes.MapValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`destination_nat expected to be basetypes.MapValue, was: %T`, destinationNatAttribute))
-	}
-
 	enabledAttribute, ok := attributes["enabled"]
 
 	if !ok {
@@ -1002,6 +1065,42 @@ func NewInternetAccessValue(attributeTypes map[string]attr.Type, attributes map[
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	internetAccessDestinationNatAttribute, ok := attributes["destination_nat"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`destination_nat is missing from object`)
+
+		return NewInternetAccessValueUnknown(), diags
+	}
+
+	internetAccessDestinationNatVal, ok := internetAccessDestinationNatAttribute.(basetypes.MapValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`destination_nat expected to be basetypes.MapValue, was: %T`, internetAccessDestinationNatAttribute))
+	}
+
+	internetAccessStaticNatAttribute, ok := attributes["static_nat"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`static_nat is missing from object`)
+
+		return NewInternetAccessValueUnknown(), diags
+	}
+
+	internetAccessStaticNatVal, ok := internetAccessStaticNatAttribute.(basetypes.MapValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`static_nat expected to be basetypes.MapValue, was: %T`, internetAccessStaticNatAttribute))
 	}
 
 	restrictedAttribute, ok := attributes["restricted"]
@@ -1022,35 +1121,17 @@ func NewInternetAccessValue(attributeTypes map[string]attr.Type, attributes map[
 			fmt.Sprintf(`restricted expected to be basetypes.BoolValue, was: %T`, restrictedAttribute))
 	}
 
-	staticNatAttribute, ok := attributes["static_nat"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`static_nat is missing from object`)
-
-		return NewInternetAccessValueUnknown(), diags
-	}
-
-	staticNatVal, ok := staticNatAttribute.(basetypes.MapValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`static_nat expected to be basetypes.MapValue, was: %T`, staticNatAttribute))
-	}
-
 	if diags.HasError() {
 		return NewInternetAccessValueUnknown(), diags
 	}
 
 	return InternetAccessValue{
-		CreateSimpleServicePolicy: createSimpleServicePolicyVal,
-		DestinationNat:            destinationNatVal,
-		Enabled:                   enabledVal,
-		Restricted:                restrictedVal,
-		StaticNat:                 staticNatVal,
-		state:                     attr.ValueStateKnown,
+		CreateSimpleServicePolicy:    createSimpleServicePolicyVal,
+		Enabled:                      enabledVal,
+		InternetAccessDestinationNat: internetAccessDestinationNatVal,
+		InternetAccessStaticNat:      internetAccessStaticNatVal,
+		Restricted:                   restrictedVal,
+		state:                        attr.ValueStateKnown,
 	}, diags
 }
 
@@ -1122,12 +1203,12 @@ func (t InternetAccessType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = InternetAccessValue{}
 
 type InternetAccessValue struct {
-	CreateSimpleServicePolicy basetypes.BoolValue `tfsdk:"create_simple_service_policy"`
-	DestinationNat            basetypes.MapValue  `tfsdk:"destination_nat"`
-	Enabled                   basetypes.BoolValue `tfsdk:"enabled"`
-	Restricted                basetypes.BoolValue `tfsdk:"restricted"`
-	StaticNat                 basetypes.MapValue  `tfsdk:"static_nat"`
-	state                     attr.ValueState
+	CreateSimpleServicePolicy    basetypes.BoolValue `tfsdk:"create_simple_service_policy"`
+	Enabled                      basetypes.BoolValue `tfsdk:"enabled"`
+	InternetAccessDestinationNat basetypes.MapValue  `tfsdk:"destination_nat"`
+	InternetAccessStaticNat      basetypes.MapValue  `tfsdk:"static_nat"`
+	Restricted                   basetypes.BoolValue `tfsdk:"restricted"`
+	state                        attr.ValueState
 }
 
 func (v InternetAccessValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
@@ -1137,14 +1218,14 @@ func (v InternetAccessValue) ToTerraformValue(ctx context.Context) (tftypes.Valu
 	var err error
 
 	attrTypes["create_simple_service_policy"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["destination_nat"] = basetypes.MapType{
-		ElemType: DestinationNatValue{}.Type(ctx),
-	}.TerraformType(ctx)
 	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["restricted"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["static_nat"] = basetypes.MapType{
-		ElemType: StaticNatValue{}.Type(ctx),
+	attrTypes["destination_nat"] = basetypes.MapType{
+		ElemType: InternetAccessDestinationNatValue{}.Type(ctx),
 	}.TerraformType(ctx)
+	attrTypes["static_nat"] = basetypes.MapType{
+		ElemType: InternetAccessStaticNatValue{}.Type(ctx),
+	}.TerraformType(ctx)
+	attrTypes["restricted"] = basetypes.BoolType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
@@ -1160,14 +1241,6 @@ func (v InternetAccessValue) ToTerraformValue(ctx context.Context) (tftypes.Valu
 
 		vals["create_simple_service_policy"] = val
 
-		val, err = v.DestinationNat.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["destination_nat"] = val
-
 		val, err = v.Enabled.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -1176,6 +1249,22 @@ func (v InternetAccessValue) ToTerraformValue(ctx context.Context) (tftypes.Valu
 
 		vals["enabled"] = val
 
+		val, err = v.InternetAccessDestinationNat.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["destination_nat"] = val
+
+		val, err = v.InternetAccessStaticNat.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["static_nat"] = val
+
 		val, err = v.Restricted.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -1183,14 +1272,6 @@ func (v InternetAccessValue) ToTerraformValue(ctx context.Context) (tftypes.Valu
 		}
 
 		vals["restricted"] = val
-
-		val, err = v.StaticNat.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["static_nat"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -1221,59 +1302,59 @@ func (v InternetAccessValue) String() string {
 func (v InternetAccessValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	destinationNat := types.MapValueMust(
-		DestinationNatType{
+	internetAccessDestinationNat := types.MapValueMust(
+		InternetAccessDestinationNatType{
 			basetypes.ObjectType{
-				AttrTypes: DestinationNatValue{}.AttributeTypes(ctx),
+				AttrTypes: InternetAccessDestinationNatValue{}.AttributeTypes(ctx),
 			},
 		},
-		v.DestinationNat.Elements(),
+		v.InternetAccessDestinationNat.Elements(),
 	)
 
-	if v.DestinationNat.IsNull() {
-		destinationNat = types.MapNull(
-			DestinationNatType{
+	if v.InternetAccessDestinationNat.IsNull() {
+		internetAccessDestinationNat = types.MapNull(
+			InternetAccessDestinationNatType{
 				basetypes.ObjectType{
-					AttrTypes: DestinationNatValue{}.AttributeTypes(ctx),
+					AttrTypes: InternetAccessDestinationNatValue{}.AttributeTypes(ctx),
 				},
 			},
 		)
 	}
 
-	if v.DestinationNat.IsUnknown() {
-		destinationNat = types.MapUnknown(
-			DestinationNatType{
+	if v.InternetAccessDestinationNat.IsUnknown() {
+		internetAccessDestinationNat = types.MapUnknown(
+			InternetAccessDestinationNatType{
 				basetypes.ObjectType{
-					AttrTypes: DestinationNatValue{}.AttributeTypes(ctx),
+					AttrTypes: InternetAccessDestinationNatValue{}.AttributeTypes(ctx),
 				},
 			},
 		)
 	}
 
-	staticNat := types.MapValueMust(
-		StaticNatType{
+	internetAccessStaticNat := types.MapValueMust(
+		InternetAccessStaticNatType{
 			basetypes.ObjectType{
-				AttrTypes: StaticNatValue{}.AttributeTypes(ctx),
+				AttrTypes: InternetAccessStaticNatValue{}.AttributeTypes(ctx),
 			},
 		},
-		v.StaticNat.Elements(),
+		v.InternetAccessStaticNat.Elements(),
 	)
 
-	if v.StaticNat.IsNull() {
-		staticNat = types.MapNull(
-			StaticNatType{
+	if v.InternetAccessStaticNat.IsNull() {
+		internetAccessStaticNat = types.MapNull(
+			InternetAccessStaticNatType{
 				basetypes.ObjectType{
-					AttrTypes: StaticNatValue{}.AttributeTypes(ctx),
+					AttrTypes: InternetAccessStaticNatValue{}.AttributeTypes(ctx),
 				},
 			},
 		)
 	}
 
-	if v.StaticNat.IsUnknown() {
-		staticNat = types.MapUnknown(
-			StaticNatType{
+	if v.InternetAccessStaticNat.IsUnknown() {
+		internetAccessStaticNat = types.MapUnknown(
+			InternetAccessStaticNatType{
 				basetypes.ObjectType{
-					AttrTypes: StaticNatValue{}.AttributeTypes(ctx),
+					AttrTypes: InternetAccessStaticNatValue{}.AttributeTypes(ctx),
 				},
 			},
 		)
@@ -1281,14 +1362,14 @@ func (v InternetAccessValue) ToObjectValue(ctx context.Context) (basetypes.Objec
 
 	attributeTypes := map[string]attr.Type{
 		"create_simple_service_policy": basetypes.BoolType{},
+		"enabled":                      basetypes.BoolType{},
 		"destination_nat": basetypes.MapType{
-			ElemType: DestinationNatValue{}.Type(ctx),
+			ElemType: InternetAccessDestinationNatValue{}.Type(ctx),
 		},
-		"enabled":    basetypes.BoolType{},
-		"restricted": basetypes.BoolType{},
 		"static_nat": basetypes.MapType{
-			ElemType: StaticNatValue{}.Type(ctx),
+			ElemType: InternetAccessStaticNatValue{}.Type(ctx),
 		},
+		"restricted": basetypes.BoolType{},
 	}
 
 	if v.IsNull() {
@@ -1303,10 +1384,10 @@ func (v InternetAccessValue) ToObjectValue(ctx context.Context) (basetypes.Objec
 		attributeTypes,
 		map[string]attr.Value{
 			"create_simple_service_policy": v.CreateSimpleServicePolicy,
-			"destination_nat":              destinationNat,
 			"enabled":                      v.Enabled,
+			"destination_nat":              internetAccessDestinationNat,
+			"static_nat":                   internetAccessStaticNat,
 			"restricted":                   v.Restricted,
-			"static_nat":                   staticNat,
 		})
 
 	return objVal, diags
@@ -1331,19 +1412,19 @@ func (v InternetAccessValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.DestinationNat.Equal(other.DestinationNat) {
-		return false
-	}
-
 	if !v.Enabled.Equal(other.Enabled) {
 		return false
 	}
 
-	if !v.Restricted.Equal(other.Restricted) {
+	if !v.InternetAccessDestinationNat.Equal(other.InternetAccessDestinationNat) {
 		return false
 	}
 
-	if !v.StaticNat.Equal(other.StaticNat) {
+	if !v.InternetAccessStaticNat.Equal(other.InternetAccessStaticNat) {
+		return false
+	}
+
+	if !v.Restricted.Equal(other.Restricted) {
 		return false
 	}
 
@@ -1361,25 +1442,25 @@ func (v InternetAccessValue) Type(ctx context.Context) attr.Type {
 func (v InternetAccessValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"create_simple_service_policy": basetypes.BoolType{},
+		"enabled":                      basetypes.BoolType{},
 		"destination_nat": basetypes.MapType{
-			ElemType: DestinationNatValue{}.Type(ctx),
+			ElemType: InternetAccessDestinationNatValue{}.Type(ctx),
 		},
-		"enabled":    basetypes.BoolType{},
-		"restricted": basetypes.BoolType{},
 		"static_nat": basetypes.MapType{
-			ElemType: StaticNatValue{}.Type(ctx),
+			ElemType: InternetAccessStaticNatValue{}.Type(ctx),
 		},
+		"restricted": basetypes.BoolType{},
 	}
 }
 
-var _ basetypes.ObjectTypable = DestinationNatType{}
+var _ basetypes.ObjectTypable = InternetAccessDestinationNatType{}
 
-type DestinationNatType struct {
+type InternetAccessDestinationNatType struct {
 	basetypes.ObjectType
 }
 
-func (t DestinationNatType) Equal(o attr.Type) bool {
-	other, ok := o.(DestinationNatType)
+func (t InternetAccessDestinationNatType) Equal(o attr.Type) bool {
+	other, ok := o.(InternetAccessDestinationNatType)
 
 	if !ok {
 		return false
@@ -1388,11 +1469,11 @@ func (t DestinationNatType) Equal(o attr.Type) bool {
 	return t.ObjectType.Equal(other.ObjectType)
 }
 
-func (t DestinationNatType) String() string {
-	return "DestinationNatType"
+func (t InternetAccessDestinationNatType) String() string {
+	return "InternetAccessDestinationNatType"
 }
 
-func (t DestinationNatType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+func (t InternetAccessDestinationNatType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	attributes := in.Attributes()
@@ -1443,12 +1524,12 @@ func (t DestinationNatType) ValueFromObject(ctx context.Context, in basetypes.Ob
 		return nil, diags
 	}
 
-	portVal, ok := portAttribute.(basetypes.Int64Value)
+	portVal, ok := portAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`port expected to be basetypes.Int64Value, was: %T`, portAttribute))
+			fmt.Sprintf(`port expected to be basetypes.StringValue, was: %T`, portAttribute))
 	}
 
 	wanNameAttribute, ok := attributes["wan_name"]
@@ -1473,7 +1554,7 @@ func (t DestinationNatType) ValueFromObject(ctx context.Context, in basetypes.Ob
 		return nil, diags
 	}
 
-	return DestinationNatValue{
+	return InternetAccessDestinationNatValue{
 		InternalIp: internalIpVal,
 		Name:       nameVal,
 		Port:       portVal,
@@ -1482,19 +1563,19 @@ func (t DestinationNatType) ValueFromObject(ctx context.Context, in basetypes.Ob
 	}, diags
 }
 
-func NewDestinationNatValueNull() DestinationNatValue {
-	return DestinationNatValue{
+func NewInternetAccessDestinationNatValueNull() InternetAccessDestinationNatValue {
+	return InternetAccessDestinationNatValue{
 		state: attr.ValueStateNull,
 	}
 }
 
-func NewDestinationNatValueUnknown() DestinationNatValue {
-	return DestinationNatValue{
+func NewInternetAccessDestinationNatValueUnknown() InternetAccessDestinationNatValue {
+	return InternetAccessDestinationNatValue{
 		state: attr.ValueStateUnknown,
 	}
 }
 
-func NewDestinationNatValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (DestinationNatValue, diag.Diagnostics) {
+func NewInternetAccessDestinationNatValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (InternetAccessDestinationNatValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
@@ -1505,11 +1586,11 @@ func NewDestinationNatValue(attributeTypes map[string]attr.Type, attributes map[
 
 		if !ok {
 			diags.AddError(
-				"Missing DestinationNatValue Attribute Value",
-				"While creating a DestinationNatValue value, a missing attribute value was detected. "+
-					"A DestinationNatValue must contain values for all attributes, even if null or unknown. "+
+				"Missing InternetAccessDestinationNatValue Attribute Value",
+				"While creating a InternetAccessDestinationNatValue value, a missing attribute value was detected. "+
+					"A InternetAccessDestinationNatValue must contain values for all attributes, even if null or unknown. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("DestinationNatValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+					fmt.Sprintf("InternetAccessDestinationNatValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
 			)
 
 			continue
@@ -1517,12 +1598,12 @@ func NewDestinationNatValue(attributeTypes map[string]attr.Type, attributes map[
 
 		if !attributeType.Equal(attribute.Type(ctx)) {
 			diags.AddError(
-				"Invalid DestinationNatValue Attribute Type",
-				"While creating a DestinationNatValue value, an invalid attribute value was detected. "+
-					"A DestinationNatValue must use a matching attribute type for the value. "+
+				"Invalid InternetAccessDestinationNatValue Attribute Type",
+				"While creating a InternetAccessDestinationNatValue value, an invalid attribute value was detected. "+
+					"A InternetAccessDestinationNatValue must use a matching attribute type for the value. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("DestinationNatValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
-					fmt.Sprintf("DestinationNatValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+					fmt.Sprintf("InternetAccessDestinationNatValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("InternetAccessDestinationNatValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
 			)
 		}
 	}
@@ -1532,17 +1613,17 @@ func NewDestinationNatValue(attributeTypes map[string]attr.Type, attributes map[
 
 		if !ok {
 			diags.AddError(
-				"Extra DestinationNatValue Attribute Value",
-				"While creating a DestinationNatValue value, an extra attribute value was detected. "+
-					"A DestinationNatValue must not contain values beyond the expected attribute types. "+
+				"Extra InternetAccessDestinationNatValue Attribute Value",
+				"While creating a InternetAccessDestinationNatValue value, an extra attribute value was detected. "+
+					"A InternetAccessDestinationNatValue must not contain values beyond the expected attribute types. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("Extra DestinationNatValue Attribute Name: %s", name),
+					fmt.Sprintf("Extra InternetAccessDestinationNatValue Attribute Name: %s", name),
 			)
 		}
 	}
 
 	if diags.HasError() {
-		return NewDestinationNatValueUnknown(), diags
+		return NewInternetAccessDestinationNatValueUnknown(), diags
 	}
 
 	internalIpAttribute, ok := attributes["internal_ip"]
@@ -1552,7 +1633,7 @@ func NewDestinationNatValue(attributeTypes map[string]attr.Type, attributes map[
 			"Attribute Missing",
 			`internal_ip is missing from object`)
 
-		return NewDestinationNatValueUnknown(), diags
+		return NewInternetAccessDestinationNatValueUnknown(), diags
 	}
 
 	internalIpVal, ok := internalIpAttribute.(basetypes.StringValue)
@@ -1570,7 +1651,7 @@ func NewDestinationNatValue(attributeTypes map[string]attr.Type, attributes map[
 			"Attribute Missing",
 			`name is missing from object`)
 
-		return NewDestinationNatValueUnknown(), diags
+		return NewInternetAccessDestinationNatValueUnknown(), diags
 	}
 
 	nameVal, ok := nameAttribute.(basetypes.StringValue)
@@ -1588,15 +1669,15 @@ func NewDestinationNatValue(attributeTypes map[string]attr.Type, attributes map[
 			"Attribute Missing",
 			`port is missing from object`)
 
-		return NewDestinationNatValueUnknown(), diags
+		return NewInternetAccessDestinationNatValueUnknown(), diags
 	}
 
-	portVal, ok := portAttribute.(basetypes.Int64Value)
+	portVal, ok := portAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`port expected to be basetypes.Int64Value, was: %T`, portAttribute))
+			fmt.Sprintf(`port expected to be basetypes.StringValue, was: %T`, portAttribute))
 	}
 
 	wanNameAttribute, ok := attributes["wan_name"]
@@ -1606,7 +1687,7 @@ func NewDestinationNatValue(attributeTypes map[string]attr.Type, attributes map[
 			"Attribute Missing",
 			`wan_name is missing from object`)
 
-		return NewDestinationNatValueUnknown(), diags
+		return NewInternetAccessDestinationNatValueUnknown(), diags
 	}
 
 	wanNameVal, ok := wanNameAttribute.(basetypes.StringValue)
@@ -1618,10 +1699,10 @@ func NewDestinationNatValue(attributeTypes map[string]attr.Type, attributes map[
 	}
 
 	if diags.HasError() {
-		return NewDestinationNatValueUnknown(), diags
+		return NewInternetAccessDestinationNatValueUnknown(), diags
 	}
 
-	return DestinationNatValue{
+	return InternetAccessDestinationNatValue{
 		InternalIp: internalIpVal,
 		Name:       nameVal,
 		Port:       portVal,
@@ -1630,8 +1711,8 @@ func NewDestinationNatValue(attributeTypes map[string]attr.Type, attributes map[
 	}, diags
 }
 
-func NewDestinationNatValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) DestinationNatValue {
-	object, diags := NewDestinationNatValue(attributeTypes, attributes)
+func NewInternetAccessDestinationNatValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) InternetAccessDestinationNatValue {
+	object, diags := NewInternetAccessDestinationNatValue(attributeTypes, attributes)
 
 	if diags.HasError() {
 		// This could potentially be added to the diag package.
@@ -1645,15 +1726,15 @@ func NewDestinationNatValueMust(attributeTypes map[string]attr.Type, attributes 
 				diagnostic.Detail()))
 		}
 
-		panic("NewDestinationNatValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+		panic("NewInternetAccessDestinationNatValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
 	}
 
 	return object
 }
 
-func (t DestinationNatType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+func (t InternetAccessDestinationNatType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
 	if in.Type() == nil {
-		return NewDestinationNatValueNull(), nil
+		return NewInternetAccessDestinationNatValueNull(), nil
 	}
 
 	if !in.Type().Equal(t.TerraformType(ctx)) {
@@ -1661,11 +1742,11 @@ func (t DestinationNatType) ValueFromTerraform(ctx context.Context, in tftypes.V
 	}
 
 	if !in.IsKnown() {
-		return NewDestinationNatValueUnknown(), nil
+		return NewInternetAccessDestinationNatValueUnknown(), nil
 	}
 
 	if in.IsNull() {
-		return NewDestinationNatValueNull(), nil
+		return NewInternetAccessDestinationNatValueNull(), nil
 	}
 
 	attributes := map[string]attr.Value{}
@@ -1688,24 +1769,24 @@ func (t DestinationNatType) ValueFromTerraform(ctx context.Context, in tftypes.V
 		attributes[k] = a
 	}
 
-	return NewDestinationNatValueMust(DestinationNatValue{}.AttributeTypes(ctx), attributes), nil
+	return NewInternetAccessDestinationNatValueMust(InternetAccessDestinationNatValue{}.AttributeTypes(ctx), attributes), nil
 }
 
-func (t DestinationNatType) ValueType(ctx context.Context) attr.Value {
-	return DestinationNatValue{}
+func (t InternetAccessDestinationNatType) ValueType(ctx context.Context) attr.Value {
+	return InternetAccessDestinationNatValue{}
 }
 
-var _ basetypes.ObjectValuable = DestinationNatValue{}
+var _ basetypes.ObjectValuable = InternetAccessDestinationNatValue{}
 
-type DestinationNatValue struct {
+type InternetAccessDestinationNatValue struct {
 	InternalIp basetypes.StringValue `tfsdk:"internal_ip"`
 	Name       basetypes.StringValue `tfsdk:"name"`
-	Port       basetypes.Int64Value  `tfsdk:"port"`
+	Port       basetypes.StringValue `tfsdk:"port"`
 	WanName    basetypes.StringValue `tfsdk:"wan_name"`
 	state      attr.ValueState
 }
 
-func (v DestinationNatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+func (v InternetAccessDestinationNatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
 	attrTypes := make(map[string]tftypes.Type, 4)
 
 	var val tftypes.Value
@@ -1713,7 +1794,7 @@ func (v DestinationNatValue) ToTerraformValue(ctx context.Context) (tftypes.Valu
 
 	attrTypes["internal_ip"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["port"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["port"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["wan_name"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
@@ -1768,25 +1849,25 @@ func (v DestinationNatValue) ToTerraformValue(ctx context.Context) (tftypes.Valu
 	}
 }
 
-func (v DestinationNatValue) IsNull() bool {
+func (v InternetAccessDestinationNatValue) IsNull() bool {
 	return v.state == attr.ValueStateNull
 }
 
-func (v DestinationNatValue) IsUnknown() bool {
+func (v InternetAccessDestinationNatValue) IsUnknown() bool {
 	return v.state == attr.ValueStateUnknown
 }
 
-func (v DestinationNatValue) String() string {
-	return "DestinationNatValue"
+func (v InternetAccessDestinationNatValue) String() string {
+	return "InternetAccessDestinationNatValue"
 }
 
-func (v DestinationNatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+func (v InternetAccessDestinationNatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	attributeTypes := map[string]attr.Type{
 		"internal_ip": basetypes.StringType{},
 		"name":        basetypes.StringType{},
-		"port":        basetypes.Int64Type{},
+		"port":        basetypes.StringType{},
 		"wan_name":    basetypes.StringType{},
 	}
 
@@ -1810,8 +1891,8 @@ func (v DestinationNatValue) ToObjectValue(ctx context.Context) (basetypes.Objec
 	return objVal, diags
 }
 
-func (v DestinationNatValue) Equal(o attr.Value) bool {
-	other, ok := o.(DestinationNatValue)
+func (v InternetAccessDestinationNatValue) Equal(o attr.Value) bool {
+	other, ok := o.(InternetAccessDestinationNatValue)
 
 	if !ok {
 		return false
@@ -1844,31 +1925,31 @@ func (v DestinationNatValue) Equal(o attr.Value) bool {
 	return true
 }
 
-func (v DestinationNatValue) Type(ctx context.Context) attr.Type {
-	return DestinationNatType{
+func (v InternetAccessDestinationNatValue) Type(ctx context.Context) attr.Type {
+	return InternetAccessDestinationNatType{
 		basetypes.ObjectType{
 			AttrTypes: v.AttributeTypes(ctx),
 		},
 	}
 }
 
-func (v DestinationNatValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+func (v InternetAccessDestinationNatValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"internal_ip": basetypes.StringType{},
 		"name":        basetypes.StringType{},
-		"port":        basetypes.Int64Type{},
+		"port":        basetypes.StringType{},
 		"wan_name":    basetypes.StringType{},
 	}
 }
 
-var _ basetypes.ObjectTypable = StaticNatType{}
+var _ basetypes.ObjectTypable = InternetAccessStaticNatType{}
 
-type StaticNatType struct {
+type InternetAccessStaticNatType struct {
 	basetypes.ObjectType
 }
 
-func (t StaticNatType) Equal(o attr.Type) bool {
-	other, ok := o.(StaticNatType)
+func (t InternetAccessStaticNatType) Equal(o attr.Type) bool {
+	other, ok := o.(InternetAccessStaticNatType)
 
 	if !ok {
 		return false
@@ -1877,11 +1958,11 @@ func (t StaticNatType) Equal(o attr.Type) bool {
 	return t.ObjectType.Equal(other.ObjectType)
 }
 
-func (t StaticNatType) String() string {
-	return "StaticNatType"
+func (t InternetAccessStaticNatType) String() string {
+	return "InternetAccessStaticNatType"
 }
 
-func (t StaticNatType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+func (t InternetAccessStaticNatType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	attributes := in.Attributes()
@@ -1944,7 +2025,7 @@ func (t StaticNatType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 		return nil, diags
 	}
 
-	return StaticNatValue{
+	return InternetAccessStaticNatValue{
 		InternalIp: internalIpVal,
 		Name:       nameVal,
 		WanName:    wanNameVal,
@@ -1952,19 +2033,19 @@ func (t StaticNatType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 	}, diags
 }
 
-func NewStaticNatValueNull() StaticNatValue {
-	return StaticNatValue{
+func NewInternetAccessStaticNatValueNull() InternetAccessStaticNatValue {
+	return InternetAccessStaticNatValue{
 		state: attr.ValueStateNull,
 	}
 }
 
-func NewStaticNatValueUnknown() StaticNatValue {
-	return StaticNatValue{
+func NewInternetAccessStaticNatValueUnknown() InternetAccessStaticNatValue {
+	return InternetAccessStaticNatValue{
 		state: attr.ValueStateUnknown,
 	}
 }
 
-func NewStaticNatValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (StaticNatValue, diag.Diagnostics) {
+func NewInternetAccessStaticNatValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (InternetAccessStaticNatValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
@@ -1975,11 +2056,11 @@ func NewStaticNatValue(attributeTypes map[string]attr.Type, attributes map[strin
 
 		if !ok {
 			diags.AddError(
-				"Missing StaticNatValue Attribute Value",
-				"While creating a StaticNatValue value, a missing attribute value was detected. "+
-					"A StaticNatValue must contain values for all attributes, even if null or unknown. "+
+				"Missing InternetAccessStaticNatValue Attribute Value",
+				"While creating a InternetAccessStaticNatValue value, a missing attribute value was detected. "+
+					"A InternetAccessStaticNatValue must contain values for all attributes, even if null or unknown. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("StaticNatValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+					fmt.Sprintf("InternetAccessStaticNatValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
 			)
 
 			continue
@@ -1987,12 +2068,12 @@ func NewStaticNatValue(attributeTypes map[string]attr.Type, attributes map[strin
 
 		if !attributeType.Equal(attribute.Type(ctx)) {
 			diags.AddError(
-				"Invalid StaticNatValue Attribute Type",
-				"While creating a StaticNatValue value, an invalid attribute value was detected. "+
-					"A StaticNatValue must use a matching attribute type for the value. "+
+				"Invalid InternetAccessStaticNatValue Attribute Type",
+				"While creating a InternetAccessStaticNatValue value, an invalid attribute value was detected. "+
+					"A InternetAccessStaticNatValue must use a matching attribute type for the value. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("StaticNatValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
-					fmt.Sprintf("StaticNatValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+					fmt.Sprintf("InternetAccessStaticNatValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("InternetAccessStaticNatValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
 			)
 		}
 	}
@@ -2002,17 +2083,17 @@ func NewStaticNatValue(attributeTypes map[string]attr.Type, attributes map[strin
 
 		if !ok {
 			diags.AddError(
-				"Extra StaticNatValue Attribute Value",
-				"While creating a StaticNatValue value, an extra attribute value was detected. "+
-					"A StaticNatValue must not contain values beyond the expected attribute types. "+
+				"Extra InternetAccessStaticNatValue Attribute Value",
+				"While creating a InternetAccessStaticNatValue value, an extra attribute value was detected. "+
+					"A InternetAccessStaticNatValue must not contain values beyond the expected attribute types. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("Extra StaticNatValue Attribute Name: %s", name),
+					fmt.Sprintf("Extra InternetAccessStaticNatValue Attribute Name: %s", name),
 			)
 		}
 	}
 
 	if diags.HasError() {
-		return NewStaticNatValueUnknown(), diags
+		return NewInternetAccessStaticNatValueUnknown(), diags
 	}
 
 	internalIpAttribute, ok := attributes["internal_ip"]
@@ -2022,7 +2103,7 @@ func NewStaticNatValue(attributeTypes map[string]attr.Type, attributes map[strin
 			"Attribute Missing",
 			`internal_ip is missing from object`)
 
-		return NewStaticNatValueUnknown(), diags
+		return NewInternetAccessStaticNatValueUnknown(), diags
 	}
 
 	internalIpVal, ok := internalIpAttribute.(basetypes.StringValue)
@@ -2040,7 +2121,7 @@ func NewStaticNatValue(attributeTypes map[string]attr.Type, attributes map[strin
 			"Attribute Missing",
 			`name is missing from object`)
 
-		return NewStaticNatValueUnknown(), diags
+		return NewInternetAccessStaticNatValueUnknown(), diags
 	}
 
 	nameVal, ok := nameAttribute.(basetypes.StringValue)
@@ -2058,7 +2139,7 @@ func NewStaticNatValue(attributeTypes map[string]attr.Type, attributes map[strin
 			"Attribute Missing",
 			`wan_name is missing from object`)
 
-		return NewStaticNatValueUnknown(), diags
+		return NewInternetAccessStaticNatValueUnknown(), diags
 	}
 
 	wanNameVal, ok := wanNameAttribute.(basetypes.StringValue)
@@ -2070,10 +2151,10 @@ func NewStaticNatValue(attributeTypes map[string]attr.Type, attributes map[strin
 	}
 
 	if diags.HasError() {
-		return NewStaticNatValueUnknown(), diags
+		return NewInternetAccessStaticNatValueUnknown(), diags
 	}
 
-	return StaticNatValue{
+	return InternetAccessStaticNatValue{
 		InternalIp: internalIpVal,
 		Name:       nameVal,
 		WanName:    wanNameVal,
@@ -2081,8 +2162,8 @@ func NewStaticNatValue(attributeTypes map[string]attr.Type, attributes map[strin
 	}, diags
 }
 
-func NewStaticNatValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) StaticNatValue {
-	object, diags := NewStaticNatValue(attributeTypes, attributes)
+func NewInternetAccessStaticNatValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) InternetAccessStaticNatValue {
+	object, diags := NewInternetAccessStaticNatValue(attributeTypes, attributes)
 
 	if diags.HasError() {
 		// This could potentially be added to the diag package.
@@ -2096,15 +2177,15 @@ func NewStaticNatValueMust(attributeTypes map[string]attr.Type, attributes map[s
 				diagnostic.Detail()))
 		}
 
-		panic("NewStaticNatValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+		panic("NewInternetAccessStaticNatValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
 	}
 
 	return object
 }
 
-func (t StaticNatType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+func (t InternetAccessStaticNatType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
 	if in.Type() == nil {
-		return NewStaticNatValueNull(), nil
+		return NewInternetAccessStaticNatValueNull(), nil
 	}
 
 	if !in.Type().Equal(t.TerraformType(ctx)) {
@@ -2112,11 +2193,11 @@ func (t StaticNatType) ValueFromTerraform(ctx context.Context, in tftypes.Value)
 	}
 
 	if !in.IsKnown() {
-		return NewStaticNatValueUnknown(), nil
+		return NewInternetAccessStaticNatValueUnknown(), nil
 	}
 
 	if in.IsNull() {
-		return NewStaticNatValueNull(), nil
+		return NewInternetAccessStaticNatValueNull(), nil
 	}
 
 	attributes := map[string]attr.Value{}
@@ -2139,23 +2220,23 @@ func (t StaticNatType) ValueFromTerraform(ctx context.Context, in tftypes.Value)
 		attributes[k] = a
 	}
 
-	return NewStaticNatValueMust(StaticNatValue{}.AttributeTypes(ctx), attributes), nil
+	return NewInternetAccessStaticNatValueMust(InternetAccessStaticNatValue{}.AttributeTypes(ctx), attributes), nil
 }
 
-func (t StaticNatType) ValueType(ctx context.Context) attr.Value {
-	return StaticNatValue{}
+func (t InternetAccessStaticNatType) ValueType(ctx context.Context) attr.Value {
+	return InternetAccessStaticNatValue{}
 }
 
-var _ basetypes.ObjectValuable = StaticNatValue{}
+var _ basetypes.ObjectValuable = InternetAccessStaticNatValue{}
 
-type StaticNatValue struct {
+type InternetAccessStaticNatValue struct {
 	InternalIp basetypes.StringValue `tfsdk:"internal_ip"`
 	Name       basetypes.StringValue `tfsdk:"name"`
 	WanName    basetypes.StringValue `tfsdk:"wan_name"`
 	state      attr.ValueState
 }
 
-func (v StaticNatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+func (v InternetAccessStaticNatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
 	attrTypes := make(map[string]tftypes.Type, 3)
 
 	var val tftypes.Value
@@ -2209,19 +2290,19 @@ func (v StaticNatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 	}
 }
 
-func (v StaticNatValue) IsNull() bool {
+func (v InternetAccessStaticNatValue) IsNull() bool {
 	return v.state == attr.ValueStateNull
 }
 
-func (v StaticNatValue) IsUnknown() bool {
+func (v InternetAccessStaticNatValue) IsUnknown() bool {
 	return v.state == attr.ValueStateUnknown
 }
 
-func (v StaticNatValue) String() string {
-	return "StaticNatValue"
+func (v InternetAccessStaticNatValue) String() string {
+	return "InternetAccessStaticNatValue"
 }
 
-func (v StaticNatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+func (v InternetAccessStaticNatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	attributeTypes := map[string]attr.Type{
@@ -2249,8 +2330,8 @@ func (v StaticNatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 	return objVal, diags
 }
 
-func (v StaticNatValue) Equal(o attr.Value) bool {
-	other, ok := o.(StaticNatValue)
+func (v InternetAccessStaticNatValue) Equal(o attr.Value) bool {
+	other, ok := o.(InternetAccessStaticNatValue)
 
 	if !ok {
 		return false
@@ -2279,15 +2360,15 @@ func (v StaticNatValue) Equal(o attr.Value) bool {
 	return true
 }
 
-func (v StaticNatValue) Type(ctx context.Context) attr.Type {
-	return StaticNatType{
+func (v InternetAccessStaticNatValue) Type(ctx context.Context) attr.Type {
+	return InternetAccessStaticNatType{
 		basetypes.ObjectType{
 			AttrTypes: v.AttributeTypes(ctx),
 		},
 	}
 }
 
-func (v StaticNatValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+func (v InternetAccessStaticNatValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"internal_ip": basetypes.StringType{},
 		"name":        basetypes.StringType{},
@@ -3491,24 +3572,6 @@ func (t VpnAccessType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 			fmt.Sprintf(`allow_ping expected to be basetypes.BoolValue, was: %T`, allowPingAttribute))
 	}
 
-	destinationNatAttribute, ok := attributes["destination_nat"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`destination_nat is missing from object`)
-
-		return nil, diags
-	}
-
-	destinationNatVal, ok := destinationNatAttribute.(basetypes.MapValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`destination_nat expected to be basetypes.MapValue, was: %T`, destinationNatAttribute))
-	}
-
 	natPoolAttribute, ok := attributes["nat_pool"]
 
 	if !ok {
@@ -3635,24 +3698,6 @@ func (t VpnAccessType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 			fmt.Sprintf(`source_nat expected to be basetypes.ObjectValue, was: %T`, sourceNatAttribute))
 	}
 
-	staticNatAttribute, ok := attributes["static_nat"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`static_nat is missing from object`)
-
-		return nil, diags
-	}
-
-	staticNatVal, ok := staticNatAttribute.(basetypes.MapValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`static_nat expected to be basetypes.MapValue, was: %T`, staticNatAttribute))
-	}
-
 	summarizedSubnetAttribute, ok := attributes["summarized_subnet"]
 
 	if !ok {
@@ -3707,6 +3752,42 @@ func (t VpnAccessType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 			fmt.Sprintf(`summarized_subnet_to_lan_ospf expected to be basetypes.StringValue, was: %T`, summarizedSubnetToLanOspfAttribute))
 	}
 
+	vpnAccessDestinationNatAttribute, ok := attributes["destination_nat"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`destination_nat is missing from object`)
+
+		return nil, diags
+	}
+
+	vpnAccessDestinationNatVal, ok := vpnAccessDestinationNatAttribute.(basetypes.MapValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`destination_nat expected to be basetypes.MapValue, was: %T`, vpnAccessDestinationNatAttribute))
+	}
+
+	vpnAccessStaticNatAttribute, ok := attributes["static_nat"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`static_nat is missing from object`)
+
+		return nil, diags
+	}
+
+	vpnAccessStaticNatVal, ok := vpnAccessStaticNatAttribute.(basetypes.MapValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`static_nat expected to be basetypes.MapValue, was: %T`, vpnAccessStaticNatAttribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
@@ -3714,7 +3795,6 @@ func (t VpnAccessType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 	return VpnAccessValue{
 		AdvertisedSubnet:          advertisedSubnetVal,
 		AllowPing:                 allowPingVal,
-		DestinationNat:            destinationNatVal,
 		NatPool:                   natPoolVal,
 		NoReadvertiseToLanBgp:     noReadvertiseToLanBgpVal,
 		NoReadvertiseToLanOspf:    noReadvertiseToLanOspfVal,
@@ -3722,10 +3802,11 @@ func (t VpnAccessType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 		OtherVrfs:                 otherVrfsVal,
 		Routed:                    routedVal,
 		SourceNat:                 sourceNatVal,
-		StaticNat:                 staticNatVal,
 		SummarizedSubnet:          summarizedSubnetVal,
 		SummarizedSubnetToLanBgp:  summarizedSubnetToLanBgpVal,
 		SummarizedSubnetToLanOspf: summarizedSubnetToLanOspfVal,
+		VpnAccessDestinationNat:   vpnAccessDestinationNatVal,
+		VpnAccessStaticNat:        vpnAccessStaticNatVal,
 		state:                     attr.ValueStateKnown,
 	}, diags
 }
@@ -3829,24 +3910,6 @@ func NewVpnAccessValue(attributeTypes map[string]attr.Type, attributes map[strin
 			fmt.Sprintf(`allow_ping expected to be basetypes.BoolValue, was: %T`, allowPingAttribute))
 	}
 
-	destinationNatAttribute, ok := attributes["destination_nat"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`destination_nat is missing from object`)
-
-		return NewVpnAccessValueUnknown(), diags
-	}
-
-	destinationNatVal, ok := destinationNatAttribute.(basetypes.MapValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`destination_nat expected to be basetypes.MapValue, was: %T`, destinationNatAttribute))
-	}
-
 	natPoolAttribute, ok := attributes["nat_pool"]
 
 	if !ok {
@@ -3973,24 +4036,6 @@ func NewVpnAccessValue(attributeTypes map[string]attr.Type, attributes map[strin
 			fmt.Sprintf(`source_nat expected to be basetypes.ObjectValue, was: %T`, sourceNatAttribute))
 	}
 
-	staticNatAttribute, ok := attributes["static_nat"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`static_nat is missing from object`)
-
-		return NewVpnAccessValueUnknown(), diags
-	}
-
-	staticNatVal, ok := staticNatAttribute.(basetypes.MapValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`static_nat expected to be basetypes.MapValue, was: %T`, staticNatAttribute))
-	}
-
 	summarizedSubnetAttribute, ok := attributes["summarized_subnet"]
 
 	if !ok {
@@ -4045,6 +4090,42 @@ func NewVpnAccessValue(attributeTypes map[string]attr.Type, attributes map[strin
 			fmt.Sprintf(`summarized_subnet_to_lan_ospf expected to be basetypes.StringValue, was: %T`, summarizedSubnetToLanOspfAttribute))
 	}
 
+	vpnAccessDestinationNatAttribute, ok := attributes["destination_nat"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`destination_nat is missing from object`)
+
+		return NewVpnAccessValueUnknown(), diags
+	}
+
+	vpnAccessDestinationNatVal, ok := vpnAccessDestinationNatAttribute.(basetypes.MapValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`destination_nat expected to be basetypes.MapValue, was: %T`, vpnAccessDestinationNatAttribute))
+	}
+
+	vpnAccessStaticNatAttribute, ok := attributes["static_nat"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`static_nat is missing from object`)
+
+		return NewVpnAccessValueUnknown(), diags
+	}
+
+	vpnAccessStaticNatVal, ok := vpnAccessStaticNatAttribute.(basetypes.MapValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`static_nat expected to be basetypes.MapValue, was: %T`, vpnAccessStaticNatAttribute))
+	}
+
 	if diags.HasError() {
 		return NewVpnAccessValueUnknown(), diags
 	}
@@ -4052,7 +4133,6 @@ func NewVpnAccessValue(attributeTypes map[string]attr.Type, attributes map[strin
 	return VpnAccessValue{
 		AdvertisedSubnet:          advertisedSubnetVal,
 		AllowPing:                 allowPingVal,
-		DestinationNat:            destinationNatVal,
 		NatPool:                   natPoolVal,
 		NoReadvertiseToLanBgp:     noReadvertiseToLanBgpVal,
 		NoReadvertiseToLanOspf:    noReadvertiseToLanOspfVal,
@@ -4060,10 +4140,11 @@ func NewVpnAccessValue(attributeTypes map[string]attr.Type, attributes map[strin
 		OtherVrfs:                 otherVrfsVal,
 		Routed:                    routedVal,
 		SourceNat:                 sourceNatVal,
-		StaticNat:                 staticNatVal,
 		SummarizedSubnet:          summarizedSubnetVal,
 		SummarizedSubnetToLanBgp:  summarizedSubnetToLanBgpVal,
 		SummarizedSubnetToLanOspf: summarizedSubnetToLanOspfVal,
+		VpnAccessDestinationNat:   vpnAccessDestinationNatVal,
+		VpnAccessStaticNat:        vpnAccessStaticNatVal,
 		state:                     attr.ValueStateKnown,
 	}, diags
 }
@@ -4138,7 +4219,6 @@ var _ basetypes.ObjectValuable = VpnAccessValue{}
 type VpnAccessValue struct {
 	AdvertisedSubnet          basetypes.StringValue `tfsdk:"advertised_subnet"`
 	AllowPing                 basetypes.BoolValue   `tfsdk:"allow_ping"`
-	DestinationNat            basetypes.MapValue    `tfsdk:"destination_nat"`
 	NatPool                   basetypes.StringValue `tfsdk:"nat_pool"`
 	NoReadvertiseToLanBgp     basetypes.BoolValue   `tfsdk:"no_readvertise_to_lan_bgp"`
 	NoReadvertiseToLanOspf    basetypes.BoolValue   `tfsdk:"no_readvertise_to_lan_ospf"`
@@ -4146,10 +4226,11 @@ type VpnAccessValue struct {
 	OtherVrfs                 basetypes.ListValue   `tfsdk:"other_vrfs"`
 	Routed                    basetypes.BoolValue   `tfsdk:"routed"`
 	SourceNat                 basetypes.ObjectValue `tfsdk:"source_nat"`
-	StaticNat                 basetypes.MapValue    `tfsdk:"static_nat"`
 	SummarizedSubnet          basetypes.StringValue `tfsdk:"summarized_subnet"`
 	SummarizedSubnetToLanBgp  basetypes.StringValue `tfsdk:"summarized_subnet_to_lan_bgp"`
 	SummarizedSubnetToLanOspf basetypes.StringValue `tfsdk:"summarized_subnet_to_lan_ospf"`
+	VpnAccessDestinationNat   basetypes.MapValue    `tfsdk:"destination_nat"`
+	VpnAccessStaticNat        basetypes.MapValue    `tfsdk:"static_nat"`
 	state                     attr.ValueState
 }
 
@@ -4161,9 +4242,6 @@ func (v VpnAccessValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 
 	attrTypes["advertised_subnet"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["allow_ping"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["destination_nat"] = basetypes.MapType{
-		ElemType: DestinationNatValue{}.Type(ctx),
-	}.TerraformType(ctx)
 	attrTypes["nat_pool"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["no_readvertise_to_lan_bgp"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["no_readvertise_to_lan_ospf"] = basetypes.BoolType{}.TerraformType(ctx)
@@ -4175,12 +4253,15 @@ func (v VpnAccessValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 	attrTypes["source_nat"] = basetypes.ObjectType{
 		AttrTypes: SourceNatValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
-	attrTypes["static_nat"] = basetypes.MapType{
-		ElemType: StaticNatValue{}.Type(ctx),
-	}.TerraformType(ctx)
 	attrTypes["summarized_subnet"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["summarized_subnet_to_lan_bgp"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["summarized_subnet_to_lan_ospf"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["destination_nat"] = basetypes.MapType{
+		ElemType: VpnAccessDestinationNatValue{}.Type(ctx),
+	}.TerraformType(ctx)
+	attrTypes["static_nat"] = basetypes.MapType{
+		ElemType: VpnAccessStaticNatValue{}.Type(ctx),
+	}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
@@ -4203,14 +4284,6 @@ func (v VpnAccessValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 		}
 
 		vals["allow_ping"] = val
-
-		val, err = v.DestinationNat.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["destination_nat"] = val
 
 		val, err = v.NatPool.ToTerraformValue(ctx)
 
@@ -4268,14 +4341,6 @@ func (v VpnAccessValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 
 		vals["source_nat"] = val
 
-		val, err = v.StaticNat.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["static_nat"] = val
-
 		val, err = v.SummarizedSubnet.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -4299,6 +4364,22 @@ func (v VpnAccessValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 		}
 
 		vals["summarized_subnet_to_lan_ospf"] = val
+
+		val, err = v.VpnAccessDestinationNat.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["destination_nat"] = val
+
+		val, err = v.VpnAccessStaticNat.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["static_nat"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -4329,35 +4410,6 @@ func (v VpnAccessValue) String() string {
 func (v VpnAccessValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	destinationNat := types.MapValueMust(
-		DestinationNatType{
-			basetypes.ObjectType{
-				AttrTypes: DestinationNatValue{}.AttributeTypes(ctx),
-			},
-		},
-		v.DestinationNat.Elements(),
-	)
-
-	if v.DestinationNat.IsNull() {
-		destinationNat = types.MapNull(
-			DestinationNatType{
-				basetypes.ObjectType{
-					AttrTypes: DestinationNatValue{}.AttributeTypes(ctx),
-				},
-			},
-		)
-	}
-
-	if v.DestinationNat.IsUnknown() {
-		destinationNat = types.MapUnknown(
-			DestinationNatType{
-				basetypes.ObjectType{
-					AttrTypes: DestinationNatValue{}.AttributeTypes(ctx),
-				},
-			},
-		)
-	}
-
 	var sourceNat basetypes.ObjectValue
 
 	if v.SourceNat.IsNull() {
@@ -4379,30 +4431,59 @@ func (v VpnAccessValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 		)
 	}
 
-	staticNat := types.MapValueMust(
-		StaticNatType{
+	vpnAccessDestinationNat := types.MapValueMust(
+		VpnAccessDestinationNatType{
 			basetypes.ObjectType{
-				AttrTypes: StaticNatValue{}.AttributeTypes(ctx),
+				AttrTypes: VpnAccessDestinationNatValue{}.AttributeTypes(ctx),
 			},
 		},
-		v.StaticNat.Elements(),
+		v.VpnAccessDestinationNat.Elements(),
 	)
 
-	if v.StaticNat.IsNull() {
-		staticNat = types.MapNull(
-			StaticNatType{
+	if v.VpnAccessDestinationNat.IsNull() {
+		vpnAccessDestinationNat = types.MapNull(
+			VpnAccessDestinationNatType{
 				basetypes.ObjectType{
-					AttrTypes: StaticNatValue{}.AttributeTypes(ctx),
+					AttrTypes: VpnAccessDestinationNatValue{}.AttributeTypes(ctx),
 				},
 			},
 		)
 	}
 
-	if v.StaticNat.IsUnknown() {
-		staticNat = types.MapUnknown(
-			StaticNatType{
+	if v.VpnAccessDestinationNat.IsUnknown() {
+		vpnAccessDestinationNat = types.MapUnknown(
+			VpnAccessDestinationNatType{
 				basetypes.ObjectType{
-					AttrTypes: StaticNatValue{}.AttributeTypes(ctx),
+					AttrTypes: VpnAccessDestinationNatValue{}.AttributeTypes(ctx),
+				},
+			},
+		)
+	}
+
+	vpnAccessStaticNat := types.MapValueMust(
+		VpnAccessStaticNatType{
+			basetypes.ObjectType{
+				AttrTypes: VpnAccessStaticNatValue{}.AttributeTypes(ctx),
+			},
+		},
+		v.VpnAccessStaticNat.Elements(),
+	)
+
+	if v.VpnAccessStaticNat.IsNull() {
+		vpnAccessStaticNat = types.MapNull(
+			VpnAccessStaticNatType{
+				basetypes.ObjectType{
+					AttrTypes: VpnAccessStaticNatValue{}.AttributeTypes(ctx),
+				},
+			},
+		)
+	}
+
+	if v.VpnAccessStaticNat.IsUnknown() {
+		vpnAccessStaticNat = types.MapUnknown(
+			VpnAccessStaticNatType{
+				basetypes.ObjectType{
+					AttrTypes: VpnAccessStaticNatValue{}.AttributeTypes(ctx),
 				},
 			},
 		)
@@ -4414,11 +4495,8 @@ func (v VpnAccessValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 
 	if d.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
-			"advertised_subnet": basetypes.StringType{},
-			"allow_ping":        basetypes.BoolType{},
-			"destination_nat": basetypes.MapType{
-				ElemType: DestinationNatValue{}.Type(ctx),
-			},
+			"advertised_subnet":          basetypes.StringType{},
+			"allow_ping":                 basetypes.BoolType{},
 			"nat_pool":                   basetypes.StringType{},
 			"no_readvertise_to_lan_bgp":  basetypes.BoolType{},
 			"no_readvertise_to_lan_ospf": basetypes.BoolType{},
@@ -4430,21 +4508,21 @@ func (v VpnAccessValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 			"source_nat": basetypes.ObjectType{
 				AttrTypes: SourceNatValue{}.AttributeTypes(ctx),
 			},
-			"static_nat": basetypes.MapType{
-				ElemType: StaticNatValue{}.Type(ctx),
-			},
 			"summarized_subnet":             basetypes.StringType{},
 			"summarized_subnet_to_lan_bgp":  basetypes.StringType{},
 			"summarized_subnet_to_lan_ospf": basetypes.StringType{},
+			"destination_nat": basetypes.MapType{
+				ElemType: VpnAccessDestinationNatValue{}.Type(ctx),
+			},
+			"static_nat": basetypes.MapType{
+				ElemType: VpnAccessStaticNatValue{}.Type(ctx),
+			},
 		}), diags
 	}
 
 	attributeTypes := map[string]attr.Type{
-		"advertised_subnet": basetypes.StringType{},
-		"allow_ping":        basetypes.BoolType{},
-		"destination_nat": basetypes.MapType{
-			ElemType: DestinationNatValue{}.Type(ctx),
-		},
+		"advertised_subnet":          basetypes.StringType{},
+		"allow_ping":                 basetypes.BoolType{},
 		"nat_pool":                   basetypes.StringType{},
 		"no_readvertise_to_lan_bgp":  basetypes.BoolType{},
 		"no_readvertise_to_lan_ospf": basetypes.BoolType{},
@@ -4456,12 +4534,15 @@ func (v VpnAccessValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 		"source_nat": basetypes.ObjectType{
 			AttrTypes: SourceNatValue{}.AttributeTypes(ctx),
 		},
-		"static_nat": basetypes.MapType{
-			ElemType: StaticNatValue{}.Type(ctx),
-		},
 		"summarized_subnet":             basetypes.StringType{},
 		"summarized_subnet_to_lan_bgp":  basetypes.StringType{},
 		"summarized_subnet_to_lan_ospf": basetypes.StringType{},
+		"destination_nat": basetypes.MapType{
+			ElemType: VpnAccessDestinationNatValue{}.Type(ctx),
+		},
+		"static_nat": basetypes.MapType{
+			ElemType: VpnAccessStaticNatValue{}.Type(ctx),
+		},
 	}
 
 	if v.IsNull() {
@@ -4477,7 +4558,6 @@ func (v VpnAccessValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 		map[string]attr.Value{
 			"advertised_subnet":             v.AdvertisedSubnet,
 			"allow_ping":                    v.AllowPing,
-			"destination_nat":               destinationNat,
 			"nat_pool":                      v.NatPool,
 			"no_readvertise_to_lan_bgp":     v.NoReadvertiseToLanBgp,
 			"no_readvertise_to_lan_ospf":    v.NoReadvertiseToLanOspf,
@@ -4485,10 +4565,11 @@ func (v VpnAccessValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 			"other_vrfs":                    otherVrfsVal,
 			"routed":                        v.Routed,
 			"source_nat":                    sourceNat,
-			"static_nat":                    staticNat,
 			"summarized_subnet":             v.SummarizedSubnet,
 			"summarized_subnet_to_lan_bgp":  v.SummarizedSubnetToLanBgp,
 			"summarized_subnet_to_lan_ospf": v.SummarizedSubnetToLanOspf,
+			"destination_nat":               vpnAccessDestinationNat,
+			"static_nat":                    vpnAccessStaticNat,
 		})
 
 	return objVal, diags
@@ -4514,10 +4595,6 @@ func (v VpnAccessValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.AllowPing.Equal(other.AllowPing) {
-		return false
-	}
-
-	if !v.DestinationNat.Equal(other.DestinationNat) {
 		return false
 	}
 
@@ -4549,10 +4626,6 @@ func (v VpnAccessValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.StaticNat.Equal(other.StaticNat) {
-		return false
-	}
-
 	if !v.SummarizedSubnet.Equal(other.SummarizedSubnet) {
 		return false
 	}
@@ -4562,6 +4635,14 @@ func (v VpnAccessValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.SummarizedSubnetToLanOspf.Equal(other.SummarizedSubnetToLanOspf) {
+		return false
+	}
+
+	if !v.VpnAccessDestinationNat.Equal(other.VpnAccessDestinationNat) {
+		return false
+	}
+
+	if !v.VpnAccessStaticNat.Equal(other.VpnAccessStaticNat) {
 		return false
 	}
 
@@ -4578,11 +4659,8 @@ func (v VpnAccessValue) Type(ctx context.Context) attr.Type {
 
 func (v VpnAccessValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"advertised_subnet": basetypes.StringType{},
-		"allow_ping":        basetypes.BoolType{},
-		"destination_nat": basetypes.MapType{
-			ElemType: DestinationNatValue{}.Type(ctx),
-		},
+		"advertised_subnet":          basetypes.StringType{},
+		"allow_ping":                 basetypes.BoolType{},
 		"nat_pool":                   basetypes.StringType{},
 		"no_readvertise_to_lan_bgp":  basetypes.BoolType{},
 		"no_readvertise_to_lan_ospf": basetypes.BoolType{},
@@ -4594,12 +4672,15 @@ func (v VpnAccessValue) AttributeTypes(ctx context.Context) map[string]attr.Type
 		"source_nat": basetypes.ObjectType{
 			AttrTypes: SourceNatValue{}.AttributeTypes(ctx),
 		},
-		"static_nat": basetypes.MapType{
-			ElemType: StaticNatValue{}.Type(ctx),
-		},
 		"summarized_subnet":             basetypes.StringType{},
 		"summarized_subnet_to_lan_bgp":  basetypes.StringType{},
 		"summarized_subnet_to_lan_ospf": basetypes.StringType{},
+		"destination_nat": basetypes.MapType{
+			ElemType: VpnAccessDestinationNatValue{}.Type(ctx),
+		},
+		"static_nat": basetypes.MapType{
+			ElemType: VpnAccessStaticNatValue{}.Type(ctx),
+		},
 	}
 }
 
@@ -4924,5 +5005,818 @@ func (v SourceNatValue) Type(ctx context.Context) attr.Type {
 func (v SourceNatValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"external_ip": basetypes.StringType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = VpnAccessDestinationNatType{}
+
+type VpnAccessDestinationNatType struct {
+	basetypes.ObjectType
+}
+
+func (t VpnAccessDestinationNatType) Equal(o attr.Type) bool {
+	other, ok := o.(VpnAccessDestinationNatType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t VpnAccessDestinationNatType) String() string {
+	return "VpnAccessDestinationNatType"
+}
+
+func (t VpnAccessDestinationNatType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	internalIpAttribute, ok := attributes["internal_ip"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`internal_ip is missing from object`)
+
+		return nil, diags
+	}
+
+	internalIpVal, ok := internalIpAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`internal_ip expected to be basetypes.StringValue, was: %T`, internalIpAttribute))
+	}
+
+	nameAttribute, ok := attributes["name"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`name is missing from object`)
+
+		return nil, diags
+	}
+
+	nameVal, ok := nameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`name expected to be basetypes.StringValue, was: %T`, nameAttribute))
+	}
+
+	portAttribute, ok := attributes["port"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`port is missing from object`)
+
+		return nil, diags
+	}
+
+	portVal, ok := portAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`port expected to be basetypes.StringValue, was: %T`, portAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return VpnAccessDestinationNatValue{
+		InternalIp: internalIpVal,
+		Name:       nameVal,
+		Port:       portVal,
+		state:      attr.ValueStateKnown,
+	}, diags
+}
+
+func NewVpnAccessDestinationNatValueNull() VpnAccessDestinationNatValue {
+	return VpnAccessDestinationNatValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewVpnAccessDestinationNatValueUnknown() VpnAccessDestinationNatValue {
+	return VpnAccessDestinationNatValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewVpnAccessDestinationNatValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (VpnAccessDestinationNatValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing VpnAccessDestinationNatValue Attribute Value",
+				"While creating a VpnAccessDestinationNatValue value, a missing attribute value was detected. "+
+					"A VpnAccessDestinationNatValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("VpnAccessDestinationNatValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid VpnAccessDestinationNatValue Attribute Type",
+				"While creating a VpnAccessDestinationNatValue value, an invalid attribute value was detected. "+
+					"A VpnAccessDestinationNatValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("VpnAccessDestinationNatValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("VpnAccessDestinationNatValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra VpnAccessDestinationNatValue Attribute Value",
+				"While creating a VpnAccessDestinationNatValue value, an extra attribute value was detected. "+
+					"A VpnAccessDestinationNatValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra VpnAccessDestinationNatValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewVpnAccessDestinationNatValueUnknown(), diags
+	}
+
+	internalIpAttribute, ok := attributes["internal_ip"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`internal_ip is missing from object`)
+
+		return NewVpnAccessDestinationNatValueUnknown(), diags
+	}
+
+	internalIpVal, ok := internalIpAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`internal_ip expected to be basetypes.StringValue, was: %T`, internalIpAttribute))
+	}
+
+	nameAttribute, ok := attributes["name"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`name is missing from object`)
+
+		return NewVpnAccessDestinationNatValueUnknown(), diags
+	}
+
+	nameVal, ok := nameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`name expected to be basetypes.StringValue, was: %T`, nameAttribute))
+	}
+
+	portAttribute, ok := attributes["port"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`port is missing from object`)
+
+		return NewVpnAccessDestinationNatValueUnknown(), diags
+	}
+
+	portVal, ok := portAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`port expected to be basetypes.StringValue, was: %T`, portAttribute))
+	}
+
+	if diags.HasError() {
+		return NewVpnAccessDestinationNatValueUnknown(), diags
+	}
+
+	return VpnAccessDestinationNatValue{
+		InternalIp: internalIpVal,
+		Name:       nameVal,
+		Port:       portVal,
+		state:      attr.ValueStateKnown,
+	}, diags
+}
+
+func NewVpnAccessDestinationNatValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) VpnAccessDestinationNatValue {
+	object, diags := NewVpnAccessDestinationNatValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewVpnAccessDestinationNatValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t VpnAccessDestinationNatType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewVpnAccessDestinationNatValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewVpnAccessDestinationNatValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewVpnAccessDestinationNatValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewVpnAccessDestinationNatValueMust(VpnAccessDestinationNatValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t VpnAccessDestinationNatType) ValueType(ctx context.Context) attr.Value {
+	return VpnAccessDestinationNatValue{}
+}
+
+var _ basetypes.ObjectValuable = VpnAccessDestinationNatValue{}
+
+type VpnAccessDestinationNatValue struct {
+	InternalIp basetypes.StringValue `tfsdk:"internal_ip"`
+	Name       basetypes.StringValue `tfsdk:"name"`
+	Port       basetypes.StringValue `tfsdk:"port"`
+	state      attr.ValueState
+}
+
+func (v VpnAccessDestinationNatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 3)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["internal_ip"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["port"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 3)
+
+		val, err = v.InternalIp.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["internal_ip"] = val
+
+		val, err = v.Name.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["name"] = val
+
+		val, err = v.Port.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["port"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v VpnAccessDestinationNatValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v VpnAccessDestinationNatValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v VpnAccessDestinationNatValue) String() string {
+	return "VpnAccessDestinationNatValue"
+}
+
+func (v VpnAccessDestinationNatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"internal_ip": basetypes.StringType{},
+		"name":        basetypes.StringType{},
+		"port":        basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"internal_ip": v.InternalIp,
+			"name":        v.Name,
+			"port":        v.Port,
+		})
+
+	return objVal, diags
+}
+
+func (v VpnAccessDestinationNatValue) Equal(o attr.Value) bool {
+	other, ok := o.(VpnAccessDestinationNatValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.InternalIp.Equal(other.InternalIp) {
+		return false
+	}
+
+	if !v.Name.Equal(other.Name) {
+		return false
+	}
+
+	if !v.Port.Equal(other.Port) {
+		return false
+	}
+
+	return true
+}
+
+func (v VpnAccessDestinationNatValue) Type(ctx context.Context) attr.Type {
+	return VpnAccessDestinationNatType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v VpnAccessDestinationNatValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"internal_ip": basetypes.StringType{},
+		"name":        basetypes.StringType{},
+		"port":        basetypes.StringType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = VpnAccessStaticNatType{}
+
+type VpnAccessStaticNatType struct {
+	basetypes.ObjectType
+}
+
+func (t VpnAccessStaticNatType) Equal(o attr.Type) bool {
+	other, ok := o.(VpnAccessStaticNatType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t VpnAccessStaticNatType) String() string {
+	return "VpnAccessStaticNatType"
+}
+
+func (t VpnAccessStaticNatType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	internalIpAttribute, ok := attributes["internal_ip"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`internal_ip is missing from object`)
+
+		return nil, diags
+	}
+
+	internalIpVal, ok := internalIpAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`internal_ip expected to be basetypes.StringValue, was: %T`, internalIpAttribute))
+	}
+
+	nameAttribute, ok := attributes["name"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`name is missing from object`)
+
+		return nil, diags
+	}
+
+	nameVal, ok := nameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`name expected to be basetypes.StringValue, was: %T`, nameAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return VpnAccessStaticNatValue{
+		InternalIp: internalIpVal,
+		Name:       nameVal,
+		state:      attr.ValueStateKnown,
+	}, diags
+}
+
+func NewVpnAccessStaticNatValueNull() VpnAccessStaticNatValue {
+	return VpnAccessStaticNatValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewVpnAccessStaticNatValueUnknown() VpnAccessStaticNatValue {
+	return VpnAccessStaticNatValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewVpnAccessStaticNatValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (VpnAccessStaticNatValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing VpnAccessStaticNatValue Attribute Value",
+				"While creating a VpnAccessStaticNatValue value, a missing attribute value was detected. "+
+					"A VpnAccessStaticNatValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("VpnAccessStaticNatValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid VpnAccessStaticNatValue Attribute Type",
+				"While creating a VpnAccessStaticNatValue value, an invalid attribute value was detected. "+
+					"A VpnAccessStaticNatValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("VpnAccessStaticNatValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("VpnAccessStaticNatValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra VpnAccessStaticNatValue Attribute Value",
+				"While creating a VpnAccessStaticNatValue value, an extra attribute value was detected. "+
+					"A VpnAccessStaticNatValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra VpnAccessStaticNatValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewVpnAccessStaticNatValueUnknown(), diags
+	}
+
+	internalIpAttribute, ok := attributes["internal_ip"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`internal_ip is missing from object`)
+
+		return NewVpnAccessStaticNatValueUnknown(), diags
+	}
+
+	internalIpVal, ok := internalIpAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`internal_ip expected to be basetypes.StringValue, was: %T`, internalIpAttribute))
+	}
+
+	nameAttribute, ok := attributes["name"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`name is missing from object`)
+
+		return NewVpnAccessStaticNatValueUnknown(), diags
+	}
+
+	nameVal, ok := nameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`name expected to be basetypes.StringValue, was: %T`, nameAttribute))
+	}
+
+	if diags.HasError() {
+		return NewVpnAccessStaticNatValueUnknown(), diags
+	}
+
+	return VpnAccessStaticNatValue{
+		InternalIp: internalIpVal,
+		Name:       nameVal,
+		state:      attr.ValueStateKnown,
+	}, diags
+}
+
+func NewVpnAccessStaticNatValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) VpnAccessStaticNatValue {
+	object, diags := NewVpnAccessStaticNatValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewVpnAccessStaticNatValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t VpnAccessStaticNatType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewVpnAccessStaticNatValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewVpnAccessStaticNatValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewVpnAccessStaticNatValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewVpnAccessStaticNatValueMust(VpnAccessStaticNatValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t VpnAccessStaticNatType) ValueType(ctx context.Context) attr.Value {
+	return VpnAccessStaticNatValue{}
+}
+
+var _ basetypes.ObjectValuable = VpnAccessStaticNatValue{}
+
+type VpnAccessStaticNatValue struct {
+	InternalIp basetypes.StringValue `tfsdk:"internal_ip"`
+	Name       basetypes.StringValue `tfsdk:"name"`
+	state      attr.ValueState
+}
+
+func (v VpnAccessStaticNatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 2)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["internal_ip"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 2)
+
+		val, err = v.InternalIp.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["internal_ip"] = val
+
+		val, err = v.Name.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["name"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v VpnAccessStaticNatValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v VpnAccessStaticNatValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v VpnAccessStaticNatValue) String() string {
+	return "VpnAccessStaticNatValue"
+}
+
+func (v VpnAccessStaticNatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"internal_ip": basetypes.StringType{},
+		"name":        basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"internal_ip": v.InternalIp,
+			"name":        v.Name,
+		})
+
+	return objVal, diags
+}
+
+func (v VpnAccessStaticNatValue) Equal(o attr.Value) bool {
+	other, ok := o.(VpnAccessStaticNatValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.InternalIp.Equal(other.InternalIp) {
+		return false
+	}
+
+	if !v.Name.Equal(other.Name) {
+		return false
+	}
+
+	return true
+}
+
+func (v VpnAccessStaticNatValue) Type(ctx context.Context) attr.Type {
+	return VpnAccessStaticNatType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v VpnAccessStaticNatValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"internal_ip": basetypes.StringType{},
+		"name":        basetypes.StringType{},
 	}
 }

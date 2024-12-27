@@ -17,3 +17,13 @@ func VlanAsString(vlanId models.VlanIdWithVariable) basetypes.StringValue {
 		return types.StringNull()
 	}
 }
+
+func GatewayVlanAsString(vlanId models.GatewayPortVlanIdWithVariable) basetypes.StringValue {
+	if v, ok := vlanId.AsString(); ok {
+		return types.StringValue(*v)
+	} else if v, ok := vlanId.AsNumber(); ok {
+		return types.StringValue(fmt.Sprint(*v))
+	} else {
+		return types.StringNull()
+	}
+}

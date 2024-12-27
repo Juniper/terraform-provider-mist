@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
+	mist_api "github.com/Juniper/terraform-provider-mist/internal/commons/api_response"
 	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -123,6 +124,7 @@ func portConfigIpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 func portConfigTrafficShappingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, g *models.GatewayTrafficShaping) basetypes.ObjectValue {
 	var class_percentages basetypes.ListValue = mist_transform.ListOfIntSdkToTerraformEmpty(ctx)
 	var enabled basetypes.BoolValue = types.BoolValue(false)
+	var max_tx_kbps basetypes.Int64Value
 
 	if g != nil && g.ClassPercentages != nil {
 		class_percentages = mist_transform.ListOfIntSdkToTerraform(ctx, g.ClassPercentages)
@@ -130,11 +132,15 @@ func portConfigTrafficShappingSdkToTerraform(ctx context.Context, diags *diag.Di
 	if g != nil && g.Enabled != nil {
 		enabled = types.BoolValue(*g.Enabled)
 	}
+	if g != nil && g.MaxTxKbps != nil {
+		max_tx_kbps = types.Int64Value(int64(*g.MaxTxKbps))
+	}
 
 	r_attr_type := TrafficShapingValue{}.AttributeTypes(ctx)
 	r_attr_value := map[string]attr.Value{
 		"class_percentages": class_percentages,
 		"enabled":           enabled,
+		"max_tx_kbps":       max_tx_kbps,
 	}
 
 	r, e := basetypes.NewObjectValue(r_attr_type, r_attr_value)
@@ -256,7 +262,7 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 		var svr_port_range basetypes.StringValue = types.StringValue("none")
 		var traffic_shaping basetypes.ObjectValue = types.ObjectNull(TrafficShapingValue{}.AttributeTypes(ctx))
 		var usage basetypes.StringValue = types.StringValue(string(v.Usage))
-		var vlan_id basetypes.Int64Value
+		var vlan_id basetypes.StringValue
 		var vpn_paths basetypes.MapValue = types.MapNull(VpnPathsValue{}.Type(ctx))
 		var wan_arp_policer basetypes.StringValue = types.StringValue("default")
 		var wan_ext_ip basetypes.StringValue
@@ -360,7 +366,7 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 			traffic_shaping = portConfigTrafficShappingSdkToTerraform(ctx, diags, v.TrafficShaping)
 		}
 		if v.VlanId != nil {
-			vlan_id = types.Int64Value(int64(*v.VlanId))
+			vlan_id = mist_api.GatewayVlanAsString(*v.VlanId)
 		}
 		if v.VpnPaths != nil && len(v.VpnPaths) > 0 {
 			vpn_paths = portConfigVpnPathsSdkToTerraform(ctx, diags, v.VpnPaths)

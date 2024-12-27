@@ -13,13 +13,76 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
+func destinationNatVpnSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d map[string]models.NetworkVpnAccessDestinationNatProperty) basetypes.MapValue {
+	state_value_map_value := make(map[string]attr.Value)
+	for k, v := range d {
+		var internal_ip basetypes.StringValue
+		var name basetypes.StringValue
+		var port basetypes.StringValue
+		var wan_name basetypes.StringValue
+
+		if v.InternalIp != nil {
+			internal_ip = types.StringValue(*v.InternalIp)
+		}
+		if v.Name != nil {
+			name = types.StringValue(*v.Name)
+		}
+		if v.Port != nil {
+			port = types.StringValue(*v.Port)
+		}
+
+		state_value_map_attr_value := map[string]attr.Value{
+			"internal_ip": internal_ip,
+			"name":        name,
+			"port":        port,
+			"wan_name":    wan_name,
+		}
+		n, e := NewVpnAccessDestinationNatValue(VpnAccessDestinationNatValue{}.AttributeTypes(ctx), state_value_map_attr_value)
+		diags.Append(e...)
+
+		state_value_map_value[k] = n
+	}
+	state_result_map, e := types.MapValueFrom(ctx, VpnAccessDestinationNatValue{}.Type(ctx), state_value_map_value)
+	diags.Append(e...)
+	return state_result_map
+}
+
+func staticNatVpnSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d map[string]models.NetworkVpnAccessStaticNatProperty) basetypes.MapValue {
+	state_value_map_value := make(map[string]attr.Value)
+	for k, v := range d {
+		var internal_ip basetypes.StringValue
+		var name basetypes.StringValue
+		var wan_name basetypes.StringValue
+
+		if v.InternalIp != nil {
+			internal_ip = types.StringValue(*v.InternalIp)
+		}
+		if v.Name != nil {
+			name = types.StringValue(*v.Name)
+		}
+
+		state_value_map_attr_value := map[string]attr.Value{
+			"internal_ip": internal_ip,
+			"name":        name,
+			"wan_name":    wan_name,
+		}
+		n, e := NewVpnAccessStaticNatValue(VpnAccessStaticNatValue{}.AttributeTypes(ctx), state_value_map_attr_value)
+		diags.Append(e...)
+
+		state_value_map_value[k] = n
+	}
+	state_result_map, e := types.MapValueFrom(ctx, VpnAccessStaticNatValue{}.Type(ctx), state_value_map_value)
+	diags.Append(e...)
+	return state_result_map
+}
+
 func VpnSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.NetworkVpnAccessConfig) basetypes.MapValue {
 
 	state_value_map_value := make(map[string]attr.Value)
 	for k, d := range m {
 		var advertised_subnet basetypes.StringValue
 		var allow_ping basetypes.BoolValue
-		var destination_nat basetypes.MapValue = types.MapNull(DestinationNatValue{}.Type(ctx))
+		var destination_nat basetypes.MapValue = types.MapNull(VpnAccessDestinationNatValue{}.Type(ctx))
 		var nat_pool basetypes.StringValue
 		var no_readvertise_to_lan_bgp basetypes.BoolValue = types.BoolValue(false)
 		var no_readvertise_to_lan_ospf basetypes.BoolValue = types.BoolValue(false)
@@ -27,7 +90,7 @@ func VpnSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[strin
 		var other_vrfs basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 		var routed basetypes.BoolValue
 		var source_nat basetypes.ObjectValue = types.ObjectNull(SourceNatValue{}.AttributeTypes(ctx))
-		var static_nat basetypes.MapValue = types.MapNull(StaticNatValue{}.Type(ctx))
+		var static_nat basetypes.MapValue = types.MapNull(VpnAccessStaticNatValue{}.Type(ctx))
 		var summarized_subnet basetypes.StringValue
 		var summarized_subnet_to_lan_bgp basetypes.StringValue
 		var summarized_subnet_to_lan_ospf basetypes.StringValue
@@ -39,7 +102,7 @@ func VpnSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[strin
 			allow_ping = types.BoolValue(*d.AllowPing)
 		}
 		if d.DestinationNat != nil && len(d.DestinationNat) > 0 {
-			destination_nat = destinationNatSdkToTerraform(ctx, diags, d.DestinationNat)
+			destination_nat = destinationNatVpnSdkToTerraform(ctx, diags, d.DestinationNat)
 		}
 		if d.NatPool != nil {
 			nat_pool = types.StringValue(*d.NatPool)
@@ -63,7 +126,7 @@ func VpnSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[strin
 			source_nat = sourceNatSdkToTerraform(ctx, diags, d.SourceNat)
 		}
 		if d.StaticNat != nil {
-			static_nat = staticNatSdkToTerraform(ctx, diags, d.StaticNat)
+			static_nat = staticNatVpnSdkToTerraform(ctx, diags, d.StaticNat)
 		}
 		if d.SummarizedSubnet != nil {
 			summarized_subnet = types.StringValue(*d.SummarizedSubnet)

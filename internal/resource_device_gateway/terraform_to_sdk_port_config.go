@@ -85,7 +85,10 @@ func gatewayPortTrafficShapingTerraformToSdk(ctx context.Context, diags *diag.Di
 			data.ClassPercentages = mist_transform.ListOfIntTerraformToSdk(ctx, plan.ClassPercentages)
 		}
 		if plan.Enabled.ValueBoolPointer() != nil {
-			data.Enabled = models.ToPointer(plan.Enabled.ValueBool())
+			data.Enabled = plan.Enabled.ValueBoolPointer()
+		}
+		if plan.MaxTxKbps.ValueInt64Pointer() != nil {
+			data.MaxTxKbps = models.ToPointer(int(plan.MaxTxKbps.ValueInt64()))
 		}
 		return &data
 	}
@@ -253,8 +256,8 @@ func portConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d ba
 
 		data.TrafficShaping = gatewayPortTrafficShapingTerraformToSdk(ctx, diags, plan.TrafficShaping)
 
-		if plan.VlanId.ValueInt64Pointer() != nil {
-			data.VlanId = models.ToPointer(int(plan.VlanId.ValueInt64()))
+		if plan.VlanId.ValueStringPointer() != nil {
+			data.VlanId = models.ToPointer(models.GatewayPortVlanIdWithVariableContainer.FromString(plan.VlanId.ValueString()))
 		}
 
 		data.VpnPaths = gatewayPortVpnPathTerraformToSdk(ctx, diags, plan.VpnPaths)
