@@ -404,7 +404,7 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 									Description:         "if `type`==`relay`",
 									MarkdownDescription: "if `type`==`relay`",
 									Validators: []validator.List{
-										listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseIp(true, true), mistvalidator.ParseVar())),
+										listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseIp(false, false), mistvalidator.ParseVar())),
 										mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("relay")),
 									},
 									Default: listdefault.StaticValue(types.ListNull(types.StringType)),
@@ -416,7 +416,7 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 									Description:         "if `type6`==`relay`",
 									MarkdownDescription: "if `type6`==`relay`",
 									Validators: []validator.List{
-										listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseIp(true, true), mistvalidator.ParseVar())),
+										listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseIp(false, false), mistvalidator.ParseVar())),
 										mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type6"), types.StringValue("relay")),
 									},
 									Default: listdefault.StaticValue(types.ListNull(types.StringType)),
@@ -1344,7 +1344,7 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 										Description:         "only if `type`==`local`, if a different gateway is desired",
 										MarkdownDescription: "only if `type`==`local`, if a different gateway is desired",
 										Validators: []validator.String{
-											stringvalidator.Any(mistvalidator.ParseIp(true, true), mistvalidator.ParseVar()),
+											stringvalidator.Any(mistvalidator.ParseIp(false, false), mistvalidator.ParseVar()),
 											mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("local")),
 										},
 									},
@@ -1657,7 +1657,7 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 								"ip": schema.StringAttribute{
 									Optional: true,
 									Validators: []validator.String{
-										stringvalidator.Any(mistvalidator.ParseIp(true, true), mistvalidator.ParseVar()),
+										stringvalidator.Any(mistvalidator.ParseIp(false, false), mistvalidator.ParseVar()),
 										mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static")),
 									},
 								},
