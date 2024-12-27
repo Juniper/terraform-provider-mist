@@ -20,26 +20,30 @@ description: |-
 * fix the transformation of the `VlanIdWithVariable` SDK property. In some condition the value sent to the provider was an HEX string instead of the VLAN ID (or variable) value.
 
 ### Changes
-* update the `mist_org_network` resource based on the OpenAPI changes:
+Changes to the `mist_org_network` resource based on the OpenAPI changes:
   * add the `internet_access.destination_nat.wan_name` attribute
   * add the `internet_access.static_nat.wan_name` attribute
   * add the `multicast` attribute
 
-* update the `mist_device_gateway`, `mist_deviceprofile_gateway` and `mist_org_gatewaytemplate` resource based on the OpenAPI changes:
-  * add the `internet_access.destination_nat.wan_name` attribute
-  * add the `internet_access.static_nat.wan_name` attribute
-  * add the `port_config.wan_networks` attribute
-  * add the `routing_policies.action.aggregate` attribute
-  * remove the `tunnel_configs.auto_provision.primary.num_hosts` and `tunnel_configs.auto_provision.secondary.num_hosts` attributes (this setting must be configured in the `tunnel_provider_options` object)
-  * add the `tunnel_configs.auto_provision.primary.probe_ips` attribute
-  * add the `tunnel_configs.auto_provision.secondary.probe_ips` attribute
-  * add the `tunnel_configs.auto_provision.provider` attribute
-  * add the `tunnel_configs.auto_provision.region` attribute
-  * change the `tunnel_configs.primary.hosts` attribute to `required`
-  * change the `tunnel_configs.primary.wan_names` attribute to `required`
-  * change the `tunnel_configs.secondary.hosts` attribute to `required`
-  * change the `tunnel_configs.secondary.wan_names` attribute to `required`
-  * replace the `tunnel_provider_options.jse.name` attributes to `tunnel_provider_options.jse.org_name` 
+Changes to the `mist_device_gateway`, `mist_deviceprofile_gateway` and `mist_org_gatewaytemplate` resource based on the OpenAPI changes:
+* attributes added:
+  * `internet_access.destination_nat.wan_name`
+  * `internet_access.static_nat.wan_name`
+  * `port_config.wan_networks`
+  * `routing_policies.action.aggregate`
+  * `tunnel_configs.auto_provision.primary.probe_ips`
+  * `tunnel_configs.auto_provision.secondary.probe_ips`
+  * `tunnel_configs.auto_provision.provider`
+  * `tunnel_configs.auto_provision.region`
+* attributes removed:
+  * `tunnel_configs.auto_provision.primary.num_hosts` (this setting is configured in the `tunnel_provider_options` object)
+  * `tunnel_configs.auto_provision.secondary.num_hosts` (this setting is configured in the `tunnel_provider_options` object)
+* attributes updated:
+  * `tunnel_configs.primary.hosts` changed to `required`
+  * `tunnel_configs.primary.wan_names` changed to `required`
+  * `tunnel_configs.secondary.hosts` changed to `required`
+  * `tunnel_configs.secondary.wan_names` changed to `required`
+  * `tunnel_provider_options.jse.name` renamed to `tunnel_provider_options.jse.org_name` 
   * rework the whole `tunnel_provider_options.zscaler` object to match the Mist API structure (see the resource documentation for more details)
 
 

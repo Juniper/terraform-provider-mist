@@ -908,7 +908,7 @@ Optional:
 - `aup_enabled` (Boolean) Can only be `true` when `auth_required`==`false`, display Acceptable Use Policy (AUP)
 - `aup_force_ssl_inspection` (Boolean) proxy HTTPs traffic, requiring Zscaler cert to be installed in browser
 - `aup_timeout_in_days` (Number) Required if `aup_enabled`==`true`. Days before AUP is requested again
-- `auth_required` (Boolean) Enable this option to authenticate users
+- `auth_required` (Boolean) Enable this option to enforce user authentication
 - `caution_enabled` (Boolean) Can only be `true` when `auth_required`==`false`, display caution notification for non-authenticated users
 - `dn_bandwidth` (Number) the download bandwidth cap of the link, in Mbps. Disabled if not set
 - `idle_time_in_minutes` (Number) Required if `surrogate_IP`==`true`, idle Time to Disassociation

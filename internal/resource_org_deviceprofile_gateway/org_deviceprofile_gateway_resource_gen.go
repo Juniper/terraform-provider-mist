@@ -2969,8 +2969,8 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 							},
 							"auth_required": schema.BoolAttribute{
 								Optional:            true,
-								Description:         "Enable this option to authenticate users",
-								MarkdownDescription: "Enable this option to authenticate users",
+								Description:         "Enable this option to enforce user authentication",
+								MarkdownDescription: "Enable this option to enforce user authentication",
 							},
 							"caution_enabled": schema.BoolAttribute{
 								Optional:            true,
