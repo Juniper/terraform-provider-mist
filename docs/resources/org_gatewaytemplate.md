@@ -121,7 +121,7 @@ resource "mist_org_gatewaytemplate" "gatewaytemplate_one" {
 - `ntp_servers` (List of String) list of NTP servers specific to this device. By default, those in Site Settings will be used
 - `oob_ip_config` (Attributes) out-of-band (vme/em0/fxp0) IP config (see [below for nested schema](#nestedatt--oob_ip_config))
 - `path_preferences` (Attributes Map) Property key is the path name (see [below for nested schema](#nestedatt--path_preferences))
-- `port_config` (Attributes Map) Property key is the port(s) name or range (e.g. "ge-0/0/0-10") (see [below for nested schema](#nestedatt--port_config))
+- `port_config` (Attributes Map) Property key is the Port Name (i.e. "ge-0/0/0"), the Ports Range (i.e. "ge-0/0/0-10"), the List of Ports (i.e. "ge-0/0/0,ge-1/0/0", only allowed for Aggregated or Redundant interfaces) or a Variable (i.e. "{{myvar}}"). (see [below for nested schema](#nestedatt--port_config))
 - `router_id` (String) auto assigned if not set
 - `routing_policies` (Attributes Map) Property key is the routing policy name (see [below for nested schema](#nestedatt--routing_policies))
 - `service_policies` (Attributes List) (see [below for nested schema](#nestedatt--service_policies))
@@ -327,7 +327,7 @@ Optional:
 - `multicast` (Attributes) whether to enable multicast support (only PIM-sparse mode is supported) (see [below for nested schema](#nestedatt--networks--multicast))
 - `routed_for_networks` (List of String) for a Network (usually LAN), it can be routable to other networks (e.g. OSPF)
 - `subnet6` (String)
-- `tenants` (Attributes Map) (see [below for nested schema](#nestedatt--networks--tenants))
+- `tenants` (Attributes Map) Property key must be the user/tenant name (i.e. "printer-1") or a Variable (i.e. "{{myvar}}") (see [below for nested schema](#nestedatt--networks--tenants))
 - `vlan_id` (String)
 - `vpn_access` (Attributes Map) Property key is the VPN name. Whether this network can be accessed from vpn (see [below for nested schema](#nestedatt--networks--vpn_access))
 
@@ -345,30 +345,33 @@ Optional:
 Optional:
 
 - `create_simple_service_policy` (Boolean)
-- `destination_nat` (Attributes Map) Property key may be an IP/Port (i.e. "63.16.0.3:443"), or a port (i.e. ":2222") (see [below for nested schema](#nestedatt--networks--internet_access--destination_nat))
+- `destination_nat` (Attributes Map) Property key can be an External IP (i.e. "63.16.0.3"), an External IP:Port (i.e. "63.16.0.3:443"), an External Port (i.e. ":443"), an External CIDR (i.e. "63.16.0.0/30"), an External CIDR:Port (i.e. "63.16.0.0/30:443") or a Variable (i.e. "{{myvar}}"). At least one of the `internal_ip` or `port` must be defined (see [below for nested schema](#nestedatt--networks--internet_access--destination_nat))
 - `enabled` (Boolean)
 - `restricted` (Boolean) by default, all access is allowed, to only allow certain traffic, make `restricted`=`true` and define service_policies
-- `static_nat` (Attributes Map) Property key may be an IP Address (i.e. "172.16.0.1"), and IP Address and Port (i.e. "172.16.0.1:8443") or a CIDR (i.e. "172.16.0.12/20") (see [below for nested schema](#nestedatt--networks--internet_access--static_nat))
+- `static_nat` (Attributes Map) Property key may be an External IP Address (i.e. "63.16.0.3"), a CIDR (i.e. "63.16.0.12/20") or a Variable (i.e. "{{myvar}}") (see [below for nested schema](#nestedatt--networks--internet_access--static_nat))
 
 <a id="nestedatt--networks--internet_access--destination_nat"></a>
 ### Nested Schema for `networks.internet_access.destination_nat`
 
 Optional:
 
-- `internal_ip` (String)
+- `internal_ip` (String) The Destination NAT destination IP Address. Must be an IP (i.e. "192.168.70.30") or a Variable (i.e. "{{myvar}}")
 - `name` (String)
-- `port` (Number)
-- `wan_name` (String) If not set, we configure the nat policies against all WAN ports for simplicity
+- `port` (String) The Destination NAT destination IP Address. Must be a Port (i.e. "443") or a Variable (i.e. "{{myvar}}")
+- `wan_name` (String) SRX Only. If not set, we configure the nat policies against all WAN ports for simplicity
 
 
 <a id="nestedatt--networks--internet_access--static_nat"></a>
 ### Nested Schema for `networks.internet_access.static_nat`
 
+Required:
+
+- `internal_ip` (String) The Static NAT destination IP Address. Must be an IP Address (i.e. "192.168.70.3") or a Variable (i.e. "{{myvar}}")
+- `name` (String)
+
 Optional:
 
-- `internal_ip` (String)
-- `name` (String)
-- `wan_name` (String) If not set, we configure the nat policies against all WAN ports for simplicity
+- `wan_name` (String) SRX Only. If not set, we configure the nat policies against all WAN ports for simplicity. Can be a Variable (i.e. "{{myvar}}")
 
 
 
@@ -405,7 +408,7 @@ Optional:
 
 - `advertised_subnet` (String) if `routed`==`true`, whether to advertise an aggregated subnet toward HUB this is useful when there are multiple networks on SPOKE's side
 - `allow_ping` (Boolean) whether to allow ping from vpn into this routed network
-- `destination_nat` (Attributes Map) Property key may be an IP/Port (i.e. "63.16.0.3:443"), or a port (i.e. ":2222") (see [below for nested schema](#nestedatt--networks--vpn_access--destination_nat))
+- `destination_nat` (Attributes Map) Property key can be an External IP (i.e. "63.16.0.3"), an External IP:Port (i.e. "63.16.0.3:443"), an External Port (i.e. ":443"), an External CIDR (i.e. "63.16.0.0/30"), an External CIDR:Port (i.e. "63.16.0.0/30:443") or a Variable (i.e. "{{myvar}}"). At least one of the `internal_ip` or `port` must be defined (see [below for nested schema](#nestedatt--networks--vpn_access--destination_nat))
 - `nat_pool` (String) if `routed`==`false` (usually at Spoke), but some hosts needs to be reachable from Hub, a subnet is required to create and advertise the route to Hub
 - `no_readvertise_to_lan_bgp` (Boolean) toward LAN-side BGP peers
 - `no_readvertise_to_lan_ospf` (Boolean) toward LAN-side OSPF peers
@@ -415,7 +418,7 @@ how HUB should deal with routes it received from Spokes
 to allow it to be leaked to other vrfs
 - `routed` (Boolean) whether this network is routable
 - `source_nat` (Attributes) if `routed`==`false` (usually at Spoke), but some hosts needs to be reachable from Hub (see [below for nested schema](#nestedatt--networks--vpn_access--source_nat))
-- `static_nat` (Attributes Map) Property key may be an IP Address (i.e. "172.16.0.1"), and IP Address and Port (i.e. "172.16.0.1:8443") or a CIDR (i.e. "172.16.0.12/20") (see [below for nested schema](#nestedatt--networks--vpn_access--static_nat))
+- `static_nat` (Attributes Map) Property key may be an External IP Address (i.e. "63.16.0.3"), a CIDR (i.e. "63.16.0.12/20") or a Variable (i.e. "{{myvar}}") (see [below for nested schema](#nestedatt--networks--vpn_access--static_nat))
 - `summarized_subnet` (String) toward overlay
 how HUB should deal with routes it received from Spokes
 - `summarized_subnet_to_lan_bgp` (String) toward LAN-side BGP peers
@@ -426,10 +429,9 @@ how HUB should deal with routes it received from Spokes
 
 Optional:
 
-- `internal_ip` (String)
+- `internal_ip` (String) The Destination NAT destination IP Address. Must be an IP (i.e. "192.168.70.30") or a Variable (i.e. "{{myvar}}")
 - `name` (String)
-- `port` (Number)
-- `wan_name` (String) If not set, we configure the nat policies against all WAN ports for simplicity
+- `port` (String)
 
 
 <a id="nestedatt--networks--vpn_access--source_nat"></a>
@@ -443,11 +445,10 @@ Optional:
 <a id="nestedatt--networks--vpn_access--static_nat"></a>
 ### Nested Schema for `networks.vpn_access.static_nat`
 
-Optional:
+Required:
 
-- `internal_ip` (String)
+- `internal_ip` (String) The Static NAT destination IP Address. Must be an IP Address (i.e. "192.168.70.3") or a Variable (i.e. "{{myvar}}")
 - `name` (String)
-- `wan_name` (String) If not set, we configure the nat policies against all WAN ports for simplicity
 
 
 
@@ -519,12 +520,10 @@ Optional:
 
 - `ae_disable_lacp` (Boolean) if `aggregated`==`true`. To disable LCP support for the AE interface
 - `ae_idx` (String) if `aggregated`==`true`. Users could force to use the designated AE name (must be an integer between 0 and 127)
-- `ae_lacp_force_up` (Boolean) For SRX Only, if `aggregated`==`true`.Sets the state of the interface as UP when the peer has limited LACP capability.\n
-Use case: When a device connected to this AE port is ZTPing for the first time, it will not have LACP configured on the other end\n
-Note: Turning this on will enable force-up on one of the interfaces in the bundle only
+- `ae_lacp_force_up` (Boolean) For SRX Only, if `aggregated`==`true`.Sets the state of the interface as UP when the peer has limited LACP capability. Use case: When a device connected to this AE port is ZTPing for the first time, it will not have LACP configured on the other end. **Note:** Turning this on will enable force-up on one of the interfaces in the bundle only
 - `aggregated` (Boolean)
 - `critical` (Boolean) if want to generate port up/down alarm, set it to true
-- `description` (String)
+- `description` (String) Interface Description. Can be a variable (i.e. "{{myvar}}")
 - `disable_autoneg` (Boolean)
 - `disabled` (Boolean) port admin up (true) / down (false)
 - `dsl_type` (String) if `wan_type`==`dsl`. enum: `adsl`, `vdsl`
@@ -544,7 +543,7 @@ Note: Turning this on will enable force-up on one of the interfaces in the bundl
 - `networks` (List of String) if `usage`==`lan`, name of the `mist_org_network` resource
 - `outer_vlan_id` (Number) for Q-in-Q
 - `poe_disabled` (Boolean)
-- `port_network` (String) if `usage`==`lan`
+- `port_network` (String) Only for SRX and if `usage`==`lan`, the Untagged VLAN Network
 - `preserve_dscp` (Boolean) whether to preserve dscp when sending traffic over VPN (SSR-only)
 - `redundant` (Boolean) if HA mode
 - `reth_idx` (Number) if HA mode
@@ -554,7 +553,7 @@ Note: Turning this on will enable force-up on one of the interfaces in the bundl
 - `ssr_no_virtual_mac` (Boolean) when SSR is running as VM, this is required on certain hosting platforms
 - `svr_port_range` (String) for SSR only
 - `traffic_shaping` (Attributes) (see [below for nested schema](#nestedatt--port_config--traffic_shaping))
-- `vlan_id` (Number) if WAN interface is on a VLAN
+- `vlan_id` (String)
 - `vpn_paths` (Attributes Map) Property key is the VPN name (see [below for nested schema](#nestedatt--port_config--vpn_paths))
 - `wan_arp_policer` (String) Only when `wan_type`==`broadband`. enum: `default`, `max`, `recommended`
 - `wan_ext_ip` (String) Only if `usage`==`wan`, optional. If spoke should reach this port by a different IP
@@ -571,9 +570,9 @@ Optional:
 
 - `dns` (List of String) except for out-of_band interface (vme/em0/fxp0)
 - `dns_suffix` (List of String) except for out-of_band interface (vme/em0/fxp0)
-- `gateway` (String) except for out-of_band interface (vme/em0/fxp0)
-- `ip` (String)
-- `netmask` (String) used only if `subnet` is not specified in `networks`
+- `gateway` (String) except for out-of_band interface (vme/em0/fxp0). Interface Default Gateway IP Address (i.e. "192.168.1.1") or a Variable (i.e. "{{myvar}}")
+- `ip` (String) Interface IP Address (i.e. "192.168.1.8") or a Variable (i.e. "{{myvar}}")
+- `netmask` (String) used only if `subnet` is not specified in `networks`. Interface Netmask (i.e. "/24") or a Variable (i.e. "{{myvar}}")
 - `network` (String) optional, the network to be used for mgmt
 - `poser_password` (String, Sensitive) if `type`==`pppoe`
 - `pppoe_auth` (String) if `type`==`pppoe`. enum: `chap`, `none`, `pap`
@@ -586,9 +585,9 @@ Optional:
 
 Optional:
 
-- `class_percentages` (List of Number) percentages for differet class of traffic: high / medium / low / best-effort
-sum must be equal to 100
+- `class_percentages` (List of Number) percentages for differet class of traffic: high / medium / low / best-effort. Sum must be equal to 100
 - `enabled` (Boolean)
+- `max_tx_kbps` (Number) Interface Transmit Cap in kbps
 
 
 <a id="nestedatt--port_config--vpn_paths"></a>
@@ -608,9 +607,9 @@ Optional:
 
 Optional:
 
-- `class_percentages` (List of Number) percentages for differet class of traffic: high / medium / low / best-effort
-sum must be equal to 100
+- `class_percentages` (List of Number) percentages for differet class of traffic: high / medium / low / best-effort. Sum must be equal to 100
 - `enabled` (Boolean)
+- `max_tx_kbps` (Number) Interface Transmit Cap in kbps
 
 
 

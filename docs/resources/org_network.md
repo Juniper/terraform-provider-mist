@@ -43,7 +43,7 @@ resource "mist_org_network" "network_one" {
 - `multicast` (Attributes) whether to enable multicast support (only PIM-sparse mode is supported) (see [below for nested schema](#nestedatt--multicast))
 - `routed_for_networks` (List of String) for a Network (usually LAN), it can be routable to other networks (e.g. OSPF)
 - `subnet6` (String)
-- `tenants` (Attributes Map) (see [below for nested schema](#nestedatt--tenants))
+- `tenants` (Attributes Map) Property key must be the user/tenant name (i.e. "printer-1") or a Variable (i.e. "{{myvar}}") (see [below for nested schema](#nestedatt--tenants))
 - `vlan_id` (String)
 - `vpn_access` (Attributes Map) Property key is the VPN name. Whether this network can be accessed from vpn (see [below for nested schema](#nestedatt--vpn_access))
 
@@ -65,30 +65,33 @@ Optional:
 Optional:
 
 - `create_simple_service_policy` (Boolean)
-- `destination_nat` (Attributes Map) Property key may be an IP/Port (i.e. "63.16.0.3:443"), or a port (i.e. ":2222") (see [below for nested schema](#nestedatt--internet_access--destination_nat))
+- `destination_nat` (Attributes Map) Property key can be an External IP (i.e. "63.16.0.3"), an External IP:Port (i.e. "63.16.0.3:443"), an External Port (i.e. ":443"), an External CIDR (i.e. "63.16.0.0/30"), an External CIDR:Port (i.e. "63.16.0.0/30:443") or a Variable (i.e. "{{myvar}}"). At least one of the `internal_ip` or `port` must be defined (see [below for nested schema](#nestedatt--internet_access--destination_nat))
 - `enabled` (Boolean)
 - `restricted` (Boolean) by default, all access is allowed, to only allow certain traffic, make `restricted`=`true` and define service_policies
-- `static_nat` (Attributes Map) Property key may be an IP Address (i.e. "172.16.0.1"), and IP Address and Port (i.e. "172.16.0.1:8443") or a CIDR (i.e. "172.16.0.12/20") (see [below for nested schema](#nestedatt--internet_access--static_nat))
+- `static_nat` (Attributes Map) Property key may be an External IP Address (i.e. "63.16.0.3"), a CIDR (i.e. "63.16.0.12/20") or a Variable (i.e. "{{myvar}}") (see [below for nested schema](#nestedatt--internet_access--static_nat))
 
 <a id="nestedatt--internet_access--destination_nat"></a>
 ### Nested Schema for `internet_access.destination_nat`
 
 Optional:
 
-- `internal_ip` (String)
+- `internal_ip` (String) The Destination NAT destination IP Address. Must be an IP (i.e. "192.168.70.30") or a Variable (i.e. "{{myvar}}")
 - `name` (String)
-- `port` (Number)
-- `wan_name` (String) If not set, we configure the nat policies against all WAN ports for simplicity
+- `port` (String) The Destination NAT destination IP Address. Must be a Port (i.e. "443") or a Variable (i.e. "{{myvar}}")
+- `wan_name` (String) SRX Only. If not set, we configure the nat policies against all WAN ports for simplicity
 
 
 <a id="nestedatt--internet_access--static_nat"></a>
 ### Nested Schema for `internet_access.static_nat`
 
+Required:
+
+- `internal_ip` (String) The Static NAT destination IP Address. Must be an IP Address (i.e. "192.168.70.3") or a Variable (i.e. "{{myvar}}")
+- `name` (String)
+
 Optional:
 
-- `internal_ip` (String)
-- `name` (String)
-- `wan_name` (String) If not set, we configure the nat policies against all WAN ports for simplicity
+- `wan_name` (String) SRX Only. If not set, we configure the nat policies against all WAN ports for simplicity. Can be a Variable (i.e. "{{myvar}}")
 
 
 
@@ -125,7 +128,7 @@ Optional:
 
 - `advertised_subnet` (String) if `routed`==`true`, whether to advertise an aggregated subnet toward HUB this is useful when there are multiple networks on SPOKE's side
 - `allow_ping` (Boolean) whether to allow ping from vpn into this routed network
-- `destination_nat` (Attributes Map) Property key may be an IP/Port (i.e. "63.16.0.3:443"), or a port (i.e. ":2222") (see [below for nested schema](#nestedatt--vpn_access--destination_nat))
+- `destination_nat` (Attributes Map) Property key can be an External IP (i.e. "63.16.0.3"), an External IP:Port (i.e. "63.16.0.3:443"), an External Port (i.e. ":443"), an External CIDR (i.e. "63.16.0.0/30"), an External CIDR:Port (i.e. "63.16.0.0/30:443") or a Variable (i.e. "{{myvar}}"). At least one of the `internal_ip` or `port` must be defined (see [below for nested schema](#nestedatt--vpn_access--destination_nat))
 - `nat_pool` (String) if `routed`==`false` (usually at Spoke), but some hosts needs to be reachable from Hub, a subnet is required to create and advertise the route to Hub
 - `no_readvertise_to_lan_bgp` (Boolean) toward LAN-side BGP peers
 - `no_readvertise_to_lan_ospf` (Boolean) toward LAN-side OSPF peers
@@ -135,7 +138,7 @@ how HUB should deal with routes it received from Spokes
 to allow it to be leaked to other vrfs
 - `routed` (Boolean) whether this network is routable
 - `source_nat` (Attributes) if `routed`==`false` (usually at Spoke), but some hosts needs to be reachable from Hub (see [below for nested schema](#nestedatt--vpn_access--source_nat))
-- `static_nat` (Attributes Map) Property key may be an IP Address (i.e. "172.16.0.1"), and IP Address and Port (i.e. "172.16.0.1:8443") or a CIDR (i.e. "172.16.0.12/20") (see [below for nested schema](#nestedatt--vpn_access--static_nat))
+- `static_nat` (Attributes Map) Property key may be an External IP Address (i.e. "63.16.0.3"), a CIDR (i.e. "63.16.0.12/20") or a Variable (i.e. "{{myvar}}") (see [below for nested schema](#nestedatt--vpn_access--static_nat))
 - `summarized_subnet` (String) toward overlay
 how HUB should deal with routes it received from Spokes
 - `summarized_subnet_to_lan_bgp` (String) toward LAN-side BGP peers
@@ -146,10 +149,9 @@ how HUB should deal with routes it received from Spokes
 
 Optional:
 
-- `internal_ip` (String)
+- `internal_ip` (String) The Destination NAT destination IP Address. Must be an IP (i.e. "192.168.70.30") or a Variable (i.e. "{{myvar}}")
 - `name` (String)
-- `port` (Number)
-- `wan_name` (String) If not set, we configure the nat policies against all WAN ports for simplicity
+- `port` (String)
 
 
 <a id="nestedatt--vpn_access--source_nat"></a>
@@ -163,11 +165,10 @@ Optional:
 <a id="nestedatt--vpn_access--static_nat"></a>
 ### Nested Schema for `vpn_access.static_nat`
 
-Optional:
+Required:
 
-- `internal_ip` (String)
+- `internal_ip` (String) The Static NAT destination IP Address. Must be an IP Address (i.e. "192.168.70.3") or a Variable (i.e. "{{myvar}}")
 - `name` (String)
-- `wan_name` (String) If not set, we configure the nat policies against all WAN ports for simplicity
 
 
 

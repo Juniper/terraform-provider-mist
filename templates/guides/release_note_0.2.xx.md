@@ -10,7 +10,8 @@ description: |-
 ## Release Notes for v0.2.15
 **release date** : December 27th, 2024
 
-!> Breaking changes
+!> Breaking changes. See below
+
 ### Breaking Changes
 * Following attributes have been changes from int64 to string to allow "mist variable" support:
   * `mist_org_network.internet_access.destination_nat.port`

@@ -10,6 +10,48 @@ description: |-
 ## Release Notes for v0.2.15
 **release date** : December 27th, 2024
 
+!> Breaking changes. See below
+
+### Breaking Changes
+* Following attributes have been changes from int64 to string to allow "mist variable" support:
+  * `mist_org_network.internet_access.destination_nat.port`
+  * `mist_org_network.vpn_access.destination_nat.port`
+  * `mist_device_gateway.networks.internet_access.destination_nat.port`
+  * `mist_device_gateway.networks.vpn_access.destination_nat.port`
+  * `mist_deviceprofile_gateway.networks.internet_access.destination_nat.port`
+  * `mist_deviceprofile_gateway.networks.vpn_access.destination_nat.port`
+  * `mist_org_gatewaytemplate.networks.internet_access.destination_nat.port`
+  * `mist_org_gatewaytemplate.networks.vpn_access.destination_nat.port`
+* Following attributes have been changed from `optional` to `required`:
+  * `mist_org_network.internet_access.static_nat.internal_ip`
+  * `mist_org_network.internet_access.static_nat.name`
+  * `mist_org_network.vpn_access.static_nat.internal_ip`
+  * `mist_org_network.vpn_access.static_nat.name`
+  * `mist_device_gateway.tunnel_configs.primary.hosts`
+  * `mist_device_gateway.tunnel_configs.primary.wan_names`
+  * `mist_device_gateway.tunnel_configs.secondary.hosts`
+  * `mist_device_gateway.tunnel_configs.secondary.wan_names`
+  * `mist_device_gateway.networks.internet_access.static_nat.internal_ip`
+  * `mist_device_gateway.networks.internet_access.static_nat.name`
+  * `mist_device_gateway.networks.vpn_access.static_nat.internal_ip`
+  * `mist_device_gateway.networks.vpn_access.static_nat.name`
+  * `mist_deviceprofile_gateway.tunnel_configs.primary.hosts`
+  * `mist_deviceprofile_gateway.tunnel_configs.primary.wan_names`
+  * `mist_deviceprofile_gateway.tunnel_configs.secondary.hosts`
+  * `mist_deviceprofile_gateway.tunnel_configs.secondary.wan_names`
+  * `mist_deviceprofile_gateway.networks.internet_access.static_nat.internal_ip`
+  * `mist_deviceprofile_gateway.networks.internet_access.static_nat.name`
+  * `mist_deviceprofile_gateway.networks.vpn_access.static_nat.internal_ip`
+  * `mist_deviceprofile_gateway.networks.vpn_access.static_nat.name`
+  * `mist_org_gatewaytemplate.tunnel_configs.primary.hosts`
+  * `mist_org_gatewaytemplate.tunnel_configs.primary.wan_names`
+  * `mist_org_gatewaytemplate.tunnel_configs.secondary.hosts`
+  * `mist_org_gatewaytemplate.tunnel_configs.secondary.wan_names`
+  * `mist_org_gatewaytemplate.networks.internet_access.static_nat.internal_ip`
+  * `mist_org_gatewaytemplate.networks.internet_access.static_nat.name`
+  * `mist_org_gatewaytemplate.networks.vpn_access.static_nat.internal_ip`
+  * `mist_org_gatewaytemplate.networks.vpn_access.static_nat.name`
+
 
 ### Improvements
 * add the `api_debug` flag to the provider properties to enable the logging of the SDK Requests and Responses
@@ -27,8 +69,8 @@ Changes to the `mist_org_network` resource based on the OpenAPI changes:
 
 Changes to the `mist_device_gateway`, `mist_deviceprofile_gateway` and `mist_org_gatewaytemplate` resource based on the OpenAPI changes:
 * attributes added:
-  * `internet_access.destination_nat.wan_name`
-  * `internet_access.static_nat.wan_name`
+  * `networks.internet_access.destination_nat.wan_name`
+  * `networks.internet_access.static_nat.wan_name`
   * `port_config.wan_networks`
   * `routing_policies.action.aggregate`
   * `tunnel_configs.auto_provision.primary.probe_ips`
@@ -39,10 +81,6 @@ Changes to the `mist_device_gateway`, `mist_deviceprofile_gateway` and `mist_org
   * `tunnel_configs.auto_provision.primary.num_hosts` (this setting is configured in the `tunnel_provider_options` object)
   * `tunnel_configs.auto_provision.secondary.num_hosts` (this setting is configured in the `tunnel_provider_options` object)
 * attributes updated:
-  * `tunnel_configs.primary.hosts` changed to `required`
-  * `tunnel_configs.primary.wan_names` changed to `required`
-  * `tunnel_configs.secondary.hosts` changed to `required`
-  * `tunnel_configs.secondary.wan_names` changed to `required`
   * `tunnel_provider_options.jse.name` renamed to `tunnel_provider_options.jse.org_name` 
   * rework the whole `tunnel_provider_options.zscaler` object to match the Mist API structure (see the resource documentation for more details)
 
