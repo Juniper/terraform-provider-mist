@@ -109,6 +109,9 @@ func LocalPortConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics,
 		if !plan_obj.Networks.IsNull() && !plan_obj.Networks.IsUnknown() {
 			item_obj.Networks = mist_transform.ListOfStringTerraformToSdk(ctx, plan_obj.Networks)
 		}
+		if plan_obj.Note.ValueStringPointer() != nil {
+			item_obj.Note = plan_obj.Note.ValueStringPointer()
+		}
 		if plan_obj.PersistMac.ValueBoolPointer() != nil {
 			item_obj.PersistMac = models.ToPointer(plan_obj.PersistMac.ValueBool())
 		}

@@ -119,6 +119,9 @@ func localPortConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics,
 		if d.Networks != nil {
 			item_obj.Networks = mist_transform.ListOfStringSdkToTerraform(ctx, d.Networks)
 		}
+		if d.Note != nil {
+			item_obj.Note = types.StringValue(*d.Note)
+		}
 		if d.PersistMac != nil {
 			item_obj.PersistMac = types.BoolValue(*d.PersistMac)
 		}

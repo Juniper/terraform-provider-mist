@@ -1007,6 +1007,11 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Only if `mode`==`trunk`, the list of network/vlans",
 							MarkdownDescription: "Only if `mode`==`trunk`, the list of network/vlans",
 						},
+						"note": schema.StringAttribute{
+							Optional:            true,
+							Description:         "Additional note for the port config override",
+							MarkdownDescription: "Additional note for the port config override",
+						},
 						"persist_mac": schema.BoolAttribute{
 							Optional:            true,
 							Computed:            true,
