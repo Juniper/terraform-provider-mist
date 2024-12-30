@@ -26,8 +26,6 @@ func SdkToTerraform(ctx context.Context, data *models.Sso) (OrgSsoModel, diag.Di
 	var org_id types.String
 	var role_attr_extraction types.String
 	var role_attr_from types.String
-	var scim_enabled types.Bool
-	var scim_secret_token types.String
 
 	if data.CustomLogoutUrl != nil {
 		custom_logout_url = types.StringValue(*data.CustomLogoutUrl)
@@ -71,12 +69,6 @@ func SdkToTerraform(ctx context.Context, data *models.Sso) (OrgSsoModel, diag.Di
 	if data.RoleAttrFrom != nil {
 		role_attr_from = types.StringValue(*data.RoleAttrFrom)
 	}
-	if data.ScimEnabled != nil {
-		scim_enabled = types.BoolValue(*data.ScimEnabled)
-	}
-	if data.ScimSecretToken != nil {
-		scim_secret_token = types.StringValue(*data.ScimSecretToken)
-	}
 
 	state.CustomLogoutUrl = custom_logout_url
 	state.DefaultRole = default_role
@@ -92,8 +84,6 @@ func SdkToTerraform(ctx context.Context, data *models.Sso) (OrgSsoModel, diag.Di
 	state.OrgId = org_id
 	state.RoleAttrExtraction = role_attr_extraction
 	state.RoleAttrFrom = role_attr_from
-	state.ScimEnabled = scim_enabled
-	state.ScimSecretToken = scim_secret_token
 
 	return state, diags
 }

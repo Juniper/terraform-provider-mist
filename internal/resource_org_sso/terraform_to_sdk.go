@@ -79,18 +79,6 @@ func TerraformToSdk(ctx context.Context, plan *OrgSsoModel) (*models.Sso, diag.D
 		unset["-role_attr_from"] = ""
 	}
 
-	if !plan.ScimEnabled.IsNull() && !plan.ScimEnabled.IsUnknown() {
-		data.ScimEnabled = plan.ScimEnabled.ValueBoolPointer()
-	} else {
-		unset["-scim_enabled"] = ""
-	}
-
-	if !plan.ScimSecretToken.IsNull() && !plan.ScimSecretToken.IsUnknown() {
-		data.ScimSecretToken = plan.ScimSecretToken.ValueStringPointer()
-	} else {
-		unset["-scim_secret_token"] = ""
-	}
-
 	data.AdditionalProperties = unset
 	return &data, diags
 }
