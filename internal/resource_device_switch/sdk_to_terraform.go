@@ -36,6 +36,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	var map_id types.String
 	var mist_nac MistNacValue = NewMistNacValueNull()
 	var name types.String
+	var notes types.String
 	var networks types.Map = types.MapNull(NetworksValue{}.Type(ctx))
 	var ntp_servers types.List = types.ListNull(types.StringType)
 	var oob_ip_config OobIpConfigValue = NewOobIpConfigValueNull()
@@ -130,6 +131,9 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	if data.Name != nil {
 		name = types.StringValue(*data.Name)
 	}
+	if data.Notes != nil {
+		notes = types.StringValue(*data.Notes)
+	}
 	if data.Networks != nil && len(data.Networks) > 0 {
 		networks = NetworksSdkToTerraform(ctx, &diags, data.Networks)
 	}
@@ -220,7 +224,6 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 		model = types.StringValue(*data.Model)
 	}
 
-	state.Name = name
 	state.AclPolicies = acl_policies
 	state.AclTags = acl_tags
 	state.AdditionalConfigCmds = additional_config_cmds
@@ -241,6 +244,8 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	state.Managed = managed
 	state.MapId = map_id
 	state.MistNac = mist_nac
+	state.Name = name
+	state.Notes = notes
 	state.NtpServers = ntp_servers
 	state.Networks = networks
 	state.OobIpConfig = oob_ip_config

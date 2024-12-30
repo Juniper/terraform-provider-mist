@@ -107,6 +107,12 @@ func TerraformToSdk(ctx context.Context, plan *DeviceSwitchModel) (models.MistDe
 
 	data.Name = models.ToPointer(plan.Name.ValueString())
 
+	if plan.Notes.IsNull() || plan.Notes.IsUnknown() {
+		unset["-notes"] = ""
+	} else {
+		data.Notes = plan.Notes.ValueStringPointer()
+	}
+
 	if plan.MistNac.IsNull() || plan.MistNac.IsUnknown() {
 		unset["-mist_nac"] = ""
 	} else {
