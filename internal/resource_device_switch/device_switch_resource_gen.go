@@ -60,8 +60,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional:            true,
-							Description:         "- for GBP-based policy, all src_tags and dst_tags have to be gbp-based\n- for ACL-based policy, `network` is required in either the source or destination so that we know where to attach the policy to",
-							MarkdownDescription: "- for GBP-based policy, all src_tags and dst_tags have to be gbp-based\n- for ACL-based policy, `network` is required in either the source or destination so that we know where to attach the policy to",
+							Description:         "ACL Policy Actions:\n  - for GBP-based policy, all src_tags and dst_tags have to be gbp-based\n  - for ACL-based policy, `network` is required in either the source or destination so that we know where to attach the policy to",
+							MarkdownDescription: "ACL Policy Actions:\n  - for GBP-based policy, all src_tags and dst_tags have to be gbp-based\n  - for ACL-based policy, `network` is required in either the source or destination so that we know where to attach the policy to",
 						},
 						"name": schema.StringAttribute{
 							Optional: true,
@@ -69,8 +69,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						"src_tags": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Optional:            true,
-							Description:         "- for GBP-based policy, all src_tags and dst_tags have to be gbp-based\n- for ACL-based policy, `network` is required in either the source or destination so that we know where to attach the policy to",
-							MarkdownDescription: "- for GBP-based policy, all src_tags and dst_tags have to be gbp-based\n- for ACL-based policy, `network` is required in either the source or destination so that we know where to attach the policy to",
+							Description:         "ACL Policy Source Tags:\n  - for GBP-based policy, all src_tags and dst_tags have to be gbp-based\n  - for ACL-based policy, `network` is required in either the source or destination so that we know where to attach the policy to",
+							MarkdownDescription: "ACL Policy Source Tags:\n  - for GBP-based policy, all src_tags and dst_tags have to be gbp-based\n  - for ACL-based policy, `network` is required in either the source or destination so that we know where to attach the policy to",
 						},
 					},
 					CustomType: AclPoliciesType{
@@ -89,8 +89,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 					Attributes: map[string]schema.Attribute{
 						"gbp_tag": schema.Int64Attribute{
 							Optional:            true,
-							Description:         "required if\n- `type`==`dynamic_gbp` (gbp_tag received from RADIUS)\n- `type`==`gbp_resource`\n- `type`==`static_gbp` (applying gbp tag against matching conditions)",
-							MarkdownDescription: "required if\n- `type`==`dynamic_gbp` (gbp_tag received from RADIUS)\n- `type`==`gbp_resource`\n- `type`==`static_gbp` (applying gbp tag against matching conditions)",
+							Description:         "required if\n  - `type`==`dynamic_gbp` (gbp_tag received from RADIUS)\n  - `type`==`gbp_resource`\n  - `type`==`static_gbp` (applying gbp tag against matching conditions)",
+							MarkdownDescription: "required if\n  - `type`==`dynamic_gbp` (gbp_tag received from RADIUS)\n  - `type`==`gbp_resource`\n  - `type`==`static_gbp` (applying gbp tag against matching conditions)",
 							Validators: []validator.Int64{
 								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("dynamic_gbp")),
 								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static_gbp")),
@@ -146,13 +146,13 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 												mistvalidator.ParseRangeOfInt(0, 65535, true),
 											),
 										},
-										Default: stringdefault.StaticString("80"),
+										Default: stringdefault.StaticString("0"),
 									},
 									"protocol": schema.StringAttribute{
 										Optional:            true,
 										Computed:            true,
-										Description:         "`tcp` / `udp` / `icmp` / `gre` / `any` / `:protocol_number`. `protocol_number` is between 1-254",
-										MarkdownDescription: "`tcp` / `udp` / `icmp` / `gre` / `any` / `:protocol_number`. `protocol_number` is between 1-254",
+										Description:         "`tcp` / `udp` / `icmp` / `icmp6` / `gre` / `any` / `:protocol_number`, `protocol_number` is between 1-254, default is `any` `protocol_number` is between 1-254",
+										MarkdownDescription: "`tcp` / `udp` / `icmp` / `icmp6` / `gre` / `any` / `:protocol_number`, `protocol_number` is between 1-254, default is `any` `protocol_number` is between 1-254",
 										Validators: []validator.String{
 											stringvalidator.Any(
 												stringvalidator.OneOf(
@@ -176,8 +176,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional:            true,
-							Description:         "if `type`==`resource` or `type`==`gbp_resource`\nempty means unrestricted, i.e. any",
-							MarkdownDescription: "if `type`==`resource` or `type`==`gbp_resource`\nempty means unrestricted, i.e. any",
+							Description:         "if `type`==`resource` or `type`==`gbp_resource`. Empty means unrestricted, i.e. any",
+							MarkdownDescription: "if `type`==`resource` or `type`==`gbp_resource`. Empty means unrestricted, i.e. any",
 							Validators: []validator.List{
 								listvalidator.SizeAtLeast(1),
 							},
@@ -229,8 +229,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 			"additional_config_cmds": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
-				Description:         "additional CLI commands to append to the generated Junos config\n\n**Note**: no check is done",
-				MarkdownDescription: "additional CLI commands to append to the generated Junos config\n\n**Note**: no check is done",
+				Description:         "additional CLI commands to append to the generated Junos config. **Note**: no check is done",
+				MarkdownDescription: "additional CLI commands to append to the generated Junos config. **Note**: no check is done",
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 				},
@@ -757,7 +757,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							listvalidator.SizeAtLeast(1),
 							listvalidator.SizeAtMost(2),
 							listvalidator.ValueStringsAre(
-								stringvalidator.Any(mistvalidator.ParseIp(true, true), mistvalidator.ParseVar()),
+								stringvalidator.Any(mistvalidator.ParseIp(false, false), mistvalidator.ParseVar()),
 							),
 						},
 					},
@@ -833,8 +833,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"allow_dhcpd": schema.BoolAttribute{
 							Optional:            true,
-							Description:         "If DHCP snooping is enabled, whether DHCP server is allowed on the interfaces with.\nAll the interfaces from port configs using this port usage are effected. Please notice that allow_dhcpd is a tri_state.\nWhen it is not defined, it means using the system's default setting which depends on whether the port is a access or trunk port.",
-							MarkdownDescription: "If DHCP snooping is enabled, whether DHCP server is allowed on the interfaces with.\nAll the interfaces from port configs using this port usage are effected. Please notice that allow_dhcpd is a tri_state.\nWhen it is not defined, it means using the system's default setting which depends on whether the port is a access or trunk port.",
+							Description:         "If DHCP snooping is enabled, whether DHCP server is allowed on the interfaces with. All the interfaces from port configs using this port usage are effected. Please notice that allow_dhcpd is a tri_state. When it is not defined, it means using the system's default setting which depends on whether the port is a access or trunk port.",
+							MarkdownDescription: "If DHCP snooping is enabled, whether DHCP server is allowed on the interfaces with. All the interfaces from port configs using this port usage are effected. Please notice that allow_dhcpd is a tri_state. When it is not defined, it means using the system's default setting which depends on whether the port is a access or trunk port.",
 						},
 						"allow_multiple_supplicants": schema.BoolAttribute{
 							Optional: true,
@@ -913,8 +913,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						"inter_switch_link": schema.BoolAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "inter_switch_link is used together with \"isolation\" under networks\nNOTE: inter_switch_link works only between Juniper device. This has to be applied to both ports connected together",
-							MarkdownDescription: "inter_switch_link is used together with \"isolation\" under networks\nNOTE: inter_switch_link works only between Juniper device. This has to be applied to both ports connected together",
+							Description:         "inter_switch_link is used together with \"isolation\" under networks. NOTE: inter_switch_link works only between Juniper device. This has to be applied to both ports connected together",
+							MarkdownDescription: "inter_switch_link is used together with \"isolation\" under networks. NOTE: inter_switch_link works only between Juniper device. This has to be applied to both ports connected together",
 							Default:             booldefault.StaticBool(false),
 						},
 						"mac_auth_only": schema.BoolAttribute{
@@ -1207,17 +1207,23 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "only required for EVPN-VXLAN networks, IPv4 Virtual Gateway",
 							MarkdownDescription: "only required for EVPN-VXLAN networks, IPv4 Virtual Gateway",
+							Validators: []validator.String{
+								stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar()),
+							},
 						},
 						"gateway6": schema.StringAttribute{
 							Optional:            true,
 							Description:         "only required for EVPN-VXLAN networks, IPv6 Virtual Gateway",
 							MarkdownDescription: "only required for EVPN-VXLAN networks, IPv6 Virtual Gateway",
+							Validators: []validator.String{
+								stringvalidator.Any(mistvalidator.ParseIp(false, true), mistvalidator.ParseVar()),
+							},
 						},
 						"isolation": schema.BoolAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "whether to stop clients to talk to each other, default is false (when enabled, a unique isolation_vlan_id is required)\nNOTE: this features requires uplink device to also a be Juniper device and `inter_switch_link` to be set",
-							MarkdownDescription: "whether to stop clients to talk to each other, default is false (when enabled, a unique isolation_vlan_id is required)\nNOTE: this features requires uplink device to also a be Juniper device and `inter_switch_link` to be set",
+							Description:         "whether to stop clients to talk to each other, default is false (when enabled, a unique isolation_vlan_id is required). NOTE: this features requires uplink device to also a be Juniper device and `inter_switch_link` to be set",
+							MarkdownDescription: "whether to stop clients to talk to each other, default is false (when enabled, a unique isolation_vlan_id is required). NOTE: this features requires uplink device to also a be Juniper device and `inter_switch_link` to be set",
 							Default:             booldefault.StaticBool(false),
 						},
 						"isolation_vlan_id": schema.StringAttribute{
@@ -1228,13 +1234,16 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "optional for pure switching, required when L3 / routing features are used",
 							MarkdownDescription: "optional for pure switching, required when L3 / routing features are used",
 							Validators: []validator.String{
-								stringvalidator.Any(mistvalidator.ParseCidr(false, true), mistvalidator.ParseVar()),
+								stringvalidator.Any(mistvalidator.ParseCidr(true, false), mistvalidator.ParseVar()),
 							},
 						},
 						"subnet6": schema.StringAttribute{
 							Optional:            true,
 							Description:         "optional for pure switching, required when L3 / routing features are used",
 							MarkdownDescription: "optional for pure switching, required when L3 / routing features are used",
+							Validators: []validator.String{
+								stringvalidator.Any(mistvalidator.ParseCidr(false, true), mistvalidator.ParseVar()),
+							},
 						},
 						"vlan_id": schema.StringAttribute{
 							Required: true,
@@ -1338,8 +1347,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "- If HA configuration: key parameter will be nodeX (eg: node1)\n- If there are 2 routing engines, re1 mgmt IP has to be set separately (if desired): key parameter = `re1`",
-				MarkdownDescription: "- If HA configuration: key parameter will be nodeX (eg: node1)\n- If there are 2 routing engines, re1 mgmt IP has to be set separately (if desired): key parameter = `re1`",
+				Description:         "Switch OOB IP Config:\n  - If HA configuration: key parameter will be nodeX (eg: node1)\n  - If there are 2 routing engines, re1 mgmt IP has to be set separately (if desired): key parameter = `re1`",
+				MarkdownDescription: "Switch OOB IP Config:\n  - If HA configuration: key parameter will be nodeX (eg: node1)\n  - If there are 2 routing engines, re1 mgmt IP has to be set separately (if desired): key parameter = `re1`",
 			},
 			"org_id": schema.StringAttribute{
 				Computed: true,
@@ -1767,8 +1776,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Property key is the port mirroring instance name\nport_mirroring can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 port mirrorings is allowed",
-				MarkdownDescription: "Property key is the port mirroring instance name\nport_mirroring can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 port mirrorings is allowed",
+				Description:         "Property key is the port mirroring instance name. `port_mirroring` can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 port mirrorings is allowed",
+				MarkdownDescription: "Property key is the port mirroring instance name. `port_mirroring` can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 port mirrorings is allowed",
 				Validators: []validator.Map{
 					mapvalidator.SizeAtLeast(1),
 					mapvalidator.SizeAtMost(4),
@@ -1783,16 +1792,16 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Only if `mode`==`trunk` whether to trunk all network/vlans",
 							MarkdownDescription: "Only if `mode`==`trunk` whether to trunk all network/vlans",
 							Validators: []validator.Bool{
-								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("trunk")),
+								mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("trunk"), types.BoolValue(false)),
 							},
 							Default: booldefault.StaticBool(false),
 						},
 						"allow_dhcpd": schema.BoolAttribute{
 							Optional:            true,
-							Description:         "Only if `mode`!=`dynamic`. If DHCP snooping is enabled, whether DHCP server is allowed on the interfaces with.\nAll the interfaces from port configs using this port usage are effected. Please notice that allow_dhcpd is a tri_state.\nWhen it is not defined, it means using the system's default setting which depends on whether the port is a access or trunk port.",
-							MarkdownDescription: "Only if `mode`!=`dynamic`. If DHCP snooping is enabled, whether DHCP server is allowed on the interfaces with.\nAll the interfaces from port configs using this port usage are effected. Please notice that allow_dhcpd is a tri_state.\nWhen it is not defined, it means using the system's default setting which depends on whether the port is a access or trunk port.",
+							Description:         "Only if `mode`!=`dynamic`. If DHCP snooping is enabled, whether DHCP server is allowed on the interfaces with. All the interfaces from port configs using this port usage are effected. Please notice that allow_dhcpd is a tri_state. When it is not defined, it means using the system's default setting which depends on whether the port is a access or trunk port.",
+							MarkdownDescription: "Only if `mode`!=`dynamic`. If DHCP snooping is enabled, whether DHCP server is allowed on the interfaces with. All the interfaces from port configs using this port usage are effected. Please notice that allow_dhcpd is a tri_state. When it is not defined, it means using the system's default setting which depends on whether the port is a access or trunk port.",
 							Validators: []validator.Bool{
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
+								mistvalidator.CannotBeTrueWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
 							},
 						},
 						"allow_multiple_supplicants": schema.BoolAttribute{
@@ -1801,7 +1810,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Only if `mode`!=`dynamic`",
 							MarkdownDescription: "Only if `mode`!=`dynamic`",
 							Validators: []validator.Bool{
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
+								mistvalidator.ForbiddenWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic"), types.BoolValue(false)),
 							},
 							Default: booldefault.StaticBool(false),
 						},
@@ -1811,8 +1820,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Only if `mode`!=`dynamic` and `port_auth`==`dot1x` bypass auth for known clients if set to true when RADIUS server is down",
 							MarkdownDescription: "Only if `mode`!=`dynamic` and `port_auth`==`dot1x` bypass auth for known clients if set to true when RADIUS server is down",
 							Validators: []validator.Bool{
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
-								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x")),
+								mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x"), types.BoolValue(false)),
 							},
 							Default: booldefault.StaticBool(false),
 						},
@@ -1822,8 +1830,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Only if `mode`!=`dynamic` and `port_auth`=`dot1x` bypass auth for all (including unknown clients) if set to true when RADIUS server is down",
 							MarkdownDescription: "Only if `mode`!=`dynamic` and `port_auth`=`dot1x` bypass auth for all (including unknown clients) if set to true when RADIUS server is down",
 							Validators: []validator.Bool{
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
-								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x")),
+								mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x"), types.BoolValue(false)),
 							},
 							Default: booldefault.StaticBool(false),
 						},
@@ -1841,7 +1848,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Only if `mode`!=`dynamic` if speed and duplex are specified, whether to disable autonegotiation",
 							MarkdownDescription: "Only if `mode`!=`dynamic` if speed and duplex are specified, whether to disable autonegotiation",
 							Validators: []validator.Bool{
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
+								mistvalidator.ForbiddenWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic"), types.BoolValue(false)),
 							},
 							Default: booldefault.StaticBool(false),
 						},
@@ -1851,7 +1858,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Only if `mode`!=`dynamic` whether the port is disabled",
 							MarkdownDescription: "Only if `mode`!=`dynamic` whether the port is disabled",
 							Validators: []validator.Bool{
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
+								mistvalidator.ForbiddenWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic"), types.BoolValue(false)),
 							},
 							Default: booldefault.StaticBool(false),
 						},
@@ -1867,7 +1874,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 									"full",
 									"auto",
 								),
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
+								mistvalidator.ForbiddenWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic"), types.StringValue("auto")),
 							},
 							Default: stringdefault.StaticString("auto"),
 						},
@@ -1878,9 +1885,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Only if `mode`!=`dynamic` and `port_auth`==`dot1x`, if dynamic vlan is used, specify the possible networks/vlans RADIUS can return",
 							MarkdownDescription: "Only if `mode`!=`dynamic` and `port_auth`==`dot1x`, if dynamic vlan is used, specify the possible networks/vlans RADIUS can return",
 							Validators: []validator.List{
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
 								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x")),
 							},
+							Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 						},
 						"enable_mac_auth": schema.BoolAttribute{
 							Optional:            true,
@@ -1888,8 +1895,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Only if `mode`!=`dynamic` and `port_auth`==`dot1x` whether to enable MAC Auth",
 							MarkdownDescription: "Only if `mode`!=`dynamic` and `port_auth`==`dot1x` whether to enable MAC Auth",
 							Validators: []validator.Bool{
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
-								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x")),
+								mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x"), types.BoolValue(false)),
 							},
 							Default: booldefault.StaticBool(false),
 						},
@@ -1899,7 +1905,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Only if `mode`!=`dynamic`",
 							MarkdownDescription: "Only if `mode`!=`dynamic`",
 							Validators: []validator.Bool{
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
+								mistvalidator.ForbiddenWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic"), types.BoolValue(false)),
 							},
 							Default: booldefault.StaticBool(false),
 						},
@@ -1908,18 +1914,16 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Only if `mode`!=`dynamic` and `port_auth`==`dot1x` which network to put the device into if the device cannot do dot1x. default is null (i.e. not allowed)",
 							MarkdownDescription: "Only if `mode`!=`dynamic` and `port_auth`==`dot1x` which network to put the device into if the device cannot do dot1x. default is null (i.e. not allowed)",
 							Validators: []validator.String{
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
 								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x")),
 							},
 						},
 						"inter_switch_link": schema.BoolAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "Only if `mode`!=`dynamic` inter_switch_link is used together with \"isolation\" under networks\nNOTE: inter_switch_link works only between Juniper device. This has to be applied to both ports connected together",
-							MarkdownDescription: "Only if `mode`!=`dynamic` inter_switch_link is used together with \"isolation\" under networks\nNOTE: inter_switch_link works only between Juniper device. This has to be applied to both ports connected together",
+							Description:         "Only if `mode`!=`dynamic` inter_switch_link is used together with \"isolation\" under networks. NOTE: inter_switch_link works only between Juniper device. This has to be applied to both ports connected together",
+							MarkdownDescription: "Only if `mode`!=`dynamic` inter_switch_link is used together with \"isolation\" under networks. NOTE: inter_switch_link works only between Juniper device. This has to be applied to both ports connected together",
 							Validators: []validator.Bool{
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
-								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x")),
+								mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x"), types.BoolValue(false)),
 							},
 							Default: booldefault.StaticBool(false),
 						},
@@ -1949,8 +1953,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 									"eap-peap",
 									"eap-md5",
 								),
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
-								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("enable_mac_auth"), types.BoolValue(true)),
+								mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("enable_mac_auth"), types.BoolValue(true), types.StringValue("eap-md5")),
 							},
 							Default: stringdefault.StaticString("eap-md5"),
 						},
@@ -1961,7 +1964,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "Only if `mode`!=`dynamic` max number of mac addresses, default is 0 for unlimited, otherwise range is 1 or higher, with upper bound constrained by platform",
 							Validators: []validator.Int64{
 								int64validator.AtLeast(0),
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
+								mistvalidator.ForbiddenWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic"), types.Int64Value(0)),
 							},
 							Default: int64default.StaticInt64(0),
 						},
@@ -1997,6 +2000,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Validators: []validator.List{
 								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("trunk")),
 							},
+							Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 						},
 						"persist_mac": schema.BoolAttribute{
 							Optional:            true,
@@ -2004,8 +2008,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Only if `mode`==`access` and `port_auth`!=`dot1x` whether the port should retain dynamically learned MAC addresses",
 							MarkdownDescription: "Only if `mode`==`access` and `port_auth`!=`dot1x` whether the port should retain dynamically learned MAC addresses",
 							Validators: []validator.Bool{
-								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("access")),
-								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x")),
+								mistvalidator.CanOnlyBeTrueWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("access")),
+								mistvalidator.CanOnlyBeTrueWhenValueIs(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x")),
 							},
 							Default: booldefault.StaticBool(false),
 						},
@@ -2015,7 +2019,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Only if `mode`!=`dynamic` whether PoE capabilities are disabled for a port",
 							MarkdownDescription: "Only if `mode`!=`dynamic` whether PoE capabilities are disabled for a port",
 							Validators: []validator.Bool{
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
+								mistvalidator.ForbiddenWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic"), types.BoolValue(false)),
 							},
 							Default: booldefault.StaticBool(false),
 						},
@@ -2047,8 +2051,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "Only if `mode`!=`dynamic` and `port_auth`=`dot1x` reauthentication interval range",
 							Validators: []validator.Int64{
 								int64validator.Between(10, 65535),
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
-								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x")),
+								mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x"), types.Int64Value(3600)),
 							},
 							Default: int64default.StaticInt64(3600),
 						},
@@ -2063,7 +2066,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 									"none",
 									"link_down",
 								),
-								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
+								mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic"), types.StringValue("link_down")),
 							},
 							Default: stringdefault.StaticString("link_down"),
 						},
@@ -2128,7 +2131,6 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Only if `mode`!=`dynamic` and `port_auth`==`dot1x` sets server fail fallback vlan",
 							MarkdownDescription: "Only if `mode`!=`dynamic` and `port_auth`==`dot1x` sets server fail fallback vlan",
 							Validators: []validator.String{
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
 								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x")),
 							},
 						},
@@ -2137,7 +2139,6 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Only if `mode`!=`dynamic` and `port_auth`==`dot1x` when radius server reject / fails",
 							MarkdownDescription: "Only if `mode`!=`dynamic` and `port_auth`==`dot1x` when radius server reject / fails",
 							Validators: []validator.String{
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
 								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x")),
 							},
 						},
@@ -2198,8 +2199,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional:            true,
-							Description:         "Switch storm control\nOnly if `mode`!=`dynamic`",
-							MarkdownDescription: "Switch storm control\nOnly if `mode`!=`dynamic`",
+							Description:         "Switch storm control. Only if `mode`!=`dynamic`",
+							MarkdownDescription: "Switch storm control. Only if `mode`!=`dynamic`",
 							Validators: []validator.Object{
 								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
 							},
@@ -2210,26 +2211,35 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Only if `mode`!=`dynamic` when enabled, the port is not expected to receive BPDU frames",
 							MarkdownDescription: "Only if `mode`!=`dynamic` when enabled, the port is not expected to receive BPDU frames",
 							Validators: []validator.Bool{
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
+								mistvalidator.ForbiddenWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic"), types.BoolValue(false)),
 							},
 							Default: booldefault.StaticBool(false),
 						},
 						"stp_no_root_port": schema.BoolAttribute{
 							Optional: true,
 							Computed: true,
-							Default:  booldefault.StaticBool(false),
+							Validators: []validator.Bool{
+								mistvalidator.ForbiddenWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic"), types.BoolValue(false)),
+							},
+							Default: booldefault.StaticBool(false),
 						},
 						"stp_p2p": schema.BoolAttribute{
 							Optional: true,
 							Computed: true,
-							Default:  booldefault.StaticBool(false),
+							Validators: []validator.Bool{
+								mistvalidator.ForbiddenWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic"), types.BoolValue(false)),
+							},
+							Default: booldefault.StaticBool(false),
 						},
 						"use_vstp": schema.BoolAttribute{
 							Optional:            true,
 							Computed:            true,
 							Description:         "if this is connected to a vstp network",
 							MarkdownDescription: "if this is connected to a vstp network",
-							Default:             booldefault.StaticBool(false),
+							Validators: []validator.Bool{
+								mistvalidator.ForbiddenWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic"), types.BoolValue(false)),
+							},
+							Default: booldefault.StaticBool(false),
 						},
 						"voip_network": schema.StringAttribute{
 							Optional:            true,
@@ -2402,8 +2412,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"network": schema.StringAttribute{
 						Optional:            true,
-						Description:         "use `network`or `source_ip`\nwhich network the RADIUS server resides, if there's static IP for this network, we'd use it as source-ip",
-						MarkdownDescription: "use `network`or `source_ip`\nwhich network the RADIUS server resides, if there's static IP for this network, we'd use it as source-ip",
+						Description:         "use `network`or `source_ip`. Which network the RADIUS server resides, if there's static IP for this network, we'd use it as source-ip",
+						MarkdownDescription: "use `network`or `source_ip`. Which network the RADIUS server resides, if there's static IP for this network, we'd use it as source-ip",
 					},
 					"source_ip": schema.StringAttribute{
 						Optional:            true,
@@ -3222,8 +3232,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 												"authentication_password": schema.StringAttribute{
 													Optional:            true,
 													Sensitive:           true,
-													Description:         "Not required if `authentication_type`==`authentication_none`\ninclude alphabetic, numeric, and special characters, but it cannot include control characters.",
-													MarkdownDescription: "Not required if `authentication_type`==`authentication_none`\ninclude alphabetic, numeric, and special characters, but it cannot include control characters.",
+													Description:         "Not required if `authentication_type`==`authentication_none`. Include alphabetic, numeric, and special characters, but it cannot include control characters.",
+													MarkdownDescription: "Not required if `authentication_type`==`authentication_none`. Include alphabetic, numeric, and special characters, but it cannot include control characters.",
 													Validators: []validator.String{
 														stringvalidator.LengthAtLeast(7),
 														mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtMapKey("authentication_type"), types.StringValue("authentication_md5")),
@@ -3254,8 +3264,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 												"encryption_password": schema.StringAttribute{
 													Optional:            true,
 													Sensitive:           true,
-													Description:         "Not required if `encryption_type`==`privacy-none`\ninclude alphabetic, numeric, and special characters, but it cannot include control characters",
-													MarkdownDescription: "Not required if `encryption_type`==`privacy-none`\ninclude alphabetic, numeric, and special characters, but it cannot include control characters",
+													Description:         "Not required if `encryption_type`==`privacy-none`. Include alphabetic, numeric, and special characters, but it cannot include control characters",
+													MarkdownDescription: "Not required if `encryption_type`==`privacy-none`. Include alphabetic, numeric, and special characters, but it cannot include control characters",
 													Validators: []validator.String{
 														stringvalidator.LengthAtLeast(8),
 														mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtMapKey("encryption_type"), types.StringValue("privacy-aes128")),
@@ -3640,8 +3650,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 												listvalidator.SizeAtLeast(1),
 												listvalidator.ValueStringsAre(
 													stringvalidator.Any(
-														mistvalidator.ParseCidr(true, true),
-														mistvalidator.ParseIp(true, true),
+														mistvalidator.ParseCidr(false, false),
+														mistvalidator.ParseIp(false, false),
 													),
 												),
 											},
@@ -4002,7 +4012,6 @@ type DeviceSwitchModel struct {
 	DisableAutoConfig     types.Bool          `tfsdk:"disable_auto_config"`
 	DnsServers            types.List          `tfsdk:"dns_servers"`
 	DnsSuffix             types.List          `tfsdk:"dns_suffix"`
-	EvpnConfig            EvpnConfigValue     `tfsdk:"evpn_config"`
 	ExtraRoutes           types.Map           `tfsdk:"extra_routes"`
 	ExtraRoutes6          types.Map           `tfsdk:"extra_routes6"`
 	Image1Url             types.String        `tfsdk:"image1_url"`
@@ -9591,385 +9600,6 @@ func (v VendorEncapsulatedValue) AttributeTypes(ctx context.Context) map[string]
 	}
 }
 
-var _ basetypes.ObjectTypable = EvpnConfigType{}
-
-type EvpnConfigType struct {
-	basetypes.ObjectType
-}
-
-func (t EvpnConfigType) Equal(o attr.Type) bool {
-	other, ok := o.(EvpnConfigType)
-
-	if !ok {
-		return false
-	}
-
-	return t.ObjectType.Equal(other.ObjectType)
-}
-
-func (t EvpnConfigType) String() string {
-	return "EvpnConfigType"
-}
-
-func (t EvpnConfigType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
-	var diags diag.Diagnostics
-
-	attributes := in.Attributes()
-
-	enabledAttribute, ok := attributes["enabled"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`enabled is missing from object`)
-
-		return nil, diags
-	}
-
-	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
-	}
-
-	roleAttribute, ok := attributes["role"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`role is missing from object`)
-
-		return nil, diags
-	}
-
-	roleVal, ok := roleAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`role expected to be basetypes.StringValue, was: %T`, roleAttribute))
-	}
-
-	if diags.HasError() {
-		return nil, diags
-	}
-
-	return EvpnConfigValue{
-		Enabled: enabledVal,
-		Role:    roleVal,
-		state:   attr.ValueStateKnown,
-	}, diags
-}
-
-func NewEvpnConfigValueNull() EvpnConfigValue {
-	return EvpnConfigValue{
-		state: attr.ValueStateNull,
-	}
-}
-
-func NewEvpnConfigValueUnknown() EvpnConfigValue {
-	return EvpnConfigValue{
-		state: attr.ValueStateUnknown,
-	}
-}
-
-func NewEvpnConfigValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (EvpnConfigValue, diag.Diagnostics) {
-	var diags diag.Diagnostics
-
-	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
-	ctx := context.Background()
-
-	for name, attributeType := range attributeTypes {
-		attribute, ok := attributes[name]
-
-		if !ok {
-			diags.AddError(
-				"Missing EvpnConfigValue Attribute Value",
-				"While creating a EvpnConfigValue value, a missing attribute value was detected. "+
-					"A EvpnConfigValue must contain values for all attributes, even if null or unknown. "+
-					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("EvpnConfigValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
-			)
-
-			continue
-		}
-
-		if !attributeType.Equal(attribute.Type(ctx)) {
-			diags.AddError(
-				"Invalid EvpnConfigValue Attribute Type",
-				"While creating a EvpnConfigValue value, an invalid attribute value was detected. "+
-					"A EvpnConfigValue must use a matching attribute type for the value. "+
-					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("EvpnConfigValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
-					fmt.Sprintf("EvpnConfigValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
-			)
-		}
-	}
-
-	for name := range attributes {
-		_, ok := attributeTypes[name]
-
-		if !ok {
-			diags.AddError(
-				"Extra EvpnConfigValue Attribute Value",
-				"While creating a EvpnConfigValue value, an extra attribute value was detected. "+
-					"A EvpnConfigValue must not contain values beyond the expected attribute types. "+
-					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("Extra EvpnConfigValue Attribute Name: %s", name),
-			)
-		}
-	}
-
-	if diags.HasError() {
-		return NewEvpnConfigValueUnknown(), diags
-	}
-
-	enabledAttribute, ok := attributes["enabled"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`enabled is missing from object`)
-
-		return NewEvpnConfigValueUnknown(), diags
-	}
-
-	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
-	}
-
-	roleAttribute, ok := attributes["role"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`role is missing from object`)
-
-		return NewEvpnConfigValueUnknown(), diags
-	}
-
-	roleVal, ok := roleAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`role expected to be basetypes.StringValue, was: %T`, roleAttribute))
-	}
-
-	if diags.HasError() {
-		return NewEvpnConfigValueUnknown(), diags
-	}
-
-	return EvpnConfigValue{
-		Enabled: enabledVal,
-		Role:    roleVal,
-		state:   attr.ValueStateKnown,
-	}, diags
-}
-
-func NewEvpnConfigValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) EvpnConfigValue {
-	object, diags := NewEvpnConfigValue(attributeTypes, attributes)
-
-	if diags.HasError() {
-		// This could potentially be added to the diag package.
-		diagsStrings := make([]string, 0, len(diags))
-
-		for _, diagnostic := range diags {
-			diagsStrings = append(diagsStrings, fmt.Sprintf(
-				"%s | %s | %s",
-				diagnostic.Severity(),
-				diagnostic.Summary(),
-				diagnostic.Detail()))
-		}
-
-		panic("NewEvpnConfigValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
-	}
-
-	return object
-}
-
-func (t EvpnConfigType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
-	if in.Type() == nil {
-		return NewEvpnConfigValueNull(), nil
-	}
-
-	if !in.Type().Equal(t.TerraformType(ctx)) {
-		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
-	}
-
-	if !in.IsKnown() {
-		return NewEvpnConfigValueUnknown(), nil
-	}
-
-	if in.IsNull() {
-		return NewEvpnConfigValueNull(), nil
-	}
-
-	attributes := map[string]attr.Value{}
-
-	val := map[string]tftypes.Value{}
-
-	err := in.As(&val)
-
-	if err != nil {
-		return nil, err
-	}
-
-	for k, v := range val {
-		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
-
-		if err != nil {
-			return nil, err
-		}
-
-		attributes[k] = a
-	}
-
-	return NewEvpnConfigValueMust(EvpnConfigValue{}.AttributeTypes(ctx), attributes), nil
-}
-
-func (t EvpnConfigType) ValueType(ctx context.Context) attr.Value {
-	return EvpnConfigValue{}
-}
-
-var _ basetypes.ObjectValuable = EvpnConfigValue{}
-
-type EvpnConfigValue struct {
-	Enabled basetypes.BoolValue   `tfsdk:"enabled"`
-	Role    basetypes.StringValue `tfsdk:"role"`
-	state   attr.ValueState
-}
-
-func (v EvpnConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 2)
-
-	var val tftypes.Value
-	var err error
-
-	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["role"] = basetypes.StringType{}.TerraformType(ctx)
-
-	objectType := tftypes.Object{AttributeTypes: attrTypes}
-
-	switch v.state {
-	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 2)
-
-		val, err = v.Enabled.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["enabled"] = val
-
-		val, err = v.Role.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["role"] = val
-
-		if err := tftypes.ValidateValue(objectType, vals); err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		return tftypes.NewValue(objectType, vals), nil
-	case attr.ValueStateNull:
-		return tftypes.NewValue(objectType, nil), nil
-	case attr.ValueStateUnknown:
-		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
-	default:
-		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
-	}
-}
-
-func (v EvpnConfigValue) IsNull() bool {
-	return v.state == attr.ValueStateNull
-}
-
-func (v EvpnConfigValue) IsUnknown() bool {
-	return v.state == attr.ValueStateUnknown
-}
-
-func (v EvpnConfigValue) String() string {
-	return "EvpnConfigValue"
-}
-
-func (v EvpnConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
-	var diags diag.Diagnostics
-
-	attributeTypes := map[string]attr.Type{
-		"enabled": basetypes.BoolType{},
-		"role":    basetypes.StringType{},
-	}
-
-	if v.IsNull() {
-		return types.ObjectNull(attributeTypes), diags
-	}
-
-	if v.IsUnknown() {
-		return types.ObjectUnknown(attributeTypes), diags
-	}
-
-	objVal, diags := types.ObjectValue(
-		attributeTypes,
-		map[string]attr.Value{
-			"enabled": v.Enabled,
-			"role":    v.Role,
-		})
-
-	return objVal, diags
-}
-
-func (v EvpnConfigValue) Equal(o attr.Value) bool {
-	other, ok := o.(EvpnConfigValue)
-
-	if !ok {
-		return false
-	}
-
-	if v.state != other.state {
-		return false
-	}
-
-	if v.state != attr.ValueStateKnown {
-		return true
-	}
-
-	if !v.Enabled.Equal(other.Enabled) {
-		return false
-	}
-
-	if !v.Role.Equal(other.Role) {
-		return false
-	}
-
-	return true
-}
-
-func (v EvpnConfigValue) Type(ctx context.Context) attr.Type {
-	return EvpnConfigType{
-		basetypes.ObjectType{
-			AttrTypes: v.AttributeTypes(ctx),
-		},
-	}
-}
-
-func (v EvpnConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
-	return map[string]attr.Type{
-		"enabled": basetypes.BoolType{},
-		"role":    basetypes.StringType{},
-	}
-}
-
 var _ basetypes.ObjectTypable = ExtraRoutesType{}
 
 type ExtraRoutesType struct {
@@ -12726,6 +12356,24 @@ func (t LocalPortConfigType) ValueFromObject(ctx context.Context, in basetypes.O
 			fmt.Sprintf(`networks expected to be basetypes.ListValue, was: %T`, networksAttribute))
 	}
 
+	noteAttribute, ok := attributes["note"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`note is missing from object`)
+
+		return nil, diags
+	}
+
+	noteVal, ok := noteAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`note expected to be basetypes.StringValue, was: %T`, noteAttribute))
+	}
+
 	persistMacAttribute, ok := attributes["persist_mac"]
 
 	if !ok {
@@ -13022,6 +12670,7 @@ func (t LocalPortConfigType) ValueFromObject(ctx context.Context, in basetypes.O
 		Mode:                                     modeVal,
 		Mtu:                                      mtuVal,
 		Networks:                                 networksVal,
+		Note:                                     noteVal,
 		PersistMac:                               persistMacVal,
 		PoeDisabled:                              poeDisabledVal,
 		PortAuth:                                 portAuthVal,
@@ -13482,6 +13131,24 @@ func NewLocalPortConfigValue(attributeTypes map[string]attr.Type, attributes map
 			fmt.Sprintf(`networks expected to be basetypes.ListValue, was: %T`, networksAttribute))
 	}
 
+	noteAttribute, ok := attributes["note"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`note is missing from object`)
+
+		return NewLocalPortConfigValueUnknown(), diags
+	}
+
+	noteVal, ok := noteAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`note expected to be basetypes.StringValue, was: %T`, noteAttribute))
+	}
+
 	persistMacAttribute, ok := attributes["persist_mac"]
 
 	if !ok {
@@ -13778,6 +13445,7 @@ func NewLocalPortConfigValue(attributeTypes map[string]attr.Type, attributes map
 		Mode:                                     modeVal,
 		Mtu:                                      mtuVal,
 		Networks:                                 networksVal,
+		Note:                                     noteVal,
 		PersistMac:                               persistMacVal,
 		PoeDisabled:                              poeDisabledVal,
 		PortAuth:                                 portAuthVal,
@@ -13886,6 +13554,7 @@ type LocalPortConfigValue struct {
 	Mode                                     basetypes.StringValue `tfsdk:"mode"`
 	Mtu                                      basetypes.Int64Value  `tfsdk:"mtu"`
 	Networks                                 basetypes.ListValue   `tfsdk:"networks"`
+	Note                                     basetypes.StringValue `tfsdk:"note"`
 	PersistMac                               basetypes.BoolValue   `tfsdk:"persist_mac"`
 	PoeDisabled                              basetypes.BoolValue   `tfsdk:"poe_disabled"`
 	PortAuth                                 basetypes.StringValue `tfsdk:"port_auth"`
@@ -13905,7 +13574,7 @@ type LocalPortConfigValue struct {
 }
 
 func (v LocalPortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 36)
+	attrTypes := make(map[string]tftypes.Type, 37)
 
 	var val tftypes.Value
 	var err error
@@ -13935,6 +13604,7 @@ func (v LocalPortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Val
 	attrTypes["networks"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
+	attrTypes["note"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["persist_mac"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["poe_disabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["port_auth"] = basetypes.StringType{}.TerraformType(ctx)
@@ -13957,7 +13627,7 @@ func (v LocalPortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Val
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 36)
+		vals := make(map[string]tftypes.Value, 37)
 
 		val, err = v.AllNetworks.ToTerraformValue(ctx)
 
@@ -14126,6 +13796,14 @@ func (v LocalPortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Val
 		}
 
 		vals["networks"] = val
+
+		val, err = v.Note.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["note"] = val
 
 		val, err = v.PersistMac.ToTerraformValue(ctx)
 
@@ -14328,6 +14006,7 @@ func (v LocalPortConfigValue) ToObjectValue(ctx context.Context) (basetypes.Obje
 			"networks": basetypes.ListType{
 				ElemType: types.StringType,
 			},
+			"note":                  basetypes.StringType{},
 			"persist_mac":           basetypes.BoolType{},
 			"poe_disabled":          basetypes.BoolType{},
 			"port_auth":             basetypes.StringType{},
@@ -14379,6 +14058,7 @@ func (v LocalPortConfigValue) ToObjectValue(ctx context.Context) (basetypes.Obje
 			"networks": basetypes.ListType{
 				ElemType: types.StringType,
 			},
+			"note":                  basetypes.StringType{},
 			"persist_mac":           basetypes.BoolType{},
 			"poe_disabled":          basetypes.BoolType{},
 			"port_auth":             basetypes.StringType{},
@@ -14425,6 +14105,7 @@ func (v LocalPortConfigValue) ToObjectValue(ctx context.Context) (basetypes.Obje
 		"networks": basetypes.ListType{
 			ElemType: types.StringType,
 		},
+		"note":                  basetypes.StringType{},
 		"persist_mac":           basetypes.BoolType{},
 		"poe_disabled":          basetypes.BoolType{},
 		"port_auth":             basetypes.StringType{},
@@ -14476,6 +14157,7 @@ func (v LocalPortConfigValue) ToObjectValue(ctx context.Context) (basetypes.Obje
 			"mode":                                            v.Mode,
 			"mtu":                                             v.Mtu,
 			"networks":                                        networksVal,
+			"note":                                            v.Note,
 			"persist_mac":                                     v.PersistMac,
 			"poe_disabled":                                    v.PoeDisabled,
 			"port_auth":                                       v.PortAuth,
@@ -14595,6 +14277,10 @@ func (v LocalPortConfigValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.Note.Equal(other.Note) {
+		return false
+	}
+
 	if !v.PersistMac.Equal(other.PersistMac) {
 		return false
 	}
@@ -14693,6 +14379,7 @@ func (v LocalPortConfigValue) AttributeTypes(ctx context.Context) map[string]att
 		"networks": basetypes.ListType{
 			ElemType: types.StringType,
 		},
+		"note":                  basetypes.StringType{},
 		"persist_mac":           basetypes.BoolType{},
 		"poe_disabled":          basetypes.BoolType{},
 		"port_auth":             basetypes.StringType{},
