@@ -586,37 +586,6 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 					listvalidator.SizeAtLeast(1),
 				},
 			},
-			"evpn_config": schema.SingleNestedAttribute{
-				Attributes: map[string]schema.Attribute{
-					"enabled": schema.BoolAttribute{
-						Computed: true,
-					},
-					"role": schema.StringAttribute{
-						Computed:            true,
-						Description:         "enum: `access`, `collapsed-core`, `core`, `distribution`, `esilag-access`, `none`",
-						MarkdownDescription: "enum: `access`, `collapsed-core`, `core`, `distribution`, `esilag-access`, `none`",
-						Validators: []validator.String{
-							stringvalidator.OneOf(
-								"",
-								"access",
-								"collapsed-core",
-								"core",
-								"distribution",
-								"esilag-access",
-								"none",
-							),
-						},
-					},
-				},
-				CustomType: EvpnConfigType{
-					ObjectType: types.ObjectType{
-						AttrTypes: EvpnConfigValue{}.AttributeTypes(ctx),
-					},
-				},
-				Computed:            true,
-				Description:         "EVPN Junos settings",
-				MarkdownDescription: "EVPN Junos settings",
-			},
 			"extra_routes": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
