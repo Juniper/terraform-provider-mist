@@ -11,9 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
@@ -27,10 +25,9 @@ func OrgWxtagResourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
+				Computed:            true,
+				Description:         "Unique ID of the object instance in the Mist Organnization",
+				MarkdownDescription: "Unique ID of the object instance in the Mist Organnization",
 			},
 			"mac": schema.StringAttribute{
 				Optional:            true,
@@ -106,8 +103,8 @@ func OrgWxtagResourceSchema(ctx context.Context) schema.Schema {
 								listvalidator.SizeAtLeast(1),
 								listvalidator.ValueStringsAre(
 									stringvalidator.Any(
-										mistvalidator.ParseCidr(true, true),
-										mistvalidator.ParseIp(true, true),
+										mistvalidator.ParseCidr(false, false),
+										mistvalidator.ParseIp(false, false),
 										mistvalidator.ParseVar(),
 									),
 								),

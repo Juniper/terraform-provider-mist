@@ -25,7 +25,9 @@ func SiteWxtagResourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Unique ID of the object instance in the Mist Organnization",
+				MarkdownDescription: "Unique ID of the object instance in the Mist Organnization",
 			},
 			"mac": schema.StringAttribute{
 				Optional:            true,
@@ -101,8 +103,8 @@ func SiteWxtagResourceSchema(ctx context.Context) schema.Schema {
 								listvalidator.SizeAtLeast(1),
 								listvalidator.ValueStringsAre(
 									stringvalidator.Any(
-										mistvalidator.ParseCidr(true, true),
-										mistvalidator.ParseIp(true, true),
+										mistvalidator.ParseCidr(false, false),
+										mistvalidator.ParseIp(false, false),
 										mistvalidator.ParseVar(),
 									),
 								),
