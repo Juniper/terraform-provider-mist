@@ -85,8 +85,8 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"extended_v4_nexthop": schema.BoolAttribute{
 							Optional:            true,
-							Description:         "by default, either inet/net6 unicast depending on neighbor IP family (v4 or v6)\nfor v6 neighbors, to exchange v4 nexthop, which allows dual-stack support, enable this",
-							MarkdownDescription: "by default, either inet/net6 unicast depending on neighbor IP family (v4 or v6)\nfor v6 neighbors, to exchange v4 nexthop, which allows dual-stack support, enable this",
+							Description:         "by default, either inet/net6 unicast depending on neighbor IP family (v4 or v6). For v6 neighbors, to exchange v4 nexthop, which allows dual-stack support, enable this",
+							MarkdownDescription: "by default, either inet/net6 unicast depending on neighbor IP family (v4 or v6). For v6 neighbors, to exchange v4 nexthop, which allows dual-stack support, enable this",
 						},
 						"graceful_restart_time": schema.Int64Attribute{
 							Optional:            true,
@@ -1081,15 +1081,15 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									},
 									"no_readvertise_to_overlay": schema.BoolAttribute{
 										Optional:            true,
-										Description:         "toward overlay\nhow HUB should deal with routes it received from Spokes",
-										MarkdownDescription: "toward overlay\nhow HUB should deal with routes it received from Spokes",
+										Description:         "toward overlay, how HUB should deal with routes it received from Spokes",
+										MarkdownDescription: "toward overlay, how HUB should deal with routes it received from Spokes",
 									},
 									"other_vrfs": schema.ListAttribute{
 										ElementType:         types.StringType,
 										Optional:            true,
 										Computed:            true,
-										Description:         "by default, the routes are only readvertised toward the same vrf on spoke\nto allow it to be leaked to other vrfs",
-										MarkdownDescription: "by default, the routes are only readvertised toward the same vrf on spoke\nto allow it to be leaked to other vrfs",
+										Description:         "by default, the routes are only readvertised toward the same vrf on spoke. To allow it to be leaked to other vrfs",
+										MarkdownDescription: "by default, the routes are only readvertised toward the same vrf on spoke. To allow it to be leaked to other vrfs",
 										Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 									},
 									"routed": schema.BoolAttribute{
@@ -1115,8 +1115,8 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									},
 									"summarized_subnet": schema.StringAttribute{
 										Optional:            true,
-										Description:         "toward overlay\nhow HUB should deal with routes it received from Spokes",
-										MarkdownDescription: "toward overlay\nhow HUB should deal with routes it received from Spokes",
+										Description:         "toward overlay, how HUB should deal with routes it received from Spokes",
+										MarkdownDescription: "toward overlay, how HUB should deal with routes it received from Spokes",
 									},
 									"summarized_subnet_to_lan_bgp": schema.StringAttribute{
 										Optional:            true,
@@ -1628,30 +1628,27 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									"vdsl",
 									"adsl",
 								),
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("broadband")),
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("lte")),
+								mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("dsl"), types.StringValue("vdsl")),
 							},
 							Default: stringdefault.StaticString("vdsl"),
 						},
 						"dsl_vci": schema.Int64Attribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "if `wan_type`==`dsl`\n16 bit int",
-							MarkdownDescription: "if `wan_type`==`dsl`\n16 bit int",
+							Description:         "if `wan_type`==`dsl`, 16 bit int",
+							MarkdownDescription: "if `wan_type`==`dsl`, 16 bit int",
 							Validators: []validator.Int64{
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("broadband")),
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("lte")),
+								mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("dsl"), types.Int64Value(35)),
 							},
 							Default: int64default.StaticInt64(35),
 						},
 						"dsl_vpi": schema.Int64Attribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "if `wan_type`==`dsl`\n8 bit int",
-							MarkdownDescription: "if `wan_type`==`dsl`\n8 bit int",
+							Description:         "if `wan_type`==`dsl`, 8 bit int",
+							MarkdownDescription: "if `wan_type`==`dsl`, 8 bit int",
 							Validators: []validator.Int64{
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("broadband")),
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("lte")),
+								mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("dsl"), types.Int64Value(0)),
 							},
 							Default: int64default.StaticInt64(0),
 						},
@@ -1675,8 +1672,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "if `wan_type`==`lte`",
 							MarkdownDescription: "if `wan_type`==`lte`",
 							Validators: []validator.String{
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("broadband")),
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("dsl")),
+								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("lte")),
 							},
 						},
 						"lte_auth": schema.StringAttribute{
@@ -1691,8 +1687,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									"chap",
 									"pap",
 								),
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("broadband")),
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("dsl")),
+								mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("lte"), types.StringValue("none")),
 							},
 							Default: stringdefault.StaticString("none"),
 						},
@@ -1705,8 +1700,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "if `wan_type`==`lte`",
 							MarkdownDescription: "if `wan_type`==`lte`",
 							Validators: []validator.String{
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("broadband")),
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("dsl")),
+								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("lte")),
 							},
 						},
 						"lte_username": schema.StringAttribute{
@@ -1714,8 +1708,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "if `wan_type`==`lte`",
 							MarkdownDescription: "if `wan_type`==`lte`",
 							Validators: []validator.String{
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("broadband")),
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("dsl")),
+								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("lte")),
 							},
 						},
 						"mtu": schema.Int64Attribute{
@@ -2089,8 +2082,11 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Only if `usage`==`wan`. Property Key is the destianation CIDR (e.g \"100.100.100.0/24\")",
 							MarkdownDescription: "Only if `usage`==`wan`. Property Key is the destianation CIDR (e.g \"100.100.100.0/24\")",
 							Validators: []validator.Map{
-								mapvalidator.SizeAtLeast(1),
-								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("wan")),
+								mistvalidator.AllowedWhenValueIsWithDefault(
+									path.MatchRelative().AtParent().AtName("usage"),
+									types.StringValue("wan"),
+									types.MapValueMust(WanExtraRoutesValue{}.Type(ctx), map[string]attr.Value{}),
+								),
 							},
 						},
 						"wan_networks": schema.ListAttribute{
@@ -2178,9 +2174,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									"dsl",
 									"lte",
 								),
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("lan")),
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("ha_data")),
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("ha_control")),
+								mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("wan"), types.StringValue("broadband")),
 							},
 							Default: stringdefault.StaticString("broadband"),
 						},
@@ -2351,8 +2345,8 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 													"vrf_name": schema.StringAttribute{
 														Optional:            true,
 														Computed:            true,
-														Description:         "name of the vrf instance\nit can also be the name of the VPN or wan if they",
-														MarkdownDescription: "name of the vrf instance\nit can also be the name of the VPN or wan if they",
+														Description:         "name of the vrf instance, it can also be the name of the VPN or wan if they",
+														MarkdownDescription: "name of the vrf instance, it can also be the name of the VPN or wan if they",
 														Default:             stringdefault.StaticString("default"),
 													},
 												},
@@ -2372,8 +2366,8 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 											"vpn_path": schema.ListAttribute{
 												ElementType:         types.StringType,
 												Optional:            true,
-												Description:         "overlay-facing criteria (used for bgp_config where via=vpn)\nordered-",
-												MarkdownDescription: "overlay-facing criteria (used for bgp_config where via=vpn)\nordered-",
+												Description:         "overlay-facing criteria (used for bgp_config where via=vpn). ordered-",
+												MarkdownDescription: "overlay-facing criteria (used for bgp_config where via=vpn). ordered-",
 											},
 											"vpn_path_sla": schema.SingleNestedAttribute{
 												Attributes: map[string]schema.Attribute{
@@ -2569,8 +2563,8 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"path_preference": schema.StringAttribute{
 							Optional:            true,
-							Description:         "by default, we derive all paths available and use them\noptionally, you can customize by using `path_preference`",
-							MarkdownDescription: "by default, we derive all paths available and use them\noptionally, you can customize by using `path_preference`",
+							Description:         "by default, we derive all paths available and use them. Optionally, you can customize by using `path_preference`",
+							MarkdownDescription: "by default, we derive all paths available and use them. Optionally, you can customize by using `path_preference`",
 						},
 						"servicepolicy_id": schema.StringAttribute{
 							Optional:            true,
