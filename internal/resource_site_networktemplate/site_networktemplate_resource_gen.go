@@ -61,8 +61,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional:            true,
-							Description:         "- for GBP-based policy, all src_tags and dst_tags have to be gbp-based\n- for ACL-based policy, `network` is required in either the source or destination so that we know where to attach the policy to",
-							MarkdownDescription: "- for GBP-based policy, all src_tags and dst_tags have to be gbp-based\n- for ACL-based policy, `network` is required in either the source or destination so that we know where to attach the policy to",
+							Description:         "ACL Policy Actions:\n  - for GBP-based policy, all src_tags and dst_tags have to be gbp-based\n  - for ACL-based policy, `network` is required in either the source or destination so that we know where to attach the policy to",
+							MarkdownDescription: "ACL Policy Actions:\n  - for GBP-based policy, all src_tags and dst_tags have to be gbp-based\n  - for ACL-based policy, `network` is required in either the source or destination so that we know where to attach the policy to",
 							Validators: []validator.List{
 								listvalidator.SizeAtLeast(1),
 							},
@@ -73,8 +73,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						"src_tags": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Optional:            true,
-							Description:         "- for GBP-based policy, all src_tags and dst_tags have to be gbp-based\n- for ACL-based policy, `network` is required in either the source or destination so that we know where to attach the policy to",
-							MarkdownDescription: "- for GBP-based policy, all src_tags and dst_tags have to be gbp-based\n- for ACL-based policy, `network` is required in either the source or destination so that we know where to attach the policy to",
+							Description:         "ACL Policy Source Tags:\n  - for GBP-based policy, all src_tags and dst_tags have to be gbp-based\n  - for ACL-based policy, `network` is required in either the source or destination so that we know where to attach the policy to",
+							MarkdownDescription: "ACL Policy Source Tags:\n  - for GBP-based policy, all src_tags and dst_tags have to be gbp-based\n  - for ACL-based policy, `network` is required in either the source or destination so that we know where to attach the policy to",
 							Validators: []validator.List{
 								listvalidator.SizeAtLeast(1),
 							},
@@ -96,8 +96,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					Attributes: map[string]schema.Attribute{
 						"gbp_tag": schema.Int64Attribute{
 							Optional:            true,
-							Description:         "required if\n- `type`==`dynamic_gbp` (gbp_tag received from RADIUS)\n- `type`==`gbp_resource`\n- `type`==`static_gbp` (applying gbp tag against matching conditions)",
-							MarkdownDescription: "required if\n- `type`==`dynamic_gbp` (gbp_tag received from RADIUS)\n- `type`==`gbp_resource`\n- `type`==`static_gbp` (applying gbp tag against matching conditions)",
+							Description:         "required if\n  - `type`==`dynamic_gbp` (gbp_tag received from RADIUS)\n  - `type`==`gbp_resource`\n  - `type`==`static_gbp` (applying gbp tag against matching conditions)",
+							MarkdownDescription: "required if\n  - `type`==`dynamic_gbp` (gbp_tag received from RADIUS)\n  - `type`==`gbp_resource`\n  - `type`==`static_gbp` (applying gbp tag against matching conditions)",
 							Validators: []validator.Int64{
 								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("dynamic_gbp")),
 								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static_gbp")),
@@ -153,13 +153,13 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 												mistvalidator.ParseRangeOfInt(0, 65535, true),
 											),
 										},
-										Default: stringdefault.StaticString("80"),
+										Default: stringdefault.StaticString("0"),
 									},
 									"protocol": schema.StringAttribute{
 										Optional:            true,
 										Computed:            true,
-										Description:         "`tcp` / `udp` / `icmp` / `gre` / `any` / `:protocol_number`. `protocol_number` is between 1-254",
-										MarkdownDescription: "`tcp` / `udp` / `icmp` / `gre` / `any` / `:protocol_number`. `protocol_number` is between 1-254",
+										Description:         "`tcp` / `udp` / `icmp` / `icmp6` / `gre` / `any` / `:protocol_number`, `protocol_number` is between 1-254, default is `any` `protocol_number` is between 1-254",
+										MarkdownDescription: "`tcp` / `udp` / `icmp` / `icmp6` / `gre` / `any` / `:protocol_number`, `protocol_number` is between 1-254, default is `any` `protocol_number` is between 1-254",
 										Validators: []validator.String{
 											stringvalidator.Any(
 												stringvalidator.OneOf(
@@ -183,8 +183,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional:            true,
-							Description:         "if `type`==`resource` or `type`==`gbp_resource`\nempty means unrestricted, i.e. any",
-							MarkdownDescription: "if `type`==`resource` or `type`==`gbp_resource`\nempty means unrestricted, i.e. any",
+							Description:         "if `type`==`resource` or `type`==`gbp_resource`. Empty means unrestricted, i.e. any",
+							MarkdownDescription: "if `type`==`resource` or `type`==`gbp_resource`. Empty means unrestricted, i.e. any",
 							Validators: []validator.List{
 								listvalidator.SizeAtLeast(1),
 							},
@@ -486,8 +486,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						"isolation": schema.BoolAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "whether to stop clients to talk to each other, default is false (when enabled, a unique isolation_vlan_id is required)\nNOTE: this features requires uplink device to also a be Juniper device and `inter_switch_link` to be set",
-							MarkdownDescription: "whether to stop clients to talk to each other, default is false (when enabled, a unique isolation_vlan_id is required)\nNOTE: this features requires uplink device to also a be Juniper device and `inter_switch_link` to be set",
+							Description:         "whether to stop clients to talk to each other, default is false (when enabled, a unique isolation_vlan_id is required). NOTE: this features requires uplink device to also a be Juniper device and `inter_switch_link` to be set",
+							MarkdownDescription: "whether to stop clients to talk to each other, default is false (when enabled, a unique isolation_vlan_id is required). NOTE: this features requires uplink device to also a be Juniper device and `inter_switch_link` to be set",
 							Default:             booldefault.StaticBool(false),
 						},
 						"isolation_vlan_id": schema.StringAttribute{
@@ -747,8 +747,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Property key is the port mirroring instance name\nport_mirroring can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 port mirrorings is allowed",
-				MarkdownDescription: "Property key is the port mirroring instance name\nport_mirroring can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 port mirrorings is allowed",
+				Description:         "Property key is the port mirroring instance name. `port_mirroring` can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 port mirrorings is allowed",
+				MarkdownDescription: "Property key is the port mirroring instance name. `port_mirroring` can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 port mirrorings is allowed",
 				Validators: []validator.Map{
 					mapvalidator.SizeAtLeast(1),
 					mapvalidator.SizeAtMost(4),
@@ -763,16 +763,16 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Only if `mode`==`trunk` whether to trunk all network/vlans",
 							MarkdownDescription: "Only if `mode`==`trunk` whether to trunk all network/vlans",
 							Validators: []validator.Bool{
-								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("trunk")),
+								mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("trunk"), types.BoolValue(false)),
 							},
 							Default: booldefault.StaticBool(false),
 						},
 						"allow_dhcpd": schema.BoolAttribute{
 							Optional:            true,
-							Description:         "Only if `mode`!=`dynamic`. If DHCP snooping is enabled, whether DHCP server is allowed on the interfaces with.\nAll the interfaces from port configs using this port usage are effected. Please notice that allow_dhcpd is a tri_state.\nWhen it is not defined, it means using the system's default setting which depends on whether the port is a access or trunk port.",
-							MarkdownDescription: "Only if `mode`!=`dynamic`. If DHCP snooping is enabled, whether DHCP server is allowed on the interfaces with.\nAll the interfaces from port configs using this port usage are effected. Please notice that allow_dhcpd is a tri_state.\nWhen it is not defined, it means using the system's default setting which depends on whether the port is a access or trunk port.",
+							Description:         "Only if `mode`!=`dynamic`. If DHCP snooping is enabled, whether DHCP server is allowed on the interfaces with. All the interfaces from port configs using this port usage are effected. Please notice that allow_dhcpd is a tri_state. When it is not defined, it means using the system's default setting which depends on whether the port is a access or trunk port.",
+							MarkdownDescription: "Only if `mode`!=`dynamic`. If DHCP snooping is enabled, whether DHCP server is allowed on the interfaces with. All the interfaces from port configs using this port usage are effected. Please notice that allow_dhcpd is a tri_state. When it is not defined, it means using the system's default setting which depends on whether the port is a access or trunk port.",
 							Validators: []validator.Bool{
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
+								mistvalidator.CannotBeTrueWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
 							},
 						},
 						"allow_multiple_supplicants": schema.BoolAttribute{
@@ -781,7 +781,7 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Only if `mode`!=`dynamic`",
 							MarkdownDescription: "Only if `mode`!=`dynamic`",
 							Validators: []validator.Bool{
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
+								mistvalidator.ForbiddenWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic"), types.BoolValue(false)),
 							},
 							Default: booldefault.StaticBool(false),
 						},
@@ -791,8 +791,7 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Only if `mode`!=`dynamic` and `port_auth`==`dot1x` bypass auth for known clients if set to true when RADIUS server is down",
 							MarkdownDescription: "Only if `mode`!=`dynamic` and `port_auth`==`dot1x` bypass auth for known clients if set to true when RADIUS server is down",
 							Validators: []validator.Bool{
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
-								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x")),
+								mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x"), types.BoolValue(false)),
 							},
 							Default: booldefault.StaticBool(false),
 						},
@@ -802,8 +801,7 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Only if `mode`!=`dynamic` and `port_auth`=`dot1x` bypass auth for all (including unknown clients) if set to true when RADIUS server is down",
 							MarkdownDescription: "Only if `mode`!=`dynamic` and `port_auth`=`dot1x` bypass auth for all (including unknown clients) if set to true when RADIUS server is down",
 							Validators: []validator.Bool{
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
-								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x")),
+								mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x"), types.BoolValue(false)),
 							},
 							Default: booldefault.StaticBool(false),
 						},
@@ -821,7 +819,7 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Only if `mode`!=`dynamic` if speed and duplex are specified, whether to disable autonegotiation",
 							MarkdownDescription: "Only if `mode`!=`dynamic` if speed and duplex are specified, whether to disable autonegotiation",
 							Validators: []validator.Bool{
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
+								mistvalidator.ForbiddenWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic"), types.BoolValue(false)),
 							},
 							Default: booldefault.StaticBool(false),
 						},
@@ -831,7 +829,7 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Only if `mode`!=`dynamic` whether the port is disabled",
 							MarkdownDescription: "Only if `mode`!=`dynamic` whether the port is disabled",
 							Validators: []validator.Bool{
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
+								mistvalidator.ForbiddenWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic"), types.BoolValue(false)),
 							},
 							Default: booldefault.StaticBool(false),
 						},
@@ -847,7 +845,7 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									"full",
 									"auto",
 								),
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
+								mistvalidator.ForbiddenWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic"), types.StringValue("auto")),
 							},
 							Default: stringdefault.StaticString("auto"),
 						},
@@ -858,7 +856,6 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Only if `mode`!=`dynamic` and `port_auth`==`dot1x`, if dynamic vlan is used, specify the possible networks/vlans RADIUS can return",
 							MarkdownDescription: "Only if `mode`!=`dynamic` and `port_auth`==`dot1x`, if dynamic vlan is used, specify the possible networks/vlans RADIUS can return",
 							Validators: []validator.List{
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
 								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x")),
 							},
 							Default: listdefault.StaticValue(types.ListNull(types.StringType)),
@@ -869,8 +866,7 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Only if `mode`!=`dynamic` and `port_auth`==`dot1x` whether to enable MAC Auth",
 							MarkdownDescription: "Only if `mode`!=`dynamic` and `port_auth`==`dot1x` whether to enable MAC Auth",
 							Validators: []validator.Bool{
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
-								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x")),
+								mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x"), types.BoolValue(false)),
 							},
 							Default: booldefault.StaticBool(false),
 						},
@@ -880,7 +876,7 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Only if `mode`!=`dynamic`",
 							MarkdownDescription: "Only if `mode`!=`dynamic`",
 							Validators: []validator.Bool{
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
+								mistvalidator.ForbiddenWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic"), types.BoolValue(false)),
 							},
 							Default: booldefault.StaticBool(false),
 						},
@@ -889,18 +885,16 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Only if `mode`!=`dynamic` and `port_auth`==`dot1x` which network to put the device into if the device cannot do dot1x. default is null (i.e. not allowed)",
 							MarkdownDescription: "Only if `mode`!=`dynamic` and `port_auth`==`dot1x` which network to put the device into if the device cannot do dot1x. default is null (i.e. not allowed)",
 							Validators: []validator.String{
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
 								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x")),
 							},
 						},
 						"inter_switch_link": schema.BoolAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "Only if `mode`!=`dynamic` inter_switch_link is used together with \"isolation\" under networks\nNOTE: inter_switch_link works only between Juniper device. This has to be applied to both ports connected together",
-							MarkdownDescription: "Only if `mode`!=`dynamic` inter_switch_link is used together with \"isolation\" under networks\nNOTE: inter_switch_link works only between Juniper device. This has to be applied to both ports connected together",
+							Description:         "Only if `mode`!=`dynamic` inter_switch_link is used together with \"isolation\" under networks. NOTE: inter_switch_link works only between Juniper device. This has to be applied to both ports connected together",
+							MarkdownDescription: "Only if `mode`!=`dynamic` inter_switch_link is used together with \"isolation\" under networks. NOTE: inter_switch_link works only between Juniper device. This has to be applied to both ports connected together",
 							Validators: []validator.Bool{
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
-								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x")),
+								mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x"), types.BoolValue(false)),
 							},
 							Default: booldefault.StaticBool(false),
 						},
@@ -930,8 +924,7 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									"eap-peap",
 									"eap-md5",
 								),
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
-								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("enable_mac_auth"), types.BoolValue(true)),
+								mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("enable_mac_auth"), types.BoolValue(true), types.StringValue("eap-md5")),
 							},
 							Default: stringdefault.StaticString("eap-md5"),
 						},
@@ -942,7 +935,7 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "Only if `mode`!=`dynamic` max number of mac addresses, default is 0 for unlimited, otherwise range is 1 or higher, with upper bound constrained by platform",
 							Validators: []validator.Int64{
 								int64validator.AtLeast(0),
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
+								mistvalidator.ForbiddenWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic"), types.Int64Value(0)),
 							},
 							Default: int64default.StaticInt64(0),
 						},
@@ -986,8 +979,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Only if `mode`==`access` and `port_auth`!=`dot1x` whether the port should retain dynamically learned MAC addresses",
 							MarkdownDescription: "Only if `mode`==`access` and `port_auth`!=`dot1x` whether the port should retain dynamically learned MAC addresses",
 							Validators: []validator.Bool{
-								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("access")),
-								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x")),
+								mistvalidator.CanOnlyBeTrueWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("access")),
+								mistvalidator.CanOnlyBeTrueWhenValueIs(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x")),
 							},
 							Default: booldefault.StaticBool(false),
 						},
@@ -997,7 +990,7 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Only if `mode`!=`dynamic` whether PoE capabilities are disabled for a port",
 							MarkdownDescription: "Only if `mode`!=`dynamic` whether PoE capabilities are disabled for a port",
 							Validators: []validator.Bool{
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
+								mistvalidator.ForbiddenWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic"), types.BoolValue(false)),
 							},
 							Default: booldefault.StaticBool(false),
 						},
@@ -1029,8 +1022,7 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "Only if `mode`!=`dynamic` and `port_auth`=`dot1x` reauthentication interval range",
 							Validators: []validator.Int64{
 								int64validator.Between(10, 65535),
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
-								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x")),
+								mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x"), types.Int64Value(3600)),
 							},
 							Default: int64default.StaticInt64(3600),
 						},
@@ -1045,7 +1037,7 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									"none",
 									"link_down",
 								),
-								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
+								mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic"), types.StringValue("link_down")),
 							},
 							Default: stringdefault.StaticString("link_down"),
 						},
@@ -1110,7 +1102,6 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Only if `mode`!=`dynamic` and `port_auth`==`dot1x` sets server fail fallback vlan",
 							MarkdownDescription: "Only if `mode`!=`dynamic` and `port_auth`==`dot1x` sets server fail fallback vlan",
 							Validators: []validator.String{
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
 								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x")),
 							},
 						},
@@ -1119,7 +1110,6 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Only if `mode`!=`dynamic` and `port_auth`==`dot1x` when radius server reject / fails",
 							MarkdownDescription: "Only if `mode`!=`dynamic` and `port_auth`==`dot1x` when radius server reject / fails",
 							Validators: []validator.String{
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
 								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x")),
 							},
 						},
@@ -1180,8 +1170,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional:            true,
-							Description:         "Switch storm control\nOnly if `mode`!=`dynamic`",
-							MarkdownDescription: "Switch storm control\nOnly if `mode`!=`dynamic`",
+							Description:         "Switch storm control. Only if `mode`!=`dynamic`",
+							MarkdownDescription: "Switch storm control. Only if `mode`!=`dynamic`",
 							Validators: []validator.Object{
 								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
 							},
@@ -1192,19 +1182,25 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Only if `mode`!=`dynamic` when enabled, the port is not expected to receive BPDU frames",
 							MarkdownDescription: "Only if `mode`!=`dynamic` when enabled, the port is not expected to receive BPDU frames",
 							Validators: []validator.Bool{
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
+								mistvalidator.ForbiddenWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic"), types.BoolValue(false)),
 							},
 							Default: booldefault.StaticBool(false),
 						},
 						"stp_no_root_port": schema.BoolAttribute{
 							Optional: true,
 							Computed: true,
-							Default:  booldefault.StaticBool(false),
+							Validators: []validator.Bool{
+								mistvalidator.ForbiddenWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic"), types.BoolValue(false)),
+							},
+							Default: booldefault.StaticBool(false),
 						},
 						"stp_p2p": schema.BoolAttribute{
 							Optional: true,
 							Computed: true,
-							Default:  booldefault.StaticBool(false),
+							Validators: []validator.Bool{
+								mistvalidator.ForbiddenWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic"), types.BoolValue(false)),
+							},
+							Default: booldefault.StaticBool(false),
 						},
 						"ui_evpntopo_id": schema.StringAttribute{
 							Optional:            true,
@@ -1216,7 +1212,10 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "if this is connected to a vstp network",
 							MarkdownDescription: "if this is connected to a vstp network",
-							Default:             booldefault.StaticBool(false),
+							Validators: []validator.Bool{
+								mistvalidator.ForbiddenWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic"), types.BoolValue(false)),
+							},
+							Default: booldefault.StaticBool(false),
 						},
 						"voip_network": schema.StringAttribute{
 							Optional:            true,
@@ -1389,8 +1388,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"network": schema.StringAttribute{
 						Optional:            true,
-						Description:         "use `network`or `source_ip`\nwhich network the RADIUS server resides, if there's static IP for this network, we'd use it as source-ip",
-						MarkdownDescription: "use `network`or `source_ip`\nwhich network the RADIUS server resides, if there's static IP for this network, we'd use it as source-ip",
+						Description:         "use `network`or `source_ip`. Which network the RADIUS server resides, if there's static IP for this network, we'd use it as source-ip",
+						MarkdownDescription: "use `network`or `source_ip`. Which network the RADIUS server resides, if there's static IP for this network, we'd use it as source-ip",
 					},
 					"source_ip": schema.StringAttribute{
 						Optional:            true,
@@ -2204,8 +2203,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 												"authentication_password": schema.StringAttribute{
 													Optional:            true,
 													Sensitive:           true,
-													Description:         "Not required if `authentication_type`==`authentication_none`\ninclude alphabetic, numeric, and special characters, but it cannot include control characters.",
-													MarkdownDescription: "Not required if `authentication_type`==`authentication_none`\ninclude alphabetic, numeric, and special characters, but it cannot include control characters.",
+													Description:         "Not required if `authentication_type`==`authentication_none`. Include alphabetic, numeric, and special characters, but it cannot include control characters.",
+													MarkdownDescription: "Not required if `authentication_type`==`authentication_none`. Include alphabetic, numeric, and special characters, but it cannot include control characters.",
 													Validators: []validator.String{
 														stringvalidator.LengthAtLeast(7),
 														mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtMapKey("authentication_type"), types.StringValue("authentication_md5")),
@@ -2236,8 +2235,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 												"encryption_password": schema.StringAttribute{
 													Optional:            true,
 													Sensitive:           true,
-													Description:         "Not required if `encryption_type`==`privacy-none`\ninclude alphabetic, numeric, and special characters, but it cannot include control characters",
-													MarkdownDescription: "Not required if `encryption_type`==`privacy-none`\ninclude alphabetic, numeric, and special characters, but it cannot include control characters",
+													Description:         "Not required if `encryption_type`==`privacy-none`. Include alphabetic, numeric, and special characters, but it cannot include control characters",
+													MarkdownDescription: "Not required if `encryption_type`==`privacy-none`. Include alphabetic, numeric, and special characters, but it cannot include control characters",
 													Validators: []validator.String{
 														stringvalidator.LengthAtLeast(8),
 														mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtMapKey("encryption_type"), types.StringValue("privacy-aes128")),
@@ -2796,8 +2795,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 									Optional:            true,
-									Description:         "Property key is the port mirroring instance name\nport_mirroring can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 port mirrorings is allowed",
-									MarkdownDescription: "Property key is the port mirroring instance name\nport_mirroring can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 port mirrorings is allowed",
+									Description:         "Property key is the port mirroring instance name. `port_mirroring` can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 port mirrorings is allowed",
+									MarkdownDescription: "Property key is the port mirroring instance name. `port_mirroring` can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 port mirrorings is allowed",
 									Validators: []validator.Map{
 										mapvalidator.SizeAtLeast(1),
 										mapvalidator.SizeAtMost(4),
@@ -2979,8 +2978,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 												listvalidator.SizeAtLeast(1),
 												listvalidator.ValueStringsAre(
 													stringvalidator.Any(
-														mistvalidator.ParseCidr(true, true),
-														mistvalidator.ParseIp(true, true),
+														mistvalidator.ParseCidr(false, false),
+														mistvalidator.ParseIp(false, false),
 													),
 												),
 											},
