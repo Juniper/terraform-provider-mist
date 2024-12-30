@@ -33,7 +33,7 @@ type AllowedWhenValueIsInResponse struct {
 }
 
 func (o AllowedWhenValueIsInValidator) Description(_ context.Context) string {
-	return fmt.Sprintf("Ensures that no value is supplied when attribute at %q has value not in %s", o.Expression, o.Values)
+	return fmt.Sprintf("Ensures that no value is supplied when attribute at %q has value in %s", o.Expression, o.Values)
 }
 
 func (o AllowedWhenValueIsInValidator) MarkdownDescription(ctx context.Context) string {
