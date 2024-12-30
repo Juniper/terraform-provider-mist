@@ -238,8 +238,8 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						ElementType:         types.Int64Type,
 						Optional:            true,
 						Computed:            true,
-						Description:         "Map from wxtag_id of Hostname Wxlan Tags to bandwidth in kbps\nProperty key is the wxtag id",
-						MarkdownDescription: "Map from wxtag_id of Hostname Wxlan Tags to bandwidth in kbps\nProperty key is the wxtag id",
+						Description:         "Map from wxtag_id of Hostname Wxlan Tags to bandwidth in kbps. Property key is the `wxtag_id`",
+						MarkdownDescription: "Map from wxtag_id of Hostname Wxlan Tags to bandwidth in kbps. Property key is the `wxtag_id`",
 					},
 				},
 				CustomType: AppLimitType{
@@ -417,12 +417,13 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						Description:         "whether to trigger EAP reauth when the session ends",
 						MarkdownDescription: "whether to trigger EAP reauth when the session ends",
 						Validators: []validator.Bool{
-							mistvalidator.AllowedWhenValueIsIn(
+							mistvalidator.AllowedWhenValueIsInWithDefault(
 								path.MatchRelative().AtParent().AtName("type"),
 								[]attr.Value{
 									types.StringValue("eap"),
 									types.StringValue("eap192"),
 								},
+								types.BoolValue(false),
 							),
 						},
 						Default: booldefault.StaticBool(false),
@@ -475,7 +476,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						Description:         "if `type`==`open`. enum: `disabled`, `enabled` (means transition mode), `required`",
 						MarkdownDescription: "if `type`==`open`. enum: `disabled`, `enabled` (means transition mode), `required`",
 						Validators: []validator.String{
-							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("open")),
+							mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("type"), types.StringValue("open"), types.StringValue("disabled")),
 						},
 					},
 					"pairwise": schema.ListAttribute{
@@ -511,8 +512,28 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						Description:         "when `type`==`psk`, 8-64 characters, or 64 hex characters",
 						MarkdownDescription: "when `type`==`psk`, 8-64 characters, or 64 hex characters",
 						Validators: []validator.String{
-							stringvalidator.LengthBetween(8, 64),
-							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("psk")),
+							stringvalidator.Any(
+								stringvalidator.All(
+									mistvalidator.RequiredWhenValueIsIn(
+										path.MatchRelative().AtParent().AtName("type"),
+										[]attr.Value{
+											types.StringValue("psk"),
+											types.StringValue("psk-tkip"),
+											types.StringValue("psk-wpa2-tkip"),
+										},
+									),
+									stringvalidator.LengthBetween(8, 64),
+								),
+								mistvalidator.ForbiddenWhenValueIsInWithDefault(
+									path.MatchRelative().AtParent().AtName("type"),
+									[]attr.Value{
+										types.StringValue("eap"),
+										types.StringValue("eap192"),
+										types.StringValue("open"),
+										types.StringValue("wep"),
+									},
+									types.StringValue("")),
+							),
 						},
 						Default: stringdefault.StaticString(""),
 					},
@@ -985,8 +1006,8 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 					"radius_groups": schema.MapAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
-						Description:         "map between radius_group and the desired DNS server (IPv4 only)\nProperty key is the RADIUS group, property value is the desired DNS Server",
-						MarkdownDescription: "map between radius_group and the desired DNS server (IPv4 only)\nProperty key is the RADIUS group, property value is the desired DNS Server",
+						Description:         "map between radius_group and the desired DNS server (IPv4 only). Property key is the RADIUS group, property value is the desired DNS Server",
+						MarkdownDescription: "map between radius_group and the desired DNS server (IPv4 only). Property key is the RADIUS group, property value is the desired DNS Server",
 					},
 				},
 				CustomType: DnsServerRewriteType{
@@ -1038,8 +1059,8 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 					"force_lookup": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "when 11r is enabled, we'll try to use the cached PMK, this can be disabled\n`false` means auto",
-						MarkdownDescription: "when 11r is enabled, we'll try to use the cached PMK, this can be disabled\n`false` means auto",
+						Description:         "when 11r is enabled, we'll try to use the cached PMK, this can be disabled. `false` means auto",
+						MarkdownDescription: "when 11r is enabled, we'll try to use the cached PMK, this can be disabled. `false` means auto",
 						Default:             booldefault.StaticBool(false),
 					},
 					"source": schema.StringAttribute{
@@ -1310,7 +1331,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "if isolation is enabled, whether to deny clients to talk to L2 on the LAN",
 				MarkdownDescription: "if isolation is enabled, whether to deny clients to talk to L2 on the LAN",
 				Validators: []validator.Bool{
-					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("isolation"), types.BoolValue(true)),
+					mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("isolation"), types.BoolValue(true), types.BoolValue(false)),
 				},
 				Default: booldefault.StaticBool(false),
 			},
@@ -2232,8 +2253,8 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						ElementType:         types.StringType,
 						Optional:            true,
 						Computed:            true,
-						Description:         "To use Org mxedges when this WLAN does not use mxtunnel, specify their mxcluster_ids.\nOrg mxedge(s) identified by mxcluster_ids",
-						MarkdownDescription: "To use Org mxedges when this WLAN does not use mxtunnel, specify their mxcluster_ids.\nOrg mxedge(s) identified by mxcluster_ids",
+						Description:         "To use Org mxedges when this WLAN does not use mxtunnel, specify their mxcluster_ids. Org mxedge(s) identified by mxcluster_ids",
+						MarkdownDescription: "To use Org mxedges when this WLAN does not use mxtunnel, specify their mxcluster_ids. Org mxedge(s) identified by mxcluster_ids",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
@@ -2242,8 +2263,8 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						ElementType:         types.StringType,
 						Optional:            true,
 						Computed:            true,
-						Description:         "default is site.mxedge.radsec.proxy_hosts which must be a superset of all wlans[*].radsec.proxy_hosts\nwhen radsec.proxy_hosts are not used, tunnel peers (org or site mxedges) are used irrespective of use_site_mxedge",
-						MarkdownDescription: "default is site.mxedge.radsec.proxy_hosts which must be a superset of all wlans[*].radsec.proxy_hosts\nwhen radsec.proxy_hosts are not used, tunnel peers (org or site mxedges) are used irrespective of use_site_mxedge",
+						Description:         "default is site.mxedge.radsec.proxy_hosts which must be a superset of all `wlans[*].radsec.proxy_hosts`. When `radsec.proxy_hosts` are not used, tunnel peers (org or site mxedges) are used irrespective of `use_site_mxedge`",
+						MarkdownDescription: "default is site.mxedge.radsec.proxy_hosts which must be a superset of all `wlans[*].radsec.proxy_hosts`. When `radsec.proxy_hosts` are not used, tunnel peers (org or site mxedges) are used irrespective of `use_site_mxedge`",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
@@ -2626,7 +2647,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "kbps",
 				MarkdownDescription: "kbps",
 				Validators: []validator.Int64{
-					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("wlan_limit_down_enabled"), types.BoolValue(true)),
+					mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("wlan_limit_down_enabled"), types.BoolValue(true), types.Int64Value(20000)),
 				},
 				Default: int64default.StaticInt64(20000),
 			},
@@ -2643,7 +2664,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "kbps",
 				MarkdownDescription: "kbps",
 				Validators: []validator.Int64{
-					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("wlan_limit_up_enabled"), types.BoolValue(true)),
+					mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("wlan_limit_up_enabled"), types.BoolValue(true), types.Int64Value(10000)),
 				},
 				Default: int64default.StaticInt64(10000),
 			},
