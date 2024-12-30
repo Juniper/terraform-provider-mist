@@ -211,7 +211,11 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "when `traffic_type`==`custom`. enum: `best_effort`, `high`, `low`, `medium`",
 				MarkdownDescription: "when `traffic_type`==`custom`. enum: `best_effort`, `high`, `low`, `medium`",
 				Validators: []validator.String{
-					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("custom")),
+					mistvalidator.AllowedWhenValueIsWithDefault(
+						path.MatchRelative().AtParent().AtName("type"),
+						types.StringValue("custom"),
+						types.StringValue("best_effort"),
+					),
 					stringvalidator.OneOf(
 						"",
 						"best_effort",
