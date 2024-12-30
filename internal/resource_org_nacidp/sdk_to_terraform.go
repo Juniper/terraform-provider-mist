@@ -40,8 +40,8 @@ func SdkToTerraform(ctx context.Context, data *models.Sso) (OrgNacidpModel, diag
 	var oauth_tenant_id types.String
 	var oauth_type types.String
 	var org_id types.String
-	var scim_enabled types.Bool
-	var scim_secret_token types.String
+	var scim_enabled types.Bool = types.BoolValue(false)
+	var scim_secret_token types.String = types.StringValue("")
 
 	if data.Id != nil {
 		id = types.StringValue(data.Id.String())

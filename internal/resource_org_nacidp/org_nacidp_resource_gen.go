@@ -251,17 +251,19 @@ func OrgNacidpResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "if `idp_type`==`oauth`, indicates if SCIM provisioning is enabled for the OAuth IDP",
 				MarkdownDescription: "if `idp_type`==`oauth`, indicates if SCIM provisioning is enabled for the OAuth IDP",
 				Validators: []validator.Bool{
-					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("idp_type"), types.StringValue("oauth")),
+					mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("idp_type"), types.StringValue("oauth"), types.BoolValue(false)),
 				},
 				Default: booldefault.StaticBool(false),
 			},
 			"scim_secret_token": schema.StringAttribute{
 				Optional:            true,
+				Computed:            true,
 				Description:         "if `idp_type`==`oauth`, scim_secret_token (auto-generated when not provided by caller and `scim_enabled`==`true`, empty string when `scim_enabled`==`false`) is used as the Bearer token in the Authorization header of SCIM provisioning requests by the IDP",
 				MarkdownDescription: "if `idp_type`==`oauth`, scim_secret_token (auto-generated when not provided by caller and `scim_enabled`==`true`, empty string when `scim_enabled`==`false`) is used as the Bearer token in the Authorization header of SCIM provisioning requests by the IDP",
 				Validators: []validator.String{
-					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("idp_type"), types.StringValue("oauth")),
+					mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("idp_type"), types.StringValue("oauth"), types.StringValue("")),
 				},
+				Default: stringdefault.StaticString(""),
 			},
 		},
 	}
