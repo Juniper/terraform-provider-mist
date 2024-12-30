@@ -34,11 +34,14 @@ func SdkToTerraform(ctx context.Context, data *models.Sso) (OrgNacidpModel, diag
 	var oauth_cc_client_id types.String
 	var oauth_cc_client_secret types.String
 	var oauth_discovery_url types.String
+	var oauth_ping_identity_region types.String
 	var oauth_ropc_client_id types.String
 	var oauth_ropc_client_secret types.String
 	var oauth_tenant_id types.String
 	var oauth_type types.String
 	var org_id types.String
+	var scim_enabled types.Bool
+	var scim_secret_token types.String
 
 	if data.Id != nil {
 		id = types.StringValue(data.Id.String())
@@ -100,6 +103,9 @@ func SdkToTerraform(ctx context.Context, data *models.Sso) (OrgNacidpModel, diag
 	if data.OauthDiscoveryUrl != nil {
 		oauth_discovery_url = types.StringValue(*data.OauthDiscoveryUrl)
 	}
+	if data.OauthPingIdentityRegion != nil {
+		oauth_ping_identity_region = types.StringValue(string(*data.OauthPingIdentityRegion))
+	}
 	if data.OauthRopcClientId != nil {
 		oauth_ropc_client_id = types.StringValue(*data.OauthRopcClientId)
 	}
@@ -119,6 +125,12 @@ func SdkToTerraform(ctx context.Context, data *models.Sso) (OrgNacidpModel, diag
 	}
 	if data.OrgId != nil {
 		org_id = types.StringValue(data.OrgId.String())
+	}
+	if data.ScimEnabled != nil {
+		scim_enabled = types.BoolValue(*data.ScimEnabled)
+	}
+	if data.ScimSecretToken != nil {
+		scim_secret_token = types.StringValue(*data.ScimSecretToken)
 	}
 
 	state.Id = id
@@ -141,11 +153,14 @@ func SdkToTerraform(ctx context.Context, data *models.Sso) (OrgNacidpModel, diag
 	state.OauthCcClientId = oauth_cc_client_id
 	state.OauthCcClientSecret = oauth_cc_client_secret
 	state.OauthDiscoveryUrl = oauth_discovery_url
+	state.OauthPingIdentityRegion = oauth_ping_identity_region
 	state.OauthRopcClientId = oauth_ropc_client_id
 	state.OauthRopcClientSecret = oauth_ropc_client_secret
 	state.OauthTenantId = oauth_tenant_id
 	state.OauthType = oauth_type
 	state.OrgId = org_id
+	state.ScimEnabled = scim_enabled
+	state.ScimSecretToken = scim_secret_token
 
 	return state, diags
 }

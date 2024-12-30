@@ -128,6 +128,12 @@ func TerraformToSdk(ctx context.Context, plan *OrgNacidpModel) (*models.Sso, dia
 		unset["-oauth_discovery_url"] = ""
 	}
 
+	if !plan.OauthPingIdentityRegion.IsNull() && !plan.OauthPingIdentityRegion.IsUnknown() {
+		data.OauthPingIdentityRegion = (*models.OauthPingIdentityRegionEnum)(plan.OauthPingIdentityRegion.ValueStringPointer())
+	} else {
+		unset["-oauth_ping_identity_region"] = ""
+	}
+
 	if !plan.OauthRopcClientId.IsNull() && !plan.OauthRopcClientId.IsUnknown() {
 		data.OauthRopcClientId = plan.OauthRopcClientId.ValueStringPointer()
 	} else {
@@ -155,6 +161,18 @@ func TerraformToSdk(ctx context.Context, plan *OrgNacidpModel) (*models.Sso, dia
 		}
 	} else {
 		unset["-oauth_type"] = ""
+	}
+
+	if !plan.ScimEnabled.IsNull() && !plan.ScimEnabled.IsUnknown() {
+		data.ScimEnabled = plan.ScimEnabled.ValueBoolPointer()
+	} else {
+		unset["-scim_enabled"] = ""
+	}
+
+	if !plan.ScimSecretToken.IsNull() && !plan.ScimSecretToken.IsUnknown() {
+		data.ScimSecretToken = plan.ScimSecretToken.ValueStringPointer()
+	} else {
+		unset["-scim_secret_token"] = ""
 	}
 
 	data.AdditionalProperties = unset

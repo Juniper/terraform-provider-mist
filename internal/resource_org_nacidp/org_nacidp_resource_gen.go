@@ -7,6 +7,8 @@ import (
 	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
@@ -25,7 +27,9 @@ func OrgNacidpResourceSchema(ctx context.Context) schema.Schema {
 				},
 			},
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Unique ID of the object instance in the Mist Organnization",
+				MarkdownDescription: "Unique ID of the object instance in the Mist Organnization",
 			},
 			"idp_type": schema.StringAttribute{
 				Required:            true,
@@ -179,6 +183,23 @@ func OrgNacidpResourceSchema(ctx context.Context) schema.Schema {
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("idp_type"), types.StringValue("oauth")),
 				},
 			},
+			"oauth_ping_identity_region": schema.StringAttribute{
+				Optional:            true,
+				Computed:            true,
+				Description:         "enum: `us` (United States, default), `ca` (Canada), `eu` (Europe), `asia` (Asia), `au` (Australia)",
+				MarkdownDescription: "enum: `us` (United States, default), `ca` (Canada), `eu` (Europe), `asia` (Asia), `au` (Australia)",
+				Validators: []validator.String{
+					stringvalidator.OneOf(
+						"",
+						"asia",
+						"au",
+						"ca",
+						"eu",
+						"us",
+					),
+				},
+				Default: stringdefault.StaticString("us"),
+			},
 			"oauth_ropc_client_id": schema.StringAttribute{
 				Optional:            true,
 				Description:         "if `idp_type`==`oauth`, ropc = Resource Owner Password Credentials",
@@ -224,34 +245,55 @@ func OrgNacidpResourceSchema(ctx context.Context) schema.Schema {
 			"org_id": schema.StringAttribute{
 				Required: true,
 			},
+			"scim_enabled": schema.BoolAttribute{
+				Optional:            true,
+				Computed:            true,
+				Description:         "if `idp_type`==`oauth`, indicates if SCIM provisioning is enabled for the OAuth IDP",
+				MarkdownDescription: "if `idp_type`==`oauth`, indicates if SCIM provisioning is enabled for the OAuth IDP",
+				Validators: []validator.Bool{
+					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("idp_type"), types.StringValue("oauth")),
+				},
+				Default: booldefault.StaticBool(false),
+			},
+			"scim_secret_token": schema.StringAttribute{
+				Optional:            true,
+				Description:         "if `idp_type`==`oauth`, scim_secret_token (auto-generated when not provided by caller and `scim_enabled`==`true`, empty string when `scim_enabled`==`false`) is used as the Bearer token in the Authorization header of SCIM provisioning requests by the IDP",
+				MarkdownDescription: "if `idp_type`==`oauth`, scim_secret_token (auto-generated when not provided by caller and `scim_enabled`==`true`, empty string when `scim_enabled`==`false`) is used as the Bearer token in the Authorization header of SCIM provisioning requests by the IDP",
+				Validators: []validator.String{
+					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("idp_type"), types.StringValue("oauth")),
+				},
+			},
 		},
 	}
 }
 
 type OrgNacidpModel struct {
-	GroupFilter           types.String `tfsdk:"group_filter"`
-	Id                    types.String `tfsdk:"id"`
-	IdpType               types.String `tfsdk:"idp_type"`
-	LdapBaseDn            types.String `tfsdk:"ldap_base_dn"`
-	LdapBindDn            types.String `tfsdk:"ldap_bind_dn"`
-	LdapBindPassword      types.String `tfsdk:"ldap_bind_password"`
-	LdapCacerts           types.List   `tfsdk:"ldap_cacerts"`
-	LdapClientCert        types.String `tfsdk:"ldap_client_cert"`
-	LdapClientKey         types.String `tfsdk:"ldap_client_key"`
-	LdapGroupAttr         types.String `tfsdk:"ldap_group_attr"`
-	LdapGroupDn           types.String `tfsdk:"ldap_group_dn"`
-	LdapResolveGroups     types.Bool   `tfsdk:"ldap_resolve_groups"`
-	LdapServerHosts       types.List   `tfsdk:"ldap_server_hosts"`
-	LdapType              types.String `tfsdk:"ldap_type"`
-	LdapUserFilter        types.String `tfsdk:"ldap_user_filter"`
-	MemberFilter          types.String `tfsdk:"member_filter"`
-	Name                  types.String `tfsdk:"name"`
-	OauthCcClientId       types.String `tfsdk:"oauth_cc_client_id"`
-	OauthCcClientSecret   types.String `tfsdk:"oauth_cc_client_secret"`
-	OauthDiscoveryUrl     types.String `tfsdk:"oauth_discovery_url"`
-	OauthRopcClientId     types.String `tfsdk:"oauth_ropc_client_id"`
-	OauthRopcClientSecret types.String `tfsdk:"oauth_ropc_client_secret"`
-	OauthTenantId         types.String `tfsdk:"oauth_tenant_id"`
-	OauthType             types.String `tfsdk:"oauth_type"`
-	OrgId                 types.String `tfsdk:"org_id"`
+	GroupFilter             types.String `tfsdk:"group_filter"`
+	Id                      types.String `tfsdk:"id"`
+	IdpType                 types.String `tfsdk:"idp_type"`
+	LdapBaseDn              types.String `tfsdk:"ldap_base_dn"`
+	LdapBindDn              types.String `tfsdk:"ldap_bind_dn"`
+	LdapBindPassword        types.String `tfsdk:"ldap_bind_password"`
+	LdapCacerts             types.List   `tfsdk:"ldap_cacerts"`
+	LdapClientCert          types.String `tfsdk:"ldap_client_cert"`
+	LdapClientKey           types.String `tfsdk:"ldap_client_key"`
+	LdapGroupAttr           types.String `tfsdk:"ldap_group_attr"`
+	LdapGroupDn             types.String `tfsdk:"ldap_group_dn"`
+	LdapResolveGroups       types.Bool   `tfsdk:"ldap_resolve_groups"`
+	LdapServerHosts         types.List   `tfsdk:"ldap_server_hosts"`
+	LdapType                types.String `tfsdk:"ldap_type"`
+	LdapUserFilter          types.String `tfsdk:"ldap_user_filter"`
+	MemberFilter            types.String `tfsdk:"member_filter"`
+	Name                    types.String `tfsdk:"name"`
+	OauthCcClientId         types.String `tfsdk:"oauth_cc_client_id"`
+	OauthCcClientSecret     types.String `tfsdk:"oauth_cc_client_secret"`
+	OauthDiscoveryUrl       types.String `tfsdk:"oauth_discovery_url"`
+	OauthPingIdentityRegion types.String `tfsdk:"oauth_ping_identity_region"`
+	OauthRopcClientId       types.String `tfsdk:"oauth_ropc_client_id"`
+	OauthRopcClientSecret   types.String `tfsdk:"oauth_ropc_client_secret"`
+	OauthTenantId           types.String `tfsdk:"oauth_tenant_id"`
+	OauthType               types.String `tfsdk:"oauth_type"`
+	OrgId                   types.String `tfsdk:"org_id"`
+	ScimEnabled             types.Bool   `tfsdk:"scim_enabled"`
+	ScimSecretToken         types.String `tfsdk:"scim_secret_token"`
 }
