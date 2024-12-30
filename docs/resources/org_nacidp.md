@@ -90,14 +90,17 @@ resource "mist_org_nacidp" "idp_ldap" {
 - `oauth_cc_client_id` (String) Required if `idp_type`==`oauth`, Client Credentials
 - `oauth_cc_client_secret` (String) Required if `idp_type`==`oauth`, oauth_cc_client_secret is RSA private key, of the form "-----BEGIN RSA PRIVATE KEY--...."
 - `oauth_discovery_url` (String) if `idp_type`==`oauth`
+- `oauth_ping_identity_region` (String) enum: `us` (United States, default), `ca` (Canada), `eu` (Europe), `asia` (Asia), `au` (Australia)
 - `oauth_ropc_client_id` (String) if `idp_type`==`oauth`, ropc = Resource Owner Password Credentials
 - `oauth_ropc_client_secret` (String) if `oauth_type`==`azure` or `oauth_type`==`azure-gov`. oauth_ropc_client_secret can be empty
 - `oauth_tenant_id` (String) Required if `idp_type`==`oauth`, oauth_tenant_id
 - `oauth_type` (String) if `idp_type`==`oauth`. enum: `azure`, `azure-gov`, `okta`, `ping_identity`
+- `scim_enabled` (Boolean) if `idp_type`==`oauth`, indicates if SCIM provisioning is enabled for the OAuth IDP
+- `scim_secret_token` (String) if `idp_type`==`oauth`, scim_secret_token (auto-generated when not provided by caller and `scim_enabled`==`true`, empty string when `scim_enabled`==`false`) is used as the Bearer token in the Authorization header of SCIM provisioning requests by the IDP
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
+- `id` (String) Unique ID of the object instance in the Mist Organnization
 
 
 

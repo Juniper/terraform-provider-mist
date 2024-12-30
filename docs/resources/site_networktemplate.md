@@ -105,8 +105,7 @@ resource "mist_site_networktemplate" "networktemplate_one" {
 - `networks` (Attributes Map) Property key is network name (see [below for nested schema](#nestedatt--networks))
 - `ntp_servers` (List of String) list of NTP servers
 - `ospf_areas` (Attributes Map) Junos OSPF areas (see [below for nested schema](#nestedatt--ospf_areas))
-- `port_mirroring` (Attributes Map) Property key is the port mirroring instance name
-port_mirroring can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 port mirrorings is allowed (see [below for nested schema](#nestedatt--port_mirroring))
+- `port_mirroring` (Attributes Map) Property key is the port mirroring instance name. `port_mirroring` can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 port mirrorings is allowed (see [below for nested schema](#nestedatt--port_mirroring))
 - `port_usages` (Attributes Map) Property key is the port usage name. Defines the profiles of port configuration configured on the switch (see [below for nested schema](#nestedatt--port_usages))
 - `radius_config` (Attributes) Junos Radius config (see [below for nested schema](#nestedatt--radius_config))
 - `remote_syslog` (Attributes) (see [below for nested schema](#nestedatt--remote_syslog))
@@ -122,11 +121,13 @@ port_mirroring can be added under device/site settings. It takes interface and p
 
 Optional:
 
-- `actions` (Attributes List) - for GBP-based policy, all src_tags and dst_tags have to be gbp-based
-- for ACL-based policy, `network` is required in either the source or destination so that we know where to attach the policy to (see [below for nested schema](#nestedatt--acl_policies--actions))
+- `actions` (Attributes List) ACL Policy Actions:
+  - for GBP-based policy, all src_tags and dst_tags have to be gbp-based
+  - for ACL-based policy, `network` is required in either the source or destination so that we know where to attach the policy to (see [below for nested schema](#nestedatt--acl_policies--actions))
 - `name` (String)
-- `src_tags` (List of String) - for GBP-based policy, all src_tags and dst_tags have to be gbp-based
-- for ACL-based policy, `network` is required in either the source or destination so that we know where to attach the policy to
+- `src_tags` (List of String) ACL Policy Source Tags:
+  - for GBP-based policy, all src_tags and dst_tags have to be gbp-based
+  - for ACL-based policy, `network` is required in either the source or destination so that we know where to attach the policy to
 
 <a id="nestedatt--acl_policies--actions"></a>
 ### Nested Schema for `acl_policies.actions`
@@ -160,9 +161,9 @@ Required:
 Optional:
 
 - `gbp_tag` (Number) required if
-- `type`==`dynamic_gbp` (gbp_tag received from RADIUS)
-- `type`==`gbp_resource`
-- `type`==`static_gbp` (applying gbp tag against matching conditions)
+  - `type`==`dynamic_gbp` (gbp_tag received from RADIUS)
+  - `type`==`gbp_resource`
+  - `type`==`static_gbp` (applying gbp tag against matching conditions)
 - `macs` (List of String) required if 
 - `type`==`mac`
 - `type`==`static_gbp` if from matching mac
@@ -176,8 +177,7 @@ Optional:
   * `type`==`radius_group`
   * `type`==`static_gbp`
 if from matching radius_group
-- `specs` (Attributes List) if `type`==`resource` or `type`==`gbp_resource`
-empty means unrestricted, i.e. any (see [below for nested schema](#nestedatt--acl_tags--specs))
+- `specs` (Attributes List) if `type`==`resource` or `type`==`gbp_resource`. Empty means unrestricted, i.e. any (see [below for nested schema](#nestedatt--acl_tags--specs))
 - `subnets` (List of String) if 
 - `type`==`subnet` 
 - `type`==`resource` (optional. default is `any`)
@@ -189,7 +189,7 @@ empty means unrestricted, i.e. any (see [below for nested schema](#nestedatt--ac
 Optional:
 
 - `port_range` (String) matched dst port, "0" means any
-- `protocol` (String) `tcp` / `udp` / `icmp` / `gre` / `any` / `:protocol_number`. `protocol_number` is between 1-254
+- `protocol` (String) `tcp` / `udp` / `icmp` / `icmp6` / `gre` / `any` / `:protocol_number`, `protocol_number` is between 1-254, default is `any` `protocol_number` is between 1-254
 
 
 
@@ -275,8 +275,7 @@ Optional:
 
 - `gateway` (String) only required for EVPN-VXLAN networks, IPv4 Virtual Gateway
 - `gateway6` (String) only required for EVPN-VXLAN networks, IPv6 Virtual Gateway
-- `isolation` (Boolean) whether to stop clients to talk to each other, default is false (when enabled, a unique isolation_vlan_id is required)
-NOTE: this features requires uplink device to also a be Juniper device and `inter_switch_link` to be set
+- `isolation` (Boolean) whether to stop clients to talk to each other, default is false (when enabled, a unique isolation_vlan_id is required). NOTE: this features requires uplink device to also a be Juniper device and `inter_switch_link` to be set
 - `isolation_vlan_id` (String)
 - `subnet` (String) optional for pure switching, required when L3 / routing features are used
 - `subnet6` (String) optional for pure switching, required when L3 / routing features are used
@@ -332,9 +331,7 @@ Optional:
 Optional:
 
 - `all_networks` (Boolean) Only if `mode`==`trunk` whether to trunk all network/vlans
-- `allow_dhcpd` (Boolean) Only if `mode`!=`dynamic`. If DHCP snooping is enabled, whether DHCP server is allowed on the interfaces with.
-All the interfaces from port configs using this port usage are effected. Please notice that allow_dhcpd is a tri_state.
-When it is not defined, it means using the system's default setting which depends on whether the port is a access or trunk port.
+- `allow_dhcpd` (Boolean) Only if `mode`!=`dynamic`. If DHCP snooping is enabled, whether DHCP server is allowed on the interfaces with. All the interfaces from port configs using this port usage are effected. Please notice that allow_dhcpd is a tri_state. When it is not defined, it means using the system's default setting which depends on whether the port is a access or trunk port.
 - `allow_multiple_supplicants` (Boolean) Only if `mode`!=`dynamic`
 - `bypass_auth_when_server_down` (Boolean) Only if `mode`!=`dynamic` and `port_auth`==`dot1x` bypass auth for known clients if set to true when RADIUS server is down
 - `bypass_auth_when_server_down_for_unkonwn_client` (Boolean) Only if `mode`!=`dynamic` and `port_auth`=`dot1x` bypass auth for all (including unknown clients) if set to true when RADIUS server is down
@@ -346,8 +343,7 @@ When it is not defined, it means using the system's default setting which depend
 - `enable_mac_auth` (Boolean) Only if `mode`!=`dynamic` and `port_auth`==`dot1x` whether to enable MAC Auth
 - `enable_qos` (Boolean) Only if `mode`!=`dynamic`
 - `guest_network` (String) Only if `mode`!=`dynamic` and `port_auth`==`dot1x` which network to put the device into if the device cannot do dot1x. default is null (i.e. not allowed)
-- `inter_switch_link` (Boolean) Only if `mode`!=`dynamic` inter_switch_link is used together with "isolation" under networks
-NOTE: inter_switch_link works only between Juniper device. This has to be applied to both ports connected together
+- `inter_switch_link` (Boolean) Only if `mode`!=`dynamic` inter_switch_link is used together with "isolation" under networks. NOTE: inter_switch_link works only between Juniper device. This has to be applied to both ports connected together
 - `mac_auth_only` (Boolean) Only if `mode`!=`dynamic` and `enable_mac_auth`==`true`
 - `mac_auth_preferred` (Boolean) Only if `mode`!=`dynamic` + `enable_mac_auth`==`true` + `mac_auth_only`==`false`, dot1x will be given priority then mac_auth. Enable this to prefer mac_auth over dot1x.
 - `mac_auth_protocol` (String) Only if `mode`!=`dynamic` and `enable_mac_auth` ==`true`. This type is ignored if mist_nac is enabled. enum: `eap-md5`, `eap-peap`, `pap`
@@ -365,8 +361,7 @@ NOTE: inter_switch_link works only between Juniper device. This has to be applie
 - `server_fail_network` (String) Only if `mode`!=`dynamic` and `port_auth`==`dot1x` sets server fail fallback vlan
 - `server_reject_network` (String) Only if `mode`!=`dynamic` and `port_auth`==`dot1x` when radius server reject / fails
 - `speed` (String) Only if `mode`!=`dynamic` speed, default is auto to automatically negotiate speed enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`,`auto`
-- `storm_control` (Attributes) Switch storm control
-Only if `mode`!=`dynamic` (see [below for nested schema](#nestedatt--port_usages--storm_control))
+- `storm_control` (Attributes) Switch storm control. Only if `mode`!=`dynamic` (see [below for nested schema](#nestedatt--port_usages--storm_control))
 - `stp_edge` (Boolean) Only if `mode`!=`dynamic` when enabled, the port is not expected to receive BPDU frames
 - `stp_no_root_port` (Boolean)
 - `stp_p2p` (Boolean)
@@ -414,8 +409,7 @@ Optional:
 - `auth_servers` (Attributes List) (see [below for nested schema](#nestedatt--radius_config--auth_servers))
 - `auth_servers_retries` (Number) radius auth session retries
 - `auth_servers_timeout` (Number) radius auth session timeout
-- `network` (String) use `network`or `source_ip`
-which network the RADIUS server resides, if there's static IP for this network, we'd use it as source-ip
+- `network` (String) use `network`or `source_ip`. Which network the RADIUS server resides, if there's static IP for this network, we'd use it as source-ip
 - `source_ip` (String) use `network`or `source_ip`
 
 <a id="nestedatt--radius_config--acct_servers"></a>
@@ -703,11 +697,9 @@ Optional:
 
 Optional:
 
-- `authentication_password` (String, Sensitive) Not required if `authentication_type`==`authentication_none`
-include alphabetic, numeric, and special characters, but it cannot include control characters.
+- `authentication_password` (String, Sensitive) Not required if `authentication_type`==`authentication_none`. Include alphabetic, numeric, and special characters, but it cannot include control characters.
 - `authentication_type` (String) sha224, sha256, sha384, sha512 are supported in 21.1 and newer release. enum: `authentication_md5`, `authentication_none`, `authentication_sha`, `authentication_sha224`, `authentication_sha256`, `authentication_sha384`, `authentication_sha512`
-- `encryption_password` (String, Sensitive) Not required if `encryption_type`==`privacy-none`
-include alphabetic, numeric, and special characters, but it cannot include control characters
+- `encryption_password` (String, Sensitive) Not required if `encryption_type`==`privacy-none`. Include alphabetic, numeric, and special characters, but it cannot include control characters
 - `encryption_type` (String) enum: `privacy-3des`, `privacy-aes128`, `privacy-des`, `privacy-none`
 - `name` (String)
 
@@ -799,8 +791,7 @@ Optional:
 - `name` (String)
 - `oob_ip_config` (Attributes) Out-of-Band Management interface configuration (see [below for nested schema](#nestedatt--switch_matching--rules--oob_ip_config))
 - `port_config` (Attributes Map) Propery key is the interface name or interface range (see [below for nested schema](#nestedatt--switch_matching--rules--port_config))
-- `port_mirroring` (Attributes Map) Property key is the port mirroring instance name
-port_mirroring can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 port mirrorings is allowed (see [below for nested schema](#nestedatt--switch_matching--rules--port_mirroring))
+- `port_mirroring` (Attributes Map) Property key is the port mirroring instance name. `port_mirroring` can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 port mirrorings is allowed (see [below for nested schema](#nestedatt--switch_matching--rules--port_mirroring))
 
 <a id="nestedatt--switch_matching--rules--ip_config"></a>
 ### Nested Schema for `switch_matching.rules.ip_config`

@@ -102,8 +102,7 @@ Optional:
 - `disable_bfd` (Boolean) BFD provides faster path failure detection and is enabled by default
 - `export` (String)
 - `export_policy` (String) default export policies if no per-neighbor policies defined
-- `extended_v4_nexthop` (Boolean) by default, either inet/net6 unicast depending on neighbor IP family (v4 or v6)
-for v6 neighbors, to exchange v4 nexthop, which allows dual-stack support, enable this
+- `extended_v4_nexthop` (Boolean) by default, either inet/net6 unicast depending on neighbor IP family (v4 or v6). For v6 neighbors, to exchange v4 nexthop, which allows dual-stack support, enable this
 - `graceful_restart_time` (Number) `0` means disable
 - `hold_time` (Number)
 - `import` (String)
@@ -367,15 +366,12 @@ Optional:
 - `nat_pool` (String) if `routed`==`false` (usually at Spoke), but some hosts needs to be reachable from Hub, a subnet is required to create and advertise the route to Hub
 - `no_readvertise_to_lan_bgp` (Boolean) toward LAN-side BGP peers
 - `no_readvertise_to_lan_ospf` (Boolean) toward LAN-side OSPF peers
-- `no_readvertise_to_overlay` (Boolean) toward overlay
-how HUB should deal with routes it received from Spokes
-- `other_vrfs` (List of String) by default, the routes are only readvertised toward the same vrf on spoke
-to allow it to be leaked to other vrfs
+- `no_readvertise_to_overlay` (Boolean) toward overlay, how HUB should deal with routes it received from Spokes
+- `other_vrfs` (List of String) by default, the routes are only readvertised toward the same vrf on spoke. To allow it to be leaked to other vrfs
 - `routed` (Boolean) whether this network is routable
 - `source_nat` (Attributes) if `routed`==`false` (usually at Spoke), but some hosts needs to be reachable from Hub (see [below for nested schema](#nestedatt--networks--vpn_access--source_nat))
 - `static_nat` (Attributes Map) Property key may be an External IP Address (i.e. "63.16.0.3"), a CIDR (i.e. "63.16.0.12/20") or a Variable (i.e. "{{myvar}}") (see [below for nested schema](#nestedatt--networks--vpn_access--static_nat))
-- `summarized_subnet` (String) toward overlay
-how HUB should deal with routes it received from Spokes
+- `summarized_subnet` (String) toward overlay, how HUB should deal with routes it received from Spokes
 - `summarized_subnet_to_lan_bgp` (String) toward LAN-side BGP peers
 - `summarized_subnet_to_lan_ospf` (String) toward LAN-side OSPF peers
 
@@ -482,10 +478,8 @@ Optional:
 - `disable_autoneg` (Boolean)
 - `disabled` (Boolean) port admin up (true) / down (false)
 - `dsl_type` (String) if `wan_type`==`dsl`. enum: `adsl`, `vdsl`
-- `dsl_vci` (Number) if `wan_type`==`dsl`
-16 bit int
-- `dsl_vpi` (Number) if `wan_type`==`dsl`
-8 bit int
+- `dsl_vci` (Number) if `wan_type`==`dsl`, 16 bit int
+- `dsl_vpi` (Number) if `wan_type`==`dsl`, 8 bit int
 - `duplex` (String) enum: `auto`, `full`, `half`
 - `ip_config` (Attributes) Junos IP Config (see [below for nested schema](#nestedatt--port_config--ip_config))
 - `lte_apn` (String) if `wan_type`==`lte`
@@ -659,8 +653,7 @@ Optional:
 - `protocol` (List of String) `direct`, `bgp`, `osp`, ...
 - `route_exists` (Attributes) (see [below for nested schema](#nestedatt--routing_policies--terms--matching--route_exists))
 - `vpn_neighbor_mac` (List of String) overlay-facing criteria (used for bgp_config where via=vpn)
-- `vpn_path` (List of String) overlay-facing criteria (used for bgp_config where via=vpn)
-ordered-
+- `vpn_path` (List of String) overlay-facing criteria (used for bgp_config where via=vpn). ordered-
 - `vpn_path_sla` (Attributes) (see [below for nested schema](#nestedatt--routing_policies--terms--matching--vpn_path_sla))
 
 <a id="nestedatt--routing_policies--terms--matching--route_exists"></a>
@@ -669,8 +662,7 @@ ordered-
 Optional:
 
 - `route` (String)
-- `vrf_name` (String) name of the vrf instance
-it can also be the name of the VPN or wan if they
+- `vrf_name` (String) name of the vrf instance, it can also be the name of the VPN or wan if they
 
 
 <a id="nestedatt--routing_policies--terms--matching--vpn_path_sla"></a>
@@ -697,8 +689,7 @@ Optional:
 - `idp` (Attributes) (see [below for nested schema](#nestedatt--service_policies--idp))
 - `local_routing` (Boolean) access within the same VRF
 - `name` (String) Required when `servicepolicy_id` is not defined, optional otherwise (override the servicepolicy name)
-- `path_preference` (String) by default, we derive all paths available and use them
-optionally, you can customize by using `path_preference`
+- `path_preference` (String) by default, we derive all paths available and use them. Optionally, you can customize by using `path_preference`
 - `servicepolicy_id` (String) used to link servicepolicy defined at org level and overwrite some attributes
 - `services` (List of String) Required when `servicepolicy_id` is not defined. List of Applications / Desctinations
 - `tenants` (List of String) Required when `servicepolicy_id` is not defined. List of Networks / Users

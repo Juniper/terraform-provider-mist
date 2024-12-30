@@ -65,7 +65,7 @@ Variables are not allowed
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
+- `id` (String) Unique ID of the object instance in the Mist Organnization
 
 <a id="nestedatt--specs"></a>
 ### Nested Schema for `specs`

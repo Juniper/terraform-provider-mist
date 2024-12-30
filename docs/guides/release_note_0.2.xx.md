@@ -56,16 +56,40 @@ description: |-
 ### Improvements
 * add the `api_debug` flag to the provider properties to enable the logging of the SDK Requests and Responses
 * improve the `mist_device_gateway`, `mist_deviceprofile_gateway` and `mist_org_gatewaytemplate` documentation
-* improve the `mist_device_gateway`, `mist_deviceprofile_gateway` and `mist_org_gatewaytemplate` validators
+* improve validators for the following resources:
+  * `mist_device_gateway`
+  * `mist_device_switch`
+  * `mist_deviceprofile_gateway`
+  * `mist_org_gatewaytemplate` 
+  * `mist_org_networktemplate` 
+  * `mist_org_wlan` 
+  * `mist_org_wxtag` 
+  * `mist_site_networktemplate` 
+  * `mist_site_wlan` 
+  * `mist_site_wxtag` 
+  * `mist_org_service` 
 
 ### Fixes
 * fix the transformation of the `VlanIdWithVariable` SDK property. In some condition the value sent to the provider was an HEX string instead of the VLAN ID (or variable) value.
 
-### Changes
+### Other Changes
 Changes to the `mist_org_network` resource based on the OpenAPI changes:
-  * add the `internet_access.destination_nat.wan_name` attribute
-  * add the `internet_access.static_nat.wan_name` attribute
-  * add the `multicast` attribute
+* add the `internet_access.destination_nat.wan_name` attribute
+* add the `internet_access.static_nat.wan_name` attribute
+* add the `multicast` attribute
+
+Remove the following optional attributes from the `mist_org_sso` resource (these attributes are used with NAC IDP, not Org SSO):
+* `scim_enabled`
+* `scim_secret_token`
+
+Add the following optional attributes to the `mist_org_nacidp` resource:
+* `oauth_ping_identity_region`
+* `scim_enabled`
+* `scim_secret_token`
+
+Add the following optional attributes to the `mist_device_switch` resource:
+* `notes`
+* `local_port_config.note`
 
 Changes to the `mist_device_gateway`, `mist_deviceprofile_gateway` and `mist_org_gatewaytemplate` resource based on the OpenAPI changes:
 * attributes added:

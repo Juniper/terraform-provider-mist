@@ -188,8 +188,7 @@ Optional:
 - `apps` (Map of Number) Map from app key to bandwidth in kbps. 
 Property key is the app key, defined in Get Application List
 - `enabled` (Boolean)
-- `wxtag_ids` (Map of Number) Map from wxtag_id of Hostname Wxlan Tags to bandwidth in kbps
-Property key is the wxtag id
+- `wxtag_ids` (Map of Number) Map from wxtag_id of Hostname Wxlan Tags to bandwidth in kbps. Property key is the `wxtag_id`
 
 
 <a id="nestedatt--app_qos"></a>
@@ -317,8 +316,7 @@ Optional:
 Optional:
 
 - `enabled` (Boolean)
-- `radius_groups` (Map of String) map between radius_group and the desired DNS server (IPv4 only)
-Property key is the RADIUS group, property value is the desired DNS Server
+- `radius_groups` (Map of String) map between radius_group and the desired DNS server (IPv4 only). Property key is the RADIUS group, property value is the desired DNS Server
 
 
 <a id="nestedatt--dynamic_psk"></a>
@@ -329,8 +327,7 @@ Optional:
 - `default_psk` (String, Sensitive) default PSK to use if cloud WLC is not available, 8-63 characters
 - `default_vlan_id` (String)
 - `enabled` (Boolean)
-- `force_lookup` (Boolean) when 11r is enabled, we'll try to use the cached PMK, this can be disabled
-`false` means auto
+- `force_lookup` (Boolean) when 11r is enabled, we'll try to use the cached PMK, this can be disabled. `false` means auto
 - `source` (String) enum: `cloud_psks`, `radius`
 
 
@@ -494,10 +491,8 @@ Optional:
 - `coa_enabled` (Boolean)
 - `enabled` (Boolean)
 - `idle_timeout` (Number)
-- `mxcluster_ids` (List of String) To use Org mxedges when this WLAN does not use mxtunnel, specify their mxcluster_ids.
-Org mxedge(s) identified by mxcluster_ids
-- `proxy_hosts` (List of String) default is site.mxedge.radsec.proxy_hosts which must be a superset of all wlans[*].radsec.proxy_hosts
-when radsec.proxy_hosts are not used, tunnel peers (org or site mxedges) are used irrespective of use_site_mxedge
+- `mxcluster_ids` (List of String) To use Org mxedges when this WLAN does not use mxtunnel, specify their mxcluster_ids. Org mxedge(s) identified by mxcluster_ids
+- `proxy_hosts` (List of String) default is site.mxedge.radsec.proxy_hosts which must be a superset of all `wlans[*].radsec.proxy_hosts`. When `radsec.proxy_hosts` are not used, tunnel peers (org or site mxedges) are used irrespective of `use_site_mxedge`
 - `server_name` (String) name of the server to verify (against the cacerts in Org Setting). Only if not Mist Edge.
 - `servers` (Attributes List) List of Radsec Servers. Only if not Mist Edge. (see [below for nested schema](#nestedatt--radsec--servers))
 - `use_mxedge` (Boolean) use mxedge(s) as radsecproxy
