@@ -6,7 +6,7 @@ description: |-
   Clusters. It can be used with two Gateways assigned to the same site.
   Once the Cluster is formed, it can be create just like a Gateway with the mist_device_gateway resource:
   Claim the gateways and assign them to the same site with the mist_org_inventory resourceForm the Cluster with the mist_device_gateway_cluster resource by providing the site_id and the two nodes MAC Addresses (the first in the list will be the node0)Configure the Cluster with the mist_device_gateway resource
-  Please check the Juniper Documentation first to validate the cabling between the Gateways
+  Please check the SRX Juniper Documentation https://www.juniper.net/documentation/us/en/software/mist/mist-wan/topics/topic-map/srx-high-availability-configuration.htmlor the SSR Juniper Documentation https://www.juniper.net/documentation/us/en/software/mist/mist-wan/topics/topic-map/ssr-high-availability-configuration.html first to validate the cabling between the Gateways
   ~> Both gateways must belong to the same site when creating the Gateway Cluster
 ---
 
@@ -19,7 +19,7 @@ Once the Cluster is formed, it can be create just like a Gateway with the `mist_
 2. Form the Cluster with the `mist_device_gateway_cluster` resource by providing the `site_id` and the two nodes MAC Addresses (the first in the list will be the node0)
 3. Configure the Cluster with the `mist_device_gateway` resource
 
-Please check the Juniper Documentation first to validate the cabling between the Gateways
+Please check the [SRX Juniper Documentation](https://www.juniper.net/documentation/us/en/software/mist/mist-wan/topics/topic-map/srx-high-availability-configuration.html)or the [SSR Juniper Documentation](https://www.juniper.net/documentation/us/en/software/mist/mist-wan/topics/topic-map/ssr-high-availability-configuration.html) first to validate the cabling between the Gateways
 
 ~> Both gateways must belong to the same site when creating the Gateway Cluster
 

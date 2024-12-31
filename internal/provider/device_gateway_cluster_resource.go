@@ -62,7 +62,9 @@ func (r *deviceGatewayClusterResource) Schema(ctx context.Context, req resource.
 			"2. Form the Cluster with the `mist_device_gateway_cluster` resource by providing the `site_id` and the two nodes " +
 			"MAC Addresses (the first in the list will be the node0)\n" +
 			"3. Configure the Cluster with the `mist_device_gateway` resource\n\n" +
-			"Please check the Juniper Documentation first to validate the cabling between the Gateways\n\n" +
+			"Please check the [SRX Juniper Documentation](https://www.juniper.net/documentation/us/en/software/mist/mist-wan/topics/topic-map/srx-high-availability-configuration.html)" +
+			"or the [SSR Juniper Documentation](https://www.juniper.net/documentation/us/en/software/mist/mist-wan/topics/topic-map/ssr-high-availability-configuration.html)" +
+			" first to validate the cabling between the Gateways\n\n" +
 			"~> Both gateways must belong to the same site when creating the Gateway Cluster",
 		Attributes: resource_device_gateway_cluster.DeviceGatewayClusterResourceSchema(ctx).Attributes,
 	}
