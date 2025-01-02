@@ -7,6 +7,13 @@ description: |-
 
 # Release Notes for v0.2.xx
 
+## Release Notes for v0.2.16
+**release date** : January 2nd, 2025
+
+### Fix
+* fix `mist_org_wlan.dynamic_vlan.default_vlan_ids` and `mist_site_wlan.dynamic_vlan.default_vlan_ids` issue when converting the value from the Go SDK to Terraform.
+
+
 ## Release Notes for v0.2.15
 **release date** : December 27th, 2024
 
