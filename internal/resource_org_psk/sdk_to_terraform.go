@@ -5,6 +5,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
+	mist_api "github.com/Juniper/terraform-provider-mist/internal/commons/api_response"
 	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -85,7 +86,7 @@ func SdkToTerraform(ctx context.Context, d *models.Psk) (OrgPskModel, diag.Diagn
 	usage = types.StringValue(string(*d.Usage))
 
 	if d.VlanId != nil {
-		vlan_id = types.StringValue(d.VlanId.String())
+		vlan_id = mist_api.PskVlanAsString(*d.VlanId)
 	}
 
 	state.Email = email

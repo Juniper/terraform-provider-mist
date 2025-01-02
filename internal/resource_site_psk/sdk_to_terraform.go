@@ -3,6 +3,7 @@ package resource_site_psk
 import (
 	"context"
 
+	mist_api "github.com/Juniper/terraform-provider-mist/internal/commons/api_response"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -78,7 +79,7 @@ func SdkToTerraform(ctx context.Context, d *models.Psk) (SitePskModel, diag.Diag
 	usage = types.StringValue(string(*d.Usage))
 
 	if d.VlanId != nil {
-		vlan_id = types.StringValue(d.VlanId.String())
+		vlan_id = mist_api.PskVlanAsString(*d.VlanId)
 	}
 
 	state.Email = email

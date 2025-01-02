@@ -37,3 +37,13 @@ func WlanDynamicVlanAsString(vlanId models.WlanDynamicVlanDefaultVlanId) basetyp
 		return types.StringNull()
 	}
 }
+
+func PskVlanAsString(vlanId models.PskVlanId) basetypes.StringValue {
+	if v, ok := vlanId.AsString(); ok {
+		return types.StringValue(*v)
+	} else if v, ok := vlanId.AsNumber(); ok {
+		return types.StringValue(fmt.Sprint(*v))
+	} else {
+		return types.StringNull()
+	}
+}

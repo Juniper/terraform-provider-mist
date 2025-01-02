@@ -7,6 +7,12 @@ description: |-
 
 # Release Notes for v0.2.xx
 
+## Release Notes for v0.2.17
+**release date** : January 2nd, 2025
+
+### Fix
+* fix `mist_org_psk.vlan_id` and `mist_site_psk.vlan_id` issue when converting the value from the Go SDK to Terraform.
+
 ## Release Notes for v0.2.16
 **release date** : January 2nd, 2025
 
