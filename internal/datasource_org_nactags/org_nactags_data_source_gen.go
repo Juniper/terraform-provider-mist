@@ -5,7 +5,7 @@ package datasource_org_nactags
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -20,16 +20,31 @@ import (
 func OrgNactagsDataSourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
-			"limit": schema.Int64Attribute{
-				Optional: true,
-				Validators: []validator.Int64{
-					int64validator.AtLeast(0),
-				},
-			},
 			"match": schema.StringAttribute{
 				Optional:            true,
-				Description:         "Type of NAC Tag",
-				MarkdownDescription: "Type of NAC Tag",
+				Description:         "if `type`==`match`, Type of NAC Tag. enum: `cert_cn`, `cert_issuer`, `cert_san`, `cert_serial`, `cert_sub`, `cert_template`, `client_mac`, `idp_role`, `ingress_vlan`, `mdm_status`, `nas_ip`, `radius_group`, `realm`, `ssid`, `user_name`, `usermac_label`",
+				MarkdownDescription: "if `type`==`match`, Type of NAC Tag. enum: `cert_cn`, `cert_issuer`, `cert_san`, `cert_serial`, `cert_sub`, `cert_template`, `client_mac`, `idp_role`, `ingress_vlan`, `mdm_status`, `nas_ip`, `radius_group`, `realm`, `ssid`, `user_name`, `usermac_label`",
+				Validators: []validator.String{
+					stringvalidator.OneOf(
+						"cert_cn",
+						"cert_issuer",
+						"cert_san",
+						"cert_serial",
+						"cert_sub",
+						"cert_template",
+						"client_mac",
+						"idp_role",
+						"ingress_vlan",
+						"mdm_status",
+						"nas_ip",
+						"radius_group",
+						"realm",
+						"ssid",
+						"user_name",
+						"usermac_label",
+					),
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 			"name": schema.StringAttribute{
 				Optional:            true,
@@ -47,8 +62,10 @@ func OrgNactagsDataSourceSchema(ctx context.Context) schema.Schema {
 							Description:         "can be set to true to allow the override by usermac result",
 							MarkdownDescription: "can be set to true to allow the override by usermac result",
 						},
-						"created_time": schema.NumberAttribute{
-							Computed: true,
+						"created_time": schema.Float64Attribute{
+							Computed:            true,
+							Description:         "when the object has been created, in epoch",
+							MarkdownDescription: "when the object has been created, in epoch",
 						},
 						"egress_vlan_names": schema.ListAttribute{
 							ElementType:         types.StringType,
@@ -62,20 +79,24 @@ func OrgNactagsDataSourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "if `type`==`gbp_tag`",
 						},
 						"id": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							Description:         "Unique ID of the object instance in the Mist Organnization",
+							MarkdownDescription: "Unique ID of the object instance in the Mist Organnization",
 						},
 						"match": schema.StringAttribute{
 							Computed:            true,
-							Description:         "if `type`==`match`. enum: `cert_cn`, `cert_issuer`, `cert_san`, `cert_serial`, `cert_sub`, `client_mac`, `idp_role`, `mdm_status`, `radius_group`, `realm`, `ssid`, `user_name`, `usermac_label`",
-							MarkdownDescription: "if `type`==`match`. enum: `cert_cn`, `cert_issuer`, `cert_san`, `cert_serial`, `cert_sub`, `client_mac`, `idp_role`, `mdm_status`, `radius_group`, `realm`, `ssid`, `user_name`, `usermac_label`",
+							Description:         "if `type`==`match`. enum: `cert_cn`, `cert_issuer`, `cert_san`, `cert_serial`, `cert_sub`, `cert_template`, `client_mac`, `idp_role`, `ingress_vlan`, `mdm_status`, `nas_ip`, `radius_group`, `realm`, `ssid`, `user_name`, `usermac_label`",
+							MarkdownDescription: "if `type`==`match`. enum: `cert_cn`, `cert_issuer`, `cert_san`, `cert_serial`, `cert_sub`, `cert_template`, `client_mac`, `idp_role`, `ingress_vlan`, `mdm_status`, `nas_ip`, `radius_group`, `realm`, `ssid`, `user_name`, `usermac_label`",
 						},
 						"match_all": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "This field is applicable only when `type`==`match`\n  * `false`: means it is sufficient to match any of the values (i.e., match-any behavior)\n  * `true`: means all values should be matched (i.e., match-all behavior)\n\n\nCurrently it makes sense to set this field to `true` only if the `match`==`idp_role` or `match`==`usermac_label`'",
-							MarkdownDescription: "This field is applicable only when `type`==`match`\n  * `false`: means it is sufficient to match any of the values (i.e., match-any behavior)\n  * `true`: means all values should be matched (i.e., match-all behavior)\n\n\nCurrently it makes sense to set this field to `true` only if the `match`==`idp_role` or `match`==`usermac_label`'",
+							Description:         "This field is applicable only when `type`==`match`\n  * `false`: means it is sufficient to match any of the values (i.e., match-any behavior)\n  * `true`: means all values should be matched (i.e., match-all behavior)\n\n\nCurrently it makes sense to set this field to `true` only if the `match`==`idp_role` or `match`==`usermac_label`",
+							MarkdownDescription: "This field is applicable only when `type`==`match`\n  * `false`: means it is sufficient to match any of the values (i.e., match-any behavior)\n  * `true`: means all values should be matched (i.e., match-all behavior)\n\n\nCurrently it makes sense to set this field to `true` only if the `match`==`idp_role` or `match`==`usermac_label`",
 						},
 						"modified_time": schema.NumberAttribute{
-							Computed: true,
+							Computed:            true,
+							Description:         "when the object has been modified for the last time, in epoch",
+							MarkdownDescription: "when the object has been modified for the last time, in epoch",
 						},
 						"name": schema.StringAttribute{
 							Computed: true,
@@ -111,7 +132,9 @@ func OrgNactagsDataSourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "enum: `egress_vlan_names`, `gbp_tag`, `match`, `radius_attrs`, `radius_group`, `radius_vendor_attrs`, `session_timeout`, `username_attr`, `vlan`",
 						},
 						"username_attr": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							Description:         "enum: `automatic`, `cn`, `dns`, `email`, `upn`",
+							MarkdownDescription: "enum: `automatic`, `cn`, `dns`, `email`, `upn`",
 						},
 						"values": schema.ListAttribute{
 							ElementType:         types.StringType,
@@ -133,28 +156,34 @@ func OrgNactagsDataSourceSchema(ctx context.Context) schema.Schema {
 				},
 				Computed: true,
 			},
-			"page": schema.Int64Attribute{
-				Optional: true,
-				Validators: []validator.Int64{
-					int64validator.AtLeast(1),
-				},
-			},
 			"type": schema.StringAttribute{
 				Optional:            true,
-				Description:         "Type of NAC Tag",
-				MarkdownDescription: "Type of NAC Tag",
+				Description:         "Type of NAC Tag. enum: `egress_vlan_names`, `gbp_tag`, `match`, `radius_attrs`, `radius_group`, `radius_vendor_attrs`, `session_timeout`, `username_attr`, `vlan`",
+				MarkdownDescription: "Type of NAC Tag. enum: `egress_vlan_names`, `gbp_tag`, `match`, `radius_attrs`, `radius_group`, `radius_vendor_attrs`, `session_timeout`, `username_attr`, `vlan`",
+				Validators: []validator.String{
+					stringvalidator.OneOf(
+						"egress_vlan_names",
+						"gbp_tag",
+						"match",
+						"radius_attrs",
+						"radius_group",
+						"radius_vendor_attrs",
+						"session_timeout",
+						"username_attr",
+						"vlan",
+					),
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 		},
 	}
 }
 
 type OrgNactagsModel struct {
-	Limit      types.Int64  `tfsdk:"limit"`
 	Match      types.String `tfsdk:"match"`
 	Name       types.String `tfsdk:"name"`
 	OrgId      types.String `tfsdk:"org_id"`
 	OrgNactags types.Set    `tfsdk:"org_nactags"`
-	Page       types.Int64  `tfsdk:"page"`
 	Type       types.String `tfsdk:"type"`
 }
 
@@ -211,12 +240,12 @@ func (t OrgNactagsType) ValueFromObject(ctx context.Context, in basetypes.Object
 		return nil, diags
 	}
 
-	createdTimeVal, ok := createdTimeAttribute.(basetypes.NumberValue)
+	createdTimeVal, ok := createdTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`created_time expected to be basetypes.NumberValue, was: %T`, createdTimeAttribute))
+			fmt.Sprintf(`created_time expected to be basetypes.Float64Value, was: %T`, createdTimeAttribute))
 	}
 
 	egressVlanNamesAttribute, ok := attributes["egress_vlan_names"]
@@ -625,12 +654,12 @@ func NewOrgNactagsValue(attributeTypes map[string]attr.Type, attributes map[stri
 		return NewOrgNactagsValueUnknown(), diags
 	}
 
-	createdTimeVal, ok := createdTimeAttribute.(basetypes.NumberValue)
+	createdTimeVal, ok := createdTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`created_time expected to be basetypes.NumberValue, was: %T`, createdTimeAttribute))
+			fmt.Sprintf(`created_time expected to be basetypes.Float64Value, was: %T`, createdTimeAttribute))
 	}
 
 	egressVlanNamesAttribute, ok := attributes["egress_vlan_names"]
@@ -1016,24 +1045,24 @@ func (t OrgNactagsType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = OrgNactagsValue{}
 
 type OrgNactagsValue struct {
-	AllowUsermacOverride basetypes.BoolValue   `tfsdk:"allow_usermac_override"`
-	CreatedTime          basetypes.NumberValue `tfsdk:"created_time"`
-	EgressVlanNames      basetypes.ListValue   `tfsdk:"egress_vlan_names"`
-	GbpTag               basetypes.Int64Value  `tfsdk:"gbp_tag"`
-	Id                   basetypes.StringValue `tfsdk:"id"`
-	Match                basetypes.StringValue `tfsdk:"match"`
-	MatchAll             basetypes.BoolValue   `tfsdk:"match_all"`
-	ModifiedTime         basetypes.NumberValue `tfsdk:"modified_time"`
-	Name                 basetypes.StringValue `tfsdk:"name"`
-	OrgId                basetypes.StringValue `tfsdk:"org_id"`
-	RadiusAttrs          basetypes.ListValue   `tfsdk:"radius_attrs"`
-	RadiusGroup          basetypes.StringValue `tfsdk:"radius_group"`
-	RadiusVendorAttrs    basetypes.ListValue   `tfsdk:"radius_vendor_attrs"`
-	SessionTimeout       basetypes.Int64Value  `tfsdk:"session_timeout"`
-	OrgNactagsType       basetypes.StringValue `tfsdk:"type"`
-	UsernameAttr         basetypes.StringValue `tfsdk:"username_attr"`
-	Values               basetypes.ListValue   `tfsdk:"values"`
-	Vlan                 basetypes.StringValue `tfsdk:"vlan"`
+	AllowUsermacOverride basetypes.BoolValue    `tfsdk:"allow_usermac_override"`
+	CreatedTime          basetypes.Float64Value `tfsdk:"created_time"`
+	EgressVlanNames      basetypes.ListValue    `tfsdk:"egress_vlan_names"`
+	GbpTag               basetypes.Int64Value   `tfsdk:"gbp_tag"`
+	Id                   basetypes.StringValue  `tfsdk:"id"`
+	Match                basetypes.StringValue  `tfsdk:"match"`
+	MatchAll             basetypes.BoolValue    `tfsdk:"match_all"`
+	ModifiedTime         basetypes.NumberValue  `tfsdk:"modified_time"`
+	Name                 basetypes.StringValue  `tfsdk:"name"`
+	OrgId                basetypes.StringValue  `tfsdk:"org_id"`
+	RadiusAttrs          basetypes.ListValue    `tfsdk:"radius_attrs"`
+	RadiusGroup          basetypes.StringValue  `tfsdk:"radius_group"`
+	RadiusVendorAttrs    basetypes.ListValue    `tfsdk:"radius_vendor_attrs"`
+	SessionTimeout       basetypes.Int64Value   `tfsdk:"session_timeout"`
+	OrgNactagsType       basetypes.StringValue  `tfsdk:"type"`
+	UsernameAttr         basetypes.StringValue  `tfsdk:"username_attr"`
+	Values               basetypes.ListValue    `tfsdk:"values"`
+	Vlan                 basetypes.StringValue  `tfsdk:"vlan"`
 	state                attr.ValueState
 }
 
@@ -1044,7 +1073,7 @@ func (v OrgNactagsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	var err error
 
 	attrTypes["allow_usermac_override"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["created_time"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["created_time"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["egress_vlan_names"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
@@ -1256,7 +1285,7 @@ func (v OrgNactagsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 	if d.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"allow_usermac_override": basetypes.BoolType{},
-			"created_time":           basetypes.NumberType{},
+			"created_time":           basetypes.Float64Type{},
 			"egress_vlan_names": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -1291,7 +1320,7 @@ func (v OrgNactagsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 	if d.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"allow_usermac_override": basetypes.BoolType{},
-			"created_time":           basetypes.NumberType{},
+			"created_time":           basetypes.Float64Type{},
 			"egress_vlan_names": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -1326,7 +1355,7 @@ func (v OrgNactagsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 	if d.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"allow_usermac_override": basetypes.BoolType{},
-			"created_time":           basetypes.NumberType{},
+			"created_time":           basetypes.Float64Type{},
 			"egress_vlan_names": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -1361,7 +1390,7 @@ func (v OrgNactagsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 	if d.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"allow_usermac_override": basetypes.BoolType{},
-			"created_time":           basetypes.NumberType{},
+			"created_time":           basetypes.Float64Type{},
 			"egress_vlan_names": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -1391,7 +1420,7 @@ func (v OrgNactagsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 
 	attributeTypes := map[string]attr.Type{
 		"allow_usermac_override": basetypes.BoolType{},
-		"created_time":           basetypes.NumberType{},
+		"created_time":           basetypes.Float64Type{},
 		"egress_vlan_names": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -1553,7 +1582,7 @@ func (v OrgNactagsValue) Type(ctx context.Context) attr.Type {
 func (v OrgNactagsValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"allow_usermac_override": basetypes.BoolType{},
-		"created_time":           basetypes.NumberType{},
+		"created_time":           basetypes.Float64Type{},
 		"egress_vlan_names": basetypes.ListType{
 			ElemType: types.StringType,
 		},

@@ -17,6 +17,10 @@ The NAC Tags can be used in the NAC Rules to define the matching criterias or th
 ```terraform
 data "mist_org_nactags" "nactags" {
   org_id  = "15fca2ac-b1a6-47cc-9953-cc6906281550"
+
+  // Filtering options
+  type = "match"
+  match = "cert_issuer"
 }
 ```
 
@@ -29,11 +33,9 @@ data "mist_org_nactags" "nactags" {
 
 ### Optional
 
-- `limit` (Number)
-- `match` (String) Type of NAC Tag
+- `match` (String) if `type`==`match`, Type of NAC Tag. enum: `cert_cn`, `cert_issuer`, `cert_san`, `cert_serial`, `cert_sub`, `cert_template`, `client_mac`, `idp_role`, `ingress_vlan`, `mdm_status`, `nas_ip`, `radius_group`, `realm`, `ssid`, `user_name`, `usermac_label`
 - `name` (String) Name of NAC Tag
-- `page` (Number)
-- `type` (String) Type of NAC Tag
+- `type` (String) Type of NAC Tag. enum: `egress_vlan_names`, `gbp_tag`, `match`, `radius_attrs`, `radius_group`, `radius_vendor_attrs`, `session_timeout`, `username_attr`, `vlan`
 
 ### Read-Only
 
@@ -45,18 +47,18 @@ data "mist_org_nactags" "nactags" {
 Read-Only:
 
 - `allow_usermac_override` (Boolean) can be set to true to allow the override by usermac result
-- `created_time` (Number)
+- `created_time` (Number) when the object has been created, in epoch
 - `egress_vlan_names` (List of String) if `type`==`egress_vlan_names`, list of egress vlans to return
 - `gbp_tag` (Number) if `type`==`gbp_tag`
-- `id` (String)
-- `match` (String) if `type`==`match`. enum: `cert_cn`, `cert_issuer`, `cert_san`, `cert_serial`, `cert_sub`, `client_mac`, `idp_role`, `mdm_status`, `radius_group`, `realm`, `ssid`, `user_name`, `usermac_label`
+- `id` (String) Unique ID of the object instance in the Mist Organnization
+- `match` (String) if `type`==`match`. enum: `cert_cn`, `cert_issuer`, `cert_san`, `cert_serial`, `cert_sub`, `cert_template`, `client_mac`, `idp_role`, `ingress_vlan`, `mdm_status`, `nas_ip`, `radius_group`, `realm`, `ssid`, `user_name`, `usermac_label`
 - `match_all` (Boolean) This field is applicable only when `type`==`match`
   * `false`: means it is sufficient to match any of the values (i.e., match-any behavior)
   * `true`: means all values should be matched (i.e., match-all behavior)
 
 
-Currently it makes sense to set this field to `true` only if the `match`==`idp_role` or `match`==`usermac_label`'
-- `modified_time` (Number)
+Currently it makes sense to set this field to `true` only if the `match`==`idp_role` or `match`==`usermac_label`
+- `modified_time` (Number) when the object has been modified for the last time, in epoch
 - `name` (String)
 - `org_id` (String)
 - `radius_attrs` (List of String) if `type`==`radius_attrs`, user can specify a list of one or more standard attributes in the field "radius_attrs". 
@@ -68,6 +70,6 @@ It is the responsibility of the user to provide a syntactically correct string, 
 Note that it is allowed to have more than one radius_vendor_attrs in the result of a given rule.
 - `session_timeout` (Number) if `type`==`session_timeout, in seconds
 - `type` (String) enum: `egress_vlan_names`, `gbp_tag`, `match`, `radius_attrs`, `radius_group`, `radius_vendor_attrs`, `session_timeout`, `username_attr`, `vlan`
-- `username_attr` (String)
+- `username_attr` (String) enum: `automatic`, `cn`, `dns`, `email`, `upn`
 - `values` (List of String) if `type`==`match`
 - `vlan` (String) if `type`==`vlan`

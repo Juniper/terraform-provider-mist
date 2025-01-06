@@ -5,10 +5,8 @@ package datasource_org_webhooks
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
@@ -20,20 +18,16 @@ import (
 func OrgWebhooksDataSourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
-			"limit": schema.Int64Attribute{
-				Optional: true,
-				Validators: []validator.Int64{
-					int64validator.AtLeast(0),
-				},
-			},
 			"org_id": schema.StringAttribute{
 				Required: true,
 			},
 			"org_webhooks": schema.SetNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
-						"created_time": schema.NumberAttribute{
-							Computed: true,
+						"created_time": schema.Float64Attribute{
+							Computed:            true,
+							Description:         "when the object has been created, in epoch",
+							MarkdownDescription: "when the object has been created, in epoch",
 						},
 						"enabled": schema.BoolAttribute{
 							Computed:            true,
@@ -43,14 +37,18 @@ func OrgWebhooksDataSourceSchema(ctx context.Context) schema.Schema {
 						"headers": schema.MapAttribute{
 							ElementType:         types.StringType,
 							Computed:            true,
-							Description:         "if `type`=`http-post`, additional custom HTTP headers to add\nthe headers name and value must be string, total bytes of headers name and value must be less than 1000",
-							MarkdownDescription: "if `type`=`http-post`, additional custom HTTP headers to add\nthe headers name and value must be string, total bytes of headers name and value must be less than 1000",
+							Description:         "if `type`=`http-post`, additional custom HTTP headers to add. The headers name and value must be string, total bytes of headers name and value must be less than 1000",
+							MarkdownDescription: "if `type`=`http-post`, additional custom HTTP headers to add. The headers name and value must be string, total bytes of headers name and value must be less than 1000",
 						},
 						"id": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							Description:         "Unique ID of the object instance in the Mist Organnization",
+							MarkdownDescription: "Unique ID of the object instance in the Mist Organnization",
 						},
 						"modified_time": schema.NumberAttribute{
-							Computed: true,
+							Computed:            true,
+							Description:         "when the object has been modified for the last time, in epoch",
+							MarkdownDescription: "when the object has been modified for the last time, in epoch",
 						},
 						"name": schema.StringAttribute{
 							Computed:            true,
@@ -64,6 +62,7 @@ func OrgWebhooksDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"oauth2_client_secret": schema.StringAttribute{
 							Computed:            true,
+							Sensitive:           true,
 							Description:         "required when `oauth2_grant_type`==`client_credentials`",
 							MarkdownDescription: "required when `oauth2_grant_type`==`client_credentials`",
 						},
@@ -74,6 +73,7 @@ func OrgWebhooksDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"oauth2_password": schema.StringAttribute{
 							Computed:            true,
+							Sensitive:           true,
 							Description:         "required when `oauth2_grant_type`==`password`",
 							MarkdownDescription: "required when `oauth2_grant_type`==`password`",
 						},
@@ -98,6 +98,7 @@ func OrgWebhooksDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"secret": schema.StringAttribute{
 							Computed:            true,
+							Sensitive:           true,
 							Description:         "only if `type`=`http-post` \n\nwhen `secret` is provided, two  HTTP headers will be added: \n  * X-Mist-Signature-v2: HMAC_SHA256(secret, body)\n  * X-Mist-Signature: HMAC_SHA1(secret, body)",
 							MarkdownDescription: "only if `type`=`http-post` \n\nwhen `secret` is provided, two  HTTP headers will be added: \n  * X-Mist-Signature-v2: HMAC_SHA256(secret, body)\n  * X-Mist-Signature: HMAC_SHA1(secret, body)",
 						},
@@ -106,14 +107,15 @@ func OrgWebhooksDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"splunk_token": schema.StringAttribute{
 							Computed:            true,
-							Description:         "required if `type`=`splunk`\nIf splunk_token is not defined for a type Splunk webhook, it will not send, regardless if the webhook receiver is configured to accept it.'",
-							MarkdownDescription: "required if `type`=`splunk`\nIf splunk_token is not defined for a type Splunk webhook, it will not send, regardless if the webhook receiver is configured to accept it.'",
+							Sensitive:           true,
+							Description:         "required if `type`=`splunk`. If splunk_token is not defined for a type Splunk webhook, it will not send, regardless if the webhook receiver is configured to accept it.'",
+							MarkdownDescription: "required if `type`=`splunk`. If splunk_token is not defined for a type Splunk webhook, it will not send, regardless if the webhook receiver is configured to accept it.'",
 						},
 						"topics": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Computed:            true,
-							Description:         "N.B. For org webhooks, only device_events/alarms/audits/client-join/client-sessions/nac-sessions/nac_events topics are supported.",
-							MarkdownDescription: "N.B. For org webhooks, only device_events/alarms/audits/client-join/client-sessions/nac-sessions/nac_events topics are supported.",
+							Description:         "List of supported webhook topics available with the API Call [List Webhook Topics]($e/Constants%20Definitions/listWebhookTopics)",
+							MarkdownDescription: "List of supported webhook topics available with the API Call [List Webhook Topics]($e/Constants%20Definitions/listWebhookTopics)",
 						},
 						"type": schema.StringAttribute{
 							Computed:            true,
@@ -137,21 +139,13 @@ func OrgWebhooksDataSourceSchema(ctx context.Context) schema.Schema {
 				},
 				Computed: true,
 			},
-			"page": schema.Int64Attribute{
-				Optional: true,
-				Validators: []validator.Int64{
-					int64validator.AtLeast(1),
-				},
-			},
 		},
 	}
 }
 
 type OrgWebhooksModel struct {
-	Limit       types.Int64  `tfsdk:"limit"`
 	OrgId       types.String `tfsdk:"org_id"`
 	OrgWebhooks types.Set    `tfsdk:"org_webhooks"`
-	Page        types.Int64  `tfsdk:"page"`
 }
 
 var _ basetypes.ObjectTypable = OrgWebhooksType{}
@@ -189,12 +183,12 @@ func (t OrgWebhooksType) ValueFromObject(ctx context.Context, in basetypes.Objec
 		return nil, diags
 	}
 
-	createdTimeVal, ok := createdTimeAttribute.(basetypes.NumberValue)
+	createdTimeVal, ok := createdTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`created_time expected to be basetypes.NumberValue, was: %T`, createdTimeAttribute))
+			fmt.Sprintf(`created_time expected to be basetypes.Float64Value, was: %T`, createdTimeAttribute))
 	}
 
 	enabledAttribute, ok := attributes["enabled"]
@@ -660,12 +654,12 @@ func NewOrgWebhooksValue(attributeTypes map[string]attr.Type, attributes map[str
 		return NewOrgWebhooksValueUnknown(), diags
 	}
 
-	createdTimeVal, ok := createdTimeAttribute.(basetypes.NumberValue)
+	createdTimeVal, ok := createdTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`created_time expected to be basetypes.NumberValue, was: %T`, createdTimeAttribute))
+			fmt.Sprintf(`created_time expected to be basetypes.Float64Value, was: %T`, createdTimeAttribute))
 	}
 
 	enabledAttribute, ok := attributes["enabled"]
@@ -1126,27 +1120,27 @@ func (t OrgWebhooksType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = OrgWebhooksValue{}
 
 type OrgWebhooksValue struct {
-	CreatedTime        basetypes.NumberValue `tfsdk:"created_time"`
-	Enabled            basetypes.BoolValue   `tfsdk:"enabled"`
-	Headers            basetypes.MapValue    `tfsdk:"headers"`
-	Id                 basetypes.StringValue `tfsdk:"id"`
-	ModifiedTime       basetypes.NumberValue `tfsdk:"modified_time"`
-	Name               basetypes.StringValue `tfsdk:"name"`
-	Oauth2ClientId     basetypes.StringValue `tfsdk:"oauth2_client_id"`
-	Oauth2ClientSecret basetypes.StringValue `tfsdk:"oauth2_client_secret"`
-	Oauth2GrantType    basetypes.StringValue `tfsdk:"oauth2_grant_type"`
-	Oauth2Password     basetypes.StringValue `tfsdk:"oauth2_password"`
-	Oauth2Scopes       basetypes.ListValue   `tfsdk:"oauth2_scopes"`
-	Oauth2TokenUrl     basetypes.StringValue `tfsdk:"oauth2_token_url"`
-	Oauth2Username     basetypes.StringValue `tfsdk:"oauth2_username"`
-	OrgId              basetypes.StringValue `tfsdk:"org_id"`
-	Secret             basetypes.StringValue `tfsdk:"secret"`
-	SiteId             basetypes.StringValue `tfsdk:"site_id"`
-	SplunkToken        basetypes.StringValue `tfsdk:"splunk_token"`
-	Topics             basetypes.ListValue   `tfsdk:"topics"`
-	OrgWebhooksType    basetypes.StringValue `tfsdk:"type"`
-	Url                basetypes.StringValue `tfsdk:"url"`
-	VerifyCert         basetypes.BoolValue   `tfsdk:"verify_cert"`
+	CreatedTime        basetypes.Float64Value `tfsdk:"created_time"`
+	Enabled            basetypes.BoolValue    `tfsdk:"enabled"`
+	Headers            basetypes.MapValue     `tfsdk:"headers"`
+	Id                 basetypes.StringValue  `tfsdk:"id"`
+	ModifiedTime       basetypes.NumberValue  `tfsdk:"modified_time"`
+	Name               basetypes.StringValue  `tfsdk:"name"`
+	Oauth2ClientId     basetypes.StringValue  `tfsdk:"oauth2_client_id"`
+	Oauth2ClientSecret basetypes.StringValue  `tfsdk:"oauth2_client_secret"`
+	Oauth2GrantType    basetypes.StringValue  `tfsdk:"oauth2_grant_type"`
+	Oauth2Password     basetypes.StringValue  `tfsdk:"oauth2_password"`
+	Oauth2Scopes       basetypes.ListValue    `tfsdk:"oauth2_scopes"`
+	Oauth2TokenUrl     basetypes.StringValue  `tfsdk:"oauth2_token_url"`
+	Oauth2Username     basetypes.StringValue  `tfsdk:"oauth2_username"`
+	OrgId              basetypes.StringValue  `tfsdk:"org_id"`
+	Secret             basetypes.StringValue  `tfsdk:"secret"`
+	SiteId             basetypes.StringValue  `tfsdk:"site_id"`
+	SplunkToken        basetypes.StringValue  `tfsdk:"splunk_token"`
+	Topics             basetypes.ListValue    `tfsdk:"topics"`
+	OrgWebhooksType    basetypes.StringValue  `tfsdk:"type"`
+	Url                basetypes.StringValue  `tfsdk:"url"`
+	VerifyCert         basetypes.BoolValue    `tfsdk:"verify_cert"`
 	state              attr.ValueState
 }
 
@@ -1156,7 +1150,7 @@ func (v OrgWebhooksValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 	var val tftypes.Value
 	var err error
 
-	attrTypes["created_time"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["created_time"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["headers"] = basetypes.MapType{
 		ElemType: types.StringType,
@@ -1393,7 +1387,7 @@ func (v OrgWebhooksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 
 	if d.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
-			"created_time": basetypes.NumberType{},
+			"created_time": basetypes.Float64Type{},
 			"enabled":      basetypes.BoolType{},
 			"headers": basetypes.MapType{
 				ElemType: types.StringType,
@@ -1429,7 +1423,7 @@ func (v OrgWebhooksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 
 	if d.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
-			"created_time": basetypes.NumberType{},
+			"created_time": basetypes.Float64Type{},
 			"enabled":      basetypes.BoolType{},
 			"headers": basetypes.MapType{
 				ElemType: types.StringType,
@@ -1465,7 +1459,7 @@ func (v OrgWebhooksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 
 	if d.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
-			"created_time": basetypes.NumberType{},
+			"created_time": basetypes.Float64Type{},
 			"enabled":      basetypes.BoolType{},
 			"headers": basetypes.MapType{
 				ElemType: types.StringType,
@@ -1496,7 +1490,7 @@ func (v OrgWebhooksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 	}
 
 	attributeTypes := map[string]attr.Type{
-		"created_time": basetypes.NumberType{},
+		"created_time": basetypes.Float64Type{},
 		"enabled":      basetypes.BoolType{},
 		"headers": basetypes.MapType{
 			ElemType: types.StringType,
@@ -1674,7 +1668,7 @@ func (v OrgWebhooksValue) Type(ctx context.Context) attr.Type {
 
 func (v OrgWebhooksValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"created_time": basetypes.NumberType{},
+		"created_time": basetypes.Float64Type{},
 		"enabled":      basetypes.BoolType{},
 		"headers": basetypes.MapType{
 			ElemType: types.StringType,

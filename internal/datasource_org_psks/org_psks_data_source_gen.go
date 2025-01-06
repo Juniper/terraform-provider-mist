@@ -5,10 +5,8 @@ package datasource_org_psks
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
@@ -20,12 +18,6 @@ import (
 func OrgPsksDataSourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
-			"limit": schema.Int64Attribute{
-				Optional: true,
-				Validators: []validator.Int64{
-					int64validator.AtLeast(0),
-				},
-			},
 			"name": schema.StringAttribute{
 				Optional: true,
 			},
@@ -40,8 +32,10 @@ func OrgPsksDataSourceSchema(ctx context.Context) schema.Schema {
 							Description:         "sso id for psk created from psk portal",
 							MarkdownDescription: "sso id for psk created from psk portal",
 						},
-						"created_time": schema.NumberAttribute{
-							Computed: true,
+						"created_time": schema.Float64Attribute{
+							Computed:            true,
+							Description:         "when the object has been created, in epoch",
+							MarkdownDescription: "when the object has been created, in epoch",
 						},
 						"email": schema.StringAttribute{
 							Computed:            true,
@@ -59,7 +53,9 @@ func OrgPsksDataSourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "Number of days before psk is expired. Used as to when to start sending reminder notification when the psk is about to expire",
 						},
 						"id": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							Description:         "Unique ID of the object instance in the Mist Organnization",
+							MarkdownDescription: "Unique ID of the object instance in the Mist Organnization",
 						},
 						"mac": schema.StringAttribute{
 							Computed:            true,
@@ -78,7 +74,9 @@ func OrgPsksDataSourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "For Org PSK Only. Max concurrent users for this PSK key. Default is 0 (unlimited)",
 						},
 						"modified_time": schema.NumberAttribute{
-							Computed: true,
+							Computed:            true,
+							Description:         "when the object has been modified for the last time, in epoch",
+							MarkdownDescription: "when the object has been modified for the last time, in epoch",
 						},
 						"name": schema.StringAttribute{
 							Computed: true,
@@ -98,6 +96,7 @@ func OrgPsksDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"old_passphrase": schema.StringAttribute{
 							Computed:            true,
+							Sensitive:           true,
 							Description:         "previous passphrase of the PSK if it has been rotated",
 							MarkdownDescription: "previous passphrase of the PSK if it has been rotated",
 						},
@@ -106,6 +105,7 @@ func OrgPsksDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"passphrase": schema.StringAttribute{
 							Computed:            true,
+							Sensitive:           true,
 							Description:         "passphrase of the PSK (8-63 character or 64 in hex)",
 							MarkdownDescription: "passphrase of the PSK (8-63 character or 64 in hex)",
 						},
@@ -134,12 +134,6 @@ func OrgPsksDataSourceSchema(ctx context.Context) schema.Schema {
 				},
 				Computed: true,
 			},
-			"page": schema.Int64Attribute{
-				Optional: true,
-				Validators: []validator.Int64{
-					int64validator.AtLeast(1),
-				},
-			},
 			"role": schema.StringAttribute{
 				Optional: true,
 			},
@@ -151,11 +145,9 @@ func OrgPsksDataSourceSchema(ctx context.Context) schema.Schema {
 }
 
 type OrgPsksModel struct {
-	Limit   types.Int64  `tfsdk:"limit"`
 	Name    types.String `tfsdk:"name"`
 	OrgId   types.String `tfsdk:"org_id"`
 	OrgPsks types.Set    `tfsdk:"org_psks"`
-	Page    types.Int64  `tfsdk:"page"`
 	Role    types.String `tfsdk:"role"`
 	Ssid    types.String `tfsdk:"ssid"`
 }
@@ -213,12 +205,12 @@ func (t OrgPsksType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 		return nil, diags
 	}
 
-	createdTimeVal, ok := createdTimeAttribute.(basetypes.NumberValue)
+	createdTimeVal, ok := createdTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`created_time expected to be basetypes.NumberValue, was: %T`, createdTimeAttribute))
+			fmt.Sprintf(`created_time expected to be basetypes.Float64Value, was: %T`, createdTimeAttribute))
 	}
 
 	emailAttribute, ok := attributes["email"]
@@ -684,12 +676,12 @@ func NewOrgPsksValue(attributeTypes map[string]attr.Type, attributes map[string]
 		return NewOrgPsksValueUnknown(), diags
 	}
 
-	createdTimeVal, ok := createdTimeAttribute.(basetypes.NumberValue)
+	createdTimeVal, ok := createdTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`created_time expected to be basetypes.NumberValue, was: %T`, createdTimeAttribute))
+			fmt.Sprintf(`created_time expected to be basetypes.Float64Value, was: %T`, createdTimeAttribute))
 	}
 
 	emailAttribute, ok := attributes["email"]
@@ -1132,27 +1124,27 @@ func (t OrgPsksType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = OrgPsksValue{}
 
 type OrgPsksValue struct {
-	AdminSsoId             basetypes.StringValue `tfsdk:"admin_sso_id"`
-	CreatedTime            basetypes.NumberValue `tfsdk:"created_time"`
-	Email                  basetypes.StringValue `tfsdk:"email"`
-	ExpireTime             basetypes.Int64Value  `tfsdk:"expire_time"`
-	ExpiryNotificationTime basetypes.Int64Value  `tfsdk:"expiry_notification_time"`
-	Id                     basetypes.StringValue `tfsdk:"id"`
-	Mac                    basetypes.StringValue `tfsdk:"mac"`
-	Macs                   basetypes.ListValue   `tfsdk:"macs"`
-	MaxUsage               basetypes.Int64Value  `tfsdk:"max_usage"`
-	ModifiedTime           basetypes.NumberValue `tfsdk:"modified_time"`
-	Name                   basetypes.StringValue `tfsdk:"name"`
-	Note                   basetypes.StringValue `tfsdk:"note"`
-	NotifyExpiry           basetypes.BoolValue   `tfsdk:"notify_expiry"`
-	NotifyOnCreateOrEdit   basetypes.BoolValue   `tfsdk:"notify_on_create_or_edit"`
-	OldPassphrase          basetypes.StringValue `tfsdk:"old_passphrase"`
-	OrgId                  basetypes.StringValue `tfsdk:"org_id"`
-	Passphrase             basetypes.StringValue `tfsdk:"passphrase"`
-	Role                   basetypes.StringValue `tfsdk:"role"`
-	Ssid                   basetypes.StringValue `tfsdk:"ssid"`
-	Usage                  basetypes.StringValue `tfsdk:"usage"`
-	VlanId                 basetypes.StringValue `tfsdk:"vlan_id"`
+	AdminSsoId             basetypes.StringValue  `tfsdk:"admin_sso_id"`
+	CreatedTime            basetypes.Float64Value `tfsdk:"created_time"`
+	Email                  basetypes.StringValue  `tfsdk:"email"`
+	ExpireTime             basetypes.Int64Value   `tfsdk:"expire_time"`
+	ExpiryNotificationTime basetypes.Int64Value   `tfsdk:"expiry_notification_time"`
+	Id                     basetypes.StringValue  `tfsdk:"id"`
+	Mac                    basetypes.StringValue  `tfsdk:"mac"`
+	Macs                   basetypes.ListValue    `tfsdk:"macs"`
+	MaxUsage               basetypes.Int64Value   `tfsdk:"max_usage"`
+	ModifiedTime           basetypes.NumberValue  `tfsdk:"modified_time"`
+	Name                   basetypes.StringValue  `tfsdk:"name"`
+	Note                   basetypes.StringValue  `tfsdk:"note"`
+	NotifyExpiry           basetypes.BoolValue    `tfsdk:"notify_expiry"`
+	NotifyOnCreateOrEdit   basetypes.BoolValue    `tfsdk:"notify_on_create_or_edit"`
+	OldPassphrase          basetypes.StringValue  `tfsdk:"old_passphrase"`
+	OrgId                  basetypes.StringValue  `tfsdk:"org_id"`
+	Passphrase             basetypes.StringValue  `tfsdk:"passphrase"`
+	Role                   basetypes.StringValue  `tfsdk:"role"`
+	Ssid                   basetypes.StringValue  `tfsdk:"ssid"`
+	Usage                  basetypes.StringValue  `tfsdk:"usage"`
+	VlanId                 basetypes.StringValue  `tfsdk:"vlan_id"`
 	state                  attr.ValueState
 }
 
@@ -1163,7 +1155,7 @@ func (v OrgPsksValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 	var err error
 
 	attrTypes["admin_sso_id"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["created_time"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["created_time"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["email"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["expire_time"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["expiry_notification_time"] = basetypes.Int64Type{}.TerraformType(ctx)
@@ -1396,7 +1388,7 @@ func (v OrgPsksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 	if d.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"admin_sso_id":             basetypes.StringType{},
-			"created_time":             basetypes.NumberType{},
+			"created_time":             basetypes.Float64Type{},
 			"email":                    basetypes.StringType{},
 			"expire_time":              basetypes.Int64Type{},
 			"expiry_notification_time": basetypes.Int64Type{},
@@ -1423,7 +1415,7 @@ func (v OrgPsksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 
 	attributeTypes := map[string]attr.Type{
 		"admin_sso_id":             basetypes.StringType{},
-		"created_time":             basetypes.NumberType{},
+		"created_time":             basetypes.Float64Type{},
 		"email":                    basetypes.StringType{},
 		"expire_time":              basetypes.Int64Type{},
 		"expiry_notification_time": basetypes.Int64Type{},
@@ -1597,7 +1589,7 @@ func (v OrgPsksValue) Type(ctx context.Context) attr.Type {
 func (v OrgPsksValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"admin_sso_id":             basetypes.StringType{},
-		"created_time":             basetypes.NumberType{},
+		"created_time":             basetypes.Float64Type{},
 		"email":                    basetypes.StringType{},
 		"expire_time":              basetypes.Int64Type{},
 		"expiry_notification_time": basetypes.Int64Type{},

@@ -17,7 +17,11 @@ The Psks are used in the `service_policies` from the Gateway configuration and G
 ```terraform
 data "mist_site_psks" "psks_vip" {
   site_id = "15fca2ac-b1a6-47cc-9953-cc6906281550"
+  
+  // Filtering options
+  name = "psk_one"
   role   = "vip"
+  ssid = "psk_ssid"
 }
 ```
 
@@ -30,9 +34,7 @@ data "mist_site_psks" "psks_vip" {
 
 ### Optional
 
-- `limit` (Number)
 - `name` (String)
-- `page` (Number)
 - `role` (String)
 - `ssid` (String)
 
@@ -46,20 +48,20 @@ data "mist_site_psks" "psks_vip" {
 Read-Only:
 
 - `admin_sso_id` (String) sso id for psk created from psk portal
-- `created_time` (Number)
+- `created_time` (Number) when the object has been created, in epoch
 - `email` (String) email to send psk expiring notifications to
 - `expire_time` (Number) Expire time for this PSK key (epoch time in seconds). Default `null` (as no expiration)
 - `expiry_notification_time` (Number) Number of days before psk is expired. Used as to when to start sending reminder notification when the psk is about to expire
-- `id` (String)
+- `id` (String) Unique ID of the object instance in the Mist Organnization
 - `mac` (String) if `usage`==`single`, the mac that this PSK ties to, empty if `auto-binding`
-- `modified_time` (Number)
+- `modified_time` (Number) when the object has been modified for the last time, in epoch
 - `name` (String)
 - `note` (String)
 - `notify_expiry` (Boolean) If set to true, reminder notification will be sent when psk is about to expire
 - `notify_on_create_or_edit` (Boolean) If set to true, notification will be sent when psk is created or edited
-- `old_passphrase` (String) previous passphrase of the PSK if it has been rotated
+- `old_passphrase` (String, Sensitive) previous passphrase of the PSK if it has been rotated
 - `org_id` (String)
-- `passphrase` (String) passphrase of the PSK (8-63 character or 64 in hex)
+- `passphrase` (String, Sensitive) passphrase of the PSK (8-63 character or 64 in hex)
 - `role` (String)
 - `site_id` (String)
 - `ssid` (String) SSID this PSK should be applicable to
