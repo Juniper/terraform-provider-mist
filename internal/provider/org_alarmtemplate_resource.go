@@ -18,20 +18,20 @@ import (
 )
 
 var (
-	_ resource.Resource                = &orgOrgAlarmtemplateResource{}
-	_ resource.ResourceWithConfigure   = &orgOrgAlarmtemplateResource{}
-	_ resource.ResourceWithImportState = &orgOrgAlarmtemplateResource{}
+	_ resource.Resource                = &orgAlarmtemplateResource{}
+	_ resource.ResourceWithConfigure   = &orgAlarmtemplateResource{}
+	_ resource.ResourceWithImportState = &orgAlarmtemplateResource{}
 )
 
 func NewOrgAlarmtemplateResource() resource.Resource {
-	return &orgOrgAlarmtemplateResource{}
+	return &orgAlarmtemplateResource{}
 }
 
-type orgOrgAlarmtemplateResource struct {
+type orgAlarmtemplateResource struct {
 	client mistapi.ClientInterface
 }
 
-func (r *orgOrgAlarmtemplateResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+func (r *orgAlarmtemplateResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	tflog.Info(ctx, "Configuring Mist OrgAlarmtemplate client")
 	if req.ProviderData == nil {
 		return
@@ -49,10 +49,10 @@ func (r *orgOrgAlarmtemplateResource) Configure(ctx context.Context, req resourc
 	r.client = client
 }
 
-func (r *orgOrgAlarmtemplateResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *orgAlarmtemplateResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_org_alarmtemplate"
 }
-func (r *orgOrgAlarmtemplateResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *orgAlarmtemplateResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryOrg + "This resource manages Alarm Templates.\n" +
 			"An Alarm Template is a set of Alarm Rules that could be applied to one or more " +
@@ -65,7 +65,7 @@ func (r *orgOrgAlarmtemplateResource) Schema(ctx context.Context, req resource.S
 	}
 }
 
-func (r *orgOrgAlarmtemplateResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+func (r *orgAlarmtemplateResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	tflog.Info(ctx, "Starting OrgAlarmtemplate Create")
 	var plan, state resource_org_alarmtemplate.OrgAlarmtemplateModel
 
@@ -113,7 +113,7 @@ func (r *orgOrgAlarmtemplateResource) Create(ctx context.Context, req resource.C
 	}
 }
 
-func (r *orgOrgAlarmtemplateResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *orgAlarmtemplateResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var state resource_org_alarmtemplate.OrgAlarmtemplateModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -163,7 +163,7 @@ func (r *orgOrgAlarmtemplateResource) Read(ctx context.Context, req resource.Rea
 	}
 }
 
-func (r *orgOrgAlarmtemplateResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+func (r *orgAlarmtemplateResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var state, plan resource_org_alarmtemplate.OrgAlarmtemplateModel
 	tflog.Info(ctx, "Starting OrgAlarmtemplate Update")
 
@@ -226,7 +226,7 @@ func (r *orgOrgAlarmtemplateResource) Update(ctx context.Context, req resource.U
 
 }
 
-func (r *orgOrgAlarmtemplateResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *orgAlarmtemplateResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_org_alarmtemplate.OrgAlarmtemplateModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -263,7 +263,7 @@ func (r *orgOrgAlarmtemplateResource) Delete(ctx context.Context, req resource.D
 	}
 }
 
-func (r *orgOrgAlarmtemplateResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *orgAlarmtemplateResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 
 	importIds := strings.Split(req.ID, ".")
 	if len(importIds) != 2 {

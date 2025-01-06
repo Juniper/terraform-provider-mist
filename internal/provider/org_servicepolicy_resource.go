@@ -18,20 +18,20 @@ import (
 )
 
 var (
-	_ resource.Resource                = &orgOrgServicepolicyResource{}
-	_ resource.ResourceWithConfigure   = &orgOrgServicepolicyResource{}
-	_ resource.ResourceWithImportState = &orgOrgServicepolicyResource{}
+	_ resource.Resource                = &orgServicepolicyResource{}
+	_ resource.ResourceWithConfigure   = &orgServicepolicyResource{}
+	_ resource.ResourceWithImportState = &orgServicepolicyResource{}
 )
 
 func NewOrgServicepolicyResource() resource.Resource {
-	return &orgOrgServicepolicyResource{}
+	return &orgServicepolicyResource{}
 }
 
-type orgOrgServicepolicyResource struct {
+type orgServicepolicyResource struct {
 	client mistapi.ClientInterface
 }
 
-func (r *orgOrgServicepolicyResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+func (r *orgServicepolicyResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	tflog.Info(ctx, "Configuring Mist OrgServicepolicy client")
 	if req.ProviderData == nil {
 		return
@@ -49,10 +49,10 @@ func (r *orgOrgServicepolicyResource) Configure(ctx context.Context, req resourc
 	r.client = client
 }
 
-func (r *orgOrgServicepolicyResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *orgServicepolicyResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_org_servicepolicy"
 }
-func (r *orgOrgServicepolicyResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *orgServicepolicyResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryWan + "This resource manages WAN Assurance Service Policies (Application Policiess).\n" +
 			"The Service Policies are used in the `servicepolicy_policies` from the Gateway configuration and Gateway templates." +
@@ -61,7 +61,7 @@ func (r *orgOrgServicepolicyResource) Schema(ctx context.Context, req resource.S
 	}
 }
 
-func (r *orgOrgServicepolicyResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+func (r *orgServicepolicyResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	tflog.Info(ctx, "Starting OrgServicepolicy Create")
 	var plan, state resource_org_servicepolicy.OrgServicepolicyModel
 
@@ -109,7 +109,7 @@ func (r *orgOrgServicepolicyResource) Create(ctx context.Context, req resource.C
 	}
 }
 
-func (r *orgOrgServicepolicyResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *orgServicepolicyResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var state resource_org_servicepolicy.OrgServicepolicyModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -159,7 +159,7 @@ func (r *orgOrgServicepolicyResource) Read(ctx context.Context, req resource.Rea
 	}
 }
 
-func (r *orgOrgServicepolicyResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+func (r *orgServicepolicyResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var state, plan resource_org_servicepolicy.OrgServicepolicyModel
 	tflog.Info(ctx, "Starting OrgServicepolicy Update")
 
@@ -222,7 +222,7 @@ func (r *orgOrgServicepolicyResource) Update(ctx context.Context, req resource.U
 
 }
 
-func (r *orgOrgServicepolicyResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *orgServicepolicyResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_org_servicepolicy.OrgServicepolicyModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -259,7 +259,7 @@ func (r *orgOrgServicepolicyResource) Delete(ctx context.Context, req resource.D
 	}
 }
 
-func (r *orgOrgServicepolicyResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *orgServicepolicyResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 
 	importIds := strings.Split(req.ID, ".")
 	if len(importIds) != 2 {

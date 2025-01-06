@@ -18,20 +18,20 @@ import (
 )
 
 var (
-	_ resource.Resource                = &orgOrgIdpprofileResource{}
-	_ resource.ResourceWithConfigure   = &orgOrgIdpprofileResource{}
-	_ resource.ResourceWithImportState = &orgOrgIdpprofileResource{}
+	_ resource.Resource                = &orgIdpprofileResource{}
+	_ resource.ResourceWithConfigure   = &orgIdpprofileResource{}
+	_ resource.ResourceWithImportState = &orgIdpprofileResource{}
 )
 
 func NewOrgIdpprofileResource() resource.Resource {
-	return &orgOrgIdpprofileResource{}
+	return &orgIdpprofileResource{}
 }
 
-type orgOrgIdpprofileResource struct {
+type orgIdpprofileResource struct {
 	client mistapi.ClientInterface
 }
 
-func (r *orgOrgIdpprofileResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+func (r *orgIdpprofileResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	tflog.Info(ctx, "Configuring Mist OrgIdpprofile client")
 	if req.ProviderData == nil {
 		return
@@ -49,10 +49,10 @@ func (r *orgOrgIdpprofileResource) Configure(ctx context.Context, req resource.C
 	r.client = client
 }
 
-func (r *orgOrgIdpprofileResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *orgIdpprofileResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_org_idpprofile"
 }
-func (r *orgOrgIdpprofileResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *orgIdpprofileResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryWan + "This resource manages WAN Assurance Idp Profiles.\n" +
 			"An IDP Profile is a configuration setting that defines the behavior and actions of an intrusion detection and prevention (IDP) system." +
@@ -63,7 +63,7 @@ func (r *orgOrgIdpprofileResource) Schema(ctx context.Context, req resource.Sche
 	}
 }
 
-func (r *orgOrgIdpprofileResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+func (r *orgIdpprofileResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	tflog.Info(ctx, "Starting OrgIdpprofile Create")
 	var plan, state resource_org_idpprofile.OrgIdpprofileModel
 
@@ -111,7 +111,7 @@ func (r *orgOrgIdpprofileResource) Create(ctx context.Context, req resource.Crea
 	}
 }
 
-func (r *orgOrgIdpprofileResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *orgIdpprofileResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var state resource_org_idpprofile.OrgIdpprofileModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -162,7 +162,7 @@ func (r *orgOrgIdpprofileResource) Read(ctx context.Context, req resource.ReadRe
 	}
 }
 
-func (r *orgOrgIdpprofileResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+func (r *orgIdpprofileResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var state, plan resource_org_idpprofile.OrgIdpprofileModel
 	tflog.Info(ctx, "Starting OrgIdpprofile Update")
 
@@ -225,7 +225,7 @@ func (r *orgOrgIdpprofileResource) Update(ctx context.Context, req resource.Upda
 
 }
 
-func (r *orgOrgIdpprofileResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *orgIdpprofileResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_org_idpprofile.OrgIdpprofileModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -262,7 +262,7 @@ func (r *orgOrgIdpprofileResource) Delete(ctx context.Context, req resource.Dele
 	}
 }
 
-func (r *orgOrgIdpprofileResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *orgIdpprofileResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 
 	importIds := strings.Split(req.ID, ".")
 	if len(importIds) != 2 {

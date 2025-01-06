@@ -18,20 +18,20 @@ import (
 )
 
 var (
-	_ resource.Resource                = &orgOrgServiceResource{}
-	_ resource.ResourceWithConfigure   = &orgOrgServiceResource{}
-	_ resource.ResourceWithImportState = &orgOrgServiceResource{}
+	_ resource.Resource                = &orgServiceResource{}
+	_ resource.ResourceWithConfigure   = &orgServiceResource{}
+	_ resource.ResourceWithImportState = &orgServiceResource{}
 )
 
 func NewOrgServiceResource() resource.Resource {
-	return &orgOrgServiceResource{}
+	return &orgServiceResource{}
 }
 
-type orgOrgServiceResource struct {
+type orgServiceResource struct {
 	client mistapi.ClientInterface
 }
 
-func (r *orgOrgServiceResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+func (r *orgServiceResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	tflog.Info(ctx, "Configuring Mist OrgService client")
 	if req.ProviderData == nil {
 		return
@@ -49,10 +49,10 @@ func (r *orgOrgServiceResource) Configure(ctx context.Context, req resource.Conf
 	r.client = client
 }
 
-func (r *orgOrgServiceResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *orgServiceResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_org_service"
 }
-func (r *orgOrgServiceResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *orgServiceResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryWan + "This resource manages WAN Assurance Services (Applications).\n" +
 			"The Services are used in the `service_policies` from the Gateway configuration and Gateway templates, " +
@@ -61,7 +61,7 @@ func (r *orgOrgServiceResource) Schema(ctx context.Context, req resource.SchemaR
 	}
 }
 
-func (r *orgOrgServiceResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+func (r *orgServiceResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	tflog.Info(ctx, "Starting OrgService Create")
 	var plan, state resource_org_service.OrgServiceModel
 
@@ -109,7 +109,7 @@ func (r *orgOrgServiceResource) Create(ctx context.Context, req resource.CreateR
 	}
 }
 
-func (r *orgOrgServiceResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *orgServiceResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var state resource_org_service.OrgServiceModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -159,7 +159,7 @@ func (r *orgOrgServiceResource) Read(ctx context.Context, req resource.ReadReque
 	}
 }
 
-func (r *orgOrgServiceResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+func (r *orgServiceResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var state, plan resource_org_service.OrgServiceModel
 	tflog.Info(ctx, "Starting OrgService Update")
 
@@ -222,7 +222,7 @@ func (r *orgOrgServiceResource) Update(ctx context.Context, req resource.UpdateR
 
 }
 
-func (r *orgOrgServiceResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *orgServiceResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_org_service.OrgServiceModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -259,7 +259,7 @@ func (r *orgOrgServiceResource) Delete(ctx context.Context, req resource.DeleteR
 	}
 }
 
-func (r *orgOrgServiceResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *orgServiceResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 
 	importIds := strings.Split(req.ID, ".")
 	if len(importIds) != 2 {
