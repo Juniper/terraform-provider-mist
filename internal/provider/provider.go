@@ -412,6 +412,7 @@ func (p *mistProvider) DataSources(ctx context.Context) []func() datasource.Data
 		NewOrgInventoryDataSource,
 		NewOrgNacrulesDataSource,
 		NewOrgNactagsDataSource,
+		NewOrgNacEndpointsDataSource,
 		NewOrgNetworksDataSource,
 		NewOrgNetworktemplatesDataSource,
 		NewOrgRftemplatesDataSource,
