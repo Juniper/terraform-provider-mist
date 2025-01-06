@@ -420,6 +420,7 @@ func (p *mistProvider) DataSources(ctx context.Context) []func() datasource.Data
 		NewOrgServicesDataSource,
 		NewOrgSitegroupsDataSource,
 		NewOrgVpnsDataSource,
+		NewOrgSsoRolesDataSource,
 		NewOrgWlantemplatesDataSource,
 		NewOrgWxtagsDataSource,
 		NewSitesDataSource,
