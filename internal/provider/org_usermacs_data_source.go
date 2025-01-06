@@ -53,9 +53,9 @@ func (d *orgNacEndpointsDataSource) Metadata(ctx context.Context, req datasource
 
 func (d *orgNacEndpointsDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryWan + "This data source provides the list of NAC Endpoints (User MACs).\n" +
+		MarkdownDescription: docCategoryWan + "This data source provides the list of NAC Endpoints (User MACs).\n\n" +
 			"NAC Endpoints (User MACs) provide a database of endpoints identified by their MAC addresses. " +
-			"They can be used assign each endpoint with various attributes, such as name, VLAN, role and client label. " +
+			"They can be used assign each endpoint with various attributes, such as name, VLAN, role and client label.  " +
 			"Once an endpoint is labeled, the label name can be used to create `mist_org_nactag` resource as match criteria.",
 		Attributes: datasource_org_usermacs.OrgUsermacsDataSourceSchema(ctx).Attributes,
 	}

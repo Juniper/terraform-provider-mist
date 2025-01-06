@@ -3,13 +3,14 @@ page_title: "mist_org_nac_endpoints Data Source - terraform-provider-mist"
 subcategory: "WAN Assurance"
 description: |-
   This data source provides the list of NAC Endpoints (User MACs).
-  NAC Endpoints (User MACs) provide a database of endpoints identified by their MAC addresses. They can be used assign each endpoint with various attributes, such as name, VLAN, role and client label. Once an endpoint is labeled, the label name can be used to create mist_org_nactag resource as match criteria.
+  NAC Endpoints (User MACs) provide a database of endpoints identified by their MAC addresses. They can be used assign each endpoint with various attributes, such as name, VLAN, role and client label.  Once an endpoint is labeled, the label name can be used to create mist_org_nactag resource as match criteria.
 ---
 
 # mist_org_nac_endpoints (Data Source)
 
 This data source provides the list of NAC Endpoints (User MACs).
-NAC Endpoints (User MACs) provide a database of endpoints identified by their MAC addresses. They can be used assign each endpoint with various attributes, such as name, VLAN, role and client label. Once an endpoint is labeled, the label name can be used to create `mist_org_nactag` resource as match criteria.
+
+NAC Endpoints (User MACs) provide a database of endpoints identified by their MAC addresses. They can be used assign each endpoint with various attributes, such as name, VLAN, role and client label.  Once an endpoint is labeled, the label name can be used to create `mist_org_nactag` resource as match criteria.
 
 
 ## Example Usage

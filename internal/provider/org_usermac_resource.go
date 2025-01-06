@@ -56,7 +56,7 @@ func (r *orgNacEndpointResource) Schema(ctx context.Context, req resource.Schema
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryNac + "This resource manages the NAC Endpoints (User MACs).\n\n" +
 			"NAC Endpoints (User MACs) provide a database of endpoints identified by their MAC addresses. " +
-			"They can be used assign each endpoint with various attributes, such as name, VLAN, role and client label. " +
+			"They can be used assign each endpoint with various attributes, such as name, VLAN, role and client label.  " +
 			"Once an endpoint is labeled, the label name can be used to create `mist_org_nactag` resource as match criteria.\n\n" +
 			"The `mist_org_nactag` resource can be used to create Tags regrouping one or multiple endpoint MAC Addresses, " +
 			"but the use of the User MACs provides additional features:\n" +
