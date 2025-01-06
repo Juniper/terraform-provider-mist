@@ -53,6 +53,9 @@ func privilegesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d ba
 				data.SitegroupId = &tmp
 			}
 		}
+		if !plan.Views.IsNull() && !plan.Views.IsUnknown() {
+			data.Views = models.ToPointer(models.AdminPrivilegeViewEnum(plan.Views.ValueString()))
+		}
 
 		data_list = append(data_list, data)
 	}

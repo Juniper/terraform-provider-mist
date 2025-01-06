@@ -24,7 +24,9 @@ func OrgSsoRoleResourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Unique ID of the object instance in the Mist Organnization",
+				MarkdownDescription: "Unique ID of the object instance in the Mist Organnization",
 			},
 			"name": schema.StringAttribute{
 				Required: true,
@@ -41,7 +43,6 @@ func OrgSsoRoleResourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "access permissions. enum: `admin`, `helpdesk`, `installer`, `read`, `write`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
-									"",
 									"admin",
 									"helpdesk",
 									"installer",
@@ -56,7 +57,6 @@ func OrgSsoRoleResourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "enum: `org`, `site`, `sitegroup`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
-									"",
 									"org",
 									"site",
 									"sitegroup",
@@ -79,6 +79,23 @@ func OrgSsoRoleResourceSchema(ctx context.Context) schema.Schema {
 							Validators: []validator.String{
 								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("scope"), types.StringValue("sitegroup")),
 								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("scope"), types.StringValue("sitegroup")),
+							},
+						},
+						"views": schema.StringAttribute{
+							Optional:            true,
+							Description:         "Custom roles restrict Org users to specific UI views. This is useful for limiting UI access of Org users. Custom roles restrict Org users to specific UI views. This is useful for limiting UI access of Org users.  \nYou can define custom roles by adding the `views` attribute along with `role` when assigning privileges.  \nBelow are the list of supported UI views. Note that this is UI only feature.  \n\n  | UI View | Required Role | Description |\n  | --- | --- | --- |\n  | `reporting` | `read` | full access to all analytics tools |\n  | `marketing` | `read` | can view analytics and location maps |\n  | `super_observer` | `read` | can view all the organization except the subscription page |\n  | `location` | `write` | can view and manage location maps, can view analytics |\n  | `security` | `write` | can view and manage site labels, policies and security |\n  | `switch_admin` | `helpdesk` | can view and manage Switch ports, can view wired clients |\n  | `mxedge_admin` | `admin` | can view and manage Mist edges and Mist tunnels |\n  | `lobby_admin` | `admin` | full access to Org and Site Pre-shared keys |",
+							MarkdownDescription: "Custom roles restrict Org users to specific UI views. This is useful for limiting UI access of Org users. Custom roles restrict Org users to specific UI views. This is useful for limiting UI access of Org users.  \nYou can define custom roles by adding the `views` attribute along with `role` when assigning privileges.  \nBelow are the list of supported UI views. Note that this is UI only feature.  \n\n  | UI View | Required Role | Description |\n  | --- | --- | --- |\n  | `reporting` | `read` | full access to all analytics tools |\n  | `marketing` | `read` | can view analytics and location maps |\n  | `super_observer` | `read` | can view all the organization except the subscription page |\n  | `location` | `write` | can view and manage location maps, can view analytics |\n  | `security` | `write` | can view and manage site labels, policies and security |\n  | `switch_admin` | `helpdesk` | can view and manage Switch ports, can view wired clients |\n  | `mxedge_admin` | `admin` | can view and manage Mist edges and Mist tunnels |\n  | `lobby_admin` | `admin` | full access to Org and Site Pre-shared keys |",
+							Validators: []validator.String{
+								stringvalidator.OneOf(
+									"lobby_admin",
+									"location",
+									"marketing",
+									"mxedge_admin",
+									"reporting",
+									"security",
+									"super_observer",
+									"switch_admin",
+								),
 							},
 						},
 					},
@@ -201,6 +218,24 @@ func (t PrivilegesType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`sitegroup_id expected to be basetypes.StringValue, was: %T`, sitegroupIdAttribute))
 	}
 
+	viewsAttribute, ok := attributes["views"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`views is missing from object`)
+
+		return nil, diags
+	}
+
+	viewsVal, ok := viewsAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`views expected to be basetypes.StringValue, was: %T`, viewsAttribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
@@ -210,6 +245,7 @@ func (t PrivilegesType) ValueFromObject(ctx context.Context, in basetypes.Object
 		Scope:       scopeVal,
 		SiteId:      siteIdVal,
 		SitegroupId: sitegroupIdVal,
+		Views:       viewsVal,
 		state:       attr.ValueStateKnown,
 	}, diags
 }
@@ -349,6 +385,24 @@ func NewPrivilegesValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`sitegroup_id expected to be basetypes.StringValue, was: %T`, sitegroupIdAttribute))
 	}
 
+	viewsAttribute, ok := attributes["views"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`views is missing from object`)
+
+		return NewPrivilegesValueUnknown(), diags
+	}
+
+	viewsVal, ok := viewsAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`views expected to be basetypes.StringValue, was: %T`, viewsAttribute))
+	}
+
 	if diags.HasError() {
 		return NewPrivilegesValueUnknown(), diags
 	}
@@ -358,6 +412,7 @@ func NewPrivilegesValue(attributeTypes map[string]attr.Type, attributes map[stri
 		Scope:       scopeVal,
 		SiteId:      siteIdVal,
 		SitegroupId: sitegroupIdVal,
+		Views:       viewsVal,
 		state:       attr.ValueStateKnown,
 	}, diags
 }
@@ -434,11 +489,12 @@ type PrivilegesValue struct {
 	Scope       basetypes.StringValue `tfsdk:"scope"`
 	SiteId      basetypes.StringValue `tfsdk:"site_id"`
 	SitegroupId basetypes.StringValue `tfsdk:"sitegroup_id"`
+	Views       basetypes.StringValue `tfsdk:"views"`
 	state       attr.ValueState
 }
 
 func (v PrivilegesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 4)
+	attrTypes := make(map[string]tftypes.Type, 5)
 
 	var val tftypes.Value
 	var err error
@@ -447,12 +503,13 @@ func (v PrivilegesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	attrTypes["scope"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["site_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["sitegroup_id"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["views"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 4)
+		vals := make(map[string]tftypes.Value, 5)
 
 		val, err = v.Role.ToTerraformValue(ctx)
 
@@ -485,6 +542,14 @@ func (v PrivilegesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 		}
 
 		vals["sitegroup_id"] = val
+
+		val, err = v.Views.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["views"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -520,6 +585,7 @@ func (v PrivilegesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		"scope":        basetypes.StringType{},
 		"site_id":      basetypes.StringType{},
 		"sitegroup_id": basetypes.StringType{},
+		"views":        basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -537,6 +603,7 @@ func (v PrivilegesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"scope":        v.Scope,
 			"site_id":      v.SiteId,
 			"sitegroup_id": v.SitegroupId,
+			"views":        v.Views,
 		})
 
 	return objVal, diags
@@ -573,6 +640,10 @@ func (v PrivilegesValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.Views.Equal(other.Views) {
+		return false
+	}
+
 	return true
 }
 
@@ -590,5 +661,6 @@ func (v PrivilegesValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"scope":        basetypes.StringType{},
 		"site_id":      basetypes.StringType{},
 		"sitegroup_id": basetypes.StringType{},
+		"views":        basetypes.StringType{},
 	}
 }

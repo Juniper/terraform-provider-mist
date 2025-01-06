@@ -40,6 +40,7 @@ func privilegesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data
 		var scope types.String
 		var site_id types.String
 		var sitegroup_id types.String
+		var views types.String
 
 		role = types.StringValue(string(v.Role))
 		scope = types.StringValue(string(v.Scope))
@@ -49,6 +50,9 @@ func privilegesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data
 		if v.SitegroupId != nil {
 			sitegroup_id = types.StringValue(v.SitegroupId.String())
 		}
+		if v.Views != nil {
+			views = types.StringValue(string(*v.Views))
+		}
 
 		data_map_attr_type := PrivilegesValue{}.AttributeTypes(ctx)
 		data_map_value := map[string]attr.Value{
@@ -56,6 +60,7 @@ func privilegesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data
 			"scope":        scope,
 			"site_id":      site_id,
 			"sitegroup_id": sitegroup_id,
+			"views":        views,
 		}
 		data, e := NewPrivilegesValue(data_map_attr_type, data_map_value)
 		diags.Append(e...)
