@@ -20,7 +20,7 @@ data "mist_org_psks" "psks_vip" {
 
   // Filtering options
   name = "psk_one"
-  role   = "vip"
+  role = "vip"
   ssid = "psk_ssid"
 }
 ```
