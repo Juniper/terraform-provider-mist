@@ -6,6 +6,7 @@ import (
 	"context"
 	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
@@ -35,21 +36,29 @@ func OrgUsermacResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"name": schema.StringAttribute{
 				Optional: true,
+				Computed: true,
+				Default:  stringdefault.StaticString(""),
 			},
 			"notes": schema.StringAttribute{
 				Optional: true,
+				Computed: true,
+				Default:  stringdefault.StaticString(""),
 			},
 			"org_id": schema.StringAttribute{
 				Required: true,
 			},
 			"radius_group": schema.StringAttribute{
 				Optional: true,
+				Computed: true,
+				Default:  stringdefault.StaticString(""),
 			},
 			"vlan": schema.StringAttribute{
 				Optional: true,
+				Computed: true,
 				Validators: []validator.String{
 					mistvalidator.ParseInt(1, 4094),
 				},
+				Default: stringdefault.StaticString(""),
 			},
 		},
 	}

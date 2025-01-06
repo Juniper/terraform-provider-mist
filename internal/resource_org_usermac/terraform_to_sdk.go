@@ -14,7 +14,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgUsermacModel) (models.UserMac,
 	data := models.UserMac{}
 	unset := make(map[string]interface{})
 
-	if !plan.Labels.IsNull() && plan.Labels.IsUnknown() {
+	if !plan.Labels.IsNull() && !plan.Labels.IsUnknown() {
 		data.Labels = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Labels)
 	} else {
 		unset["-labels"] = ""
