@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
+	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/Juniper/terraform-provider-mist/internal/datasource_org_nactags"
 
@@ -75,18 +76,18 @@ func (d *orgNactagsDataSource) Read(ctx context.Context, req datasource.ReadRequ
 		return
 	}
 
-	var mType string
+	var mType models.NacTagTypeEnum
 	var name string
-	var match string
+	var match models.NacTagMatchEnum
 
 	if ds.Type.ValueStringPointer() != nil {
-		mType = ds.Type.ValueString()
+		mType = models.NacTagTypeEnum(ds.Type.ValueString())
 	}
 	if ds.Name.ValueStringPointer() != nil {
 		name = ds.Name.ValueString()
 	}
 	if ds.Match.ValueStringPointer() != nil {
-		match = ds.Match.ValueString()
+		match = models.NacTagMatchEnum(ds.Match.ValueString())
 	}
 
 	var limit int = 1000
