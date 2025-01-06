@@ -448,6 +448,7 @@ func (p *mistProvider) Resources(ctx context.Context) []func() resource.Resource
 		NewOrgNacTag,
 		NewOrgNacRule,
 		NewOrgNacIdp,
+		NewOrgNacEndpointResource,
 		NewOrgRfTemplate,
 		NewOrgVpn,
 		NewOrgWlanTemplate,
