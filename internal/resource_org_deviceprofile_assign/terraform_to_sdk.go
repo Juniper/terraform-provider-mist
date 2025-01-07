@@ -8,7 +8,7 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func TerraformToSdk(ctx context.Context, macs_plan basetypes.ListValue, macs_state basetypes.ListValue) (models.MacAddresses, models.MacAddresses, diag.Diagnostics) {
+func TerraformToSdk(ctx context.Context, macs_plan basetypes.SetValue, macs_state basetypes.SetValue) (models.MacAddresses, models.MacAddresses, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	var macs_to_assign models.MacAddresses
 	var macs_to_unssign models.MacAddresses
@@ -19,7 +19,7 @@ func TerraformToSdk(ctx context.Context, macs_plan basetypes.ListValue, macs_sta
 	return macs_to_assign, macs_to_unssign, diags
 }
 
-func diffList(ctx context.Context, list_one basetypes.ListValue, list_two basetypes.ListValue) []string {
+func diffList(ctx context.Context, list_one basetypes.SetValue, list_two basetypes.SetValue) []string {
 	var diff []string
 	for _, elo := range list_one.Elements() {
 		var so_interface interface{} = elo

@@ -91,7 +91,7 @@ func (r *orgDeviceprofileAssignResource) Create(ctx context.Context, req resourc
 		return
 	}
 
-	macs_to_assign, _, diags := resource_org_deviceprofile_assign.TerraformToSdk(ctx, plan.Macs, state.Macs)
+	macs_to_assign, macs_to_unassign, diags := resource_org_deviceprofile_assign.TerraformToSdk(ctx, plan.Macs, state.Macs)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -108,7 +108,7 @@ func (r *orgDeviceprofileAssignResource) Create(ctx context.Context, req resourc
 		}
 	}
 
-	new_macs_state, diags := resource_org_deviceprofile_assign.SdkToTerraform(ctx, &state.Macs, macs_assigned_success, macs_unassigned_success)
+	new_macs_state, diags := resource_org_deviceprofile_assign.SdkToTerraform(ctx, &state.Macs, &macs_to_assign, &macs_to_unassign, macs_assigned_success, macs_unassigned_success)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -178,7 +178,7 @@ func (r *orgDeviceprofileAssignResource) Read(ctx context.Context, req resource.
 			macs = append(macs, types.StringValue(*dev.Mac))
 		}
 	}
-	tmp, e := types.ListValueFrom(ctx, types.StringType, macs)
+	tmp, e := types.SetValueFrom(ctx, types.StringType, macs)
 	if e != nil {
 		resp.Diagnostics.Append(e...)
 	} else {
@@ -253,7 +253,7 @@ func (r *orgDeviceprofileAssignResource) Update(ctx context.Context, req resourc
 		}
 	}
 
-	new_macs_state, diags := resource_org_deviceprofile_assign.SdkToTerraform(ctx, &state.Macs, macs_assigned_success, macs_unassigned_success)
+	new_macs_state, diags := resource_org_deviceprofile_assign.SdkToTerraform(ctx, &state.Macs, &macs_to_assign, &macs_to_unassign, macs_assigned_success, macs_unassigned_success)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -297,7 +297,7 @@ func (r *orgDeviceprofileAssignResource) Delete(ctx context.Context, req resourc
 		return
 	}
 
-	plan_macs := types.ListNull(types.StringType)
+	plan_macs := types.SetNull(types.StringType)
 	_, macs_to_unassign, e := resource_org_deviceprofile_assign.TerraformToSdk(ctx, plan_macs, state.Macs)
 	if e != nil {
 		diags.Append(e...)

@@ -4,6 +4,8 @@ package resource_org_deviceprofile_assign
 
 import (
 	"context"
+	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -15,9 +17,12 @@ func OrgDeviceprofileAssignResourceSchema(ctx context.Context) schema.Schema {
 			"deviceprofile_id": schema.StringAttribute{
 				Required: true,
 			},
-			"macs": schema.ListAttribute{
+			"macs": schema.SetAttribute{
 				ElementType: types.StringType,
 				Required:    true,
+				Validators: []validator.Set{
+					setvalidator.SizeAtLeast(0),
+				},
 			},
 			"org_id": schema.StringAttribute{
 				Required: true,
@@ -28,6 +33,6 @@ func OrgDeviceprofileAssignResourceSchema(ctx context.Context) schema.Schema {
 
 type OrgDeviceprofileAssignModel struct {
 	DeviceprofileId types.String `tfsdk:"deviceprofile_id"`
-	Macs            types.List   `tfsdk:"macs"`
+	Macs            types.Set    `tfsdk:"macs"`
 	OrgId           types.String `tfsdk:"org_id"`
 }
