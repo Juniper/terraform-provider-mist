@@ -19,7 +19,6 @@ func destinationNatVpnSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 		var internal_ip basetypes.StringValue
 		var name basetypes.StringValue
 		var port basetypes.StringValue
-		var wan_name basetypes.StringValue
 
 		if v.InternalIp != nil {
 			internal_ip = types.StringValue(*v.InternalIp)
@@ -35,7 +34,6 @@ func destinationNatVpnSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 			"internal_ip": internal_ip,
 			"name":        name,
 			"port":        port,
-			"wan_name":    wan_name,
 		}
 		n, e := NewVpnAccessDestinationNatValue(VpnAccessDestinationNatValue{}.AttributeTypes(ctx), state_value_map_attr_value)
 		diags.Append(e...)
@@ -52,7 +50,6 @@ func staticNatVpnSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	for k, v := range d {
 		var internal_ip basetypes.StringValue
 		var name basetypes.StringValue
-		var wan_name basetypes.StringValue
 
 		if v.InternalIp != nil {
 			internal_ip = types.StringValue(*v.InternalIp)
@@ -64,7 +61,6 @@ func staticNatVpnSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 		state_value_map_attr_value := map[string]attr.Value{
 			"internal_ip": internal_ip,
 			"name":        name,
-			"wan_name":    wan_name,
 		}
 		n, e := NewVpnAccessStaticNatValue(VpnAccessStaticNatValue{}.AttributeTypes(ctx), state_value_map_attr_value)
 		diags.Append(e...)
