@@ -55,9 +55,9 @@ func (r *orgDeviceprofileAssignResource) Metadata(ctx context.Context, req resou
 
 func (r *orgDeviceprofileAssignResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryDevices + "This resourceis used to assign/unassign a device profile to one or multiple devices\n" +
-			"The `mist_org_deviceprofile_gateway` resource can be assigned to Gateways" +
-			"The `mist_org_deviceprofile_ap` resource can be assigned the Wireless Access Points",
+		MarkdownDescription: docCategoryDevices + "This resourceis used to assign/unassign a device profile to one or multiple devices.\n\n" +
+			"The `mist_org_deviceprofile_gateway` resource can be assigned to Gateways, and the" +
+			"`mist_org_deviceprofile_ap` resource can be assigned the Wireless Access Points",
 		Attributes: resource_org_deviceprofile_assign.OrgDeviceprofileAssignResourceSchema(ctx).Attributes,
 	}
 }
@@ -317,7 +317,7 @@ func (r *orgDeviceprofileAssignResource) Delete(ctx context.Context, req resourc
 
 func (r *orgDeviceprofileAssignResource) assign(ctx context.Context, orgId uuid.UUID, deviceprofileId uuid.UUID, macs models.MacAddresses) ([]string, error) {
 	if len(macs.Macs) > 0 {
-		tflog.Info(ctx, "Assigning "+string(len(macs.Macs))+"to  deviceprofile_id "+deviceprofileId.String())
+		tflog.Info(ctx, "Assigning "+fmt.Sprint(len(macs.Macs))+"to  deviceprofile_id "+deviceprofileId.String())
 		data, err := r.client.OrgsDeviceProfiles().AssignOrgDeviceProfile(ctx, orgId, deviceprofileId, &macs)
 
 		return data.Data.Success, err
@@ -329,7 +329,7 @@ func (r *orgDeviceprofileAssignResource) assign(ctx context.Context, orgId uuid.
 
 func (r *orgDeviceprofileAssignResource) unassign(ctx context.Context, orgId uuid.UUID, deviceprofileId uuid.UUID, macs models.MacAddresses) ([]string, error) {
 	if len(macs.Macs) > 0 {
-		tflog.Info(ctx, "Unassigning "+string(len(macs.Macs))+"to  deviceprofile_id "+deviceprofileId.String())
+		tflog.Info(ctx, "Unassigning "+fmt.Sprint(len(macs.Macs))+"to  deviceprofile_id "+deviceprofileId.String())
 		data, err := r.client.OrgsDeviceProfiles().UnassignOrgDeviceProfile(ctx, orgId, deviceprofileId, &macs)
 
 		return data.Data.Success, err

@@ -56,8 +56,8 @@ func (r *orgSiteGroupResource) Metadata(ctx context.Context, req resource.Metada
 
 func (r *orgSiteGroupResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryOrg + "This resource managed the Org Site Groups (sitegroups).\n" +
-			"A site group is a feature that allows users to group multiple sites together based on regions, functions, or other parameters for efficient management of devices. " +
+		MarkdownDescription: docCategoryOrg + "This resource managed the Org Site Groups (sitegroups).\n\n" +
+			"A site group is a feature that allows admins to group multiple sites together based on regions, functions, or other parameters for efficient management of devices.  \n" +
 			"Sites can exist in multiple groups simultaneously, and site groups can be used to ensure consistent settings, manage administrator access, and apply specific templates to groups of sites.",
 		Attributes: resource_org_sitegroup.OrgSitegroupResourceSchema(ctx).Attributes,
 	}

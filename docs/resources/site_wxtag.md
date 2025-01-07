@@ -3,13 +3,27 @@ page_title: "mist_site_wxtag Resource - terraform-provider-mist"
 subcategory: "Wi-Fi Assurance"
 description: |-
   This resource manages the Site Wxlan tags (labels).
-  A WxTag is a label or tag used in the mist system to classify and categorize applications, users, and resources for the purpose of creating policies and making network management decisions.They can be used   * within the WxRules to create filtering rules, or assign specific VLAN  * in the WLANs configuration to assign a WLAN to specific APs  * to identify unknown application used by Wi-Fi clients
+  A WxTag is a label or tag used in the mist system to classify and categorize applications, users, and resources for the purpose of creating policies and making network management decisions.They can be used
+  within the Org WxRules to create filtering rules:
+  mist_site_wxrule.dst_allow_wxtagsmist_site_wxrule.dst_deny_wxtagsmist_site_wxrule.dst_wxtagsmist_site_wxrule.src_wxtagswithin the Org WxRules to assign specific VLAN:
+  mist_site_wxrule.apply_tagsin the WLANs configuration to assign a WLAN to specific APs:
+  mist_site_wlan.wxtag_idsto identify unknown application used by Wi-Fi clients
 ---
 
 # mist_site_wxtag (Resource)
 
 This resource manages the Site Wxlan tags (labels).
-A WxTag is a label or tag used in the mist system to classify and categorize applications, users, and resources for the purpose of creating policies and making network management decisions.They can be used   * within the WxRules to create filtering rules, or assign specific VLAN  * in the WLANs configuration to assign a WLAN to specific APs  * to identify unknown application used by Wi-Fi clients
+A WxTag is a label or tag used in the mist system to classify and categorize applications, users, and resources for the purpose of creating policies and making network management decisions.They can be used 
+* within the Org WxRules to create filtering rules:
+  * `mist_site_wxrule.dst_allow_wxtags`
+  * `mist_site_wxrule.dst_deny_wxtags`
+  * `mist_site_wxrule.dst_wxtags`
+  * `mist_site_wxrule.src_wxtags`
+* within the Org WxRules to assign specific VLAN:
+  * `mist_site_wxrule.apply_tags`
+* in the WLANs configuration to assign a WLAN to specific APs:
+  * `mist_site_wlan.wxtag_ids`
+* to identify unknown application used by Wi-Fi clients
 
 
 ## Example Usage

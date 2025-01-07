@@ -9,6 +9,7 @@ description: |-
 # mist_org_setting (Resource)
 
 This resource manages the Org Settings.
+
 The Org Settings can be used to customize the Org configuration
 
 

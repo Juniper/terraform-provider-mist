@@ -54,8 +54,11 @@ func (r *siteWebhookResource) Metadata(ctx context.Context, req resource.Metadat
 
 func (r *siteWebhookResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategorySite + "This resource manages Site Webhooks.",
-		Attributes:          resource_site_webhook.SiteWebhookResourceSchema(ctx).Attributes,
+		MarkdownDescription: docCategorySite + "This resource manages Site Webhooks.\n\n" +
+			"A Site Webhook is a configuration that allows real-time events and data from a specific site to be pushed to a provided url.  \n" +
+			"It enables the collection of information about various topics such as device events, alarms, audits, client sessions and location updates at the site level.  \n" +
+			"The Webhook can be set up and customized using the Mist API, allowing users to receive and analyze specific data from a particular site.",
+		Attributes: resource_site_webhook.SiteWebhookResourceSchema(ctx).Attributes,
 	}
 }
 

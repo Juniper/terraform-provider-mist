@@ -54,7 +54,7 @@ func (r *orgRfTemplateResource) Metadata(ctx context.Context, req resource.Metad
 
 func (r *orgRfTemplateResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryWlan + "This manages the RF Templates.\n" +
+		MarkdownDescription: docCategoryWlan + "This resource manages the RF Templates.\n\n" +
 			"The RF Templates can be used to define Wireless Access Points radio configuration, and can be assigned to the sites",
 		Attributes: resource_org_rftemplate.OrgRftemplateResourceSchema(ctx).Attributes,
 	}

@@ -56,9 +56,9 @@ func (d *orgDeviceprofilesApDataSource) Metadata(ctx context.Context, req dataso
 
 func (d *orgDeviceprofilesApDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryWlan + "This data source provides the list of AP Device Profiles.\n" +
-			"AP Device profiles for aps are used to specify a configuration that can be applied to a select set of aps from any site in the organization. " +
-			"They allow for efficient application of configurations based on ap groups, wlan groups, RF settings, and sites. " +
+		MarkdownDescription: docCategoryWlan + "This data source provides the list of AP Device Profiles.\n\n" +
+			"AP Device profiles are used to specify a configuration that can be applied to a select set of aps from any site in the organization. " +
+			"They are providing efficient application of configurations based on ap groups, wlan groups, RF settings, and sites. " +
 			"Device profiles enable various use cases such as activating ethernet passthrough, applying different rf settings, applying mesh configuration, " +
 			"activating specific features like esl or vble, and more.",
 		Attributes: datasource_org_deviceprofiles_ap.OrgDeviceprofilesApDataSourceSchema(ctx).Attributes,

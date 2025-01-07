@@ -54,8 +54,8 @@ func (r *orgNetworkResource) Metadata(ctx context.Context, req resource.Metadata
 
 func (r *orgNetworkResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryWan + "This resource manages the WAN Assurance Networks.\n" +
-			"The Networks are used in the `service_policies` from the Gateway configuration and Gateway templates ",
+		MarkdownDescription: docCategoryWan + "This resource manages the WAN Assurance Networks.\n\n" +
+			"The Networks are used in the `service_policies` from the Gateway configuration, Gateway templates or HUB Profiles ",
 		Attributes: resource_org_network.OrgNetworkResourceSchema(ctx).Attributes,
 	}
 }

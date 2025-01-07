@@ -47,9 +47,9 @@ func (d *constWebhooksDataSource) Metadata(ctx context.Context, req datasource.M
 
 func (d *constWebhooksDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryConst + "This data source provides the list of Webhook Topics.\n" +
-			"This information can be used to configure webhooks at the Org level or at the Site level " +
-			"with the `mist_org_webhook` resource or the `mist_site_webhook` resource.\n\n" +
+		MarkdownDescription: docCategoryConst + "This data source provides the list of Webhook Topics.\n\n" +
+			"This information can be used to configure webhooks at the Org level (`mist_org_webhook` resource) " +
+			"or at the Site level (`mist_site_webhook` resource).\n\n" +
 			"-> Only the Webhook topics with `for_org`==` true` are supported at the Org level.",
 		Attributes: datasource_const_webhooks.ConstWebhooksDataSourceSchema(ctx).Attributes,
 	}

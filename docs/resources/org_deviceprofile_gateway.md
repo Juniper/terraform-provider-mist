@@ -10,6 +10,7 @@ description: |-
 # mist_org_deviceprofile_gateway (Resource)
 
 This resource manages the Gateway Device Profiles (HUB Profiles).
+
 A HUB profile is a configuration profile that automates the creation of overlay networks and defines the attributes of a hub device in a network. It includes settings for wan interfaces, lan interfaces, dns servers, traffic steering preferences, application policies, and routing options. HUB profiles are used to create consistent configurations for hub devices and ensure efficient connectivity between hubs and spokes in a network.
 
 The Gateway Devide Profile can be assigned to a gateway with the `mist_org_deviceprofile_assign` resource.

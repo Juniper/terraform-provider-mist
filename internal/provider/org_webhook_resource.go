@@ -54,8 +54,11 @@ func (r *orgWebhookResource) Metadata(ctx context.Context, req resource.Metadata
 
 func (r *orgWebhookResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryOrg + "This resource manages Org Webhooks.",
-		Attributes:          resource_org_webhook.OrgWebhookResourceSchema(ctx).Attributes,
+		MarkdownDescription: docCategoryOrg + "This resource manages Org Webhooks.\n\n" +
+			"A Webhook is a configuration that allows real-time events and data from the Org to be pushed to a provided url.  \n" +
+			"It enables the collection of information about various topics such as device events, alarms, and audits updates at the org level.  \n" +
+			"The Webhook can be set up and customized using the Mist API, allowing users to receive and analyze specific data from a particular site.",
+		Attributes: resource_org_webhook.OrgWebhookResourceSchema(ctx).Attributes,
 	}
 }
 

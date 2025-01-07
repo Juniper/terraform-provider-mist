@@ -47,8 +47,8 @@ func (d *constTrafficTypesDataSource) Metadata(ctx context.Context, req datasour
 
 func (d *constTrafficTypesDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryConst + "This data source provides the of ConstTrafficTypes.\n" +
-			"This information can be used to define the Country in the RF templates (`mist_org_rftemplate`)",
+		MarkdownDescription: docCategoryConst + "This data source provides the of ConstTrafficTypes.\n\n" +
+			"The Traffic Type values can be used to define the `traffic_type` attribute in the `mist_org_service` resource.",
 		Attributes: datasource_const_traffic_types.ConstTrafficTypesDataSourceSchema(ctx).Attributes,
 	}
 }

@@ -52,9 +52,11 @@ func (r *deviceImageResource) Metadata(ctx context.Context, req resource.Metadat
 
 func (r *deviceImageResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryDevices + "This resource is used to upload a Device picture.\n" +
+		MarkdownDescription: docCategoryDevices + "This resource is used to upload a Device picture.\n\n" +
 			"This resource can be used to add a picture to a Wireless Access point, a Switch or " +
-			"a Gateway. A Maximum of 3 pictures can be uploaded.",
+			"a Gateway. A Maximum of 3 pictures can be uploaded.\n\n" +
+			"!> There is no validation on the Image currently uploaded to the Mist Cloud. Defining the same image " +
+			"twice (e.g. `image = 1`) for the same device will override the first image image any warning or error.",
 		Attributes: resource_device_image.DeviceImageResourceSchema(ctx).Attributes,
 	}
 }

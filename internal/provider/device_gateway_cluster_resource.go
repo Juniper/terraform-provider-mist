@@ -55,12 +55,12 @@ func (r *deviceGatewayClusterResource) Metadata(ctx context.Context, req resourc
 
 func (r *deviceGatewayClusterResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryDevices + "This resource can be used to form or delete a Gateway\n" +
-			" Clusters. It can be used with two Gateways assigned to the same site.\n" +
-			"Once the Cluster is formed, it can be create just like a Gateway with the `mist_device_gateway` resource:\n" +
+		MarkdownDescription: docCategoryDevices + "This resource can be used to form or delete a Gateway Clusters.\n\n" +
+			"A Gateway Cluster can be formed with two Gateways assigned to the same site. " +
+			"Once the Cluster is formed, it can be configured just like a Gateway with the `mist_device_gateway` resource:\n" +
 			"1. Claim the gateways and assign them to the same site with the `mist_org_inventory` resource\n" +
-			"2. Form the Cluster with the `mist_device_gateway_cluster` resource by providing the `site_id` and the two nodes " +
-			"MAC Addresses (the first in the list will be the node0)\n" +
+			"2. Form the Cluster with the `mist_device_gateway_cluster` resource by providing the `site_id` and the MAC Addresses " +
+			"of two nodes (the first in the list will be the node0)\n" +
 			"3. Configure the Cluster with the `mist_device_gateway` resource\n\n" +
 			"Please check the [SRX Juniper Documentation](https://www.juniper.net/documentation/us/en/software/mist/mist-wan/topics/topic-map/srx-high-availability-configuration.html)" +
 			"or the [SSR Juniper Documentation](https://www.juniper.net/documentation/us/en/software/mist/mist-wan/topics/topic-map/ssr-high-availability-configuration.html)" +

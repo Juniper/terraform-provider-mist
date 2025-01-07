@@ -3,13 +3,14 @@ page_title: "mist_org_networks Data Source - terraform-provider-mist"
 subcategory: "WAN Assurance"
 description: |-
   This data source provides the list of WAN Assurance Networks.
-  The Networks are used in the service_policies from the Gateway configuration and Gateway templates
+  The Networks are used in the service_policies from the Gateway configuration, Gateway templates or HUB Profiles
 ---
 
 # mist_org_networks (Data Source)
 
 This data source provides the list of WAN Assurance Networks.
-The Networks are used in the `service_policies` from the Gateway configuration and Gateway templates
+
+The Networks are used in the `service_policies` from the Gateway configuration, Gateway templates or HUB Profiles
 
 
 ## Example Usage

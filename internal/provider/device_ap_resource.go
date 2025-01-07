@@ -58,7 +58,7 @@ func (r *deviceApResource) Metadata(ctx context.Context, req resource.MetadataRe
 
 func (r *deviceApResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryDevices + "This resource manages the Wireless Access Point configuration.\n" +
+		MarkdownDescription: docCategoryDevices + "This resource manages the Wireless Access Point configuration.\n\n" +
 			"It can be used to define specific configuration at the device level or to override AP Device Profile (`mist_org_deviceprofile_ap`).",
 		Attributes: resource_device_ap.DeviceApResourceSchema(ctx).Attributes,
 	}

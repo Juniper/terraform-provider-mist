@@ -52,7 +52,7 @@ func (d *orgRftemplatesDataSource) Metadata(ctx context.Context, req datasource.
 
 func (d *orgRftemplatesDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryWlan + "This resource provides the list of RF Templates.\n" +
+		MarkdownDescription: docCategoryWlan + "This data source provides the list of RF Templates.\n\n" +
 			"The RF Templates can be used to define Wireless Access Points radio configuration, and can be assigned to the sites",
 		Attributes: datasource_org_rftemplates.OrgRftemplatesDataSourceSchema(ctx).Attributes,
 	}

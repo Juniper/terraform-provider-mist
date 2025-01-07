@@ -9,6 +9,7 @@ description: |-
 # mist_org_sso_metadata (Data Source)
 
 This data source provides the SSO Metadata information.
+
 The provided information (`entity_id`, `acs_url`, `logout_url` and `metadata`) are the informationrequired to configure the IDP
 
 

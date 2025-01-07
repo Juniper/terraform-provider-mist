@@ -7,7 +7,7 @@ description: |-
 
 # search_inventory_by_mac (function)
 
-Given `mist_org_inventory` resource and a MAC Address string, will return the Device object having the provided MAC Address.The response object will contain all the information from the Mist Inventory:
+Given `mist_org_inventory` resource and a MAC Address string, will return the Device object having the provided MAC Address. The response object will contain all the information from the Mist Inventory:
 * `claim_code`: Claim Code of the device 
 * `deviceprofile_id`: deviceprofile id if assigned
 * `hostname`: hostname reported by the device

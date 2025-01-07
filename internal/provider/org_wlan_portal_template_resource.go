@@ -50,7 +50,7 @@ func (r *orgWlanPortalTemplateResource) Metadata(ctx context.Context, req resour
 
 func (r *orgWlanPortalTemplateResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryWlan + "This resource is used customize the WLAN Guest Portal.\n" +
+		MarkdownDescription: docCategoryWlan + "This resource is used customize the WLAN Guest Portal.\n\n" +
 			"The WLAN Portal Template can be used to define:\n" +
 			"* Guest Authentication methods and parameters (access duration, ...)\n" +
 			"* Default values of the text fields and labels on the portal\n" +

@@ -47,10 +47,11 @@ func (d *constApplicationsDataSource) Metadata(ctx context.Context, req datasour
 
 func (d *constApplicationsDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryConst + "This data source provides the of ConstApplications.\n" +
-			"This information can be used as `apps` in the `mist_org_service` resource, the `mist_site_setting` " +
-			"resource (`mist_site_setting.gateway_mgmt.app_probing.apps`) or in the `mist_org_setting` resource " +
-			"(`mist_org_setting.gateway_mgmt.app_probing.apps`)",
+		MarkdownDescription: docCategoryConst + "This data source provides the of ConstApplications.\n\n" +
+			"This information can be used as `apps` in:\n" +
+			"* `mist_org_service` resource\n" +
+			"* `mist_site_setting` resource (`mist_site_setting.gateway_mgmt.app_probing.apps`)\n" +
+			"* `mist_org_setting` resource (`mist_org_setting.gateway_mgmt.app_probing.apps`)",
 		Attributes: datasource_const_applications.ConstApplicationsDataSourceSchema(ctx).Attributes,
 	}
 }

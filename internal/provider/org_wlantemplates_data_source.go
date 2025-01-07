@@ -52,11 +52,11 @@ func (d *orgWlantemplatesDataSource) Metadata(ctx context.Context, req datasourc
 
 func (d *orgWlantemplatesDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryWlan + "This datasource provides the list of WLAN Templates in a Mist Organization.\n" +
+		MarkdownDescription: docCategoryWlan + "This datasource provides the list of WLAN Templates in a Mist Organization.\n\n" +
 			"A WLAN template is a collection of WLANs, tunneling policies, and wxlan policies. " +
-			"It is used to create and manage wlan configurations at an organizational level. " +
+			"It is used to create and manage wlan configurations at an organizational level.  \n" +
 			"WLAN templates allow for modular, scalable, and easy-to-manage configuration of ssids and their application to specific sites, " +
-			"site groups, or ap device profiles. " +
+			"site groups, or ap device profiles.  \n" +
 			"They are valuable for automating configuration across multiple sites and profiles, making it easier to scale efficiently.",
 		Attributes: datasource_org_wlantemplates.OrgWlantemplatesDataSourceSchema(ctx).Attributes,
 	}

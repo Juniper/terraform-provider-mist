@@ -53,7 +53,7 @@ func (d *orgNactagsDataSource) Metadata(ctx context.Context, req datasource.Meta
 
 func (d *orgNactagsDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryNac + "This data source provides the list of NAC Tags (Auth Policy Labels).\n" +
+		MarkdownDescription: docCategoryNac + "This data source provides the list of NAC Tags (Auth Policy Labels).\n\n" +
 			"The NAC Tags can be used in the NAC Rules to define the matching criterias or the returned RADIUS Attributes",
 		Attributes: datasource_org_nactags.OrgNactagsDataSourceSchema(ctx).Attributes,
 	}

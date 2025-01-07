@@ -12,6 +12,7 @@ description: |-
 # mist_org_wlan_portal_template (Resource)
 
 This resource is used customize the WLAN Guest Portal.
+
 The WLAN Portal Template can be used to define:
 * Guest Authentication methods and parameters (access duration, ...)
 * Default values of the text fields and labels on the portal

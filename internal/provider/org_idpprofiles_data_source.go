@@ -52,10 +52,10 @@ func (d *orgIdpprofilesDataSource) Metadata(ctx context.Context, req datasource.
 
 func (d *orgIdpprofilesDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryWan + "This data source provides the list of WAN Assurance IDP Profiles.\n" +
-			"An IDP Profile is a configuration setting that defines the behavior and actions of an intrusion detection and prevention (IDP) system." +
-			"It specifies how the idp system should detect and respond to potential security threats or attacks on a network." +
-			"The profile includes rules and policies that determine which types of traffic or attacks should be monitored," +
+		MarkdownDescription: docCategoryWan + "This data source provides the list of WAN Assurance IDP Profiles.\n\n" +
+			"An IDP Profile is a configuration setting that defines the behavior and actions of an intrusion detection and prevention (IDP) system. " +
+			"It specifies how the idp system should detect and respond to potential security threats or attacks on a network.\n\n" +
+			"The profile includes rules and policies that determine which types of traffic or attacks should be monitored, " +
 			"what actions should be taken when a threat is detected, and any exceptions or exclusions for specific destinations or attack types.",
 		Attributes: datasource_org_idpprofiles.OrgIdpprofilesDataSourceSchema(ctx).Attributes,
 	}

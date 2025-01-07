@@ -54,8 +54,8 @@ func (r *orgNacIdpResource) Metadata(ctx context.Context, req resource.MetadataR
 
 func (r *orgNacIdpResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryNac + "This resource manages NAC IDPs (Identity Providers).\n" +
-			"The NAC IDPs to validate NAC client accounts against an IDP with OAuth2.0, LDAP/LDAPS, or a local Mist Edge.\n" +
+		MarkdownDescription: docCategoryNac + "This resource manages NAC IDPs (Identity Providers).\n\n" +
+			"The NAC IDPs are used to validate NAC client accounts against an IDP with OAuth2.0, LDAP/LDAPS, or a local Mist Edge.  \n" +
 			"Mist Access Assurance can also retrieve group membership from the IDP, and use this information in the NAC " +
 			"Rules (`mist_org_nacrule` resource)\n\n" +
 			"IMPORTANT:\n" +

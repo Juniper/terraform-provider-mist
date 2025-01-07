@@ -3,13 +3,14 @@ page_title: "mist_const_traffic_types Data Source - terraform-provider-mist"
 subcategory: "Constants"
 description: |-
   This data source provides the of ConstTrafficTypes.
-  This information can be used to define the Country in the RF templates (mist_org_rftemplate)
+  The Traffic Type values can be used to define the traffic_type attribute in the mist_org_service resource.
 ---
 
 # mist_const_traffic_types (Data Source)
 
 This data source provides the of ConstTrafficTypes.
-This information can be used to define the Country in the RF templates (`mist_org_rftemplate`)
+
+The Traffic Type values can be used to define the `traffic_type` attribute in the `mist_org_service` resource.
 
 
 ## Example Usage

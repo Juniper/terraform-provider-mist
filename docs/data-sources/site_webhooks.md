@@ -3,11 +3,16 @@ page_title: "mist_site_webhooks Data Source - terraform-provider-mist"
 subcategory: "Site"
 description: |-
   This data source provides the list of Site Webhooks.
+  A Site Webhook is a configuration that allows real-time events and data from a specific site to be pushed to a provided url.It enables the collection of information about various topics such as device events, alarms, audits, client sessions and location updates at the site level.The Webhook can be set up and customized using the Mist API, allowing users to receive and analyze specific data from a particular site.
 ---
 
 # mist_site_webhooks (Data Source)
 
 This data source provides the list of Site Webhooks.
+
+A Site Webhook is a configuration that allows real-time events and data from a specific site to be pushed to a provided url.  
+It enables the collection of information about various topics such as device events, alarms, audits, client sessions and location updates at the site level.  
+The Webhook can be set up and customized using the Mist API, allowing users to receive and analyze specific data from a particular site.
 
 
 ## Example Usage

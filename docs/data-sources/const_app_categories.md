@@ -9,6 +9,7 @@ description: |-
 # mist_const_app_categories (Data Source)
 
 This data source provides the of ConstAppCategories.
+
 This information can be used as `app_categories` in the `mist_org_service` resource
 
 

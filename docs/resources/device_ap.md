@@ -9,6 +9,7 @@ description: |-
 # mist_device_ap (Resource)
 
 This resource manages the Wireless Access Point configuration.
+
 It can be used to define specific configuration at the device level or to override AP Device Profile (`mist_org_deviceprofile_ap`).
 
 

@@ -3,14 +3,15 @@ page_title: "mist_const_webhooks Data Source - terraform-provider-mist"
 subcategory: "Constants"
 description: |-
   This data source provides the list of Webhook Topics.
-  This information can be used to configure webhooks at the Org level or at the Site level with the mist_org_webhook resource or the mist_site_webhook resource.
+  This information can be used to configure webhooks at the Org level (mist_org_webhook resource) or at the Site level (mist_site_webhook resource).
   -> Only the Webhook topics with for_org== true are supported at the Org level.
 ---
 
 # mist_const_webhooks (Data Source)
 
 This data source provides the list of Webhook Topics.
-This information can be used to configure webhooks at the Org level or at the Site level with the `mist_org_webhook` resource or the `mist_site_webhook` resource.
+
+This information can be used to configure webhooks at the Org level (`mist_org_webhook` resource) or at the Site level (`mist_site_webhook` resource).
 
 -> Only the Webhook topics with `for_org`==` true` are supported at the Org level.
 

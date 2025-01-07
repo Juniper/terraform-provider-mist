@@ -3,13 +3,19 @@ page_title: "mist_org_service Resource - terraform-provider-mist"
 subcategory: "WAN Assurance"
 description: |-
   This resource manages WAN Assurance Services (Applications).
-  The Services are used in the service_policies from the Gateway configuration and Gateway templates, or can be used in the Org Service Policies (org_servicepolicy resource).
+  A Service is used to define a Custom Application that can be used in the service_policies. These Services can be referenced by their name in
+  the Service Policies (mist_org_servicepolicy.services)the Gateway configuration (mist_device_gateway.service_policies.services)the Gateway Templates (mist_org_gatewaytemplate.service_policies.services)the HUB Profiles (mist_org_deviceprofile_gateway.service_policies.services)
 ---
 
 # mist_org_service (Resource)
 
 This resource manages WAN Assurance Services (Applications).
-The Services are used in the `service_policies` from the Gateway configuration and Gateway templates, or can be used in the Org Service Policies (`org_servicepolicy` resource).
+
+A Service is used to define a Custom Application that can be used in the `service_policies`. These Services can be referenced by their name in
+* the Service Policies (`mist_org_servicepolicy.services`)
+* the Gateway configuration (`mist_device_gateway.service_policies.services`)
+* the Gateway Templates (`mist_org_gatewaytemplate.service_policies.services`)
+* the HUB Profiles (`mist_org_deviceprofile_gateway.service_policies.services`)
 
 
 ## Example Usage

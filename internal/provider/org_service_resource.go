@@ -54,9 +54,12 @@ func (r *orgServiceResource) Metadata(ctx context.Context, req resource.Metadata
 }
 func (r *orgServiceResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryWan + "This resource manages WAN Assurance Services (Applications).\n" +
-			"The Services are used in the `service_policies` from the Gateway configuration and Gateway templates, " +
-			"or can be used in the Org Service Policies (`org_servicepolicy` resource).",
+		MarkdownDescription: docCategoryWan + "This resource manages WAN Assurance Services (Applications).\n\n" +
+			"A Service is used to define a Custom Application that can be used in the `service_policies`. These Services can be referenced by their name in\n" +
+			"* the Service Policies (`mist_org_servicepolicy.services`)\n" +
+			"* the Gateway configuration (`mist_device_gateway.service_policies.services`)\n" +
+			"* the Gateway Templates (`mist_org_gatewaytemplate.service_policies.services`)\n" +
+			"* the HUB Profiles (`mist_org_deviceprofile_gateway.service_policies.services`)\n",
 		Attributes: resource_org_service.OrgServiceResourceSchema(ctx).Attributes,
 	}
 }

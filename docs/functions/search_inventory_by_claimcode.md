@@ -7,7 +7,7 @@ description: |-
 
 # search_inventory_by_claimcode (function)
 
-Given `mist_org_inventory` resource and a Claim Code string, will return the Device object having the provided Claim Code.The response object will contain all the information from the Mist Inventory:
+Given `mist_org_inventory` resource and a Claim Code string, will return the Device object having the provided Claim Code. The response object will contain all the information from the Mist Inventory:
 * `claim_code`: Claim Code of the device 
 * `deviceprofile_id`: deviceprofile id if assigned
 * `hostname`: hostname reported by the device

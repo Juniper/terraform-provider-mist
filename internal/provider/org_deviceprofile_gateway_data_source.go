@@ -56,9 +56,9 @@ func (d *orgDeviceprofilesGatewayDataSource) Metadata(ctx context.Context, req d
 
 func (d *orgDeviceprofilesGatewayDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryWan + "This provides the list of Gateway Device Profiles (Hub Profile).\n" +
+		MarkdownDescription: docCategoryWan + "This provides the list of Gateway Device Profiles (Hub Profile).\n\n" +
 			"A HUB profile is a configuration profile that automates the creation of overlay networks and defines the attributes of a hub device in a network. " +
-			"It includes settings for wan interfaces, lan interfaces, dns servers, traffic steering preferences, application policies, and routing options. " +
+			"It includes settings for wan interfaces, lan interfaces, dns servers, traffic steering preferences, application policies, and routing options.\n\n" +
 			"HUB profiles are used to create consistent configurations for hub devices and ensure efficient connectivity between hubs and spokes in a network.",
 		Attributes: datasource_org_deviceprofiles_gateway.OrgDeviceprofilesGatewayDataSourceSchema(ctx).Attributes,
 	}

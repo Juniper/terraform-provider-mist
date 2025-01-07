@@ -3,13 +3,16 @@ page_title: "mist_org_wlantemplate Resource - terraform-provider-mist"
 subcategory: "Wi-Fi Assurance"
 description: |-
   This resource manages the Org WLAN Templates.
-  A WLAN template is a collection of WLANs, tunneling policies, and wxlan policies. It is used to create and manage wlan configurations at an organizational level. WLAN templates allow for modular, scalable, and easy-to-manage configuration of ssids and their application to specific sites, site groups, or ap device profiles. They are valuable for automating configuration across multiple sites and profiles, making it easier to scale efficiently.
+  A WLAN template is a collection of WLANs, tunneling policies, and wxlan policies. It is used to create and manage wlan configurations at an organizational level.WLAN templates allow for modular, scalable, and easy-to-manage configuration of ssids and their application to specific sites, site groups, or ap device profiles.They are valuable for automating configuration across multiple sites and profiles, making it easier to scale efficiently.
 ---
 
 # mist_org_wlantemplate (Resource)
 
 This resource manages the Org WLAN Templates.
-A WLAN template is a collection of WLANs, tunneling policies, and wxlan policies. It is used to create and manage wlan configurations at an organizational level. WLAN templates allow for modular, scalable, and easy-to-manage configuration of ssids and their application to specific sites, site groups, or ap device profiles. They are valuable for automating configuration across multiple sites and profiles, making it easier to scale efficiently.
+
+A WLAN template is a collection of WLANs, tunneling policies, and wxlan policies. It is used to create and manage wlan configurations at an organizational level.  
+WLAN templates allow for modular, scalable, and easy-to-manage configuration of ssids and their application to specific sites, site groups, or ap device profiles.  
+They are valuable for automating configuration across multiple sites and profiles, making it easier to scale efficiently.
 
 
 ## Example Usage

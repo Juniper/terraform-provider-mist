@@ -3,8 +3,7 @@ page_title: "mist_org_nacidp Resource - terraform-provider-mist"
 subcategory: "Access Assurance"
 description: |-
   This resource manages NAC IDPs (Identity Providers).
-  The NAC IDPs to validate NAC client accounts against an IDP with OAuth2.0, LDAP/LDAPS, or a local Mist Edge.
-  Mist Access Assurance can also retrieve group membership from the IDP, and use this information in the NAC Rules (mist_org_nacrule resource)
+  The NAC IDPs are used to validate NAC client accounts against an IDP with OAuth2.0, LDAP/LDAPS, or a local Mist Edge.Mist Access Assurance can also retrieve group membership from the IDP, and use this information in the NAC Rules (mist_org_nacrule resource)
   IMPORTANT:
   Once created, the NAC IDP must be registered in the mist_org_setting resource (full path: mist_org_setting.mist_nac.idps).The associated REALMS are configured under mist_org_setting.mist_nac.idpsTo make the IDP the Default IDP, set the IDP ID under mist_org_setting.mist_nac.default_idp_id
   For SAML IDP, the NAC IDP Metadata can be retrieved with the mist_org_nacidp_metadata data source.
@@ -13,7 +12,8 @@ description: |-
 # mist_org_nacidp (Resource)
 
 This resource manages NAC IDPs (Identity Providers).
-The NAC IDPs to validate NAC client accounts against an IDP with OAuth2.0, LDAP/LDAPS, or a local Mist Edge.
+
+The NAC IDPs are used to validate NAC client accounts against an IDP with OAuth2.0, LDAP/LDAPS, or a local Mist Edge.  
 Mist Access Assurance can also retrieve group membership from the IDP, and use this information in the NAC Rules (`mist_org_nacrule` resource)
 
 IMPORTANT:

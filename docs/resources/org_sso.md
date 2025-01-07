@@ -2,21 +2,17 @@
 page_title: "mist_org_sso Resource - terraform-provider-mist"
 subcategory: "Org"
 description: |-
-  This resource manages Org API Tokens.
-  Org API token is a unique identifier used by an application to authenticate and access a service's API. These tokens are used to authenticate requests made to the API server and ensure secure access to the API. They are not bound to any specific user and provide access to the organization as a whole.
-  Organization tokens support different privileges and can only be used for the specific organization they are generated for.
-  Rate limiting is done on an individual token basis, so if one token reaches its rate limit, it does not impact other tokens.
-  The SSO Metadata can be retrieved with the mist_org_sso_metadata data source.
+  This resource manages Org SSO Configuration.
+  Org SSO, or Single Sign-On, is a method of authentication that allows users to securely log in to multiple applications and websites with a single set of login credentials.It involves integrating the Org portal with an Identity Provider (IdP) using the Security Assertion Markup Language (SAML) framework.This enables users to authenticate themselves through their corporate IdP, eliminating the need to remember separate passwords or enter credentials each time they access the Org portal.
 ---
 
 # mist_org_sso (Resource)
 
-This resource manages Org API Tokens.
-Org API token is a unique identifier used by an application to authenticate and access a service's API. These tokens are used to authenticate requests made to the API server and ensure secure access to the API. They are not bound to any specific user and provide access to the organization as a whole. 
-Organization tokens support different privileges and can only be used for the specific organization they are generated for.
-Rate limiting is done on an individual token basis, so if one token reaches its rate limit, it does not impact other tokens.
+This resource manages Org SSO Configuration.
 
-The SSO Metadata can be retrieved with the `mist_org_sso_metadata` data source.
+Org SSO, or Single Sign-On, is a method of authentication that allows users to securely log in to multiple applications and websites with a single set of login credentials.  
+It involves integrating the Org portal with an Identity Provider (IdP) using the Security Assertion Markup Language (SAML) framework.  
+This enables users to authenticate themselves through their corporate IdP, eliminating the need to remember separate passwords or enter credentials each time they access the Org portal.
 
 
 ## Example Usage

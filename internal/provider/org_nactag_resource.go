@@ -54,7 +54,7 @@ func (r *orgNacTagResource) Metadata(ctx context.Context, req resource.MetadataR
 
 func (r *orgNacTagResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryNac + "This resource manages NAC Tags (Auth Policy Labels).\n" +
+		MarkdownDescription: docCategoryNac + "This resource manages NAC Tags (Auth Policy Labels).\n\n" +
 			"The NAC Tags can be used in the NAC Rules to define the matching criterias or the returned RADIUS Attributes",
 		Attributes: resource_org_nactag.OrgNactagResourceSchema(ctx).Attributes,
 	}

@@ -9,6 +9,7 @@ description: |-
 # mist_org (Resource)
 
 This resource manages the Mist Organization.
+
 An organization usually represents a customer - which has inventories, licenses. An Organization can contain multiple sites. A site usually represents a deployment at the same location (a campus, an office).
 
 

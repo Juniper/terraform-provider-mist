@@ -52,7 +52,7 @@ func (d *orgAlarmtemplatesDataSource) Metadata(ctx context.Context, req datasour
 
 func (d *orgAlarmtemplatesDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryOrg + "This data source provides the list of Alarm Templates.\n" +
+		MarkdownDescription: docCategoryOrg + "This data source provides the list of Alarm Templates.\n\n" +
 			"An Alarm Template is a set of Alarm Rules that could be applied to one or more " +
 			"sites (while each site can only pick one Alarm Template), or to the whole org.",
 		Attributes: datasource_org_alarmtemplates.OrgAlarmtemplatesDataSourceSchema(ctx).Attributes,

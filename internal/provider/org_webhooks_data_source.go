@@ -52,8 +52,11 @@ func (d *orgWebhooksDataSource) Metadata(ctx context.Context, req datasource.Met
 
 func (d *orgWebhooksDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryOrg + "This data source provides the list of Org Webhooks.",
-		Attributes:          datasource_org_webhooks.OrgWebhooksDataSourceSchema(ctx).Attributes,
+		MarkdownDescription: docCategoryOrg + "This data source provides the list of Org Webhooks.\n\n" +
+			"A Webhook is a configuration that allows real-time events and data from the Org to be pushed to a provided url.  \n" +
+			"It enables the collection of information about various topics such as device events, alarms, and audits updates at the org level.  \n" +
+			"The Webhook can be set up and customized using the Mist API, allowing users to receive and analyze specific data from a particular site.",
+		Attributes: datasource_org_webhooks.OrgWebhooksDataSourceSchema(ctx).Attributes,
 	}
 }
 

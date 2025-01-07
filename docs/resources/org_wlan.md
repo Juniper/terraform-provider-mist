@@ -9,6 +9,7 @@ description: |-
 # mist_org_wlan (Resource)
 
 This resource manages the Org Wlans.
+
 The WLAN object contains all the required configuration to broadcast an SSID (Authentication, VLAN, ...)
 
 

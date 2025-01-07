@@ -27,7 +27,7 @@ func (f *SearchInventoryBySerialFunction) Metadata(ctx context.Context, req func
 func (f *SearchInventoryBySerialFunction) Definition(ctx context.Context, req function.DefinitionRequest, resp *function.DefinitionResponse) {
 	resp.Definition = function.Definition{
 		Summary: docCategoryDevices + "Retrieve a device in the `mist_org_inventory` resource based on its Serial Number",
-		MarkdownDescription: "Given `mist_org_inventory` resource and a Serial Number string, will return the Device object having the provided Serial Number." +
+		MarkdownDescription: "Given `mist_org_inventory` resource and a Serial Number string, will return the Device object having the provided Serial Number. " +
 			"The response object will contain all the information from the Mist Inventory:\n" +
 			"* `claim_code`: Claim Code of the device \n" +
 			"* `deviceprofile_id`: deviceprofile id if assigned\n" +
@@ -42,7 +42,6 @@ func (f *SearchInventoryBySerialFunction) Definition(ctx context.Context, req fu
 			"* `unclaim_when_destroyed`: If the device will be unclaimed when removed from the `mist_org_inventory` resource\n" +
 			"* `vc_mac`: only if `type`==`switch` of `type`==`gateway`, MAC Address of the Virtual Chassis Primary switch or the Gateway Cluster Master\n\n" +
 			"-> The search function is case-insensitive\n",
-
 		Parameters: []function.Parameter{
 			function.ObjectParameter{
 				Name:                "inventory",

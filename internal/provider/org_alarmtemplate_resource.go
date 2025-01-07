@@ -54,12 +54,12 @@ func (r *orgAlarmtemplateResource) Metadata(ctx context.Context, req resource.Me
 }
 func (r *orgAlarmtemplateResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryOrg + "This resource manages Alarm Templates.\n" +
+		MarkdownDescription: docCategoryOrg + "This resource manages Alarm Templates.\n\n" +
 			"An Alarm Template is a set of Alarm Rules that could be applied to one or more " +
 			"sites (while each site can only pick one Alarm Template), or to the whole org.\n\n" +
-			"Once created, the Alarm template must be assigned with the `alarmtemplate_id` attribute to one of the following\n" +
-			"	* the whole org with the `mist_org` resource\n" +
-			"	* one or multiple sites with the `mist_site` resource\n\n" +
+			"Once created, the Alarm template must be assigned with the `alarmtemplate_id` attribute to one of the following:\n" +
+			"* the whole org with the `mist_org` resource\n" +
+			"* one or multiple sites with the `mist_site` resource\n\n" +
 			"It is possible to use the `mist_const_alarms` data source to get a list of the available alarms",
 		Attributes: resource_org_alarmtemplate.OrgAlarmtemplateResourceSchema(ctx).Attributes,
 	}

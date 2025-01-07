@@ -52,8 +52,11 @@ func (d *siteWebhooksDataSource) Metadata(ctx context.Context, req datasource.Me
 
 func (d *siteWebhooksDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategorySite + "This data source provides the list of Site Webhooks.",
-		Attributes:          datasource_site_webhooks.SiteWebhooksDataSourceSchema(ctx).Attributes,
+		MarkdownDescription: docCategorySite + "This data source provides the list of Site Webhooks.\n\n" +
+			"A Site Webhook is a configuration that allows real-time events and data from a specific site to be pushed to a provided url.  \n" +
+			"It enables the collection of information about various topics such as device events, alarms, audits, client sessions and location updates at the site level.  \n" +
+			"The Webhook can be set up and customized using the Mist API, allowing users to receive and analyze specific data from a particular site.",
+		Attributes: datasource_site_webhooks.SiteWebhooksDataSourceSchema(ctx).Attributes,
 	}
 }
 
