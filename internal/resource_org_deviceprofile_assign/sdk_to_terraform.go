@@ -30,6 +30,8 @@ func SdkToTerraform(
 		s := s_interface.(basetypes.StringValue)
 		unassignRequested := macInSlice(s.ValueString(), macsToUnassign.Macs)
 		unassignApplied := macInSlice(s.ValueString(), macsUnassigned)
+		// if unassignRequested && unassignApplied: that's expected, do not add the device to the state list, do not raise a warning
+		// if unassignRequested && !unassignApplied: that's not expected, do not add the device to the state list but raise a warning
 		if unassignRequested && !unassignApplied {
 			diags.AddWarning(
 				"Unable to Unassign the device profile from a device",
