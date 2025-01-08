@@ -7,16 +7,33 @@ description: |-
 
 # Release Notes for v0.2.xx
 
+## Release Notes for v0.2.18
+**release date** : January 10th, 2025
+
+### New Resources
+* `mist_org_nac_endpoints`
+
+### New Data Sources
+* `mist_org_alarmtemplates`
+* `mist_org_nac_endpoints`
+* `mist_org_sso_roles`
+
+### Changes
+* Add `mist_org_sso_role.privilege.views` attribute
+
+### Fixes
+* `vpn_access.static_nat.wan_name` and `vpn_access.destination_nat.wan_name` was removed in a previous version, but some parts of the code was not updated. This issue was impacting the `mist_org_network`, `mist_device_gateway`, `mist_org_gatewaytemplate` and `mist_org_deviceprofile_gateway` resources
+
 ## Release Notes for v0.2.17
 **release date** : January 2nd, 2025
 
-### Fix
+### Fixes
 * fix `mist_org_psk.vlan_id` and `mist_site_psk.vlan_id` issue when converting the value from the Go SDK to Terraform.
 
 ## Release Notes for v0.2.16
 **release date** : January 2nd, 2025
 
-### Fix
+### Fixes
 * fix `mist_org_wlan.dynamic_vlan.default_vlan_ids` and `mist_site_wlan.dynamic_vlan.default_vlan_ids` issue when converting the value from the Go SDK to Terraform.
 
 
