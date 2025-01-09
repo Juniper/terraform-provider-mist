@@ -393,12 +393,6 @@ func OrgWlansDataSourceSchema(ctx context.Context) schema.Schema {
 							Description:         "radius auth session timeout. Following fast timers are set if “fast_dot1x_timers” knob is enabled. ‘quite-period’  and ‘transmit-period’ are set to half the value of auth_servers_timeout. ‘supplicant-timeout’ is also set when setting auth_servers_timeout and is set to default value of 10.",
 							MarkdownDescription: "radius auth session timeout. Following fast timers are set if “fast_dot1x_timers” knob is enabled. ‘quite-period’  and ‘transmit-period’ are set to half the value of auth_servers_timeout. ‘supplicant-timeout’ is also set when setting auth_servers_timeout and is set to default value of 10.",
 						},
-						"band": schema.StringAttribute{
-							Computed:            true,
-							Description:         "`band` is deprecated and kept for backward compability. Use bands instead",
-							MarkdownDescription: "`band` is deprecated and kept for backward compability. Use bands instead",
-							DeprecationMessage:  "This attribute is deprecated.",
-						},
 						"band_steer": schema.BoolAttribute{
 							Computed:            true,
 							Description:         "whether to enable band_steering, this works only when band==both",
@@ -664,9 +658,6 @@ func OrgWlansDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"dynamic_vlan": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
-								"default_vlan_id": schema.StringAttribute{
-									Computed: true,
-								},
 								"default_vlan_ids": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Computed:            true,
@@ -729,9 +720,6 @@ func OrgWlansDataSourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "if set to true, sets default fast-timers with values calculated from ‘auth_servers_timeout’ and ‘auth_server_retries’ .",
 							MarkdownDescription: "if set to true, sets default fast-timers with values calculated from ‘auth_servers_timeout’ and ‘auth_server_retries’ .",
-						},
-						"for_site": schema.BoolAttribute{
-							Computed: true,
 						},
 						"hide_ssid": schema.BoolAttribute{
 							Computed:            true,
@@ -870,12 +858,6 @@ func OrgWlansDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"msp_id": schema.StringAttribute{
 							Computed: true,
-						},
-						"mxtunnel_id": schema.StringAttribute{
-							Computed:            true,
-							Description:         "(deprecated, use mxtunnel_ids instead) when `interface`==`mxtunnel`, id of the Mist Tunnel",
-							MarkdownDescription: "(deprecated, use mxtunnel_ids instead) when `interface`==`mxtunnel`, id of the Mist Tunnel",
-							DeprecationMessage:  "This attribute is deprecated.",
 						},
 						"mxtunnel_ids": schema.ListAttribute{
 							ElementType:         types.StringType,
@@ -1323,11 +1305,6 @@ func OrgWlansDataSourceSchema(ctx context.Context) schema.Schema {
 						"portal_sso_url": schema.StringAttribute{
 							Computed: true,
 						},
-						"portal_template_url": schema.StringAttribute{
-							Computed:            true,
-							Description:         "N.B portal_template will be forked out of wlan objects soon. To fetch portal_template, please query portal_template_url. To update portal_template, use Wlan Portal Template.",
-							MarkdownDescription: "N.B portal_template will be forked out of wlan objects soon. To fetch portal_template, please query portal_template_url. To update portal_template, use Wlan Portal Template.",
-						},
 						"qos": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
 								"class": schema.StringAttribute{
@@ -1531,9 +1508,6 @@ func OrgWlansDataSourceSchema(ctx context.Context) schema.Schema {
 							Description:         "WLAN operating schedule, default is disabled",
 							MarkdownDescription: "WLAN operating schedule, default is disabled",
 						},
-						"site_id": schema.StringAttribute{
-							Computed: true,
-						},
 						"sle_excluded": schema.BoolAttribute{
 							Computed:            true,
 							Description:         "whether to exclude this WLAN from SLE metrics",
@@ -1546,11 +1520,6 @@ func OrgWlansDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"template_id": schema.StringAttribute{
 							Computed: true,
-						},
-						"thumbnail": schema.StringAttribute{
-							Computed:            true,
-							Description:         "Url of portal background image thumbnail",
-							MarkdownDescription: "Url of portal background image thumbnail",
 						},
 						"use_eapol_v1": schema.BoolAttribute{
 							Computed:            true,
@@ -1997,24 +1966,6 @@ func (t OrgWlansType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 			fmt.Sprintf(`auth_servers_timeout expected to be basetypes.Int64Value, was: %T`, authServersTimeoutAttribute))
 	}
 
-	bandAttribute, ok := attributes["band"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`band is missing from object`)
-
-		return nil, diags
-	}
-
-	bandVal, ok := bandAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`band expected to be basetypes.StringValue, was: %T`, bandAttribute))
-	}
-
 	bandSteerAttribute, ok := attributes["band_steer"]
 
 	if !ok {
@@ -2537,24 +2488,6 @@ func (t OrgWlansType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 			fmt.Sprintf(`fast_dot1x_timers expected to be basetypes.BoolValue, was: %T`, fastDot1xTimersAttribute))
 	}
 
-	forSiteAttribute, ok := attributes["for_site"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`for_site is missing from object`)
-
-		return nil, diags
-	}
-
-	forSiteVal, ok := forSiteAttribute.(basetypes.BoolValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`for_site expected to be basetypes.BoolValue, was: %T`, forSiteAttribute))
-	}
-
 	hideSsidAttribute, ok := attributes["hide_ssid"]
 
 	if !ok {
@@ -2843,24 +2776,6 @@ func (t OrgWlansType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 			fmt.Sprintf(`msp_id expected to be basetypes.StringValue, was: %T`, mspIdAttribute))
 	}
 
-	mxtunnelIdAttribute, ok := attributes["mxtunnel_id"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`mxtunnel_id is missing from object`)
-
-		return nil, diags
-	}
-
-	mxtunnelIdVal, ok := mxtunnelIdAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`mxtunnel_id expected to be basetypes.StringValue, was: %T`, mxtunnelIdAttribute))
-	}
-
 	mxtunnelIdsAttribute, ok := attributes["mxtunnel_ids"]
 
 	if !ok {
@@ -3077,24 +2992,6 @@ func (t OrgWlansType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 			fmt.Sprintf(`portal_sso_url expected to be basetypes.StringValue, was: %T`, portalSsoUrlAttribute))
 	}
 
-	portalTemplateUrlAttribute, ok := attributes["portal_template_url"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`portal_template_url is missing from object`)
-
-		return nil, diags
-	}
-
-	portalTemplateUrlVal, ok := portalTemplateUrlAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`portal_template_url expected to be basetypes.StringValue, was: %T`, portalTemplateUrlAttribute))
-	}
-
 	qosAttribute, ok := attributes["qos"]
 
 	if !ok {
@@ -3203,24 +3100,6 @@ func (t OrgWlansType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 			fmt.Sprintf(`schedule expected to be basetypes.ObjectValue, was: %T`, scheduleAttribute))
 	}
 
-	siteIdAttribute, ok := attributes["site_id"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`site_id is missing from object`)
-
-		return nil, diags
-	}
-
-	siteIdVal, ok := siteIdAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`site_id expected to be basetypes.StringValue, was: %T`, siteIdAttribute))
-	}
-
 	sleExcludedAttribute, ok := attributes["sle_excluded"]
 
 	if !ok {
@@ -3273,24 +3152,6 @@ func (t OrgWlansType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`template_id expected to be basetypes.StringValue, was: %T`, templateIdAttribute))
-	}
-
-	thumbnailAttribute, ok := attributes["thumbnail"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`thumbnail is missing from object`)
-
-		return nil, diags
-	}
-
-	thumbnailVal, ok := thumbnailAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`thumbnail expected to be basetypes.StringValue, was: %T`, thumbnailAttribute))
 	}
 
 	useEapolV1Attribute, ok := attributes["use_eapol_v1"]
@@ -3533,7 +3394,6 @@ func (t OrgWlansType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 		AuthServersNasIp:                     authServersNasIpVal,
 		AuthServersRetries:                   authServersRetriesVal,
 		AuthServersTimeout:                   authServersTimeoutVal,
-		Band:                                 bandVal,
 		BandSteer:                            bandSteerVal,
 		BandSteerForceBand5:                  bandSteerForceBand5Val,
 		Bands:                                bandsVal,
@@ -3563,7 +3423,6 @@ func (t OrgWlansType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 		EnableWirelessBridgingDhcpTracking:   enableWirelessBridgingDhcpTrackingVal,
 		Enabled:                              enabledVal,
 		FastDot1xTimers:                      fastDot1xTimersVal,
-		ForSite:                              forSiteVal,
 		HideSsid:                             hideSsidVal,
 		HostnameIe:                           hostnameIeVal,
 		Hotspot20:                            hotspot20Val,
@@ -3580,7 +3439,6 @@ func (t OrgWlansType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 		MistNac:                              mistNacVal,
 		ModifiedTime:                         modifiedTimeVal,
 		MspId:                                mspIdVal,
-		MxtunnelId:                           mxtunnelIdVal,
 		MxtunnelIds:                          mxtunnelIdsVal,
 		MxtunnelName:                         mxtunnelNameVal,
 		NoStaticDns:                          noStaticDnsVal,
@@ -3593,18 +3451,15 @@ func (t OrgWlansType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 		PortalDeniedHostnames:                portalDeniedHostnamesVal,
 		PortalImage:                          portalImageVal,
 		PortalSsoUrl:                         portalSsoUrlVal,
-		PortalTemplateUrl:                    portalTemplateUrlVal,
 		Qos:                                  qosVal,
 		Radsec:                               radsecVal,
 		Rateset:                              ratesetVal,
 		ReconnectClientsWhenRoamingMxcluster: reconnectClientsWhenRoamingMxclusterVal,
 		RoamMode:                             roamModeVal,
 		Schedule:                             scheduleVal,
-		SiteId:                               siteIdVal,
 		SleExcluded:                          sleExcludedVal,
 		Ssid:                                 ssidVal,
 		TemplateId:                           templateIdVal,
-		Thumbnail:                            thumbnailVal,
 		UseEapolV1:                           useEapolV1Val,
 		VlanEnabled:                          vlanEnabledVal,
 		VlanId:                               vlanIdVal,
@@ -4026,24 +3881,6 @@ func NewOrgWlansValue(attributeTypes map[string]attr.Type, attributes map[string
 			fmt.Sprintf(`auth_servers_timeout expected to be basetypes.Int64Value, was: %T`, authServersTimeoutAttribute))
 	}
 
-	bandAttribute, ok := attributes["band"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`band is missing from object`)
-
-		return NewOrgWlansValueUnknown(), diags
-	}
-
-	bandVal, ok := bandAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`band expected to be basetypes.StringValue, was: %T`, bandAttribute))
-	}
-
 	bandSteerAttribute, ok := attributes["band_steer"]
 
 	if !ok {
@@ -4566,24 +4403,6 @@ func NewOrgWlansValue(attributeTypes map[string]attr.Type, attributes map[string
 			fmt.Sprintf(`fast_dot1x_timers expected to be basetypes.BoolValue, was: %T`, fastDot1xTimersAttribute))
 	}
 
-	forSiteAttribute, ok := attributes["for_site"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`for_site is missing from object`)
-
-		return NewOrgWlansValueUnknown(), diags
-	}
-
-	forSiteVal, ok := forSiteAttribute.(basetypes.BoolValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`for_site expected to be basetypes.BoolValue, was: %T`, forSiteAttribute))
-	}
-
 	hideSsidAttribute, ok := attributes["hide_ssid"]
 
 	if !ok {
@@ -4872,24 +4691,6 @@ func NewOrgWlansValue(attributeTypes map[string]attr.Type, attributes map[string
 			fmt.Sprintf(`msp_id expected to be basetypes.StringValue, was: %T`, mspIdAttribute))
 	}
 
-	mxtunnelIdAttribute, ok := attributes["mxtunnel_id"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`mxtunnel_id is missing from object`)
-
-		return NewOrgWlansValueUnknown(), diags
-	}
-
-	mxtunnelIdVal, ok := mxtunnelIdAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`mxtunnel_id expected to be basetypes.StringValue, was: %T`, mxtunnelIdAttribute))
-	}
-
 	mxtunnelIdsAttribute, ok := attributes["mxtunnel_ids"]
 
 	if !ok {
@@ -5106,24 +4907,6 @@ func NewOrgWlansValue(attributeTypes map[string]attr.Type, attributes map[string
 			fmt.Sprintf(`portal_sso_url expected to be basetypes.StringValue, was: %T`, portalSsoUrlAttribute))
 	}
 
-	portalTemplateUrlAttribute, ok := attributes["portal_template_url"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`portal_template_url is missing from object`)
-
-		return NewOrgWlansValueUnknown(), diags
-	}
-
-	portalTemplateUrlVal, ok := portalTemplateUrlAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`portal_template_url expected to be basetypes.StringValue, was: %T`, portalTemplateUrlAttribute))
-	}
-
 	qosAttribute, ok := attributes["qos"]
 
 	if !ok {
@@ -5232,24 +5015,6 @@ func NewOrgWlansValue(attributeTypes map[string]attr.Type, attributes map[string
 			fmt.Sprintf(`schedule expected to be basetypes.ObjectValue, was: %T`, scheduleAttribute))
 	}
 
-	siteIdAttribute, ok := attributes["site_id"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`site_id is missing from object`)
-
-		return NewOrgWlansValueUnknown(), diags
-	}
-
-	siteIdVal, ok := siteIdAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`site_id expected to be basetypes.StringValue, was: %T`, siteIdAttribute))
-	}
-
 	sleExcludedAttribute, ok := attributes["sle_excluded"]
 
 	if !ok {
@@ -5302,24 +5067,6 @@ func NewOrgWlansValue(attributeTypes map[string]attr.Type, attributes map[string
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`template_id expected to be basetypes.StringValue, was: %T`, templateIdAttribute))
-	}
-
-	thumbnailAttribute, ok := attributes["thumbnail"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`thumbnail is missing from object`)
-
-		return NewOrgWlansValueUnknown(), diags
-	}
-
-	thumbnailVal, ok := thumbnailAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`thumbnail expected to be basetypes.StringValue, was: %T`, thumbnailAttribute))
 	}
 
 	useEapolV1Attribute, ok := attributes["use_eapol_v1"]
@@ -5562,7 +5309,6 @@ func NewOrgWlansValue(attributeTypes map[string]attr.Type, attributes map[string
 		AuthServersNasIp:                     authServersNasIpVal,
 		AuthServersRetries:                   authServersRetriesVal,
 		AuthServersTimeout:                   authServersTimeoutVal,
-		Band:                                 bandVal,
 		BandSteer:                            bandSteerVal,
 		BandSteerForceBand5:                  bandSteerForceBand5Val,
 		Bands:                                bandsVal,
@@ -5592,7 +5338,6 @@ func NewOrgWlansValue(attributeTypes map[string]attr.Type, attributes map[string
 		EnableWirelessBridgingDhcpTracking:   enableWirelessBridgingDhcpTrackingVal,
 		Enabled:                              enabledVal,
 		FastDot1xTimers:                      fastDot1xTimersVal,
-		ForSite:                              forSiteVal,
 		HideSsid:                             hideSsidVal,
 		HostnameIe:                           hostnameIeVal,
 		Hotspot20:                            hotspot20Val,
@@ -5609,7 +5354,6 @@ func NewOrgWlansValue(attributeTypes map[string]attr.Type, attributes map[string
 		MistNac:                              mistNacVal,
 		ModifiedTime:                         modifiedTimeVal,
 		MspId:                                mspIdVal,
-		MxtunnelId:                           mxtunnelIdVal,
 		MxtunnelIds:                          mxtunnelIdsVal,
 		MxtunnelName:                         mxtunnelNameVal,
 		NoStaticDns:                          noStaticDnsVal,
@@ -5622,18 +5366,15 @@ func NewOrgWlansValue(attributeTypes map[string]attr.Type, attributes map[string
 		PortalDeniedHostnames:                portalDeniedHostnamesVal,
 		PortalImage:                          portalImageVal,
 		PortalSsoUrl:                         portalSsoUrlVal,
-		PortalTemplateUrl:                    portalTemplateUrlVal,
 		Qos:                                  qosVal,
 		Radsec:                               radsecVal,
 		Rateset:                              ratesetVal,
 		ReconnectClientsWhenRoamingMxcluster: reconnectClientsWhenRoamingMxclusterVal,
 		RoamMode:                             roamModeVal,
 		Schedule:                             scheduleVal,
-		SiteId:                               siteIdVal,
 		SleExcluded:                          sleExcludedVal,
 		Ssid:                                 ssidVal,
 		TemplateId:                           templateIdVal,
-		Thumbnail:                            thumbnailVal,
 		UseEapolV1:                           useEapolV1Val,
 		VlanEnabled:                          vlanEnabledVal,
 		VlanId:                               vlanIdVal,
@@ -5737,7 +5478,6 @@ type OrgWlansValue struct {
 	AuthServersNasIp                     basetypes.StringValue  `tfsdk:"auth_servers_nas_ip"`
 	AuthServersRetries                   basetypes.Int64Value   `tfsdk:"auth_servers_retries"`
 	AuthServersTimeout                   basetypes.Int64Value   `tfsdk:"auth_servers_timeout"`
-	Band                                 basetypes.StringValue  `tfsdk:"band"`
 	BandSteer                            basetypes.BoolValue    `tfsdk:"band_steer"`
 	BandSteerForceBand5                  basetypes.BoolValue    `tfsdk:"band_steer_force_band5"`
 	Bands                                basetypes.ListValue    `tfsdk:"bands"`
@@ -5767,7 +5507,6 @@ type OrgWlansValue struct {
 	EnableWirelessBridgingDhcpTracking   basetypes.BoolValue    `tfsdk:"enable_wireless_bridging_dhcp_tracking"`
 	Enabled                              basetypes.BoolValue    `tfsdk:"enabled"`
 	FastDot1xTimers                      basetypes.BoolValue    `tfsdk:"fast_dot1x_timers"`
-	ForSite                              basetypes.BoolValue    `tfsdk:"for_site"`
 	HideSsid                             basetypes.BoolValue    `tfsdk:"hide_ssid"`
 	HostnameIe                           basetypes.BoolValue    `tfsdk:"hostname_ie"`
 	Hotspot20                            basetypes.ObjectValue  `tfsdk:"hotspot20"`
@@ -5784,7 +5523,6 @@ type OrgWlansValue struct {
 	MistNac                              basetypes.ObjectValue  `tfsdk:"mist_nac"`
 	ModifiedTime                         basetypes.Float64Value `tfsdk:"modified_time"`
 	MspId                                basetypes.StringValue  `tfsdk:"msp_id"`
-	MxtunnelId                           basetypes.StringValue  `tfsdk:"mxtunnel_id"`
 	MxtunnelIds                          basetypes.ListValue    `tfsdk:"mxtunnel_ids"`
 	MxtunnelName                         basetypes.ListValue    `tfsdk:"mxtunnel_name"`
 	NoStaticDns                          basetypes.BoolValue    `tfsdk:"no_static_dns"`
@@ -5797,18 +5535,15 @@ type OrgWlansValue struct {
 	PortalDeniedHostnames                basetypes.ListValue    `tfsdk:"portal_denied_hostnames"`
 	PortalImage                          basetypes.StringValue  `tfsdk:"portal_image"`
 	PortalSsoUrl                         basetypes.StringValue  `tfsdk:"portal_sso_url"`
-	PortalTemplateUrl                    basetypes.StringValue  `tfsdk:"portal_template_url"`
 	Qos                                  basetypes.ObjectValue  `tfsdk:"qos"`
 	Radsec                               basetypes.ObjectValue  `tfsdk:"radsec"`
 	Rateset                              basetypes.MapValue     `tfsdk:"rateset"`
 	ReconnectClientsWhenRoamingMxcluster basetypes.BoolValue    `tfsdk:"reconnect_clients_when_roaming_mxcluster"`
 	RoamMode                             basetypes.StringValue  `tfsdk:"roam_mode"`
 	Schedule                             basetypes.ObjectValue  `tfsdk:"schedule"`
-	SiteId                               basetypes.StringValue  `tfsdk:"site_id"`
 	SleExcluded                          basetypes.BoolValue    `tfsdk:"sle_excluded"`
 	Ssid                                 basetypes.StringValue  `tfsdk:"ssid"`
 	TemplateId                           basetypes.StringValue  `tfsdk:"template_id"`
-	Thumbnail                            basetypes.StringValue  `tfsdk:"thumbnail"`
 	UseEapolV1                           basetypes.BoolValue    `tfsdk:"use_eapol_v1"`
 	VlanEnabled                          basetypes.BoolValue    `tfsdk:"vlan_enabled"`
 	VlanId                               basetypes.StringValue  `tfsdk:"vlan_id"`
@@ -5825,7 +5560,7 @@ type OrgWlansValue struct {
 }
 
 func (v OrgWlansValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 103)
+	attrTypes := make(map[string]tftypes.Type, 97)
 
 	var val tftypes.Value
 	var err error
@@ -5863,7 +5598,6 @@ func (v OrgWlansValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 	attrTypes["auth_servers_nas_ip"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["auth_servers_retries"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["auth_servers_timeout"] = basetypes.Int64Type{}.TerraformType(ctx)
-	attrTypes["band"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["band_steer"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["band_steer_force_band5"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["bands"] = basetypes.ListType{
@@ -5907,7 +5641,6 @@ func (v OrgWlansValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 	attrTypes["enable_wireless_bridging_dhcp_tracking"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["fast_dot1x_timers"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["for_site"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["hide_ssid"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["hostname_ie"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["hotspot20"] = basetypes.ObjectType{
@@ -5930,7 +5663,6 @@ func (v OrgWlansValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 	}.TerraformType(ctx)
 	attrTypes["modified_time"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["msp_id"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["mxtunnel_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["mxtunnel_ids"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
@@ -5955,7 +5687,6 @@ func (v OrgWlansValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 	}.TerraformType(ctx)
 	attrTypes["portal_image"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["portal_sso_url"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["portal_template_url"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["qos"] = basetypes.ObjectType{
 		AttrTypes: QosValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
@@ -5970,11 +5701,9 @@ func (v OrgWlansValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 	attrTypes["schedule"] = basetypes.ObjectType{
 		AttrTypes: ScheduleValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
-	attrTypes["site_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["sle_excluded"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["ssid"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["template_id"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["thumbnail"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["use_eapol_v1"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["vlan_enabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["vlan_id"] = basetypes.StringType{}.TerraformType(ctx)
@@ -5996,7 +5725,7 @@ func (v OrgWlansValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 103)
+		vals := make(map[string]tftypes.Value, 97)
 
 		val, err = v.AcctImmediateUpdate.ToTerraformValue(ctx)
 
@@ -6149,14 +5878,6 @@ func (v OrgWlansValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 		}
 
 		vals["auth_servers_timeout"] = val
-
-		val, err = v.Band.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["band"] = val
 
 		val, err = v.BandSteer.ToTerraformValue(ctx)
 
@@ -6390,14 +6111,6 @@ func (v OrgWlansValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 
 		vals["fast_dot1x_timers"] = val
 
-		val, err = v.ForSite.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["for_site"] = val
-
 		val, err = v.HideSsid.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -6526,14 +6239,6 @@ func (v OrgWlansValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 
 		vals["msp_id"] = val
 
-		val, err = v.MxtunnelId.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["mxtunnel_id"] = val
-
 		val, err = v.MxtunnelIds.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -6630,14 +6335,6 @@ func (v OrgWlansValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 
 		vals["portal_sso_url"] = val
 
-		val, err = v.PortalTemplateUrl.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["portal_template_url"] = val
-
 		val, err = v.Qos.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -6686,14 +6383,6 @@ func (v OrgWlansValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 
 		vals["schedule"] = val
 
-		val, err = v.SiteId.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["site_id"] = val
-
 		val, err = v.SleExcluded.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -6717,14 +6406,6 @@ func (v OrgWlansValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 		}
 
 		vals["template_id"] = val
-
-		val, err = v.Thumbnail.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["thumbnail"] = val
 
 		val, err = v.UseEapolV1.ToTerraformValue(ctx)
 
@@ -7342,7 +7023,6 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"auth_servers_nas_ip":    basetypes.StringType{},
 			"auth_servers_retries":   basetypes.Int64Type{},
 			"auth_servers_timeout":   basetypes.Int64Type{},
-			"band":                   basetypes.StringType{},
 			"band_steer":             basetypes.BoolType{},
 			"band_steer_force_band5": basetypes.BoolType{},
 			"bands": basetypes.ListType{
@@ -7386,7 +7066,6 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"enable_wireless_bridging_dhcp_tracking": basetypes.BoolType{},
 			"enabled":                                basetypes.BoolType{},
 			"fast_dot1x_timers":                      basetypes.BoolType{},
-			"for_site":                               basetypes.BoolType{},
 			"hide_ssid":                              basetypes.BoolType{},
 			"hostname_ie":                            basetypes.BoolType{},
 			"hotspot20": basetypes.ObjectType{
@@ -7409,7 +7088,6 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			},
 			"modified_time": basetypes.Float64Type{},
 			"msp_id":        basetypes.StringType{},
-			"mxtunnel_id":   basetypes.StringType{},
 			"mxtunnel_ids": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -7432,9 +7110,8 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"portal_denied_hostnames": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"portal_image":        basetypes.StringType{},
-			"portal_sso_url":      basetypes.StringType{},
-			"portal_template_url": basetypes.StringType{},
+			"portal_image":   basetypes.StringType{},
+			"portal_sso_url": basetypes.StringType{},
 			"qos": basetypes.ObjectType{
 				AttrTypes: QosValue{}.AttributeTypes(ctx),
 			},
@@ -7449,11 +7126,9 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"schedule": basetypes.ObjectType{
 				AttrTypes: ScheduleValue{}.AttributeTypes(ctx),
 			},
-			"site_id":      basetypes.StringType{},
 			"sle_excluded": basetypes.BoolType{},
 			"ssid":         basetypes.StringType{},
 			"template_id":  basetypes.StringType{},
-			"thumbnail":    basetypes.StringType{},
 			"use_eapol_v1": basetypes.BoolType{},
 			"vlan_enabled": basetypes.BoolType{},
 			"vlan_id":      basetypes.StringType{},
@@ -7512,7 +7187,6 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"auth_servers_nas_ip":    basetypes.StringType{},
 			"auth_servers_retries":   basetypes.Int64Type{},
 			"auth_servers_timeout":   basetypes.Int64Type{},
-			"band":                   basetypes.StringType{},
 			"band_steer":             basetypes.BoolType{},
 			"band_steer_force_band5": basetypes.BoolType{},
 			"bands": basetypes.ListType{
@@ -7556,7 +7230,6 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"enable_wireless_bridging_dhcp_tracking": basetypes.BoolType{},
 			"enabled":                                basetypes.BoolType{},
 			"fast_dot1x_timers":                      basetypes.BoolType{},
-			"for_site":                               basetypes.BoolType{},
 			"hide_ssid":                              basetypes.BoolType{},
 			"hostname_ie":                            basetypes.BoolType{},
 			"hotspot20": basetypes.ObjectType{
@@ -7579,7 +7252,6 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			},
 			"modified_time": basetypes.Float64Type{},
 			"msp_id":        basetypes.StringType{},
-			"mxtunnel_id":   basetypes.StringType{},
 			"mxtunnel_ids": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -7602,9 +7274,8 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"portal_denied_hostnames": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"portal_image":        basetypes.StringType{},
-			"portal_sso_url":      basetypes.StringType{},
-			"portal_template_url": basetypes.StringType{},
+			"portal_image":   basetypes.StringType{},
+			"portal_sso_url": basetypes.StringType{},
 			"qos": basetypes.ObjectType{
 				AttrTypes: QosValue{}.AttributeTypes(ctx),
 			},
@@ -7619,11 +7290,9 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"schedule": basetypes.ObjectType{
 				AttrTypes: ScheduleValue{}.AttributeTypes(ctx),
 			},
-			"site_id":      basetypes.StringType{},
 			"sle_excluded": basetypes.BoolType{},
 			"ssid":         basetypes.StringType{},
 			"template_id":  basetypes.StringType{},
-			"thumbnail":    basetypes.StringType{},
 			"use_eapol_v1": basetypes.BoolType{},
 			"vlan_enabled": basetypes.BoolType{},
 			"vlan_id":      basetypes.StringType{},
@@ -7682,7 +7351,6 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"auth_servers_nas_ip":    basetypes.StringType{},
 			"auth_servers_retries":   basetypes.Int64Type{},
 			"auth_servers_timeout":   basetypes.Int64Type{},
-			"band":                   basetypes.StringType{},
 			"band_steer":             basetypes.BoolType{},
 			"band_steer_force_band5": basetypes.BoolType{},
 			"bands": basetypes.ListType{
@@ -7726,7 +7394,6 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"enable_wireless_bridging_dhcp_tracking": basetypes.BoolType{},
 			"enabled":                                basetypes.BoolType{},
 			"fast_dot1x_timers":                      basetypes.BoolType{},
-			"for_site":                               basetypes.BoolType{},
 			"hide_ssid":                              basetypes.BoolType{},
 			"hostname_ie":                            basetypes.BoolType{},
 			"hotspot20": basetypes.ObjectType{
@@ -7749,7 +7416,6 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			},
 			"modified_time": basetypes.Float64Type{},
 			"msp_id":        basetypes.StringType{},
-			"mxtunnel_id":   basetypes.StringType{},
 			"mxtunnel_ids": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -7772,9 +7438,8 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"portal_denied_hostnames": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"portal_image":        basetypes.StringType{},
-			"portal_sso_url":      basetypes.StringType{},
-			"portal_template_url": basetypes.StringType{},
+			"portal_image":   basetypes.StringType{},
+			"portal_sso_url": basetypes.StringType{},
 			"qos": basetypes.ObjectType{
 				AttrTypes: QosValue{}.AttributeTypes(ctx),
 			},
@@ -7789,11 +7454,9 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"schedule": basetypes.ObjectType{
 				AttrTypes: ScheduleValue{}.AttributeTypes(ctx),
 			},
-			"site_id":      basetypes.StringType{},
 			"sle_excluded": basetypes.BoolType{},
 			"ssid":         basetypes.StringType{},
 			"template_id":  basetypes.StringType{},
-			"thumbnail":    basetypes.StringType{},
 			"use_eapol_v1": basetypes.BoolType{},
 			"vlan_enabled": basetypes.BoolType{},
 			"vlan_id":      basetypes.StringType{},
@@ -7852,7 +7515,6 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"auth_servers_nas_ip":    basetypes.StringType{},
 			"auth_servers_retries":   basetypes.Int64Type{},
 			"auth_servers_timeout":   basetypes.Int64Type{},
-			"band":                   basetypes.StringType{},
 			"band_steer":             basetypes.BoolType{},
 			"band_steer_force_band5": basetypes.BoolType{},
 			"bands": basetypes.ListType{
@@ -7896,7 +7558,6 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"enable_wireless_bridging_dhcp_tracking": basetypes.BoolType{},
 			"enabled":                                basetypes.BoolType{},
 			"fast_dot1x_timers":                      basetypes.BoolType{},
-			"for_site":                               basetypes.BoolType{},
 			"hide_ssid":                              basetypes.BoolType{},
 			"hostname_ie":                            basetypes.BoolType{},
 			"hotspot20": basetypes.ObjectType{
@@ -7919,7 +7580,6 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			},
 			"modified_time": basetypes.Float64Type{},
 			"msp_id":        basetypes.StringType{},
-			"mxtunnel_id":   basetypes.StringType{},
 			"mxtunnel_ids": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -7942,9 +7602,8 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"portal_denied_hostnames": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"portal_image":        basetypes.StringType{},
-			"portal_sso_url":      basetypes.StringType{},
-			"portal_template_url": basetypes.StringType{},
+			"portal_image":   basetypes.StringType{},
+			"portal_sso_url": basetypes.StringType{},
 			"qos": basetypes.ObjectType{
 				AttrTypes: QosValue{}.AttributeTypes(ctx),
 			},
@@ -7959,11 +7618,9 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"schedule": basetypes.ObjectType{
 				AttrTypes: ScheduleValue{}.AttributeTypes(ctx),
 			},
-			"site_id":      basetypes.StringType{},
 			"sle_excluded": basetypes.BoolType{},
 			"ssid":         basetypes.StringType{},
 			"template_id":  basetypes.StringType{},
-			"thumbnail":    basetypes.StringType{},
 			"use_eapol_v1": basetypes.BoolType{},
 			"vlan_enabled": basetypes.BoolType{},
 			"vlan_id":      basetypes.StringType{},
@@ -8022,7 +7679,6 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"auth_servers_nas_ip":    basetypes.StringType{},
 			"auth_servers_retries":   basetypes.Int64Type{},
 			"auth_servers_timeout":   basetypes.Int64Type{},
-			"band":                   basetypes.StringType{},
 			"band_steer":             basetypes.BoolType{},
 			"band_steer_force_band5": basetypes.BoolType{},
 			"bands": basetypes.ListType{
@@ -8066,7 +7722,6 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"enable_wireless_bridging_dhcp_tracking": basetypes.BoolType{},
 			"enabled":                                basetypes.BoolType{},
 			"fast_dot1x_timers":                      basetypes.BoolType{},
-			"for_site":                               basetypes.BoolType{},
 			"hide_ssid":                              basetypes.BoolType{},
 			"hostname_ie":                            basetypes.BoolType{},
 			"hotspot20": basetypes.ObjectType{
@@ -8089,7 +7744,6 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			},
 			"modified_time": basetypes.Float64Type{},
 			"msp_id":        basetypes.StringType{},
-			"mxtunnel_id":   basetypes.StringType{},
 			"mxtunnel_ids": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -8112,9 +7766,8 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"portal_denied_hostnames": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"portal_image":        basetypes.StringType{},
-			"portal_sso_url":      basetypes.StringType{},
-			"portal_template_url": basetypes.StringType{},
+			"portal_image":   basetypes.StringType{},
+			"portal_sso_url": basetypes.StringType{},
 			"qos": basetypes.ObjectType{
 				AttrTypes: QosValue{}.AttributeTypes(ctx),
 			},
@@ -8129,11 +7782,9 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"schedule": basetypes.ObjectType{
 				AttrTypes: ScheduleValue{}.AttributeTypes(ctx),
 			},
-			"site_id":      basetypes.StringType{},
 			"sle_excluded": basetypes.BoolType{},
 			"ssid":         basetypes.StringType{},
 			"template_id":  basetypes.StringType{},
-			"thumbnail":    basetypes.StringType{},
 			"use_eapol_v1": basetypes.BoolType{},
 			"vlan_enabled": basetypes.BoolType{},
 			"vlan_id":      basetypes.StringType{},
@@ -8192,7 +7843,6 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"auth_servers_nas_ip":    basetypes.StringType{},
 			"auth_servers_retries":   basetypes.Int64Type{},
 			"auth_servers_timeout":   basetypes.Int64Type{},
-			"band":                   basetypes.StringType{},
 			"band_steer":             basetypes.BoolType{},
 			"band_steer_force_band5": basetypes.BoolType{},
 			"bands": basetypes.ListType{
@@ -8236,7 +7886,6 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"enable_wireless_bridging_dhcp_tracking": basetypes.BoolType{},
 			"enabled":                                basetypes.BoolType{},
 			"fast_dot1x_timers":                      basetypes.BoolType{},
-			"for_site":                               basetypes.BoolType{},
 			"hide_ssid":                              basetypes.BoolType{},
 			"hostname_ie":                            basetypes.BoolType{},
 			"hotspot20": basetypes.ObjectType{
@@ -8259,7 +7908,6 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			},
 			"modified_time": basetypes.Float64Type{},
 			"msp_id":        basetypes.StringType{},
-			"mxtunnel_id":   basetypes.StringType{},
 			"mxtunnel_ids": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -8282,9 +7930,8 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"portal_denied_hostnames": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"portal_image":        basetypes.StringType{},
-			"portal_sso_url":      basetypes.StringType{},
-			"portal_template_url": basetypes.StringType{},
+			"portal_image":   basetypes.StringType{},
+			"portal_sso_url": basetypes.StringType{},
 			"qos": basetypes.ObjectType{
 				AttrTypes: QosValue{}.AttributeTypes(ctx),
 			},
@@ -8299,11 +7946,9 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"schedule": basetypes.ObjectType{
 				AttrTypes: ScheduleValue{}.AttributeTypes(ctx),
 			},
-			"site_id":      basetypes.StringType{},
 			"sle_excluded": basetypes.BoolType{},
 			"ssid":         basetypes.StringType{},
 			"template_id":  basetypes.StringType{},
-			"thumbnail":    basetypes.StringType{},
 			"use_eapol_v1": basetypes.BoolType{},
 			"vlan_enabled": basetypes.BoolType{},
 			"vlan_id":      basetypes.StringType{},
@@ -8362,7 +8007,6 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"auth_servers_nas_ip":    basetypes.StringType{},
 			"auth_servers_retries":   basetypes.Int64Type{},
 			"auth_servers_timeout":   basetypes.Int64Type{},
-			"band":                   basetypes.StringType{},
 			"band_steer":             basetypes.BoolType{},
 			"band_steer_force_band5": basetypes.BoolType{},
 			"bands": basetypes.ListType{
@@ -8406,7 +8050,6 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"enable_wireless_bridging_dhcp_tracking": basetypes.BoolType{},
 			"enabled":                                basetypes.BoolType{},
 			"fast_dot1x_timers":                      basetypes.BoolType{},
-			"for_site":                               basetypes.BoolType{},
 			"hide_ssid":                              basetypes.BoolType{},
 			"hostname_ie":                            basetypes.BoolType{},
 			"hotspot20": basetypes.ObjectType{
@@ -8429,7 +8072,6 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			},
 			"modified_time": basetypes.Float64Type{},
 			"msp_id":        basetypes.StringType{},
-			"mxtunnel_id":   basetypes.StringType{},
 			"mxtunnel_ids": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -8452,9 +8094,8 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"portal_denied_hostnames": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"portal_image":        basetypes.StringType{},
-			"portal_sso_url":      basetypes.StringType{},
-			"portal_template_url": basetypes.StringType{},
+			"portal_image":   basetypes.StringType{},
+			"portal_sso_url": basetypes.StringType{},
 			"qos": basetypes.ObjectType{
 				AttrTypes: QosValue{}.AttributeTypes(ctx),
 			},
@@ -8469,11 +8110,9 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"schedule": basetypes.ObjectType{
 				AttrTypes: ScheduleValue{}.AttributeTypes(ctx),
 			},
-			"site_id":      basetypes.StringType{},
 			"sle_excluded": basetypes.BoolType{},
 			"ssid":         basetypes.StringType{},
 			"template_id":  basetypes.StringType{},
-			"thumbnail":    basetypes.StringType{},
 			"use_eapol_v1": basetypes.BoolType{},
 			"vlan_enabled": basetypes.BoolType{},
 			"vlan_id":      basetypes.StringType{},
@@ -8532,7 +8171,6 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"auth_servers_nas_ip":    basetypes.StringType{},
 			"auth_servers_retries":   basetypes.Int64Type{},
 			"auth_servers_timeout":   basetypes.Int64Type{},
-			"band":                   basetypes.StringType{},
 			"band_steer":             basetypes.BoolType{},
 			"band_steer_force_band5": basetypes.BoolType{},
 			"bands": basetypes.ListType{
@@ -8576,7 +8214,6 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"enable_wireless_bridging_dhcp_tracking": basetypes.BoolType{},
 			"enabled":                                basetypes.BoolType{},
 			"fast_dot1x_timers":                      basetypes.BoolType{},
-			"for_site":                               basetypes.BoolType{},
 			"hide_ssid":                              basetypes.BoolType{},
 			"hostname_ie":                            basetypes.BoolType{},
 			"hotspot20": basetypes.ObjectType{
@@ -8599,7 +8236,6 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			},
 			"modified_time": basetypes.Float64Type{},
 			"msp_id":        basetypes.StringType{},
-			"mxtunnel_id":   basetypes.StringType{},
 			"mxtunnel_ids": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -8622,9 +8258,8 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"portal_denied_hostnames": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"portal_image":        basetypes.StringType{},
-			"portal_sso_url":      basetypes.StringType{},
-			"portal_template_url": basetypes.StringType{},
+			"portal_image":   basetypes.StringType{},
+			"portal_sso_url": basetypes.StringType{},
 			"qos": basetypes.ObjectType{
 				AttrTypes: QosValue{}.AttributeTypes(ctx),
 			},
@@ -8639,11 +8274,9 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"schedule": basetypes.ObjectType{
 				AttrTypes: ScheduleValue{}.AttributeTypes(ctx),
 			},
-			"site_id":      basetypes.StringType{},
 			"sle_excluded": basetypes.BoolType{},
 			"ssid":         basetypes.StringType{},
 			"template_id":  basetypes.StringType{},
-			"thumbnail":    basetypes.StringType{},
 			"use_eapol_v1": basetypes.BoolType{},
 			"vlan_enabled": basetypes.BoolType{},
 			"vlan_id":      basetypes.StringType{},
@@ -8702,7 +8335,6 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"auth_servers_nas_ip":    basetypes.StringType{},
 			"auth_servers_retries":   basetypes.Int64Type{},
 			"auth_servers_timeout":   basetypes.Int64Type{},
-			"band":                   basetypes.StringType{},
 			"band_steer":             basetypes.BoolType{},
 			"band_steer_force_band5": basetypes.BoolType{},
 			"bands": basetypes.ListType{
@@ -8746,7 +8378,6 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"enable_wireless_bridging_dhcp_tracking": basetypes.BoolType{},
 			"enabled":                                basetypes.BoolType{},
 			"fast_dot1x_timers":                      basetypes.BoolType{},
-			"for_site":                               basetypes.BoolType{},
 			"hide_ssid":                              basetypes.BoolType{},
 			"hostname_ie":                            basetypes.BoolType{},
 			"hotspot20": basetypes.ObjectType{
@@ -8769,7 +8400,6 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			},
 			"modified_time": basetypes.Float64Type{},
 			"msp_id":        basetypes.StringType{},
-			"mxtunnel_id":   basetypes.StringType{},
 			"mxtunnel_ids": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -8792,9 +8422,8 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"portal_denied_hostnames": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"portal_image":        basetypes.StringType{},
-			"portal_sso_url":      basetypes.StringType{},
-			"portal_template_url": basetypes.StringType{},
+			"portal_image":   basetypes.StringType{},
+			"portal_sso_url": basetypes.StringType{},
 			"qos": basetypes.ObjectType{
 				AttrTypes: QosValue{}.AttributeTypes(ctx),
 			},
@@ -8809,11 +8438,9 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"schedule": basetypes.ObjectType{
 				AttrTypes: ScheduleValue{}.AttributeTypes(ctx),
 			},
-			"site_id":      basetypes.StringType{},
 			"sle_excluded": basetypes.BoolType{},
 			"ssid":         basetypes.StringType{},
 			"template_id":  basetypes.StringType{},
-			"thumbnail":    basetypes.StringType{},
 			"use_eapol_v1": basetypes.BoolType{},
 			"vlan_enabled": basetypes.BoolType{},
 			"vlan_id":      basetypes.StringType{},
@@ -8867,7 +8494,6 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 		"auth_servers_nas_ip":    basetypes.StringType{},
 		"auth_servers_retries":   basetypes.Int64Type{},
 		"auth_servers_timeout":   basetypes.Int64Type{},
-		"band":                   basetypes.StringType{},
 		"band_steer":             basetypes.BoolType{},
 		"band_steer_force_band5": basetypes.BoolType{},
 		"bands": basetypes.ListType{
@@ -8911,7 +8537,6 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 		"enable_wireless_bridging_dhcp_tracking": basetypes.BoolType{},
 		"enabled":                                basetypes.BoolType{},
 		"fast_dot1x_timers":                      basetypes.BoolType{},
-		"for_site":                               basetypes.BoolType{},
 		"hide_ssid":                              basetypes.BoolType{},
 		"hostname_ie":                            basetypes.BoolType{},
 		"hotspot20": basetypes.ObjectType{
@@ -8934,7 +8559,6 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 		},
 		"modified_time": basetypes.Float64Type{},
 		"msp_id":        basetypes.StringType{},
-		"mxtunnel_id":   basetypes.StringType{},
 		"mxtunnel_ids": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -8957,9 +8581,8 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 		"portal_denied_hostnames": basetypes.ListType{
 			ElemType: types.StringType,
 		},
-		"portal_image":        basetypes.StringType{},
-		"portal_sso_url":      basetypes.StringType{},
-		"portal_template_url": basetypes.StringType{},
+		"portal_image":   basetypes.StringType{},
+		"portal_sso_url": basetypes.StringType{},
 		"qos": basetypes.ObjectType{
 			AttrTypes: QosValue{}.AttributeTypes(ctx),
 		},
@@ -8974,11 +8597,9 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 		"schedule": basetypes.ObjectType{
 			AttrTypes: ScheduleValue{}.AttributeTypes(ctx),
 		},
-		"site_id":      basetypes.StringType{},
 		"sle_excluded": basetypes.BoolType{},
 		"ssid":         basetypes.StringType{},
 		"template_id":  basetypes.StringType{},
-		"thumbnail":    basetypes.StringType{},
 		"use_eapol_v1": basetypes.BoolType{},
 		"vlan_enabled": basetypes.BoolType{},
 		"vlan_id":      basetypes.StringType{},
@@ -9027,7 +8648,6 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"auth_servers_nas_ip":                    v.AuthServersNasIp,
 			"auth_servers_retries":                   v.AuthServersRetries,
 			"auth_servers_timeout":                   v.AuthServersTimeout,
-			"band":                                   v.Band,
 			"band_steer":                             v.BandSteer,
 			"band_steer_force_band5":                 v.BandSteerForceBand5,
 			"bands":                                  bandsVal,
@@ -9057,7 +8677,6 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"enable_wireless_bridging_dhcp_tracking": v.EnableWirelessBridgingDhcpTracking,
 			"enabled":                                v.Enabled,
 			"fast_dot1x_timers":                      v.FastDot1xTimers,
-			"for_site":                               v.ForSite,
 			"hide_ssid":                              v.HideSsid,
 			"hostname_ie":                            v.HostnameIe,
 			"hotspot20":                              hotspot20,
@@ -9074,7 +8693,6 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"mist_nac":                               mistNac,
 			"modified_time":                          v.ModifiedTime,
 			"msp_id":                                 v.MspId,
-			"mxtunnel_id":                            v.MxtunnelId,
 			"mxtunnel_ids":                           mxtunnelIdsVal,
 			"mxtunnel_name":                          mxtunnelNameVal,
 			"no_static_dns":                          v.NoStaticDns,
@@ -9087,18 +8705,15 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"portal_denied_hostnames":                portalDeniedHostnamesVal,
 			"portal_image":                           v.PortalImage,
 			"portal_sso_url":                         v.PortalSsoUrl,
-			"portal_template_url":                    v.PortalTemplateUrl,
 			"qos":                                    qos,
 			"radsec":                                 radsec,
 			"rateset":                                rateset,
 			"reconnect_clients_when_roaming_mxcluster": v.ReconnectClientsWhenRoamingMxcluster,
 			"roam_mode":               v.RoamMode,
 			"schedule":                schedule,
-			"site_id":                 v.SiteId,
 			"sle_excluded":            v.SleExcluded,
 			"ssid":                    v.Ssid,
 			"template_id":             v.TemplateId,
-			"thumbnail":               v.Thumbnail,
 			"use_eapol_v1":            v.UseEapolV1,
 			"vlan_enabled":            v.VlanEnabled,
 			"vlan_id":                 v.VlanId,
@@ -9204,10 +8819,6 @@ func (v OrgWlansValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.AuthServersTimeout.Equal(other.AuthServersTimeout) {
-		return false
-	}
-
-	if !v.Band.Equal(other.Band) {
 		return false
 	}
 
@@ -9327,10 +8938,6 @@ func (v OrgWlansValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.ForSite.Equal(other.ForSite) {
-		return false
-	}
-
 	if !v.HideSsid.Equal(other.HideSsid) {
 		return false
 	}
@@ -9395,10 +9002,6 @@ func (v OrgWlansValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.MxtunnelId.Equal(other.MxtunnelId) {
-		return false
-	}
-
 	if !v.MxtunnelIds.Equal(other.MxtunnelIds) {
 		return false
 	}
@@ -9447,10 +9050,6 @@ func (v OrgWlansValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.PortalTemplateUrl.Equal(other.PortalTemplateUrl) {
-		return false
-	}
-
 	if !v.Qos.Equal(other.Qos) {
 		return false
 	}
@@ -9475,10 +9074,6 @@ func (v OrgWlansValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.SiteId.Equal(other.SiteId) {
-		return false
-	}
-
 	if !v.SleExcluded.Equal(other.SleExcluded) {
 		return false
 	}
@@ -9488,10 +9083,6 @@ func (v OrgWlansValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.TemplateId.Equal(other.TemplateId) {
-		return false
-	}
-
-	if !v.Thumbnail.Equal(other.Thumbnail) {
 		return false
 	}
 
@@ -9589,7 +9180,6 @@ func (v OrgWlansValue) AttributeTypes(ctx context.Context) map[string]attr.Type 
 		"auth_servers_nas_ip":    basetypes.StringType{},
 		"auth_servers_retries":   basetypes.Int64Type{},
 		"auth_servers_timeout":   basetypes.Int64Type{},
-		"band":                   basetypes.StringType{},
 		"band_steer":             basetypes.BoolType{},
 		"band_steer_force_band5": basetypes.BoolType{},
 		"bands": basetypes.ListType{
@@ -9633,7 +9223,6 @@ func (v OrgWlansValue) AttributeTypes(ctx context.Context) map[string]attr.Type 
 		"enable_wireless_bridging_dhcp_tracking": basetypes.BoolType{},
 		"enabled":                                basetypes.BoolType{},
 		"fast_dot1x_timers":                      basetypes.BoolType{},
-		"for_site":                               basetypes.BoolType{},
 		"hide_ssid":                              basetypes.BoolType{},
 		"hostname_ie":                            basetypes.BoolType{},
 		"hotspot20": basetypes.ObjectType{
@@ -9656,7 +9245,6 @@ func (v OrgWlansValue) AttributeTypes(ctx context.Context) map[string]attr.Type 
 		},
 		"modified_time": basetypes.Float64Type{},
 		"msp_id":        basetypes.StringType{},
-		"mxtunnel_id":   basetypes.StringType{},
 		"mxtunnel_ids": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -9679,9 +9267,8 @@ func (v OrgWlansValue) AttributeTypes(ctx context.Context) map[string]attr.Type 
 		"portal_denied_hostnames": basetypes.ListType{
 			ElemType: types.StringType,
 		},
-		"portal_image":        basetypes.StringType{},
-		"portal_sso_url":      basetypes.StringType{},
-		"portal_template_url": basetypes.StringType{},
+		"portal_image":   basetypes.StringType{},
+		"portal_sso_url": basetypes.StringType{},
 		"qos": basetypes.ObjectType{
 			AttrTypes: QosValue{}.AttributeTypes(ctx),
 		},
@@ -9696,11 +9283,9 @@ func (v OrgWlansValue) AttributeTypes(ctx context.Context) map[string]attr.Type 
 		"schedule": basetypes.ObjectType{
 			AttrTypes: ScheduleValue{}.AttributeTypes(ctx),
 		},
-		"site_id":      basetypes.StringType{},
 		"sle_excluded": basetypes.BoolType{},
 		"ssid":         basetypes.StringType{},
 		"template_id":  basetypes.StringType{},
-		"thumbnail":    basetypes.StringType{},
 		"use_eapol_v1": basetypes.BoolType{},
 		"vlan_enabled": basetypes.BoolType{},
 		"vlan_id":      basetypes.StringType{},
@@ -17598,24 +17183,6 @@ func (t DynamicVlanType) ValueFromObject(ctx context.Context, in basetypes.Objec
 
 	attributes := in.Attributes()
 
-	defaultVlanIdAttribute, ok := attributes["default_vlan_id"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`default_vlan_id is missing from object`)
-
-		return nil, diags
-	}
-
-	defaultVlanIdVal, ok := defaultVlanIdAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`default_vlan_id expected to be basetypes.StringValue, was: %T`, defaultVlanIdAttribute))
-	}
-
 	defaultVlanIdsAttribute, ok := attributes["default_vlan_ids"]
 
 	if !ok {
@@ -17711,7 +17278,6 @@ func (t DynamicVlanType) ValueFromObject(ctx context.Context, in basetypes.Objec
 	}
 
 	return DynamicVlanValue{
-		DefaultVlanId:   defaultVlanIdVal,
 		DefaultVlanIds:  defaultVlanIdsVal,
 		Enabled:         enabledVal,
 		LocalVlanIds:    localVlanIdsVal,
@@ -17784,24 +17350,6 @@ func NewDynamicVlanValue(attributeTypes map[string]attr.Type, attributes map[str
 		return NewDynamicVlanValueUnknown(), diags
 	}
 
-	defaultVlanIdAttribute, ok := attributes["default_vlan_id"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`default_vlan_id is missing from object`)
-
-		return NewDynamicVlanValueUnknown(), diags
-	}
-
-	defaultVlanIdVal, ok := defaultVlanIdAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`default_vlan_id expected to be basetypes.StringValue, was: %T`, defaultVlanIdAttribute))
-	}
-
 	defaultVlanIdsAttribute, ok := attributes["default_vlan_ids"]
 
 	if !ok {
@@ -17897,7 +17445,6 @@ func NewDynamicVlanValue(attributeTypes map[string]attr.Type, attributes map[str
 	}
 
 	return DynamicVlanValue{
-		DefaultVlanId:   defaultVlanIdVal,
 		DefaultVlanIds:  defaultVlanIdsVal,
 		Enabled:         enabledVal,
 		LocalVlanIds:    localVlanIdsVal,
@@ -17975,7 +17522,6 @@ func (t DynamicVlanType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = DynamicVlanValue{}
 
 type DynamicVlanValue struct {
-	DefaultVlanId   basetypes.StringValue `tfsdk:"default_vlan_id"`
 	DefaultVlanIds  basetypes.ListValue   `tfsdk:"default_vlan_ids"`
 	Enabled         basetypes.BoolValue   `tfsdk:"enabled"`
 	LocalVlanIds    basetypes.ListValue   `tfsdk:"local_vlan_ids"`
@@ -17985,12 +17531,11 @@ type DynamicVlanValue struct {
 }
 
 func (v DynamicVlanValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 6)
+	attrTypes := make(map[string]tftypes.Type, 5)
 
 	var val tftypes.Value
 	var err error
 
-	attrTypes["default_vlan_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["default_vlan_ids"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
@@ -18007,15 +17552,7 @@ func (v DynamicVlanValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 6)
-
-		val, err = v.DefaultVlanId.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["default_vlan_id"] = val
+		vals := make(map[string]tftypes.Value, 5)
 
 		val, err = v.DefaultVlanIds.ToTerraformValue(ctx)
 
@@ -18092,7 +17629,6 @@ func (v DynamicVlanValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 
 	if d.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
-			"default_vlan_id": basetypes.StringType{},
 			"default_vlan_ids": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -18113,7 +17649,6 @@ func (v DynamicVlanValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 
 	if d.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
-			"default_vlan_id": basetypes.StringType{},
 			"default_vlan_ids": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -18134,7 +17669,6 @@ func (v DynamicVlanValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 
 	if d.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
-			"default_vlan_id": basetypes.StringType{},
 			"default_vlan_ids": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -18150,7 +17684,6 @@ func (v DynamicVlanValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 	}
 
 	attributeTypes := map[string]attr.Type{
-		"default_vlan_id": basetypes.StringType{},
 		"default_vlan_ids": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -18175,7 +17708,6 @@ func (v DynamicVlanValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"default_vlan_id":  v.DefaultVlanId,
 			"default_vlan_ids": defaultVlanIdsVal,
 			"enabled":          v.Enabled,
 			"local_vlan_ids":   localVlanIdsVal,
@@ -18199,10 +17731,6 @@ func (v DynamicVlanValue) Equal(o attr.Value) bool {
 
 	if v.state != attr.ValueStateKnown {
 		return true
-	}
-
-	if !v.DefaultVlanId.Equal(other.DefaultVlanId) {
-		return false
 	}
 
 	if !v.DefaultVlanIds.Equal(other.DefaultVlanIds) {
@@ -18238,7 +17766,6 @@ func (v DynamicVlanValue) Type(ctx context.Context) attr.Type {
 
 func (v DynamicVlanValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"default_vlan_id": basetypes.StringType{},
 		"default_vlan_ids": basetypes.ListType{
 			ElemType: types.StringType,
 		},

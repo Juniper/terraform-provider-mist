@@ -18,6 +18,8 @@ description: |-
 * `mist_org_evpn_topologies`
 * `mist_org_nac_endpoints`
 * `mist_org_sso_roles`
+* `mist_org_wlans`
+* `mist_site_wlans`
 
 ### Changes
 * Add `mist_org_sso_role.privilege.views` attribute

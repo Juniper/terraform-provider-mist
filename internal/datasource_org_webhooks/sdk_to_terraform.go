@@ -25,7 +25,6 @@ func SdkToTerraform(ctx context.Context, l *[]models.Webhook, elements *[]attr.V
 }
 
 func webhookSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.Webhook) OrgWebhooksValue {
-	var state OrgWebhooksValue
 
 	var enabled types.Bool
 	var headers types.Map = types.MapNull(types.StringType)

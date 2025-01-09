@@ -7,7 +7,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 
-	"github.com/Juniper/terraform-provider-mist/internal/datasource_org_evpn_topologies"
+	"github.com/Juniper/terraform-provider-mist/internal/datasource_site_wlans"
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -19,18 +19,18 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-var _ datasource.DataSource = (*orgEvpnTopologiesDataSource)(nil)
+var _ datasource.DataSource = (*siteWlansDataSource)(nil)
 
-func NewOrgEvpnTopologiesDataSource() datasource.DataSource {
-	return &orgEvpnTopologiesDataSource{}
+func NewSiteWlansDataSource() datasource.DataSource {
+	return &siteWlansDataSource{}
 }
 
-type orgEvpnTopologiesDataSource struct {
+type siteWlansDataSource struct {
 	client mistapi.ClientInterface
 }
 
-func (d *orgEvpnTopologiesDataSource) Configure(ctx context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
-	tflog.Info(ctx, "Configuring Mist Org EvpnTopologies Datasource client")
+func (d *siteWlansDataSource) Configure(ctx context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
+	tflog.Info(ctx, "Configuring Mist Site Wlans Datasource client")
 	if req.ProviderData == nil {
 		return
 	}
@@ -46,31 +46,30 @@ func (d *orgEvpnTopologiesDataSource) Configure(ctx context.Context, req datasou
 
 	d.client = client
 }
-func (d *orgEvpnTopologiesDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_org_evpn_topologies"
+func (d *siteWlansDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_site_wlans"
 }
 
-func (d *orgEvpnTopologiesDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *siteWlansDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryWired + "This data source provides the list of Org Evpn Topologies\n\n" +
-			"EVPN allows an alternative but more efficient LAN architecture utilizing VxLAN / MP-BGP to separate the control plane " +
-			"(MAC / IP Learning) from the forwarding plane.",
-		Attributes: datasource_org_evpn_topologies.OrgEvpnTopologiesDataSourceSchema(ctx).Attributes,
+		MarkdownDescription: docCategoryWlan + "This data source provides the list of Site Wlans.\n\n" +
+			"The WLAN object contains all the required configuration to broadcast an SSID (Authentication, VLAN, ...)",
+		Attributes: datasource_site_wlans.SiteWlansDataSourceSchema(ctx).Attributes,
 	}
 }
 
-func (d *orgEvpnTopologiesDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var ds datasource_org_evpn_topologies.OrgEvpnTopologiesModel
+func (d *siteWlansDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var ds datasource_site_wlans.SiteWlansModel
 	resp.Diagnostics.Append(req.Config.Get(ctx, &ds)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	orgId, err := uuid.Parse(ds.OrgId.ValueString())
+	siteId, err := uuid.Parse(ds.SiteId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"org_evpn_topologies\" data_source",
+			"Invalid \"site_id\" value for \"site_wlans\" data_source",
 			"Could parse the UUID: "+err.Error(),
 		)
 		return
@@ -89,11 +88,11 @@ func (d *orgEvpnTopologiesDataSource) Read(ctx context.Context, req datasource.R
 			"limit": limit,
 			"total": total,
 		})
-		data, err := d.client.OrgsEVPNTopologies().ListOrgEvpnTopologies(ctx, orgId, &limit, &page)
+		data, err := d.client.SitesWlans().ListSiteWlans(ctx, siteId, &limit, &page)
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"Error getting Org EvpnTopologies list",
-				"Unable to get the the list of EvpnTopologies, unexpected error: "+err.Error(),
+				"Error getting Site Wlans list",
+				"Unable to get the the list of Site Wlans, unexpected error: "+err.Error(),
 			)
 			return
 		}
@@ -116,7 +115,7 @@ func (d *orgEvpnTopologiesDataSource) Read(ctx context.Context, req datasource.R
 			return
 		}
 
-		diags = datasource_org_evpn_topologies.SdkToTerraform(ctx, &data.Data, &elements)
+		diags = datasource_site_wlans.SdkToTerraform(ctx, &data.Data, &elements)
 		resp.Diagnostics.Append(diags...)
 		if resp.Diagnostics.HasError() {
 			return
@@ -124,12 +123,12 @@ func (d *orgEvpnTopologiesDataSource) Read(ctx context.Context, req datasource.R
 
 	}
 
-	dataSet, diags := types.SetValue(datasource_org_evpn_topologies.OrgEvpnTopologiesValue{}.Type(ctx), elements)
+	dataSet, diags := types.SetValue(datasource_site_wlans.SiteWlansValue{}.Type(ctx), elements)
 	if diags != nil {
 		diags.Append(diags...)
 	}
 
-	if err := resp.State.SetAttribute(ctx, path.Root("org_evpn_topologies"), dataSet); err != nil {
+	if err := resp.State.SetAttribute(ctx, path.Root("site_wlans"), dataSet); err != nil {
 		resp.Diagnostics.Append(err...)
 		return
 	}

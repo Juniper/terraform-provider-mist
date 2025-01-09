@@ -93,7 +93,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	var portal_denied_hostnames types.List = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
 	var portal_image types.String = types.StringValue("not_present")
 	var portal_sso_url types.String = types.StringValue("")
-	var qos QosValue
+	var qos QosValue = NewQosValueNull()
 	var radsec RadsecValue = NewRadsecValueNull()
 	var rateset types.Map = types.MapNull(RatesetValue{}.Type(ctx))
 	var reconnect_clients_when_roaming_mxcluster types.Bool
