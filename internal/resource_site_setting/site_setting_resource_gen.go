@@ -76,7 +76,6 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
-								"",
 								"any",
 								"fri",
 								"mon",
@@ -107,7 +106,6 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "desired version. enum: `beta`, `custom`, `stable`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
-								"",
 								"beta",
 								"custom",
 								"stable",
@@ -155,7 +153,6 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "enum: `custom`, `default`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
-								"",
 								"custom",
 								"default",
 							),
@@ -390,7 +387,6 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "enum: `custom`, `default`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
-								"",
 								"custom",
 								"default",
 							),
@@ -433,39 +429,53 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 							"hours": schema.SingleNestedAttribute{
 								Attributes: map[string]schema.Attribute{
 									"fri": schema.StringAttribute{
-										Optional: true,
-										Computed: true,
-										Default:  stringdefault.StaticString(""),
+										Optional:            true,
+										Computed:            true,
+										Description:         "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
+										MarkdownDescription: "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
+										Default:             stringdefault.StaticString(""),
 									},
 									"mon": schema.StringAttribute{
-										Optional: true,
-										Computed: true,
-										Default:  stringdefault.StaticString(""),
+										Optional:            true,
+										Computed:            true,
+										Description:         "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
+										MarkdownDescription: "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
+										Default:             stringdefault.StaticString(""),
 									},
 									"sat": schema.StringAttribute{
-										Optional: true,
-										Computed: true,
-										Default:  stringdefault.StaticString(""),
+										Optional:            true,
+										Computed:            true,
+										Description:         "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
+										MarkdownDescription: "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
+										Default:             stringdefault.StaticString(""),
 									},
 									"sun": schema.StringAttribute{
-										Optional: true,
-										Computed: true,
-										Default:  stringdefault.StaticString(""),
+										Optional:            true,
+										Computed:            true,
+										Description:         "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
+										MarkdownDescription: "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
+										Default:             stringdefault.StaticString(""),
 									},
 									"thu": schema.StringAttribute{
-										Optional: true,
-										Computed: true,
-										Default:  stringdefault.StaticString(""),
+										Optional:            true,
+										Computed:            true,
+										Description:         "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
+										MarkdownDescription: "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
+										Default:             stringdefault.StaticString(""),
 									},
 									"tue": schema.StringAttribute{
-										Optional: true,
-										Computed: true,
-										Default:  stringdefault.StaticString(""),
+										Optional:            true,
+										Computed:            true,
+										Description:         "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
+										MarkdownDescription: "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
+										Default:             stringdefault.StaticString(""),
 									},
 									"wed": schema.StringAttribute{
-										Optional: true,
-										Computed: true,
-										Default:  stringdefault.StaticString(""),
+										Optional:            true,
+										Computed:            true,
+										Description:         "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
+										MarkdownDescription: "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
+										Default:             stringdefault.StaticString(""),
 									},
 								},
 								CustomType: HoursType{
@@ -474,8 +484,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 									},
 								},
 								Optional:            true,
-								Description:         "hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun). \n\n**Note**: If the dow is not defined then it\\u2019\\ s treated as 00:00-23:59.",
-								MarkdownDescription: "hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun). \n\n**Note**: If the dow is not defined then it\\u2019\\ s treated as 00:00-23:59.",
+								Description:         "Days/Hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun)",
+								MarkdownDescription: "Days/Hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun)",
 							},
 						},
 						CustomType: PushWindowType{
@@ -554,16 +564,32 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					"dwell_tag_names": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
 							"bounce": schema.StringAttribute{
-								Optional: true,
+								Optional:            true,
+								Computed:            true,
+								Description:         "Default to `Visitor`",
+								MarkdownDescription: "Default to `Visitor`",
+								Default:             stringdefault.StaticString("Visitor"),
 							},
 							"engaged": schema.StringAttribute{
-								Optional: true,
+								Optional:            true,
+								Computed:            true,
+								Description:         "Default to `Associates`",
+								MarkdownDescription: "Default to `Associates`",
+								Default:             stringdefault.StaticString("Associates"),
 							},
 							"passerby": schema.StringAttribute{
-								Optional: true,
+								Optional:            true,
+								Computed:            true,
+								Description:         "Default to `Passerby`",
+								MarkdownDescription: "Default to `Passerby`",
+								Default:             stringdefault.StaticString("Passerby"),
 							},
 							"stationed": schema.StringAttribute{
-								Optional: true,
+								Optional:            true,
+								Computed:            true,
+								Description:         "Default to `Assets`",
+								MarkdownDescription: "Default to `Assets`",
+								Default:             stringdefault.StaticString("Assets"),
 							},
 						},
 						CustomType: DwellTagNamesType{
@@ -571,21 +597,39 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 								AttrTypes: DwellTagNamesValue{}.AttributeTypes(ctx),
 							},
 						},
-						Optional: true,
+						Optional:            true,
+						Description:         "name associated to each tag",
+						MarkdownDescription: "name associated to each tag",
 					},
 					"dwell_tags": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
 							"bounce": schema.StringAttribute{
-								Optional: true,
+								Optional:            true,
+								Computed:            true,
+								Description:         "Default to `301-14400`",
+								MarkdownDescription: "Default to `301-14400`",
+								Default:             stringdefault.StaticString("301-14400"),
 							},
 							"engaged": schema.StringAttribute{
-								Optional: true,
+								Optional:            true,
+								Computed:            true,
+								Description:         "Default to `14401-28800`",
+								MarkdownDescription: "Default to `14401-28800`",
+								Default:             stringdefault.StaticString("14401-28800"),
 							},
 							"passerby": schema.StringAttribute{
-								Optional: true,
+								Optional:            true,
+								Computed:            true,
+								Description:         "Default to `1-300`",
+								MarkdownDescription: "Default to `1-300`",
+								Default:             stringdefault.StaticString("1-300"),
 							},
 							"stationed": schema.StringAttribute{
-								Optional: true,
+								Optional:            true,
+								Computed:            true,
+								Description:         "Default to `28801-42000`",
+								MarkdownDescription: "Default to `28801-42000`",
+								Default:             stringdefault.StaticString("28801-42000"),
 							},
 						},
 						CustomType: DwellTagsType{
@@ -594,45 +638,59 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional:            true,
-						Description:         "add tags to visits within the duration (in seconds), available tags (passerby, bounce, engaged, stationed)",
-						MarkdownDescription: "add tags to visits within the duration (in seconds), available tags (passerby, bounce, engaged, stationed)",
+						Description:         "add tags to visits within the duration (in seconds)",
+						MarkdownDescription: "add tags to visits within the duration (in seconds)",
 					},
 					"hours": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
 							"fri": schema.StringAttribute{
-								Optional: true,
-								Computed: true,
-								Default:  stringdefault.StaticString(""),
+								Optional:            true,
+								Computed:            true,
+								Description:         "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
+								MarkdownDescription: "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
+								Default:             stringdefault.StaticString(""),
 							},
 							"mon": schema.StringAttribute{
-								Optional: true,
-								Computed: true,
-								Default:  stringdefault.StaticString(""),
+								Optional:            true,
+								Computed:            true,
+								Description:         "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
+								MarkdownDescription: "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
+								Default:             stringdefault.StaticString(""),
 							},
 							"sat": schema.StringAttribute{
-								Optional: true,
-								Computed: true,
-								Default:  stringdefault.StaticString(""),
+								Optional:            true,
+								Computed:            true,
+								Description:         "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
+								MarkdownDescription: "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
+								Default:             stringdefault.StaticString(""),
 							},
 							"sun": schema.StringAttribute{
-								Optional: true,
-								Computed: true,
-								Default:  stringdefault.StaticString(""),
+								Optional:            true,
+								Computed:            true,
+								Description:         "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
+								MarkdownDescription: "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
+								Default:             stringdefault.StaticString(""),
 							},
 							"thu": schema.StringAttribute{
-								Optional: true,
-								Computed: true,
-								Default:  stringdefault.StaticString(""),
+								Optional:            true,
+								Computed:            true,
+								Description:         "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
+								MarkdownDescription: "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
+								Default:             stringdefault.StaticString(""),
 							},
 							"tue": schema.StringAttribute{
-								Optional: true,
-								Computed: true,
-								Default:  stringdefault.StaticString(""),
+								Optional:            true,
+								Computed:            true,
+								Description:         "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
+								MarkdownDescription: "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
+								Default:             stringdefault.StaticString(""),
 							},
 							"wed": schema.StringAttribute{
-								Optional: true,
-								Computed: true,
-								Default:  stringdefault.StaticString(""),
+								Optional:            true,
+								Computed:            true,
+								Description:         "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
+								MarkdownDescription: "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
+								Default:             stringdefault.StaticString(""),
 							},
 						},
 						CustomType: HoursType{
@@ -641,8 +699,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional:            true,
-						Description:         "hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun). \n\n**Note**: If the dow is not defined then it\\u2019\\ s treated as 00:00-23:59.",
-						MarkdownDescription: "hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun). \n\n**Note**: If the dow is not defined then it\\u2019\\ s treated as 00:00-23:59.",
+						Description:         "Days/Hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun)",
+						MarkdownDescription: "Days/Hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun)",
 					},
 					"max_dwell": schema.Int64Attribute{
 						Optional:            true,
@@ -669,8 +727,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "**Note**: if hours does not exist, it’s treated as everyday of the week, 00:00-23:59. Currently we don’t allow multiple ranges for the same day\n\n**Note**: default values for `dwell_tags`: passerby (1,300) bounce (301, 14400) engaged (14401, 28800) stationed (28801, 42000)\n\n**Note**: default values for `dwell_tag_names`: passerby = “Passerby”, bounce = “Visitor”, engaged = “Associates”, stationed = “Assets”",
-				MarkdownDescription: "**Note**: if hours does not exist, it’s treated as everyday of the week, 00:00-23:59. Currently we don’t allow multiple ranges for the same day\n\n**Note**: default values for `dwell_tags`: passerby (1,300) bounce (301, 14400) engaged (14401, 28800) stationed (28801, 42000)\n\n**Note**: default values for `dwell_tag_names`: passerby = “Passerby”, bounce = “Visitor”, engaged = “Associates”, stationed = “Assets”",
+				Description:         "**Note**: if hours does not exist, it's treated as everyday of the week, 00:00-23:59. Currently we don't allow multiple ranges for the same day",
+				MarkdownDescription: "**Note**: if hours does not exist, it's treated as everyday of the week, 00:00-23:59. Currently we don't allow multiple ranges for the same day",
 			},
 			"gateway_mgmt": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -743,7 +801,6 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 											MarkdownDescription: "enum: `http`, `icmp`",
 											Validators: []validator.String{
 												stringvalidator.OneOf(
-													"",
 													"http",
 													"icmp",
 												),
@@ -796,7 +853,6 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 								MarkdownDescription: "enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
-										"",
 										"any",
 										"fri",
 										"mon",
@@ -894,7 +950,6 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 											MarkdownDescription: "enum: `any`, `icmp`, `tcp`, `udp`. Note: For `protocol`==`any` and  `port_range`==`any`, configure `trusted_hosts` instead",
 											Validators: []validator.String{
 												stringvalidator.OneOf(
-													"",
 													"any",
 													"icmp",
 													"tcp",
@@ -910,8 +965,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 												listvalidator.SizeAtLeast(1),
 												listvalidator.ValueStringsAre(
 													stringvalidator.Any(
-														mistvalidator.ParseCidr(true, true),
-														mistvalidator.ParseIp(true, true),
+														mistvalidator.ParseCidr(false, false),
+														mistvalidator.ParseIp(false, false),
 													),
 												),
 											},
@@ -1323,8 +1378,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Set of heuristic rules will be enabled when marvis subscription is not available.\nIt triggers when, in a Z minute window, there are more than Y distinct client encountring over X failures",
-				MarkdownDescription: "Set of heuristic rules will be enabled when marvis subscription is not available.\nIt triggers when, in a Z minute window, there are more than Y distinct client encountring over X failures",
+				Description:         "Set of heuristic rules will be enabled when marvis subscription is not available. It triggers when, in a Z minute window, there are more than Y distinct client encountring over X failures",
+				MarkdownDescription: "Set of heuristic rules will be enabled when marvis subscription is not available. It triggers when, in a Z minute window, there are more than Y distinct client encountring over X failures",
 			},
 			"site_id": schema.StringAttribute{
 				Required: true,
@@ -1507,7 +1562,9 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: UplinkPortConfigValue{}.AttributeTypes(ctx),
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "AP Uplink port configuration",
+				MarkdownDescription: "AP Uplink port configuration",
 			},
 			"vars": schema.MapAttribute{
 				ElementType:         types.StringType,
@@ -1702,7 +1759,6 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "enum: `default`, `disabled`, `enabled`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
-								"",
 								"default",
 								"disabled",
 								"enabled",

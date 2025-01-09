@@ -275,6 +275,8 @@ func (p *mistProvider) Configure(ctx context.Context, req provider.ConfigureRequ
 		mist_cloud = mistapi.MIST_APAC_01
 	case "api.mistsys.com":
 		mist_cloud = mistapi.AWS_STAGING
+	case "api.us.mist-federal.com":
+		mist_cloud = mistapi.GOV_CLOUD
 	default:
 		resp.Diagnostics.AddAttributeError(
 			path.Root("host"),

@@ -62,11 +62,7 @@ resource "mist_site_setting" "site_one" {
 - `config_push_policy` (Attributes) mist also uses some heuristic rules to prevent destructive configs from being pushed (see [below for nested schema](#nestedatt--config_push_policy))
 - `critical_url_monitoring` (Attributes) you can define some URLs that's critical to site operaitons the latency will be captured and considered for site health (see [below for nested schema](#nestedatt--critical_url_monitoring))
 - `device_updown_threshold` (Number) by default, device_updown_thresold, if set, will apply to all devices types if different values for specific device type is desired, use the following
-- `engagement` (Attributes) **Note**: if hours does not exist, it’s treated as everyday of the week, 00:00-23:59. Currently we don’t allow multiple ranges for the same day
-
-**Note**: default values for `dwell_tags`: passerby (1,300) bounce (301, 14400) engaged (14401, 28800) stationed (28801, 42000)
-
-**Note**: default values for `dwell_tag_names`: passerby = “Passerby”, bounce = “Visitor”, engaged = “Associates”, stationed = “Assets” (see [below for nested schema](#nestedatt--engagement))
+- `engagement` (Attributes) **Note**: if hours does not exist, it's treated as everyday of the week, 00:00-23:59. Currently we don't allow multiple ranges for the same day (see [below for nested schema](#nestedatt--engagement))
 - `gateway_mgmt` (Attributes) Gateway Site settings (see [below for nested schema](#nestedatt--gateway_mgmt))
 - `gateway_updown_threshold` (Number) enable threshold-based device down delivery for Gateway devices only. When configured it takes effect for GW devices and `device_updown_threshold` is ignored.
 - `juniper_srx` (Attributes) (see [below for nested schema](#nestedatt--juniper_srx))
@@ -78,8 +74,7 @@ resource "mist_site_setting" "site_one" {
 - `report_gatt` (Boolean) whether AP should periodically connect to BLE devices and report GATT device info (device name, manufacturer name, serial number, battery %, temperature, humidity)
 - `rogue` (Attributes) Rogue site settings (see [below for nested schema](#nestedatt--rogue))
 - `rtsa` (Attributes) managed mobility (see [below for nested schema](#nestedatt--rtsa))
-- `simple_alert` (Attributes) Set of heuristic rules will be enabled when marvis subscription is not available.
-It triggers when, in a Z minute window, there are more than Y distinct client encountring over X failures (see [below for nested schema](#nestedatt--simple_alert))
+- `simple_alert` (Attributes) Set of heuristic rules will be enabled when marvis subscription is not available. It triggers when, in a Z minute window, there are more than Y distinct client encountring over X failures (see [below for nested schema](#nestedatt--simple_alert))
 - `skyatp` (Attributes) (see [below for nested schema](#nestedatt--skyatp))
 - `srx_app` (Attributes) (see [below for nested schema](#nestedatt--srx_app))
 - `ssh_keys` (List of String) when limit_ssh_access = true in Org Setting, list of SSH public keys provided by Mist Support to install onto APs (see Org:Setting)
@@ -87,7 +82,7 @@ It triggers when, in a Z minute window, there are more than Y distinct client en
 - `switch_updown_threshold` (Number) enable threshold-based device down delivery for Switch devices only. When configured it takes effect for SW devices and `device_updown_threshold` is ignored.
 - `synthetic_test` (Attributes) (see [below for nested schema](#nestedatt--synthetic_test))
 - `track_anonymous_devices` (Boolean) whether to track anonymous BLE assets (requires ‘track_asset’  enabled)
-- `uplink_port_config` (Attributes) (see [below for nested schema](#nestedatt--uplink_port_config))
+- `uplink_port_config` (Attributes) AP Uplink port configuration (see [below for nested schema](#nestedatt--uplink_port_config))
 - `vars` (Map of String) a dictionary of name->value, the vars can then be used in Wlans. This can overwrite those from Site Vars
 - `vna` (Attributes) (see [below for nested schema](#nestedatt--vna))
 - `vs_instance` (Attributes Map) optional, for EX9200 only to seggregate virtual-switches. Property key is the instance name (see [below for nested schema](#nestedatt--vs_instance))
@@ -171,22 +166,20 @@ Optional:
 Optional:
 
 - `enabled` (Boolean)
-- `hours` (Attributes) hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun). 
-
-**Note**: If the dow is not defined then it\u2019\ s treated as 00:00-23:59. (see [below for nested schema](#nestedatt--config_push_policy--push_window--hours))
+- `hours` (Attributes) Days/Hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun) (see [below for nested schema](#nestedatt--config_push_policy--push_window--hours))
 
 <a id="nestedatt--config_push_policy--push_window--hours"></a>
 ### Nested Schema for `config_push_policy.push_window.hours`
 
 Optional:
 
-- `fri` (String)
-- `mon` (String)
-- `sat` (String)
-- `sun` (String)
-- `thu` (String)
-- `tue` (String)
-- `wed` (String)
+- `fri` (String) Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.
+- `mon` (String) Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.
+- `sat` (String) Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.
+- `sun` (String) Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.
+- `thu` (String) Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.
+- `tue` (String) Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.
+- `wed` (String) Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.
 
 
 
@@ -214,11 +207,9 @@ Optional:
 
 Optional:
 
-- `dwell_tag_names` (Attributes) (see [below for nested schema](#nestedatt--engagement--dwell_tag_names))
-- `dwell_tags` (Attributes) add tags to visits within the duration (in seconds), available tags (passerby, bounce, engaged, stationed) (see [below for nested schema](#nestedatt--engagement--dwell_tags))
-- `hours` (Attributes) hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun). 
-
-**Note**: If the dow is not defined then it\u2019\ s treated as 00:00-23:59. (see [below for nested schema](#nestedatt--engagement--hours))
+- `dwell_tag_names` (Attributes) name associated to each tag (see [below for nested schema](#nestedatt--engagement--dwell_tag_names))
+- `dwell_tags` (Attributes) add tags to visits within the duration (in seconds) (see [below for nested schema](#nestedatt--engagement--dwell_tags))
+- `hours` (Attributes) Days/Hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun) (see [below for nested schema](#nestedatt--engagement--hours))
 - `max_dwell` (Number) max time, default is 43200(12h), max is 68400 (18h)
 - `min_dwell` (Number) min time
 
@@ -227,10 +218,10 @@ Optional:
 
 Optional:
 
-- `bounce` (String)
-- `engaged` (String)
-- `passerby` (String)
-- `stationed` (String)
+- `bounce` (String) Default to `Visitor`
+- `engaged` (String) Default to `Associates`
+- `passerby` (String) Default to `Passerby`
+- `stationed` (String) Default to `Assets`
 
 
 <a id="nestedatt--engagement--dwell_tags"></a>
@@ -238,10 +229,10 @@ Optional:
 
 Optional:
 
-- `bounce` (String)
-- `engaged` (String)
-- `passerby` (String)
-- `stationed` (String)
+- `bounce` (String) Default to `301-14400`
+- `engaged` (String) Default to `14401-28800`
+- `passerby` (String) Default to `1-300`
+- `stationed` (String) Default to `28801-42000`
 
 
 <a id="nestedatt--engagement--hours"></a>
@@ -249,13 +240,13 @@ Optional:
 
 Optional:
 
-- `fri` (String)
-- `mon` (String)
-- `sat` (String)
-- `sun` (String)
-- `thu` (String)
-- `tue` (String)
-- `wed` (String)
+- `fri` (String) Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.
+- `mon` (String) Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.
+- `sat` (String) Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.
+- `sun` (String) Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.
+- `thu` (String) Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.
+- `tue` (String) Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.
+- `wed` (String) Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.
 
 
 

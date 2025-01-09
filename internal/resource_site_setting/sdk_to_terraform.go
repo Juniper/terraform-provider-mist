@@ -27,6 +27,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	var engagement EngagementValue = NewEngagementValueNull()
 	var gateway_mgmt GatewayMgmtValue = NewGatewayMgmtValueNull()
 	var gateway_updown_threshold types.Int64
+	var juniper_srx JuniperSrxValue = NewJuniperSrxValueNull()
 	var led LedValue = NewLedValueNull()
 	var occupancy OccupancyValue = NewOccupancyValueNull()
 	var persist_config_on_device types.Bool
@@ -103,6 +104,10 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 
 	if data.GatewayUpdownThreshold.Value() != nil {
 		gateway_updown_threshold = types.Int64Value(int64(*data.GatewayUpdownThreshold.Value()))
+	}
+
+	if data.JuniperSrx != nil {
+		juniper_srx = juniperSrxSdkToTerraform(ctx, &diags, data.JuniperSrx)
 	}
 
 	if data.Led != nil {
@@ -225,6 +230,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	state.Engagement = engagement
 	state.GatewayMgmt = gateway_mgmt
 	state.GatewayUpdownThreshold = gateway_updown_threshold
+	state.JuniperSrx = juniper_srx
 	state.Led = led
 	state.Occupancy = occupancy
 	state.PersistConfigOnDevice = persist_config_on_device

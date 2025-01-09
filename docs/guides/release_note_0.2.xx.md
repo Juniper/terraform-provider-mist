@@ -20,9 +20,12 @@ description: |-
 
 ### Changes
 * Add `mist_org_sso_role.privilege.views` attribute
+* Add `mist_site_setting.juniper_srx` attribute
 
 ### Fixes
-* `vpn_access.static_nat.wan_name` and `vpn_access.destination_nat.wan_name` was removed in a previous version, but some parts of the code was not updated. This issue was impacting the `mist_org_network`, `mist_device_gateway`, `mist_org_gatewaytemplate` and `mist_org_deviceprofile_gateway` resources
+* In some condition the assigned/unassigned devices process may fail on the Mist side, and the list of MAC addresses returned may not match what is expected. This case was not processed by the provider, resulting a "This is a bug in the provider, which should be reported in the provider's own issue tracker." error message.  
+The provider is now returning a specific warning message when it was not able to unassign a device, and a specific error when it was not able to assign a device (issue [#70](https://github.com/Juniper/terraform-provider-mist/issues/70))
+* `vpn_access.static_nat.wan_name` and `vpn_access.destination_nat.wan_name` was removed in a previous version, but some parts of the code was not updated. This issue was impacting the `mist_org_network`, `mist_device_gateway`, `mist_org_gatewaytemplate` and `mist_org_deviceprofile_gateway` resources (issue [#71](https://github.com/Juniper/terraform-provider-mist/issues/71))
 
 ## Release Notes for v0.2.17
 **release date** : January 2nd, 2025

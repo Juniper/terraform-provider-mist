@@ -60,7 +60,7 @@ resource "mist_site_psk" "psk_one" {
 
 ### Read-Only
 
-- `id` (String) PSK ID
+- `id` (String) Unique ID of the object instance in the Mist Organnization
 - `org_id` (String)
 
 

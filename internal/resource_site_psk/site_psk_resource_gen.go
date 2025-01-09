@@ -9,9 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
@@ -40,18 +38,17 @@ func SitePskResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
-				Description:         "PSK ID",
-				MarkdownDescription: "PSK ID",
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
+				Description:         "Unique ID of the object instance in the Mist Organnization",
+				MarkdownDescription: "Unique ID of the object instance in the Mist Organnization",
 			},
 			"mac": schema.StringAttribute{
 				Optional:            true,
 				Description:         "if `usage`==`single`, the mac that this PSK ties to, empty if `auto-binding`",
 				MarkdownDescription: "if `usage`==`single`, the mac that this PSK ties to, empty if `auto-binding`",
 				Validators: []validator.String{
-					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("single")), mistvalidator.ParseMac(),
+					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("usage"),
+						types.StringValue("single")),
+					mistvalidator.ParseMac(),
 				},
 			},
 			"name": schema.StringAttribute{
