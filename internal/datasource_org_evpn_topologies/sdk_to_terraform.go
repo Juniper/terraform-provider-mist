@@ -22,7 +22,7 @@ func SdkToTerraform(ctx context.Context, l *[]models.EvpnTopologyResponse, eleme
 	return diags
 }
 
-func evpnTopologySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.EvpnTopologyResponse) EvpnTopologiesValue {
+func evpnTopologySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.EvpnTopologyResponse) OrgEvpnTopologiesValue {
 
 	var created_time basetypes.Float64Value
 	var evpn_options basetypes.ObjectValue = basetypes.NewObjectNull(EvpnOptionsValue{}.AttributeTypes(ctx))
@@ -69,7 +69,7 @@ func evpnTopologySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 		"org_id":        org_id,
 		"pod_names":     pod_names,
 	}
-	data, e := NewEvpnTopologiesValue(EvpnTopologiesValue{}.AttributeTypes(ctx), data_map_value)
+	data, e := NewOrgEvpnTopologiesValue(OrgEvpnTopologiesValue{}.AttributeTypes(ctx), data_map_value)
 	diags.Append(e...)
 
 	return data

@@ -20,7 +20,7 @@ import (
 func OrgEvpnTopologiesDataSourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
-			"evpn_topologies": schema.SetNestedAttribute{
+			"org_evpn_topologies": schema.SetNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"created_time": schema.Float64Attribute{
@@ -162,9 +162,9 @@ func OrgEvpnTopologiesDataSourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "Property key is the pod number",
 						},
 					},
-					CustomType: EvpnTopologiesType{
+					CustomType: OrgEvpnTopologiesType{
 						ObjectType: types.ObjectType{
-							AttrTypes: EvpnTopologiesValue{}.AttributeTypes(ctx),
+							AttrTypes: OrgEvpnTopologiesValue{}.AttributeTypes(ctx),
 						},
 					},
 				},
@@ -178,18 +178,18 @@ func OrgEvpnTopologiesDataSourceSchema(ctx context.Context) schema.Schema {
 }
 
 type OrgEvpnTopologiesModel struct {
-	EvpnTopologies types.Set    `tfsdk:"evpn_topologies"`
-	OrgId          types.String `tfsdk:"org_id"`
+	OrgEvpnTopologies types.Set    `tfsdk:"org_evpn_topologies"`
+	OrgId             types.String `tfsdk:"org_id"`
 }
 
-var _ basetypes.ObjectTypable = EvpnTopologiesType{}
+var _ basetypes.ObjectTypable = OrgEvpnTopologiesType{}
 
-type EvpnTopologiesType struct {
+type OrgEvpnTopologiesType struct {
 	basetypes.ObjectType
 }
 
-func (t EvpnTopologiesType) Equal(o attr.Type) bool {
-	other, ok := o.(EvpnTopologiesType)
+func (t OrgEvpnTopologiesType) Equal(o attr.Type) bool {
+	other, ok := o.(OrgEvpnTopologiesType)
 
 	if !ok {
 		return false
@@ -198,11 +198,11 @@ func (t EvpnTopologiesType) Equal(o attr.Type) bool {
 	return t.ObjectType.Equal(other.ObjectType)
 }
 
-func (t EvpnTopologiesType) String() string {
-	return "EvpnTopologiesType"
+func (t OrgEvpnTopologiesType) String() string {
+	return "OrgEvpnTopologiesType"
 }
 
-func (t EvpnTopologiesType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+func (t OrgEvpnTopologiesType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	attributes := in.Attributes()
@@ -337,7 +337,7 @@ func (t EvpnTopologiesType) ValueFromObject(ctx context.Context, in basetypes.Ob
 		return nil, diags
 	}
 
-	return EvpnTopologiesValue{
+	return OrgEvpnTopologiesValue{
 		CreatedTime:  createdTimeVal,
 		EvpnOptions:  evpnOptionsVal,
 		Id:           idVal,
@@ -349,19 +349,19 @@ func (t EvpnTopologiesType) ValueFromObject(ctx context.Context, in basetypes.Ob
 	}, diags
 }
 
-func NewEvpnTopologiesValueNull() EvpnTopologiesValue {
-	return EvpnTopologiesValue{
+func NewOrgEvpnTopologiesValueNull() OrgEvpnTopologiesValue {
+	return OrgEvpnTopologiesValue{
 		state: attr.ValueStateNull,
 	}
 }
 
-func NewEvpnTopologiesValueUnknown() EvpnTopologiesValue {
-	return EvpnTopologiesValue{
+func NewOrgEvpnTopologiesValueUnknown() OrgEvpnTopologiesValue {
+	return OrgEvpnTopologiesValue{
 		state: attr.ValueStateUnknown,
 	}
 }
 
-func NewEvpnTopologiesValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (EvpnTopologiesValue, diag.Diagnostics) {
+func NewOrgEvpnTopologiesValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (OrgEvpnTopologiesValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
@@ -372,11 +372,11 @@ func NewEvpnTopologiesValue(attributeTypes map[string]attr.Type, attributes map[
 
 		if !ok {
 			diags.AddError(
-				"Missing EvpnTopologiesValue Attribute Value",
-				"While creating a EvpnTopologiesValue value, a missing attribute value was detected. "+
-					"A EvpnTopologiesValue must contain values for all attributes, even if null or unknown. "+
+				"Missing OrgEvpnTopologiesValue Attribute Value",
+				"While creating a OrgEvpnTopologiesValue value, a missing attribute value was detected. "+
+					"A OrgEvpnTopologiesValue must contain values for all attributes, even if null or unknown. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("EvpnTopologiesValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+					fmt.Sprintf("OrgEvpnTopologiesValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
 			)
 
 			continue
@@ -384,12 +384,12 @@ func NewEvpnTopologiesValue(attributeTypes map[string]attr.Type, attributes map[
 
 		if !attributeType.Equal(attribute.Type(ctx)) {
 			diags.AddError(
-				"Invalid EvpnTopologiesValue Attribute Type",
-				"While creating a EvpnTopologiesValue value, an invalid attribute value was detected. "+
-					"A EvpnTopologiesValue must use a matching attribute type for the value. "+
+				"Invalid OrgEvpnTopologiesValue Attribute Type",
+				"While creating a OrgEvpnTopologiesValue value, an invalid attribute value was detected. "+
+					"A OrgEvpnTopologiesValue must use a matching attribute type for the value. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("EvpnTopologiesValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
-					fmt.Sprintf("EvpnTopologiesValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+					fmt.Sprintf("OrgEvpnTopologiesValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("OrgEvpnTopologiesValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
 			)
 		}
 	}
@@ -399,17 +399,17 @@ func NewEvpnTopologiesValue(attributeTypes map[string]attr.Type, attributes map[
 
 		if !ok {
 			diags.AddError(
-				"Extra EvpnTopologiesValue Attribute Value",
-				"While creating a EvpnTopologiesValue value, an extra attribute value was detected. "+
-					"A EvpnTopologiesValue must not contain values beyond the expected attribute types. "+
+				"Extra OrgEvpnTopologiesValue Attribute Value",
+				"While creating a OrgEvpnTopologiesValue value, an extra attribute value was detected. "+
+					"A OrgEvpnTopologiesValue must not contain values beyond the expected attribute types. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("Extra EvpnTopologiesValue Attribute Name: %s", name),
+					fmt.Sprintf("Extra OrgEvpnTopologiesValue Attribute Name: %s", name),
 			)
 		}
 	}
 
 	if diags.HasError() {
-		return NewEvpnTopologiesValueUnknown(), diags
+		return NewOrgEvpnTopologiesValueUnknown(), diags
 	}
 
 	createdTimeAttribute, ok := attributes["created_time"]
@@ -419,7 +419,7 @@ func NewEvpnTopologiesValue(attributeTypes map[string]attr.Type, attributes map[
 			"Attribute Missing",
 			`created_time is missing from object`)
 
-		return NewEvpnTopologiesValueUnknown(), diags
+		return NewOrgEvpnTopologiesValueUnknown(), diags
 	}
 
 	createdTimeVal, ok := createdTimeAttribute.(basetypes.Float64Value)
@@ -437,7 +437,7 @@ func NewEvpnTopologiesValue(attributeTypes map[string]attr.Type, attributes map[
 			"Attribute Missing",
 			`evpn_options is missing from object`)
 
-		return NewEvpnTopologiesValueUnknown(), diags
+		return NewOrgEvpnTopologiesValueUnknown(), diags
 	}
 
 	evpnOptionsVal, ok := evpnOptionsAttribute.(basetypes.ObjectValue)
@@ -455,7 +455,7 @@ func NewEvpnTopologiesValue(attributeTypes map[string]attr.Type, attributes map[
 			"Attribute Missing",
 			`id is missing from object`)
 
-		return NewEvpnTopologiesValueUnknown(), diags
+		return NewOrgEvpnTopologiesValueUnknown(), diags
 	}
 
 	idVal, ok := idAttribute.(basetypes.StringValue)
@@ -473,7 +473,7 @@ func NewEvpnTopologiesValue(attributeTypes map[string]attr.Type, attributes map[
 			"Attribute Missing",
 			`modified_time is missing from object`)
 
-		return NewEvpnTopologiesValueUnknown(), diags
+		return NewOrgEvpnTopologiesValueUnknown(), diags
 	}
 
 	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.Float64Value)
@@ -491,7 +491,7 @@ func NewEvpnTopologiesValue(attributeTypes map[string]attr.Type, attributes map[
 			"Attribute Missing",
 			`name is missing from object`)
 
-		return NewEvpnTopologiesValueUnknown(), diags
+		return NewOrgEvpnTopologiesValueUnknown(), diags
 	}
 
 	nameVal, ok := nameAttribute.(basetypes.StringValue)
@@ -509,7 +509,7 @@ func NewEvpnTopologiesValue(attributeTypes map[string]attr.Type, attributes map[
 			"Attribute Missing",
 			`org_id is missing from object`)
 
-		return NewEvpnTopologiesValueUnknown(), diags
+		return NewOrgEvpnTopologiesValueUnknown(), diags
 	}
 
 	orgIdVal, ok := orgIdAttribute.(basetypes.StringValue)
@@ -527,7 +527,7 @@ func NewEvpnTopologiesValue(attributeTypes map[string]attr.Type, attributes map[
 			"Attribute Missing",
 			`pod_names is missing from object`)
 
-		return NewEvpnTopologiesValueUnknown(), diags
+		return NewOrgEvpnTopologiesValueUnknown(), diags
 	}
 
 	podNamesVal, ok := podNamesAttribute.(basetypes.MapValue)
@@ -539,10 +539,10 @@ func NewEvpnTopologiesValue(attributeTypes map[string]attr.Type, attributes map[
 	}
 
 	if diags.HasError() {
-		return NewEvpnTopologiesValueUnknown(), diags
+		return NewOrgEvpnTopologiesValueUnknown(), diags
 	}
 
-	return EvpnTopologiesValue{
+	return OrgEvpnTopologiesValue{
 		CreatedTime:  createdTimeVal,
 		EvpnOptions:  evpnOptionsVal,
 		Id:           idVal,
@@ -554,8 +554,8 @@ func NewEvpnTopologiesValue(attributeTypes map[string]attr.Type, attributes map[
 	}, diags
 }
 
-func NewEvpnTopologiesValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) EvpnTopologiesValue {
-	object, diags := NewEvpnTopologiesValue(attributeTypes, attributes)
+func NewOrgEvpnTopologiesValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) OrgEvpnTopologiesValue {
+	object, diags := NewOrgEvpnTopologiesValue(attributeTypes, attributes)
 
 	if diags.HasError() {
 		// This could potentially be added to the diag package.
@@ -569,15 +569,15 @@ func NewEvpnTopologiesValueMust(attributeTypes map[string]attr.Type, attributes 
 				diagnostic.Detail()))
 		}
 
-		panic("NewEvpnTopologiesValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+		panic("NewOrgEvpnTopologiesValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
 	}
 
 	return object
 }
 
-func (t EvpnTopologiesType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+func (t OrgEvpnTopologiesType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
 	if in.Type() == nil {
-		return NewEvpnTopologiesValueNull(), nil
+		return NewOrgEvpnTopologiesValueNull(), nil
 	}
 
 	if !in.Type().Equal(t.TerraformType(ctx)) {
@@ -585,11 +585,11 @@ func (t EvpnTopologiesType) ValueFromTerraform(ctx context.Context, in tftypes.V
 	}
 
 	if !in.IsKnown() {
-		return NewEvpnTopologiesValueUnknown(), nil
+		return NewOrgEvpnTopologiesValueUnknown(), nil
 	}
 
 	if in.IsNull() {
-		return NewEvpnTopologiesValueNull(), nil
+		return NewOrgEvpnTopologiesValueNull(), nil
 	}
 
 	attributes := map[string]attr.Value{}
@@ -612,16 +612,16 @@ func (t EvpnTopologiesType) ValueFromTerraform(ctx context.Context, in tftypes.V
 		attributes[k] = a
 	}
 
-	return NewEvpnTopologiesValueMust(EvpnTopologiesValue{}.AttributeTypes(ctx), attributes), nil
+	return NewOrgEvpnTopologiesValueMust(OrgEvpnTopologiesValue{}.AttributeTypes(ctx), attributes), nil
 }
 
-func (t EvpnTopologiesType) ValueType(ctx context.Context) attr.Value {
-	return EvpnTopologiesValue{}
+func (t OrgEvpnTopologiesType) ValueType(ctx context.Context) attr.Value {
+	return OrgEvpnTopologiesValue{}
 }
 
-var _ basetypes.ObjectValuable = EvpnTopologiesValue{}
+var _ basetypes.ObjectValuable = OrgEvpnTopologiesValue{}
 
-type EvpnTopologiesValue struct {
+type OrgEvpnTopologiesValue struct {
 	CreatedTime  basetypes.Float64Value `tfsdk:"created_time"`
 	EvpnOptions  basetypes.ObjectValue  `tfsdk:"evpn_options"`
 	Id           basetypes.StringValue  `tfsdk:"id"`
@@ -632,7 +632,7 @@ type EvpnTopologiesValue struct {
 	state        attr.ValueState
 }
 
-func (v EvpnTopologiesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+func (v OrgEvpnTopologiesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
 	attrTypes := make(map[string]tftypes.Type, 7)
 
 	var val tftypes.Value
@@ -726,19 +726,19 @@ func (v EvpnTopologiesValue) ToTerraformValue(ctx context.Context) (tftypes.Valu
 	}
 }
 
-func (v EvpnTopologiesValue) IsNull() bool {
+func (v OrgEvpnTopologiesValue) IsNull() bool {
 	return v.state == attr.ValueStateNull
 }
 
-func (v EvpnTopologiesValue) IsUnknown() bool {
+func (v OrgEvpnTopologiesValue) IsUnknown() bool {
 	return v.state == attr.ValueStateUnknown
 }
 
-func (v EvpnTopologiesValue) String() string {
-	return "EvpnTopologiesValue"
+func (v OrgEvpnTopologiesValue) String() string {
+	return "OrgEvpnTopologiesValue"
 }
 
-func (v EvpnTopologiesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+func (v OrgEvpnTopologiesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	var evpnOptions basetypes.ObjectValue
@@ -819,8 +819,8 @@ func (v EvpnTopologiesValue) ToObjectValue(ctx context.Context) (basetypes.Objec
 	return objVal, diags
 }
 
-func (v EvpnTopologiesValue) Equal(o attr.Value) bool {
-	other, ok := o.(EvpnTopologiesValue)
+func (v OrgEvpnTopologiesValue) Equal(o attr.Value) bool {
+	other, ok := o.(OrgEvpnTopologiesValue)
 
 	if !ok {
 		return false
@@ -865,15 +865,15 @@ func (v EvpnTopologiesValue) Equal(o attr.Value) bool {
 	return true
 }
 
-func (v EvpnTopologiesValue) Type(ctx context.Context) attr.Type {
-	return EvpnTopologiesType{
+func (v OrgEvpnTopologiesValue) Type(ctx context.Context) attr.Type {
+	return OrgEvpnTopologiesType{
 		basetypes.ObjectType{
 			AttrTypes: v.AttributeTypes(ctx),
 		},
 	}
 }
 
-func (v EvpnTopologiesValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+func (v OrgEvpnTopologiesValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"created_time": basetypes.Float64Type{},
 		"evpn_options": basetypes.ObjectType{

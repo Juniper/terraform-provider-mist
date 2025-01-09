@@ -124,7 +124,7 @@ func (d *orgEvpnTopologiesDataSource) Read(ctx context.Context, req datasource.R
 
 	}
 
-	dataSet, diags := types.SetValue(datasource_org_evpn_topologies.EvpnTopologiesValue{}.Type(ctx), elements)
+	dataSet, diags := types.SetValue(datasource_org_evpn_topologies.OrgEvpnTopologiesValue{}.Type(ctx), elements)
 	if diags != nil {
 		diags.Append(diags...)
 	}
