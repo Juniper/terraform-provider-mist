@@ -15,6 +15,7 @@ description: |-
 
 ### New Data Sources
 * `mist_org_alarmtemplates`
+* `mist_org_evpn_topologies`
 * `mist_org_nac_endpoints`
 * `mist_org_sso_roles`
 

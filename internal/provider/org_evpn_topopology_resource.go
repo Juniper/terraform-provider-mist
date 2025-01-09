@@ -54,7 +54,7 @@ func (r *orgEvpnTopologyResource) Metadata(ctx context.Context, req resource.Met
 
 func (r *orgEvpnTopologyResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryWired + "This resource manages the Org Evpn Topologys.\n\n" +
+		MarkdownDescription: docCategoryWired + "This resource manages the Org Evpn Topology.\n\n" +
 			"EVPN allows an alternative but more efficient LAN architecture utilizing VxLAN / MP-BGP to separate the control plane " +
 			"(MAC / IP Learning) from the forwarding plane.\n\n" +
 			"-> To create or manage your EVPN Topology with the Mist Provider, please refer to the `How To - EVPN Topology` Guide.",

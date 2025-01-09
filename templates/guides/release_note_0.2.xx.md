@@ -15,11 +15,13 @@ description: |-
 
 ### New Data Sources
 * `mist_org_alarmtemplates`
+* `mist_org_evpn_topologies`
 * `mist_org_nac_endpoints`
 * `mist_org_sso_roles`
 
 ### Changes
 * Add `mist_org_sso_role.privilege.views` attribute
+* Add `mist_site_setting.juniper_srx` attribute
 
 ### Fixes
 * In some condition the assigned/unassigned devices process may fail on the Mist side, and the list of MAC addresses returned may not match what is expected. This case was not processed by the provider, resulting a "This is a bug in the provider, which should be reported in the provider's own issue tracker." error message.  
