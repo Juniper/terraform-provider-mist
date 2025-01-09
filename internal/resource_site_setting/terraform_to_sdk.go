@@ -81,9 +81,14 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 		unset["-gateway_updown_threshold"] = ""
 	}
 
+	if !plan.JuniperSrx.IsNull() && !plan.JuniperSrx.IsUnknown() {
+		data.JuniperSrx = juniperSrxTerraformToSdk(ctx, &diags, plan.JuniperSrx)
+	} else {
+		unset["-juniper_srx"] = ""
+	}
+
 	if !plan.Led.IsNull() && !plan.Led.IsUnknown() {
-		led := ledTerraformToSdk(ctx, &diags, plan.Led)
-		data.Led = led
+		data.Led = ledTerraformToSdk(ctx, &diags, plan.Led)
 	} else {
 		unset["-led"] = ""
 	}

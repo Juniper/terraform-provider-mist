@@ -984,6 +984,37 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Default: int64default.StaticInt64(0),
 			},
+			"juniper_srx": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"gateways": schema.ListNestedAttribute{
+						NestedObject: schema.NestedAttributeObject{
+							Attributes: map[string]schema.Attribute{
+								"api_key": schema.StringAttribute{
+									Optional: true,
+								},
+								"api_url": schema.StringAttribute{
+									Optional: true,
+								},
+							},
+							CustomType: GatewaysType{
+								ObjectType: types.ObjectType{
+									AttrTypes: GatewaysValue{}.AttributeTypes(ctx),
+								},
+							},
+						},
+						Optional: true,
+					},
+					"send_mist_nac_user_info": schema.BoolAttribute{
+						Optional: true,
+					},
+				},
+				CustomType: JuniperSrxType{
+					ObjectType: types.ObjectType{
+						AttrTypes: JuniperSrxValue{}.AttributeTypes(ctx),
+					},
+				},
+				Optional: true,
+			},
 			"led": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"brightness": schema.Int64Attribute{
@@ -1758,6 +1789,7 @@ type SiteSettingModel struct {
 	Engagement             EngagementValue            `tfsdk:"engagement"`
 	GatewayMgmt            GatewayMgmtValue           `tfsdk:"gateway_mgmt"`
 	GatewayUpdownThreshold types.Int64                `tfsdk:"gateway_updown_threshold"`
+	JuniperSrx             JuniperSrxValue            `tfsdk:"juniper_srx"`
 	Led                    LedValue                   `tfsdk:"led"`
 	Occupancy              OccupancyValue             `tfsdk:"occupancy"`
 	PersistConfigOnDevice  types.Bool                 `tfsdk:"persist_config_on_device"`
@@ -12218,6 +12250,799 @@ func (v CustomValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 		"subnets": basetypes.ListType{
 			ElemType: types.StringType,
 		},
+	}
+}
+
+var _ basetypes.ObjectTypable = JuniperSrxType{}
+
+type JuniperSrxType struct {
+	basetypes.ObjectType
+}
+
+func (t JuniperSrxType) Equal(o attr.Type) bool {
+	other, ok := o.(JuniperSrxType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t JuniperSrxType) String() string {
+	return "JuniperSrxType"
+}
+
+func (t JuniperSrxType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	gatewaysAttribute, ok := attributes["gateways"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`gateways is missing from object`)
+
+		return nil, diags
+	}
+
+	gatewaysVal, ok := gatewaysAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`gateways expected to be basetypes.ListValue, was: %T`, gatewaysAttribute))
+	}
+
+	sendMistNacUserInfoAttribute, ok := attributes["send_mist_nac_user_info"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`send_mist_nac_user_info is missing from object`)
+
+		return nil, diags
+	}
+
+	sendMistNacUserInfoVal, ok := sendMistNacUserInfoAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`send_mist_nac_user_info expected to be basetypes.BoolValue, was: %T`, sendMistNacUserInfoAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return JuniperSrxValue{
+		Gateways:            gatewaysVal,
+		SendMistNacUserInfo: sendMistNacUserInfoVal,
+		state:               attr.ValueStateKnown,
+	}, diags
+}
+
+func NewJuniperSrxValueNull() JuniperSrxValue {
+	return JuniperSrxValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewJuniperSrxValueUnknown() JuniperSrxValue {
+	return JuniperSrxValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewJuniperSrxValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (JuniperSrxValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing JuniperSrxValue Attribute Value",
+				"While creating a JuniperSrxValue value, a missing attribute value was detected. "+
+					"A JuniperSrxValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("JuniperSrxValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid JuniperSrxValue Attribute Type",
+				"While creating a JuniperSrxValue value, an invalid attribute value was detected. "+
+					"A JuniperSrxValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("JuniperSrxValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("JuniperSrxValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra JuniperSrxValue Attribute Value",
+				"While creating a JuniperSrxValue value, an extra attribute value was detected. "+
+					"A JuniperSrxValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra JuniperSrxValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewJuniperSrxValueUnknown(), diags
+	}
+
+	gatewaysAttribute, ok := attributes["gateways"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`gateways is missing from object`)
+
+		return NewJuniperSrxValueUnknown(), diags
+	}
+
+	gatewaysVal, ok := gatewaysAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`gateways expected to be basetypes.ListValue, was: %T`, gatewaysAttribute))
+	}
+
+	sendMistNacUserInfoAttribute, ok := attributes["send_mist_nac_user_info"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`send_mist_nac_user_info is missing from object`)
+
+		return NewJuniperSrxValueUnknown(), diags
+	}
+
+	sendMistNacUserInfoVal, ok := sendMistNacUserInfoAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`send_mist_nac_user_info expected to be basetypes.BoolValue, was: %T`, sendMistNacUserInfoAttribute))
+	}
+
+	if diags.HasError() {
+		return NewJuniperSrxValueUnknown(), diags
+	}
+
+	return JuniperSrxValue{
+		Gateways:            gatewaysVal,
+		SendMistNacUserInfo: sendMistNacUserInfoVal,
+		state:               attr.ValueStateKnown,
+	}, diags
+}
+
+func NewJuniperSrxValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) JuniperSrxValue {
+	object, diags := NewJuniperSrxValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewJuniperSrxValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t JuniperSrxType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewJuniperSrxValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewJuniperSrxValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewJuniperSrxValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewJuniperSrxValueMust(JuniperSrxValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t JuniperSrxType) ValueType(ctx context.Context) attr.Value {
+	return JuniperSrxValue{}
+}
+
+var _ basetypes.ObjectValuable = JuniperSrxValue{}
+
+type JuniperSrxValue struct {
+	Gateways            basetypes.ListValue `tfsdk:"gateways"`
+	SendMistNacUserInfo basetypes.BoolValue `tfsdk:"send_mist_nac_user_info"`
+	state               attr.ValueState
+}
+
+func (v JuniperSrxValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 2)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["gateways"] = basetypes.ListType{
+		ElemType: GatewaysValue{}.Type(ctx),
+	}.TerraformType(ctx)
+	attrTypes["send_mist_nac_user_info"] = basetypes.BoolType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 2)
+
+		val, err = v.Gateways.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["gateways"] = val
+
+		val, err = v.SendMistNacUserInfo.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["send_mist_nac_user_info"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v JuniperSrxValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v JuniperSrxValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v JuniperSrxValue) String() string {
+	return "JuniperSrxValue"
+}
+
+func (v JuniperSrxValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	gateways := types.ListValueMust(
+		GatewaysType{
+			basetypes.ObjectType{
+				AttrTypes: GatewaysValue{}.AttributeTypes(ctx),
+			},
+		},
+		v.Gateways.Elements(),
+	)
+
+	if v.Gateways.IsNull() {
+		gateways = types.ListNull(
+			GatewaysType{
+				basetypes.ObjectType{
+					AttrTypes: GatewaysValue{}.AttributeTypes(ctx),
+				},
+			},
+		)
+	}
+
+	if v.Gateways.IsUnknown() {
+		gateways = types.ListUnknown(
+			GatewaysType{
+				basetypes.ObjectType{
+					AttrTypes: GatewaysValue{}.AttributeTypes(ctx),
+				},
+			},
+		)
+	}
+
+	attributeTypes := map[string]attr.Type{
+		"gateways": basetypes.ListType{
+			ElemType: GatewaysValue{}.Type(ctx),
+		},
+		"send_mist_nac_user_info": basetypes.BoolType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"gateways":                gateways,
+			"send_mist_nac_user_info": v.SendMistNacUserInfo,
+		})
+
+	return objVal, diags
+}
+
+func (v JuniperSrxValue) Equal(o attr.Value) bool {
+	other, ok := o.(JuniperSrxValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Gateways.Equal(other.Gateways) {
+		return false
+	}
+
+	if !v.SendMistNacUserInfo.Equal(other.SendMistNacUserInfo) {
+		return false
+	}
+
+	return true
+}
+
+func (v JuniperSrxValue) Type(ctx context.Context) attr.Type {
+	return JuniperSrxType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v JuniperSrxValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"gateways": basetypes.ListType{
+			ElemType: GatewaysValue{}.Type(ctx),
+		},
+		"send_mist_nac_user_info": basetypes.BoolType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = GatewaysType{}
+
+type GatewaysType struct {
+	basetypes.ObjectType
+}
+
+func (t GatewaysType) Equal(o attr.Type) bool {
+	other, ok := o.(GatewaysType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t GatewaysType) String() string {
+	return "GatewaysType"
+}
+
+func (t GatewaysType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	apiKeyAttribute, ok := attributes["api_key"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`api_key is missing from object`)
+
+		return nil, diags
+	}
+
+	apiKeyVal, ok := apiKeyAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`api_key expected to be basetypes.StringValue, was: %T`, apiKeyAttribute))
+	}
+
+	apiUrlAttribute, ok := attributes["api_url"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`api_url is missing from object`)
+
+		return nil, diags
+	}
+
+	apiUrlVal, ok := apiUrlAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`api_url expected to be basetypes.StringValue, was: %T`, apiUrlAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return GatewaysValue{
+		ApiKey: apiKeyVal,
+		ApiUrl: apiUrlVal,
+		state:  attr.ValueStateKnown,
+	}, diags
+}
+
+func NewGatewaysValueNull() GatewaysValue {
+	return GatewaysValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewGatewaysValueUnknown() GatewaysValue {
+	return GatewaysValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewGatewaysValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (GatewaysValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing GatewaysValue Attribute Value",
+				"While creating a GatewaysValue value, a missing attribute value was detected. "+
+					"A GatewaysValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("GatewaysValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid GatewaysValue Attribute Type",
+				"While creating a GatewaysValue value, an invalid attribute value was detected. "+
+					"A GatewaysValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("GatewaysValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("GatewaysValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra GatewaysValue Attribute Value",
+				"While creating a GatewaysValue value, an extra attribute value was detected. "+
+					"A GatewaysValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra GatewaysValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewGatewaysValueUnknown(), diags
+	}
+
+	apiKeyAttribute, ok := attributes["api_key"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`api_key is missing from object`)
+
+		return NewGatewaysValueUnknown(), diags
+	}
+
+	apiKeyVal, ok := apiKeyAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`api_key expected to be basetypes.StringValue, was: %T`, apiKeyAttribute))
+	}
+
+	apiUrlAttribute, ok := attributes["api_url"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`api_url is missing from object`)
+
+		return NewGatewaysValueUnknown(), diags
+	}
+
+	apiUrlVal, ok := apiUrlAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`api_url expected to be basetypes.StringValue, was: %T`, apiUrlAttribute))
+	}
+
+	if diags.HasError() {
+		return NewGatewaysValueUnknown(), diags
+	}
+
+	return GatewaysValue{
+		ApiKey: apiKeyVal,
+		ApiUrl: apiUrlVal,
+		state:  attr.ValueStateKnown,
+	}, diags
+}
+
+func NewGatewaysValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) GatewaysValue {
+	object, diags := NewGatewaysValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewGatewaysValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t GatewaysType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewGatewaysValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewGatewaysValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewGatewaysValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewGatewaysValueMust(GatewaysValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t GatewaysType) ValueType(ctx context.Context) attr.Value {
+	return GatewaysValue{}
+}
+
+var _ basetypes.ObjectValuable = GatewaysValue{}
+
+type GatewaysValue struct {
+	ApiKey basetypes.StringValue `tfsdk:"api_key"`
+	ApiUrl basetypes.StringValue `tfsdk:"api_url"`
+	state  attr.ValueState
+}
+
+func (v GatewaysValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 2)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["api_key"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["api_url"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 2)
+
+		val, err = v.ApiKey.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["api_key"] = val
+
+		val, err = v.ApiUrl.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["api_url"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v GatewaysValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v GatewaysValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v GatewaysValue) String() string {
+	return "GatewaysValue"
+}
+
+func (v GatewaysValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"api_key": basetypes.StringType{},
+		"api_url": basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"api_key": v.ApiKey,
+			"api_url": v.ApiUrl,
+		})
+
+	return objVal, diags
+}
+
+func (v GatewaysValue) Equal(o attr.Value) bool {
+	other, ok := o.(GatewaysValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.ApiKey.Equal(other.ApiKey) {
+		return false
+	}
+
+	if !v.ApiUrl.Equal(other.ApiUrl) {
+		return false
+	}
+
+	return true
+}
+
+func (v GatewaysValue) Type(ctx context.Context) attr.Type {
+	return GatewaysType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v GatewaysValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"api_key": basetypes.StringType{},
+		"api_url": basetypes.StringType{},
 	}
 }
 

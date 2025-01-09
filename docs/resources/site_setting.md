@@ -69,6 +69,7 @@ resource "mist_site_setting" "site_one" {
 **Note**: default values for `dwell_tag_names`: passerby = “Passerby”, bounce = “Visitor”, engaged = “Associates”, stationed = “Assets” (see [below for nested schema](#nestedatt--engagement))
 - `gateway_mgmt` (Attributes) Gateway Site settings (see [below for nested schema](#nestedatt--gateway_mgmt))
 - `gateway_updown_threshold` (Number) enable threshold-based device down delivery for Gateway devices only. When configured it takes effect for GW devices and `device_updown_threshold` is ignored.
+- `juniper_srx` (Attributes) (see [below for nested schema](#nestedatt--juniper_srx))
 - `led` (Attributes) LED AP settings (see [below for nested schema](#nestedatt--led))
 - `occupancy` (Attributes) Occupancy Analytics settings (see [below for nested schema](#nestedatt--occupancy))
 - `persist_config_on_device` (Boolean) whether to store the config on AP
@@ -347,6 +348,24 @@ Optional:
 - `port_range` (String) matched dst port, "0" means any. Note: For `protocol`==`any` and  `port_range`==`any`, configure `trusted_hosts` instead
 - `protocol` (String) enum: `any`, `icmp`, `tcp`, `udp`. Note: For `protocol`==`any` and  `port_range`==`any`, configure `trusted_hosts` instead
 
+
+
+
+<a id="nestedatt--juniper_srx"></a>
+### Nested Schema for `juniper_srx`
+
+Optional:
+
+- `gateways` (Attributes List) (see [below for nested schema](#nestedatt--juniper_srx--gateways))
+- `send_mist_nac_user_info` (Boolean)
+
+<a id="nestedatt--juniper_srx--gateways"></a>
+### Nested Schema for `juniper_srx.gateways`
+
+Optional:
+
+- `api_key` (String)
+- `api_url` (String)
 
 
 
