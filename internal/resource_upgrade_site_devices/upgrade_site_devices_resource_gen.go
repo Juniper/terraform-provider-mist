@@ -213,8 +213,8 @@ func UpgradeSiteDevicesResourceSchema(ctx context.Context) schema.Schema {
 					ElemType: types.StringType,
 				},
 				Optional:            true,
-				Description:         "rules used to identify devices which will be selected for upgrade. Device will be selected as long as it satisfies any one rule",
-				MarkdownDescription: "rules used to identify devices which will be selected for upgrade. Device will be selected as long as it satisfies any one rule",
+				Description:         "Rules used to identify devices which will be selected for upgrade. Device will be selected as long as it satisfies any one rule  \nProperty key defines the type of matching, value is the string to match. e.g:\n  * `match_name`: Device name must match the property value\n  * `match_name[0:3]`: Device name must match the first 3 letters of the property value\n  * `match_name[2:6]`: Device name must match the property value from the 2nd to the 6th letter\n  * `match_model`: Device model must match the property value\n  * `match_model[1:3]`: Device model must match the property value from the 1nd to the 3rd letter",
+				MarkdownDescription: "Rules used to identify devices which will be selected for upgrade. Device will be selected as long as it satisfies any one rule  \nProperty key defines the type of matching, value is the string to match. e.g:\n  * `match_name`: Device name must match the property value\n  * `match_name[0:3]`: Device name must match the first 3 letters of the property value\n  * `match_name[2:6]`: Device name must match the property value from the 2nd to the 6th letter\n  * `match_model`: Device model must match the property value\n  * `match_model[1:3]`: Device model must match the property value from the 1nd to the 3rd letter",
 			},
 			"site_id": schema.StringAttribute{
 				Optional: true,

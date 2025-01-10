@@ -137,6 +137,14 @@ func UpgradeOrgDevicesResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "For APs only and if `strategy`==`rrm`. True will make rrm batch sizes slowly ramp up",
 				MarkdownDescription: "For APs only and if `strategy`==`rrm`. True will make rrm batch sizes slowly ramp up",
 			},
+			"rules": schema.ListAttribute{
+				ElementType: types.MapType{
+					ElemType: types.StringType,
+				},
+				Optional:            true,
+				Description:         "Rules used to identify devices which will be selected for upgrade. Device will be selected as long as it satisfies any one rule  \nProperty key defines the type of matching, value is the string to match. e.g:\n  * `match_name`: Device name must match the property value\n  * `match_name[0:3]`: Device name must match the first 3 letters of the property value\n  * `match_name[2:6]`: Device name must match the property value from the 2nd to the 6th letter\n  * `match_model`: Device model must match the property value\n  * `match_model[1:3]`: Device model must match the property value from the 1nd to the 3rd letter",
+				MarkdownDescription: "Rules used to identify devices which will be selected for upgrade. Device will be selected as long as it satisfies any one rule  \nProperty key defines the type of matching, value is the string to match. e.g:\n  * `match_name`: Device name must match the property value\n  * `match_name[0:3]`: Device name must match the first 3 letters of the property value\n  * `match_name[2:6]`: Device name must match the property value from the 2nd to the 6th letter\n  * `match_model`: Device model must match the property value\n  * `match_model[1:3]`: Device model must match the property value from the 1nd to the 3rd letter",
+			},
 			"site_ids": schema.ListAttribute{
 				ElementType: types.StringType,
 				Optional:    true,
@@ -302,6 +310,7 @@ type UpgradeOrgDevicesModel struct {
 	RrmMeshUpgrade          types.String `tfsdk:"rrm_mesh_upgrade"`
 	RrmNodeOrder            types.String `tfsdk:"rrm_node_order"`
 	RrmSlowRamp             types.Bool   `tfsdk:"rrm_slow_ramp"`
+	Rules                   types.List   `tfsdk:"rules"`
 	SiteIds                 types.List   `tfsdk:"site_ids"`
 	Snapshot                types.Bool   `tfsdk:"snapshot"`
 	StartTime               types.Number `tfsdk:"start_time"`
