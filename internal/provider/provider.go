@@ -441,6 +441,7 @@ func (p *mistProvider) DataSources(ctx context.Context) []func() datasource.Data
 		NewConstWebhooksDataSource,
 		NewOrgWlansDataSource,
 		NewSiteWlansDataSource,
+		NewDeviceVersionsDataSource,
 	}
 }
 
