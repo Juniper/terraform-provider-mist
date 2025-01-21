@@ -495,6 +495,7 @@ func (p *mistProvider) Resources(ctx context.Context) []func() resource.Resource
 		NewOrgAlarmtemplateResource,
 		NewOrgEvpnTopologyResource,
 		NewSiteEvpnTopologyResource,
+		NewUpgradeDevice,
 	}
 }
 
