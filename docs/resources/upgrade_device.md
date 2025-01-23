@@ -48,8 +48,8 @@ resource "mist_upgrade_device" "upgrade_one" {
 - `snapshot` (Boolean) For Junos devices only. Perform recovery snapshot after device is rebooted
 - `start_time` (Number) firmware download start time in epoch
 - `sync_upgrade` (Boolean) if set to `false`, the provider will just trigger the upgrade and not wait for the end of the upgrade process. Default is `true`
-- `sync_upgrade_refresh_interval` (Number) if set to `sync_upgrade`==`true`, how long to wait between each refresh of the upgrade status, in seconds. Default is 15
-- `sync_upgrade_start_timeout` (Number) if set to `sync_upgrade`==`true`, how long to wait for the upgrade to start before raising an error, in seconds. Default is 60
+- `sync_upgrade_refresh_interval` (Number) if set to `sync_upgrade`==`true`, how long to wait between each refresh of the upgrade status, in seconds. Default is 30, minimum is 15
+- `sync_upgrade_start_timeout` (Number) if set to `sync_upgrade`==`true`, how long to wait for the upgrade to start before raising an error, in seconds. Default is 60, minimum is 60
 - `sync_upgrade_timeout` (Number) if set to `sync_upgrade`==`true`, how long to wait for the upgrade to end before raising an error, in seconds. Default is 1800
 
 ### Read-Only

@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/Juniper/terraform-provider-mist/internal/validators"
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -103,16 +104,22 @@ func UpgradeDeviceResourceSchema(ctx context.Context) schema.Schema {
 			"sync_upgrade_refresh_interval": schema.Int64Attribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "if set to `sync_upgrade`==`true`, how long to wait between each refresh of the upgrade status, in seconds. Default is 15",
-				MarkdownDescription: "if set to `sync_upgrade`==`true`, how long to wait between each refresh of the upgrade status, in seconds. Default is 15",
-				Default:             int64default.StaticInt64(15),
+				Description:         "if set to `sync_upgrade`==`true`, how long to wait between each refresh of the upgrade status, in seconds. Default is 30, minimum is 15",
+				MarkdownDescription: "if set to `sync_upgrade`==`true`, how long to wait between each refresh of the upgrade status, in seconds. Default is 30, minimum is 15",
+				Validators: []validator.Int64{
+					int64validator.AtLeast(15),
+				},
+				Default: int64default.StaticInt64(30),
 			},
 			"sync_upgrade_start_timeout": schema.Int64Attribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "if set to `sync_upgrade`==`true`, how long to wait for the upgrade to start before raising an error, in seconds. Default is 60",
-				MarkdownDescription: "if set to `sync_upgrade`==`true`, how long to wait for the upgrade to start before raising an error, in seconds. Default is 60",
-				Default:             int64default.StaticInt64(60),
+				Description:         "if set to `sync_upgrade`==`true`, how long to wait for the upgrade to start before raising an error, in seconds. Default is 60, minimum is 60",
+				MarkdownDescription: "if set to `sync_upgrade`==`true`, how long to wait for the upgrade to start before raising an error, in seconds. Default is 60, minimum is 60",
+				Validators: []validator.Int64{
+					int64validator.AtLeast(60),
+				},
+				Default: int64default.StaticInt64(60),
 			},
 			"sync_upgrade_timeout": schema.Int64Attribute{
 				Optional:            true,
