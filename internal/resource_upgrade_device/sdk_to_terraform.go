@@ -49,18 +49,30 @@ func SdkToTerraform(ctx context.Context, upgrade UpgradeDeviceModel, data *model
 	return upgrade, diags
 }
 
-func DeviceStatSdkToTerraform(ctx context.Context, upgrade UpgradeDeviceModel, data *models.StatsDevice) (UpgradeDeviceModel, diag.Diagnostics) {
+func DeviceStatSdkToTerraform(ctx context.Context, upgrade UpgradeDeviceModel, data *models.ApiResponse[models.StatsDevice]) (UpgradeDeviceModel, diag.Diagnostics) {
 
 	var diags diag.Diagnostics
 
 	var fwupdate FwupdateValue = NewFwupdateValueNull()
 
-	if stats, ok := data.AsStatsAp(); ok {
-		fwupdate = fwUpdateSdtToTerraform(ctx, &diags, stats.Fwupdate)
-	} else if stats, ok := data.AsStatsGateway(); ok {
-		fwupdate = fwUpdateSdtToTerraform(ctx, &diags, stats.Fwupdate)
-	} else if stats, ok := data.AsStatsSwitch(); ok {
-		fwupdate = fwUpdateSdtToTerraform(ctx, &diags, stats.Fwupdate)
+	body, _ := io.ReadAll(data.Response.Body)
+	var objmap map[string]interface{}
+	if err := json.Unmarshal(body, &objmap); err != nil {
+		tflog.Error(ctx, err.Error())
+	} else {
+		if objmap["type"] == "ap" {
+			stats := models.StatsAp{}
+			json.Unmarshal(body, &stats)
+			fwupdate = fwUpdateSdtToTerraform(ctx, &diags, stats.Fwupdate)
+		} else if objmap["type"] == "switch" {
+			stats := models.StatsSwitch{}
+			json.Unmarshal(body, &stats)
+			fwupdate = fwUpdateSdtToTerraform(ctx, &diags, stats.Fwupdate)
+		} else if objmap["type"] == "gateway" {
+			stats := models.StatsGateway{}
+			json.Unmarshal(body, &stats)
+			fwupdate = fwUpdateSdtToTerraform(ctx, &diags, stats.Fwupdate)
+		}
 	}
 
 	upgrade.Fwupdate = fwupdate
