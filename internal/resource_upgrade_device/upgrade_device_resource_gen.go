@@ -26,6 +26,11 @@ func UpgradeDeviceResourceSchema(ctx context.Context) schema.Schema {
 			"device_id": schema.StringAttribute{
 				Required: true,
 			},
+			"device_version": schema.StringAttribute{
+				Computed:            true,
+				Description:         "current device firmware version",
+				MarkdownDescription: "current device firmware version",
+			},
 			"fwupdate": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"progress": schema.Int64Attribute{
@@ -121,10 +126,10 @@ func UpgradeDeviceResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "timestamp",
 				MarkdownDescription: "timestamp",
 			},
-			"version": schema.StringAttribute{
+			"upgrade_to_version": schema.StringAttribute{
 				Required:            true,
-				Description:         "specific version / `stable`, default is to use the latest",
-				MarkdownDescription: "specific version / `stable`, default is to use the latest",
+				Description:         "firmware version to deploy to the device. Use the `mist_device_versions` datasource to get the list of available firmware versions",
+				MarkdownDescription: "firmware version to deploy to the device. Use the `mist_device_versions` datasource to get the list of available firmware versions",
 			},
 		},
 	}
@@ -132,6 +137,7 @@ func UpgradeDeviceResourceSchema(ctx context.Context) schema.Schema {
 
 type UpgradeDeviceModel struct {
 	DeviceId                   types.String  `tfsdk:"device_id"`
+	DeviceVersion              types.String  `tfsdk:"device_version"`
 	Fwupdate                   FwupdateValue `tfsdk:"fwupdate"`
 	Reboot                     types.Bool    `tfsdk:"reboot"`
 	RebootAt                   types.Int64   `tfsdk:"reboot_at"`
@@ -144,7 +150,7 @@ type UpgradeDeviceModel struct {
 	SyncUpgradeStartTimeout    types.Int64   `tfsdk:"sync_upgrade_start_timeout"`
 	SyncUpgradeTimeout         types.Int64   `tfsdk:"sync_upgrade_timeout"`
 	Timestamp                  types.Number  `tfsdk:"timestamp"`
-	Version                    types.String  `tfsdk:"version"`
+	UpgradeToVersion           types.String  `tfsdk:"upgrade_to_version"`
 }
 
 var _ basetypes.ObjectTypable = FwupdateType{}

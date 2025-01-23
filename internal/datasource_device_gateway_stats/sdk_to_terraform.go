@@ -212,11 +212,11 @@ func deviceGatewayStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 	if d.Status != nil {
 		status = types.StringValue(*d.Status)
 	}
-	if d.Uptime != nil {
-		uptime = types.NumberValue(big.NewFloat(*d.Uptime))
+	if d.Uptime.Value() != nil {
+		uptime = types.NumberValue(big.NewFloat(*d.Uptime.Value()))
 	}
-	if d.Version != nil {
-		version = types.StringValue(*d.Version)
+	if d.Version.Value() != nil {
+		version = types.StringValue(*d.Version.Value())
 	}
 
 	data_map_value := map[string]attr.Value{
