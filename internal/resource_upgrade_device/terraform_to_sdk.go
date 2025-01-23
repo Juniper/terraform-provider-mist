@@ -29,8 +29,8 @@ func TerraformToSdk(ctx context.Context, plan *UpgradeDeviceModel) (*models.Devi
 		data.RebootAt = models.ToPointer(int(plan.RebootAt.ValueInt64()))
 	}
 
-	if plan.Version.ValueStringPointer() != nil {
-		data.Version = *plan.Version.ValueStringPointer()
+	if plan.UpgradeToVersion.ValueStringPointer() != nil {
+		data.Version = *plan.UpgradeToVersion.ValueStringPointer()
 	}
 
 	return &data, diags

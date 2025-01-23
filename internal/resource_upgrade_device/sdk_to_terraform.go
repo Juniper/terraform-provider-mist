@@ -17,6 +17,7 @@ import (
 func SdkToTerraform(ctx context.Context, upgrade UpgradeDeviceModel, data *models.ResponseUpgradeDevice) (UpgradeDeviceModel, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
+	var device_version basetypes.StringValue
 	var fwupdate FwupdateValue = NewFwupdateValueNull()
 	var status basetypes.StringValue = types.StringValue(string(data.Status))
 	var timestamp basetypes.Float64Value = types.Float64Value(float64(data.Timestamp))
@@ -38,6 +39,7 @@ func SdkToTerraform(ctx context.Context, upgrade UpgradeDeviceModel, data *model
 		sync_upgrade_timeout = upgrade.SyncUpgradeTimeout
 	}
 
+	upgrade.DeviceVersion = device_version
 	upgrade.Fwupdate = fwupdate
 	upgrade.Status = status
 	upgrade.Timestamp = types.Number(timestamp)
@@ -49,11 +51,13 @@ func SdkToTerraform(ctx context.Context, upgrade UpgradeDeviceModel, data *model
 	return upgrade, diags
 }
 
-func DeviceStatSdkToTerraform(ctx context.Context, upgrade UpgradeDeviceModel, data *models.ApiResponse[models.StatsDevice]) (UpgradeDeviceModel, diag.Diagnostics) {
+func DeviceStatSdkToTerraform(ctx context.Context, upgrade UpgradeDeviceModel, data *models.ApiResponse[models.StatsDevice]) (UpgradeDeviceModel, int, diag.Diagnostics) {
 
 	var diags diag.Diagnostics
 
 	var fwupdate FwupdateValue = NewFwupdateValueNull()
+	var deviceVersion basetypes.StringValue
+	var uptime int = -1
 
 	body, _ := io.ReadAll(data.Response.Body)
 	var objmap map[string]interface{}
@@ -64,20 +68,39 @@ func DeviceStatSdkToTerraform(ctx context.Context, upgrade UpgradeDeviceModel, d
 			stats := models.StatsAp{}
 			json.Unmarshal(body, &stats)
 			fwupdate = fwUpdateSdtToTerraform(ctx, &diags, stats.Fwupdate)
+			if stats.Version.Value() != nil {
+				deviceVersion = types.StringValue(*stats.Version.Value())
+			}
+			if stats.Uptime.Value() != nil {
+				uptime = int(*stats.Uptime.Value())
+			}
 		} else if objmap["type"] == "switch" {
 			stats := models.StatsSwitch{}
 			json.Unmarshal(body, &stats)
 			fwupdate = fwUpdateSdtToTerraform(ctx, &diags, stats.Fwupdate)
+			if stats.Version.Value() != nil {
+				deviceVersion = types.StringValue(*stats.Version.Value())
+			}
+			if stats.Uptime.Value() != nil {
+				uptime = int(*stats.Uptime.Value())
+			}
 		} else if objmap["type"] == "gateway" {
 			stats := models.StatsGateway{}
 			json.Unmarshal(body, &stats)
 			fwupdate = fwUpdateSdtToTerraform(ctx, &diags, stats.Fwupdate)
+			if stats.Version.Value() != nil {
+				deviceVersion = types.StringValue(*stats.Version.Value())
+			}
+			if stats.Uptime.Value() != nil {
+				uptime = int(*stats.Uptime.Value())
+			}
 		}
 	}
 
 	upgrade.Fwupdate = fwupdate
 	upgrade.Status = fwupdate.Status
-	return upgrade, diags
+	upgrade.DeviceVersion = deviceVersion
+	return upgrade, uptime, diags
 }
 
 func fwUpdateSdtToTerraform(ctx context.Context, diags *diag.Diagnostics, deviceFwUpdate *models.FwupdateStat) FwupdateValue {
