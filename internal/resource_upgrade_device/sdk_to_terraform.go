@@ -2,6 +2,8 @@ package resource_upgrade_device
 
 import (
 	"context"
+	"encoding/json"
+	"io"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -9,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 func SdkToTerraform(ctx context.Context, upgrade UpgradeDeviceModel, data *models.ResponseUpgradeDevice) (UpgradeDeviceModel, diag.Diagnostics) {
@@ -17,10 +20,31 @@ func SdkToTerraform(ctx context.Context, upgrade UpgradeDeviceModel, data *model
 	var fwupdate FwupdateValue = NewFwupdateValueNull()
 	var status basetypes.StringValue = types.StringValue(string(data.Status))
 	var timestamp basetypes.Float64Value = types.Float64Value(float64(data.Timestamp))
+	var sync_upgrade basetypes.BoolValue = types.BoolValue(true)
+	var sync_upgrade_start_timeout basetypes.Int64Value = types.Int64Value(60)
+	var sync_upgrade_refresh_interval basetypes.Int64Value = types.Int64Value(15)
+	var sync_upgrade_timeout basetypes.Int64Value = types.Int64Value(1800)
+
+	if !upgrade.SyncUpgrade.IsNull() && !upgrade.SyncUpgrade.IsUnknown() {
+		sync_upgrade = upgrade.SyncUpgrade
+	}
+	if !upgrade.SyncUpgradeStartTimeout.IsNull() && !upgrade.SyncUpgradeStartTimeout.IsUnknown() {
+		sync_upgrade_start_timeout = upgrade.SyncUpgradeStartTimeout
+	}
+	if !upgrade.SyncUpgradeRefreshInterval.IsNull() && !upgrade.SyncUpgradeRefreshInterval.IsUnknown() {
+		sync_upgrade_refresh_interval = upgrade.SyncUpgradeRefreshInterval
+	}
+	if !upgrade.SyncUpgradeTimeout.IsNull() && !upgrade.SyncUpgradeTimeout.IsUnknown() {
+		sync_upgrade_timeout = upgrade.SyncUpgradeTimeout
+	}
 
 	upgrade.Fwupdate = fwupdate
 	upgrade.Status = status
 	upgrade.Timestamp = types.Number(timestamp)
+	upgrade.SyncUpgrade = sync_upgrade
+	upgrade.SyncUpgradeStartTimeout = sync_upgrade_start_timeout
+	upgrade.SyncUpgradeRefreshInterval = sync_upgrade_refresh_interval
+	upgrade.SyncUpgradeTimeout = sync_upgrade_timeout
 
 	return upgrade, diags
 }

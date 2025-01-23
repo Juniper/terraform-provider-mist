@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
@@ -87,6 +88,34 @@ func UpgradeDeviceResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "enum: `error`, `inprogress`, `scheduled`, `starting`, `success`",
 				MarkdownDescription: "enum: `error`, `inprogress`, `scheduled`, `starting`, `success`",
 			},
+			"sync_upgrade": schema.BoolAttribute{
+				Optional:            true,
+				Computed:            true,
+				Description:         "if set to `false`, the provider will just trigger the upgrade and not wait for the end of the upgrade process. Default is `true`",
+				MarkdownDescription: "if set to `false`, the provider will just trigger the upgrade and not wait for the end of the upgrade process. Default is `true`",
+				Default:             booldefault.StaticBool(true),
+			},
+			"sync_upgrade_refresh_interval": schema.Int64Attribute{
+				Optional:            true,
+				Computed:            true,
+				Description:         "if set to `sync_upgrade`==`true`, how long to wait between each refresh of the upgrade status, in seconds. Default is 15",
+				MarkdownDescription: "if set to `sync_upgrade`==`true`, how long to wait between each refresh of the upgrade status, in seconds. Default is 15",
+				Default:             int64default.StaticInt64(15),
+			},
+			"sync_upgrade_start_timeout": schema.Int64Attribute{
+				Optional:            true,
+				Computed:            true,
+				Description:         "if set to `sync_upgrade`==`true`, how long to wait for the upgrade to start before raising an error, in seconds. Default is 60",
+				MarkdownDescription: "if set to `sync_upgrade`==`true`, how long to wait for the upgrade to start before raising an error, in seconds. Default is 60",
+				Default:             int64default.StaticInt64(60),
+			},
+			"sync_upgrade_timeout": schema.Int64Attribute{
+				Optional:            true,
+				Computed:            true,
+				Description:         "if set to `sync_upgrade`==`true`, how long to wait for the upgrade to end before raising an error, in seconds. Default is 1800",
+				MarkdownDescription: "if set to `sync_upgrade`==`true`, how long to wait for the upgrade to end before raising an error, in seconds. Default is 1800",
+				Default:             int64default.StaticInt64(1800),
+			},
 			"timestamp": schema.NumberAttribute{
 				Computed:            true,
 				Description:         "timestamp",
@@ -102,16 +131,20 @@ func UpgradeDeviceResourceSchema(ctx context.Context) schema.Schema {
 }
 
 type UpgradeDeviceModel struct {
-	DeviceId  types.String  `tfsdk:"device_id"`
-	Fwupdate  FwupdateValue `tfsdk:"fwupdate"`
-	Reboot    types.Bool    `tfsdk:"reboot"`
-	RebootAt  types.Int64   `tfsdk:"reboot_at"`
-	SiteId    types.String  `tfsdk:"site_id"`
-	Snapshot  types.Bool    `tfsdk:"snapshot"`
-	StartTime types.Int64   `tfsdk:"start_time"`
-	Status    types.String  `tfsdk:"status"`
-	Timestamp types.Number  `tfsdk:"timestamp"`
-	Version   types.String  `tfsdk:"version"`
+	DeviceId                   types.String  `tfsdk:"device_id"`
+	Fwupdate                   FwupdateValue `tfsdk:"fwupdate"`
+	Reboot                     types.Bool    `tfsdk:"reboot"`
+	RebootAt                   types.Int64   `tfsdk:"reboot_at"`
+	SiteId                     types.String  `tfsdk:"site_id"`
+	Snapshot                   types.Bool    `tfsdk:"snapshot"`
+	StartTime                  types.Int64   `tfsdk:"start_time"`
+	Status                     types.String  `tfsdk:"status"`
+	SyncUpgrade                types.Bool    `tfsdk:"sync_upgrade"`
+	SyncUpgradeRefreshInterval types.Int64   `tfsdk:"sync_upgrade_refresh_interval"`
+	SyncUpgradeStartTimeout    types.Int64   `tfsdk:"sync_upgrade_start_timeout"`
+	SyncUpgradeTimeout         types.Int64   `tfsdk:"sync_upgrade_timeout"`
+	Timestamp                  types.Number  `tfsdk:"timestamp"`
+	Version                    types.String  `tfsdk:"version"`
 }
 
 var _ basetypes.ObjectTypable = FwupdateType{}
