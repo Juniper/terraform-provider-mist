@@ -54,12 +54,15 @@ func (r *upgradeDeviceResource) Metadata(ctx context.Context, req resource.Metad
 
 func (r *upgradeDeviceResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryDevices + "This resource manages Org SSO Configuration.\n\n" +
-			"Org SSO, or Single Sign-On, is a method of authentication that allows users to securely log in to multiple applications " +
-			"and websites with a single set of login credentials.  \n" +
-			"It involves integrating the Org portal with an Identity Provider (IdP) using the Security Assertion Markup Language (SAML) framework.  \n" +
-			"This enables users to authenticate themselves through their corporate IdP, eliminating the need to remember separate " +
-			"passwords or enter credentials each time they access the Org portal.",
+		MarkdownDescription: docCategoryDevices + "This resource can be used to upgrade the frimware of a single device (Wi-Fi Access Points, Switches and SRX/SSR Gateways).\n\n" +
+			"The resource will send the upgrade command to Mist, which will take care of deploying the new firmware version to the " +
+			"device, and reboot it if required.\n\n" +
+			"The time required to upgrade a device depends on the type of device and its hardware. " +
+			"By default, the resource will track the upgrade process and only return the result once the device is upgraded and rebooted " +
+			"(unless `reboot`==`false` or `reboot_at` is set).  \n" +
+			"If required it is possible to run the upgrade in async mode (attribute `sync`=`false`). " +
+			"In this case, the resource will only trigger the upgrade and return the Mist response, but will not track the upgrade progress.\n\n" +
+			"The list of available firmware versions can be retrieved with the `mist_device_versions` data source.",
 		Attributes: resource_upgrade_device.UpgradeDeviceResourceSchema(ctx).Attributes,
 	}
 }
