@@ -62,14 +62,14 @@ func UpgradeDeviceResourceSchema(ctx context.Context) schema.Schema {
 			"reboot": schema.BoolAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "For Junos devices only (APs are automatically rebooted). Reboot device immediately after upgrade is completed",
-				MarkdownDescription: "For Junos devices only (APs are automatically rebooted). Reboot device immediately after upgrade is completed",
+				Description:         "For Switches and Gateways only (APs are automatically rebooted). Reboot device immediately after upgrade is completed",
+				MarkdownDescription: "For Switches and Gateways only (APs are automatically rebooted). Reboot device immediately after upgrade is completed",
 				Default:             booldefault.StaticBool(false),
 			},
 			"reboot_at": schema.Int64Attribute{
 				Optional:            true,
-				Description:         "For Junos devices only and if `reboot`==`true`. Reboot start time in epoch seconds, default is `start_time`",
-				MarkdownDescription: "For Junos devices only and if `reboot`==`true`. Reboot start time in epoch seconds, default is `start_time`",
+				Description:         "For Switches and Gateways only and if `reboot`==`true`. Reboot start time in epoch seconds, default is `start_time`",
+				MarkdownDescription: "For Switches and Gateways only and if `reboot`==`true`. Reboot start time in epoch seconds, default is `start_time`",
 				Validators: []validator.Int64{
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("reboot"), types.BoolValue(true)),
 				},

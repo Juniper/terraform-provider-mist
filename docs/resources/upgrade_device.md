@@ -43,8 +43,8 @@ resource "mist_upgrade_device" "upgrade_one" {
 
 ### Optional
 
-- `reboot` (Boolean) For Junos devices only (APs are automatically rebooted). Reboot device immediately after upgrade is completed
-- `reboot_at` (Number) For Junos devices only and if `reboot`==`true`. Reboot start time in epoch seconds, default is `start_time`
+- `reboot` (Boolean) For Switches and Gateways only (APs are automatically rebooted). Reboot device immediately after upgrade is completed
+- `reboot_at` (Number) For Switches and Gateways only and if `reboot`==`true`. Reboot start time in epoch seconds, default is `start_time`
 - `snapshot` (Boolean) For Junos devices only. Perform recovery snapshot after device is rebooted
 - `start_time` (Number) firmware download start time in epoch
 - `sync_upgrade` (Boolean) if set to `false`, the provider will just trigger the upgrade and not wait for the end of the upgrade process. Default is `true`
