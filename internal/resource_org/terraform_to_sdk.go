@@ -12,11 +12,12 @@ func TerraformToSdk(plan *OrgModel) (*models.Org, diag.Diagnostics) {
 	data := models.Org{}
 	unset := make(map[string]interface{})
 
-	if plan.AlarmtemplateId.IsNull() || plan.AlarmtemplateId.IsUnknown() {
-		unset["-alarmtemplate_id"] = ""
-	} else {
-		data.AlarmtemplateId = models.NewOptional(models.ToPointer(uuid.MustParse(plan.AlarmtemplateId.ValueString())))
+	var alarmtemplateId models.Optional[uuid.UUID]
+	alarmtemplateId.ShouldSetValue(true)
+	if !plan.AlarmtemplateId.IsNull() && !plan.AlarmtemplateId.IsUnknown() {
+		alarmtemplateId.SetValue(models.ToPointer(uuid.MustParse(plan.AlarmtemplateId.ValueString())))
 	}
+	data.AlarmtemplateId = alarmtemplateId
 
 	if plan.AllowMist.IsNull() || plan.AllowMist.IsUnknown() {
 		unset["-allow_mist"] = ""
@@ -32,5 +33,6 @@ func TerraformToSdk(plan *OrgModel) (*models.Org, diag.Diagnostics) {
 		data.SessionExpiry = models.ToPointer(int(plan.SessionExpiry.ValueInt64()))
 	}
 
+	data.AdditionalProperties = unset
 	return &data, diags
 }
