@@ -146,7 +146,7 @@ func processMistInventory(
 func processImport(
 	ctx context.Context,
 	diags *diag.Diagnostics,
-	mistDevices *basetypes.MapValue,
+	mistDevicesbyMac *map[string]*InventoryValue,
 	mistSiteIdByVcMac *map[string]types.String,
 ) basetypes.MapValue {
 	/*
@@ -155,8 +155,8 @@ func processImport(
 		parameters:
 			ctx : context.Context
 			diags :  *diag.Diagnostics
-			mistDevices : *basetypes.SetValue
-				SetNested of the devices retrieved in the Mist Inventory
+			mistDevicesbyMac : *map[string]*InventoryValue,
+				map of the devices retrieved in the Mist Inventory
 			mistSiteIdByVcMac : *map[string]*types.String
 				map to find a siteId based on the VC Master/Cluster Primary MAC Address. The Key is the device MAC
 				Address, the value is the Site ID
@@ -168,14 +168,12 @@ func processImport(
 	*/
 	newStateDevicesMap := make(map[string]attr.Value)
 
-	for _, d := range mistDevices.Elements() {
-		var di interface{} = d
-		var device = di.(InventoryValue)
-		checkVcSiteId(&device, mistSiteIdByVcMac)
-		if !device.Magic.IsNull() && !device.Magic.IsUnknown() {
-			newStateDevicesMap[device.Magic.ValueString()] = device
-		} else {
+	for _, device := range *mistDevicesbyMac {
+		checkVcSiteId(device, mistSiteIdByVcMac)
+		if device.Magic.ValueStringPointer() == nil || len(device.Magic.ValueString()) == 0 {
 			newStateDevicesMap[device.Mac.ValueString()] = device
+		} else {
+			newStateDevicesMap[device.Magic.ValueString()] = device
 		}
 	}
 	newStateDevices, e := types.MapValueFrom(ctx, InventoryValue{}.Type(ctx), newStateDevicesMap)
@@ -277,7 +275,7 @@ func mapSdkToTerraform(
 	*/
 	if ref_inventory.OrgId.ValueStringPointer() == nil {
 		state.OrgId = types.StringValue(orgId)
-		state.Inventory = processImport(ctx, &diags, &state.Inventory, &mistSiteIdByVcMac)
+		state.Inventory = processImport(ctx, &diags, &mistDevicesbyMac, &mistSiteIdByVcMac)
 	} else {
 		state.OrgId = ref_inventory.OrgId
 		ref_inventoryDevicesMap := GenDeviceMap(&ref_inventory.Inventory)
@@ -302,5 +300,4 @@ func SdkToTerraform(
 		state.Devices = basetypes.NewListNull(DevicesValue{}.Type(ctx))
 		return state, diags
 	}
-
 }
