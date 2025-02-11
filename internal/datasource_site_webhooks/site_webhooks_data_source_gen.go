@@ -26,45 +26,45 @@ func SiteWebhooksDataSourceSchema(ctx context.Context) schema.Schema {
 					Attributes: map[string]schema.Attribute{
 						"created_time": schema.Float64Attribute{
 							Computed:            true,
-							Description:         "when the object has been created, in epoch",
-							MarkdownDescription: "when the object has been created, in epoch",
+							Description:         "When the object has been created, in epoch",
+							MarkdownDescription: "When the object has been created, in epoch",
 						},
 						"enabled": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "whether webhook is enabled",
-							MarkdownDescription: "whether webhook is enabled",
+							Description:         "Whether webhook is enabled",
+							MarkdownDescription: "Whether webhook is enabled",
 						},
 						"headers": schema.MapAttribute{
 							ElementType:         types.StringType,
 							Computed:            true,
-							Description:         "if `type`=`http-post`, additional custom HTTP headers to add. The headers name and value must be string, total bytes of headers name and value must be less than 1000",
-							MarkdownDescription: "if `type`=`http-post`, additional custom HTTP headers to add. The headers name and value must be string, total bytes of headers name and value must be less than 1000",
+							Description:         "If `type`=`http-post`, additional custom HTTP headers to add. The headers name and value must be string, total bytes of headers name and value must be less than 1000",
+							MarkdownDescription: "If `type`=`http-post`, additional custom HTTP headers to add. The headers name and value must be string, total bytes of headers name and value must be less than 1000",
 						},
 						"id": schema.StringAttribute{
 							Computed:            true,
 							Description:         "Unique ID of the object instance in the Mist Organnization",
 							MarkdownDescription: "Unique ID of the object instance in the Mist Organnization",
 						},
-						"modified_time": schema.NumberAttribute{
+						"modified_time": schema.Float64Attribute{
 							Computed:            true,
-							Description:         "when the object has been modified for the last time, in epoch",
-							MarkdownDescription: "when the object has been modified for the last time, in epoch",
+							Description:         "When the object has been modified for the last time, in epoch",
+							MarkdownDescription: "When the object has been modified for the last time, in epoch",
 						},
 						"name": schema.StringAttribute{
 							Computed:            true,
-							Description:         "name of the webhook",
-							MarkdownDescription: "name of the webhook",
+							Description:         "Name of the webhook",
+							MarkdownDescription: "Name of the webhook",
 						},
 						"oauth2_client_id": schema.StringAttribute{
 							Computed:            true,
-							Description:         "required when `oauth2_grant_type`==`client_credentials`",
-							MarkdownDescription: "required when `oauth2_grant_type`==`client_credentials`",
+							Description:         "Required when `oauth2_grant_type`==`client_credentials`",
+							MarkdownDescription: "Required when `oauth2_grant_type`==`client_credentials`",
 						},
 						"oauth2_client_secret": schema.StringAttribute{
 							Computed:            true,
 							Sensitive:           true,
-							Description:         "required when `oauth2_grant_type`==`client_credentials`",
-							MarkdownDescription: "required when `oauth2_grant_type`==`client_credentials`",
+							Description:         "Required when `oauth2_grant_type`==`client_credentials`",
+							MarkdownDescription: "Required when `oauth2_grant_type`==`client_credentials`",
 						},
 						"oauth2_grant_type": schema.StringAttribute{
 							Computed:            true,
@@ -74,24 +74,24 @@ func SiteWebhooksDataSourceSchema(ctx context.Context) schema.Schema {
 						"oauth2_password": schema.StringAttribute{
 							Computed:            true,
 							Sensitive:           true,
-							Description:         "required when `oauth2_grant_type`==`password`",
-							MarkdownDescription: "required when `oauth2_grant_type`==`password`",
+							Description:         "Required when `oauth2_grant_type`==`password`",
+							MarkdownDescription: "Required when `oauth2_grant_type`==`password`",
 						},
 						"oauth2_scopes": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Computed:            true,
-							Description:         "required when `type`==`oauth2`, if provided, will be used in the token request",
-							MarkdownDescription: "required when `type`==`oauth2`, if provided, will be used in the token request",
+							Description:         "Required when `type`==`oauth2`, if provided, will be used in the token request",
+							MarkdownDescription: "Required when `type`==`oauth2`, if provided, will be used in the token request",
 						},
 						"oauth2_token_url": schema.StringAttribute{
 							Computed:            true,
-							Description:         "required when `type`==`oauth2`",
-							MarkdownDescription: "required when `type`==`oauth2`",
+							Description:         "Required when `type`==`oauth2`",
+							MarkdownDescription: "Required when `type`==`oauth2`",
 						},
 						"oauth2_username": schema.StringAttribute{
 							Computed:            true,
-							Description:         "required when `oauth2_grant_type`==`password`",
-							MarkdownDescription: "required when `oauth2_grant_type`==`password`",
+							Description:         "Required when `oauth2_grant_type`==`password`",
+							MarkdownDescription: "Required when `oauth2_grant_type`==`password`",
 						},
 						"org_id": schema.StringAttribute{
 							Computed: true,
@@ -99,8 +99,8 @@ func SiteWebhooksDataSourceSchema(ctx context.Context) schema.Schema {
 						"secret": schema.StringAttribute{
 							Computed:            true,
 							Sensitive:           true,
-							Description:         "only if `type`=`http-post` \n\nwhen `secret` is provided, two  HTTP headers will be added: \n  * X-Mist-Signature-v2: HMAC_SHA256(secret, body)\n  * X-Mist-Signature: HMAC_SHA1(secret, body)",
-							MarkdownDescription: "only if `type`=`http-post` \n\nwhen `secret` is provided, two  HTTP headers will be added: \n  * X-Mist-Signature-v2: HMAC_SHA256(secret, body)\n  * X-Mist-Signature: HMAC_SHA1(secret, body)",
+							Description:         "Only if `type`=`http-post` \n\nwhen `secret` is provided, two  HTTP headers will be added: \n  * X-Mist-Signature-v2: HMAC_SHA256(secret, body)\n  * X-Mist-Signature: HMAC_SHA1(secret, body)",
+							MarkdownDescription: "Only if `type`=`http-post` \n\nwhen `secret` is provided, two  HTTP headers will be added: \n  * X-Mist-Signature-v2: HMAC_SHA256(secret, body)\n  * X-Mist-Signature: HMAC_SHA1(secret, body)",
 						},
 						"site_id": schema.StringAttribute{
 							Computed: true,
@@ -108,8 +108,8 @@ func SiteWebhooksDataSourceSchema(ctx context.Context) schema.Schema {
 						"splunk_token": schema.StringAttribute{
 							Computed:            true,
 							Sensitive:           true,
-							Description:         "required if `type`=`splunk`. If splunk_token is not defined for a type Splunk webhook, it will not send, regardless if the webhook receiver is configured to accept it.'",
-							MarkdownDescription: "required if `type`=`splunk`. If splunk_token is not defined for a type Splunk webhook, it will not send, regardless if the webhook receiver is configured to accept it.'",
+							Description:         "Required if `type`=`splunk`. If splunk_token is not defined for a type Splunk webhook, it will not send, regardless if the webhook receiver is configured to accept it.'",
+							MarkdownDescription: "Required if `type`=`splunk`. If splunk_token is not defined for a type Splunk webhook, it will not send, regardless if the webhook receiver is configured to accept it.'",
 						},
 						"topics": schema.ListAttribute{
 							ElementType:         types.StringType,
@@ -127,8 +127,8 @@ func SiteWebhooksDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"verify_cert": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "when url uses HTTPS, whether to verify the certificate",
-							MarkdownDescription: "when url uses HTTPS, whether to verify the certificate",
+							Description:         "When url uses HTTPS, whether to verify the certificate",
+							MarkdownDescription: "When url uses HTTPS, whether to verify the certificate",
 						},
 					},
 					CustomType: SiteWebhooksType{
@@ -255,12 +255,12 @@ func (t SiteWebhooksType) ValueFromObject(ctx context.Context, in basetypes.Obje
 		return nil, diags
 	}
 
-	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.NumberValue)
+	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`modified_time expected to be basetypes.NumberValue, was: %T`, modifiedTimeAttribute))
+			fmt.Sprintf(`modified_time expected to be basetypes.Float64Value, was: %T`, modifiedTimeAttribute))
 	}
 
 	nameAttribute, ok := attributes["name"]
@@ -726,12 +726,12 @@ func NewSiteWebhooksValue(attributeTypes map[string]attr.Type, attributes map[st
 		return NewSiteWebhooksValueUnknown(), diags
 	}
 
-	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.NumberValue)
+	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`modified_time expected to be basetypes.NumberValue, was: %T`, modifiedTimeAttribute))
+			fmt.Sprintf(`modified_time expected to be basetypes.Float64Value, was: %T`, modifiedTimeAttribute))
 	}
 
 	nameAttribute, ok := attributes["name"]
@@ -1124,7 +1124,7 @@ type SiteWebhooksValue struct {
 	Enabled            basetypes.BoolValue    `tfsdk:"enabled"`
 	Headers            basetypes.MapValue     `tfsdk:"headers"`
 	Id                 basetypes.StringValue  `tfsdk:"id"`
-	ModifiedTime       basetypes.NumberValue  `tfsdk:"modified_time"`
+	ModifiedTime       basetypes.Float64Value `tfsdk:"modified_time"`
 	Name               basetypes.StringValue  `tfsdk:"name"`
 	Oauth2ClientId     basetypes.StringValue  `tfsdk:"oauth2_client_id"`
 	Oauth2ClientSecret basetypes.StringValue  `tfsdk:"oauth2_client_secret"`
@@ -1156,7 +1156,7 @@ func (v SiteWebhooksValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
 	attrTypes["id"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["modified_time"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["modified_time"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["oauth2_client_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["oauth2_client_secret"] = basetypes.StringType{}.TerraformType(ctx)
@@ -1393,7 +1393,7 @@ func (v SiteWebhooksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 				ElemType: types.StringType,
 			},
 			"id":                   basetypes.StringType{},
-			"modified_time":        basetypes.NumberType{},
+			"modified_time":        basetypes.Float64Type{},
 			"name":                 basetypes.StringType{},
 			"oauth2_client_id":     basetypes.StringType{},
 			"oauth2_client_secret": basetypes.StringType{},
@@ -1429,7 +1429,7 @@ func (v SiteWebhooksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 				ElemType: types.StringType,
 			},
 			"id":                   basetypes.StringType{},
-			"modified_time":        basetypes.NumberType{},
+			"modified_time":        basetypes.Float64Type{},
 			"name":                 basetypes.StringType{},
 			"oauth2_client_id":     basetypes.StringType{},
 			"oauth2_client_secret": basetypes.StringType{},
@@ -1465,7 +1465,7 @@ func (v SiteWebhooksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 				ElemType: types.StringType,
 			},
 			"id":                   basetypes.StringType{},
-			"modified_time":        basetypes.NumberType{},
+			"modified_time":        basetypes.Float64Type{},
 			"name":                 basetypes.StringType{},
 			"oauth2_client_id":     basetypes.StringType{},
 			"oauth2_client_secret": basetypes.StringType{},
@@ -1496,7 +1496,7 @@ func (v SiteWebhooksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 			ElemType: types.StringType,
 		},
 		"id":                   basetypes.StringType{},
-		"modified_time":        basetypes.NumberType{},
+		"modified_time":        basetypes.Float64Type{},
 		"name":                 basetypes.StringType{},
 		"oauth2_client_id":     basetypes.StringType{},
 		"oauth2_client_secret": basetypes.StringType{},
@@ -1674,7 +1674,7 @@ func (v SiteWebhooksValue) AttributeTypes(ctx context.Context) map[string]attr.T
 			ElemType: types.StringType,
 		},
 		"id":                   basetypes.StringType{},
-		"modified_time":        basetypes.NumberType{},
+		"modified_time":        basetypes.Float64Type{},
 		"name":                 basetypes.StringType{},
 		"oauth2_client_id":     basetypes.StringType{},
 		"oauth2_client_secret": basetypes.StringType{},

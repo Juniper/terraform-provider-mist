@@ -26,9 +26,11 @@ func SdkToTerraform(ctx context.Context, l *[]models.Webhook, elements *[]attr.V
 
 func webhookSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.Webhook) OrgWebhooksValue {
 
+	var created_time types.Float64
 	var enabled types.Bool
 	var headers types.Map = types.MapNull(types.StringType)
 	var id types.String
+	var modified_time types.Float64
 	var name types.String
 	var oauth2_client_id types.String
 	var oauth2_client_secret types.String
@@ -45,6 +47,9 @@ func webhookSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 	var url types.String
 	var verify_cert types.Bool
 
+	if d.CreatedTime != nil {
+		created_time = types.Float64Value(*d.CreatedTime)
+	}
 	if d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
@@ -58,6 +63,9 @@ func webhookSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 	}
 	if d.Id != nil {
 		id = types.StringValue(d.Id.String())
+	}
+	if d.ModifiedTime != nil {
+		modified_time = types.Float64Value(*d.ModifiedTime)
 	}
 
 	if d.Name.Value() != nil {
@@ -114,9 +122,11 @@ func webhookSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 
 	data_map_attr_type := OrgWebhooksValue{}.AttributeTypes(ctx)
 	data_map_value := map[string]attr.Value{
+		"created_time":         created_time,
 		"enabled":              enabled,
 		"headers":              headers,
 		"id":                   id,
+		"modified_time":        modified_time,
 		"name":                 name,
 		"oauth2_client_id":     oauth2_client_id,
 		"oauth2_client_secret": oauth2_client_secret,
