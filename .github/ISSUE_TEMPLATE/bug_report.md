@@ -19,18 +19,21 @@ Steps to reproduce the behavior:
 4. See error
 
 
+## Terraform configuration
+An extract of the Terraform configuration related to this issue
+```terraform
+resource "mist_org" "terraform_test" {
+  name = "Terraform Testing"
+}
+...
+```
+
 ## Expected behavior
 A clear and concise description of what you expected to happen.
 
 
 ## Error Message
 If applicable, add screenshots or paste the Terraform error message to help explain your problem.
-
-
-## Software
- - OS: [e.g. Windows]
- - Terraform Version [e.g. v1.9.8]
- - Provider Version [e.g. v0.2.6]
 
 
 ## Additional context
