@@ -17,13 +17,13 @@ func virtualChassisMemberTerraformToSdk(ctx context.Context, diags *diag.Diagnos
 		data := models.SwitchVirtualChassisMember{}
 
 		if plan.Mac.ValueStringPointer() != nil {
-			data.Mac = plan.Mac.ValueStringPointer()
+			data.Mac = plan.Mac.ValueString()
 		}
 		if plan.MemberId.ValueInt64Pointer() != nil {
-			data.MemberId = models.ToPointer(int(plan.MemberId.ValueInt64()))
+			data.MemberId = int(plan.MemberId.ValueInt64())
 		}
 		if plan.VcRole.ValueStringPointer() != nil {
-			data.VcRole = models.ToPointer(models.SwitchVirtualChassisMemberVcRoleEnum(plan.VcRole.ValueString()))
+			data.VcRole = models.SwitchVirtualChassisMemberVcRoleEnum(plan.VcRole.ValueString())
 		}
 
 		data_list = append(data_list, data)

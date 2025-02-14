@@ -54,7 +54,11 @@ func privilegesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d ba
 			}
 		}
 		if !plan.Views.IsNull() && !plan.Views.IsUnknown() {
-			data.Views = models.ToPointer(models.AdminPrivilegeViewEnum(plan.Views.ValueString()))
+			for _, v := range plan.Views.Elements() {
+				var vi interface{} = v
+				role := vi.(basetypes.StringValue)
+				data.Views = append(data.Views, models.AdminPrivilegeViewEnum(role.ValueString()))
+			}
 		}
 
 		data_list = append(data_list, data)

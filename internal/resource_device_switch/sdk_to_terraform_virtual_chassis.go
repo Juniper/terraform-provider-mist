@@ -19,15 +19,9 @@ func virtualChassisMembersSdkToTerraform(ctx context.Context, diags *diag.Diagno
 		var member_id basetypes.Int64Value
 		var vc_role basetypes.StringValue
 
-		if d.Mac != nil {
-			mac = types.StringValue(*d.Mac)
-		}
-		if d.MemberId != nil {
-			member_id = types.Int64Value(int64(*d.MemberId))
-		}
-		if d.VcRole != nil {
-			vc_role = types.StringValue(string(*d.VcRole))
-		}
+		mac = types.StringValue(d.Mac)
+		member_id = types.Int64Value(int64(d.MemberId))
+		vc_role = types.StringValue(string(d.VcRole))
 
 		data_map_attr_type := MembersValue{}.AttributeTypes(ctx)
 		data_map_value := map[string]attr.Value{

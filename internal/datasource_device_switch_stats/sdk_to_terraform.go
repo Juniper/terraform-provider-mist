@@ -174,8 +174,8 @@ func deviceSwitchStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 	if d.Status != nil {
 		status = types.StringValue(*d.Status)
 	}
-	if d.Uptime != nil {
-		uptime = types.NumberValue(big.NewFloat(*d.Uptime))
+	if d.Uptime.Value() != nil {
+		uptime = types.NumberValue(big.NewFloat(*d.Uptime.Value()))
 	}
 	if d.VcMac.Value() != nil {
 		vc_mac = types.StringValue(*d.VcMac.Value())
@@ -183,8 +183,8 @@ func deviceSwitchStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 	if d.VcSetupInfo != nil {
 		vc_setup_info = vcSetupInfoSdkToTerraform(ctx, diags, d.VcSetupInfo)
 	}
-	if d.Version != nil {
-		version = types.StringValue(*d.Version)
+	if d.Version.Value() != nil {
+		version = types.StringValue(*d.Version.Value())
 	}
 
 	data_map_value := map[string]attr.Value{
