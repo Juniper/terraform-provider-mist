@@ -15,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
@@ -188,7 +189,7 @@ func (r *upgradeDeviceResource) startFwUpdate(
 		diags.AddAttributeWarning(
 			path.Root("version"),
 			"Unable to upgrade the device",
-			fmt.Sprintf("Device is already running the version %s", plan.UpgradeToVersion.ValueString()),
+			fmt.Sprintf("Device is already running the version %s", plan.TargetVersion.ValueString()),
 		)
 		state, diags = resource_upgrade_device.SdkToTerraform(ctx, plan, &data.Data)
 		diags.Append(diags...)
@@ -201,15 +202,21 @@ func (r *upgradeDeviceResource) startFwUpdate(
 		if diags.HasError() {
 			return state, diags
 		}
-
-		state, diags = r.refreshFwUpdate(
-			ctx,
-			state,
-			plan.SyncUpgrade.ValueBool(),
-			plan.SyncUpgradeStartTimeout.ValueInt64(),
-			plan.SyncUpgradeRefreshInterval.ValueInt64(),
-			plan.SyncUpgradeTimeout.ValueInt64(),
-		)
+		if !plan.SyncUpgrade.ValueBool() {
+			tflog.Debug(ctx, "upgrade check is async, do not wait")
+			state.Fwupdate.Progress = types.Int64Value(0)
+			state.Fwupdate.Status = types.StringValue("scheduled")
+			return state, diags
+		} else {
+			state, diags = r.refreshFwUpdate(
+				ctx,
+				state,
+				true,
+				plan.SyncUpgradeStartTimeout.ValueInt64(),
+				plan.SyncUpgradeRefreshInterval.ValueInt64(),
+				plan.SyncUpgradeTimeout.ValueInt64(),
+			)
+		}
 		diags.Append(diags...)
 		if diags.HasError() {
 			return state, diags
@@ -225,7 +232,6 @@ func (r *upgradeDeviceResource) refreshFwUpdate(
 	syncUpgradeStartTimeout int64,
 	syncUpgradeRefreshInterval int64,
 	syncUpgradeTimeout int64,
-
 ) (resource_upgrade_device.UpgradeDeviceModel, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	var fields *string
@@ -266,7 +272,7 @@ func (r *upgradeDeviceResource) refreshFwUpdate(
 		if api_err != "" {
 			if retry < maxRetry {
 				retry += 1
-				time.Sleep(2 * time.Second)
+				time.Sleep(5 * time.Second)
 			} else {
 				diags.AddError(
 					"Error reading device status for the \"mist_upgrade_device\" resource",
@@ -282,8 +288,8 @@ func (r *upgradeDeviceResource) refreshFwUpdate(
 		diags.Append(diags...)
 		if diags.HasError() {
 			diags.AddError(
-				"Error during device upgrade",
-				fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.DeviceId.ValueString(), err.Error()),
+				"Error reading device status for the \"mist_upgrade_device\" resource",
+				fmt.Sprintf("Unable to retrieve the device upgrade status. %s", err.Error()),
 			)
 			return state, diags
 		}
@@ -337,7 +343,7 @@ func (r *upgradeDeviceResource) refreshFwUpdate(
 					tflog.Info(ctx, fmt.Sprintf(
 						"upgrade check is sync, wait for the end of the upload. "+
 							"current progress: %d, current status: %s, current version: %s, requested version: %s",
-						state.Fwupdate.Progress.ValueInt64(), state.Fwupdate.Status, state.DeviceVersion, state.UpgradeToVersion),
+						state.Fwupdate.Progress.ValueInt64(), state.Fwupdate.Status, state.DeviceVersion, state.TargetVersion),
 					)
 
 					// try to detect when the upgrade start / end (this is mostly between 70 and 100% of the progress)
@@ -346,7 +352,7 @@ func (r *upgradeDeviceResource) refreshFwUpdate(
 					tflog.Info(ctx, fmt.Sprintf(
 						"upgrade check is sync, wait for the end of the upgrade. "+
 							"current progress: %d, current status: %s, current version: %s, requested version: %s",
-						state.Fwupdate.Progress.ValueInt64(), state.Fwupdate.Status, state.DeviceVersion, state.UpgradeToVersion),
+						state.Fwupdate.Progress.ValueInt64(), state.Fwupdate.Status, state.DeviceVersion, state.TargetVersion),
 					)
 
 					// if the upgrade process is at 100% and reboot is not requested or postponed,
@@ -355,7 +361,7 @@ func (r *upgradeDeviceResource) refreshFwUpdate(
 					tflog.Info(ctx, fmt.Sprintf(
 						"upgrade check is sync but do not wait for the reboot (not requested or postponed reboot). "+
 							"current progress: %d, current status: %s, current version: %s, requested version: %s",
-						state.Fwupdate.Progress.ValueInt64(), state.Fwupdate.Status, state.DeviceVersion, state.UpgradeToVersion),
+						state.Fwupdate.Progress.ValueInt64(), state.Fwupdate.Status, state.DeviceVersion, state.TargetVersion),
 					)
 					return state, diags
 
@@ -366,12 +372,22 @@ func (r *upgradeDeviceResource) refreshFwUpdate(
 					tflog.Info(ctx, fmt.Sprintf(
 						"upgrade check is sync, wait for the end of the reboot. "+
 							"current progress: %d, current status: %s, current version: %s, requested version: %s",
-						state.Fwupdate.Progress.ValueInt64(), state.Fwupdate.Status, state.DeviceVersion, state.UpgradeToVersion),
+						state.Fwupdate.Progress.ValueInt64(), state.Fwupdate.Status, state.DeviceVersion, state.TargetVersion),
 					)
 
 					// last part, if we detect the running version is the same as the requested version for any reason
 					// return a success
-				} else if rebootDone || state.DeviceVersion == state.UpgradeToVersion {
+				} else if rebootDone {
+					if state.DeviceVersion != state.TargetVersion {
+						diags.AddError(
+							"Error during device upgrade",
+							fmt.Sprintf(
+								"Upgrade process finished but the running firmware version reported by the device (%s) "+
+									"is different from the requested target firmware version (%s)",
+								state.DeviceVersion.ValueString(), state.TargetVersion.ValueString(),
+							),
+						)
+					}
 					return state, diags
 				}
 			}
@@ -393,6 +409,12 @@ func checkUpgradeProgress(
 		uploadDone = true
 		if state.Fwupdate.Progress.ValueInt64() == 100 {
 			upgradeDone = true
+			// we are not checking the connection status (connected/disconnected) because we have to wait
+			// for the update of the device info to get the "new" running version
+			// the easiest way to do it is to check the uptime value, which is refreshed at the same time
+			// as the running firmware version
+			// once the uptime value is updated, we consider the upgrade process finished and will compare
+			// the target_version with the device_version
 			if float64(deviceUptime) > 0 && time.Since(startTime).Seconds() > float64(deviceUptime) {
 				rebootDone = true
 			}

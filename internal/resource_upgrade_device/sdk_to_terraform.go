@@ -14,7 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-func SdkToTerraform(ctx context.Context, upgrade UpgradeDeviceModel, data *models.ResponseUpgradeDevice) (UpgradeDeviceModel, diag.Diagnostics) {
+func SdkToTerraform(ctx context.Context, upgrade UpgradeDeviceModel, data *models.ResponseDeviceUpgrade) (UpgradeDeviceModel, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	var device_version basetypes.StringValue
