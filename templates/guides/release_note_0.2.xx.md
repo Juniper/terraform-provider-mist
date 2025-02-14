@@ -7,6 +7,25 @@ description: |-
 
 # Release Notes for v0.2.xx
 
+## Release Notes for v0.2.19
+**release date** : February 14th, 2025
+
+### New Data Sources
+* `mist_device_versions`: Allows to retrieve the list of available firmware for specific type of hardware
+### New Resources
+* `mist_upgrade_device`: Allows to trigger a firmware upgrade on a single device. Site and Org upgrades will be available in a later time.
+
+### Changes
+* change the `mist_org_sso_role.privileges.views` from `string` to `list` to match the Mist API Structure. This change require to update the configuration and the state to match the new format if this attribute has already been configured.
+
+
+### Fixes
+* [Issue 70](https://github.com/Juniper/terraform-provider-mist/issues/70): In some conditions, the list of MAC addresses returned by Mist when assigning device profiles to device may be different from the configured order, which generate an error in the provider. The type of the list in the provider has been changed from `List` to `Set` to avoid this issue. This change doesn't impact the existing configurations or deployements.
+* [Issue 74](https://github.com/Juniper/terraform-provider-mist/issues/74): The procedure to unset the `alarmtemplate_id` at the org level was not actually removing the reference, generating an error in the provider. This has been fixed and the Alarm Template can now be unreferenced as expected.
+* [Issue 76](https://github.com/Juniper/terraform-provider-mist/issues/76): When multiple sites where added to the same sitegroup during the same run, the concurent processing of the provider was causing unexpected result in the Mist side in some conditions (the `site_ids` attribute was not updated as expected in the sitegroup object). To avoid this situation, the `mist_site` resource has been updated to force the provider to create/update/delete them sequentially, avoiding this "race condition" issue.
+* [Issue 77](https://github.com/Juniper/terraform-provider-mist/issues/77): The `mist_org_webhooks` and `mist_site_webhooks` datasource were missing some attributes, generating an error in the provider. The missing attributes have been added.
+* There was an issue when importing the `mist_org_inventory` resource, resulting in an empty inventory. This has been fixed and the import function will import/generate the inventory with all the devices in the Mist Org Inventory.
+
 ## Release Notes for v0.2.18
 **release date** : January 10th, 2025
 
