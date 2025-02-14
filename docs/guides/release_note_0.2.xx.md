@@ -7,8 +7,16 @@ description: |-
 
 # Release Notes for v0.2.xx
 
+## Release Notes for v0.2.20
+**release date** : February 14th, 2025
+
+
 ## Release Notes for v0.2.19
 **release date** : February 14th, 2025
+
+### Fixes
+* Fix issue when `mist_org_sso_role.privileges.views` has empty value
+
 
 ### New Data Sources
 * `mist_device_versions`: Allows to retrieve the list of available firmware for specific type of hardware
