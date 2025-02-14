@@ -39,9 +39,9 @@ data "mist_org_sso_roles" "sso_roles" {
 
 Read-Only:
 
-- `created_time` (Number) when the object has been created, in epoch
+- `created_time` (Number) When the object has been created, in epoch
 - `id` (String) Unique ID of the object instance in the Mist Organnization
-- `modified_time` (Number) when the object has been modified for the last time, in epoch
+- `modified_time` (Number) When the object has been modified for the last time, in epoch
 - `name` (String)
 - `org_id` (String)
 - `privileges` (Attributes List) (see [below for nested schema](#nestedatt--org_sso_roles--privileges))
@@ -53,9 +53,9 @@ Read-Only:
 
 - `role` (String) access permissions. enum: `admin`, `helpdesk`, `installer`, `read`, `write`
 - `scope` (String) enum: `org`, `site`, `sitegroup`
-- `site_id` (String) if `scope`==`site`
-- `sitegroup_id` (String) if `scope`==`sitegroup`
-- `views` (String) Custom roles restrict Org users to specific UI views. This is useful for limiting UI access of Org users. Custom roles restrict Org users to specific UI views. This is useful for limiting UI access of Org users.  
+- `site_id` (String) If `scope`==`site`
+- `sitegroup_id` (String) If `scope`==`sitegroup`
+- `views` (List of String) Custom roles restrict Org users to specific UI views. This is useful for limiting UI access of Org users. Custom roles restrict Org users to specific UI views. This is useful for limiting UI access of Org users.  
 You can define custom roles by adding the `views` attribute along with `role` when assigning privileges.  
 Below are the list of supported UI views. Note that this is UI only feature.  
 

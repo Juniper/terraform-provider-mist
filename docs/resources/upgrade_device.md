@@ -23,10 +23,16 @@ The list of available firmware versions can be retrieved with the `mist_device_v
 ## Example Usage
 
 ```terraform
-resource "mist_upgrade_device" "upgrade_one" {
+resource "mist_upgrade_device" "ap_upgrade" {
+  site_id = mist_site.terraform_test.id
+  device_id = mist_device_switch.ap_one.id
+  target_version = "0.14.29543"
+}
+
+resource "mist_upgrade_device" "switch_upgrade" {
   site_id = mist_site.terraform_test.id
   device_id = mist_device_switch.switch_one.id
-  upgrade_to_version = "24.2R1-S1.10"
+  target_version = "24.2R1-S1.10"
   reboot = true
   sync_upgrade_timeout = 3600
 }
@@ -39,14 +45,14 @@ resource "mist_upgrade_device" "upgrade_one" {
 
 - `device_id` (String)
 - `site_id` (String)
-- `upgrade_to_version` (String) firmware version to deploy to the device. Use the `mist_device_versions` datasource to get the list of available firmware versions
+- `target_version` (String) firmware version to deploy to the device. Use the `mist_device_versions` datasource to get the list of available firmware versions
 
 ### Optional
 
 - `reboot` (Boolean) For Switches and Gateways only (APs are automatically rebooted). Reboot device immediately after upgrade is completed
 - `reboot_at` (Number) For Switches and Gateways only and if `reboot`==`true`. Reboot start time in epoch seconds, default is `start_time`
 - `snapshot` (Boolean) For Junos devices only. Perform recovery snapshot after device is rebooted
-- `start_time` (Number) firmware download start time in epoch
+- `start_time` (Number) Firmware download start time in epoch
 - `sync_upgrade` (Boolean) if set to `false`, the provider will just trigger the upgrade and not wait for the end of the upgrade process. Default is `true`
 - `sync_upgrade_refresh_interval` (Number) if set to `sync_upgrade`==`true`, how long to wait between each refresh of the upgrade status, in seconds. Default is 30, minimum is 15
 - `sync_upgrade_start_timeout` (Number) if set to `sync_upgrade`==`true`, how long to wait for the upgrade to start before raising an error, in seconds. Default is 60, minimum is 60
@@ -57,7 +63,7 @@ resource "mist_upgrade_device" "upgrade_one" {
 - `device_version` (String) current device firmware version
 - `fwupdate` (Attributes) (see [below for nested schema](#nestedatt--fwupdate))
 - `status` (String) enum: `error`, `inprogress`, `scheduled`, `starting`, `success`
-- `timestamp` (Number) timestamp
+- `timestamp` (Number) Timestamp
 
 <a id="nestedatt--fwupdate"></a>
 ### Nested Schema for `fwupdate`

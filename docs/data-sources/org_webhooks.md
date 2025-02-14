@@ -39,28 +39,27 @@ data "mist_org_webhooks" "webhooks" {
 
 Read-Only:
 
-- `created_time` (Number) when the object has been created, in epoch
-- `enabled` (Boolean) whether webhook is enabled
-- `headers` (Map of String) if `type`=`http-post`, additional custom HTTP headers to add. The headers name and value must be string, total bytes of headers name and value must be less than 1000
+- `created_time` (Number) When the object has been created, in epoch
+- `enabled` (Boolean) Whether webhook is enabled
+- `headers` (Map of String) If `type`=`http-post`, additional custom HTTP headers to add. The headers name and value must be string, total bytes of headers name and value must be less than 1000
 - `id` (String) Unique ID of the object instance in the Mist Organnization
-- `modified_time` (Number) when the object has been modified for the last time, in epoch
-- `name` (String) name of the webhook
-- `oauth2_client_id` (String) required when `oauth2_grant_type`==`client_credentials`
-- `oauth2_client_secret` (String, Sensitive) required when `oauth2_grant_type`==`client_credentials`
+- `modified_time` (Number) When the object has been modified for the last time, in epoch
+- `name` (String) Name of the webhook
+- `oauth2_client_id` (String) Required when `oauth2_grant_type`==`client_credentials`
+- `oauth2_client_secret` (String, Sensitive) Required when `oauth2_grant_type`==`client_credentials`
 - `oauth2_grant_type` (String) required when `type`==`oauth2`. enum: `client_credentials`, `password`
-- `oauth2_password` (String, Sensitive) required when `oauth2_grant_type`==`password`
-- `oauth2_scopes` (List of String) required when `type`==`oauth2`, if provided, will be used in the token request
-- `oauth2_token_url` (String) required when `type`==`oauth2`
-- `oauth2_username` (String) required when `oauth2_grant_type`==`password`
+- `oauth2_password` (String, Sensitive) Required when `oauth2_grant_type`==`password`
+- `oauth2_scopes` (List of String) Required when `type`==`oauth2`, if provided, will be used in the token request
+- `oauth2_token_url` (String) Required when `type`==`oauth2`
+- `oauth2_username` (String) Required when `oauth2_grant_type`==`password`
 - `org_id` (String)
-- `secret` (String, Sensitive) only if `type`=`http-post` 
+- `secret` (String, Sensitive) Only if `type`=`http-post` 
 
 when `secret` is provided, two  HTTP headers will be added: 
   * X-Mist-Signature-v2: HMAC_SHA256(secret, body)
   * X-Mist-Signature: HMAC_SHA1(secret, body)
-- `site_id` (String)
-- `splunk_token` (String, Sensitive) required if `type`=`splunk`. If splunk_token is not defined for a type Splunk webhook, it will not send, regardless if the webhook receiver is configured to accept it.'
+- `splunk_token` (String, Sensitive) Required if `type`=`splunk`. If splunk_token is not defined for a type Splunk webhook, it will not send, regardless if the webhook receiver is configured to accept it.'
 - `topics` (List of String) List of supported webhook topics available with the API Call [List Webhook Topics]($e/Constants%20Definitions/listWebhookTopics)
 - `type` (String) enum: `aws-sns`, `google-pubsub`, `http-post`, `oauth2`, `splunk`
 - `url` (String)
-- `verify_cert` (Boolean) when url uses HTTPS, whether to verify the certificate
+- `verify_cert` (Boolean) When url uses HTTPS, whether to verify the certificate
