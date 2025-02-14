@@ -43,6 +43,7 @@ func OrgSsoRoleResourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "access permissions. enum: `admin`, `helpdesk`, `installer`, `read`, `write`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
+									"",
 									"admin",
 									"helpdesk",
 									"installer",
@@ -57,6 +58,7 @@ func OrgSsoRoleResourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "enum: `org`, `site`, `sitegroup`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
+									"",
 									"org",
 									"site",
 									"sitegroup",
@@ -81,22 +83,11 @@ func OrgSsoRoleResourceSchema(ctx context.Context) schema.Schema {
 								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("scope"), types.StringValue("sitegroup")),
 							},
 						},
-						"views": schema.StringAttribute{
+						"views": schema.ListAttribute{
+							ElementType:         types.StringType,
 							Optional:            true,
 							Description:         "Custom roles restrict Org users to specific UI views. This is useful for limiting UI access of Org users. Custom roles restrict Org users to specific UI views. This is useful for limiting UI access of Org users.  \nYou can define custom roles by adding the `views` attribute along with `role` when assigning privileges.  \nBelow are the list of supported UI views. Note that this is UI only feature.  \n\n  | UI View | Required Role | Description |\n  | --- | --- | --- |\n  | `reporting` | `read` | full access to all analytics tools |\n  | `marketing` | `read` | can view analytics and location maps |\n  | `super_observer` | `read` | can view all the organization except the subscription page |\n  | `location` | `write` | can view and manage location maps, can view analytics |\n  | `security` | `write` | can view and manage site labels, policies and security |\n  | `switch_admin` | `helpdesk` | can view and manage Switch ports, can view wired clients |\n  | `mxedge_admin` | `admin` | can view and manage Mist edges and Mist tunnels |\n  | `lobby_admin` | `admin` | full access to Org and Site Pre-shared keys |",
 							MarkdownDescription: "Custom roles restrict Org users to specific UI views. This is useful for limiting UI access of Org users. Custom roles restrict Org users to specific UI views. This is useful for limiting UI access of Org users.  \nYou can define custom roles by adding the `views` attribute along with `role` when assigning privileges.  \nBelow are the list of supported UI views. Note that this is UI only feature.  \n\n  | UI View | Required Role | Description |\n  | --- | --- | --- |\n  | `reporting` | `read` | full access to all analytics tools |\n  | `marketing` | `read` | can view analytics and location maps |\n  | `super_observer` | `read` | can view all the organization except the subscription page |\n  | `location` | `write` | can view and manage location maps, can view analytics |\n  | `security` | `write` | can view and manage site labels, policies and security |\n  | `switch_admin` | `helpdesk` | can view and manage Switch ports, can view wired clients |\n  | `mxedge_admin` | `admin` | can view and manage Mist edges and Mist tunnels |\n  | `lobby_admin` | `admin` | full access to Org and Site Pre-shared keys |",
-							Validators: []validator.String{
-								stringvalidator.OneOf(
-									"lobby_admin",
-									"location",
-									"marketing",
-									"mxedge_admin",
-									"reporting",
-									"security",
-									"super_observer",
-									"switch_admin",
-								),
-							},
 						},
 					},
 					CustomType: PrivilegesType{
@@ -228,12 +219,12 @@ func (t PrivilegesType) ValueFromObject(ctx context.Context, in basetypes.Object
 		return nil, diags
 	}
 
-	viewsVal, ok := viewsAttribute.(basetypes.StringValue)
+	viewsVal, ok := viewsAttribute.(basetypes.ListValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`views expected to be basetypes.StringValue, was: %T`, viewsAttribute))
+			fmt.Sprintf(`views expected to be basetypes.ListValue, was: %T`, viewsAttribute))
 	}
 
 	if diags.HasError() {
@@ -395,12 +386,12 @@ func NewPrivilegesValue(attributeTypes map[string]attr.Type, attributes map[stri
 		return NewPrivilegesValueUnknown(), diags
 	}
 
-	viewsVal, ok := viewsAttribute.(basetypes.StringValue)
+	viewsVal, ok := viewsAttribute.(basetypes.ListValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`views expected to be basetypes.StringValue, was: %T`, viewsAttribute))
+			fmt.Sprintf(`views expected to be basetypes.ListValue, was: %T`, viewsAttribute))
 	}
 
 	if diags.HasError() {
@@ -489,7 +480,7 @@ type PrivilegesValue struct {
 	Scope       basetypes.StringValue `tfsdk:"scope"`
 	SiteId      basetypes.StringValue `tfsdk:"site_id"`
 	SitegroupId basetypes.StringValue `tfsdk:"sitegroup_id"`
-	Views       basetypes.StringValue `tfsdk:"views"`
+	Views       basetypes.ListValue   `tfsdk:"views"`
 	state       attr.ValueState
 }
 
@@ -503,7 +494,9 @@ func (v PrivilegesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	attrTypes["scope"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["site_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["sitegroup_id"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["views"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["views"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
@@ -580,12 +573,30 @@ func (v PrivilegesValue) String() string {
 func (v PrivilegesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
+	viewsVal, d := types.ListValue(types.StringType, v.Views.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"role":         basetypes.StringType{},
+			"scope":        basetypes.StringType{},
+			"site_id":      basetypes.StringType{},
+			"sitegroup_id": basetypes.StringType{},
+			"views": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
 	attributeTypes := map[string]attr.Type{
 		"role":         basetypes.StringType{},
 		"scope":        basetypes.StringType{},
 		"site_id":      basetypes.StringType{},
 		"sitegroup_id": basetypes.StringType{},
-		"views":        basetypes.StringType{},
+		"views": basetypes.ListType{
+			ElemType: types.StringType,
+		},
 	}
 
 	if v.IsNull() {
@@ -603,7 +614,7 @@ func (v PrivilegesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"scope":        v.Scope,
 			"site_id":      v.SiteId,
 			"sitegroup_id": v.SitegroupId,
-			"views":        v.Views,
+			"views":        viewsVal,
 		})
 
 	return objVal, diags
@@ -661,6 +672,8 @@ func (v PrivilegesValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"scope":        basetypes.StringType{},
 		"site_id":      basetypes.StringType{},
 		"sitegroup_id": basetypes.StringType{},
-		"views":        basetypes.StringType{},
+		"views": basetypes.ListType{
+			ElemType: types.StringType,
+		},
 	}
 }
