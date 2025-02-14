@@ -30,13 +30,13 @@ func DeviceVersionsDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"tag": schema.StringAttribute{
 							Computed:            true,
-							Description:         "annotation, stable / beta / alpha. Or it can be empty or nothing which is likely a dev build",
-							MarkdownDescription: "annotation, stable / beta / alpha. Or it can be empty or nothing which is likely a dev build",
+							Description:         "Annotation, stable / beta / alpha. Or it can be empty or nothing which is likely a dev build",
+							MarkdownDescription: "Annotation, stable / beta / alpha. Or it can be empty or nothing which is likely a dev build",
 						},
 						"version": schema.StringAttribute{
 							Computed:            true,
-							Description:         "firmware version",
-							MarkdownDescription: "firmware version",
+							Description:         "Firmware version",
+							MarkdownDescription: "Firmware version",
 						},
 					},
 					CustomType: DeviceVersionsType{
@@ -48,15 +48,15 @@ func DeviceVersionsDataSourceSchema(ctx context.Context) schema.Schema {
 				Computed: true,
 			},
 			"model": schema.StringAttribute{
-				Optional:            true,
-				Description:         "fetch version for device model, use/combine with `type` as needed (for switch and gateway devices)",
-				MarkdownDescription: "fetch version for device model, use/combine with `type` as needed (for switch and gateway devices)",
+				Required:            true,
+				Description:         "Fetch version for device model, use/combine with `type` as needed (for switch and gateway devices)",
+				MarkdownDescription: "Fetch version for device model, use/combine with `type` as needed (for switch and gateway devices)",
 			},
 			"org_id": schema.StringAttribute{
 				Required: true,
 			},
 			"type": schema.StringAttribute{
-				Optional:            true,
+				Required:            true,
 				Description:         "enum: `ap`, `gateway`, `switch`",
 				MarkdownDescription: "enum: `ap`, `gateway`, `switch`",
 				Validators: []validator.String{

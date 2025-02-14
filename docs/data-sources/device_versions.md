@@ -27,11 +27,8 @@ data "mist_device_versions" "ap24_versions" {
 
 ### Required
 
+- `model` (String) Fetch version for device model, use/combine with `type` as needed (for switch and gateway devices)
 - `org_id` (String)
-
-### Optional
-
-- `model` (String) fetch version for device model, use/combine with `type` as needed (for switch and gateway devices)
 - `type` (String) enum: `ap`, `gateway`, `switch`
 
 ### Read-Only
@@ -44,5 +41,5 @@ data "mist_device_versions" "ap24_versions" {
 Read-Only:
 
 - `model` (String) Device model (as seen in the device stats)
-- `tag` (String) annotation, stable / beta / alpha. Or it can be empty or nothing which is likely a dev build
-- `version` (String) firmware version
+- `tag` (String) Annotation, stable / beta / alpha. Or it can be empty or nothing which is likely a dev build
+- `version` (String) Firmware version
