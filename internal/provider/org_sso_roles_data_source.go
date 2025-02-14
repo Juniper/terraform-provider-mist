@@ -30,7 +30,7 @@ type orgSsoRolesDataSource struct {
 }
 
 func (d *orgSsoRolesDataSource) Configure(ctx context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
-	tflog.Info(ctx, "Configuring Mist Org Rf Templates Datasource client")
+	tflog.Info(ctx, "Configuring Mist Org SSO Roles Datasource client")
 	if req.ProviderData == nil {
 		return
 	}
@@ -94,8 +94,8 @@ func (d *orgSsoRolesDataSource) Read(ctx context.Context, req datasource.ReadReq
 		data, err := d.client.OrgsSSORoles().ListOrgSsoRoles(ctx, orgId, &limit, &page)
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"Error getting Org RF Templates list",
-				"Unable to get the the list of RF Templates, unexpected error: "+err.Error(),
+				"Error getting Org SSO Roles list",
+				"Unable to get the the list of SSO Roles, unexpected error: "+err.Error(),
 			)
 			return
 		}
