@@ -26,6 +26,7 @@ func OrgNactagsDataSourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "if `type`==`match`, Type of NAC Tag. enum: `cert_cn`, `cert_issuer`, `cert_san`, `cert_serial`, `cert_sub`, `cert_template`, `client_mac`, `idp_role`, `ingress_vlan`, `mdm_status`, `nas_ip`, `radius_group`, `realm`, `ssid`, `user_name`, `usermac_label`",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
+						"",
 						"cert_cn",
 						"cert_issuer",
 						"cert_san",
@@ -59,24 +60,24 @@ func OrgNactagsDataSourceSchema(ctx context.Context) schema.Schema {
 					Attributes: map[string]schema.Attribute{
 						"allow_usermac_override": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "can be set to true to allow the override by usermac result",
-							MarkdownDescription: "can be set to true to allow the override by usermac result",
+							Description:         "Can be set to true to allow the override by usermac result",
+							MarkdownDescription: "Can be set to true to allow the override by usermac result",
 						},
 						"created_time": schema.Float64Attribute{
 							Computed:            true,
-							Description:         "when the object has been created, in epoch",
-							MarkdownDescription: "when the object has been created, in epoch",
+							Description:         "When the object has been created, in epoch",
+							MarkdownDescription: "When the object has been created, in epoch",
 						},
 						"egress_vlan_names": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Computed:            true,
-							Description:         "if `type`==`egress_vlan_names`, list of egress vlans to return",
-							MarkdownDescription: "if `type`==`egress_vlan_names`, list of egress vlans to return",
+							Description:         "If `type`==`egress_vlan_names`, list of egress vlans to return",
+							MarkdownDescription: "If `type`==`egress_vlan_names`, list of egress vlans to return",
 						},
 						"gbp_tag": schema.Int64Attribute{
 							Computed:            true,
-							Description:         "if `type`==`gbp_tag`",
-							MarkdownDescription: "if `type`==`gbp_tag`",
+							Description:         "If `type`==`gbp_tag`",
+							MarkdownDescription: "If `type`==`gbp_tag`",
 						},
 						"id": schema.StringAttribute{
 							Computed:            true,
@@ -93,10 +94,10 @@ func OrgNactagsDataSourceSchema(ctx context.Context) schema.Schema {
 							Description:         "This field is applicable only when `type`==`match`\n  * `false`: means it is sufficient to match any of the values (i.e., match-any behavior)\n  * `true`: means all values should be matched (i.e., match-all behavior)\n\n\nCurrently it makes sense to set this field to `true` only if the `match`==`idp_role` or `match`==`usermac_label`",
 							MarkdownDescription: "This field is applicable only when `type`==`match`\n  * `false`: means it is sufficient to match any of the values (i.e., match-any behavior)\n  * `true`: means all values should be matched (i.e., match-all behavior)\n\n\nCurrently it makes sense to set this field to `true` only if the `match`==`idp_role` or `match`==`usermac_label`",
 						},
-						"modified_time": schema.NumberAttribute{
+						"modified_time": schema.Float64Attribute{
 							Computed:            true,
-							Description:         "when the object has been modified for the last time, in epoch",
-							MarkdownDescription: "when the object has been modified for the last time, in epoch",
+							Description:         "When the object has been modified for the last time, in epoch",
+							MarkdownDescription: "When the object has been modified for the last time, in epoch",
 						},
 						"name": schema.StringAttribute{
 							Computed: true,
@@ -107,24 +108,24 @@ func OrgNactagsDataSourceSchema(ctx context.Context) schema.Schema {
 						"radius_attrs": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Computed:            true,
-							Description:         "if `type`==`radius_attrs`, user can specify a list of one or more standard attributes in the field \"radius_attrs\". \nIt is the responsibility of the user to provide a syntactically correct string, otherwise it may not work as expected.\nNote that it is allowed to have more than one radius_attrs in the result of a given rule.",
-							MarkdownDescription: "if `type`==`radius_attrs`, user can specify a list of one or more standard attributes in the field \"radius_attrs\". \nIt is the responsibility of the user to provide a syntactically correct string, otherwise it may not work as expected.\nNote that it is allowed to have more than one radius_attrs in the result of a given rule.",
+							Description:         "If `type`==`radius_attrs`, user can specify a list of one or more standard attributes in the field \"radius_attrs\". \nIt is the responsibility of the user to provide a syntactically correct string, otherwise it may not work as expected.\nNote that it is allowed to have more than one radius_attrs in the result of a given rule.",
+							MarkdownDescription: "If `type`==`radius_attrs`, user can specify a list of one or more standard attributes in the field \"radius_attrs\". \nIt is the responsibility of the user to provide a syntactically correct string, otherwise it may not work as expected.\nNote that it is allowed to have more than one radius_attrs in the result of a given rule.",
 						},
 						"radius_group": schema.StringAttribute{
 							Computed:            true,
-							Description:         "if `type`==`radius_group`",
-							MarkdownDescription: "if `type`==`radius_group`",
+							Description:         "If `type`==`radius_group`",
+							MarkdownDescription: "If `type`==`radius_group`",
 						},
 						"radius_vendor_attrs": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Computed:            true,
-							Description:         "if `type`==`radius_vendor_attrs`, user can specify a list of one or more vendor-specific attributes in the field \"radius_vendor_attrs\". \nIt is the responsibility of the user to provide a syntactically correct string, otherwise it may not work as expected.\nNote that it is allowed to have more than one radius_vendor_attrs in the result of a given rule.",
-							MarkdownDescription: "if `type`==`radius_vendor_attrs`, user can specify a list of one or more vendor-specific attributes in the field \"radius_vendor_attrs\". \nIt is the responsibility of the user to provide a syntactically correct string, otherwise it may not work as expected.\nNote that it is allowed to have more than one radius_vendor_attrs in the result of a given rule.",
+							Description:         "If `type`==`radius_vendor_attrs`, user can specify a list of one or more vendor-specific attributes in the field \"radius_vendor_attrs\". \nIt is the responsibility of the user to provide a syntactically correct string, otherwise it may not work as expected.\nNote that it is allowed to have more than one radius_vendor_attrs in the result of a given rule.",
+							MarkdownDescription: "If `type`==`radius_vendor_attrs`, user can specify a list of one or more vendor-specific attributes in the field \"radius_vendor_attrs\". \nIt is the responsibility of the user to provide a syntactically correct string, otherwise it may not work as expected.\nNote that it is allowed to have more than one radius_vendor_attrs in the result of a given rule.",
 						},
 						"session_timeout": schema.Int64Attribute{
 							Computed:            true,
-							Description:         "if `type`==`session_timeout, in seconds",
-							MarkdownDescription: "if `type`==`session_timeout, in seconds",
+							Description:         "If `type`==`session_timeout, in seconds",
+							MarkdownDescription: "If `type`==`session_timeout, in seconds",
 						},
 						"type": schema.StringAttribute{
 							Computed:            true,
@@ -139,13 +140,13 @@ func OrgNactagsDataSourceSchema(ctx context.Context) schema.Schema {
 						"values": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Computed:            true,
-							Description:         "if `type`==`match`",
-							MarkdownDescription: "if `type`==`match`",
+							Description:         "If `type`==`match`",
+							MarkdownDescription: "If `type`==`match`",
 						},
 						"vlan": schema.StringAttribute{
 							Computed:            true,
-							Description:         "if `type`==`vlan`",
-							MarkdownDescription: "if `type`==`vlan`",
+							Description:         "If `type`==`vlan`",
+							MarkdownDescription: "If `type`==`vlan`",
 						},
 					},
 					CustomType: OrgNactagsType{
@@ -162,6 +163,7 @@ func OrgNactagsDataSourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "Type of NAC Tag. enum: `egress_vlan_names`, `gbp_tag`, `match`, `radius_attrs`, `radius_group`, `radius_vendor_attrs`, `session_timeout`, `username_attr`, `vlan`",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
+						"",
 						"egress_vlan_names",
 						"gbp_tag",
 						"match",
@@ -348,12 +350,12 @@ func (t OrgNactagsType) ValueFromObject(ctx context.Context, in basetypes.Object
 		return nil, diags
 	}
 
-	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.NumberValue)
+	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`modified_time expected to be basetypes.NumberValue, was: %T`, modifiedTimeAttribute))
+			fmt.Sprintf(`modified_time expected to be basetypes.Float64Value, was: %T`, modifiedTimeAttribute))
 	}
 
 	nameAttribute, ok := attributes["name"]
@@ -762,12 +764,12 @@ func NewOrgNactagsValue(attributeTypes map[string]attr.Type, attributes map[stri
 		return NewOrgNactagsValueUnknown(), diags
 	}
 
-	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.NumberValue)
+	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`modified_time expected to be basetypes.NumberValue, was: %T`, modifiedTimeAttribute))
+			fmt.Sprintf(`modified_time expected to be basetypes.Float64Value, was: %T`, modifiedTimeAttribute))
 	}
 
 	nameAttribute, ok := attributes["name"]
@@ -1052,7 +1054,7 @@ type OrgNactagsValue struct {
 	Id                   basetypes.StringValue  `tfsdk:"id"`
 	Match                basetypes.StringValue  `tfsdk:"match"`
 	MatchAll             basetypes.BoolValue    `tfsdk:"match_all"`
-	ModifiedTime         basetypes.NumberValue  `tfsdk:"modified_time"`
+	ModifiedTime         basetypes.Float64Value `tfsdk:"modified_time"`
 	Name                 basetypes.StringValue  `tfsdk:"name"`
 	OrgId                basetypes.StringValue  `tfsdk:"org_id"`
 	RadiusAttrs          basetypes.ListValue    `tfsdk:"radius_attrs"`
@@ -1081,7 +1083,7 @@ func (v OrgNactagsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	attrTypes["id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["match"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["match_all"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["modified_time"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["modified_time"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["org_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["radius_attrs"] = basetypes.ListType{
@@ -1293,7 +1295,7 @@ func (v OrgNactagsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"id":            basetypes.StringType{},
 			"match":         basetypes.StringType{},
 			"match_all":     basetypes.BoolType{},
-			"modified_time": basetypes.NumberType{},
+			"modified_time": basetypes.Float64Type{},
 			"name":          basetypes.StringType{},
 			"org_id":        basetypes.StringType{},
 			"radius_attrs": basetypes.ListType{
@@ -1328,7 +1330,7 @@ func (v OrgNactagsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"id":            basetypes.StringType{},
 			"match":         basetypes.StringType{},
 			"match_all":     basetypes.BoolType{},
-			"modified_time": basetypes.NumberType{},
+			"modified_time": basetypes.Float64Type{},
 			"name":          basetypes.StringType{},
 			"org_id":        basetypes.StringType{},
 			"radius_attrs": basetypes.ListType{
@@ -1363,7 +1365,7 @@ func (v OrgNactagsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"id":            basetypes.StringType{},
 			"match":         basetypes.StringType{},
 			"match_all":     basetypes.BoolType{},
-			"modified_time": basetypes.NumberType{},
+			"modified_time": basetypes.Float64Type{},
 			"name":          basetypes.StringType{},
 			"org_id":        basetypes.StringType{},
 			"radius_attrs": basetypes.ListType{
@@ -1398,7 +1400,7 @@ func (v OrgNactagsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"id":            basetypes.StringType{},
 			"match":         basetypes.StringType{},
 			"match_all":     basetypes.BoolType{},
-			"modified_time": basetypes.NumberType{},
+			"modified_time": basetypes.Float64Type{},
 			"name":          basetypes.StringType{},
 			"org_id":        basetypes.StringType{},
 			"radius_attrs": basetypes.ListType{
@@ -1428,7 +1430,7 @@ func (v OrgNactagsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		"id":            basetypes.StringType{},
 		"match":         basetypes.StringType{},
 		"match_all":     basetypes.BoolType{},
-		"modified_time": basetypes.NumberType{},
+		"modified_time": basetypes.Float64Type{},
 		"name":          basetypes.StringType{},
 		"org_id":        basetypes.StringType{},
 		"radius_attrs": basetypes.ListType{
@@ -1590,7 +1592,7 @@ func (v OrgNactagsValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"id":            basetypes.StringType{},
 		"match":         basetypes.StringType{},
 		"match_all":     basetypes.BoolType{},
-		"modified_time": basetypes.NumberType{},
+		"modified_time": basetypes.Float64Type{},
 		"name":          basetypes.StringType{},
 		"org_id":        basetypes.StringType{},
 		"radius_attrs": basetypes.ListType{

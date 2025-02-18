@@ -478,8 +478,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					"use_ssl_port": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "By default, NAS devices (switches/aps) and proxies(mxedge) are configured to use port TCP2083(RadSec) to reach mist-nac. \nSet `use_ssl_port`==`true` to override that port with TCP43 (ssl), \nThis is a org level setting that is applicable to wlans, switch_templates, and mxedge_clusters that have mist-nac enabled",
-						MarkdownDescription: "By default, NAS devices (switches/aps) and proxies(mxedge) are configured to use port TCP2083(RadSec) to reach mist-nac. \nSet `use_ssl_port`==`true` to override that port with TCP43 (ssl), \nThis is a org level setting that is applicable to wlans, switch_templates, and mxedge_clusters that have mist-nac enabled",
+						Description:         "By default, NAS devices (switches/aps) and proxies(mxedge) are configured to use port TCP2083(RadSec) to reach mist-nac. Set `use_ssl_port`==`true` to override that port with TCP43 (ssl), This is an org level setting that is applicable to wlans, switch_templates, and mxedge_clusters that have mist-nac enabled",
+						MarkdownDescription: "By default, NAS devices (switches/aps) and proxies(mxedge) are configured to use port TCP2083(RadSec) to reach mist-nac. Set `use_ssl_port`==`true` to override that port with TCP43 (ssl), This is an org level setting that is applicable to wlans, switch_templates, and mxedge_clusters that have mist-nac enabled",
 						Default:             booldefault.StaticBool(false),
 					},
 				},

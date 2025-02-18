@@ -1114,8 +1114,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					"clients_enabled": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Indicate whether connected WiFi clients should be included in the zone occupancy calculation",
-						MarkdownDescription: "Indicate whether connected WiFi clients should be included in the zone occupancy calculation",
+						Description:         "Indicate whether connected Wi-Fi clients should be included in the zone occupancy calculation",
+						MarkdownDescription: "Indicate whether connected Wi-Fi clients should be included in the zone occupancy calculation",
 						Default:             booldefault.StaticBool(true),
 					},
 					"min_duration": schema.Int64Attribute{
@@ -1135,8 +1135,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					"unconnected_clients_enabled": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Indicate whether unconnected WiFi clients should be included in the zone occupancy calculation",
-						MarkdownDescription: "Indicate whether unconnected WiFi clients should be included in the zone occupancy calculation",
+						Description:         "Indicate whether unconnected Wi-Fi clients should be included in the zone occupancy calculation",
+						MarkdownDescription: "Indicate whether unconnected Wi-Fi clients should be included in the zone occupancy calculation",
 						Default:             booldefault.StaticBool(false),
 					},
 				},

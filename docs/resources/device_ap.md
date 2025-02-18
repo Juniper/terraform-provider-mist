@@ -38,40 +38,41 @@ resource "mist_device_ap" "ap_one" {
 - `ble_config` (Attributes) BLE AP settings (see [below for nested schema](#nestedatt--ble_config))
 - `centrak` (Attributes) (see [below for nested schema](#nestedatt--centrak))
 - `client_bridge` (Attributes) (see [below for nested schema](#nestedatt--client_bridge))
-- `disable_eth1` (Boolean) whether to disable eth1 port
-- `disable_eth2` (Boolean) whether to disable eth2 port
-- `disable_eth3` (Boolean) whether to disable eth3 port
-- `disable_module` (Boolean) whether to disable module port
+- `disable_eth1` (Boolean) Whether to disable eth1 port
+- `disable_eth2` (Boolean) Whether to disable eth2 port
+- `disable_eth3` (Boolean) Whether to disable eth3 port
+- `disable_module` (Boolean) Whether to disable module port
 - `esl_config` (Attributes) (see [below for nested schema](#nestedatt--esl_config))
-- `height` (Number) height, in meters, optional
+- `flow_control` (Boolean) For some AP models, flow_control can be enabled to address some switch compatibility issue
+- `height` (Number) Height, in meters, optional
 - `ip_config` (Attributes) IP AP settings (see [below for nested schema](#nestedatt--ip_config))
 - `led` (Attributes) LED AP settings (see [below for nested schema](#nestedatt--led))
-- `locked` (Boolean) whether this map is considered locked down
-- `map_id` (String) map where the device belongs to
+- `locked` (Boolean) Whether this map is considered locked down
+- `map_id` (String) Map where the device belongs to
 - `mesh` (Attributes) Mesh AP settings (see [below for nested schema](#nestedatt--mesh))
-- `notes` (String) any notes about this AP
+- `notes` (String) Any notes about this AP
 - `ntp_servers` (List of String)
-- `orientation` (Number) orientation, 0-359, in degrees, up is 0, right is 90.
-- `poe_passthrough` (Boolean) whether to enable power out through module port (for APH) or eth1 (for APL/BT11)
-- `pwr_config` (Attributes) power related configs (see [below for nested schema](#nestedatt--pwr_config))
+- `orientation` (Number) Orientation, 0-359, in degrees, up is 0, right is 90.
+- `poe_passthrough` (Boolean) Whether to enable power out through module port (for APH) or eth1 (for APL/BT11)
+- `pwr_config` (Attributes) Power related configs (see [below for nested schema](#nestedatt--pwr_config))
 - `radio_config` (Attributes) Radio AP settings (see [below for nested schema](#nestedatt--radio_config))
-- `uplink_port_config` (Attributes) (see [below for nested schema](#nestedatt--uplink_port_config))
+- `uplink_port_config` (Attributes) AP Uplink port configuration (see [below for nested schema](#nestedatt--uplink_port_config))
 - `usb_config` (Attributes) USB AP settings
-Note: if native imagotag is enabled, BLE will be disabled automatically
-Note: legacy, new config moved to ESL Config. (see [below for nested schema](#nestedatt--usb_config))
-- `vars` (Map of String) a dictionary of name->value, the vars can then be used in Wlans. This can overwrite those from Site Vars
-- `x` (Number) x in pixel
-- `y` (Number) y in pixel
+  - Note: if native imagotag is enabled, BLE will be disabled automatically
+  - Note: legacy, new config moved to ESL Config. (see [below for nested schema](#nestedatt--usb_config))
+- `vars` (Map of String) Dictionary of name->value, the vars can then be used in Wlans. This can overwrite those from Site Vars
+- `x` (Number) X in pixel
+- `y` (Number) Y in pixel
 
 ### Read-Only
 
 - `image1_url` (String)
 - `image2_url` (String)
 - `image3_url` (String)
-- `mac` (String) device MAC address
-- `model` (String) device Model
+- `mac` (String) Device MAC address
+- `model` (String) Device Model
 - `org_id` (String)
-- `serial` (String) device Serial
+- `serial` (String) Device Serial
 - `type` (String) Device Type. enum: `ap`
 
 <a id="nestedatt--aeroscout"></a>
@@ -79,9 +80,9 @@ Note: legacy, new config moved to ESL Config. (see [below for nested schema](#ne
 
 Optional:
 
-- `enabled` (Boolean) whether to enable aeroscout config
-- `host` (String) required if enabled, aeroscout server host
-- `locate_connected` (Boolean) whether to enable the feature to allow wireless clients data received and sent to AES server for location calculation
+- `enabled` (Boolean) Whether to enable aeroscout config
+- `host` (String) Required if enabled, aeroscout server host
+- `locate_connected` (Boolean) Whether to enable the feature to allow wireless clients data received and sent to AES server for location calculation
 
 
 <a id="nestedatt--ble_config"></a>
@@ -89,32 +90,32 @@ Optional:
 
 Optional:
 
-- `beacon_enabled` (Boolean) whether Mist beacons is enabled
-- `beacon_rate` (Number) required if `beacon_rate_mode`==`custom`, 1-10, in number-beacons-per-second
+- `beacon_enabled` (Boolean) Whether Mist beacons is enabled
+- `beacon_rate` (Number) Required if `beacon_rate_mode`==`custom`, 1-10, in number-beacons-per-second
 - `beacon_rate_mode` (String) enum: `custom`, `default`
-- `beam_disabled` (List of Number) list of AP BLE location beam numbers (1-8) which should be disabled at the AP and not transmit location information (where beam 1 is oriented at the top the AP, growing counter-clock-wise, with 9 being the omni BLE beam)
-- `custom_ble_packet_enabled` (Boolean) can be enabled if `beacon_enabled`==`true`, whether to send custom packet
+- `beam_disabled` (List of Number) List of AP BLE location beam numbers (1-8) which should be disabled at the AP and not transmit location information (where beam 1 is oriented at the top the AP, growing counter-clock-wise, with 9 being the omni BLE beam)
+- `custom_ble_packet_enabled` (Boolean) Can be enabled if `beacon_enabled`==`true`, whether to send custom packet
 - `custom_ble_packet_frame` (String) The custom frame to be sent out in this beacon. The frame must be a hexstring
 - `custom_ble_packet_freq_msec` (Number) Frequency (msec) of data emitted by custom ble beacon
-- `eddystone_uid_adv_power` (Number) advertised TX Power, -100 to 20 (dBm), omit this attribute to use default
+- `eddystone_uid_adv_power` (Number) Advertised TX Power, -100 to 20 (dBm), omit this attribute to use default
 - `eddystone_uid_beams` (String)
-- `eddystone_uid_enabled` (Boolean) only if `beacon_enabled`==`false`, Whether Eddystone-UID beacon is enabled
+- `eddystone_uid_enabled` (Boolean) Only if `beacon_enabled`==`false`, Whether Eddystone-UID beacon is enabled
 - `eddystone_uid_freq_msec` (Number) Frequency (msec) of data emmit by Eddystone-UID beacon
 - `eddystone_uid_instance` (String) Eddystone-UID instance for the device
 - `eddystone_uid_namespace` (String) Eddystone-UID namespace
-- `eddystone_url_adv_power` (Number) advertised TX Power, -100 to 20 (dBm), omit this attribute to use default
+- `eddystone_url_adv_power` (Number) Advertised TX Power, -100 to 20 (dBm), omit this attribute to use default
 - `eddystone_url_beams` (String)
-- `eddystone_url_enabled` (Boolean) only if `beacon_enabled`==`false`, Whether Eddystone-URL beacon is enabled
+- `eddystone_url_enabled` (Boolean) Only if `beacon_enabled`==`false`, Whether Eddystone-URL beacon is enabled
 - `eddystone_url_freq_msec` (Number) Frequency (msec) of data emit by Eddystone-UID beacon
 - `eddystone_url_url` (String) URL pointed by Eddystone-URL beacon
-- `ibeacon_adv_power` (Number) advertised TX Power, -100 to 20 (dBm), omit this attribute to use default
+- `ibeacon_adv_power` (Number) Advertised TX Power, -100 to 20 (dBm), omit this attribute to use default
 - `ibeacon_beams` (String)
-- `ibeacon_enabled` (Boolean) can be enabled if `beacon_enabled`==`true`, whether to send iBeacon
+- `ibeacon_enabled` (Boolean) Can be enabled if `beacon_enabled`==`true`, whether to send iBeacon
 - `ibeacon_freq_msec` (Number) Frequency (msec) of data emmit for iBeacon
 - `ibeacon_major` (Number) Major number for iBeacon
 - `ibeacon_minor` (Number) Minor number for iBeacon
-- `ibeacon_uuid` (String) optional, if not specified, the same UUID as the beacon will be used
-- `power` (Number) required if `power_mode`==`custom`
+- `ibeacon_uuid` (String) Optional, if not specified, the same UUID as the beacon will be used
+- `power` (Number) Required if `power_mode`==`custom`; else use `power_mode` as default
 - `power_mode` (String) enum: `custom`, `default`
 
 
@@ -132,7 +133,7 @@ Optional:
 Optional:
 
 - `auth` (Attributes) (see [below for nested schema](#nestedatt--client_bridge--auth))
-- `enabled` (Boolean) when acted as client bridge:
+- `enabled` (Boolean) When acted as client bridge:
   * only 5G radio can be used
   * will not serve as AP on any radios
 - `ssid` (String)
@@ -167,18 +168,18 @@ Optional:
 
 Optional:
 
-- `dns` (List of String) if `type`==`static`
-- `dns_suffix` (List of String) required if `type`==`static`
-- `gateway` (String) required if `type`==`static`
+- `dns` (List of String) If `type`==`static`
+- `dns_suffix` (List of String) Required if `type`==`static`
+- `gateway` (String) Required if `type`==`static`
 - `gateway6` (String)
-- `ip` (String) required if `type`==`static`
+- `ip` (String) Required if `type`==`static`
 - `ip6` (String)
 - `mtu` (Number)
-- `netmask` (String) required if `type`==`static`
+- `netmask` (String) Required if `type`==`static`
 - `netmask6` (String)
 - `type` (String) enum: `dhcp`, `static`
 - `type6` (String) enum: `autoconf`, `dhcp`, `disabled`, `static`
-- `vlan_id` (Number) management vlan id, default is 1 (untagged)
+- `vlan_id` (Number) Management VLAN id, default is 1 (untagged)
 
 
 <a id="nestedatt--led"></a>
@@ -195,8 +196,8 @@ Optional:
 
 Optional:
 
-- `enabled` (Boolean) whether mesh is enabled on this AP
-- `group` (Number) mesh group, base AP(s) will only allow remote AP(s) in the same mesh group to join, 1-9, optional
+- `enabled` (Boolean) Whether mesh is enabled on this AP
+- `group` (Number) Mesh group, base AP(s) will only allow remote AP(s) in the same mesh group to join, 1-9, optional
 - `role` (String) enum: `base`, `remote`
 
 
@@ -205,8 +206,8 @@ Optional:
 
 Optional:
 
-- `base` (Number) additional power to request during negotiating with PSE over PoE, in mW
-- `prefer_usb_over_wifi` (Boolean) whether to enable power out to peripheral, meanwhile will reduce power to wifi (only for AP45 at power mode)
+- `base` (Number) Additional power to request during negotiating with PSE over PoE, in mW
+- `prefer_usb_over_wifi` (Boolean) Whether to enable power out to peripheral, meanwhile will reduce power to Wi-Fi (only for AP45 at power mode)
 
 
 <a id="nestedatt--radio_config"></a>
@@ -215,18 +216,17 @@ Optional:
 Optional:
 
 - `allow_rrm_disable` (Boolean)
-- `ant_gain_24` (Number) antenna gain for 2.4G - for models with external antenna only
-- `ant_gain_5` (Number) antenna gain for 5G - for models with external antenna only
-- `ant_gain_6` (Number) antenna gain for 6G - for models with external antenna only
+- `ant_gain_24` (Number) Antenna gain for 2.4G - for models with external antenna only
+- `ant_gain_5` (Number) Antenna gain for 5G - for models with external antenna only
+- `ant_gain_6` (Number) Antenna gain for 6G - for models with external antenna only
 - `antenna_mode` (String) enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`
 - `band_24` (Attributes) Radio Band AP settings (see [below for nested schema](#nestedatt--radio_config--band_24))
 - `band_24_usage` (String) enum: `24`, `5`, `6`, `auto`
 - `band_5` (Attributes) Radio Band AP settings (see [below for nested schema](#nestedatt--radio_config--band_5))
 - `band_5_on_24_radio` (Attributes) Radio Band AP settings (see [below for nested schema](#nestedatt--radio_config--band_5_on_24_radio))
 - `band_6` (Attributes) Radio Band AP settings (see [below for nested schema](#nestedatt--radio_config--band_6))
-- `indoor_use` (Boolean) to make an outdoor operate indoor.
-for an outdoor-ap, some channels are disallowed by default, this allows the user to use it as an indoor-ap
-- `scanning_enabled` (Boolean) whether scanning radio is enabled
+- `indoor_use` (Boolean) To make an outdoor operate indoor. For an outdoor-ap, some channels are disallowed by default, this allows the user to use it as an indoor-ap
+- `scanning_enabled` (Boolean) Whether scanning radio is enabled
 
 <a id="nestedatt--radio_config--band_24"></a>
 ### Nested Schema for `radio_config.band_24`
@@ -239,10 +239,10 @@ Optional:
 - `bandwidth` (Number) channel width for the 2.4GHz band. enum: `20`, `40`
 - `channel` (Number) For Device. (primary) channel for the band, 0 means using the Site Setting
 - `channels` (List of Number) For RFTemplates. List of channels, null or empty array means auto
-- `disabled` (Boolean) whether to disable the radio
+- `disabled` (Boolean) Whether to disable the radio
 - `power` (Number) TX power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …
-- `power_max` (Number) when power=0, max tx power to use, HW-specific values will be used if not set
-- `power_min` (Number) when power=0, min tx power to use, HW-specific values will be used if not set
+- `power_max` (Number) When power=0, max tx power to use, HW-specific values will be used if not set
+- `power_min` (Number) When power=0, min tx power to use, HW-specific values will be used if not set
 - `preamble` (String) enum: `auto`, `long`, `short`
 
 
@@ -257,10 +257,10 @@ Optional:
 - `bandwidth` (Number) channel width for the 5GHz band. enum: `20`, `40`, `80`
 - `channel` (Number) For Device. (primary) channel for the band, 0 means using the Site Setting
 - `channels` (List of Number) For RFTemplates. List of channels, null or empty array means auto
-- `disabled` (Boolean) whether to disable the radio
+- `disabled` (Boolean) Whether to disable the radio
 - `power` (Number) TX power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …
-- `power_max` (Number) when power=0, max tx power to use, HW-specific values will be used if not set
-- `power_min` (Number) when power=0, min tx power to use, HW-specific values will be used if not set
+- `power_max` (Number) When power=0, max tx power to use, HW-specific values will be used if not set
+- `power_min` (Number) When power=0, min tx power to use, HW-specific values will be used if not set
 - `preamble` (String) enum: `auto`, `long`, `short`
 
 
@@ -275,10 +275,10 @@ Optional:
 - `bandwidth` (Number) channel width for the 5GHz band. enum: `20`, `40`, `80`
 - `channel` (Number) For Device. (primary) channel for the band, 0 means using the Site Setting
 - `channels` (List of Number) For RFTemplates. List of channels, null or empty array means auto
-- `disabled` (Boolean) whether to disable the radio
+- `disabled` (Boolean) Whether to disable the radio
 - `power` (Number) TX power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …
-- `power_max` (Number) when power=0, max tx power to use, HW-specific values will be used if not set
-- `power_min` (Number) when power=0, min tx power to use, HW-specific values will be used if not set
+- `power_max` (Number) When power=0, max tx power to use, HW-specific values will be used if not set
+- `power_min` (Number) When power=0, min tx power to use, HW-specific values will be used if not set
 - `preamble` (String) enum: `auto`, `long`, `short`
 
 
@@ -293,12 +293,12 @@ Optional:
 - `bandwidth` (Number) channel width for the 6GHz band. enum: `20`, `40`, `80`, `160`
 - `channel` (Number) For Device. (primary) channel for the band, 0 means using the Site Setting
 - `channels` (List of Number) For RFTemplates. List of channels, null or empty array means auto
-- `disabled` (Boolean) whether to disable the radio
+- `disabled` (Boolean) Whether to disable the radio
 - `power` (Number) TX power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …
-- `power_max` (Number) when power=0, max tx power to use, HW-specific values will be used if not set
-- `power_min` (Number) when power=0, min tx power to use, HW-specific values will be used if not set
+- `power_max` (Number) When power=0, max tx power to use, HW-specific values will be used if not set
+- `power_min` (Number) When power=0, min tx power to use, HW-specific values will be used if not set
 - `preamble` (String) enum: `auto`, `long`, `short`
-- `standard_power` (Boolean) for 6GHz Only, standard-power operation, AFC (Automatic Frequency Coordination) will be performed and we'll fallback to Low Power Indoor if AFC failed
+- `standard_power` (Boolean) For 6GHz Only, standard-power operation, AFC (Automatic Frequency Coordination) will be performed, and we'll fall back to Low Power Indoor if AFC failed
 
 
 
@@ -308,7 +308,7 @@ Optional:
 Optional:
 
 - `dot1x` (Boolean) Whether to do 802.1x against uplink switch. When enaled, AP cert will be used to do EAP-TLS and the Org's CA Cert has to be provisioned at the switch
-- `keep_wlans_up_if_down` (Boolean) by default, WLANs are disabled when uplink is down. In some scenario, like SiteSurvey, one would want the AP to keep sending beacons.
+- `keep_wlans_up_if_down` (Boolean) By default, WLANs are disabled when uplink is down. In some scenario, like SiteSurvey, one would want the AP to keep sending beacons.
 
 
 <a id="nestedatt--usb_config"></a>
@@ -316,14 +316,14 @@ Optional:
 
 Optional:
 
-- `cacert` (String) only if `type`==`imagotag`
-- `channel` (Number) only if `type`==`imagotag`, channel selection, not needed by default, required for manual channel override only
-- `enabled` (Boolean) whether to enable any usb config
-- `host` (String) only if `type`==`imagotag`
-- `port` (Number) only if `type`==`imagotag`
+- `cacert` (String) Only if `type`==`imagotag`
+- `channel` (Number) Only if `type`==`imagotag`, channel selection, not needed by default, required for manual channel override only
+- `enabled` (Boolean) Whether to enable any usb config
+- `host` (String) Only if `type`==`imagotag`
+- `port` (Number) Only if `type`==`imagotag`
 - `type` (String) usb config type. enum: `hanshow`, `imagotag`, `solum`
-- `verify_cert` (Boolean) only if `type`==`imagotag`, whether to turn on SSL verification
-- `vlan_id` (Number) only if `type`==`solum` or `type`==`hanshow`
+- `verify_cert` (Boolean) Only if `type`==`imagotag`, whether to turn on SSL verification
+- `vlan_id` (Number) Only if `type`==`solum` or `type`==`hanshow`
 
 
 

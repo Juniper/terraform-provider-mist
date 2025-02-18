@@ -202,9 +202,7 @@ Optional:
 - `idps` (Attributes List) (see [below for nested schema](#nestedatt--mist_nac--idps))
 - `server_cert` (Attributes) radius server cert to be presented in EAP TLS (see [below for nested schema](#nestedatt--mist_nac--server_cert))
 - `use_ip_version` (String) by default, NAS devices(switches/aps) and proxies(mxedge) are configured to reach mist-nac via IPv4. enum: `v4`, `v6`
-- `use_ssl_port` (Boolean) By default, NAS devices (switches/aps) and proxies(mxedge) are configured to use port TCP2083(RadSec) to reach mist-nac. 
-Set `use_ssl_port`==`true` to override that port with TCP43 (ssl), 
-This is a org level setting that is applicable to wlans, switch_templates, and mxedge_clusters that have mist-nac enabled
+- `use_ssl_port` (Boolean) By default, NAS devices (switches/aps) and proxies(mxedge) are configured to use port TCP2083(RadSec) to reach mist-nac. Set `use_ssl_port`==`true` to override that port with TCP43 (ssl), This is an org level setting that is applicable to wlans, switch_templates, and mxedge_clusters that have mist-nac enabled
 
 <a id="nestedatt--mist_nac--idps"></a>
 ### Nested Schema for `mist_nac.idps`

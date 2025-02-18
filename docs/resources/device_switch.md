@@ -539,7 +539,7 @@ Optional:
 - `ae_idx` (Number) Users could force to use the designated AE name
 - `ae_lacp_slow` (Boolean) To use fast timeout
 - `aggregated` (Boolean)
-- `critical` (Boolean) If want to generate port up/down alarm
+- `critical` (Boolean) To generate port up/down alarm
 - `description` (String)
 - `disable_autoneg` (Boolean) If `speed` and `duplex` are specified, whether to disable autonegotiation
 - `duplex` (String) enum: `auto`, `full`, `half`
@@ -569,7 +569,7 @@ Optional:
 Optional:
 
 - `all_networks` (Boolean) Only if `mode`==`trunk` whether to trunk all network/vlans
-- `allow_dhcpd` (Boolean) Only if `mode`!=`dynamic`. If DHCP snooping is enabled, whether DHCP server is allowed on the interfaces with. All the interfaces from port configs using this port usage are effected. Please notice that allow_dhcpd is a tri_state. When it is not defined, it means using the system's default setting which depends on whether the port is a access or trunk port.
+- `allow_dhcpd` (Boolean) Only if `mode`!=`dynamic`. If DHCP snooping is enabled, whether DHCP server is allowed on the interfaces with. All the interfaces from port configs using this port usage are effected. Please notice that allow_dhcpd is a tri_state. When it is not defined, it means using the system's default setting which depends on whether the port is an access or trunk port.
 - `allow_multiple_supplicants` (Boolean) Only if `mode`!=`dynamic`
 - `bypass_auth_when_server_down` (Boolean) Only if `mode`!=`dynamic` and `port_auth`==`dot1x` bypass auth for known clients if set to true when RADIUS server is down
 - `bypass_auth_when_server_down_for_unkown_client` (Boolean) Only if `mode`!=`dynamic` and `port_auth`=`dot1x` bypass auth for all (including unknown clients) if set to true when RADIUS server is down

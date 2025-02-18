@@ -59,7 +59,7 @@ when `secret` is provided, two  HTTP headers will be added:
   * X-Mist-Signature-v2: HMAC_SHA256(secret, body)
   * X-Mist-Signature: HMAC_SHA1(secret, body)
 - `site_id` (String)
-- `splunk_token` (String, Sensitive) Required if `type`=`splunk`. If splunk_token is not defined for a type Splunk webhook, it will not send, regardless if the webhook receiver is configured to accept it.'
+- `splunk_token` (String, Sensitive) Required if `type`=`splunk`. If splunk_token is not defined for a type Splunk webhook, it will not send, regardless if the webhook receiver is configured to accept it.
 - `topics` (List of String) List of supported webhook topics available with the API Call [List Webhook Topics]($e/Constants%20Definitions/listWebhookTopics)
 - `type` (String) enum: `aws-sns`, `google-pubsub`, `http-post`, `oauth2`, `splunk`
 - `url` (String)

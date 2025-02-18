@@ -375,10 +375,10 @@ Optional:
 Optional:
 
 - `assets_enabled` (Boolean) Indicate whether named BLE assets should be included in the zone occupancy calculation
-- `clients_enabled` (Boolean) Indicate whether connected WiFi clients should be included in the zone occupancy calculation
+- `clients_enabled` (Boolean) Indicate whether connected Wi-Fi clients should be included in the zone occupancy calculation
 - `min_duration` (Number) Minimum duration
 - `sdkclients_enabled` (Boolean) Indicate whether SDK clients should be included in the zone occupancy calculation
-- `unconnected_clients_enabled` (Boolean) Indicate whether unconnected WiFi clients should be included in the zone occupancy calculation
+- `unconnected_clients_enabled` (Boolean) Indicate whether unconnected Wi-Fi clients should be included in the zone occupancy calculation
 
 
 <a id="nestedatt--proxy"></a>

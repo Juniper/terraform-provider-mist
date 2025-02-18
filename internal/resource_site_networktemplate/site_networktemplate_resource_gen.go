@@ -769,8 +769,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"allow_dhcpd": schema.BoolAttribute{
 							Optional:            true,
-							Description:         "Only if `mode`!=`dynamic`. If DHCP snooping is enabled, whether DHCP server is allowed on the interfaces with. All the interfaces from port configs using this port usage are effected. Please notice that allow_dhcpd is a tri_state. When it is not defined, it means using the system's default setting which depends on whether the port is a access or trunk port.",
-							MarkdownDescription: "Only if `mode`!=`dynamic`. If DHCP snooping is enabled, whether DHCP server is allowed on the interfaces with. All the interfaces from port configs using this port usage are effected. Please notice that allow_dhcpd is a tri_state. When it is not defined, it means using the system's default setting which depends on whether the port is a access or trunk port.",
+							Description:         "Only if `mode`!=`dynamic`. If DHCP snooping is enabled, whether DHCP server is allowed on the interfaces with. All the interfaces from port configs using this port usage are effected. Please notice that allow_dhcpd is a tri_state. When it is not defined, it means using the system's default setting which depends on whether the port is an access or trunk port.",
+							MarkdownDescription: "Only if `mode`!=`dynamic`. If DHCP snooping is enabled, whether DHCP server is allowed on the interfaces with. All the interfaces from port configs using this port usage are effected. Please notice that allow_dhcpd is a tri_state. When it is not defined, it means using the system's default setting which depends on whether the port is an access or trunk port.",
 							Validators: []validator.Bool{
 								mistvalidator.CannotBeTrueWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
 							},
@@ -2640,8 +2640,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											},
 											"critical": schema.BoolAttribute{
 												Optional:            true,
-												Description:         "If want to generate port up/down alarm",
-												MarkdownDescription: "If want to generate port up/down alarm",
+												Description:         "To generate port up/down alarm",
+												MarkdownDescription: "To generate port up/down alarm",
 											},
 											"description": schema.StringAttribute{
 												Optional: true,

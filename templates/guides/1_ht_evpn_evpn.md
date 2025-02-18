@@ -13,7 +13,7 @@ You can build and manage a campus fabric using the Mist Provider with the `mist_
 
 * **Campus Fabric IP Clos**: includes core / distribution / access layers
 * **Campus Fabric Core-Distribution**: includes core / distribution layers to form a 2-tier EVPN topology where ESI-Lag is configured distribution to connect to access switches
-* **EVPN Multihoming**: in a small/medium campus, EVPN Multihoming for Collapsed Core can be used where core switches are inter-connected to do EVPN
+* **EVPN Multihoming**: in a small/medium campus, EVPN Multihoming for Collapsed Core can be used where core switches are interconnected to do EVPN
 
 For more information about each EVPN Topology architecture, please refer to the [Juniper Documentation](https://www.juniper.net/documentation/us/en/software/mist/mist-wired/topics/concept/choose-campus-fabric-topology.html)
 

@@ -34,14 +34,14 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 					"enabled": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "whether to enable aeroscout config",
-						MarkdownDescription: "whether to enable aeroscout config",
+						Description:         "Whether to enable aeroscout config",
+						MarkdownDescription: "Whether to enable aeroscout config",
 						Default:             booldefault.StaticBool(false),
 					},
 					"host": schema.StringAttribute{
 						Optional:            true,
-						Description:         "required if enabled, aeroscout server host",
-						MarkdownDescription: "required if enabled, aeroscout server host",
+						Description:         "Required if enabled, aeroscout server host",
+						MarkdownDescription: "Required if enabled, aeroscout server host",
 						Validators: []validator.String{
 							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("enabled"), types.BoolValue(true)),
 						},
@@ -49,8 +49,8 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 					"locate_connected": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "whether to enable the feature to allow wireless clients data received and sent to AES server for location calculation",
-						MarkdownDescription: "whether to enable the feature to allow wireless clients data received and sent to AES server for location calculation",
+						Description:         "Whether to enable the feature to allow wireless clients data received and sent to AES server for location calculation",
+						MarkdownDescription: "Whether to enable the feature to allow wireless clients data received and sent to AES server for location calculation",
 						Default:             booldefault.StaticBool(true),
 					},
 				},
@@ -68,15 +68,15 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 					"beacon_enabled": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "whether Mist beacons is enabled",
-						MarkdownDescription: "whether Mist beacons is enabled",
+						Description:         "Whether Mist beacons is enabled",
+						MarkdownDescription: "Whether Mist beacons is enabled",
 						Default:             booldefault.StaticBool(false),
 					},
 					"beacon_rate": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "required if `beacon_rate_mode`==`custom`, 1-10, in number-beacons-per-second",
-						MarkdownDescription: "required if `beacon_rate_mode`==`custom`, 1-10, in number-beacons-per-second",
+						Description:         "Required if `beacon_rate_mode`==`custom`, 1-10, in number-beacons-per-second",
+						MarkdownDescription: "Required if `beacon_rate_mode`==`custom`, 1-10, in number-beacons-per-second",
 						Validators: []validator.Int64{
 							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("beacon_rate_mode"), types.StringValue("custom")),
 						},
@@ -99,8 +99,8 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 					"beam_disabled": schema.ListAttribute{
 						ElementType:         types.Int64Type,
 						Optional:            true,
-						Description:         "list of AP BLE location beam numbers (1-8) which should be disabled at the AP and not transmit location information (where beam 1 is oriented at the top the AP, growing counter-clock-wise, with 9 being the omni BLE beam)",
-						MarkdownDescription: "list of AP BLE location beam numbers (1-8) which should be disabled at the AP and not transmit location information (where beam 1 is oriented at the top the AP, growing counter-clock-wise, with 9 being the omni BLE beam)",
+						Description:         "List of AP BLE location beam numbers (1-8) which should be disabled at the AP and not transmit location information (where beam 1 is oriented at the top the AP, growing counter-clock-wise, with 9 being the omni BLE beam)",
+						MarkdownDescription: "List of AP BLE location beam numbers (1-8) which should be disabled at the AP and not transmit location information (where beam 1 is oriented at the top the AP, growing counter-clock-wise, with 9 being the omni BLE beam)",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 							listvalidator.ValueInt64sAre(int64validator.Between(1, 8)),
@@ -109,8 +109,8 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 					"custom_ble_packet_enabled": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "can be enabled if `beacon_enabled`==`true`, whether to send custom packet",
-						MarkdownDescription: "can be enabled if `beacon_enabled`==`true`, whether to send custom packet",
+						Description:         "Can be enabled if `beacon_enabled`==`true`, whether to send custom packet",
+						MarkdownDescription: "Can be enabled if `beacon_enabled`==`true`, whether to send custom packet",
 						Validators: []validator.Bool{
 							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("beacon_enabled"), types.BoolValue(true)),
 						},
@@ -139,8 +139,8 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 					"eddystone_uid_adv_power": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "advertised TX Power, -100 to 20 (dBm), omit this attribute to use default",
-						MarkdownDescription: "advertised TX Power, -100 to 20 (dBm), omit this attribute to use default",
+						Description:         "Advertised TX Power, -100 to 20 (dBm), omit this attribute to use default",
+						MarkdownDescription: "Advertised TX Power, -100 to 20 (dBm), omit this attribute to use default",
 						Validators: []validator.Int64{
 							int64validator.Between(-100, 20),
 						},
@@ -154,8 +154,8 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 					"eddystone_uid_enabled": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "only if `beacon_enabled`==`false`, Whether Eddystone-UID beacon is enabled",
-						MarkdownDescription: "only if `beacon_enabled`==`false`, Whether Eddystone-UID beacon is enabled",
+						Description:         "Only if `beacon_enabled`==`false`, Whether Eddystone-UID beacon is enabled",
+						MarkdownDescription: "Only if `beacon_enabled`==`false`, Whether Eddystone-UID beacon is enabled",
 						Validators: []validator.Bool{
 							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("beacon_enabled"), types.BoolValue(false)),
 						},
@@ -194,8 +194,8 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 					"eddystone_url_adv_power": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "advertised TX Power, -100 to 20 (dBm), omit this attribute to use default",
-						MarkdownDescription: "advertised TX Power, -100 to 20 (dBm), omit this attribute to use default",
+						Description:         "Advertised TX Power, -100 to 20 (dBm), omit this attribute to use default",
+						MarkdownDescription: "Advertised TX Power, -100 to 20 (dBm), omit this attribute to use default",
 						Validators: []validator.Int64{
 							int64validator.Between(-100, 20),
 						},
@@ -212,8 +212,8 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 					"eddystone_url_enabled": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "only if `beacon_enabled`==`false`, Whether Eddystone-URL beacon is enabled",
-						MarkdownDescription: "only if `beacon_enabled`==`false`, Whether Eddystone-URL beacon is enabled",
+						Description:         "Only if `beacon_enabled`==`false`, Whether Eddystone-URL beacon is enabled",
+						MarkdownDescription: "Only if `beacon_enabled`==`false`, Whether Eddystone-URL beacon is enabled",
 						Validators: []validator.Bool{
 							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("beacon_enabled"), types.BoolValue(false)),
 						},
@@ -242,8 +242,8 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 					"ibeacon_adv_power": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "advertised TX Power, -100 to 20 (dBm), omit this attribute to use default",
-						MarkdownDescription: "advertised TX Power, -100 to 20 (dBm), omit this attribute to use default",
+						Description:         "Advertised TX Power, -100 to 20 (dBm), omit this attribute to use default",
+						MarkdownDescription: "Advertised TX Power, -100 to 20 (dBm), omit this attribute to use default",
 						Validators: []validator.Int64{
 							int64validator.Between(-100, 20),
 						},
@@ -260,8 +260,8 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 					"ibeacon_enabled": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "can be enabled if `beacon_enabled`==`true`, whether to send iBeacon",
-						MarkdownDescription: "can be enabled if `beacon_enabled`==`true`, whether to send iBeacon",
+						Description:         "Can be enabled if `beacon_enabled`==`true`, whether to send iBeacon",
+						MarkdownDescription: "Can be enabled if `beacon_enabled`==`true`, whether to send iBeacon",
 						Validators: []validator.Bool{
 							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("beacon_enabled"), types.BoolValue(true)),
 						},
@@ -300,8 +300,8 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 					"ibeacon_uuid": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "optional, if not specified, the same UUID as the beacon will be used",
-						MarkdownDescription: "optional, if not specified, the same UUID as the beacon will be used",
+						Description:         "Optional, if not specified, the same UUID as the beacon will be used",
+						MarkdownDescription: "Optional, if not specified, the same UUID as the beacon will be used",
 						Validators: []validator.String{
 							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("ibeacon_enabled"), types.BoolValue(true)),
 						},
@@ -310,10 +310,10 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 					"power": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "required if `power_mode`==`custom`",
-						MarkdownDescription: "required if `power_mode`==`custom`",
+						Description:         "Required if `power_mode`==`custom`; else use `power_mode` as default",
+						MarkdownDescription: "Required if `power_mode`==`custom`; else use `power_mode` as default",
 						Validators: []validator.Int64{
-							int64validator.Between(1, 10),
+							int64validator.Between(2, 7),
 						},
 						Default: int64default.StaticInt64(9),
 					},
@@ -393,8 +393,8 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 					"enabled": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "when acted as client bridge:\n  * only 5G radio can be used\n  * will not serve as AP on any radios",
-						MarkdownDescription: "when acted as client bridge:\n  * only 5G radio can be used\n  * will not serve as AP on any radios",
+						Description:         "When acted as client bridge:\n  * only 5G radio can be used\n  * will not serve as AP on any radios",
+						MarkdownDescription: "When acted as client bridge:\n  * only 5G radio can be used\n  * will not serve as AP on any radios",
 						Default:             booldefault.StaticBool(false),
 					},
 					"ssid": schema.StringAttribute{
@@ -417,29 +417,29 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 			"disable_eth1": schema.BoolAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "whether to disable eth1 port",
-				MarkdownDescription: "whether to disable eth1 port",
+				Description:         "Whether to disable eth1 port",
+				MarkdownDescription: "Whether to disable eth1 port",
 				Default:             booldefault.StaticBool(false),
 			},
 			"disable_eth2": schema.BoolAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "whether to disable eth2 port",
-				MarkdownDescription: "whether to disable eth2 port",
+				Description:         "Whether to disable eth2 port",
+				MarkdownDescription: "Whether to disable eth2 port",
 				Default:             booldefault.StaticBool(false),
 			},
 			"disable_eth3": schema.BoolAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "whether to disable eth3 port",
-				MarkdownDescription: "whether to disable eth3 port",
+				Description:         "Whether to disable eth3 port",
+				MarkdownDescription: "Whether to disable eth3 port",
 				Default:             booldefault.StaticBool(false),
 			},
 			"disable_module": schema.BoolAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "whether to disable module port",
-				MarkdownDescription: "whether to disable module port",
+				Description:         "Whether to disable module port",
+				MarkdownDescription: "Whether to disable module port",
 				Default:             booldefault.StaticBool(false),
 			},
 			"esl_config": schema.SingleNestedAttribute{
@@ -561,10 +561,17 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Optional: true,
 			},
+			"flow_control": schema.BoolAttribute{
+				Optional:            true,
+				Computed:            true,
+				Description:         "For some AP models, flow_control can be enabled to address some switch compatibility issue",
+				MarkdownDescription: "For some AP models, flow_control can be enabled to address some switch compatibility issue",
+				Default:             booldefault.StaticBool(false),
+			},
 			"height": schema.Float64Attribute{
 				Optional:            true,
-				Description:         "height, in meters, optional",
-				MarkdownDescription: "height, in meters, optional",
+				Description:         "Height, in meters, optional",
+				MarkdownDescription: "Height, in meters, optional",
 			},
 			"image1_url": schema.StringAttribute{
 				Computed: true,
@@ -590,8 +597,8 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 						ElementType:         types.StringType,
 						Optional:            true,
 						Computed:            true,
-						Description:         "if `type`==`static`",
-						MarkdownDescription: "if `type`==`static`",
+						Description:         "If `type`==`static`",
+						MarkdownDescription: "If `type`==`static`",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
@@ -600,16 +607,16 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 						ElementType:         types.StringType,
 						Optional:            true,
 						Computed:            true,
-						Description:         "required if `type`==`static`",
-						MarkdownDescription: "required if `type`==`static`",
+						Description:         "Required if `type`==`static`",
+						MarkdownDescription: "Required if `type`==`static`",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
 					},
 					"gateway": schema.StringAttribute{
 						Optional:            true,
-						Description:         "required if `type`==`static`",
-						MarkdownDescription: "required if `type`==`static`",
+						Description:         "Required if `type`==`static`",
+						MarkdownDescription: "Required if `type`==`static`",
 						Validators: []validator.String{
 							stringvalidator.Any(
 								mistvalidator.ParseIp(true, false),
@@ -630,8 +637,8 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"ip": schema.StringAttribute{
 						Optional:            true,
-						Description:         "required if `type`==`static`",
-						MarkdownDescription: "required if `type`==`static`",
+						Description:         "Required if `type`==`static`",
+						MarkdownDescription: "Required if `type`==`static`",
 						Validators: []validator.String{
 							stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar()),
 							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static")),
@@ -652,8 +659,8 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"netmask": schema.StringAttribute{
 						Optional:            true,
-						Description:         "required if `type`==`static`",
-						MarkdownDescription: "required if `type`==`static`",
+						Description:         "Required if `type`==`static`",
+						MarkdownDescription: "Required if `type`==`static`",
 						Validators: []validator.String{
 							stringvalidator.Any(mistvalidator.ParseNetmask(true, true), mistvalidator.ParseVar()),
 							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static")),
@@ -702,8 +709,8 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 					"vlan_id": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "management vlan id, default is 1 (untagged)",
-						MarkdownDescription: "management vlan id, default is 1 (untagged)",
+						Description:         "Management VLAN id, default is 1 (untagged)",
+						MarkdownDescription: "Management VLAN id, default is 1 (untagged)",
 						Validators: []validator.Int64{
 							int64validator.Between(1, 4094),
 						},
@@ -746,35 +753,35 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"locked": schema.BoolAttribute{
 				Optional:            true,
-				Description:         "whether this map is considered locked down",
-				MarkdownDescription: "whether this map is considered locked down",
+				Description:         "Whether this map is considered locked down",
+				MarkdownDescription: "Whether this map is considered locked down",
 			},
 			"mac": schema.StringAttribute{
 				Computed:            true,
-				Description:         "device MAC address",
-				MarkdownDescription: "device MAC address",
+				Description:         "Device MAC address",
+				MarkdownDescription: "Device MAC address",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"map_id": schema.StringAttribute{
 				Optional:            true,
-				Description:         "map where the device belongs to",
-				MarkdownDescription: "map where the device belongs to",
+				Description:         "Map where the device belongs to",
+				MarkdownDescription: "Map where the device belongs to",
 			},
 			"mesh": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"enabled": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "whether mesh is enabled on this AP",
-						MarkdownDescription: "whether mesh is enabled on this AP",
+						Description:         "Whether mesh is enabled on this AP",
+						MarkdownDescription: "Whether mesh is enabled on this AP",
 						Default:             booldefault.StaticBool(false),
 					},
 					"group": schema.Int64Attribute{
 						Optional:            true,
-						Description:         "mesh group, base AP(s) will only allow remote AP(s) in the same mesh group to join, 1-9, optional",
-						MarkdownDescription: "mesh group, base AP(s) will only allow remote AP(s) in the same mesh group to join, 1-9, optional",
+						Description:         "Mesh group, base AP(s) will only allow remote AP(s) in the same mesh group to join, 1-9, optional",
+						MarkdownDescription: "Mesh group, base AP(s) will only allow remote AP(s) in the same mesh group to join, 1-9, optional",
 						Validators: []validator.Int64{
 							int64validator.Between(1, 9),
 						},
@@ -803,16 +810,16 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"model": schema.StringAttribute{
 				Computed:            true,
-				Description:         "device Model",
-				MarkdownDescription: "device Model",
+				Description:         "Device Model",
+				MarkdownDescription: "Device Model",
 			},
 			"name": schema.StringAttribute{
 				Required: true,
 			},
 			"notes": schema.StringAttribute{
 				Optional:            true,
-				Description:         "any notes about this AP",
-				MarkdownDescription: "any notes about this AP",
+				Description:         "Any notes about this AP",
+				MarkdownDescription: "Any notes about this AP",
 			},
 			"ntp_servers": schema.ListAttribute{
 				ElementType: types.StringType,
@@ -829,8 +836,8 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"orientation": schema.Int64Attribute{
 				Optional:            true,
-				Description:         "orientation, 0-359, in degrees, up is 0, right is 90.",
-				MarkdownDescription: "orientation, 0-359, in degrees, up is 0, right is 90.",
+				Description:         "Orientation, 0-359, in degrees, up is 0, right is 90.",
+				MarkdownDescription: "Orientation, 0-359, in degrees, up is 0, right is 90.",
 				Validators: []validator.Int64{
 					int64validator.Between(0, 359),
 				},
@@ -838,8 +845,8 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 			"poe_passthrough": schema.BoolAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "whether to enable power out through module port (for APH) or eth1 (for APL/BT11)",
-				MarkdownDescription: "whether to enable power out through module port (for APH) or eth1 (for APL/BT11)",
+				Description:         "Whether to enable power out through module port (for APH) or eth1 (for APL/BT11)",
+				MarkdownDescription: "Whether to enable power out through module port (for APH) or eth1 (for APL/BT11)",
 				Default:             booldefault.StaticBool(false),
 			},
 			"pwr_config": schema.SingleNestedAttribute{
@@ -847,15 +854,15 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 					"base": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "additional power to request during negotiating with PSE over PoE, in mW",
-						MarkdownDescription: "additional power to request during negotiating with PSE over PoE, in mW",
+						Description:         "Additional power to request during negotiating with PSE over PoE, in mW",
+						MarkdownDescription: "Additional power to request during negotiating with PSE over PoE, in mW",
 						Default:             int64default.StaticInt64(0),
 					},
 					"prefer_usb_over_wifi": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "whether to enable power out to peripheral, meanwhile will reduce power to wifi (only for AP45 at power mode)",
-						MarkdownDescription: "whether to enable power out to peripheral, meanwhile will reduce power to wifi (only for AP45 at power mode)",
+						Description:         "Whether to enable power out to peripheral, meanwhile will reduce power to Wi-Fi (only for AP45 at power mode)",
+						MarkdownDescription: "Whether to enable power out to peripheral, meanwhile will reduce power to Wi-Fi (only for AP45 at power mode)",
 						Default:             booldefault.StaticBool(false),
 					},
 				},
@@ -865,8 +872,8 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "power related configs",
-				MarkdownDescription: "power related configs",
+				Description:         "Power related configs",
+				MarkdownDescription: "Power related configs",
 			},
 			"radio_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -877,24 +884,24 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"ant_gain_24": schema.Int64Attribute{
 						Optional:            true,
-						Description:         "antenna gain for 2.4G - for models with external antenna only",
-						MarkdownDescription: "antenna gain for 2.4G - for models with external antenna only",
+						Description:         "Antenna gain for 2.4G - for models with external antenna only",
+						MarkdownDescription: "Antenna gain for 2.4G - for models with external antenna only",
 						Validators: []validator.Int64{
 							int64validator.AtLeast(0),
 						},
 					},
 					"ant_gain_5": schema.Int64Attribute{
 						Optional:            true,
-						Description:         "antenna gain for 5G - for models with external antenna only",
-						MarkdownDescription: "antenna gain for 5G - for models with external antenna only",
+						Description:         "Antenna gain for 5G - for models with external antenna only",
+						MarkdownDescription: "Antenna gain for 5G - for models with external antenna only",
 						Validators: []validator.Int64{
 							int64validator.AtLeast(0),
 						},
 					},
 					"ant_gain_6": schema.Int64Attribute{
 						Optional:            true,
-						Description:         "antenna gain for 6G - for models with external antenna only",
-						MarkdownDescription: "antenna gain for 6G - for models with external antenna only",
+						Description:         "Antenna gain for 6G - for models with external antenna only",
+						MarkdownDescription: "Antenna gain for 6G - for models with external antenna only",
 						Validators: []validator.Int64{
 							int64validator.AtLeast(0),
 						},
@@ -980,8 +987,8 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 							"disabled": schema.BoolAttribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "whether to disable the radio",
-								MarkdownDescription: "whether to disable the radio",
+								Description:         "Whether to disable the radio",
+								MarkdownDescription: "Whether to disable the radio",
 								Default:             booldefault.StaticBool(false),
 							},
 							"power": schema.Int64Attribute{
@@ -997,8 +1004,8 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 							"power_max": schema.Int64Attribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "when power=0, max tx power to use, HW-specific values will be used if not set",
-								MarkdownDescription: "when power=0, max tx power to use, HW-specific values will be used if not set",
+								Description:         "When power=0, max tx power to use, HW-specific values will be used if not set",
+								MarkdownDescription: "When power=0, max tx power to use, HW-specific values will be used if not set",
 								Validators: []validator.Int64{
 									int64validator.Between(3, 18),
 								},
@@ -1007,8 +1014,8 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 							"power_min": schema.Int64Attribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "when power=0, min tx power to use, HW-specific values will be used if not set",
-								MarkdownDescription: "when power=0, min tx power to use, HW-specific values will be used if not set",
+								Description:         "When power=0, min tx power to use, HW-specific values will be used if not set",
+								MarkdownDescription: "When power=0, min tx power to use, HW-specific values will be used if not set",
 								Validators: []validator.Int64{
 									int64validator.Between(3, 18),
 								},
@@ -1113,8 +1120,8 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 							"disabled": schema.BoolAttribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "whether to disable the radio",
-								MarkdownDescription: "whether to disable the radio",
+								Description:         "Whether to disable the radio",
+								MarkdownDescription: "Whether to disable the radio",
 								Default:             booldefault.StaticBool(false),
 							},
 							"power": schema.Int64Attribute{
@@ -1130,8 +1137,8 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 							"power_max": schema.Int64Attribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "when power=0, max tx power to use, HW-specific values will be used if not set",
-								MarkdownDescription: "when power=0, max tx power to use, HW-specific values will be used if not set",
+								Description:         "When power=0, max tx power to use, HW-specific values will be used if not set",
+								MarkdownDescription: "When power=0, max tx power to use, HW-specific values will be used if not set",
 								Validators: []validator.Int64{
 									int64validator.Between(5, 17),
 								},
@@ -1140,8 +1147,8 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 							"power_min": schema.Int64Attribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "when power=0, min tx power to use, HW-specific values will be used if not set",
-								MarkdownDescription: "when power=0, min tx power to use, HW-specific values will be used if not set",
+								Description:         "When power=0, min tx power to use, HW-specific values will be used if not set",
+								MarkdownDescription: "When power=0, min tx power to use, HW-specific values will be used if not set",
 								Validators: []validator.Int64{
 									int64validator.Between(5, 17),
 								},
@@ -1232,8 +1239,8 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 							"disabled": schema.BoolAttribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "whether to disable the radio",
-								MarkdownDescription: "whether to disable the radio",
+								Description:         "Whether to disable the radio",
+								MarkdownDescription: "Whether to disable the radio",
 								Default:             booldefault.StaticBool(false),
 							},
 							"power": schema.Int64Attribute{
@@ -1249,8 +1256,8 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 							"power_max": schema.Int64Attribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "when power=0, max tx power to use, HW-specific values will be used if not set",
-								MarkdownDescription: "when power=0, max tx power to use, HW-specific values will be used if not set",
+								Description:         "When power=0, max tx power to use, HW-specific values will be used if not set",
+								MarkdownDescription: "When power=0, max tx power to use, HW-specific values will be used if not set",
 								Validators: []validator.Int64{
 									int64validator.Between(5, 17),
 								},
@@ -1259,8 +1266,8 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 							"power_min": schema.Int64Attribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "when power=0, min tx power to use, HW-specific values will be used if not set",
-								MarkdownDescription: "when power=0, min tx power to use, HW-specific values will be used if not set",
+								Description:         "When power=0, min tx power to use, HW-specific values will be used if not set",
+								MarkdownDescription: "When power=0, min tx power to use, HW-specific values will be used if not set",
 								Validators: []validator.Int64{
 									int64validator.Between(5, 17),
 								},
@@ -1354,8 +1361,8 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 							"disabled": schema.BoolAttribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "whether to disable the radio",
-								MarkdownDescription: "whether to disable the radio",
+								Description:         "Whether to disable the radio",
+								MarkdownDescription: "Whether to disable the radio",
 								Default:             booldefault.StaticBool(false),
 							},
 							"power": schema.Int64Attribute{
@@ -1371,8 +1378,8 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 							"power_max": schema.Int64Attribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "when power=0, max tx power to use, HW-specific values will be used if not set",
-								MarkdownDescription: "when power=0, max tx power to use, HW-specific values will be used if not set",
+								Description:         "When power=0, max tx power to use, HW-specific values will be used if not set",
+								MarkdownDescription: "When power=0, max tx power to use, HW-specific values will be used if not set",
 								Validators: []validator.Int64{
 									int64validator.Between(5, 18),
 								},
@@ -1381,8 +1388,8 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 							"power_min": schema.Int64Attribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "when power=0, min tx power to use, HW-specific values will be used if not set",
-								MarkdownDescription: "when power=0, min tx power to use, HW-specific values will be used if not set",
+								Description:         "When power=0, min tx power to use, HW-specific values will be used if not set",
+								MarkdownDescription: "When power=0, min tx power to use, HW-specific values will be used if not set",
 								Validators: []validator.Int64{
 									int64validator.Between(5, 18),
 								},
@@ -1406,8 +1413,8 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 							"standard_power": schema.BoolAttribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "for 6GHz Only, standard-power operation, AFC (Automatic Frequency Coordination) will be performed and we'll fallback to Low Power Indoor if AFC failed",
-								MarkdownDescription: "for 6GHz Only, standard-power operation, AFC (Automatic Frequency Coordination) will be performed and we'll fallback to Low Power Indoor if AFC failed",
+								Description:         "For 6GHz Only, standard-power operation, AFC (Automatic Frequency Coordination) will be performed, and we'll fall back to Low Power Indoor if AFC failed",
+								MarkdownDescription: "For 6GHz Only, standard-power operation, AFC (Automatic Frequency Coordination) will be performed, and we'll fall back to Low Power Indoor if AFC failed",
 								Default:             booldefault.StaticBool(false),
 							},
 						},
@@ -1423,14 +1430,14 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 					"indoor_use": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "to make an outdoor operate indoor.\nfor an outdoor-ap, some channels are disallowed by default, this allows the user to use it as an indoor-ap",
-						MarkdownDescription: "to make an outdoor operate indoor.\nfor an outdoor-ap, some channels are disallowed by default, this allows the user to use it as an indoor-ap",
+						Description:         "To make an outdoor operate indoor. For an outdoor-ap, some channels are disallowed by default, this allows the user to use it as an indoor-ap",
+						MarkdownDescription: "To make an outdoor operate indoor. For an outdoor-ap, some channels are disallowed by default, this allows the user to use it as an indoor-ap",
 						Default:             booldefault.StaticBool(false),
 					},
 					"scanning_enabled": schema.BoolAttribute{
 						Optional:            true,
-						Description:         "whether scanning radio is enabled",
-						MarkdownDescription: "whether scanning radio is enabled",
+						Description:         "Whether scanning radio is enabled",
+						MarkdownDescription: "Whether scanning radio is enabled",
 					},
 				},
 				CustomType: RadioConfigType{
@@ -1444,8 +1451,8 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"serial": schema.StringAttribute{
 				Computed:            true,
-				Description:         "device Serial",
-				MarkdownDescription: "device Serial",
+				Description:         "Device Serial",
+				MarkdownDescription: "Device Serial",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -1466,7 +1473,6 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 						"ap",
 					),
 				},
-				Default: stringdefault.StaticString("ap"),
 			},
 			"uplink_port_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -1480,8 +1486,8 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 					"keep_wlans_up_if_down": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "by default, WLANs are disabled when uplink is down. In some scenario, like SiteSurvey, one would want the AP to keep sending beacons.",
-						MarkdownDescription: "by default, WLANs are disabled when uplink is down. In some scenario, like SiteSurvey, one would want the AP to keep sending beacons.",
+						Description:         "By default, WLANs are disabled when uplink is down. In some scenario, like SiteSurvey, one would want the AP to keep sending beacons.",
+						MarkdownDescription: "By default, WLANs are disabled when uplink is down. In some scenario, like SiteSurvey, one would want the AP to keep sending beacons.",
 						Default:             booldefault.StaticBool(false),
 					},
 				},
@@ -1490,14 +1496,16 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: UplinkPortConfigValue{}.AttributeTypes(ctx),
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "AP Uplink port configuration",
+				MarkdownDescription: "AP Uplink port configuration",
 			},
 			"usb_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"cacert": schema.StringAttribute{
 						Optional:            true,
-						Description:         "only if `type`==`imagotag`",
-						MarkdownDescription: "only if `type`==`imagotag`",
+						Description:         "Only if `type`==`imagotag`",
+						MarkdownDescription: "Only if `type`==`imagotag`",
 						Validators: []validator.String{
 							mistvalidator.AllowedWhenValueIs(
 								path.MatchRelative().AtParent().AtName("type"),
@@ -1507,8 +1515,8 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"channel": schema.Int64Attribute{
 						Optional:            true,
-						Description:         "only if `type`==`imagotag`, channel selection, not needed by default, required for manual channel override only",
-						MarkdownDescription: "only if `type`==`imagotag`, channel selection, not needed by default, required for manual channel override only",
+						Description:         "Only if `type`==`imagotag`, channel selection, not needed by default, required for manual channel override only",
+						MarkdownDescription: "Only if `type`==`imagotag`, channel selection, not needed by default, required for manual channel override only",
 						Validators: []validator.Int64{
 							mistvalidator.AllowedWhenValueIs(
 								path.MatchRelative().AtParent().AtName("type"),
@@ -1518,13 +1526,13 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"enabled": schema.BoolAttribute{
 						Optional:            true,
-						Description:         "whether to enable any usb config",
-						MarkdownDescription: "whether to enable any usb config",
+						Description:         "Whether to enable any usb config",
+						MarkdownDescription: "Whether to enable any usb config",
 					},
 					"host": schema.StringAttribute{
 						Optional:            true,
-						Description:         "only if `type`==`imagotag`",
-						MarkdownDescription: "only if `type`==`imagotag`",
+						Description:         "Only if `type`==`imagotag`",
+						MarkdownDescription: "Only if `type`==`imagotag`",
 						Validators: []validator.String{
 							mistvalidator.AllowedWhenValueIs(
 								path.MatchRelative().AtParent().AtName("type"),
@@ -1535,8 +1543,8 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 					"port": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "only if `type`==`imagotag`",
-						MarkdownDescription: "only if `type`==`imagotag`",
+						Description:         "Only if `type`==`imagotag`",
+						MarkdownDescription: "Only if `type`==`imagotag`",
 						Validators: []validator.Int64{
 							mistvalidator.AllowedWhenValueIs(
 								path.MatchRelative().AtParent().AtName("type"),
@@ -1561,8 +1569,8 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"verify_cert": schema.BoolAttribute{
 						Optional:            true,
-						Description:         "only if `type`==`imagotag`, whether to turn on SSL verification",
-						MarkdownDescription: "only if `type`==`imagotag`, whether to turn on SSL verification",
+						Description:         "Only if `type`==`imagotag`, whether to turn on SSL verification",
+						MarkdownDescription: "Only if `type`==`imagotag`, whether to turn on SSL verification",
 						Validators: []validator.Bool{
 							mistvalidator.AllowedWhenValueIs(
 								path.MatchRelative().AtParent().AtName("type"),
@@ -1573,8 +1581,8 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 					"vlan_id": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "only if `type`==`solum` or `type`==`hanshow`",
-						MarkdownDescription: "only if `type`==`solum` or `type`==`hanshow`",
+						Description:         "Only if `type`==`solum` or `type`==`hanshow`",
+						MarkdownDescription: "Only if `type`==`solum` or `type`==`hanshow`",
 						Validators: []validator.Int64{
 							mistvalidator.AllowedWhenValueIsIn(
 								path.MatchRelative().AtParent().AtName("type"),
@@ -1594,24 +1602,24 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "USB AP settings\nNote: if native imagotag is enabled, BLE will be disabled automatically\nNote: legacy, new config moved to ESL Config.",
-				MarkdownDescription: "USB AP settings\nNote: if native imagotag is enabled, BLE will be disabled automatically\nNote: legacy, new config moved to ESL Config.",
+				Description:         "USB AP settings\n  - Note: if native imagotag is enabled, BLE will be disabled automatically\n  - Note: legacy, new config moved to ESL Config.",
+				MarkdownDescription: "USB AP settings\n  - Note: if native imagotag is enabled, BLE will be disabled automatically\n  - Note: legacy, new config moved to ESL Config.",
 			},
 			"vars": schema.MapAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
-				Description:         "a dictionary of name->value, the vars can then be used in Wlans. This can overwrite those from Site Vars",
-				MarkdownDescription: "a dictionary of name->value, the vars can then be used in Wlans. This can overwrite those from Site Vars",
+				Description:         "Dictionary of name->value, the vars can then be used in Wlans. This can overwrite those from Site Vars",
+				MarkdownDescription: "Dictionary of name->value, the vars can then be used in Wlans. This can overwrite those from Site Vars",
 			},
 			"x": schema.Float64Attribute{
 				Optional:            true,
-				Description:         "x in pixel",
-				MarkdownDescription: "x in pixel",
+				Description:         "X in pixel",
+				MarkdownDescription: "X in pixel",
 			},
 			"y": schema.Float64Attribute{
 				Optional:            true,
-				Description:         "y in pixel",
-				MarkdownDescription: "y in pixel",
+				Description:         "Y in pixel",
+				MarkdownDescription: "Y in pixel",
 			},
 		},
 	}
@@ -1628,6 +1636,7 @@ type DeviceApModel struct {
 	DisableEth3      types.Bool            `tfsdk:"disable_eth3"`
 	DisableModule    types.Bool            `tfsdk:"disable_module"`
 	EslConfig        EslConfigValue        `tfsdk:"esl_config"`
+	FlowControl      types.Bool            `tfsdk:"flow_control"`
 	Height           types.Float64         `tfsdk:"height"`
 	Image1Url        types.String          `tfsdk:"image1_url"`
 	Image2Url        types.String          `tfsdk:"image2_url"`

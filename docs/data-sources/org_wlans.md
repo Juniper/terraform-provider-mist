@@ -37,127 +37,127 @@ data "mist_org_wlans" "org_wlans" {
 
 Read-Only:
 
-- `acct_immediate_update` (Boolean) enable coa-immediate-update and address-change-immediate-update on the access profile.
-- `acct_interim_interval` (Number) how frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from RADIUS Server). Very frequent messages can affect the performance of the radius server, 600 and up is recommended when enabled
-- `acct_servers` (Attributes List) list of RADIUS accounting servers, optional, order matters where the first one is treated as primary (see [below for nested schema](#nestedatt--org_wlans--acct_servers))
-- `airwatch` (Attributes) airwatch wlan settings (see [below for nested schema](#nestedatt--org_wlans--airwatch))
-- `allow_ipv6_ndp` (Boolean) only applicable when limit_bcast==true, which allows or disallows ipv6 Neighbor Discovery packets to go through
-- `allow_mdns` (Boolean) only applicable when limit_bcast==true, which allows mDNS / Bonjour packets to go through
-- `allow_ssdp` (Boolean) only applicable when `limit_bcast`==`true`, which allows SSDP
-- `ap_ids` (List of String) list of device ids
-- `app_limit` (Attributes) bandwidth limiting for apps (applies to up/down) (see [below for nested schema](#nestedatt--org_wlans--app_limit))
-- `app_qos` (Attributes) app qos wlan settings (see [below for nested schema](#nestedatt--org_wlans--app_qos))
+- `acct_immediate_update` (Boolean) Enable coa-immediate-update and address-change-immediate-update on the access profile.
+- `acct_interim_interval` (Number) How frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from RADIUS Server). Very frequent messages can affect the performance of the radius server, 600 and up is recommended when enabled
+- `acct_servers` (Attributes List) List of RADIUS accounting servers, optional, order matters where the first one is treated as primary (see [below for nested schema](#nestedatt--org_wlans--acct_servers))
+- `airwatch` (Attributes) Airwatch wlan settings (see [below for nested schema](#nestedatt--org_wlans--airwatch))
+- `allow_ipv6_ndp` (Boolean) Only applicable when limit_bcast==true, which allows or disallows ipv6 Neighbor Discovery packets to go through
+- `allow_mdns` (Boolean) Only applicable when limit_bcast==true, which allows mDNS / Bonjour packets to go through
+- `allow_ssdp` (Boolean) Only applicable when `limit_bcast`==`true`, which allows SSDP
+- `ap_ids` (List of String) List of device ids
+- `app_limit` (Attributes) Bandwidth limiting for apps (applies to up/down) (see [below for nested schema](#nestedatt--org_wlans--app_limit))
+- `app_qos` (Attributes) APp qos wlan settings (see [below for nested schema](#nestedatt--org_wlans--app_qos))
 - `apply_to` (String) enum: `aps`, `site`, `wxtags`
-- `arp_filter` (Boolean) whether to enable smart arp filter
-- `auth` (Attributes) authentication wlan settings (see [below for nested schema](#nestedatt--org_wlans--auth))
+- `arp_filter` (Boolean) Whether to enable smart arp filter
+- `auth` (Attributes) Authentication wlan settings (see [below for nested schema](#nestedatt--org_wlans--auth))
 - `auth_server_selection` (String) When ordered, AP will prefer and go back to the first server if possible. enum: `ordered`, `unordered`
-- `auth_servers` (Attributes List) list of RADIUS authentication servers, at least one is needed if `auth type`==`eap`, order matters where the first one is treated as primary (see [below for nested schema](#nestedatt--org_wlans--auth_servers))
-- `auth_servers_nas_id` (String) optional, up to 48 bytes, will be dynamically generated if not provided. used only for authentication servers
-- `auth_servers_nas_ip` (String) optional, NAS-IP-ADDRESS to use
-- `auth_servers_retries` (Number) radius auth session retries. Following fast timers are set if “fast_dot1x_timers” knob is enabled. ‘retries’  are set to value of auth_servers_retries. ‘max-requests’ is also set when setting auth_servers_retries and is set to default value to 3.
-- `auth_servers_timeout` (Number) radius auth session timeout. Following fast timers are set if “fast_dot1x_timers” knob is enabled. ‘quite-period’  and ‘transmit-period’ are set to half the value of auth_servers_timeout. ‘supplicant-timeout’ is also set when setting auth_servers_timeout and is set to default value of 10.
-- `band_steer` (Boolean) whether to enable band_steering, this works only when band==both
-- `band_steer_force_band5` (Boolean) force dual_band capable client to connect to 5G
-- `bands` (List of String) list of radios that the wlan should apply to.
-- `block_blacklist_clients` (Boolean) whether to block the clients in the blacklist (up to first 256 macs)
-- `bonjour` (Attributes) bonjour gateway wlan settings (see [below for nested schema](#nestedatt--org_wlans--bonjour))
+- `auth_servers` (Attributes List) List of RADIUS authentication servers, at least one is needed if `auth type`==`eap`, order matters where the first one is treated as primary (see [below for nested schema](#nestedatt--org_wlans--auth_servers))
+- `auth_servers_nas_id` (String) Optional, up to 48 bytes, will be dynamically generated if not provided. used only for authentication servers
+- `auth_servers_nas_ip` (String) Optional, NAS-IP-ADDRESS to use
+- `auth_servers_retries` (Number) Radius auth session retries. Following fast timers are set if "fast_dot1x_timers" knob is enabled. ‘retries’  are set to value of auth_servers_retries. ‘max-requests’ is also set when setting auth_servers_retries and is set to default value to 3.
+- `auth_servers_timeout` (Number) Radius auth session timeout. Following fast timers are set if "fast_dot1x_timers" knob is enabled. ‘quite-period’  and ‘transmit-period’ are set to half the value of auth_servers_timeout. ‘supplicant-timeout’ is also set when setting auth_servers_timeout and is set to default value of 10.
+- `band_steer` (Boolean) Whether to enable band_steering, this works only when band==both
+- `band_steer_force_band5` (Boolean) Force dual_band capable client to connect to 5G
+- `bands` (List of String) List of radios that the wlan should apply to.
+- `block_blacklist_clients` (Boolean) Whether to block the clients in the blacklist (up to first 256 macs)
+- `bonjour` (Attributes) Bonjour gateway wlan settings (see [below for nested schema](#nestedatt--org_wlans--bonjour))
 - `cisco_cwa` (Attributes) Cisco CWA (central web authentication) required RADIUS with COA in order to work. See CWA: https://www.cisco.com/c/en/us/support/docs/security/identity-services-engine/115732-central-web-auth-00.html (see [below for nested schema](#nestedatt--org_wlans--cisco_cwa))
-- `client_limit_down` (Number) kbps
-- `client_limit_down_enabled` (Boolean) if downlink limiting per-client is enabled
-- `client_limit_up` (Number) kbps
-- `client_limit_up_enabled` (Boolean) if uplink limiting per-client is enabled
-- `coa_servers` (Attributes List) list of COA (change of authorization) servers, optional (see [below for nested schema](#nestedatt--org_wlans--coa_servers))
-- `created_time` (Number) when the object has been created, in epoch
-- `disable_11ax` (Boolean) some old WLAN drivers may not be compatible
-- `disable_ht_vht_rates` (Boolean) to disable ht or vht rates
-- `disable_uapsd` (Boolean) whether to disable U-APSD
-- `disable_v1_roam_notify` (Boolean) disable sending v2 roam notification messages
-- `disable_v2_roam_notify` (Boolean) disable sending v2 roam notification messages
-- `disable_when_gateway_unreachable` (Boolean) when any of the following is true, this WLAN will be disabled
+- `client_limit_down` (Number) In kbps
+- `client_limit_down_enabled` (Boolean) If downlink limiting per-client is enabled
+- `client_limit_up` (Number) In kbps
+- `client_limit_up_enabled` (Boolean) If uplink limiting per-client is enabled
+- `coa_servers` (Attributes List) List of COA (change of authorization) servers, optional (see [below for nested schema](#nestedatt--org_wlans--coa_servers))
+- `created_time` (Number) When the object has been created, in epoch
+- `disable_11ax` (Boolean) Some old WLAN drivers may not be compatible
+- `disable_ht_vht_rates` (Boolean) To disable ht or vht rates
+- `disable_uapsd` (Boolean) Whether to disable U-APSD
+- `disable_v1_roam_notify` (Boolean) Disable sending v2 roam notification messages
+- `disable_v2_roam_notify` (Boolean) Disable sending v2 roam notification messages
+- `disable_when_gateway_unreachable` (Boolean) When any of the following is true, this WLAN will be disabled
    * cannot get IP
    * cannot obtain default gateway
    * cannot reach default gateway
 - `disable_when_mxtunnel_down` (Boolean)
-- `disable_wmm` (Boolean) whether to disable WMM
-- `dns_server_rewrite` (Attributes) for radius_group-based DNS server (rewrite DNS request depending on the Group RADIUS server returns) (see [below for nested schema](#nestedatt--org_wlans--dns_server_rewrite))
+- `disable_wmm` (Boolean) Whether to disable WMM
+- `dns_server_rewrite` (Attributes) For radius_group-based DNS server (rewrite DNS request depending on the Group RADIUS server returns) (see [below for nested schema](#nestedatt--org_wlans--dns_server_rewrite))
 - `dtim` (Number)
-- `dynamic_psk` (Attributes) for dynamic PSK where we get per_user PSK from Radius. dynamic_psk allows PSK to be selected at runtime depending on context (wlan/site/user/...) thus following configurations are assumed (currently)
+- `dynamic_psk` (Attributes) For dynamic PSK where we get per_user PSK from Radius. dynamic_psk allows PSK to be selected at runtime depending on context (wlan/site/user/...) thus following configurations are assumed (currently)
   * PSK will come from RADIUS server
-  * AP sends client MAC as username ans password (i.e. `enable_mac_auth` is assumed)
+  * AP sends client MAC as username and password (i.e. `enable_mac_auth` is assumed)
   * AP sends BSSID:SSID as Caller-Station-ID
   * `auth_servers` is required
   * PSK will come from cloud WLC if source is cloud_psks
   * default_psk will be used if cloud WLC is not available
   * `multi_psk_only` and `psk` is ignored
   * `pairwise` can only be wpa2-ccmp (for now, wpa3 support on the roadmap) (see [below for nested schema](#nestedatt--org_wlans--dynamic_psk))
-- `dynamic_vlan` (Attributes) for 802.1x (see [below for nested schema](#nestedatt--org_wlans--dynamic_vlan))
-- `enable_local_keycaching` (Boolean) enable AP-AP keycaching via multicast
-- `enable_wireless_bridging` (Boolean) by default, we'd inspect all DHCP packets and drop those unrelated to the wireless client itself in the case where client is a wireless bridge (DHCP packets for other MACs will need to be orwarded), wireless_bridging can be enabled
-- `enable_wireless_bridging_dhcp_tracking` (Boolean) if the client bridge is doing DHCP on behalf of other devices (L2-NAT), enable dhcp_tracking will cut down DHCP response packets to be forwarded to wireless
-- `enabled` (Boolean) if this wlan is enabled
-- `fast_dot1x_timers` (Boolean) if set to true, sets default fast-timers with values calculated from ‘auth_servers_timeout’ and ‘auth_server_retries’ .
-- `hide_ssid` (Boolean) whether to hide SSID in beacon
-- `hostname_ie` (Boolean) include hostname inside IE in AP beacons / probe responses
-- `hotspot20` (Attributes) hostspot 2.0 wlan settings (see [below for nested schema](#nestedatt--org_wlans--hotspot20))
+- `dynamic_vlan` (Attributes) For 802.1x (see [below for nested schema](#nestedatt--org_wlans--dynamic_vlan))
+- `enable_local_keycaching` (Boolean) Enable AP-AP keycaching via multicast
+- `enable_wireless_bridging` (Boolean) By default, we'd inspect all DHCP packets and drop those unrelated to the wireless client itself in the case where client is a wireless bridge (DHCP packets for other MACs will need to be orwarded), wireless_bridging can be enabled
+- `enable_wireless_bridging_dhcp_tracking` (Boolean) If the client bridge is doing DHCP on behalf of other devices (L2-NAT), enable dhcp_tracking will cut down DHCP response packets to be forwarded to wireless
+- `enabled` (Boolean) If this wlan is enabled
+- `fast_dot1x_timers` (Boolean) If set to true, sets default fast-timers with values calculated from ‘auth_servers_timeout’ and ‘auth_server_retries’ .
+- `hide_ssid` (Boolean) Whether to hide SSID in beacon
+- `hostname_ie` (Boolean) Include hostname inside IE in AP beacons / probe responses
+- `hotspot20` (Attributes) Hostspot 2.0 wlan settings (see [below for nested schema](#nestedatt--org_wlans--hotspot20))
 - `id` (String) Unique ID of the object instance in the Mist Organnization
 - `inject_dhcp_option_82` (Attributes) (see [below for nested schema](#nestedatt--org_wlans--inject_dhcp_option_82))
 - `interface` (String) where this WLAN will be connected to. enum: `all`, `eth0`, `eth1`, `eth2`, `eth3`, `mxtunnel`, `site_mxedge`, `wxtunnel`
-- `isolation` (Boolean) whether to stop clients to talk to each other
-- `l2_isolation` (Boolean) if isolation is enabled, whether to deny clients to talk to L2 on the LAN
-- `legacy_overds` (Boolean) legacy devices requires the Over-DS (for Fast BSS Transition) bit set (while our chip doesn’t support it). Warning! Enabling this will cause problem for iOS devices.
-- `limit_bcast` (Boolean) whether to limit broadcast packets going to wireless (i.e. only allow certain bcast packets to go through)
-- `limit_probe_response` (Boolean) limit probe response base on some heuristic rules
-- `max_idletime` (Number) max idle time in seconds
-- `max_num_clients` (Number) maximum number of client connected to the SSID. `0` means unlimited
+- `isolation` (Boolean) Whether to stop clients to talk to each other
+- `l2_isolation` (Boolean) If isolation is enabled, whether to deny clients to talk to L2 on the LAN
+- `legacy_overds` (Boolean) Legacy devices requires the Over-DS (for Fast BSS Transition) bit set (while our chip doesn’t support it). Warning! Enabling this will cause problem for iOS devices.
+- `limit_bcast` (Boolean) Whether to limit broadcast packets going to wireless (i.e. only allow certain bcast packets to go through)
+- `limit_probe_response` (Boolean) Limit probe response base on some heuristic rules
+- `max_idletime` (Number) Max idle time in seconds
+- `max_num_clients` (Number) Maximum number of client connected to the SSID. `0` means unlimited
 - `mist_nac` (Attributes) (see [below for nested schema](#nestedatt--org_wlans--mist_nac))
-- `modified_time` (Number) when the object has been modified for the last time, in epoch
+- `modified_time` (Number) When the object has been modified for the last time, in epoch
 - `msp_id` (String)
-- `mxtunnel_ids` (List of String) when `interface`=`mxtunnel`, id of the Mist Tunnel
-- `mxtunnel_name` (List of String) when `interface`=`site_medge`, name of the mxtunnel that in mxtunnels under Site Setting
-- `no_static_dns` (Boolean) whether to only allow client to use DNS that we’ve learned from DHCP response
-- `no_static_ip` (Boolean) whether to only allow client that we’ve learned from DHCP exchange to talk
+- `mxtunnel_ids` (List of String) When `interface`=`mxtunnel`, id of the Mist Tunnel
+- `mxtunnel_name` (List of String) When `interface`=`site_medge`, name of the mxtunnel that in mxtunnels under Site Setting
+- `no_static_dns` (Boolean) Whether to only allow client to use DNS that we’ve learned from DHCP response
+- `no_static_ip` (Boolean) Whether to only allow client that we’ve learned from DHCP exchange to talk
 - `org_id` (String)
-- `portal` (Attributes) portal wlan settings (see [below for nested schema](#nestedatt--org_wlans--portal))
-- `portal_allowed_hostnames` (List of String) list of hostnames without http(s):// (matched by substring)
-- `portal_allowed_subnets` (List of String) list of CIDRs
-- `portal_api_secret` (String) api secret (auto-generated) that can be used to sign guest authorization requests
-- `portal_denied_hostnames` (List of String) list of hostnames without http(s):// (matched by substring), this takes precedence over portal_allowed_hostnames
+- `portal` (Attributes) Portal wlan settings (see [below for nested schema](#nestedatt--org_wlans--portal))
+- `portal_allowed_hostnames` (List of String) List of hostnames without http(s):// (matched by substring)
+- `portal_allowed_subnets` (List of String) List of CIDRs
+- `portal_api_secret` (String) APi secret (auto-generated) that can be used to sign guest authorization requests
+- `portal_denied_hostnames` (List of String) List of hostnames without http(s):// (matched by substring), this takes precedence over portal_allowed_hostnames
 - `portal_image` (String) Url of portal background image
 - `portal_sso_url` (String)
 - `qos` (Attributes) (see [below for nested schema](#nestedatt--org_wlans--qos))
-- `radsec` (Attributes) Radsec settings (see [below for nested schema](#nestedatt--org_wlans--radsec))
+- `radsec` (Attributes) RadSec settings (see [below for nested schema](#nestedatt--org_wlans--radsec))
 - `rateset` (Attributes Map) Property key is the RF band. enum: `24`, `5`, `6` (see [below for nested schema](#nestedatt--org_wlans--rateset))
-- `reconnect_clients_when_roaming_mxcluster` (Boolean) when different mxcluster is on different subnet, we'd want to disconnect clients (so they'll reconnect and get new IPs)
+- `reconnect_clients_when_roaming_mxcluster` (Boolean) When different mxcluster is on different subnet, we'd want to disconnect clients (so they'll reconnect and get new IPs)
 - `roam_mode` (String) enum: `11r`, `OKC`, `NONE`
 - `schedule` (Attributes) WLAN operating schedule, default is disabled (see [below for nested schema](#nestedatt--org_wlans--schedule))
-- `sle_excluded` (Boolean) whether to exclude this WLAN from SLE metrics
-- `ssid` (String) the name of the SSID
+- `sle_excluded` (Boolean) Whether to exclude this WLAN from SLE metrics
+- `ssid` (String) Name of the SSID
 - `template_id` (String)
-- `use_eapol_v1` (Boolean) if `auth.type`==’eap’ or ‘psk’, should only be set for legacy client, such as pre-2004, 802.11b devices
-- `vlan_enabled` (Boolean) if vlan tagging is enabled
+- `use_eapol_v1` (Boolean) If `auth.type`==`eap` or `auth.type`==`psk`, should only be set for legacy client, such as pre-2004, 802.11b devices
+- `vlan_enabled` (Boolean) If vlan tagging is enabled
 - `vlan_id` (String)
 - `vlan_ids` (List of String) if `vlan_enabled`==`true` and `vlan_pooling`==`true`. List of VLAN IDs (comma separeted) to be used in the VLAN Pool
 - `vlan_pooling` (Boolean) Requires `vlan_enabled`==`true` to be set to `true`. Vlan pooling allows AP to place client on different VLAN using a deterministic algorithm
-- `wlan_limit_down` (Number) kbps
-- `wlan_limit_down_enabled` (Boolean) if downlink limiting for whole wlan is enabled
-- `wlan_limit_up` (Number) kbps
-- `wlan_limit_up_enabled` (Boolean) if uplink limiting for whole wlan is enabled
-- `wxtag_ids` (List of String) list of wxtag_ids
-- `wxtunnel_id` (String) when `interface`=`wxtunnel`, id of the WXLAN Tunnel
-- `wxtunnel_remote_id` (String) when `interface`=`wxtunnel`, remote tunnel identifier
+- `wlan_limit_down` (Number) In kbps
+- `wlan_limit_down_enabled` (Boolean) If downlink limiting for whole wlan is enabled
+- `wlan_limit_up` (Number) In kbps
+- `wlan_limit_up_enabled` (Boolean) If uplink limiting for whole wlan is enabled
+- `wxtag_ids` (List of String) List of wxtag_ids
+- `wxtunnel_id` (String) When `interface`=`wxtunnel`, id of the WXLAN Tunnel
+- `wxtunnel_remote_id` (String) When `interface`=`wxtunnel`, remote tunnel identifier
 
 <a id="nestedatt--org_wlans--acct_servers"></a>
 ### Nested Schema for `org_wlans.acct_servers`
 
 Read-Only:
 
-- `host` (String) ip / hostname of RADIUS server
+- `host` (String) IP/ hostname of RADIUS server
 - `keywrap_enabled` (Boolean)
 - `keywrap_format` (String) enum: `ascii`, `hex`
 - `keywrap_kek` (String)
 - `keywrap_mack` (String)
 - `port` (Number) Acct port of RADIUS server
-- `secret` (String, Sensitive) secret of RADIUS server
+- `secret` (String, Sensitive) Secretof RADIUS server
 
 
 <a id="nestedatt--org_wlans--airwatch"></a>
@@ -166,10 +166,10 @@ Read-Only:
 Read-Only:
 
 - `api_key` (String) API Key
-- `console_url` (String) console URL
+- `console_url` (String) Console URL
 - `enabled` (Boolean)
-- `password` (String, Sensitive) password
-- `username` (String) username
+- `password` (String, Sensitive) Password
+- `username` (String) Username
 
 
 <a id="nestedatt--org_wlans--app_limit"></a>
@@ -198,8 +198,8 @@ Read-Only:
 Read-Only:
 
 - `dscp` (Number)
-- `dst_subnet` (String) subnet filter is not required but helps AP to only inspect certain traffic (thus reducing AP load)
-- `src_subnet` (String) subnet filter is not required but helps AP to only inspect certain traffic (thus reducing AP load)
+- `dst_subnet` (String) Subnet filter is not required but helps AP to only inspect certain traffic (thus reducing AP load)
+- `src_subnet` (String) Subnet filter is not required but helps AP to only inspect certain traffic (thus reducing AP load)
 
 
 <a id="nestedatt--org_wlans--app_qos--others"></a>
@@ -221,17 +221,17 @@ Read-Only:
 Read-Only:
 
 - `anticlog_threshold` (Number) SAE anti-clogging token threshold
-- `eap_reauth` (Boolean) whether to trigger EAP reauth when the session ends
-- `enable_mac_auth` (Boolean) whether to enable MAC Auth, uses the same auth_servers
-- `key_idx` (Number) when `type`==`wep`
-- `keys` (List of String) when type=wep, four 10-character or 26-character hex string, null can be used. All keys, if provided, have to be in the same length
-- `multi_psk_only` (Boolean) when `type`==`psk`, whether to only use multi_psk
+- `eap_reauth` (Boolean) Whether to trigger EAP reauth when the session ends
+- `enable_mac_auth` (Boolean) Whether to enable MAC Auth, uses the same auth_servers
+- `key_idx` (Number) When `type`==`wep`
+- `keys` (List of String) When type=wep, four 10-character or 26-character hex string, null can be used. All keys, if provided, have to be in the same length
+- `multi_psk_only` (Boolean) When `type`==`psk`, whether to only use multi_psk
 - `owe` (String) if `type`==`open`. enum: `disabled`, `enabled` (means transition mode), `required`
-- `pairwise` (List of String) when `type`=`psk` or `type`=`eap`, one or more of `wpa1-ccmp`, `wpa1-tkip`, `wpa2-ccmp`, `wpa2-tkip`, `wpa3`
-- `private_wlan` (Boolean) when `multi_psk_only`==`true`, whether private wlan is enabled
-- `psk` (String, Sensitive) when `type`==`psk`, 8-64 characters, or 64 hex characters
+- `pairwise` (List of String) When `type`=`psk` or `type`=`eap`, one or more of `wpa1-ccmp`, `wpa1-tkip`, `wpa2-ccmp`, `wpa2-tkip`, `wpa3`
+- `private_wlan` (Boolean) When `multi_psk_only`==`true`, whether private wlan is enabled
+- `psk` (String, Sensitive) When `type`==`psk`, 8-64 characters, or 64 hex characters
 - `type` (String) enum: `eap`, `eap192`, `open`, `psk`, `psk-tkip`, `psk-wpa2-tkip`, `wep`
-- `wep_as_secondary_auth` (Boolean) enable WEP as secondary auth
+- `wep_as_secondary_auth` (Boolean) Enable WEP as secondary auth
 
 
 <a id="nestedatt--org_wlans--auth_servers"></a>
@@ -239,14 +239,14 @@ Read-Only:
 
 Read-Only:
 
-- `host` (String) ip / hostname of RADIUS server
+- `host` (String) IP/ hostname of RADIUS server
 - `keywrap_enabled` (Boolean)
 - `keywrap_format` (String) enum: `ascii`, `hex`
 - `keywrap_kek` (String)
 - `keywrap_mack` (String)
 - `port` (Number) Auth port of RADIUS server
-- `require_message_authenticator` (Boolean) whether to require Message-Authenticator in requests
-- `secret` (String, Sensitive) secret of RADIUS server
+- `require_message_authenticator` (Boolean) Whether to require Message-Authenticator in requests
+- `secret` (String, Sensitive) Secretof RADIUS server
 
 
 <a id="nestedatt--org_wlans--bonjour"></a>
@@ -255,8 +255,8 @@ Read-Only:
 Read-Only:
 
 - `additional_vlan_ids` (List of String) additional VLAN IDs (on the LAN side or from other WLANs) should we be forwarding bonjour queries/responses
-- `enabled` (Boolean) whether to enable bonjour for this WLAN. Once enabled, limit_bcast is assumed true, allow_mdns is assumed false
-- `services` (Attributes Map) what services are allowed. 
+- `enabled` (Boolean) Whether to enable bonjour for this WLAN. Once enabled, limit_bcast is assumed true, allow_mdns is assumed false
+- `services` (Attributes Map) What services are allowed. 
 Property key is the service name (see [below for nested schema](#nestedatt--org_wlans--bonjour--services))
 
 <a id="nestedatt--org_wlans--bonjour--services"></a>
@@ -264,8 +264,8 @@ Property key is the service name (see [below for nested schema](#nestedatt--org_
 
 Read-Only:
 
-- `disable_local` (Boolean) whether to prevent wireless clients to discover bonjour devices on the same WLAN
-- `radius_groups` (List of String) optional, if the service is further restricted for certain RADIUS groups
+- `disable_local` (Boolean) Whether to prevent wireless clients to discover bonjour devices on the same WLAN
+- `radius_groups` (List of String) Optional, if the service is further restricted for certain RADIUS groups
 - `scope` (String) how bonjour services should be discovered for the same WLAN. enum: `same_ap`, `same_map`, `same_site`
 
 
@@ -275,9 +275,9 @@ Read-Only:
 
 Read-Only:
 
-- `allowed_hostnames` (List of String) list of hostnames without http(s):// (matched by substring)
-- `allowed_subnets` (List of String) list of CIDRs
-- `blocked_subnets` (List of String) list of blocked CIDRs
+- `allowed_hostnames` (List of String) List of hostnames without http(s):// (matched by substring)
+- `allowed_subnets` (List of String) List of CIDRs
+- `blocked_subnets` (List of String) List of blocked CIDRs
 - `enabled` (Boolean)
 
 
@@ -286,7 +286,7 @@ Read-Only:
 
 Read-Only:
 
-- `disable_event_timestamp_check` (Boolean) whether to disable Event-Timestamp Check
+- `disable_event_timestamp_check` (Boolean) Whether to disable Event-Timestamp Check
 - `enabled` (Boolean)
 - `ip` (String)
 - `port` (Number)
@@ -299,7 +299,7 @@ Read-Only:
 Read-Only:
 
 - `enabled` (Boolean)
-- `radius_groups` (Map of String) map between radius_group and the desired DNS server (IPv4 only). Property key is the RADIUS group, property value is the desired DNS Server
+- `radius_groups` (Map of String) Map between radius_group and the desired DNS server (IPv4 only). Property key is the RADIUS group, property value is the desired DNS Server
 
 
 <a id="nestedatt--org_wlans--dynamic_psk"></a>
@@ -307,10 +307,10 @@ Read-Only:
 
 Read-Only:
 
-- `default_psk` (String, Sensitive) default PSK to use if cloud WLC is not available, 8-63 characters
+- `default_psk` (String, Sensitive) Default PSK to use if cloud WLC is not available, 8-63 characters
 - `default_vlan_id` (String)
 - `enabled` (Boolean)
-- `force_lookup` (Boolean) when 11r is enabled, we'll try to use the cached PMK, this can be disabled. `false` means auto
+- `force_lookup` (Boolean) When 11r is enabled, we'll try to use the cached PMK, this can be disabled. `false` means auto
 - `source` (String) enum: `cloud_psks`, `radius`
 
 
@@ -321,9 +321,9 @@ Read-Only:
 
 - `default_vlan_ids` (List of String) Default VLAN ID(s) can be a number, a range of VLAN IDs, a variable or multiple numbers, ranges or variables as a VLAN pool. Default VLAN as a pool of VLANS requires 0.14.x or newer firmware
 - `enabled` (Boolean) Requires `vlan_enabled`==`true` to be set to `true`. Whether to enable dynamic vlan
-- `local_vlan_ids` (List of String) vlan_ids to be locally bridged
+- `local_vlan_ids` (List of String) VLAN_ids to be locally bridged
 - `type` (String) standard (using Tunnel-Private-Group-ID, widely supported), airespace-interface-name (Airespace/Cisco). enum: `airespace-interface-name`, `standard`
-- `vlans` (Map of String) map between vlan_id (as string) to airespace interface names (comma-separated) or null for stndard mapping
+- `vlans` (Map of String) Map between vlan_id (as string) to airespace interface names (comma-separated) or null for stndard mapping
   * if `dynamic_vlan.type`==`standard`, property key is the Vlan ID and property value is \"\"
   * if `dynamic_vlan.type`==`airespace-interface-name`, property key is the Vlan ID and property value is the Airespace Interface Name
 
@@ -334,11 +334,11 @@ Read-Only:
 Read-Only:
 
 - `domain_name` (List of String)
-- `enabled` (Boolean) whether to enable hotspot 2.0 config
+- `enabled` (Boolean) Whether to enable hotspot 2.0 config
 - `nai_realms` (List of String)
-- `operators` (List of String) list of operators to support
+- `operators` (List of String) List of operators to support
 - `rcoi` (List of String)
-- `venue_name` (String) venue name, default is site name
+- `venue_name` (String) Venue name, default is site name
 
 
 <a id="nestedatt--org_wlans--inject_dhcp_option_82"></a>
@@ -346,14 +346,14 @@ Read-Only:
 
 Read-Only:
 
-- `circuit_id` (String) information to set in the `circuit_id` field of the DHCP Option 82. It is possible to use static string or the following variables (e.g. `{{SSID}}:{{AP_MAC}}`):
+- `circuit_id` (String) Information to set in the `circuit_id` field of the DHCP Option 82. It is possible to use static string or the following variables (e.g. `{{SSID}}:{{AP_MAC}}`):
   * {{AP_MAC}}
   * {{AP_MAC_DASHED}}
   * {{AP_MODEL}}
   * {{AP_NAME}}
   * {{SITE_NAME}}
   * {{SSID}}
-- `enabled` (Boolean) whether to inject option 82 when forwarding DHCP packets
+- `enabled` (Boolean) Whether to inject option 82 when forwarding DHCP packets
 
 
 <a id="nestedatt--org_wlans--mist_nac"></a>
@@ -361,13 +361,13 @@ Read-Only:
 
 Read-Only:
 
-- `enabled` (Boolean) when enabled:
+- `enabled` (Boolean) When enabled:
   * `auth_servers` is ignored
   * `acct_servers` is ignored
   * `auth_servers_*` are ignored
   * `coa_servers` is ignored
   * `radsec` is ignored
-  * `coa_enabled` is assumed'
+  * `coa_enabled` is assumed
 
 
 <a id="nestedatt--org_wlans--portal"></a>
@@ -379,59 +379,59 @@ Read-Only:
 - `amazon_client_id` (String) Optional if `amazon_enabled`==`true`. Amazon OAuth2 client id. This is optional. If not provided, it will use a default one.
 - `amazon_client_secret` (String) Optional if `amazon_enabled`==`true`. Amazon OAuth2 client secret. If amazon_client_id was provided, provide a correspoinding value. Else leave blank.
 - `amazon_email_domains` (List of String) Optional if `amazon_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.
-- `amazon_enabled` (Boolean) whether amazon is enabled as a login method
+- `amazon_enabled` (Boolean) Whether amazon is enabled as a login method
 - `amazon_expire` (Number) Optional if `amazon_enabled`==`true`. Interval for which guest remains authorized using amazon auth (in minutes), if not provided, uses expire`
 - `auth` (String) authentication scheme. enum: `amazon`, `azure`, `email`, `external`, `facebook`, `google`, `microsoft`, `multi`, `none`, `password`, `sponsor`, `sso`
 - `azure_client_id` (String) Required if `azure_enabled`==`true`. Azure active directory app client id
 - `azure_client_secret` (String) Required if `azure_enabled`==`true`. Azure active directory app client secret
-- `azure_enabled` (Boolean) whether Azure Active Directory is enabled as a login method
-- `azure_expire` (Number) interval for which guest remains authorized using azure auth (in minutes), if not provided, uses expire`
+- `azure_enabled` (Boolean) Whether Azure Active Directory is enabled as a login method
+- `azure_expire` (Number) Interval for which guest remains authorized using azure auth (in minutes), if not provided, uses expire`
 - `azure_tenant_id` (String) Required if `azure_enabled`==`true`. Azure active directory tenant id.
 - `broadnet_password` (String, Sensitive) Required if `sms_provider`==`broadnet`
 - `broadnet_sid` (String) Required if `sms_provider`==`broadnet`
 - `broadnet_user_id` (String) Required if `sms_provider`==`broadnet`
-- `bypass_when_cloud_down` (Boolean) whether to bypass the guest portal when cloud not reachable (and apply the default policies)
+- `bypass_when_cloud_down` (Boolean) Whether to bypass the guest portal when cloud not reachable (and apply the default policies)
 - `clickatell_api_key` (String) Required if `sms_provider`==`clickatell`
-- `cross_site` (Boolean) whether to allow guest to roam between WLANs (with same `WLAN.ssid`, regardless of variables) of different sites of same org without reauthentication (disable random_mac for seamless roaming)
-- `email_enabled` (Boolean) whether email (access code verification) is enabled as a login method
-- `enabled` (Boolean) whether guest portal is enabled
-- `expire` (Number) how long to remain authorized, in minutes
+- `cross_site` (Boolean) Whether to allow guest to roam between WLANs (with same `WLAN.ssid`, regardless of variables) of different sites of same org without reauthentication (disable random_mac for seamless roaming)
+- `email_enabled` (Boolean) Whether email (access code verification) is enabled as a login method
+- `enabled` (Boolean) Whether guest portal is enabled
+- `expire` (Number) How long to remain authorized, in minutes
 - `external_portal_url` (String) Required if `wlan_portal_auth`==`external`. External portal URL (e.g. https://host/url) where we can append our query parameters to
 - `facebook_client_id` (String) Required if `facebook_enabled`==`true`. Facebook OAuth2 app id. This is optional. If not provided, it will use a default one.
 - `facebook_client_secret` (String) Required if `facebook_enabled`==`true`. Facebook OAuth2 app secret. If facebook_client_id was provided, provide a correspoinding value. Else leave blank.
 - `facebook_email_domains` (List of String) Optional if `facebook_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.
-- `facebook_enabled` (Boolean) whether facebook is enabled as a login method
+- `facebook_enabled` (Boolean) Whether facebook is enabled as a login method
 - `facebook_expire` (Number) Optional if `facebook_enabled`==`true`. Interval for which guest remains authorized using facebook auth (in minutes), if not provided, uses expire`
-- `forward` (Boolean) whether to forward the user to another URL after authorized
-- `forward_url` (String) the URL to forward the user to
+- `forward` (Boolean) Whether to forward the user to another URL after authorized
+- `forward_url` (String) URL to forward the user to
 - `google_client_id` (String) Google OAuth2 app id. This is optional. If not provided, it will use a default one.
 - `google_client_secret` (String) Optional if `google_enabled`==`true`. Google OAuth2 app secret. If google_client_id was provided, provide a correspoinding value. Else leave blank.
 - `google_email_domains` (List of String) Optional if `google_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.
-- `google_enabled` (Boolean) whether google is enabled as login method
-- `google_expire` (Number) Optional if `google_enabled`==`true`. Interval for which guest remains authorized using google auth (in minutes), if not provided, uses expire`
+- `google_enabled` (Boolean) Whether Google is enabled as login method
+- `google_expire` (Number) Optional if `google_enabled`==`true`. Interval for which guest remains authorized using Google Auth (in minutes), if not provided, uses expire`
 - `gupshup_password` (String, Sensitive) Required if `sms_provider`==`gupshup`
 - `gupshup_userid` (String) Required if `sms_provider`==`gupshup`
 - `microsoft_client_id` (String) Optional if `microsoft_enabled`==`true`. Microsoft 365 OAuth2 client id. This is optional. If not provided, it will use a default one.
 - `microsoft_client_secret` (String) Optional if `microsoft_enabled`==`true`. Microsoft 365 OAuth2 client secret. If microsoft_client_id was provided, provide a correspoinding value. Else leave blank.
 - `microsoft_email_domains` (List of String) Optional if `microsoft_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.
-- `microsoft_enabled` (Boolean) whether microsoft 365 is enabled as a login method
+- `microsoft_enabled` (Boolean) Whether microsoft 365 is enabled as a login method
 - `microsoft_expire` (Number) Optional if `microsoft_enabled`==`true`. Interval for which guest remains authorized using microsoft auth (in minutes), if not provided, uses expire`
 - `passphrase_enabled` (Boolean) Whether password is enabled
 - `passphrase_expire` (Number) Optional if `passphrase_enabled`==`true`. Interval for which guest remains authorized using passphrase auth (in minutes), if not provided, uses `expire`
 - `password` (String, Sensitive) Required if `passphrase_enabled`==`true`.
-- `predefined_sponsors_enabled` (Boolean) whether to show list of sponsor emails mentioned in `sponsors` object as a dropdown. If both `sponsor_notify_all` and `predefined_sponsors_enabled` are false, behaviour is acc to `sponsor_email_domains`
-- `predefined_sponsors_hide_email` (Boolean) whether to hide sponsor’s email from list of sponsors
+- `predefined_sponsors_enabled` (Boolean) Whether to show list of sponsor emails mentioned in `sponsors` object as a dropdown. If both `sponsor_notify_all` and `predefined_sponsors_enabled` are false, behaviour is acc to `sponsor_email_domains`
+- `predefined_sponsors_hide_email` (Boolean) Whether to hide sponsor’s email from list of sponsors
 - `privacy` (Boolean)
 - `puzzel_password` (String, Sensitive) Required if `sms_provider`==`puzzel`
 - `puzzel_service_id` (String) Required if `sms_provider`==`puzzel`
 - `puzzel_username` (String) Required if `sms_provider`==`puzzel`
-- `sms_enabled` (Boolean) whether sms is enabled as a login method
+- `sms_enabled` (Boolean) Whether sms is enabled as a login method
 - `sms_expire` (Number) Optional if `sms_enabled`==`true`. Interval for which guest remains authorized using sms auth (in minutes), if not provided, uses expire`
 - `sms_message_format` (String) Optional if `sms_enabled`==`true`. SMS Message format
 - `sms_provider` (String) Optioanl if `sms_enabled`==`true`. enum: `broadnet`, `clickatell`, `gupshup`, `manual`, `puzzel`, `telstra`, `twilio`
 - `sponsor_auto_approve` (Boolean) Optional if `sponsor_enabled`==`true`. Whether to automatically approve guest and allow sponsor to revoke guest access, needs predefined_sponsors_enabled enabled and sponsor_notify_all disabled
-- `sponsor_email_domains` (List of String) list of domain allowed for sponsor email. Required if `sponsor_enabled` is `true` and `sponsors` is empty.
-- `sponsor_enabled` (Boolean) whether sponsor is enabled
+- `sponsor_email_domains` (List of String) List of domain allowed for sponsor email. Required if `sponsor_enabled` is `true` and `sponsors` is empty.
+- `sponsor_enabled` (Boolean) Whether sponsor is enabled
 - `sponsor_expire` (Number) Optional if `sponsor_enabled`==`true`. Interval for which guest remains authorized using sponsor auth (in minutes), if not provided, uses expire`
 - `sponsor_link_validity_duration` (String) Optional if `sponsor_enabled`==`true`. How long to remain valid sponsored guest request approve/deny link received in email, in minutes.
 - `sponsor_notify_all` (Boolean) Optional if `sponsor_enabled`==`true`. whether to notify all sponsors that are mentioned in `sponsors` object. Both `sponsor_notify_all` and `predefined_sponsors_enabled` should be true in order to notify sponsors. If true, email sent to 10 sponsors in no particular order.
@@ -460,7 +460,7 @@ Read-Only:
 Read-Only:
 
 - `class` (String) enum: `background`, `best_effort`, `video`, `voice`
-- `overwrite` (Boolean) whether to overwrite QoS
+- `overwrite` (Boolean) Whether to overwrite QoS
 
 
 <a id="nestedatt--org_wlans--radsec"></a>
@@ -472,10 +472,10 @@ Read-Only:
 - `enabled` (Boolean)
 - `idle_timeout` (Number)
 - `mxcluster_ids` (List of String) To use Org mxedges when this WLAN does not use mxtunnel, specify their mxcluster_ids. Org mxedge(s) identified by mxcluster_ids
-- `proxy_hosts` (List of String) default is site.mxedge.radsec.proxy_hosts which must be a superset of all `wlans[*].radsec.proxy_hosts`. When `radsec.proxy_hosts` are not used, tunnel peers (org or site mxedges) are used irrespective of `use_site_mxedge`
-- `server_name` (String) name of the server to verify (against the cacerts in Org Setting). Only if not Mist Edge.
-- `servers` (Attributes List) List of Radsec Servers. Only if not Mist Edge. (see [below for nested schema](#nestedatt--org_wlans--radsec--servers))
-- `use_mxedge` (Boolean) use mxedge(s) as radsecproxy
+- `proxy_hosts` (List of String) Default is site.mxedge.radsec.proxy_hosts which must be a superset of all `wlans[*].radsec.proxy_hosts`. When `radsec.proxy_hosts` are not used, tunnel peers (org or site mxedges) are used irrespective of `use_site_mxedge`
+- `server_name` (String) Name of the server to verify (against the cacerts in Org Setting). Only if not Mist Edge.
+- `servers` (Attributes List) List of RadSec Servers. Only if not Mist Edge. (see [below for nested schema](#nestedatt--org_wlans--radsec--servers))
+- `use_mxedge` (Boolean) use mxedge(s) as RadSec Proxy
 - `use_site_mxedge` (Boolean) To use Site mxedges when this WLAN does not use mxtunnel
 
 <a id="nestedatt--org_wlans--radsec--servers"></a>
@@ -493,8 +493,8 @@ Read-Only:
 
 Read-Only:
 
-- `ht` (String) if `template`==`custom`. MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit), e.g. 00ff 00f0 001f limits HT rates to MCS 0-7 for 1 stream, MCS 4-7 for 2 stream (i.e. MCS 12-15), MCS 1-5 for 3 stream (i.e. MCS 16-20)
-- `legacy` (List of String) if `template`==`custom`. List of supported rates (IE=1) and extended supported rates (IE=50) for custom template, append ‘b’ at the end to indicate a rate being basic/mandatory. If `template`==`custom` is configured and legacy does not define at least one basic rate, it will use `no-legacy` default values
+- `ht` (String) If `template`==`custom`. MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit), e.g. 00ff 00f0 001f limits HT rates to MCS 0-7 for 1 stream, MCS 4-7 for 2 stream (i.e. MCS 12-15), MCS 1-5 for 3 stream (i.e. MCS 16-20)
+- `legacy` (List of String) If `template`==`custom`. List of supported rates (IE=1) and extended supported rates (IE=50) for custom template, append ‘b’ at the end to indicate a rate being basic/mandatory. If `template`==`custom` is configured and legacy does not define at least one basic rate, it will use `no-legacy` default values
 - `min_rssi` (Number) Minimum RSSI for client to connect, 0 means not enforcing
 - `template` (String) Data Rates template to apply. enum: 
   * `no-legacy`: no 11b
@@ -502,7 +502,7 @@ Read-Only:
   * `legacy-only`: disable 802.11n and 802.11ac
   * `high-density`: no 11b, no low rates
   * `custom`: user defined
-- `vht` (String) if `template`==`custom`. MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit), e.g. 03ff 01ff 00ff limits VHT rates to MCS 0-9 for 1 stream, MCS 0-8 for 2 streams, and MCS 0-7 for 3 streams.
+- `vht` (String) If `template`==`custom`. MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit), e.g. 03ff 01ff 00ff limits VHT rates to MCS 0-9 for 1 stream, MCS 0-8 for 2 streams, and MCS 0-7 for 3 streams.
 
 
 <a id="nestedatt--org_wlans--schedule"></a>

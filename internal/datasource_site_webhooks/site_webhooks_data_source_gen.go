@@ -108,8 +108,8 @@ func SiteWebhooksDataSourceSchema(ctx context.Context) schema.Schema {
 						"splunk_token": schema.StringAttribute{
 							Computed:            true,
 							Sensitive:           true,
-							Description:         "Required if `type`=`splunk`. If splunk_token is not defined for a type Splunk webhook, it will not send, regardless if the webhook receiver is configured to accept it.'",
-							MarkdownDescription: "Required if `type`=`splunk`. If splunk_token is not defined for a type Splunk webhook, it will not send, regardless if the webhook receiver is configured to accept it.'",
+							Description:         "Required if `type`=`splunk`. If splunk_token is not defined for a type Splunk webhook, it will not send, regardless if the webhook receiver is configured to accept it.",
+							MarkdownDescription: "Required if `type`=`splunk`. If splunk_token is not defined for a type Splunk webhook, it will not send, regardless if the webhook receiver is configured to accept it.",
 						},
 						"topics": schema.ListAttribute{
 							ElementType:         types.StringType,

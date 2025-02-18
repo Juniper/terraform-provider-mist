@@ -293,7 +293,7 @@ You can also apply changes to the HCL configuration in the `main.tf` file, and u
 ### Destroy the configuration
 Congratulation, you reached the end of this guide. You can continue to discover the provider possibilities with the organization we just created, or you can ask Terraform to destroy it.
 
-!> When validating the `terraform destroy` command, Terraform will delete all the objects deployed with this HCL configuration, the Organization itself included. The configuration done outside of Terraform will not be listed in the "destroy" command summary, but will be deleted when the Organization will be destroyed. Be sure to double check everything before using this command!
+!> When validating the `terraform destroy` command, Terraform will delete all the objects deployed with this HCL configuration, the Organization itself included. The configuration done outside of Terraform will not be listed in the "destroy" command summary, but will be deleted when the Organization will be destroyed. Be sure to double-check everything before using this command!
 
 ```shell
 $ terraform destroy

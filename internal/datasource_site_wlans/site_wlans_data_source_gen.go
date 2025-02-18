@@ -28,21 +28,21 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 					Attributes: map[string]schema.Attribute{
 						"acct_immediate_update": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "enable coa-immediate-update and address-change-immediate-update on the access profile.",
-							MarkdownDescription: "enable coa-immediate-update and address-change-immediate-update on the access profile.",
+							Description:         "Enable coa-immediate-update and address-change-immediate-update on the access profile.",
+							MarkdownDescription: "Enable coa-immediate-update and address-change-immediate-update on the access profile.",
 						},
 						"acct_interim_interval": schema.Int64Attribute{
 							Computed:            true,
-							Description:         "how frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from RADIUS Server). Very frequent messages can affect the performance of the radius server, 600 and up is recommended when enabled",
-							MarkdownDescription: "how frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from RADIUS Server). Very frequent messages can affect the performance of the radius server, 600 and up is recommended when enabled",
+							Description:         "How frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from RADIUS Server). Very frequent messages can affect the performance of the radius server, 600 and up is recommended when enabled",
+							MarkdownDescription: "How frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from RADIUS Server). Very frequent messages can affect the performance of the radius server, 600 and up is recommended when enabled",
 						},
 						"acct_servers": schema.ListNestedAttribute{
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"host": schema.StringAttribute{
 										Computed:            true,
-										Description:         "ip / hostname of RADIUS server",
-										MarkdownDescription: "ip / hostname of RADIUS server",
+										Description:         "IP/ hostname of RADIUS server",
+										MarkdownDescription: "IP/ hostname of RADIUS server",
 									},
 									"keywrap_enabled": schema.BoolAttribute{
 										Computed: true,
@@ -66,8 +66,8 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 									"secret": schema.StringAttribute{
 										Computed:            true,
 										Sensitive:           true,
-										Description:         "secret of RADIUS server",
-										MarkdownDescription: "secret of RADIUS server",
+										Description:         "Secretof RADIUS server",
+										MarkdownDescription: "Secretof RADIUS server",
 									},
 								},
 								CustomType: AcctServersType{
@@ -77,8 +77,8 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Computed:            true,
-							Description:         "list of RADIUS accounting servers, optional, order matters where the first one is treated as primary",
-							MarkdownDescription: "list of RADIUS accounting servers, optional, order matters where the first one is treated as primary",
+							Description:         "List of RADIUS accounting servers, optional, order matters where the first one is treated as primary",
+							MarkdownDescription: "List of RADIUS accounting servers, optional, order matters where the first one is treated as primary",
 						},
 						"airwatch": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
@@ -89,8 +89,8 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 								"console_url": schema.StringAttribute{
 									Computed:            true,
-									Description:         "console URL",
-									MarkdownDescription: "console URL",
+									Description:         "Console URL",
+									MarkdownDescription: "Console URL",
 								},
 								"enabled": schema.BoolAttribute{
 									Computed: true,
@@ -98,13 +98,13 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								"password": schema.StringAttribute{
 									Computed:            true,
 									Sensitive:           true,
-									Description:         "password",
-									MarkdownDescription: "password",
+									Description:         "Password",
+									MarkdownDescription: "Password",
 								},
 								"username": schema.StringAttribute{
 									Computed:            true,
-									Description:         "username",
-									MarkdownDescription: "username",
+									Description:         "Username",
+									MarkdownDescription: "Username",
 								},
 							},
 							CustomType: AirwatchType{
@@ -113,29 +113,29 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Computed:            true,
-							Description:         "airwatch wlan settings",
-							MarkdownDescription: "airwatch wlan settings",
+							Description:         "Airwatch wlan settings",
+							MarkdownDescription: "Airwatch wlan settings",
 						},
 						"allow_ipv6_ndp": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "only applicable when limit_bcast==true, which allows or disallows ipv6 Neighbor Discovery packets to go through",
-							MarkdownDescription: "only applicable when limit_bcast==true, which allows or disallows ipv6 Neighbor Discovery packets to go through",
+							Description:         "Only applicable when limit_bcast==true, which allows or disallows ipv6 Neighbor Discovery packets to go through",
+							MarkdownDescription: "Only applicable when limit_bcast==true, which allows or disallows ipv6 Neighbor Discovery packets to go through",
 						},
 						"allow_mdns": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "only applicable when limit_bcast==true, which allows mDNS / Bonjour packets to go through",
-							MarkdownDescription: "only applicable when limit_bcast==true, which allows mDNS / Bonjour packets to go through",
+							Description:         "Only applicable when limit_bcast==true, which allows mDNS / Bonjour packets to go through",
+							MarkdownDescription: "Only applicable when limit_bcast==true, which allows mDNS / Bonjour packets to go through",
 						},
 						"allow_ssdp": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "only applicable when `limit_bcast`==`true`, which allows SSDP",
-							MarkdownDescription: "only applicable when `limit_bcast`==`true`, which allows SSDP",
+							Description:         "Only applicable when `limit_bcast`==`true`, which allows SSDP",
+							MarkdownDescription: "Only applicable when `limit_bcast`==`true`, which allows SSDP",
 						},
 						"ap_ids": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Computed:            true,
-							Description:         "list of device ids",
-							MarkdownDescription: "list of device ids",
+							Description:         "List of device ids",
+							MarkdownDescription: "List of device ids",
 						},
 						"app_limit": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
@@ -161,8 +161,8 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Computed:            true,
-							Description:         "bandwidth limiting for apps (applies to up/down)",
-							MarkdownDescription: "bandwidth limiting for apps (applies to up/down)",
+							Description:         "Bandwidth limiting for apps (applies to up/down)",
+							MarkdownDescription: "Bandwidth limiting for apps (applies to up/down)",
 						},
 						"app_qos": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
@@ -174,13 +174,13 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 											},
 											"dst_subnet": schema.StringAttribute{
 												Computed:            true,
-												Description:         "subnet filter is not required but helps AP to only inspect certain traffic (thus reducing AP load)",
-												MarkdownDescription: "subnet filter is not required but helps AP to only inspect certain traffic (thus reducing AP load)",
+												Description:         "Subnet filter is not required but helps AP to only inspect certain traffic (thus reducing AP load)",
+												MarkdownDescription: "Subnet filter is not required but helps AP to only inspect certain traffic (thus reducing AP load)",
 											},
 											"src_subnet": schema.StringAttribute{
 												Computed:            true,
-												Description:         "subnet filter is not required but helps AP to only inspect certain traffic (thus reducing AP load)",
-												MarkdownDescription: "subnet filter is not required but helps AP to only inspect certain traffic (thus reducing AP load)",
+												Description:         "Subnet filter is not required but helps AP to only inspect certain traffic (thus reducing AP load)",
+												MarkdownDescription: "Subnet filter is not required but helps AP to only inspect certain traffic (thus reducing AP load)",
 											},
 										},
 										CustomType: AppsType{
@@ -231,8 +231,8 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Computed:            true,
-							Description:         "app qos wlan settings",
-							MarkdownDescription: "app qos wlan settings",
+							Description:         "APp qos wlan settings",
+							MarkdownDescription: "APp qos wlan settings",
 						},
 						"apply_to": schema.StringAttribute{
 							Computed:            true,
@@ -241,8 +241,8 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"arp_filter": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "whether to enable smart arp filter",
-							MarkdownDescription: "whether to enable smart arp filter",
+							Description:         "Whether to enable smart arp filter",
+							MarkdownDescription: "Whether to enable smart arp filter",
 						},
 						"auth": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
@@ -253,29 +253,29 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 								"eap_reauth": schema.BoolAttribute{
 									Computed:            true,
-									Description:         "whether to trigger EAP reauth when the session ends",
-									MarkdownDescription: "whether to trigger EAP reauth when the session ends",
+									Description:         "Whether to trigger EAP reauth when the session ends",
+									MarkdownDescription: "Whether to trigger EAP reauth when the session ends",
 								},
 								"enable_mac_auth": schema.BoolAttribute{
 									Computed:            true,
-									Description:         "whether to enable MAC Auth, uses the same auth_servers",
-									MarkdownDescription: "whether to enable MAC Auth, uses the same auth_servers",
+									Description:         "Whether to enable MAC Auth, uses the same auth_servers",
+									MarkdownDescription: "Whether to enable MAC Auth, uses the same auth_servers",
 								},
 								"key_idx": schema.Int64Attribute{
 									Computed:            true,
-									Description:         "when `type`==`wep`",
-									MarkdownDescription: "when `type`==`wep`",
+									Description:         "When `type`==`wep`",
+									MarkdownDescription: "When `type`==`wep`",
 								},
 								"keys": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Computed:            true,
-									Description:         "when type=wep, four 10-character or 26-character hex string, null can be used. All keys, if provided, have to be in the same length",
-									MarkdownDescription: "when type=wep, four 10-character or 26-character hex string, null can be used. All keys, if provided, have to be in the same length",
+									Description:         "When type=wep, four 10-character or 26-character hex string, null can be used. All keys, if provided, have to be in the same length",
+									MarkdownDescription: "When type=wep, four 10-character or 26-character hex string, null can be used. All keys, if provided, have to be in the same length",
 								},
 								"multi_psk_only": schema.BoolAttribute{
 									Computed:            true,
-									Description:         "when `type`==`psk`, whether to only use multi_psk",
-									MarkdownDescription: "when `type`==`psk`, whether to only use multi_psk",
+									Description:         "When `type`==`psk`, whether to only use multi_psk",
+									MarkdownDescription: "When `type`==`psk`, whether to only use multi_psk",
 								},
 								"owe": schema.StringAttribute{
 									Computed:            true,
@@ -285,19 +285,19 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								"pairwise": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Computed:            true,
-									Description:         "when `type`=`psk` or `type`=`eap`, one or more of `wpa1-ccmp`, `wpa1-tkip`, `wpa2-ccmp`, `wpa2-tkip`, `wpa3`",
-									MarkdownDescription: "when `type`=`psk` or `type`=`eap`, one or more of `wpa1-ccmp`, `wpa1-tkip`, `wpa2-ccmp`, `wpa2-tkip`, `wpa3`",
+									Description:         "When `type`=`psk` or `type`=`eap`, one or more of `wpa1-ccmp`, `wpa1-tkip`, `wpa2-ccmp`, `wpa2-tkip`, `wpa3`",
+									MarkdownDescription: "When `type`=`psk` or `type`=`eap`, one or more of `wpa1-ccmp`, `wpa1-tkip`, `wpa2-ccmp`, `wpa2-tkip`, `wpa3`",
 								},
 								"private_wlan": schema.BoolAttribute{
 									Computed:            true,
-									Description:         "when `multi_psk_only`==`true`, whether private wlan is enabled",
-									MarkdownDescription: "when `multi_psk_only`==`true`, whether private wlan is enabled",
+									Description:         "When `multi_psk_only`==`true`, whether private wlan is enabled",
+									MarkdownDescription: "When `multi_psk_only`==`true`, whether private wlan is enabled",
 								},
 								"psk": schema.StringAttribute{
 									Computed:            true,
 									Sensitive:           true,
-									Description:         "when `type`==`psk`, 8-64 characters, or 64 hex characters",
-									MarkdownDescription: "when `type`==`psk`, 8-64 characters, or 64 hex characters",
+									Description:         "When `type`==`psk`, 8-64 characters, or 64 hex characters",
+									MarkdownDescription: "When `type`==`psk`, 8-64 characters, or 64 hex characters",
 								},
 								"type": schema.StringAttribute{
 									Computed:            true,
@@ -306,8 +306,8 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 								"wep_as_secondary_auth": schema.BoolAttribute{
 									Computed:            true,
-									Description:         "enable WEP as secondary auth",
-									MarkdownDescription: "enable WEP as secondary auth",
+									Description:         "Enable WEP as secondary auth",
+									MarkdownDescription: "Enable WEP as secondary auth",
 								},
 							},
 							CustomType: AuthType{
@@ -316,8 +316,8 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Computed:            true,
-							Description:         "authentication wlan settings",
-							MarkdownDescription: "authentication wlan settings",
+							Description:         "Authentication wlan settings",
+							MarkdownDescription: "Authentication wlan settings",
 						},
 						"auth_server_selection": schema.StringAttribute{
 							Computed:            true,
@@ -329,8 +329,8 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								Attributes: map[string]schema.Attribute{
 									"host": schema.StringAttribute{
 										Computed:            true,
-										Description:         "ip / hostname of RADIUS server",
-										MarkdownDescription: "ip / hostname of RADIUS server",
+										Description:         "IP/ hostname of RADIUS server",
+										MarkdownDescription: "IP/ hostname of RADIUS server",
 									},
 									"keywrap_enabled": schema.BoolAttribute{
 										Computed: true,
@@ -353,14 +353,14 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 									},
 									"require_message_authenticator": schema.BoolAttribute{
 										Computed:            true,
-										Description:         "whether to require Message-Authenticator in requests",
-										MarkdownDescription: "whether to require Message-Authenticator in requests",
+										Description:         "Whether to require Message-Authenticator in requests",
+										MarkdownDescription: "Whether to require Message-Authenticator in requests",
 									},
 									"secret": schema.StringAttribute{
 										Computed:            true,
 										Sensitive:           true,
-										Description:         "secret of RADIUS server",
-										MarkdownDescription: "secret of RADIUS server",
+										Description:         "Secretof RADIUS server",
+										MarkdownDescription: "Secretof RADIUS server",
 									},
 								},
 								CustomType: AuthServersType{
@@ -370,49 +370,49 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Computed:            true,
-							Description:         "list of RADIUS authentication servers, at least one is needed if `auth type`==`eap`, order matters where the first one is treated as primary",
-							MarkdownDescription: "list of RADIUS authentication servers, at least one is needed if `auth type`==`eap`, order matters where the first one is treated as primary",
+							Description:         "List of RADIUS authentication servers, at least one is needed if `auth type`==`eap`, order matters where the first one is treated as primary",
+							MarkdownDescription: "List of RADIUS authentication servers, at least one is needed if `auth type`==`eap`, order matters where the first one is treated as primary",
 						},
 						"auth_servers_nas_id": schema.StringAttribute{
 							Computed:            true,
-							Description:         "optional, up to 48 bytes, will be dynamically generated if not provided. used only for authentication servers",
-							MarkdownDescription: "optional, up to 48 bytes, will be dynamically generated if not provided. used only for authentication servers",
+							Description:         "Optional, up to 48 bytes, will be dynamically generated if not provided. used only for authentication servers",
+							MarkdownDescription: "Optional, up to 48 bytes, will be dynamically generated if not provided. used only for authentication servers",
 						},
 						"auth_servers_nas_ip": schema.StringAttribute{
 							Computed:            true,
-							Description:         "optional, NAS-IP-ADDRESS to use",
-							MarkdownDescription: "optional, NAS-IP-ADDRESS to use",
+							Description:         "Optional, NAS-IP-ADDRESS to use",
+							MarkdownDescription: "Optional, NAS-IP-ADDRESS to use",
 						},
 						"auth_servers_retries": schema.Int64Attribute{
 							Computed:            true,
-							Description:         "radius auth session retries. Following fast timers are set if “fast_dot1x_timers” knob is enabled. ‘retries’  are set to value of auth_servers_retries. ‘max-requests’ is also set when setting auth_servers_retries and is set to default value to 3.",
-							MarkdownDescription: "radius auth session retries. Following fast timers are set if “fast_dot1x_timers” knob is enabled. ‘retries’  are set to value of auth_servers_retries. ‘max-requests’ is also set when setting auth_servers_retries and is set to default value to 3.",
+							Description:         "Radius auth session retries. Following fast timers are set if \"fast_dot1x_timers\" knob is enabled. ‘retries’  are set to value of auth_servers_retries. ‘max-requests’ is also set when setting auth_servers_retries and is set to default value to 3.",
+							MarkdownDescription: "Radius auth session retries. Following fast timers are set if \"fast_dot1x_timers\" knob is enabled. ‘retries’  are set to value of auth_servers_retries. ‘max-requests’ is also set when setting auth_servers_retries and is set to default value to 3.",
 						},
 						"auth_servers_timeout": schema.Int64Attribute{
 							Computed:            true,
-							Description:         "radius auth session timeout. Following fast timers are set if “fast_dot1x_timers” knob is enabled. ‘quite-period’  and ‘transmit-period’ are set to half the value of auth_servers_timeout. ‘supplicant-timeout’ is also set when setting auth_servers_timeout and is set to default value of 10.",
-							MarkdownDescription: "radius auth session timeout. Following fast timers are set if “fast_dot1x_timers” knob is enabled. ‘quite-period’  and ‘transmit-period’ are set to half the value of auth_servers_timeout. ‘supplicant-timeout’ is also set when setting auth_servers_timeout and is set to default value of 10.",
+							Description:         "Radius auth session timeout. Following fast timers are set if \"fast_dot1x_timers\" knob is enabled. ‘quite-period’  and ‘transmit-period’ are set to half the value of auth_servers_timeout. ‘supplicant-timeout’ is also set when setting auth_servers_timeout and is set to default value of 10.",
+							MarkdownDescription: "Radius auth session timeout. Following fast timers are set if \"fast_dot1x_timers\" knob is enabled. ‘quite-period’  and ‘transmit-period’ are set to half the value of auth_servers_timeout. ‘supplicant-timeout’ is also set when setting auth_servers_timeout and is set to default value of 10.",
 						},
 						"band_steer": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "whether to enable band_steering, this works only when band==both",
-							MarkdownDescription: "whether to enable band_steering, this works only when band==both",
+							Description:         "Whether to enable band_steering, this works only when band==both",
+							MarkdownDescription: "Whether to enable band_steering, this works only when band==both",
 						},
 						"band_steer_force_band5": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "force dual_band capable client to connect to 5G",
-							MarkdownDescription: "force dual_band capable client to connect to 5G",
+							Description:         "Force dual_band capable client to connect to 5G",
+							MarkdownDescription: "Force dual_band capable client to connect to 5G",
 						},
 						"bands": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Computed:            true,
-							Description:         "list of radios that the wlan should apply to.",
-							MarkdownDescription: "list of radios that the wlan should apply to.",
+							Description:         "List of radios that the wlan should apply to.",
+							MarkdownDescription: "List of radios that the wlan should apply to.",
 						},
 						"block_blacklist_clients": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "whether to block the clients in the blacklist (up to first 256 macs)",
-							MarkdownDescription: "whether to block the clients in the blacklist (up to first 256 macs)",
+							Description:         "Whether to block the clients in the blacklist (up to first 256 macs)",
+							MarkdownDescription: "Whether to block the clients in the blacklist (up to first 256 macs)",
 						},
 						"bonjour": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
@@ -424,22 +424,22 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 								"enabled": schema.BoolAttribute{
 									Computed:            true,
-									Description:         "whether to enable bonjour for this WLAN. Once enabled, limit_bcast is assumed true, allow_mdns is assumed false",
-									MarkdownDescription: "whether to enable bonjour for this WLAN. Once enabled, limit_bcast is assumed true, allow_mdns is assumed false",
+									Description:         "Whether to enable bonjour for this WLAN. Once enabled, limit_bcast is assumed true, allow_mdns is assumed false",
+									MarkdownDescription: "Whether to enable bonjour for this WLAN. Once enabled, limit_bcast is assumed true, allow_mdns is assumed false",
 								},
 								"services": schema.MapNestedAttribute{
 									NestedObject: schema.NestedAttributeObject{
 										Attributes: map[string]schema.Attribute{
 											"disable_local": schema.BoolAttribute{
 												Computed:            true,
-												Description:         "whether to prevent wireless clients to discover bonjour devices on the same WLAN",
-												MarkdownDescription: "whether to prevent wireless clients to discover bonjour devices on the same WLAN",
+												Description:         "Whether to prevent wireless clients to discover bonjour devices on the same WLAN",
+												MarkdownDescription: "Whether to prevent wireless clients to discover bonjour devices on the same WLAN",
 											},
 											"radius_groups": schema.ListAttribute{
 												ElementType:         types.StringType,
 												Computed:            true,
-												Description:         "optional, if the service is further restricted for certain RADIUS groups",
-												MarkdownDescription: "optional, if the service is further restricted for certain RADIUS groups",
+												Description:         "Optional, if the service is further restricted for certain RADIUS groups",
+												MarkdownDescription: "Optional, if the service is further restricted for certain RADIUS groups",
 											},
 											"scope": schema.StringAttribute{
 												Computed:            true,
@@ -454,8 +454,8 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 									Computed:            true,
-									Description:         "what services are allowed. \nProperty key is the service name",
-									MarkdownDescription: "what services are allowed. \nProperty key is the service name",
+									Description:         "What services are allowed. \nProperty key is the service name",
+									MarkdownDescription: "What services are allowed. \nProperty key is the service name",
 									Validators: []validator.Map{
 										mapvalidator.SizeAtLeast(1),
 									},
@@ -467,28 +467,28 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Computed:            true,
-							Description:         "bonjour gateway wlan settings",
-							MarkdownDescription: "bonjour gateway wlan settings",
+							Description:         "Bonjour gateway wlan settings",
+							MarkdownDescription: "Bonjour gateway wlan settings",
 						},
 						"cisco_cwa": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
 								"allowed_hostnames": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Computed:            true,
-									Description:         "list of hostnames without http(s):// (matched by substring)",
-									MarkdownDescription: "list of hostnames without http(s):// (matched by substring)",
+									Description:         "List of hostnames without http(s):// (matched by substring)",
+									MarkdownDescription: "List of hostnames without http(s):// (matched by substring)",
 								},
 								"allowed_subnets": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Computed:            true,
-									Description:         "list of CIDRs",
-									MarkdownDescription: "list of CIDRs",
+									Description:         "List of CIDRs",
+									MarkdownDescription: "List of CIDRs",
 								},
 								"blocked_subnets": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Computed:            true,
-									Description:         "list of blocked CIDRs",
-									MarkdownDescription: "list of blocked CIDRs",
+									Description:         "List of blocked CIDRs",
+									MarkdownDescription: "List of blocked CIDRs",
 								},
 								"enabled": schema.BoolAttribute{
 									Computed: true,
@@ -505,31 +505,31 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"client_limit_down": schema.Int64Attribute{
 							Computed:            true,
-							Description:         "kbps",
-							MarkdownDescription: "kbps",
+							Description:         "In kbps",
+							MarkdownDescription: "In kbps",
 						},
 						"client_limit_down_enabled": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "if downlink limiting per-client is enabled",
-							MarkdownDescription: "if downlink limiting per-client is enabled",
+							Description:         "If downlink limiting per-client is enabled",
+							MarkdownDescription: "If downlink limiting per-client is enabled",
 						},
 						"client_limit_up": schema.Int64Attribute{
 							Computed:            true,
-							Description:         "kbps",
-							MarkdownDescription: "kbps",
+							Description:         "In kbps",
+							MarkdownDescription: "In kbps",
 						},
 						"client_limit_up_enabled": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "if uplink limiting per-client is enabled",
-							MarkdownDescription: "if uplink limiting per-client is enabled",
+							Description:         "If uplink limiting per-client is enabled",
+							MarkdownDescription: "If uplink limiting per-client is enabled",
 						},
 						"coa_servers": schema.ListNestedAttribute{
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"disable_event_timestamp_check": schema.BoolAttribute{
 										Computed:            true,
-										Description:         "whether to disable Event-Timestamp Check",
-										MarkdownDescription: "whether to disable Event-Timestamp Check",
+										Description:         "Whether to disable Event-Timestamp Check",
+										MarkdownDescription: "Whether to disable Event-Timestamp Check",
 									},
 									"enabled": schema.BoolAttribute{
 										Computed: true,
@@ -552,51 +552,51 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Computed:            true,
-							Description:         "list of COA (change of authorization) servers, optional",
-							MarkdownDescription: "list of COA (change of authorization) servers, optional",
+							Description:         "List of COA (change of authorization) servers, optional",
+							MarkdownDescription: "List of COA (change of authorization) servers, optional",
 						},
 						"created_time": schema.Float64Attribute{
 							Computed:            true,
-							Description:         "when the object has been created, in epoch",
-							MarkdownDescription: "when the object has been created, in epoch",
+							Description:         "When the object has been created, in epoch",
+							MarkdownDescription: "When the object has been created, in epoch",
 						},
 						"disable_11ax": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "some old WLAN drivers may not be compatible",
-							MarkdownDescription: "some old WLAN drivers may not be compatible",
+							Description:         "Some old WLAN drivers may not be compatible",
+							MarkdownDescription: "Some old WLAN drivers may not be compatible",
 						},
 						"disable_ht_vht_rates": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "to disable ht or vht rates",
-							MarkdownDescription: "to disable ht or vht rates",
+							Description:         "To disable ht or vht rates",
+							MarkdownDescription: "To disable ht or vht rates",
 						},
 						"disable_uapsd": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "whether to disable U-APSD",
-							MarkdownDescription: "whether to disable U-APSD",
+							Description:         "Whether to disable U-APSD",
+							MarkdownDescription: "Whether to disable U-APSD",
 						},
 						"disable_v1_roam_notify": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "disable sending v2 roam notification messages",
-							MarkdownDescription: "disable sending v2 roam notification messages",
+							Description:         "Disable sending v2 roam notification messages",
+							MarkdownDescription: "Disable sending v2 roam notification messages",
 						},
 						"disable_v2_roam_notify": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "disable sending v2 roam notification messages",
-							MarkdownDescription: "disable sending v2 roam notification messages",
+							Description:         "Disable sending v2 roam notification messages",
+							MarkdownDescription: "Disable sending v2 roam notification messages",
 						},
 						"disable_when_gateway_unreachable": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "when any of the following is true, this WLAN will be disabled\n   * cannot get IP\n   * cannot obtain default gateway\n   * cannot reach default gateway",
-							MarkdownDescription: "when any of the following is true, this WLAN will be disabled\n   * cannot get IP\n   * cannot obtain default gateway\n   * cannot reach default gateway",
+							Description:         "When any of the following is true, this WLAN will be disabled\n   * cannot get IP\n   * cannot obtain default gateway\n   * cannot reach default gateway",
+							MarkdownDescription: "When any of the following is true, this WLAN will be disabled\n   * cannot get IP\n   * cannot obtain default gateway\n   * cannot reach default gateway",
 						},
 						"disable_when_mxtunnel_down": schema.BoolAttribute{
 							Computed: true,
 						},
 						"disable_wmm": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "whether to disable WMM",
-							MarkdownDescription: "whether to disable WMM",
+							Description:         "Whether to disable WMM",
+							MarkdownDescription: "Whether to disable WMM",
 						},
 						"dns_server_rewrite": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
@@ -606,8 +606,8 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								"radius_groups": schema.MapAttribute{
 									ElementType:         types.StringType,
 									Computed:            true,
-									Description:         "map between radius_group and the desired DNS server (IPv4 only). Property key is the RADIUS group, property value is the desired DNS Server",
-									MarkdownDescription: "map between radius_group and the desired DNS server (IPv4 only). Property key is the RADIUS group, property value is the desired DNS Server",
+									Description:         "Map between radius_group and the desired DNS server (IPv4 only). Property key is the RADIUS group, property value is the desired DNS Server",
+									MarkdownDescription: "Map between radius_group and the desired DNS server (IPv4 only). Property key is the RADIUS group, property value is the desired DNS Server",
 								},
 							},
 							CustomType: DnsServerRewriteType{
@@ -616,8 +616,8 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Computed:            true,
-							Description:         "for radius_group-based DNS server (rewrite DNS request depending on the Group RADIUS server returns)",
-							MarkdownDescription: "for radius_group-based DNS server (rewrite DNS request depending on the Group RADIUS server returns)",
+							Description:         "For radius_group-based DNS server (rewrite DNS request depending on the Group RADIUS server returns)",
+							MarkdownDescription: "For radius_group-based DNS server (rewrite DNS request depending on the Group RADIUS server returns)",
 						},
 						"dtim": schema.Int64Attribute{
 							Computed: true,
@@ -627,8 +627,8 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								"default_psk": schema.StringAttribute{
 									Computed:            true,
 									Sensitive:           true,
-									Description:         "default PSK to use if cloud WLC is not available, 8-63 characters",
-									MarkdownDescription: "default PSK to use if cloud WLC is not available, 8-63 characters",
+									Description:         "Default PSK to use if cloud WLC is not available, 8-63 characters",
+									MarkdownDescription: "Default PSK to use if cloud WLC is not available, 8-63 characters",
 								},
 								"default_vlan_id": schema.StringAttribute{
 									Computed: true,
@@ -638,8 +638,8 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 								"force_lookup": schema.BoolAttribute{
 									Computed:            true,
-									Description:         "when 11r is enabled, we'll try to use the cached PMK, this can be disabled. `false` means auto",
-									MarkdownDescription: "when 11r is enabled, we'll try to use the cached PMK, this can be disabled. `false` means auto",
+									Description:         "When 11r is enabled, we'll try to use the cached PMK, this can be disabled. `false` means auto",
+									MarkdownDescription: "When 11r is enabled, we'll try to use the cached PMK, this can be disabled. `false` means auto",
 								},
 								"source": schema.StringAttribute{
 									Computed:            true,
@@ -653,8 +653,8 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Computed:            true,
-							Description:         "for dynamic PSK where we get per_user PSK from Radius. dynamic_psk allows PSK to be selected at runtime depending on context (wlan/site/user/...) thus following configurations are assumed (currently)\n  * PSK will come from RADIUS server\n  * AP sends client MAC as username ans password (i.e. `enable_mac_auth` is assumed)\n  * AP sends BSSID:SSID as Caller-Station-ID\n  * `auth_servers` is required\n  * PSK will come from cloud WLC if source is cloud_psks\n  * default_psk will be used if cloud WLC is not available\n  * `multi_psk_only` and `psk` is ignored\n  * `pairwise` can only be wpa2-ccmp (for now, wpa3 support on the roadmap)",
-							MarkdownDescription: "for dynamic PSK where we get per_user PSK from Radius. dynamic_psk allows PSK to be selected at runtime depending on context (wlan/site/user/...) thus following configurations are assumed (currently)\n  * PSK will come from RADIUS server\n  * AP sends client MAC as username ans password (i.e. `enable_mac_auth` is assumed)\n  * AP sends BSSID:SSID as Caller-Station-ID\n  * `auth_servers` is required\n  * PSK will come from cloud WLC if source is cloud_psks\n  * default_psk will be used if cloud WLC is not available\n  * `multi_psk_only` and `psk` is ignored\n  * `pairwise` can only be wpa2-ccmp (for now, wpa3 support on the roadmap)",
+							Description:         "For dynamic PSK where we get per_user PSK from Radius. dynamic_psk allows PSK to be selected at runtime depending on context (wlan/site/user/...) thus following configurations are assumed (currently)\n  * PSK will come from RADIUS server\n  * AP sends client MAC as username and password (i.e. `enable_mac_auth` is assumed)\n  * AP sends BSSID:SSID as Caller-Station-ID\n  * `auth_servers` is required\n  * PSK will come from cloud WLC if source is cloud_psks\n  * default_psk will be used if cloud WLC is not available\n  * `multi_psk_only` and `psk` is ignored\n  * `pairwise` can only be wpa2-ccmp (for now, wpa3 support on the roadmap)",
+							MarkdownDescription: "For dynamic PSK where we get per_user PSK from Radius. dynamic_psk allows PSK to be selected at runtime depending on context (wlan/site/user/...) thus following configurations are assumed (currently)\n  * PSK will come from RADIUS server\n  * AP sends client MAC as username and password (i.e. `enable_mac_auth` is assumed)\n  * AP sends BSSID:SSID as Caller-Station-ID\n  * `auth_servers` is required\n  * PSK will come from cloud WLC if source is cloud_psks\n  * default_psk will be used if cloud WLC is not available\n  * `multi_psk_only` and `psk` is ignored\n  * `pairwise` can only be wpa2-ccmp (for now, wpa3 support on the roadmap)",
 						},
 						"dynamic_vlan": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
@@ -672,8 +672,8 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								"local_vlan_ids": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Computed:            true,
-									Description:         "vlan_ids to be locally bridged",
-									MarkdownDescription: "vlan_ids to be locally bridged",
+									Description:         "VLAN_ids to be locally bridged",
+									MarkdownDescription: "VLAN_ids to be locally bridged",
 								},
 								"type": schema.StringAttribute{
 									Computed:            true,
@@ -683,8 +683,8 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								"vlans": schema.MapAttribute{
 									ElementType:         types.StringType,
 									Computed:            true,
-									Description:         "map between vlan_id (as string) to airespace interface names (comma-separated) or null for stndard mapping\n  * if `dynamic_vlan.type`==`standard`, property key is the Vlan ID and property value is \\\"\\\"\n  * if `dynamic_vlan.type`==`airespace-interface-name`, property key is the Vlan ID and property value is the Airespace Interface Name",
-									MarkdownDescription: "map between vlan_id (as string) to airespace interface names (comma-separated) or null for stndard mapping\n  * if `dynamic_vlan.type`==`standard`, property key is the Vlan ID and property value is \\\"\\\"\n  * if `dynamic_vlan.type`==`airespace-interface-name`, property key is the Vlan ID and property value is the Airespace Interface Name",
+									Description:         "Map between vlan_id (as string) to airespace interface names (comma-separated) or null for stndard mapping\n  * if `dynamic_vlan.type`==`standard`, property key is the Vlan ID and property value is \\\"\\\"\n  * if `dynamic_vlan.type`==`airespace-interface-name`, property key is the Vlan ID and property value is the Airespace Interface Name",
+									MarkdownDescription: "Map between vlan_id (as string) to airespace interface names (comma-separated) or null for stndard mapping\n  * if `dynamic_vlan.type`==`standard`, property key is the Vlan ID and property value is \\\"\\\"\n  * if `dynamic_vlan.type`==`airespace-interface-name`, property key is the Vlan ID and property value is the Airespace Interface Name",
 								},
 							},
 							CustomType: DynamicVlanType{
@@ -693,43 +693,43 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Computed:            true,
-							Description:         "for 802.1x",
-							MarkdownDescription: "for 802.1x",
+							Description:         "For 802.1x",
+							MarkdownDescription: "For 802.1x",
 						},
 						"enable_local_keycaching": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "enable AP-AP keycaching via multicast",
-							MarkdownDescription: "enable AP-AP keycaching via multicast",
+							Description:         "Enable AP-AP keycaching via multicast",
+							MarkdownDescription: "Enable AP-AP keycaching via multicast",
 						},
 						"enable_wireless_bridging": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "by default, we'd inspect all DHCP packets and drop those unrelated to the wireless client itself in the case where client is a wireless bridge (DHCP packets for other MACs will need to be orwarded), wireless_bridging can be enabled",
-							MarkdownDescription: "by default, we'd inspect all DHCP packets and drop those unrelated to the wireless client itself in the case where client is a wireless bridge (DHCP packets for other MACs will need to be orwarded), wireless_bridging can be enabled",
+							Description:         "By default, we'd inspect all DHCP packets and drop those unrelated to the wireless client itself in the case where client is a wireless bridge (DHCP packets for other MACs will need to be orwarded), wireless_bridging can be enabled",
+							MarkdownDescription: "By default, we'd inspect all DHCP packets and drop those unrelated to the wireless client itself in the case where client is a wireless bridge (DHCP packets for other MACs will need to be orwarded), wireless_bridging can be enabled",
 						},
 						"enable_wireless_bridging_dhcp_tracking": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "if the client bridge is doing DHCP on behalf of other devices (L2-NAT), enable dhcp_tracking will cut down DHCP response packets to be forwarded to wireless",
-							MarkdownDescription: "if the client bridge is doing DHCP on behalf of other devices (L2-NAT), enable dhcp_tracking will cut down DHCP response packets to be forwarded to wireless",
+							Description:         "If the client bridge is doing DHCP on behalf of other devices (L2-NAT), enable dhcp_tracking will cut down DHCP response packets to be forwarded to wireless",
+							MarkdownDescription: "If the client bridge is doing DHCP on behalf of other devices (L2-NAT), enable dhcp_tracking will cut down DHCP response packets to be forwarded to wireless",
 						},
 						"enabled": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "if this wlan is enabled",
-							MarkdownDescription: "if this wlan is enabled",
+							Description:         "If this wlan is enabled",
+							MarkdownDescription: "If this wlan is enabled",
 						},
 						"fast_dot1x_timers": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "if set to true, sets default fast-timers with values calculated from ‘auth_servers_timeout’ and ‘auth_server_retries’ .",
-							MarkdownDescription: "if set to true, sets default fast-timers with values calculated from ‘auth_servers_timeout’ and ‘auth_server_retries’ .",
+							Description:         "If set to true, sets default fast-timers with values calculated from ‘auth_servers_timeout’ and ‘auth_server_retries’ .",
+							MarkdownDescription: "If set to true, sets default fast-timers with values calculated from ‘auth_servers_timeout’ and ‘auth_server_retries’ .",
 						},
 						"hide_ssid": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "whether to hide SSID in beacon",
-							MarkdownDescription: "whether to hide SSID in beacon",
+							Description:         "Whether to hide SSID in beacon",
+							MarkdownDescription: "Whether to hide SSID in beacon",
 						},
 						"hostname_ie": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "include hostname inside IE in AP beacons / probe responses",
-							MarkdownDescription: "include hostname inside IE in AP beacons / probe responses",
+							Description:         "Include hostname inside IE in AP beacons / probe responses",
+							MarkdownDescription: "Include hostname inside IE in AP beacons / probe responses",
 						},
 						"hotspot20": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
@@ -739,8 +739,8 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 								"enabled": schema.BoolAttribute{
 									Computed:            true,
-									Description:         "whether to enable hotspot 2.0 config",
-									MarkdownDescription: "whether to enable hotspot 2.0 config",
+									Description:         "Whether to enable hotspot 2.0 config",
+									MarkdownDescription: "Whether to enable hotspot 2.0 config",
 								},
 								"nai_realms": schema.ListAttribute{
 									ElementType: types.StringType,
@@ -749,8 +749,8 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								"operators": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Computed:            true,
-									Description:         "list of operators to support",
-									MarkdownDescription: "list of operators to support",
+									Description:         "List of operators to support",
+									MarkdownDescription: "List of operators to support",
 								},
 								"rcoi": schema.ListAttribute{
 									ElementType: types.StringType,
@@ -758,8 +758,8 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 								"venue_name": schema.StringAttribute{
 									Computed:            true,
-									Description:         "venue name, default is site name",
-									MarkdownDescription: "venue name, default is site name",
+									Description:         "Venue name, default is site name",
+									MarkdownDescription: "Venue name, default is site name",
 								},
 							},
 							CustomType: Hotspot20Type{
@@ -768,8 +768,8 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Computed:            true,
-							Description:         "hostspot 2.0 wlan settings",
-							MarkdownDescription: "hostspot 2.0 wlan settings",
+							Description:         "Hostspot 2.0 wlan settings",
+							MarkdownDescription: "Hostspot 2.0 wlan settings",
 						},
 						"id": schema.StringAttribute{
 							Computed:            true,
@@ -780,13 +780,13 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 							Attributes: map[string]schema.Attribute{
 								"circuit_id": schema.StringAttribute{
 									Computed:            true,
-									Description:         "information to set in the `circuit_id` field of the DHCP Option 82. It is possible to use static string or the following variables (e.g. `{{SSID}}:{{AP_MAC}}`):\n  * {{AP_MAC}}\n  * {{AP_MAC_DASHED}}\n  * {{AP_MODEL}}\n  * {{AP_NAME}}\n  * {{SITE_NAME}}\n  * {{SSID}}",
-									MarkdownDescription: "information to set in the `circuit_id` field of the DHCP Option 82. It is possible to use static string or the following variables (e.g. `{{SSID}}:{{AP_MAC}}`):\n  * {{AP_MAC}}\n  * {{AP_MAC_DASHED}}\n  * {{AP_MODEL}}\n  * {{AP_NAME}}\n  * {{SITE_NAME}}\n  * {{SSID}}",
+									Description:         "Information to set in the `circuit_id` field of the DHCP Option 82. It is possible to use static string or the following variables (e.g. `{{SSID}}:{{AP_MAC}}`):\n  * {{AP_MAC}}\n  * {{AP_MAC_DASHED}}\n  * {{AP_MODEL}}\n  * {{AP_NAME}}\n  * {{SITE_NAME}}\n  * {{SSID}}",
+									MarkdownDescription: "Information to set in the `circuit_id` field of the DHCP Option 82. It is possible to use static string or the following variables (e.g. `{{SSID}}:{{AP_MAC}}`):\n  * {{AP_MAC}}\n  * {{AP_MAC_DASHED}}\n  * {{AP_MODEL}}\n  * {{AP_NAME}}\n  * {{SITE_NAME}}\n  * {{SSID}}",
 								},
 								"enabled": schema.BoolAttribute{
 									Computed:            true,
-									Description:         "whether to inject option 82 when forwarding DHCP packets",
-									MarkdownDescription: "whether to inject option 82 when forwarding DHCP packets",
+									Description:         "Whether to inject option 82 when forwarding DHCP packets",
+									MarkdownDescription: "Whether to inject option 82 when forwarding DHCP packets",
 								},
 							},
 							CustomType: InjectDhcpOption82Type{
@@ -803,45 +803,45 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"isolation": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "whether to stop clients to talk to each other",
-							MarkdownDescription: "whether to stop clients to talk to each other",
+							Description:         "Whether to stop clients to talk to each other",
+							MarkdownDescription: "Whether to stop clients to talk to each other",
 						},
 						"l2_isolation": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "if isolation is enabled, whether to deny clients to talk to L2 on the LAN",
-							MarkdownDescription: "if isolation is enabled, whether to deny clients to talk to L2 on the LAN",
+							Description:         "If isolation is enabled, whether to deny clients to talk to L2 on the LAN",
+							MarkdownDescription: "If isolation is enabled, whether to deny clients to talk to L2 on the LAN",
 						},
 						"legacy_overds": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "legacy devices requires the Over-DS (for Fast BSS Transition) bit set (while our chip doesn’t support it). Warning! Enabling this will cause problem for iOS devices.",
-							MarkdownDescription: "legacy devices requires the Over-DS (for Fast BSS Transition) bit set (while our chip doesn’t support it). Warning! Enabling this will cause problem for iOS devices.",
+							Description:         "Legacy devices requires the Over-DS (for Fast BSS Transition) bit set (while our chip doesn’t support it). Warning! Enabling this will cause problem for iOS devices.",
+							MarkdownDescription: "Legacy devices requires the Over-DS (for Fast BSS Transition) bit set (while our chip doesn’t support it). Warning! Enabling this will cause problem for iOS devices.",
 						},
 						"limit_bcast": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "whether to limit broadcast packets going to wireless (i.e. only allow certain bcast packets to go through)",
-							MarkdownDescription: "whether to limit broadcast packets going to wireless (i.e. only allow certain bcast packets to go through)",
+							Description:         "Whether to limit broadcast packets going to wireless (i.e. only allow certain bcast packets to go through)",
+							MarkdownDescription: "Whether to limit broadcast packets going to wireless (i.e. only allow certain bcast packets to go through)",
 						},
 						"limit_probe_response": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "limit probe response base on some heuristic rules",
-							MarkdownDescription: "limit probe response base on some heuristic rules",
+							Description:         "Limit probe response base on some heuristic rules",
+							MarkdownDescription: "Limit probe response base on some heuristic rules",
 						},
 						"max_idletime": schema.Int64Attribute{
 							Computed:            true,
-							Description:         "max idle time in seconds",
-							MarkdownDescription: "max idle time in seconds",
+							Description:         "Max idle time in seconds",
+							MarkdownDescription: "Max idle time in seconds",
 						},
 						"max_num_clients": schema.Int64Attribute{
 							Computed:            true,
-							Description:         "maximum number of client connected to the SSID. `0` means unlimited",
-							MarkdownDescription: "maximum number of client connected to the SSID. `0` means unlimited",
+							Description:         "Maximum number of client connected to the SSID. `0` means unlimited",
+							MarkdownDescription: "Maximum number of client connected to the SSID. `0` means unlimited",
 						},
 						"mist_nac": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
 								"enabled": schema.BoolAttribute{
 									Computed:            true,
-									Description:         "when enabled:\n  * `auth_servers` is ignored\n  * `acct_servers` is ignored\n  * `auth_servers_*` are ignored\n  * `coa_servers` is ignored\n  * `radsec` is ignored\n  * `coa_enabled` is assumed'",
-									MarkdownDescription: "when enabled:\n  * `auth_servers` is ignored\n  * `acct_servers` is ignored\n  * `auth_servers_*` are ignored\n  * `coa_servers` is ignored\n  * `radsec` is ignored\n  * `coa_enabled` is assumed'",
+									Description:         "When enabled:\n  * `auth_servers` is ignored\n  * `acct_servers` is ignored\n  * `auth_servers_*` are ignored\n  * `coa_servers` is ignored\n  * `radsec` is ignored\n  * `coa_enabled` is assumed",
+									MarkdownDescription: "When enabled:\n  * `auth_servers` is ignored\n  * `acct_servers` is ignored\n  * `auth_servers_*` are ignored\n  * `coa_servers` is ignored\n  * `radsec` is ignored\n  * `coa_enabled` is assumed",
 								},
 							},
 							CustomType: MistNacType{
@@ -853,8 +853,8 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"modified_time": schema.Float64Attribute{
 							Computed:            true,
-							Description:         "when the object has been modified for the last time, in epoch",
-							MarkdownDescription: "when the object has been modified for the last time, in epoch",
+							Description:         "When the object has been modified for the last time, in epoch",
+							MarkdownDescription: "When the object has been modified for the last time, in epoch",
 						},
 						"msp_id": schema.StringAttribute{
 							Computed: true,
@@ -862,24 +862,24 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 						"mxtunnel_ids": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Computed:            true,
-							Description:         "when `interface`=`mxtunnel`, id of the Mist Tunnel",
-							MarkdownDescription: "when `interface`=`mxtunnel`, id of the Mist Tunnel",
+							Description:         "When `interface`=`mxtunnel`, id of the Mist Tunnel",
+							MarkdownDescription: "When `interface`=`mxtunnel`, id of the Mist Tunnel",
 						},
 						"mxtunnel_name": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Computed:            true,
-							Description:         "when `interface`=`site_medge`, name of the mxtunnel that in mxtunnels under Site Setting",
-							MarkdownDescription: "when `interface`=`site_medge`, name of the mxtunnel that in mxtunnels under Site Setting",
+							Description:         "When `interface`=`site_medge`, name of the mxtunnel that in mxtunnels under Site Setting",
+							MarkdownDescription: "When `interface`=`site_medge`, name of the mxtunnel that in mxtunnels under Site Setting",
 						},
 						"no_static_dns": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "whether to only allow client to use DNS that we’ve learned from DHCP response",
-							MarkdownDescription: "whether to only allow client to use DNS that we’ve learned from DHCP response",
+							Description:         "Whether to only allow client to use DNS that we’ve learned from DHCP response",
+							MarkdownDescription: "Whether to only allow client to use DNS that we’ve learned from DHCP response",
 						},
 						"no_static_ip": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "whether to only allow client that we’ve learned from DHCP exchange to talk",
-							MarkdownDescription: "whether to only allow client that we’ve learned from DHCP exchange to talk",
+							Description:         "Whether to only allow client that we’ve learned from DHCP exchange to talk",
+							MarkdownDescription: "Whether to only allow client that we’ve learned from DHCP exchange to talk",
 						},
 						"org_id": schema.StringAttribute{
 							Computed: true,
@@ -909,8 +909,8 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 								"amazon_enabled": schema.BoolAttribute{
 									Computed:            true,
-									Description:         "whether amazon is enabled as a login method",
-									MarkdownDescription: "whether amazon is enabled as a login method",
+									Description:         "Whether amazon is enabled as a login method",
+									MarkdownDescription: "Whether amazon is enabled as a login method",
 								},
 								"amazon_expire": schema.Int64Attribute{
 									Computed:            true,
@@ -934,13 +934,13 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 								"azure_enabled": schema.BoolAttribute{
 									Computed:            true,
-									Description:         "whether Azure Active Directory is enabled as a login method",
-									MarkdownDescription: "whether Azure Active Directory is enabled as a login method",
+									Description:         "Whether Azure Active Directory is enabled as a login method",
+									MarkdownDescription: "Whether Azure Active Directory is enabled as a login method",
 								},
 								"azure_expire": schema.Int64Attribute{
 									Computed:            true,
-									Description:         "interval for which guest remains authorized using azure auth (in minutes), if not provided, uses expire`",
-									MarkdownDescription: "interval for which guest remains authorized using azure auth (in minutes), if not provided, uses expire`",
+									Description:         "Interval for which guest remains authorized using azure auth (in minutes), if not provided, uses expire`",
+									MarkdownDescription: "Interval for which guest remains authorized using azure auth (in minutes), if not provided, uses expire`",
 								},
 								"azure_tenant_id": schema.StringAttribute{
 									Computed:            true,
@@ -965,8 +965,8 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 								"bypass_when_cloud_down": schema.BoolAttribute{
 									Computed:            true,
-									Description:         "whether to bypass the guest portal when cloud not reachable (and apply the default policies)",
-									MarkdownDescription: "whether to bypass the guest portal when cloud not reachable (and apply the default policies)",
+									Description:         "Whether to bypass the guest portal when cloud not reachable (and apply the default policies)",
+									MarkdownDescription: "Whether to bypass the guest portal when cloud not reachable (and apply the default policies)",
 								},
 								"clickatell_api_key": schema.StringAttribute{
 									Computed:            true,
@@ -975,23 +975,23 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 								"cross_site": schema.BoolAttribute{
 									Computed:            true,
-									Description:         "whether to allow guest to roam between WLANs (with same `WLAN.ssid`, regardless of variables) of different sites of same org without reauthentication (disable random_mac for seamless roaming)",
-									MarkdownDescription: "whether to allow guest to roam between WLANs (with same `WLAN.ssid`, regardless of variables) of different sites of same org without reauthentication (disable random_mac for seamless roaming)",
+									Description:         "Whether to allow guest to roam between WLANs (with same `WLAN.ssid`, regardless of variables) of different sites of same org without reauthentication (disable random_mac for seamless roaming)",
+									MarkdownDescription: "Whether to allow guest to roam between WLANs (with same `WLAN.ssid`, regardless of variables) of different sites of same org without reauthentication (disable random_mac for seamless roaming)",
 								},
 								"email_enabled": schema.BoolAttribute{
 									Computed:            true,
-									Description:         "whether email (access code verification) is enabled as a login method",
-									MarkdownDescription: "whether email (access code verification) is enabled as a login method",
+									Description:         "Whether email (access code verification) is enabled as a login method",
+									MarkdownDescription: "Whether email (access code verification) is enabled as a login method",
 								},
 								"enabled": schema.BoolAttribute{
 									Computed:            true,
-									Description:         "whether guest portal is enabled",
-									MarkdownDescription: "whether guest portal is enabled",
+									Description:         "Whether guest portal is enabled",
+									MarkdownDescription: "Whether guest portal is enabled",
 								},
 								"expire": schema.Int64Attribute{
 									Computed:            true,
-									Description:         "how long to remain authorized, in minutes",
-									MarkdownDescription: "how long to remain authorized, in minutes",
+									Description:         "How long to remain authorized, in minutes",
+									MarkdownDescription: "How long to remain authorized, in minutes",
 								},
 								"external_portal_url": schema.StringAttribute{
 									Computed:            true,
@@ -1016,8 +1016,8 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 								"facebook_enabled": schema.BoolAttribute{
 									Computed:            true,
-									Description:         "whether facebook is enabled as a login method",
-									MarkdownDescription: "whether facebook is enabled as a login method",
+									Description:         "Whether facebook is enabled as a login method",
+									MarkdownDescription: "Whether facebook is enabled as a login method",
 								},
 								"facebook_expire": schema.Int64Attribute{
 									Computed:            true,
@@ -1026,13 +1026,13 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 								"forward": schema.BoolAttribute{
 									Computed:            true,
-									Description:         "whether to forward the user to another URL after authorized",
-									MarkdownDescription: "whether to forward the user to another URL after authorized",
+									Description:         "Whether to forward the user to another URL after authorized",
+									MarkdownDescription: "Whether to forward the user to another URL after authorized",
 								},
 								"forward_url": schema.StringAttribute{
 									Computed:            true,
-									Description:         "the URL to forward the user to",
-									MarkdownDescription: "the URL to forward the user to",
+									Description:         "URL to forward the user to",
+									MarkdownDescription: "URL to forward the user to",
 								},
 								"google_client_id": schema.StringAttribute{
 									Computed:            true,
@@ -1052,13 +1052,13 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 								"google_enabled": schema.BoolAttribute{
 									Computed:            true,
-									Description:         "whether google is enabled as login method",
-									MarkdownDescription: "whether google is enabled as login method",
+									Description:         "Whether Google is enabled as login method",
+									MarkdownDescription: "Whether Google is enabled as login method",
 								},
 								"google_expire": schema.Int64Attribute{
 									Computed:            true,
-									Description:         "Optional if `google_enabled`==`true`. Interval for which guest remains authorized using google auth (in minutes), if not provided, uses expire`",
-									MarkdownDescription: "Optional if `google_enabled`==`true`. Interval for which guest remains authorized using google auth (in minutes), if not provided, uses expire`",
+									Description:         "Optional if `google_enabled`==`true`. Interval for which guest remains authorized using Google Auth (in minutes), if not provided, uses expire`",
+									MarkdownDescription: "Optional if `google_enabled`==`true`. Interval for which guest remains authorized using Google Auth (in minutes), if not provided, uses expire`",
 								},
 								"gupshup_password": schema.StringAttribute{
 									Computed:            true,
@@ -1089,8 +1089,8 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 								"microsoft_enabled": schema.BoolAttribute{
 									Computed:            true,
-									Description:         "whether microsoft 365 is enabled as a login method",
-									MarkdownDescription: "whether microsoft 365 is enabled as a login method",
+									Description:         "Whether microsoft 365 is enabled as a login method",
+									MarkdownDescription: "Whether microsoft 365 is enabled as a login method",
 								},
 								"microsoft_expire": schema.Int64Attribute{
 									Computed:            true,
@@ -1115,13 +1115,13 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 								"predefined_sponsors_enabled": schema.BoolAttribute{
 									Computed:            true,
-									Description:         "whether to show list of sponsor emails mentioned in `sponsors` object as a dropdown. If both `sponsor_notify_all` and `predefined_sponsors_enabled` are false, behaviour is acc to `sponsor_email_domains`",
-									MarkdownDescription: "whether to show list of sponsor emails mentioned in `sponsors` object as a dropdown. If both `sponsor_notify_all` and `predefined_sponsors_enabled` are false, behaviour is acc to `sponsor_email_domains`",
+									Description:         "Whether to show list of sponsor emails mentioned in `sponsors` object as a dropdown. If both `sponsor_notify_all` and `predefined_sponsors_enabled` are false, behaviour is acc to `sponsor_email_domains`",
+									MarkdownDescription: "Whether to show list of sponsor emails mentioned in `sponsors` object as a dropdown. If both `sponsor_notify_all` and `predefined_sponsors_enabled` are false, behaviour is acc to `sponsor_email_domains`",
 								},
 								"predefined_sponsors_hide_email": schema.BoolAttribute{
 									Computed:            true,
-									Description:         "whether to hide sponsor’s email from list of sponsors",
-									MarkdownDescription: "whether to hide sponsor’s email from list of sponsors",
+									Description:         "Whether to hide sponsor’s email from list of sponsors",
+									MarkdownDescription: "Whether to hide sponsor’s email from list of sponsors",
 								},
 								"privacy": schema.BoolAttribute{
 									Computed: true,
@@ -1144,8 +1144,8 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 								"sms_enabled": schema.BoolAttribute{
 									Computed:            true,
-									Description:         "whether sms is enabled as a login method",
-									MarkdownDescription: "whether sms is enabled as a login method",
+									Description:         "Whether sms is enabled as a login method",
+									MarkdownDescription: "Whether sms is enabled as a login method",
 								},
 								"sms_expire": schema.Int64Attribute{
 									Computed:            true,
@@ -1170,13 +1170,13 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								"sponsor_email_domains": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Computed:            true,
-									Description:         "list of domain allowed for sponsor email. Required if `sponsor_enabled` is `true` and `sponsors` is empty.",
-									MarkdownDescription: "list of domain allowed for sponsor email. Required if `sponsor_enabled` is `true` and `sponsors` is empty.",
+									Description:         "List of domain allowed for sponsor email. Required if `sponsor_enabled` is `true` and `sponsors` is empty.",
+									MarkdownDescription: "List of domain allowed for sponsor email. Required if `sponsor_enabled` is `true` and `sponsors` is empty.",
 								},
 								"sponsor_enabled": schema.BoolAttribute{
 									Computed:            true,
-									Description:         "whether sponsor is enabled",
-									MarkdownDescription: "whether sponsor is enabled",
+									Description:         "Whether sponsor is enabled",
+									MarkdownDescription: "Whether sponsor is enabled",
 								},
 								"sponsor_expire": schema.Int64Attribute{
 									Computed:            true,
@@ -1271,31 +1271,31 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Computed:            true,
-							Description:         "portal wlan settings",
-							MarkdownDescription: "portal wlan settings",
+							Description:         "Portal wlan settings",
+							MarkdownDescription: "Portal wlan settings",
 						},
 						"portal_allowed_hostnames": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Computed:            true,
-							Description:         "list of hostnames without http(s):// (matched by substring)",
-							MarkdownDescription: "list of hostnames without http(s):// (matched by substring)",
+							Description:         "List of hostnames without http(s):// (matched by substring)",
+							MarkdownDescription: "List of hostnames without http(s):// (matched by substring)",
 						},
 						"portal_allowed_subnets": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Computed:            true,
-							Description:         "list of CIDRs",
-							MarkdownDescription: "list of CIDRs",
+							Description:         "List of CIDRs",
+							MarkdownDescription: "List of CIDRs",
 						},
 						"portal_api_secret": schema.StringAttribute{
 							Computed:            true,
-							Description:         "api secret (auto-generated) that can be used to sign guest authorization requests",
-							MarkdownDescription: "api secret (auto-generated) that can be used to sign guest authorization requests",
+							Description:         "APi secret (auto-generated) that can be used to sign guest authorization requests",
+							MarkdownDescription: "APi secret (auto-generated) that can be used to sign guest authorization requests",
 						},
 						"portal_denied_hostnames": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Computed:            true,
-							Description:         "list of hostnames without http(s):// (matched by substring), this takes precedence over portal_allowed_hostnames",
-							MarkdownDescription: "list of hostnames without http(s):// (matched by substring), this takes precedence over portal_allowed_hostnames",
+							Description:         "List of hostnames without http(s):// (matched by substring), this takes precedence over portal_allowed_hostnames",
+							MarkdownDescription: "List of hostnames without http(s):// (matched by substring), this takes precedence over portal_allowed_hostnames",
 						},
 						"portal_image": schema.StringAttribute{
 							Computed:            true,
@@ -1314,8 +1314,8 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 								"overwrite": schema.BoolAttribute{
 									Computed:            true,
-									Description:         "whether to overwrite QoS",
-									MarkdownDescription: "whether to overwrite QoS",
+									Description:         "Whether to overwrite QoS",
+									MarkdownDescription: "Whether to overwrite QoS",
 								},
 							},
 							CustomType: QosType{
@@ -1345,13 +1345,13 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								"proxy_hosts": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Computed:            true,
-									Description:         "default is site.mxedge.radsec.proxy_hosts which must be a superset of all `wlans[*].radsec.proxy_hosts`. When `radsec.proxy_hosts` are not used, tunnel peers (org or site mxedges) are used irrespective of `use_site_mxedge`",
-									MarkdownDescription: "default is site.mxedge.radsec.proxy_hosts which must be a superset of all `wlans[*].radsec.proxy_hosts`. When `radsec.proxy_hosts` are not used, tunnel peers (org or site mxedges) are used irrespective of `use_site_mxedge`",
+									Description:         "Default is site.mxedge.radsec.proxy_hosts which must be a superset of all `wlans[*].radsec.proxy_hosts`. When `radsec.proxy_hosts` are not used, tunnel peers (org or site mxedges) are used irrespective of `use_site_mxedge`",
+									MarkdownDescription: "Default is site.mxedge.radsec.proxy_hosts which must be a superset of all `wlans[*].radsec.proxy_hosts`. When `radsec.proxy_hosts` are not used, tunnel peers (org or site mxedges) are used irrespective of `use_site_mxedge`",
 								},
 								"server_name": schema.StringAttribute{
 									Computed:            true,
-									Description:         "name of the server to verify (against the cacerts in Org Setting). Only if not Mist Edge.",
-									MarkdownDescription: "name of the server to verify (against the cacerts in Org Setting). Only if not Mist Edge.",
+									Description:         "Name of the server to verify (against the cacerts in Org Setting). Only if not Mist Edge.",
+									MarkdownDescription: "Name of the server to verify (against the cacerts in Org Setting). Only if not Mist Edge.",
 								},
 								"servers": schema.ListNestedAttribute{
 									NestedObject: schema.NestedAttributeObject{
@@ -1370,13 +1370,13 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 									Computed:            true,
-									Description:         "List of Radsec Servers. Only if not Mist Edge.",
-									MarkdownDescription: "List of Radsec Servers. Only if not Mist Edge.",
+									Description:         "List of RadSec Servers. Only if not Mist Edge.",
+									MarkdownDescription: "List of RadSec Servers. Only if not Mist Edge.",
 								},
 								"use_mxedge": schema.BoolAttribute{
 									Computed:            true,
-									Description:         "use mxedge(s) as radsecproxy",
-									MarkdownDescription: "use mxedge(s) as radsecproxy",
+									Description:         "use mxedge(s) as RadSec Proxy",
+									MarkdownDescription: "use mxedge(s) as RadSec Proxy",
 								},
 								"use_site_mxedge": schema.BoolAttribute{
 									Computed:            true,
@@ -1390,22 +1390,22 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Computed:            true,
-							Description:         "Radsec settings",
-							MarkdownDescription: "Radsec settings",
+							Description:         "RadSec settings",
+							MarkdownDescription: "RadSec settings",
 						},
 						"rateset": schema.MapNestedAttribute{
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"ht": schema.StringAttribute{
 										Computed:            true,
-										Description:         "if `template`==`custom`. MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit), e.g. 00ff 00f0 001f limits HT rates to MCS 0-7 for 1 stream, MCS 4-7 for 2 stream (i.e. MCS 12-15), MCS 1-5 for 3 stream (i.e. MCS 16-20)",
-										MarkdownDescription: "if `template`==`custom`. MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit), e.g. 00ff 00f0 001f limits HT rates to MCS 0-7 for 1 stream, MCS 4-7 for 2 stream (i.e. MCS 12-15), MCS 1-5 for 3 stream (i.e. MCS 16-20)",
+										Description:         "If `template`==`custom`. MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit), e.g. 00ff 00f0 001f limits HT rates to MCS 0-7 for 1 stream, MCS 4-7 for 2 stream (i.e. MCS 12-15), MCS 1-5 for 3 stream (i.e. MCS 16-20)",
+										MarkdownDescription: "If `template`==`custom`. MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit), e.g. 00ff 00f0 001f limits HT rates to MCS 0-7 for 1 stream, MCS 4-7 for 2 stream (i.e. MCS 12-15), MCS 1-5 for 3 stream (i.e. MCS 16-20)",
 									},
 									"legacy": schema.ListAttribute{
 										ElementType:         types.StringType,
 										Computed:            true,
-										Description:         "if `template`==`custom`. List of supported rates (IE=1) and extended supported rates (IE=50) for custom template, append ‘b’ at the end to indicate a rate being basic/mandatory. If `template`==`custom` is configured and legacy does not define at least one basic rate, it will use `no-legacy` default values",
-										MarkdownDescription: "if `template`==`custom`. List of supported rates (IE=1) and extended supported rates (IE=50) for custom template, append ‘b’ at the end to indicate a rate being basic/mandatory. If `template`==`custom` is configured and legacy does not define at least one basic rate, it will use `no-legacy` default values",
+										Description:         "If `template`==`custom`. List of supported rates (IE=1) and extended supported rates (IE=50) for custom template, append ‘b’ at the end to indicate a rate being basic/mandatory. If `template`==`custom` is configured and legacy does not define at least one basic rate, it will use `no-legacy` default values",
+										MarkdownDescription: "If `template`==`custom`. List of supported rates (IE=1) and extended supported rates (IE=50) for custom template, append ‘b’ at the end to indicate a rate being basic/mandatory. If `template`==`custom` is configured and legacy does not define at least one basic rate, it will use `no-legacy` default values",
 									},
 									"min_rssi": schema.Int64Attribute{
 										Computed:            true,
@@ -1419,8 +1419,8 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 									},
 									"vht": schema.StringAttribute{
 										Computed:            true,
-										Description:         "if `template`==`custom`. MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit), e.g. 03ff 01ff 00ff limits VHT rates to MCS 0-9 for 1 stream, MCS 0-8 for 2 streams, and MCS 0-7 for 3 streams.",
-										MarkdownDescription: "if `template`==`custom`. MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit), e.g. 03ff 01ff 00ff limits VHT rates to MCS 0-9 for 1 stream, MCS 0-8 for 2 streams, and MCS 0-7 for 3 streams.",
+										Description:         "If `template`==`custom`. MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit), e.g. 03ff 01ff 00ff limits VHT rates to MCS 0-9 for 1 stream, MCS 0-8 for 2 streams, and MCS 0-7 for 3 streams.",
+										MarkdownDescription: "If `template`==`custom`. MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit), e.g. 03ff 01ff 00ff limits VHT rates to MCS 0-9 for 1 stream, MCS 0-8 for 2 streams, and MCS 0-7 for 3 streams.",
 									},
 								},
 								CustomType: RatesetType{
@@ -1438,8 +1438,8 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"reconnect_clients_when_roaming_mxcluster": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "when different mxcluster is on different subnet, we'd want to disconnect clients (so they'll reconnect and get new IPs)",
-							MarkdownDescription: "when different mxcluster is on different subnet, we'd want to disconnect clients (so they'll reconnect and get new IPs)",
+							Description:         "When different mxcluster is on different subnet, we'd want to disconnect clients (so they'll reconnect and get new IPs)",
+							MarkdownDescription: "When different mxcluster is on different subnet, we'd want to disconnect clients (so they'll reconnect and get new IPs)",
 						},
 						"roam_mode": schema.StringAttribute{
 							Computed:            true,
@@ -1513,23 +1513,23 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"sle_excluded": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "whether to exclude this WLAN from SLE metrics",
-							MarkdownDescription: "whether to exclude this WLAN from SLE metrics",
+							Description:         "Whether to exclude this WLAN from SLE metrics",
+							MarkdownDescription: "Whether to exclude this WLAN from SLE metrics",
 						},
 						"ssid": schema.StringAttribute{
 							Computed:            true,
-							Description:         "the name of the SSID",
-							MarkdownDescription: "the name of the SSID",
+							Description:         "Name of the SSID",
+							MarkdownDescription: "Name of the SSID",
 						},
 						"use_eapol_v1": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "if `auth.type`==’eap’ or ‘psk’, should only be set for legacy client, such as pre-2004, 802.11b devices",
-							MarkdownDescription: "if `auth.type`==’eap’ or ‘psk’, should only be set for legacy client, such as pre-2004, 802.11b devices",
+							Description:         "If `auth.type`==`eap` or `auth.type`==`psk`, should only be set for legacy client, such as pre-2004, 802.11b devices",
+							MarkdownDescription: "If `auth.type`==`eap` or `auth.type`==`psk`, should only be set for legacy client, such as pre-2004, 802.11b devices",
 						},
 						"vlan_enabled": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "if vlan tagging is enabled",
-							MarkdownDescription: "if vlan tagging is enabled",
+							Description:         "If vlan tagging is enabled",
+							MarkdownDescription: "If vlan tagging is enabled",
 						},
 						"vlan_id": schema.StringAttribute{
 							Computed: true,
@@ -1547,39 +1547,39 @@ func SiteWlansDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"wlan_limit_down": schema.Int64Attribute{
 							Computed:            true,
-							Description:         "kbps",
-							MarkdownDescription: "kbps",
+							Description:         "In kbps",
+							MarkdownDescription: "In kbps",
 						},
 						"wlan_limit_down_enabled": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "if downlink limiting for whole wlan is enabled",
-							MarkdownDescription: "if downlink limiting for whole wlan is enabled",
+							Description:         "If downlink limiting for whole wlan is enabled",
+							MarkdownDescription: "If downlink limiting for whole wlan is enabled",
 						},
 						"wlan_limit_up": schema.Int64Attribute{
 							Computed:            true,
-							Description:         "kbps",
-							MarkdownDescription: "kbps",
+							Description:         "In kbps",
+							MarkdownDescription: "In kbps",
 						},
 						"wlan_limit_up_enabled": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "if uplink limiting for whole wlan is enabled",
-							MarkdownDescription: "if uplink limiting for whole wlan is enabled",
+							Description:         "If uplink limiting for whole wlan is enabled",
+							MarkdownDescription: "If uplink limiting for whole wlan is enabled",
 						},
 						"wxtag_ids": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Computed:            true,
-							Description:         "list of wxtag_ids",
-							MarkdownDescription: "list of wxtag_ids",
+							Description:         "List of wxtag_ids",
+							MarkdownDescription: "List of wxtag_ids",
 						},
 						"wxtunnel_id": schema.StringAttribute{
 							Computed:            true,
-							Description:         "when `interface`=`wxtunnel`, id of the WXLAN Tunnel",
-							MarkdownDescription: "when `interface`=`wxtunnel`, id of the WXLAN Tunnel",
+							Description:         "When `interface`=`wxtunnel`, id of the WXLAN Tunnel",
+							MarkdownDescription: "When `interface`=`wxtunnel`, id of the WXLAN Tunnel",
 						},
 						"wxtunnel_remote_id": schema.StringAttribute{
 							Computed:            true,
-							Description:         "when `interface`=`wxtunnel`, remote tunnel identifier",
-							MarkdownDescription: "when `interface`=`wxtunnel`, remote tunnel identifier",
+							Description:         "When `interface`=`wxtunnel`, remote tunnel identifier",
+							MarkdownDescription: "When `interface`=`wxtunnel`, remote tunnel identifier",
 						},
 					},
 					CustomType: SiteWlansType{
