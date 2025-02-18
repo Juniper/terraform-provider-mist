@@ -124,7 +124,7 @@ resource "mist_device_switch" "switch_one" {
 - `local_port_config` (Attributes Map) Local port override, overriding the port configuration from `port_config`. Property key is the port name or range (e.g. "ge-0/0/0-10") (see [below for nested schema](#nestedatt--local_port_config))
 - `managed` (Boolean) For an adopted switch, we don’t overwrite their existing configs automatically
 - `map_id` (String) Map where the device belongs to
-- `mist_nac` (Attributes) Enable mist_nac to use radsec (see [below for nested schema](#nestedatt--mist_nac))
+- `mist_nac` (Attributes) Enable mist_nac to use RadSec (see [below for nested schema](#nestedatt--mist_nac))
 - `networks` (Attributes Map) Property key is network name (see [below for nested schema](#nestedatt--networks))
 - `notes` (String)
 - `ntp_servers` (List of String) List of NTP servers specific to this device. By default, those in Site Settings will be used
@@ -219,7 +219,7 @@ Optional:
   * `type`==`subnet` (optional. default is `any`)
   * `type`==`network`
   * `type`==`resource` (optional. default is `any`)
-  * `type`==`static_gbp` if from matching network (vlan)'
+  * `type`==`static_gbp` if from matching network (vlan)
 - `radius_group` (String) Required if:
   * `type`==`radius_group`
   * `type`==`static_gbp`
@@ -391,7 +391,7 @@ Required:
 Optional:
 
 - `all_networks` (Boolean) Only if `mode`==`trunk` whether to trunk all network/vlans
-- `allow_dhcpd` (Boolean) If DHCP snooping is enabled, whether DHCP server is allowed on the interfaces with. All the interfaces from port configs using this port usage are effected. Please notice that allow_dhcpd is a tri_state. When it is not defined, it means using the system's default setting which depends on whether the port is a access or trunk port.
+- `allow_dhcpd` (Boolean) If DHCP snooping is enabled, whether DHCP server is allowed on the interfaces with. All the interfaces from port configs using this port usage are effected. Please notice that allow_dhcpd is a tri_state. When it is not defined, it means using the system's default setting which depends on whether the port is an access or trunk port.
 - `allow_multiple_supplicants` (Boolean)
 - `bypass_auth_when_server_down` (Boolean) Only if `port_auth`==`dot1x` bypass auth for known clients if set to true when RADIUS server is down
 - `bypass_auth_when_server_down_for_unkown_client` (Boolean) Only if `port_auth`=`dot1x` bypass auth for all (including unknown clients) if set to true when RADIUS server is down
@@ -1017,7 +1017,7 @@ Optional:
 
 Optional:
 
-- `ap_affinity_threshold` (Number) AP_affinity_threshold ap_affinity_threshold can be added as a field under site/setting. By default this value is set to 12. If the field is set in both site/setting and org/setting, the value from site/setting will be used.
+- `ap_affinity_threshold` (Number) AP_affinity_threshold ap_affinity_threshold can be added as a field under site/setting. By default, this value is set to 12. If the field is set in both site/setting and org/setting, the value from site/setting will be used.
 - `cli_banner` (String) Set Banners for switches. Allows markup formatting
 - `cli_idle_timeout` (Number) Sets timeout for switches
 - `config_revert_timer` (Number) Rollback timer for commit confirmed

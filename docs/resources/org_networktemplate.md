@@ -98,7 +98,7 @@ resource "mist_org_networktemplate" "networktemplate_one" {
 - `dns_suffix` (List of String) Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting
 - `extra_routes` (Attributes Map) (see [below for nested schema](#nestedatt--extra_routes))
 - `extra_routes6` (Attributes Map) Property key is the destination CIDR (e.g. "2a02:1234:420a:10c9::/64") (see [below for nested schema](#nestedatt--extra_routes6))
-- `mist_nac` (Attributes) Enable mist_nac to use radsec (see [below for nested schema](#nestedatt--mist_nac))
+- `mist_nac` (Attributes) Enable mist_nac to use RadSec (see [below for nested schema](#nestedatt--mist_nac))
 - `networks` (Attributes Map) Property key is network name (see [below for nested schema](#nestedatt--networks))
 - `ntp_servers` (List of String) List of NTP servers specific to this device. By default, those in Site Settings will be used
 - `ospf_areas` (Attributes Map) Junos OSPF areas (see [below for nested schema](#nestedatt--ospf_areas))
@@ -106,7 +106,7 @@ resource "mist_org_networktemplate" "networktemplate_one" {
 - `port_usages` (Attributes Map) Property key is the port usage name. Defines the profiles of port configuration configured on the switch (see [below for nested schema](#nestedatt--port_usages))
 - `radius_config` (Attributes) Junos Radius config (see [below for nested schema](#nestedatt--radius_config))
 - `remote_syslog` (Attributes) (see [below for nested schema](#nestedatt--remote_syslog))
-- `remove_existing_configs` (Boolean) By default, when we configure a device, we only clean up config we generates. Remove existing configs if enabled
+- `remove_existing_configs` (Boolean) By default, when we configure a device, we only clean up config we generate. Remove existing configs if enabled
 - `snmp_config` (Attributes) (see [below for nested schema](#nestedatt--snmp_config))
 - `switch_matching` (Attributes) Defines custom switch configuration based on different criterias (see [below for nested schema](#nestedatt--switch_matching))
 - `switch_mgmt` (Attributes) Switch settings (see [below for nested schema](#nestedatt--switch_mgmt))
@@ -173,7 +173,7 @@ Optional:
   * `type`==`subnet` (optional. default is `any`)
   * `type`==`network`
   * `type`==`resource` (optional. default is `any`)
-  * `type`==`static_gbp` if from matching network (vlan)'
+  * `type`==`static_gbp` if from matching network (vlan)
 - `radius_group` (String) Required if:
   * `type`==`radius_group`
   * `type`==`static_gbp`
@@ -787,7 +787,7 @@ Optional:
 - `match_name` (String) string the switch name must start with to use this rule. Use the `match_name_offset` to indicate the first character of the switch name to compare to. It is possible to combine with the `match_model` and `match_role` attributes
 - `match_name_offset` (Number) first character of the switch name to compare to the `match_name` value
 - `match_role` (String) string the switch role must start with to use this rule. It is possible to combine with the `match_name` and `match_model` attributes
-- `match_type` (String, Deprecated) 'property key define the type of matching, value is the string to match. e.g: `match_name[0:3]`, `match_name[2:6]`, `match_model`,  `match_model[0-6]`
+- `match_type` (String, Deprecated) property key define the type of matching, value is the string to match. e.g: `match_name[0:3]`, `match_name[2:6]`, `match_model`,  `match_model[0-6]`
 - `match_value` (String, Deprecated)
 - `name` (String)
 - `oob_ip_config` (Attributes) Out-of-Band Management interface configuration (see [below for nested schema](#nestedatt--switch_matching--rules--oob_ip_config))
@@ -857,7 +857,7 @@ Optional:
 
 Optional:
 
-- `ap_affinity_threshold` (Number) AP_affinity_threshold ap_affinity_threshold can be added as a field under site/setting. By default this value is set to 12. If the field is set in both site/setting and org/setting, the value from site/setting will be used.
+- `ap_affinity_threshold` (Number) AP_affinity_threshold ap_affinity_threshold can be added as a field under site/setting. By default, this value is set to 12. If the field is set in both site/setting and org/setting, the value from site/setting will be used.
 - `cli_banner` (String) Set Banners for switches. Allows markup formatting
 - `cli_idle_timeout` (Number) Sets timeout for switches
 - `config_revert_timer` (Number) Rollback timer for commit confirmed

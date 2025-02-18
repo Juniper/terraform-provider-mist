@@ -66,13 +66,13 @@ resource "mist_org_rftemplate" "rftempalte_one" {
 - `band_5` (Attributes) Radio Band AP settings (see [below for nested schema](#nestedatt--band_5))
 - `band_5_on_24_radio` (Attributes) Radio Band AP settings (see [below for nested schema](#nestedatt--band_5_on_24_radio))
 - `band_6` (Attributes) Radio Band AP settings (see [below for nested schema](#nestedatt--band_6))
-- `country_code` (String) optional, country code to use. If specified, this gets applied to all sites using the RF Template
+- `country_code` (String) Optional, country code to use. If specified, this gets applied to all sites using the RF Template
 - `model_specific` (Attributes Map) overwrites for a specific model. If a band is specified, it will shadow the default. Property key is the model name (e.g. "AP63") (see [below for nested schema](#nestedatt--model_specific))
-- `scanning_enabled` (Boolean) whether scanning radio is enabled
+- `scanning_enabled` (Boolean) Whether scanning radio is enabled
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
+- `id` (String) Unique ID of the object instance in the Mist Organnization
 
 <a id="nestedatt--band_24"></a>
 ### Nested Schema for `band_24`
@@ -84,10 +84,10 @@ Optional:
 - `antenna_mode` (String) enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`
 - `bandwidth` (Number) channel width for the 2.4GHz band. enum: `20`, `40`
 - `channels` (List of Number) For RFTemplates. List of channels, null or empty array means auto
-- `disabled` (Boolean) whether to disable the radio
-- `power` (Number) TX power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …
-- `power_max` (Number) when power=0, max tx power to use, HW-specific values will be used if not set
-- `power_min` (Number) when power=0, min tx power to use, HW-specific values will be used if not set
+- `disabled` (Boolean) Whether to disable the radio
+- `power` (Number) Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …
+- `power_max` (Number) When power=0, max tx power to use, HW-specific values will be used if not set
+- `power_min` (Number) When power=0, min tx power to use, HW-specific values will be used if not set
 - `preamble` (String) enum: `auto`, `long`, `short`
 
 
@@ -101,10 +101,10 @@ Optional:
 - `antenna_mode` (String) enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`
 - `bandwidth` (Number) channel width for the 5GHz band. enum: `20`, `40`, `80`
 - `channels` (List of Number) For RFTemplates. List of channels, null or empty array means auto
-- `disabled` (Boolean) whether to disable the radio
-- `power` (Number) TX power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …
-- `power_max` (Number) when power=0, max tx power to use, HW-specific values will be used if not set
-- `power_min` (Number) when power=0, min tx power to use, HW-specific values will be used if not set
+- `disabled` (Boolean) Whether to disable the radio
+- `power` (Number) Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …
+- `power_max` (Number) When power=0, max tx power to use, HW-specific values will be used if not set
+- `power_min` (Number) When power=0, min tx power to use, HW-specific values will be used if not set
 - `preamble` (String) enum: `auto`, `long`, `short`
 
 
@@ -118,10 +118,10 @@ Optional:
 - `antenna_mode` (String) enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`
 - `bandwidth` (Number) channel width for the 5GHz band. enum: `20`, `40`, `80`
 - `channels` (List of Number) For RFTemplates. List of channels, null or empty array means auto
-- `disabled` (Boolean) whether to disable the radio
-- `power` (Number) TX power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …
-- `power_max` (Number) when power=0, max tx power to use, HW-specific values will be used if not set
-- `power_min` (Number) when power=0, min tx power to use, HW-specific values will be used if not set
+- `disabled` (Boolean) Whether to disable the radio
+- `power` (Number) Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …
+- `power_max` (Number) When power=0, max tx power to use, HW-specific values will be used if not set
+- `power_min` (Number) When power=0, min tx power to use, HW-specific values will be used if not set
 - `preamble` (String) enum: `auto`, `long`, `short`
 
 
@@ -135,12 +135,12 @@ Optional:
 - `antenna_mode` (String) enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`
 - `bandwidth` (Number) channel width for the 6GHz band. enum: `20`, `40`, `80`, `160`
 - `channels` (List of Number) For RFTemplates. List of channels, null or empty array means auto
-- `disabled` (Boolean) whether to disable the radio
-- `power` (Number) TX power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …
-- `power_max` (Number) when power=0, max tx power to use, HW-specific values will be used if not set
-- `power_min` (Number) when power=0, min tx power to use, HW-specific values will be used if not set
+- `disabled` (Boolean) Whether to disable the radio
+- `power` (Number) Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …
+- `power_max` (Number) When power=0, max tx power to use, HW-specific values will be used if not set
+- `power_min` (Number) When power=0, min tx power to use, HW-specific values will be used if not set
 - `preamble` (String) enum: `auto`, `long`, `short`
-- `standard_power` (Boolean) for 6GHz Only, standard-power operation, AFC (Automatic Frequency Coordination) will be performed and we'll fallback to Low Power Indoor if AFC failed
+- `standard_power` (Boolean) For 6GHz Only, standard-power operation, AFC (Automatic Frequency Coordination) will be performed, and we'll fall back to Low Power Indoor if AFC failed
 
 
 <a id="nestedatt--model_specific"></a>
@@ -167,10 +167,10 @@ Optional:
 - `antenna_mode` (String) enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`
 - `bandwidth` (Number) channel width for the 2.4GHz band. enum: `20`, `40`
 - `channels` (List of Number) For RFTemplates. List of channels, null or empty array means auto
-- `disabled` (Boolean) whether to disable the radio
-- `power` (Number) TX power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …
-- `power_max` (Number) when power=0, max tx power to use, HW-specific values will be used if not set
-- `power_min` (Number) when power=0, min tx power to use, HW-specific values will be used if not set
+- `disabled` (Boolean) Whether to disable the radio
+- `power` (Number) Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …
+- `power_max` (Number) When power=0, max tx power to use, HW-specific values will be used if not set
+- `power_min` (Number) When power=0, min tx power to use, HW-specific values will be used if not set
 - `preamble` (String) enum: `auto`, `long`, `short`
 
 
@@ -184,10 +184,10 @@ Optional:
 - `antenna_mode` (String) enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`
 - `bandwidth` (Number) channel width for the 5GHz band. enum: `20`, `40`, `80`
 - `channels` (List of Number) For RFTemplates. List of channels, null or empty array means auto
-- `disabled` (Boolean) whether to disable the radio
-- `power` (Number) TX power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …
-- `power_max` (Number) when power=0, max tx power to use, HW-specific values will be used if not set
-- `power_min` (Number) when power=0, min tx power to use, HW-specific values will be used if not set
+- `disabled` (Boolean) Whether to disable the radio
+- `power` (Number) Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …
+- `power_max` (Number) When power=0, max tx power to use, HW-specific values will be used if not set
+- `power_min` (Number) When power=0, min tx power to use, HW-specific values will be used if not set
 - `preamble` (String) enum: `auto`, `long`, `short`
 
 
@@ -201,10 +201,10 @@ Optional:
 - `antenna_mode` (String) enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`
 - `bandwidth` (Number) channel width for the 5GHz band. enum: `20`, `40`, `80`
 - `channels` (List of Number) For RFTemplates. List of channels, null or empty array means auto
-- `disabled` (Boolean) whether to disable the radio
-- `power` (Number) TX power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …
-- `power_max` (Number) when power=0, max tx power to use, HW-specific values will be used if not set
-- `power_min` (Number) when power=0, min tx power to use, HW-specific values will be used if not set
+- `disabled` (Boolean) Whether to disable the radio
+- `power` (Number) Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …
+- `power_max` (Number) When power=0, max tx power to use, HW-specific values will be used if not set
+- `power_min` (Number) When power=0, min tx power to use, HW-specific values will be used if not set
 - `preamble` (String) enum: `auto`, `long`, `short`
 
 
@@ -218,12 +218,12 @@ Optional:
 - `antenna_mode` (String) enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`
 - `bandwidth` (Number) channel width for the 6GHz band. enum: `20`, `40`, `80`, `160`
 - `channels` (List of Number) For RFTemplates. List of channels, null or empty array means auto
-- `disabled` (Boolean) whether to disable the radio
-- `power` (Number) TX power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …
-- `power_max` (Number) when power=0, max tx power to use, HW-specific values will be used if not set
-- `power_min` (Number) when power=0, min tx power to use, HW-specific values will be used if not set
+- `disabled` (Boolean) Whether to disable the radio
+- `power` (Number) Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …
+- `power_max` (Number) When power=0, max tx power to use, HW-specific values will be used if not set
+- `power_min` (Number) When power=0, min tx power to use, HW-specific values will be used if not set
 - `preamble` (String) enum: `auto`, `long`, `short`
-- `standard_power` (Boolean) for 6GHz Only, standard-power operation, AFC (Automatic Frequency Coordination) will be performed and we'll fallback to Low Power Indoor if AFC failed
+- `standard_power` (Boolean) For 6GHz Only, standard-power operation, AFC (Automatic Frequency Coordination) will be performed, and we'll fall back to Low Power Indoor if AFC failed
 
 
 

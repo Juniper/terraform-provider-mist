@@ -69,18 +69,18 @@ resource "mist_org_setting" "terraform_test" {
 
 ### Optional
 
-- `ap_updown_threshold` (Number) enable threshold-based device down delivery for AP devices only. When configured it takes effect for AP devices and `device_updown_threshold` is ignored.
+- `ap_updown_threshold` (Number) Enable threshold-based device down delivery for AP devices only. When configured it takes effect for AP devices and `device_updown_threshold` is ignored.
 - `api_policy` (Attributes) (see [below for nested schema](#nestedatt--api_policy))
-- `cacerts` (List of String) list of PEM-encoded ca certs
+- `cacerts` (List of String) List of PEM-encoded ca certs
 - `celona` (Attributes) (see [below for nested schema](#nestedatt--celona))
 - `cloudshark` (Attributes) (see [below for nested schema](#nestedatt--cloudshark))
 - `device_cert` (Attributes) common device cert, optional (see [below for nested schema](#nestedatt--device_cert))
-- `device_updown_threshold` (Number) enable threshold-based device down delivery via
+- `device_updown_threshold` (Number) Enable threshold-based device down delivery via
   * device-updowns webhooks topic, 
   * Mist Alert Framework; e.g. send AP/SW/GW down event only if AP/SW/GW Up is not seen within the threshold in minutes; 0 - 240, default is 0 (trigger immediate)
-- `disable_pcap` (Boolean) whether to disallow Mist to analyze pcap files (this is required for marvis pcap)
-- `disable_remote_shell` (Boolean) whether to disable remote shell access for an entire org
-- `gateway_updown_threshold` (Number) enable threshold-based device down delivery for Gateway devices only. When configured it takes effect for GW devices and `device_updown_threshold` is ignored.
+- `disable_pcap` (Boolean) Whether to disallow Mist to analyze pcap files (this is required for marvis pcap)
+- `disable_remote_shell` (Boolean) Whether to disable remote shell access for an entire org
+- `gateway_updown_threshold` (Number) Enable threshold-based device down delivery for Gateway devices only. When configured it takes effect for GW devices and `device_updown_threshold` is ignored.
 - `installer` (Attributes) (see [below for nested schema](#nestedatt--installer))
 - `jcloud` (Attributes) (see [below for nested schema](#nestedatt--jcloud))
 - `jcloud_ra` (Attributes) JCloud Routing Assurance connexion (see [below for nested schema](#nestedatt--jcloud_ra))
@@ -93,9 +93,9 @@ resource "mist_org_setting" "terraform_test" {
 - `pcap` (Attributes) (see [below for nested schema](#nestedatt--pcap))
 - `security` (Attributes) (see [below for nested schema](#nestedatt--security))
 - `switch_mgmt` (Attributes) (see [below for nested schema](#nestedatt--switch_mgmt))
-- `switch_updown_threshold` (Number) enable threshold-based device down delivery for Switch devices only. When configured it takes effect for SW devices and `device_updown_threshold` is ignored.
+- `switch_updown_threshold` (Number) Enable threshold-based device down delivery for Switch devices only. When configured it takes effect for SW devices and `device_updown_threshold` is ignored.
 - `synthetic_test` (Attributes) (see [below for nested schema](#nestedatt--synthetic_test))
-- `ui_idle_timeout` (Number) automatically logout the user when UI session is inactive. `0` means disabled
+- `ui_idle_timeout` (Number) Automatically logout the user when UI session is inactive. `0` means disabled
 - `vpn_options` (Attributes) (see [below for nested schema](#nestedatt--vpn_options))
 - `wan_pma` (Attributes) (see [below for nested schema](#nestedatt--wan_pma))
 - `wired_pma` (Attributes) (see [below for nested schema](#nestedatt--wired_pma))
@@ -111,7 +111,7 @@ resource "mist_org_setting" "terraform_test" {
 
 Optional:
 
-- `no_reveal` (Boolean) by default, API hides password/secrets when the user doesn't have write access
+- `no_reveal` (Boolean) By default, API hides password/secrets when the user doesn't have write access
   * `true`: API will hide passwords/secrets for all users
   * `false`: API will hide passwords/secrets for read-only users
 
@@ -134,7 +134,7 @@ Required:
 
 Optional:
 
-- `url` (String) if using CS Enteprise
+- `url` (String) If using CS Enteprise
 
 
 <a id="nestedatt--device_cert"></a>
@@ -182,9 +182,9 @@ Optional:
 
 Optional:
 
-- `mxtunnel_ids` (List of String) list of Mist Tunnels
-- `use_mxtunnel` (Boolean) whether to use Mist Tunnel for mgmt connectivity, this takes precedence over use_wxtunnel
-- `use_wxtunnel` (Boolean) whether to use wxtunnel for mgmt connectivity
+- `mxtunnel_ids` (List of String) List of Mist Tunnels
+- `use_mxtunnel` (Boolean) Whether to use Mist Tunnel for mgmt connectivity, this takes precedence over use_wxtunnel
+- `use_wxtunnel` (Boolean) Whether to use wxtunnel for mgmt connectivity
 
 
 <a id="nestedatt--mist_nac"></a>
@@ -192,20 +192,17 @@ Optional:
 
 Optional:
 
-- `cacerts` (List of String) list of PEM-encoded ca certs
+- `cacerts` (List of String) List of PEM-encoded ca certs
 - `default_idp_id` (String) use this IDP when no explicit realm present in the incoming username/CN OR when no IDP is explicitly mapped to the incoming realm.
 - `disable_rsae_algorithms` (Boolean) to disable RSAE_PSS_SHA256, RSAE_PSS_SHA384, RSAE_PSS_SHA512 from server side. see https://www.openssl.org/docs/man3.0/man1/openssl-ciphers.html
-- `eap_ssl_security_level` (Number) eap ssl security level
-see https://www.openssl.org/docs/man1.1.1/man3/SSL_CTX_set_security_level.html#DEFAULT-CALLBACK-BEHAVIOUR
-- `eu_only` (Boolean) By default NAC POD failover considers all NAC pods available around the globe, i.e. EU, US, or APAC based, failover happens based on geo IP of the originating site.
-For strict GDPR compliancy NAC POD failover would only happen between the PODs located within the EU environment, and no authentication would take place outside of EU. This is an org setting that is applicable to WLANs, switch templates, mxedge clusters that have mist_nac enabled
+- `eap_ssl_security_level` (Number) eap ssl security level, see https://www.openssl.org/docs/man1.1.1/man3/SSL_CTX_set_security_level.html#DEFAULT-CALLBACK-BEHAVIOUR
+- `eu_only` (Boolean) By default, NAC POD failover considers all NAC pods available around the globe, i.e. EU, US, or APAC based, failover happens based on geo IP of the originating site. For strict GDPR compliancy NAC POD failover would only happen between the PODs located within the EU environment, and no authentication would take place outside of EU. This is an org setting that is applicable to WLANs, switch templates, mxedge clusters that have mist_nac enabled
 - `idp_machine_cert_lookup_field` (String) allow customer to choose the EAP-TLS client certificate's field to use for IDP Machine Groups lookup. enum: `automatic`, `cn`, `dns`
-- `idp_user_cert_lookup_field` (String) allow customer to choose the EAP-TLS client certificate's field
-to use for IDP User Groups lookup. enum: `automatic`, `cn`, `email`, `upn`
+- `idp_user_cert_lookup_field` (String) allow customer to choose the EAP-TLS client certificate's field. To use for IDP User Groups lookup. enum: `automatic`, `cn`, `email`, `upn`
 - `idps` (Attributes List) (see [below for nested schema](#nestedatt--mist_nac--idps))
 - `server_cert` (Attributes) radius server cert to be presented in EAP TLS (see [below for nested schema](#nestedatt--mist_nac--server_cert))
-- `use_ip_version` (String) by default NAS devices(switches/aps) and proxies(mxedge) are configured to reach mist-nac via IPv4. enum: `v4`, `v6`
-- `use_ssl_port` (Boolean) By default NAS devices (switches/aps) and proxies(mxedge) are configured to use port TCP2083(radsec) to reach mist-nac. 
+- `use_ip_version` (String) by default, NAS devices(switches/aps) and proxies(mxedge) are configured to reach mist-nac via IPv4. enum: `v4`, `v6`
+- `use_ssl_port` (Boolean) By default, NAS devices (switches/aps) and proxies(mxedge) are configured to use port TCP2083(RadSec) to reach mist-nac. 
 Set `use_ssl_port`==`true` to override that port with TCP43 (ssl), 
 This is a org level setting that is applicable to wlans, switch_templates, and mxedge_clusters that have mist-nac enabled
 
@@ -215,13 +212,13 @@ This is a org level setting that is applicable to wlans, switch_templates, and m
 Required:
 
 - `id` (String) ID of the `mist_nacidp`
-- `user_realms` (List of String) which realm should trigger this IDP. User Realm is extracted from:
+- `user_realms` (List of String) Which realm should trigger this IDP. User Realm is extracted from:
   * Username-AVP (`mist.com` from john@mist.com)
   * Cert CN
 
 Optional:
 
-- `exclude_realms` (List of String) when the IDP of mxedge_proxy type, exclude the following realms from proxying in addition to other valid home realms in this org
+- `exclude_realms` (List of String) When the IDP of mxedge_proxy type, exclude the following realms from proxying in addition to other valid home realms in this org
 
 
 <a id="nestedatt--mist_nac--server_cert"></a>
@@ -252,8 +249,8 @@ Optional:
 
 Optional:
 
-- `channelized` (Boolean) enable channelization
-- `speed` (String) interface speed (e.g. `25g`, `50g`), use the chassis speed by default
+- `channelized` (Boolean) Enable channelization
+- `speed` (String) Interface speed (e.g. `25g`, `50g`), use the chassis speed by default
 
 
 <a id="nestedatt--password_policy"></a>
@@ -261,11 +258,11 @@ Optional:
 
 Optional:
 
-- `enabled` (Boolean) whether the policy is enabled
+- `enabled` (Boolean) Whether the policy is enabled
 - `expiry_in_days` (Number) password expiry in days
-- `min_length` (Number) required password length
-- `requires_special_char` (Boolean) whether to require special character
-- `requires_two_factor_auth` (Boolean) whether to require two-factor auth
+- `min_length` (Number) Required password length
+- `requires_special_char` (Boolean) Whether to require special character
+- `requires_two_factor_auth` (Boolean) Whether to require two-factor auth
 
 
 <a id="nestedatt--pcap"></a>
@@ -274,7 +271,7 @@ Optional:
 Optional:
 
 - `bucket` (String)
-- `max_pkt_len` (Number) max_len of non-management packets to capture
+- `max_pkt_len` (Number) Max_len of non-management packets to capture
 
 
 <a id="nestedatt--security"></a>
@@ -282,9 +279,9 @@ Optional:
 
 Optional:
 
-- `disable_local_ssh` (Boolean) whether to disable local SSH (by default, local SSH is enabled with allow_mist in Org is enabled
+- `disable_local_ssh` (Boolean) Whether to disable local SSH (by default, local SSH is enabled with allow_mist in Org is enabled
 - `fips_zeroize_password` (String, Sensitive) password required to zeroize devices (FIPS) on site level
-- `limit_ssh_access` (Boolean) whether to allow certain SSH keys to SSH into the AP (see Site:Setting)
+- `limit_ssh_access` (Boolean) Whether to allow certain SSH keys to SSH into the AP (see Site:Setting)
 
 
 <a id="nestedatt--switch_mgmt"></a>
@@ -310,7 +307,7 @@ Optional:
 Optional:
 
 - `custom_test_urls` (List of String)
-- `disabled` (Boolean) for some vlans where we don't want this to run
+- `disabled` (Boolean) For some vlans where we don't want this to run
 - `vlan_ids` (List of String)
 
 
@@ -320,7 +317,7 @@ Optional:
 Optional:
 
 - `enabled` (Boolean)
-- `time_of_day` (String) any / HH:MM (24-hour format)
+- `time_of_day` (String) `any` / HH:MM (24-hour format)
 
 
 

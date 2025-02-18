@@ -56,7 +56,7 @@ func (r *deviceImageResource) Schema(ctx context.Context, req resource.SchemaReq
 			"This resource can be used to add a picture to a Wireless Access point, a Switch or " +
 			"a Gateway. A Maximum of 3 pictures can be uploaded.\n\n" +
 			"!> There is no validation on the Image currently uploaded to the Mist Cloud. Defining the same image " +
-			"twice (e.g. `image = 1`) for the same device will override the first image image any warning or error.",
+			"twice (e.g. `image = 1`) for the same device will override the first image any warning or error.",
 		Attributes: resource_device_image.DeviceImageResourceSchema(ctx).Attributes,
 	}
 }

@@ -12,9 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
@@ -97,15 +95,15 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					"disabled": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "whether to disable the radio",
-						MarkdownDescription: "whether to disable the radio",
+						Description:         "Whether to disable the radio",
+						MarkdownDescription: "Whether to disable the radio",
 						Default:             booldefault.StaticBool(false),
 					},
 					"power": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "TX power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
-						MarkdownDescription: "TX power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
+						Description:         "Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
+						MarkdownDescription: "Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
 						Validators: []validator.Int64{
 							int64validator.Between(3, 25),
 						},
@@ -114,8 +112,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					"power_max": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "when power=0, max tx power to use, HW-specific values will be used if not set",
-						MarkdownDescription: "when power=0, max tx power to use, HW-specific values will be used if not set",
+						Description:         "When power=0, max tx power to use, HW-specific values will be used if not set",
+						MarkdownDescription: "When power=0, max tx power to use, HW-specific values will be used if not set",
 						Validators: []validator.Int64{
 							int64validator.Between(3, 18),
 						},
@@ -124,8 +122,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					"power_min": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "when power=0, min tx power to use, HW-specific values will be used if not set",
-						MarkdownDescription: "when power=0, min tx power to use, HW-specific values will be used if not set",
+						Description:         "When power=0, min tx power to use, HW-specific values will be used if not set",
+						MarkdownDescription: "When power=0, min tx power to use, HW-specific values will be used if not set",
 						Validators: []validator.Int64{
 							int64validator.Between(3, 18),
 						},
@@ -224,15 +222,15 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					"disabled": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "whether to disable the radio",
-						MarkdownDescription: "whether to disable the radio",
+						Description:         "Whether to disable the radio",
+						MarkdownDescription: "Whether to disable the radio",
 						Default:             booldefault.StaticBool(false),
 					},
 					"power": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "TX power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
-						MarkdownDescription: "TX power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
+						Description:         "Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
+						MarkdownDescription: "Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
 						Validators: []validator.Int64{
 							int64validator.Between(5, 25),
 						},
@@ -241,8 +239,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					"power_max": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "when power=0, max tx power to use, HW-specific values will be used if not set",
-						MarkdownDescription: "when power=0, max tx power to use, HW-specific values will be used if not set",
+						Description:         "When power=0, max tx power to use, HW-specific values will be used if not set",
+						MarkdownDescription: "When power=0, max tx power to use, HW-specific values will be used if not set",
 						Validators: []validator.Int64{
 							int64validator.Between(5, 17),
 						},
@@ -251,8 +249,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					"power_min": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "when power=0, min tx power to use, HW-specific values will be used if not set",
-						MarkdownDescription: "when power=0, min tx power to use, HW-specific values will be used if not set",
+						Description:         "When power=0, min tx power to use, HW-specific values will be used if not set",
+						MarkdownDescription: "When power=0, min tx power to use, HW-specific values will be used if not set",
 						Validators: []validator.Int64{
 							int64validator.Between(5, 17),
 						},
@@ -336,15 +334,15 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					"disabled": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "whether to disable the radio",
-						MarkdownDescription: "whether to disable the radio",
+						Description:         "Whether to disable the radio",
+						MarkdownDescription: "Whether to disable the radio",
 						Default:             booldefault.StaticBool(false),
 					},
 					"power": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "TX power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
-						MarkdownDescription: "TX power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
+						Description:         "Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
+						MarkdownDescription: "Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
 						Validators: []validator.Int64{
 							int64validator.Between(5, 25),
 						},
@@ -353,8 +351,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					"power_max": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "when power=0, max tx power to use, HW-specific values will be used if not set",
-						MarkdownDescription: "when power=0, max tx power to use, HW-specific values will be used if not set",
+						Description:         "When power=0, max tx power to use, HW-specific values will be used if not set",
+						MarkdownDescription: "When power=0, max tx power to use, HW-specific values will be used if not set",
 						Validators: []validator.Int64{
 							int64validator.Between(5, 17),
 						},
@@ -363,8 +361,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					"power_min": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "when power=0, min tx power to use, HW-specific values will be used if not set",
-						MarkdownDescription: "when power=0, min tx power to use, HW-specific values will be used if not set",
+						Description:         "When power=0, min tx power to use, HW-specific values will be used if not set",
+						MarkdownDescription: "When power=0, min tx power to use, HW-specific values will be used if not set",
 						Validators: []validator.Int64{
 							int64validator.Between(5, 17),
 						},
@@ -452,15 +450,15 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					"disabled": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "whether to disable the radio",
-						MarkdownDescription: "whether to disable the radio",
+						Description:         "Whether to disable the radio",
+						MarkdownDescription: "Whether to disable the radio",
 						Default:             booldefault.StaticBool(false),
 					},
 					"power": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "TX power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
-						MarkdownDescription: "TX power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
+						Description:         "Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
+						MarkdownDescription: "Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
 						Validators: []validator.Int64{
 							int64validator.Between(5, 25),
 						},
@@ -469,8 +467,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					"power_max": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "when power=0, max tx power to use, HW-specific values will be used if not set",
-						MarkdownDescription: "when power=0, max tx power to use, HW-specific values will be used if not set",
+						Description:         "When power=0, max tx power to use, HW-specific values will be used if not set",
+						MarkdownDescription: "When power=0, max tx power to use, HW-specific values will be used if not set",
 						Validators: []validator.Int64{
 							int64validator.Between(5, 18),
 						},
@@ -479,8 +477,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					"power_min": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "when power=0, min tx power to use, HW-specific values will be used if not set",
-						MarkdownDescription: "when power=0, min tx power to use, HW-specific values will be used if not set",
+						Description:         "When power=0, min tx power to use, HW-specific values will be used if not set",
+						MarkdownDescription: "When power=0, min tx power to use, HW-specific values will be used if not set",
 						Validators: []validator.Int64{
 							int64validator.Between(5, 18),
 						},
@@ -504,8 +502,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					"standard_power": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "for 6GHz Only, standard-power operation, AFC (Automatic Frequency Coordination) will be performed and we'll fallback to Low Power Indoor if AFC failed",
-						MarkdownDescription: "for 6GHz Only, standard-power operation, AFC (Automatic Frequency Coordination) will be performed and we'll fallback to Low Power Indoor if AFC failed",
+						Description:         "For 6GHz Only, standard-power operation, AFC (Automatic Frequency Coordination) will be performed, and we'll fall back to Low Power Indoor if AFC failed",
+						MarkdownDescription: "For 6GHz Only, standard-power operation, AFC (Automatic Frequency Coordination) will be performed, and we'll fall back to Low Power Indoor if AFC failed",
 						Default:             booldefault.StaticBool(false),
 					},
 				},
@@ -520,14 +518,13 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"country_code": schema.StringAttribute{
 				Optional:            true,
-				Description:         "optional, country code to use. If specified, this gets applied to all sites using the RF Template",
-				MarkdownDescription: "optional, country code to use. If specified, this gets applied to all sites using the RF Template",
+				Description:         "Optional, country code to use. If specified, this gets applied to all sites using the RF Template",
+				MarkdownDescription: "Optional, country code to use. If specified, this gets applied to all sites using the RF Template",
 			},
 			"id": schema.StringAttribute{
-				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
+				Computed:            true,
+				Description:         "Unique ID of the object instance in the Mist Organnization",
+				MarkdownDescription: "Unique ID of the object instance in the Mist Organnization",
 			},
 			"model_specific": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
@@ -595,15 +592,15 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								"disabled": schema.BoolAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "whether to disable the radio",
-									MarkdownDescription: "whether to disable the radio",
+									Description:         "Whether to disable the radio",
+									MarkdownDescription: "Whether to disable the radio",
 									Default:             booldefault.StaticBool(false),
 								},
 								"power": schema.Int64Attribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "TX power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
-									MarkdownDescription: "TX power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
+									Description:         "Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
+									MarkdownDescription: "Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
 									Validators: []validator.Int64{
 										int64validator.Between(3, 25),
 									},
@@ -612,8 +609,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								"power_max": schema.Int64Attribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "when power=0, max tx power to use, HW-specific values will be used if not set",
-									MarkdownDescription: "when power=0, max tx power to use, HW-specific values will be used if not set",
+									Description:         "When power=0, max tx power to use, HW-specific values will be used if not set",
+									MarkdownDescription: "When power=0, max tx power to use, HW-specific values will be used if not set",
 									Validators: []validator.Int64{
 										int64validator.Between(3, 18),
 									},
@@ -622,8 +619,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								"power_min": schema.Int64Attribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "when power=0, min tx power to use, HW-specific values will be used if not set",
-									MarkdownDescription: "when power=0, min tx power to use, HW-specific values will be used if not set",
+									Description:         "When power=0, min tx power to use, HW-specific values will be used if not set",
+									MarkdownDescription: "When power=0, min tx power to use, HW-specific values will be used if not set",
 									Validators: []validator.Int64{
 										int64validator.Between(3, 18),
 									},
@@ -721,15 +718,15 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								"disabled": schema.BoolAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "whether to disable the radio",
-									MarkdownDescription: "whether to disable the radio",
+									Description:         "Whether to disable the radio",
+									MarkdownDescription: "Whether to disable the radio",
 									Default:             booldefault.StaticBool(false),
 								},
 								"power": schema.Int64Attribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "TX power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
-									MarkdownDescription: "TX power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
+									Description:         "Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
+									MarkdownDescription: "Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
 									Validators: []validator.Int64{
 										int64validator.Between(5, 25),
 									},
@@ -738,8 +735,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								"power_max": schema.Int64Attribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "when power=0, max tx power to use, HW-specific values will be used if not set",
-									MarkdownDescription: "when power=0, max tx power to use, HW-specific values will be used if not set",
+									Description:         "When power=0, max tx power to use, HW-specific values will be used if not set",
+									MarkdownDescription: "When power=0, max tx power to use, HW-specific values will be used if not set",
 									Validators: []validator.Int64{
 										int64validator.Between(5, 17),
 									},
@@ -748,8 +745,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								"power_min": schema.Int64Attribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "when power=0, min tx power to use, HW-specific values will be used if not set",
-									MarkdownDescription: "when power=0, min tx power to use, HW-specific values will be used if not set",
+									Description:         "When power=0, min tx power to use, HW-specific values will be used if not set",
+									MarkdownDescription: "When power=0, min tx power to use, HW-specific values will be used if not set",
 									Validators: []validator.Int64{
 										int64validator.Between(5, 17),
 									},
@@ -833,15 +830,15 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								"disabled": schema.BoolAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "whether to disable the radio",
-									MarkdownDescription: "whether to disable the radio",
+									Description:         "Whether to disable the radio",
+									MarkdownDescription: "Whether to disable the radio",
 									Default:             booldefault.StaticBool(false),
 								},
 								"power": schema.Int64Attribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "TX power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
-									MarkdownDescription: "TX power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
+									Description:         "Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
+									MarkdownDescription: "Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
 									Validators: []validator.Int64{
 										int64validator.Between(5, 25),
 									},
@@ -850,8 +847,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								"power_max": schema.Int64Attribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "when power=0, max tx power to use, HW-specific values will be used if not set",
-									MarkdownDescription: "when power=0, max tx power to use, HW-specific values will be used if not set",
+									Description:         "When power=0, max tx power to use, HW-specific values will be used if not set",
+									MarkdownDescription: "When power=0, max tx power to use, HW-specific values will be used if not set",
 									Validators: []validator.Int64{
 										int64validator.Between(5, 17),
 									},
@@ -860,8 +857,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								"power_min": schema.Int64Attribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "when power=0, min tx power to use, HW-specific values will be used if not set",
-									MarkdownDescription: "when power=0, min tx power to use, HW-specific values will be used if not set",
+									Description:         "When power=0, min tx power to use, HW-specific values will be used if not set",
+									MarkdownDescription: "When power=0, min tx power to use, HW-specific values will be used if not set",
 									Validators: []validator.Int64{
 										int64validator.Between(5, 17),
 									},
@@ -948,15 +945,15 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								"disabled": schema.BoolAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "whether to disable the radio",
-									MarkdownDescription: "whether to disable the radio",
+									Description:         "Whether to disable the radio",
+									MarkdownDescription: "Whether to disable the radio",
 									Default:             booldefault.StaticBool(false),
 								},
 								"power": schema.Int64Attribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "TX power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
-									MarkdownDescription: "TX power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
+									Description:         "Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
+									MarkdownDescription: "Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
 									Validators: []validator.Int64{
 										int64validator.Between(5, 25),
 									},
@@ -965,8 +962,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								"power_max": schema.Int64Attribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "when power=0, max tx power to use, HW-specific values will be used if not set",
-									MarkdownDescription: "when power=0, max tx power to use, HW-specific values will be used if not set",
+									Description:         "When power=0, max tx power to use, HW-specific values will be used if not set",
+									MarkdownDescription: "When power=0, max tx power to use, HW-specific values will be used if not set",
 									Validators: []validator.Int64{
 										int64validator.Between(5, 18),
 									},
@@ -975,8 +972,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								"power_min": schema.Int64Attribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "when power=0, min tx power to use, HW-specific values will be used if not set",
-									MarkdownDescription: "when power=0, min tx power to use, HW-specific values will be used if not set",
+									Description:         "When power=0, min tx power to use, HW-specific values will be used if not set",
+									MarkdownDescription: "When power=0, min tx power to use, HW-specific values will be used if not set",
 									Validators: []validator.Int64{
 										int64validator.Between(5, 18),
 									},
@@ -1000,8 +997,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								"standard_power": schema.BoolAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "for 6GHz Only, standard-power operation, AFC (Automatic Frequency Coordination) will be performed and we'll fallback to Low Power Indoor if AFC failed",
-									MarkdownDescription: "for 6GHz Only, standard-power operation, AFC (Automatic Frequency Coordination) will be performed and we'll fallback to Low Power Indoor if AFC failed",
+									Description:         "For 6GHz Only, standard-power operation, AFC (Automatic Frequency Coordination) will be performed, and we'll fall back to Low Power Indoor if AFC failed",
+									MarkdownDescription: "For 6GHz Only, standard-power operation, AFC (Automatic Frequency Coordination) will be performed, and we'll fall back to Low Power Indoor if AFC failed",
 									Default:             booldefault.StaticBool(false),
 								},
 							},
@@ -1041,8 +1038,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"scanning_enabled": schema.BoolAttribute{
 				Optional:            true,
-				Description:         "whether scanning radio is enabled",
-				MarkdownDescription: "whether scanning radio is enabled",
+				Description:         "Whether scanning radio is enabled",
+				MarkdownDescription: "Whether scanning radio is enabled",
 			},
 		},
 	}

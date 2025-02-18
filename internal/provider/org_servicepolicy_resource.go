@@ -59,7 +59,7 @@ func (r *orgServicepolicyResource) Schema(ctx context.Context, req resource.Sche
 			"* the Gateway configuration (`mist_device_gateway.service_policies`)\n" +
 			"* the Gateway Templates (`mist_org_gatewaytemplate.service_policies`)\n" +
 			"* the HUB Profiles (`mist_org_deviceprofile_gateway.service_policies`)\n" +
-			"They can be used to manage common policies betweeen multiples configurations",
+			"They can be used to manage common policies between multiples configurations",
 		Attributes: resource_org_servicepolicy.OrgServicepolicyResourceSchema(ctx).Attributes,
 	}
 }

@@ -116,8 +116,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"network": schema.StringAttribute{
 							Optional:            true,
-							Description:         "If:\n  * `type`==`mac` (optional. default is `any`)\n  * `type`==`subnet` (optional. default is `any`)\n  * `type`==`network`\n  * `type`==`resource` (optional. default is `any`)\n  * `type`==`static_gbp` if from matching network (vlan)'",
-							MarkdownDescription: "If:\n  * `type`==`mac` (optional. default is `any`)\n  * `type`==`subnet` (optional. default is `any`)\n  * `type`==`network`\n  * `type`==`resource` (optional. default is `any`)\n  * `type`==`static_gbp` if from matching network (vlan)'",
+							Description:         "If:\n  * `type`==`mac` (optional. default is `any`)\n  * `type`==`subnet` (optional. default is `any`)\n  * `type`==`network`\n  * `type`==`resource` (optional. default is `any`)\n  * `type`==`static_gbp` if from matching network (vlan)",
+							MarkdownDescription: "If:\n  * `type`==`mac` (optional. default is `any`)\n  * `type`==`subnet` (optional. default is `any`)\n  * `type`==`network`\n  * `type`==`resource` (optional. default is `any`)\n  * `type`==`static_gbp` if from matching network (vlan)",
 							Validators: []validator.String{
 								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("network")),
 							},
@@ -463,8 +463,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Enable mist_nac to use radsec",
-				MarkdownDescription: "Enable mist_nac to use radsec",
+				Description:         "Enable mist_nac to use RadSec",
+				MarkdownDescription: "Enable mist_nac to use RadSec",
 			},
 			"name": schema.StringAttribute{
 				Required: true,
@@ -1884,8 +1884,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 			"remove_existing_configs": schema.BoolAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "By default, when we configure a device, we only clean up config we generates. Remove existing configs if enabled",
-				MarkdownDescription: "By default, when we configure a device, we only clean up config we generates. Remove existing configs if enabled",
+				Description:         "By default, when we configure a device, we only clean up config we generate. Remove existing configs if enabled",
+				MarkdownDescription: "By default, when we configure a device, we only clean up config we generate. Remove existing configs if enabled",
 				Default:             booldefault.StaticBool(false),
 			},
 			"snmp_config": schema.SingleNestedAttribute{
@@ -2554,8 +2554,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								"match_type": schema.StringAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "'property key define the type of matching, value is the string to match. e.g: `match_name[0:3]`, `match_name[2:6]`, `match_model`,  `match_model[0-6]`",
-									MarkdownDescription: "'property key define the type of matching, value is the string to match. e.g: `match_name[0:3]`, `match_name[2:6]`, `match_model`,  `match_model[0-6]`",
+									Description:         "property key define the type of matching, value is the string to match. e.g: `match_name[0:3]`, `match_name[2:6]`, `match_model`,  `match_model[0-6]`",
+									MarkdownDescription: "property key define the type of matching, value is the string to match. e.g: `match_name[0:3]`, `match_name[2:6]`, `match_model`,  `match_model[0-6]`",
 									DeprecationMessage:  "The `match_type` attribute has been deprecated in version v0.2.8 of the Juniper-Mist Provider. It has been replaced with the `match_name`, `match_model` and `match_role`attribuites and may be removed in future versions.\nPlease update your configurations.",
 									PlanModifiers: []planmodifier.String{
 										stringplanmodifier.UseStateForUnknown(),
@@ -2842,8 +2842,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					"ap_affinity_threshold": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "AP_affinity_threshold ap_affinity_threshold can be added as a field under site/setting. By default this value is set to 12. If the field is set in both site/setting and org/setting, the value from site/setting will be used.",
-						MarkdownDescription: "AP_affinity_threshold ap_affinity_threshold can be added as a field under site/setting. By default this value is set to 12. If the field is set in both site/setting and org/setting, the value from site/setting will be used.",
+						Description:         "AP_affinity_threshold ap_affinity_threshold can be added as a field under site/setting. By default, this value is set to 12. If the field is set in both site/setting and org/setting, the value from site/setting will be used.",
+						MarkdownDescription: "AP_affinity_threshold ap_affinity_threshold can be added as a field under site/setting. By default, this value is set to 12. If the field is set in both site/setting and org/setting, the value from site/setting will be used.",
 						Default:             int64default.StaticInt64(10),
 					},
 					"cli_banner": schema.StringAttribute{

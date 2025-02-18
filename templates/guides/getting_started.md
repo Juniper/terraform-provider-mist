@@ -18,7 +18,7 @@ Before starting, create a new empty Folder we will use to store the configuratio
 
 In this folder, create an empty file `main.tf`. This file will be used to define the Terraform configuration with the HCL Language. This configuration will store all the objects and their definition we want to deploy during this guide.
 
-~> It is recommend to split the Terraform configuration into multiple files, but to simplify the example, all the configuration will be in the same file `main.tf`. 
+~> It is recommended to split the Terraform configuration into multiple files, but to simplify the example, all the configuration will be in the same file `main.tf`. 
 
 ### Configure the Provider
 The first step is to configure the provider. To perform this task, it is required to already have an account on any supported Mist Cloud (see [Supported Mist Clouds](https://registry.terraform.io/providers/Juniper/mist/latest/docs)) with a [User API Token](https://www.juniper.net/documentation/us/en/software/mist/automation-integration/topics/task/create-token-for-rest-api.html#task_wdg_4kw_dcc).

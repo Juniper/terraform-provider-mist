@@ -13,8 +13,8 @@ func GenDeviceMap(devices *basetypes.MapValue) map[string]InventoryValue {
 		Generate a map[string]InventoryValue from the basetypes.MapValue
 
 		parameters:
-			deivces: *basetypes.SetValue
-				SetNested with each devices in the Inventory of the Mist Org
+			devices: *basetypes.SetValue
+				SetNested with each device in the Inventory of the Mist Org
 
 		returns:
 			map[string]InventoryValue

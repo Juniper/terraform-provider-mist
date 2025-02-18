@@ -109,8 +109,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"network": schema.StringAttribute{
 							Optional:            true,
-							Description:         "If:\n  * `type`==`mac` (optional. default is `any`)\n  * `type`==`subnet` (optional. default is `any`)\n  * `type`==`network`\n  * `type`==`resource` (optional. default is `any`)\n  * `type`==`static_gbp` if from matching network (vlan)'",
-							MarkdownDescription: "If:\n  * `type`==`mac` (optional. default is `any`)\n  * `type`==`subnet` (optional. default is `any`)\n  * `type`==`network`\n  * `type`==`resource` (optional. default is `any`)\n  * `type`==`static_gbp` if from matching network (vlan)'",
+							Description:         "If:\n  * `type`==`mac` (optional. default is `any`)\n  * `type`==`subnet` (optional. default is `any`)\n  * `type`==`network`\n  * `type`==`resource` (optional. default is `any`)\n  * `type`==`static_gbp` if from matching network (vlan)",
+							MarkdownDescription: "If:\n  * `type`==`mac` (optional. default is `any`)\n  * `type`==`subnet` (optional. default is `any`)\n  * `type`==`network`\n  * `type`==`resource` (optional. default is `any`)\n  * `type`==`static_gbp` if from matching network (vlan)",
 							Validators: []validator.String{
 								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("network")),
 							},
@@ -833,8 +833,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"allow_dhcpd": schema.BoolAttribute{
 							Optional:            true,
-							Description:         "If DHCP snooping is enabled, whether DHCP server is allowed on the interfaces with. All the interfaces from port configs using this port usage are effected. Please notice that allow_dhcpd is a tri_state. When it is not defined, it means using the system's default setting which depends on whether the port is a access or trunk port.",
-							MarkdownDescription: "If DHCP snooping is enabled, whether DHCP server is allowed on the interfaces with. All the interfaces from port configs using this port usage are effected. Please notice that allow_dhcpd is a tri_state. When it is not defined, it means using the system's default setting which depends on whether the port is a access or trunk port.",
+							Description:         "If DHCP snooping is enabled, whether DHCP server is allowed on the interfaces with. All the interfaces from port configs using this port usage are effected. Please notice that allow_dhcpd is a tri_state. When it is not defined, it means using the system's default setting which depends on whether the port is an access or trunk port.",
+							MarkdownDescription: "If DHCP snooping is enabled, whether DHCP server is allowed on the interfaces with. All the interfaces from port configs using this port usage are effected. Please notice that allow_dhcpd is a tri_state. When it is not defined, it means using the system's default setting which depends on whether the port is an access or trunk port.",
 						},
 						"allow_multiple_supplicants": schema.BoolAttribute{
 							Optional: true,
@@ -1186,8 +1186,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Enable mist_nac to use radsec",
-				MarkdownDescription: "Enable mist_nac to use radsec",
+				Description:         "Enable mist_nac to use RadSec",
+				MarkdownDescription: "Enable mist_nac to use RadSec",
 			},
 			"model": schema.StringAttribute{
 				Computed:            true,
@@ -3508,8 +3508,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 					"ap_affinity_threshold": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "AP_affinity_threshold ap_affinity_threshold can be added as a field under site/setting. By default this value is set to 12. If the field is set in both site/setting and org/setting, the value from site/setting will be used.",
-						MarkdownDescription: "AP_affinity_threshold ap_affinity_threshold can be added as a field under site/setting. By default this value is set to 12. If the field is set in both site/setting and org/setting, the value from site/setting will be used.",
+						Description:         "AP_affinity_threshold ap_affinity_threshold can be added as a field under site/setting. By default, this value is set to 12. If the field is set in both site/setting and org/setting, the value from site/setting will be used.",
+						MarkdownDescription: "AP_affinity_threshold ap_affinity_threshold can be added as a field under site/setting. By default, this value is set to 12. If the field is set in both site/setting and org/setting, the value from site/setting will be used.",
 						Default:             int64default.StaticInt64(10),
 					},
 					"cli_banner": schema.StringAttribute{

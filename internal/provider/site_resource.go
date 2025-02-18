@@ -54,7 +54,7 @@ func (r *siteResource) Metadata(ctx context.Context, req resource.MetadataReques
 
 func (r *siteResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategorySite + "This resources manages the Site basic information.\n\n" +
+		MarkdownDescription: docCategorySite + "This resource manages the Site basic information.\n\n" +
 			"This resource can be used to assign templates to a site, or to change basic information (e.g. Site Address)",
 		Attributes: resource_site.SiteResourceSchema(ctx).Attributes,
 	}

@@ -286,34 +286,3 @@ func (r *orgApitokenResource) readApiToken(ctx context.Context, diags *diag.Diag
 	diags.Append(e...)
 	return &state
 }
-
-// func (r *orgApitokenResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-
-// 	importIds := strings.Split(req.ID, ".")
-// 	if len(importIds) != 2 {
-// 		resp.Diagnostics.AddError(
-// 			"Invalid \"id\" value for \"mist_org_apitoken\" resource",
-// 			"import \"id\" format must be \"{org_id}.{apitoken_id}\"",
-// 		)
-// 		return
-// 	}
-// 	_, err := uuid.Parse(importIds[0])
-// 	if err != nil {
-// 		resp.Diagnostics.AddError(
-// 			"Invalid \"org_id\" value for \"mist_org_apitoken\" resource",
-// 			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{apitoken_id}\"", importIds[0], err.Error()),
-// 		)
-// 		return
-// 	}
-// 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("org_id"), importIds[0])...)
-
-// 	_, err = uuid.Parse(importIds[1])
-// 	if err != nil {
-// 		resp.Diagnostics.AddError(
-// 			"Invalid \"id\" value for \"mist_org_apitoken\" resource",
-// 			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{apitoken_id}\"", importIds[1], err.Error()),
-// 		)
-// 		return
-// 	}
-// 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), importIds[1])...)
-// }

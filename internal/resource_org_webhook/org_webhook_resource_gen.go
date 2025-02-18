@@ -9,9 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
@@ -24,35 +22,34 @@ func OrgWebhookResourceSchema(ctx context.Context) schema.Schema {
 			"enabled": schema.BoolAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "whether webhook is enabled",
-				MarkdownDescription: "whether webhook is enabled",
+				Description:         "Whether webhook is enabled",
+				MarkdownDescription: "Whether webhook is enabled",
 				Default:             booldefault.StaticBool(true),
 			},
 			"headers": schema.MapAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
-				Description:         "if `type`=`http-post`, additional custom HTTP headers to add\nthe headers name and value must be string, total bytes of headers name and value must be less than 1000",
-				MarkdownDescription: "if `type`=`http-post`, additional custom HTTP headers to add\nthe headers name and value must be string, total bytes of headers name and value must be less than 1000",
+				Description:         "If `type`=`http-post`, additional custom HTTP headers to add. The headers name and value must be string, total bytes of headers name and value must be less than 1000",
+				MarkdownDescription: "If `type`=`http-post`, additional custom HTTP headers to add. The headers name and value must be string, total bytes of headers name and value must be less than 1000",
 				Validators: []validator.Map{
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("http-post")),
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("oauth2")),
 				},
 			},
 			"id": schema.StringAttribute{
-				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
+				Computed:            true,
+				Description:         "Unique ID of the object instance in the Mist Organnization",
+				MarkdownDescription: "Unique ID of the object instance in the Mist Organnization",
 			},
 			"name": schema.StringAttribute{
 				Required:            true,
-				Description:         "name of the webhook",
-				MarkdownDescription: "name of the webhook",
+				Description:         "Name of the webhook",
+				MarkdownDescription: "Name of the webhook",
 			},
 			"oauth2_client_id": schema.StringAttribute{
 				Optional:            true,
-				Description:         "required when `oauth2_grant_type`==`client_credentials`",
-				MarkdownDescription: "required when `oauth2_grant_type`==`client_credentials`",
+				Description:         "Required when `oauth2_grant_type`==`client_credentials`",
+				MarkdownDescription: "Required when `oauth2_grant_type`==`client_credentials`",
 				Validators: []validator.String{
 					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("oauth2_grant_type"), types.StringValue("client_credentials")),
 				},
@@ -60,8 +57,8 @@ func OrgWebhookResourceSchema(ctx context.Context) schema.Schema {
 			"oauth2_client_secret": schema.StringAttribute{
 				Optional:            true,
 				Sensitive:           true,
-				Description:         "required when `oauth2_grant_type`==`client_credentials`",
-				MarkdownDescription: "required when `oauth2_grant_type`==`client_credentials`",
+				Description:         "Required when `oauth2_grant_type`==`client_credentials`",
+				MarkdownDescription: "Required when `oauth2_grant_type`==`client_credentials`",
 				Validators: []validator.String{
 					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("oauth2_grant_type"), types.StringValue("client_credentials")),
 				},
@@ -81,8 +78,8 @@ func OrgWebhookResourceSchema(ctx context.Context) schema.Schema {
 			"oauth2_password": schema.StringAttribute{
 				Optional:            true,
 				Sensitive:           true,
-				Description:         "required when `oauth2_grant_type`==`password`",
-				MarkdownDescription: "required when `oauth2_grant_type`==`password`",
+				Description:         "Required when `oauth2_grant_type`==`password`",
+				MarkdownDescription: "Required when `oauth2_grant_type`==`password`",
 				Validators: []validator.String{
 					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("oauth2_grant_type"), types.StringValue("password")),
 				},
@@ -90,21 +87,21 @@ func OrgWebhookResourceSchema(ctx context.Context) schema.Schema {
 			"oauth2_scopes": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
-				Description:         "required when `type`==`oauth2`, if provided, will be used in the token request",
-				MarkdownDescription: "required when `type`==`oauth2`, if provided, will be used in the token request",
+				Description:         "Required when `type`==`oauth2`, if provided, will be used in the token request",
+				MarkdownDescription: "Required when `type`==`oauth2`, if provided, will be used in the token request",
 			},
 			"oauth2_token_url": schema.StringAttribute{
 				Optional:            true,
-				Description:         "required when `type`==`oauth2`",
-				MarkdownDescription: "required when `type`==`oauth2`",
+				Description:         "Required when `type`==`oauth2`",
+				MarkdownDescription: "Required when `type`==`oauth2`",
 				Validators: []validator.String{
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("oauth2")),
 				},
 			},
 			"oauth2_username": schema.StringAttribute{
 				Optional:            true,
-				Description:         "required when `oauth2_grant_type`==`password`",
-				MarkdownDescription: "required when `oauth2_grant_type`==`password`",
+				Description:         "Required when `oauth2_grant_type`==`password`",
+				MarkdownDescription: "Required when `oauth2_grant_type`==`password`",
 				Validators: []validator.String{
 					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("oauth2_grant_type"), types.StringValue("password")),
 				},
@@ -115,8 +112,8 @@ func OrgWebhookResourceSchema(ctx context.Context) schema.Schema {
 			"secret": schema.StringAttribute{
 				Optional:            true,
 				Sensitive:           true,
-				Description:         "only if `type`=`http-post` \n\nwhen `secret` is provided, two  HTTP headers will be added: \n  * X-Mist-Signature-v2: HMAC_SHA256(secret, body)\n  * X-Mist-Signature: HMAC_SHA1(secret, body)",
-				MarkdownDescription: "only if `type`=`http-post` \n\nwhen `secret` is provided, two  HTTP headers will be added: \n  * X-Mist-Signature-v2: HMAC_SHA256(secret, body)\n  * X-Mist-Signature: HMAC_SHA1(secret, body)",
+				Description:         "Only if `type`=`http-post` \n\nwhen `secret` is provided, two  HTTP headers will be added: \n  * X-Mist-Signature-v2: HMAC_SHA256(secret, body)\n  * X-Mist-Signature: HMAC_SHA1(secret, body)",
+				MarkdownDescription: "Only if `type`=`http-post` \n\nwhen `secret` is provided, two  HTTP headers will be added: \n  * X-Mist-Signature-v2: HMAC_SHA256(secret, body)\n  * X-Mist-Signature: HMAC_SHA1(secret, body)",
 				Validators: []validator.String{
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("http-post")),
 				},
@@ -124,8 +121,8 @@ func OrgWebhookResourceSchema(ctx context.Context) schema.Schema {
 			"splunk_token": schema.StringAttribute{
 				Optional:            true,
 				Sensitive:           true,
-				Description:         "required if `type`=`splunk`\nIf splunk_token is not defined for a type Splunk webhook, it will not send, regardless if the webhook receiver is configured to accept it.'",
-				MarkdownDescription: "required if `type`=`splunk`\nIf splunk_token is not defined for a type Splunk webhook, it will not send, regardless if the webhook receiver is configured to accept it.'",
+				Description:         "Required if `type`=`splunk`. If splunk_token is not defined for a type Splunk webhook, it will not send, regardless if the webhook receiver is configured to accept it.",
+				MarkdownDescription: "Required if `type`=`splunk`. If splunk_token is not defined for a type Splunk webhook, it will not send, regardless if the webhook receiver is configured to accept it.",
 				Validators: []validator.String{
 					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("splunk")),
 				},
@@ -160,6 +157,7 @@ func OrgWebhookResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "enum: `aws-sns`, `google-pubsub`, `http-post`, `oauth2`, `splunk`",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
+						"",
 						"aws-sns",
 						"google-pubsub",
 						"http-post",
@@ -175,8 +173,8 @@ func OrgWebhookResourceSchema(ctx context.Context) schema.Schema {
 			"verify_cert": schema.BoolAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "when url uses HTTPS, whether to verify the certificate",
-				MarkdownDescription: "when url uses HTTPS, whether to verify the certificate",
+				Description:         "When url uses HTTPS, whether to verify the certificate",
+				MarkdownDescription: "When url uses HTTPS, whether to verify the certificate",
 				Default:             booldefault.StaticBool(true),
 			},
 		},

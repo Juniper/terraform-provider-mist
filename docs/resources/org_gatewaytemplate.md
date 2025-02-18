@@ -119,11 +119,11 @@ resource "mist_org_gatewaytemplate" "gatewaytemplate_one" {
 - `ip_configs` (Attributes Map) Property key is the network name (see [below for nested schema](#nestedatt--ip_configs))
 - `networks` (Attributes List) (see [below for nested schema](#nestedatt--networks))
 - `ntp_override` (Boolean)
-- `ntp_servers` (List of String) list of NTP servers specific to this device. By default, those in Site Settings will be used
-- `oob_ip_config` (Attributes) out-of-band (vme/em0/fxp0) IP config (see [below for nested schema](#nestedatt--oob_ip_config))
+- `ntp_servers` (List of String) List of NTP servers specific to this device. By default, those in Site Settings will be used
+- `oob_ip_config` (Attributes) Out-of-band (vme/em0/fxp0) IP config (see [below for nested schema](#nestedatt--oob_ip_config))
 - `path_preferences` (Attributes Map) Property key is the path name (see [below for nested schema](#nestedatt--path_preferences))
 - `port_config` (Attributes Map) Property key is the Port Name (i.e. "ge-0/0/0"), the Ports Range (i.e. "ge-0/0/0-10"), the List of Ports (i.e. "ge-0/0/0,ge-1/0/0", only allowed for Aggregated or Redundant interfaces) or a Variable (i.e. "{{myvar}}"). (see [below for nested schema](#nestedatt--port_config))
-- `router_id` (String) auto assigned if not set
+- `router_id` (String) Auto assigned if not set
 - `routing_policies` (Attributes Map) Property key is the routing policy name (see [below for nested schema](#nestedatt--routing_policies))
 - `service_policies` (Attributes List) (see [below for nested schema](#nestedatt--service_policies))
 - `tunnel_configs` (Attributes Map) Property key is the tunnel name (see [below for nested schema](#nestedatt--tunnel_configs))
@@ -142,28 +142,28 @@ resource "mist_org_gatewaytemplate" "gatewaytemplate_one" {
 Optional:
 
 - `auth_key` (String)
-- `bfd_minimum_interval` (Number) when bfd_multiplier is configured alone. Default:
+- `bfd_minimum_interval` (Number) When bfd_multiplier is configured alone. Default:
   * 1000 if `type`==`external`
   * 350 `type`==`internal`
-- `bfd_multiplier` (Number) when bfd_minimum_interval_is_configured alone
+- `bfd_multiplier` (Number) When bfd_minimum_interval_is_configured alone
 - `disable_bfd` (Boolean) BFD provides faster path failure detection and is enabled by default
 - `export` (String)
-- `export_policy` (String) default export policies if no per-neighbor policies defined
-- `extended_v4_nexthop` (Boolean) by default, either inet/net6 unicast depending on neighbor IP family (v4 or v6). For v6 neighbors, to exchange v4 nexthop, which allows dual-stack support, enable this
+- `export_policy` (String) Default export policies if no per-neighbor policies defined
+- `extended_v4_nexthop` (Boolean) By default, either inet/net6 unicast depending on neighbor IP family (v4 or v6). For v6 neighbors, to exchange v4 nexthop, which allows dual-stack support, enable this
 - `graceful_restart_time` (Number) `0` means disable
 - `hold_time` (Number)
 - `import` (String)
-- `import_policy` (String) default import policies if no per-neighbor policies defined
+- `import_policy` (String) Default import policies if no per-neighbor policies defined
 - `local_as` (Number)
 - `neighbor_as` (Number)
-- `neighbors` (Attributes Map) if per-neighbor as is desired. Property key is the neighbor address (see [below for nested schema](#nestedatt--bgp_config--neighbors))
-- `networks` (List of String) if `type`!=`external`or `via`==`wan`networks where we expect BGP neighbor to connect to/from
-- `no_readvertise_to_overlay` (Boolean) by default, we'll re-advertise all learned BGP routers toward overlay
-- `tunnel_name` (String) if `type`==`tunnel`
+- `neighbors` (Attributes Map) If per-neighbor as is desired. Property key is the neighbor address (see [below for nested schema](#nestedatt--bgp_config--neighbors))
+- `networks` (List of String) If `type`!=`external`or `via`==`wan`networks where we expect BGP neighbor to connect to/from
+- `no_readvertise_to_overlay` (Boolean) By default, we'll re-advertise all learned BGP routers toward overlay
+- `tunnel_name` (String) If `type`==`tunnel`
 - `type` (String) enum: `external`, `internal`
 - `via` (String) network name. enum: `lan`, `tunnel`, `vpn`, `wan`
 - `vpn_name` (String)
-- `wan_name` (String) if `via`==`wan`
+- `wan_name` (String) If `via`==`wan`
 
 <a id="nestedatt--bgp_config--neighbors"></a>
 ### Nested Schema for `bgp_config.neighbors`
@@ -174,7 +174,7 @@ Optional:
 - `export_policy` (String)
 - `hold_time` (Number)
 - `import_policy` (String)
-- `multihop_ttl` (Number) assuming BGP neighbor is directly connected
+- `multihop_ttl` (Number) Assuming BGP neighbor is directly connected
 - `neighbor_as` (Number)
 
 
@@ -185,32 +185,32 @@ Optional:
 Optional:
 
 - `config` (Attributes Map) Property key is the network name (see [below for nested schema](#nestedatt--dhcpd_config--config))
-- `enabled` (Boolean) if set to `false`, disable the DHCP server
+- `enabled` (Boolean) If set to `false`, disable the DHCP server
 
 <a id="nestedatt--dhcpd_config--config"></a>
 ### Nested Schema for `dhcpd_config.config`
 
 Optional:
 
-- `dns_servers` (List of String) if `type`==`local` or `type6`==`local` - optional, if not defined, system one will be used
-- `dns_suffix` (List of String) if `type`==`local` or `type6`==`local` - optional, if not defined, system one will be used
-- `fixed_bindings` (Attributes Map) if `type`==`local` or `type6`==`local`. Property key is the MAC Address. Format is `[0-9a-f]{12}` (e.g "5684dae9ac8b") (see [below for nested schema](#nestedatt--dhcpd_config--config--fixed_bindings))
-- `gateway` (String) if `type`==`local` - optional, `ip` will be used if not provided
-- `ip_end` (String) if `type`==`local`
-- `ip_end6` (String) if `type6`==`local`
-- `ip_start` (String) if `type`==`local`
-- `ip_start6` (String) if `type6`==`local`
-- `lease_time` (Number) in seconds, lease time has to be between 3600 [1hr] - 604800 [1 week], default is 86400 [1 day]
-- `options` (Attributes Map) if `type`==`local` or `type6`==`local`. Property key is the DHCP option number (see [below for nested schema](#nestedatt--dhcpd_config--config--options))
+- `dns_servers` (List of String) If `type`==`local` or `type6`==`local` - optional, if not defined, system one will be used
+- `dns_suffix` (List of String) If `type`==`local` or `type6`==`local` - optional, if not defined, system one will be used
+- `fixed_bindings` (Attributes Map) If `type`==`local` or `type6`==`local`. Property key is the MAC Address. Format is `[0-9a-f]{12}` (e.g "5684dae9ac8b") (see [below for nested schema](#nestedatt--dhcpd_config--config--fixed_bindings))
+- `gateway` (String) If `type`==`local` - optional, `ip` will be used if not provided
+- `ip_end` (String) If `type`==`local`
+- `ip_end6` (String) If `type6`==`local`
+- `ip_start` (String) If `type`==`local`
+- `ip_start6` (String) If `type6`==`local`
+- `lease_time` (Number) In seconds, lease time has to be between 3600 [1hr] - 604800 [1 week], default is 86400 [1 day]
+- `options` (Attributes Map) If `type`==`local` or `type6`==`local`. Property key is the DHCP option number (see [below for nested schema](#nestedatt--dhcpd_config--config--options))
 - `server_id_override` (Boolean) `server_id_override`==`true` means the device, when acts as DHCP relay and forwards DHCP responses from DHCP server to clients, 
 should overwrite the Sever Identifier option (i.e. DHCP option 54) in DHCP responses with its own IP address.
-- `servers` (List of String) if `type`==`relay`
-- `servers6` (List of String) if `type6`==`relay`
+- `servers` (List of String) If `type`==`relay`
+- `servers6` (List of String) If `type6`==`relay`
 - `type` (String) enum: `local` (DHCP Server), `none`, `relay` (DHCP Relay)
 - `type6` (String) enum: `local` (DHCP Server), `none`, `relay` (DHCP Relay)
-- `vendor_encapsulated` (Attributes Map) if `type`==`local` or `type6`==`local`. Property key is <enterprise number>:<sub option code>, with
+- `vendor_encapsulated` (Attributes Map) If `type`==`local` or `type6`==`local`. Property key is <enterprise number>:<sub option code>, with
   * enterprise number: 1-65535 (https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers)
-  * sub option code: 1-255, sub-option code' (see [below for nested schema](#nestedatt--dhcpd_config--config--vendor_encapsulated))
+  * sub option code: 1-255, sub-option code (see [below for nested schema](#nestedatt--dhcpd_config--config--vendor_encapsulated))
 
 <a id="nestedatt--dhcpd_config--config--fixed_bindings"></a>
 ### Nested Schema for `dhcpd_config.config.fixed_bindings`
@@ -304,7 +304,7 @@ Required:
 
 Optional:
 
-- `secondary_ips` (List of String) optional list of secondary IPs in CIDR format
+- `secondary_ips` (List of String) Optional list of secondary IPs in CIDR format
 - `type` (String) enum: `dhcp`, `static`
 
 
@@ -318,14 +318,14 @@ Required:
 
 Optional:
 
-- `disallow_mist_services` (Boolean) whether to disallow Mist Devices in the network
+- `disallow_mist_services` (Boolean) Whether to disallow Mist Devices in the network
 - `gateway` (String)
 - `gateway6` (String)
 - `internal_access` (Attributes) (see [below for nested schema](#nestedatt--networks--internal_access))
-- `internet_access` (Attributes) whether this network has direct internet access (see [below for nested schema](#nestedatt--networks--internet_access))
-- `isolation` (Boolean) whether to allow clients in the network to talk to each other
-- `multicast` (Attributes) whether to enable multicast support (only PIM-sparse mode is supported) (see [below for nested schema](#nestedatt--networks--multicast))
-- `routed_for_networks` (List of String) for a Network (usually LAN), it can be routable to other networks (e.g. OSPF)
+- `internet_access` (Attributes) Whether this network has direct internet access (see [below for nested schema](#nestedatt--networks--internet_access))
+- `isolation` (Boolean) Whether to allow clients in the network to talk to each other
+- `multicast` (Attributes) Whether to enable multicast support (only PIM-sparse mode is supported) (see [below for nested schema](#nestedatt--networks--multicast))
+- `routed_for_networks` (List of String) For a Network (usually LAN), it can be routable to other networks (e.g. OSPF)
 - `subnet6` (String)
 - `tenants` (Attributes Map) Property key must be the user/tenant name (i.e. "printer-1") or a Variable (i.e. "{{myvar}}") (see [below for nested schema](#nestedatt--networks--tenants))
 - `vlan_id` (String)
@@ -347,7 +347,7 @@ Optional:
 - `create_simple_service_policy` (Boolean)
 - `destination_nat` (Attributes Map) Property key can be an External IP (i.e. "63.16.0.3"), an External IP:Port (i.e. "63.16.0.3:443"), an External Port (i.e. ":443"), an External CIDR (i.e. "63.16.0.0/30"), an External CIDR:Port (i.e. "63.16.0.0/30:443") or a Variable (i.e. "{{myvar}}"). At least one of the `internal_ip` or `port` must be defined (see [below for nested schema](#nestedatt--networks--internet_access--destination_nat))
 - `enabled` (Boolean)
-- `restricted` (Boolean) by default, all access is allowed, to only allow certain traffic, make `restricted`=`true` and define service_policies
+- `restricted` (Boolean) By default, all access is allowed, to only allow certain traffic, make `restricted`=`true` and define service_policies
 - `static_nat` (Attributes Map) Property key may be an External IP Address (i.e. "63.16.0.3"), a CIDR (i.e. "63.16.0.12/20") or a Variable (i.e. "{{myvar}}") (see [below for nested schema](#nestedatt--networks--internet_access--static_nat))
 
 <a id="nestedatt--networks--internet_access--destination_nat"></a>
@@ -380,7 +380,7 @@ Optional:
 
 Optional:
 
-- `disable_igmp` (Boolean) if the network will only be the soruce of the multicast traffic, IGMP can be disabled
+- `disable_igmp` (Boolean) If the network will only be the soruce of the multicast traffic, IGMP can be disabled
 - `enabled` (Boolean)
 - `groups` (Attributes Map) Group address to RP (rendezvous point) mapping. Property Key is the CIDR (example "225.1.0.3/32") (see [below for nested schema](#nestedatt--networks--multicast--groups))
 
@@ -406,16 +406,16 @@ Optional:
 
 Optional:
 
-- `advertised_subnet` (String) if `routed`==`true`, whether to advertise an aggregated subnet toward HUB this is useful when there are multiple networks on SPOKE's side
-- `allow_ping` (Boolean) whether to allow ping from vpn into this routed network
+- `advertised_subnet` (String) If `routed`==`true`, whether to advertise an aggregated subnet toward HUB this is useful when there are multiple networks on SPOKE's side
+- `allow_ping` (Boolean) Whether to allow ping from vpn into this routed network
 - `destination_nat` (Attributes Map) Property key can be an External IP (i.e. "63.16.0.3"), an External IP:Port (i.e. "63.16.0.3:443"), an External Port (i.e. ":443"), an External CIDR (i.e. "63.16.0.0/30"), an External CIDR:Port (i.e. "63.16.0.0/30:443") or a Variable (i.e. "{{myvar}}"). At least one of the `internal_ip` or `port` must be defined (see [below for nested schema](#nestedatt--networks--vpn_access--destination_nat))
-- `nat_pool` (String) if `routed`==`false` (usually at Spoke), but some hosts needs to be reachable from Hub, a subnet is required to create and advertise the route to Hub
+- `nat_pool` (String) If `routed`==`false` (usually at Spoke), but some hosts needs to be reachable from Hub, a subnet is required to create and advertise the route to Hub
 - `no_readvertise_to_lan_bgp` (Boolean) toward LAN-side BGP peers
 - `no_readvertise_to_lan_ospf` (Boolean) toward LAN-side OSPF peers
 - `no_readvertise_to_overlay` (Boolean) toward overlay, how HUB should deal with routes it received from Spokes
-- `other_vrfs` (List of String) by default, the routes are only readvertised toward the same vrf on spoke. To allow it to be leaked to other vrfs
-- `routed` (Boolean) whether this network is routable
-- `source_nat` (Attributes) if `routed`==`false` (usually at Spoke), but some hosts needs to be reachable from Hub (see [below for nested schema](#nestedatt--networks--vpn_access--source_nat))
+- `other_vrfs` (List of String) By default, the routes are only readvertised toward the same vrf on spoke. To allow it to be leaked to other vrfs
+- `routed` (Boolean) Whether this network is routable
+- `source_nat` (Attributes) If `routed`==`false` (usually at Spoke), but some hosts needs to be reachable from Hub (see [below for nested schema](#nestedatt--networks--vpn_access--source_nat))
 - `static_nat` (Attributes Map) Property key may be an External IP Address (i.e. "63.16.0.3"), a CIDR (i.e. "63.16.0.12/20") or a Variable (i.e. "{{myvar}}") (see [below for nested schema](#nestedatt--networks--vpn_access--static_nat))
 - `summarized_subnet` (String) toward overlay, how HUB should deal with routes it received from Spokes
 - `summarized_subnet_to_lan_bgp` (String) toward LAN-side BGP peers
@@ -455,13 +455,13 @@ Required:
 
 Optional:
 
-- `gateway` (String) if `type`==`static`
-- `ip` (String) if `type`==`static`
-- `netmask` (String) if `type`==`static`
-- `node1` (Attributes) for HA Cluster, node1 can have different IP Config (see [below for nested schema](#nestedatt--oob_ip_config--node1))
+- `gateway` (String) If `type`==`static`
+- `ip` (String) If `type`==`static`
+- `netmask` (String) If `type`==`static`
+- `node1` (Attributes) For HA Cluster, node1 can have different IP Config (see [below for nested schema](#nestedatt--oob_ip_config--node1))
 - `type` (String) enum: `dhcp`, `static`
-- `use_mgmt_vrf` (Boolean) if supported on the platform. If enabled, DNS will be using this routing-instance, too
-- `use_mgmt_vrf_for_host_out` (Boolean) for host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired
+- `use_mgmt_vrf` (Boolean) If supported on the platform. If enabled, DNS will be using this routing-instance, too
+- `use_mgmt_vrf_for_host_out` (Boolean) For host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired
 - `vlan_id` (String)
 
 <a id="nestedatt--oob_ip_config--node1"></a>
@@ -469,12 +469,12 @@ Optional:
 
 Optional:
 
-- `gateway` (String) if `type`==`static`
+- `gateway` (String) If `type`==`static`
 - `ip` (String)
-- `netmask` (String) used only if `subnet` is not specified in `networks`
+- `netmask` (String) Used only if `subnet` is not specified in `networks`
 - `type` (String) enum: `dhcp`, `static`
-- `use_mgmt_vrf` (Boolean) if supported on the platform. If enabled, DNS will be using this routing-instance, too
-- `use_mgmt_vrf_for_host_out` (Boolean) whether to use `mgmt_junos` for host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired
+- `use_mgmt_vrf` (Boolean) If supported on the platform. If enabled, DNS will be using this routing-instance, too
+- `use_mgmt_vrf_for_host_out` (Boolean) Whether to use `mgmt_junos` for host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired
 - `vlan_id` (String)
 
 
@@ -494,15 +494,15 @@ Optional:
 
 - `cost` (Number)
 - `disabled` (Boolean) For SSR Only. `true`, if this specific path is undesired
-- `gateway_ip` (String) only if `type`==`local`, if a different gateway is desired
-- `internet_access` (Boolean) only if `type`==`vpn`, if this vpn path can be used for internet
-- `name` (String) required when 
+- `gateway_ip` (String) Only if `type`==`local`, if a different gateway is desired
+- `internet_access` (Boolean) Only if `type`==`vpn`, if this vpn path can be used for internet
+- `name` (String) Required when 
   * `type`==`vpn`: the name of the VPN Path to use 
-  * `type`==`wan`: the name of the WAN interface to use'
-- `networks` (List of String) required when `type`==`local`
-- `target_ips` (List of String) if `type`==`local`, if destination IP is to be replaced
+  * `type`==`wan`: the name of the WAN interface to use
+- `networks` (List of String) Required when `type`==`local`
+- `target_ips` (List of String) If `type`==`local`, if destination IP is to be replaced
 - `type` (String) enum: `local`, `tunnel`, `vpn`, `wan`
-- `wan_name` (String) optional if `type`==`vpn`
+- `wan_name` (String) Optional if `type`==`vpn`
 
 
 
@@ -515,38 +515,38 @@ Required:
 
 Optional:
 
-- `ae_disable_lacp` (Boolean) if `aggregated`==`true`. To disable LCP support for the AE interface
-- `ae_idx` (String) if `aggregated`==`true`. Users could force to use the designated AE name (must be an integer between 0 and 127)
+- `ae_disable_lacp` (Boolean) If `aggregated`==`true`. To disable LCP support for the AE interface
+- `ae_idx` (String) If `aggregated`==`true`. Users could force to use the designated AE name (must be an integer between 0 and 127)
 - `ae_lacp_force_up` (Boolean) For SRX Only, if `aggregated`==`true`.Sets the state of the interface as UP when the peer has limited LACP capability. Use case: When a device connected to this AE port is ZTPing for the first time, it will not have LACP configured on the other end. **Note:** Turning this on will enable force-up on one of the interfaces in the bundle only
 - `aggregated` (Boolean)
-- `critical` (Boolean) if want to generate port up/down alarm, set it to true
+- `critical` (Boolean) To generate port up/down alarm, set it to true
 - `description` (String) Interface Description. Can be a variable (i.e. "{{myvar}}")
 - `disable_autoneg` (Boolean)
-- `disabled` (Boolean) port admin up (true) / down (false)
+- `disabled` (Boolean) Port admin up (true) / down (false)
 - `dsl_type` (String) if `wan_type`==`dsl`. enum: `adsl`, `vdsl`
-- `dsl_vci` (Number) if `wan_type`==`dsl`, 16 bit int
-- `dsl_vpi` (Number) if `wan_type`==`dsl`, 8 bit int
+- `dsl_vci` (Number) If `wan_type`==`dsl`, 16 bit int
+- `dsl_vpi` (Number) If `wan_type`==`dsl`, 8 bit int
 - `duplex` (String) enum: `auto`, `full`, `half`
 - `ip_config` (Attributes) Junos IP Config (see [below for nested schema](#nestedatt--port_config--ip_config))
-- `lte_apn` (String) if `wan_type`==`lte`
+- `lte_apn` (String) If `wan_type`==`lte`
 - `lte_auth` (String) if `wan_type`==`lte`. enum: `chap`, `none`, `pap`
 - `lte_backup` (Boolean)
-- `lte_password` (String, Sensitive) if `wan_type`==`lte`
-- `lte_username` (String) if `wan_type`==`lte`
+- `lte_password` (String, Sensitive) If `wan_type`==`lte`
+- `lte_username` (String) If `wan_type`==`lte`
 - `mtu` (Number)
-- `name` (String) name that we'll use to derive config
+- `name` (String) Name that we'll use to derive config
 - `networks` (List of String) if `usage`==`lan`, name of the `mist_org_network` resource
-- `outer_vlan_id` (Number) for Q-in-Q
+- `outer_vlan_id` (Number) For Q-in-Q
 - `poe_disabled` (Boolean)
-- `port_network` (String) Only for SRX and if `usage`==`lan`, the Untagged VLAN Network
-- `preserve_dscp` (Boolean) whether to preserve dscp when sending traffic over VPN (SSR-only)
-- `redundant` (Boolean) if HA mode
-- `reth_idx` (Number) if HA mode
-- `reth_node` (String) if HA mode
+- `port_network` (String) Only for SRX and if `usage`==`lan`, the name of the Network to be used as the Untagged VLAN
+- `preserve_dscp` (Boolean) Whether to preserve dscp when sending traffic over VPN (SSR-only)
+- `redundant` (Boolean) If HA mode
+- `reth_idx` (Number) If HA mode
+- `reth_node` (String) If HA mode
 - `reth_nodes` (List of String) SSR only - supporting vlan-based redundancy (matching the size of `networks`)
 - `speed` (String)
-- `ssr_no_virtual_mac` (Boolean) when SSR is running as VM, this is required on certain hosting platforms
-- `svr_port_range` (String) for SSR only
+- `ssr_no_virtual_mac` (Boolean) When SSR is running as VM, this is required on certain hosting platforms
+- `svr_port_range` (String) For SSR only
 - `traffic_shaping` (Attributes) (see [below for nested schema](#nestedatt--port_config--traffic_shaping))
 - `vlan_id` (String)
 - `vpn_paths` (Attributes Map) Property key is the VPN name (see [below for nested schema](#nestedatt--port_config--vpn_paths))
@@ -563,15 +563,15 @@ Optional:
 
 Optional:
 
-- `dns` (List of String) except for out-of_band interface (vme/em0/fxp0)
-- `dns_suffix` (List of String) except for out-of_band interface (vme/em0/fxp0)
-- `gateway` (String) except for out-of_band interface (vme/em0/fxp0). Interface Default Gateway IP Address (i.e. "192.168.1.1") or a Variable (i.e. "{{myvar}}")
+- `dns` (List of String) Except for out-of_band interface (vme/em0/fxp0)
+- `dns_suffix` (List of String) Except for out-of_band interface (vme/em0/fxp0)
+- `gateway` (String) Except for out-of_band interface (vme/em0/fxp0). Interface Default Gateway IP Address (i.e. "192.168.1.1") or a Variable (i.e. "{{myvar}}")
 - `ip` (String) Interface IP Address (i.e. "192.168.1.8") or a Variable (i.e. "{{myvar}}")
-- `netmask` (String) used only if `subnet` is not specified in `networks`. Interface Netmask (i.e. "/24") or a Variable (i.e. "{{myvar}}")
-- `network` (String) optional, the network to be used for mgmt
-- `poser_password` (String, Sensitive) if `type`==`pppoe`
+- `netmask` (String) Used only if `subnet` is not specified in `networks`. Interface Netmask (i.e. "/24") or a Variable (i.e. "{{myvar}}")
+- `network` (String) Optional, the network to be used for mgmt
+- `poser_password` (String, Sensitive) If `type`==`pppoe`
 - `pppoe_auth` (String) if `type`==`pppoe`. enum: `chap`, `none`, `pap`
-- `pppoe_username` (String) if `type`==`pppoe`
+- `pppoe_username` (String) If `type`==`pppoe`
 - `type` (String) enum: `dhcp`, `pppoe`, `static`
 
 
@@ -630,8 +630,8 @@ Optional:
 
 Optional:
 
-- `disabled` (Boolean) or to disable the source-nat
-- `nat_pool` (String) if alternative nat_pool is desired
+- `disabled` (Boolean) Or to disable the source-nat
+- `nat_pool` (String) If alternative nat_pool is desired
 
 
 
@@ -647,7 +647,7 @@ Optional:
 
 Optional:
 
-- `action` (Attributes) when used as import policy (see [below for nested schema](#nestedatt--routing_policies--terms--action))
+- `action` (Attributes) When used as import policy (see [below for nested schema](#nestedatt--routing_policies--terms--action))
 - `matching` (Attributes) zero or more criteria/filter can be specified to match the term, all criteria have to be met (see [below for nested schema](#nestedatt--routing_policies--terms--matching))
 
 <a id="nestedatt--routing_policies--terms--action"></a>
@@ -657,14 +657,14 @@ Optional:
 
 - `accept` (Boolean)
 - `add_community` (List of String)
-- `add_target_vrfs` (List of String) for SSR, hub decides how VRF routes are leaked on spoke
+- `add_target_vrfs` (List of String) For SSR, hub decides how VRF routes are leaked on spoke
 - `aggregate` (List of String) route aggregation
-- `community` (List of String) when used as export policy, optional
-- `exclude_as_path` (List of String) when used as export policy, optional. To exclude certain AS
+- `community` (List of String) When used as export policy, optional
+- `exclude_as_path` (List of String) When used as export policy, optional. To exclude certain AS
 - `exclude_community` (List of String)
-- `export_communitites` (List of String) when used as export policy, optional
-- `local_preference` (String) optional, for an import policy, local_preference can be changed
-- `prepend_as_path` (List of String) when used as export policy, optional. By default, the local AS will be prepended, to change it
+- `export_communitites` (List of String) When used as export policy, optional
+- `local_preference` (String) Optional, for an import policy, local_preference can be changed
+- `prepend_as_path` (List of String) When used as export policy, optional. By default, the local AS will be prepended, to change it
 
 
 <a id="nestedatt--routing_policies--terms--matching"></a>
@@ -688,7 +688,7 @@ Optional:
 Optional:
 
 - `route` (String)
-- `vrf_name` (String) name of the vrf instance, it can also be the name of the VPN or wan if they
+- `vrf_name` (String) Name of the vrf instance, it can also be the name of the VPN or wan if they
 
 
 <a id="nestedatt--routing_policies--terms--matching--vpn_path_sla"></a>
@@ -715,8 +715,8 @@ Optional:
 - `idp` (Attributes) (see [below for nested schema](#nestedatt--service_policies--idp))
 - `local_routing` (Boolean) access within the same VRF
 - `name` (String) Required when `servicepolicy_id` is not defined, optional otherwise (override the servicepolicy name)
-- `path_preference` (String) by default, we derive all paths available and use them. Optionally, you can customize by using `path_preference`
-- `servicepolicy_id` (String) used to link servicepolicy defined at org level and overwrite some attributes
+- `path_preference` (String) By default, we derive all paths available and use them. Optionally, you can customize by using `path_preference`
+- `servicepolicy_id` (String) Used to link servicepolicy defined at org level and overwrite some attributes
 - `services` (List of String) Required when `servicepolicy_id` is not defined. List of Applications / Desctinations
 - `tenants` (List of String) Required when `servicepolicy_id` is not defined. List of Networks / Users
 
@@ -747,7 +747,7 @@ Optional:
 - `alert_only` (Boolean)
 - `enabled` (Boolean)
 - `idpprofile_id` (String) org_level IDP Profile can be used, this takes precedence over `profile`
-- `profile` (String) enum: `Custom`, `strict` (default), `standard` or keys from from idp_profiles
+- `profile` (String) enum: `Custom`, `strict` (default), `standard` or keys from idp_profiles
 
 
 
@@ -759,12 +759,12 @@ Optional:
 - `auto_provision` (Attributes) (see [below for nested schema](#nestedatt--tunnel_configs--auto_provision))
 - `ike_lifetime` (Number) Only if `provider`==`custom-ipsec`. Must be between 180 and 86400
 - `ike_mode` (String) Only if `provider`==`custom-ipsec`. enum: `aggressive`, `main`
-- `ike_proposals` (Attributes List) if `provider`==`custom-ipsec` (see [below for nested schema](#nestedatt--tunnel_configs--ike_proposals))
+- `ike_proposals` (Attributes List) If `provider`==`custom-ipsec` (see [below for nested schema](#nestedatt--tunnel_configs--ike_proposals))
 - `ipsec_lifetime` (Number) Only if `provider`==`custom-ipsec`. Must be between 180 and 86400
 - `ipsec_proposals` (Attributes List) Only if  `provider`==`custom-ipsec` (see [below for nested schema](#nestedatt--tunnel_configs--ipsec_proposals))
 - `local_id` (String) Required if `provider`==`zscaler-ipsec`, `provider`==`jse-ipsec` or `provider`==`custom-ipsec`
 - `mode` (String) Required if `provider`==`zscaler-gre`, `provider`==`jse-ipsec`. enum: `active-active`, `active-standby`
-- `networks` (List of String) if `provider`==`custom-ipsec`, networks reachable via this tunnel
+- `networks` (List of String) If `provider`==`custom-ipsec`, networks reachable via this tunnel
 - `primary` (Attributes) Only if `provider`==`zscaler-ipsec`, `provider`==`jse-ipsec` or `provider`==`custom-ipsec` (see [below for nested schema](#nestedatt--tunnel_configs--primary))
 - `probe` (Attributes) Only if `provider`==`custom-ipsec` (see [below for nested schema](#nestedatt--tunnel_configs--probe))
 - `protocol` (String) Only if `provider`==`custom-ipsec`. enum: `gre`, `ipsec`
@@ -803,7 +803,7 @@ Required:
 Optional:
 
 - `probe_ips` (List of String)
-- `wan_names` (List of String) optional, only needed if `vars_only`==`false`
+- `wan_names` (List of String) Optional, only needed if `vars_only`==`false`
 
 
 <a id="nestedatt--tunnel_configs--auto_provision--secondary"></a>
@@ -812,7 +812,7 @@ Optional:
 Optional:
 
 - `probe_ips` (List of String)
-- `wan_names` (List of String) optional, only needed if `vars_only`==`false`
+- `wan_names` (List of String) Optional, only needed if `vars_only`==`false`
 
 
 
@@ -876,9 +876,9 @@ Optional:
 
 Optional:
 
-- `interval` (Number) how often to trigger the probe
-- `threshold` (Number) number of consecutive misses before declaring the tunnel down
-- `timeout` (Number) time within which to complete the connectivity check
+- `interval` (Number) How often to trigger the probe
+- `threshold` (Number) Number of consecutive misses before declaring the tunnel down
+- `timeout` (Number) Time within which to complete the connectivity check
 - `type` (String) enum: `http`, `icmp`
 
 
@@ -903,8 +903,8 @@ Optional:
 
 Optional:
 
-- `jse` (Attributes) for jse-ipsec, this allow provisioning of adequate resource on JSE. Make sure adequate licenses are added (see [below for nested schema](#nestedatt--tunnel_provider_options--jse))
-- `zscaler` (Attributes) for zscaler-ipsec and zscaler-gre (see [below for nested schema](#nestedatt--tunnel_provider_options--zscaler))
+- `jse` (Attributes) For jse-ipsec, this allows provisioning of adequate resource on JSE. Make sure adequate licenses are added (see [below for nested schema](#nestedatt--tunnel_provider_options--jse))
+- `zscaler` (Attributes) For zscaler-ipsec and zscaler-gre (see [below for nested schema](#nestedatt--tunnel_provider_options--zscaler))
 
 <a id="nestedatt--tunnel_provider_options--jse"></a>
 ### Nested Schema for `tunnel_provider_options.jse`
@@ -922,19 +922,19 @@ Optional:
 
 - `aup_block_internet_until_accepted` (Boolean)
 - `aup_enabled` (Boolean) Can only be `true` when `auth_required`==`false`, display Acceptable Use Policy (AUP)
-- `aup_force_ssl_inspection` (Boolean) proxy HTTPs traffic, requiring Zscaler cert to be installed in browser
+- `aup_force_ssl_inspection` (Boolean) Proxy HTTPs traffic, requiring Zscaler cert to be installed in browser
 - `aup_timeout_in_days` (Number) Required if `aup_enabled`==`true`. Days before AUP is requested again
 - `auth_required` (Boolean) Enable this option to enforce user authentication
 - `caution_enabled` (Boolean) Can only be `true` when `auth_required`==`false`, display caution notification for non-authenticated users
-- `dn_bandwidth` (Number) the download bandwidth cap of the link, in Mbps. Disabled if not set
+- `dn_bandwidth` (Number) Download bandwidth cap of the link, in Mbps. Disabled if not set
 - `idle_time_in_minutes` (Number) Required if `surrogate_IP`==`true`, idle Time to Disassociation
-- `ofw_enabled` (Boolean) if `true`, enable the firewall control option
+- `ofw_enabled` (Boolean) If `true`, enable the firewall control option
 - `sub_locations` (Attributes List) `sub-locations` can be used for specific uses cases to define different configuration based on the user network (see [below for nested schema](#nestedatt--tunnel_provider_options--zscaler--sub_locations))
 - `surrogate_ip` (Boolean) Can only be `true` when `auth_required`==`true`. Map a user to a private IP address so it applies the user's policies, instead of the location's policies
 - `surrogate_ip_enforced_for_known_browsers` (Boolean) Can only be `true` when `surrogate_IP`==`true`, enforce surrogate IP for known browsers
 - `surrogate_refresh_time_in_minutes` (Number) Required if `surrogate_IP_enforced_for_known_browsers`==`true`, must be lower or equal than `idle_time_in_minutes`, refresh Time for re-validation of Surrogacy
-- `up_bandwidth` (Number) the download bandwidth cap of the link, in Mbps. Disabled if not set
-- `xff_forward_enabled` (Boolean) location uses proxy chaining to forward traffic
+- `up_bandwidth` (Number) Download bandwidth cap of the link, in Mbps. Disabled if not set
+- `xff_forward_enabled` (Boolean) Location uses proxy chaining to forward traffic
 
 <a id="nestedatt--tunnel_provider_options--zscaler--sub_locations"></a>
 ### Nested Schema for `tunnel_provider_options.zscaler.sub_locations`
@@ -943,18 +943,18 @@ Optional:
 
 - `aup_block_internet_until_accepted` (Boolean)
 - `aup_enabled` (Boolean) Can only be `true` when `auth_required`==`false`, display Acceptable Use Policy (AUP)
-- `aup_force_ssl_inspection` (Boolean) proxy HTTPs traffic, requiring Zscaler cert to be installed in browser
+- `aup_force_ssl_inspection` (Boolean) Proxy HTTPs traffic, requiring Zscaler cert to be installed in browser
 - `aup_timeout_in_days` (Number) Required if `aup_enabled`==`true`. Days before AUP is requested again
 - `auth_required` (Boolean) Enable this option to authenticate users
 - `caution_enabled` (Boolean) Can only be `true` when `auth_required`==`false`, display caution notification for non-authenticated users
-- `dn_bandwidth` (Number) the download bandwidth cap of the link, in Mbps. Disabled if not set
+- `dn_bandwidth` (Number) Download bandwidth cap of the link, in Mbps. Disabled if not set
 - `idle_time_in_minutes` (Number) Required if `surrogate_IP`==`true`, idle Time to Disassociation
 - `name` (String) Network name
-- `ofw_enabled` (Boolean) if `true`, enable the firewall control option
+- `ofw_enabled` (Boolean) If `true`, enable the firewall control option
 - `surrogate_ip` (Boolean) Can only be `true` when `auth_required`==`true`. Map a user to a private IP address so it applies the user's policies, instead of the location's policies
 - `surrogate_ip_enforced_for_known_browsers` (Boolean) Can only be `true` when `surrogate_IP`==`true`, enforce surrogate IP for known browsers
 - `surrogate_refresh_time_in_minutes` (Number) Required if `surrogate_IP_enforced_for_known_browsers`==`true`, must be lower or equal than `idle_time_in_minutes`, refresh Time for re-validation of Surrogacy
-- `up_bandwidth` (Number) the download bandwidth cap of the link, in Mbps. Disabled if not set
+- `up_bandwidth` (Number) Download bandwidth cap of the link, in Mbps. Disabled if not set
 
 
 
@@ -964,7 +964,7 @@ Optional:
 
 Optional:
 
-- `enabled` (Boolean) whether to enable VRF (when supported on the device)
+- `enabled` (Boolean) Whether to enable VRF (when supported on the device)
 
 
 <a id="nestedatt--vrf_instances"></a>

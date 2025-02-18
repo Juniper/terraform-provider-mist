@@ -3,7 +3,7 @@ page_title: "mist_site_setting Resource - terraform-provider-mist"
 subcategory: "Site"
 description: |-
   This resource manages the Site Settings.
-  The Site Settings can used to customize the Site configuration and assign Site Variables (Sites Variables can be reused in configuration templates)
+  The Site Settings can be used to customize the Site configuration and assign Site Variables (Sites Variables can be reused in configuration templates)
   ~> When using the Mist APIs, all the switch settings defined at the site level are stored under the site settings with all the rest of the site configuration (/api/v1/sites/{site_id}/setting Mist API Endpoint). To simplify this resource, all the site level switches related settings are moved into the mist_site_networktemplate resource
   !> Only ONE mist_site_setting resource can be configured per site. If multiple ones are configured, only the last one defined we be succesfully deployed to Mist
 ---
@@ -12,7 +12,7 @@ description: |-
 
 This resource manages the Site Settings.
 
-The Site Settings can used to customize the Site configuration and assign Site Variables (Sites Variables can be reused in configuration templates)
+The Site Settings can be used to customize the Site configuration and assign Site Variables (Sites Variables can be reused in configuration templates)
 
 ~> When using the Mist APIs, all the switch settings defined at the site level are stored under the site settings with all the rest of the site configuration (`/api/v1/sites/{site_id}/setting` Mist API Endpoint). To simplify this resource, all the site level switches related settings are moved into the `mist_site_networktemplate` resource
 
@@ -55,37 +55,37 @@ resource "mist_site_setting" "site_one" {
 ### Optional
 
 - `analytic` (Attributes) (see [below for nested schema](#nestedatt--analytic))
-- `ap_updown_threshold` (Number) enable threshold-based device down delivery for AP devices only. When configured it takes effect for AP devices and `device_updown_threshold` is ignored.
+- `ap_updown_threshold` (Number) Enable threshold-based device down delivery for AP devices only. When configured it takes effect for AP devices and `device_updown_threshold` is ignored.
 - `auto_upgrade` (Attributes) Auto Upgrade Settings (see [below for nested schema](#nestedatt--auto_upgrade))
 - `ble_config` (Attributes) BLE AP settings (see [below for nested schema](#nestedatt--ble_config))
-- `config_auto_revert` (Boolean) whether to enable ap auto config revert
-- `config_push_policy` (Attributes) mist also uses some heuristic rules to prevent destructive configs from being pushed (see [below for nested schema](#nestedatt--config_push_policy))
-- `critical_url_monitoring` (Attributes) you can define some URLs that's critical to site operaitons the latency will be captured and considered for site health (see [below for nested schema](#nestedatt--critical_url_monitoring))
-- `device_updown_threshold` (Number) by default, device_updown_thresold, if set, will apply to all devices types if different values for specific device type is desired, use the following
-- `engagement` (Attributes) **Note**: if hours does not exist, it's treated as everyday of the week, 00:00-23:59. Currently we don't allow multiple ranges for the same day (see [below for nested schema](#nestedatt--engagement))
+- `config_auto_revert` (Boolean) Whether to enable ap auto config revert
+- `config_push_policy` (Attributes) Mist also uses some heuristic rules to prevent destructive configs from being pushed (see [below for nested schema](#nestedatt--config_push_policy))
+- `critical_url_monitoring` (Attributes) You can define some URLs that's critical to site operations the latency will be captured and considered for site health (see [below for nested schema](#nestedatt--critical_url_monitoring))
+- `device_updown_threshold` (Number) By default, device_updown_thresold, if set, will apply to all devices types if different values for specific device type is desired, use the following
+- `engagement` (Attributes) **Note**: if hours does not exist, it's treated as everyday of the week, 00:00-23:59. Currently, we don't allow multiple ranges for the same day (see [below for nested schema](#nestedatt--engagement))
 - `gateway_mgmt` (Attributes) Gateway Site settings (see [below for nested schema](#nestedatt--gateway_mgmt))
-- `gateway_updown_threshold` (Number) enable threshold-based device down delivery for Gateway devices only. When configured it takes effect for GW devices and `device_updown_threshold` is ignored.
+- `gateway_updown_threshold` (Number) Enable threshold-based device down delivery for Gateway devices only. When configured it takes effect for GW devices and `device_updown_threshold` is ignored.
 - `juniper_srx` (Attributes) (see [below for nested schema](#nestedatt--juniper_srx))
 - `led` (Attributes) LED AP settings (see [below for nested schema](#nestedatt--led))
 - `occupancy` (Attributes) Occupancy Analytics settings (see [below for nested schema](#nestedatt--occupancy))
-- `persist_config_on_device` (Boolean) whether to store the config on AP
+- `persist_config_on_device` (Boolean) Whether to store the config on AP
 - `proxy` (Attributes) Proxy Configuration to talk to Mist (see [below for nested schema](#nestedatt--proxy))
-- `remove_existing_configs` (Boolean) by default, when we configure a device, we only clean up config we generates. Remove existing configs if enabled
-- `report_gatt` (Boolean) whether AP should periodically connect to BLE devices and report GATT device info (device name, manufacturer name, serial number, battery %, temperature, humidity)
+- `remove_existing_configs` (Boolean) By default, when we configure a device, we only clean up config we generate. Remove existing configs if enabled
+- `report_gatt` (Boolean) Whether AP should periodically connect to BLE devices and report GATT device info (device name, manufacturer name, serial number, battery %, temperature, humidity)
 - `rogue` (Attributes) Rogue site settings (see [below for nested schema](#nestedatt--rogue))
-- `rtsa` (Attributes) managed mobility (see [below for nested schema](#nestedatt--rtsa))
+- `rtsa` (Attributes) Managed mobility (see [below for nested schema](#nestedatt--rtsa))
 - `simple_alert` (Attributes) Set of heuristic rules will be enabled when marvis subscription is not available. It triggers when, in a Z minute window, there are more than Y distinct client encountring over X failures (see [below for nested schema](#nestedatt--simple_alert))
 - `skyatp` (Attributes) (see [below for nested schema](#nestedatt--skyatp))
 - `srx_app` (Attributes) (see [below for nested schema](#nestedatt--srx_app))
-- `ssh_keys` (List of String) when limit_ssh_access = true in Org Setting, list of SSH public keys provided by Mist Support to install onto APs (see Org:Setting)
+- `ssh_keys` (List of String) When limit_ssh_access = true in Org Setting, list of SSH public keys provided by Mist Support to install onto APs (see Org:Setting)
 - `ssr` (Attributes) (see [below for nested schema](#nestedatt--ssr))
-- `switch_updown_threshold` (Number) enable threshold-based device down delivery for Switch devices only. When configured it takes effect for SW devices and `device_updown_threshold` is ignored.
+- `switch_updown_threshold` (Number) Enable threshold-based device down delivery for Switch devices only. When configured it takes effect for SW devices and `device_updown_threshold` is ignored.
 - `synthetic_test` (Attributes) (see [below for nested schema](#nestedatt--synthetic_test))
-- `track_anonymous_devices` (Boolean) whether to track anonymous BLE assets (requires ‘track_asset’  enabled)
+- `track_anonymous_devices` (Boolean) Whether to track anonymous BLE assets (requires ‘track_asset’  enabled)
 - `uplink_port_config` (Attributes) AP Uplink port configuration (see [below for nested schema](#nestedatt--uplink_port_config))
-- `vars` (Map of String) a dictionary of name->value, the vars can then be used in Wlans. This can overwrite those from Site Vars
+- `vars` (Map of String) Dictionary of name->value, the vars can then be used in Wlans. This can overwrite those from Site Vars
 - `vna` (Attributes) (see [below for nested schema](#nestedatt--vna))
-- `vs_instance` (Attributes Map) optional, for EX9200 only to seggregate virtual-switches. Property key is the instance name (see [below for nested schema](#nestedatt--vs_instance))
+- `vs_instance` (Attributes Map) Optional, for EX9200 only to seggregate virtual-switches. Property key is the instance name (see [below for nested schema](#nestedatt--vs_instance))
 - `wan_vna` (Attributes) (see [below for nested schema](#nestedatt--wan_vna))
 - `wids` (Attributes) WIDS site settings (see [below for nested schema](#nestedatt--wids))
 - `wifi` (Attributes) Wi-Fi site settings (see [below for nested schema](#nestedatt--wifi))
@@ -103,7 +103,7 @@ resource "mist_site_setting" "site_one" {
 
 Optional:
 
-- `enabled` (Boolean) enable Advanced Analytic feature (using SUB-ANA license)
+- `enabled` (Boolean) Enable Advanced Analytic feature (using SUB-ANA license)
 
 
 <a id="nestedatt--auto_upgrade"></a>
@@ -111,10 +111,10 @@ Optional:
 
 Optional:
 
-- `custom_versions` (Map of String) custom versions for different models. Property key is the model name (e.g. "AP41")
+- `custom_versions` (Map of String) Custom versions for different models. Property key is the model name (e.g. "AP41")
 - `day_of_week` (String) enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`
-- `enabled` (Boolean) whether auto upgrade should happen (Note that Mist may auto-upgrade if the version is not supported)
-- `time_of_day` (String) any / HH:MM (24-hour format), upgrade will happen within up to 1-hour from this time
+- `enabled` (Boolean) Whether auto upgrade should happen (Note that Mist may auto-upgrade if the version is not supported)
+- `time_of_day` (String) `any` / HH:MM (24-hour format), upgrade will happen within up to 1-hour from this time
 - `version` (String) desired version. enum: `beta`, `custom`, `stable`
 
 
@@ -123,32 +123,32 @@ Optional:
 
 Optional:
 
-- `beacon_enabled` (Boolean) whether Mist beacons is enabled
-- `beacon_rate` (Number) required if `beacon_rate_mode`==`custom`, 1-10, in number-beacons-per-second
+- `beacon_enabled` (Boolean) Whether Mist beacons is enabled
+- `beacon_rate` (Number) Required if `beacon_rate_mode`==`custom`, 1-10, in number-beacons-per-second
 - `beacon_rate_mode` (String) enum: `custom`, `default`
-- `beam_disabled` (List of Number) list of AP BLE location beam numbers (1-8) which should be disabled at the AP and not transmit location information (where beam 1 is oriented at the top the AP, growing counter-clock-wise, with 9 being the omni BLE beam)
-- `custom_ble_packet_enabled` (Boolean) can be enabled if `beacon_enabled`==`true`, whether to send custom packet
+- `beam_disabled` (List of Number) List of AP BLE location beam numbers (1-8) which should be disabled at the AP and not transmit location information (where beam 1 is oriented at the top the AP, growing counter-clock-wise, with 9 being the omni BLE beam)
+- `custom_ble_packet_enabled` (Boolean) Can be enabled if `beacon_enabled`==`true`, whether to send custom packet
 - `custom_ble_packet_frame` (String) The custom frame to be sent out in this beacon. The frame must be a hexstring
 - `custom_ble_packet_freq_msec` (Number) Frequency (msec) of data emitted by custom ble beacon
-- `eddystone_uid_adv_power` (Number) advertised TX Power, -100 to 20 (dBm), omit this attribute to use default
+- `eddystone_uid_adv_power` (Number) Advertised TX Power, -100 to 20 (dBm), omit this attribute to use default
 - `eddystone_uid_beams` (String)
-- `eddystone_uid_enabled` (Boolean) only if `beacon_enabled`==`false`, Whether Eddystone-UID beacon is enabled
+- `eddystone_uid_enabled` (Boolean) Only if `beacon_enabled`==`false`, Whether Eddystone-UID beacon is enabled
 - `eddystone_uid_freq_msec` (Number) Frequency (msec) of data emmit by Eddystone-UID beacon
 - `eddystone_uid_instance` (String) Eddystone-UID instance for the device
 - `eddystone_uid_namespace` (String) Eddystone-UID namespace
-- `eddystone_url_adv_power` (Number) advertised TX Power, -100 to 20 (dBm), omit this attribute to use default
+- `eddystone_url_adv_power` (Number) Advertised TX Power, -100 to 20 (dBm), omit this attribute to use default
 - `eddystone_url_beams` (String)
-- `eddystone_url_enabled` (Boolean) only if `beacon_enabled`==`false`, Whether Eddystone-URL beacon is enabled
+- `eddystone_url_enabled` (Boolean) Only if `beacon_enabled`==`false`, Whether Eddystone-URL beacon is enabled
 - `eddystone_url_freq_msec` (Number) Frequency (msec) of data emit by Eddystone-UID beacon
 - `eddystone_url_url` (String) URL pointed by Eddystone-URL beacon
-- `ibeacon_adv_power` (Number) advertised TX Power, -100 to 20 (dBm), omit this attribute to use default
+- `ibeacon_adv_power` (Number) Advertised TX Power, -100 to 20 (dBm), omit this attribute to use default
 - `ibeacon_beams` (String)
-- `ibeacon_enabled` (Boolean) can be enabled if `beacon_enabled`==`true`, whether to send iBeacon
+- `ibeacon_enabled` (Boolean) Can be enabled if `beacon_enabled`==`true`, whether to send iBeacon
 - `ibeacon_freq_msec` (Number) Frequency (msec) of data emmit for iBeacon
 - `ibeacon_major` (Number) Major number for iBeacon
 - `ibeacon_minor` (Number) Minor number for iBeacon
-- `ibeacon_uuid` (String) optional, if not specified, the same UUID as the beacon will be used
-- `power` (Number) required if `power_mode`==`custom`; else use `power_mode` as default
+- `ibeacon_uuid` (String) Optional, if not specified, the same UUID as the beacon will be used
+- `power` (Number) Required if `power_mode`==`custom`; else use `power_mode` as default
 - `power_mode` (String) enum: `custom`, `default`
 
 
@@ -157,8 +157,8 @@ Optional:
 
 Optional:
 
-- `no_push` (Boolean) stop any new config from being pushed to the device
-- `push_window` (Attributes) if enabled, new config will only be pushed to device within the specified time window (see [below for nested schema](#nestedatt--config_push_policy--push_window))
+- `no_push` (Boolean) Stop any new config from being pushed to the device
+- `push_window` (Attributes) If enabled, new config will only be pushed to device within the specified time window (see [below for nested schema](#nestedatt--config_push_policy--push_window))
 
 <a id="nestedatt--config_push_policy--push_window"></a>
 ### Nested Schema for `config_push_policy.push_window`
@@ -207,10 +207,10 @@ Optional:
 
 Optional:
 
-- `dwell_tag_names` (Attributes) name associated to each tag (see [below for nested schema](#nestedatt--engagement--dwell_tag_names))
+- `dwell_tag_names` (Attributes) Name associated to each tag (see [below for nested schema](#nestedatt--engagement--dwell_tag_names))
 - `dwell_tags` (Attributes) add tags to visits within the duration (in seconds) (see [below for nested schema](#nestedatt--engagement--dwell_tags))
 - `hours` (Attributes) Days/Hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun) (see [below for nested schema](#nestedatt--engagement--hours))
-- `max_dwell` (Number) max time, default is 43200(12h), max is 68400 (18h)
+- `max_dwell` (Number) Max time, default is 43200(12h), max is 68400 (18h)
 - `min_dwell` (Number) min time
 
 <a id="nestedatt--engagement--dwell_tag_names"></a>
@@ -255,18 +255,18 @@ Optional:
 
 Optional:
 
-- `admin_sshkeys` (List of String) for SSR only, as direct root access is not allowed
+- `admin_sshkeys` (List of String) For SSR only, as direct root access is not allowed
 - `app_probing` (Attributes) (see [below for nested schema](#nestedatt--gateway_mgmt--app_probing))
-- `app_usage` (Boolean) consumes uplink bandwidth, requires WA license
+- `app_usage` (Boolean) Consumes uplink bandwidth, requires WA license
 - `auto_signature_update` (Attributes) (see [below for nested schema](#nestedatt--gateway_mgmt--auto_signature_update))
-- `config_revert_timer` (Number) he rollback timer for commit confirmed
-- `disable_console` (Boolean) for both SSR and SRX disable console port
-- `disable_oob` (Boolean) for both SSR and SRX disable management interface
+- `config_revert_timer` (Number) Rollback timer for commit confirmed
+- `disable_console` (Boolean) For both SSR and SRX disable console port
+- `disable_oob` (Boolean) For both SSR and SRX disable management interface
 - `probe_hosts` (List of String)
-- `protect_re` (Attributes) restrict inbound-traffic to host
+- `protect_re` (Attributes) Restrict inbound-traffic to host
 when enabled, all traffic that is not essential to our operation will be dropped 
 e.g. ntp / dns / traffic to mist will be allowed by default, if dhcpd is enabled, we'll make sure it works (see [below for nested schema](#nestedatt--gateway_mgmt--protect_re))
-- `root_password` (String, Sensitive) for SRX only
+- `root_password` (String, Sensitive) For SRX only
 - `security_log_source_address` (String)
 - `security_log_source_interface` (String)
 
@@ -275,7 +275,7 @@ e.g. ntp / dns / traffic to mist will be allowed by default, if dhcpd is enabled
 
 Optional:
 
-- `apps` (List of String) app-keys from /api/v1/const/applications
+- `apps` (List of String) APp-keys from /api/v1/const/applications
 - `custom_apps` (Attributes List) (see [below for nested schema](#nestedatt--gateway_mgmt--app_probing--custom_apps))
 - `enabled` (Boolean)
 
@@ -294,7 +294,7 @@ Optional:
 
 - `app_type` (String)
 - `network` (String)
-- `packet_size` (Number) if `protocol`==`icmp`
+- `packet_size` (Number) If `protocol`==`icmp`
 - `vrf` (String)
 
 Read-Only:
@@ -312,7 +312,7 @@ Optional:
 
 - `day_of_week` (String) enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`
 - `enable` (Boolean)
-- `time_of_day` (String) optional, Mist will decide the timing
+- `time_of_day` (String) Optional, Mist will decide the timing
 
 
 <a id="nestedatt--gateway_mgmt--protect_re"></a>
@@ -322,7 +322,7 @@ Optional:
 
 - `allowed_services` (List of String) optionally, services we'll allow. enum: `icmp`, `ssh`
 - `custom` (Attributes List) (see [below for nested schema](#nestedatt--gateway_mgmt--protect_re--custom))
-- `enabled` (Boolean) when enabled, all traffic that is not essential to our operation will be dropped
+- `enabled` (Boolean) When enabled, all traffic that is not essential to our operation will be dropped
 e.g. ntp / dns / traffic to mist will be allowed by default
      if dhcpd is enabled, we'll make sure it works
 - `trusted_hosts` (List of String) host/subnets we'll allow traffic to/from
@@ -374,11 +374,11 @@ Optional:
 
 Optional:
 
-- `assets_enabled` (Boolean) indicate whether named BLE assets should be included in the zone occupancy calculation
-- `clients_enabled` (Boolean) indicate whether connected WiFi clients should be included in the zone occupancy calculation
-- `min_duration` (Number) minimum duration
-- `sdkclients_enabled` (Boolean) indicate whether SDK clients should be included in the zone occupancy calculation
-- `unconnected_clients_enabled` (Boolean) indicate whether unconnected WiFi clients should be included in the zone occupancy calculation
+- `assets_enabled` (Boolean) Indicate whether named BLE assets should be included in the zone occupancy calculation
+- `clients_enabled` (Boolean) Indicate whether connected WiFi clients should be included in the zone occupancy calculation
+- `min_duration` (Number) Minimum duration
+- `sdkclients_enabled` (Boolean) Indicate whether SDK clients should be included in the zone occupancy calculation
+- `unconnected_clients_enabled` (Boolean) Indicate whether unconnected WiFi clients should be included in the zone occupancy calculation
 
 
 <a id="nestedatt--proxy"></a>
@@ -394,12 +394,12 @@ Optional:
 
 Optional:
 
-- `enabled` (Boolean) whether or not rogue detection is enabled
-- `honeypot_enabled` (Boolean) whether or not honeypot detection is enabled
-- `min_duration` (Number) minimum duration for a bssid to be considered rogue
-- `min_rssi` (Number) minimum RSSI for an AP to be considered rogue (ignoring APs that’s far away)
+- `enabled` (Boolean) Whether rogue detection is enabled
+- `honeypot_enabled` (Boolean) Whether honeypot detection is enabled
+- `min_duration` (Number) Minimum duration for a bssid to be considered rogue
+- `min_rssi` (Number) Minimum RSSI for an AP to be considered rogue (ignoring APs that’s far away)
 - `whitelisted_bssids` (List of String) list of BSSIDs to whitelist. Ex: "cc-:8e-:6f-:d4-:bf-:16", "cc-8e-6f-d4-bf-16", "cc-73-*", "cc:82:*"
-- `whitelisted_ssids` (List of String) list of SSIDs to whitelist
+- `whitelisted_ssids` (List of String) List of SSIDs to whitelist
 
 
 <a id="nestedatt--rtsa"></a>
@@ -411,7 +411,7 @@ Optional:
 - `disable_dead_reckoning` (Boolean)
 - `disable_pressure_sensor` (Boolean)
 - `enabled` (Boolean)
-- `track_asset` (Boolean) asset tracking related
+- `track_asset` (Boolean) Asset tracking related
 
 
 <a id="nestedatt--simple_alert"></a>
@@ -460,7 +460,7 @@ Optional:
 Optional:
 
 - `enabled` (Boolean)
-- `send_ip_mac_mapping` (Boolean) whether to send IP-MAC mapping to SkyATP
+- `send_ip_mac_mapping` (Boolean) Whether to send IP-MAC mapping to SkyATP
 
 
 <a id="nestedatt--srx_app"></a>
@@ -495,7 +495,7 @@ Optional:
 Optional:
 
 - `custom_test_urls` (List of String)
-- `disabled` (Boolean) for some vlans where we don't want this to run
+- `disabled` (Boolean) For some vlans where we don't want this to run
 - `vlan_ids` (List of String)
 
 
@@ -505,7 +505,7 @@ Optional:
 Optional:
 
 - `enabled` (Boolean)
-- `time_of_day` (String) any / HH:MM (24-hour format)
+- `time_of_day` (String) `any` / HH:MM (24-hour format)
 
 
 
@@ -515,7 +515,7 @@ Optional:
 Optional:
 
 - `dot1x` (Boolean) Whether to do 802.1x against uplink switch. When enaled, AP cert will be used to do EAP-TLS and the Org's CA Cert has to be provisioned at the switch
-- `keep_wlans_up_if_down` (Boolean) by default, WLANs are disabled when uplink is down. In some scenario, like SiteSurvey, one would want the AP to keep sending beacons.
+- `keep_wlans_up_if_down` (Boolean) By default, WLANs are disabled when uplink is down. In some scenario, like SiteSurvey, one would want the AP to keep sending beacons.
 
 
 <a id="nestedatt--vna"></a>
@@ -523,7 +523,7 @@ Optional:
 
 Optional:
 
-- `enabled` (Boolean) enable Virtual Network Assistant (using SUB-VNA license). This applied to AP / Switch / Gateway
+- `enabled` (Boolean) Enable Virtual Network Assistant (using SUB-VNA license). This applied to AP / Switch / Gateway
 
 
 <a id="nestedatt--vs_instance"></a>
@@ -554,8 +554,8 @@ Optional:
 
 Optional:
 
-- `duration` (Number) window where a trigger will be detected and action to be taken (in seconds)
-- `threshold` (Number) count of events to trigger
+- `duration` (Number) Window where a trigger will be detected and action to be taken (in seconds)
+- `threshold` (Number) Count of events to trigger
 
 
 
@@ -565,18 +565,18 @@ Optional:
 Optional:
 
 - `cisco_enabled` (Boolean)
-- `disable_11k` (Boolean) whether to disable 11k
+- `disable_11k` (Boolean) Whether to disable 11k
 - `disable_radios_when_power_constrained` (Boolean)
-- `enable_arp_spoof_check` (Boolean) when proxy_arp is enabled, check for arp spoofing.
+- `enable_arp_spoof_check` (Boolean) When proxy_arp is enabled, check for arp spoofing.
 - `enable_shared_radio_scanning` (Boolean)
-- `enabled` (Boolean) enable WIFI feature (using SUB-MAN license)
-- `locate_connected` (Boolean) whether to locate connected clients
-- `locate_unconnected` (Boolean) whether to locate unconnected clients
-- `mesh_allow_dfs` (Boolean) whether to allow Mesh to use DFS channels. For DFS channels, Remote Mesh AP would have to do CAC when scanning for new Base AP, which is slow and will distrupt the connection. If roaming is desired, keep it disabled.
-- `mesh_enable_crm` (Boolean) used to enable/disable CRM
-- `mesh_enabled` (Boolean) whether to enable Mesh feature for the site
-- `mesh_psk` (String, Sensitive) optional passphrase of mesh networking, default is generated randomly
-- `mesh_ssid` (String) optional ssid of mesh networking, default is based on site_id
+- `enabled` (Boolean) Enable Wi-Fi feature (using SUB-MAN license)
+- `locate_connected` (Boolean) Whether to locate connected clients
+- `locate_unconnected` (Boolean) Whether to locate unconnected clients
+- `mesh_allow_dfs` (Boolean) Whether to allow Mesh to use DFS channels. For DFS channels, Remote Mesh AP would have to do CAC when scanning for new Base AP, which is slow and will distrupt the connection. If roaming is desired, keep it disabled.
+- `mesh_enable_crm` (Boolean) Used to enable/disable CRM
+- `mesh_enabled` (Boolean) Whether to enable Mesh feature for the site
+- `mesh_psk` (String, Sensitive) Optional passphrase of mesh networking, default is generated randomly
+- `mesh_ssid` (String) Optional ssid of mesh networking, default is based on site_id
 - `proxy_arp` (String) enum: `default`, `disabled`, `enabled`
 
 
@@ -593,9 +593,9 @@ Optional:
 
 Optional:
 
-- `email_notifiers` (List of String) list of email addresses to send email notifications when the alert threshold is reached
-- `enabled` (Boolean) indicate whether zone occupancy alert is enabled for the site
-- `threshold` (Number) sending zone-occupancy-alert webhook message only if a zone stays non-compliant (i.e. actual occupancy > occupancy_limit) for a minimum duration specified in the threshold, in minutes
+- `email_notifiers` (List of String) List of email addresses to send email notifications when the alert threshold is reached
+- `enabled` (Boolean) Indicate whether zone occupancy alert is enabled for the site
+- `threshold` (Number) Sending zone-occupancy-alert webhook message only if a zone stays non-compliant (i.e. actual occupancy > occupancy_limit) for a minimum duration specified in the threshold, in minutes
 
 
 
