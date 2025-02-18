@@ -96,8 +96,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					Attributes: map[string]schema.Attribute{
 						"gbp_tag": schema.Int64Attribute{
 							Optional:            true,
-							Description:         "required if\n  - `type`==`dynamic_gbp` (gbp_tag received from RADIUS)\n  - `type`==`gbp_resource`\n  - `type`==`static_gbp` (applying gbp tag against matching conditions)",
-							MarkdownDescription: "required if\n  - `type`==`dynamic_gbp` (gbp_tag received from RADIUS)\n  - `type`==`gbp_resource`\n  - `type`==`static_gbp` (applying gbp tag against matching conditions)",
+							Description:         "Required if\n  - `type`==`dynamic_gbp` (gbp_tag received from RADIUS)\n  - `type`==`gbp_resource`\n  - `type`==`static_gbp` (applying gbp tag against matching conditions)",
+							MarkdownDescription: "Required if\n  - `type`==`dynamic_gbp` (gbp_tag received from RADIUS)\n  - `type`==`gbp_resource`\n  - `type`==`static_gbp` (applying gbp tag against matching conditions)",
 							Validators: []validator.Int64{
 								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("dynamic_gbp")),
 								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static_gbp")),
@@ -107,8 +107,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							ElementType:         types.StringType,
 							Optional:            true,
 							Computed:            true,
-							Description:         "required if \n- `type`==`mac`\n- `type`==`static_gbp` if from matching mac",
-							MarkdownDescription: "required if \n- `type`==`mac`\n- `type`==`static_gbp` if from matching mac",
+							Description:         "Required if \n- `type`==`mac`\n- `type`==`static_gbp` if from matching mac",
+							MarkdownDescription: "Required if \n- `type`==`mac`\n- `type`==`static_gbp` if from matching mac",
 							Validators: []validator.List{
 								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("mac")),
 								listvalidator.SizeAtLeast(1),
@@ -116,16 +116,16 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"network": schema.StringAttribute{
 							Optional:            true,
-							Description:         "if:\n  * `type`==`mac` (optional. default is `any`)\n  * `type`==`subnet` (optional. default is `any`)\n  * `type`==`network`\n  * `type`==`resource` (optional. default is `any`)\n  * `type`==`static_gbp` if from matching network (vlan)'",
-							MarkdownDescription: "if:\n  * `type`==`mac` (optional. default is `any`)\n  * `type`==`subnet` (optional. default is `any`)\n  * `type`==`network`\n  * `type`==`resource` (optional. default is `any`)\n  * `type`==`static_gbp` if from matching network (vlan)'",
+							Description:         "If:\n  * `type`==`mac` (optional. default is `any`)\n  * `type`==`subnet` (optional. default is `any`)\n  * `type`==`network`\n  * `type`==`resource` (optional. default is `any`)\n  * `type`==`static_gbp` if from matching network (vlan)'",
+							MarkdownDescription: "If:\n  * `type`==`mac` (optional. default is `any`)\n  * `type`==`subnet` (optional. default is `any`)\n  * `type`==`network`\n  * `type`==`resource` (optional. default is `any`)\n  * `type`==`static_gbp` if from matching network (vlan)'",
 							Validators: []validator.String{
 								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("network")),
 							},
 						},
 						"radius_group": schema.StringAttribute{
 							Optional:            true,
-							Description:         "required if:\n  * `type`==`radius_group`\n  * `type`==`static_gbp`\nif from matching radius_group",
-							MarkdownDescription: "required if:\n  * `type`==`radius_group`\n  * `type`==`static_gbp`\nif from matching radius_group",
+							Description:         "Required if:\n  * `type`==`radius_group`\n  * `type`==`static_gbp`\nif from matching radius_group",
+							MarkdownDescription: "Required if:\n  * `type`==`radius_group`\n  * `type`==`static_gbp`\nif from matching radius_group",
 							Validators: []validator.String{
 								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("radius_group")),
 							},
@@ -136,8 +136,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									"port_range": schema.StringAttribute{
 										Optional:            true,
 										Computed:            true,
-										Description:         "matched dst port, \"0\" means any",
-										MarkdownDescription: "matched dst port, \"0\" means any",
+										Description:         "Matched dst port, \"0\" means any",
+										MarkdownDescription: "Matched dst port, \"0\" means any",
 										Validators: []validator.String{
 											mistvalidator.AllowedWhenValueIsIn(
 												path.MatchRelative().AtParent().AtName("protocol"),
@@ -183,8 +183,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional:            true,
-							Description:         "if `type`==`resource` or `type`==`gbp_resource`. Empty means unrestricted, i.e. any",
-							MarkdownDescription: "if `type`==`resource` or `type`==`gbp_resource`. Empty means unrestricted, i.e. any",
+							Description:         "If `type`==`resource` or `type`==`gbp_resource`. Empty means unrestricted, i.e. any",
+							MarkdownDescription: "If `type`==`resource` or `type`==`gbp_resource`. Empty means unrestricted, i.e. any",
 							Validators: []validator.List{
 								listvalidator.SizeAtLeast(1),
 							},
@@ -193,8 +193,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							ElementType:         types.StringType,
 							Optional:            true,
 							Computed:            true,
-							Description:         "if \n- `type`==`subnet` \n- `type`==`resource` (optional. default is `any`)\n- `type`==`static_gbp` if from matching subnet",
-							MarkdownDescription: "if \n- `type`==`subnet` \n- `type`==`resource` (optional. default is `any`)\n- `type`==`static_gbp` if from matching subnet",
+							Description:         "If \n- `type`==`subnet` \n- `type`==`resource` (optional. default is `any`)\n- `type`==`static_gbp` if from matching subnet",
+							MarkdownDescription: "If \n- `type`==`subnet` \n- `type`==`resource` (optional. default is `any`)\n- `type`==`static_gbp` if from matching subnet",
 							Validators: []validator.List{
 								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("subnet")),
 								listvalidator.SizeAtLeast(1),
@@ -263,8 +263,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					"networks": schema.ListAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
-						Description:         "if `all_networks`==`false`, list of network with DHCP snooping enabled",
-						MarkdownDescription: "if `all_networks`==`false`, list of network with DHCP snooping enabled",
+						Description:         "If `all_networks`==`false`, list of network with DHCP snooping enabled",
+						MarkdownDescription: "If `all_networks`==`false`, list of network with DHCP snooping enabled",
 						Validators: []validator.List{
 							mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("all_networks"), types.BoolValue(true)),
 							listvalidator.SizeAtLeast(1),
@@ -281,8 +281,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 			"disabled_system_defined_port_usages": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
-				Description:         "if some system-default port usages are not desired - namely, ap / iot / uplink",
-				MarkdownDescription: "if some system-default port usages are not desired - namely, ap / iot / uplink",
+				Description:         "If some system-default port usages are not desired - namely, ap / iot / uplink",
+				MarkdownDescription: "If some system-default port usages are not desired - namely, ap / iot / uplink",
 			},
 			"dns_servers": schema.ListAttribute{
 				ElementType:         types.StringType,
@@ -314,8 +314,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						"discard": schema.BoolAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "this takes precedence",
-							MarkdownDescription: "this takes precedence",
+							Description:         "This takes precedence",
+							MarkdownDescription: "This takes precedence",
 							Default:             booldefault.StaticBool(false),
 						},
 						"metric": schema.Int64Attribute{
@@ -358,8 +358,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"via": schema.StringAttribute{
 							Required:            true,
-							Description:         "next-hop IP Address",
-							MarkdownDescription: "next-hop IP Address",
+							Description:         "Next-hop IP Address",
+							MarkdownDescription: "Next-hop IP Address",
 							Validators: []validator.String{
 								stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar()),
 							},
@@ -382,8 +382,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						"discard": schema.BoolAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "this takes precedence",
-							MarkdownDescription: "this takes precedence",
+							Description:         "This takes precedence",
+							MarkdownDescription: "This takes precedence",
 							Default:             booldefault.StaticBool(false),
 						},
 						"metric": schema.Int64Attribute{
@@ -426,8 +426,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"via": schema.StringAttribute{
 							Required:            true,
-							Description:         "next-hop IP Address",
-							MarkdownDescription: "next-hop IP Address",
+							Description:         "Next-hop IP Address",
+							MarkdownDescription: "Next-hop IP Address",
 							Validators: []validator.String{
 								stringvalidator.Any(mistvalidator.ParseIp(false, true), mistvalidator.ParseVar()),
 							},
@@ -461,24 +461,24 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "enable mist_nac to use radsec",
-				MarkdownDescription: "enable mist_nac to use radsec",
+				Description:         "Enable mist_nac to use radsec",
+				MarkdownDescription: "Enable mist_nac to use radsec",
 			},
 			"networks": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"gateway": schema.StringAttribute{
 							Optional:            true,
-							Description:         "only required for EVPN-VXLAN networks, IPv4 Virtual Gateway",
-							MarkdownDescription: "only required for EVPN-VXLAN networks, IPv4 Virtual Gateway",
+							Description:         "Only required for EVPN-VXLAN networks, IPv4 Virtual Gateway",
+							MarkdownDescription: "Only required for EVPN-VXLAN networks, IPv4 Virtual Gateway",
 							Validators: []validator.String{
 								stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar()),
 							},
 						},
 						"gateway6": schema.StringAttribute{
 							Optional:            true,
-							Description:         "only required for EVPN-VXLAN networks, IPv6 Virtual Gateway",
-							MarkdownDescription: "only required for EVPN-VXLAN networks, IPv6 Virtual Gateway",
+							Description:         "Only required for EVPN-VXLAN networks, IPv6 Virtual Gateway",
+							MarkdownDescription: "Only required for EVPN-VXLAN networks, IPv6 Virtual Gateway",
 							Validators: []validator.String{
 								stringvalidator.Any(mistvalidator.ParseIp(false, true), mistvalidator.ParseVar()),
 							},
@@ -495,16 +495,16 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"subnet": schema.StringAttribute{
 							Optional:            true,
-							Description:         "optional for pure switching, required when L3 / routing features are used",
-							MarkdownDescription: "optional for pure switching, required when L3 / routing features are used",
+							Description:         "Optional for pure switching, required when L3 / routing features are used",
+							MarkdownDescription: "Optional for pure switching, required when L3 / routing features are used",
 							Validators: []validator.String{
 								stringvalidator.Any(mistvalidator.ParseCidr(true, false), mistvalidator.ParseVar()),
 							},
 						},
 						"subnet6": schema.StringAttribute{
 							Optional:            true,
-							Description:         "optional for pure switching, required when L3 / routing features are used",
-							MarkdownDescription: "optional for pure switching, required when L3 / routing features are used",
+							Description:         "Optional for pure switching, required when L3 / routing features are used",
+							MarkdownDescription: "Optional for pure switching, required when L3 / routing features are used",
 							Validators: []validator.String{
 								stringvalidator.Any(mistvalidator.ParseCidr(false, true), mistvalidator.ParseVar()),
 							},
@@ -536,8 +536,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 			"ntp_servers": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
-				Description:         "list of NTP servers",
-				MarkdownDescription: "list of NTP servers",
+				Description:         "List of NTP servers",
+				MarkdownDescription: "List of NTP servers",
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 				},
@@ -637,15 +637,15 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									"no_readvertise_to_overlay": schema.BoolAttribute{
 										Optional:            true,
 										Computed:            true,
-										Description:         "by default, we'll re-advertise all learned OSPF routes toward overlay",
-										MarkdownDescription: "by default, we'll re-advertise all learned OSPF routes toward overlay",
+										Description:         "By default, we'll re-advertise all learned OSPF routes toward overlay",
+										MarkdownDescription: "By default, we'll re-advertise all learned OSPF routes toward overlay",
 										Default:             booldefault.StaticBool(false),
 									},
 									"passive": schema.BoolAttribute{
 										Optional:            true,
 										Computed:            true,
-										Description:         "whether to send OSPF-Hello",
-										MarkdownDescription: "whether to send OSPF-Hello",
+										Description:         "Whether to send OSPF-Hello",
+										MarkdownDescription: "Whether to send OSPF-Hello",
 										Default:             booldefault.StaticBool(false),
 									},
 								},
@@ -696,35 +696,35 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							ElementType:         types.StringType,
 							Optional:            true,
 							Computed:            true,
-							Description:         "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
-							MarkdownDescription: "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
+							Description:         "At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
+							MarkdownDescription: "At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
 							Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 						},
 						"input_port_ids_egress": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Optional:            true,
 							Computed:            true,
-							Description:         "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
-							MarkdownDescription: "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
+							Description:         "At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
+							MarkdownDescription: "At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
 							Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 						},
 						"input_port_ids_ingress": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Optional:            true,
 							Computed:            true,
-							Description:         "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
-							MarkdownDescription: "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
+							Description:         "At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
+							MarkdownDescription: "At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
 							Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 						},
 						"output_network": schema.StringAttribute{
 							Optional:            true,
-							Description:         "exaclty one of the `output_port_id` or `output_network` should be provided",
-							MarkdownDescription: "exaclty one of the `output_port_id` or `output_network` should be provided",
+							Description:         "Exaclty one of the `output_port_id` or `output_network` should be provided",
+							MarkdownDescription: "Exaclty one of the `output_port_id` or `output_network` should be provided",
 						},
 						"output_port_id": schema.StringAttribute{
 							Optional:            true,
-							Description:         "exaclty one of the `output_port_id` or `output_network` should be provided",
-							MarkdownDescription: "exaclty one of the `output_port_id` or `output_network` should be provided",
+							Description:         "Exaclty one of the `output_port_id` or `output_network` should be provided",
+							MarkdownDescription: "Exaclty one of the `output_port_id` or `output_network` should be provided",
 						},
 					},
 					CustomType: PortMirroringType{
@@ -795,15 +795,12 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							},
 							Default: booldefault.StaticBool(false),
 						},
-						"bypass_auth_when_server_down_for_unkonwn_client": schema.BoolAttribute{
+						"bypass_auth_when_server_down_for_unkown_client": schema.BoolAttribute{
 							Optional:            true,
 							Computed:            true,
 							Description:         "Only if `mode`!=`dynamic` and `port_auth`=`dot1x` bypass auth for all (including unknown clients) if set to true when RADIUS server is down",
 							MarkdownDescription: "Only if `mode`!=`dynamic` and `port_auth`=`dot1x` bypass auth for all (including unknown clients) if set to true when RADIUS server is down",
-							Validators: []validator.Bool{
-								mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x"), types.BoolValue(false)),
-							},
-							Default: booldefault.StaticBool(false),
+							Default:             booldefault.StaticBool(false),
 						},
 						"description": schema.StringAttribute{
 							Optional:            true,
@@ -1050,8 +1047,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									"equals_any": schema.ListAttribute{
 										ElementType:         types.StringType,
 										Optional:            true,
-										Description:         "use `equals_any` to match any item in a list",
-										MarkdownDescription: "use `equals_any` to match any item in a list",
+										Description:         "Use `equals_any` to match any item in a list",
+										MarkdownDescription: "Use `equals_any` to match any item in a list",
 									},
 									"expression": schema.StringAttribute{
 										Optional:            true,
@@ -1128,36 +1125,36 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								"no_broadcast": schema.BoolAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "whether to disable storm control on broadcast traffic",
-									MarkdownDescription: "whether to disable storm control on broadcast traffic",
+									Description:         "Whether to disable storm control on broadcast traffic",
+									MarkdownDescription: "Whether to disable storm control on broadcast traffic",
 									Default:             booldefault.StaticBool(false),
 								},
 								"no_multicast": schema.BoolAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "whether to disable storm control on multicast traffic",
-									MarkdownDescription: "whether to disable storm control on multicast traffic",
+									Description:         "Whether to disable storm control on multicast traffic",
+									MarkdownDescription: "Whether to disable storm control on multicast traffic",
 									Default:             booldefault.StaticBool(false),
 								},
 								"no_registered_multicast": schema.BoolAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "whether to disable storm control on registered multicast traffic",
-									MarkdownDescription: "whether to disable storm control on registered multicast traffic",
+									Description:         "Whether to disable storm control on registered multicast traffic",
+									MarkdownDescription: "Whether to disable storm control on registered multicast traffic",
 									Default:             booldefault.StaticBool(false),
 								},
 								"no_unknown_unicast": schema.BoolAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "whether to disable storm control on unknown unicast traffic",
-									MarkdownDescription: "whether to disable storm control on unknown unicast traffic",
+									Description:         "Whether to disable storm control on unknown unicast traffic",
+									MarkdownDescription: "Whether to disable storm control on unknown unicast traffic",
 									Default:             booldefault.StaticBool(false),
 								},
 								"percentage": schema.Int64Attribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "bandwidth-percentage, configures the storm control level as a percentage of the available bandwidth",
-									MarkdownDescription: "bandwidth-percentage, configures the storm control level as a percentage of the available bandwidth",
+									Description:         "Bandwidth-percentage, configures the storm control level as a percentage of the available bandwidth",
+									MarkdownDescription: "Bandwidth-percentage, configures the storm control level as a percentage of the available bandwidth",
 									Validators: []validator.Int64{
 										int64validator.Between(0, 100),
 									},
@@ -1204,14 +1201,14 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"ui_evpntopo_id": schema.StringAttribute{
 							Optional:            true,
-							Description:         "optional for Campus Fabric Core-Distribution ESI-LAG profile. Helper used by the UI to select this port profile as the ESI-Lag between Distribution and Access switches",
-							MarkdownDescription: "optional for Campus Fabric Core-Distribution ESI-LAG profile. Helper used by the UI to select this port profile as the ESI-Lag between Distribution and Access switches",
+							Description:         "Optional for Campus Fabric Core-Distribution ESI-LAG profile. Helper used by the UI to select this port profile as the ESI-Lag between Distribution and Access switches",
+							MarkdownDescription: "Optional for Campus Fabric Core-Distribution ESI-LAG profile. Helper used by the UI to select this port profile as the ESI-Lag between Distribution and Access switches",
 						},
 						"use_vstp": schema.BoolAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "if this is connected to a vstp network",
-							MarkdownDescription: "if this is connected to a vstp network",
+							Description:         "If this is connected to a vstp network",
+							MarkdownDescription: "If this is connected to a vstp network",
 							Validators: []validator.Bool{
 								mistvalidator.ForbiddenWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic"), types.BoolValue(false)),
 							},
@@ -1244,8 +1241,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					"acct_interim_interval": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "how frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from RADIUS Server). Very frequent messages can affect the performance of the radius server, 600 and up is recommended when enabled",
-						MarkdownDescription: "how frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from RADIUS Server). Very frequent messages can affect the performance of the radius server, 600 and up is recommended when enabled",
+						Description:         "How frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from RADIUS Server). Very frequent messages can affect the performance of the radius server, 600 and up is recommended when enabled",
+						MarkdownDescription: "How frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from RADIUS Server). Very frequent messages can affect the performance of the radius server, 600 and up is recommended when enabled",
 						Validators: []validator.Int64{
 							int64validator.Between(0, 65535),
 						},
@@ -1256,8 +1253,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							Attributes: map[string]schema.Attribute{
 								"host": schema.StringAttribute{
 									Required:            true,
-									Description:         "ip / hostname of RADIUS server",
-									MarkdownDescription: "ip / hostname of RADIUS server",
+									Description:         "IP/ hostname of RADIUS server",
+									MarkdownDescription: "IP/ hostname of RADIUS server",
 								},
 								"keywrap_enabled": schema.BoolAttribute{
 									Optional: true,
@@ -1293,8 +1290,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								"secret": schema.StringAttribute{
 									Required:            true,
 									Sensitive:           true,
-									Description:         "secret of RADIUS server",
-									MarkdownDescription: "secret of RADIUS server",
+									Description:         "Secretof RADIUS server",
+									MarkdownDescription: "Secretof RADIUS server",
 								},
 							},
 							CustomType: AcctServersType{
@@ -1313,8 +1310,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							Attributes: map[string]schema.Attribute{
 								"host": schema.StringAttribute{
 									Required:            true,
-									Description:         "ip / hostname of RADIUS server",
-									MarkdownDescription: "ip / hostname of RADIUS server",
+									Description:         "IP/ hostname of RADIUS server",
+									MarkdownDescription: "IP/ hostname of RADIUS server",
 								},
 								"keywrap_enabled": schema.BoolAttribute{
 									Optional: true,
@@ -1350,15 +1347,15 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								"require_message_authenticator": schema.BoolAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "whether to require Message-Authenticator in requests",
-									MarkdownDescription: "whether to require Message-Authenticator in requests",
+									Description:         "Whether to require Message-Authenticator in requests",
+									MarkdownDescription: "Whether to require Message-Authenticator in requests",
 									Default:             booldefault.StaticBool(false),
 								},
 								"secret": schema.StringAttribute{
 									Required:            true,
 									Sensitive:           true,
-									Description:         "secret of RADIUS server",
-									MarkdownDescription: "secret of RADIUS server",
+									Description:         "Secretof RADIUS server",
+									MarkdownDescription: "Secretof RADIUS server",
 								},
 							},
 							CustomType: AuthServersType{
@@ -1375,26 +1372,26 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					"auth_servers_retries": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "radius auth session retries",
-						MarkdownDescription: "radius auth session retries",
+						Description:         "Radius auth session retries",
+						MarkdownDescription: "Radius auth session retries",
 						Default:             int64default.StaticInt64(3),
 					},
 					"auth_servers_timeout": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "radius auth session timeout",
-						MarkdownDescription: "radius auth session timeout",
+						Description:         "Radius auth session timeout",
+						MarkdownDescription: "Radius auth session timeout",
 						Default:             int64default.StaticInt64(5),
 					},
 					"network": schema.StringAttribute{
 						Optional:            true,
-						Description:         "use `network`or `source_ip`. Which network the RADIUS server resides, if there's static IP for this network, we'd use it as source-ip",
-						MarkdownDescription: "use `network`or `source_ip`. Which network the RADIUS server resides, if there's static IP for this network, we'd use it as source-ip",
+						Description:         "Use `network`or `source_ip`. Which network the RADIUS server resides, if there's static IP for this network, we'd use it as source-ip",
+						MarkdownDescription: "Use `network`or `source_ip`. Which network the RADIUS server resides, if there's static IP for this network, we'd use it as source-ip",
 					},
 					"source_ip": schema.StringAttribute{
 						Optional:            true,
-						Description:         "use `network`or `source_ip`",
-						MarkdownDescription: "use `network`or `source_ip`",
+						Description:         "Use `network`or `source_ip`",
+						MarkdownDescription: "Use `network`or `source_ip`",
 					},
 				},
 				CustomType: RadiusConfigType{
@@ -1601,8 +1598,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"network": schema.StringAttribute{
 						Optional:            true,
-						Description:         "if source_address is configured, will use the vlan firstly otherwise use source_ip",
-						MarkdownDescription: "if source_address is configured, will use the vlan firstly otherwise use source_ip",
+						Description:         "If source_address is configured, will use the vlan firstly otherwise use source_ip",
+						MarkdownDescription: "If source_address is configured, will use the vlan firstly otherwise use source_ip",
 					},
 					"send_to_all_servers": schema.BoolAttribute{
 						Optional: true,
@@ -1753,8 +1750,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"source_address": schema.StringAttribute{
 									Optional:            true,
-									Description:         "if source_address is configured, will use the vlan firstly otherwise use source_ip",
-									MarkdownDescription: "if source_address is configured, will use the vlan firstly otherwise use source_ip",
+									Description:         "If source_address is configured, will use the vlan firstly otherwise use source_ip",
+									MarkdownDescription: "If source_address is configured, will use the vlan firstly otherwise use source_ip",
 								},
 								"structured_data": schema.BoolAttribute{
 									Optional: true,
@@ -1873,8 +1870,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 			"remove_existing_configs": schema.BoolAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "by default, when we configure a device, we only clean up config we generates. Remove existing configs if enabled",
-				MarkdownDescription: "by default, when we configure a device, we only clean up config we generates. Remove existing configs if enabled",
+				Description:         "By default, when we configure a device, we only clean up config we generates. Remove existing configs if enabled",
+				MarkdownDescription: "By default, when we configure a device, we only clean up config we generates. Remove existing configs if enabled",
 				Default:             booldefault.StaticBool(false),
 			},
 			"site_id": schema.StringAttribute{
@@ -1990,16 +1987,16 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"client_list_name": schema.StringAttribute{
 									Optional:            true,
-									Description:         "client_list_name here should refer to client_list above",
-									MarkdownDescription: "client_list_name here should refer to client_list above",
+									Description:         "Client_list_name here should refer to client_list above",
+									MarkdownDescription: "Client_list_name here should refer to client_list above",
 								},
 								"community_name": schema.StringAttribute{
 									Optional: true,
 								},
 								"view": schema.StringAttribute{
 									Optional:            true,
-									Description:         "view name here should be defined in views above",
-									MarkdownDescription: "view name here should be defined in views above",
+									Description:         "View name here should be defined in views above",
+									MarkdownDescription: "View name here should be defined in views above",
 								},
 							},
 							CustomType: V2cConfigType{
@@ -2091,16 +2088,16 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										},
 										"tag_list": schema.StringAttribute{
 											Optional:            true,
-											Description:         "<refer to notify tag, can be multiple with blank",
-											MarkdownDescription: "<refer to notify tag, can be multiple with blank",
+											Description:         "Refer to notify tag, can be multiple with blank",
+											MarkdownDescription: "Refer to notify tag, can be multiple with blank",
 										},
 										"target_address_name": schema.StringAttribute{
 											Optional: true,
 										},
 										"target_parameters": schema.StringAttribute{
 											Optional:            true,
-											Description:         "refer to notify target parameters name",
-											MarkdownDescription: "refer to notify target parameters name",
+											Description:         "Refer to notify target parameters name",
+											MarkdownDescription: "Refer to notify target parameters name",
 										},
 									},
 									CustomType: TargetAddressType{
@@ -2132,8 +2129,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										},
 										"notify_filter": schema.StringAttribute{
 											Optional:            true,
-											Description:         "refer to profile-name in notify_filter",
-											MarkdownDescription: "refer to profile-name in notify_filter",
+											Description:         "Refer to profile-name in notify_filter",
+											MarkdownDescription: "Refer to profile-name in notify_filter",
 										},
 										"security_level": schema.StringAttribute{
 											Optional:            true,
@@ -2163,8 +2160,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										},
 										"security_name": schema.StringAttribute{
 											Optional:            true,
-											Description:         "refer to security_name in usm",
-											MarkdownDescription: "refer to security_name in usm",
+											Description:         "Refer to security_name in usm",
+											MarkdownDescription: "Refer to security_name in usm",
 										},
 									},
 									CustomType: TargetParametersType{
@@ -2191,8 +2188,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									},
 									"engineid": schema.StringAttribute{
 										Optional:            true,
-										Description:         "required only if `engine_type`==`remote_engine`",
-										MarkdownDescription: "required only if `engine_type`==`remote_engine`",
+										Description:         "Required only if `engine_type`==`remote_engine`",
+										MarkdownDescription: "Required only if `engine_type`==`remote_engine`",
 										Validators: []validator.String{
 											mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtMapKey("engine_type"), types.StringValue("remote_engine")),
 										},
@@ -2291,8 +2288,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 														Attributes: map[string]schema.Attribute{
 															"context_prefix": schema.StringAttribute{
 																Optional:            true,
-																Description:         "only required if `type`==`context_prefix`",
-																MarkdownDescription: "only required if `type`==`context_prefix`",
+																Description:         "Only required if `type`==`context_prefix`",
+																MarkdownDescription: "Only required if `type`==`context_prefix`",
 																Validators: []validator.String{
 																	stringvalidator.LengthAtLeast(7),
 																	mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtMapKey("type"), types.StringValue("context_prefix")),
@@ -2300,13 +2297,13 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 															},
 															"notify_view": schema.StringAttribute{
 																Optional:            true,
-																Description:         "refer to view name",
-																MarkdownDescription: "refer to view name",
+																Description:         "Refer to view name",
+																MarkdownDescription: "Refer to view name",
 															},
 															"read_view": schema.StringAttribute{
 																Optional:            true,
-																Description:         "refer to view name",
-																MarkdownDescription: "refer to view name",
+																Description:         "Refer to view name",
+																MarkdownDescription: "Refer to view name",
 															},
 															"security_level": schema.StringAttribute{
 																Optional:            true,
@@ -2349,8 +2346,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 															},
 															"write_view": schema.StringAttribute{
 																Optional:            true,
-																Description:         "refer to view name",
-																MarkdownDescription: "refer to view name",
+																Description:         "Refer to view name",
+																MarkdownDescription: "Refer to view name",
 															},
 														},
 														CustomType: PrefixListType{
@@ -2390,8 +2387,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 													Attributes: map[string]schema.Attribute{
 														"group": schema.StringAttribute{
 															Optional:            true,
-															Description:         "refer to group_name under access",
-															MarkdownDescription: "refer to group_name under access",
+															Description:         "Refer to group_name under access",
+															MarkdownDescription: "Refer to group_name under access",
 														},
 														"security_name": schema.StringAttribute{
 															Optional: true,
@@ -2434,8 +2431,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							Attributes: map[string]schema.Attribute{
 								"include": schema.BoolAttribute{
 									Optional:            true,
-									Description:         "if the root oid configured is included",
-									MarkdownDescription: "if the root oid configured is included",
+									Description:         "If the root oid configured is included",
+									MarkdownDescription: "If the root oid configured is included",
 								},
 								"oid": schema.StringAttribute{
 									Optional: true,
@@ -2597,15 +2594,15 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										"use_mgmt_vrf": schema.BoolAttribute{
 											Optional:            true,
 											Computed:            true,
-											Description:         "if supported on the platform. If enabled, DNS will be using this routing-instance, too",
-											MarkdownDescription: "if supported on the platform. If enabled, DNS will be using this routing-instance, too",
+											Description:         "If supported on the platform. If enabled, DNS will be using this routing-instance, too",
+											MarkdownDescription: "If supported on the platform. If enabled, DNS will be using this routing-instance, too",
 											Default:             booldefault.StaticBool(false),
 										},
 										"use_mgmt_vrf_for_host_out": schema.BoolAttribute{
 											Optional:            true,
 											Computed:            true,
-											Description:         "for host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired",
-											MarkdownDescription: "for host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired",
+											Description:         "For host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired",
+											MarkdownDescription: "For host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired",
 											Default:             booldefault.StaticBool(false),
 										},
 									},
@@ -2633,8 +2630,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											},
 											"ae_lacp_slow": schema.BoolAttribute{
 												Optional:            true,
-												Description:         "to use fast timeout",
-												MarkdownDescription: "to use fast timeout",
+												Description:         "To use fast timeout",
+												MarkdownDescription: "To use fast timeout",
 											},
 											"aggregated": schema.BoolAttribute{
 												Optional: true,
@@ -2643,8 +2640,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											},
 											"critical": schema.BoolAttribute{
 												Optional:            true,
-												Description:         "if want to generate port up/down alarm",
-												MarkdownDescription: "if want to generate port up/down alarm",
+												Description:         "If want to generate port up/down alarm",
+												MarkdownDescription: "If want to generate port up/down alarm",
 											},
 											"description": schema.StringAttribute{
 												Optional: true,
@@ -2652,8 +2649,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											"disable_autoneg": schema.BoolAttribute{
 												Optional:            true,
 												Computed:            true,
-												Description:         "if `speed` and `duplex` are specified, whether to disable autonegotiation",
-												MarkdownDescription: "if `speed` and `duplex` are specified, whether to disable autonegotiation",
+												Description:         "If `speed` and `duplex` are specified, whether to disable autonegotiation",
+												MarkdownDescription: "If `speed` and `duplex` are specified, whether to disable autonegotiation",
 												Default:             booldefault.StaticBool(false),
 											},
 											"duplex": schema.StringAttribute{
@@ -2682,14 +2679,14 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											"mtu": schema.Int64Attribute{
 												Optional:            true,
 												Computed:            true,
-												Description:         "media maximum transmission unit (MTU) is the largest data unit that can be forwarded without fragmentation",
-												MarkdownDescription: "media maximum transmission unit (MTU) is the largest data unit that can be forwarded without fragmentation",
+												Description:         "Media maximum transmission unit (MTU) is the largest data unit that can be forwarded without fragmentation",
+												MarkdownDescription: "Media maximum transmission unit (MTU) is the largest data unit that can be forwarded without fragmentation",
 												Default:             int64default.StaticInt64(1514),
 											},
 											"no_local_overwrite": schema.BoolAttribute{
 												Optional:            true,
-												Description:         "prevent helpdesk to override the port config",
-												MarkdownDescription: "prevent helpdesk to override the port config",
+												Description:         "Prevent helpdesk to override the port config",
+												MarkdownDescription: "Prevent helpdesk to override the port config",
 											},
 											"poe_disabled": schema.BoolAttribute{
 												Optional: true,
@@ -2720,8 +2717,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											},
 											"usage": schema.StringAttribute{
 												Required:            true,
-												Description:         "port usage name. If EVPN is used, use `evpn_uplink`or `evpn_downlink`",
-												MarkdownDescription: "port usage name. If EVPN is used, use `evpn_uplink`or `evpn_downlink`",
+												Description:         "Port usage name. If EVPN is used, use `evpn_uplink`or `evpn_downlink`",
+												MarkdownDescription: "Port usage name. If EVPN is used, use `evpn_uplink`or `evpn_downlink`",
 											},
 										},
 										CustomType: PortConfigType{
@@ -2744,35 +2741,35 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 												ElementType:         types.StringType,
 												Optional:            true,
 												Computed:            true,
-												Description:         "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
-												MarkdownDescription: "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
+												Description:         "At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
+												MarkdownDescription: "At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
 												Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 											},
 											"input_port_ids_egress": schema.ListAttribute{
 												ElementType:         types.StringType,
 												Optional:            true,
 												Computed:            true,
-												Description:         "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
-												MarkdownDescription: "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
+												Description:         "At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
+												MarkdownDescription: "At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
 												Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 											},
 											"input_port_ids_ingress": schema.ListAttribute{
 												ElementType:         types.StringType,
 												Optional:            true,
 												Computed:            true,
-												Description:         "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
-												MarkdownDescription: "at least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
+												Description:         "At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
+												MarkdownDescription: "At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
 												Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 											},
 											"output_network": schema.StringAttribute{
 												Optional:            true,
-												Description:         "exaclty one of the `output_port_id` or `output_network` should be provided",
-												MarkdownDescription: "exaclty one of the `output_port_id` or `output_network` should be provided",
+												Description:         "Exaclty one of the `output_port_id` or `output_network` should be provided",
+												MarkdownDescription: "Exaclty one of the `output_port_id` or `output_network` should be provided",
 											},
 											"output_port_id": schema.StringAttribute{
 												Optional:            true,
-												Description:         "exaclty one of the `output_port_id` or `output_network` should be provided",
-												MarkdownDescription: "exaclty one of the `output_port_id` or `output_network` should be provided",
+												Description:         "Exaclty one of the `output_port_id` or `output_network` should be provided",
+												MarkdownDescription: "Exaclty one of the `output_port_id` or `output_network` should be provided",
 											},
 										},
 										CustomType: PortMirroringType{
@@ -2831,16 +2828,16 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "defines custom switch configuration based on different criterias",
-				MarkdownDescription: "defines custom switch configuration based on different criterias",
+				Description:         "Defines custom switch configuration based on different criterias",
+				MarkdownDescription: "Defines custom switch configuration based on different criterias",
 			},
 			"switch_mgmt": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"ap_affinity_threshold": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "ap_affinity_threshold ap_affinity_threshold can be added as a field under site/setting. By default this value is set to 12. If the field is set in both site/setting and org/setting, the value from site/setting will be used.",
-						MarkdownDescription: "ap_affinity_threshold ap_affinity_threshold can be added as a field under site/setting. By default this value is set to 12. If the field is set in both site/setting and org/setting, the value from site/setting will be used.",
+						Description:         "AP_affinity_threshold ap_affinity_threshold can be added as a field under site/setting. By default this value is set to 12. If the field is set in both site/setting and org/setting, the value from site/setting will be used.",
+						MarkdownDescription: "AP_affinity_threshold ap_affinity_threshold can be added as a field under site/setting. By default this value is set to 12. If the field is set in both site/setting and org/setting, the value from site/setting will be used.",
 						Default:             int64default.StaticInt64(10),
 					},
 					"cli_banner": schema.StringAttribute{
@@ -2859,8 +2856,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					"config_revert_timer": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "the rollback timer for commit confirmed",
-						MarkdownDescription: "the rollback timer for commit confirmed",
+						Description:         "Rollback timer for commit confirmed",
+						MarkdownDescription: "Rollback timer for commit confirmed",
 						Validators: []validator.Int64{
 							int64validator.Between(1, 30),
 						},
@@ -2998,8 +2995,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							"enabled": schema.BoolAttribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "when enabled, all traffic that is not essential to our operation will be dropped\ne.g. ntp / dns / traffic to mist will be allowed by default\n     if dhcpd is enabled, we'll make sure it works",
-								MarkdownDescription: "when enabled, all traffic that is not essential to our operation will be dropped\ne.g. ntp / dns / traffic to mist will be allowed by default\n     if dhcpd is enabled, we'll make sure it works",
+								Description:         "When enabled, all traffic that is not essential to our operation will be dropped\ne.g. ntp / dns / traffic to mist will be allowed by default\n     if dhcpd is enabled, we'll make sure it works",
+								MarkdownDescription: "When enabled, all traffic that is not essential to our operation will be dropped\ne.g. ntp / dns / traffic to mist will be allowed by default\n     if dhcpd is enabled, we'll make sure it works",
 								Default:             booldefault.StaticBool(false),
 							},
 							"trusted_hosts": schema.ListAttribute{
@@ -3017,8 +3014,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional:            true,
-						Description:         "restrict inbound-traffic to host\nwhen enabled, all traffic that is not essential to our operation will be dropped \ne.g. ntp / dns / traffic to mist will be allowed by default, if dhcpd is enabled, we'll make sure it works",
-						MarkdownDescription: "restrict inbound-traffic to host\nwhen enabled, all traffic that is not essential to our operation will be dropped \ne.g. ntp / dns / traffic to mist will be allowed by default, if dhcpd is enabled, we'll make sure it works",
+						Description:         "Restrict inbound-traffic to host\nwhen enabled, all traffic that is not essential to our operation will be dropped \ne.g. ntp / dns / traffic to mist will be allowed by default, if dhcpd is enabled, we'll make sure it works",
+						MarkdownDescription: "Restrict inbound-traffic to host\nwhen enabled, all traffic that is not essential to our operation will be dropped \ne.g. ntp / dns / traffic to mist will be allowed by default, if dhcpd is enabled, we'll make sure it works",
 					},
 					"root_password": schema.StringAttribute{
 						Optional:  true,
@@ -3047,8 +3044,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							},
 							"network": schema.StringAttribute{
 								Optional:            true,
-								Description:         "which network the TACACS server resides",
-								MarkdownDescription: "which network the TACACS server resides",
+								Description:         "Which network the TACACS server resides",
+								MarkdownDescription: "Which network the TACACS server resides",
 							},
 							"acct_servers": schema.ListNestedAttribute{
 								NestedObject: schema.NestedAttributeObject{
@@ -3120,8 +3117,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"use_mxedge_proxy": schema.BoolAttribute{
 						Optional:            true,
-						Description:         "to use mxedge as proxy",
-						MarkdownDescription: "to use mxedge as proxy",
+						Description:         "To use mxedge as proxy",
+						MarkdownDescription: "To use mxedge as proxy",
 					},
 				},
 				CustomType: SwitchMgmtType{
@@ -3137,8 +3134,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 				Attributes: map[string]schema.Attribute{
 					"enabled": schema.BoolAttribute{
 						Optional:            true,
-						Description:         "whether to enable VRF (when supported on the device)",
-						MarkdownDescription: "whether to enable VRF (when supported on the device)",
+						Description:         "Whether to enable VRF (when supported on the device)",
+						MarkdownDescription: "Whether to enable VRF (when supported on the device)",
 					},
 				},
 				CustomType: VrfConfigType{
@@ -10616,22 +10613,22 @@ func (t PortUsagesType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`bypass_auth_when_server_down expected to be basetypes.BoolValue, was: %T`, bypassAuthWhenServerDownAttribute))
 	}
 
-	bypassAuthWhenServerDownForUnkonwnClientAttribute, ok := attributes["bypass_auth_when_server_down_for_unkonwn_client"]
+	bypassAuthWhenServerDownForUnkownClientAttribute, ok := attributes["bypass_auth_when_server_down_for_unkown_client"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`bypass_auth_when_server_down_for_unkonwn_client is missing from object`)
+			`bypass_auth_when_server_down_for_unkown_client is missing from object`)
 
 		return nil, diags
 	}
 
-	bypassAuthWhenServerDownForUnkonwnClientVal, ok := bypassAuthWhenServerDownForUnkonwnClientAttribute.(basetypes.BoolValue)
+	bypassAuthWhenServerDownForUnkownClientVal, ok := bypassAuthWhenServerDownForUnkownClientAttribute.(basetypes.BoolValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`bypass_auth_when_server_down_for_unkonwn_client expected to be basetypes.BoolValue, was: %T`, bypassAuthWhenServerDownForUnkonwnClientAttribute))
+			fmt.Sprintf(`bypass_auth_when_server_down_for_unkown_client expected to be basetypes.BoolValue, was: %T`, bypassAuthWhenServerDownForUnkownClientAttribute))
 	}
 
 	descriptionAttribute, ok := attributes["description"]
@@ -11233,45 +11230,45 @@ func (t PortUsagesType) ValueFromObject(ctx context.Context, in basetypes.Object
 	}
 
 	return PortUsagesValue{
-		AllNetworks:                              allNetworksVal,
-		AllowDhcpd:                               allowDhcpdVal,
-		AllowMultipleSupplicants:                 allowMultipleSupplicantsVal,
-		BypassAuthWhenServerDown:                 bypassAuthWhenServerDownVal,
-		BypassAuthWhenServerDownForUnkonwnClient: bypassAuthWhenServerDownForUnkonwnClientVal,
-		Description:                              descriptionVal,
-		DisableAutoneg:                           disableAutonegVal,
-		Disabled:                                 disabledVal,
-		Duplex:                                   duplexVal,
-		DynamicVlanNetworks:                      dynamicVlanNetworksVal,
-		EnableMacAuth:                            enableMacAuthVal,
-		EnableQos:                                enableQosVal,
-		GuestNetwork:                             guestNetworkVal,
-		InterSwitchLink:                          interSwitchLinkVal,
-		MacAuthOnly:                              macAuthOnlyVal,
-		MacAuthPreferred:                         macAuthPreferredVal,
-		MacAuthProtocol:                          macAuthProtocolVal,
-		MacLimit:                                 macLimitVal,
-		Mode:                                     modeVal,
-		Mtu:                                      mtuVal,
-		Networks:                                 networksVal,
-		PersistMac:                               persistMacVal,
-		PoeDisabled:                              poeDisabledVal,
-		PortAuth:                                 portAuthVal,
-		PortNetwork:                              portNetworkVal,
-		ReauthInterval:                           reauthIntervalVal,
-		ResetDefaultWhen:                         resetDefaultWhenVal,
-		Rules:                                    rulesVal,
-		ServerFailNetwork:                        serverFailNetworkVal,
-		ServerRejectNetwork:                      serverRejectNetworkVal,
-		Speed:                                    speedVal,
-		StormControl:                             stormControlVal,
-		StpEdge:                                  stpEdgeVal,
-		StpNoRootPort:                            stpNoRootPortVal,
-		StpP2p:                                   stpP2pVal,
-		UiEvpntopoId:                             uiEvpntopoIdVal,
-		UseVstp:                                  useVstpVal,
-		VoipNetwork:                              voipNetworkVal,
-		state:                                    attr.ValueStateKnown,
+		AllNetworks:                             allNetworksVal,
+		AllowDhcpd:                              allowDhcpdVal,
+		AllowMultipleSupplicants:                allowMultipleSupplicantsVal,
+		BypassAuthWhenServerDown:                bypassAuthWhenServerDownVal,
+		BypassAuthWhenServerDownForUnkownClient: bypassAuthWhenServerDownForUnkownClientVal,
+		Description:                             descriptionVal,
+		DisableAutoneg:                          disableAutonegVal,
+		Disabled:                                disabledVal,
+		Duplex:                                  duplexVal,
+		DynamicVlanNetworks:                     dynamicVlanNetworksVal,
+		EnableMacAuth:                           enableMacAuthVal,
+		EnableQos:                               enableQosVal,
+		GuestNetwork:                            guestNetworkVal,
+		InterSwitchLink:                         interSwitchLinkVal,
+		MacAuthOnly:                             macAuthOnlyVal,
+		MacAuthPreferred:                        macAuthPreferredVal,
+		MacAuthProtocol:                         macAuthProtocolVal,
+		MacLimit:                                macLimitVal,
+		Mode:                                    modeVal,
+		Mtu:                                     mtuVal,
+		Networks:                                networksVal,
+		PersistMac:                              persistMacVal,
+		PoeDisabled:                             poeDisabledVal,
+		PortAuth:                                portAuthVal,
+		PortNetwork:                             portNetworkVal,
+		ReauthInterval:                          reauthIntervalVal,
+		ResetDefaultWhen:                        resetDefaultWhenVal,
+		Rules:                                   rulesVal,
+		ServerFailNetwork:                       serverFailNetworkVal,
+		ServerRejectNetwork:                     serverRejectNetworkVal,
+		Speed:                                   speedVal,
+		StormControl:                            stormControlVal,
+		StpEdge:                                 stpEdgeVal,
+		StpNoRootPort:                           stpNoRootPortVal,
+		StpP2p:                                  stpP2pVal,
+		UiEvpntopoId:                            uiEvpntopoIdVal,
+		UseVstp:                                 useVstpVal,
+		VoipNetwork:                             voipNetworkVal,
+		state:                                   attr.ValueStateKnown,
 	}, diags
 }
 
@@ -11410,22 +11407,22 @@ func NewPortUsagesValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`bypass_auth_when_server_down expected to be basetypes.BoolValue, was: %T`, bypassAuthWhenServerDownAttribute))
 	}
 
-	bypassAuthWhenServerDownForUnkonwnClientAttribute, ok := attributes["bypass_auth_when_server_down_for_unkonwn_client"]
+	bypassAuthWhenServerDownForUnkownClientAttribute, ok := attributes["bypass_auth_when_server_down_for_unkown_client"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`bypass_auth_when_server_down_for_unkonwn_client is missing from object`)
+			`bypass_auth_when_server_down_for_unkown_client is missing from object`)
 
 		return NewPortUsagesValueUnknown(), diags
 	}
 
-	bypassAuthWhenServerDownForUnkonwnClientVal, ok := bypassAuthWhenServerDownForUnkonwnClientAttribute.(basetypes.BoolValue)
+	bypassAuthWhenServerDownForUnkownClientVal, ok := bypassAuthWhenServerDownForUnkownClientAttribute.(basetypes.BoolValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`bypass_auth_when_server_down_for_unkonwn_client expected to be basetypes.BoolValue, was: %T`, bypassAuthWhenServerDownForUnkonwnClientAttribute))
+			fmt.Sprintf(`bypass_auth_when_server_down_for_unkown_client expected to be basetypes.BoolValue, was: %T`, bypassAuthWhenServerDownForUnkownClientAttribute))
 	}
 
 	descriptionAttribute, ok := attributes["description"]
@@ -12027,45 +12024,45 @@ func NewPortUsagesValue(attributeTypes map[string]attr.Type, attributes map[stri
 	}
 
 	return PortUsagesValue{
-		AllNetworks:                              allNetworksVal,
-		AllowDhcpd:                               allowDhcpdVal,
-		AllowMultipleSupplicants:                 allowMultipleSupplicantsVal,
-		BypassAuthWhenServerDown:                 bypassAuthWhenServerDownVal,
-		BypassAuthWhenServerDownForUnkonwnClient: bypassAuthWhenServerDownForUnkonwnClientVal,
-		Description:                              descriptionVal,
-		DisableAutoneg:                           disableAutonegVal,
-		Disabled:                                 disabledVal,
-		Duplex:                                   duplexVal,
-		DynamicVlanNetworks:                      dynamicVlanNetworksVal,
-		EnableMacAuth:                            enableMacAuthVal,
-		EnableQos:                                enableQosVal,
-		GuestNetwork:                             guestNetworkVal,
-		InterSwitchLink:                          interSwitchLinkVal,
-		MacAuthOnly:                              macAuthOnlyVal,
-		MacAuthPreferred:                         macAuthPreferredVal,
-		MacAuthProtocol:                          macAuthProtocolVal,
-		MacLimit:                                 macLimitVal,
-		Mode:                                     modeVal,
-		Mtu:                                      mtuVal,
-		Networks:                                 networksVal,
-		PersistMac:                               persistMacVal,
-		PoeDisabled:                              poeDisabledVal,
-		PortAuth:                                 portAuthVal,
-		PortNetwork:                              portNetworkVal,
-		ReauthInterval:                           reauthIntervalVal,
-		ResetDefaultWhen:                         resetDefaultWhenVal,
-		Rules:                                    rulesVal,
-		ServerFailNetwork:                        serverFailNetworkVal,
-		ServerRejectNetwork:                      serverRejectNetworkVal,
-		Speed:                                    speedVal,
-		StormControl:                             stormControlVal,
-		StpEdge:                                  stpEdgeVal,
-		StpNoRootPort:                            stpNoRootPortVal,
-		StpP2p:                                   stpP2pVal,
-		UiEvpntopoId:                             uiEvpntopoIdVal,
-		UseVstp:                                  useVstpVal,
-		VoipNetwork:                              voipNetworkVal,
-		state:                                    attr.ValueStateKnown,
+		AllNetworks:                             allNetworksVal,
+		AllowDhcpd:                              allowDhcpdVal,
+		AllowMultipleSupplicants:                allowMultipleSupplicantsVal,
+		BypassAuthWhenServerDown:                bypassAuthWhenServerDownVal,
+		BypassAuthWhenServerDownForUnkownClient: bypassAuthWhenServerDownForUnkownClientVal,
+		Description:                             descriptionVal,
+		DisableAutoneg:                          disableAutonegVal,
+		Disabled:                                disabledVal,
+		Duplex:                                  duplexVal,
+		DynamicVlanNetworks:                     dynamicVlanNetworksVal,
+		EnableMacAuth:                           enableMacAuthVal,
+		EnableQos:                               enableQosVal,
+		GuestNetwork:                            guestNetworkVal,
+		InterSwitchLink:                         interSwitchLinkVal,
+		MacAuthOnly:                             macAuthOnlyVal,
+		MacAuthPreferred:                        macAuthPreferredVal,
+		MacAuthProtocol:                         macAuthProtocolVal,
+		MacLimit:                                macLimitVal,
+		Mode:                                    modeVal,
+		Mtu:                                     mtuVal,
+		Networks:                                networksVal,
+		PersistMac:                              persistMacVal,
+		PoeDisabled:                             poeDisabledVal,
+		PortAuth:                                portAuthVal,
+		PortNetwork:                             portNetworkVal,
+		ReauthInterval:                          reauthIntervalVal,
+		ResetDefaultWhen:                        resetDefaultWhenVal,
+		Rules:                                   rulesVal,
+		ServerFailNetwork:                       serverFailNetworkVal,
+		ServerRejectNetwork:                     serverRejectNetworkVal,
+		Speed:                                   speedVal,
+		StormControl:                            stormControlVal,
+		StpEdge:                                 stpEdgeVal,
+		StpNoRootPort:                           stpNoRootPortVal,
+		StpP2p:                                  stpP2pVal,
+		UiEvpntopoId:                            uiEvpntopoIdVal,
+		UseVstp:                                 useVstpVal,
+		VoipNetwork:                             voipNetworkVal,
+		state:                                   attr.ValueStateKnown,
 	}, diags
 }
 
@@ -12137,45 +12134,45 @@ func (t PortUsagesType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = PortUsagesValue{}
 
 type PortUsagesValue struct {
-	AllNetworks                              basetypes.BoolValue   `tfsdk:"all_networks"`
-	AllowDhcpd                               basetypes.BoolValue   `tfsdk:"allow_dhcpd"`
-	AllowMultipleSupplicants                 basetypes.BoolValue   `tfsdk:"allow_multiple_supplicants"`
-	BypassAuthWhenServerDown                 basetypes.BoolValue   `tfsdk:"bypass_auth_when_server_down"`
-	BypassAuthWhenServerDownForUnkonwnClient basetypes.BoolValue   `tfsdk:"bypass_auth_when_server_down_for_unkonwn_client"`
-	Description                              basetypes.StringValue `tfsdk:"description"`
-	DisableAutoneg                           basetypes.BoolValue   `tfsdk:"disable_autoneg"`
-	Disabled                                 basetypes.BoolValue   `tfsdk:"disabled"`
-	Duplex                                   basetypes.StringValue `tfsdk:"duplex"`
-	DynamicVlanNetworks                      basetypes.ListValue   `tfsdk:"dynamic_vlan_networks"`
-	EnableMacAuth                            basetypes.BoolValue   `tfsdk:"enable_mac_auth"`
-	EnableQos                                basetypes.BoolValue   `tfsdk:"enable_qos"`
-	GuestNetwork                             basetypes.StringValue `tfsdk:"guest_network"`
-	InterSwitchLink                          basetypes.BoolValue   `tfsdk:"inter_switch_link"`
-	MacAuthOnly                              basetypes.BoolValue   `tfsdk:"mac_auth_only"`
-	MacAuthPreferred                         basetypes.BoolValue   `tfsdk:"mac_auth_preferred"`
-	MacAuthProtocol                          basetypes.StringValue `tfsdk:"mac_auth_protocol"`
-	MacLimit                                 basetypes.Int64Value  `tfsdk:"mac_limit"`
-	Mode                                     basetypes.StringValue `tfsdk:"mode"`
-	Mtu                                      basetypes.Int64Value  `tfsdk:"mtu"`
-	Networks                                 basetypes.ListValue   `tfsdk:"networks"`
-	PersistMac                               basetypes.BoolValue   `tfsdk:"persist_mac"`
-	PoeDisabled                              basetypes.BoolValue   `tfsdk:"poe_disabled"`
-	PortAuth                                 basetypes.StringValue `tfsdk:"port_auth"`
-	PortNetwork                              basetypes.StringValue `tfsdk:"port_network"`
-	ReauthInterval                           basetypes.Int64Value  `tfsdk:"reauth_interval"`
-	ResetDefaultWhen                         basetypes.StringValue `tfsdk:"reset_default_when"`
-	Rules                                    basetypes.ListValue   `tfsdk:"rules"`
-	ServerFailNetwork                        basetypes.StringValue `tfsdk:"server_fail_network"`
-	ServerRejectNetwork                      basetypes.StringValue `tfsdk:"server_reject_network"`
-	Speed                                    basetypes.StringValue `tfsdk:"speed"`
-	StormControl                             basetypes.ObjectValue `tfsdk:"storm_control"`
-	StpEdge                                  basetypes.BoolValue   `tfsdk:"stp_edge"`
-	StpNoRootPort                            basetypes.BoolValue   `tfsdk:"stp_no_root_port"`
-	StpP2p                                   basetypes.BoolValue   `tfsdk:"stp_p2p"`
-	UiEvpntopoId                             basetypes.StringValue `tfsdk:"ui_evpntopo_id"`
-	UseVstp                                  basetypes.BoolValue   `tfsdk:"use_vstp"`
-	VoipNetwork                              basetypes.StringValue `tfsdk:"voip_network"`
-	state                                    attr.ValueState
+	AllNetworks                             basetypes.BoolValue   `tfsdk:"all_networks"`
+	AllowDhcpd                              basetypes.BoolValue   `tfsdk:"allow_dhcpd"`
+	AllowMultipleSupplicants                basetypes.BoolValue   `tfsdk:"allow_multiple_supplicants"`
+	BypassAuthWhenServerDown                basetypes.BoolValue   `tfsdk:"bypass_auth_when_server_down"`
+	BypassAuthWhenServerDownForUnkownClient basetypes.BoolValue   `tfsdk:"bypass_auth_when_server_down_for_unkown_client"`
+	Description                             basetypes.StringValue `tfsdk:"description"`
+	DisableAutoneg                          basetypes.BoolValue   `tfsdk:"disable_autoneg"`
+	Disabled                                basetypes.BoolValue   `tfsdk:"disabled"`
+	Duplex                                  basetypes.StringValue `tfsdk:"duplex"`
+	DynamicVlanNetworks                     basetypes.ListValue   `tfsdk:"dynamic_vlan_networks"`
+	EnableMacAuth                           basetypes.BoolValue   `tfsdk:"enable_mac_auth"`
+	EnableQos                               basetypes.BoolValue   `tfsdk:"enable_qos"`
+	GuestNetwork                            basetypes.StringValue `tfsdk:"guest_network"`
+	InterSwitchLink                         basetypes.BoolValue   `tfsdk:"inter_switch_link"`
+	MacAuthOnly                             basetypes.BoolValue   `tfsdk:"mac_auth_only"`
+	MacAuthPreferred                        basetypes.BoolValue   `tfsdk:"mac_auth_preferred"`
+	MacAuthProtocol                         basetypes.StringValue `tfsdk:"mac_auth_protocol"`
+	MacLimit                                basetypes.Int64Value  `tfsdk:"mac_limit"`
+	Mode                                    basetypes.StringValue `tfsdk:"mode"`
+	Mtu                                     basetypes.Int64Value  `tfsdk:"mtu"`
+	Networks                                basetypes.ListValue   `tfsdk:"networks"`
+	PersistMac                              basetypes.BoolValue   `tfsdk:"persist_mac"`
+	PoeDisabled                             basetypes.BoolValue   `tfsdk:"poe_disabled"`
+	PortAuth                                basetypes.StringValue `tfsdk:"port_auth"`
+	PortNetwork                             basetypes.StringValue `tfsdk:"port_network"`
+	ReauthInterval                          basetypes.Int64Value  `tfsdk:"reauth_interval"`
+	ResetDefaultWhen                        basetypes.StringValue `tfsdk:"reset_default_when"`
+	Rules                                   basetypes.ListValue   `tfsdk:"rules"`
+	ServerFailNetwork                       basetypes.StringValue `tfsdk:"server_fail_network"`
+	ServerRejectNetwork                     basetypes.StringValue `tfsdk:"server_reject_network"`
+	Speed                                   basetypes.StringValue `tfsdk:"speed"`
+	StormControl                            basetypes.ObjectValue `tfsdk:"storm_control"`
+	StpEdge                                 basetypes.BoolValue   `tfsdk:"stp_edge"`
+	StpNoRootPort                           basetypes.BoolValue   `tfsdk:"stp_no_root_port"`
+	StpP2p                                  basetypes.BoolValue   `tfsdk:"stp_p2p"`
+	UiEvpntopoId                            basetypes.StringValue `tfsdk:"ui_evpntopo_id"`
+	UseVstp                                 basetypes.BoolValue   `tfsdk:"use_vstp"`
+	VoipNetwork                             basetypes.StringValue `tfsdk:"voip_network"`
+	state                                   attr.ValueState
 }
 
 func (v PortUsagesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
@@ -12188,7 +12185,7 @@ func (v PortUsagesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	attrTypes["allow_dhcpd"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["allow_multiple_supplicants"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["bypass_auth_when_server_down"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["bypass_auth_when_server_down_for_unkonwn_client"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["bypass_auth_when_server_down_for_unkown_client"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["description"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["disable_autoneg"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["disabled"] = basetypes.BoolType{}.TerraformType(ctx)
@@ -12269,13 +12266,13 @@ func (v PortUsagesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 		vals["bypass_auth_when_server_down"] = val
 
-		val, err = v.BypassAuthWhenServerDownForUnkonwnClient.ToTerraformValue(ctx)
+		val, err = v.BypassAuthWhenServerDownForUnkownClient.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["bypass_auth_when_server_down_for_unkonwn_client"] = val
+		vals["bypass_auth_when_server_down_for_unkown_client"] = val
 
 		val, err = v.Description.ToTerraformValue(ctx)
 
@@ -12626,15 +12623,15 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 
 	if d.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
-			"all_networks":                                    basetypes.BoolType{},
-			"allow_dhcpd":                                     basetypes.BoolType{},
-			"allow_multiple_supplicants":                      basetypes.BoolType{},
-			"bypass_auth_when_server_down":                    basetypes.BoolType{},
-			"bypass_auth_when_server_down_for_unkonwn_client": basetypes.BoolType{},
-			"description":                                     basetypes.StringType{},
-			"disable_autoneg":                                 basetypes.BoolType{},
-			"disabled":                                        basetypes.BoolType{},
-			"duplex":                                          basetypes.StringType{},
+			"all_networks":                                   basetypes.BoolType{},
+			"allow_dhcpd":                                    basetypes.BoolType{},
+			"allow_multiple_supplicants":                     basetypes.BoolType{},
+			"bypass_auth_when_server_down":                   basetypes.BoolType{},
+			"bypass_auth_when_server_down_for_unkown_client": basetypes.BoolType{},
+			"description":                                    basetypes.StringType{},
+			"disable_autoneg":                                basetypes.BoolType{},
+			"disabled":                                       basetypes.BoolType{},
+			"duplex":                                         basetypes.StringType{},
 			"dynamic_vlan_networks": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -12681,15 +12678,15 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 
 	if d.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
-			"all_networks":                                    basetypes.BoolType{},
-			"allow_dhcpd":                                     basetypes.BoolType{},
-			"allow_multiple_supplicants":                      basetypes.BoolType{},
-			"bypass_auth_when_server_down":                    basetypes.BoolType{},
-			"bypass_auth_when_server_down_for_unkonwn_client": basetypes.BoolType{},
-			"description":                                     basetypes.StringType{},
-			"disable_autoneg":                                 basetypes.BoolType{},
-			"disabled":                                        basetypes.BoolType{},
-			"duplex":                                          basetypes.StringType{},
+			"all_networks":                                   basetypes.BoolType{},
+			"allow_dhcpd":                                    basetypes.BoolType{},
+			"allow_multiple_supplicants":                     basetypes.BoolType{},
+			"bypass_auth_when_server_down":                   basetypes.BoolType{},
+			"bypass_auth_when_server_down_for_unkown_client": basetypes.BoolType{},
+			"description":                                    basetypes.StringType{},
+			"disable_autoneg":                                basetypes.BoolType{},
+			"disabled":                                       basetypes.BoolType{},
+			"duplex":                                         basetypes.StringType{},
 			"dynamic_vlan_networks": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -12731,15 +12728,15 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 	}
 
 	attributeTypes := map[string]attr.Type{
-		"all_networks":                                    basetypes.BoolType{},
-		"allow_dhcpd":                                     basetypes.BoolType{},
-		"allow_multiple_supplicants":                      basetypes.BoolType{},
-		"bypass_auth_when_server_down":                    basetypes.BoolType{},
-		"bypass_auth_when_server_down_for_unkonwn_client": basetypes.BoolType{},
-		"description":                                     basetypes.StringType{},
-		"disable_autoneg":                                 basetypes.BoolType{},
-		"disabled":                                        basetypes.BoolType{},
-		"duplex":                                          basetypes.StringType{},
+		"all_networks":                                   basetypes.BoolType{},
+		"allow_dhcpd":                                    basetypes.BoolType{},
+		"allow_multiple_supplicants":                     basetypes.BoolType{},
+		"bypass_auth_when_server_down":                   basetypes.BoolType{},
+		"bypass_auth_when_server_down_for_unkown_client": basetypes.BoolType{},
+		"description":                                    basetypes.StringType{},
+		"disable_autoneg":                                basetypes.BoolType{},
+		"disabled":                                       basetypes.BoolType{},
+		"duplex":                                         basetypes.StringType{},
 		"dynamic_vlan_networks": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -12790,44 +12787,44 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"all_networks":                                    v.AllNetworks,
-			"allow_dhcpd":                                     v.AllowDhcpd,
-			"allow_multiple_supplicants":                      v.AllowMultipleSupplicants,
-			"bypass_auth_when_server_down":                    v.BypassAuthWhenServerDown,
-			"bypass_auth_when_server_down_for_unkonwn_client": v.BypassAuthWhenServerDownForUnkonwnClient,
-			"description":                                     v.Description,
-			"disable_autoneg":                                 v.DisableAutoneg,
-			"disabled":                                        v.Disabled,
-			"duplex":                                          v.Duplex,
-			"dynamic_vlan_networks":                           dynamicVlanNetworksVal,
-			"enable_mac_auth":                                 v.EnableMacAuth,
-			"enable_qos":                                      v.EnableQos,
-			"guest_network":                                   v.GuestNetwork,
-			"inter_switch_link":                               v.InterSwitchLink,
-			"mac_auth_only":                                   v.MacAuthOnly,
-			"mac_auth_preferred":                              v.MacAuthPreferred,
-			"mac_auth_protocol":                               v.MacAuthProtocol,
-			"mac_limit":                                       v.MacLimit,
-			"mode":                                            v.Mode,
-			"mtu":                                             v.Mtu,
-			"networks":                                        networksVal,
-			"persist_mac":                                     v.PersistMac,
-			"poe_disabled":                                    v.PoeDisabled,
-			"port_auth":                                       v.PortAuth,
-			"port_network":                                    v.PortNetwork,
-			"reauth_interval":                                 v.ReauthInterval,
-			"reset_default_when":                              v.ResetDefaultWhen,
-			"rules":                                           rules,
-			"server_fail_network":                             v.ServerFailNetwork,
-			"server_reject_network":                           v.ServerRejectNetwork,
-			"speed":                                           v.Speed,
-			"storm_control":                                   stormControl,
-			"stp_edge":                                        v.StpEdge,
-			"stp_no_root_port":                                v.StpNoRootPort,
-			"stp_p2p":                                         v.StpP2p,
-			"ui_evpntopo_id":                                  v.UiEvpntopoId,
-			"use_vstp":                                        v.UseVstp,
-			"voip_network":                                    v.VoipNetwork,
+			"all_networks":                                   v.AllNetworks,
+			"allow_dhcpd":                                    v.AllowDhcpd,
+			"allow_multiple_supplicants":                     v.AllowMultipleSupplicants,
+			"bypass_auth_when_server_down":                   v.BypassAuthWhenServerDown,
+			"bypass_auth_when_server_down_for_unkown_client": v.BypassAuthWhenServerDownForUnkownClient,
+			"description":                                    v.Description,
+			"disable_autoneg":                                v.DisableAutoneg,
+			"disabled":                                       v.Disabled,
+			"duplex":                                         v.Duplex,
+			"dynamic_vlan_networks":                          dynamicVlanNetworksVal,
+			"enable_mac_auth":                                v.EnableMacAuth,
+			"enable_qos":                                     v.EnableQos,
+			"guest_network":                                  v.GuestNetwork,
+			"inter_switch_link":                              v.InterSwitchLink,
+			"mac_auth_only":                                  v.MacAuthOnly,
+			"mac_auth_preferred":                             v.MacAuthPreferred,
+			"mac_auth_protocol":                              v.MacAuthProtocol,
+			"mac_limit":                                      v.MacLimit,
+			"mode":                                           v.Mode,
+			"mtu":                                            v.Mtu,
+			"networks":                                       networksVal,
+			"persist_mac":                                    v.PersistMac,
+			"poe_disabled":                                   v.PoeDisabled,
+			"port_auth":                                      v.PortAuth,
+			"port_network":                                   v.PortNetwork,
+			"reauth_interval":                                v.ReauthInterval,
+			"reset_default_when":                             v.ResetDefaultWhen,
+			"rules":                                          rules,
+			"server_fail_network":                            v.ServerFailNetwork,
+			"server_reject_network":                          v.ServerRejectNetwork,
+			"speed":                                          v.Speed,
+			"storm_control":                                  stormControl,
+			"stp_edge":                                       v.StpEdge,
+			"stp_no_root_port":                               v.StpNoRootPort,
+			"stp_p2p":                                        v.StpP2p,
+			"ui_evpntopo_id":                                 v.UiEvpntopoId,
+			"use_vstp":                                       v.UseVstp,
+			"voip_network":                                   v.VoipNetwork,
 		})
 
 	return objVal, diags
@@ -12864,7 +12861,7 @@ func (v PortUsagesValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.BypassAuthWhenServerDownForUnkonwnClient.Equal(other.BypassAuthWhenServerDownForUnkonwnClient) {
+	if !v.BypassAuthWhenServerDownForUnkownClient.Equal(other.BypassAuthWhenServerDownForUnkownClient) {
 		return false
 	}
 
@@ -13013,15 +13010,15 @@ func (v PortUsagesValue) Type(ctx context.Context) attr.Type {
 
 func (v PortUsagesValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"all_networks":                                    basetypes.BoolType{},
-		"allow_dhcpd":                                     basetypes.BoolType{},
-		"allow_multiple_supplicants":                      basetypes.BoolType{},
-		"bypass_auth_when_server_down":                    basetypes.BoolType{},
-		"bypass_auth_when_server_down_for_unkonwn_client": basetypes.BoolType{},
-		"description":                                     basetypes.StringType{},
-		"disable_autoneg":                                 basetypes.BoolType{},
-		"disabled":                                        basetypes.BoolType{},
-		"duplex":                                          basetypes.StringType{},
+		"all_networks":                                   basetypes.BoolType{},
+		"allow_dhcpd":                                    basetypes.BoolType{},
+		"allow_multiple_supplicants":                     basetypes.BoolType{},
+		"bypass_auth_when_server_down":                   basetypes.BoolType{},
+		"bypass_auth_when_server_down_for_unkown_client": basetypes.BoolType{},
+		"description":                                    basetypes.StringType{},
+		"disable_autoneg":                                basetypes.BoolType{},
+		"disabled":                                       basetypes.BoolType{},
+		"duplex":                                         basetypes.StringType{},
 		"dynamic_vlan_networks": basetypes.ListType{
 			ElemType: types.StringType,
 		},

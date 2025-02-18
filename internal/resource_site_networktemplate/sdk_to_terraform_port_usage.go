@@ -100,7 +100,7 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		var allow_dhcpd basetypes.BoolValue
 		var allow_multiple_supplicants basetypes.BoolValue
 		var bypass_auth_when_server_down basetypes.BoolValue
-		var bypass_auth_when_server_down_for_unkonwn_client basetypes.BoolValue
+		var bypass_auth_when_server_down_for_unkown_client basetypes.BoolValue
 		var description basetypes.StringValue
 		var disable_autoneg basetypes.BoolValue
 		var disabled basetypes.BoolValue
@@ -147,8 +147,8 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		if d.BypassAuthWhenServerDown != nil {
 			bypass_auth_when_server_down = types.BoolValue(*d.BypassAuthWhenServerDown)
 		}
-		if d.BypassAuthWhenServerDownForUnkonwnClient != nil {
-			bypass_auth_when_server_down_for_unkonwn_client = types.BoolValue(*d.BypassAuthWhenServerDownForUnkonwnClient)
+		if d.BypassAuthWhenServerDownForUnkownClient != nil {
+			bypass_auth_when_server_down_for_unkown_client = types.BoolValue(*d.BypassAuthWhenServerDownForUnkownClient)
 		}
 		if d.Description != nil {
 			description = types.StringValue(*d.Description)
@@ -252,44 +252,44 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 
 		data_map_attr_type := PortUsagesValue{}.AttributeTypes(ctx)
 		data_map_value := map[string]attr.Value{
-			"all_networks":                                    all_networks,
-			"allow_dhcpd":                                     allow_dhcpd,
-			"allow_multiple_supplicants":                      allow_multiple_supplicants,
-			"bypass_auth_when_server_down":                    bypass_auth_when_server_down,
-			"bypass_auth_when_server_down_for_unkonwn_client": bypass_auth_when_server_down_for_unkonwn_client,
-			"description":                                     description,
-			"disable_autoneg":                                 disable_autoneg,
-			"disabled":                                        disabled,
-			"duplex":                                          duplex,
-			"dynamic_vlan_networks":                           dynamic_vlan_networks,
-			"enable_mac_auth":                                 enable_mac_auth,
-			"enable_qos":                                      enable_qos,
-			"guest_network":                                   guest_network,
-			"inter_switch_link":                               inter_switch_link,
-			"mac_auth_only":                                   mac_auth_only,
-			"mac_auth_preferred":                              mac_auth_preferred,
-			"mac_auth_protocol":                               mac_auth_protocol,
-			"mac_limit":                                       mac_limit,
-			"mode":                                            mode,
-			"mtu":                                             mtu,
-			"networks":                                        networks,
-			"persist_mac":                                     persist_mac,
-			"poe_disabled":                                    poe_disabled,
-			"port_auth":                                       port_auth,
-			"port_network":                                    port_network,
-			"reauth_interval":                                 reauth_interval,
-			"reset_default_when":                              reset_default_when,
-			"rules":                                           rules,
-			"server_fail_network":                             server_fail_network,
-			"server_reject_network":                           server_reject_network,
-			"speed":                                           speed,
-			"storm_control":                                   storm_control,
-			"stp_edge":                                        stp_edge,
-			"stp_no_root_port":                                stp_no_root_port,
-			"stp_p2p":                                         stp_p2p,
-			"ui_evpntopo_id":                                  ui_evpntopo_id,
-			"use_vstp":                                        use_vstp,
-			"voip_network":                                    voip_network,
+			"all_networks":                                   all_networks,
+			"allow_dhcpd":                                    allow_dhcpd,
+			"allow_multiple_supplicants":                     allow_multiple_supplicants,
+			"bypass_auth_when_server_down":                   bypass_auth_when_server_down,
+			"bypass_auth_when_server_down_for_unkown_client": bypass_auth_when_server_down_for_unkown_client,
+			"description":                                    description,
+			"disable_autoneg":                                disable_autoneg,
+			"disabled":                                       disabled,
+			"duplex":                                         duplex,
+			"dynamic_vlan_networks":                          dynamic_vlan_networks,
+			"enable_mac_auth":                                enable_mac_auth,
+			"enable_qos":                                     enable_qos,
+			"guest_network":                                  guest_network,
+			"inter_switch_link":                              inter_switch_link,
+			"mac_auth_only":                                  mac_auth_only,
+			"mac_auth_preferred":                             mac_auth_preferred,
+			"mac_auth_protocol":                              mac_auth_protocol,
+			"mac_limit":                                      mac_limit,
+			"mode":                                           mode,
+			"mtu":                                            mtu,
+			"networks":                                       networks,
+			"persist_mac":                                    persist_mac,
+			"poe_disabled":                                   poe_disabled,
+			"port_auth":                                      port_auth,
+			"port_network":                                   port_network,
+			"reauth_interval":                                reauth_interval,
+			"reset_default_when":                             reset_default_when,
+			"rules":                                          rules,
+			"server_fail_network":                            server_fail_network,
+			"server_reject_network":                          server_reject_network,
+			"speed":                                          speed,
+			"storm_control":                                  storm_control,
+			"stp_edge":                                       stp_edge,
+			"stp_no_root_port":                               stp_no_root_port,
+			"stp_p2p":                                        stp_p2p,
+			"ui_evpntopo_id":                                 ui_evpntopo_id,
+			"use_vstp":                                       use_vstp,
+			"voip_network":                                   voip_network,
 		}
 		data, e := NewPortUsagesValue(data_map_attr_type, data_map_value)
 		diags.Append(e...)

@@ -28,8 +28,8 @@ Given `mist_org_inventory` resource and a Serial Number string, will return the 
 ```terraform
 # result is a device object
 resource "mist_device_ap" "test_ap" {
-  device_id = provider::mist::search_inventory_by_serial(resource.mist_org_inventory.inventory, "CPKL2EXXXXXXXXX").id
-  site_id   = provider::mist::search_inventory_by_serial(resource.mist_org_inventory.inventory, "CPKL2EXXXXXXXXX").site_id
+  device_id = provider::mist::search_inventory_by_serial(resource.mist_org_inventory.inventory, "A153420000000").id
+  site_id   = provider::mist::search_inventory_by_serial(resource.mist_org_inventory.inventory, "A153420000000").site_id
   name      = "test_ap"
 }
 ```
