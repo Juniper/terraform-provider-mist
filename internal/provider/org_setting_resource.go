@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
+	mistapierror "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_setting"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
@@ -47,11 +47,11 @@ func (r *orgSettingResource) Configure(ctx context.Context, req resource.Configu
 
 	r.client = client
 }
-func (r *orgSettingResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *orgSettingResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_org_setting"
 }
 
-func (r *orgSettingResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *orgSettingResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryOrg + "This resource manages the Org Settings.\n\n" +
 			"The Org Settings can be used to customize the Org configuration",
@@ -85,11 +85,11 @@ func (r *orgSettingResource) Create(ctx context.Context, req resource.CreateRequ
 	}
 	data, err := r.client.OrgsSetting().UpdateOrgSettings(ctx, orgId, orgSetting)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error creating \"mist_org_setting\" resource",
-			fmt.Sprintf("Unable to create the Org Setting. %s", api_err),
+			fmt.Sprintf("Unable to create the Org Setting. %s", apiErr),
 		)
 		return
 	}
@@ -108,7 +108,7 @@ func (r *orgSettingResource) Create(ctx context.Context, req resource.CreateRequ
 
 }
 
-func (r *orgSettingResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *orgSettingResource) Read(ctx context.Context, _ resource.ReadRequest, resp *resource.ReadResponse) {
 	var state resource_org_setting.OrgSettingModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -182,11 +182,11 @@ func (r *orgSettingResource) Update(ctx context.Context, req resource.UpdateRequ
 	}
 	data, err := r.client.OrgsSetting().UpdateOrgSettings(ctx, orgId, orgSetting)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error updating \"mist_org_setting\" resource",
-			fmt.Sprintf("Unable to update the Org Setting. %s", api_err),
+			fmt.Sprintf("Unable to update the Org Setting. %s", apiErr),
 		)
 		return
 	}
@@ -205,7 +205,7 @@ func (r *orgSettingResource) Update(ctx context.Context, req resource.UpdateRequ
 
 }
 
-func (r *orgSettingResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *orgSettingResource) Delete(ctx context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_org_setting.OrgSettingModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -226,11 +226,11 @@ func (r *orgSettingResource) Delete(ctx context.Context, req resource.DeleteRequ
 		return
 	}
 	data, err := r.client.OrgsSetting().UpdateOrgSettings(ctx, orgId, orgSetting)
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if data.Response.StatusCode != 404 && api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if data.Response.StatusCode != 404 && apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_setting\" resource",
-			fmt.Sprintf("Unable to delete the Org Setting. %s", api_err),
+			fmt.Sprintf("Unable to delete the Org Setting. %s", apiErr),
 		)
 		return
 	}

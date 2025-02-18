@@ -12,34 +12,34 @@ import (
 )
 
 func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.JunosPortConfig) basetypes.MapValue {
-	map_item_value := make(map[string]attr.Value)
-	map_item_type := PortConfigValue{}.Type(ctx)
+	mapItemValue := make(map[string]attr.Value)
+	mapItemType := PortConfigValue{}.Type(ctx)
 	for k, d := range m {
 
-		var ae_disable_lacp basetypes.BoolValue
-		var ae_idx basetypes.Int64Value
-		var ae_lacp_slow basetypes.BoolValue
+		var aeDisableLacp basetypes.BoolValue
+		var aeIdx basetypes.Int64Value
+		var aeLacpSlow basetypes.BoolValue
 		var aggregated basetypes.BoolValue
 		var critical basetypes.BoolValue
 		var description basetypes.StringValue
-		var disable_autoneg basetypes.BoolValue
+		var disableAutoneg basetypes.BoolValue
 		var duplex basetypes.StringValue
-		var dynamic_usage basetypes.StringValue
+		var dynamicUsage basetypes.StringValue
 		var esilag basetypes.BoolValue
 		var mtu basetypes.Int64Value
-		var no_local_overwrite basetypes.BoolValue
-		var poe_disabled basetypes.BoolValue
+		var noLocalOverwrite basetypes.BoolValue
+		var poeDisabled basetypes.BoolValue
 		var speed basetypes.StringValue
-		var usage basetypes.StringValue = types.StringValue(d.Usage)
+		var usage = types.StringValue(d.Usage)
 
 		if d.AeDisableLacp != nil {
-			ae_disable_lacp = types.BoolValue(*d.AeDisableLacp)
+			aeDisableLacp = types.BoolValue(*d.AeDisableLacp)
 		}
 		if d.AeIdx != nil {
-			ae_idx = types.Int64Value(int64(*d.AeIdx))
+			aeIdx = types.Int64Value(int64(*d.AeIdx))
 		}
 		if d.AeLacpSlow != nil {
-			ae_lacp_slow = types.BoolValue(*d.AeLacpSlow)
+			aeLacpSlow = types.BoolValue(*d.AeLacpSlow)
 		}
 		if d.Aggregated != nil {
 			aggregated = types.BoolValue(*d.Aggregated)
@@ -51,13 +51,13 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 			description = types.StringValue(*d.Description)
 		}
 		if d.DisableAutoneg != nil {
-			disable_autoneg = types.BoolValue(*d.DisableAutoneg)
+			disableAutoneg = types.BoolValue(*d.DisableAutoneg)
 		}
 		if d.Duplex != nil {
 			duplex = types.StringValue(string(*d.Duplex))
 		}
 		if d.DynamicUsage.Value() != nil {
-			dynamic_usage = types.StringValue(*d.DynamicUsage.Value())
+			dynamicUsage = types.StringValue(*d.DynamicUsage.Value())
 		}
 		if d.Esilag != nil {
 			esilag = types.BoolValue(*d.Esilag)
@@ -66,39 +66,38 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 			mtu = types.Int64Value(int64(*d.Mtu))
 		}
 		if d.NoLocalOverwrite != nil {
-			no_local_overwrite = types.BoolValue(*d.NoLocalOverwrite)
+			noLocalOverwrite = types.BoolValue(*d.NoLocalOverwrite)
 		}
 		if d.PoeDisabled != nil {
-			poe_disabled = types.BoolValue(*d.PoeDisabled)
+			poeDisabled = types.BoolValue(*d.PoeDisabled)
 		}
 		if d.Speed != nil {
 			speed = types.StringValue(string(*d.Speed))
 		}
 
-		data_map_attr_type := PortConfigValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
-			"ae_disable_lacp":    ae_disable_lacp,
-			"ae_idx":             ae_idx,
-			"ae_lacp_slow":       ae_lacp_slow,
+		dataMapValue := map[string]attr.Value{
+			"ae_disable_lacp":    aeDisableLacp,
+			"ae_idx":             aeIdx,
+			"ae_lacp_slow":       aeLacpSlow,
 			"aggregated":         aggregated,
 			"critical":           critical,
 			"description":        description,
-			"disable_autoneg":    disable_autoneg,
+			"disable_autoneg":    disableAutoneg,
 			"duplex":             duplex,
-			"dynamic_usage":      dynamic_usage,
+			"dynamic_usage":      dynamicUsage,
 			"esilag":             esilag,
 			"mtu":                mtu,
-			"no_local_overwrite": no_local_overwrite,
-			"poe_disabled":       poe_disabled,
+			"no_local_overwrite": noLocalOverwrite,
+			"poe_disabled":       poeDisabled,
 			"speed":              speed,
 			"usage":              usage,
 		}
-		data, e := NewPortConfigValue(data_map_attr_type, data_map_value)
+		data, e := NewPortConfigValue(PortConfigValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		map_item_value[k] = data
+		mapItemValue[k] = data
 	}
-	r, e := types.MapValueFrom(ctx, map_item_type, map_item_value)
+	r, e := types.MapValueFrom(ctx, mapItemType, mapItemValue)
 	diags.Append(e...)
 	return r
 }

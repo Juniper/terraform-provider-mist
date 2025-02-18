@@ -1,69 +1,66 @@
 package resource_site_wlan
 
 import (
-	"context"
-
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func appQosAppsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, plan basetypes.MapValue) map[string]models.WlanAppQosAppsProperties {
-	data_map := make(map[string]models.WlanAppQosAppsProperties)
+func appQosAppsTerraformToSdk(plan basetypes.MapValue) map[string]models.WlanAppQosAppsProperties {
+	dataMap := make(map[string]models.WlanAppQosAppsProperties)
 	for k, v := range plan.Elements() {
-		var v_interface interface{} = v
-		v_plan := v_interface.(AppsValue)
+		var vInterface interface{} = v
+		vPlan := vInterface.(AppsValue)
 		data := models.WlanAppQosAppsProperties{}
-		if v_plan.Dscp.ValueInt64Pointer() != nil {
-			data.Dscp = models.ToPointer(int(v_plan.Dscp.ValueInt64()))
+		if vPlan.Dscp.ValueInt64Pointer() != nil {
+			data.Dscp = models.ToPointer(int(vPlan.Dscp.ValueInt64()))
 		}
-		if v_plan.DstSubnet.ValueStringPointer() != nil {
-			data.DstSubnet = v_plan.DstSubnet.ValueStringPointer()
+		if vPlan.DstSubnet.ValueStringPointer() != nil {
+			data.DstSubnet = vPlan.DstSubnet.ValueStringPointer()
 		}
-		if v_plan.SrcSubnet.ValueStringPointer() != nil {
-			data.SrcSubnet = v_plan.SrcSubnet.ValueStringPointer()
+		if vPlan.SrcSubnet.ValueStringPointer() != nil {
+			data.SrcSubnet = vPlan.SrcSubnet.ValueStringPointer()
 		}
-		data_map[k] = data
+		dataMap[k] = data
 	}
-	return data_map
+	return dataMap
 }
-func appQosOthersTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, plan basetypes.ListValue) []models.WlanAppQosOthersItem {
-	var data_list []models.WlanAppQosOthersItem
+func appQosOthersTerraformToSdk(plan basetypes.ListValue) []models.WlanAppQosOthersItem {
+	var dataList []models.WlanAppQosOthersItem
 	for _, v := range plan.Elements() {
-		var v_interface interface{} = v
-		v_plan := v_interface.(OthersValue)
+		var vInterface interface{} = v
+		vPlan := vInterface.(OthersValue)
 		data := models.WlanAppQosOthersItem{}
-		if v_plan.Dscp.ValueInt64Pointer() != nil {
-			data.Dscp = models.ToPointer(int(v_plan.Dscp.ValueInt64()))
+		if vPlan.Dscp.ValueInt64Pointer() != nil {
+			data.Dscp = models.ToPointer(int(vPlan.Dscp.ValueInt64()))
 		}
-		if v_plan.DstSubnet.ValueStringPointer() != nil {
-			data.DstSubnet = v_plan.DstSubnet.ValueStringPointer()
+		if vPlan.DstSubnet.ValueStringPointer() != nil {
+			data.DstSubnet = vPlan.DstSubnet.ValueStringPointer()
 		}
-		if v_plan.PortRanges.ValueStringPointer() != nil {
-			data.PortRanges = v_plan.PortRanges.ValueStringPointer()
+		if vPlan.PortRanges.ValueStringPointer() != nil {
+			data.PortRanges = vPlan.PortRanges.ValueStringPointer()
 		}
-		if v_plan.Protocol.ValueStringPointer() != nil {
-			data.Protocol = v_plan.Protocol.ValueStringPointer()
+		if vPlan.Protocol.ValueStringPointer() != nil {
+			data.Protocol = vPlan.Protocol.ValueStringPointer()
 		}
-		if v_plan.SrcSubnet.ValueStringPointer() != nil {
-			data.SrcSubnet = v_plan.SrcSubnet.ValueStringPointer()
+		if vPlan.SrcSubnet.ValueStringPointer() != nil {
+			data.SrcSubnet = vPlan.SrcSubnet.ValueStringPointer()
 		}
-		data_list = append(data_list, data)
+		dataList = append(dataList, data)
 	}
-	return data_list
+	return dataList
 }
 
-func appQosTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, plan AppQosValue) *models.WlanAppQos {
+func appQosTerraformToSdk(plan AppQosValue) *models.WlanAppQos {
 
 	data := models.WlanAppQos{}
 
-	apps := appQosAppsTerraformToSdk(ctx, diags, plan.Apps)
+	apps := appQosAppsTerraformToSdk(plan.Apps)
 	data.Apps = apps
 
 	data.Enabled = plan.Enabled.ValueBoolPointer()
 
-	others := appQosOthersTerraformToSdk(ctx, diags, plan.Others)
+	others := appQosOthersTerraformToSdk(plan.Others)
 	data.Others = others
 
 	return &data

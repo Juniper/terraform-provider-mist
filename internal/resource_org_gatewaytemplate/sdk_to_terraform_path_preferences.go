@@ -10,22 +10,22 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func pathPreferencePathsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.GatewayPathPreferencesPath) basetypes.ListValue {
-	var data_list = []PathsValue{}
+	var dataList []PathsValue
 
 	for _, d := range l {
 		var cost basetypes.Int64Value
 		var disabled basetypes.BoolValue
-		var gateway_ip basetypes.StringValue
-		var internet_access basetypes.BoolValue
+		var gatewayIp basetypes.StringValue
+		var internetAccess basetypes.BoolValue
 		var name basetypes.StringValue
-		var networks basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
-		var target_ips basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
-		var type_path basetypes.StringValue
-		var wan_name basetypes.StringValue
+		var networks = misttransform.ListOfStringSdkToTerraformEmpty()
+		var targetIps = misttransform.ListOfStringSdkToTerraformEmpty()
+		var typePath basetypes.StringValue
+		var wanName basetypes.StringValue
 
 		if d.Cost != nil {
 			cost = types.Int64Value(int64(*d.Cost))
@@ -34,55 +34,54 @@ func pathPreferencePathsSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 			disabled = types.BoolValue(*d.Disabled)
 		}
 		if d.GatewayIp != nil {
-			gateway_ip = types.StringValue(*d.GatewayIp)
+			gatewayIp = types.StringValue(*d.GatewayIp)
 		}
 		if d.InternetAccess != nil {
-			internet_access = types.BoolValue(*d.InternetAccess)
+			internetAccess = types.BoolValue(*d.InternetAccess)
 		}
 		if d.Name != nil {
 			name = types.StringValue(*d.Name)
 		}
 		if d.Networks != nil {
-			networks = mist_transform.ListOfStringSdkToTerraform(ctx, d.Networks)
+			networks = misttransform.ListOfStringSdkToTerraform(d.Networks)
 		}
 		if d.TargetIps != nil {
-			target_ips = mist_transform.ListOfStringSdkToTerraform(ctx, d.TargetIps)
+			targetIps = misttransform.ListOfStringSdkToTerraform(d.TargetIps)
 		}
 		if d.Type != nil {
-			type_path = types.StringValue(string(*d.Type))
+			typePath = types.StringValue(string(*d.Type))
 		}
 		if d.WanName != nil {
-			wan_name = types.StringValue(*d.WanName)
+			wanName = types.StringValue(*d.WanName)
 		}
 
-		data_map_attr_type := PathsValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
+		dataMapValue := map[string]attr.Value{
 			"cost":            cost,
 			"disabled":        disabled,
-			"gateway_ip":      gateway_ip,
-			"internet_access": internet_access,
+			"gateway_ip":      gatewayIp,
+			"internet_access": internetAccess,
 			"name":            name,
 			"networks":        networks,
-			"target_ips":      target_ips,
-			"type":            type_path,
-			"wan_name":        wan_name,
+			"target_ips":      targetIps,
+			"type":            typePath,
+			"wan_name":        wanName,
 		}
-		data, e := NewPathsValue(data_map_attr_type, data_map_value)
+		data, e := NewPathsValue(PathsValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		data_list = append(data_list, data)
+		dataList = append(dataList, data)
 	}
-	data_list_type := PathsValue{}.Type(ctx)
-	r, e := types.ListValueFrom(ctx, data_list_type, data_list)
+	datalistType := PathsValue{}.Type(ctx)
+	r, e := types.ListValueFrom(ctx, datalistType, dataList)
 	diags.Append(e...)
 	return r
 }
 
 func pathPreferencesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.GatewayPathPreferences) basetypes.MapValue {
-	state_value_map := make(map[string]attr.Value)
+	stateValueMap := make(map[string]attr.Value)
 	for k, d := range m {
-		var paths basetypes.ListValue = types.ListNull(PathsValue{}.Type(ctx))
-		var strategy basetypes.StringValue = types.StringValue("ordered")
+		var paths = types.ListNull(PathsValue{}.Type(ctx))
+		var strategy = types.StringValue("ordered")
 
 		if d.Paths != nil {
 			paths = pathPreferencePathsSdkToTerraform(ctx, diags, d.Paths)
@@ -91,17 +90,16 @@ func pathPreferencesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics,
 			strategy = types.StringValue(string(*d.Strategy))
 		}
 
-		data_map_attr_type := PathPreferencesValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
+		dataMapValue := map[string]attr.Value{
 			"paths":    paths,
 			"strategy": strategy,
 		}
-		data, e := NewPathPreferencesValue(data_map_attr_type, data_map_value)
+		data, e := NewPathPreferencesValue(PathPreferencesValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
-		state_value_map[k] = data
+		stateValueMap[k] = data
 	}
-	state_type := PathPreferencesValue{}.Type(ctx)
-	state_result, e := types.MapValueFrom(ctx, state_type, state_value_map)
+	stateType := PathPreferencesValue{}.Type(ctx)
+	stateResult, e := types.MapValueFrom(ctx, stateType, stateValueMap)
 	diags.Append(e...)
-	return state_result
+	return stateResult
 }

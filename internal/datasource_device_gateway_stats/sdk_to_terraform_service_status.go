@@ -13,62 +13,61 @@ import (
 
 func serviceStatusSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.StatsGatewayServiceStatus) basetypes.ObjectValue {
 
-	var appid_install_result basetypes.StringValue
-	var appid_install_timestamp basetypes.StringValue
-	var appid_status basetypes.StringValue
-	var appid_version basetypes.Int64Value
-	var ewf_status basetypes.StringValue
-	var idp_install_result basetypes.StringValue
-	var idp_install_timestamp basetypes.StringValue
-	var idp_policy basetypes.StringValue
-	var idp_status basetypes.StringValue
-	var idp_update_timestamp basetypes.StringValue
+	var appidInstallResult basetypes.StringValue
+	var appidInstallTimestamp basetypes.StringValue
+	var appidStatus basetypes.StringValue
+	var appidVersion basetypes.Int64Value
+	var ewfStatus basetypes.StringValue
+	var idpInstallResult basetypes.StringValue
+	var idpInstallTimestamp basetypes.StringValue
+	var idpPolicy basetypes.StringValue
+	var idpStatus basetypes.StringValue
+	var idpUpdateTimestamp basetypes.StringValue
 
 	if d.AppidInstallResult != nil {
-		appid_install_result = types.StringValue(*d.AppidInstallResult)
+		appidInstallResult = types.StringValue(*d.AppidInstallResult)
 	}
 	if d.AppidInstallTimestamp != nil {
-		appid_install_timestamp = types.StringValue(*d.AppidInstallTimestamp)
+		appidInstallTimestamp = types.StringValue(*d.AppidInstallTimestamp)
 	}
 	if d.AppidStatus != nil {
-		appid_status = types.StringValue(*d.AppidStatus)
+		appidStatus = types.StringValue(*d.AppidStatus)
 	}
 	if d.AppidVersion != nil {
-		appid_version = types.Int64Value(int64(*d.AppidVersion))
+		appidVersion = types.Int64Value(int64(*d.AppidVersion))
 	}
 	if d.EwfStatus != nil {
-		ewf_status = types.StringValue(*d.EwfStatus)
+		ewfStatus = types.StringValue(*d.EwfStatus)
 	}
 	if d.IdpInstallResult != nil {
-		idp_install_result = types.StringValue(*d.IdpInstallResult)
+		idpInstallResult = types.StringValue(*d.IdpInstallResult)
 	}
 	if d.IdpInstallTimestamp != nil {
-		idp_install_timestamp = types.StringValue(*d.IdpInstallTimestamp)
+		idpInstallTimestamp = types.StringValue(*d.IdpInstallTimestamp)
 	}
 	if d.IdpPolicy != nil {
-		idp_policy = types.StringValue(*d.IdpPolicy)
+		idpPolicy = types.StringValue(*d.IdpPolicy)
 	}
 	if d.IdpStatus != nil {
-		idp_status = types.StringValue(*d.IdpStatus)
+		idpStatus = types.StringValue(*d.IdpStatus)
 	}
 	if d.IdpUpdateTimestamp != nil {
-		idp_update_timestamp = types.StringValue(*d.IdpUpdateTimestamp)
+		idpUpdateTimestamp = types.StringValue(*d.IdpUpdateTimestamp)
 	}
 
-	data_map_attr_type := ServiceStatusValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"appid_install_result":    appid_install_result,
-		"appid_install_timestamp": appid_install_timestamp,
-		"appid_status":            appid_status,
-		"appid_version":           appid_version,
-		"ewf_status":              ewf_status,
-		"idp_install_result":      idp_install_result,
-		"idp_install_timestamp":   idp_install_timestamp,
-		"idp_policy":              idp_policy,
-		"idp_status":              idp_status,
-		"idp_update_timestamp":    idp_update_timestamp,
+	dataMapValue := map[string]attr.Value{
+		"appid_install_result":    appidInstallResult,
+		"appid_install_timestamp": appidInstallTimestamp,
+		"appid_status":            appidStatus,
+		"appid_version":           appidVersion,
+		"ewf_status":              ewfStatus,
+		"idp_install_result":      idpInstallResult,
+		"idp_install_timestamp":   idpInstallTimestamp,
+		"idp_policy":              idpPolicy,
+		"idp_status":              idpStatus,
+		"idp_update_timestamp":    idpUpdateTimestamp,
 	}
-	data, e := basetypes.NewObjectValue(data_map_attr_type, data_map_value)
+	data, e := basetypes.NewObjectValue(ServiceStatusValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

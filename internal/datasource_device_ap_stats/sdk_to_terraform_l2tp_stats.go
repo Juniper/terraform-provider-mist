@@ -12,49 +12,48 @@ import (
 )
 
 func l2tpStatsSessionSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.StatsApL2tpStatSession) basetypes.ListValue {
-	var data_list = []SessionsValue{}
+	var dataList []SessionsValue
 	for _, d := range l {
-		var local_sid basetypes.Int64Value
-		var remote_id basetypes.StringValue
-		var remote_sid basetypes.Int64Value
+		var localSid basetypes.Int64Value
+		var remoteId basetypes.StringValue
+		var remoteSid basetypes.Int64Value
 		var state basetypes.StringValue
 
 		if d.LocalSid.Value() != nil {
-			local_sid = types.Int64Value(int64(*d.LocalSid.Value()))
+			localSid = types.Int64Value(int64(*d.LocalSid.Value()))
 		}
 		if d.RemoteId.Value() != nil {
-			remote_id = types.StringValue(*d.RemoteId.Value())
+			remoteId = types.StringValue(*d.RemoteId.Value())
 		}
 		if d.RemoteSid.Value() != nil {
-			remote_sid = types.Int64Value(int64(*d.RemoteSid.Value()))
+			remoteSid = types.Int64Value(int64(*d.RemoteSid.Value()))
 		}
 		if d.State != nil {
 			state = types.StringValue(string(*d.State))
 		}
 
-		data_map_attr_type := SessionsValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
-			"local_sid":  local_sid,
-			"remote_id":  remote_id,
-			"remote_sid": remote_sid,
+		dataMapValue := map[string]attr.Value{
+			"local_sid":  localSid,
+			"remote_id":  remoteId,
+			"remote_sid": remoteSid,
 			"state":      state,
 		}
-		data, e := NewSessionsValue(data_map_attr_type, data_map_value)
+		data, e := NewSessionsValue(SessionsValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
-		data_list = append(data_list, data)
+		dataList = append(dataList, data)
 	}
-	r, e := types.ListValueFrom(ctx, SessionsValue{}.Type(ctx), data_list)
+	r, e := types.ListValueFrom(ctx, SessionsValue{}.Type(ctx), dataList)
 	diags.Append(e...)
 	return r
 }
 
 func l2tpStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.StatsApL2tpStat) basetypes.MapValue {
-	map_attr_values := make(map[string]attr.Value)
+	mapAttrValues := make(map[string]attr.Value)
 	for k, d := range m {
-		var sessions basetypes.ListValue = types.ListUnknown(SessionsValue{}.Type(ctx))
+		var sessions = types.ListUnknown(SessionsValue{}.Type(ctx))
 		var state basetypes.StringValue
 		var uptime basetypes.Int64Value
-		var wxtunnel_id basetypes.StringValue
+		var wxtunnelId basetypes.StringValue
 
 		if d.Sessions != nil {
 			sessions = l2tpStatsSessionSdkToTerraform(ctx, diags, d.Sessions)
@@ -66,21 +65,20 @@ func l2tpStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map
 			uptime = types.Int64Value(int64(*d.Uptime.Value()))
 		}
 		if d.WxtunnelId.Value() != nil {
-			wxtunnel_id = types.StringValue(d.WxtunnelId.Value().String())
+			wxtunnelId = types.StringValue(d.WxtunnelId.Value().String())
 		}
 
-		data_map_attr_type := L2tpStatValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
+		dataMapValue := map[string]attr.Value{
 			"sessions":    sessions,
 			"state":       state,
 			"uptime":      uptime,
-			"wxtunnel_id": wxtunnel_id,
+			"wxtunnel_id": wxtunnelId,
 		}
-		data, e := NewL2tpStatValue(data_map_attr_type, data_map_value)
+		data, e := NewL2tpStatValue(L2tpStatValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
-		map_attr_values[k] = data
+		mapAttrValues[k] = data
 	}
-	state_result, e := types.MapValueFrom(ctx, L2tpStatValue{}.Type(ctx), map_attr_values)
+	stateResult, e := types.MapValueFrom(ctx, L2tpStatValue{}.Type(ctx), mapAttrValues)
 	diags.Append(e...)
-	return state_result
+	return stateResult
 }

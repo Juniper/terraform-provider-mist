@@ -13,21 +13,20 @@ import (
 
 func pwrConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ApPwrConfig) PwrConfigValue {
 	var base basetypes.Int64Value
-	var prefer_usb_over_wifi basetypes.BoolValue
+	var preferUsbOverWifi basetypes.BoolValue
 
 	if d.Base != nil {
 		base = types.Int64Value(int64(*d.Base))
 	}
 	if d.PreferUsbOverWifi != nil {
-		prefer_usb_over_wifi = types.BoolValue(*d.PreferUsbOverWifi)
+		preferUsbOverWifi = types.BoolValue(*d.PreferUsbOverWifi)
 	}
 
-	data_map_attr_type := PwrConfigValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"base":                 base,
-		"prefer_usb_over_wifi": prefer_usb_over_wifi,
+		"prefer_usb_over_wifi": preferUsbOverWifi,
 	}
-	data, e := NewPwrConfigValue(data_map_attr_type, data_map_value)
+	data, e := NewPwrConfigValue(PwrConfigValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

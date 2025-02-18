@@ -46,11 +46,11 @@ func (d *orgServicepoliciesDataSource) Configure(ctx context.Context, req dataso
 
 	d.client = client
 }
-func (d *orgServicepoliciesDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+func (d *orgServicepoliciesDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_org_servicepolicies"
 }
 
-func (d *orgServicepoliciesDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *orgServicepoliciesDataSource) Schema(ctx context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryWan + "This data source provides the list of WAN Assurance Service Policies (Application Policiess).\n\n" +
 			"The Service Policies can be used in the `service_policies` object by referencing the Service Policy ID as the `servicepolicy_id` in:\n" +
@@ -79,9 +79,9 @@ func (d *orgServicepoliciesDataSource) Read(ctx context.Context, req datasource.
 		return
 	}
 
-	var limit int = 1000
-	var page int = 0
-	var total int = 9999
+	var limit = 1000
+	var page = 0
+	var total = 9999
 	var elements []attr.Value
 	var diags diag.Diagnostics
 
@@ -101,8 +101,8 @@ func (d *orgServicepoliciesDataSource) Read(ctx context.Context, req datasource.
 			return
 		}
 
-		limit_string := data.Response.Header.Get("X-Page-Limit")
-		if limit, err = strconv.Atoi(limit_string); err != nil {
+		limitString := data.Response.Header.Get("X-Page-Limit")
+		if limit, err = strconv.Atoi(limitString); err != nil {
 			resp.Diagnostics.AddError(
 				"Error extracting HTTP Response Headers",
 				"Unable to convert the X-Page-Limit value into int, unexcpected error: "+err.Error(),
@@ -110,8 +110,8 @@ func (d *orgServicepoliciesDataSource) Read(ctx context.Context, req datasource.
 			return
 		}
 
-		total_string := data.Response.Header.Get("X-Page-Total")
-		if total, err = strconv.Atoi(total_string); err != nil {
+		totalString := data.Response.Header.Get("X-Page-Total")
+		if total, err = strconv.Atoi(totalString); err != nil {
 			resp.Diagnostics.AddError(
 				"Error extracting HTTP Response Headers",
 				"Unable to convert the X-Page-Total value into int, unexcpected error: "+err.Error(),

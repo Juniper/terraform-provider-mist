@@ -1,14 +1,12 @@
 package resource_org_sso
 
 import (
-	"context"
-
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 )
 
-func TerraformToSdk(ctx context.Context, plan *OrgSsoModel) (*models.Sso, diag.Diagnostics) {
+func TerraformToSdk(plan *OrgSsoModel) (*models.Sso, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	unset := make(map[string]interface{})
 	data := models.Sso{}

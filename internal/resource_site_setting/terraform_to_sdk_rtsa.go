@@ -1,14 +1,10 @@
 package resource_site_setting
 
 import (
-	"context"
-
-	"github.com/hashicorp/terraform-plugin-framework/diag"
-
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func rtsaTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d RtsaValue) *models.SiteSettingRtsa {
+func rtsaTerraformToSdk(d RtsaValue) *models.SiteSettingRtsa {
 	data := models.SiteSettingRtsa{}
 
 	if d.AppWaking.ValueBoolPointer() != nil {

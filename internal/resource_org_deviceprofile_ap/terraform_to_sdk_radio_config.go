@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func channelsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []int {
+func channelsTerraformToSdk(d basetypes.ListValue) []int {
 	var data []int
 	for _, v := range d.Elements() {
 		var i interface{} = v
@@ -39,7 +39,7 @@ func band24TerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basety
 				data.Bandwidth = models.ToPointer(models.Dot11Bandwidth24Enum(plan.Bandwidth.ValueInt64()))
 			}
 			if !plan.Channels.IsNull() && !plan.Channels.IsUnknown() {
-				data.Channels = models.NewOptional(models.ToPointer(channelsTerraformToSdk(ctx, diags, plan.Channels)))
+				data.Channels = models.NewOptional(models.ToPointer(channelsTerraformToSdk(plan.Channels)))
 			}
 			if plan.Disabled.ValueBoolPointer() != nil {
 				data.Disabled = plan.Disabled.ValueBoolPointer()
@@ -81,7 +81,7 @@ func band5TerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetyp
 				data.Bandwidth = models.ToPointer(models.Dot11Bandwidth5Enum(plan.Bandwidth.ValueInt64()))
 			}
 			if !plan.Channels.IsNull() && !plan.Channels.IsUnknown() {
-				data.Channels = models.NewOptional(models.ToPointer(channelsTerraformToSdk(ctx, diags, plan.Channels)))
+				data.Channels = models.NewOptional(models.ToPointer(channelsTerraformToSdk(plan.Channels)))
 			}
 			if plan.Disabled.ValueBoolPointer() != nil {
 				data.Disabled = plan.Disabled.ValueBoolPointer()
@@ -123,7 +123,7 @@ func band6TerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetyp
 				data.Bandwidth = models.ToPointer(models.Dot11Bandwidth6Enum(plan.Bandwidth.ValueInt64()))
 			}
 			if !plan.Channels.IsNull() && !plan.Channels.IsUnknown() {
-				data.Channels = models.NewOptional(models.ToPointer(channelsTerraformToSdk(ctx, diags, plan.Channels)))
+				data.Channels = models.NewOptional(models.ToPointer(channelsTerraformToSdk(plan.Channels)))
 			}
 			if plan.Disabled.ValueBoolPointer() != nil {
 				data.Disabled = plan.Disabled.ValueBoolPointer()

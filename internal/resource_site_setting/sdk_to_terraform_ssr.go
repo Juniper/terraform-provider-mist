@@ -10,27 +10,26 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func ssrSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteSettingSsr) SsrValue {
 
-	var conductor_hosts basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
-	var disable_stats basetypes.BoolValue
+	var conductorHosts = misttransform.ListOfStringSdkToTerraformEmpty()
+	var disableStats basetypes.BoolValue
 
 	if d != nil && d.ConductorHosts != nil {
-		conductor_hosts = mist_transform.ListOfStringSdkToTerraform(ctx, d.ConductorHosts)
+		conductorHosts = misttransform.ListOfStringSdkToTerraform(d.ConductorHosts)
 	}
 	if d != nil && d.DisableStats != nil {
-		disable_stats = types.BoolValue(*d.DisableStats)
+		disableStats = types.BoolValue(*d.DisableStats)
 	}
 
-	data_map_attr_type := SsrValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"conductor_hosts": conductor_hosts,
-		"disable_stats":   disable_stats,
+	dataMapValue := map[string]attr.Value{
+		"conductor_hosts": conductorHosts,
+		"disable_stats":   disableStats,
 	}
-	data, e := NewSsrValue(data_map_attr_type, data_map_value)
+	data, e := NewSsrValue(SsrValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

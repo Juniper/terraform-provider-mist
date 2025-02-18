@@ -19,23 +19,24 @@ func NewTFlogger(ctx context.Context) *TFLogger {
 	return &TFLogger{ctx: ctx}
 }
 
+//goland:noinspection GoUnusedParameter
 func (l *TFLogger) Trace(msg string, args ...interface{}) {
 	tflog.Trace(l.ctx, msg)
 }
 
-func (l *TFLogger) Debug(msg string, args ...interface{}) {
+func (l *TFLogger) Debug(msg string, _ ...interface{}) {
 	tflog.Debug(l.ctx, msg)
 }
 
-func (l *TFLogger) Info(msg string, args ...interface{}) {
+func (l *TFLogger) Info(msg string, _ ...interface{}) {
 	tflog.Info(l.ctx, msg)
 }
 
-func (l *TFLogger) Warn(msg string, args ...interface{}) {
+func (l *TFLogger) Warn(msg string, _ ...interface{}) {
 	tflog.Warn(l.ctx, msg)
 }
 
-func (l *TFLogger) Error(msg string, args ...interface{}) {
+func (l *TFLogger) Error(msg string, _ ...interface{}) {
 	tflog.Error(l.ctx, msg)
 }
 

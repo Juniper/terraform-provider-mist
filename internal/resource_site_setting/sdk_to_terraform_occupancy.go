@@ -13,37 +13,36 @@ import (
 
 func occupancySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteOccupancyAnalytics) OccupancyValue {
 
-	var assets_enabled basetypes.BoolValue
-	var clients_enabled basetypes.BoolValue
-	var min_duration basetypes.Int64Value
-	var sdkclients_enabled basetypes.BoolValue
-	var unconnected_clients_enabled basetypes.BoolValue
+	var assetsEnabled basetypes.BoolValue
+	var clientsEnabled basetypes.BoolValue
+	var minDuration basetypes.Int64Value
+	var sdkclientsEnabled basetypes.BoolValue
+	var unconnectedClientsEnabled basetypes.BoolValue
 
 	if d != nil && d.AssetsEnabled != nil {
-		assets_enabled = types.BoolValue(*d.AssetsEnabled)
+		assetsEnabled = types.BoolValue(*d.AssetsEnabled)
 	}
 	if d != nil && d.ClientsEnabled != nil {
-		clients_enabled = types.BoolValue(*d.ClientsEnabled)
+		clientsEnabled = types.BoolValue(*d.ClientsEnabled)
 	}
 	if d != nil && d.MinDuration != nil {
-		min_duration = types.Int64Value(int64(*d.MinDuration))
+		minDuration = types.Int64Value(int64(*d.MinDuration))
 	}
 	if d != nil && d.SdkclientsEnabled != nil {
-		sdkclients_enabled = types.BoolValue(*d.SdkclientsEnabled)
+		sdkclientsEnabled = types.BoolValue(*d.SdkclientsEnabled)
 	}
 	if d != nil && d.UnconnectedClientsEnabled != nil {
-		unconnected_clients_enabled = types.BoolValue(*d.UnconnectedClientsEnabled)
+		unconnectedClientsEnabled = types.BoolValue(*d.UnconnectedClientsEnabled)
 	}
 
-	data_map_attr_type := OccupancyValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"assets_enabled":              assets_enabled,
-		"clients_enabled":             clients_enabled,
-		"min_duration":                min_duration,
-		"sdkclients_enabled":          sdkclients_enabled,
-		"unconnected_clients_enabled": unconnected_clients_enabled,
+	dataMapValue := map[string]attr.Value{
+		"assets_enabled":              assetsEnabled,
+		"clients_enabled":             clientsEnabled,
+		"min_duration":                minDuration,
+		"sdkclients_enabled":          sdkclientsEnabled,
+		"unconnected_clients_enabled": unconnectedClientsEnabled,
 	}
-	data, e := NewOccupancyValue(data_map_attr_type, data_map_value)
+	data, e := NewOccupancyValue(OccupancyValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

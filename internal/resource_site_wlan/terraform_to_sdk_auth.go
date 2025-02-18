@@ -1,21 +1,18 @@
 package resource_site_wlan
 
 import (
-	"context"
-
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func authKeysTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, plan basetypes.ListValue) []string {
+func authKeysTerraformToSdk(plan basetypes.ListValue) []string {
 	var items []string
 	for _, v := range plan.Elements() {
 		if v != nil {
-			var v_inteface interface{} = v
-			v_plan := v_inteface.(basetypes.StringValue)
-			items = append(items, v_plan.ValueString())
+			var vInteface interface{} = v
+			vPlan := vInteface.(basetypes.StringValue)
+			items = append(items, vPlan.ValueString())
 		} else {
 			var t string
 			items = append(items, t)
@@ -23,20 +20,20 @@ func authKeysTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, plan b
 	}
 	return items
 }
-func authPairwiseTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, plan basetypes.ListValue) []models.WlanAuthPairwiseItemEnum {
+func authPairwiseTerraformToSdk(plan basetypes.ListValue) []models.WlanAuthPairwiseItemEnum {
 	var items []models.WlanAuthPairwiseItemEnum
 	for _, v := range plan.Elements() {
-		var v_inteface interface{} = v
-		v_plan := v_inteface.(basetypes.StringValue)
-		items = append(items, (models.WlanAuthPairwiseItemEnum)(v_plan.ValueString()))
+		var vInteface interface{} = v
+		vPlan := vInteface.(basetypes.StringValue)
+		items = append(items, (models.WlanAuthPairwiseItemEnum)(vPlan.ValueString()))
 	}
 	return items
 }
-func authTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, plan AuthValue) *models.WlanAuth {
+func authTerraformToSdk(plan AuthValue) *models.WlanAuth {
 
 	data := models.WlanAuth{}
 	if plan.AuthType.ValueStringPointer() != nil {
-		data.Type = models.WlanAuthTypeEnum(string(plan.AuthType.ValueString()))
+		data.Type = models.WlanAuthTypeEnum(plan.AuthType.ValueString())
 	}
 	if plan.AnticlogThreshold.ValueInt64Pointer() != nil {
 		data.AnticlogThreshold = models.ToPointer(int(plan.AnticlogThreshold.ValueInt64()))
@@ -51,16 +48,16 @@ func authTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, plan AuthV
 		data.KeyIdx = models.ToPointer(int(plan.KeyIdx.ValueInt64()))
 	}
 	if !plan.Keys.IsNull() && !plan.Keys.IsUnknown() {
-		data.Keys = authKeysTerraformToSdk(ctx, diags, plan.Keys)
+		data.Keys = authKeysTerraformToSdk(plan.Keys)
 	}
 	if plan.MultiPskOnly.ValueBoolPointer() != nil {
 		data.MultiPskOnly = plan.MultiPskOnly.ValueBoolPointer()
 	}
 	if plan.Owe.ValueStringPointer() != nil {
-		data.Owe = models.ToPointer(models.WlanAuthOweEnum(string(plan.Owe.ValueString())))
+		data.Owe = models.ToPointer(models.WlanAuthOweEnum(plan.Owe.ValueString()))
 	}
 	if !plan.Pairwise.IsNull() && !plan.Pairwise.IsUnknown() {
-		data.Pairwise = authPairwiseTerraformToSdk(ctx, diags, plan.Pairwise)
+		data.Pairwise = authPairwiseTerraformToSdk(plan.Pairwise)
 	}
 	if plan.Psk.ValueStringPointer() != nil {
 		data.Psk = models.NewOptional(plan.Psk.ValueStringPointer())

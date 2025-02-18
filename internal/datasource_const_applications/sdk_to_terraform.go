@@ -30,24 +30,24 @@ func SdkToTerraform(ctx context.Context, l []models.ConstApplicationDefinition) 
 
 func constAppCategorySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.ConstApplicationDefinition) ConstApplicationsValue {
 
-	var app_id basetypes.BoolValue
-	var app_image_url basetypes.StringValue
-	var app_probe basetypes.BoolValue
+	var appId basetypes.BoolValue
+	var appImageUrl basetypes.StringValue
+	var appProbe basetypes.BoolValue
 	var category basetypes.StringValue
 	var group basetypes.StringValue
 	var key basetypes.StringValue
 	var name basetypes.StringValue
-	var signature_based basetypes.BoolValue
-	var ssr_app_id basetypes.BoolValue
+	var signatureBased basetypes.BoolValue
+	var ssrAppId basetypes.BoolValue
 
 	if d.AppId != nil {
-		app_id = types.BoolValue(*d.AppId)
+		appId = types.BoolValue(*d.AppId)
 	}
 	if d.AppImageUrl != nil {
-		app_image_url = types.StringValue(*d.AppImageUrl)
+		appImageUrl = types.StringValue(*d.AppImageUrl)
 	}
 	if d.AppProbe != nil {
-		app_probe = types.BoolValue(*d.AppProbe)
+		appProbe = types.BoolValue(*d.AppProbe)
 	}
 	if d.Category != nil {
 		category = types.StringValue(*d.Category)
@@ -62,25 +62,24 @@ func constAppCategorySdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 		name = types.StringValue(*d.Name)
 	}
 	if d.SignatureBased != nil {
-		signature_based = types.BoolValue(*d.SignatureBased)
+		signatureBased = types.BoolValue(*d.SignatureBased)
 	}
 	if d.SsrAppId != nil {
-		ssr_app_id = types.BoolValue(*d.SsrAppId)
+		ssrAppId = types.BoolValue(*d.SsrAppId)
 	}
 
-	data_map_attr_type := ConstApplicationsValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"app_id":          app_id,
-		"app_image_url":   app_image_url,
-		"app_probe":       app_probe,
+	dataMapValue := map[string]attr.Value{
+		"app_id":          appId,
+		"app_image_url":   appImageUrl,
+		"app_probe":       appProbe,
 		"category":        category,
 		"group":           group,
 		"key":             key,
 		"name":            name,
-		"signature_based": signature_based,
-		"ssr_app_id":      ssr_app_id,
+		"signature_based": signatureBased,
+		"ssr_app_id":      ssrAppId,
 	}
-	o, e := NewConstApplicationsValue(data_map_attr_type, data_map_value)
+	o, e := NewConstApplicationsValue(ConstApplicationsValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 	return o
 }

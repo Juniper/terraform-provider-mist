@@ -15,10 +15,10 @@ func oobIpConfigsNode1SdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 	var gateway basetypes.StringValue
 	var ip basetypes.StringValue
 	var netmask basetypes.StringValue
-	var type_oob basetypes.StringValue = types.StringValue("dhcp")
-	var use_mgmt_vrf basetypes.BoolValue
-	var use_mgmt_vrf_for_host_out basetypes.BoolValue
-	var vlan_id basetypes.StringValue
+	var typeOob = types.StringValue("dhcp")
+	var useMgmtVrf basetypes.BoolValue
+	var useMgmtVrfForHostOut basetypes.BoolValue
+	var vlanId basetypes.StringValue
 
 	if d != nil && d.Gateway != nil {
 		gateway = types.StringValue(*d.Gateway)
@@ -30,29 +30,28 @@ func oobIpConfigsNode1SdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 		netmask = types.StringValue(*d.Netmask)
 	}
 	if d != nil && d.Type != nil {
-		type_oob = types.StringValue(string(*d.Type))
+		typeOob = types.StringValue(string(*d.Type))
 	}
 	if d != nil && d.UseMgmtVrf != nil {
-		use_mgmt_vrf = types.BoolValue(*d.UseMgmtVrf)
+		useMgmtVrf = types.BoolValue(*d.UseMgmtVrf)
 	}
 	if d != nil && d.UseMgmtVrfForHostOut != nil {
-		use_mgmt_vrf_for_host_out = types.BoolValue(*d.UseMgmtVrfForHostOut)
+		useMgmtVrfForHostOut = types.BoolValue(*d.UseMgmtVrfForHostOut)
 	}
 	if d != nil && d.VlanId != nil {
-		vlan_id = types.StringValue(*d.VlanId)
+		vlanId = types.StringValue(*d.VlanId)
 	}
 
-	data_map_attr_type := Node1Value{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"gateway":                   gateway,
 		"ip":                        ip,
 		"netmask":                   netmask,
-		"type":                      type_oob,
-		"use_mgmt_vrf":              use_mgmt_vrf,
-		"use_mgmt_vrf_for_host_out": use_mgmt_vrf_for_host_out,
-		"vlan_id":                   vlan_id,
+		"type":                      typeOob,
+		"use_mgmt_vrf":              useMgmtVrf,
+		"use_mgmt_vrf_for_host_out": useMgmtVrfForHostOut,
+		"vlan_id":                   vlanId,
 	}
-	data, e := basetypes.NewObjectValue(data_map_attr_type, data_map_value)
+	data, e := basetypes.NewObjectValue(Node1Value{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data
@@ -62,11 +61,11 @@ func oobIpConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	var gateway basetypes.StringValue
 	var ip basetypes.StringValue
 	var netmask basetypes.StringValue
-	var node1 basetypes.ObjectValue = types.ObjectNull(Node1Value{}.AttributeTypes(ctx))
-	var type_oob basetypes.StringValue = types.StringValue("dhcp")
-	var use_mgmt_vrf basetypes.BoolValue
-	var use_mgmt_vrf_for_host_out basetypes.BoolValue
-	var vlan_id basetypes.StringValue
+	var node1 = types.ObjectNull(Node1Value{}.AttributeTypes(ctx))
+	var typeOob = types.StringValue("dhcp")
+	var useMgmtVrf basetypes.BoolValue
+	var useMgmtVrfForHostOut basetypes.BoolValue
+	var vlanId basetypes.StringValue
 
 	if d != nil && d.Gateway != nil {
 		gateway = types.StringValue(*d.Gateway)
@@ -81,30 +80,29 @@ func oobIpConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 		node1 = oobIpConfigsNode1SdkToTerraform(ctx, diags, d.Node1)
 	}
 	if d != nil && d.Type != nil {
-		type_oob = types.StringValue(string(*d.Type))
+		typeOob = types.StringValue(string(*d.Type))
 	}
 	if d != nil && d.UseMgmtVrf != nil {
-		use_mgmt_vrf = types.BoolValue(*d.UseMgmtVrf)
+		useMgmtVrf = types.BoolValue(*d.UseMgmtVrf)
 	}
 	if d != nil && d.UseMgmtVrfForHostOut != nil {
-		use_mgmt_vrf_for_host_out = types.BoolValue(*d.UseMgmtVrfForHostOut)
+		useMgmtVrfForHostOut = types.BoolValue(*d.UseMgmtVrfForHostOut)
 	}
 	if d != nil && d.VlanId != nil {
-		vlan_id = types.StringValue(*d.VlanId)
+		vlanId = types.StringValue(*d.VlanId)
 	}
 
-	data_map_attr_type := OobIpConfigValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"gateway":                   gateway,
 		"ip":                        ip,
 		"netmask":                   netmask,
 		"node1":                     node1,
-		"type":                      type_oob,
-		"use_mgmt_vrf":              use_mgmt_vrf,
-		"use_mgmt_vrf_for_host_out": use_mgmt_vrf_for_host_out,
-		"vlan_id":                   vlan_id,
+		"type":                      typeOob,
+		"use_mgmt_vrf":              useMgmtVrf,
+		"use_mgmt_vrf_for_host_out": useMgmtVrfForHostOut,
+		"vlan_id":                   vlanId,
 	}
-	data, e := NewOobIpConfigValue(data_map_attr_type, data_map_value)
+	data, e := NewOobIpConfigValue(OobIpConfigValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

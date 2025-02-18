@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
+	mistapierror "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_wlantemplate"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
@@ -48,11 +48,11 @@ func (r *orgWlanTemplateResource) Configure(ctx context.Context, req resource.Co
 
 	r.client = client
 }
-func (r *orgWlanTemplateResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *orgWlanTemplateResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_org_wlantemplate"
 }
 
-func (r *orgWlanTemplateResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *orgWlanTemplateResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryWlan + "This resource manages the Org WLAN Templates.\n\n" +
 			"A WLAN template is a collection of WLANs, tunneling policies, and wxlan policies. " +
@@ -74,7 +74,7 @@ func (r *orgWlanTemplateResource) Create(ctx context.Context, req resource.Creat
 		return
 	}
 
-	wlantemplate, diags := resource_org_wlantemplate.TerraformToSdk(ctx, &plan)
+	wlantemplate, diags := resource_org_wlantemplate.TerraformToSdk(&plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -90,11 +90,11 @@ func (r *orgWlanTemplateResource) Create(ctx context.Context, req resource.Creat
 	}
 	data, err := r.client.OrgsWLANTemplates().CreateOrgTemplate(ctx, orgId, wlantemplate)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error creating \"mist_org_wlantemplate\" resource",
-			fmt.Sprintf("Unable to create the WLAN Template. %s", api_err),
+			fmt.Sprintf("Unable to create the WLAN Template. %s", apiErr),
 		)
 		return
 	}
@@ -113,7 +113,7 @@ func (r *orgWlanTemplateResource) Create(ctx context.Context, req resource.Creat
 
 }
 
-func (r *orgWlanTemplateResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *orgWlanTemplateResource) Read(ctx context.Context, _ resource.ReadRequest, resp *resource.ReadResponse) {
 	var state resource_org_wlantemplate.OrgWlantemplateModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -178,7 +178,7 @@ func (r *orgWlanTemplateResource) Update(ctx context.Context, req resource.Updat
 		return
 	}
 
-	wlantemplate, diags := resource_org_wlantemplate.TerraformToSdk(ctx, &plan)
+	wlantemplate, diags := resource_org_wlantemplate.TerraformToSdk(&plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -203,11 +203,11 @@ func (r *orgWlanTemplateResource) Update(ctx context.Context, req resource.Updat
 	}
 	data, err := r.client.OrgsWLANTemplates().UpdateOrgTemplate(ctx, orgId, wlantemplateId, wlantemplate)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error updating \"mist_org_wlantemplate\" resource",
-			fmt.Sprintf("Unable to update the WLAN Template. %s", api_err),
+			fmt.Sprintf("Unable to update the WLAN Template. %s", apiErr),
 		)
 		return
 	}
@@ -226,7 +226,7 @@ func (r *orgWlanTemplateResource) Update(ctx context.Context, req resource.Updat
 
 }
 
-func (r *orgWlanTemplateResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *orgWlanTemplateResource) Delete(ctx context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_org_wlantemplate.OrgWlantemplateModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -253,11 +253,11 @@ func (r *orgWlanTemplateResource) Delete(ctx context.Context, req resource.Delet
 		return
 	}
 	data, err := r.client.OrgsWLANTemplates().DeleteOrgTemplate(ctx, orgId, wlantemplateId)
-	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_wlantemplate\" resource",
-			fmt.Sprintf("Unable to delete the Wlan Template. %s", api_err),
+			fmt.Sprintf("Unable to delete the Wlan Template. %s", apiErr),
 		)
 		return
 	}

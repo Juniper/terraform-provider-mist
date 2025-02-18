@@ -12,82 +12,81 @@ import (
 )
 
 func wifiSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteWifi) WifiValue {
-	var cisco_enabled basetypes.BoolValue
-	var disable_11k basetypes.BoolValue
-	var disable_radios_when_power_constrained basetypes.BoolValue
-	var enable_arp_spoof_check basetypes.BoolValue
-	var enable_shared_radio_scanning basetypes.BoolValue
+	var ciscoEnabled basetypes.BoolValue
+	var disable11k basetypes.BoolValue
+	var disableRadiosWhenPowerConstrained basetypes.BoolValue
+	var enableArpSpoofCheck basetypes.BoolValue
+	var enableSharedRadioScanning basetypes.BoolValue
 	var enabled basetypes.BoolValue
-	var locate_connected basetypes.BoolValue
-	var locate_unconnected basetypes.BoolValue
-	var mesh_allow_dfs basetypes.BoolValue
-	var mesh_enable_crm basetypes.BoolValue
-	var mesh_enabled basetypes.BoolValue
-	var mesh_psk basetypes.StringValue
-	var mesh_ssid basetypes.StringValue
-	var proxy_arp basetypes.StringValue
+	var locateConnected basetypes.BoolValue
+	var locateUnconnected basetypes.BoolValue
+	var meshAllowDfs basetypes.BoolValue
+	var meshEnableCrm basetypes.BoolValue
+	var meshEnabled basetypes.BoolValue
+	var meshPsk basetypes.StringValue
+	var meshSsid basetypes.StringValue
+	var proxyArp basetypes.StringValue
 
 	if d != nil && d.CiscoEnabled != nil {
-		cisco_enabled = types.BoolValue(*d.CiscoEnabled)
+		ciscoEnabled = types.BoolValue(*d.CiscoEnabled)
 	}
 	if d != nil && d.Disable11k != nil {
-		disable_11k = types.BoolValue(*d.Disable11k)
+		disable11k = types.BoolValue(*d.Disable11k)
 	}
 	if d != nil && d.DisableRadiosWhenPowerConstrained != nil {
-		disable_radios_when_power_constrained = types.BoolValue(*d.DisableRadiosWhenPowerConstrained)
+		disableRadiosWhenPowerConstrained = types.BoolValue(*d.DisableRadiosWhenPowerConstrained)
 	}
 	if d != nil && d.EnableArpSpoofCheck != nil {
-		enable_arp_spoof_check = types.BoolValue(*d.EnableArpSpoofCheck)
+		enableArpSpoofCheck = types.BoolValue(*d.EnableArpSpoofCheck)
 	}
 	if d != nil && d.EnableSharedRadioScanning != nil {
-		enable_shared_radio_scanning = types.BoolValue(*d.EnableSharedRadioScanning)
+		enableSharedRadioScanning = types.BoolValue(*d.EnableSharedRadioScanning)
 	}
 	if d != nil && d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
 	if d != nil && d.LocateConnected != nil {
-		locate_connected = types.BoolValue(*d.LocateConnected)
+		locateConnected = types.BoolValue(*d.LocateConnected)
 	}
 	if d != nil && d.LocateUnconnected != nil {
-		locate_unconnected = types.BoolValue(*d.LocateUnconnected)
+		locateUnconnected = types.BoolValue(*d.LocateUnconnected)
 	}
 	if d != nil && d.MeshAllowDfs != nil {
-		mesh_allow_dfs = types.BoolValue(*d.MeshAllowDfs)
+		meshAllowDfs = types.BoolValue(*d.MeshAllowDfs)
 	}
 	if d != nil && d.MeshEnableCrm != nil {
-		mesh_enable_crm = types.BoolValue(*d.MeshEnableCrm)
+		meshEnableCrm = types.BoolValue(*d.MeshEnableCrm)
 	}
 	if d != nil && d.MeshEnabled != nil {
-		mesh_enabled = types.BoolValue(*d.MeshEnabled)
+		meshEnabled = types.BoolValue(*d.MeshEnabled)
 	}
 	if d != nil && d.MeshPsk.Value() != nil {
-		mesh_psk = types.StringValue(*d.MeshPsk.Value())
+		meshPsk = types.StringValue(*d.MeshPsk.Value())
 	}
 	if d != nil && d.MeshSsid.Value() != nil {
-		mesh_ssid = types.StringValue(*d.MeshSsid.Value())
+		meshSsid = types.StringValue(*d.MeshSsid.Value())
 	}
 	if d != nil && d.ProxyArp.Value() != nil {
-		proxy_arp = types.StringValue(string(*d.ProxyArp.Value()))
+		proxyArp = types.StringValue(string(*d.ProxyArp.Value()))
 	}
 
-	data_map_attr_type := WifiValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"cisco_enabled":                         cisco_enabled,
-		"disable_11k":                           disable_11k,
-		"disable_radios_when_power_constrained": disable_radios_when_power_constrained,
-		"enable_arp_spoof_check":                enable_arp_spoof_check,
-		"enable_shared_radio_scanning":          enable_shared_radio_scanning,
+	dataMapValue := map[string]attr.Value{
+		"cisco_enabled":                         ciscoEnabled,
+		"disable_11k":                           disable11k,
+		"disable_radios_when_power_constrained": disableRadiosWhenPowerConstrained,
+		"enable_arp_spoof_check":                enableArpSpoofCheck,
+		"enable_shared_radio_scanning":          enableSharedRadioScanning,
 		"enabled":                               enabled,
-		"locate_connected":                      locate_connected,
-		"locate_unconnected":                    locate_unconnected,
-		"mesh_allow_dfs":                        mesh_allow_dfs,
-		"mesh_enable_crm":                       mesh_enable_crm,
-		"mesh_enabled":                          mesh_enabled,
-		"mesh_psk":                              mesh_psk,
-		"mesh_ssid":                             mesh_ssid,
-		"proxy_arp":                             proxy_arp,
+		"locate_connected":                      locateConnected,
+		"locate_unconnected":                    locateUnconnected,
+		"mesh_allow_dfs":                        meshAllowDfs,
+		"mesh_enable_crm":                       meshEnableCrm,
+		"mesh_enabled":                          meshEnabled,
+		"mesh_psk":                              meshPsk,
+		"mesh_ssid":                             meshSsid,
+		"proxy_arp":                             proxyArp,
 	}
-	data, e := NewWifiValue(data_map_attr_type, data_map_value)
+	data, e := NewWifiValue(WifiValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

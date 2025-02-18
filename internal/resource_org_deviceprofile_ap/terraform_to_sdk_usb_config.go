@@ -1,14 +1,10 @@
 package resource_org_deviceprofile_ap
 
 import (
-	"context"
-
-	"github.com/hashicorp/terraform-plugin-framework/diag"
-
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func usbConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d UsbConfigValue) *models.ApUsb {
+func usbConfigTerraformToSdk(d UsbConfigValue) *models.ApUsb {
 	data := models.ApUsb{}
 
 	if d.Cacert.ValueStringPointer() != nil {

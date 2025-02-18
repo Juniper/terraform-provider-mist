@@ -13,17 +13,16 @@ import (
 
 func SwitchRedundancySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.StatsApSwitchRedundancy) basetypes.ObjectValue {
 
-	var num_redundant_aps basetypes.Int64Value
+	var numRedundantAps basetypes.Int64Value
 
 	if d.NumRedundantAps.Value() != nil {
-		num_redundant_aps = types.Int64Value(int64(*d.NumRedundantAps.Value()))
+		numRedundantAps = types.Int64Value(int64(*d.NumRedundantAps.Value()))
 	}
 
-	data_map_attr_type := SwitchRedundancyValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"num_redundant_aps": num_redundant_aps,
+	dataMapValue := map[string]attr.Value{
+		"num_redundant_aps": numRedundantAps,
 	}
-	data, e := basetypes.NewObjectValue(data_map_attr_type, data_map_value)
+	data, e := basetypes.NewObjectValue(SwitchRedundancyValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

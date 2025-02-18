@@ -12,145 +12,142 @@ import (
 )
 
 func radiusServersAcctSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.RadiusAcctServer) basetypes.ListValue {
-	var acct_value_list []attr.Value
+	var acctValueList []attr.Value
 	for _, d := range l {
-		var host basetypes.StringValue = types.StringValue(d.Host)
-		var keywrap_enabled basetypes.BoolValue
-		var keywrap_format basetypes.StringValue
-		var keywrap_kek basetypes.StringValue
-		var keywrap_mack basetypes.StringValue
-		var port basetypes.Int64Value = types.Int64Value(int64(*d.Port))
-		var secret basetypes.StringValue = types.StringValue(d.Secret)
+		var host = types.StringValue(d.Host)
+		var keywrapEnabled basetypes.BoolValue
+		var keywrapFormat basetypes.StringValue
+		var keywrapKek basetypes.StringValue
+		var keywrapMack basetypes.StringValue
+		var port = types.Int64Value(int64(*d.Port))
+		var secret = types.StringValue(d.Secret)
 
 		if d.KeywrapEnabled != nil {
-			keywrap_enabled = types.BoolValue(*d.KeywrapEnabled)
+			keywrapEnabled = types.BoolValue(*d.KeywrapEnabled)
 		}
 		if d.KeywrapFormat != nil {
-			keywrap_format = types.StringValue(string(*d.KeywrapFormat))
+			keywrapFormat = types.StringValue(string(*d.KeywrapFormat))
 		}
 		if d.KeywrapKek != nil {
-			keywrap_kek = types.StringValue(*d.KeywrapKek)
+			keywrapKek = types.StringValue(*d.KeywrapKek)
 		}
 		if d.KeywrapMack != nil {
-			keywrap_mack = types.StringValue(*d.KeywrapMack)
+			keywrapMack = types.StringValue(*d.KeywrapMack)
 		}
 
-		data_map_attr_type := AcctServersValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
+		dataMapValue := map[string]attr.Value{
 			"host":            host,
-			"keywrap_enabled": keywrap_enabled,
-			"keywrap_format":  keywrap_format,
-			"keywrap_kek":     keywrap_kek,
-			"keywrap_mack":    keywrap_mack,
+			"keywrap_enabled": keywrapEnabled,
+			"keywrap_format":  keywrapFormat,
+			"keywrap_kek":     keywrapKek,
+			"keywrap_mack":    keywrapMack,
 			"port":            port,
 			"secret":          secret,
 		}
-		data, e := NewAcctServersValue(data_map_attr_type, data_map_value)
+		data, e := NewAcctServersValue(AcctServersValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		acct_value_list = append(acct_value_list, data)
+		acctValueList = append(acctValueList, data)
 	}
 
-	acct_state_list_type := AcctServersValue{}.Type(ctx)
-	acct_state_list, e := types.ListValueFrom(ctx, acct_state_list_type, acct_value_list)
+	acctStateListType := AcctServersValue{}.Type(ctx)
+	acctStateList, e := types.ListValueFrom(ctx, acctStateListType, acctValueList)
 	diags.Append(e...)
 
-	return acct_state_list
+	return acctStateList
 }
 
 func radiusServersAuthSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.RadiusAuthServer) basetypes.ListValue {
-	var auth_value_list []attr.Value
+	var authValueList []attr.Value
 	for _, d := range l {
-		var host basetypes.StringValue = types.StringValue(d.Host)
-		var keywrap_enabled basetypes.BoolValue
-		var keywrap_format basetypes.StringValue
-		var keywrap_kek basetypes.StringValue
-		var keywrap_mack basetypes.StringValue
-		var port basetypes.Int64Value = types.Int64Value(int64(*d.Port))
-		var require_message_authenticator basetypes.BoolValue
-		var secret basetypes.StringValue = types.StringValue(d.Secret)
+		var host = types.StringValue(d.Host)
+		var keywrapEnabled basetypes.BoolValue
+		var keywrapFormat basetypes.StringValue
+		var keywrapKek basetypes.StringValue
+		var keywrapMack basetypes.StringValue
+		var port = types.Int64Value(int64(*d.Port))
+		var requireMessageAuthenticator basetypes.BoolValue
+		var secret = types.StringValue(d.Secret)
 
 		if d.KeywrapEnabled != nil {
-			keywrap_enabled = types.BoolValue(*d.KeywrapEnabled)
+			keywrapEnabled = types.BoolValue(*d.KeywrapEnabled)
 		}
 		if d.KeywrapFormat != nil {
-			keywrap_format = types.StringValue(string(*d.KeywrapFormat))
+			keywrapFormat = types.StringValue(string(*d.KeywrapFormat))
 		}
 		if d.KeywrapKek != nil {
-			keywrap_kek = types.StringValue(*d.KeywrapKek)
+			keywrapKek = types.StringValue(*d.KeywrapKek)
 		}
 		if d.KeywrapMack != nil {
-			keywrap_mack = types.StringValue(*d.KeywrapMack)
+			keywrapMack = types.StringValue(*d.KeywrapMack)
 		}
 		if d.RequireMessageAuthenticator != nil {
-			require_message_authenticator = types.BoolValue(*d.RequireMessageAuthenticator)
+			requireMessageAuthenticator = types.BoolValue(*d.RequireMessageAuthenticator)
 		}
 
-		data_map_attr_type := AuthServersValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
+		dataMapValue := map[string]attr.Value{
 			"host":                          host,
-			"keywrap_enabled":               keywrap_enabled,
-			"keywrap_format":                keywrap_format,
-			"keywrap_kek":                   keywrap_kek,
-			"keywrap_mack":                  keywrap_mack,
+			"keywrap_enabled":               keywrapEnabled,
+			"keywrap_format":                keywrapFormat,
+			"keywrap_kek":                   keywrapKek,
+			"keywrap_mack":                  keywrapMack,
 			"port":                          port,
 			"secret":                        secret,
-			"require_message_authenticator": require_message_authenticator,
+			"require_message_authenticator": requireMessageAuthenticator,
 		}
-		data, e := NewAuthServersValue(data_map_attr_type, data_map_value)
+		data, e := NewAuthServersValue(AuthServersValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		auth_value_list = append(auth_value_list, data)
+		authValueList = append(authValueList, data)
 	}
 
-	auth_state_list_type := AuthServersValue{}.Type(ctx)
-	auth_state_list, e := types.ListValueFrom(ctx, auth_state_list_type, auth_value_list)
+	authStateListType := AuthServersValue{}.Type(ctx)
+	authStateList, e := types.ListValueFrom(ctx, authStateListType, authValueList)
 	diags.Append(e...)
-	return auth_state_list
+	return authStateList
 }
 
 func radiusConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SwitchRadiusConfig) RadiusConfigValue {
-	var acct_interim_interval basetypes.Int64Value
-	var acct_servers basetypes.ListValue = types.ListNull(AcctServersValue{}.Type(ctx))
-	var auth_servers basetypes.ListValue = types.ListNull(AuthServersValue{}.Type(ctx))
-	var auth_servers_retries basetypes.Int64Value
-	var auth_servers_timeout basetypes.Int64Value
+	var acctInterimInterval basetypes.Int64Value
+	var acctServers = types.ListNull(AcctServersValue{}.Type(ctx))
+	var authServers = types.ListNull(AuthServersValue{}.Type(ctx))
+	var authServersRetries basetypes.Int64Value
+	var authServersTimeout basetypes.Int64Value
 	var network basetypes.StringValue
-	var source_ip basetypes.StringValue
+	var sourceIp basetypes.StringValue
 
 	if d != nil && d.AcctInterimInterval != nil {
-		acct_interim_interval = types.Int64Value(int64(*d.AcctInterimInterval))
+		acctInterimInterval = types.Int64Value(int64(*d.AcctInterimInterval))
 	}
 	if d != nil && d.AcctServers != nil {
-		acct_servers = radiusServersAcctSdkToTerraform(ctx, diags, d.AcctServers)
+		acctServers = radiusServersAcctSdkToTerraform(ctx, diags, d.AcctServers)
 	}
 	if d != nil && d.AuthServers != nil {
-		auth_servers = radiusServersAuthSdkToTerraform(ctx, diags, d.AuthServers)
+		authServers = radiusServersAuthSdkToTerraform(ctx, diags, d.AuthServers)
 	}
 	if d != nil && d.AuthServersRetries != nil {
-		auth_servers_retries = types.Int64Value(int64(*d.AuthServersRetries))
+		authServersRetries = types.Int64Value(int64(*d.AuthServersRetries))
 	}
 	if d != nil && d.AuthServersTimeout != nil {
-		auth_servers_timeout = types.Int64Value(int64(*d.AuthServersTimeout))
+		authServersTimeout = types.Int64Value(int64(*d.AuthServersTimeout))
 	}
 	if d != nil && d.Network != nil {
 		network = types.StringValue(*d.Network)
 	}
 	if d != nil && d.SourceIp != nil {
-		source_ip = types.StringValue(*d.SourceIp)
+		sourceIp = types.StringValue(*d.SourceIp)
 	}
 
-	data_map_attr_type := RadiusConfigValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"acct_interim_interval": acct_interim_interval,
-		"acct_servers":          acct_servers,
-		"auth_servers":          auth_servers,
-		"auth_servers_retries":  auth_servers_retries,
-		"auth_servers_timeout":  auth_servers_timeout,
+	dataMapValue := map[string]attr.Value{
+		"acct_interim_interval": acctInterimInterval,
+		"acct_servers":          acctServers,
+		"auth_servers":          authServers,
+		"auth_servers_retries":  authServersRetries,
+		"auth_servers_timeout":  authServersTimeout,
 		"network":               network,
-		"source_ip":             source_ip,
+		"source_ip":             sourceIp,
 	}
-	data, e := NewRadiusConfigValue(data_map_attr_type, data_map_value)
+	data, e := NewRadiusConfigValue(RadiusConfigValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

@@ -12,7 +12,7 @@ import (
 )
 
 func vrrpGroupsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.VrrpConfigGroup) basetypes.MapValue {
-	data_map_value := make(map[string]attr.Value)
+	dataMapValue := make(map[string]attr.Value)
 	for k, d := range m {
 
 		var priority basetypes.Int64Value
@@ -21,24 +21,24 @@ func vrrpGroupsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 			priority = types.Int64Value(int64(*d.Priority))
 		}
 
-		item_map_attr_type := GroupsValue{}.AttributeTypes(ctx)
-		item_map_value := map[string]attr.Value{
+		itemMapAttrType := GroupsValue{}.AttributeTypes(ctx)
+		itemMapValue := map[string]attr.Value{
 			"priority": priority,
 		}
-		data, e := NewGroupsValue(item_map_attr_type, item_map_value)
+		data, e := NewGroupsValue(itemMapAttrType, itemMapValue)
 		diags.Append(e...)
 
-		data_map_value[k] = data
+		dataMapValue[k] = data
 	}
-	state_type := GroupsValue{}.Type(ctx)
-	state_result, e := types.MapValueFrom(ctx, state_type, data_map_value)
+	stateType := GroupsValue{}.Type(ctx)
+	stateResult, e := types.MapValueFrom(ctx, stateType, dataMapValue)
 	diags.Append(e...)
-	return state_result
+	return stateResult
 }
 
 func vrrpConfigInstancesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.VrrpConfig) VrrpConfigValue {
 	var enabled basetypes.BoolValue
-	var groups basetypes.MapValue = types.MapNull(GroupsValue{}.Type(ctx))
+	var groups = types.MapNull(GroupsValue{}.Type(ctx))
 
 	if d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
@@ -47,12 +47,11 @@ func vrrpConfigInstancesSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 		groups = vrrpGroupsSdkToTerraform(ctx, diags, d.Groups)
 	}
 
-	data_map_attr_type := VrrpConfigValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"enabled": enabled,
 		"groups":  groups,
 	}
-	data, e := NewVrrpConfigValue(data_map_attr_type, data_map_value)
+	data, e := NewVrrpConfigValue(VrrpConfigValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

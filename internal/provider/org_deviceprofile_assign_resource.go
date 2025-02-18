@@ -49,11 +49,11 @@ func (r *orgDeviceprofileAssignResource) Configure(ctx context.Context, req reso
 
 	r.client = client
 }
-func (r *orgDeviceprofileAssignResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *orgDeviceprofileAssignResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_org_deviceprofile_assign"
 }
 
-func (r *orgDeviceprofileAssignResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *orgDeviceprofileAssignResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryDevices + "This resourceis used to assign/unassign a device profile to one or multiple devices.\n\n" +
 			"The `mist_org_deviceprofile_gateway` resource can be assigned to Gateways, and the" +
@@ -65,7 +65,7 @@ func (r *orgDeviceprofileAssignResource) Schema(ctx context.Context, req resourc
 func (r *orgDeviceprofileAssignResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	tflog.Info(ctx, "Starting DeviceprofileAssign Create")
 	var plan, state resource_org_deviceprofile_assign.OrgDeviceprofileAssignModel
-	var macs_assigned_success, macs_unassigned_success []string
+	var macsAssignedSuccess, macsUnassignedSuccess []string
 
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
@@ -91,14 +91,14 @@ func (r *orgDeviceprofileAssignResource) Create(ctx context.Context, req resourc
 		return
 	}
 
-	macs_to_assign, macs_to_unassign, diags := resource_org_deviceprofile_assign.TerraformToSdk(ctx, plan.Macs, state.Macs)
+	macsToAssign, macsToUnassign, diags := resource_org_deviceprofile_assign.TerraformToSdk(plan.Macs, state.Macs)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	if len(macs_to_assign.Macs) > 0 {
-		macs_assigned_success, err = r.assign(ctx, orgId, deviceprofileId, macs_to_assign)
+	if len(macsToAssign.Macs) > 0 {
+		macsAssignedSuccess, err = r.assign(ctx, orgId, deviceprofileId, macsToAssign)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error Unassigning devices to Deviceprofile",
@@ -108,13 +108,13 @@ func (r *orgDeviceprofileAssignResource) Create(ctx context.Context, req resourc
 		}
 	}
 
-	new_macs_state, diags := resource_org_deviceprofile_assign.SdkToTerraform(ctx, &state.Macs, &macs_to_assign, &macs_to_unassign, macs_assigned_success, macs_unassigned_success)
+	newMacsState, diags := resource_org_deviceprofile_assign.SdkToTerraform(&state.Macs, &macsToAssign, &macsToUnassign, macsAssignedSuccess, macsUnassignedSuccess)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	state.Macs = *new_macs_state
+	state.Macs = *newMacsState
 	state.DeviceprofileId = plan.DeviceprofileId
 	state.OrgId = plan.OrgId
 
@@ -126,7 +126,7 @@ func (r *orgDeviceprofileAssignResource) Create(ctx context.Context, req resourc
 
 }
 
-func (r *orgDeviceprofileAssignResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *orgDeviceprofileAssignResource) Read(ctx context.Context, _ resource.ReadRequest, resp *resource.ReadResponse) {
 	var state resource_org_deviceprofile_assign.OrgDeviceprofileAssignModel
 
 	// TODO: really read the device info to get the profile assignements
@@ -159,9 +159,9 @@ func (r *orgDeviceprofileAssignResource) Read(ctx context.Context, req resource.
 	var mac string
 	var siteId string
 	var vcMac string
-	var vc bool = false
+	var vc = false
 	var unassigned bool
-	var limit int = 1000
+	var limit = 1000
 	var page int
 	tflog.Info(ctx, "Starting Inventory Read: org_id  "+orgId.String())
 	data, err := r.client.OrgsInventory().GetOrgInventory(ctx, orgId, &serial, &model, &mType, &mac, &siteId, &vcMac, &vc, &unassigned, &limit, &page)
@@ -194,7 +194,7 @@ func (r *orgDeviceprofileAssignResource) Read(ctx context.Context, req resource.
 
 func (r *orgDeviceprofileAssignResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var state, plan resource_org_deviceprofile_assign.OrgDeviceprofileAssignModel
-	var macs_assigned_success, macs_unassigned_success []string
+	var macsAssignedSuccess, macsUnassignedSuccess []string
 	tflog.Info(ctx, "Starting DeviceprofileAssign Update")
 
 	diags := resp.State.Get(ctx, &state)
@@ -225,14 +225,14 @@ func (r *orgDeviceprofileAssignResource) Update(ctx context.Context, req resourc
 		return
 	}
 
-	macs_to_assign, macs_to_unassign, e := resource_org_deviceprofile_assign.TerraformToSdk(ctx, plan.Macs, state.Macs)
+	macsToAssign, macsToUnassign, e := resource_org_deviceprofile_assign.TerraformToSdk(plan.Macs, state.Macs)
 	if e != nil {
 		diags.Append(e...)
 		return
 	}
 
-	if len(macs_to_assign.Macs) > 0 {
-		macs_assigned_success, err = r.assign(ctx, orgId, deviceprofileId, macs_to_assign)
+	if len(macsToAssign.Macs) > 0 {
+		macsAssignedSuccess, err = r.assign(ctx, orgId, deviceprofileId, macsToAssign)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error Assigning devices to Deviceprofile",
@@ -242,8 +242,8 @@ func (r *orgDeviceprofileAssignResource) Update(ctx context.Context, req resourc
 		}
 	}
 
-	if len(macs_to_unassign.Macs) > 0 {
-		macs_unassigned_success, err = r.unassign(ctx, orgId, deviceprofileId, macs_to_unassign)
+	if len(macsToUnassign.Macs) > 0 {
+		macsUnassignedSuccess, err = r.unassign(ctx, orgId, deviceprofileId, macsToUnassign)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error Unassigning devices to Deviceprofile",
@@ -253,13 +253,13 @@ func (r *orgDeviceprofileAssignResource) Update(ctx context.Context, req resourc
 		}
 	}
 
-	new_macs_state, diags := resource_org_deviceprofile_assign.SdkToTerraform(ctx, &state.Macs, &macs_to_assign, &macs_to_unassign, macs_assigned_success, macs_unassigned_success)
+	newMacsState, diags := resource_org_deviceprofile_assign.SdkToTerraform(&state.Macs, &macsToAssign, &macsToUnassign, macsAssignedSuccess, macsUnassignedSuccess)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	state.Macs = *new_macs_state
+	state.Macs = *newMacsState
 	state.DeviceprofileId = plan.DeviceprofileId
 	state.OrgId = plan.OrgId
 
@@ -271,7 +271,7 @@ func (r *orgDeviceprofileAssignResource) Update(ctx context.Context, req resourc
 
 }
 
-func (r *orgDeviceprofileAssignResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *orgDeviceprofileAssignResource) Delete(ctx context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_org_deviceprofile_assign.OrgDeviceprofileAssignModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -297,14 +297,14 @@ func (r *orgDeviceprofileAssignResource) Delete(ctx context.Context, req resourc
 		return
 	}
 
-	plan_macs := types.SetNull(types.StringType)
-	_, macs_to_unassign, e := resource_org_deviceprofile_assign.TerraformToSdk(ctx, plan_macs, state.Macs)
+	planMacs := types.SetNull(types.StringType)
+	_, macsToUnassign, e := resource_org_deviceprofile_assign.TerraformToSdk(planMacs, state.Macs)
 	if e != nil {
 		diags.Append(e...)
 		return
 	}
 
-	_, err = r.unassign(ctx, orgId, deviceprofileId, macs_to_unassign)
+	_, err = r.unassign(ctx, orgId, deviceprofileId, macsToUnassign)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_deviceprofile_assign\" resource",

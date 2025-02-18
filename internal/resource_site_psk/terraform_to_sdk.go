@@ -1,14 +1,12 @@
 package resource_site_psk
 
 import (
-	"context"
-
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 )
 
-func TerraformToSdk(ctx context.Context, plan *SitePskModel) (models.Psk, diag.Diagnostics) {
+func TerraformToSdk(plan *SitePskModel) (models.Psk, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	data := models.Psk{}
 	unset := make(map[string]interface{})

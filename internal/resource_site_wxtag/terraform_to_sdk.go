@@ -1,16 +1,14 @@
 package resource_site_wxtag
 
 import (
-	"context"
-
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 )
 
-func TerraformToSdk(ctx context.Context, plan *SiteWxtagModel) (*models.WxlanTag, diag.Diagnostics) {
+func TerraformToSdk(plan *SiteWxtagModel) (*models.WxlanTag, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	unset := make(map[string]interface{})
@@ -37,7 +35,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteWxtagModel) (*models.WxlanTag
 	}
 
 	if !plan.Specs.IsNull() && !plan.Specs.IsUnknown() {
-		data.Specs = specsTerraformToSdk(ctx, &diags, plan.Specs)
+		data.Specs = specsTerraformToSdk(plan.Specs)
 	} else {
 		unset["-specs"] = ""
 	}
@@ -45,7 +43,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteWxtagModel) (*models.WxlanTag
 	data.Type = models.WxlanTagTypeEnum(plan.Type.ValueString())
 
 	if !plan.Values.IsNull() && !plan.Values.IsUnknown() {
-		data.Values = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Values)
+		data.Values = misttransform.ListOfStringTerraformToSdk(plan.Values)
 	} else {
 		unset["-values"] = ""
 	}

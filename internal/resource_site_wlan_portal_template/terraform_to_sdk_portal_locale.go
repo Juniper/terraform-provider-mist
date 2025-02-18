@@ -1,19 +1,16 @@
 package resource_site_wlan_portal_template
 
 import (
-	"context"
-
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 )
 
-func localeTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d attr.Value) *models.WlanPortalTemplateSettingLocale {
+func localeTerraformToSdk(d attr.Value) *models.WlanPortalTemplateSettingLocale {
 	data := models.WlanPortalTemplateSettingLocale{}
 	if !d.IsNull() && !d.IsUnknown() {
-		var v_interface interface{} = d
-		plan := v_interface.(LocalesValue)
+		var vInterface interface{} = d
+		plan := vInterface.(LocalesValue)
 		// plan, e := NewLocalesValue(LocalesValue{}.AttributeTypes(ctx), d)
 		// if e != nil {
 		// 	diags.Append(e...)
@@ -367,12 +364,12 @@ func localeTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d attr.V
 	return &data
 }
 
-func portalTemplateLocalesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, plan *PortalTemplateValue, data *models.WlanPortalTemplateSetting) {
+func portalTemplateLocalesTerraformToSdk(plan *PortalTemplateValue, data *models.WlanPortalTemplateSetting) {
 
 	for k, v := range plan.Locales.Elements() {
-		var v_interface interface{} = v
-		o := v_interface.(LocalesValue)
-		locale := localeTerraformToSdk(ctx, diags, o)
+		var vInterface interface{} = v
+		o := vInterface.(LocalesValue)
+		locale := localeTerraformToSdk(o)
 		switch k {
 		case "ar":
 			data.Ar = locale

@@ -1,16 +1,14 @@
 package resource_org_nacrule
 
 import (
-	"context"
-
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 )
 
-func TerraformToSdk(ctx context.Context, plan *OrgNacruleModel) (models.NacRule, diag.Diagnostics) {
+func TerraformToSdk(plan *OrgNacruleModel) (models.NacRule, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	unset := make(map[string]interface{})
@@ -22,7 +20,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgNacruleModel) (models.NacRule,
 		unset["-action"] = ""
 	}
 	if !plan.ApplyTags.IsNull() && !plan.ApplyTags.IsUnknown() {
-		data.ApplyTags = mist_transform.ListOfStringTerraformToSdk(ctx, plan.ApplyTags)
+		data.ApplyTags = misttransform.ListOfStringTerraformToSdk(plan.ApplyTags)
 	} else {
 		unset["-apply_tags"] = ""
 	}
@@ -32,7 +30,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgNacruleModel) (models.NacRule,
 		unset["-enabled"] = ""
 	}
 	if !plan.Matching.IsNull() && !plan.Matching.IsUnknown() {
-		data.Matching = matchingTerraformToSdk(ctx, &diags, plan.Matching)
+		data.Matching = matchingTerraformToSdk(plan.Matching)
 	} else {
 		unset["-matching"] = ""
 	}
@@ -42,7 +40,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgNacruleModel) (models.NacRule,
 		unset["-name"] = ""
 	}
 	if !plan.NotMatching.IsNull() && !plan.NotMatching.IsUnknown() {
-		data.NotMatching = notMatchingTerraformToSdk(ctx, &diags, plan.NotMatching)
+		data.NotMatching = notMatchingTerraformToSdk(plan.NotMatching)
 	} else {
 		unset["-not_matching"] = ""
 	}

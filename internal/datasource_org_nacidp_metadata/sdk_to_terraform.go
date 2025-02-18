@@ -1,14 +1,12 @@
 package datasource_org_nacidp_metadata
 
 import (
-	"context"
-
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func SdkToTerraform(ctx context.Context, data *models.SamlMetadata) OrgNacidpMetadataModel {
+func SdkToTerraform(data *models.SamlMetadata) OrgNacidpMetadataModel {
 	var ds OrgNacidpMetadataModel
 
 	if data.AcsUrl != nil {

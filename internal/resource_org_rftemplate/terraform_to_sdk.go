@@ -37,31 +37,31 @@ func TerraformToSdk(ctx context.Context, plan *OrgRftemplateModel) (*models.RfTe
 	if plan.Band24Usage.IsNull() || plan.Band24Usage.IsUnknown() {
 		unset["-band_24_usage"] = ""
 	} else {
-		data.Band24Usage = models.ToPointer(models.RadioBand24UsageEnum(string(plan.Band24Usage.ValueString())))
+		data.Band24Usage = models.ToPointer(models.RadioBand24UsageEnum(plan.Band24Usage.ValueString()))
 	}
 
 	if plan.Band24.IsNull() || plan.Band24.IsUnknown() {
 		unset["-band_24"] = ""
 	} else {
-		data.Band24 = band24TerraformToSdk(ctx, &diags, plan.Band24)
+		data.Band24 = band24TerraformToSdk(plan.Band24)
 	}
 
 	if plan.Band5.IsNull() || plan.Band5.IsUnknown() {
 		unset["-band_5"] = ""
 	} else {
-		data.Band5 = band5TerraformToSdk(ctx, &diags, plan.Band5)
+		data.Band5 = band5TerraformToSdk(plan.Band5)
 	}
 
 	if plan.Band5On24Radio.IsNull() || plan.Band5On24Radio.IsUnknown() {
 		unset["-band_5_on_24_radio"] = ""
 	} else {
-		data.Band5On24Radio = band5On24RadioTerraformToSdk(ctx, &diags, plan.Band5On24Radio)
+		data.Band5On24Radio = band5On24RadioTerraformToSdk(plan.Band5On24Radio)
 	}
 
 	if plan.Band6.IsNull() || plan.Band6.IsUnknown() {
 		unset["-band_6"] = ""
 	} else {
-		data.Band6 = band6TerraformToSdk(ctx, &diags, plan.Band6)
+		data.Band6 = band6TerraformToSdk(plan.Band6)
 	}
 
 	if plan.CountryCode.IsNull() || plan.CountryCode.IsUnknown() {
@@ -73,7 +73,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgRftemplateModel) (*models.RfTe
 	if plan.ModelSpecific.IsNull() || plan.ModelSpecific.IsUnknown() {
 		unset["-model_specific"] = ""
 	} else {
-		data.ModelSpecific = modelSpecificTerraformToSdk(ctx, &diags, plan.ModelSpecific)
+		data.ModelSpecific = modelSpecificTerraformToSdk(ctx, plan.ModelSpecific)
 	}
 
 	if plan.ScanningEnabled.IsNull() || plan.ScanningEnabled.IsUnknown() {

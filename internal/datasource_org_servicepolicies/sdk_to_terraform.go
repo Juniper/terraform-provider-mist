@@ -4,7 +4,7 @@ import (
 	"context"
 	"math/big"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -28,18 +28,18 @@ func SdkToTerraform(ctx context.Context, l *[]models.OrgServicePolicy, elements 
 func servicepolicieSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.OrgServicePolicy) OrgServicepoliciesValue {
 
 	var action types.String
-	var appqoe basetypes.ObjectValue = types.ObjectNull(AppqoeValue{}.AttributeTypes(ctx))
-	var created_time basetypes.NumberValue
-	var ewf types.List = types.ListNull(EwfValue{}.Type(ctx))
+	var appqoe = types.ObjectNull(AppqoeValue{}.AttributeTypes(ctx))
+	var createdTime basetypes.NumberValue
+	var ewf = types.ListNull(EwfValue{}.Type(ctx))
 	var id types.String
-	var idp basetypes.ObjectValue = types.ObjectNull(IdpValue{}.AttributeTypes(ctx))
-	var local_routing types.Bool
-	var modified_time basetypes.NumberValue
+	var idp = types.ObjectNull(IdpValue{}.AttributeTypes(ctx))
+	var localRouting types.Bool
+	var modifiedTime basetypes.NumberValue
 	var name types.String
-	var org_id types.String
-	var path_preference types.String
-	var services types.List = types.ListNull(types.StringType)
-	var tenants types.List = types.ListNull(types.StringType)
+	var orgId types.String
+	var pathPreference types.String
+	var services = types.ListNull(types.StringType)
+	var tenants = types.ListNull(types.StringType)
 
 	if d.Action != nil {
 		action = types.StringValue(string(*d.Action))
@@ -48,7 +48,7 @@ func servicepolicieSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 		appqoe = appQoeToTerraform(ctx, diags, d.Appqoe)
 	}
 	if d.CreatedTime != nil {
-		created_time = types.NumberValue(big.NewFloat(*d.CreatedTime))
+		createdTime = types.NumberValue(big.NewFloat(*d.CreatedTime))
 	}
 	if d.Ewf != nil {
 		ewf = ewfSdkToTerraform(ctx, diags, d.Ewf)
@@ -59,43 +59,42 @@ func servicepolicieSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 		idp = idpSdkToTerraform(ctx, diags, d.Idp)
 	}
 	if d.ModifiedTime != nil {
-		modified_time = types.NumberValue(big.NewFloat(*d.ModifiedTime))
+		modifiedTime = types.NumberValue(big.NewFloat(*d.ModifiedTime))
 	}
 	if d.LocalRouting != nil {
-		local_routing = types.BoolValue(*d.LocalRouting)
+		localRouting = types.BoolValue(*d.LocalRouting)
 	}
 	if d.Name != nil {
 		name = types.StringValue(*d.Name)
 	}
-	org_id = types.StringValue(d.OrgId.String())
+	orgId = types.StringValue(d.OrgId.String())
 
 	if d.PathPreference != nil {
-		path_preference = types.StringValue(*d.PathPreference)
+		pathPreference = types.StringValue(*d.PathPreference)
 	}
 	if d.Services != nil {
-		services = mist_transform.ListOfStringSdkToTerraform(ctx, d.Services)
+		services = misttransform.ListOfStringSdkToTerraform(d.Services)
 	}
 	if d.Tenants != nil {
-		tenants = mist_transform.ListOfStringSdkToTerraform(ctx, d.Tenants)
+		tenants = misttransform.ListOfStringSdkToTerraform(d.Tenants)
 	}
 
-	data_map_attr_type := OrgServicepoliciesValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"created_time":    created_time,
+	dataMapValue := map[string]attr.Value{
+		"created_time":    createdTime,
 		"action":          action,
 		"appqoe":          appqoe,
 		"ewf":             ewf,
 		"id":              id,
 		"idp":             idp,
-		"local_routing":   local_routing,
-		"modified_time":   modified_time,
+		"local_routing":   localRouting,
+		"modified_time":   modifiedTime,
 		"name":            name,
-		"org_id":          org_id,
-		"path_preference": path_preference,
+		"org_id":          orgId,
+		"path_preference": pathPreference,
 		"services":        services,
 		"tenants":         tenants,
 	}
-	data, e := NewOrgServicepoliciesValue(data_map_attr_type, data_map_value)
+	data, e := NewOrgServicepoliciesValue(OrgServicepoliciesValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

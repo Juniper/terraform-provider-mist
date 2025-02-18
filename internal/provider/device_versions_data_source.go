@@ -45,11 +45,11 @@ func (d *deviceVersionsDataSource) Configure(ctx context.Context, req datasource
 
 	d.client = client
 }
-func (d *deviceVersionsDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+func (d *deviceVersionsDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_device_versions"
 }
 
-func (d *deviceVersionsDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *deviceVersionsDataSource) Schema(ctx context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryDevices + "This data source provides the list of available Firmware Versions.",
 		Attributes:          datasource_device_versions.DeviceVersionsDataSourceSchema(ctx).Attributes,

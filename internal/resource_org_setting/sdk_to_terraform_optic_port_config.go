@@ -13,7 +13,7 @@ import (
 
 func opticPortConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.OpticPortConfigPort) basetypes.MapValue {
 
-	state_value_map_value := make(map[string]attr.Value)
+	stateValueMapValue := make(map[string]attr.Value)
 	for k, d := range m {
 
 		var channelized basetypes.BoolValue
@@ -26,18 +26,17 @@ func opticPortConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics,
 			speed = types.StringValue(*d.Speed)
 		}
 
-		data_map_attr_type := OpticPortConfigValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
+		dataMapValue := map[string]attr.Value{
 			"channelized": channelized,
 			"speed":       speed,
 		}
-		data, e := NewOpticPortConfigValue(data_map_attr_type, data_map_value)
+		data, e := NewOpticPortConfigValue(OpticPortConfigValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		state_value_map_value[k] = data
+		stateValueMapValue[k] = data
 	}
-	state_result_map_type := OpticPortConfigValue{}.Type(ctx)
-	state_result_map, e := types.MapValueFrom(ctx, state_result_map_type, state_value_map_value)
+	stateResultMapType := OpticPortConfigValue{}.Type(ctx)
+	stateResultMap, e := types.MapValueFrom(ctx, stateResultMapType, stateValueMapValue)
 	diags.Append(e...)
-	return state_result_map
+	return stateResultMap
 }

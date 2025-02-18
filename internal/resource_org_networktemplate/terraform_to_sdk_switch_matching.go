@@ -7,62 +7,62 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func switchMatchingRulesPortConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.JunosPortConfig {
+func switchMatchingRulesPortConfigTerraformToSdk(d basetypes.MapValue) map[string]models.JunosPortConfig {
 
 	data := make(map[string]models.JunosPortConfig)
 	for k, v := range d.Elements() {
-		var plan_interface interface{} = v
-		plan_obj := plan_interface.(PortConfigValue)
-		item_obj := models.JunosPortConfig{}
-		item_obj.Usage = plan_obj.Usage.ValueString()
-		if plan_obj.AeDisableLacp.ValueBoolPointer() != nil {
-			item_obj.AeDisableLacp = models.ToPointer(plan_obj.AeDisableLacp.ValueBool())
+		var planInterface interface{} = v
+		planObj := planInterface.(PortConfigValue)
+		itemObj := models.JunosPortConfig{}
+		itemObj.Usage = planObj.Usage.ValueString()
+		if planObj.AeDisableLacp.ValueBoolPointer() != nil {
+			itemObj.AeDisableLacp = models.ToPointer(planObj.AeDisableLacp.ValueBool())
 		}
-		if plan_obj.AeIdx.ValueInt64Pointer() != nil {
-			item_obj.AeIdx = models.ToPointer(int(plan_obj.AeIdx.ValueInt64()))
+		if planObj.AeIdx.ValueInt64Pointer() != nil {
+			itemObj.AeIdx = models.ToPointer(int(planObj.AeIdx.ValueInt64()))
 		}
-		if plan_obj.AeLacpSlow.ValueBoolPointer() != nil {
-			item_obj.AeLacpSlow = models.ToPointer(plan_obj.AeLacpSlow.ValueBool())
+		if planObj.AeLacpSlow.ValueBoolPointer() != nil {
+			itemObj.AeLacpSlow = models.ToPointer(planObj.AeLacpSlow.ValueBool())
 		}
-		if plan_obj.Aggregated.ValueBoolPointer() != nil {
-			item_obj.Aggregated = models.ToPointer(plan_obj.Aggregated.ValueBool())
+		if planObj.Aggregated.ValueBoolPointer() != nil {
+			itemObj.Aggregated = models.ToPointer(planObj.Aggregated.ValueBool())
 		}
-		if plan_obj.Critical.ValueBoolPointer() != nil {
-			item_obj.Critical = models.ToPointer(plan_obj.Critical.ValueBool())
+		if planObj.Critical.ValueBoolPointer() != nil {
+			itemObj.Critical = models.ToPointer(planObj.Critical.ValueBool())
 		}
-		if plan_obj.Description.ValueStringPointer() != nil {
-			item_obj.Description = models.ToPointer(plan_obj.Description.ValueString())
+		if planObj.Description.ValueStringPointer() != nil {
+			itemObj.Description = models.ToPointer(planObj.Description.ValueString())
 		}
-		if plan_obj.DisableAutoneg.ValueBoolPointer() != nil {
-			item_obj.DisableAutoneg = models.ToPointer(plan_obj.DisableAutoneg.ValueBool())
+		if planObj.DisableAutoneg.ValueBoolPointer() != nil {
+			itemObj.DisableAutoneg = models.ToPointer(planObj.DisableAutoneg.ValueBool())
 		}
-		if plan_obj.Duplex.ValueStringPointer() != nil {
-			item_obj.Duplex = models.ToPointer(models.JunosPortConfigDuplexEnum(plan_obj.Duplex.ValueString()))
+		if planObj.Duplex.ValueStringPointer() != nil {
+			itemObj.Duplex = models.ToPointer(models.JunosPortConfigDuplexEnum(planObj.Duplex.ValueString()))
 		}
-		if plan_obj.DynamicUsage.ValueStringPointer() != nil {
-			item_obj.DynamicUsage = models.NewOptional(models.ToPointer(plan_obj.DynamicUsage.ValueString()))
+		if planObj.DynamicUsage.ValueStringPointer() != nil {
+			itemObj.DynamicUsage = models.NewOptional(models.ToPointer(planObj.DynamicUsage.ValueString()))
 		}
-		if plan_obj.Esilag.ValueBoolPointer() != nil {
-			item_obj.Esilag = models.ToPointer(plan_obj.Esilag.ValueBool())
+		if planObj.Esilag.ValueBoolPointer() != nil {
+			itemObj.Esilag = models.ToPointer(planObj.Esilag.ValueBool())
 		}
-		if plan_obj.Mtu.ValueInt64Pointer() != nil {
-			item_obj.Mtu = models.ToPointer(int(plan_obj.Mtu.ValueInt64()))
+		if planObj.Mtu.ValueInt64Pointer() != nil {
+			itemObj.Mtu = models.ToPointer(int(planObj.Mtu.ValueInt64()))
 		}
-		if plan_obj.NoLocalOverwrite.ValueBoolPointer() != nil {
-			item_obj.NoLocalOverwrite = models.ToPointer(plan_obj.NoLocalOverwrite.ValueBool())
+		if planObj.NoLocalOverwrite.ValueBoolPointer() != nil {
+			itemObj.NoLocalOverwrite = models.ToPointer(planObj.NoLocalOverwrite.ValueBool())
 		}
-		if plan_obj.PoeDisabled.ValueBoolPointer() != nil {
-			item_obj.PoeDisabled = models.ToPointer(plan_obj.PoeDisabled.ValueBool())
+		if planObj.PoeDisabled.ValueBoolPointer() != nil {
+			itemObj.PoeDisabled = models.ToPointer(planObj.PoeDisabled.ValueBool())
 		}
-		if plan_obj.Speed.ValueStringPointer() != nil {
-			item_obj.Speed = models.ToPointer(models.JunosPortConfigSpeedEnum(plan_obj.Speed.ValueString()))
+		if planObj.Speed.ValueStringPointer() != nil {
+			itemObj.Speed = models.ToPointer(models.JunosPortConfigSpeedEnum(planObj.Speed.ValueString()))
 		}
-		data[k] = item_obj
+		data[k] = itemObj
 	}
 	return data
 }
@@ -105,63 +105,63 @@ func switchMatchingRulesTerraformToSdk(ctx context.Context, diags *diag.Diagnost
 
 	var data []models.SwitchMatchingRule
 	for _, v := range d.Elements() {
-		var plan_interface interface{} = v
-		plan_obj := plan_interface.(MatchingRulesValue)
-		item_obj := models.SwitchMatchingRule{}
+		var planInterface interface{} = v
+		planObj := planInterface.(MatchingRulesValue)
+		itemObj := models.SwitchMatchingRule{}
 
-		if !plan_obj.AdditionalConfigCmds.IsNull() && !plan_obj.AdditionalConfigCmds.IsUnknown() {
-			item_obj.AdditionalConfigCmds = mist_transform.ListOfStringTerraformToSdk(ctx, plan_obj.AdditionalConfigCmds)
+		if !planObj.AdditionalConfigCmds.IsNull() && !planObj.AdditionalConfigCmds.IsUnknown() {
+			itemObj.AdditionalConfigCmds = misttransform.ListOfStringTerraformToSdk(planObj.AdditionalConfigCmds)
 		}
-		if plan_obj.Name.ValueStringPointer() != nil {
-			item_obj.Name = models.ToPointer(plan_obj.Name.ValueString())
+		if planObj.Name.ValueStringPointer() != nil {
+			itemObj.Name = models.ToPointer(planObj.Name.ValueString())
 		}
-		if !plan_obj.PortConfig.IsNull() && !plan_obj.PortConfig.IsUnknown() {
-			item_obj.PortConfig = switchMatchingRulesPortConfigTerraformToSdk(ctx, diags, plan_obj.PortConfig)
+		if !planObj.PortConfig.IsNull() && !planObj.PortConfig.IsUnknown() {
+			itemObj.PortConfig = switchMatchingRulesPortConfigTerraformToSdk(planObj.PortConfig)
 		}
-		if !plan_obj.PortMirroring.IsNull() && !plan_obj.PortMirroring.IsUnknown() {
-			item_obj.PortMirroring = portMirroringTerraformToSdk(ctx, diags, plan_obj.PortMirroring)
+		if !planObj.PortMirroring.IsNull() && !planObj.PortMirroring.IsUnknown() {
+			itemObj.PortMirroring = portMirroringTerraformToSdk(planObj.PortMirroring)
 		}
-		if !plan_obj.IpConfig.IsNull() && !plan_obj.IpConfig.IsUnknown() {
-			item_obj.IpConfig = switchMatchingRulesIpConfigTerraformToSdk(ctx, diags, plan_obj.IpConfig)
+		if !planObj.IpConfig.IsNull() && !planObj.IpConfig.IsUnknown() {
+			itemObj.IpConfig = switchMatchingRulesIpConfigTerraformToSdk(ctx, diags, planObj.IpConfig)
 		}
-		if !plan_obj.OobIpConfig.IsNull() && !plan_obj.OobIpConfig.IsUnknown() {
-			item_obj.OobIpConfig = switchMatchingRulesOobIpConfigTerraformToSdk(ctx, diags, plan_obj.OobIpConfig)
+		if !planObj.OobIpConfig.IsNull() && !planObj.OobIpConfig.IsUnknown() {
+			itemObj.OobIpConfig = switchMatchingRulesOobIpConfigTerraformToSdk(ctx, diags, planObj.OobIpConfig)
 		}
 
 		match := make(map[string]string)
-		if plan_obj.MatchType.ValueStringPointer() != nil && plan_obj.MatchType.ValueString() != "" {
-			match_type := plan_obj.MatchType.ValueString()
-			match[match_type] = plan_obj.MatchValue.ValueString()
+		if planObj.MatchType.ValueStringPointer() != nil && planObj.MatchType.ValueString() != "" {
+			matchType := planObj.MatchType.ValueString()
+			match[matchType] = planObj.MatchValue.ValueString()
 		}
 
-		if plan_obj.MatchModel.ValueStringPointer() != nil && plan_obj.MatchModel.ValueString() != "" {
-			match_type := fmt.Sprintf(
+		if planObj.MatchModel.ValueStringPointer() != nil && planObj.MatchModel.ValueString() != "" {
+			matchType := fmt.Sprintf(
 				"match_model[0:%d]",
-				len(plan_obj.MatchModel.ValueString()),
+				len(planObj.MatchModel.ValueString()),
 			)
-			match[match_type] = plan_obj.MatchModel.ValueString()
+			match[matchType] = planObj.MatchModel.ValueString()
 		}
 
-		if plan_obj.MatchName.ValueStringPointer() != nil && plan_obj.MatchName.ValueString() != "" {
+		if planObj.MatchName.ValueStringPointer() != nil && planObj.MatchName.ValueString() != "" {
 			offset := 0
-			if plan_obj.MatchNameOffset.ValueInt64Pointer() != nil {
-				offset = int(plan_obj.MatchNameOffset.ValueInt64())
+			if planObj.MatchNameOffset.ValueInt64Pointer() != nil {
+				offset = int(planObj.MatchNameOffset.ValueInt64())
 			}
-			match_type := fmt.Sprintf(
+			matchType := fmt.Sprintf(
 				"match_name[%d:%d]",
 				offset,
-				offset+len(plan_obj.MatchName.ValueString()),
+				offset+len(planObj.MatchName.ValueString()),
 			)
-			match[match_type] = plan_obj.MatchName.ValueString()
+			match[matchType] = planObj.MatchName.ValueString()
 		}
 
-		if plan_obj.MatchRole.ValueStringPointer() != nil {
-			match["match_role"] = plan_obj.MatchRole.ValueString()
+		if planObj.MatchRole.ValueStringPointer() != nil {
+			match["match_role"] = planObj.MatchRole.ValueString()
 		}
 
-		item_obj.AdditionalProperties = match
+		itemObj.AdditionalProperties = match
 
-		data = append(data, item_obj)
+		data = append(data, itemObj)
 	}
 	return data
 }

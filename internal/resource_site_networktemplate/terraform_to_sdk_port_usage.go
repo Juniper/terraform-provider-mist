@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
@@ -15,50 +15,50 @@ import (
 func portUsageScTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) models.SwitchPortUsageStormControl {
 	data := models.SwitchPortUsageStormControl{}
 	if !d.IsNull() && !d.IsUnknown() {
-		v_plan, e := NewStormControlValue(d.AttributeTypes(ctx), d.Attributes())
+		vPlan, e := NewStormControlValue(d.AttributeTypes(ctx), d.Attributes())
 		if e != nil {
 			diags.Append(e...)
 		} else {
-			if v_plan.NoBroadcast.ValueBoolPointer() != nil {
-				data.NoBroadcast = models.ToPointer(v_plan.NoBroadcast.ValueBool())
+			if vPlan.NoBroadcast.ValueBoolPointer() != nil {
+				data.NoBroadcast = models.ToPointer(vPlan.NoBroadcast.ValueBool())
 			}
-			if v_plan.NoMulticast.ValueBoolPointer() != nil {
-				data.NoMulticast = models.ToPointer(v_plan.NoMulticast.ValueBool())
+			if vPlan.NoMulticast.ValueBoolPointer() != nil {
+				data.NoMulticast = models.ToPointer(vPlan.NoMulticast.ValueBool())
 			}
-			if v_plan.NoRegisteredMulticast.ValueBoolPointer() != nil {
-				data.NoRegisteredMulticast = models.ToPointer(v_plan.NoRegisteredMulticast.ValueBool())
+			if vPlan.NoRegisteredMulticast.ValueBoolPointer() != nil {
+				data.NoRegisteredMulticast = models.ToPointer(vPlan.NoRegisteredMulticast.ValueBool())
 			}
-			if v_plan.NoUnknownUnicast.ValueBoolPointer() != nil {
-				data.NoUnknownUnicast = models.ToPointer(v_plan.NoUnknownUnicast.ValueBool())
+			if vPlan.NoUnknownUnicast.ValueBoolPointer() != nil {
+				data.NoUnknownUnicast = models.ToPointer(vPlan.NoUnknownUnicast.ValueBool())
 			}
-			if v_plan.Percentage.ValueInt64Pointer() != nil {
-				data.Percentage = models.ToPointer(int(v_plan.Percentage.ValueInt64()))
+			if vPlan.Percentage.ValueInt64Pointer() != nil {
+				data.Percentage = models.ToPointer(int(vPlan.Percentage.ValueInt64()))
 			}
 		}
 	}
 	return data
 }
-func portUsageRulesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.SwitchPortUsageDynamicRule {
+func portUsageRulesTerraformToSdk(d basetypes.ListValue) []models.SwitchPortUsageDynamicRule {
 
 	var data []models.SwitchPortUsageDynamicRule
 	for _, v := range d.Elements() {
-		var v_interface interface{} = v
-		v_plan := v_interface.(RulesValue)
+		var vInterface interface{} = v
+		vPlan := vInterface.(RulesValue)
 		rule := models.SwitchPortUsageDynamicRule{}
-		if v_plan.Equals.ValueStringPointer() != nil {
-			rule.Equals = models.ToPointer(v_plan.Equals.ValueString())
+		if vPlan.Equals.ValueStringPointer() != nil {
+			rule.Equals = models.ToPointer(vPlan.Equals.ValueString())
 		}
-		if !v_plan.EqualsAny.IsNull() && !v_plan.EqualsAny.IsUnknown() {
-			rule.EqualsAny = mist_transform.ListOfStringTerraformToSdk(ctx, v_plan.EqualsAny)
+		if !vPlan.EqualsAny.IsNull() && !vPlan.EqualsAny.IsUnknown() {
+			rule.EqualsAny = misttransform.ListOfStringTerraformToSdk(vPlan.EqualsAny)
 		}
-		if v_plan.Expression.ValueStringPointer() != nil {
-			rule.Expression = models.ToPointer(v_plan.Expression.ValueString())
+		if vPlan.Expression.ValueStringPointer() != nil {
+			rule.Expression = models.ToPointer(vPlan.Expression.ValueString())
 		}
-		if v_plan.Usage.ValueStringPointer() != nil {
-			rule.Usage = models.ToPointer(v_plan.Usage.ValueString())
+		if vPlan.Usage.ValueStringPointer() != nil {
+			rule.Usage = models.ToPointer(vPlan.Usage.ValueString())
 		}
-		if v_plan.Src.ValueStringPointer() != nil {
-			rule.Src = models.SwitchPortUsageDynamicRuleSrcEnum(v_plan.Src.ValueString())
+		if vPlan.Src.ValueStringPointer() != nil {
+			rule.Src = models.SwitchPortUsageDynamicRuleSrcEnum(vPlan.Src.ValueString())
 		}
 		data = append(data, rule)
 	}
@@ -66,133 +66,133 @@ func portUsageRulesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, 
 }
 func portUsageTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.SwitchPortUsage {
 	data := make(map[string]models.SwitchPortUsage)
-	for pu_name, pu_attr := range d.Elements() {
-		var pu_attr_interface interface{} = pu_attr
-		pu_attr_value := pu_attr_interface.(PortUsagesValue)
+	for puName, puAttr := range d.Elements() {
+		var puAttrInterface interface{} = puAttr
+		puAttrValue := puAttrInterface.(PortUsagesValue)
 
-		new_pu := models.SwitchPortUsage{}
-		if pu_attr_value.AllNetworks.ValueBoolPointer() != nil {
-			new_pu.AllNetworks = models.ToPointer(pu_attr_value.AllNetworks.ValueBool())
+		newPu := models.SwitchPortUsage{}
+		if puAttrValue.AllNetworks.ValueBoolPointer() != nil {
+			newPu.AllNetworks = models.ToPointer(puAttrValue.AllNetworks.ValueBool())
 		}
-		if pu_attr_value.AllowDhcpd.ValueBoolPointer() != nil {
-			new_pu.AllowDhcpd = models.ToPointer(pu_attr_value.AllowDhcpd.ValueBool())
+		if puAttrValue.AllowDhcpd.ValueBoolPointer() != nil {
+			newPu.AllowDhcpd = models.ToPointer(puAttrValue.AllowDhcpd.ValueBool())
 		}
-		if pu_attr_value.AllowMultipleSupplicants.ValueBoolPointer() != nil {
-			new_pu.AllowMultipleSupplicants = models.ToPointer(pu_attr_value.AllowMultipleSupplicants.ValueBool())
+		if puAttrValue.AllowMultipleSupplicants.ValueBoolPointer() != nil {
+			newPu.AllowMultipleSupplicants = models.ToPointer(puAttrValue.AllowMultipleSupplicants.ValueBool())
 		}
-		if pu_attr_value.BypassAuthWhenServerDown.ValueBoolPointer() != nil {
-			new_pu.BypassAuthWhenServerDown = models.ToPointer(pu_attr_value.BypassAuthWhenServerDown.ValueBool())
+		if puAttrValue.BypassAuthWhenServerDown.ValueBoolPointer() != nil {
+			newPu.BypassAuthWhenServerDown = models.ToPointer(puAttrValue.BypassAuthWhenServerDown.ValueBool())
 		}
-		if pu_attr_value.BypassAuthWhenServerDownForUnkownClient.ValueBoolPointer() != nil {
-			new_pu.BypassAuthWhenServerDownForUnkownClient = models.ToPointer(pu_attr_value.BypassAuthWhenServerDownForUnkownClient.ValueBool())
+		if puAttrValue.BypassAuthWhenServerDownForUnkownClient.ValueBoolPointer() != nil {
+			newPu.BypassAuthWhenServerDownForUnkownClient = models.ToPointer(puAttrValue.BypassAuthWhenServerDownForUnkownClient.ValueBool())
 		}
-		if pu_attr_value.Description.ValueStringPointer() != nil {
-			new_pu.Description = models.ToPointer(pu_attr_value.Description.ValueString())
+		if puAttrValue.Description.ValueStringPointer() != nil {
+			newPu.Description = models.ToPointer(puAttrValue.Description.ValueString())
 		}
-		if pu_attr_value.DisableAutoneg.ValueBoolPointer() != nil {
-			new_pu.DisableAutoneg = models.ToPointer(pu_attr_value.DisableAutoneg.ValueBool())
+		if puAttrValue.DisableAutoneg.ValueBoolPointer() != nil {
+			newPu.DisableAutoneg = models.ToPointer(puAttrValue.DisableAutoneg.ValueBool())
 		}
-		if pu_attr_value.Disabled.ValueBoolPointer() != nil {
-			new_pu.Disabled = models.ToPointer(pu_attr_value.Disabled.ValueBool())
+		if puAttrValue.Disabled.ValueBoolPointer() != nil {
+			newPu.Disabled = models.ToPointer(puAttrValue.Disabled.ValueBool())
 		}
-		if pu_attr_value.Duplex.ValueStringPointer() != nil {
-			new_pu.Duplex = models.ToPointer(models.SwitchPortUsageDuplexEnum(pu_attr_value.Duplex.ValueString()))
+		if puAttrValue.Duplex.ValueStringPointer() != nil {
+			newPu.Duplex = models.ToPointer(models.SwitchPortUsageDuplexEnum(puAttrValue.Duplex.ValueString()))
 		}
-		if !pu_attr_value.DynamicVlanNetworks.IsNull() && !pu_attr_value.DynamicVlanNetworks.IsUnknown() {
-			new_pu.DynamicVlanNetworks = mist_transform.ListOfStringTerraformToSdk(ctx, pu_attr_value.DynamicVlanNetworks)
+		if !puAttrValue.DynamicVlanNetworks.IsNull() && !puAttrValue.DynamicVlanNetworks.IsUnknown() {
+			newPu.DynamicVlanNetworks = misttransform.ListOfStringTerraformToSdk(puAttrValue.DynamicVlanNetworks)
 		}
-		if pu_attr_value.EnableMacAuth.ValueBoolPointer() != nil {
-			new_pu.EnableMacAuth = models.ToPointer(pu_attr_value.EnableMacAuth.ValueBool())
+		if puAttrValue.EnableMacAuth.ValueBoolPointer() != nil {
+			newPu.EnableMacAuth = models.ToPointer(puAttrValue.EnableMacAuth.ValueBool())
 		}
-		if pu_attr_value.EnableQos.ValueBoolPointer() != nil {
-			new_pu.EnableQos = models.ToPointer(pu_attr_value.EnableQos.ValueBool())
+		if puAttrValue.EnableQos.ValueBoolPointer() != nil {
+			newPu.EnableQos = models.ToPointer(puAttrValue.EnableQos.ValueBool())
 		}
-		if pu_attr_value.GuestNetwork.ValueStringPointer() != nil {
-			new_pu.GuestNetwork = models.NewOptional(models.ToPointer(pu_attr_value.GuestNetwork.ValueString()))
+		if puAttrValue.GuestNetwork.ValueStringPointer() != nil {
+			newPu.GuestNetwork = models.NewOptional(models.ToPointer(puAttrValue.GuestNetwork.ValueString()))
 		}
-		if pu_attr_value.InterSwitchLink.ValueBoolPointer() != nil {
-			new_pu.InterSwitchLink = models.ToPointer(pu_attr_value.InterSwitchLink.ValueBool())
+		if puAttrValue.InterSwitchLink.ValueBoolPointer() != nil {
+			newPu.InterSwitchLink = models.ToPointer(puAttrValue.InterSwitchLink.ValueBool())
 		}
-		if pu_attr_value.MacAuthOnly.ValueBoolPointer() != nil {
-			new_pu.MacAuthOnly = models.ToPointer(pu_attr_value.MacAuthOnly.ValueBool())
+		if puAttrValue.MacAuthOnly.ValueBoolPointer() != nil {
+			newPu.MacAuthOnly = models.ToPointer(puAttrValue.MacAuthOnly.ValueBool())
 		}
-		if pu_attr_value.MacAuthPreferred.ValueBoolPointer() != nil {
-			new_pu.MacAuthPreferred = models.ToPointer(pu_attr_value.MacAuthPreferred.ValueBool())
+		if puAttrValue.MacAuthPreferred.ValueBoolPointer() != nil {
+			newPu.MacAuthPreferred = models.ToPointer(puAttrValue.MacAuthPreferred.ValueBool())
 		}
-		if pu_attr_value.MacAuthProtocol.ValueStringPointer() != nil {
-			new_pu.MacAuthProtocol = models.ToPointer(models.SwitchPortUsageMacAuthProtocolEnum(pu_attr_value.MacAuthProtocol.ValueString()))
+		if puAttrValue.MacAuthProtocol.ValueStringPointer() != nil {
+			newPu.MacAuthProtocol = models.ToPointer(models.SwitchPortUsageMacAuthProtocolEnum(puAttrValue.MacAuthProtocol.ValueString()))
 		}
-		if pu_attr_value.MacLimit.ValueInt64Pointer() != nil {
-			new_pu.MacLimit = models.ToPointer(int(pu_attr_value.MacLimit.ValueInt64()))
+		if puAttrValue.MacLimit.ValueInt64Pointer() != nil {
+			newPu.MacLimit = models.ToPointer(int(puAttrValue.MacLimit.ValueInt64()))
 		}
-		if pu_attr_value.Mode.ValueStringPointer() != nil {
-			new_pu.Mode = models.ToPointer(models.SwitchPortUsageModeEnum(pu_attr_value.Mode.ValueString()))
+		if puAttrValue.Mode.ValueStringPointer() != nil {
+			newPu.Mode = models.ToPointer(models.SwitchPortUsageModeEnum(puAttrValue.Mode.ValueString()))
 		}
-		if pu_attr_value.Mtu.ValueInt64Pointer() != nil {
-			new_pu.Mtu = models.ToPointer(int(pu_attr_value.Mtu.ValueInt64()))
+		if puAttrValue.Mtu.ValueInt64Pointer() != nil {
+			newPu.Mtu = models.ToPointer(int(puAttrValue.Mtu.ValueInt64()))
 		}
-		if !pu_attr_value.Networks.IsNull() && !pu_attr_value.Networks.IsUnknown() {
-			new_pu.Networks = mist_transform.ListOfStringTerraformToSdk(ctx, pu_attr_value.Networks)
+		if !puAttrValue.Networks.IsNull() && !puAttrValue.Networks.IsUnknown() {
+			newPu.Networks = misttransform.ListOfStringTerraformToSdk(puAttrValue.Networks)
 		}
-		if pu_attr_value.PersistMac.ValueBoolPointer() != nil {
-			new_pu.PersistMac = models.ToPointer(pu_attr_value.PersistMac.ValueBool())
+		if puAttrValue.PersistMac.ValueBoolPointer() != nil {
+			newPu.PersistMac = models.ToPointer(puAttrValue.PersistMac.ValueBool())
 		}
-		if pu_attr_value.PoeDisabled.ValueBoolPointer() != nil {
-			new_pu.PoeDisabled = models.ToPointer(pu_attr_value.PoeDisabled.ValueBool())
+		if puAttrValue.PoeDisabled.ValueBoolPointer() != nil {
+			newPu.PoeDisabled = models.ToPointer(puAttrValue.PoeDisabled.ValueBool())
 		}
-		if pu_attr_value.PortAuth.ValueStringPointer() != nil {
-			new_pu.PortAuth = models.NewOptional(models.ToPointer(models.SwitchPortUsageDot1xEnum(pu_attr_value.PortAuth.ValueString())))
+		if puAttrValue.PortAuth.ValueStringPointer() != nil {
+			newPu.PortAuth = models.NewOptional(models.ToPointer(models.SwitchPortUsageDot1xEnum(puAttrValue.PortAuth.ValueString())))
 		}
-		if pu_attr_value.PortNetwork.ValueStringPointer() != nil {
-			new_pu.PortNetwork = models.ToPointer(pu_attr_value.PortNetwork.ValueString())
+		if puAttrValue.PortNetwork.ValueStringPointer() != nil {
+			newPu.PortNetwork = models.ToPointer(puAttrValue.PortNetwork.ValueString())
 		}
-		if pu_attr_value.ReauthInterval.ValueInt64Pointer() != nil {
-			new_pu.ReauthInterval = models.ToPointer(int(pu_attr_value.ReauthInterval.ValueInt64()))
+		if puAttrValue.ReauthInterval.ValueInt64Pointer() != nil {
+			newPu.ReauthInterval = models.ToPointer(int(puAttrValue.ReauthInterval.ValueInt64()))
 		}
-		if !pu_attr_value.Rules.IsNull() && !pu_attr_value.Rules.IsUnknown() {
-			new_pu.Rules = portUsageRulesTerraformToSdk(ctx, diags, pu_attr_value.Rules)
+		if !puAttrValue.Rules.IsNull() && !puAttrValue.Rules.IsUnknown() {
+			newPu.Rules = portUsageRulesTerraformToSdk(puAttrValue.Rules)
 		}
-		if pu_attr_value.ResetDefaultWhen.ValueStringPointer() != nil {
-			new_pu.ResetDefaultWhen = models.ToPointer(models.SwitchPortUsageDynamicResetDefaultWhenEnum(pu_attr_value.ResetDefaultWhen.ValueString()))
+		if puAttrValue.ResetDefaultWhen.ValueStringPointer() != nil {
+			newPu.ResetDefaultWhen = models.ToPointer(models.SwitchPortUsageDynamicResetDefaultWhenEnum(puAttrValue.ResetDefaultWhen.ValueString()))
 		}
-		if pu_attr_value.ServerFailNetwork.ValueStringPointer() != nil {
-			new_pu.ServerFailNetwork = models.NewOptional(models.ToPointer(pu_attr_value.ServerFailNetwork.ValueString()))
+		if puAttrValue.ServerFailNetwork.ValueStringPointer() != nil {
+			newPu.ServerFailNetwork = models.NewOptional(models.ToPointer(puAttrValue.ServerFailNetwork.ValueString()))
 		}
-		if pu_attr_value.ServerRejectNetwork.ValueStringPointer() != nil {
-			new_pu.ServerRejectNetwork = models.NewOptional(models.ToPointer(pu_attr_value.ServerRejectNetwork.ValueString()))
+		if puAttrValue.ServerRejectNetwork.ValueStringPointer() != nil {
+			newPu.ServerRejectNetwork = models.NewOptional(models.ToPointer(puAttrValue.ServerRejectNetwork.ValueString()))
 		}
-		if pu_attr_value.Speed.ValueStringPointer() != nil {
-			new_pu.Speed = (*models.SwitchPortUsageSpeedEnum)(pu_attr_value.Speed.ValueStringPointer())
+		if puAttrValue.Speed.ValueStringPointer() != nil {
+			newPu.Speed = (*models.SwitchPortUsageSpeedEnum)(puAttrValue.Speed.ValueStringPointer())
 		}
-		if !pu_attr_value.StormControl.IsNull() && !pu_attr_value.StormControl.IsUnknown() {
-			storm_control := portUsageScTerraformToSdk(ctx, diags, pu_attr_value.StormControl)
-			new_pu.StormControl = models.ToPointer(storm_control)
+		if !puAttrValue.StormControl.IsNull() && !puAttrValue.StormControl.IsUnknown() {
+			stormControl := portUsageScTerraformToSdk(ctx, diags, puAttrValue.StormControl)
+			newPu.StormControl = models.ToPointer(stormControl)
 		}
-		if pu_attr_value.StpEdge.ValueBoolPointer() != nil {
-			new_pu.StpEdge = models.ToPointer(pu_attr_value.StpEdge.ValueBool())
+		if puAttrValue.StpEdge.ValueBoolPointer() != nil {
+			newPu.StpEdge = models.ToPointer(puAttrValue.StpEdge.ValueBool())
 		}
-		if pu_attr_value.StpNoRootPort.ValueBoolPointer() != nil {
-			new_pu.StpNoRootPort = pu_attr_value.StpNoRootPort.ValueBoolPointer()
+		if puAttrValue.StpNoRootPort.ValueBoolPointer() != nil {
+			newPu.StpNoRootPort = puAttrValue.StpNoRootPort.ValueBoolPointer()
 		}
-		if pu_attr_value.StpP2p.ValueBoolPointer() != nil {
-			new_pu.StpP2p = pu_attr_value.StpP2p.ValueBoolPointer()
+		if puAttrValue.StpP2p.ValueBoolPointer() != nil {
+			newPu.StpP2p = puAttrValue.StpP2p.ValueBoolPointer()
 		}
-		if pu_attr_value.UiEvpntopoId.ValueStringPointer() != nil {
-			ui_evpntopo_id, e := uuid.Parse(pu_attr_value.UiEvpntopoId.ValueString())
+		if puAttrValue.UiEvpntopoId.ValueStringPointer() != nil {
+			uiEvpntopoId, e := uuid.Parse(puAttrValue.UiEvpntopoId.ValueString())
 			if e == nil {
-				new_pu.UiEvpntopoId = &ui_evpntopo_id
+				newPu.UiEvpntopoId = &uiEvpntopoId
 			} else {
 				diags.AddError("Bad value for ui_evpntopo_id", e.Error())
 			}
 		}
-		if pu_attr_value.UseVstp.ValueBoolPointer() != nil {
-			new_pu.UseVstp = pu_attr_value.UseVstp.ValueBoolPointer()
+		if puAttrValue.UseVstp.ValueBoolPointer() != nil {
+			newPu.UseVstp = puAttrValue.UseVstp.ValueBoolPointer()
 		}
-		if pu_attr_value.VoipNetwork.ValueStringPointer() != nil {
-			new_pu.VoipNetwork = models.ToPointer(pu_attr_value.VoipNetwork.ValueString())
+		if puAttrValue.VoipNetwork.ValueStringPointer() != nil {
+			newPu.VoipNetwork = models.ToPointer(puAttrValue.VoipNetwork.ValueString())
 		}
 
-		data[pu_name] = new_pu
+		data[puName] = newPu
 	}
 	return data
 }

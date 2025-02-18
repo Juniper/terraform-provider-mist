@@ -13,7 +13,7 @@ import (
 
 func extraRouteSdkNextQualifiedToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.ExtraRouteNextQualifiedProperties) basetypes.MapValue {
 
-	state_value_map_value := make(map[string]attr.Value)
+	stateValueMapValue := make(map[string]attr.Value)
 	for k, d := range m {
 		var metric basetypes.Int64Value
 		var preference basetypes.Int64Value
@@ -25,29 +25,28 @@ func extraRouteSdkNextQualifiedToTerraform(ctx context.Context, diags *diag.Diag
 			preference = types.Int64Value(int64(*d.Preference.Value()))
 		}
 
-		data_map_attr_type := NextQualifiedValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
+		dataMapValue := map[string]attr.Value{
 			"metric":     metric,
 			"preference": preference,
 		}
-		data, e := NewNextQualifiedValue(data_map_attr_type, data_map_value)
+		data, e := NewNextQualifiedValue(NextQualifiedValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		state_value_map_value[k] = data
+		stateValueMapValue[k] = data
 	}
-	state_result_map_type := NextQualifiedValue{}.Type(ctx)
-	state_result_map, e := types.MapValueFrom(ctx, state_result_map_type, state_value_map_value)
+	stateResultMapType := NextQualifiedValue{}.Type(ctx)
+	stateResultMap, e := types.MapValueFrom(ctx, stateResultMapType, stateValueMapValue)
 	diags.Append(e...)
-	return state_result_map
+	return stateResultMap
 }
 func extraRoutesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.ExtraRoute) basetypes.MapValue {
 
-	state_value_map_value := make(map[string]attr.Value)
+	stateValueMapValue := make(map[string]attr.Value)
 	for k, d := range m {
 		var discard basetypes.BoolValue
 		var metric basetypes.Int64Value
-		var next_qualified basetypes.MapValue = types.MapNull(NextQualifiedValue{}.Type(ctx))
-		var no_resolve basetypes.BoolValue
+		var nextQualified = types.MapNull(NextQualifiedValue{}.Type(ctx))
+		var noResolve basetypes.BoolValue
 		var preference basetypes.Int64Value
 		var via basetypes.StringValue
 
@@ -58,10 +57,10 @@ func extraRoutesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m m
 			metric = types.Int64Value(int64(*d.Metric.Value()))
 		}
 		if d.NextQualified != nil && len(d.NextQualified) > 0 {
-			next_qualified = extraRouteSdkNextQualifiedToTerraform(ctx, diags, d.NextQualified)
+			nextQualified = extraRouteSdkNextQualifiedToTerraform(ctx, diags, d.NextQualified)
 		}
 		if d.NoResolve != nil {
-			no_resolve = types.BoolValue(*d.NoResolve)
+			noResolve = types.BoolValue(*d.NoResolve)
 		}
 		if d.Preference.Value() != nil {
 			preference = types.Int64Value(int64(*d.Preference.Value()))
@@ -70,22 +69,21 @@ func extraRoutesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m m
 			via = types.StringValue(*d.Via)
 		}
 
-		data_map_attr_type := ExtraRoutesValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
+		dataMapValue := map[string]attr.Value{
 			"discard":        discard,
 			"metric":         metric,
-			"next_qualified": next_qualified,
-			"no_resolve":     no_resolve,
+			"next_qualified": nextQualified,
+			"no_resolve":     noResolve,
 			"preference":     preference,
 			"via":            via,
 		}
-		data, e := NewExtraRoutesValue(data_map_attr_type, data_map_value)
+		data, e := NewExtraRoutesValue(ExtraRoutesValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		state_value_map_value[k] = data
+		stateValueMapValue[k] = data
 	}
-	state_result_map_type := ExtraRoutesValue{}.Type(ctx)
-	state_result_map, e := types.MapValueFrom(ctx, state_result_map_type, state_value_map_value)
+	stateResultMapType := ExtraRoutesValue{}.Type(ctx)
+	stateResultMap, e := types.MapValueFrom(ctx, stateResultMapType, stateValueMapValue)
 	diags.Append(e...)
-	return state_result_map
+	return stateResultMap
 }

@@ -1,16 +1,14 @@
 package resource_org_psk
 
 import (
-	"context"
-
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 )
 
-func TerraformToSdk(ctx context.Context, plan *OrgPskModel) (models.Psk, diag.Diagnostics) {
+func TerraformToSdk(plan *OrgPskModel) (models.Psk, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	data := models.Psk{}
 	unset := make(map[string]interface{})
@@ -40,7 +38,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgPskModel) (models.Psk, diag.Di
 	}
 
 	if !plan.Macs.IsNull() && !plan.Macs.IsUnknown() {
-		data.Macs = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Macs)
+		data.Macs = misttransform.ListOfStringTerraformToSdk(plan.Macs)
 	} else {
 		unset["-macs"] = ""
 	}

@@ -7,7 +7,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 
-	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
+	mistapierror "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_network"
 
 	"github.com/google/uuid"
@@ -48,11 +48,11 @@ func (r *orgNetworkResource) Configure(ctx context.Context, req resource.Configu
 
 	r.client = client
 }
-func (r *orgNetworkResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *orgNetworkResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_org_network"
 }
 
-func (r *orgNetworkResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *orgNetworkResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryWan + "This resource manages the WAN Assurance Networks.\n\n" +
 			"The Networks are used in the `service_policies` from the Gateway configuration, Gateway templates or HUB Profiles ",
@@ -88,11 +88,11 @@ func (r *orgNetworkResource) Create(ctx context.Context, req resource.CreateRequ
 	tflog.Info(ctx, "Starting Network Create for Org "+plan.OrgId.String())
 	data, err := r.client.OrgsNetworks().CreateOrgNetwork(ctx, orgId, network)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error creating \"mist_org_network\" resource",
-			fmt.Sprintf("Unable to create the Network. %s", api_err),
+			fmt.Sprintf("Unable to create the Network. %s", apiErr),
 		)
 		return
 	}
@@ -111,7 +111,7 @@ func (r *orgNetworkResource) Create(ctx context.Context, req resource.CreateRequ
 
 }
 
-func (r *orgNetworkResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *orgNetworkResource) Read(ctx context.Context, _ resource.ReadRequest, resp *resource.ReadResponse) {
 	var state resource_org_network.OrgNetworkModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -203,11 +203,11 @@ func (r *orgNetworkResource) Update(ctx context.Context, req resource.UpdateRequ
 	tflog.Info(ctx, "Starting Network Update for Network "+state.Id.ValueString())
 	data, err := r.client.OrgsNetworks().UpdateOrgNetwork(ctx, orgId, networkId, network)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error updating \"mist_org_network\" resource",
-			fmt.Sprintf("Unable to update the Network. %s", api_err),
+			fmt.Sprintf("Unable to update the Network. %s", apiErr),
 		)
 		return
 	}
@@ -226,7 +226,7 @@ func (r *orgNetworkResource) Update(ctx context.Context, req resource.UpdateRequ
 
 }
 
-func (r *orgNetworkResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *orgNetworkResource) Delete(ctx context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_org_network.OrgNetworkModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -254,11 +254,11 @@ func (r *orgNetworkResource) Delete(ctx context.Context, req resource.DeleteRequ
 
 	tflog.Info(ctx, "Starting Network Delete: network_id "+state.Id.ValueString())
 	data, err := r.client.OrgsNetworks().DeleteOrgNetwork(ctx, orgId, networkId)
-	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_network\" resource",
-			fmt.Sprintf("Unable to delete the Network. %s", api_err),
+			fmt.Sprintf("Unable to delete the Network. %s", apiErr),
 		)
 		return
 	}

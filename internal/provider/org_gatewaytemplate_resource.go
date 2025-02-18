@@ -7,7 +7,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 
-	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
+	mistapierror "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_gatewaytemplate"
 
 	"github.com/google/uuid"
@@ -49,11 +49,11 @@ func (r *orgGatewaytemplateResource) Configure(ctx context.Context, req resource
 
 	r.client = client
 }
-func (r *orgGatewaytemplateResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *orgGatewaytemplateResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_org_gatewaytemplate"
 }
 
-func (r *orgGatewaytemplateResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *orgGatewaytemplateResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryWan + "This resource manages the Gateway Templates.\n\n" +
 			"A Gateway template is used to define the static ip address and subnet mask of the hub device, along with the gateway. " +
@@ -89,11 +89,11 @@ func (r *orgGatewaytemplateResource) Create(ctx context.Context, req resource.Cr
 
 	data, err := r.client.OrgsGatewayTemplates().CreateOrgGatewayTemplate(ctx, orgId, gatewaytemplate)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error creating \"mist_org_gatewaytemplate\" resource",
-			fmt.Sprintf("Unable to create the Gateway Template. %s", api_err),
+			fmt.Sprintf("Unable to create the Gateway Template. %s", apiErr),
 		)
 		return
 	}
@@ -112,7 +112,7 @@ func (r *orgGatewaytemplateResource) Create(ctx context.Context, req resource.Cr
 
 }
 
-func (r *orgGatewaytemplateResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *orgGatewaytemplateResource) Read(ctx context.Context, _ resource.ReadRequest, resp *resource.ReadResponse) {
 	var state resource_org_gatewaytemplate.OrgGatewaytemplateModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -203,11 +203,11 @@ func (r *orgGatewaytemplateResource) Update(ctx context.Context, req resource.Up
 	tflog.Info(ctx, "Starting GatewayTemplate Update for GatewayTemplate "+state.Id.ValueString())
 	data, err := r.client.OrgsGatewayTemplates().UpdateOrgGatewayTemplate(ctx, orgId, templateId, gatewaytemplate)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error updating \"mist_org_gatewaytemplate\" resource",
-			fmt.Sprintf("Unable to update the Gateway Template. %s", api_err),
+			fmt.Sprintf("Unable to update the Gateway Template. %s", apiErr),
 		)
 		return
 	}
@@ -226,7 +226,7 @@ func (r *orgGatewaytemplateResource) Update(ctx context.Context, req resource.Up
 
 }
 
-func (r *orgGatewaytemplateResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *orgGatewaytemplateResource) Delete(ctx context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_org_gatewaytemplate.OrgGatewaytemplateModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -253,11 +253,11 @@ func (r *orgGatewaytemplateResource) Delete(ctx context.Context, req resource.De
 	}
 	tflog.Info(ctx, "Starting GatewayTemplate Delete: gatewaytemplate_id "+state.Id.ValueString())
 	data, err := r.client.OrgsGatewayTemplates().DeleteOrgGatewayTemplate(ctx, orgId, templateId)
-	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_gatewaytemplate\" resource",
-			fmt.Sprintf("Unable to delete the Gateway Template. %s", api_err),
+			fmt.Sprintf("Unable to delete the Gateway Template. %s", apiErr),
 		)
 		return
 	}

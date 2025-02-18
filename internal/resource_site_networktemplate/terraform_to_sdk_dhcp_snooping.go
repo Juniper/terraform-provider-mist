@@ -1,16 +1,12 @@
 package resource_site_networktemplate
 
 import (
-	"context"
-
-	"github.com/hashicorp/terraform-plugin-framework/diag"
-
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func dhcpSnoopingTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d DhcpSnoopingValue) *models.DhcpSnooping {
+func dhcpSnoopingTerraformToSdk(d DhcpSnoopingValue) *models.DhcpSnooping {
 	data := models.DhcpSnooping{}
 	if d.AllNetworks.ValueBoolPointer() != nil {
 		data.AllNetworks = models.ToPointer(d.AllNetworks.ValueBool())
@@ -25,7 +21,7 @@ func dhcpSnoopingTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d 
 		data.Enabled = models.ToPointer(d.Enabled.ValueBool())
 	}
 	if !d.Networks.IsNull() && !d.Networks.IsUnknown() {
-		data.Networks = mist_transform.ListOfStringTerraformToSdk(ctx, d.Networks)
+		data.Networks = misttransform.ListOfStringTerraformToSdk(d.Networks)
 	}
 	return &data
 }

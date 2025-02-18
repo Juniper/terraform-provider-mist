@@ -14,51 +14,48 @@ import (
 
 func moduleStatErrorSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.ModuleStatItemErrorsItems) basetypes.ListValue {
 
-	var data_list = []ErrorsValue{}
+	var dataList []ErrorsValue
 	for _, d := range l {
 		var feature basetypes.StringValue
-		var minimum_version basetypes.StringValue
+		var minimumVersion basetypes.StringValue
 		var reason basetypes.StringValue
 		var since basetypes.Int64Value
-		var type_error basetypes.StringValue
+		var typeError basetypes.StringValue
 
 		if d.Feature != nil {
 			feature = types.StringValue(*d.Feature)
 		}
 		if d.MinimumVersion != nil {
-			minimum_version = types.StringValue(*d.MinimumVersion)
+			minimumVersion = types.StringValue(*d.MinimumVersion)
 		}
 		if d.Reason != nil {
 			reason = types.StringValue(*d.Reason)
 		}
-		// if d.Since != nil {
-		since = types.Int64Value(int64(d.Since))
-		// }
-		// if d.Type != nil {
-		type_error = types.StringValue(d.Type)
-		//}
 
-		data_map_attr_type := ErrorsValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
+		since = types.Int64Value(int64(d.Since))
+
+		typeError = types.StringValue(d.Type)
+
+		dataMapValue := map[string]attr.Value{
 			"feature":         feature,
-			"minimum_version": minimum_version,
+			"minimum_version": minimumVersion,
 			"reason":          reason,
 			"since":           since,
-			"type":            type_error,
+			"type":            typeError,
 		}
-		data, e := NewErrorsValue(data_map_attr_type, data_map_value)
+		data, e := NewErrorsValue(ErrorsValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		data_list = append(data_list, data)
+		dataList = append(dataList, data)
 	}
-	r, e := types.ListValueFrom(ctx, ErrorsValue{}.Type(ctx), data_list)
+	r, e := types.ListValueFrom(ctx, ErrorsValue{}.Type(ctx), dataList)
 	diags.Append(e...)
 
 	return r
 }
 func moduleStatFanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.ModuleStatItemFansItems) basetypes.ListValue {
 
-	var data_list = []FansValue{}
+	var dataList []FansValue
 	for _, d := range l {
 		var airflow basetypes.StringValue
 		var name basetypes.StringValue
@@ -74,81 +71,78 @@ func moduleStatFanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l
 			status = types.StringValue(*d.Status)
 		}
 
-		data_map_attr_type := FansValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
+		dataMapValue := map[string]attr.Value{
 			"airflow": airflow,
 			"name":    name,
 			"status":  status,
 		}
-		data, e := NewFansValue(data_map_attr_type, data_map_value)
+		data, e := NewFansValue(FansValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		data_list = append(data_list, data)
+		dataList = append(dataList, data)
 	}
-	r, e := types.ListValueFrom(ctx, FansValue{}.Type(ctx), data_list)
+	r, e := types.ListValueFrom(ctx, FansValue{}.Type(ctx), dataList)
 	diags.Append(e...)
 
 	return r
 }
 func moduleStatPicPortGroupSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.ModuleStatItemPicsItemPortGroupsItem) basetypes.ListValue {
 
-	var data_list = []PortGroupsValue{}
+	var dataList []PortGroupsValue
 	for _, d := range l {
 		var count basetypes.Int64Value
-		var type_pg basetypes.StringValue
+		var typePg basetypes.StringValue
 
 		if d.Count != nil {
 			count = types.Int64Value(int64(*d.Count))
 		}
 		if d.Type != nil {
-			type_pg = types.StringValue(*d.Type)
+			typePg = types.StringValue(*d.Type)
 		}
 
-		data_map_attr_type := PortGroupsValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
+		dataMapValue := map[string]attr.Value{
 			"count": count,
-			"type":  type_pg,
+			"type":  typePg,
 		}
-		data, e := NewPortGroupsValue(data_map_attr_type, data_map_value)
+		data, e := NewPortGroupsValue(PortGroupsValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		data_list = append(data_list, data)
+		dataList = append(dataList, data)
 	}
-	r, e := types.ListValueFrom(ctx, PortGroupsValue{}.Type(ctx), data_list)
+	r, e := types.ListValueFrom(ctx, PortGroupsValue{}.Type(ctx), dataList)
 	diags.Append(e...)
 
 	return r
 }
 func moduleStatPicSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.ModuleStatItemPicsItem) basetypes.ListValue {
 
-	var data_list = []PicsValue{}
+	var dataList []PicsValue
 	for _, d := range l {
 		var index basetypes.Int64Value
-		var model_number basetypes.StringValue
-		var port_groups basetypes.ListValue = types.ListNull(PortGroupsValue{}.Type(ctx))
+		var modelNumber basetypes.StringValue
+		var portGroups = types.ListNull(PortGroupsValue{}.Type(ctx))
 
 		if d.Index != nil {
 			index = types.Int64Value(int64(*d.Index))
 		}
 		if d.ModelNumber != nil {
-			model_number = types.StringValue(*d.ModelNumber)
+			modelNumber = types.StringValue(*d.ModelNumber)
 		}
 		if d.PortGroups != nil {
-			port_groups = moduleStatPicPortGroupSdkToTerraform(ctx, diags, d.PortGroups)
+			portGroups = moduleStatPicPortGroupSdkToTerraform(ctx, diags, d.PortGroups)
 		}
 
-		data_map_attr_type := PicsValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
+		dataMapValue := map[string]attr.Value{
 			"index":        index,
-			"model_number": model_number,
-			"port_groups":  port_groups,
+			"model_number": modelNumber,
+			"port_groups":  portGroups,
 		}
-		data, e := NewPicsValue(data_map_attr_type, data_map_value)
+		data, e := NewPicsValue(PicsValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		data_list = append(data_list, data)
+		dataList = append(dataList, data)
 	}
-	r, e := types.ListValueFrom(ctx, PicsValue{}.Type(ctx), data_list)
+	r, e := types.ListValueFrom(ctx, PicsValue{}.Type(ctx), dataList)
 	diags.Append(e...)
 
 	return r
@@ -156,29 +150,28 @@ func moduleStatPicSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l
 
 func moduleStatPoeSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ModuleStatItemPoe) basetypes.ObjectValue {
 
-	var max_power basetypes.NumberValue
-	var power_draw basetypes.NumberValue
+	var maxPower basetypes.NumberValue
+	var powerDraw basetypes.NumberValue
 
 	if d.MaxPower != nil {
-		max_power = types.NumberValue(big.NewFloat(*d.MaxPower))
+		maxPower = types.NumberValue(big.NewFloat(*d.MaxPower))
 	}
 	if d.PowerDraw != nil {
-		power_draw = types.NumberValue(big.NewFloat(*d.PowerDraw))
+		powerDraw = types.NumberValue(big.NewFloat(*d.PowerDraw))
 	}
 
-	data_map_attr_type := PoeValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"max_power":  max_power,
-		"power_draw": power_draw,
+	dataMapValue := map[string]attr.Value{
+		"max_power":  maxPower,
+		"power_draw": powerDraw,
 	}
-	data, e := basetypes.NewObjectValue(data_map_attr_type, data_map_value)
+	data, e := basetypes.NewObjectValue(PoeValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data
 }
 func moduleStatPsusSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.ModuleStatItemPsusItem) basetypes.ListValue {
 
-	var data_list = []PsusValue{}
+	var dataList []PsusValue
 	for _, d := range l {
 		var name basetypes.StringValue
 		var status basetypes.StringValue
@@ -190,24 +183,23 @@ func moduleStatPsusSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 			status = types.StringValue(*d.Status)
 		}
 
-		data_map_attr_type := PsusValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
+		dataMapValue := map[string]attr.Value{
 			"name":   name,
 			"status": status,
 		}
-		data, e := NewPsusValue(data_map_attr_type, data_map_value)
+		data, e := NewPsusValue(PsusValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		data_list = append(data_list, data)
+		dataList = append(dataList, data)
 	}
-	r, e := types.ListValueFrom(ctx, PsusValue{}.Type(ctx), data_list)
+	r, e := types.ListValueFrom(ctx, PsusValue{}.Type(ctx), dataList)
 	diags.Append(e...)
 
 	return r
 }
 func moduleStatTemperatureSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.ModuleStatItemTemperaturesItem) basetypes.ListValue {
 
-	var data_list = []TemperaturesValue{}
+	var dataList []TemperaturesValue
 	for _, d := range l {
 		var celsius basetypes.NumberValue
 		var name basetypes.StringValue
@@ -223,97 +215,95 @@ func moduleStatTemperatureSdkToTerraform(ctx context.Context, diags *diag.Diagno
 			status = types.StringValue(*d.Status)
 		}
 
-		data_map_attr_type := TemperaturesValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
+		dataMapValue := map[string]attr.Value{
 			"celsius": celsius,
 			"name":    name,
 			"status":  status,
 		}
-		data, e := NewTemperaturesValue(data_map_attr_type, data_map_value)
+		data, e := NewTemperaturesValue(TemperaturesValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		data_list = append(data_list, data)
+		dataList = append(dataList, data)
 	}
-	r, e := types.ListValueFrom(ctx, TemperaturesValue{}.Type(ctx), data_list)
+	r, e := types.ListValueFrom(ctx, TemperaturesValue{}.Type(ctx), dataList)
 	diags.Append(e...)
 
 	return r
 }
 func moduleStatVcLinksSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.ModuleStatItemVcLinksItem) basetypes.ListValue {
 
-	var data_list = []VcLinksValue{}
+	var dataList []VcLinksValue
 	for _, d := range l {
-		var neighbor_module_idx basetypes.Int64Value
-		var neighbor_port_id basetypes.StringValue
-		var port_id basetypes.StringValue
+		var neighborModuleIdx basetypes.Int64Value
+		var neighborPortId basetypes.StringValue
+		var portId basetypes.StringValue
 
 		if d.NeighborModuleIdx != nil {
-			neighbor_module_idx = types.Int64Value(int64(*d.NeighborModuleIdx))
+			neighborModuleIdx = types.Int64Value(int64(*d.NeighborModuleIdx))
 		}
 		if d.NeighborPortId != nil {
-			neighbor_port_id = types.StringValue(*d.NeighborPortId)
+			neighborPortId = types.StringValue(*d.NeighborPortId)
 		}
 		if d.PortId != nil {
-			port_id = types.StringValue(*d.PortId)
+			portId = types.StringValue(*d.PortId)
 		}
 
-		data_map_attr_type := VcLinksValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
-			"neighbor_module_idx": neighbor_module_idx,
-			"neighbor_port_id":    neighbor_port_id,
-			"port_id":             port_id,
+		dataMapValue := map[string]attr.Value{
+			"neighbor_module_idx": neighborModuleIdx,
+			"neighbor_port_id":    neighborPortId,
+			"port_id":             portId,
 		}
-		data, e := NewVcLinksValue(data_map_attr_type, data_map_value)
+		data, e := NewVcLinksValue(VcLinksValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
-		data_list = append(data_list, data)
+		dataList = append(dataList, data)
 	}
-	r, e := types.ListValueFrom(ctx, VcLinksValue{}.Type(ctx), data_list)
+	r, e := types.ListValueFrom(ctx, VcLinksValue{}.Type(ctx), dataList)
 	diags.Append(e...)
 
 	return r
 }
 func moduleStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.ModuleStatItem) basetypes.ListValue {
 
-	var data_list = []ModuleStatValue{}
+	var dataList []ModuleStatValue
 	for _, d := range l {
-		var backup_version basetypes.StringValue
-		var bios_version basetypes.StringValue
-		var cpld_version basetypes.StringValue
-		var errors basetypes.ListValue = types.ListNull(ErrorsValue{}.Type(ctx))
-		var fans basetypes.ListValue = types.ListNull(FansValue{}.Type(ctx))
-		var fpc_idx basetypes.Int64Value
-		var fpga_version basetypes.StringValue
-		var last_seen basetypes.NumberValue
+		var backupVersion basetypes.StringValue
+		var biosVersion basetypes.StringValue
+		var cpldVersion basetypes.StringValue
+		var errors = types.ListNull(ErrorsValue{}.Type(ctx))
+		var fans = types.ListNull(FansValue{}.Type(ctx))
+		var fpcIdx basetypes.Int64Value
+		var fpgaVersion basetypes.StringValue
+		var lastSeen basetypes.NumberValue
 		var model basetypes.StringValue
-		var optics_cpld_version basetypes.StringValue
-		var pending_version basetypes.StringValue
-		var pics basetypes.ListValue = types.ListNull(PicsValue{}.Type(ctx))
-		var poe basetypes.ObjectValue = types.ObjectNull(PoeValue{}.AttributeTypes(ctx))
-		var poe_version basetypes.StringValue
-		var power_cpld_version basetypes.StringValue
-		var psus basetypes.ListValue = types.ListNull(PsusValue{}.Type(ctx))
-		var re_fpga_version basetypes.StringValue
-		var recovery_version basetypes.StringValue
+		var opticsCpldVersion basetypes.StringValue
+		var pendingVersion basetypes.StringValue
+		var pics = types.ListNull(PicsValue{}.Type(ctx))
+		var poe = types.ObjectNull(PoeValue{}.AttributeTypes(ctx))
+		var poeVersion basetypes.StringValue
+		var powerCpldVersion basetypes.StringValue
+		var psus = types.ListNull(PsusValue{}.Type(ctx))
+		var reFpgaVersion basetypes.StringValue
+		var recoveryVersion basetypes.StringValue
 		var serial basetypes.StringValue
 		var status basetypes.StringValue
-		var temperatures basetypes.ListValue = types.ListNull(TemperaturesValue{}.Type(ctx))
-		var tmc_fpga_version basetypes.StringValue
-		var uboot_version basetypes.StringValue
+		var temperatures = types.ListNull(TemperaturesValue{}.Type(ctx))
+		var tmcFpgaVersion basetypes.StringValue
+		var ubootVersion basetypes.StringValue
 		var uptime basetypes.Int64Value
-		var vc_links basetypes.ListValue = types.ListNull(VcLinksValue{}.Type(ctx))
-		var vc_mode basetypes.StringValue
-		var vc_role basetypes.StringValue
-		var vc_state basetypes.StringValue
+		var vcLinks = types.ListNull(VcLinksValue{}.Type(ctx))
+		var vcMode basetypes.StringValue
+		var vcRole basetypes.StringValue
+		var vcState basetypes.StringValue
 		var version basetypes.StringValue
 
 		if d.BackupVersion.Value() != nil {
-			backup_version = types.StringValue(*d.BackupVersion.Value())
+			backupVersion = types.StringValue(*d.BackupVersion.Value())
 		}
 		if d.BiosVersion.Value() != nil {
-			bios_version = types.StringValue(*d.BiosVersion.Value())
+			biosVersion = types.StringValue(*d.BiosVersion.Value())
 		}
 		if d.CpldVersion.Value() != nil {
-			cpld_version = types.StringValue(*d.CpldVersion.Value())
+			cpldVersion = types.StringValue(*d.CpldVersion.Value())
 		}
 		if d.Errors != nil {
 			errors = moduleStatErrorSdkToTerraform(ctx, diags, d.Errors)
@@ -322,22 +312,22 @@ func moduleStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []
 			fans = moduleStatFanSdkToTerraform(ctx, diags, d.Fans)
 		}
 		if d.FpcIdx != nil {
-			fpc_idx = types.Int64Value(int64(*d.FpcIdx))
+			fpcIdx = types.Int64Value(int64(*d.FpcIdx))
 		}
 		if d.FpgaVersion.Value() != nil {
-			fpga_version = types.StringValue(*d.FpgaVersion.Value())
+			fpgaVersion = types.StringValue(*d.FpgaVersion.Value())
 		}
 		if d.LastSeen.Value() != nil {
-			last_seen = types.NumberValue(big.NewFloat(*d.LastSeen.Value()))
+			lastSeen = types.NumberValue(big.NewFloat(*d.LastSeen.Value()))
 		}
 		if d.Model.Value() != nil {
 			model = types.StringValue(*d.Model.Value())
 		}
 		if d.OpticsCpldVersion.Value() != nil {
-			optics_cpld_version = types.StringValue(*d.OpticsCpldVersion.Value())
+			opticsCpldVersion = types.StringValue(*d.OpticsCpldVersion.Value())
 		}
 		if d.PendingVersion.Value() != nil {
-			pending_version = types.StringValue(*d.PendingVersion.Value())
+			pendingVersion = types.StringValue(*d.PendingVersion.Value())
 		}
 		if d.Pics != nil {
 			pics = moduleStatPicSdkToTerraform(ctx, diags, d.Pics)
@@ -346,19 +336,19 @@ func moduleStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []
 			poe = moduleStatPoeSdkToTerraform(ctx, diags, d.Poe)
 		}
 		if d.PoeVersion.Value() != nil {
-			poe_version = types.StringValue(*d.PoeVersion.Value())
+			poeVersion = types.StringValue(*d.PoeVersion.Value())
 		}
 		if d.PowerCpldVersion.Value() != nil {
-			power_cpld_version = types.StringValue(*d.PowerCpldVersion.Value())
+			powerCpldVersion = types.StringValue(*d.PowerCpldVersion.Value())
 		}
 		if d.Psus != nil {
 			psus = moduleStatPsusSdkToTerraform(ctx, diags, d.Psus)
 		}
 		if d.ReFpgaVersion.Value() != nil {
-			re_fpga_version = types.StringValue(*d.ReFpgaVersion.Value())
+			reFpgaVersion = types.StringValue(*d.ReFpgaVersion.Value())
 		}
 		if d.RecoveryVersion.Value() != nil {
-			recovery_version = types.StringValue(*d.RecoveryVersion.Value())
+			recoveryVersion = types.StringValue(*d.RecoveryVersion.Value())
 		}
 		if d.Serial.Value() != nil {
 			serial = types.StringValue(*d.Serial.Value())
@@ -370,68 +360,67 @@ func moduleStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []
 			temperatures = moduleStatTemperatureSdkToTerraform(ctx, diags, d.Temperatures)
 		}
 		if d.TmcFpgaVersion.Value() != nil {
-			tmc_fpga_version = types.StringValue(*d.TmcFpgaVersion.Value())
+			tmcFpgaVersion = types.StringValue(*d.TmcFpgaVersion.Value())
 		}
 		if d.UbootVersion.Value() != nil {
-			uboot_version = types.StringValue(*d.UbootVersion.Value())
+			ubootVersion = types.StringValue(*d.UbootVersion.Value())
 		}
 		if d.Uptime.Value() != nil {
 			uptime = types.Int64Value(int64(*d.Uptime.Value()))
 		}
 		if d.VcLinks != nil {
-			vc_links = moduleStatVcLinksSdkToTerraform(ctx, diags, d.VcLinks)
+			vcLinks = moduleStatVcLinksSdkToTerraform(ctx, diags, d.VcLinks)
 		}
 		if d.VcMode.Value() != nil {
-			vc_mode = types.StringValue(*d.VcMode.Value())
+			vcMode = types.StringValue(*d.VcMode.Value())
 		}
 		if d.VcRole.Value() != nil {
-			vc_role = types.StringValue(*d.VcRole.Value())
+			vcRole = types.StringValue(*d.VcRole.Value())
 		}
 		if d.VcState.Value() != nil {
-			vc_state = types.StringValue(*d.VcState.Value())
+			vcState = types.StringValue(*d.VcState.Value())
 		}
 		if d.Version.Value() != nil {
 			version = types.StringValue(*d.Version.Value())
 		}
 
-		data_map_attr_type := ModuleStatValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
-			"backup_version":      backup_version,
-			"bios_version":        bios_version,
-			"cpld_version":        cpld_version,
+		dataMapValue := map[string]attr.Value{
+			"backup_version":      backupVersion,
+			"bios_version":        biosVersion,
+			"cpld_version":        cpldVersion,
 			"errors":              errors,
 			"fans":                fans,
-			"fpc_idx":             fpc_idx,
-			"fpga_version":        fpga_version,
-			"last_seen":           last_seen,
+			"fpc_idx":             fpcIdx,
+			"fpga_version":        fpgaVersion,
+			"last_seen":           lastSeen,
 			"model":               model,
-			"optics_cpld_version": optics_cpld_version,
-			"pending_version":     pending_version,
+			"optics_cpld_version": opticsCpldVersion,
+			"pending_version":     pendingVersion,
 			"pics":                pics,
 			"poe":                 poe,
-			"poe_version":         poe_version,
-			"power_cpld_version":  power_cpld_version,
+			"poe_version":         poeVersion,
+			"power_cpld_version":  powerCpldVersion,
 			"psus":                psus,
-			"re_fpga_version":     re_fpga_version,
-			"recovery_version":    recovery_version,
+			"re_fpga_version":     reFpgaVersion,
+			"recovery_version":    recoveryVersion,
 			"serial":              serial,
 			"status":              status,
 			"temperatures":        temperatures,
-			"tmc_fpga_version":    tmc_fpga_version,
-			"uboot_version":       uboot_version,
+			"tmc_fpga_version":    tmcFpgaVersion,
+			"uboot_version":       ubootVersion,
 			"uptime":              uptime,
-			"vc_links":            vc_links,
-			"vc_mode":             vc_mode,
-			"vc_role":             vc_role,
-			"vc_state":            vc_state,
+			"vc_links":            vcLinks,
+			"vc_mode":             vcMode,
+			"vc_role":             vcRole,
+			"vc_state":            vcState,
 			"version":             version,
 		}
-		data, e := NewModuleStatValue(data_map_attr_type, data_map_value)
+		data, e := NewModuleStatValue(ModuleStatValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		data_list = append(data_list, data)
+		dataList = append(dataList, data)
 	}
-	r, e := types.ListValueFrom(ctx, ModuleStatValue{}.Type(ctx), data_list)
+	r, e := types.ListValueFrom(ctx, ModuleStatValue{}.Type(ctx), dataList)
 	diags.Append(e...)
 
 	return r

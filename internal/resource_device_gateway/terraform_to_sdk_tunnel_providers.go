@@ -5,11 +5,10 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func tunnelProviderOptionsJseTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) models.TunnelProviderOptionsJse {
+func tunnelProviderOptionsJseTerraformToSdk(ctx context.Context, d basetypes.ObjectValue) models.TunnelProviderOptionsJse {
 	data := models.TunnelProviderOptionsJse{}
 	if d.IsNull() || d.IsUnknown() {
 		return data
@@ -25,11 +24,11 @@ func tunnelProviderOptionsJseTerraformToSdk(ctx context.Context, diags *diag.Dia
 	}
 }
 
-func tunnelProviderOptionsZscalerSubLocationTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.TunnelProviderOptionsZscalerSubLocation {
-	var data_list []models.TunnelProviderOptionsZscalerSubLocation
+func tunnelProviderOptionsZscalerSubLocationTerraformToSdk(d basetypes.ListValue) []models.TunnelProviderOptionsZscalerSubLocation {
+	var dataList []models.TunnelProviderOptionsZscalerSubLocation
 	for _, v := range d.Elements() {
-		var v_interface interface{} = v
-		plan := v_interface.(SubLocationsValue)
+		var vInterface interface{} = v
+		plan := vInterface.(SubLocationsValue)
 		data := models.TunnelProviderOptionsZscalerSubLocation{}
 		if plan.AupBlockInternetUntilAccepted.ValueBoolPointer() != nil {
 			data.AupBlockInternetUntilAccepted = plan.AupBlockInternetUntilAccepted.ValueBoolPointer()
@@ -74,12 +73,12 @@ func tunnelProviderOptionsZscalerSubLocationTerraformToSdk(ctx context.Context, 
 			data.UpBandwidth = models.NewOptional(plan.UpBandwidth.ValueFloat64Pointer())
 		}
 
-		data_list = append(data_list, data)
+		dataList = append(dataList, data)
 	}
-	return data_list
+	return dataList
 }
 
-func tunnelProviderOptionsZscalerTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) models.TunnelProviderOptionsZscaler {
+func tunnelProviderOptionsZscalerTerraformToSdk(ctx context.Context, d basetypes.ObjectValue) models.TunnelProviderOptionsZscaler {
 	data := models.TunnelProviderOptionsZscaler{}
 	if d.IsNull() || d.IsUnknown() {
 		return data
@@ -110,8 +109,8 @@ func tunnelProviderOptionsZscalerTerraformToSdk(ctx context.Context, diags *diag
 			data.IdleTimeInMinutes = models.ToPointer(int(plan.IdleTimeInMinutes.ValueInt64()))
 		}
 		if !plan.SubLocations.IsNull() && !plan.SubLocations.IsUnknown() {
-			sub_locations := tunnelProviderOptionsZscalerSubLocationTerraformToSdk(ctx, diags, plan.SubLocations)
-			data.SubLocations = sub_locations
+			subLocations := tunnelProviderOptionsZscalerSubLocationTerraformToSdk(plan.SubLocations)
+			data.SubLocations = subLocations
 		}
 		if plan.OfwEnabled.ValueBoolPointer() != nil {
 			data.OfwEnabled = plan.OfwEnabled.ValueBoolPointer()
@@ -136,16 +135,16 @@ func tunnelProviderOptionsZscalerTerraformToSdk(ctx context.Context, diags *diag
 	}
 }
 
-func tunnelProviderOptionsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d TunnelProviderOptionsValue) *models.TunnelProviderOptions {
+func tunnelProviderOptionsTerraformToSdk(ctx context.Context, d TunnelProviderOptionsValue) *models.TunnelProviderOptions {
 
 	data := models.TunnelProviderOptions{}
 
-	jse := tunnelProviderOptionsJseTerraformToSdk(ctx, diags, d.Jse)
+	jse := tunnelProviderOptionsJseTerraformToSdk(ctx, d.Jse)
 	if !d.Jse.IsNull() && !d.Jse.IsUnknown() {
 		data.Jse = &jse
 	}
 
-	zscaler := tunnelProviderOptionsZscalerTerraformToSdk(ctx, diags, d.Zscaler)
+	zscaler := tunnelProviderOptionsZscalerTerraformToSdk(ctx, d.Zscaler)
 	if !d.Zscaler.IsNull() && !d.Zscaler.IsUnknown() {
 		data.Zscaler = &zscaler
 	}

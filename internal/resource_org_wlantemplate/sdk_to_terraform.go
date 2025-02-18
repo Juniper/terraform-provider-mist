@@ -3,7 +3,7 @@ package resource_org_wlantemplate
 import (
 	"context"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -23,7 +23,7 @@ func SdkToTerraform(ctx context.Context, data models.Template) (OrgWlantemplateM
 		state.Applies = appliesSdkToTerraform(ctx, &diags, *data.Applies)
 	}
 
-	state.DeviceprofileIds = mist_transform.ListOfUuidSdkToTerraform(ctx, data.DeviceprofileIds)
+	state.DeviceprofileIds = misttransform.ListOfUuidSdkToTerraform(data.DeviceprofileIds)
 
 	if data.Exceptions != nil {
 		state.Exceptions = exceptionsSdkToTerraform(ctx, &diags, *data.Exceptions)

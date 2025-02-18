@@ -13,42 +13,41 @@ import (
 
 func autoUpgradeSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.SiteSettingAutoUpgrade) AutoUpgradeValue {
 
-	var custom_versions basetypes.MapValue = types.MapNull(types.StringType)
-	var day_of_week basetypes.StringValue
+	var customVersions = types.MapNull(types.StringType)
+	var dayOfWeek basetypes.StringValue
 	var enabled basetypes.BoolValue
-	var time_of_day basetypes.StringValue
+	var timeOfDay basetypes.StringValue
 	var version basetypes.StringValue
 
 	if d.CustomVersions != nil {
-		custom_versions_map_value := make(map[string]attr.Value)
+		customVersionsMapValue := make(map[string]attr.Value)
 		for k, v := range d.CustomVersions {
-			custom_versions_map_value[k] = types.StringValue(v)
+			customVersionsMapValue[k] = types.StringValue(v)
 		}
-		custom_versions = types.MapValueMust(types.StringType, custom_versions_map_value)
+		customVersions = types.MapValueMust(types.StringType, customVersionsMapValue)
 	}
 
 	if d.DayOfWeek != nil {
-		day_of_week = types.StringValue(string(*d.DayOfWeek))
+		dayOfWeek = types.StringValue(string(*d.DayOfWeek))
 	}
 	if d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
 	if d.TimeOfDay != nil {
-		time_of_day = types.StringValue(*d.TimeOfDay)
+		timeOfDay = types.StringValue(*d.TimeOfDay)
 	}
 	if d.Version != nil {
 		version = types.StringValue(string(*d.Version))
 	}
 
-	data_map_attr_type := AutoUpgradeValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"custom_versions": custom_versions,
-		"day_of_week":     day_of_week,
+	dataMapValue := map[string]attr.Value{
+		"custom_versions": customVersions,
+		"day_of_week":     dayOfWeek,
 		"enabled":         enabled,
-		"time_of_day":     time_of_day,
+		"time_of_day":     timeOfDay,
 		"version":         version,
 	}
-	data, e := NewAutoUpgradeValue(data_map_attr_type, data_map_value)
+	data, e := NewAutoUpgradeValue(AutoUpgradeValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

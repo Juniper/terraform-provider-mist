@@ -41,11 +41,11 @@ func (d *constApplicationsDataSource) Configure(ctx context.Context, req datasou
 
 	d.client = client
 }
-func (d *constApplicationsDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+func (d *constApplicationsDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_const_applications"
 }
 
-func (d *constApplicationsDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *constApplicationsDataSource) Schema(ctx context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryConst + "This data source provides the of ConstApplications.\n\n" +
 			"This information can be used as `apps` in:\n" +

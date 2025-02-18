@@ -25,7 +25,7 @@ func (m OnlyRefreshIfValueHasChangedModifier) MarkdownDescription(_ context.Cont
 }
 
 func compareList(ctx context.Context, req planmodifier.StringRequest, mp path.Path) bool {
-	var need_refresh = false
+	var needRefresh = false
 	var s basetypes.ListValue
 	var p basetypes.ListValue
 	req.State.GetAttribute(ctx, mp, &s)
@@ -40,69 +40,69 @@ func compareList(ctx context.Context, req planmodifier.StringRequest, mp path.Pa
 		pl = append(pl, v.String())
 	}
 	if len(sl) != len(pl) {
-		need_refresh = true
+		needRefresh = true
 	} else {
 		for i := range sl {
 			if sl[i] != pl[i] {
-				need_refresh = true
+				needRefresh = true
 			}
 		}
 	}
-	return need_refresh
+	return needRefresh
 }
 func compareString(ctx context.Context, req planmodifier.StringRequest, mp path.Path) bool {
-	var need_refresh = false
+	var needRefresh = false
 	var s basetypes.StringValue
 	var p basetypes.StringValue
 	req.State.GetAttribute(ctx, mp, &s)
 	req.Plan.GetAttribute(ctx, mp, &p)
 
 	if s != p {
-		need_refresh = true
+		needRefresh = true
 	}
-	return need_refresh
+	return needRefresh
 }
 func compareBool(ctx context.Context, req planmodifier.StringRequest, mp path.Path) bool {
-	var need_refresh = false
+	var needRefresh = false
 	var s basetypes.BoolValue
 	var p basetypes.BoolValue
 	req.State.GetAttribute(ctx, mp, &s)
 	req.Plan.GetAttribute(ctx, mp, &p)
 
 	if s != p {
-		need_refresh = true
+		needRefresh = true
 	}
-	return need_refresh
+	return needRefresh
 }
 func compareFloat64(ctx context.Context, req planmodifier.StringRequest, mp path.Path) bool {
-	var need_refresh = false
+	var needRefresh = false
 	var s basetypes.Float64Value
 	var p basetypes.Float64Value
 	req.State.GetAttribute(ctx, mp, &s)
 	req.Plan.GetAttribute(ctx, mp, &p)
 
 	if s != p {
-		need_refresh = true
+		needRefresh = true
 	}
-	return need_refresh
+	return needRefresh
 }
 func compareInt64(ctx context.Context, req planmodifier.StringRequest, mp path.Path) bool {
-	var need_refresh = false
+	var needRefresh = false
 	var s basetypes.Int64Value
 	var p basetypes.Int64Value
 	req.State.GetAttribute(ctx, mp, &s)
 	req.Plan.GetAttribute(ctx, mp, &p)
 
 	if s != p {
-		need_refresh = true
+		needRefresh = true
 	}
-	return need_refresh
+	return needRefresh
 }
 
-// PlanModifyBool implements the plan modification logic.
+// PlanModifyString PlanModifyBool implements the plan modification logic.
 // It will reuse the state value if the provided attribute is not changed
 func (m OnlyRefreshIfValueHasChangedModifier) PlanModifyString(ctx context.Context, req planmodifier.StringRequest, resp *planmodifier.StringResponse) {
-	need_refresh := true
+	needRefresh := true
 	mergedExpressions := req.PathExpression.MergeExpressions(m.Expression)
 
 	for _, expression := range mergedExpressions {
@@ -115,25 +115,25 @@ func (m OnlyRefreshIfValueHasChangedModifier) PlanModifyString(ctx context.Conte
 			if e != nil {
 				continue
 			}
-			attr_type := attr.GetType().String()
+			attrType := attr.GetType().String()
 
-			switch attr_type {
+			switch attrType {
 			case "types.ListType[basetypes.StringType]":
-				need_refresh = compareList(ctx, req, mp)
+				needRefresh = compareList(ctx, req, mp)
 			case "types.BoolType":
-				need_refresh = compareBool(ctx, req, mp)
+				needRefresh = compareBool(ctx, req, mp)
 			case "types.Float64Type":
-				need_refresh = compareFloat64(ctx, req, mp)
+				needRefresh = compareFloat64(ctx, req, mp)
 			case "types.Int64Type":
-				need_refresh = compareInt64(ctx, req, mp)
+				needRefresh = compareInt64(ctx, req, mp)
 			case "types.StringType":
-				need_refresh = compareString(ctx, req, mp)
+				needRefresh = compareString(ctx, req, mp)
 			default:
 				continue
 			}
 		}
 	}
-	if !need_refresh {
+	if !needRefresh {
 		resp.PlanValue = req.StateValue
 	}
 }

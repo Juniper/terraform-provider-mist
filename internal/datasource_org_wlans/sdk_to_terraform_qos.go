@@ -23,12 +23,11 @@ func qosSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.Wl
 		overwrite = types.BoolValue(*d.Overwrite)
 	}
 
-	data_map_attr_type := QosValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"class":     class,
 		"overwrite": overwrite,
 	}
-	data, e := basetypes.NewObjectValue(data_map_attr_type, data_map_value)
+	data, e := basetypes.NewObjectValue(QosValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

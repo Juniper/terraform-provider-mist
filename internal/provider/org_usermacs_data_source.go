@@ -7,7 +7,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/Juniper/terraform-provider-mist/internal/datasource_org_usermacs"
 
 	"github.com/google/uuid"
@@ -47,11 +47,11 @@ func (d *orgNacEndpointsDataSource) Configure(ctx context.Context, req datasourc
 
 	d.client = client
 }
-func (d *orgNacEndpointsDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+func (d *orgNacEndpointsDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_org_nac_endpoints"
 }
 
-func (d *orgNacEndpointsDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *orgNacEndpointsDataSource) Schema(ctx context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryNac + "This data source provides the list of NAC Endpoints (User MACs).\n\n" +
 			"NAC Endpoints (User MACs) provide a database of endpoints identified by their MAC addresses. " +
@@ -78,15 +78,15 @@ func (d *orgNacEndpointsDataSource) Read(ctx context.Context, req datasource.Rea
 		return
 	}
 
-	var mac *string = ds.Mac.ValueStringPointer()
+	var mac = ds.Mac.ValueStringPointer()
 	var labels []string
 	if !ds.Labels.IsNull() && !ds.Labels.IsUnknown() {
-		labels = mist_transform.ListOfStringTerraformToSdk(ctx, ds.Labels)
+		labels = misttransform.ListOfStringTerraformToSdk(ds.Labels)
 	}
 
-	var limit int = 1000
-	var page int = 0
-	var total int = 9999
+	var limit = 1000
+	var page = 0
+	var total = 9999
 	var elements []attr.Value
 	var diags diag.Diagnostics
 
@@ -106,8 +106,8 @@ func (d *orgNacEndpointsDataSource) Read(ctx context.Context, req datasource.Rea
 			return
 		}
 
-		limit_string := data.Response.Header.Get("X-Page-Limit")
-		if limit, err = strconv.Atoi(limit_string); err != nil {
+		limitString := data.Response.Header.Get("X-Page-Limit")
+		if limit, err = strconv.Atoi(limitString); err != nil {
 			resp.Diagnostics.AddError(
 				"Error extracting HTTP Response Headers",
 				"Unable to convert the X-Page-Limit value into int, unexcpected error: "+err.Error(),
@@ -115,8 +115,8 @@ func (d *orgNacEndpointsDataSource) Read(ctx context.Context, req datasource.Rea
 			return
 		}
 
-		total_string := data.Response.Header.Get("X-Page-Total")
-		if total, err = strconv.Atoi(total_string); err != nil {
+		totalString := data.Response.Header.Get("X-Page-Total")
+		if total, err = strconv.Atoi(totalString); err != nil {
 			resp.Diagnostics.AddError(
 				"Error extracting HTTP Response Headers",
 				"Unable to convert the X-Page-Total value into int, unexcpected error: "+err.Error(),

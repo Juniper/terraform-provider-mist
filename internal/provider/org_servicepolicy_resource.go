@@ -7,7 +7,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 
-	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
+	mistapierror "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_servicepolicy"
 
 	"github.com/google/uuid"
@@ -49,10 +49,10 @@ func (r *orgServicepolicyResource) Configure(ctx context.Context, req resource.C
 	r.client = client
 }
 
-func (r *orgServicepolicyResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *orgServicepolicyResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_org_servicepolicy"
 }
-func (r *orgServicepolicyResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *orgServicepolicyResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryWan + "This resource manages WAN Assurance Service Policies (Application Policiess).\n\n" +
 			"The Service Policies can be used in the `service_policies` object by referencing the Service Policy ID as the `servicepolicy_id` in:\n" +
@@ -74,7 +74,7 @@ func (r *orgServicepolicyResource) Create(ctx context.Context, req resource.Crea
 		return
 	}
 
-	servicepolicy, diags := resource_org_servicepolicy.TerraformToSdk(ctx, &plan)
+	servicepolicy, diags := resource_org_servicepolicy.TerraformToSdk(&plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -90,11 +90,11 @@ func (r *orgServicepolicyResource) Create(ctx context.Context, req resource.Crea
 	tflog.Info(ctx, "Starting OrgServicepolicy Create for Org "+plan.OrgId.ValueString())
 	data, err := r.client.OrgsServicePolicies().CreateOrgServicePolicy(ctx, orgId, &servicepolicy)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error creating \"mist_org_servicepolicy\" resource",
-			fmt.Sprintf("Unable to create the Service Policy. %s", api_err),
+			fmt.Sprintf("Unable to create the Service Policy. %s", apiErr),
 		)
 		return
 	}
@@ -112,7 +112,7 @@ func (r *orgServicepolicyResource) Create(ctx context.Context, req resource.Crea
 	}
 }
 
-func (r *orgServicepolicyResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *orgServicepolicyResource) Read(ctx context.Context, _ resource.ReadRequest, resp *resource.ReadResponse) {
 	var state resource_org_servicepolicy.OrgServicepolicyModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -177,7 +177,7 @@ func (r *orgServicepolicyResource) Update(ctx context.Context, req resource.Upda
 		return
 	}
 
-	servicepolicy, diags := resource_org_servicepolicy.TerraformToSdk(ctx, &plan)
+	servicepolicy, diags := resource_org_servicepolicy.TerraformToSdk(&plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -202,11 +202,11 @@ func (r *orgServicepolicyResource) Update(ctx context.Context, req resource.Upda
 	}
 	data, err := r.client.OrgsServicePolicies().UpdateOrgServicePolicy(ctx, orgId, servicepolicyId, &servicepolicy)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error updating \"mist_org_servicepolicy\" resource",
-			fmt.Sprintf("Unable to update the Service Policy. %s", api_err),
+			fmt.Sprintf("Unable to update the Service Policy. %s", apiErr),
 		)
 		return
 	}
@@ -225,7 +225,7 @@ func (r *orgServicepolicyResource) Update(ctx context.Context, req resource.Upda
 
 }
 
-func (r *orgServicepolicyResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *orgServicepolicyResource) Delete(ctx context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_org_servicepolicy.OrgServicepolicyModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -252,11 +252,11 @@ func (r *orgServicepolicyResource) Delete(ctx context.Context, req resource.Dele
 		return
 	}
 	data, err := r.client.OrgsServicePolicies().DeleteOrgServicePolicy(ctx, orgId, servicepolicyId)
-	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_servicepolicy\" resource",
-			fmt.Sprintf("Unable to delete the Service Policy. %s", api_err),
+			fmt.Sprintf("Unable to delete the Service Policy. %s", apiErr),
 		)
 		return
 	}

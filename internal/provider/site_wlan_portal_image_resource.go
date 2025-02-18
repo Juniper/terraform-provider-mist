@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
+	mistapierror "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_site_wlan_portal_image"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
@@ -46,11 +46,11 @@ func (r *siteWlanPortalImageResource) Configure(ctx context.Context, req resourc
 
 	r.client = client
 }
-func (r *siteWlanPortalImageResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *siteWlanPortalImageResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_site_wlan_portal_image"
 }
 
-func (r *siteWlanPortalImageResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *siteWlanPortalImageResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryWlan + "This resource is used to upload a WLAN Captive Web Portal background image.",
 		Attributes:          resource_site_wlan_portal_image.SiteWlanPortalImageResourceSchema(ctx).Attributes,
@@ -94,15 +94,15 @@ func (r *siteWlanPortalImageResource) Create(ctx context.Context, req resource.C
 		)
 		return
 	}
-	var json string = ""
+	var json = ""
 
 	data, err := r.client.SitesWlans().UploadSiteWlanPortalImage(ctx, siteId, wlanId, file, &json)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error creating \"mist_site_wlan_portal_image\" resource",
-			fmt.Sprintf("Unable to create the Portal Image. %s", api_err),
+			fmt.Sprintf("Unable to create the Portal Image. %s", apiErr),
 		)
 		return
 	}
@@ -119,7 +119,7 @@ func (r *siteWlanPortalImageResource) Create(ctx context.Context, req resource.C
 
 }
 
-func (r *siteWlanPortalImageResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *siteWlanPortalImageResource) Read(_ context.Context, _ resource.ReadRequest, _ *resource.ReadResponse) {
 
 }
 
@@ -160,15 +160,15 @@ func (r *siteWlanPortalImageResource) Update(ctx context.Context, req resource.U
 		)
 		return
 	}
-	var json string = ""
+	var json = ""
 
 	data, err := r.client.SitesWlans().UploadSiteWlanPortalImage(ctx, siteId, wlanId, file, &json)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error creating \"mist_site_wlan_portal_image\" resource",
-			fmt.Sprintf("Unable to update the Portal Image. %s", api_err),
+			fmt.Sprintf("Unable to update the Portal Image. %s", apiErr),
 		)
 		return
 	}
@@ -185,7 +185,7 @@ func (r *siteWlanPortalImageResource) Update(ctx context.Context, req resource.U
 
 }
 
-func (r *siteWlanPortalImageResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *siteWlanPortalImageResource) Delete(ctx context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_site_wlan_portal_image.SiteWlanPortalImageModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -213,11 +213,11 @@ func (r *siteWlanPortalImageResource) Delete(ctx context.Context, req resource.D
 	}
 
 	data, err := r.client.SitesWlans().DeleteSiteWlanPortalImage(ctx, siteId, wlanId)
-	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_site_wlan_portal_image\" resource",
-			fmt.Sprintf("Unable to delete the Portal Image. %s", api_err),
+			fmt.Sprintf("Unable to delete the Portal Image. %s", apiErr),
 		)
 		return
 	}

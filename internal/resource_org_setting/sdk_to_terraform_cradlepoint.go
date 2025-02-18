@@ -13,37 +13,36 @@ import (
 
 func cradlepointSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.OrgSettingCradlepoint) CradlepointValue {
 
-	var cp_api_id basetypes.StringValue
-	var cp_api_key basetypes.StringValue
-	var ecm_api_id basetypes.StringValue
-	var ecm_api_key basetypes.StringValue
-	var enable_lldp basetypes.BoolValue
+	var cpApiId basetypes.StringValue
+	var cpApiKey basetypes.StringValue
+	var ecmApiId basetypes.StringValue
+	var ecmApiKey basetypes.StringValue
+	var enableLldp basetypes.BoolValue
 
 	if d.CpApiId != nil {
-		cp_api_id = types.StringValue(*d.CpApiId)
+		cpApiId = types.StringValue(*d.CpApiId)
 	}
 	if d.CpApiKey != nil {
-		cp_api_key = types.StringValue(*d.CpApiKey)
+		cpApiKey = types.StringValue(*d.CpApiKey)
 	}
 	if d.EcmApiId != nil {
-		ecm_api_id = types.StringValue(*d.EcmApiId)
+		ecmApiId = types.StringValue(*d.EcmApiId)
 	}
 	if d.EcmApiKey != nil {
-		ecm_api_key = types.StringValue(*d.EcmApiKey)
+		ecmApiKey = types.StringValue(*d.EcmApiKey)
 	}
 	if d.EnableLldp != nil {
-		enable_lldp = types.BoolValue(*d.EnableLldp)
+		enableLldp = types.BoolValue(*d.EnableLldp)
 	}
 
-	data_map_attr_type := CradlepointValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"cp_api_id":   cp_api_id,
-		"cp_api_key":  cp_api_key,
-		"ecm_api_id":  ecm_api_id,
-		"ecm_api_key": ecm_api_key,
-		"enable_lldp": enable_lldp,
+	dataMapValue := map[string]attr.Value{
+		"cp_api_id":   cpApiId,
+		"cp_api_key":  cpApiKey,
+		"ecm_api_id":  ecmApiId,
+		"ecm_api_key": ecmApiKey,
+		"enable_lldp": enableLldp,
 	}
-	data, e := NewCradlepointValue(data_map_attr_type, data_map_value)
+	data, e := NewCradlepointValue(CradlepointValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

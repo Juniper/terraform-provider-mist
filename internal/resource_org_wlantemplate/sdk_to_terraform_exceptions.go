@@ -1,7 +1,7 @@
 package resource_org_wlantemplate
 
 import (
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"golang.org/x/net/context"
 
@@ -9,27 +9,25 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
 func exceptionsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.TemplateExceptions) ExceptionsValue {
 
-	var site_ids basetypes.ListValue = mist_transform.ListOfUuidSdkToTerraformEmpty(ctx)
-	var sitegroup_ids basetypes.ListValue = mist_transform.ListOfUuidSdkToTerraformEmpty(ctx)
+	var siteIds = misttransform.ListOfUuidSdkToTerraformEmpty()
+	var sitegroupIds = misttransform.ListOfUuidSdkToTerraformEmpty()
 
 	if d.SiteIds != nil {
-		site_ids = mist_transform.ListOfUuidSdkToTerraform(ctx, d.SiteIds)
+		siteIds = misttransform.ListOfUuidSdkToTerraform(d.SiteIds)
 	}
 	if d.SitegroupIds != nil {
-		sitegroup_ids = mist_transform.ListOfUuidSdkToTerraform(ctx, d.SitegroupIds)
+		sitegroupIds = misttransform.ListOfUuidSdkToTerraform(d.SitegroupIds)
 	}
 
-	data_map_attr_type := ExceptionsValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"site_ids":      site_ids,
-		"sitegroup_ids": sitegroup_ids,
+	dataMapValue := map[string]attr.Value{
+		"site_ids":      siteIds,
+		"sitegroup_ids": sitegroupIds,
 	}
-	data, e := NewExceptionsValue(data_map_attr_type, data_map_value)
+	data, e := NewExceptionsValue(ExceptionsValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

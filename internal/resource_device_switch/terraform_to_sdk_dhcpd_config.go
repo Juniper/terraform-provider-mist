@@ -1,21 +1,18 @@
 package resource_device_switch
 
 import (
-	"context"
-
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func dhcpdConfigFixedBindingsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.DhcpdConfigFixedBinding {
-	data_map := make(map[string]models.DhcpdConfigFixedBinding)
+func dhcpdConfigFixedBindingsTerraformToSdk(d basetypes.MapValue) map[string]models.DhcpdConfigFixedBinding {
+	dataMap := make(map[string]models.DhcpdConfigFixedBinding)
 	for k, v := range d.Elements() {
-		var v_interface interface{} = v
-		plan := v_interface.(FixedBindingsValue)
+		var vInterface interface{} = v
+		plan := vInterface.(FixedBindingsValue)
 
 		data := models.DhcpdConfigFixedBinding{}
 		if plan.Ip.ValueStringPointer() != nil {
@@ -25,16 +22,16 @@ func dhcpdConfigFixedBindingsTerraformToSdk(ctx context.Context, diags *diag.Dia
 			data.Name = models.ToPointer(plan.Name.ValueString())
 		}
 
-		data_map[k] = data
+		dataMap[k] = data
 	}
-	return data_map
+	return dataMap
 }
 
-func dhcpdConfigOptionsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.DhcpdConfigOption {
-	data_map := make(map[string]models.DhcpdConfigOption)
+func dhcpdConfigOptionsTerraformToSdk(d basetypes.MapValue) map[string]models.DhcpdConfigOption {
+	dataMap := make(map[string]models.DhcpdConfigOption)
 	for k, v := range d.Elements() {
-		var v_interface interface{} = v
-		plan := v_interface.(OptionsValue)
+		var vInterface interface{} = v
+		plan := vInterface.(OptionsValue)
 
 		data := models.DhcpdConfigOption{}
 		if plan.OptionsType.ValueStringPointer() != nil {
@@ -44,16 +41,16 @@ func dhcpdConfigOptionsTerraformToSdk(ctx context.Context, diags *diag.Diagnosti
 			data.Value = models.ToPointer(plan.Value.ValueString())
 		}
 
-		data_map[k] = data
+		dataMap[k] = data
 	}
-	return data_map
+	return dataMap
 }
 
-func dhcpdConfigVendorOptionsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.DhcpdConfigVendorOption {
-	data_map := make(map[string]models.DhcpdConfigVendorOption)
+func dhcpdConfigVendorOptionsTerraformToSdk(d basetypes.MapValue) map[string]models.DhcpdConfigVendorOption {
+	dataMap := make(map[string]models.DhcpdConfigVendorOption)
 	for k, v := range d.Elements() {
-		var v_interface interface{} = v
-		plan := v_interface.(VendorEncapsulatedValue)
+		var vInterface interface{} = v
+		plan := vInterface.(VendorEncapsulatedValue)
 
 		data := models.DhcpdConfigVendorOption{}
 		if plan.VendorEncapsulatedType.ValueStringPointer() != nil {
@@ -63,30 +60,30 @@ func dhcpdConfigVendorOptionsTerraformToSdk(ctx context.Context, diags *diag.Dia
 			data.Value = models.ToPointer(plan.Value.ValueString())
 		}
 
-		data_map[k] = data
+		dataMap[k] = data
 	}
-	return data_map
+	return dataMap
 }
 
-func dhcpdConfigConfigsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.SwitchDhcpdConfigProperty {
-	data_map := make(map[string]models.SwitchDhcpdConfigProperty)
+func dhcpdConfigConfigsTerraformToSdk(d basetypes.MapValue) map[string]models.SwitchDhcpdConfigProperty {
+	dataMap := make(map[string]models.SwitchDhcpdConfigProperty)
 	for k, v := range d.Elements() {
-		var v_interface interface{} = v
-		plan := v_interface.(ConfigValue)
+		var vInterface interface{} = v
+		plan := vInterface.(ConfigValue)
 
-		fixed_bindings := dhcpdConfigFixedBindingsTerraformToSdk(ctx, diags, plan.FixedBindings)
-		options := dhcpdConfigOptionsTerraformToSdk(ctx, diags, plan.Options)
-		vendor_encapsulated := dhcpdConfigVendorOptionsTerraformToSdk(ctx, diags, plan.VendorEncapsulated)
+		fixedBindings := dhcpdConfigFixedBindingsTerraformToSdk(plan.FixedBindings)
+		options := dhcpdConfigOptionsTerraformToSdk(plan.Options)
+		vendorEncapsulated := dhcpdConfigVendorOptionsTerraformToSdk(plan.VendorEncapsulated)
 
 		data := models.SwitchDhcpdConfigProperty{}
 		if !plan.DnsServers.IsNull() && !plan.DnsServers.IsUnknown() {
-			data.DnsServers = mist_transform.ListOfStringTerraformToSdk(ctx, plan.DnsServers)
+			data.DnsServers = misttransform.ListOfStringTerraformToSdk(plan.DnsServers)
 		}
 		if !plan.DnsSuffix.IsNull() && !plan.DnsSuffix.IsUnknown() {
-			data.DnsSuffix = mist_transform.ListOfStringTerraformToSdk(ctx, plan.DnsSuffix)
+			data.DnsSuffix = misttransform.ListOfStringTerraformToSdk(plan.DnsSuffix)
 		}
 		if !plan.FixedBindings.IsNull() && !plan.FixedBindings.IsUnknown() {
-			data.FixedBindings = fixed_bindings
+			data.FixedBindings = fixedBindings
 		}
 		if plan.Gateway.ValueStringPointer() != nil {
 			data.Gateway = models.ToPointer(plan.Gateway.ValueString())
@@ -113,10 +110,10 @@ func dhcpdConfigConfigsTerraformToSdk(ctx context.Context, diags *diag.Diagnosti
 			data.ServerIdOverride = models.ToPointer(plan.ServerIdOverride.ValueBool())
 		}
 		if !plan.Servers.IsNull() && !plan.Servers.IsUnknown() {
-			data.Servers = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Servers)
+			data.Servers = misttransform.ListOfStringTerraformToSdk(plan.Servers)
 		}
 		if !plan.Servers6.IsNull() && !plan.Servers6.IsUnknown() {
-			data.Servers6 = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Servers6)
+			data.Servers6 = misttransform.ListOfStringTerraformToSdk(plan.Servers6)
 		}
 		if plan.ConfigType.ValueStringPointer() != nil {
 			data.Type = models.ToPointer(models.SwitchDhcpdConfigTypeEnum(plan.ConfigType.ValueString()))
@@ -125,15 +122,15 @@ func dhcpdConfigConfigsTerraformToSdk(ctx context.Context, diags *diag.Diagnosti
 			data.Type6 = models.ToPointer(models.SwitchDhcpdConfigTypeEnum(plan.Type6.ValueString()))
 		}
 		if !plan.VendorEncapsulated.IsNull() && !plan.VendorEncapsulated.IsUnknown() {
-			data.VendorEncapsulated = vendor_encapsulated
+			data.VendorEncapsulated = vendorEncapsulated
 		}
 
-		data_map[k] = data
+		dataMap[k] = data
 	}
-	return data_map
+	return dataMap
 }
 
-func dhcpdConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d DhcpdConfigValue) *models.SwitchDhcpdConfig {
+func dhcpdConfigTerraformToSdk(d DhcpdConfigValue) *models.SwitchDhcpdConfig {
 
 	data := models.SwitchDhcpdConfig{}
 
@@ -141,7 +138,7 @@ func dhcpdConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d D
 		data.Enabled = models.ToPointer(d.Enabled.ValueBool())
 	}
 	if !d.Config.IsNull() && !d.Config.IsUnknown() {
-		data.AdditionalProperties = dhcpdConfigConfigsTerraformToSdk(ctx, diags, d.Config)
+		data.AdditionalProperties = dhcpdConfigConfigsTerraformToSdk(d.Config)
 	}
 
 	return &data

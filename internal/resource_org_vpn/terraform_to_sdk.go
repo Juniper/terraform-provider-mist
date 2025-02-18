@@ -1,29 +1,27 @@
 package resource_org_vpn
 
 import (
-	"context"
-
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func TerraformToSdk(ctx context.Context, plan *OrgVpnModel) (*models.Vpn, diag.Diagnostics) {
+func TerraformToSdk(plan *OrgVpnModel) (*models.Vpn, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	data := models.Vpn{}
 
 	data.Name = plan.Name.ValueString()
-	data.Paths = vpnPathsTerraformToSdk(ctx, &diags, plan.Paths)
+	data.Paths = vpnPathsTerraformToSdk(plan.Paths)
 	return &data, diags
 
 }
 
-func vpnPathsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.VpnPath {
-	data_map := make(map[string]models.VpnPath)
+func vpnPathsTerraformToSdk(d basetypes.MapValue) map[string]models.VpnPath {
+	dataMap := make(map[string]models.VpnPath)
 	for k, v := range d.Elements() {
-		var v_interface interface{} = v
-		plan := v_interface.(PathsValue)
+		var vInterface interface{} = v
+		plan := vInterface.(PathsValue)
 		data := models.VpnPath{}
 
 		if plan.BfdProfile.ValueStringPointer() != nil {
@@ -36,7 +34,7 @@ func vpnPathsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d base
 			data.Pod = models.ToPointer(int(plan.Pod.ValueInt64()))
 		}
 
-		data_map[k] = data
+		dataMap[k] = data
 	}
-	return data_map
+	return dataMap
 }

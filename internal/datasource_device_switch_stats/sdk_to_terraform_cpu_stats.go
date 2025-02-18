@@ -16,7 +16,7 @@ func cpuStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mod
 
 	var idle basetypes.NumberValue
 	var interrupt basetypes.NumberValue
-	var load_avg basetypes.ListValue = types.ListNull(types.NumberType)
+	var loadAvg = types.ListNull(types.NumberType)
 	var system basetypes.NumberValue
 	var user basetypes.NumberValue
 
@@ -28,16 +28,16 @@ func cpuStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mod
 	}
 	if d.LoadAvg != nil {
 		var items []attr.Value
-		var items_type attr.Type = basetypes.NumberType{}
+		var itemsType attr.Type = basetypes.NumberType{}
 		for _, item := range d.LoadAvg {
 			items = append(items, types.NumberValue(big.NewFloat(item)))
 		}
-		list, e := types.ListValue(items_type, items)
+		list, e := types.ListValue(itemsType, items)
 		if e != nil {
 			diags.Append(e...)
 		}
 
-		load_avg = list
+		loadAvg = list
 	}
 	if d.System.Value() != nil {
 		system = types.NumberValue(big.NewFloat(*d.System.Value()))
@@ -46,15 +46,14 @@ func cpuStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mod
 		user = types.NumberValue(big.NewFloat(*d.User.Value()))
 	}
 
-	data_map_attr_type := CpuStatValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"idle":      idle,
 		"interrupt": interrupt,
-		"load_avg":  load_avg,
+		"load_avg":  loadAvg,
 		"system":    system,
 		"user":      user,
 	}
-	data, e := basetypes.NewObjectValue(data_map_attr_type, data_map_value)
+	data, e := basetypes.NewObjectValue(CpuStatValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

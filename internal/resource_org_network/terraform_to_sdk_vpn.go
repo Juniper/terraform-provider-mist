@@ -3,7 +3,7 @@ package resource_org_network
 import (
 	"context"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -11,38 +11,38 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func destinationNatVpnTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.NetworkVpnAccessDestinationNatProperty {
-	data_map := make(map[string]models.NetworkVpnAccessDestinationNatProperty)
+func destinationNatVpnTerraformToSdk(d basetypes.MapValue) map[string]models.NetworkVpnAccessDestinationNatProperty {
+	dataMap := make(map[string]models.NetworkVpnAccessDestinationNatProperty)
 	for k, v := range d.Elements() {
-		var v_interface interface{} = v
-		v_plan := v_interface.(VpnAccessDestinationNatValue)
+		var vInterface interface{} = v
+		vPlan := vInterface.(VpnAccessDestinationNatValue)
 		data := models.NetworkVpnAccessDestinationNatProperty{}
-		data.InternalIp = v_plan.InternalIp.ValueStringPointer()
-		data.Name = v_plan.Name.ValueStringPointer()
-		data.Port = v_plan.Port.ValueStringPointer()
-		data_map[k] = data
+		data.InternalIp = vPlan.InternalIp.ValueStringPointer()
+		data.Name = vPlan.Name.ValueStringPointer()
+		data.Port = vPlan.Port.ValueStringPointer()
+		dataMap[k] = data
 	}
-	return data_map
+	return dataMap
 }
 
-func staticNatVpnTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.NetworkVpnAccessStaticNatProperty {
-	data_map := make(map[string]models.NetworkVpnAccessStaticNatProperty)
+func staticNatVpnTerraformToSdk(d basetypes.MapValue) map[string]models.NetworkVpnAccessStaticNatProperty {
+	dataMap := make(map[string]models.NetworkVpnAccessStaticNatProperty)
 	for k, v := range d.Elements() {
-		var v_interface interface{} = v
-		v_plan := v_interface.(VpnAccessStaticNatValue)
+		var vInterface interface{} = v
+		vPlan := vInterface.(VpnAccessStaticNatValue)
 		data := models.NetworkVpnAccessStaticNatProperty{}
-		data.InternalIp = v_plan.InternalIp.ValueStringPointer()
-		data.Name = v_plan.Name.ValueStringPointer()
-		data_map[k] = data
+		data.InternalIp = vPlan.InternalIp.ValueStringPointer()
+		data.Name = vPlan.Name.ValueStringPointer()
+		dataMap[k] = data
 	}
-	return data_map
+	return dataMap
 }
 
 func VpnTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.NetworkVpnAccessConfig {
-	data_map := make(map[string]models.NetworkVpnAccessConfig)
+	dataMap := make(map[string]models.NetworkVpnAccessConfig)
 	for k, v := range d.Elements() {
-		var v_interface interface{} = v
-		plan := v_interface.(VpnAccessValue)
+		var vInterface interface{} = v
+		plan := vInterface.(VpnAccessValue)
 
 		data := models.NetworkVpnAccessConfig{}
 		if plan.AdvertisedSubnet.ValueStringPointer() != nil {
@@ -52,7 +52,7 @@ func VpnTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes
 			data.AllowPing = plan.AllowPing.ValueBoolPointer()
 		}
 		if !plan.VpnAccessDestinationNat.IsNull() && !plan.VpnAccessDestinationNat.IsUnknown() {
-			data.DestinationNat = destinationNatVpnTerraformToSdk(ctx, diags, plan.VpnAccessDestinationNat)
+			data.DestinationNat = destinationNatVpnTerraformToSdk(plan.VpnAccessDestinationNat)
 		}
 		if plan.NatPool.ValueStringPointer() != nil {
 			data.NatPool = plan.NatPool.ValueStringPointer()
@@ -67,7 +67,7 @@ func VpnTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes
 			data.NoReadvertiseToOverlay = plan.NoReadvertiseToOverlay.ValueBoolPointer()
 		}
 		if !plan.OtherVrfs.IsNull() && !plan.OtherVrfs.IsUnknown() {
-			data.OtherVrfs = mist_transform.ListOfStringTerraformToSdk(ctx, plan.OtherVrfs)
+			data.OtherVrfs = misttransform.ListOfStringTerraformToSdk(plan.OtherVrfs)
 		}
 		if plan.Routed.ValueBoolPointer() != nil {
 			data.Routed = plan.Routed.ValueBoolPointer()
@@ -76,7 +76,7 @@ func VpnTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes
 			data.SourceNat = sourceNatTerraformToSdk(ctx, diags, plan.SourceNat)
 		}
 		if !plan.VpnAccessStaticNat.IsNull() && !plan.VpnAccessStaticNat.IsUnknown() {
-			data.StaticNat = staticNatVpnTerraformToSdk(ctx, diags, plan.VpnAccessStaticNat)
+			data.StaticNat = staticNatVpnTerraformToSdk(plan.VpnAccessStaticNat)
 		}
 		if plan.SummarizedSubnet.ValueStringPointer() != nil {
 			data.SummarizedSubnet = plan.SummarizedSubnet.ValueStringPointer()
@@ -88,7 +88,7 @@ func VpnTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes
 			data.SummarizedSubnetToLanOspf = plan.SummarizedSubnetToLanOspf.ValueStringPointer()
 		}
 
-		data_map[k] = data
+		dataMap[k] = data
 	}
-	return data_map
+	return dataMap
 }

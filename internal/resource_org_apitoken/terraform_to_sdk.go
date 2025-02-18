@@ -1,9 +1,7 @@
 package resource_org_apitoken
 
 import (
-	"context"
-
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/google/uuid"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -12,23 +10,23 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func TerraformToSdk(ctx context.Context, plan *OrgApitokenModel) (*models.OrgApitoken, diag.Diagnostics) {
+func TerraformToSdk(plan *OrgApitokenModel) (*models.OrgApitoken, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	data := models.OrgApitoken{}
 
 	data.Name = plan.Name.ValueString()
-	data.Privileges = privilegesTerraformToSdk(ctx, &diags, plan.Privileges)
-	data.SrcIps = mist_transform.ListOfStringTerraformToSdk(ctx, plan.SrcIps)
+	data.Privileges = privilegesTerraformToSdk(&diags, plan.Privileges)
+	data.SrcIps = misttransform.ListOfStringTerraformToSdk(plan.SrcIps)
 
 	return &data, diags
 }
 
-func privilegesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.PrivilegeOrg {
-	var data_list []models.PrivilegeOrg
+func privilegesTerraformToSdk(diags *diag.Diagnostics, d basetypes.ListValue) []models.PrivilegeOrg {
+	var dataList []models.PrivilegeOrg
 	for _, v := range d.Elements() {
-		var v_interface interface{} = v
-		plan := v_interface.(PrivilegesValue)
+		var vInterface interface{} = v
+		plan := vInterface.(PrivilegesValue)
 		data := models.PrivilegeOrg{}
 
 		data.Role = models.PrivilegeOrgRoleEnum(*plan.Role.ValueStringPointer())
@@ -56,8 +54,8 @@ func privilegesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d ba
 			}
 		}
 
-		data_list = append(data_list, data)
+		dataList = append(dataList, data)
 	}
 
-	return data_list
+	return dataList
 }

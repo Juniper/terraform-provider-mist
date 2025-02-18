@@ -1,21 +1,18 @@
 package resource_org_gatewaytemplate
 
 import (
-	"context"
-
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func bgpConfigNeighborsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.BgpConfigNeighbors {
-	data_map := make(map[string]models.BgpConfigNeighbors)
+func bgpConfigNeighborsTerraformToSdk(d basetypes.MapValue) map[string]models.BgpConfigNeighbors {
+	dataMap := make(map[string]models.BgpConfigNeighbors)
 	for k, v := range d.Elements() {
-		var v_interface interface{} = v
-		plan := v_interface.(NeighborsValue)
+		var vInterface interface{} = v
+		plan := vInterface.(NeighborsValue)
 
 		data := models.BgpConfigNeighbors{}
 		if plan.Disabled.ValueBoolPointer() != nil {
@@ -37,16 +34,16 @@ func bgpConfigNeighborsTerraformToSdk(ctx context.Context, diags *diag.Diagnosti
 			data.NeighborAs = models.ToPointer(int(plan.NeighborAs.ValueInt64()))
 		}
 
-		data_map[k] = data
+		dataMap[k] = data
 	}
-	return data_map
+	return dataMap
 }
 
-func bgpConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.BgpConfig {
-	data_map := make(map[string]models.BgpConfig)
+func bgpConfigTerraformToSdk(d basetypes.MapValue) map[string]models.BgpConfig {
+	dataMap := make(map[string]models.BgpConfig)
 	for k, v := range d.Elements() {
-		var v_interface interface{} = v
-		plan := v_interface.(BgpConfigValue)
+		var vInterface interface{} = v
+		plan := vInterface.(BgpConfigValue)
 
 		data := models.BgpConfig{}
 		if plan.AuthKey.ValueStringPointer() != nil {
@@ -89,10 +86,10 @@ func bgpConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d bas
 			data.NeighborAs = models.ToPointer(int(plan.NeighborAs.ValueInt64()))
 		}
 		if !plan.Neighbors.IsNull() && !plan.Neighbors.IsUnknown() {
-			data.Neighbors = bgpConfigNeighborsTerraformToSdk(ctx, diags, plan.Neighbors)
+			data.Neighbors = bgpConfigNeighborsTerraformToSdk(plan.Neighbors)
 		}
 		if !plan.Networks.IsNull() && !plan.Networks.IsUnknown() {
-			data.Networks = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Networks)
+			data.Networks = misttransform.ListOfStringTerraformToSdk(plan.Networks)
 		}
 		if plan.NoReadvertiseToOverlay.ValueBoolPointer() != nil {
 			data.NoReadvertiseToOverlay = models.ToPointer(plan.NoReadvertiseToOverlay.ValueBool())
@@ -113,7 +110,7 @@ func bgpConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d bas
 			data.WanName = models.ToPointer(plan.WanName.ValueString())
 		}
 
-		data_map[k] = data
+		dataMap[k] = data
 	}
-	return data_map
+	return dataMap
 }

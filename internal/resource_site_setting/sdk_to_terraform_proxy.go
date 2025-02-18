@@ -19,11 +19,10 @@ func proxySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 		url = types.StringValue(*d.Url)
 	}
 
-	data_map_attr_type := ProxyValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"url": url,
 	}
-	data, e := NewProxyValue(data_map_attr_type, data_map_value)
+	data, e := NewProxyValue(ProxyValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

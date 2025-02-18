@@ -19,11 +19,10 @@ func wiredVnaSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mod
 		enabled = types.BoolValue(*d.Enabled)
 	}
 
-	data_map_attr_type := WiredVnaValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"enabled": enabled,
 	}
-	data, e := NewWiredVnaValue(data_map_attr_type, data_map_value)
+	data, e := NewWiredVnaValue(WiredVnaValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

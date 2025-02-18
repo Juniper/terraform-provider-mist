@@ -1,68 +1,65 @@
 package resource_device_switch
 
 import (
-	"context"
-
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func portConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.JunosPortConfig {
+func portConfigTerraformToSdk(d basetypes.MapValue) map[string]models.JunosPortConfig {
 
 	data := make(map[string]models.JunosPortConfig)
 	for k, v := range d.Elements() {
-		var plan_interface interface{} = v
-		plan_obj := plan_interface.(PortConfigValue)
-		item_obj := models.JunosPortConfig{}
-		item_obj.Usage = plan_obj.Usage.ValueString()
-		if plan_obj.AeDisableLacp.ValueBoolPointer() != nil {
-			item_obj.AeDisableLacp = models.ToPointer(plan_obj.AeDisableLacp.ValueBool())
+		var planInterface interface{} = v
+		planObj := planInterface.(PortConfigValue)
+		itemObj := models.JunosPortConfig{}
+		itemObj.Usage = planObj.Usage.ValueString()
+		if planObj.AeDisableLacp.ValueBoolPointer() != nil {
+			itemObj.AeDisableLacp = models.ToPointer(planObj.AeDisableLacp.ValueBool())
 		}
-		if plan_obj.AeIdx.ValueInt64Pointer() != nil {
-			item_obj.AeIdx = models.ToPointer(int(plan_obj.AeIdx.ValueInt64()))
+		if planObj.AeIdx.ValueInt64Pointer() != nil {
+			itemObj.AeIdx = models.ToPointer(int(planObj.AeIdx.ValueInt64()))
 		}
-		if plan_obj.AeLacpSlow.ValueBoolPointer() != nil {
-			item_obj.AeLacpSlow = models.ToPointer(plan_obj.AeLacpSlow.ValueBool())
+		if planObj.AeLacpSlow.ValueBoolPointer() != nil {
+			itemObj.AeLacpSlow = models.ToPointer(planObj.AeLacpSlow.ValueBool())
 		}
-		if plan_obj.Aggregated.ValueBoolPointer() != nil {
-			item_obj.Aggregated = models.ToPointer(plan_obj.Aggregated.ValueBool())
+		if planObj.Aggregated.ValueBoolPointer() != nil {
+			itemObj.Aggregated = models.ToPointer(planObj.Aggregated.ValueBool())
 		}
-		if plan_obj.Critical.ValueBoolPointer() != nil {
-			item_obj.Critical = models.ToPointer(plan_obj.Critical.ValueBool())
+		if planObj.Critical.ValueBoolPointer() != nil {
+			itemObj.Critical = models.ToPointer(planObj.Critical.ValueBool())
 		}
-		if plan_obj.Description.ValueStringPointer() != nil {
-			item_obj.Description = models.ToPointer(plan_obj.Description.ValueString())
+		if planObj.Description.ValueStringPointer() != nil {
+			itemObj.Description = models.ToPointer(planObj.Description.ValueString())
 		}
-		if plan_obj.DisableAutoneg.ValueBoolPointer() != nil {
-			item_obj.DisableAutoneg = models.ToPointer(plan_obj.DisableAutoneg.ValueBool())
+		if planObj.DisableAutoneg.ValueBoolPointer() != nil {
+			itemObj.DisableAutoneg = models.ToPointer(planObj.DisableAutoneg.ValueBool())
 		}
-		if plan_obj.Duplex.ValueStringPointer() != nil {
-			item_obj.Duplex = models.ToPointer(models.JunosPortConfigDuplexEnum(plan_obj.Duplex.ValueString()))
+		if planObj.Duplex.ValueStringPointer() != nil {
+			itemObj.Duplex = models.ToPointer(models.JunosPortConfigDuplexEnum(planObj.Duplex.ValueString()))
 		}
-		if plan_obj.DynamicUsage.ValueStringPointer() != nil {
-			item_obj.DynamicUsage = models.NewOptional(models.ToPointer(plan_obj.DynamicUsage.ValueString()))
+		if planObj.DynamicUsage.ValueStringPointer() != nil {
+			itemObj.DynamicUsage = models.NewOptional(models.ToPointer(planObj.DynamicUsage.ValueString()))
 		}
-		if plan_obj.Esilag.ValueBoolPointer() != nil {
-			item_obj.Esilag = models.ToPointer(plan_obj.Esilag.ValueBool())
+		if planObj.Esilag.ValueBoolPointer() != nil {
+			itemObj.Esilag = models.ToPointer(planObj.Esilag.ValueBool())
 		}
-		if plan_obj.Mtu.ValueInt64Pointer() != nil {
-			item_obj.Mtu = models.ToPointer(int(plan_obj.Mtu.ValueInt64()))
+		if planObj.Mtu.ValueInt64Pointer() != nil {
+			itemObj.Mtu = models.ToPointer(int(planObj.Mtu.ValueInt64()))
 		}
-		if plan_obj.NoLocalOverwrite.ValueBoolPointer() != nil {
-			item_obj.NoLocalOverwrite = models.ToPointer(plan_obj.NoLocalOverwrite.ValueBool())
+		if planObj.NoLocalOverwrite.ValueBoolPointer() != nil {
+			itemObj.NoLocalOverwrite = models.ToPointer(planObj.NoLocalOverwrite.ValueBool())
 		}
-		if plan_obj.PoeDisabled.ValueBoolPointer() != nil {
-			item_obj.PoeDisabled = models.ToPointer(plan_obj.PoeDisabled.ValueBool())
+		if planObj.PoeDisabled.ValueBoolPointer() != nil {
+			itemObj.PoeDisabled = models.ToPointer(planObj.PoeDisabled.ValueBool())
 		}
-		if plan_obj.Speed.ValueStringPointer() != nil {
-			item_obj.Speed = models.ToPointer(models.JunosPortConfigSpeedEnum(plan_obj.Speed.ValueString()))
+		if planObj.Speed.ValueStringPointer() != nil {
+			itemObj.Speed = models.ToPointer(models.JunosPortConfigSpeedEnum(planObj.Speed.ValueString()))
 		}
-		if plan_obj.Usage.ValueStringPointer() != nil {
-			item_obj.Usage = *plan_obj.Usage.ValueStringPointer()
+		if planObj.Usage.ValueStringPointer() != nil {
+			itemObj.Usage = *planObj.Usage.ValueStringPointer()
 		}
-		data[k] = item_obj
+		data[k] = itemObj
 	}
 	return data
 }

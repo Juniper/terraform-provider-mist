@@ -17,8 +17,8 @@ func SdkToTerraform(ctx context.Context, d *models.Vpn) (OrgVpnModel, diag.Diagn
 
 	var id types.String
 	var name types.String
-	var org_id types.String
-	var paths types.Map = types.MapNull(PathsValue{}.Type(ctx))
+	var orgId types.String
+	var paths = types.MapNull(PathsValue{}.Type(ctx))
 
 	if d.Id != nil {
 		id = types.StringValue(d.Id.String())
@@ -27,7 +27,7 @@ func SdkToTerraform(ctx context.Context, d *models.Vpn) (OrgVpnModel, diag.Diagn
 	name = types.StringValue(d.Name)
 
 	if d.OrgId != nil {
-		org_id = types.StringValue(d.OrgId.String())
+		orgId = types.StringValue(d.OrgId.String())
 	}
 	if d.Paths != nil && len(d.Paths) > 0 {
 		paths = vpnPathsSdkToTerraform(ctx, &diags, d.Paths)
@@ -35,21 +35,21 @@ func SdkToTerraform(ctx context.Context, d *models.Vpn) (OrgVpnModel, diag.Diagn
 
 	state.Id = id
 	state.Name = name
-	state.OrgId = org_id
+	state.OrgId = orgId
 	state.Paths = paths
 
 	return state, diags
 }
 
 func vpnPathsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.VpnPath) basetypes.MapValue {
-	map_attr_values := make(map[string]attr.Value)
+	mapAttrValues := make(map[string]attr.Value)
 	for k, d := range m {
-		var bfd_profile basetypes.StringValue
+		var bfdProfile basetypes.StringValue
 		var ip basetypes.StringValue
 		var pod basetypes.Int64Value
 
 		if d.BfdProfile != nil {
-			bfd_profile = types.StringValue(string(*d.BfdProfile))
+			bfdProfile = types.StringValue(string(*d.BfdProfile))
 		}
 		if d.Ip != nil {
 			ip = types.StringValue(*d.Ip)
@@ -58,18 +58,17 @@ func vpnPathsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[
 			pod = types.Int64Value(int64(*d.Pod))
 		}
 
-		data_map_attr_type := PathsValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
-			"bfd_profile": bfd_profile,
+		dataMapValue := map[string]attr.Value{
+			"bfd_profile": bfdProfile,
 			"ip":          ip,
 			"pod":         pod,
 		}
-		data, e := NewPathsValue(data_map_attr_type, data_map_value)
+		data, e := NewPathsValue(PathsValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		map_attr_values[k] = data
+		mapAttrValues[k] = data
 	}
-	state_result, e := types.MapValueFrom(ctx, PathsValue{}.Type(ctx), map_attr_values)
+	stateResult, e := types.MapValueFrom(ctx, PathsValue{}.Type(ctx), mapAttrValues)
 	diags.Append(e...)
-	return state_result
+	return stateResult
 }

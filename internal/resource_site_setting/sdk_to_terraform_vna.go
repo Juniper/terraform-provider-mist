@@ -19,11 +19,10 @@ func vnaSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.S
 		enabled = types.BoolValue(*d.Enabled)
 	}
 
-	data_map_attr_type := VnaValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"enabled": enabled,
 	}
-	data, e := NewVnaValue(data_map_attr_type, data_map_value)
+	data, e := NewVnaValue(VnaValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

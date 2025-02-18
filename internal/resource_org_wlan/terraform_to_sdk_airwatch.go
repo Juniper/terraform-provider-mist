@@ -1,14 +1,10 @@
 package resource_org_wlan
 
 import (
-	"context"
-
 	"github.com/tmunzer/mistapi-go/mistapi/models"
-
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 )
 
-func airwatchTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, plan AirwatchValue) *models.WlanAirwatch {
+func airwatchTerraformToSdk(plan AirwatchValue) *models.WlanAirwatch {
 
 	data := models.WlanAirwatch{}
 

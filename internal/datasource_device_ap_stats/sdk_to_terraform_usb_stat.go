@@ -14,8 +14,8 @@ import (
 func usbStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.StatsApUsbStat) basetypes.ObjectValue {
 	var channel basetypes.Int64Value
 	var connected basetypes.BoolValue
-	var last_activity basetypes.Int64Value
-	var type_usb basetypes.StringValue
+	var lastActivity basetypes.Int64Value
+	var typeUsb basetypes.StringValue
 	var up basetypes.BoolValue
 
 	if d.Channel.Value() != nil {
@@ -25,24 +25,23 @@ func usbStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mod
 		connected = types.BoolValue(*d.Connected.Value())
 	}
 	if d.LastActivity.Value() != nil {
-		last_activity = types.Int64Value(int64(*d.LastActivity.Value()))
+		lastActivity = types.Int64Value(int64(*d.LastActivity.Value()))
 	}
 	if d.Type.Value() != nil {
-		type_usb = types.StringValue(*d.Type.Value())
+		typeUsb = types.StringValue(*d.Type.Value())
 	}
 	if d.Up.Value() != nil {
 		up = types.BoolValue(*d.Up.Value())
 	}
 
-	data_map_attr_type := UsbStatValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"channel":       channel,
 		"connected":     connected,
-		"last_activity": last_activity,
-		"type":          type_usb,
+		"last_activity": lastActivity,
+		"type":          typeUsb,
 		"up":            up,
 	}
-	data, e := types.ObjectValue(data_map_attr_type, data_map_value)
+	data, e := types.ObjectValue(UsbStatValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

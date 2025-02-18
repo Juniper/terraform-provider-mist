@@ -3,7 +3,7 @@ package resource_org_deviceprofile_ap
 import (
 	"context"
 
-	mist_list "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistlist "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -15,56 +15,56 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileAp) (OrgDevic
 	var state OrgDeviceprofileApModel
 	var diags diag.Diagnostics
 
-	var aeroscout AeroscoutValue = NewAeroscoutValueNull()
-	var ble_config BleConfigValue = NewBleConfigValueNull()
-	var disable_eth1 types.Bool
-	var disable_eth2 types.Bool
-	var disable_eth3 types.Bool
-	var disable_module types.Bool
-	var esl_config EslConfigValue = NewEslConfigValueNull()
-	var ip_config IpConfigValue = NewIpConfigValueNull()
-	var led LedValue = NewLedValueNull()
-	var mesh MeshValue = NewMeshValueNull()
+	var aeroscout = NewAeroscoutValueNull()
+	var bleConfig = NewBleConfigValueNull()
+	var disableEth1 types.Bool
+	var disableEth2 types.Bool
+	var disableEth3 types.Bool
+	var disableModule types.Bool
+	var eslConfig = NewEslConfigValueNull()
+	var ipConfig = NewIpConfigValueNull()
+	var led = NewLedValueNull()
+	var mesh = NewMeshValueNull()
 	var name types.String
-	var ntp_servers types.List = types.ListNull(types.StringType)
-	var org_id types.String
-	var poe_passthrough types.Bool
-	var profile_id types.String
-	var pwr_config PwrConfigValue = NewPwrConfigValueNull()
-	var radio_config RadioConfigValue = NewRadioConfigValueNull()
-	var site_id types.String
-	var uplink_port_config UplinkPortConfigValue = NewUplinkPortConfigValueNull()
-	var usb_config UsbConfigValue = NewUsbConfigValueNull()
-	var vars types.Map = types.MapNull(types.StringType)
+	var ntpServers = types.ListNull(types.StringType)
+	var orgId types.String
+	var poePassthrough types.Bool
+	var profileId types.String
+	var pwrConfig = NewPwrConfigValueNull()
+	var radioConfig = NewRadioConfigValueNull()
+	var siteId types.String
+	var uplinkPortConfig = NewUplinkPortConfigValueNull()
+	var usbConfig = NewUsbConfigValueNull()
+	var vars = types.MapNull(types.StringType)
 
-	var profile_type types.String
+	var profileType types.String
 
 	if data.Aeroscout != nil {
 		aeroscout = aeroscoutSdkToTerraform(ctx, &diags, data.Aeroscout)
 	}
 	if data.BleConfig != nil {
-		ble_config = bleConfigsSdkToTerraform(ctx, &diags, data.BleConfig)
+		bleConfig = bleConfigsSdkToTerraform(ctx, &diags, data.BleConfig)
 	}
 	if data.DisableEth1 != nil {
-		disable_eth1 = types.BoolValue(*data.DisableEth1)
+		disableEth1 = types.BoolValue(*data.DisableEth1)
 	}
 	if data.DisableEth2 != nil {
-		disable_eth2 = types.BoolValue(*data.DisableEth2)
+		disableEth2 = types.BoolValue(*data.DisableEth2)
 	}
 	if data.DisableEth3 != nil {
-		disable_eth3 = types.BoolValue(*data.DisableEth3)
+		disableEth3 = types.BoolValue(*data.DisableEth3)
 	}
 	if data.DisableModule != nil {
-		disable_module = types.BoolValue(*data.DisableModule)
+		disableModule = types.BoolValue(*data.DisableModule)
 	}
 	if data.EslConfig != nil {
-		esl_config = eslSdkToTerraform(ctx, &diags, data.EslConfig)
+		eslConfig = eslSdkToTerraform(ctx, &diags, data.EslConfig)
 	}
 	if data.Id != nil {
-		profile_id = types.StringValue(data.Id.String())
+		profileId = types.StringValue(data.Id.String())
 	}
 	if data.IpConfig != nil {
-		ip_config = ipConfigSdkToTerraform(ctx, &diags, data.IpConfig)
+		ipConfig = ipConfigSdkToTerraform(ctx, &diags, data.IpConfig)
 	}
 	if data.Led != nil {
 		led = ledSdkToTerraform(ctx, &diags, data.Led)
@@ -76,57 +76,57 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileAp) (OrgDevic
 	name = types.StringValue(*data.Name)
 
 	if data.NtpServers != nil {
-		ntp_servers = mist_list.ListOfStringSdkToTerraform(ctx, data.NtpServers)
+		ntpServers = mistlist.ListOfStringSdkToTerraform(data.NtpServers)
 	}
 	if data.OrgId != nil {
-		org_id = types.StringValue(data.OrgId.String())
+		orgId = types.StringValue(data.OrgId.String())
 	}
 	if data.PoePassthrough != nil {
-		poe_passthrough = types.BoolValue(*data.PoePassthrough)
+		poePassthrough = types.BoolValue(*data.PoePassthrough)
 	}
 	if data.PwrConfig != nil {
-		pwr_config = pwrConfigSdkToTerraform(ctx, &diags, data.PwrConfig)
+		pwrConfig = pwrConfigSdkToTerraform(ctx, &diags, data.PwrConfig)
 	}
 	if data.RadioConfig != nil {
-		radio_config = radioConfigSdkToTerraform(ctx, &diags, data.RadioConfig)
+		radioConfig = radioConfigSdkToTerraform(ctx, &diags, data.RadioConfig)
 	}
 	if data.SiteId != nil {
-		site_id = types.StringValue(data.SiteId.String())
+		siteId = types.StringValue(data.SiteId.String())
 	}
 	if data.UplinkPortConfig != nil {
-		uplink_port_config = uplinkPortConfigSdkToTerraform(ctx, &diags, data.UplinkPortConfig)
+		uplinkPortConfig = uplinkPortConfigSdkToTerraform(ctx, &diags, data.UplinkPortConfig)
 	}
 	if data.UsbConfig != nil {
-		usb_config = usbConfigSdkToTerraform(ctx, &diags, data.UsbConfig)
+		usbConfig = usbConfigSdkToTerraform(ctx, &diags, data.UsbConfig)
 	}
 	if data.Vars != nil {
 		vars = varsSdkToTerraform(ctx, &diags, data.Vars)
 	}
 
-	profile_type = types.StringValue(string(data.Type))
+	profileType = types.StringValue(data.Type)
 
 	state.Aeroscout = aeroscout
-	state.BleConfig = ble_config
-	state.DisableEth1 = disable_eth1
-	state.DisableEth2 = disable_eth2
-	state.DisableEth3 = disable_eth3
-	state.DisableModule = disable_module
-	state.EslConfig = esl_config
-	state.Id = profile_id
-	state.IpConfig = ip_config
+	state.BleConfig = bleConfig
+	state.DisableEth1 = disableEth1
+	state.DisableEth2 = disableEth2
+	state.DisableEth3 = disableEth3
+	state.DisableModule = disableModule
+	state.EslConfig = eslConfig
+	state.Id = profileId
+	state.IpConfig = ipConfig
 	state.Led = led
 	state.Mesh = mesh
 	state.Name = name
-	state.NtpServers = ntp_servers
-	state.OrgId = org_id
-	state.PoePassthrough = poe_passthrough
-	state.PwrConfig = pwr_config
-	state.RadioConfig = radio_config
-	state.SiteId = site_id
-	state.UplinkPortConfig = uplink_port_config
-	state.UsbConfig = usb_config
+	state.NtpServers = ntpServers
+	state.OrgId = orgId
+	state.PoePassthrough = poePassthrough
+	state.PwrConfig = pwrConfig
+	state.RadioConfig = radioConfig
+	state.SiteId = siteId
+	state.UplinkPortConfig = uplinkPortConfig
+	state.UsbConfig = usbConfig
 	state.Vars = vars
-	state.Type = profile_type
+	state.Type = profileType
 
 	return state, diags
 }

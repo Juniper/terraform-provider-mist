@@ -41,11 +41,11 @@ func (d *constTrafficTypesDataSource) Configure(ctx context.Context, req datasou
 
 	d.client = client
 }
-func (d *constTrafficTypesDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+func (d *constTrafficTypesDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_const_traffic_types"
 }
 
-func (d *constTrafficTypesDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *constTrafficTypesDataSource) Schema(ctx context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryConst + "This data source provides the of ConstTrafficTypes.\n\n" +
 			"The Traffic Type values can be used to define the `traffic_type` attribute in the `mist_org_service` resource.",

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"sync"
 
-	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
+	mistapierror "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_site"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
@@ -48,11 +48,11 @@ func (r *siteResource) Configure(ctx context.Context, req resource.ConfigureRequ
 	}
 	r.client = client
 }
-func (r *siteResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *siteResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_site"
 }
 
-func (r *siteResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *siteResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategorySite + "This resource manages the Site basic information.\n\n" +
 			"This resource can be used to assign templates to a site, or to change basic information (e.g. Site Address)",
@@ -77,7 +77,7 @@ func (r *siteResource) Create(ctx context.Context, req resource.CreateRequest, r
 		return
 	}
 
-	site, diags := resource_site.TerraformToSdk(ctx, &plan)
+	site, diags := resource_site.TerraformToSdk(&plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -96,16 +96,16 @@ func (r *siteResource) Create(ctx context.Context, req resource.CreateRequest, r
 	// The API call has been done, we can unlock the resource
 	resourceLock.Unlock()
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error creating \"mist_site\" resource",
-			fmt.Sprintf("Unable to create the Mist Site in the org \"%s\". %s", orgId.String(), api_err),
+			fmt.Sprintf("Unable to create the Mist Site in the org \"%s\". %s", orgId.String(), apiErr),
 		)
 		return
 	}
 
-	state, diags = resource_site.SdkToTerraform(ctx, &data.Data)
+	state, diags = resource_site.SdkToTerraform(&data.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -119,7 +119,7 @@ func (r *siteResource) Create(ctx context.Context, req resource.CreateRequest, r
 
 }
 
-func (r *siteResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *siteResource) Read(ctx context.Context, _ resource.ReadRequest, resp *resource.ReadResponse) {
 	var state resource_site.SiteModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -148,7 +148,7 @@ func (r *siteResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 		)
 		return
 	}
-	state, diags = resource_site.SdkToTerraform(ctx, &httpr.Data)
+	state, diags = resource_site.SdkToTerraform(&httpr.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -183,7 +183,7 @@ func (r *siteResource) Update(ctx context.Context, req resource.UpdateRequest, r
 		return
 	}
 
-	site, diags := resource_site.TerraformToSdk(ctx, &plan)
+	site, diags := resource_site.TerraformToSdk(&plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -203,16 +203,16 @@ func (r *siteResource) Update(ctx context.Context, req resource.UpdateRequest, r
 	// The API call has been done, we can unlock the resource
 	resourceLock.Unlock()
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error updating \"mist_site\" resource",
-			fmt.Sprintf("Unable to update the Mist Site. %s", api_err),
+			fmt.Sprintf("Unable to update the Mist Site. %s", apiErr),
 		)
 		return
 	}
 
-	state, diags = resource_site.SdkToTerraform(ctx, &data.Data)
+	state, diags = resource_site.SdkToTerraform(&data.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -226,7 +226,7 @@ func (r *siteResource) Update(ctx context.Context, req resource.UpdateRequest, r
 
 }
 
-func (r *siteResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *siteResource) Delete(ctx context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_site.SiteModel
 
 	// the resourceLock is required to avoid concurent sitegroup assign/unassign to
@@ -257,11 +257,11 @@ func (r *siteResource) Delete(ctx context.Context, req resource.DeleteRequest, r
 	// The API call has been done, we can unlock the resource
 	resourceLock.Unlock()
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_site\" resource",
-			fmt.Sprintf("Unable to delete the Site. %s", api_err),
+			fmt.Sprintf("Unable to delete the Site. %s", apiErr),
 		)
 		return
 	}

@@ -29,13 +29,13 @@ func (o ParseIntValidator) ValidateString(_ context.Context, req validator.Strin
 		return
 	}
 
-	str_value := req.ConfigValue.ValueString()
-	int_value, e := strconv.Atoi(str_value)
-	if e != nil || int_value < o.min || int_value > o.max {
+	strValue := req.ConfigValue.ValueString()
+	intValue, e := strconv.Atoi(strValue)
+	if e != nil || intValue < o.min || intValue > o.max {
 		resp.Diagnostics.Append(validatordiag.InvalidAttributeValueDiagnostic(
 			req.Path,
 			fmt.Sprintf("must be an Integer between %s and %s", strconv.Itoa(o.min), strconv.Itoa(o.max)),
-			str_value,
+			strValue,
 		))
 		return
 	}

@@ -12,49 +12,49 @@ import (
 )
 
 func juniperSrxGatewaysSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.SiteSettingJuniperSrxGateway) basetypes.ListValue {
-	var data_list = []GatewaysValue{}
+	var dataList []GatewaysValue
 	for _, d := range l {
-		var api_key basetypes.StringValue
-		var api_url basetypes.StringValue
+		var apiKey basetypes.StringValue
+		var apiUrl basetypes.StringValue
 
 		if d.ApiKey != nil {
-			api_key = types.StringValue(*d.ApiKey)
+			apiKey = types.StringValue(*d.ApiKey)
 		}
 		if d.ApiUrl != nil {
-			api_url = types.StringValue(*d.ApiUrl)
+			apiUrl = types.StringValue(*d.ApiUrl)
 		}
 
-		data_map_value := map[string]attr.Value{
-			"api_key": api_key,
-			"api_url": api_url,
+		dataMapValue := map[string]attr.Value{
+			"api_key": apiKey,
+			"api_url": apiUrl,
 		}
-		data, e := NewGatewaysValue(GatewaysValue{}.AttributeTypes(ctx), data_map_value)
+		data, e := NewGatewaysValue(GatewaysValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		data_list = append(data_list, data)
+		dataList = append(dataList, data)
 	}
-	r, e := types.ListValueFrom(ctx, GatewaysValue{}.Type(ctx), data_list)
+	r, e := types.ListValueFrom(ctx, GatewaysValue{}.Type(ctx), dataList)
 	diags.Append(e...)
 	return r
 }
 
 func juniperSrxSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteSettingJuniperSrx) JuniperSrxValue {
 
-	var gateways basetypes.ListValue = types.ListNull(GatewaysValue{}.Type(ctx))
-	var send_mist_nac_user_info basetypes.BoolValue
+	var gateways = types.ListNull(GatewaysValue{}.Type(ctx))
+	var sendMistNacUserInfo basetypes.BoolValue
 
 	if d != nil && d.Gateways != nil {
 		gateways = juniperSrxGatewaysSdkToTerraform(ctx, diags, d.Gateways)
 	}
 	if d != nil && d.SendMistNacUserInfo != nil {
-		send_mist_nac_user_info = types.BoolValue(*d.SendMistNacUserInfo)
+		sendMistNacUserInfo = types.BoolValue(*d.SendMistNacUserInfo)
 	}
 
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"gateways":                gateways,
-		"send_mist_nac_user_info": send_mist_nac_user_info,
+		"send_mist_nac_user_info": sendMistNacUserInfo,
 	}
-	data, e := NewJuniperSrxValue(JuniperSrxValue{}.AttributeTypes(ctx), data_map_value)
+	data, e := NewJuniperSrxValue(JuniperSrxValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

@@ -5,7 +5,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 
-	mist_hours "github.com/Juniper/terraform-provider-mist/internal/commons/hours"
+	misthours "github.com/Juniper/terraform-provider-mist/internal/commons/hours"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
@@ -15,7 +15,7 @@ func scheduleTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d Sche
 
 	data.Enabled = d.Enabled.ValueBoolPointer()
 
-	data.Hours = mist_hours.HoursTerraformToSdk(ctx, diags, d.Hours)
+	data.Hours = misthours.HoursTerraformToSdk(ctx, diags, d.Hours)
 
 	return &data
 }

@@ -13,17 +13,16 @@ import (
 
 func apiPolicySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.OrgSettingApiPolicy) ApiPolicyValue {
 
-	var no_reveal basetypes.BoolValue
+	var noReveal basetypes.BoolValue
 
 	if d.NoReveal != nil {
-		no_reveal = types.BoolValue(*d.NoReveal)
+		noReveal = types.BoolValue(*d.NoReveal)
 	}
 
-	data_map_attr_type := ApiPolicyValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"no_reveal": no_reveal,
+	dataMapValue := map[string]attr.Value{
+		"no_reveal": noReveal,
 	}
-	data, e := NewApiPolicyValue(data_map_attr_type, data_map_value)
+	data, e := NewApiPolicyValue(ApiPolicyValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

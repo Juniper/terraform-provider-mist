@@ -7,7 +7,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 
-	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
+	mistapierror "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_wxrule"
 
 	"github.com/google/uuid"
@@ -48,11 +48,11 @@ func (r *orgWxRuleResource) Configure(ctx context.Context, req resource.Configur
 
 	r.client = client
 }
-func (r *orgWxRuleResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *orgWxRuleResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_org_wxrule"
 }
 
-func (r *orgWxRuleResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *orgWxRuleResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryWlan + "This resource manages the Org WxRules (WxLAN policies).\n\n" +
 			"A WxLAN policy is a set of rules and settings that can be applied to devices in a network to determine " +
@@ -73,7 +73,7 @@ func (r *orgWxRuleResource) Create(ctx context.Context, req resource.CreateReque
 		return
 	}
 
-	wxrule, diags := resource_org_wxrule.TerraformToSdk(ctx, &plan)
+	wxrule, diags := resource_org_wxrule.TerraformToSdk(&plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -89,16 +89,16 @@ func (r *orgWxRuleResource) Create(ctx context.Context, req resource.CreateReque
 	}
 	data, err := r.client.OrgsWxRules().CreateOrgWxRule(ctx, orgId, wxrule)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error creating \"mist_org_wxrule\" resource",
-			fmt.Sprintf("Unable to create the WxRule. %s", api_err),
+			fmt.Sprintf("Unable to create the WxRule. %s", apiErr),
 		)
 		return
 	}
 
-	state, diags = resource_org_wxrule.SdkToTerraform(ctx, &data.Data)
+	state, diags = resource_org_wxrule.SdkToTerraform(&data.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -112,7 +112,7 @@ func (r *orgWxRuleResource) Create(ctx context.Context, req resource.CreateReque
 
 }
 
-func (r *orgWxRuleResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *orgWxRuleResource) Read(ctx context.Context, _ resource.ReadRequest, resp *resource.ReadResponse) {
 	var state resource_org_wxrule.OrgWxruleModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -149,7 +149,7 @@ func (r *orgWxRuleResource) Read(ctx context.Context, req resource.ReadRequest, 
 		)
 		return
 	}
-	state, diags = resource_org_wxrule.SdkToTerraform(ctx, &httpr.Data)
+	state, diags = resource_org_wxrule.SdkToTerraform(&httpr.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -177,7 +177,7 @@ func (r *orgWxRuleResource) Update(ctx context.Context, req resource.UpdateReque
 		return
 	}
 
-	wxrule, diags := resource_org_wxrule.TerraformToSdk(ctx, &plan)
+	wxrule, diags := resource_org_wxrule.TerraformToSdk(&plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -202,16 +202,16 @@ func (r *orgWxRuleResource) Update(ctx context.Context, req resource.UpdateReque
 	tflog.Info(ctx, "Starting WxRule Update for WxRule "+state.Id.ValueString())
 	data, err := r.client.OrgsWxRules().UpdateOrgWxRule(ctx, orgId, wxruleId, wxrule)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error updating \"mist_org_wxrule\" resource",
-			fmt.Sprintf("Unable to update the WxRule. %s", api_err),
+			fmt.Sprintf("Unable to update the WxRule. %s", apiErr),
 		)
 		return
 	}
 
-	state, diags = resource_org_wxrule.SdkToTerraform(ctx, &data.Data)
+	state, diags = resource_org_wxrule.SdkToTerraform(&data.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -225,7 +225,7 @@ func (r *orgWxRuleResource) Update(ctx context.Context, req resource.UpdateReque
 
 }
 
-func (r *orgWxRuleResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *orgWxRuleResource) Delete(ctx context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_org_wxrule.OrgWxruleModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -252,11 +252,11 @@ func (r *orgWxRuleResource) Delete(ctx context.Context, req resource.DeleteReque
 	}
 	tflog.Info(ctx, "Starting WxRule Delete: wxrule_id "+state.Id.ValueString())
 	data, err := r.client.OrgsWxRules().DeleteOrgWxRule(ctx, orgId, wxruleId)
-	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_wxrule\" resource",
-			fmt.Sprintf("Unable to delete the WxRule. %s", api_err),
+			fmt.Sprintf("Unable to delete the WxRule. %s", apiErr),
 		)
 		return
 	}

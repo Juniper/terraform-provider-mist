@@ -3,7 +3,7 @@ package datasource_device_ap_stats
 import (
 	"context"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -15,25 +15,25 @@ import (
 
 func ipStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.IpStat) basetypes.ObjectValue {
 
-	var dhcp_server basetypes.StringValue
-	var dns basetypes.ListValue = types.ListNull(types.StringType)
-	var dns_suffix basetypes.ListValue = types.ListNull(types.StringType)
+	var dhcpServer basetypes.StringValue
+	var dns = types.ListNull(types.StringType)
+	var dnsSuffix = types.ListNull(types.StringType)
 	var gateway basetypes.StringValue
 	var gateway6 basetypes.StringValue
 	var ip basetypes.StringValue
 	var ip6 basetypes.StringValue
-	var ips basetypes.MapValue = types.MapNull(types.StringType)
+	var ips = types.MapNull(types.StringType)
 	var netmask basetypes.StringValue
 	var netmask6 basetypes.StringValue
 
 	if d.DhcpServer.Value() != nil {
-		dhcp_server = types.StringValue(*d.DhcpServer.Value())
+		dhcpServer = types.StringValue(*d.DhcpServer.Value())
 	}
 	if d.Dns != nil {
-		dns = mist_transform.ListOfStringSdkToTerraform(ctx, d.Dns)
+		dns = misttransform.ListOfStringSdkToTerraform(d.Dns)
 	}
 	if d.DnsSuffix != nil {
-		dns_suffix = mist_transform.ListOfStringSdkToTerraform(ctx, d.DnsSuffix)
+		dnsSuffix = misttransform.ListOfStringSdkToTerraform(d.DnsSuffix)
 	}
 	if d.Gateway.Value() != nil {
 		gateway = types.StringValue(*d.Gateway.Value())
@@ -48,13 +48,13 @@ func ipStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 		ip6 = types.StringValue(*d.Ip6.Value())
 	}
 	if d.Ips != nil && len(d.Ips) > 0 {
-		map_attr_values := make(map[string]attr.Value)
+		mapAttrValues := make(map[string]attr.Value)
 		for k, v := range d.Ips {
-			map_attr_values[k] = types.StringValue(v)
+			mapAttrValues[k] = types.StringValue(v)
 		}
-		map_attr, e := types.MapValueFrom(ctx, types.StringType, map_attr_values)
+		mapAttr, e := types.MapValueFrom(ctx, types.StringType, mapAttrValues)
 		diags.Append(e...)
-		ips = map_attr
+		ips = mapAttr
 	}
 	if d.Netmask.Value() != nil {
 		netmask = types.StringValue(*d.Netmask.Value())
@@ -63,11 +63,10 @@ func ipStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 		netmask6 = types.StringValue(*d.Netmask6.Value())
 	}
 
-	data_map_attr_type := IpStatValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"dhcp_server": dhcp_server,
+	dataMapValue := map[string]attr.Value{
+		"dhcp_server": dhcpServer,
 		"dns":         dns,
-		"dns_suffix":  dns_suffix,
+		"dns_suffix":  dnsSuffix,
 		"gateway":     gateway,
 		"gateway6":    gateway6,
 		"ip":          ip,
@@ -76,7 +75,7 @@ func ipStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 		"netmask":     netmask,
 		"netmask6":    netmask6,
 	}
-	data, e := basetypes.NewObjectValue(data_map_attr_type, data_map_value)
+	data, e := basetypes.NewObjectValue(IpStatValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

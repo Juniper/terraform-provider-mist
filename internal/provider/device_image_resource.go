@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
+	mistapierror "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_device_image"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
@@ -46,11 +46,11 @@ func (r *deviceImageResource) Configure(ctx context.Context, req resource.Config
 
 	r.client = client
 }
-func (r *deviceImageResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *deviceImageResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_device_image"
 }
 
-func (r *deviceImageResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *deviceImageResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryDevices + "This resource is used to upload a Device picture.\n\n" +
 			"This resource can be used to add a picture to a Wireless Access point, a Switch or " +
@@ -100,15 +100,15 @@ func (r *deviceImageResource) Create(ctx context.Context, req resource.CreateReq
 		)
 		return
 	}
-	var json string = ""
+	var json = ""
 
 	data, err := r.client.SitesDevices().AddSiteDeviceImage(ctx, siteId, deviceId, imageNumber, file, &json)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error creating \"mist_device_image\" resource",
-			fmt.Sprintf("Unable to create the Device Image. %s", api_err),
+			fmt.Sprintf("Unable to create the Device Image. %s", apiErr),
 		)
 		return
 	}
@@ -126,7 +126,7 @@ func (r *deviceImageResource) Create(ctx context.Context, req resource.CreateReq
 
 }
 
-func (r *deviceImageResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *deviceImageResource) Read(_ context.Context, _ resource.ReadRequest, _ *resource.ReadResponse) {
 
 }
 
@@ -169,15 +169,15 @@ func (r *deviceImageResource) Update(ctx context.Context, req resource.UpdateReq
 		)
 		return
 	}
-	var json string = ""
+	var json = ""
 
 	data, err := r.client.SitesDevices().AddSiteDeviceImage(ctx, siteId, deviceId, imageNumber, file, &json)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error creating \"mist_device_image\" resource",
-			fmt.Sprintf("Unable to update the Device Image. %s", api_err),
+			fmt.Sprintf("Unable to update the Device Image. %s", apiErr),
 		)
 		return
 	}
@@ -195,7 +195,7 @@ func (r *deviceImageResource) Update(ctx context.Context, req resource.UpdateReq
 
 }
 
-func (r *deviceImageResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *deviceImageResource) Delete(ctx context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_device_image.DeviceImageModel
 
 	diags := resp.State.Get(ctx, &state)

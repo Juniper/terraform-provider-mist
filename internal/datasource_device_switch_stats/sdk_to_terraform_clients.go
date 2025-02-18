@@ -13,16 +13,16 @@ import (
 
 func clientsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.StatsSwitchClientItem) basetypes.ListValue {
 
-	var data_list = []ClientsValue{}
+	var dataList []ClientsValue
 
 	for _, d := range l {
-		var device_mac basetypes.StringValue
+		var deviceMac basetypes.StringValue
 		var hostname basetypes.StringValue
 		var mac basetypes.StringValue
-		var port_id basetypes.StringValue
+		var portId basetypes.StringValue
 
 		if d.DeviceMac != nil {
-			device_mac = types.StringValue(*d.DeviceMac)
+			deviceMac = types.StringValue(*d.DeviceMac)
 		}
 		if d.Hostname != nil {
 			hostname = types.StringValue(*d.Hostname)
@@ -31,22 +31,21 @@ func clientsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []mod
 			mac = types.StringValue(*d.Mac)
 		}
 		if d.PortId != nil {
-			port_id = types.StringValue(*d.PortId)
+			portId = types.StringValue(*d.PortId)
 		}
 
-		data_map_attr_type := ClientsValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
-			"device_mac": device_mac,
+		dataMapValue := map[string]attr.Value{
+			"device_mac": deviceMac,
 			"hostname":   hostname,
 			"mac":        mac,
-			"port_id":    port_id,
+			"port_id":    portId,
 		}
-		data, e := NewClientsValue(data_map_attr_type, data_map_value)
+		data, e := NewClientsValue(ClientsValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		data_list = append(data_list, data)
+		dataList = append(dataList, data)
 	}
-	r, e := types.ListValueFrom(ctx, ClientsValue{}.Type(ctx), data_list)
+	r, e := types.ListValueFrom(ctx, ClientsValue{}.Type(ctx), dataList)
 	diags.Append(e...)
 
 	return r

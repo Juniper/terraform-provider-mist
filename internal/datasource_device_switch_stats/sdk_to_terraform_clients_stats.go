@@ -3,7 +3,7 @@ package datasource_device_switch_stats
 import (
 	"context"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -15,22 +15,21 @@ import (
 
 func clientsStatsTotalSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.StatsSwitchClientsStatsTotal) basetypes.ObjectValue {
 
-	var num_aps basetypes.ListValue = types.ListNull(types.Int64Type)
-	var num_wired_clients basetypes.Int64Value
+	var numAps = types.ListNull(types.Int64Type)
+	var numWiredClients basetypes.Int64Value
 
 	if d.NumAps != nil {
-		num_aps = mist_transform.ListOfIntSdkToTerraform(ctx, d.NumAps)
+		numAps = misttransform.ListOfIntSdkToTerraform(d.NumAps)
 	}
 	if d.NumWiredClients != nil {
-		num_wired_clients = types.Int64Value(int64(*d.NumWiredClients))
+		numWiredClients = types.Int64Value(int64(*d.NumWiredClients))
 	}
 
-	data_map_attr_type := TotalValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"num_aps":           num_aps,
-		"num_wired_clients": num_wired_clients,
+	dataMapValue := map[string]attr.Value{
+		"num_aps":           numAps,
+		"num_wired_clients": numWiredClients,
 	}
-	data, e := basetypes.NewObjectValue(data_map_attr_type, data_map_value)
+	data, e := basetypes.NewObjectValue(TotalValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data
@@ -38,17 +37,16 @@ func clientsStatsTotalSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 
 func clientsStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.StatsSwitchClientsStats) basetypes.ObjectValue {
 
-	var total basetypes.ObjectValue = types.ObjectNull(TotalValue{}.AttributeTypes(ctx))
+	var total = types.ObjectNull(TotalValue{}.AttributeTypes(ctx))
 
 	if d.Total != nil {
 		total = clientsStatsTotalSdkToTerraform(ctx, diags, d.Total)
 	}
 
-	data_map_attr_type := ClientsStatsValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"total": total,
 	}
-	data, e := basetypes.NewObjectValue(data_map_attr_type, data_map_value)
+	data, e := basetypes.NewObjectValue(ClientsStatsValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

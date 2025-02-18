@@ -1,16 +1,14 @@
 package resource_site_wxrule
 
 import (
-	"context"
-
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 )
 
-func TerraformToSdk(ctx context.Context, plan *SiteWxruleModel) (*models.WxlanRule, diag.Diagnostics) {
+func TerraformToSdk(plan *SiteWxruleModel) (*models.WxlanRule, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	unset := make(map[string]interface{})
 	data := models.WxlanRule{}
@@ -22,33 +20,33 @@ func TerraformToSdk(ctx context.Context, plan *SiteWxruleModel) (*models.WxlanRu
 	}
 
 	if !plan.ApplyTags.IsNull() && !plan.ApplyTags.IsUnknown() {
-		data.ApplyTags = mist_transform.ListOfStringTerraformToSdk(ctx, plan.ApplyTags)
+		data.ApplyTags = misttransform.ListOfStringTerraformToSdk(plan.ApplyTags)
 	} else {
 		unset["-apply_tags"] = ""
 	}
 
 	if !plan.BlockedApps.IsNull() && !plan.BlockedApps.IsUnknown() {
-		data.BlockedApps = mist_transform.ListOfStringTerraformToSdk(ctx, plan.BlockedApps)
+		data.BlockedApps = misttransform.ListOfStringTerraformToSdk(plan.BlockedApps)
 	} else {
 		unset["-blocked_apps"] = ""
 	}
 
 	if !plan.DstAllowWxtags.IsNull() && !plan.DstAllowWxtags.IsUnknown() {
-		data.DstAllowWxtags = mist_transform.ListOfStringTerraformToSdk(ctx, plan.DstAllowWxtags)
+		data.DstAllowWxtags = misttransform.ListOfStringTerraformToSdk(plan.DstAllowWxtags)
 	}
 	if data.DstAllowWxtags == nil {
 		data.DstAllowWxtags = make([]string, 0)
 	}
 
 	if !plan.DstDenyWxtags.IsNull() && !plan.DstDenyWxtags.IsUnknown() {
-		data.DstDenyWxtags = mist_transform.ListOfStringTerraformToSdk(ctx, plan.DstDenyWxtags)
+		data.DstDenyWxtags = misttransform.ListOfStringTerraformToSdk(plan.DstDenyWxtags)
 	}
 	if data.DstDenyWxtags == nil {
 		data.DstDenyWxtags = make([]string, 0)
 	}
 
 	if !plan.DstWxtags.IsNull() && !plan.DstWxtags.IsUnknown() {
-		data.DstWxtags = mist_transform.ListOfStringTerraformToSdk(ctx, plan.DstWxtags)
+		data.DstWxtags = misttransform.ListOfStringTerraformToSdk(plan.DstWxtags)
 	}
 	if data.DstWxtags == nil {
 		data.DstWxtags = make([]string, 0)
@@ -63,7 +61,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteWxruleModel) (*models.WxlanRu
 	}
 
 	if !plan.SrcWxtags.IsNull() && !plan.SrcWxtags.IsUnknown() {
-		data.SrcWxtags = mist_transform.ListOfStringTerraformToSdk(ctx, plan.SrcWxtags)
+		data.SrcWxtags = misttransform.ListOfStringTerraformToSdk(plan.SrcWxtags)
 	}
 	if data.SrcWxtags == nil {
 		data.SrcWxtags = make([]string, 0)

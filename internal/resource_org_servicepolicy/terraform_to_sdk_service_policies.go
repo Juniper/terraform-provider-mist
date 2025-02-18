@@ -1,15 +1,12 @@
 package resource_org_servicepolicy
 
 import (
-	"context"
-
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func appqoeTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d AppqoeValue) *models.ServicePolicyAppqoe {
+func appqoeTerraformToSdk(d AppqoeValue) *models.ServicePolicyAppqoe {
 	data := models.ServicePolicyAppqoe{}
 	if d.IsNull() || d.IsUnknown() {
 		return nil
@@ -21,11 +18,11 @@ func appqoeTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d Appqoe
 	}
 }
 
-func ewfRuleTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.ServicePolicyEwfRule {
-	var data_list []models.ServicePolicyEwfRule
+func ewfRuleTerraformToSdk(d basetypes.ListValue) []models.ServicePolicyEwfRule {
+	var dataList []models.ServicePolicyEwfRule
 	for _, v := range d.Elements() {
-		var v_interface interface{} = v
-		plan := v_interface.(EwfValue)
+		var vInterface interface{} = v
+		plan := vInterface.(EwfValue)
 		data := models.ServicePolicyEwfRule{}
 		if plan.AlertOnly.ValueBoolPointer() != nil {
 			data.AlertOnly = models.ToPointer(plan.AlertOnly.ValueBool())
@@ -40,7 +37,7 @@ func ewfRuleTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d baset
 			data.Profile = models.ToPointer(models.ServicePolicyEwfRuleProfileEnum(plan.Profile.ValueString()))
 		}
 
-		data_list = append(data_list, data)
+		dataList = append(dataList, data)
 	}
-	return data_list
+	return dataList
 }

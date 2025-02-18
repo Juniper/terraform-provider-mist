@@ -1,14 +1,10 @@
 package resource_device_ap
 
 import (
-	"context"
-
-	"github.com/hashicorp/terraform-plugin-framework/diag"
-
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func meshTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d MeshValue) *models.ApMesh {
+func meshTerraformToSdk(d MeshValue) *models.ApMesh {
 	data := models.ApMesh{}
 
 	if d.Enabled.ValueBoolPointer() != nil {

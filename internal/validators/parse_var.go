@@ -37,9 +37,9 @@ func (o ParseVarValidator) ValidateString(_ context.Context, req validator.Strin
 }
 
 func checkIsVar(value string) bool {
-	re_variable := `\{\{\w*\}\}`
+	reVariable := `\{\{\w*\}\}`
 
-	if has_var, err := regexp.MatchString(re_variable, value); !has_var || err != nil {
+	if hasVar, err := regexp.MatchString(reVariable, value); !hasVar || err != nil {
 		return false
 	}
 	return true

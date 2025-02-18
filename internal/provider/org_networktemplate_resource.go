@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
+	mistapierror "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_networktemplate"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
@@ -48,11 +48,11 @@ func (r *orgNetworkTemplateResource) Configure(ctx context.Context, req resource
 
 	r.client = client
 }
-func (r *orgNetworkTemplateResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *orgNetworkTemplateResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_org_networktemplate"
 }
 
-func (r *orgNetworkTemplateResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *orgNetworkTemplateResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryWired + "This resource managed the Org Network Templates (Switch templates).\n\n" +
 			"A network template is a predefined configuration that provides a consistent and reusable set of network settings for devices within an organization. " +
@@ -90,11 +90,11 @@ func (r *orgNetworkTemplateResource) Create(ctx context.Context, req resource.Cr
 
 	data, err := r.client.OrgsNetworkTemplates().CreateOrgNetworkTemplate(ctx, orgId, &networktemplate)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error creating \"mist_org_networktemplate\" resource",
-			fmt.Sprintf("Unable to create the Network Template. %s", api_err),
+			fmt.Sprintf("Unable to create the Network Template. %s", apiErr),
 		)
 		return
 	}
@@ -113,7 +113,7 @@ func (r *orgNetworkTemplateResource) Create(ctx context.Context, req resource.Cr
 
 }
 
-func (r *orgNetworkTemplateResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *orgNetworkTemplateResource) Read(ctx context.Context, _ resource.ReadRequest, resp *resource.ReadResponse) {
 	var state resource_org_networktemplate.OrgNetworktemplateModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -208,11 +208,11 @@ func (r *orgNetworkTemplateResource) Update(ctx context.Context, req resource.Up
 	tflog.Info(ctx, "Starting NetworkTemplate Update for NetworkTemplate "+state.Id.ValueString())
 	data, err := r.client.OrgsNetworkTemplates().UpdateOrgNetworkTemplates(ctx, orgId, templateId, &networktemplate)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error updating \"mist_org_networktemplate\" resource",
-			fmt.Sprintf("Unable to update the Network Template. %s", api_err),
+			fmt.Sprintf("Unable to update the Network Template. %s", apiErr),
 		)
 		return
 	}
@@ -231,7 +231,7 @@ func (r *orgNetworkTemplateResource) Update(ctx context.Context, req resource.Up
 
 }
 
-func (r *orgNetworkTemplateResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *orgNetworkTemplateResource) Delete(ctx context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_org_networktemplate.OrgNetworktemplateModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -258,11 +258,11 @@ func (r *orgNetworkTemplateResource) Delete(ctx context.Context, req resource.De
 	}
 	tflog.Info(ctx, "Starting NetworkTemplate Delete: networktemplate_id "+state.Id.ValueString())
 	data, err := r.client.OrgsNetworkTemplates().DeleteOrgNetworkTemplate(ctx, orgId, templateId)
-	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_networktemplate\" resource",
-			fmt.Sprintf("Unable to delete the Network Template. %s", api_err),
+			fmt.Sprintf("Unable to delete the Network Template. %s", apiErr),
 		)
 		return
 	}

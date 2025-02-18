@@ -10,6 +10,9 @@ description: |-
 ## Release Notes for v0.2.20
 **release date** : February 14th, 2025
 
+### Changes
+* adding `mist_device_ap.flow_control` attribute
+
 
 ## Release Notes for v0.2.19
 **release date** : February 14th, 2025

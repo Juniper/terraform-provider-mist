@@ -1,17 +1,14 @@
 package resource_device_switch
 
 import (
-	"context"
-
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func vrfConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d VrfConfigValue) *models.VrfConfig {
+func vrfConfigTerraformToSdk(d VrfConfigValue) *models.VrfConfig {
 	data := models.VrfConfig{}
 	if d.Enabled.ValueBoolPointer() != nil {
 		data.Enabled = models.ToPointer(d.Enabled.ValueBool())
@@ -19,36 +16,36 @@ func vrfConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d Vrf
 	return &data
 }
 
-func vrfInstanceExtraRouteTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.VrfExtraRoute {
+func vrfInstanceExtraRouteTerraformToSdk(d basetypes.MapValue) map[string]models.VrfExtraRoute {
 	data := make(map[string]models.VrfExtraRoute)
-	for item_name, item_value := range d.Elements() {
-		var item_interface interface{} = item_value
-		item_obj := item_interface.(ExtraRoutesValue)
+	for itemName, itemValue := range d.Elements() {
+		var itemInterface interface{} = itemValue
+		itemObj := itemInterface.(ExtraRoutesValue)
 
-		data_item := models.VrfExtraRoute{}
-		if item_obj.Via.ValueStringPointer() != nil {
-			data_item.Via = models.ToPointer(item_obj.Via.ValueString())
+		dataItem := models.VrfExtraRoute{}
+		if itemObj.Via.ValueStringPointer() != nil {
+			dataItem.Via = models.ToPointer(itemObj.Via.ValueString())
 		}
-		data[item_name] = data_item
+		data[itemName] = dataItem
 	}
 	return data
 }
 
-func vrfInstancesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.SwitchVrfInstance {
+func vrfInstancesTerraformToSdk(d basetypes.MapValue) map[string]models.SwitchVrfInstance {
 	data := make(map[string]models.SwitchVrfInstance)
-	for item_name, item_value := range d.Elements() {
-		var item_interface interface{} = item_value
-		item_obj := item_interface.(VrfInstancesValue)
+	for itemName, itemValue := range d.Elements() {
+		var itemInterface interface{} = itemValue
+		itemObj := itemInterface.(VrfInstancesValue)
 
-		data_item := models.SwitchVrfInstance{}
-		if !item_obj.Networks.IsNull() && !item_obj.Networks.IsUnknown() {
-			data_item.Networks = mist_transform.ListOfStringTerraformToSdk(ctx, item_obj.Networks)
+		dataItem := models.SwitchVrfInstance{}
+		if !itemObj.Networks.IsNull() && !itemObj.Networks.IsUnknown() {
+			dataItem.Networks = misttransform.ListOfStringTerraformToSdk(itemObj.Networks)
 		}
-		if !item_obj.VrfExtraRoutes.IsNull() && !item_obj.VrfExtraRoutes.IsUnknown() {
-			data_item.ExtraRoutes = vrfInstanceExtraRouteTerraformToSdk(ctx, diags, item_obj.VrfExtraRoutes)
+		if !itemObj.VrfExtraRoutes.IsNull() && !itemObj.VrfExtraRoutes.IsUnknown() {
+			dataItem.ExtraRoutes = vrfInstanceExtraRouteTerraformToSdk(itemObj.VrfExtraRoutes)
 		}
 
-		data[item_name] = data_item
+		data[itemName] = dataItem
 	}
 	return data
 }

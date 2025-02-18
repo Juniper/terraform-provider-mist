@@ -3,7 +3,7 @@ package resource_site_setting
 import (
 	"context"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -14,12 +14,12 @@ import (
 )
 
 func zoneOccupancySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.SiteZoneOccupancyAlert) ZoneOccupancyAlertValue {
-	var email_notifiers basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+	var emailNotifiers = misttransform.ListOfStringSdkToTerraformEmpty()
 	var enabled basetypes.BoolValue
 	var threshold basetypes.Int64Value
 
 	if d.EmailNotifiers != nil {
-		email_notifiers = mist_transform.ListOfStringSdkToTerraform(ctx, d.EmailNotifiers)
+		emailNotifiers = misttransform.ListOfStringSdkToTerraform(d.EmailNotifiers)
 	}
 	if d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
@@ -28,13 +28,12 @@ func zoneOccupancySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d
 		threshold = types.Int64Value(int64(*d.Threshold))
 	}
 
-	data_map_attr_type := ZoneOccupancyAlertValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"email_notifiers": email_notifiers,
+	dataMapValue := map[string]attr.Value{
+		"email_notifiers": emailNotifiers,
 		"enabled":         enabled,
 		"threshold":       threshold,
 	}
-	data, e := NewZoneOccupancyAlertValue(data_map_attr_type, data_map_value)
+	data, e := NewZoneOccupancyAlertValue(ZoneOccupancyAlertValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

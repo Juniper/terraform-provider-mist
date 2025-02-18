@@ -41,11 +41,11 @@ func (d *constWebhooksDataSource) Configure(ctx context.Context, req datasource.
 
 	d.client = client
 }
-func (d *constWebhooksDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+func (d *constWebhooksDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_const_webhooks"
 }
 
-func (d *constWebhooksDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *constWebhooksDataSource) Schema(ctx context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryConst + "This data source provides the list of Webhook Topics.\n\n" +
 			"This information can be used to configure webhooks at the Org level (`mist_org_webhook` resource) " +

@@ -12,15 +12,15 @@ import (
 )
 
 func destinationNatInternetAccessSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d map[string]models.NetworkInternetAccessDestinationNatProperty) basetypes.MapValue {
-	state_value_map_value := make(map[string]attr.Value)
+	stateValueMapValue := make(map[string]attr.Value)
 	for k, v := range d {
-		var internal_ip basetypes.StringValue
+		var internalIp basetypes.StringValue
 		var name basetypes.StringValue
 		var port basetypes.StringValue
-		var wan_name basetypes.StringValue
+		var wanName basetypes.StringValue
 
 		if v.InternalIp != nil {
-			internal_ip = types.StringValue(*v.InternalIp)
+			internalIp = types.StringValue(*v.InternalIp)
 		}
 		if v.Name != nil {
 			name = types.StringValue(*v.Name)
@@ -29,69 +29,69 @@ func destinationNatInternetAccessSdkToTerraform(ctx context.Context, diags *diag
 			port = types.StringValue(*v.Port)
 		}
 		if v.WanName != nil {
-			wan_name = types.StringValue(*v.WanName)
+			wanName = types.StringValue(*v.WanName)
 		}
 
-		state_value_map_attr_value := map[string]attr.Value{
-			"internal_ip": internal_ip,
+		stateValueMapAttrValue := map[string]attr.Value{
+			"internal_ip": internalIp,
 			"name":        name,
 			"port":        port,
-			"wan_name":    wan_name,
+			"wan_name":    wanName,
 		}
-		n, e := NewInternetAccessDestinationNatValue(InternetAccessDestinationNatValue{}.AttributeTypes(ctx), state_value_map_attr_value)
+		n, e := NewInternetAccessDestinationNatValue(InternetAccessDestinationNatValue{}.AttributeTypes(ctx), stateValueMapAttrValue)
 		diags.Append(e...)
 
-		state_value_map_value[k] = n
+		stateValueMapValue[k] = n
 	}
-	state_result_map, e := types.MapValueFrom(ctx, InternetAccessDestinationNatValue{}.Type(ctx), state_value_map_value)
+	stateResultMap, e := types.MapValueFrom(ctx, InternetAccessDestinationNatValue{}.Type(ctx), stateValueMapValue)
 	diags.Append(e...)
-	return state_result_map
+	return stateResultMap
 }
 
 func staticNatInternetAccessSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d map[string]models.NetworkInternetAccessStaticNatProperty) basetypes.MapValue {
-	state_value_map_value := make(map[string]attr.Value)
+	stateValueMapValue := make(map[string]attr.Value)
 	for k, v := range d {
-		var internal_ip basetypes.StringValue
+		var internalIp basetypes.StringValue
 		var name basetypes.StringValue
-		var wan_name basetypes.StringValue
+		var wanName basetypes.StringValue
 
 		if v.InternalIp != nil {
-			internal_ip = types.StringValue(*v.InternalIp)
+			internalIp = types.StringValue(*v.InternalIp)
 		}
 		if v.Name != nil {
 			name = types.StringValue(*v.Name)
 		}
 		if v.WanName != nil {
-			wan_name = types.StringValue(*v.WanName)
+			wanName = types.StringValue(*v.WanName)
 		}
 
-		state_value_map_attr_value := map[string]attr.Value{
-			"internal_ip": internal_ip,
+		stateValueMapAttrValue := map[string]attr.Value{
+			"internal_ip": internalIp,
 			"name":        name,
-			"wan_name":    wan_name,
+			"wan_name":    wanName,
 		}
-		n, e := NewInternetAccessStaticNatValue(InternetAccessStaticNatValue{}.AttributeTypes(ctx), state_value_map_attr_value)
+		n, e := NewInternetAccessStaticNatValue(InternetAccessStaticNatValue{}.AttributeTypes(ctx), stateValueMapAttrValue)
 		diags.Append(e...)
 
-		state_value_map_value[k] = n
+		stateValueMapValue[k] = n
 	}
-	state_result_map, e := types.MapValueFrom(ctx, InternetAccessStaticNatValue{}.Type(ctx), state_value_map_value)
+	stateResultMap, e := types.MapValueFrom(ctx, InternetAccessStaticNatValue{}.Type(ctx), stateValueMapValue)
 	diags.Append(e...)
-	return state_result_map
+	return stateResultMap
 }
 
 func InternetAccessSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.NetworkInternetAccess) InternetAccessValue {
-	var create_simple_service_policy basetypes.BoolValue = types.BoolValue(false)
-	var destination_nat basetypes.MapValue = types.MapNull(InternetAccessDestinationNatValue{}.Type(ctx))
+	var createSimpleServicePolicy = types.BoolValue(false)
+	var destinationNat = types.MapNull(InternetAccessDestinationNatValue{}.Type(ctx))
 	var enabled basetypes.BoolValue
-	var restricted basetypes.BoolValue = types.BoolValue(false)
-	var static_nac basetypes.MapValue = types.MapNull(InternetAccessStaticNatValue{}.Type(ctx))
+	var restricted = types.BoolValue(false)
+	var staticNac = types.MapNull(InternetAccessStaticNatValue{}.Type(ctx))
 
 	if d.CreateSimpleServicePolicy != nil {
-		create_simple_service_policy = types.BoolValue(*d.CreateSimpleServicePolicy)
+		createSimpleServicePolicy = types.BoolValue(*d.CreateSimpleServicePolicy)
 	}
 	if d.DestinationNat != nil && len(d.DestinationNat) > 0 {
-		destination_nat = destinationNatInternetAccessSdkToTerraform(ctx, diags, d.DestinationNat)
+		destinationNat = destinationNatInternetAccessSdkToTerraform(ctx, diags, d.DestinationNat)
 	}
 	if d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
@@ -100,18 +100,17 @@ func InternetAccessSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 		restricted = types.BoolValue(*d.Restricted)
 	}
 	if d.StaticNat != nil && len(d.StaticNat) > 0 {
-		static_nac = staticNatInternetAccessSdkToTerraform(ctx, diags, d.StaticNat)
+		staticNac = staticNatInternetAccessSdkToTerraform(ctx, diags, d.StaticNat)
 	}
 
-	data_map_attr_type := InternetAccessValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"create_simple_service_policy": create_simple_service_policy,
-		"destination_nat":              destination_nat,
+	dataMapValue := map[string]attr.Value{
+		"create_simple_service_policy": createSimpleServicePolicy,
+		"destination_nat":              destinationNat,
 		"enabled":                      enabled,
 		"restricted":                   restricted,
-		"static_nat":                   static_nac,
+		"static_nat":                   staticNac,
 	}
-	data, e := NewInternetAccessValue(data_map_attr_type, data_map_value)
+	data, e := NewInternetAccessValue(InternetAccessValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

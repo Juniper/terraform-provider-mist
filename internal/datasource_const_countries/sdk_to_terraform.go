@@ -17,7 +17,7 @@ func SdkToTerraform(ctx context.Context, l []models.ConstCountry) (basetypes.Set
 
 	var elements []attr.Value
 	for _, d := range l {
-		elem := countrySdkToTerraform(ctx, &diags, d)
+		elem := countrySdkToTerraform(ctx, d)
 		elements = append(elements, elem)
 	}
 
@@ -29,7 +29,7 @@ func SdkToTerraform(ctx context.Context, l []models.ConstCountry) (basetypes.Set
 	return dataSet, diags
 }
 
-func countrySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.ConstCountry) ConstCountriesValue {
+func countrySdkToTerraform(ctx context.Context, d models.ConstCountry) ConstCountriesValue {
 	o, _ := NewConstCountriesValue(
 		ConstCountriesValue{}.AttributeTypes(ctx),
 		map[string]attr.Value{

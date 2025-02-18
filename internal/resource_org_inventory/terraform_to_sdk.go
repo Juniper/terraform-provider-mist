@@ -1,7 +1,6 @@
 package resource_org_inventory
 
 import (
-	"context"
 	"fmt"
 	"strings"
 
@@ -61,7 +60,7 @@ func findDeviceInState(
 				if the device is already claimed (only used when planDeviceInfo is a claim code)
 	*/
 	var op, mac string
-	var alreadyClaimed bool = false
+	var alreadyClaimed = false
 
 	if stateDevice, ok := (*stateMap)[strings.ToUpper(planDeviceInfo)]; ok {
 		// for already claimed devices
@@ -86,16 +85,16 @@ func processPlanedDevices(
 	assign *map[string][]string,
 ) {
 	/*
-		Function to process the planed devices and detect which type of action should by applied. Depending
+		Function to process the planed devices and detect which type of action should be applied. Depending
 		on the required action, the device will be added to one of the required list
 
 		parameters:
-			diads: *diag.Diagnostics
+			diags: *diag.Diagnostics
 			planDevices : *basetypes.MapValue
-				map of devices in the plan. Key is the device Claim Code or MAC Address, Value is a DeviceVvalue Nested
+				map of devices in the plan. Key is the device Claim Code or MAC Address, Value is a DeviceValue Nested
 				Object with the SiteId, the UnclaimWhenDestroyed bit and the information retrieved from the Mist Inventory
 			stateDevicesMap : *map[string]InventoryValue
-				map of devices in the plan. Key is the device Claim Code or MAC Address, Value is a DeviceVvalue Nested
+				map of devices in the plan. Key is the device Claim Code or MAC Address, Value is a DeviceValue Nested
 				Object with the SiteId, the UnclaimWhenDestroyed bit and the information retrieved from the Mist Inventory
 			claim : *[]string
 				list of claim codes (string) that must be claimed to the Mist Org
@@ -103,9 +102,9 @@ func processPlanedDevices(
 				list of MAC Address (string) that must be unassigned from Mist Sites
 			assignClaim : *map[string]string
 				map of  ClaimCodes / SiteId of the devices that must be claimed then assigned to a site. This is required
-				because we don't have the device MAC address at this time (we only have the claim code, the MAC addresss
+				because we don't have the device MAC address at this time (we only have the claim code, the MAC Addresss
 				which is required for the "assign" op will be known after the claim)
-				the key is the device Claim Code'
+				the key is the device Claim Code
 				the value is the site id where the device must be assigned to after the claim
 			assign : *map[string][]string
 				map of siteId / list of MAC address (string) that must be assigned to a site
@@ -123,15 +122,10 @@ func processPlanedDevices(
 		op, mac, alreadyClaimed = findDeviceInState(deviceInfo, deviceSiteId, stateDevicesMap)
 		isClaimCode, isMac := DetectDeviceInfoType(diags, deviceInfo)
 		if !alreadyClaimed && isClaimCode {
-			(*claim) = append((*claim), deviceInfo)
+			*claim = append(*claim, deviceInfo)
 			if op == "assign" {
 				(*assignClaim)[strings.ToUpper(deviceInfo)] = deviceSiteId.ValueString()
 			}
-			// } else if !alreadyClaimed && isMac {
-			// 	diags.AddError(
-			// 		"Unable to process the \"org_inventory\" resource",
-			// 		fmt.Sprintf("unable to find a device with the MAC Address %s in the Org Inventory", deviceInfo),
-			// 	)
 		} else if alreadyClaimed || isMac {
 			if isMac {
 				mac = deviceInfo
@@ -140,7 +134,7 @@ func processPlanedDevices(
 			case "assign":
 				(*assign)[deviceSiteId.ValueString()] = append((*assign)[deviceSiteId.ValueString()], mac)
 			case "unassign":
-				(*unassign) = append((*unassign), mac)
+				*unassign = append(*unassign, mac)
 			}
 		} else if !isClaimCode && !isMac {
 			diags.AddError(
@@ -162,7 +156,7 @@ func processUnplanedDevices(
 		parameters:
 			planDevicesMap : *map[string]DeviceValue
 				map of the devices in the Plan. The key may be the device Claim Code or MAC address
-				(depeending on the value type in planDeviceInfo) and the value is DeviceValue
+				(depending on the value type in planDeviceInfo) and the value is DeviceValue
 			stateDevices : *basetypes.MapValue
 				map of devices in the state (claimed / managed by the provider). Key is the device Claim Code
 				or MAC Address, Value is a Nested Object with the SiteId and the UnclaimWhenDestroyed bit
@@ -173,19 +167,15 @@ func processUnplanedDevices(
 	for deviceInfo, d := range stateDevices.Elements() {
 		var di interface{} = d
 		var device = di.(InventoryValue)
-		var UnclaimWhenDestroyed = device.UnclaimWhenDestroyed.ValueBool()
+		var unclaimWhenDestroyed = device.UnclaimWhenDestroyed.ValueBool()
 
-		if _, ok := (*planDevicesMap)[strings.ToUpper(deviceInfo)]; !ok && UnclaimWhenDestroyed {
-			(*unclaim) = append((*unclaim), device.Serial.ValueString())
+		if _, ok := (*planDevicesMap)[strings.ToUpper(deviceInfo)]; !ok && unclaimWhenDestroyed {
+			*unclaim = append(*unclaim, device.Serial.ValueString())
 		}
 	}
 }
 
-func mapTerraformToSdk(
-	ctx context.Context,
-	stateInventory *OrgInventoryModel,
-	planInventory *OrgInventoryModel,
-) ([]string, []string, []string, map[string]string, map[string][]string, diag.Diagnostics) {
+func mapTerraformToSdk(stateInventory *OrgInventoryModel, planInventory *OrgInventoryModel) ([]string, []string, []string, map[string]string, map[string][]string, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	// var knownDevice
 	var claim []string
@@ -207,23 +197,16 @@ func mapTerraformToSdk(
 	return claim, unclaim, unassign, assignClaim, assign, diags
 }
 
-func TerraformToSdk(
-	ctx context.Context,
-	stateInventory *OrgInventoryModel,
-	planInventory *OrgInventoryModel,
-) ([]string, []string, []string, map[string]string, map[string][]string, diag.Diagnostics) {
+func TerraformToSdk(stateInventory *OrgInventoryModel, planInventory *OrgInventoryModel) ([]string, []string, []string, map[string]string, map[string][]string, diag.Diagnostics) {
 
 	if !planInventory.Devices.IsNull() && !planInventory.Devices.IsUnknown() {
-		return legacyTerraformToSdk(ctx, &stateInventory.Devices, &planInventory.Devices)
+		return legacyTerraformToSdk(&stateInventory.Devices, &planInventory.Devices)
 	} else {
-		return mapTerraformToSdk(ctx, stateInventory, planInventory)
+		return mapTerraformToSdk(stateInventory, planInventory)
 	}
 }
 
-func DeleteOrgInventory(
-	ctx context.Context,
-	stateInventory *OrgInventoryModel,
-) ([]string, diag.Diagnostics) {
+func DeleteOrgInventory(stateInventory *OrgInventoryModel) ([]string, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	var unclaim []string
 
@@ -231,9 +214,9 @@ func DeleteOrgInventory(
 		for _, d := range stateInventory.Devices.Elements() {
 			var di interface{} = d
 			var device = di.(DevicesValue)
-			var UnclaimWhenDestroyed = device.UnclaimWhenDestroyed.ValueBool()
+			var unclaimWhenDestroyed = device.UnclaimWhenDestroyed.ValueBool()
 
-			if UnclaimWhenDestroyed {
+			if unclaimWhenDestroyed {
 				unclaim = append(unclaim, device.Serial.ValueString())
 			}
 		}
@@ -241,9 +224,9 @@ func DeleteOrgInventory(
 		for _, d := range stateInventory.Inventory.Elements() {
 			var di interface{} = d
 			var device = di.(InventoryValue)
-			var UnclaimWhenDestroyed = device.UnclaimWhenDestroyed.ValueBool()
+			var unclaimWhenDestroyed = device.UnclaimWhenDestroyed.ValueBool()
 
-			if UnclaimWhenDestroyed {
+			if unclaimWhenDestroyed {
 				unclaim = append(unclaim, device.Serial.ValueString())
 			}
 		}

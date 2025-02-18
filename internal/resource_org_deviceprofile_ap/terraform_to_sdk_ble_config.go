@@ -1,17 +1,14 @@
 package resource_org_deviceprofile_ap
 
 import (
-	"context"
-
 	"github.com/google/uuid"
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func bleConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d BleConfigValue) *models.BleConfig {
+func bleConfigTerraformToSdk(d BleConfigValue) *models.BleConfig {
 
 	data := models.BleConfig{}
 
@@ -28,7 +25,7 @@ func bleConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d Ble
 	}
 
 	if !d.BeamDisabled.IsNull() && !d.BeamDisabled.IsUnknown() {
-		data.BeamDisabled = mist_transform.ListOfIntTerraformToSdk(ctx, d.BeamDisabled)
+		data.BeamDisabled = misttransform.ListOfIntTerraformToSdk(d.BeamDisabled)
 	}
 
 	if d.CustomBlePacketEnabled.ValueBoolPointer() != nil {

@@ -20,11 +20,11 @@ func NewSearchInventoryBySerialFunction() function.Function {
 	return &SearchInventoryBySerialFunction{}
 }
 
-func (f *SearchInventoryBySerialFunction) Metadata(ctx context.Context, req function.MetadataRequest, resp *function.MetadataResponse) {
+func (f *SearchInventoryBySerialFunction) Metadata(_ context.Context, _ function.MetadataRequest, resp *function.MetadataResponse) {
 	resp.Name = "search_inventory_by_serial"
 }
 
-func (f *SearchInventoryBySerialFunction) Definition(ctx context.Context, req function.DefinitionRequest, resp *function.DefinitionResponse) {
+func (f *SearchInventoryBySerialFunction) Definition(ctx context.Context, _ function.DefinitionRequest, resp *function.DefinitionResponse) {
 	resp.Definition = function.Definition{
 		Summary: docCategoryDevices + "Retrieve a device in the `mist_org_inventory` resource based on its Serial Number",
 		MarkdownDescription: "Given `mist_org_inventory` resource and a Serial Number string, will return the Device object having the provided Serial Number. " +

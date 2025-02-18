@@ -3,7 +3,7 @@ package resource_device_switch
 import (
 	"context"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
@@ -13,24 +13,24 @@ import (
 func localPortConfigScTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) models.SwitchPortLocalUsageStormControl {
 	data := models.SwitchPortLocalUsageStormControl{}
 	if !d.IsNull() && !d.IsUnknown() {
-		v_plan, e := NewStormControlValue(d.AttributeTypes(ctx), d.Attributes())
+		vPlan, e := NewStormControlValue(d.AttributeTypes(ctx), d.Attributes())
 		if e != nil {
 			diags.Append(e...)
 		} else {
-			if v_plan.NoBroadcast.ValueBoolPointer() != nil {
-				data.NoBroadcast = models.ToPointer(v_plan.NoBroadcast.ValueBool())
+			if vPlan.NoBroadcast.ValueBoolPointer() != nil {
+				data.NoBroadcast = models.ToPointer(vPlan.NoBroadcast.ValueBool())
 			}
-			if v_plan.NoMulticast.ValueBoolPointer() != nil {
-				data.NoMulticast = models.ToPointer(v_plan.NoMulticast.ValueBool())
+			if vPlan.NoMulticast.ValueBoolPointer() != nil {
+				data.NoMulticast = models.ToPointer(vPlan.NoMulticast.ValueBool())
 			}
-			if v_plan.NoRegisteredMulticast.ValueBoolPointer() != nil {
-				data.NoRegisteredMulticast = models.ToPointer(v_plan.NoRegisteredMulticast.ValueBool())
+			if vPlan.NoRegisteredMulticast.ValueBoolPointer() != nil {
+				data.NoRegisteredMulticast = models.ToPointer(vPlan.NoRegisteredMulticast.ValueBool())
 			}
-			if v_plan.NoUnknownUnicast.ValueBoolPointer() != nil {
-				data.NoUnknownUnicast = models.ToPointer(v_plan.NoUnknownUnicast.ValueBool())
+			if vPlan.NoUnknownUnicast.ValueBoolPointer() != nil {
+				data.NoUnknownUnicast = models.ToPointer(vPlan.NoUnknownUnicast.ValueBool())
 			}
-			if v_plan.Percentage.ValueInt64Pointer() != nil {
-				data.Percentage = models.ToPointer(int(v_plan.Percentage.ValueInt64()))
+			if vPlan.Percentage.ValueInt64Pointer() != nil {
+				data.Percentage = models.ToPointer(int(vPlan.Percentage.ValueInt64()))
 			}
 		}
 	}
@@ -41,121 +41,121 @@ func LocalPortConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics,
 
 	data := make(map[string]models.JunosLocalPortConfig)
 	for k, v := range d.Elements() {
-		var plan_interface interface{} = v
-		plan_obj := plan_interface.(LocalPortConfigValue)
-		item_obj := models.JunosLocalPortConfig{}
+		var planInterface interface{} = v
+		planObj := planInterface.(LocalPortConfigValue)
+		itemObj := models.JunosLocalPortConfig{}
 
-		item_obj.Usage = plan_obj.Usage.ValueString()
-		if plan_obj.AllNetworks.ValueBoolPointer() != nil {
-			item_obj.AllNetworks = models.ToPointer(plan_obj.AllNetworks.ValueBool())
+		itemObj.Usage = planObj.Usage.ValueString()
+		if planObj.AllNetworks.ValueBoolPointer() != nil {
+			itemObj.AllNetworks = models.ToPointer(planObj.AllNetworks.ValueBool())
 		}
-		if plan_obj.AllowDhcpd.ValueBoolPointer() != nil {
-			item_obj.AllowDhcpd = models.ToPointer(plan_obj.AllowDhcpd.ValueBool())
+		if planObj.AllowDhcpd.ValueBoolPointer() != nil {
+			itemObj.AllowDhcpd = models.ToPointer(planObj.AllowDhcpd.ValueBool())
 		}
-		if plan_obj.AllowMultipleSupplicants.ValueBoolPointer() != nil {
-			item_obj.AllowMultipleSupplicants = models.ToPointer(plan_obj.AllowMultipleSupplicants.ValueBool())
+		if planObj.AllowMultipleSupplicants.ValueBoolPointer() != nil {
+			itemObj.AllowMultipleSupplicants = models.ToPointer(planObj.AllowMultipleSupplicants.ValueBool())
 		}
-		if plan_obj.BypassAuthWhenServerDown.ValueBoolPointer() != nil {
-			item_obj.BypassAuthWhenServerDown = models.ToPointer(plan_obj.BypassAuthWhenServerDown.ValueBool())
+		if planObj.BypassAuthWhenServerDown.ValueBoolPointer() != nil {
+			itemObj.BypassAuthWhenServerDown = models.ToPointer(planObj.BypassAuthWhenServerDown.ValueBool())
 		}
-		if plan_obj.BypassAuthWhenServerDownForUnkownClient.ValueBoolPointer() != nil {
-			item_obj.BypassAuthWhenServerDownForUnkownClient = models.ToPointer(plan_obj.BypassAuthWhenServerDownForUnkownClient.ValueBool())
+		if planObj.BypassAuthWhenServerDownForUnkownClient.ValueBoolPointer() != nil {
+			itemObj.BypassAuthWhenServerDownForUnkownClient = models.ToPointer(planObj.BypassAuthWhenServerDownForUnkownClient.ValueBool())
 		}
-		if plan_obj.Description.ValueStringPointer() != nil {
-			item_obj.Description = models.ToPointer(plan_obj.Description.ValueString())
+		if planObj.Description.ValueStringPointer() != nil {
+			itemObj.Description = models.ToPointer(planObj.Description.ValueString())
 		}
-		if plan_obj.DisableAutoneg.ValueBoolPointer() != nil {
-			item_obj.DisableAutoneg = models.ToPointer(plan_obj.DisableAutoneg.ValueBool())
+		if planObj.DisableAutoneg.ValueBoolPointer() != nil {
+			itemObj.DisableAutoneg = models.ToPointer(planObj.DisableAutoneg.ValueBool())
 		}
-		if plan_obj.Disabled.ValueBoolPointer() != nil {
-			item_obj.Disabled = models.ToPointer(plan_obj.Disabled.ValueBool())
+		if planObj.Disabled.ValueBoolPointer() != nil {
+			itemObj.Disabled = models.ToPointer(planObj.Disabled.ValueBool())
 		}
-		if plan_obj.Duplex.ValueStringPointer() != nil {
-			item_obj.Duplex = models.ToPointer(models.SwitchPortLocalUsageDuplexEnum(plan_obj.Duplex.ValueString()))
+		if planObj.Duplex.ValueStringPointer() != nil {
+			itemObj.Duplex = models.ToPointer(models.SwitchPortLocalUsageDuplexEnum(planObj.Duplex.ValueString()))
 		}
-		if !plan_obj.DynamicVlanNetworks.IsNull() && !plan_obj.DynamicVlanNetworks.IsUnknown() {
-			item_obj.DynamicVlanNetworks = mist_transform.ListOfStringTerraformToSdk(ctx, plan_obj.DynamicVlanNetworks)
+		if !planObj.DynamicVlanNetworks.IsNull() && !planObj.DynamicVlanNetworks.IsUnknown() {
+			itemObj.DynamicVlanNetworks = misttransform.ListOfStringTerraformToSdk(planObj.DynamicVlanNetworks)
 		}
-		if plan_obj.EnableMacAuth.ValueBoolPointer() != nil {
-			item_obj.EnableMacAuth = models.ToPointer(plan_obj.EnableMacAuth.ValueBool())
+		if planObj.EnableMacAuth.ValueBoolPointer() != nil {
+			itemObj.EnableMacAuth = models.ToPointer(planObj.EnableMacAuth.ValueBool())
 		}
-		if plan_obj.EnableQos.ValueBoolPointer() != nil {
-			item_obj.EnableQos = models.ToPointer(plan_obj.EnableQos.ValueBool())
+		if planObj.EnableQos.ValueBoolPointer() != nil {
+			itemObj.EnableQos = models.ToPointer(planObj.EnableQos.ValueBool())
 		}
-		if plan_obj.GuestNetwork.ValueStringPointer() != nil {
-			item_obj.GuestNetwork = models.NewOptional(models.ToPointer(plan_obj.GuestNetwork.ValueString()))
+		if planObj.GuestNetwork.ValueStringPointer() != nil {
+			itemObj.GuestNetwork = models.NewOptional(models.ToPointer(planObj.GuestNetwork.ValueString()))
 		}
-		if plan_obj.InterSwitchLink.ValueBoolPointer() != nil {
-			item_obj.InterSwitchLink = models.ToPointer(plan_obj.InterSwitchLink.ValueBool())
+		if planObj.InterSwitchLink.ValueBoolPointer() != nil {
+			itemObj.InterSwitchLink = models.ToPointer(planObj.InterSwitchLink.ValueBool())
 		}
-		if plan_obj.MacAuthOnly.ValueBoolPointer() != nil {
-			item_obj.MacAuthOnly = models.ToPointer(plan_obj.MacAuthOnly.ValueBool())
+		if planObj.MacAuthOnly.ValueBoolPointer() != nil {
+			itemObj.MacAuthOnly = models.ToPointer(planObj.MacAuthOnly.ValueBool())
 		}
-		if plan_obj.MacAuthPreferred.ValueBoolPointer() != nil {
-			item_obj.MacAuthPreferred = models.ToPointer(plan_obj.MacAuthPreferred.ValueBool())
+		if planObj.MacAuthPreferred.ValueBoolPointer() != nil {
+			itemObj.MacAuthPreferred = models.ToPointer(planObj.MacAuthPreferred.ValueBool())
 		}
-		if plan_obj.MacAuthProtocol.ValueStringPointer() != nil {
-			item_obj.MacAuthProtocol = models.ToPointer(models.SwitchPortLocalUsageMacAuthProtocolEnum(plan_obj.MacAuthProtocol.ValueString()))
+		if planObj.MacAuthProtocol.ValueStringPointer() != nil {
+			itemObj.MacAuthProtocol = models.ToPointer(models.SwitchPortLocalUsageMacAuthProtocolEnum(planObj.MacAuthProtocol.ValueString()))
 		}
-		if plan_obj.MacLimit.ValueInt64Pointer() != nil {
-			item_obj.MacLimit = models.ToPointer(int(plan_obj.MacLimit.ValueInt64()))
+		if planObj.MacLimit.ValueInt64Pointer() != nil {
+			itemObj.MacLimit = models.ToPointer(int(planObj.MacLimit.ValueInt64()))
 		}
-		if plan_obj.Mode.ValueStringPointer() != nil {
-			item_obj.Mode = models.ToPointer(models.SwitchPortLocalUsageModeEnum(plan_obj.Mode.ValueString()))
+		if planObj.Mode.ValueStringPointer() != nil {
+			itemObj.Mode = models.ToPointer(models.SwitchPortLocalUsageModeEnum(planObj.Mode.ValueString()))
 		}
-		if plan_obj.Mtu.ValueInt64Pointer() != nil {
-			item_obj.Mtu = models.ToPointer(int(plan_obj.Mtu.ValueInt64()))
+		if planObj.Mtu.ValueInt64Pointer() != nil {
+			itemObj.Mtu = models.ToPointer(int(planObj.Mtu.ValueInt64()))
 		}
-		if !plan_obj.Networks.IsNull() && !plan_obj.Networks.IsUnknown() {
-			item_obj.Networks = mist_transform.ListOfStringTerraformToSdk(ctx, plan_obj.Networks)
+		if !planObj.Networks.IsNull() && !planObj.Networks.IsUnknown() {
+			itemObj.Networks = misttransform.ListOfStringTerraformToSdk(planObj.Networks)
 		}
-		if plan_obj.Note.ValueStringPointer() != nil {
-			item_obj.Note = plan_obj.Note.ValueStringPointer()
+		if planObj.Note.ValueStringPointer() != nil {
+			itemObj.Note = planObj.Note.ValueStringPointer()
 		}
-		if plan_obj.PersistMac.ValueBoolPointer() != nil {
-			item_obj.PersistMac = models.ToPointer(plan_obj.PersistMac.ValueBool())
+		if planObj.PersistMac.ValueBoolPointer() != nil {
+			itemObj.PersistMac = models.ToPointer(planObj.PersistMac.ValueBool())
 		}
-		if plan_obj.PoeDisabled.ValueBoolPointer() != nil {
-			item_obj.PoeDisabled = models.ToPointer(plan_obj.PoeDisabled.ValueBool())
+		if planObj.PoeDisabled.ValueBoolPointer() != nil {
+			itemObj.PoeDisabled = models.ToPointer(planObj.PoeDisabled.ValueBool())
 		}
-		if plan_obj.PortAuth.ValueStringPointer() != nil {
-			item_obj.PortAuth = models.NewOptional(models.ToPointer(models.SwitchPortLocalUsageDot1xEnum(plan_obj.PortAuth.ValueString())))
+		if planObj.PortAuth.ValueStringPointer() != nil {
+			itemObj.PortAuth = models.NewOptional(models.ToPointer(models.SwitchPortLocalUsageDot1xEnum(planObj.PortAuth.ValueString())))
 		}
-		if plan_obj.PortNetwork.ValueStringPointer() != nil {
-			item_obj.PortNetwork = models.ToPointer(plan_obj.PortNetwork.ValueString())
+		if planObj.PortNetwork.ValueStringPointer() != nil {
+			itemObj.PortNetwork = models.ToPointer(planObj.PortNetwork.ValueString())
 		}
-		if plan_obj.ReauthInterval.ValueInt64Pointer() != nil {
-			item_obj.ReauthInterval = models.ToPointer(int(plan_obj.ReauthInterval.ValueInt64()))
+		if planObj.ReauthInterval.ValueInt64Pointer() != nil {
+			itemObj.ReauthInterval = models.ToPointer(int(planObj.ReauthInterval.ValueInt64()))
 		}
-		if plan_obj.ServerFailNetwork.ValueStringPointer() != nil {
-			item_obj.ServerFailNetwork = models.NewOptional(models.ToPointer(plan_obj.ServerFailNetwork.ValueString()))
+		if planObj.ServerFailNetwork.ValueStringPointer() != nil {
+			itemObj.ServerFailNetwork = models.NewOptional(models.ToPointer(planObj.ServerFailNetwork.ValueString()))
 		}
-		if plan_obj.ServerRejectNetwork.ValueStringPointer() != nil {
-			item_obj.ServerRejectNetwork = models.NewOptional(models.ToPointer(plan_obj.ServerRejectNetwork.ValueString()))
+		if planObj.ServerRejectNetwork.ValueStringPointer() != nil {
+			itemObj.ServerRejectNetwork = models.NewOptional(models.ToPointer(planObj.ServerRejectNetwork.ValueString()))
 		}
-		if plan_obj.Speed.ValueStringPointer() != nil {
-			item_obj.Speed = (*models.JunosPortConfigSpeedEnum)(plan_obj.Speed.ValueStringPointer())
+		if planObj.Speed.ValueStringPointer() != nil {
+			itemObj.Speed = (*models.JunosPortConfigSpeedEnum)(planObj.Speed.ValueStringPointer())
 		}
-		if !plan_obj.StormControl.IsNull() && !plan_obj.StormControl.IsUnknown() {
-			storm_control := localPortConfigScTerraformToSdk(ctx, diags, plan_obj.StormControl)
-			item_obj.StormControl = models.ToPointer(storm_control)
+		if !planObj.StormControl.IsNull() && !planObj.StormControl.IsUnknown() {
+			stormControl := localPortConfigScTerraformToSdk(ctx, diags, planObj.StormControl)
+			itemObj.StormControl = models.ToPointer(stormControl)
 		}
-		if plan_obj.StpEdge.ValueBoolPointer() != nil {
-			item_obj.StpEdge = models.ToPointer(plan_obj.StpEdge.ValueBool())
+		if planObj.StpEdge.ValueBoolPointer() != nil {
+			itemObj.StpEdge = models.ToPointer(planObj.StpEdge.ValueBool())
 		}
-		if plan_obj.StpNoRootPort.ValueBoolPointer() != nil {
-			item_obj.StpNoRootPort = plan_obj.StpNoRootPort.ValueBoolPointer()
+		if planObj.StpNoRootPort.ValueBoolPointer() != nil {
+			itemObj.StpNoRootPort = planObj.StpNoRootPort.ValueBoolPointer()
 		}
-		if plan_obj.StpP2p.ValueBoolPointer() != nil {
-			item_obj.StpP2p = plan_obj.StpP2p.ValueBoolPointer()
+		if planObj.StpP2p.ValueBoolPointer() != nil {
+			itemObj.StpP2p = planObj.StpP2p.ValueBoolPointer()
 		}
-		if plan_obj.UseVstp.ValueBoolPointer() != nil {
-			item_obj.UseVstp = plan_obj.UseVstp.ValueBoolPointer()
+		if planObj.UseVstp.ValueBoolPointer() != nil {
+			itemObj.UseVstp = planObj.UseVstp.ValueBoolPointer()
 		}
-		if plan_obj.VoipNetwork.ValueStringPointer() != nil {
-			item_obj.VoipNetwork = models.ToPointer(plan_obj.VoipNetwork.ValueString())
+		if planObj.VoipNetwork.ValueStringPointer() != nil {
+			itemObj.VoipNetwork = models.ToPointer(planObj.VoipNetwork.ValueString())
 		}
-		data[k] = item_obj
+		data[k] = itemObj
 	}
 	return data
 }

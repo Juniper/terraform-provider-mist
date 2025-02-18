@@ -18,29 +18,28 @@ func appQoeToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.S
 		enabled = types.BoolValue(*d.Enabled)
 	}
 
-	data_map_attr_type := AppqoeValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"enabled": enabled,
 	}
-	data, e := basetypes.NewObjectValue(data_map_attr_type, data_map_value)
+	data, e := basetypes.NewObjectValue(AppqoeValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data
 }
 
 func ewfSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d []models.ServicePolicyEwfRule) basetypes.ListValue {
-	var data_list = []EwfValue{}
+	var dataList []EwfValue
 	for _, v := range d {
-		var alert_only basetypes.BoolValue
-		var block_message basetypes.StringValue
-		var enabled basetypes.BoolValue = types.BoolValue(false)
-		var profile basetypes.StringValue = types.StringValue("strict")
+		var alertOnly basetypes.BoolValue
+		var blockMessage basetypes.StringValue
+		var enabled = types.BoolValue(false)
+		var profile = types.StringValue("strict")
 
 		if v.AlertOnly != nil {
-			alert_only = types.BoolValue(*v.AlertOnly)
+			alertOnly = types.BoolValue(*v.AlertOnly)
 		}
 		if v.BlockMessage != nil {
-			block_message = types.StringValue(*v.BlockMessage)
+			blockMessage = types.StringValue(*v.BlockMessage)
 		}
 		if v.Enabled != nil {
 			enabled = types.BoolValue(*v.Enabled)
@@ -49,19 +48,18 @@ func ewfSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d []models.
 			profile = types.StringValue(string(*v.Profile))
 		}
 
-		data_map_attr_type := EwfValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
-			"alert_only":    alert_only,
-			"block_message": block_message,
+		dataMapValue := map[string]attr.Value{
+			"alert_only":    alertOnly,
+			"block_message": blockMessage,
 			"enabled":       enabled,
 			"profile":       profile,
 		}
-		data, e := NewEwfValue(data_map_attr_type, data_map_value)
+		data, e := NewEwfValue(EwfValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
-		data_list = append(data_list, data)
+		dataList = append(dataList, data)
 	}
-	data_list_type := EwfValue{}.Type(ctx)
-	r, e := types.ListValueFrom(ctx, data_list_type, data_list)
+	datalistType := EwfValue{}.Type(ctx)
+	r, e := types.ListValueFrom(ctx, datalistType, dataList)
 	diags.Append(e...)
 	return r
 }

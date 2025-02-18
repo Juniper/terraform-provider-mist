@@ -3,7 +3,7 @@ package resource_org_setting
 import (
 	"context"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -14,53 +14,53 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	var state OrgSettingModel
 	var diags diag.Diagnostics
 
-	var ap_updown_threshold types.Int64
-	var api_policy ApiPolicyValue = NewApiPolicyValueNull()
+	var apUpdownThreshold types.Int64
+	var apiPolicy = NewApiPolicyValueNull()
 	// var blacklist_url types.String
-	var cacerts types.List = types.ListNull(types.StringType)
-	var celona CelonaValue = NewCelonaValueNull()
-	var cloudshark CloudsharkValue = NewCloudsharkValueNull()
-	var cradlepoint CradlepointValue = NewCradlepointValueNull()
-	var device_cert DeviceCertValue = NewDeviceCertValueNull()
-	var device_updown_threshold types.Int64
-	var disable_pcap types.Bool
-	var disable_remote_shell types.Bool
-	var gateway_updown_threshold types.Int64
-	var installer InstallerValue = NewInstallerValueNull()
-	var jcloud JcloudValue = NewJcloudValueNull()
-	var jcloud_ra JcloudRaValue = NewJcloudRaValueNull()
-	var juniper JuniperValue = NewJuniperValueNull()
-	var mgmt MgmtValue = NewMgmtValueNull()
-	var mist_nac MistNacValue = NewMistNacValueNull()
+	var cacerts = types.ListNull(types.StringType)
+	var celona = NewCelonaValueNull()
+	var cloudshark = NewCloudsharkValueNull()
+	var cradlepoint = NewCradlepointValueNull()
+	var deviceCert = NewDeviceCertValueNull()
+	var deviceUpdownThreshold types.Int64
+	var disablePcap types.Bool
+	var disableRemoteShell types.Bool
+	var gatewayUpdownThreshold types.Int64
+	var installer = NewInstallerValueNull()
+	var jcloud = NewJcloudValueNull()
+	var jcloudRa = NewJcloudRaValueNull()
+	var juniper = NewJuniperValueNull()
+	var mgmt = NewMgmtValueNull()
+	var mistNac = NewMistNacValueNull()
 	// var msp_id types.String
-	var mxedge_fips_enabled types.Bool
-	var mxedge_mgmt MxedgeMgmtValue
-	var optic_port_config types.Map = types.MapNull(OpticPortConfigValue{}.Type(ctx))
-	var org_id types.String
-	var password_policy PasswordPolicyValue = NewPasswordPolicyValueNull()
-	var pcap PcapValue = NewPcapValueNull()
+	var mxedgeFipsEnabled types.Bool
+	var mxedgeMgmt MxedgeMgmtValue
+	var opticPortConfig = types.MapNull(OpticPortConfigValue{}.Type(ctx))
+	var orgId types.String
+	var passwordPolicy = NewPasswordPolicyValueNull()
+	var pcap = NewPcapValueNull()
 	// var pcap_bucket_verified types.Bool
-	var security SecurityValue = NewSecurityValueNull()
-	var switch_mgmt SwitchMgmtValue = NewSwitchMgmtValueNull()
-	var switch_updown_threshold types.Int64
-	var synthetic_test SyntheticTestValue = NewSyntheticTestValueNull()
-	var ui_idle_timeout types.Int64
-	var vpn_options VpnOptionsValue = NewVpnOptionsValueNull()
-	var wan_pma WanPmaValue = NewWanPmaValueNull()
-	var wired_pma WiredPmaValue = NewWiredPmaValueNull()
-	var wireless_pma WirelessPmaValue = NewWirelessPmaValueNull()
+	var security = NewSecurityValueNull()
+	var switchMgmt = NewSwitchMgmtValueNull()
+	var switchUpdownThreshold types.Int64
+	var syntheticTest = NewSyntheticTestValueNull()
+	var uiIdleTimeout types.Int64
+	var vpnOptions = NewVpnOptionsValueNull()
+	var wanPma = NewWanPmaValueNull()
+	var wiredPma = NewWiredPmaValueNull()
+	var wirelessPma = NewWirelessPmaValueNull()
 
 	if data.ApUpdownThreshold.Value() != nil {
-		ap_updown_threshold = types.Int64Value(int64(*data.ApUpdownThreshold.Value()))
+		apUpdownThreshold = types.Int64Value(int64(*data.ApUpdownThreshold.Value()))
 	}
 	if data.ApiPolicy != nil {
-		api_policy = apiPolicySdkToTerraform(ctx, &diags, data.ApiPolicy)
+		apiPolicy = apiPolicySdkToTerraform(ctx, &diags, data.ApiPolicy)
 	}
 	// if data.BlacklistUrl != nil {
 	// 	blacklist_url = types.StringValue(*data.BlacklistUrl)
 	// }
 	if data.Cacerts != nil {
-		cacerts = mist_transform.ListOfStringSdkToTerraform(ctx, data.Cacerts)
+		cacerts = misttransform.ListOfStringSdkToTerraform(data.Cacerts)
 	}
 	if data.Celona != nil {
 		celona = celonaSdkToTerraform(ctx, &diags, data.Celona)
@@ -72,19 +72,19 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 		cradlepoint = cradlepointSdkToTerraform(ctx, &diags, data.Cradlepoint)
 	}
 	if data.DeviceCert != nil {
-		device_cert = deviceCertSdkToTerraform(ctx, &diags, data.DeviceCert)
+		deviceCert = deviceCertSdkToTerraform(ctx, &diags, data.DeviceCert)
 	}
 	if data.DeviceUpdownThreshold.Value() != nil {
-		device_updown_threshold = types.Int64Value(int64(*data.DeviceUpdownThreshold.Value()))
+		deviceUpdownThreshold = types.Int64Value(int64(*data.DeviceUpdownThreshold.Value()))
 	}
 	if data.DisablePcap != nil {
-		disable_pcap = types.BoolValue(*data.DisablePcap)
+		disablePcap = types.BoolValue(*data.DisablePcap)
 	}
 	if data.DisableRemoteShell != nil {
-		disable_remote_shell = types.BoolValue(*data.DisableRemoteShell)
+		disableRemoteShell = types.BoolValue(*data.DisableRemoteShell)
 	}
 	if data.GatewayUpdownThreshold.Value() != nil {
-		gateway_updown_threshold = types.Int64Value(int64(*data.GatewayUpdownThreshold.Value()))
+		gatewayUpdownThreshold = types.Int64Value(int64(*data.GatewayUpdownThreshold.Value()))
 	}
 	if data.Installer != nil {
 		installer = installerSdkToTerraform(ctx, &diags, data.Installer)
@@ -93,7 +93,7 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 		jcloud = jcloudSdkToTerraform(ctx, &diags, data.Jcloud)
 	}
 	if data.JcloudRa != nil {
-		jcloud_ra = jcloudRaSdkToTerraform(ctx, &diags, data.JcloudRa)
+		jcloudRa = jcloudRaSdkToTerraform(ctx, &diags, data.JcloudRa)
 	}
 	if data.Juniper != nil {
 		juniper = juniperSdkToTerraform(ctx, &diags, data.Juniper)
@@ -102,25 +102,25 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 		mgmt = mgmtSdkToTerraform(ctx, &diags, data.Mgmt)
 	}
 	if data.MistNac != nil {
-		mist_nac = mistNacSdkToTerraform(ctx, &diags, data.MistNac)
+		mistNac = mistNacSdkToTerraform(ctx, &diags, data.MistNac)
 	}
 	// if data.MspId != nil {
 	// 	msp_id = types.StringValue(data.MspId.String())
 	// }
 	if data.MxedgeFipsEnabled != nil {
-		mxedge_fips_enabled = types.BoolValue(*data.MxedgeFipsEnabled)
+		mxedgeFipsEnabled = types.BoolValue(*data.MxedgeFipsEnabled)
 	}
 	if data.MxedgeMgmt != nil {
-		mxedge_mgmt = mxedgeMgmtSdkToTerraform(ctx, &diags, data.MxedgeMgmt)
+		mxedgeMgmt = mxedgeMgmtSdkToTerraform(ctx, &diags, data.MxedgeMgmt)
 	}
 	if data.OpticPortConfig != nil {
-		optic_port_config = opticPortConfigSdkToTerraform(ctx, &diags, data.OpticPortConfig)
+		opticPortConfig = opticPortConfigSdkToTerraform(ctx, &diags, data.OpticPortConfig)
 	}
 	if data.OrgId != nil {
-		org_id = types.StringValue(data.OrgId.String())
+		orgId = types.StringValue(data.OrgId.String())
 	}
 	if data.PasswordPolicy != nil {
-		password_policy = passwordPolicySdkToTerraform(ctx, &diags, data.PasswordPolicy)
+		passwordPolicy = passwordPolicySdkToTerraform(ctx, &diags, data.PasswordPolicy)
 	}
 	if data.Pcap != nil {
 		pcap = pcapSdkToTerraform(ctx, &diags, data.Pcap)
@@ -132,65 +132,65 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 		security = securitySdkToTerraform(ctx, &diags, data.Security)
 	}
 	if data.SwitchMgmt != nil {
-		switch_mgmt = switchMgmtSdkToTerraform(ctx, &diags, data.SwitchMgmt)
+		switchMgmt = switchMgmtSdkToTerraform(ctx, &diags, data.SwitchMgmt)
 	}
 	if data.SwitchUpdownThreshold.Value() != nil {
-		switch_updown_threshold = types.Int64Value(int64(*data.SwitchUpdownThreshold.Value()))
+		switchUpdownThreshold = types.Int64Value(int64(*data.SwitchUpdownThreshold.Value()))
 	}
 	if data.SyntheticTest != nil {
-		synthetic_test = syntheticTestSdkToTerraform(ctx, &diags, data.SyntheticTest)
+		syntheticTest = syntheticTestSdkToTerraform(ctx, &diags, data.SyntheticTest)
 	}
 	if data.UiIdleTimeout != nil {
-		ui_idle_timeout = types.Int64Value(int64(*data.UiIdleTimeout))
+		uiIdleTimeout = types.Int64Value(int64(*data.UiIdleTimeout))
 	}
 	if data.VpnOptions != nil {
-		vpn_options = vpnOptionsSdkToTerraform(ctx, &diags, data.VpnOptions)
+		vpnOptions = vpnOptionsSdkToTerraform(ctx, &diags, data.VpnOptions)
 	}
 	if data.WanPma != nil && data.WanPma.Enabled != nil {
-		wan_pma.Enabled = types.BoolValue(*data.WanPma.Enabled)
+		wanPma.Enabled = types.BoolValue(*data.WanPma.Enabled)
 	}
 	if data.WiredPma != nil && data.WiredPma.Enabled != nil {
-		wired_pma.Enabled = types.BoolValue(*data.WiredPma.Enabled)
+		wiredPma.Enabled = types.BoolValue(*data.WiredPma.Enabled)
 	}
 	if data.WirelessPma != nil && data.WirelessPma.Enabled != nil {
-		wireless_pma.Enabled = types.BoolValue(*data.WirelessPma.Enabled)
+		wirelessPma.Enabled = types.BoolValue(*data.WirelessPma.Enabled)
 	}
 
-	state.ApUpdownThreshold = ap_updown_threshold
-	state.ApiPolicy = api_policy
+	state.ApUpdownThreshold = apUpdownThreshold
+	state.ApiPolicy = apiPolicy
 	// state.BlacklistUrl = blacklist_url
 	state.Cacerts = cacerts
 	state.Celona = celona
 	state.Cloudshark = cloudshark
 	state.Cradlepoint = cradlepoint
-	state.DeviceCert = device_cert
-	state.DeviceUpdownThreshold = device_updown_threshold
-	state.DisablePcap = disable_pcap
-	state.DisableRemoteShell = disable_remote_shell
-	state.GatewayUpdownThreshold = gateway_updown_threshold
+	state.DeviceCert = deviceCert
+	state.DeviceUpdownThreshold = deviceUpdownThreshold
+	state.DisablePcap = disablePcap
+	state.DisableRemoteShell = disableRemoteShell
+	state.GatewayUpdownThreshold = gatewayUpdownThreshold
 	state.Installer = installer
 	state.Jcloud = jcloud
-	state.JcloudRa = jcloud_ra
+	state.JcloudRa = jcloudRa
 	state.Juniper = juniper
 	state.Mgmt = mgmt
-	state.MistNac = mist_nac
+	state.MistNac = mistNac
 	// state.MspId = msp_id
-	state.MxedgeFipsEnabled = mxedge_fips_enabled
-	state.MxedgeMgmt = mxedge_mgmt
-	state.OpticPortConfig = optic_port_config
-	state.OrgId = org_id
-	state.PasswordPolicy = password_policy
+	state.MxedgeFipsEnabled = mxedgeFipsEnabled
+	state.MxedgeMgmt = mxedgeMgmt
+	state.OpticPortConfig = opticPortConfig
+	state.OrgId = orgId
+	state.PasswordPolicy = passwordPolicy
 	state.Pcap = pcap
 	// state.PcapBucketVerified = pcap_bucket_verified
 	state.Security = security
-	state.SwitchMgmt = switch_mgmt
-	state.SwitchUpdownThreshold = switch_updown_threshold
-	state.SyntheticTest = synthetic_test
-	state.UiIdleTimeout = ui_idle_timeout
-	state.VpnOptions = vpn_options
-	state.WanPma = wan_pma
-	state.WiredPma = wired_pma
-	state.WirelessPma = wireless_pma
+	state.SwitchMgmt = switchMgmt
+	state.SwitchUpdownThreshold = switchUpdownThreshold
+	state.SyntheticTest = syntheticTest
+	state.UiIdleTimeout = uiIdleTimeout
+	state.VpnOptions = vpnOptions
+	state.WanPma = wanPma
+	state.WiredPma = wiredPma
+	state.WirelessPma = wirelessPma
 
 	return state, diags
 }

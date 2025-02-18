@@ -5,7 +5,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
@@ -16,7 +16,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 	unset := make(map[string]interface{})
 
 	if !plan.Analytic.IsNull() && !plan.Analytic.IsUnknown() {
-		data.Analytic = analyticTerraformToSdk(ctx, &diags, plan.Analytic)
+		data.Analytic = analyticTerraformToSdk(plan.Analytic)
 	} else {
 		unset["-analytic"] = ""
 	}
@@ -28,13 +28,13 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 	}
 
 	if !plan.AutoUpgrade.IsNull() && !plan.AutoUpgrade.IsUnknown() {
-		data.AutoUpgrade = siteSettingAutoUpgradeTerraformToSdk(ctx, &diags, plan.AutoUpgrade)
+		data.AutoUpgrade = siteSettingAutoUpgradeTerraformToSdk(plan.AutoUpgrade)
 	} else {
 		unset["-auto_upgrade"] = ""
 	}
 
 	if !plan.BleConfig.IsNull() && !plan.BleConfig.IsUnknown() {
-		data.BleConfig = siteSettingBleConfigTerraformToSdk(ctx, &diags, plan.BleConfig)
+		data.BleConfig = siteSettingBleConfigTerraformToSdk(plan.BleConfig)
 	} else {
 		unset["-ble_config"] = ""
 	}
@@ -52,7 +52,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 	}
 
 	if !plan.CriticalUrlMonitoring.IsNull() && !plan.CriticalUrlMonitoring.IsUnknown() {
-		data.CriticalUrlMonitoring = criticalUrlMonitoringTerraformToSdk(ctx, &diags, plan.CriticalUrlMonitoring)
+		data.CriticalUrlMonitoring = criticalUrlMonitoringTerraformToSdk(plan.CriticalUrlMonitoring)
 	} else {
 		unset["-critical_url_monitoring"] = ""
 	}
@@ -82,19 +82,19 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 	}
 
 	if !plan.JuniperSrx.IsNull() && !plan.JuniperSrx.IsUnknown() {
-		data.JuniperSrx = juniperSrxTerraformToSdk(ctx, &diags, plan.JuniperSrx)
+		data.JuniperSrx = juniperSrxTerraformToSdk(plan.JuniperSrx)
 	} else {
 		unset["-juniper_srx"] = ""
 	}
 
 	if !plan.Led.IsNull() && !plan.Led.IsUnknown() {
-		data.Led = ledTerraformToSdk(ctx, &diags, plan.Led)
+		data.Led = ledTerraformToSdk(plan.Led)
 	} else {
 		unset["-led"] = ""
 	}
 
 	if !plan.Occupancy.IsNull() && !plan.Occupancy.IsUnknown() {
-		data.Occupancy = occupancyTerraformToSdk(ctx, &diags, plan.Occupancy)
+		data.Occupancy = occupancyTerraformToSdk(plan.Occupancy)
 	} else {
 		unset["-occupancy"] = ""
 	}
@@ -106,7 +106,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 	}
 
 	if !plan.Proxy.IsNull() && !plan.Proxy.IsUnknown() {
-		data.Proxy = proxyTerraformToSdk(ctx, &diags, plan.Proxy)
+		data.Proxy = proxyTerraformToSdk(plan.Proxy)
 	} else {
 		unset["-proxy"] = ""
 
@@ -125,43 +125,43 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 	}
 
 	if !plan.Rogue.IsNull() && !plan.Rogue.IsUnknown() {
-		data.Rogue = rogueTerraformToSdk(ctx, &diags, plan.Rogue)
+		data.Rogue = rogueTerraformToSdk(plan.Rogue)
 	} else {
 		unset["-rogue"] = ""
 	}
 
 	if !plan.Rtsa.IsNull() && !plan.Rtsa.IsUnknown() {
-		data.Rtsa = rtsaTerraformToSdk(ctx, &diags, plan.Rtsa)
+		data.Rtsa = rtsaTerraformToSdk(plan.Rtsa)
 	} else {
 		unset["-rtsa"] = ""
 	}
 
 	if !plan.SimpleAlert.IsNull() && !plan.SimpleAlert.IsUnknown() {
-		data.SimpleAlert = simpleAlertTerraformToSdk(ctx, &diags, plan.SimpleAlert)
+		data.SimpleAlert = simpleAlertTerraformToSdk(ctx, plan.SimpleAlert)
 	} else {
 		unset["-simple_alert"] = ""
 	}
 
 	if !plan.Skyatp.IsNull() && !plan.Skyatp.IsUnknown() {
-		data.Skyatp = skyAtpTerraformToSdk(ctx, &diags, plan.Skyatp)
+		data.Skyatp = skyAtpTerraformToSdk(plan.Skyatp)
 	} else {
 		unset["-skyatp"] = ""
 	}
 
 	if !plan.SrxApp.IsNull() && !plan.SrxApp.IsUnknown() {
-		data.SrxApp = srxAppTerraformToSdk(ctx, &diags, plan.SrxApp)
+		data.SrxApp = srxAppTerraformToSdk(plan.SrxApp)
 	} else {
 		unset["-srx_app"] = ""
 	}
 
 	if !plan.SshKeys.IsNull() && !plan.SshKeys.IsUnknown() {
-		data.SshKeys = mist_transform.ListOfStringTerraformToSdk(ctx, plan.SshKeys)
+		data.SshKeys = misttransform.ListOfStringTerraformToSdk(plan.SshKeys)
 	} else {
 		unset["-ssh_keys"] = ""
 	}
 
 	if !plan.Ssr.IsNull() && !plan.Ssr.IsUnknown() {
-		data.Ssr = ssrTerraformToSdk(ctx, &diags, plan.Ssr)
+		data.Ssr = ssrTerraformToSdk(plan.Ssr)
 	} else {
 		unset["-ssr"] = ""
 	}
@@ -185,55 +185,55 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 	}
 
 	if !plan.UplinkPortConfig.IsNull() && !plan.UplinkPortConfig.IsUnknown() {
-		data.UplinkPortConfig = uplinkPortConfigTerraformToSdk(ctx, &diags, plan.UplinkPortConfig)
+		data.UplinkPortConfig = uplinkPortConfigTerraformToSdk(plan.UplinkPortConfig)
 	} else {
 		unset["-uplink_port_config"] = ""
 	}
 
 	if !plan.Vars.IsNull() && !plan.Vars.IsUnknown() {
-		data.Vars = varsTerraformToSdk(ctx, &diags, plan.Vars)
+		data.Vars = varsTerraformToSdk(plan.Vars)
 	} else {
 		unset["-var"] = ""
 	}
 
 	if !plan.Vna.IsNull() && !plan.Vna.IsUnknown() {
-		data.Vna = vnaTerraformToSdk(ctx, &diags, plan.Vna)
+		data.Vna = vnaTerraformToSdk(plan.Vna)
 	} else {
 		unset["-vna"] = ""
 	}
 
 	if !plan.VsInstance.IsNull() && !plan.VsInstance.IsUnknown() {
-		data.VsInstance = vsInstanceTerraformToSdk(ctx, &diags, plan.VsInstance)
+		data.VsInstance = vsInstanceTerraformToSdk(plan.VsInstance)
 	} else {
 		unset["-vs_instance"] = ""
 	}
 
 	if !plan.WanVna.IsNull() && !plan.WanVna.IsUnknown() {
-		data.WanVna = wanVnaTerraformToSdk(ctx, &diags, plan.WanVna)
+		data.WanVna = wanVnaTerraformToSdk(plan.WanVna)
 	} else {
 		unset["-wan_vna"] = ""
 	}
 
 	if !plan.Wids.IsNull() && !plan.Wids.IsUnknown() {
-		data.Wids = widsTerraformToSdk(ctx, &diags, plan.Wids)
+		data.Wids = widsTerraformToSdk(ctx, plan.Wids)
 	} else {
 		unset["-wids"] = ""
 	}
 
 	if !plan.Wifi.IsNull() && !plan.Wifi.IsUnknown() {
-		data.Wifi = wifiTerraformToSdk(ctx, &diags, plan.Wifi)
+		data.Wifi = wifiTerraformToSdk(plan.Wifi)
 	} else {
 		unset["-wifi"] = ""
 	}
 
 	if !plan.WiredVna.IsNull() && !plan.WiredVna.IsUnknown() {
-		data.WiredVna = wiredVnaTerraformToSdk(ctx, &diags, plan.WiredVna)
+		data.WiredVna = wiredVnaTerraformToSdk(plan.WiredVna)
 	} else {
 		unset["-wired_vna"] = ""
 	}
 
 	if !plan.ZoneOccupancyAlert.IsNull() && !plan.ZoneOccupancyAlert.IsUnknown() {
-		data.ZoneOccupancyAlert = zoneOccupancyTerraformToSdk(ctx, &diags, plan.ZoneOccupancyAlert)
+		data.ZoneOccupancyAlert = zoneOccupancyTerraformToSdk(plan.ZoneOccupancyAlert)
 	} else {
 		unset["-zone_occupancy_alert"] = ""
 	}

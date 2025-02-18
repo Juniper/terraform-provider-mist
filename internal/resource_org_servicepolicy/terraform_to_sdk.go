@@ -1,16 +1,14 @@
 package resource_org_servicepolicy
 
 import (
-	"context"
-
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 )
 
-func TerraformToSdk(ctx context.Context, plan *OrgServicepolicyModel) (models.OrgServicePolicy, diag.Diagnostics) {
+func TerraformToSdk(plan *OrgServicepolicyModel) (models.OrgServicePolicy, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	data := models.OrgServicePolicy{}
 	unset := make(map[string]interface{})
@@ -24,19 +22,19 @@ func TerraformToSdk(ctx context.Context, plan *OrgServicepolicyModel) (models.Or
 	}
 
 	if !plan.Appqoe.IsNull() && !plan.Appqoe.IsUnknown() {
-		data.Appqoe = appqoeTerraformToSdk(ctx, &diags, plan.Appqoe)
+		data.Appqoe = appqoeTerraformToSdk(plan.Appqoe)
 	} else {
 		unset["-appqoe"] = ""
 	}
 
 	if !plan.Ewf.IsNull() && !plan.Ewf.IsUnknown() {
-		data.Ewf = ewfRuleTerraformToSdk(ctx, &diags, plan.Ewf)
+		data.Ewf = ewfRuleTerraformToSdk(plan.Ewf)
 	} else {
 		unset["-ewf"] = ""
 	}
 
 	if !plan.Idp.IsNull() && !plan.Idp.IsUnknown() {
-		data.Idp = idpTerraformToSdk(ctx, &diags, plan.Idp)
+		data.Idp = idpTerraformToSdk(&diags, plan.Idp)
 	} else {
 		unset["-idp"] = ""
 	}
@@ -58,13 +56,13 @@ func TerraformToSdk(ctx context.Context, plan *OrgServicepolicyModel) (models.Or
 	}
 
 	if !plan.Services.IsNull() && !plan.Services.IsUnknown() {
-		data.Services = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Services)
+		data.Services = misttransform.ListOfStringTerraformToSdk(plan.Services)
 	} else {
 		unset["-services"] = ""
 	}
 
 	if !plan.Tenants.IsNull() && !plan.Services.IsUnknown() {
-		data.Tenants = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Tenants)
+		data.Tenants = misttransform.ListOfStringTerraformToSdk(plan.Tenants)
 	} else {
 		unset["-tenants"] = ""
 	}

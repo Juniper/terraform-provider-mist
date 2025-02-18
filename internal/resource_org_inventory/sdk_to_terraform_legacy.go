@@ -13,11 +13,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func legacyCheckVcSiteId(device *DevicesValue, vcmac_to_site map[string]types.String) {
+func legacyCheckVcSiteId(device *DevicesValue, vcmacToSite map[string]types.String) {
 	if device.VcMac.ValueString() != "" && device.SiteId.ValueString() == "" {
-		var vcMac string = strings.ToUpper(device.VcMac.ValueString())
-		if site_id, ok := vcmac_to_site[vcMac]; ok {
-			device.SiteId = site_id
+		var vcMac = strings.ToUpper(device.VcMac.ValueString())
+		if siteId, ok := vcmacToSite[vcMac]; ok {
+			device.SiteId = siteId
 		}
 
 	}
@@ -31,24 +31,24 @@ func legacyProcessMistInventory(
 	mistSiteIdByVcMac *map[string]types.String,
 ) {
 	for _, d := range *data {
-		var deviceprofile_id basetypes.StringValue = types.StringValue("")
-		var hostname basetypes.StringValue = types.StringValue("")
+		var deviceprofileId = types.StringValue("")
+		var hostname = types.StringValue("")
 		var id basetypes.StringValue
 		var mac basetypes.StringValue
-		var claim_code basetypes.StringValue = types.StringValue("")
+		var claimCode = types.StringValue("")
 		var model basetypes.StringValue
-		var org_id basetypes.StringValue
+		var orgId basetypes.StringValue
 		var serial basetypes.StringValue
-		var site_id basetypes.StringValue
-		var device_type basetypes.StringValue
-		var vc_mac basetypes.StringValue = types.StringValue("")
-		var unclaim_when_destroyed basetypes.BoolValue = types.BoolValue(false)
+		var siteId basetypes.StringValue
+		var deviceType basetypes.StringValue
+		var vcMac = types.StringValue("")
+		var unclaimWhenDestroyed = types.BoolValue(false)
 
 		if d.DeviceprofileId.Value() != nil {
-			deviceprofile_id = types.StringValue(*d.DeviceprofileId.Value())
+			deviceprofileId = types.StringValue(*d.DeviceprofileId.Value())
 		}
 		if d.Magic != nil {
-			claim_code = types.StringValue(*d.Magic)
+			claimCode = types.StringValue(*d.Magic)
 		}
 		if d.Mac != nil {
 			mac = types.StringValue(*d.Mac)
@@ -57,19 +57,19 @@ func legacyProcessMistInventory(
 			model = types.StringValue(*d.Model)
 		}
 		if d.OrgId != nil {
-			org_id = types.StringValue(d.OrgId.String())
+			orgId = types.StringValue(d.OrgId.String())
 		}
 		if d.Serial != nil {
 			serial = types.StringValue(*d.Serial)
 		}
 		if d.SiteId != nil {
-			site_id = types.StringValue(d.SiteId.String())
+			siteId = types.StringValue(d.SiteId.String())
 		}
 		if d.Type != nil {
-			device_type = types.StringValue(string(*d.Type))
+			deviceType = types.StringValue(string(*d.Type))
 		}
 		if d.VcMac != nil {
-			vc_mac = types.StringValue(*d.VcMac)
+			vcMac = types.StringValue(*d.VcMac)
 		}
 		if d.Hostname != nil {
 			hostname = types.StringValue(*d.Hostname)
@@ -78,26 +78,25 @@ func legacyProcessMistInventory(
 			id = types.StringValue(d.Id.String())
 		}
 
-		data_map_attr_type := DevicesValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
-			"deviceprofile_id":       deviceprofile_id,
+		dataMapValue := map[string]attr.Value{
+			"deviceprofile_id":       deviceprofileId,
 			"hostname":               hostname,
 			"id":                     id,
 			"mac":                    mac,
-			"claim_code":             claim_code,
+			"claim_code":             claimCode,
 			"model":                  model,
-			"org_id":                 org_id,
+			"org_id":                 orgId,
 			"serial":                 serial,
-			"site_id":                site_id,
-			"type":                   device_type,
-			"unclaim_when_destroyed": unclaim_when_destroyed,
-			"vc_mac":                 vc_mac,
+			"site_id":                siteId,
+			"type":                   deviceType,
+			"unclaim_when_destroyed": unclaimWhenDestroyed,
+			"vc_mac":                 vcMac,
 		}
-		newDevice, e := NewDevicesValue(data_map_attr_type, data_map_value)
+		newDevice, e := NewDevicesValue(DevicesValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		var nMagic string = strings.ToUpper(newDevice.Magic.ValueString())
-		var nMac string = strings.ToUpper(newDevice.Mac.ValueString())
+		var nMagic = strings.ToUpper(newDevice.Magic.ValueString())
+		var nMac = strings.ToUpper(newDevice.Mac.ValueString())
 		(*mistDevicesbyMac)[nMac] = &newDevice
 		if nMagic != "" {
 			// for claimed devices
@@ -112,7 +111,7 @@ func legacySdkToTerraform(
 	ctx context.Context,
 	orgId string,
 	data *[]models.Inventory,
-	ref_inventory *OrgInventoryModel,
+	refInventory *OrgInventoryModel,
 ) (OrgInventoryModel, diag.Diagnostics) {
 	var newState OrgInventoryModel
 	var diags diag.Diagnostics
@@ -125,12 +124,12 @@ func legacySdkToTerraform(
 
 	newState.OrgId = types.StringValue(orgId)
 
-	for _, devref_inventoryAttr := range ref_inventory.Devices.Elements() {
-		var dpi interface{} = devref_inventoryAttr
+	for _, devrefInventoryattr := range refInventory.Devices.Elements() {
+		var dpi interface{} = devrefInventoryattr
 		var device = dpi.(DevicesValue)
 
-		var magic string = strings.ReplaceAll(strings.ToUpper(device.Magic.ValueString()), "-", "")
-		var mac string = strings.ToUpper(device.Mac.ValueString())
+		var magic = strings.ReplaceAll(strings.ToUpper(device.Magic.ValueString()), "-", "")
+		var mac = strings.ToUpper(device.Mac.ValueString())
 
 		if deviceFromMist, ok := mistDevicesByClaimCode[magic]; ok {
 			legacyCheckVcSiteId(deviceFromMist, mistSiteIdByVcMac)
@@ -149,9 +148,9 @@ func legacySdkToTerraform(
 		}
 	}
 
-	devices_list, e := basetypes.NewListValue(DevicesValue{}.Type(ctx), devicesOut)
+	devicesList, e := basetypes.NewListValue(DevicesValue{}.Type(ctx), devicesOut)
 	diags.Append(e...)
-	newState.Devices = devices_list
+	newState.Devices = devicesList
 
 	return newState, diags
 }

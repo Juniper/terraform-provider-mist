@@ -1,8 +1,6 @@
 package resource_org_sso_role
 
 import (
-	"context"
-
 	"github.com/google/uuid"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -11,22 +9,22 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func TerraformToSdk(ctx context.Context, plan *OrgSsoRoleModel) (*models.SsoRoleOrg, diag.Diagnostics) {
+func TerraformToSdk(plan *OrgSsoRoleModel) (*models.SsoRoleOrg, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	data := models.SsoRoleOrg{}
 
 	data.Name = plan.Name.ValueString()
-	data.Privileges = privilegesTerraformToSdk(ctx, &diags, plan.Privileges)
+	data.Privileges = privilegesTerraformToSdk(&diags, plan.Privileges)
 
 	return &data, diags
 }
 
-func privilegesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.PrivilegeOrg {
-	var data_list []models.PrivilegeOrg
+func privilegesTerraformToSdk(diags *diag.Diagnostics, d basetypes.ListValue) []models.PrivilegeOrg {
+	var dataList []models.PrivilegeOrg
 	for _, v := range d.Elements() {
-		var v_interface interface{} = v
-		plan := v_interface.(PrivilegesValue)
+		var vInterface interface{} = v
+		plan := vInterface.(PrivilegesValue)
 		data := models.PrivilegeOrg{}
 
 		data.Role = models.PrivilegeOrgRoleEnum(*plan.Role.ValueStringPointer())
@@ -61,8 +59,8 @@ func privilegesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d ba
 			}
 		}
 
-		data_list = append(data_list, data)
+		dataList = append(dataList, data)
 	}
 
-	return data_list
+	return dataList
 }

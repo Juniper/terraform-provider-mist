@@ -7,7 +7,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 
-	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
+	mistapierror "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_site_webhook"
 
 	"github.com/google/uuid"
@@ -48,11 +48,11 @@ func (r *siteWebhookResource) Configure(ctx context.Context, req resource.Config
 
 	r.client = client
 }
-func (r *siteWebhookResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *siteWebhookResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_site_webhook"
 }
 
-func (r *siteWebhookResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *siteWebhookResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategorySite + "This resource manages Site Webhooks.\n\n" +
 			"A Site Webhook is a configuration that allows real-time events and data from a specific site to be pushed to a provided url.  \n" +
@@ -81,7 +81,7 @@ func (r *siteWebhookResource) Create(ctx context.Context, req resource.CreateReq
 		return
 	}
 
-	webhook, diags := resource_site_webhook.TerraformToSdk(ctx, &plan)
+	webhook, diags := resource_site_webhook.TerraformToSdk(&plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -89,11 +89,11 @@ func (r *siteWebhookResource) Create(ctx context.Context, req resource.CreateReq
 
 	data, err := r.client.SitesWebhooks().CreateSiteWebhook(ctx, siteId, &webhook)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error creating \"mist_site_webhook\" resource",
-			fmt.Sprintf("Unable to create the Webhook. %s", api_err),
+			fmt.Sprintf("Unable to create the Webhook. %s", apiErr),
 		)
 		return
 	}
@@ -112,7 +112,7 @@ func (r *siteWebhookResource) Create(ctx context.Context, req resource.CreateReq
 
 }
 
-func (r *siteWebhookResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *siteWebhookResource) Read(ctx context.Context, _ resource.ReadRequest, resp *resource.ReadResponse) {
 	var state resource_site_webhook.SiteWebhookModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -178,7 +178,7 @@ func (r *siteWebhookResource) Update(ctx context.Context, req resource.UpdateReq
 		return
 	}
 
-	webhook, diags := resource_site_webhook.TerraformToSdk(ctx, &plan)
+	webhook, diags := resource_site_webhook.TerraformToSdk(&plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -204,11 +204,11 @@ func (r *siteWebhookResource) Update(ctx context.Context, req resource.UpdateReq
 	tflog.Info(ctx, "Starting Webhook Update for Webhook "+state.Id.ValueString())
 	data, err := r.client.SitesWebhooks().UpdateSiteWebhook(ctx, siteId, webhookId, &webhook)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error updating \"mist_site_webhook\" resource",
-			fmt.Sprintf("Unable to update the Webhook. %s", api_err),
+			fmt.Sprintf("Unable to update the Webhook. %s", apiErr),
 		)
 		return
 	}
@@ -227,7 +227,7 @@ func (r *siteWebhookResource) Update(ctx context.Context, req resource.UpdateReq
 
 }
 
-func (r *siteWebhookResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *siteWebhookResource) Delete(ctx context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_site_webhook.SiteWebhookModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -255,11 +255,11 @@ func (r *siteWebhookResource) Delete(ctx context.Context, req resource.DeleteReq
 
 	tflog.Info(ctx, "Starting Webhook Delete: webhook_id "+state.Id.ValueString())
 	data, err := r.client.SitesWebhooks().DeleteSiteWebhook(ctx, siteId, webhookId)
-	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_site_webhook\" resource",
-			fmt.Sprintf("Unable to delete the Webhook. %s", api_err),
+			fmt.Sprintf("Unable to delete the Webhook. %s", apiErr),
 		)
 		return
 	}

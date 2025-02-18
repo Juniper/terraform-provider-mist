@@ -6,7 +6,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 
-	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
+	mistapierror "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_apitoken"
 
 	"github.com/google/uuid"
@@ -47,11 +47,11 @@ func (r *orgApitokenResource) Configure(ctx context.Context, req resource.Config
 
 	r.client = client
 }
-func (r *orgApitokenResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *orgApitokenResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_org_apitoken"
 }
 
-func (r *orgApitokenResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *orgApitokenResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryOrg + "This resource manages Org API Tokens.\n\n" +
 			"An Org API token is a unique identifier used by an application to authenticate and access the Mist APIs. " +
@@ -82,7 +82,7 @@ func (r *orgApitokenResource) Create(ctx context.Context, req resource.CreateReq
 		return
 	}
 
-	apitoken, diags := resource_org_apitoken.TerraformToSdk(ctx, &plan)
+	apitoken, diags := resource_org_apitoken.TerraformToSdk(&plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -90,11 +90,11 @@ func (r *orgApitokenResource) Create(ctx context.Context, req resource.CreateReq
 
 	data, err := r.client.OrgsAPITokens().CreateOrgApiToken(ctx, orgId, apitoken)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error creating \"mist_org_apitoken\" resource",
-			fmt.Sprintf("Unable to create the API Token. %s", api_err),
+			fmt.Sprintf("Unable to create the API Token. %s", apiErr),
 		)
 		return
 	}
@@ -114,7 +114,7 @@ func (r *orgApitokenResource) Create(ctx context.Context, req resource.CreateReq
 
 }
 
-func (r *orgApitokenResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *orgApitokenResource) Read(ctx context.Context, _ resource.ReadRequest, resp *resource.ReadResponse) {
 	var state resource_org_apitoken.OrgApitokenModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -158,7 +158,7 @@ func (r *orgApitokenResource) Update(ctx context.Context, req resource.UpdateReq
 		return
 	}
 
-	apitoken, diags := resource_org_apitoken.TerraformToSdk(ctx, &plan)
+	apitoken, diags := resource_org_apitoken.TerraformToSdk(&plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -185,11 +185,11 @@ func (r *orgApitokenResource) Update(ctx context.Context, req resource.UpdateReq
 	tflog.Info(ctx, "Starting Apitoken Update for Apitoken "+state.Id.ValueString())
 	data, err := r.client.OrgsAPITokens().UpdateOrgApiToken(ctx, orgId, apitokenId, apitoken)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error updating \"mist_org_apitoken\" resource",
-			fmt.Sprintf("Unable to update the API Token. %s", api_err),
+			fmt.Sprintf("Unable to update the API Token. %s", apiErr),
 		)
 		return
 	}
@@ -213,7 +213,7 @@ func (r *orgApitokenResource) Update(ctx context.Context, req resource.UpdateReq
 
 }
 
-func (r *orgApitokenResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *orgApitokenResource) Delete(ctx context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_org_apitoken.OrgApitokenModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -241,32 +241,32 @@ func (r *orgApitokenResource) Delete(ctx context.Context, req resource.DeleteReq
 
 	tflog.Info(ctx, "Starting Apitoken Delete: apitoken_id "+state.Id.ValueString())
 	data, err := r.client.OrgsAPITokens().DeleteOrgApiToken(ctx, orgId, apitokenId)
-	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_apitoken\" resource",
-			fmt.Sprintf("Unable to delete the API Token. %s", api_err),
+			fmt.Sprintf("Unable to delete the API Token. %s", apiErr),
 		)
 		return
 	}
 }
 
-func (r *orgApitokenResource) readApiToken(ctx context.Context, diags *diag.Diagnostics, org_id basetypes.StringValue, apitoken_id basetypes.StringValue, state resource_org_apitoken.OrgApitokenModel) *resource_org_apitoken.OrgApitokenModel {
-	tflog.Info(ctx, "Starting Apitoken Read: apitoken_id "+apitoken_id.ValueString())
-	orgId, err := uuid.Parse(org_id.ValueString())
+func (r *orgApitokenResource) readApiToken(ctx context.Context, diags *diag.Diagnostics, mistOrgId basetypes.StringValue, mistApitokenId basetypes.StringValue, state resource_org_apitoken.OrgApitokenModel) *resource_org_apitoken.OrgApitokenModel {
+	tflog.Info(ctx, "Starting Apitoken Read: apitoken_id "+mistApitokenId.ValueString())
+	orgId, err := uuid.Parse(mistOrgId.ValueString())
 	if err != nil {
 		diags.AddError(
 			"Invalid \"org_id\" value for \"mist_org_apitoken\" resource",
-			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", org_id.ValueString(), err.Error()),
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", mistOrgId.ValueString(), err.Error()),
 		)
 		return nil
 	}
 
-	apitokenId, err := uuid.Parse(apitoken_id.ValueString())
+	apitokenId, err := uuid.Parse(mistApitokenId.ValueString())
 	if err != nil {
 		diags.AddError(
 			"Invalid \"id\" value for \"mist_org_apitoken\" resource",
-			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", apitoken_id.ValueString(), err.Error()),
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", mistApitokenId.ValueString(), err.Error()),
 		)
 		return nil
 	}

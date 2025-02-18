@@ -41,11 +41,11 @@ func (d *constAppSubCategoriesDataSource) Configure(ctx context.Context, req dat
 
 	d.client = client
 }
-func (d *constAppSubCategoriesDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+func (d *constAppSubCategoriesDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_const_app_sub_categories"
 }
 
-func (d *constAppSubCategoriesDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *constAppSubCategoriesDataSource) Schema(ctx context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryConst + "This data source provides the of ConstAppSubCategories.\n\n" +
 			"This information can be used as `app_subcategories` in the `mist_org_service` resource",

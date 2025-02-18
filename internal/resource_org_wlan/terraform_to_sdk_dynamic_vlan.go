@@ -1,44 +1,41 @@
 package resource_org_wlan
 
 import (
-	"context"
-
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func dynamicVlanTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, plan DynamicVlanValue) *models.WlanDynamicVlan {
+func dynamicVlanTerraformToSdk(plan DynamicVlanValue) *models.WlanDynamicVlan {
 
-	var local_vlan_ids []models.VlanIdWithVariable
+	var localVlanIds []models.VlanIdWithVariable
 	for _, item := range plan.LocalVlanIds.Elements() {
-		var item_interface interface{} = item
-		i := item_interface.(basetypes.StringValue)
+		var itemInterface interface{} = item
+		i := itemInterface.(basetypes.StringValue)
 		j := models.VlanIdWithVariableContainer.FromString(i.ValueString())
-		local_vlan_ids = append(local_vlan_ids, j)
+		localVlanIds = append(localVlanIds, j)
 	}
 
 	vlans := make(map[string]string)
 	for k, v := range plan.Vlans.Elements() {
-		var v_interface interface{} = v
-		v_plan := v_interface.(basetypes.StringValue)
-		vlans[k] = v_plan.ValueString()
+		var vInterface interface{} = v
+		vPlan := vInterface.(basetypes.StringValue)
+		vlans[k] = vPlan.ValueString()
 	}
 
-	var default_vlan_ids []models.WlanDynamicVlanDefaultVlanId
+	var defaultVlanIds []models.WlanDynamicVlanDefaultVlanId
 	for _, item := range plan.DefaultVlanIds.Elements() {
-		var item_interface interface{} = item
-		i := item_interface.(basetypes.StringValue)
+		var itemInterface interface{} = item
+		i := itemInterface.(basetypes.StringValue)
 		j := models.WlanDynamicVlanDefaultVlanIdContainer.FromString(i.ValueString())
-		default_vlan_ids = append(default_vlan_ids, j)
+		defaultVlanIds = append(defaultVlanIds, j)
 	}
 
 	data := models.WlanDynamicVlan{}
-	data.DefaultVlanIds = default_vlan_ids
+	data.DefaultVlanIds = defaultVlanIds
 	data.Enabled = plan.Enabled.ValueBoolPointer()
-	data.LocalVlanIds = local_vlan_ids
-	data.Type = models.ToPointer(models.WlanDynamicVlanTypeEnum(string(plan.DynamicVlanType.ValueString())))
+	data.LocalVlanIds = localVlanIds
+	data.Type = models.ToPointer(models.WlanDynamicVlanTypeEnum(plan.DynamicVlanType.ValueString()))
 	data.Vlans = vlans
 
 	return &data

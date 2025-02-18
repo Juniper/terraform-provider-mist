@@ -10,53 +10,51 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func routingPolicyTermMatchingRouteExistsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.RoutingPolicyTermMatchingRouteExists) basetypes.ObjectValue {
 	var route basetypes.StringValue
-	var vrf_name basetypes.StringValue = types.StringValue("default")
+	var vrfName = types.StringValue("default")
 
 	if d.Route != nil {
 		route = types.StringValue(*d.Route)
 	}
 	if d.VrfName != nil {
-		vrf_name = types.StringValue(*d.VrfName)
+		vrfName = types.StringValue(*d.VrfName)
 	}
 
-	data_map_attr_type := RouteExistsValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"route":    route,
-		"vrf_name": vrf_name,
+		"vrf_name": vrfName,
 	}
-	data, e := basetypes.NewObjectValue(data_map_attr_type, data_map_value)
+	data, e := basetypes.NewObjectValue(RouteExistsValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data
 }
 func routingPolicyTermMatchingVpnSlaSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.RoutingPolicyTermMatchingVpnPathSla) basetypes.ObjectValue {
 
-	var max_jitter basetypes.Int64Value
-	var max_latency basetypes.Int64Value
-	var max_loss basetypes.Int64Value
+	var maxJitter basetypes.Int64Value
+	var maxLatency basetypes.Int64Value
+	var maxLoss basetypes.Int64Value
 
 	if d.MaxJitter.Value() != nil {
-		max_jitter = types.Int64Value(int64(*d.MaxJitter.Value()))
+		maxJitter = types.Int64Value(int64(*d.MaxJitter.Value()))
 	}
 	if d.MaxLatency.Value() != nil {
-		max_latency = types.Int64Value(int64(*d.MaxLatency.Value()))
+		maxLatency = types.Int64Value(int64(*d.MaxLatency.Value()))
 	}
 	if d.MaxLoss.Value() != nil {
-		max_loss = types.Int64Value(int64(*d.MaxLoss.Value()))
+		maxLoss = types.Int64Value(int64(*d.MaxLoss.Value()))
 	}
 
-	data_map_attr_type := VpnPathSlaValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"max_jitter":  max_jitter,
-		"max_latency": max_latency,
-		"max_loss":    max_loss,
+	dataMapValue := map[string]attr.Value{
+		"max_jitter":  maxJitter,
+		"max_latency": maxLatency,
+		"max_loss":    maxLoss,
 	}
-	data, e := basetypes.NewObjectValue(data_map_attr_type, data_map_value)
+	data, e := basetypes.NewObjectValue(VpnPathSlaValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data
@@ -64,57 +62,56 @@ func routingPolicyTermMatchingVpnSlaSdkToTerraform(ctx context.Context, diags *d
 }
 func routingPolicyTermMatchingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.RoutingPolicyTermMatching) basetypes.ObjectValue {
 
-	var as_path basetypes.ListValue = types.ListNull(types.StringType)
-	var community basetypes.ListValue = types.ListNull(types.StringType)
-	var network basetypes.ListValue = types.ListNull(types.StringType)
-	var prefix basetypes.ListValue = types.ListNull(types.StringType)
-	var protocol basetypes.ListValue = types.ListNull(types.StringType)
-	var route_exists basetypes.ObjectValue = types.ObjectNull(RouteExistsValue{}.AttributeTypes(ctx))
-	var vpn_neighbor_mac basetypes.ListValue = types.ListNull(types.StringType)
-	var vpn_path basetypes.ListValue = types.ListNull(types.StringType)
-	var vpn_path_sla basetypes.ObjectValue = types.ObjectNull(VpnPathSlaValue{}.AttributeTypes(ctx))
+	var asPath = types.ListNull(types.StringType)
+	var community = types.ListNull(types.StringType)
+	var network = types.ListNull(types.StringType)
+	var prefix = types.ListNull(types.StringType)
+	var protocol = types.ListNull(types.StringType)
+	var routeExists = types.ObjectNull(RouteExistsValue{}.AttributeTypes(ctx))
+	var vpnNeighborMac = types.ListNull(types.StringType)
+	var vpnPath = types.ListNull(types.StringType)
+	var vpnPathSla = types.ObjectNull(VpnPathSlaValue{}.AttributeTypes(ctx))
 
 	if d.AsPath != nil {
-		as_path = mist_transform.ListOfStringSdkToTerraform(ctx, d.AsPath)
+		asPath = misttransform.ListOfStringSdkToTerraform(d.AsPath)
 	}
 	if d.Community != nil {
-		community = mist_transform.ListOfStringSdkToTerraform(ctx, d.Community)
+		community = misttransform.ListOfStringSdkToTerraform(d.Community)
 	}
 	if d.Network != nil {
-		network = mist_transform.ListOfStringSdkToTerraform(ctx, d.Network)
+		network = misttransform.ListOfStringSdkToTerraform(d.Network)
 	}
 	if d.Prefix != nil {
-		prefix = mist_transform.ListOfStringSdkToTerraform(ctx, d.Prefix)
+		prefix = misttransform.ListOfStringSdkToTerraform(d.Prefix)
 	}
 	if d.Protocol != nil {
-		protocol = mist_transform.ListOfStringSdkToTerraform(ctx, d.Protocol)
+		protocol = misttransform.ListOfStringSdkToTerraform(d.Protocol)
 	}
 	if d.RouteExists != nil {
-		route_exists = routingPolicyTermMatchingRouteExistsSdkToTerraform(ctx, diags, *d.RouteExists)
+		routeExists = routingPolicyTermMatchingRouteExistsSdkToTerraform(ctx, diags, *d.RouteExists)
 	}
 	if d.VpnNeighborMac != nil {
-		vpn_neighbor_mac = mist_transform.ListOfStringSdkToTerraform(ctx, d.VpnNeighborMac)
+		vpnNeighborMac = misttransform.ListOfStringSdkToTerraform(d.VpnNeighborMac)
 	}
 	if d.VpnPath != nil {
-		vpn_path = mist_transform.ListOfStringSdkToTerraform(ctx, d.VpnPath)
+		vpnPath = misttransform.ListOfStringSdkToTerraform(d.VpnPath)
 	}
 	if d.VpnPathSla != nil {
-		vpn_path_sla = routingPolicyTermMatchingVpnSlaSdkToTerraform(ctx, diags, *d.VpnPathSla)
+		vpnPathSla = routingPolicyTermMatchingVpnSlaSdkToTerraform(ctx, diags, *d.VpnPathSla)
 	}
 
-	data_map_attr_type := RoutingPolicyTermMatchingValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"as_path":          as_path,
+	dataMapValue := map[string]attr.Value{
+		"as_path":          asPath,
 		"community":        community,
 		"network":          network,
 		"prefix":           prefix,
 		"protocol":         protocol,
-		"route_exists":     route_exists,
-		"vpn_neighbor_mac": vpn_neighbor_mac,
-		"vpn_path":         vpn_path,
-		"vpn_path_sla":     vpn_path_sla,
+		"route_exists":     routeExists,
+		"vpn_neighbor_mac": vpnNeighborMac,
+		"vpn_path":         vpnPath,
+		"vpn_path_sla":     vpnPathSla,
 	}
-	data, e := basetypes.NewObjectValue(data_map_attr_type, data_map_value)
+	data, e := basetypes.NewObjectValue(RoutingPolicyTermMatchingValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data
@@ -122,72 +119,71 @@ func routingPolicyTermMatchingSdkToTerraform(ctx context.Context, diags *diag.Di
 func routingPolicyTermActionSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.RoutingPolicyTermAction) basetypes.ObjectValue {
 
 	var accept basetypes.BoolValue
-	var add_community basetypes.ListValue = types.ListNull(types.StringType)
-	var add_target_vrfs basetypes.ListValue = types.ListNull(types.StringType)
-	var aggregate basetypes.ListValue = types.ListNull(types.StringType)
-	var community basetypes.ListValue = types.ListNull(types.StringType)
-	var exclude_as_path basetypes.ListValue = types.ListNull(types.StringType)
-	var exclude_community basetypes.ListValue = types.ListNull(types.StringType)
-	var export_communitites basetypes.ListValue = types.ListNull(types.StringType)
-	var local_preference basetypes.StringValue
-	var prepend_as_path basetypes.ListValue = types.ListNull(types.StringType)
+	var addCommunity = types.ListNull(types.StringType)
+	var addTargetVrfs = types.ListNull(types.StringType)
+	var aggregate = types.ListNull(types.StringType)
+	var community = types.ListNull(types.StringType)
+	var excludeAsPath = types.ListNull(types.StringType)
+	var excludeCommunity = types.ListNull(types.StringType)
+	var exportCommunitites = types.ListNull(types.StringType)
+	var localPreference basetypes.StringValue
+	var prependAsPath = types.ListNull(types.StringType)
 
 	if d.Accept != nil {
 		accept = types.BoolValue(*d.Accept)
 	}
 	if d.AddCommunity != nil {
-		add_community = mist_transform.ListOfStringSdkToTerraform(ctx, d.AddCommunity)
+		addCommunity = misttransform.ListOfStringSdkToTerraform(d.AddCommunity)
 	}
 	if d.AddTargetVrfs != nil {
-		add_target_vrfs = mist_transform.ListOfStringSdkToTerraform(ctx, d.AddTargetVrfs)
+		addTargetVrfs = misttransform.ListOfStringSdkToTerraform(d.AddTargetVrfs)
 	}
 	if d.Aggregate != nil {
-		aggregate = mist_transform.ListOfStringSdkToTerraform(ctx, d.Aggregate)
+		aggregate = misttransform.ListOfStringSdkToTerraform(d.Aggregate)
 	}
 	if d.Community != nil {
-		community = mist_transform.ListOfStringSdkToTerraform(ctx, d.Community)
+		community = misttransform.ListOfStringSdkToTerraform(d.Community)
 	}
 	if d.ExcludeAsPath != nil {
-		exclude_as_path = mist_transform.ListOfStringSdkToTerraform(ctx, d.ExcludeAsPath)
+		excludeAsPath = misttransform.ListOfStringSdkToTerraform(d.ExcludeAsPath)
 	}
 	if d.ExcludeCommunity != nil {
-		exclude_community = mist_transform.ListOfStringSdkToTerraform(ctx, d.ExcludeCommunity)
+		excludeCommunity = misttransform.ListOfStringSdkToTerraform(d.ExcludeCommunity)
 	}
 	if d.ExportCommunitites != nil {
-		export_communitites = mist_transform.ListOfStringSdkToTerraform(ctx, d.ExportCommunitites)
+		exportCommunitites = misttransform.ListOfStringSdkToTerraform(d.ExportCommunitites)
 	}
 	if d.LocalPreference != nil {
-		local_preference = types.StringValue(*d.LocalPreference)
+		localPreference = types.StringValue(*d.LocalPreference)
 	}
 	if d.PrependAsPath != nil {
-		prepend_as_path = mist_transform.ListOfStringSdkToTerraform(ctx, d.PrependAsPath)
+		prependAsPath = misttransform.ListOfStringSdkToTerraform(d.PrependAsPath)
 	}
 
-	data_map_attr_type := ActionValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"accept":              accept,
-		"add_community":       add_community,
-		"add_target_vrfs":     add_target_vrfs,
+		"add_community":       addCommunity,
+		"add_target_vrfs":     addTargetVrfs,
 		"aggregate":           aggregate,
 		"community":           community,
-		"exclude_as_path":     exclude_as_path,
-		"exclude_community":   exclude_community,
-		"export_communitites": export_communitites,
-		"local_preference":    local_preference,
-		"prepend_as_path":     prepend_as_path,
+		"exclude_as_path":     excludeAsPath,
+		"exclude_community":   excludeCommunity,
+		"export_communitites": exportCommunitites,
+		"local_preference":    localPreference,
+		"prepend_as_path":     prependAsPath,
 	}
-	data, e := basetypes.NewObjectValue(data_map_attr_type, data_map_value)
+	data, e := basetypes.NewObjectValue(ActionValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data
 }
 
 func routingPolicyTermsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.RoutingPolicyTerm) basetypes.ListValue {
-	var data_list = []TermsValue{}
+	var dataList []TermsValue
 
 	for _, d := range l {
-		var action basetypes.ObjectValue = types.ObjectNull(ActionValue{}.AttributeTypes(ctx))
-		var matching basetypes.ObjectValue = types.ObjectNull(RoutingPolicyTermMatchingValue{}.AttributeTypes(ctx))
+		var action = types.ObjectNull(ActionValue{}.AttributeTypes(ctx))
+		var matching = types.ObjectNull(RoutingPolicyTermMatchingValue{}.AttributeTypes(ctx))
 
 		if d.Action != nil {
 			action = routingPolicyTermActionSdkToTerraform(ctx, diags, *d.Action)
@@ -196,43 +192,41 @@ func routingPolicyTermsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 			matching = routingPolicyTermMatchingSdkToTerraform(ctx, diags, *d.Matching)
 		}
 
-		data_map_attr_type := TermsValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
+		dataMapValue := map[string]attr.Value{
 			"action":   action,
 			"matching": matching,
 		}
-		data, e := NewTermsValue(data_map_attr_type, data_map_value)
+		data, e := NewTermsValue(TermsValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		data_list = append(data_list, data)
+		dataList = append(dataList, data)
 	}
-	data_list_type := TermsValue{}.Type(ctx)
-	r, e := types.ListValueFrom(ctx, data_list_type, data_list)
+	datalistType := TermsValue{}.Type(ctx)
+	r, e := types.ListValueFrom(ctx, datalistType, dataList)
 	diags.Append(e...)
 	return r
 }
 
 func routingPoliciesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.RoutingPolicy) basetypes.MapValue {
-	state_value_map := make(map[string]attr.Value)
+	stateValueMap := make(map[string]attr.Value)
 	for k, d := range m {
 
-		var terms basetypes.ListValue = types.ListNull(TermsValue{}.Type(ctx))
+		var terms = types.ListNull(TermsValue{}.Type(ctx))
 
 		if d.Terms != nil {
 			terms = routingPolicyTermsSdkToTerraform(ctx, diags, d.Terms)
 		}
 
-		data_map_attr_type := RoutingPoliciesValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
+		dataMapValue := map[string]attr.Value{
 			"terms": terms,
 		}
-		data, e := NewRoutingPoliciesValue(data_map_attr_type, data_map_value)
+		data, e := NewRoutingPoliciesValue(RoutingPoliciesValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		state_value_map[k] = data
+		stateValueMap[k] = data
 	}
-	state_type := RoutingPoliciesValue{}.Type(ctx)
-	state_result, e := types.MapValueFrom(ctx, state_type, state_value_map)
+	stateType := RoutingPoliciesValue{}.Type(ctx)
+	stateResult, e := types.MapValueFrom(ctx, stateType, stateValueMap)
 	diags.Append(e...)
-	return state_result
+	return stateResult
 }

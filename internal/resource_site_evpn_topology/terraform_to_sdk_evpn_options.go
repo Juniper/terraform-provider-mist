@@ -3,7 +3,7 @@ package resource_site_evpn_topology
 import (
 	"context"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -49,18 +49,18 @@ func underlayEvpnOptionsTerraformToSdk(ctx context.Context, diags *diag.Diagnost
 	return &data
 }
 
-func vsInstanceEvpnOptionsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.EvpnOptionsVsInstance {
-	data_map := make(map[string]models.EvpnOptionsVsInstance)
+func vsInstanceEvpnOptionsTerraformToSdk(d basetypes.MapValue) map[string]models.EvpnOptionsVsInstance {
+	dataMap := make(map[string]models.EvpnOptionsVsInstance)
 	for k, v := range d.Elements() {
-		var v_interface interface{} = v
-		plan := v_interface.(VsInstancesValue)
+		var vInterface interface{} = v
+		plan := vInterface.(VsInstancesValue)
 		data := models.EvpnOptionsVsInstance{}
 		if !plan.Networks.IsNull() && !plan.Networks.IsUnknown() {
-			data.Networks = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Networks)
+			data.Networks = misttransform.ListOfStringTerraformToSdk(plan.Networks)
 		}
-		data_map[k] = data
+		dataMap[k] = data
 	}
-	return data_map
+	return dataMap
 }
 
 func evpnOptionsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d EvpnOptionsValue) *models.EvpnOptions {
@@ -94,7 +94,7 @@ func evpnOptionsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d E
 		data.Underlay = underlayEvpnOptionsTerraformToSdk(ctx, diags, d.Underlay)
 	}
 	if !d.VsInstances.IsNull() && !d.VsInstances.IsUnknown() {
-		data.VsInstances = vsInstanceEvpnOptionsTerraformToSdk(ctx, diags, d.VsInstances)
+		data.VsInstances = vsInstanceEvpnOptionsTerraformToSdk(d.VsInstances)
 	}
 
 	return &data

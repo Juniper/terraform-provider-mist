@@ -7,7 +7,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 
-	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
+	mistapierror "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_idpprofile"
 
 	"github.com/google/uuid"
@@ -49,10 +49,10 @@ func (r *orgIdpprofileResource) Configure(ctx context.Context, req resource.Conf
 	r.client = client
 }
 
-func (r *orgIdpprofileResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *orgIdpprofileResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_org_idpprofile"
 }
-func (r *orgIdpprofileResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *orgIdpprofileResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryWan + "This resource manages WAN Assurance Idp Profiles.\n\n" +
 			"An IDP Profile is a configuration setting that defines the behavior and actions of an intrusion detection and prevention (IDP) system. " +
@@ -89,11 +89,11 @@ func (r *orgIdpprofileResource) Create(ctx context.Context, req resource.CreateR
 	tflog.Info(ctx, "Starting OrgIdpprofile Create for Org "+plan.OrgId.ValueString())
 	data, err := r.client.OrgsIDPProfiles().CreateOrgIdpProfile(ctx, orgId, &idpprofile)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error creating \"mist_org_idpprofile\" resource",
-			fmt.Sprintf("Unable to create the IDP Profile. %s", api_err),
+			fmt.Sprintf("Unable to create the IDP Profile. %s", apiErr),
 		)
 		return
 	}
@@ -111,7 +111,7 @@ func (r *orgIdpprofileResource) Create(ctx context.Context, req resource.CreateR
 	}
 }
 
-func (r *orgIdpprofileResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *orgIdpprofileResource) Read(ctx context.Context, _ resource.ReadRequest, resp *resource.ReadResponse) {
 	var state resource_org_idpprofile.OrgIdpprofileModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -202,11 +202,11 @@ func (r *orgIdpprofileResource) Update(ctx context.Context, req resource.UpdateR
 	}
 	data, err := r.client.OrgsIDPProfiles().UpdateOrgIdpProfile(ctx, orgId, idpprofileId, &idpprofile)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error updating \"mist_org_idpprofile\" resource",
-			fmt.Sprintf("Unable to update the IDP Profile. %s", api_err),
+			fmt.Sprintf("Unable to update the IDP Profile. %s", apiErr),
 		)
 		return
 	}
@@ -225,7 +225,7 @@ func (r *orgIdpprofileResource) Update(ctx context.Context, req resource.UpdateR
 
 }
 
-func (r *orgIdpprofileResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *orgIdpprofileResource) Delete(ctx context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_org_idpprofile.OrgIdpprofileModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -252,11 +252,11 @@ func (r *orgIdpprofileResource) Delete(ctx context.Context, req resource.DeleteR
 		return
 	}
 	data, err := r.client.OrgsIDPProfiles().DeleteOrgIdpProfile(ctx, orgId, idpprofileId)
-	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_idpprofile\" resource",
-			fmt.Sprintf("Unable to delete the IDP Profile. %s", api_err),
+			fmt.Sprintf("Unable to delete the IDP Profile. %s", apiErr),
 		)
 		return
 	}

@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -16,43 +16,42 @@ import (
 
 func bonjourServicesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.WlanBonjourServiceProperties) basetypes.MapValue {
 
-	map_attr_values := make(map[string]attr.Value)
+	mapAttrValues := make(map[string]attr.Value)
 	for k, d := range m {
 
-		var disable_local basetypes.BoolValue
-		var radius_groups basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+		var disableLocal basetypes.BoolValue
+		var radiusGroups = misttransform.ListOfStringSdkToTerraformEmpty()
 		var scope basetypes.StringValue
 
 		if d.DisableLocal != nil {
-			disable_local = types.BoolValue(*d.DisableLocal)
+			disableLocal = types.BoolValue(*d.DisableLocal)
 		}
 		if d.RadiusGroups != nil {
-			radius_groups = mist_transform.ListOfStringSdkToTerraform(ctx, d.RadiusGroups)
+			radiusGroups = misttransform.ListOfStringSdkToTerraform(d.RadiusGroups)
 		}
 		if d.Scope != nil {
 			scope = types.StringValue(string(*d.Scope))
 		}
 
-		data_map_attr_type := ServicesValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
-			"disable_local": disable_local,
-			"radius_groups": radius_groups,
+		dataMapValue := map[string]attr.Value{
+			"disable_local": disableLocal,
+			"radius_groups": radiusGroups,
 			"scope":         scope,
 		}
-		data, e := NewServicesValue(data_map_attr_type, data_map_value)
+		data, e := NewServicesValue(ServicesValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		map_attr_values[k] = data
+		mapAttrValues[k] = data
 	}
-	r, e := types.MapValueFrom(ctx, ServicesValue{}.Type(ctx), map_attr_values)
+	r, e := types.MapValueFrom(ctx, ServicesValue{}.Type(ctx), mapAttrValues)
 	diags.Append(e...)
 	return r
 }
 
 func bonjourSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.WlanBonjour) BonjourValue {
-	var additional_vlan_ids basetypes.ListValue = types.ListNull(types.StringType)
+	var additionalVlanIds = types.ListNull(types.StringType)
 	var enabled basetypes.BoolValue
-	var services basetypes.MapValue = types.MapNull(ServicesValue{}.Type(ctx))
+	var services = types.MapNull(ServicesValue{}.Type(ctx))
 
 	if d != nil {
 		var items []attr.Value
@@ -62,7 +61,7 @@ func bonjourSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 			}
 		}
 		list, _ := types.ListValue(basetypes.StringType{}, items)
-		additional_vlan_ids = list
+		additionalVlanIds = list
 	}
 	if d != nil && d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
@@ -71,13 +70,12 @@ func bonjourSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 		services = bonjourServicesSdkToTerraform(ctx, diags, d.Services)
 	}
 
-	data_map_attr_type := BonjourValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"additional_vlan_ids": additional_vlan_ids,
+	dataMapValue := map[string]attr.Value{
+		"additional_vlan_ids": additionalVlanIds,
 		"enabled":             enabled,
 		"services":            services,
 	}
-	data, e := NewBonjourValue(data_map_attr_type, data_map_value)
+	data, e := NewBonjourValue(BonjourValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

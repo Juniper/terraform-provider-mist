@@ -3,7 +3,7 @@ package datasource_org_usermacs
 import (
 	"context"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -24,18 +24,18 @@ func SdkToTerraform(ctx context.Context, l *[]models.UserMac, elements *[]attr.V
 
 func inventorySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.UserMac) OrgUsermacsValue {
 	var id types.String
-	var labels types.List = types.ListNull(types.StringType)
+	var labels = types.ListNull(types.StringType)
 	var mac types.String
 	var name types.String
 	var notes types.String
-	var radius_group types.String
+	var radiusGroup types.String
 	var vlan types.String
 
 	if d.Id != nil {
 		id = types.StringValue(d.Id.String())
 	}
 	if d.Labels != nil {
-		labels = mist_transform.ListOfStringSdkToTerraform(ctx, d.Labels)
+		labels = misttransform.ListOfStringSdkToTerraform(d.Labels)
 	}
 
 	mac = types.StringValue(d.Mac)
@@ -48,22 +48,22 @@ func inventorySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d mod
 	}
 
 	if d.RadiusGroup != nil {
-		radius_group = types.StringValue(*d.RadiusGroup)
+		radiusGroup = types.StringValue(*d.RadiusGroup)
 	}
 	if d.Vlan != nil {
 		vlan = types.StringValue(*d.Vlan)
 	}
 
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"id":           id,
 		"labels":       labels,
 		"mac":          mac,
 		"name":         name,
 		"notes":        notes,
-		"radius_group": radius_group,
+		"radius_group": radiusGroup,
 		"vlan":         vlan,
 	}
-	data, e := NewOrgUsermacsValue(OrgUsermacsValue{}.AttributeTypes(ctx), data_map_value)
+	data, e := NewOrgUsermacsValue(OrgUsermacsValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

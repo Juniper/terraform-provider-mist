@@ -13,10 +13,10 @@ import (
 
 func otherIpConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.JunosOtherIpConfig) basetypes.MapValue {
 
-	state_value_map := make(map[string]attr.Value)
+	stateValueMap := make(map[string]attr.Value)
 	for k, d := range m {
 
-		var evpn_anycast basetypes.BoolValue
+		var evpnAnycast basetypes.BoolValue
 		var ip basetypes.StringValue
 		var ip6 basetypes.StringValue
 		var netmask basetypes.StringValue
@@ -25,7 +25,7 @@ func otherIpConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 		var type6 basetypes.StringValue
 
 		if d.EvpnAnycast != nil {
-			evpn_anycast = types.BoolValue(*d.EvpnAnycast)
+			evpnAnycast = types.BoolValue(*d.EvpnAnycast)
 		}
 		if d.Ip != nil {
 			ip = types.StringValue(*d.Ip)
@@ -46,9 +46,8 @@ func otherIpConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 			type6 = types.StringValue(string(*d.Type6))
 		}
 
-		data_map_attr_type := OtherIpConfigsValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
-			"evpn_anycast": evpn_anycast,
+		dataMapValue := map[string]attr.Value{
+			"evpn_anycast": evpnAnycast,
 			"ip":           ip,
 			"ip6":          ip6,
 			"netmask":      netmask,
@@ -56,13 +55,13 @@ func otherIpConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 			"type":         type4,
 			"type6":        type6,
 		}
-		data, e := NewOtherIpConfigsValue(data_map_attr_type, data_map_value)
+		data, e := NewOtherIpConfigsValue(OtherIpConfigsValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		state_value_map[k] = data
+		stateValueMap[k] = data
 	}
-	state_type := OtherIpConfigsValue{}.Type(ctx)
-	state_result, e := types.MapValueFrom(ctx, state_type, state_value_map)
+	stateType := OtherIpConfigsValue{}.Type(ctx)
+	stateResult, e := types.MapValueFrom(ctx, stateType, stateValueMap)
 	diags.Append(e...)
-	return state_result
+	return stateResult
 }

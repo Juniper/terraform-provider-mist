@@ -13,60 +13,59 @@ import (
 
 func modelSpecificSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.RfTemplateModelSpecificProperty) basetypes.MapValue {
 
-	state_value_map_value := make(map[string]attr.Value)
+	stateValueMapValue := make(map[string]attr.Value)
 	for k, d := range m {
-		var ant_gain_24 basetypes.Int64Value
-		var ant_gain_5 basetypes.Int64Value
-		var ant_gain_6 basetypes.Int64Value
-		var band_24 basetypes.ObjectValue = types.ObjectNull(Band24Value{}.AttributeTypes(ctx))
-		var band_24_usage basetypes.StringValue
-		var band_5 basetypes.ObjectValue = types.ObjectNull(Band5Value{}.AttributeTypes(ctx))
-		var band_5_on_24_radio basetypes.ObjectValue = types.ObjectNull(Band5Value{}.AttributeTypes(ctx))
-		var band_6 basetypes.ObjectValue = types.ObjectNull(Band6Value{}.AttributeTypes(ctx))
+		var antGain24 basetypes.Int64Value
+		var antGain5 basetypes.Int64Value
+		var antGain6 basetypes.Int64Value
+		var band24 = types.ObjectNull(Band24Value{}.AttributeTypes(ctx))
+		var band24Usage basetypes.StringValue
+		var band5 = types.ObjectNull(Band5Value{}.AttributeTypes(ctx))
+		var band5On24Radio = types.ObjectNull(Band5Value{}.AttributeTypes(ctx))
+		var band6 = types.ObjectNull(Band6Value{}.AttributeTypes(ctx))
 
 		if d.AntGain24 != nil {
-			ant_gain_24 = types.Int64Value(int64(*d.AntGain24))
+			antGain24 = types.Int64Value(int64(*d.AntGain24))
 		}
 		if d.AntGain5 != nil {
-			ant_gain_5 = types.Int64Value(int64(*d.AntGain5))
+			antGain5 = types.Int64Value(int64(*d.AntGain5))
 		}
 		if d.AntGain6 != nil {
-			ant_gain_6 = types.Int64Value(int64(*d.AntGain6))
+			antGain6 = types.Int64Value(int64(*d.AntGain6))
 		}
 		if d.Band24 != nil {
-			band_24, _ = band24SdkToTerraform(ctx, diags, d.Band24).ToObjectValue(ctx)
+			band24, _ = band24SdkToTerraform(ctx, diags, d.Band24).ToObjectValue(ctx)
 		}
 		if d.Band24Usage != nil {
-			band_24_usage = types.StringValue(string(*d.Band24Usage))
+			band24Usage = types.StringValue(string(*d.Band24Usage))
 		}
 		if d.Band5 != nil {
-			band_5, _ = band5SdkToTerraform(ctx, diags, d.Band5).ToObjectValue(ctx)
+			band5, _ = band5SdkToTerraform(ctx, diags, d.Band5).ToObjectValue(ctx)
 		}
 		if d.Band5On24Radio != nil {
-			band_5_on_24_radio, _ = band5SdkToTerraform(ctx, diags, d.Band5On24Radio).ToObjectValue(ctx)
+			band5On24Radio, _ = band5SdkToTerraform(ctx, diags, d.Band5On24Radio).ToObjectValue(ctx)
 		}
 		if d.Band6 != nil {
-			band_6, _ = band6SdkToTerraform(ctx, diags, d.Band6).ToObjectValue(ctx)
+			band6, _ = band6SdkToTerraform(ctx, diags, d.Band6).ToObjectValue(ctx)
 		}
 
-		data_map_attr_type := ModelSpecificValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
-			"ant_gain_24":        ant_gain_24,
-			"ant_gain_5":         ant_gain_5,
-			"ant_gain_6":         ant_gain_6,
-			"band_24":            band_24,
-			"band_24_usage":      band_24_usage,
-			"band_5":             band_5,
-			"band_5_on_24_radio": band_5_on_24_radio,
-			"band_6":             band_6,
+		dataMapValue := map[string]attr.Value{
+			"ant_gain_24":        antGain24,
+			"ant_gain_5":         antGain5,
+			"ant_gain_6":         antGain6,
+			"band_24":            band24,
+			"band_24_usage":      band24Usage,
+			"band_5":             band5,
+			"band_5_on_24_radio": band5On24Radio,
+			"band_6":             band6,
 		}
-		data, e := NewModelSpecificValue(data_map_attr_type, data_map_value)
+		data, e := NewModelSpecificValue(ModelSpecificValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		state_value_map_value[k] = data
+		stateValueMapValue[k] = data
 	}
-	state_result_map_type := ModelSpecificValue{}.Type(ctx)
-	state_result_map, e := types.MapValueFrom(ctx, state_result_map_type, state_value_map_value)
+	stateResultMapType := ModelSpecificValue{}.Type(ctx)
+	stateResultMap, e := types.MapValueFrom(ctx, stateResultMapType, stateValueMapValue)
 	diags.Append(e...)
-	return state_result_map
+	return stateResultMap
 }

@@ -3,7 +3,7 @@ package resource_org_gatewaytemplate
 import (
 	"context"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func idpProfileMatchingSeverityTerraformToSdk(ctx context.Context, list basetypes.ListValue) []models.IdpProfileMatchingSeverityValueEnum {
+func idpProfileMatchingSeverityTerraformToSdk(list basetypes.ListValue) []models.IdpProfileMatchingSeverityValueEnum {
 	var items []models.IdpProfileMatchingSeverityValueEnum
 	for _, item := range list.Elements() {
 		var iface interface{} = item
@@ -30,13 +30,13 @@ func idpProfileMatchingTerraformToSdk(ctx context.Context, diags *diag.Diagnosti
 			diags.Append(e...)
 		} else {
 			if !plan.AttackName.IsNull() && !plan.AttackName.IsUnknown() {
-				data.AttackName = mist_transform.ListOfStringTerraformToSdk(ctx, plan.AttackName)
+				data.AttackName = misttransform.ListOfStringTerraformToSdk(plan.AttackName)
 			}
 			if !plan.DstSubnet.IsNull() && !plan.DstSubnet.IsUnknown() {
-				data.DstSubnet = mist_transform.ListOfStringTerraformToSdk(ctx, plan.DstSubnet)
+				data.DstSubnet = misttransform.ListOfStringTerraformToSdk(plan.DstSubnet)
 			}
 			if !plan.Severity.IsNull() && !plan.Severity.IsUnknown() {
-				data.Severity = idpProfileMatchingSeverityTerraformToSdk(ctx, plan.Severity)
+				data.Severity = idpProfileMatchingSeverityTerraformToSdk(plan.Severity)
 			}
 		}
 	}
@@ -44,10 +44,10 @@ func idpProfileMatchingTerraformToSdk(ctx context.Context, diags *diag.Diagnosti
 }
 
 func idpProfileOverwritesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.IdpProfileOverwrite {
-	var data_list []models.IdpProfileOverwrite
+	var dataList []models.IdpProfileOverwrite
 	for _, v := range d.Elements() {
-		var v_interface interface{} = v
-		plan := v_interface.(OverwritesValue)
+		var vInterface interface{} = v
+		plan := vInterface.(OverwritesValue)
 		data := models.IdpProfileOverwrite{}
 
 		if plan.Action.ValueStringPointer() != nil {
@@ -57,16 +57,16 @@ func idpProfileOverwritesTerraformToSdk(ctx context.Context, diags *diag.Diagnos
 			data.Matching = idpProfileMatchingTerraformToSdk(ctx, diags, plan.IpdProfileOverwriteMatching)
 		}
 
-		data_list = append(data_list, data)
+		dataList = append(dataList, data)
 	}
-	return data_list
+	return dataList
 }
 
 func idpProfileTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.IdpProfile {
-	data_map := make(map[string]models.IdpProfile)
+	dataMap := make(map[string]models.IdpProfile)
 	for k, v := range d.Elements() {
-		var v_interface interface{} = v
-		plan := v_interface.(IdpProfilesValue)
+		var vInterface interface{} = v
+		plan := vInterface.(IdpProfilesValue)
 
 		data := models.IdpProfile{}
 		if plan.BaseProfile.ValueStringPointer() != nil {
@@ -79,7 +79,7 @@ func idpProfileTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d ba
 			data.Overwrites = idpProfileOverwritesTerraformToSdk(ctx, diags, plan.Overwrites)
 		}
 
-		data_map[k] = data
+		dataMap[k] = data
 	}
-	return data_map
+	return dataMap
 }

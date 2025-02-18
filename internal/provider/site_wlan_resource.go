@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
+	mistapierror "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_site_wlan"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
@@ -48,11 +48,11 @@ func (r *siteWlanResource) Configure(ctx context.Context, req resource.Configure
 
 	r.client = client
 }
-func (r *siteWlanResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *siteWlanResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_site_wlan"
 }
 
-func (r *siteWlanResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *siteWlanResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryWlan + "This resource manages the Site Wlans.\n" +
 			"The WLAN object contains all the required configuration to broadcast an SSID (Authentication, VLAN, ...)",
@@ -86,11 +86,11 @@ func (r *siteWlanResource) Create(ctx context.Context, req resource.CreateReques
 	}
 	data, err := r.client.SitesWlans().CreateSiteWlan(ctx, siteId, wlan)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error creating \"mist_site_wlan\" resource",
-			fmt.Sprintf("Unable to create the WLAN. %s", api_err),
+			fmt.Sprintf("Unable to create the WLAN. %s", apiErr),
 		)
 		return
 	}
@@ -109,7 +109,7 @@ func (r *siteWlanResource) Create(ctx context.Context, req resource.CreateReques
 
 }
 
-func (r *siteWlanResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *siteWlanResource) Read(ctx context.Context, _ resource.ReadRequest, resp *resource.ReadResponse) {
 	var state resource_site_wlan.SiteWlanModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -199,11 +199,11 @@ func (r *siteWlanResource) Update(ctx context.Context, req resource.UpdateReques
 	}
 	data, err := r.client.SitesWlans().UpdateSiteWlan(ctx, siteId, wlanId, wlan)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error updating \"mist_site_wlan\" resource",
-			fmt.Sprintf("Unable to update the WLAN. %s", api_err),
+			fmt.Sprintf("Unable to update the WLAN. %s", apiErr),
 		)
 		return
 	}
@@ -222,7 +222,7 @@ func (r *siteWlanResource) Update(ctx context.Context, req resource.UpdateReques
 
 }
 
-func (r *siteWlanResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *siteWlanResource) Delete(ctx context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_site_wlan.SiteWlanModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -249,11 +249,11 @@ func (r *siteWlanResource) Delete(ctx context.Context, req resource.DeleteReques
 		return
 	}
 	data, err := r.client.SitesWlans().DeleteSiteWlan(ctx, siteId, wlanId)
-	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_site_wlan\" resource",
-			fmt.Sprintf("Unable to delete the Wlan. %s", api_err),
+			fmt.Sprintf("Unable to delete the Wlan. %s", apiErr),
 		)
 		return
 	}

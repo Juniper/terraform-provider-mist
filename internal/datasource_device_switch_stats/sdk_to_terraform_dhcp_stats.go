@@ -13,29 +13,28 @@ import (
 
 func dhcpStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.DhcpdStatLan) basetypes.MapValue {
 
-	map_attr_values := make(map[string]attr.Value)
+	mapAttrValues := make(map[string]attr.Value)
 	for k, d := range m {
-		var num_ips basetypes.Int64Value
-		var num_leased basetypes.Int64Value
+		var numIps basetypes.Int64Value
+		var numLeased basetypes.Int64Value
 
 		if d.NumIps != nil {
-			num_ips = types.Int64Value(int64(*d.NumIps))
+			numIps = types.Int64Value(int64(*d.NumIps))
 		}
 		if d.NumLeased != nil {
-			num_leased = types.Int64Value(int64(*d.NumLeased))
+			numLeased = types.Int64Value(int64(*d.NumLeased))
 		}
 
-		data_map_attr_type := DhcpdStatValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
-			"num_ips":    num_ips,
-			"num_leased": num_leased,
+		dataMapValue := map[string]attr.Value{
+			"num_ips":    numIps,
+			"num_leased": numLeased,
 		}
-		data, e := NewDhcpdStatValue(data_map_attr_type, data_map_value)
+		data, e := NewDhcpdStatValue(DhcpdStatValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		map_attr_values[k] = data
+		mapAttrValues[k] = data
 	}
-	state_result, e := types.MapValueFrom(ctx, DhcpdStatValue{}.Type(ctx), map_attr_values)
+	stateResult, e := types.MapValueFrom(ctx, DhcpdStatValue{}.Type(ctx), mapAttrValues)
 	diags.Append(e...)
-	return state_result
+	return stateResult
 }

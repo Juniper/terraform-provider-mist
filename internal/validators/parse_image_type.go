@@ -44,7 +44,7 @@ func (o ParseImageTypeValidator) ValidateString(_ context.Context, req validator
 	}
 
 	defer file.Close()
-	file_data, err := io.ReadAll(file)
+	fileData, err := io.ReadAll(file)
 	if err != nil {
 		resp.Diagnostics.Append(validatordiag.InvalidAttributeValueDiagnostic(
 			req.Path,
@@ -54,7 +54,7 @@ func (o ParseImageTypeValidator) ValidateString(_ context.Context, req validator
 		return
 	}
 
-	contentType := http.DetectContentType(file_data)
+	contentType := http.DetectContentType(fileData)
 	if o.allowPng && contentType == "image/png" {
 		return
 	} else if o.allowJpg && contentType == "image/jpeg" {

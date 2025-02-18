@@ -3,7 +3,7 @@ package resource_org_deviceprofile_ap
 import (
 	"context"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -18,14 +18,14 @@ func TerraformToSdk(ctx context.Context, plan *OrgDeviceprofileApModel) (models.
 	data.Name = plan.Name.ValueStringPointer()
 
 	if !plan.Aeroscout.IsNull() && !plan.Aeroscout.IsUnknown() {
-		aeroscout := aeroscoutTerraformToSdk(ctx, &diags, plan.Aeroscout)
+		aeroscout := aeroscoutTerraformToSdk(plan.Aeroscout)
 		data.Aeroscout = aeroscout
 	} else {
 		unset["-aeroscout"] = ""
 	}
 
 	if !plan.BleConfig.IsNull() && !plan.BleConfig.IsUnknown() {
-		data.BleConfig = bleConfigTerraformToSdk(ctx, &diags, plan.BleConfig)
+		data.BleConfig = bleConfigTerraformToSdk(plan.BleConfig)
 	} else {
 		unset["-ble_config"] = ""
 	}
@@ -51,34 +51,34 @@ func TerraformToSdk(ctx context.Context, plan *OrgDeviceprofileApModel) (models.
 		unset["-disable_eth3"] = ""
 	}
 	if !plan.EslConfig.IsNull() && !plan.EslConfig.IsUnknown() {
-		data.EslConfig = eslTerraformToSdk(ctx, &diags, plan.EslConfig)
+		data.EslConfig = eslTerraformToSdk(plan.EslConfig)
 	} else {
 		unset["-esl_config"] = ""
 	}
 
 	if !plan.IpConfig.IsNull() && !plan.IpConfig.IsUnknown() {
-		ip_config := ipConfigTerraformToSdk(ctx, &diags, plan.IpConfig)
-		data.IpConfig = ip_config
+		ipConfig := ipConfigTerraformToSdk(plan.IpConfig)
+		data.IpConfig = ipConfig
 	} else {
 		unset["-ip_config"] = ""
 	}
 
 	if !plan.Led.IsNull() && !plan.Led.IsUnknown() {
-		led := ledTerraformToSdk(ctx, &diags, plan.Led)
+		led := ledTerraformToSdk(plan.Led)
 		data.Led = led
 	} else {
 		unset["-led"] = ""
 	}
 
 	if !plan.Mesh.IsNull() && !plan.Mesh.IsUnknown() {
-		mesh := meshTerraformToSdk(ctx, &diags, plan.Mesh)
+		mesh := meshTerraformToSdk(plan.Mesh)
 		data.Mesh = mesh
 	} else {
 		unset["-mesh"] = ""
 	}
 
 	if !plan.NtpServers.IsNull() && !plan.NtpServers.IsUnknown() {
-		data.NtpServers = mist_transform.ListOfStringTerraformToSdk(ctx, plan.NtpServers)
+		data.NtpServers = misttransform.ListOfStringTerraformToSdk(plan.NtpServers)
 	} else {
 		unset["-ntp_servers"] = ""
 	}
@@ -90,7 +90,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgDeviceprofileApModel) (models.
 	}
 
 	if !plan.PwrConfig.IsNull() && !plan.PwrConfig.IsUnknown() {
-		data.PwrConfig = pwrConfigTerraformToSdk(ctx, &diags, plan.PwrConfig)
+		data.PwrConfig = pwrConfigTerraformToSdk(plan.PwrConfig)
 	} else {
 		unset["-pwr_config"] = ""
 	}
@@ -102,19 +102,19 @@ func TerraformToSdk(ctx context.Context, plan *OrgDeviceprofileApModel) (models.
 	}
 
 	if !plan.UplinkPortConfig.IsNull() && !plan.UplinkPortConfig.IsUnknown() {
-		data.UplinkPortConfig = uplinkPortConfigTerraformToSdk(ctx, &diags, plan.UplinkPortConfig)
+		data.UplinkPortConfig = uplinkPortConfigTerraformToSdk(plan.UplinkPortConfig)
 	} else {
 		unset["-uplink_port_config"] = ""
 	}
 
 	if !plan.UsbConfig.IsNull() && !plan.UsbConfig.IsUnknown() {
-		data.UsbConfig = usbConfigTerraformToSdk(ctx, &diags, plan.UsbConfig)
+		data.UsbConfig = usbConfigTerraformToSdk(plan.UsbConfig)
 	} else {
 		unset["-usb_config"] = ""
 	}
 
 	if !plan.Vars.IsNull() && !plan.Vars.IsUnknown() {
-		data.Vars = varsTerraformToSdk(ctx, &diags, plan.Vars)
+		data.Vars = varsTerraformToSdk(plan.Vars)
 	} else {
 		unset["-vars"] = ""
 	}

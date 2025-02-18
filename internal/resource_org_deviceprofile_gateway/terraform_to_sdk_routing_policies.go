@@ -3,7 +3,7 @@ package resource_org_deviceprofile_gateway
 import (
 	"context"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -22,28 +22,28 @@ func routingPolicyTermActionTerraformToSdk(ctx context.Context, diags *diag.Diag
 				data.Accept = models.ToPointer(plan.Accept.ValueBool())
 			}
 			if !plan.AddCommunity.IsNull() && !plan.AddCommunity.IsUnknown() {
-				data.AddCommunity = mist_transform.ListOfStringTerraformToSdk(ctx, plan.AddCommunity)
+				data.AddCommunity = misttransform.ListOfStringTerraformToSdk(plan.AddCommunity)
 			}
 			if !plan.AddTargetVrfs.IsNull() && !plan.AddTargetVrfs.IsUnknown() {
-				data.AddTargetVrfs = mist_transform.ListOfStringTerraformToSdk(ctx, plan.AddTargetVrfs)
+				data.AddTargetVrfs = misttransform.ListOfStringTerraformToSdk(plan.AddTargetVrfs)
 			}
 			if !plan.Aggregate.IsNull() && !plan.Aggregate.IsUnknown() {
-				data.Aggregate = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Aggregate)
+				data.Aggregate = misttransform.ListOfStringTerraformToSdk(plan.Aggregate)
 			}
 			if !plan.Community.IsNull() && !plan.Community.IsUnknown() {
-				data.Community = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Community)
+				data.Community = misttransform.ListOfStringTerraformToSdk(plan.Community)
 			}
 			if !plan.ExcludeAsPath.IsNull() && !plan.ExcludeAsPath.IsUnknown() {
-				data.ExcludeAsPath = mist_transform.ListOfStringTerraformToSdk(ctx, plan.ExcludeAsPath)
+				data.ExcludeAsPath = misttransform.ListOfStringTerraformToSdk(plan.ExcludeAsPath)
 			}
 			if !plan.ExcludeCommunity.IsNull() && !plan.ExcludeCommunity.IsUnknown() {
-				data.ExcludeCommunity = mist_transform.ListOfStringTerraformToSdk(ctx, plan.ExcludeCommunity)
+				data.ExcludeCommunity = misttransform.ListOfStringTerraformToSdk(plan.ExcludeCommunity)
 			}
 			if plan.LocalPreference.ValueStringPointer() != nil {
 				data.LocalPreference = models.ToPointer(plan.LocalPreference.ValueString())
 			}
 			if !plan.PrependAsPath.IsNull() && !plan.PrependAsPath.IsUnknown() {
-				data.PrependAsPath = mist_transform.ListOfStringTerraformToSdk(ctx, plan.PrependAsPath)
+				data.PrependAsPath = misttransform.ListOfStringTerraformToSdk(plan.PrependAsPath)
 			}
 		}
 	}
@@ -97,19 +97,19 @@ func routingPolicyTermMatchingTerraformToSdk(ctx context.Context, diags *diag.Di
 			diags.Append(e...)
 		} else {
 			if !plan.AsPath.IsNull() && !plan.AsPath.IsUnknown() {
-				data.AsPath = mist_transform.ListOfStringTerraformToSdk(ctx, plan.AsPath)
+				data.AsPath = misttransform.ListOfStringTerraformToSdk(plan.AsPath)
 			}
 			if !plan.Community.IsNull() && !plan.Community.IsUnknown() {
-				data.Community = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Community)
+				data.Community = misttransform.ListOfStringTerraformToSdk(plan.Community)
 			}
 			if !plan.Network.IsNull() && !plan.Network.IsUnknown() {
-				data.Network = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Network)
+				data.Network = misttransform.ListOfStringTerraformToSdk(plan.Network)
 			}
 			if !plan.Prefix.IsNull() && !plan.Prefix.IsUnknown() {
-				data.Prefix = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Prefix)
+				data.Prefix = misttransform.ListOfStringTerraformToSdk(plan.Prefix)
 			}
 			if !plan.Protocol.IsNull() && !plan.Protocol.IsUnknown() {
-				data.Protocol = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Protocol)
+				data.Protocol = misttransform.ListOfStringTerraformToSdk(plan.Protocol)
 			}
 
 			if !plan.RouteExists.IsNull() && !plan.RouteExists.IsUnknown() {
@@ -117,10 +117,10 @@ func routingPolicyTermMatchingTerraformToSdk(ctx context.Context, diags *diag.Di
 			}
 
 			if !plan.VpnNeighborMac.IsNull() && !plan.VpnNeighborMac.IsUnknown() {
-				data.VpnNeighborMac = mist_transform.ListOfStringTerraformToSdk(ctx, plan.VpnNeighborMac)
+				data.VpnNeighborMac = misttransform.ListOfStringTerraformToSdk(plan.VpnNeighborMac)
 			}
 			if !plan.VpnPath.IsNull() && !plan.VpnPath.IsUnknown() {
-				data.VpnPath = mist_transform.ListOfStringTerraformToSdk(ctx, plan.VpnPath)
+				data.VpnPath = misttransform.ListOfStringTerraformToSdk(plan.VpnPath)
 			}
 
 			if !plan.VpnPathSla.IsNull() && !plan.VpnPathSla.IsUnknown() {
@@ -132,10 +132,10 @@ func routingPolicyTermMatchingTerraformToSdk(ctx context.Context, diags *diag.Di
 }
 
 func routingPolicyTermerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.RoutingPolicyTerm {
-	var data_list []models.RoutingPolicyTerm
+	var dataList []models.RoutingPolicyTerm
 	for _, v := range d.Elements() {
-		var v_interface interface{} = v
-		plan := v_interface.(TermsValue)
+		var vInterface interface{} = v
+		plan := vInterface.(TermsValue)
 		data := models.RoutingPolicyTerm{}
 
 		if !plan.Action.IsNull() && !plan.Action.IsUnknown() {
@@ -146,23 +146,23 @@ func routingPolicyTermerraformToSdk(ctx context.Context, diags *diag.Diagnostics
 			data.Matching = routingPolicyTermMatchingTerraformToSdk(ctx, diags, plan.RoutingPolicyTermMatching)
 		}
 
-		data_list = append(data_list, data)
+		dataList = append(dataList, data)
 	}
-	return data_list
+	return dataList
 }
 
 func routingPoliciesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.RoutingPolicy {
-	data_map := make(map[string]models.RoutingPolicy)
+	dataMap := make(map[string]models.RoutingPolicy)
 	for k, v := range d.Elements() {
-		var v_interface interface{} = v
-		plan := v_interface.(RoutingPoliciesValue)
+		var vInterface interface{} = v
+		plan := vInterface.(RoutingPoliciesValue)
 
 		data := models.RoutingPolicy{}
 		if !plan.Terms.IsNull() && !plan.Terms.IsUnknown() {
 			data.Terms = routingPolicyTermerraformToSdk(ctx, diags, plan.Terms)
 		}
 
-		data_map[k] = data
+		dataMap[k] = data
 	}
-	return data_map
+	return dataMap
 }

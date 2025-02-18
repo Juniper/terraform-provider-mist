@@ -80,7 +80,7 @@ func TestFromEnv_ApiDebug(t *testing.T) {
 				os.Unsetenv("MIST_API_DEBUG")
 			}
 
-			var p mistProviderModel = mistProviderModel{
+			var p = mistProviderModel{
 				ApiDebug: types.BoolNull(),
 			}
 
@@ -276,7 +276,7 @@ func TestIntegration_Configure_API_DEBUG(t *testing.T) {
 func ValidateEnvVars(t *testing.T, requiredVars []string) {
 	t.Helper()
 
-	missingVars := []string{}
+	var missingVars []string
 	for _, envVar := range requiredVars {
 		if _, exists := os.LookupEnv(envVar); !exists {
 			missingVars = append(missingVars, envVar)

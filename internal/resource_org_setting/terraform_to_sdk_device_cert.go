@@ -1,14 +1,10 @@
 package resource_org_setting
 
 import (
-	"context"
-
-	"github.com/hashicorp/terraform-plugin-framework/diag"
-
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func deviceCertTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d DeviceCertValue) *models.OrgSettingDeviceCert {
+func deviceCertTerraformToSdk(d DeviceCertValue) *models.OrgSettingDeviceCert {
 	data := models.OrgSettingDeviceCert{}
 
 	if d.Cert.ValueStringPointer() != nil {

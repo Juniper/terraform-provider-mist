@@ -50,11 +50,11 @@ func (d *orgDeviceprofilesApDataSource) Configure(ctx context.Context, req datas
 
 	d.client = client
 }
-func (d *orgDeviceprofilesApDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+func (d *orgDeviceprofilesApDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_org_deviceprofiles_ap"
 }
 
-func (d *orgDeviceprofilesApDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *orgDeviceprofilesApDataSource) Schema(ctx context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryWlan + "This data source provides the list of AP Device Profiles.\n\n" +
 			"AP Device profiles are used to specify a configuration that can be applied to a select set of aps from any site in the organization. " +
@@ -82,11 +82,11 @@ func (d *orgDeviceprofilesApDataSource) Read(ctx context.Context, req datasource
 		return
 	}
 
-	var mType models.DeviceTypeEnum = models.DeviceTypeEnum("ap")
+	var mType = models.DeviceTypeEnum_AP
 
-	var limit int = 1000
-	var page int = 0
-	var total int = 9999
+	var limit = 1000
+	var page = 0
+	var total = 9999
 	var elements []attr.Value
 	var diags diag.Diagnostics
 
@@ -106,8 +106,8 @@ func (d *orgDeviceprofilesApDataSource) Read(ctx context.Context, req datasource
 			return
 		}
 
-		limit_string := data.Response.Header.Get("X-Page-Limit")
-		if limit, err = strconv.Atoi(limit_string); err != nil {
+		limitString := data.Response.Header.Get("X-Page-Limit")
+		if limit, err = strconv.Atoi(limitString); err != nil {
 			resp.Diagnostics.AddError(
 				"Error extracting HTTP Response Headers",
 				"Unable to convert the X-Page-Limit value into int, unexcpected error: "+err.Error(),
@@ -115,8 +115,8 @@ func (d *orgDeviceprofilesApDataSource) Read(ctx context.Context, req datasource
 			return
 		}
 
-		total_string := data.Response.Header.Get("X-Page-Total")
-		if total, err = strconv.Atoi(total_string); err != nil {
+		totalString := data.Response.Header.Get("X-Page-Total")
+		if total, err = strconv.Atoi(totalString); err != nil {
 			resp.Diagnostics.AddError(
 				"Error extracting HTTP Response Headers",
 				"Unable to convert the X-Page-Total value into int, unexcpected error: "+err.Error(),
@@ -125,10 +125,10 @@ func (d *orgDeviceprofilesApDataSource) Read(ctx context.Context, req datasource
 		}
 
 		body, _ := io.ReadAll(data.Response.Body)
-		mist_deviceprofiles := []models.DeviceprofileAp{}
-		json.Unmarshal(body, &mist_deviceprofiles)
+		var mistDeviceprofiles []models.DeviceprofileAp
+		json.Unmarshal(body, &mistDeviceprofiles)
 
-		diags = datasource_org_deviceprofiles_ap.SdkToTerraform(ctx, &mist_deviceprofiles, &elements)
+		diags = datasource_org_deviceprofiles_ap.SdkToTerraform(ctx, &mistDeviceprofiles, &elements)
 		resp.Diagnostics.Append(diags...)
 		if resp.Diagnostics.HasError() {
 			return

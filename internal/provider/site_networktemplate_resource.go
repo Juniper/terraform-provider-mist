@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
+	mistapierror "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_site_networktemplate"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
@@ -47,11 +47,11 @@ func (r *siteNetworkTemplateResource) Configure(ctx context.Context, req resourc
 
 	r.client = client
 }
-func (r *siteNetworkTemplateResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *siteNetworkTemplateResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_site_networktemplate"
 }
 
-func (r *siteNetworkTemplateResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *siteNetworkTemplateResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryWired + "This resource manages the Site Network configuration (Switch configuration).\n\n" +
 			"The Site Network template can be used to override the Org Network template assign to the site, " +
@@ -90,11 +90,11 @@ func (r *siteNetworkTemplateResource) Create(ctx context.Context, req resource.C
 	}
 	data, err := r.client.SitesSetting().UpdateSiteSettings(ctx, siteId, networktemplate)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error creating \"mist_site_networktemplate\" resource",
-			fmt.Sprintf("Unable to create the Network Template. %s", api_err),
+			fmt.Sprintf("Unable to create the Network Template. %s", apiErr),
 		)
 		return
 	}
@@ -113,7 +113,7 @@ func (r *siteNetworkTemplateResource) Create(ctx context.Context, req resource.C
 
 }
 
-func (r *siteNetworkTemplateResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *siteNetworkTemplateResource) Read(ctx context.Context, _ resource.ReadRequest, resp *resource.ReadResponse) {
 	var state resource_site_networktemplate.SiteNetworktemplateModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -187,11 +187,11 @@ func (r *siteNetworkTemplateResource) Update(ctx context.Context, req resource.U
 	}
 	data, err := r.client.SitesSetting().UpdateSiteSettings(ctx, siteId, networktemplate)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error updateing \"mist_site_networktemplate\" resource",
-			fmt.Sprintf("Unable to update the Network Template. %s", api_err),
+			fmt.Sprintf("Unable to update the Network Template. %s", apiErr),
 		)
 		return
 	}
@@ -210,7 +210,7 @@ func (r *siteNetworkTemplateResource) Update(ctx context.Context, req resource.U
 
 }
 
-func (r *siteNetworkTemplateResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *siteNetworkTemplateResource) Delete(ctx context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_site_networktemplate.SiteNetworktemplateModel
 
 	diags := resp.State.Get(ctx, &state)

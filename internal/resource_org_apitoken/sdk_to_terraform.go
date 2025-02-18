@@ -3,7 +3,7 @@ package resource_org_apitoken
 import (
 	"context"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -13,79 +13,78 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func SdkToTerraform(ctx context.Context, data models.OrgApitoken, previous_state *OrgApitokenModel) (OrgApitokenModel, diag.Diagnostics) {
+func SdkToTerraform(ctx context.Context, data models.OrgApitoken, previousState *OrgApitokenModel) (OrgApitokenModel, diag.Diagnostics) {
 	var state OrgApitokenModel
 	var diags diag.Diagnostics
 
-	var created_by types.String
+	var createdBy types.String
 	var id types.String
 	var key types.String
 	var name types.String
-	var org_id types.String
-	var privileges types.List = types.ListNull(PrivilegesValue{}.Type(ctx))
-	var src_ips types.List = types.ListNull(types.StringType)
+	var orgId types.String
+	var privileges = types.ListNull(PrivilegesValue{}.Type(ctx))
+	var srcIps = types.ListNull(types.StringType)
 
 	if data.CreatedBy.Value() != nil {
-		created_by = types.StringValue(*data.CreatedBy.Value())
+		createdBy = types.StringValue(*data.CreatedBy.Value())
 	}
 	id = types.StringValue(data.Id.String())
 	// Since Mist is not returning the complete API Token afterward, keeping the value
 	// sent back when the API Token has been created
-	if previous_state != nil && previous_state.Key.ValueStringPointer() != nil {
-		key = previous_state.Key
+	if previousState != nil && previousState.Key.ValueStringPointer() != nil {
+		key = previousState.Key
 	} else {
 		key = types.StringValue(*data.Key)
 	}
 	name = types.StringValue(data.Name)
-	org_id = types.StringValue(data.OrgId.String())
+	orgId = types.StringValue(data.OrgId.String())
 	privileges = privilegesSdkToTerraform(ctx, &diags, data.Privileges)
 	if data.SrcIps != nil {
-		src_ips = mist_transform.ListOfStringSdkToTerraform(ctx, data.SrcIps)
+		srcIps = misttransform.ListOfStringSdkToTerraform(data.SrcIps)
 	}
 
-	state.CreatedBy = created_by
+	state.CreatedBy = createdBy
 	state.Id = id
 	state.Key = key
 	state.Name = name
-	state.OrgId = org_id
+	state.OrgId = orgId
 	state.Privileges = privileges
-	state.SrcIps = src_ips
+	state.SrcIps = srcIps
 
 	return state, diags
 }
 
 func privilegesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data []models.PrivilegeOrg) basetypes.ListValue {
 
-	var data_list = []PrivilegesValue{}
+	var dataList []PrivilegesValue
 	for _, v := range data {
 		var role types.String
 		var scope types.String
-		var site_id types.String
-		var sitegroup_id types.String
+		var siteId types.String
+		var sitegroupId types.String
 
 		role = types.StringValue(string(v.Role))
 		scope = types.StringValue(string(v.Scope))
 		if v.SiteId != nil {
-			site_id = types.StringValue(v.SiteId.String())
+			siteId = types.StringValue(v.SiteId.String())
 		}
 		if v.SitegroupId != nil {
-			sitegroup_id = types.StringValue(v.SitegroupId.String())
+			sitegroupId = types.StringValue(v.SitegroupId.String())
 		}
 
-		data_map_attr_type := PrivilegesValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
+		dataMapValue := map[string]attr.Value{
 			"role":         role,
 			"scope":        scope,
-			"site_id":      site_id,
-			"sitegroup_id": sitegroup_id,
+			"site_id":      siteId,
+			"sitegroup_id": sitegroupId,
 		}
-		data, e := NewPrivilegesValue(data_map_attr_type, data_map_value)
+		data, e := NewPrivilegesValue(PrivilegesValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		data_list = append(data_list, data)
+		dataList = append(dataList, data)
 	}
 
-	r, e := types.ListValueFrom(ctx, PrivilegesValue{}.Type(ctx), data_list)
+	r, e := types.ListValueFrom(ctx, PrivilegesValue{}.Type(ctx), dataList)
 	diags.Append(e...)
 	return r
 }

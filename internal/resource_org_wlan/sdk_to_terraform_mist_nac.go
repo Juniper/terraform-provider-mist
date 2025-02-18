@@ -18,11 +18,10 @@ func mistNacdSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 		enabled = types.BoolValue(*d.Enabled)
 	}
 
-	data_map_attr_type := MistNacValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"enabled": enabled,
 	}
-	data, e := NewMistNacValue(data_map_attr_type, data_map_value)
+	data, e := NewMistNacValue(MistNacValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

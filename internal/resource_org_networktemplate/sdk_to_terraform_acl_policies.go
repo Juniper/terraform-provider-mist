@@ -10,45 +10,44 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func aclPolicyActionsToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.AclPolicyAction) basetypes.ListValue {
-	var data_list []attr.Value
+	var dataList []attr.Value
 	for _, d := range l {
 
 		var action basetypes.StringValue
-		var dst_tag basetypes.StringValue
+		var dstTag basetypes.StringValue
 
 		if d.Action != nil {
 			action = types.StringValue(string(*d.Action))
 		}
-		dst_tag = types.StringValue(d.DstTag)
+		dstTag = types.StringValue(d.DstTag)
 
-		data_map_attr_type := ActionsValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
+		dataMapValue := map[string]attr.Value{
 			"action":  action,
-			"dst_tag": dst_tag,
+			"dst_tag": dstTag,
 		}
-		data, e := NewActionsValue(data_map_attr_type, data_map_value)
+		data, e := NewActionsValue(ActionsValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		data_list = append(data_list, data)
+		dataList = append(dataList, data)
 	}
 
-	state_list_type := ActionsValue{}.Type(ctx)
-	state_list, e := types.ListValueFrom(ctx, state_list_type, data_list)
+	stateListType := ActionsValue{}.Type(ctx)
+	stateList, e := types.ListValueFrom(ctx, stateListType, dataList)
 	diags.Append(e...)
-	return state_list
+	return stateList
 }
 
 func aclPoliciesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.AclPolicy) basetypes.ListValue {
-	var data_list []attr.Value
+	var dataList []attr.Value
 	for _, d := range l {
 
-		var actions basetypes.ListValue = types.ListNull(ActionsValue{}.Type(ctx))
+		var actions = types.ListNull(ActionsValue{}.Type(ctx))
 		var name basetypes.StringValue
-		var src_tags basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+		var srcTags = misttransform.ListOfStringSdkToTerraformEmpty()
 
 		if d.Actions != nil {
 			actions = aclPolicyActionsToTerraform(ctx, diags, d.Actions)
@@ -57,24 +56,23 @@ func aclPoliciesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l [
 			name = types.StringValue(*d.Name)
 		}
 		if d.SrcTags != nil {
-			src_tags = mist_transform.ListOfStringSdkToTerraform(ctx, d.SrcTags)
+			srcTags = misttransform.ListOfStringSdkToTerraform(d.SrcTags)
 		}
 
-		data_map_attr_type := AclPoliciesValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
+		dataMapValue := map[string]attr.Value{
 			"actions":  actions,
 			"name":     name,
-			"src_tags": src_tags,
+			"src_tags": srcTags,
 		}
-		data, e := NewAclPoliciesValue(data_map_attr_type, data_map_value)
+		data, e := NewAclPoliciesValue(AclPoliciesValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		data_list = append(data_list, data)
+		dataList = append(dataList, data)
 	}
 
-	state_list_type := AclPoliciesValue{}.Type(ctx)
-	state_list, e := types.ListValueFrom(ctx, state_list_type, data_list)
+	stateListType := AclPoliciesValue{}.Type(ctx)
+	stateList, e := types.ListValueFrom(ctx, stateListType, dataList)
 	diags.Append(e...)
 
-	return state_list
+	return stateList
 }

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
+	mistapierror "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_sitegroup"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
@@ -50,11 +50,11 @@ func (r *orgSiteGroupResource) Configure(ctx context.Context, req resource.Confi
 
 	r.client = client
 }
-func (r *orgSiteGroupResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *orgSiteGroupResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_org_sitegroup"
 }
 
-func (r *orgSiteGroupResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *orgSiteGroupResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryOrg + "This resource managed the Org Site Groups (sitegroups).\n\n" +
 			"A site group is a feature that allows admins to group multiple sites together based on regions, functions, or other parameters for efficient management of devices.  \n" +
@@ -88,11 +88,11 @@ func (r *orgSiteGroupResource) Create(ctx context.Context, req resource.CreateRe
 	}
 	data, err := r.client.OrgsSitegroups().CreateOrgSiteGroup(ctx, orgId, sitegroup)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error creating \"mist_org_sitegroup\" resource",
-			fmt.Sprintf("Unable to create the SiteGroup. %s", api_err),
+			fmt.Sprintf("Unable to create the SiteGroup. %s", apiErr),
 		)
 		return
 	}
@@ -111,7 +111,7 @@ func (r *orgSiteGroupResource) Create(ctx context.Context, req resource.CreateRe
 
 }
 
-func (r *orgSiteGroupResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *orgSiteGroupResource) Read(ctx context.Context, _ resource.ReadRequest, resp *resource.ReadResponse) {
 	var state resource_org_sitegroup.OrgSitegroupModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -193,20 +193,20 @@ func (r *orgSiteGroupResource) Update(ctx context.Context, req resource.UpdateRe
 		)
 		return
 	}
-	sitegroup_name := models.NameString{}
-	sitegroup_name.Name = plan.Name.ValueStringPointer()
+	sitegroupName := models.NameString{}
+	sitegroupName.Name = plan.Name.ValueStringPointer()
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 	tflog.Info(ctx, "Starting SiteGroup Update for Site "+plan.Id.ValueString())
-	data, err := r.client.OrgsSitegroups().UpdateOrgSiteGroup(ctx, orgId, sitegroupId, &sitegroup_name)
+	data, err := r.client.OrgsSitegroups().UpdateOrgSiteGroup(ctx, orgId, sitegroupId, &sitegroupName)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error updating \"mist_org_sitegroup\" resource",
-			fmt.Sprintf("Unable to update the SiteGroup. %s", api_err),
+			fmt.Sprintf("Unable to update the SiteGroup. %s", apiErr),
 		)
 		return
 	}
@@ -225,7 +225,7 @@ func (r *orgSiteGroupResource) Update(ctx context.Context, req resource.UpdateRe
 
 }
 
-func (r *orgSiteGroupResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *orgSiteGroupResource) Delete(ctx context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_org_sitegroup.OrgSitegroupModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -252,11 +252,11 @@ func (r *orgSiteGroupResource) Delete(ctx context.Context, req resource.DeleteRe
 	}
 	tflog.Info(ctx, "Starting SiteGroup Delete: sitegroup_id "+state.Id.ValueString())
 	data, err := r.client.OrgsSitegroups().DeleteOrgSiteGroup(ctx, orgId, sitegroupId)
-	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_sitegroup\" resource",
-			fmt.Sprintf("Unable to delete the SiteGroup. %s", api_err),
+			fmt.Sprintf("Unable to delete the SiteGroup. %s", apiErr),
 		)
 		return
 	}

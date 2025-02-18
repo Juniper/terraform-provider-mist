@@ -3,7 +3,7 @@ package resource_org_sso_role
 import (
 	"context"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -18,16 +18,16 @@ func SdkToTerraform(ctx context.Context, data models.SsoRoleOrg) (OrgSsoRoleMode
 
 	var id types.String
 	var name types.String
-	var org_id types.String
-	var privileges types.List = types.ListNull(PrivilegesValue{}.Type(ctx))
+	var orgId types.String
+	var privileges = types.ListNull(PrivilegesValue{}.Type(ctx))
 
 	id = types.StringValue(data.Id.String())
 	name = types.StringValue(data.Name)
-	org_id = types.StringValue(data.OrgId.String())
+	orgId = types.StringValue(data.OrgId.String())
 	privileges = privilegesSdkToTerraform(ctx, &diags, data.Privileges)
 	state.Id = id
 	state.Name = name
-	state.OrgId = org_id
+	state.OrgId = orgId
 	state.Privileges = privileges
 
 	return state, diags
@@ -35,28 +35,28 @@ func SdkToTerraform(ctx context.Context, data models.SsoRoleOrg) (OrgSsoRoleMode
 
 func privilegesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data []models.PrivilegeOrg) basetypes.ListValue {
 
-	var data_list = []PrivilegesValue{}
+	var dataList []PrivilegesValue
 	for _, v := range data {
 		var role types.String
 		var scope types.String
-		var site_id types.String
-		var sitegroup_id types.String
-		var views types.List = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+		var siteId types.String
+		var sitegroupId types.String
+		var views = misttransform.ListOfStringSdkToTerraformEmpty()
 
 		role = types.StringValue(string(v.Role))
 		scope = types.StringValue(string(v.Scope))
 		if v.SiteId != nil {
-			site_id = types.StringValue(v.SiteId.String())
+			siteId = types.StringValue(v.SiteId.String())
 		}
 		if v.SitegroupId != nil {
-			sitegroup_id = types.StringValue(v.SitegroupId.String())
+			sitegroupId = types.StringValue(v.SitegroupId.String())
 		}
 		if v.Views != nil {
-			var views_array []attr.Value
+			var viewsArray []attr.Value
 			for _, role := range v.Views {
-				views_array = append(views_array, types.StringValue(string(role)))
+				viewsArray = append(viewsArray, types.StringValue(string(role)))
 			}
-			tmp, e := types.ListValueFrom(ctx, types.StringType, views_array)
+			tmp, e := types.ListValueFrom(ctx, types.StringType, viewsArray)
 			if e != nil {
 				diags.Append(e...)
 			} else {
@@ -64,21 +64,20 @@ func privilegesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data
 			}
 		}
 
-		data_map_attr_type := PrivilegesValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
+		dataMapValue := map[string]attr.Value{
 			"role":         role,
 			"scope":        scope,
-			"site_id":      site_id,
-			"sitegroup_id": sitegroup_id,
+			"site_id":      siteId,
+			"sitegroup_id": sitegroupId,
 			"views":        views,
 		}
-		data, e := NewPrivilegesValue(data_map_attr_type, data_map_value)
+		data, e := NewPrivilegesValue(PrivilegesValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		data_list = append(data_list, data)
+		dataList = append(dataList, data)
 	}
 
-	r, e := types.ListValueFrom(ctx, PrivilegesValue{}.Type(ctx), data_list)
+	r, e := types.ListValueFrom(ctx, PrivilegesValue{}.Type(ctx), dataList)
 	diags.Append(e...)
 	return r
 }

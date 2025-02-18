@@ -1,14 +1,10 @@
 package resource_org_deviceprofile_ap
 
 import (
-	"context"
-
-	"github.com/hashicorp/terraform-plugin-framework/diag"
-
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func eslTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d EslConfigValue) *models.ApEslConfig {
+func eslTerraformToSdk(d EslConfigValue) *models.ApEslConfig {
 	data := models.ApEslConfig{}
 
 	if d.Cacert.ValueStringPointer() != nil {

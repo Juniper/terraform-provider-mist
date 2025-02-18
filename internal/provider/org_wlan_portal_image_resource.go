@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
+	mistapierror "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_wlan_portal_image"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
@@ -46,11 +46,11 @@ func (r *orgWlanPortalImageResource) Configure(ctx context.Context, req resource
 
 	r.client = client
 }
-func (r *orgWlanPortalImageResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *orgWlanPortalImageResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_org_wlan_portal_image"
 }
 
-func (r *orgWlanPortalImageResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *orgWlanPortalImageResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryWlan + "This resource is used to upload a WLAN Captive Web Portal background image.",
 		Attributes:          resource_org_wlan_portal_image.OrgWlanPortalImageResourceSchema(ctx).Attributes,
@@ -94,15 +94,15 @@ func (r *orgWlanPortalImageResource) Create(ctx context.Context, req resource.Cr
 		)
 		return
 	}
-	var json string = ""
+	var json = ""
 
 	data, err := r.client.OrgsWlans().UploadOrgWlanPortalImage(ctx, orgId, wlanId, file, &json)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error creating \"mist_org_wlan_portal_image\" resource",
-			fmt.Sprintf("Unable to create the Portal Image. %s", api_err),
+			fmt.Sprintf("Unable to create the Portal Image. %s", apiErr),
 		)
 		return
 	}
@@ -119,7 +119,7 @@ func (r *orgWlanPortalImageResource) Create(ctx context.Context, req resource.Cr
 
 }
 
-func (r *orgWlanPortalImageResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *orgWlanPortalImageResource) Read(_ context.Context, _ resource.ReadRequest, _ *resource.ReadResponse) {
 
 }
 
@@ -160,15 +160,15 @@ func (r *orgWlanPortalImageResource) Update(ctx context.Context, req resource.Up
 		)
 		return
 	}
-	var json string = ""
+	var json = ""
 
 	data, err := r.client.OrgsWlans().UploadOrgWlanPortalImage(ctx, orgId, wlanId, file, &json)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error creating \"mist_org_wlan_portal_image\" resource",
-			fmt.Sprintf("Unable to update the Portal Image. %s", api_err),
+			fmt.Sprintf("Unable to update the Portal Image. %s", apiErr),
 		)
 		return
 	}
@@ -185,7 +185,7 @@ func (r *orgWlanPortalImageResource) Update(ctx context.Context, req resource.Up
 
 }
 
-func (r *orgWlanPortalImageResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *orgWlanPortalImageResource) Delete(ctx context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_org_wlan_portal_image.OrgWlanPortalImageModel
 
 	diags := resp.State.Get(ctx, &state)

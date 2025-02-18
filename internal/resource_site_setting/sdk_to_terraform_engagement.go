@@ -5,7 +5,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	mist_hours "github.com/Juniper/terraform-provider-mist/internal/commons/hours"
+	misthours "github.com/Juniper/terraform-provider-mist/internal/commons/hours"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -32,14 +32,13 @@ func engagementDwellTagNamesSdkToTerraform(ctx context.Context, diags *diag.Diag
 		stationed = types.StringValue(*d.Stationed)
 	}
 
-	data_map_attr_type := DwellTagNamesValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"bounce":    bounce,
 		"engaged":   engaged,
 		"passerby":  passerby,
 		"stationed": stationed,
 	}
-	data, e := basetypes.NewObjectValue(data_map_attr_type, data_map_value)
+	data, e := basetypes.NewObjectValue(DwellTagNamesValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data
@@ -65,14 +64,13 @@ func engagementDwellTagsSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 		stationed = types.StringValue(*d.Stationed.Value())
 	}
 
-	data_map_attr_type := DwellTagsValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"bounce":    bounce,
 		"engaged":   engaged,
 		"passerby":  passerby,
 		"stationed": stationed,
 	}
-	data, e := basetypes.NewObjectValue(data_map_attr_type, data_map_value)
+	data, e := basetypes.NewObjectValue(DwellTagsValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data
@@ -80,37 +78,36 @@ func engagementDwellTagsSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 
 func engagementSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteEngagement) EngagementValue {
 
-	var dwell_tag_names basetypes.ObjectValue = types.ObjectNull(DwellTagNamesValue{}.AttributeTypes(ctx))
-	var dwell_tags basetypes.ObjectValue = types.ObjectNull(DwellTagsValue{}.AttributeTypes(ctx))
-	var hours basetypes.ObjectValue = types.ObjectNull(HoursValue{}.AttributeTypes(ctx))
-	var max_dwell basetypes.Int64Value
-	var min_dwell basetypes.Int64Value
+	var dwellTagNames = types.ObjectNull(DwellTagNamesValue{}.AttributeTypes(ctx))
+	var dwellTags = types.ObjectNull(DwellTagsValue{}.AttributeTypes(ctx))
+	var hours = types.ObjectNull(HoursValue{}.AttributeTypes(ctx))
+	var maxDwell basetypes.Int64Value
+	var minDwell basetypes.Int64Value
 
 	if d != nil && d.DwellTagNames != nil {
-		dwell_tag_names = engagementDwellTagNamesSdkToTerraform(ctx, diags, d.DwellTagNames)
+		dwellTagNames = engagementDwellTagNamesSdkToTerraform(ctx, diags, d.DwellTagNames)
 	}
 	if d != nil && d.DwellTags != nil {
-		dwell_tags = engagementDwellTagsSdkToTerraform(ctx, diags, d.DwellTags)
+		dwellTags = engagementDwellTagsSdkToTerraform(ctx, diags, d.DwellTags)
 	}
 	if d != nil && d.Hours != nil {
-		hours = mist_hours.HoursSdkToTerraform(ctx, diags, d.Hours)
+		hours = misthours.HoursSdkToTerraform(diags, d.Hours)
 	}
 	if d != nil && d.MaxDwell != nil {
-		max_dwell = types.Int64Value(int64(*d.MaxDwell))
+		maxDwell = types.Int64Value(int64(*d.MaxDwell))
 	}
 	if d != nil && d.MinDwell != nil {
-		min_dwell = types.Int64Value(int64(*d.MinDwell))
+		minDwell = types.Int64Value(int64(*d.MinDwell))
 	}
 
-	data_map_attr_type := EngagementValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"dwell_tag_names": dwell_tag_names,
-		"dwell_tags":      dwell_tags,
+	dataMapValue := map[string]attr.Value{
+		"dwell_tag_names": dwellTagNames,
+		"dwell_tags":      dwellTags,
 		"hours":           hours,
-		"max_dwell":       max_dwell,
-		"min_dwell":       min_dwell,
+		"max_dwell":       maxDwell,
+		"min_dwell":       minDwell,
 	}
-	data, e := NewEngagementValue(data_map_attr_type, data_map_value)
+	data, e := NewEngagementValue(EngagementValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

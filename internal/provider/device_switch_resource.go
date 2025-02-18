@@ -7,7 +7,7 @@ import (
 	"io"
 	"strings"
 
-	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
+	mistapierror "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_device_switch"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
@@ -52,11 +52,11 @@ func (r *deviceSwitchResource) Configure(ctx context.Context, req resource.Confi
 
 	r.client = client
 }
-func (r *deviceSwitchResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *deviceSwitchResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_device_switch"
 }
 
-func (r *deviceSwitchResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *deviceSwitchResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryDevices + "This resource manages the Switch configuration.\n\n" +
 			"It can be used to define specific configuration at the device level or to override Org/Site Network template settings.\n\n" +
@@ -75,7 +75,7 @@ func (r *deviceSwitchResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
-	device_switch, diags := resource_device_switch.TerraformToSdk(ctx, &plan)
+	deviceSwitch, diags := resource_device_switch.TerraformToSdk(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -100,23 +100,23 @@ func (r *deviceSwitchResource) Create(ctx context.Context, req resource.CreateRe
 	}
 
 	tflog.Info(ctx, "Starting DeviceSwitch Create on Site "+plan.SiteId.ValueString()+" for device "+plan.DeviceId.ValueString())
-	data, err := r.client.SitesDevices().UpdateSiteDevice(ctx, siteId, deviceId, &device_switch)
+	data, err := r.client.SitesDevices().UpdateSiteDevice(ctx, siteId, deviceId, &deviceSwitch)
 
 	if data.Response.StatusCode != 200 {
-		api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-		if api_err != "" {
+		apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+		if apiErr != "" {
 			resp.Diagnostics.AddError(
 				"Error creating \"mist_device_switch\" resource",
-				fmt.Sprintf("Unable to create the Switch. %s", api_err),
+				fmt.Sprintf("Unable to create the Switch. %s", apiErr),
 			)
 			return
 		}
 	}
 
 	body, _ := io.ReadAll(data.Response.Body)
-	mist_switch := models.DeviceSwitch{}
-	json.Unmarshal(body, &mist_switch)
-	state, diags = resource_device_switch.SdkToTerraform(ctx, &mist_switch)
+	mistSwitch := models.DeviceSwitch{}
+	json.Unmarshal(body, &mistSwitch)
+	state, diags = resource_device_switch.SdkToTerraform(ctx, &mistSwitch)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -130,7 +130,7 @@ func (r *deviceSwitchResource) Create(ctx context.Context, req resource.CreateRe
 
 }
 
-func (r *deviceSwitchResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *deviceSwitchResource) Read(ctx context.Context, _ resource.ReadRequest, resp *resource.ReadResponse) {
 	var state resource_device_switch.DeviceSwitchModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -171,10 +171,10 @@ func (r *deviceSwitchResource) Read(ctx context.Context, req resource.ReadReques
 	}
 
 	body, _ := io.ReadAll(httpr.Response.Body)
-	mist_switch := models.DeviceSwitch{}
-	json.Unmarshal(body, &mist_switch)
+	mistSwitch := models.DeviceSwitch{}
+	json.Unmarshal(body, &mistSwitch)
 
-	state, diags = resource_device_switch.SdkToTerraform(ctx, &mist_switch)
+	state, diags = resource_device_switch.SdkToTerraform(ctx, &mistSwitch)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -203,7 +203,7 @@ func (r *deviceSwitchResource) Update(ctx context.Context, req resource.UpdateRe
 		return
 	}
 
-	device_switch, diags := resource_device_switch.TerraformToSdk(ctx, &plan)
+	deviceSwitch, diags := resource_device_switch.TerraformToSdk(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -229,23 +229,23 @@ func (r *deviceSwitchResource) Update(ctx context.Context, req resource.UpdateRe
 		return
 	}
 
-	data, err := r.client.SitesDevices().UpdateSiteDevice(ctx, siteId, deviceId, &device_switch)
+	data, err := r.client.SitesDevices().UpdateSiteDevice(ctx, siteId, deviceId, &deviceSwitch)
 
 	if data.Response.StatusCode != 200 {
-		api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-		if api_err != "" {
+		apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+		if apiErr != "" {
 			resp.Diagnostics.AddError(
 				"Error updating \"mist_device_switch\" resource",
-				fmt.Sprintf("Unable to update the Switch. %s", api_err),
+				fmt.Sprintf("Unable to update the Switch. %s", apiErr),
 			)
 			return
 		}
 	}
 
 	body, _ := io.ReadAll(data.Response.Body)
-	mist_switch := models.DeviceSwitch{}
-	json.Unmarshal(body, &mist_switch)
-	state, diags = resource_device_switch.SdkToTerraform(ctx, &mist_switch)
+	mistSwitch := models.DeviceSwitch{}
+	json.Unmarshal(body, &mistSwitch)
+	state, diags = resource_device_switch.SdkToTerraform(ctx, &mistSwitch)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -259,7 +259,7 @@ func (r *deviceSwitchResource) Update(ctx context.Context, req resource.UpdateRe
 
 }
 
-func (r *deviceSwitchResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *deviceSwitchResource) Delete(ctx context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_device_switch.DeviceSwitchModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -268,7 +268,7 @@ func (r *deviceSwitchResource) Delete(ctx context.Context, req resource.DeleteRe
 		return
 	}
 
-	device_switch, e := resource_device_switch.DeleteTerraformToSdk(ctx)
+	deviceSwitch, e := resource_device_switch.DeleteTerraformToSdk(ctx)
 	resp.Diagnostics.Append(e...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -294,12 +294,12 @@ func (r *deviceSwitchResource) Delete(ctx context.Context, req resource.DeleteRe
 		return
 	}
 
-	data, err := r.client.SitesDevices().UpdateSiteDevice(ctx, siteId, deviceId, &device_switch)
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if data.Response.StatusCode != 200 && data.Response.StatusCode != 404 && api_err != "" {
+	data, err := r.client.SitesDevices().UpdateSiteDevice(ctx, siteId, deviceId, &deviceSwitch)
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if data.Response.StatusCode != 200 && data.Response.StatusCode != 404 && apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_device_switch\" resource",
-			fmt.Sprintf("Unable to delete the Switch. %s", api_err),
+			fmt.Sprintf("Unable to delete the Switch. %s", apiErr),
 		)
 		return
 	}

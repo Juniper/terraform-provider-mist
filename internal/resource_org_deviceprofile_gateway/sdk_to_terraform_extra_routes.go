@@ -13,7 +13,7 @@ import (
 
 func extraRoutesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.GatewayExtraRoute) basetypes.MapValue {
 
-	state_value_map_value := make(map[string]attr.Value)
+	stateValueMapValue := make(map[string]attr.Value)
 	for k, d := range m {
 		var via basetypes.StringValue
 
@@ -21,24 +21,23 @@ func extraRoutesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m m
 			via = types.StringValue(*d.Via)
 		}
 
-		data_map_attr_type := ExtraRoutesValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
+		dataMapValue := map[string]attr.Value{
 			"via": via,
 		}
-		data, e := NewExtraRoutesValue(data_map_attr_type, data_map_value)
+		data, e := NewExtraRoutesValue(ExtraRoutesValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		state_value_map_value[k] = data
+		stateValueMapValue[k] = data
 	}
-	state_result_map_type := ExtraRoutesValue{}.Type(ctx)
-	state_result_map, e := types.MapValueFrom(ctx, state_result_map_type, state_value_map_value)
+	stateResultMapType := ExtraRoutesValue{}.Type(ctx)
+	stateResultMap, e := types.MapValueFrom(ctx, stateResultMapType, stateValueMapValue)
 	diags.Append(e...)
-	return state_result_map
+	return stateResultMap
 }
 
 func extraRoutes6SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.GatewayExtraRoute) basetypes.MapValue {
 
-	state_value_map_value := make(map[string]attr.Value)
+	stateValueMapValue := make(map[string]attr.Value)
 	for k, d := range m {
 		var via basetypes.StringValue
 
@@ -46,17 +45,16 @@ func extraRoutes6SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m 
 			via = types.StringValue(*d.Via)
 		}
 
-		data_map_attr_type := ExtraRoutes6Value{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
+		dataMapValue := map[string]attr.Value{
 			"via": via,
 		}
-		data, e := NewExtraRoutesValue(data_map_attr_type, data_map_value)
+		data, e := NewExtraRoutesValue(ExtraRoutes6Value{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		state_value_map_value[k] = data
+		stateValueMapValue[k] = data
 	}
-	state_result_map_type := ExtraRoutes6Value{}.Type(ctx)
-	state_result_map, e := types.MapValueFrom(ctx, state_result_map_type, state_value_map_value)
+	stateResultMapType := ExtraRoutes6Value{}.Type(ctx)
+	stateResultMap, e := types.MapValueFrom(ctx, stateResultMapType, stateValueMapValue)
 	diags.Append(e...)
-	return state_result_map
+	return stateResultMap
 }

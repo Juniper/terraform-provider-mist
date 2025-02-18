@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
+	mistapierror "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_site_wlan_portal_template"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
@@ -45,11 +45,11 @@ func (r *siteWlanPortalTemplateResource) Configure(ctx context.Context, req reso
 
 	r.client = client
 }
-func (r *siteWlanPortalTemplateResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *siteWlanPortalTemplateResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_site_wlan_portal_template"
 }
 
-func (r *siteWlanPortalTemplateResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *siteWlanPortalTemplateResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryWlan + "This resource is used customize the WLAN Guest Portal.\n" +
 			"The WLAN Portal Template can be used to define:\n" +
@@ -93,7 +93,7 @@ func (r *siteWlanPortalTemplateResource) Create(ctx context.Context, req resourc
 		return
 	}
 
-	template, diags := resource_site_wlan_portal_template.TerraformToSdk(ctx, &plan)
+	template, diags := resource_site_wlan_portal_template.TerraformToSdk(&plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -120,7 +120,7 @@ func (r *siteWlanPortalTemplateResource) Create(ctx context.Context, req resourc
 
 }
 
-func (r *siteWlanPortalTemplateResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *siteWlanPortalTemplateResource) Read(_ context.Context, _ resource.ReadRequest, _ *resource.ReadResponse) {
 
 }
 
@@ -152,7 +152,7 @@ func (r *siteWlanPortalTemplateResource) Update(ctx context.Context, req resourc
 		return
 	}
 
-	template, diags := resource_site_wlan_portal_template.TerraformToSdk(ctx, &plan)
+	template, diags := resource_site_wlan_portal_template.TerraformToSdk(&plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -178,7 +178,7 @@ func (r *siteWlanPortalTemplateResource) Update(ctx context.Context, req resourc
 	}
 }
 
-func (r *siteWlanPortalTemplateResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *siteWlanPortalTemplateResource) Delete(ctx context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_site_wlan_portal_template.SiteWlanPortalTemplateModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -205,18 +205,18 @@ func (r *siteWlanPortalTemplateResource) Delete(ctx context.Context, req resourc
 		return
 	}
 
-	template, diags := resource_site_wlan_portal_template.DeleteTerraformToSdk(ctx)
+	template, diags := resource_site_wlan_portal_template.DeleteTerraformToSdk()
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
 	data, err := r.client.SitesWlans().UpdateSiteWlanPortalTemplate(ctx, siteId, wlanId, template)
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if data.Response.StatusCode != 404 && api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if data.Response.StatusCode != 404 && apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_site_wlan_portal_template\" resource",
-			fmt.Sprintf("Unable to delete the WLAN Portal Temaplate. %s", api_err),
+			fmt.Sprintf("Unable to delete the WLAN Portal Temaplate. %s", apiErr),
 		)
 		return
 	}

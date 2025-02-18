@@ -3,7 +3,7 @@ package resource_org_network
 import (
 	"context"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -40,19 +40,19 @@ func TerraformToSdk(ctx context.Context, plan *OrgNetworkModel) (*models.Network
 	}
 
 	if !plan.Multicast.IsNull() && !plan.Multicast.IsUnknown() {
-		data.Multicast = MulticastTerraformToSdk(ctx, &diags, plan.Multicast)
+		data.Multicast = MulticastTerraformToSdk(plan.Multicast)
 	} else {
 		unset["-multicast"] = ""
 	}
 
 	if !plan.InternalAccess.IsNull() && !plan.InternalAccess.IsUnknown() {
-		data.InternalAccess = InternalAccessTerraformToSdk(ctx, &diags, plan.InternalAccess)
+		data.InternalAccess = InternalAccessTerraformToSdk(plan.InternalAccess)
 	} else {
 		unset["-internal_access"] = ""
 	}
 
 	if !plan.InternetAccess.IsNull() && !plan.InternetAccess.IsUnknown() {
-		data.InternetAccess = InternetAccessTerraformToSdk(ctx, &diags, plan.InternetAccess)
+		data.InternetAccess = InternetAccessTerraformToSdk(plan.InternetAccess)
 	} else {
 		unset["-internet_access"] = ""
 	}
@@ -64,7 +64,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgNetworkModel) (*models.Network
 	}
 
 	if !plan.RoutedForNetworks.IsNull() && !plan.RoutedForNetworks.IsUnknown() {
-		data.RoutedForNetworks = mist_transform.ListOfStringTerraformToSdk(ctx, plan.RoutedForNetworks)
+		data.RoutedForNetworks = misttransform.ListOfStringTerraformToSdk(plan.RoutedForNetworks)
 	} else {
 		unset["-routed_for_networks"] = ""
 	}
@@ -82,7 +82,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgNetworkModel) (*models.Network
 	}
 
 	if !plan.Tenants.IsNull() && !plan.Tenants.IsUnknown() {
-		data.Tenants = TenantTerraformToSdk(ctx, &diags, plan.Tenants)
+		data.Tenants = TenantTerraformToSdk(plan.Tenants)
 	} else {
 		unset["-tenants"] = ""
 	}

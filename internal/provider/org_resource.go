@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
+	mistapierror "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
@@ -47,11 +47,11 @@ func (r *orgResource) Configure(ctx context.Context, req resource.ConfigureReque
 
 	r.client = client
 }
-func (r *orgResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *orgResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_org"
 }
 
-func (r *orgResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *orgResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryOrg + "This resource manages the Mist Organization.\n\n" +
 			"An organization usually represents a customer - which has inventories, licenses. " +
@@ -77,16 +77,16 @@ func (r *orgResource) Create(ctx context.Context, req resource.CreateRequest, re
 	}
 	data, err := r.client.Orgs().CreateOrg(ctx, org)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error creating \"mist_org\" resource",
-			fmt.Sprintf("Unable to create the Org. %s", api_err),
+			fmt.Sprintf("Unable to create the Org. %s", apiErr),
 		)
 		return
 	}
 
-	state, diags = resource_org.SdkToTerraform(ctx, data.Data)
+	state, diags = resource_org.SdkToTerraform(data.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -100,7 +100,7 @@ func (r *orgResource) Create(ctx context.Context, req resource.CreateRequest, re
 
 }
 
-func (r *orgResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *orgResource) Read(ctx context.Context, _ resource.ReadRequest, resp *resource.ReadResponse) {
 	var state resource_org.OrgModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -130,7 +130,7 @@ func (r *orgResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 		)
 		return
 	}
-	state, diags = resource_org.SdkToTerraform(ctx, httpr.Data)
+	state, diags = resource_org.SdkToTerraform(httpr.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -176,16 +176,16 @@ func (r *orgResource) Update(ctx context.Context, req resource.UpdateRequest, re
 	tflog.Info(ctx, "Starting Org Update for Org "+orgId.String())
 	data, err := r.client.Orgs().UpdateOrg(ctx, orgId, org)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error updating \"mist_org\" resource",
-			fmt.Sprintf("Unable to update the Org. %s", api_err),
+			fmt.Sprintf("Unable to update the Org. %s", apiErr),
 		)
 		return
 	}
 
-	state, diags = resource_org.SdkToTerraform(ctx, data.Data)
+	state, diags = resource_org.SdkToTerraform(data.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -199,7 +199,7 @@ func (r *orgResource) Update(ctx context.Context, req resource.UpdateRequest, re
 
 }
 
-func (r *orgResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *orgResource) Delete(ctx context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_org.OrgModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -219,11 +219,11 @@ func (r *orgResource) Delete(ctx context.Context, req resource.DeleteRequest, re
 
 	tflog.Info(ctx, "Starting Org Delete: org_id "+state.Id.ValueString())
 	data, err := r.client.Orgs().DeleteOrg(ctx, orgId)
-	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org\" resource",
-			fmt.Sprintf("Unable to delete the Org. %s", api_err),
+			fmt.Sprintf("Unable to delete the Org. %s", apiErr),
 		)
 		return
 	}

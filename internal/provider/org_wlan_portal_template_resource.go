@@ -44,11 +44,11 @@ func (r *orgWlanPortalTemplateResource) Configure(ctx context.Context, req resou
 
 	r.client = client
 }
-func (r *orgWlanPortalTemplateResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *orgWlanPortalTemplateResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_org_wlan_portal_template"
 }
 
-func (r *orgWlanPortalTemplateResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *orgWlanPortalTemplateResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryWlan + "This resource is used customize the WLAN Guest Portal.\n\n" +
 			"The WLAN Portal Template can be used to define:\n" +
@@ -92,7 +92,7 @@ func (r *orgWlanPortalTemplateResource) Create(ctx context.Context, req resource
 		return
 	}
 
-	template, diags := resource_org_wlan_portal_template.TerraformToSdk(ctx, &plan)
+	template, diags := resource_org_wlan_portal_template.TerraformToSdk(&plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -119,7 +119,7 @@ func (r *orgWlanPortalTemplateResource) Create(ctx context.Context, req resource
 
 }
 
-func (r *orgWlanPortalTemplateResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *orgWlanPortalTemplateResource) Read(_ context.Context, _ resource.ReadRequest, _ *resource.ReadResponse) {
 
 }
 
@@ -151,7 +151,7 @@ func (r *orgWlanPortalTemplateResource) Update(ctx context.Context, req resource
 		return
 	}
 
-	template, diags := resource_org_wlan_portal_template.TerraformToSdk(ctx, &plan)
+	template, diags := resource_org_wlan_portal_template.TerraformToSdk(&plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -177,7 +177,7 @@ func (r *orgWlanPortalTemplateResource) Update(ctx context.Context, req resource
 	}
 }
 
-func (r *orgWlanPortalTemplateResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *orgWlanPortalTemplateResource) Delete(ctx context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_org_wlan_portal_template.OrgWlanPortalTemplateModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -204,7 +204,7 @@ func (r *orgWlanPortalTemplateResource) Delete(ctx context.Context, req resource
 		return
 	}
 
-	template, diags := resource_org_wlan_portal_template.DeleteTerraformToSdk(ctx)
+	template, diags := resource_org_wlan_portal_template.DeleteTerraformToSdk()
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

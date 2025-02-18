@@ -7,7 +7,7 @@ import (
 	"io"
 	"strings"
 
-	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
+	mistapierror "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_device_gateway"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
@@ -52,11 +52,11 @@ func (r *deviceGatewayResource) Configure(ctx context.Context, req resource.Conf
 
 	r.client = client
 }
-func (r *deviceGatewayResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *deviceGatewayResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_device_gateway"
 }
 
-func (r *deviceGatewayResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *deviceGatewayResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryDevices + "This resource manages the Gateway configuration.\n\n" +
 			"It can be used to define specific configuration at the device level or to override Org Gateway template settings.\n\n" +
@@ -75,7 +75,7 @@ func (r *deviceGatewayResource) Create(ctx context.Context, req resource.CreateR
 		return
 	}
 
-	device_gateway, diags := resource_device_gateway.TerraformToSdk(ctx, &plan)
+	deviceGateway, diags := resource_device_gateway.TerraformToSdk(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -100,23 +100,23 @@ func (r *deviceGatewayResource) Create(ctx context.Context, req resource.CreateR
 	}
 
 	tflog.Info(ctx, "Starting DeviceGateway Create on Site "+plan.SiteId.ValueString()+" for device "+plan.DeviceId.ValueString())
-	data, err := r.client.SitesDevices().UpdateSiteDevice(ctx, siteId, deviceId, &device_gateway)
+	data, err := r.client.SitesDevices().UpdateSiteDevice(ctx, siteId, deviceId, &deviceGateway)
 
 	if data.Response.StatusCode != 200 {
-		api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-		if api_err != "" {
+		apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+		if apiErr != "" {
 			resp.Diagnostics.AddError(
 				"Error creating \"mist_device_gateway\" resource",
-				fmt.Sprintf("Unable to create the Gateway. %s", api_err),
+				fmt.Sprintf("Unable to create the Gateway. %s", apiErr),
 			)
 			return
 		}
 	}
 
 	body, _ := io.ReadAll(data.Response.Body)
-	mist_gateway := models.DeviceGateway{}
-	json.Unmarshal(body, &mist_gateway)
-	state, diags = resource_device_gateway.SdkToTerraform(ctx, &mist_gateway)
+	mistGateway := models.DeviceGateway{}
+	json.Unmarshal(body, &mistGateway)
+	state, diags = resource_device_gateway.SdkToTerraform(ctx, &mistGateway)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -130,7 +130,7 @@ func (r *deviceGatewayResource) Create(ctx context.Context, req resource.CreateR
 
 }
 
-func (r *deviceGatewayResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *deviceGatewayResource) Read(ctx context.Context, _ resource.ReadRequest, resp *resource.ReadResponse) {
 	var state resource_device_gateway.DeviceGatewayModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -171,10 +171,10 @@ func (r *deviceGatewayResource) Read(ctx context.Context, req resource.ReadReque
 	}
 
 	body, _ := io.ReadAll(httpr.Response.Body)
-	mist_gateway := models.DeviceGateway{}
-	json.Unmarshal(body, &mist_gateway)
+	mistGateway := models.DeviceGateway{}
+	json.Unmarshal(body, &mistGateway)
 
-	state, diags = resource_device_gateway.SdkToTerraform(ctx, &mist_gateway)
+	state, diags = resource_device_gateway.SdkToTerraform(ctx, &mistGateway)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -203,7 +203,7 @@ func (r *deviceGatewayResource) Update(ctx context.Context, req resource.UpdateR
 		return
 	}
 
-	device_gateway, diags := resource_device_gateway.TerraformToSdk(ctx, &plan)
+	deviceGateway, diags := resource_device_gateway.TerraformToSdk(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -229,23 +229,23 @@ func (r *deviceGatewayResource) Update(ctx context.Context, req resource.UpdateR
 		return
 	}
 
-	data, err := r.client.SitesDevices().UpdateSiteDevice(ctx, siteId, deviceId, &device_gateway)
+	data, err := r.client.SitesDevices().UpdateSiteDevice(ctx, siteId, deviceId, &deviceGateway)
 
 	if data.Response.StatusCode != 200 {
-		api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-		if api_err != "" {
+		apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+		if apiErr != "" {
 			resp.Diagnostics.AddError(
 				"Error updating \"mist_device_gateway\" resource",
-				fmt.Sprintf("Unable to update the Gateway. %s", api_err),
+				fmt.Sprintf("Unable to update the Gateway. %s", apiErr),
 			)
 			return
 		}
 	}
 
 	body, _ := io.ReadAll(data.Response.Body)
-	mist_gateway := models.DeviceGateway{}
-	json.Unmarshal(body, &mist_gateway)
-	state, diags = resource_device_gateway.SdkToTerraform(ctx, &mist_gateway)
+	mistGateway := models.DeviceGateway{}
+	json.Unmarshal(body, &mistGateway)
+	state, diags = resource_device_gateway.SdkToTerraform(ctx, &mistGateway)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -259,7 +259,7 @@ func (r *deviceGatewayResource) Update(ctx context.Context, req resource.UpdateR
 
 }
 
-func (r *deviceGatewayResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *deviceGatewayResource) Delete(ctx context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_device_gateway.DeviceGatewayModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -268,7 +268,7 @@ func (r *deviceGatewayResource) Delete(ctx context.Context, req resource.DeleteR
 		return
 	}
 
-	device_gateway, e := resource_device_gateway.DeleteTerraformToSdk(ctx)
+	deviceGateway, e := resource_device_gateway.DeleteTerraformToSdk(ctx)
 	resp.Diagnostics.Append(e...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -294,12 +294,12 @@ func (r *deviceGatewayResource) Delete(ctx context.Context, req resource.DeleteR
 		return
 	}
 
-	data, err := r.client.SitesDevices().UpdateSiteDevice(ctx, siteId, deviceId, &device_gateway)
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if data.Response.StatusCode != 200 && data.Response.StatusCode != 404 && api_err != "" {
+	data, err := r.client.SitesDevices().UpdateSiteDevice(ctx, siteId, deviceId, &deviceGateway)
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if data.Response.StatusCode != 200 && data.Response.StatusCode != 404 && apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_device_gateway\" resource",
-			fmt.Sprintf("Unable to delete the Gateway. %s", api_err),
+			fmt.Sprintf("Unable to delete the Gateway. %s", apiErr),
 		)
 		return
 	}

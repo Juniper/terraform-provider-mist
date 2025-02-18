@@ -15,23 +15,23 @@ func radioStatBandSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d
 
 	var bandwidth basetypes.Int64Value
 	var channel basetypes.Int64Value
-	var dynamic_chaining_enalbed basetypes.BoolValue
+	var dynamicChainingEnalbed basetypes.BoolValue
 	var mac basetypes.StringValue
-	var noise_floor basetypes.Int64Value
-	var num_clients basetypes.Int64Value
+	var noiseFloor basetypes.Int64Value
+	var numClients basetypes.Int64Value
 	var power basetypes.Int64Value
-	var rx_bytes basetypes.Int64Value
-	var rx_pkts basetypes.Int64Value
-	var tx_bytes basetypes.Int64Value
-	var tx_pkts basetypes.Int64Value
+	var rxBytes basetypes.Int64Value
+	var rxPkts basetypes.Int64Value
+	var txBytes basetypes.Int64Value
+	var txPkts basetypes.Int64Value
 	var usage basetypes.StringValue
-	var util_all basetypes.Int64Value
-	var util_non_wifi basetypes.Int64Value
-	var util_rx_in_bss basetypes.Int64Value
-	var util_rx_other_bss basetypes.Int64Value
-	var util_tx basetypes.Int64Value
-	var util_undecodable_wifi basetypes.Int64Value
-	var util_unknown_wifi basetypes.Int64Value
+	var utilAll basetypes.Int64Value
+	var utilNonWifi basetypes.Int64Value
+	var utilRxInBss basetypes.Int64Value
+	var utilRxOtherBss basetypes.Int64Value
+	var utilTx basetypes.Int64Value
+	var utilUndecodableWifi basetypes.Int64Value
+	var utilUnknownWifi basetypes.Int64Value
 
 	if d.Bandwidth != nil {
 		bandwidth = types.Int64Value(int64(*d.Bandwidth))
@@ -40,80 +40,79 @@ func radioStatBandSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d
 		channel = types.Int64Value(int64(*d.Channel.Value()))
 	}
 	if d.DynamicChainingEnalbed.Value() != nil {
-		dynamic_chaining_enalbed = types.BoolValue(*d.DynamicChainingEnalbed.Value())
+		dynamicChainingEnalbed = types.BoolValue(*d.DynamicChainingEnalbed.Value())
 	}
 	if d.Mac.Value() != nil {
 		mac = types.StringValue(*d.Mac.Value())
 	}
 	if d.NoiseFloor.Value() != nil {
-		noise_floor = types.Int64Value(int64(*d.NoiseFloor.Value()))
+		noiseFloor = types.Int64Value(int64(*d.NoiseFloor.Value()))
 	}
 	if d.NumClients.Value() != nil {
-		num_clients = types.Int64Value(int64(*d.NumClients.Value()))
+		numClients = types.Int64Value(int64(*d.NumClients.Value()))
 	}
 	if d.Power.Value() != nil {
 		power = types.Int64Value(int64(*d.Power.Value()))
 	}
 	if d.RxBytes.Value() != nil {
-		rx_bytes = types.Int64Value(int64(*d.RxBytes.Value()))
+		rxBytes = types.Int64Value(int64(*d.RxBytes.Value()))
 	}
 	if d.RxPkts.Value() != nil {
-		rx_pkts = types.Int64Value(int64(*d.RxPkts.Value()))
+		rxPkts = types.Int64Value(int64(*d.RxPkts.Value()))
 	}
 	if d.TxBytes.Value() != nil {
-		tx_bytes = types.Int64Value(int64(*d.TxBytes.Value()))
+		txBytes = types.Int64Value(int64(*d.TxBytes.Value()))
 	}
 	if d.TxPkts.Value() != nil {
-		tx_pkts = types.Int64Value(int64(*d.TxPkts.Value()))
+		txPkts = types.Int64Value(int64(*d.TxPkts.Value()))
 	}
 	if d.Usage.Value() != nil {
 		usage = types.StringValue(*d.Usage.Value())
 	}
 	if d.UtilAll.Value() != nil {
-		util_all = types.Int64Value(int64(*d.UtilAll.Value()))
+		utilAll = types.Int64Value(int64(*d.UtilAll.Value()))
 	}
 	if d.UtilNonWifi.Value() != nil {
-		util_non_wifi = types.Int64Value(int64(*d.UtilNonWifi.Value()))
+		utilNonWifi = types.Int64Value(int64(*d.UtilNonWifi.Value()))
 	}
 	if d.UtilRxInBss.Value() != nil {
-		util_rx_in_bss = types.Int64Value(int64(*d.UtilRxInBss.Value()))
+		utilRxInBss = types.Int64Value(int64(*d.UtilRxInBss.Value()))
 	}
 	if d.UtilRxOtherBss.Value() != nil {
-		util_rx_other_bss = types.Int64Value(int64(*d.UtilRxOtherBss.Value()))
+		utilRxOtherBss = types.Int64Value(int64(*d.UtilRxOtherBss.Value()))
 	}
 	if d.UtilTx.Value() != nil {
-		util_tx = types.Int64Value(int64(*d.UtilTx.Value()))
+		utilTx = types.Int64Value(int64(*d.UtilTx.Value()))
 	}
 	if d.UtilUndecodableWifi.Value() != nil {
-		util_undecodable_wifi = types.Int64Value(int64(*d.UtilUndecodableWifi.Value()))
+		utilUndecodableWifi = types.Int64Value(int64(*d.UtilUndecodableWifi.Value()))
 	}
 	if d.UtilUnknownWifi.Value() != nil {
-		util_unknown_wifi = types.Int64Value(int64(*d.UtilUnknownWifi.Value()))
+		utilUnknownWifi = types.Int64Value(int64(*d.UtilUnknownWifi.Value()))
 	}
 
-	data_map_attr_type := BandValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"bandwidth":                bandwidth,
 		"channel":                  channel,
-		"dynamic_chaining_enalbed": dynamic_chaining_enalbed,
+		"dynamic_chaining_enalbed": dynamicChainingEnalbed,
 		"mac":                      mac,
-		"noise_floor":              noise_floor,
-		"num_clients":              num_clients,
+		"noise_floor":              noiseFloor,
+		"num_clients":              numClients,
 		"power":                    power,
-		"rx_bytes":                 rx_bytes,
-		"rx_pkts":                  rx_pkts,
-		"tx_bytes":                 tx_bytes,
-		"tx_pkts":                  tx_pkts,
+		"rx_bytes":                 rxBytes,
+		"rx_pkts":                  rxPkts,
+		"tx_bytes":                 txBytes,
+		"tx_pkts":                  txPkts,
 		"usage":                    usage,
-		"util_all":                 util_all,
-		"util_non_wifi":            util_non_wifi,
-		"util_rx_in_bss":           util_rx_in_bss,
-		"util_rx_other_bss":        util_rx_other_bss,
-		"util_tx":                  util_tx,
-		"util_undecodable_wifi":    util_undecodable_wifi,
-		"util_unknown_wifi":        util_unknown_wifi,
+		"util_all":                 utilAll,
+		"util_non_wifi":            utilNonWifi,
+		"util_rx_in_bss":           utilRxInBss,
+		"util_rx_other_bss":        utilRxOtherBss,
+		"util_tx":                  utilTx,
+		"util_undecodable_wifi":    utilUndecodableWifi,
+		"util_unknown_wifi":        utilUnknownWifi,
 	}
-	data, e := basetypes.NewObjectValue(data_map_attr_type, data_map_value)
+	data, e := basetypes.NewObjectValue(BandValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data
@@ -121,27 +120,26 @@ func radioStatBandSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d
 
 func radioStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.StatsApRadioStat) basetypes.ObjectValue {
 
-	var band_24 basetypes.ObjectValue = types.ObjectNull(BandValue{}.AttributeTypes(ctx))
-	var band_5 basetypes.ObjectValue = types.ObjectNull(BandValue{}.AttributeTypes(ctx))
-	var band_6 basetypes.ObjectValue = types.ObjectNull(BandValue{}.AttributeTypes(ctx))
+	var band24 = types.ObjectNull(BandValue{}.AttributeTypes(ctx))
+	var band5 = types.ObjectNull(BandValue{}.AttributeTypes(ctx))
+	var band6 = types.ObjectNull(BandValue{}.AttributeTypes(ctx))
 
 	if d.Band24 != nil {
-		band_24 = radioStatBandSdkToTerraform(ctx, diags, d.Band24)
+		band24 = radioStatBandSdkToTerraform(ctx, diags, d.Band24)
 	}
 	if d.Band5 != nil {
-		band_5 = radioStatBandSdkToTerraform(ctx, diags, d.Band5)
+		band5 = radioStatBandSdkToTerraform(ctx, diags, d.Band5)
 	}
 	if d.Band6 != nil {
-		band_6 = radioStatBandSdkToTerraform(ctx, diags, d.Band6)
+		band6 = radioStatBandSdkToTerraform(ctx, diags, d.Band6)
 	}
 
-	data_map_attr_type := RadioStatValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"band_24": band_24,
-		"band_5":  band_5,
-		"band_6":  band_6,
+	dataMapValue := map[string]attr.Value{
+		"band_24": band24,
+		"band_5":  band5,
+		"band_6":  band6,
 	}
-	data, e := basetypes.NewObjectValue(data_map_attr_type, data_map_value)
+	data, e := basetypes.NewObjectValue(RadioStatValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

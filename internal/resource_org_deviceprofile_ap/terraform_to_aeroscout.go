@@ -1,14 +1,10 @@
 package resource_org_deviceprofile_ap
 
 import (
-	"context"
-
-	"github.com/hashicorp/terraform-plugin-framework/diag"
-
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func aeroscoutTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d AeroscoutValue) *models.ApAeroscout {
+func aeroscoutTerraformToSdk(d AeroscoutValue) *models.ApAeroscout {
 	data := models.ApAeroscout{}
 
 	if d.Enabled.ValueBoolPointer() != nil {

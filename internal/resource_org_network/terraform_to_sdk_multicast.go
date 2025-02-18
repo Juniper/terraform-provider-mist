@@ -1,27 +1,24 @@
 package resource_org_network
 
 import (
-	"context"
-
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func groupMulticastTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.NetworkMulticastGroup {
-	data_map := make(map[string]models.NetworkMulticastGroup)
+func groupMulticastTerraformToSdk(d basetypes.MapValue) map[string]models.NetworkMulticastGroup {
+	dataMap := make(map[string]models.NetworkMulticastGroup)
 	for k, v := range d.Elements() {
-		var v_interface interface{} = v
-		v_plan := v_interface.(GroupsValue)
+		var vInterface interface{} = v
+		vPlan := vInterface.(GroupsValue)
 		data := models.NetworkMulticastGroup{}
-		data.RpIp = v_plan.RpIp.ValueStringPointer()
-		data_map[k] = data
+		data.RpIp = vPlan.RpIp.ValueStringPointer()
+		dataMap[k] = data
 	}
-	return data_map
+	return dataMap
 }
 
-func MulticastTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d MulticastValue) *models.NetworkMulticast {
+func MulticastTerraformToSdk(d MulticastValue) *models.NetworkMulticast {
 	data := models.NetworkMulticast{}
 
 	if d.DisableIgmp.ValueBoolPointer() != nil {
@@ -31,7 +28,7 @@ func MulticastTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d Mul
 		data.Enabled = d.Enabled.ValueBoolPointer()
 	}
 	if !d.Groups.IsNull() && !d.Groups.IsUnknown() {
-		data.Groups = groupMulticastTerraformToSdk(ctx, diags, d.Groups)
+		data.Groups = groupMulticastTerraformToSdk(d.Groups)
 	}
 
 	return &data

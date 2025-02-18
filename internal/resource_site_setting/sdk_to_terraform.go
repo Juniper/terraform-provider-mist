@@ -8,53 +8,53 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
-	mist_list "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistlist "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingModel, diag.Diagnostics) {
 	var state SiteSettingModel
 	var diags diag.Diagnostics
 
-	var analytic AnalyticValue = NewAnalyticValueNull()
-	var ap_updown_threshold types.Int64
-	var auto_upgrade AutoUpgradeValue = NewAutoUpgradeValueNull()
-	var blacklist_url types.String = types.StringValue("")
-	var ble_config BleConfigValue = NewBleConfigValueNull()
-	var config_auto_revert types.Bool
-	var config_push_policy ConfigPushPolicyValue = NewConfigPushPolicyValueNull()
-	var critical_url_monitoring CriticalUrlMonitoringValue = NewCriticalUrlMonitoringValueNull()
-	var device_updown_threshold types.Int64
-	var engagement EngagementValue = NewEngagementValueNull()
-	var gateway_mgmt GatewayMgmtValue = NewGatewayMgmtValueNull()
-	var gateway_updown_threshold types.Int64
-	var juniper_srx JuniperSrxValue = NewJuniperSrxValueNull()
-	var led LedValue = NewLedValueNull()
-	var occupancy OccupancyValue = NewOccupancyValueNull()
-	var persist_config_on_device types.Bool
-	var proxy ProxyValue = NewProxyValueNull()
-	var remove_existing_configs types.Bool
-	var report_gatt types.Bool
-	var rogue RogueValue = NewRogueValueNull()
-	var rtsa RtsaValue = NewRtsaValueNull()
-	var simple_alert SimpleAlertValue = NewSimpleAlertValueNull()
-	var skyatp SkyatpValue = NewSkyatpValueNull()
-	var srx_app SrxAppValue = NewSrxAppValueNull()
-	var ssh_keys types.List = types.ListNull(types.StringType)
-	var ssr SsrValue = NewSsrValueNull()
-	var switch_updown_threshold types.Int64
-	var synthetic_test SyntheticTestValue = NewSyntheticTestValueNull()
-	var track_anonymous_devices types.Bool
-	var uplink_port_config UplinkPortConfigValue = NewUplinkPortConfigValueNull()
-	var vars types.Map = types.MapNull(types.StringType)
-	var vs_instance types.Map = types.MapNull(VsInstanceValue{}.Type(ctx))
-	var vna VnaValue = NewVnaValueNull()
-	var watched_station_url types.String = types.StringValue("")
-	var whitelist_url types.String = types.StringValue("")
-	var wids WidsValue = NewWidsValueNull()
-	var wifi WifiValue = NewWifiValueNull()
-	var wan_van WanVnaValue = NewWanVnaValueNull()
-	var wired_vna WiredVnaValue = NewWiredVnaValueNull()
-	var zone_occupancy_alert ZoneOccupancyAlertValue = NewZoneOccupancyAlertValueNull()
+	var analytic = NewAnalyticValueNull()
+	var apUpdownThreshold types.Int64
+	var autoUpgrade = NewAutoUpgradeValueNull()
+	var blacklistUrl = types.StringValue("")
+	var bleConfig = NewBleConfigValueNull()
+	var configAutoRevert types.Bool
+	var configPushPolicy = NewConfigPushPolicyValueNull()
+	var criticalUrlMonitoring = NewCriticalUrlMonitoringValueNull()
+	var deviceUpdownThreshold types.Int64
+	var engagement = NewEngagementValueNull()
+	var gatewayMgmt = NewGatewayMgmtValueNull()
+	var gatewayUpdownThreshold types.Int64
+	var juniperSrx = NewJuniperSrxValueNull()
+	var led = NewLedValueNull()
+	var occupancy = NewOccupancyValueNull()
+	var persistConfigOnDevice types.Bool
+	var proxy = NewProxyValueNull()
+	var removeExistingConfigs types.Bool
+	var reportGatt types.Bool
+	var rogue = NewRogueValueNull()
+	var rtsa = NewRtsaValueNull()
+	var simpleAlert = NewSimpleAlertValueNull()
+	var skyatp = NewSkyatpValueNull()
+	var srxApp = NewSrxAppValueNull()
+	var sshKeys = types.ListNull(types.StringType)
+	var ssr = NewSsrValueNull()
+	var switchUpdownThreshold types.Int64
+	var syntheticTest = NewSyntheticTestValueNull()
+	var trackAnonymousDevices types.Bool
+	var uplinkPortConfig = NewUplinkPortConfigValueNull()
+	var vars = types.MapNull(types.StringType)
+	var vsInstance = types.MapNull(VsInstanceValue{}.Type(ctx))
+	var vna = NewVnaValueNull()
+	var watchedStationUrl = types.StringValue("")
+	var whitelistUrl = types.StringValue("")
+	var wids = NewWidsValueNull()
+	var wifi = NewWifiValueNull()
+	var wanVan = NewWanVnaValueNull()
+	var wiredVna = NewWiredVnaValueNull()
+	var zoneOccupancyAlert = NewZoneOccupancyAlertValueNull()
 
 	state.SiteId = types.StringValue(data.SiteId.String())
 
@@ -63,35 +63,35 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	}
 
 	if data.ApUpdownThreshold.Value() != nil {
-		ap_updown_threshold = types.Int64Value(int64(*data.ApUpdownThreshold.Value()))
+		apUpdownThreshold = types.Int64Value(int64(*data.ApUpdownThreshold.Value()))
 	}
 
 	if data.AutoUpgrade != nil {
-		auto_upgrade = autoUpgradeSdkToTerraform(ctx, &diags, *data.AutoUpgrade)
+		autoUpgrade = autoUpgradeSdkToTerraform(ctx, &diags, *data.AutoUpgrade)
 	}
 
 	if data.BleConfig != nil {
-		ble_config = bleConfigsSdkToTerraform(ctx, &diags, data.BleConfig)
+		bleConfig = bleConfigsSdkToTerraform(ctx, &diags, data.BleConfig)
 	}
 
 	if data.BlacklistUrl != nil {
-		blacklist_url = types.StringValue(*data.BlacklistUrl)
+		blacklistUrl = types.StringValue(*data.BlacklistUrl)
 	}
 
 	if data.ConfigAutoRevert != nil {
-		config_auto_revert = types.BoolValue(*data.ConfigAutoRevert)
+		configAutoRevert = types.BoolValue(*data.ConfigAutoRevert)
 	}
 
 	if data.ConfigPushPolicy != nil {
-		config_push_policy = configPushPolicySdkToTerraform(ctx, &diags, data.ConfigPushPolicy)
+		configPushPolicy = configPushPolicySdkToTerraform(ctx, &diags, data.ConfigPushPolicy)
 	}
 
 	if data.CriticalUrlMonitoring != nil {
-		critical_url_monitoring = criticalUrlMonitoringSdkToTerraform(ctx, &diags, data.CriticalUrlMonitoring)
+		criticalUrlMonitoring = criticalUrlMonitoringSdkToTerraform(ctx, &diags, data.CriticalUrlMonitoring)
 	}
 
 	if data.DeviceUpdownThreshold.Value() != nil {
-		device_updown_threshold = types.Int64Value(int64(*data.DeviceUpdownThreshold.Value()))
+		deviceUpdownThreshold = types.Int64Value(int64(*data.DeviceUpdownThreshold.Value()))
 	}
 
 	if data.Engagement != nil {
@@ -99,15 +99,15 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	}
 
 	if data.GatewayMgmt != nil {
-		gateway_mgmt = gatewayMgmtSdkToTerraform(ctx, &diags, data.GatewayMgmt)
+		gatewayMgmt = gatewayMgmtSdkToTerraform(ctx, &diags, data.GatewayMgmt)
 	}
 
 	if data.GatewayUpdownThreshold.Value() != nil {
-		gateway_updown_threshold = types.Int64Value(int64(*data.GatewayUpdownThreshold.Value()))
+		gatewayUpdownThreshold = types.Int64Value(int64(*data.GatewayUpdownThreshold.Value()))
 	}
 
 	if data.JuniperSrx != nil {
-		juniper_srx = juniperSrxSdkToTerraform(ctx, &diags, data.JuniperSrx)
+		juniperSrx = juniperSrxSdkToTerraform(ctx, &diags, data.JuniperSrx)
 	}
 
 	if data.Led != nil {
@@ -119,7 +119,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	}
 
 	if data.PersistConfigOnDevice != nil {
-		persist_config_on_device = types.BoolValue(*data.PersistConfigOnDevice)
+		persistConfigOnDevice = types.BoolValue(*data.PersistConfigOnDevice)
 	}
 
 	if data.Proxy != nil {
@@ -127,11 +127,11 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	}
 
 	if data.RemoveExistingConfigs != nil {
-		remove_existing_configs = types.BoolValue(*data.RemoveExistingConfigs)
+		removeExistingConfigs = types.BoolValue(*data.RemoveExistingConfigs)
 	}
 
 	if data.ReportGatt != nil {
-		report_gatt = types.BoolValue(*data.ReportGatt)
+		reportGatt = types.BoolValue(*data.ReportGatt)
 	}
 
 	if data.Rogue != nil {
@@ -143,7 +143,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	}
 
 	if data.SimpleAlert != nil {
-		simple_alert = simpleAlertSdkToTerraform(ctx, &diags, data.SimpleAlert)
+		simpleAlert = simpleAlertSdkToTerraform(ctx, &diags, data.SimpleAlert)
 	}
 
 	if data.Skyatp != nil {
@@ -151,11 +151,11 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	}
 
 	if data.SrxApp != nil {
-		srx_app = srxAppSdkToTerraform(ctx, &diags, data.SrxApp)
+		srxApp = srxAppSdkToTerraform(ctx, &diags, data.SrxApp)
 	}
 
 	if data.SshKeys != nil {
-		ssh_keys = mist_list.ListOfStringSdkToTerraform(ctx, data.SshKeys)
+		sshKeys = mistlist.ListOfStringSdkToTerraform(data.SshKeys)
 	}
 
 	if data.Ssr != nil {
@@ -163,19 +163,19 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	}
 
 	if data.SwitchUpdownThreshold.Value() != nil {
-		switch_updown_threshold = types.Int64Value(int64(*data.SwitchUpdownThreshold.Value()))
+		switchUpdownThreshold = types.Int64Value(int64(*data.SwitchUpdownThreshold.Value()))
 	}
 
 	if data.SyntheticTest != nil {
-		synthetic_test = synthteticTestSdkToTerraform(ctx, &diags, data.SyntheticTest)
+		syntheticTest = synthteticTestSdkToTerraform(ctx, &diags, data.SyntheticTest)
 	}
 
 	if data.TrackAnonymousDevices != nil {
-		track_anonymous_devices = types.BoolValue(*data.TrackAnonymousDevices)
+		trackAnonymousDevices = types.BoolValue(*data.TrackAnonymousDevices)
 	}
 
 	if data.UplinkPortConfig != nil {
-		uplink_port_config = uplinkPortConfigValueSdkToTerraform(ctx, &diags, data.UplinkPortConfig)
+		uplinkPortConfig = uplinkPortConfigValueSdkToTerraform(ctx, &diags, data.UplinkPortConfig)
 	}
 
 	if data.Vars != nil {
@@ -187,19 +187,19 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	}
 
 	if data.VsInstance != nil {
-		vs_instance = vsInstanceSdkToTerraform(ctx, &diags, data.VsInstance)
+		vsInstance = vsInstanceSdkToTerraform(ctx, &diags, data.VsInstance)
 	}
 
 	if data.WanVna != nil {
-		wan_van = wanVnaSdkToTerraform(ctx, &diags, data.WanVna)
+		wanVan = wanVnaSdkToTerraform(ctx, &diags, data.WanVna)
 	}
 
 	if data.WatchedStationUrl != nil {
-		watched_station_url = types.StringValue(*data.WatchedStationUrl)
+		watchedStationUrl = types.StringValue(*data.WatchedStationUrl)
 	}
 
 	if data.WhitelistUrl != nil {
-		whitelist_url = types.StringValue(*data.WhitelistUrl)
+		whitelistUrl = types.StringValue(*data.WhitelistUrl)
 	}
 
 	if data.Wids != nil {
@@ -211,53 +211,53 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	}
 
 	if data.WiredVna != nil {
-		wired_vna = wiredVnaSdkToTerraform(ctx, &diags, data.WiredVna)
+		wiredVna = wiredVnaSdkToTerraform(ctx, &diags, data.WiredVna)
 	}
 
 	if data.ZoneOccupancyAlert != nil {
-		zone_occupancy_alert = zoneOccupancySdkToTerraform(ctx, &diags, *data.ZoneOccupancyAlert)
+		zoneOccupancyAlert = zoneOccupancySdkToTerraform(ctx, &diags, *data.ZoneOccupancyAlert)
 	}
 
 	state.Analytic = analytic
-	state.ApUpdownThreshold = ap_updown_threshold
-	state.AutoUpgrade = auto_upgrade
-	state.BleConfig = ble_config
-	state.BlacklistUrl = blacklist_url
-	state.ConfigAutoRevert = config_auto_revert
-	state.ConfigPushPolicy = config_push_policy
-	state.CriticalUrlMonitoring = critical_url_monitoring
-	state.DeviceUpdownThreshold = device_updown_threshold
+	state.ApUpdownThreshold = apUpdownThreshold
+	state.AutoUpgrade = autoUpgrade
+	state.BleConfig = bleConfig
+	state.BlacklistUrl = blacklistUrl
+	state.ConfigAutoRevert = configAutoRevert
+	state.ConfigPushPolicy = configPushPolicy
+	state.CriticalUrlMonitoring = criticalUrlMonitoring
+	state.DeviceUpdownThreshold = deviceUpdownThreshold
 	state.Engagement = engagement
-	state.GatewayMgmt = gateway_mgmt
-	state.GatewayUpdownThreshold = gateway_updown_threshold
-	state.JuniperSrx = juniper_srx
+	state.GatewayMgmt = gatewayMgmt
+	state.GatewayUpdownThreshold = gatewayUpdownThreshold
+	state.JuniperSrx = juniperSrx
 	state.Led = led
 	state.Occupancy = occupancy
-	state.PersistConfigOnDevice = persist_config_on_device
+	state.PersistConfigOnDevice = persistConfigOnDevice
 	state.Proxy = proxy
-	state.RemoveExistingConfigs = remove_existing_configs
-	state.ReportGatt = report_gatt
+	state.RemoveExistingConfigs = removeExistingConfigs
+	state.ReportGatt = reportGatt
 	state.Rogue = rogue
 	state.Rtsa = rtsa
-	state.SimpleAlert = simple_alert
+	state.SimpleAlert = simpleAlert
 	state.Skyatp = skyatp
-	state.SrxApp = srx_app
-	state.SshKeys = ssh_keys
+	state.SrxApp = srxApp
+	state.SshKeys = sshKeys
 	state.Ssr = ssr
-	state.SwitchUpdownThreshold = switch_updown_threshold
-	state.SyntheticTest = synthetic_test
-	state.TrackAnonymousDevices = track_anonymous_devices
-	state.UplinkPortConfig = uplink_port_config
+	state.SwitchUpdownThreshold = switchUpdownThreshold
+	state.SyntheticTest = syntheticTest
+	state.TrackAnonymousDevices = trackAnonymousDevices
+	state.UplinkPortConfig = uplinkPortConfig
 	state.Vars = vars
 	state.Vna = vna
-	state.VsInstance = vs_instance
-	state.WanVna = wan_van
-	state.WatchedStationUrl = watched_station_url
-	state.WhitelistUrl = whitelist_url
+	state.VsInstance = vsInstance
+	state.WanVna = wanVan
+	state.WatchedStationUrl = watchedStationUrl
+	state.WhitelistUrl = whitelistUrl
 	state.Wids = wids
 	state.Wifi = wifi
-	state.WiredVna = wired_vna
-	state.ZoneOccupancyAlert = zone_occupancy_alert
+	state.WiredVna = wiredVna
+	state.ZoneOccupancyAlert = zoneOccupancyAlert
 
 	return state, diags
 }

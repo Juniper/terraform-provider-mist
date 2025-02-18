@@ -7,7 +7,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 
-	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
+	mistapierror "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_wxtag"
 
 	"github.com/google/uuid"
@@ -48,11 +48,11 @@ func (r *orgWxTagResource) Configure(ctx context.Context, req resource.Configure
 
 	r.client = client
 }
-func (r *orgWxTagResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *orgWxTagResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_org_wxtag"
 }
 
-func (r *orgWxTagResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *orgWxTagResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryWlan + "This resource manages the Org WxLan tags (labels).\n\n" +
 			"A WxTag is a label or tag used in the mist system to classify and categorize applications, " +
@@ -82,7 +82,7 @@ func (r *orgWxTagResource) Create(ctx context.Context, req resource.CreateReques
 		return
 	}
 
-	wxtag, diags := resource_org_wxtag.TerraformToSdk(ctx, &plan)
+	wxtag, diags := resource_org_wxtag.TerraformToSdk(&plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -98,11 +98,11 @@ func (r *orgWxTagResource) Create(ctx context.Context, req resource.CreateReques
 	}
 	data, err := r.client.OrgsWxTags().CreateOrgWxTag(ctx, orgId, wxtag)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error creating \"mist_org_wxtag\" resource",
-			fmt.Sprintf("Unable to create the WxTag. %s", api_err),
+			fmt.Sprintf("Unable to create the WxTag. %s", apiErr),
 		)
 		return
 	}
@@ -121,7 +121,7 @@ func (r *orgWxTagResource) Create(ctx context.Context, req resource.CreateReques
 
 }
 
-func (r *orgWxTagResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *orgWxTagResource) Read(ctx context.Context, _ resource.ReadRequest, resp *resource.ReadResponse) {
 	var state resource_org_wxtag.OrgWxtagModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -186,7 +186,7 @@ func (r *orgWxTagResource) Update(ctx context.Context, req resource.UpdateReques
 		return
 	}
 
-	wxtag, diags := resource_org_wxtag.TerraformToSdk(ctx, &plan)
+	wxtag, diags := resource_org_wxtag.TerraformToSdk(&plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -211,11 +211,11 @@ func (r *orgWxTagResource) Update(ctx context.Context, req resource.UpdateReques
 	}
 	data, err := r.client.OrgsWxTags().UpdateOrgWxTag(ctx, orgId, wxtagId, wxtag)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error updating \"mist_org_wxtag\" resource",
-			fmt.Sprintf("Unable to update the WxTag. %s", api_err),
+			fmt.Sprintf("Unable to update the WxTag. %s", apiErr),
 		)
 		return
 	}
@@ -234,7 +234,7 @@ func (r *orgWxTagResource) Update(ctx context.Context, req resource.UpdateReques
 
 }
 
-func (r *orgWxTagResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *orgWxTagResource) Delete(ctx context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_org_wxtag.OrgWxtagModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -261,11 +261,11 @@ func (r *orgWxTagResource) Delete(ctx context.Context, req resource.DeleteReques
 		return
 	}
 	data, err := r.client.OrgsWxTags().DeleteOrgWxTag(ctx, orgId, wxtagId)
-	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_wxtag\" resource",
-			fmt.Sprintf("Unable to delete the WxTag. %s", api_err),
+			fmt.Sprintf("Unable to delete the WxTag. %s", apiErr),
 		)
 		return
 	}

@@ -18,7 +18,7 @@ type mustHaveNOfValidator struct {
 	atMost     bool
 }
 
-func (o mustHaveNOfValidator) Description(ctx context.Context) string {
+func (o mustHaveNOfValidator) Description(_ context.Context) string {
 	return fmt.Sprintf("ensure that the object has at least %d of the following attributes configured: ['%s']",
 		o.n, strings.Join(o.attributes, "', '"))
 }

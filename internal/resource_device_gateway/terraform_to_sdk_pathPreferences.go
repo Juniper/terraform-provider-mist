@@ -1,21 +1,18 @@
 package resource_device_gateway
 
 import (
-	"context"
-
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func pathPreferencePathsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.GatewayPathPreferencesPath {
-	var data_list []models.GatewayPathPreferencesPath
+func pathPreferencePathsTerraformToSdk(d basetypes.ListValue) []models.GatewayPathPreferencesPath {
+	var dataList []models.GatewayPathPreferencesPath
 	for _, v := range d.Elements() {
-		var v_interface interface{} = v
-		plan := v_interface.(PathsValue)
+		var vInterface interface{} = v
+		plan := vInterface.(PathsValue)
 		data := models.GatewayPathPreferencesPath{}
 		if plan.Cost.ValueInt64Pointer() != nil {
 			data.Cost = models.ToPointer(int(plan.Cost.ValueInt64()))
@@ -33,10 +30,10 @@ func pathPreferencePathsTerraformToSdk(ctx context.Context, diags *diag.Diagnost
 			data.Name = models.ToPointer(plan.Name.ValueString())
 		}
 		if !plan.Networks.IsNull() && !plan.Networks.IsUnknown() {
-			data.Networks = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Networks)
+			data.Networks = misttransform.ListOfStringTerraformToSdk(plan.Networks)
 		}
 		if !plan.TargetIps.IsNull() && !plan.TargetIps.IsUnknown() {
-			data.TargetIps = mist_transform.ListOfStringTerraformToSdk(ctx, plan.TargetIps)
+			data.TargetIps = misttransform.ListOfStringTerraformToSdk(plan.TargetIps)
 		}
 		if plan.PathsType.ValueStringPointer() != nil {
 			data.Type = models.ToPointer(models.GatewayPathTypeEnum(plan.PathsType.ValueString()))
@@ -45,26 +42,26 @@ func pathPreferencePathsTerraformToSdk(ctx context.Context, diags *diag.Diagnost
 			data.WanName = models.ToPointer(plan.WanName.ValueString())
 		}
 
-		data_list = append(data_list, data)
+		dataList = append(dataList, data)
 	}
-	return data_list
+	return dataList
 }
 
-func pathPreferencesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.GatewayPathPreferences {
-	data_map := make(map[string]models.GatewayPathPreferences)
+func pathPreferencesTerraformToSdk(d basetypes.MapValue) map[string]models.GatewayPathPreferences {
+	dataMap := make(map[string]models.GatewayPathPreferences)
 	for k, v := range d.Elements() {
-		var v_interface interface{} = v
-		plan := v_interface.(PathPreferencesValue)
+		var vInterface interface{} = v
+		plan := vInterface.(PathPreferencesValue)
 
 		data := models.GatewayPathPreferences{}
-		paths := pathPreferencePathsTerraformToSdk(ctx, diags, plan.Paths)
+		paths := pathPreferencePathsTerraformToSdk(plan.Paths)
 		if !plan.Paths.IsNull() && !plan.Paths.IsUnknown() {
 			data.Paths = paths
 		}
 		if plan.Strategy.ValueStringPointer() != nil {
 			data.Strategy = models.ToPointer(models.GatewayPathStrategyEnum(plan.Strategy.ValueString()))
 		}
-		data_map[k] = data
+		dataMap[k] = data
 	}
-	return data_map
+	return dataMap
 }

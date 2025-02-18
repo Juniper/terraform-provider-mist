@@ -3,22 +3,22 @@ package resource_org_setting
 import (
 	"context"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func syntheticTestVlansTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.SynthetictestProperties {
-	var data_list []models.SynthetictestProperties
+func syntheticTestVlansTerraformToSdk(d basetypes.ListValue) []models.SynthetictestProperties {
+	var dataList []models.SynthetictestProperties
 	for _, v := range d.Elements() {
-		var v_interface interface{} = v
-		plan := v_interface.(VlansValue)
+		var vInterface interface{} = v
+		plan := vInterface.(VlansValue)
 		data := models.SynthetictestProperties{}
 
 		if !plan.CustomTestUrls.IsNull() && !plan.CustomTestUrls.IsUnknown() {
-			data.CustomTestUrls = mist_transform.ListOfStringTerraformToSdk(ctx, plan.CustomTestUrls)
+			data.CustomTestUrls = misttransform.ListOfStringTerraformToSdk(plan.CustomTestUrls)
 		}
 
 		if plan.Disabled.ValueBoolPointer() != nil {
@@ -28,17 +28,17 @@ func syntheticTestVlansTerraformToSdk(ctx context.Context, diags *diag.Diagnosti
 		if !plan.VlanIds.IsNull() && !plan.VlanIds.IsUnknown() {
 			var items []models.VlanIdWithVariable
 			for _, item := range plan.VlanIds.Elements() {
-				var item_interface interface{} = item
-				i := item_interface.(basetypes.StringValue)
+				var itemInterface interface{} = item
+				i := itemInterface.(basetypes.StringValue)
 				v := models.VlanIdWithVariableContainer.FromString(i.ValueString())
 				items = append(items, v)
 			}
 			data.VlanIds = items
 		}
 
-		data_list = append(data_list, data)
+		dataList = append(dataList, data)
 	}
-	return data_list
+	return dataList
 }
 func syntheticTestWanTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.SynthetictestConfigWanSpeedtest {
 	data := models.SynthetictestConfigWanSpeedtest{}
@@ -66,7 +66,7 @@ func syntheticTestTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d
 	}
 
 	if !d.Vlans.IsNull() && !d.Vlans.IsUnknown() {
-		data.Vlans = syntheticTestVlansTerraformToSdk(ctx, diags, d.Vlans)
+		data.Vlans = syntheticTestVlansTerraformToSdk(d.Vlans)
 	}
 
 	if !d.WanSpeedtest.IsNull() && !d.WanSpeedtest.IsUnknown() {

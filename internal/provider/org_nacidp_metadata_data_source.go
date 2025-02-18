@@ -41,11 +41,11 @@ func (d *orgNacidpMetadataDataSource) Configure(ctx context.Context, req datasou
 
 	d.client = client
 }
-func (d *orgNacidpMetadataDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+func (d *orgNacidpMetadataDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_org_nacidp_metadata"
 }
 
-func (d *orgNacidpMetadataDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *orgNacidpMetadataDataSource) Schema(ctx context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryNac + "This data source provides the NAC IDP Metadata information.\n\n" +
 			"The provided information (`entity_id`, `acs_url`, `logout_url` and `metadata`) are the information" +
@@ -89,7 +89,7 @@ func (d *orgNacidpMetadataDataSource) Read(ctx context.Context, req datasource.R
 		return
 	}
 
-	metadata := datasource_org_nacidp_metadata.SdkToTerraform(ctx, &data.Data)
+	metadata := datasource_org_nacidp_metadata.SdkToTerraform(&data.Data)
 	metadata.NacidpId = ds.NacidpId
 	metadata.OrgId = ds.OrgId
 

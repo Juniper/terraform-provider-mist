@@ -13,59 +13,58 @@ import (
 
 func serviceStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.ServiceStatProperty) basetypes.MapValue {
 
-	map_attr_values := make(map[string]attr.Value)
+	mapAttrValues := make(map[string]attr.Value)
 	for k, d := range m {
-		var ash_version basetypes.StringValue
-		var cia_version basetypes.StringValue
-		var ember_version basetypes.StringValue
-		var ipsec_client_version basetypes.StringValue
-		var mist_agent_version basetypes.StringValue
-		var package_version basetypes.StringValue
-		var testing_tools_version basetypes.StringValue
-		var wheeljack_version basetypes.StringValue
+		var ashVersion basetypes.StringValue
+		var ciaVersion basetypes.StringValue
+		var emberVersion basetypes.StringValue
+		var ipsecClientVersion basetypes.StringValue
+		var mistAgentVersion basetypes.StringValue
+		var packageVersion basetypes.StringValue
+		var testingToolsVersion basetypes.StringValue
+		var wheeljackVersion basetypes.StringValue
 
 		if d.AshVersion != nil {
-			ash_version = types.StringValue(*d.AshVersion)
+			ashVersion = types.StringValue(*d.AshVersion)
 		}
 		if d.CiaVersion != nil {
-			cia_version = types.StringValue(*d.CiaVersion)
+			ciaVersion = types.StringValue(*d.CiaVersion)
 		}
 		if d.EmberVersion != nil {
-			ember_version = types.StringValue(*d.EmberVersion)
+			emberVersion = types.StringValue(*d.EmberVersion)
 		}
 		if d.IpsecClientVersion != nil {
-			ipsec_client_version = types.StringValue(*d.IpsecClientVersion)
+			ipsecClientVersion = types.StringValue(*d.IpsecClientVersion)
 		}
 		if d.MistAgentVersion != nil {
-			mist_agent_version = types.StringValue(*d.MistAgentVersion)
+			mistAgentVersion = types.StringValue(*d.MistAgentVersion)
 		}
 		if d.PackageVersion != nil {
-			package_version = types.StringValue(*d.PackageVersion)
+			packageVersion = types.StringValue(*d.PackageVersion)
 		}
 		if d.TestingToolsVersion != nil {
-			testing_tools_version = types.StringValue(*d.TestingToolsVersion)
+			testingToolsVersion = types.StringValue(*d.TestingToolsVersion)
 		}
 		if d.WheeljackVersion != nil {
-			wheeljack_version = types.StringValue(*d.WheeljackVersion)
+			wheeljackVersion = types.StringValue(*d.WheeljackVersion)
 		}
 
-		data_map_attr_type := ServiceStatValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
-			"ash_version":           ash_version,
-			"cia_version":           cia_version,
-			"ember_version":         ember_version,
-			"ipsec_client_version":  ipsec_client_version,
-			"mist_agent_version":    mist_agent_version,
-			"package_version":       package_version,
-			"testing_tools_version": testing_tools_version,
-			"wheeljack_version":     wheeljack_version,
+		dataMapValue := map[string]attr.Value{
+			"ash_version":           ashVersion,
+			"cia_version":           ciaVersion,
+			"ember_version":         emberVersion,
+			"ipsec_client_version":  ipsecClientVersion,
+			"mist_agent_version":    mistAgentVersion,
+			"package_version":       packageVersion,
+			"testing_tools_version": testingToolsVersion,
+			"wheeljack_version":     wheeljackVersion,
 		}
-		data, e := NewServiceStatValue(data_map_attr_type, data_map_value)
+		data, e := NewServiceStatValue(ServiceStatValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		map_attr_values[k] = data
+		mapAttrValues[k] = data
 	}
-	state_result, e := types.MapValueFrom(ctx, ServiceStatValue{}.Type(ctx), map_attr_values)
+	stateResult, e := types.MapValueFrom(ctx, ServiceStatValue{}.Type(ctx), mapAttrValues)
 	diags.Append(e...)
-	return state_result
+	return stateResult
 }

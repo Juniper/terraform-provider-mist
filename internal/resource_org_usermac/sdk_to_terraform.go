@@ -1,9 +1,7 @@
 package resource_org_usermac
 
 import (
-	"context"
-
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/google/uuid"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -11,24 +9,24 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-func SdkToTerraform(ctx context.Context, d *models.UserMac, orgId *uuid.UUID) (OrgUsermacModel, diag.Diagnostics) {
+func SdkToTerraform(d *models.UserMac, mistOrgId *uuid.UUID) (OrgUsermacModel, diag.Diagnostics) {
 	var state OrgUsermacModel
 	var diags diag.Diagnostics
 
 	var id types.String
-	var labels types.List = types.ListNull(types.StringType)
+	var labels = types.ListNull(types.StringType)
 	var mac types.String
 	var name types.String
 	var notes types.String
-	var org_id types.String
-	var radius_group types.String
+	var orgId types.String
+	var radiusGroup types.String
 	var vlan types.String
 
 	if d.Id != nil {
 		id = types.StringValue(d.Id.String())
 	}
 	if d.Labels != nil {
-		labels = mist_transform.ListOfStringSdkToTerraform(ctx, d.Labels)
+		labels = misttransform.ListOfStringSdkToTerraform(d.Labels)
 	}
 
 	mac = types.StringValue(d.Mac)
@@ -40,10 +38,10 @@ func SdkToTerraform(ctx context.Context, d *models.UserMac, orgId *uuid.UUID) (O
 		notes = types.StringValue(*d.Notes)
 	}
 
-	org_id = types.StringValue(orgId.String())
+	orgId = types.StringValue(mistOrgId.String())
 
 	if d.RadiusGroup != nil {
-		radius_group = types.StringValue(*d.RadiusGroup)
+		radiusGroup = types.StringValue(*d.RadiusGroup)
 	}
 	if d.Vlan != nil {
 		vlan = types.StringValue(*d.Vlan)
@@ -54,8 +52,8 @@ func SdkToTerraform(ctx context.Context, d *models.UserMac, orgId *uuid.UUID) (O
 	state.Mac = mac
 	state.Name = name
 	state.Notes = notes
-	state.OrgId = org_id
-	state.RadiusGroup = radius_group
+	state.OrgId = orgId
+	state.RadiusGroup = radiusGroup
 	state.Vlan = vlan
 
 	return state, diags

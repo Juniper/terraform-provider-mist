@@ -13,22 +13,21 @@ import (
 
 func macTableStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.MacTableStats) basetypes.ObjectValue {
 
-	var mac_table_count basetypes.Int64Value
-	var max_mac_entries_supported basetypes.Int64Value
+	var macTableCount basetypes.Int64Value
+	var maxMacEntriesSupported basetypes.Int64Value
 
 	if d.MacTableCount != nil {
-		mac_table_count = types.Int64Value(int64(*d.MacTableCount))
+		macTableCount = types.Int64Value(int64(*d.MacTableCount))
 	}
 	if d.MaxMacEntriesSupported != nil {
-		max_mac_entries_supported = types.Int64Value(int64(*d.MaxMacEntriesSupported))
+		maxMacEntriesSupported = types.Int64Value(int64(*d.MaxMacEntriesSupported))
 	}
 
-	data_map_attr_type := MacTableStatsValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"mac_table_count":           mac_table_count,
-		"max_mac_entries_supported": max_mac_entries_supported,
+	dataMapValue := map[string]attr.Value{
+		"mac_table_count":           macTableCount,
+		"max_mac_entries_supported": maxMacEntriesSupported,
 	}
-	data, e := basetypes.NewObjectValue(data_map_attr_type, data_map_value)
+	data, e := basetypes.NewObjectValue(MacTableStatsValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

@@ -17,11 +17,10 @@ func InternalAccessSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 		enabled = types.BoolValue(*d.Enabled)
 	}
 
-	data_map_attr_type := InternalAccessValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"enabled": enabled,
 	}
-	data, e := NewInternalAccessValue(data_map_attr_type, data_map_value)
+	data, e := NewInternalAccessValue(InternalAccessValue{}.AttributeTypes(ctx), dataMapValue)
 
 	diags.Append(e...)
 	return data

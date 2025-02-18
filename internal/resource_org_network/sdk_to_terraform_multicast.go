@@ -12,35 +12,34 @@ import (
 )
 
 func groupMutlicastSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d map[string]models.NetworkMulticastGroup) basetypes.MapValue {
-	state_value_map_value := make(map[string]attr.Value)
+	stateValueMapValue := make(map[string]attr.Value)
 	for k, v := range d {
-		var rp_ip basetypes.StringValue
+		var rpIp basetypes.StringValue
 
 		if v.RpIp != nil {
-			rp_ip = types.StringValue(*v.RpIp)
+			rpIp = types.StringValue(*v.RpIp)
 		}
 
-		data_map_attr_type := GroupsValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
-			"rp_ip": rp_ip,
+		dataMapValue := map[string]attr.Value{
+			"rp_ip": rpIp,
 		}
-		n, e := NewGroupsValue(data_map_attr_type, data_map_value)
+		n, e := NewGroupsValue(GroupsValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		state_value_map_value[k] = n
+		stateValueMapValue[k] = n
 	}
-	state_result_map, e := types.MapValueFrom(ctx, GroupsValue{}.Type(ctx), state_value_map_value)
+	stateResultMap, e := types.MapValueFrom(ctx, GroupsValue{}.Type(ctx), stateValueMapValue)
 	diags.Append(e...)
-	return state_result_map
+	return stateResultMap
 }
 
 func MutlicastSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.NetworkMulticast) MulticastValue {
-	var disable_igmp basetypes.BoolValue
+	var disableIgmp basetypes.BoolValue
 	var enabled basetypes.BoolValue
-	var groups basetypes.MapValue = types.MapNull(GroupsValue{}.Type(ctx))
+	var groups = types.MapNull(GroupsValue{}.Type(ctx))
 
 	if d.DisableIgmp != nil {
-		disable_igmp = types.BoolValue(*d.DisableIgmp)
+		disableIgmp = types.BoolValue(*d.DisableIgmp)
 	}
 	if d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
@@ -49,13 +48,12 @@ func MutlicastSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d mod
 		groups = groupMutlicastSdkToTerraform(ctx, diags, d.Groups)
 	}
 
-	data_map_attr_type := MulticastValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"disable_igmp": disable_igmp,
+	dataMapValue := map[string]attr.Value{
+		"disable_igmp": disableIgmp,
 		"enabled":      enabled,
 		"groups":       groups,
 	}
-	data, e := NewMulticastValue(data_map_attr_type, data_map_value)
+	data, e := NewMulticastValue(MulticastValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

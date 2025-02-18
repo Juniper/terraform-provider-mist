@@ -25,38 +25,37 @@ func SdkToTerraform(ctx context.Context, l *[]models.DeviceprofileAp, elements *
 
 func deviceprofileApSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.DeviceprofileAp) OrgDeviceprofilesApValue {
 
-	var created_time basetypes.NumberValue
+	var createdTime basetypes.NumberValue
 	var id basetypes.StringValue
-	var modified_time basetypes.NumberValue
+	var modifiedTime basetypes.NumberValue
 	var name basetypes.StringValue
-	var org_id basetypes.StringValue
-	var deviceprofile_type basetypes.StringValue
+	var orgId basetypes.StringValue
+	var deviceprofileType basetypes.StringValue
 
 	if d.CreatedTime != nil {
-		created_time = types.NumberValue(big.NewFloat(*d.CreatedTime))
+		createdTime = types.NumberValue(big.NewFloat(*d.CreatedTime))
 	}
 	if d.Id != nil {
 		id = types.StringValue(d.Id.String())
 	}
 	if d.ModifiedTime != nil {
-		modified_time = types.NumberValue(big.NewFloat(*d.ModifiedTime))
+		modifiedTime = types.NumberValue(big.NewFloat(*d.ModifiedTime))
 	}
 	name = types.StringValue(*d.Name)
 	if d.OrgId != nil {
-		org_id = types.StringValue(d.OrgId.String())
+		orgId = types.StringValue(d.OrgId.String())
 	}
-	deviceprofile_type = types.StringValue(string(d.Type))
+	deviceprofileType = types.StringValue(d.Type)
 
-	data_map_attr_type := OrgDeviceprofilesApValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"created_time":  created_time,
+	dataMapValue := map[string]attr.Value{
+		"created_time":  createdTime,
 		"id":            id,
-		"modified_time": modified_time,
+		"modified_time": modifiedTime,
 		"name":          name,
-		"type":          deviceprofile_type,
-		"org_id":        org_id,
+		"type":          deviceprofileType,
+		"org_id":        orgId,
 	}
-	data, e := NewOrgDeviceprofilesApValue(data_map_attr_type, data_map_value)
+	data, e := NewOrgDeviceprofilesApValue(OrgDeviceprofilesApValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

@@ -1,43 +1,40 @@
 package resource_device_switch
 
 import (
-	"context"
-
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func NetworksTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.SwitchNetwork {
+func NetworksTerraformToSdk(d basetypes.MapValue) map[string]models.SwitchNetwork {
 	data := make(map[string]models.SwitchNetwork)
-	for vlan_name, vlan_data_attr := range d.Elements() {
-		var vlan_data_interface interface{} = vlan_data_attr
-		net_plan := vlan_data_interface.(NetworksValue)
+	for vlanName, vlanDataAttr := range d.Elements() {
+		var vlanDataInterface interface{} = vlanDataAttr
+		netPlan := vlanDataInterface.(NetworksValue)
 
-		net_data := models.SwitchNetwork{}
-		if net_plan.VlanId.ValueStringPointer() != nil {
-			net_data.VlanId = models.VlanIdWithVariableContainer.FromString(net_plan.VlanId.ValueString())
+		netData := models.SwitchNetwork{}
+		if netPlan.VlanId.ValueStringPointer() != nil {
+			netData.VlanId = models.VlanIdWithVariableContainer.FromString(netPlan.VlanId.ValueString())
 		}
-		if net_plan.Subnet.ValueStringPointer() != nil {
-			net_data.Subnet = models.ToPointer(net_plan.Subnet.ValueString())
+		if netPlan.Subnet.ValueStringPointer() != nil {
+			netData.Subnet = models.ToPointer(netPlan.Subnet.ValueString())
 		}
-		if net_plan.Subnet6.ValueStringPointer() != nil {
-			net_data.Subnet6 = models.ToPointer(net_plan.Subnet6.ValueString())
+		if netPlan.Subnet6.ValueStringPointer() != nil {
+			netData.Subnet6 = models.ToPointer(netPlan.Subnet6.ValueString())
 		}
-		if net_plan.Gateway.ValueStringPointer() != nil {
-			net_data.Gateway = models.ToPointer(net_plan.Gateway.ValueString())
+		if netPlan.Gateway.ValueStringPointer() != nil {
+			netData.Gateway = models.ToPointer(netPlan.Gateway.ValueString())
 		}
-		if net_plan.Gateway6.ValueStringPointer() != nil {
-			net_data.Gateway6 = models.ToPointer(net_plan.Gateway6.ValueString())
+		if netPlan.Gateway6.ValueStringPointer() != nil {
+			netData.Gateway6 = models.ToPointer(netPlan.Gateway6.ValueString())
 		}
-		if net_plan.Isolation.ValueBoolPointer() != nil {
-			net_data.Isolation = models.ToPointer(net_plan.Isolation.ValueBool())
+		if netPlan.Isolation.ValueBoolPointer() != nil {
+			netData.Isolation = models.ToPointer(netPlan.Isolation.ValueBool())
 		}
-		if net_plan.IsolationVlanId.ValueStringPointer() != nil {
-			net_data.IsolationVlanId = models.ToPointer(net_plan.IsolationVlanId.ValueString())
+		if netPlan.IsolationVlanId.ValueStringPointer() != nil {
+			netData.IsolationVlanId = models.ToPointer(netPlan.IsolationVlanId.ValueString())
 		}
-		data[vlan_name] = net_data
+		data[vlanName] = netData
 	}
 	return data
 }

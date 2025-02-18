@@ -1,20 +1,17 @@
 package resource_device_switch
 
 import (
-	"context"
-
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func otherIpConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.JunosOtherIpConfig {
+func otherIpConfigTerraformToSdk(d basetypes.MapValue) map[string]models.JunosOtherIpConfig {
 
-	data_map := make(map[string]models.JunosOtherIpConfig)
+	dataMap := make(map[string]models.JunosOtherIpConfig)
 	for k, v := range d.Elements() {
-		var v_interface interface{} = v
-		plan := v_interface.(OtherIpConfigsValue)
+		var vInterface interface{} = v
+		plan := vInterface.(OtherIpConfigsValue)
 		data := models.JunosOtherIpConfig{}
 
 		if plan.EvpnAnycast.ValueBoolPointer() != nil {
@@ -38,7 +35,7 @@ func otherIpConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d
 		if plan.Type6.ValueStringPointer() != nil {
 			data.Type6 = models.ToPointer(models.IpType6Enum(plan.Type6.ValueString()))
 		}
-		data_map[k] = data
+		dataMap[k] = data
 	}
-	return data_map
+	return dataMap
 }

@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
@@ -15,61 +15,61 @@ func SdkToTerraform(ctx context.Context, data models.NetworkTemplate) (OrgNetwor
 	var state OrgNetworktemplateModel
 	var diags diag.Diagnostics
 
-	var acl_policies types.List = types.ListNull(AclPoliciesValue{}.Type(ctx))
-	var acl_tags types.Map = types.MapNull(AclTagsValue{}.Type(ctx))
-	var additional_config_cmds types.List = types.ListNull(types.StringType)
-	var dhcp_snooping DhcpSnoopingValue = NewDhcpSnoopingValueNull()
-	var dns_servers types.List = types.ListNull(types.StringType)
-	var dns_suffix types.List = types.ListNull(types.StringType)
-	var extra_routes types.Map = types.MapNull(ExtraRoutesValue{}.Type(ctx))
-	var extra_routes6 types.Map = types.MapNull(ExtraRoutes6Value{}.Type(ctx))
+	var aclPolicies = types.ListNull(AclPoliciesValue{}.Type(ctx))
+	var aclTags = types.MapNull(AclTagsValue{}.Type(ctx))
+	var additionalConfigCmds = types.ListNull(types.StringType)
+	var dhcpSnooping = NewDhcpSnoopingValueNull()
+	var dnsServers = types.ListNull(types.StringType)
+	var dnsSuffix = types.ListNull(types.StringType)
+	var extraRoutes = types.MapNull(ExtraRoutesValue{}.Type(ctx))
+	var extraRoutes6 = types.MapNull(ExtraRoutes6Value{}.Type(ctx))
 	var id types.String
-	var mist_nac MistNacValue = NewMistNacValueNull()
+	var mistNac = NewMistNacValueNull()
 	var name types.String
-	var networks types.Map = types.MapNull(NetworksValue{}.Type(ctx))
-	var ntp_servers types.List = types.ListNull(types.StringType)
-	var org_id types.String
-	var ospf_areas types.Map = types.MapNull(OspfAreasValue{}.Type(ctx))
-	var port_mirroring types.Map = types.MapNull(PortMirroringValue{}.Type(ctx))
-	var port_usages types.Map = types.MapNull(PortUsagesValue{}.Type(ctx))
-	var radius_config RadiusConfigValue = NewRadiusConfigValueNull()
-	var remote_syslog RemoteSyslogValue = NewRemoteSyslogValueNull()
-	var remove_existing_configs types.Bool = types.BoolValue(false)
-	var snmp_config SnmpConfigValue = NewSnmpConfigValueNull()
-	var switch_matching SwitchMatchingValue = NewSwitchMatchingValueNull()
-	var switch_mgmt SwitchMgmtValue = NewSwitchMgmtValueNull()
-	var vrf_config VrfConfigValue = NewVrfConfigValueNull()
-	var vrf_instances types.Map = types.MapNull(VrfInstancesValue{}.Type(ctx))
+	var networks = types.MapNull(NetworksValue{}.Type(ctx))
+	var ntpServers = types.ListNull(types.StringType)
+	var orgId types.String
+	var ospfAreas = types.MapNull(OspfAreasValue{}.Type(ctx))
+	var portMirroring = types.MapNull(PortMirroringValue{}.Type(ctx))
+	var portUsages = types.MapNull(PortUsagesValue{}.Type(ctx))
+	var radiusConfig = NewRadiusConfigValueNull()
+	var remoteSyslog = NewRemoteSyslogValueNull()
+	var removeExistingConfigs = types.BoolValue(false)
+	var snmpConfig = NewSnmpConfigValueNull()
+	var switchMatching = NewSwitchMatchingValueNull()
+	var switchMgmt = NewSwitchMgmtValueNull()
+	var vrfConfig = NewVrfConfigValueNull()
+	var vrfInstances = types.MapNull(VrfInstancesValue{}.Type(ctx))
 
 	if data.AclPolicies != nil {
-		acl_policies = aclPoliciesSdkToTerraform(ctx, &diags, data.AclPolicies)
+		aclPolicies = aclPoliciesSdkToTerraform(ctx, &diags, data.AclPolicies)
 	}
 	if data.AclTags != nil && len(data.AclTags) > 0 {
-		acl_tags = aclTagsSdkToTerraform(ctx, &diags, data.AclTags)
+		aclTags = aclTagsSdkToTerraform(ctx, &diags, data.AclTags)
 	}
 	if data.AdditionalConfigCmds != nil {
-		additional_config_cmds = mist_transform.ListOfStringSdkToTerraform(ctx, data.AdditionalConfigCmds)
+		additionalConfigCmds = misttransform.ListOfStringSdkToTerraform(data.AdditionalConfigCmds)
 	}
 	if data.DhcpSnooping != nil {
-		dhcp_snooping = dhcpSnoopingSdkToTerraform(ctx, &diags, data.DhcpSnooping)
+		dhcpSnooping = dhcpSnoopingSdkToTerraform(ctx, &diags, data.DhcpSnooping)
 	}
 	if data.DnsServers != nil {
-		dns_servers = mist_transform.ListOfStringSdkToTerraform(ctx, data.DnsServers)
+		dnsServers = misttransform.ListOfStringSdkToTerraform(data.DnsServers)
 	}
 	if data.DnsSuffix != nil {
-		dns_suffix = mist_transform.ListOfStringSdkToTerraform(ctx, data.DnsSuffix)
+		dnsSuffix = misttransform.ListOfStringSdkToTerraform(data.DnsSuffix)
 	}
 	if data.ExtraRoutes != nil && len(data.ExtraRoutes) > 0 {
-		extra_routes = extraRoutesSdkToTerraform(ctx, &diags, data.ExtraRoutes)
+		extraRoutes = extraRoutesSdkToTerraform(ctx, &diags, data.ExtraRoutes)
 	}
 	if data.ExtraRoutes6 != nil && len(data.ExtraRoutes6) > 0 {
-		extra_routes6 = extraRoutes6SdkToTerraform(ctx, &diags, data.ExtraRoutes6)
+		extraRoutes6 = extraRoutes6SdkToTerraform(ctx, &diags, data.ExtraRoutes6)
 	}
 	if data.Id != nil {
 		id = types.StringValue(data.Id.String())
 	}
 	if data.MistNac != nil {
-		mist_nac = mistNacSdkToTerraform(ctx, &diags, data.MistNac)
+		mistNac = mistNacSdkToTerraform(ctx, &diags, data.MistNac)
 	}
 	if data.Name != nil {
 		name = types.StringValue(*data.Name)
@@ -78,70 +78,70 @@ func SdkToTerraform(ctx context.Context, data models.NetworkTemplate) (OrgNetwor
 		networks = NetworksSdkToTerraform(ctx, &diags, data.Networks)
 	}
 	if data.NtpServers != nil {
-		ntp_servers = mist_transform.ListOfStringSdkToTerraform(ctx, data.NtpServers)
+		ntpServers = misttransform.ListOfStringSdkToTerraform(data.NtpServers)
 	}
 	if data.OrgId != nil {
-		org_id = types.StringValue(data.OrgId.String())
+		orgId = types.StringValue(data.OrgId.String())
 	}
 	if data.OspfAreas != nil {
-		ospf_areas = ospfAreasSdkToTerraform(ctx, &diags, data.OspfAreas)
+		ospfAreas = ospfAreasSdkToTerraform(ctx, &diags, data.OspfAreas)
 	}
 	if data.PortMirroring != nil {
-		port_mirroring = portMirroringSdkToTerraform(ctx, &diags, data.PortMirroring)
+		portMirroring = portMirroringSdkToTerraform(ctx, &diags, data.PortMirroring)
 	}
 	if data.PortUsages != nil && len(data.PortUsages) > 0 {
-		port_usages = portUsagesSdkToTerraform(ctx, &diags, data.PortUsages)
+		portUsages = portUsagesSdkToTerraform(ctx, &diags, data.PortUsages)
 	}
 	if data.RadiusConfig != nil {
-		radius_config = radiusConfigSdkToTerraform(ctx, &diags, data.RadiusConfig)
+		radiusConfig = radiusConfigSdkToTerraform(ctx, &diags, data.RadiusConfig)
 	}
 	if data.RemoteSyslog != nil {
-		remote_syslog = remoteSyslogSdkToTerraform(ctx, &diags, data.RemoteSyslog)
+		remoteSyslog = remoteSyslogSdkToTerraform(ctx, &diags, data.RemoteSyslog)
 	}
 	if data.RemoveExistingConfigs != nil {
 		state.RemoveExistingConfigs = types.BoolValue(*data.RemoveExistingConfigs)
 	}
 	if data.SnmpConfig != nil {
-		snmp_config = snmpConfigSdkToTerraform(ctx, &diags, data.SnmpConfig)
+		snmpConfig = snmpConfigSdkToTerraform(ctx, &diags, data.SnmpConfig)
 	}
 	if data.SwitchMatching != nil {
-		switch_matching = switchMatchingSdkToTerraform(ctx, &diags, data.SwitchMatching)
+		switchMatching = switchMatchingSdkToTerraform(ctx, &diags, data.SwitchMatching)
 	}
 	if data.SwitchMgmt != nil {
-		switch_mgmt = switchMgmtSdkToTerraform(ctx, &diags, data.SwitchMgmt)
+		switchMgmt = switchMgmtSdkToTerraform(ctx, &diags, data.SwitchMgmt)
 	}
 	if data.VrfConfig != nil {
-		vrf_config = vrfConfigSdkToTerraform(ctx, &diags, data.VrfConfig)
+		vrfConfig = vrfConfigSdkToTerraform(ctx, &diags, data.VrfConfig)
 	}
 	if data.VrfInstances != nil && len(data.VrfInstances) > 0 {
-		vrf_instances = vrfInstancesSdkToTerraform(ctx, &diags, data.VrfInstances)
+		vrfInstances = vrfInstancesSdkToTerraform(ctx, &diags, data.VrfInstances)
 	}
 
 	state.Id = id
-	state.OrgId = org_id
+	state.OrgId = orgId
 	state.Name = name
-	state.AclPolicies = acl_policies
-	state.AclTags = acl_tags
-	state.AdditionalConfigCmds = additional_config_cmds
-	state.DhcpSnooping = dhcp_snooping
-	state.DnsServers = dns_servers
-	state.DnsSuffix = dns_suffix
-	state.ExtraRoutes = extra_routes
-	state.ExtraRoutes6 = extra_routes6
-	state.MistNac = mist_nac
-	state.NtpServers = ntp_servers
+	state.AclPolicies = aclPolicies
+	state.AclTags = aclTags
+	state.AdditionalConfigCmds = additionalConfigCmds
+	state.DhcpSnooping = dhcpSnooping
+	state.DnsServers = dnsServers
+	state.DnsSuffix = dnsSuffix
+	state.ExtraRoutes = extraRoutes
+	state.ExtraRoutes6 = extraRoutes6
+	state.MistNac = mistNac
+	state.NtpServers = ntpServers
 	state.Networks = networks
-	state.OspfAreas = ospf_areas
-	state.PortMirroring = port_mirroring
-	state.PortUsages = port_usages
-	state.RadiusConfig = radius_config
-	state.RemoteSyslog = remote_syslog
-	state.RemoveExistingConfigs = remove_existing_configs
-	state.SnmpConfig = snmp_config
-	state.SwitchMatching = switch_matching
-	state.SwitchMgmt = switch_mgmt
-	state.VrfConfig = vrf_config
-	state.VrfInstances = vrf_instances
+	state.OspfAreas = ospfAreas
+	state.PortMirroring = portMirroring
+	state.PortUsages = portUsages
+	state.RadiusConfig = radiusConfig
+	state.RemoteSyslog = remoteSyslog
+	state.RemoveExistingConfigs = removeExistingConfigs
+	state.SnmpConfig = snmpConfig
+	state.SwitchMatching = switchMatching
+	state.SwitchMgmt = switchMgmt
+	state.VrfConfig = vrfConfig
+	state.VrfInstances = vrfInstances
 
 	return state, diags
 }

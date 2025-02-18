@@ -1,15 +1,12 @@
 package resource_org_setting
 
 import (
-	"context"
-
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
-	"github.com/hashicorp/terraform-plugin-framework/diag"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func installerTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d InstallerValue) *models.OrgSettingInstaller {
+func installerTerraformToSdk(d InstallerValue) *models.OrgSettingInstaller {
 	data := models.OrgSettingInstaller{}
 
 	if d.AllowAllDevices.ValueBoolPointer() != nil {
@@ -21,7 +18,7 @@ func installerTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d Ins
 	}
 
 	if !d.ExtraSiteIds.IsNull() && !d.ExtraSiteIds.IsUnknown() {
-		data.ExtraSiteIds = mist_transform.ListOfUuidTerraformToSdk(ctx, d.ExtraSiteIds)
+		data.ExtraSiteIds = misttransform.ListOfUuidTerraformToSdk(d.ExtraSiteIds)
 	}
 
 	if !d.GracePeriod.IsNull() && !d.GracePeriod.IsUnknown() {

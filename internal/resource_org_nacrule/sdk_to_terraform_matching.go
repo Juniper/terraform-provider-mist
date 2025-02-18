@@ -3,7 +3,7 @@ package resource_org_nacrule
 import (
 	"context"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -14,56 +14,55 @@ import (
 )
 
 func matchingPortTypesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d []models.NacRuleMatchingPortTypeEnum) basetypes.ListValue {
-	list_attr_types := types.StringType
-	var list_attr_values []attr.Value
+	listAttrTypes := types.StringType
+	var listAttrValues []attr.Value
 	for _, v := range d {
-		v_string := types.StringValue(string(v))
-		list_attr_values = append(list_attr_values, v_string)
+		vString := types.StringValue(string(v))
+		listAttrValues = append(listAttrValues, vString)
 	}
 
-	r, e := types.ListValueFrom(ctx, list_attr_types, list_attr_values)
+	r, e := types.ListValueFrom(ctx, listAttrTypes, listAttrValues)
 	diags.Append(e...)
 	return r
 }
 
 func matchingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.NacRuleMatching) MatchingValue {
 
-	var auth_type basetypes.StringValue
-	var nactags basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
-	var port_types basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
-	var site_ids basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
-	var sitegroup_ids basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
-	var vendor basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+	var authType basetypes.StringValue
+	var nactags = misttransform.ListOfStringSdkToTerraformEmpty()
+	var portTypes = misttransform.ListOfStringSdkToTerraformEmpty()
+	var siteIds = misttransform.ListOfStringSdkToTerraformEmpty()
+	var sitegroupIds = misttransform.ListOfStringSdkToTerraformEmpty()
+	var vendor = misttransform.ListOfStringSdkToTerraformEmpty()
 
 	if d.AuthType != nil {
-		auth_type = types.StringValue(string(*d.AuthType))
+		authType = types.StringValue(string(*d.AuthType))
 	}
 	if d.Nactags != nil {
-		nactags = mist_transform.ListOfStringSdkToTerraform(ctx, d.Nactags)
+		nactags = misttransform.ListOfStringSdkToTerraform(d.Nactags)
 	}
 	if d.PortTypes != nil {
-		port_types = matchingPortTypesSdkToTerraform(ctx, diags, d.PortTypes)
+		portTypes = matchingPortTypesSdkToTerraform(ctx, diags, d.PortTypes)
 	}
 	if d.SiteIds != nil {
-		site_ids = mist_transform.ListOfUuidSdkToTerraform(ctx, d.SiteIds)
+		siteIds = misttransform.ListOfUuidSdkToTerraform(d.SiteIds)
 	}
 	if d.SitegroupIds != nil {
-		sitegroup_ids = mist_transform.ListOfUuidSdkToTerraform(ctx, d.SitegroupIds)
+		sitegroupIds = misttransform.ListOfUuidSdkToTerraform(d.SitegroupIds)
 	}
 	if d.Vendor != nil {
-		vendor = mist_transform.ListOfStringSdkToTerraform(ctx, d.Vendor)
+		vendor = misttransform.ListOfStringSdkToTerraform(d.Vendor)
 	}
 
-	data_map_attr_type := MatchingValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"auth_type":     auth_type,
+	dataMapValue := map[string]attr.Value{
+		"auth_type":     authType,
 		"nactags":       nactags,
-		"port_types":    port_types,
-		"site_ids":      site_ids,
-		"sitegroup_ids": sitegroup_ids,
+		"port_types":    portTypes,
+		"site_ids":      siteIds,
+		"sitegroup_ids": sitegroupIds,
 		"vendor":        vendor,
 	}
-	data, e := NewMatchingValue(data_map_attr_type, data_map_value)
+	data, e := NewMatchingValue(MatchingValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data
@@ -71,42 +70,41 @@ func matchingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mod
 
 func notMatchingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.NacRuleMatching) NotMatchingValue {
 
-	var auth_type basetypes.StringValue
-	var nactags basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
-	var port_types basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
-	var site_ids basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
-	var sitegroup_ids basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
-	var vendor basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+	var authType basetypes.StringValue
+	var nactags = misttransform.ListOfStringSdkToTerraformEmpty()
+	var portTypes = misttransform.ListOfStringSdkToTerraformEmpty()
+	var siteIds = misttransform.ListOfStringSdkToTerraformEmpty()
+	var sitegroupIds = misttransform.ListOfStringSdkToTerraformEmpty()
+	var vendor = misttransform.ListOfStringSdkToTerraformEmpty()
 
 	if d.AuthType != nil {
-		auth_type = types.StringValue(string(*d.AuthType))
+		authType = types.StringValue(string(*d.AuthType))
 	}
 	if d.Nactags != nil {
-		nactags = mist_transform.ListOfStringSdkToTerraform(ctx, d.Nactags)
+		nactags = misttransform.ListOfStringSdkToTerraform(d.Nactags)
 	}
 	if d.PortTypes != nil {
-		port_types = matchingPortTypesSdkToTerraform(ctx, diags, d.PortTypes)
+		portTypes = matchingPortTypesSdkToTerraform(ctx, diags, d.PortTypes)
 	}
 	if d.SiteIds != nil {
-		site_ids = mist_transform.ListOfUuidSdkToTerraform(ctx, d.SiteIds)
+		siteIds = misttransform.ListOfUuidSdkToTerraform(d.SiteIds)
 	}
 	if d.SitegroupIds != nil {
-		sitegroup_ids = mist_transform.ListOfUuidSdkToTerraform(ctx, d.SitegroupIds)
+		sitegroupIds = misttransform.ListOfUuidSdkToTerraform(d.SitegroupIds)
 	}
 	if d.Vendor != nil {
-		vendor = mist_transform.ListOfStringSdkToTerraform(ctx, d.Vendor)
+		vendor = misttransform.ListOfStringSdkToTerraform(d.Vendor)
 	}
 
-	data_map_attr_type := NotMatchingValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"auth_type":     auth_type,
+	dataMapValue := map[string]attr.Value{
+		"auth_type":     authType,
 		"nactags":       nactags,
-		"port_types":    port_types,
-		"site_ids":      site_ids,
-		"sitegroup_ids": sitegroup_ids,
+		"port_types":    portTypes,
+		"site_ids":      siteIds,
+		"sitegroup_ids": sitegroupIds,
 		"vendor":        vendor,
 	}
-	data, e := NewNotMatchingValue(data_map_attr_type, data_map_value)
+	data, e := NewNotMatchingValue(NotMatchingValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

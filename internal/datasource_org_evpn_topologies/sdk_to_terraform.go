@@ -24,52 +24,52 @@ func SdkToTerraform(ctx context.Context, l *[]models.EvpnTopologyResponse, eleme
 
 func evpnTopologySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.EvpnTopologyResponse) OrgEvpnTopologiesValue {
 
-	var created_time basetypes.Float64Value
-	var evpn_options basetypes.ObjectValue = basetypes.NewObjectNull(EvpnOptionsValue{}.AttributeTypes(ctx))
+	var createdTime basetypes.Float64Value
+	var evpnOptions = basetypes.NewObjectNull(EvpnOptionsValue{}.AttributeTypes(ctx))
 	var id basetypes.StringValue
-	var modified_time basetypes.Float64Value
+	var modifiedTime basetypes.Float64Value
 	var name basetypes.StringValue
-	var org_id basetypes.StringValue
-	var pod_names basetypes.MapValue = basetypes.NewMapNull(types.StringType)
+	var orgId basetypes.StringValue
+	var podNames = basetypes.NewMapNull(types.StringType)
 
 	if d.CreatedTime != nil {
-		created_time = types.Float64Value(float64(*d.CreatedTime))
+		createdTime = types.Float64Value(*d.CreatedTime)
 	}
 	if d.EvpnOptions != nil {
-		evpn_options = evpnOptionsSdkToTerraform(ctx, diags, d.EvpnOptions)
+		evpnOptions = evpnOptionsSdkToTerraform(ctx, diags, d.EvpnOptions)
 	}
 	if d.Id != nil {
 		id = types.StringValue(d.Id.String())
 	}
 	if d.ModifiedTime != nil {
-		modified_time = types.Float64Value(float64(*d.ModifiedTime))
+		modifiedTime = types.Float64Value(*d.ModifiedTime)
 	}
 	if d.Name != nil {
 		name = types.StringValue(*d.Name)
 	}
 	if d.OrgId != nil {
-		org_id = types.StringValue(d.OrgId.String())
+		orgId = types.StringValue(d.OrgId.String())
 	}
 	if d.PodNames != nil {
-		data_map := make(map[string]string)
+		dataMap := make(map[string]string)
 		for k, v := range d.PodNames {
-			data_map[k] = v
+			dataMap[k] = v
 		}
-		state_result, e := types.MapValueFrom(ctx, types.StringType, data_map)
+		stateResult, e := types.MapValueFrom(ctx, types.StringType, dataMap)
 		diags.Append(e...)
-		pod_names = state_result
+		podNames = stateResult
 	}
 
-	data_map_value := map[string]attr.Value{
-		"created_time":  created_time,
-		"evpn_options":  evpn_options,
+	dataMapValue := map[string]attr.Value{
+		"created_time":  createdTime,
+		"evpn_options":  evpnOptions,
 		"id":            id,
-		"modified_time": modified_time,
+		"modified_time": modifiedTime,
 		"name":          name,
-		"org_id":        org_id,
-		"pod_names":     pod_names,
+		"org_id":        orgId,
+		"pod_names":     podNames,
 	}
-	data, e := NewOrgEvpnTopologiesValue(OrgEvpnTopologiesValue{}.AttributeTypes(ctx), data_map_value)
+	data, e := NewOrgEvpnTopologiesValue(OrgEvpnTopologiesValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

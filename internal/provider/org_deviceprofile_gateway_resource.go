@@ -10,7 +10,7 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
+	mistapierror "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_deviceprofile_gateway"
 
 	"github.com/google/uuid"
@@ -51,11 +51,11 @@ func (r *orgDeviceprofileGatewayResource) Configure(ctx context.Context, req res
 
 	r.client = client
 }
-func (r *orgDeviceprofileGatewayResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *orgDeviceprofileGatewayResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_org_deviceprofile_gateway"
 }
 
-func (r *orgDeviceprofileGatewayResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *orgDeviceprofileGatewayResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryWan + "This resource manages the Gateway Device Profiles (HUB Profiles).\n\n" +
 			"A HUB profile is a configuration profile that automates the creation of overlay networks and defines the attributes of a hub device in a network. " +
@@ -76,7 +76,7 @@ func (r *orgDeviceprofileGatewayResource) Create(ctx context.Context, req resour
 		return
 	}
 
-	deviceprofile_gateway, diags := resource_org_deviceprofile_gateway.TerraformToSdk(ctx, &plan)
+	deviceprofileGateway, diags := resource_org_deviceprofile_gateway.TerraformToSdk(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -90,28 +90,28 @@ func (r *orgDeviceprofileGatewayResource) Create(ctx context.Context, req resour
 		)
 		return
 	}
-	data, err := r.client.OrgsDeviceProfiles().CreateOrgDeviceProfiles(ctx, orgId, &deviceprofile_gateway)
+	data, err := r.client.OrgsDeviceProfiles().CreateOrgDeviceProfiles(ctx, orgId, &deviceprofileGateway)
 	if data.Response.StatusCode != 200 {
 
-		api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-		if api_err != "" {
+		apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+		if apiErr != "" {
 			resp.Diagnostics.AddError(
 				"Error creating \"mist_org_deviceprofile_gateway\" resource",
-				fmt.Sprintf("Unable to create the Gateway Profile. %s", api_err),
+				fmt.Sprintf("Unable to create the Gateway Profile. %s", apiErr),
 			)
 			return
 		}
 	}
 
 	body, _ := io.ReadAll(data.Response.Body)
-	mist_deviceprofile_gateway := models.DeviceprofileGateway{}
-	err = json.Unmarshal(body, &mist_deviceprofile_gateway)
+	mistDeviceprofileGateway := models.DeviceprofileGateway{}
+	err = json.Unmarshal(body, &mistDeviceprofileGateway)
 	if err != nil {
 		resp.Diagnostics.AddError("Unable to unMarshal API response", err.Error())
 		return
 	}
 
-	state, diags = resource_org_deviceprofile_gateway.SdkToTerraform(ctx, &mist_deviceprofile_gateway)
+	state, diags = resource_org_deviceprofile_gateway.SdkToTerraform(ctx, &mistDeviceprofileGateway)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -125,7 +125,7 @@ func (r *orgDeviceprofileGatewayResource) Create(ctx context.Context, req resour
 
 }
 
-func (r *orgDeviceprofileGatewayResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *orgDeviceprofileGatewayResource) Read(ctx context.Context, _ resource.ReadRequest, resp *resource.ReadResponse) {
 	var state resource_org_deviceprofile_gateway.OrgDeviceprofileGatewayModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -142,7 +142,7 @@ func (r *orgDeviceprofileGatewayResource) Read(ctx context.Context, req resource
 		)
 		return
 	}
-	deviceprofile_gatewayId, err := uuid.Parse(state.Id.ValueString())
+	deviceprofileGatewayid, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"id\" value for \"mist_org_deviceprofile_gateway\" resource",
@@ -151,7 +151,7 @@ func (r *orgDeviceprofileGatewayResource) Read(ctx context.Context, req resource
 		return
 	}
 	tflog.Info(ctx, "Starting DeviceprofileGateway Read: deviceprofile_gateway_id "+state.Id.ValueString())
-	httpr, err := r.client.OrgsDeviceProfiles().GetOrgDeviceProfile(ctx, orgId, deviceprofile_gatewayId)
+	httpr, err := r.client.OrgsDeviceProfiles().GetOrgDeviceProfile(ctx, orgId, deviceprofileGatewayid)
 	if httpr.Response.StatusCode == 404 {
 		resp.State.RemoveResource(ctx)
 		return
@@ -164,14 +164,14 @@ func (r *orgDeviceprofileGatewayResource) Read(ctx context.Context, req resource
 	}
 
 	body, _ := io.ReadAll(httpr.Response.Body)
-	mist_deviceprofile_gateway := models.DeviceprofileGateway{}
-	err = json.Unmarshal(body, &mist_deviceprofile_gateway)
+	mistDeviceprofileGateway := models.DeviceprofileGateway{}
+	err = json.Unmarshal(body, &mistDeviceprofileGateway)
 	if err != nil {
 		resp.Diagnostics.AddError("Unable to unMarshal API response", err.Error())
 		return
 	}
 
-	state, diags = resource_org_deviceprofile_gateway.SdkToTerraform(ctx, &mist_deviceprofile_gateway)
+	state, diags = resource_org_deviceprofile_gateway.SdkToTerraform(ctx, &mistDeviceprofileGateway)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -199,7 +199,7 @@ func (r *orgDeviceprofileGatewayResource) Update(ctx context.Context, req resour
 		return
 	}
 
-	deviceprofile_gateway, diags := resource_org_deviceprofile_gateway.TerraformToSdk(ctx, &plan)
+	deviceprofileGateway, diags := resource_org_deviceprofile_gateway.TerraformToSdk(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -213,7 +213,7 @@ func (r *orgDeviceprofileGatewayResource) Update(ctx context.Context, req resour
 		)
 		return
 	}
-	deviceprofile_gatewayId, err := uuid.Parse(state.Id.ValueString())
+	deviceprofileGatewayid, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"id\" value for \"mist_org_deviceprofile_gateway\" resource",
@@ -222,29 +222,29 @@ func (r *orgDeviceprofileGatewayResource) Update(ctx context.Context, req resour
 		return
 	}
 	tflog.Info(ctx, "Starting DeviceprofileGateway Update for DeviceprofileGateway "+state.Id.ValueString())
-	data, err := r.client.OrgsDeviceProfiles().UpdateOrgDeviceProfile(ctx, orgId, deviceprofile_gatewayId, &deviceprofile_gateway)
+	data, err := r.client.OrgsDeviceProfiles().UpdateOrgDeviceProfile(ctx, orgId, deviceprofileGatewayid, &deviceprofileGateway)
 
 	if data.Response.StatusCode != 200 {
 
-		api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-		if api_err != "" {
+		apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+		if apiErr != "" {
 			resp.Diagnostics.AddError(
 				"Error updating \"mist_org_deviceprofile_gateway\" resource",
-				fmt.Sprintf("Unable to update the Gateway Profile. %s", api_err),
+				fmt.Sprintf("Unable to update the Gateway Profile. %s", apiErr),
 			)
 			return
 		}
 	}
 
 	body, _ := io.ReadAll(data.Response.Body)
-	mist_deviceprofile_gateway := models.DeviceprofileGateway{}
-	err = json.Unmarshal(body, &mist_deviceprofile_gateway)
+	mistDeviceprofileGateway := models.DeviceprofileGateway{}
+	err = json.Unmarshal(body, &mistDeviceprofileGateway)
 	if err != nil {
 		resp.Diagnostics.AddError("Unable to unMarshal API response", err.Error())
 		return
 	}
 
-	state, diags = resource_org_deviceprofile_gateway.SdkToTerraform(ctx, &mist_deviceprofile_gateway)
+	state, diags = resource_org_deviceprofile_gateway.SdkToTerraform(ctx, &mistDeviceprofileGateway)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -258,7 +258,7 @@ func (r *orgDeviceprofileGatewayResource) Update(ctx context.Context, req resour
 
 }
 
-func (r *orgDeviceprofileGatewayResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *orgDeviceprofileGatewayResource) Delete(ctx context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_org_deviceprofile_gateway.OrgDeviceprofileGatewayModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -275,7 +275,7 @@ func (r *orgDeviceprofileGatewayResource) Delete(ctx context.Context, req resour
 		)
 		return
 	}
-	deviceprofile_gatewayId, err := uuid.Parse(state.Id.ValueString())
+	deviceprofileGatewayid, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"id\" value for \"mist_org_deviceprofile_gateway\" resource",
@@ -284,12 +284,12 @@ func (r *orgDeviceprofileGatewayResource) Delete(ctx context.Context, req resour
 		return
 	}
 	tflog.Info(ctx, "Starting DeviceprofileGateway Delete: deviceprofile_gateway_id "+state.Id.ValueString())
-	data, err := r.client.OrgsDeviceProfiles().DeleteOrgDeviceProfile(ctx, orgId, deviceprofile_gatewayId)
-	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && api_err != "" {
+	data, err := r.client.OrgsDeviceProfiles().DeleteOrgDeviceProfile(ctx, orgId, deviceprofileGatewayid)
+	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_deviceprofile_gateway\" resource",
-			fmt.Sprintf("Unable to delete the Gateway Device Profile. %s", api_err),
+			fmt.Sprintf("Unable to delete the Gateway Device Profile. %s", apiErr),
 		)
 		return
 	}

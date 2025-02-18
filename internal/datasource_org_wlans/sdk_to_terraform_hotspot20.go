@@ -3,7 +3,7 @@ package datasource_org_wlans
 import (
 	"context"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -14,46 +14,45 @@ import (
 )
 
 func hotspot20SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.WlanHotspot20) basetypes.ObjectValue {
-	var domain_name basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+	var domainName = misttransform.ListOfStringSdkToTerraformEmpty()
 	var enabled basetypes.BoolValue
-	var nai_realms basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
-	var operators basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
-	var rcoi basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
-	var venue_name basetypes.StringValue
+	var naiRealms = misttransform.ListOfStringSdkToTerraformEmpty()
+	var operators = misttransform.ListOfStringSdkToTerraformEmpty()
+	var rcoi = misttransform.ListOfStringSdkToTerraformEmpty()
+	var venueName basetypes.StringValue
 
 	if d != nil && d.DomainName != nil {
-		domain_name = mist_transform.ListOfStringSdkToTerraform(ctx, d.DomainName)
+		domainName = misttransform.ListOfStringSdkToTerraform(d.DomainName)
 	}
 	if d != nil && d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
 	if d != nil && d.NaiRealms != nil {
-		nai_realms = mist_transform.ListOfStringSdkToTerraform(ctx, d.NaiRealms)
+		naiRealms = misttransform.ListOfStringSdkToTerraform(d.NaiRealms)
 	}
 	if d != nil && d.Operators != nil {
-		var operators_list []attr.Value
+		var operatorsList []attr.Value
 		for _, v := range d.Operators {
-			operators_list = append(operators_list, types.StringValue(string(v)))
+			operatorsList = append(operatorsList, types.StringValue(string(v)))
 		}
-		operators = types.ListValueMust(basetypes.StringType{}, operators_list)
+		operators = types.ListValueMust(basetypes.StringType{}, operatorsList)
 	}
 	if d != nil && d.Rcoi != nil {
-		rcoi = mist_transform.ListOfStringSdkToTerraform(ctx, d.Rcoi)
+		rcoi = misttransform.ListOfStringSdkToTerraform(d.Rcoi)
 	}
 	if d != nil && d.VenueName != nil {
-		venue_name = types.StringValue(*d.VenueName)
+		venueName = types.StringValue(*d.VenueName)
 	}
 
-	data_map_attr_type := Hotspot20Value{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"domain_name": domain_name,
+	dataMapValue := map[string]attr.Value{
+		"domain_name": domainName,
 		"enabled":     enabled,
-		"nai_realms":  nai_realms,
+		"nai_realms":  naiRealms,
 		"operators":   operators,
 		"rcoi":        rcoi,
-		"venue_name":  venue_name,
+		"venue_name":  venueName,
 	}
-	data, e := basetypes.NewObjectValue(data_map_attr_type, data_map_value)
+	data, e := basetypes.NewObjectValue(Hotspot20Value{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

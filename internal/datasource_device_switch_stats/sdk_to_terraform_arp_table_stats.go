@@ -13,22 +13,21 @@ import (
 
 func arpTableStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ArpTableStats) basetypes.ObjectValue {
 
-	var arp_table_count basetypes.Int64Value
-	var max_entries_supported basetypes.Int64Value
+	var arpTableCount basetypes.Int64Value
+	var maxEntriesSupported basetypes.Int64Value
 
 	if d.ArpTableCount != nil {
-		arp_table_count = types.Int64Value(int64(*d.ArpTableCount))
+		arpTableCount = types.Int64Value(int64(*d.ArpTableCount))
 	}
 	if d.MaxEntriesSupported != nil {
-		max_entries_supported = types.Int64Value(int64(*d.MaxEntriesSupported))
+		maxEntriesSupported = types.Int64Value(int64(*d.MaxEntriesSupported))
 	}
 
-	data_map_attr_type := ArpTableStatsValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"arp_table_count":       arp_table_count,
-		"max_entries_supported": max_entries_supported,
+	dataMapValue := map[string]attr.Value{
+		"arp_table_count":       arpTableCount,
+		"max_entries_supported": maxEntriesSupported,
 	}
-	data, e := basetypes.NewObjectValue(data_map_attr_type, data_map_value)
+	data, e := basetypes.NewObjectValue(ArpTableStatsValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

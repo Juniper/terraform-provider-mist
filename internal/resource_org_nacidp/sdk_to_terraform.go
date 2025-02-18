@@ -1,9 +1,7 @@
 package resource_org_nacidp
 
 import (
-	"context"
-
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -11,156 +9,156 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-func SdkToTerraform(ctx context.Context, data *models.Sso) (OrgNacidpModel, diag.Diagnostics) {
+func SdkToTerraform(data *models.Sso) (OrgNacidpModel, diag.Diagnostics) {
 	var state OrgNacidpModel
 	var diags diag.Diagnostics
 	var id types.String
-	var idp_type types.String
-	var ldap_base_dn types.String
-	var ldap_bind_dn types.String
-	var ldap_bind_password types.String
-	var ldap_ca_certs types.List = types.ListNull(types.StringType)
-	var ldap_client_cert types.String
-	var ldap_client_key types.String
-	var ldap_group_attr types.String
-	var ldap_group_dn types.String
-	var ldap_group_filter types.String
-	var ldap_member_filter types.String
-	var ldap_resolve_groups types.Bool
-	var ldap_server_hosts types.List = types.ListNull(types.StringType)
-	var ldap_type types.String
-	var ldap_user_filter types.String
+	var idpType types.String
+	var ldapBaseDn types.String
+	var ldapBindDn types.String
+	var ldapBindPassword types.String
+	var ldapCaCerts = types.ListNull(types.StringType)
+	var ldapClientCert types.String
+	var ldapClientKey types.String
+	var ldapGroupAttr types.String
+	var ldapGroupDn types.String
+	var ldapGroupFilter types.String
+	var ldapMemberFilter types.String
+	var ldapResolveGroups types.Bool
+	var ldapServerHosts = types.ListNull(types.StringType)
+	var ldapType types.String
+	var ldapUserFilter types.String
 	var name types.String
-	var oauth_cc_client_id types.String
-	var oauth_cc_client_secret types.String
-	var oauth_discovery_url types.String
-	var oauth_ping_identity_region types.String
-	var oauth_ropc_client_id types.String
-	var oauth_ropc_client_secret types.String
-	var oauth_tenant_id types.String
-	var oauth_type types.String
-	var org_id types.String
-	var scim_enabled types.Bool = types.BoolValue(false)
-	var scim_secret_token types.String = types.StringValue("")
+	var oauthCcClientId types.String
+	var oauthCcClientSecret types.String
+	var oauthDiscoveryUrl types.String
+	var oauthPingIdentityRegion types.String
+	var oauthRopcClientId types.String
+	var oauthRopcClientSecret types.String
+	var oauthTenantId types.String
+	var oauthType types.String
+	var orgId types.String
+	var scimEnabled = types.BoolValue(false)
+	var scimSecretToken = types.StringValue("")
 
 	if data.Id != nil {
 		id = types.StringValue(data.Id.String())
 	}
 	if data.IdpType != nil {
-		idp_type = types.StringValue(string(*data.IdpType))
+		idpType = types.StringValue(string(*data.IdpType))
 	}
 	if data.LdapBaseDn != nil {
-		ldap_base_dn = types.StringValue(*data.LdapBaseDn)
+		ldapBaseDn = types.StringValue(*data.LdapBaseDn)
 	}
 	if data.LdapBindDn != nil {
-		ldap_bind_dn = types.StringValue(*data.LdapBindDn)
+		ldapBindDn = types.StringValue(*data.LdapBindDn)
 	}
 	if data.LdapBindPassword != nil {
-		ldap_bind_password = types.StringValue(*data.LdapBindPassword)
+		ldapBindPassword = types.StringValue(*data.LdapBindPassword)
 	}
 	if data.LdapCacerts != nil {
-		ldap_ca_certs = mist_transform.ListOfStringSdkToTerraform(ctx, data.LdapCacerts)
+		ldapCaCerts = misttransform.ListOfStringSdkToTerraform(data.LdapCacerts)
 	}
 	if data.LdapClientCert != nil {
-		ldap_client_cert = types.StringValue(*data.LdapClientCert)
+		ldapClientCert = types.StringValue(*data.LdapClientCert)
 	}
 	if data.LdapClientKey != nil {
-		ldap_client_key = types.StringValue(*data.LdapClientKey)
+		ldapClientKey = types.StringValue(*data.LdapClientKey)
 	}
 	if data.LdapGroupAttr != nil {
-		ldap_group_attr = types.StringValue(*data.LdapGroupAttr)
+		ldapGroupAttr = types.StringValue(*data.LdapGroupAttr)
 	}
 	if data.LdapGroupDn != nil {
-		ldap_group_dn = types.StringValue(*data.LdapGroupDn)
+		ldapGroupDn = types.StringValue(*data.LdapGroupDn)
 	}
 	if data.GroupFilter != nil {
-		ldap_group_filter = types.StringValue(*data.GroupFilter)
+		ldapGroupFilter = types.StringValue(*data.GroupFilter)
 	}
 	if data.MemberFilter != nil {
-		ldap_member_filter = types.StringValue(*data.MemberFilter)
+		ldapMemberFilter = types.StringValue(*data.MemberFilter)
 	}
 	if data.LdapResolveGroups != nil {
-		ldap_resolve_groups = types.BoolValue(*data.LdapResolveGroups)
+		ldapResolveGroups = types.BoolValue(*data.LdapResolveGroups)
 	}
 	if data.LdapServerHosts != nil {
-		ldap_server_hosts = mist_transform.ListOfStringSdkToTerraform(ctx, data.LdapServerHosts)
+		ldapServerHosts = misttransform.ListOfStringSdkToTerraform(data.LdapServerHosts)
 	}
 	if data.LdapType != nil {
-		ldap_type = types.StringValue(string(*data.LdapType))
+		ldapType = types.StringValue(string(*data.LdapType))
 	}
 	if data.LdapUserFilter != nil {
-		ldap_user_filter = types.StringValue(*data.LdapUserFilter)
+		ldapUserFilter = types.StringValue(*data.LdapUserFilter)
 	}
 
 	name = types.StringValue(data.Name)
 
 	if data.OauthCcClientId != nil {
-		oauth_cc_client_id = types.StringValue(*data.OauthCcClientId)
+		oauthCcClientId = types.StringValue(*data.OauthCcClientId)
 	}
 	if data.OauthCcClientSecret != nil {
-		oauth_cc_client_secret = types.StringValue(*data.OauthCcClientSecret)
+		oauthCcClientSecret = types.StringValue(*data.OauthCcClientSecret)
 	}
 	if data.OauthDiscoveryUrl != nil {
-		oauth_discovery_url = types.StringValue(*data.OauthDiscoveryUrl)
+		oauthDiscoveryUrl = types.StringValue(*data.OauthDiscoveryUrl)
 	}
 	if data.OauthPingIdentityRegion != nil {
-		oauth_ping_identity_region = types.StringValue(string(*data.OauthPingIdentityRegion))
+		oauthPingIdentityRegion = types.StringValue(string(*data.OauthPingIdentityRegion))
 	}
 	if data.OauthRopcClientId != nil {
-		oauth_ropc_client_id = types.StringValue(*data.OauthRopcClientId)
+		oauthRopcClientId = types.StringValue(*data.OauthRopcClientId)
 	}
 	if data.OauthRopcClientSecret != nil {
-		oauth_ropc_client_secret = types.StringValue(*data.OauthRopcClientSecret)
+		oauthRopcClientSecret = types.StringValue(*data.OauthRopcClientSecret)
 	}
 	if data.OauthTenantId != nil {
-		oauth_tenant_id = types.StringValue(*data.OauthTenantId)
+		oauthTenantId = types.StringValue(*data.OauthTenantId)
 	}
 	if data.OauthType != nil {
 		/// TEMP WORKAROUND
 		if string(*data.OauthType) == "standards" {
-			oauth_type = types.StringValue("azure")
+			oauthType = types.StringValue("azure")
 		} else {
-			oauth_type = types.StringValue(string(*data.OauthType))
+			oauthType = types.StringValue(string(*data.OauthType))
 		}
 	}
 	if data.OrgId != nil {
-		org_id = types.StringValue(data.OrgId.String())
+		orgId = types.StringValue(data.OrgId.String())
 	}
 	if data.ScimEnabled != nil {
-		scim_enabled = types.BoolValue(*data.ScimEnabled)
+		scimEnabled = types.BoolValue(*data.ScimEnabled)
 	}
 	if data.ScimSecretToken != nil {
-		scim_secret_token = types.StringValue(*data.ScimSecretToken)
+		scimSecretToken = types.StringValue(*data.ScimSecretToken)
 	}
 
 	state.Id = id
-	state.IdpType = idp_type
-	state.LdapBaseDn = ldap_base_dn
-	state.LdapBindDn = ldap_bind_dn
-	state.LdapBindPassword = ldap_bind_password
-	state.LdapCacerts = ldap_ca_certs
-	state.LdapClientCert = ldap_client_cert
-	state.LdapClientKey = ldap_client_key
-	state.LdapGroupAttr = ldap_group_attr
-	state.LdapGroupDn = ldap_group_dn
-	state.GroupFilter = ldap_group_filter
-	state.MemberFilter = ldap_member_filter
-	state.LdapResolveGroups = ldap_resolve_groups
-	state.LdapServerHosts = ldap_server_hosts
-	state.LdapType = ldap_type
-	state.LdapUserFilter = ldap_user_filter
+	state.IdpType = idpType
+	state.LdapBaseDn = ldapBaseDn
+	state.LdapBindDn = ldapBindDn
+	state.LdapBindPassword = ldapBindPassword
+	state.LdapCacerts = ldapCaCerts
+	state.LdapClientCert = ldapClientCert
+	state.LdapClientKey = ldapClientKey
+	state.LdapGroupAttr = ldapGroupAttr
+	state.LdapGroupDn = ldapGroupDn
+	state.GroupFilter = ldapGroupFilter
+	state.MemberFilter = ldapMemberFilter
+	state.LdapResolveGroups = ldapResolveGroups
+	state.LdapServerHosts = ldapServerHosts
+	state.LdapType = ldapType
+	state.LdapUserFilter = ldapUserFilter
 	state.Name = name
-	state.OauthCcClientId = oauth_cc_client_id
-	state.OauthCcClientSecret = oauth_cc_client_secret
-	state.OauthDiscoveryUrl = oauth_discovery_url
-	state.OauthPingIdentityRegion = oauth_ping_identity_region
-	state.OauthRopcClientId = oauth_ropc_client_id
-	state.OauthRopcClientSecret = oauth_ropc_client_secret
-	state.OauthTenantId = oauth_tenant_id
-	state.OauthType = oauth_type
-	state.OrgId = org_id
-	state.ScimEnabled = scim_enabled
-	state.ScimSecretToken = scim_secret_token
+	state.OauthCcClientId = oauthCcClientId
+	state.OauthCcClientSecret = oauthCcClientSecret
+	state.OauthDiscoveryUrl = oauthDiscoveryUrl
+	state.OauthPingIdentityRegion = oauthPingIdentityRegion
+	state.OauthRopcClientId = oauthRopcClientId
+	state.OauthRopcClientSecret = oauthRopcClientSecret
+	state.OauthTenantId = oauthTenantId
+	state.OauthType = oauthType
+	state.OrgId = orgId
+	state.ScimEnabled = scimEnabled
+	state.ScimSecretToken = scimSecretToken
 
 	return state, diags
 }

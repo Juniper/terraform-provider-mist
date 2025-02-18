@@ -13,40 +13,39 @@ import (
 
 func coaServersSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.CoaServer) basetypes.ListValue {
 
-	var data_list = []CoaServersValue{}
+	var dataList []CoaServersValue
 	for _, d := range l {
-		var disable_event_timestamp_check basetypes.BoolValue
+		var disableEventTimestampCheck basetypes.BoolValue
 		var enabled basetypes.BoolValue
 		var ip basetypes.StringValue
 		var port basetypes.Int64Value
 		var secret basetypes.StringValue
 
 		if d.DisableEventTimestampCheck != nil {
-			disable_event_timestamp_check = types.BoolValue(*d.DisableEventTimestampCheck)
+			disableEventTimestampCheck = types.BoolValue(*d.DisableEventTimestampCheck)
 		}
 		if d.Enabled != nil {
 			enabled = types.BoolValue(*d.Enabled)
 		}
-		ip = types.StringValue(string(d.Ip))
+		ip = types.StringValue(d.Ip)
 		if d.Port != nil {
 			port = types.Int64Value(int64(*d.Port))
 		}
-		secret = types.StringValue(string(d.Secret))
+		secret = types.StringValue(d.Secret)
 
-		data_map_attr_type := CoaServersValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
-			"disable_event_timestamp_check": disable_event_timestamp_check,
+		dataMapValue := map[string]attr.Value{
+			"disable_event_timestamp_check": disableEventTimestampCheck,
 			"enabled":                       enabled,
 			"ip":                            ip,
 			"port":                          port,
 			"secret":                        secret,
 		}
-		data, e := NewCoaServersValue(data_map_attr_type, data_map_value)
+		data, e := NewCoaServersValue(CoaServersValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		data_list = append(data_list, data)
+		dataList = append(dataList, data)
 	}
-	r, e := types.ListValueFrom(ctx, CoaServersValue{}.Type(ctx), data_list)
+	r, e := types.ListValueFrom(ctx, CoaServersValue{}.Type(ctx), dataList)
 	diags.Append(e...)
 	return r
 

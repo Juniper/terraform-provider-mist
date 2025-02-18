@@ -10,48 +10,48 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func portMirroringSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.SwitchPortMirroringProperty) basetypes.MapValue {
-	map_item_value := make(map[string]attr.Value)
-	map_item_type := PortMirroringValue{}.Type(ctx)
+	mapItemValue := make(map[string]attr.Value)
+	mapItemType := PortMirroringValue{}.Type(ctx)
 	for k, d := range m {
-		var input_networks_ingress basetypes.ListValue = types.ListNull(types.StringType)
-		var input_port_ids_egress basetypes.ListValue = types.ListNull(types.StringType)
-		var input_port_ids_ingress basetypes.ListValue = types.ListNull(types.StringType)
-		var output_network basetypes.StringValue
-		var output_port_id basetypes.StringValue
+		var inputNetworksIngress = types.ListNull(types.StringType)
+		var inputPortIdsEgress = types.ListNull(types.StringType)
+		var inputPortIdsIngress = types.ListNull(types.StringType)
+		var outputNetwork basetypes.StringValue
+		var outputPortId basetypes.StringValue
 
 		if d.InputNetworksIngress != nil {
-			input_networks_ingress = mist_transform.ListOfStringSdkToTerraform(ctx, d.InputNetworksIngress)
+			inputNetworksIngress = misttransform.ListOfStringSdkToTerraform(d.InputNetworksIngress)
 		}
 		if d.InputPortIdsEgress != nil {
-			input_port_ids_egress = mist_transform.ListOfStringSdkToTerraform(ctx, d.InputPortIdsEgress)
+			inputPortIdsEgress = misttransform.ListOfStringSdkToTerraform(d.InputPortIdsEgress)
 		}
 		if d.InputPortIdsIngress != nil {
-			input_port_ids_ingress = mist_transform.ListOfStringSdkToTerraform(ctx, d.InputPortIdsIngress)
+			inputPortIdsIngress = misttransform.ListOfStringSdkToTerraform(d.InputPortIdsIngress)
 		}
 		if d.OutputNetwork != nil {
-			output_network = types.StringValue(*d.OutputNetwork)
+			outputNetwork = types.StringValue(*d.OutputNetwork)
 		}
 		if d.OutputPortId != nil {
-			output_port_id = types.StringValue(*d.OutputPortId)
+			outputPortId = types.StringValue(*d.OutputPortId)
 		}
 
-		item_map_value := map[string]attr.Value{
-			"input_networks_ingress": input_networks_ingress,
-			"input_port_ids_egress":  input_port_ids_egress,
-			"input_port_ids_ingress": input_port_ids_ingress,
-			"output_network":         output_network,
-			"output_port_id":         output_port_id,
+		itemMapValue := map[string]attr.Value{
+			"input_networks_ingress": inputNetworksIngress,
+			"input_port_ids_egress":  inputPortIdsEgress,
+			"input_port_ids_ingress": inputPortIdsIngress,
+			"output_network":         outputNetwork,
+			"output_port_id":         outputPortId,
 		}
-		data, e := NewPortMirroringValue(PortMirroringValue{}.AttributeTypes(ctx), item_map_value)
+		data, e := NewPortMirroringValue(PortMirroringValue{}.AttributeTypes(ctx), itemMapValue)
 		diags.Append(e...)
 
-		map_item_value[k] = data
+		mapItemValue[k] = data
 	}
-	state_result, e := types.MapValueFrom(ctx, map_item_type, map_item_value)
+	stateResult, e := types.MapValueFrom(ctx, mapItemType, mapItemValue)
 	diags.Append(e...)
-	return state_result
+	return stateResult
 }

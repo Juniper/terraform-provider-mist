@@ -3,7 +3,7 @@ package resource_device_switch
 import (
 	"context"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -15,83 +15,79 @@ import (
 
 func aclTagSpecsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.AclTagSpec) basetypes.ListValue {
 
-	var data_list = []SpecsValue{}
+	var dataList []SpecsValue
 
 	for _, d := range l {
 
-		var port_range basetypes.StringValue
+		var portRange basetypes.StringValue
 		var protocol basetypes.StringValue
 
 		if d.PortRange != nil {
-			port_range = types.StringValue(*d.PortRange)
+			portRange = types.StringValue(*d.PortRange)
 		}
 		if d.Protocol != nil {
 			protocol = types.StringValue(*d.Protocol)
 		}
 
-		data_map_attr_type := SpecsValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
-			"port_range": port_range,
+		dataMapValue := map[string]attr.Value{
+			"port_range": portRange,
 			"protocol":   protocol,
 		}
-		data, e := NewSpecsValue(data_map_attr_type, data_map_value)
+		data, e := NewSpecsValue(SpecsValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		data_list = append(data_list, data)
+		dataList = append(dataList, data)
 	}
-	data_list_type := SpecsValue{}.Type(ctx)
-	r, e := types.ListValueFrom(ctx, data_list_type, data_list)
+	r, e := types.ListValueFrom(ctx, SpecsValue{}.Type(ctx), dataList)
 	diags.Append(e...)
 	return r
 }
 func aclTagsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.AclTag) basetypes.MapValue {
 
-	state_value_map_value := make(map[string]attr.Value)
+	stateValueMapValue := make(map[string]attr.Value)
 	for k, d := range m {
-		var gbp_tag basetypes.Int64Value
-		var macs basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+		var gbpTag basetypes.Int64Value
+		var macs = misttransform.ListOfStringSdkToTerraformEmpty()
 		var network basetypes.StringValue
-		var radius_group basetypes.StringValue
-		var specs basetypes.ListValue = types.ListNull(SpecsValue{}.Type(ctx))
-		var subnets basetypes.ListValue = types.ListNull(types.StringType)
-		var tag_type basetypes.StringValue = types.StringValue(string(d.Type))
+		var radiusGroup basetypes.StringValue
+		var specs = types.ListNull(SpecsValue{}.Type(ctx))
+		var subnets = types.ListNull(types.StringType)
+		var tagType = types.StringValue(string(d.Type))
 
 		if d.GbpTag != nil {
-			gbp_tag = types.Int64Value(int64(*d.GbpTag))
+			gbpTag = types.Int64Value(int64(*d.GbpTag))
 		}
 		if d.Macs != nil {
-			macs = mist_transform.ListOfStringSdkToTerraform(ctx, d.Macs)
+			macs = misttransform.ListOfStringSdkToTerraform(d.Macs)
 		}
 		if d.Network != nil {
 			network = types.StringValue(*d.Network)
 		}
 		if d.RadiusGroup != nil {
-			radius_group = types.StringValue(*d.RadiusGroup)
+			radiusGroup = types.StringValue(*d.RadiusGroup)
 		}
 		if d.Specs != nil {
 			specs = aclTagSpecsSdkToTerraform(ctx, diags, d.Specs)
 		}
 		if d.Subnets != nil {
-			subnets = mist_transform.ListOfStringSdkToTerraform(ctx, d.Subnets)
+			subnets = misttransform.ListOfStringSdkToTerraform(d.Subnets)
 		}
 
-		data_map_attr_type := AclTagsValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
-			"gbp_tag":      gbp_tag,
+		dataMapValue := map[string]attr.Value{
+			"gbp_tag":      gbpTag,
 			"macs":         macs,
 			"network":      network,
-			"radius_group": radius_group,
+			"radius_group": radiusGroup,
 			"specs":        specs,
 			"subnets":      subnets,
-			"type":         tag_type,
+			"type":         tagType,
 		}
-		data, e := NewAclTagsValue(data_map_attr_type, data_map_value)
+		data, e := NewAclTagsValue(AclTagsValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		state_value_map_value[k] = data
+		stateValueMapValue[k] = data
 	}
-	state_result_map_type := AclTagsValue{}.Type(ctx)
-	state_result_map, e := types.MapValueFrom(ctx, state_result_map_type, state_value_map_value)
+	stateResultMap, e := types.MapValueFrom(ctx, AclTagsValue{}.Type(ctx), stateValueMapValue)
 	diags.Append(e...)
-	return state_result_map
+	return stateResultMap
 }

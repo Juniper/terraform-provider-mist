@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func SdkToTerraform(ctx context.Context, data models.NacRule) (OrgNacruleModel, diag.Diagnostics) {
@@ -16,18 +16,18 @@ func SdkToTerraform(ctx context.Context, data models.NacRule) (OrgNacruleModel, 
 	var diags diag.Diagnostics
 
 	var action types.String
-	var apply_tags types.List = types.ListNull(types.StringType)
+	var applyTags = types.ListNull(types.StringType)
 	var enabled types.Bool
 	var id types.String
-	var matching MatchingValue = NewMatchingValueNull()
+	var matching = NewMatchingValueNull()
 	var name types.String
-	var not_matching NotMatchingValue = NewNotMatchingValueNull()
+	var notMatching = NewNotMatchingValueNull()
 	var order types.Int64
-	var org_id types.String
+	var orgId types.String
 
 	action = types.StringValue(string(data.Action))
 	if data.ApplyTags != nil {
-		apply_tags = mist_transform.ListOfStringSdkToTerraform(ctx, data.ApplyTags)
+		applyTags = misttransform.ListOfStringSdkToTerraform(data.ApplyTags)
 	}
 	if data.Enabled != nil {
 		enabled = types.BoolValue(*data.Enabled)
@@ -40,24 +40,24 @@ func SdkToTerraform(ctx context.Context, data models.NacRule) (OrgNacruleModel, 
 	}
 	name = types.StringValue(data.Name)
 	if data.NotMatching != nil {
-		not_matching = notMatchingSdkToTerraform(ctx, &diags, data.Matching)
+		notMatching = notMatchingSdkToTerraform(ctx, &diags, data.Matching)
 	}
 	if data.Order != nil {
 		order = types.Int64Value(int64(*data.Order))
 	}
 	if data.OrgId != nil {
-		org_id = types.StringValue(data.OrgId.String())
+		orgId = types.StringValue(data.OrgId.String())
 	}
 
 	state.Action = action
-	state.ApplyTags = apply_tags
+	state.ApplyTags = applyTags
 	state.Enabled = enabled
 	state.Id = id
 	state.Matching = matching
 	state.Name = name
-	state.NotMatching = not_matching
+	state.NotMatching = notMatching
 	state.Order = order
-	state.OrgId = org_id
+	state.OrgId = orgId
 
 	return state, diags
 }

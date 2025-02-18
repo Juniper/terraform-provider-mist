@@ -3,7 +3,7 @@ package resource_org_alarmtemplate
 import (
 	"context"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -20,61 +20,60 @@ func SdkToTerraform(ctx context.Context, data models.AlarmTemplate) (OrgAlarmtem
 	var delivery DeliveryValue
 	var id types.String
 	var name types.String
-	var org_id types.String
-	var rules types.Map = basetypes.NewMapNull(RulesValue{}.Type(ctx))
+	var orgId types.String
+	var rules = basetypes.NewMapNull(RulesValue{}.Type(ctx))
 
 	delivery = deliverySdkToTerraform(ctx, &diags, &data.Delivery)
 	id = types.StringValue(data.Id.String())
 	if data.Name != nil {
 		name = types.StringValue(*data.Name)
 	}
-	org_id = types.StringValue(data.OrgId.String())
+	orgId = types.StringValue(data.OrgId.String())
 	rules = rulesSdkToTerraform(ctx, &diags, data.Rules)
 
 	state.Delivery = delivery
 	state.Id = id
 	state.Name = name
-	state.OrgId = org_id
+	state.OrgId = orgId
 	state.Rules = rules
 
 	return state, diags
 }
 
 func deliverySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data *models.Delivery) DeliveryValue {
-	var additional_emails types.List = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+	var additionalEmails = misttransform.ListOfStringSdkToTerraformEmpty()
 	var enabled types.Bool
-	var to_org_admins types.Bool
-	var to_site_admins types.Bool
+	var toOrgAdmins types.Bool
+	var toSiteAdmins types.Bool
 
 	if data != nil {
 		if data.AdditionalEmails != nil && len(data.AdditionalEmails) > 0 {
-			additional_emails = mist_transform.ListOfStringSdkToTerraform(ctx, data.AdditionalEmails)
+			additionalEmails = misttransform.ListOfStringSdkToTerraform(data.AdditionalEmails)
 		}
 		enabled = types.BoolValue(data.Enabled)
 		if data.ToOrgAdmins != nil {
-			to_org_admins = types.BoolValue(*data.ToOrgAdmins)
+			toOrgAdmins = types.BoolValue(*data.ToOrgAdmins)
 		}
 		if data.ToSiteAdmins != nil {
-			to_site_admins = types.BoolValue(*data.ToSiteAdmins)
+			toSiteAdmins = types.BoolValue(*data.ToSiteAdmins)
 		}
 	}
 
-	data_map_attr_type := DeliveryValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"additional_emails": additional_emails,
+	dataMapValue := map[string]attr.Value{
+		"additional_emails": additionalEmails,
 		"enabled":           enabled,
-		"to_org_admins":     to_org_admins,
-		"to_site_admins":    to_site_admins,
+		"to_org_admins":     toOrgAdmins,
+		"to_site_admins":    toSiteAdmins,
 	}
-	r, e := NewDeliveryValue(data_map_attr_type, data_map_value)
+	r, e := NewDeliveryValue(DeliveryValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 	return r
 }
 
 func rulesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data map[string]models.AlarmTemplateRule) basetypes.MapValue {
-	rules_map := make(map[string]attr.Value)
+	rulesMap := make(map[string]attr.Value)
 	for k, v := range data {
-		var delivery types.Object = basetypes.NewObjectNull(DeliveryValue{}.AttributeTypes(ctx))
+		var delivery = basetypes.NewObjectNull(DeliveryValue{}.AttributeTypes(ctx))
 		var enabled types.Bool
 
 		if v.Delivery != nil {
@@ -89,17 +88,16 @@ func rulesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data map[
 			enabled = types.BoolValue(*v.Enabled)
 		}
 
-		data_map_attr_type := RulesValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
+		dataMapValue := map[string]attr.Value{
 			"delivery": delivery,
 			"enabled":  enabled,
 		}
-		data, e := NewRulesValue(data_map_attr_type, data_map_value)
+		data, e := NewRulesValue(RulesValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		rules_map[k] = data
+		rulesMap[k] = data
 	}
-	r, e := basetypes.NewMapValueFrom(ctx, RulesValue{}.Type(ctx), rules_map)
+	r, e := basetypes.NewMapValueFrom(ctx, RulesValue{}.Type(ctx), rulesMap)
 	if e != nil {
 		diags.Append(e...)
 	}

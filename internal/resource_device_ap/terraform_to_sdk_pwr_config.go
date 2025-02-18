@@ -1,14 +1,10 @@
 package resource_device_ap
 
 import (
-	"context"
-
-	"github.com/hashicorp/terraform-plugin-framework/diag"
-
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func pwrConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d PwrConfigValue) *models.ApPwrConfig {
+func pwrConfigTerraformToSdk(d PwrConfigValue) *models.ApPwrConfig {
 	data := models.ApPwrConfig{}
 
 	if d.Base.ValueInt64Pointer() != nil {

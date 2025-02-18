@@ -1,21 +1,18 @@
 package resource_device_gateway
 
 import (
-	"context"
-
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func ipConfigsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.GatewayIpConfigProperty {
-	data_map := make(map[string]models.GatewayIpConfigProperty)
+func ipConfigsTerraformToSdk(d basetypes.MapValue) map[string]models.GatewayIpConfigProperty {
+	dataMap := make(map[string]models.GatewayIpConfigProperty)
 	for k, v := range d.Elements() {
-		var v_interface interface{} = v
-		plan := v_interface.(IpConfigsValue)
+		var vInterface interface{} = v
+		plan := vInterface.(IpConfigsValue)
 
 		data := models.GatewayIpConfigProperty{}
 		if plan.Ip.ValueStringPointer() != nil {
@@ -25,12 +22,12 @@ func ipConfigsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d bas
 			data.Netmask = models.ToPointer(plan.Netmask.ValueString())
 		}
 		if !plan.SecondaryIps.IsNull() && !plan.SecondaryIps.IsUnknown() {
-			data.SecondaryIps = mist_transform.ListOfStringTerraformToSdk(ctx, plan.SecondaryIps)
+			data.SecondaryIps = misttransform.ListOfStringTerraformToSdk(plan.SecondaryIps)
 		}
 		if !plan.IpConfigsType.IsNull() && !plan.IpConfigsType.IsUnknown() {
 			data.Type = models.ToPointer(models.IpTypeEnum(plan.IpConfigsType.ValueString()))
 		}
-		data_map[k] = data
+		dataMap[k] = data
 	}
-	return data_map
+	return dataMap
 }

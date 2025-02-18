@@ -3,7 +3,7 @@ package resource_org_deviceprofile_gateway
 import (
 	"context"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -11,19 +11,19 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func wanExtraRoutesPortVpnPathTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.WanExtraRoutes {
-	data_map := make(map[string]models.WanExtraRoutes)
+func wanExtraRoutesPortVpnPathTerraformToSdk(d basetypes.MapValue) map[string]models.WanExtraRoutes {
+	dataMap := make(map[string]models.WanExtraRoutes)
 	for k, v := range d.Elements() {
-		var v_interface interface{} = v
-		plan := v_interface.(WanExtraRoutesValue)
+		var vInterface interface{} = v
+		plan := vInterface.(WanExtraRoutesValue)
 		data := models.WanExtraRoutes{}
 		if plan.Via.ValueStringPointer() != nil {
 			data.Via = plan.Via.ValueStringPointer()
 		}
 
-		data_map[k] = data
+		dataMap[k] = data
 	}
-	return data_map
+	return dataMap
 }
 func wanProbeOverridePortVpnPathTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.GatewayWanProbeOverride {
 	data := models.GatewayWanProbeOverride{}
@@ -36,7 +36,7 @@ func wanProbeOverridePortVpnPathTerraformToSdk(ctx context.Context, diags *diag.
 			return nil
 		}
 		if plan.Ips.IsNull() && !plan.Ips.IsUnknown() {
-			data.Ips = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Ips)
+			data.Ips = misttransform.ListOfStringTerraformToSdk(plan.Ips)
 		}
 		if plan.ProbeProfile.ValueStringPointer() != nil {
 			data.ProbeProfile = (*models.GatewayWanProbeOverrideProbeProfileEnum)(plan.ProbeProfile.ValueStringPointer())
@@ -44,11 +44,11 @@ func wanProbeOverridePortVpnPathTerraformToSdk(ctx context.Context, diags *diag.
 		return &data
 	}
 }
-func gatewayPortVpnPathTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.GatewayPortVpnPath {
-	data_map := make(map[string]models.GatewayPortVpnPath)
+func gatewayPortVpnPathTerraformToSdk(ctx context.Context, d basetypes.MapValue) map[string]models.GatewayPortVpnPath {
+	dataMap := make(map[string]models.GatewayPortVpnPath)
 	for k, v := range d.Elements() {
-		var v_interface interface{} = v
-		plan := v_interface.(VpnPathsValue)
+		var vInterface interface{} = v
+		plan := vInterface.(VpnPathsValue)
 		data := models.GatewayPortVpnPath{}
 		if plan.BfdProfile.ValueStringPointer() != nil {
 			data.BfdProfile = models.ToPointer(models.GatewayPortVpnPathBfdProfileEnum(plan.BfdProfile.ValueString()))
@@ -66,22 +66,22 @@ func gatewayPortVpnPathTerraformToSdk(ctx context.Context, diags *diag.Diagnosti
 			data.Preference = models.ToPointer(int(plan.Preference.ValueInt64()))
 		}
 		if !plan.TrafficShaping.IsNull() && !plan.TrafficShaping.IsUnknown() {
-			data.TrafficShaping = gatewayPortTrafficShapingTerraformToSdk(ctx, diags, plan.TrafficShaping)
+			data.TrafficShaping = gatewayPortTrafficShapingTerraformToSdk(ctx, plan.TrafficShaping)
 		}
 
-		data_map[k] = data
+		dataMap[k] = data
 	}
-	return data_map
+	return dataMap
 }
 
-func gatewayPortTrafficShapingTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.GatewayTrafficShaping {
+func gatewayPortTrafficShapingTerraformToSdk(ctx context.Context, d basetypes.ObjectValue) *models.GatewayTrafficShaping {
 	data := models.GatewayTrafficShaping{}
 	if d.IsNull() || d.IsUnknown() {
 		return nil
 	} else {
 		plan := NewTrafficShapingValueMust(d.AttributeTypes(ctx), d.Attributes())
 		if plan.ClassPercentages.IsNull() && !plan.ClassPercentages.IsUnknown() {
-			data.ClassPercentages = mist_transform.ListOfIntTerraformToSdk(ctx, plan.ClassPercentages)
+			data.ClassPercentages = misttransform.ListOfIntTerraformToSdk(plan.ClassPercentages)
 		}
 		if plan.Enabled.ValueBoolPointer() != nil {
 			data.Enabled = plan.Enabled.ValueBoolPointer()
@@ -93,17 +93,17 @@ func gatewayPortTrafficShapingTerraformToSdk(ctx context.Context, diags *diag.Di
 	}
 }
 
-func gatewayIpConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.GatewayPortConfigIpConfig {
+func gatewayIpConfigTerraformToSdk(ctx context.Context, d basetypes.ObjectValue) *models.GatewayPortConfigIpConfig {
 	data := models.GatewayPortConfigIpConfig{}
 	if d.IsNull() || d.IsUnknown() {
 		return nil
 	} else {
 		plan := NewPortIpConfigValueMust(d.AttributeTypes(ctx), d.Attributes())
 		if plan.Dns.IsNull() && !plan.Dns.IsUnknown() {
-			data.Dns = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Dns)
+			data.Dns = misttransform.ListOfStringTerraformToSdk(plan.Dns)
 		}
 		if plan.DnsSuffix.IsNull() && !plan.DnsSuffix.IsUnknown() {
-			data.DnsSuffix = mist_transform.ListOfStringTerraformToSdk(ctx, plan.DnsSuffix)
+			data.DnsSuffix = misttransform.ListOfStringTerraformToSdk(plan.DnsSuffix)
 		}
 		if plan.Gateway.ValueStringPointer() != nil {
 			data.Gateway = models.ToPointer(plan.Gateway.ValueString())
@@ -133,7 +133,7 @@ func gatewayIpConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics,
 	}
 }
 
-func portConfigWanSourceNatTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.GatewayPortWanSourceNat {
+func portConfigWanSourceNatTerraformToSdk(ctx context.Context, d basetypes.ObjectValue) *models.GatewayPortWanSourceNat {
 	data := models.GatewayPortWanSourceNat{}
 	if d.IsNull() || d.IsUnknown() {
 		return nil
@@ -149,10 +149,10 @@ func portConfigWanSourceNatTerraformToSdk(ctx context.Context, diags *diag.Diagn
 	}
 }
 func portConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.GatewayPortConfig {
-	data_map := make(map[string]models.GatewayPortConfig)
+	dataMap := make(map[string]models.GatewayPortConfig)
 	for k, v := range d.Elements() {
-		var v_interface interface{} = v
-		plan := v_interface.(PortConfigValue)
+		var vInterface interface{} = v
+		plan := vInterface.(PortConfigValue)
 		data := models.GatewayPortConfig{}
 
 		if plan.AeDisableLacp.ValueBoolPointer() != nil {
@@ -196,7 +196,7 @@ func portConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d ba
 		}
 
 		t, _ := plan.PortIpConfig.ToObjectValue(ctx)
-		data.IpConfig = gatewayIpConfigTerraformToSdk(ctx, diags, t)
+		data.IpConfig = gatewayIpConfigTerraformToSdk(ctx, t)
 
 		if plan.LteApn.ValueStringPointer() != nil {
 			data.LteApn = models.ToPointer(plan.LteApn.ValueString())
@@ -220,7 +220,7 @@ func portConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d ba
 			data.Name = models.ToPointer(plan.Name.ValueString())
 		}
 		if plan.Name.IsNull() && !plan.Name.IsUnknown() {
-			data.Networks = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Networks)
+			data.Networks = misttransform.ListOfStringTerraformToSdk(plan.Networks)
 		}
 		if plan.OuterVlanId.ValueInt64Pointer() != nil {
 			data.OuterVlanId = models.ToPointer(int(plan.OuterVlanId.ValueInt64()))
@@ -253,13 +253,13 @@ func portConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d ba
 			data.SvrPortRange = models.ToPointer(plan.SvrPortRange.ValueString())
 		}
 
-		data.TrafficShaping = gatewayPortTrafficShapingTerraformToSdk(ctx, diags, plan.TrafficShaping)
+		data.TrafficShaping = gatewayPortTrafficShapingTerraformToSdk(ctx, plan.TrafficShaping)
 
 		if plan.VlanId.ValueStringPointer() != nil {
 			data.VlanId = models.ToPointer(models.GatewayPortVlanIdWithVariableContainer.FromString(plan.VlanId.ValueString()))
 		}
 
-		data.VpnPaths = gatewayPortVpnPathTerraformToSdk(ctx, diags, plan.VpnPaths)
+		data.VpnPaths = gatewayPortVpnPathTerraformToSdk(ctx, plan.VpnPaths)
 
 		data.WanArpPolicer = models.ToPointer(models.GatewayPortWanArpPolicerEnum(plan.WanArpPolicer.ValueString()))
 
@@ -267,19 +267,19 @@ func portConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d ba
 			data.WanExtIp = models.ToPointer(plan.WanExtIp.ValueString())
 		}
 
-		data.WanExtraRoutes = wanExtraRoutesPortVpnPathTerraformToSdk(ctx, diags, plan.WanExtraRoutes)
+		data.WanExtraRoutes = wanExtraRoutesPortVpnPathTerraformToSdk(plan.WanExtraRoutes)
 
 		if !plan.WanNetworks.IsNull() && !plan.WanNetworks.IsUnknown() {
-			data.WanNetworks = mist_transform.ListOfStringTerraformToSdk(ctx, plan.WanNetworks)
+			data.WanNetworks = misttransform.ListOfStringTerraformToSdk(plan.WanNetworks)
 		}
 
 		data.WanProbeOverride = wanProbeOverridePortVpnPathTerraformToSdk(ctx, diags, plan.WanProbeOverride)
-		data.WanSourceNat = portConfigWanSourceNatTerraformToSdk(ctx, diags, plan.WanSourceNat)
+		data.WanSourceNat = portConfigWanSourceNatTerraformToSdk(ctx, plan.WanSourceNat)
 
 		if plan.WanType.ValueStringPointer() != nil {
 			data.WanType = models.ToPointer(models.GatewayPortWanTypeEnum(plan.WanType.ValueString()))
 		}
-		data_map[k] = data
+		dataMap[k] = data
 	}
-	return data_map
+	return dataMap
 }

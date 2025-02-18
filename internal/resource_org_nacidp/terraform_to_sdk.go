@@ -1,16 +1,14 @@
 package resource_org_nacidp
 
 import (
-	"context"
-
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 )
 
-func TerraformToSdk(ctx context.Context, plan *OrgNacidpModel) (*models.Sso, diag.Diagnostics) {
+func TerraformToSdk(plan *OrgNacidpModel) (*models.Sso, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	unset := make(map[string]interface{})
 	data := models.Sso{}
@@ -39,7 +37,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgNacidpModel) (*models.Sso, dia
 	}
 
 	if !plan.LdapCacerts.IsNull() && !plan.LdapCacerts.IsUnknown() {
-		data.LdapCacerts = mist_transform.ListOfStringTerraformToSdk(ctx, plan.LdapCacerts)
+		data.LdapCacerts = misttransform.ListOfStringTerraformToSdk(plan.LdapCacerts)
 	} else {
 		unset["-ldap_ca_certs"] = ""
 	}
@@ -87,7 +85,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgNacidpModel) (*models.Sso, dia
 	}
 
 	if !plan.LdapServerHosts.IsNull() && !plan.LdapServerHosts.IsUnknown() {
-		data.LdapServerHosts = mist_transform.ListOfStringTerraformToSdk(ctx, plan.LdapServerHosts)
+		data.LdapServerHosts = misttransform.ListOfStringTerraformToSdk(plan.LdapServerHosts)
 	} else {
 		unset["-ldap_server_hosts"] = ""
 	}

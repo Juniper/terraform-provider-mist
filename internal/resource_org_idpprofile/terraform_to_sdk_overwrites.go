@@ -3,21 +3,21 @@ package resource_org_idpprofile
 import (
 	"context"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func overwritesMatchingSeverityTerraformToSdk(ctx context.Context, l basetypes.ListValue) []models.IdpProfileMatchingSeverityValueEnum {
-	var data_list []models.IdpProfileMatchingSeverityValueEnum
+func overwritesMatchingSeverityTerraformToSdk(l basetypes.ListValue) []models.IdpProfileMatchingSeverityValueEnum {
+	var dataList []models.IdpProfileMatchingSeverityValueEnum
 	for _, v := range l.Elements() {
-		var v_interface interface{} = v
-		plan := v_interface.(basetypes.StringValue)
+		var vInterface interface{} = v
+		plan := vInterface.(basetypes.StringValue)
 		severity := (models.IdpProfileMatchingSeverityValueEnum)(plan.ValueString())
-		data_list = append(data_list, severity)
+		dataList = append(dataList, severity)
 	}
-	return data_list
+	return dataList
 }
 
 func overwritesMatchingTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.IdpProfileMatching {
@@ -28,13 +28,13 @@ func overwritesMatchingTerraformToSdk(ctx context.Context, diags *diag.Diagnosti
 			diags.Append(e...)
 		} else {
 			if !plan.AttackName.IsNull() && !plan.AttackName.IsUnknown() {
-				data.AttackName = mist_transform.ListOfStringTerraformToSdk(ctx, plan.AttackName)
+				data.AttackName = misttransform.ListOfStringTerraformToSdk(plan.AttackName)
 			}
 			if !plan.DstSubnet.IsNull() && !plan.DstSubnet.IsUnknown() {
-				data.DstSubnet = mist_transform.ListOfStringTerraformToSdk(ctx, plan.DstSubnet)
+				data.DstSubnet = misttransform.ListOfStringTerraformToSdk(plan.DstSubnet)
 			}
 			if !plan.Severity.IsNull() && !plan.Severity.IsUnknown() {
-				data.Severity = overwritesMatchingSeverityTerraformToSdk(ctx, plan.Severity)
+				data.Severity = overwritesMatchingSeverityTerraformToSdk(plan.Severity)
 			}
 		}
 	}
@@ -42,10 +42,10 @@ func overwritesMatchingTerraformToSdk(ctx context.Context, diags *diag.Diagnosti
 }
 
 func overwritesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, l basetypes.ListValue) []models.IdpProfileOverwrite {
-	var data_list []models.IdpProfileOverwrite
+	var dataList []models.IdpProfileOverwrite
 	for _, v := range l.Elements() {
-		var v_interface interface{} = v
-		plan := v_interface.(OverwritesValue)
+		var vInterface interface{} = v
+		plan := vInterface.(OverwritesValue)
 		data := models.IdpProfileOverwrite{}
 
 		if !plan.Action.IsNull() && !plan.Action.IsUnknown() {
@@ -56,7 +56,7 @@ func overwritesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, l ba
 		}
 		data.Name = plan.Name.ValueStringPointer()
 
-		data_list = append(data_list, data)
+		dataList = append(dataList, data)
 	}
-	return data_list
+	return dataList
 }

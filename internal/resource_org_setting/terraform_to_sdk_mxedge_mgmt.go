@@ -1,14 +1,10 @@
 package resource_org_setting
 
 import (
-	"context"
-
-	"github.com/hashicorp/terraform-plugin-framework/diag"
-
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func mxEdgeMgmtTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d MxedgeMgmtValue) *models.MxedgeMgmt {
+func mxEdgeMgmtTerraformToSdk(d MxedgeMgmtValue) *models.MxedgeMgmt {
 	data := models.MxedgeMgmt{}
 
 	if d.FipsEnabled.ValueBoolPointer() != nil {

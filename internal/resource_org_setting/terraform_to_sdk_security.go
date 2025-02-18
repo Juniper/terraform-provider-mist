@@ -1,14 +1,10 @@
 package resource_org_setting
 
 import (
-	"context"
-
-	"github.com/hashicorp/terraform-plugin-framework/diag"
-
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func securityTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d SecurityValue) *models.OrgSettingSecurity {
+func securityTerraformToSdk(d SecurityValue) *models.OrgSettingSecurity {
 	data := models.OrgSettingSecurity{}
 
 	if d.DisableLocalSsh.ValueBoolPointer() != nil {

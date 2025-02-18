@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
+	mistapierror "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_vpn"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
@@ -49,11 +49,11 @@ func (r *orgVpnResource) Configure(ctx context.Context, req resource.ConfigureRe
 	r.client = client
 }
 
-func (r *orgVpnResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *orgVpnResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_org_vpn"
 }
 
-func (r *orgVpnResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *orgVpnResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryWan + "This resource manages the Org VPN.",
 		Attributes:          resource_org_vpn.OrgVpnResourceSchema(ctx).Attributes,
@@ -70,7 +70,7 @@ func (r *orgVpnResource) Create(ctx context.Context, req resource.CreateRequest,
 		return
 	}
 
-	vpn, diags := resource_org_vpn.TerraformToSdk(ctx, &plan)
+	vpn, diags := resource_org_vpn.TerraformToSdk(&plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -86,11 +86,11 @@ func (r *orgVpnResource) Create(ctx context.Context, req resource.CreateRequest,
 	}
 	data, err := r.client.OrgsVPNs().CreateOrgVpns(ctx, orgId, vpn)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error creating \"mist_org_vpn\" resource",
-			fmt.Sprintf("Unable to create the VPN. %s", api_err),
+			fmt.Sprintf("Unable to create the VPN. %s", apiErr),
 		)
 		return
 	}
@@ -109,7 +109,7 @@ func (r *orgVpnResource) Create(ctx context.Context, req resource.CreateRequest,
 
 }
 
-func (r *orgVpnResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *orgVpnResource) Read(ctx context.Context, _ resource.ReadRequest, resp *resource.ReadResponse) {
 	var state resource_org_vpn.OrgVpnModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -174,7 +174,7 @@ func (r *orgVpnResource) Update(ctx context.Context, req resource.UpdateRequest,
 		return
 	}
 
-	vpn, diags := resource_org_vpn.TerraformToSdk(ctx, &plan)
+	vpn, diags := resource_org_vpn.TerraformToSdk(&plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -199,11 +199,11 @@ func (r *orgVpnResource) Update(ctx context.Context, req resource.UpdateRequest,
 	}
 	data, err := r.client.OrgsVPNs().UpdateOrgVpn(ctx, orgId, vpnId, vpn)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error updating \"mist_org_vpn\" resource",
-			fmt.Sprintf("Unable to update the VPN. %s", api_err),
+			fmt.Sprintf("Unable to update the VPN. %s", apiErr),
 		)
 		return
 	}
@@ -222,7 +222,7 @@ func (r *orgVpnResource) Update(ctx context.Context, req resource.UpdateRequest,
 
 }
 
-func (r *orgVpnResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *orgVpnResource) Delete(ctx context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_org_vpn.OrgVpnModel
 
 	diags := resp.State.Get(ctx, &state)

@@ -14,27 +14,26 @@ import (
 func clientAuthBridgeSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ApClientBridgeAuth) basetypes.ObjectValue {
 
 	var psk basetypes.StringValue
-	var type_auth basetypes.StringValue
+	var typeAuth basetypes.StringValue
 
 	if d.Psk != nil {
 		psk = types.StringValue(*d.Psk)
 	}
 	if d.Type != nil {
-		type_auth = types.StringValue(string(*d.Type))
+		typeAuth = types.StringValue(string(*d.Type))
 	}
 
-	data_map_attr_type := AuthValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"psk":  psk,
-		"type": type_auth,
+		"type": typeAuth,
 	}
-	data, e := basetypes.NewObjectValue(data_map_attr_type, data_map_value)
+	data, e := basetypes.NewObjectValue(AuthValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data
 }
 func clientBridgeSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ApClientBridge) ClientBridgeValue {
-	var auth basetypes.ObjectValue = types.ObjectNull(AuthValue{}.AttributeTypes(ctx))
+	var auth = types.ObjectNull(AuthValue{}.AttributeTypes(ctx))
 	var enabled basetypes.BoolValue
 	var ssid basetypes.StringValue
 
@@ -48,13 +47,12 @@ func clientBridgeSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 		ssid = types.StringValue(*d.Ssid)
 	}
 
-	data_map_attr_type := ClientBridgeValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"auth":    auth,
 		"enabled": enabled,
 		"ssid":    ssid,
 	}
-	data, e := NewClientBridgeValue(data_map_attr_type, data_map_value)
+	data, e := NewClientBridgeValue(ClientBridgeValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

@@ -7,7 +7,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 
-	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
+	mistapierror "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_site_psk"
 
 	"github.com/google/uuid"
@@ -48,11 +48,11 @@ func (r *sitePskResource) Configure(ctx context.Context, req resource.ConfigureR
 
 	r.client = client
 }
-func (r *sitePskResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *sitePskResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_site_psk"
 }
 
-func (r *sitePskResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *sitePskResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryWlan + "This data source provides the list of Site PSKs.\n\n" +
 			"A multi PSK (Pre-Shared Key) is a feature that allows the use of multiple PSKs for securing network connections.  \n" +
@@ -86,7 +86,7 @@ func (r *sitePskResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
-	psk, diags := resource_site_psk.TerraformToSdk(ctx, &plan)
+	psk, diags := resource_site_psk.TerraformToSdk(&plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -94,16 +94,16 @@ func (r *sitePskResource) Create(ctx context.Context, req resource.CreateRequest
 
 	data, err := r.client.SitesPsks().CreateSitePsk(ctx, siteId, &psk)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error creating \"mist_site_psk\" resource",
-			fmt.Sprintf("Unable to create the PSK. %s", api_err),
+			fmt.Sprintf("Unable to create the PSK. %s", apiErr),
 		)
 		return
 	}
 
-	state, diags = resource_site_psk.SdkToTerraform(ctx, &data.Data)
+	state, diags = resource_site_psk.SdkToTerraform(&data.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -117,7 +117,7 @@ func (r *sitePskResource) Create(ctx context.Context, req resource.CreateRequest
 
 }
 
-func (r *sitePskResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *sitePskResource) Read(ctx context.Context, _ resource.ReadRequest, resp *resource.ReadResponse) {
 	var state resource_site_psk.SitePskModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -155,7 +155,7 @@ func (r *sitePskResource) Read(ctx context.Context, req resource.ReadRequest, re
 		)
 		return
 	}
-	state, diags = resource_site_psk.SdkToTerraform(ctx, &httpr.Data)
+	state, diags = resource_site_psk.SdkToTerraform(&httpr.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -183,7 +183,7 @@ func (r *sitePskResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
-	psk, diags := resource_site_psk.TerraformToSdk(ctx, &plan)
+	psk, diags := resource_site_psk.TerraformToSdk(&plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -209,16 +209,16 @@ func (r *sitePskResource) Update(ctx context.Context, req resource.UpdateRequest
 	tflog.Info(ctx, "Starting Psk Update for Psk "+state.Id.ValueString())
 	data, err := r.client.SitesPsks().UpdateSitePsk(ctx, siteId, pskId, &psk)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error updating \"mist_site_psk\" resource",
-			fmt.Sprintf("Unable to update the PSK. %s", api_err),
+			fmt.Sprintf("Unable to update the PSK. %s", apiErr),
 		)
 		return
 	}
 
-	state, diags = resource_site_psk.SdkToTerraform(ctx, &data.Data)
+	state, diags = resource_site_psk.SdkToTerraform(&data.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -232,7 +232,7 @@ func (r *sitePskResource) Update(ctx context.Context, req resource.UpdateRequest
 
 }
 
-func (r *sitePskResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *sitePskResource) Delete(ctx context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_site_psk.SitePskModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -260,11 +260,11 @@ func (r *sitePskResource) Delete(ctx context.Context, req resource.DeleteRequest
 
 	tflog.Info(ctx, "Starting Psk Delete: psk_id "+state.Id.ValueString())
 	data, err := r.client.SitesPsks().DeleteSitePsk(ctx, siteId, pskId)
-	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_site_psk\" resource",
-			fmt.Sprintf("Unable to delete the PSK. %s", api_err),
+			fmt.Sprintf("Unable to delete the PSK. %s", apiErr),
 		)
 		return
 	}

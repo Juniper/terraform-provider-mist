@@ -7,7 +7,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 
-	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
+	mistapierror "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_rftemplate"
 
 	"github.com/google/uuid"
@@ -48,11 +48,11 @@ func (r *orgRfTemplateResource) Configure(ctx context.Context, req resource.Conf
 
 	r.client = client
 }
-func (r *orgRfTemplateResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *orgRfTemplateResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_org_rftemplate"
 }
 
-func (r *orgRfTemplateResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *orgRfTemplateResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryWlan + "This resource manages the RF Templates.\n\n" +
 			"The RF Templates can be used to define Wireless Access Points radio configuration, and can be assigned to the sites",
@@ -86,11 +86,11 @@ func (r *orgRfTemplateResource) Create(ctx context.Context, req resource.CreateR
 	}
 	data, err := r.client.OrgsRFTemplates().CreateOrgRfTemplate(ctx, orgId, rftemplate)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error creating \"mist_org_rftemplate\" resource",
-			fmt.Sprintf("Unable to create the RF Template. %s", api_err),
+			fmt.Sprintf("Unable to create the RF Template. %s", apiErr),
 		)
 		return
 	}
@@ -109,7 +109,7 @@ func (r *orgRfTemplateResource) Create(ctx context.Context, req resource.CreateR
 
 }
 
-func (r *orgRfTemplateResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *orgRfTemplateResource) Read(ctx context.Context, _ resource.ReadRequest, resp *resource.ReadResponse) {
 	var state resource_org_rftemplate.OrgRftemplateModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -199,11 +199,11 @@ func (r *orgRfTemplateResource) Update(ctx context.Context, req resource.UpdateR
 	tflog.Info(ctx, "Starting RfTemplate Update for RfTemplate "+state.Id.ValueString())
 	data, err := r.client.OrgsRFTemplates().UpdateOrgRfTemplate(ctx, orgId, rftemplateId, rftemplate)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error creating \"mist_org_rftemplate\" resource",
-			fmt.Sprintf("Unable to create the RF Template. %s", api_err),
+			fmt.Sprintf("Unable to create the RF Template. %s", apiErr),
 		)
 		return
 	}
@@ -222,7 +222,7 @@ func (r *orgRfTemplateResource) Update(ctx context.Context, req resource.UpdateR
 
 }
 
-func (r *orgRfTemplateResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *orgRfTemplateResource) Delete(ctx context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_org_rftemplate.OrgRftemplateModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -249,11 +249,11 @@ func (r *orgRfTemplateResource) Delete(ctx context.Context, req resource.DeleteR
 	}
 	tflog.Info(ctx, "Starting RfTemplate Delete: rftemplate_id "+state.Id.ValueString())
 	data, err := r.client.OrgsRFTemplates().DeleteOrgRfTemplate(ctx, orgId, rftemplateId)
-	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_rftemplate\" resource",
-			fmt.Sprintf("Unable to delete the RF Template. %s", api_err),
+			fmt.Sprintf("Unable to delete the RF Template. %s", apiErr),
 		)
 		return
 	}

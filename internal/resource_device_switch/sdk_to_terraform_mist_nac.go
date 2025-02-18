@@ -24,12 +24,11 @@ func mistNacSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 		network = types.StringValue(*d.Network)
 	}
 
-	data_map_attr_type := MistNacValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"enabled": enabled,
 		"network": network,
 	}
-	data, e := NewMistNacValue(data_map_attr_type, data_map_value)
+	data, e := NewMistNacValue(MistNacValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

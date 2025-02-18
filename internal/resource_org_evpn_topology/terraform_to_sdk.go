@@ -25,15 +25,15 @@ func TerraformToSdk(ctx context.Context, plan *OrgEvpnTopologyModel) (*models.Ev
 
 	if !plan.PodNames.IsNull() && !plan.PodNames.IsUnknown() && len(plan.PodNames.Elements()) > 0 {
 		for k, v := range plan.PodNames.Elements() {
-			var s_interface interface{} = v
-			s := s_interface.(basetypes.StringValue)
+			var sInterface interface{} = v
+			s := sInterface.(basetypes.StringValue)
 			data.PodNames[k] = s.ValueString()
 		}
 	} else {
 		unset["-pod_names"] = ""
 	}
 	if !plan.Switches.IsNull() && !plan.Switches.IsUnknown() {
-		data.Switches = switchTerraformToSdk(ctx, &diags, plan.Switches)
+		data.Switches = switchTerraformToSdk(plan.Switches)
 	} else {
 		unset["-switches"] = ""
 	}

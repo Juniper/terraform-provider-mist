@@ -1,37 +1,35 @@
 package resource_org_wlan
 
 import (
-	"context"
 	"strings"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func bonjourServicesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, plan basetypes.MapValue) map[string]models.WlanBonjourServiceProperties {
-	data_map := make(map[string]models.WlanBonjourServiceProperties)
+func bonjourServicesTerraformToSdk(plan basetypes.MapValue) map[string]models.WlanBonjourServiceProperties {
+	dataMap := make(map[string]models.WlanBonjourServiceProperties)
 	for k, v := range plan.Elements() {
-		var v_interface interface{} = v
-		v_plan := v_interface.(ServicesValue)
-		v_data := models.WlanBonjourServiceProperties{}
-		if v_plan.DisableLocal.ValueBoolPointer() != nil {
-			v_data.DisableLocal = v_plan.DisableLocal.ValueBoolPointer()
+		var vInterface interface{} = v
+		vPlan := vInterface.(ServicesValue)
+		vData := models.WlanBonjourServiceProperties{}
+		if vPlan.DisableLocal.ValueBoolPointer() != nil {
+			vData.DisableLocal = vPlan.DisableLocal.ValueBoolPointer()
 		}
-		if !v_plan.RadiusGroups.IsNull() && !v_plan.RadiusGroups.IsUnknown() {
-			v_data.RadiusGroups = mist_transform.ListOfStringTerraformToSdk(ctx, v_plan.RadiusGroups)
+		if !vPlan.RadiusGroups.IsNull() && !vPlan.RadiusGroups.IsUnknown() {
+			vData.RadiusGroups = misttransform.ListOfStringTerraformToSdk(vPlan.RadiusGroups)
 		}
-		if v_plan.Scope.ValueStringPointer() != nil {
-			v_data.Scope = models.ToPointer(models.WlanBonjourServicePropertiesScopeEnum(string(v_plan.Scope.ValueString())))
+		if vPlan.Scope.ValueStringPointer() != nil {
+			vData.Scope = models.ToPointer(models.WlanBonjourServicePropertiesScopeEnum(vPlan.Scope.ValueString()))
 		}
-		data_map[k] = v_data
+		dataMap[k] = vData
 	}
-	return data_map
+	return dataMap
 }
-func bonjourTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, plan BonjourValue) *models.WlanBonjour {
+func bonjourTerraformToSdk(plan BonjourValue) *models.WlanBonjour {
 
 	data := models.WlanBonjour{}
 
@@ -42,7 +40,7 @@ func bonjourTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, plan Bo
 		tmp = append(tmp, s.ValueString())
 	}
 	data.AdditionalVlanIds = strings.Join(tmp, ",")
-	data.Services = bonjourServicesTerraformToSdk(ctx, diags, plan.Services)
+	data.Services = bonjourServicesTerraformToSdk(plan.Services)
 	data.Enabled = plan.Enabled.ValueBoolPointer()
 
 	return &data

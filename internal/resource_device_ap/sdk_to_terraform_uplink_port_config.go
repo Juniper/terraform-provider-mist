@@ -13,21 +13,20 @@ import (
 
 func uplinkPortConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ApUplinkPortConfig) UplinkPortConfigValue {
 	var dot1x basetypes.BoolValue
-	var keep_wlans_up_if_down basetypes.BoolValue
+	var keepWlansUpIfDown basetypes.BoolValue
 
 	if d.Dot1x != nil {
 		dot1x = types.BoolValue(*d.Dot1x)
 	}
 	if d.KeepWlansUpIfDown != nil {
-		keep_wlans_up_if_down = types.BoolValue(*d.KeepWlansUpIfDown)
+		keepWlansUpIfDown = types.BoolValue(*d.KeepWlansUpIfDown)
 	}
 
-	data_map_attr_type := UplinkPortConfigValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"dot1x":                 dot1x,
-		"keep_wlans_up_if_down": keep_wlans_up_if_down,
+		"keep_wlans_up_if_down": keepWlansUpIfDown,
 	}
-	data, e := NewUplinkPortConfigValue(data_map_attr_type, data_map_value)
+	data, e := NewUplinkPortConfigValue(UplinkPortConfigValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

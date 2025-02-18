@@ -14,39 +14,39 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-func SdkToTerraform(ctx context.Context, upgrade UpgradeDeviceModel, data *models.ResponseDeviceUpgrade) (UpgradeDeviceModel, diag.Diagnostics) {
+func SdkToTerraform(upgrade UpgradeDeviceModel, data *models.ResponseDeviceUpgrade) (UpgradeDeviceModel, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	var device_version basetypes.StringValue
-	var fwupdate FwupdateValue = NewFwupdateValueNull()
-	var status basetypes.StringValue = types.StringValue(string(data.Status))
-	var timestamp basetypes.Float64Value = types.Float64Value(float64(data.Timestamp))
-	var sync_upgrade basetypes.BoolValue = types.BoolValue(true)
-	var sync_upgrade_start_timeout basetypes.Int64Value = types.Int64Value(60)
-	var sync_upgrade_refresh_interval basetypes.Int64Value = types.Int64Value(15)
-	var sync_upgrade_timeout basetypes.Int64Value = types.Int64Value(1800)
+	var deviceVersion basetypes.StringValue
+	var fwupdate = NewFwupdateValueNull()
+	var status = types.StringValue(string(data.Status))
+	var timestamp = types.Float64Value(data.Timestamp)
+	var syncUpgrade = types.BoolValue(true)
+	var syncUpgradeStartTimeout = types.Int64Value(60)
+	var syncUpgradeRefreshInterval = types.Int64Value(15)
+	var syncUpgradeTimeout = types.Int64Value(1800)
 
 	if !upgrade.SyncUpgrade.IsNull() && !upgrade.SyncUpgrade.IsUnknown() {
-		sync_upgrade = upgrade.SyncUpgrade
+		syncUpgrade = upgrade.SyncUpgrade
 	}
 	if !upgrade.SyncUpgradeStartTimeout.IsNull() && !upgrade.SyncUpgradeStartTimeout.IsUnknown() {
-		sync_upgrade_start_timeout = upgrade.SyncUpgradeStartTimeout
+		syncUpgradeStartTimeout = upgrade.SyncUpgradeStartTimeout
 	}
 	if !upgrade.SyncUpgradeRefreshInterval.IsNull() && !upgrade.SyncUpgradeRefreshInterval.IsUnknown() {
-		sync_upgrade_refresh_interval = upgrade.SyncUpgradeRefreshInterval
+		syncUpgradeRefreshInterval = upgrade.SyncUpgradeRefreshInterval
 	}
 	if !upgrade.SyncUpgradeTimeout.IsNull() && !upgrade.SyncUpgradeTimeout.IsUnknown() {
-		sync_upgrade_timeout = upgrade.SyncUpgradeTimeout
+		syncUpgradeTimeout = upgrade.SyncUpgradeTimeout
 	}
 
-	upgrade.DeviceVersion = device_version
+	upgrade.DeviceVersion = deviceVersion
 	upgrade.Fwupdate = fwupdate
 	upgrade.Status = status
 	upgrade.Timestamp = types.Number(timestamp)
-	upgrade.SyncUpgrade = sync_upgrade
-	upgrade.SyncUpgradeStartTimeout = sync_upgrade_start_timeout
-	upgrade.SyncUpgradeRefreshInterval = sync_upgrade_refresh_interval
-	upgrade.SyncUpgradeTimeout = sync_upgrade_timeout
+	upgrade.SyncUpgrade = syncUpgrade
+	upgrade.SyncUpgradeStartTimeout = syncUpgradeStartTimeout
+	upgrade.SyncUpgradeRefreshInterval = syncUpgradeRefreshInterval
+	upgrade.SyncUpgradeTimeout = syncUpgradeTimeout
 
 	return upgrade, diags
 }
@@ -55,9 +55,9 @@ func DeviceStatSdkToTerraform(ctx context.Context, upgrade UpgradeDeviceModel, d
 
 	var diags diag.Diagnostics
 
-	var fwupdate FwupdateValue = NewFwupdateValueNull()
+	var fwupdate = NewFwupdateValueNull()
 	var deviceVersion basetypes.StringValue
-	var uptime int = -1
+	var uptime = -1
 
 	body, _ := io.ReadAll(data.Response.Body)
 	var objmap map[string]interface{}
@@ -107,9 +107,9 @@ func fwUpdateSdtToTerraform(ctx context.Context, diags *diag.Diagnostics, device
 
 	var progress basetypes.Int64Value
 	var status basetypes.StringValue
-	var status_id basetypes.Int64Value
+	var statusId basetypes.Int64Value
 	var timestamp basetypes.Float64Value
-	var will_retry basetypes.BoolValue
+	var willRetry basetypes.BoolValue
 
 	if deviceFwUpdate != nil {
 		if deviceFwUpdate.Progress.Value() != nil {
@@ -119,24 +119,24 @@ func fwUpdateSdtToTerraform(ctx context.Context, diags *diag.Diagnostics, device
 			status = types.StringValue(string(*deviceFwUpdate.Status.Value()))
 		}
 		if deviceFwUpdate.StatusId.Value() != nil {
-			status_id = types.Int64Value(int64(*deviceFwUpdate.StatusId.Value()))
+			statusId = types.Int64Value(int64(*deviceFwUpdate.StatusId.Value()))
 		}
 		if deviceFwUpdate.Timestamp.Value() != nil {
-			timestamp = types.Float64Value(float64(*deviceFwUpdate.Timestamp.Value()))
+			timestamp = types.Float64Value(*deviceFwUpdate.Timestamp.Value())
 		}
 		if deviceFwUpdate.WillRetry.Value() != nil {
-			will_retry = types.BoolValue(*deviceFwUpdate.WillRetry.Value())
+			willRetry = types.BoolValue(*deviceFwUpdate.WillRetry.Value())
 		}
 	}
 
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"progress":   progress,
 		"status":     status,
-		"status_id":  status_id,
+		"status_id":  statusId,
 		"timestamp":  timestamp,
-		"will_retry": will_retry,
+		"will_retry": willRetry,
 	}
-	fwupdate, e := NewFwupdateValue(FwupdateValue{}.AttributeTypes(ctx), data_map_value)
+	fwupdate, e := NewFwupdateValue(FwupdateValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 	return fwupdate
 }

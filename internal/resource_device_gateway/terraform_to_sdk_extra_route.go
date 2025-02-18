@@ -1,42 +1,39 @@
 package resource_device_gateway
 
 import (
-	"context"
-
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func extraRoutesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.GatewayExtraRoute {
-	data_map := make(map[string]models.GatewayExtraRoute)
+func extraRoutesTerraformToSdk(d basetypes.MapValue) map[string]models.GatewayExtraRoute {
+	dataMap := make(map[string]models.GatewayExtraRoute)
 	for k, v := range d.Elements() {
-		var v_interface interface{} = v
-		plan := v_interface.(ExtraRoutesValue)
+		var vInterface interface{} = v
+		plan := vInterface.(ExtraRoutesValue)
 
 		data := models.GatewayExtraRoute{}
 		if plan.Via.ValueStringPointer() != nil {
 			data.Via = plan.Via.ValueStringPointer()
 		}
 
-		data_map[k] = data
+		dataMap[k] = data
 	}
-	return data_map
+	return dataMap
 }
 
-func extraRoutes6TerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.GatewayExtraRoute {
-	data_map := make(map[string]models.GatewayExtraRoute)
+func extraRoutes6TerraformToSdk(d basetypes.MapValue) map[string]models.GatewayExtraRoute {
+	dataMap := make(map[string]models.GatewayExtraRoute)
 	for k, v := range d.Elements() {
-		var v_interface interface{} = v
-		plan := v_interface.(ExtraRoutes6Value)
+		var vInterface interface{} = v
+		plan := vInterface.(ExtraRoutes6Value)
 
 		data := models.GatewayExtraRoute{}
 		if plan.Via.ValueStringPointer() != nil {
 			data.Via = plan.Via.ValueStringPointer()
 		}
 
-		data_map[k] = data
+		dataMap[k] = data
 	}
-	return data_map
+	return dataMap
 }

@@ -4,7 +4,7 @@ import (
 	"context"
 	"math/big"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -27,141 +27,141 @@ func SdkToTerraform(ctx context.Context, l *[]models.StatsAp, elements *[]attr.V
 
 func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.StatsAp) DeviceApStatsValue {
 
-	var auto_placement basetypes.ObjectValue = types.ObjectNull(AutoPlacementValue{}.AttributeTypes(ctx))
-	var auto_upgrade_stat basetypes.ObjectValue = types.ObjectNull(AutoUpgradeStatValue{}.AttributeTypes(ctx))
-	var ble_stat basetypes.ObjectValue = types.ObjectNull(BleStatValue{}.AttributeTypes(ctx))
-	var cert_expiry basetypes.NumberValue
-	var config_reverted basetypes.BoolValue
-	var cpu_system basetypes.Int64Value
-	var cpu_util basetypes.Int64Value
-	var created_time basetypes.Int64Value
-	var deviceprofile_id basetypes.StringValue
-	var env_stat basetypes.ObjectValue = types.ObjectNull(EnvStatValue{}.AttributeTypes(ctx))
-	var esl_stat basetypes.ObjectValue = types.ObjectNull(EslStatValue{}.AttributeTypes(ctx))
-	var ext_ip basetypes.StringValue
-	var fwupdate basetypes.ObjectValue = types.ObjectNull(FwupdateValue{}.AttributeTypes(ctx))
-	var hw_rev basetypes.StringValue
+	var autoPlacement = types.ObjectNull(AutoPlacementValue{}.AttributeTypes(ctx))
+	var autoUpgradeStat = types.ObjectNull(AutoUpgradeStatValue{}.AttributeTypes(ctx))
+	var bleStat = types.ObjectNull(BleStatValue{}.AttributeTypes(ctx))
+	var certExpiry basetypes.NumberValue
+	var configReverted basetypes.BoolValue
+	var cpuSystem basetypes.Int64Value
+	var cpuUtil basetypes.Int64Value
+	var createdTime basetypes.Int64Value
+	var deviceprofileId basetypes.StringValue
+	var envStat = types.ObjectNull(EnvStatValue{}.AttributeTypes(ctx))
+	var eslStat = types.ObjectNull(EslStatValue{}.AttributeTypes(ctx))
+	var extIp basetypes.StringValue
+	var fwupdate = types.ObjectNull(FwupdateValue{}.AttributeTypes(ctx))
+	var hwRev basetypes.StringValue
 	var id basetypes.StringValue
-	var inactive_wired_vlans basetypes.ListValue = types.ListNull(types.Int64Type)
-	var iot_stat basetypes.MapValue = types.MapNull(IotStatValue{}.Type(ctx))
+	var inactiveWiredVlans = types.ListNull(types.Int64Type)
+	var iotStat = types.MapNull(IotStatValue{}.Type(ctx))
 	var ip basetypes.StringValue
-	var ip_config basetypes.ObjectValue = types.ObjectNull(IpConfigValue{}.AttributeTypes(ctx))
-	var ip_stat basetypes.ObjectValue = types.ObjectNull(IpStatValue{}.AttributeTypes(ctx))
-	var l2tp_stat basetypes.MapValue = types.MapNull(L2tpStatValue{}.Type(ctx))
-	var last_seen basetypes.NumberValue
-	var last_trouble basetypes.ObjectValue = types.ObjectNull(LastTroubleValue{}.AttributeTypes(ctx))
-	var led basetypes.ObjectValue = types.ObjectNull(LedValue{}.AttributeTypes(ctx))
-	var lldp_stat basetypes.ObjectValue = types.ObjectNull(LldpStatValue{}.AttributeTypes(ctx))
+	var ipConfig = types.ObjectNull(IpConfigValue{}.AttributeTypes(ctx))
+	var ipStat = types.ObjectNull(IpStatValue{}.AttributeTypes(ctx))
+	var l2tpStat = types.MapNull(L2tpStatValue{}.Type(ctx))
+	var lastSeen basetypes.NumberValue
+	var lastTrouble = types.ObjectNull(LastTroubleValue{}.AttributeTypes(ctx))
+	var led = types.ObjectNull(LedValue{}.AttributeTypes(ctx))
+	var lldpStat = types.ObjectNull(LldpStatValue{}.AttributeTypes(ctx))
 	var locating basetypes.BoolValue
 	var locked basetypes.BoolValue
 	var mac basetypes.StringValue
-	var map_id basetypes.StringValue
-	var mem_used_kb basetypes.Int64Value
-	var mesh_downlinks basetypes.MapValue = types.MapNull(MeshDownlinksValue{}.Type(ctx))
-	var mesh_uplink basetypes.ObjectValue = types.ObjectNull(MeshUplinkValue{}.AttributeTypes(ctx))
+	var mapId basetypes.StringValue
+	var memUsedKb basetypes.Int64Value
+	var meshDownlinks = types.MapNull(MeshDownlinksValue{}.Type(ctx))
+	var meshUplink = types.ObjectNull(MeshUplinkValue{}.AttributeTypes(ctx))
 	var model basetypes.StringValue
-	var modified_time basetypes.Int64Value
+	var modifiedTime basetypes.Int64Value
 	var mount basetypes.StringValue
 	var name basetypes.StringValue
 	var notes basetypes.StringValue
-	var num_clients basetypes.Int64Value
-	var org_id basetypes.StringValue
-	var port_stat basetypes.MapValue = types.MapNull(PortStatValue{}.Type(ctx))
-	var power_budget basetypes.Int64Value
-	var power_constrained basetypes.BoolValue
-	var power_opmode basetypes.StringValue
-	var power_src basetypes.StringValue
-	var radio_stat basetypes.ObjectValue = types.ObjectNull(RadioStatValue{}.AttributeTypes(ctx))
-	var rx_bps basetypes.NumberValue
-	var rx_bytes basetypes.Int64Value
-	var rx_pkts basetypes.Int64Value
+	var numClients basetypes.Int64Value
+	var orgId basetypes.StringValue
+	var portStat = types.MapNull(PortStatValue{}.Type(ctx))
+	var powerBudget basetypes.Int64Value
+	var powerConstrained basetypes.BoolValue
+	var powerOpmode basetypes.StringValue
+	var powerSrc basetypes.StringValue
+	var radioStat = types.ObjectNull(RadioStatValue{}.AttributeTypes(ctx))
+	var rxBps basetypes.NumberValue
+	var rxBytes basetypes.Int64Value
+	var rxPkts basetypes.Int64Value
 	var serial basetypes.StringValue
-	var site_id basetypes.StringValue
+	var siteId basetypes.StringValue
 	var status basetypes.StringValue
-	var switch_redundancy basetypes.ObjectValue = types.ObjectNull(SwitchRedundancyValue{}.AttributeTypes(ctx))
-	var tx_bps basetypes.NumberValue
-	var tx_bytes basetypes.NumberValue
-	var tx_pkts basetypes.NumberValue
+	var switchRedundancy = types.ObjectNull(SwitchRedundancyValue{}.AttributeTypes(ctx))
+	var txBps basetypes.NumberValue
+	var txBytes basetypes.NumberValue
+	var txPkts basetypes.NumberValue
 	var uptime basetypes.NumberValue
-	var usb_stat basetypes.ObjectValue = types.ObjectNull(UsbStatValue{}.AttributeTypes(ctx))
+	var usbStat = types.ObjectNull(UsbStatValue{}.AttributeTypes(ctx))
 	var version basetypes.StringValue
 	var x basetypes.Float64Value
 	var y basetypes.Float64Value
 
 	if d.AutoPlacement != nil {
-		auto_placement = autoPlacementSdkToTerraform(ctx, diags, d.AutoPlacement)
+		autoPlacement = autoPlacementSdkToTerraform(ctx, diags, d.AutoPlacement)
 	}
 	if d.AutoUpgradeStat != nil {
-		auto_upgrade_stat = autoUpgradeStatsSdkToTerraform(ctx, diags, d.AutoUpgradeStat)
+		autoUpgradeStat = autoUpgradeStatsSdkToTerraform(ctx, diags, d.AutoUpgradeStat)
 	}
 	if d.BleStat != nil {
-		ble_stat = bleStatsSdkToTerraform(ctx, diags, d.BleStat)
+		bleStat = bleStatsSdkToTerraform(ctx, diags, d.BleStat)
 	}
 	if d.CertExpiry.Value() != nil {
-		cert_expiry = types.NumberValue(big.NewFloat(*d.CertExpiry.Value()))
+		certExpiry = types.NumberValue(big.NewFloat(*d.CertExpiry.Value()))
 	}
 	if d.ConfigReverted.Value() != nil {
-		config_reverted = types.BoolValue(*d.ConfigReverted.Value())
+		configReverted = types.BoolValue(*d.ConfigReverted.Value())
 	}
 	if d.CpuSystem.Value() != nil {
-		cpu_system = types.Int64Value(int64(*d.CpuSystem.Value()))
+		cpuSystem = types.Int64Value(*d.CpuSystem.Value())
 	}
 	if d.CpuUtil.Value() != nil {
-		cpu_util = types.Int64Value(int64(*d.CpuUtil.Value()))
+		cpuUtil = types.Int64Value(int64(*d.CpuUtil.Value()))
 	}
 	if d.CreatedTime != nil {
-		created_time = types.Int64Value(int64(*d.CreatedTime))
+		createdTime = types.Int64Value(int64(*d.CreatedTime))
 	}
 	if d.DeviceprofileId.Value() != nil {
-		deviceprofile_id = types.StringValue(d.DeviceprofileId.Value().String())
+		deviceprofileId = types.StringValue(d.DeviceprofileId.Value().String())
 	}
 	if d.EnvStat != nil {
-		env_stat = envStatsSdkToTerraform(ctx, diags, d.EnvStat)
+		envStat = envStatsSdkToTerraform(ctx, diags, d.EnvStat)
 	}
 	if d.EslStat.Value() != nil {
-		esl_stat = eslStatsSdkToTerraform(ctx, diags, d.EslStat.Value())
+		eslStat = eslStatsSdkToTerraform(ctx, diags, d.EslStat.Value())
 	}
 	if d.ExtIp.Value() != nil {
-		ext_ip = types.StringValue(*d.ExtIp.Value())
+		extIp = types.StringValue(*d.ExtIp.Value())
 	}
 	if d.Fwupdate != nil {
 		fwupdate = fwupdateSdkToTerraform(ctx, diags, d.Fwupdate)
 	}
 	if d.HwRev.Value() != nil {
-		hw_rev = types.StringValue(*d.HwRev.Value())
+		hwRev = types.StringValue(*d.HwRev.Value())
 	}
 	if d.Id != nil {
 		id = types.StringValue(d.Id.String())
 	}
 	if d.InactiveWiredVlans != nil {
-		inactive_wired_vlans = mist_transform.ListOfIntSdkToTerraform(ctx, d.InactiveWiredVlans)
+		inactiveWiredVlans = misttransform.ListOfIntSdkToTerraform(d.InactiveWiredVlans)
 	}
 	if d.IotStat != nil && len(d.IotStat) > 0 {
-		iot_stat = iotStatsSdkToTerraform(ctx, diags, d.IotStat)
+		iotStat = iotStatsSdkToTerraform(ctx, diags, d.IotStat)
 	}
 	if d.Ip.Value() != nil {
 		ip = types.StringValue(*d.Ip.Value())
 	}
 	if d.IpConfig != nil {
-		ip_config = ipConfigSdkToTerraform(ctx, diags, d.IpConfig)
+		ipConfig = ipConfigSdkToTerraform(ctx, diags, d.IpConfig)
 	}
 	if d.IpStat != nil {
-		ip_stat = ipStatsSdkToTerraform(ctx, diags, d.IpStat)
+		ipStat = ipStatsSdkToTerraform(ctx, diags, d.IpStat)
 	}
 	if d.L2tpStat != nil && len(d.L2tpStat) > 0 {
-		l2tp_stat = l2tpStatsSdkToTerraform(ctx, diags, d.L2tpStat)
+		l2tpStat = l2tpStatsSdkToTerraform(ctx, diags, d.L2tpStat)
 	}
 	if d.LastSeen.Value() != nil {
-		last_seen = types.NumberValue(big.NewFloat(*d.LastSeen.Value()))
+		lastSeen = types.NumberValue(big.NewFloat(*d.LastSeen.Value()))
 	}
 	if d.LastTrouble != nil {
-		last_trouble = lastTroubleSdkToTerraform(ctx, diags, d.LastTrouble)
+		lastTrouble = lastTroubleSdkToTerraform(ctx, diags, d.LastTrouble)
 	}
 	if d.Led != nil {
 		led = ledSdkToTerraform(ctx, diags, d.Led)
 	}
 	if d.LldpStat != nil {
-		lldp_stat = lldpSdkToTerraform(ctx, diags, d.LldpStat)
+		lldpStat = lldpSdkToTerraform(ctx, diags, d.LldpStat)
 	}
 	if d.Locating.Value() != nil {
 		locating = types.BoolValue(*d.Locating.Value())
@@ -173,22 +173,22 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 		mac = types.StringValue(*d.Mac)
 	}
 	if d.MapId.Value() != nil {
-		map_id = types.StringValue(d.MapId.Value().String())
+		mapId = types.StringValue(d.MapId.Value().String())
 	}
 	if d.MemUsedKb.Value() != nil {
-		mem_used_kb = types.Int64Value(int64(*d.MemUsedKb.Value()))
+		memUsedKb = types.Int64Value(*d.MemUsedKb.Value())
 	}
 	if d.MeshDownlinks != nil && len(d.MeshDownlinks) > 0 {
-		mesh_downlinks = meshDownlinksSdkToTerraform(ctx, diags, d.MeshDownlinks)
+		meshDownlinks = meshDownlinksSdkToTerraform(ctx, diags, d.MeshDownlinks)
 	}
 	if d.MeshUplink != nil {
-		mesh_uplink = meshUplinkSdkToTerraform(ctx, diags, d.MeshUplink)
+		meshUplink = meshUplinkSdkToTerraform(ctx, diags, d.MeshUplink)
 	}
 	if d.Model != nil {
 		model = types.StringValue(*d.Model)
 	}
 	if d.ModifiedTime != nil {
-		modified_time = types.Int64Value(int64(*d.ModifiedTime))
+		modifiedTime = types.Int64Value(int64(*d.ModifiedTime))
 	}
 	if d.Mount.Value() != nil {
 		mount = types.StringValue(*d.Mount.Value())
@@ -200,64 +200,64 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 		notes = types.StringValue(*d.Notes.Value())
 	}
 	if d.NumClients.Value() != nil {
-		num_clients = types.Int64Value(int64(*d.NumClients.Value()))
+		numClients = types.Int64Value(int64(*d.NumClients.Value()))
 	}
 	if d.OrgId != nil {
-		org_id = types.StringValue(d.OrgId.String())
+		orgId = types.StringValue(d.OrgId.String())
 	}
 	if d.PortStat.Value() != nil && len(*d.PortStat.Value()) > 0 {
-		port_stat = portStatdkToTerraform(ctx, diags, *d.PortStat.Value())
+		portStat = portStatdkToTerraform(ctx, diags, *d.PortStat.Value())
 	}
 	if d.PowerBudget.Value() != nil {
-		power_budget = types.Int64Value(int64(*d.PowerBudget.Value()))
+		powerBudget = types.Int64Value(int64(*d.PowerBudget.Value()))
 	}
 	if d.PowerConstrained.Value() != nil {
-		power_constrained = types.BoolValue(*d.PowerConstrained.Value())
+		powerConstrained = types.BoolValue(*d.PowerConstrained.Value())
 	}
 	if d.PowerOpmode.Value() != nil {
-		power_opmode = types.StringValue(*d.PowerOpmode.Value())
+		powerOpmode = types.StringValue(*d.PowerOpmode.Value())
 	}
 	if d.PowerSrc.Value() != nil {
-		power_src = types.StringValue(*d.PowerSrc.Value())
+		powerSrc = types.StringValue(*d.PowerSrc.Value())
 	}
 	if d.RadioStat != nil {
-		radio_stat = radioStatSdkToTerraform(ctx, diags, d.RadioStat)
+		radioStat = radioStatSdkToTerraform(ctx, diags, d.RadioStat)
 	}
 	if d.RxBps.Value() != nil {
-		rx_bps = types.NumberValue(big.NewFloat(*d.RxBps.Value()))
+		rxBps = types.NumberValue(big.NewFloat(*d.RxBps.Value()))
 	}
 	if d.RxBytes.Value() != nil {
-		rx_bytes = types.Int64Value(int64(*d.RxBytes.Value()))
+		rxBytes = types.Int64Value(*d.RxBytes.Value())
 	}
 	if d.RxPkts.Value() != nil {
-		rx_pkts = types.Int64Value(int64(*d.RxPkts.Value()))
+		rxPkts = types.Int64Value(int64(*d.RxPkts.Value()))
 	}
 	if d.Serial.Value() != nil {
 		serial = types.StringValue(*d.Serial.Value())
 	}
 	if d.SiteId != nil {
-		site_id = types.StringValue(d.SiteId.String())
+		siteId = types.StringValue(d.SiteId.String())
 	}
 	if d.Status.Value() != nil {
 		status = types.StringValue(*d.Status.Value())
 	}
 	if d.SwitchRedundancy != nil {
-		switch_redundancy = SwitchRedundancySdkToTerraform(ctx, diags, d.SwitchRedundancy)
+		switchRedundancy = SwitchRedundancySdkToTerraform(ctx, diags, d.SwitchRedundancy)
 	}
 	if d.TxBps.Value() != nil {
-		tx_bps = types.NumberValue(big.NewFloat(*d.TxBps.Value()))
+		txBps = types.NumberValue(big.NewFloat(*d.TxBps.Value()))
 	}
 	if d.TxBytes.Value() != nil {
-		tx_bytes = types.NumberValue(big.NewFloat(*d.TxBytes.Value()))
+		txBytes = types.NumberValue(big.NewFloat(*d.TxBytes.Value()))
 	}
 	if d.TxPkts.Value() != nil {
-		tx_pkts = types.NumberValue(big.NewFloat(*d.TxPkts.Value()))
+		txPkts = types.NumberValue(big.NewFloat(*d.TxPkts.Value()))
 	}
 	if d.Uptime.Value() != nil {
 		uptime = types.NumberValue(big.NewFloat(*d.Uptime.Value()))
 	}
 	if d.UsbStat != nil {
-		usb_stat = usbStatsSdkToTerraform(ctx, diags, d.UsbStat)
+		usbStat = usbStatsSdkToTerraform(ctx, diags, d.UsbStat)
 	}
 	if d.Version.Value() != nil {
 		version = types.StringValue(*d.Version.Value())
@@ -269,69 +269,69 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 		y = types.Float64Value(*d.Y.Value())
 	}
 
-	data_map_value := map[string]attr.Value{
-		"auto_placement":       auto_placement,
-		"auto_upgrade_stat":    auto_upgrade_stat,
-		"ble_stat":             ble_stat,
-		"cert_expiry":          cert_expiry,
-		"config_reverted":      config_reverted,
-		"cpu_system":           cpu_system,
-		"cpu_util":             cpu_util,
-		"created_time":         created_time,
-		"deviceprofile_id":     deviceprofile_id,
-		"env_stat":             env_stat,
-		"esl_stat":             esl_stat,
-		"ext_ip":               ext_ip,
+	dataMapValue := map[string]attr.Value{
+		"auto_placement":       autoPlacement,
+		"auto_upgrade_stat":    autoUpgradeStat,
+		"ble_stat":             bleStat,
+		"cert_expiry":          certExpiry,
+		"config_reverted":      configReverted,
+		"cpu_system":           cpuSystem,
+		"cpu_util":             cpuUtil,
+		"created_time":         createdTime,
+		"deviceprofile_id":     deviceprofileId,
+		"env_stat":             envStat,
+		"esl_stat":             eslStat,
+		"ext_ip":               extIp,
 		"fwupdate":             fwupdate,
-		"hw_rev":               hw_rev,
+		"hw_rev":               hwRev,
 		"id":                   id,
-		"inactive_wired_vlans": inactive_wired_vlans,
-		"iot_stat":             iot_stat,
+		"inactive_wired_vlans": inactiveWiredVlans,
+		"iot_stat":             iotStat,
 		"ip":                   ip,
-		"ip_config":            ip_config,
-		"ip_stat":              ip_stat,
-		"l2tp_stat":            l2tp_stat,
-		"last_seen":            last_seen,
-		"last_trouble":         last_trouble,
+		"ip_config":            ipConfig,
+		"ip_stat":              ipStat,
+		"l2tp_stat":            l2tpStat,
+		"last_seen":            lastSeen,
+		"last_trouble":         lastTrouble,
 		"led":                  led,
-		"lldp_stat":            lldp_stat,
+		"lldp_stat":            lldpStat,
 		"locating":             locating,
 		"locked":               locked,
 		"mac":                  mac,
-		"map_id":               map_id,
-		"mem_used_kb":          mem_used_kb,
-		"mesh_downlinks":       mesh_downlinks,
-		"mesh_uplink":          mesh_uplink,
+		"map_id":               mapId,
+		"mem_used_kb":          memUsedKb,
+		"mesh_downlinks":       meshDownlinks,
+		"mesh_uplink":          meshUplink,
 		"model":                model,
-		"modified_time":        modified_time,
+		"modified_time":        modifiedTime,
 		"mount":                mount,
 		"name":                 name,
 		"notes":                notes,
-		"num_clients":          num_clients,
-		"org_id":               org_id,
-		"port_stat":            port_stat,
-		"power_budget":         power_budget,
-		"power_constrained":    power_constrained,
-		"power_opmode":         power_opmode,
-		"power_src":            power_src,
-		"radio_stat":           radio_stat,
-		"rx_bps":               rx_bps,
-		"rx_bytes":             rx_bytes,
-		"rx_pkts":              rx_pkts,
+		"num_clients":          numClients,
+		"org_id":               orgId,
+		"port_stat":            portStat,
+		"power_budget":         powerBudget,
+		"power_constrained":    powerConstrained,
+		"power_opmode":         powerOpmode,
+		"power_src":            powerSrc,
+		"radio_stat":           radioStat,
+		"rx_bps":               rxBps,
+		"rx_bytes":             rxBytes,
+		"rx_pkts":              rxPkts,
 		"serial":               serial,
-		"site_id":              site_id,
+		"site_id":              siteId,
 		"status":               status,
-		"switch_redundancy":    switch_redundancy,
-		"tx_bps":               tx_bps,
-		"tx_bytes":             tx_bytes,
-		"tx_pkts":              tx_pkts,
+		"switch_redundancy":    switchRedundancy,
+		"tx_bps":               txBps,
+		"tx_bytes":             txBytes,
+		"tx_pkts":              txPkts,
 		"uptime":               uptime,
-		"usb_stat":             usb_stat,
+		"usb_stat":             usbStat,
 		"version":              version,
 		"x":                    x,
 		"y":                    y,
 	}
-	data, e := NewDeviceApStatsValue(DeviceApStatsValue{}.AttributeTypes(ctx), data_map_value)
+	data, e := NewDeviceApStatsValue(DeviceApStatsValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

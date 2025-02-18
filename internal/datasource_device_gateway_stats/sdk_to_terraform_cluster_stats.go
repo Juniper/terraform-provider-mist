@@ -18,11 +18,10 @@ func clusterStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 		state = types.StringValue(*d.State.Value())
 	}
 
-	data_map_attr_type := ClusterStatValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"state": state,
 	}
-	data, e := types.ObjectValue(data_map_attr_type, data_map_value)
+	data, e := types.ObjectValue(ClusterStatValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

@@ -7,7 +7,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 
-	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
+	mistapierror "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_alarmtemplate"
 
 	"github.com/google/uuid"
@@ -49,10 +49,10 @@ func (r *orgAlarmtemplateResource) Configure(ctx context.Context, req resource.C
 	r.client = client
 }
 
-func (r *orgAlarmtemplateResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *orgAlarmtemplateResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_org_alarmtemplate"
 }
-func (r *orgAlarmtemplateResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *orgAlarmtemplateResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryOrg + "This resource manages Alarm Templates.\n\n" +
 			"An Alarm Template is a set of Alarm Rules that could be applied to one or more " +
@@ -91,11 +91,11 @@ func (r *orgAlarmtemplateResource) Create(ctx context.Context, req resource.Crea
 	tflog.Info(ctx, "Starting OrgAlarmtemplate Create for Org "+plan.OrgId.ValueString())
 	data, err := r.client.OrgsAlarmTemplates().CreateOrgAlarmTemplate(ctx, orgId, alarmtemplate)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error creating \"mist_org_alarmtemplate\" resource",
-			fmt.Sprintf("Unable to create the Alarmtemplate. %s", api_err),
+			fmt.Sprintf("Unable to create the Alarmtemplate. %s", apiErr),
 		)
 		return
 	}
@@ -113,7 +113,7 @@ func (r *orgAlarmtemplateResource) Create(ctx context.Context, req resource.Crea
 	}
 }
 
-func (r *orgAlarmtemplateResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *orgAlarmtemplateResource) Read(ctx context.Context, _ resource.ReadRequest, resp *resource.ReadResponse) {
 	var state resource_org_alarmtemplate.OrgAlarmtemplateModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -203,11 +203,11 @@ func (r *orgAlarmtemplateResource) Update(ctx context.Context, req resource.Upda
 	}
 	data, err := r.client.OrgsAlarmTemplates().UpdateOrgAlarmTemplate(ctx, orgId, alarmtemplateId, alarmtemplate)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error updating \"mist_org_alarmtemplate\" resource",
-			fmt.Sprintf("Unable to update the Alarmtemplate. %s", api_err),
+			fmt.Sprintf("Unable to update the Alarmtemplate. %s", apiErr),
 		)
 		return
 	}
@@ -226,7 +226,7 @@ func (r *orgAlarmtemplateResource) Update(ctx context.Context, req resource.Upda
 
 }
 
-func (r *orgAlarmtemplateResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *orgAlarmtemplateResource) Delete(ctx context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_org_alarmtemplate.OrgAlarmtemplateModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -253,11 +253,11 @@ func (r *orgAlarmtemplateResource) Delete(ctx context.Context, req resource.Dele
 		return
 	}
 	data, err := r.client.OrgsAlarmTemplates().DeleteOrgAlarmTemplate(ctx, orgId, alarmtemplateId)
-	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_alarmtemplate\" resource",
-			fmt.Sprintf("Unable to delete the Alarmtemplate. %s", api_err),
+			fmt.Sprintf("Unable to delete the Alarmtemplate. %s", apiErr),
 		)
 		return
 	}

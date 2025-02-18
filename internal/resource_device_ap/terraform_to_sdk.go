@@ -3,7 +3,7 @@ package resource_device_ap
 import (
 	"context"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -17,9 +17,9 @@ func TerraformToSdk(ctx context.Context, plan *DeviceApModel) (models.MistDevice
 	unset := make(map[string]interface{})
 
 	if len(plan.MapId.ValueString()) > 0 {
-		map_id, e := uuid.Parse(plan.MapId.ValueString())
+		mapId, e := uuid.Parse(plan.MapId.ValueString())
 		if e == nil {
-			data.MapId = &map_id
+			data.MapId = &mapId
 		} else {
 			diags.AddError("Bad value for map_id", e.Error())
 		}
@@ -36,20 +36,20 @@ func TerraformToSdk(ctx context.Context, plan *DeviceApModel) (models.MistDevice
 	}
 
 	if !plan.Aeroscout.IsNull() && !plan.Aeroscout.IsUnknown() {
-		aeroscout := aeroscoutTerraformToSdk(ctx, &diags, plan.Aeroscout)
+		aeroscout := aeroscoutTerraformToSdk(plan.Aeroscout)
 		data.Aeroscout = aeroscout
 	} else {
 		unset["-aeroscout"] = ""
 	}
 
 	if !plan.BleConfig.IsNull() && !plan.BleConfig.IsUnknown() {
-		data.BleConfig = bleConfigTerraformToSdk(ctx, &diags, plan.BleConfig)
+		data.BleConfig = bleConfigTerraformToSdk(plan.BleConfig)
 	} else {
 		unset["-ble_config"] = ""
 	}
 
 	if !plan.Centrak.IsNull() && !plan.Centrak.IsUnknown() {
-		data.Centrak = centrakTerraformToSdk(ctx, &diags, plan.Centrak)
+		data.Centrak = centrakTerraformToSdk(plan.Centrak)
 	} else {
 		unset["-centrak"] = ""
 	}
@@ -81,9 +81,14 @@ func TerraformToSdk(ctx context.Context, plan *DeviceApModel) (models.MistDevice
 		unset["-disable_eth3"] = ""
 	}
 	if !plan.EslConfig.IsNull() && !plan.EslConfig.IsUnknown() {
-		data.EslConfig = eslTerraformToSdk(ctx, &diags, plan.EslConfig)
+		data.EslConfig = eslTerraformToSdk(plan.EslConfig)
 	} else {
 		unset["-esl_config"] = ""
+	}
+	if !plan.FlowControl.IsNull() && !plan.FlowControl.IsUnknown() {
+		data.FlowControl = plan.FlowControl.ValueBoolPointer()
+	} else {
+		unset["-flow_control"] = ""
 	}
 
 	if !plan.Height.IsNull() && !plan.Height.IsUnknown() {
@@ -93,14 +98,14 @@ func TerraformToSdk(ctx context.Context, plan *DeviceApModel) (models.MistDevice
 	}
 
 	if !plan.IpConfig.IsNull() && !plan.IpConfig.IsUnknown() {
-		ip_config := ipConfigTerraformToSdk(ctx, &diags, plan.IpConfig)
-		data.IpConfig = ip_config
+		ipConfig := ipConfigTerraformToSdk(plan.IpConfig)
+		data.IpConfig = ipConfig
 	} else {
 		unset["-ip_config"] = ""
 	}
 
 	if !plan.Led.IsNull() && !plan.Led.IsUnknown() {
-		led := ledTerraformToSdk(ctx, &diags, plan.Led)
+		led := ledTerraformToSdk(plan.Led)
 		data.Led = led
 	} else {
 		unset["-led"] = ""
@@ -113,14 +118,14 @@ func TerraformToSdk(ctx context.Context, plan *DeviceApModel) (models.MistDevice
 	}
 
 	if !plan.Mesh.IsNull() && !plan.Mesh.IsUnknown() {
-		mesh := meshTerraformToSdk(ctx, &diags, plan.Mesh)
+		mesh := meshTerraformToSdk(plan.Mesh)
 		data.Mesh = mesh
 	} else {
 		unset["-mesh"] = ""
 	}
 
 	if !plan.NtpServers.IsNull() && !plan.NtpServers.IsUnknown() {
-		data.NtpServers = mist_transform.ListOfStringTerraformToSdk(ctx, plan.NtpServers)
+		data.NtpServers = misttransform.ListOfStringTerraformToSdk(plan.NtpServers)
 	} else {
 		unset["-ntp_servers"] = ""
 	}
@@ -138,7 +143,7 @@ func TerraformToSdk(ctx context.Context, plan *DeviceApModel) (models.MistDevice
 	}
 
 	if !plan.PwrConfig.IsNull() && !plan.PwrConfig.IsUnknown() {
-		data.PwrConfig = pwrConfigTerraformToSdk(ctx, &diags, plan.PwrConfig)
+		data.PwrConfig = pwrConfigTerraformToSdk(plan.PwrConfig)
 	} else {
 		unset["-pwr_config"] = ""
 	}
@@ -150,19 +155,19 @@ func TerraformToSdk(ctx context.Context, plan *DeviceApModel) (models.MistDevice
 	}
 
 	if !plan.UplinkPortConfig.IsNull() && !plan.UplinkPortConfig.IsUnknown() {
-		data.UplinkPortConfig = uplinkPortConfigTerraformToSdk(ctx, &diags, plan.UplinkPortConfig)
+		data.UplinkPortConfig = uplinkPortConfigTerraformToSdk(plan.UplinkPortConfig)
 	} else {
 		unset["-uplink_port_config"] = ""
 	}
 
 	if !plan.UsbConfig.IsNull() && !plan.UsbConfig.IsUnknown() {
-		data.UsbConfig = usbConfigTerraformToSdk(ctx, &diags, plan.UsbConfig)
+		data.UsbConfig = usbConfigTerraformToSdk(plan.UsbConfig)
 	} else {
 		unset["-usb_config"] = ""
 	}
 
 	if !plan.Vars.IsNull() && !plan.Vars.IsUnknown() {
-		data.Vars = varsTerraformToSdk(ctx, &diags, plan.Vars)
+		data.Vars = varsTerraformToSdk(plan.Vars)
 	} else {
 		unset["-vars"] = ""
 	}
@@ -180,6 +185,6 @@ func TerraformToSdk(ctx context.Context, plan *DeviceApModel) (models.MistDevice
 
 	data.AdditionalProperties = unset
 
-	mist_device := models.MistDeviceContainer.FromDeviceAp(data)
-	return mist_device, diags
+	mistDevice := models.MistDeviceContainer.FromDeviceAp(data)
+	return mistDevice, diags
 }

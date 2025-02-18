@@ -50,11 +50,11 @@ func (d *orgDeviceprofilesGatewayDataSource) Configure(ctx context.Context, req 
 
 	d.client = client
 }
-func (d *orgDeviceprofilesGatewayDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+func (d *orgDeviceprofilesGatewayDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_org_deviceprofiles_gateway"
 }
 
-func (d *orgDeviceprofilesGatewayDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *orgDeviceprofilesGatewayDataSource) Schema(ctx context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryWan + "This provides the list of Gateway Device Profiles (Hub Profile).\n\n" +
 			"A HUB profile is a configuration profile that automates the creation of overlay networks and defines the attributes of a hub device in a network. " +
@@ -81,11 +81,11 @@ func (d *orgDeviceprofilesGatewayDataSource) Read(ctx context.Context, req datas
 		return
 	}
 
-	var mType models.DeviceTypeEnum = models.DeviceTypeEnum("ap")
+	var mType = models.DeviceTypeEnum_AP
 
-	var limit int = 1000
-	var page int = 0
-	var total int = 9999
+	var limit = 1000
+	var page = 0
+	var total = 9999
 	var elements []attr.Value
 	var diags diag.Diagnostics
 
@@ -105,8 +105,8 @@ func (d *orgDeviceprofilesGatewayDataSource) Read(ctx context.Context, req datas
 			return
 		}
 
-		limit_string := data.Response.Header.Get("X-Page-Limit")
-		if limit, err = strconv.Atoi(limit_string); err != nil {
+		limitString := data.Response.Header.Get("X-Page-Limit")
+		if limit, err = strconv.Atoi(limitString); err != nil {
 			resp.Diagnostics.AddError(
 				"Error extracting HTTP Response Headers",
 				"Unable to convert the X-Page-Limit value into int, unexcpected error: "+err.Error(),
@@ -114,8 +114,8 @@ func (d *orgDeviceprofilesGatewayDataSource) Read(ctx context.Context, req datas
 			return
 		}
 
-		total_string := data.Response.Header.Get("X-Page-Total")
-		if total, err = strconv.Atoi(total_string); err != nil {
+		totalString := data.Response.Header.Get("X-Page-Total")
+		if total, err = strconv.Atoi(totalString); err != nil {
 			resp.Diagnostics.AddError(
 				"Error extracting HTTP Response Headers",
 				"Unable to convert the X-Page-Total value into int, unexcpected error: "+err.Error(),
@@ -124,10 +124,10 @@ func (d *orgDeviceprofilesGatewayDataSource) Read(ctx context.Context, req datas
 		}
 
 		body, _ := io.ReadAll(data.Response.Body)
-		mist_deviceprofiles := []models.DeviceprofileGateway{}
-		json.Unmarshal(body, &mist_deviceprofiles)
+		var mistDeviceprofiles []models.DeviceprofileGateway
+		json.Unmarshal(body, &mistDeviceprofiles)
 
-		diags = datasource_org_deviceprofiles_gateway.SdkToTerraform(ctx, &mist_deviceprofiles, &elements)
+		diags = datasource_org_deviceprofiles_gateway.SdkToTerraform(ctx, &mistDeviceprofiles, &elements)
 		resp.Diagnostics.Append(diags...)
 		if resp.Diagnostics.HasError() {
 			return

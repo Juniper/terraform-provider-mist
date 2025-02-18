@@ -1,9 +1,7 @@
 package resource_site_wxrule
 
 import (
-	"context"
-
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -11,42 +9,42 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-func SdkToTerraform(ctx context.Context, data models.WxlanRule) (SiteWxruleModel, diag.Diagnostics) {
+func SdkToTerraform(data models.WxlanRule) (SiteWxruleModel, diag.Diagnostics) {
 	var state SiteWxruleModel
 	var diags diag.Diagnostics
 
 	var action types.String
-	var apply_tags types.List = types.ListNull(types.StringType)
-	var blocked_apps types.List = types.ListNull(types.StringType)
-	var dst_allow_wxtags types.List = types.ListNull(types.StringType)
-	var dst_deny_wxtags types.List = types.ListNull(types.StringType)
-	var dst_wxtags types.List = types.ListNull(types.StringType)
+	var applyTags = types.ListNull(types.StringType)
+	var blockedApps = types.ListNull(types.StringType)
+	var dstAllowWxtags = types.ListNull(types.StringType)
+	var dstDenyWxtags = types.ListNull(types.StringType)
+	var dstWxtags = types.ListNull(types.StringType)
 	var enabled types.Bool
-	var src_wxtags types.List = types.ListNull(types.StringType)
+	var srcWxtags = types.ListNull(types.StringType)
 
 	if data.Action != nil {
 		action = types.StringValue(string(*data.Action))
 	}
 	if data.ApplyTags != nil && len(data.ApplyTags) > 0 {
-		apply_tags = mist_transform.ListOfStringSdkToTerraform(ctx, data.ApplyTags)
+		applyTags = misttransform.ListOfStringSdkToTerraform(data.ApplyTags)
 	}
 	if data.BlockedApps != nil && len(data.BlockedApps) > 0 {
-		blocked_apps = mist_transform.ListOfStringSdkToTerraform(ctx, data.BlockedApps)
+		blockedApps = misttransform.ListOfStringSdkToTerraform(data.BlockedApps)
 	}
 	if data.DstAllowWxtags != nil {
-		dst_allow_wxtags = mist_transform.ListOfStringSdkToTerraform(ctx, data.DstAllowWxtags)
+		dstAllowWxtags = misttransform.ListOfStringSdkToTerraform(data.DstAllowWxtags)
 	}
 	if data.DstDenyWxtags != nil {
-		dst_deny_wxtags = mist_transform.ListOfStringSdkToTerraform(ctx, data.DstDenyWxtags)
+		dstDenyWxtags = misttransform.ListOfStringSdkToTerraform(data.DstDenyWxtags)
 	}
 	if data.DstWxtags != nil {
-		dst_wxtags = mist_transform.ListOfStringSdkToTerraform(ctx, data.DstWxtags)
+		dstWxtags = misttransform.ListOfStringSdkToTerraform(data.DstWxtags)
 	}
 	if data.Enabled != nil {
 		enabled = types.BoolValue(*data.Enabled)
 	}
 	if data.SrcWxtags != nil {
-		src_wxtags = mist_transform.ListOfStringSdkToTerraform(ctx, data.SrcWxtags)
+		srcWxtags = misttransform.ListOfStringSdkToTerraform(data.SrcWxtags)
 	}
 
 	state.Id = types.StringValue(data.Id.String())
@@ -54,13 +52,13 @@ func SdkToTerraform(ctx context.Context, data models.WxlanRule) (SiteWxruleModel
 	state.Order = types.Int64Value(int64(data.Order))
 
 	state.Action = action
-	state.ApplyTags = apply_tags
-	state.BlockedApps = blocked_apps
-	state.DstAllowWxtags = dst_allow_wxtags
-	state.DstDenyWxtags = dst_deny_wxtags
-	state.DstWxtags = dst_wxtags
+	state.ApplyTags = applyTags
+	state.BlockedApps = blockedApps
+	state.DstAllowWxtags = dstAllowWxtags
+	state.DstDenyWxtags = dstDenyWxtags
+	state.DstWxtags = dstWxtags
 	state.Enabled = enabled
-	state.SrcWxtags = src_wxtags
+	state.SrcWxtags = srcWxtags
 
 	return state, diags
 }

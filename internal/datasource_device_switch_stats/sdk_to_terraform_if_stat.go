@@ -4,7 +4,7 @@ import (
 	"context"
 	"math/big"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -18,11 +18,11 @@ func ifStatsServpInfoSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 
 	var asn basetypes.StringValue
 	var city basetypes.StringValue
-	var country_code basetypes.StringValue
+	var countryCode basetypes.StringValue
 	var latitude basetypes.NumberValue
 	var longitude basetypes.NumberValue
 	var org basetypes.StringValue
-	var region_code basetypes.StringValue
+	var regionCode basetypes.StringValue
 
 	if d.Asn != nil {
 		asn = types.StringValue(*d.Asn)
@@ -31,7 +31,7 @@ func ifStatsServpInfoSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 		city = types.StringValue(*d.City)
 	}
 	if d.CountryCode != nil {
-		country_code = types.StringValue(*d.CountryCode)
+		countryCode = types.StringValue(*d.CountryCode)
 	}
 	if d.Latitude != nil {
 		latitude = types.NumberValue(big.NewFloat(*d.Latitude))
@@ -43,20 +43,19 @@ func ifStatsServpInfoSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 		org = types.StringValue(*d.Org)
 	}
 	if d.RegionCode != nil {
-		region_code = types.StringValue(*d.RegionCode)
+		regionCode = types.StringValue(*d.RegionCode)
 	}
 
-	data_map_attr_type := ServpInfoValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"asn":          asn,
 		"city":         city,
-		"country_code": country_code,
+		"country_code": countryCode,
 		"latitude":     latitude,
 		"longitude":    longitude,
 		"org":          org,
-		"region_code":  region_code,
+		"region_code":  regionCode,
 	}
-	data, e := basetypes.NewObjectValue(data_map_attr_type, data_map_value)
+	data, e := basetypes.NewObjectValue(ServpInfoValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data
@@ -64,60 +63,60 @@ func ifStatsServpInfoSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 
 func ifStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.IfStatProperty) basetypes.MapValue {
 
-	map_attr_values := make(map[string]attr.Value)
+	mapAttrValues := make(map[string]attr.Value)
 	for k, d := range m {
-		var address_mode basetypes.StringValue
-		var ips basetypes.ListValue = types.ListNull(types.StringType)
-		var nat_addresses basetypes.ListValue = types.ListNull(types.StringType)
-		var network_name basetypes.StringValue
-		var port_id basetypes.StringValue
-		var port_usage basetypes.StringValue
-		var redundancy_state basetypes.StringValue
-		var rx_bytes basetypes.Int64Value
-		var rx_pkts basetypes.Int64Value
-		var servp_info basetypes.ObjectValue = types.ObjectNull(ServpInfoValue{}.AttributeTypes(ctx))
-		var tx_bytes basetypes.Int64Value
-		var tx_pkts basetypes.Int64Value
+		var addressMode basetypes.StringValue
+		var ips = types.ListNull(types.StringType)
+		var natAddresses = types.ListNull(types.StringType)
+		var networkName basetypes.StringValue
+		var portId basetypes.StringValue
+		var portUsage basetypes.StringValue
+		var redundancyState basetypes.StringValue
+		var rxBytes basetypes.Int64Value
+		var rxPkts basetypes.Int64Value
+		var servpInfo = types.ObjectNull(ServpInfoValue{}.AttributeTypes(ctx))
+		var txBytes basetypes.Int64Value
+		var txPkts basetypes.Int64Value
 		var up basetypes.BoolValue
 		var vlan basetypes.Int64Value
-		var wan_name basetypes.StringValue
-		var wan_type basetypes.StringValue
+		var wanName basetypes.StringValue
+		var wanType basetypes.StringValue
 
 		if d.AddressMode != nil {
-			address_mode = types.StringValue(*d.AddressMode)
+			addressMode = types.StringValue(*d.AddressMode)
 		}
 		if d.Ips != nil {
-			ips = mist_transform.ListOfStringSdkToTerraform(ctx, d.Ips)
+			ips = misttransform.ListOfStringSdkToTerraform(d.Ips)
 		}
 		if d.NatAddresses != nil {
-			nat_addresses = mist_transform.ListOfStringSdkToTerraform(ctx, d.NatAddresses)
+			natAddresses = misttransform.ListOfStringSdkToTerraform(d.NatAddresses)
 		}
 		if d.NetworkName != nil {
-			network_name = types.StringValue(*d.NetworkName)
+			networkName = types.StringValue(*d.NetworkName)
 		}
 		if d.PortId != nil {
-			port_id = types.StringValue(*d.PortId)
+			portId = types.StringValue(*d.PortId)
 		}
 		if d.PortUsage != nil {
-			port_usage = types.StringValue(*d.PortUsage)
+			portUsage = types.StringValue(*d.PortUsage)
 		}
 		if d.RedundancyState != nil {
-			redundancy_state = types.StringValue(*d.RedundancyState)
+			redundancyState = types.StringValue(*d.RedundancyState)
 		}
 		if d.RxBytes != nil {
-			rx_bytes = types.Int64Value(int64(*d.RxBytes))
+			rxBytes = types.Int64Value(int64(*d.RxBytes))
 		}
 		if d.RxPkts != nil {
-			rx_pkts = types.Int64Value(int64(*d.RxPkts))
+			rxPkts = types.Int64Value(int64(*d.RxPkts))
 		}
 		if d.ServpInfo != nil {
-			servp_info = ifStatsServpInfoSdkToTerraform(ctx, diags, d.ServpInfo)
+			servpInfo = ifStatsServpInfoSdkToTerraform(ctx, diags, d.ServpInfo)
 		}
 		if d.TxBytes != nil {
-			tx_bytes = types.Int64Value(int64(*d.TxBytes))
+			txBytes = types.Int64Value(int64(*d.TxBytes))
 		}
 		if d.TxPkts != nil {
-			tx_pkts = types.Int64Value(int64(*d.TxPkts))
+			txPkts = types.Int64Value(int64(*d.TxPkts))
 		}
 		if d.Up != nil {
 			up = types.BoolValue(*d.Up)
@@ -126,37 +125,36 @@ func ifStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[s
 			vlan = types.Int64Value(int64(*d.Vlan))
 		}
 		if d.WanName != nil {
-			wan_name = types.StringValue(*d.WanName)
+			wanName = types.StringValue(*d.WanName)
 		}
 		if d.WanType != nil {
-			wan_type = types.StringValue(*d.WanType)
+			wanType = types.StringValue(*d.WanType)
 		}
 
-		data_map_attr_type := IfStatValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
-			"address_mode":     address_mode,
+		dataMapValue := map[string]attr.Value{
+			"address_mode":     addressMode,
 			"ips":              ips,
-			"nat_addresses":    nat_addresses,
-			"network_name":     network_name,
-			"port_id":          port_id,
-			"port_usage":       port_usage,
-			"redundancy_state": redundancy_state,
-			"rx_bytes":         rx_bytes,
-			"rx_pkts":          rx_pkts,
-			"servp_info":       servp_info,
-			"tx_bytes":         tx_bytes,
-			"tx_pkts":          tx_pkts,
+			"nat_addresses":    natAddresses,
+			"network_name":     networkName,
+			"port_id":          portId,
+			"port_usage":       portUsage,
+			"redundancy_state": redundancyState,
+			"rx_bytes":         rxBytes,
+			"rx_pkts":          rxPkts,
+			"servp_info":       servpInfo,
+			"tx_bytes":         txBytes,
+			"tx_pkts":          txPkts,
 			"up":               up,
 			"vlan":             vlan,
-			"wan_name":         wan_name,
-			"wan_type":         wan_type,
+			"wan_name":         wanName,
+			"wan_type":         wanType,
 		}
-		data, e := basetypes.NewObjectValue(data_map_attr_type, data_map_value)
+		data, e := basetypes.NewObjectValue(IfStatValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		map_attr_values[k] = data
+		mapAttrValues[k] = data
 	}
-	state_result, e := types.MapValueFrom(ctx, IfStatValue{}.Type(ctx), map_attr_values)
+	stateResult, e := types.MapValueFrom(ctx, IfStatValue{}.Type(ctx), mapAttrValues)
 	diags.Append(e...)
-	return state_result
+	return stateResult
 }

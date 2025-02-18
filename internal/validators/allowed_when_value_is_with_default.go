@@ -228,11 +228,11 @@ func (o AllowedWhenValueIsWithDefaultValidator) ValidateString(ctx context.Conte
 func AllowedWhenValueIsWithDefault(
 	expression path.Expression,
 	value attr.Value,
-	default_value attr.Value,
+	defaultValue attr.Value,
 ) AllowedWhenValueIsWithDefaultValidator {
 	return AllowedWhenValueIsWithDefaultValidator{
 		Expression:   expression,
 		Value:        value,
-		DefaultValue: default_value,
+		DefaultValue: defaultValue,
 	}
 }

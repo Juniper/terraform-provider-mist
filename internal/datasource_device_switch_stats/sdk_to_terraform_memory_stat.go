@@ -20,11 +20,10 @@ func memoryStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 		usage = types.NumberValue(big.NewFloat(d.Usage))
 	}
 
-	data_map_attr_type := MemoryStatValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"usage": usage,
 	}
-	data, e := basetypes.NewObjectValue(data_map_attr_type, data_map_value)
+	data, e := basetypes.NewObjectValue(MemoryStatValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

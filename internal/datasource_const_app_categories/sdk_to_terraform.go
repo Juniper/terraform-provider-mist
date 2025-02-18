@@ -3,7 +3,7 @@ package datasource_const_app_categories
 import (
 	"context"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -30,7 +30,7 @@ func SdkToTerraform(ctx context.Context, l []models.ConstAppCategoryDefinition) 
 }
 
 func constAppCategorySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.ConstAppCategoryDefinition) ConstAppCategoriesValue {
-	var filter basetypes.ObjectValue = types.ObjectNull(FiltersValue{}.AttributeTypes(ctx))
+	var filter = types.ObjectNull(FiltersValue{}.AttributeTypes(ctx))
 	if d.Filters != nil {
 		filter = constAppCategoryFiltersSdkToTerraform(ctx, diags, *d.Filters)
 	}
@@ -40,7 +40,7 @@ func constAppCategorySdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 		map[string]attr.Value{
 			"display":  types.StringValue(d.Display),
 			"filters":  filter,
-			"includes": mist_transform.ListOfStringSdkToTerraform(ctx, d.Includes),
+			"includes": misttransform.ListOfStringSdkToTerraform(d.Includes),
 			"key":      types.StringValue(d.Key),
 		},
 	)
@@ -49,22 +49,21 @@ func constAppCategorySdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 }
 
 func constAppCategoryFiltersSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.ConstAppCategoryDefinitionFilters) basetypes.ObjectValue {
-	var srx basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
-	var ssr basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+	var srx = misttransform.ListOfStringSdkToTerraformEmpty()
+	var ssr = misttransform.ListOfStringSdkToTerraformEmpty()
 
 	if d.Srx != nil {
-		srx = mist_transform.ListOfStringSdkToTerraform(ctx, d.Srx)
+		srx = misttransform.ListOfStringSdkToTerraform(d.Srx)
 	}
 	if d.Ssr != nil {
-		ssr = mist_transform.ListOfStringSdkToTerraform(ctx, d.Ssr)
+		ssr = misttransform.ListOfStringSdkToTerraform(d.Ssr)
 	}
 
-	data_map_attr_type := FiltersValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"srx": srx,
 		"ssr": ssr,
 	}
-	data, e := basetypes.NewObjectValue(data_map_attr_type, data_map_value)
+	data, e := basetypes.NewObjectValue(FiltersValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

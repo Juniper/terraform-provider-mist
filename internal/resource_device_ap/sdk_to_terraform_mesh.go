@@ -27,13 +27,12 @@ func meshSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 		role = types.StringValue(string(*d.Role))
 	}
 
-	data_map_attr_type := MeshValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"enabled": enabled,
 		"group":   group,
 		"role":    role,
 	}
-	data, e := NewMeshValue(data_map_attr_type, data_map_value)
+	data, e := NewMeshValue(MeshValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

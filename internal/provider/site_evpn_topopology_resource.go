@@ -7,7 +7,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 
-	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
+	mistapierror "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_site_evpn_topology"
 
 	"github.com/google/uuid"
@@ -48,11 +48,11 @@ func (r *siteEvpnTopologyResource) Configure(ctx context.Context, req resource.C
 
 	r.client = client
 }
-func (r *siteEvpnTopologyResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *siteEvpnTopologyResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_site_evpn_topology"
 }
 
-func (r *siteEvpnTopologyResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *siteEvpnTopologyResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryWired + "This resource manages the Site Evpn Topologys.\n\n" +
 			"EVPN allows an alternative but more efficient LAN architecture utilizing VxLAN / MP-BGP to separate the control plane " +
@@ -81,20 +81,20 @@ func (r *siteEvpnTopologyResource) Create(ctx context.Context, req resource.Crea
 		return
 	}
 
-	evpn_topology, diags := resource_site_evpn_topology.TerraformToSdk(ctx, &plan)
+	evpnTopology, diags := resource_site_evpn_topology.TerraformToSdk(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
 	tflog.Info(ctx, "Starting EvpnTopology Create for Site "+plan.SiteId.String())
-	data, err := r.client.SitesEVPNTopologies().CreateSiteEvpnTopology(ctx, siteId, evpn_topology)
+	data, err := r.client.SitesEVPNTopologies().CreateSiteEvpnTopology(ctx, siteId, evpnTopology)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error creating \"mist_site_evpn_topology\" resource",
-			fmt.Sprintf("Unable to create the EvpnTopology. %s", api_err),
+			fmt.Sprintf("Unable to create the EvpnTopology. %s", apiErr),
 		)
 		return
 	}
@@ -113,7 +113,7 @@ func (r *siteEvpnTopologyResource) Create(ctx context.Context, req resource.Crea
 
 }
 
-func (r *siteEvpnTopologyResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *siteEvpnTopologyResource) Read(ctx context.Context, _ resource.ReadRequest, resp *resource.ReadResponse) {
 	var state resource_site_evpn_topology.SiteEvpnTopologyModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -130,7 +130,7 @@ func (r *siteEvpnTopologyResource) Read(ctx context.Context, req resource.ReadRe
 		)
 		return
 	}
-	evpn_topologyId, err := uuid.Parse(state.Id.ValueString())
+	evpnTopologyid, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"id\" value for \"mist_site_evpn_topology\" resource",
@@ -140,7 +140,7 @@ func (r *siteEvpnTopologyResource) Read(ctx context.Context, req resource.ReadRe
 	}
 
 	tflog.Info(ctx, "Starting EvpnTopology Read: evpn_topology_id "+state.Id.ValueString())
-	httpr, err := r.client.SitesEVPNTopologies().GetSiteEvpnTopology(ctx, siteId, evpn_topologyId)
+	httpr, err := r.client.SitesEVPNTopologies().GetSiteEvpnTopology(ctx, siteId, evpnTopologyid)
 	if httpr.Response.StatusCode == 404 {
 		resp.State.RemoveResource(ctx)
 		return
@@ -187,7 +187,7 @@ func (r *siteEvpnTopologyResource) Update(ctx context.Context, req resource.Upda
 		)
 		return
 	}
-	evpn_topologyId, err := uuid.Parse(state.Id.ValueString())
+	evpnTopologyid, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"id\" value for \"mist_site_evpn_topology\" resource",
@@ -196,20 +196,20 @@ func (r *siteEvpnTopologyResource) Update(ctx context.Context, req resource.Upda
 		return
 	}
 
-	evpn_topology, diags := resource_site_evpn_topology.TerraformToSdk(ctx, &plan)
+	evpnTopology, diags := resource_site_evpn_topology.TerraformToSdk(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
 	tflog.Info(ctx, "Starting EvpnTopology Update for EvpnTopology "+state.Id.ValueString())
-	data, err := r.client.SitesEVPNTopologies().UpdateSiteEvpnTopology(ctx, siteId, evpn_topologyId, evpn_topology)
+	data, err := r.client.SitesEVPNTopologies().UpdateSiteEvpnTopology(ctx, siteId, evpnTopologyid, evpnTopology)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error updating \"mist_site_evpn_topology\" resource",
-			fmt.Sprintf("Unable to update the EvpnTopology. %s", api_err),
+			fmt.Sprintf("Unable to update the EvpnTopology. %s", apiErr),
 		)
 		return
 	}
@@ -228,7 +228,7 @@ func (r *siteEvpnTopologyResource) Update(ctx context.Context, req resource.Upda
 
 }
 
-func (r *siteEvpnTopologyResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *siteEvpnTopologyResource) Delete(ctx context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_site_evpn_topology.SiteEvpnTopologyModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -245,7 +245,7 @@ func (r *siteEvpnTopologyResource) Delete(ctx context.Context, req resource.Dele
 		)
 		return
 	}
-	evpn_topologyId, err := uuid.Parse(state.Id.ValueString())
+	evpnTopologyid, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"id\" value for \"mist_site_evpn_topology\" resource",
@@ -255,12 +255,12 @@ func (r *siteEvpnTopologyResource) Delete(ctx context.Context, req resource.Dele
 	}
 
 	tflog.Info(ctx, "Starting EvpnTopology Delete: evpn_topology_id "+state.Id.ValueString())
-	data, err := r.client.SitesEVPNTopologies().DeleteSiteEvpnTopology(ctx, siteId, evpn_topologyId)
-	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && api_err != "" {
+	data, err := r.client.SitesEVPNTopologies().DeleteSiteEvpnTopology(ctx, siteId, evpnTopologyid)
+	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_site_evpn_topology\" resource",
-			fmt.Sprintf("Unable to delete the EvpnTopology. %s", api_err),
+			fmt.Sprintf("Unable to delete the EvpnTopology. %s", apiErr),
 		)
 		return
 	}

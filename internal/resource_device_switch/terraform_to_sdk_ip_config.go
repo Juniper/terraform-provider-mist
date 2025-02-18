@@ -1,23 +1,19 @@
 package resource_device_switch
 
 import (
-	"context"
-
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
-
-	"github.com/hashicorp/terraform-plugin-framework/diag"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func ipConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d IpConfigValue) *models.JunosIpConfig {
+func ipConfigTerraformToSdk(d IpConfigValue) *models.JunosIpConfig {
 	data := models.JunosIpConfig{}
 
 	if !d.Dns.IsNull() && !d.Dns.IsUnknown() {
-		data.Dns = mist_transform.ListOfStringTerraformToSdk(ctx, d.Dns)
+		data.Dns = misttransform.ListOfStringTerraformToSdk(d.Dns)
 	}
 	if !d.DnsSuffix.IsNull() && !d.DnsSuffix.IsUnknown() {
-		data.DnsSuffix = mist_transform.ListOfStringTerraformToSdk(ctx, d.DnsSuffix)
+		data.DnsSuffix = misttransform.ListOfStringTerraformToSdk(d.DnsSuffix)
 	}
 	if d.Gateway.ValueStringPointer() != nil {
 		data.Gateway = d.Gateway.ValueStringPointer()

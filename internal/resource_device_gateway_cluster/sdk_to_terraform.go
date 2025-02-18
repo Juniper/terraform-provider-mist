@@ -11,36 +11,35 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-func SdkToTerraform(ctx context.Context, siteId uuid.UUID, deviceId uuid.UUID, data *models.GatewayCluster) (DeviceGatewayClusterModel, diag.Diagnostics) {
+func SdkToTerraform(ctx context.Context, mistSiteId uuid.UUID, mistDeviceId uuid.UUID, data *models.GatewayCluster) (DeviceGatewayClusterModel, diag.Diagnostics) {
 	var state DeviceGatewayClusterModel
 	var diags diag.Diagnostics
 
-	var id types.String = types.StringValue(deviceId.String())
-	var nodes types.List = types.ListNull(NodesValue{}.Type(ctx))
-	var site_id types.String = types.StringValue(siteId.String())
+	var id = types.StringValue(mistDeviceId.String())
+	var nodes = types.ListNull(NodesValue{}.Type(ctx))
+	var siteId = types.StringValue(mistSiteId.String())
 
-	var nodes_list []NodesValue
+	var nodesList []NodesValue
 	for _, d := range data.Nodes {
 
 		mac := types.StringValue(d.Mac)
 
-		data_map_attr_type := NodesValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
+		dataMapValue := map[string]attr.Value{
 			"mac": mac,
 		}
-		node_mac, e := NewNodesValue(data_map_attr_type, data_map_value)
+		nodeMac, e := NewNodesValue(NodesValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		nodes_list = append(nodes_list, node_mac)
+		nodesList = append(nodesList, nodeMac)
 	}
 
-	data_list_type := NodesValue{}.Type(ctx)
-	nodes, e := types.ListValueFrom(ctx, data_list_type, nodes_list)
+	datalistType := NodesValue{}.Type(ctx)
+	nodes, e := types.ListValueFrom(ctx, datalistType, nodesList)
 	diags.Append(e...)
 
 	state.Id = id
 	state.Nodes = nodes
-	state.SiteId = site_id
+	state.SiteId = siteId
 
 	return state, diags
 }

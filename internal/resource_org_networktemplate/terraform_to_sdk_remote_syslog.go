@@ -41,30 +41,30 @@ func remoteSyslogArchiveTerraformToSdk(ctx context.Context, diags *diag.Diagnost
 	}
 	return &data
 }
-func remoteSyslogContentTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.RemoteSyslogContent {
+func remoteSyslogContentTerraformToSdk(d basetypes.ListValue) []models.RemoteSyslogContent {
 	var data []models.RemoteSyslogContent
 	for _, v := range d.Elements() {
-		var item_interface interface{} = v
-		item_in := item_interface.(ContentsValue)
-		item_out := models.RemoteSyslogContent{}
-		facility := models.ToPointer(models.RemoteSyslogFacilityEnum(item_in.Facility.ValueString()))
-		severity := models.ToPointer(models.RemoteSyslogSeverityEnum(item_in.Severity.ValueString()))
-		item_out.Facility = models.ToPointer(*facility)
-		item_out.Severity = models.ToPointer(*severity)
-		data = append(data, item_out)
+		var itemInterface interface{} = v
+		itemIn := itemInterface.(ContentsValue)
+		itemOut := models.RemoteSyslogContent{}
+		facility := models.ToPointer(models.RemoteSyslogFacilityEnum(itemIn.Facility.ValueString()))
+		severity := models.ToPointer(models.RemoteSyslogSeverityEnum(itemIn.Severity.ValueString()))
+		itemOut.Facility = models.ToPointer(*facility)
+		itemOut.Severity = models.ToPointer(*severity)
+		data = append(data, itemOut)
 	}
 	return data
 }
 func remoteSyslogConsoleTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.RemoteSyslogConsole {
 	data := models.RemoteSyslogConsole{}
 	if !d.IsNull() && !d.IsUnknown() {
-		item_obj, e := NewConsoleValue(d.AttributeTypes(ctx), d.Attributes())
+		itemObj, e := NewConsoleValue(d.AttributeTypes(ctx), d.Attributes())
 		diags.Append(e...)
 		if e == nil {
 			// var item_interface interface{} = d
 			// item_obj := item_interface.(ConsoleValue)
 
-			data.Contents = remoteSyslogContentTerraformToSdk(ctx, diags, item_obj.Contents)
+			data.Contents = remoteSyslogContentTerraformToSdk(itemObj.Contents)
 		}
 	}
 	return &data
@@ -74,109 +74,109 @@ func remoteSyslogFilesTerraformToSdk(ctx context.Context, diags *diag.Diagnostic
 
 	var data []models.RemoteSyslogFileConfig
 	for _, item := range d.Elements() {
-		var item_interface interface{} = item
-		item_obj := item_interface.(FilesValue)
+		var itemInterface interface{} = item
+		itemObj := itemInterface.(FilesValue)
 
-		data_item := models.RemoteSyslogFileConfig{}
-		data_item.Archive = remoteSyslogConfigArchiveTerraformToSdk(ctx, diags, item_obj.Archive)
-		data_item.Contents = remoteSyslogContentTerraformToSdk(ctx, diags, item_obj.Contents)
-		if item_obj.ExplicitPriority.ValueBoolPointer() != nil {
-			data_item.ExplicitPriority = models.ToPointer(item_obj.ExplicitPriority.ValueBool())
+		dataItem := models.RemoteSyslogFileConfig{}
+		dataItem.Archive = remoteSyslogConfigArchiveTerraformToSdk(ctx, diags, itemObj.Archive)
+		dataItem.Contents = remoteSyslogContentTerraformToSdk(itemObj.Contents)
+		if itemObj.ExplicitPriority.ValueBoolPointer() != nil {
+			dataItem.ExplicitPriority = models.ToPointer(itemObj.ExplicitPriority.ValueBool())
 		}
-		if item_obj.File.ValueStringPointer() != nil {
-			data_item.File = models.ToPointer(item_obj.File.ValueString())
+		if itemObj.File.ValueStringPointer() != nil {
+			dataItem.File = models.ToPointer(itemObj.File.ValueString())
 		}
-		if item_obj.Match.ValueStringPointer() != nil {
-			data_item.Match = models.ToPointer(item_obj.Match.ValueString())
+		if itemObj.Match.ValueStringPointer() != nil {
+			dataItem.Match = models.ToPointer(itemObj.Match.ValueString())
 		}
-		if item_obj.StructuredData.ValueBoolPointer() != nil {
-			data_item.StructuredData = models.ToPointer(item_obj.StructuredData.ValueBool())
+		if itemObj.StructuredData.ValueBoolPointer() != nil {
+			dataItem.StructuredData = models.ToPointer(itemObj.StructuredData.ValueBool())
 		}
-		data = append(data, data_item)
+		data = append(data, dataItem)
 	}
 
 	return data
 }
 
-func remoteSyslogServersTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.RemoteSyslogServer {
+func remoteSyslogServersTerraformToSdk(d basetypes.ListValue) []models.RemoteSyslogServer {
 
 	var data []models.RemoteSyslogServer
 	for _, item := range d.Elements() {
-		var item_interface interface{} = item
-		item_obj := item_interface.(ServersValue)
+		var itemInterface interface{} = item
+		itemObj := itemInterface.(ServersValue)
 
-		data_item := models.RemoteSyslogServer{}
-		data_item.Contents = remoteSyslogContentTerraformToSdk(ctx, diags, item_obj.Contents)
-		if item_obj.ExplicitPriority.ValueBoolPointer() != nil {
-			data_item.ExplicitPriority = models.ToPointer(item_obj.ExplicitPriority.ValueBool())
+		dataItem := models.RemoteSyslogServer{}
+		dataItem.Contents = remoteSyslogContentTerraformToSdk(itemObj.Contents)
+		if itemObj.ExplicitPriority.ValueBoolPointer() != nil {
+			dataItem.ExplicitPriority = models.ToPointer(itemObj.ExplicitPriority.ValueBool())
 		}
-		if item_obj.Facility.ValueStringPointer() != nil {
-			data_item.Facility = models.ToPointer(models.RemoteSyslogFacilityEnum(item_obj.Facility.ValueString()))
+		if itemObj.Facility.ValueStringPointer() != nil {
+			dataItem.Facility = models.ToPointer(models.RemoteSyslogFacilityEnum(itemObj.Facility.ValueString()))
 		}
-		if item_obj.Host.ValueStringPointer() != nil {
-			data_item.Host = models.ToPointer(item_obj.Host.ValueString())
+		if itemObj.Host.ValueStringPointer() != nil {
+			dataItem.Host = models.ToPointer(itemObj.Host.ValueString())
 		}
-		if item_obj.Match.ValueStringPointer() != nil {
-			data_item.Match = models.ToPointer(item_obj.Match.ValueString())
+		if itemObj.Match.ValueStringPointer() != nil {
+			dataItem.Match = models.ToPointer(itemObj.Match.ValueString())
 		}
-		if item_obj.Port.ValueInt64Pointer() != nil {
-			data_item.Port = models.ToPointer(int(item_obj.Port.ValueInt64()))
+		if itemObj.Port.ValueInt64Pointer() != nil {
+			dataItem.Port = models.ToPointer(int(itemObj.Port.ValueInt64()))
 		}
-		if item_obj.Protocol.ValueStringPointer() != nil {
-			data_item.Protocol = models.ToPointer(models.RemoteSyslogServerProtocolEnum(item_obj.Protocol.ValueString()))
+		if itemObj.Protocol.ValueStringPointer() != nil {
+			dataItem.Protocol = models.ToPointer(models.RemoteSyslogServerProtocolEnum(itemObj.Protocol.ValueString()))
 		}
-		if item_obj.RoutingInstance.ValueStringPointer() != nil {
-			data_item.RoutingInstance = models.ToPointer(item_obj.RoutingInstance.ValueString())
+		if itemObj.RoutingInstance.ValueStringPointer() != nil {
+			dataItem.RoutingInstance = models.ToPointer(itemObj.RoutingInstance.ValueString())
 		}
-		if item_obj.Severity.ValueStringPointer() != nil {
-			data_item.Severity = models.ToPointer(models.RemoteSyslogSeverityEnum(item_obj.Severity.ValueString()))
+		if itemObj.Severity.ValueStringPointer() != nil {
+			dataItem.Severity = models.ToPointer(models.RemoteSyslogSeverityEnum(itemObj.Severity.ValueString()))
 		}
-		if item_obj.SourceAddress.ValueStringPointer() != nil {
-			data_item.SourceAddress = models.ToPointer(item_obj.SourceAddress.ValueString())
+		if itemObj.SourceAddress.ValueStringPointer() != nil {
+			dataItem.SourceAddress = models.ToPointer(itemObj.SourceAddress.ValueString())
 		}
-		if item_obj.StructuredData.ValueBoolPointer() != nil {
-			data_item.StructuredData = models.ToPointer(item_obj.StructuredData.ValueBool())
+		if itemObj.StructuredData.ValueBoolPointer() != nil {
+			dataItem.StructuredData = models.ToPointer(itemObj.StructuredData.ValueBool())
 		}
-		if item_obj.Tag.ValueStringPointer() != nil {
-			data_item.Tag = models.ToPointer(item_obj.Tag.ValueString())
+		if itemObj.Tag.ValueStringPointer() != nil {
+			dataItem.Tag = models.ToPointer(itemObj.Tag.ValueString())
 		}
-		data = append(data, data_item)
+		data = append(data, dataItem)
 	}
 
 	return data
 }
-func remoteSyslogUsersTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.RemoteSyslogUser {
+func remoteSyslogUsersTerraformToSdk(d basetypes.ListValue) []models.RemoteSyslogUser {
 
 	var data []models.RemoteSyslogUser
 	for _, item := range d.Elements() {
-		var item_interface interface{} = item
-		item_obj := item_interface.(UsersValue)
+		var itemInterface interface{} = item
+		itemObj := itemInterface.(UsersValue)
 
-		var content_list = []models.RemoteSyslogContent{}
-		for _, content := range item_obj.Contents.Elements() {
-			var content_interface interface{} = content
-			content_obj := content_interface.(ContentsValue)
-			content_out := models.RemoteSyslogContent{}
+		var contentList []models.RemoteSyslogContent
+		for _, content := range itemObj.Contents.Elements() {
+			var contentInterface interface{} = content
+			contentObj := contentInterface.(ContentsValue)
+			contentOut := models.RemoteSyslogContent{}
 
-			if content_obj.Facility.ValueStringPointer() != nil {
-				content_out.Facility = models.ToPointer(models.RemoteSyslogFacilityEnum(content_obj.Facility.ValueString()))
+			if contentObj.Facility.ValueStringPointer() != nil {
+				contentOut.Facility = models.ToPointer(models.RemoteSyslogFacilityEnum(contentObj.Facility.ValueString()))
 			}
-			if content_obj.Severity.ValueStringPointer() != nil {
-				content_out.Severity = models.ToPointer(models.RemoteSyslogSeverityEnum(content_obj.Severity.ValueString()))
+			if contentObj.Severity.ValueStringPointer() != nil {
+				contentOut.Severity = models.ToPointer(models.RemoteSyslogSeverityEnum(contentObj.Severity.ValueString()))
 			}
-			content_list = append(content_list, content_out)
+			contentList = append(contentList, contentOut)
 		}
 
-		data_item := models.RemoteSyslogUser{}
-		if item_obj.Match.ValueStringPointer() != nil {
-			data_item.Match = models.ToPointer(item_obj.Match.ValueString())
+		dataItem := models.RemoteSyslogUser{}
+		if itemObj.Match.ValueStringPointer() != nil {
+			dataItem.Match = models.ToPointer(itemObj.Match.ValueString())
 		}
-		if item_obj.User.ValueStringPointer() != nil {
-			data_item.User = models.ToPointer(item_obj.User.ValueString())
+		if itemObj.User.ValueStringPointer() != nil {
+			dataItem.User = models.ToPointer(itemObj.User.ValueString())
 		}
-		data_item.Contents = content_list
+		dataItem.Contents = contentList
 
-		data = append(data, data_item)
+		data = append(data, dataItem)
 	}
 
 	return data
@@ -207,13 +207,13 @@ func remoteSyslogTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d 
 		data.SendToAllServers = models.ToPointer(d.SendToAllServers.ValueBool())
 	}
 	if !d.Servers.IsNull() && !d.Servers.IsUnknown() {
-		data.Servers = remoteSyslogServersTerraformToSdk(ctx, diags, d.Servers)
+		data.Servers = remoteSyslogServersTerraformToSdk(d.Servers)
 	}
 	if d.TimeFormat.ValueStringPointer() != nil {
 		data.TimeFormat = models.ToPointer(models.RemoteSyslogTimeFormatEnum(d.TimeFormat.ValueString()))
 	}
 	if !d.Users.IsNull() && !d.Users.IsUnknown() {
-		data.Users = remoteSyslogUsersTerraformToSdk(ctx, diags, d.Users)
+		data.Users = remoteSyslogUsersTerraformToSdk(d.Users)
 	}
 
 	return &data

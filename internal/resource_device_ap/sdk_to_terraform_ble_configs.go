@@ -3,7 +3,7 @@ package resource_device_ap
 import (
 	"context"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -15,147 +15,146 @@ import (
 
 func bleConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.BleConfig) BleConfigValue {
 
-	var beacon_enabled basetypes.BoolValue
-	var beacon_rate basetypes.Int64Value
-	var beacon_rate_mode basetypes.StringValue
-	var beam_disabled basetypes.ListValue = mist_transform.ListOfIntSdkToTerraformEmpty(ctx)
-	var custom_ble_packet_enabled basetypes.BoolValue
-	var custom_ble_packet_frame basetypes.StringValue
-	var custom_ble_packet_freq_msec basetypes.Int64Value
-	var eddystone_uid_adv_power basetypes.Int64Value
-	var eddystone_uid_beams basetypes.StringValue
-	var eddystone_uid_enabled basetypes.BoolValue
-	var eddystone_uid_freq_msec basetypes.Int64Value
-	var eddystone_uid_instance basetypes.StringValue
-	var eddystone_uid_namespace basetypes.StringValue
-	var eddystone_url_adv_power basetypes.Int64Value
-	var eddystone_url_beams basetypes.StringValue
-	var eddystone_url_enabled basetypes.BoolValue
-	var eddystone_url_freq_msec basetypes.Int64Value
-	var eddystone_url_url basetypes.StringValue
-	var ibeacon_adv_power basetypes.Int64Value
-	var ibeacon_beams basetypes.StringValue
-	var ibeacon_enabled basetypes.BoolValue
-	var ibeacon_freq_msec basetypes.Int64Value
-	var ibeacon_major basetypes.Int64Value
-	var ibeacon_minor basetypes.Int64Value
-	var ibeacon_uuid basetypes.StringValue
+	var beaconEnabled basetypes.BoolValue
+	var beaconRate basetypes.Int64Value
+	var beaconRateMode basetypes.StringValue
+	var beamDisabled = misttransform.ListOfIntSdkToTerraformEmpty()
+	var customBlePacketEnabled basetypes.BoolValue
+	var customBlePacketFrame basetypes.StringValue
+	var customBlePacketFreqMsec basetypes.Int64Value
+	var eddystoneUidAdvPower basetypes.Int64Value
+	var eddystoneUidBeams basetypes.StringValue
+	var eddystoneUidEnabled basetypes.BoolValue
+	var eddystoneUidFreqMsec basetypes.Int64Value
+	var eddystoneUidInstance basetypes.StringValue
+	var eddystoneUidNamespace basetypes.StringValue
+	var eddystoneUrlAdvPower basetypes.Int64Value
+	var eddystoneUrlBeams basetypes.StringValue
+	var eddystoneUrlEnabled basetypes.BoolValue
+	var eddystoneUrlFreqMsec basetypes.Int64Value
+	var eddystoneUrlUrl basetypes.StringValue
+	var ibeaconAdvPower basetypes.Int64Value
+	var ibeaconBeams basetypes.StringValue
+	var ibeaconEnabled basetypes.BoolValue
+	var ibeaconFreqMsec basetypes.Int64Value
+	var ibeaconMajor basetypes.Int64Value
+	var ibeaconMinor basetypes.Int64Value
+	var ibeaconUuid basetypes.StringValue
 	var power basetypes.Int64Value
-	var power_mode basetypes.StringValue
+	var powerMode basetypes.StringValue
 
 	if d.BeaconEnabled != nil {
-		beacon_enabled = types.BoolValue(*d.BeaconEnabled)
+		beaconEnabled = types.BoolValue(*d.BeaconEnabled)
 	}
 	if d.BeaconRate != nil {
-		beacon_rate = types.Int64Value(int64(*d.BeaconRate))
+		beaconRate = types.Int64Value(int64(*d.BeaconRate))
 	}
 	if d.BeaconRateMode != nil {
-		beacon_rate_mode = types.StringValue(string(*d.BeaconRateMode))
+		beaconRateMode = types.StringValue(string(*d.BeaconRateMode))
 	}
 	if d.BeamDisabled != nil {
-		beam_disabled = mist_transform.ListOfIntSdkToTerraform(ctx, d.BeamDisabled)
+		beamDisabled = misttransform.ListOfIntSdkToTerraform(d.BeamDisabled)
 	}
 	if d.CustomBlePacketEnabled != nil {
-		custom_ble_packet_enabled = types.BoolValue(*d.CustomBlePacketEnabled)
+		customBlePacketEnabled = types.BoolValue(*d.CustomBlePacketEnabled)
 	}
 	if d.CustomBlePacketFrame != nil {
-		custom_ble_packet_frame = types.StringValue(*d.CustomBlePacketFrame)
+		customBlePacketFrame = types.StringValue(*d.CustomBlePacketFrame)
 	}
 	if d.CustomBlePacketFreqMsec != nil {
-		custom_ble_packet_freq_msec = types.Int64Value(int64(*d.CustomBlePacketFreqMsec))
+		customBlePacketFreqMsec = types.Int64Value(int64(*d.CustomBlePacketFreqMsec))
 	}
 	if d.EddystoneUidAdvPower != nil {
-		eddystone_uid_adv_power = types.Int64Value(int64(*d.EddystoneUidAdvPower))
+		eddystoneUidAdvPower = types.Int64Value(int64(*d.EddystoneUidAdvPower))
 	}
 	if d.EddystoneUidBeams != nil {
-		eddystone_uid_beams = types.StringValue(*d.EddystoneUidBeams)
+		eddystoneUidBeams = types.StringValue(*d.EddystoneUidBeams)
 	}
 	if d.EddystoneUidEnabled != nil {
-		eddystone_uid_enabled = types.BoolValue(*d.EddystoneUidEnabled)
+		eddystoneUidEnabled = types.BoolValue(*d.EddystoneUidEnabled)
 	}
 	if d.EddystoneUidFreqMsec != nil {
-		eddystone_uid_freq_msec = types.Int64Value(int64(*d.EddystoneUidFreqMsec))
+		eddystoneUidFreqMsec = types.Int64Value(int64(*d.EddystoneUidFreqMsec))
 	}
 	if d.EddystoneUidInstance != nil {
-		eddystone_uid_instance = types.StringValue(*d.EddystoneUidInstance)
+		eddystoneUidInstance = types.StringValue(*d.EddystoneUidInstance)
 	}
 	if d.EddystoneUidNamespace != nil {
-		eddystone_uid_namespace = types.StringValue(*d.EddystoneUidNamespace)
+		eddystoneUidNamespace = types.StringValue(*d.EddystoneUidNamespace)
 	}
 	if d.EddystoneUrlAdvPower != nil {
-		eddystone_url_adv_power = types.Int64Value(int64(*d.EddystoneUrlAdvPower))
+		eddystoneUrlAdvPower = types.Int64Value(int64(*d.EddystoneUrlAdvPower))
 	}
 	if d.EddystoneUrlBeams != nil {
-		eddystone_url_beams = types.StringValue(*d.EddystoneUrlBeams)
+		eddystoneUrlBeams = types.StringValue(*d.EddystoneUrlBeams)
 	}
 	if d.EddystoneUrlEnabled != nil {
-		eddystone_url_enabled = types.BoolValue(*d.EddystoneUrlEnabled)
+		eddystoneUrlEnabled = types.BoolValue(*d.EddystoneUrlEnabled)
 	}
 	if d.EddystoneUrlFreqMsec != nil {
-		eddystone_url_freq_msec = types.Int64Value(int64(*d.EddystoneUrlFreqMsec))
+		eddystoneUrlFreqMsec = types.Int64Value(int64(*d.EddystoneUrlFreqMsec))
 	}
 	if d.EddystoneUrlUrl != nil {
-		eddystone_url_url = types.StringValue(*d.EddystoneUrlUrl)
+		eddystoneUrlUrl = types.StringValue(*d.EddystoneUrlUrl)
 	}
 	if d.IbeaconAdvPower != nil {
-		ibeacon_adv_power = types.Int64Value(int64(*d.IbeaconAdvPower))
+		ibeaconAdvPower = types.Int64Value(int64(*d.IbeaconAdvPower))
 	}
 	if d.IbeaconBeams != nil {
-		ibeacon_beams = types.StringValue(*d.IbeaconBeams)
+		ibeaconBeams = types.StringValue(*d.IbeaconBeams)
 	}
 	if d.IbeaconEnabled != nil {
-		ibeacon_enabled = types.BoolValue(*d.IbeaconEnabled)
+		ibeaconEnabled = types.BoolValue(*d.IbeaconEnabled)
 	}
 	if d.IbeaconFreqMsec != nil {
-		ibeacon_freq_msec = types.Int64Value(int64(*d.IbeaconFreqMsec))
+		ibeaconFreqMsec = types.Int64Value(int64(*d.IbeaconFreqMsec))
 	}
 	if d.IbeaconMajor != nil {
-		ibeacon_major = types.Int64Value(int64(*d.IbeaconMajor))
+		ibeaconMajor = types.Int64Value(int64(*d.IbeaconMajor))
 	}
 	if d.IbeaconMinor != nil {
-		ibeacon_minor = types.Int64Value(int64(*d.IbeaconMinor))
+		ibeaconMinor = types.Int64Value(int64(*d.IbeaconMinor))
 	}
 	if d.IbeaconUuid != nil {
-		ibeacon_uuid = types.StringValue(d.IbeaconUuid.String())
+		ibeaconUuid = types.StringValue(d.IbeaconUuid.String())
 	}
 	if d.Power != nil {
 		power = types.Int64Value(int64(*d.Power))
 	}
 	if d.PowerMode != nil {
-		power_mode = types.StringValue(string(*d.PowerMode))
+		powerMode = types.StringValue(string(*d.PowerMode))
 	}
 
-	data_map_attr_type := BleConfigValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"beacon_enabled":              beacon_enabled,
-		"beacon_rate":                 beacon_rate,
-		"beacon_rate_mode":            beacon_rate_mode,
-		"beam_disabled":               beam_disabled,
-		"custom_ble_packet_enabled":   custom_ble_packet_enabled,
-		"custom_ble_packet_frame":     custom_ble_packet_frame,
-		"custom_ble_packet_freq_msec": custom_ble_packet_freq_msec,
-		"eddystone_uid_adv_power":     eddystone_uid_adv_power,
-		"eddystone_uid_beams":         eddystone_uid_beams,
-		"eddystone_uid_enabled":       eddystone_uid_enabled,
-		"eddystone_uid_freq_msec":     eddystone_uid_freq_msec,
-		"eddystone_uid_instance":      eddystone_uid_instance,
-		"eddystone_uid_namespace":     eddystone_uid_namespace,
-		"eddystone_url_adv_power":     eddystone_url_adv_power,
-		"eddystone_url_beams":         eddystone_url_beams,
-		"eddystone_url_enabled":       eddystone_url_enabled,
-		"eddystone_url_freq_msec":     eddystone_url_freq_msec,
-		"eddystone_url_url":           eddystone_url_url,
-		"ibeacon_adv_power":           ibeacon_adv_power,
-		"ibeacon_beams":               ibeacon_beams,
-		"ibeacon_enabled":             ibeacon_enabled,
-		"ibeacon_freq_msec":           ibeacon_freq_msec,
-		"ibeacon_major":               ibeacon_major,
-		"ibeacon_minor":               ibeacon_minor,
-		"ibeacon_uuid":                ibeacon_uuid,
+	dataMapValue := map[string]attr.Value{
+		"beacon_enabled":              beaconEnabled,
+		"beacon_rate":                 beaconRate,
+		"beacon_rate_mode":            beaconRateMode,
+		"beam_disabled":               beamDisabled,
+		"custom_ble_packet_enabled":   customBlePacketEnabled,
+		"custom_ble_packet_frame":     customBlePacketFrame,
+		"custom_ble_packet_freq_msec": customBlePacketFreqMsec,
+		"eddystone_uid_adv_power":     eddystoneUidAdvPower,
+		"eddystone_uid_beams":         eddystoneUidBeams,
+		"eddystone_uid_enabled":       eddystoneUidEnabled,
+		"eddystone_uid_freq_msec":     eddystoneUidFreqMsec,
+		"eddystone_uid_instance":      eddystoneUidInstance,
+		"eddystone_uid_namespace":     eddystoneUidNamespace,
+		"eddystone_url_adv_power":     eddystoneUrlAdvPower,
+		"eddystone_url_beams":         eddystoneUrlBeams,
+		"eddystone_url_enabled":       eddystoneUrlEnabled,
+		"eddystone_url_freq_msec":     eddystoneUrlFreqMsec,
+		"eddystone_url_url":           eddystoneUrlUrl,
+		"ibeacon_adv_power":           ibeaconAdvPower,
+		"ibeacon_beams":               ibeaconBeams,
+		"ibeacon_enabled":             ibeaconEnabled,
+		"ibeacon_freq_msec":           ibeaconFreqMsec,
+		"ibeacon_major":               ibeaconMajor,
+		"ibeacon_minor":               ibeaconMinor,
+		"ibeacon_uuid":                ibeaconUuid,
 		"power":                       power,
-		"power_mode":                  power_mode,
+		"power_mode":                  powerMode,
 	}
-	data, e := NewBleConfigValue(data_map_attr_type, data_map_value)
+	data, e := NewBleConfigValue(BleConfigValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

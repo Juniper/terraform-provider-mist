@@ -24,18 +24,18 @@ func TerraformToSdk(ctx context.Context, plan *SiteEvpnTopologyModel) (*models.E
 	}
 
 	if !plan.PodNames.IsNull() && !plan.PodNames.IsUnknown() && len(plan.PodNames.Elements()) > 0 {
-		data_map := make(map[string]string)
+		dataMap := make(map[string]string)
 		for k, v := range plan.PodNames.Elements() {
-			var s_interface interface{} = v
-			s := s_interface.(basetypes.StringValue)
-			data_map[k] = s.ValueString()
+			var sInterface interface{} = v
+			s := sInterface.(basetypes.StringValue)
+			dataMap[k] = s.ValueString()
 		}
-		data.PodNames = data_map
+		data.PodNames = dataMap
 	} else {
 		unset["-pod_names"] = ""
 	}
 	if !plan.Switches.IsNull() && !plan.Switches.IsUnknown() {
-		data.Switches = switchTerraformToSdk(ctx, &diags, plan.Switches)
+		data.Switches = switchTerraformToSdk(plan.Switches)
 	} else {
 		unset["-switches"] = ""
 	}

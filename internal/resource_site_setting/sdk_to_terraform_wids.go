@@ -23,12 +23,11 @@ func widsAuthFailureSdkToTerraform(ctx context.Context, diags *diag.Diagnostics,
 		threshold = types.Int64Value(int64(*d.Threshold))
 	}
 
-	data_map_attr_type := RepeatedAuthFailuresValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"duration":  duration,
 		"threshold": threshold,
 	}
-	data, e := basetypes.NewObjectValue(data_map_attr_type, data_map_value)
+	data, e := basetypes.NewObjectValue(RepeatedAuthFailuresValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data
@@ -36,17 +35,16 @@ func widsAuthFailureSdkToTerraform(ctx context.Context, diags *diag.Diagnostics,
 
 func widsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteWids) WidsValue {
 
-	var repeated_auth_failures basetypes.ObjectValue = types.ObjectNull(RepeatedAuthFailuresValue{}.AttributeTypes(ctx))
+	var repeatedAuthFailures = types.ObjectNull(RepeatedAuthFailuresValue{}.AttributeTypes(ctx))
 
 	if d != nil && d.RepeatedAuthFailures != nil {
-		repeated_auth_failures = widsAuthFailureSdkToTerraform(ctx, diags, d.RepeatedAuthFailures)
+		repeatedAuthFailures = widsAuthFailureSdkToTerraform(ctx, diags, d.RepeatedAuthFailures)
 	}
 
-	data_map_attr_type := WidsValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"repeated_auth_failures": repeated_auth_failures,
+	dataMapValue := map[string]attr.Value{
+		"repeated_auth_failures": repeatedAuthFailures,
 	}
-	data, e := NewWidsValue(data_map_attr_type, data_map_value)
+	data, e := NewWidsValue(WidsValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

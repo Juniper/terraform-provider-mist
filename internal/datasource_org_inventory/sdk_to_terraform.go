@@ -24,22 +24,22 @@ func SdkToTerraform(ctx context.Context, l *[]models.Inventory, elements *[]attr
 
 func inventorySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.Inventory) OrgInventoryValue {
 	var adopted basetypes.BoolValue
-	var claim_code basetypes.StringValue
+	var claimCode basetypes.StringValue
 	var connected basetypes.BoolValue
-	var deviceprofile_id basetypes.StringValue
+	var deviceprofileId basetypes.StringValue
 	var hostname basetypes.StringValue
-	var hw_rev basetypes.StringValue
+	var hwRev basetypes.StringValue
 	var id basetypes.StringValue
 	var jsi basetypes.BoolValue
 	var mac basetypes.StringValue
 	var model basetypes.StringValue
 	var name basetypes.StringValue
-	var org_id basetypes.StringValue
+	var orgId basetypes.StringValue
 	var serial basetypes.StringValue
-	var site_id basetypes.StringValue
+	var siteId basetypes.StringValue
 	var sku basetypes.StringValue
-	var device_type basetypes.StringValue
-	var vc_mac basetypes.StringValue
+	var deviceType basetypes.StringValue
+	var vcMac basetypes.StringValue
 
 	if d.Adopted != nil {
 		adopted = types.BoolValue(*d.Adopted)
@@ -48,13 +48,13 @@ func inventorySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d mod
 		connected = types.BoolValue(*d.Connected)
 	}
 	if d.DeviceprofileId.Value() != nil {
-		deviceprofile_id = types.StringValue(*d.DeviceprofileId.Value())
+		deviceprofileId = types.StringValue(*d.DeviceprofileId.Value())
 	}
 	if d.Hostname != nil {
 		hostname = types.StringValue(*d.Hostname)
 	}
 	if d.HwRev != nil {
-		hw_rev = types.StringValue(*d.HwRev)
+		hwRev = types.StringValue(*d.HwRev)
 	}
 	if d.Id != nil {
 		id = types.StringValue(d.Id.String())
@@ -66,7 +66,7 @@ func inventorySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d mod
 		mac = types.StringValue(*d.Mac)
 	}
 	if d.Magic != nil {
-		claim_code = types.StringValue(*d.Magic)
+		claimCode = types.StringValue(*d.Magic)
 	}
 	if d.Model != nil {
 		model = types.StringValue(*d.Model)
@@ -75,45 +75,44 @@ func inventorySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d mod
 		name = types.StringValue(*d.Name)
 	}
 	if d.OrgId != nil {
-		org_id = types.StringValue(d.OrgId.String())
+		orgId = types.StringValue(d.OrgId.String())
 	}
 	if d.Serial != nil {
 		serial = types.StringValue(*d.Serial)
 	}
 	if d.SiteId != nil {
-		site_id = types.StringValue(d.SiteId.String())
+		siteId = types.StringValue(d.SiteId.String())
 	}
 	if d.Sku != nil {
 		sku = types.StringValue(*d.Sku)
 	}
 	if d.Type != nil {
-		device_type = types.StringValue(string(*d.Type))
+		deviceType = types.StringValue(string(*d.Type))
 	}
 	if d.VcMac != nil {
-		vc_mac = types.StringValue(*d.VcMac)
+		vcMac = types.StringValue(*d.VcMac)
 	}
 
-	data_map_attr_type := OrgInventoryValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"adopted":          adopted,
-		"claim_code":       claim_code,
+		"claim_code":       claimCode,
 		"connected":        connected,
-		"deviceprofile_id": deviceprofile_id,
+		"deviceprofile_id": deviceprofileId,
 		"hostname":         hostname,
-		"hw_rev":           hw_rev,
+		"hw_rev":           hwRev,
 		"id":               id,
 		"jsi":              jsi,
 		"mac":              mac,
 		"model":            model,
 		"name":             name,
-		"org_id":           org_id,
+		"org_id":           orgId,
 		"serial":           serial,
-		"site_id":          site_id,
+		"site_id":          siteId,
 		"sku":              sku,
-		"type":             device_type,
-		"vc_mac":           vc_mac,
+		"type":             deviceType,
+		"vc_mac":           vcMac,
 	}
-	data, e := NewOrgInventoryValue(data_map_attr_type, data_map_value)
+	data, e := NewOrgInventoryValue(OrgInventoryValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

@@ -1,14 +1,10 @@
 package resource_org_setting
 
 import (
-	"context"
-
-	"github.com/hashicorp/terraform-plugin-framework/diag"
-
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func passwordPolicyTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d PasswordPolicyValue) *models.OrgSettingPasswordPolicy {
+func passwordPolicyTerraformToSdk(d PasswordPolicyValue) *models.OrgSettingPasswordPolicy {
 	data := models.OrgSettingPasswordPolicy{}
 
 	if d.Enabled.ValueBoolPointer() != nil {

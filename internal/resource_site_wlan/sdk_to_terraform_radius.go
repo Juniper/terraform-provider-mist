@@ -12,102 +12,102 @@ import (
 )
 
 func radiusServersAcctSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.RadiusAcctServer) basetypes.ListValue {
-	var acct_value_list []attr.Value
+	var acctValueList []attr.Value
 	for _, d := range l {
-		var host basetypes.StringValue = types.StringValue(string(d.Host))
-		var keywrap_enabled basetypes.BoolValue
-		var keywrap_format basetypes.StringValue
-		var keywrap_kek basetypes.StringValue
-		var keywrap_mack basetypes.StringValue
+		var host = types.StringValue(d.Host)
+		var keywrapEnabled basetypes.BoolValue
+		var keywrapFormat basetypes.StringValue
+		var keywrapKek basetypes.StringValue
+		var keywrapMack basetypes.StringValue
 		var port basetypes.Int64Value
-		var secret basetypes.StringValue = types.StringValue(d.Secret)
+		var secret = types.StringValue(d.Secret)
 
 		if d.KeywrapEnabled != nil {
-			keywrap_enabled = types.BoolValue(*d.KeywrapEnabled)
+			keywrapEnabled = types.BoolValue(*d.KeywrapEnabled)
 		}
 		if d.KeywrapFormat != nil {
-			keywrap_format = types.StringValue(string(*d.KeywrapFormat))
+			keywrapFormat = types.StringValue(string(*d.KeywrapFormat))
 		}
 		if d.KeywrapKek != nil {
-			keywrap_kek = types.StringValue(*d.KeywrapKek)
+			keywrapKek = types.StringValue(*d.KeywrapKek)
 		}
 		if d.KeywrapMack != nil {
-			keywrap_mack = types.StringValue(*d.KeywrapMack)
+			keywrapMack = types.StringValue(*d.KeywrapMack)
 		}
 		if d.Port != nil {
 			port = types.Int64Value(int64(*d.Port))
 		}
 
-		data_map_value := map[string]attr.Value{
+		dataMapValue := map[string]attr.Value{
 			"host":            host,
-			"keywrap_enabled": keywrap_enabled,
-			"keywrap_format":  keywrap_format,
-			"keywrap_kek":     keywrap_kek,
-			"keywrap_mack":    keywrap_mack,
+			"keywrap_enabled": keywrapEnabled,
+			"keywrap_format":  keywrapFormat,
+			"keywrap_kek":     keywrapKek,
+			"keywrap_mack":    keywrapMack,
 			"port":            port,
 			"secret":          secret,
 		}
-		data, e := NewAcctServersValue(AcctServersValue{}.AttributeTypes(ctx), data_map_value)
+		data, e := NewAcctServersValue(AcctServersValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		acct_value_list = append(acct_value_list, data)
+		acctValueList = append(acctValueList, data)
 	}
 
-	acct_state_list, e := types.ListValueFrom(ctx, AcctServersValue{}.Type(ctx), acct_value_list)
+	acctStateList, e := types.ListValueFrom(ctx, AcctServersValue{}.Type(ctx), acctValueList)
 	diags.Append(e...)
 
-	return acct_state_list
+	return acctStateList
 }
 
 func radiusServersAuthSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.RadiusAuthServer) basetypes.ListValue {
-	var auth_value_list []attr.Value
+	var authValueList []attr.Value
 	for _, d := range l {
-		var host basetypes.StringValue = types.StringValue(d.Host)
-		var keywrap_enabled basetypes.BoolValue
-		var keywrap_format basetypes.StringValue
-		var keywrap_kek basetypes.StringValue
-		var keywrap_mack basetypes.StringValue
+		var host = types.StringValue(d.Host)
+		var keywrapEnabled basetypes.BoolValue
+		var keywrapFormat basetypes.StringValue
+		var keywrapKek basetypes.StringValue
+		var keywrapMack basetypes.StringValue
 		var port basetypes.Int64Value
-		var require_message_authenticator basetypes.BoolValue
-		var secret basetypes.StringValue = types.StringValue(d.Secret)
+		var requireMessageAuthenticator basetypes.BoolValue
+		var secret = types.StringValue(d.Secret)
 
 		if d.KeywrapEnabled != nil {
-			keywrap_enabled = types.BoolValue(*d.KeywrapEnabled)
+			keywrapEnabled = types.BoolValue(*d.KeywrapEnabled)
 		}
 		if d.KeywrapFormat != nil {
-			keywrap_format = types.StringValue(string(*d.KeywrapFormat))
+			keywrapFormat = types.StringValue(string(*d.KeywrapFormat))
 		}
 		if d.KeywrapKek != nil {
-			keywrap_kek = types.StringValue(*d.KeywrapKek)
+			keywrapKek = types.StringValue(*d.KeywrapKek)
 		}
 		if d.KeywrapMack != nil {
-			keywrap_mack = types.StringValue(*d.KeywrapMack)
+			keywrapMack = types.StringValue(*d.KeywrapMack)
 		}
 		if d.Port != nil {
 			port = types.Int64Value(int64(*d.Port))
 		}
 		if d.RequireMessageAuthenticator != nil {
-			require_message_authenticator = types.BoolValue(*d.RequireMessageAuthenticator)
+			requireMessageAuthenticator = types.BoolValue(*d.RequireMessageAuthenticator)
 		}
 
-		data_map_value := map[string]attr.Value{
+		dataMapValue := map[string]attr.Value{
 			"host":                          host,
-			"keywrap_enabled":               keywrap_enabled,
-			"keywrap_format":                keywrap_format,
-			"keywrap_kek":                   keywrap_kek,
-			"keywrap_mack":                  keywrap_mack,
+			"keywrap_enabled":               keywrapEnabled,
+			"keywrap_format":                keywrapFormat,
+			"keywrap_kek":                   keywrapKek,
+			"keywrap_mack":                  keywrapMack,
 			"port":                          port,
-			"require_message_authenticator": require_message_authenticator,
+			"require_message_authenticator": requireMessageAuthenticator,
 			"secret":                        secret,
 		}
-		data, e := NewAuthServersValue(AuthServersValue{}.AttributeTypes(ctx), data_map_value)
+		data, e := NewAuthServersValue(AuthServersValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		auth_value_list = append(auth_value_list, data)
+		authValueList = append(authValueList, data)
 	}
 
-	auth_state_list, e := types.ListValueFrom(ctx, AuthServersValue{}.Type(ctx), auth_value_list)
+	authStateList, e := types.ListValueFrom(ctx, AuthServersValue{}.Type(ctx), authValueList)
 	diags.Append(e...)
 
-	return auth_state_list
+	return authStateList
 }

@@ -3,7 +3,7 @@ package resource_org_deviceprofile_gateway
 import (
 	"context"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -28,11 +28,11 @@ func servicePolicyAppqoeTerraformToSdk(ctx context.Context, diags *diag.Diagnost
 	return &data
 }
 
-func servicePolicyEwfRuleTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.ServicePolicyEwfRule {
-	var data_list []models.ServicePolicyEwfRule
+func servicePolicyEwfRuleTerraformToSdk(d basetypes.ListValue) []models.ServicePolicyEwfRule {
+	var dataList []models.ServicePolicyEwfRule
 	for _, v := range d.Elements() {
-		var v_interface interface{} = v
-		plan := v_interface.(EwfValue)
+		var vInterface interface{} = v
+		plan := vInterface.(EwfValue)
 		data := models.ServicePolicyEwfRule{}
 		if plan.AlertOnly.ValueBoolPointer() != nil {
 			data.AlertOnly = models.ToPointer(plan.AlertOnly.ValueBool())
@@ -47,9 +47,9 @@ func servicePolicyEwfRuleTerraformToSdk(ctx context.Context, diags *diag.Diagnos
 			data.Profile = models.ToPointer(models.ServicePolicyEwfRuleProfileEnum(plan.Profile.ValueString()))
 		}
 
-		data_list = append(data_list, data)
+		dataList = append(dataList, data)
 	}
-	return data_list
+	return dataList
 }
 
 func idpConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.IdpConfig {
@@ -60,9 +60,9 @@ func idpConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d bas
 			diags.Append(e...)
 		} else {
 			if plan.IdpprofileId.ValueStringPointer() != nil {
-				idp_profile_id, e := uuid.Parse(plan.IdpprofileId.ValueString())
+				idpProfileId, e := uuid.Parse(plan.IdpprofileId.ValueString())
 				if e == nil {
-					data.IdpprofileId = models.ToPointer(idp_profile_id)
+					data.IdpprofileId = models.ToPointer(idpProfileId)
 				} else {
 					diags.AddError("Bad value for idpprofile_id", e.Error())
 				}
@@ -83,10 +83,10 @@ func idpConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d bas
 }
 
 func servicePoliciesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.ServicePolicy {
-	var data_list []models.ServicePolicy
+	var dataList []models.ServicePolicy
 	for _, v := range d.Elements() {
-		var v_interface interface{} = v
-		plan := v_interface.(ServicePoliciesValue)
+		var vInterface interface{} = v
+		plan := vInterface.(ServicePoliciesValue)
 		data := models.ServicePolicy{}
 
 		if plan.Action.ValueStringPointer() != nil {
@@ -98,7 +98,7 @@ func servicePoliciesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics,
 		}
 
 		if !plan.Ewf.IsNull() && !plan.Ewf.IsUnknown() {
-			data.Ewf = servicePolicyEwfRuleTerraformToSdk(ctx, diags, plan.Ewf)
+			data.Ewf = servicePolicyEwfRuleTerraformToSdk(plan.Ewf)
 		}
 
 		if !plan.Idp.IsNull() && !plan.Idp.IsUnknown() {
@@ -115,22 +115,22 @@ func servicePoliciesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics,
 			data.PathPreference = models.ToPointer(plan.PathPreference.ValueString())
 		}
 		if plan.ServicepolicyId.ValueStringPointer() != nil {
-			service_policy_id, e := uuid.Parse(plan.ServicepolicyId.ValueString())
+			servicePolicyId, e := uuid.Parse(plan.ServicepolicyId.ValueString())
 			if e == nil {
-				data.ServicepolicyId = models.ToPointer(service_policy_id)
+				data.ServicepolicyId = models.ToPointer(servicePolicyId)
 			} else {
 				diags.AddError("Bad value for servicepolicy_id", e.Error())
 			}
 		}
 
 		if !plan.Services.IsNull() && !plan.Services.IsUnknown() {
-			data.Services = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Services)
+			data.Services = misttransform.ListOfStringTerraformToSdk(plan.Services)
 		}
 		if !plan.Tenants.IsNull() && !plan.Tenants.IsUnknown() {
-			data.Tenants = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Tenants)
+			data.Tenants = misttransform.ListOfStringTerraformToSdk(plan.Tenants)
 		}
 
-		data_list = append(data_list, data)
+		dataList = append(dataList, data)
 	}
-	return data_list
+	return dataList
 }

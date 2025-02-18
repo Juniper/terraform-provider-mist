@@ -1,14 +1,12 @@
 package resource_upgrade_device
 
 import (
-	"context"
-
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 )
 
-func TerraformToSdk(ctx context.Context, plan *UpgradeDeviceModel) (*models.DeviceUpgrade, diag.Diagnostics) {
+func TerraformToSdk(plan *UpgradeDeviceModel) (*models.DeviceUpgrade, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	data := models.DeviceUpgrade{}

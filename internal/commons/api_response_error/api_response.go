@@ -1,7 +1,6 @@
 package mist_api_error
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -18,60 +17,69 @@ type ErrorInventory struct {
 	Reason  []string `json:"reason"`
 }
 
-func ProcessApiErrorInventory(ctx context.Context, status_code int, body io.ReadCloser) interface{} {
-	var error_interface interface{}
-	if status_code == 400 {
+func ProcessApiErrorInventory(statusCode int, body io.ReadCloser) interface{} {
+	var errorInterface interface{}
+	if statusCode == 400 {
 		bodyBytes, e := io.ReadAll(body)
 		if e == nil {
-			json.Unmarshal(bodyBytes, error_interface)
-		}
-	}
-	return error_interface
-}
-
-func ProcessApiError(ctx context.Context, status_code int, body io.ReadCloser, err error) string {
-	var error_response string = ""
-	if status_code >= 300 {
-		bodyBytes, e := io.ReadAll(body)
-		if e == nil {
-			error_body := ErrorDetail{}
-			json.Unmarshal(bodyBytes, &error_body)
-			error_response = error_body.Detail
-		}
-	}
-	if err != nil && error_response == "" {
-		error_response = fmt.Sprintf("unexpected error: %s", err.Error())
-	}
-	return error_response
-}
-
-func ProcessInventoryApiError(ctx context.Context, action string, status_code int, body io.ReadCloser, err error) []string {
-	var error_response []string
-	if status_code == 400 || status_code == 404 {
-		var value_type string = "information"
-		switch action {
-		case "assign":
-			value_type = "MAC Address"
-		case "unassign":
-			value_type = "MAC Address"
-		case "unclaim":
-			value_type = "Serial"
-		case "claim":
-			value_type = "Claim Code"
-		}
-		bodyBytes, e := io.ReadAll(body)
-		if e == nil {
-			error_body := ErrorInventory{}
-			json.Unmarshal(bodyBytes, &error_body)
-
-			for i, mac := range error_body.Error {
-				reason := error_body.Reason[i]
-				error_response = append(error_response, fmt.Sprintf("Invalid %s \"%s\". Reason from Mist: %s", value_type, mac, reason))
+			err := json.Unmarshal(bodyBytes, errorInterface)
+			if err != nil {
+				return nil
 			}
 		}
 	}
-	if err != nil && len(error_response) == 0 {
-		error_response = append(error_response, fmt.Sprintf("unexpected error: %s", err.Error()))
+	return errorInterface
+}
+
+func ProcessApiError(statusCode int, body io.ReadCloser, err error) string {
+	var errorResponse = ""
+	if statusCode >= 300 {
+		bodyBytes, e := io.ReadAll(body)
+		if e == nil {
+			errorBody := ErrorDetail{}
+			err := json.Unmarshal(bodyBytes, &errorBody)
+			if err != nil {
+				return fmt.Sprintf("unexpected error: %s", err.Error())
+			}
+			errorResponse = errorBody.Detail
+		}
 	}
-	return error_response
+	if err != nil && errorResponse == "" {
+		errorResponse = fmt.Sprintf("unexpected error: %s", err.Error())
+	}
+	return errorResponse
+}
+
+func ProcessInventoryApiError(action string, statusCode int, body io.ReadCloser, err error) []string {
+	var errorResponse []string
+	if statusCode == 400 || statusCode == 404 {
+		var valueType = "information"
+		switch action {
+		case "assign":
+			valueType = "MAC Address"
+		case "unassign":
+			valueType = "MAC Address"
+		case "unclaim":
+			valueType = "Serial"
+		case "claim":
+			valueType = "Claim Code"
+		}
+		bodyBytes, e := io.ReadAll(body)
+		if e == nil {
+			errorBody := ErrorInventory{}
+			err := json.Unmarshal(bodyBytes, &errorBody)
+			if err != nil {
+				return nil
+			}
+
+			for i, mac := range errorBody.Error {
+				reason := errorBody.Reason[i]
+				errorResponse = append(errorResponse, fmt.Sprintf("Invalid %s \"%s\". Reason from Mist: %s", valueType, mac, reason))
+			}
+		}
+	}
+	if err != nil && len(errorResponse) == 0 {
+		errorResponse = append(errorResponse, fmt.Sprintf("unexpected error: %s", err.Error()))
+	}
+	return errorResponse
 }

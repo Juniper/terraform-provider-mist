@@ -12,18 +12,18 @@ import (
 )
 
 func sourceNatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.NetworkSourceNat) basetypes.ObjectValue {
-	var external_ip basetypes.StringValue
+	var externalIp basetypes.StringValue
 
 	if d != nil && d.ExternalIp != nil {
-		external_ip = types.StringValue(*d.ExternalIp)
+		externalIp = types.StringValue(*d.ExternalIp)
 	}
 
-	r_attr_type := SourceNatValue{}.AttributeTypes(ctx)
-	r_attr_value := map[string]attr.Value{
-		"external_ip": external_ip,
+	rAttrType := SourceNatValue{}.AttributeTypes(ctx)
+	rAttrValue := map[string]attr.Value{
+		"external_ip": externalIp,
 	}
 
-	r, e := basetypes.NewObjectValue(r_attr_type, r_attr_value)
+	r, e := basetypes.NewObjectValue(rAttrType, rAttrValue)
 	diags.Append(e...)
 	return r
 }

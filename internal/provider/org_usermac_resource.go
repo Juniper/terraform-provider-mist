@@ -7,7 +7,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 
-	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
+	mistapierror "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_usermac"
 
 	"github.com/google/uuid"
@@ -49,10 +49,10 @@ func (r *orgNacEndpointResource) Configure(ctx context.Context, req resource.Con
 	r.client = client
 }
 
-func (r *orgNacEndpointResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *orgNacEndpointResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_org_nac_endpoint"
 }
-func (r *orgNacEndpointResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *orgNacEndpointResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryNac + "This resource manages the NAC Endpoints (User MACs).\n\n" +
 			"NAC Endpoints (User MACs) provide a database of endpoints identified by their MAC addresses. " +
@@ -77,7 +77,7 @@ func (r *orgNacEndpointResource) Create(ctx context.Context, req resource.Create
 		return
 	}
 
-	nacEndpoint, diags := resource_org_usermac.TerraformToSdk(ctx, &plan)
+	nacEndpoint, diags := resource_org_usermac.TerraformToSdk(&plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -93,16 +93,16 @@ func (r *orgNacEndpointResource) Create(ctx context.Context, req resource.Create
 	tflog.Info(ctx, "Starting OrgNacEndpoint Create for Org "+plan.OrgId.ValueString())
 	data, err := r.client.OrgsUserMACs().CreateOrgUserMacs(ctx, orgId, &nacEndpoint)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error creating \"mist_org_nac_endpoint\" resource",
-			fmt.Sprintf("Unable to create the NacEndpoint. %s", api_err),
+			fmt.Sprintf("Unable to create the NacEndpoint. %s", apiErr),
 		)
 		return
 	}
 
-	state, diags = resource_org_usermac.SdkToTerraform(ctx, &data.Data, &orgId)
+	state, diags = resource_org_usermac.SdkToTerraform(&data.Data, &orgId)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -115,7 +115,7 @@ func (r *orgNacEndpointResource) Create(ctx context.Context, req resource.Create
 	}
 }
 
-func (r *orgNacEndpointResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *orgNacEndpointResource) Read(ctx context.Context, _ resource.ReadRequest, resp *resource.ReadResponse) {
 	var state resource_org_usermac.OrgUsermacModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -152,7 +152,7 @@ func (r *orgNacEndpointResource) Read(ctx context.Context, req resource.ReadRequ
 		)
 		return
 	}
-	state, diags = resource_org_usermac.SdkToTerraform(ctx, &httpr.Data, &orgId)
+	state, diags = resource_org_usermac.SdkToTerraform(&httpr.Data, &orgId)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -180,7 +180,7 @@ func (r *orgNacEndpointResource) Update(ctx context.Context, req resource.Update
 		return
 	}
 
-	nacEndpoint, diags := resource_org_usermac.TerraformToSdk(ctx, &plan)
+	nacEndpoint, diags := resource_org_usermac.TerraformToSdk(&plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -205,16 +205,16 @@ func (r *orgNacEndpointResource) Update(ctx context.Context, req resource.Update
 	}
 	data, err := r.client.OrgsUserMACs().UpdateOrgUserMac(ctx, orgId, serviceId, &nacEndpoint)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error updating \"mist_org_nac_endpoint\" resource",
-			fmt.Sprintf("Unable to update the NacEndpoint. %s", api_err),
+			fmt.Sprintf("Unable to update the NacEndpoint. %s", apiErr),
 		)
 		return
 	}
 
-	state, diags = resource_org_usermac.SdkToTerraform(ctx, &data.Data, &orgId)
+	state, diags = resource_org_usermac.SdkToTerraform(&data.Data, &orgId)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -228,7 +228,7 @@ func (r *orgNacEndpointResource) Update(ctx context.Context, req resource.Update
 
 }
 
-func (r *orgNacEndpointResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *orgNacEndpointResource) Delete(ctx context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_org_usermac.OrgUsermacModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -255,11 +255,11 @@ func (r *orgNacEndpointResource) Delete(ctx context.Context, req resource.Delete
 		return
 	}
 	data, err := r.client.OrgsUserMACs().DeleteOrgUserMac(ctx, orgId, nacEndpointId)
-	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_nac_endpoint\" resource",
-			fmt.Sprintf("Unable to delete the NacEndpoint. %s", api_err),
+			fmt.Sprintf("Unable to delete the NacEndpoint. %s", apiErr),
 		)
 		return
 	}

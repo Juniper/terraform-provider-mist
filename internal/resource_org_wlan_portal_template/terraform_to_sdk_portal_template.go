@@ -1,7 +1,6 @@
 package resource_org_wlan_portal_template
 
 import (
-	"context"
 	"encoding/base64"
 	"fmt"
 	"io"
@@ -15,7 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 )
 
-func getLogo(ctx context.Context, diags *diag.Diagnostics, filepath string) string {
+func getLogo(diags *diag.Diagnostics, filepath string) string {
 	var filestring string
 	file, err := os.Open(filepath)
 	if err != nil {
@@ -27,7 +26,7 @@ func getLogo(ctx context.Context, diags *diag.Diagnostics, filepath string) stri
 	}
 
 	defer file.Close()
-	file_data, err := io.ReadAll(file)
+	fileData, err := io.ReadAll(file)
 	if err != nil {
 		diags.AddError(
 			"Invalid \"logo\" value for \"mist_org_wlan_portal_template\" resource",
@@ -36,13 +35,13 @@ func getLogo(ctx context.Context, diags *diag.Diagnostics, filepath string) stri
 		return filestring
 	}
 
-	contentType := http.DetectContentType(file_data)
-	imgBase64Str := base64.StdEncoding.EncodeToString(file_data)
+	contentType := http.DetectContentType(fileData)
+	imgBase64Str := base64.StdEncoding.EncodeToString(fileData)
 	filestring = fmt.Sprintf("data:%s;base64,%s", contentType, imgBase64Str)
 	return filestring
 }
 
-func portalTemplateTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, plan *PortalTemplateValue) *models.WlanPortalTemplateSetting {
+func portalTemplateTerraformToSdk(diags *diag.Diagnostics, plan *PortalTemplateValue) *models.WlanPortalTemplateSetting {
 
 	data := models.WlanPortalTemplateSetting{}
 
@@ -227,11 +226,11 @@ func portalTemplateTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, 
 	}
 
 	if !plan.Locales.IsNull() && !plan.Locales.IsUnknown() {
-		portalTemplateLocalesTerraformToSdk(ctx, diags, plan, &data)
+		portalTemplateLocalesTerraformToSdk(plan, &data)
 	}
 
 	if !plan.Logo.IsNull() && !plan.Logo.IsUnknown() && len(plan.Logo.ValueString()) > 0 {
-		logo := getLogo(ctx, diags, plan.Logo.ValueString())
+		logo := getLogo(diags, plan.Logo.ValueString())
 		data.Logo = models.NewOptional(models.ToPointer(logo))
 	} else {
 		data.Logo = models.NewOptional(models.ToPointer(""))

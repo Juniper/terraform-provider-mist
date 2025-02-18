@@ -23,12 +23,11 @@ func ledSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.A
 		enabled = types.BoolValue(*d.Enabled)
 	}
 
-	data_map_attr_type := LedValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"brightness": brightness,
 		"enabled":    enabled,
 	}
-	data, e := NewLedValue(data_map_attr_type, data_map_value)
+	data, e := NewLedValue(LedValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

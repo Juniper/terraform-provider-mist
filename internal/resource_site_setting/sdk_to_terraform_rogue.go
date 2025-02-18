@@ -10,47 +10,46 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func rogueSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteRogue) RogueValue {
 
 	var enabled basetypes.BoolValue
-	var honeypot_enabled basetypes.BoolValue
-	var min_duration basetypes.Int64Value
-	var min_rssi basetypes.Int64Value
-	var whitelisted_bssids basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
-	var whitelisted_ssids basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+	var honeypotEnabled basetypes.BoolValue
+	var minDuration basetypes.Int64Value
+	var minRssi basetypes.Int64Value
+	var whitelistedBssids = misttransform.ListOfStringSdkToTerraformEmpty()
+	var whitelistedSsids = misttransform.ListOfStringSdkToTerraformEmpty()
 
 	if d != nil && d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
 	if d != nil && d.HoneypotEnabled != nil {
-		honeypot_enabled = types.BoolValue(*d.HoneypotEnabled)
+		honeypotEnabled = types.BoolValue(*d.HoneypotEnabled)
 	}
 	if d != nil && d.MinDuration != nil {
-		min_duration = types.Int64Value(int64(*d.MinDuration))
+		minDuration = types.Int64Value(int64(*d.MinDuration))
 	}
 	if d != nil && d.MinRssi != nil {
-		min_rssi = types.Int64Value(int64(*d.MinRssi))
+		minRssi = types.Int64Value(int64(*d.MinRssi))
 	}
 	if d != nil && d.WhitelistedBssids != nil {
-		whitelisted_bssids = mist_transform.ListOfStringSdkToTerraform(ctx, d.WhitelistedBssids)
+		whitelistedBssids = misttransform.ListOfStringSdkToTerraform(d.WhitelistedBssids)
 	}
 	if d != nil && d.WhitelistedSsids != nil {
-		whitelisted_ssids = mist_transform.ListOfStringSdkToTerraform(ctx, d.WhitelistedSsids)
+		whitelistedSsids = misttransform.ListOfStringSdkToTerraform(d.WhitelistedSsids)
 	}
 
-	data_map_attr_type := RogueValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"enabled":            enabled,
-		"honeypot_enabled":   honeypot_enabled,
-		"min_duration":       min_duration,
-		"min_rssi":           min_rssi,
-		"whitelisted_bssids": whitelisted_bssids,
-		"whitelisted_ssids":  whitelisted_ssids,
+		"honeypot_enabled":   honeypotEnabled,
+		"min_duration":       minDuration,
+		"min_rssi":           minRssi,
+		"whitelisted_bssids": whitelistedBssids,
+		"whitelisted_ssids":  whitelistedSsids,
 	}
-	data, e := NewRogueValue(data_map_attr_type, data_map_value)
+	data, e := NewRogueValue(RogueValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

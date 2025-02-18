@@ -3,7 +3,7 @@ package datasource_org_wlans
 import (
 	"context"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -14,32 +14,31 @@ import (
 )
 
 func ciscoCwaSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.WlanCiscoCwa) basetypes.ObjectValue {
-	var allowed_hostnames basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
-	var allowed_subnets basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
-	var blocked_subnets basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+	var allowedHostnames = misttransform.ListOfStringSdkToTerraformEmpty()
+	var allowedSubnets = misttransform.ListOfStringSdkToTerraformEmpty()
+	var blockedSubnets = misttransform.ListOfStringSdkToTerraformEmpty()
 	var enabled basetypes.BoolValue
 
 	if d != nil && d.AllowedHostnames != nil {
-		allowed_hostnames = mist_transform.ListOfStringSdkToTerraform(ctx, d.AllowedHostnames)
+		allowedHostnames = misttransform.ListOfStringSdkToTerraform(d.AllowedHostnames)
 	}
 	if d != nil && d.AllowedSubnets != nil {
-		allowed_subnets = mist_transform.ListOfStringSdkToTerraform(ctx, d.AllowedSubnets)
+		allowedSubnets = misttransform.ListOfStringSdkToTerraform(d.AllowedSubnets)
 	}
 	if d != nil && d.BlockedSubnets != nil {
-		blocked_subnets = mist_transform.ListOfStringSdkToTerraform(ctx, d.BlockedSubnets)
+		blockedSubnets = misttransform.ListOfStringSdkToTerraform(d.BlockedSubnets)
 	}
 	if d != nil && d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
 
-	data_map_attr_type := CiscoCwaValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"allowed_hostnames": allowed_hostnames,
-		"allowed_subnets":   allowed_subnets,
-		"blocked_subnets":   blocked_subnets,
+	dataMapValue := map[string]attr.Value{
+		"allowed_hostnames": allowedHostnames,
+		"allowed_subnets":   allowedSubnets,
+		"blocked_subnets":   blockedSubnets,
 		"enabled":           enabled,
 	}
-	data, e := basetypes.NewObjectValue(data_map_attr_type, data_map_value)
+	data, e := basetypes.NewObjectValue(CiscoCwaValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

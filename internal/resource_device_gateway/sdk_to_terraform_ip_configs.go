@@ -10,18 +10,18 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func ipConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.GatewayIpConfigProperty) basetypes.MapValue {
 
-	state_value_map := make(map[string]attr.Value)
+	stateValueMap := make(map[string]attr.Value)
 	for k, d := range m {
 
 		var ip basetypes.StringValue
 		var netmask basetypes.StringValue
-		var secondary_ips basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
-		var type_ip basetypes.StringValue
+		var secondaryIps = misttransform.ListOfStringSdkToTerraformEmpty()
+		var typeIp basetypes.StringValue
 
 		if d.Ip != nil {
 			ip = types.StringValue(*d.Ip)
@@ -30,26 +30,25 @@ func ipConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map
 			netmask = types.StringValue(*d.Netmask)
 		}
 		if d.SecondaryIps != nil {
-			secondary_ips = mist_transform.ListOfStringSdkToTerraform(ctx, d.SecondaryIps)
+			secondaryIps = misttransform.ListOfStringSdkToTerraform(d.SecondaryIps)
 		}
 		if d.Type != nil {
-			type_ip = types.StringValue(string(*d.Type))
+			typeIp = types.StringValue(string(*d.Type))
 		}
 
-		data_map_attr_type := IpConfigsValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
+		dataMapValue := map[string]attr.Value{
 			"ip":            ip,
 			"netmask":       netmask,
-			"secondary_ips": secondary_ips,
-			"type":          type_ip,
+			"secondary_ips": secondaryIps,
+			"type":          typeIp,
 		}
-		data, e := NewIpConfigsValue(data_map_attr_type, data_map_value)
+		data, e := NewIpConfigsValue(IpConfigsValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		state_value_map[k] = data
+		stateValueMap[k] = data
 	}
-	state_type := IpConfigsValue{}.Type(ctx)
-	state_result, e := types.MapValueFrom(ctx, state_type, state_value_map)
+	stateType := IpConfigsValue{}.Type(ctx)
+	stateResult, e := types.MapValueFrom(ctx, stateType, stateValueMap)
 	diags.Append(e...)
-	return state_result
+	return stateResult
 }

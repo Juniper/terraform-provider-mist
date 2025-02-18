@@ -31,12 +31,12 @@ func SdkToTerraform(ctx context.Context, l []models.ConstTrafficType) (basetypes
 func constAppCategorySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.ConstTrafficType) ConstTrafficTypesValue {
 	var display basetypes.StringValue
 	var dscp basetypes.Int64Value
-	var failover_policy basetypes.StringValue
-	var max_jitter basetypes.Int64Value
-	var max_latency basetypes.Int64Value
-	var max_loss basetypes.Int64Value
+	var failoverPolicy basetypes.StringValue
+	var maxJitter basetypes.Int64Value
+	var maxLatency basetypes.Int64Value
+	var maxLoss basetypes.Int64Value
 	var name basetypes.StringValue
-	var traffic_class basetypes.StringValue
+	var trafficClass basetypes.StringValue
 
 	if d.Display != nil {
 		display = types.StringValue(*d.Display)
@@ -45,22 +45,22 @@ func constAppCategorySdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 		dscp = types.Int64Value(int64(*d.Dscp))
 	}
 	if d.FailoverPolicy != nil {
-		failover_policy = types.StringValue(*d.FailoverPolicy)
+		failoverPolicy = types.StringValue(*d.FailoverPolicy)
 	}
 	if d.MaxJitter != nil {
-		max_jitter = types.Int64Value(int64(*d.MaxJitter))
+		maxJitter = types.Int64Value(int64(*d.MaxJitter))
 	}
 	if d.MaxLatency != nil {
-		max_latency = types.Int64Value(int64(*d.MaxLatency))
+		maxLatency = types.Int64Value(int64(*d.MaxLatency))
 	}
 	if d.MaxLoss != nil {
-		max_loss = types.Int64Value(int64(*d.MaxLoss))
+		maxLoss = types.Int64Value(int64(*d.MaxLoss))
 	}
 	if d.Name != nil {
 		name = types.StringValue(*d.Name)
 	}
 	if d.TrafficClass != nil {
-		traffic_class = types.StringValue(*d.TrafficClass)
+		trafficClass = types.StringValue(*d.TrafficClass)
 	}
 
 	o, e := NewConstTrafficTypesValue(
@@ -68,12 +68,12 @@ func constAppCategorySdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 		map[string]attr.Value{
 			"display":         display,
 			"dscp":            dscp,
-			"failover_policy": failover_policy,
-			"max_jitter":      max_jitter,
-			"max_latency":     max_latency,
-			"max_loss":        max_loss,
+			"failover_policy": failoverPolicy,
+			"max_jitter":      maxJitter,
+			"max_latency":     maxLatency,
+			"max_loss":        maxLoss,
 			"name":            name,
-			"traffic_class":   traffic_class,
+			"traffic_class":   trafficClass,
 		},
 	)
 	diags.Append(e...)

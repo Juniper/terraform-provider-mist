@@ -10,7 +10,7 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
+	mistapierror "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_deviceprofile_ap"
 
 	"github.com/google/uuid"
@@ -51,11 +51,11 @@ func (r *orgDeviceprofileApResource) Configure(ctx context.Context, req resource
 
 	r.client = client
 }
-func (r *orgDeviceprofileApResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *orgDeviceprofileApResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_org_deviceprofile_ap"
 }
 
-func (r *orgDeviceprofileApResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *orgDeviceprofileApResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryWlan + "This resource manages the AP Device Profiles.\n" +
 			"AP Device profiles for aps are used to specify a configuration that can be applied to a select set of aps from any site in the organization. " +
@@ -77,7 +77,7 @@ func (r *orgDeviceprofileApResource) Create(ctx context.Context, req resource.Cr
 		return
 	}
 
-	deviceprofile_ap, diags := resource_org_deviceprofile_ap.TerraformToSdk(ctx, &plan)
+	deviceprofileAp, diags := resource_org_deviceprofile_ap.TerraformToSdk(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -91,28 +91,28 @@ func (r *orgDeviceprofileApResource) Create(ctx context.Context, req resource.Cr
 		)
 		return
 	}
-	data, err := r.client.OrgsDeviceProfiles().CreateOrgDeviceProfiles(ctx, orgId, &deviceprofile_ap)
+	data, err := r.client.OrgsDeviceProfiles().CreateOrgDeviceProfiles(ctx, orgId, &deviceprofileAp)
 	if data.Response.StatusCode != 200 {
 
-		api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-		if api_err != "" {
+		apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+		if apiErr != "" {
 			resp.Diagnostics.AddError(
 				"Error creating \"mist_org_deviceprofile_ap\" resource",
-				fmt.Sprintf("Unable to create the AP Device Profile. %s", api_err),
+				fmt.Sprintf("Unable to create the AP Device Profile. %s", apiErr),
 			)
 			return
 		}
 	}
 
 	body, _ := io.ReadAll(data.Response.Body)
-	mist_deviceprofile_ap := models.DeviceprofileAp{}
-	err = json.Unmarshal(body, &mist_deviceprofile_ap)
+	mistDeviceprofileAp := models.DeviceprofileAp{}
+	err = json.Unmarshal(body, &mistDeviceprofileAp)
 	if err != nil {
 		resp.Diagnostics.AddError("Unable to unMarshal API response", err.Error())
 		return
 	}
 
-	state, diags = resource_org_deviceprofile_ap.SdkToTerraform(ctx, &mist_deviceprofile_ap)
+	state, diags = resource_org_deviceprofile_ap.SdkToTerraform(ctx, &mistDeviceprofileAp)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -126,7 +126,7 @@ func (r *orgDeviceprofileApResource) Create(ctx context.Context, req resource.Cr
 
 }
 
-func (r *orgDeviceprofileApResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *orgDeviceprofileApResource) Read(ctx context.Context, _ resource.ReadRequest, resp *resource.ReadResponse) {
 	var state resource_org_deviceprofile_ap.OrgDeviceprofileApModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -143,7 +143,7 @@ func (r *orgDeviceprofileApResource) Read(ctx context.Context, req resource.Read
 		)
 		return
 	}
-	deviceprofile_apId, err := uuid.Parse(state.Id.ValueString())
+	deviceprofileApid, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"deviceprofile_ap_id\" value for \"mist_org_deviceprofile_ap\" resource",
@@ -152,7 +152,7 @@ func (r *orgDeviceprofileApResource) Read(ctx context.Context, req resource.Read
 		return
 	}
 	tflog.Info(ctx, "Starting DeviceprofileAp Read: deviceprofile_ap_id "+state.Id.ValueString())
-	httpr, err := r.client.OrgsDeviceProfiles().GetOrgDeviceProfile(ctx, orgId, deviceprofile_apId)
+	httpr, err := r.client.OrgsDeviceProfiles().GetOrgDeviceProfile(ctx, orgId, deviceprofileApid)
 	if httpr.Response.StatusCode == 404 {
 		resp.State.RemoveResource(ctx)
 		return
@@ -165,14 +165,14 @@ func (r *orgDeviceprofileApResource) Read(ctx context.Context, req resource.Read
 	}
 
 	body, _ := io.ReadAll(httpr.Response.Body)
-	mist_deviceprofile_ap := models.DeviceprofileAp{}
-	err = json.Unmarshal(body, &mist_deviceprofile_ap)
+	mistDeviceprofileAp := models.DeviceprofileAp{}
+	err = json.Unmarshal(body, &mistDeviceprofileAp)
 	if err != nil {
 		resp.Diagnostics.AddError("Unable to unMarshal API response", err.Error())
 		return
 	}
 
-	state, diags = resource_org_deviceprofile_ap.SdkToTerraform(ctx, &mist_deviceprofile_ap)
+	state, diags = resource_org_deviceprofile_ap.SdkToTerraform(ctx, &mistDeviceprofileAp)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -200,7 +200,7 @@ func (r *orgDeviceprofileApResource) Update(ctx context.Context, req resource.Up
 		return
 	}
 
-	deviceprofile_ap, diags := resource_org_deviceprofile_ap.TerraformToSdk(ctx, &plan)
+	deviceprofileAp, diags := resource_org_deviceprofile_ap.TerraformToSdk(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -214,7 +214,7 @@ func (r *orgDeviceprofileApResource) Update(ctx context.Context, req resource.Up
 		)
 		return
 	}
-	deviceprofile_apId, err := uuid.Parse(state.Id.ValueString())
+	deviceprofileApid, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"deviceprofile_ap_id\" value for \"mist_org_deviceprofile_ap\" resource",
@@ -223,29 +223,29 @@ func (r *orgDeviceprofileApResource) Update(ctx context.Context, req resource.Up
 		return
 	}
 	tflog.Info(ctx, "Starting DeviceprofileAp Update for DeviceprofileAp "+state.Id.ValueString())
-	data, err := r.client.OrgsDeviceProfiles().UpdateOrgDeviceProfile(ctx, orgId, deviceprofile_apId, &deviceprofile_ap)
+	data, err := r.client.OrgsDeviceProfiles().UpdateOrgDeviceProfile(ctx, orgId, deviceprofileApid, &deviceprofileAp)
 
 	if data.Response.StatusCode != 200 {
 
-		api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-		if api_err != "" {
+		apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+		if apiErr != "" {
 			resp.Diagnostics.AddError(
 				"Error updating \"mist_org_deviceprofile_ap\" resource",
-				fmt.Sprintf("Unable to update the AP Device Profile. %s", api_err),
+				fmt.Sprintf("Unable to update the AP Device Profile. %s", apiErr),
 			)
 			return
 		}
 	}
 
 	body, _ := io.ReadAll(data.Response.Body)
-	mist_deviceprofile_ap := models.DeviceprofileAp{}
-	err = json.Unmarshal(body, &mist_deviceprofile_ap)
+	mistDeviceprofileAp := models.DeviceprofileAp{}
+	err = json.Unmarshal(body, &mistDeviceprofileAp)
 	if err != nil {
 		resp.Diagnostics.AddError("Unable to unMarshal API response", err.Error())
 		return
 	}
 
-	state, diags = resource_org_deviceprofile_ap.SdkToTerraform(ctx, &mist_deviceprofile_ap)
+	state, diags = resource_org_deviceprofile_ap.SdkToTerraform(ctx, &mistDeviceprofileAp)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -259,7 +259,7 @@ func (r *orgDeviceprofileApResource) Update(ctx context.Context, req resource.Up
 
 }
 
-func (r *orgDeviceprofileApResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *orgDeviceprofileApResource) Delete(ctx context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_org_deviceprofile_ap.OrgDeviceprofileApModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -276,7 +276,7 @@ func (r *orgDeviceprofileApResource) Delete(ctx context.Context, req resource.De
 		)
 		return
 	}
-	deviceprofile_apId, err := uuid.Parse(state.Id.ValueString())
+	deviceprofileApid, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"deviceprofile_ap_id\" value for \"mist_org_deviceprofile_ap\" resource",
@@ -285,12 +285,12 @@ func (r *orgDeviceprofileApResource) Delete(ctx context.Context, req resource.De
 		return
 	}
 	tflog.Info(ctx, "Starting DeviceprofileAp Delete: deviceprofile_ap_id "+state.Id.ValueString())
-	data, err := r.client.OrgsDeviceProfiles().DeleteOrgDeviceProfile(ctx, orgId, deviceprofile_apId)
-	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && api_err != "" {
+	data, err := r.client.OrgsDeviceProfiles().DeleteOrgDeviceProfile(ctx, orgId, deviceprofileApid)
+	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_deviceprofile_ap\" resource",
-			fmt.Sprintf("Unable to delete the AP Device Profile. %s", api_err),
+			fmt.Sprintf("Unable to delete the AP Device Profile. %s", apiErr),
 		)
 		return
 	}

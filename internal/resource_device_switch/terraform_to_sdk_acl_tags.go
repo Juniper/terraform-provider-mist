@@ -1,58 +1,55 @@
 package resource_device_switch
 
 import (
-	"context"
-
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func actTagSpecsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.AclTagSpec {
+func actTagSpecsTerraformToSdk(d basetypes.ListValue) []models.AclTagSpec {
 	var data []models.AclTagSpec
 	for _, v := range d.Elements() {
-		var v_interface interface{} = v
-		v_state := v_interface.(SpecsValue)
-		v_data := models.AclTagSpec{}
-		if v_state.PortRange.ValueStringPointer() != nil {
-			v_data.PortRange = models.ToPointer(v_state.PortRange.ValueString())
+		var vInterface interface{} = v
+		vState := vInterface.(SpecsValue)
+		vData := models.AclTagSpec{}
+		if vState.PortRange.ValueStringPointer() != nil {
+			vData.PortRange = models.ToPointer(vState.PortRange.ValueString())
 		}
-		if v_state.Protocol.ValueStringPointer() != nil {
-			v_data.Protocol = models.ToPointer(v_state.Protocol.ValueString())
+		if vState.Protocol.ValueStringPointer() != nil {
+			vData.Protocol = models.ToPointer(vState.Protocol.ValueString())
 		}
-		data = append(data, v_data)
+		data = append(data, vData)
 	}
 	return data
 }
 
-func actTagsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.AclTag {
+func actTagsTerraformToSdk(d basetypes.MapValue) map[string]models.AclTag {
 	data := make(map[string]models.AclTag)
-	for item_name, item_value := range d.Elements() {
-		var item_interface interface{} = item_value
-		item_obj := item_interface.(AclTagsValue)
+	for itemName, itemValue := range d.Elements() {
+		var itemInterface interface{} = itemValue
+		itemObj := itemInterface.(AclTagsValue)
 
-		data_item := models.AclTag{}
-		data_item.Type = models.AclTagTypeEnum(item_obj.AclTagsType.ValueString())
-		if item_obj.GbpTag.ValueInt64Pointer() != nil {
-			data_item.GbpTag = models.ToPointer(int(item_obj.GbpTag.ValueInt64()))
+		dataItem := models.AclTag{}
+		dataItem.Type = models.AclTagTypeEnum(itemObj.AclTagsType.ValueString())
+		if itemObj.GbpTag.ValueInt64Pointer() != nil {
+			dataItem.GbpTag = models.ToPointer(int(itemObj.GbpTag.ValueInt64()))
 		}
-		data_item.Macs = mist_transform.ListOfStringTerraformToSdk(ctx, item_obj.Macs)
-		if item_obj.Network.ValueStringPointer() != nil {
-			data_item.Network = models.ToPointer(item_obj.Network.ValueString())
+		dataItem.Macs = misttransform.ListOfStringTerraformToSdk(itemObj.Macs)
+		if itemObj.Network.ValueStringPointer() != nil {
+			dataItem.Network = models.ToPointer(itemObj.Network.ValueString())
 		}
-		if item_obj.RadiusGroup.ValueStringPointer() != nil {
-			data_item.RadiusGroup = models.ToPointer(item_obj.RadiusGroup.ValueString())
+		if itemObj.RadiusGroup.ValueStringPointer() != nil {
+			dataItem.RadiusGroup = models.ToPointer(itemObj.RadiusGroup.ValueString())
 		}
-		if !item_obj.Specs.IsNull() && !item_obj.Specs.IsUnknown() {
-			data_item.Specs = actTagSpecsTerraformToSdk(ctx, diags, item_obj.Specs)
+		if !itemObj.Specs.IsNull() && !itemObj.Specs.IsUnknown() {
+			dataItem.Specs = actTagSpecsTerraformToSdk(itemObj.Specs)
 		}
-		if !item_obj.Subnets.IsNull() && !item_obj.Subnets.IsUnknown() {
-			data_item.Subnets = mist_transform.ListOfStringTerraformToSdk(ctx, item_obj.Subnets)
+		if !itemObj.Subnets.IsNull() && !itemObj.Subnets.IsUnknown() {
+			dataItem.Subnets = misttransform.ListOfStringTerraformToSdk(itemObj.Subnets)
 		}
-		data[item_name] = data_item
+		data[itemName] = dataItem
 	}
 	return data
 }

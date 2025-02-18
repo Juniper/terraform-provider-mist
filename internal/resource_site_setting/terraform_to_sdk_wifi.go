@@ -1,14 +1,10 @@
 package resource_site_setting
 
 import (
-	"context"
-
-	"github.com/hashicorp/terraform-plugin-framework/diag"
-
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func wifiTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d WifiValue) *models.SiteWifi {
+func wifiTerraformToSdk(d WifiValue) *models.SiteWifi {
 	data := models.SiteWifi{}
 
 	data.CiscoEnabled = d.CiscoEnabled.ValueBoolPointer()

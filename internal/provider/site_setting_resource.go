@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
+	mistapierror "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_site_setting"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
@@ -47,11 +47,11 @@ func (r *siteSettingResource) Configure(ctx context.Context, req resource.Config
 
 	r.client = client
 }
-func (r *siteSettingResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *siteSettingResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_site_setting"
 }
 
-func (r *siteSettingResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *siteSettingResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategorySite + "This resource manages the Site Settings.\n\n" +
 			"The Site Settings can be used to customize the Site configuration and assign Site Variables (Sites Variables can be reused in configuration templates)\n\n" +
@@ -89,11 +89,11 @@ func (r *siteSettingResource) Create(ctx context.Context, req resource.CreateReq
 	}
 	data, err := r.client.SitesSetting().UpdateSiteSettings(ctx, siteId, siteSetting)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error creatin \"mist_site_setting\" resource",
-			fmt.Sprintf("Unable to create the Mist Site Setting. %s", api_err),
+			fmt.Sprintf("Unable to create the Mist Site Setting. %s", apiErr),
 		)
 		return
 	}
@@ -112,7 +112,7 @@ func (r *siteSettingResource) Create(ctx context.Context, req resource.CreateReq
 
 }
 
-func (r *siteSettingResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *siteSettingResource) Read(ctx context.Context, _ resource.ReadRequest, resp *resource.ReadResponse) {
 	var state resource_site_setting.SiteSettingModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -186,11 +186,11 @@ func (r *siteSettingResource) Update(ctx context.Context, req resource.UpdateReq
 	}
 	data, err := r.client.SitesSetting().UpdateSiteSettings(ctx, siteId, siteSetting)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error creating \"mist_site_setting\" resource",
-			fmt.Sprintf("Unable to create the Mist Site Setting. %s", api_err),
+			fmt.Sprintf("Unable to create the Mist Site Setting. %s", apiErr),
 		)
 		return
 	}
@@ -209,7 +209,7 @@ func (r *siteSettingResource) Update(ctx context.Context, req resource.UpdateReq
 
 }
 
-func (r *siteSettingResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *siteSettingResource) Delete(ctx context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_site_setting.SiteSettingModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -230,11 +230,11 @@ func (r *siteSettingResource) Delete(ctx context.Context, req resource.DeleteReq
 		return
 	}
 	data, err := r.client.SitesSetting().UpdateSiteSettings(ctx, siteId, siteSetting)
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if data.Response.StatusCode != 404 && api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if data.Response.StatusCode != 404 && apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_site_setting\" resource",
-			fmt.Sprintf("Unable to delete the Site Setting. %s", api_err),
+			fmt.Sprintf("Unable to delete the Site Setting. %s", apiErr),
 		)
 		return
 	}

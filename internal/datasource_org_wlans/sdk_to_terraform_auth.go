@@ -13,85 +13,84 @@ import (
 
 func authSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.WlanAuth) basetypes.ObjectValue {
 
-	var anticlog_threshold basetypes.Int64Value
-	var eap_reauth basetypes.BoolValue
-	var enable_mac_auth basetypes.BoolValue
-	var key_idx basetypes.Int64Value
-	var keys basetypes.ListValue = types.ListNull(types.StringType)
-	var multi_psk_only basetypes.BoolValue
+	var anticlogThreshold basetypes.Int64Value
+	var eapReauth basetypes.BoolValue
+	var enableMacAuth basetypes.BoolValue
+	var keyIdx basetypes.Int64Value
+	var keys = types.ListNull(types.StringType)
+	var multiPskOnly basetypes.BoolValue
 	var owe basetypes.StringValue
-	var pairwise basetypes.ListValue = types.ListNull(types.StringType)
-	var private_wlan basetypes.BoolValue = types.BoolValue(false)
-	var psk basetypes.StringValue = types.StringValue("")
-	var type_auth basetypes.StringValue
-	var wep_as_secondary_auth basetypes.BoolValue
+	var pairwise = types.ListNull(types.StringType)
+	var privateWlan = types.BoolValue(false)
+	var psk = types.StringValue("")
+	var typeAuth basetypes.StringValue
+	var wepAsSecondaryAuth basetypes.BoolValue
 
 	if d != nil && d.AnticlogThreshold != nil {
-		anticlog_threshold = types.Int64Value(int64(*d.AnticlogThreshold))
+		anticlogThreshold = types.Int64Value(int64(*d.AnticlogThreshold))
 	}
 	if d != nil && d.EapReauth != nil {
-		eap_reauth = types.BoolValue(*d.EapReauth)
+		eapReauth = types.BoolValue(*d.EapReauth)
 	}
 	if d != nil && d.EnableMacAuth != nil {
-		enable_mac_auth = types.BoolValue(*d.EnableMacAuth)
+		enableMacAuth = types.BoolValue(*d.EnableMacAuth)
 	}
 	if d != nil && d.KeyIdx != nil {
-		key_idx = types.Int64Value(int64(*d.KeyIdx))
+		keyIdx = types.Int64Value(int64(*d.KeyIdx))
 	}
 
-	var keys_list []attr.Value
+	var keysList []attr.Value
 	if d != nil && d.Keys != nil {
 		for _, item := range d.Keys {
 			value := item
-			keys_list = append(keys_list, types.StringValue(value))
+			keysList = append(keysList, types.StringValue(value))
 		}
 	}
-	keys = types.ListValueMust(basetypes.StringType{}, keys_list)
+	keys = types.ListValueMust(basetypes.StringType{}, keysList)
 
 	if d != nil && d.MultiPskOnly != nil {
-		multi_psk_only = types.BoolValue(*d.MultiPskOnly)
+		multiPskOnly = types.BoolValue(*d.MultiPskOnly)
 	}
 	if d != nil && d.Owe != nil {
 		owe = types.StringValue(string(*d.Owe))
 	}
-	var pairwise_list []attr.Value
+	var pairwiseList []attr.Value
 	if d != nil && d.Pairwise != nil {
 		for _, item := range d.Pairwise {
 			value := string(item)
-			pairwise_list = append(pairwise_list, types.StringValue(value))
+			pairwiseList = append(pairwiseList, types.StringValue(value))
 		}
 	}
-	pairwise = types.ListValueMust(basetypes.StringType{}, pairwise_list)
+	pairwise = types.ListValueMust(basetypes.StringType{}, pairwiseList)
 
 	if d != nil && d.PrivateWlan != nil {
-		private_wlan = types.BoolValue(*d.PrivateWlan)
+		privateWlan = types.BoolValue(*d.PrivateWlan)
 	}
 	if d != nil && d.Psk.Value() != nil {
 		psk = types.StringValue(*d.Psk.Value())
 	}
 	if d != nil {
-		type_auth = types.StringValue(string(d.Type))
+		typeAuth = types.StringValue(string(d.Type))
 	}
 	if d != nil && d.WepAsSecondaryAuth != nil {
-		wep_as_secondary_auth = types.BoolValue(*d.WepAsSecondaryAuth)
+		wepAsSecondaryAuth = types.BoolValue(*d.WepAsSecondaryAuth)
 	}
 
-	data_map_attr_type := AuthValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"anticlog_threshold":    anticlog_threshold,
-		"eap_reauth":            eap_reauth,
-		"enable_mac_auth":       enable_mac_auth,
-		"key_idx":               key_idx,
+	dataMapValue := map[string]attr.Value{
+		"anticlog_threshold":    anticlogThreshold,
+		"eap_reauth":            eapReauth,
+		"enable_mac_auth":       enableMacAuth,
+		"key_idx":               keyIdx,
 		"keys":                  keys,
-		"multi_psk_only":        multi_psk_only,
+		"multi_psk_only":        multiPskOnly,
 		"owe":                   owe,
 		"pairwise":              pairwise,
-		"private_wlan":          private_wlan,
+		"private_wlan":          privateWlan,
 		"psk":                   psk,
-		"type":                  type_auth,
-		"wep_as_secondary_auth": wep_as_secondary_auth,
+		"type":                  typeAuth,
+		"wep_as_secondary_auth": wepAsSecondaryAuth,
 	}
-	data, e := basetypes.NewObjectValue(data_map_attr_type, data_map_value)
+	data, e := basetypes.NewObjectValue(AuthValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

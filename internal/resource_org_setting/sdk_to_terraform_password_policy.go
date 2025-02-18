@@ -14,36 +14,35 @@ import (
 func passwordPolicySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.OrgSettingPasswordPolicy) PasswordPolicyValue {
 
 	var enabled basetypes.BoolValue
-	var expiry_in_days basetypes.Int64Value
-	var min_length basetypes.Int64Value
-	var requires_special_char basetypes.BoolValue
-	var requires_two_factor_auth basetypes.BoolValue
+	var expiryInDays basetypes.Int64Value
+	var minLength basetypes.Int64Value
+	var requiresSpecialChar basetypes.BoolValue
+	var requiresTwoFactorAuth basetypes.BoolValue
 
 	if d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
 	if d.ExpiryInDays != nil {
-		expiry_in_days = types.Int64Value(int64(*d.ExpiryInDays))
+		expiryInDays = types.Int64Value(int64(*d.ExpiryInDays))
 	}
 	if d.MinLength != nil {
-		min_length = types.Int64Value(int64(*d.MinLength))
+		minLength = types.Int64Value(int64(*d.MinLength))
 	}
 	if d.RequiresSpecialChar != nil {
-		requires_special_char = types.BoolValue(*d.RequiresSpecialChar)
+		requiresSpecialChar = types.BoolValue(*d.RequiresSpecialChar)
 	}
 	if d.RequiresTwoFactorAuth != nil {
-		requires_two_factor_auth = types.BoolValue(*d.RequiresTwoFactorAuth)
+		requiresTwoFactorAuth = types.BoolValue(*d.RequiresTwoFactorAuth)
 	}
 
-	data_map_attr_type := PasswordPolicyValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"enabled":                  enabled,
-		"expiry_in_days":           expiry_in_days,
-		"min_length":               min_length,
-		"requires_special_char":    requires_special_char,
-		"requires_two_factor_auth": requires_two_factor_auth,
+		"expiry_in_days":           expiryInDays,
+		"min_length":               minLength,
+		"requires_special_char":    requiresSpecialChar,
+		"requires_two_factor_auth": requiresTwoFactorAuth,
 	}
-	data, e := NewPasswordPolicyValue(data_map_attr_type, data_map_value)
+	data, e := NewPasswordPolicyValue(PasswordPolicyValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

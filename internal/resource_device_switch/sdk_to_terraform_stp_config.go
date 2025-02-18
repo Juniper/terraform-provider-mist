@@ -13,17 +13,16 @@ import (
 
 func stpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.SwitchStpConfig) StpConfigValue {
 
-	var bridge_priority basetypes.StringValue
+	var bridgePriority basetypes.StringValue
 
 	if d.BridgePriority != nil {
-		bridge_priority = types.StringValue(*d.BridgePriority)
+		bridgePriority = types.StringValue(*d.BridgePriority)
 	}
 
-	data_map_attr_type := StpConfigValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"bridge_priority": bridge_priority,
+	dataMapValue := map[string]attr.Value{
+		"bridge_priority": bridgePriority,
 	}
-	data, e := NewStpConfigValue(data_map_attr_type, data_map_value)
+	data, e := NewStpConfigValue(StpConfigValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

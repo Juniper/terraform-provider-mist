@@ -3,7 +3,7 @@ package resource_org_wlan
 import (
 	"context"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -13,8 +13,8 @@ import (
 
 func bandRatesetSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.WlanDatarates) basetypes.ObjectValue {
 	var ht basetypes.StringValue
-	var legacy basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
-	var min_rssi basetypes.Int64Value
+	var legacy = misttransform.ListOfStringSdkToTerraformEmpty()
+	var minRssi basetypes.Int64Value
 	var template basetypes.StringValue
 	var vht basetypes.StringValue
 
@@ -31,7 +31,7 @@ func bandRatesetSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d mo
 		legacy = list
 	}
 	if d.MinRssi != nil {
-		min_rssi = types.Int64Value(int64(*d.MinRssi))
+		minRssi = types.Int64Value(int64(*d.MinRssi))
 	}
 	if d.Template.Value() != nil {
 		template = types.StringValue(string(*d.Template.Value()))
@@ -40,27 +40,27 @@ func bandRatesetSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d mo
 		vht = types.StringValue(*d.Vht.Value())
 	}
 
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"ht":       ht,
 		"legacy":   legacy,
-		"min_rssi": min_rssi,
+		"min_rssi": minRssi,
 		"template": template,
 		"vht":      vht,
 	}
-	data, e := basetypes.NewObjectValue(RatesetValue{}.AttributeTypes(ctx), data_map_value)
+	data, e := basetypes.NewObjectValue(RatesetValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data
 }
 
 func ratesetSkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.WlanDatarates) basetypes.MapValue {
-	state_value_map := make(map[string]attr.Value)
+	stateValueMap := make(map[string]attr.Value)
 
 	for k, d := range m {
-		state_value_map[k] = bandRatesetSkToTerraform(ctx, diags, d)
+		stateValueMap[k] = bandRatesetSkToTerraform(ctx, diags, d)
 	}
 
-	state_result, e := types.MapValueFrom(ctx, RatesetValue{}.Type(ctx), state_value_map)
+	stateResult, e := types.MapValueFrom(ctx, RatesetValue{}.Type(ctx), stateValueMap)
 	diags.Append(e...)
-	return state_result
+	return stateResult
 }

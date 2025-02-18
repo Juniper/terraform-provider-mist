@@ -12,56 +12,54 @@ import (
 )
 
 func moduleSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.ApRedundancyModule) basetypes.MapValue {
-	map_attr_values := make(map[string]attr.Value)
+	mapAttrValues := make(map[string]attr.Value)
 	for k, d := range m {
 
-		var num_aps basetypes.Int64Value
-		var num_aps_with_switch_redundancy basetypes.Int64Value
+		var numAps basetypes.Int64Value
+		var numApsWithSwitchRedundancy basetypes.Int64Value
 
 		if d.NumAps != nil {
-			num_aps = types.Int64Value(int64(*d.NumAps))
+			numAps = types.Int64Value(int64(*d.NumAps))
 		}
 		if d.NumApsWithSwitchRedundancy != nil {
-			num_aps_with_switch_redundancy = types.Int64Value(int64(*d.NumApsWithSwitchRedundancy))
+			numApsWithSwitchRedundancy = types.Int64Value(int64(*d.NumApsWithSwitchRedundancy))
 		}
 
-		data_map_attr_type := ModulesValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
-			"num_aps":                        num_aps,
-			"num_aps_with_switch_redundancy": num_aps_with_switch_redundancy,
+		dataMapValue := map[string]attr.Value{
+			"num_aps":                        numAps,
+			"num_aps_with_switch_redundancy": numApsWithSwitchRedundancy,
 		}
-		data, e := NewModulesValue(data_map_attr_type, data_map_value)
+		data, e := NewModulesValue(ModulesValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		map_attr_values[k] = data
+		mapAttrValues[k] = data
 	}
-	state_result, e := types.MapValueFrom(ctx, ModulesValue{}.Type(ctx), map_attr_values)
+	stateResult, e := types.MapValueFrom(ctx, ModulesValue{}.Type(ctx), mapAttrValues)
 	diags.Append(e...)
-	return state_result
+	return stateResult
 }
 
 func apRedundancySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ApRedundancy) basetypes.ObjectValue {
-	var modules basetypes.MapValue = types.MapNull(ModuleStatValue{}.Type(ctx))
-	var num_aps basetypes.Int64Value
-	var num_aps_with_switch_redundancy basetypes.Int64Value
+	var modules = types.MapNull(ModuleStatValue{}.Type(ctx))
+	var numAps basetypes.Int64Value
+	var numApsWithSwitchRedundancy basetypes.Int64Value
 
 	if d.Modules != nil && len(d.Modules) > 0 {
 		modules = moduleSdkToTerraform(ctx, diags, d.Modules)
 	}
 	if d.NumAps != nil {
-		num_aps = types.Int64Value(int64(*d.NumAps))
+		numAps = types.Int64Value(int64(*d.NumAps))
 	}
 	if d.NumApsWithSwitchRedundancy != nil {
-		num_aps_with_switch_redundancy = types.Int64Value(int64(*d.NumApsWithSwitchRedundancy))
+		numApsWithSwitchRedundancy = types.Int64Value(int64(*d.NumApsWithSwitchRedundancy))
 	}
 
-	data_map_attr_type := ApRedundancyValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"modules":                        modules,
-		"num_aps":                        num_aps,
-		"num_aps_with_switch_redundancy": num_aps_with_switch_redundancy,
+		"num_aps":                        numAps,
+		"num_aps_with_switch_redundancy": numApsWithSwitchRedundancy,
 	}
-	data, e := types.ObjectValue(data_map_attr_type, data_map_value)
+	data, e := types.ObjectValue(ApRedundancyValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

@@ -17,9 +17,9 @@ func eslSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.A
 	var enabled basetypes.BoolValue
 	var host basetypes.StringValue
 	var port basetypes.Int64Value
-	var type_esl basetypes.StringValue
-	var verify_cert basetypes.BoolValue
-	var vlan_id basetypes.Int64Value
+	var typeEsl basetypes.StringValue
+	var verifyCert basetypes.BoolValue
+	var vlanId basetypes.Int64Value
 
 	if d.Cacert != nil {
 		cacert = types.StringValue(*d.Cacert)
@@ -37,27 +37,26 @@ func eslSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.A
 		port = types.Int64Value(int64(*d.Port))
 	}
 	if d.Type != nil {
-		type_esl = types.StringValue(string(*d.Type))
+		typeEsl = types.StringValue(string(*d.Type))
 	}
 	if d.VerifyCert != nil {
-		verify_cert = types.BoolValue(*d.VerifyCert)
+		verifyCert = types.BoolValue(*d.VerifyCert)
 	}
 	if d.VlanId != nil {
-		vlan_id = types.Int64Value(int64(*d.VlanId))
+		vlanId = types.Int64Value(int64(*d.VlanId))
 	}
 
-	data_map_attr_type := EslConfigValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"cacert":      cacert,
 		"channel":     channel,
 		"enabled":     enabled,
 		"host":        host,
 		"port":        port,
-		"type":        type_esl,
-		"verify_cert": verify_cert,
-		"vlan_id":     vlan_id,
+		"type":        typeEsl,
+		"verify_cert": verifyCert,
+		"vlan_id":     vlanId,
 	}
-	data, e := NewEslConfigValue(data_map_attr_type, data_map_value)
+	data, e := NewEslConfigValue(EslConfigValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

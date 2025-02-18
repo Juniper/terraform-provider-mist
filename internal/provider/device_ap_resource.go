@@ -7,7 +7,7 @@ import (
 	"io"
 	"strings"
 
-	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
+	mistapierror "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_device_ap"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
@@ -52,11 +52,11 @@ func (r *deviceApResource) Configure(ctx context.Context, req resource.Configure
 
 	r.client = client
 }
-func (r *deviceApResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *deviceApResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_device_ap"
 }
 
-func (r *deviceApResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *deviceApResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryDevices + "This resource manages the Wireless Access Point configuration.\n\n" +
 			"It can be used to define specific configuration at the device level or to override AP Device Profile (`mist_org_deviceprofile_ap`).",
@@ -74,7 +74,7 @@ func (r *deviceApResource) Create(ctx context.Context, req resource.CreateReques
 		return
 	}
 
-	device_ap, diags := resource_device_ap.TerraformToSdk(ctx, &plan)
+	deviceAp, diags := resource_device_ap.TerraformToSdk(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -99,23 +99,23 @@ func (r *deviceApResource) Create(ctx context.Context, req resource.CreateReques
 	}
 
 	tflog.Info(ctx, "Starting DeviceAp Create on Site "+plan.SiteId.ValueString()+" for device "+plan.DeviceId.ValueString())
-	data, err := r.client.SitesDevices().UpdateSiteDevice(ctx, siteId, deviceId, &device_ap)
+	data, err := r.client.SitesDevices().UpdateSiteDevice(ctx, siteId, deviceId, &deviceAp)
 
 	if data.Response.StatusCode != 200 {
-		api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-		if api_err != "" {
+		apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+		if apiErr != "" {
 			resp.Diagnostics.AddError(
 				"Error creating \"mist_device_ap\" resource",
-				fmt.Sprintf("Unable to create the Wireless Access Point. %s", api_err),
+				fmt.Sprintf("Unable to create the Wireless Access Point. %s", apiErr),
 			)
 			return
 		}
 	}
 
 	body, _ := io.ReadAll(data.Response.Body)
-	mist_ap := models.DeviceAp{}
-	json.Unmarshal(body, &mist_ap)
-	state, diags = resource_device_ap.SdkToTerraform(ctx, &mist_ap)
+	mistAp := models.DeviceAp{}
+	json.Unmarshal(body, &mistAp)
+	state, diags = resource_device_ap.SdkToTerraform(ctx, &mistAp)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -129,7 +129,7 @@ func (r *deviceApResource) Create(ctx context.Context, req resource.CreateReques
 
 }
 
-func (r *deviceApResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *deviceApResource) Read(ctx context.Context, _ resource.ReadRequest, resp *resource.ReadResponse) {
 	var state resource_device_ap.DeviceApModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -170,10 +170,10 @@ func (r *deviceApResource) Read(ctx context.Context, req resource.ReadRequest, r
 		return
 	}
 	body, _ := io.ReadAll(httpr.Response.Body)
-	mist_ap := models.DeviceAp{}
-	json.Unmarshal(body, &mist_ap)
+	mistAp := models.DeviceAp{}
+	json.Unmarshal(body, &mistAp)
 
-	state, diags = resource_device_ap.SdkToTerraform(ctx, &mist_ap)
+	state, diags = resource_device_ap.SdkToTerraform(ctx, &mistAp)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -201,7 +201,7 @@ func (r *deviceApResource) Update(ctx context.Context, req resource.UpdateReques
 		return
 	}
 
-	device_ap, diags := resource_device_ap.TerraformToSdk(ctx, &plan)
+	deviceAp, diags := resource_device_ap.TerraformToSdk(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -227,23 +227,23 @@ func (r *deviceApResource) Update(ctx context.Context, req resource.UpdateReques
 		return
 	}
 
-	data, err := r.client.SitesDevices().UpdateSiteDevice(ctx, siteId, deviceId, &device_ap)
+	data, err := r.client.SitesDevices().UpdateSiteDevice(ctx, siteId, deviceId, &deviceAp)
 
 	if data.Response.StatusCode != 200 {
-		api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-		if api_err != "" {
+		apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+		if apiErr != "" {
 			resp.Diagnostics.AddError(
 				"Error updating \"mist_device_ap\" resource",
-				fmt.Sprintf("Unable to update the Wireless Access Point. %s", api_err),
+				fmt.Sprintf("Unable to update the Wireless Access Point. %s", apiErr),
 			)
 			return
 		}
 	}
 
 	body, _ := io.ReadAll(data.Response.Body)
-	mist_ap := models.DeviceAp{}
-	json.Unmarshal(body, &mist_ap)
-	state, diags = resource_device_ap.SdkToTerraform(ctx, &mist_ap)
+	mistAp := models.DeviceAp{}
+	json.Unmarshal(body, &mistAp)
+	state, diags = resource_device_ap.SdkToTerraform(ctx, &mistAp)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -257,7 +257,7 @@ func (r *deviceApResource) Update(ctx context.Context, req resource.UpdateReques
 
 }
 
-func (r *deviceApResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *deviceApResource) Delete(ctx context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_device_ap.DeviceApModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -266,7 +266,7 @@ func (r *deviceApResource) Delete(ctx context.Context, req resource.DeleteReques
 		return
 	}
 
-	device_ap, e := resource_device_ap.DeleteTerraformToSdk(ctx)
+	deviceAp, e := resource_device_ap.DeleteTerraformToSdk(ctx)
 	resp.Diagnostics.Append(e...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -292,12 +292,12 @@ func (r *deviceApResource) Delete(ctx context.Context, req resource.DeleteReques
 		return
 	}
 
-	data, err := r.client.SitesDevices().UpdateSiteDevice(ctx, siteId, deviceId, &device_ap)
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if data.Response.StatusCode != 200 && data.Response.StatusCode != 404 && api_err != "" {
+	data, err := r.client.SitesDevices().UpdateSiteDevice(ctx, siteId, deviceId, &deviceAp)
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if data.Response.StatusCode != 200 && data.Response.StatusCode != 404 && apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_device_ap\" resource",
-			fmt.Sprintf("Unable to delete the Wireless Access Point. %s", api_err),
+			fmt.Sprintf("Unable to delete the Wireless Access Point. %s", apiErr),
 		)
 		return
 	}

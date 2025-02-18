@@ -7,7 +7,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 
-	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
+	mistapierror "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_upgrade_device"
 
 	"github.com/google/uuid"
@@ -49,11 +49,11 @@ func (r *upgradeDeviceResource) Configure(ctx context.Context, req resource.Conf
 
 	r.client = client
 }
-func (r *upgradeDeviceResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *upgradeDeviceResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_upgrade_device"
 }
 
-func (r *upgradeDeviceResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *upgradeDeviceResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryDevices + "This resource can be used to upgrade the frimware of a single device (Wi-Fi Access Points, Switches and SRX/SSR Gateways).\n\n" +
 			"The resource will send the upgrade command to Mist, which will take care of deploying the new firmware version to the " +
@@ -91,7 +91,7 @@ func (r *upgradeDeviceResource) Create(ctx context.Context, req resource.CreateR
 
 }
 
-func (r *upgradeDeviceResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *upgradeDeviceResource) Read(ctx context.Context, _ resource.ReadRequest, resp *resource.ReadResponse) {
 	var state resource_upgrade_device.UpgradeDeviceModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -142,7 +142,7 @@ func (r *upgradeDeviceResource) Update(ctx context.Context, req resource.UpdateR
 	}
 }
 
-func (r *upgradeDeviceResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *upgradeDeviceResource) Delete(_ context.Context, _ resource.DeleteRequest, _ *resource.DeleteResponse) {
 }
 
 func (r *upgradeDeviceResource) startFwUpdate(
@@ -170,7 +170,7 @@ func (r *upgradeDeviceResource) startFwUpdate(
 		return state, diags
 	}
 
-	upgrade, diags := resource_upgrade_device.TerraformToSdk(ctx, &plan)
+	upgrade, diags := resource_upgrade_device.TerraformToSdk(&plan)
 	diags.Append(diags...)
 	if diags.HasError() {
 		return state, diags
@@ -178,11 +178,11 @@ func (r *upgradeDeviceResource) startFwUpdate(
 	// Start upgrade
 	data, err := r.client.UtilitiesUpgrade().UpgradeDevice(ctx, siteId, deviceId, upgrade)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		diags.AddError(
 			"Error creating \"mist_upgrade_device\" resource",
-			fmt.Sprintf("Unable to Upgrade the device. %s", api_err),
+			fmt.Sprintf("Unable to Upgrade the device. %s", apiErr),
 		)
 		return state, diags
 	} else if data.Data.Status == "device already running version" {
@@ -191,13 +191,13 @@ func (r *upgradeDeviceResource) startFwUpdate(
 			"Unable to upgrade the device",
 			fmt.Sprintf("Device is already running the version %s", plan.TargetVersion.ValueString()),
 		)
-		state, diags = resource_upgrade_device.SdkToTerraform(ctx, plan, &data.Data)
+		state, diags = resource_upgrade_device.SdkToTerraform(plan, &data.Data)
 		diags.Append(diags...)
 		if diags.HasError() {
 			return state, diags
 		}
 	} else {
-		state, diags = resource_upgrade_device.SdkToTerraform(ctx, plan, &data.Data)
+		state, diags = resource_upgrade_device.SdkToTerraform(plan, &data.Data)
 		diags.Append(diags...)
 		if diags.HasError() {
 			return state, diags
@@ -240,11 +240,11 @@ func (r *upgradeDeviceResource) refreshFwUpdate(
 	var startTime = time.Now()
 	var retry = 0
 	var maxRetry = 3
-	var deviceUptime int = -1
-	var upgradeStarted bool = false
-	var uploadDone bool = false
-	var upgradeDone bool = false
-	var rebootDone bool = false
+	var deviceUptime = -1
+	var upgradeStarted = false
+	var uploadDone = false
+	var upgradeDone = false
+	var rebootDone = false
 
 	siteId, err := uuid.Parse(state.SiteId.ValueString())
 	if err != nil {
@@ -268,15 +268,15 @@ func (r *upgradeDeviceResource) refreshFwUpdate(
 	for {
 		data, err := r.client.SitesStatsDevices().GetSiteDeviceStats(ctx, siteId, deviceId, fields)
 
-		api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-		if api_err != "" {
+		apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+		if apiErr != "" {
 			if retry < maxRetry {
 				retry += 1
 				time.Sleep(5 * time.Second)
 			} else {
 				diags.AddError(
 					"Error reading device status for the \"mist_upgrade_device\" resource",
-					fmt.Sprintf("Unable to retrieve the device upgrade status. %s", api_err),
+					fmt.Sprintf("Unable to retrieve the device upgrade status. %s", apiErr),
 				)
 				return state, diags
 			}
@@ -401,9 +401,9 @@ func checkUpgradeProgress(
 	startTime time.Time,
 	deviceUptime int,
 ) (bool, bool, bool) {
-	var uploadDone bool = false
-	var upgradeDone bool = false
-	var rebootDone bool = false
+	var uploadDone = false
+	var upgradeDone = false
+	var rebootDone = false
 
 	if state.Fwupdate.Progress.ValueInt64() >= 70 {
 		uploadDone = true

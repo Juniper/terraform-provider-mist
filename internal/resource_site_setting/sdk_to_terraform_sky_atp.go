@@ -14,21 +14,20 @@ import (
 func skyAtpSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteSettingSkyatp) SkyatpValue {
 
 	var enabled basetypes.BoolValue
-	var send_ip_mac_mapping basetypes.BoolValue
+	var sendIpMacMapping basetypes.BoolValue
 
 	if d != nil && d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
 	if d != nil && d.SendIpMacMapping != nil {
-		send_ip_mac_mapping = types.BoolValue(*d.SendIpMacMapping)
+		sendIpMacMapping = types.BoolValue(*d.SendIpMacMapping)
 	}
 
-	data_map_attr_type := SkyatpValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"enabled":             enabled,
-		"send_ip_mac_mapping": send_ip_mac_mapping,
+		"send_ip_mac_mapping": sendIpMacMapping,
 	}
-	data, e := NewSkyatpValue(data_map_attr_type, data_map_value)
+	data, e := NewSkyatpValue(SkyatpValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

@@ -36,25 +36,25 @@ func processMistInventory(
 	diags *diag.Diagnostics,
 	data *[]models.Inventory,
 	mistDevicesByClaimCode *map[string]*InventoryValue,
-	mistDevicesbyMac *map[string]*InventoryValue,
+	mistDevicesByMac *map[string]*InventoryValue,
 	mistSiteIdByVcMac *map[string]types.String,
 ) {
 	/*
 		Function to process the Inventory list retrieved from Mist. This return the SetNested with all the devices
 		in the inventory (used in OrgInventoryModel.Devices) and generate the list used in the other functions:
 		- mistDevicesByClaimCode: map to find a device based on its claim code (if any)
-		- mistDevicesByMac: map to find a device based on it's MAC Address
+		- mistDevicesByMac: map to find a device based on its MAC Address
 		- mistSiteIdByVcMac: map to find a siteId based on the VC Master/Cluster Primary MAC Address
 
 		parameters:
 			ctx : context.Context
 			diags :  *diag.Diagnostics
 			data : *[]models.Inventory
-				Inventory list retrived from Mist
+				Inventory list retrieved from Mist
 			mistDevicesByClaimCode : *map[string]*InventoryValue
 				map to find a device based on its claim code (if any). The Key is the device Claim Code, the value
 				is the device Data
-			mistDevicesbyMac : *map[string]*InventoryValue
+			mistDevicesByMac : *map[string]*InventoryValue
 				map to find a device based on its MAC Address. The Key is the device MAC Address, the value
 				is the device Data
 			mistSiteIdByVcMac : *map[string]*types.String
@@ -64,24 +64,24 @@ func processMistInventory(
 	*/
 
 	for _, d := range *data {
-		var claim_code basetypes.StringValue = types.StringValue("")
-		var deviceprofile_id basetypes.StringValue = types.StringValue("")
+		var claimCode = types.StringValue("")
+		var deviceprofileId = types.StringValue("")
 		var mac basetypes.StringValue
 		var model basetypes.StringValue
-		var org_id basetypes.StringValue
+		var orgId basetypes.StringValue
 		var serial basetypes.StringValue
-		var site_id basetypes.StringValue
-		var device_type basetypes.StringValue
-		var vc_mac basetypes.StringValue = types.StringValue("")
-		var hostname basetypes.StringValue = types.StringValue("")
-		var unclaim_when_destroyed basetypes.BoolValue = types.BoolValue(false)
+		var siteId basetypes.StringValue
+		var deviceType basetypes.StringValue
+		var vcMac = types.StringValue("")
+		var hostname = types.StringValue("")
+		var unclaimWhenDestroyed = types.BoolValue(false)
 		var id basetypes.StringValue
 
 		if d.Magic != nil {
-			claim_code = types.StringValue(*d.Magic)
+			claimCode = types.StringValue(*d.Magic)
 		}
 		if d.DeviceprofileId.Value() != nil {
-			deviceprofile_id = types.StringValue(*d.DeviceprofileId.Value())
+			deviceprofileId = types.StringValue(*d.DeviceprofileId.Value())
 		}
 		if d.Mac != nil {
 			mac = types.StringValue(*d.Mac)
@@ -90,19 +90,19 @@ func processMistInventory(
 			model = types.StringValue(*d.Model)
 		}
 		if d.OrgId != nil {
-			org_id = types.StringValue(d.OrgId.String())
+			orgId = types.StringValue(d.OrgId.String())
 		}
 		if d.Serial != nil {
 			serial = types.StringValue(*d.Serial)
 		}
 		if d.SiteId != nil {
-			site_id = types.StringValue(d.SiteId.String())
+			siteId = types.StringValue(d.SiteId.String())
 		}
 		if d.Type != nil {
-			device_type = types.StringValue(string(*d.Type))
+			deviceType = types.StringValue(string(*d.Type))
 		}
 		if d.VcMac != nil {
-			vc_mac = types.StringValue(*d.VcMac)
+			vcMac = types.StringValue(*d.VcMac)
 		}
 		if d.Hostname != nil {
 			hostname = types.StringValue(*d.Hostname)
@@ -111,28 +111,27 @@ func processMistInventory(
 			id = types.StringValue(d.Id.String())
 		}
 
-		data_map_attr_type := InventoryValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
-			"deviceprofile_id":       deviceprofile_id,
+		dataMapValue := map[string]attr.Value{
+			"deviceprofile_id":       deviceprofileId,
 			"hostname":               hostname,
 			"id":                     id,
 			"mac":                    mac,
-			"claim_code":             claim_code,
+			"claim_code":             claimCode,
 			"model":                  model,
-			"org_id":                 org_id,
+			"org_id":                 orgId,
 			"serial":                 serial,
-			"site_id":                site_id,
-			"type":                   device_type,
-			"unclaim_when_destroyed": unclaim_when_destroyed,
-			"vc_mac":                 vc_mac,
+			"site_id":                siteId,
+			"type":                   deviceType,
+			"unclaim_when_destroyed": unclaimWhenDestroyed,
+			"vc_mac":                 vcMac,
 		}
-		newDevice, e := NewInventoryValue(data_map_attr_type, data_map_value)
+		newDevice, e := NewInventoryValue(InventoryValue{}.AttributeTypes(ctx), dataMapValue)
 		if e != nil {
 			diags.Append(e...)
 		} else {
-			var nMagic string = strings.ToUpper(newDevice.Magic.ValueString())
-			var nMac string = strings.ToUpper(newDevice.Mac.ValueString())
-			(*mistDevicesbyMac)[nMac] = &newDevice
+			var nMagic = strings.ToUpper(newDevice.Magic.ValueString())
+			var nMac = strings.ToUpper(newDevice.Mac.ValueString())
+			(*mistDevicesByMac)[nMac] = &newDevice
 			if nMagic != "" {
 				(*mistDevicesByClaimCode)[nMagic] = &newDevice
 			}
@@ -146,7 +145,7 @@ func processMistInventory(
 func processImport(
 	ctx context.Context,
 	diags *diag.Diagnostics,
-	mistDevicesbyMac *map[string]*InventoryValue,
+	mistDevicesByMac *map[string]*InventoryValue,
 	mistSiteIdByVcMac *map[string]types.String,
 ) basetypes.MapValue {
 	/*
@@ -168,7 +167,7 @@ func processImport(
 	*/
 	newStateDevicesMap := make(map[string]attr.Value)
 
-	for _, device := range *mistDevicesbyMac {
+	for _, device := range *mistDevicesByMac {
 		checkVcSiteId(device, mistSiteIdByVcMac)
 		if device.Magic.ValueStringPointer() == nil || len(device.Magic.ValueString()) == 0 {
 			newStateDevicesMap[device.Mac.ValueString()] = device
@@ -184,7 +183,7 @@ func processImport(
 func processSync(
 	ctx context.Context,
 	diags *diag.Diagnostics,
-	ref_inventoryDevices *map[string]InventoryValue,
+	refInventorydevices *map[string]InventoryValue,
 	mistDevicesByClaimCode *map[string]*InventoryValue,
 	mistDevicesByMac *map[string]*InventoryValue,
 	mistSiteIdByVcMac *map[string]types.String,
@@ -207,11 +206,11 @@ func processSync(
 		returns:
 			basetypes.MapValue
 				map of ByClaimCode to save. Key is the device Claim Code, Value is a Nested Object with the SiteId
-				and the UnclaimWhenDestroyed bit
+				and the unclaimWhenDestroyed bit
 	*/
 	newStateDevices := make(map[string]attr.Value)
 
-	for deviceInfo, d := range *ref_inventoryDevices {
+	for deviceInfo, d := range *refInventorydevices {
 		isClaimCode, isMac := DetectDeviceInfoType(diags, strings.ToUpper(deviceInfo))
 
 		var di interface{} = d
@@ -222,16 +221,12 @@ func processSync(
 				checkVcSiteId(deviceFromMist, mistSiteIdByVcMac)
 				deviceFromMist.UnclaimWhenDestroyed = device.UnclaimWhenDestroyed
 				newStateDevices[deviceInfo] = deviceFromMist
-				//} else {
-				//	diags.AddError("Device not found", fmt.Sprintf("Unable to find device with the Claim Code \"%s\" in the Org Inventory", deviceInfo))
 			}
 		} else if isMac {
 			if deviceFromMist, ok := (*mistDevicesByMac)[strings.ToUpper(deviceInfo)]; ok {
 				checkVcSiteId(deviceFromMist, mistSiteIdByVcMac)
 				deviceFromMist.UnclaimWhenDestroyed = device.UnclaimWhenDestroyed
 				newStateDevices[deviceInfo] = deviceFromMist
-				//} else {
-				//	diags.AddError("Device not found", fmt.Sprintf("Unable to find device with the MAC Address \"%s\" in the Org Inventory", deviceInfo))
 			}
 		} else {
 			diags.AddError(
@@ -250,7 +245,7 @@ func mapSdkToTerraform(
 	ctx context.Context,
 	orgId string,
 	data *[]models.Inventory,
-	ref_inventory *OrgInventoryModel,
+	refInventory *OrgInventoryModel,
 ) (OrgInventoryModel, diag.Diagnostics) {
 	var state OrgInventoryModel
 	var diags diag.Diagnostics
@@ -264,22 +259,22 @@ func mapSdkToTerraform(
 		The SetNested Devices is set/updated in both cases (done above)
 
 		If it's for an Import (no ref_inventory.OrgId), then generate the inventory with
-		- basetypes.StringValue OrgId with the import orgId
+		- bassetypes.StringValue OrgId with the import orgId
 		- SetNested	ByClaimCode with the list of devices with a claim code
 		- SetNested ByMac with the list of devices without a claim code
 
 		If it's for a Sync (ref_inventory.OrgId set)
-		- baetypes.StringValue OrgId with the ref_inventory.OrgId
+		- basetypes.StringValue OrgId with the ref_inventory.OrgId
 		- setNested ByClaimCode with the list of devices in the ref_inventory and in the Mist Inventory (and take the siteId from the inventory)
 		- setNested ByMac with the list of devices in the ref_inventory and in the Mist Inventory (and take the siteId from the inventory)
 	*/
-	if ref_inventory.OrgId.ValueStringPointer() == nil {
+	if refInventory.OrgId.ValueStringPointer() == nil {
 		state.OrgId = types.StringValue(orgId)
 		state.Inventory = processImport(ctx, &diags, &mistDevicesbyMac, &mistSiteIdByVcMac)
 	} else {
-		state.OrgId = ref_inventory.OrgId
-		ref_inventoryDevicesMap := GenDeviceMap(&ref_inventory.Inventory)
-		state.Inventory = processSync(ctx, &diags, &ref_inventoryDevicesMap, &mistDevicesByClaimCode, &mistDevicesbyMac, &mistSiteIdByVcMac)
+		state.OrgId = refInventory.OrgId
+		refInventorydevicesmap := GenDeviceMap(&refInventory.Inventory)
+		state.Inventory = processSync(ctx, &diags, &refInventorydevicesmap, &mistDevicesByClaimCode, &mistDevicesbyMac, &mistSiteIdByVcMac)
 	}
 
 	return state, diags
@@ -289,14 +284,14 @@ func SdkToTerraform(
 	ctx context.Context,
 	orgId string,
 	data *[]models.Inventory,
-	ref_inventory *OrgInventoryModel,
+	refInventory *OrgInventoryModel,
 ) (OrgInventoryModel, diag.Diagnostics) {
-	if !ref_inventory.Devices.IsNull() && !ref_inventory.Devices.IsUnknown() {
-		state, diags := legacySdkToTerraform(ctx, orgId, data, ref_inventory)
+	if !refInventory.Devices.IsNull() && !refInventory.Devices.IsUnknown() {
+		state, diags := legacySdkToTerraform(ctx, orgId, data, refInventory)
 		state.Inventory = basetypes.NewMapNull(InventoryValue{}.Type(ctx))
 		return state, diags
 	} else {
-		state, diags := mapSdkToTerraform(ctx, orgId, data, ref_inventory)
+		state, diags := mapSdkToTerraform(ctx, orgId, data, refInventory)
 		state.Devices = basetypes.NewListNull(DevicesValue{}.Type(ctx))
 		return state, diags
 	}

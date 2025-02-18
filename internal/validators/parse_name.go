@@ -25,10 +25,10 @@ func (o ParseNameValidator) ValidateString(_ context.Context, req validator.Stri
 		return
 	}
 
-	re_variable := `^[a-zA-Z0-9][a-zA-Z0-9_-]*[a-zA-Z0-9]$`
+	reVariable := `^[a-zA-Z0-9][a-zA-Z0-9_-]*[a-zA-Z0-9]$`
 
 	value := req.ConfigValue.ValueString()
-	if is_name, err := regexp.MatchString(re_variable, value); !is_name || err != nil {
+	if isName, err := regexp.MatchString(reVariable, value); !isName || err != nil {
 		resp.Diagnostics.Append(validatordiag.InvalidAttributeValueDiagnostic(
 			req.Path,
 			"value must only use alphanumerics, underscores, or dashes; start and end with an alphanumeric; include at least one alphabetic character; have no dashes or underscores before the first alphabetic character",

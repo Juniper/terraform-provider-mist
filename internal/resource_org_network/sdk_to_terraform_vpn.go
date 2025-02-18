@@ -3,7 +3,7 @@ package resource_org_network
 import (
 	"context"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -14,14 +14,14 @@ import (
 )
 
 func destinationNatVpnSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d map[string]models.NetworkVpnAccessDestinationNatProperty) basetypes.MapValue {
-	state_value_map_value := make(map[string]attr.Value)
+	stateValueMapValue := make(map[string]attr.Value)
 	for k, v := range d {
-		var internal_ip basetypes.StringValue
+		var internalIp basetypes.StringValue
 		var name basetypes.StringValue
 		var port basetypes.StringValue
 
 		if v.InternalIp != nil {
-			internal_ip = types.StringValue(*v.InternalIp)
+			internalIp = types.StringValue(*v.InternalIp)
 		}
 		if v.Name != nil {
 			name = types.StringValue(*v.Name)
@@ -30,134 +30,133 @@ func destinationNatVpnSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 			port = types.StringValue(*v.Port)
 		}
 
-		state_value_map_attr_value := map[string]attr.Value{
-			"internal_ip": internal_ip,
+		stateValueMapAttrValue := map[string]attr.Value{
+			"internal_ip": internalIp,
 			"name":        name,
 			"port":        port,
 		}
-		n, e := NewVpnAccessDestinationNatValue(VpnAccessDestinationNatValue{}.AttributeTypes(ctx), state_value_map_attr_value)
+		n, e := NewVpnAccessDestinationNatValue(VpnAccessDestinationNatValue{}.AttributeTypes(ctx), stateValueMapAttrValue)
 		diags.Append(e...)
 
-		state_value_map_value[k] = n
+		stateValueMapValue[k] = n
 	}
-	state_result_map, e := types.MapValueFrom(ctx, VpnAccessDestinationNatValue{}.Type(ctx), state_value_map_value)
+	stateResultMap, e := types.MapValueFrom(ctx, VpnAccessDestinationNatValue{}.Type(ctx), stateValueMapValue)
 	diags.Append(e...)
-	return state_result_map
+	return stateResultMap
 }
 
 func staticNatVpnSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d map[string]models.NetworkVpnAccessStaticNatProperty) basetypes.MapValue {
-	state_value_map_value := make(map[string]attr.Value)
+	stateValueMapValue := make(map[string]attr.Value)
 	for k, v := range d {
-		var internal_ip basetypes.StringValue
+		var internalIp basetypes.StringValue
 		var name basetypes.StringValue
 
 		if v.InternalIp != nil {
-			internal_ip = types.StringValue(*v.InternalIp)
+			internalIp = types.StringValue(*v.InternalIp)
 		}
 		if v.Name != nil {
 			name = types.StringValue(*v.Name)
 		}
 
-		state_value_map_attr_value := map[string]attr.Value{
-			"internal_ip": internal_ip,
+		stateValueMapAttrValue := map[string]attr.Value{
+			"internal_ip": internalIp,
 			"name":        name,
 		}
-		n, e := NewVpnAccessStaticNatValue(VpnAccessStaticNatValue{}.AttributeTypes(ctx), state_value_map_attr_value)
+		n, e := NewVpnAccessStaticNatValue(VpnAccessStaticNatValue{}.AttributeTypes(ctx), stateValueMapAttrValue)
 		diags.Append(e...)
 
-		state_value_map_value[k] = n
+		stateValueMapValue[k] = n
 	}
-	state_result_map, e := types.MapValueFrom(ctx, VpnAccessStaticNatValue{}.Type(ctx), state_value_map_value)
+	stateResultMap, e := types.MapValueFrom(ctx, VpnAccessStaticNatValue{}.Type(ctx), stateValueMapValue)
 	diags.Append(e...)
-	return state_result_map
+	return stateResultMap
 }
 
 func VpnSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.NetworkVpnAccessConfig) basetypes.MapValue {
 
-	state_value_map_value := make(map[string]attr.Value)
+	stateValueMapValue := make(map[string]attr.Value)
 	for k, d := range m {
-		var advertised_subnet basetypes.StringValue
-		var allow_ping basetypes.BoolValue
-		var destination_nat basetypes.MapValue = types.MapNull(VpnAccessDestinationNatValue{}.Type(ctx))
-		var nat_pool basetypes.StringValue
-		var no_readvertise_to_lan_bgp basetypes.BoolValue = types.BoolValue(false)
-		var no_readvertise_to_lan_ospf basetypes.BoolValue = types.BoolValue(false)
-		var no_readvertise_to_overlay basetypes.BoolValue
-		var other_vrfs basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+		var advertisedSubnet basetypes.StringValue
+		var allowPing basetypes.BoolValue
+		var destinationNat = types.MapNull(VpnAccessDestinationNatValue{}.Type(ctx))
+		var natPool basetypes.StringValue
+		var noReadvertiseToLanBgp = types.BoolValue(false)
+		var noReadvertiseToLanOspf = types.BoolValue(false)
+		var noReadvertiseToOverlay basetypes.BoolValue
+		var otherVrfs = misttransform.ListOfStringSdkToTerraformEmpty()
 		var routed basetypes.BoolValue
-		var source_nat basetypes.ObjectValue = types.ObjectNull(SourceNatValue{}.AttributeTypes(ctx))
-		var static_nat basetypes.MapValue = types.MapNull(VpnAccessStaticNatValue{}.Type(ctx))
-		var summarized_subnet basetypes.StringValue
-		var summarized_subnet_to_lan_bgp basetypes.StringValue
-		var summarized_subnet_to_lan_ospf basetypes.StringValue
+		var sourceNat = types.ObjectNull(SourceNatValue{}.AttributeTypes(ctx))
+		var staticNat = types.MapNull(VpnAccessStaticNatValue{}.Type(ctx))
+		var summarizedSubnet basetypes.StringValue
+		var summarizedSubnetToLanBgp basetypes.StringValue
+		var summarizedSubnetToLanOspf basetypes.StringValue
 
 		if d.AdvertisedSubnet != nil {
-			advertised_subnet = types.StringValue(*d.AdvertisedSubnet)
+			advertisedSubnet = types.StringValue(*d.AdvertisedSubnet)
 		}
 		if d.AllowPing != nil {
-			allow_ping = types.BoolValue(*d.AllowPing)
+			allowPing = types.BoolValue(*d.AllowPing)
 		}
 		if d.DestinationNat != nil && len(d.DestinationNat) > 0 {
-			destination_nat = destinationNatVpnSdkToTerraform(ctx, diags, d.DestinationNat)
+			destinationNat = destinationNatVpnSdkToTerraform(ctx, diags, d.DestinationNat)
 		}
 		if d.NatPool != nil {
-			nat_pool = types.StringValue(*d.NatPool)
+			natPool = types.StringValue(*d.NatPool)
 		}
 		if d.NoReadvertiseToLanBgp != nil {
-			no_readvertise_to_lan_bgp = types.BoolValue(*d.NoReadvertiseToLanBgp)
+			noReadvertiseToLanBgp = types.BoolValue(*d.NoReadvertiseToLanBgp)
 		}
 		if d.NoReadvertiseToLanOspf != nil {
-			no_readvertise_to_lan_ospf = types.BoolValue(*d.NoReadvertiseToLanOspf)
+			noReadvertiseToLanOspf = types.BoolValue(*d.NoReadvertiseToLanOspf)
 		}
 		if d.NoReadvertiseToOverlay != nil {
-			no_readvertise_to_overlay = types.BoolValue(*d.NoReadvertiseToOverlay)
+			noReadvertiseToOverlay = types.BoolValue(*d.NoReadvertiseToOverlay)
 		}
 		if d.OtherVrfs != nil {
-			other_vrfs = mist_transform.ListOfStringSdkToTerraform(ctx, d.OtherVrfs)
+			otherVrfs = misttransform.ListOfStringSdkToTerraform(d.OtherVrfs)
 		}
 		if d.Routed != nil {
 			routed = types.BoolValue(*d.Routed)
 		}
 		if d.SourceNat != nil {
-			source_nat = sourceNatSdkToTerraform(ctx, diags, d.SourceNat)
+			sourceNat = sourceNatSdkToTerraform(ctx, diags, d.SourceNat)
 		}
 		if d.StaticNat != nil {
-			static_nat = staticNatVpnSdkToTerraform(ctx, diags, d.StaticNat)
+			staticNat = staticNatVpnSdkToTerraform(ctx, diags, d.StaticNat)
 		}
 		if d.SummarizedSubnet != nil {
-			summarized_subnet = types.StringValue(*d.SummarizedSubnet)
+			summarizedSubnet = types.StringValue(*d.SummarizedSubnet)
 		}
 		if d.SummarizedSubnetToLanBgp != nil {
-			summarized_subnet_to_lan_bgp = types.StringValue(*d.SummarizedSubnetToLanBgp)
+			summarizedSubnetToLanBgp = types.StringValue(*d.SummarizedSubnetToLanBgp)
 		}
 		if d.SummarizedSubnetToLanOspf != nil {
-			summarized_subnet_to_lan_ospf = types.StringValue(*d.SummarizedSubnetToLanOspf)
+			summarizedSubnetToLanOspf = types.StringValue(*d.SummarizedSubnetToLanOspf)
 		}
 
-		data_map_attr_type := VpnAccessValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
-			"advertised_subnet":             advertised_subnet,
-			"allow_ping":                    allow_ping,
-			"destination_nat":               destination_nat,
-			"nat_pool":                      nat_pool,
-			"no_readvertise_to_lan_bgp":     no_readvertise_to_lan_bgp,
-			"no_readvertise_to_lan_ospf":    no_readvertise_to_lan_ospf,
-			"no_readvertise_to_overlay":     no_readvertise_to_overlay,
-			"other_vrfs":                    other_vrfs,
+		dataMapValue := map[string]attr.Value{
+			"advertised_subnet":             advertisedSubnet,
+			"allow_ping":                    allowPing,
+			"destination_nat":               destinationNat,
+			"nat_pool":                      natPool,
+			"no_readvertise_to_lan_bgp":     noReadvertiseToLanBgp,
+			"no_readvertise_to_lan_ospf":    noReadvertiseToLanOspf,
+			"no_readvertise_to_overlay":     noReadvertiseToOverlay,
+			"other_vrfs":                    otherVrfs,
 			"routed":                        routed,
-			"source_nat":                    source_nat,
-			"static_nat":                    static_nat,
-			"summarized_subnet":             summarized_subnet,
-			"summarized_subnet_to_lan_bgp":  summarized_subnet_to_lan_bgp,
-			"summarized_subnet_to_lan_ospf": summarized_subnet_to_lan_ospf,
+			"source_nat":                    sourceNat,
+			"static_nat":                    staticNat,
+			"summarized_subnet":             summarizedSubnet,
+			"summarized_subnet_to_lan_bgp":  summarizedSubnetToLanBgp,
+			"summarized_subnet_to_lan_ospf": summarizedSubnetToLanOspf,
 		}
-		data, e := NewVpnAccessValue(data_map_attr_type, data_map_value)
+		data, e := NewVpnAccessValue(VpnAccessValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		state_value_map_value[k] = data
+		stateValueMapValue[k] = data
 	}
-	state_result_map_type := VpnAccessValue{}.Type(ctx)
-	state_result_map, e := types.MapValueFrom(ctx, state_result_map_type, state_value_map_value)
+	stateResultMapType := VpnAccessValue{}.Type(ctx)
+	stateResultMap, e := types.MapValueFrom(ctx, stateResultMapType, stateValueMapValue)
 	diags.Append(e...)
-	return state_result_map
+	return stateResultMap
 }

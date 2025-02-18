@@ -3,7 +3,7 @@ package resource_org_alarmtemplate
 import (
 	"context"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -16,18 +16,18 @@ func TerraformToSdk(ctx context.Context, plan *OrgAlarmtemplateModel) (*models.A
 
 	data := models.AlarmTemplate{}
 
-	data.Delivery = deliveryTerraformToSdk(ctx, &diags, plan.Delivery)
+	data.Delivery = deliveryTerraformToSdk(plan.Delivery)
 	data.Name = plan.Name.ValueStringPointer()
-	data.Rules = rulesTerraforToSdk(ctx, &diags, plan.Rules)
+	data.Rules = rulesTerraformToSdk(ctx, &diags, plan.Rules)
 
 	return &data, diags
 }
 
-func deliveryTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d DeliveryValue) models.Delivery {
+func deliveryTerraformToSdk(d DeliveryValue) models.Delivery {
 	var data models.Delivery
 	if !d.IsNull() && !d.IsUnknown() {
 		if !d.AdditionalEmails.IsNull() && !d.AdditionalEmails.IsUnknown() {
-			data.AdditionalEmails = mist_transform.ListOfStringTerraformToSdk(ctx, d.AdditionalEmails)
+			data.AdditionalEmails = misttransform.ListOfStringTerraformToSdk(d.AdditionalEmails)
 		}
 		data.Enabled = *d.Enabled.ValueBoolPointer()
 		if !d.ToOrgAdmins.IsNull() && !d.ToOrgAdmins.IsUnknown() {
@@ -40,24 +40,24 @@ func deliveryTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d Deli
 	return data
 }
 
-func rulesTerraforToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.AlarmTemplateRule {
-	data_map := make(map[string]models.AlarmTemplateRule)
+func rulesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.AlarmTemplateRule {
+	dataMap := make(map[string]models.AlarmTemplateRule)
 	for k, v := range d.Elements() {
-		var v_i interface{} = v
-		v_r := v_i.(RulesValue)
+		var vI interface{} = v
+		vR := vI.(RulesValue)
 		data := models.AlarmTemplateRule{}
-		if !v_r.Delivery.IsNull() && !v_r.IsUnknown() {
-			delivery, e := NewDeliveryValue(DeliveryValue{}.AttributeTypes(ctx), v_r.Delivery.Attributes())
+		if !vR.Delivery.IsNull() && !vR.IsUnknown() {
+			delivery, e := NewDeliveryValue(DeliveryValue{}.AttributeTypes(ctx), vR.Delivery.Attributes())
 			if e != nil {
 				diags.Append(e...)
 			} else {
-				data.Delivery = models.ToPointer(deliveryTerraformToSdk(ctx, diags, delivery))
+				data.Delivery = models.ToPointer(deliveryTerraformToSdk(delivery))
 			}
 		}
-		if !v_r.Enabled.IsNull() && !v_r.Enabled.IsUnknown() {
-			data.Enabled = v_r.Enabled.ValueBoolPointer()
+		if !vR.Enabled.IsNull() && !vR.Enabled.IsUnknown() {
+			data.Enabled = vR.Enabled.ValueBoolPointer()
 		}
-		data_map[k] = data
+		dataMap[k] = data
 	}
-	return data_map
+	return dataMap
 }

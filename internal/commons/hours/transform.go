@@ -14,8 +14,8 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func HoursSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.Hours) basetypes.ObjectValue {
-	r_attr_type := HoursValue{}.AttributeTypes(ctx)
+func HoursSdkToTerraform(diags *diag.Diagnostics, d *models.Hours) basetypes.ObjectValue {
+	rAttrType := HoursValue{}.AttributeTypes()
 
 	var mon types.String
 	var tue types.String
@@ -47,7 +47,7 @@ func HoursSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 		sun = types.StringValue(*d.Sun)
 	}
 
-	r_attr_value := map[string]attr.Value{
+	rAttrValue := map[string]attr.Value{
 		"mon": mon,
 		"tue": tue,
 		"wed": wed,
@@ -56,7 +56,7 @@ func HoursSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 		"sat": sat,
 		"sun": sun,
 	}
-	r, e := basetypes.NewObjectValue(r_attr_type, r_attr_value)
+	r, e := basetypes.NewObjectValue(rAttrType, rAttrValue)
 	diags.Append(e...)
 	return r
 }
@@ -108,7 +108,7 @@ func (t HoursType) String() string {
 	return "HoursType"
 }
 
-func (t HoursType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+func (t HoursType) ValueFromObject(_ context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	attributes := in.Attributes()
@@ -518,10 +518,10 @@ func (t HoursType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (at
 		attributes[k] = a
 	}
 
-	return NewHoursValueMust(HoursValue{}.AttributeTypes(ctx), attributes), nil
+	return NewHoursValueMust(HoursValue{}.AttributeTypes(), attributes), nil
 }
 
-func (t HoursType) ValueType(ctx context.Context) attr.Value {
+func (t HoursType) ValueType(_ context.Context) attr.Value {
 	return HoursValue{}
 }
 
@@ -640,7 +640,7 @@ func (v HoursValue) String() string {
 	return "HoursValue"
 }
 
-func (v HoursValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+func (v HoursValue) ToObjectValue(_ context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	attributeTypes := map[string]attr.Type{
@@ -722,15 +722,15 @@ func (v HoursValue) Equal(o attr.Value) bool {
 	return true
 }
 
-func (v HoursValue) Type(ctx context.Context) attr.Type {
+func (v HoursValue) Type(context.Context) attr.Type {
 	return HoursType{
 		basetypes.ObjectType{
-			AttrTypes: v.AttributeTypes(ctx),
+			AttrTypes: v.AttributeTypes(),
 		},
 	}
 }
 
-func (v HoursValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+func (v HoursValue) AttributeTypes() map[string]attr.Type {
 	return map[string]attr.Type{
 		"fri": basetypes.StringType{},
 		"mon": basetypes.StringType{},

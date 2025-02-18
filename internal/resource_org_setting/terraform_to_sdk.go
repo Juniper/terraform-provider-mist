@@ -3,7 +3,7 @@ package resource_org_setting
 import (
 	"context"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -21,31 +21,31 @@ func TerraformToSdk(ctx context.Context, plan *OrgSettingModel) (*models.OrgSett
 	}
 
 	if !plan.ApiPolicy.IsNull() && !plan.ApiPolicy.IsUnknown() {
-		data.ApiPolicy = apiPolicyTerraformToSdk(ctx, &diags, plan.ApiPolicy)
+		data.ApiPolicy = apiPolicyTerraformToSdk(plan.ApiPolicy)
 	} else {
 		unset["-api_policy"] = ""
 	}
 
 	if !plan.Cacerts.IsNull() && !plan.Cacerts.IsUnknown() {
-		data.Cacerts = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Cacerts)
+		data.Cacerts = misttransform.ListOfStringTerraformToSdk(plan.Cacerts)
 	} else {
 		unset["-cacerts"] = ""
 	}
 
 	if !plan.Celona.IsNull() && !plan.Celona.IsUnknown() {
-		data.Celona = celonaTerraformToSdk(ctx, &diags, plan.Celona)
+		data.Celona = celonaTerraformToSdk(plan.Celona)
 	} else {
 		unset["-celona"] = ""
 	}
 
 	if !plan.Cloudshark.IsNull() && !plan.Cloudshark.IsUnknown() {
-		data.Cloudshark = cloudsharkTerraformToSdk(ctx, &diags, plan.Cloudshark)
+		data.Cloudshark = cloudsharkTerraformToSdk(plan.Cloudshark)
 	} else {
 		unset["-cloudshark"] = ""
 	}
 
 	if !plan.DeviceCert.IsNull() && !plan.DeviceCert.IsUnknown() {
-		data.DeviceCert = deviceCertTerraformToSdk(ctx, &diags, plan.DeviceCert)
+		data.DeviceCert = deviceCertTerraformToSdk(plan.DeviceCert)
 	} else {
 		unset["-device_cert"] = ""
 	}
@@ -75,31 +75,31 @@ func TerraformToSdk(ctx context.Context, plan *OrgSettingModel) (*models.OrgSett
 	}
 
 	if !plan.Installer.IsNull() && !plan.Installer.IsUnknown() {
-		data.Installer = installerTerraformToSdk(ctx, &diags, plan.Installer)
+		data.Installer = installerTerraformToSdk(plan.Installer)
 	} else {
 		unset["-installer"] = ""
 	}
 
 	if !plan.JcloudRa.IsNull() && !plan.JcloudRa.IsUnknown() {
-		data.JcloudRa = jcloudRaTerraformToSdk(ctx, &diags, plan.JcloudRa)
+		data.JcloudRa = jcloudRaTerraformToSdk(plan.JcloudRa)
 	} else {
 		unset["-jcloud_ra"] = ""
 	}
 
 	if !plan.Jcloud.IsNull() && !plan.Jcloud.IsUnknown() {
-		data.Jcloud = jcloudTerraformToSdk(ctx, &diags, plan.Jcloud)
+		data.Jcloud = jcloudTerraformToSdk(plan.Jcloud)
 	} else {
 		unset["-jcloud"] = ""
 	}
 
 	if !plan.Juniper.IsNull() && !plan.Juniper.IsUnknown() {
-		data.Juniper = juniperTerraformToSdk(ctx, &diags, plan.Juniper)
+		data.Juniper = juniperTerraformToSdk(plan.Juniper)
 	} else {
 		unset["-juniper"] = ""
 	}
 
 	if !plan.Mgmt.IsNull() && !plan.Mgmt.IsUnknown() {
-		data.Mgmt = mgmtTerraformToSdk(ctx, &diags, plan.Mgmt)
+		data.Mgmt = mgmtTerraformToSdk(plan.Mgmt)
 	} else {
 		unset["-mgmt"] = ""
 	}
@@ -117,37 +117,37 @@ func TerraformToSdk(ctx context.Context, plan *OrgSettingModel) (*models.OrgSett
 	}
 
 	if !plan.MxedgeMgmt.IsNull() && !plan.MxedgeMgmt.IsUnknown() {
-		data.MxedgeMgmt = mxEdgeMgmtTerraformToSdk(ctx, &diags, plan.MxedgeMgmt)
+		data.MxedgeMgmt = mxEdgeMgmtTerraformToSdk(plan.MxedgeMgmt)
 	} else {
 		unset["-mxedge_mgmt"] = ""
 	}
 
 	if !plan.OpticPortConfig.IsNull() && !plan.OpticPortConfig.IsUnknown() {
-		data.OpticPortConfig = opticPortConfigTerraformToSdk(ctx, &diags, plan.OpticPortConfig)
+		data.OpticPortConfig = opticPortConfigTerraformToSdk(plan.OpticPortConfig)
 	} else {
 		unset["-optic_port_config"] = ""
 	}
 
 	if !plan.PasswordPolicy.IsNull() && !plan.PasswordPolicy.IsUnknown() {
-		data.PasswordPolicy = passwordPolicyTerraformToSdk(ctx, &diags, plan.PasswordPolicy)
+		data.PasswordPolicy = passwordPolicyTerraformToSdk(plan.PasswordPolicy)
 	} else {
 		unset["-password_policy"] = ""
 	}
 
 	if !plan.Pcap.IsNull() && !plan.Pcap.IsUnknown() {
-		data.Pcap = pcapTerraformToSdk(ctx, &diags, plan.Pcap)
+		data.Pcap = pcapTerraformToSdk(plan.Pcap)
 	} else {
 		unset["-pcap"] = ""
 	}
 
 	if !plan.Security.IsNull() && !plan.Security.IsUnknown() {
-		data.Security = securityTerraformToSdk(ctx, &diags, plan.Security)
+		data.Security = securityTerraformToSdk(plan.Security)
 	} else {
 		unset["-security"] = ""
 	}
 
 	if !plan.SwitchMgmt.IsNull() && !plan.SwitchMgmt.IsUnknown() {
-		data.SwitchMgmt = switchMgmtTerraformToSdk(ctx, &diags, plan.SwitchMgmt)
+		data.SwitchMgmt = switchMgmtTerraformToSdk(plan.SwitchMgmt)
 	} else {
 		unset["-switch_mgmt"] = ""
 	}
@@ -171,7 +171,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgSettingModel) (*models.OrgSett
 	}
 
 	if !plan.VpnOptions.IsNull() && !plan.VpnOptions.IsUnknown() {
-		data.VpnOptions = vpnOptionsTerraformToSdk(ctx, &diags, plan.VpnOptions)
+		data.VpnOptions = vpnOptionsTerraformToSdk(plan.VpnOptions)
 	} else {
 		unset["-vpn_options"] = ""
 	}

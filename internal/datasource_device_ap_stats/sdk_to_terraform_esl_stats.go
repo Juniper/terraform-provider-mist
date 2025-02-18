@@ -14,7 +14,7 @@ import (
 func eslStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.StatsApEslStat) basetypes.ObjectValue {
 	var channel basetypes.Int64Value
 	var connected basetypes.BoolValue
-	var type_esl basetypes.StringValue
+	var typeEsl basetypes.StringValue
 	var up basetypes.BoolValue
 
 	if d.Channel.Value() != nil {
@@ -24,20 +24,19 @@ func eslStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mod
 		connected = types.BoolValue(*d.Connected.Value())
 	}
 	if d.Type.Value() != nil {
-		type_esl = types.StringValue(*d.Type.Value())
+		typeEsl = types.StringValue(*d.Type.Value())
 	}
 	if d.Up.Value() != nil {
 		up = types.BoolValue(*d.Up.Value())
 	}
 
-	data_map_attr_type := EslStatValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"channel":   channel,
 		"connected": connected,
-		"type":      type_esl,
+		"type":      typeEsl,
 		"up":        up,
 	}
-	data, e := types.ObjectValue(data_map_attr_type, data_map_value)
+	data, e := types.ObjectValue(EslStatValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

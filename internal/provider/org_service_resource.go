@@ -7,7 +7,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 
-	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
+	mistapierror "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_service"
 
 	"github.com/google/uuid"
@@ -49,10 +49,10 @@ func (r *orgServiceResource) Configure(ctx context.Context, req resource.Configu
 	r.client = client
 }
 
-func (r *orgServiceResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *orgServiceResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_org_service"
 }
-func (r *orgServiceResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *orgServiceResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryWan + "This resource manages WAN Assurance Services (Applications).\n\n" +
 			"A Service is used to define a Custom Application that can be used in the `service_policies`. These Services can be referenced by their name in\n" +
@@ -74,7 +74,7 @@ func (r *orgServiceResource) Create(ctx context.Context, req resource.CreateRequ
 		return
 	}
 
-	service, diags := resource_org_service.TerraformToSdk(ctx, &plan)
+	service, diags := resource_org_service.TerraformToSdk(&plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -90,11 +90,11 @@ func (r *orgServiceResource) Create(ctx context.Context, req resource.CreateRequ
 	tflog.Info(ctx, "Starting OrgService Create for Org "+plan.OrgId.ValueString())
 	data, err := r.client.OrgsServices().CreateOrgService(ctx, orgId, &service)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error creating \"mist_org_service\" resource",
-			fmt.Sprintf("Unable to create the Service. %s", api_err),
+			fmt.Sprintf("Unable to create the Service. %s", apiErr),
 		)
 		return
 	}
@@ -112,7 +112,7 @@ func (r *orgServiceResource) Create(ctx context.Context, req resource.CreateRequ
 	}
 }
 
-func (r *orgServiceResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *orgServiceResource) Read(ctx context.Context, _ resource.ReadRequest, resp *resource.ReadResponse) {
 	var state resource_org_service.OrgServiceModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -177,7 +177,7 @@ func (r *orgServiceResource) Update(ctx context.Context, req resource.UpdateRequ
 		return
 	}
 
-	service, diags := resource_org_service.TerraformToSdk(ctx, &plan)
+	service, diags := resource_org_service.TerraformToSdk(&plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -202,11 +202,11 @@ func (r *orgServiceResource) Update(ctx context.Context, req resource.UpdateRequ
 	}
 	data, err := r.client.OrgsServices().UpdateOrgService(ctx, orgId, serviceId, &service)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error updating \"mist_org_service\" resource",
-			fmt.Sprintf("Unable to update the Service. %s", api_err),
+			fmt.Sprintf("Unable to update the Service. %s", apiErr),
 		)
 		return
 	}
@@ -225,7 +225,7 @@ func (r *orgServiceResource) Update(ctx context.Context, req resource.UpdateRequ
 
 }
 
-func (r *orgServiceResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *orgServiceResource) Delete(ctx context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_org_service.OrgServiceModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -252,11 +252,11 @@ func (r *orgServiceResource) Delete(ctx context.Context, req resource.DeleteRequ
 		return
 	}
 	data, err := r.client.OrgsServices().DeleteOrgService(ctx, orgId, serviceId)
-	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_service\" resource",
-			fmt.Sprintf("Unable to delete the Service. %s", api_err),
+			fmt.Sprintf("Unable to delete the Service. %s", apiErr),
 		)
 		return
 	}

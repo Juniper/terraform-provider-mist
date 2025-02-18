@@ -19,11 +19,10 @@ func srxAppSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *model
 		enabled = types.BoolValue(*d.Enabled)
 	}
 
-	data_map_attr_type := SrxAppValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"enabled": enabled,
 	}
-	data, e := NewSrxAppValue(data_map_attr_type, data_map_value)
+	data, e := NewSrxAppValue(SrxAppValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

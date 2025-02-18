@@ -20,11 +20,11 @@ func NewSearchInventoryByClaimcodeFunction() function.Function {
 	return &SearchInventoryByClaimcodeFunction{}
 }
 
-func (f *SearchInventoryByClaimcodeFunction) Metadata(ctx context.Context, req function.MetadataRequest, resp *function.MetadataResponse) {
+func (f *SearchInventoryByClaimcodeFunction) Metadata(_ context.Context, _ function.MetadataRequest, resp *function.MetadataResponse) {
 	resp.Name = "search_inventory_by_claimcode"
 }
 
-func (f *SearchInventoryByClaimcodeFunction) Definition(ctx context.Context, req function.DefinitionRequest, resp *function.DefinitionResponse) {
+func (f *SearchInventoryByClaimcodeFunction) Definition(ctx context.Context, _ function.DefinitionRequest, resp *function.DefinitionResponse) {
 	resp.Definition = function.Definition{
 		Summary: docCategoryDevices + "Retrieve a device in the `mist_org_inventory` resource based on its Claim Code",
 		MarkdownDescription: "Given `mist_org_inventory` resource and a Claim Code string, will return the Device object having the provided Claim Code. " +

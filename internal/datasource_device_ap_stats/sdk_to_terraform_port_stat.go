@@ -13,58 +13,57 @@ import (
 )
 
 func portStatdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.StatsApPortStat) basetypes.MapValue {
-	map_attr_values := make(map[string]attr.Value)
+	mapAttrValues := make(map[string]attr.Value)
 	for k, d := range m {
-		var full_duplex basetypes.BoolValue
-		var rx_bytes basetypes.NumberValue
-		var rx_errors basetypes.NumberValue
-		var rx_pkts basetypes.NumberValue
+		var fullDuplex basetypes.BoolValue
+		var rxBytes basetypes.NumberValue
+		var rxErrors basetypes.NumberValue
+		var rxPkts basetypes.NumberValue
 		var speed basetypes.Int64Value
-		var tx_bytes basetypes.NumberValue
-		var tx_pkts basetypes.NumberValue
+		var txBytes basetypes.NumberValue
+		var txPkts basetypes.NumberValue
 		var up basetypes.BoolValue
 
 		if d.FullDuplex.Value() != nil {
-			full_duplex = types.BoolValue(*d.FullDuplex.Value())
+			fullDuplex = types.BoolValue(*d.FullDuplex.Value())
 		}
 		if d.RxBytes.Value() != nil {
-			rx_bytes = types.NumberValue(big.NewFloat(*d.RxBytes.Value()))
+			rxBytes = types.NumberValue(big.NewFloat(*d.RxBytes.Value()))
 		}
 		if d.RxErrors.Value() != nil {
-			rx_errors = types.NumberValue(big.NewFloat(*d.RxErrors.Value()))
+			rxErrors = types.NumberValue(big.NewFloat(*d.RxErrors.Value()))
 		}
 		if d.RxPkts.Value() != nil {
-			rx_pkts = types.NumberValue(big.NewFloat(*d.RxPkts.Value()))
+			rxPkts = types.NumberValue(big.NewFloat(*d.RxPkts.Value()))
 		}
 		if d.Speed.Value() != nil {
 			speed = types.Int64Value(int64(*d.Speed.Value()))
 		}
 		if d.TxBytes.Value() != nil {
-			tx_bytes = types.NumberValue(big.NewFloat(*d.TxBytes.Value()))
+			txBytes = types.NumberValue(big.NewFloat(*d.TxBytes.Value()))
 		}
 		if d.TxPkts.Value() != nil {
-			tx_pkts = types.NumberValue(big.NewFloat(*d.TxPkts.Value()))
+			txPkts = types.NumberValue(big.NewFloat(*d.TxPkts.Value()))
 		}
 		if d.Up.Value() != nil {
 			up = types.BoolValue(*d.Up.Value())
 		}
 
-		data_map_attr_type := PortStatValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
-			"full_duplex": full_duplex,
-			"rx_bytes":    rx_bytes,
-			"rx_errors":   rx_errors,
-			"rx_pkts":     rx_pkts,
+		dataMapValue := map[string]attr.Value{
+			"full_duplex": fullDuplex,
+			"rx_bytes":    rxBytes,
+			"rx_errors":   rxErrors,
+			"rx_pkts":     rxPkts,
 			"speed":       speed,
-			"tx_bytes":    tx_bytes,
-			"tx_pkts":     tx_pkts,
+			"tx_bytes":    txBytes,
+			"tx_pkts":     txPkts,
 			"up":          up,
 		}
-		data, e := NewPortStatValue(data_map_attr_type, data_map_value)
+		data, e := NewPortStatValue(PortStatValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
-		map_attr_values[k] = data
+		mapAttrValues[k] = data
 	}
-	state_result, e := types.MapValueFrom(ctx, PortStatValue{}.Type(ctx), map_attr_values)
+	stateResult, e := types.MapValueFrom(ctx, PortStatValue{}.Type(ctx), mapAttrValues)
 	diags.Append(e...)
-	return state_result
+	return stateResult
 }

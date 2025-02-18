@@ -46,11 +46,11 @@ func (d *orgIdpprofilesDataSource) Configure(ctx context.Context, req datasource
 
 	d.client = client
 }
-func (d *orgIdpprofilesDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+func (d *orgIdpprofilesDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_org_idpprofiles"
 }
 
-func (d *orgIdpprofilesDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *orgIdpprofilesDataSource) Schema(ctx context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryWan + "This data source provides the list of WAN Assurance IDP Profiles.\n\n" +
 			"An IDP Profile is a configuration setting that defines the behavior and actions of an intrusion detection and prevention (IDP) system. " +
@@ -78,9 +78,9 @@ func (d *orgIdpprofilesDataSource) Read(ctx context.Context, req datasource.Read
 		return
 	}
 
-	var limit int = 1000
-	var page int = 0
-	var total int = 9999
+	var limit = 1000
+	var page = 0
+	var total = 9999
 	var elements []attr.Value
 	var diags diag.Diagnostics
 
@@ -100,8 +100,8 @@ func (d *orgIdpprofilesDataSource) Read(ctx context.Context, req datasource.Read
 			return
 		}
 
-		limit_string := data.Response.Header.Get("X-Page-Limit")
-		if limit, err = strconv.Atoi(limit_string); err != nil {
+		limitString := data.Response.Header.Get("X-Page-Limit")
+		if limit, err = strconv.Atoi(limitString); err != nil {
 			resp.Diagnostics.AddError(
 				"Error extracting HTTP Response Headers",
 				"Unable to convert the X-Page-Limit value into int, unexcpected error: "+err.Error(),
@@ -109,8 +109,8 @@ func (d *orgIdpprofilesDataSource) Read(ctx context.Context, req datasource.Read
 			return
 		}
 
-		total_string := data.Response.Header.Get("X-Page-Total")
-		if total, err = strconv.Atoi(total_string); err != nil {
+		totalString := data.Response.Header.Get("X-Page-Total")
+		if total, err = strconv.Atoi(totalString); err != nil {
 			resp.Diagnostics.AddError(
 				"Error extracting HTTP Response Headers",
 				"Unable to convert the X-Page-Total value into int, unexcpected error: "+err.Error(),

@@ -1,7 +1,6 @@
 package resource_org_inventory
 
 import (
-	"context"
 	"fmt"
 	"strings"
 
@@ -14,8 +13,8 @@ func legacyGenDeviceMap(devices *basetypes.ListValue) map[string]*DevicesValue {
 	for _, v := range devices.Elements() {
 		var dsi interface{} = v
 		var dev = dsi.(DevicesValue)
-		var magic string = strings.ReplaceAll(strings.ToUpper(dev.Magic.ValueString()), "-", "")
-		var mac string = strings.ToUpper(dev.Mac.ValueString())
+		var magic = strings.ReplaceAll(strings.ToUpper(dev.Magic.ValueString()), "-", "")
+		var mac = strings.ToUpper(dev.Mac.ValueString())
 		devicesMap[mac] = &dev
 		if magic != "" {
 			// for claimed devices
@@ -31,7 +30,7 @@ func legacyProcessDevice(
 	stateMap *map[string]*DevicesValue,
 ) (string, string, bool) {
 	var op, mac string
-	var alreadyClaimed bool = false
+	var alreadyClaimed = false
 
 	if stateDevice, ok := (*stateMap)[strings.ToUpper(planDeviceInfo)]; ok {
 		// for already claimed devices
@@ -83,11 +82,11 @@ func legacyProcessPlanedDevices(
 ) {
 	// process devices in the plan
 	// check if they must be claimed/assigned/unassigned
-	for i, dev_plan_attr := range planDevices.Elements() {
+	for i, devPlanAttr := range planDevices.Elements() {
 		var op, mac, deviceInfo string
 		var alreadyClaimed, isClaimCode, isMac bool
 
-		var dpi interface{} = dev_plan_attr
+		var dpi interface{} = devPlanAttr
 		var planDevice = dpi.(DevicesValue)
 		var deviceSiteId = planDevice.SiteId
 
@@ -95,15 +94,10 @@ func legacyProcessPlanedDevices(
 		op, mac, alreadyClaimed = legacyProcessDevice(deviceInfo, deviceSiteId, stateDevicesMap)
 
 		if !alreadyClaimed && isClaimCode {
-			(*claim) = append((*claim), deviceInfo)
+			*claim = append(*claim, deviceInfo)
 			if op == "assign" {
 				(*assignClaim)[strings.ToUpper(deviceInfo)] = deviceSiteId.ValueString()
 			}
-			// } else if !alreadyClaimed && isMac {
-			// 	diags.AddError(
-			// 		"Unable to process the \"org_inventory\" resource",
-			// 		fmt.Sprintf("unable to find a device with the MAC Address %s in the Org Inventory", deviceInfo),
-			// 	)
 		} else if alreadyClaimed || isMac {
 			if isMac {
 				mac = deviceInfo
@@ -112,7 +106,7 @@ func legacyProcessPlanedDevices(
 			case "assign":
 				(*assign)[deviceSiteId.ValueString()] = append((*assign)[deviceSiteId.ValueString()], mac)
 			case "unassign":
-				(*unassign) = append((*unassign), mac)
+				*unassign = append(*unassign, mac)
 			}
 		} else if !isClaimCode && !isMac {
 			diags.AddError(
@@ -130,25 +124,25 @@ func legacyProcessUnplanedDevices(
 ) {
 	// process devices in the state
 	// check if they must be unclaimed
-	for _, dev_state_attr := range stateDevices.Elements() {
-		var dsi interface{} = dev_state_attr
-		var dev_state = dsi.(DevicesValue)
-		var magic string = strings.ToUpper(dev_state.Magic.ValueString())
-		var mac string = strings.ToLower(dev_state.Mac.ValueString())
+	for _, devStateAttr := range stateDevices.Elements() {
+		var dsi interface{} = devStateAttr
+		var devState = dsi.(DevicesValue)
+		var magic = strings.ToUpper(devState.Magic.ValueString())
+		var mac = strings.ToLower(devState.Mac.ValueString())
 		// does not unclaim devices not "cloud ready" (without claim code)
 		if magic != "" {
-			_, magic_ok := (*planDevicesMap)[magic]
-			_, mac_ok := (*planDevicesMap)[mac]
+			_, magicOk := (*planDevicesMap)[magic]
+			_, macOk := (*planDevicesMap)[mac]
 			// if we are not able to find the device in the plan based
 			// on its claim code or its mac, we'll unclaim it
-			if !magic_ok && !mac_ok {
-				(*unclaim) = append((*unclaim), dev_state.Serial.ValueString())
+			if !magicOk && !macOk {
+				*unclaim = append(*unclaim, devState.Serial.ValueString())
 			}
 		}
 	}
 }
 
-func legacyTerraformToSdk(ctx context.Context, stateDevices *basetypes.ListValue, planDevices *basetypes.ListValue) ([]string, []string, []string, map[string]string, map[string][]string, diag.Diagnostics) {
+func legacyTerraformToSdk(stateDevices *basetypes.ListValue, planDevices *basetypes.ListValue) ([]string, []string, []string, map[string]string, map[string][]string, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	var claim []string
 	var unclaim []string

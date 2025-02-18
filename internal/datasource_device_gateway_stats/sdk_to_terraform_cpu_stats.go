@@ -4,7 +4,7 @@ import (
 	"context"
 	"math/big"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -18,7 +18,7 @@ func cpuStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mod
 
 	var idle basetypes.NumberValue
 	var interrupt basetypes.NumberValue
-	var load_avg basetypes.ListValue = types.ListNull(types.NumberType)
+	var loadAvg = types.ListNull(types.NumberType)
 	var system basetypes.NumberValue
 	var user basetypes.NumberValue
 
@@ -29,7 +29,7 @@ func cpuStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mod
 		interrupt = types.NumberValue(big.NewFloat(*d.Interrupt.Value()))
 	}
 	if d.LoadAvg != nil {
-		load_avg = mist_transform.ListOfNumberSdkToTerraform(ctx, d.LoadAvg)
+		loadAvg = misttransform.ListOfNumberSdkToTerraform(d.LoadAvg)
 	}
 	if d.System.Value() != nil {
 		system = types.NumberValue(big.NewFloat(*d.System.Value()))
@@ -38,15 +38,14 @@ func cpuStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mod
 		user = types.NumberValue(big.NewFloat(*d.User.Value()))
 	}
 
-	data_map_attr_type := CpuStatValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"idle":      idle,
 		"interrupt": interrupt,
-		"load_avg":  load_avg,
+		"load_avg":  loadAvg,
 		"system":    system,
 		"user":      user,
 	}
-	data, e := types.ObjectValue(data_map_attr_type, data_map_value)
+	data, e := types.ObjectValue(CpuStatValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

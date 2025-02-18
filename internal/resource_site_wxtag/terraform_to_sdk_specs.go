@@ -1,30 +1,27 @@
 package resource_site_wxtag
 
 import (
-	"context"
-
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func specsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, plan basetypes.ListValue) []models.WxlanTagSpec {
-	var data_list []models.WxlanTagSpec
+func specsTerraformToSdk(plan basetypes.ListValue) []models.WxlanTagSpec {
+	var dataList []models.WxlanTagSpec
 	for _, v := range plan.Elements() {
-		var v_interface interface{} = v
-		p := v_interface.(SpecsValue)
+		var vInterface interface{} = v
+		p := vInterface.(SpecsValue)
 
 		data := models.WxlanTagSpec{
-			PortRange: models.ToPointer(string(p.PortRange.ValueString())),
-			Protocol:  models.ToPointer(string(p.Protocol.ValueString())),
-			Subnets:   mist_transform.ListOfStringTerraformToSdk(ctx, p.Subnets),
+			PortRange: models.ToPointer(p.PortRange.ValueString()),
+			Protocol:  models.ToPointer(p.Protocol.ValueString()),
+			Subnets:   misttransform.ListOfStringTerraformToSdk(p.Subnets),
 		}
 
-		data_list = append(data_list, data)
+		dataList = append(dataList, data)
 	}
-	return data_list
+	return dataList
 
 }

@@ -3,7 +3,7 @@ package resource_device_switch
 import (
 	"context"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -14,8 +14,8 @@ import (
 )
 
 func ipConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.JunosIpConfig) IpConfigValue {
-	var dns basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
-	var dns_suffix basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+	var dns = misttransform.ListOfStringSdkToTerraformEmpty()
+	var dnsSuffix = misttransform.ListOfStringSdkToTerraformEmpty()
 	var gateway basetypes.StringValue
 	var ip basetypes.StringValue
 	var netmask basetypes.StringValue
@@ -23,10 +23,10 @@ func ipConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mod
 	var type4 basetypes.StringValue
 
 	if d.Dns != nil {
-		dns = mist_transform.ListOfStringSdkToTerraform(ctx, d.Dns)
+		dns = misttransform.ListOfStringSdkToTerraform(d.Dns)
 	}
 	if d.DnsSuffix != nil {
-		dns_suffix = mist_transform.ListOfStringSdkToTerraform(ctx, d.DnsSuffix)
+		dnsSuffix = misttransform.ListOfStringSdkToTerraform(d.DnsSuffix)
 	}
 	if d.Gateway != nil {
 		gateway = types.StringValue(*d.Gateway)
@@ -44,17 +44,16 @@ func ipConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mod
 		type4 = types.StringValue(string(*d.Type))
 	}
 
-	data_map_attr_type := IpConfigValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"dns":        dns,
-		"dns_suffix": dns_suffix,
+		"dns_suffix": dnsSuffix,
 		"gateway":    gateway,
 		"ip":         ip,
 		"netmask":    netmask,
 		"network":    network,
 		"type":       type4,
 	}
-	data, e := NewIpConfigValue(data_map_attr_type, data_map_value)
+	data, e := NewIpConfigValue(IpConfigValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

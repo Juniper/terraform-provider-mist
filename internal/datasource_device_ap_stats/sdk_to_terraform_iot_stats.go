@@ -12,7 +12,7 @@ import (
 )
 
 func iotStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.StatsApIotStatAdditionalProperties) basetypes.MapValue {
-	map_attr_values := make(map[string]attr.Value)
+	mapAttrValues := make(map[string]attr.Value)
 	for k, d := range m {
 		var value basetypes.Int64Value
 
@@ -20,16 +20,15 @@ func iotStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[
 			value = types.Int64Value(int64(*d.Value.Value()))
 		}
 
-		data_map_attr_type := IotStatValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
+		dataMapValue := map[string]attr.Value{
 			"value": value,
 		}
-		data, e := NewIotStatValue(data_map_attr_type, data_map_value)
+		data, e := NewIotStatValue(IotStatValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		map_attr_values[k] = data
+		mapAttrValues[k] = data
 	}
-	state_result, e := types.MapValueFrom(ctx, IotStatValue{}.Type(ctx), map_attr_values)
+	stateResult, e := types.MapValueFrom(ctx, IotStatValue{}.Type(ctx), mapAttrValues)
 	diags.Append(e...)
-	return state_result
+	return stateResult
 }

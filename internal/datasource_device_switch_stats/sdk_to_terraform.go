@@ -25,151 +25,151 @@ func SdkToTerraform(ctx context.Context, l *[]models.StatsSwitch, elements *[]at
 
 func deviceSwitchStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.StatsSwitch) DeviceSwitchStatsValue {
 
-	var ap_redundancy basetypes.ObjectValue = types.ObjectNull(ApRedundancyValue{}.AttributeTypes(ctx))
-	var arp_table_stats basetypes.ObjectValue = types.ObjectNull(ArpTableStatsValue{}.AttributeTypes(ctx))
-	var cert_expiry basetypes.Int64Value
-	var clients basetypes.ListValue = types.ListNull(ClientsValue{}.Type(ctx))
-	var clients_stats basetypes.ObjectValue = types.ObjectNull(ClientsStatsValue{}.AttributeTypes(ctx))
-	var config_status basetypes.StringValue
-	var cpu_stat basetypes.ObjectValue = types.ObjectNull(CpuStatValue{}.AttributeTypes(ctx))
-	var created_time basetypes.Int64Value
-	var deviceprofile_id basetypes.StringValue
-	var dhcpd_stat basetypes.MapValue = types.MapNull(DhcpdStatValue{}.Type(ctx))
-	var evpntopo_id basetypes.StringValue
-	var fw_versions_outofsync basetypes.BoolValue
-	var fwupdate basetypes.ObjectValue = types.ObjectNull(FwupdateValue{}.AttributeTypes(ctx))
-	var has_pcap basetypes.BoolValue
+	var apRedundancy = types.ObjectNull(ApRedundancyValue{}.AttributeTypes(ctx))
+	var arpTableStats = types.ObjectNull(ArpTableStatsValue{}.AttributeTypes(ctx))
+	var certExpiry basetypes.Int64Value
+	var clients = types.ListNull(ClientsValue{}.Type(ctx))
+	var clientsStats = types.ObjectNull(ClientsStatsValue{}.AttributeTypes(ctx))
+	var configStatus basetypes.StringValue
+	var cpuStat = types.ObjectNull(CpuStatValue{}.AttributeTypes(ctx))
+	var createdTime basetypes.Int64Value
+	var deviceprofileId basetypes.StringValue
+	var dhcpdStat = types.MapNull(DhcpdStatValue{}.Type(ctx))
+	var evpntopoId basetypes.StringValue
+	var fwVersionsOutofsync basetypes.BoolValue
+	var fwupdate = types.ObjectNull(FwupdateValue{}.AttributeTypes(ctx))
+	var hasPcap basetypes.BoolValue
 	var hostname basetypes.StringValue
-	var hw_rev basetypes.StringValue
+	var hwRev basetypes.StringValue
 	var id basetypes.StringValue
-	var if_stat basetypes.MapValue = types.MapNull(IfStatValue{}.Type(ctx))
+	var ifStat = types.MapNull(IfStatValue{}.Type(ctx))
 	var ip basetypes.StringValue
-	var ip_stat basetypes.ObjectValue = types.ObjectNull(IpStatValue{}.AttributeTypes(ctx))
-	var last_seen basetypes.NumberValue
-	var last_trouble basetypes.ObjectValue = types.ObjectNull(LastTroubleValue{}.AttributeTypes(ctx))
+	var ipStat = types.ObjectNull(IpStatValue{}.AttributeTypes(ctx))
+	var lastSeen basetypes.NumberValue
+	var lastTrouble = types.ObjectNull(LastTroubleValue{}.AttributeTypes(ctx))
 	var mac basetypes.StringValue
-	var mac_table_stats basetypes.ObjectValue = types.ObjectNull(MacTableStatsValue{}.AttributeTypes(ctx))
-	var map_id basetypes.StringValue
-	var memory_stat basetypes.ObjectValue = types.ObjectNull(MemoryStatValue{}.AttributeTypes(ctx))
+	var macTableStats = types.ObjectNull(MacTableStatsValue{}.AttributeTypes(ctx))
+	var mapId basetypes.StringValue
+	var memoryStat = types.ObjectNull(MemoryStatValue{}.AttributeTypes(ctx))
 	var model basetypes.StringValue
-	var modified_time basetypes.Int64Value
-	var module_stat basetypes.ListValue = types.ListNull(ModuleStatValue{}.Type(ctx))
+	var modifiedTime basetypes.Int64Value
+	var moduleStat = types.ListNull(ModuleStatValue{}.Type(ctx))
 	var name basetypes.StringValue
-	var org_id basetypes.StringValue
-	var route_summary_stats basetypes.ObjectValue = types.ObjectNull(RouteSummaryStatsValue{}.AttributeTypes(ctx))
+	var orgId basetypes.StringValue
+	var routeSummaryStats = types.ObjectNull(RouteSummaryStatsValue{}.AttributeTypes(ctx))
 	var serial basetypes.StringValue
-	var service_stat basetypes.MapValue = types.MapNull(ServiceStatValue{}.Type(ctx))
-	var site_id basetypes.StringValue
+	var serviceStat = types.MapNull(ServiceStatValue{}.Type(ctx))
+	var siteId basetypes.StringValue
 	var status basetypes.StringValue
 	var uptime basetypes.NumberValue
-	var vc_mac basetypes.StringValue
-	var vc_setup_info basetypes.ObjectValue = types.ObjectNull(VcSetupInfoValue{}.AttributeTypes(ctx))
+	var vcMac basetypes.StringValue
+	var vcSetupInfo = types.ObjectNull(VcSetupInfoValue{}.AttributeTypes(ctx))
 	var version basetypes.StringValue
 
 	if d.ApRedundancy != nil {
-		ap_redundancy = apRedundancySdkToTerraform(ctx, diags, d.ApRedundancy)
+		apRedundancy = apRedundancySdkToTerraform(ctx, diags, d.ApRedundancy)
 	}
 	if d.ArpTableStats != nil {
-		arp_table_stats = arpTableStatsSdkToTerraform(ctx, diags, d.ArpTableStats)
+		arpTableStats = arpTableStatsSdkToTerraform(ctx, diags, d.ArpTableStats)
 	}
 	if d.CertExpiry != nil {
-		cert_expiry = types.Int64Value(*d.CertExpiry)
+		certExpiry = types.Int64Value(*d.CertExpiry)
 	}
 	if d.Clients != nil {
 		clients = clientsSdkToTerraform(ctx, diags, d.Clients)
 	}
 	if d.ClientsStats != nil {
-		clients_stats = clientsStatsSdkToTerraform(ctx, diags, d.ClientsStats)
+		clientsStats = clientsStatsSdkToTerraform(ctx, diags, d.ClientsStats)
 	}
 	if d.ConfigStatus != nil {
-		config_status = types.StringValue(*d.ConfigStatus)
+		configStatus = types.StringValue(*d.ConfigStatus)
 	}
 	if d.CpuStat != nil {
-		cpu_stat = cpuStatsSdkToTerraform(ctx, diags, d.CpuStat)
+		cpuStat = cpuStatsSdkToTerraform(ctx, diags, d.CpuStat)
 	}
 	if d.CreatedTime != nil {
-		created_time = types.Int64Value(int64(*d.CreatedTime))
+		createdTime = types.Int64Value(int64(*d.CreatedTime))
 	}
 	if d.DeviceprofileId.Value() != nil {
-		deviceprofile_id = types.StringValue(d.DeviceprofileId.Value().String())
+		deviceprofileId = types.StringValue(d.DeviceprofileId.Value().String())
 	}
 	if d.DhcpdStat != nil && len(d.DhcpdStat) > 0 {
-		dhcpd_stat = dhcpStatsSdkToTerraform(ctx, diags, d.DhcpdStat)
+		dhcpdStat = dhcpStatsSdkToTerraform(ctx, diags, d.DhcpdStat)
 	}
 	if d.EvpntopoId.Value() != nil {
-		evpntopo_id = types.StringValue(d.EvpntopoId.Value().String())
+		evpntopoId = types.StringValue(d.EvpntopoId.Value().String())
 	}
 	if d.FwVersionsOutofsync != nil {
-		fw_versions_outofsync = types.BoolValue(*d.FwVersionsOutofsync)
+		fwVersionsOutofsync = types.BoolValue(*d.FwVersionsOutofsync)
 	}
 	if d.Fwupdate != nil {
 		fwupdate = fwupdateSdkToTerraform(ctx, diags, d.Fwupdate)
 	}
 	if d.HasPcap != nil {
-		has_pcap = types.BoolValue(*d.HasPcap)
+		hasPcap = types.BoolValue(*d.HasPcap)
 	}
 	if d.Hostname != nil {
 		hostname = types.StringValue(*d.Hostname)
 	}
 	if d.HwRev != nil {
-		hw_rev = types.StringValue(*d.HwRev)
+		hwRev = types.StringValue(*d.HwRev)
 	}
 	if d.Id != nil {
 		id = types.StringValue(d.Id.String())
 	}
 	if d.IfStat != nil && len(d.IfStat) > 0 {
-		if_stat = ifStatsSdkToTerraform(ctx, diags, d.IfStat)
+		ifStat = ifStatsSdkToTerraform(ctx, diags, d.IfStat)
 	}
 	if d.Ip != nil {
 		ip = types.StringValue(*d.Ip)
 	}
 	if d.IpStat != nil {
-		ip_stat = ipStatsSdkToTerraform(ctx, diags, d.IpStat)
+		ipStat = ipStatsSdkToTerraform(ctx, diags, d.IpStat)
 	}
 	if d.LastSeen != nil {
-		last_seen = types.NumberValue(big.NewFloat(*d.LastSeen))
+		lastSeen = types.NumberValue(big.NewFloat(*d.LastSeen))
 	}
 	if d.LastTrouble != nil {
-		last_trouble = lastTroubleSdkToTerraform(ctx, diags, d.LastTrouble)
+		lastTrouble = lastTroubleSdkToTerraform(ctx, diags, d.LastTrouble)
 	}
 	if d.Mac != nil {
 		mac = types.StringValue(*d.Mac)
 	}
 	if d.MacTableStats != nil {
-		mac_table_stats = macTableStatSdkToTerraform(ctx, diags, d.MacTableStats)
+		macTableStats = macTableStatSdkToTerraform(ctx, diags, d.MacTableStats)
 	}
 	if d.MapId.Value() != nil {
-		map_id = types.StringValue(d.MapId.Value().String())
+		mapId = types.StringValue(d.MapId.Value().String())
 	}
 	if d.MemoryStat != nil {
-		memory_stat = memoryStatSdkToTerraform(ctx, diags, d.MemoryStat)
+		memoryStat = memoryStatSdkToTerraform(ctx, diags, d.MemoryStat)
 	}
 	if d.Model != nil {
 		model = types.StringValue(*d.Model)
 	}
 	if d.ModifiedTime != nil {
-		modified_time = types.Int64Value(int64(*d.ModifiedTime))
+		modifiedTime = types.Int64Value(int64(*d.ModifiedTime))
 	}
 	if d.ModuleStat != nil {
-		module_stat = moduleStatSdkToTerraform(ctx, diags, d.ModuleStat)
+		moduleStat = moduleStatSdkToTerraform(ctx, diags, d.ModuleStat)
 	}
 	if d.Name != nil {
 		name = types.StringValue(*d.Name)
 	}
 	if d.OrgId != nil {
-		org_id = types.StringValue(d.OrgId.String())
+		orgId = types.StringValue(d.OrgId.String())
 	}
 	if d.RouteSummaryStats != nil {
-		route_summary_stats = routeSummaryStatsSdkToTerraform(ctx, diags, d.RouteSummaryStats)
+		routeSummaryStats = routeSummaryStatsSdkToTerraform(ctx, diags, d.RouteSummaryStats)
 	}
 	if d.Serial != nil {
 		serial = types.StringValue(*d.Serial)
 	}
 	if d.ServiceStat != nil && len(d.ServiceStat) > 0 {
-		service_stat = serviceStatsSdkToTerraform(ctx, diags, d.ServiceStat)
+		serviceStat = serviceStatsSdkToTerraform(ctx, diags, d.ServiceStat)
 	}
 	if d.SiteId != nil {
-		site_id = types.StringValue(d.SiteId.String())
+		siteId = types.StringValue(d.SiteId.String())
 	}
 	if d.Status != nil {
 		status = types.StringValue(*d.Status)
@@ -178,58 +178,58 @@ func deviceSwitchStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 		uptime = types.NumberValue(big.NewFloat(*d.Uptime.Value()))
 	}
 	if d.VcMac.Value() != nil {
-		vc_mac = types.StringValue(*d.VcMac.Value())
+		vcMac = types.StringValue(*d.VcMac.Value())
 	}
 	if d.VcSetupInfo != nil {
-		vc_setup_info = vcSetupInfoSdkToTerraform(ctx, diags, d.VcSetupInfo)
+		vcSetupInfo = vcSetupInfoSdkToTerraform(ctx, diags, d.VcSetupInfo)
 	}
 	if d.Version.Value() != nil {
 		version = types.StringValue(*d.Version.Value())
 	}
 
-	data_map_value := map[string]attr.Value{
-		"ap_redundancy":         ap_redundancy,
-		"arp_table_stats":       arp_table_stats,
-		"cert_expiry":           cert_expiry,
+	dataMapValue := map[string]attr.Value{
+		"ap_redundancy":         apRedundancy,
+		"arp_table_stats":       arpTableStats,
+		"cert_expiry":           certExpiry,
 		"clients":               clients,
-		"clients_stats":         clients_stats,
-		"config_status":         config_status,
-		"cpu_stat":              cpu_stat,
-		"created_time":          created_time,
-		"deviceprofile_id":      deviceprofile_id,
-		"dhcpd_stat":            dhcpd_stat,
-		"evpntopo_id":           evpntopo_id,
-		"fw_versions_outofsync": fw_versions_outofsync,
+		"clients_stats":         clientsStats,
+		"config_status":         configStatus,
+		"cpu_stat":              cpuStat,
+		"created_time":          createdTime,
+		"deviceprofile_id":      deviceprofileId,
+		"dhcpd_stat":            dhcpdStat,
+		"evpntopo_id":           evpntopoId,
+		"fw_versions_outofsync": fwVersionsOutofsync,
 		"fwupdate":              fwupdate,
-		"has_pcap":              has_pcap,
+		"has_pcap":              hasPcap,
 		"hostname":              hostname,
-		"hw_rev":                hw_rev,
+		"hw_rev":                hwRev,
 		"id":                    id,
-		"if_stat":               if_stat,
+		"if_stat":               ifStat,
 		"ip":                    ip,
-		"ip_stat":               ip_stat,
-		"last_seen":             last_seen,
-		"last_trouble":          last_trouble,
+		"ip_stat":               ipStat,
+		"last_seen":             lastSeen,
+		"last_trouble":          lastTrouble,
 		"mac":                   mac,
-		"mac_table_stats":       mac_table_stats,
-		"map_id":                map_id,
-		"memory_stat":           memory_stat,
+		"mac_table_stats":       macTableStats,
+		"map_id":                mapId,
+		"memory_stat":           memoryStat,
 		"model":                 model,
-		"modified_time":         modified_time,
-		"module_stat":           module_stat,
+		"modified_time":         modifiedTime,
+		"module_stat":           moduleStat,
 		"name":                  name,
-		"org_id":                org_id,
-		"route_summary_stats":   route_summary_stats,
+		"org_id":                orgId,
+		"route_summary_stats":   routeSummaryStats,
 		"serial":                serial,
-		"service_stat":          service_stat,
-		"site_id":               site_id,
+		"service_stat":          serviceStat,
+		"site_id":               siteId,
 		"status":                status,
 		"uptime":                uptime,
-		"vc_mac":                vc_mac,
-		"vc_setup_info":         vc_setup_info,
+		"vc_mac":                vcMac,
+		"vc_setup_info":         vcSetupInfo,
 		"version":               version,
 	}
-	data, e := NewDeviceSwitchStatsValue(DeviceSwitchStatsValue{}.AttributeTypes(ctx), data_map_value)
+	data, e := NewDeviceSwitchStatsValue(DeviceSwitchStatsValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

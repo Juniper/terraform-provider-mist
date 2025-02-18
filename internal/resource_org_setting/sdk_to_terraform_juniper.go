@@ -13,44 +13,42 @@ import (
 
 func juniperAccountsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.JuniperAccount) basetypes.ListValue {
 
-	var data_list = []AccountsValue{}
+	var dataList []AccountsValue
 	for _, d := range l {
-		var linked_by basetypes.StringValue
+		var linkedBy basetypes.StringValue
 		var name basetypes.StringValue
 
 		if d.LinkedBy != nil {
-			linked_by = types.StringValue(*d.LinkedBy)
+			linkedBy = types.StringValue(*d.LinkedBy)
 		}
 		if d.Name != nil {
 			name = types.StringValue(*d.Name)
 		}
 
-		data_map_attr_type := AccountsValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
-			"linked_by": linked_by,
+		dataMapValue := map[string]attr.Value{
+			"linked_by": linkedBy,
 			"name":      name,
 		}
-		data, e := NewAccountsValue(data_map_attr_type, data_map_value)
+		data, e := NewAccountsValue(AccountsValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
-		data_list = append(data_list, data)
+		dataList = append(dataList, data)
 	}
-	r, e := types.ListValueFrom(ctx, AccountsValue{}.Type(ctx), data_list)
+	r, e := types.ListValueFrom(ctx, AccountsValue{}.Type(ctx), dataList)
 	diags.Append(e...)
 	return r
 }
 
 func juniperSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.AccountJuniperInfo) JuniperValue {
-	var accounts basetypes.ListValue = types.ListNull(AccountsValue{}.Type(ctx))
+	var accounts = types.ListNull(AccountsValue{}.Type(ctx))
 
 	if d.Accounts != nil {
 		accounts = juniperAccountsSdkToTerraform(ctx, diags, d.Accounts)
 	}
 
-	data_map_attr_type := JuniperValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"accounts": accounts,
 	}
-	data, e := NewJuniperValue(data_map_attr_type, data_map_value)
+	data, e := NewJuniperValue(JuniperValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

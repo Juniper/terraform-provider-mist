@@ -41,11 +41,11 @@ func (d *constAlarmsDataSource) Configure(ctx context.Context, req datasource.Co
 
 	d.client = client
 }
-func (d *constAlarmsDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+func (d *constAlarmsDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_const_alarms"
 }
 
-func (d *constAlarmsDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *constAlarmsDataSource) Schema(ctx context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryConst + "This data source provides the list of  available Alarms.\n\n" +
 			"The alarm `key` can be used to configure the `mist_org_alarmtemplate.rules`.",

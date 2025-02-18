@@ -23,42 +23,41 @@ func SdkToTerraform(ctx context.Context, l *[]models.SsoRoleOrg, elements *[]att
 }
 
 func ssoRoleSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SsoRoleOrg) OrgSsoRolesValue {
-	var created_time basetypes.Float64Value
+	var createdTime basetypes.Float64Value
 	var id basetypes.StringValue
-	var modified_time basetypes.Float64Value
+	var modifiedTime basetypes.Float64Value
 	var name basetypes.StringValue
-	var org_id basetypes.StringValue
-	var privileges basetypes.ListValue = types.ListNull(PrivilegesValue{}.Type(ctx))
+	var orgId basetypes.StringValue
+	var privileges = types.ListNull(PrivilegesValue{}.Type(ctx))
 
 	if d.CreatedTime != nil {
-		created_time = types.Float64Value(*d.CreatedTime)
+		createdTime = types.Float64Value(*d.CreatedTime)
 	}
 	if d.Id != nil {
 		id = types.StringValue(d.Id.String())
 	}
 	if d.ModifiedTime != nil {
-		modified_time = types.Float64Value(*d.ModifiedTime)
+		modifiedTime = types.Float64Value(*d.ModifiedTime)
 	}
 
 	name = types.StringValue(d.Name)
 
 	if d.OrgId != nil {
-		org_id = types.StringValue(d.OrgId.String())
+		orgId = types.StringValue(d.OrgId.String())
 	}
 	if d.Privileges != nil {
 		privileges = privilegesSdkToTerraform(ctx, diags, d.Privileges)
 	}
 
-	data_map_attr_type := OrgSsoRolesValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"created_time":  created_time,
+	dataMapValue := map[string]attr.Value{
+		"created_time":  createdTime,
 		"id":            id,
-		"modified_time": modified_time,
+		"modified_time": modifiedTime,
 		"name":          name,
-		"org_id":        org_id,
+		"org_id":        orgId,
 		"privileges":    privileges,
 	}
-	data, e := NewOrgSsoRolesValue(data_map_attr_type, data_map_value)
+	data, e := NewOrgSsoRolesValue(OrgSsoRolesValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data
@@ -66,28 +65,28 @@ func ssoRoleSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 
 func privilegesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data []models.PrivilegeOrg) basetypes.ListValue {
 
-	var data_list = []PrivilegesValue{}
+	var dataList []PrivilegesValue
 	for _, v := range data {
 		var role types.String
 		var scope types.String
-		var site_id types.String
-		var sitegroup_id types.String
-		var views types.List = types.ListNull(types.StringType)
+		var siteId types.String
+		var sitegroupId types.String
+		var views = types.ListNull(types.StringType)
 
 		role = types.StringValue(string(v.Role))
 		scope = types.StringValue(string(v.Scope))
 		if v.SiteId != nil {
-			site_id = types.StringValue(v.SiteId.String())
+			siteId = types.StringValue(v.SiteId.String())
 		}
 		if v.SitegroupId != nil {
-			sitegroup_id = types.StringValue(v.SitegroupId.String())
+			sitegroupId = types.StringValue(v.SitegroupId.String())
 		}
 		if v.Views != nil {
-			var views_array []attr.Value
+			var viewsArray []attr.Value
 			for _, role := range v.Views {
-				views_array = append(views_array, types.StringValue(string(role)))
+				viewsArray = append(viewsArray, types.StringValue(string(role)))
 			}
-			tmp, e := types.ListValueFrom(ctx, types.StringType, views_array)
+			tmp, e := types.ListValueFrom(ctx, types.StringType, viewsArray)
 			if e != nil {
 				diags.Append(e...)
 			} else {
@@ -95,21 +94,20 @@ func privilegesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data
 			}
 		}
 
-		data_map_attr_type := PrivilegesValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
+		dataMapValue := map[string]attr.Value{
 			"role":         role,
 			"scope":        scope,
-			"site_id":      site_id,
-			"sitegroup_id": sitegroup_id,
+			"site_id":      siteId,
+			"sitegroup_id": sitegroupId,
 			"views":        views,
 		}
-		data, e := NewPrivilegesValue(data_map_attr_type, data_map_value)
+		data, e := NewPrivilegesValue(PrivilegesValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		data_list = append(data_list, data)
+		dataList = append(dataList, data)
 	}
 
-	r, e := types.ListValueFrom(ctx, PrivilegesValue{}.Type(ctx), data_list)
+	r, e := types.ListValueFrom(ctx, PrivilegesValue{}.Type(ctx), dataList)
 	diags.Append(e...)
 	return r
 }

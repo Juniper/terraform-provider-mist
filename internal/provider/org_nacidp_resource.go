@@ -7,7 +7,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 
-	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
+	mistapierror "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_nacidp"
 
 	"github.com/google/uuid"
@@ -48,11 +48,11 @@ func (r *orgNacIdpResource) Configure(ctx context.Context, req resource.Configur
 
 	r.client = client
 }
-func (r *orgNacIdpResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *orgNacIdpResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_org_nacidp"
 }
 
-func (r *orgNacIdpResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *orgNacIdpResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryNac + "This resource manages NAC IDPs (Identity Providers).\n\n" +
 			"The NAC IDPs are used to validate NAC client accounts against an IDP with OAuth2.0, LDAP/LDAPS, or a local Mist Edge.  \n" +
@@ -86,7 +86,7 @@ func (r *orgNacIdpResource) Create(ctx context.Context, req resource.CreateReque
 		return
 	}
 
-	nacidp, diags := resource_org_nacidp.TerraformToSdk(ctx, &plan)
+	nacidp, diags := resource_org_nacidp.TerraformToSdk(&plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -94,16 +94,16 @@ func (r *orgNacIdpResource) Create(ctx context.Context, req resource.CreateReque
 
 	data, err := r.client.OrgsSSO().CreateOrgSso(ctx, orgId, nacidp)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error creating \"mist_org_nacidp\" resource",
-			fmt.Sprintf("Unable to create the NAC IDP. %s", api_err),
+			fmt.Sprintf("Unable to create the NAC IDP. %s", apiErr),
 		)
 		return
 	}
 
-	state, diags = resource_org_nacidp.SdkToTerraform(ctx, &data.Data)
+	state, diags = resource_org_nacidp.SdkToTerraform(&data.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -117,7 +117,7 @@ func (r *orgNacIdpResource) Create(ctx context.Context, req resource.CreateReque
 
 }
 
-func (r *orgNacIdpResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *orgNacIdpResource) Read(ctx context.Context, _ resource.ReadRequest, resp *resource.ReadResponse) {
 	var state resource_org_nacidp.OrgNacidpModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -155,7 +155,7 @@ func (r *orgNacIdpResource) Read(ctx context.Context, req resource.ReadRequest, 
 		)
 		return
 	}
-	state, diags = resource_org_nacidp.SdkToTerraform(ctx, &httpr.Data)
+	state, diags = resource_org_nacidp.SdkToTerraform(&httpr.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -183,7 +183,7 @@ func (r *orgNacIdpResource) Update(ctx context.Context, req resource.UpdateReque
 		return
 	}
 
-	nacidp, diags := resource_org_nacidp.TerraformToSdk(ctx, &plan)
+	nacidp, diags := resource_org_nacidp.TerraformToSdk(&plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -209,16 +209,16 @@ func (r *orgNacIdpResource) Update(ctx context.Context, req resource.UpdateReque
 	tflog.Info(ctx, "Starting NacIdp Update for NacIdp "+state.Id.ValueString())
 	data, err := r.client.OrgsSSO().UpdateOrgSso(ctx, orgId, nacidpId, nacidp)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error updating \"mist_org_nacidp\" resource",
-			fmt.Sprintf("Unable to update the NAC IDP. %s", api_err),
+			fmt.Sprintf("Unable to update the NAC IDP. %s", apiErr),
 		)
 		return
 	}
 
-	state, diags = resource_org_nacidp.SdkToTerraform(ctx, &data.Data)
+	state, diags = resource_org_nacidp.SdkToTerraform(&data.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -232,7 +232,7 @@ func (r *orgNacIdpResource) Update(ctx context.Context, req resource.UpdateReque
 
 }
 
-func (r *orgNacIdpResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *orgNacIdpResource) Delete(ctx context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_org_nacidp.OrgNacidpModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -260,11 +260,11 @@ func (r *orgNacIdpResource) Delete(ctx context.Context, req resource.DeleteReque
 
 	tflog.Info(ctx, "Starting NacIdp Delete: nacidp_id "+state.Id.ValueString())
 	data, err := r.client.OrgsSSO().DeleteOrgSso(ctx, orgId, nacidpId)
-	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_nacidp\" resource",
-			fmt.Sprintf("Unable to delete the NAC IDP. %s", api_err),
+			fmt.Sprintf("Unable to delete the NAC IDP. %s", apiErr),
 		)
 		return
 	}

@@ -23,12 +23,11 @@ func deviceCertSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 		key = types.StringValue(*d.Key)
 	}
 
-	data_map_attr_type := DeviceCertValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"cert": cert,
 		"key":  key,
 	}
-	data, e := NewDeviceCertValue(data_map_attr_type, data_map_value)
+	data, e := NewDeviceCertValue(DeviceCertValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

@@ -3,7 +3,7 @@ package resource_site_setting
 import (
 	"context"
 
-	mist_api "github.com/Juniper/terraform-provider-mist/internal/commons/api_response"
+	mistapi "github.com/Juniper/terraform-provider-mist/internal/commons/api_response"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -11,40 +11,39 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func syntheticTestWanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SynthetictestConfigWanSpeedtest) basetypes.ObjectValue {
 	var enabled basetypes.BoolValue
-	var time_of_day basetypes.StringValue
+	var timeOfDay basetypes.StringValue
 
 	if d != nil && d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
 	if d != nil && d.TimeOfDay != nil {
-		time_of_day = types.StringValue(*d.TimeOfDay)
+		timeOfDay = types.StringValue(*d.TimeOfDay)
 	}
 
-	data_map_attr_type := WanSpeedtestValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"enabled":     enabled,
-		"time_of_day": time_of_day,
+		"time_of_day": timeOfDay,
 	}
-	data, e := basetypes.NewObjectValue(data_map_attr_type, data_map_value)
+	data, e := basetypes.NewObjectValue(WanSpeedtestValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data
 }
 
 func synthteticTestVlansSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.SynthetictestProperties) basetypes.ListValue {
-	var data_list = []VlansValue{}
+	var dataList []VlansValue
 	for _, d := range l {
-		var custom_test_urls basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+		var customTestUrls = misttransform.ListOfStringSdkToTerraformEmpty()
 		var disabled basetypes.BoolValue
-		var vlan_ids basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+		var vlanIds = misttransform.ListOfStringSdkToTerraformEmpty()
 
 		if d.CustomTestUrls != nil {
-			custom_test_urls = mist_transform.ListOfStringSdkToTerraform(ctx, d.CustomTestUrls)
+			customTestUrls = misttransform.ListOfStringSdkToTerraform(d.CustomTestUrls)
 		}
 		if d.Disabled != nil {
 			disabled = types.BoolValue(*d.Disabled)
@@ -52,24 +51,23 @@ func synthteticTestVlansSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 		if d.VlanIds != nil {
 			var items []attr.Value
 			for _, item := range d.VlanIds {
-				items = append(items, mist_api.VlanAsString(item))
+				items = append(items, mistapi.VlanAsString(item))
 			}
-			vlan_ids, _ = types.ListValue(basetypes.StringType{}, items)
+			vlanIds, _ = types.ListValue(basetypes.StringType{}, items)
 		}
 
-		data_map_attr_type := VlansValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
-			"custom_test_urls": custom_test_urls,
+		dataMapValue := map[string]attr.Value{
+			"custom_test_urls": customTestUrls,
 			"disabled":         disabled,
-			"vlan_ids":         vlan_ids,
+			"vlan_ids":         vlanIds,
 		}
-		data, e := NewVlansValue(data_map_attr_type, data_map_value)
+		data, e := NewVlansValue(VlansValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		data_list = append(data_list, data)
+		dataList = append(dataList, data)
 	}
-	data_list_type := VlansValue{}.Type(ctx)
-	r, e := types.ListValueFrom(ctx, data_list_type, data_list)
+	datalistType := VlansValue{}.Type(ctx)
+	r, e := types.ListValueFrom(ctx, datalistType, dataList)
 	diags.Append(e...)
 	return r
 }
@@ -77,8 +75,8 @@ func synthteticTestVlansSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 func synthteticTestSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SynthetictestConfig) SyntheticTestValue {
 
 	var disabled basetypes.BoolValue
-	var vlans basetypes.ListValue = types.ListNull(VlansValue{}.Type(ctx))
-	var wan_speedtest basetypes.ObjectValue = types.ObjectNull(WanSpeedtestValue{}.AttributeTypes(ctx))
+	var vlans = types.ListNull(VlansValue{}.Type(ctx))
+	var wanSpeedtest = types.ObjectNull(WanSpeedtestValue{}.AttributeTypes(ctx))
 
 	if d != nil && d.Disabled != nil {
 		disabled = types.BoolValue(*d.Disabled)
@@ -87,16 +85,15 @@ func synthteticTestSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 		vlans = synthteticTestVlansSdkToTerraform(ctx, diags, d.Vlans)
 	}
 	if d != nil && d.WanSpeedtest != nil {
-		wan_speedtest = syntheticTestWanSdkToTerraform(ctx, diags, d.WanSpeedtest)
+		wanSpeedtest = syntheticTestWanSdkToTerraform(ctx, diags, d.WanSpeedtest)
 	}
 
-	data_map_attr_type := SyntheticTestValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"disabled":      disabled,
 		"vlans":         vlans,
-		"wan_speedtest": wan_speedtest,
+		"wan_speedtest": wanSpeedtest,
 	}
-	data, e := NewSyntheticTestValue(data_map_attr_type, data_map_value)
+	data, e := NewSyntheticTestValue(SyntheticTestValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

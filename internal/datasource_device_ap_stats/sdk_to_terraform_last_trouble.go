@@ -23,12 +23,11 @@ func lastTroubleSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 		timestamp = types.Int64Value(int64(*d.Timestamp))
 	}
 
-	data_map_attr_type := LastTroubleValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"code":      code,
 		"timestamp": timestamp,
 	}
-	data, e := basetypes.NewObjectValue(data_map_attr_type, data_map_value)
+	data, e := basetypes.NewObjectValue(LastTroubleValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

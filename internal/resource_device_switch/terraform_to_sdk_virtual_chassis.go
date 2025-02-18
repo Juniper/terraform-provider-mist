@@ -1,19 +1,16 @@
 package resource_device_switch
 
 import (
-	"context"
-
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func virtualChassisMemberTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.SwitchVirtualChassisMember {
-	var data_list []models.SwitchVirtualChassisMember
+func virtualChassisMemberTerraformToSdk(d basetypes.ListValue) []models.SwitchVirtualChassisMember {
+	var dataList []models.SwitchVirtualChassisMember
 	for _, v := range d.Elements() {
-		var v_interface interface{} = v
-		plan := v_interface.(MembersValue)
+		var vInterface interface{} = v
+		plan := vInterface.(MembersValue)
 		data := models.SwitchVirtualChassisMember{}
 
 		if plan.Mac.ValueStringPointer() != nil {
@@ -26,17 +23,17 @@ func virtualChassisMemberTerraformToSdk(ctx context.Context, diags *diag.Diagnos
 			data.VcRole = models.SwitchVirtualChassisMemberVcRoleEnum(plan.VcRole.ValueString())
 		}
 
-		data_list = append(data_list, data)
+		dataList = append(dataList, data)
 	}
-	return data_list
+	return dataList
 }
 
-func virtualChassisTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d VirtualChassisValue) *models.SwitchVirtualChassis {
+func virtualChassisTerraformToSdk(d VirtualChassisValue) *models.SwitchVirtualChassis {
 
 	data := models.SwitchVirtualChassis{}
 
 	if !d.Members.IsNull() && !d.Members.IsUnknown() {
-		data.Members = virtualChassisMemberTerraformToSdk(ctx, diags, d.Members)
+		data.Members = virtualChassisMemberTerraformToSdk(d.Members)
 	}
 	if d.Preprovisioned.ValueBoolPointer() != nil {
 		data.Preprovisioned = d.Preprovisioned.ValueBoolPointer()

@@ -3,7 +3,7 @@ package resource_org_wxtag
 import (
 	"context"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -15,18 +15,18 @@ import (
 
 func specsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data []models.WxlanTagSpec) basetypes.ListValue {
 
-	var data_list = []SpecsValue{}
+	var dataList []SpecsValue
 	for _, v := range data {
-		data_map_value := map[string]attr.Value{
+		dataMapValue := map[string]attr.Value{
 			"port_range": types.StringValue(*v.PortRange),
 			"protocol":   types.StringValue(*v.Protocol),
-			"subnets":    mist_transform.ListOfStringSdkToTerraform(ctx, v.Subnets),
+			"subnets":    misttransform.ListOfStringSdkToTerraform(v.Subnets),
 		}
-		data, e := NewSpecsValue(SpecsValue{}.AttributeTypes(ctx), data_map_value)
+		data, e := NewSpecsValue(SpecsValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
-		data_list = append(data_list, data)
+		dataList = append(dataList, data)
 	}
-	r, e := types.ListValueFrom(ctx, SpecsValue{}.Type(ctx), data_list)
+	r, e := types.ListValueFrom(ctx, SpecsValue{}.Type(ctx), dataList)
 	diags.Append(e...)
 
 	return r

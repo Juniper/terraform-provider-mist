@@ -1,52 +1,49 @@
 package resource_device_switch
 
 import (
-	"context"
-
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func extraRoute6NextQualifiedTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.ExtraRoute6NextQualifiedProperties {
+func extraRoute6NextQualifiedTerraformToSdk(d basetypes.MapValue) map[string]models.ExtraRoute6NextQualifiedProperties {
 	data := make(map[string]models.ExtraRoute6NextQualifiedProperties)
 	for k, v := range d.Elements() {
-		var v_interface interface{} = v
-		v_plan := v_interface.(NextQualifiedValue)
-		v_data := models.ExtraRoute6NextQualifiedProperties{}
-		if v_plan.Metric.ValueInt64Pointer() != nil {
-			v_data.Metric = models.NewOptional(models.ToPointer(int(v_plan.Metric.ValueInt64())))
+		var vInterface interface{} = v
+		vPlan := vInterface.(NextQualifiedValue)
+		vData := models.ExtraRoute6NextQualifiedProperties{}
+		if vPlan.Metric.ValueInt64Pointer() != nil {
+			vData.Metric = models.NewOptional(models.ToPointer(int(vPlan.Metric.ValueInt64())))
 		}
-		if v_plan.Preference.ValueInt64Pointer() != nil {
-			v_data.Preference = models.NewOptional(models.ToPointer(int(v_plan.Preference.ValueInt64())))
+		if vPlan.Preference.ValueInt64Pointer() != nil {
+			vData.Preference = models.NewOptional(models.ToPointer(int(vPlan.Preference.ValueInt64())))
 		}
-		data[k] = v_data
+		data[k] = vData
 	}
 	return data
 }
-func extraRoutes6TerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.ExtraRoute6 {
+func extraRoutes6TerraformToSdk(d basetypes.MapValue) map[string]models.ExtraRoute6 {
 	data := make(map[string]models.ExtraRoute6)
 	for k, v := range d.Elements() {
-		var v_interface interface{} = v
-		v_plan := v_interface.(ExtraRoutesValue)
+		var vInterface interface{} = v
+		vPlan := vInterface.(ExtraRoutesValue)
 
-		v_data := models.ExtraRoute6{}
-		if v_plan.Discard.ValueBoolPointer() != nil {
-			v_data.Discard = models.ToPointer(v_plan.Discard.ValueBool())
+		vData := models.ExtraRoute6{}
+		if vPlan.Discard.ValueBoolPointer() != nil {
+			vData.Discard = models.ToPointer(vPlan.Discard.ValueBool())
 		}
-		if v_plan.Metric.ValueInt64Pointer() != nil {
-			v_data.Metric = models.NewOptional(models.ToPointer(int(v_plan.Metric.ValueInt64())))
+		if vPlan.Metric.ValueInt64Pointer() != nil {
+			vData.Metric = models.NewOptional(models.ToPointer(int(vPlan.Metric.ValueInt64())))
 		}
-		v_data.NextQualified = extraRoute6NextQualifiedTerraformToSdk(ctx, diags, v_plan.NextQualified)
-		v_data.NoResolve = models.ToPointer(v_plan.NoResolve.ValueBool())
-		if v_plan.Preference.ValueInt64Pointer() != nil {
-			v_data.Preference = models.NewOptional(models.ToPointer(int(v_plan.Preference.ValueInt64())))
+		vData.NextQualified = extraRoute6NextQualifiedTerraformToSdk(vPlan.NextQualified)
+		vData.NoResolve = models.ToPointer(vPlan.NoResolve.ValueBool())
+		if vPlan.Preference.ValueInt64Pointer() != nil {
+			vData.Preference = models.NewOptional(models.ToPointer(int(vPlan.Preference.ValueInt64())))
 		}
-		if v_plan.Via.ValueStringPointer() != nil {
-			v_data.Via = models.ToPointer(v_plan.Via.ValueString())
+		if vPlan.Via.ValueStringPointer() != nil {
+			vData.Via = models.ToPointer(vPlan.Via.ValueString())
 		}
-		data[k] = v_data
+		data[k] = vData
 	}
 	return data
 }

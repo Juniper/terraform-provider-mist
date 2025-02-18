@@ -20,13 +20,13 @@ func GenDeviceMap(devices *basetypes.MapValue) map[string]InventoryValue {
 			map[string]InventoryValue
 				key is the device Claim Code or MAC Address, value is the DeviceValue
 	*/
-	devices_map := make(map[string]InventoryValue)
+	devicesMap := make(map[string]InventoryValue)
 	for key, v := range devices.Elements() {
 		var dsi interface{} = v
 		var dev = dsi.(InventoryValue)
-		devices_map[key] = dev
+		devicesMap[key] = dev
 	}
-	return devices_map
+	return devicesMap
 }
 
 func DetectDeviceInfoType(diags *diag.Diagnostics, deviceInfo string) (bool, bool) {
@@ -45,11 +45,11 @@ func DetectDeviceInfoType(diags *diag.Diagnostics, deviceInfo string) (bool, boo
 			true if it's a MAC Address
 
 	*/
-	re_claimcode := `^[0-9a-zA-Z]{15}$`
-	re_mac := `^[0-9a-fA-F]{12}$`
-	if is_valid, _ := regexp.MatchString(re_claimcode, deviceInfo); is_valid {
+	reClaimcode := `^[0-9a-zA-Z]{15}$`
+	reMac := `^[0-9a-fA-F]{12}$`
+	if isValid, _ := regexp.MatchString(reClaimcode, deviceInfo); isValid {
 		return true, false
-	} else if is_valid, _ := regexp.MatchString(re_mac, deviceInfo); is_valid {
+	} else if isValid, _ := regexp.MatchString(reMac, deviceInfo); isValid {
 		return false, true
 	} else {
 		diags.AddError(

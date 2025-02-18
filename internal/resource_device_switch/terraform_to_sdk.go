@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
@@ -19,31 +19,31 @@ func TerraformToSdk(ctx context.Context, plan *DeviceSwitchModel) (models.MistDe
 	if plan.AclPolicies.IsNull() || plan.AclPolicies.IsUnknown() {
 		unset["-acl_policies"] = ""
 	} else {
-		data.AclPolicies = aclPoliciesTerraformToSdk(ctx, &diags, plan.AclPolicies)
+		data.AclPolicies = aclPoliciesTerraformToSdk(plan.AclPolicies)
 	}
 
 	if plan.AclTags.IsNull() || plan.AclTags.IsUnknown() {
 		unset["-acl_tags"] = ""
 	} else {
-		data.AclTags = actTagsTerraformToSdk(ctx, &diags, plan.AclTags)
+		data.AclTags = actTagsTerraformToSdk(plan.AclTags)
 	}
 
 	if plan.AdditionalConfigCmds.IsNull() || plan.AdditionalConfigCmds.IsUnknown() {
 		unset["-additional_config_cmds"] = ""
 	} else {
-		data.AdditionalConfigCmds = mist_transform.ListOfStringTerraformToSdk(ctx, plan.AdditionalConfigCmds)
+		data.AdditionalConfigCmds = misttransform.ListOfStringTerraformToSdk(plan.AdditionalConfigCmds)
 	}
 
 	if plan.DhcpSnooping.IsNull() || plan.DhcpSnooping.IsUnknown() {
 		unset["-dhcp_snooping"] = ""
 	} else {
-		data.DhcpSnooping = dhcpSnoopingTerraformToSdk(ctx, &diags, plan.DhcpSnooping)
+		data.DhcpSnooping = dhcpSnoopingTerraformToSdk(plan.DhcpSnooping)
 	}
 
 	if plan.DhcpdConfig.IsNull() || plan.DhcpdConfig.IsUnknown() {
 		unset["-dhcpd_config"] = ""
 	} else {
-		data.DhcpdConfig = dhcpdConfigTerraformToSdk(ctx, &diags, plan.DhcpdConfig)
+		data.DhcpdConfig = dhcpdConfigTerraformToSdk(plan.DhcpdConfig)
 	}
 
 	if plan.DisableAutoConfig.IsNull() || plan.DisableAutoConfig.IsUnknown() {
@@ -55,31 +55,31 @@ func TerraformToSdk(ctx context.Context, plan *DeviceSwitchModel) (models.MistDe
 	if plan.DnsServers.IsNull() || plan.DnsServers.IsUnknown() {
 		unset["-dns_servers"] = ""
 	} else {
-		data.DnsServers = mist_transform.ListOfStringTerraformToSdk(ctx, plan.DnsServers)
+		data.DnsServers = misttransform.ListOfStringTerraformToSdk(plan.DnsServers)
 	}
 
 	if plan.DnsSuffix.IsNull() || plan.DnsSuffix.IsUnknown() {
 		unset["-dns_suffix"] = ""
 	} else {
-		data.DnsSuffix = mist_transform.ListOfStringTerraformToSdk(ctx, plan.DnsSuffix)
+		data.DnsSuffix = misttransform.ListOfStringTerraformToSdk(plan.DnsSuffix)
 	}
 
 	if plan.ExtraRoutes.IsNull() || plan.ExtraRoutes.IsUnknown() {
 		unset["-extra_routes"] = ""
 	} else {
-		data.ExtraRoutes = extraRoutesTerraformToSdk(ctx, &diags, plan.ExtraRoutes)
+		data.ExtraRoutes = extraRoutesTerraformToSdk(plan.ExtraRoutes)
 	}
 
 	if plan.ExtraRoutes6.IsNull() || plan.ExtraRoutes6.IsUnknown() {
 		unset["-extra_routes6"] = ""
 	} else {
-		data.ExtraRoutes6 = extraRoutes6TerraformToSdk(ctx, &diags, plan.ExtraRoutes6)
+		data.ExtraRoutes6 = extraRoutes6TerraformToSdk(plan.ExtraRoutes6)
 	}
 
 	if plan.IpConfig.IsNull() || plan.IpConfig.IsUnknown() {
 		unset["-ip_config"] = ""
 	} else {
-		data.IpConfig = ipConfigTerraformToSdk(ctx, &diags, plan.IpConfig)
+		data.IpConfig = ipConfigTerraformToSdk(plan.IpConfig)
 	}
 
 	if plan.LocalPortConfig.IsNull() || plan.LocalPortConfig.IsUnknown() {
@@ -95,9 +95,9 @@ func TerraformToSdk(ctx context.Context, plan *DeviceSwitchModel) (models.MistDe
 	}
 
 	if len(plan.MapId.ValueString()) > 0 {
-		map_id, e := uuid.Parse(plan.MapId.ValueString())
+		mapId, e := uuid.Parse(plan.MapId.ValueString())
 		if e == nil {
-			data.MapId = &map_id
+			data.MapId = &mapId
 		} else {
 			diags.AddError("Bad value for map_id", e.Error())
 		}
@@ -116,14 +116,14 @@ func TerraformToSdk(ctx context.Context, plan *DeviceSwitchModel) (models.MistDe
 	if plan.MistNac.IsNull() || plan.MistNac.IsUnknown() {
 		unset["-mist_nac"] = ""
 	} else {
-		mist_nac := mistNacTerraformToSdk(ctx, &diags, plan.MistNac)
-		data.MistNac = mist_nac
+		mistNac := mistNacTerraformToSdk(plan.MistNac)
+		data.MistNac = mistNac
 	}
 
 	if plan.Networks.IsNull() || plan.Networks.IsUnknown() {
 		unset["-networks"] = ""
 	} else {
-		networks := NetworksTerraformToSdk(ctx, &diags, plan.Networks)
+		networks := NetworksTerraformToSdk(plan.Networks)
 		data.Networks = networks
 	}
 
@@ -136,37 +136,37 @@ func TerraformToSdk(ctx context.Context, plan *DeviceSwitchModel) (models.MistDe
 	if plan.NtpServers.IsNull() || plan.NtpServers.IsUnknown() {
 		unset["-ntp_servers"] = ""
 	} else {
-		data.NtpServers = mist_transform.ListOfStringTerraformToSdk(ctx, plan.NtpServers)
+		data.NtpServers = misttransform.ListOfStringTerraformToSdk(plan.NtpServers)
 	}
 
 	if plan.OobIpConfig.IsNull() || plan.OobIpConfig.IsUnknown() {
 		unset["-oob_ip_config"] = ""
 	} else {
-		data.OobIpConfig = oobIpConfigTerraformToSdk(ctx, &diags, plan.OobIpConfig)
+		data.OobIpConfig = oobIpConfigTerraformToSdk(plan.OobIpConfig)
 	}
 
 	if plan.OspfAreas.IsNull() || plan.OspfAreas.IsUnknown() {
 		unset["-ospf_areas"] = ""
 	} else {
-		data.OspfAreas = ospfAreasTerraformToSdk(ctx, &diags, plan.OspfAreas)
+		data.OspfAreas = ospfAreasTerraformToSdk(plan.OspfAreas)
 	}
 
 	if plan.OtherIpConfigs.IsNull() || plan.OtherIpConfigs.IsUnknown() {
 		unset["-other_ip_configs"] = ""
 	} else {
-		data.OtherIpConfigs = otherIpConfigTerraformToSdk(ctx, &diags, plan.OtherIpConfigs)
+		data.OtherIpConfigs = otherIpConfigTerraformToSdk(plan.OtherIpConfigs)
 	}
 
 	if plan.PortConfig.IsNull() || plan.PortConfig.IsUnknown() {
 		unset["-port_config"] = ""
 	} else {
-		data.PortConfig = portConfigTerraformToSdk(ctx, &diags, plan.PortConfig)
+		data.PortConfig = portConfigTerraformToSdk(plan.PortConfig)
 	}
 
 	if plan.PortMirroring.IsNull() || plan.PortMirroring.IsUnknown() {
 		unset["-port_mirroring"] = ""
 	} else {
-		data.PortMirroring = portMirroringTerraformToSdk(ctx, &diags, plan.PortMirroring)
+		data.PortMirroring = portMirroringTerraformToSdk(plan.PortMirroring)
 	}
 
 	if plan.PortUsages.IsNull() || plan.PortUsages.IsUnknown() {
@@ -178,7 +178,7 @@ func TerraformToSdk(ctx context.Context, plan *DeviceSwitchModel) (models.MistDe
 	if plan.RadiusConfig.IsNull() || plan.RadiusConfig.IsUnknown() {
 		unset["-radius_config"] = ""
 	} else {
-		data.RadiusConfig = radiusConfigTerraformToSdk(ctx, &diags, plan.RadiusConfig)
+		data.RadiusConfig = radiusConfigTerraformToSdk(plan.RadiusConfig)
 	}
 
 	if plan.RemoteSyslog.IsNull() || plan.RemoteSyslog.IsUnknown() {
@@ -208,7 +208,7 @@ func TerraformToSdk(ctx context.Context, plan *DeviceSwitchModel) (models.MistDe
 	if plan.StpConfig.IsNull() || plan.StpConfig.IsUnknown() {
 		unset["-stp_config"] = ""
 	} else {
-		data.StpConfig = stpConfigTerraformToSdk(ctx, &diags, plan.StpConfig)
+		data.StpConfig = stpConfigTerraformToSdk(plan.StpConfig)
 	}
 
 	if plan.SwitchMgmt.IsNull() || plan.SwitchMgmt.IsUnknown() {
@@ -226,31 +226,31 @@ func TerraformToSdk(ctx context.Context, plan *DeviceSwitchModel) (models.MistDe
 	if plan.Vars.IsNull() || plan.Vars.IsUnknown() {
 		unset["-vars"] = ""
 	} else {
-		data.Vars = varsTerraformToSdk(ctx, &diags, plan.Vars)
+		data.Vars = varsTerraformToSdk(plan.Vars)
 	}
 
 	if plan.VirtualChassis.IsNull() || plan.VirtualChassis.IsUnknown() {
 		unset["-virtual_chassis"] = ""
 	} else {
-		data.VirtualChassis = virtualChassisTerraformToSdk(ctx, &diags, plan.VirtualChassis)
+		data.VirtualChassis = virtualChassisTerraformToSdk(plan.VirtualChassis)
 	}
 
 	if plan.VrfConfig.IsNull() || plan.VrfConfig.IsUnknown() {
 		unset["-vrf_config"] = ""
 	} else {
-		data.VrfConfig = vrfConfigTerraformToSdk(ctx, &diags, plan.VrfConfig)
+		data.VrfConfig = vrfConfigTerraformToSdk(plan.VrfConfig)
 	}
 
 	if plan.VrfInstances.IsNull() || plan.VrfInstances.IsUnknown() {
 		unset["-vrf_instances"] = ""
 	} else {
-		data.VrfInstances = vrfInstancesTerraformToSdk(ctx, &diags, plan.VrfInstances)
+		data.VrfInstances = vrfInstancesTerraformToSdk(plan.VrfInstances)
 	}
 
 	if plan.VrrpConfig.IsNull() || plan.VrrpConfig.IsUnknown() {
 		unset["-vrrp_config"] = ""
 	} else {
-		data.VrrpConfig = vrrpTerraformToSdk(ctx, &diags, plan.VrrpConfig)
+		data.VrrpConfig = vrrpTerraformToSdk(plan.VrrpConfig)
 	}
 
 	if !plan.X.IsNull() && !plan.X.IsUnknown() {
@@ -266,6 +266,6 @@ func TerraformToSdk(ctx context.Context, plan *DeviceSwitchModel) (models.MistDe
 
 	data.AdditionalProperties = unset
 
-	mist_device := models.MistDeviceContainer.FromDeviceSwitch(data)
-	return mist_device, diags
+	mistDevice := models.MistDeviceContainer.FromDeviceSwitch(data)
+	return mistDevice, diags
 }

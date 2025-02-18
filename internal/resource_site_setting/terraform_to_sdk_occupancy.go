@@ -1,14 +1,10 @@
 package resource_site_setting
 
 import (
-	"context"
-
-	"github.com/hashicorp/terraform-plugin-framework/diag"
-
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func occupancyTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d OccupancyValue) *models.SiteOccupancyAnalytics {
+func occupancyTerraformToSdk(d OccupancyValue) *models.SiteOccupancyAnalytics {
 	data := models.SiteOccupancyAnalytics{}
 
 	if d.AssetsEnabled.ValueBoolPointer() != nil {

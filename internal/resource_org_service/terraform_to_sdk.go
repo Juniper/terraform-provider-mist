@@ -1,60 +1,58 @@
 package resource_org_service
 
 import (
-	"context"
-
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func specSpecsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.ServiceSpec {
+func specSpecsTerraformToSdk(d basetypes.ListValue) []models.ServiceSpec {
 	var data []models.ServiceSpec
 	for _, v := range d.Elements() {
-		var v_interface interface{} = v
-		v_state := v_interface.(SpecsValue)
-		v_data := models.ServiceSpec{}
+		var vInterface interface{} = v
+		vState := vInterface.(SpecsValue)
+		vData := models.ServiceSpec{}
 
-		if v_state.PortRange.ValueStringPointer() != nil {
-			v_data.PortRange = v_state.PortRange.ValueStringPointer()
+		if vState.PortRange.ValueStringPointer() != nil {
+			vData.PortRange = vState.PortRange.ValueStringPointer()
 		}
 
-		if v_state.Protocol.ValueStringPointer() != nil {
-			v_data.Protocol = v_state.Protocol.ValueStringPointer()
+		if vState.Protocol.ValueStringPointer() != nil {
+			vData.Protocol = vState.Protocol.ValueStringPointer()
 		}
-		data = append(data, v_data)
+		data = append(data, vData)
 	}
 	return data
 }
 
-func TerraformToSdk(ctx context.Context, plan *OrgServiceModel) (models.Service, diag.Diagnostics) {
+func TerraformToSdk(plan *OrgServiceModel) (models.Service, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	unset := make(map[string]interface{})
 	data := models.Service{}
 
 	data.Name = plan.Name.ValueStringPointer()
-	data.Specs = specSpecsTerraformToSdk(ctx, &diags, plan.Specs)
+	data.Specs = specSpecsTerraformToSdk(plan.Specs)
 
 	if !plan.Addresses.IsNull() && !plan.Addresses.IsUnknown() {
-		data.Addresses = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Addresses)
+		data.Addresses = misttransform.ListOfStringTerraformToSdk(plan.Addresses)
 	} else {
 		unset["-addresses"] = ""
 	}
 	if !plan.AppCategories.IsNull() && !plan.AppCategories.IsUnknown() {
-		data.AppCategories = mist_transform.ListOfStringTerraformToSdk(ctx, plan.AppCategories)
+		data.AppCategories = misttransform.ListOfStringTerraformToSdk(plan.AppCategories)
 	} else {
 		unset["-app_categories"] = ""
 	}
 	if !plan.AppSubcategories.IsNull() && !plan.AppSubcategories.IsUnknown() {
-		data.AppSubcategories = mist_transform.ListOfStringTerraformToSdk(ctx, plan.AppSubcategories)
+		data.AppSubcategories = misttransform.ListOfStringTerraformToSdk(plan.AppSubcategories)
 	} else {
 		unset["-app_subcategories"] = ""
 	}
 	if !plan.Apps.IsNull() && !plan.Apps.IsUnknown() {
-		data.Apps = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Apps)
+		data.Apps = misttransform.ListOfStringTerraformToSdk(plan.Apps)
 	} else {
 		unset["-apps"] = ""
 	}
@@ -74,7 +72,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgServiceModel) (models.Service,
 		unset["-failover_policy"] = ""
 	}
 	if !plan.Hostnames.IsNull() && !plan.Hostnames.IsUnknown() {
-		data.Hostnames = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Hostnames)
+		data.Hostnames = misttransform.ListOfStringTerraformToSdk(plan.Hostnames)
 	} else {
 		unset["-hostnames"] = ""
 	}
@@ -119,7 +117,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgServiceModel) (models.Service,
 		unset["-type"] = ""
 	}
 	if !plan.Urls.IsNull() && !plan.Urls.IsUnknown() {
-		data.Urls = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Urls)
+		data.Urls = misttransform.ListOfStringTerraformToSdk(plan.Urls)
 	} else {
 		unset["-urls"] = ""
 	}

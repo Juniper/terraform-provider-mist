@@ -1,45 +1,43 @@
 package resource_site_psk
 
 import (
-	"context"
-
-	mist_api "github.com/Juniper/terraform-provider-mist/internal/commons/api_response"
+	mistapi "github.com/Juniper/terraform-provider-mist/internal/commons/api_response"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-func SdkToTerraform(ctx context.Context, d *models.Psk) (SitePskModel, diag.Diagnostics) {
+func SdkToTerraform(d *models.Psk) (SitePskModel, diag.Diagnostics) {
 	var state SitePskModel
 	var diags diag.Diagnostics
 
 	var email types.String
-	var expire_time types.Int64 = types.Int64Value(0)
-	var expiry_notification_time types.Int64
+	var expireTime = types.Int64Value(0)
+	var expiryNotificationTime types.Int64
 	var id types.String
 	var mac types.String
 	var name types.String
 	var note types.String
-	var notify_expiry types.Bool
-	var notify_on_create_or_edit types.Bool
-	var old_passphrase types.String
-	var org_id types.String
+	var notifyExpiry types.Bool
+	var notifyOnCreateOrEdit types.Bool
+	var oldPassphrase types.String
+	var orgId types.String
 	var passphrase types.String
 	var role types.String
 	var ssid types.String
-	var site_id types.String
+	var siteId types.String
 	var usage types.String
-	var vlan_id types.String
+	var vlanId types.String
 
 	if d.Email != nil {
 		email = types.StringValue(*d.Email)
 	}
 	if d.ExpireTime.Value() != nil {
-		expire_time = types.Int64Value(int64(*d.ExpireTime.Value()))
+		expireTime = types.Int64Value(int64(*d.ExpireTime.Value()))
 	}
 	if d.ExpiryNotificationTime != nil {
-		expiry_notification_time = types.Int64Value(int64(*d.ExpiryNotificationTime))
+		expiryNotificationTime = types.Int64Value(int64(*d.ExpiryNotificationTime))
 	}
 	if d.Id != nil {
 		id = types.StringValue(d.Id.String())
@@ -54,16 +52,16 @@ func SdkToTerraform(ctx context.Context, d *models.Psk) (SitePskModel, diag.Diag
 		note = types.StringValue(*d.Note)
 	}
 	if d.NotifyExpiry != nil {
-		notify_expiry = types.BoolValue(*d.NotifyExpiry)
+		notifyExpiry = types.BoolValue(*d.NotifyExpiry)
 	}
 	if d.NotifyOnCreateOrEdit != nil {
-		notify_on_create_or_edit = types.BoolValue(*d.NotifyOnCreateOrEdit)
+		notifyOnCreateOrEdit = types.BoolValue(*d.NotifyOnCreateOrEdit)
 	}
 	if d.OldPassphrase != nil {
-		old_passphrase = types.StringValue(*d.OldPassphrase)
+		oldPassphrase = types.StringValue(*d.OldPassphrase)
 	}
 	if d.OrgId != nil {
-		org_id = types.StringValue(d.OrgId.String())
+		orgId = types.StringValue(d.OrgId.String())
 	}
 
 	passphrase = types.StringValue(d.Passphrase)
@@ -74,31 +72,31 @@ func SdkToTerraform(ctx context.Context, d *models.Psk) (SitePskModel, diag.Diag
 
 	ssid = types.StringValue(d.Ssid)
 
-	site_id = types.StringValue(string(d.SiteId.String()))
+	siteId = types.StringValue(d.SiteId.String())
 
 	usage = types.StringValue(string(*d.Usage))
 
 	if d.VlanId != nil {
-		vlan_id = mist_api.PskVlanAsString(*d.VlanId)
+		vlanId = mistapi.PskVlanAsString(*d.VlanId)
 	}
 
 	state.Email = email
-	state.ExpireTime = expire_time
-	state.ExpiryNotificationTime = expiry_notification_time
+	state.ExpireTime = expireTime
+	state.ExpiryNotificationTime = expiryNotificationTime
 	state.Id = id
 	state.Mac = mac
 	state.Name = name
 	state.Note = note
-	state.NotifyExpiry = notify_expiry
-	state.NotifyOnCreateOrEdit = notify_on_create_or_edit
-	state.OldPassphrase = old_passphrase
+	state.NotifyExpiry = notifyExpiry
+	state.NotifyOnCreateOrEdit = notifyOnCreateOrEdit
+	state.OldPassphrase = oldPassphrase
 	state.Passphrase = passphrase
-	state.OrgId = org_id
+	state.OrgId = orgId
 	state.Role = role
 	state.Ssid = ssid
-	state.SiteId = site_id
+	state.SiteId = siteId
 	state.Usage = usage
-	state.VlanId = vlan_id
+	state.VlanId = vlanId
 
 	return state, diags
 

@@ -3,13 +3,12 @@ package resource_site_setting
 import (
 	"context"
 
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func widsAuthFailureTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, o basetypes.ObjectValue) *models.SiteWidsRepeatedAuthFailures {
+func widsAuthFailureTerraformToSdk(ctx context.Context, o basetypes.ObjectValue) *models.SiteWidsRepeatedAuthFailures {
 	data := models.SiteWidsRepeatedAuthFailures{}
 	if o.IsNull() || o.IsUnknown() {
 		return &data
@@ -21,12 +20,12 @@ func widsAuthFailureTerraformToSdk(ctx context.Context, diags *diag.Diagnostics,
 	}
 }
 
-func widsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d WidsValue) *models.SiteWids {
+func widsTerraformToSdk(ctx context.Context, d WidsValue) *models.SiteWids {
 	data := models.SiteWids{}
 
 	if !d.IsNull() {
-		repeated_auth_failures := widsAuthFailureTerraformToSdk(ctx, diags, d.RepeatedAuthFailures)
-		data.RepeatedAuthFailures = repeated_auth_failures
+		repeatedAuthFailures := widsAuthFailureTerraformToSdk(ctx, d.RepeatedAuthFailures)
+		data.RepeatedAuthFailures = repeatedAuthFailures
 	}
 
 	return &data

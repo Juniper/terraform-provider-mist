@@ -1,8 +1,6 @@
 package resource_site
 
 import (
-	"context"
-
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
@@ -11,7 +9,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func TerraformToSdk(ctx context.Context, plan *SiteModel) (*models.Site, diag.Diagnostics) {
+func TerraformToSdk(plan *SiteModel) (*models.Site, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	unset := make(map[string]interface{})
 
@@ -25,10 +23,10 @@ func TerraformToSdk(ctx context.Context, plan *SiteModel) (*models.Site, diag.Di
 	}
 
 	if (!plan.Latlng.IsNull()) && !plan.Latlng.IsUnknown() {
-		var data_latlng models.LatLng
-		data_latlng.Lat = plan.Latlng.Lat.ValueFloat64()
-		data_latlng.Lng = plan.Latlng.Lng.ValueFloat64()
-		data.Latlng = models.ToPointer(data_latlng)
+		var dataLatlng models.LatLng
+		dataLatlng.Lat = plan.Latlng.Lat.ValueFloat64()
+		dataLatlng.Lng = plan.Latlng.Lng.ValueFloat64()
+		data.Latlng = models.ToPointer(dataLatlng)
 	} else {
 		unset["-latlng"] = ""
 	}
@@ -52,9 +50,9 @@ func TerraformToSdk(ctx context.Context, plan *SiteModel) (*models.Site, diag.Di
 	}
 
 	if !plan.AlarmtemplateId.IsNull() && !plan.AlarmtemplateId.IsUnknown() {
-		alarmtemplate_id, e := uuid.Parse(plan.AlarmtemplateId.ValueString())
+		alarmtemplateId, e := uuid.Parse(plan.AlarmtemplateId.ValueString())
 		if e == nil {
-			data.AlarmtemplateId = models.NewOptional(&alarmtemplate_id)
+			data.AlarmtemplateId = models.NewOptional(&alarmtemplateId)
 		} else {
 			diags.AddError("Bad value for alarmtemplate_id", e.Error())
 		}
@@ -63,9 +61,9 @@ func TerraformToSdk(ctx context.Context, plan *SiteModel) (*models.Site, diag.Di
 	}
 
 	if !plan.AptemplateId.IsNull() && !plan.AptemplateId.IsUnknown() {
-		aptemplate_id, e := uuid.Parse(plan.AptemplateId.ValueString())
+		aptemplateId, e := uuid.Parse(plan.AptemplateId.ValueString())
 		if e == nil {
-			data.AptemplateId = models.NewOptional(&aptemplate_id)
+			data.AptemplateId = models.NewOptional(&aptemplateId)
 		} else {
 			diags.AddError("Bad value for aptemplate_id", e.Error())
 		}
@@ -74,9 +72,9 @@ func TerraformToSdk(ctx context.Context, plan *SiteModel) (*models.Site, diag.Di
 	}
 
 	if !plan.GatewaytemplateId.IsNull() && !plan.GatewaytemplateId.IsUnknown() {
-		gatewaytemplate_id, e := uuid.Parse(plan.GatewaytemplateId.ValueString())
+		gatewaytemplateId, e := uuid.Parse(plan.GatewaytemplateId.ValueString())
 		if e == nil {
-			data.GatewaytemplateId = models.NewOptional(&gatewaytemplate_id)
+			data.GatewaytemplateId = models.NewOptional(&gatewaytemplateId)
 		} else {
 			diags.AddError("Bad value for gatewaytemplate_id", e.Error())
 		}
@@ -85,9 +83,9 @@ func TerraformToSdk(ctx context.Context, plan *SiteModel) (*models.Site, diag.Di
 	}
 
 	if !plan.NetworktemplateId.IsNull() && !plan.NetworktemplateId.IsUnknown() {
-		networktemplate_id, e := uuid.Parse(plan.NetworktemplateId.ValueString())
+		networktemplateId, e := uuid.Parse(plan.NetworktemplateId.ValueString())
 		if e == nil {
-			data.NetworktemplateId = models.NewOptional(&networktemplate_id)
+			data.NetworktemplateId = models.NewOptional(&networktemplateId)
 		} else {
 			diags.AddError("Bad value for networktemplate_id", e.Error())
 		}
@@ -96,9 +94,9 @@ func TerraformToSdk(ctx context.Context, plan *SiteModel) (*models.Site, diag.Di
 	}
 
 	if !plan.RftemplateId.IsNull() && !plan.RftemplateId.IsUnknown() {
-		rftemplate_id, e := uuid.Parse(plan.RftemplateId.ValueString())
+		rftemplateId, e := uuid.Parse(plan.RftemplateId.ValueString())
 		if e == nil {
-			data.RftemplateId = models.NewOptional(&rftemplate_id)
+			data.RftemplateId = models.NewOptional(&rftemplateId)
 		} else {
 			diags.AddError("Bad value for rftemplate_id", e.Error())
 		}
@@ -107,9 +105,9 @@ func TerraformToSdk(ctx context.Context, plan *SiteModel) (*models.Site, diag.Di
 	}
 
 	if !plan.SecpolicyId.IsNull() && !plan.SecpolicyId.IsUnknown() {
-		secpolicy_id, e := uuid.Parse(plan.SecpolicyId.ValueString())
+		secpolicyId, e := uuid.Parse(plan.SecpolicyId.ValueString())
 		if e == nil {
-			data.SecpolicyId = models.NewOptional(&secpolicy_id)
+			data.SecpolicyId = models.NewOptional(&secpolicyId)
 		} else {
 			diags.AddError("Bad value for secpolicy_id", e.Error())
 		}
@@ -118,9 +116,9 @@ func TerraformToSdk(ctx context.Context, plan *SiteModel) (*models.Site, diag.Di
 	}
 
 	if !plan.SitetemplateId.IsNull() && !plan.SitetemplateId.IsUnknown() {
-		sitetemplate_id, e := uuid.Parse(plan.SitetemplateId.ValueString())
+		sitetemplateId, e := uuid.Parse(plan.SitetemplateId.ValueString())
 		if e == nil {
-			data.SitetemplateId = models.NewOptional(&sitetemplate_id)
+			data.SitetemplateId = models.NewOptional(&sitetemplateId)
 		} else {
 			diags.AddError("Bad value for sitetemplate_id", e.Error())
 		}

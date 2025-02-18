@@ -26,41 +26,41 @@ func SdkToTerraform(ctx context.Context, l *[]models.Site, elements *[]attr.Valu
 func siteSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.Site) SitesValue {
 
 	var address basetypes.StringValue
-	var alarmtemplate_id basetypes.StringValue
-	var aptemplate_id basetypes.StringValue
-	var country_code basetypes.StringValue
-	var created_time basetypes.NumberValue
-	var gatewaytemplate_id basetypes.StringValue
+	var alarmtemplateId basetypes.StringValue
+	var aptemplateId basetypes.StringValue
+	var countryCode basetypes.StringValue
+	var createdTime basetypes.NumberValue
+	var gatewaytemplateId basetypes.StringValue
 	var id basetypes.StringValue
-	var latlng basetypes.ObjectValue = types.ObjectNull(LatlngValue{}.AttributeTypes(ctx))
-	var modified_time basetypes.NumberValue
+	var latlng = types.ObjectNull(LatlngValue{}.AttributeTypes(ctx))
+	var modifiedTime basetypes.NumberValue
 	var name basetypes.StringValue
-	var networktemplate_id basetypes.StringValue
+	var networktemplateId basetypes.StringValue
 	var notes basetypes.StringValue
-	var org_id basetypes.StringValue
-	var rftemplate_id basetypes.StringValue
-	var secpolicy_id basetypes.StringValue
-	var sitegroup_ids basetypes.ListValue = types.ListNull(types.StringType)
-	var sitetemplate_id basetypes.StringValue
+	var orgId basetypes.StringValue
+	var rftemplateId basetypes.StringValue
+	var secpolicyId basetypes.StringValue
+	var sitegroupIds = types.ListNull(types.StringType)
+	var sitetemplateId basetypes.StringValue
 	var timezone basetypes.StringValue
 
 	if d.Address != nil {
 		address = types.StringValue(*d.Address)
 	}
 	if d.AlarmtemplateId.Value() != nil {
-		alarmtemplate_id = types.StringValue(d.AlarmtemplateId.Value().String())
+		alarmtemplateId = types.StringValue(d.AlarmtemplateId.Value().String())
 	}
 	if d.AptemplateId.Value() != nil {
-		aptemplate_id = types.StringValue(d.AptemplateId.Value().String())
+		aptemplateId = types.StringValue(d.AptemplateId.Value().String())
 	}
 	if d.CountryCode != nil {
-		country_code = types.StringValue(*d.CountryCode)
+		countryCode = types.StringValue(*d.CountryCode)
 	}
 	if d.CreatedTime != nil {
-		created_time = types.NumberValue(big.NewFloat(*d.CreatedTime))
+		createdTime = types.NumberValue(big.NewFloat(*d.CreatedTime))
 	}
 	if d.GatewaytemplateId.Value() != nil {
-		gatewaytemplate_id = types.StringValue(d.GatewaytemplateId.Value().String())
+		gatewaytemplateId = types.StringValue(d.GatewaytemplateId.Value().String())
 	}
 	if d.Id != nil {
 		id = types.StringValue(d.Id.String())
@@ -81,64 +81,63 @@ func siteSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 		diags.Append(e...)
 	}
 	if d.ModifiedTime != nil {
-		modified_time = types.NumberValue(big.NewFloat(*d.ModifiedTime))
+		modifiedTime = types.NumberValue(big.NewFloat(*d.ModifiedTime))
 	}
 	name = types.StringValue(d.Name)
 
 	if d.NetworktemplateId.Value() != nil {
-		networktemplate_id = types.StringValue(d.NetworktemplateId.Value().String())
+		networktemplateId = types.StringValue(d.NetworktemplateId.Value().String())
 	}
 	if d.Notes != nil {
 		notes = types.StringValue(*d.Notes)
 	}
 	if d.OrgId != nil {
-		org_id = types.StringValue(d.OrgId.String())
+		orgId = types.StringValue(d.OrgId.String())
 	}
 	if d.RftemplateId.Value() != nil {
-		rftemplate_id = types.StringValue(d.RftemplateId.Value().String())
+		rftemplateId = types.StringValue(d.RftemplateId.Value().String())
 	}
 	if d.SecpolicyId.Value() != nil {
-		secpolicy_id = types.StringValue(d.SecpolicyId.Value().String())
+		secpolicyId = types.StringValue(d.SecpolicyId.Value().String())
 	}
 	if d.SitegroupIds != nil {
 		var items []attr.Value
-		var items_type attr.Type = basetypes.StringType{}
+		var itemsType attr.Type = basetypes.StringType{}
 		for _, item := range d.SitegroupIds {
 			items = append(items, types.StringValue(item.String()))
 		}
-		tmp_sitegroup_ids, e := types.ListValue(items_type, items)
+		tmpSitegroupIds, e := types.ListValue(itemsType, items)
 		diags.Append(e...)
-		sitegroup_ids = tmp_sitegroup_ids
+		sitegroupIds = tmpSitegroupIds
 	}
 	if d.SitetemplateId.Value() != nil {
-		sitetemplate_id = types.StringValue(d.SitetemplateId.Value().String())
+		sitetemplateId = types.StringValue(d.SitetemplateId.Value().String())
 	}
 	if d.Timezone != nil {
 		timezone = types.StringValue(*d.Timezone)
 	}
 
-	data_map_attr_type := SitesValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"address":            address,
-		"alarmtemplate_id":   alarmtemplate_id,
-		"aptemplate_id":      aptemplate_id,
-		"country_code":       country_code,
-		"created_time":       created_time,
-		"gatewaytemplate_id": gatewaytemplate_id,
+		"alarmtemplate_id":   alarmtemplateId,
+		"aptemplate_id":      aptemplateId,
+		"country_code":       countryCode,
+		"created_time":       createdTime,
+		"gatewaytemplate_id": gatewaytemplateId,
 		"id":                 id,
 		"latlng":             latlng,
-		"modified_time":      modified_time,
+		"modified_time":      modifiedTime,
 		"name":               name,
-		"networktemplate_id": networktemplate_id,
+		"networktemplate_id": networktemplateId,
 		"notes":              notes,
-		"org_id":             org_id,
-		"rftemplate_id":      rftemplate_id,
-		"secpolicy_id":       secpolicy_id,
-		"sitegroup_ids":      sitegroup_ids,
-		"sitetemplate_id":    sitetemplate_id,
+		"org_id":             orgId,
+		"rftemplate_id":      rftemplateId,
+		"secpolicy_id":       secpolicyId,
+		"sitegroup_ids":      sitegroupIds,
+		"sitetemplate_id":    sitetemplateId,
 		"timezone":           timezone,
 	}
-	data, e := NewSitesValue(data_map_attr_type, data_map_value)
+	data, e := NewSitesValue(SitesValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

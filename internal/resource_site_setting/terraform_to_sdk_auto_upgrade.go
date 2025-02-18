@@ -1,24 +1,21 @@
 package resource_site_setting
 
 import (
-	"context"
-
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func siteSettingAutoUpgradeTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d AutoUpgradeValue) *models.SiteSettingAutoUpgrade {
+func siteSettingAutoUpgradeTerraformToSdk(d AutoUpgradeValue) *models.SiteSettingAutoUpgrade {
 	data := models.SiteSettingAutoUpgrade{}
 
-	custom_versions := make(map[string]string)
+	customVersions := make(map[string]string)
 	for k, v := range d.CustomVersions.Elements() {
 		var vi interface{} = v
 		vd := vi.(basetypes.StringValue)
-		custom_versions[k] = vd.ValueString()
+		customVersions[k] = vd.ValueString()
 	}
-	data.CustomVersions = custom_versions
+	data.CustomVersions = customVersions
 	data.DayOfWeek = models.ToPointer(models.DayOfWeekEnum(d.DayOfWeek.ValueString()))
 	data.Enabled = d.Enabled.ValueBoolPointer()
 	data.TimeOfDay = d.TimeOfDay.ValueStringPointer()

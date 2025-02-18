@@ -7,7 +7,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 
-	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
+	mistapierror "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_sso_role"
 
 	"github.com/google/uuid"
@@ -48,11 +48,11 @@ func (r *orgSsoRoleResource) Configure(ctx context.Context, req resource.Configu
 
 	r.client = client
 }
-func (r *orgSsoRoleResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *orgSsoRoleResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_org_sso_role"
 }
 
-func (r *orgSsoRoleResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *orgSsoRoleResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryOrg + "This resource manages Org SSO Roles for Admin Authantication.\n\n" +
 			"SSO roles refer to the different functions assigned to users within a Single Sign-On (SSO) system.  \n" +
@@ -82,19 +82,19 @@ func (r *orgSsoRoleResource) Create(ctx context.Context, req resource.CreateRequ
 		return
 	}
 
-	sso_role, diags := resource_org_sso_role.TerraformToSdk(ctx, &plan)
+	ssoRole, diags := resource_org_sso_role.TerraformToSdk(&plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	data, err := r.client.OrgsSSORoles().CreateOrgSsoRole(ctx, orgId, sso_role)
+	data, err := r.client.OrgsSSORoles().CreateOrgSsoRole(ctx, orgId, ssoRole)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error creating \"mist_org_sso_role\" resource",
-			fmt.Sprintf("Unable to create the API Token. %s", api_err),
+			fmt.Sprintf("Unable to create the API Token. %s", apiErr),
 		)
 		return
 	}
@@ -113,7 +113,7 @@ func (r *orgSsoRoleResource) Create(ctx context.Context, req resource.CreateRequ
 
 }
 
-func (r *orgSsoRoleResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *orgSsoRoleResource) Read(ctx context.Context, _ resource.ReadRequest, resp *resource.ReadResponse) {
 	var state resource_org_sso_role.OrgSsoRoleModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -132,7 +132,7 @@ func (r *orgSsoRoleResource) Read(ctx context.Context, req resource.ReadRequest,
 		return
 	}
 
-	sso_roleId, err := uuid.Parse(state.Id.ValueString())
+	ssoRoleid, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		diags.AddError(
 			"Invalid \"id\" value for \"mist_org_sso_role\" resource",
@@ -141,7 +141,7 @@ func (r *orgSsoRoleResource) Read(ctx context.Context, req resource.ReadRequest,
 		return
 	}
 
-	data, err := r.client.OrgsSSORoles().GetOrgSsoRole(ctx, orgId, sso_roleId)
+	data, err := r.client.OrgsSSORoles().GetOrgSsoRole(ctx, orgId, ssoRoleid)
 	if data.Response.StatusCode == 404 {
 		resp.State.RemoveResource(ctx)
 		return
@@ -179,7 +179,7 @@ func (r *orgSsoRoleResource) Update(ctx context.Context, req resource.UpdateRequ
 		return
 	}
 
-	sso_role, diags := resource_org_sso_role.TerraformToSdk(ctx, &plan)
+	ssoRole, diags := resource_org_sso_role.TerraformToSdk(&plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -194,7 +194,7 @@ func (r *orgSsoRoleResource) Update(ctx context.Context, req resource.UpdateRequ
 		return
 	}
 
-	sso_roleId, err := uuid.Parse(state.Id.ValueString())
+	ssoRoleid, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"id\" value for \"mist_org_sso_role\" resource",
@@ -204,13 +204,13 @@ func (r *orgSsoRoleResource) Update(ctx context.Context, req resource.UpdateRequ
 	}
 
 	tflog.Info(ctx, "Starting SsoRole Update for SsoRole "+state.Id.ValueString())
-	data, err := r.client.OrgsSSORoles().UpdateOrgSsoRole(ctx, orgId, sso_roleId, sso_role)
+	data, err := r.client.OrgsSSORoles().UpdateOrgSsoRole(ctx, orgId, ssoRoleid, ssoRole)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error updating \"mist_org_sso_role\" resource",
-			fmt.Sprintf("Unable to update the API Token. %s", api_err),
+			fmt.Sprintf("Unable to update the API Token. %s", apiErr),
 		)
 		return
 	}
@@ -229,7 +229,7 @@ func (r *orgSsoRoleResource) Update(ctx context.Context, req resource.UpdateRequ
 
 }
 
-func (r *orgSsoRoleResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *orgSsoRoleResource) Delete(ctx context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_org_sso_role.OrgSsoRoleModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -246,7 +246,7 @@ func (r *orgSsoRoleResource) Delete(ctx context.Context, req resource.DeleteRequ
 		)
 		return
 	}
-	sso_roleId, err := uuid.Parse(state.Id.ValueString())
+	ssoRoleid, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"id\" value for \"mist_org_sso_role\" resource",
@@ -256,12 +256,12 @@ func (r *orgSsoRoleResource) Delete(ctx context.Context, req resource.DeleteRequ
 	}
 
 	tflog.Info(ctx, "Starting SsoRole Delete: sso_role_id "+state.Id.ValueString())
-	data, err := r.client.OrgsSSORoles().DeleteOrgSsoRole(ctx, orgId, sso_roleId)
-	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && api_err != "" {
+	data, err := r.client.OrgsSSORoles().DeleteOrgSsoRole(ctx, orgId, ssoRoleid)
+	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_sso_role\" resource",
-			fmt.Sprintf("Unable to delete the API Token. %s", api_err),
+			fmt.Sprintf("Unable to delete the API Token. %s", apiErr),
 		)
 		return
 	}

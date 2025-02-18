@@ -15,14 +15,13 @@ func autoUpgradeStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 	var lastcheck basetypes.Int64Value
 
 	if d.Lastcheck.Value() != nil {
-		lastcheck = types.Int64Value(int64(*d.Lastcheck.Value()))
+		lastcheck = types.Int64Value(*d.Lastcheck.Value())
 	}
 
-	data_map_attr_type := AutoUpgradeStatValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"lastcheck": lastcheck,
 	}
-	data, e := types.ObjectValue(data_map_attr_type, data_map_value)
+	data, e := types.ObjectValue(AutoUpgradeStatValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

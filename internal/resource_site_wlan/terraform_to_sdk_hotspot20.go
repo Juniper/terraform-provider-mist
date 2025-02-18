@@ -1,39 +1,36 @@
 package resource_site_wlan
 
 import (
-	"context"
-
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func hotspot20TerraformToSdk(ctx context.Context, diags *diag.Diagnostics, plan Hotspot20Value) *models.WlanHotspot20 {
+func hotspot20TerraformToSdk(plan Hotspot20Value) *models.WlanHotspot20 {
 
 	var operators []models.WlanHotspot20OperatorsItemEnum
 	for _, v := range plan.Operators.Elements() {
-		var v_interface interface{} = v
-		v_plan := v_interface.(basetypes.StringValue)
-		op := models.WlanHotspot20OperatorsItemEnum(string(v_plan.ValueString()))
+		var vInterface interface{} = v
+		vPlan := vInterface.(basetypes.StringValue)
+		op := models.WlanHotspot20OperatorsItemEnum(vPlan.ValueString())
 		operators = append(operators, op)
 	}
 
 	data := models.WlanHotspot20{}
 	if !plan.DomainName.IsNull() && !plan.DomainName.IsUnknown() {
-		data.DomainName = mist_transform.ListOfStringTerraformToSdk(ctx, plan.DomainName)
+		data.DomainName = misttransform.ListOfStringTerraformToSdk(plan.DomainName)
 	}
 	if plan.Enabled.ValueBoolPointer() != nil {
 		data.Enabled = plan.Enabled.ValueBoolPointer()
 	}
 	if !plan.NaiRealms.IsNull() && !plan.NaiRealms.IsUnknown() {
-		data.NaiRealms = mist_transform.ListOfStringTerraformToSdk(ctx, plan.NaiRealms)
+		data.NaiRealms = misttransform.ListOfStringTerraformToSdk(plan.NaiRealms)
 	}
 	data.Operators = operators
 	if !plan.Rcoi.IsNull() && !plan.Rcoi.IsUnknown() {
-		data.Rcoi = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Rcoi)
+		data.Rcoi = misttransform.ListOfStringTerraformToSdk(plan.Rcoi)
 	}
 	if plan.VenueName.ValueStringPointer() != nil {
 		data.VenueName = plan.VenueName.ValueStringPointer()

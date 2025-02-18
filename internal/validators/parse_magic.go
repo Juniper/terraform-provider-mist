@@ -25,10 +25,10 @@ func (o ParseMagicValidator) ValidateString(_ context.Context, req validator.Str
 		return
 	}
 
-	re_variable := `^[0-9A-Z]{15}$`
+	reVariable := `^[0-9A-Z]{15}$`
 
 	value := req.ConfigValue.ValueString()
-	if is_valid, err := regexp.MatchString(re_variable, value); !is_valid || err != nil {
+	if isValid, err := regexp.MatchString(reVariable, value); !isValid || err != nil {
 		resp.Diagnostics.Append(validatordiag.InvalidAttributeValueDiagnostic(
 			req.Path,
 			"value is not a valid Claim Code; format is \"[0-9A-Z]{15}\" (e.g \"01234ABCDE56789\")",

@@ -10,60 +10,59 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func portUsageStormControlSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.SwitchPortUsageStormControl) basetypes.ObjectValue {
-	var no_broadcast basetypes.BoolValue
-	var no_multicast basetypes.BoolValue
-	var no_registered_multicast basetypes.BoolValue
-	var no_unknown_unicast basetypes.BoolValue
+	var noBroadcast basetypes.BoolValue
+	var noMulticast basetypes.BoolValue
+	var noRegisteredMulticast basetypes.BoolValue
+	var noUnknownUnicast basetypes.BoolValue
 	var percentage basetypes.Int64Value
 
 	if d.NoBroadcast != nil {
-		no_broadcast = types.BoolValue(*d.NoBroadcast)
+		noBroadcast = types.BoolValue(*d.NoBroadcast)
 	}
 	if d.NoMulticast != nil {
-		no_multicast = types.BoolValue(*d.NoMulticast)
+		noMulticast = types.BoolValue(*d.NoMulticast)
 	}
 	if d.NoRegisteredMulticast != nil {
-		no_registered_multicast = types.BoolValue(*d.NoRegisteredMulticast)
+		noRegisteredMulticast = types.BoolValue(*d.NoRegisteredMulticast)
 	}
 	if d.NoUnknownUnicast != nil {
-		no_unknown_unicast = types.BoolValue(*d.NoUnknownUnicast)
+		noUnknownUnicast = types.BoolValue(*d.NoUnknownUnicast)
 	}
 	if d.Percentage != nil {
 		percentage = types.Int64Value(int64(*d.Percentage))
 	}
 
-	data_map_attr_type := StormControlValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"no_broadcast":            no_broadcast,
-		"no_multicast":            no_multicast,
-		"no_registered_multicast": no_registered_multicast,
-		"no_unknown_unicast":      no_unknown_unicast,
+	dataMapValue := map[string]attr.Value{
+		"no_broadcast":            noBroadcast,
+		"no_multicast":            noMulticast,
+		"no_registered_multicast": noRegisteredMulticast,
+		"no_unknown_unicast":      noUnknownUnicast,
 		"percentage":              percentage,
 	}
-	data, e := basetypes.NewObjectValue(data_map_attr_type, data_map_value)
+	data, e := basetypes.NewObjectValue(StormControlValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data
 }
 
 func portUsageRulesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.SwitchPortUsageDynamicRule) basetypes.ListValue {
-	var value_list []attr.Value
+	var valueList []attr.Value
 	for _, d := range l {
 		var equals basetypes.StringValue
-		var equals_any basetypes.ListValue = types.ListNull(types.StringType)
+		var equalsAny = types.ListNull(types.StringType)
 		var expression basetypes.StringValue
-		var src basetypes.StringValue = types.StringValue(string(d.Src))
+		var src = types.StringValue(string(d.Src))
 		var usage basetypes.StringValue
 
 		if d.Equals != nil {
 			equals = types.StringValue(*d.Equals)
 		}
 		if d.EqualsAny != nil {
-			equals_any = mist_transform.ListOfStringSdkToTerraform(ctx, d.EqualsAny)
+			equalsAny = misttransform.ListOfStringSdkToTerraform(d.EqualsAny)
 		}
 		if d.Expression != nil {
 			expression = types.StringValue(*d.Expression)
@@ -72,89 +71,88 @@ func portUsageRulesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 			usage = types.StringValue(*d.Usage)
 		}
 
-		data_map_attr_type := RulesValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
+		dataMapValue := map[string]attr.Value{
 			"equals":     equals,
-			"equals_any": equals_any,
+			"equals_any": equalsAny,
 			"expression": expression,
 			"src":        src,
 			"usage":      usage,
 		}
-		data, e := NewRulesValue(data_map_attr_type, data_map_value)
+		data, e := NewRulesValue(RulesValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		value_list = append(value_list, data)
+		valueList = append(valueList, data)
 	}
 
-	state_list_type := RulesValue{}.Type(ctx)
-	state_list, e := types.ListValueFrom(ctx, state_list_type, value_list)
+	stateListType := RulesValue{}.Type(ctx)
+	stateList, e := types.ListValueFrom(ctx, stateListType, valueList)
 	diags.Append(e...)
 
-	return state_list
+	return stateList
 }
 
 func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.SwitchPortUsage) basetypes.MapValue {
-	state_value_map := make(map[string]attr.Value)
+	stateValueMap := make(map[string]attr.Value)
 	for k, d := range m {
-		var all_networks basetypes.BoolValue
-		var allow_dhcpd basetypes.BoolValue
-		var allow_multiple_supplicants basetypes.BoolValue
-		var bypass_auth_when_server_down basetypes.BoolValue
-		var bypass_auth_when_server_down_for_unkown_client basetypes.BoolValue
+		var allNetworks basetypes.BoolValue
+		var allowDhcpd basetypes.BoolValue
+		var allowMultipleSupplicants basetypes.BoolValue
+		var bypassAuthWhenServerDown basetypes.BoolValue
+		var bypassAuthWhenServerDownForUnkownClient basetypes.BoolValue
 		var description basetypes.StringValue
-		var disable_autoneg basetypes.BoolValue
+		var disableAutoneg basetypes.BoolValue
 		var disabled basetypes.BoolValue
 		var duplex basetypes.StringValue
-		var dynamic_vlan_networks basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
-		var enable_mac_auth basetypes.BoolValue
-		var enable_qos basetypes.BoolValue
-		var guest_network basetypes.StringValue
-		var inter_switch_link basetypes.BoolValue
-		var mac_auth_only basetypes.BoolValue
-		var mac_auth_preferred basetypes.BoolValue
-		var mac_auth_protocol basetypes.StringValue
-		var mac_limit basetypes.Int64Value
+		var dynamicVlanNetworks = misttransform.ListOfStringSdkToTerraformEmpty()
+		var enableMacAuth basetypes.BoolValue
+		var enableQos basetypes.BoolValue
+		var guestNetwork basetypes.StringValue
+		var interSwitchLink basetypes.BoolValue
+		var macAuthOnly basetypes.BoolValue
+		var macAuthPreferred basetypes.BoolValue
+		var macAuthProtocol basetypes.StringValue
+		var macLimit basetypes.Int64Value
 		var mode basetypes.StringValue
 		var mtu basetypes.Int64Value
-		var networks basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
-		var persist_mac basetypes.BoolValue
-		var poe_disabled basetypes.BoolValue
-		var port_auth basetypes.StringValue
-		var port_network basetypes.StringValue
-		var reauth_interval basetypes.Int64Value
-		var reset_default_when basetypes.StringValue
-		var rules basetypes.ListValue = types.ListNull(RulesValue{}.Type(ctx))
-		var server_fail_network basetypes.StringValue
-		var server_reject_network basetypes.StringValue
+		var networks = misttransform.ListOfStringSdkToTerraformEmpty()
+		var persistMac basetypes.BoolValue
+		var poeDisabled basetypes.BoolValue
+		var portAuth basetypes.StringValue
+		var portNetwork basetypes.StringValue
+		var reauthInterval basetypes.Int64Value
+		var resetDefaultWhen basetypes.StringValue
+		var rules = types.ListNull(RulesValue{}.Type(ctx))
+		var serverFailNetwork basetypes.StringValue
+		var serverRejectNetwork basetypes.StringValue
 		var speed basetypes.StringValue
-		var storm_control basetypes.ObjectValue = types.ObjectNull(StormControlValue{}.AttributeTypes(ctx))
-		var stp_edge basetypes.BoolValue
-		var stp_no_root_port basetypes.BoolValue
-		var stp_p2p basetypes.BoolValue
-		var ui_evpntopo_id basetypes.StringValue
-		var use_vstp basetypes.BoolValue
-		var voip_network basetypes.StringValue
+		var stormControl = types.ObjectNull(StormControlValue{}.AttributeTypes(ctx))
+		var stpEdge basetypes.BoolValue
+		var stpNoRootPort basetypes.BoolValue
+		var stpP2p basetypes.BoolValue
+		var uiEvpntopoId basetypes.StringValue
+		var useVstp basetypes.BoolValue
+		var voipNetwork basetypes.StringValue
 
 		if d.AllNetworks != nil {
-			all_networks = types.BoolValue(*d.AllNetworks)
+			allNetworks = types.BoolValue(*d.AllNetworks)
 		}
 		if d.AllowDhcpd != nil {
-			allow_dhcpd = types.BoolValue(*d.AllowDhcpd)
+			allowDhcpd = types.BoolValue(*d.AllowDhcpd)
 		}
 		if d.AllowMultipleSupplicants != nil {
-			allow_multiple_supplicants = types.BoolValue(*d.AllowMultipleSupplicants)
+			allowMultipleSupplicants = types.BoolValue(*d.AllowMultipleSupplicants)
 		}
 		if d.BypassAuthWhenServerDown != nil {
-			bypass_auth_when_server_down = types.BoolValue(*d.BypassAuthWhenServerDown)
+			bypassAuthWhenServerDown = types.BoolValue(*d.BypassAuthWhenServerDown)
 		}
 		if d.BypassAuthWhenServerDownForUnkownClient != nil {
-			bypass_auth_when_server_down_for_unkown_client = types.BoolValue(*d.BypassAuthWhenServerDownForUnkownClient)
+			bypassAuthWhenServerDownForUnkownClient = types.BoolValue(*d.BypassAuthWhenServerDownForUnkownClient)
 		}
 		if d.Description != nil {
 			description = types.StringValue(*d.Description)
 		}
 		if d.DisableAutoneg != nil {
-			disable_autoneg = types.BoolValue(*d.DisableAutoneg)
+			disableAutoneg = types.BoolValue(*d.DisableAutoneg)
 		}
 		if d.Disabled != nil {
 			disabled = types.BoolValue(*d.Disabled)
@@ -163,31 +161,31 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 			duplex = types.StringValue(string(*d.Duplex))
 		}
 		if d.DynamicVlanNetworks != nil {
-			dynamic_vlan_networks = mist_transform.ListOfStringSdkToTerraform(ctx, d.DynamicVlanNetworks)
+			dynamicVlanNetworks = misttransform.ListOfStringSdkToTerraform(d.DynamicVlanNetworks)
 		}
 		if d.EnableMacAuth != nil {
-			enable_mac_auth = types.BoolValue(*d.EnableMacAuth)
+			enableMacAuth = types.BoolValue(*d.EnableMacAuth)
 		}
 		if d.EnableQos != nil {
-			enable_qos = types.BoolValue(*d.EnableQos)
+			enableQos = types.BoolValue(*d.EnableQos)
 		}
 		if d.GuestNetwork.Value() != nil {
-			guest_network = types.StringValue(*d.GuestNetwork.Value())
+			guestNetwork = types.StringValue(*d.GuestNetwork.Value())
 		}
 		if d.InterSwitchLink != nil {
-			inter_switch_link = types.BoolValue(*d.InterSwitchLink)
+			interSwitchLink = types.BoolValue(*d.InterSwitchLink)
 		}
 		if d.MacAuthOnly != nil {
-			mac_auth_only = types.BoolValue(*d.MacAuthOnly)
+			macAuthOnly = types.BoolValue(*d.MacAuthOnly)
 		}
 		if d.MacAuthPreferred != nil {
-			mac_auth_preferred = types.BoolValue(*d.MacAuthPreferred)
+			macAuthPreferred = types.BoolValue(*d.MacAuthPreferred)
 		}
 		if d.MacAuthProtocol != nil {
-			mac_auth_protocol = types.StringValue(string(*d.MacAuthProtocol))
+			macAuthProtocol = types.StringValue(string(*d.MacAuthProtocol))
 		}
 		if d.MacLimit != nil {
-			mac_limit = types.Int64Value(int64(*d.MacLimit))
+			macLimit = types.Int64Value(int64(*d.MacLimit))
 		}
 		if d.Mode != nil {
 			mode = types.StringValue(string(*d.Mode))
@@ -196,108 +194,107 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 			mtu = types.Int64Value(int64(*d.Mtu))
 		}
 		if d.Networks != nil {
-			networks = mist_transform.ListOfStringSdkToTerraform(ctx, d.Networks)
+			networks = misttransform.ListOfStringSdkToTerraform(d.Networks)
 		}
 		if d.PersistMac != nil {
-			persist_mac = types.BoolValue(*d.PersistMac)
+			persistMac = types.BoolValue(*d.PersistMac)
 		}
 		if d.PoeDisabled != nil {
-			poe_disabled = types.BoolValue(*d.PoeDisabled)
+			poeDisabled = types.BoolValue(*d.PoeDisabled)
 		}
 		if d.PortAuth.Value() != nil {
-			port_auth = types.StringValue(string(*d.PortAuth.Value()))
+			portAuth = types.StringValue(string(*d.PortAuth.Value()))
 		}
 		if d.PortNetwork != nil {
-			port_network = types.StringValue(*d.PortNetwork)
+			portNetwork = types.StringValue(*d.PortNetwork)
 		}
 		if d.ReauthInterval != nil {
-			reauth_interval = types.Int64Value(int64(*d.ReauthInterval))
+			reauthInterval = types.Int64Value(int64(*d.ReauthInterval))
 		}
 		if d.ResetDefaultWhen != nil {
-			reset_default_when = types.StringValue(string(*d.ResetDefaultWhen))
+			resetDefaultWhen = types.StringValue(string(*d.ResetDefaultWhen))
 		}
 		if d.Rules != nil {
 			rules = portUsageRulesSdkToTerraform(ctx, diags, d.Rules)
 		}
 		if d.ServerFailNetwork.Value() != nil {
-			server_fail_network = types.StringValue(*d.ServerFailNetwork.Value())
+			serverFailNetwork = types.StringValue(*d.ServerFailNetwork.Value())
 		}
 		if d.ServerRejectNetwork.Value() != nil {
-			server_reject_network = types.StringValue(*d.ServerRejectNetwork.Value())
+			serverRejectNetwork = types.StringValue(*d.ServerRejectNetwork.Value())
 		}
 		if d.Speed != nil {
 			speed = types.StringValue(string(*d.Speed))
 		}
 		if d.StormControl != nil {
-			storm_control = portUsageStormControlSdkToTerraform(ctx, diags, *d.StormControl)
+			stormControl = portUsageStormControlSdkToTerraform(ctx, diags, *d.StormControl)
 		}
 		if d.StpEdge != nil {
-			stp_edge = types.BoolValue(*d.StpEdge)
+			stpEdge = types.BoolValue(*d.StpEdge)
 		}
 		if d.StpNoRootPort != nil {
-			stp_no_root_port = types.BoolValue(*d.StpNoRootPort)
+			stpNoRootPort = types.BoolValue(*d.StpNoRootPort)
 		}
 		if d.StpP2p != nil {
-			stp_p2p = types.BoolValue(*d.StpP2p)
+			stpP2p = types.BoolValue(*d.StpP2p)
 		}
 		if d.UiEvpntopoId != nil {
-			ui_evpntopo_id = types.StringValue(d.UiEvpntopoId.String())
+			uiEvpntopoId = types.StringValue(d.UiEvpntopoId.String())
 		}
 		if d.UseVstp != nil {
-			use_vstp = types.BoolValue(*d.UseVstp)
+			useVstp = types.BoolValue(*d.UseVstp)
 		}
 		if d.VoipNetwork != nil {
-			voip_network = types.StringValue(*d.VoipNetwork)
+			voipNetwork = types.StringValue(*d.VoipNetwork)
 		}
 
-		data_map_attr_type := PortUsagesValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
-			"all_networks":                                   all_networks,
-			"allow_dhcpd":                                    allow_dhcpd,
-			"allow_multiple_supplicants":                     allow_multiple_supplicants,
-			"bypass_auth_when_server_down":                   bypass_auth_when_server_down,
-			"bypass_auth_when_server_down_for_unkown_client": bypass_auth_when_server_down_for_unkown_client,
+		dataMapValue := map[string]attr.Value{
+			"all_networks":                                   allNetworks,
+			"allow_dhcpd":                                    allowDhcpd,
+			"allow_multiple_supplicants":                     allowMultipleSupplicants,
+			"bypass_auth_when_server_down":                   bypassAuthWhenServerDown,
+			"bypass_auth_when_server_down_for_unkown_client": bypassAuthWhenServerDownForUnkownClient,
 			"description":                                    description,
-			"disable_autoneg":                                disable_autoneg,
+			"disable_autoneg":                                disableAutoneg,
 			"disabled":                                       disabled,
 			"duplex":                                         duplex,
-			"dynamic_vlan_networks":                          dynamic_vlan_networks,
-			"enable_mac_auth":                                enable_mac_auth,
-			"enable_qos":                                     enable_qos,
-			"guest_network":                                  guest_network,
-			"inter_switch_link":                              inter_switch_link,
-			"mac_auth_only":                                  mac_auth_only,
-			"mac_auth_preferred":                             mac_auth_preferred,
-			"mac_auth_protocol":                              mac_auth_protocol,
-			"mac_limit":                                      mac_limit,
+			"dynamic_vlan_networks":                          dynamicVlanNetworks,
+			"enable_mac_auth":                                enableMacAuth,
+			"enable_qos":                                     enableQos,
+			"guest_network":                                  guestNetwork,
+			"inter_switch_link":                              interSwitchLink,
+			"mac_auth_only":                                  macAuthOnly,
+			"mac_auth_preferred":                             macAuthPreferred,
+			"mac_auth_protocol":                              macAuthProtocol,
+			"mac_limit":                                      macLimit,
 			"mode":                                           mode,
 			"mtu":                                            mtu,
 			"networks":                                       networks,
-			"persist_mac":                                    persist_mac,
-			"poe_disabled":                                   poe_disabled,
-			"port_auth":                                      port_auth,
-			"port_network":                                   port_network,
-			"reauth_interval":                                reauth_interval,
-			"reset_default_when":                             reset_default_when,
+			"persist_mac":                                    persistMac,
+			"poe_disabled":                                   poeDisabled,
+			"port_auth":                                      portAuth,
+			"port_network":                                   portNetwork,
+			"reauth_interval":                                reauthInterval,
+			"reset_default_when":                             resetDefaultWhen,
 			"rules":                                          rules,
-			"server_fail_network":                            server_fail_network,
-			"server_reject_network":                          server_reject_network,
+			"server_fail_network":                            serverFailNetwork,
+			"server_reject_network":                          serverRejectNetwork,
 			"speed":                                          speed,
-			"storm_control":                                  storm_control,
-			"stp_edge":                                       stp_edge,
-			"stp_no_root_port":                               stp_no_root_port,
-			"stp_p2p":                                        stp_p2p,
-			"ui_evpntopo_id":                                 ui_evpntopo_id,
-			"use_vstp":                                       use_vstp,
-			"voip_network":                                   voip_network,
+			"storm_control":                                  stormControl,
+			"stp_edge":                                       stpEdge,
+			"stp_no_root_port":                               stpNoRootPort,
+			"stp_p2p":                                        stpP2p,
+			"ui_evpntopo_id":                                 uiEvpntopoId,
+			"use_vstp":                                       useVstp,
+			"voip_network":                                   voipNetwork,
 		}
-		data, e := NewPortUsagesValue(data_map_attr_type, data_map_value)
+		data, e := NewPortUsagesValue(PortUsagesValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		state_value_map[k] = data
+		stateValueMap[k] = data
 	}
-	state_type := PortUsagesValue{}.Type(ctx)
-	state_result, e := types.MapValueFrom(ctx, state_type, state_value_map)
+	stateType := PortUsagesValue{}.Type(ctx)
+	stateResult, e := types.MapValueFrom(ctx, stateType, stateValueMap)
 	diags.Append(e...)
-	return state_result
+	return stateResult
 }

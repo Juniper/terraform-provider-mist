@@ -50,11 +50,11 @@ func (d *deviceSwitchStatsDataSource) Configure(ctx context.Context, req datasou
 
 	d.client = client
 }
-func (d *deviceSwitchStatsDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+func (d *deviceSwitchStatsDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_device_switch_stats"
 }
 
-func (d *deviceSwitchStatsDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *deviceSwitchStatsDataSource) Schema(ctx context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryDevices + "This data source provides the list of Switches with their statistics.",
 		Attributes:          datasource_device_switch_stats.DeviceSwitchStatsDataSourceSchema(ctx).Attributes,
@@ -80,12 +80,12 @@ func (d *deviceSwitchStatsDataSource) Read(ctx context.Context, req datasource.R
 
 	var duration string
 	var end int
-	var fields string = string("*")
+	var fields = "*"
 	var mac string
 	var siteId string
 	var status models.DeviceStatusEnum
 	var start int
-	var mType models.DeviceTypeWithAllEnum = models.DeviceTypeWithAllEnum(models.DeviceTypeWithAllEnum_ENUMSWITCH)
+	var mType = models.DeviceTypeWithAllEnum_ENUMSWITCH
 
 	if !ds.Duration.IsNull() && !ds.Duration.IsUnknown() {
 		duration = ds.Duration.ValueString()
@@ -106,9 +106,9 @@ func (d *deviceSwitchStatsDataSource) Read(ctx context.Context, req datasource.R
 		start = int(ds.Start.ValueInt64())
 	}
 
-	var limit int = 1000
-	var page int = 0
-	var total int = 9999
+	var limit = 1000
+	var page = 0
+	var total = 9999
 	var elements []attr.Value
 	var diags diag.Diagnostics
 
@@ -144,8 +144,8 @@ func (d *deviceSwitchStatsDataSource) Read(ctx context.Context, req datasource.R
 			return
 		}
 
-		limit_string := data.Response.Header.Get("X-Page-Limit")
-		if limit, err = strconv.Atoi(limit_string); err != nil {
+		limitString := data.Response.Header.Get("X-Page-Limit")
+		if limit, err = strconv.Atoi(limitString); err != nil {
 			resp.Diagnostics.AddError(
 				"Error extracting HTTP Response Headers",
 				"Unable to convert the X-Page-Limit value into int, unexcpected error: "+err.Error(),
@@ -153,8 +153,8 @@ func (d *deviceSwitchStatsDataSource) Read(ctx context.Context, req datasource.R
 			return
 		}
 
-		total_string := data.Response.Header.Get("X-Page-Total")
-		if total, err = strconv.Atoi(total_string); err != nil {
+		totalString := data.Response.Header.Get("X-Page-Total")
+		if total, err = strconv.Atoi(totalString); err != nil {
 			resp.Diagnostics.AddError(
 				"Error extracting HTTP Response Headers",
 				"Unable to convert the X-Page-Total value into int, unexcpected error: "+err.Error(),
@@ -163,10 +163,10 @@ func (d *deviceSwitchStatsDataSource) Read(ctx context.Context, req datasource.R
 		}
 
 		body, _ := io.ReadAll(data.Response.Body)
-		mist_stats := []models.StatsSwitch{}
-		json.Unmarshal(body, &mist_stats)
+		var mistStats []models.StatsSwitch
+		json.Unmarshal(body, &mistStats)
 
-		diags = datasource_device_switch_stats.SdkToTerraform(ctx, &mist_stats, &elements)
+		diags = datasource_device_switch_stats.SdkToTerraform(ctx, &mistStats, &elements)
 		resp.Diagnostics.Append(diags...)
 		if resp.Diagnostics.HasError() {
 			return

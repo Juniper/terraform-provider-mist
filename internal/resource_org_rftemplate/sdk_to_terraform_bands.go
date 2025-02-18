@@ -3,7 +3,7 @@ package resource_org_rftemplate
 import (
 	"context"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -14,31 +14,31 @@ import (
 )
 
 func band24SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.RftemplateRadioBand24) Band24Value {
-	var allow_rrm_disable basetypes.BoolValue
-	var ant_gain basetypes.Int64Value
-	var antenna_mode basetypes.StringValue
+	var allowRrmDisable basetypes.BoolValue
+	var antGain basetypes.Int64Value
+	var antennaMode basetypes.StringValue
 	var bandwidth basetypes.Int64Value
-	var channels basetypes.ListValue = mist_transform.ListOfIntSdkToTerraformEmpty(ctx)
+	var channels = misttransform.ListOfIntSdkToTerraformEmpty()
 	var disabled basetypes.BoolValue
 	var power basetypes.Int64Value
-	var power_max basetypes.Int64Value
-	var power_min basetypes.Int64Value
+	var powerMax basetypes.Int64Value
+	var powerMin basetypes.Int64Value
 	var preamble basetypes.StringValue
 
 	if d.AllowRrmDisable != nil {
-		allow_rrm_disable = types.BoolValue(*d.AllowRrmDisable)
+		allowRrmDisable = types.BoolValue(*d.AllowRrmDisable)
 	}
 	if d.AntGain.Value() != nil {
-		ant_gain = types.Int64Value(int64(*d.AntGain.Value()))
+		antGain = types.Int64Value(int64(*d.AntGain.Value()))
 	}
 	if d.AntennaMode != nil {
-		antenna_mode = types.StringValue(string(*d.AntennaMode))
+		antennaMode = types.StringValue(string(*d.AntennaMode))
 	}
 	if d.Bandwidth != nil {
 		bandwidth = types.Int64Value(int64(*d.Bandwidth))
 	}
 	if d.Channels.Value() != nil {
-		channels = mist_transform.ListOfIntSdkToTerraform(ctx, *d.Channels.Value())
+		channels = misttransform.ListOfIntSdkToTerraform(*d.Channels.Value())
 	}
 	if d.Disabled != nil {
 		disabled = types.BoolValue(*d.Disabled)
@@ -47,60 +47,59 @@ func band24SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *model
 		power = types.Int64Value(int64(*d.Power.Value()))
 	}
 	if d.PowerMax.Value() != nil {
-		power_max = types.Int64Value(int64(*d.PowerMax.Value()))
+		powerMax = types.Int64Value(int64(*d.PowerMax.Value()))
 	}
 	if d.PowerMin.Value() != nil {
-		power_min = types.Int64Value(int64(*d.PowerMin.Value()))
+		powerMin = types.Int64Value(int64(*d.PowerMin.Value()))
 	}
 	if d.Preamble != nil {
 		preamble = types.StringValue(string(*d.Preamble))
 	}
 
-	data_map_attr_type := Band24Value{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"allow_rrm_disable": allow_rrm_disable,
-		"ant_gain":          ant_gain,
-		"antenna_mode":      antenna_mode,
+	dataMapValue := map[string]attr.Value{
+		"allow_rrm_disable": allowRrmDisable,
+		"ant_gain":          antGain,
+		"antenna_mode":      antennaMode,
 		"bandwidth":         bandwidth,
 		"channels":          channels,
 		"disabled":          disabled,
 		"power":             power,
-		"power_max":         power_max,
-		"power_min":         power_min,
+		"power_max":         powerMax,
+		"power_min":         powerMin,
 		"preamble":          preamble,
 	}
-	data, e := NewBand24Value(data_map_attr_type, data_map_value)
+	data, e := NewBand24Value(Band24Value{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data
 }
 
 func band5SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.RftemplateRadioBand5) Band5Value {
-	var allow_rrm_disable basetypes.BoolValue
-	var ant_gain basetypes.Int64Value
-	var antenna_mode basetypes.StringValue
+	var allowRrmDisable basetypes.BoolValue
+	var antGain basetypes.Int64Value
+	var antennaMode basetypes.StringValue
 	var bandwidth basetypes.Int64Value
-	var channels basetypes.ListValue = mist_transform.ListOfIntSdkToTerraformEmpty(ctx)
+	var channels = misttransform.ListOfIntSdkToTerraformEmpty()
 	var disabled basetypes.BoolValue
 	var power basetypes.Int64Value
-	var power_max basetypes.Int64Value
-	var power_min basetypes.Int64Value
+	var powerMax basetypes.Int64Value
+	var powerMin basetypes.Int64Value
 	var preamble basetypes.StringValue
 
 	if d.AllowRrmDisable != nil {
-		allow_rrm_disable = types.BoolValue(*d.AllowRrmDisable)
+		allowRrmDisable = types.BoolValue(*d.AllowRrmDisable)
 	}
 	if d.AntGain.Value() != nil {
-		ant_gain = types.Int64Value(int64(*d.AntGain.Value()))
+		antGain = types.Int64Value(int64(*d.AntGain.Value()))
 	}
 	if d.AntennaMode != nil {
-		antenna_mode = types.StringValue(string(*d.AntennaMode))
+		antennaMode = types.StringValue(string(*d.AntennaMode))
 	}
 	if d.Bandwidth != nil {
 		bandwidth = types.Int64Value(int64(*d.Bandwidth))
 	}
 	if d.Channels.Value() != nil {
-		channels = mist_transform.ListOfIntSdkToTerraform(ctx, *d.Channels.Value())
+		channels = misttransform.ListOfIntSdkToTerraform(*d.Channels.Value())
 	}
 	if d.Disabled != nil {
 		disabled = types.BoolValue(*d.Disabled)
@@ -109,60 +108,59 @@ func band5SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 		power = types.Int64Value(int64(*d.Power.Value()))
 	}
 	if d.PowerMax.Value() != nil {
-		power_max = types.Int64Value(int64(*d.PowerMax.Value()))
+		powerMax = types.Int64Value(int64(*d.PowerMax.Value()))
 	}
 	if d.PowerMin.Value() != nil {
-		power_min = types.Int64Value(int64(*d.PowerMin.Value()))
+		powerMin = types.Int64Value(int64(*d.PowerMin.Value()))
 	}
 	if d.Preamble != nil {
 		preamble = types.StringValue(string(*d.Preamble))
 	}
 
-	data_map_attr_type := Band5Value{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"allow_rrm_disable": allow_rrm_disable,
-		"ant_gain":          ant_gain,
-		"antenna_mode":      antenna_mode,
+	dataMapValue := map[string]attr.Value{
+		"allow_rrm_disable": allowRrmDisable,
+		"ant_gain":          antGain,
+		"antenna_mode":      antennaMode,
 		"bandwidth":         bandwidth,
 		"channels":          channels,
 		"disabled":          disabled,
 		"power":             power,
-		"power_max":         power_max,
-		"power_min":         power_min,
+		"power_max":         powerMax,
+		"power_min":         powerMin,
 		"preamble":          preamble,
 	}
-	data, e := NewBand5Value(data_map_attr_type, data_map_value)
+	data, e := NewBand5Value(Band5Value{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data
 }
 
 func band5On24RadioSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.RftemplateRadioBand5) Band5On24RadioValue {
-	var allow_rrm_disable basetypes.BoolValue
-	var ant_gain basetypes.Int64Value
-	var antenna_mode basetypes.StringValue
+	var allowRrmDisable basetypes.BoolValue
+	var antGain basetypes.Int64Value
+	var antennaMode basetypes.StringValue
 	var bandwidth basetypes.Int64Value
-	var channels basetypes.ListValue = mist_transform.ListOfIntSdkToTerraformEmpty(ctx)
+	var channels = misttransform.ListOfIntSdkToTerraformEmpty()
 	var disabled basetypes.BoolValue
 	var power basetypes.Int64Value
-	var power_max basetypes.Int64Value
-	var power_min basetypes.Int64Value
+	var powerMax basetypes.Int64Value
+	var powerMin basetypes.Int64Value
 	var preamble basetypes.StringValue
 
 	if d.AllowRrmDisable != nil {
-		allow_rrm_disable = types.BoolValue(*d.AllowRrmDisable)
+		allowRrmDisable = types.BoolValue(*d.AllowRrmDisable)
 	}
 	if d.AntGain.Value() != nil {
-		ant_gain = types.Int64Value(int64(*d.AntGain.Value()))
+		antGain = types.Int64Value(int64(*d.AntGain.Value()))
 	}
 	if d.AntennaMode != nil {
-		antenna_mode = types.StringValue(string(*d.AntennaMode))
+		antennaMode = types.StringValue(string(*d.AntennaMode))
 	}
 	if d.Bandwidth != nil {
 		bandwidth = types.Int64Value(int64(*d.Bandwidth))
 	}
 	if d.Channels.Value() != nil {
-		channels = mist_transform.ListOfIntSdkToTerraform(ctx, *d.Channels.Value())
+		channels = misttransform.ListOfIntSdkToTerraform(*d.Channels.Value())
 	}
 	if d.Disabled != nil {
 		disabled = types.BoolValue(*d.Disabled)
@@ -171,61 +169,60 @@ func band5On24RadioSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 		power = types.Int64Value(int64(*d.Power.Value()))
 	}
 	if d.PowerMax.Value() != nil {
-		power_max = types.Int64Value(int64(*d.PowerMax.Value()))
+		powerMax = types.Int64Value(int64(*d.PowerMax.Value()))
 	}
 	if d.PowerMin.Value() != nil {
-		power_min = types.Int64Value(int64(*d.PowerMin.Value()))
+		powerMin = types.Int64Value(int64(*d.PowerMin.Value()))
 	}
 	if d.Preamble != nil {
 		preamble = types.StringValue(string(*d.Preamble))
 	}
 
-	data_map_attr_type := Band5On24RadioValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"allow_rrm_disable": allow_rrm_disable,
-		"ant_gain":          ant_gain,
-		"antenna_mode":      antenna_mode,
+	dataMapValue := map[string]attr.Value{
+		"allow_rrm_disable": allowRrmDisable,
+		"ant_gain":          antGain,
+		"antenna_mode":      antennaMode,
 		"bandwidth":         bandwidth,
 		"channels":          channels,
 		"disabled":          disabled,
 		"power":             power,
-		"power_max":         power_max,
-		"power_min":         power_min,
+		"power_max":         powerMax,
+		"power_min":         powerMin,
 		"preamble":          preamble,
 	}
-	data, e := NewBand5On24RadioValue(data_map_attr_type, data_map_value)
+	data, e := NewBand5On24RadioValue(Band5On24RadioValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data
 }
 
 func band6SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.RftemplateRadioBand6) Band6Value {
-	var allow_rrm_disable basetypes.BoolValue
-	var ant_gain basetypes.Int64Value
-	var antenna_mode basetypes.StringValue
+	var allowRrmDisable basetypes.BoolValue
+	var antGain basetypes.Int64Value
+	var antennaMode basetypes.StringValue
 	var bandwidth basetypes.Int64Value
-	var channels basetypes.ListValue = mist_transform.ListOfIntSdkToTerraformEmpty(ctx)
+	var channels = misttransform.ListOfIntSdkToTerraformEmpty()
 	var disabled basetypes.BoolValue
 	var power basetypes.Int64Value
-	var power_max basetypes.Int64Value
-	var power_min basetypes.Int64Value
+	var powerMax basetypes.Int64Value
+	var powerMin basetypes.Int64Value
 	var preamble basetypes.StringValue
-	var standard_power basetypes.BoolValue
+	var standardPower basetypes.BoolValue
 
 	if d.AllowRrmDisable != nil {
-		allow_rrm_disable = types.BoolValue(*d.AllowRrmDisable)
+		allowRrmDisable = types.BoolValue(*d.AllowRrmDisable)
 	}
 	if d.AntGain.Value() != nil {
-		ant_gain = types.Int64Value(int64(*d.AntGain.Value()))
+		antGain = types.Int64Value(int64(*d.AntGain.Value()))
 	}
 	if d.AntennaMode != nil {
-		antenna_mode = types.StringValue(string(*d.AntennaMode))
+		antennaMode = types.StringValue(string(*d.AntennaMode))
 	}
 	if d.Bandwidth != nil {
 		bandwidth = types.Int64Value(int64(*d.Bandwidth))
 	}
 	if d.Channels.Value() != nil {
-		channels = mist_transform.ListOfIntSdkToTerraform(ctx, *d.Channels.Value())
+		channels = misttransform.ListOfIntSdkToTerraform(*d.Channels.Value())
 	}
 	if d.Disabled != nil {
 		disabled = types.BoolValue(*d.Disabled)
@@ -234,33 +231,32 @@ func band6SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 		power = types.Int64Value(int64(*d.Power.Value()))
 	}
 	if d.PowerMax.Value() != nil {
-		power_max = types.Int64Value(int64(*d.PowerMax.Value()))
+		powerMax = types.Int64Value(int64(*d.PowerMax.Value()))
 	}
 	if d.PowerMin.Value() != nil {
-		power_min = types.Int64Value(int64(*d.PowerMin.Value()))
+		powerMin = types.Int64Value(int64(*d.PowerMin.Value()))
 	}
 	if d.Preamble != nil {
 		preamble = types.StringValue(string(*d.Preamble))
 	}
 	if d.StandardPower != nil {
-		standard_power = types.BoolValue(*d.StandardPower)
+		standardPower = types.BoolValue(*d.StandardPower)
 	}
 
-	data_map_attr_type := Band6Value{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"allow_rrm_disable": allow_rrm_disable,
-		"ant_gain":          ant_gain,
-		"antenna_mode":      antenna_mode,
+	dataMapValue := map[string]attr.Value{
+		"allow_rrm_disable": allowRrmDisable,
+		"ant_gain":          antGain,
+		"antenna_mode":      antennaMode,
 		"bandwidth":         bandwidth,
 		"channels":          channels,
 		"disabled":          disabled,
 		"power":             power,
-		"power_max":         power_max,
-		"power_min":         power_min,
+		"power_max":         powerMax,
+		"power_min":         powerMin,
 		"preamble":          preamble,
-		"standard_power":    standard_power,
+		"standard_power":    standardPower,
 	}
-	data, e := NewBand6Value(data_map_attr_type, data_map_value)
+	data, e := NewBand6Value(Band6Value{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

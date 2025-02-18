@@ -1,17 +1,14 @@
 package resource_org_deviceprofile_gateway
 
 import (
-	"context"
-
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func vrfConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d VrfConfigValue) *models.VrfConfig {
+func vrfConfigTerraformToSdk(d VrfConfigValue) *models.VrfConfig {
 	data := models.VrfConfig{}
 	if d.Enabled.ValueBoolPointer() != nil {
 		data.Enabled = models.ToPointer(d.Enabled.ValueBool())
@@ -19,33 +16,33 @@ func vrfConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d Vrf
 	return &data
 }
 
-func vrfInstanceExtraRouteTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.VrfExtraRoute {
+func vrfInstanceExtraRouteTerraformToSdk(d basetypes.MapValue) map[string]models.VrfExtraRoute {
 	data := make(map[string]models.VrfExtraRoute)
-	for item_name, item_value := range d.Elements() {
-		var item_interface interface{} = item_value
-		item_obj := item_interface.(ExtraRoutesValue)
+	for itemName, itemValue := range d.Elements() {
+		var itemInterface interface{} = itemValue
+		itemObj := itemInterface.(ExtraRoutesValue)
 
-		data_item := models.VrfExtraRoute{}
-		if item_obj.Via.ValueStringPointer() != nil {
-			data_item.Via = models.ToPointer(item_obj.Via.ValueString())
+		dataItem := models.VrfExtraRoute{}
+		if itemObj.Via.ValueStringPointer() != nil {
+			dataItem.Via = models.ToPointer(itemObj.Via.ValueString())
 		}
-		data[item_name] = data_item
+		data[itemName] = dataItem
 	}
 	return data
 }
 
-func vrfInstancesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.GatewayVrfInstance {
+func vrfInstancesTerraformToSdk(d basetypes.MapValue) map[string]models.GatewayVrfInstance {
 	data := make(map[string]models.GatewayVrfInstance)
-	for item_name, item_value := range d.Elements() {
-		var item_interface interface{} = item_value
-		item_obj := item_interface.(VrfInstancesValue)
+	for itemName, itemValue := range d.Elements() {
+		var itemInterface interface{} = itemValue
+		itemObj := itemInterface.(VrfInstancesValue)
 
-		data_item := models.GatewayVrfInstance{}
-		if !item_obj.Networks.IsNull() && !item_obj.Networks.IsUnknown() {
-			data_item.Networks = mist_transform.ListOfStringTerraformToSdk(ctx, item_obj.Networks)
+		dataItem := models.GatewayVrfInstance{}
+		if !itemObj.Networks.IsNull() && !itemObj.Networks.IsUnknown() {
+			dataItem.Networks = misttransform.ListOfStringTerraformToSdk(itemObj.Networks)
 		}
 
-		data[item_name] = data_item
+		data[itemName] = dataItem
 	}
 	return data
 }

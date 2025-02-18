@@ -3,7 +3,7 @@ package resource_org_wxtag
 import (
 	"context"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -18,9 +18,9 @@ func SdkToTerraform(ctx context.Context, data models.WxlanTag) (OrgWxtagModel, d
 	var mac types.String
 	var match types.String
 	var op types.String
-	var specs types.List = types.ListNull(SpecsValue{}.Type(ctx))
-	var values types.List = types.ListNull(types.StringType)
-	var vlan_id types.String
+	var specs = types.ListNull(SpecsValue{}.Type(ctx))
+	var values = types.ListNull(types.StringType)
+	var vlanId types.String
 
 	if data.Mac.Value() != nil {
 		mac = types.StringValue(*data.Mac.Value())
@@ -35,10 +35,10 @@ func SdkToTerraform(ctx context.Context, data models.WxlanTag) (OrgWxtagModel, d
 		specs = specsSdkToTerraform(ctx, &diags, data.Specs)
 	}
 	if data.Values != nil {
-		values = mist_transform.ListOfStringSdkToTerraform(ctx, data.Values)
+		values = misttransform.ListOfStringSdkToTerraform(data.Values)
 	}
 	if data.VlanId != nil {
-		vlan_id = types.StringValue(data.VlanId.String())
+		vlanId = types.StringValue(data.VlanId.String())
 	}
 
 	state.Id = types.StringValue(data.Id.String())
@@ -54,7 +54,7 @@ func SdkToTerraform(ctx context.Context, data models.WxlanTag) (OrgWxtagModel, d
 
 	state.Type = types.StringValue(string(data.Type))
 	state.Values = values
-	state.VlanId = vlan_id
+	state.VlanId = vlanId
 
 	return state, diags
 }

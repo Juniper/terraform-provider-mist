@@ -1,23 +1,20 @@
 package resource_site_setting
 
 import (
-	"context"
-
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
-	"github.com/hashicorp/terraform-plugin-framework/diag"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func vsInstanceTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, m basetypes.MapValue) map[string]models.VsInstanceProperty {
-	data_map := make(map[string]models.VsInstanceProperty)
+func vsInstanceTerraformToSdk(m basetypes.MapValue) map[string]models.VsInstanceProperty {
+	dataMap := make(map[string]models.VsInstanceProperty)
 	for k, v := range m.Elements() {
 
 		var vi interface{} = v
 		vd := vi.(VsInstanceValue)
 		data := models.VsInstanceProperty{}
-		data.Networks = mist_transform.ListOfStringTerraformToSdk(ctx, vd.Networks)
-		data_map[k] = data
+		data.Networks = misttransform.ListOfStringTerraformToSdk(vd.Networks)
+		dataMap[k] = data
 	}
-	return data_map
+	return dataMap
 }

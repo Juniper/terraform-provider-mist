@@ -3,7 +3,7 @@ package resource_device_gateway
 import (
 	"context"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_network"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -26,17 +26,17 @@ func mulitcastNetworksTerraformToSdk(ctx context.Context, diags *diag.Diagnostic
 				data.Enabled = plan.Enabled.ValueBoolPointer()
 			}
 			if !plan.Groups.IsNull() && !plan.Groups.IsUnknown() {
-				group_map := make(map[string]models.NetworkMulticastGroup)
+				groupMap := make(map[string]models.NetworkMulticastGroup)
 				for k, v := range plan.Groups.Elements() {
-					var v_interface interface{} = v
-					p := v_interface.(GroupsValue)
+					var vInterface interface{} = v
+					p := vInterface.(GroupsValue)
 					g := models.NetworkMulticastGroup{}
 					if p.RpIp.ValueStringPointer() != nil {
 						g.RpIp = p.RpIp.ValueStringPointer()
 					}
-					group_map[k] = g
+					groupMap[k] = g
 				}
-				data.Groups = group_map
+				data.Groups = groupMap
 			}
 		}
 	}
@@ -44,10 +44,10 @@ func mulitcastNetworksTerraformToSdk(ctx context.Context, diags *diag.Diagnostic
 }
 
 func networksTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.Network {
-	var data_list []models.Network
+	var dataList []models.Network
 	for _, v := range d.Elements() {
-		var v_interface interface{} = v
-		plan := v_interface.(NetworksValue)
+		var vInterface interface{} = v
+		plan := vInterface.(NetworksValue)
 		data := models.Network{}
 
 		if plan.DisallowMistServices.ValueBoolPointer() != nil {
@@ -61,15 +61,15 @@ func networksTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d base
 		}
 
 		if !plan.InternalAccess.IsNull() && !plan.InternalAccess.IsUnknown() {
-			var internal_access_interface interface{} = plan.InternalAccess
-			internal_access_tf := internal_access_interface.(resource_org_network.InternalAccessValue)
-			data.InternalAccess = resource_org_network.InternalAccessTerraformToSdk(ctx, diags, internal_access_tf)
+			var internalAccessInterface interface{} = plan.InternalAccess
+			internalAccessTf := internalAccessInterface.(resource_org_network.InternalAccessValue)
+			data.InternalAccess = resource_org_network.InternalAccessTerraformToSdk(internalAccessTf)
 		}
 
 		if !plan.InternetAccess.IsNull() && !plan.InternetAccess.IsUnknown() {
-			var internet_access_interface interface{} = plan.InternetAccess
-			internet_access_tf := internet_access_interface.(resource_org_network.InternetAccessValue)
-			data.InternetAccess = resource_org_network.InternetAccessTerraformToSdk(ctx, diags, internet_access_tf)
+			var internetAccessInterface interface{} = plan.InternetAccess
+			internetAccessTf := internetAccessInterface.(resource_org_network.InternetAccessValue)
+			data.InternetAccess = resource_org_network.InternetAccessTerraformToSdk(internetAccessTf)
 		}
 
 		if plan.Isolation.ValueBoolPointer() != nil {
@@ -82,7 +82,7 @@ func networksTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d base
 			data.Name = plan.Name.ValueString()
 		}
 		if !plan.RoutedForNetworks.IsNull() && !plan.RoutedForNetworks.IsUnknown() {
-			data.RoutedForNetworks = mist_transform.ListOfStringTerraformToSdk(ctx, plan.RoutedForNetworks)
+			data.RoutedForNetworks = misttransform.ListOfStringTerraformToSdk(plan.RoutedForNetworks)
 		}
 		if plan.Subnet.ValueStringPointer() != nil {
 			data.Subnet = models.ToPointer(plan.Subnet.ValueString())
@@ -92,7 +92,7 @@ func networksTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d base
 		}
 
 		if !plan.Tenants.IsNull() && !plan.Tenants.IsUnknown() {
-			data.Tenants = resource_org_network.TenantTerraformToSdk(ctx, diags, plan.Tenants)
+			data.Tenants = resource_org_network.TenantTerraformToSdk(plan.Tenants)
 		}
 
 		if plan.VlanId.ValueStringPointer() != nil {
@@ -103,7 +103,7 @@ func networksTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d base
 			data.VpnAccess = resource_org_network.VpnTerraformToSdk(ctx, diags, plan.VpnAccess)
 		}
 
-		data_list = append(data_list, data)
+		dataList = append(dataList, data)
 	}
-	return data_list
+	return dataList
 }

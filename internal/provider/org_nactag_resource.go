@@ -7,7 +7,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 
-	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
+	mistapierror "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_nactag"
 
 	"github.com/google/uuid"
@@ -48,11 +48,11 @@ func (r *orgNacTagResource) Configure(ctx context.Context, req resource.Configur
 
 	r.client = client
 }
-func (r *orgNacTagResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *orgNacTagResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_org_nactag"
 }
 
-func (r *orgNacTagResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *orgNacTagResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryNac + "This resource manages NAC Tags (Auth Policy Labels).\n\n" +
 			"The NAC Tags can be used in the NAC Rules to define the matching criterias or the returned RADIUS Attributes",
@@ -79,7 +79,7 @@ func (r *orgNacTagResource) Create(ctx context.Context, req resource.CreateReque
 		return
 	}
 
-	nactag, diags := resource_org_nactag.TerraformToSdk(ctx, &plan)
+	nactag, diags := resource_org_nactag.TerraformToSdk(&plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -87,16 +87,16 @@ func (r *orgNacTagResource) Create(ctx context.Context, req resource.CreateReque
 
 	data, err := r.client.OrgsNACTags().CreateOrgNacTag(ctx, orgId, &nactag)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error creating \"mist_org_nactag\" resource",
-			fmt.Sprintf("Unable to create the NAC Tag. %s", api_err),
+			fmt.Sprintf("Unable to create the NAC Tag. %s", apiErr),
 		)
 		return
 	}
 
-	state, diags = resource_org_nactag.SdkToTerraform(ctx, &data.Data)
+	state, diags = resource_org_nactag.SdkToTerraform(&data.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -110,7 +110,7 @@ func (r *orgNacTagResource) Create(ctx context.Context, req resource.CreateReque
 
 }
 
-func (r *orgNacTagResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *orgNacTagResource) Read(ctx context.Context, _ resource.ReadRequest, resp *resource.ReadResponse) {
 	var state resource_org_nactag.OrgNactagModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -148,7 +148,7 @@ func (r *orgNacTagResource) Read(ctx context.Context, req resource.ReadRequest, 
 		)
 		return
 	}
-	state, diags = resource_org_nactag.SdkToTerraform(ctx, &httpr.Data)
+	state, diags = resource_org_nactag.SdkToTerraform(&httpr.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -176,7 +176,7 @@ func (r *orgNacTagResource) Update(ctx context.Context, req resource.UpdateReque
 		return
 	}
 
-	nactag, diags := resource_org_nactag.TerraformToSdk(ctx, &plan)
+	nactag, diags := resource_org_nactag.TerraformToSdk(&plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -202,16 +202,16 @@ func (r *orgNacTagResource) Update(ctx context.Context, req resource.UpdateReque
 	tflog.Info(ctx, "Starting NacTag Update for NacTag "+state.Id.ValueString())
 	data, err := r.client.OrgsNACTags().UpdateOrgNacTag(ctx, orgId, nactagId, &nactag)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error updating \"mist_org_nactag\" resource",
-			fmt.Sprintf("Unable to update the NAC Tag. %s", api_err),
+			fmt.Sprintf("Unable to update the NAC Tag. %s", apiErr),
 		)
 		return
 	}
 
-	state, diags = resource_org_nactag.SdkToTerraform(ctx, &data.Data)
+	state, diags = resource_org_nactag.SdkToTerraform(&data.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -225,7 +225,7 @@ func (r *orgNacTagResource) Update(ctx context.Context, req resource.UpdateReque
 
 }
 
-func (r *orgNacTagResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *orgNacTagResource) Delete(ctx context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_org_nactag.OrgNactagModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -253,11 +253,11 @@ func (r *orgNacTagResource) Delete(ctx context.Context, req resource.DeleteReque
 
 	tflog.Info(ctx, "Starting NacTag Delete: nactag_id "+state.Id.ValueString())
 	data, err := r.client.OrgsNACTags().DeleteOrgNacTag(ctx, orgId, nactagId)
-	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_nactag\" resource",
-			fmt.Sprintf("Unable to delete the NAC Tag. %s", api_err),
+			fmt.Sprintf("Unable to delete the NAC Tag. %s", apiErr),
 		)
 		return
 	}

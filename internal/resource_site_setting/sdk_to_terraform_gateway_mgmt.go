@@ -3,7 +3,7 @@ package resource_site_setting
 import (
 	"context"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -13,55 +13,54 @@ import (
 )
 
 func gatewayMgmtProtecCustomtReSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.ProtectReCustom) basetypes.ListValue {
-	var data_list = []CustomValue{}
+	var dataList []CustomValue
 
 	for _, d := range l {
 
-		var port_range basetypes.StringValue
+		var portRange basetypes.StringValue
 		var protocol basetypes.StringValue
-		var subnets basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+		var subnets = misttransform.ListOfStringSdkToTerraformEmpty()
 
 		if d.PortRange != nil {
-			port_range = types.StringValue(*d.PortRange)
+			portRange = types.StringValue(*d.PortRange)
 		}
 		if d.Protocol != nil {
 			protocol = types.StringValue(string(*d.Protocol))
 		}
 		if d.Subnets != nil {
-			subnets = mist_transform.ListOfStringSdkToTerraform(ctx, d.Subnets)
+			subnets = misttransform.ListOfStringSdkToTerraform(d.Subnets)
 		}
 
-		data_map_attr_type := CustomValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
-			"port_range": port_range,
+		dataMapValue := map[string]attr.Value{
+			"port_range": portRange,
 			"protocol":   protocol,
 			"subnets":    subnets,
 		}
-		data, e := NewCustomValue(data_map_attr_type, data_map_value)
+		data, e := NewCustomValue(CustomValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		data_list = append(data_list, data)
+		dataList = append(dataList, data)
 	}
-	data_list_type := CustomValue{}.Type(ctx)
-	r, e := types.ListValueFrom(ctx, data_list_type, data_list)
+	datalistType := CustomValue{}.Type(ctx)
+	r, e := types.ListValueFrom(ctx, datalistType, dataList)
 	diags.Append(e...)
 
 	return r
 }
 func gatewayMgmtProtectReSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ProtectRe) basetypes.ObjectValue {
-	var allowed_services basetypes.ListValue = types.ListNull(types.StringType)
-	var custom basetypes.ListValue = basetypes.NewListValueMust(CustomValue{}.Type(ctx), []attr.Value{})
+	var allowedServices = types.ListNull(types.StringType)
+	var custom = basetypes.NewListValueMust(CustomValue{}.Type(ctx), []attr.Value{})
 	var enabled basetypes.BoolValue
-	var trusted_hosts basetypes.ListValue = types.ListNull(types.StringType)
+	var trustedHosts = types.ListNull(types.StringType)
 
 	if d.AllowedServices != nil {
 		var items []attr.Value
-		var items_type attr.Type = basetypes.StringType{}
+		var itemsType attr.Type = basetypes.StringType{}
 		for _, item := range d.AllowedServices {
 			items = append(items, types.StringValue(string(item)))
 		}
-		list, _ := types.ListValue(items_type, items)
-		allowed_services = list
+		list, _ := types.ListValue(itemsType, items)
+		allowedServices = list
 	}
 	if d.Custom != nil {
 		custom = gatewayMgmtProtecCustomtReSdkToTerraform(ctx, diags, d.Custom)
@@ -70,17 +69,16 @@ func gatewayMgmtProtectReSdkToTerraform(ctx context.Context, diags *diag.Diagnos
 		enabled = types.BoolValue(*d.Enabled)
 	}
 	if d.TrustedHosts != nil {
-		trusted_hosts = mist_transform.ListOfStringSdkToTerraform(ctx, d.TrustedHosts)
+		trustedHosts = misttransform.ListOfStringSdkToTerraform(d.TrustedHosts)
 	}
 
-	data_map_attr_type := ProtectReValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"allowed_services": allowed_services,
+	dataMapValue := map[string]attr.Value{
+		"allowed_services": allowedServices,
 		"custom":           custom,
 		"enabled":          enabled,
-		"trusted_hosts":    trusted_hosts,
+		"trusted_hosts":    trustedHosts,
 	}
-	data, e := NewProtectReValue(data_map_attr_type, data_map_value)
+	data, e := NewProtectReValue(ProtectReValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	o, e := data.ToObjectValue(ctx)
@@ -89,15 +87,15 @@ func gatewayMgmtProtectReSdkToTerraform(ctx context.Context, diags *diag.Diagnos
 }
 
 func gatewayMgmtAppProbingCustomSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.AppProbingCustomApp) basetypes.ListValue {
-	var data_list = []CustomAppsValue{}
+	var dataList []CustomAppsValue
 	for _, d := range l {
 		var address basetypes.StringValue
-		var app_type basetypes.StringValue
-		var hostnames basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+		var appType basetypes.StringValue
+		var hostnames = misttransform.ListOfStringSdkToTerraformEmpty()
 		var key basetypes.StringValue
 		var name basetypes.StringValue
 		var network basetypes.StringValue
-		var packet_size basetypes.Int64Value
+		var packetSize basetypes.Int64Value
 		var protocol basetypes.StringValue
 		var url basetypes.StringValue
 		var vrf basetypes.StringValue
@@ -106,10 +104,10 @@ func gatewayMgmtAppProbingCustomSdkToTerraform(ctx context.Context, diags *diag.
 			address = types.StringValue(*d.Address)
 		}
 		if d.AppType != nil {
-			app_type = types.StringValue(*d.AppType)
+			appType = types.StringValue(*d.AppType)
 		}
 		if d.Hostnames != nil {
-			hostnames = mist_transform.ListOfStringSdkToTerraform(ctx, d.Hostnames)
+			hostnames = misttransform.ListOfStringSdkToTerraform(d.Hostnames)
 		}
 		if d.Key != nil {
 			key = types.StringValue(*d.Key)
@@ -121,7 +119,7 @@ func gatewayMgmtAppProbingCustomSdkToTerraform(ctx context.Context, diags *diag.
 			network = types.StringValue(*d.Network)
 		}
 		if d.PacketSize != nil {
-			packet_size = types.Int64Value(int64(*d.PacketSize))
+			packetSize = types.Int64Value(int64(*d.PacketSize))
 		}
 		if d.Protocol != nil {
 			protocol = types.StringValue(string(*d.Protocol))
@@ -133,151 +131,147 @@ func gatewayMgmtAppProbingCustomSdkToTerraform(ctx context.Context, diags *diag.
 			vrf = types.StringValue(*d.Vrf)
 		}
 
-		data_map_attr_type := CustomAppsValue{}.AttributeTypes(ctx)
-		data_map_value := map[string]attr.Value{
+		dataMapValue := map[string]attr.Value{
 			"address":     address,
-			"app_type":    app_type,
+			"app_type":    appType,
 			"hostnames":   hostnames,
 			"key":         key,
 			"name":        name,
 			"network":     network,
-			"packet_size": packet_size,
+			"packet_size": packetSize,
 			"protocol":    protocol,
 			"url":         url,
 			"vrf":         vrf,
 		}
-		data, e := NewCustomAppsValue(data_map_attr_type, data_map_value)
+		data, e := NewCustomAppsValue(CustomAppsValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		data_list = append(data_list, data)
+		dataList = append(dataList, data)
 	}
-	data_list_type := CustomAppsValue{}.Type(ctx)
-	r, e := types.ListValueFrom(ctx, data_list_type, data_list)
+	datalistType := CustomAppsValue{}.Type(ctx)
+	r, e := types.ListValueFrom(ctx, datalistType, dataList)
 	diags.Append(e...)
 	return r
 }
 
 func gatewayMgmtAppProbingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.AppProbing) basetypes.ObjectValue {
-	var apps basetypes.ListValue = types.ListNull(types.StringType)
-	var custom_apps basetypes.ListValue = types.ListNull(CustomAppsValue{}.Type(ctx))
+	var apps = types.ListNull(types.StringType)
+	var customApps = types.ListNull(CustomAppsValue{}.Type(ctx))
 	var enabled basetypes.BoolValue
 
 	if d.Apps != nil {
-		apps = mist_transform.ListOfStringSdkToTerraform(ctx, d.Apps)
+		apps = misttransform.ListOfStringSdkToTerraform(d.Apps)
 	}
 	if d.CustomApps != nil {
-		custom_apps = gatewayMgmtAppProbingCustomSdkToTerraform(ctx, diags, d.CustomApps)
+		customApps = gatewayMgmtAppProbingCustomSdkToTerraform(ctx, diags, d.CustomApps)
 	}
 	if d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
 
-	data_map_attr_type := AppProbingValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"apps":        apps,
-		"custom_apps": custom_apps,
+		"custom_apps": customApps,
 		"enabled":     enabled,
 	}
-	data, e := basetypes.NewObjectValue(data_map_attr_type, data_map_value)
+	data, e := basetypes.NewObjectValue(AppProbingValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data
 }
 
 func gatewayMgmtAutoSignatureUpdateSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteSettingGatewayMgmtAutoSignatureUpdate) basetypes.ObjectValue {
-	var day_of_week basetypes.StringValue
+	var dayOfWeek basetypes.StringValue
 	var enable basetypes.BoolValue
-	var time_of_day basetypes.StringValue
+	var timeOfDay basetypes.StringValue
 
 	if d.DayOfWeek != nil {
-		day_of_week = types.StringValue(string(*d.DayOfWeek))
+		dayOfWeek = types.StringValue(string(*d.DayOfWeek))
 	}
 	if d.Enable != nil {
 		enable = types.BoolValue(*d.Enable)
 	}
 	if d.TimeOfDay != nil {
-		time_of_day = types.StringValue(*d.TimeOfDay)
+		timeOfDay = types.StringValue(*d.TimeOfDay)
 	}
 
-	data_map_attr_type := AutoSignatureUpdateValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"day_of_week": day_of_week,
+	dataMapValue := map[string]attr.Value{
+		"day_of_week": dayOfWeek,
 		"enable":      enable,
-		"time_of_day": time_of_day,
+		"time_of_day": timeOfDay,
 	}
-	data, e := basetypes.NewObjectValue(data_map_attr_type, data_map_value)
+	data, e := basetypes.NewObjectValue(AutoSignatureUpdateValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data
 }
 
 func gatewayMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteSettingGatewayMgmt) GatewayMgmtValue {
-	var admin_sshkeys basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
-	var app_probing basetypes.ObjectValue = types.ObjectNull(AppProbingValue{}.AttributeTypes(ctx))
-	var app_usage basetypes.BoolValue
-	var auto_signature_update basetypes.ObjectValue = types.ObjectNull(AutoSignatureUpdateValue{}.AttributeTypes(ctx))
-	var config_revert_timer basetypes.Int64Value
-	var disable_console basetypes.BoolValue
-	var disable_oob basetypes.BoolValue
-	var probe_hosts basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
-	var protect_re basetypes.ObjectValue = types.ObjectNull(ProtectReValue{}.AttributeTypes(ctx))
-	var root_password basetypes.StringValue
-	var security_log_source_address basetypes.StringValue
-	var security_log_source_interface basetypes.StringValue
+	var adminSshkeys = misttransform.ListOfStringSdkToTerraformEmpty()
+	var appProbing = types.ObjectNull(AppProbingValue{}.AttributeTypes(ctx))
+	var appUsage basetypes.BoolValue
+	var autoSignatureUpdate = types.ObjectNull(AutoSignatureUpdateValue{}.AttributeTypes(ctx))
+	var configRevertTimer basetypes.Int64Value
+	var disableConsole basetypes.BoolValue
+	var disableOob basetypes.BoolValue
+	var probeHosts = misttransform.ListOfStringSdkToTerraformEmpty()
+	var protectRe = types.ObjectNull(ProtectReValue{}.AttributeTypes(ctx))
+	var rootPassword basetypes.StringValue
+	var securityLogSourceAddress basetypes.StringValue
+	var securityLogSourceInterface basetypes.StringValue
 
 	if d.AdminSshkeys != nil {
-		admin_sshkeys = mist_transform.ListOfStringSdkToTerraform(ctx, d.AdminSshkeys)
+		adminSshkeys = misttransform.ListOfStringSdkToTerraform(d.AdminSshkeys)
 	}
 	if d.AppProbing != nil {
-		app_probing = gatewayMgmtAppProbingSdkToTerraform(ctx, diags, d.AppProbing)
+		appProbing = gatewayMgmtAppProbingSdkToTerraform(ctx, diags, d.AppProbing)
 	}
 	if d.AppUsage != nil {
-		app_usage = types.BoolValue(*d.AppUsage)
+		appUsage = types.BoolValue(*d.AppUsage)
 	}
 	if d.AutoSignatureUpdate != nil {
-		auto_signature_update = gatewayMgmtAutoSignatureUpdateSdkToTerraform(ctx, diags, d.AutoSignatureUpdate)
+		autoSignatureUpdate = gatewayMgmtAutoSignatureUpdateSdkToTerraform(ctx, diags, d.AutoSignatureUpdate)
 	}
 	if d.ConfigRevertTimer != nil {
-		config_revert_timer = types.Int64Value(int64(*d.ConfigRevertTimer))
+		configRevertTimer = types.Int64Value(int64(*d.ConfigRevertTimer))
 	}
 	if d.DisableConsole != nil {
-		disable_console = types.BoolValue(*d.DisableConsole)
+		disableConsole = types.BoolValue(*d.DisableConsole)
 	}
 	if d.DisableOob != nil {
-		disable_oob = types.BoolValue(*d.DisableOob)
+		disableOob = types.BoolValue(*d.DisableOob)
 	}
 	if d.ProbeHosts != nil {
-		probe_hosts = mist_transform.ListOfStringSdkToTerraform(ctx, d.ProbeHosts)
+		probeHosts = misttransform.ListOfStringSdkToTerraform(d.ProbeHosts)
 	}
 	if d.ProtectRe != nil {
-		protect_re = gatewayMgmtProtectReSdkToTerraform(ctx, diags, d.ProtectRe)
+		protectRe = gatewayMgmtProtectReSdkToTerraform(ctx, diags, d.ProtectRe)
 	}
 	if d.RootPassword != nil {
-		root_password = types.StringValue(*d.RootPassword)
+		rootPassword = types.StringValue(*d.RootPassword)
 	}
 	if d.SecurityLogSourceAddress != nil {
-		security_log_source_address = types.StringValue(*d.SecurityLogSourceAddress)
+		securityLogSourceAddress = types.StringValue(*d.SecurityLogSourceAddress)
 	}
 	if d.SecurityLogSourceInterface != nil {
-		security_log_source_interface = types.StringValue(*d.SecurityLogSourceInterface)
+		securityLogSourceInterface = types.StringValue(*d.SecurityLogSourceInterface)
 	}
 
-	data_map_attr_type := GatewayMgmtValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"admin_sshkeys":                 admin_sshkeys,
-		"app_probing":                   app_probing,
-		"app_usage":                     app_usage,
-		"auto_signature_update":         auto_signature_update,
-		"config_revert_timer":           config_revert_timer,
-		"disable_console":               disable_console,
-		"disable_oob":                   disable_oob,
-		"probe_hosts":                   probe_hosts,
-		"protect_re":                    protect_re,
-		"root_password":                 root_password,
-		"security_log_source_address":   security_log_source_address,
-		"security_log_source_interface": security_log_source_interface,
+	dataMapValue := map[string]attr.Value{
+		"admin_sshkeys":                 adminSshkeys,
+		"app_probing":                   appProbing,
+		"app_usage":                     appUsage,
+		"auto_signature_update":         autoSignatureUpdate,
+		"config_revert_timer":           configRevertTimer,
+		"disable_console":               disableConsole,
+		"disable_oob":                   disableOob,
+		"probe_hosts":                   probeHosts,
+		"protect_re":                    protectRe,
+		"root_password":                 rootPassword,
+		"security_log_source_address":   securityLogSourceAddress,
+		"security_log_source_interface": securityLogSourceInterface,
 	}
-	data, e := NewGatewayMgmtValue(data_map_attr_type, data_map_value)
+	data, e := NewGatewayMgmtValue(GatewayMgmtValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

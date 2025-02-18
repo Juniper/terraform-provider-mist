@@ -26,41 +26,41 @@ func SdkToTerraform(ctx context.Context, l *[]models.Psk, elements *[]attr.Value
 func pskSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.Psk) SitePsksValue {
 	var state SitePsksValue
 
-	var admin_sso_id types.String
-	var created_time basetypes.NumberValue
+	var adminSsoId types.String
+	var createdTime basetypes.NumberValue
 	var email types.String
-	var expire_time types.Int64
-	var expiry_notification_time types.Int64
+	var expireTime types.Int64
+	var expiryNotificationTime types.Int64
 	var id types.String
 	var mac types.String
-	var modified_time basetypes.NumberValue
+	var modifiedTime basetypes.NumberValue
 	var name types.String
 	var note types.String
-	var notify_expiry types.Bool
-	var notify_on_create_or_edit types.Bool
-	var old_passphrase types.String
-	var org_id types.String
+	var notifyExpiry types.Bool
+	var notifyOnCreateOrEdit types.Bool
+	var oldPassphrase types.String
+	var orgId types.String
 	var passphrase types.String
 	var role types.String
 	var ssid types.String
-	var site_id types.String
+	var siteId types.String
 	var usage types.String
-	var vlan_id types.String
+	var vlanId types.String
 
 	if d.AdminSsoId != nil {
-		admin_sso_id = types.StringValue(*d.AdminSsoId)
+		adminSsoId = types.StringValue(*d.AdminSsoId)
 	}
 	if d.CreatedTime != nil {
-		created_time = types.NumberValue(big.NewFloat(*d.CreatedTime))
+		createdTime = types.NumberValue(big.NewFloat(*d.CreatedTime))
 	}
 	if d.Email != nil {
 		email = types.StringValue(*d.Email)
 	}
 	if d.ExpireTime.Value() != nil {
-		expire_time = types.Int64Value(int64(*d.ExpireTime.Value()))
+		expireTime = types.Int64Value(int64(*d.ExpireTime.Value()))
 	}
 	if d.ExpiryNotificationTime != nil {
-		expiry_notification_time = types.Int64Value(int64(*d.ExpiryNotificationTime))
+		expiryNotificationTime = types.Int64Value(int64(*d.ExpiryNotificationTime))
 	}
 	if d.Id != nil {
 		id = types.StringValue(d.Id.String())
@@ -69,7 +69,7 @@ func pskSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.P
 		mac = types.StringValue(*d.Mac)
 	}
 	if d.ModifiedTime != nil {
-		modified_time = types.NumberValue(big.NewFloat(*d.ModifiedTime))
+		modifiedTime = types.NumberValue(big.NewFloat(*d.ModifiedTime))
 	}
 
 	name = types.StringValue(d.Name)
@@ -78,16 +78,16 @@ func pskSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.P
 		note = types.StringValue(*d.Note)
 	}
 	if d.NotifyExpiry != nil {
-		notify_expiry = types.BoolValue(*d.NotifyExpiry)
+		notifyExpiry = types.BoolValue(*d.NotifyExpiry)
 	}
 	if d.NotifyOnCreateOrEdit != nil {
-		notify_on_create_or_edit = types.BoolValue(*d.NotifyOnCreateOrEdit)
+		notifyOnCreateOrEdit = types.BoolValue(*d.NotifyOnCreateOrEdit)
 	}
 	if d.OldPassphrase != nil {
-		old_passphrase = types.StringValue(*d.OldPassphrase)
+		oldPassphrase = types.StringValue(*d.OldPassphrase)
 	}
 	if d.OrgId != nil {
-		org_id = types.StringValue(d.OrgId.String())
+		orgId = types.StringValue(d.OrgId.String())
 	}
 
 	passphrase = types.StringValue(d.Passphrase)
@@ -97,7 +97,7 @@ func pskSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.P
 	}
 
 	if d.SiteId != nil {
-		site_id = types.StringValue(d.SiteId.String())
+		siteId = types.StringValue(d.SiteId.String())
 	}
 
 	ssid = types.StringValue(d.Ssid)
@@ -105,34 +105,33 @@ func pskSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.P
 	usage = types.StringValue(string(*d.Usage))
 
 	if d.VlanId != nil {
-		vlan_id = types.StringValue(d.VlanId.String())
+		vlanId = types.StringValue(d.VlanId.String())
 	}
 
-	data_map_attr_type := SitePsksValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"admin_sso_id":             admin_sso_id,
-		"created_time":             created_time,
+	dataMapValue := map[string]attr.Value{
+		"admin_sso_id":             adminSsoId,
+		"created_time":             createdTime,
 		"email":                    email,
-		"expire_time":              expire_time,
-		"expiry_notification_time": expiry_notification_time,
+		"expire_time":              expireTime,
+		"expiry_notification_time": expiryNotificationTime,
 		"id":                       id,
 		"mac":                      mac,
-		"modified_time":            modified_time,
+		"modified_time":            modifiedTime,
 		"name":                     name,
 		"note":                     note,
-		"notify_expiry":            notify_expiry,
-		"notify_on_create_or_edit": notify_on_create_or_edit,
-		"old_passphrase":           old_passphrase,
-		"org_id":                   org_id,
+		"notify_expiry":            notifyExpiry,
+		"notify_on_create_or_edit": notifyOnCreateOrEdit,
+		"old_passphrase":           oldPassphrase,
+		"org_id":                   orgId,
 		"passphrase":               passphrase,
 		"role":                     role,
-		"site_id":                  site_id,
+		"site_id":                  siteId,
 		"ssid":                     ssid,
 		"usage":                    usage,
-		"vlan_id":                  vlan_id,
+		"vlan_id":                  vlanId,
 	}
 
-	state, e := NewSitePsksValue(data_map_attr_type, data_map_value)
+	state, e := NewSitePsksValue(SitePsksValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return state

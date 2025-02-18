@@ -57,7 +57,7 @@ type mistProviderModel struct {
 	Proxy      types.String  `tfsdk:"proxy"`
 }
 
-func (p *mistProvider) Schema(ctx context.Context, req provider.SchemaRequest, resp *provider.SchemaResponse) {
+func (p *mistProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp *provider.SchemaResponse) {
 
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "The Mist Provider allows Terraform to manage Juniper Mist Organizations.\n\n" +
@@ -239,44 +239,44 @@ func (p *mistProvider) Configure(ctx context.Context, req provider.ConfigureRequ
 		config.ApiTimeout = types.Float64Value(defaultApiTimeout)
 	}
 
-	var proxy_url *url.URL
+	var proxyUrl *url.URL
 	if !config.Proxy.IsNull() {
-		proxy_string := config.Proxy.ValueString()
-		if !strings.HasPrefix(proxy_string, "http://") &&
-			!strings.HasPrefix(proxy_string, "https://") &&
-			!strings.HasPrefix(proxy_string, "socks5://") {
-			proxy_string = "http://" + proxy_string
+		proxyString := config.Proxy.ValueString()
+		if !strings.HasPrefix(proxyString, "http://") &&
+			!strings.HasPrefix(proxyString, "https://") &&
+			!strings.HasPrefix(proxyString, "socks5://") {
+			proxyString = "http://" + proxyString
 		}
-		u, err := url.Parse(proxy_string)
+		u, err := url.Parse(proxyString)
 		if err != nil {
 			resp.Diagnostics.AddError("Unable to parse proxy configuration", err.Error())
 			return
 		}
-		proxy_url = u
+		proxyUrl = u
 	}
 
-	var mist_cloud mistapi.Environment
+	var mistCloud mistapi.Environment
 	switch config.Host.ValueString() {
 	case "api.mist.com":
-		mist_cloud = mistapi.MIST_GLOBAL_01
+		mistCloud = mistapi.MIST_GLOBAL_01
 	case "api.gc1.mist.com":
-		mist_cloud = mistapi.MIST_GLOBAL_02
+		mistCloud = mistapi.MIST_GLOBAL_02
 	case "api.ac2.mist.com":
-		mist_cloud = mistapi.MIST_GLOBAL_03
+		mistCloud = mistapi.MIST_GLOBAL_03
 	case "api.gc2.mist.com":
-		mist_cloud = mistapi.MIST_GLOBAL_04
+		mistCloud = mistapi.MIST_GLOBAL_04
 	case "api.eu.mist.com":
-		mist_cloud = mistapi.MIST_EMEA_01
+		mistCloud = mistapi.MIST_EMEA_01
 	case "api.gc3.mist.com":
-		mist_cloud = mistapi.MIST_EMEA_02
+		mistCloud = mistapi.MIST_EMEA_02
 	case "api.ac6.mist.com":
-		mist_cloud = mistapi.MIST_EMEA_03
+		mistCloud = mistapi.MIST_EMEA_03
 	case "api.ac5.mist.com":
-		mist_cloud = mistapi.MIST_APAC_01
+		mistCloud = mistapi.MIST_APAC_01
 	case "api.mistsys.com":
-		mist_cloud = mistapi.AWS_STAGING
+		mistCloud = mistapi.AWS_STAGING
 	case "api.us.mist-federal.com":
-		mist_cloud = mistapi.GOV_CLOUD
+		mistCloud = mistapi.GOV_CLOUD
 	default:
 		resp.Diagnostics.AddAttributeError(
 			path.Root("host"),
@@ -286,14 +286,14 @@ func (p *mistProvider) Configure(ctx context.Context, req provider.ConfigureRequ
 		return
 	}
 
-	var DefaultTransport http.RoundTripper = http.DefaultTransport
-	if proxy_url != nil {
+	var DefaultTransport = http.DefaultTransport
+	if proxyUrl != nil {
 		DefaultTransport = &http.Transport{
-			Proxy: http.ProxyURL(proxy_url),
+			Proxy: http.ProxyURL(proxyUrl),
 		}
 	}
 
-	var client_config mistapi.Configuration
+	var clientConfig mistapi.Configuration
 
 	var configOptions []mistapi.ConfigurationOptions
 	var tfLogger = NewTFlogger(ctx)
@@ -314,9 +314,9 @@ func (p *mistProvider) Configure(ctx context.Context, req provider.ConfigureRequ
 		)
 		configOptions = append(configOptions, loggerConfig)
 	}
-	configOptions = append(configOptions, mistapi.WithEnvironment(mist_cloud))
+	configOptions = append(configOptions, mistapi.WithEnvironment(mistCloud))
 
-	var httpConfig mistapi.ConfigurationOptions = mistapi.WithHttpConfiguration(
+	var httpConfig = mistapi.WithHttpConfiguration(
 		mistapi.CreateHttpConfiguration(
 			mistapi.WithTimeout(config.ApiTimeout.ValueFloat64()),
 			mistapi.WithTransport(DefaultTransport),
@@ -332,23 +332,23 @@ func (p *mistProvider) Configure(ctx context.Context, req provider.ConfigureRequ
 		)
 		configOptions = append(configOptions, apiTokenConfig)
 
-		client_config = mistapi.CreateConfiguration(configOptions...)
+		clientConfig = mistapi.CreateConfiguration(configOptions...)
 
 		// configure the client for Basic Auth + CSRF
 	} else {
 		// Initiate the login API Call
-		var basic_auth_config = mistapi.WithBasicAuthCredentials(
+		var basicAuthConfig = mistapi.WithBasicAuthCredentials(
 			mistapi.NewBasicAuthCredentials(config.Username.ValueString(), config.Password.ValueString()),
 		)
-		configOptions = append(configOptions, basic_auth_config)
-		tmp_client := mistapi.NewClient(
+		configOptions = append(configOptions, basicAuthConfig)
+		tmpClient := mistapi.NewClient(
 			mistapi.CreateConfiguration(configOptions...),
 		)
 
 		body := models.Login{}
 		body.Email = config.Username.ValueString()
 		body.Password = config.Password.ValueString()
-		apiResponse, err := tmp_client.AdminsLogin().Login(ctx, &body)
+		apiResponse, err := tmpClient.AdminsLogin().Login(ctx, &body)
 		if err != nil {
 			resp.Diagnostics.AddError("Authentication Error", err.Error())
 			return
@@ -364,12 +364,12 @@ func (p *mistProvider) Configure(ctx context.Context, req provider.ConfigureRequ
 				for _, cooky := range hVal {
 					for _, cVal := range strings.Split(cooky, ";") {
 						if strings.HasPrefix(cVal, "csrftoken") {
-							csrfToken_string := strings.Split(cVal, "=")[1]
+							csrftokenString := strings.Split(cVal, "=")[1]
 							csrfTokenConfig := mistapi.WithCsrfTokenCredentials(
-								mistapi.NewCsrfTokenCredentials(csrfToken_string),
+								mistapi.NewCsrfTokenCredentials(csrftokenString),
 							)
 							configOptions = append(configOptions, csrfTokenConfig)
-							client_config = mistapi.CreateConfiguration(configOptions...)
+							clientConfig = mistapi.CreateConfiguration(configOptions...)
 							csrfTokenSet = true
 						}
 					}
@@ -384,7 +384,7 @@ func (p *mistProvider) Configure(ctx context.Context, req provider.ConfigureRequ
 	}
 
 	// Use the  configuration to create the client and test the credentials
-	var client mistapi.ClientInterface = mistapi.NewClient(client_config)
+	var client = mistapi.NewClient(clientConfig)
 	_, err := client.SelfAccount().GetSelf(ctx)
 	if err != nil {
 		resp.Diagnostics.AddError("Authentication Error", err.Error())
@@ -395,12 +395,12 @@ func (p *mistProvider) Configure(ctx context.Context, req provider.ConfigureRequ
 	resp.ResourceData = client
 }
 
-func (p *mistProvider) Metadata(ctx context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {
+func (p *mistProvider) Metadata(_ context.Context, _ provider.MetadataRequest, resp *provider.MetadataResponse) {
 	resp.TypeName = "mist"
 	resp.Version = p.version
 }
 
-func (p *mistProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
+func (p *mistProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		NewConstAppCategoriesDataSource,
 		NewConstApplicationsDataSource,
@@ -445,7 +445,7 @@ func (p *mistProvider) DataSources(ctx context.Context) []func() datasource.Data
 	}
 }
 
-func (p *mistProvider) Resources(ctx context.Context) []func() resource.Resource {
+func (p *mistProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		NewOrgResource,
 		NewOrgSiteGroupResource,
@@ -504,5 +504,8 @@ func (p *mistProvider) Functions(_ context.Context) []func() function.Function {
 		NewSearchInventoryByClaimcodeFunction,
 		NewSearchInventoryByMacFunction,
 		NewSearchInventoryBySerialFunction,
+		NewSearchVcByMemberClaimcodeFunction,
+		NewSearchVcByMemberMacFunction,
+		NewSearchVcByMemberSerialFunction,
 	}
 }

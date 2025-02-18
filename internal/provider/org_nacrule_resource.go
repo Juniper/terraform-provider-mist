@@ -7,7 +7,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 
-	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
+	mistapierror "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_nacrule"
 
 	"github.com/google/uuid"
@@ -48,11 +48,11 @@ func (r *orgNacRuleResource) Configure(ctx context.Context, req resource.Configu
 
 	r.client = client
 }
-func (r *orgNacRuleResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *orgNacRuleResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_org_nacrule"
 }
 
-func (r *orgNacRuleResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *orgNacRuleResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryNac + "This resource manages the NAC Rules (Auth Policies).\n\n" +
 			"A NAC Rule defines a list of critera (NAC Tag) the network client must match to execute the Rule, an action (Allow/Deny)" +
@@ -71,7 +71,7 @@ func (r *orgNacRuleResource) Create(ctx context.Context, req resource.CreateRequ
 		return
 	}
 
-	nacrule, diags := resource_org_nacrule.TerraformToSdk(ctx, &plan)
+	nacrule, diags := resource_org_nacrule.TerraformToSdk(&plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -87,11 +87,11 @@ func (r *orgNacRuleResource) Create(ctx context.Context, req resource.CreateRequ
 	}
 	data, err := r.client.OrgsNACRules().CreateOrgNacRule(ctx, orgId, &nacrule)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error creating \"mist_org_nacrule\" resource",
-			fmt.Sprintf("Unable to create the NAC Rule. %s", api_err),
+			fmt.Sprintf("Unable to create the NAC Rule. %s", apiErr),
 		)
 		return
 	}
@@ -110,7 +110,7 @@ func (r *orgNacRuleResource) Create(ctx context.Context, req resource.CreateRequ
 
 }
 
-func (r *orgNacRuleResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *orgNacRuleResource) Read(ctx context.Context, _ resource.ReadRequest, resp *resource.ReadResponse) {
 	var state resource_org_nacrule.OrgNacruleModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -175,7 +175,7 @@ func (r *orgNacRuleResource) Update(ctx context.Context, req resource.UpdateRequ
 		return
 	}
 
-	nacrule, diags := resource_org_nacrule.TerraformToSdk(ctx, &plan)
+	nacrule, diags := resource_org_nacrule.TerraformToSdk(&plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -201,11 +201,11 @@ func (r *orgNacRuleResource) Update(ctx context.Context, req resource.UpdateRequ
 	tflog.Info(ctx, "Starting NacRule Update for NacRule "+state.Id.ValueString())
 	data, err := r.client.OrgsNACRules().UpdateOrgNacRule(ctx, orgId, nacruleId, &nacrule)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error updating \"mist_org_nacrule\" resource",
-			fmt.Sprintf("Unable to update the NAC Rule. %s", api_err),
+			fmt.Sprintf("Unable to update the NAC Rule. %s", apiErr),
 		)
 		return
 	}
@@ -223,7 +223,7 @@ func (r *orgNacRuleResource) Update(ctx context.Context, req resource.UpdateRequ
 
 }
 
-func (r *orgNacRuleResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *orgNacRuleResource) Delete(ctx context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_org_nacrule.OrgNacruleModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -250,11 +250,11 @@ func (r *orgNacRuleResource) Delete(ctx context.Context, req resource.DeleteRequ
 	}
 	tflog.Info(ctx, "Starting NacRule Delete: nacrule_id "+state.Id.ValueString())
 	data, err := r.client.OrgsNACRules().DeleteOrgNacRule(ctx, orgId, nacruleId)
-	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_nacrule\" resource",
-			fmt.Sprintf("Unable to delete the NAC Rule. %s", api_err),
+			fmt.Sprintf("Unable to delete the NAC Rule. %s", apiErr),
 		)
 		return
 	}

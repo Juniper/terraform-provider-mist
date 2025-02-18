@@ -13,22 +13,21 @@ import (
 
 func vpnOptionsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.OrgSettingVpnOptions) VpnOptionsValue {
 
-	var as_base basetypes.Int64Value
-	var st_subnet basetypes.StringValue
+	var asBase basetypes.Int64Value
+	var stSubnet basetypes.StringValue
 
 	if d.AsBase != nil {
-		as_base = types.Int64Value(int64(*d.AsBase))
+		asBase = types.Int64Value(int64(*d.AsBase))
 	}
 	if d.StSubnet != nil {
-		st_subnet = types.StringValue(*d.StSubnet)
+		stSubnet = types.StringValue(*d.StSubnet)
 	}
 
-	data_map_attr_type := VpnOptionsValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"as_base":   as_base,
-		"st_subnet": st_subnet,
+	dataMapValue := map[string]attr.Value{
+		"as_base":   asBase,
+		"st_subnet": stSubnet,
 	}
-	data, e := NewVpnOptionsValue(data_map_attr_type, data_map_value)
+	data, e := NewVpnOptionsValue(VpnOptionsValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

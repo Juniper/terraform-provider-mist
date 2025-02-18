@@ -23,12 +23,11 @@ func cloudsharkSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 		url = types.StringValue(*d.Url)
 	}
 
-	data_map_attr_type := CloudsharkValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"apitoken": apitoken,
 		"url":      url,
 	}
-	data, e := NewCloudsharkValue(data_map_attr_type, data_map_value)
+	data, e := NewCloudsharkValue(CloudsharkValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

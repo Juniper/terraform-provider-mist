@@ -1,7 +1,6 @@
 package mist_transform
 
 import (
-	"context"
 	"math/big"
 	"strings"
 
@@ -11,81 +10,81 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func ListOfStringTerraformToSdk(ctx context.Context, list basetypes.ListValue) []string {
+func ListOfStringTerraformToSdk(list basetypes.ListValue) []string {
 	var items []string
 	for _, item := range list.Elements() {
-		var s_interface interface{} = item
-		s := s_interface.(basetypes.StringValue)
+		var sInterface interface{} = item
+		s := sInterface.(basetypes.StringValue)
 		items = append(items, s.ValueString())
 	}
 	return items
 }
 
-func ListOfStringSdkToTerraform(ctx context.Context, data []string) basetypes.ListValue {
+func ListOfStringSdkToTerraform(data []string) basetypes.ListValue {
 	var items []attr.Value
-	var items_type attr.Type = basetypes.StringType{}
+	var itemsType attr.Type = basetypes.StringType{}
 	for _, item := range data {
 		items = append(items, types.StringValue(item))
 	}
-	list, _ := types.ListValue(items_type, items)
+	list, _ := types.ListValue(itemsType, items)
 	return list
 }
 
-func ListOfStringSdkToTerraformEmpty(ctx context.Context) basetypes.ListValue {
+func ListOfStringSdkToTerraformEmpty() basetypes.ListValue {
 	var items []attr.Value
-	var items_type attr.Type = basetypes.StringType{}
-	list, _ := types.ListValue(items_type, items)
+	var itemsType attr.Type = basetypes.StringType{}
+	list, _ := types.ListValue(itemsType, items)
 	return list
 }
 
-func ListOfIntTerraformToSdk(ctx context.Context, list basetypes.ListValue) []int {
+func ListOfIntTerraformToSdk(list basetypes.ListValue) []int {
 	var items []int
 	for _, item := range list.Elements() {
-		var item_interface interface{} = item
-		i := item_interface.(basetypes.Int64Value)
+		var itemInterface interface{} = item
+		i := itemInterface.(basetypes.Int64Value)
 		items = append(items, int(i.ValueInt64()))
 	}
 	return items
 }
 
-func ListOfFloat64SdkToTerraform(ctx context.Context, data []float64) basetypes.ListValue {
+func ListOfFloat64SdkToTerraform(data []float64) basetypes.ListValue {
 	var items []attr.Value
-	var items_type attr.Type = basetypes.Float64Type{}
+	var itemsType attr.Type = basetypes.Float64Type{}
 	for _, item := range data {
-		items = append(items, types.Float64Value(float64(item)))
+		items = append(items, types.Float64Value(item))
 	}
-	list, _ := types.ListValue(items_type, items)
+	list, _ := types.ListValue(itemsType, items)
 	return list
 }
 
-func ListOfNumberSdkToTerraform(ctx context.Context, data []float64) basetypes.ListValue {
+func ListOfNumberSdkToTerraform(data []float64) basetypes.ListValue {
 	var items []attr.Value
-	var items_type attr.Type = basetypes.NumberType{}
+	var itemsType attr.Type = basetypes.NumberType{}
 	for _, item := range data {
 		items = append(items, types.NumberValue(big.NewFloat(item)))
 	}
-	list, _ := types.ListValue(items_type, items)
+	list, _ := types.ListValue(itemsType, items)
 	return list
 }
 
-func ListOfIntSdkToTerraform(ctx context.Context, data []int) basetypes.ListValue {
+func ListOfIntSdkToTerraform(data []int) basetypes.ListValue {
 	var items []attr.Value
-	var items_type attr.Type = basetypes.Int64Type{}
+	var itemsType attr.Type = basetypes.Int64Type{}
 	for _, item := range data {
 		items = append(items, types.Int64Value(int64(item)))
 	}
-	list, _ := types.ListValue(items_type, items)
+	list, _ := types.ListValue(itemsType, items)
 	return list
 }
 
-func ListOfIntSdkToTerraformEmpty(ctx context.Context) basetypes.ListValue {
+func ListOfIntSdkToTerraformEmpty() basetypes.ListValue {
 	var items []attr.Value
-	var items_type attr.Type = basetypes.Int64Type{}
-	list, _ := types.ListValue(items_type, items)
+	var itemsType attr.Type = basetypes.Int64Type{}
+	list, _ := types.ListValue(itemsType, items)
 	return list
 }
 
-func ListOfUuidTerraformToSdk(ctx context.Context, list basetypes.ListValue) []uuid.UUID {
+func ListOfUuidTerraformToSdk(list basetypes.ListValue) []uuid.UUID {
 	var items []uuid.UUID
 	for _, item := range list.Elements() {
 		items = append(items, uuid.MustParse(strings.ReplaceAll(item.String(), "\"", "")))
@@ -93,18 +92,18 @@ func ListOfUuidTerraformToSdk(ctx context.Context, list basetypes.ListValue) []u
 	return items
 }
 
-func ListOfUuidSdkToTerraform(ctx context.Context, data []uuid.UUID) basetypes.ListValue {
+func ListOfUuidSdkToTerraform(data []uuid.UUID) basetypes.ListValue {
 	var items []attr.Value
-	var items_type attr.Type = basetypes.StringType{}
+	var itemsType attr.Type = basetypes.StringType{}
 	for _, item := range data {
 		items = append(items, types.StringValue(item.String()))
 	}
-	list, _ := types.ListValue(items_type, items)
+	list, _ := types.ListValue(itemsType, items)
 	return list
 }
-func ListOfUuidSdkToTerraformEmpty(ctx context.Context) basetypes.ListValue {
+func ListOfUuidSdkToTerraformEmpty() basetypes.ListValue {
 	var items []attr.Value
-	var items_type attr.Type = basetypes.StringType{}
-	list, _ := types.ListValue(items_type, items)
+	var itemsType attr.Type = basetypes.StringType{}
+	list, _ := types.ListValue(itemsType, items)
 	return list
 }

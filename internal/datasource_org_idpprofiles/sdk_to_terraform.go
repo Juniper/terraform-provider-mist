@@ -24,16 +24,16 @@ func SdkToTerraform(ctx context.Context, l *[]models.IdpProfile, elements *[]att
 
 func servicepolicieSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.IdpProfile) OrgIdpprofilesValue {
 
-	var base_profile types.String
-	var created_time basetypes.NumberValue
+	var baseProfile types.String
+	var createdTime basetypes.NumberValue
 	var id types.String
-	var modified_time basetypes.NumberValue
+	var modifiedTime basetypes.NumberValue
 	var name types.String
-	var org_id types.String
-	var overwrites types.List = types.ListNull(OverwritesValue{}.Type(ctx))
+	var orgId types.String
+	var overwrites = types.ListNull(OverwritesValue{}.Type(ctx))
 
 	if d.BaseProfile != nil {
-		base_profile = types.StringValue(string(*d.BaseProfile))
+		baseProfile = types.StringValue(string(*d.BaseProfile))
 	}
 	if d.Id != nil {
 		id = types.StringValue(d.Id.String())
@@ -41,23 +41,22 @@ func servicepolicieSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 	if d.Name != nil {
 		name = types.StringValue(*d.Name)
 	}
-	org_id = types.StringValue(d.OrgId.String())
+	orgId = types.StringValue(d.OrgId.String())
 
 	if d.Overwrites != nil {
 		overwrites = overwritesSdkToTerraform(ctx, diags, d.Overwrites)
 	}
 
-	data_map_attr_type := OrgIdpprofilesValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
-		"base_profile":  base_profile,
-		"created_time":  created_time,
+	dataMapValue := map[string]attr.Value{
+		"base_profile":  baseProfile,
+		"created_time":  createdTime,
 		"id":            id,
-		"modified_time": modified_time,
+		"modified_time": modifiedTime,
 		"name":          name,
-		"org_id":        org_id,
+		"org_id":        orgId,
 		"overwrites":    overwrites,
 	}
-	data, e := NewOrgIdpprofilesValue(data_map_attr_type, data_map_value)
+	data, e := NewOrgIdpprofilesValue(OrgIdpprofilesValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

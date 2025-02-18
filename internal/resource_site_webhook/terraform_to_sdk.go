@@ -1,17 +1,15 @@
 package resource_site_webhook
 
 import (
-	"context"
-
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func TerraformToSdk(ctx context.Context, plan *SiteWebhookModel) (models.Webhook, diag.Diagnostics) {
+func TerraformToSdk(plan *SiteWebhookModel) (models.Webhook, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	data := models.Webhook{}
 	unset := make(map[string]interface{})
@@ -63,7 +61,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteWebhookModel) (models.Webhook
 	}
 
 	if !plan.Oauth2Scopes.IsNull() && !plan.Oauth2Scopes.IsUnknown() {
-		data.Oauth2Scopes = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Oauth2Scopes)
+		data.Oauth2Scopes = misttransform.ListOfStringTerraformToSdk(plan.Oauth2Scopes)
 	} else {
 		unset["-oauth2_scopes"] = ""
 	}
@@ -95,8 +93,8 @@ func TerraformToSdk(ctx context.Context, plan *SiteWebhookModel) (models.Webhook
 	if !plan.Topics.IsNull() && !plan.Topics.IsUnknown() {
 		var items []string
 		for _, v := range plan.Topics.Elements() {
-			var s_interface interface{} = v
-			s := s_interface.(basetypes.StringValue)
+			var sInterface interface{} = v
+			s := sInterface.(basetypes.StringValue)
 			items = append(items, s.ValueString())
 		}
 		data.Topics = items

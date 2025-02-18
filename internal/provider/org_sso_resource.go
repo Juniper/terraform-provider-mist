@@ -7,7 +7,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 
-	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
+	mistapierror "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_sso"
 
 	"github.com/google/uuid"
@@ -48,11 +48,11 @@ func (r *orgSsoResource) Configure(ctx context.Context, req resource.ConfigureRe
 
 	r.client = client
 }
-func (r *orgSsoResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *orgSsoResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_org_sso"
 }
 
-func (r *orgSsoResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *orgSsoResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryOrg + "This resource manages Org SSO Configuration.\n\n" +
 			"Org SSO, or Single Sign-On, is a method of authentication that allows users to securely log in to multiple applications " +
@@ -83,7 +83,7 @@ func (r *orgSsoResource) Create(ctx context.Context, req resource.CreateRequest,
 		return
 	}
 
-	sso, diags := resource_org_sso.TerraformToSdk(ctx, &plan)
+	sso, diags := resource_org_sso.TerraformToSdk(&plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -91,16 +91,16 @@ func (r *orgSsoResource) Create(ctx context.Context, req resource.CreateRequest,
 
 	data, err := r.client.OrgsSSO().CreateOrgSso(ctx, orgId, sso)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error creating \"mist_org_sso\" resource",
-			fmt.Sprintf("Unable to create the API Token. %s", api_err),
+			fmt.Sprintf("Unable to create the API Token. %s", apiErr),
 		)
 		return
 	}
 
-	state, diags = resource_org_sso.SdkToTerraform(ctx, &data.Data)
+	state, diags = resource_org_sso.SdkToTerraform(&data.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -114,7 +114,7 @@ func (r *orgSsoResource) Create(ctx context.Context, req resource.CreateRequest,
 
 }
 
-func (r *orgSsoResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *orgSsoResource) Read(ctx context.Context, _ resource.ReadRequest, resp *resource.ReadResponse) {
 	var state resource_org_sso.OrgSsoModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -154,7 +154,7 @@ func (r *orgSsoResource) Read(ctx context.Context, req resource.ReadRequest, res
 		return
 	}
 
-	state, diags = resource_org_sso.SdkToTerraform(ctx, &data.Data)
+	state, diags = resource_org_sso.SdkToTerraform(&data.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -180,7 +180,7 @@ func (r *orgSsoResource) Update(ctx context.Context, req resource.UpdateRequest,
 		return
 	}
 
-	sso, diags := resource_org_sso.TerraformToSdk(ctx, &plan)
+	sso, diags := resource_org_sso.TerraformToSdk(&plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -207,16 +207,16 @@ func (r *orgSsoResource) Update(ctx context.Context, req resource.UpdateRequest,
 	tflog.Info(ctx, "Starting Sso Update for Sso "+state.Id.ValueString())
 	data, err := r.client.OrgsSSO().UpdateOrgSso(ctx, orgId, ssoId, sso)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-	if api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error updating \"mist_org_sso\" resource",
-			fmt.Sprintf("Unable to update the API Token. %s", api_err),
+			fmt.Sprintf("Unable to update the API Token. %s", apiErr),
 		)
 		return
 	}
 
-	state, diags = resource_org_sso.SdkToTerraform(ctx, &data.Data)
+	state, diags = resource_org_sso.SdkToTerraform(&data.Data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -230,7 +230,7 @@ func (r *orgSsoResource) Update(ctx context.Context, req resource.UpdateRequest,
 
 }
 
-func (r *orgSsoResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *orgSsoResource) Delete(ctx context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_org_sso.OrgSsoModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -258,11 +258,11 @@ func (r *orgSsoResource) Delete(ctx context.Context, req resource.DeleteRequest,
 
 	tflog.Info(ctx, "Starting Sso Delete: sso_id "+state.Id.ValueString())
 	data, err := r.client.OrgsSSO().DeleteOrgSso(ctx, orgId, ssoId)
-	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_sso\" resource",
-			fmt.Sprintf("Unable to delete the API Token. %s", api_err),
+			fmt.Sprintf("Unable to delete the API Token. %s", apiErr),
 		)
 		return
 	}

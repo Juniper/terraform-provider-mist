@@ -1,84 +1,81 @@
 package resource_org_networktemplate
 
 import (
-	"context"
-
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func ospfAreasNetworksTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.OspfAreasNetwork {
-	data_map := make(map[string]models.OspfAreasNetwork)
-	for item_name, item_value := range d.Elements() {
-		var item_interface interface{} = item_value
-		item_obj := item_interface.(OspfNetworksValue)
+func ospfAreasNetworksTerraformToSdk(d basetypes.MapValue) map[string]models.OspfAreasNetwork {
+	dataMap := make(map[string]models.OspfAreasNetwork)
+	for itemName, itemValue := range d.Elements() {
+		var itemInterface interface{} = itemValue
+		itemObj := itemInterface.(OspfNetworksValue)
 
-		data_item := models.OspfAreasNetwork{}
-		if !item_obj.AuthKeys.IsNull() && !item_obj.AuthKeys.IsUnknown() {
-			auth_keys_vm := make(map[string]string)
-			for k, v := range item_obj.AuthKeys.Elements() {
-				auth_keys_vm[k] = v.String()
+		dataItem := models.OspfAreasNetwork{}
+		if !itemObj.AuthKeys.IsNull() && !itemObj.AuthKeys.IsUnknown() {
+			authKeysVm := make(map[string]string)
+			for k, v := range itemObj.AuthKeys.Elements() {
+				authKeysVm[k] = v.String()
 			}
-			data_item.AuthKeys = auth_keys_vm
+			dataItem.AuthKeys = authKeysVm
 		}
-		if !item_obj.AuthPassword.IsNull() && !item_obj.AuthPassword.IsUnknown() {
-			data_item.AuthPassword = item_obj.AuthPassword.ValueStringPointer()
+		if !itemObj.AuthPassword.IsNull() && !itemObj.AuthPassword.IsUnknown() {
+			dataItem.AuthPassword = itemObj.AuthPassword.ValueStringPointer()
 		}
-		if !item_obj.AuthType.IsNull() && !item_obj.AuthType.IsUnknown() {
-			data_item.AuthType = (*models.OspfAreaNetworkAuthTypeEnum)(item_obj.AuthType.ValueStringPointer())
+		if !itemObj.AuthType.IsNull() && !itemObj.AuthType.IsUnknown() {
+			dataItem.AuthType = (*models.OspfAreaNetworkAuthTypeEnum)(itemObj.AuthType.ValueStringPointer())
 		}
-		if !item_obj.BfdMinimumInterval.IsNull() && !item_obj.BfdMinimumInterval.IsUnknown() {
-			data_item.BfdMinimumInterval = models.ToPointer(int(item_obj.BfdMinimumInterval.ValueInt64()))
+		if !itemObj.BfdMinimumInterval.IsNull() && !itemObj.BfdMinimumInterval.IsUnknown() {
+			dataItem.BfdMinimumInterval = models.ToPointer(int(itemObj.BfdMinimumInterval.ValueInt64()))
 		}
-		if !item_obj.DeadInterval.IsNull() && !item_obj.DeadInterval.IsUnknown() {
-			data_item.DeadInterval = models.ToPointer(int(item_obj.DeadInterval.ValueInt64()))
+		if !itemObj.DeadInterval.IsNull() && !itemObj.DeadInterval.IsUnknown() {
+			dataItem.DeadInterval = models.ToPointer(int(itemObj.DeadInterval.ValueInt64()))
 		}
-		if !item_obj.ExportPolicy.IsNull() && !item_obj.ExportPolicy.IsUnknown() {
-			data_item.ExportPolicy = item_obj.ExportPolicy.ValueStringPointer()
+		if !itemObj.ExportPolicy.IsNull() && !itemObj.ExportPolicy.IsUnknown() {
+			dataItem.ExportPolicy = itemObj.ExportPolicy.ValueStringPointer()
 		}
-		if !item_obj.HelloInterval.IsNull() && !item_obj.HelloInterval.IsUnknown() {
-			data_item.HelloInterval = models.ToPointer(int(item_obj.HelloInterval.ValueInt64()))
+		if !itemObj.HelloInterval.IsNull() && !itemObj.HelloInterval.IsUnknown() {
+			dataItem.HelloInterval = models.ToPointer(int(itemObj.HelloInterval.ValueInt64()))
 		}
-		if !item_obj.ImportPolicy.IsNull() && !item_obj.ImportPolicy.IsUnknown() {
-			data_item.ImportPolicy = item_obj.ImportPolicy.ValueStringPointer()
+		if !itemObj.ImportPolicy.IsNull() && !itemObj.ImportPolicy.IsUnknown() {
+			dataItem.ImportPolicy = itemObj.ImportPolicy.ValueStringPointer()
 		}
-		if !item_obj.InterfaceType.IsNull() && !item_obj.InterfaceType.IsUnknown() {
-			data_item.InterfaceType = (*models.OspfAreaNetworkInterfaceTypeEnum)(item_obj.InterfaceType.ValueStringPointer())
+		if !itemObj.InterfaceType.IsNull() && !itemObj.InterfaceType.IsUnknown() {
+			dataItem.InterfaceType = (*models.OspfAreaNetworkInterfaceTypeEnum)(itemObj.InterfaceType.ValueStringPointer())
 		}
-		if !item_obj.Metric.IsNull() && !item_obj.Metric.IsUnknown() {
-			data_item.Metric = models.NewOptional(models.ToPointer(int(item_obj.Metric.ValueInt64())))
+		if !itemObj.Metric.IsNull() && !itemObj.Metric.IsUnknown() {
+			dataItem.Metric = models.NewOptional(models.ToPointer(int(itemObj.Metric.ValueInt64())))
 		}
-		if !item_obj.NoReadvertiseToOverlay.IsNull() && !item_obj.NoReadvertiseToOverlay.IsUnknown() {
-			data_item.NoReadvertiseToOverlay = item_obj.NoReadvertiseToOverlay.ValueBoolPointer()
+		if !itemObj.NoReadvertiseToOverlay.IsNull() && !itemObj.NoReadvertiseToOverlay.IsUnknown() {
+			dataItem.NoReadvertiseToOverlay = itemObj.NoReadvertiseToOverlay.ValueBoolPointer()
 		}
-		if !item_obj.Passive.IsNull() && !item_obj.Passive.IsUnknown() {
-			data_item.Passive = item_obj.Passive.ValueBoolPointer()
+		if !itemObj.Passive.IsNull() && !itemObj.Passive.IsUnknown() {
+			dataItem.Passive = itemObj.Passive.ValueBoolPointer()
 		}
 
-		data_map[item_name] = data_item
+		dataMap[itemName] = dataItem
 	}
-	return data_map
+	return dataMap
 }
 
-func ospfAreasTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.OspfArea {
+func ospfAreasTerraformToSdk(d basetypes.MapValue) map[string]models.OspfArea {
 	data := make(map[string]models.OspfArea)
-	for item_name, item_value := range d.Elements() {
-		var item_interface interface{} = item_value
-		item_obj := item_interface.(OspfAreasValue)
+	for itemName, itemValue := range d.Elements() {
+		var itemInterface interface{} = itemValue
+		itemObj := itemInterface.(OspfAreasValue)
 
-		data_item := models.OspfArea{}
-		if !item_obj.IncludeLoopback.IsNull() && !item_obj.IncludeLoopback.IsUnknown() {
-			data_item.IncludeLoopback = item_obj.IncludeLoopback.ValueBoolPointer()
+		dataItem := models.OspfArea{}
+		if !itemObj.IncludeLoopback.IsNull() && !itemObj.IncludeLoopback.IsUnknown() {
+			dataItem.IncludeLoopback = itemObj.IncludeLoopback.ValueBoolPointer()
 		}
-		if !item_obj.OspfNetworks.IsNull() && !item_obj.OspfNetworks.IsUnknown() {
-			data_item.Networks = ospfAreasNetworksTerraformToSdk(ctx, diags, item_obj.OspfNetworks)
+		if !itemObj.OspfNetworks.IsNull() && !itemObj.OspfNetworks.IsUnknown() {
+			dataItem.Networks = ospfAreasNetworksTerraformToSdk(itemObj.OspfNetworks)
 		}
-		if !item_obj.OspfAreasType.IsNull() && !item_obj.OspfAreasType.IsUnknown() {
-			data_item.Type = (*models.OspfAreaTypeEnum)(item_obj.OspfAreasType.ValueStringPointer())
+		if !itemObj.OspfAreasType.IsNull() && !itemObj.OspfAreasType.IsUnknown() {
+			dataItem.Type = (*models.OspfAreaTypeEnum)(itemObj.OspfAreasType.ValueStringPointer())
 		}
-		data[item_name] = data_item
+		data[itemName] = dataItem
 	}
 	return data
 }

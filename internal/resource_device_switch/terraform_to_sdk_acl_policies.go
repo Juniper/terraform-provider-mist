@@ -1,53 +1,50 @@
 package resource_device_switch
 
 import (
-	"context"
-
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func aclPolicyActionsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.AclPolicyAction {
+func aclPolicyActionsTerraformToSdk(d basetypes.ListValue) []models.AclPolicyAction {
 
 	var data []models.AclPolicyAction
 	for _, v := range d.Elements() {
-		var v_interface interface{} = v
-		v_plan := v_interface.(ActionsValue)
-		data_item := models.AclPolicyAction{}
-		if v_plan.Action.ValueStringPointer() != nil {
-			data_item.Action = models.ToPointer(models.AllowDenyEnum(v_plan.Action.ValueString()))
+		var vInterface interface{} = v
+		vPlan := vInterface.(ActionsValue)
+		dataItem := models.AclPolicyAction{}
+		if vPlan.Action.ValueStringPointer() != nil {
+			dataItem.Action = models.ToPointer(models.AllowDenyEnum(vPlan.Action.ValueString()))
 		}
-		if v_plan.DstTag.ValueStringPointer() != nil {
-			data_item.DstTag = v_plan.DstTag.ValueString()
+		if vPlan.DstTag.ValueStringPointer() != nil {
+			dataItem.DstTag = vPlan.DstTag.ValueString()
 		}
-		data = append(data, data_item)
+		data = append(data, dataItem)
 	}
 	return data
 }
 
-func aclPoliciesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.AclPolicy {
+func aclPoliciesTerraformToSdk(d basetypes.ListValue) []models.AclPolicy {
 
 	var data []models.AclPolicy
 	for _, v := range d.Elements() {
-		var v_interface interface{} = v
-		v_plan := v_interface.(AclPoliciesValue)
-		data_item := models.AclPolicy{}
-		if v_plan.Name.ValueStringPointer() != nil {
-			data_item.Name = models.ToPointer(v_plan.Name.ValueString())
+		var vInterface interface{} = v
+		vPlan := vInterface.(AclPoliciesValue)
+		dataItem := models.AclPolicy{}
+		if vPlan.Name.ValueStringPointer() != nil {
+			dataItem.Name = models.ToPointer(vPlan.Name.ValueString())
 		}
-		if !v_plan.Actions.IsNull() && !v_plan.Actions.IsUnknown() {
-			actions := aclPolicyActionsTerraformToSdk(ctx, diags, v_plan.Actions)
-			data_item.Actions = actions
+		if !vPlan.Actions.IsNull() && !vPlan.Actions.IsUnknown() {
+			actions := aclPolicyActionsTerraformToSdk(vPlan.Actions)
+			dataItem.Actions = actions
 		}
-		if !v_plan.SrcTags.IsNull() && !v_plan.SrcTags.IsUnknown() {
-			data_item.SrcTags = mist_transform.ListOfStringTerraformToSdk(ctx, v_plan.SrcTags)
+		if !vPlan.SrcTags.IsNull() && !vPlan.SrcTags.IsUnknown() {
+			dataItem.SrcTags = misttransform.ListOfStringTerraformToSdk(vPlan.SrcTags)
 		}
 
-		data = append(data, data_item)
+		data = append(data, dataItem)
 	}
 	return data
 }

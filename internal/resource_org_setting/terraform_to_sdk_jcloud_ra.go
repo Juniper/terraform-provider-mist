@@ -1,14 +1,10 @@
 package resource_org_setting
 
 import (
-	"context"
-
-	"github.com/hashicorp/terraform-plugin-framework/diag"
-
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func jcloudRaTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d JcloudRaValue) *models.OrgSettingJcloudRa {
+func jcloudRaTerraformToSdk(d JcloudRaValue) *models.OrgSettingJcloudRa {
 	data := models.OrgSettingJcloudRa{}
 
 	if d.OrgApitoken.ValueStringPointer() != nil {

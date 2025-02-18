@@ -29,16 +29,16 @@ func SdkToTerraform(ctx context.Context, l []models.ConstWebhookTopic) (basetype
 }
 
 func constWebhookSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.ConstWebhookTopic) ConstWebhooksValue {
-	var for_org basetypes.BoolValue
-	var has_delivery_results basetypes.BoolValue
+	var forOrg basetypes.BoolValue
+	var hasDeliveryResults basetypes.BoolValue
 	var internal basetypes.BoolValue
 	var key basetypes.StringValue
 
 	if d.ForOrg != nil {
-		for_org = types.BoolValue(*d.ForOrg)
+		forOrg = types.BoolValue(*d.ForOrg)
 	}
 	if d.HasDeliveryResults != nil {
-		has_delivery_results = types.BoolValue(*d.HasDeliveryResults)
+		hasDeliveryResults = types.BoolValue(*d.HasDeliveryResults)
 	}
 	if d.Internal != nil {
 		internal = types.BoolValue(*d.Internal)
@@ -50,8 +50,8 @@ func constWebhookSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	o, e := NewConstWebhooksValue(
 		ConstWebhooksValue{}.AttributeTypes(ctx),
 		map[string]attr.Value{
-			"for_org":              for_org,
-			"has_delivery_results": has_delivery_results,
+			"for_org":              forOrg,
+			"has_delivery_results": hasDeliveryResults,
 			"internal":             internal,
 			"key":                  key,
 		},

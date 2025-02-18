@@ -39,7 +39,7 @@ func (o ParseNetmaskValidator) ValidateString(_ context.Context, req validator.S
 		return
 	}
 
-	re_subnet := `^(255)\.(0|128|192|224|240|248|252|254|255)\.(0|128|192|224|240|248|252|254|255)\.(0|128|192|224|240|248|252|254|255)`
+	reSubnet := `^(255)\.(0|128|192|224|240|248|252|254|255)\.(0|128|192|224|240|248|252|254|255)\.(0|128|192|224|240|248|252|254|255)`
 
 	value := req.ConfigValue.ValueString()
 
@@ -52,7 +52,7 @@ func (o ParseNetmaskValidator) ValidateString(_ context.Context, req validator.S
 			))
 			return
 		}
-	} else if is_netmask, err := regexp.MatchString(re_subnet, value); !is_netmask || err != nil {
+	} else if isNetmask, err := regexp.MatchString(reSubnet, value); !isNetmask || err != nil {
 		resp.Diagnostics.Append(validatordiag.InvalidAttributeValueDiagnostic(
 			req.Path,
 			"value is not a valid Netmask",

@@ -3,7 +3,7 @@ package resource_org_network
 import (
 	"context"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -15,18 +15,18 @@ import (
 
 func TenantSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d map[string]models.NetworkTenant) basetypes.MapValue {
 
-	state_value_map_attr_type := TenantsValue{}.AttributeTypes(ctx)
-	state_value_map_value := make(map[string]attr.Value)
+	stateValueMapAttrType := TenantsValue{}.AttributeTypes(ctx)
+	stateValueMapValue := make(map[string]attr.Value)
 	for k, v := range d {
-		state_value_map_attr_value := map[string]attr.Value{
-			"addresses": mist_transform.ListOfStringSdkToTerraform(ctx, v.Addresses),
+		stateValueMapAttrValue := map[string]attr.Value{
+			"addresses": misttransform.ListOfStringSdkToTerraform(v.Addresses),
 		}
-		n, e := NewTenantsValue(state_value_map_attr_type, state_value_map_attr_value)
+		n, e := NewTenantsValue(stateValueMapAttrType, stateValueMapAttrValue)
 		diags.Append(e...)
-		state_value_map_value[k] = n
+		stateValueMapValue[k] = n
 	}
-	state_result_map_type := TenantsValue{}.Type(ctx)
-	state_result_map, e := types.MapValueFrom(ctx, state_result_map_type, state_value_map_value)
+	stateResultMapType := TenantsValue{}.Type(ctx)
+	stateResultMap, e := types.MapValueFrom(ctx, stateResultMapType, stateValueMapValue)
 	diags.Append(e...)
-	return state_result_map
+	return stateResultMap
 }

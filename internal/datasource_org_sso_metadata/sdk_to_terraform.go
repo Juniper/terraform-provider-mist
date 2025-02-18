@@ -1,14 +1,12 @@
 package datasource_org_sso_metadata
 
 import (
-	"context"
-
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func SdkToTerraform(ctx context.Context, data *models.SamlMetadata) OrgSsoMetadataModel {
+func SdkToTerraform(data *models.SamlMetadata) OrgSsoMetadataModel {
 	var ds OrgSsoMetadataModel
 
 	ds.AcsUrl = types.StringValue(*data.AcsUrl)

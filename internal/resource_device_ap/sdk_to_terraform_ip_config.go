@@ -3,7 +3,7 @@ package resource_device_ap
 import (
 	"context"
 
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -14,8 +14,8 @@ import (
 )
 
 func ipConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ApIpConfig) IpConfigValue {
-	var dns basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
-	var dns_suffix basetypes.ListValue = mist_transform.ListOfStringSdkToTerraformEmpty(ctx)
+	var dns = misttransform.ListOfStringSdkToTerraformEmpty()
+	var dnsSuffix = misttransform.ListOfStringSdkToTerraformEmpty()
 	var gateway basetypes.StringValue
 	var gateway6 basetypes.StringValue
 	var ip basetypes.StringValue
@@ -25,13 +25,13 @@ func ipConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mod
 	var netmask6 basetypes.StringValue
 	var type4 basetypes.StringValue
 	var type6 basetypes.StringValue
-	var vlan_id basetypes.Int64Value
+	var vlanId basetypes.Int64Value
 
 	if d.Dns != nil {
-		dns = mist_transform.ListOfStringSdkToTerraform(ctx, d.Dns)
+		dns = misttransform.ListOfStringSdkToTerraform(d.Dns)
 	}
 	if d.DnsSuffix != nil {
-		dns_suffix = mist_transform.ListOfStringSdkToTerraform(ctx, d.DnsSuffix)
+		dnsSuffix = misttransform.ListOfStringSdkToTerraform(d.DnsSuffix)
 	}
 	if d.Gateway != nil {
 		gateway = types.StringValue(*d.Gateway)
@@ -61,13 +61,12 @@ func ipConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mod
 		type6 = types.StringValue(string(*d.Type6))
 	}
 	if d.VlanId != nil {
-		vlan_id = types.Int64Value(int64(*d.VlanId))
+		vlanId = types.Int64Value(int64(*d.VlanId))
 	}
 
-	data_map_attr_type := IpConfigValue{}.AttributeTypes(ctx)
-	data_map_value := map[string]attr.Value{
+	dataMapValue := map[string]attr.Value{
 		"dns":        dns,
-		"dns_suffix": dns_suffix,
+		"dns_suffix": dnsSuffix,
 		"gateway":    gateway,
 		"gateway6":   gateway6,
 		"ip":         ip,
@@ -77,9 +76,9 @@ func ipConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mod
 		"netmask6":   netmask6,
 		"type":       type4,
 		"type6":      type6,
-		"vlan_id":    vlan_id,
+		"vlan_id":    vlanId,
 	}
-	data, e := NewIpConfigValue(data_map_attr_type, data_map_value)
+	data, e := NewIpConfigValue(IpConfigValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

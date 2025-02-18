@@ -8,7 +8,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	mist_hours "github.com/Juniper/terraform-provider-mist/internal/commons/hours"
+	misthours "github.com/Juniper/terraform-provider-mist/internal/commons/hours"
 )
 
 func engagementDwellTagNamesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.SiteEngagementDwellTagNames {
@@ -50,7 +50,7 @@ func engagementTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d En
 
 	data.DwellTags = engagementDwellTagsTerraformToSdk(ctx, diags, d.DwellTags)
 
-	data.Hours = mist_hours.HoursTerraformToSdk(ctx, diags, d.Hours)
+	data.Hours = misthours.HoursTerraformToSdk(ctx, diags, d.Hours)
 
 	data.MaxDwell = models.ToPointer(int(d.MaxDwell.ValueInt64()))
 	data.MinDwell = models.ToPointer(int(d.MinDwell.ValueInt64()))

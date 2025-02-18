@@ -21,6 +21,6 @@ func DeleteTerraformToSdk(ctx context.Context) (models.MistDevice, diag.Diagnost
 
 	data.Type = string(models.DeviceTypeEnum_AP)
 	data.AdditionalProperties = unset
-	mist_device := models.MistDeviceContainer.FromDeviceAp(data)
-	return mist_device, diags
+	mistDevice := models.MistDeviceContainer.FromDeviceAp(data)
+	return mistDevice, diags
 }

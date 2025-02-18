@@ -1,16 +1,14 @@
 package resource_org_nactag
 
 import (
-	"context"
-
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 )
 
-func TerraformToSdk(ctx context.Context, plan *OrgNactagModel) (models.NacTag, diag.Diagnostics) {
+func TerraformToSdk(plan *OrgNactagModel) (models.NacTag, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	unset := make(map[string]interface{})
 	data := models.NacTag{}
@@ -21,7 +19,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgNactagModel) (models.NacTag, d
 		unset["-allow_usermac_override"] = ""
 	}
 	if !plan.EgressVlanNames.IsNull() && !plan.EgressVlanNames.IsUnknown() {
-		data.EgressVlanNames = mist_transform.ListOfStringTerraformToSdk(ctx, plan.EgressVlanNames)
+		data.EgressVlanNames = misttransform.ListOfStringTerraformToSdk(plan.EgressVlanNames)
 	} else {
 		unset["-egress_vlan_names"] = ""
 	}
@@ -42,7 +40,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgNactagModel) (models.NacTag, d
 	}
 	data.Name = plan.Name.ValueString()
 	if !plan.RadiusAttrs.IsNull() && !plan.RadiusAttrs.IsUnknown() {
-		data.RadiusAttrs = mist_transform.ListOfStringTerraformToSdk(ctx, plan.RadiusAttrs)
+		data.RadiusAttrs = misttransform.ListOfStringTerraformToSdk(plan.RadiusAttrs)
 	} else {
 		unset["-radius_attrs"] = ""
 	}
@@ -52,7 +50,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgNactagModel) (models.NacTag, d
 		unset["-radius_group"] = ""
 	}
 	if !plan.RadiusVendorAttrs.IsNull() && !plan.RadiusVendorAttrs.IsUnknown() {
-		data.RadiusVendorAttrs = mist_transform.ListOfStringTerraformToSdk(ctx, plan.RadiusVendorAttrs)
+		data.RadiusVendorAttrs = misttransform.ListOfStringTerraformToSdk(plan.RadiusVendorAttrs)
 	} else {
 		unset["-radius_vendor_attrs"] = ""
 	}
@@ -67,7 +65,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgNactagModel) (models.NacTag, d
 		unset["-type"] = ""
 	}
 	if !plan.Values.IsNull() && !plan.Values.IsUnknown() {
-		data.Values = mist_transform.ListOfStringTerraformToSdk(ctx, plan.Values)
+		data.Values = misttransform.ListOfStringTerraformToSdk(plan.Values)
 	} else {
 		unset["-values"] = ""
 	}

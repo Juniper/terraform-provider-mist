@@ -41,11 +41,11 @@ func (d *constCountriesDataSource) Configure(ctx context.Context, req datasource
 
 	d.client = client
 }
-func (d *constCountriesDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+func (d *constCountriesDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_const_countries"
 }
 
-func (d *constCountriesDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *constCountriesDataSource) Schema(ctx context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryConst + "This data source provides the of ConstCountries.\n\n" +
 			"This information can be used to define the Country in the RF templates (`mist_org_rftemplate`)",

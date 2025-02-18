@@ -1,23 +1,20 @@
 package resource_site_wlan
 
 import (
-	"context"
-
-	mist_transform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func portalTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, plan PortalValue) *models.WlanPortal {
+func portalTerraformToSdk(plan PortalValue) *models.WlanPortal {
 
 	sponsors := make(map[string]string)
 	for k, v := range plan.Sponsors.Elements() {
-		var v_interface interface{} = v
-		v_plan := v_interface.(basetypes.StringValue)
-		sponsors[k] = v_plan.ValueString()
+		var vInterface interface{} = v
+		vPlan := vInterface.(basetypes.StringValue)
+		sponsors[k] = vPlan.ValueString()
 	}
 
 	data := models.WlanPortal{}
@@ -34,7 +31,7 @@ func portalTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, plan Por
 		data.AmazonClientSecret = models.NewOptional(plan.AmazonClientSecret.ValueStringPointer())
 	}
 	if !plan.AmazonEmailDomains.IsNull() && !plan.AmazonEmailDomains.IsUnknown() {
-		data.AmazonEmailDomains = mist_transform.ListOfStringTerraformToSdk(ctx, plan.AmazonEmailDomains)
+		data.AmazonEmailDomains = misttransform.ListOfStringTerraformToSdk(plan.AmazonEmailDomains)
 	}
 	if plan.AmazonEnabled.ValueBoolPointer() != nil {
 		data.AmazonEnabled = plan.AmazonEnabled.ValueBoolPointer()
@@ -43,7 +40,7 @@ func portalTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, plan Por
 		data.AmazonExpire = models.NewOptional(models.ToPointer(int(plan.AmazonExpire.ValueInt64())))
 	}
 	if plan.Auth.ValueStringPointer() != nil {
-		data.Auth = models.ToPointer(models.WlanPortalAuthEnum(string(plan.Auth.ValueString())))
+		data.Auth = models.ToPointer(models.WlanPortalAuthEnum(plan.Auth.ValueString()))
 	}
 	if plan.AzureClientId.ValueStringPointer() != nil {
 		data.AzureClientId = models.NewOptional(plan.AzureClientId.ValueStringPointer())
@@ -97,7 +94,7 @@ func portalTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, plan Por
 		data.FacebookClientSecret = models.NewOptional(plan.FacebookClientSecret.ValueStringPointer())
 	}
 	if !plan.FacebookEmailDomains.IsNull() && !plan.MicrosoftEmailDomains.IsUnknown() {
-		data.FacebookEmailDomains = mist_transform.ListOfStringTerraformToSdk(ctx, plan.FacebookEmailDomains)
+		data.FacebookEmailDomains = misttransform.ListOfStringTerraformToSdk(plan.FacebookEmailDomains)
 	}
 	if plan.FacebookEnabled.ValueBoolPointer() != nil {
 		data.FacebookEnabled = plan.FacebookEnabled.ValueBoolPointer()
@@ -118,7 +115,7 @@ func portalTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, plan Por
 		data.GoogleClientSecret = models.NewOptional(plan.GoogleClientSecret.ValueStringPointer())
 	}
 	if !plan.GoogleEmailDomains.IsNull() && !plan.MicrosoftEmailDomains.IsUnknown() {
-		data.GoogleEmailDomains = mist_transform.ListOfStringTerraformToSdk(ctx, plan.GoogleEmailDomains)
+		data.GoogleEmailDomains = misttransform.ListOfStringTerraformToSdk(plan.GoogleEmailDomains)
 	}
 	if plan.GoogleEnabled.ValueBoolPointer() != nil {
 		data.GoogleEnabled = plan.GoogleEnabled.ValueBoolPointer()
@@ -139,7 +136,7 @@ func portalTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, plan Por
 		data.MicrosoftClientSecret = models.NewOptional(plan.MicrosoftClientSecret.ValueStringPointer())
 	}
 	if !plan.MicrosoftEmailDomains.IsNull() && !plan.MicrosoftEmailDomains.IsUnknown() {
-		data.MicrosoftEmailDomains = mist_transform.ListOfStringTerraformToSdk(ctx, plan.MicrosoftEmailDomains)
+		data.MicrosoftEmailDomains = misttransform.ListOfStringTerraformToSdk(plan.MicrosoftEmailDomains)
 	}
 	if plan.MicrosoftEnabled.ValueBoolPointer() != nil {
 		data.MicrosoftEnabled = plan.MicrosoftEnabled.ValueBoolPointer()
@@ -181,13 +178,13 @@ func portalTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, plan Por
 		data.SmsMessageFormat = plan.SmsMessageFormat.ValueStringPointer()
 	}
 	if plan.SmsProvider.ValueStringPointer() != nil {
-		data.SmsProvider = models.ToPointer(models.WlanPortalSmsProviderEnum(string(plan.SmsProvider.ValueString())))
+		data.SmsProvider = models.ToPointer(models.WlanPortalSmsProviderEnum(plan.SmsProvider.ValueString()))
 	}
 	if plan.SponsorAutoApprove.ValueBoolPointer() != nil {
 		data.SponsorAutoApprove = plan.SponsorAutoApprove.ValueBoolPointer()
 	}
 	if !plan.SponsorEmailDomains.IsNull() && !plan.SponsorEmailDomains.IsUnknown() {
-		data.SponsorEmailDomains = mist_transform.ListOfStringTerraformToSdk(ctx, plan.SponsorEmailDomains)
+		data.SponsorEmailDomains = misttransform.ListOfStringTerraformToSdk(plan.SponsorEmailDomains)
 	}
 	if plan.SponsorEnabled.ValueBoolPointer() != nil {
 		data.SponsorEnabled = plan.SponsorEnabled.ValueBoolPointer()
@@ -226,7 +223,7 @@ func portalTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, plan Por
 		data.SsoIssuer = plan.SsoIssuer.ValueStringPointer()
 	}
 	if plan.SsoNameidFormat.ValueStringPointer() != nil {
-		data.SsoNameidFormat = models.ToPointer(models.WlanPortalSsoNameidFormatEnum(string(plan.SsoNameidFormat.ValueString())))
+		data.SsoNameidFormat = models.ToPointer(models.WlanPortalSsoNameidFormatEnum(plan.SsoNameidFormat.ValueString()))
 	}
 	if plan.TelstraClientId.ValueStringPointer() != nil {
 		data.TelstraClientId = plan.TelstraClientId.ValueStringPointer()

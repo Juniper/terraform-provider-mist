@@ -9,11 +9,11 @@ import (
 )
 
 func varsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d map[string]string) basetypes.MapValue {
-	data_map := make(map[string]string)
+	dataMap := make(map[string]string)
 	for k, v := range d {
-		data_map[k] = v
+		dataMap[k] = v
 	}
-	state_result, e := types.MapValueFrom(ctx, types.StringType, data_map)
+	stateResult, e := types.MapValueFrom(ctx, types.StringType, dataMap)
 	diags.Append(e...)
-	return state_result
+	return stateResult
 }
