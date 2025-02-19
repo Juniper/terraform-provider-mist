@@ -2,7 +2,6 @@ package datasource_org_nactags
 
 import (
 	"context"
-	"math/big"
 
 	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
@@ -28,13 +27,13 @@ func SdkToTerraform(ctx context.Context, l *[]models.NacTag, elements *[]attr.Va
 func nactagSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.NacTag) OrgNactagsValue {
 
 	var allowUsermacOverride types.Bool
-	var createdTime basetypes.NumberValue
+	var createdTime basetypes.Float64Value
 	var egressVlanNames = types.ListNull(types.StringType)
 	var gbpTag types.Int64
 	var id types.String
 	var match types.String
 	var matchAll types.Bool
-	var modifiedTime basetypes.NumberValue
+	var modifiedTime basetypes.Float64Value
 	var name types.String
 	var orgId types.String
 	var radiusAttrs = types.ListNull(types.StringType)
@@ -50,7 +49,7 @@ func nactagSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *model
 		allowUsermacOverride = types.BoolValue(*d.AllowUsermacOverride)
 	}
 	if d.CreatedTime != nil {
-		createdTime = types.NumberValue(big.NewFloat(*d.CreatedTime))
+		createdTime = types.Float64Value(*d.CreatedTime)
 	}
 	if d.EgressVlanNames != nil {
 		egressVlanNames = misttransform.ListOfStringSdkToTerraform(d.EgressVlanNames)
@@ -68,7 +67,7 @@ func nactagSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *model
 		matchAll = types.BoolValue(*d.MatchAll)
 	}
 	if d.ModifiedTime != nil {
-		modifiedTime = types.NumberValue(big.NewFloat(*d.ModifiedTime))
+		modifiedTime = types.Float64Value(*d.ModifiedTime)
 	}
 
 	name = types.StringValue(d.Name)
