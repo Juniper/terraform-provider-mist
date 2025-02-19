@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	mist_api_error "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
+	mistapierror "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_device_gateway_cluster"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
@@ -49,11 +49,11 @@ func (r *deviceGatewayClusterResource) Configure(ctx context.Context, req resour
 
 	r.client = client
 }
-func (r *deviceGatewayClusterResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *deviceGatewayClusterResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_device_gateway_cluster"
 }
 
-func (r *deviceGatewayClusterResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *deviceGatewayClusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryDevices + "This resource can be used to form or delete a Gateway Clusters.\n\n" +
 			"A Gateway Cluster can be formed with two Gateways assigned to the same site. " +
@@ -80,7 +80,7 @@ func (r *deviceGatewayClusterResource) Create(ctx context.Context, req resource.
 		return
 	}
 
-	device_gateway_cluster, diags := resource_device_gateway_cluster.TerraformToSdk(ctx, &plan)
+	deviceGatewayCluster, diags := resource_device_gateway_cluster.TerraformToSdk(&plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -109,16 +109,16 @@ func (r *deviceGatewayClusterResource) Create(ctx context.Context, req resource.
 	}
 
 	tflog.Info(ctx, "Starting DeviceGatewayCluster Create on Site "+plan.SiteId.ValueString()+" for device "+plan.Id.ValueString())
-	data, err := r.client.SitesDevicesWANCluster().CreateSiteDeviceHaCluster(ctx, siteId, id, device_gateway_cluster)
+	data, err := r.client.SitesDevicesWANCluster().CreateSiteDeviceHaCluster(ctx, siteId, id, deviceGatewayCluster)
 
-	api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
+	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
 
-	if api_err != "" {
+	if apiErr != "" {
 		PlannedNode0Mac := nodes[0].Mac.ValueString()
 		PlannedNode1Mac := nodes[1].Mac.ValueString()
 		// if the cluster already exists and the primary node is the same
 		// this can be detected because a cluster already exists with the node0 MAC Address UUID
-		if strings.Contains(api_err, "already belong to a ha cluster") {
+		if strings.Contains(apiErr, "already belong to a ha cluster") {
 			existingGatewayCluster, sameNodes := r.checkClusterNodes(ctx, siteId, PlannedNode0Mac, PlannedNode1Mac)
 			// same nodes, same order
 			if existingGatewayCluster != nil && sameNodes {
@@ -135,13 +135,13 @@ func (r *deviceGatewayClusterResource) Create(ctx context.Context, req resource.
 			} else {
 				resp.Diagnostics.AddError(
 					"Error creating \"mist_device_gateway_cluster\" resource",
-					fmt.Sprintf("Unable to create the Gateway Cluster. %s", api_err),
+					fmt.Sprintf("Unable to create the Gateway Cluster. %s", apiErr),
 				)
 				return
 			}
-			// if the cluster already exists and we are suspecting a node invertion
+			// if the cluster already exists, and we are suspecting a node invertion
 			// this can be detected because the node0 is assigned to the site but there is no device/cluster with its MAC Address
-		} else if strings.Contains(api_err, "resource not found") {
+		} else if strings.Contains(apiErr, "resource not found") {
 			existingGatewayCluster, sameNodes := r.checkClusterNodes(ctx, siteId, PlannedNode1Mac, PlannedNode0Mac)
 			// same nodes, inverted order
 			if existingGatewayCluster != nil && sameNodes {
@@ -165,7 +165,7 @@ func (r *deviceGatewayClusterResource) Create(ctx context.Context, req resource.
 					fmt.Sprintf(
 						"Unable to create the Gateway Cluster. %s."+
 							"\nEither the node %s is not assigned to the correct site, either is already belongs to another cluster.",
-						api_err, PlannedNode0Mac),
+						apiErr, PlannedNode0Mac),
 				)
 				return
 			}
@@ -173,7 +173,7 @@ func (r *deviceGatewayClusterResource) Create(ctx context.Context, req resource.
 		} else {
 			resp.Diagnostics.AddError(
 				"Error creating \"mist_device_gateway_cluster\" resource",
-				fmt.Sprintf("Unable to create the Gateway Cluster. %s", api_err),
+				fmt.Sprintf("Unable to create the Gateway Cluster. %s", apiErr),
 			)
 			return
 		}
@@ -194,7 +194,7 @@ func (r *deviceGatewayClusterResource) Create(ctx context.Context, req resource.
 
 }
 
-func (r *deviceGatewayClusterResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *deviceGatewayClusterResource) Read(ctx context.Context, _ resource.ReadRequest, resp *resource.ReadResponse) {
 	var state resource_device_gateway_cluster.DeviceGatewayClusterModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -266,7 +266,7 @@ func (r *deviceGatewayClusterResource) Update(ctx context.Context, req resource.
 		return
 	}
 
-	device_gateway_cluster, diags := resource_device_gateway_cluster.TerraformToSdk(ctx, &plan)
+	deviceGatewayCluster, diags := resource_device_gateway_cluster.TerraformToSdk(&plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -295,12 +295,12 @@ func (r *deviceGatewayClusterResource) Update(ctx context.Context, req resource.
 	// otherwise it means it's only the site id that changed, and there is no need to recreate the cluster
 	if !plan.Id.Equal(state.Id) || !plan.Nodes.Equal(state.Nodes) {
 		data, err := r.client.SitesDevicesWANCluster().DeleteSiteDeviceHaCluster(ctx, siteIdState, idState)
-		api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
+		apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
 		// if the device is not found or if the device is not a cluster, skipping the error
-		if data.StatusCode != 404 && api_err != "not a ha cluster" {
+		if data.StatusCode != 404 && apiErr != "not a ha cluster" {
 			resp.Diagnostics.AddError(
 				"Error deleting \"mist_device_gateway_cluster\" resource",
-				fmt.Sprintf("Unable to delete the Gateway Cluster. %s", api_err),
+				fmt.Sprintf("Unable to delete the Gateway Cluster. %s", apiErr),
 			)
 			return
 		}
@@ -323,13 +323,13 @@ func (r *deviceGatewayClusterResource) Update(ctx context.Context, req resource.
 		)
 		return
 	}
-	data, err := r.client.SitesDevicesWANCluster().CreateSiteDeviceHaCluster(ctx, siteIdPlan, idPlan, device_gateway_cluster)
+	data, err := r.client.SitesDevicesWANCluster().CreateSiteDeviceHaCluster(ctx, siteIdPlan, idPlan, deviceGatewayCluster)
 	if err != nil {
-		api_err := mist_api_error.ProcessApiError(ctx, data.Response.StatusCode, data.Response.Body, err)
-		if api_err != "" {
+		apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+		if apiErr != "" {
 			resp.Diagnostics.AddError(
 				"Error creating \"mist_device_gateway_cluster\" resource",
-				fmt.Sprintf("Unable to update the Gateway Cluster. %s", api_err),
+				fmt.Sprintf("Unable to update the Gateway Cluster. %s", apiErr),
 			)
 			return
 		}
@@ -349,7 +349,7 @@ func (r *deviceGatewayClusterResource) Update(ctx context.Context, req resource.
 
 }
 
-func (r *deviceGatewayClusterResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *deviceGatewayClusterResource) Delete(ctx context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_device_gateway_cluster.DeviceGatewayClusterModel
 
 	diags := resp.State.Get(ctx, &state)
@@ -379,11 +379,11 @@ func (r *deviceGatewayClusterResource) Delete(ctx context.Context, req resource.
 	}
 
 	data, err := r.client.SitesDevicesWANCluster().DeleteSiteDeviceHaCluster(ctx, siteId, id)
-	api_err := mist_api_error.ProcessApiError(ctx, data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && api_err != "not a ha cluster" && api_err != "" {
+	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+	if data.StatusCode != 404 && apiErr != "not a ha cluster" && apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_device_gateway_cluster\" resource",
-			fmt.Sprintf("Unable to delete the Gateway Cluster. %s", api_err),
+			fmt.Sprintf("Unable to delete the Gateway Cluster. %s", apiErr),
 		)
 		return
 	}
