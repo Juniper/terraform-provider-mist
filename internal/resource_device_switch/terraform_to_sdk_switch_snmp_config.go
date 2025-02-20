@@ -50,7 +50,7 @@ func snmpConfigTrapGroupsTerraformToSdk(d basetypes.ListValue) []models.SnmpConf
 			data.Targets = misttransform.ListOfStringTerraformToSdk(plan.Targets)
 		}
 		if plan.Version.ValueStringPointer() != nil {
-			data.Version = models.ToPointer(models.SnmpConfigTrapVerionEnum(plan.Version.ValueString()))
+			data.Version = (*models.SnmpConfigTrapVerionEnum)(plan.Version.ValueStringPointer())
 		}
 
 		dataList = append(dataList, data)
@@ -101,8 +101,8 @@ func snmpConfigV3NotifyTerraformToSdk(d basetypes.ListValue) []models.Snmpv3Conf
 		if plan.Tag.ValueStringPointer() != nil {
 			data.Tag = plan.Tag.ValueStringPointer()
 		}
-		if plan.Tag.ValueStringPointer() != nil {
-			data.Type = models.ToPointer(models.Snmpv3ConfigNotifyTypeEnum(plan.Tag.ValueString()))
+		if plan.NotifyType.ValueStringPointer() != nil {
+			data.Type = (*models.Snmpv3ConfigNotifyTypeEnum)(plan.NotifyType.ValueStringPointer())
 		}
 
 		dataList = append(dataList, data)
@@ -192,7 +192,7 @@ func snmpConfigV3TargetParametersTerraformToSdk(d basetypes.ListValue) []models.
 		data := models.Snmpv3ConfigTargetParam{}
 
 		if plan.MessageProcessingModel.ValueStringPointer() != nil {
-			data.MessageProcessingModel = models.ToPointer(models.Snmpv3ConfigTargetParamMessProcessModelEnum(plan.MessageProcessingModel.ValueString()))
+			data.MessageProcessingModel = (*models.Snmpv3ConfigTargetParamMessProcessModelEnum)(plan.MessageProcessingModel.ValueStringPointer())
 		}
 		if plan.Name.ValueStringPointer() != nil {
 			data.Name = plan.Name.ValueStringPointer()
@@ -201,10 +201,10 @@ func snmpConfigV3TargetParametersTerraformToSdk(d basetypes.ListValue) []models.
 			data.NotifyFilter = plan.NotifyFilter.ValueStringPointer()
 		}
 		if plan.SecurityLevel.ValueStringPointer() != nil {
-			data.SecurityLevel = models.ToPointer(models.Snmpv3ConfigTargetParamSecurityLevelEnum(plan.SecurityLevel.ValueString()))
+			data.SecurityLevel = (*models.Snmpv3ConfigTargetParamSecurityLevelEnum)(plan.SecurityLevel.ValueStringPointer())
 		}
 		if plan.SecurityModel.ValueStringPointer() != nil {
-			data.SecurityModel = models.ToPointer(models.Snmpv3ConfigTargetParamSecurityModelEnum(plan.SecurityModel.ValueString()))
+			data.SecurityModel = (*models.Snmpv3ConfigTargetParamSecurityModelEnum)(plan.SecurityModel.ValueStringPointer())
 		}
 		if plan.SecurityName.ValueStringPointer() != nil {
 			data.SecurityName = plan.SecurityName.ValueStringPointer()
@@ -228,13 +228,13 @@ func snmpConfigV3UsmUsersTerraformToSdk(d basetypes.ListValue) []models.SnmpUsmp
 			data.AuthenticationPassword = plan.AuthenticationPassword.ValueStringPointer()
 		}
 		if plan.AuthenticationType.ValueStringPointer() != nil {
-			data.AuthenticationType = models.ToPointer(models.SnmpUsmpUserAuthenticationTypeEnum(plan.AuthenticationType.ValueString()))
+			data.AuthenticationType = (*models.SnmpUsmpUserAuthenticationTypeEnum)(plan.AuthenticationType.ValueStringPointer())
 		}
 		if plan.EncryptionPassword.ValueStringPointer() != nil {
 			data.EncryptionPassword = plan.EncryptionPassword.ValueStringPointer()
 		}
 		if plan.EncryptionType.ValueStringPointer() != nil {
-			data.EncryptionType = models.ToPointer(models.SnmpUsmpUserEncryptionTypeEnum(plan.EncryptionType.ValueString()))
+			data.EncryptionType = (*models.SnmpUsmpUserEncryptionTypeEnum)(plan.EncryptionType.ValueStringPointer())
 		}
 		if plan.Name.ValueStringPointer() != nil {
 			data.Name = plan.Name.ValueStringPointer()
@@ -245,25 +245,28 @@ func snmpConfigV3UsmUsersTerraformToSdk(d basetypes.ListValue) []models.SnmpUsmp
 
 	return dataList
 }
-func snmpConfigV3UsmTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.SnmpUsm {
-	data := models.SnmpUsm{}
-	if !d.IsNull() || !d.IsUnknown() {
-		plan, e := NewUsmValue(d.AttributeTypes(ctx), d.Attributes())
-		if e != nil {
-			diags.Append(e...)
-		} else {
-			if plan.EngineType.ValueStringPointer() != nil {
-				data.EngineType = models.ToPointer(models.SnmpUsmEngineTypeEnum(plan.EngineType.ValueString()))
-			}
-			if plan.Engineid.ValueStringPointer() != nil {
-				data.EngineId = plan.Engineid.ValueStringPointer()
-			}
-			if !plan.Snmpv3Users.IsNull() && !plan.Snmpv3Users.IsUnknown() {
-				data.Users = snmpConfigV3UsmUsersTerraformToSdk(plan.Snmpv3Users)
-			}
+
+func snmpConfigV3UsmTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.SnmpUsm {
+	var dataList []models.SnmpUsm
+	for _, v := range d.Elements() {
+
+		var vInterface interface{} = v
+		plan := vInterface.(UsmValue)
+		data := models.SnmpUsm{}
+
+		if plan.EngineType.ValueStringPointer() != nil {
+			data.EngineType = (*models.SnmpUsmEngineTypeEnum)(plan.EngineType.ValueStringPointer())
 		}
+		if plan.RemoteEngineId.ValueStringPointer() != nil {
+			data.RemoteEngineId = plan.RemoteEngineId.ValueStringPointer()
+		}
+		if !plan.Snmpv3Users.IsNull() && !plan.Snmpv3Users.IsUnknown() {
+			data.Users = snmpConfigV3UsmUsersTerraformToSdk(plan.Snmpv3Users)
+		}
+		dataList = append(dataList, data)
 	}
-	return &data
+
+	return dataList
 }
 
 // V3 VACM ACCESS
@@ -284,13 +287,13 @@ func snmpConfigV3VacmAccessPrefixTerraformToSdk(d basetypes.ListValue) []models.
 			data.ReadView = plan.ReadView.ValueStringPointer()
 		}
 		if plan.SecurityLevel.ValueStringPointer() != nil {
-			data.SecurityLevel = models.ToPointer(models.SnmpVacmAccessItemPrefixListItemLevelEnum(plan.SecurityLevel.ValueString()))
+			data.SecurityLevel = (*models.SnmpVacmAccessItemPrefixListItemLevelEnum)(plan.SecurityLevel.ValueStringPointer())
 		}
 		if plan.SecurityModel.ValueStringPointer() != nil {
-			data.SecurityModel = models.ToPointer(models.SnmpVacmAccessItemPrefixListItemModelEnum(plan.SecurityModel.ValueString()))
+			data.SecurityModel = (*models.SnmpVacmAccessItemPrefixListItemModelEnum)(plan.SecurityModel.ValueStringPointer())
 		}
-		if plan.ContextPrefix.ValueStringPointer() != nil {
-			data.ContextPrefix = plan.PrefixListType.ValueStringPointer()
+		if plan.PrefixListType.ValueStringPointer() != nil {
+			data.Type = (*models.SnmpVacmAccessItemTypeEnum)(plan.PrefixListType.ValueStringPointer())
 		}
 		if plan.WriteView.ValueStringPointer() != nil {
 			data.WriteView = plan.WriteView.ValueStringPointer()
@@ -351,7 +354,7 @@ func snmpConfigV3VacmSecurityToGroupTerraformToSdk(ctx context.Context, diags *d
 			diags.Append(e...)
 		} else {
 			if plan.SecurityModel.ValueStringPointer() != nil {
-				data.SecurityModel = models.ToPointer(models.SnmpVacmSecurityModelEnum(plan.SecurityModel.ValueString()))
+				data.SecurityModel = (*models.SnmpVacmSecurityModelEnum)(plan.SecurityModel.ValueStringPointer())
 			}
 			if !plan.Snmpv3VacmContent.IsNull() && !plan.Snmpv3VacmContent.IsUnknown() {
 				data.Content = snmpConfigV3VacmSecurityToGroupContentTerraformToSdk(plan.Snmpv3VacmContent)

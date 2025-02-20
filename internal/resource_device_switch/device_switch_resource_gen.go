@@ -1829,7 +1829,10 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "Only if `mode`!=`dynamic` and `port_auth`=`dot1x` bypass auth for all (including unknown clients) if set to true when RADIUS server is down",
 							MarkdownDescription: "Only if `mode`!=`dynamic` and `port_auth`=`dot1x` bypass auth for all (including unknown clients) if set to true when RADIUS server is down",
-							Default:             booldefault.StaticBool(false),
+							Validators: []validator.Bool{
+								mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x"), types.BoolValue(false)),
+							},
+							Default: booldefault.StaticBool(false),
 						},
 						"description": schema.StringAttribute{
 							Optional:            true,
@@ -3067,6 +3070,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 									},
 								},
 								Optional: true,
+								Validators: []validator.List{
+									listvalidator.SizeAtLeast(1),
+								},
 							},
 							"notify_filter": schema.ListNestedAttribute{
 								NestedObject: schema.NestedAttributeObject{
@@ -3100,6 +3106,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 									},
 								},
 								Optional: true,
+								Validators: []validator.List{
+									listvalidator.SizeAtLeast(1),
+								},
 							},
 							"target_address": schema.ListNestedAttribute{
 								NestedObject: schema.NestedAttributeObject{
@@ -3136,6 +3145,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 									},
 								},
 								Optional: true,
+								Validators: []validator.List{
+									listvalidator.SizeAtLeast(1),
+								},
 							},
 							"target_parameters": schema.ListNestedAttribute{
 								NestedObject: schema.NestedAttributeObject{
@@ -3200,106 +3212,111 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 									},
 								},
 								Optional: true,
-							},
-							"usm": schema.SingleNestedAttribute{
-								Attributes: map[string]schema.Attribute{
-									"engine_type": schema.StringAttribute{
-										Optional:            true,
-										Description:         "enum: `local_engine`, `remote_engine`",
-										MarkdownDescription: "enum: `local_engine`, `remote_engine`",
-										Validators: []validator.String{
-											stringvalidator.OneOf(
-												"",
-												"local_engine",
-												"remote_engine",
-											),
-										},
-									},
-									"engineid": schema.StringAttribute{
-										Optional:            true,
-										Description:         "Required only if `engine_type`==`remote_engine`",
-										MarkdownDescription: "Required only if `engine_type`==`remote_engine`",
-										Validators: []validator.String{
-											mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtMapKey("engine_type"), types.StringValue("remote_engine")),
-										},
-									},
-									"users": schema.ListNestedAttribute{
-										NestedObject: schema.NestedAttributeObject{
-											Attributes: map[string]schema.Attribute{
-												"authentication_password": schema.StringAttribute{
-													Optional:            true,
-													Sensitive:           true,
-													Description:         "Not required if `authentication_type`==`authentication_none`. Include alphabetic, numeric, and special characters, but it cannot include control characters.",
-													MarkdownDescription: "Not required if `authentication_type`==`authentication_none`. Include alphabetic, numeric, and special characters, but it cannot include control characters.",
-													Validators: []validator.String{
-														stringvalidator.LengthAtLeast(7),
-														mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtMapKey("authentication_type"), types.StringValue("authentication_md5")),
-														mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtMapKey("authentication_type"), types.StringValue("authentication_sha")),
-														mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtMapKey("authentication_type"), types.StringValue("authentication_sha224")),
-														mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtMapKey("authentication_type"), types.StringValue("authentication_sha256")),
-														mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtMapKey("authentication_type"), types.StringValue("authentication_sha384")),
-														mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtMapKey("authentication_type"), types.StringValue("authentication_sha512")),
-													},
-												},
-												"authentication_type": schema.StringAttribute{
-													Optional:            true,
-													Description:         "sha224, sha256, sha384, sha512 are supported in 21.1 and newer release. enum: `authentication_md5`, `authentication_none`, `authentication_sha`, `authentication_sha224`, `authentication_sha256`, `authentication_sha384`, `authentication_sha512`",
-													MarkdownDescription: "sha224, sha256, sha384, sha512 are supported in 21.1 and newer release. enum: `authentication_md5`, `authentication_none`, `authentication_sha`, `authentication_sha224`, `authentication_sha256`, `authentication_sha384`, `authentication_sha512`",
-													Validators: []validator.String{
-														stringvalidator.OneOf(
-															"",
-															"authentication_md5",
-															"authentication_none",
-															"authentication_sha",
-															"authentication_sha224",
-															"authentication_sha256",
-															"authentication_sha384",
-															"authentication_sha512",
-														),
-													},
-												},
-												"encryption_password": schema.StringAttribute{
-													Optional:            true,
-													Sensitive:           true,
-													Description:         "Not required if `encryption_type`==`privacy-none`. Include alphabetic, numeric, and special characters, but it cannot include control characters",
-													MarkdownDescription: "Not required if `encryption_type`==`privacy-none`. Include alphabetic, numeric, and special characters, but it cannot include control characters",
-													Validators: []validator.String{
-														stringvalidator.LengthAtLeast(8),
-														mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtMapKey("encryption_type"), types.StringValue("privacy-aes128")),
-														mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtMapKey("encryption_type"), types.StringValue("privacy-des")),
-														mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtMapKey("encryption_type"), types.StringValue("privacy-3des")),
-													},
-												},
-												"encryption_type": schema.StringAttribute{
-													Optional:            true,
-													Description:         "enum: `privacy-3des`, `privacy-aes128`, `privacy-des`, `privacy-none`",
-													MarkdownDescription: "enum: `privacy-3des`, `privacy-aes128`, `privacy-des`, `privacy-none`",
-													Validators: []validator.String{
-														stringvalidator.OneOf(
-															"",
-															"privacy-3des",
-															"privacy-aes128",
-															"privacy-des",
-															"privacy-none",
-														),
-													},
-												},
-												"name": schema.StringAttribute{
-													Optional: true,
-												},
-											},
-											CustomType: Snmpv3UsersType{
-												ObjectType: types.ObjectType{
-													AttrTypes: Snmpv3UsersValue{}.AttributeTypes(ctx),
-												},
-											},
-										},
-										Optional: true,
-									},
+								Validators: []validator.List{
+									listvalidator.SizeAtLeast(1),
 								},
-								CustomType: UsmType{
-									ObjectType: types.ObjectType{
-										AttrTypes: UsmValue{}.AttributeTypes(ctx),
+							},
+							"usm": schema.ListNestedAttribute{
+								NestedObject: schema.NestedAttributeObject{
+									Attributes: map[string]schema.Attribute{
+										"engine_type": schema.StringAttribute{
+											Optional:            true,
+											Description:         "enum: `local_engine`, `remote_engine`",
+											MarkdownDescription: "enum: `local_engine`, `remote_engine`",
+											Validators: []validator.String{
+												stringvalidator.OneOf(
+													"",
+													"local_engine",
+													"remote_engine",
+												),
+											},
+										},
+										"remote_engine_id": schema.StringAttribute{
+											Optional:            true,
+											Description:         "Required only if `engine_type`==`remote_engine`",
+											MarkdownDescription: "Required only if `engine_type`==`remote_engine`",
+											Validators: []validator.String{
+												mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("engine_type"), types.StringValue("remote_engine")),
+											},
+										},
+										"users": schema.ListNestedAttribute{
+											NestedObject: schema.NestedAttributeObject{
+												Attributes: map[string]schema.Attribute{
+													"authentication_password": schema.StringAttribute{
+														Optional:            true,
+														Sensitive:           true,
+														Description:         "Not required if `authentication_type`==`authentication-none`. Include alphabetic, numeric, and special characters, but it cannot include control characters.",
+														MarkdownDescription: "Not required if `authentication_type`==`authentication-none`. Include alphabetic, numeric, and special characters, but it cannot include control characters.",
+														Validators: []validator.String{
+															stringvalidator.LengthAtLeast(7),
+															mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("authentication_type"), types.StringValue("authentication-md5")),
+															mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("authentication_type"), types.StringValue("authentication-sha")),
+															mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("authentication_type"), types.StringValue("authentication-sha224")),
+															mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("authentication_type"), types.StringValue("authentication-sha256")),
+															mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("authentication_type"), types.StringValue("authentication-sha384")),
+															mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("authentication_type"), types.StringValue("authentication-sha512")),
+														},
+													},
+													"authentication_type": schema.StringAttribute{
+														Optional:            true,
+														Description:         "sha224, sha256, sha384, sha512 are supported in 21.1 and newer release. enum: `authentication-md5`, `authentication-none`, `authentication-sha`, `authentication-sha224`, `authentication-sha256`, `authentication-sha384`, `authentication-sha512`",
+														MarkdownDescription: "sha224, sha256, sha384, sha512 are supported in 21.1 and newer release. enum: `authentication-md5`, `authentication-none`, `authentication-sha`, `authentication-sha224`, `authentication-sha256`, `authentication-sha384`, `authentication-sha512`",
+														Validators: []validator.String{
+															stringvalidator.OneOf(
+																"",
+																"authenticatio-_md5",
+																"authentication-none",
+																"authentication-sha",
+																"authentication-sha224",
+																"authentication-sha256",
+																"authentication-sha384",
+																"authentication-sha512",
+															),
+														},
+													},
+													"encryption_password": schema.StringAttribute{
+														Optional:            true,
+														Sensitive:           true,
+														Description:         "Not required if `encryption_type`==`privacy-none`. Include alphabetic, numeric, and special characters, but it cannot include control characters",
+														MarkdownDescription: "Not required if `encryption_type`==`privacy-none`. Include alphabetic, numeric, and special characters, but it cannot include control characters",
+														Validators: []validator.String{
+															stringvalidator.LengthAtLeast(8),
+															mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("encryption_type"), types.StringValue("privacy-aes128")),
+															mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("encryption_type"), types.StringValue("privacy-des")),
+															mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("encryption_type"), types.StringValue("privacy-3des")),
+														},
+													},
+													"encryption_type": schema.StringAttribute{
+														Optional:            true,
+														Description:         "enum: `privacy-3des`, `privacy-aes128`, `privacy-des`, `privacy-none`",
+														MarkdownDescription: "enum: `privacy-3des`, `privacy-aes128`, `privacy-des`, `privacy-none`",
+														Validators: []validator.String{
+															stringvalidator.OneOf(
+																"",
+																"privacy-3des",
+																"privacy-aes128",
+																"privacy-des",
+																"privacy-none",
+															),
+														},
+													},
+													"name": schema.StringAttribute{
+														Optional: true,
+													},
+												},
+												CustomType: Snmpv3UsersType{
+													ObjectType: types.ObjectType{
+														AttrTypes: Snmpv3UsersValue{}.AttributeTypes(ctx),
+													},
+												},
+											},
+											Optional: true,
+										},
+									},
+									CustomType: UsmType{
+										ObjectType: types.ObjectType{
+											AttrTypes: UsmValue{}.AttributeTypes(ctx),
+										},
 									},
 								},
 								Optional: true,
@@ -3321,7 +3338,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 																MarkdownDescription: "Only required if `type`==`context_prefix`",
 																Validators: []validator.String{
 																	stringvalidator.LengthAtLeast(7),
-																	mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtMapKey("type"), types.StringValue("context_prefix")),
+																	mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("context_prefix")),
 																},
 															},
 															"notify_view": schema.StringAttribute{
@@ -32323,12 +32340,12 @@ func (t V3ConfigType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 		return nil, diags
 	}
 
-	usmVal, ok := usmAttribute.(basetypes.ObjectValue)
+	usmVal, ok := usmAttribute.(basetypes.ListValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`usm expected to be basetypes.ObjectValue, was: %T`, usmAttribute))
+			fmt.Sprintf(`usm expected to be basetypes.ListValue, was: %T`, usmAttribute))
 	}
 
 	vacmAttribute, ok := attributes["vacm"]
@@ -32509,12 +32526,12 @@ func NewV3ConfigValue(attributeTypes map[string]attr.Type, attributes map[string
 		return NewV3ConfigValueUnknown(), diags
 	}
 
-	usmVal, ok := usmAttribute.(basetypes.ObjectValue)
+	usmVal, ok := usmAttribute.(basetypes.ListValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`usm expected to be basetypes.ObjectValue, was: %T`, usmAttribute))
+			fmt.Sprintf(`usm expected to be basetypes.ListValue, was: %T`, usmAttribute))
 	}
 
 	vacmAttribute, ok := attributes["vacm"]
@@ -32622,7 +32639,7 @@ type V3ConfigValue struct {
 	NotifyFilter     basetypes.ListValue   `tfsdk:"notify_filter"`
 	TargetAddress    basetypes.ListValue   `tfsdk:"target_address"`
 	TargetParameters basetypes.ListValue   `tfsdk:"target_parameters"`
-	Usm              basetypes.ObjectValue `tfsdk:"usm"`
+	Usm              basetypes.ListValue   `tfsdk:"usm"`
 	Vacm             basetypes.ObjectValue `tfsdk:"vacm"`
 	state            attr.ValueState
 }
@@ -32645,8 +32662,8 @@ func (v V3ConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 	attrTypes["target_parameters"] = basetypes.ListType{
 		ElemType: TargetParametersValue{}.Type(ctx),
 	}.TerraformType(ctx)
-	attrTypes["usm"] = basetypes.ObjectType{
-		AttrTypes: UsmValue{}.AttributeTypes(ctx),
+	attrTypes["usm"] = basetypes.ListType{
+		ElemType: UsmValue{}.Type(ctx),
 	}.TerraformType(ctx)
 	attrTypes["vacm"] = basetypes.ObjectType{
 		AttrTypes: VacmValue{}.AttributeTypes(ctx),
@@ -32851,24 +32868,32 @@ func (v V3ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 		)
 	}
 
-	var usm basetypes.ObjectValue
+	usm := types.ListValueMust(
+		UsmType{
+			basetypes.ObjectType{
+				AttrTypes: UsmValue{}.AttributeTypes(ctx),
+			},
+		},
+		v.Usm.Elements(),
+	)
 
 	if v.Usm.IsNull() {
-		usm = types.ObjectNull(
-			UsmValue{}.AttributeTypes(ctx),
+		usm = types.ListNull(
+			UsmType{
+				basetypes.ObjectType{
+					AttrTypes: UsmValue{}.AttributeTypes(ctx),
+				},
+			},
 		)
 	}
 
 	if v.Usm.IsUnknown() {
-		usm = types.ObjectUnknown(
-			UsmValue{}.AttributeTypes(ctx),
-		)
-	}
-
-	if !v.Usm.IsNull() && !v.Usm.IsUnknown() {
-		usm = types.ObjectValueMust(
-			UsmValue{}.AttributeTypes(ctx),
-			v.Usm.Attributes(),
+		usm = types.ListUnknown(
+			UsmType{
+				basetypes.ObjectType{
+					AttrTypes: UsmValue{}.AttributeTypes(ctx),
+				},
+			},
 		)
 	}
 
@@ -32906,8 +32931,8 @@ func (v V3ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 		"target_parameters": basetypes.ListType{
 			ElemType: TargetParametersValue{}.Type(ctx),
 		},
-		"usm": basetypes.ObjectType{
-			AttrTypes: UsmValue{}.AttributeTypes(ctx),
+		"usm": basetypes.ListType{
+			ElemType: UsmValue{}.Type(ctx),
 		},
 		"vacm": basetypes.ObjectType{
 			AttrTypes: VacmValue{}.AttributeTypes(ctx),
@@ -33000,8 +33025,8 @@ func (v V3ConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Type 
 		"target_parameters": basetypes.ListType{
 			ElemType: TargetParametersValue{}.Type(ctx),
 		},
-		"usm": basetypes.ObjectType{
-			AttrTypes: UsmValue{}.AttributeTypes(ctx),
+		"usm": basetypes.ListType{
+			ElemType: UsmValue{}.Type(ctx),
 		},
 		"vacm": basetypes.ObjectType{
 			AttrTypes: VacmValue{}.AttributeTypes(ctx),
@@ -35477,22 +35502,22 @@ func (t UsmType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) 
 			fmt.Sprintf(`engine_type expected to be basetypes.StringValue, was: %T`, engineTypeAttribute))
 	}
 
-	engineidAttribute, ok := attributes["engineid"]
+	remoteEngineIdAttribute, ok := attributes["remote_engine_id"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`engineid is missing from object`)
+			`remote_engine_id is missing from object`)
 
 		return nil, diags
 	}
 
-	engineidVal, ok := engineidAttribute.(basetypes.StringValue)
+	remoteEngineIdVal, ok := remoteEngineIdAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`engineid expected to be basetypes.StringValue, was: %T`, engineidAttribute))
+			fmt.Sprintf(`remote_engine_id expected to be basetypes.StringValue, was: %T`, remoteEngineIdAttribute))
 	}
 
 	snmpv3UsersAttribute, ok := attributes["users"]
@@ -35518,10 +35543,10 @@ func (t UsmType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) 
 	}
 
 	return UsmValue{
-		EngineType:  engineTypeVal,
-		Engineid:    engineidVal,
-		Snmpv3Users: snmpv3UsersVal,
-		state:       attr.ValueStateKnown,
+		EngineType:     engineTypeVal,
+		RemoteEngineId: remoteEngineIdVal,
+		Snmpv3Users:    snmpv3UsersVal,
+		state:          attr.ValueStateKnown,
 	}, diags
 }
 
@@ -35606,22 +35631,22 @@ func NewUsmValue(attributeTypes map[string]attr.Type, attributes map[string]attr
 			fmt.Sprintf(`engine_type expected to be basetypes.StringValue, was: %T`, engineTypeAttribute))
 	}
 
-	engineidAttribute, ok := attributes["engineid"]
+	remoteEngineIdAttribute, ok := attributes["remote_engine_id"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`engineid is missing from object`)
+			`remote_engine_id is missing from object`)
 
 		return NewUsmValueUnknown(), diags
 	}
 
-	engineidVal, ok := engineidAttribute.(basetypes.StringValue)
+	remoteEngineIdVal, ok := remoteEngineIdAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`engineid expected to be basetypes.StringValue, was: %T`, engineidAttribute))
+			fmt.Sprintf(`remote_engine_id expected to be basetypes.StringValue, was: %T`, remoteEngineIdAttribute))
 	}
 
 	snmpv3UsersAttribute, ok := attributes["users"]
@@ -35647,10 +35672,10 @@ func NewUsmValue(attributeTypes map[string]attr.Type, attributes map[string]attr
 	}
 
 	return UsmValue{
-		EngineType:  engineTypeVal,
-		Engineid:    engineidVal,
-		Snmpv3Users: snmpv3UsersVal,
-		state:       attr.ValueStateKnown,
+		EngineType:     engineTypeVal,
+		RemoteEngineId: remoteEngineIdVal,
+		Snmpv3Users:    snmpv3UsersVal,
+		state:          attr.ValueStateKnown,
 	}, diags
 }
 
@@ -35722,10 +35747,10 @@ func (t UsmType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = UsmValue{}
 
 type UsmValue struct {
-	EngineType  basetypes.StringValue `tfsdk:"engine_type"`
-	Engineid    basetypes.StringValue `tfsdk:"engineid"`
-	Snmpv3Users basetypes.ListValue   `tfsdk:"users"`
-	state       attr.ValueState
+	EngineType     basetypes.StringValue `tfsdk:"engine_type"`
+	RemoteEngineId basetypes.StringValue `tfsdk:"remote_engine_id"`
+	Snmpv3Users    basetypes.ListValue   `tfsdk:"users"`
+	state          attr.ValueState
 }
 
 func (v UsmValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
@@ -35735,7 +35760,7 @@ func (v UsmValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
 	var err error
 
 	attrTypes["engine_type"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["engineid"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["remote_engine_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["users"] = basetypes.ListType{
 		ElemType: Snmpv3UsersValue{}.Type(ctx),
 	}.TerraformType(ctx)
@@ -35754,13 +35779,13 @@ func (v UsmValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
 
 		vals["engine_type"] = val
 
-		val, err = v.Engineid.ToTerraformValue(ctx)
+		val, err = v.RemoteEngineId.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["engineid"] = val
+		vals["remote_engine_id"] = val
 
 		val, err = v.Snmpv3Users.ToTerraformValue(ctx)
 
@@ -35829,8 +35854,8 @@ func (v UsmValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, dia
 	}
 
 	attributeTypes := map[string]attr.Type{
-		"engine_type": basetypes.StringType{},
-		"engineid":    basetypes.StringType{},
+		"engine_type":      basetypes.StringType{},
+		"remote_engine_id": basetypes.StringType{},
 		"users": basetypes.ListType{
 			ElemType: Snmpv3UsersValue{}.Type(ctx),
 		},
@@ -35847,9 +35872,9 @@ func (v UsmValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, dia
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"engine_type": v.EngineType,
-			"engineid":    v.Engineid,
-			"users":       snmpv3Users,
+			"engine_type":      v.EngineType,
+			"remote_engine_id": v.RemoteEngineId,
+			"users":            snmpv3Users,
 		})
 
 	return objVal, diags
@@ -35874,7 +35899,7 @@ func (v UsmValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.Engineid.Equal(other.Engineid) {
+	if !v.RemoteEngineId.Equal(other.RemoteEngineId) {
 		return false
 	}
 
@@ -35895,8 +35920,8 @@ func (v UsmValue) Type(ctx context.Context) attr.Type {
 
 func (v UsmValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"engine_type": basetypes.StringType{},
-		"engineid":    basetypes.StringType{},
+		"engine_type":      basetypes.StringType{},
+		"remote_engine_id": basetypes.StringType{},
 		"users": basetypes.ListType{
 			ElemType: Snmpv3UsersValue{}.Type(ctx),
 		},

@@ -24,7 +24,7 @@ func matchingTerraformToSdk(d MatchingValue) *models.NacRuleMatching {
 
 	data := models.NacRuleMatching{}
 
-	data.AuthType = models.ToPointer(models.NacRuleMatchingAuthTypeEnum(d.AuthType.ValueString()))
+	data.AuthType = models.ToPointer(models.NacAuthTypeEnum(d.AuthType.ValueString()))
 	data.Nactags = misttransform.ListOfStringTerraformToSdk(d.Nactags)
 	data.PortTypes = matchingPortTypesTerraformToSdk(d.PortTypes)
 	data.SitegroupIds = misttransform.ListOfUuidTerraformToSdk(d.SitegroupIds)
@@ -37,7 +37,7 @@ func notMatchingTerraformToSdk(d NotMatchingValue) *models.NacRuleMatching {
 
 	data := models.NacRuleMatching{}
 
-	data.AuthType = models.ToPointer(models.NacRuleMatchingAuthTypeEnum(d.AuthType.ValueString()))
+	data.AuthType = models.ToPointer(models.NacAuthTypeEnum(d.AuthType.ValueString()))
 	data.Nactags = misttransform.ListOfStringTerraformToSdk(d.Nactags)
 	data.PortTypes = matchingPortTypesTerraformToSdk(d.PortTypes)
 	data.SitegroupIds = misttransform.ListOfUuidTerraformToSdk(d.SitegroupIds)

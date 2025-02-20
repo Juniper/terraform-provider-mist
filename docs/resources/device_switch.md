@@ -863,7 +863,7 @@ Optional:
 - `notify_filter` (Attributes List) (see [below for nested schema](#nestedatt--snmp_config--v3_config--notify_filter))
 - `target_address` (Attributes List) (see [below for nested schema](#nestedatt--snmp_config--v3_config--target_address))
 - `target_parameters` (Attributes List) (see [below for nested schema](#nestedatt--snmp_config--v3_config--target_parameters))
-- `usm` (Attributes) (see [below for nested schema](#nestedatt--snmp_config--v3_config--usm))
+- `usm` (Attributes List) (see [below for nested schema](#nestedatt--snmp_config--v3_config--usm))
 - `vacm` (Attributes) (see [below for nested schema](#nestedatt--snmp_config--v3_config--vacm))
 
 <a id="nestedatt--snmp_config--v3_config--notify"></a>
@@ -926,7 +926,7 @@ Optional:
 Optional:
 
 - `engine_type` (String) enum: `local_engine`, `remote_engine`
-- `engineid` (String) Required only if `engine_type`==`remote_engine`
+- `remote_engine_id` (String) Required only if `engine_type`==`remote_engine`
 - `users` (Attributes List) (see [below for nested schema](#nestedatt--snmp_config--v3_config--usm--users))
 
 <a id="nestedatt--snmp_config--v3_config--usm--users"></a>
@@ -934,8 +934,8 @@ Optional:
 
 Optional:
 
-- `authentication_password` (String, Sensitive) Not required if `authentication_type`==`authentication_none`. Include alphabetic, numeric, and special characters, but it cannot include control characters.
-- `authentication_type` (String) sha224, sha256, sha384, sha512 are supported in 21.1 and newer release. enum: `authentication_md5`, `authentication_none`, `authentication_sha`, `authentication_sha224`, `authentication_sha256`, `authentication_sha384`, `authentication_sha512`
+- `authentication_password` (String, Sensitive) Not required if `authentication_type`==`authentication-none`. Include alphabetic, numeric, and special characters, but it cannot include control characters.
+- `authentication_type` (String) sha224, sha256, sha384, sha512 are supported in 21.1 and newer release. enum: `authentication-md5`, `authentication-none`, `authentication-sha`, `authentication-sha224`, `authentication-sha256`, `authentication-sha384`, `authentication-sha512`
 - `encryption_password` (String, Sensitive) Not required if `encryption_type`==`privacy-none`. Include alphabetic, numeric, and special characters, but it cannot include control characters
 - `encryption_type` (String) enum: `privacy-3des`, `privacy-aes128`, `privacy-des`, `privacy-none`
 - `name` (String)

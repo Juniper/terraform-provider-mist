@@ -61,7 +61,7 @@ func (p *mistProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp 
 
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "The Mist Provider allows Terraform to manage Juniper Mist Organizations.\n\n" +
-			"It is mainly focusing on day 0 and day 1 operations (provisionning and delpyment) but will be " +
+			"It is mainly focusing on day 0 and day 1 operations (provisioning and deployment) but will be " +
 			"completed over time.\n\nUse the navigation tree to the left to read about the available resources " +
 			"and data sources.\n\nIt is possible to use API Token or Username/Password authentication (without 2FA)" +
 			", but only one method should be configured.\n\n## Supported Mist Clouds\n\nThis provider can be used with " +
@@ -361,8 +361,8 @@ func (p *mistProvider) Configure(ctx context.Context, req provider.ConfigureRequ
 		csrfTokenSet := false
 		for hNAme, hVal := range apiResponse.Response.Header {
 			if hNAme == "Set-Cookie" {
-				for _, cooky := range hVal {
-					for _, cVal := range strings.Split(cooky, ";") {
+				for _, cookie := range hVal {
+					for _, cVal := range strings.Split(cookie, ";") {
 						if strings.HasPrefix(cVal, "csrftoken") {
 							csrftokenString := strings.Split(cVal, "=")[1]
 							csrfTokenConfig := mistapi.WithCsrfTokenCredentials(
@@ -383,7 +383,7 @@ func (p *mistProvider) Configure(ctx context.Context, req provider.ConfigureRequ
 		}
 	}
 
-	// Use the  configuration to create the client and test the credentials
+	// Use the configuration to create the client and test the credentials
 	var client = mistapi.NewClient(clientConfig)
 	_, err := client.SelfAccount().GetSelf(ctx)
 	if err != nil {

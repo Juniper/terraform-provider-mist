@@ -8,7 +8,7 @@ description: |-
 
 The Mist Provider allows Terraform to manage Juniper Mist Organizations.
 
-It is mainly focusing on day 0 and day 1 operations (provisionning and delpyment) but will be completed over time.
+It is mainly focusing on day 0 and day 1 operations (provisioning and deployment) but will be completed over time.
 
 Use the navigation tree to the left to read about the available resources and data sources.
 
