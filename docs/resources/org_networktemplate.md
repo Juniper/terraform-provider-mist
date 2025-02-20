@@ -633,7 +633,7 @@ Optional:
 <a id="nestedatt--snmp_config--v3_config--notify"></a>
 ### Nested Schema for `snmp_config.v3_config.notify`
 
-Optional:
+Required:
 
 - `name` (String)
 - `tag` (String)
