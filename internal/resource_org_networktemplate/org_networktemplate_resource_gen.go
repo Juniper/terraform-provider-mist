@@ -2014,13 +2014,13 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								NestedObject: schema.NestedAttributeObject{
 									Attributes: map[string]schema.Attribute{
 										"name": schema.StringAttribute{
-											Optional: true,
+											Required: true,
 										},
 										"tag": schema.StringAttribute{
-											Optional: true,
+											Required: true,
 										},
 										"type": schema.StringAttribute{
-											Optional:            true,
+											Required:            true,
 											Description:         "enum: `inform`, `trap`",
 											MarkdownDescription: "enum: `inform`, `trap`",
 											Validators: []validator.String{
