@@ -214,7 +214,7 @@ func snmpV3TargetAddressSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 	for _, d := range l {
 		var address basetypes.StringValue
 		var addressMask basetypes.StringValue
-		var port basetypes.Int64Value
+		var port basetypes.StringValue
 		var tagList basetypes.StringValue
 		var targetAddressName basetypes.StringValue
 		var targetParameters basetypes.StringValue
@@ -225,8 +225,8 @@ func snmpV3TargetAddressSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 		if d.AddressMask != nil {
 			addressMask = types.StringValue(*d.AddressMask)
 		}
-		if d.Port != nil {
-			port = types.Int64Value(int64(*d.Port))
+		if d.Port.Value() != nil {
+			port = types.StringValue(*d.Port.Value())
 		}
 		if d.TagList != nil {
 			tagList = types.StringValue(*d.TagList)

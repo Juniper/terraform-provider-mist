@@ -165,8 +165,8 @@ func snmpConfigV3TargetAddressTerraformToSdk(d basetypes.ListValue) []models.Snm
 		if plan.AddressMask.ValueStringPointer() != nil {
 			data.AddressMask = plan.AddressMask.ValueStringPointer()
 		}
-		if plan.Port.ValueInt64Pointer() != nil {
-			data.Port = models.ToPointer(int(plan.Port.ValueInt64()))
+		if plan.Port.ValueStringPointer() != nil {
+			data.Port = models.NewOptional(plan.Port.ValueStringPointer())
 		}
 		if plan.TagList.ValueStringPointer() != nil {
 			data.TagList = plan.TagList.ValueStringPointer()
@@ -461,7 +461,7 @@ func snmpConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d Sn
 		data.Enabled = d.Enabled.ValueBoolPointer()
 	}
 	if d.EngineId.ValueStringPointer() != nil {
-		data.EngineId = models.ToPointer(models.SnmpConfigEngineIdEnum(d.EngineId.ValueString()))
+		data.EngineId = d.EngineId.ValueStringPointer()
 	}
 	if d.Location.ValueStringPointer() != nil {
 		data.Location = d.Location.ValueStringPointer()

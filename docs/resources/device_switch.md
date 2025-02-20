@@ -814,7 +814,7 @@ Optional:
 - `contact` (String)
 - `description` (String)
 - `enabled` (Boolean)
-- `engine_id` (String) enum: `engine-id-suffix`, `local`, `use-default-ip-address`, `use_mac-address`
+- `engine_id` (String)
 - `location` (String)
 - `name` (String)
 - `network` (String)
@@ -869,7 +869,7 @@ Optional:
 <a id="nestedatt--snmp_config--v3_config--notify"></a>
 ### Nested Schema for `snmp_config.v3_config.notify`
 
-Optional:
+Required:
 
 - `name` (String)
 - `tag` (String)
@@ -887,33 +887,42 @@ Optional:
 <a id="nestedatt--snmp_config--v3_config--notify_filter--contents"></a>
 ### Nested Schema for `snmp_config.v3_config.notify_filter.contents`
 
+Required:
+
+- `oid` (String)
+
 Optional:
 
 - `include` (Boolean)
-- `oid` (String)
 
 
 
 <a id="nestedatt--snmp_config--v3_config--target_address"></a>
 ### Nested Schema for `snmp_config.v3_config.target_address`
 
-Optional:
+Required:
 
 - `address` (String)
 - `address_mask` (String)
-- `port` (Number)
-- `tag_list` (String) Refer to notify tag, can be multiple with blank
 - `target_address_name` (String)
+
+Optional:
+
+- `port` (String)
+- `tag_list` (String) Refer to notify tag, can be multiple with blank
 - `target_parameters` (String) Refer to notify target parameters name
 
 
 <a id="nestedatt--snmp_config--v3_config--target_parameters"></a>
 ### Nested Schema for `snmp_config.v3_config.target_parameters`
 
-Optional:
+Required:
 
 - `message_processing_model` (String) enum: `v1`, `v2c`, `v3`
 - `name` (String)
+
+Optional:
+
 - `notify_filter` (String) Refer to profile-name in notify_filter
 - `security_level` (String) enum: `authentication`, `none`, `privacy`
 - `security_model` (String) enum: `usm`, `v1`, `v2c`
@@ -923,9 +932,12 @@ Optional:
 <a id="nestedatt--snmp_config--v3_config--usm"></a>
 ### Nested Schema for `snmp_config.v3_config.usm`
 
-Optional:
+Required:
 
 - `engine_type` (String) enum: `local_engine`, `remote_engine`
+
+Optional:
+
 - `remote_engine_id` (String) Required only if `engine_type`==`remote_engine`
 - `users` (Attributes List) (see [below for nested schema](#nestedatt--snmp_config--v3_config--usm--users))
 

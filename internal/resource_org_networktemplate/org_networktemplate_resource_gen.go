@@ -1924,17 +1924,9 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						Default:  booldefault.StaticBool(true),
 					},
 					"engine_id": schema.StringAttribute{
-						Optional:            true,
-						Description:         "enum: `engine-id-suffix`, `local`, `use-default-ip-address`, `use_mac-address`",
-						MarkdownDescription: "enum: `engine-id-suffix`, `local`, `use-default-ip-address`, `use_mac-address`",
+						Optional: true,
 						Validators: []validator.String{
-							stringvalidator.OneOf(
-								"",
-								"engine-id-suffix",
-								"local",
-								"use-default-ip-address",
-								"use_mac-address",
-							),
+							stringvalidator.LengthAtMost(27),
 						},
 					},
 					"location": schema.StringAttribute{
@@ -2064,7 +2056,7 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 														Optional: true,
 													},
 													"oid": schema.StringAttribute{
-														Optional: true,
+														Required: true,
 													},
 												},
 												CustomType: Snmpv3ContentsType{
@@ -2091,15 +2083,15 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								NestedObject: schema.NestedAttributeObject{
 									Attributes: map[string]schema.Attribute{
 										"address": schema.StringAttribute{
-											Optional: true,
+											Required: true,
 										},
 										"address_mask": schema.StringAttribute{
-											Optional: true,
+											Required: true,
 										},
-										"port": schema.Int64Attribute{
+										"port": schema.StringAttribute{
 											Optional: true,
 											Computed: true,
-											Default:  int64default.StaticInt64(161),
+											Default:  stringdefault.StaticString("161"),
 										},
 										"tag_list": schema.StringAttribute{
 											Optional:            true,
@@ -2107,7 +2099,7 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											MarkdownDescription: "Refer to notify tag, can be multiple with blank",
 										},
 										"target_address_name": schema.StringAttribute{
-											Optional: true,
+											Required: true,
 										},
 										"target_parameters": schema.StringAttribute{
 											Optional:            true,
@@ -2130,7 +2122,7 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								NestedObject: schema.NestedAttributeObject{
 									Attributes: map[string]schema.Attribute{
 										"message_processing_model": schema.StringAttribute{
-											Optional:            true,
+											Required:            true,
 											Description:         "enum: `v1`, `v2c`, `v3`",
 											MarkdownDescription: "enum: `v1`, `v2c`, `v3`",
 											Validators: []validator.String{
@@ -2143,7 +2135,7 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											},
 										},
 										"name": schema.StringAttribute{
-											Optional: true,
+											Required: true,
 										},
 										"notify_filter": schema.StringAttribute{
 											Optional:            true,
@@ -2197,7 +2189,7 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								NestedObject: schema.NestedAttributeObject{
 									Attributes: map[string]schema.Attribute{
 										"engine_type": schema.StringAttribute{
-											Optional:            true,
+											Required:            true,
 											Description:         "enum: `local_engine`, `remote_engine`",
 											MarkdownDescription: "enum: `local_engine`, `remote_engine`",
 											Validators: []validator.String{
@@ -2241,7 +2233,7 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 														Validators: []validator.String{
 															stringvalidator.OneOf(
 																"",
-																"authenticatio-_md5",
+																"authenticatio-md5",
 																"authentication-none",
 																"authentication-sha",
 																"authentication-sha224",
@@ -25031,12 +25023,12 @@ func (t TargetAddressType) ValueFromObject(ctx context.Context, in basetypes.Obj
 		return nil, diags
 	}
 
-	portVal, ok := portAttribute.(basetypes.Int64Value)
+	portVal, ok := portAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`port expected to be basetypes.Int64Value, was: %T`, portAttribute))
+			fmt.Sprintf(`port expected to be basetypes.StringValue, was: %T`, portAttribute))
 	}
 
 	tagListAttribute, ok := attributes["tag_list"]
@@ -25217,12 +25209,12 @@ func NewTargetAddressValue(attributeTypes map[string]attr.Type, attributes map[s
 		return NewTargetAddressValueUnknown(), diags
 	}
 
-	portVal, ok := portAttribute.(basetypes.Int64Value)
+	portVal, ok := portAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`port expected to be basetypes.Int64Value, was: %T`, portAttribute))
+			fmt.Sprintf(`port expected to be basetypes.StringValue, was: %T`, portAttribute))
 	}
 
 	tagListAttribute, ok := attributes["tag_list"]
@@ -25364,7 +25356,7 @@ var _ basetypes.ObjectValuable = TargetAddressValue{}
 type TargetAddressValue struct {
 	Address           basetypes.StringValue `tfsdk:"address"`
 	AddressMask       basetypes.StringValue `tfsdk:"address_mask"`
-	Port              basetypes.Int64Value  `tfsdk:"port"`
+	Port              basetypes.StringValue `tfsdk:"port"`
 	TagList           basetypes.StringValue `tfsdk:"tag_list"`
 	TargetAddressName basetypes.StringValue `tfsdk:"target_address_name"`
 	TargetParameters  basetypes.StringValue `tfsdk:"target_parameters"`
@@ -25379,7 +25371,7 @@ func (v TargetAddressValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 
 	attrTypes["address"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["address_mask"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["port"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["port"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["tag_list"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["target_address_name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["target_parameters"] = basetypes.StringType{}.TerraformType(ctx)
@@ -25470,7 +25462,7 @@ func (v TargetAddressValue) ToObjectValue(ctx context.Context) (basetypes.Object
 	attributeTypes := map[string]attr.Type{
 		"address":             basetypes.StringType{},
 		"address_mask":        basetypes.StringType{},
-		"port":                basetypes.Int64Type{},
+		"port":                basetypes.StringType{},
 		"tag_list":            basetypes.StringType{},
 		"target_address_name": basetypes.StringType{},
 		"target_parameters":   basetypes.StringType{},
@@ -25552,7 +25544,7 @@ func (v TargetAddressValue) AttributeTypes(ctx context.Context) map[string]attr.
 	return map[string]attr.Type{
 		"address":             basetypes.StringType{},
 		"address_mask":        basetypes.StringType{},
-		"port":                basetypes.Int64Type{},
+		"port":                basetypes.StringType{},
 		"tag_list":            basetypes.StringType{},
 		"target_address_name": basetypes.StringType{},
 		"target_parameters":   basetypes.StringType{},
