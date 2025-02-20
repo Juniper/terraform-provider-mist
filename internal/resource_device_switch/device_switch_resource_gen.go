@@ -62,6 +62,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "ACL Policy Actions:\n  - for GBP-based policy, all src_tags and dst_tags have to be gbp-based\n  - for ACL-based policy, `network` is required in either the source or destination so that we know where to attach the policy to",
 							MarkdownDescription: "ACL Policy Actions:\n  - for GBP-based policy, all src_tags and dst_tags have to be gbp-based\n  - for ACL-based policy, `network` is required in either the source or destination so that we know where to attach the policy to",
+							Validators: []validator.List{
+								listvalidator.SizeAtLeast(1),
+							},
 						},
 						"name": schema.StringAttribute{
 							Optional: true,
@@ -71,6 +74,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "ACL Policy Source Tags:\n  - for GBP-based policy, all src_tags and dst_tags have to be gbp-based\n  - for ACL-based policy, `network` is required in either the source or destination so that we know where to attach the policy to",
 							MarkdownDescription: "ACL Policy Source Tags:\n  - for GBP-based policy, all src_tags and dst_tags have to be gbp-based\n  - for ACL-based policy, `network` is required in either the source or destination so that we know where to attach the policy to",
+							Validators: []validator.List{
+								listvalidator.SizeAtLeast(1),
+							},
 						},
 					},
 					CustomType: AclPoliciesType{
