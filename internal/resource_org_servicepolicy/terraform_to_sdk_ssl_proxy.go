@@ -9,8 +9,8 @@ import (
 func sslProxyTerraformToSdk(diags *diag.Diagnostics, d SslProxyValue) *models.ServicePolicySslProxy {
 
 	data := models.ServicePolicySslProxy{}
-	if d.CiphersCatagory.ValueStringPointer() != nil {
-		data.CiphersCatagory = (*models.SslProxyCiphersCatagoryEnum)(d.CiphersCatagory.ValueStringPointer())
+	if d.CiphersCategory.ValueStringPointer() != nil {
+		data.CiphersCategory = (*models.SslProxyCiphersCategoryEnum)(d.CiphersCategory.ValueStringPointer())
 	}
 	if d.Enabled.ValueBoolPointer() != nil {
 		data.Enabled = d.Enabled.ValueBoolPointer()

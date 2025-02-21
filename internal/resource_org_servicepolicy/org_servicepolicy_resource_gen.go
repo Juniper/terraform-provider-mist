@@ -182,7 +182,7 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"ssl_proxy": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
-					"ciphers_catagory": schema.StringAttribute{
+					"ciphers_category": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
 						Description:         "enum: `medium`, `strong`, `weak`",
@@ -2000,22 +2000,22 @@ func (t SslProxyType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 
 	attributes := in.Attributes()
 
-	ciphersCatagoryAttribute, ok := attributes["ciphers_catagory"]
+	ciphersCategoryAttribute, ok := attributes["ciphers_category"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`ciphers_catagory is missing from object`)
+			`ciphers_category is missing from object`)
 
 		return nil, diags
 	}
 
-	ciphersCatagoryVal, ok := ciphersCatagoryAttribute.(basetypes.StringValue)
+	ciphersCategoryVal, ok := ciphersCategoryAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`ciphers_catagory expected to be basetypes.StringValue, was: %T`, ciphersCatagoryAttribute))
+			fmt.Sprintf(`ciphers_category expected to be basetypes.StringValue, was: %T`, ciphersCategoryAttribute))
 	}
 
 	enabledAttribute, ok := attributes["enabled"]
@@ -2041,7 +2041,7 @@ func (t SslProxyType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 	}
 
 	return SslProxyValue{
-		CiphersCatagory: ciphersCatagoryVal,
+		CiphersCategory: ciphersCategoryVal,
 		Enabled:         enabledVal,
 		state:           attr.ValueStateKnown,
 	}, diags
@@ -2110,22 +2110,22 @@ func NewSslProxyValue(attributeTypes map[string]attr.Type, attributes map[string
 		return NewSslProxyValueUnknown(), diags
 	}
 
-	ciphersCatagoryAttribute, ok := attributes["ciphers_catagory"]
+	ciphersCategoryAttribute, ok := attributes["ciphers_category"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`ciphers_catagory is missing from object`)
+			`ciphers_category is missing from object`)
 
 		return NewSslProxyValueUnknown(), diags
 	}
 
-	ciphersCatagoryVal, ok := ciphersCatagoryAttribute.(basetypes.StringValue)
+	ciphersCategoryVal, ok := ciphersCategoryAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`ciphers_catagory expected to be basetypes.StringValue, was: %T`, ciphersCatagoryAttribute))
+			fmt.Sprintf(`ciphers_category expected to be basetypes.StringValue, was: %T`, ciphersCategoryAttribute))
 	}
 
 	enabledAttribute, ok := attributes["enabled"]
@@ -2151,7 +2151,7 @@ func NewSslProxyValue(attributeTypes map[string]attr.Type, attributes map[string
 	}
 
 	return SslProxyValue{
-		CiphersCatagory: ciphersCatagoryVal,
+		CiphersCategory: ciphersCategoryVal,
 		Enabled:         enabledVal,
 		state:           attr.ValueStateKnown,
 	}, diags
@@ -2225,7 +2225,7 @@ func (t SslProxyType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = SslProxyValue{}
 
 type SslProxyValue struct {
-	CiphersCatagory basetypes.StringValue `tfsdk:"ciphers_catagory"`
+	CiphersCategory basetypes.StringValue `tfsdk:"ciphers_category"`
 	Enabled         basetypes.BoolValue   `tfsdk:"enabled"`
 	state           attr.ValueState
 }
@@ -2236,7 +2236,7 @@ func (v SslProxyValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 	var val tftypes.Value
 	var err error
 
-	attrTypes["ciphers_catagory"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["ciphers_category"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
@@ -2245,13 +2245,13 @@ func (v SslProxyValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 	case attr.ValueStateKnown:
 		vals := make(map[string]tftypes.Value, 2)
 
-		val, err = v.CiphersCatagory.ToTerraformValue(ctx)
+		val, err = v.CiphersCategory.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["ciphers_catagory"] = val
+		vals["ciphers_category"] = val
 
 		val, err = v.Enabled.ToTerraformValue(ctx)
 
@@ -2291,7 +2291,7 @@ func (v SslProxyValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 	var diags diag.Diagnostics
 
 	attributeTypes := map[string]attr.Type{
-		"ciphers_catagory": basetypes.StringType{},
+		"ciphers_category": basetypes.StringType{},
 		"enabled":          basetypes.BoolType{},
 	}
 
@@ -2306,7 +2306,7 @@ func (v SslProxyValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"ciphers_catagory": v.CiphersCatagory,
+			"ciphers_category": v.CiphersCategory,
 			"enabled":          v.Enabled,
 		})
 
@@ -2328,7 +2328,7 @@ func (v SslProxyValue) Equal(o attr.Value) bool {
 		return true
 	}
 
-	if !v.CiphersCatagory.Equal(other.CiphersCatagory) {
+	if !v.CiphersCategory.Equal(other.CiphersCategory) {
 		return false
 	}
 
@@ -2349,7 +2349,7 @@ func (v SslProxyValue) Type(ctx context.Context) attr.Type {
 
 func (v SslProxyValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"ciphers_catagory": basetypes.StringType{},
+		"ciphers_category": basetypes.StringType{},
 		"enabled":          basetypes.BoolType{},
 	}
 }

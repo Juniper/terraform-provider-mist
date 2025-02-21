@@ -13,18 +13,18 @@ import (
 
 func sslProxySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ServicePolicySslProxy) SslProxyValue {
 
-	var ciphersCatagory basetypes.StringValue
+	var ciphersCategory basetypes.StringValue
 	var enabled basetypes.BoolValue
 
-	if d.CiphersCatagory != nil {
-		ciphersCatagory = types.StringValue(string(*d.CiphersCatagory))
+	if d.CiphersCategory != nil {
+		ciphersCategory = types.StringValue(string(*d.CiphersCategory))
 	}
 	if d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
 
 	dataMapValue := map[string]attr.Value{
-		"ciphers_catagory": ciphersCatagory,
+		"ciphers_category": ciphersCategory,
 		"enabled":          enabled,
 	}
 	data, e := NewSslProxyValue(SslProxyValue{}.AttributeTypes(ctx), dataMapValue)
