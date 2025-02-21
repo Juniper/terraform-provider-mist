@@ -451,6 +451,7 @@ func (p *mistProvider) Resources(_ context.Context) []func() resource.Resource {
 		NewOrgSiteGroupResource,
 		NewOrgNetworkTemplate,
 		NewOrgServiceResource,
+		NewOrgAvprofile,
 		NewOrgNetworkResource,
 		NewOrgGatewayTemplate,
 		NewOrgInventory,
