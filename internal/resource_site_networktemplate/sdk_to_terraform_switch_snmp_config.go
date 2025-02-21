@@ -635,7 +635,7 @@ func snmpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 			enabled = types.BoolValue(*d.Enabled)
 		}
 		if d.EngineId != nil {
-			engineId = types.StringValue(string(*d.EngineId))
+			engineId = types.StringValue(*d.EngineId)
 		}
 		if d.Location != nil {
 			location = types.StringValue(*d.Location)

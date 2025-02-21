@@ -23,14 +23,14 @@ func avSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.Se
 	if d.AvprofileId != nil {
 		avprofileId = types.StringValue(d.AvprofileId.String())
 	}
-	if d.Profile != nil && *d.Profile != d.AvprofileId.String() {
+	if d.Profile != nil && *d.Profile != avprofileId.ValueString() {
 		profile = types.StringValue(*d.Profile)
 	}
 
 	dataMapValue := map[string]attr.Value{
-		"avpprofile_id": avprofileId,
-		"enabled":       enabled,
-		"profile":       profile,
+		"avprofile_id": avprofileId,
+		"enabled":      enabled,
+		"profile":      profile,
 	}
 	data, e := NewAntivirusValue(AntivirusValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)

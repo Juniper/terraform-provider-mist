@@ -39,7 +39,7 @@ func (o SwitchMatchingRuleNamesValidator) ValidateList(_ context.Context, req va
 		fieldName := reflect.ValueOf(rule).FieldByName("Name")
 
 		if fieldName.IsValid() {
-			var i interface{} = fieldName.Interface()
+			var i = fieldName.Interface()
 			s := i.(basetypes.StringValue)
 			if idx != len(rules.Elements())-1 && strings.ToLower(s.ValueString()) == "default" {
 				resp.Diagnostics.Append(validatordiag.InvalidAttributeValueDiagnostic(
