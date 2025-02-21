@@ -6,9 +6,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 )
 
-func sslProxyTerraformToSdk(diags *diag.Diagnostics, d SslProxyValue) *models.OrgServicePolicySslProxy {
+func sslProxyTerraformToSdk(diags *diag.Diagnostics, d SslProxyValue) *models.ServicePolicySslProxy {
 
-	data := models.OrgServicePolicySslProxy{}
+	data := models.ServicePolicySslProxy{}
 	if d.CiphersCatagory.ValueStringPointer() != nil {
 		data.CiphersCatagory = (*models.SslProxyCiphersCatagoryEnum)(d.CiphersCatagory.ValueStringPointer())
 	}

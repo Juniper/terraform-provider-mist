@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func sslProxySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.OrgServicePolicySslProxy) SslProxyValue {
+func sslProxySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ServicePolicySslProxy) SslProxyValue {
 
 	var ciphersCatagory basetypes.StringValue
 	var enabled basetypes.BoolValue

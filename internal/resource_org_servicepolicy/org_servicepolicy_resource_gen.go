@@ -11,9 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
@@ -38,7 +36,33 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 						"deny",
 					),
 				},
-				Default: stringdefault.StaticString("allow"),
+			},
+			"antivirus": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"avprofile_id": schema.StringAttribute{
+						Optional:            true,
+						Description:         "org-level AV Profile can be used, this takes precendence over 'profile'",
+						MarkdownDescription: "org-level AV Profile can be used, this takes precendence over 'profile'",
+					},
+					"enabled": schema.BoolAttribute{
+						Optional: true,
+						Computed: true,
+						Default:  booldefault.StaticBool(false),
+					},
+					"profile": schema.StringAttribute{
+						Optional:            true,
+						Description:         "Default / noftp / httponly / or keys from av_profiles",
+						MarkdownDescription: "Default / noftp / httponly / or keys from av_profiles",
+					},
+				},
+				CustomType: AntivirusType{
+					ObjectType: types.ObjectType{
+						AttrTypes: AntivirusValue{}.AttributeTypes(ctx),
+					},
+				},
+				Optional:            true,
+				Description:         "For SRX-only",
+				MarkdownDescription: "For SRX-only",
 			},
 			"appqoe": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -96,10 +120,9 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 				Optional: true,
 			},
 			"id": schema.StringAttribute{
-				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
+				Computed:            true,
+				Description:         "Unique ID of the object instance in the Mist Organnization",
+				MarkdownDescription: "Unique ID of the object instance in the Mist Organnization",
 			},
 			"idp": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -119,8 +142,8 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 					"profile": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "`strict` (default) / `standard` / or keys from from idp_profiles",
-						MarkdownDescription: "`strict` (default) / `standard` / or keys from from idp_profiles",
+						Description:         "enum: `Custom`, `strict` (default), `standard` or keys from idp_profiles",
+						MarkdownDescription: "enum: `Custom`, `strict` (default), `standard` or keys from idp_profiles",
 						Default:             stringdefault.StaticString("strict"),
 					},
 				},
@@ -133,10 +156,8 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"local_routing": schema.BoolAttribute{
 				Optional:            true,
-				Computed:            true,
 				Description:         "access within the same VRF",
 				MarkdownDescription: "access within the same VRF",
-				Default:             booldefault.StaticBool(false),
 			},
 			"name": schema.StringAttribute{
 				Required: true,
@@ -149,8 +170,8 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"path_preference": schema.StringAttribute{
 				Optional:            true,
-				Description:         "by default, we derive all paths available and use them\noptionally, you can customize by using `path_preference`",
-				MarkdownDescription: "by default, we derive all paths available and use them\noptionally, you can customize by using `path_preference`",
+				Description:         "By default, we derive all paths available and use them, optionally, you can customize by using `path_preference`",
+				MarkdownDescription: "By default, we derive all paths available and use them, optionally, you can customize by using `path_preference`",
 			},
 			"services": schema.ListAttribute{
 				ElementType: types.StringType,
@@ -158,6 +179,38 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 				Validators: []validator.List{
 					listvalidator.UniqueValues(),
 				},
+			},
+			"ssl_proxy": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"ciphers_catagory": schema.StringAttribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "enum: `medium`, `strong`, `weak`",
+						MarkdownDescription: "enum: `medium`, `strong`, `weak`",
+						Validators: []validator.String{
+							stringvalidator.OneOf(
+								"",
+								"medium",
+								"strong",
+								"weak",
+							),
+						},
+						Default: stringdefault.StaticString("strong"),
+					},
+					"enabled": schema.BoolAttribute{
+						Optional: true,
+						Computed: true,
+						Default:  booldefault.StaticBool(false),
+					},
+				},
+				CustomType: SslProxyType{
+					ObjectType: types.ObjectType{
+						AttrTypes: SslProxyValue{}.AttributeTypes(ctx),
+					},
+				},
+				Optional:            true,
+				Description:         "For SRX-only",
+				MarkdownDescription: "For SRX-only",
 			},
 			"tenants": schema.ListAttribute{
 				ElementType: types.StringType,
@@ -171,17 +224,453 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 }
 
 type OrgServicepolicyModel struct {
-	Action         types.String `tfsdk:"action"`
-	Appqoe         AppqoeValue  `tfsdk:"appqoe"`
-	Ewf            types.List   `tfsdk:"ewf"`
-	Id             types.String `tfsdk:"id"`
-	Idp            IdpValue     `tfsdk:"idp"`
-	LocalRouting   types.Bool   `tfsdk:"local_routing"`
-	Name           types.String `tfsdk:"name"`
-	OrgId          types.String `tfsdk:"org_id"`
-	PathPreference types.String `tfsdk:"path_preference"`
-	Services       types.List   `tfsdk:"services"`
-	Tenants        types.List   `tfsdk:"tenants"`
+	Action         types.String   `tfsdk:"action"`
+	Antivirus      AntivirusValue `tfsdk:"antivirus"`
+	Appqoe         AppqoeValue    `tfsdk:"appqoe"`
+	Ewf            types.List     `tfsdk:"ewf"`
+	Id             types.String   `tfsdk:"id"`
+	Idp            IdpValue       `tfsdk:"idp"`
+	LocalRouting   types.Bool     `tfsdk:"local_routing"`
+	Name           types.String   `tfsdk:"name"`
+	OrgId          types.String   `tfsdk:"org_id"`
+	PathPreference types.String   `tfsdk:"path_preference"`
+	Services       types.List     `tfsdk:"services"`
+	SslProxy       SslProxyValue  `tfsdk:"ssl_proxy"`
+	Tenants        types.List     `tfsdk:"tenants"`
+}
+
+var _ basetypes.ObjectTypable = AntivirusType{}
+
+type AntivirusType struct {
+	basetypes.ObjectType
+}
+
+func (t AntivirusType) Equal(o attr.Type) bool {
+	other, ok := o.(AntivirusType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t AntivirusType) String() string {
+	return "AntivirusType"
+}
+
+func (t AntivirusType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	avprofileIdAttribute, ok := attributes["avprofile_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`avprofile_id is missing from object`)
+
+		return nil, diags
+	}
+
+	avprofileIdVal, ok := avprofileIdAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`avprofile_id expected to be basetypes.StringValue, was: %T`, avprofileIdAttribute))
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	profileAttribute, ok := attributes["profile"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`profile is missing from object`)
+
+		return nil, diags
+	}
+
+	profileVal, ok := profileAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`profile expected to be basetypes.StringValue, was: %T`, profileAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return AntivirusValue{
+		AvprofileId: avprofileIdVal,
+		Enabled:     enabledVal,
+		Profile:     profileVal,
+		state:       attr.ValueStateKnown,
+	}, diags
+}
+
+func NewAntivirusValueNull() AntivirusValue {
+	return AntivirusValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewAntivirusValueUnknown() AntivirusValue {
+	return AntivirusValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewAntivirusValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (AntivirusValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing AntivirusValue Attribute Value",
+				"While creating a AntivirusValue value, a missing attribute value was detected. "+
+					"A AntivirusValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("AntivirusValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid AntivirusValue Attribute Type",
+				"While creating a AntivirusValue value, an invalid attribute value was detected. "+
+					"A AntivirusValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("AntivirusValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("AntivirusValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra AntivirusValue Attribute Value",
+				"While creating a AntivirusValue value, an extra attribute value was detected. "+
+					"A AntivirusValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra AntivirusValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewAntivirusValueUnknown(), diags
+	}
+
+	avprofileIdAttribute, ok := attributes["avprofile_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`avprofile_id is missing from object`)
+
+		return NewAntivirusValueUnknown(), diags
+	}
+
+	avprofileIdVal, ok := avprofileIdAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`avprofile_id expected to be basetypes.StringValue, was: %T`, avprofileIdAttribute))
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return NewAntivirusValueUnknown(), diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	profileAttribute, ok := attributes["profile"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`profile is missing from object`)
+
+		return NewAntivirusValueUnknown(), diags
+	}
+
+	profileVal, ok := profileAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`profile expected to be basetypes.StringValue, was: %T`, profileAttribute))
+	}
+
+	if diags.HasError() {
+		return NewAntivirusValueUnknown(), diags
+	}
+
+	return AntivirusValue{
+		AvprofileId: avprofileIdVal,
+		Enabled:     enabledVal,
+		Profile:     profileVal,
+		state:       attr.ValueStateKnown,
+	}, diags
+}
+
+func NewAntivirusValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) AntivirusValue {
+	object, diags := NewAntivirusValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewAntivirusValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t AntivirusType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewAntivirusValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewAntivirusValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewAntivirusValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewAntivirusValueMust(AntivirusValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t AntivirusType) ValueType(ctx context.Context) attr.Value {
+	return AntivirusValue{}
+}
+
+var _ basetypes.ObjectValuable = AntivirusValue{}
+
+type AntivirusValue struct {
+	AvprofileId basetypes.StringValue `tfsdk:"avprofile_id"`
+	Enabled     basetypes.BoolValue   `tfsdk:"enabled"`
+	Profile     basetypes.StringValue `tfsdk:"profile"`
+	state       attr.ValueState
+}
+
+func (v AntivirusValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 3)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["avprofile_id"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["profile"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 3)
+
+		val, err = v.AvprofileId.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["avprofile_id"] = val
+
+		val, err = v.Enabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enabled"] = val
+
+		val, err = v.Profile.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["profile"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v AntivirusValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v AntivirusValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v AntivirusValue) String() string {
+	return "AntivirusValue"
+}
+
+func (v AntivirusValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"avprofile_id": basetypes.StringType{},
+		"enabled":      basetypes.BoolType{},
+		"profile":      basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"avprofile_id": v.AvprofileId,
+			"enabled":      v.Enabled,
+			"profile":      v.Profile,
+		})
+
+	return objVal, diags
+}
+
+func (v AntivirusValue) Equal(o attr.Value) bool {
+	other, ok := o.(AntivirusValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.AvprofileId.Equal(other.AvprofileId) {
+		return false
+	}
+
+	if !v.Enabled.Equal(other.Enabled) {
+		return false
+	}
+
+	if !v.Profile.Equal(other.Profile) {
+		return false
+	}
+
+	return true
+}
+
+func (v AntivirusValue) Type(ctx context.Context) attr.Type {
+	return AntivirusType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v AntivirusValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"avprofile_id": basetypes.StringType{},
+		"enabled":      basetypes.BoolType{},
+		"profile":      basetypes.StringType{},
+	}
 }
 
 var _ basetypes.ObjectTypable = AppqoeType{}
@@ -1483,5 +1972,384 @@ func (v IdpValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 		"enabled":       basetypes.BoolType{},
 		"idpprofile_id": basetypes.StringType{},
 		"profile":       basetypes.StringType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = SslProxyType{}
+
+type SslProxyType struct {
+	basetypes.ObjectType
+}
+
+func (t SslProxyType) Equal(o attr.Type) bool {
+	other, ok := o.(SslProxyType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t SslProxyType) String() string {
+	return "SslProxyType"
+}
+
+func (t SslProxyType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	ciphersCatagoryAttribute, ok := attributes["ciphers_catagory"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ciphers_catagory is missing from object`)
+
+		return nil, diags
+	}
+
+	ciphersCatagoryVal, ok := ciphersCatagoryAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ciphers_catagory expected to be basetypes.StringValue, was: %T`, ciphersCatagoryAttribute))
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return SslProxyValue{
+		CiphersCatagory: ciphersCatagoryVal,
+		Enabled:         enabledVal,
+		state:           attr.ValueStateKnown,
+	}, diags
+}
+
+func NewSslProxyValueNull() SslProxyValue {
+	return SslProxyValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewSslProxyValueUnknown() SslProxyValue {
+	return SslProxyValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewSslProxyValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (SslProxyValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing SslProxyValue Attribute Value",
+				"While creating a SslProxyValue value, a missing attribute value was detected. "+
+					"A SslProxyValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("SslProxyValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid SslProxyValue Attribute Type",
+				"While creating a SslProxyValue value, an invalid attribute value was detected. "+
+					"A SslProxyValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("SslProxyValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("SslProxyValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra SslProxyValue Attribute Value",
+				"While creating a SslProxyValue value, an extra attribute value was detected. "+
+					"A SslProxyValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra SslProxyValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewSslProxyValueUnknown(), diags
+	}
+
+	ciphersCatagoryAttribute, ok := attributes["ciphers_catagory"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ciphers_catagory is missing from object`)
+
+		return NewSslProxyValueUnknown(), diags
+	}
+
+	ciphersCatagoryVal, ok := ciphersCatagoryAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ciphers_catagory expected to be basetypes.StringValue, was: %T`, ciphersCatagoryAttribute))
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return NewSslProxyValueUnknown(), diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	if diags.HasError() {
+		return NewSslProxyValueUnknown(), diags
+	}
+
+	return SslProxyValue{
+		CiphersCatagory: ciphersCatagoryVal,
+		Enabled:         enabledVal,
+		state:           attr.ValueStateKnown,
+	}, diags
+}
+
+func NewSslProxyValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) SslProxyValue {
+	object, diags := NewSslProxyValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewSslProxyValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t SslProxyType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewSslProxyValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewSslProxyValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewSslProxyValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewSslProxyValueMust(SslProxyValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t SslProxyType) ValueType(ctx context.Context) attr.Value {
+	return SslProxyValue{}
+}
+
+var _ basetypes.ObjectValuable = SslProxyValue{}
+
+type SslProxyValue struct {
+	CiphersCatagory basetypes.StringValue `tfsdk:"ciphers_catagory"`
+	Enabled         basetypes.BoolValue   `tfsdk:"enabled"`
+	state           attr.ValueState
+}
+
+func (v SslProxyValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 2)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["ciphers_catagory"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 2)
+
+		val, err = v.CiphersCatagory.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["ciphers_catagory"] = val
+
+		val, err = v.Enabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enabled"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v SslProxyValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v SslProxyValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v SslProxyValue) String() string {
+	return "SslProxyValue"
+}
+
+func (v SslProxyValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"ciphers_catagory": basetypes.StringType{},
+		"enabled":          basetypes.BoolType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"ciphers_catagory": v.CiphersCatagory,
+			"enabled":          v.Enabled,
+		})
+
+	return objVal, diags
+}
+
+func (v SslProxyValue) Equal(o attr.Value) bool {
+	other, ok := o.(SslProxyValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.CiphersCatagory.Equal(other.CiphersCatagory) {
+		return false
+	}
+
+	if !v.Enabled.Equal(other.Enabled) {
+		return false
+	}
+
+	return true
+}
+
+func (v SslProxyValue) Type(ctx context.Context) attr.Type {
+	return SslProxyType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v SslProxyValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"ciphers_catagory": basetypes.StringType{},
+		"enabled":          basetypes.BoolType{},
 	}
 }
