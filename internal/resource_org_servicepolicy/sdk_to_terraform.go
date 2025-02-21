@@ -25,6 +25,7 @@ func SdkToTerraform(ctx context.Context, d *models.OrgServicePolicy) (OrgService
 	var orgId types.String
 	var pathPreference types.String
 	var services = types.ListNull(types.StringType)
+	var sslProxy = NewSslProxyValueNull()
 	var tenants = types.ListNull(types.StringType)
 
 	if d.Action != nil {
@@ -58,6 +59,9 @@ func SdkToTerraform(ctx context.Context, d *models.OrgServicePolicy) (OrgService
 	if d.Services != nil {
 		services = misttransform.ListOfStringSdkToTerraform(d.Services)
 	}
+	if d.SslProxy != nil {
+		sslProxy = sslProxySdkToTerraform(ctx, &diags, d.SslProxy)
+	}
 	if d.Tenants != nil {
 		tenants = misttransform.ListOfStringSdkToTerraform(d.Tenants)
 	}
@@ -73,6 +77,7 @@ func SdkToTerraform(ctx context.Context, d *models.OrgServicePolicy) (OrgService
 	state.OrgId = orgId
 	state.PathPreference = pathPreference
 	state.Services = services
+	state.SslProxy = sslProxy
 	state.Tenants = tenants
 
 	return state, diags

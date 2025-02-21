@@ -67,6 +67,12 @@ func TerraformToSdk(plan *OrgServicepolicyModel) (models.OrgServicePolicy, diag.
 		unset["-services"] = ""
 	}
 
+	if !plan.SslProxy.IsNull() && !plan.SslProxy.IsUnknown() {
+		data.SslProxy = sslProxyTerraformToSdk(&diags, plan.SslProxy)
+	} else {
+		unset["-ssl_proxy"] = ""
+	}
+
 	if !plan.Tenants.IsNull() && !plan.Services.IsUnknown() {
 		data.Tenants = misttransform.ListOfStringTerraformToSdk(plan.Tenants)
 	} else {
