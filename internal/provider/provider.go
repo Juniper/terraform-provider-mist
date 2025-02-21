@@ -442,6 +442,7 @@ func (p *mistProvider) DataSources(_ context.Context) []func() datasource.DataSo
 		NewOrgWlansDataSource,
 		NewSiteWlansDataSource,
 		NewDeviceVersionsDataSource,
+		NewOrgAvprofilesDataSource,
 	}
 }
 
