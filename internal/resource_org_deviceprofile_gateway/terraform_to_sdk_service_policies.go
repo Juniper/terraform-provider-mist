@@ -82,6 +82,50 @@ func idpConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d bas
 	return &data
 }
 
+func avTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.ServicePolicyAntivirus {
+	data := models.ServicePolicyAntivirus{}
+	if !d.IsNull() && !d.IsUnknown() {
+		plan, e := NewAntivirusValue(d.AttributeTypes(ctx), d.Attributes())
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			if plan.AvprofileId.ValueStringPointer() != nil {
+				avprofileId, e := uuid.Parse(plan.AvprofileId.ValueString())
+				if e != nil {
+					diags.AddError("Unable to parse IDP Profile ID", e.Error())
+				} else {
+					data.AvprofileId = models.ToPointer(avprofileId)
+				}
+			}
+			if plan.Enabled.ValueBoolPointer() != nil {
+				data.Enabled = plan.Enabled.ValueBoolPointer()
+			}
+			if plan.Profile.ValueStringPointer() != nil {
+				data.Profile = plan.Profile.ValueStringPointer()
+			}
+		}
+	}
+	return &data
+}
+
+func sslProxyTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.ServicePolicySslProxy {
+	data := models.ServicePolicySslProxy{}
+	if !d.IsNull() && !d.IsUnknown() {
+		plan, e := NewSslProxyValue(d.AttributeTypes(ctx), d.Attributes())
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			if plan.CiphersCategory.ValueStringPointer() != nil {
+				data.CiphersCategory = (*models.SslProxyCiphersCategoryEnum)(plan.CiphersCategory.ValueStringPointer())
+			}
+			if plan.Enabled.ValueBoolPointer() != nil {
+				data.Enabled = plan.Enabled.ValueBoolPointer()
+			}
+		}
+	}
+	return &data
+}
+
 func servicePoliciesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.ServicePolicy {
 	var dataList []models.ServicePolicy
 	for _, v := range d.Elements() {
@@ -91,6 +135,10 @@ func servicePoliciesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics,
 
 		if plan.Action.ValueStringPointer() != nil {
 			data.Action = models.ToPointer(models.AllowDenyEnum(plan.Action.ValueString()))
+		}
+
+		if !plan.Antivirus.IsNull() && !plan.Antivirus.IsUnknown() {
+			data.Antivirus = avTerraformToSdk(ctx, diags, plan.Antivirus)
 		}
 
 		if !plan.Appqoe.IsNull() && !plan.Appqoe.IsUnknown() {
@@ -125,6 +173,9 @@ func servicePoliciesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics,
 
 		if !plan.Services.IsNull() && !plan.Services.IsUnknown() {
 			data.Services = misttransform.ListOfStringTerraformToSdk(plan.Services)
+		}
+		if !plan.SslProxy.IsNull() && !plan.SslProxy.IsUnknown() {
+			data.SslProxy = sslProxyTerraformToSdk(ctx, diags, plan.SslProxy)
 		}
 		if !plan.Tenants.IsNull() && !plan.Tenants.IsUnknown() {
 			data.Tenants = misttransform.ListOfStringTerraformToSdk(plan.Tenants)
