@@ -21,6 +21,12 @@ func TerraformToSdk(plan *OrgServicepolicyModel) (models.OrgServicePolicy, diag.
 		unset["-action"] = ""
 	}
 
+	if !plan.Antivirus.IsNull() && !plan.Antivirus.IsUnknown() {
+		data.Antivirus = avTerraformToSdk(&diags, plan.Antivirus)
+	} else {
+		unset["-antivirus"] = ""
+	}
+
 	if !plan.Appqoe.IsNull() && !plan.Appqoe.IsUnknown() {
 		data.Appqoe = appqoeTerraformToSdk(plan.Appqoe)
 	} else {

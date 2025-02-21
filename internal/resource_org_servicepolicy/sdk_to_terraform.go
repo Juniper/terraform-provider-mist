@@ -15,6 +15,7 @@ func SdkToTerraform(ctx context.Context, d *models.OrgServicePolicy) (OrgService
 	var diags diag.Diagnostics
 
 	var action types.String
+	var antivirus = NewAntivirusValueNull()
 	var appqoe = NewAppqoeValueNull()
 	var ewf = types.ListNull(EwfValue{}.Type(ctx))
 	var id types.String
@@ -28,6 +29,9 @@ func SdkToTerraform(ctx context.Context, d *models.OrgServicePolicy) (OrgService
 
 	if d.Action != nil {
 		action = types.StringValue(string(*d.Action))
+	}
+	if d.Antivirus != nil {
+		antivirus = avSdkToTerraform(ctx, &diags, d.Antivirus)
 	}
 	if d.Appqoe != nil {
 		appqoe = appQoeToTerraform(d.Appqoe)
@@ -59,6 +63,7 @@ func SdkToTerraform(ctx context.Context, d *models.OrgServicePolicy) (OrgService
 	}
 
 	state.Action = action
+	state.Antivirus = antivirus
 	state.Appqoe = appqoe
 	state.Ewf = ewf
 	state.Id = id
