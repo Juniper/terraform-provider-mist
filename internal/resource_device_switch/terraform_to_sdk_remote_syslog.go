@@ -82,8 +82,12 @@ func remoteSyslogFilesTerraformToSdk(ctx context.Context, diags *diag.Diagnostic
 		itemObj := itemInterface.(FilesValue)
 
 		dataItem := models.RemoteSyslogFileConfig{}
-		dataItem.Archive = remoteSyslogConfigArchiveTerraformToSdk(ctx, diags, itemObj.Archive)
-		dataItem.Contents = remoteSyslogContentTerraformToSdk(itemObj.Contents)
+		if !itemObj.Archive.IsNull() && !itemObj.Archive.IsUnknown() {
+			dataItem.Archive = remoteSyslogConfigArchiveTerraformToSdk(ctx, diags, itemObj.Archive)
+		}
+		if !itemObj.Contents.IsNull() && !itemObj.Contents.IsUnknown() {
+			dataItem.Contents = remoteSyslogContentTerraformToSdk(itemObj.Contents)
+		}
 		if itemObj.ExplicitPriority.ValueBoolPointer() != nil {
 			dataItem.ExplicitPriority = models.ToPointer(itemObj.ExplicitPriority.ValueBool())
 		}
@@ -110,7 +114,9 @@ func remoteSyslogServersTerraformToSdk(d basetypes.ListValue) []models.RemoteSys
 		itemObj := itemInterface.(ServersValue)
 
 		dataItem := models.RemoteSyslogServer{}
-		dataItem.Contents = remoteSyslogContentTerraformToSdk(itemObj.Contents)
+		if !itemObj.Contents.IsNull() && !itemObj.Contents.IsUnknown() {
+			dataItem.Contents = remoteSyslogContentTerraformToSdk(itemObj.Contents)
+		}
 		if itemObj.ExplicitPriority.ValueBoolPointer() != nil {
 			dataItem.ExplicitPriority = models.ToPointer(itemObj.ExplicitPriority.ValueBool())
 		}
