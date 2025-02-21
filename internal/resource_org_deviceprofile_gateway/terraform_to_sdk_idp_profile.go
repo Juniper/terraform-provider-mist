@@ -24,7 +24,7 @@ func idpProfileMatchingSeverityTerraformToSdk(list basetypes.ListValue) []models
 
 func idpProfileMatchingTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.IdpProfileMatching {
 	data := models.IdpProfileMatching{}
-	if !d.IsNull() || !d.IsUnknown() {
+	if !d.IsNull() && !d.IsUnknown() {
 		plan, e := NewIpdProfileOverwriteMatchingValue(d.AttributeTypes(ctx), d.Attributes())
 		if e != nil {
 			diags.Append(e...)

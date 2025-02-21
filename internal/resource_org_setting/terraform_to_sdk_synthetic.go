@@ -42,7 +42,7 @@ func syntheticTestVlansTerraformToSdk(d basetypes.ListValue) []models.Synthetict
 }
 func syntheticTestWanTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.SynthetictestConfigWanSpeedtest {
 	data := models.SynthetictestConfigWanSpeedtest{}
-	if !d.IsNull() || !d.IsUnknown() {
+	if !d.IsNull() && !d.IsUnknown() {
 		plan, e := NewWanSpeedtestValue(d.AttributeTypes(ctx), d.Attributes())
 		if e != nil {
 			diags.Append(e...)

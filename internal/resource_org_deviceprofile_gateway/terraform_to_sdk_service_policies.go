@@ -15,7 +15,7 @@ import (
 
 func servicePolicyAppqoeTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.ServicePolicyAppqoe {
 	data := models.ServicePolicyAppqoe{}
-	if !d.IsNull() || !d.IsUnknown() {
+	if !d.IsNull() && !d.IsUnknown() {
 		plan, e := NewAppqoeValue(d.AttributeTypes(ctx), d.Attributes())
 		if e != nil {
 			diags.Append(e...)
@@ -54,7 +54,7 @@ func servicePolicyEwfRuleTerraformToSdk(d basetypes.ListValue) []models.ServiceP
 
 func idpConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.IdpConfig {
 	data := models.IdpConfig{}
-	if !d.IsNull() || !d.IsUnknown() {
+	if !d.IsNull() && !d.IsUnknown() {
 		plan, e := NewIdpValue(d.AttributeTypes(ctx), d.Attributes())
 		if e != nil {
 			diags.Append(e...)

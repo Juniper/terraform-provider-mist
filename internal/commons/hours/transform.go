@@ -63,7 +63,7 @@ func HoursSdkToTerraform(diags *diag.Diagnostics, d *models.Hours) basetypes.Obj
 
 func HoursTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.Hours {
 	data := models.Hours{}
-	if !d.IsNull() || !d.IsUnknown() {
+	if !d.IsNull() && !d.IsUnknown() {
 		v, e := NewHoursValue(d.AttributeTypes(ctx), d.Attributes())
 		if e != nil {
 			diags.Append(e...)

@@ -11,7 +11,7 @@ import (
 
 func sourceNatTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.NetworkSourceNat {
 	data := models.NetworkSourceNat{}
-	if !d.IsNull() || !d.IsUnknown() {
+	if !d.IsNull() && !d.IsUnknown() {
 		plan, e := NewSourceNatValue(d.AttributeTypes(ctx), d.Attributes())
 		if e != nil {
 			diags.Append(e...)

@@ -21,7 +21,7 @@ func channelsTerraformToSdk(d basetypes.ListValue) []int {
 
 func band24TerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.ApRadioBand24 {
 	data := models.ApRadioBand24{}
-	if !d.IsNull() || !d.IsUnknown() {
+	if !d.IsNull() && !d.IsUnknown() {
 		plan, e := NewBand24Value(d.AttributeTypes(ctx), d.Attributes())
 		if e != nil {
 			diags.Append(e...)
@@ -63,7 +63,7 @@ func band24TerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basety
 
 func band5TerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.ApRadioBand5 {
 	data := models.ApRadioBand5{}
-	if !d.IsNull() || !d.IsUnknown() {
+	if !d.IsNull() && !d.IsUnknown() {
 		plan, e := NewBand5Value(d.AttributeTypes(ctx), d.Attributes())
 		if e != nil {
 			diags.Append(e...)
@@ -105,7 +105,7 @@ func band5TerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetyp
 
 func band6TerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.ApRadioBand6 {
 	data := models.ApRadioBand6{}
-	if !d.IsNull() || !d.IsUnknown() {
+	if !d.IsNull() && !d.IsUnknown() {
 		plan, e := NewBand6Value(d.AttributeTypes(ctx), d.Attributes())
 		if e != nil {
 			diags.Append(e...)

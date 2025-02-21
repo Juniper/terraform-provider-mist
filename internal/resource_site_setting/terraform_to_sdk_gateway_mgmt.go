@@ -96,7 +96,7 @@ func gatewayMgmtAppProbingCustomTerraformToSdk(d basetypes.ListValue) []models.A
 
 func gatewayMgmtAppProbingTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.AppProbing {
 	data := models.AppProbing{}
-	if !d.IsNull() || !d.IsUnknown() {
+	if !d.IsNull() && !d.IsUnknown() {
 		v, e := NewAppProbingValue(d.AttributeTypes(ctx), d.Attributes())
 		if e != nil {
 			diags.Append(e...)
@@ -111,7 +111,7 @@ func gatewayMgmtAppProbingTerraformToSdk(ctx context.Context, diags *diag.Diagno
 
 func gatewayMgmtAutoSignatureUpdateTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.SiteSettingGatewayMgmtAutoSignatureUpdate {
 	data := models.SiteSettingGatewayMgmtAutoSignatureUpdate{}
-	if !d.IsNull() || !d.IsUnknown() {
+	if !d.IsNull() && !d.IsUnknown() {
 		v, e := NewAutoSignatureUpdateValue(d.AttributeTypes(ctx), d.Attributes())
 		if e != nil {
 			diags.Append(e...)

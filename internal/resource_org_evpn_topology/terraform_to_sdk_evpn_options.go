@@ -12,7 +12,7 @@ import (
 
 func overlayEvpnOptionsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.EvpnOptionsOverlay {
 	data := models.EvpnOptionsOverlay{}
-	if !d.IsNull() || !d.IsUnknown() {
+	if !d.IsNull() && !d.IsUnknown() {
 		plan, e := NewOverlayValue(d.AttributeTypes(ctx), d.Attributes())
 		if e != nil {
 			diags.Append(e...)
@@ -27,7 +27,7 @@ func overlayEvpnOptionsTerraformToSdk(ctx context.Context, diags *diag.Diagnosti
 
 func underlayEvpnOptionsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.EvpnOptionsUnderlay {
 	data := models.EvpnOptionsUnderlay{}
-	if !d.IsNull() || !d.IsUnknown() {
+	if !d.IsNull() && !d.IsUnknown() {
 		plan, e := NewUnderlayValue(d.AttributeTypes(ctx), d.Attributes())
 		if e != nil {
 			diags.Append(e...)

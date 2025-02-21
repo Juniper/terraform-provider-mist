@@ -13,7 +13,7 @@ import (
 
 func routingPolicyTermActionTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.RoutingPolicyTermAction {
 	data := models.RoutingPolicyTermAction{}
-	if !d.IsNull() || !d.IsUnknown() {
+	if !d.IsNull() && !d.IsUnknown() {
 		plan, e := NewActionValue(d.AttributeTypes(ctx), d.Attributes())
 		if e != nil {
 			diags.Append(e...)
@@ -52,7 +52,7 @@ func routingPolicyTermActionTerraformToSdk(ctx context.Context, diags *diag.Diag
 
 func routingPolicyTermMatchingRouteExistsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.RoutingPolicyTermMatchingRouteExists {
 	data := models.RoutingPolicyTermMatchingRouteExists{}
-	if !d.IsNull() || !d.IsUnknown() {
+	if !d.IsNull() && !d.IsUnknown() {
 		plan, e := NewRouteExistsValue(d.AttributeTypes(ctx), d.Attributes())
 		if e != nil {
 			diags.Append(e...)
@@ -70,7 +70,7 @@ func routingPolicyTermMatchingRouteExistsTerraformToSdk(ctx context.Context, dia
 
 func routingPolicyTermMatchingVpnPathSlaExistsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.RoutingPolicyTermMatchingVpnPathSla {
 	data := models.RoutingPolicyTermMatchingVpnPathSla{}
-	if !d.IsNull() || !d.IsUnknown() {
+	if !d.IsNull() && !d.IsUnknown() {
 		plan, e := NewVpnPathSlaValue(d.AttributeTypes(ctx), d.Attributes())
 		if e != nil {
 			diags.Append(e...)
@@ -91,7 +91,7 @@ func routingPolicyTermMatchingVpnPathSlaExistsTerraformToSdk(ctx context.Context
 
 func routingPolicyTermMatchingTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.RoutingPolicyTermMatching {
 	data := models.RoutingPolicyTermMatching{}
-	if !d.IsNull() || !d.IsUnknown() {
+	if !d.IsNull() && !d.IsUnknown() {
 		plan, e := NewRoutingPolicyTermMatchingValue(d.AttributeTypes(ctx), d.Attributes())
 		if e != nil {
 			diags.Append(e...)

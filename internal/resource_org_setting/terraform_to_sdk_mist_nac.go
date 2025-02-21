@@ -42,7 +42,7 @@ func mistNacIdpsTerraformToSdk(diags *diag.Diagnostics, d basetypes.ListValue) [
 
 func mistNacServerCertTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.OrgSettingMistNacServerCert {
 	data := models.OrgSettingMistNacServerCert{}
-	if !d.IsNull() || !d.IsUnknown() {
+	if !d.IsNull() && !d.IsUnknown() {
 		plan, e := NewServerCertValue(d.AttributeTypes(ctx), d.Attributes())
 		if e != nil {
 			diags.Append(e...)
