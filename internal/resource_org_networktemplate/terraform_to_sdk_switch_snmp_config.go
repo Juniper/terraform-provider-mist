@@ -348,7 +348,7 @@ func snmpConfigV3VacmSecurityToGroupContentTerraformToSdk(d basetypes.ListValue)
 }
 func snmpConfigV3VacmSecurityToGroupTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.SnmpVacmSecurityToGroup {
 	data := models.SnmpVacmSecurityToGroup{}
-	if !d.IsNull() || !d.IsUnknown() {
+	if !d.IsNull() && !d.IsUnknown() {
 		plan, e := NewSecurityToGroupValue(d.AttributeTypes(ctx), d.Attributes())
 		if e != nil {
 			diags.Append(e...)
@@ -365,7 +365,7 @@ func snmpConfigV3VacmSecurityToGroupTerraformToSdk(ctx context.Context, diags *d
 }
 func snmpConfigV3VacmTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.SnmpVacm {
 	data := models.SnmpVacm{}
-	if !d.IsNull() || !d.IsUnknown() {
+	if !d.IsNull() && !d.IsUnknown() {
 		plan, e := NewVacmValue(d.AttributeTypes(ctx), d.Attributes())
 		if e != nil {
 			diags.Append(e...)
@@ -384,7 +384,7 @@ func snmpConfigV3VacmTerraformToSdk(ctx context.Context, diags *diag.Diagnostics
 // V3 MAIN
 func snmpConfigV3TerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.Snmpv3Config {
 	data := models.Snmpv3Config{}
-	if !d.IsNull() || !d.IsUnknown() {
+	if !d.IsNull() && !d.IsUnknown() {
 		plan, e := NewV3ConfigValue(d.AttributeTypes(ctx), d.Attributes())
 		if e != nil {
 			diags.Append(e...)
@@ -441,15 +441,9 @@ func snmpConfigViewsTerraformToSdk(d basetypes.ListValue) []models.SnmpConfigVie
 // ////////// MAIN
 func snmpConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d SnmpConfigValue) *models.SnmpConfig {
 
-	clientList := snmpConfigClientListTerraformToSdk(d.ClientList)
-	trapGroups := snmpConfigTrapGroupsTerraformToSdk(d.TrapGroups)
-	v2cConfig := snmpConfigV2cTerraformToSdk(d.V2cConfig)
-	v3Config := snmpConfigV3TerraformToSdk(ctx, diags, d.V3Config)
-	views := snmpConfigViewsTerraformToSdk(d.Views)
-
 	data := models.SnmpConfig{}
 	if !d.ClientList.IsNull() && !d.ClientList.IsUnknown() {
-		data.ClientList = clientList
+		data.ClientList = snmpConfigClientListTerraformToSdk(d.ClientList)
 	}
 	if d.Contact.ValueStringPointer() != nil {
 		data.Contact = d.Contact.ValueStringPointer()
@@ -473,16 +467,16 @@ func snmpConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d Sn
 		data.Network = d.Network.ValueStringPointer()
 	}
 	if !d.TrapGroups.IsNull() && !d.TrapGroups.IsUnknown() {
-		data.TrapGroups = trapGroups
+		data.TrapGroups = snmpConfigTrapGroupsTerraformToSdk(d.TrapGroups)
 	}
 	if !d.V2cConfig.IsNull() && !d.V2cConfig.IsUnknown() {
-		data.V2cConfig = v2cConfig
+		data.V2cConfig = snmpConfigV2cTerraformToSdk(d.V2cConfig)
 	}
 	if !d.V3Config.IsNull() && !d.V3Config.IsUnknown() {
-		data.V3Config = v3Config
+		data.V3Config = snmpConfigV3TerraformToSdk(ctx, diags, d.V3Config)
 	}
 	if !d.Views.IsNull() && !d.Views.IsUnknown() {
-		data.Views = views
+		data.Views = snmpConfigViewsTerraformToSdk(d.Views)
 	}
 
 	return &data
