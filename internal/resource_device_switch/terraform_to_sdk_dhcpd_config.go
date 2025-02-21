@@ -71,10 +71,6 @@ func dhcpdConfigConfigsTerraformToSdk(d basetypes.MapValue) map[string]models.Sw
 		var vInterface interface{} = v
 		plan := vInterface.(ConfigValue)
 
-		fixedBindings := dhcpdConfigFixedBindingsTerraformToSdk(plan.FixedBindings)
-		options := dhcpdConfigOptionsTerraformToSdk(plan.Options)
-		vendorEncapsulated := dhcpdConfigVendorOptionsTerraformToSdk(plan.VendorEncapsulated)
-
 		data := models.SwitchDhcpdConfigProperty{}
 		if !plan.DnsServers.IsNull() && !plan.DnsServers.IsUnknown() {
 			data.DnsServers = misttransform.ListOfStringTerraformToSdk(plan.DnsServers)
@@ -83,7 +79,7 @@ func dhcpdConfigConfigsTerraformToSdk(d basetypes.MapValue) map[string]models.Sw
 			data.DnsSuffix = misttransform.ListOfStringTerraformToSdk(plan.DnsSuffix)
 		}
 		if !plan.FixedBindings.IsNull() && !plan.FixedBindings.IsUnknown() {
-			data.FixedBindings = fixedBindings
+			data.FixedBindings = dhcpdConfigFixedBindingsTerraformToSdk(plan.FixedBindings)
 		}
 		if plan.Gateway.ValueStringPointer() != nil {
 			data.Gateway = models.ToPointer(plan.Gateway.ValueString())
@@ -104,7 +100,7 @@ func dhcpdConfigConfigsTerraformToSdk(d basetypes.MapValue) map[string]models.Sw
 			data.LeaseTime = models.ToPointer(int(plan.LeaseTime.ValueInt64()))
 		}
 		if !plan.Options.IsNull() && !plan.Options.IsUnknown() {
-			data.Options = options
+			data.Options = dhcpdConfigOptionsTerraformToSdk(plan.Options)
 		}
 		if plan.ServerIdOverride.ValueBoolPointer() != nil {
 			data.ServerIdOverride = models.ToPointer(plan.ServerIdOverride.ValueBool())
@@ -122,7 +118,7 @@ func dhcpdConfigConfigsTerraformToSdk(d basetypes.MapValue) map[string]models.Sw
 			data.Type6 = models.ToPointer(models.SwitchDhcpdConfigTypeEnum(plan.Type6.ValueString()))
 		}
 		if !plan.VendorEncapsulated.IsNull() && !plan.VendorEncapsulated.IsUnknown() {
-			data.VendorEncapsulated = vendorEncapsulated
+			data.VendorEncapsulated = dhcpdConfigVendorOptionsTerraformToSdk(plan.VendorEncapsulated)
 		}
 
 		dataMap[k] = data

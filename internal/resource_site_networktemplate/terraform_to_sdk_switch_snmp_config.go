@@ -311,13 +311,11 @@ func snmpConfigV3VacmAccessTerraformToSdk(d basetypes.ListValue) []models.SnmpVa
 		plan := vInterface.(AccessValue)
 		data := models.SnmpVacmAccessItem{}
 
-		prefixList := snmpConfigV3VacmAccessPrefixTerraformToSdk(plan.PrefixList)
-
 		if plan.GroupName.ValueStringPointer() != nil {
 			data.GroupName = plan.GroupName.ValueStringPointer()
 		}
 		if !plan.PrefixList.IsNull() && !plan.PrefixList.IsUnknown() {
-			data.PrefixList = prefixList
+			data.PrefixList = snmpConfigV3VacmAccessPrefixTerraformToSdk(plan.PrefixList)
 		}
 
 		dataList = append(dataList, data)
