@@ -7,16 +7,42 @@ description: |-
 
 # Release Notes for v0.2.xx
 
+## Release Notes for v0.2.21
+**release date** : February 28th, 2025
+
+### New Resource
+* `mist_org_avprofile`: Allows to configure the Antivirus profiles for SRX Gateways. The Antivirus profiles can be used within the following resources:  
+  * `mist_org_servicepolicy.antivirus`
+  * `mist_org_gatewaytemplate.service_policies.antivirus`
+  * `mist_org_deviceprofile_gateway.service_policies.antivirus`
+  * `mist_device_gateway.service_policies.antivirus`
+
+### New Data Sources
+* `mist_upgrade_device`: Allows to trigger a firmware upgrade on a single device. Site and Org upgrades will be available in a later time.
+
+### Changes
+* adding `mist_device_ap.flow_control` attribute
+* adding the `antivirus` and `sll_proxy` attributes to `mist_org_servicepolicy`, `mist_org_gatewaytemplate.service_policies`, `mist_org_deviceprofile_gateway.service_policies` and `mist_device_gateway.service_policies`
+* [Issue 85](https://github.com/Juniper/terraform-provider-mist/issues/85): adding a new validator to `switch_matching.rules.name` to only allow the rule name `default` wihtin the last rule of the list. This is applied to the resources `mist_org_networktemplate` and `mist_site_networktemplate`
+
+### Fixes
+* [Issue 88](https://github.com/Juniper/terraform-provider-mist/issues/88): fix issues with the `remote_syslog` attribute in the following resources: `mist_device_switch`, `mist_org_networktemplate`, `mist_site_networktemplate`
+* [Issue 87](https://github.com/Juniper/terraform-provider-mist/issues/87): fix issues with the `snmp_config` attribute when `v3_config` is not defined in the following resources: `mist_device_switch`, `mist_org_networktemplate`, `mist_site_networktemplate`
+* [Issue 86](https://github.com/Juniper/terraform-provider-mist/issues/86): fix issues with the `switch_mgmt.tacacs` attribute in the following resources: `mist_org_networktemplate`, `mist_site_networktemplate`
+* [Issue 84](https://github.com/Juniper/terraform-provider-mist/issues/84): fix issues with the `snmp_config.v3_config` attribute in the following resources: `mist_device_switch`, `mist_org_networktemplate`, `mist_site_networktemplate`
+* [Issue 83](https://github.com/Juniper/terraform-provider-mist/issues/83): fix an issue with the `mist_org_nactags` datasource
+* [Issue 81](https://github.com/Juniper/terraform-provider-mist/issues/81): fix typo in `mist_org_networktemplate` property `bypass_auth_when_server_down_for_unkonwn_client` 
+
+
 ## Release Notes for v0.2.20
-**release date** : February 14th, 2025
-
-
-## Release Notes for v0.2.19
 **release date** : February 14th, 2025
 
 ### Fixes
 * Fix issue when `mist_org_sso_role.privileges.views` has empty value
 
+
+## Release Notes for v0.2.19
+**release date** : February 14th, 2025
 
 ### New Data Sources
 * `mist_device_versions`: Allows to retrieve the list of available firmware for specific type of hardware
@@ -25,7 +51,6 @@ description: |-
 
 ### Changes
 * change the `mist_org_sso_role.privileges.views` from `string` to `list` to match the Mist API Structure. This change require to update the configuration and the state to match the new format if this attribute has already been configured.
-
 
 ### Fixes
 * [Issue 70](https://github.com/Juniper/terraform-provider-mist/issues/70): In some conditions, the list of MAC addresses returned by Mist when assigning device profiles to device may be different from the configured order, which generate an error in the provider. The type of the list in the provider has been changed from `List` to `Set` to avoid this issue. This change doesn't impact the existing configurations or deployements.

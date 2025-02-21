@@ -685,6 +685,7 @@ Optional:
 Optional:
 
 - `action` (String) Required when `servicepolicy_id` is not defined, optional otherwise (override the servicepolicy action). enum: `allow`, `deny`
+- `antivirus` (Attributes) For SRX-only (see [below for nested schema](#nestedatt--service_policies--antivirus))
 - `appqoe` (Attributes) For SRX Only (see [below for nested schema](#nestedatt--service_policies--appqoe))
 - `ewf` (Attributes List) (see [below for nested schema](#nestedatt--service_policies--ewf))
 - `idp` (Attributes) (see [below for nested schema](#nestedatt--service_policies--idp))
@@ -693,7 +694,18 @@ Optional:
 - `path_preference` (String) By default, we derive all paths available and use them. Optionally, you can customize by using `path_preference`
 - `servicepolicy_id` (String) Used to link servicepolicy defined at org level and overwrite some attributes
 - `services` (List of String) Required when `servicepolicy_id` is not defined. List of Applications / Desctinations
+- `ssl_proxy` (Attributes) For SRX-only (see [below for nested schema](#nestedatt--service_policies--ssl_proxy))
 - `tenants` (List of String) Required when `servicepolicy_id` is not defined. List of Networks / Users
+
+<a id="nestedatt--service_policies--antivirus"></a>
+### Nested Schema for `service_policies.antivirus`
+
+Optional:
+
+- `avprofile_id` (String) org-level AV Profile can be used, this takes precendence over 'profile'
+- `enabled` (Boolean)
+- `profile` (String) Default / noftp / httponly / or keys from av_profiles
+
 
 <a id="nestedatt--service_policies--appqoe"></a>
 ### Nested Schema for `service_policies.appqoe`
@@ -723,6 +735,15 @@ Optional:
 - `enabled` (Boolean)
 - `idpprofile_id` (String) org_level IDP Profile can be used, this takes precedence over `profile`
 - `profile` (String) enum: `Custom`, `strict` (default), `standard` or keys from idp_profiles
+
+
+<a id="nestedatt--service_policies--ssl_proxy"></a>
+### Nested Schema for `service_policies.ssl_proxy`
+
+Optional:
+
+- `ciphers_category` (String) enum: `medium`, `strong`, `weak`
+- `enabled` (Boolean)
 
 
 

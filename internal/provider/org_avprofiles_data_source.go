@@ -59,7 +59,7 @@ func (d *orgAvprofilesDataSource) Schema(ctx context.Context, _ datasource.Schem
 			" * `mist_org_servicepolicy.antivirus` \n" +
 			" * `mist_org_gatewaytemplate.service_policies.antivirus` \n" +
 			" * `mist_org_deviceprofile_gateway.service_policies.antivirus` \n" +
-			" * `mist_devicee_gateway.service_policies.antivirus` \n",
+			" * `mist_device_gateway.service_policies.antivirus` \n",
 		Attributes: datasource_org_avprofiles.OrgAvprofilesDataSourceSchema(ctx).Attributes,
 	}
 }

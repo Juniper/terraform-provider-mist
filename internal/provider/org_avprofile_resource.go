@@ -55,8 +55,15 @@ func (r *orgAvprofileResource) Metadata(_ context.Context, req resource.Metadata
 
 func (r *orgAvprofileResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryWan + "This resource manages the Org Antivirus Profile.",
-		Attributes:          resource_org_avprofile.OrgAvprofileResourceSchema(ctx).Attributes,
+		MarkdownDescription: docCategoryWan + "This resource manages the Org Antivirus Profile.\n\n" +
+			"An Antivirus Profile is used to configure the Antivirus feature on SRX devices. " +
+			"It specifies which content the Antivirus should analyse and which content should be ignored.\n\n" +
+			"The Antivirus profiles can be used within the following resources: \n" +
+			" * `mist_org_servicepolicy.antivirus` \n" +
+			" * `mist_org_gatewaytemplate.service_policies.antivirus` \n" +
+			" * `mist_org_deviceprofile_gateway.service_policies.antivirus` \n" +
+			" * `mist_device_gateway.service_policies.antivirus` \n",
+		Attributes: resource_org_avprofile.OrgAvprofileResourceSchema(ctx).Attributes,
 	}
 }
 

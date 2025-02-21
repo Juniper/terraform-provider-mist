@@ -51,18 +51,29 @@ resource "mist_org_servicepolicy" "servicepolicy_one" {
 ### Optional
 
 - `action` (String) enum: `allow`, `deny`
+- `antivirus` (Attributes) For SRX-only (see [below for nested schema](#nestedatt--antivirus))
 - `appqoe` (Attributes) For SRX Only (see [below for nested schema](#nestedatt--appqoe))
 - `ewf` (Attributes List) (see [below for nested schema](#nestedatt--ewf))
 - `idp` (Attributes) (see [below for nested schema](#nestedatt--idp))
 - `local_routing` (Boolean) access within the same VRF
-- `path_preference` (String) by default, we derive all paths available and use them
-optionally, you can customize by using `path_preference`
+- `path_preference` (String) By default, we derive all paths available and use them, optionally, you can customize by using `path_preference`
 - `services` (List of String)
+- `ssl_proxy` (Attributes) For SRX-only (see [below for nested schema](#nestedatt--ssl_proxy))
 - `tenants` (List of String)
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
+- `id` (String) Unique ID of the object instance in the Mist Organnization
+
+<a id="nestedatt--antivirus"></a>
+### Nested Schema for `antivirus`
+
+Optional:
+
+- `avprofile_id` (String) org-level AV Profile can be used, this takes precendence over 'profile'
+- `enabled` (Boolean)
+- `profile` (String) Default / noftp / httponly / or keys from av_profiles
+
 
 <a id="nestedatt--appqoe"></a>
 ### Nested Schema for `appqoe`
@@ -91,7 +102,16 @@ Optional:
 - `alert_only` (Boolean)
 - `enabled` (Boolean)
 - `idpprofile_id` (String) org_level IDP Profile can be used, this takes precedence over `profile`
-- `profile` (String) `strict` (default) / `standard` / or keys from from idp_profiles
+- `profile` (String) enum: `Custom`, `strict` (default), `standard` or keys from idp_profiles
+
+
+<a id="nestedatt--ssl_proxy"></a>
+### Nested Schema for `ssl_proxy`
+
+Optional:
+
+- `ciphers_category` (String) enum: `medium`, `strong`, `weak`
+- `enabled` (Boolean)
 
 
 
