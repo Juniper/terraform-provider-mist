@@ -2,7 +2,6 @@ package datasource_org_idpprofiles
 
 import (
 	"context"
-
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -25,18 +24,24 @@ func SdkToTerraform(ctx context.Context, l *[]models.IdpProfile, elements *[]att
 func servicepolicieSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.IdpProfile) OrgIdpprofilesValue {
 
 	var baseProfile types.String
-	var createdTime basetypes.NumberValue
+	var createdTime basetypes.Float64Value
 	var id types.String
-	var modifiedTime basetypes.NumberValue
+	var modifiedTime basetypes.Float64Value
 	var name types.String
 	var orgId types.String
 	var overwrites = types.ListNull(OverwritesValue{}.Type(ctx))
 
+	if d.CreatedTime != nil {
+		createdTime = types.Float64Value(*d.CreatedTime)
+	}
 	if d.BaseProfile != nil {
 		baseProfile = types.StringValue(string(*d.BaseProfile))
 	}
 	if d.Id != nil {
 		id = types.StringValue(d.Id.String())
+	}
+	if d.ModifiedTime != nil {
+		modifiedTime = types.Float64Value(*d.ModifiedTime)
 	}
 	if d.Name != nil {
 		name = types.StringValue(*d.Name)

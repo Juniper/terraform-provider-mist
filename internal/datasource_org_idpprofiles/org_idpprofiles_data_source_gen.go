@@ -29,14 +29,20 @@ func OrgIdpprofilesDataSourceSchema(ctx context.Context) schema.Schema {
 							Description:         "enum: `critical`, `standard`, `strict`",
 							MarkdownDescription: "enum: `critical`, `standard`, `strict`",
 						},
-						"created_time": schema.NumberAttribute{
-							Computed: true,
+						"created_time": schema.Float64Attribute{
+							Computed:            true,
+							Description:         "When the object has been created, in epoch",
+							MarkdownDescription: "When the object has been created, in epoch",
 						},
 						"id": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							Description:         "Unique ID of the object instance in the Mist Organnization",
+							MarkdownDescription: "Unique ID of the object instance in the Mist Organnization",
 						},
-						"modified_time": schema.NumberAttribute{
-							Computed: true,
+						"modified_time": schema.Float64Attribute{
+							Computed:            true,
+							Description:         "When the object has been modified for the last time, in epoch",
+							MarkdownDescription: "When the object has been modified for the last time, in epoch",
 						},
 						"name": schema.StringAttribute{
 							Computed: true,
@@ -157,12 +163,12 @@ func (t OrgIdpprofilesType) ValueFromObject(ctx context.Context, in basetypes.Ob
 		return nil, diags
 	}
 
-	createdTimeVal, ok := createdTimeAttribute.(basetypes.NumberValue)
+	createdTimeVal, ok := createdTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`created_time expected to be basetypes.NumberValue, was: %T`, createdTimeAttribute))
+			fmt.Sprintf(`created_time expected to be basetypes.Float64Value, was: %T`, createdTimeAttribute))
 	}
 
 	idAttribute, ok := attributes["id"]
@@ -193,12 +199,12 @@ func (t OrgIdpprofilesType) ValueFromObject(ctx context.Context, in basetypes.Ob
 		return nil, diags
 	}
 
-	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.NumberValue)
+	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`modified_time expected to be basetypes.NumberValue, was: %T`, modifiedTimeAttribute))
+			fmt.Sprintf(`modified_time expected to be basetypes.Float64Value, was: %T`, modifiedTimeAttribute))
 	}
 
 	nameAttribute, ok := attributes["name"]
@@ -362,12 +368,12 @@ func NewOrgIdpprofilesValue(attributeTypes map[string]attr.Type, attributes map[
 		return NewOrgIdpprofilesValueUnknown(), diags
 	}
 
-	createdTimeVal, ok := createdTimeAttribute.(basetypes.NumberValue)
+	createdTimeVal, ok := createdTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`created_time expected to be basetypes.NumberValue, was: %T`, createdTimeAttribute))
+			fmt.Sprintf(`created_time expected to be basetypes.Float64Value, was: %T`, createdTimeAttribute))
 	}
 
 	idAttribute, ok := attributes["id"]
@@ -398,12 +404,12 @@ func NewOrgIdpprofilesValue(attributeTypes map[string]attr.Type, attributes map[
 		return NewOrgIdpprofilesValueUnknown(), diags
 	}
 
-	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.NumberValue)
+	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`modified_time expected to be basetypes.NumberValue, was: %T`, modifiedTimeAttribute))
+			fmt.Sprintf(`modified_time expected to be basetypes.Float64Value, was: %T`, modifiedTimeAttribute))
 	}
 
 	nameAttribute, ok := attributes["name"]
@@ -544,13 +550,13 @@ func (t OrgIdpprofilesType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = OrgIdpprofilesValue{}
 
 type OrgIdpprofilesValue struct {
-	BaseProfile  basetypes.StringValue `tfsdk:"base_profile"`
-	CreatedTime  basetypes.NumberValue `tfsdk:"created_time"`
-	Id           basetypes.StringValue `tfsdk:"id"`
-	ModifiedTime basetypes.NumberValue `tfsdk:"modified_time"`
-	Name         basetypes.StringValue `tfsdk:"name"`
-	OrgId        basetypes.StringValue `tfsdk:"org_id"`
-	Overwrites   basetypes.ListValue   `tfsdk:"overwrites"`
+	BaseProfile  basetypes.StringValue  `tfsdk:"base_profile"`
+	CreatedTime  basetypes.Float64Value `tfsdk:"created_time"`
+	Id           basetypes.StringValue  `tfsdk:"id"`
+	ModifiedTime basetypes.Float64Value `tfsdk:"modified_time"`
+	Name         basetypes.StringValue  `tfsdk:"name"`
+	OrgId        basetypes.StringValue  `tfsdk:"org_id"`
+	Overwrites   basetypes.ListValue    `tfsdk:"overwrites"`
 	state        attr.ValueState
 }
 
@@ -561,9 +567,9 @@ func (v OrgIdpprofilesValue) ToTerraformValue(ctx context.Context) (tftypes.Valu
 	var err error
 
 	attrTypes["base_profile"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["created_time"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["created_time"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["id"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["modified_time"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["modified_time"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["org_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["overwrites"] = basetypes.ListType{
@@ -692,9 +698,9 @@ func (v OrgIdpprofilesValue) ToObjectValue(ctx context.Context) (basetypes.Objec
 
 	attributeTypes := map[string]attr.Type{
 		"base_profile":  basetypes.StringType{},
-		"created_time":  basetypes.NumberType{},
+		"created_time":  basetypes.Float64Type{},
 		"id":            basetypes.StringType{},
-		"modified_time": basetypes.NumberType{},
+		"modified_time": basetypes.Float64Type{},
 		"name":          basetypes.StringType{},
 		"org_id":        basetypes.StringType{},
 		"overwrites": basetypes.ListType{
@@ -782,9 +788,9 @@ func (v OrgIdpprofilesValue) Type(ctx context.Context) attr.Type {
 func (v OrgIdpprofilesValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"base_profile":  basetypes.StringType{},
-		"created_time":  basetypes.NumberType{},
+		"created_time":  basetypes.Float64Type{},
 		"id":            basetypes.StringType{},
-		"modified_time": basetypes.NumberType{},
+		"modified_time": basetypes.Float64Type{},
 		"name":          basetypes.StringType{},
 		"org_id":        basetypes.StringType{},
 		"overwrites": basetypes.ListType{
