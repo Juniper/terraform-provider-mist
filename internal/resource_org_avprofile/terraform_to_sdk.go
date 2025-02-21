@@ -38,8 +38,8 @@ func TerraformToSdk(plan *OrgAvprofileModel) (*models.Avprofile, diag.Diagnostic
 	}
 	data.Protocols = items
 
-	if !plan.MimeWhitelist.IsNull() && !plan.MimeWhitelist.IsUnknown() {
-		data.UrlWhitelist = misttransform.ListOfStringTerraformToSdk(plan.MimeWhitelist)
+	if !plan.UrlWhitelist.IsNull() && !plan.UrlWhitelist.IsUnknown() {
+		data.UrlWhitelist = misttransform.ListOfStringTerraformToSdk(plan.UrlWhitelist)
 	} else {
 		unset["-url_whitelist"] = ""
 	}

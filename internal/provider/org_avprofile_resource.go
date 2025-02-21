@@ -55,7 +55,7 @@ func (r *orgAvprofileResource) Metadata(_ context.Context, req resource.Metadata
 
 func (r *orgAvprofileResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryWan + "This resource manages the Org VPN.",
+		MarkdownDescription: docCategoryWan + "This resource manages the Org Antivirus Profile.",
 		Attributes:          resource_org_avprofile.OrgAvprofileResourceSchema(ctx).Attributes,
 	}
 }
@@ -90,7 +90,7 @@ func (r *orgAvprofileResource) Create(ctx context.Context, req resource.CreateRe
 	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error creating \"mist_org_avprofile\" resource",
-			fmt.Sprintf("Unable to create the VPN. %s", apiErr),
+			fmt.Sprintf("Unable to create the Antivirus Profile. %s", apiErr),
 		)
 		return
 	}
@@ -142,7 +142,7 @@ func (r *orgAvprofileResource) Read(ctx context.Context, _ resource.ReadRequest,
 	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting \"mist_org_avprofile\" resource",
-			"Unable to get the VPN, unexpected error: "+err.Error(),
+			"Unable to get the Antivirus Profile, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -203,7 +203,7 @@ func (r *orgAvprofileResource) Update(ctx context.Context, req resource.UpdateRe
 	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error updating \"mist_org_avprofile\" resource",
-			fmt.Sprintf("Unable to update the VPN. %s", apiErr),
+			fmt.Sprintf("Unable to update the Antivirus Profile. %s", apiErr),
 		)
 		return
 	}
@@ -252,7 +252,7 @@ func (r *orgAvprofileResource) Delete(ctx context.Context, _ resource.DeleteRequ
 	if httpr.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_avprofile\" resource",
-			"Unable to delete the VPN, unexpected error: "+err.Error(),
+			"Unable to delete the Antivirus Profile, unexpected error: "+err.Error(),
 		)
 		return
 	}

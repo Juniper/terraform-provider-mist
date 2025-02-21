@@ -92,7 +92,7 @@ func OrgAvprofileResourceSchema(ctx context.Context) schema.Schema {
 					listvalidator.UniqueValues(),
 					listvalidator.ValueStringsAre(
 						stringvalidator.RegexMatches(
-							regexp.MustCompile(`^\w+\.\w+$`),
+							regexp.MustCompile(`\w+\.\w+$`),
 							"Invalid URL",
 						),
 					),
