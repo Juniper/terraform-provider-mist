@@ -20,11 +20,10 @@ func servicePolicyAppQoESdkToTerraform(ctx context.Context, diags *diag.Diagnost
 		enabled = types.BoolValue(*d.Enabled)
 	}
 
-	rAttrType := AppqoeValue{}.AttributeTypes(ctx)
 	rAttrValue := map[string]attr.Value{
 		"enabled": enabled,
 	}
-	r, e := basetypes.NewObjectValue(rAttrType, rAttrValue)
+	r, e := basetypes.NewObjectValue(AppqoeValue{}.AttributeTypes(ctx), rAttrValue)
 	diags.Append(e...)
 	return r
 }
@@ -85,15 +84,63 @@ func servicePolicyIdpSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 		profile = types.StringValue(*d.Profile)
 	}
 
-	rAttrType := IdpValue{}.AttributeTypes(ctx)
 	rAttrValue := map[string]attr.Value{
 		"alert_only":    alertOnly,
 		"enabled":       enabled,
 		"idpprofile_id": idpprofileId,
 		"profile":       profile,
 	}
-	r, e := basetypes.NewObjectValue(rAttrType, rAttrValue)
+	r, e := basetypes.NewObjectValue(IdpValue{}.AttributeTypes(ctx), rAttrValue)
 	diags.Append(e...)
+	return r
+}
+
+func avSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ServicePolicyAntivirus) basetypes.ObjectValue {
+
+	var avprofileId basetypes.StringValue
+	var enabled basetypes.BoolValue
+	var profile basetypes.StringValue
+
+	if d.Enabled != nil {
+		enabled = types.BoolValue(*d.Enabled)
+	}
+	if d.AvprofileId != nil {
+		avprofileId = types.StringValue(d.AvprofileId.String())
+	}
+	if d.Profile != nil && *d.Profile != d.AvprofileId.String() {
+		profile = types.StringValue(*d.Profile)
+	}
+
+	rAttrValue := map[string]attr.Value{
+		"avprofile_id": avprofileId,
+		"enabled":      enabled,
+		"profile":      profile,
+	}
+	r, e := basetypes.NewObjectValue(AntivirusValue{}.AttributeTypes(ctx), rAttrValue)
+	diags.Append(e...)
+
+	return r
+}
+
+func sslProxySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ServicePolicySslProxy) basetypes.ObjectValue {
+
+	var CiphersCategory basetypes.StringValue
+	var enabled basetypes.BoolValue
+
+	if d.CiphersCategory != nil {
+		CiphersCategory = types.StringValue(string(*d.CiphersCategory))
+	}
+	if d.Enabled != nil {
+		enabled = types.BoolValue(*d.Enabled)
+	}
+
+	rAttrValue := map[string]attr.Value{
+		"ciphers_category": CiphersCategory,
+		"enabled":          enabled,
+	}
+	r, e := basetypes.NewObjectValue(SslProxyValue{}.AttributeTypes(ctx), rAttrValue)
+	diags.Append(e...)
+
 	return r
 }
 
@@ -103,6 +150,7 @@ func servicePoliciesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics,
 	for _, v := range d {
 
 		var action basetypes.StringValue
+		var antivirus = types.ObjectNull(AntivirusValue{}.AttributeTypes(ctx))
 		var appqoe = types.ObjectNull(AppqoeValue{}.AttributeTypes(ctx))
 		var ewf = types.ListNull(EwfValue{}.Type(ctx))
 		var idp = types.ObjectNull(IdpValue{}.AttributeTypes(ctx))
@@ -111,10 +159,14 @@ func servicePoliciesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics,
 		var pathPreference basetypes.StringValue
 		var servicepolicyId basetypes.StringValue
 		var services = misttransform.ListOfStringSdkToTerraform(v.Services)
+		var sslProxy = types.ObjectNull(SslProxyValue{}.AttributeTypes(ctx))
 		var tenants = misttransform.ListOfStringSdkToTerraform(v.Tenants)
 
 		if v.Action != nil {
 			action = types.StringValue(string(*v.Action))
+		}
+		if v.Antivirus != nil {
+			antivirus = avSdkToTerraform(ctx, diags, v.Antivirus)
 		}
 		if v.Appqoe != nil {
 			appqoe = servicePolicyAppQoESdkToTerraform(ctx, diags, v.Appqoe)
@@ -137,9 +189,13 @@ func servicePoliciesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics,
 		if v.ServicepolicyId != nil {
 			servicepolicyId = types.StringValue(v.ServicepolicyId.String())
 		}
+		if v.SslProxy != nil {
+			sslProxy = sslProxySdkToTerraform(ctx, diags, v.SslProxy)
+		}
 
 		dataMapValue := map[string]attr.Value{
 			"action":           action,
+			"antivirus":        antivirus,
 			"appqoe":           appqoe,
 			"ewf":              ewf,
 			"idp":              idp,
@@ -148,6 +204,7 @@ func servicePoliciesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics,
 			"path_preference":  pathPreference,
 			"servicepolicy_id": servicepolicyId,
 			"services":         services,
+			"ssl_proxy":        sslProxy,
 			"tenants":          tenants,
 		}
 
