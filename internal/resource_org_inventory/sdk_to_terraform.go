@@ -154,7 +154,7 @@ func processImport(
 		parameters:
 			ctx : context.Context
 			diags :  *diag.Diagnostics
-			mistDevicesbyMac : *map[string]*InventoryValue,
+			mistDevicesByMac : *map[string]*InventoryValue,
 				map of the devices retrieved in the Mist Inventory
 			mistSiteIdByVcMac : *map[string]*types.String
 				map to find a siteId based on the VC Master/Cluster Primary MAC Address. The Key is the device MAC
@@ -183,7 +183,7 @@ func processImport(
 func processSync(
 	ctx context.Context,
 	diags *diag.Diagnostics,
-	refInventorydevices *map[string]InventoryValue,
+	refInventoryDevices *map[string]InventoryValue,
 	mistDevicesByClaimCode *map[string]*InventoryValue,
 	mistDevicesByMac *map[string]*InventoryValue,
 	mistSiteIdByVcMac *map[string]types.String,
@@ -210,7 +210,7 @@ func processSync(
 	*/
 	newStateDevices := make(map[string]attr.Value)
 
-	for deviceInfo, d := range *refInventorydevices {
+	for deviceInfo, d := range *refInventoryDevices {
 		isClaimCode, isMac := DetectDeviceInfoType(diags, strings.ToUpper(deviceInfo))
 
 		var di interface{} = d
@@ -250,16 +250,16 @@ func mapSdkToTerraform(
 	var state OrgInventoryModel
 	var diags diag.Diagnostics
 	mistDevicesByClaimCode := make(map[string]*InventoryValue)
-	mistDevicesbyMac := make(map[string]*InventoryValue)
+	mistDevicesByMac := make(map[string]*InventoryValue)
 	mistSiteIdByVcMac := make(map[string]types.String)
 
-	processMistInventory(ctx, &diags, data, &mistDevicesByClaimCode, &mistDevicesbyMac, &mistSiteIdByVcMac)
+	processMistInventory(ctx, &diags, data, &mistDevicesByClaimCode, &mistDevicesByMac, &mistSiteIdByVcMac)
 
 	/*
 		The SetNested Devices is set/updated in both cases (done above)
 
 		If it's for an Import (no ref_inventory.OrgId), then generate the inventory with
-		- bassetypes.StringValue OrgId with the import orgId
+		- basetypes.StringValue OrgId with the import orgId
 		- SetNested	ByClaimCode with the list of devices with a claim code
 		- SetNested ByMac with the list of devices without a claim code
 
@@ -270,11 +270,11 @@ func mapSdkToTerraform(
 	*/
 	if refInventory.OrgId.ValueStringPointer() == nil {
 		state.OrgId = types.StringValue(orgId)
-		state.Inventory = processImport(ctx, &diags, &mistDevicesbyMac, &mistSiteIdByVcMac)
+		state.Inventory = processImport(ctx, &diags, &mistDevicesByMac, &mistSiteIdByVcMac)
 	} else {
 		state.OrgId = refInventory.OrgId
-		refInventorydevicesmap := GenDeviceMap(&refInventory.Inventory)
-		state.Inventory = processSync(ctx, &diags, &refInventorydevicesmap, &mistDevicesByClaimCode, &mistDevicesbyMac, &mistSiteIdByVcMac)
+		refInventoryDevicesmap := GenDeviceMap(&refInventory.Inventory)
+		state.Inventory = processSync(ctx, &diags, &refInventoryDevicesmap, &mistDevicesByClaimCode, &mistDevicesByMac, &mistSiteIdByVcMac)
 	}
 
 	return state, diags

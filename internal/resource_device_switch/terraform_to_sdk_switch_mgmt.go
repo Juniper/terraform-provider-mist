@@ -65,7 +65,7 @@ func switchMgmtProtectReTerraformToSdk(ctx context.Context, diags *diag.Diagnost
 	}
 }
 
-func TacacsAcctServersTerraformToSdk(d basetypes.ListValue) []models.TacacsAcctServer {
+func tacacsAcctServersTerraformToSdk(d basetypes.ListValue) []models.TacacsAcctServer {
 
 	var data []models.TacacsAcctServer
 	for _, planAttr := range d.Elements() {
@@ -89,7 +89,7 @@ func TacacsAcctServersTerraformToSdk(d basetypes.ListValue) []models.TacacsAcctS
 	}
 	return data
 }
-func TacacsAuthServersTerraformToSdk(d basetypes.ListValue) []models.TacacsAuthServer {
+func tacacsAuthServersTerraformToSdk(d basetypes.ListValue) []models.TacacsAuthServer {
 
 	var data []models.TacacsAuthServer
 	for _, planAttr := range d.Elements() {
@@ -134,10 +134,10 @@ func switchMgmtTacacsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics
 				data.Network = models.ToPointer(item.Network.ValueString())
 			}
 			if !item.TacacctServers.IsNull() && !item.TacacctServers.IsUnknown() {
-				data.AcctServers = TacacsAcctServersTerraformToSdk(item.TacacctServers)
+				data.AcctServers = tacacsAcctServersTerraformToSdk(item.TacacctServers)
 			}
 			if !item.TacplusServers.IsNull() && !item.TacplusServers.IsUnknown() {
-				data.TacplusServers = TacacsAuthServersTerraformToSdk(item.TacplusServers)
+				data.TacplusServers = tacacsAuthServersTerraformToSdk(item.TacplusServers)
 			}
 			if item.DefaultRole.ValueStringPointer() != nil {
 				data.DefaultRole = models.ToPointer(models.TacacsDefaultRoleEnum(item.DefaultRole.ValueString()))
