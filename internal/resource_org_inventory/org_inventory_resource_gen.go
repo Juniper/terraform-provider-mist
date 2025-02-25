@@ -42,9 +42,6 @@ func OrgInventoryResourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "hostname reported by the device",
 							MarkdownDescription: "hostname reported by the device",
-							PlanModifiers: []planmodifier.String{
-								stringplanmodifier.UseStateForUnknown(),
-							},
 						},
 						"id": schema.StringAttribute{
 							Computed:            true,
@@ -162,9 +159,6 @@ func OrgInventoryResourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "hostname reported by the device",
 							MarkdownDescription: "hostname reported by the device",
-							PlanModifiers: []planmodifier.String{
-								stringplanmodifier.UseStateForUnknown(),
-							},
 						},
 						"id": schema.StringAttribute{
 							Computed:            true,
