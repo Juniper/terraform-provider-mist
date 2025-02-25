@@ -84,6 +84,30 @@ func checkVcSiteAssignment(
 	stateDevice *InventoryValue,
 	vcMacToSiteIdMap *map[string]string,
 ) (isVc bool, vcMac string) {
+	/*
+		Function to check if the devices (mostly switches) is part of a Virtual Chassis.
+		If true, the rest of the process will be applied to the Virtual Chassis MAC,
+		otherwise, the process will continue with the device MAC Address.
+		This function is also validating all the VC members are assigned to the same site
+
+		parameters:
+			diags: *diag.Diagnostics
+			deviceInfo: *string
+				the device claim code / MAC address (from the mist_org_inventory resource)
+			planDevice : *InventoryValue
+				device in the Plan.
+			stateDevice : *InventoryValue
+				device in the State.
+			vcMacToSiteIdMap : *map[string]string
+				a map of string to track which device/virtual device is assigned to which site
+				(used to validate all the VC members are assigned to the same site)
+
+		returns:
+			bool:
+				true if the device is a VC member
+			string:
+				if the device is a VC member, the MAC address of the VC
+	*/
 	isVc = false
 	vcMac = ""
 	if !stateDevice.VcMac.IsNull() && !stateDevice.VcMac.IsUnknown() && stateDevice.VcMac.ValueString() != "" {
@@ -230,7 +254,6 @@ func processUnplanedDevices(
 			unclaim : *[]string
 				list of serial numbers (serial) that must be unclaim from the Mist Inventory
 	*/
-
 	for deviceInfo, d := range stateDevices.Elements() {
 		var di interface{} = d
 		var device = di.(InventoryValue)
