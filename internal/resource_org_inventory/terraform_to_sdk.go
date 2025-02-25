@@ -119,7 +119,7 @@ func checkVcSiteAssignment(
 					"Unable to process a device in \"mist_org_inventory\"",
 					fmt.Sprintf(
 						"The device mist_org_inventory.devices[%s] is part of a virtual chassis \"%s\" with members "+
-							" assigned to a site \"%s\" whereas you are trying to unassign it. Please set the same site_id "+
+							"assigned to the site \"%s\" whereas you are trying to unassign it. Please set the same site_id "+
 							"for all the virtual chassis members",
 						*deviceInfo, vcMac, processedVcMacSiteId,
 					),
@@ -293,9 +293,8 @@ func DeleteOrgInventory(stateInventory *OrgInventoryModel) (unclaim []string, di
 		for _, d := range stateInventory.Devices.Elements() {
 			var di interface{} = d
 			var device = di.(DevicesValue)
-			var unclaimWhenDestroyed = device.UnclaimWhenDestroyed.ValueBool()
 
-			if unclaimWhenDestroyed {
+			if device.UnclaimWhenDestroyed.ValueBool() {
 				unclaim = append(unclaim, device.Serial.ValueString())
 				if device.VcMac.ValueString() != "" && !slices.Contains(unclaim, device.VcMac.ValueString()) {
 					unclaim = append(unclaim, device.VcMac.ValueString())
@@ -306,9 +305,8 @@ func DeleteOrgInventory(stateInventory *OrgInventoryModel) (unclaim []string, di
 		for _, d := range stateInventory.Inventory.Elements() {
 			var di interface{} = d
 			var device = di.(InventoryValue)
-			var unclaimWhenDestroyed = device.UnclaimWhenDestroyed.ValueBool()
 
-			if unclaimWhenDestroyed {
+			if device.UnclaimWhenDestroyed.ValueBool() {
 				unclaim = append(unclaim, device.Serial.ValueString())
 				if device.VcMac.ValueString() != "" && !slices.Contains(unclaim, device.VcMac.ValueString()) {
 					unclaim = append(unclaim, device.VcMac.ValueString())
