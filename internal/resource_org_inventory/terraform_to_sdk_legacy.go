@@ -13,8 +13,8 @@ func legacyGenDeviceMap(devices *basetypes.ListValue) map[string]*DevicesValue {
 	for _, v := range devices.Elements() {
 		var dsi interface{} = v
 		var dev = dsi.(DevicesValue)
-		var magic = strings.ReplaceAll(strings.ToUpper(dev.Magic.ValueString()), "-", "")
-		var mac = strings.ToUpper(dev.Mac.ValueString())
+		var magic = dev.Magic.ValueString()
+		var mac = dev.Mac.ValueString()
 		devicesMap[mac] = &dev
 		if magic != "" {
 			// for claimed devices
@@ -32,7 +32,7 @@ func legacyProcessDevice(
 	var op, mac string
 	var alreadyClaimed = false
 
-	if stateDevice, ok := (*stateMap)[strings.ToUpper(planDeviceInfo)]; ok {
+	if stateDevice, ok := (*stateMap)[planDeviceInfo]; ok {
 		// for already claimed devices
 		op = processAction(&planDeviceSiteId, &stateDevice.SiteId)
 		mac = stateDevice.Mac.ValueString()
@@ -118,17 +118,24 @@ func legacyProcessPlanedDevices(
 }
 
 func legacyProcessUnplanedDevices(
-	stateDevices *basetypes.ListValue,
 	planDevicesMap *map[string]*DevicesValue,
+	stateDevices *basetypes.ListValue,
 	unclaim *[]string,
 ) {
+	unclaimedVcMembers := make(map[string]string)
+	Vcs := make(map[string]string)
 	// process devices in the state
 	// check if they must be unclaimed
 	for _, devStateAttr := range stateDevices.Elements() {
 		var dsi interface{} = devStateAttr
-		var devState = dsi.(DevicesValue)
-		var magic = strings.ToUpper(devState.Magic.ValueString())
-		var mac = strings.ToLower(devState.Mac.ValueString())
+		var device = dsi.(DevicesValue)
+		var magic = device.Magic.ValueString()
+		var mac = device.Mac.ValueString()
+
+		isVc := false
+		if isVc = !device.VcMac.IsNull() && !device.VcMac.IsUnknown() && device.VcMac.ValueString() != ""; isVc {
+			Vcs[device.VcMac.ValueString()] = device.Mac.ValueString()
+		}
 		// does not unclaim devices not "cloud ready" (without claim code)
 		if magic != "" {
 			_, magicOk := (*planDevicesMap)[magic]
@@ -136,8 +143,16 @@ func legacyProcessUnplanedDevices(
 			// if we are not able to find the device in the plan based
 			// on its claim code or its mac, we'll unclaim it
 			if !magicOk && !macOk {
-				*unclaim = append(*unclaim, devState.Serial.ValueString())
+				*unclaim = append(*unclaim, device.Serial.ValueString())
+				if isVc {
+					unclaimedVcMembers[device.VcMac.ValueString()] = Vcs[device.Mac.ValueString()]
+				}
 			}
+		}
+	}
+	for vcMac, vcMembers := range unclaimedVcMembers {
+		if len(vcMembers) == len(Vcs[vcMac]) {
+			*unclaim = append(*unclaim, vcMac)
 		}
 	}
 }
@@ -158,7 +173,7 @@ func legacyTerraformToSdk(stateDevices *basetypes.ListValue, planDevices *basety
 	// process devices in the state
 	// check if devices must be unclaimed
 	planDevicesMap := legacyGenDeviceMap(planDevices)
-	legacyProcessUnplanedDevices(stateDevices, &planDevicesMap, &unclaim)
+	legacyProcessUnplanedDevices(&planDevicesMap, stateDevices, &unclaim)
 
 	return claim, unclaim, unassign, assignClaim, assign, diags
 }

@@ -183,7 +183,7 @@ func processImport(
 func processSync(
 	ctx context.Context,
 	diags *diag.Diagnostics,
-	refInventoryDevices *map[string]InventoryValue,
+	refInventoryDevices *map[string]*InventoryValue,
 	mistDevicesByClaimCode *map[string]*InventoryValue,
 	mistDevicesByMac *map[string]*InventoryValue,
 	mistSiteIdByVcMac *map[string]types.String,
@@ -210,11 +210,8 @@ func processSync(
 	*/
 	newStateDevices := make(map[string]attr.Value)
 
-	for deviceInfo, d := range *refInventoryDevices {
+	for deviceInfo, device := range *refInventoryDevices {
 		isClaimCode, isMac := DetectDeviceInfoType(diags, strings.ToUpper(deviceInfo))
-
-		var di interface{} = d
-		var device = di.(InventoryValue)
 
 		if isClaimCode {
 			if deviceFromMist, ok := (*mistDevicesByClaimCode)[strings.ToUpper(deviceInfo)]; ok {

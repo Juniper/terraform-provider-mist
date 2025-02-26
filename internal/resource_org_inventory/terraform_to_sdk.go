@@ -2,7 +2,6 @@ package resource_org_inventory
 
 import (
 	"fmt"
-	"slices"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -35,9 +34,8 @@ func processAction(planSiteId *basetypes.StringValue, stateSiteId *basetypes.Str
 }
 
 func findDeviceInState(
-	planDeviceInfo string,
-	planDeviceSiteId basetypes.StringValue,
-	stateMap *map[string]InventoryValue,
+	planDeviceSiteId *basetypes.StringValue,
+	stateDevice *InventoryValue,
 ) (op string, mac string, alreadyClaimed bool) {
 	/*
 		Function to find a device in the list coming from the Mist Inventory based on the Claim Code
@@ -61,12 +59,10 @@ func findDeviceInState(
 				if the device is already claimed (only used when planDeviceInfo is a claim code)
 	*/
 	alreadyClaimed = false
-	var stateDevice InventoryValue
-	var ok bool
 
-	if stateDevice, ok = (*stateMap)[planDeviceInfo]; ok {
+	if stateDevice != nil && !stateDevice.IsNull() && !stateDevice.IsUnknown() {
 		// for already claimed devices
-		op = processAction(&planDeviceSiteId, &stateDevice.SiteId)
+		op = processAction(planDeviceSiteId, &stateDevice.SiteId)
 		mac = stateDevice.Mac.ValueString()
 		alreadyClaimed = true
 	} else if !planDeviceSiteId.IsNull() && !planDeviceSiteId.IsUnknown() && planDeviceSiteId.ValueString() != "" {
@@ -77,15 +73,14 @@ func findDeviceInState(
 	return op, mac, alreadyClaimed
 }
 
-func checkVcSiteAssignment(
-	diags *diag.Diagnostics,
+func vcMembersAssignmentSave(
 	deviceInfo *string,
 	planDevice *InventoryValue,
 	stateDevice *InventoryValue,
-	vcMacToSiteIdMap *map[string]string,
+	vcMacAssignments map[string]map[string][]string,
 ) (isVc bool, vcMac string) {
 	/*
-		Function to check if the devices (mostly switches) is part of a Virtual Chassis.
+		Function to check if the devices (mostly switches) are part of a Virtual Chassis.
 		If true, the rest of the process will be applied to the Virtual Chassis MAC,
 		otherwise, the process will continue with the device MAC Address.
 		This function is also validating all the VC members are assigned to the same site
@@ -109,61 +104,61 @@ func checkVcSiteAssignment(
 				if the device is a VC member, the MAC address of the VC
 	*/
 	isVc = false
-	vcMac = ""
-	if !stateDevice.VcMac.IsNull() && !stateDevice.VcMac.IsUnknown() && stateDevice.VcMac.ValueString() != "" {
+	if stateDevice != nil && !stateDevice.VcMac.IsNull() && !stateDevice.VcMac.IsUnknown() && stateDevice.VcMac.ValueString() != "" {
 		isVc = true
 		vcMac = stateDevice.VcMac.ValueString()
-		processedVcMacSiteId := (*vcMacToSiteIdMap)[vcMac]
-		if processedVcMacSiteId != "" && processedVcMacSiteId != planDevice.SiteId.ValueString() {
-			// device and vc site_ids are set but with different site_ids
-			if (!planDevice.SiteId.IsUnknown() && !planDevice.SiteId.IsNull()) && processedVcMacSiteId != "00000000-0000-0000-0000-000000000000" {
-				diags.AddError(
-					"Unable to process a device in \"mist_org_inventory\"",
-					fmt.Sprintf(
-						"The device mist_org_inventory.devices[%s] is part of a virtual chassis \"%s\" assigned "+
-							"to the site \"%s\" whereas you are trying to assign it to site \"%s\". Please set the same "+
-							"site_id for all the virtual chassis members",
-						*deviceInfo, vcMac, processedVcMacSiteId, planDevice.SiteId.ValueString(),
-					),
-				)
-				// device site_id set but vc not assigned
-			} else if (!planDevice.SiteId.IsUnknown() && !planDevice.SiteId.IsNull()) && processedVcMacSiteId == "00000000-0000-0000-0000-000000000000" {
-				diags.AddError(
-					"Unable to process a device in \"mist_org_inventory\"",
-					fmt.Sprintf(
-						"The device mist_org_inventory.devices[%s] is part of an unassigned virtual chassis \"%s\" "+
-							"whereas you are trying to assign it to site \"%s\". Please set the same site_id for all the "+
-							"virtual chassis members",
-						*deviceInfo, vcMac, planDevice.SiteId.ValueString(),
-					),
-				)
-				// device site_id not set but vc assigned
-			} else if (planDevice.SiteId.IsUnknown() || planDevice.SiteId.IsNull()) && processedVcMacSiteId != "00000000-0000-0000-0000-000000000000" {
-				diags.AddError(
-					"Unable to process a device in \"mist_org_inventory\"",
-					fmt.Sprintf(
-						"The device mist_org_inventory.devices[%s] is part of a virtual chassis \"%s\" with members "+
-							"assigned to the site \"%s\" whereas you are trying to unassign it. Please set the same site_id "+
-							"for all the virtual chassis members",
-						*deviceInfo, vcMac, processedVcMacSiteId,
-					),
-				)
-			}
+		planSiteId := planDevice.SiteId.ValueString()
+
+		if planSiteId == "" {
+			planSiteId = "00000000-0000-0000-0000-000000000000"
+		}
+
+		if _, vcMacExists := vcMacAssignments[vcMac]; !vcMacExists {
+			vcMacAssignments[vcMac] = make(map[string][]string)
+			vcMacAssignments[vcMac][planSiteId] = []string{*deviceInfo}
+		} else if _, siteIdExists := vcMacAssignments[vcMac][planSiteId]; !siteIdExists {
+			vcMacAssignments[vcMac][planSiteId] = []string{*deviceInfo}
 		} else {
-			if planDevice.SiteId.ValueString() != "" {
-				(*vcMacToSiteIdMap)[vcMac] = planDevice.SiteId.ValueString()
-			} else {
-				(*vcMacToSiteIdMap)[vcMac] = "00000000-0000-0000-0000-000000000000"
-			}
+			vcMacAssignments[vcMac][planSiteId] = append(vcMacAssignments[vcMac][planSiteId], *deviceInfo)
 		}
 	}
 	return isVc, vcMac
 }
 
+func vcMembersAssignmentCheck(
+	diags *diag.Diagnostics,
+	vcMacAssignments *map[string]map[string][]string,
+) {
+	for vcMac, vcSiteMembers := range *vcMacAssignments {
+		if len(vcSiteMembers) > 1 {
+			errorMessage := ""
+			for siteId, members := range vcSiteMembers {
+				if siteId == "00000000-0000-0000-0000-000000000000" {
+					errorMessage = errorMessage + "\nunassigned:"
+				} else {
+					errorMessage = errorMessage + fmt.Sprintf("\nsite_id %s:", siteId)
+				}
+				for _, m := range members {
+					errorMessage = errorMessage + fmt.Sprintf("\n\t- mist_org_inventory.inventory[%s]", m)
+				}
+			}
+			diags.AddError(
+				"Unable to process a device in \"mist_org_inventory\"",
+				fmt.Sprintf(
+					"The devices part of the Virtual Chassis %s are currently assigned to different sites:%s"+
+						"\nPlease set the same site_id to all the virtual chassis members to it a site, "+
+						"or unset it to unassign the virtual chassis from the site.",
+					vcMac, errorMessage,
+				),
+			)
+		}
+	}
+}
+
 func processPlanedDevices(
 	diags *diag.Diagnostics,
 	planDevices *basetypes.MapValue,
-	stateDevicesMap *map[string]InventoryValue,
+	stateDevicesMap *map[string]*InventoryValue,
 	claim *[]string,
 	unassign *[]string,
 	assignClaim *map[string]string,
@@ -196,7 +191,7 @@ func processPlanedDevices(
 				the key is the siteId where the device(s) must be claimed to
 				the value is a list of MAC Address that must be assigned to the site
 	*/
-	var vcMacToSiteIdMap = make(map[string]string)
+	var vcMacAssignments = make(map[string]map[string][]string)
 	for deviceInfo, d := range planDevices.Elements() {
 		var op, mac string
 		var alreadyClaimed bool
@@ -204,12 +199,12 @@ func processPlanedDevices(
 		var di interface{} = d
 		var planDevice = di.(InventoryValue)
 		var deviceSiteId = planDevice.SiteId
-		stateDevice := (*stateDevicesMap)[deviceInfo]
+		stateDevice := (*stateDevicesMap)[strings.ToUpper(deviceInfo)]
 
 		// mac will be empty if the device is not already in the state
-		op, mac, alreadyClaimed = findDeviceInState(deviceInfo, deviceSiteId, stateDevicesMap)
+		op, mac, alreadyClaimed = findDeviceInState(&deviceSiteId, stateDevice)
 		isClaimCode, isMac := DetectDeviceInfoType(diags, deviceInfo)
-		isVc, vcMac := checkVcSiteAssignment(diags, &deviceInfo, &planDevice, &stateDevice, &vcMacToSiteIdMap)
+		isVc, vcMac := vcMembersAssignmentSave(&deviceInfo, &planDevice, stateDevice, vcMacAssignments)
 		if !alreadyClaimed && isClaimCode {
 			*claim = append(*claim, deviceInfo)
 			if op == "assign" {
@@ -234,10 +229,11 @@ func processPlanedDevices(
 			)
 		}
 	}
+	vcMembersAssignmentCheck(diags, &vcMacAssignments)
 }
 
 func processUnplanedDevices(
-	planDevicesMap *map[string]InventoryValue,
+	planDevicesMap *map[string]*InventoryValue,
 	stateDevices *basetypes.MapValue,
 	unclaim *[]string,
 ) {
@@ -254,13 +250,28 @@ func processUnplanedDevices(
 			unclaim : *[]string
 				list of serial numbers (serial) that must be unclaim from the Mist Inventory
 	*/
+	unclaimedVcMembers := make(map[string]string)
+	Vcs := make(map[string]string)
+
 	for deviceInfo, d := range stateDevices.Elements() {
 		var di interface{} = d
 		var device = di.(InventoryValue)
 		var unclaimWhenDestroyed = device.UnclaimWhenDestroyed.ValueBool()
+		isVc := false
+		if isVc = !device.VcMac.IsNull() && !device.VcMac.IsUnknown() && device.VcMac.ValueString() != ""; isVc {
+			Vcs[device.VcMac.ValueString()] = device.Mac.ValueString()
+		}
 
 		if _, ok := (*planDevicesMap)[deviceInfo]; !ok && unclaimWhenDestroyed {
 			*unclaim = append(*unclaim, device.Serial.ValueString())
+			if isVc {
+				unclaimedVcMembers[device.VcMac.ValueString()] = Vcs[device.Mac.ValueString()]
+			}
+		}
+	}
+	for vcMac, vcMembers := range unclaimedVcMembers {
+		if len(vcMembers) == len(Vcs[vcMac]) {
+			*unclaim = append(*unclaim, vcMac)
 		}
 	}
 }
@@ -313,29 +324,11 @@ func TerraformToSdk(
 
 func DeleteOrgInventory(stateInventory *OrgInventoryModel) (unclaim []string, diags diag.Diagnostics) {
 	if !stateInventory.Devices.IsNull() && !stateInventory.Devices.IsUnknown() {
-		for _, d := range stateInventory.Devices.Elements() {
-			var di interface{} = d
-			var device = di.(DevicesValue)
-
-			if device.UnclaimWhenDestroyed.ValueBool() {
-				unclaim = append(unclaim, device.Serial.ValueString())
-				if device.VcMac.ValueString() != "" && !slices.Contains(unclaim, device.VcMac.ValueString()) {
-					unclaim = append(unclaim, device.VcMac.ValueString())
-				}
-			}
-		}
+		planDevicesMap := make(map[string]*DevicesValue)
+		legacyProcessUnplanedDevices(&planDevicesMap, &stateInventory.Devices, &unclaim)
 	} else {
-		for _, d := range stateInventory.Inventory.Elements() {
-			var di interface{} = d
-			var device = di.(InventoryValue)
-
-			if device.UnclaimWhenDestroyed.ValueBool() {
-				unclaim = append(unclaim, device.Serial.ValueString())
-				if device.VcMac.ValueString() != "" && !slices.Contains(unclaim, device.VcMac.ValueString()) {
-					unclaim = append(unclaim, device.VcMac.ValueString())
-				}
-			}
-		}
+		planDevicesMap := make(map[string]*InventoryValue)
+		processUnplanedDevices(&planDevicesMap, &stateInventory.Inventory, &unclaim)
 	}
 
 	return unclaim, diags
