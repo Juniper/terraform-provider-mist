@@ -18,12 +18,20 @@ description: |-
   * `mist_device_gateway.service_policies.antivirus`
 
 ### New Data Sources
-* `mist_upgrade_device`: Allows triggering a firmware upgrade on a single device. Site and Org upgrades will be available in a later time.
+* `mist_upgrade_device`: Allows triggering a firmware upgrade on a single device. Site and Org upgrades will be available at a later time.
+
+### New Functions
+* `search_vc_by_member_claimcode`, `search_vc_by_member_mac` and `search_vc_by_member_serial` have been added to easily retrieve the Virtual Chassis' 
+`id` and `site_id` based on the claim code, MAC address or Serial Number of one of the Virtual Chassis member.
 
 ### Changes
-* adding `mist_device_ap.flow_control` attribute
-* adding the `antivirus` and `sll_proxy` attributes to `mist_org_servicepolicy`, `mist_org_gatewaytemplate.service_policies`, `mist_org_deviceprofile_gateway.service_policies` and `mist_device_gateway.service_policies`
+* add `mist_device_ap.flow_control` attribute
+* add the `antivirus` and `sll_proxy` attributes to `mist_org_servicepolicy`, `mist_org_gatewaytemplate.service_policies`, `mist_org_deviceprofile_gateway.service_policies` and `mist_device_gateway.service_policies`
 * [Issue 85](https://github.com/Juniper/terraform-provider-mist/issues/85): adding a new validator to `switch_matching.rules.name` to only allow the rule name `default` within the last rule of the list. This is applied to the resources `mist_org_networktemplate` and `mist_site_networktemplate`
+* update the `mist_org_inventory` resource to support the new Virtual Chassis "virtual mac" that will be deployed later this year by Mist.   
+This new "virtual mac" will be assigned to each new Virtual Chassis, and will be used to generate the `device_id` instead of the MAC Address of the primary member. 
+This change will allow replacing the Virtual Chassis primary member without any impact on the Virtual Chassis `device_id`.  
+In addition, new "validations" have been added to the `mist_org_inventory.inventory` resource to validate all the Virtual Chassis members are assigned to the same site. 
 
 ### Fixes
 * [Issue 88](https://github.com/Juniper/terraform-provider-mist/issues/88): fix issues with the `remote_syslog` attribute in the following resources: `mist_device_switch`, `mist_org_networktemplate`, `mist_site_networktemplate`
@@ -31,7 +39,7 @@ description: |-
 * [Issue 86](https://github.com/Juniper/terraform-provider-mist/issues/86): fix issues with the `switch_mgmt.tacacs` attribute in the following resources: `mist_org_networktemplate`, `mist_site_networktemplate`
 * [Issue 84](https://github.com/Juniper/terraform-provider-mist/issues/84): fix issues with the `snmp_config.v3_config` attribute in the following resources: `mist_device_switch`, `mist_org_networktemplate`, `mist_site_networktemplate`
 * [Issue 83](https://github.com/Juniper/terraform-provider-mist/issues/83): fix an issue with the `mist_org_nactags` datasource
-* [Issue 81](https://github.com/Juniper/terraform-provider-mist/issues/81): fix typo in `mist_org_networktemplate` property `bypass_auth_when_server_down_for_unkonwn_client` 
+* [Issue 81](https://github.com/Juniper/terraform-provider-mist/issues/81): fix typo in `mist_org_networktemplate` property `bypass_auth_when_server_down_for_unkonwn_client`
 
 
 ## Release Notes for v0.2.20
