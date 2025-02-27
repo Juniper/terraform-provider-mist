@@ -124,18 +124,20 @@ func legacySdkToTerraform(
 
 	newState.OrgId = types.StringValue(orgId)
 
-	for _, devrefInventoryattr := range refInventory.Devices.Elements() {
-		var dpi interface{} = devrefInventoryattr
+	for _, devRefInventoryAttr := range refInventory.Devices.Elements() {
+		var dpi interface{} = devRefInventoryAttr
 		var device = dpi.(DevicesValue)
 
 		var magic = strings.ReplaceAll(strings.ToUpper(device.Magic.ValueString()), "-", "")
 		var mac = strings.ToUpper(device.Mac.ValueString())
 
-		if deviceFromMist, ok := mistDevicesByClaimCode[magic]; ok {
+		var deviceFromMist *DevicesValue
+		var ok bool
+		if deviceFromMist, ok = mistDevicesByClaimCode[magic]; ok {
 			legacyCheckVcSiteId(deviceFromMist, mistSiteIdByVcMac)
 			deviceFromMist.UnclaimWhenDestroyed = device.UnclaimWhenDestroyed
 			devicesOut = append(devicesOut, *deviceFromMist)
-		} else if deviceFromMist, ok := mistDevicesbyMac[mac]; ok {
+		} else if deviceFromMist, ok = mistDevicesbyMac[mac]; ok {
 			legacyCheckVcSiteId(deviceFromMist, mistSiteIdByVcMac)
 			deviceFromMist.UnclaimWhenDestroyed = device.UnclaimWhenDestroyed
 			devicesOut = append(devicesOut, *deviceFromMist)

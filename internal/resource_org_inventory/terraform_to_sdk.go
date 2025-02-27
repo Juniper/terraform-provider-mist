@@ -2,6 +2,7 @@ package resource_org_inventory
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -221,9 +222,13 @@ func processPlanedDevices(
 			}
 			switch op {
 			case "assign":
-				(*assign)[deviceSiteId.ValueString()] = append((*assign)[deviceSiteId.ValueString()], mac)
+				if !slices.Contains((*assign)[deviceSiteId.ValueString()], mac) {
+					(*assign)[deviceSiteId.ValueString()] = append((*assign)[deviceSiteId.ValueString()], mac)
+				}
 			case "unassign":
-				*unassign = append(*unassign, mac)
+				if !slices.Contains(*unassign, mac) {
+					*unassign = append(*unassign, mac)
+				}
 			}
 		} else if !isClaimCode && !isMac {
 			diags.AddError(
@@ -254,7 +259,7 @@ func processUnplanedDevices(
 	diags *diag.Diagnostics,
 	planDevicesMap *map[string]*InventoryValue,
 	stateDevices *basetypes.MapValue,
-	unclaim *[]string,
+	macsToUnclaim *[]string,
 ) {
 
 	unclaimedVcMembers := make(map[string][]string)
@@ -273,18 +278,19 @@ func processUnplanedDevices(
 		}
 
 		if _, ok := (*planDevicesMap)[deviceInfo]; !ok && unclaimWhenDestroyed {
-			*unclaim = append(*unclaim, device.Serial.ValueString())
 			if isVc {
 				if _, vcMembersAlreadyUnclaimed := unclaimedVcMembers[device.VcMac.ValueString()]; !vcMembersAlreadyUnclaimed {
 					unclaimedVcMembers[device.VcMac.ValueString()] = []string{}
 				}
 				unclaimedVcMembers[device.VcMac.ValueString()] = append(unclaimedVcMembers[device.VcMac.ValueString()], deviceInfo)
+			} else {
+				*macsToUnclaim = append(*macsToUnclaim, device.Mac.ValueString())
 			}
 		}
 	}
 	for vcMac, vcMembers := range unclaimedVcMembers {
 		if len(vcMembers) == len(VcMembers[vcMac]) {
-			*unclaim = append(*unclaim, vcMac)
+			*macsToUnclaim = append(*macsToUnclaim, vcMac)
 		} else {
 			diags.AddError(
 				"Unable to process a device in \"mist_org_inventory\"",
@@ -341,20 +347,22 @@ func TerraformToSdk(
 ) {
 
 	if !planInventory.Devices.IsNull() && !planInventory.Devices.IsUnknown() {
-		return legacyTerraformToSdk(&stateInventory.Devices, &planInventory.Devices)
+		return legacyTerraformToSdk(stateInventory, planInventory)
 	} else {
 		return mapTerraformToSdk(stateInventory, planInventory)
 	}
 }
 
-func DeleteOrgInventory(stateInventory *OrgInventoryModel) (unclaim []string, diags diag.Diagnostics) {
+func DeleteOrgInventory(
+	stateInventory *OrgInventoryModel,
+) (macsToUnclaim []string, diags diag.Diagnostics) {
 	if !stateInventory.Devices.IsNull() {
 		planDevicesMap := make(map[string]*DevicesValue)
-		legacyProcessUnplanedDevices(&planDevicesMap, &stateInventory.Devices, &unclaim)
+		legacyProcessUnplanedDevices(&planDevicesMap, &stateInventory.Devices, &macsToUnclaim)
 	} else {
 		planDevicesMap := make(map[string]*InventoryValue)
-		processUnplanedDevices(&diags, &planDevicesMap, &stateInventory.Inventory, &unclaim)
+		processUnplanedDevices(&diags, &planDevicesMap, &stateInventory.Inventory, &macsToUnclaim)
 	}
 
-	return unclaim, diags
+	return macsToUnclaim, diags
 }

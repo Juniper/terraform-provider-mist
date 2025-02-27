@@ -210,25 +210,33 @@ func (r *orgInventoryResource) Delete(ctx context.Context, _ resource.DeleteRequ
 	// 	var dev_state = vi.(resource_org_inventory.DevicesValue)
 	// 	serials = append(serials, dev_state.Serial.ValueString())
 	// }
-	serials, diags := resource_org_inventory.DeleteOrgInventory(&state)
+	macsToUnclaims, diags := resource_org_inventory.DeleteOrgInventory(&state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	orgId, err := uuid.Parse(state.OrgId.ValueString())
-	if err != nil {
+	orgId, e := uuid.Parse(state.OrgId.ValueString())
+	if e != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"org_id\" value for \"org_inventory\" resource",
-			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
+			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", state.OrgId.ValueString(), e.Error()),
 		)
 		return
 	}
 	unclaimBody := models.InventoryUpdate{}
 	unclaimBody.Op = models.InventoryUpdateOperationEnum_DELETE
-	unclaimBody.Serials = serials
+	unclaimBody.Macs = macsToUnclaims
 	unclaimResponse, err := r.client.OrgsInventory().UpdateOrgInventoryAssignment(ctx, orgId, &unclaimBody)
-	if unclaimResponse.Response.StatusCode != 404 && err != nil {
+	apiErr, _ := mistapierror.ProcessInventoryApiError("unclaim", unclaimResponse.Response.StatusCode, unclaimResponse.Response.Body, err)
+	if len(apiErr) > 0 {
+		for _, errValue := range apiErr {
+			resp.Diagnostics.AddError(
+				"Error Unclaiming Devices to the Org Inventory",
+				errValue,
+			)
+		}
+	} else if unclaimResponse.Response.StatusCode != 404 && err != nil {
 		resp.Diagnostics.AddError(
 			"Error Unclaiming Devices from the Org Inventory",
 			"Unable to unclaim the devices, unexpected error: "+err.Error(),
@@ -391,7 +399,7 @@ func (r *orgInventoryResource) claimDevices(
 	tflog.Info(ctx, "Starting to Claim devices")
 	claimResponse, err := r.client.OrgsInventory().AddOrgInventory(ctx, orgId, claim)
 
-	apiErr := mistapierror.ProcessInventoryApiError("claim", claimResponse.Response.StatusCode, claimResponse.Response.Body, err)
+	apiErr, _ := mistapierror.ProcessInventoryApiError("claim", claimResponse.Response.StatusCode, claimResponse.Response.Body, err)
 	if len(apiErr) > 0 {
 		for _, errValue := range apiErr {
 			diags.AddError(
@@ -431,14 +439,14 @@ func (r *orgInventoryResource) unclaimDevices(
 	orgId uuid.UUID,
 	unclaim []string,
 ) {
-	tflog.Debug(ctx, "Starting to Unclaim devicesdevices: ", map[string]interface{}{"macs": strings.Join(unclaim, ", ")})
+	tflog.Debug(ctx, "Starting to Unclaim devices: ", map[string]interface{}{"macs": strings.Join(unclaim, ", ")})
 
 	unclaimBody := models.InventoryUpdate{}
 	unclaimBody.Op = models.InventoryUpdateOperationEnum_DELETE
-	unclaimBody.Serials = unclaim
+	unclaimBody.Macs = unclaim
 	unclaimResponse, err := r.client.OrgsInventory().UpdateOrgInventoryAssignment(ctx, orgId, &unclaimBody)
 
-	apiErr := mistapierror.ProcessInventoryApiError("unclaim", unclaimResponse.Response.StatusCode, unclaimResponse.Response.Body, err)
+	apiErr, _ := mistapierror.ProcessInventoryApiError("unclaim", unclaimResponse.Response.StatusCode, unclaimResponse.Response.Body, err)
 	if len(apiErr) > 0 {
 		for _, errValue := range apiErr {
 			diags.AddError(
@@ -472,7 +480,7 @@ func (r *orgInventoryResource) unassignDevices(
 	unassignBody.Macs = unassign
 	unassignResponse, err := r.client.OrgsInventory().UpdateOrgInventoryAssignment(ctx, orgId, &unassignBody)
 
-	apiErr := mistapierror.ProcessInventoryApiError("unassign", unassignResponse.Response.StatusCode, unassignResponse.Response.Body, err)
+	apiErr, _ := mistapierror.ProcessInventoryApiError("unassign", unassignResponse.Response.StatusCode, unassignResponse.Response.Body, err)
 	if len(apiErr) > 0 {
 		for _, errValue := range apiErr {
 			diags.AddError(
@@ -504,11 +512,11 @@ func (r *orgInventoryResource) assignDevices(
 		tflog.Debug(ctx, "Starting to Assign devices to site "+k+": ", map[string]interface{}{"macs": strings.Join(v, ", ")})
 
 		tflog.Info(ctx, "devices "+strings.Join(assign[k], ", ")+" to "+k)
-		siteId, err := uuid.Parse(k)
-		if err != nil && k != "" {
+		siteId, e := uuid.Parse(k)
+		if e != nil && k != "" {
 			diags.AddError(
 				"Invalid \"site_id\" value for \"org_inventory\" resource",
-				fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", siteId.String(), err.Error()),
+				fmt.Sprintf("Unable to parse the the UUID \"%s\": %s", siteId.String(), e.Error()),
 			)
 		} else {
 			body := models.InventoryUpdate{
@@ -521,7 +529,7 @@ func (r *orgInventoryResource) assignDevices(
 			}
 			assignResponse, err := r.client.OrgsInventory().UpdateOrgInventoryAssignment(ctx, orgId, &body)
 
-			apiErr := mistapierror.ProcessInventoryApiError("assign", assignResponse.Response.StatusCode, assignResponse.Response.Body, err)
+			apiErr, vcMemberAssignWarning := mistapierror.ProcessInventoryApiError("assign", assignResponse.Response.StatusCode, assignResponse.Response.Body, err)
 			if len(apiErr) > 0 {
 				for _, errValue := range apiErr {
 					diags.AddError(
@@ -529,7 +537,7 @@ func (r *orgInventoryResource) assignDevices(
 						errValue,
 					)
 				}
-			} else if err != nil {
+			} else if err != nil && !vcMemberAssignWarning {
 				diags.AddError(
 					"Error when assigning Devices from the Org Inventory to a Site",
 					"Unable to assign the devices, unexpected error: "+err.Error(),

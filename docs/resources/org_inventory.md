@@ -98,7 +98,7 @@ Read-Only:
 - `org_id` (String)
 - `serial` (String) device serial
 - `type` (String) enum: `ap`, `gateway`, `switch`
-- `vc_mac` (String) if `type`==`switch` and device part of a Virtual Chassis, MAC Address of the Virtual Chassis. if `type`==`gateway` and device part of a Clust, MAC Address of the Cluster
+- `vc_mac` (String) if `type`==`switch` and device part of a Virtual Chassis, MAC Address of the Virtual Chassis. if `type`==`gateway` and device part of a Cluster, MAC Address of the Cluster
 
 
 <a id="nestedatt--inventory"></a>
@@ -120,7 +120,7 @@ Read-Only:
 - `org_id` (String)
 - `serial` (String) device serial
 - `type` (String) enum: `ap`, `gateway`, `switch`
-- `vc_mac` (String) if `type`==`switch` and device part of a Virtual Chassis, MAC Address of the Virtual Chassis. if `type`==`gateway` and device part of a Clust, MAC Address of the Cluster
+- `vc_mac` (String) if `type`==`switch` and device part of a Virtual Chassis, MAC Address of the Virtual Chassis. if `type`==`gateway` and device part of a Cluster, MAC Address of the Cluster
 
 
 

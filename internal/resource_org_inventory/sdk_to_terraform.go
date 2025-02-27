@@ -180,6 +180,35 @@ func processImport(
 	return newStateDevices
 }
 
+func vcSiteIdValidation(
+	diags *diag.Diagnostics,
+	deviceInfo string,
+	deviceSiteId string,
+	vcSiteId string,
+) {
+	if deviceSiteId != vcSiteId && deviceSiteId != "" {
+		diags.AddError(
+			"Unable to claim a device in \"mist_org_inventory\"",
+			fmt.Sprintf(
+				"The device mist_org_inventory.inventory[%s] cannot be claimed and assigned to the site %s"+
+					" because it is part of a Virtual Chassis already assigned to the site %s.\n"+
+					"Please update mist_org_inventory.inventory[%s].site_id with the Virtual Chassis site_id",
+				deviceInfo, deviceSiteId, vcSiteId, deviceInfo,
+			),
+		)
+	} else if deviceSiteId != vcSiteId && deviceSiteId == "" {
+		diags.AddError(
+			"Unable to claim a device in \"mist_org_inventory\"",
+			fmt.Sprintf(
+				"The device mist_org_inventory.inventory[%s] cannot be claimed"+
+					" because it is part of a Virtual Chassis already assigned to the site %s.\n"+
+					"Please update mist_org_inventory.inventory[%s].site_id with the Virtual Chassis site_id",
+				deviceInfo, vcSiteId, deviceInfo,
+			),
+		)
+	}
+}
+
 func processSync(
 	ctx context.Context,
 	diags *diag.Diagnostics,
@@ -187,7 +216,7 @@ func processSync(
 	mistDevicesByClaimCode *map[string]*InventoryValue,
 	mistDevicesByMac *map[string]*InventoryValue,
 	mistSiteIdByVcMac *map[string]types.String,
-) basetypes.MapValue {
+) (newStateDevicesSet basetypes.MapValue) {
 	/*
 		Function used when using a TF import. Generated the ByClaimCode SetNested
 
@@ -218,12 +247,18 @@ func processSync(
 				checkVcSiteId(deviceFromMist, mistSiteIdByVcMac)
 				deviceFromMist.UnclaimWhenDestroyed = device.UnclaimWhenDestroyed
 				newStateDevices[deviceInfo] = deviceFromMist
+				if deviceFromMist.InventoryType.ValueString() == "switch" {
+					vcSiteIdValidation(diags, deviceInfo, device.SiteId.ValueString(), deviceFromMist.SiteId.ValueString())
+				}
 			}
 		} else if isMac {
 			if deviceFromMist, ok := (*mistDevicesByMac)[strings.ToUpper(deviceInfo)]; ok {
 				checkVcSiteId(deviceFromMist, mistSiteIdByVcMac)
 				deviceFromMist.UnclaimWhenDestroyed = device.UnclaimWhenDestroyed
 				newStateDevices[deviceInfo] = deviceFromMist
+				if deviceFromMist.InventoryType.ValueString() == "switch" {
+					vcSiteIdValidation(diags, deviceInfo, device.SiteId.ValueString(), deviceFromMist.SiteId.ValueString())
+				}
 			}
 		} else {
 			diags.AddError(
@@ -243,9 +278,7 @@ func mapSdkToTerraform(
 	orgId string,
 	data *[]models.Inventory,
 	refInventory *OrgInventoryModel,
-) (OrgInventoryModel, diag.Diagnostics) {
-	var state OrgInventoryModel
-	var diags diag.Diagnostics
+) (state OrgInventoryModel, diags diag.Diagnostics) {
 	mistDevicesByClaimCode := make(map[string]*InventoryValue)
 	mistDevicesByMac := make(map[string]*InventoryValue)
 	mistSiteIdByVcMac := make(map[string]types.String)
@@ -270,8 +303,8 @@ func mapSdkToTerraform(
 		state.Inventory = processImport(ctx, &diags, &mistDevicesByMac, &mistSiteIdByVcMac)
 	} else {
 		state.OrgId = refInventory.OrgId
-		refInventoryDevicesmap := GenDeviceMap(&refInventory.Inventory)
-		state.Inventory = processSync(ctx, &diags, &refInventoryDevicesmap, &mistDevicesByClaimCode, &mistDevicesByMac, &mistSiteIdByVcMac)
+		refInventoryDevicesMap := GenDeviceMap(&refInventory.Inventory)
+		state.Inventory = processSync(ctx, &diags, &refInventoryDevicesMap, &mistDevicesByClaimCode, &mistDevicesByMac, &mistSiteIdByVcMac)
 	}
 
 	return state, diags

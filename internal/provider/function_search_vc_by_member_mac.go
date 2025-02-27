@@ -82,9 +82,9 @@ func (f *SearchVcByMemberMacFunction) Run(ctx context.Context, req function.RunR
 		for _, v := range inventory.Devices.Elements() {
 			var vi interface{} = v
 			vcMember := vi.(resource_org_inventory.DevicesValue)
-			if !vcMember.Serial.IsNull() && !vcMember.Serial.IsUnknown() && strings.EqualFold(vcMember.Mac.ValueString(), mac) {
+			if strings.EqualFold(vcMember.Mac.ValueString(), mac) {
 				if vcMember.DevicesType.ValueString() == "switch" {
-					vc, err := f.genVirtualChassFromDevices(ctx, &vcMember)
+					vc, err := f.genVirtualChassFromDevices(ctx, vcMember)
 					if err != nil {
 						for _, e := range err.Errors() {
 							function.NewFuncError(e.Detail())
@@ -101,9 +101,9 @@ func (f *SearchVcByMemberMacFunction) Run(ctx context.Context, req function.RunR
 		for _, v := range inventory.Inventory.Elements() {
 			var vi interface{} = v
 			vcMember := vi.(resource_org_inventory.InventoryValue)
-			if !vcMember.Serial.IsNull() && !vcMember.Serial.IsUnknown() && strings.EqualFold(vcMember.Mac.ValueString(), mac) {
+			if strings.EqualFold(vcMember.Mac.ValueString(), mac) {
 				if vcMember.InventoryType.ValueString() == "switch" {
-					vc, err := f.genVirtualChassFromInventory(ctx, &vcMember)
+					vc, err := f.genVirtualChassFromInventory(ctx, vcMember)
 					if err != nil {
 						for _, e := range err.Errors() {
 							function.NewFuncError(e.Detail())
@@ -126,8 +126,11 @@ func (f *SearchVcByMemberMacFunction) Run(ctx context.Context, req function.RunR
 
 func (f *SearchVcByMemberMacFunction) genVirtualChassFromDevices(
 	ctx context.Context,
-	vcMember *resource_org_inventory.DevicesValue,
-) (resource_org_inventory.DevicesValue, diag.Diagnostics) {
+	vcMember resource_org_inventory.DevicesValue,
+) (
+	resource_org_inventory.DevicesValue,
+	diag.Diagnostics,
+) {
 	if !vcMember.VcMac.IsNull() && !vcMember.VcMac.IsUnknown() && vcMember.VcMac.ValueString() != "" {
 		var claimCode basetypes.StringValue
 		var deviceprofileId = vcMember.DeviceprofileId
@@ -159,13 +162,16 @@ func (f *SearchVcByMemberMacFunction) genVirtualChassFromDevices(
 		vc, err := resource_org_inventory.NewDevicesValue(resource_org_inventory.InventoryValue{}.AttributeTypes(ctx), dataMapValue)
 		return vc, err.Errors()
 	}
-	return *vcMember, nil
+	return vcMember, nil
 }
 
 func (f *SearchVcByMemberMacFunction) genVirtualChassFromInventory(
 	ctx context.Context,
-	vcMember *resource_org_inventory.InventoryValue,
-) (resource_org_inventory.InventoryValue, diag.Diagnostics) {
+	vcMember resource_org_inventory.InventoryValue,
+) (
+	resource_org_inventory.InventoryValue,
+	diag.Diagnostics,
+) {
 	if !vcMember.VcMac.IsNull() && !vcMember.VcMac.IsUnknown() && vcMember.VcMac.ValueString() != "" {
 		var claimCode basetypes.StringValue
 		var deviceprofileId = vcMember.DeviceprofileId
@@ -197,5 +203,5 @@ func (f *SearchVcByMemberMacFunction) genVirtualChassFromInventory(
 		vc, err := resource_org_inventory.NewInventoryValue(resource_org_inventory.InventoryValue{}.AttributeTypes(ctx), dataMapValue)
 		return vc, err.Errors()
 	}
-	return *vcMember, nil
+	return vcMember, nil
 }
