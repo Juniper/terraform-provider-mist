@@ -2940,6 +2940,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional: true,
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"contact": schema.StringAttribute{
 						Optional: true,
@@ -3262,7 +3265,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 														Validators: []validator.String{
 															stringvalidator.OneOf(
 																"",
-																"authenticatio-md5",
+																"authentication-md5",
 																"authentication-none",
 																"authentication-sha",
 																"authentication-sha224",
