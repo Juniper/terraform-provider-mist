@@ -1911,6 +1911,9 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional: true,
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"contact": schema.StringAttribute{
 						Optional: true,
@@ -2233,7 +2236,7 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 														Validators: []validator.String{
 															stringvalidator.OneOf(
 																"",
-																"authenticatio-md5",
+																"authentication-md5",
 																"authentication-none",
 																"authentication-sha",
 																"authentication-sha224",
@@ -2589,6 +2592,9 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"name": schema.StringAttribute{
 									Optional: true,
+									Validators: []validator.String{
+										stringvalidator.LengthBetween(1, 32),
+									},
 								},
 								"oob_ip_config": schema.SingleNestedAttribute{
 									Attributes: map[string]schema.Attribute{
