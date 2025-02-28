@@ -7,8 +7,17 @@ description: |-
 
 # Release Notes for v0.2.xx
 
-## Release Notes for v0.2.21
+## Release Notes for v0.2.22
 **release date** : February 28th, 2025
+
+### Fixes
+* [Issue 89](https://github.com/Juniper/terraform-provider-mist/issues/89): fix typo in `snmp_config.v3_config.usm.users.authentication_type` allowed values in the following resources: `mist_device_switch`, `mist_org_networktemplate`, `mist_site_networktemplate`
+* [Issue 90](https://github.com/Juniper/terraform-provider-mist/issues/90): adding a new validator to not accept empty list in the `snmp_config.client_list` attribute in the following resources: `mist_device_switch`, `mist_org_networktemplate`, `mist_site_networktemplate`
+
+
+
+## Release Notes for v0.2.21
+**release date** : February 27th, 2025
 
 ### New Resource
 * `mist_org_avprofile`: Allows configuring the Antivirus profiles for SRX Gateways. The Antivirus profiles can be used within the following resources:  
