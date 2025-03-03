@@ -42,7 +42,7 @@ resource "mist_org_sso_role" "sso_role_one" {
 
 ### Read-Only
 
-- `id` (String) Unique ID of the object instance in the Mist Organnization
+- `id` (String) Unique ID of the object instance in the Mist Organization
 
 <a id="nestedatt--privileges"></a>
 ### Nested Schema for `privileges`

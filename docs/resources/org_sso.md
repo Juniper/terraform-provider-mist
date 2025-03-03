@@ -56,7 +56,7 @@ resource "mist_org_sso" "sso_admin_one" {
 - `domain` (String) Random string generated during the SSO creation and used to generate the SAML URLs:
   * ACS URL = `/api/v1/saml/{domain}/login` (e.g. `https://api.mist.com/api/v1/saml/s4t5vwv8/login`)
   * Single Logout URL = `/api/v1/saml/{domain}/logout` (e.g. `https://api.mist.com/api/v1/saml/s4t5vwv8/logout`)
-- `id` (String) Unique ID of the object instance in the Mist Organnization
+- `id` (String) Unique ID of the object instance in the Mist Organization
 
 
 
