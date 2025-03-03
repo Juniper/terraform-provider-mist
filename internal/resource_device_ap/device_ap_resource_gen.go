@@ -510,8 +510,8 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"type": schema.StringAttribute{
 						Optional:            true,
-						Description:         "note: ble_config will be ingored if esl_config is enabled and with native mode. enum: `hanshow`, `imagotag`, `native`, `solum`",
-						MarkdownDescription: "note: ble_config will be ingored if esl_config is enabled and with native mode. enum: `hanshow`, `imagotag`, `native`, `solum`",
+						Description:         "note: ble_config will be ignored if esl_config is enabled and with native mode. enum: `hanshow`, `imagotag`, `native`, `solum`",
+						MarkdownDescription: "note: ble_config will be ignored if esl_config is enabled and with native mode. enum: `hanshow`, `imagotag`, `native`, `solum`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -726,6 +726,21 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "IP AP settings",
 				MarkdownDescription: "IP AP settings",
 			},
+			"lacp_config": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"enabled": schema.BoolAttribute{
+						Optional: true,
+						Computed: true,
+						Default:  booldefault.StaticBool(false),
+					},
+				},
+				CustomType: LacpConfigType{
+					ObjectType: types.ObjectType{
+						AttrTypes: LacpConfigValue{}.AttributeTypes(ctx),
+					},
+				},
+				Optional: true,
+			},
 			"led": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"brightness": schema.Int64Attribute{
@@ -771,6 +786,12 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"mesh": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
+					"bands": schema.ListAttribute{
+						ElementType:         types.StringType,
+						Optional:            true,
+						Description:         "List of bands that the mesh should apply to. For relay, the first viable one will be picked. For relay, the first viable one will be picked. enum: `24`, `5`, `6`",
+						MarkdownDescription: "List of bands that the mesh should apply to. For relay, the first viable one will be picked. For relay, the first viable one will be picked. enum: `24`, `5`, `6`",
+					},
 					"enabled": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
@@ -1479,8 +1500,8 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 					"dot1x": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Whether to do 802.1x against uplink switch. When enaled, AP cert will be used to do EAP-TLS and the Org's CA Cert has to be provisioned at the switch",
-						MarkdownDescription: "Whether to do 802.1x against uplink switch. When enaled, AP cert will be used to do EAP-TLS and the Org's CA Cert has to be provisioned at the switch",
+						Description:         "Whether to do 802.1x against uplink switch. When enabled, AP cert will be used to do EAP-TLS and the Org's CA Cert has to be provisioned at the switch",
+						MarkdownDescription: "Whether to do 802.1x against uplink switch. When enabled, AP cert will be used to do EAP-TLS and the Org's CA Cert has to be provisioned at the switch",
 						Default:             booldefault.StaticBool(false),
 					},
 					"keep_wlans_up_if_down": schema.BoolAttribute{
@@ -1642,6 +1663,7 @@ type DeviceApModel struct {
 	Image2Url        types.String          `tfsdk:"image2_url"`
 	Image3Url        types.String          `tfsdk:"image3_url"`
 	IpConfig         IpConfigValue         `tfsdk:"ip_config"`
+	LacpConfig       LacpConfigValue       `tfsdk:"lacp_config"`
 	Led              LedValue              `tfsdk:"led"`
 	Locked           types.Bool            `tfsdk:"locked"`
 	Mac              types.String          `tfsdk:"mac"`
@@ -6762,6 +6784,330 @@ func (v IpConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Type 
 	}
 }
 
+var _ basetypes.ObjectTypable = LacpConfigType{}
+
+type LacpConfigType struct {
+	basetypes.ObjectType
+}
+
+func (t LacpConfigType) Equal(o attr.Type) bool {
+	other, ok := o.(LacpConfigType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t LacpConfigType) String() string {
+	return "LacpConfigType"
+}
+
+func (t LacpConfigType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return LacpConfigValue{
+		Enabled: enabledVal,
+		state:   attr.ValueStateKnown,
+	}, diags
+}
+
+func NewLacpConfigValueNull() LacpConfigValue {
+	return LacpConfigValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewLacpConfigValueUnknown() LacpConfigValue {
+	return LacpConfigValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewLacpConfigValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (LacpConfigValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing LacpConfigValue Attribute Value",
+				"While creating a LacpConfigValue value, a missing attribute value was detected. "+
+					"A LacpConfigValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("LacpConfigValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid LacpConfigValue Attribute Type",
+				"While creating a LacpConfigValue value, an invalid attribute value was detected. "+
+					"A LacpConfigValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("LacpConfigValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("LacpConfigValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra LacpConfigValue Attribute Value",
+				"While creating a LacpConfigValue value, an extra attribute value was detected. "+
+					"A LacpConfigValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra LacpConfigValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewLacpConfigValueUnknown(), diags
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return NewLacpConfigValueUnknown(), diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	if diags.HasError() {
+		return NewLacpConfigValueUnknown(), diags
+	}
+
+	return LacpConfigValue{
+		Enabled: enabledVal,
+		state:   attr.ValueStateKnown,
+	}, diags
+}
+
+func NewLacpConfigValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) LacpConfigValue {
+	object, diags := NewLacpConfigValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewLacpConfigValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t LacpConfigType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewLacpConfigValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewLacpConfigValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewLacpConfigValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewLacpConfigValueMust(LacpConfigValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t LacpConfigType) ValueType(ctx context.Context) attr.Value {
+	return LacpConfigValue{}
+}
+
+var _ basetypes.ObjectValuable = LacpConfigValue{}
+
+type LacpConfigValue struct {
+	Enabled basetypes.BoolValue `tfsdk:"enabled"`
+	state   attr.ValueState
+}
+
+func (v LacpConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 1)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 1)
+
+		val, err = v.Enabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enabled"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v LacpConfigValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v LacpConfigValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v LacpConfigValue) String() string {
+	return "LacpConfigValue"
+}
+
+func (v LacpConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"enabled": basetypes.BoolType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"enabled": v.Enabled,
+		})
+
+	return objVal, diags
+}
+
+func (v LacpConfigValue) Equal(o attr.Value) bool {
+	other, ok := o.(LacpConfigValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Enabled.Equal(other.Enabled) {
+		return false
+	}
+
+	return true
+}
+
+func (v LacpConfigValue) Type(ctx context.Context) attr.Type {
+	return LacpConfigType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v LacpConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"enabled": basetypes.BoolType{},
+	}
+}
+
 var _ basetypes.ObjectTypable = LedType{}
 
 type LedType struct {
@@ -7166,6 +7512,24 @@ func (t MeshType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue)
 
 	attributes := in.Attributes()
 
+	bandsAttribute, ok := attributes["bands"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`bands is missing from object`)
+
+		return nil, diags
+	}
+
+	bandsVal, ok := bandsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`bands expected to be basetypes.ListValue, was: %T`, bandsAttribute))
+	}
+
 	enabledAttribute, ok := attributes["enabled"]
 
 	if !ok {
@@ -7225,6 +7589,7 @@ func (t MeshType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue)
 	}
 
 	return MeshValue{
+		Bands:   bandsVal,
 		Enabled: enabledVal,
 		Group:   groupVal,
 		Role:    roleVal,
@@ -7295,6 +7660,24 @@ func NewMeshValue(attributeTypes map[string]attr.Type, attributes map[string]att
 		return NewMeshValueUnknown(), diags
 	}
 
+	bandsAttribute, ok := attributes["bands"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`bands is missing from object`)
+
+		return NewMeshValueUnknown(), diags
+	}
+
+	bandsVal, ok := bandsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`bands expected to be basetypes.ListValue, was: %T`, bandsAttribute))
+	}
+
 	enabledAttribute, ok := attributes["enabled"]
 
 	if !ok {
@@ -7354,6 +7737,7 @@ func NewMeshValue(attributeTypes map[string]attr.Type, attributes map[string]att
 	}
 
 	return MeshValue{
+		Bands:   bandsVal,
 		Enabled: enabledVal,
 		Group:   groupVal,
 		Role:    roleVal,
@@ -7429,6 +7813,7 @@ func (t MeshType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = MeshValue{}
 
 type MeshValue struct {
+	Bands   basetypes.ListValue   `tfsdk:"bands"`
 	Enabled basetypes.BoolValue   `tfsdk:"enabled"`
 	Group   basetypes.Int64Value  `tfsdk:"group"`
 	Role    basetypes.StringValue `tfsdk:"role"`
@@ -7436,11 +7821,14 @@ type MeshValue struct {
 }
 
 func (v MeshValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 3)
+	attrTypes := make(map[string]tftypes.Type, 4)
 
 	var val tftypes.Value
 	var err error
 
+	attrTypes["bands"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
 	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["group"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["role"] = basetypes.StringType{}.TerraformType(ctx)
@@ -7449,7 +7837,15 @@ func (v MeshValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) 
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 3)
+		vals := make(map[string]tftypes.Value, 4)
+
+		val, err = v.Bands.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["bands"] = val
 
 		val, err = v.Enabled.ToTerraformValue(ctx)
 
@@ -7504,7 +7900,25 @@ func (v MeshValue) String() string {
 func (v MeshValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
+	bandsVal, d := types.ListValue(types.StringType, v.Bands.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"bands": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"enabled": basetypes.BoolType{},
+			"group":   basetypes.Int64Type{},
+			"role":    basetypes.StringType{},
+		}), diags
+	}
+
 	attributeTypes := map[string]attr.Type{
+		"bands": basetypes.ListType{
+			ElemType: types.StringType,
+		},
 		"enabled": basetypes.BoolType{},
 		"group":   basetypes.Int64Type{},
 		"role":    basetypes.StringType{},
@@ -7521,6 +7935,7 @@ func (v MeshValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, di
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
+			"bands":   bandsVal,
 			"enabled": v.Enabled,
 			"group":   v.Group,
 			"role":    v.Role,
@@ -7542,6 +7957,10 @@ func (v MeshValue) Equal(o attr.Value) bool {
 
 	if v.state != attr.ValueStateKnown {
 		return true
+	}
+
+	if !v.Bands.Equal(other.Bands) {
+		return false
 	}
 
 	if !v.Enabled.Equal(other.Enabled) {
@@ -7569,6 +7988,9 @@ func (v MeshValue) Type(ctx context.Context) attr.Type {
 
 func (v MeshValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
+		"bands": basetypes.ListType{
+			ElemType: types.StringType,
+		},
 		"enabled": basetypes.BoolType{},
 		"group":   basetypes.Int64Type{},
 		"role":    basetypes.StringType{},
