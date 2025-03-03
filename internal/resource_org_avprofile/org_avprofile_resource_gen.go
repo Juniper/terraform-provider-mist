@@ -25,6 +25,7 @@ func OrgAvprofileResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "enum: `block`, `permit`",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
+						"",
 						"block",
 						"permit",
 					),
@@ -32,8 +33,8 @@ func OrgAvprofileResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Unique ID of the object instance in the Mist Organnization",
-				MarkdownDescription: "Unique ID of the object instance in the Mist Organnization",
+				Description:         "Unique ID of the object instance in the Mist Organization",
+				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
 			},
 			"max_filesize": schema.Int64Attribute{
 				Optional:            true,
