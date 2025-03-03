@@ -36,8 +36,8 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"country_code": schema.StringAttribute{
 				Optional:            true,
-				Description:         "country code for the site (for AP config generation), in two-character",
-				MarkdownDescription: "country code for the site (for AP config generation), in two-character",
+				Description:         "Country code for the site (for AP config generation), in two-character",
+				MarkdownDescription: "Country code for the site (for AP config generation), in two-character",
 			},
 			"gatewaytemplate_id": schema.StringAttribute{
 				Optional:            true,
@@ -46,8 +46,8 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Unique ID of the object instance in the Mist Organnization",
-				MarkdownDescription: "Unique ID of the object instance in the Mist Organnization",
+				Description:         "Unique ID of the object instance in the Mist Organization",
+				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
 			},
 			"latlng": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -75,8 +75,8 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"notes": schema.StringAttribute{
 				Optional:            true,
-				Description:         "optional, any notes about the site",
-				MarkdownDescription: "optional, any notes about the site",
+				Description:         "Optional, any notes about the site",
+				MarkdownDescription: "Optional, any notes about the site",
 			},
 			"org_id": schema.StringAttribute{
 				Required: true,
@@ -94,8 +94,8 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 			"sitegroup_ids": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
-				Description:         "sitegroups this site belongs to",
-				MarkdownDescription: "sitegroups this site belongs to",
+				Description:         "Sitegroups this site belongs to",
+				MarkdownDescription: "Sitegroups this site belongs to",
 			},
 			"sitetemplate_id": schema.StringAttribute{
 				Optional:            true,
@@ -108,6 +108,9 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "Timezone the site is at",
 				MarkdownDescription: "Timezone the site is at",
 				Default:             stringdefault.StaticString("UTC"),
+			},
+			"tzoffset": schema.Int64Attribute{
+				Optional: true,
 			},
 		},
 	}
@@ -130,6 +133,7 @@ type SiteModel struct {
 	SitegroupIds      types.List   `tfsdk:"sitegroup_ids"`
 	SitetemplateId    types.String `tfsdk:"sitetemplate_id"`
 	Timezone          types.String `tfsdk:"timezone"`
+	Tzoffset          types.Int64  `tfsdk:"tzoffset"`
 }
 
 var _ basetypes.ObjectTypable = LatlngType{}
