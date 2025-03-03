@@ -38,7 +38,7 @@ resource "mist_org_nac_endpoint" "endpoint_one" {
 
 ### Required
 
-- `mac` (String) only non-local-admin MAC is accepted
+- `mac` (String) Only non-local-admin MAC is accepted
 - `org_id` (String)
 
 ### Optional
@@ -51,7 +51,7 @@ resource "mist_org_nac_endpoint" "endpoint_one" {
 
 ### Read-Only
 
-- `id` (String) Unique ID of the object instance in the Mist Organnization
+- `id` (String) Unique ID of the object instance in the Mist Organization
 
 
 

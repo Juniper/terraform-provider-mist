@@ -18,8 +18,8 @@ func OrgUsermacResourceSchema(ctx context.Context) schema.Schema {
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Unique ID of the object instance in the Mist Organnization",
-				MarkdownDescription: "Unique ID of the object instance in the Mist Organnization",
+				Description:         "Unique ID of the object instance in the Mist Organization",
+				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
 			},
 			"labels": schema.ListAttribute{
 				ElementType: types.StringType,
@@ -31,8 +31,8 @@ func OrgUsermacResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"mac": schema.StringAttribute{
 				Required:            true,
-				Description:         "only non-local-admin MAC is accepted",
-				MarkdownDescription: "only non-local-admin MAC is accepted",
+				Description:         "Only non-local-admin MAC is accepted",
+				MarkdownDescription: "Only non-local-admin MAC is accepted",
 			},
 			"name": schema.StringAttribute{
 				Optional: true,
