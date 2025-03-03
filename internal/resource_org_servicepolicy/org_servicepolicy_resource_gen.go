@@ -24,6 +24,43 @@ import (
 func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
+			"aamw": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"aamwprofile_id": schema.StringAttribute{
+						Optional:            true,
+						Description:         "org-level Advanced Advance Anti Malware Profile (SkyAtp) Profile can be used, this takes precedence over 'profile'",
+						MarkdownDescription: "org-level Advanced Advance Anti Malware Profile (SkyAtp) Profile can be used, this takes precedence over 'profile'",
+					},
+					"enabled": schema.BoolAttribute{
+						Optional: true,
+						Computed: true,
+						Default:  booldefault.StaticBool(false),
+					},
+					"profile": schema.StringAttribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "enum: `docsonly`, `executables`, `standard`",
+						MarkdownDescription: "enum: `docsonly`, `executables`, `standard`",
+						Validators: []validator.String{
+							stringvalidator.OneOf(
+								"",
+								"docsonly",
+								"executables",
+								"standard",
+							),
+						},
+						Default: stringdefault.StaticString("standard"),
+					},
+				},
+				CustomType: AamwType{
+					ObjectType: types.ObjectType{
+						AttrTypes: AamwValue{}.AttributeTypes(ctx),
+					},
+				},
+				Optional:            true,
+				Description:         "For SRX Only",
+				MarkdownDescription: "For SRX Only",
+			},
 			"action": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
@@ -41,8 +78,8 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 				Attributes: map[string]schema.Attribute{
 					"avprofile_id": schema.StringAttribute{
 						Optional:            true,
-						Description:         "org-level AV Profile can be used, this takes precendence over 'profile'",
-						MarkdownDescription: "org-level AV Profile can be used, this takes precendence over 'profile'",
+						Description:         "org-level AV Profile can be used, this takes precedence over 'profile'",
+						MarkdownDescription: "org-level AV Profile can be used, this takes precedence over 'profile'",
 					},
 					"enabled": schema.BoolAttribute{
 						Optional: true,
@@ -121,8 +158,8 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Unique ID of the object instance in the Mist Organnization",
-				MarkdownDescription: "Unique ID of the object instance in the Mist Organnization",
+				Description:         "Unique ID of the object instance in the Mist Organization",
+				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
 			},
 			"idp": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -224,6 +261,7 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 }
 
 type OrgServicepolicyModel struct {
+	Aamw           AamwValue      `tfsdk:"aamw"`
 	Action         types.String   `tfsdk:"action"`
 	Antivirus      AntivirusValue `tfsdk:"antivirus"`
 	Appqoe         AppqoeValue    `tfsdk:"appqoe"`
@@ -237,6 +275,440 @@ type OrgServicepolicyModel struct {
 	Services       types.List     `tfsdk:"services"`
 	SslProxy       SslProxyValue  `tfsdk:"ssl_proxy"`
 	Tenants        types.List     `tfsdk:"tenants"`
+}
+
+var _ basetypes.ObjectTypable = AamwType{}
+
+type AamwType struct {
+	basetypes.ObjectType
+}
+
+func (t AamwType) Equal(o attr.Type) bool {
+	other, ok := o.(AamwType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t AamwType) String() string {
+	return "AamwType"
+}
+
+func (t AamwType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	aamwprofileIdAttribute, ok := attributes["aamwprofile_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`aamwprofile_id is missing from object`)
+
+		return nil, diags
+	}
+
+	aamwprofileIdVal, ok := aamwprofileIdAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`aamwprofile_id expected to be basetypes.StringValue, was: %T`, aamwprofileIdAttribute))
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	profileAttribute, ok := attributes["profile"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`profile is missing from object`)
+
+		return nil, diags
+	}
+
+	profileVal, ok := profileAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`profile expected to be basetypes.StringValue, was: %T`, profileAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return AamwValue{
+		AamwprofileId: aamwprofileIdVal,
+		Enabled:       enabledVal,
+		Profile:       profileVal,
+		state:         attr.ValueStateKnown,
+	}, diags
+}
+
+func NewAamwValueNull() AamwValue {
+	return AamwValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewAamwValueUnknown() AamwValue {
+	return AamwValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewAamwValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (AamwValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing AamwValue Attribute Value",
+				"While creating a AamwValue value, a missing attribute value was detected. "+
+					"A AamwValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("AamwValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid AamwValue Attribute Type",
+				"While creating a AamwValue value, an invalid attribute value was detected. "+
+					"A AamwValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("AamwValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("AamwValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra AamwValue Attribute Value",
+				"While creating a AamwValue value, an extra attribute value was detected. "+
+					"A AamwValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra AamwValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewAamwValueUnknown(), diags
+	}
+
+	aamwprofileIdAttribute, ok := attributes["aamwprofile_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`aamwprofile_id is missing from object`)
+
+		return NewAamwValueUnknown(), diags
+	}
+
+	aamwprofileIdVal, ok := aamwprofileIdAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`aamwprofile_id expected to be basetypes.StringValue, was: %T`, aamwprofileIdAttribute))
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return NewAamwValueUnknown(), diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	profileAttribute, ok := attributes["profile"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`profile is missing from object`)
+
+		return NewAamwValueUnknown(), diags
+	}
+
+	profileVal, ok := profileAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`profile expected to be basetypes.StringValue, was: %T`, profileAttribute))
+	}
+
+	if diags.HasError() {
+		return NewAamwValueUnknown(), diags
+	}
+
+	return AamwValue{
+		AamwprofileId: aamwprofileIdVal,
+		Enabled:       enabledVal,
+		Profile:       profileVal,
+		state:         attr.ValueStateKnown,
+	}, diags
+}
+
+func NewAamwValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) AamwValue {
+	object, diags := NewAamwValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewAamwValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t AamwType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewAamwValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewAamwValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewAamwValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewAamwValueMust(AamwValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t AamwType) ValueType(ctx context.Context) attr.Value {
+	return AamwValue{}
+}
+
+var _ basetypes.ObjectValuable = AamwValue{}
+
+type AamwValue struct {
+	AamwprofileId basetypes.StringValue `tfsdk:"aamwprofile_id"`
+	Enabled       basetypes.BoolValue   `tfsdk:"enabled"`
+	Profile       basetypes.StringValue `tfsdk:"profile"`
+	state         attr.ValueState
+}
+
+func (v AamwValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 3)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["aamwprofile_id"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["profile"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 3)
+
+		val, err = v.AamwprofileId.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["aamwprofile_id"] = val
+
+		val, err = v.Enabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enabled"] = val
+
+		val, err = v.Profile.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["profile"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v AamwValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v AamwValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v AamwValue) String() string {
+	return "AamwValue"
+}
+
+func (v AamwValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"aamwprofile_id": basetypes.StringType{},
+		"enabled":        basetypes.BoolType{},
+		"profile":        basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"aamwprofile_id": v.AamwprofileId,
+			"enabled":        v.Enabled,
+			"profile":        v.Profile,
+		})
+
+	return objVal, diags
+}
+
+func (v AamwValue) Equal(o attr.Value) bool {
+	other, ok := o.(AamwValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.AamwprofileId.Equal(other.AamwprofileId) {
+		return false
+	}
+
+	if !v.Enabled.Equal(other.Enabled) {
+		return false
+	}
+
+	if !v.Profile.Equal(other.Profile) {
+		return false
+	}
+
+	return true
+}
+
+func (v AamwValue) Type(ctx context.Context) attr.Type {
+	return AamwType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v AamwValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"aamwprofile_id": basetypes.StringType{},
+		"enabled":        basetypes.BoolType{},
+		"profile":        basetypes.StringType{},
+	}
 }
 
 var _ basetypes.ObjectTypable = AntivirusType{}
