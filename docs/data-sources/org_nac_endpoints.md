@@ -36,8 +36,8 @@ data "mist_org_nac_endpoints" "nac_endpoints" {
 
 ### Optional
 
-- `labels` (List of String) optional, array of strings of labels
-- `mac` (String) partial/full MAC addres
+- `labels` (List of String) Optional, array of strings of labels
+- `mac` (String) Partial/full MAC address
 
 ### Read-Only
 
@@ -48,9 +48,9 @@ data "mist_org_nac_endpoints" "nac_endpoints" {
 
 Read-Only:
 
-- `id` (String) Unique ID of the object instance in the Mist Organnization
+- `id` (String) Unique ID of the object instance in the Mist Organization
 - `labels` (List of String)
-- `mac` (String) only non-local-admin MAC is accepted
+- `mac` (String) Only non-local-admin MAC is accepted
 - `name` (String)
 - `notes` (String)
 - `radius_group` (String)

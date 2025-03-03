@@ -25,8 +25,8 @@ func OrgAlarmtemplatesDataSourceSchema(ctx context.Context) schema.Schema {
 					Attributes: map[string]schema.Attribute{
 						"created_time": schema.Float64Attribute{
 							Computed:            true,
-							Description:         "when the object has been created, in epoch",
-							MarkdownDescription: "when the object has been created, in epoch",
+							Description:         "When the object has been created, in epoch",
+							MarkdownDescription: "When the object has been created, in epoch",
 						},
 						"delivery": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
@@ -63,13 +63,13 @@ func OrgAlarmtemplatesDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"id": schema.StringAttribute{
 							Computed:            true,
-							Description:         "Unique ID of the object instance in the Mist Organnization",
-							MarkdownDescription: "Unique ID of the object instance in the Mist Organnization",
+							Description:         "Unique ID of the object instance in the Mist Organization",
+							MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
 						},
 						"modified_time": schema.Float64Attribute{
 							Computed:            true,
-							Description:         "when the object has been modified for the last time, in epoch",
-							MarkdownDescription: "when the object has been modified for the last time, in epoch",
+							Description:         "When the object has been modified for the last time, in epoch",
+							MarkdownDescription: "When the object has been modified for the last time, in epoch",
 						},
 						"name": schema.StringAttribute{
 							Computed:            true,

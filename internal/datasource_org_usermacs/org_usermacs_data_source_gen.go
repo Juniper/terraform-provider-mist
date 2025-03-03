@@ -21,13 +21,13 @@ func OrgUsermacsDataSourceSchema(ctx context.Context) schema.Schema {
 			"labels": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
-				Description:         "optional, array of strings of labels",
-				MarkdownDescription: "optional, array of strings of labels",
+				Description:         "Optional, array of strings of labels",
+				MarkdownDescription: "Optional, array of strings of labels",
 			},
 			"mac": schema.StringAttribute{
 				Optional:            true,
-				Description:         "partial/full MAC addres",
-				MarkdownDescription: "partial/full MAC addres",
+				Description:         "Partial/full MAC address",
+				MarkdownDescription: "Partial/full MAC address",
 			},
 			"org_id": schema.StringAttribute{
 				Required: true,
@@ -37,8 +37,8 @@ func OrgUsermacsDataSourceSchema(ctx context.Context) schema.Schema {
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
 							Computed:            true,
-							Description:         "Unique ID of the object instance in the Mist Organnization",
-							MarkdownDescription: "Unique ID of the object instance in the Mist Organnization",
+							Description:         "Unique ID of the object instance in the Mist Organization",
+							MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
 						},
 						"labels": schema.ListAttribute{
 							ElementType: types.StringType,
@@ -46,8 +46,8 @@ func OrgUsermacsDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"mac": schema.StringAttribute{
 							Computed:            true,
-							Description:         "only non-local-admin MAC is accepted",
-							MarkdownDescription: "only non-local-admin MAC is accepted",
+							Description:         "Only non-local-admin MAC is accepted",
+							MarkdownDescription: "Only non-local-admin MAC is accepted",
 						},
 						"name": schema.StringAttribute{
 							Computed: true,

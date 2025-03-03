@@ -47,7 +47,7 @@ Read-Only:
 
 - `created_time` (Number) When the object has been created, in epoch
 - `fallback_action` (String) enum: `block`, `permit`
-- `id` (String) Unique ID of the object instance in the Mist Organnization
+- `id` (String) Unique ID of the object instance in the Mist Organization
 - `max_filesize` (Number) In KB
 - `mime_whitelist` (List of String)
 - `modified_time` (Number) When the object has been modified for the last time, in epoch
