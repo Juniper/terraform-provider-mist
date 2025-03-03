@@ -24,17 +24,174 @@ func OrgNacrulesDataSourceSchema(ctx context.Context) schema.Schema {
 			"org_nacrules": schema.SetNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
-						"created_time": schema.NumberAttribute{
-							Computed: true,
+						"action": schema.StringAttribute{
+							Computed:            true,
+							Description:         "enum: `allow`, `block`",
+							MarkdownDescription: "enum: `allow`, `block`",
+						},
+						"apply_tags": schema.ListAttribute{
+							ElementType:         types.StringType,
+							Computed:            true,
+							Description:         "All optional, this goes into Access-Accept",
+							MarkdownDescription: "All optional, this goes into Access-Accept",
+						},
+						"created_time": schema.Float64Attribute{
+							Computed:            true,
+							Description:         "When the object has been created, in epoch",
+							MarkdownDescription: "When the object has been created, in epoch",
+						},
+						"enabled": schema.BoolAttribute{
+							Computed:            true,
+							Description:         "Enabled or not",
+							MarkdownDescription: "Enabled or not",
 						},
 						"id": schema.StringAttribute{
+							Computed:            true,
+							Description:         "Unique ID of the object instance in the Mist Organization",
+							MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
+						},
+						"matching": schema.SingleNestedAttribute{
+							Attributes: map[string]schema.Attribute{
+								"auth_type": schema.StringAttribute{
+									Computed:            true,
+									Description:         "enum: `cert`, `device-auth`, `eap-teap`, `eap-tls`, `eap-ttls`, `idp`, `mab`, `peap-tls`, `psk`",
+									MarkdownDescription: "enum: `cert`, `device-auth`, `eap-teap`, `eap-tls`, `eap-ttls`, `idp`, `mab`, `peap-tls`, `psk`",
+								},
+								"family": schema.ListAttribute{
+									ElementType:         types.StringType,
+									Computed:            true,
+									Description:         "List of client device families to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed family values",
+									MarkdownDescription: "List of client device families to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed family values",
+								},
+								"mfg": schema.ListAttribute{
+									ElementType:         types.StringType,
+									Computed:            true,
+									Description:         "List of client device models to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed model values",
+									MarkdownDescription: "List of client device models to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed model values",
+								},
+								"model": schema.ListAttribute{
+									ElementType:         types.StringType,
+									Computed:            true,
+									Description:         "List of client device manufacturers to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed mfg values",
+									MarkdownDescription: "List of client device manufacturers to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed mfg values",
+								},
+								"nactags": schema.ListAttribute{
+									ElementType: types.StringType,
+									Computed:    true,
+								},
+								"os_type": schema.ListAttribute{
+									ElementType:         types.StringType,
+									Computed:            true,
+									Description:         "List of client device os types to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed os_type values",
+									MarkdownDescription: "List of client device os types to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed os_type values",
+								},
+								"port_types": schema.ListAttribute{
+									ElementType: types.StringType,
+									Computed:    true,
+								},
+								"site_ids": schema.ListAttribute{
+									ElementType:         types.StringType,
+									Computed:            true,
+									Description:         "List of site ids to match",
+									MarkdownDescription: "List of site ids to match",
+								},
+								"sitegroup_ids": schema.ListAttribute{
+									ElementType:         types.StringType,
+									Computed:            true,
+									Description:         "List of sitegroup ids to match",
+									MarkdownDescription: "List of sitegroup ids to match",
+								},
+								"vendor": schema.ListAttribute{
+									ElementType:         types.StringType,
+									Computed:            true,
+									Description:         "List of vendors to match",
+									MarkdownDescription: "List of vendors to match",
+								},
+							},
+							CustomType: MatchingType{
+								ObjectType: types.ObjectType{
+									AttrTypes: MatchingValue{}.AttributeTypes(ctx),
+								},
+							},
 							Computed: true,
 						},
-						"modified_time": schema.NumberAttribute{
-							Computed: true,
+						"modified_time": schema.Float64Attribute{
+							Computed:            true,
+							Description:         "When the object has been modified for the last time, in epoch",
+							MarkdownDescription: "When the object has been modified for the last time, in epoch",
 						},
 						"name": schema.StringAttribute{
 							Computed: true,
+						},
+						"not_matching": schema.SingleNestedAttribute{
+							Attributes: map[string]schema.Attribute{
+								"auth_type": schema.StringAttribute{
+									Computed:            true,
+									Description:         "enum: `cert`, `device-auth`, `eap-teap`, `eap-tls`, `eap-ttls`, `idp`, `mab`, `peap-tls`, `psk`",
+									MarkdownDescription: "enum: `cert`, `device-auth`, `eap-teap`, `eap-tls`, `eap-ttls`, `idp`, `mab`, `peap-tls`, `psk`",
+								},
+								"family": schema.ListAttribute{
+									ElementType:         types.StringType,
+									Computed:            true,
+									Description:         "List of client device families to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed family values",
+									MarkdownDescription: "List of client device families to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed family values",
+								},
+								"mfg": schema.ListAttribute{
+									ElementType:         types.StringType,
+									Computed:            true,
+									Description:         "List of client device models to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed model values",
+									MarkdownDescription: "List of client device models to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed model values",
+								},
+								"model": schema.ListAttribute{
+									ElementType:         types.StringType,
+									Computed:            true,
+									Description:         "List of client device manufacturers to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed mfg values",
+									MarkdownDescription: "List of client device manufacturers to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed mfg values",
+								},
+								"nactags": schema.ListAttribute{
+									ElementType: types.StringType,
+									Computed:    true,
+								},
+								"os_type": schema.ListAttribute{
+									ElementType:         types.StringType,
+									Computed:            true,
+									Description:         "List of client device os types to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed os_type values",
+									MarkdownDescription: "List of client device os types to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed os_type values",
+								},
+								"port_types": schema.ListAttribute{
+									ElementType: types.StringType,
+									Computed:    true,
+								},
+								"site_ids": schema.ListAttribute{
+									ElementType:         types.StringType,
+									Computed:            true,
+									Description:         "List of site ids to match",
+									MarkdownDescription: "List of site ids to match",
+								},
+								"sitegroup_ids": schema.ListAttribute{
+									ElementType:         types.StringType,
+									Computed:            true,
+									Description:         "List of sitegroup ids to match",
+									MarkdownDescription: "List of sitegroup ids to match",
+								},
+								"vendor": schema.ListAttribute{
+									ElementType:         types.StringType,
+									Computed:            true,
+									Description:         "List of vendors to match",
+									MarkdownDescription: "List of vendors to match",
+								},
+							},
+							CustomType: NotMatchingType{
+								ObjectType: types.ObjectType{
+									AttrTypes: NotMatchingValue{}.AttributeTypes(ctx),
+								},
+							},
+							Computed: true,
+						},
+						"order": schema.Int64Attribute{
+							Computed:            true,
+							Description:         "Prder of the rule, lower value implies higher priority",
+							MarkdownDescription: "Prder of the rule, lower value implies higher priority",
 						},
 						"org_id": schema.StringAttribute{
 							Computed: true,
@@ -82,6 +239,42 @@ func (t OrgNacrulesType) ValueFromObject(ctx context.Context, in basetypes.Objec
 
 	attributes := in.Attributes()
 
+	actionAttribute, ok := attributes["action"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`action is missing from object`)
+
+		return nil, diags
+	}
+
+	actionVal, ok := actionAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`action expected to be basetypes.StringValue, was: %T`, actionAttribute))
+	}
+
+	applyTagsAttribute, ok := attributes["apply_tags"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`apply_tags is missing from object`)
+
+		return nil, diags
+	}
+
+	applyTagsVal, ok := applyTagsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`apply_tags expected to be basetypes.ListValue, was: %T`, applyTagsAttribute))
+	}
+
 	createdTimeAttribute, ok := attributes["created_time"]
 
 	if !ok {
@@ -92,12 +285,30 @@ func (t OrgNacrulesType) ValueFromObject(ctx context.Context, in basetypes.Objec
 		return nil, diags
 	}
 
-	createdTimeVal, ok := createdTimeAttribute.(basetypes.NumberValue)
+	createdTimeVal, ok := createdTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`created_time expected to be basetypes.NumberValue, was: %T`, createdTimeAttribute))
+			fmt.Sprintf(`created_time expected to be basetypes.Float64Value, was: %T`, createdTimeAttribute))
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
 	}
 
 	idAttribute, ok := attributes["id"]
@@ -118,6 +329,24 @@ func (t OrgNacrulesType) ValueFromObject(ctx context.Context, in basetypes.Objec
 			fmt.Sprintf(`id expected to be basetypes.StringValue, was: %T`, idAttribute))
 	}
 
+	matchingAttribute, ok := attributes["matching"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`matching is missing from object`)
+
+		return nil, diags
+	}
+
+	matchingVal, ok := matchingAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`matching expected to be basetypes.ObjectValue, was: %T`, matchingAttribute))
+	}
+
 	modifiedTimeAttribute, ok := attributes["modified_time"]
 
 	if !ok {
@@ -128,12 +357,12 @@ func (t OrgNacrulesType) ValueFromObject(ctx context.Context, in basetypes.Objec
 		return nil, diags
 	}
 
-	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.NumberValue)
+	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`modified_time expected to be basetypes.NumberValue, was: %T`, modifiedTimeAttribute))
+			fmt.Sprintf(`modified_time expected to be basetypes.Float64Value, was: %T`, modifiedTimeAttribute))
 	}
 
 	nameAttribute, ok := attributes["name"]
@@ -152,6 +381,42 @@ func (t OrgNacrulesType) ValueFromObject(ctx context.Context, in basetypes.Objec
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`name expected to be basetypes.StringValue, was: %T`, nameAttribute))
+	}
+
+	notMatchingAttribute, ok := attributes["not_matching"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`not_matching is missing from object`)
+
+		return nil, diags
+	}
+
+	notMatchingVal, ok := notMatchingAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`not_matching expected to be basetypes.ObjectValue, was: %T`, notMatchingAttribute))
+	}
+
+	orderAttribute, ok := attributes["order"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`order is missing from object`)
+
+		return nil, diags
+	}
+
+	orderVal, ok := orderAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`order expected to be basetypes.Int64Value, was: %T`, orderAttribute))
 	}
 
 	orgIdAttribute, ok := attributes["org_id"]
@@ -177,10 +442,16 @@ func (t OrgNacrulesType) ValueFromObject(ctx context.Context, in basetypes.Objec
 	}
 
 	return OrgNacrulesValue{
+		Action:       actionVal,
+		ApplyTags:    applyTagsVal,
 		CreatedTime:  createdTimeVal,
+		Enabled:      enabledVal,
 		Id:           idVal,
+		Matching:     matchingVal,
 		ModifiedTime: modifiedTimeVal,
 		Name:         nameVal,
+		NotMatching:  notMatchingVal,
+		Order:        orderVal,
 		OrgId:        orgIdVal,
 		state:        attr.ValueStateKnown,
 	}, diags
@@ -249,6 +520,42 @@ func NewOrgNacrulesValue(attributeTypes map[string]attr.Type, attributes map[str
 		return NewOrgNacrulesValueUnknown(), diags
 	}
 
+	actionAttribute, ok := attributes["action"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`action is missing from object`)
+
+		return NewOrgNacrulesValueUnknown(), diags
+	}
+
+	actionVal, ok := actionAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`action expected to be basetypes.StringValue, was: %T`, actionAttribute))
+	}
+
+	applyTagsAttribute, ok := attributes["apply_tags"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`apply_tags is missing from object`)
+
+		return NewOrgNacrulesValueUnknown(), diags
+	}
+
+	applyTagsVal, ok := applyTagsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`apply_tags expected to be basetypes.ListValue, was: %T`, applyTagsAttribute))
+	}
+
 	createdTimeAttribute, ok := attributes["created_time"]
 
 	if !ok {
@@ -259,12 +566,30 @@ func NewOrgNacrulesValue(attributeTypes map[string]attr.Type, attributes map[str
 		return NewOrgNacrulesValueUnknown(), diags
 	}
 
-	createdTimeVal, ok := createdTimeAttribute.(basetypes.NumberValue)
+	createdTimeVal, ok := createdTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`created_time expected to be basetypes.NumberValue, was: %T`, createdTimeAttribute))
+			fmt.Sprintf(`created_time expected to be basetypes.Float64Value, was: %T`, createdTimeAttribute))
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return NewOrgNacrulesValueUnknown(), diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
 	}
 
 	idAttribute, ok := attributes["id"]
@@ -285,6 +610,24 @@ func NewOrgNacrulesValue(attributeTypes map[string]attr.Type, attributes map[str
 			fmt.Sprintf(`id expected to be basetypes.StringValue, was: %T`, idAttribute))
 	}
 
+	matchingAttribute, ok := attributes["matching"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`matching is missing from object`)
+
+		return NewOrgNacrulesValueUnknown(), diags
+	}
+
+	matchingVal, ok := matchingAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`matching expected to be basetypes.ObjectValue, was: %T`, matchingAttribute))
+	}
+
 	modifiedTimeAttribute, ok := attributes["modified_time"]
 
 	if !ok {
@@ -295,12 +638,12 @@ func NewOrgNacrulesValue(attributeTypes map[string]attr.Type, attributes map[str
 		return NewOrgNacrulesValueUnknown(), diags
 	}
 
-	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.NumberValue)
+	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`modified_time expected to be basetypes.NumberValue, was: %T`, modifiedTimeAttribute))
+			fmt.Sprintf(`modified_time expected to be basetypes.Float64Value, was: %T`, modifiedTimeAttribute))
 	}
 
 	nameAttribute, ok := attributes["name"]
@@ -319,6 +662,42 @@ func NewOrgNacrulesValue(attributeTypes map[string]attr.Type, attributes map[str
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`name expected to be basetypes.StringValue, was: %T`, nameAttribute))
+	}
+
+	notMatchingAttribute, ok := attributes["not_matching"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`not_matching is missing from object`)
+
+		return NewOrgNacrulesValueUnknown(), diags
+	}
+
+	notMatchingVal, ok := notMatchingAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`not_matching expected to be basetypes.ObjectValue, was: %T`, notMatchingAttribute))
+	}
+
+	orderAttribute, ok := attributes["order"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`order is missing from object`)
+
+		return NewOrgNacrulesValueUnknown(), diags
+	}
+
+	orderVal, ok := orderAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`order expected to be basetypes.Int64Value, was: %T`, orderAttribute))
 	}
 
 	orgIdAttribute, ok := attributes["org_id"]
@@ -344,10 +723,16 @@ func NewOrgNacrulesValue(attributeTypes map[string]attr.Type, attributes map[str
 	}
 
 	return OrgNacrulesValue{
+		Action:       actionVal,
+		ApplyTags:    applyTagsVal,
 		CreatedTime:  createdTimeVal,
+		Enabled:      enabledVal,
 		Id:           idVal,
+		Matching:     matchingVal,
 		ModifiedTime: modifiedTimeVal,
 		Name:         nameVal,
+		NotMatching:  notMatchingVal,
+		Order:        orderVal,
 		OrgId:        orgIdVal,
 		state:        attr.ValueStateKnown,
 	}, diags
@@ -421,31 +806,65 @@ func (t OrgNacrulesType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = OrgNacrulesValue{}
 
 type OrgNacrulesValue struct {
-	CreatedTime  basetypes.NumberValue `tfsdk:"created_time"`
-	Id           basetypes.StringValue `tfsdk:"id"`
-	ModifiedTime basetypes.NumberValue `tfsdk:"modified_time"`
-	Name         basetypes.StringValue `tfsdk:"name"`
-	OrgId        basetypes.StringValue `tfsdk:"org_id"`
+	Action       basetypes.StringValue  `tfsdk:"action"`
+	ApplyTags    basetypes.ListValue    `tfsdk:"apply_tags"`
+	CreatedTime  basetypes.Float64Value `tfsdk:"created_time"`
+	Enabled      basetypes.BoolValue    `tfsdk:"enabled"`
+	Id           basetypes.StringValue  `tfsdk:"id"`
+	Matching     basetypes.ObjectValue  `tfsdk:"matching"`
+	ModifiedTime basetypes.Float64Value `tfsdk:"modified_time"`
+	Name         basetypes.StringValue  `tfsdk:"name"`
+	NotMatching  basetypes.ObjectValue  `tfsdk:"not_matching"`
+	Order        basetypes.Int64Value   `tfsdk:"order"`
+	OrgId        basetypes.StringValue  `tfsdk:"org_id"`
 	state        attr.ValueState
 }
 
 func (v OrgNacrulesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 6)
+	attrTypes := make(map[string]tftypes.Type, 11)
 
 	var val tftypes.Value
 	var err error
 
-	attrTypes["created_time"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["action"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["apply_tags"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["created_time"] = basetypes.Float64Type{}.TerraformType(ctx)
+	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["id"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["modified_time"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["matching"] = basetypes.ObjectType{
+		AttrTypes: MatchingValue{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
+	attrTypes["modified_time"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["not_matching"] = basetypes.ObjectType{
+		AttrTypes: NotMatchingValue{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
+	attrTypes["order"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["org_id"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 6)
+		vals := make(map[string]tftypes.Value, 11)
+
+		val, err = v.Action.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["action"] = val
+
+		val, err = v.ApplyTags.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["apply_tags"] = val
 
 		val, err = v.CreatedTime.ToTerraformValue(ctx)
 
@@ -455,6 +874,14 @@ func (v OrgNacrulesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 
 		vals["created_time"] = val
 
+		val, err = v.Enabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enabled"] = val
+
 		val, err = v.Id.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -462,6 +889,14 @@ func (v OrgNacrulesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 		}
 
 		vals["id"] = val
+
+		val, err = v.Matching.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["matching"] = val
 
 		val, err = v.ModifiedTime.ToTerraformValue(ctx)
 
@@ -478,6 +913,22 @@ func (v OrgNacrulesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 		}
 
 		vals["name"] = val
+
+		val, err = v.NotMatching.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["not_matching"] = val
+
+		val, err = v.Order.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["order"] = val
 
 		val, err = v.OrgId.ToTerraformValue(ctx)
 
@@ -516,12 +967,92 @@ func (v OrgNacrulesValue) String() string {
 func (v OrgNacrulesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
+	var matching basetypes.ObjectValue
+
+	if v.Matching.IsNull() {
+		matching = types.ObjectNull(
+			MatchingValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.Matching.IsUnknown() {
+		matching = types.ObjectUnknown(
+			MatchingValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.Matching.IsNull() && !v.Matching.IsUnknown() {
+		matching = types.ObjectValueMust(
+			MatchingValue{}.AttributeTypes(ctx),
+			v.Matching.Attributes(),
+		)
+	}
+
+	var notMatching basetypes.ObjectValue
+
+	if v.NotMatching.IsNull() {
+		notMatching = types.ObjectNull(
+			NotMatchingValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.NotMatching.IsUnknown() {
+		notMatching = types.ObjectUnknown(
+			NotMatchingValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.NotMatching.IsNull() && !v.NotMatching.IsUnknown() {
+		notMatching = types.ObjectValueMust(
+			NotMatchingValue{}.AttributeTypes(ctx),
+			v.NotMatching.Attributes(),
+		)
+	}
+
+	applyTagsVal, d := types.ListValue(types.StringType, v.ApplyTags.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"action": basetypes.StringType{},
+			"apply_tags": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"created_time": basetypes.Float64Type{},
+			"enabled":      basetypes.BoolType{},
+			"id":           basetypes.StringType{},
+			"matching": basetypes.ObjectType{
+				AttrTypes: MatchingValue{}.AttributeTypes(ctx),
+			},
+			"modified_time": basetypes.Float64Type{},
+			"name":          basetypes.StringType{},
+			"not_matching": basetypes.ObjectType{
+				AttrTypes: NotMatchingValue{}.AttributeTypes(ctx),
+			},
+			"order":  basetypes.Int64Type{},
+			"org_id": basetypes.StringType{},
+		}), diags
+	}
+
 	attributeTypes := map[string]attr.Type{
-		"created_time":  basetypes.NumberType{},
-		"id":            basetypes.StringType{},
-		"modified_time": basetypes.NumberType{},
+		"action": basetypes.StringType{},
+		"apply_tags": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"created_time": basetypes.Float64Type{},
+		"enabled":      basetypes.BoolType{},
+		"id":           basetypes.StringType{},
+		"matching": basetypes.ObjectType{
+			AttrTypes: MatchingValue{}.AttributeTypes(ctx),
+		},
+		"modified_time": basetypes.Float64Type{},
 		"name":          basetypes.StringType{},
-		"org_id":        basetypes.StringType{},
+		"not_matching": basetypes.ObjectType{
+			AttrTypes: NotMatchingValue{}.AttributeTypes(ctx),
+		},
+		"order":  basetypes.Int64Type{},
+		"org_id": basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -535,10 +1066,16 @@ func (v OrgNacrulesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
+			"action":        v.Action,
+			"apply_tags":    applyTagsVal,
 			"created_time":  v.CreatedTime,
+			"enabled":       v.Enabled,
 			"id":            v.Id,
+			"matching":      matching,
 			"modified_time": v.ModifiedTime,
 			"name":          v.Name,
+			"not_matching":  notMatching,
+			"order":         v.Order,
 			"org_id":        v.OrgId,
 		})
 
@@ -560,11 +1097,27 @@ func (v OrgNacrulesValue) Equal(o attr.Value) bool {
 		return true
 	}
 
+	if !v.Action.Equal(other.Action) {
+		return false
+	}
+
+	if !v.ApplyTags.Equal(other.ApplyTags) {
+		return false
+	}
+
 	if !v.CreatedTime.Equal(other.CreatedTime) {
 		return false
 	}
 
+	if !v.Enabled.Equal(other.Enabled) {
+		return false
+	}
+
 	if !v.Id.Equal(other.Id) {
+		return false
+	}
+
+	if !v.Matching.Equal(other.Matching) {
 		return false
 	}
 
@@ -573,6 +1126,14 @@ func (v OrgNacrulesValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.Name.Equal(other.Name) {
+		return false
+	}
+
+	if !v.NotMatching.Equal(other.NotMatching) {
+		return false
+	}
+
+	if !v.Order.Equal(other.Order) {
 		return false
 	}
 
@@ -593,10 +1154,2434 @@ func (v OrgNacrulesValue) Type(ctx context.Context) attr.Type {
 
 func (v OrgNacrulesValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"created_time":  basetypes.NumberType{},
-		"id":            basetypes.StringType{},
-		"modified_time": basetypes.NumberType{},
+		"action": basetypes.StringType{},
+		"apply_tags": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"created_time": basetypes.Float64Type{},
+		"enabled":      basetypes.BoolType{},
+		"id":           basetypes.StringType{},
+		"matching": basetypes.ObjectType{
+			AttrTypes: MatchingValue{}.AttributeTypes(ctx),
+		},
+		"modified_time": basetypes.Float64Type{},
 		"name":          basetypes.StringType{},
-		"org_id":        basetypes.StringType{},
+		"not_matching": basetypes.ObjectType{
+			AttrTypes: NotMatchingValue{}.AttributeTypes(ctx),
+		},
+		"order":  basetypes.Int64Type{},
+		"org_id": basetypes.StringType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = MatchingType{}
+
+type MatchingType struct {
+	basetypes.ObjectType
+}
+
+func (t MatchingType) Equal(o attr.Type) bool {
+	other, ok := o.(MatchingType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t MatchingType) String() string {
+	return "MatchingType"
+}
+
+func (t MatchingType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	authTypeAttribute, ok := attributes["auth_type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`auth_type is missing from object`)
+
+		return nil, diags
+	}
+
+	authTypeVal, ok := authTypeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`auth_type expected to be basetypes.StringValue, was: %T`, authTypeAttribute))
+	}
+
+	familyAttribute, ok := attributes["family"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`family is missing from object`)
+
+		return nil, diags
+	}
+
+	familyVal, ok := familyAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`family expected to be basetypes.ListValue, was: %T`, familyAttribute))
+	}
+
+	mfgAttribute, ok := attributes["mfg"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`mfg is missing from object`)
+
+		return nil, diags
+	}
+
+	mfgVal, ok := mfgAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`mfg expected to be basetypes.ListValue, was: %T`, mfgAttribute))
+	}
+
+	modelAttribute, ok := attributes["model"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`model is missing from object`)
+
+		return nil, diags
+	}
+
+	modelVal, ok := modelAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`model expected to be basetypes.ListValue, was: %T`, modelAttribute))
+	}
+
+	nactagsAttribute, ok := attributes["nactags"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`nactags is missing from object`)
+
+		return nil, diags
+	}
+
+	nactagsVal, ok := nactagsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`nactags expected to be basetypes.ListValue, was: %T`, nactagsAttribute))
+	}
+
+	osTypeAttribute, ok := attributes["os_type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`os_type is missing from object`)
+
+		return nil, diags
+	}
+
+	osTypeVal, ok := osTypeAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`os_type expected to be basetypes.ListValue, was: %T`, osTypeAttribute))
+	}
+
+	portTypesAttribute, ok := attributes["port_types"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`port_types is missing from object`)
+
+		return nil, diags
+	}
+
+	portTypesVal, ok := portTypesAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`port_types expected to be basetypes.ListValue, was: %T`, portTypesAttribute))
+	}
+
+	siteIdsAttribute, ok := attributes["site_ids"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`site_ids is missing from object`)
+
+		return nil, diags
+	}
+
+	siteIdsVal, ok := siteIdsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`site_ids expected to be basetypes.ListValue, was: %T`, siteIdsAttribute))
+	}
+
+	sitegroupIdsAttribute, ok := attributes["sitegroup_ids"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`sitegroup_ids is missing from object`)
+
+		return nil, diags
+	}
+
+	sitegroupIdsVal, ok := sitegroupIdsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`sitegroup_ids expected to be basetypes.ListValue, was: %T`, sitegroupIdsAttribute))
+	}
+
+	vendorAttribute, ok := attributes["vendor"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`vendor is missing from object`)
+
+		return nil, diags
+	}
+
+	vendorVal, ok := vendorAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`vendor expected to be basetypes.ListValue, was: %T`, vendorAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return MatchingValue{
+		AuthType:     authTypeVal,
+		Family:       familyVal,
+		Mfg:          mfgVal,
+		Model:        modelVal,
+		Nactags:      nactagsVal,
+		OsType:       osTypeVal,
+		PortTypes:    portTypesVal,
+		SiteIds:      siteIdsVal,
+		SitegroupIds: sitegroupIdsVal,
+		Vendor:       vendorVal,
+		state:        attr.ValueStateKnown,
+	}, diags
+}
+
+func NewMatchingValueNull() MatchingValue {
+	return MatchingValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewMatchingValueUnknown() MatchingValue {
+	return MatchingValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewMatchingValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (MatchingValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing MatchingValue Attribute Value",
+				"While creating a MatchingValue value, a missing attribute value was detected. "+
+					"A MatchingValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("MatchingValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid MatchingValue Attribute Type",
+				"While creating a MatchingValue value, an invalid attribute value was detected. "+
+					"A MatchingValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("MatchingValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("MatchingValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra MatchingValue Attribute Value",
+				"While creating a MatchingValue value, an extra attribute value was detected. "+
+					"A MatchingValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra MatchingValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewMatchingValueUnknown(), diags
+	}
+
+	authTypeAttribute, ok := attributes["auth_type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`auth_type is missing from object`)
+
+		return NewMatchingValueUnknown(), diags
+	}
+
+	authTypeVal, ok := authTypeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`auth_type expected to be basetypes.StringValue, was: %T`, authTypeAttribute))
+	}
+
+	familyAttribute, ok := attributes["family"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`family is missing from object`)
+
+		return NewMatchingValueUnknown(), diags
+	}
+
+	familyVal, ok := familyAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`family expected to be basetypes.ListValue, was: %T`, familyAttribute))
+	}
+
+	mfgAttribute, ok := attributes["mfg"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`mfg is missing from object`)
+
+		return NewMatchingValueUnknown(), diags
+	}
+
+	mfgVal, ok := mfgAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`mfg expected to be basetypes.ListValue, was: %T`, mfgAttribute))
+	}
+
+	modelAttribute, ok := attributes["model"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`model is missing from object`)
+
+		return NewMatchingValueUnknown(), diags
+	}
+
+	modelVal, ok := modelAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`model expected to be basetypes.ListValue, was: %T`, modelAttribute))
+	}
+
+	nactagsAttribute, ok := attributes["nactags"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`nactags is missing from object`)
+
+		return NewMatchingValueUnknown(), diags
+	}
+
+	nactagsVal, ok := nactagsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`nactags expected to be basetypes.ListValue, was: %T`, nactagsAttribute))
+	}
+
+	osTypeAttribute, ok := attributes["os_type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`os_type is missing from object`)
+
+		return NewMatchingValueUnknown(), diags
+	}
+
+	osTypeVal, ok := osTypeAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`os_type expected to be basetypes.ListValue, was: %T`, osTypeAttribute))
+	}
+
+	portTypesAttribute, ok := attributes["port_types"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`port_types is missing from object`)
+
+		return NewMatchingValueUnknown(), diags
+	}
+
+	portTypesVal, ok := portTypesAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`port_types expected to be basetypes.ListValue, was: %T`, portTypesAttribute))
+	}
+
+	siteIdsAttribute, ok := attributes["site_ids"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`site_ids is missing from object`)
+
+		return NewMatchingValueUnknown(), diags
+	}
+
+	siteIdsVal, ok := siteIdsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`site_ids expected to be basetypes.ListValue, was: %T`, siteIdsAttribute))
+	}
+
+	sitegroupIdsAttribute, ok := attributes["sitegroup_ids"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`sitegroup_ids is missing from object`)
+
+		return NewMatchingValueUnknown(), diags
+	}
+
+	sitegroupIdsVal, ok := sitegroupIdsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`sitegroup_ids expected to be basetypes.ListValue, was: %T`, sitegroupIdsAttribute))
+	}
+
+	vendorAttribute, ok := attributes["vendor"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`vendor is missing from object`)
+
+		return NewMatchingValueUnknown(), diags
+	}
+
+	vendorVal, ok := vendorAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`vendor expected to be basetypes.ListValue, was: %T`, vendorAttribute))
+	}
+
+	if diags.HasError() {
+		return NewMatchingValueUnknown(), diags
+	}
+
+	return MatchingValue{
+		AuthType:     authTypeVal,
+		Family:       familyVal,
+		Mfg:          mfgVal,
+		Model:        modelVal,
+		Nactags:      nactagsVal,
+		OsType:       osTypeVal,
+		PortTypes:    portTypesVal,
+		SiteIds:      siteIdsVal,
+		SitegroupIds: sitegroupIdsVal,
+		Vendor:       vendorVal,
+		state:        attr.ValueStateKnown,
+	}, diags
+}
+
+func NewMatchingValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) MatchingValue {
+	object, diags := NewMatchingValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewMatchingValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t MatchingType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewMatchingValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewMatchingValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewMatchingValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewMatchingValueMust(MatchingValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t MatchingType) ValueType(ctx context.Context) attr.Value {
+	return MatchingValue{}
+}
+
+var _ basetypes.ObjectValuable = MatchingValue{}
+
+type MatchingValue struct {
+	AuthType     basetypes.StringValue `tfsdk:"auth_type"`
+	Family       basetypes.ListValue   `tfsdk:"family"`
+	Mfg          basetypes.ListValue   `tfsdk:"mfg"`
+	Model        basetypes.ListValue   `tfsdk:"model"`
+	Nactags      basetypes.ListValue   `tfsdk:"nactags"`
+	OsType       basetypes.ListValue   `tfsdk:"os_type"`
+	PortTypes    basetypes.ListValue   `tfsdk:"port_types"`
+	SiteIds      basetypes.ListValue   `tfsdk:"site_ids"`
+	SitegroupIds basetypes.ListValue   `tfsdk:"sitegroup_ids"`
+	Vendor       basetypes.ListValue   `tfsdk:"vendor"`
+	state        attr.ValueState
+}
+
+func (v MatchingValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 10)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["auth_type"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["family"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["mfg"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["model"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["nactags"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["os_type"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["port_types"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["site_ids"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["sitegroup_ids"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["vendor"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 10)
+
+		val, err = v.AuthType.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["auth_type"] = val
+
+		val, err = v.Family.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["family"] = val
+
+		val, err = v.Mfg.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["mfg"] = val
+
+		val, err = v.Model.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["model"] = val
+
+		val, err = v.Nactags.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["nactags"] = val
+
+		val, err = v.OsType.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["os_type"] = val
+
+		val, err = v.PortTypes.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["port_types"] = val
+
+		val, err = v.SiteIds.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["site_ids"] = val
+
+		val, err = v.SitegroupIds.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["sitegroup_ids"] = val
+
+		val, err = v.Vendor.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["vendor"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v MatchingValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v MatchingValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v MatchingValue) String() string {
+	return "MatchingValue"
+}
+
+func (v MatchingValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	familyVal, d := types.ListValue(types.StringType, v.Family.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"auth_type": basetypes.StringType{},
+			"family": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"mfg": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"model": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"nactags": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"os_type": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"port_types": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"site_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"sitegroup_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"vendor": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	mfgVal, d := types.ListValue(types.StringType, v.Mfg.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"auth_type": basetypes.StringType{},
+			"family": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"mfg": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"model": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"nactags": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"os_type": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"port_types": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"site_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"sitegroup_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"vendor": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	modelVal, d := types.ListValue(types.StringType, v.Model.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"auth_type": basetypes.StringType{},
+			"family": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"mfg": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"model": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"nactags": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"os_type": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"port_types": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"site_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"sitegroup_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"vendor": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	nactagsVal, d := types.ListValue(types.StringType, v.Nactags.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"auth_type": basetypes.StringType{},
+			"family": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"mfg": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"model": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"nactags": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"os_type": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"port_types": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"site_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"sitegroup_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"vendor": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	osTypeVal, d := types.ListValue(types.StringType, v.OsType.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"auth_type": basetypes.StringType{},
+			"family": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"mfg": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"model": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"nactags": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"os_type": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"port_types": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"site_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"sitegroup_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"vendor": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	portTypesVal, d := types.ListValue(types.StringType, v.PortTypes.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"auth_type": basetypes.StringType{},
+			"family": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"mfg": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"model": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"nactags": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"os_type": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"port_types": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"site_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"sitegroup_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"vendor": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	siteIdsVal, d := types.ListValue(types.StringType, v.SiteIds.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"auth_type": basetypes.StringType{},
+			"family": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"mfg": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"model": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"nactags": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"os_type": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"port_types": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"site_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"sitegroup_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"vendor": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	sitegroupIdsVal, d := types.ListValue(types.StringType, v.SitegroupIds.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"auth_type": basetypes.StringType{},
+			"family": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"mfg": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"model": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"nactags": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"os_type": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"port_types": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"site_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"sitegroup_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"vendor": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	vendorVal, d := types.ListValue(types.StringType, v.Vendor.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"auth_type": basetypes.StringType{},
+			"family": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"mfg": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"model": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"nactags": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"os_type": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"port_types": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"site_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"sitegroup_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"vendor": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	attributeTypes := map[string]attr.Type{
+		"auth_type": basetypes.StringType{},
+		"family": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"mfg": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"model": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"nactags": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"os_type": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"port_types": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"site_ids": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"sitegroup_ids": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"vendor": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"auth_type":     v.AuthType,
+			"family":        familyVal,
+			"mfg":           mfgVal,
+			"model":         modelVal,
+			"nactags":       nactagsVal,
+			"os_type":       osTypeVal,
+			"port_types":    portTypesVal,
+			"site_ids":      siteIdsVal,
+			"sitegroup_ids": sitegroupIdsVal,
+			"vendor":        vendorVal,
+		})
+
+	return objVal, diags
+}
+
+func (v MatchingValue) Equal(o attr.Value) bool {
+	other, ok := o.(MatchingValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.AuthType.Equal(other.AuthType) {
+		return false
+	}
+
+	if !v.Family.Equal(other.Family) {
+		return false
+	}
+
+	if !v.Mfg.Equal(other.Mfg) {
+		return false
+	}
+
+	if !v.Model.Equal(other.Model) {
+		return false
+	}
+
+	if !v.Nactags.Equal(other.Nactags) {
+		return false
+	}
+
+	if !v.OsType.Equal(other.OsType) {
+		return false
+	}
+
+	if !v.PortTypes.Equal(other.PortTypes) {
+		return false
+	}
+
+	if !v.SiteIds.Equal(other.SiteIds) {
+		return false
+	}
+
+	if !v.SitegroupIds.Equal(other.SitegroupIds) {
+		return false
+	}
+
+	if !v.Vendor.Equal(other.Vendor) {
+		return false
+	}
+
+	return true
+}
+
+func (v MatchingValue) Type(ctx context.Context) attr.Type {
+	return MatchingType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v MatchingValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"auth_type": basetypes.StringType{},
+		"family": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"mfg": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"model": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"nactags": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"os_type": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"port_types": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"site_ids": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"sitegroup_ids": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"vendor": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+	}
+}
+
+var _ basetypes.ObjectTypable = NotMatchingType{}
+
+type NotMatchingType struct {
+	basetypes.ObjectType
+}
+
+func (t NotMatchingType) Equal(o attr.Type) bool {
+	other, ok := o.(NotMatchingType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t NotMatchingType) String() string {
+	return "NotMatchingType"
+}
+
+func (t NotMatchingType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	authTypeAttribute, ok := attributes["auth_type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`auth_type is missing from object`)
+
+		return nil, diags
+	}
+
+	authTypeVal, ok := authTypeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`auth_type expected to be basetypes.StringValue, was: %T`, authTypeAttribute))
+	}
+
+	familyAttribute, ok := attributes["family"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`family is missing from object`)
+
+		return nil, diags
+	}
+
+	familyVal, ok := familyAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`family expected to be basetypes.ListValue, was: %T`, familyAttribute))
+	}
+
+	mfgAttribute, ok := attributes["mfg"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`mfg is missing from object`)
+
+		return nil, diags
+	}
+
+	mfgVal, ok := mfgAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`mfg expected to be basetypes.ListValue, was: %T`, mfgAttribute))
+	}
+
+	modelAttribute, ok := attributes["model"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`model is missing from object`)
+
+		return nil, diags
+	}
+
+	modelVal, ok := modelAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`model expected to be basetypes.ListValue, was: %T`, modelAttribute))
+	}
+
+	nactagsAttribute, ok := attributes["nactags"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`nactags is missing from object`)
+
+		return nil, diags
+	}
+
+	nactagsVal, ok := nactagsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`nactags expected to be basetypes.ListValue, was: %T`, nactagsAttribute))
+	}
+
+	osTypeAttribute, ok := attributes["os_type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`os_type is missing from object`)
+
+		return nil, diags
+	}
+
+	osTypeVal, ok := osTypeAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`os_type expected to be basetypes.ListValue, was: %T`, osTypeAttribute))
+	}
+
+	portTypesAttribute, ok := attributes["port_types"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`port_types is missing from object`)
+
+		return nil, diags
+	}
+
+	portTypesVal, ok := portTypesAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`port_types expected to be basetypes.ListValue, was: %T`, portTypesAttribute))
+	}
+
+	siteIdsAttribute, ok := attributes["site_ids"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`site_ids is missing from object`)
+
+		return nil, diags
+	}
+
+	siteIdsVal, ok := siteIdsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`site_ids expected to be basetypes.ListValue, was: %T`, siteIdsAttribute))
+	}
+
+	sitegroupIdsAttribute, ok := attributes["sitegroup_ids"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`sitegroup_ids is missing from object`)
+
+		return nil, diags
+	}
+
+	sitegroupIdsVal, ok := sitegroupIdsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`sitegroup_ids expected to be basetypes.ListValue, was: %T`, sitegroupIdsAttribute))
+	}
+
+	vendorAttribute, ok := attributes["vendor"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`vendor is missing from object`)
+
+		return nil, diags
+	}
+
+	vendorVal, ok := vendorAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`vendor expected to be basetypes.ListValue, was: %T`, vendorAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return NotMatchingValue{
+		AuthType:     authTypeVal,
+		Family:       familyVal,
+		Mfg:          mfgVal,
+		Model:        modelVal,
+		Nactags:      nactagsVal,
+		OsType:       osTypeVal,
+		PortTypes:    portTypesVal,
+		SiteIds:      siteIdsVal,
+		SitegroupIds: sitegroupIdsVal,
+		Vendor:       vendorVal,
+		state:        attr.ValueStateKnown,
+	}, diags
+}
+
+func NewNotMatchingValueNull() NotMatchingValue {
+	return NotMatchingValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewNotMatchingValueUnknown() NotMatchingValue {
+	return NotMatchingValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewNotMatchingValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (NotMatchingValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing NotMatchingValue Attribute Value",
+				"While creating a NotMatchingValue value, a missing attribute value was detected. "+
+					"A NotMatchingValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("NotMatchingValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid NotMatchingValue Attribute Type",
+				"While creating a NotMatchingValue value, an invalid attribute value was detected. "+
+					"A NotMatchingValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("NotMatchingValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("NotMatchingValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra NotMatchingValue Attribute Value",
+				"While creating a NotMatchingValue value, an extra attribute value was detected. "+
+					"A NotMatchingValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra NotMatchingValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewNotMatchingValueUnknown(), diags
+	}
+
+	authTypeAttribute, ok := attributes["auth_type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`auth_type is missing from object`)
+
+		return NewNotMatchingValueUnknown(), diags
+	}
+
+	authTypeVal, ok := authTypeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`auth_type expected to be basetypes.StringValue, was: %T`, authTypeAttribute))
+	}
+
+	familyAttribute, ok := attributes["family"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`family is missing from object`)
+
+		return NewNotMatchingValueUnknown(), diags
+	}
+
+	familyVal, ok := familyAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`family expected to be basetypes.ListValue, was: %T`, familyAttribute))
+	}
+
+	mfgAttribute, ok := attributes["mfg"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`mfg is missing from object`)
+
+		return NewNotMatchingValueUnknown(), diags
+	}
+
+	mfgVal, ok := mfgAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`mfg expected to be basetypes.ListValue, was: %T`, mfgAttribute))
+	}
+
+	modelAttribute, ok := attributes["model"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`model is missing from object`)
+
+		return NewNotMatchingValueUnknown(), diags
+	}
+
+	modelVal, ok := modelAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`model expected to be basetypes.ListValue, was: %T`, modelAttribute))
+	}
+
+	nactagsAttribute, ok := attributes["nactags"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`nactags is missing from object`)
+
+		return NewNotMatchingValueUnknown(), diags
+	}
+
+	nactagsVal, ok := nactagsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`nactags expected to be basetypes.ListValue, was: %T`, nactagsAttribute))
+	}
+
+	osTypeAttribute, ok := attributes["os_type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`os_type is missing from object`)
+
+		return NewNotMatchingValueUnknown(), diags
+	}
+
+	osTypeVal, ok := osTypeAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`os_type expected to be basetypes.ListValue, was: %T`, osTypeAttribute))
+	}
+
+	portTypesAttribute, ok := attributes["port_types"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`port_types is missing from object`)
+
+		return NewNotMatchingValueUnknown(), diags
+	}
+
+	portTypesVal, ok := portTypesAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`port_types expected to be basetypes.ListValue, was: %T`, portTypesAttribute))
+	}
+
+	siteIdsAttribute, ok := attributes["site_ids"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`site_ids is missing from object`)
+
+		return NewNotMatchingValueUnknown(), diags
+	}
+
+	siteIdsVal, ok := siteIdsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`site_ids expected to be basetypes.ListValue, was: %T`, siteIdsAttribute))
+	}
+
+	sitegroupIdsAttribute, ok := attributes["sitegroup_ids"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`sitegroup_ids is missing from object`)
+
+		return NewNotMatchingValueUnknown(), diags
+	}
+
+	sitegroupIdsVal, ok := sitegroupIdsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`sitegroup_ids expected to be basetypes.ListValue, was: %T`, sitegroupIdsAttribute))
+	}
+
+	vendorAttribute, ok := attributes["vendor"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`vendor is missing from object`)
+
+		return NewNotMatchingValueUnknown(), diags
+	}
+
+	vendorVal, ok := vendorAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`vendor expected to be basetypes.ListValue, was: %T`, vendorAttribute))
+	}
+
+	if diags.HasError() {
+		return NewNotMatchingValueUnknown(), diags
+	}
+
+	return NotMatchingValue{
+		AuthType:     authTypeVal,
+		Family:       familyVal,
+		Mfg:          mfgVal,
+		Model:        modelVal,
+		Nactags:      nactagsVal,
+		OsType:       osTypeVal,
+		PortTypes:    portTypesVal,
+		SiteIds:      siteIdsVal,
+		SitegroupIds: sitegroupIdsVal,
+		Vendor:       vendorVal,
+		state:        attr.ValueStateKnown,
+	}, diags
+}
+
+func NewNotMatchingValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) NotMatchingValue {
+	object, diags := NewNotMatchingValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewNotMatchingValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t NotMatchingType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewNotMatchingValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewNotMatchingValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewNotMatchingValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewNotMatchingValueMust(NotMatchingValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t NotMatchingType) ValueType(ctx context.Context) attr.Value {
+	return NotMatchingValue{}
+}
+
+var _ basetypes.ObjectValuable = NotMatchingValue{}
+
+type NotMatchingValue struct {
+	AuthType     basetypes.StringValue `tfsdk:"auth_type"`
+	Family       basetypes.ListValue   `tfsdk:"family"`
+	Mfg          basetypes.ListValue   `tfsdk:"mfg"`
+	Model        basetypes.ListValue   `tfsdk:"model"`
+	Nactags      basetypes.ListValue   `tfsdk:"nactags"`
+	OsType       basetypes.ListValue   `tfsdk:"os_type"`
+	PortTypes    basetypes.ListValue   `tfsdk:"port_types"`
+	SiteIds      basetypes.ListValue   `tfsdk:"site_ids"`
+	SitegroupIds basetypes.ListValue   `tfsdk:"sitegroup_ids"`
+	Vendor       basetypes.ListValue   `tfsdk:"vendor"`
+	state        attr.ValueState
+}
+
+func (v NotMatchingValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 10)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["auth_type"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["family"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["mfg"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["model"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["nactags"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["os_type"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["port_types"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["site_ids"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["sitegroup_ids"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["vendor"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 10)
+
+		val, err = v.AuthType.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["auth_type"] = val
+
+		val, err = v.Family.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["family"] = val
+
+		val, err = v.Mfg.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["mfg"] = val
+
+		val, err = v.Model.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["model"] = val
+
+		val, err = v.Nactags.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["nactags"] = val
+
+		val, err = v.OsType.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["os_type"] = val
+
+		val, err = v.PortTypes.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["port_types"] = val
+
+		val, err = v.SiteIds.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["site_ids"] = val
+
+		val, err = v.SitegroupIds.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["sitegroup_ids"] = val
+
+		val, err = v.Vendor.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["vendor"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v NotMatchingValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v NotMatchingValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v NotMatchingValue) String() string {
+	return "NotMatchingValue"
+}
+
+func (v NotMatchingValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	familyVal, d := types.ListValue(types.StringType, v.Family.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"auth_type": basetypes.StringType{},
+			"family": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"mfg": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"model": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"nactags": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"os_type": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"port_types": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"site_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"sitegroup_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"vendor": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	mfgVal, d := types.ListValue(types.StringType, v.Mfg.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"auth_type": basetypes.StringType{},
+			"family": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"mfg": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"model": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"nactags": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"os_type": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"port_types": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"site_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"sitegroup_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"vendor": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	modelVal, d := types.ListValue(types.StringType, v.Model.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"auth_type": basetypes.StringType{},
+			"family": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"mfg": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"model": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"nactags": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"os_type": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"port_types": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"site_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"sitegroup_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"vendor": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	nactagsVal, d := types.ListValue(types.StringType, v.Nactags.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"auth_type": basetypes.StringType{},
+			"family": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"mfg": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"model": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"nactags": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"os_type": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"port_types": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"site_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"sitegroup_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"vendor": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	osTypeVal, d := types.ListValue(types.StringType, v.OsType.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"auth_type": basetypes.StringType{},
+			"family": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"mfg": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"model": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"nactags": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"os_type": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"port_types": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"site_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"sitegroup_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"vendor": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	portTypesVal, d := types.ListValue(types.StringType, v.PortTypes.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"auth_type": basetypes.StringType{},
+			"family": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"mfg": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"model": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"nactags": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"os_type": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"port_types": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"site_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"sitegroup_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"vendor": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	siteIdsVal, d := types.ListValue(types.StringType, v.SiteIds.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"auth_type": basetypes.StringType{},
+			"family": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"mfg": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"model": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"nactags": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"os_type": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"port_types": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"site_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"sitegroup_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"vendor": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	sitegroupIdsVal, d := types.ListValue(types.StringType, v.SitegroupIds.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"auth_type": basetypes.StringType{},
+			"family": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"mfg": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"model": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"nactags": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"os_type": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"port_types": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"site_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"sitegroup_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"vendor": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	vendorVal, d := types.ListValue(types.StringType, v.Vendor.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"auth_type": basetypes.StringType{},
+			"family": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"mfg": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"model": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"nactags": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"os_type": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"port_types": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"site_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"sitegroup_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"vendor": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	attributeTypes := map[string]attr.Type{
+		"auth_type": basetypes.StringType{},
+		"family": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"mfg": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"model": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"nactags": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"os_type": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"port_types": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"site_ids": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"sitegroup_ids": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"vendor": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"auth_type":     v.AuthType,
+			"family":        familyVal,
+			"mfg":           mfgVal,
+			"model":         modelVal,
+			"nactags":       nactagsVal,
+			"os_type":       osTypeVal,
+			"port_types":    portTypesVal,
+			"site_ids":      siteIdsVal,
+			"sitegroup_ids": sitegroupIdsVal,
+			"vendor":        vendorVal,
+		})
+
+	return objVal, diags
+}
+
+func (v NotMatchingValue) Equal(o attr.Value) bool {
+	other, ok := o.(NotMatchingValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.AuthType.Equal(other.AuthType) {
+		return false
+	}
+
+	if !v.Family.Equal(other.Family) {
+		return false
+	}
+
+	if !v.Mfg.Equal(other.Mfg) {
+		return false
+	}
+
+	if !v.Model.Equal(other.Model) {
+		return false
+	}
+
+	if !v.Nactags.Equal(other.Nactags) {
+		return false
+	}
+
+	if !v.OsType.Equal(other.OsType) {
+		return false
+	}
+
+	if !v.PortTypes.Equal(other.PortTypes) {
+		return false
+	}
+
+	if !v.SiteIds.Equal(other.SiteIds) {
+		return false
+	}
+
+	if !v.SitegroupIds.Equal(other.SitegroupIds) {
+		return false
+	}
+
+	if !v.Vendor.Equal(other.Vendor) {
+		return false
+	}
+
+	return true
+}
+
+func (v NotMatchingValue) Type(ctx context.Context) attr.Type {
+	return NotMatchingType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v NotMatchingValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"auth_type": basetypes.StringType{},
+		"family": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"mfg": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"model": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"nactags": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"os_type": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"port_types": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"site_ids": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"sitegroup_ids": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"vendor": basetypes.ListType{
+			ElemType: types.StringType,
+		},
 	}
 }

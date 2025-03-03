@@ -5,6 +5,7 @@ package datasource_device_ap_stats
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -88,11 +89,6 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 									Computed:            true,
 									Description:         "Additional info about placement status",
 									MarkdownDescription: "Additional info about placement status",
-								},
-								"use_auto_placement": schema.BoolAttribute{
-									Computed:            true,
-									Description:         "Flag to represent if auto_placement values are currently utilized",
-									MarkdownDescription: "Flag to represent if auto_placement values are currently utilized",
 								},
 								"x": schema.Float64Attribute{
 									Computed:            true,
@@ -205,8 +201,8 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 								"tx_resets": schema.Int64Attribute{
 									Computed:            true,
-									Description:         "resets due to tx hung",
-									MarkdownDescription: "resets due to tx hung",
+									Description:         "Resets due to tx hung",
+									MarkdownDescription: "Resets due to tx hung",
 								},
 								"uuid": schema.StringAttribute{
 									Computed: true,
@@ -231,8 +227,10 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 						"cpu_util": schema.Int64Attribute{
 							Computed: true,
 						},
-						"created_time": schema.Int64Attribute{
-							Computed: true,
+						"created_time": schema.Float64Attribute{
+							Computed:            true,
+							Description:         "When the object has been created, in epoch",
+							MarkdownDescription: "When the object has been created, in epoch",
 						},
 						"deviceprofile_id": schema.StringAttribute{
 							Computed: true,
@@ -282,8 +280,8 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Computed:            true,
-							Description:         "device environment, including CPU temperature, Ambient temperature, Humidity, Attitude, Pressure, Accelerometers, Magnetometers and vCore Voltage",
-							MarkdownDescription: "device environment, including CPU temperature, Ambient temperature, Humidity, Attitude, Pressure, Accelerometers, Magnetometers and vCore Voltage",
+							Description:         "Device environment, including CPU temperature, Ambient temperature, Humidity, Attitude, Pressure, Accelerometers, Magnetometers and vCore Voltage",
+							MarkdownDescription: "Device environment, including CPU temperature, Ambient temperature, Humidity, Attitude, Pressure, Accelerometers, Magnetometers and vCore Voltage",
 						},
 						"esl_stat": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
@@ -316,7 +314,9 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 									Computed: true,
 								},
 								"status": schema.StringAttribute{
-									Computed: true,
+									Computed:            true,
+									Description:         "enum: `inprogress`, `failed`, `upgraded`",
+									MarkdownDescription: "enum: `inprogress`, `failed`, `upgraded`",
 								},
 								"status_id": schema.Int64Attribute{
 									Computed: true,
@@ -335,11 +335,53 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 							},
 							Computed: true,
 						},
+						"gps": schema.SingleNestedAttribute{
+							Attributes: map[string]schema.Attribute{
+								"accuracy": schema.NumberAttribute{
+									Computed:            true,
+									Description:         "The estimated accuracy or accuracy of the GPS coordinates, measured in meters.",
+									MarkdownDescription: "The estimated accuracy or accuracy of the GPS coordinates, measured in meters.",
+								},
+								"altitude": schema.NumberAttribute{
+									Computed:            true,
+									Description:         "The elevation of the AP above sea level, measured in meters.",
+									MarkdownDescription: "The elevation of the AP above sea level, measured in meters.",
+								},
+								"latitude": schema.NumberAttribute{
+									Computed:            true,
+									Description:         "The geographic latitude of the AP, measured in degrees.",
+									MarkdownDescription: "The geographic latitude of the AP, measured in degrees.",
+								},
+								"longitude": schema.NumberAttribute{
+									Computed:            true,
+									Description:         "The geographic longitude of the AP, measured in degrees.",
+									MarkdownDescription: "The geographic longitude of the AP, measured in degrees.",
+								},
+								"src": schema.StringAttribute{
+									Computed:            true,
+									Description:         "The origin of the GPS data. enum:\n  * `gps`: from this device’s GPS estimates\n  * `other_ap` from neighboring device GPS estimates",
+									MarkdownDescription: "The origin of the GPS data. enum:\n  * `gps`: from this device’s GPS estimates\n  * `other_ap` from neighboring device GPS estimates",
+								},
+								"timestamp": schema.Float64Attribute{
+									Computed:            true,
+									Description:         "The unix timestamp when the GPS data was recorded.",
+									MarkdownDescription: "The unix timestamp when the GPS data was recorded.",
+								},
+							},
+							CustomType: GpsType{
+								ObjectType: types.ObjectType{
+									AttrTypes: GpsValue{}.AttributeTypes(ctx),
+								},
+							},
+							Computed: true,
+						},
 						"hw_rev": schema.StringAttribute{
 							Computed: true,
 						},
 						"id": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							Description:         "Unique ID of the object instance in the Mist Organization",
+							MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
 						},
 						"inactive_wired_vlans": schema.ListAttribute{
 							ElementType: types.Int64Type,
@@ -359,6 +401,9 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Computed: true,
+							Validators: []validator.Map{
+								mapvalidator.SizeAtLeast(1),
+							},
 						},
 						"ip": schema.StringAttribute{
 							Computed: true,
@@ -368,27 +413,27 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 								"dns": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Computed:            true,
-									Description:         "if `type`==`static`",
-									MarkdownDescription: "if `type`==`static`",
+									Description:         "If `type`==`static`",
+									MarkdownDescription: "If `type`==`static`",
 								},
 								"dns_suffix": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Computed:            true,
-									Description:         "required if `type`==`static`",
-									MarkdownDescription: "required if `type`==`static`",
+									Description:         "Required if `type`==`static`",
+									MarkdownDescription: "Required if `type`==`static`",
 								},
 								"gateway": schema.StringAttribute{
 									Computed:            true,
-									Description:         "required if `type`==`static`",
-									MarkdownDescription: "required if `type`==`static`",
+									Description:         "Required if `type`==`static`",
+									MarkdownDescription: "Required if `type`==`static`",
 								},
 								"gateway6": schema.StringAttribute{
 									Computed: true,
 								},
 								"ip": schema.StringAttribute{
 									Computed:            true,
-									Description:         "required if `type`==`static`",
-									MarkdownDescription: "required if `type`==`static`",
+									Description:         "Required if `type`==`static`",
+									MarkdownDescription: "Required if `type`==`static`",
 								},
 								"ip6": schema.StringAttribute{
 									Computed: true,
@@ -398,22 +443,26 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 								"netmask": schema.StringAttribute{
 									Computed:            true,
-									Description:         "required if `type`==`static`",
-									MarkdownDescription: "required if `type`==`static`",
+									Description:         "Required if `type`==`static`",
+									MarkdownDescription: "Required if `type`==`static`",
 								},
 								"netmask6": schema.StringAttribute{
 									Computed: true,
 								},
 								"type": schema.StringAttribute{
-									Computed: true,
+									Computed:            true,
+									Description:         "enum: `dhcp`, `static`",
+									MarkdownDescription: "enum: `dhcp`, `static`",
 								},
 								"type6": schema.StringAttribute{
-									Computed: true,
+									Computed:            true,
+									Description:         "enum: `autoconf`, `dhcp`, `disabled`, `static`",
+									MarkdownDescription: "enum: `autoconf`, `dhcp`, `disabled`, `static`",
 								},
 								"vlan_id": schema.Int64Attribute{
 									Computed:            true,
-									Description:         "management vlan id, default is 1 (untagged)",
-									MarkdownDescription: "management vlan id, default is 1 (untagged)",
+									Description:         "Management VLAN id, default is 1 (untagged)",
+									MarkdownDescription: "Management VLAN id, default is 1 (untagged)",
 								},
 							},
 							CustomType: IpConfigType{
@@ -476,8 +525,8 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 											Attributes: map[string]schema.Attribute{
 												"local_sid": schema.Int64Attribute{
 													Computed:            true,
-													Description:         "remote sessions id (dynamically unless Tunnel is said to be static)",
-													MarkdownDescription: "remote sessions id (dynamically unless Tunnel is said to be static)",
+													Description:         "Remote sessions id (dynamically unless Tunnel is said to be static)",
+													MarkdownDescription: "Remote sessions id (dynamically unless Tunnel is said to be static)",
 												},
 												"remote_id": schema.StringAttribute{
 													Computed:            true,
@@ -486,11 +535,13 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 												},
 												"remote_sid": schema.Int64Attribute{
 													Computed:            true,
-													Description:         "remote sessions id (dynamically unless Tunnel is said to be static)",
-													MarkdownDescription: "remote sessions id (dynamically unless Tunnel is said to be static)",
+													Description:         "Remote sessions id (dynamically unless Tunnel is said to be static)",
+													MarkdownDescription: "Remote sessions id (dynamically unless Tunnel is said to be static)",
 												},
 												"state": schema.StringAttribute{
-													Computed: true,
+													Computed:            true,
+													Description:         "enum: `established`, `established_with_session`, `idle`, `wait-ctrl-conn`, `wait-ctrl-reply`",
+													MarkdownDescription: "enum: `established`, `established_with_session`, `idle`, `wait-ctrl-conn`, `wait-ctrl-reply`",
 												},
 											},
 											CustomType: SessionsType{
@@ -500,16 +551,18 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 											},
 										},
 										Computed:            true,
-										Description:         "list of sessions",
-										MarkdownDescription: "list of sessions",
+										Description:         "List of sessions",
+										MarkdownDescription: "List of sessions",
 									},
 									"state": schema.StringAttribute{
-										Computed: true,
+										Computed:            true,
+										Description:         "enum: `established`, `established_with_session`, `idle`, `wait-ctrl-conn`, `wait-ctrl-reply`",
+										MarkdownDescription: "enum: `established`, `established_with_session`, `idle`, `wait-ctrl-conn`, `wait-ctrl-reply`",
 									},
 									"uptime": schema.Int64Attribute{
 										Computed:            true,
-										Description:         "uptime",
-										MarkdownDescription: "uptime",
+										Description:         "Uptime",
+										MarkdownDescription: "Uptime",
 									},
 									"wxtunnel_id": schema.StringAttribute{
 										Computed:            true,
@@ -524,20 +577,23 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Computed:            true,
-							Description:         "l2tp tunnel status (key is the wxtunnel_id)",
-							MarkdownDescription: "l2tp tunnel status (key is the wxtunnel_id)",
+							Description:         "L2TP tunnel status (key is the wxtunnel_id)",
+							MarkdownDescription: "L2TP tunnel status (key is the wxtunnel_id)",
+							Validators: []validator.Map{
+								mapvalidator.SizeAtLeast(1),
+							},
 						},
 						"last_seen": schema.NumberAttribute{
 							Computed:            true,
-							Description:         "last seen timestamp",
-							MarkdownDescription: "last seen timestamp",
+							Description:         "Last seen timestamp",
+							MarkdownDescription: "Last seen timestamp",
 						},
 						"last_trouble": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
 								"code": schema.StringAttribute{
 									Computed:            true,
-									Description:         "Code definitions list at /api/v1/consts/ap_led_status",
-									MarkdownDescription: "Code definitions list at /api/v1/consts/ap_led_status",
+									Description:         "Code definitions list at [List Ap Led Definition]($e/Constants%20Definitions/listApLedDefinition)",
+									MarkdownDescription: "Code definitions list at [List Ap Led Definition]($e/Constants%20Definitions/listApLedDefinition)",
 								},
 								"timestamp": schema.Int64Attribute{
 									Computed: true,
@@ -549,8 +605,8 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Computed:            true,
-							Description:         "last trouble code of switch",
-							MarkdownDescription: "last trouble code of switch",
+							Description:         "Last trouble code of switch",
+							MarkdownDescription: "Last trouble code of switch",
 						},
 						"led": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
@@ -577,13 +633,13 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 								"lldp_med_supported": schema.BoolAttribute{
 									Computed:            true,
-									Description:         "whether it support LLDP-MED",
-									MarkdownDescription: "whether it support LLDP-MED",
+									Description:         "Whether it support LLDP-MED",
+									MarkdownDescription: "Whether it support LLDP-MED",
 								},
 								"mgmt_addr": schema.StringAttribute{
 									Computed:            true,
-									Description:         "switch’s management address (if advertised), can be IPv4, IPv6, or MAC",
-									MarkdownDescription: "switch’s management address (if advertised), can be IPv4, IPv6, or MAC",
+									Description:         "Switch’s management address (if advertised), can be IPv4, IPv6, or MAC",
+									MarkdownDescription: "Switch’s management address (if advertised), can be IPv4, IPv6, or MAC",
 								},
 								"mgmt_addrs": schema.ListAttribute{
 									ElementType: types.StringType,
@@ -599,33 +655,33 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 								"power_allocated": schema.NumberAttribute{
 									Computed:            true,
-									Description:         "in mW, provided/allocated by PSE",
-									MarkdownDescription: "in mW, provided/allocated by PSE",
+									Description:         "In mW, provided/allocated by PSE",
+									MarkdownDescription: "In mW, provided/allocated by PSE",
 								},
 								"power_draw": schema.NumberAttribute{
 									Computed:            true,
-									Description:         "in mW, total power needed by PD",
-									MarkdownDescription: "in mW, total power needed by PD",
+									Description:         "In mW, total power needed by PD",
+									MarkdownDescription: "In mW, total power needed by PD",
 								},
 								"power_request_count": schema.Int64Attribute{
 									Computed:            true,
-									Description:         "number of negotiations, if it keeps increasing, we don’t have a stable power",
-									MarkdownDescription: "number of negotiations, if it keeps increasing, we don’t have a stable power",
+									Description:         "Number of negotiations, if it keeps increasing, we don’ t have a stable power",
+									MarkdownDescription: "Number of negotiations, if it keeps increasing, we don’ t have a stable power",
 								},
 								"power_requested": schema.NumberAttribute{
 									Computed:            true,
-									Description:         "in mW, the current power requested by PD",
-									MarkdownDescription: "in mW, the current power requested by PD",
+									Description:         "In mW, the current power requested by PD",
+									MarkdownDescription: "In mW, the current power requested by PD",
 								},
 								"system_desc": schema.StringAttribute{
 									Computed:            true,
-									Description:         "description provided by switch",
-									MarkdownDescription: "description provided by switch",
+									Description:         "Description provided by switch",
+									MarkdownDescription: "Description provided by switch",
 								},
 								"system_name": schema.StringAttribute{
 									Computed:            true,
-									Description:         "name of the switch",
-									MarkdownDescription: "name of the switch",
+									Description:         "Name of the switch",
+									MarkdownDescription: "Name of the switch",
 								},
 							},
 							CustomType: LldpStatType{
@@ -642,13 +698,13 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"locked": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "whether this AP is considered locked (placement / orientation has been vetted)",
-							MarkdownDescription: "whether this AP is considered locked (placement / orientation has been vetted)",
+							Description:         "Whether this AP is considered locked (placement / orientation has been vetted)",
+							MarkdownDescription: "Whether this AP is considered locked (placement / orientation has been vetted)",
 						},
 						"mac": schema.StringAttribute{
 							Computed:            true,
-							Description:         "device mac",
-							MarkdownDescription: "device mac",
+							Description:         "Device mac",
+							MarkdownDescription: "Device mac",
 						},
 						"map_id": schema.StringAttribute{
 							Computed: true,
@@ -723,6 +779,9 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "Property key is the mesh downlink id (e.g `00000000-0000-0000-1000-5c5b35000010`)",
 							MarkdownDescription: "Property key is the mesh downlink id (e.g `00000000-0000-0000-1000-5c5b35000010`)",
+							Validators: []validator.Map{
+								mapvalidator.SizeAtLeast(1),
+							},
 						},
 						"mesh_uplink": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
@@ -793,11 +852,13 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"model": schema.StringAttribute{
 							Computed:            true,
-							Description:         "device model",
-							MarkdownDescription: "device model",
+							Description:         "Device model",
+							MarkdownDescription: "Device model",
 						},
-						"modified_time": schema.Int64Attribute{
-							Computed: true,
+						"modified_time": schema.Float64Attribute{
+							Computed:            true,
+							Description:         "When the object has been modified for the last time, in epoch",
+							MarkdownDescription: "When the object has been modified for the last time, in epoch",
 						},
 						"mount": schema.StringAttribute{
 							Computed: true,
@@ -810,8 +871,13 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"num_clients": schema.Int64Attribute{
 							Computed:            true,
-							Description:         "how many wireless clients are currently connected",
-							MarkdownDescription: "how many wireless clients are currently connected",
+							Description:         "How many wireless clients are currently connected",
+							MarkdownDescription: "How many wireless clients are currently connected",
+						},
+						"num_wlans": schema.Int64Attribute{
+							Computed:            true,
+							Description:         "How many WLANs are applied to the device",
+							MarkdownDescription: "How many WLANs are applied to the device",
 						},
 						"org_id": schema.StringAttribute{
 							Computed: true,
@@ -853,21 +919,24 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "Property key is the port name (e.g. `eth0`)",
 							MarkdownDescription: "Property key is the port name (e.g. `eth0`)",
+							Validators: []validator.Map{
+								mapvalidator.SizeAtLeast(1),
+							},
 						},
 						"power_budget": schema.Int64Attribute{
 							Computed:            true,
-							Description:         "in mW, surplus if positive or deficit if negative",
-							MarkdownDescription: "in mW, surplus if positive or deficit if negative",
+							Description:         "In mW, surplus if positive or deficit if negative",
+							MarkdownDescription: "In mW, surplus if positive or deficit if negative",
 						},
 						"power_constrained": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "whether insufficient power",
-							MarkdownDescription: "whether insufficient power",
+							Description:         "Whether insufficient power",
+							MarkdownDescription: "Whether insufficient power",
 						},
 						"power_opmode": schema.StringAttribute{
 							Computed:            true,
-							Description:         "constrained mode",
-							MarkdownDescription: "constrained mode",
+							Description:         "Constrained mode",
+							MarkdownDescription: "Constrained mode",
 						},
 						"power_src": schema.StringAttribute{
 							Computed:            true,
@@ -880,23 +949,23 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 									Attributes: map[string]schema.Attribute{
 										"bandwidth": schema.Int64Attribute{
 											Computed:            true,
-											Description:         "channel width for the band * `80` is only applicable for band_5 and band_6 * `160` is only for band_6",
-											MarkdownDescription: "channel width for the band * `80` is only applicable for band_5 and band_6 * `160` is only for band_6",
+											Description:         "channel width for the band.enum: `20`, `40`, `80` (only applicable for band_5 and band_6), `160` (only for band_6)",
+											MarkdownDescription: "channel width for the band.enum: `20`, `40`, `80` (only applicable for band_5 and band_6), `160` (only for band_6)",
 										},
 										"channel": schema.Int64Attribute{
 											Computed:            true,
-											Description:         "current channel the radio is running on",
-											MarkdownDescription: "current channel the radio is running on",
+											Description:         "Current channel the radio is running on",
+											MarkdownDescription: "Current channel the radio is running on",
 										},
-										"dynamic_chaining_enalbed": schema.BoolAttribute{
+										"dynamic_chaining_enabled": schema.BoolAttribute{
 											Computed:            true,
 											Description:         "Use dynamic chaining for downlink",
 											MarkdownDescription: "Use dynamic chaining for downlink",
 										},
 										"mac": schema.StringAttribute{
 											Computed:            true,
-											Description:         "radio (base) mac, it can have 16 bssids (e.g. 5c5b350001a0-5c5b350001af)",
-											MarkdownDescription: "radio (base) mac, it can have 16 bssids (e.g. 5c5b350001a0-5c5b350001af)",
+											Description:         "Radio (base) mac, it can have 16 bssids (e.g. 5c5b350001a0-5c5b350001af)",
+											MarkdownDescription: "Radio (base) mac, it can have 16 bssids (e.g. 5c5b350001a0-5c5b350001af)",
 										},
 										"noise_floor": schema.Int64Attribute{
 											Computed: true,
@@ -904,10 +973,15 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 										"num_clients": schema.Int64Attribute{
 											Computed: true,
 										},
+										"num_wlans": schema.Int64Attribute{
+											Computed:            true,
+											Description:         "How many WLANs are applied to the radio",
+											MarkdownDescription: "How many WLANs are applied to the radio",
+										},
 										"power": schema.Int64Attribute{
 											Computed:            true,
-											Description:         "transmit power (in dBm)",
-											MarkdownDescription: "transmit power (in dBm)",
+											Description:         "Transmit power (in dBm)",
+											MarkdownDescription: "Transmit power (in dBm)",
 										},
 										"rx_bytes": schema.Int64Attribute{
 											Computed: true,
@@ -926,38 +1000,38 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 										},
 										"util_all": schema.Int64Attribute{
 											Computed:            true,
-											Description:         "all utilization in percentage",
-											MarkdownDescription: "all utilization in percentage",
+											Description:         "All utilization in percentage",
+											MarkdownDescription: "All utilization in percentage",
 										},
 										"util_non_wifi": schema.Int64Attribute{
 											Computed:            true,
-											Description:         "reception of “No Packets” utilization in percentage, received frames with invalid PLCPs and CRS glitches as noise",
-											MarkdownDescription: "reception of “No Packets” utilization in percentage, received frames with invalid PLCPs and CRS glitches as noise",
+											Description:         "Reception of \"No Packets\" utilization in percentage, received frames with invalid PLCPs and CRS glitches as noise",
+											MarkdownDescription: "Reception of \"No Packets\" utilization in percentage, received frames with invalid PLCPs and CRS glitches as noise",
 										},
 										"util_rx_in_bss": schema.Int64Attribute{
 											Computed:            true,
-											Description:         "reception of “In BSS” utilization in percentage, only frames that are received from AP/STAs within the BSS",
-											MarkdownDescription: "reception of “In BSS” utilization in percentage, only frames that are received from AP/STAs within the BSS",
+											Description:         "Reception of \"In BSS\" utilization in percentage, only frames that are received from AP/STAs within the BSS",
+											MarkdownDescription: "Reception of \"In BSS\" utilization in percentage, only frames that are received from AP/STAs within the BSS",
 										},
 										"util_rx_other_bss": schema.Int64Attribute{
 											Computed:            true,
-											Description:         "reception of “Other BSS” utilization in percentage, all frames received from AP/STAs that are outside the BSS",
-											MarkdownDescription: "reception of “Other BSS” utilization in percentage, all frames received from AP/STAs that are outside the BSS",
+											Description:         "Reception of \"Other BSS\" utilization in percentage, all frames received from AP/STAs that are outside the BSS",
+											MarkdownDescription: "Reception of \"Other BSS\" utilization in percentage, all frames received from AP/STAs that are outside the BSS",
 										},
 										"util_tx": schema.Int64Attribute{
 											Computed:            true,
-											Description:         "transmission utilization in percentage",
-											MarkdownDescription: "transmission utilization in percentage",
+											Description:         "Transmission utilization in percentage",
+											MarkdownDescription: "Transmission utilization in percentage",
 										},
 										"util_undecodable_wifi": schema.Int64Attribute{
 											Computed:            true,
-											Description:         "reception of “UnDecodable Wifi“ utilization in percentage, only Preamble, PLCP header is decoded, Rest is undecodable in this radio",
-											MarkdownDescription: "reception of “UnDecodable Wifi“ utilization in percentage, only Preamble, PLCP header is decoded, Rest is undecodable in this radio",
+											Description:         "Reception of \"UnDecodable Wifi\" utilization in percentage, only Preamble, PLCP header is decoded, Rest is undecodable in this radio",
+											MarkdownDescription: "Reception of \"UnDecodable Wifi\" utilization in percentage, only Preamble, PLCP header is decoded, Rest is undecodable in this radio",
 										},
 										"util_unknown_wifi": schema.Int64Attribute{
 											Computed:            true,
-											Description:         "reception of “No Category” utilization in percentage, all 802.11 frames that are corrupted at the receiver",
-											MarkdownDescription: "reception of “No Category” utilization in percentage, all 802.11 frames that are corrupted at the receiver",
+											Description:         "Reception of \"No Category\" utilization in percentage, all 802.11 frames that are corrupted at the receiver",
+											MarkdownDescription: "Reception of \"No Category\" utilization in percentage, all 802.11 frames that are corrupted at the receiver",
 										},
 									},
 									CustomType: BandType{
@@ -966,30 +1040,30 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 									Computed:            true,
-									Description:         "radio stat",
-									MarkdownDescription: "radio stat",
+									Description:         "Radio stat",
+									MarkdownDescription: "Radio stat",
 								},
 								"band_5": schema.SingleNestedAttribute{
 									Attributes: map[string]schema.Attribute{
 										"bandwidth": schema.Int64Attribute{
 											Computed:            true,
-											Description:         "channel width for the band * `80` is only applicable for band_5 and band_6 * `160` is only for band_6",
-											MarkdownDescription: "channel width for the band * `80` is only applicable for band_5 and band_6 * `160` is only for band_6",
+											Description:         "channel width for the band.enum: `20`, `40`, `80` (only applicable for band_5 and band_6), `160` (only for band_6)",
+											MarkdownDescription: "channel width for the band.enum: `20`, `40`, `80` (only applicable for band_5 and band_6), `160` (only for band_6)",
 										},
 										"channel": schema.Int64Attribute{
 											Computed:            true,
-											Description:         "current channel the radio is running on",
-											MarkdownDescription: "current channel the radio is running on",
+											Description:         "Current channel the radio is running on",
+											MarkdownDescription: "Current channel the radio is running on",
 										},
-										"dynamic_chaining_enalbed": schema.BoolAttribute{
+										"dynamic_chaining_enabled": schema.BoolAttribute{
 											Computed:            true,
 											Description:         "Use dynamic chaining for downlink",
 											MarkdownDescription: "Use dynamic chaining for downlink",
 										},
 										"mac": schema.StringAttribute{
 											Computed:            true,
-											Description:         "radio (base) mac, it can have 16 bssids (e.g. 5c5b350001a0-5c5b350001af)",
-											MarkdownDescription: "radio (base) mac, it can have 16 bssids (e.g. 5c5b350001a0-5c5b350001af)",
+											Description:         "Radio (base) mac, it can have 16 bssids (e.g. 5c5b350001a0-5c5b350001af)",
+											MarkdownDescription: "Radio (base) mac, it can have 16 bssids (e.g. 5c5b350001a0-5c5b350001af)",
 										},
 										"noise_floor": schema.Int64Attribute{
 											Computed: true,
@@ -997,10 +1071,15 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 										"num_clients": schema.Int64Attribute{
 											Computed: true,
 										},
+										"num_wlans": schema.Int64Attribute{
+											Computed:            true,
+											Description:         "How many WLANs are applied to the radio",
+											MarkdownDescription: "How many WLANs are applied to the radio",
+										},
 										"power": schema.Int64Attribute{
 											Computed:            true,
-											Description:         "transmit power (in dBm)",
-											MarkdownDescription: "transmit power (in dBm)",
+											Description:         "Transmit power (in dBm)",
+											MarkdownDescription: "Transmit power (in dBm)",
 										},
 										"rx_bytes": schema.Int64Attribute{
 											Computed: true,
@@ -1019,38 +1098,38 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 										},
 										"util_all": schema.Int64Attribute{
 											Computed:            true,
-											Description:         "all utilization in percentage",
-											MarkdownDescription: "all utilization in percentage",
+											Description:         "All utilization in percentage",
+											MarkdownDescription: "All utilization in percentage",
 										},
 										"util_non_wifi": schema.Int64Attribute{
 											Computed:            true,
-											Description:         "reception of “No Packets” utilization in percentage, received frames with invalid PLCPs and CRS glitches as noise",
-											MarkdownDescription: "reception of “No Packets” utilization in percentage, received frames with invalid PLCPs and CRS glitches as noise",
+											Description:         "Reception of \"No Packets\" utilization in percentage, received frames with invalid PLCPs and CRS glitches as noise",
+											MarkdownDescription: "Reception of \"No Packets\" utilization in percentage, received frames with invalid PLCPs and CRS glitches as noise",
 										},
 										"util_rx_in_bss": schema.Int64Attribute{
 											Computed:            true,
-											Description:         "reception of “In BSS” utilization in percentage, only frames that are received from AP/STAs within the BSS",
-											MarkdownDescription: "reception of “In BSS” utilization in percentage, only frames that are received from AP/STAs within the BSS",
+											Description:         "Reception of \"In BSS\" utilization in percentage, only frames that are received from AP/STAs within the BSS",
+											MarkdownDescription: "Reception of \"In BSS\" utilization in percentage, only frames that are received from AP/STAs within the BSS",
 										},
 										"util_rx_other_bss": schema.Int64Attribute{
 											Computed:            true,
-											Description:         "reception of “Other BSS” utilization in percentage, all frames received from AP/STAs that are outside the BSS",
-											MarkdownDescription: "reception of “Other BSS” utilization in percentage, all frames received from AP/STAs that are outside the BSS",
+											Description:         "Reception of \"Other BSS\" utilization in percentage, all frames received from AP/STAs that are outside the BSS",
+											MarkdownDescription: "Reception of \"Other BSS\" utilization in percentage, all frames received from AP/STAs that are outside the BSS",
 										},
 										"util_tx": schema.Int64Attribute{
 											Computed:            true,
-											Description:         "transmission utilization in percentage",
-											MarkdownDescription: "transmission utilization in percentage",
+											Description:         "Transmission utilization in percentage",
+											MarkdownDescription: "Transmission utilization in percentage",
 										},
 										"util_undecodable_wifi": schema.Int64Attribute{
 											Computed:            true,
-											Description:         "reception of “UnDecodable Wifi“ utilization in percentage, only Preamble, PLCP header is decoded, Rest is undecodable in this radio",
-											MarkdownDescription: "reception of “UnDecodable Wifi“ utilization in percentage, only Preamble, PLCP header is decoded, Rest is undecodable in this radio",
+											Description:         "Reception of \"UnDecodable Wifi\" utilization in percentage, only Preamble, PLCP header is decoded, Rest is undecodable in this radio",
+											MarkdownDescription: "Reception of \"UnDecodable Wifi\" utilization in percentage, only Preamble, PLCP header is decoded, Rest is undecodable in this radio",
 										},
 										"util_unknown_wifi": schema.Int64Attribute{
 											Computed:            true,
-											Description:         "reception of “No Category” utilization in percentage, all 802.11 frames that are corrupted at the receiver",
-											MarkdownDescription: "reception of “No Category” utilization in percentage, all 802.11 frames that are corrupted at the receiver",
+											Description:         "Reception of \"No Category\" utilization in percentage, all 802.11 frames that are corrupted at the receiver",
+											MarkdownDescription: "Reception of \"No Category\" utilization in percentage, all 802.11 frames that are corrupted at the receiver",
 										},
 									},
 									CustomType: BandType{
@@ -1059,30 +1138,30 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 									Computed:            true,
-									Description:         "radio stat",
-									MarkdownDescription: "radio stat",
+									Description:         "Radio stat",
+									MarkdownDescription: "Radio stat",
 								},
 								"band_6": schema.SingleNestedAttribute{
 									Attributes: map[string]schema.Attribute{
 										"bandwidth": schema.Int64Attribute{
 											Computed:            true,
-											Description:         "channel width for the band * `80` is only applicable for band_5 and band_6 * `160` is only for band_6",
-											MarkdownDescription: "channel width for the band * `80` is only applicable for band_5 and band_6 * `160` is only for band_6",
+											Description:         "channel width for the band.enum: `20`, `40`, `80` (only applicable for band_5 and band_6), `160` (only for band_6)",
+											MarkdownDescription: "channel width for the band.enum: `20`, `40`, `80` (only applicable for band_5 and band_6), `160` (only for band_6)",
 										},
 										"channel": schema.Int64Attribute{
 											Computed:            true,
-											Description:         "current channel the radio is running on",
-											MarkdownDescription: "current channel the radio is running on",
+											Description:         "Current channel the radio is running on",
+											MarkdownDescription: "Current channel the radio is running on",
 										},
-										"dynamic_chaining_enalbed": schema.BoolAttribute{
+										"dynamic_chaining_enabled": schema.BoolAttribute{
 											Computed:            true,
 											Description:         "Use dynamic chaining for downlink",
 											MarkdownDescription: "Use dynamic chaining for downlink",
 										},
 										"mac": schema.StringAttribute{
 											Computed:            true,
-											Description:         "radio (base) mac, it can have 16 bssids (e.g. 5c5b350001a0-5c5b350001af)",
-											MarkdownDescription: "radio (base) mac, it can have 16 bssids (e.g. 5c5b350001a0-5c5b350001af)",
+											Description:         "Radio (base) mac, it can have 16 bssids (e.g. 5c5b350001a0-5c5b350001af)",
+											MarkdownDescription: "Radio (base) mac, it can have 16 bssids (e.g. 5c5b350001a0-5c5b350001af)",
 										},
 										"noise_floor": schema.Int64Attribute{
 											Computed: true,
@@ -1090,10 +1169,15 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 										"num_clients": schema.Int64Attribute{
 											Computed: true,
 										},
+										"num_wlans": schema.Int64Attribute{
+											Computed:            true,
+											Description:         "How many WLANs are applied to the radio",
+											MarkdownDescription: "How many WLANs are applied to the radio",
+										},
 										"power": schema.Int64Attribute{
 											Computed:            true,
-											Description:         "transmit power (in dBm)",
-											MarkdownDescription: "transmit power (in dBm)",
+											Description:         "Transmit power (in dBm)",
+											MarkdownDescription: "Transmit power (in dBm)",
 										},
 										"rx_bytes": schema.Int64Attribute{
 											Computed: true,
@@ -1112,38 +1196,38 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 										},
 										"util_all": schema.Int64Attribute{
 											Computed:            true,
-											Description:         "all utilization in percentage",
-											MarkdownDescription: "all utilization in percentage",
+											Description:         "All utilization in percentage",
+											MarkdownDescription: "All utilization in percentage",
 										},
 										"util_non_wifi": schema.Int64Attribute{
 											Computed:            true,
-											Description:         "reception of “No Packets” utilization in percentage, received frames with invalid PLCPs and CRS glitches as noise",
-											MarkdownDescription: "reception of “No Packets” utilization in percentage, received frames with invalid PLCPs and CRS glitches as noise",
+											Description:         "Reception of \"No Packets\" utilization in percentage, received frames with invalid PLCPs and CRS glitches as noise",
+											MarkdownDescription: "Reception of \"No Packets\" utilization in percentage, received frames with invalid PLCPs and CRS glitches as noise",
 										},
 										"util_rx_in_bss": schema.Int64Attribute{
 											Computed:            true,
-											Description:         "reception of “In BSS” utilization in percentage, only frames that are received from AP/STAs within the BSS",
-											MarkdownDescription: "reception of “In BSS” utilization in percentage, only frames that are received from AP/STAs within the BSS",
+											Description:         "Reception of \"In BSS\" utilization in percentage, only frames that are received from AP/STAs within the BSS",
+											MarkdownDescription: "Reception of \"In BSS\" utilization in percentage, only frames that are received from AP/STAs within the BSS",
 										},
 										"util_rx_other_bss": schema.Int64Attribute{
 											Computed:            true,
-											Description:         "reception of “Other BSS” utilization in percentage, all frames received from AP/STAs that are outside the BSS",
-											MarkdownDescription: "reception of “Other BSS” utilization in percentage, all frames received from AP/STAs that are outside the BSS",
+											Description:         "Reception of \"Other BSS\" utilization in percentage, all frames received from AP/STAs that are outside the BSS",
+											MarkdownDescription: "Reception of \"Other BSS\" utilization in percentage, all frames received from AP/STAs that are outside the BSS",
 										},
 										"util_tx": schema.Int64Attribute{
 											Computed:            true,
-											Description:         "transmission utilization in percentage",
-											MarkdownDescription: "transmission utilization in percentage",
+											Description:         "Transmission utilization in percentage",
+											MarkdownDescription: "Transmission utilization in percentage",
 										},
 										"util_undecodable_wifi": schema.Int64Attribute{
 											Computed:            true,
-											Description:         "reception of “UnDecodable Wifi“ utilization in percentage, only Preamble, PLCP header is decoded, Rest is undecodable in this radio",
-											MarkdownDescription: "reception of “UnDecodable Wifi“ utilization in percentage, only Preamble, PLCP header is decoded, Rest is undecodable in this radio",
+											Description:         "Reception of \"UnDecodable Wifi\" utilization in percentage, only Preamble, PLCP header is decoded, Rest is undecodable in this radio",
+											MarkdownDescription: "Reception of \"UnDecodable Wifi\" utilization in percentage, only Preamble, PLCP header is decoded, Rest is undecodable in this radio",
 										},
 										"util_unknown_wifi": schema.Int64Attribute{
 											Computed:            true,
-											Description:         "reception of “No Category” utilization in percentage, all 802.11 frames that are corrupted at the receiver",
-											MarkdownDescription: "reception of “No Category” utilization in percentage, all 802.11 frames that are corrupted at the receiver",
+											Description:         "Reception of \"No Category\" utilization in percentage, all 802.11 frames that are corrupted at the receiver",
+											MarkdownDescription: "Reception of \"No Category\" utilization in percentage, all 802.11 frames that are corrupted at the receiver",
 										},
 									},
 									CustomType: BandType{
@@ -1152,8 +1236,8 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 									Computed:            true,
-									Description:         "radio stat",
-									MarkdownDescription: "radio stat",
+									Description:         "Radio stat",
+									MarkdownDescription: "Radio stat",
 								},
 							},
 							CustomType: RadioStatType{
@@ -1174,8 +1258,8 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"serial": schema.StringAttribute{
 							Computed:            true,
-							Description:         "serial",
-							MarkdownDescription: "serial",
+							Description:         "Serial Number",
+							MarkdownDescription: "Serial Number",
 						},
 						"site_id": schema.StringAttribute{
 							Computed: true,
@@ -1207,8 +1291,8 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"uptime": schema.NumberAttribute{
 							Computed:            true,
-							Description:         "how long, in seconds, has the device been up (or rebooted)",
-							MarkdownDescription: "how long, in seconds, has the device been up (or rebooted)",
+							Description:         "How long, in seconds, has the device been up (or rebooted)",
+							MarkdownDescription: "How long, in seconds, has the device been up (or rebooted)",
 						},
 						"usb_stat": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
@@ -1255,13 +1339,13 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 			},
 			"duration": schema.StringAttribute{
 				Optional:            true,
-				Description:         "duration like 7d, 2w",
-				MarkdownDescription: "duration like 7d, 2w",
+				Description:         "Duration like 7d, 2w",
+				MarkdownDescription: "Duration like 7d, 2w",
 			},
 			"end": schema.Int64Attribute{
 				Optional:            true,
-				Description:         "end datetime, can be epoch or relative time like -1d, -2h; now if not specified",
-				MarkdownDescription: "end datetime, can be epoch or relative time like -1d, -2h; now if not specified",
+				Description:         "End datetime, can be epoch or relative time like -1d, -2h; now if not specified",
+				MarkdownDescription: "End datetime, can be epoch or relative time like -1d, -2h; now if not specified",
 			},
 			"mac": schema.StringAttribute{
 				Optional: true,
@@ -1274,11 +1358,13 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 			},
 			"start": schema.Int64Attribute{
 				Optional:            true,
-				Description:         "start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified",
-				MarkdownDescription: "start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified",
+				Description:         "Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified",
+				MarkdownDescription: "Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified",
 			},
 			"status": schema.StringAttribute{
-				Optional: true,
+				Optional:            true,
+				Description:         "enum: `all`, `connected`, `disconnected`",
+				MarkdownDescription: "enum: `all`, `connected`, `disconnected`",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -1464,12 +1550,12 @@ func (t DeviceApStatsType) ValueFromObject(ctx context.Context, in basetypes.Obj
 		return nil, diags
 	}
 
-	createdTimeVal, ok := createdTimeAttribute.(basetypes.Int64Value)
+	createdTimeVal, ok := createdTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`created_time expected to be basetypes.Int64Value, was: %T`, createdTimeAttribute))
+			fmt.Sprintf(`created_time expected to be basetypes.Float64Value, was: %T`, createdTimeAttribute))
 	}
 
 	deviceprofileIdAttribute, ok := attributes["deviceprofile_id"]
@@ -1560,6 +1646,24 @@ func (t DeviceApStatsType) ValueFromObject(ctx context.Context, in basetypes.Obj
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`fwupdate expected to be basetypes.ObjectValue, was: %T`, fwupdateAttribute))
+	}
+
+	gpsAttribute, ok := attributes["gps"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`gps is missing from object`)
+
+		return nil, diags
+	}
+
+	gpsVal, ok := gpsAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`gps expected to be basetypes.ObjectValue, was: %T`, gpsAttribute))
 	}
 
 	hwRevAttribute, ok := attributes["hw_rev"]
@@ -1932,12 +2036,12 @@ func (t DeviceApStatsType) ValueFromObject(ctx context.Context, in basetypes.Obj
 		return nil, diags
 	}
 
-	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.Int64Value)
+	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`modified_time expected to be basetypes.Int64Value, was: %T`, modifiedTimeAttribute))
+			fmt.Sprintf(`modified_time expected to be basetypes.Float64Value, was: %T`, modifiedTimeAttribute))
 	}
 
 	mountAttribute, ok := attributes["mount"]
@@ -2010,6 +2114,24 @@ func (t DeviceApStatsType) ValueFromObject(ctx context.Context, in basetypes.Obj
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`num_clients expected to be basetypes.Int64Value, was: %T`, numClientsAttribute))
+	}
+
+	numWlansAttribute, ok := attributes["num_wlans"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`num_wlans is missing from object`)
+
+		return nil, diags
+	}
+
+	numWlansVal, ok := numWlansAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`num_wlans expected to be basetypes.Int64Value, was: %T`, numWlansAttribute))
 	}
 
 	orgIdAttribute, ok := attributes["org_id"]
@@ -2426,6 +2548,7 @@ func (t DeviceApStatsType) ValueFromObject(ctx context.Context, in basetypes.Obj
 		EslStat:            eslStatVal,
 		ExtIp:              extIpVal,
 		Fwupdate:           fwupdateVal,
+		Gps:                gpsVal,
 		HwRev:              hwRevVal,
 		Id:                 idVal,
 		InactiveWiredVlans: inactiveWiredVlansVal,
@@ -2451,6 +2574,7 @@ func (t DeviceApStatsType) ValueFromObject(ctx context.Context, in basetypes.Obj
 		Name:               nameVal,
 		Notes:              notesVal,
 		NumClients:         numClientsVal,
+		NumWlans:           numWlansVal,
 		OrgId:              orgIdVal,
 		PortStat:           portStatVal,
 		PowerBudget:        powerBudgetVal,
@@ -2676,12 +2800,12 @@ func NewDeviceApStatsValue(attributeTypes map[string]attr.Type, attributes map[s
 		return NewDeviceApStatsValueUnknown(), diags
 	}
 
-	createdTimeVal, ok := createdTimeAttribute.(basetypes.Int64Value)
+	createdTimeVal, ok := createdTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`created_time expected to be basetypes.Int64Value, was: %T`, createdTimeAttribute))
+			fmt.Sprintf(`created_time expected to be basetypes.Float64Value, was: %T`, createdTimeAttribute))
 	}
 
 	deviceprofileIdAttribute, ok := attributes["deviceprofile_id"]
@@ -2772,6 +2896,24 @@ func NewDeviceApStatsValue(attributeTypes map[string]attr.Type, attributes map[s
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`fwupdate expected to be basetypes.ObjectValue, was: %T`, fwupdateAttribute))
+	}
+
+	gpsAttribute, ok := attributes["gps"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`gps is missing from object`)
+
+		return NewDeviceApStatsValueUnknown(), diags
+	}
+
+	gpsVal, ok := gpsAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`gps expected to be basetypes.ObjectValue, was: %T`, gpsAttribute))
 	}
 
 	hwRevAttribute, ok := attributes["hw_rev"]
@@ -3144,12 +3286,12 @@ func NewDeviceApStatsValue(attributeTypes map[string]attr.Type, attributes map[s
 		return NewDeviceApStatsValueUnknown(), diags
 	}
 
-	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.Int64Value)
+	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`modified_time expected to be basetypes.Int64Value, was: %T`, modifiedTimeAttribute))
+			fmt.Sprintf(`modified_time expected to be basetypes.Float64Value, was: %T`, modifiedTimeAttribute))
 	}
 
 	mountAttribute, ok := attributes["mount"]
@@ -3222,6 +3364,24 @@ func NewDeviceApStatsValue(attributeTypes map[string]attr.Type, attributes map[s
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`num_clients expected to be basetypes.Int64Value, was: %T`, numClientsAttribute))
+	}
+
+	numWlansAttribute, ok := attributes["num_wlans"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`num_wlans is missing from object`)
+
+		return NewDeviceApStatsValueUnknown(), diags
+	}
+
+	numWlansVal, ok := numWlansAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`num_wlans expected to be basetypes.Int64Value, was: %T`, numWlansAttribute))
 	}
 
 	orgIdAttribute, ok := attributes["org_id"]
@@ -3638,6 +3798,7 @@ func NewDeviceApStatsValue(attributeTypes map[string]attr.Type, attributes map[s
 		EslStat:            eslStatVal,
 		ExtIp:              extIpVal,
 		Fwupdate:           fwupdateVal,
+		Gps:                gpsVal,
 		HwRev:              hwRevVal,
 		Id:                 idVal,
 		InactiveWiredVlans: inactiveWiredVlansVal,
@@ -3663,6 +3824,7 @@ func NewDeviceApStatsValue(attributeTypes map[string]attr.Type, attributes map[s
 		Name:               nameVal,
 		Notes:              notesVal,
 		NumClients:         numClientsVal,
+		NumWlans:           numWlansVal,
 		OrgId:              orgIdVal,
 		PortStat:           portStatVal,
 		PowerBudget:        powerBudgetVal,
@@ -3764,12 +3926,13 @@ type DeviceApStatsValue struct {
 	ConfigReverted     basetypes.BoolValue    `tfsdk:"config_reverted"`
 	CpuSystem          basetypes.Int64Value   `tfsdk:"cpu_system"`
 	CpuUtil            basetypes.Int64Value   `tfsdk:"cpu_util"`
-	CreatedTime        basetypes.Int64Value   `tfsdk:"created_time"`
+	CreatedTime        basetypes.Float64Value `tfsdk:"created_time"`
 	DeviceprofileId    basetypes.StringValue  `tfsdk:"deviceprofile_id"`
 	EnvStat            basetypes.ObjectValue  `tfsdk:"env_stat"`
 	EslStat            basetypes.ObjectValue  `tfsdk:"esl_stat"`
 	ExtIp              basetypes.StringValue  `tfsdk:"ext_ip"`
 	Fwupdate           basetypes.ObjectValue  `tfsdk:"fwupdate"`
+	Gps                basetypes.ObjectValue  `tfsdk:"gps"`
 	HwRev              basetypes.StringValue  `tfsdk:"hw_rev"`
 	Id                 basetypes.StringValue  `tfsdk:"id"`
 	InactiveWiredVlans basetypes.ListValue    `tfsdk:"inactive_wired_vlans"`
@@ -3790,11 +3953,12 @@ type DeviceApStatsValue struct {
 	MeshDownlinks      basetypes.MapValue     `tfsdk:"mesh_downlinks"`
 	MeshUplink         basetypes.ObjectValue  `tfsdk:"mesh_uplink"`
 	Model              basetypes.StringValue  `tfsdk:"model"`
-	ModifiedTime       basetypes.Int64Value   `tfsdk:"modified_time"`
+	ModifiedTime       basetypes.Float64Value `tfsdk:"modified_time"`
 	Mount              basetypes.StringValue  `tfsdk:"mount"`
 	Name               basetypes.StringValue  `tfsdk:"name"`
 	Notes              basetypes.StringValue  `tfsdk:"notes"`
 	NumClients         basetypes.Int64Value   `tfsdk:"num_clients"`
+	NumWlans           basetypes.Int64Value   `tfsdk:"num_wlans"`
 	OrgId              basetypes.StringValue  `tfsdk:"org_id"`
 	PortStat           basetypes.MapValue     `tfsdk:"port_stat"`
 	PowerBudget        basetypes.Int64Value   `tfsdk:"power_budget"`
@@ -3821,7 +3985,7 @@ type DeviceApStatsValue struct {
 }
 
 func (v DeviceApStatsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 60)
+	attrTypes := make(map[string]tftypes.Type, 62)
 
 	var val tftypes.Value
 	var err error
@@ -3839,7 +4003,7 @@ func (v DeviceApStatsValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 	attrTypes["config_reverted"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["cpu_system"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["cpu_util"] = basetypes.Int64Type{}.TerraformType(ctx)
-	attrTypes["created_time"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["created_time"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["deviceprofile_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["env_stat"] = basetypes.ObjectType{
 		AttrTypes: EnvStatValue{}.AttributeTypes(ctx),
@@ -3850,6 +4014,9 @@ func (v DeviceApStatsValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 	attrTypes["ext_ip"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["fwupdate"] = basetypes.ObjectType{
 		AttrTypes: FwupdateValue{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
+	attrTypes["gps"] = basetypes.ObjectType{
+		AttrTypes: GpsValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
 	attrTypes["hw_rev"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["id"] = basetypes.StringType{}.TerraformType(ctx)
@@ -3891,11 +4058,12 @@ func (v DeviceApStatsValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 		AttrTypes: MeshUplinkValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
 	attrTypes["model"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["modified_time"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["modified_time"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["mount"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["notes"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["num_clients"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["num_wlans"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["org_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["port_stat"] = basetypes.MapType{
 		ElemType: PortStatValue{}.Type(ctx),
@@ -3931,7 +4099,7 @@ func (v DeviceApStatsValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 60)
+		vals := make(map[string]tftypes.Value, 62)
 
 		val, err = v.AutoPlacement.ToTerraformValue(ctx)
 
@@ -4036,6 +4204,14 @@ func (v DeviceApStatsValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 		}
 
 		vals["fwupdate"] = val
+
+		val, err = v.Gps.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["gps"] = val
 
 		val, err = v.HwRev.ToTerraformValue(ctx)
 
@@ -4236,6 +4412,14 @@ func (v DeviceApStatsValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 		}
 
 		vals["num_clients"] = val
+
+		val, err = v.NumWlans.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["num_wlans"] = val
 
 		val, err = v.OrgId.ToTerraformValue(ctx)
 
@@ -4568,6 +4752,27 @@ func (v DeviceApStatsValue) ToObjectValue(ctx context.Context) (basetypes.Object
 		)
 	}
 
+	var gps basetypes.ObjectValue
+
+	if v.Gps.IsNull() {
+		gps = types.ObjectNull(
+			GpsValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.Gps.IsUnknown() {
+		gps = types.ObjectUnknown(
+			GpsValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.Gps.IsNull() && !v.Gps.IsUnknown() {
+		gps = types.ObjectValueMust(
+			GpsValue{}.AttributeTypes(ctx),
+			v.Gps.Attributes(),
+		)
+	}
+
 	iotStat := types.MapValueMust(
 		IotStatType{
 			basetypes.ObjectType{
@@ -4892,7 +5097,7 @@ func (v DeviceApStatsValue) ToObjectValue(ctx context.Context) (basetypes.Object
 			"config_reverted":  basetypes.BoolType{},
 			"cpu_system":       basetypes.Int64Type{},
 			"cpu_util":         basetypes.Int64Type{},
-			"created_time":     basetypes.Int64Type{},
+			"created_time":     basetypes.Float64Type{},
 			"deviceprofile_id": basetypes.StringType{},
 			"env_stat": basetypes.ObjectType{
 				AttrTypes: EnvStatValue{}.AttributeTypes(ctx),
@@ -4903,6 +5108,9 @@ func (v DeviceApStatsValue) ToObjectValue(ctx context.Context) (basetypes.Object
 			"ext_ip": basetypes.StringType{},
 			"fwupdate": basetypes.ObjectType{
 				AttrTypes: FwupdateValue{}.AttributeTypes(ctx),
+			},
+			"gps": basetypes.ObjectType{
+				AttrTypes: GpsValue{}.AttributeTypes(ctx),
 			},
 			"hw_rev": basetypes.StringType{},
 			"id":     basetypes.StringType{},
@@ -4944,11 +5152,12 @@ func (v DeviceApStatsValue) ToObjectValue(ctx context.Context) (basetypes.Object
 				AttrTypes: MeshUplinkValue{}.AttributeTypes(ctx),
 			},
 			"model":         basetypes.StringType{},
-			"modified_time": basetypes.Int64Type{},
+			"modified_time": basetypes.Float64Type{},
 			"mount":         basetypes.StringType{},
 			"name":          basetypes.StringType{},
 			"notes":         basetypes.StringType{},
 			"num_clients":   basetypes.Int64Type{},
+			"num_wlans":     basetypes.Int64Type{},
 			"org_id":        basetypes.StringType{},
 			"port_stat": basetypes.MapType{
 				ElemType: PortStatValue{}.Type(ctx),
@@ -4996,7 +5205,7 @@ func (v DeviceApStatsValue) ToObjectValue(ctx context.Context) (basetypes.Object
 		"config_reverted":  basetypes.BoolType{},
 		"cpu_system":       basetypes.Int64Type{},
 		"cpu_util":         basetypes.Int64Type{},
-		"created_time":     basetypes.Int64Type{},
+		"created_time":     basetypes.Float64Type{},
 		"deviceprofile_id": basetypes.StringType{},
 		"env_stat": basetypes.ObjectType{
 			AttrTypes: EnvStatValue{}.AttributeTypes(ctx),
@@ -5007,6 +5216,9 @@ func (v DeviceApStatsValue) ToObjectValue(ctx context.Context) (basetypes.Object
 		"ext_ip": basetypes.StringType{},
 		"fwupdate": basetypes.ObjectType{
 			AttrTypes: FwupdateValue{}.AttributeTypes(ctx),
+		},
+		"gps": basetypes.ObjectType{
+			AttrTypes: GpsValue{}.AttributeTypes(ctx),
 		},
 		"hw_rev": basetypes.StringType{},
 		"id":     basetypes.StringType{},
@@ -5048,11 +5260,12 @@ func (v DeviceApStatsValue) ToObjectValue(ctx context.Context) (basetypes.Object
 			AttrTypes: MeshUplinkValue{}.AttributeTypes(ctx),
 		},
 		"model":         basetypes.StringType{},
-		"modified_time": basetypes.Int64Type{},
+		"modified_time": basetypes.Float64Type{},
 		"mount":         basetypes.StringType{},
 		"name":          basetypes.StringType{},
 		"notes":         basetypes.StringType{},
 		"num_clients":   basetypes.Int64Type{},
+		"num_wlans":     basetypes.Int64Type{},
 		"org_id":        basetypes.StringType{},
 		"port_stat": basetypes.MapType{
 			ElemType: PortStatValue{}.Type(ctx),
@@ -5109,6 +5322,7 @@ func (v DeviceApStatsValue) ToObjectValue(ctx context.Context) (basetypes.Object
 			"esl_stat":             eslStat,
 			"ext_ip":               v.ExtIp,
 			"fwupdate":             fwupdate,
+			"gps":                  gps,
 			"hw_rev":               v.HwRev,
 			"id":                   v.Id,
 			"inactive_wired_vlans": inactiveWiredVlansVal,
@@ -5134,6 +5348,7 @@ func (v DeviceApStatsValue) ToObjectValue(ctx context.Context) (basetypes.Object
 			"name":                 v.Name,
 			"notes":                v.Notes,
 			"num_clients":          v.NumClients,
+			"num_wlans":            v.NumWlans,
 			"org_id":               v.OrgId,
 			"port_stat":            portStat,
 			"power_budget":         v.PowerBudget,
@@ -5225,6 +5440,10 @@ func (v DeviceApStatsValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.Fwupdate.Equal(other.Fwupdate) {
+		return false
+	}
+
+	if !v.Gps.Equal(other.Gps) {
 		return false
 	}
 
@@ -5325,6 +5544,10 @@ func (v DeviceApStatsValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.NumClients.Equal(other.NumClients) {
+		return false
+	}
+
+	if !v.NumWlans.Equal(other.NumWlans) {
 		return false
 	}
 
@@ -5442,7 +5665,7 @@ func (v DeviceApStatsValue) AttributeTypes(ctx context.Context) map[string]attr.
 		"config_reverted":  basetypes.BoolType{},
 		"cpu_system":       basetypes.Int64Type{},
 		"cpu_util":         basetypes.Int64Type{},
-		"created_time":     basetypes.Int64Type{},
+		"created_time":     basetypes.Float64Type{},
 		"deviceprofile_id": basetypes.StringType{},
 		"env_stat": basetypes.ObjectType{
 			AttrTypes: EnvStatValue{}.AttributeTypes(ctx),
@@ -5453,6 +5676,9 @@ func (v DeviceApStatsValue) AttributeTypes(ctx context.Context) map[string]attr.
 		"ext_ip": basetypes.StringType{},
 		"fwupdate": basetypes.ObjectType{
 			AttrTypes: FwupdateValue{}.AttributeTypes(ctx),
+		},
+		"gps": basetypes.ObjectType{
+			AttrTypes: GpsValue{}.AttributeTypes(ctx),
 		},
 		"hw_rev": basetypes.StringType{},
 		"id":     basetypes.StringType{},
@@ -5494,11 +5720,12 @@ func (v DeviceApStatsValue) AttributeTypes(ctx context.Context) map[string]attr.
 			AttrTypes: MeshUplinkValue{}.AttributeTypes(ctx),
 		},
 		"model":         basetypes.StringType{},
-		"modified_time": basetypes.Int64Type{},
+		"modified_time": basetypes.Float64Type{},
 		"mount":         basetypes.StringType{},
 		"name":          basetypes.StringType{},
 		"notes":         basetypes.StringType{},
 		"num_clients":   basetypes.Int64Type{},
+		"num_wlans":     basetypes.Int64Type{},
 		"org_id":        basetypes.StringType{},
 		"port_stat": basetypes.MapType{
 			ElemType: PortStatValue{}.Type(ctx),
@@ -5629,24 +5856,6 @@ func (t AutoPlacementType) ValueFromObject(ctx context.Context, in basetypes.Obj
 			fmt.Sprintf(`status_detail expected to be basetypes.StringValue, was: %T`, statusDetailAttribute))
 	}
 
-	useAutoPlacementAttribute, ok := attributes["use_auto_placement"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`use_auto_placement is missing from object`)
-
-		return nil, diags
-	}
-
-	useAutoPlacementVal, ok := useAutoPlacementAttribute.(basetypes.BoolValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`use_auto_placement expected to be basetypes.BoolValue, was: %T`, useAutoPlacementAttribute))
-	}
-
 	xAttribute, ok := attributes["x"]
 
 	if !ok {
@@ -5728,7 +5937,6 @@ func (t AutoPlacementType) ValueFromObject(ctx context.Context, in basetypes.Obj
 		RecommendedAnchor: recommendedAnchorVal,
 		Status:            statusVal,
 		StatusDetail:      statusDetailVal,
-		UseAutoPlacement:  useAutoPlacementVal,
 		X:                 xVal,
 		XM:                xMVal,
 		Y:                 yVal,
@@ -5872,24 +6080,6 @@ func NewAutoPlacementValue(attributeTypes map[string]attr.Type, attributes map[s
 			fmt.Sprintf(`status_detail expected to be basetypes.StringValue, was: %T`, statusDetailAttribute))
 	}
 
-	useAutoPlacementAttribute, ok := attributes["use_auto_placement"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`use_auto_placement is missing from object`)
-
-		return NewAutoPlacementValueUnknown(), diags
-	}
-
-	useAutoPlacementVal, ok := useAutoPlacementAttribute.(basetypes.BoolValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`use_auto_placement expected to be basetypes.BoolValue, was: %T`, useAutoPlacementAttribute))
-	}
-
 	xAttribute, ok := attributes["x"]
 
 	if !ok {
@@ -5971,7 +6161,6 @@ func NewAutoPlacementValue(attributeTypes map[string]attr.Type, attributes map[s
 		RecommendedAnchor: recommendedAnchorVal,
 		Status:            statusVal,
 		StatusDetail:      statusDetailVal,
-		UseAutoPlacement:  useAutoPlacementVal,
 		X:                 xVal,
 		XM:                xMVal,
 		Y:                 yVal,
@@ -6052,7 +6241,6 @@ type AutoPlacementValue struct {
 	RecommendedAnchor basetypes.BoolValue    `tfsdk:"recommended_anchor"`
 	Status            basetypes.StringValue  `tfsdk:"status"`
 	StatusDetail      basetypes.StringValue  `tfsdk:"status_detail"`
-	UseAutoPlacement  basetypes.BoolValue    `tfsdk:"use_auto_placement"`
 	X                 basetypes.Float64Value `tfsdk:"x"`
 	XM                basetypes.Float64Value `tfsdk:"x_m"`
 	Y                 basetypes.Float64Value `tfsdk:"y"`
@@ -6061,7 +6249,7 @@ type AutoPlacementValue struct {
 }
 
 func (v AutoPlacementValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 9)
+	attrTypes := make(map[string]tftypes.Type, 8)
 
 	var val tftypes.Value
 	var err error
@@ -6072,7 +6260,6 @@ func (v AutoPlacementValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 	attrTypes["recommended_anchor"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["status"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["status_detail"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["use_auto_placement"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["x"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["x_m"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["y"] = basetypes.Float64Type{}.TerraformType(ctx)
@@ -6082,7 +6269,7 @@ func (v AutoPlacementValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 9)
+		vals := make(map[string]tftypes.Value, 8)
 
 		val, err = v.Info.ToTerraformValue(ctx)
 
@@ -6115,14 +6302,6 @@ func (v AutoPlacementValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 		}
 
 		vals["status_detail"] = val
-
-		val, err = v.UseAutoPlacement.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["use_auto_placement"] = val
 
 		val, err = v.X.ToTerraformValue(ctx)
 
@@ -6213,7 +6392,6 @@ func (v AutoPlacementValue) ToObjectValue(ctx context.Context) (basetypes.Object
 		"recommended_anchor": basetypes.BoolType{},
 		"status":             basetypes.StringType{},
 		"status_detail":      basetypes.StringType{},
-		"use_auto_placement": basetypes.BoolType{},
 		"x":                  basetypes.Float64Type{},
 		"x_m":                basetypes.Float64Type{},
 		"y":                  basetypes.Float64Type{},
@@ -6235,7 +6413,6 @@ func (v AutoPlacementValue) ToObjectValue(ctx context.Context) (basetypes.Object
 			"recommended_anchor": v.RecommendedAnchor,
 			"status":             v.Status,
 			"status_detail":      v.StatusDetail,
-			"use_auto_placement": v.UseAutoPlacement,
 			"x":                  v.X,
 			"x_m":                v.XM,
 			"y":                  v.Y,
@@ -6276,10 +6453,6 @@ func (v AutoPlacementValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.UseAutoPlacement.Equal(other.UseAutoPlacement) {
-		return false
-	}
-
 	if !v.X.Equal(other.X) {
 		return false
 	}
@@ -6315,7 +6488,6 @@ func (v AutoPlacementValue) AttributeTypes(ctx context.Context) map[string]attr.
 		"recommended_anchor": basetypes.BoolType{},
 		"status":             basetypes.StringType{},
 		"status_detail":      basetypes.StringType{},
-		"use_auto_placement": basetypes.BoolType{},
 		"x":                  basetypes.Float64Type{},
 		"x_m":                basetypes.Float64Type{},
 		"y":                  basetypes.Float64Type{},
@@ -11075,6 +11247,605 @@ func (v FwupdateValue) AttributeTypes(ctx context.Context) map[string]attr.Type 
 		"status_id":  basetypes.Int64Type{},
 		"timestamp":  basetypes.Float64Type{},
 		"will_retry": basetypes.BoolType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = GpsType{}
+
+type GpsType struct {
+	basetypes.ObjectType
+}
+
+func (t GpsType) Equal(o attr.Type) bool {
+	other, ok := o.(GpsType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t GpsType) String() string {
+	return "GpsType"
+}
+
+func (t GpsType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	accuracyAttribute, ok := attributes["accuracy"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`accuracy is missing from object`)
+
+		return nil, diags
+	}
+
+	accuracyVal, ok := accuracyAttribute.(basetypes.NumberValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`accuracy expected to be basetypes.NumberValue, was: %T`, accuracyAttribute))
+	}
+
+	altitudeAttribute, ok := attributes["altitude"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`altitude is missing from object`)
+
+		return nil, diags
+	}
+
+	altitudeVal, ok := altitudeAttribute.(basetypes.NumberValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`altitude expected to be basetypes.NumberValue, was: %T`, altitudeAttribute))
+	}
+
+	latitudeAttribute, ok := attributes["latitude"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`latitude is missing from object`)
+
+		return nil, diags
+	}
+
+	latitudeVal, ok := latitudeAttribute.(basetypes.NumberValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`latitude expected to be basetypes.NumberValue, was: %T`, latitudeAttribute))
+	}
+
+	longitudeAttribute, ok := attributes["longitude"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`longitude is missing from object`)
+
+		return nil, diags
+	}
+
+	longitudeVal, ok := longitudeAttribute.(basetypes.NumberValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`longitude expected to be basetypes.NumberValue, was: %T`, longitudeAttribute))
+	}
+
+	srcAttribute, ok := attributes["src"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`src is missing from object`)
+
+		return nil, diags
+	}
+
+	srcVal, ok := srcAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`src expected to be basetypes.StringValue, was: %T`, srcAttribute))
+	}
+
+	timestampAttribute, ok := attributes["timestamp"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`timestamp is missing from object`)
+
+		return nil, diags
+	}
+
+	timestampVal, ok := timestampAttribute.(basetypes.Float64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`timestamp expected to be basetypes.Float64Value, was: %T`, timestampAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return GpsValue{
+		Accuracy:  accuracyVal,
+		Altitude:  altitudeVal,
+		Latitude:  latitudeVal,
+		Longitude: longitudeVal,
+		Src:       srcVal,
+		Timestamp: timestampVal,
+		state:     attr.ValueStateKnown,
+	}, diags
+}
+
+func NewGpsValueNull() GpsValue {
+	return GpsValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewGpsValueUnknown() GpsValue {
+	return GpsValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewGpsValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (GpsValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing GpsValue Attribute Value",
+				"While creating a GpsValue value, a missing attribute value was detected. "+
+					"A GpsValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("GpsValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid GpsValue Attribute Type",
+				"While creating a GpsValue value, an invalid attribute value was detected. "+
+					"A GpsValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("GpsValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("GpsValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra GpsValue Attribute Value",
+				"While creating a GpsValue value, an extra attribute value was detected. "+
+					"A GpsValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra GpsValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewGpsValueUnknown(), diags
+	}
+
+	accuracyAttribute, ok := attributes["accuracy"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`accuracy is missing from object`)
+
+		return NewGpsValueUnknown(), diags
+	}
+
+	accuracyVal, ok := accuracyAttribute.(basetypes.NumberValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`accuracy expected to be basetypes.NumberValue, was: %T`, accuracyAttribute))
+	}
+
+	altitudeAttribute, ok := attributes["altitude"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`altitude is missing from object`)
+
+		return NewGpsValueUnknown(), diags
+	}
+
+	altitudeVal, ok := altitudeAttribute.(basetypes.NumberValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`altitude expected to be basetypes.NumberValue, was: %T`, altitudeAttribute))
+	}
+
+	latitudeAttribute, ok := attributes["latitude"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`latitude is missing from object`)
+
+		return NewGpsValueUnknown(), diags
+	}
+
+	latitudeVal, ok := latitudeAttribute.(basetypes.NumberValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`latitude expected to be basetypes.NumberValue, was: %T`, latitudeAttribute))
+	}
+
+	longitudeAttribute, ok := attributes["longitude"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`longitude is missing from object`)
+
+		return NewGpsValueUnknown(), diags
+	}
+
+	longitudeVal, ok := longitudeAttribute.(basetypes.NumberValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`longitude expected to be basetypes.NumberValue, was: %T`, longitudeAttribute))
+	}
+
+	srcAttribute, ok := attributes["src"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`src is missing from object`)
+
+		return NewGpsValueUnknown(), diags
+	}
+
+	srcVal, ok := srcAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`src expected to be basetypes.StringValue, was: %T`, srcAttribute))
+	}
+
+	timestampAttribute, ok := attributes["timestamp"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`timestamp is missing from object`)
+
+		return NewGpsValueUnknown(), diags
+	}
+
+	timestampVal, ok := timestampAttribute.(basetypes.Float64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`timestamp expected to be basetypes.Float64Value, was: %T`, timestampAttribute))
+	}
+
+	if diags.HasError() {
+		return NewGpsValueUnknown(), diags
+	}
+
+	return GpsValue{
+		Accuracy:  accuracyVal,
+		Altitude:  altitudeVal,
+		Latitude:  latitudeVal,
+		Longitude: longitudeVal,
+		Src:       srcVal,
+		Timestamp: timestampVal,
+		state:     attr.ValueStateKnown,
+	}, diags
+}
+
+func NewGpsValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) GpsValue {
+	object, diags := NewGpsValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewGpsValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t GpsType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewGpsValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewGpsValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewGpsValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewGpsValueMust(GpsValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t GpsType) ValueType(ctx context.Context) attr.Value {
+	return GpsValue{}
+}
+
+var _ basetypes.ObjectValuable = GpsValue{}
+
+type GpsValue struct {
+	Accuracy  basetypes.NumberValue  `tfsdk:"accuracy"`
+	Altitude  basetypes.NumberValue  `tfsdk:"altitude"`
+	Latitude  basetypes.NumberValue  `tfsdk:"latitude"`
+	Longitude basetypes.NumberValue  `tfsdk:"longitude"`
+	Src       basetypes.StringValue  `tfsdk:"src"`
+	Timestamp basetypes.Float64Value `tfsdk:"timestamp"`
+	state     attr.ValueState
+}
+
+func (v GpsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 6)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["accuracy"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["altitude"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["latitude"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["longitude"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["src"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["timestamp"] = basetypes.Float64Type{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 6)
+
+		val, err = v.Accuracy.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["accuracy"] = val
+
+		val, err = v.Altitude.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["altitude"] = val
+
+		val, err = v.Latitude.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["latitude"] = val
+
+		val, err = v.Longitude.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["longitude"] = val
+
+		val, err = v.Src.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["src"] = val
+
+		val, err = v.Timestamp.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["timestamp"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v GpsValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v GpsValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v GpsValue) String() string {
+	return "GpsValue"
+}
+
+func (v GpsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"accuracy":  basetypes.NumberType{},
+		"altitude":  basetypes.NumberType{},
+		"latitude":  basetypes.NumberType{},
+		"longitude": basetypes.NumberType{},
+		"src":       basetypes.StringType{},
+		"timestamp": basetypes.Float64Type{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"accuracy":  v.Accuracy,
+			"altitude":  v.Altitude,
+			"latitude":  v.Latitude,
+			"longitude": v.Longitude,
+			"src":       v.Src,
+			"timestamp": v.Timestamp,
+		})
+
+	return objVal, diags
+}
+
+func (v GpsValue) Equal(o attr.Value) bool {
+	other, ok := o.(GpsValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Accuracy.Equal(other.Accuracy) {
+		return false
+	}
+
+	if !v.Altitude.Equal(other.Altitude) {
+		return false
+	}
+
+	if !v.Latitude.Equal(other.Latitude) {
+		return false
+	}
+
+	if !v.Longitude.Equal(other.Longitude) {
+		return false
+	}
+
+	if !v.Src.Equal(other.Src) {
+		return false
+	}
+
+	if !v.Timestamp.Equal(other.Timestamp) {
+		return false
+	}
+
+	return true
+}
+
+func (v GpsValue) Type(ctx context.Context) attr.Type {
+	return GpsType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v GpsValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"accuracy":  basetypes.NumberType{},
+		"altitude":  basetypes.NumberType{},
+		"latitude":  basetypes.NumberType{},
+		"longitude": basetypes.NumberType{},
+		"src":       basetypes.StringType{},
+		"timestamp": basetypes.Float64Type{},
 	}
 }
 
@@ -19892,22 +20663,22 @@ func (t BandType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue)
 			fmt.Sprintf(`channel expected to be basetypes.Int64Value, was: %T`, channelAttribute))
 	}
 
-	dynamicChainingEnalbedAttribute, ok := attributes["dynamic_chaining_enalbed"]
+	dynamicChainingEnabledAttribute, ok := attributes["dynamic_chaining_enabled"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`dynamic_chaining_enalbed is missing from object`)
+			`dynamic_chaining_enabled is missing from object`)
 
 		return nil, diags
 	}
 
-	dynamicChainingEnalbedVal, ok := dynamicChainingEnalbedAttribute.(basetypes.BoolValue)
+	dynamicChainingEnabledVal, ok := dynamicChainingEnabledAttribute.(basetypes.BoolValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`dynamic_chaining_enalbed expected to be basetypes.BoolValue, was: %T`, dynamicChainingEnalbedAttribute))
+			fmt.Sprintf(`dynamic_chaining_enabled expected to be basetypes.BoolValue, was: %T`, dynamicChainingEnabledAttribute))
 	}
 
 	macAttribute, ok := attributes["mac"]
@@ -19962,6 +20733,24 @@ func (t BandType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue)
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`num_clients expected to be basetypes.Int64Value, was: %T`, numClientsAttribute))
+	}
+
+	numWlansAttribute, ok := attributes["num_wlans"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`num_wlans is missing from object`)
+
+		return nil, diags
+	}
+
+	numWlansVal, ok := numWlansAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`num_wlans expected to be basetypes.Int64Value, was: %T`, numWlansAttribute))
 	}
 
 	powerAttribute, ok := attributes["power"]
@@ -20205,10 +20994,11 @@ func (t BandType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue)
 	return BandValue{
 		Bandwidth:              bandwidthVal,
 		Channel:                channelVal,
-		DynamicChainingEnalbed: dynamicChainingEnalbedVal,
+		DynamicChainingEnabled: dynamicChainingEnabledVal,
 		Mac:                    macVal,
 		NoiseFloor:             noiseFloorVal,
 		NumClients:             numClientsVal,
+		NumWlans:               numWlansVal,
 		Power:                  powerVal,
 		RxBytes:                rxBytesVal,
 		RxPkts:                 rxPktsVal,
@@ -20325,22 +21115,22 @@ func NewBandValue(attributeTypes map[string]attr.Type, attributes map[string]att
 			fmt.Sprintf(`channel expected to be basetypes.Int64Value, was: %T`, channelAttribute))
 	}
 
-	dynamicChainingEnalbedAttribute, ok := attributes["dynamic_chaining_enalbed"]
+	dynamicChainingEnabledAttribute, ok := attributes["dynamic_chaining_enabled"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`dynamic_chaining_enalbed is missing from object`)
+			`dynamic_chaining_enabled is missing from object`)
 
 		return NewBandValueUnknown(), diags
 	}
 
-	dynamicChainingEnalbedVal, ok := dynamicChainingEnalbedAttribute.(basetypes.BoolValue)
+	dynamicChainingEnabledVal, ok := dynamicChainingEnabledAttribute.(basetypes.BoolValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`dynamic_chaining_enalbed expected to be basetypes.BoolValue, was: %T`, dynamicChainingEnalbedAttribute))
+			fmt.Sprintf(`dynamic_chaining_enabled expected to be basetypes.BoolValue, was: %T`, dynamicChainingEnabledAttribute))
 	}
 
 	macAttribute, ok := attributes["mac"]
@@ -20395,6 +21185,24 @@ func NewBandValue(attributeTypes map[string]attr.Type, attributes map[string]att
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`num_clients expected to be basetypes.Int64Value, was: %T`, numClientsAttribute))
+	}
+
+	numWlansAttribute, ok := attributes["num_wlans"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`num_wlans is missing from object`)
+
+		return NewBandValueUnknown(), diags
+	}
+
+	numWlansVal, ok := numWlansAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`num_wlans expected to be basetypes.Int64Value, was: %T`, numWlansAttribute))
 	}
 
 	powerAttribute, ok := attributes["power"]
@@ -20638,10 +21446,11 @@ func NewBandValue(attributeTypes map[string]attr.Type, attributes map[string]att
 	return BandValue{
 		Bandwidth:              bandwidthVal,
 		Channel:                channelVal,
-		DynamicChainingEnalbed: dynamicChainingEnalbedVal,
+		DynamicChainingEnabled: dynamicChainingEnabledVal,
 		Mac:                    macVal,
 		NoiseFloor:             noiseFloorVal,
 		NumClients:             numClientsVal,
+		NumWlans:               numWlansVal,
 		Power:                  powerVal,
 		RxBytes:                rxBytesVal,
 		RxPkts:                 rxPktsVal,
@@ -20729,10 +21538,11 @@ var _ basetypes.ObjectValuable = BandValue{}
 type BandValue struct {
 	Bandwidth              basetypes.Int64Value  `tfsdk:"bandwidth"`
 	Channel                basetypes.Int64Value  `tfsdk:"channel"`
-	DynamicChainingEnalbed basetypes.BoolValue   `tfsdk:"dynamic_chaining_enalbed"`
+	DynamicChainingEnabled basetypes.BoolValue   `tfsdk:"dynamic_chaining_enabled"`
 	Mac                    basetypes.StringValue `tfsdk:"mac"`
 	NoiseFloor             basetypes.Int64Value  `tfsdk:"noise_floor"`
 	NumClients             basetypes.Int64Value  `tfsdk:"num_clients"`
+	NumWlans               basetypes.Int64Value  `tfsdk:"num_wlans"`
 	Power                  basetypes.Int64Value  `tfsdk:"power"`
 	RxBytes                basetypes.Int64Value  `tfsdk:"rx_bytes"`
 	RxPkts                 basetypes.Int64Value  `tfsdk:"rx_pkts"`
@@ -20750,17 +21560,18 @@ type BandValue struct {
 }
 
 func (v BandValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 19)
+	attrTypes := make(map[string]tftypes.Type, 20)
 
 	var val tftypes.Value
 	var err error
 
 	attrTypes["bandwidth"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["channel"] = basetypes.Int64Type{}.TerraformType(ctx)
-	attrTypes["dynamic_chaining_enalbed"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["dynamic_chaining_enabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["mac"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["noise_floor"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["num_clients"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["num_wlans"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["power"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["rx_bytes"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["rx_pkts"] = basetypes.Int64Type{}.TerraformType(ctx)
@@ -20779,7 +21590,7 @@ func (v BandValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) 
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 19)
+		vals := make(map[string]tftypes.Value, 20)
 
 		val, err = v.Bandwidth.ToTerraformValue(ctx)
 
@@ -20797,13 +21608,13 @@ func (v BandValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) 
 
 		vals["channel"] = val
 
-		val, err = v.DynamicChainingEnalbed.ToTerraformValue(ctx)
+		val, err = v.DynamicChainingEnabled.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["dynamic_chaining_enalbed"] = val
+		vals["dynamic_chaining_enabled"] = val
 
 		val, err = v.Mac.ToTerraformValue(ctx)
 
@@ -20828,6 +21639,14 @@ func (v BandValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) 
 		}
 
 		vals["num_clients"] = val
+
+		val, err = v.NumWlans.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["num_wlans"] = val
 
 		val, err = v.Power.ToTerraformValue(ctx)
 
@@ -20965,10 +21784,11 @@ func (v BandValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, di
 	attributeTypes := map[string]attr.Type{
 		"bandwidth":                basetypes.Int64Type{},
 		"channel":                  basetypes.Int64Type{},
-		"dynamic_chaining_enalbed": basetypes.BoolType{},
+		"dynamic_chaining_enabled": basetypes.BoolType{},
 		"mac":                      basetypes.StringType{},
 		"noise_floor":              basetypes.Int64Type{},
 		"num_clients":              basetypes.Int64Type{},
+		"num_wlans":                basetypes.Int64Type{},
 		"power":                    basetypes.Int64Type{},
 		"rx_bytes":                 basetypes.Int64Type{},
 		"rx_pkts":                  basetypes.Int64Type{},
@@ -20997,10 +21817,11 @@ func (v BandValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, di
 		map[string]attr.Value{
 			"bandwidth":                v.Bandwidth,
 			"channel":                  v.Channel,
-			"dynamic_chaining_enalbed": v.DynamicChainingEnalbed,
+			"dynamic_chaining_enabled": v.DynamicChainingEnabled,
 			"mac":                      v.Mac,
 			"noise_floor":              v.NoiseFloor,
 			"num_clients":              v.NumClients,
+			"num_wlans":                v.NumWlans,
 			"power":                    v.Power,
 			"rx_bytes":                 v.RxBytes,
 			"rx_pkts":                  v.RxPkts,
@@ -21042,7 +21863,7 @@ func (v BandValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.DynamicChainingEnalbed.Equal(other.DynamicChainingEnalbed) {
+	if !v.DynamicChainingEnabled.Equal(other.DynamicChainingEnabled) {
 		return false
 	}
 
@@ -21055,6 +21876,10 @@ func (v BandValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.NumClients.Equal(other.NumClients) {
+		return false
+	}
+
+	if !v.NumWlans.Equal(other.NumWlans) {
 		return false
 	}
 
@@ -21125,10 +21950,11 @@ func (v BandValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"bandwidth":                basetypes.Int64Type{},
 		"channel":                  basetypes.Int64Type{},
-		"dynamic_chaining_enalbed": basetypes.BoolType{},
+		"dynamic_chaining_enabled": basetypes.BoolType{},
 		"mac":                      basetypes.StringType{},
 		"noise_floor":              basetypes.Int64Type{},
 		"num_clients":              basetypes.Int64Type{},
+		"num_wlans":                basetypes.Int64Type{},
 		"power":                    basetypes.Int64Type{},
 		"rx_bytes":                 basetypes.Int64Type{},
 		"rx_pkts":                  basetypes.Int64Type{},

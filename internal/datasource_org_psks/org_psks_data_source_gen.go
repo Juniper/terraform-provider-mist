@@ -34,8 +34,8 @@ func OrgPsksDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"created_time": schema.Float64Attribute{
 							Computed:            true,
-							Description:         "when the object has been created, in epoch",
-							MarkdownDescription: "when the object has been created, in epoch",
+							Description:         "When the object has been created, in epoch",
+							MarkdownDescription: "When the object has been created, in epoch",
 						},
 						"email": schema.StringAttribute{
 							Computed:            true,
@@ -54,29 +54,29 @@ func OrgPsksDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"id": schema.StringAttribute{
 							Computed:            true,
-							Description:         "Unique ID of the object instance in the Mist Organnization",
-							MarkdownDescription: "Unique ID of the object instance in the Mist Organnization",
+							Description:         "Unique ID of the object instance in the Mist Organization",
+							MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
 						},
 						"mac": schema.StringAttribute{
 							Computed:            true,
-							Description:         "if `usage`==`single`, the mac that this PSK ties to, empty if `auto-binding`",
-							MarkdownDescription: "if `usage`==`single`, the mac that this PSK ties to, empty if `auto-binding`",
+							Description:         "If `usage`==`single`, the mac that this PSK ties to, empty if `auto-binding`",
+							MarkdownDescription: "If `usage`==`single`, the mac that this PSK ties to, empty if `auto-binding`",
 						},
 						"macs": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Computed:            true,
-							Description:         "if `usage`==`macs`, this list contains N number of client mac addresses or mac patterns(11:22:*) or both. This list is capped at 5000",
-							MarkdownDescription: "if `usage`==`macs`, this list contains N number of client mac addresses or mac patterns(11:22:*) or both. This list is capped at 5000",
+							Description:         "If `usage`==`macs`, this list contains N number of client mac addresses or mac patterns(1122*) or both. This list is capped at 5000",
+							MarkdownDescription: "If `usage`==`macs`, this list contains N number of client mac addresses or mac patterns(1122*) or both. This list is capped at 5000",
 						},
 						"max_usage": schema.Int64Attribute{
 							Computed:            true,
 							Description:         "For Org PSK Only. Max concurrent users for this PSK key. Default is 0 (unlimited)",
 							MarkdownDescription: "For Org PSK Only. Max concurrent users for this PSK key. Default is 0 (unlimited)",
 						},
-						"modified_time": schema.NumberAttribute{
+						"modified_time": schema.Float64Attribute{
 							Computed:            true,
-							Description:         "when the object has been modified for the last time, in epoch",
-							MarkdownDescription: "when the object has been modified for the last time, in epoch",
+							Description:         "When the object has been modified for the last time, in epoch",
+							MarkdownDescription: "When the object has been modified for the last time, in epoch",
 						},
 						"name": schema.StringAttribute{
 							Computed: true,
@@ -349,12 +349,12 @@ func (t OrgPsksType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 		return nil, diags
 	}
 
-	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.NumberValue)
+	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`modified_time expected to be basetypes.NumberValue, was: %T`, modifiedTimeAttribute))
+			fmt.Sprintf(`modified_time expected to be basetypes.Float64Value, was: %T`, modifiedTimeAttribute))
 	}
 
 	nameAttribute, ok := attributes["name"]
@@ -820,12 +820,12 @@ func NewOrgPsksValue(attributeTypes map[string]attr.Type, attributes map[string]
 		return NewOrgPsksValueUnknown(), diags
 	}
 
-	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.NumberValue)
+	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`modified_time expected to be basetypes.NumberValue, was: %T`, modifiedTimeAttribute))
+			fmt.Sprintf(`modified_time expected to be basetypes.Float64Value, was: %T`, modifiedTimeAttribute))
 	}
 
 	nameAttribute, ok := attributes["name"]
@@ -1133,7 +1133,7 @@ type OrgPsksValue struct {
 	Mac                    basetypes.StringValue  `tfsdk:"mac"`
 	Macs                   basetypes.ListValue    `tfsdk:"macs"`
 	MaxUsage               basetypes.Int64Value   `tfsdk:"max_usage"`
-	ModifiedTime           basetypes.NumberValue  `tfsdk:"modified_time"`
+	ModifiedTime           basetypes.Float64Value `tfsdk:"modified_time"`
 	Name                   basetypes.StringValue  `tfsdk:"name"`
 	Note                   basetypes.StringValue  `tfsdk:"note"`
 	NotifyExpiry           basetypes.BoolValue    `tfsdk:"notify_expiry"`
@@ -1165,7 +1165,7 @@ func (v OrgPsksValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
 	attrTypes["max_usage"] = basetypes.Int64Type{}.TerraformType(ctx)
-	attrTypes["modified_time"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["modified_time"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["note"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["notify_expiry"] = basetypes.BoolType{}.TerraformType(ctx)
@@ -1398,7 +1398,7 @@ func (v OrgPsksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 				ElemType: types.StringType,
 			},
 			"max_usage":                basetypes.Int64Type{},
-			"modified_time":            basetypes.NumberType{},
+			"modified_time":            basetypes.Float64Type{},
 			"name":                     basetypes.StringType{},
 			"note":                     basetypes.StringType{},
 			"notify_expiry":            basetypes.BoolType{},
@@ -1425,7 +1425,7 @@ func (v OrgPsksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 			ElemType: types.StringType,
 		},
 		"max_usage":                basetypes.Int64Type{},
-		"modified_time":            basetypes.NumberType{},
+		"modified_time":            basetypes.Float64Type{},
 		"name":                     basetypes.StringType{},
 		"note":                     basetypes.StringType{},
 		"notify_expiry":            basetypes.BoolType{},
@@ -1599,7 +1599,7 @@ func (v OrgPsksValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 			ElemType: types.StringType,
 		},
 		"max_usage":                basetypes.Int64Type{},
-		"modified_time":            basetypes.NumberType{},
+		"modified_time":            basetypes.Float64Type{},
 		"name":                     basetypes.StringType{},
 		"note":                     basetypes.StringType{},
 		"notify_expiry":            basetypes.BoolType{},
