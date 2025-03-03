@@ -93,8 +93,8 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						"secret": schema.StringAttribute{
 							Required:            true,
 							Sensitive:           true,
-							Description:         "Secretof RADIUS server",
-							MarkdownDescription: "Secretof RADIUS server",
+							Description:         "Secret of RADIUS server",
+							MarkdownDescription: "Secret of RADIUS server",
 						},
 					},
 					CustomType: AcctServersType{
@@ -613,8 +613,8 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						"secret": schema.StringAttribute{
 							Required:            true,
 							Sensitive:           true,
-							Description:         "Secretof RADIUS server",
-							MarkdownDescription: "Secretof RADIUS server",
+							Description:         "Secret of RADIUS server",
+							MarkdownDescription: "Secret of RADIUS server",
 						},
 					},
 					CustomType: AuthServersType{
@@ -932,6 +932,13 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "Some old WLAN drivers may not be compatible",
 				Default:             booldefault.StaticBool(false),
 			},
+			"disable_11be": schema.BoolAttribute{
+				Optional:            true,
+				Computed:            true,
+				Description:         "To disable Wi-Fi 7 EHT IEs",
+				MarkdownDescription: "To disable Wi-Fi 7 EHT IEs",
+				Default:             booldefault.StaticBool(false),
+			},
 			"disable_ht_vht_rates": schema.BoolAttribute{
 				Optional:            true,
 				Computed:            true,
@@ -1125,8 +1132,8 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 					"vlans": schema.MapAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
-						Description:         "Map between vlan_id (as string) to airespace interface names (comma-separated) or null for stndard mapping\n  * if `dynamic_vlan.type`==`standard`, property key is the Vlan ID and property value is \\\"\\\"\n  * if `dynamic_vlan.type`==`airespace-interface-name`, property key is the Vlan ID and property value is the Airespace Interface Name",
-						MarkdownDescription: "Map between vlan_id (as string) to airespace interface names (comma-separated) or null for stndard mapping\n  * if `dynamic_vlan.type`==`standard`, property key is the Vlan ID and property value is \\\"\\\"\n  * if `dynamic_vlan.type`==`airespace-interface-name`, property key is the Vlan ID and property value is the Airespace Interface Name",
+						Description:         "Map between vlan_id (as string) to airespace interface names (comma-separated) or null for standard mapping\n  * if `dynamic_vlan.type`==`standard`, property key is the Vlan ID and property value is \\\"\\\"\n  * if `dynamic_vlan.type`==`airespace-interface-name`, property key is the Vlan ID and property value is the Airespace Interface Name",
+						MarkdownDescription: "Map between vlan_id (as string) to airespace interface names (comma-separated) or null for standard mapping\n  * if `dynamic_vlan.type`==`standard`, property key is the Vlan ID and property value is \\\"\\\"\n  * if `dynamic_vlan.type`==`airespace-interface-name`, property key is the Vlan ID and property value is the Airespace Interface Name",
 						Validators: []validator.Map{
 							mapvalidator.SizeAtLeast(1), mapvalidator.KeysAre(stringvalidator.Any(mistvalidator.ParseInt(1, 4094), mistvalidator.ParseVar())),
 						},
@@ -1151,8 +1158,8 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 			"enable_wireless_bridging": schema.BoolAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "By default, we'd inspect all DHCP packets and drop those unrelated to the wireless client itself in the case where client is a wireless bridge (DHCP packets for other MACs will need to be orwarded), wireless_bridging can be enabled",
-				MarkdownDescription: "By default, we'd inspect all DHCP packets and drop those unrelated to the wireless client itself in the case where client is a wireless bridge (DHCP packets for other MACs will need to be orwarded), wireless_bridging can be enabled",
+				Description:         "By default, we'd inspect all DHCP packets and drop those unrelated to the wireless client itself in the case where client is a wireless bridge (DHCP packets for other MACs will need to be forwarded), wireless_bridging can be enabled",
+				MarkdownDescription: "By default, we'd inspect all DHCP packets and drop those unrelated to the wireless client itself in the case where client is a wireless bridge (DHCP packets for other MACs will need to be forwarded), wireless_bridging can be enabled",
 				Default:             booldefault.StaticBool(false),
 			},
 			"enable_wireless_bridging_dhcp_tracking": schema.BoolAttribute{
@@ -1249,8 +1256,8 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Unique ID of the object instance in the Mist Organnization",
-				MarkdownDescription: "Unique ID of the object instance in the Mist Organnization",
+				Description:         "Unique ID of the object instance in the Mist Organization",
+				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -1400,8 +1407,8 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 				ElementType:         types.StringType,
 				Optional:            true,
 				Computed:            true,
-				Description:         "When `interface`=`site_medge`, name of the mxtunnel that in mxtunnels under Site Setting",
-				MarkdownDescription: "When `interface`=`site_medge`, name of the mxtunnel that in mxtunnels under Site Setting",
+				Description:         "When `interface`=`site_mxedge`, name of the mxtunnel that in mxtunnels under Site Setting",
+				MarkdownDescription: "When `interface`=`site_mxedge`, name of the mxtunnel that in mxtunnels under Site Setting",
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 				},
@@ -1444,8 +1451,8 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 					"amazon_client_secret": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Optional if `amazon_enabled`==`true`. Amazon OAuth2 client secret. If amazon_client_id was provided, provide a correspoinding value. Else leave blank.",
-						MarkdownDescription: "Optional if `amazon_enabled`==`true`. Amazon OAuth2 client secret. If amazon_client_id was provided, provide a correspoinding value. Else leave blank.",
+						Description:         "Optional if `amazon_enabled`==`true`. Amazon OAuth2 client secret. If amazon_client_id was provided, provide a corresponding value. Else leave blank.",
+						MarkdownDescription: "Optional if `amazon_enabled`==`true`. Amazon OAuth2 client secret. If amazon_client_id was provided, provide a corresponding value. Else leave blank.",
 						Default:             stringdefault.StaticString(""),
 					},
 					"amazon_email_domains": schema.ListAttribute{
@@ -1625,8 +1632,8 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 					"facebook_client_secret": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Required if `facebook_enabled`==`true`. Facebook OAuth2 app secret. If facebook_client_id was provided, provide a correspoinding value. Else leave blank.",
-						MarkdownDescription: "Required if `facebook_enabled`==`true`. Facebook OAuth2 app secret. If facebook_client_id was provided, provide a correspoinding value. Else leave blank.",
+						Description:         "Required if `facebook_enabled`==`true`. Facebook OAuth2 app secret. If facebook_client_id was provided, provide a corresponding value. Else leave blank.",
+						MarkdownDescription: "Required if `facebook_enabled`==`true`. Facebook OAuth2 app secret. If facebook_client_id was provided, provide a corresponding value. Else leave blank.",
 						Validators: []validator.String{
 							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("facebook_enabled"), types.BoolValue(true)),
 						},
@@ -1679,8 +1686,8 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 					"google_client_secret": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Optional if `google_enabled`==`true`. Google OAuth2 app secret. If google_client_id was provided, provide a correspoinding value. Else leave blank.",
-						MarkdownDescription: "Optional if `google_enabled`==`true`. Google OAuth2 app secret. If google_client_id was provided, provide a correspoinding value. Else leave blank.",
+						Description:         "Optional if `google_enabled`==`true`. Google OAuth2 app secret. If google_client_id was provided, provide a corresponding value. Else leave blank.",
+						MarkdownDescription: "Optional if `google_enabled`==`true`. Google OAuth2 app secret. If google_client_id was provided, provide a corresponding value. Else leave blank.",
 						Default:             stringdefault.StaticString(""),
 					},
 					"google_email_domains": schema.ListAttribute{
@@ -1730,8 +1737,8 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 					"microsoft_client_secret": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Optional if `microsoft_enabled`==`true`. Microsoft 365 OAuth2 client secret. If microsoft_client_id was provided, provide a correspoinding value. Else leave blank.",
-						MarkdownDescription: "Optional if `microsoft_enabled`==`true`. Microsoft 365 OAuth2 client secret. If microsoft_client_id was provided, provide a correspoinding value. Else leave blank.",
+						Description:         "Optional if `microsoft_enabled`==`true`. Microsoft 365 OAuth2 client secret. If microsoft_client_id was provided, provide a corresponding value. Else leave blank.",
+						MarkdownDescription: "Optional if `microsoft_enabled`==`true`. Microsoft 365 OAuth2 client secret. If microsoft_client_id was provided, provide a corresponding value. Else leave blank.",
 						Default:             stringdefault.StaticString(""),
 					},
 					"microsoft_email_domains": schema.ListAttribute{
@@ -1913,15 +1920,15 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 					"sso_default_role": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Optionl if `wlan_portal_auth`==`sso`, default role to assign if there’s no match. By default, an assertion is treated as invalid when there’s no role matched",
-						MarkdownDescription: "Optionl if `wlan_portal_auth`==`sso`, default role to assign if there’s no match. By default, an assertion is treated as invalid when there’s no role matched",
+						Description:         "Optional if `wlan_portal_auth`==`sso`, default role to assign if there’s no match. By default, an assertion is treated as invalid when there’s no role matched",
+						MarkdownDescription: "Optional if `wlan_portal_auth`==`sso`, default role to assign if there’s no match. By default, an assertion is treated as invalid when there’s no role matched",
 						Default:             stringdefault.StaticString(""),
 					},
 					"sso_forced_role": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Optionl if `wlan_portal_auth`==`sso`",
-						MarkdownDescription: "Optionl if `wlan_portal_auth`==`sso`",
+						Description:         "Optional if `wlan_portal_auth`==`sso`",
+						MarkdownDescription: "Optional if `wlan_portal_auth`==`sso`",
 						Default:             stringdefault.StaticString(""),
 					},
 					"sso_idp_cert": schema.StringAttribute{
@@ -2327,6 +2334,16 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 			"rateset": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
+						"eht": schema.StringAttribute{
+							Optional:            true,
+							Description:         "If `template`==`custom`. EHT MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit)",
+							MarkdownDescription: "If `template`==`custom`. EHT MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit)",
+						},
+						"he": schema.StringAttribute{
+							Optional:            true,
+							Description:         "If `template`==`custom`. HE MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit",
+							MarkdownDescription: "If `template`==`custom`. HE MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit",
+						},
 						"ht": schema.StringAttribute{
 							Optional:            true,
 							Description:         "If `template`==`custom`. MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit), e.g. 00ff 00f0 001f limits HT rates to MCS 0-7 for 1 stream, MCS 4-7 for 2 stream (i.e. MCS 12-15), MCS 1-5 for 3 stream (i.e. MCS 16-20)",
@@ -2729,6 +2746,7 @@ type SiteWlanModel struct {
 	ClientLimitUpEnabled                 types.Bool              `tfsdk:"client_limit_up_enabled"`
 	CoaServers                           types.List              `tfsdk:"coa_servers"`
 	Disable11ax                          types.Bool              `tfsdk:"disable_11ax"`
+	Disable11be                          types.Bool              `tfsdk:"disable_11be"`
 	DisableHtVhtRates                    types.Bool              `tfsdk:"disable_ht_vht_rates"`
 	DisableUapsd                         types.Bool              `tfsdk:"disable_uapsd"`
 	DisableV1RoamNotify                  types.Bool              `tfsdk:"disable_v1_roam_notify"`
@@ -19275,6 +19293,42 @@ func (t RatesetType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 
 	attributes := in.Attributes()
 
+	ehtAttribute, ok := attributes["eht"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`eht is missing from object`)
+
+		return nil, diags
+	}
+
+	ehtVal, ok := ehtAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`eht expected to be basetypes.StringValue, was: %T`, ehtAttribute))
+	}
+
+	heAttribute, ok := attributes["he"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`he is missing from object`)
+
+		return nil, diags
+	}
+
+	heVal, ok := heAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`he expected to be basetypes.StringValue, was: %T`, heAttribute))
+	}
+
 	htAttribute, ok := attributes["ht"]
 
 	if !ok {
@@ -19370,6 +19424,8 @@ func (t RatesetType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 	}
 
 	return RatesetValue{
+		Eht:      ehtVal,
+		He:       heVal,
 		Ht:       htVal,
 		Legacy:   legacyVal,
 		MinRssi:  minRssiVal,
@@ -19442,6 +19498,42 @@ func NewRatesetValue(attributeTypes map[string]attr.Type, attributes map[string]
 		return NewRatesetValueUnknown(), diags
 	}
 
+	ehtAttribute, ok := attributes["eht"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`eht is missing from object`)
+
+		return NewRatesetValueUnknown(), diags
+	}
+
+	ehtVal, ok := ehtAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`eht expected to be basetypes.StringValue, was: %T`, ehtAttribute))
+	}
+
+	heAttribute, ok := attributes["he"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`he is missing from object`)
+
+		return NewRatesetValueUnknown(), diags
+	}
+
+	heVal, ok := heAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`he expected to be basetypes.StringValue, was: %T`, heAttribute))
+	}
+
 	htAttribute, ok := attributes["ht"]
 
 	if !ok {
@@ -19537,6 +19629,8 @@ func NewRatesetValue(attributeTypes map[string]attr.Type, attributes map[string]
 	}
 
 	return RatesetValue{
+		Eht:      ehtVal,
+		He:       heVal,
 		Ht:       htVal,
 		Legacy:   legacyVal,
 		MinRssi:  minRssiVal,
@@ -19614,6 +19708,8 @@ func (t RatesetType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = RatesetValue{}
 
 type RatesetValue struct {
+	Eht      basetypes.StringValue `tfsdk:"eht"`
+	He       basetypes.StringValue `tfsdk:"he"`
 	Ht       basetypes.StringValue `tfsdk:"ht"`
 	Legacy   basetypes.ListValue   `tfsdk:"legacy"`
 	MinRssi  basetypes.Int64Value  `tfsdk:"min_rssi"`
@@ -19623,11 +19719,13 @@ type RatesetValue struct {
 }
 
 func (v RatesetValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 5)
+	attrTypes := make(map[string]tftypes.Type, 7)
 
 	var val tftypes.Value
 	var err error
 
+	attrTypes["eht"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["he"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["ht"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["legacy"] = basetypes.ListType{
 		ElemType: types.StringType,
@@ -19640,7 +19738,23 @@ func (v RatesetValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 5)
+		vals := make(map[string]tftypes.Value, 7)
+
+		val, err = v.Eht.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["eht"] = val
+
+		val, err = v.He.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["he"] = val
 
 		val, err = v.Ht.ToTerraformValue(ctx)
 
@@ -19717,7 +19831,9 @@ func (v RatesetValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 
 	if d.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
-			"ht": basetypes.StringType{},
+			"eht": basetypes.StringType{},
+			"he":  basetypes.StringType{},
+			"ht":  basetypes.StringType{},
 			"legacy": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -19728,7 +19844,9 @@ func (v RatesetValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 	}
 
 	attributeTypes := map[string]attr.Type{
-		"ht": basetypes.StringType{},
+		"eht": basetypes.StringType{},
+		"he":  basetypes.StringType{},
+		"ht":  basetypes.StringType{},
 		"legacy": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -19748,6 +19866,8 @@ func (v RatesetValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
+			"eht":      v.Eht,
+			"he":       v.He,
 			"ht":       v.Ht,
 			"legacy":   legacyVal,
 			"min_rssi": v.MinRssi,
@@ -19771,6 +19891,14 @@ func (v RatesetValue) Equal(o attr.Value) bool {
 
 	if v.state != attr.ValueStateKnown {
 		return true
+	}
+
+	if !v.Eht.Equal(other.Eht) {
+		return false
+	}
+
+	if !v.He.Equal(other.He) {
+		return false
 	}
 
 	if !v.Ht.Equal(other.Ht) {
@@ -19806,7 +19934,9 @@ func (v RatesetValue) Type(ctx context.Context) attr.Type {
 
 func (v RatesetValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"ht": basetypes.StringType{},
+		"eht": basetypes.StringType{},
+		"he":  basetypes.StringType{},
+		"ht":  basetypes.StringType{},
 		"legacy": basetypes.ListType{
 			ElemType: types.StringType,
 		},

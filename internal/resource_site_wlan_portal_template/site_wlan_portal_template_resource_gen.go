@@ -113,7 +113,7 @@ func SiteWlanPortalTemplateResourceSchema(ctx context.Context) schema.Schema {
 					"auth_label": schema.StringAttribute{
 						Optional: true,
 						Computed: true,
-						Default:  stringdefault.StaticString("Connect to WiFi with"),
+						Default:  stringdefault.StaticString("Connect to Wi-Fi with"),
 					},
 					"back_link": schema.StringAttribute{
 						Optional:            true,
@@ -231,7 +231,7 @@ func SiteWlanPortalTemplateResourceSchema(ctx context.Context) schema.Schema {
 					"email_message": schema.StringAttribute{
 						Optional: true,
 						Computed: true,
-						Default:  stringdefault.StaticString("We will email you an authentication code which you can use to connect to the WiFi network."),
+						Default:  stringdefault.StaticString("We will email you an authentication code which you can use to connect to the Wi-Fi network."),
 					},
 					"email_submit": schema.StringAttribute{
 						Optional:            true,
@@ -587,8 +587,8 @@ func SiteWlanPortalTemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"sign_in_label": schema.StringAttribute{
 									Optional:            true,
-									Description:         "Label of the button to /signin",
-									MarkdownDescription: "Label of the button to /signin",
+									Description:         "Label of the button to signin",
+									MarkdownDescription: "Label of the button to signin",
 								},
 								"sms_carrier_default": schema.StringAttribute{
 									Optional: true,
@@ -794,6 +794,34 @@ func SiteWlanPortalTemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						Default: stringdefault.StaticString(""),
 					},
+					"marketing_policy_link": schema.StringAttribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "label of the link to go to /marketing_policy",
+						MarkdownDescription: "label of the link to go to /marketing_policy",
+						Default:             stringdefault.StaticString("Marketing Policy"),
+					},
+					"marketing_policy_opt_in": schema.BoolAttribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "hether marketing policy optin is enabled",
+						MarkdownDescription: "hether marketing policy optin is enabled",
+						Default:             booldefault.StaticBool(false),
+					},
+					"marketing_policy_opt_in_label": schema.StringAttribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "label for marketing optin",
+						MarkdownDescription: "label for marketing optin",
+						Default:             stringdefault.StaticString("I wish to receive Marketing notifications"),
+					},
+					"marketing_policy_opt_in_text": schema.StringAttribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "marketing policy text",
+						MarkdownDescription: "marketing policy text",
+						Default:             stringdefault.StaticString("Marketing policy content"),
+					},
 					"message": schema.StringAttribute{
 						Optional: true,
 						Computed: true,
@@ -875,7 +903,7 @@ func SiteWlanPortalTemplateResourceSchema(ctx context.Context) schema.Schema {
 					"passphrase_message": schema.StringAttribute{
 						Optional: true,
 						Computed: true,
-						Default:  stringdefault.StaticString("Enter the secret passphrase to access the WiFi network."),
+						Default:  stringdefault.StaticString("Enter the secret passphrase to access the Wi-Fi network."),
 					},
 					"passphrase_submit": schema.StringAttribute{
 						Optional:            true,
@@ -948,8 +976,8 @@ func SiteWlanPortalTemplateResourceSchema(ctx context.Context) schema.Schema {
 					"sign_in_label": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Label of the button to /signin",
-						MarkdownDescription: "Label of the button to /signin",
+						Description:         "Label of the button to signin",
+						MarkdownDescription: "Label of the button to signin",
 						Default:             stringdefault.StaticString("Sign In"),
 					},
 					"sms_carrier_default": schema.StringAttribute{
@@ -1059,7 +1087,7 @@ func SiteWlanPortalTemplateResourceSchema(ctx context.Context) schema.Schema {
 					"sms_number_message": schema.StringAttribute{
 						Optional: true,
 						Computed: true,
-						Default:  stringdefault.StaticString("We will send an access code to your mobile number which you can use to connect to the WiFi network. Message and data rates may apply."),
+						Default:  stringdefault.StaticString("We will send an access code to your mobile number which you can use to connect to the Wi-Fi network. Message and data rates may apply."),
 					},
 					"sms_number_submit": schema.StringAttribute{
 						Optional:            true,
@@ -1154,7 +1182,7 @@ func SiteWlanPortalTemplateResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Submit button label request Wifi Access and notify sponsor about guest request",
 						MarkdownDescription: "Submit button label request Wifi Access and notify sponsor about guest request",
-						Default:             stringdefault.StaticString("Request WiFi Access"),
+						Default:             stringdefault.StaticString("Request Wi-Fi Access"),
 					},
 					"sponsor_status_approved": schema.StringAttribute{
 						Optional:            true,
@@ -1182,7 +1210,7 @@ func SiteWlanPortalTemplateResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Submit button label to notify sponsor about guest request",
 						MarkdownDescription: "Submit button label to notify sponsor about guest request",
-						Default:             stringdefault.StaticString("Request WiFi Access"),
+						Default:             stringdefault.StaticString("Request Wi-Fi Access"),
 					},
 					"sponsors_error": schema.StringAttribute{
 						Optional: true,
@@ -2216,6 +2244,78 @@ func (t PortalTemplateType) ValueFromObject(ctx context.Context, in basetypes.Ob
 			fmt.Sprintf(`logo expected to be basetypes.StringValue, was: %T`, logoAttribute))
 	}
 
+	marketingPolicyLinkAttribute, ok := attributes["marketing_policy_link"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`marketing_policy_link is missing from object`)
+
+		return nil, diags
+	}
+
+	marketingPolicyLinkVal, ok := marketingPolicyLinkAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`marketing_policy_link expected to be basetypes.StringValue, was: %T`, marketingPolicyLinkAttribute))
+	}
+
+	marketingPolicyOptInAttribute, ok := attributes["marketing_policy_opt_in"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`marketing_policy_opt_in is missing from object`)
+
+		return nil, diags
+	}
+
+	marketingPolicyOptInVal, ok := marketingPolicyOptInAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`marketing_policy_opt_in expected to be basetypes.BoolValue, was: %T`, marketingPolicyOptInAttribute))
+	}
+
+	marketingPolicyOptInLabelAttribute, ok := attributes["marketing_policy_opt_in_label"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`marketing_policy_opt_in_label is missing from object`)
+
+		return nil, diags
+	}
+
+	marketingPolicyOptInLabelVal, ok := marketingPolicyOptInLabelAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`marketing_policy_opt_in_label expected to be basetypes.StringValue, was: %T`, marketingPolicyOptInLabelAttribute))
+	}
+
+	marketingPolicyOptInTextAttribute, ok := attributes["marketing_policy_opt_in_text"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`marketing_policy_opt_in_text is missing from object`)
+
+		return nil, diags
+	}
+
+	marketingPolicyOptInTextVal, ok := marketingPolicyOptInTextAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`marketing_policy_opt_in_text expected to be basetypes.StringValue, was: %T`, marketingPolicyOptInTextAttribute))
+	}
+
 	messageAttribute, ok := attributes["message"]
 
 	if !ok {
@@ -3481,129 +3581,133 @@ func (t PortalTemplateType) ValueFromObject(ctx context.Context, in basetypes.Ob
 	}
 
 	return PortalTemplateValue{
-		AccessCodeAlternateEmail: accessCodeAlternateEmailVal,
-		Alignment:                alignmentVal,
-		AuthButtonAmazon:         authButtonAmazonVal,
-		AuthButtonAzure:          authButtonAzureVal,
-		AuthButtonEmail:          authButtonEmailVal,
-		AuthButtonFacebook:       authButtonFacebookVal,
-		AuthButtonGoogle:         authButtonGoogleVal,
-		AuthButtonMicrosoft:      authButtonMicrosoftVal,
-		AuthButtonPassphrase:     authButtonPassphraseVal,
-		AuthButtonSms:            authButtonSmsVal,
-		AuthButtonSponsor:        authButtonSponsorVal,
-		AuthLabel:                authLabelVal,
-		BackLink:                 backLinkVal,
-		Color:                    colorVal,
-		ColorDark:                colorDarkVal,
-		ColorLight:               colorLightVal,
-		Company:                  companyVal,
-		CompanyError:             companyErrorVal,
-		CompanyLabel:             companyLabelVal,
-		Email:                    emailVal,
-		EmailAccessDomainError:   emailAccessDomainErrorVal,
-		EmailCancel:              emailCancelVal,
-		EmailCodeCancel:          emailCodeCancelVal,
-		EmailCodeError:           emailCodeErrorVal,
-		EmailCodeFieldLabel:      emailCodeFieldLabelVal,
-		EmailCodeMessage:         emailCodeMessageVal,
-		EmailCodeSubmit:          emailCodeSubmitVal,
-		EmailCodeTitle:           emailCodeTitleVal,
-		EmailError:               emailErrorVal,
-		EmailFieldLabel:          emailFieldLabelVal,
-		EmailLabel:               emailLabelVal,
-		EmailMessage:             emailMessageVal,
-		EmailSubmit:              emailSubmitVal,
-		EmailTitle:               emailTitleVal,
-		Field1:                   field1Val,
-		Field1error:              field1errorVal,
-		Field1label:              field1labelVal,
-		Field1required:           field1requiredVal,
-		Field2:                   field2Val,
-		Field2error:              field2errorVal,
-		Field2label:              field2labelVal,
-		Field2required:           field2requiredVal,
-		Field3:                   field3Val,
-		Field3error:              field3errorVal,
-		Field3label:              field3labelVal,
-		Field3required:           field3requiredVal,
-		Field4:                   field4Val,
-		Field4error:              field4errorVal,
-		Field4label:              field4labelVal,
-		Field4required:           field4requiredVal,
-		Locales:                  localesVal,
-		Logo:                     logoVal,
-		Message:                  messageVal,
-		MultiAuth:                multiAuthVal,
-		Name:                     nameVal,
-		NameError:                nameErrorVal,
-		NameLabel:                nameLabelVal,
-		OptOutDefault:            optOutDefaultVal,
-		Optout:                   optoutVal,
-		OptoutLabel:              optoutLabelVal,
-		PageTitle:                pageTitleVal,
-		PassphraseCancel:         passphraseCancelVal,
-		PassphraseError:          passphraseErrorVal,
-		PassphraseLabel:          passphraseLabelVal,
-		PassphraseMessage:        passphraseMessageVal,
-		PassphraseSubmit:         passphraseSubmitVal,
-		PassphraseTitle:          passphraseTitleVal,
-		PoweredBy:                poweredByVal,
-		Privacy:                  privacyVal,
-		PrivacyPolicyAcceptLabel: privacyPolicyAcceptLabelVal,
-		PrivacyPolicyError:       privacyPolicyErrorVal,
-		PrivacyPolicyLink:        privacyPolicyLinkVal,
-		PrivacyPolicyText:        privacyPolicyTextVal,
-		RequiredFieldLabel:       requiredFieldLabelVal,
-		ResponsiveLayout:         responsiveLayoutVal,
-		SignInLabel:              signInLabelVal,
-		SmsCarrierDefault:        smsCarrierDefaultVal,
-		SmsCarrierError:          smsCarrierErrorVal,
-		SmsCarrierFieldLabel:     smsCarrierFieldLabelVal,
-		SmsCodeCancel:            smsCodeCancelVal,
-		SmsCodeError:             smsCodeErrorVal,
-		SmsCodeFieldLabel:        smsCodeFieldLabelVal,
-		SmsCodeMessage:           smsCodeMessageVal,
-		SmsCodeSubmit:            smsCodeSubmitVal,
-		SmsCodeTitle:             smsCodeTitleVal,
-		SmsCountryFieldLabel:     smsCountryFieldLabelVal,
-		SmsCountryFormat:         smsCountryFormatVal,
-		SmsHaveAccessCode:        smsHaveAccessCodeVal,
-		SmsIsTwilio:              smsIsTwilioVal,
-		SmsMessageFormat:         smsMessageFormatVal,
-		SmsNumberCancel:          smsNumberCancelVal,
-		SmsNumberError:           smsNumberErrorVal,
-		SmsNumberFieldLabel:      smsNumberFieldLabelVal,
-		SmsNumberFormat:          smsNumberFormatVal,
-		SmsNumberMessage:         smsNumberMessageVal,
-		SmsNumberSubmit:          smsNumberSubmitVal,
-		SmsNumberTitle:           smsNumberTitleVal,
-		SmsUsernameFormat:        smsUsernameFormatVal,
-		SmsValidityDuration:      smsValidityDurationVal,
-		SponsorBackLink:          sponsorBackLinkVal,
-		SponsorCancel:            sponsorCancelVal,
-		SponsorEmail:             sponsorEmailVal,
-		SponsorEmailError:        sponsorEmailErrorVal,
-		SponsorEmailTemplate:     sponsorEmailTemplateVal,
-		SponsorInfoApproved:      sponsorInfoApprovedVal,
-		SponsorInfoDenied:        sponsorInfoDeniedVal,
-		SponsorInfoPending:       sponsorInfoPendingVal,
-		SponsorName:              sponsorNameVal,
-		SponsorNameError:         sponsorNameErrorVal,
-		SponsorNotePending:       sponsorNotePendingVal,
-		SponsorRequestAccess:     sponsorRequestAccessVal,
-		SponsorStatusApproved:    sponsorStatusApprovedVal,
-		SponsorStatusDenied:      sponsorStatusDeniedVal,
-		SponsorStatusPending:     sponsorStatusPendingVal,
-		SponsorSubmit:            sponsorSubmitVal,
-		SponsorsError:            sponsorsErrorVal,
-		SponsorsFieldLabel:       sponsorsFieldLabelVal,
-		Tos:                      tosVal,
-		TosAcceptLabel:           tosAcceptLabelVal,
-		TosError:                 tosErrorVal,
-		TosLink:                  tosLinkVal,
-		TosText:                  tosTextVal,
-		state:                    attr.ValueStateKnown,
+		AccessCodeAlternateEmail:  accessCodeAlternateEmailVal,
+		Alignment:                 alignmentVal,
+		AuthButtonAmazon:          authButtonAmazonVal,
+		AuthButtonAzure:           authButtonAzureVal,
+		AuthButtonEmail:           authButtonEmailVal,
+		AuthButtonFacebook:        authButtonFacebookVal,
+		AuthButtonGoogle:          authButtonGoogleVal,
+		AuthButtonMicrosoft:       authButtonMicrosoftVal,
+		AuthButtonPassphrase:      authButtonPassphraseVal,
+		AuthButtonSms:             authButtonSmsVal,
+		AuthButtonSponsor:         authButtonSponsorVal,
+		AuthLabel:                 authLabelVal,
+		BackLink:                  backLinkVal,
+		Color:                     colorVal,
+		ColorDark:                 colorDarkVal,
+		ColorLight:                colorLightVal,
+		Company:                   companyVal,
+		CompanyError:              companyErrorVal,
+		CompanyLabel:              companyLabelVal,
+		Email:                     emailVal,
+		EmailAccessDomainError:    emailAccessDomainErrorVal,
+		EmailCancel:               emailCancelVal,
+		EmailCodeCancel:           emailCodeCancelVal,
+		EmailCodeError:            emailCodeErrorVal,
+		EmailCodeFieldLabel:       emailCodeFieldLabelVal,
+		EmailCodeMessage:          emailCodeMessageVal,
+		EmailCodeSubmit:           emailCodeSubmitVal,
+		EmailCodeTitle:            emailCodeTitleVal,
+		EmailError:                emailErrorVal,
+		EmailFieldLabel:           emailFieldLabelVal,
+		EmailLabel:                emailLabelVal,
+		EmailMessage:              emailMessageVal,
+		EmailSubmit:               emailSubmitVal,
+		EmailTitle:                emailTitleVal,
+		Field1:                    field1Val,
+		Field1error:               field1errorVal,
+		Field1label:               field1labelVal,
+		Field1required:            field1requiredVal,
+		Field2:                    field2Val,
+		Field2error:               field2errorVal,
+		Field2label:               field2labelVal,
+		Field2required:            field2requiredVal,
+		Field3:                    field3Val,
+		Field3error:               field3errorVal,
+		Field3label:               field3labelVal,
+		Field3required:            field3requiredVal,
+		Field4:                    field4Val,
+		Field4error:               field4errorVal,
+		Field4label:               field4labelVal,
+		Field4required:            field4requiredVal,
+		Locales:                   localesVal,
+		Logo:                      logoVal,
+		MarketingPolicyLink:       marketingPolicyLinkVal,
+		MarketingPolicyOptIn:      marketingPolicyOptInVal,
+		MarketingPolicyOptInLabel: marketingPolicyOptInLabelVal,
+		MarketingPolicyOptInText:  marketingPolicyOptInTextVal,
+		Message:                   messageVal,
+		MultiAuth:                 multiAuthVal,
+		Name:                      nameVal,
+		NameError:                 nameErrorVal,
+		NameLabel:                 nameLabelVal,
+		OptOutDefault:             optOutDefaultVal,
+		Optout:                    optoutVal,
+		OptoutLabel:               optoutLabelVal,
+		PageTitle:                 pageTitleVal,
+		PassphraseCancel:          passphraseCancelVal,
+		PassphraseError:           passphraseErrorVal,
+		PassphraseLabel:           passphraseLabelVal,
+		PassphraseMessage:         passphraseMessageVal,
+		PassphraseSubmit:          passphraseSubmitVal,
+		PassphraseTitle:           passphraseTitleVal,
+		PoweredBy:                 poweredByVal,
+		Privacy:                   privacyVal,
+		PrivacyPolicyAcceptLabel:  privacyPolicyAcceptLabelVal,
+		PrivacyPolicyError:        privacyPolicyErrorVal,
+		PrivacyPolicyLink:         privacyPolicyLinkVal,
+		PrivacyPolicyText:         privacyPolicyTextVal,
+		RequiredFieldLabel:        requiredFieldLabelVal,
+		ResponsiveLayout:          responsiveLayoutVal,
+		SignInLabel:               signInLabelVal,
+		SmsCarrierDefault:         smsCarrierDefaultVal,
+		SmsCarrierError:           smsCarrierErrorVal,
+		SmsCarrierFieldLabel:      smsCarrierFieldLabelVal,
+		SmsCodeCancel:             smsCodeCancelVal,
+		SmsCodeError:              smsCodeErrorVal,
+		SmsCodeFieldLabel:         smsCodeFieldLabelVal,
+		SmsCodeMessage:            smsCodeMessageVal,
+		SmsCodeSubmit:             smsCodeSubmitVal,
+		SmsCodeTitle:              smsCodeTitleVal,
+		SmsCountryFieldLabel:      smsCountryFieldLabelVal,
+		SmsCountryFormat:          smsCountryFormatVal,
+		SmsHaveAccessCode:         smsHaveAccessCodeVal,
+		SmsIsTwilio:               smsIsTwilioVal,
+		SmsMessageFormat:          smsMessageFormatVal,
+		SmsNumberCancel:           smsNumberCancelVal,
+		SmsNumberError:            smsNumberErrorVal,
+		SmsNumberFieldLabel:       smsNumberFieldLabelVal,
+		SmsNumberFormat:           smsNumberFormatVal,
+		SmsNumberMessage:          smsNumberMessageVal,
+		SmsNumberSubmit:           smsNumberSubmitVal,
+		SmsNumberTitle:            smsNumberTitleVal,
+		SmsUsernameFormat:         smsUsernameFormatVal,
+		SmsValidityDuration:       smsValidityDurationVal,
+		SponsorBackLink:           sponsorBackLinkVal,
+		SponsorCancel:             sponsorCancelVal,
+		SponsorEmail:              sponsorEmailVal,
+		SponsorEmailError:         sponsorEmailErrorVal,
+		SponsorEmailTemplate:      sponsorEmailTemplateVal,
+		SponsorInfoApproved:       sponsorInfoApprovedVal,
+		SponsorInfoDenied:         sponsorInfoDeniedVal,
+		SponsorInfoPending:        sponsorInfoPendingVal,
+		SponsorName:               sponsorNameVal,
+		SponsorNameError:          sponsorNameErrorVal,
+		SponsorNotePending:        sponsorNotePendingVal,
+		SponsorRequestAccess:      sponsorRequestAccessVal,
+		SponsorStatusApproved:     sponsorStatusApprovedVal,
+		SponsorStatusDenied:       sponsorStatusDeniedVal,
+		SponsorStatusPending:      sponsorStatusPendingVal,
+		SponsorSubmit:             sponsorSubmitVal,
+		SponsorsError:             sponsorsErrorVal,
+		SponsorsFieldLabel:        sponsorsFieldLabelVal,
+		Tos:                       tosVal,
+		TosAcceptLabel:            tosAcceptLabelVal,
+		TosError:                  tosErrorVal,
+		TosLink:                   tosLinkVal,
+		TosText:                   tosTextVal,
+		state:                     attr.ValueStateKnown,
 	}, diags
 }
 
@@ -4606,6 +4710,78 @@ func NewPortalTemplateValue(attributeTypes map[string]attr.Type, attributes map[
 			fmt.Sprintf(`logo expected to be basetypes.StringValue, was: %T`, logoAttribute))
 	}
 
+	marketingPolicyLinkAttribute, ok := attributes["marketing_policy_link"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`marketing_policy_link is missing from object`)
+
+		return NewPortalTemplateValueUnknown(), diags
+	}
+
+	marketingPolicyLinkVal, ok := marketingPolicyLinkAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`marketing_policy_link expected to be basetypes.StringValue, was: %T`, marketingPolicyLinkAttribute))
+	}
+
+	marketingPolicyOptInAttribute, ok := attributes["marketing_policy_opt_in"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`marketing_policy_opt_in is missing from object`)
+
+		return NewPortalTemplateValueUnknown(), diags
+	}
+
+	marketingPolicyOptInVal, ok := marketingPolicyOptInAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`marketing_policy_opt_in expected to be basetypes.BoolValue, was: %T`, marketingPolicyOptInAttribute))
+	}
+
+	marketingPolicyOptInLabelAttribute, ok := attributes["marketing_policy_opt_in_label"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`marketing_policy_opt_in_label is missing from object`)
+
+		return NewPortalTemplateValueUnknown(), diags
+	}
+
+	marketingPolicyOptInLabelVal, ok := marketingPolicyOptInLabelAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`marketing_policy_opt_in_label expected to be basetypes.StringValue, was: %T`, marketingPolicyOptInLabelAttribute))
+	}
+
+	marketingPolicyOptInTextAttribute, ok := attributes["marketing_policy_opt_in_text"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`marketing_policy_opt_in_text is missing from object`)
+
+		return NewPortalTemplateValueUnknown(), diags
+	}
+
+	marketingPolicyOptInTextVal, ok := marketingPolicyOptInTextAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`marketing_policy_opt_in_text expected to be basetypes.StringValue, was: %T`, marketingPolicyOptInTextAttribute))
+	}
+
 	messageAttribute, ok := attributes["message"]
 
 	if !ok {
@@ -5871,129 +6047,133 @@ func NewPortalTemplateValue(attributeTypes map[string]attr.Type, attributes map[
 	}
 
 	return PortalTemplateValue{
-		AccessCodeAlternateEmail: accessCodeAlternateEmailVal,
-		Alignment:                alignmentVal,
-		AuthButtonAmazon:         authButtonAmazonVal,
-		AuthButtonAzure:          authButtonAzureVal,
-		AuthButtonEmail:          authButtonEmailVal,
-		AuthButtonFacebook:       authButtonFacebookVal,
-		AuthButtonGoogle:         authButtonGoogleVal,
-		AuthButtonMicrosoft:      authButtonMicrosoftVal,
-		AuthButtonPassphrase:     authButtonPassphraseVal,
-		AuthButtonSms:            authButtonSmsVal,
-		AuthButtonSponsor:        authButtonSponsorVal,
-		AuthLabel:                authLabelVal,
-		BackLink:                 backLinkVal,
-		Color:                    colorVal,
-		ColorDark:                colorDarkVal,
-		ColorLight:               colorLightVal,
-		Company:                  companyVal,
-		CompanyError:             companyErrorVal,
-		CompanyLabel:             companyLabelVal,
-		Email:                    emailVal,
-		EmailAccessDomainError:   emailAccessDomainErrorVal,
-		EmailCancel:              emailCancelVal,
-		EmailCodeCancel:          emailCodeCancelVal,
-		EmailCodeError:           emailCodeErrorVal,
-		EmailCodeFieldLabel:      emailCodeFieldLabelVal,
-		EmailCodeMessage:         emailCodeMessageVal,
-		EmailCodeSubmit:          emailCodeSubmitVal,
-		EmailCodeTitle:           emailCodeTitleVal,
-		EmailError:               emailErrorVal,
-		EmailFieldLabel:          emailFieldLabelVal,
-		EmailLabel:               emailLabelVal,
-		EmailMessage:             emailMessageVal,
-		EmailSubmit:              emailSubmitVal,
-		EmailTitle:               emailTitleVal,
-		Field1:                   field1Val,
-		Field1error:              field1errorVal,
-		Field1label:              field1labelVal,
-		Field1required:           field1requiredVal,
-		Field2:                   field2Val,
-		Field2error:              field2errorVal,
-		Field2label:              field2labelVal,
-		Field2required:           field2requiredVal,
-		Field3:                   field3Val,
-		Field3error:              field3errorVal,
-		Field3label:              field3labelVal,
-		Field3required:           field3requiredVal,
-		Field4:                   field4Val,
-		Field4error:              field4errorVal,
-		Field4label:              field4labelVal,
-		Field4required:           field4requiredVal,
-		Locales:                  localesVal,
-		Logo:                     logoVal,
-		Message:                  messageVal,
-		MultiAuth:                multiAuthVal,
-		Name:                     nameVal,
-		NameError:                nameErrorVal,
-		NameLabel:                nameLabelVal,
-		OptOutDefault:            optOutDefaultVal,
-		Optout:                   optoutVal,
-		OptoutLabel:              optoutLabelVal,
-		PageTitle:                pageTitleVal,
-		PassphraseCancel:         passphraseCancelVal,
-		PassphraseError:          passphraseErrorVal,
-		PassphraseLabel:          passphraseLabelVal,
-		PassphraseMessage:        passphraseMessageVal,
-		PassphraseSubmit:         passphraseSubmitVal,
-		PassphraseTitle:          passphraseTitleVal,
-		PoweredBy:                poweredByVal,
-		Privacy:                  privacyVal,
-		PrivacyPolicyAcceptLabel: privacyPolicyAcceptLabelVal,
-		PrivacyPolicyError:       privacyPolicyErrorVal,
-		PrivacyPolicyLink:        privacyPolicyLinkVal,
-		PrivacyPolicyText:        privacyPolicyTextVal,
-		RequiredFieldLabel:       requiredFieldLabelVal,
-		ResponsiveLayout:         responsiveLayoutVal,
-		SignInLabel:              signInLabelVal,
-		SmsCarrierDefault:        smsCarrierDefaultVal,
-		SmsCarrierError:          smsCarrierErrorVal,
-		SmsCarrierFieldLabel:     smsCarrierFieldLabelVal,
-		SmsCodeCancel:            smsCodeCancelVal,
-		SmsCodeError:             smsCodeErrorVal,
-		SmsCodeFieldLabel:        smsCodeFieldLabelVal,
-		SmsCodeMessage:           smsCodeMessageVal,
-		SmsCodeSubmit:            smsCodeSubmitVal,
-		SmsCodeTitle:             smsCodeTitleVal,
-		SmsCountryFieldLabel:     smsCountryFieldLabelVal,
-		SmsCountryFormat:         smsCountryFormatVal,
-		SmsHaveAccessCode:        smsHaveAccessCodeVal,
-		SmsIsTwilio:              smsIsTwilioVal,
-		SmsMessageFormat:         smsMessageFormatVal,
-		SmsNumberCancel:          smsNumberCancelVal,
-		SmsNumberError:           smsNumberErrorVal,
-		SmsNumberFieldLabel:      smsNumberFieldLabelVal,
-		SmsNumberFormat:          smsNumberFormatVal,
-		SmsNumberMessage:         smsNumberMessageVal,
-		SmsNumberSubmit:          smsNumberSubmitVal,
-		SmsNumberTitle:           smsNumberTitleVal,
-		SmsUsernameFormat:        smsUsernameFormatVal,
-		SmsValidityDuration:      smsValidityDurationVal,
-		SponsorBackLink:          sponsorBackLinkVal,
-		SponsorCancel:            sponsorCancelVal,
-		SponsorEmail:             sponsorEmailVal,
-		SponsorEmailError:        sponsorEmailErrorVal,
-		SponsorEmailTemplate:     sponsorEmailTemplateVal,
-		SponsorInfoApproved:      sponsorInfoApprovedVal,
-		SponsorInfoDenied:        sponsorInfoDeniedVal,
-		SponsorInfoPending:       sponsorInfoPendingVal,
-		SponsorName:              sponsorNameVal,
-		SponsorNameError:         sponsorNameErrorVal,
-		SponsorNotePending:       sponsorNotePendingVal,
-		SponsorRequestAccess:     sponsorRequestAccessVal,
-		SponsorStatusApproved:    sponsorStatusApprovedVal,
-		SponsorStatusDenied:      sponsorStatusDeniedVal,
-		SponsorStatusPending:     sponsorStatusPendingVal,
-		SponsorSubmit:            sponsorSubmitVal,
-		SponsorsError:            sponsorsErrorVal,
-		SponsorsFieldLabel:       sponsorsFieldLabelVal,
-		Tos:                      tosVal,
-		TosAcceptLabel:           tosAcceptLabelVal,
-		TosError:                 tosErrorVal,
-		TosLink:                  tosLinkVal,
-		TosText:                  tosTextVal,
-		state:                    attr.ValueStateKnown,
+		AccessCodeAlternateEmail:  accessCodeAlternateEmailVal,
+		Alignment:                 alignmentVal,
+		AuthButtonAmazon:          authButtonAmazonVal,
+		AuthButtonAzure:           authButtonAzureVal,
+		AuthButtonEmail:           authButtonEmailVal,
+		AuthButtonFacebook:        authButtonFacebookVal,
+		AuthButtonGoogle:          authButtonGoogleVal,
+		AuthButtonMicrosoft:       authButtonMicrosoftVal,
+		AuthButtonPassphrase:      authButtonPassphraseVal,
+		AuthButtonSms:             authButtonSmsVal,
+		AuthButtonSponsor:         authButtonSponsorVal,
+		AuthLabel:                 authLabelVal,
+		BackLink:                  backLinkVal,
+		Color:                     colorVal,
+		ColorDark:                 colorDarkVal,
+		ColorLight:                colorLightVal,
+		Company:                   companyVal,
+		CompanyError:              companyErrorVal,
+		CompanyLabel:              companyLabelVal,
+		Email:                     emailVal,
+		EmailAccessDomainError:    emailAccessDomainErrorVal,
+		EmailCancel:               emailCancelVal,
+		EmailCodeCancel:           emailCodeCancelVal,
+		EmailCodeError:            emailCodeErrorVal,
+		EmailCodeFieldLabel:       emailCodeFieldLabelVal,
+		EmailCodeMessage:          emailCodeMessageVal,
+		EmailCodeSubmit:           emailCodeSubmitVal,
+		EmailCodeTitle:            emailCodeTitleVal,
+		EmailError:                emailErrorVal,
+		EmailFieldLabel:           emailFieldLabelVal,
+		EmailLabel:                emailLabelVal,
+		EmailMessage:              emailMessageVal,
+		EmailSubmit:               emailSubmitVal,
+		EmailTitle:                emailTitleVal,
+		Field1:                    field1Val,
+		Field1error:               field1errorVal,
+		Field1label:               field1labelVal,
+		Field1required:            field1requiredVal,
+		Field2:                    field2Val,
+		Field2error:               field2errorVal,
+		Field2label:               field2labelVal,
+		Field2required:            field2requiredVal,
+		Field3:                    field3Val,
+		Field3error:               field3errorVal,
+		Field3label:               field3labelVal,
+		Field3required:            field3requiredVal,
+		Field4:                    field4Val,
+		Field4error:               field4errorVal,
+		Field4label:               field4labelVal,
+		Field4required:            field4requiredVal,
+		Locales:                   localesVal,
+		Logo:                      logoVal,
+		MarketingPolicyLink:       marketingPolicyLinkVal,
+		MarketingPolicyOptIn:      marketingPolicyOptInVal,
+		MarketingPolicyOptInLabel: marketingPolicyOptInLabelVal,
+		MarketingPolicyOptInText:  marketingPolicyOptInTextVal,
+		Message:                   messageVal,
+		MultiAuth:                 multiAuthVal,
+		Name:                      nameVal,
+		NameError:                 nameErrorVal,
+		NameLabel:                 nameLabelVal,
+		OptOutDefault:             optOutDefaultVal,
+		Optout:                    optoutVal,
+		OptoutLabel:               optoutLabelVal,
+		PageTitle:                 pageTitleVal,
+		PassphraseCancel:          passphraseCancelVal,
+		PassphraseError:           passphraseErrorVal,
+		PassphraseLabel:           passphraseLabelVal,
+		PassphraseMessage:         passphraseMessageVal,
+		PassphraseSubmit:          passphraseSubmitVal,
+		PassphraseTitle:           passphraseTitleVal,
+		PoweredBy:                 poweredByVal,
+		Privacy:                   privacyVal,
+		PrivacyPolicyAcceptLabel:  privacyPolicyAcceptLabelVal,
+		PrivacyPolicyError:        privacyPolicyErrorVal,
+		PrivacyPolicyLink:         privacyPolicyLinkVal,
+		PrivacyPolicyText:         privacyPolicyTextVal,
+		RequiredFieldLabel:        requiredFieldLabelVal,
+		ResponsiveLayout:          responsiveLayoutVal,
+		SignInLabel:               signInLabelVal,
+		SmsCarrierDefault:         smsCarrierDefaultVal,
+		SmsCarrierError:           smsCarrierErrorVal,
+		SmsCarrierFieldLabel:      smsCarrierFieldLabelVal,
+		SmsCodeCancel:             smsCodeCancelVal,
+		SmsCodeError:              smsCodeErrorVal,
+		SmsCodeFieldLabel:         smsCodeFieldLabelVal,
+		SmsCodeMessage:            smsCodeMessageVal,
+		SmsCodeSubmit:             smsCodeSubmitVal,
+		SmsCodeTitle:              smsCodeTitleVal,
+		SmsCountryFieldLabel:      smsCountryFieldLabelVal,
+		SmsCountryFormat:          smsCountryFormatVal,
+		SmsHaveAccessCode:         smsHaveAccessCodeVal,
+		SmsIsTwilio:               smsIsTwilioVal,
+		SmsMessageFormat:          smsMessageFormatVal,
+		SmsNumberCancel:           smsNumberCancelVal,
+		SmsNumberError:            smsNumberErrorVal,
+		SmsNumberFieldLabel:       smsNumberFieldLabelVal,
+		SmsNumberFormat:           smsNumberFormatVal,
+		SmsNumberMessage:          smsNumberMessageVal,
+		SmsNumberSubmit:           smsNumberSubmitVal,
+		SmsNumberTitle:            smsNumberTitleVal,
+		SmsUsernameFormat:         smsUsernameFormatVal,
+		SmsValidityDuration:       smsValidityDurationVal,
+		SponsorBackLink:           sponsorBackLinkVal,
+		SponsorCancel:             sponsorCancelVal,
+		SponsorEmail:              sponsorEmailVal,
+		SponsorEmailError:         sponsorEmailErrorVal,
+		SponsorEmailTemplate:      sponsorEmailTemplateVal,
+		SponsorInfoApproved:       sponsorInfoApprovedVal,
+		SponsorInfoDenied:         sponsorInfoDeniedVal,
+		SponsorInfoPending:        sponsorInfoPendingVal,
+		SponsorName:               sponsorNameVal,
+		SponsorNameError:          sponsorNameErrorVal,
+		SponsorNotePending:        sponsorNotePendingVal,
+		SponsorRequestAccess:      sponsorRequestAccessVal,
+		SponsorStatusApproved:     sponsorStatusApprovedVal,
+		SponsorStatusDenied:       sponsorStatusDeniedVal,
+		SponsorStatusPending:      sponsorStatusPendingVal,
+		SponsorSubmit:             sponsorSubmitVal,
+		SponsorsError:             sponsorsErrorVal,
+		SponsorsFieldLabel:        sponsorsFieldLabelVal,
+		Tos:                       tosVal,
+		TosAcceptLabel:            tosAcceptLabelVal,
+		TosError:                  tosErrorVal,
+		TosLink:                   tosLinkVal,
+		TosText:                   tosTextVal,
+		state:                     attr.ValueStateKnown,
 	}, diags
 }
 
@@ -6065,133 +6245,137 @@ func (t PortalTemplateType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = PortalTemplateValue{}
 
 type PortalTemplateValue struct {
-	AccessCodeAlternateEmail basetypes.StringValue `tfsdk:"access_code_alternate_email"`
-	Alignment                basetypes.StringValue `tfsdk:"alignment"`
-	AuthButtonAmazon         basetypes.StringValue `tfsdk:"auth_button_amazon"`
-	AuthButtonAzure          basetypes.StringValue `tfsdk:"auth_button_azure"`
-	AuthButtonEmail          basetypes.StringValue `tfsdk:"auth_button_email"`
-	AuthButtonFacebook       basetypes.StringValue `tfsdk:"auth_button_facebook"`
-	AuthButtonGoogle         basetypes.StringValue `tfsdk:"auth_button_google"`
-	AuthButtonMicrosoft      basetypes.StringValue `tfsdk:"auth_button_microsoft"`
-	AuthButtonPassphrase     basetypes.StringValue `tfsdk:"auth_button_passphrase"`
-	AuthButtonSms            basetypes.StringValue `tfsdk:"auth_button_sms"`
-	AuthButtonSponsor        basetypes.StringValue `tfsdk:"auth_button_sponsor"`
-	AuthLabel                basetypes.StringValue `tfsdk:"auth_label"`
-	BackLink                 basetypes.StringValue `tfsdk:"back_link"`
-	Color                    basetypes.StringValue `tfsdk:"color"`
-	ColorDark                basetypes.StringValue `tfsdk:"color_dark"`
-	ColorLight               basetypes.StringValue `tfsdk:"color_light"`
-	Company                  basetypes.BoolValue   `tfsdk:"company"`
-	CompanyError             basetypes.StringValue `tfsdk:"company_error"`
-	CompanyLabel             basetypes.StringValue `tfsdk:"company_label"`
-	Email                    basetypes.BoolValue   `tfsdk:"email"`
-	EmailAccessDomainError   basetypes.StringValue `tfsdk:"email_access_domain_error"`
-	EmailCancel              basetypes.StringValue `tfsdk:"email_cancel"`
-	EmailCodeCancel          basetypes.StringValue `tfsdk:"email_code_cancel"`
-	EmailCodeError           basetypes.StringValue `tfsdk:"email_code_error"`
-	EmailCodeFieldLabel      basetypes.StringValue `tfsdk:"email_code_field_label"`
-	EmailCodeMessage         basetypes.StringValue `tfsdk:"email_code_message"`
-	EmailCodeSubmit          basetypes.StringValue `tfsdk:"email_code_submit"`
-	EmailCodeTitle           basetypes.StringValue `tfsdk:"email_code_title"`
-	EmailError               basetypes.StringValue `tfsdk:"email_error"`
-	EmailFieldLabel          basetypes.StringValue `tfsdk:"email_field_label"`
-	EmailLabel               basetypes.StringValue `tfsdk:"email_label"`
-	EmailMessage             basetypes.StringValue `tfsdk:"email_message"`
-	EmailSubmit              basetypes.StringValue `tfsdk:"email_submit"`
-	EmailTitle               basetypes.StringValue `tfsdk:"email_title"`
-	Field1                   basetypes.BoolValue   `tfsdk:"field1"`
-	Field1error              basetypes.StringValue `tfsdk:"field1error"`
-	Field1label              basetypes.StringValue `tfsdk:"field1label"`
-	Field1required           basetypes.BoolValue   `tfsdk:"field1required"`
-	Field2                   basetypes.BoolValue   `tfsdk:"field2"`
-	Field2error              basetypes.StringValue `tfsdk:"field2error"`
-	Field2label              basetypes.StringValue `tfsdk:"field2label"`
-	Field2required           basetypes.BoolValue   `tfsdk:"field2required"`
-	Field3                   basetypes.BoolValue   `tfsdk:"field3"`
-	Field3error              basetypes.StringValue `tfsdk:"field3error"`
-	Field3label              basetypes.StringValue `tfsdk:"field3label"`
-	Field3required           basetypes.BoolValue   `tfsdk:"field3required"`
-	Field4                   basetypes.BoolValue   `tfsdk:"field4"`
-	Field4error              basetypes.StringValue `tfsdk:"field4error"`
-	Field4label              basetypes.StringValue `tfsdk:"field4label"`
-	Field4required           basetypes.BoolValue   `tfsdk:"field4required"`
-	Locales                  basetypes.MapValue    `tfsdk:"locales"`
-	Logo                     basetypes.StringValue `tfsdk:"logo"`
-	Message                  basetypes.StringValue `tfsdk:"message"`
-	MultiAuth                basetypes.BoolValue   `tfsdk:"multi_auth"`
-	Name                     basetypes.BoolValue   `tfsdk:"name"`
-	NameError                basetypes.StringValue `tfsdk:"name_error"`
-	NameLabel                basetypes.StringValue `tfsdk:"name_label"`
-	OptOutDefault            basetypes.BoolValue   `tfsdk:"opt_out_default"`
-	Optout                   basetypes.BoolValue   `tfsdk:"optout"`
-	OptoutLabel              basetypes.StringValue `tfsdk:"optout_label"`
-	PageTitle                basetypes.StringValue `tfsdk:"page_title"`
-	PassphraseCancel         basetypes.StringValue `tfsdk:"passphrase_cancel"`
-	PassphraseError          basetypes.StringValue `tfsdk:"passphrase_error"`
-	PassphraseLabel          basetypes.StringValue `tfsdk:"passphrase_label"`
-	PassphraseMessage        basetypes.StringValue `tfsdk:"passphrase_message"`
-	PassphraseSubmit         basetypes.StringValue `tfsdk:"passphrase_submit"`
-	PassphraseTitle          basetypes.StringValue `tfsdk:"passphrase_title"`
-	PoweredBy                basetypes.BoolValue   `tfsdk:"powered_by"`
-	Privacy                  basetypes.BoolValue   `tfsdk:"privacy"`
-	PrivacyPolicyAcceptLabel basetypes.StringValue `tfsdk:"privacy_policy_accept_label"`
-	PrivacyPolicyError       basetypes.StringValue `tfsdk:"privacy_policy_error"`
-	PrivacyPolicyLink        basetypes.StringValue `tfsdk:"privacy_policy_link"`
-	PrivacyPolicyText        basetypes.StringValue `tfsdk:"privacy_policy_text"`
-	RequiredFieldLabel       basetypes.StringValue `tfsdk:"required_field_label"`
-	ResponsiveLayout         basetypes.BoolValue   `tfsdk:"responsive_layout"`
-	SignInLabel              basetypes.StringValue `tfsdk:"sign_in_label"`
-	SmsCarrierDefault        basetypes.StringValue `tfsdk:"sms_carrier_default"`
-	SmsCarrierError          basetypes.StringValue `tfsdk:"sms_carrier_error"`
-	SmsCarrierFieldLabel     basetypes.StringValue `tfsdk:"sms_carrier_field_label"`
-	SmsCodeCancel            basetypes.StringValue `tfsdk:"sms_code_cancel"`
-	SmsCodeError             basetypes.StringValue `tfsdk:"sms_code_error"`
-	SmsCodeFieldLabel        basetypes.StringValue `tfsdk:"sms_code_field_label"`
-	SmsCodeMessage           basetypes.StringValue `tfsdk:"sms_code_message"`
-	SmsCodeSubmit            basetypes.StringValue `tfsdk:"sms_code_submit"`
-	SmsCodeTitle             basetypes.StringValue `tfsdk:"sms_code_title"`
-	SmsCountryFieldLabel     basetypes.StringValue `tfsdk:"sms_country_field_label"`
-	SmsCountryFormat         basetypes.StringValue `tfsdk:"sms_country_format"`
-	SmsHaveAccessCode        basetypes.StringValue `tfsdk:"sms_have_access_code"`
-	SmsIsTwilio              basetypes.BoolValue   `tfsdk:"sms_is_twilio"`
-	SmsMessageFormat         basetypes.StringValue `tfsdk:"sms_message_format"`
-	SmsNumberCancel          basetypes.StringValue `tfsdk:"sms_number_cancel"`
-	SmsNumberError           basetypes.StringValue `tfsdk:"sms_number_error"`
-	SmsNumberFieldLabel      basetypes.StringValue `tfsdk:"sms_number_field_label"`
-	SmsNumberFormat          basetypes.StringValue `tfsdk:"sms_number_format"`
-	SmsNumberMessage         basetypes.StringValue `tfsdk:"sms_number_message"`
-	SmsNumberSubmit          basetypes.StringValue `tfsdk:"sms_number_submit"`
-	SmsNumberTitle           basetypes.StringValue `tfsdk:"sms_number_title"`
-	SmsUsernameFormat        basetypes.StringValue `tfsdk:"sms_username_format"`
-	SmsValidityDuration      basetypes.Int64Value  `tfsdk:"sms_validity_duration"`
-	SponsorBackLink          basetypes.StringValue `tfsdk:"sponsor_back_link"`
-	SponsorCancel            basetypes.StringValue `tfsdk:"sponsor_cancel"`
-	SponsorEmail             basetypes.StringValue `tfsdk:"sponsor_email"`
-	SponsorEmailError        basetypes.StringValue `tfsdk:"sponsor_email_error"`
-	SponsorEmailTemplate     basetypes.StringValue `tfsdk:"sponsor_email_template"`
-	SponsorInfoApproved      basetypes.StringValue `tfsdk:"sponsor_info_approved"`
-	SponsorInfoDenied        basetypes.StringValue `tfsdk:"sponsor_info_denied"`
-	SponsorInfoPending       basetypes.StringValue `tfsdk:"sponsor_info_pending"`
-	SponsorName              basetypes.StringValue `tfsdk:"sponsor_name"`
-	SponsorNameError         basetypes.StringValue `tfsdk:"sponsor_name_error"`
-	SponsorNotePending       basetypes.StringValue `tfsdk:"sponsor_note_pending"`
-	SponsorRequestAccess     basetypes.StringValue `tfsdk:"sponsor_request_access"`
-	SponsorStatusApproved    basetypes.StringValue `tfsdk:"sponsor_status_approved"`
-	SponsorStatusDenied      basetypes.StringValue `tfsdk:"sponsor_status_denied"`
-	SponsorStatusPending     basetypes.StringValue `tfsdk:"sponsor_status_pending"`
-	SponsorSubmit            basetypes.StringValue `tfsdk:"sponsor_submit"`
-	SponsorsError            basetypes.StringValue `tfsdk:"sponsors_error"`
-	SponsorsFieldLabel       basetypes.StringValue `tfsdk:"sponsors_field_label"`
-	Tos                      basetypes.BoolValue   `tfsdk:"tos"`
-	TosAcceptLabel           basetypes.StringValue `tfsdk:"tos_accept_label"`
-	TosError                 basetypes.StringValue `tfsdk:"tos_error"`
-	TosLink                  basetypes.StringValue `tfsdk:"tos_link"`
-	TosText                  basetypes.StringValue `tfsdk:"tos_text"`
-	state                    attr.ValueState
+	AccessCodeAlternateEmail  basetypes.StringValue `tfsdk:"access_code_alternate_email"`
+	Alignment                 basetypes.StringValue `tfsdk:"alignment"`
+	AuthButtonAmazon          basetypes.StringValue `tfsdk:"auth_button_amazon"`
+	AuthButtonAzure           basetypes.StringValue `tfsdk:"auth_button_azure"`
+	AuthButtonEmail           basetypes.StringValue `tfsdk:"auth_button_email"`
+	AuthButtonFacebook        basetypes.StringValue `tfsdk:"auth_button_facebook"`
+	AuthButtonGoogle          basetypes.StringValue `tfsdk:"auth_button_google"`
+	AuthButtonMicrosoft       basetypes.StringValue `tfsdk:"auth_button_microsoft"`
+	AuthButtonPassphrase      basetypes.StringValue `tfsdk:"auth_button_passphrase"`
+	AuthButtonSms             basetypes.StringValue `tfsdk:"auth_button_sms"`
+	AuthButtonSponsor         basetypes.StringValue `tfsdk:"auth_button_sponsor"`
+	AuthLabel                 basetypes.StringValue `tfsdk:"auth_label"`
+	BackLink                  basetypes.StringValue `tfsdk:"back_link"`
+	Color                     basetypes.StringValue `tfsdk:"color"`
+	ColorDark                 basetypes.StringValue `tfsdk:"color_dark"`
+	ColorLight                basetypes.StringValue `tfsdk:"color_light"`
+	Company                   basetypes.BoolValue   `tfsdk:"company"`
+	CompanyError              basetypes.StringValue `tfsdk:"company_error"`
+	CompanyLabel              basetypes.StringValue `tfsdk:"company_label"`
+	Email                     basetypes.BoolValue   `tfsdk:"email"`
+	EmailAccessDomainError    basetypes.StringValue `tfsdk:"email_access_domain_error"`
+	EmailCancel               basetypes.StringValue `tfsdk:"email_cancel"`
+	EmailCodeCancel           basetypes.StringValue `tfsdk:"email_code_cancel"`
+	EmailCodeError            basetypes.StringValue `tfsdk:"email_code_error"`
+	EmailCodeFieldLabel       basetypes.StringValue `tfsdk:"email_code_field_label"`
+	EmailCodeMessage          basetypes.StringValue `tfsdk:"email_code_message"`
+	EmailCodeSubmit           basetypes.StringValue `tfsdk:"email_code_submit"`
+	EmailCodeTitle            basetypes.StringValue `tfsdk:"email_code_title"`
+	EmailError                basetypes.StringValue `tfsdk:"email_error"`
+	EmailFieldLabel           basetypes.StringValue `tfsdk:"email_field_label"`
+	EmailLabel                basetypes.StringValue `tfsdk:"email_label"`
+	EmailMessage              basetypes.StringValue `tfsdk:"email_message"`
+	EmailSubmit               basetypes.StringValue `tfsdk:"email_submit"`
+	EmailTitle                basetypes.StringValue `tfsdk:"email_title"`
+	Field1                    basetypes.BoolValue   `tfsdk:"field1"`
+	Field1error               basetypes.StringValue `tfsdk:"field1error"`
+	Field1label               basetypes.StringValue `tfsdk:"field1label"`
+	Field1required            basetypes.BoolValue   `tfsdk:"field1required"`
+	Field2                    basetypes.BoolValue   `tfsdk:"field2"`
+	Field2error               basetypes.StringValue `tfsdk:"field2error"`
+	Field2label               basetypes.StringValue `tfsdk:"field2label"`
+	Field2required            basetypes.BoolValue   `tfsdk:"field2required"`
+	Field3                    basetypes.BoolValue   `tfsdk:"field3"`
+	Field3error               basetypes.StringValue `tfsdk:"field3error"`
+	Field3label               basetypes.StringValue `tfsdk:"field3label"`
+	Field3required            basetypes.BoolValue   `tfsdk:"field3required"`
+	Field4                    basetypes.BoolValue   `tfsdk:"field4"`
+	Field4error               basetypes.StringValue `tfsdk:"field4error"`
+	Field4label               basetypes.StringValue `tfsdk:"field4label"`
+	Field4required            basetypes.BoolValue   `tfsdk:"field4required"`
+	Locales                   basetypes.MapValue    `tfsdk:"locales"`
+	Logo                      basetypes.StringValue `tfsdk:"logo"`
+	MarketingPolicyLink       basetypes.StringValue `tfsdk:"marketing_policy_link"`
+	MarketingPolicyOptIn      basetypes.BoolValue   `tfsdk:"marketing_policy_opt_in"`
+	MarketingPolicyOptInLabel basetypes.StringValue `tfsdk:"marketing_policy_opt_in_label"`
+	MarketingPolicyOptInText  basetypes.StringValue `tfsdk:"marketing_policy_opt_in_text"`
+	Message                   basetypes.StringValue `tfsdk:"message"`
+	MultiAuth                 basetypes.BoolValue   `tfsdk:"multi_auth"`
+	Name                      basetypes.BoolValue   `tfsdk:"name"`
+	NameError                 basetypes.StringValue `tfsdk:"name_error"`
+	NameLabel                 basetypes.StringValue `tfsdk:"name_label"`
+	OptOutDefault             basetypes.BoolValue   `tfsdk:"opt_out_default"`
+	Optout                    basetypes.BoolValue   `tfsdk:"optout"`
+	OptoutLabel               basetypes.StringValue `tfsdk:"optout_label"`
+	PageTitle                 basetypes.StringValue `tfsdk:"page_title"`
+	PassphraseCancel          basetypes.StringValue `tfsdk:"passphrase_cancel"`
+	PassphraseError           basetypes.StringValue `tfsdk:"passphrase_error"`
+	PassphraseLabel           basetypes.StringValue `tfsdk:"passphrase_label"`
+	PassphraseMessage         basetypes.StringValue `tfsdk:"passphrase_message"`
+	PassphraseSubmit          basetypes.StringValue `tfsdk:"passphrase_submit"`
+	PassphraseTitle           basetypes.StringValue `tfsdk:"passphrase_title"`
+	PoweredBy                 basetypes.BoolValue   `tfsdk:"powered_by"`
+	Privacy                   basetypes.BoolValue   `tfsdk:"privacy"`
+	PrivacyPolicyAcceptLabel  basetypes.StringValue `tfsdk:"privacy_policy_accept_label"`
+	PrivacyPolicyError        basetypes.StringValue `tfsdk:"privacy_policy_error"`
+	PrivacyPolicyLink         basetypes.StringValue `tfsdk:"privacy_policy_link"`
+	PrivacyPolicyText         basetypes.StringValue `tfsdk:"privacy_policy_text"`
+	RequiredFieldLabel        basetypes.StringValue `tfsdk:"required_field_label"`
+	ResponsiveLayout          basetypes.BoolValue   `tfsdk:"responsive_layout"`
+	SignInLabel               basetypes.StringValue `tfsdk:"sign_in_label"`
+	SmsCarrierDefault         basetypes.StringValue `tfsdk:"sms_carrier_default"`
+	SmsCarrierError           basetypes.StringValue `tfsdk:"sms_carrier_error"`
+	SmsCarrierFieldLabel      basetypes.StringValue `tfsdk:"sms_carrier_field_label"`
+	SmsCodeCancel             basetypes.StringValue `tfsdk:"sms_code_cancel"`
+	SmsCodeError              basetypes.StringValue `tfsdk:"sms_code_error"`
+	SmsCodeFieldLabel         basetypes.StringValue `tfsdk:"sms_code_field_label"`
+	SmsCodeMessage            basetypes.StringValue `tfsdk:"sms_code_message"`
+	SmsCodeSubmit             basetypes.StringValue `tfsdk:"sms_code_submit"`
+	SmsCodeTitle              basetypes.StringValue `tfsdk:"sms_code_title"`
+	SmsCountryFieldLabel      basetypes.StringValue `tfsdk:"sms_country_field_label"`
+	SmsCountryFormat          basetypes.StringValue `tfsdk:"sms_country_format"`
+	SmsHaveAccessCode         basetypes.StringValue `tfsdk:"sms_have_access_code"`
+	SmsIsTwilio               basetypes.BoolValue   `tfsdk:"sms_is_twilio"`
+	SmsMessageFormat          basetypes.StringValue `tfsdk:"sms_message_format"`
+	SmsNumberCancel           basetypes.StringValue `tfsdk:"sms_number_cancel"`
+	SmsNumberError            basetypes.StringValue `tfsdk:"sms_number_error"`
+	SmsNumberFieldLabel       basetypes.StringValue `tfsdk:"sms_number_field_label"`
+	SmsNumberFormat           basetypes.StringValue `tfsdk:"sms_number_format"`
+	SmsNumberMessage          basetypes.StringValue `tfsdk:"sms_number_message"`
+	SmsNumberSubmit           basetypes.StringValue `tfsdk:"sms_number_submit"`
+	SmsNumberTitle            basetypes.StringValue `tfsdk:"sms_number_title"`
+	SmsUsernameFormat         basetypes.StringValue `tfsdk:"sms_username_format"`
+	SmsValidityDuration       basetypes.Int64Value  `tfsdk:"sms_validity_duration"`
+	SponsorBackLink           basetypes.StringValue `tfsdk:"sponsor_back_link"`
+	SponsorCancel             basetypes.StringValue `tfsdk:"sponsor_cancel"`
+	SponsorEmail              basetypes.StringValue `tfsdk:"sponsor_email"`
+	SponsorEmailError         basetypes.StringValue `tfsdk:"sponsor_email_error"`
+	SponsorEmailTemplate      basetypes.StringValue `tfsdk:"sponsor_email_template"`
+	SponsorInfoApproved       basetypes.StringValue `tfsdk:"sponsor_info_approved"`
+	SponsorInfoDenied         basetypes.StringValue `tfsdk:"sponsor_info_denied"`
+	SponsorInfoPending        basetypes.StringValue `tfsdk:"sponsor_info_pending"`
+	SponsorName               basetypes.StringValue `tfsdk:"sponsor_name"`
+	SponsorNameError          basetypes.StringValue `tfsdk:"sponsor_name_error"`
+	SponsorNotePending        basetypes.StringValue `tfsdk:"sponsor_note_pending"`
+	SponsorRequestAccess      basetypes.StringValue `tfsdk:"sponsor_request_access"`
+	SponsorStatusApproved     basetypes.StringValue `tfsdk:"sponsor_status_approved"`
+	SponsorStatusDenied       basetypes.StringValue `tfsdk:"sponsor_status_denied"`
+	SponsorStatusPending      basetypes.StringValue `tfsdk:"sponsor_status_pending"`
+	SponsorSubmit             basetypes.StringValue `tfsdk:"sponsor_submit"`
+	SponsorsError             basetypes.StringValue `tfsdk:"sponsors_error"`
+	SponsorsFieldLabel        basetypes.StringValue `tfsdk:"sponsors_field_label"`
+	Tos                       basetypes.BoolValue   `tfsdk:"tos"`
+	TosAcceptLabel            basetypes.StringValue `tfsdk:"tos_accept_label"`
+	TosError                  basetypes.StringValue `tfsdk:"tos_error"`
+	TosLink                   basetypes.StringValue `tfsdk:"tos_link"`
+	TosText                   basetypes.StringValue `tfsdk:"tos_text"`
+	state                     attr.ValueState
 }
 
 func (v PortalTemplateValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 122)
+	attrTypes := make(map[string]tftypes.Type, 126)
 
 	var val tftypes.Value
 	var err error
@@ -6250,6 +6434,10 @@ func (v PortalTemplateValue) ToTerraformValue(ctx context.Context) (tftypes.Valu
 		ElemType: LocalesValue{}.Type(ctx),
 	}.TerraformType(ctx)
 	attrTypes["logo"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["marketing_policy_link"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["marketing_policy_opt_in"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["marketing_policy_opt_in_label"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["marketing_policy_opt_in_text"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["message"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["multi_auth"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["name"] = basetypes.BoolType{}.TerraformType(ctx)
@@ -6325,7 +6513,7 @@ func (v PortalTemplateValue) ToTerraformValue(ctx context.Context) (tftypes.Valu
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 122)
+		vals := make(map[string]tftypes.Value, 126)
 
 		val, err = v.AccessCodeAlternateEmail.ToTerraformValue(ctx)
 
@@ -6742,6 +6930,38 @@ func (v PortalTemplateValue) ToTerraformValue(ctx context.Context) (tftypes.Valu
 		}
 
 		vals["logo"] = val
+
+		val, err = v.MarketingPolicyLink.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["marketing_policy_link"] = val
+
+		val, err = v.MarketingPolicyOptIn.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["marketing_policy_opt_in"] = val
+
+		val, err = v.MarketingPolicyOptInLabel.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["marketing_policy_opt_in_label"] = val
+
+		val, err = v.MarketingPolicyOptInText.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["marketing_policy_opt_in_text"] = val
 
 		val, err = v.Message.ToTerraformValue(ctx)
 
@@ -7415,77 +7635,81 @@ func (v PortalTemplateValue) ToObjectValue(ctx context.Context) (basetypes.Objec
 		"locales": basetypes.MapType{
 			ElemType: LocalesValue{}.Type(ctx),
 		},
-		"logo":                        basetypes.StringType{},
-		"message":                     basetypes.StringType{},
-		"multi_auth":                  basetypes.BoolType{},
-		"name":                        basetypes.BoolType{},
-		"name_error":                  basetypes.StringType{},
-		"name_label":                  basetypes.StringType{},
-		"opt_out_default":             basetypes.BoolType{},
-		"optout":                      basetypes.BoolType{},
-		"optout_label":                basetypes.StringType{},
-		"page_title":                  basetypes.StringType{},
-		"passphrase_cancel":           basetypes.StringType{},
-		"passphrase_error":            basetypes.StringType{},
-		"passphrase_label":            basetypes.StringType{},
-		"passphrase_message":          basetypes.StringType{},
-		"passphrase_submit":           basetypes.StringType{},
-		"passphrase_title":            basetypes.StringType{},
-		"powered_by":                  basetypes.BoolType{},
-		"privacy":                     basetypes.BoolType{},
-		"privacy_policy_accept_label": basetypes.StringType{},
-		"privacy_policy_error":        basetypes.StringType{},
-		"privacy_policy_link":         basetypes.StringType{},
-		"privacy_policy_text":         basetypes.StringType{},
-		"required_field_label":        basetypes.StringType{},
-		"responsive_layout":           basetypes.BoolType{},
-		"sign_in_label":               basetypes.StringType{},
-		"sms_carrier_default":         basetypes.StringType{},
-		"sms_carrier_error":           basetypes.StringType{},
-		"sms_carrier_field_label":     basetypes.StringType{},
-		"sms_code_cancel":             basetypes.StringType{},
-		"sms_code_error":              basetypes.StringType{},
-		"sms_code_field_label":        basetypes.StringType{},
-		"sms_code_message":            basetypes.StringType{},
-		"sms_code_submit":             basetypes.StringType{},
-		"sms_code_title":              basetypes.StringType{},
-		"sms_country_field_label":     basetypes.StringType{},
-		"sms_country_format":          basetypes.StringType{},
-		"sms_have_access_code":        basetypes.StringType{},
-		"sms_is_twilio":               basetypes.BoolType{},
-		"sms_message_format":          basetypes.StringType{},
-		"sms_number_cancel":           basetypes.StringType{},
-		"sms_number_error":            basetypes.StringType{},
-		"sms_number_field_label":      basetypes.StringType{},
-		"sms_number_format":           basetypes.StringType{},
-		"sms_number_message":          basetypes.StringType{},
-		"sms_number_submit":           basetypes.StringType{},
-		"sms_number_title":            basetypes.StringType{},
-		"sms_username_format":         basetypes.StringType{},
-		"sms_validity_duration":       basetypes.Int64Type{},
-		"sponsor_back_link":           basetypes.StringType{},
-		"sponsor_cancel":              basetypes.StringType{},
-		"sponsor_email":               basetypes.StringType{},
-		"sponsor_email_error":         basetypes.StringType{},
-		"sponsor_email_template":      basetypes.StringType{},
-		"sponsor_info_approved":       basetypes.StringType{},
-		"sponsor_info_denied":         basetypes.StringType{},
-		"sponsor_info_pending":        basetypes.StringType{},
-		"sponsor_name":                basetypes.StringType{},
-		"sponsor_name_error":          basetypes.StringType{},
-		"sponsor_note_pending":        basetypes.StringType{},
-		"sponsor_request_access":      basetypes.StringType{},
-		"sponsor_status_approved":     basetypes.StringType{},
-		"sponsor_status_denied":       basetypes.StringType{},
-		"sponsor_status_pending":      basetypes.StringType{},
-		"sponsor_submit":              basetypes.StringType{},
-		"sponsors_error":              basetypes.StringType{},
-		"sponsors_field_label":        basetypes.StringType{},
-		"tos":                         basetypes.BoolType{},
-		"tos_accept_label":            basetypes.StringType{},
-		"tos_error":                   basetypes.StringType{},
-		"tos_link":                    basetypes.StringType{},
-		"tos_text":                    basetypes.StringType{},
+		"logo":                          basetypes.StringType{},
+		"marketing_policy_link":         basetypes.StringType{},
+		"marketing_policy_opt_in":       basetypes.BoolType{},
+		"marketing_policy_opt_in_label": basetypes.StringType{},
+		"marketing_policy_opt_in_text":  basetypes.StringType{},
+		"message":                       basetypes.StringType{},
+		"multi_auth":                    basetypes.BoolType{},
+		"name":                          basetypes.BoolType{},
+		"name_error":                    basetypes.StringType{},
+		"name_label":                    basetypes.StringType{},
+		"opt_out_default":               basetypes.BoolType{},
+		"optout":                        basetypes.BoolType{},
+		"optout_label":                  basetypes.StringType{},
+		"page_title":                    basetypes.StringType{},
+		"passphrase_cancel":             basetypes.StringType{},
+		"passphrase_error":              basetypes.StringType{},
+		"passphrase_label":              basetypes.StringType{},
+		"passphrase_message":            basetypes.StringType{},
+		"passphrase_submit":             basetypes.StringType{},
+		"passphrase_title":              basetypes.StringType{},
+		"powered_by":                    basetypes.BoolType{},
+		"privacy":                       basetypes.BoolType{},
+		"privacy_policy_accept_label":   basetypes.StringType{},
+		"privacy_policy_error":          basetypes.StringType{},
+		"privacy_policy_link":           basetypes.StringType{},
+		"privacy_policy_text":           basetypes.StringType{},
+		"required_field_label":          basetypes.StringType{},
+		"responsive_layout":             basetypes.BoolType{},
+		"sign_in_label":                 basetypes.StringType{},
+		"sms_carrier_default":           basetypes.StringType{},
+		"sms_carrier_error":             basetypes.StringType{},
+		"sms_carrier_field_label":       basetypes.StringType{},
+		"sms_code_cancel":               basetypes.StringType{},
+		"sms_code_error":                basetypes.StringType{},
+		"sms_code_field_label":          basetypes.StringType{},
+		"sms_code_message":              basetypes.StringType{},
+		"sms_code_submit":               basetypes.StringType{},
+		"sms_code_title":                basetypes.StringType{},
+		"sms_country_field_label":       basetypes.StringType{},
+		"sms_country_format":            basetypes.StringType{},
+		"sms_have_access_code":          basetypes.StringType{},
+		"sms_is_twilio":                 basetypes.BoolType{},
+		"sms_message_format":            basetypes.StringType{},
+		"sms_number_cancel":             basetypes.StringType{},
+		"sms_number_error":              basetypes.StringType{},
+		"sms_number_field_label":        basetypes.StringType{},
+		"sms_number_format":             basetypes.StringType{},
+		"sms_number_message":            basetypes.StringType{},
+		"sms_number_submit":             basetypes.StringType{},
+		"sms_number_title":              basetypes.StringType{},
+		"sms_username_format":           basetypes.StringType{},
+		"sms_validity_duration":         basetypes.Int64Type{},
+		"sponsor_back_link":             basetypes.StringType{},
+		"sponsor_cancel":                basetypes.StringType{},
+		"sponsor_email":                 basetypes.StringType{},
+		"sponsor_email_error":           basetypes.StringType{},
+		"sponsor_email_template":        basetypes.StringType{},
+		"sponsor_info_approved":         basetypes.StringType{},
+		"sponsor_info_denied":           basetypes.StringType{},
+		"sponsor_info_pending":          basetypes.StringType{},
+		"sponsor_name":                  basetypes.StringType{},
+		"sponsor_name_error":            basetypes.StringType{},
+		"sponsor_note_pending":          basetypes.StringType{},
+		"sponsor_request_access":        basetypes.StringType{},
+		"sponsor_status_approved":       basetypes.StringType{},
+		"sponsor_status_denied":         basetypes.StringType{},
+		"sponsor_status_pending":        basetypes.StringType{},
+		"sponsor_submit":                basetypes.StringType{},
+		"sponsors_error":                basetypes.StringType{},
+		"sponsors_field_label":          basetypes.StringType{},
+		"tos":                           basetypes.BoolType{},
+		"tos_accept_label":              basetypes.StringType{},
+		"tos_error":                     basetypes.StringType{},
+		"tos_link":                      basetypes.StringType{},
+		"tos_text":                      basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -7499,128 +7723,132 @@ func (v PortalTemplateValue) ToObjectValue(ctx context.Context) (basetypes.Objec
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"access_code_alternate_email": v.AccessCodeAlternateEmail,
-			"alignment":                   v.Alignment,
-			"auth_button_amazon":          v.AuthButtonAmazon,
-			"auth_button_azure":           v.AuthButtonAzure,
-			"auth_button_email":           v.AuthButtonEmail,
-			"auth_button_facebook":        v.AuthButtonFacebook,
-			"auth_button_google":          v.AuthButtonGoogle,
-			"auth_button_microsoft":       v.AuthButtonMicrosoft,
-			"auth_button_passphrase":      v.AuthButtonPassphrase,
-			"auth_button_sms":             v.AuthButtonSms,
-			"auth_button_sponsor":         v.AuthButtonSponsor,
-			"auth_label":                  v.AuthLabel,
-			"back_link":                   v.BackLink,
-			"color":                       v.Color,
-			"color_dark":                  v.ColorDark,
-			"color_light":                 v.ColorLight,
-			"company":                     v.Company,
-			"company_error":               v.CompanyError,
-			"company_label":               v.CompanyLabel,
-			"email":                       v.Email,
-			"email_access_domain_error":   v.EmailAccessDomainError,
-			"email_cancel":                v.EmailCancel,
-			"email_code_cancel":           v.EmailCodeCancel,
-			"email_code_error":            v.EmailCodeError,
-			"email_code_field_label":      v.EmailCodeFieldLabel,
-			"email_code_message":          v.EmailCodeMessage,
-			"email_code_submit":           v.EmailCodeSubmit,
-			"email_code_title":            v.EmailCodeTitle,
-			"email_error":                 v.EmailError,
-			"email_field_label":           v.EmailFieldLabel,
-			"email_label":                 v.EmailLabel,
-			"email_message":               v.EmailMessage,
-			"email_submit":                v.EmailSubmit,
-			"email_title":                 v.EmailTitle,
-			"field1":                      v.Field1,
-			"field1error":                 v.Field1error,
-			"field1label":                 v.Field1label,
-			"field1required":              v.Field1required,
-			"field2":                      v.Field2,
-			"field2error":                 v.Field2error,
-			"field2label":                 v.Field2label,
-			"field2required":              v.Field2required,
-			"field3":                      v.Field3,
-			"field3error":                 v.Field3error,
-			"field3label":                 v.Field3label,
-			"field3required":              v.Field3required,
-			"field4":                      v.Field4,
-			"field4error":                 v.Field4error,
-			"field4label":                 v.Field4label,
-			"field4required":              v.Field4required,
-			"locales":                     locales,
-			"logo":                        v.Logo,
-			"message":                     v.Message,
-			"multi_auth":                  v.MultiAuth,
-			"name":                        v.Name,
-			"name_error":                  v.NameError,
-			"name_label":                  v.NameLabel,
-			"opt_out_default":             v.OptOutDefault,
-			"optout":                      v.Optout,
-			"optout_label":                v.OptoutLabel,
-			"page_title":                  v.PageTitle,
-			"passphrase_cancel":           v.PassphraseCancel,
-			"passphrase_error":            v.PassphraseError,
-			"passphrase_label":            v.PassphraseLabel,
-			"passphrase_message":          v.PassphraseMessage,
-			"passphrase_submit":           v.PassphraseSubmit,
-			"passphrase_title":            v.PassphraseTitle,
-			"powered_by":                  v.PoweredBy,
-			"privacy":                     v.Privacy,
-			"privacy_policy_accept_label": v.PrivacyPolicyAcceptLabel,
-			"privacy_policy_error":        v.PrivacyPolicyError,
-			"privacy_policy_link":         v.PrivacyPolicyLink,
-			"privacy_policy_text":         v.PrivacyPolicyText,
-			"required_field_label":        v.RequiredFieldLabel,
-			"responsive_layout":           v.ResponsiveLayout,
-			"sign_in_label":               v.SignInLabel,
-			"sms_carrier_default":         v.SmsCarrierDefault,
-			"sms_carrier_error":           v.SmsCarrierError,
-			"sms_carrier_field_label":     v.SmsCarrierFieldLabel,
-			"sms_code_cancel":             v.SmsCodeCancel,
-			"sms_code_error":              v.SmsCodeError,
-			"sms_code_field_label":        v.SmsCodeFieldLabel,
-			"sms_code_message":            v.SmsCodeMessage,
-			"sms_code_submit":             v.SmsCodeSubmit,
-			"sms_code_title":              v.SmsCodeTitle,
-			"sms_country_field_label":     v.SmsCountryFieldLabel,
-			"sms_country_format":          v.SmsCountryFormat,
-			"sms_have_access_code":        v.SmsHaveAccessCode,
-			"sms_is_twilio":               v.SmsIsTwilio,
-			"sms_message_format":          v.SmsMessageFormat,
-			"sms_number_cancel":           v.SmsNumberCancel,
-			"sms_number_error":            v.SmsNumberError,
-			"sms_number_field_label":      v.SmsNumberFieldLabel,
-			"sms_number_format":           v.SmsNumberFormat,
-			"sms_number_message":          v.SmsNumberMessage,
-			"sms_number_submit":           v.SmsNumberSubmit,
-			"sms_number_title":            v.SmsNumberTitle,
-			"sms_username_format":         v.SmsUsernameFormat,
-			"sms_validity_duration":       v.SmsValidityDuration,
-			"sponsor_back_link":           v.SponsorBackLink,
-			"sponsor_cancel":              v.SponsorCancel,
-			"sponsor_email":               v.SponsorEmail,
-			"sponsor_email_error":         v.SponsorEmailError,
-			"sponsor_email_template":      v.SponsorEmailTemplate,
-			"sponsor_info_approved":       v.SponsorInfoApproved,
-			"sponsor_info_denied":         v.SponsorInfoDenied,
-			"sponsor_info_pending":        v.SponsorInfoPending,
-			"sponsor_name":                v.SponsorName,
-			"sponsor_name_error":          v.SponsorNameError,
-			"sponsor_note_pending":        v.SponsorNotePending,
-			"sponsor_request_access":      v.SponsorRequestAccess,
-			"sponsor_status_approved":     v.SponsorStatusApproved,
-			"sponsor_status_denied":       v.SponsorStatusDenied,
-			"sponsor_status_pending":      v.SponsorStatusPending,
-			"sponsor_submit":              v.SponsorSubmit,
-			"sponsors_error":              v.SponsorsError,
-			"sponsors_field_label":        v.SponsorsFieldLabel,
-			"tos":                         v.Tos,
-			"tos_accept_label":            v.TosAcceptLabel,
-			"tos_error":                   v.TosError,
-			"tos_link":                    v.TosLink,
-			"tos_text":                    v.TosText,
+			"access_code_alternate_email":   v.AccessCodeAlternateEmail,
+			"alignment":                     v.Alignment,
+			"auth_button_amazon":            v.AuthButtonAmazon,
+			"auth_button_azure":             v.AuthButtonAzure,
+			"auth_button_email":             v.AuthButtonEmail,
+			"auth_button_facebook":          v.AuthButtonFacebook,
+			"auth_button_google":            v.AuthButtonGoogle,
+			"auth_button_microsoft":         v.AuthButtonMicrosoft,
+			"auth_button_passphrase":        v.AuthButtonPassphrase,
+			"auth_button_sms":               v.AuthButtonSms,
+			"auth_button_sponsor":           v.AuthButtonSponsor,
+			"auth_label":                    v.AuthLabel,
+			"back_link":                     v.BackLink,
+			"color":                         v.Color,
+			"color_dark":                    v.ColorDark,
+			"color_light":                   v.ColorLight,
+			"company":                       v.Company,
+			"company_error":                 v.CompanyError,
+			"company_label":                 v.CompanyLabel,
+			"email":                         v.Email,
+			"email_access_domain_error":     v.EmailAccessDomainError,
+			"email_cancel":                  v.EmailCancel,
+			"email_code_cancel":             v.EmailCodeCancel,
+			"email_code_error":              v.EmailCodeError,
+			"email_code_field_label":        v.EmailCodeFieldLabel,
+			"email_code_message":            v.EmailCodeMessage,
+			"email_code_submit":             v.EmailCodeSubmit,
+			"email_code_title":              v.EmailCodeTitle,
+			"email_error":                   v.EmailError,
+			"email_field_label":             v.EmailFieldLabel,
+			"email_label":                   v.EmailLabel,
+			"email_message":                 v.EmailMessage,
+			"email_submit":                  v.EmailSubmit,
+			"email_title":                   v.EmailTitle,
+			"field1":                        v.Field1,
+			"field1error":                   v.Field1error,
+			"field1label":                   v.Field1label,
+			"field1required":                v.Field1required,
+			"field2":                        v.Field2,
+			"field2error":                   v.Field2error,
+			"field2label":                   v.Field2label,
+			"field2required":                v.Field2required,
+			"field3":                        v.Field3,
+			"field3error":                   v.Field3error,
+			"field3label":                   v.Field3label,
+			"field3required":                v.Field3required,
+			"field4":                        v.Field4,
+			"field4error":                   v.Field4error,
+			"field4label":                   v.Field4label,
+			"field4required":                v.Field4required,
+			"locales":                       locales,
+			"logo":                          v.Logo,
+			"marketing_policy_link":         v.MarketingPolicyLink,
+			"marketing_policy_opt_in":       v.MarketingPolicyOptIn,
+			"marketing_policy_opt_in_label": v.MarketingPolicyOptInLabel,
+			"marketing_policy_opt_in_text":  v.MarketingPolicyOptInText,
+			"message":                       v.Message,
+			"multi_auth":                    v.MultiAuth,
+			"name":                          v.Name,
+			"name_error":                    v.NameError,
+			"name_label":                    v.NameLabel,
+			"opt_out_default":               v.OptOutDefault,
+			"optout":                        v.Optout,
+			"optout_label":                  v.OptoutLabel,
+			"page_title":                    v.PageTitle,
+			"passphrase_cancel":             v.PassphraseCancel,
+			"passphrase_error":              v.PassphraseError,
+			"passphrase_label":              v.PassphraseLabel,
+			"passphrase_message":            v.PassphraseMessage,
+			"passphrase_submit":             v.PassphraseSubmit,
+			"passphrase_title":              v.PassphraseTitle,
+			"powered_by":                    v.PoweredBy,
+			"privacy":                       v.Privacy,
+			"privacy_policy_accept_label":   v.PrivacyPolicyAcceptLabel,
+			"privacy_policy_error":          v.PrivacyPolicyError,
+			"privacy_policy_link":           v.PrivacyPolicyLink,
+			"privacy_policy_text":           v.PrivacyPolicyText,
+			"required_field_label":          v.RequiredFieldLabel,
+			"responsive_layout":             v.ResponsiveLayout,
+			"sign_in_label":                 v.SignInLabel,
+			"sms_carrier_default":           v.SmsCarrierDefault,
+			"sms_carrier_error":             v.SmsCarrierError,
+			"sms_carrier_field_label":       v.SmsCarrierFieldLabel,
+			"sms_code_cancel":               v.SmsCodeCancel,
+			"sms_code_error":                v.SmsCodeError,
+			"sms_code_field_label":          v.SmsCodeFieldLabel,
+			"sms_code_message":              v.SmsCodeMessage,
+			"sms_code_submit":               v.SmsCodeSubmit,
+			"sms_code_title":                v.SmsCodeTitle,
+			"sms_country_field_label":       v.SmsCountryFieldLabel,
+			"sms_country_format":            v.SmsCountryFormat,
+			"sms_have_access_code":          v.SmsHaveAccessCode,
+			"sms_is_twilio":                 v.SmsIsTwilio,
+			"sms_message_format":            v.SmsMessageFormat,
+			"sms_number_cancel":             v.SmsNumberCancel,
+			"sms_number_error":              v.SmsNumberError,
+			"sms_number_field_label":        v.SmsNumberFieldLabel,
+			"sms_number_format":             v.SmsNumberFormat,
+			"sms_number_message":            v.SmsNumberMessage,
+			"sms_number_submit":             v.SmsNumberSubmit,
+			"sms_number_title":              v.SmsNumberTitle,
+			"sms_username_format":           v.SmsUsernameFormat,
+			"sms_validity_duration":         v.SmsValidityDuration,
+			"sponsor_back_link":             v.SponsorBackLink,
+			"sponsor_cancel":                v.SponsorCancel,
+			"sponsor_email":                 v.SponsorEmail,
+			"sponsor_email_error":           v.SponsorEmailError,
+			"sponsor_email_template":        v.SponsorEmailTemplate,
+			"sponsor_info_approved":         v.SponsorInfoApproved,
+			"sponsor_info_denied":           v.SponsorInfoDenied,
+			"sponsor_info_pending":          v.SponsorInfoPending,
+			"sponsor_name":                  v.SponsorName,
+			"sponsor_name_error":            v.SponsorNameError,
+			"sponsor_note_pending":          v.SponsorNotePending,
+			"sponsor_request_access":        v.SponsorRequestAccess,
+			"sponsor_status_approved":       v.SponsorStatusApproved,
+			"sponsor_status_denied":         v.SponsorStatusDenied,
+			"sponsor_status_pending":        v.SponsorStatusPending,
+			"sponsor_submit":                v.SponsorSubmit,
+			"sponsors_error":                v.SponsorsError,
+			"sponsors_field_label":          v.SponsorsFieldLabel,
+			"tos":                           v.Tos,
+			"tos_accept_label":              v.TosAcceptLabel,
+			"tos_error":                     v.TosError,
+			"tos_link":                      v.TosLink,
+			"tos_text":                      v.TosText,
 		})
 
 	return objVal, diags
@@ -7846,6 +8074,22 @@ func (v PortalTemplateValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.Logo.Equal(other.Logo) {
+		return false
+	}
+
+	if !v.MarketingPolicyLink.Equal(other.MarketingPolicyLink) {
+		return false
+	}
+
+	if !v.MarketingPolicyOptIn.Equal(other.MarketingPolicyOptIn) {
+		return false
+	}
+
+	if !v.MarketingPolicyOptInLabel.Equal(other.MarketingPolicyOptInLabel) {
+		return false
+	}
+
+	if !v.MarketingPolicyOptInText.Equal(other.MarketingPolicyOptInText) {
 		return false
 	}
 
@@ -8195,77 +8439,81 @@ func (v PortalTemplateValue) AttributeTypes(ctx context.Context) map[string]attr
 		"locales": basetypes.MapType{
 			ElemType: LocalesValue{}.Type(ctx),
 		},
-		"logo":                        basetypes.StringType{},
-		"message":                     basetypes.StringType{},
-		"multi_auth":                  basetypes.BoolType{},
-		"name":                        basetypes.BoolType{},
-		"name_error":                  basetypes.StringType{},
-		"name_label":                  basetypes.StringType{},
-		"opt_out_default":             basetypes.BoolType{},
-		"optout":                      basetypes.BoolType{},
-		"optout_label":                basetypes.StringType{},
-		"page_title":                  basetypes.StringType{},
-		"passphrase_cancel":           basetypes.StringType{},
-		"passphrase_error":            basetypes.StringType{},
-		"passphrase_label":            basetypes.StringType{},
-		"passphrase_message":          basetypes.StringType{},
-		"passphrase_submit":           basetypes.StringType{},
-		"passphrase_title":            basetypes.StringType{},
-		"powered_by":                  basetypes.BoolType{},
-		"privacy":                     basetypes.BoolType{},
-		"privacy_policy_accept_label": basetypes.StringType{},
-		"privacy_policy_error":        basetypes.StringType{},
-		"privacy_policy_link":         basetypes.StringType{},
-		"privacy_policy_text":         basetypes.StringType{},
-		"required_field_label":        basetypes.StringType{},
-		"responsive_layout":           basetypes.BoolType{},
-		"sign_in_label":               basetypes.StringType{},
-		"sms_carrier_default":         basetypes.StringType{},
-		"sms_carrier_error":           basetypes.StringType{},
-		"sms_carrier_field_label":     basetypes.StringType{},
-		"sms_code_cancel":             basetypes.StringType{},
-		"sms_code_error":              basetypes.StringType{},
-		"sms_code_field_label":        basetypes.StringType{},
-		"sms_code_message":            basetypes.StringType{},
-		"sms_code_submit":             basetypes.StringType{},
-		"sms_code_title":              basetypes.StringType{},
-		"sms_country_field_label":     basetypes.StringType{},
-		"sms_country_format":          basetypes.StringType{},
-		"sms_have_access_code":        basetypes.StringType{},
-		"sms_is_twilio":               basetypes.BoolType{},
-		"sms_message_format":          basetypes.StringType{},
-		"sms_number_cancel":           basetypes.StringType{},
-		"sms_number_error":            basetypes.StringType{},
-		"sms_number_field_label":      basetypes.StringType{},
-		"sms_number_format":           basetypes.StringType{},
-		"sms_number_message":          basetypes.StringType{},
-		"sms_number_submit":           basetypes.StringType{},
-		"sms_number_title":            basetypes.StringType{},
-		"sms_username_format":         basetypes.StringType{},
-		"sms_validity_duration":       basetypes.Int64Type{},
-		"sponsor_back_link":           basetypes.StringType{},
-		"sponsor_cancel":              basetypes.StringType{},
-		"sponsor_email":               basetypes.StringType{},
-		"sponsor_email_error":         basetypes.StringType{},
-		"sponsor_email_template":      basetypes.StringType{},
-		"sponsor_info_approved":       basetypes.StringType{},
-		"sponsor_info_denied":         basetypes.StringType{},
-		"sponsor_info_pending":        basetypes.StringType{},
-		"sponsor_name":                basetypes.StringType{},
-		"sponsor_name_error":          basetypes.StringType{},
-		"sponsor_note_pending":        basetypes.StringType{},
-		"sponsor_request_access":      basetypes.StringType{},
-		"sponsor_status_approved":     basetypes.StringType{},
-		"sponsor_status_denied":       basetypes.StringType{},
-		"sponsor_status_pending":      basetypes.StringType{},
-		"sponsor_submit":              basetypes.StringType{},
-		"sponsors_error":              basetypes.StringType{},
-		"sponsors_field_label":        basetypes.StringType{},
-		"tos":                         basetypes.BoolType{},
-		"tos_accept_label":            basetypes.StringType{},
-		"tos_error":                   basetypes.StringType{},
-		"tos_link":                    basetypes.StringType{},
-		"tos_text":                    basetypes.StringType{},
+		"logo":                          basetypes.StringType{},
+		"marketing_policy_link":         basetypes.StringType{},
+		"marketing_policy_opt_in":       basetypes.BoolType{},
+		"marketing_policy_opt_in_label": basetypes.StringType{},
+		"marketing_policy_opt_in_text":  basetypes.StringType{},
+		"message":                       basetypes.StringType{},
+		"multi_auth":                    basetypes.BoolType{},
+		"name":                          basetypes.BoolType{},
+		"name_error":                    basetypes.StringType{},
+		"name_label":                    basetypes.StringType{},
+		"opt_out_default":               basetypes.BoolType{},
+		"optout":                        basetypes.BoolType{},
+		"optout_label":                  basetypes.StringType{},
+		"page_title":                    basetypes.StringType{},
+		"passphrase_cancel":             basetypes.StringType{},
+		"passphrase_error":              basetypes.StringType{},
+		"passphrase_label":              basetypes.StringType{},
+		"passphrase_message":            basetypes.StringType{},
+		"passphrase_submit":             basetypes.StringType{},
+		"passphrase_title":              basetypes.StringType{},
+		"powered_by":                    basetypes.BoolType{},
+		"privacy":                       basetypes.BoolType{},
+		"privacy_policy_accept_label":   basetypes.StringType{},
+		"privacy_policy_error":          basetypes.StringType{},
+		"privacy_policy_link":           basetypes.StringType{},
+		"privacy_policy_text":           basetypes.StringType{},
+		"required_field_label":          basetypes.StringType{},
+		"responsive_layout":             basetypes.BoolType{},
+		"sign_in_label":                 basetypes.StringType{},
+		"sms_carrier_default":           basetypes.StringType{},
+		"sms_carrier_error":             basetypes.StringType{},
+		"sms_carrier_field_label":       basetypes.StringType{},
+		"sms_code_cancel":               basetypes.StringType{},
+		"sms_code_error":                basetypes.StringType{},
+		"sms_code_field_label":          basetypes.StringType{},
+		"sms_code_message":              basetypes.StringType{},
+		"sms_code_submit":               basetypes.StringType{},
+		"sms_code_title":                basetypes.StringType{},
+		"sms_country_field_label":       basetypes.StringType{},
+		"sms_country_format":            basetypes.StringType{},
+		"sms_have_access_code":          basetypes.StringType{},
+		"sms_is_twilio":                 basetypes.BoolType{},
+		"sms_message_format":            basetypes.StringType{},
+		"sms_number_cancel":             basetypes.StringType{},
+		"sms_number_error":              basetypes.StringType{},
+		"sms_number_field_label":        basetypes.StringType{},
+		"sms_number_format":             basetypes.StringType{},
+		"sms_number_message":            basetypes.StringType{},
+		"sms_number_submit":             basetypes.StringType{},
+		"sms_number_title":              basetypes.StringType{},
+		"sms_username_format":           basetypes.StringType{},
+		"sms_validity_duration":         basetypes.Int64Type{},
+		"sponsor_back_link":             basetypes.StringType{},
+		"sponsor_cancel":                basetypes.StringType{},
+		"sponsor_email":                 basetypes.StringType{},
+		"sponsor_email_error":           basetypes.StringType{},
+		"sponsor_email_template":        basetypes.StringType{},
+		"sponsor_info_approved":         basetypes.StringType{},
+		"sponsor_info_denied":           basetypes.StringType{},
+		"sponsor_info_pending":          basetypes.StringType{},
+		"sponsor_name":                  basetypes.StringType{},
+		"sponsor_name_error":            basetypes.StringType{},
+		"sponsor_note_pending":          basetypes.StringType{},
+		"sponsor_request_access":        basetypes.StringType{},
+		"sponsor_status_approved":       basetypes.StringType{},
+		"sponsor_status_denied":         basetypes.StringType{},
+		"sponsor_status_pending":        basetypes.StringType{},
+		"sponsor_submit":                basetypes.StringType{},
+		"sponsors_error":                basetypes.StringType{},
+		"sponsors_field_label":          basetypes.StringType{},
+		"tos":                           basetypes.BoolType{},
+		"tos_accept_label":              basetypes.StringType{},
+		"tos_error":                     basetypes.StringType{},
+		"tos_link":                      basetypes.StringType{},
+		"tos_text":                      basetypes.StringType{},
 	}
 }
 
