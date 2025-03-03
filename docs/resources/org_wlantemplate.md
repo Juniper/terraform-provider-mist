@@ -39,14 +39,14 @@ resource "mist_org_wlantemplate" "wlantempalte_one" {
 
 ### Optional
 
-- `applies` (Attributes) where this template should be applied to, can be org_id, site_ids, sitegroup_ids (see [below for nested schema](#nestedatt--applies))
-- `deviceprofile_ids` (List of String) list of Device Profile ids
-- `exceptions` (Attributes) where this template should not be applied to (takes precedence) (see [below for nested schema](#nestedatt--exceptions))
-- `filter_by_deviceprofile` (Boolean) whether to further filter by Device Profile
+- `applies` (Attributes) Where this template should be applied to, can be org_id, site_ids, sitegroup_ids (see [below for nested schema](#nestedatt--applies))
+- `deviceprofile_ids` (List of String) List of Device Profile ids
+- `exceptions` (Attributes) Where this template should not be applied to (takes precedence) (see [below for nested schema](#nestedatt--exceptions))
+- `filter_by_deviceprofile` (Boolean) Whether to further filter by Device Profile
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
+- `id` (String) Unique ID of the object instance in the Mist Organization
 
 <a id="nestedatt--applies"></a>
 ### Nested Schema for `applies`
@@ -54,8 +54,8 @@ resource "mist_org_wlantemplate" "wlantempalte_one" {
 Optional:
 
 - `org_id` (String)
-- `site_ids` (List of String) list of site ids
-- `sitegroup_ids` (List of String) list of sitegroup ids
+- `site_ids` (List of String) List of site ids
+- `sitegroup_ids` (List of String) List of sitegroup ids
 
 
 <a id="nestedatt--exceptions"></a>
@@ -63,8 +63,8 @@ Optional:
 
 Optional:
 
-- `site_ids` (List of String) list of site ids
-- `sitegroup_ids` (List of String) list of sitegroup ids
+- `site_ids` (List of String) List of site ids
+- `sitegroup_ids` (List of String) List of sitegroup ids
 
 
 

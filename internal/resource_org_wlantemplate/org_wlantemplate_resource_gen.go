@@ -9,8 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
@@ -31,15 +29,15 @@ func OrgWlantemplateResourceSchema(ctx context.Context) schema.Schema {
 						ElementType:         types.StringType,
 						Optional:            true,
 						Computed:            true,
-						Description:         "list of site ids",
-						MarkdownDescription: "list of site ids",
+						Description:         "List of site ids",
+						MarkdownDescription: "List of site ids",
 					},
 					"sitegroup_ids": schema.ListAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
 						Computed:            true,
-						Description:         "list of sitegroup ids",
-						MarkdownDescription: "list of sitegroup ids",
+						Description:         "List of sitegroup ids",
+						MarkdownDescription: "List of sitegroup ids",
 					},
 				},
 				CustomType: AppliesType{
@@ -49,15 +47,15 @@ func OrgWlantemplateResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Optional:            true,
 				Computed:            true,
-				Description:         "where this template should be applied to, can be org_id, site_ids, sitegroup_ids",
-				MarkdownDescription: "where this template should be applied to, can be org_id, site_ids, sitegroup_ids",
+				Description:         "Where this template should be applied to, can be org_id, site_ids, sitegroup_ids",
+				MarkdownDescription: "Where this template should be applied to, can be org_id, site_ids, sitegroup_ids",
 			},
 			"deviceprofile_ids": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
 				Computed:            true,
-				Description:         "list of Device Profile ids",
-				MarkdownDescription: "list of Device Profile ids",
+				Description:         "List of Device Profile ids",
+				MarkdownDescription: "List of Device Profile ids",
 				Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 			},
 			"exceptions": schema.SingleNestedAttribute{
@@ -66,15 +64,15 @@ func OrgWlantemplateResourceSchema(ctx context.Context) schema.Schema {
 						ElementType:         types.StringType,
 						Optional:            true,
 						Computed:            true,
-						Description:         "list of site ids",
-						MarkdownDescription: "list of site ids",
+						Description:         "List of site ids",
+						MarkdownDescription: "List of site ids",
 					},
 					"sitegroup_ids": schema.ListAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
 						Computed:            true,
-						Description:         "list of sitegroup ids",
-						MarkdownDescription: "list of sitegroup ids",
+						Description:         "List of sitegroup ids",
+						MarkdownDescription: "List of sitegroup ids",
 					},
 				},
 				CustomType: ExceptionsType{
@@ -84,21 +82,20 @@ func OrgWlantemplateResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Optional:            true,
 				Computed:            true,
-				Description:         "where this template should not be applied to (takes precedence)",
-				MarkdownDescription: "where this template should not be applied to (takes precedence)",
+				Description:         "Where this template should not be applied to (takes precedence)",
+				MarkdownDescription: "Where this template should not be applied to (takes precedence)",
 			},
 			"filter_by_deviceprofile": schema.BoolAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "whether to further filter by Device Profile",
-				MarkdownDescription: "whether to further filter by Device Profile",
+				Description:         "Whether to further filter by Device Profile",
+				MarkdownDescription: "Whether to further filter by Device Profile",
 				Default:             booldefault.StaticBool(false),
 			},
 			"id": schema.StringAttribute{
-				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
+				Computed:            true,
+				Description:         "Unique ID of the object instance in the Mist Organization",
+				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
 			},
 			"name": schema.StringAttribute{
 				Required: true,
