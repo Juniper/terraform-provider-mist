@@ -33,7 +33,7 @@ resource "mist_org_sitegroup" "sitegroup_one" {
 
 ### Read-Only
 
-- `id` (String) Unique ID of the object instance in the Mist Organnization
+- `id` (String) Unique ID of the object instance in the Mist Organization
 
 
 
