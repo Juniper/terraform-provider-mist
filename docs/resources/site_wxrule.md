@@ -36,13 +36,13 @@ resource "mist_site_wxrule" "wxrule_one" {
 ### Required
 
 - `action` (String) type of action, allow / block. enum: `allow`, `block`
-- `order` (Number) the order how rules would be looked up, > 0 and bigger order got matched first, -1 means LAST, uniqueness not checked
+- `order` (Number) Order how rules would be looked up, > 0 and bigger order got matched first, -1 means LAST, uniqueness not checked
 - `site_id` (String)
 
 ### Optional
 
 - `apply_tags` (List of String)
-- `blocked_apps` (List of String) blocked apps (always blocking, ignoring action), the key of Get Application List
+- `blocked_apps` (List of String) Blocked apps (always blocking, ignoring action), the key of Get Application List
 - `dst_allow_wxtags` (List of String) List of WxTag UUID to indicate these tags are allowed access
 - `dst_deny_wxtags` (List of String) List of WxTag UUID to indicate these tags are blocked access
 - `dst_wxtags` (List of String) List of WxTag UUID
@@ -51,7 +51,7 @@ resource "mist_site_wxrule" "wxrule_one" {
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
+- `id` (String) Unique ID of the object instance in the Mist Organization
 
 
 
