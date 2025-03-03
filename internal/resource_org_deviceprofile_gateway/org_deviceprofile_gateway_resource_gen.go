@@ -183,6 +183,11 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 							},
 							Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 						},
+						"no_private_as": schema.BoolAttribute{
+							Optional: true,
+							Computed: true,
+							Default:  booldefault.StaticBool(false),
+						},
 						"no_readvertise_to_overlay": schema.BoolAttribute{
 							Optional:            true,
 							Computed:            true,
@@ -584,8 +589,8 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Unique ID of the object instance in the Mist Organnization",
-				MarkdownDescription: "Unique ID of the object instance in the Mist Organnization",
+				Description:         "Unique ID of the object instance in the Mist Organization",
+				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -618,8 +623,8 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 									"action": schema.StringAttribute{
 										Optional:            true,
 										Computed:            true,
-										Description:         "enum:\n  * alert (default)\n  * drop: siliently dropping packets\n  * close: notify client/server to close connection",
-										MarkdownDescription: "enum:\n  * alert (default)\n  * drop: siliently dropping packets\n  * close: notify client/server to close connection",
+										Description:         "enum:\n  * alert (default)\n  * drop: silently dropping packets\n  * close: notify client/server to close connection",
+										MarkdownDescription: "enum:\n  * alert (default)\n  * drop: silently dropping packets\n  * close: notify client/server to close connection",
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",
@@ -915,8 +920,8 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 								"disable_igmp": schema.BoolAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "If the network will only be the soruce of the multicast traffic, IGMP can be disabled",
-									MarkdownDescription: "If the network will only be the soruce of the multicast traffic, IGMP can be disabled",
+									Description:         "If the network will only be the source of the multicast traffic, IGMP can be disabled",
+									MarkdownDescription: "If the network will only be the source of the multicast traffic, IGMP can be disabled",
 									Default:             booldefault.StaticBool(false),
 								},
 								"enabled": schema.BoolAttribute{
@@ -1834,6 +1839,14 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "If HA mode",
 							Default:             booldefault.StaticBool(false),
 						},
+						"redundant_group": schema.Int64Attribute{
+							Optional:            true,
+							Description:         "If HA mode, SRX Only - support redundancy-group. 1-128 for physical SRX, 1-64 for virtual SRX",
+							MarkdownDescription: "If HA mode, SRX Only - support redundancy-group. 1-128 for physical SRX, 1-64 for virtual SRX",
+							Validators: []validator.Int64{
+								int64validator.Between(1, 128),
+							},
+						},
 						"reth_idx": schema.Int64Attribute{
 							Optional:            true,
 							Description:         "If HA mode",
@@ -1876,8 +1889,8 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 								"class_percentages": schema.ListAttribute{
 									ElementType:         types.Int64Type,
 									Optional:            true,
-									Description:         "percentages for differet class of traffic: high / medium / low / best-effort. Sum must be equal to 100",
-									MarkdownDescription: "percentages for differet class of traffic: high / medium / low / best-effort. Sum must be equal to 100",
+									Description:         "percentages for different class of traffic: high / medium / low / best-effort. Sum must be equal to 100",
+									MarkdownDescription: "percentages for different class of traffic: high / medium / low / best-effort. Sum must be equal to 100",
 								},
 								"enabled": schema.BoolAttribute{
 									Optional: true,
@@ -1938,11 +1951,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 										MarkdownDescription: "Only if the VPN `type`==`hub_spoke`. Whether to use tunnel mode. SSR only",
 										Default:             booldefault.StaticBool(false),
 									},
-									"link_name": schema.StringAttribute{
-										Optional:            true,
-										Description:         "Only if the VPN `type`==`mesh`",
-										MarkdownDescription: "Only if the VPN `type`==`mesh`",
-									},
 									"preference": schema.Int64Attribute{
 										Optional:            true,
 										Description:         "Only if the VPN `type`==`hub_spoke`. For a given VPN, when `path_selection.strategy`==`simple`, the preference for a path (lower is preferred)",
@@ -1951,12 +1959,13 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 									"role": schema.StringAttribute{
 										Optional:            true,
 										Computed:            true,
-										Description:         "Only if the VPN `type`==`hub_spoke`. enum: `hub`, `spoke`",
-										MarkdownDescription: "Only if the VPN `type`==`hub_spoke`. enum: `hub`, `spoke`",
+										Description:         "If the VPN `type`==`hub_spoke`, enum: `hub`, `spoke`. If the VPN `type`==`mesh`, enum: `mesh`",
+										MarkdownDescription: "If the VPN `type`==`hub_spoke`, enum: `hub`, `spoke`. If the VPN `type`==`mesh`, enum: `mesh`",
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",
 												"hub",
+												"mesh",
 												"spoke",
 											),
 										},
@@ -1967,8 +1976,8 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 											"class_percentages": schema.ListAttribute{
 												ElementType:         types.Int64Type,
 												Optional:            true,
-												Description:         "percentages for differet class of traffic: high / medium / low / best-effort. Sum must be equal to 100",
-												MarkdownDescription: "percentages for differet class of traffic: high / medium / low / best-effort. Sum must be equal to 100",
+												Description:         "percentages for different class of traffic: high / medium / low / best-effort. Sum must be equal to 100",
+												MarkdownDescription: "percentages for different class of traffic: high / medium / low / best-effort. Sum must be equal to 100",
 											},
 											"enabled": schema.BoolAttribute{
 												Optional: true,
@@ -1986,7 +1995,9 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 												AttrTypes: TrafficShapingValue{}.AttributeTypes(ctx),
 											},
 										},
-										Optional: true,
+										Optional:            true,
+										Description:         "Only if the VPN `type`==`hub_spoke`",
+										MarkdownDescription: "Only if the VPN `type`==`hub_spoke`",
 									},
 								},
 								CustomType: VpnPathsType{
@@ -2040,8 +2051,8 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional:            true,
-							Description:         "Only if `usage`==`wan`. Property Key is the destianation CIDR (e.g \"100.100.100.0/24\")",
-							MarkdownDescription: "Only if `usage`==`wan`. Property Key is the destianation CIDR (e.g \"100.100.100.0/24\")",
+							Description:         "Only if `usage`==`wan`. Property Key is the destination CIDR (e.g \"100.100.100.0/24\")",
+							MarkdownDescription: "Only if `usage`==`wan`. Property Key is the destination CIDR (e.g \"100.100.100.0/24\")",
 							Validators: []validator.Map{
 								mistvalidator.AllowedWhenValueIsWithDefault(
 									path.MatchRelative().AtParent().AtName("usage"),
@@ -2179,12 +2190,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 												Description:         "For SSR, hub decides how VRF routes are leaked on spoke",
 												MarkdownDescription: "For SSR, hub decides how VRF routes are leaked on spoke",
 											},
-											"aggregate": schema.ListAttribute{
-												ElementType:         types.StringType,
-												Optional:            true,
-												Description:         "route aggregation",
-												MarkdownDescription: "route aggregation",
-											},
 											"community": schema.ListAttribute{
 												ElementType:         types.StringType,
 												Optional:            true,
@@ -2201,7 +2206,7 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 												ElementType: types.StringType,
 												Optional:    true,
 											},
-											"export_communitites": schema.ListAttribute{
+											"export_communities": schema.ListAttribute{
 												ElementType:         types.StringType,
 												Optional:            true,
 												Description:         "When used as export policy, optional",
@@ -2256,8 +2261,8 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 											"protocol": schema.ListAttribute{
 												ElementType:         types.StringType,
 												Optional:            true,
-												Description:         "`direct`, `bgp`, `osp`, ...",
-												MarkdownDescription: "`direct`, `bgp`, `osp`, ...",
+												Description:         "`direct`, `bgp`, `osp`, `static`, `aggregate`...",
+												MarkdownDescription: "`direct`, `bgp`, `osp`, `static`, `aggregate`...",
 											},
 											"route_exists": schema.SingleNestedAttribute{
 												Attributes: map[string]schema.Attribute{
@@ -2368,8 +2373,8 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Attributes: map[string]schema.Attribute{
 								"avprofile_id": schema.StringAttribute{
 									Optional:            true,
-									Description:         "org-level AV Profile can be used, this takes precendence over 'profile'",
-									MarkdownDescription: "org-level AV Profile can be used, this takes precendence over 'profile'",
+									Description:         "org-level AV Profile can be used, this takes precedence over 'profile'",
+									MarkdownDescription: "org-level AV Profile can be used, this takes precedence over 'profile'",
 								},
 								"enabled": schema.BoolAttribute{
 									Optional: true,
@@ -3680,6 +3685,24 @@ func (t BgpConfigType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 			fmt.Sprintf(`networks expected to be basetypes.ListValue, was: %T`, networksAttribute))
 	}
 
+	noPrivateAsAttribute, ok := attributes["no_private_as"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`no_private_as is missing from object`)
+
+		return nil, diags
+	}
+
+	noPrivateAsVal, ok := noPrivateAsAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`no_private_as expected to be basetypes.BoolValue, was: %T`, noPrivateAsAttribute))
+	}
+
 	noReadvertiseToOverlayAttribute, ok := attributes["no_readvertise_to_overlay"]
 
 	if !ok {
@@ -3808,6 +3831,7 @@ func (t BgpConfigType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 		NeighborAs:             neighborAsVal,
 		Neighbors:              neighborsVal,
 		Networks:               networksVal,
+		NoPrivateAs:            noPrivateAsVal,
 		NoReadvertiseToOverlay: noReadvertiseToOverlayVal,
 		TunnelName:             tunnelNameVal,
 		BgpConfigType:          typeVal,
@@ -4151,6 +4175,24 @@ func NewBgpConfigValue(attributeTypes map[string]attr.Type, attributes map[strin
 			fmt.Sprintf(`networks expected to be basetypes.ListValue, was: %T`, networksAttribute))
 	}
 
+	noPrivateAsAttribute, ok := attributes["no_private_as"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`no_private_as is missing from object`)
+
+		return NewBgpConfigValueUnknown(), diags
+	}
+
+	noPrivateAsVal, ok := noPrivateAsAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`no_private_as expected to be basetypes.BoolValue, was: %T`, noPrivateAsAttribute))
+	}
+
 	noReadvertiseToOverlayAttribute, ok := attributes["no_readvertise_to_overlay"]
 
 	if !ok {
@@ -4279,6 +4321,7 @@ func NewBgpConfigValue(attributeTypes map[string]attr.Type, attributes map[strin
 		NeighborAs:             neighborAsVal,
 		Neighbors:              neighborsVal,
 		Networks:               networksVal,
+		NoPrivateAs:            noPrivateAsVal,
 		NoReadvertiseToOverlay: noReadvertiseToOverlayVal,
 		TunnelName:             tunnelNameVal,
 		BgpConfigType:          typeVal,
@@ -4372,6 +4415,7 @@ type BgpConfigValue struct {
 	NeighborAs             basetypes.Int64Value  `tfsdk:"neighbor_as"`
 	Neighbors              basetypes.MapValue    `tfsdk:"neighbors"`
 	Networks               basetypes.ListValue   `tfsdk:"networks"`
+	NoPrivateAs            basetypes.BoolValue   `tfsdk:"no_private_as"`
 	NoReadvertiseToOverlay basetypes.BoolValue   `tfsdk:"no_readvertise_to_overlay"`
 	TunnelName             basetypes.StringValue `tfsdk:"tunnel_name"`
 	BgpConfigType          basetypes.StringValue `tfsdk:"type"`
@@ -4382,7 +4426,7 @@ type BgpConfigValue struct {
 }
 
 func (v BgpConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 21)
+	attrTypes := make(map[string]tftypes.Type, 22)
 
 	var val tftypes.Value
 	var err error
@@ -4406,6 +4450,7 @@ func (v BgpConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 	attrTypes["networks"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
+	attrTypes["no_private_as"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["no_readvertise_to_overlay"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["tunnel_name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["type"] = basetypes.StringType{}.TerraformType(ctx)
@@ -4417,7 +4462,7 @@ func (v BgpConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 21)
+		vals := make(map[string]tftypes.Value, 22)
 
 		val, err = v.AuthKey.ToTerraformValue(ctx)
 
@@ -4538,6 +4583,14 @@ func (v BgpConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 		}
 
 		vals["networks"] = val
+
+		val, err = v.NoPrivateAs.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["no_private_as"] = val
 
 		val, err = v.NoReadvertiseToOverlay.ToTerraformValue(ctx)
 
@@ -4670,6 +4723,7 @@ func (v BgpConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 			"networks": basetypes.ListType{
 				ElemType: types.StringType,
 			},
+			"no_private_as":             basetypes.BoolType{},
 			"no_readvertise_to_overlay": basetypes.BoolType{},
 			"tunnel_name":               basetypes.StringType{},
 			"type":                      basetypes.StringType{},
@@ -4699,6 +4753,7 @@ func (v BgpConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 		"networks": basetypes.ListType{
 			ElemType: types.StringType,
 		},
+		"no_private_as":             basetypes.BoolType{},
 		"no_readvertise_to_overlay": basetypes.BoolType{},
 		"tunnel_name":               basetypes.StringType{},
 		"type":                      basetypes.StringType{},
@@ -4733,6 +4788,7 @@ func (v BgpConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 			"neighbor_as":               v.NeighborAs,
 			"neighbors":                 neighbors,
 			"networks":                  networksVal,
+			"no_private_as":             v.NoPrivateAs,
 			"no_readvertise_to_overlay": v.NoReadvertiseToOverlay,
 			"tunnel_name":               v.TunnelName,
 			"type":                      v.BgpConfigType,
@@ -4819,6 +4875,10 @@ func (v BgpConfigValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.NoPrivateAs.Equal(other.NoPrivateAs) {
+		return false
+	}
+
 	if !v.NoReadvertiseToOverlay.Equal(other.NoReadvertiseToOverlay) {
 		return false
 	}
@@ -4875,6 +4935,7 @@ func (v BgpConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Type
 		"networks": basetypes.ListType{
 			ElemType: types.StringType,
 		},
+		"no_private_as":             basetypes.BoolType{},
 		"no_readvertise_to_overlay": basetypes.BoolType{},
 		"tunnel_name":               basetypes.StringType{},
 		"type":                      basetypes.StringType{},
@@ -20771,6 +20832,24 @@ func (t PortConfigType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`redundant expected to be basetypes.BoolValue, was: %T`, redundantAttribute))
 	}
 
+	redundantGroupAttribute, ok := attributes["redundant_group"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`redundant_group is missing from object`)
+
+		return nil, diags
+	}
+
+	redundantGroupVal, ok := redundantGroupAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`redundant_group expected to be basetypes.Int64Value, was: %T`, redundantGroupAttribute))
+	}
+
 	rethIdxAttribute, ok := attributes["reth_idx"]
 
 	if !ok {
@@ -21108,6 +21187,7 @@ func (t PortConfigType) ValueFromObject(ctx context.Context, in basetypes.Object
 		PortNetwork:      portNetworkVal,
 		PreserveDscp:     preserveDscpVal,
 		Redundant:        redundantVal,
+		RedundantGroup:   redundantGroupVal,
 		RethIdx:          rethIdxVal,
 		RethNode:         rethNodeVal,
 		RethNodes:        rethNodesVal,
@@ -21660,6 +21740,24 @@ func NewPortConfigValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`redundant expected to be basetypes.BoolValue, was: %T`, redundantAttribute))
 	}
 
+	redundantGroupAttribute, ok := attributes["redundant_group"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`redundant_group is missing from object`)
+
+		return NewPortConfigValueUnknown(), diags
+	}
+
+	redundantGroupVal, ok := redundantGroupAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`redundant_group expected to be basetypes.Int64Value, was: %T`, redundantGroupAttribute))
+	}
+
 	rethIdxAttribute, ok := attributes["reth_idx"]
 
 	if !ok {
@@ -21997,6 +22095,7 @@ func NewPortConfigValue(attributeTypes map[string]attr.Type, attributes map[stri
 		PortNetwork:      portNetworkVal,
 		PreserveDscp:     preserveDscpVal,
 		Redundant:        redundantVal,
+		RedundantGroup:   redundantGroupVal,
 		RethIdx:          rethIdxVal,
 		RethNode:         rethNodeVal,
 		RethNodes:        rethNodesVal,
@@ -22112,6 +22211,7 @@ type PortConfigValue struct {
 	PortNetwork      basetypes.StringValue `tfsdk:"port_network"`
 	PreserveDscp     basetypes.BoolValue   `tfsdk:"preserve_dscp"`
 	Redundant        basetypes.BoolValue   `tfsdk:"redundant"`
+	RedundantGroup   basetypes.Int64Value  `tfsdk:"redundant_group"`
 	RethIdx          basetypes.Int64Value  `tfsdk:"reth_idx"`
 	RethNode         basetypes.StringValue `tfsdk:"reth_node"`
 	RethNodes        basetypes.ListValue   `tfsdk:"reth_nodes"`
@@ -22133,7 +22233,7 @@ type PortConfigValue struct {
 }
 
 func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 43)
+	attrTypes := make(map[string]tftypes.Type, 44)
 
 	var val tftypes.Value
 	var err error
@@ -22168,6 +22268,7 @@ func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	attrTypes["port_network"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["preserve_dscp"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["redundant"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["redundant_group"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["reth_idx"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["reth_node"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["reth_nodes"] = basetypes.ListType{
@@ -22204,7 +22305,7 @@ func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 43)
+		vals := make(map[string]tftypes.Value, 44)
 
 		val, err = v.AeDisableLacp.ToTerraformValue(ctx)
 
@@ -22413,6 +22514,14 @@ func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 		}
 
 		vals["redundant"] = val
+
+		val, err = v.RedundantGroup.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["redundant_group"] = val
 
 		val, err = v.RethIdx.ToTerraformValue(ctx)
 
@@ -22754,11 +22863,12 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"ip_config": basetypes.ObjectType{
 				AttrTypes: PortIpConfigValue{}.AttributeTypes(ctx),
 			},
-			"port_network":  basetypes.StringType{},
-			"preserve_dscp": basetypes.BoolType{},
-			"redundant":     basetypes.BoolType{},
-			"reth_idx":      basetypes.Int64Type{},
-			"reth_node":     basetypes.StringType{},
+			"port_network":    basetypes.StringType{},
+			"preserve_dscp":   basetypes.BoolType{},
+			"redundant":       basetypes.BoolType{},
+			"redundant_group": basetypes.Int64Type{},
+			"reth_idx":        basetypes.Int64Type{},
+			"reth_node":       basetypes.StringType{},
 			"reth_nodes": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -22824,11 +22934,12 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"ip_config": basetypes.ObjectType{
 				AttrTypes: PortIpConfigValue{}.AttributeTypes(ctx),
 			},
-			"port_network":  basetypes.StringType{},
-			"preserve_dscp": basetypes.BoolType{},
-			"redundant":     basetypes.BoolType{},
-			"reth_idx":      basetypes.Int64Type{},
-			"reth_node":     basetypes.StringType{},
+			"port_network":    basetypes.StringType{},
+			"preserve_dscp":   basetypes.BoolType{},
+			"redundant":       basetypes.BoolType{},
+			"redundant_group": basetypes.Int64Type{},
+			"reth_idx":        basetypes.Int64Type{},
+			"reth_node":       basetypes.StringType{},
 			"reth_nodes": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -22894,11 +23005,12 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"ip_config": basetypes.ObjectType{
 				AttrTypes: PortIpConfigValue{}.AttributeTypes(ctx),
 			},
-			"port_network":  basetypes.StringType{},
-			"preserve_dscp": basetypes.BoolType{},
-			"redundant":     basetypes.BoolType{},
-			"reth_idx":      basetypes.Int64Type{},
-			"reth_node":     basetypes.StringType{},
+			"port_network":    basetypes.StringType{},
+			"preserve_dscp":   basetypes.BoolType{},
+			"redundant":       basetypes.BoolType{},
+			"redundant_group": basetypes.Int64Type{},
+			"reth_idx":        basetypes.Int64Type{},
+			"reth_node":       basetypes.StringType{},
 			"reth_nodes": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -22959,11 +23071,12 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		"ip_config": basetypes.ObjectType{
 			AttrTypes: PortIpConfigValue{}.AttributeTypes(ctx),
 		},
-		"port_network":  basetypes.StringType{},
-		"preserve_dscp": basetypes.BoolType{},
-		"redundant":     basetypes.BoolType{},
-		"reth_idx":      basetypes.Int64Type{},
-		"reth_node":     basetypes.StringType{},
+		"port_network":    basetypes.StringType{},
+		"preserve_dscp":   basetypes.BoolType{},
+		"redundant":       basetypes.BoolType{},
+		"redundant_group": basetypes.Int64Type{},
+		"reth_idx":        basetypes.Int64Type{},
+		"reth_node":       basetypes.StringType{},
 		"reth_nodes": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -23032,6 +23145,7 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"port_network":       v.PortNetwork,
 			"preserve_dscp":      v.PreserveDscp,
 			"redundant":          v.Redundant,
+			"redundant_group":    v.RedundantGroup,
 			"reth_idx":           v.RethIdx,
 			"reth_node":          v.RethNode,
 			"reth_nodes":         rethNodesVal,
@@ -23173,6 +23287,10 @@ func (v PortConfigValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.RedundantGroup.Equal(other.RedundantGroup) {
+		return false
+	}
+
 	if !v.RethIdx.Equal(other.RethIdx) {
 		return false
 	}
@@ -23281,11 +23399,12 @@ func (v PortConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"ip_config": basetypes.ObjectType{
 			AttrTypes: PortIpConfigValue{}.AttributeTypes(ctx),
 		},
-		"port_network":  basetypes.StringType{},
-		"preserve_dscp": basetypes.BoolType{},
-		"redundant":     basetypes.BoolType{},
-		"reth_idx":      basetypes.Int64Type{},
-		"reth_node":     basetypes.StringType{},
+		"port_network":    basetypes.StringType{},
+		"preserve_dscp":   basetypes.BoolType{},
+		"redundant":       basetypes.BoolType{},
+		"redundant_group": basetypes.Int64Type{},
+		"reth_idx":        basetypes.Int64Type{},
+		"reth_node":       basetypes.StringType{},
 		"reth_nodes": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -24710,24 +24829,6 @@ func (t VpnPathsType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 			fmt.Sprintf(`bfd_use_tunnel_mode expected to be basetypes.BoolValue, was: %T`, bfdUseTunnelModeAttribute))
 	}
 
-	linkNameAttribute, ok := attributes["link_name"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`link_name is missing from object`)
-
-		return nil, diags
-	}
-
-	linkNameVal, ok := linkNameAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`link_name expected to be basetypes.StringValue, was: %T`, linkNameAttribute))
-	}
-
 	preferenceAttribute, ok := attributes["preference"]
 
 	if !ok {
@@ -24789,7 +24890,6 @@ func (t VpnPathsType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 	return VpnPathsValue{
 		BfdProfile:       bfdProfileVal,
 		BfdUseTunnelMode: bfdUseTunnelModeVal,
-		LinkName:         linkNameVal,
 		Preference:       preferenceVal,
 		Role:             roleVal,
 		TrafficShaping:   trafficShapingVal,
@@ -24896,24 +24996,6 @@ func NewVpnPathsValue(attributeTypes map[string]attr.Type, attributes map[string
 			fmt.Sprintf(`bfd_use_tunnel_mode expected to be basetypes.BoolValue, was: %T`, bfdUseTunnelModeAttribute))
 	}
 
-	linkNameAttribute, ok := attributes["link_name"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`link_name is missing from object`)
-
-		return NewVpnPathsValueUnknown(), diags
-	}
-
-	linkNameVal, ok := linkNameAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`link_name expected to be basetypes.StringValue, was: %T`, linkNameAttribute))
-	}
-
 	preferenceAttribute, ok := attributes["preference"]
 
 	if !ok {
@@ -24975,7 +25057,6 @@ func NewVpnPathsValue(attributeTypes map[string]attr.Type, attributes map[string
 	return VpnPathsValue{
 		BfdProfile:       bfdProfileVal,
 		BfdUseTunnelMode: bfdUseTunnelModeVal,
-		LinkName:         linkNameVal,
 		Preference:       preferenceVal,
 		Role:             roleVal,
 		TrafficShaping:   trafficShapingVal,
@@ -25053,7 +25134,6 @@ var _ basetypes.ObjectValuable = VpnPathsValue{}
 type VpnPathsValue struct {
 	BfdProfile       basetypes.StringValue `tfsdk:"bfd_profile"`
 	BfdUseTunnelMode basetypes.BoolValue   `tfsdk:"bfd_use_tunnel_mode"`
-	LinkName         basetypes.StringValue `tfsdk:"link_name"`
 	Preference       basetypes.Int64Value  `tfsdk:"preference"`
 	Role             basetypes.StringValue `tfsdk:"role"`
 	TrafficShaping   basetypes.ObjectValue `tfsdk:"traffic_shaping"`
@@ -25061,14 +25141,13 @@ type VpnPathsValue struct {
 }
 
 func (v VpnPathsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 6)
+	attrTypes := make(map[string]tftypes.Type, 5)
 
 	var val tftypes.Value
 	var err error
 
 	attrTypes["bfd_profile"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["bfd_use_tunnel_mode"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["link_name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["preference"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["role"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["traffic_shaping"] = basetypes.ObjectType{
@@ -25079,7 +25158,7 @@ func (v VpnPathsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 6)
+		vals := make(map[string]tftypes.Value, 5)
 
 		val, err = v.BfdProfile.ToTerraformValue(ctx)
 
@@ -25096,14 +25175,6 @@ func (v VpnPathsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 		}
 
 		vals["bfd_use_tunnel_mode"] = val
-
-		val, err = v.LinkName.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["link_name"] = val
 
 		val, err = v.Preference.ToTerraformValue(ctx)
 
@@ -25182,7 +25253,6 @@ func (v VpnPathsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 	attributeTypes := map[string]attr.Type{
 		"bfd_profile":         basetypes.StringType{},
 		"bfd_use_tunnel_mode": basetypes.BoolType{},
-		"link_name":           basetypes.StringType{},
 		"preference":          basetypes.Int64Type{},
 		"role":                basetypes.StringType{},
 		"traffic_shaping": basetypes.ObjectType{
@@ -25203,7 +25273,6 @@ func (v VpnPathsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 		map[string]attr.Value{
 			"bfd_profile":         v.BfdProfile,
 			"bfd_use_tunnel_mode": v.BfdUseTunnelMode,
-			"link_name":           v.LinkName,
 			"preference":          v.Preference,
 			"role":                v.Role,
 			"traffic_shaping":     trafficShaping,
@@ -25235,10 +25304,6 @@ func (v VpnPathsValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.LinkName.Equal(other.LinkName) {
-		return false
-	}
-
 	if !v.Preference.Equal(other.Preference) {
 		return false
 	}
@@ -25266,7 +25331,6 @@ func (v VpnPathsValue) AttributeTypes(ctx context.Context) map[string]attr.Type 
 	return map[string]attr.Type{
 		"bfd_profile":         basetypes.StringType{},
 		"bfd_use_tunnel_mode": basetypes.BoolType{},
-		"link_name":           basetypes.StringType{},
 		"preference":          basetypes.Int64Type{},
 		"role":                basetypes.StringType{},
 		"traffic_shaping": basetypes.ObjectType{
@@ -27247,24 +27311,6 @@ func (t ActionType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 			fmt.Sprintf(`add_target_vrfs expected to be basetypes.ListValue, was: %T`, addTargetVrfsAttribute))
 	}
 
-	aggregateAttribute, ok := attributes["aggregate"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`aggregate is missing from object`)
-
-		return nil, diags
-	}
-
-	aggregateVal, ok := aggregateAttribute.(basetypes.ListValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`aggregate expected to be basetypes.ListValue, was: %T`, aggregateAttribute))
-	}
-
 	communityAttribute, ok := attributes["community"]
 
 	if !ok {
@@ -27319,22 +27365,22 @@ func (t ActionType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 			fmt.Sprintf(`exclude_community expected to be basetypes.ListValue, was: %T`, excludeCommunityAttribute))
 	}
 
-	exportCommunititesAttribute, ok := attributes["export_communitites"]
+	exportCommunitiesAttribute, ok := attributes["export_communities"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`export_communitites is missing from object`)
+			`export_communities is missing from object`)
 
 		return nil, diags
 	}
 
-	exportCommunititesVal, ok := exportCommunititesAttribute.(basetypes.ListValue)
+	exportCommunitiesVal, ok := exportCommunitiesAttribute.(basetypes.ListValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`export_communitites expected to be basetypes.ListValue, was: %T`, exportCommunititesAttribute))
+			fmt.Sprintf(`export_communities expected to be basetypes.ListValue, was: %T`, exportCommunitiesAttribute))
 	}
 
 	localPreferenceAttribute, ok := attributes["local_preference"]
@@ -27378,17 +27424,16 @@ func (t ActionType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 	}
 
 	return ActionValue{
-		Accept:             acceptVal,
-		AddCommunity:       addCommunityVal,
-		AddTargetVrfs:      addTargetVrfsVal,
-		Aggregate:          aggregateVal,
-		Community:          communityVal,
-		ExcludeAsPath:      excludeAsPathVal,
-		ExcludeCommunity:   excludeCommunityVal,
-		ExportCommunitites: exportCommunititesVal,
-		LocalPreference:    localPreferenceVal,
-		PrependAsPath:      prependAsPathVal,
-		state:              attr.ValueStateKnown,
+		Accept:            acceptVal,
+		AddCommunity:      addCommunityVal,
+		AddTargetVrfs:     addTargetVrfsVal,
+		Community:         communityVal,
+		ExcludeAsPath:     excludeAsPathVal,
+		ExcludeCommunity:  excludeCommunityVal,
+		ExportCommunities: exportCommunitiesVal,
+		LocalPreference:   localPreferenceVal,
+		PrependAsPath:     prependAsPathVal,
+		state:             attr.ValueStateKnown,
 	}, diags
 }
 
@@ -27509,24 +27554,6 @@ func NewActionValue(attributeTypes map[string]attr.Type, attributes map[string]a
 			fmt.Sprintf(`add_target_vrfs expected to be basetypes.ListValue, was: %T`, addTargetVrfsAttribute))
 	}
 
-	aggregateAttribute, ok := attributes["aggregate"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`aggregate is missing from object`)
-
-		return NewActionValueUnknown(), diags
-	}
-
-	aggregateVal, ok := aggregateAttribute.(basetypes.ListValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`aggregate expected to be basetypes.ListValue, was: %T`, aggregateAttribute))
-	}
-
 	communityAttribute, ok := attributes["community"]
 
 	if !ok {
@@ -27581,22 +27608,22 @@ func NewActionValue(attributeTypes map[string]attr.Type, attributes map[string]a
 			fmt.Sprintf(`exclude_community expected to be basetypes.ListValue, was: %T`, excludeCommunityAttribute))
 	}
 
-	exportCommunititesAttribute, ok := attributes["export_communitites"]
+	exportCommunitiesAttribute, ok := attributes["export_communities"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`export_communitites is missing from object`)
+			`export_communities is missing from object`)
 
 		return NewActionValueUnknown(), diags
 	}
 
-	exportCommunititesVal, ok := exportCommunititesAttribute.(basetypes.ListValue)
+	exportCommunitiesVal, ok := exportCommunitiesAttribute.(basetypes.ListValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`export_communitites expected to be basetypes.ListValue, was: %T`, exportCommunititesAttribute))
+			fmt.Sprintf(`export_communities expected to be basetypes.ListValue, was: %T`, exportCommunitiesAttribute))
 	}
 
 	localPreferenceAttribute, ok := attributes["local_preference"]
@@ -27640,17 +27667,16 @@ func NewActionValue(attributeTypes map[string]attr.Type, attributes map[string]a
 	}
 
 	return ActionValue{
-		Accept:             acceptVal,
-		AddCommunity:       addCommunityVal,
-		AddTargetVrfs:      addTargetVrfsVal,
-		Aggregate:          aggregateVal,
-		Community:          communityVal,
-		ExcludeAsPath:      excludeAsPathVal,
-		ExcludeCommunity:   excludeCommunityVal,
-		ExportCommunitites: exportCommunititesVal,
-		LocalPreference:    localPreferenceVal,
-		PrependAsPath:      prependAsPathVal,
-		state:              attr.ValueStateKnown,
+		Accept:            acceptVal,
+		AddCommunity:      addCommunityVal,
+		AddTargetVrfs:     addTargetVrfsVal,
+		Community:         communityVal,
+		ExcludeAsPath:     excludeAsPathVal,
+		ExcludeCommunity:  excludeCommunityVal,
+		ExportCommunities: exportCommunitiesVal,
+		LocalPreference:   localPreferenceVal,
+		PrependAsPath:     prependAsPathVal,
+		state:             attr.ValueStateKnown,
 	}, diags
 }
 
@@ -27722,21 +27748,20 @@ func (t ActionType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = ActionValue{}
 
 type ActionValue struct {
-	Accept             basetypes.BoolValue   `tfsdk:"accept"`
-	AddCommunity       basetypes.ListValue   `tfsdk:"add_community"`
-	AddTargetVrfs      basetypes.ListValue   `tfsdk:"add_target_vrfs"`
-	Aggregate          basetypes.ListValue   `tfsdk:"aggregate"`
-	Community          basetypes.ListValue   `tfsdk:"community"`
-	ExcludeAsPath      basetypes.ListValue   `tfsdk:"exclude_as_path"`
-	ExcludeCommunity   basetypes.ListValue   `tfsdk:"exclude_community"`
-	ExportCommunitites basetypes.ListValue   `tfsdk:"export_communitites"`
-	LocalPreference    basetypes.StringValue `tfsdk:"local_preference"`
-	PrependAsPath      basetypes.ListValue   `tfsdk:"prepend_as_path"`
-	state              attr.ValueState
+	Accept            basetypes.BoolValue   `tfsdk:"accept"`
+	AddCommunity      basetypes.ListValue   `tfsdk:"add_community"`
+	AddTargetVrfs     basetypes.ListValue   `tfsdk:"add_target_vrfs"`
+	Community         basetypes.ListValue   `tfsdk:"community"`
+	ExcludeAsPath     basetypes.ListValue   `tfsdk:"exclude_as_path"`
+	ExcludeCommunity  basetypes.ListValue   `tfsdk:"exclude_community"`
+	ExportCommunities basetypes.ListValue   `tfsdk:"export_communities"`
+	LocalPreference   basetypes.StringValue `tfsdk:"local_preference"`
+	PrependAsPath     basetypes.ListValue   `tfsdk:"prepend_as_path"`
+	state             attr.ValueState
 }
 
 func (v ActionValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 10)
+	attrTypes := make(map[string]tftypes.Type, 9)
 
 	var val tftypes.Value
 	var err error
@@ -27748,9 +27773,6 @@ func (v ActionValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 	attrTypes["add_target_vrfs"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
-	attrTypes["aggregate"] = basetypes.ListType{
-		ElemType: types.StringType,
-	}.TerraformType(ctx)
 	attrTypes["community"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
@@ -27760,7 +27782,7 @@ func (v ActionValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 	attrTypes["exclude_community"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
-	attrTypes["export_communitites"] = basetypes.ListType{
+	attrTypes["export_communities"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
 	attrTypes["local_preference"] = basetypes.StringType{}.TerraformType(ctx)
@@ -27772,7 +27794,7 @@ func (v ActionValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 10)
+		vals := make(map[string]tftypes.Value, 9)
 
 		val, err = v.Accept.ToTerraformValue(ctx)
 
@@ -27798,14 +27820,6 @@ func (v ActionValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 
 		vals["add_target_vrfs"] = val
 
-		val, err = v.Aggregate.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["aggregate"] = val
-
 		val, err = v.Community.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -27830,13 +27844,13 @@ func (v ActionValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 
 		vals["exclude_community"] = val
 
-		val, err = v.ExportCommunitites.ToTerraformValue(ctx)
+		val, err = v.ExportCommunities.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["export_communitites"] = val
+		vals["export_communities"] = val
 
 		val, err = v.LocalPreference.ToTerraformValue(ctx)
 
@@ -27896,9 +27910,6 @@ func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"add_target_vrfs": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"aggregate": basetypes.ListType{
-				ElemType: types.StringType,
-			},
 			"community": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -27908,7 +27919,7 @@ func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"exclude_community": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"export_communitites": basetypes.ListType{
+			"export_communities": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"local_preference": basetypes.StringType{},
@@ -27931,9 +27942,6 @@ func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"add_target_vrfs": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"aggregate": basetypes.ListType{
-				ElemType: types.StringType,
-			},
 			"community": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -27943,42 +27951,7 @@ func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"exclude_community": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"export_communitites": basetypes.ListType{
-				ElemType: types.StringType,
-			},
-			"local_preference": basetypes.StringType{},
-			"prepend_as_path": basetypes.ListType{
-				ElemType: types.StringType,
-			},
-		}), diags
-	}
-
-	aggregateVal, d := types.ListValue(types.StringType, v.Aggregate.Elements())
-
-	diags.Append(d...)
-
-	if d.HasError() {
-		return types.ObjectUnknown(map[string]attr.Type{
-			"accept": basetypes.BoolType{},
-			"add_community": basetypes.ListType{
-				ElemType: types.StringType,
-			},
-			"add_target_vrfs": basetypes.ListType{
-				ElemType: types.StringType,
-			},
-			"aggregate": basetypes.ListType{
-				ElemType: types.StringType,
-			},
-			"community": basetypes.ListType{
-				ElemType: types.StringType,
-			},
-			"exclude_as_path": basetypes.ListType{
-				ElemType: types.StringType,
-			},
-			"exclude_community": basetypes.ListType{
-				ElemType: types.StringType,
-			},
-			"export_communitites": basetypes.ListType{
+			"export_communities": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"local_preference": basetypes.StringType{},
@@ -28001,9 +27974,6 @@ func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"add_target_vrfs": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"aggregate": basetypes.ListType{
-				ElemType: types.StringType,
-			},
 			"community": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -28013,7 +27983,7 @@ func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"exclude_community": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"export_communitites": basetypes.ListType{
+			"export_communities": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"local_preference": basetypes.StringType{},
@@ -28036,9 +28006,6 @@ func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"add_target_vrfs": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"aggregate": basetypes.ListType{
-				ElemType: types.StringType,
-			},
 			"community": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -28048,7 +28015,7 @@ func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"exclude_community": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"export_communitites": basetypes.ListType{
+			"export_communities": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"local_preference": basetypes.StringType{},
@@ -28071,9 +28038,6 @@ func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"add_target_vrfs": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"aggregate": basetypes.ListType{
-				ElemType: types.StringType,
-			},
 			"community": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -28083,7 +28047,7 @@ func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"exclude_community": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"export_communitites": basetypes.ListType{
+			"export_communities": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"local_preference": basetypes.StringType{},
@@ -28093,7 +28057,7 @@ func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 		}), diags
 	}
 
-	exportCommunititesVal, d := types.ListValue(types.StringType, v.ExportCommunitites.Elements())
+	exportCommunitiesVal, d := types.ListValue(types.StringType, v.ExportCommunities.Elements())
 
 	diags.Append(d...)
 
@@ -28106,9 +28070,6 @@ func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"add_target_vrfs": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"aggregate": basetypes.ListType{
-				ElemType: types.StringType,
-			},
 			"community": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -28118,7 +28079,7 @@ func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"exclude_community": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"export_communitites": basetypes.ListType{
+			"export_communities": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"local_preference": basetypes.StringType{},
@@ -28141,9 +28102,6 @@ func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"add_target_vrfs": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"aggregate": basetypes.ListType{
-				ElemType: types.StringType,
-			},
 			"community": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -28153,7 +28111,7 @@ func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"exclude_community": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"export_communitites": basetypes.ListType{
+			"export_communities": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"local_preference": basetypes.StringType{},
@@ -28171,9 +28129,6 @@ func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 		"add_target_vrfs": basetypes.ListType{
 			ElemType: types.StringType,
 		},
-		"aggregate": basetypes.ListType{
-			ElemType: types.StringType,
-		},
 		"community": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -28183,7 +28138,7 @@ func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 		"exclude_community": basetypes.ListType{
 			ElemType: types.StringType,
 		},
-		"export_communitites": basetypes.ListType{
+		"export_communities": basetypes.ListType{
 			ElemType: types.StringType,
 		},
 		"local_preference": basetypes.StringType{},
@@ -28203,16 +28158,15 @@ func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"accept":              v.Accept,
-			"add_community":       addCommunityVal,
-			"add_target_vrfs":     addTargetVrfsVal,
-			"aggregate":           aggregateVal,
-			"community":           communityVal,
-			"exclude_as_path":     excludeAsPathVal,
-			"exclude_community":   excludeCommunityVal,
-			"export_communitites": exportCommunititesVal,
-			"local_preference":    v.LocalPreference,
-			"prepend_as_path":     prependAsPathVal,
+			"accept":             v.Accept,
+			"add_community":      addCommunityVal,
+			"add_target_vrfs":    addTargetVrfsVal,
+			"community":          communityVal,
+			"exclude_as_path":    excludeAsPathVal,
+			"exclude_community":  excludeCommunityVal,
+			"export_communities": exportCommunitiesVal,
+			"local_preference":   v.LocalPreference,
+			"prepend_as_path":    prependAsPathVal,
 		})
 
 	return objVal, diags
@@ -28245,10 +28199,6 @@ func (v ActionValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.Aggregate.Equal(other.Aggregate) {
-		return false
-	}
-
 	if !v.Community.Equal(other.Community) {
 		return false
 	}
@@ -28261,7 +28211,7 @@ func (v ActionValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.ExportCommunitites.Equal(other.ExportCommunitites) {
+	if !v.ExportCommunities.Equal(other.ExportCommunities) {
 		return false
 	}
 
@@ -28293,9 +28243,6 @@ func (v ActionValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 		"add_target_vrfs": basetypes.ListType{
 			ElemType: types.StringType,
 		},
-		"aggregate": basetypes.ListType{
-			ElemType: types.StringType,
-		},
 		"community": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -28305,7 +28252,7 @@ func (v ActionValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 		"exclude_community": basetypes.ListType{
 			ElemType: types.StringType,
 		},
-		"export_communitites": basetypes.ListType{
+		"export_communities": basetypes.ListType{
 			ElemType: types.StringType,
 		},
 		"local_preference": basetypes.StringType{},
