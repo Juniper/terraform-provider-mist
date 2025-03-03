@@ -102,8 +102,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					"power": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
-						MarkdownDescription: "Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
+						Description:         "tx power of the radio, null or 0 means auto, when power_min=power_max=power=0 to indicate power=0",
+						MarkdownDescription: "tx power of the radio, null or 0 means auto, when power_min=power_max=power=0 to indicate power=0",
 						Validators: []validator.Int64{
 							int64validator.Between(3, 25),
 						},
@@ -523,8 +523,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Unique ID of the object instance in the Mist Organnization",
-				MarkdownDescription: "Unique ID of the object instance in the Mist Organnization",
+				Description:         "Unique ID of the object instance in the Mist Organization",
+				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
 			},
 			"model_specific": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
@@ -599,8 +599,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								"power": schema.Int64Attribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
-									MarkdownDescription: "Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
+									Description:         "tx power of the radio, null or 0 means auto, when power_min=power_max=power=0 to indicate power=0",
+									MarkdownDescription: "tx power of the radio, null or 0 means auto, when power_min=power_max=power=0 to indicate power=0",
 									Validators: []validator.Int64{
 										int64validator.Between(3, 25),
 									},

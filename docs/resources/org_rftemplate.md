@@ -72,7 +72,7 @@ resource "mist_org_rftemplate" "rftempalte_one" {
 
 ### Read-Only
 
-- `id` (String) Unique ID of the object instance in the Mist Organnization
+- `id` (String) Unique ID of the object instance in the Mist Organization
 
 <a id="nestedatt--band_24"></a>
 ### Nested Schema for `band_24`
@@ -85,7 +85,7 @@ Optional:
 - `bandwidth` (Number) channel width for the 2.4GHz band. enum: `20`, `40`
 - `channels` (List of Number) For RFTemplates. List of channels, null or empty array means auto
 - `disabled` (Boolean) Whether to disable the radio
-- `power` (Number) Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …
+- `power` (Number) tx power of the radio, null or 0 means auto, when power_min=power_max=power=0 to indicate power=0
 - `power_max` (Number) When power=0, max tx power to use, HW-specific values will be used if not set
 - `power_min` (Number) When power=0, min tx power to use, HW-specific values will be used if not set
 - `preamble` (String) enum: `auto`, `long`, `short`
@@ -168,7 +168,7 @@ Optional:
 - `bandwidth` (Number) channel width for the 2.4GHz band. enum: `20`, `40`
 - `channels` (List of Number) For RFTemplates. List of channels, null or empty array means auto
 - `disabled` (Boolean) Whether to disable the radio
-- `power` (Number) Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …
+- `power` (Number) tx power of the radio, null or 0 means auto, when power_min=power_max=power=0 to indicate power=0
 - `power_max` (Number) When power=0, max tx power to use, HW-specific values will be used if not set
 - `power_min` (Number) When power=0, min tx power to use, HW-specific values will be used if not set
 - `preamble` (String) enum: `auto`, `long`, `short`
