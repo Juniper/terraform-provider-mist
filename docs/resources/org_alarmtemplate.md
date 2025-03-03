@@ -65,7 +65,7 @@ resource "mist_org_alarmtemplate" "alarmtemplate_one" {
 
 ### Read-Only
 
-- `id` (String) Unique ID of the object instance in the Mist Organnization
+- `id` (String) Unique ID of the object instance in the Mist Organization
 
 <a id="nestedatt--delivery"></a>
 ### Nested Schema for `delivery`
