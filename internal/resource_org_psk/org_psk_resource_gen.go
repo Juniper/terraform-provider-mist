@@ -39,13 +39,13 @@ func OrgPskResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Unique ID of the object instance in the Mist Organnization",
-				MarkdownDescription: "Unique ID of the object instance in the Mist Organnization",
+				Description:         "Unique ID of the object instance in the Mist Organization",
+				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
 			},
 			"mac": schema.StringAttribute{
 				Optional:            true,
-				Description:         "if `usage`==`single`, the mac that this PSK ties to, empty if `auto-binding`",
-				MarkdownDescription: "if `usage`==`single`, the mac that this PSK ties to, empty if `auto-binding`",
+				Description:         "If `usage`==`single`, the mac that this PSK ties to, empty if `auto-binding`",
+				MarkdownDescription: "If `usage`==`single`, the mac that this PSK ties to, empty if `auto-binding`",
 				Validators: []validator.String{
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("usage"),
 						types.StringValue("single")),
@@ -55,8 +55,8 @@ func OrgPskResourceSchema(ctx context.Context) schema.Schema {
 			"macs": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
-				Description:         "if `usage`==`macs`, this list contains N number of client mac addresses or mac patterns(11:22:*) or both. This list is capped at 5000",
-				MarkdownDescription: "if `usage`==`macs`, this list contains N number of client mac addresses or mac patterns(11:22:*) or both. This list is capped at 5000",
+				Description:         "If `usage`==`macs`, this list contains N number of client mac addresses or mac patterns(1122*) or both. This list is capped at 5000",
+				MarkdownDescription: "If `usage`==`macs`, this list contains N number of client mac addresses or mac patterns(1122*) or both. This list is capped at 5000",
 				Validators: []validator.List{
 					listvalidator.SizeAtMost(5000),
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("macs")),

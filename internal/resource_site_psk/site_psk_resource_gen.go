@@ -38,13 +38,13 @@ func SitePskResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Unique ID of the object instance in the Mist Organnization",
-				MarkdownDescription: "Unique ID of the object instance in the Mist Organnization",
+				Description:         "Unique ID of the object instance in the Mist Organization",
+				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
 			},
 			"mac": schema.StringAttribute{
 				Optional:            true,
-				Description:         "if `usage`==`single`, the mac that this PSK ties to, empty if `auto-binding`",
-				MarkdownDescription: "if `usage`==`single`, the mac that this PSK ties to, empty if `auto-binding`",
+				Description:         "If `usage`==`single`, the mac that this PSK ties to, empty if `auto-binding`",
+				MarkdownDescription: "If `usage`==`single`, the mac that this PSK ties to, empty if `auto-binding`",
 				Validators: []validator.String{
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("usage"),
 						types.StringValue("single")),

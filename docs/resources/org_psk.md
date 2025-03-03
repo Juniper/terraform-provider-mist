@@ -50,8 +50,8 @@ resource "mist_org_psk" "psk_one" {
 - `email` (String) email to send psk expiring notifications to
 - `expire_time` (Number) Expire time for this PSK key (epoch time in seconds). Default `null` (as no expiration)
 - `expiry_notification_time` (Number) Number of days before psk is expired. Used as to when to start sending reminder notification when the psk is about to expire
-- `mac` (String) if `usage`==`single`, the mac that this PSK ties to, empty if `auto-binding`
-- `macs` (List of String) if `usage`==`macs`, this list contains N number of client mac addresses or mac patterns(11:22:*) or both. This list is capped at 5000
+- `mac` (String) If `usage`==`single`, the mac that this PSK ties to, empty if `auto-binding`
+- `macs` (List of String) If `usage`==`macs`, this list contains N number of client mac addresses or mac patterns(1122*) or both. This list is capped at 5000
 - `max_usage` (Number) For Org PSK Only. Max concurrent users for this PSK key. Default is 0 (unlimited)
 - `note` (String)
 - `notify_expiry` (Boolean) If set to true, reminder notification will be sent when psk is about to expire
@@ -63,7 +63,7 @@ resource "mist_org_psk" "psk_one" {
 
 ### Read-Only
 
-- `id` (String) Unique ID of the object instance in the Mist Organnization
+- `id` (String) Unique ID of the object instance in the Mist Organization
 
 
 
