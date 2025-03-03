@@ -62,7 +62,7 @@ Note that it is allowed to have more than one radius_vendor_attrs in the result 
 
 ### Read-Only
 
-- `id` (String) Unique ID of the object instance in the Mist Organnization
+- `id` (String) Unique ID of the object instance in the Mist Organization
 
 
 
