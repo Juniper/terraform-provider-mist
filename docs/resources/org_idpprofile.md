@@ -60,7 +60,7 @@ resource "mist_org_idpprofile" "idpprofile_one" {
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
+- `id` (String) Unique ID of the object instance in the Mist Organization
 
 <a id="nestedatt--overwrites"></a>
 ### Nested Schema for `overwrites`
@@ -73,7 +73,7 @@ Optional:
 
 - `action` (String) enum:
   * alert (default)
-  * drop: siliently dropping packets
+  * drop: silently dropping packets
   * close: notify client/server to close connection
 - `matching` (Attributes) (see [below for nested schema](#nestedatt--overwrites--matching))
 
