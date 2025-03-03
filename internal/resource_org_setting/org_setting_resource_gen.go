@@ -89,8 +89,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"url": schema.StringAttribute{
 						Optional:            true,
-						Description:         "If using CS Enteprise",
-						MarkdownDescription: "If using CS Enteprise",
+						Description:         "If using CS Enterprise",
+						MarkdownDescription: "If using CS Enterprise",
 					},
 				},
 				CustomType: CloudsharkType{
@@ -287,6 +287,78 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Computed: true,
 			},
+			"junos_shell_access": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"admin": schema.StringAttribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "enum: `admin`, `viewer`, `none`",
+						MarkdownDescription: "enum: `admin`, `viewer`, `none`",
+						Validators: []validator.String{
+							stringvalidator.OneOf(
+								"",
+								"admin",
+								"none",
+								"viewer",
+							),
+						},
+						Default: stringdefault.StaticString("admin"),
+					},
+					"helpdesk": schema.StringAttribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "enum: `admin`, `viewer`, `none`",
+						MarkdownDescription: "enum: `admin`, `viewer`, `none`",
+						Validators: []validator.String{
+							stringvalidator.OneOf(
+								"",
+								"admin",
+								"none",
+								"viewer",
+							),
+						},
+						Default: stringdefault.StaticString("none"),
+					},
+					"read": schema.StringAttribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "enum: `admin`, `viewer`, `none`",
+						MarkdownDescription: "enum: `admin`, `viewer`, `none`",
+						Validators: []validator.String{
+							stringvalidator.OneOf(
+								"",
+								"admin",
+								"none",
+								"viewer",
+							),
+						},
+						Default: stringdefault.StaticString("none"),
+					},
+					"write": schema.StringAttribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "enum: `admin`, `viewer`, `none`",
+						MarkdownDescription: "enum: `admin`, `viewer`, `none`",
+						Validators: []validator.String{
+							stringvalidator.OneOf(
+								"",
+								"admin",
+								"none",
+								"viewer",
+							),
+						},
+						Default: stringdefault.StaticString("admin"),
+					},
+				},
+				CustomType: JunosShellAccessType{
+					ObjectType: types.ObjectType{
+						AttrTypes: JunosShellAccessValue{}.AttributeTypes(ctx),
+					},
+				},
+				Optional:            true,
+				Description:         "by default, webshell access is only enabled for Admin user",
+				MarkdownDescription: "by default, webshell access is only enabled for Admin user",
+			},
 			"mgmt": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"mxtunnel_ids": schema.ListAttribute{
@@ -360,8 +432,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					"eu_only": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "By default, NAC POD failover considers all NAC pods available around the globe, i.e. EU, US, or APAC based, failover happens based on geo IP of the originating site. For strict GDPR compliancy NAC POD failover would only happen between the PODs located within the EU environment, and no authentication would take place outside of EU. This is an org setting that is applicable to WLANs, switch templates, mxedge clusters that have mist_nac enabled",
-						MarkdownDescription: "By default, NAC POD failover considers all NAC pods available around the globe, i.e. EU, US, or APAC based, failover happens based on geo IP of the originating site. For strict GDPR compliancy NAC POD failover would only happen between the PODs located within the EU environment, and no authentication would take place outside of EU. This is an org setting that is applicable to WLANs, switch templates, mxedge clusters that have mist_nac enabled",
+						Description:         "By default, NAC POD failover considers all NAC pods available around the globe, i.e. EU, US, or APAC based, failover happens based on geo IP of the originating site. For strict GDPR compliance NAC POD failover would only happen between the PODs located within the EU environment, and no authentication would take place outside of EU. This is an org setting that is applicable to WLANs, switch templates, mxedge clusters that have mist_nac enabled",
+						MarkdownDescription: "By default, NAC POD failover considers all NAC pods available around the globe, i.e. EU, US, or APAC based, failover happens based on geo IP of the originating site. For strict GDPR compliance NAC POD failover would only happen between the PODs located within the EU environment, and no authentication would take place outside of EU. This is an org setting that is applicable to WLANs, switch templates, mxedge clusters that have mist_nac enabled",
 						Default:             booldefault.StaticBool(false),
 					},
 					"idp_machine_cert_lookup_field": schema.StringAttribute{
@@ -497,6 +569,11 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"mxedge_mgmt": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
+					"config_auto_revert": schema.BoolAttribute{
+						Optional: true,
+						Computed: true,
+						Default:  booldefault.StaticBool(false),
+					},
 					"fips_enabled": schema.BoolAttribute{
 						Optional: true,
 						Computed: true,
@@ -686,6 +763,13 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "If the field is set in both site/setting and org/setting, the value from site/setting will be used.",
 						Default:             int64default.StaticInt64(12),
 					},
+					"remove_existing_configs": schema.BoolAttribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "If `false`, only the configuration generated by Mist is cleaned up during the configuration process. If `true`, all the existing configuration will be removed.",
+						MarkdownDescription: "If `false`, only the configuration generated by Mist is cleaned up during the configuration process. If `true`, all the existing configuration will be removed.",
+						Default:             booldefault.StaticBool(false),
+					},
 				},
 				CustomType: SwitchMgmtType{
 					ObjectType: types.ObjectType{
@@ -801,8 +885,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					"st_subnet": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "equiring /12 or bigger to support 16 private IPs for 65535 gateways",
-						MarkdownDescription: "equiring /12 or bigger to support 16 private IPs for 65535 gateways",
+						Description:         "requiring /12 or bigger to support 16 private IPs for 65535 gateways",
+						MarkdownDescription: "requiring /12 or bigger to support 16 private IPs for 65535 gateways",
 						Default:             stringdefault.StaticString("10.224.0.0/12"),
 					},
 				},
@@ -863,38 +947,39 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 }
 
 type OrgSettingModel struct {
-	ApUpdownThreshold      types.Int64         `tfsdk:"ap_updown_threshold"`
-	ApiPolicy              ApiPolicyValue      `tfsdk:"api_policy"`
-	Cacerts                types.List          `tfsdk:"cacerts"`
-	Celona                 CelonaValue         `tfsdk:"celona"`
-	Cloudshark             CloudsharkValue     `tfsdk:"cloudshark"`
-	Cradlepoint            CradlepointValue    `tfsdk:"cradlepoint"`
-	DeviceCert             DeviceCertValue     `tfsdk:"device_cert"`
-	DeviceUpdownThreshold  types.Int64         `tfsdk:"device_updown_threshold"`
-	DisablePcap            types.Bool          `tfsdk:"disable_pcap"`
-	DisableRemoteShell     types.Bool          `tfsdk:"disable_remote_shell"`
-	GatewayUpdownThreshold types.Int64         `tfsdk:"gateway_updown_threshold"`
-	Installer              InstallerValue      `tfsdk:"installer"`
-	Jcloud                 JcloudValue         `tfsdk:"jcloud"`
-	JcloudRa               JcloudRaValue       `tfsdk:"jcloud_ra"`
-	Juniper                JuniperValue        `tfsdk:"juniper"`
-	Mgmt                   MgmtValue           `tfsdk:"mgmt"`
-	MistNac                MistNacValue        `tfsdk:"mist_nac"`
-	MxedgeFipsEnabled      types.Bool          `tfsdk:"mxedge_fips_enabled"`
-	MxedgeMgmt             MxedgeMgmtValue     `tfsdk:"mxedge_mgmt"`
-	OpticPortConfig        types.Map           `tfsdk:"optic_port_config"`
-	OrgId                  types.String        `tfsdk:"org_id"`
-	PasswordPolicy         PasswordPolicyValue `tfsdk:"password_policy"`
-	Pcap                   PcapValue           `tfsdk:"pcap"`
-	Security               SecurityValue       `tfsdk:"security"`
-	SwitchMgmt             SwitchMgmtValue     `tfsdk:"switch_mgmt"`
-	SwitchUpdownThreshold  types.Int64         `tfsdk:"switch_updown_threshold"`
-	SyntheticTest          SyntheticTestValue  `tfsdk:"synthetic_test"`
-	UiIdleTimeout          types.Int64         `tfsdk:"ui_idle_timeout"`
-	VpnOptions             VpnOptionsValue     `tfsdk:"vpn_options"`
-	WanPma                 WanPmaValue         `tfsdk:"wan_pma"`
-	WiredPma               WiredPmaValue       `tfsdk:"wired_pma"`
-	WirelessPma            WirelessPmaValue    `tfsdk:"wireless_pma"`
+	ApUpdownThreshold      types.Int64           `tfsdk:"ap_updown_threshold"`
+	ApiPolicy              ApiPolicyValue        `tfsdk:"api_policy"`
+	Cacerts                types.List            `tfsdk:"cacerts"`
+	Celona                 CelonaValue           `tfsdk:"celona"`
+	Cloudshark             CloudsharkValue       `tfsdk:"cloudshark"`
+	Cradlepoint            CradlepointValue      `tfsdk:"cradlepoint"`
+	DeviceCert             DeviceCertValue       `tfsdk:"device_cert"`
+	DeviceUpdownThreshold  types.Int64           `tfsdk:"device_updown_threshold"`
+	DisablePcap            types.Bool            `tfsdk:"disable_pcap"`
+	DisableRemoteShell     types.Bool            `tfsdk:"disable_remote_shell"`
+	GatewayUpdownThreshold types.Int64           `tfsdk:"gateway_updown_threshold"`
+	Installer              InstallerValue        `tfsdk:"installer"`
+	Jcloud                 JcloudValue           `tfsdk:"jcloud"`
+	JcloudRa               JcloudRaValue         `tfsdk:"jcloud_ra"`
+	Juniper                JuniperValue          `tfsdk:"juniper"`
+	JunosShellAccess       JunosShellAccessValue `tfsdk:"junos_shell_access"`
+	Mgmt                   MgmtValue             `tfsdk:"mgmt"`
+	MistNac                MistNacValue          `tfsdk:"mist_nac"`
+	MxedgeFipsEnabled      types.Bool            `tfsdk:"mxedge_fips_enabled"`
+	MxedgeMgmt             MxedgeMgmtValue       `tfsdk:"mxedge_mgmt"`
+	OpticPortConfig        types.Map             `tfsdk:"optic_port_config"`
+	OrgId                  types.String          `tfsdk:"org_id"`
+	PasswordPolicy         PasswordPolicyValue   `tfsdk:"password_policy"`
+	Pcap                   PcapValue             `tfsdk:"pcap"`
+	Security               SecurityValue         `tfsdk:"security"`
+	SwitchMgmt             SwitchMgmtValue       `tfsdk:"switch_mgmt"`
+	SwitchUpdownThreshold  types.Int64           `tfsdk:"switch_updown_threshold"`
+	SyntheticTest          SyntheticTestValue    `tfsdk:"synthetic_test"`
+	UiIdleTimeout          types.Int64           `tfsdk:"ui_idle_timeout"`
+	VpnOptions             VpnOptionsValue       `tfsdk:"vpn_options"`
+	WanPma                 WanPmaValue           `tfsdk:"wan_pma"`
+	WiredPma               WiredPmaValue         `tfsdk:"wired_pma"`
+	WirelessPma            WirelessPmaValue      `tfsdk:"wireless_pma"`
 }
 
 var _ basetypes.ObjectTypable = ApiPolicyType{}
@@ -5018,6 +5103,495 @@ func (v AccountsValue) AttributeTypes(ctx context.Context) map[string]attr.Type 
 	}
 }
 
+var _ basetypes.ObjectTypable = JunosShellAccessType{}
+
+type JunosShellAccessType struct {
+	basetypes.ObjectType
+}
+
+func (t JunosShellAccessType) Equal(o attr.Type) bool {
+	other, ok := o.(JunosShellAccessType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t JunosShellAccessType) String() string {
+	return "JunosShellAccessType"
+}
+
+func (t JunosShellAccessType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	adminAttribute, ok := attributes["admin"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`admin is missing from object`)
+
+		return nil, diags
+	}
+
+	adminVal, ok := adminAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`admin expected to be basetypes.StringValue, was: %T`, adminAttribute))
+	}
+
+	helpdeskAttribute, ok := attributes["helpdesk"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`helpdesk is missing from object`)
+
+		return nil, diags
+	}
+
+	helpdeskVal, ok := helpdeskAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`helpdesk expected to be basetypes.StringValue, was: %T`, helpdeskAttribute))
+	}
+
+	readAttribute, ok := attributes["read"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`read is missing from object`)
+
+		return nil, diags
+	}
+
+	readVal, ok := readAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`read expected to be basetypes.StringValue, was: %T`, readAttribute))
+	}
+
+	writeAttribute, ok := attributes["write"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`write is missing from object`)
+
+		return nil, diags
+	}
+
+	writeVal, ok := writeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`write expected to be basetypes.StringValue, was: %T`, writeAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return JunosShellAccessValue{
+		Admin:    adminVal,
+		Helpdesk: helpdeskVal,
+		Read:     readVal,
+		Write:    writeVal,
+		state:    attr.ValueStateKnown,
+	}, diags
+}
+
+func NewJunosShellAccessValueNull() JunosShellAccessValue {
+	return JunosShellAccessValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewJunosShellAccessValueUnknown() JunosShellAccessValue {
+	return JunosShellAccessValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewJunosShellAccessValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (JunosShellAccessValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing JunosShellAccessValue Attribute Value",
+				"While creating a JunosShellAccessValue value, a missing attribute value was detected. "+
+					"A JunosShellAccessValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("JunosShellAccessValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid JunosShellAccessValue Attribute Type",
+				"While creating a JunosShellAccessValue value, an invalid attribute value was detected. "+
+					"A JunosShellAccessValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("JunosShellAccessValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("JunosShellAccessValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra JunosShellAccessValue Attribute Value",
+				"While creating a JunosShellAccessValue value, an extra attribute value was detected. "+
+					"A JunosShellAccessValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra JunosShellAccessValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewJunosShellAccessValueUnknown(), diags
+	}
+
+	adminAttribute, ok := attributes["admin"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`admin is missing from object`)
+
+		return NewJunosShellAccessValueUnknown(), diags
+	}
+
+	adminVal, ok := adminAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`admin expected to be basetypes.StringValue, was: %T`, adminAttribute))
+	}
+
+	helpdeskAttribute, ok := attributes["helpdesk"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`helpdesk is missing from object`)
+
+		return NewJunosShellAccessValueUnknown(), diags
+	}
+
+	helpdeskVal, ok := helpdeskAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`helpdesk expected to be basetypes.StringValue, was: %T`, helpdeskAttribute))
+	}
+
+	readAttribute, ok := attributes["read"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`read is missing from object`)
+
+		return NewJunosShellAccessValueUnknown(), diags
+	}
+
+	readVal, ok := readAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`read expected to be basetypes.StringValue, was: %T`, readAttribute))
+	}
+
+	writeAttribute, ok := attributes["write"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`write is missing from object`)
+
+		return NewJunosShellAccessValueUnknown(), diags
+	}
+
+	writeVal, ok := writeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`write expected to be basetypes.StringValue, was: %T`, writeAttribute))
+	}
+
+	if diags.HasError() {
+		return NewJunosShellAccessValueUnknown(), diags
+	}
+
+	return JunosShellAccessValue{
+		Admin:    adminVal,
+		Helpdesk: helpdeskVal,
+		Read:     readVal,
+		Write:    writeVal,
+		state:    attr.ValueStateKnown,
+	}, diags
+}
+
+func NewJunosShellAccessValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) JunosShellAccessValue {
+	object, diags := NewJunosShellAccessValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewJunosShellAccessValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t JunosShellAccessType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewJunosShellAccessValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewJunosShellAccessValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewJunosShellAccessValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewJunosShellAccessValueMust(JunosShellAccessValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t JunosShellAccessType) ValueType(ctx context.Context) attr.Value {
+	return JunosShellAccessValue{}
+}
+
+var _ basetypes.ObjectValuable = JunosShellAccessValue{}
+
+type JunosShellAccessValue struct {
+	Admin    basetypes.StringValue `tfsdk:"admin"`
+	Helpdesk basetypes.StringValue `tfsdk:"helpdesk"`
+	Read     basetypes.StringValue `tfsdk:"read"`
+	Write    basetypes.StringValue `tfsdk:"write"`
+	state    attr.ValueState
+}
+
+func (v JunosShellAccessValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 4)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["admin"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["helpdesk"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["read"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["write"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 4)
+
+		val, err = v.Admin.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["admin"] = val
+
+		val, err = v.Helpdesk.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["helpdesk"] = val
+
+		val, err = v.Read.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["read"] = val
+
+		val, err = v.Write.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["write"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v JunosShellAccessValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v JunosShellAccessValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v JunosShellAccessValue) String() string {
+	return "JunosShellAccessValue"
+}
+
+func (v JunosShellAccessValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"admin":    basetypes.StringType{},
+		"helpdesk": basetypes.StringType{},
+		"read":     basetypes.StringType{},
+		"write":    basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"admin":    v.Admin,
+			"helpdesk": v.Helpdesk,
+			"read":     v.Read,
+			"write":    v.Write,
+		})
+
+	return objVal, diags
+}
+
+func (v JunosShellAccessValue) Equal(o attr.Value) bool {
+	other, ok := o.(JunosShellAccessValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Admin.Equal(other.Admin) {
+		return false
+	}
+
+	if !v.Helpdesk.Equal(other.Helpdesk) {
+		return false
+	}
+
+	if !v.Read.Equal(other.Read) {
+		return false
+	}
+
+	if !v.Write.Equal(other.Write) {
+		return false
+	}
+
+	return true
+}
+
+func (v JunosShellAccessValue) Type(ctx context.Context) attr.Type {
+	return JunosShellAccessType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v JunosShellAccessValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"admin":    basetypes.StringType{},
+		"helpdesk": basetypes.StringType{},
+		"read":     basetypes.StringType{},
+		"write":    basetypes.StringType{},
+	}
+}
+
 var _ basetypes.ObjectTypable = MgmtType{}
 
 type MgmtType struct {
@@ -7377,6 +7951,24 @@ func (t MxedgeMgmtType) ValueFromObject(ctx context.Context, in basetypes.Object
 
 	attributes := in.Attributes()
 
+	configAutoRevertAttribute, ok := attributes["config_auto_revert"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`config_auto_revert is missing from object`)
+
+		return nil, diags
+	}
+
+	configAutoRevertVal, ok := configAutoRevertAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`config_auto_revert expected to be basetypes.BoolValue, was: %T`, configAutoRevertAttribute))
+	}
+
 	fipsEnabledAttribute, ok := attributes["fips_enabled"]
 
 	if !ok {
@@ -7472,12 +8064,13 @@ func (t MxedgeMgmtType) ValueFromObject(ctx context.Context, in basetypes.Object
 	}
 
 	return MxedgeMgmtValue{
-		FipsEnabled:  fipsEnabledVal,
-		MistPassword: mistPasswordVal,
-		OobIpType:    oobIpTypeVal,
-		OobIpType6:   oobIpType6Val,
-		RootPassword: rootPasswordVal,
-		state:        attr.ValueStateKnown,
+		ConfigAutoRevert: configAutoRevertVal,
+		FipsEnabled:      fipsEnabledVal,
+		MistPassword:     mistPasswordVal,
+		OobIpType:        oobIpTypeVal,
+		OobIpType6:       oobIpType6Val,
+		RootPassword:     rootPasswordVal,
+		state:            attr.ValueStateKnown,
 	}, diags
 }
 
@@ -7544,6 +8137,24 @@ func NewMxedgeMgmtValue(attributeTypes map[string]attr.Type, attributes map[stri
 		return NewMxedgeMgmtValueUnknown(), diags
 	}
 
+	configAutoRevertAttribute, ok := attributes["config_auto_revert"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`config_auto_revert is missing from object`)
+
+		return NewMxedgeMgmtValueUnknown(), diags
+	}
+
+	configAutoRevertVal, ok := configAutoRevertAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`config_auto_revert expected to be basetypes.BoolValue, was: %T`, configAutoRevertAttribute))
+	}
+
 	fipsEnabledAttribute, ok := attributes["fips_enabled"]
 
 	if !ok {
@@ -7639,12 +8250,13 @@ func NewMxedgeMgmtValue(attributeTypes map[string]attr.Type, attributes map[stri
 	}
 
 	return MxedgeMgmtValue{
-		FipsEnabled:  fipsEnabledVal,
-		MistPassword: mistPasswordVal,
-		OobIpType:    oobIpTypeVal,
-		OobIpType6:   oobIpType6Val,
-		RootPassword: rootPasswordVal,
-		state:        attr.ValueStateKnown,
+		ConfigAutoRevert: configAutoRevertVal,
+		FipsEnabled:      fipsEnabledVal,
+		MistPassword:     mistPasswordVal,
+		OobIpType:        oobIpTypeVal,
+		OobIpType6:       oobIpType6Val,
+		RootPassword:     rootPasswordVal,
+		state:            attr.ValueStateKnown,
 	}, diags
 }
 
@@ -7716,20 +8328,22 @@ func (t MxedgeMgmtType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = MxedgeMgmtValue{}
 
 type MxedgeMgmtValue struct {
-	FipsEnabled  basetypes.BoolValue   `tfsdk:"fips_enabled"`
-	MistPassword basetypes.StringValue `tfsdk:"mist_password"`
-	OobIpType    basetypes.StringValue `tfsdk:"oob_ip_type"`
-	OobIpType6   basetypes.StringValue `tfsdk:"oob_ip_type6"`
-	RootPassword basetypes.StringValue `tfsdk:"root_password"`
-	state        attr.ValueState
+	ConfigAutoRevert basetypes.BoolValue   `tfsdk:"config_auto_revert"`
+	FipsEnabled      basetypes.BoolValue   `tfsdk:"fips_enabled"`
+	MistPassword     basetypes.StringValue `tfsdk:"mist_password"`
+	OobIpType        basetypes.StringValue `tfsdk:"oob_ip_type"`
+	OobIpType6       basetypes.StringValue `tfsdk:"oob_ip_type6"`
+	RootPassword     basetypes.StringValue `tfsdk:"root_password"`
+	state            attr.ValueState
 }
 
 func (v MxedgeMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 5)
+	attrTypes := make(map[string]tftypes.Type, 6)
 
 	var val tftypes.Value
 	var err error
 
+	attrTypes["config_auto_revert"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["fips_enabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["mist_password"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["oob_ip_type"] = basetypes.StringType{}.TerraformType(ctx)
@@ -7740,7 +8354,15 @@ func (v MxedgeMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 5)
+		vals := make(map[string]tftypes.Value, 6)
+
+		val, err = v.ConfigAutoRevert.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["config_auto_revert"] = val
 
 		val, err = v.FipsEnabled.ToTerraformValue(ctx)
 
@@ -7812,11 +8434,12 @@ func (v MxedgeMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 	var diags diag.Diagnostics
 
 	attributeTypes := map[string]attr.Type{
-		"fips_enabled":  basetypes.BoolType{},
-		"mist_password": basetypes.StringType{},
-		"oob_ip_type":   basetypes.StringType{},
-		"oob_ip_type6":  basetypes.StringType{},
-		"root_password": basetypes.StringType{},
+		"config_auto_revert": basetypes.BoolType{},
+		"fips_enabled":       basetypes.BoolType{},
+		"mist_password":      basetypes.StringType{},
+		"oob_ip_type":        basetypes.StringType{},
+		"oob_ip_type6":       basetypes.StringType{},
+		"root_password":      basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -7830,11 +8453,12 @@ func (v MxedgeMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"fips_enabled":  v.FipsEnabled,
-			"mist_password": v.MistPassword,
-			"oob_ip_type":   v.OobIpType,
-			"oob_ip_type6":  v.OobIpType6,
-			"root_password": v.RootPassword,
+			"config_auto_revert": v.ConfigAutoRevert,
+			"fips_enabled":       v.FipsEnabled,
+			"mist_password":      v.MistPassword,
+			"oob_ip_type":        v.OobIpType,
+			"oob_ip_type6":       v.OobIpType6,
+			"root_password":      v.RootPassword,
 		})
 
 	return objVal, diags
@@ -7853,6 +8477,10 @@ func (v MxedgeMgmtValue) Equal(o attr.Value) bool {
 
 	if v.state != attr.ValueStateKnown {
 		return true
+	}
+
+	if !v.ConfigAutoRevert.Equal(other.ConfigAutoRevert) {
+		return false
 	}
 
 	if !v.FipsEnabled.Equal(other.FipsEnabled) {
@@ -7888,11 +8516,12 @@ func (v MxedgeMgmtValue) Type(ctx context.Context) attr.Type {
 
 func (v MxedgeMgmtValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"fips_enabled":  basetypes.BoolType{},
-		"mist_password": basetypes.StringType{},
-		"oob_ip_type":   basetypes.StringType{},
-		"oob_ip_type6":  basetypes.StringType{},
-		"root_password": basetypes.StringType{},
+		"config_auto_revert": basetypes.BoolType{},
+		"fips_enabled":       basetypes.BoolType{},
+		"mist_password":      basetypes.StringType{},
+		"oob_ip_type":        basetypes.StringType{},
+		"oob_ip_type6":       basetypes.StringType{},
+		"root_password":      basetypes.StringType{},
 	}
 }
 
@@ -9675,13 +10304,32 @@ func (t SwitchMgmtType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`ap_affinity_threshold expected to be basetypes.Int64Value, was: %T`, apAffinityThresholdAttribute))
 	}
 
+	removeExistingConfigsAttribute, ok := attributes["remove_existing_configs"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`remove_existing_configs is missing from object`)
+
+		return nil, diags
+	}
+
+	removeExistingConfigsVal, ok := removeExistingConfigsAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`remove_existing_configs expected to be basetypes.BoolValue, was: %T`, removeExistingConfigsAttribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
 
 	return SwitchMgmtValue{
-		ApAffinityThreshold: apAffinityThresholdVal,
-		state:               attr.ValueStateKnown,
+		ApAffinityThreshold:   apAffinityThresholdVal,
+		RemoveExistingConfigs: removeExistingConfigsVal,
+		state:                 attr.ValueStateKnown,
 	}, diags
 }
 
@@ -9766,13 +10414,32 @@ func NewSwitchMgmtValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`ap_affinity_threshold expected to be basetypes.Int64Value, was: %T`, apAffinityThresholdAttribute))
 	}
 
+	removeExistingConfigsAttribute, ok := attributes["remove_existing_configs"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`remove_existing_configs is missing from object`)
+
+		return NewSwitchMgmtValueUnknown(), diags
+	}
+
+	removeExistingConfigsVal, ok := removeExistingConfigsAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`remove_existing_configs expected to be basetypes.BoolValue, was: %T`, removeExistingConfigsAttribute))
+	}
+
 	if diags.HasError() {
 		return NewSwitchMgmtValueUnknown(), diags
 	}
 
 	return SwitchMgmtValue{
-		ApAffinityThreshold: apAffinityThresholdVal,
-		state:               attr.ValueStateKnown,
+		ApAffinityThreshold:   apAffinityThresholdVal,
+		RemoveExistingConfigs: removeExistingConfigsVal,
+		state:                 attr.ValueStateKnown,
 	}, diags
 }
 
@@ -9844,23 +10511,25 @@ func (t SwitchMgmtType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = SwitchMgmtValue{}
 
 type SwitchMgmtValue struct {
-	ApAffinityThreshold basetypes.Int64Value `tfsdk:"ap_affinity_threshold"`
-	state               attr.ValueState
+	ApAffinityThreshold   basetypes.Int64Value `tfsdk:"ap_affinity_threshold"`
+	RemoveExistingConfigs basetypes.BoolValue  `tfsdk:"remove_existing_configs"`
+	state                 attr.ValueState
 }
 
 func (v SwitchMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 1)
+	attrTypes := make(map[string]tftypes.Type, 2)
 
 	var val tftypes.Value
 	var err error
 
 	attrTypes["ap_affinity_threshold"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["remove_existing_configs"] = basetypes.BoolType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 1)
+		vals := make(map[string]tftypes.Value, 2)
 
 		val, err = v.ApAffinityThreshold.ToTerraformValue(ctx)
 
@@ -9869,6 +10538,14 @@ func (v SwitchMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 		}
 
 		vals["ap_affinity_threshold"] = val
+
+		val, err = v.RemoveExistingConfigs.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["remove_existing_configs"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -9900,7 +10577,8 @@ func (v SwitchMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 	var diags diag.Diagnostics
 
 	attributeTypes := map[string]attr.Type{
-		"ap_affinity_threshold": basetypes.Int64Type{},
+		"ap_affinity_threshold":   basetypes.Int64Type{},
+		"remove_existing_configs": basetypes.BoolType{},
 	}
 
 	if v.IsNull() {
@@ -9914,7 +10592,8 @@ func (v SwitchMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"ap_affinity_threshold": v.ApAffinityThreshold,
+			"ap_affinity_threshold":   v.ApAffinityThreshold,
+			"remove_existing_configs": v.RemoveExistingConfigs,
 		})
 
 	return objVal, diags
@@ -9939,6 +10618,10 @@ func (v SwitchMgmtValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.RemoveExistingConfigs.Equal(other.RemoveExistingConfigs) {
+		return false
+	}
+
 	return true
 }
 
@@ -9952,7 +10635,8 @@ func (v SwitchMgmtValue) Type(ctx context.Context) attr.Type {
 
 func (v SwitchMgmtValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"ap_affinity_threshold": basetypes.Int64Type{},
+		"ap_affinity_threshold":   basetypes.Int64Type{},
+		"remove_existing_configs": basetypes.BoolType{},
 	}
 }
 
