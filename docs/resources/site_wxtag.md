@@ -52,11 +52,11 @@ resource "mist_site_wxtag" "wtag_one" {
 
 ### Optional
 
-- `mac` (String) if `type`==`client`, Client MAC Address
+- `mac` (String) If `type`==`client`, Client MAC Address
 - `match` (String) required if `type`==`match`. enum: `ap_id`, `app`, `asset_mac`, `client_mac`, `hostname`, `ip_range_subnet`, `port`, `psk_name`, `psk_role`, `radius_attr`, `radius_class`, `radius_group`, `radius_username`, `sdkclient_uuid`, `wlan_id`
 - `op` (String) required if `type`==`match`, type of tag (inclusive/exclusive). enum: `in`, `not_in`
-- `specs` (Attributes List) if `type`==`spec` (see [below for nested schema](#nestedatt--specs))
-- `values` (List of String) required if `type`==`match` and
+- `specs` (Attributes List) If `type`==`spec` (see [below for nested schema](#nestedatt--specs))
+- `values` (List of String) Required if `type`==`match` and
   * `match`==`ap_id`: list of AP IDs
   * `match`==`app`: list of Application Names
   * `match`==`asset_mac`: list of Asset MAC Addresses
@@ -66,7 +66,7 @@ resource "mist_site_wxtag" "wtag_one" {
   * `match`==`psk_name`: list of PSK Names
   * `match`==`psk_role`: list of PSK Roles
   * `match`==`port`: list of Ports or Port Ranges
-  * `match`==`radius_attr`: list of RADIUS Attributes. The values are [ “6=1”, “26=10.2.3.4” ], this support other RADIUS attributes where we know the type
+  * `match`==`radius_attr`: list of RADIUS Attributes. The values are [ "6=1", "26=10.2.3.4" ], this support other RADIUS attributes where we know the type
   * `match`==`radius_class`: list of RADIUS Classes. This matches the ATTR-Class(25)
   * `match`==`radius_group`: list of RADIUS Groups. This is a smart tag that matches RADIUS-Filter-ID, Airespace-ACL-Name (VendorID=14179, VendorType=6) / Aruba-User-Role (VendorID=14823, VendorType=1)
   * `match`==`radius_username`: list of RADIUS Usernames. This matches the ATTR-User-Name(1)
@@ -79,18 +79,18 @@ Variables are not allowed
 
 ### Read-Only
 
-- `id` (String) Unique ID of the object instance in the Mist Organnization
+- `id` (String) Unique ID of the object instance in the Mist Organization
 
 <a id="nestedatt--specs"></a>
 ### Nested Schema for `specs`
 
 Required:
 
-- `subnets` (List of String) matched destination subnets and/or IP Addresses
+- `subnets` (List of String) Matched destination subnets and/or IP Addresses
 
 Optional:
 
-- `port_range` (String) matched destination port, "0" means any
+- `port_range` (String) Matched destination port, "0" means any
 - `protocol` (String) tcp / udp / icmp / gre / any / ":protocol_number", `protocol_number` is between 1-254
 
 
