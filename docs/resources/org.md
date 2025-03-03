@@ -37,10 +37,10 @@ resource "mist_org" "org_one" {
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
+- `id` (String) Unique ID of the object instance in the Mist Organization
 - `msp_id` (String)
 - `msp_logo_url` (String) logo uploaded by the MSP with advanced tier, only present if provided
-- `msp_name` (String) name of the msp the org belongs to
+- `msp_name` (String) Name of the msp the org belongs to
 - `orggroup_ids` (List of String)
 
 

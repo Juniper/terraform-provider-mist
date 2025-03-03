@@ -7,8 +7,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
@@ -27,10 +25,9 @@ func OrgResourceSchema(ctx context.Context) schema.Schema {
 				Default:  booldefault.StaticBool(true),
 			},
 			"id": schema.StringAttribute{
-				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
+				Computed:            true,
+				Description:         "Unique ID of the object instance in the Mist Organization",
+				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
 			},
 			"msp_id": schema.StringAttribute{
 				Computed: true,
@@ -42,8 +39,8 @@ func OrgResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"msp_name": schema.StringAttribute{
 				Computed:            true,
-				Description:         "name of the msp the org belongs to",
-				MarkdownDescription: "name of the msp the org belongs to",
+				Description:         "Name of the msp the org belongs to",
+				MarkdownDescription: "Name of the msp the org belongs to",
 			},
 			"name": schema.StringAttribute{
 				Required: true,
