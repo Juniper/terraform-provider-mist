@@ -791,6 +791,9 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "List of bands that the mesh should apply to. For relay, the first viable one will be picked. For relay, the first viable one will be picked. enum: `24`, `5`, `6`",
 						MarkdownDescription: "List of bands that the mesh should apply to. For relay, the first viable one will be picked. For relay, the first viable one will be picked. enum: `24`, `5`, `6`",
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"enabled": schema.BoolAttribute{
 						Optional:            true,

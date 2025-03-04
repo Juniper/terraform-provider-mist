@@ -1,6 +1,7 @@
 package mist_transform
 
 import (
+	"github.com/tmunzer/mistapi-go/mistapi/models"
 	"math/big"
 	"strings"
 
@@ -10,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
+// /////// STRING
 func ListOfStringTerraformToSdk(list basetypes.ListValue) []string {
 	var items []string
 	for _, item := range list.Elements() {
@@ -37,16 +39,7 @@ func ListOfStringSdkToTerraformEmpty() basetypes.ListValue {
 	return list
 }
 
-func ListOfIntTerraformToSdk(list basetypes.ListValue) []int {
-	var items []int
-	for _, item := range list.Elements() {
-		var itemInterface interface{} = item
-		i := itemInterface.(basetypes.Int64Value)
-		items = append(items, int(i.ValueInt64()))
-	}
-	return items
-}
-
+// ///////
 func ListOfFloat64SdkToTerraform(data []float64) basetypes.ListValue {
 	var items []attr.Value
 	var itemsType attr.Type = basetypes.Float64Type{}
@@ -67,6 +60,17 @@ func ListOfNumberSdkToTerraform(data []float64) basetypes.ListValue {
 	return list
 }
 
+// /////// INT
+func ListOfIntTerraformToSdk(list basetypes.ListValue) []int {
+	var items []int
+	for _, item := range list.Elements() {
+		var itemInterface interface{} = item
+		i := itemInterface.(basetypes.Int64Value)
+		items = append(items, int(i.ValueInt64()))
+	}
+	return items
+}
+
 func ListOfIntSdkToTerraform(data []int) basetypes.ListValue {
 	var items []attr.Value
 	var itemsType attr.Type = basetypes.Int64Type{}
@@ -84,6 +88,7 @@ func ListOfIntSdkToTerraformEmpty() basetypes.ListValue {
 	return list
 }
 
+// /////// UUID
 func ListOfUuidTerraformToSdk(list basetypes.ListValue) []uuid.UUID {
 	var items []uuid.UUID
 	for _, item := range list.Elements() {
@@ -102,6 +107,34 @@ func ListOfUuidSdkToTerraform(data []uuid.UUID) basetypes.ListValue {
 	return list
 }
 func ListOfUuidSdkToTerraformEmpty() basetypes.ListValue {
+	var items []attr.Value
+	var itemsType attr.Type = basetypes.StringType{}
+	list, _ := types.ListValue(itemsType, items)
+	return list
+}
+
+// /////// DOT11
+func ListODot11TerraformToSdk(list basetypes.ListValue) []models.Dot11BandEnum {
+	var items []models.Dot11BandEnum
+	for _, item := range list.Elements() {
+		var sInterface interface{} = item
+		s := sInterface.(basetypes.StringValue)
+		items = append(items, (models.Dot11BandEnum)(s.ValueString()))
+	}
+	return items
+}
+
+func ListOfDot11SdkToTerraform(data []models.Dot11BandEnum) basetypes.ListValue {
+	var items []attr.Value
+	var itemsType attr.Type = basetypes.StringType{}
+	for _, item := range data {
+		items = append(items, types.StringValue(string(item)))
+	}
+	list, _ := types.ListValue(itemsType, items)
+	return list
+}
+
+func ListOfDot11SdkToTerraformEmpty() basetypes.ListValue {
 	var items []attr.Value
 	var itemsType attr.Type = basetypes.StringType{}
 	list, _ := types.ListValue(itemsType, items)

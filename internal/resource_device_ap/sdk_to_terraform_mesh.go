@@ -2,6 +2,7 @@ package resource_device_ap
 
 import (
 	"context"
+	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -14,11 +15,15 @@ import (
 func meshSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ApMesh) MeshValue {
 
 	var enabled basetypes.BoolValue
+	bands := types.ListNull(types.StringType)
 	var group basetypes.Int64Value
 	var role basetypes.StringValue
 
 	if d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
+	}
+	if d.Bands != nil {
+		bands = misttransform.ListOfDot11SdkToTerraform(d.Bands)
 	}
 	if d.Group.Value() != nil {
 		group = types.Int64Value(int64(*d.Group.Value()))
@@ -29,6 +34,7 @@ func meshSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 
 	dataMapValue := map[string]attr.Value{
 		"enabled": enabled,
+		"bands":   bands,
 		"group":   group,
 		"role":    role,
 	}

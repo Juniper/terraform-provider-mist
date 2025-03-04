@@ -1,4 +1,4 @@
-package resource_device_ap
+package resource_org_deviceprofile_ap
 
 import (
 	"context"
@@ -13,7 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func bleConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.BleConfig) BleConfigValue {
+func bleConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.BleConfig) BleConfigValue {
 
 	var beaconEnabled basetypes.BoolValue
 	var beaconRate basetypes.Int64Value

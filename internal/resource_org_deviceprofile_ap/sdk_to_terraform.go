@@ -23,6 +23,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileAp) (OrgDevic
 	var disableModule types.Bool
 	var eslConfig = NewEslConfigValueNull()
 	var ipConfig = NewIpConfigValueNull()
+	var lacpConfig = NewLacpConfigValueNull()
 	var led = NewLedValueNull()
 	var mesh = NewMeshValueNull()
 	var name types.String
@@ -43,7 +44,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileAp) (OrgDevic
 		aeroscout = aeroscoutSdkToTerraform(ctx, &diags, data.Aeroscout)
 	}
 	if data.BleConfig != nil {
-		bleConfig = bleConfigsSdkToTerraform(ctx, &diags, data.BleConfig)
+		bleConfig = bleConfigSdkToTerraform(ctx, &diags, data.BleConfig)
 	}
 	if data.DisableEth1 != nil {
 		disableEth1 = types.BoolValue(*data.DisableEth1)
@@ -65,6 +66,9 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileAp) (OrgDevic
 	}
 	if data.IpConfig != nil {
 		ipConfig = ipConfigSdkToTerraform(ctx, &diags, data.IpConfig)
+	}
+	if data.LacpConfig != nil {
+		lacpConfig = lacpConfigSdkToTerraform(ctx, &diags, data.LacpConfig)
 	}
 	if data.Led != nil {
 		led = ledSdkToTerraform(ctx, &diags, data.Led)
@@ -114,6 +118,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileAp) (OrgDevic
 	state.EslConfig = eslConfig
 	state.Id = profileId
 	state.IpConfig = ipConfig
+	state.LacpConfig = lacpConfig
 	state.Led = led
 	state.Mesh = mesh
 	state.Name = name
