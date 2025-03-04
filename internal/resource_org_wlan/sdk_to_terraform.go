@@ -50,6 +50,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	var clientLimitUpEnabled types.Bool
 	var coaServers = types.ListValueMust(CoaServersValue{}.Type(ctx), []attr.Value{})
 	var disable11ax types.Bool
+	var disable11be types.Bool
 	var disableHtVhtRates types.Bool
 	var disableUapsd types.Bool
 	var disableV1RoamNotify types.Bool
@@ -243,6 +244,10 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 
 	if data.Disable11ax != nil {
 		disable11ax = types.BoolValue(*data.Disable11ax)
+	}
+
+	if data.Disable11be != nil {
+		disable11be = types.BoolValue(*data.Disable11be)
 	}
 
 	if data.DisableHtVhtRates != nil {
@@ -541,6 +546,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	state.ClientLimitUpEnabled = clientLimitUpEnabled
 	state.CoaServers = coaServers
 	state.Disable11ax = disable11ax
+	state.Disable11be = disable11be
 	state.DisableHtVhtRates = disableHtVhtRates
 	state.DisableUapsd = disableUapsd
 	state.DisableV1RoamNotify = disableV1RoamNotify

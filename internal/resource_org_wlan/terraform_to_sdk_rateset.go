@@ -10,6 +10,12 @@ func bandRatesetTerraformToSdk(d RatesetValue) models.WlanDatarates {
 	data := models.WlanDatarates{}
 	if !d.IsNull() && !d.IsUnknown() {
 
+		if d.Eht.ValueStringPointer() != nil {
+			data.Eht = models.NewOptional(d.Eht.ValueStringPointer())
+		}
+		if d.He.ValueStringPointer() != nil {
+			data.He = models.NewOptional(d.He.ValueStringPointer())
+		}
 		if d.Ht.ValueStringPointer() != nil {
 			data.Ht = models.NewOptional(d.Ht.ValueStringPointer())
 		}
