@@ -30,6 +30,7 @@ func SdkToTerraform(ctx context.Context, d *models.Webhook) (SiteWebhookModel, d
 	var oauth2Username types.String
 	var orgId types.String
 	var secret types.String
+	var singleEventPerMessage types.Bool
 	var siteId types.String
 	var splunkToken types.String
 	var topics types.List
@@ -82,6 +83,9 @@ func SdkToTerraform(ctx context.Context, d *models.Webhook) (SiteWebhookModel, d
 	if d.Secret.Value() != nil {
 		secret = types.StringValue(*d.Secret.Value())
 	}
+	if d.SingleEventPerMessage != nil {
+		singleEventPerMessage = types.BoolValue(*d.SingleEventPerMessage)
+	}
 	if d.SiteId != nil {
 		siteId = types.StringValue(d.SiteId.String())
 	}
@@ -120,6 +124,7 @@ func SdkToTerraform(ctx context.Context, d *models.Webhook) (SiteWebhookModel, d
 	state.Oauth2Username = oauth2Username
 	state.OrgId = orgId
 	state.Secret = secret
+	state.SingleEventPerMessage = singleEventPerMessage
 	state.SiteId = siteId
 	state.SplunkToken = splunkToken
 	state.OrgId = orgId

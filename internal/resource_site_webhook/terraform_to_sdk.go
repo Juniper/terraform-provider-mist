@@ -84,6 +84,12 @@ func TerraformToSdk(plan *SiteWebhookModel) (models.Webhook, diag.Diagnostics) {
 		unset["-secret"] = ""
 	}
 
+	if !plan.SingleEventPerMessage.IsNull() && !plan.SingleEventPerMessage.IsUnknown() {
+		data.SingleEventPerMessage = plan.SingleEventPerMessage.ValueBoolPointer()
+	} else {
+		unset["-single_event_per_message"] = ""
+	}
+
 	if !plan.SplunkToken.IsNull() && !plan.SplunkToken.IsUnknown() {
 		data.SplunkToken = models.NewOptional(models.ToPointer(plan.SplunkToken.ValueString()))
 	} else {

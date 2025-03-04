@@ -38,8 +38,8 @@ func OrgWebhookResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Unique ID of the object instance in the Mist Organnization",
-				MarkdownDescription: "Unique ID of the object instance in the Mist Organnization",
+				Description:         "Unique ID of the object instance in the Mist Organization",
+				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
 			},
 			"name": schema.StringAttribute{
 				Required:            true,
@@ -118,6 +118,13 @@ func OrgWebhookResourceSchema(ctx context.Context) schema.Schema {
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("http-post")),
 				},
 			},
+			"single_event_per_message": schema.BoolAttribute{
+				Optional:            true,
+				Computed:            true,
+				Description:         "Some solutions may not be able to parse multiple events from a single message (e.g. IBM Qradar, DSM). When set to `true`, only a single event will be sent per message. this feature is only available on certain topics (see [List Webhook Topics]($e/Constants%20Definitions/listWebhookTopics))",
+				MarkdownDescription: "Some solutions may not be able to parse multiple events from a single message (e.g. IBM Qradar, DSM). When set to `true`, only a single event will be sent per message. this feature is only available on certain topics (see [List Webhook Topics]($e/Constants%20Definitions/listWebhookTopics))",
+				Default:             booldefault.StaticBool(false),
+			},
 			"splunk_token": schema.StringAttribute{
 				Optional:            true,
 				Sensitive:           true,
@@ -182,22 +189,23 @@ func OrgWebhookResourceSchema(ctx context.Context) schema.Schema {
 }
 
 type OrgWebhookModel struct {
-	Enabled            types.Bool   `tfsdk:"enabled"`
-	Headers            types.Map    `tfsdk:"headers"`
-	Id                 types.String `tfsdk:"id"`
-	Name               types.String `tfsdk:"name"`
-	Oauth2ClientId     types.String `tfsdk:"oauth2_client_id"`
-	Oauth2ClientSecret types.String `tfsdk:"oauth2_client_secret"`
-	Oauth2GrantType    types.String `tfsdk:"oauth2_grant_type"`
-	Oauth2Password     types.String `tfsdk:"oauth2_password"`
-	Oauth2Scopes       types.List   `tfsdk:"oauth2_scopes"`
-	Oauth2TokenUrl     types.String `tfsdk:"oauth2_token_url"`
-	Oauth2Username     types.String `tfsdk:"oauth2_username"`
-	OrgId              types.String `tfsdk:"org_id"`
-	Secret             types.String `tfsdk:"secret"`
-	SplunkToken        types.String `tfsdk:"splunk_token"`
-	Topics             types.List   `tfsdk:"topics"`
-	Type               types.String `tfsdk:"type"`
-	Url                types.String `tfsdk:"url"`
-	VerifyCert         types.Bool   `tfsdk:"verify_cert"`
+	Enabled               types.Bool   `tfsdk:"enabled"`
+	Headers               types.Map    `tfsdk:"headers"`
+	Id                    types.String `tfsdk:"id"`
+	Name                  types.String `tfsdk:"name"`
+	Oauth2ClientId        types.String `tfsdk:"oauth2_client_id"`
+	Oauth2ClientSecret    types.String `tfsdk:"oauth2_client_secret"`
+	Oauth2GrantType       types.String `tfsdk:"oauth2_grant_type"`
+	Oauth2Password        types.String `tfsdk:"oauth2_password"`
+	Oauth2Scopes          types.List   `tfsdk:"oauth2_scopes"`
+	Oauth2TokenUrl        types.String `tfsdk:"oauth2_token_url"`
+	Oauth2Username        types.String `tfsdk:"oauth2_username"`
+	OrgId                 types.String `tfsdk:"org_id"`
+	Secret                types.String `tfsdk:"secret"`
+	SingleEventPerMessage types.Bool   `tfsdk:"single_event_per_message"`
+	SplunkToken           types.String `tfsdk:"splunk_token"`
+	Topics                types.List   `tfsdk:"topics"`
+	Type                  types.String `tfsdk:"type"`
+	Url                   types.String `tfsdk:"url"`
+	VerifyCert            types.Bool   `tfsdk:"verify_cert"`
 }
