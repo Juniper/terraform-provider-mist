@@ -31,6 +31,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceAp) (DeviceApModel, 
 	var image2Url = types.StringValue("not_present")
 	var image3Url = types.StringValue("not_present")
 	var ipConfig = NewIpConfigValueNull()
+	var lacpConfig = NewLacpConfigValueNull()
 	var led = NewLedValueNull()
 	var locked types.Bool
 	var mapId types.String
@@ -59,7 +60,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceAp) (DeviceApModel, 
 		aeroscout = aeroscoutSdkToTerraform(ctx, &diags, data.Aeroscout)
 	}
 	if data.BleConfig != nil {
-		bleConfig = bleConfigsSdkToTerraform(ctx, &diags, data.BleConfig)
+		bleConfig = bleConfigSdkToTerraform(ctx, &diags, data.BleConfig)
 	}
 	if data.Centrak != nil {
 		centrak = centrakSdkToTerraform(ctx, &diags, data.Centrak)
@@ -102,6 +103,9 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceAp) (DeviceApModel, 
 	}
 	if data.IpConfig != nil {
 		ipConfig = ipConfigSdkToTerraform(ctx, &diags, data.IpConfig)
+	}
+	if data.LacpConfig != nil {
+		lacpConfig = lacpConfigSdkToTerraform(ctx, &diags, data.LacpConfig)
 	}
 	if data.Led != nil {
 		led = ledSdkToTerraform(ctx, &diags, data.Led)
@@ -187,6 +191,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceAp) (DeviceApModel, 
 	state.Image2Url = image2Url
 	state.Image3Url = image3Url
 	state.IpConfig = ipConfig
+	state.LacpConfig = lacpConfig
 	state.Led = led
 	state.Locked = locked
 	state.MapId = mapId

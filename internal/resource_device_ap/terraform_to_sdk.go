@@ -12,7 +12,7 @@ import (
 )
 
 func TerraformToSdk(ctx context.Context, plan *DeviceApModel) (models.MistDevice, diag.Diagnostics) {
-	data := models.DeviceAp{}
+	var data models.DeviceAp
 	var diags diag.Diagnostics
 	unset := make(map[string]interface{})
 
@@ -36,8 +36,7 @@ func TerraformToSdk(ctx context.Context, plan *DeviceApModel) (models.MistDevice
 	}
 
 	if !plan.Aeroscout.IsNull() && !plan.Aeroscout.IsUnknown() {
-		aeroscout := aeroscoutTerraformToSdk(plan.Aeroscout)
-		data.Aeroscout = aeroscout
+		data.Aeroscout = aeroscoutTerraformToSdk(plan.Aeroscout)
 	} else {
 		unset["-aeroscout"] = ""
 	}
@@ -98,15 +97,19 @@ func TerraformToSdk(ctx context.Context, plan *DeviceApModel) (models.MistDevice
 	}
 
 	if !plan.IpConfig.IsNull() && !plan.IpConfig.IsUnknown() {
-		ipConfig := ipConfigTerraformToSdk(plan.IpConfig)
-		data.IpConfig = ipConfig
+		data.IpConfig = ipConfigTerraformToSdk(plan.IpConfig)
 	} else {
 		unset["-ip_config"] = ""
 	}
 
+	if !plan.LacpConfig.IsNull() && !plan.LacpConfig.IsUnknown() {
+		data.LacpConfig = lacpConfigTerraformToSdk(plan.LacpConfig)
+	} else {
+		unset["-lacp_config"] = ""
+	}
+
 	if !plan.Led.IsNull() && !plan.Led.IsUnknown() {
-		led := ledTerraformToSdk(plan.Led)
-		data.Led = led
+		data.Led = ledTerraformToSdk(plan.Led)
 	} else {
 		unset["-led"] = ""
 	}
@@ -118,8 +121,7 @@ func TerraformToSdk(ctx context.Context, plan *DeviceApModel) (models.MistDevice
 	}
 
 	if !plan.Mesh.IsNull() && !plan.Mesh.IsUnknown() {
-		mesh := meshTerraformToSdk(plan.Mesh)
-		data.Mesh = mesh
+		data.Mesh = meshTerraformToSdk(plan.Mesh)
 	} else {
 		unset["-mesh"] = ""
 	}
