@@ -91,6 +91,22 @@ func localeTerraformToSdk(d attr.Value) *models.WlanPortalTemplateSettingLocale 
 			data.EmailLabel = plan.EmailLabel.ValueStringPointer()
 		}
 
+		if !plan.MarketingPolicyOptIn.IsNull() && !plan.MarketingPolicyOptIn.IsUnknown() {
+			data.MarketingPolicyOptIn = plan.MarketingPolicyOptIn.ValueBoolPointer()
+		}
+
+		if !plan.MarketingPolicyOptInLabel.IsNull() && !plan.MarketingPolicyOptInLabel.IsUnknown() {
+			data.MarketingPolicyOptInLabel = plan.MarketingPolicyOptInLabel.ValueStringPointer()
+		}
+
+		if !plan.MarketingPolicyLink.IsNull() && !plan.MarketingPolicyLink.IsUnknown() {
+			data.MarketingPolicyLink = plan.MarketingPolicyLink.ValueStringPointer()
+		}
+
+		if !plan.MarketingPolicyOptInText.IsNull() && !plan.MarketingPolicyOptInText.IsUnknown() {
+			data.MarketingPolicyOptInText = plan.MarketingPolicyOptInText.ValueStringPointer()
+		}
+
 		if !plan.EmailMessage.IsNull() && !plan.EmailMessage.IsUnknown() {
 			data.EmailMessage = plan.EmailMessage.ValueStringPointer()
 		}
