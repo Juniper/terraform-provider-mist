@@ -221,6 +221,12 @@ func TerraformToSdk(ctx context.Context, plan *SiteWlanModel) (*models.Wlan, dia
 		data.Disable11ax = plan.Disable11ax.ValueBoolPointer()
 	}
 
+	if plan.Disable11be.IsNull() || plan.Disable11be.IsUnknown() {
+		unset["-disable_11be"] = ""
+	} else {
+		data.Disable11be = plan.Disable11be.ValueBoolPointer()
+	}
+
 	if plan.DisableHtVhtRates.IsNull() || plan.DisableHtVhtRates.IsUnknown() {
 		unset["-disable_ht_vht_rates"] = ""
 	} else {
