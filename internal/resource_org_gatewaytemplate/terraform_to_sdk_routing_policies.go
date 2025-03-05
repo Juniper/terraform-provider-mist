@@ -25,9 +25,6 @@ func routingPolicyTermActionTerraformToSdk(ctx context.Context, d basetypes.Obje
 		if !plan.AddTargetVrfs.IsNull() && !plan.AddTargetVrfs.IsUnknown() {
 			data.AddTargetVrfs = misttransform.ListOfStringTerraformToSdk(plan.AddTargetVrfs)
 		}
-		if !plan.Aggregate.IsNull() && !plan.Aggregate.IsUnknown() {
-			data.Aggregate = misttransform.ListOfStringTerraformToSdk(plan.Aggregate)
-		}
 		if !plan.Community.IsNull() && !plan.Community.IsUnknown() {
 			data.Community = misttransform.ListOfStringTerraformToSdk(plan.Community)
 		}
@@ -36,6 +33,9 @@ func routingPolicyTermActionTerraformToSdk(ctx context.Context, d basetypes.Obje
 		}
 		if !plan.ExcludeCommunity.IsNull() && !plan.ExcludeCommunity.IsUnknown() {
 			data.ExcludeCommunity = misttransform.ListOfStringTerraformToSdk(plan.ExcludeCommunity)
+		}
+		if !plan.ExportCommunities.IsNull() && !plan.ExportCommunities.IsUnknown() {
+			data.ExportCommunities = misttransform.ListOfStringTerraformToSdk(plan.ExportCommunities)
 		}
 		if plan.LocalPreference.ValueStringPointer() != nil {
 			data.LocalPreference = models.ToPointer(plan.LocalPreference.ValueString())
