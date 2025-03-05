@@ -58,8 +58,8 @@ func LocalPortConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics,
 		if planObj.BypassAuthWhenServerDown.ValueBoolPointer() != nil {
 			itemObj.BypassAuthWhenServerDown = models.ToPointer(planObj.BypassAuthWhenServerDown.ValueBool())
 		}
-		if planObj.BypassAuthWhenServerDownForUnkownClient.ValueBoolPointer() != nil {
-			itemObj.BypassAuthWhenServerDownForUnkownClient = models.ToPointer(planObj.BypassAuthWhenServerDownForUnkownClient.ValueBool())
+		if planObj.BypassAuthWhenServerDownForUnknownClient.ValueBoolPointer() != nil {
+			itemObj.BypassAuthWhenServerDownForUnknownClient = models.ToPointer(planObj.BypassAuthWhenServerDownForUnknownClient.ValueBool())
 		}
 		if planObj.Description.ValueStringPointer() != nil {
 			itemObj.Description = models.ToPointer(planObj.Description.ValueString())

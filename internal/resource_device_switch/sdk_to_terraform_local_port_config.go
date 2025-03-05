@@ -67,8 +67,8 @@ func localPortConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics,
 		if d.BypassAuthWhenServerDown != nil {
 			itemObj.BypassAuthWhenServerDown = types.BoolValue(*d.BypassAuthWhenServerDown)
 		}
-		if d.BypassAuthWhenServerDownForUnkownClient != nil {
-			itemObj.BypassAuthWhenServerDownForUnkownClient = types.BoolValue(*d.BypassAuthWhenServerDownForUnkownClient)
+		if d.BypassAuthWhenServerDownForUnknownClient != nil {
+			itemObj.BypassAuthWhenServerDownForUnknownClient = types.BoolValue(*d.BypassAuthWhenServerDownForUnknownClient)
 		}
 		if d.Description != nil {
 			itemObj.Description = types.StringValue(*d.Description)

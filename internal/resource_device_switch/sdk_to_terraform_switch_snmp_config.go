@@ -305,7 +305,7 @@ func snmpV3TargetParametersSdkToTerraform(ctx context.Context, diags *diag.Diagn
 }
 
 // USM
-func snmpV3UsmUsersSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.SnmpUsmpUser) basetypes.ListValue {
+func snmpV3UsmUsersSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.SnmpUsmUser) basetypes.ListValue {
 	var dataList []Snmpv3UsersValue
 	for _, d := range l {
 		var authenticationPassword basetypes.StringValue
