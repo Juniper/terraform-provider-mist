@@ -12,12 +12,16 @@ import (
 )
 
 func mxedgeMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.MxedgeMgmt) MxedgeMgmtValue {
+	var configAutoRevert basetypes.BoolValue
 	var fipsEnabled basetypes.BoolValue
 	var mistPassword basetypes.StringValue
 	var oobIpType basetypes.StringValue
 	var oobIpType6 basetypes.StringValue
 	var rootPassword basetypes.StringValue
 
+	if d.ConfigAutoRevert != nil {
+		configAutoRevert = types.BoolValue(*d.ConfigAutoRevert)
+	}
 	if d.FipsEnabled != nil {
 		fipsEnabled = types.BoolValue(*d.FipsEnabled)
 	}
@@ -35,11 +39,12 @@ func mxedgeMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 	}
 
 	dataMapValue := map[string]attr.Value{
-		"fips_enabled":  fipsEnabled,
-		"mist_password": mistPassword,
-		"oob_ip_type":   oobIpType,
-		"oob_ip_type6":  oobIpType6,
-		"root_password": rootPassword,
+		"config_auto_revert": configAutoRevert,
+		"fips_enabled":       fipsEnabled,
+		"mist_password":      mistPassword,
+		"oob_ip_type":        oobIpType,
+		"oob_ip_type6":       oobIpType6,
+		"root_password":      rootPassword,
 	}
 	data, e := NewMxedgeMgmtValue(MxedgeMgmtValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)

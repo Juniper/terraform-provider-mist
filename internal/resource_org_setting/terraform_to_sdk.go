@@ -98,6 +98,12 @@ func TerraformToSdk(ctx context.Context, plan *OrgSettingModel) (*models.OrgSett
 		unset["-juniper"] = ""
 	}
 
+	if !plan.JunosShellAccess.IsNull() && !plan.JunosShellAccess.IsUnknown() {
+		data.JunosShellAccess = junosShellAccessTerraformToSdk(plan.JunosShellAccess)
+	} else {
+		unset["-junos_shell_access"] = ""
+	}
+
 	if !plan.Mgmt.IsNull() && !plan.Mgmt.IsUnknown() {
 		data.Mgmt = mgmtTerraformToSdk(plan.Mgmt)
 	} else {
