@@ -83,10 +83,6 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 		configAutoRevert = types.BoolValue(*data.ConfigAutoRevert)
 	}
 
-	if data.EnableUnii4 != nil {
-		enableUnii4 = types.BoolValue(*data.EnableUnii4)
-	}
-
 	if data.ConfigPushPolicy != nil {
 		configPushPolicy = configPushPolicySdkToTerraform(ctx, &diags, data.ConfigPushPolicy)
 	}
