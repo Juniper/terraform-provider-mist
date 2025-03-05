@@ -2446,6 +2446,8 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 							"24": NewRatesetValueMust(
 								RatesetValue{}.AttributeTypes(ctx),
 								map[string]attr.Value{
+									"eht":      types.StringNull(),
+									"he":       types.StringNull(),
 									"ht":       types.StringNull(),
 									"legacy":   types.ListValueMust(types.StringType, []attr.Value{}),
 									"min_rssi": types.Int64Value(0),
@@ -2456,6 +2458,8 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 							"5": NewRatesetValueMust(
 								RatesetValue{}.AttributeTypes(ctx),
 								map[string]attr.Value{
+									"eht":      types.StringNull(),
+									"he":       types.StringNull(),
 									"ht":       types.StringNull(),
 									"legacy":   types.ListValueMust(types.StringType, []attr.Value{}),
 									"min_rssi": types.Int64Value(0),
@@ -2466,6 +2470,8 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 							"6": NewRatesetValueMust(
 								RatesetValue{}.AttributeTypes(ctx),
 								map[string]attr.Value{
+									"eht":      types.StringNull(),
+									"he":       types.StringNull(),
 									"ht":       types.StringNull(),
 									"legacy":   types.ListValueMust(types.StringType, []attr.Value{}),
 									"min_rssi": types.Int64Value(0),
