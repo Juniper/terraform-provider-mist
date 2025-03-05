@@ -56,6 +56,16 @@ func TerraformToSdk(plan *OrgServiceModel) (models.Service, diag.Diagnostics) {
 	} else {
 		unset["-apps"] = ""
 	}
+	if plan.ClientLimitDown.ValueInt64Pointer() != nil {
+		data.ClientLimitDown = models.ToPointer(int(plan.ClientLimitDown.ValueInt64()))
+	} else {
+		unset["-client_limit_down"] = ""
+	}
+	if plan.ClientLimitUp.ValueInt64Pointer() != nil {
+		data.ClientLimitUp = models.ToPointer(int(plan.ClientLimitUp.ValueInt64()))
+	} else {
+		unset["-client_limit_up"] = ""
+	}
 	if plan.Description.ValueStringPointer() != nil {
 		data.Description = plan.Description.ValueStringPointer()
 	} else {
@@ -90,6 +100,16 @@ func TerraformToSdk(plan *OrgServiceModel) (models.Service, diag.Diagnostics) {
 		data.MaxLoss = models.ToPointer(models.ServiceMaxLossContainer.FromString(plan.MaxLoss.ValueString()))
 	} else {
 		unset["-max_loss"] = ""
+	}
+	if plan.ServiceLimitDown.ValueInt64Pointer() != nil {
+		data.ServiceLimitDown = models.ToPointer(int(plan.ServiceLimitDown.ValueInt64()))
+	} else {
+		unset["-service_limit_down"] = ""
+	}
+	if plan.ServiceLimitUp.ValueInt64Pointer() != nil {
+		data.ServiceLimitUp = models.ToPointer(int(plan.ServiceLimitUp.ValueInt64()))
+	} else {
+		unset["-service_limit_up"] = ""
 	}
 	if plan.SleEnabled.ValueBoolPointer() != nil {
 		data.SleEnabled = plan.SleEnabled.ValueBoolPointer()

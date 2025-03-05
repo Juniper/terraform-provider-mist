@@ -50,6 +50,8 @@ func SdkToTerraform(ctx context.Context, d *models.Service) (OrgServiceModel, di
 	var appCategories = misttransform.ListOfStringSdkToTerraformEmpty()
 	var appSubcategories = misttransform.ListOfStringSdkToTerraformEmpty()
 	var apps = misttransform.ListOfStringSdkToTerraformEmpty()
+	var clientLimitDown types.Int64
+	var clientLimitUp types.Int64
 	var description types.String
 	var dscp types.String
 	var failoverPolicy types.String
@@ -60,6 +62,8 @@ func SdkToTerraform(ctx context.Context, d *models.Service) (OrgServiceModel, di
 	var maxLoss types.String
 	var name types.String
 	var orgId types.String
+	var serviceLimitDown types.Int64
+	var serviceLimitUp types.Int64
 	var sleEnabled types.Bool
 	var specs = types.ListNull(SpecsValue{}.Type(ctx))
 	var ssrRelaxedTcpStateEnforcement types.Bool
@@ -79,6 +83,12 @@ func SdkToTerraform(ctx context.Context, d *models.Service) (OrgServiceModel, di
 	}
 	if d.Apps != nil {
 		apps = misttransform.ListOfStringSdkToTerraform(d.Apps)
+	}
+	if d.ClientLimitDown != nil {
+		clientLimitDown = types.Int64Value(int64(*d.ClientLimitDown))
+	}
+	if d.ClientLimitUp != nil {
+		clientLimitUp = types.Int64Value(int64(*d.ClientLimitUp))
 	}
 	if d.Description != nil {
 		description = types.StringValue(*d.Description)
@@ -110,6 +120,12 @@ func SdkToTerraform(ctx context.Context, d *models.Service) (OrgServiceModel, di
 	if d.OrgId != nil {
 		orgId = types.StringValue(d.OrgId.String())
 	}
+	if d.ServiceLimitDown != nil {
+		serviceLimitDown = types.Int64Value(int64(*d.ServiceLimitDown))
+	}
+	if d.ServiceLimitUp != nil {
+		serviceLimitUp = types.Int64Value(int64(*d.ServiceLimitUp))
+	}
 	if d.SleEnabled != nil {
 		sleEnabled = types.BoolValue(*d.SleEnabled)
 	}
@@ -136,6 +152,8 @@ func SdkToTerraform(ctx context.Context, d *models.Service) (OrgServiceModel, di
 	state.AppCategories = appCategories
 	state.AppSubcategories = appSubcategories
 	state.Apps = apps
+	state.ClientLimitDown = clientLimitDown
+	state.ClientLimitUp = clientLimitUp
 	state.Description = description
 	state.Dscp = dscp
 	state.FailoverPolicy = failoverPolicy
@@ -146,6 +164,8 @@ func SdkToTerraform(ctx context.Context, d *models.Service) (OrgServiceModel, di
 	state.MaxLoss = maxLoss
 	state.Name = name
 	state.OrgId = orgId
+	state.ServiceLimitDown = serviceLimitDown
+	state.ServiceLimitUp = serviceLimitUp
 	state.SleEnabled = sleEnabled
 	state.Specs = specs
 	state.SsrRelaxedTcpStateEnforcement = ssrRelaxedTcpStateEnforcement
