@@ -70,6 +70,7 @@ func (p *mistProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp 
 			"* Global 02 (api.gc1.mist.com)\n" +
 			"* Global 03 (api.ac2.mist.com)\n" +
 			"* Global 04 (api.gc2.mist.com)\n" +
+			"* Global 05 (api.gc4.mist.com)\n" +
 			"* EMEA 01 (api.eu.mist.com)\n" +
 			"* EMEA 02 (api.gc3.mist.com)\n" +
 			"* EMEA 03 (api.ac6.mist.com)\n" +
