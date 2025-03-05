@@ -15,7 +15,7 @@ func radioStatBandSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d
 
 	var bandwidth basetypes.Int64Value
 	var channel basetypes.Int64Value
-	var dynamicChainingEnalbed basetypes.BoolValue
+	var dynamicChainingEnabled basetypes.BoolValue
 	var mac basetypes.StringValue
 	var noiseFloor basetypes.Int64Value
 	var numClients basetypes.Int64Value
@@ -39,8 +39,8 @@ func radioStatBandSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d
 	if d.Channel.Value() != nil {
 		channel = types.Int64Value(int64(*d.Channel.Value()))
 	}
-	if d.DynamicChainingEnalbed.Value() != nil {
-		dynamicChainingEnalbed = types.BoolValue(*d.DynamicChainingEnalbed.Value())
+	if d.DynamicChainingEnabled.Value() != nil {
+		dynamicChainingEnabled = types.BoolValue(*d.DynamicChainingEnabled.Value())
 	}
 	if d.Mac.Value() != nil {
 		mac = types.StringValue(*d.Mac.Value())
@@ -94,7 +94,7 @@ func radioStatBandSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d
 	dataMapValue := map[string]attr.Value{
 		"bandwidth":                bandwidth,
 		"channel":                  channel,
-		"dynamic_chaining_enalbed": dynamicChainingEnalbed,
+		"dynamic_chaining_enalbed": dynamicChainingEnabled,
 		"mac":                      mac,
 		"noise_floor":              noiseFloor,
 		"num_clients":              numClients,
