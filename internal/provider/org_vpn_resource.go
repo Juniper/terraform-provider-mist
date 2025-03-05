@@ -70,7 +70,7 @@ func (r *orgVpnResource) Create(ctx context.Context, req resource.CreateRequest,
 		return
 	}
 
-	vpn, diags := resource_org_vpn.TerraformToSdk(&plan)
+	vpn, diags := resource_org_vpn.TerraformToSdk(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -174,7 +174,7 @@ func (r *orgVpnResource) Update(ctx context.Context, req resource.UpdateRequest,
 		return
 	}
 
-	vpn, diags := resource_org_vpn.TerraformToSdk(&plan)
+	vpn, diags := resource_org_vpn.TerraformToSdk(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
