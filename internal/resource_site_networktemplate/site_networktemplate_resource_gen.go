@@ -313,11 +313,6 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					listvalidator.SizeAtLeast(1),
 				},
 			},
-			"enable_unii_4": schema.BoolAttribute{
-				Optional: true,
-				Computed: true,
-				Default:  booldefault.StaticBool(false),
-			},
 			"extra_routes": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
@@ -3188,40 +3183,6 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 			"vrf_instances": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
-						"aggregate_routes": schema.MapNestedAttribute{
-							NestedObject: schema.NestedAttributeObject{
-								Attributes: map[string]schema.Attribute{
-									"discard": schema.BoolAttribute{
-										Optional: true,
-										Computed: true,
-										Default:  booldefault.StaticBool(false),
-									},
-									"metric": schema.Int64Attribute{
-										Optional: true,
-										Validators: []validator.Int64{
-											int64validator.Between(0, 4294967295),
-										},
-									},
-									"preference": schema.Int64Attribute{
-										Optional: true,
-										Validators: []validator.Int64{
-											int64validator.Between(0, 4294967295),
-										},
-									},
-								},
-								CustomType: AggregateRoutesType{
-									ObjectType: types.ObjectType{
-										AttrTypes: AggregateRoutesValue{}.AttributeTypes(ctx),
-									},
-								},
-							},
-							Optional:            true,
-							Description:         "Property key is the destination subnet (e.g. \"172.16.3.0/24\")",
-							MarkdownDescription: "Property key is the destination subnet (e.g. \"172.16.3.0/24\")",
-							Validators: []validator.Map{
-								mapvalidator.SizeAtLeast(1),
-							},
-						},
 						"evpn_auto_lookback_subnet": schema.StringAttribute{
 							Optional: true,
 						},
@@ -3286,7 +3247,6 @@ type SiteNetworktemplateModel struct {
 	DisabledSystemDefinedPortUsages types.List          `tfsdk:"disabled_system_defined_port_usages"`
 	DnsServers                      types.List          `tfsdk:"dns_servers"`
 	DnsSuffix                       types.List          `tfsdk:"dns_suffix"`
-	EnableUnii4                     types.Bool          `tfsdk:"enable_unii_4"`
 	ExtraRoutes                     types.Map           `tfsdk:"extra_routes"`
 	ExtraRoutes6                    types.Map           `tfsdk:"extra_routes6"`
 	MistNac                         MistNacValue        `tfsdk:"mist_nac"`
@@ -37906,24 +37866,6 @@ func (t VrfInstancesType) ValueFromObject(ctx context.Context, in basetypes.Obje
 
 	attributes := in.Attributes()
 
-	aggregateRoutesAttribute, ok := attributes["aggregate_routes"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`aggregate_routes is missing from object`)
-
-		return nil, diags
-	}
-
-	aggregateRoutesVal, ok := aggregateRoutesAttribute.(basetypes.MapValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`aggregate_routes expected to be basetypes.MapValue, was: %T`, aggregateRoutesAttribute))
-	}
-
 	evpnAutoLookbackSubnetAttribute, ok := attributes["evpn_auto_lookback_subnet"]
 
 	if !ok {
@@ -37983,7 +37925,6 @@ func (t VrfInstancesType) ValueFromObject(ctx context.Context, in basetypes.Obje
 	}
 
 	return VrfInstancesValue{
-		AggregateRoutes:        aggregateRoutesVal,
 		EvpnAutoLookbackSubnet: evpnAutoLookbackSubnetVal,
 		Networks:               networksVal,
 		VrfExtraRoutes:         vrfExtraRoutesVal,
@@ -38054,24 +37995,6 @@ func NewVrfInstancesValue(attributeTypes map[string]attr.Type, attributes map[st
 		return NewVrfInstancesValueUnknown(), diags
 	}
 
-	aggregateRoutesAttribute, ok := attributes["aggregate_routes"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`aggregate_routes is missing from object`)
-
-		return NewVrfInstancesValueUnknown(), diags
-	}
-
-	aggregateRoutesVal, ok := aggregateRoutesAttribute.(basetypes.MapValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`aggregate_routes expected to be basetypes.MapValue, was: %T`, aggregateRoutesAttribute))
-	}
-
 	evpnAutoLookbackSubnetAttribute, ok := attributes["evpn_auto_lookback_subnet"]
 
 	if !ok {
@@ -38131,7 +38054,6 @@ func NewVrfInstancesValue(attributeTypes map[string]attr.Type, attributes map[st
 	}
 
 	return VrfInstancesValue{
-		AggregateRoutes:        aggregateRoutesVal,
 		EvpnAutoLookbackSubnet: evpnAutoLookbackSubnetVal,
 		Networks:               networksVal,
 		VrfExtraRoutes:         vrfExtraRoutesVal,
@@ -38207,7 +38129,6 @@ func (t VrfInstancesType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = VrfInstancesValue{}
 
 type VrfInstancesValue struct {
-	AggregateRoutes        basetypes.MapValue    `tfsdk:"aggregate_routes"`
 	EvpnAutoLookbackSubnet basetypes.StringValue `tfsdk:"evpn_auto_lookback_subnet"`
 	Networks               basetypes.ListValue   `tfsdk:"networks"`
 	VrfExtraRoutes         basetypes.MapValue    `tfsdk:"extra_routes"`
@@ -38215,14 +38136,11 @@ type VrfInstancesValue struct {
 }
 
 func (v VrfInstancesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 4)
+	attrTypes := make(map[string]tftypes.Type, 3)
 
 	var val tftypes.Value
 	var err error
 
-	attrTypes["aggregate_routes"] = basetypes.MapType{
-		ElemType: AggregateRoutesValue{}.Type(ctx),
-	}.TerraformType(ctx)
 	attrTypes["evpn_auto_lookback_subnet"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["networks"] = basetypes.ListType{
 		ElemType: types.StringType,
@@ -38235,15 +38153,7 @@ func (v VrfInstancesValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 4)
-
-		val, err = v.AggregateRoutes.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["aggregate_routes"] = val
+		vals := make(map[string]tftypes.Value, 3)
 
 		val, err = v.EvpnAutoLookbackSubnet.ToTerraformValue(ctx)
 
@@ -38298,35 +38208,6 @@ func (v VrfInstancesValue) String() string {
 func (v VrfInstancesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	aggregateRoutes := types.MapValueMust(
-		AggregateRoutesType{
-			basetypes.ObjectType{
-				AttrTypes: AggregateRoutesValue{}.AttributeTypes(ctx),
-			},
-		},
-		v.AggregateRoutes.Elements(),
-	)
-
-	if v.AggregateRoutes.IsNull() {
-		aggregateRoutes = types.MapNull(
-			AggregateRoutesType{
-				basetypes.ObjectType{
-					AttrTypes: AggregateRoutesValue{}.AttributeTypes(ctx),
-				},
-			},
-		)
-	}
-
-	if v.AggregateRoutes.IsUnknown() {
-		aggregateRoutes = types.MapUnknown(
-			AggregateRoutesType{
-				basetypes.ObjectType{
-					AttrTypes: AggregateRoutesValue{}.AttributeTypes(ctx),
-				},
-			},
-		)
-	}
-
 	vrfExtraRoutes := types.MapValueMust(
 		VrfExtraRoutesType{
 			basetypes.ObjectType{
@@ -38362,9 +38243,6 @@ func (v VrfInstancesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 
 	if d.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
-			"aggregate_routes": basetypes.MapType{
-				ElemType: AggregateRoutesValue{}.Type(ctx),
-			},
 			"evpn_auto_lookback_subnet": basetypes.StringType{},
 			"networks": basetypes.ListType{
 				ElemType: types.StringType,
@@ -38376,9 +38254,6 @@ func (v VrfInstancesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 	}
 
 	attributeTypes := map[string]attr.Type{
-		"aggregate_routes": basetypes.MapType{
-			ElemType: AggregateRoutesValue{}.Type(ctx),
-		},
 		"evpn_auto_lookback_subnet": basetypes.StringType{},
 		"networks": basetypes.ListType{
 			ElemType: types.StringType,
@@ -38399,7 +38274,6 @@ func (v VrfInstancesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"aggregate_routes":          aggregateRoutes,
 			"evpn_auto_lookback_subnet": v.EvpnAutoLookbackSubnet,
 			"networks":                  networksVal,
 			"extra_routes":              vrfExtraRoutes,
@@ -38421,10 +38295,6 @@ func (v VrfInstancesValue) Equal(o attr.Value) bool {
 
 	if v.state != attr.ValueStateKnown {
 		return true
-	}
-
-	if !v.AggregateRoutes.Equal(other.AggregateRoutes) {
-		return false
 	}
 
 	if !v.EvpnAutoLookbackSubnet.Equal(other.EvpnAutoLookbackSubnet) {
@@ -38452,9 +38322,6 @@ func (v VrfInstancesValue) Type(ctx context.Context) attr.Type {
 
 func (v VrfInstancesValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"aggregate_routes": basetypes.MapType{
-			ElemType: AggregateRoutesValue{}.Type(ctx),
-		},
 		"evpn_auto_lookback_subnet": basetypes.StringType{},
 		"networks": basetypes.ListType{
 			ElemType: types.StringType,
@@ -38462,440 +38329,6 @@ func (v VrfInstancesValue) AttributeTypes(ctx context.Context) map[string]attr.T
 		"extra_routes": basetypes.MapType{
 			ElemType: VrfExtraRoutesValue{}.Type(ctx),
 		},
-	}
-}
-
-var _ basetypes.ObjectTypable = AggregateRoutesType{}
-
-type AggregateRoutesType struct {
-	basetypes.ObjectType
-}
-
-func (t AggregateRoutesType) Equal(o attr.Type) bool {
-	other, ok := o.(AggregateRoutesType)
-
-	if !ok {
-		return false
-	}
-
-	return t.ObjectType.Equal(other.ObjectType)
-}
-
-func (t AggregateRoutesType) String() string {
-	return "AggregateRoutesType"
-}
-
-func (t AggregateRoutesType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
-	var diags diag.Diagnostics
-
-	attributes := in.Attributes()
-
-	discardAttribute, ok := attributes["discard"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`discard is missing from object`)
-
-		return nil, diags
-	}
-
-	discardVal, ok := discardAttribute.(basetypes.BoolValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`discard expected to be basetypes.BoolValue, was: %T`, discardAttribute))
-	}
-
-	metricAttribute, ok := attributes["metric"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`metric is missing from object`)
-
-		return nil, diags
-	}
-
-	metricVal, ok := metricAttribute.(basetypes.Int64Value)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`metric expected to be basetypes.Int64Value, was: %T`, metricAttribute))
-	}
-
-	preferenceAttribute, ok := attributes["preference"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`preference is missing from object`)
-
-		return nil, diags
-	}
-
-	preferenceVal, ok := preferenceAttribute.(basetypes.Int64Value)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`preference expected to be basetypes.Int64Value, was: %T`, preferenceAttribute))
-	}
-
-	if diags.HasError() {
-		return nil, diags
-	}
-
-	return AggregateRoutesValue{
-		Discard:    discardVal,
-		Metric:     metricVal,
-		Preference: preferenceVal,
-		state:      attr.ValueStateKnown,
-	}, diags
-}
-
-func NewAggregateRoutesValueNull() AggregateRoutesValue {
-	return AggregateRoutesValue{
-		state: attr.ValueStateNull,
-	}
-}
-
-func NewAggregateRoutesValueUnknown() AggregateRoutesValue {
-	return AggregateRoutesValue{
-		state: attr.ValueStateUnknown,
-	}
-}
-
-func NewAggregateRoutesValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (AggregateRoutesValue, diag.Diagnostics) {
-	var diags diag.Diagnostics
-
-	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
-	ctx := context.Background()
-
-	for name, attributeType := range attributeTypes {
-		attribute, ok := attributes[name]
-
-		if !ok {
-			diags.AddError(
-				"Missing AggregateRoutesValue Attribute Value",
-				"While creating a AggregateRoutesValue value, a missing attribute value was detected. "+
-					"A AggregateRoutesValue must contain values for all attributes, even if null or unknown. "+
-					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("AggregateRoutesValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
-			)
-
-			continue
-		}
-
-		if !attributeType.Equal(attribute.Type(ctx)) {
-			diags.AddError(
-				"Invalid AggregateRoutesValue Attribute Type",
-				"While creating a AggregateRoutesValue value, an invalid attribute value was detected. "+
-					"A AggregateRoutesValue must use a matching attribute type for the value. "+
-					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("AggregateRoutesValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
-					fmt.Sprintf("AggregateRoutesValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
-			)
-		}
-	}
-
-	for name := range attributes {
-		_, ok := attributeTypes[name]
-
-		if !ok {
-			diags.AddError(
-				"Extra AggregateRoutesValue Attribute Value",
-				"While creating a AggregateRoutesValue value, an extra attribute value was detected. "+
-					"A AggregateRoutesValue must not contain values beyond the expected attribute types. "+
-					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("Extra AggregateRoutesValue Attribute Name: %s", name),
-			)
-		}
-	}
-
-	if diags.HasError() {
-		return NewAggregateRoutesValueUnknown(), diags
-	}
-
-	discardAttribute, ok := attributes["discard"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`discard is missing from object`)
-
-		return NewAggregateRoutesValueUnknown(), diags
-	}
-
-	discardVal, ok := discardAttribute.(basetypes.BoolValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`discard expected to be basetypes.BoolValue, was: %T`, discardAttribute))
-	}
-
-	metricAttribute, ok := attributes["metric"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`metric is missing from object`)
-
-		return NewAggregateRoutesValueUnknown(), diags
-	}
-
-	metricVal, ok := metricAttribute.(basetypes.Int64Value)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`metric expected to be basetypes.Int64Value, was: %T`, metricAttribute))
-	}
-
-	preferenceAttribute, ok := attributes["preference"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`preference is missing from object`)
-
-		return NewAggregateRoutesValueUnknown(), diags
-	}
-
-	preferenceVal, ok := preferenceAttribute.(basetypes.Int64Value)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`preference expected to be basetypes.Int64Value, was: %T`, preferenceAttribute))
-	}
-
-	if diags.HasError() {
-		return NewAggregateRoutesValueUnknown(), diags
-	}
-
-	return AggregateRoutesValue{
-		Discard:    discardVal,
-		Metric:     metricVal,
-		Preference: preferenceVal,
-		state:      attr.ValueStateKnown,
-	}, diags
-}
-
-func NewAggregateRoutesValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) AggregateRoutesValue {
-	object, diags := NewAggregateRoutesValue(attributeTypes, attributes)
-
-	if diags.HasError() {
-		// This could potentially be added to the diag package.
-		diagsStrings := make([]string, 0, len(diags))
-
-		for _, diagnostic := range diags {
-			diagsStrings = append(diagsStrings, fmt.Sprintf(
-				"%s | %s | %s",
-				diagnostic.Severity(),
-				diagnostic.Summary(),
-				diagnostic.Detail()))
-		}
-
-		panic("NewAggregateRoutesValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
-	}
-
-	return object
-}
-
-func (t AggregateRoutesType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
-	if in.Type() == nil {
-		return NewAggregateRoutesValueNull(), nil
-	}
-
-	if !in.Type().Equal(t.TerraformType(ctx)) {
-		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
-	}
-
-	if !in.IsKnown() {
-		return NewAggregateRoutesValueUnknown(), nil
-	}
-
-	if in.IsNull() {
-		return NewAggregateRoutesValueNull(), nil
-	}
-
-	attributes := map[string]attr.Value{}
-
-	val := map[string]tftypes.Value{}
-
-	err := in.As(&val)
-
-	if err != nil {
-		return nil, err
-	}
-
-	for k, v := range val {
-		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
-
-		if err != nil {
-			return nil, err
-		}
-
-		attributes[k] = a
-	}
-
-	return NewAggregateRoutesValueMust(AggregateRoutesValue{}.AttributeTypes(ctx), attributes), nil
-}
-
-func (t AggregateRoutesType) ValueType(ctx context.Context) attr.Value {
-	return AggregateRoutesValue{}
-}
-
-var _ basetypes.ObjectValuable = AggregateRoutesValue{}
-
-type AggregateRoutesValue struct {
-	Discard    basetypes.BoolValue  `tfsdk:"discard"`
-	Metric     basetypes.Int64Value `tfsdk:"metric"`
-	Preference basetypes.Int64Value `tfsdk:"preference"`
-	state      attr.ValueState
-}
-
-func (v AggregateRoutesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 3)
-
-	var val tftypes.Value
-	var err error
-
-	attrTypes["discard"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["metric"] = basetypes.Int64Type{}.TerraformType(ctx)
-	attrTypes["preference"] = basetypes.Int64Type{}.TerraformType(ctx)
-
-	objectType := tftypes.Object{AttributeTypes: attrTypes}
-
-	switch v.state {
-	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 3)
-
-		val, err = v.Discard.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["discard"] = val
-
-		val, err = v.Metric.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["metric"] = val
-
-		val, err = v.Preference.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["preference"] = val
-
-		if err := tftypes.ValidateValue(objectType, vals); err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		return tftypes.NewValue(objectType, vals), nil
-	case attr.ValueStateNull:
-		return tftypes.NewValue(objectType, nil), nil
-	case attr.ValueStateUnknown:
-		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
-	default:
-		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
-	}
-}
-
-func (v AggregateRoutesValue) IsNull() bool {
-	return v.state == attr.ValueStateNull
-}
-
-func (v AggregateRoutesValue) IsUnknown() bool {
-	return v.state == attr.ValueStateUnknown
-}
-
-func (v AggregateRoutesValue) String() string {
-	return "AggregateRoutesValue"
-}
-
-func (v AggregateRoutesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
-	var diags diag.Diagnostics
-
-	attributeTypes := map[string]attr.Type{
-		"discard":    basetypes.BoolType{},
-		"metric":     basetypes.Int64Type{},
-		"preference": basetypes.Int64Type{},
-	}
-
-	if v.IsNull() {
-		return types.ObjectNull(attributeTypes), diags
-	}
-
-	if v.IsUnknown() {
-		return types.ObjectUnknown(attributeTypes), diags
-	}
-
-	objVal, diags := types.ObjectValue(
-		attributeTypes,
-		map[string]attr.Value{
-			"discard":    v.Discard,
-			"metric":     v.Metric,
-			"preference": v.Preference,
-		})
-
-	return objVal, diags
-}
-
-func (v AggregateRoutesValue) Equal(o attr.Value) bool {
-	other, ok := o.(AggregateRoutesValue)
-
-	if !ok {
-		return false
-	}
-
-	if v.state != other.state {
-		return false
-	}
-
-	if v.state != attr.ValueStateKnown {
-		return true
-	}
-
-	if !v.Discard.Equal(other.Discard) {
-		return false
-	}
-
-	if !v.Metric.Equal(other.Metric) {
-		return false
-	}
-
-	if !v.Preference.Equal(other.Preference) {
-		return false
-	}
-
-	return true
-}
-
-func (v AggregateRoutesValue) Type(ctx context.Context) attr.Type {
-	return AggregateRoutesType{
-		basetypes.ObjectType{
-			AttrTypes: v.AttributeTypes(ctx),
-		},
-	}
-}
-
-func (v AggregateRoutesValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
-	return map[string]attr.Type{
-		"discard":    basetypes.BoolType{},
-		"metric":     basetypes.Int64Type{},
-		"preference": basetypes.Int64Type{},
 	}
 }
 

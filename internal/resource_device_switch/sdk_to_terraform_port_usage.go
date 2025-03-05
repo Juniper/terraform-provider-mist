@@ -98,7 +98,7 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		var allowDhcpd basetypes.BoolValue
 		var allowMultipleSupplicants basetypes.BoolValue
 		var bypassAuthWhenServerDown basetypes.BoolValue
-		var bypassAuthWhenServerDownForUnkownClient basetypes.BoolValue
+		var bypassAuthWhenServerDownForUnknownClient basetypes.BoolValue
 		var description basetypes.StringValue
 		var disableAutoneg basetypes.BoolValue
 		var disabled basetypes.BoolValue
@@ -107,6 +107,7 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		var enableMacAuth basetypes.BoolValue
 		var enableQos basetypes.BoolValue
 		var guestNetwork basetypes.StringValue
+		var interIsolationNetwork basetypes.BoolValue
 		var interSwitchLink basetypes.BoolValue
 		var macAuthOnly basetypes.BoolValue
 		var macAuthPreferred basetypes.BoolValue
@@ -144,8 +145,8 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		if d.BypassAuthWhenServerDown != nil {
 			bypassAuthWhenServerDown = types.BoolValue(*d.BypassAuthWhenServerDown)
 		}
-		if d.BypassAuthWhenServerDownForUnkownClient != nil {
-			bypassAuthWhenServerDownForUnkownClient = types.BoolValue(*d.BypassAuthWhenServerDownForUnkownClient)
+		if d.BypassAuthWhenServerDownForUnknownClient != nil {
+			bypassAuthWhenServerDownForUnknownClient = types.BoolValue(*d.BypassAuthWhenServerDownForUnknownClient)
 		}
 		if d.Description != nil {
 			description = types.StringValue(*d.Description)
@@ -170,6 +171,9 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		}
 		if d.GuestNetwork.Value() != nil {
 			guestNetwork = types.StringValue(*d.GuestNetwork.Value())
+		}
+		if d.InterIsolationNetworkLink != nil {
+			interIsolationNetwork = types.BoolValue(*d.InterIsolationNetworkLink)
 		}
 		if d.InterSwitchLink != nil {
 			interSwitchLink = types.BoolValue(*d.InterSwitchLink)
@@ -249,7 +253,7 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 			"allow_dhcpd":                                    allowDhcpd,
 			"allow_multiple_supplicants":                     allowMultipleSupplicants,
 			"bypass_auth_when_server_down":                   bypassAuthWhenServerDown,
-			"bypass_auth_when_server_down_for_unkown_client": bypassAuthWhenServerDownForUnkownClient,
+			"bypass_auth_when_server_down_for_unkown_client": bypassAuthWhenServerDownForUnknownClient,
 			"description":                                    description,
 			"disable_autoneg":                                disableAutoneg,
 			"disabled":                                       disabled,
@@ -258,6 +262,7 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 			"enable_mac_auth":                                enableMacAuth,
 			"enable_qos":                                     enableQos,
 			"guest_network":                                  guestNetwork,
+			"inter_isolation_network_link":                   interIsolationNetwork,
 			"inter_switch_link":                              interSwitchLink,
 			"mac_auth_only":                                  macAuthOnly,
 			"mac_auth_preferred":                             macAuthPreferred,

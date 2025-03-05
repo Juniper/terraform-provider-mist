@@ -243,6 +243,7 @@ func switchMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 	var configRevertTimer basetypes.Int64Value
 	var dhcpOptionFqdn basetypes.BoolValue
 	var disableOobDownAlarm basetypes.BoolValue
+	var fipsEnabled basetypes.BoolValue
 	var localAccounts = types.MapNull(LocalAccountsValue{}.Type(ctx))
 	var mxedgeProxyHost basetypes.StringValue
 	var mxedgeProxyPort basetypes.Int64Value
@@ -269,6 +270,9 @@ func switchMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 		}
 		if d.DisableOobDownAlarm != nil {
 			disableOobDownAlarm = types.BoolValue(*d.DisableOobDownAlarm)
+		}
+		if d.FipsEnabled != nil {
+			fipsEnabled = types.BoolValue(*d.FipsEnabled)
 		}
 		if d.LocalAccounts != nil {
 			localAccounts = switchLocalAccountUserSdkToTerraform(ctx, diags, d.LocalAccounts)
@@ -300,6 +304,7 @@ func switchMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 		"config_revert_timer":    configRevertTimer,
 		"dhcp_option_fqdn":       dhcpOptionFqdn,
 		"disable_oob_down_alarm": disableOobDownAlarm,
+		"fips_enabled":           fipsEnabled,
 		"local_accounts":         localAccounts,
 		"mxedge_proxy_host":      mxedgeProxyHost,
 		"mxedge_proxy_port":      mxedgeProxyPort,
