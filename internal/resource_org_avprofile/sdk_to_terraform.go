@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func SdkToTerraform(ctx context.Context, data *models.Avprofile) (OrgAvprofileModel, diag.Diagnostics) {
+func SdkToTerraform(_ context.Context, data *models.Avprofile) (OrgAvprofileModel, diag.Diagnostics) {
 	var state OrgAvprofileModel
 	var diags diag.Diagnostics
 
