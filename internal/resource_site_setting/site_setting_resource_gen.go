@@ -1210,8 +1210,12 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					"allowed_vlan_ids": schema.ListAttribute{
 						ElementType:         types.Int64Type,
 						Optional:            true,
+						Computed:            true,
 						Description:         "list of VLAN IDs on which rogue APs are ignored",
 						MarkdownDescription: "list of VLAN IDs on which rogue APs are ignored",
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"enabled": schema.BoolAttribute{
 						Optional:            true,

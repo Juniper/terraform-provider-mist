@@ -44,7 +44,7 @@ func rogueSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 		minRssi = types.Int64Value(int64(*d.MinRssi))
 	}
 	if d != nil && d.MinRogueRssi != nil {
-		minRssi = types.Int64Value(int64(*d.MinRogueRssi))
+		minRogueRssi = types.Int64Value(int64(*d.MinRogueRssi))
 	}
 	if d != nil && d.WhitelistedBssids != nil {
 		whitelistedBssids = misttransform.ListOfStringSdkToTerraform(d.WhitelistedBssids)
