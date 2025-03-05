@@ -30,8 +30,8 @@ func wanExtraRoutesPortConfigIpConfigSdkToTerraform(ctx context.Context, diags *
 
 		stateValueMap[k] = data
 	}
-	stateType := WanExtraRoutesValue{}.Type(ctx)
-	stateResult, e := types.MapValueFrom(ctx, stateType, stateValueMap)
+
+	stateResult, e := types.MapValueFrom(ctx, WanExtraRoutesValue{}.Type(ctx), stateValueMap)
 	diags.Append(e...)
 	return stateResult
 }
@@ -46,13 +46,12 @@ func wanProbeOverridePortConfigIpConfigSdkToTerraform(ctx context.Context, diags
 		probeProfile = types.StringValue(string(*g.ProbeProfile))
 	}
 
-	rAttrType := WanProbeOverrideValue{}.AttributeTypes(ctx)
 	rAttrValue := map[string]attr.Value{
 		"ips":           ips,
 		"probe_profile": probeProfile,
 	}
 
-	r, e := basetypes.NewObjectValue(rAttrType, rAttrValue)
+	r, e := basetypes.NewObjectValue(WanProbeOverrideValue{}.AttributeTypes(ctx), rAttrValue)
 	diags.Append(e...)
 
 	return r
@@ -100,7 +99,6 @@ func portConfigIpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 		ipConfigType = types.StringValue(string(*g.Type))
 	}
 
-	rAttrType := PortIpConfigValue{}.AttributeTypes(ctx)
 	rAttrValue := map[string]attr.Value{
 		"dns":            dns,
 		"dns_suffix":     dnsSuffix,
@@ -114,7 +112,7 @@ func portConfigIpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 		"type":           ipConfigType,
 	}
 
-	r, e := basetypes.NewObjectValue(rAttrType, rAttrValue)
+	r, e := basetypes.NewObjectValue(PortIpConfigValue{}.AttributeTypes(ctx), rAttrValue)
 	diags.Append(e...)
 
 	return r
@@ -135,14 +133,13 @@ func portConfigTrafficShappingSdkToTerraform(ctx context.Context, diags *diag.Di
 		maxTxKbps = types.Int64Value(int64(*g.MaxTxKbps))
 	}
 
-	rAttrType := TrafficShapingValue{}.AttributeTypes(ctx)
 	rAttrValue := map[string]attr.Value{
 		"class_percentages": classPercentages,
 		"enabled":           enabled,
 		"max_tx_kbps":       maxTxKbps,
 	}
 
-	r, e := basetypes.NewObjectValue(rAttrType, rAttrValue)
+	r, e := basetypes.NewObjectValue(TrafficShapingValue{}.AttributeTypes(ctx), rAttrValue)
 	diags.Append(e...)
 
 	return r
@@ -150,13 +147,11 @@ func portConfigTrafficShappingSdkToTerraform(ctx context.Context, diags *diag.Di
 
 func portConfigVpnPathsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, g map[string]models.GatewayPortVpnPath) basetypes.MapValue {
 
-	portUsageType := VpnPathsValue{}.AttributeTypes(ctx)
 	stateValueMap := make(map[string]attr.Value)
 	for k, v := range g {
 
 		var bfdProfile = types.StringValue("broadband")
 		var bfdUseTunnelMode = types.BoolValue(false)
-		var linkName basetypes.StringValue
 		var preference basetypes.Int64Value
 		var role = types.StringValue("spoke")
 		var trafficShaping = types.ObjectNull(TrafficShapingValue{}.AttributeTypes(ctx))
@@ -166,9 +161,6 @@ func portConfigVpnPathsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 		}
 		if v.BfdUseTunnelMode != nil {
 			bfdUseTunnelMode = types.BoolValue(*v.BfdUseTunnelMode)
-		}
-		if v.LinkName != nil {
-			linkName = types.StringValue(*v.LinkName)
 		}
 		if v.Preference != nil {
 			preference = types.Int64Value(int64(*v.Preference))
@@ -183,17 +175,16 @@ func portConfigVpnPathsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 		var portUsageState = map[string]attr.Value{
 			"bfd_profile":         bfdProfile,
 			"bfd_use_tunnel_mode": bfdUseTunnelMode,
-			"link_name":           linkName,
 			"preference":          preference,
 			"role":                role,
 			"traffic_shaping":     trafficShaping,
 		}
-		portUsageObject, e := NewVpnPathsValue(portUsageType, portUsageState)
+		portUsageObject, e := NewVpnPathsValue(VpnPathsValue{}.AttributeTypes(ctx), portUsageState)
 		diags.Append(e...)
 		stateValueMap[k] = portUsageObject
 	}
-	stateType := VpnPathsValue{}.Type(ctx)
-	stateResult, e := types.MapValueFrom(ctx, stateType, stateValueMap)
+
+	stateResult, e := types.MapValueFrom(ctx, VpnPathsValue{}.Type(ctx), stateValueMap)
 	diags.Append(e...)
 	return stateResult
 }
@@ -210,20 +201,19 @@ func portConfigWanSourceNatSdkToTerraform(ctx context.Context, diags *diag.Diagn
 		natPool = types.StringValue(*g.NatPool)
 	}
 
-	rAttrType := WanSourceNatValue{}.AttributeTypes(ctx)
 	rAttrValue := map[string]attr.Value{
 		"disabled": disabled,
 		"nat_pool": natPool,
 	}
 
-	r, e := basetypes.NewObjectValue(rAttrType, rAttrValue)
+	r, e := basetypes.NewObjectValue(WanSourceNatValue{}.AttributeTypes(ctx), rAttrValue)
 	diags.Append(e...)
 
 	return r
 }
 
 func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d map[string]models.GatewayPortConfig) basetypes.MapValue {
-	portUsageType := PortConfigValue{}.AttributeTypes(ctx)
+
 	stateValueMap := make(map[string]attr.Value)
 	for k, v := range d {
 		var aeDisableLacp = types.BoolValue(false)
@@ -252,6 +242,7 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 		var portNetwork basetypes.StringValue
 		var preserveDscp = types.BoolValue(true)
 		var redundant basetypes.BoolValue
+		var redundantGroup basetypes.Int64Value
 		var rethIdx basetypes.Int64Value
 		var rethNode basetypes.StringValue
 		var rethNodes = misttransform.ListOfStringSdkToTerraform(v.RethNodes)
@@ -345,6 +336,9 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 		if v.Redundant != nil {
 			redundant = types.BoolValue(*v.Redundant)
 		}
+		if v.RedundantGroup != nil {
+			redundantGroup = types.Int64Value(int64(*v.RedundantGroup))
+		}
 		if v.RethIdx != nil {
 			rethIdx = types.Int64Value(int64(*v.RethIdx))
 		}
@@ -415,6 +409,7 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 			"port_network":       portNetwork,
 			"preserve_dscp":      preserveDscp,
 			"redundant":          redundant,
+			"redundant_group":    redundantGroup,
 			"reth_idx":           rethIdx,
 			"reth_node":          rethNode,
 			"reth_nodes":         rethNodes,
@@ -433,12 +428,12 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 			"wan_source_nat":     wanSourceNat,
 			"wan_type":           wanType,
 		}
-		portUsageObject, e := NewPortConfigValue(portUsageType, portUsageState)
+		portUsageObject, e := NewPortConfigValue(PortConfigValue{}.AttributeTypes(ctx), portUsageState)
 		diags.Append(e...)
 		stateValueMap[k] = portUsageObject
 	}
-	stateType := PortConfigValue{}.Type(ctx)
-	stateResult, e := types.MapValueFrom(ctx, stateType, stateValueMap)
+
+	stateResult, e := types.MapValueFrom(ctx, PortConfigValue{}.Type(ctx), stateValueMap)
 	diags.Append(e...)
 	return stateResult
 }

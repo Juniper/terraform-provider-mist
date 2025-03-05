@@ -169,6 +169,8 @@ github.com/tmunzer/mistapi-go v0.4.53 h1:4JhtDHSw08fN5RKEgbwepUUWQvixI9XQFz5UwD2
 github.com/tmunzer/mistapi-go v0.4.53/go.mod h1:CgNc2YwmwFaln85pz0Dno34ekBJidXYeigC/wPayfY8=
 github.com/tmunzer/mistapi-go v0.4.58 h1:dAkrAkPgXR93/Awc/Wwg+ZLS+gFVNh9yJ0C0tSdhF/w=
 github.com/tmunzer/mistapi-go v0.4.58/go.mod h1:hzzoQGTJhdOTL4s3c2++WzEuz73RUcvfjFrPbYXZka8=
+github.com/tmunzer/mistapi-go v0.4.59 h1:0VrH2fZR9Mav7+koBYJhho8Qz8XbQ/5ZZwTrgWqurVM=
+github.com/tmunzer/mistapi-go v0.4.59/go.mod h1:hzzoQGTJhdOTL4s3c2++WzEuz73RUcvfjFrPbYXZka8=
 github.com/vmihailenco/msgpack/v5 v5.4.1 h1:cQriyiUvjTwOHg8QZaPihLWeRAAVoCpE00IUPn0Bjt8=
 github.com/vmihailenco/msgpack/v5 v5.4.1/go.mod h1:GaZTsDaehaPpQVyxrf5mtQlH+pc21PIudVV/E3rRQok=
 github.com/vmihailenco/tagparser/v2 v2.0.0 h1:y09buUbR+b5aycVFQs/g70pqKVZNBmxwAhO7/IwNM9g=

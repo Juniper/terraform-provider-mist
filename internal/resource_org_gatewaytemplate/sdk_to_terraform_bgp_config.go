@@ -56,8 +56,7 @@ func bgpConfigNeighborsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 
 		stateValueMapValue[k] = data
 	}
-	stateResultMapType := NeighborsValue{}.Type(ctx)
-	stateResultMap, e := types.MapValueFrom(ctx, stateResultMapType, stateValueMapValue)
+	stateResultMap, e := types.MapValueFrom(ctx, NeighborsValue{}.Type(ctx), stateValueMapValue)
 	diags.Append(e...)
 	return stateResultMap
 }
@@ -80,6 +79,7 @@ func bgpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map
 		var neighborAs basetypes.Int64Value
 		var neighbors = types.MapNull(NeighborsValue{}.Type(ctx))
 		var networks = misttransform.ListOfStringSdkToTerraformEmpty()
+		var noPrivateAs basetypes.BoolValue
 		var noReadvertiseToOverlay = types.BoolValue(false)
 		var typeBgp basetypes.StringValue
 		var tunnelName basetypes.StringValue
@@ -132,6 +132,9 @@ func bgpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map
 		if d.Networks != nil {
 			networks = misttransform.ListOfStringSdkToTerraform(d.Networks)
 		}
+		if d.NoPrivateAs != nil {
+			noPrivateAs = types.BoolValue(*d.NoPrivateAs)
+		}
 		if d.NoReadvertiseToOverlay != nil {
 			noReadvertiseToOverlay = types.BoolValue(*d.NoReadvertiseToOverlay)
 		}
@@ -167,6 +170,7 @@ func bgpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map
 			"neighbor_as":               neighborAs,
 			"neighbors":                 neighbors,
 			"networks":                  networks,
+			"no_private_as":             noPrivateAs,
 			"no_readvertise_to_overlay": noReadvertiseToOverlay,
 			"type":                      typeBgp,
 			"tunnel_name":               tunnelName,

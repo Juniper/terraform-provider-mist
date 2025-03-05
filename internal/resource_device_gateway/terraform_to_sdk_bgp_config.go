@@ -16,16 +16,16 @@ func bgpConfigNeighborsTerraformToSdk(d basetypes.MapValue) map[string]models.Bg
 
 		data := models.BgpConfigNeighbors{}
 		if plan.Disabled.ValueBoolPointer() != nil {
-			data.Disabled = models.ToPointer(plan.Disabled.ValueBool())
+			data.Disabled = plan.Disabled.ValueBoolPointer()
 		}
 		if plan.ExportPolicy.ValueStringPointer() != nil {
-			data.ExportPolicy = models.ToPointer(plan.ExportPolicy.ValueString())
+			data.ExportPolicy = plan.ExportPolicy.ValueStringPointer()
 		}
 		if plan.HoldTime.ValueInt64Pointer() != nil {
 			data.HoldTime = models.ToPointer(int(plan.HoldTime.ValueInt64()))
 		}
 		if plan.ImportPolicy.ValueStringPointer() != nil {
-			data.ImportPolicy = models.ToPointer(plan.ImportPolicy.ValueString())
+			data.ImportPolicy = plan.ImportPolicy.ValueStringPointer()
 		}
 		if plan.MultihopTtl.ValueInt64Pointer() != nil {
 			data.MultihopTtl = models.ToPointer(int(plan.MultihopTtl.ValueInt64()))
@@ -47,7 +47,7 @@ func bgpConfigTerraformToSdk(d basetypes.MapValue) map[string]models.BgpConfig {
 
 		data := models.BgpConfig{}
 		if plan.AuthKey.ValueStringPointer() != nil {
-			data.AuthKey = models.ToPointer(plan.AuthKey.ValueString())
+			data.AuthKey = plan.AuthKey.ValueStringPointer()
 		}
 		if plan.BfdMinimumInterval.ValueInt64Pointer() != nil {
 			data.BfdMinimumInterval = models.NewOptional(models.ToPointer(int(plan.BfdMinimumInterval.ValueInt64())))
@@ -56,16 +56,16 @@ func bgpConfigTerraformToSdk(d basetypes.MapValue) map[string]models.BgpConfig {
 			data.BfdMultiplier = models.NewOptional(models.ToPointer(int(plan.BfdMultiplier.ValueInt64())))
 		}
 		if plan.DisableBfd.ValueBoolPointer() != nil {
-			data.DisableBfd = models.ToPointer(plan.DisableBfd.ValueBool())
+			data.DisableBfd = plan.DisableBfd.ValueBoolPointer()
 		}
 		if plan.Export.ValueStringPointer() != nil {
-			data.Export = models.ToPointer(plan.Export.ValueString())
+			data.Export = plan.Export.ValueStringPointer()
 		}
 		if plan.ExportPolicy.ValueStringPointer() != nil {
-			data.ExportPolicy = models.ToPointer(plan.ExportPolicy.ValueString())
+			data.ExportPolicy = plan.ExportPolicy.ValueStringPointer()
 		}
 		if plan.ExtendedV4Nexthop.ValueBoolPointer() != nil {
-			data.ExtendedV4Nexthop = models.ToPointer(plan.ExtendedV4Nexthop.ValueBool())
+			data.ExtendedV4Nexthop = plan.ExtendedV4Nexthop.ValueBoolPointer()
 		}
 		if plan.GracefulRestartTime.ValueInt64Pointer() != nil {
 			data.GracefulRestartTime = models.ToPointer(int(plan.GracefulRestartTime.ValueInt64()))
@@ -74,10 +74,10 @@ func bgpConfigTerraformToSdk(d basetypes.MapValue) map[string]models.BgpConfig {
 			data.HoldTime = models.ToPointer(int(plan.HoldTime.ValueInt64()))
 		}
 		if plan.Import.ValueStringPointer() != nil {
-			data.Import = models.ToPointer(plan.Import.ValueString())
+			data.Import = plan.Import.ValueStringPointer()
 		}
 		if plan.ImportPolicy.ValueStringPointer() != nil {
-			data.ImportPolicy = models.ToPointer(plan.ImportPolicy.ValueString())
+			data.ImportPolicy = plan.ImportPolicy.ValueStringPointer()
 		}
 		if plan.LocalAs.ValueInt64Pointer() != nil {
 			data.LocalAs = models.ToPointer(int(plan.LocalAs.ValueInt64()))
@@ -91,8 +91,11 @@ func bgpConfigTerraformToSdk(d basetypes.MapValue) map[string]models.BgpConfig {
 		if !plan.Networks.IsNull() && !plan.Networks.IsUnknown() {
 			data.Networks = misttransform.ListOfStringTerraformToSdk(plan.Networks)
 		}
+		if plan.NoPrivateAs.ValueBoolPointer() != nil {
+			data.NoPrivateAs = plan.NoPrivateAs.ValueBoolPointer()
+		}
 		if plan.NoReadvertiseToOverlay.ValueBoolPointer() != nil {
-			data.NoReadvertiseToOverlay = models.ToPointer(plan.NoReadvertiseToOverlay.ValueBool())
+			data.NoReadvertiseToOverlay = plan.NoReadvertiseToOverlay.ValueBoolPointer()
 		}
 		if plan.TunnelName.ValueStringPointer() != nil {
 			data.TunnelName = plan.TunnelName.ValueStringPointer()
@@ -104,10 +107,10 @@ func bgpConfigTerraformToSdk(d basetypes.MapValue) map[string]models.BgpConfig {
 			data.Via = models.ToPointer(models.BgpConfigViaEnum(plan.Via.ValueString()))
 		}
 		if plan.VpnName.ValueStringPointer() != nil {
-			data.VpnName = models.ToPointer(plan.VpnName.ValueString())
+			data.VpnName = plan.VpnName.ValueStringPointer()
 		}
 		if plan.WanName.ValueStringPointer() != nil {
-			data.WanName = models.ToPointer(plan.WanName.ValueString())
+			data.WanName = plan.WanName.ValueStringPointer()
 		}
 
 		dataMap[k] = data

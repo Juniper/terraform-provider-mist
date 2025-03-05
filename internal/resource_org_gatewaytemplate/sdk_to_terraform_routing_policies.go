@@ -121,11 +121,10 @@ func routingPolicyTermActionSdkToTerraform(ctx context.Context, diags *diag.Diag
 	var accept basetypes.BoolValue
 	var addCommunity = types.ListNull(types.StringType)
 	var addTargetVrfs = types.ListNull(types.StringType)
-	var aggregate = types.ListNull(types.StringType)
 	var community = types.ListNull(types.StringType)
 	var excludeAsPath = types.ListNull(types.StringType)
 	var excludeCommunity = types.ListNull(types.StringType)
-	var exportCommunitites = types.ListNull(types.StringType)
+	var exportCommunities = types.ListNull(types.StringType)
 	var localPreference basetypes.StringValue
 	var prependAsPath = types.ListNull(types.StringType)
 
@@ -138,9 +137,6 @@ func routingPolicyTermActionSdkToTerraform(ctx context.Context, diags *diag.Diag
 	if d.AddTargetVrfs != nil {
 		addTargetVrfs = misttransform.ListOfStringSdkToTerraform(d.AddTargetVrfs)
 	}
-	if d.Aggregate != nil {
-		aggregate = misttransform.ListOfStringSdkToTerraform(d.Aggregate)
-	}
 	if d.Community != nil {
 		community = misttransform.ListOfStringSdkToTerraform(d.Community)
 	}
@@ -150,8 +146,8 @@ func routingPolicyTermActionSdkToTerraform(ctx context.Context, diags *diag.Diag
 	if d.ExcludeCommunity != nil {
 		excludeCommunity = misttransform.ListOfStringSdkToTerraform(d.ExcludeCommunity)
 	}
-	if d.ExportCommunitites != nil {
-		exportCommunitites = misttransform.ListOfStringSdkToTerraform(d.ExportCommunitites)
+	if d.ExportCommunities != nil {
+		exportCommunities = misttransform.ListOfStringSdkToTerraform(d.ExportCommunities)
 	}
 	if d.LocalPreference != nil {
 		localPreference = types.StringValue(*d.LocalPreference)
@@ -161,16 +157,15 @@ func routingPolicyTermActionSdkToTerraform(ctx context.Context, diags *diag.Diag
 	}
 
 	dataMapValue := map[string]attr.Value{
-		"accept":              accept,
-		"add_community":       addCommunity,
-		"add_target_vrfs":     addTargetVrfs,
-		"aggregate":           aggregate,
-		"community":           community,
-		"exclude_as_path":     excludeAsPath,
-		"exclude_community":   excludeCommunity,
-		"export_communitites": exportCommunitites,
-		"local_preference":    localPreference,
-		"prepend_as_path":     prependAsPath,
+		"accept":             accept,
+		"add_community":      addCommunity,
+		"add_target_vrfs":    addTargetVrfs,
+		"community":          community,
+		"exclude_as_path":    excludeAsPath,
+		"exclude_community":  excludeCommunity,
+		"export_communities": exportCommunities,
+		"local_preference":   localPreference,
+		"prepend_as_path":    prependAsPath,
 	}
 	data, e := basetypes.NewObjectValue(ActionValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
