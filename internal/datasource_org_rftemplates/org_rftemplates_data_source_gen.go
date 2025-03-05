@@ -5,8 +5,11 @@ package datasource_org_rftemplates
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
@@ -18,26 +21,570 @@ import (
 func OrgRftemplatesDataSourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
+			"limit": schema.Int64Attribute{
+				Optional: true,
+				Validators: []validator.Int64{
+					int64validator.AtLeast(0),
+				},
+			},
 			"org_id": schema.StringAttribute{
 				Required: true,
 			},
 			"org_rftemplates": schema.SetNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
-						"created_time": schema.NumberAttribute{
+						"ant_gain_24": schema.Int64Attribute{
+							Computed: true,
+						},
+						"ant_gain_5": schema.Int64Attribute{
+							Computed: true,
+						},
+						"ant_gain_6": schema.Int64Attribute{
+							Computed: true,
+						},
+						"band_24": schema.SingleNestedAttribute{
+							Attributes: map[string]schema.Attribute{
+								"allow_rrm_disable": schema.BoolAttribute{
+									Computed: true,
+								},
+								"ant_gain": schema.Int64Attribute{
+									Computed: true,
+								},
+								"antenna_mode": schema.StringAttribute{
+									Computed:            true,
+									Description:         "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
+									MarkdownDescription: "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
+								},
+								"bandwidth": schema.Int64Attribute{
+									Computed:            true,
+									Description:         "channel width for the 2.4GHz band. enum: `20`, `40`",
+									MarkdownDescription: "channel width for the 2.4GHz band. enum: `20`, `40`",
+								},
+								"channels": schema.ListAttribute{
+									ElementType:         types.Int64Type,
+									Computed:            true,
+									Description:         "For RFTemplates. List of channels, null or empty array means auto",
+									MarkdownDescription: "For RFTemplates. List of channels, null or empty array means auto",
+								},
+								"disabled": schema.BoolAttribute{
+									Computed:            true,
+									Description:         "Whether to disable the radio",
+									MarkdownDescription: "Whether to disable the radio",
+								},
+								"power": schema.Int64Attribute{
+									Computed:            true,
+									Description:         "tx power of the radio, null or 0 means auto, when power_min=power_max=power=0 to indicate power=0",
+									MarkdownDescription: "tx power of the radio, null or 0 means auto, when power_min=power_max=power=0 to indicate power=0",
+								},
+								"power_max": schema.Int64Attribute{
+									Computed:            true,
+									Description:         "When power=0, max tx power to use, HW-specific values will be used if not set",
+									MarkdownDescription: "When power=0, max tx power to use, HW-specific values will be used if not set",
+								},
+								"power_min": schema.Int64Attribute{
+									Computed:            true,
+									Description:         "When power=0, min tx power to use, HW-specific values will be used if not set",
+									MarkdownDescription: "When power=0, min tx power to use, HW-specific values will be used if not set",
+								},
+								"preamble": schema.StringAttribute{
+									Computed:            true,
+									Description:         "enum: `auto`, `long`, `short`",
+									MarkdownDescription: "enum: `auto`, `long`, `short`",
+								},
+							},
+							CustomType: Band24Type{
+								ObjectType: types.ObjectType{
+									AttrTypes: Band24Value{}.AttributeTypes(ctx),
+								},
+							},
+							Computed:            true,
+							Description:         "Radio Band AP settings",
+							MarkdownDescription: "Radio Band AP settings",
+						},
+						"band_24_usage": schema.StringAttribute{
+							Computed:            true,
+							Description:         "enum: `24`, `5`, `6`, `auto`",
+							MarkdownDescription: "enum: `24`, `5`, `6`, `auto`",
+						},
+						"band_5": schema.SingleNestedAttribute{
+							Attributes: map[string]schema.Attribute{
+								"allow_rrm_disable": schema.BoolAttribute{
+									Computed: true,
+								},
+								"ant_gain": schema.Int64Attribute{
+									Computed: true,
+								},
+								"antenna_mode": schema.StringAttribute{
+									Computed:            true,
+									Description:         "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
+									MarkdownDescription: "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
+								},
+								"bandwidth": schema.Int64Attribute{
+									Computed:            true,
+									Description:         "channel width for the 5GHz band. enum: `20`, `40`, `80`",
+									MarkdownDescription: "channel width for the 5GHz band. enum: `20`, `40`, `80`",
+								},
+								"channels": schema.ListAttribute{
+									ElementType:         types.Int64Type,
+									Computed:            true,
+									Description:         "For RFTemplates. List of channels, null or empty array means auto",
+									MarkdownDescription: "For RFTemplates. List of channels, null or empty array means auto",
+								},
+								"disabled": schema.BoolAttribute{
+									Computed:            true,
+									Description:         "Whether to disable the radio",
+									MarkdownDescription: "Whether to disable the radio",
+								},
+								"power": schema.Int64Attribute{
+									Computed:            true,
+									Description:         "Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
+									MarkdownDescription: "Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
+								},
+								"power_max": schema.Int64Attribute{
+									Computed:            true,
+									Description:         "When power=0, max tx power to use, HW-specific values will be used if not set",
+									MarkdownDescription: "When power=0, max tx power to use, HW-specific values will be used if not set",
+								},
+								"power_min": schema.Int64Attribute{
+									Computed:            true,
+									Description:         "When power=0, min tx power to use, HW-specific values will be used if not set",
+									MarkdownDescription: "When power=0, min tx power to use, HW-specific values will be used if not set",
+								},
+								"preamble": schema.StringAttribute{
+									Computed:            true,
+									Description:         "enum: `auto`, `long`, `short`",
+									MarkdownDescription: "enum: `auto`, `long`, `short`",
+								},
+							},
+							CustomType: Band5Type{
+								ObjectType: types.ObjectType{
+									AttrTypes: Band5Value{}.AttributeTypes(ctx),
+								},
+							},
+							Computed:            true,
+							Description:         "Radio Band AP settings",
+							MarkdownDescription: "Radio Band AP settings",
+						},
+						"band_5_on_24_radio": schema.SingleNestedAttribute{
+							Attributes: map[string]schema.Attribute{
+								"allow_rrm_disable": schema.BoolAttribute{
+									Computed: true,
+								},
+								"ant_gain": schema.Int64Attribute{
+									Computed: true,
+								},
+								"antenna_mode": schema.StringAttribute{
+									Computed:            true,
+									Description:         "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
+									MarkdownDescription: "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
+								},
+								"bandwidth": schema.Int64Attribute{
+									Computed:            true,
+									Description:         "channel width for the 5GHz band. enum: `20`, `40`, `80`",
+									MarkdownDescription: "channel width for the 5GHz band. enum: `20`, `40`, `80`",
+								},
+								"channels": schema.ListAttribute{
+									ElementType:         types.Int64Type,
+									Computed:            true,
+									Description:         "For RFTemplates. List of channels, null or empty array means auto",
+									MarkdownDescription: "For RFTemplates. List of channels, null or empty array means auto",
+								},
+								"disabled": schema.BoolAttribute{
+									Computed:            true,
+									Description:         "Whether to disable the radio",
+									MarkdownDescription: "Whether to disable the radio",
+								},
+								"power": schema.Int64Attribute{
+									Computed:            true,
+									Description:         "Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
+									MarkdownDescription: "Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
+								},
+								"power_max": schema.Int64Attribute{
+									Computed:            true,
+									Description:         "When power=0, max tx power to use, HW-specific values will be used if not set",
+									MarkdownDescription: "When power=0, max tx power to use, HW-specific values will be used if not set",
+								},
+								"power_min": schema.Int64Attribute{
+									Computed:            true,
+									Description:         "When power=0, min tx power to use, HW-specific values will be used if not set",
+									MarkdownDescription: "When power=0, min tx power to use, HW-specific values will be used if not set",
+								},
+								"preamble": schema.StringAttribute{
+									Computed:            true,
+									Description:         "enum: `auto`, `long`, `short`",
+									MarkdownDescription: "enum: `auto`, `long`, `short`",
+								},
+							},
+							CustomType: Band5On24RadioType{
+								ObjectType: types.ObjectType{
+									AttrTypes: Band5On24RadioValue{}.AttributeTypes(ctx),
+								},
+							},
+							Computed:            true,
+							Description:         "Radio Band AP settings",
+							MarkdownDescription: "Radio Band AP settings",
+						},
+						"band_6": schema.SingleNestedAttribute{
+							Attributes: map[string]schema.Attribute{
+								"allow_rrm_disable": schema.BoolAttribute{
+									Computed: true,
+								},
+								"ant_gain": schema.Int64Attribute{
+									Computed: true,
+								},
+								"antenna_mode": schema.StringAttribute{
+									Computed:            true,
+									Description:         "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
+									MarkdownDescription: "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
+								},
+								"bandwidth": schema.Int64Attribute{
+									Computed:            true,
+									Description:         "channel width for the 6GHz band. enum: `20`, `40`, `80`, `160`",
+									MarkdownDescription: "channel width for the 6GHz band. enum: `20`, `40`, `80`, `160`",
+								},
+								"channels": schema.ListAttribute{
+									ElementType:         types.Int64Type,
+									Computed:            true,
+									Description:         "For RFTemplates. List of channels, null or empty array means auto",
+									MarkdownDescription: "For RFTemplates. List of channels, null or empty array means auto",
+								},
+								"disabled": schema.BoolAttribute{
+									Computed:            true,
+									Description:         "Whether to disable the radio",
+									MarkdownDescription: "Whether to disable the radio",
+								},
+								"power": schema.Int64Attribute{
+									Computed:            true,
+									Description:         "Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
+									MarkdownDescription: "Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
+								},
+								"power_max": schema.Int64Attribute{
+									Computed:            true,
+									Description:         "When power=0, max tx power to use, HW-specific values will be used if not set",
+									MarkdownDescription: "When power=0, max tx power to use, HW-specific values will be used if not set",
+								},
+								"power_min": schema.Int64Attribute{
+									Computed:            true,
+									Description:         "When power=0, min tx power to use, HW-specific values will be used if not set",
+									MarkdownDescription: "When power=0, min tx power to use, HW-specific values will be used if not set",
+								},
+								"preamble": schema.StringAttribute{
+									Computed:            true,
+									Description:         "enum: `auto`, `long`, `short`",
+									MarkdownDescription: "enum: `auto`, `long`, `short`",
+								},
+								"standard_power": schema.BoolAttribute{
+									Computed:            true,
+									Description:         "For 6GHz Only, standard-power operation, AFC (Automatic Frequency Coordination) will be performed, and we'll fall back to Low Power Indoor if AFC failed",
+									MarkdownDescription: "For 6GHz Only, standard-power operation, AFC (Automatic Frequency Coordination) will be performed, and we'll fall back to Low Power Indoor if AFC failed",
+								},
+							},
+							CustomType: Band6Type{
+								ObjectType: types.ObjectType{
+									AttrTypes: Band6Value{}.AttributeTypes(ctx),
+								},
+							},
+							Computed:            true,
+							Description:         "Radio Band AP settings",
+							MarkdownDescription: "Radio Band AP settings",
+						},
+						"country_code": schema.StringAttribute{
+							Computed:            true,
+							Description:         "Optional, country code to use. If specified, this gets applied to all sites using the RF Template",
+							MarkdownDescription: "Optional, country code to use. If specified, this gets applied to all sites using the RF Template",
+						},
+						"for_site": schema.BoolAttribute{
 							Computed: true,
 						},
 						"id": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							Description:         "Unique ID of the object instance in the Mist Organization",
+							MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
 						},
-						"modified_time": schema.NumberAttribute{
-							Computed: true,
+						"model_specific": schema.MapNestedAttribute{
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"ant_gain_24": schema.Int64Attribute{
+										Computed: true,
+									},
+									"ant_gain_5": schema.Int64Attribute{
+										Computed: true,
+									},
+									"ant_gain_6": schema.Int64Attribute{
+										Computed: true,
+									},
+									"band_24": schema.SingleNestedAttribute{
+										Attributes: map[string]schema.Attribute{
+											"allow_rrm_disable": schema.BoolAttribute{
+												Computed: true,
+											},
+											"ant_gain": schema.Int64Attribute{
+												Computed: true,
+											},
+											"antenna_mode": schema.StringAttribute{
+												Computed:            true,
+												Description:         "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
+												MarkdownDescription: "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
+											},
+											"bandwidth": schema.Int64Attribute{
+												Computed:            true,
+												Description:         "channel width for the 2.4GHz band. enum: `20`, `40`",
+												MarkdownDescription: "channel width for the 2.4GHz band. enum: `20`, `40`",
+											},
+											"channels": schema.ListAttribute{
+												ElementType:         types.Int64Type,
+												Computed:            true,
+												Description:         "For RFTemplates. List of channels, null or empty array means auto",
+												MarkdownDescription: "For RFTemplates. List of channels, null or empty array means auto",
+											},
+											"disabled": schema.BoolAttribute{
+												Computed:            true,
+												Description:         "Whether to disable the radio",
+												MarkdownDescription: "Whether to disable the radio",
+											},
+											"power": schema.Int64Attribute{
+												Computed:            true,
+												Description:         "tx power of the radio, null or 0 means auto, when power_min=power_max=power=0 to indicate power=0",
+												MarkdownDescription: "tx power of the radio, null or 0 means auto, when power_min=power_max=power=0 to indicate power=0",
+											},
+											"power_max": schema.Int64Attribute{
+												Computed:            true,
+												Description:         "When power=0, max tx power to use, HW-specific values will be used if not set",
+												MarkdownDescription: "When power=0, max tx power to use, HW-specific values will be used if not set",
+											},
+											"power_min": schema.Int64Attribute{
+												Computed:            true,
+												Description:         "When power=0, min tx power to use, HW-specific values will be used if not set",
+												MarkdownDescription: "When power=0, min tx power to use, HW-specific values will be used if not set",
+											},
+											"preamble": schema.StringAttribute{
+												Computed:            true,
+												Description:         "enum: `auto`, `long`, `short`",
+												MarkdownDescription: "enum: `auto`, `long`, `short`",
+											},
+										},
+										CustomType: Band24Type{
+											ObjectType: types.ObjectType{
+												AttrTypes: Band24Value{}.AttributeTypes(ctx),
+											},
+										},
+										Computed:            true,
+										Description:         "Radio Band AP settings",
+										MarkdownDescription: "Radio Band AP settings",
+									},
+									"band_24_usage": schema.StringAttribute{
+										Computed:            true,
+										Description:         "enum: `24`, `5`, `6`, `auto`",
+										MarkdownDescription: "enum: `24`, `5`, `6`, `auto`",
+									},
+									"band_5": schema.SingleNestedAttribute{
+										Attributes: map[string]schema.Attribute{
+											"allow_rrm_disable": schema.BoolAttribute{
+												Computed: true,
+											},
+											"ant_gain": schema.Int64Attribute{
+												Computed: true,
+											},
+											"antenna_mode": schema.StringAttribute{
+												Computed:            true,
+												Description:         "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
+												MarkdownDescription: "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
+											},
+											"bandwidth": schema.Int64Attribute{
+												Computed:            true,
+												Description:         "channel width for the 5GHz band. enum: `20`, `40`, `80`",
+												MarkdownDescription: "channel width for the 5GHz band. enum: `20`, `40`, `80`",
+											},
+											"channels": schema.ListAttribute{
+												ElementType:         types.Int64Type,
+												Computed:            true,
+												Description:         "For RFTemplates. List of channels, null or empty array means auto",
+												MarkdownDescription: "For RFTemplates. List of channels, null or empty array means auto",
+											},
+											"disabled": schema.BoolAttribute{
+												Computed:            true,
+												Description:         "Whether to disable the radio",
+												MarkdownDescription: "Whether to disable the radio",
+											},
+											"power": schema.Int64Attribute{
+												Computed:            true,
+												Description:         "Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
+												MarkdownDescription: "Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
+											},
+											"power_max": schema.Int64Attribute{
+												Computed:            true,
+												Description:         "When power=0, max tx power to use, HW-specific values will be used if not set",
+												MarkdownDescription: "When power=0, max tx power to use, HW-specific values will be used if not set",
+											},
+											"power_min": schema.Int64Attribute{
+												Computed:            true,
+												Description:         "When power=0, min tx power to use, HW-specific values will be used if not set",
+												MarkdownDescription: "When power=0, min tx power to use, HW-specific values will be used if not set",
+											},
+											"preamble": schema.StringAttribute{
+												Computed:            true,
+												Description:         "enum: `auto`, `long`, `short`",
+												MarkdownDescription: "enum: `auto`, `long`, `short`",
+											},
+										},
+										CustomType: Band5Type{
+											ObjectType: types.ObjectType{
+												AttrTypes: Band5Value{}.AttributeTypes(ctx),
+											},
+										},
+										Computed:            true,
+										Description:         "Radio Band AP settings",
+										MarkdownDescription: "Radio Band AP settings",
+									},
+									"band_5_on_24_radio": schema.SingleNestedAttribute{
+										Attributes: map[string]schema.Attribute{
+											"allow_rrm_disable": schema.BoolAttribute{
+												Computed: true,
+											},
+											"ant_gain": schema.Int64Attribute{
+												Computed: true,
+											},
+											"antenna_mode": schema.StringAttribute{
+												Computed:            true,
+												Description:         "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
+												MarkdownDescription: "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
+											},
+											"bandwidth": schema.Int64Attribute{
+												Computed:            true,
+												Description:         "channel width for the 5GHz band. enum: `20`, `40`, `80`",
+												MarkdownDescription: "channel width for the 5GHz band. enum: `20`, `40`, `80`",
+											},
+											"channels": schema.ListAttribute{
+												ElementType:         types.Int64Type,
+												Computed:            true,
+												Description:         "For RFTemplates. List of channels, null or empty array means auto",
+												MarkdownDescription: "For RFTemplates. List of channels, null or empty array means auto",
+											},
+											"disabled": schema.BoolAttribute{
+												Computed:            true,
+												Description:         "Whether to disable the radio",
+												MarkdownDescription: "Whether to disable the radio",
+											},
+											"power": schema.Int64Attribute{
+												Computed:            true,
+												Description:         "Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
+												MarkdownDescription: "Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
+											},
+											"power_max": schema.Int64Attribute{
+												Computed:            true,
+												Description:         "When power=0, max tx power to use, HW-specific values will be used if not set",
+												MarkdownDescription: "When power=0, max tx power to use, HW-specific values will be used if not set",
+											},
+											"power_min": schema.Int64Attribute{
+												Computed:            true,
+												Description:         "When power=0, min tx power to use, HW-specific values will be used if not set",
+												MarkdownDescription: "When power=0, min tx power to use, HW-specific values will be used if not set",
+											},
+											"preamble": schema.StringAttribute{
+												Computed:            true,
+												Description:         "enum: `auto`, `long`, `short`",
+												MarkdownDescription: "enum: `auto`, `long`, `short`",
+											},
+										},
+										CustomType: Band5On24RadioType{
+											ObjectType: types.ObjectType{
+												AttrTypes: Band5On24RadioValue{}.AttributeTypes(ctx),
+											},
+										},
+										Computed:            true,
+										Description:         "Radio Band AP settings",
+										MarkdownDescription: "Radio Band AP settings",
+									},
+									"band_6": schema.SingleNestedAttribute{
+										Attributes: map[string]schema.Attribute{
+											"allow_rrm_disable": schema.BoolAttribute{
+												Computed: true,
+											},
+											"ant_gain": schema.Int64Attribute{
+												Computed: true,
+											},
+											"antenna_mode": schema.StringAttribute{
+												Computed:            true,
+												Description:         "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
+												MarkdownDescription: "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
+											},
+											"bandwidth": schema.Int64Attribute{
+												Computed:            true,
+												Description:         "channel width for the 6GHz band. enum: `20`, `40`, `80`, `160`",
+												MarkdownDescription: "channel width for the 6GHz band. enum: `20`, `40`, `80`, `160`",
+											},
+											"channels": schema.ListAttribute{
+												ElementType:         types.Int64Type,
+												Computed:            true,
+												Description:         "For RFTemplates. List of channels, null or empty array means auto",
+												MarkdownDescription: "For RFTemplates. List of channels, null or empty array means auto",
+											},
+											"disabled": schema.BoolAttribute{
+												Computed:            true,
+												Description:         "Whether to disable the radio",
+												MarkdownDescription: "Whether to disable the radio",
+											},
+											"power": schema.Int64Attribute{
+												Computed:            true,
+												Description:         "Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
+												MarkdownDescription: "Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
+											},
+											"power_max": schema.Int64Attribute{
+												Computed:            true,
+												Description:         "When power=0, max tx power to use, HW-specific values will be used if not set",
+												MarkdownDescription: "When power=0, max tx power to use, HW-specific values will be used if not set",
+											},
+											"power_min": schema.Int64Attribute{
+												Computed:            true,
+												Description:         "When power=0, min tx power to use, HW-specific values will be used if not set",
+												MarkdownDescription: "When power=0, min tx power to use, HW-specific values will be used if not set",
+											},
+											"preamble": schema.StringAttribute{
+												Computed:            true,
+												Description:         "enum: `auto`, `long`, `short`",
+												MarkdownDescription: "enum: `auto`, `long`, `short`",
+											},
+											"standard_power": schema.BoolAttribute{
+												Computed:            true,
+												Description:         "For 6GHz Only, standard-power operation, AFC (Automatic Frequency Coordination) will be performed, and we'll fall back to Low Power Indoor if AFC failed",
+												MarkdownDescription: "For 6GHz Only, standard-power operation, AFC (Automatic Frequency Coordination) will be performed, and we'll fall back to Low Power Indoor if AFC failed",
+											},
+										},
+										CustomType: Band6Type{
+											ObjectType: types.ObjectType{
+												AttrTypes: Band6Value{}.AttributeTypes(ctx),
+											},
+										},
+										Computed:            true,
+										Description:         "Radio Band AP settings",
+										MarkdownDescription: "Radio Band AP settings",
+									},
+								},
+								CustomType: ModelSpecificType{
+									ObjectType: types.ObjectType{
+										AttrTypes: ModelSpecificValue{}.AttributeTypes(ctx),
+									},
+								},
+							},
+							Computed:            true,
+							Description:         "overwrites for a specific model. If a band is specified, it will shadow the default. Property key is the model name (e.g. \"AP63\")",
+							MarkdownDescription: "overwrites for a specific model. If a band is specified, it will shadow the default. Property key is the model name (e.g. \"AP63\")",
+							Validators: []validator.Map{
+								mapvalidator.SizeAtLeast(1),
+							},
 						},
 						"name": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							Description:         "The name of the RF template",
+							MarkdownDescription: "The name of the RF template",
 						},
 						"org_id": schema.StringAttribute{
 							Computed: true,
+						},
+						"scanning_enabled": schema.BoolAttribute{
+							Computed:            true,
+							Description:         "Whether scanning radio is enabled",
+							MarkdownDescription: "Whether scanning radio is enabled",
 						},
 					},
 					CustomType: OrgRftemplatesType{
@@ -48,13 +595,21 @@ func OrgRftemplatesDataSourceSchema(ctx context.Context) schema.Schema {
 				},
 				Computed: true,
 			},
+			"page": schema.Int64Attribute{
+				Optional: true,
+				Validators: []validator.Int64{
+					int64validator.AtLeast(1),
+				},
+			},
 		},
 	}
 }
 
 type OrgRftemplatesModel struct {
+	Limit          types.Int64  `tfsdk:"limit"`
 	OrgId          types.String `tfsdk:"org_id"`
 	OrgRftemplates types.Set    `tfsdk:"org_rftemplates"`
+	Page           types.Int64  `tfsdk:"page"`
 }
 
 var _ basetypes.ObjectTypable = OrgRftemplatesType{}
@@ -82,22 +637,184 @@ func (t OrgRftemplatesType) ValueFromObject(ctx context.Context, in basetypes.Ob
 
 	attributes := in.Attributes()
 
-	createdTimeAttribute, ok := attributes["created_time"]
+	antGain24Attribute, ok := attributes["ant_gain_24"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`created_time is missing from object`)
+			`ant_gain_24 is missing from object`)
 
 		return nil, diags
 	}
 
-	createdTimeVal, ok := createdTimeAttribute.(basetypes.NumberValue)
+	antGain24Val, ok := antGain24Attribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`created_time expected to be basetypes.NumberValue, was: %T`, createdTimeAttribute))
+			fmt.Sprintf(`ant_gain_24 expected to be basetypes.Int64Value, was: %T`, antGain24Attribute))
+	}
+
+	antGain5Attribute, ok := attributes["ant_gain_5"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ant_gain_5 is missing from object`)
+
+		return nil, diags
+	}
+
+	antGain5Val, ok := antGain5Attribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ant_gain_5 expected to be basetypes.Int64Value, was: %T`, antGain5Attribute))
+	}
+
+	antGain6Attribute, ok := attributes["ant_gain_6"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ant_gain_6 is missing from object`)
+
+		return nil, diags
+	}
+
+	antGain6Val, ok := antGain6Attribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ant_gain_6 expected to be basetypes.Int64Value, was: %T`, antGain6Attribute))
+	}
+
+	band24Attribute, ok := attributes["band_24"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`band_24 is missing from object`)
+
+		return nil, diags
+	}
+
+	band24Val, ok := band24Attribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`band_24 expected to be basetypes.ObjectValue, was: %T`, band24Attribute))
+	}
+
+	band24UsageAttribute, ok := attributes["band_24_usage"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`band_24_usage is missing from object`)
+
+		return nil, diags
+	}
+
+	band24UsageVal, ok := band24UsageAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`band_24_usage expected to be basetypes.StringValue, was: %T`, band24UsageAttribute))
+	}
+
+	band5Attribute, ok := attributes["band_5"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`band_5 is missing from object`)
+
+		return nil, diags
+	}
+
+	band5Val, ok := band5Attribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`band_5 expected to be basetypes.ObjectValue, was: %T`, band5Attribute))
+	}
+
+	band5On24RadioAttribute, ok := attributes["band_5_on_24_radio"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`band_5_on_24_radio is missing from object`)
+
+		return nil, diags
+	}
+
+	band5On24RadioVal, ok := band5On24RadioAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`band_5_on_24_radio expected to be basetypes.ObjectValue, was: %T`, band5On24RadioAttribute))
+	}
+
+	band6Attribute, ok := attributes["band_6"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`band_6 is missing from object`)
+
+		return nil, diags
+	}
+
+	band6Val, ok := band6Attribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`band_6 expected to be basetypes.ObjectValue, was: %T`, band6Attribute))
+	}
+
+	countryCodeAttribute, ok := attributes["country_code"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`country_code is missing from object`)
+
+		return nil, diags
+	}
+
+	countryCodeVal, ok := countryCodeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`country_code expected to be basetypes.StringValue, was: %T`, countryCodeAttribute))
+	}
+
+	forSiteAttribute, ok := attributes["for_site"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`for_site is missing from object`)
+
+		return nil, diags
+	}
+
+	forSiteVal, ok := forSiteAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`for_site expected to be basetypes.BoolValue, was: %T`, forSiteAttribute))
 	}
 
 	idAttribute, ok := attributes["id"]
@@ -118,22 +835,22 @@ func (t OrgRftemplatesType) ValueFromObject(ctx context.Context, in basetypes.Ob
 			fmt.Sprintf(`id expected to be basetypes.StringValue, was: %T`, idAttribute))
 	}
 
-	modifiedTimeAttribute, ok := attributes["modified_time"]
+	modelSpecificAttribute, ok := attributes["model_specific"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`modified_time is missing from object`)
+			`model_specific is missing from object`)
 
 		return nil, diags
 	}
 
-	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.NumberValue)
+	modelSpecificVal, ok := modelSpecificAttribute.(basetypes.MapValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`modified_time expected to be basetypes.NumberValue, was: %T`, modifiedTimeAttribute))
+			fmt.Sprintf(`model_specific expected to be basetypes.MapValue, was: %T`, modelSpecificAttribute))
 	}
 
 	nameAttribute, ok := attributes["name"]
@@ -172,17 +889,45 @@ func (t OrgRftemplatesType) ValueFromObject(ctx context.Context, in basetypes.Ob
 			fmt.Sprintf(`org_id expected to be basetypes.StringValue, was: %T`, orgIdAttribute))
 	}
 
+	scanningEnabledAttribute, ok := attributes["scanning_enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`scanning_enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	scanningEnabledVal, ok := scanningEnabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`scanning_enabled expected to be basetypes.BoolValue, was: %T`, scanningEnabledAttribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
 
 	return OrgRftemplatesValue{
-		CreatedTime:  createdTimeVal,
-		Id:           idVal,
-		ModifiedTime: modifiedTimeVal,
-		Name:         nameVal,
-		OrgId:        orgIdVal,
-		state:        attr.ValueStateKnown,
+		AntGain24:       antGain24Val,
+		AntGain5:        antGain5Val,
+		AntGain6:        antGain6Val,
+		Band24:          band24Val,
+		Band24Usage:     band24UsageVal,
+		Band5:           band5Val,
+		Band5On24Radio:  band5On24RadioVal,
+		Band6:           band6Val,
+		CountryCode:     countryCodeVal,
+		ForSite:         forSiteVal,
+		Id:              idVal,
+		ModelSpecific:   modelSpecificVal,
+		Name:            nameVal,
+		OrgId:           orgIdVal,
+		ScanningEnabled: scanningEnabledVal,
+		state:           attr.ValueStateKnown,
 	}, diags
 }
 
@@ -249,22 +994,184 @@ func NewOrgRftemplatesValue(attributeTypes map[string]attr.Type, attributes map[
 		return NewOrgRftemplatesValueUnknown(), diags
 	}
 
-	createdTimeAttribute, ok := attributes["created_time"]
+	antGain24Attribute, ok := attributes["ant_gain_24"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`created_time is missing from object`)
+			`ant_gain_24 is missing from object`)
 
 		return NewOrgRftemplatesValueUnknown(), diags
 	}
 
-	createdTimeVal, ok := createdTimeAttribute.(basetypes.NumberValue)
+	antGain24Val, ok := antGain24Attribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`created_time expected to be basetypes.NumberValue, was: %T`, createdTimeAttribute))
+			fmt.Sprintf(`ant_gain_24 expected to be basetypes.Int64Value, was: %T`, antGain24Attribute))
+	}
+
+	antGain5Attribute, ok := attributes["ant_gain_5"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ant_gain_5 is missing from object`)
+
+		return NewOrgRftemplatesValueUnknown(), diags
+	}
+
+	antGain5Val, ok := antGain5Attribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ant_gain_5 expected to be basetypes.Int64Value, was: %T`, antGain5Attribute))
+	}
+
+	antGain6Attribute, ok := attributes["ant_gain_6"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ant_gain_6 is missing from object`)
+
+		return NewOrgRftemplatesValueUnknown(), diags
+	}
+
+	antGain6Val, ok := antGain6Attribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ant_gain_6 expected to be basetypes.Int64Value, was: %T`, antGain6Attribute))
+	}
+
+	band24Attribute, ok := attributes["band_24"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`band_24 is missing from object`)
+
+		return NewOrgRftemplatesValueUnknown(), diags
+	}
+
+	band24Val, ok := band24Attribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`band_24 expected to be basetypes.ObjectValue, was: %T`, band24Attribute))
+	}
+
+	band24UsageAttribute, ok := attributes["band_24_usage"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`band_24_usage is missing from object`)
+
+		return NewOrgRftemplatesValueUnknown(), diags
+	}
+
+	band24UsageVal, ok := band24UsageAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`band_24_usage expected to be basetypes.StringValue, was: %T`, band24UsageAttribute))
+	}
+
+	band5Attribute, ok := attributes["band_5"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`band_5 is missing from object`)
+
+		return NewOrgRftemplatesValueUnknown(), diags
+	}
+
+	band5Val, ok := band5Attribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`band_5 expected to be basetypes.ObjectValue, was: %T`, band5Attribute))
+	}
+
+	band5On24RadioAttribute, ok := attributes["band_5_on_24_radio"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`band_5_on_24_radio is missing from object`)
+
+		return NewOrgRftemplatesValueUnknown(), diags
+	}
+
+	band5On24RadioVal, ok := band5On24RadioAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`band_5_on_24_radio expected to be basetypes.ObjectValue, was: %T`, band5On24RadioAttribute))
+	}
+
+	band6Attribute, ok := attributes["band_6"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`band_6 is missing from object`)
+
+		return NewOrgRftemplatesValueUnknown(), diags
+	}
+
+	band6Val, ok := band6Attribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`band_6 expected to be basetypes.ObjectValue, was: %T`, band6Attribute))
+	}
+
+	countryCodeAttribute, ok := attributes["country_code"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`country_code is missing from object`)
+
+		return NewOrgRftemplatesValueUnknown(), diags
+	}
+
+	countryCodeVal, ok := countryCodeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`country_code expected to be basetypes.StringValue, was: %T`, countryCodeAttribute))
+	}
+
+	forSiteAttribute, ok := attributes["for_site"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`for_site is missing from object`)
+
+		return NewOrgRftemplatesValueUnknown(), diags
+	}
+
+	forSiteVal, ok := forSiteAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`for_site expected to be basetypes.BoolValue, was: %T`, forSiteAttribute))
 	}
 
 	idAttribute, ok := attributes["id"]
@@ -285,22 +1192,22 @@ func NewOrgRftemplatesValue(attributeTypes map[string]attr.Type, attributes map[
 			fmt.Sprintf(`id expected to be basetypes.StringValue, was: %T`, idAttribute))
 	}
 
-	modifiedTimeAttribute, ok := attributes["modified_time"]
+	modelSpecificAttribute, ok := attributes["model_specific"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`modified_time is missing from object`)
+			`model_specific is missing from object`)
 
 		return NewOrgRftemplatesValueUnknown(), diags
 	}
 
-	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.NumberValue)
+	modelSpecificVal, ok := modelSpecificAttribute.(basetypes.MapValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`modified_time expected to be basetypes.NumberValue, was: %T`, modifiedTimeAttribute))
+			fmt.Sprintf(`model_specific expected to be basetypes.MapValue, was: %T`, modelSpecificAttribute))
 	}
 
 	nameAttribute, ok := attributes["name"]
@@ -339,17 +1246,45 @@ func NewOrgRftemplatesValue(attributeTypes map[string]attr.Type, attributes map[
 			fmt.Sprintf(`org_id expected to be basetypes.StringValue, was: %T`, orgIdAttribute))
 	}
 
+	scanningEnabledAttribute, ok := attributes["scanning_enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`scanning_enabled is missing from object`)
+
+		return NewOrgRftemplatesValueUnknown(), diags
+	}
+
+	scanningEnabledVal, ok := scanningEnabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`scanning_enabled expected to be basetypes.BoolValue, was: %T`, scanningEnabledAttribute))
+	}
+
 	if diags.HasError() {
 		return NewOrgRftemplatesValueUnknown(), diags
 	}
 
 	return OrgRftemplatesValue{
-		CreatedTime:  createdTimeVal,
-		Id:           idVal,
-		ModifiedTime: modifiedTimeVal,
-		Name:         nameVal,
-		OrgId:        orgIdVal,
-		state:        attr.ValueStateKnown,
+		AntGain24:       antGain24Val,
+		AntGain5:        antGain5Val,
+		AntGain6:        antGain6Val,
+		Band24:          band24Val,
+		Band24Usage:     band24UsageVal,
+		Band5:           band5Val,
+		Band5On24Radio:  band5On24RadioVal,
+		Band6:           band6Val,
+		CountryCode:     countryCodeVal,
+		ForSite:         forSiteVal,
+		Id:              idVal,
+		ModelSpecific:   modelSpecificVal,
+		Name:            nameVal,
+		OrgId:           orgIdVal,
+		ScanningEnabled: scanningEnabledVal,
+		state:           attr.ValueStateKnown,
 	}, diags
 }
 
@@ -421,39 +1356,141 @@ func (t OrgRftemplatesType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = OrgRftemplatesValue{}
 
 type OrgRftemplatesValue struct {
-	CreatedTime  basetypes.NumberValue `tfsdk:"created_time"`
-	Id           basetypes.StringValue `tfsdk:"id"`
-	ModifiedTime basetypes.NumberValue `tfsdk:"modified_time"`
-	Name         basetypes.StringValue `tfsdk:"name"`
-	OrgId        basetypes.StringValue `tfsdk:"org_id"`
-	state        attr.ValueState
+	AntGain24       basetypes.Int64Value  `tfsdk:"ant_gain_24"`
+	AntGain5        basetypes.Int64Value  `tfsdk:"ant_gain_5"`
+	AntGain6        basetypes.Int64Value  `tfsdk:"ant_gain_6"`
+	Band24          basetypes.ObjectValue `tfsdk:"band_24"`
+	Band24Usage     basetypes.StringValue `tfsdk:"band_24_usage"`
+	Band5           basetypes.ObjectValue `tfsdk:"band_5"`
+	Band5On24Radio  basetypes.ObjectValue `tfsdk:"band_5_on_24_radio"`
+	Band6           basetypes.ObjectValue `tfsdk:"band_6"`
+	CountryCode     basetypes.StringValue `tfsdk:"country_code"`
+	ForSite         basetypes.BoolValue   `tfsdk:"for_site"`
+	Id              basetypes.StringValue `tfsdk:"id"`
+	ModelSpecific   basetypes.MapValue    `tfsdk:"model_specific"`
+	Name            basetypes.StringValue `tfsdk:"name"`
+	OrgId           basetypes.StringValue `tfsdk:"org_id"`
+	ScanningEnabled basetypes.BoolValue   `tfsdk:"scanning_enabled"`
+	state           attr.ValueState
 }
 
 func (v OrgRftemplatesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 6)
+	attrTypes := make(map[string]tftypes.Type, 15)
 
 	var val tftypes.Value
 	var err error
 
-	attrTypes["created_time"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["ant_gain_24"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["ant_gain_5"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["ant_gain_6"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["band_24"] = basetypes.ObjectType{
+		AttrTypes: Band24Value{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
+	attrTypes["band_24_usage"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["band_5"] = basetypes.ObjectType{
+		AttrTypes: Band5Value{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
+	attrTypes["band_5_on_24_radio"] = basetypes.ObjectType{
+		AttrTypes: Band5On24RadioValue{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
+	attrTypes["band_6"] = basetypes.ObjectType{
+		AttrTypes: Band6Value{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
+	attrTypes["country_code"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["for_site"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["id"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["modified_time"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["model_specific"] = basetypes.MapType{
+		ElemType: ModelSpecificValue{}.Type(ctx),
+	}.TerraformType(ctx)
 	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["org_id"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["scanning_enabled"] = basetypes.BoolType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 6)
+		vals := make(map[string]tftypes.Value, 15)
 
-		val, err = v.CreatedTime.ToTerraformValue(ctx)
+		val, err = v.AntGain24.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["created_time"] = val
+		vals["ant_gain_24"] = val
+
+		val, err = v.AntGain5.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["ant_gain_5"] = val
+
+		val, err = v.AntGain6.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["ant_gain_6"] = val
+
+		val, err = v.Band24.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["band_24"] = val
+
+		val, err = v.Band24Usage.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["band_24_usage"] = val
+
+		val, err = v.Band5.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["band_5"] = val
+
+		val, err = v.Band5On24Radio.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["band_5_on_24_radio"] = val
+
+		val, err = v.Band6.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["band_6"] = val
+
+		val, err = v.CountryCode.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["country_code"] = val
+
+		val, err = v.ForSite.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["for_site"] = val
 
 		val, err = v.Id.ToTerraformValue(ctx)
 
@@ -463,13 +1500,13 @@ func (v OrgRftemplatesValue) ToTerraformValue(ctx context.Context) (tftypes.Valu
 
 		vals["id"] = val
 
-		val, err = v.ModifiedTime.ToTerraformValue(ctx)
+		val, err = v.ModelSpecific.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["modified_time"] = val
+		vals["model_specific"] = val
 
 		val, err = v.Name.ToTerraformValue(ctx)
 
@@ -486,6 +1523,14 @@ func (v OrgRftemplatesValue) ToTerraformValue(ctx context.Context) (tftypes.Valu
 		}
 
 		vals["org_id"] = val
+
+		val, err = v.ScanningEnabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["scanning_enabled"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -516,12 +1561,145 @@ func (v OrgRftemplatesValue) String() string {
 func (v OrgRftemplatesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
+	var band24 basetypes.ObjectValue
+
+	if v.Band24.IsNull() {
+		band24 = types.ObjectNull(
+			Band24Value{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.Band24.IsUnknown() {
+		band24 = types.ObjectUnknown(
+			Band24Value{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.Band24.IsNull() && !v.Band24.IsUnknown() {
+		band24 = types.ObjectValueMust(
+			Band24Value{}.AttributeTypes(ctx),
+			v.Band24.Attributes(),
+		)
+	}
+
+	var band5 basetypes.ObjectValue
+
+	if v.Band5.IsNull() {
+		band5 = types.ObjectNull(
+			Band5Value{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.Band5.IsUnknown() {
+		band5 = types.ObjectUnknown(
+			Band5Value{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.Band5.IsNull() && !v.Band5.IsUnknown() {
+		band5 = types.ObjectValueMust(
+			Band5Value{}.AttributeTypes(ctx),
+			v.Band5.Attributes(),
+		)
+	}
+
+	var band5On24Radio basetypes.ObjectValue
+
+	if v.Band5On24Radio.IsNull() {
+		band5On24Radio = types.ObjectNull(
+			Band5On24RadioValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.Band5On24Radio.IsUnknown() {
+		band5On24Radio = types.ObjectUnknown(
+			Band5On24RadioValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.Band5On24Radio.IsNull() && !v.Band5On24Radio.IsUnknown() {
+		band5On24Radio = types.ObjectValueMust(
+			Band5On24RadioValue{}.AttributeTypes(ctx),
+			v.Band5On24Radio.Attributes(),
+		)
+	}
+
+	var band6 basetypes.ObjectValue
+
+	if v.Band6.IsNull() {
+		band6 = types.ObjectNull(
+			Band6Value{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.Band6.IsUnknown() {
+		band6 = types.ObjectUnknown(
+			Band6Value{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.Band6.IsNull() && !v.Band6.IsUnknown() {
+		band6 = types.ObjectValueMust(
+			Band6Value{}.AttributeTypes(ctx),
+			v.Band6.Attributes(),
+		)
+	}
+
+	modelSpecific := types.MapValueMust(
+		ModelSpecificType{
+			basetypes.ObjectType{
+				AttrTypes: ModelSpecificValue{}.AttributeTypes(ctx),
+			},
+		},
+		v.ModelSpecific.Elements(),
+	)
+
+	if v.ModelSpecific.IsNull() {
+		modelSpecific = types.MapNull(
+			ModelSpecificType{
+				basetypes.ObjectType{
+					AttrTypes: ModelSpecificValue{}.AttributeTypes(ctx),
+				},
+			},
+		)
+	}
+
+	if v.ModelSpecific.IsUnknown() {
+		modelSpecific = types.MapUnknown(
+			ModelSpecificType{
+				basetypes.ObjectType{
+					AttrTypes: ModelSpecificValue{}.AttributeTypes(ctx),
+				},
+			},
+		)
+	}
+
 	attributeTypes := map[string]attr.Type{
-		"created_time":  basetypes.NumberType{},
-		"id":            basetypes.StringType{},
-		"modified_time": basetypes.NumberType{},
-		"name":          basetypes.StringType{},
-		"org_id":        basetypes.StringType{},
+		"ant_gain_24": basetypes.Int64Type{},
+		"ant_gain_5":  basetypes.Int64Type{},
+		"ant_gain_6":  basetypes.Int64Type{},
+		"band_24": basetypes.ObjectType{
+			AttrTypes: Band24Value{}.AttributeTypes(ctx),
+		},
+		"band_24_usage": basetypes.StringType{},
+		"band_5": basetypes.ObjectType{
+			AttrTypes: Band5Value{}.AttributeTypes(ctx),
+		},
+		"band_5_on_24_radio": basetypes.ObjectType{
+			AttrTypes: Band5On24RadioValue{}.AttributeTypes(ctx),
+		},
+		"band_6": basetypes.ObjectType{
+			AttrTypes: Band6Value{}.AttributeTypes(ctx),
+		},
+		"country_code": basetypes.StringType{},
+		"for_site":     basetypes.BoolType{},
+		"id":           basetypes.StringType{},
+		"model_specific": basetypes.MapType{
+			ElemType: ModelSpecificValue{}.Type(ctx),
+		},
+		"name":             basetypes.StringType{},
+		"org_id":           basetypes.StringType{},
+		"scanning_enabled": basetypes.BoolType{},
 	}
 
 	if v.IsNull() {
@@ -535,11 +1713,21 @@ func (v OrgRftemplatesValue) ToObjectValue(ctx context.Context) (basetypes.Objec
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"created_time":  v.CreatedTime,
-			"id":            v.Id,
-			"modified_time": v.ModifiedTime,
-			"name":          v.Name,
-			"org_id":        v.OrgId,
+			"ant_gain_24":        v.AntGain24,
+			"ant_gain_5":         v.AntGain5,
+			"ant_gain_6":         v.AntGain6,
+			"band_24":            band24,
+			"band_24_usage":      v.Band24Usage,
+			"band_5":             band5,
+			"band_5_on_24_radio": band5On24Radio,
+			"band_6":             band6,
+			"country_code":       v.CountryCode,
+			"for_site":           v.ForSite,
+			"id":                 v.Id,
+			"model_specific":     modelSpecific,
+			"name":               v.Name,
+			"org_id":             v.OrgId,
+			"scanning_enabled":   v.ScanningEnabled,
 		})
 
 	return objVal, diags
@@ -560,7 +1748,43 @@ func (v OrgRftemplatesValue) Equal(o attr.Value) bool {
 		return true
 	}
 
-	if !v.CreatedTime.Equal(other.CreatedTime) {
+	if !v.AntGain24.Equal(other.AntGain24) {
+		return false
+	}
+
+	if !v.AntGain5.Equal(other.AntGain5) {
+		return false
+	}
+
+	if !v.AntGain6.Equal(other.AntGain6) {
+		return false
+	}
+
+	if !v.Band24.Equal(other.Band24) {
+		return false
+	}
+
+	if !v.Band24Usage.Equal(other.Band24Usage) {
+		return false
+	}
+
+	if !v.Band5.Equal(other.Band5) {
+		return false
+	}
+
+	if !v.Band5On24Radio.Equal(other.Band5On24Radio) {
+		return false
+	}
+
+	if !v.Band6.Equal(other.Band6) {
+		return false
+	}
+
+	if !v.CountryCode.Equal(other.CountryCode) {
+		return false
+	}
+
+	if !v.ForSite.Equal(other.ForSite) {
 		return false
 	}
 
@@ -568,7 +1792,7 @@ func (v OrgRftemplatesValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.ModifiedTime.Equal(other.ModifiedTime) {
+	if !v.ModelSpecific.Equal(other.ModelSpecific) {
 		return false
 	}
 
@@ -577,6 +1801,10 @@ func (v OrgRftemplatesValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.OrgId.Equal(other.OrgId) {
+		return false
+	}
+
+	if !v.ScanningEnabled.Equal(other.ScanningEnabled) {
 		return false
 	}
 
@@ -593,10 +1821,7727 @@ func (v OrgRftemplatesValue) Type(ctx context.Context) attr.Type {
 
 func (v OrgRftemplatesValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"created_time":  basetypes.NumberType{},
-		"id":            basetypes.StringType{},
-		"modified_time": basetypes.NumberType{},
-		"name":          basetypes.StringType{},
-		"org_id":        basetypes.StringType{},
+		"ant_gain_24": basetypes.Int64Type{},
+		"ant_gain_5":  basetypes.Int64Type{},
+		"ant_gain_6":  basetypes.Int64Type{},
+		"band_24": basetypes.ObjectType{
+			AttrTypes: Band24Value{}.AttributeTypes(ctx),
+		},
+		"band_24_usage": basetypes.StringType{},
+		"band_5": basetypes.ObjectType{
+			AttrTypes: Band5Value{}.AttributeTypes(ctx),
+		},
+		"band_5_on_24_radio": basetypes.ObjectType{
+			AttrTypes: Band5On24RadioValue{}.AttributeTypes(ctx),
+		},
+		"band_6": basetypes.ObjectType{
+			AttrTypes: Band6Value{}.AttributeTypes(ctx),
+		},
+		"country_code": basetypes.StringType{},
+		"for_site":     basetypes.BoolType{},
+		"id":           basetypes.StringType{},
+		"model_specific": basetypes.MapType{
+			ElemType: ModelSpecificValue{}.Type(ctx),
+		},
+		"name":             basetypes.StringType{},
+		"org_id":           basetypes.StringType{},
+		"scanning_enabled": basetypes.BoolType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = Band24Type{}
+
+type Band24Type struct {
+	basetypes.ObjectType
+}
+
+func (t Band24Type) Equal(o attr.Type) bool {
+	other, ok := o.(Band24Type)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t Band24Type) String() string {
+	return "Band24Type"
+}
+
+func (t Band24Type) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	allowRrmDisableAttribute, ok := attributes["allow_rrm_disable"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`allow_rrm_disable is missing from object`)
+
+		return nil, diags
+	}
+
+	allowRrmDisableVal, ok := allowRrmDisableAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`allow_rrm_disable expected to be basetypes.BoolValue, was: %T`, allowRrmDisableAttribute))
+	}
+
+	antGainAttribute, ok := attributes["ant_gain"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ant_gain is missing from object`)
+
+		return nil, diags
+	}
+
+	antGainVal, ok := antGainAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ant_gain expected to be basetypes.Int64Value, was: %T`, antGainAttribute))
+	}
+
+	antennaModeAttribute, ok := attributes["antenna_mode"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`antenna_mode is missing from object`)
+
+		return nil, diags
+	}
+
+	antennaModeVal, ok := antennaModeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`antenna_mode expected to be basetypes.StringValue, was: %T`, antennaModeAttribute))
+	}
+
+	bandwidthAttribute, ok := attributes["bandwidth"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`bandwidth is missing from object`)
+
+		return nil, diags
+	}
+
+	bandwidthVal, ok := bandwidthAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`bandwidth expected to be basetypes.Int64Value, was: %T`, bandwidthAttribute))
+	}
+
+	channelsAttribute, ok := attributes["channels"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`channels is missing from object`)
+
+		return nil, diags
+	}
+
+	channelsVal, ok := channelsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`channels expected to be basetypes.ListValue, was: %T`, channelsAttribute))
+	}
+
+	disabledAttribute, ok := attributes["disabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disabled is missing from object`)
+
+		return nil, diags
+	}
+
+	disabledVal, ok := disabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disabled expected to be basetypes.BoolValue, was: %T`, disabledAttribute))
+	}
+
+	powerAttribute, ok := attributes["power"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power is missing from object`)
+
+		return nil, diags
+	}
+
+	powerVal, ok := powerAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power expected to be basetypes.Int64Value, was: %T`, powerAttribute))
+	}
+
+	powerMaxAttribute, ok := attributes["power_max"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_max is missing from object`)
+
+		return nil, diags
+	}
+
+	powerMaxVal, ok := powerMaxAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_max expected to be basetypes.Int64Value, was: %T`, powerMaxAttribute))
+	}
+
+	powerMinAttribute, ok := attributes["power_min"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_min is missing from object`)
+
+		return nil, diags
+	}
+
+	powerMinVal, ok := powerMinAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_min expected to be basetypes.Int64Value, was: %T`, powerMinAttribute))
+	}
+
+	preambleAttribute, ok := attributes["preamble"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`preamble is missing from object`)
+
+		return nil, diags
+	}
+
+	preambleVal, ok := preambleAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`preamble expected to be basetypes.StringValue, was: %T`, preambleAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return Band24Value{
+		AllowRrmDisable: allowRrmDisableVal,
+		AntGain:         antGainVal,
+		AntennaMode:     antennaModeVal,
+		Bandwidth:       bandwidthVal,
+		Channels:        channelsVal,
+		Disabled:        disabledVal,
+		Power:           powerVal,
+		PowerMax:        powerMaxVal,
+		PowerMin:        powerMinVal,
+		Preamble:        preambleVal,
+		state:           attr.ValueStateKnown,
+	}, diags
+}
+
+func NewBand24ValueNull() Band24Value {
+	return Band24Value{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewBand24ValueUnknown() Band24Value {
+	return Band24Value{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewBand24Value(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (Band24Value, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing Band24Value Attribute Value",
+				"While creating a Band24Value value, a missing attribute value was detected. "+
+					"A Band24Value must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Band24Value Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid Band24Value Attribute Type",
+				"While creating a Band24Value value, an invalid attribute value was detected. "+
+					"A Band24Value must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Band24Value Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("Band24Value Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra Band24Value Attribute Value",
+				"While creating a Band24Value value, an extra attribute value was detected. "+
+					"A Band24Value must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra Band24Value Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewBand24ValueUnknown(), diags
+	}
+
+	allowRrmDisableAttribute, ok := attributes["allow_rrm_disable"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`allow_rrm_disable is missing from object`)
+
+		return NewBand24ValueUnknown(), diags
+	}
+
+	allowRrmDisableVal, ok := allowRrmDisableAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`allow_rrm_disable expected to be basetypes.BoolValue, was: %T`, allowRrmDisableAttribute))
+	}
+
+	antGainAttribute, ok := attributes["ant_gain"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ant_gain is missing from object`)
+
+		return NewBand24ValueUnknown(), diags
+	}
+
+	antGainVal, ok := antGainAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ant_gain expected to be basetypes.Int64Value, was: %T`, antGainAttribute))
+	}
+
+	antennaModeAttribute, ok := attributes["antenna_mode"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`antenna_mode is missing from object`)
+
+		return NewBand24ValueUnknown(), diags
+	}
+
+	antennaModeVal, ok := antennaModeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`antenna_mode expected to be basetypes.StringValue, was: %T`, antennaModeAttribute))
+	}
+
+	bandwidthAttribute, ok := attributes["bandwidth"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`bandwidth is missing from object`)
+
+		return NewBand24ValueUnknown(), diags
+	}
+
+	bandwidthVal, ok := bandwidthAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`bandwidth expected to be basetypes.Int64Value, was: %T`, bandwidthAttribute))
+	}
+
+	channelsAttribute, ok := attributes["channels"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`channels is missing from object`)
+
+		return NewBand24ValueUnknown(), diags
+	}
+
+	channelsVal, ok := channelsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`channels expected to be basetypes.ListValue, was: %T`, channelsAttribute))
+	}
+
+	disabledAttribute, ok := attributes["disabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disabled is missing from object`)
+
+		return NewBand24ValueUnknown(), diags
+	}
+
+	disabledVal, ok := disabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disabled expected to be basetypes.BoolValue, was: %T`, disabledAttribute))
+	}
+
+	powerAttribute, ok := attributes["power"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power is missing from object`)
+
+		return NewBand24ValueUnknown(), diags
+	}
+
+	powerVal, ok := powerAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power expected to be basetypes.Int64Value, was: %T`, powerAttribute))
+	}
+
+	powerMaxAttribute, ok := attributes["power_max"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_max is missing from object`)
+
+		return NewBand24ValueUnknown(), diags
+	}
+
+	powerMaxVal, ok := powerMaxAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_max expected to be basetypes.Int64Value, was: %T`, powerMaxAttribute))
+	}
+
+	powerMinAttribute, ok := attributes["power_min"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_min is missing from object`)
+
+		return NewBand24ValueUnknown(), diags
+	}
+
+	powerMinVal, ok := powerMinAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_min expected to be basetypes.Int64Value, was: %T`, powerMinAttribute))
+	}
+
+	preambleAttribute, ok := attributes["preamble"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`preamble is missing from object`)
+
+		return NewBand24ValueUnknown(), diags
+	}
+
+	preambleVal, ok := preambleAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`preamble expected to be basetypes.StringValue, was: %T`, preambleAttribute))
+	}
+
+	if diags.HasError() {
+		return NewBand24ValueUnknown(), diags
+	}
+
+	return Band24Value{
+		AllowRrmDisable: allowRrmDisableVal,
+		AntGain:         antGainVal,
+		AntennaMode:     antennaModeVal,
+		Bandwidth:       bandwidthVal,
+		Channels:        channelsVal,
+		Disabled:        disabledVal,
+		Power:           powerVal,
+		PowerMax:        powerMaxVal,
+		PowerMin:        powerMinVal,
+		Preamble:        preambleVal,
+		state:           attr.ValueStateKnown,
+	}, diags
+}
+
+func NewBand24ValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) Band24Value {
+	object, diags := NewBand24Value(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewBand24ValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t Band24Type) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewBand24ValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewBand24ValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewBand24ValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewBand24ValueMust(Band24Value{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t Band24Type) ValueType(ctx context.Context) attr.Value {
+	return Band24Value{}
+}
+
+var _ basetypes.ObjectValuable = Band24Value{}
+
+type Band24Value struct {
+	AllowRrmDisable basetypes.BoolValue   `tfsdk:"allow_rrm_disable"`
+	AntGain         basetypes.Int64Value  `tfsdk:"ant_gain"`
+	AntennaMode     basetypes.StringValue `tfsdk:"antenna_mode"`
+	Bandwidth       basetypes.Int64Value  `tfsdk:"bandwidth"`
+	Channels        basetypes.ListValue   `tfsdk:"channels"`
+	Disabled        basetypes.BoolValue   `tfsdk:"disabled"`
+	Power           basetypes.Int64Value  `tfsdk:"power"`
+	PowerMax        basetypes.Int64Value  `tfsdk:"power_max"`
+	PowerMin        basetypes.Int64Value  `tfsdk:"power_min"`
+	Preamble        basetypes.StringValue `tfsdk:"preamble"`
+	state           attr.ValueState
+}
+
+func (v Band24Value) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 10)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["allow_rrm_disable"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["ant_gain"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["antenna_mode"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["bandwidth"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["channels"] = basetypes.ListType{
+		ElemType: types.Int64Type,
+	}.TerraformType(ctx)
+	attrTypes["disabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["power"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["power_max"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["power_min"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["preamble"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 10)
+
+		val, err = v.AllowRrmDisable.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["allow_rrm_disable"] = val
+
+		val, err = v.AntGain.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["ant_gain"] = val
+
+		val, err = v.AntennaMode.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["antenna_mode"] = val
+
+		val, err = v.Bandwidth.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["bandwidth"] = val
+
+		val, err = v.Channels.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["channels"] = val
+
+		val, err = v.Disabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["disabled"] = val
+
+		val, err = v.Power.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["power"] = val
+
+		val, err = v.PowerMax.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["power_max"] = val
+
+		val, err = v.PowerMin.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["power_min"] = val
+
+		val, err = v.Preamble.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["preamble"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v Band24Value) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v Band24Value) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v Band24Value) String() string {
+	return "Band24Value"
+}
+
+func (v Band24Value) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	channelsVal, d := types.ListValue(types.Int64Type, v.Channels.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"allow_rrm_disable": basetypes.BoolType{},
+			"ant_gain":          basetypes.Int64Type{},
+			"antenna_mode":      basetypes.StringType{},
+			"bandwidth":         basetypes.Int64Type{},
+			"channels": basetypes.ListType{
+				ElemType: types.Int64Type,
+			},
+			"disabled":  basetypes.BoolType{},
+			"power":     basetypes.Int64Type{},
+			"power_max": basetypes.Int64Type{},
+			"power_min": basetypes.Int64Type{},
+			"preamble":  basetypes.StringType{},
+		}), diags
+	}
+
+	attributeTypes := map[string]attr.Type{
+		"allow_rrm_disable": basetypes.BoolType{},
+		"ant_gain":          basetypes.Int64Type{},
+		"antenna_mode":      basetypes.StringType{},
+		"bandwidth":         basetypes.Int64Type{},
+		"channels": basetypes.ListType{
+			ElemType: types.Int64Type,
+		},
+		"disabled":  basetypes.BoolType{},
+		"power":     basetypes.Int64Type{},
+		"power_max": basetypes.Int64Type{},
+		"power_min": basetypes.Int64Type{},
+		"preamble":  basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"allow_rrm_disable": v.AllowRrmDisable,
+			"ant_gain":          v.AntGain,
+			"antenna_mode":      v.AntennaMode,
+			"bandwidth":         v.Bandwidth,
+			"channels":          channelsVal,
+			"disabled":          v.Disabled,
+			"power":             v.Power,
+			"power_max":         v.PowerMax,
+			"power_min":         v.PowerMin,
+			"preamble":          v.Preamble,
+		})
+
+	return objVal, diags
+}
+
+func (v Band24Value) Equal(o attr.Value) bool {
+	other, ok := o.(Band24Value)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.AllowRrmDisable.Equal(other.AllowRrmDisable) {
+		return false
+	}
+
+	if !v.AntGain.Equal(other.AntGain) {
+		return false
+	}
+
+	if !v.AntennaMode.Equal(other.AntennaMode) {
+		return false
+	}
+
+	if !v.Bandwidth.Equal(other.Bandwidth) {
+		return false
+	}
+
+	if !v.Channels.Equal(other.Channels) {
+		return false
+	}
+
+	if !v.Disabled.Equal(other.Disabled) {
+		return false
+	}
+
+	if !v.Power.Equal(other.Power) {
+		return false
+	}
+
+	if !v.PowerMax.Equal(other.PowerMax) {
+		return false
+	}
+
+	if !v.PowerMin.Equal(other.PowerMin) {
+		return false
+	}
+
+	if !v.Preamble.Equal(other.Preamble) {
+		return false
+	}
+
+	return true
+}
+
+func (v Band24Value) Type(ctx context.Context) attr.Type {
+	return Band24Type{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v Band24Value) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"allow_rrm_disable": basetypes.BoolType{},
+		"ant_gain":          basetypes.Int64Type{},
+		"antenna_mode":      basetypes.StringType{},
+		"bandwidth":         basetypes.Int64Type{},
+		"channels": basetypes.ListType{
+			ElemType: types.Int64Type,
+		},
+		"disabled":  basetypes.BoolType{},
+		"power":     basetypes.Int64Type{},
+		"power_max": basetypes.Int64Type{},
+		"power_min": basetypes.Int64Type{},
+		"preamble":  basetypes.StringType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = Band5Type{}
+
+type Band5Type struct {
+	basetypes.ObjectType
+}
+
+func (t Band5Type) Equal(o attr.Type) bool {
+	other, ok := o.(Band5Type)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t Band5Type) String() string {
+	return "Band5Type"
+}
+
+func (t Band5Type) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	allowRrmDisableAttribute, ok := attributes["allow_rrm_disable"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`allow_rrm_disable is missing from object`)
+
+		return nil, diags
+	}
+
+	allowRrmDisableVal, ok := allowRrmDisableAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`allow_rrm_disable expected to be basetypes.BoolValue, was: %T`, allowRrmDisableAttribute))
+	}
+
+	antGainAttribute, ok := attributes["ant_gain"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ant_gain is missing from object`)
+
+		return nil, diags
+	}
+
+	antGainVal, ok := antGainAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ant_gain expected to be basetypes.Int64Value, was: %T`, antGainAttribute))
+	}
+
+	antennaModeAttribute, ok := attributes["antenna_mode"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`antenna_mode is missing from object`)
+
+		return nil, diags
+	}
+
+	antennaModeVal, ok := antennaModeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`antenna_mode expected to be basetypes.StringValue, was: %T`, antennaModeAttribute))
+	}
+
+	bandwidthAttribute, ok := attributes["bandwidth"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`bandwidth is missing from object`)
+
+		return nil, diags
+	}
+
+	bandwidthVal, ok := bandwidthAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`bandwidth expected to be basetypes.Int64Value, was: %T`, bandwidthAttribute))
+	}
+
+	channelsAttribute, ok := attributes["channels"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`channels is missing from object`)
+
+		return nil, diags
+	}
+
+	channelsVal, ok := channelsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`channels expected to be basetypes.ListValue, was: %T`, channelsAttribute))
+	}
+
+	disabledAttribute, ok := attributes["disabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disabled is missing from object`)
+
+		return nil, diags
+	}
+
+	disabledVal, ok := disabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disabled expected to be basetypes.BoolValue, was: %T`, disabledAttribute))
+	}
+
+	powerAttribute, ok := attributes["power"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power is missing from object`)
+
+		return nil, diags
+	}
+
+	powerVal, ok := powerAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power expected to be basetypes.Int64Value, was: %T`, powerAttribute))
+	}
+
+	powerMaxAttribute, ok := attributes["power_max"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_max is missing from object`)
+
+		return nil, diags
+	}
+
+	powerMaxVal, ok := powerMaxAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_max expected to be basetypes.Int64Value, was: %T`, powerMaxAttribute))
+	}
+
+	powerMinAttribute, ok := attributes["power_min"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_min is missing from object`)
+
+		return nil, diags
+	}
+
+	powerMinVal, ok := powerMinAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_min expected to be basetypes.Int64Value, was: %T`, powerMinAttribute))
+	}
+
+	preambleAttribute, ok := attributes["preamble"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`preamble is missing from object`)
+
+		return nil, diags
+	}
+
+	preambleVal, ok := preambleAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`preamble expected to be basetypes.StringValue, was: %T`, preambleAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return Band5Value{
+		AllowRrmDisable: allowRrmDisableVal,
+		AntGain:         antGainVal,
+		AntennaMode:     antennaModeVal,
+		Bandwidth:       bandwidthVal,
+		Channels:        channelsVal,
+		Disabled:        disabledVal,
+		Power:           powerVal,
+		PowerMax:        powerMaxVal,
+		PowerMin:        powerMinVal,
+		Preamble:        preambleVal,
+		state:           attr.ValueStateKnown,
+	}, diags
+}
+
+func NewBand5ValueNull() Band5Value {
+	return Band5Value{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewBand5ValueUnknown() Band5Value {
+	return Band5Value{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewBand5Value(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (Band5Value, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing Band5Value Attribute Value",
+				"While creating a Band5Value value, a missing attribute value was detected. "+
+					"A Band5Value must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Band5Value Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid Band5Value Attribute Type",
+				"While creating a Band5Value value, an invalid attribute value was detected. "+
+					"A Band5Value must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Band5Value Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("Band5Value Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra Band5Value Attribute Value",
+				"While creating a Band5Value value, an extra attribute value was detected. "+
+					"A Band5Value must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra Band5Value Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewBand5ValueUnknown(), diags
+	}
+
+	allowRrmDisableAttribute, ok := attributes["allow_rrm_disable"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`allow_rrm_disable is missing from object`)
+
+		return NewBand5ValueUnknown(), diags
+	}
+
+	allowRrmDisableVal, ok := allowRrmDisableAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`allow_rrm_disable expected to be basetypes.BoolValue, was: %T`, allowRrmDisableAttribute))
+	}
+
+	antGainAttribute, ok := attributes["ant_gain"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ant_gain is missing from object`)
+
+		return NewBand5ValueUnknown(), diags
+	}
+
+	antGainVal, ok := antGainAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ant_gain expected to be basetypes.Int64Value, was: %T`, antGainAttribute))
+	}
+
+	antennaModeAttribute, ok := attributes["antenna_mode"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`antenna_mode is missing from object`)
+
+		return NewBand5ValueUnknown(), diags
+	}
+
+	antennaModeVal, ok := antennaModeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`antenna_mode expected to be basetypes.StringValue, was: %T`, antennaModeAttribute))
+	}
+
+	bandwidthAttribute, ok := attributes["bandwidth"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`bandwidth is missing from object`)
+
+		return NewBand5ValueUnknown(), diags
+	}
+
+	bandwidthVal, ok := bandwidthAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`bandwidth expected to be basetypes.Int64Value, was: %T`, bandwidthAttribute))
+	}
+
+	channelsAttribute, ok := attributes["channels"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`channels is missing from object`)
+
+		return NewBand5ValueUnknown(), diags
+	}
+
+	channelsVal, ok := channelsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`channels expected to be basetypes.ListValue, was: %T`, channelsAttribute))
+	}
+
+	disabledAttribute, ok := attributes["disabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disabled is missing from object`)
+
+		return NewBand5ValueUnknown(), diags
+	}
+
+	disabledVal, ok := disabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disabled expected to be basetypes.BoolValue, was: %T`, disabledAttribute))
+	}
+
+	powerAttribute, ok := attributes["power"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power is missing from object`)
+
+		return NewBand5ValueUnknown(), diags
+	}
+
+	powerVal, ok := powerAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power expected to be basetypes.Int64Value, was: %T`, powerAttribute))
+	}
+
+	powerMaxAttribute, ok := attributes["power_max"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_max is missing from object`)
+
+		return NewBand5ValueUnknown(), diags
+	}
+
+	powerMaxVal, ok := powerMaxAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_max expected to be basetypes.Int64Value, was: %T`, powerMaxAttribute))
+	}
+
+	powerMinAttribute, ok := attributes["power_min"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_min is missing from object`)
+
+		return NewBand5ValueUnknown(), diags
+	}
+
+	powerMinVal, ok := powerMinAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_min expected to be basetypes.Int64Value, was: %T`, powerMinAttribute))
+	}
+
+	preambleAttribute, ok := attributes["preamble"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`preamble is missing from object`)
+
+		return NewBand5ValueUnknown(), diags
+	}
+
+	preambleVal, ok := preambleAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`preamble expected to be basetypes.StringValue, was: %T`, preambleAttribute))
+	}
+
+	if diags.HasError() {
+		return NewBand5ValueUnknown(), diags
+	}
+
+	return Band5Value{
+		AllowRrmDisable: allowRrmDisableVal,
+		AntGain:         antGainVal,
+		AntennaMode:     antennaModeVal,
+		Bandwidth:       bandwidthVal,
+		Channels:        channelsVal,
+		Disabled:        disabledVal,
+		Power:           powerVal,
+		PowerMax:        powerMaxVal,
+		PowerMin:        powerMinVal,
+		Preamble:        preambleVal,
+		state:           attr.ValueStateKnown,
+	}, diags
+}
+
+func NewBand5ValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) Band5Value {
+	object, diags := NewBand5Value(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewBand5ValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t Band5Type) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewBand5ValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewBand5ValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewBand5ValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewBand5ValueMust(Band5Value{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t Band5Type) ValueType(ctx context.Context) attr.Value {
+	return Band5Value{}
+}
+
+var _ basetypes.ObjectValuable = Band5Value{}
+
+type Band5Value struct {
+	AllowRrmDisable basetypes.BoolValue   `tfsdk:"allow_rrm_disable"`
+	AntGain         basetypes.Int64Value  `tfsdk:"ant_gain"`
+	AntennaMode     basetypes.StringValue `tfsdk:"antenna_mode"`
+	Bandwidth       basetypes.Int64Value  `tfsdk:"bandwidth"`
+	Channels        basetypes.ListValue   `tfsdk:"channels"`
+	Disabled        basetypes.BoolValue   `tfsdk:"disabled"`
+	Power           basetypes.Int64Value  `tfsdk:"power"`
+	PowerMax        basetypes.Int64Value  `tfsdk:"power_max"`
+	PowerMin        basetypes.Int64Value  `tfsdk:"power_min"`
+	Preamble        basetypes.StringValue `tfsdk:"preamble"`
+	state           attr.ValueState
+}
+
+func (v Band5Value) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 10)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["allow_rrm_disable"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["ant_gain"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["antenna_mode"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["bandwidth"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["channels"] = basetypes.ListType{
+		ElemType: types.Int64Type,
+	}.TerraformType(ctx)
+	attrTypes["disabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["power"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["power_max"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["power_min"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["preamble"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 10)
+
+		val, err = v.AllowRrmDisable.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["allow_rrm_disable"] = val
+
+		val, err = v.AntGain.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["ant_gain"] = val
+
+		val, err = v.AntennaMode.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["antenna_mode"] = val
+
+		val, err = v.Bandwidth.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["bandwidth"] = val
+
+		val, err = v.Channels.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["channels"] = val
+
+		val, err = v.Disabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["disabled"] = val
+
+		val, err = v.Power.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["power"] = val
+
+		val, err = v.PowerMax.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["power_max"] = val
+
+		val, err = v.PowerMin.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["power_min"] = val
+
+		val, err = v.Preamble.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["preamble"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v Band5Value) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v Band5Value) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v Band5Value) String() string {
+	return "Band5Value"
+}
+
+func (v Band5Value) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	channelsVal, d := types.ListValue(types.Int64Type, v.Channels.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"allow_rrm_disable": basetypes.BoolType{},
+			"ant_gain":          basetypes.Int64Type{},
+			"antenna_mode":      basetypes.StringType{},
+			"bandwidth":         basetypes.Int64Type{},
+			"channels": basetypes.ListType{
+				ElemType: types.Int64Type,
+			},
+			"disabled":  basetypes.BoolType{},
+			"power":     basetypes.Int64Type{},
+			"power_max": basetypes.Int64Type{},
+			"power_min": basetypes.Int64Type{},
+			"preamble":  basetypes.StringType{},
+		}), diags
+	}
+
+	attributeTypes := map[string]attr.Type{
+		"allow_rrm_disable": basetypes.BoolType{},
+		"ant_gain":          basetypes.Int64Type{},
+		"antenna_mode":      basetypes.StringType{},
+		"bandwidth":         basetypes.Int64Type{},
+		"channels": basetypes.ListType{
+			ElemType: types.Int64Type,
+		},
+		"disabled":  basetypes.BoolType{},
+		"power":     basetypes.Int64Type{},
+		"power_max": basetypes.Int64Type{},
+		"power_min": basetypes.Int64Type{},
+		"preamble":  basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"allow_rrm_disable": v.AllowRrmDisable,
+			"ant_gain":          v.AntGain,
+			"antenna_mode":      v.AntennaMode,
+			"bandwidth":         v.Bandwidth,
+			"channels":          channelsVal,
+			"disabled":          v.Disabled,
+			"power":             v.Power,
+			"power_max":         v.PowerMax,
+			"power_min":         v.PowerMin,
+			"preamble":          v.Preamble,
+		})
+
+	return objVal, diags
+}
+
+func (v Band5Value) Equal(o attr.Value) bool {
+	other, ok := o.(Band5Value)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.AllowRrmDisable.Equal(other.AllowRrmDisable) {
+		return false
+	}
+
+	if !v.AntGain.Equal(other.AntGain) {
+		return false
+	}
+
+	if !v.AntennaMode.Equal(other.AntennaMode) {
+		return false
+	}
+
+	if !v.Bandwidth.Equal(other.Bandwidth) {
+		return false
+	}
+
+	if !v.Channels.Equal(other.Channels) {
+		return false
+	}
+
+	if !v.Disabled.Equal(other.Disabled) {
+		return false
+	}
+
+	if !v.Power.Equal(other.Power) {
+		return false
+	}
+
+	if !v.PowerMax.Equal(other.PowerMax) {
+		return false
+	}
+
+	if !v.PowerMin.Equal(other.PowerMin) {
+		return false
+	}
+
+	if !v.Preamble.Equal(other.Preamble) {
+		return false
+	}
+
+	return true
+}
+
+func (v Band5Value) Type(ctx context.Context) attr.Type {
+	return Band5Type{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v Band5Value) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"allow_rrm_disable": basetypes.BoolType{},
+		"ant_gain":          basetypes.Int64Type{},
+		"antenna_mode":      basetypes.StringType{},
+		"bandwidth":         basetypes.Int64Type{},
+		"channels": basetypes.ListType{
+			ElemType: types.Int64Type,
+		},
+		"disabled":  basetypes.BoolType{},
+		"power":     basetypes.Int64Type{},
+		"power_max": basetypes.Int64Type{},
+		"power_min": basetypes.Int64Type{},
+		"preamble":  basetypes.StringType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = Band5On24RadioType{}
+
+type Band5On24RadioType struct {
+	basetypes.ObjectType
+}
+
+func (t Band5On24RadioType) Equal(o attr.Type) bool {
+	other, ok := o.(Band5On24RadioType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t Band5On24RadioType) String() string {
+	return "Band5On24RadioType"
+}
+
+func (t Band5On24RadioType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	allowRrmDisableAttribute, ok := attributes["allow_rrm_disable"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`allow_rrm_disable is missing from object`)
+
+		return nil, diags
+	}
+
+	allowRrmDisableVal, ok := allowRrmDisableAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`allow_rrm_disable expected to be basetypes.BoolValue, was: %T`, allowRrmDisableAttribute))
+	}
+
+	antGainAttribute, ok := attributes["ant_gain"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ant_gain is missing from object`)
+
+		return nil, diags
+	}
+
+	antGainVal, ok := antGainAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ant_gain expected to be basetypes.Int64Value, was: %T`, antGainAttribute))
+	}
+
+	antennaModeAttribute, ok := attributes["antenna_mode"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`antenna_mode is missing from object`)
+
+		return nil, diags
+	}
+
+	antennaModeVal, ok := antennaModeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`antenna_mode expected to be basetypes.StringValue, was: %T`, antennaModeAttribute))
+	}
+
+	bandwidthAttribute, ok := attributes["bandwidth"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`bandwidth is missing from object`)
+
+		return nil, diags
+	}
+
+	bandwidthVal, ok := bandwidthAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`bandwidth expected to be basetypes.Int64Value, was: %T`, bandwidthAttribute))
+	}
+
+	channelsAttribute, ok := attributes["channels"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`channels is missing from object`)
+
+		return nil, diags
+	}
+
+	channelsVal, ok := channelsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`channels expected to be basetypes.ListValue, was: %T`, channelsAttribute))
+	}
+
+	disabledAttribute, ok := attributes["disabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disabled is missing from object`)
+
+		return nil, diags
+	}
+
+	disabledVal, ok := disabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disabled expected to be basetypes.BoolValue, was: %T`, disabledAttribute))
+	}
+
+	powerAttribute, ok := attributes["power"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power is missing from object`)
+
+		return nil, diags
+	}
+
+	powerVal, ok := powerAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power expected to be basetypes.Int64Value, was: %T`, powerAttribute))
+	}
+
+	powerMaxAttribute, ok := attributes["power_max"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_max is missing from object`)
+
+		return nil, diags
+	}
+
+	powerMaxVal, ok := powerMaxAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_max expected to be basetypes.Int64Value, was: %T`, powerMaxAttribute))
+	}
+
+	powerMinAttribute, ok := attributes["power_min"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_min is missing from object`)
+
+		return nil, diags
+	}
+
+	powerMinVal, ok := powerMinAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_min expected to be basetypes.Int64Value, was: %T`, powerMinAttribute))
+	}
+
+	preambleAttribute, ok := attributes["preamble"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`preamble is missing from object`)
+
+		return nil, diags
+	}
+
+	preambleVal, ok := preambleAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`preamble expected to be basetypes.StringValue, was: %T`, preambleAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return Band5On24RadioValue{
+		AllowRrmDisable: allowRrmDisableVal,
+		AntGain:         antGainVal,
+		AntennaMode:     antennaModeVal,
+		Bandwidth:       bandwidthVal,
+		Channels:        channelsVal,
+		Disabled:        disabledVal,
+		Power:           powerVal,
+		PowerMax:        powerMaxVal,
+		PowerMin:        powerMinVal,
+		Preamble:        preambleVal,
+		state:           attr.ValueStateKnown,
+	}, diags
+}
+
+func NewBand5On24RadioValueNull() Band5On24RadioValue {
+	return Band5On24RadioValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewBand5On24RadioValueUnknown() Band5On24RadioValue {
+	return Band5On24RadioValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewBand5On24RadioValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (Band5On24RadioValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing Band5On24RadioValue Attribute Value",
+				"While creating a Band5On24RadioValue value, a missing attribute value was detected. "+
+					"A Band5On24RadioValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Band5On24RadioValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid Band5On24RadioValue Attribute Type",
+				"While creating a Band5On24RadioValue value, an invalid attribute value was detected. "+
+					"A Band5On24RadioValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Band5On24RadioValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("Band5On24RadioValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra Band5On24RadioValue Attribute Value",
+				"While creating a Band5On24RadioValue value, an extra attribute value was detected. "+
+					"A Band5On24RadioValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra Band5On24RadioValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewBand5On24RadioValueUnknown(), diags
+	}
+
+	allowRrmDisableAttribute, ok := attributes["allow_rrm_disable"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`allow_rrm_disable is missing from object`)
+
+		return NewBand5On24RadioValueUnknown(), diags
+	}
+
+	allowRrmDisableVal, ok := allowRrmDisableAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`allow_rrm_disable expected to be basetypes.BoolValue, was: %T`, allowRrmDisableAttribute))
+	}
+
+	antGainAttribute, ok := attributes["ant_gain"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ant_gain is missing from object`)
+
+		return NewBand5On24RadioValueUnknown(), diags
+	}
+
+	antGainVal, ok := antGainAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ant_gain expected to be basetypes.Int64Value, was: %T`, antGainAttribute))
+	}
+
+	antennaModeAttribute, ok := attributes["antenna_mode"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`antenna_mode is missing from object`)
+
+		return NewBand5On24RadioValueUnknown(), diags
+	}
+
+	antennaModeVal, ok := antennaModeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`antenna_mode expected to be basetypes.StringValue, was: %T`, antennaModeAttribute))
+	}
+
+	bandwidthAttribute, ok := attributes["bandwidth"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`bandwidth is missing from object`)
+
+		return NewBand5On24RadioValueUnknown(), diags
+	}
+
+	bandwidthVal, ok := bandwidthAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`bandwidth expected to be basetypes.Int64Value, was: %T`, bandwidthAttribute))
+	}
+
+	channelsAttribute, ok := attributes["channels"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`channels is missing from object`)
+
+		return NewBand5On24RadioValueUnknown(), diags
+	}
+
+	channelsVal, ok := channelsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`channels expected to be basetypes.ListValue, was: %T`, channelsAttribute))
+	}
+
+	disabledAttribute, ok := attributes["disabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disabled is missing from object`)
+
+		return NewBand5On24RadioValueUnknown(), diags
+	}
+
+	disabledVal, ok := disabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disabled expected to be basetypes.BoolValue, was: %T`, disabledAttribute))
+	}
+
+	powerAttribute, ok := attributes["power"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power is missing from object`)
+
+		return NewBand5On24RadioValueUnknown(), diags
+	}
+
+	powerVal, ok := powerAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power expected to be basetypes.Int64Value, was: %T`, powerAttribute))
+	}
+
+	powerMaxAttribute, ok := attributes["power_max"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_max is missing from object`)
+
+		return NewBand5On24RadioValueUnknown(), diags
+	}
+
+	powerMaxVal, ok := powerMaxAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_max expected to be basetypes.Int64Value, was: %T`, powerMaxAttribute))
+	}
+
+	powerMinAttribute, ok := attributes["power_min"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_min is missing from object`)
+
+		return NewBand5On24RadioValueUnknown(), diags
+	}
+
+	powerMinVal, ok := powerMinAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_min expected to be basetypes.Int64Value, was: %T`, powerMinAttribute))
+	}
+
+	preambleAttribute, ok := attributes["preamble"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`preamble is missing from object`)
+
+		return NewBand5On24RadioValueUnknown(), diags
+	}
+
+	preambleVal, ok := preambleAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`preamble expected to be basetypes.StringValue, was: %T`, preambleAttribute))
+	}
+
+	if diags.HasError() {
+		return NewBand5On24RadioValueUnknown(), diags
+	}
+
+	return Band5On24RadioValue{
+		AllowRrmDisable: allowRrmDisableVal,
+		AntGain:         antGainVal,
+		AntennaMode:     antennaModeVal,
+		Bandwidth:       bandwidthVal,
+		Channels:        channelsVal,
+		Disabled:        disabledVal,
+		Power:           powerVal,
+		PowerMax:        powerMaxVal,
+		PowerMin:        powerMinVal,
+		Preamble:        preambleVal,
+		state:           attr.ValueStateKnown,
+	}, diags
+}
+
+func NewBand5On24RadioValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) Band5On24RadioValue {
+	object, diags := NewBand5On24RadioValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewBand5On24RadioValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t Band5On24RadioType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewBand5On24RadioValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewBand5On24RadioValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewBand5On24RadioValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewBand5On24RadioValueMust(Band5On24RadioValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t Band5On24RadioType) ValueType(ctx context.Context) attr.Value {
+	return Band5On24RadioValue{}
+}
+
+var _ basetypes.ObjectValuable = Band5On24RadioValue{}
+
+type Band5On24RadioValue struct {
+	AllowRrmDisable basetypes.BoolValue   `tfsdk:"allow_rrm_disable"`
+	AntGain         basetypes.Int64Value  `tfsdk:"ant_gain"`
+	AntennaMode     basetypes.StringValue `tfsdk:"antenna_mode"`
+	Bandwidth       basetypes.Int64Value  `tfsdk:"bandwidth"`
+	Channels        basetypes.ListValue   `tfsdk:"channels"`
+	Disabled        basetypes.BoolValue   `tfsdk:"disabled"`
+	Power           basetypes.Int64Value  `tfsdk:"power"`
+	PowerMax        basetypes.Int64Value  `tfsdk:"power_max"`
+	PowerMin        basetypes.Int64Value  `tfsdk:"power_min"`
+	Preamble        basetypes.StringValue `tfsdk:"preamble"`
+	state           attr.ValueState
+}
+
+func (v Band5On24RadioValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 10)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["allow_rrm_disable"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["ant_gain"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["antenna_mode"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["bandwidth"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["channels"] = basetypes.ListType{
+		ElemType: types.Int64Type,
+	}.TerraformType(ctx)
+	attrTypes["disabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["power"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["power_max"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["power_min"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["preamble"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 10)
+
+		val, err = v.AllowRrmDisable.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["allow_rrm_disable"] = val
+
+		val, err = v.AntGain.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["ant_gain"] = val
+
+		val, err = v.AntennaMode.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["antenna_mode"] = val
+
+		val, err = v.Bandwidth.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["bandwidth"] = val
+
+		val, err = v.Channels.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["channels"] = val
+
+		val, err = v.Disabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["disabled"] = val
+
+		val, err = v.Power.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["power"] = val
+
+		val, err = v.PowerMax.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["power_max"] = val
+
+		val, err = v.PowerMin.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["power_min"] = val
+
+		val, err = v.Preamble.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["preamble"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v Band5On24RadioValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v Band5On24RadioValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v Band5On24RadioValue) String() string {
+	return "Band5On24RadioValue"
+}
+
+func (v Band5On24RadioValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	channelsVal, d := types.ListValue(types.Int64Type, v.Channels.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"allow_rrm_disable": basetypes.BoolType{},
+			"ant_gain":          basetypes.Int64Type{},
+			"antenna_mode":      basetypes.StringType{},
+			"bandwidth":         basetypes.Int64Type{},
+			"channels": basetypes.ListType{
+				ElemType: types.Int64Type,
+			},
+			"disabled":  basetypes.BoolType{},
+			"power":     basetypes.Int64Type{},
+			"power_max": basetypes.Int64Type{},
+			"power_min": basetypes.Int64Type{},
+			"preamble":  basetypes.StringType{},
+		}), diags
+	}
+
+	attributeTypes := map[string]attr.Type{
+		"allow_rrm_disable": basetypes.BoolType{},
+		"ant_gain":          basetypes.Int64Type{},
+		"antenna_mode":      basetypes.StringType{},
+		"bandwidth":         basetypes.Int64Type{},
+		"channels": basetypes.ListType{
+			ElemType: types.Int64Type,
+		},
+		"disabled":  basetypes.BoolType{},
+		"power":     basetypes.Int64Type{},
+		"power_max": basetypes.Int64Type{},
+		"power_min": basetypes.Int64Type{},
+		"preamble":  basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"allow_rrm_disable": v.AllowRrmDisable,
+			"ant_gain":          v.AntGain,
+			"antenna_mode":      v.AntennaMode,
+			"bandwidth":         v.Bandwidth,
+			"channels":          channelsVal,
+			"disabled":          v.Disabled,
+			"power":             v.Power,
+			"power_max":         v.PowerMax,
+			"power_min":         v.PowerMin,
+			"preamble":          v.Preamble,
+		})
+
+	return objVal, diags
+}
+
+func (v Band5On24RadioValue) Equal(o attr.Value) bool {
+	other, ok := o.(Band5On24RadioValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.AllowRrmDisable.Equal(other.AllowRrmDisable) {
+		return false
+	}
+
+	if !v.AntGain.Equal(other.AntGain) {
+		return false
+	}
+
+	if !v.AntennaMode.Equal(other.AntennaMode) {
+		return false
+	}
+
+	if !v.Bandwidth.Equal(other.Bandwidth) {
+		return false
+	}
+
+	if !v.Channels.Equal(other.Channels) {
+		return false
+	}
+
+	if !v.Disabled.Equal(other.Disabled) {
+		return false
+	}
+
+	if !v.Power.Equal(other.Power) {
+		return false
+	}
+
+	if !v.PowerMax.Equal(other.PowerMax) {
+		return false
+	}
+
+	if !v.PowerMin.Equal(other.PowerMin) {
+		return false
+	}
+
+	if !v.Preamble.Equal(other.Preamble) {
+		return false
+	}
+
+	return true
+}
+
+func (v Band5On24RadioValue) Type(ctx context.Context) attr.Type {
+	return Band5On24RadioType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v Band5On24RadioValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"allow_rrm_disable": basetypes.BoolType{},
+		"ant_gain":          basetypes.Int64Type{},
+		"antenna_mode":      basetypes.StringType{},
+		"bandwidth":         basetypes.Int64Type{},
+		"channels": basetypes.ListType{
+			ElemType: types.Int64Type,
+		},
+		"disabled":  basetypes.BoolType{},
+		"power":     basetypes.Int64Type{},
+		"power_max": basetypes.Int64Type{},
+		"power_min": basetypes.Int64Type{},
+		"preamble":  basetypes.StringType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = Band6Type{}
+
+type Band6Type struct {
+	basetypes.ObjectType
+}
+
+func (t Band6Type) Equal(o attr.Type) bool {
+	other, ok := o.(Band6Type)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t Band6Type) String() string {
+	return "Band6Type"
+}
+
+func (t Band6Type) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	allowRrmDisableAttribute, ok := attributes["allow_rrm_disable"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`allow_rrm_disable is missing from object`)
+
+		return nil, diags
+	}
+
+	allowRrmDisableVal, ok := allowRrmDisableAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`allow_rrm_disable expected to be basetypes.BoolValue, was: %T`, allowRrmDisableAttribute))
+	}
+
+	antGainAttribute, ok := attributes["ant_gain"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ant_gain is missing from object`)
+
+		return nil, diags
+	}
+
+	antGainVal, ok := antGainAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ant_gain expected to be basetypes.Int64Value, was: %T`, antGainAttribute))
+	}
+
+	antennaModeAttribute, ok := attributes["antenna_mode"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`antenna_mode is missing from object`)
+
+		return nil, diags
+	}
+
+	antennaModeVal, ok := antennaModeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`antenna_mode expected to be basetypes.StringValue, was: %T`, antennaModeAttribute))
+	}
+
+	bandwidthAttribute, ok := attributes["bandwidth"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`bandwidth is missing from object`)
+
+		return nil, diags
+	}
+
+	bandwidthVal, ok := bandwidthAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`bandwidth expected to be basetypes.Int64Value, was: %T`, bandwidthAttribute))
+	}
+
+	channelsAttribute, ok := attributes["channels"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`channels is missing from object`)
+
+		return nil, diags
+	}
+
+	channelsVal, ok := channelsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`channels expected to be basetypes.ListValue, was: %T`, channelsAttribute))
+	}
+
+	disabledAttribute, ok := attributes["disabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disabled is missing from object`)
+
+		return nil, diags
+	}
+
+	disabledVal, ok := disabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disabled expected to be basetypes.BoolValue, was: %T`, disabledAttribute))
+	}
+
+	powerAttribute, ok := attributes["power"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power is missing from object`)
+
+		return nil, diags
+	}
+
+	powerVal, ok := powerAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power expected to be basetypes.Int64Value, was: %T`, powerAttribute))
+	}
+
+	powerMaxAttribute, ok := attributes["power_max"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_max is missing from object`)
+
+		return nil, diags
+	}
+
+	powerMaxVal, ok := powerMaxAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_max expected to be basetypes.Int64Value, was: %T`, powerMaxAttribute))
+	}
+
+	powerMinAttribute, ok := attributes["power_min"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_min is missing from object`)
+
+		return nil, diags
+	}
+
+	powerMinVal, ok := powerMinAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_min expected to be basetypes.Int64Value, was: %T`, powerMinAttribute))
+	}
+
+	preambleAttribute, ok := attributes["preamble"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`preamble is missing from object`)
+
+		return nil, diags
+	}
+
+	preambleVal, ok := preambleAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`preamble expected to be basetypes.StringValue, was: %T`, preambleAttribute))
+	}
+
+	standardPowerAttribute, ok := attributes["standard_power"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`standard_power is missing from object`)
+
+		return nil, diags
+	}
+
+	standardPowerVal, ok := standardPowerAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`standard_power expected to be basetypes.BoolValue, was: %T`, standardPowerAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return Band6Value{
+		AllowRrmDisable: allowRrmDisableVal,
+		AntGain:         antGainVal,
+		AntennaMode:     antennaModeVal,
+		Bandwidth:       bandwidthVal,
+		Channels:        channelsVal,
+		Disabled:        disabledVal,
+		Power:           powerVal,
+		PowerMax:        powerMaxVal,
+		PowerMin:        powerMinVal,
+		Preamble:        preambleVal,
+		StandardPower:   standardPowerVal,
+		state:           attr.ValueStateKnown,
+	}, diags
+}
+
+func NewBand6ValueNull() Band6Value {
+	return Band6Value{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewBand6ValueUnknown() Band6Value {
+	return Band6Value{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewBand6Value(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (Band6Value, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing Band6Value Attribute Value",
+				"While creating a Band6Value value, a missing attribute value was detected. "+
+					"A Band6Value must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Band6Value Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid Band6Value Attribute Type",
+				"While creating a Band6Value value, an invalid attribute value was detected. "+
+					"A Band6Value must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Band6Value Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("Band6Value Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra Band6Value Attribute Value",
+				"While creating a Band6Value value, an extra attribute value was detected. "+
+					"A Band6Value must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra Band6Value Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewBand6ValueUnknown(), diags
+	}
+
+	allowRrmDisableAttribute, ok := attributes["allow_rrm_disable"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`allow_rrm_disable is missing from object`)
+
+		return NewBand6ValueUnknown(), diags
+	}
+
+	allowRrmDisableVal, ok := allowRrmDisableAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`allow_rrm_disable expected to be basetypes.BoolValue, was: %T`, allowRrmDisableAttribute))
+	}
+
+	antGainAttribute, ok := attributes["ant_gain"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ant_gain is missing from object`)
+
+		return NewBand6ValueUnknown(), diags
+	}
+
+	antGainVal, ok := antGainAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ant_gain expected to be basetypes.Int64Value, was: %T`, antGainAttribute))
+	}
+
+	antennaModeAttribute, ok := attributes["antenna_mode"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`antenna_mode is missing from object`)
+
+		return NewBand6ValueUnknown(), diags
+	}
+
+	antennaModeVal, ok := antennaModeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`antenna_mode expected to be basetypes.StringValue, was: %T`, antennaModeAttribute))
+	}
+
+	bandwidthAttribute, ok := attributes["bandwidth"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`bandwidth is missing from object`)
+
+		return NewBand6ValueUnknown(), diags
+	}
+
+	bandwidthVal, ok := bandwidthAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`bandwidth expected to be basetypes.Int64Value, was: %T`, bandwidthAttribute))
+	}
+
+	channelsAttribute, ok := attributes["channels"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`channels is missing from object`)
+
+		return NewBand6ValueUnknown(), diags
+	}
+
+	channelsVal, ok := channelsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`channels expected to be basetypes.ListValue, was: %T`, channelsAttribute))
+	}
+
+	disabledAttribute, ok := attributes["disabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disabled is missing from object`)
+
+		return NewBand6ValueUnknown(), diags
+	}
+
+	disabledVal, ok := disabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disabled expected to be basetypes.BoolValue, was: %T`, disabledAttribute))
+	}
+
+	powerAttribute, ok := attributes["power"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power is missing from object`)
+
+		return NewBand6ValueUnknown(), diags
+	}
+
+	powerVal, ok := powerAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power expected to be basetypes.Int64Value, was: %T`, powerAttribute))
+	}
+
+	powerMaxAttribute, ok := attributes["power_max"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_max is missing from object`)
+
+		return NewBand6ValueUnknown(), diags
+	}
+
+	powerMaxVal, ok := powerMaxAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_max expected to be basetypes.Int64Value, was: %T`, powerMaxAttribute))
+	}
+
+	powerMinAttribute, ok := attributes["power_min"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_min is missing from object`)
+
+		return NewBand6ValueUnknown(), diags
+	}
+
+	powerMinVal, ok := powerMinAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_min expected to be basetypes.Int64Value, was: %T`, powerMinAttribute))
+	}
+
+	preambleAttribute, ok := attributes["preamble"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`preamble is missing from object`)
+
+		return NewBand6ValueUnknown(), diags
+	}
+
+	preambleVal, ok := preambleAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`preamble expected to be basetypes.StringValue, was: %T`, preambleAttribute))
+	}
+
+	standardPowerAttribute, ok := attributes["standard_power"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`standard_power is missing from object`)
+
+		return NewBand6ValueUnknown(), diags
+	}
+
+	standardPowerVal, ok := standardPowerAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`standard_power expected to be basetypes.BoolValue, was: %T`, standardPowerAttribute))
+	}
+
+	if diags.HasError() {
+		return NewBand6ValueUnknown(), diags
+	}
+
+	return Band6Value{
+		AllowRrmDisable: allowRrmDisableVal,
+		AntGain:         antGainVal,
+		AntennaMode:     antennaModeVal,
+		Bandwidth:       bandwidthVal,
+		Channels:        channelsVal,
+		Disabled:        disabledVal,
+		Power:           powerVal,
+		PowerMax:        powerMaxVal,
+		PowerMin:        powerMinVal,
+		Preamble:        preambleVal,
+		StandardPower:   standardPowerVal,
+		state:           attr.ValueStateKnown,
+	}, diags
+}
+
+func NewBand6ValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) Band6Value {
+	object, diags := NewBand6Value(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewBand6ValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t Band6Type) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewBand6ValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewBand6ValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewBand6ValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewBand6ValueMust(Band6Value{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t Band6Type) ValueType(ctx context.Context) attr.Value {
+	return Band6Value{}
+}
+
+var _ basetypes.ObjectValuable = Band6Value{}
+
+type Band6Value struct {
+	AllowRrmDisable basetypes.BoolValue   `tfsdk:"allow_rrm_disable"`
+	AntGain         basetypes.Int64Value  `tfsdk:"ant_gain"`
+	AntennaMode     basetypes.StringValue `tfsdk:"antenna_mode"`
+	Bandwidth       basetypes.Int64Value  `tfsdk:"bandwidth"`
+	Channels        basetypes.ListValue   `tfsdk:"channels"`
+	Disabled        basetypes.BoolValue   `tfsdk:"disabled"`
+	Power           basetypes.Int64Value  `tfsdk:"power"`
+	PowerMax        basetypes.Int64Value  `tfsdk:"power_max"`
+	PowerMin        basetypes.Int64Value  `tfsdk:"power_min"`
+	Preamble        basetypes.StringValue `tfsdk:"preamble"`
+	StandardPower   basetypes.BoolValue   `tfsdk:"standard_power"`
+	state           attr.ValueState
+}
+
+func (v Band6Value) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 11)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["allow_rrm_disable"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["ant_gain"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["antenna_mode"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["bandwidth"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["channels"] = basetypes.ListType{
+		ElemType: types.Int64Type,
+	}.TerraformType(ctx)
+	attrTypes["disabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["power"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["power_max"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["power_min"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["preamble"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["standard_power"] = basetypes.BoolType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 11)
+
+		val, err = v.AllowRrmDisable.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["allow_rrm_disable"] = val
+
+		val, err = v.AntGain.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["ant_gain"] = val
+
+		val, err = v.AntennaMode.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["antenna_mode"] = val
+
+		val, err = v.Bandwidth.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["bandwidth"] = val
+
+		val, err = v.Channels.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["channels"] = val
+
+		val, err = v.Disabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["disabled"] = val
+
+		val, err = v.Power.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["power"] = val
+
+		val, err = v.PowerMax.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["power_max"] = val
+
+		val, err = v.PowerMin.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["power_min"] = val
+
+		val, err = v.Preamble.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["preamble"] = val
+
+		val, err = v.StandardPower.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["standard_power"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v Band6Value) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v Band6Value) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v Band6Value) String() string {
+	return "Band6Value"
+}
+
+func (v Band6Value) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	channelsVal, d := types.ListValue(types.Int64Type, v.Channels.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"allow_rrm_disable": basetypes.BoolType{},
+			"ant_gain":          basetypes.Int64Type{},
+			"antenna_mode":      basetypes.StringType{},
+			"bandwidth":         basetypes.Int64Type{},
+			"channels": basetypes.ListType{
+				ElemType: types.Int64Type,
+			},
+			"disabled":       basetypes.BoolType{},
+			"power":          basetypes.Int64Type{},
+			"power_max":      basetypes.Int64Type{},
+			"power_min":      basetypes.Int64Type{},
+			"preamble":       basetypes.StringType{},
+			"standard_power": basetypes.BoolType{},
+		}), diags
+	}
+
+	attributeTypes := map[string]attr.Type{
+		"allow_rrm_disable": basetypes.BoolType{},
+		"ant_gain":          basetypes.Int64Type{},
+		"antenna_mode":      basetypes.StringType{},
+		"bandwidth":         basetypes.Int64Type{},
+		"channels": basetypes.ListType{
+			ElemType: types.Int64Type,
+		},
+		"disabled":       basetypes.BoolType{},
+		"power":          basetypes.Int64Type{},
+		"power_max":      basetypes.Int64Type{},
+		"power_min":      basetypes.Int64Type{},
+		"preamble":       basetypes.StringType{},
+		"standard_power": basetypes.BoolType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"allow_rrm_disable": v.AllowRrmDisable,
+			"ant_gain":          v.AntGain,
+			"antenna_mode":      v.AntennaMode,
+			"bandwidth":         v.Bandwidth,
+			"channels":          channelsVal,
+			"disabled":          v.Disabled,
+			"power":             v.Power,
+			"power_max":         v.PowerMax,
+			"power_min":         v.PowerMin,
+			"preamble":          v.Preamble,
+			"standard_power":    v.StandardPower,
+		})
+
+	return objVal, diags
+}
+
+func (v Band6Value) Equal(o attr.Value) bool {
+	other, ok := o.(Band6Value)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.AllowRrmDisable.Equal(other.AllowRrmDisable) {
+		return false
+	}
+
+	if !v.AntGain.Equal(other.AntGain) {
+		return false
+	}
+
+	if !v.AntennaMode.Equal(other.AntennaMode) {
+		return false
+	}
+
+	if !v.Bandwidth.Equal(other.Bandwidth) {
+		return false
+	}
+
+	if !v.Channels.Equal(other.Channels) {
+		return false
+	}
+
+	if !v.Disabled.Equal(other.Disabled) {
+		return false
+	}
+
+	if !v.Power.Equal(other.Power) {
+		return false
+	}
+
+	if !v.PowerMax.Equal(other.PowerMax) {
+		return false
+	}
+
+	if !v.PowerMin.Equal(other.PowerMin) {
+		return false
+	}
+
+	if !v.Preamble.Equal(other.Preamble) {
+		return false
+	}
+
+	if !v.StandardPower.Equal(other.StandardPower) {
+		return false
+	}
+
+	return true
+}
+
+func (v Band6Value) Type(ctx context.Context) attr.Type {
+	return Band6Type{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v Band6Value) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"allow_rrm_disable": basetypes.BoolType{},
+		"ant_gain":          basetypes.Int64Type{},
+		"antenna_mode":      basetypes.StringType{},
+		"bandwidth":         basetypes.Int64Type{},
+		"channels": basetypes.ListType{
+			ElemType: types.Int64Type,
+		},
+		"disabled":       basetypes.BoolType{},
+		"power":          basetypes.Int64Type{},
+		"power_max":      basetypes.Int64Type{},
+		"power_min":      basetypes.Int64Type{},
+		"preamble":       basetypes.StringType{},
+		"standard_power": basetypes.BoolType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = ModelSpecificType{}
+
+type ModelSpecificType struct {
+	basetypes.ObjectType
+}
+
+func (t ModelSpecificType) Equal(o attr.Type) bool {
+	other, ok := o.(ModelSpecificType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t ModelSpecificType) String() string {
+	return "ModelSpecificType"
+}
+
+func (t ModelSpecificType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	antGain24Attribute, ok := attributes["ant_gain_24"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ant_gain_24 is missing from object`)
+
+		return nil, diags
+	}
+
+	antGain24Val, ok := antGain24Attribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ant_gain_24 expected to be basetypes.Int64Value, was: %T`, antGain24Attribute))
+	}
+
+	antGain5Attribute, ok := attributes["ant_gain_5"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ant_gain_5 is missing from object`)
+
+		return nil, diags
+	}
+
+	antGain5Val, ok := antGain5Attribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ant_gain_5 expected to be basetypes.Int64Value, was: %T`, antGain5Attribute))
+	}
+
+	antGain6Attribute, ok := attributes["ant_gain_6"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ant_gain_6 is missing from object`)
+
+		return nil, diags
+	}
+
+	antGain6Val, ok := antGain6Attribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ant_gain_6 expected to be basetypes.Int64Value, was: %T`, antGain6Attribute))
+	}
+
+	band24Attribute, ok := attributes["band_24"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`band_24 is missing from object`)
+
+		return nil, diags
+	}
+
+	band24Val, ok := band24Attribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`band_24 expected to be basetypes.ObjectValue, was: %T`, band24Attribute))
+	}
+
+	band24UsageAttribute, ok := attributes["band_24_usage"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`band_24_usage is missing from object`)
+
+		return nil, diags
+	}
+
+	band24UsageVal, ok := band24UsageAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`band_24_usage expected to be basetypes.StringValue, was: %T`, band24UsageAttribute))
+	}
+
+	band5Attribute, ok := attributes["band_5"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`band_5 is missing from object`)
+
+		return nil, diags
+	}
+
+	band5Val, ok := band5Attribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`band_5 expected to be basetypes.ObjectValue, was: %T`, band5Attribute))
+	}
+
+	band5On24RadioAttribute, ok := attributes["band_5_on_24_radio"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`band_5_on_24_radio is missing from object`)
+
+		return nil, diags
+	}
+
+	band5On24RadioVal, ok := band5On24RadioAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`band_5_on_24_radio expected to be basetypes.ObjectValue, was: %T`, band5On24RadioAttribute))
+	}
+
+	band6Attribute, ok := attributes["band_6"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`band_6 is missing from object`)
+
+		return nil, diags
+	}
+
+	band6Val, ok := band6Attribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`band_6 expected to be basetypes.ObjectValue, was: %T`, band6Attribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return ModelSpecificValue{
+		AntGain24:      antGain24Val,
+		AntGain5:       antGain5Val,
+		AntGain6:       antGain6Val,
+		Band24:         band24Val,
+		Band24Usage:    band24UsageVal,
+		Band5:          band5Val,
+		Band5On24Radio: band5On24RadioVal,
+		Band6:          band6Val,
+		state:          attr.ValueStateKnown,
+	}, diags
+}
+
+func NewModelSpecificValueNull() ModelSpecificValue {
+	return ModelSpecificValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewModelSpecificValueUnknown() ModelSpecificValue {
+	return ModelSpecificValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewModelSpecificValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (ModelSpecificValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing ModelSpecificValue Attribute Value",
+				"While creating a ModelSpecificValue value, a missing attribute value was detected. "+
+					"A ModelSpecificValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("ModelSpecificValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid ModelSpecificValue Attribute Type",
+				"While creating a ModelSpecificValue value, an invalid attribute value was detected. "+
+					"A ModelSpecificValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("ModelSpecificValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("ModelSpecificValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra ModelSpecificValue Attribute Value",
+				"While creating a ModelSpecificValue value, an extra attribute value was detected. "+
+					"A ModelSpecificValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra ModelSpecificValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewModelSpecificValueUnknown(), diags
+	}
+
+	antGain24Attribute, ok := attributes["ant_gain_24"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ant_gain_24 is missing from object`)
+
+		return NewModelSpecificValueUnknown(), diags
+	}
+
+	antGain24Val, ok := antGain24Attribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ant_gain_24 expected to be basetypes.Int64Value, was: %T`, antGain24Attribute))
+	}
+
+	antGain5Attribute, ok := attributes["ant_gain_5"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ant_gain_5 is missing from object`)
+
+		return NewModelSpecificValueUnknown(), diags
+	}
+
+	antGain5Val, ok := antGain5Attribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ant_gain_5 expected to be basetypes.Int64Value, was: %T`, antGain5Attribute))
+	}
+
+	antGain6Attribute, ok := attributes["ant_gain_6"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ant_gain_6 is missing from object`)
+
+		return NewModelSpecificValueUnknown(), diags
+	}
+
+	antGain6Val, ok := antGain6Attribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ant_gain_6 expected to be basetypes.Int64Value, was: %T`, antGain6Attribute))
+	}
+
+	band24Attribute, ok := attributes["band_24"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`band_24 is missing from object`)
+
+		return NewModelSpecificValueUnknown(), diags
+	}
+
+	band24Val, ok := band24Attribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`band_24 expected to be basetypes.ObjectValue, was: %T`, band24Attribute))
+	}
+
+	band24UsageAttribute, ok := attributes["band_24_usage"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`band_24_usage is missing from object`)
+
+		return NewModelSpecificValueUnknown(), diags
+	}
+
+	band24UsageVal, ok := band24UsageAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`band_24_usage expected to be basetypes.StringValue, was: %T`, band24UsageAttribute))
+	}
+
+	band5Attribute, ok := attributes["band_5"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`band_5 is missing from object`)
+
+		return NewModelSpecificValueUnknown(), diags
+	}
+
+	band5Val, ok := band5Attribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`band_5 expected to be basetypes.ObjectValue, was: %T`, band5Attribute))
+	}
+
+	band5On24RadioAttribute, ok := attributes["band_5_on_24_radio"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`band_5_on_24_radio is missing from object`)
+
+		return NewModelSpecificValueUnknown(), diags
+	}
+
+	band5On24RadioVal, ok := band5On24RadioAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`band_5_on_24_radio expected to be basetypes.ObjectValue, was: %T`, band5On24RadioAttribute))
+	}
+
+	band6Attribute, ok := attributes["band_6"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`band_6 is missing from object`)
+
+		return NewModelSpecificValueUnknown(), diags
+	}
+
+	band6Val, ok := band6Attribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`band_6 expected to be basetypes.ObjectValue, was: %T`, band6Attribute))
+	}
+
+	if diags.HasError() {
+		return NewModelSpecificValueUnknown(), diags
+	}
+
+	return ModelSpecificValue{
+		AntGain24:      antGain24Val,
+		AntGain5:       antGain5Val,
+		AntGain6:       antGain6Val,
+		Band24:         band24Val,
+		Band24Usage:    band24UsageVal,
+		Band5:          band5Val,
+		Band5On24Radio: band5On24RadioVal,
+		Band6:          band6Val,
+		state:          attr.ValueStateKnown,
+	}, diags
+}
+
+func NewModelSpecificValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) ModelSpecificValue {
+	object, diags := NewModelSpecificValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewModelSpecificValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t ModelSpecificType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewModelSpecificValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewModelSpecificValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewModelSpecificValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewModelSpecificValueMust(ModelSpecificValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t ModelSpecificType) ValueType(ctx context.Context) attr.Value {
+	return ModelSpecificValue{}
+}
+
+var _ basetypes.ObjectValuable = ModelSpecificValue{}
+
+type ModelSpecificValue struct {
+	AntGain24      basetypes.Int64Value  `tfsdk:"ant_gain_24"`
+	AntGain5       basetypes.Int64Value  `tfsdk:"ant_gain_5"`
+	AntGain6       basetypes.Int64Value  `tfsdk:"ant_gain_6"`
+	Band24         basetypes.ObjectValue `tfsdk:"band_24"`
+	Band24Usage    basetypes.StringValue `tfsdk:"band_24_usage"`
+	Band5          basetypes.ObjectValue `tfsdk:"band_5"`
+	Band5On24Radio basetypes.ObjectValue `tfsdk:"band_5_on_24_radio"`
+	Band6          basetypes.ObjectValue `tfsdk:"band_6"`
+	state          attr.ValueState
+}
+
+func (v ModelSpecificValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 8)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["ant_gain_24"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["ant_gain_5"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["ant_gain_6"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["band_24"] = basetypes.ObjectType{
+		AttrTypes: Band24Value{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
+	attrTypes["band_24_usage"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["band_5"] = basetypes.ObjectType{
+		AttrTypes: Band5Value{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
+	attrTypes["band_5_on_24_radio"] = basetypes.ObjectType{
+		AttrTypes: Band5On24RadioValue{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
+	attrTypes["band_6"] = basetypes.ObjectType{
+		AttrTypes: Band6Value{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 8)
+
+		val, err = v.AntGain24.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["ant_gain_24"] = val
+
+		val, err = v.AntGain5.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["ant_gain_5"] = val
+
+		val, err = v.AntGain6.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["ant_gain_6"] = val
+
+		val, err = v.Band24.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["band_24"] = val
+
+		val, err = v.Band24Usage.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["band_24_usage"] = val
+
+		val, err = v.Band5.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["band_5"] = val
+
+		val, err = v.Band5On24Radio.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["band_5_on_24_radio"] = val
+
+		val, err = v.Band6.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["band_6"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v ModelSpecificValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v ModelSpecificValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v ModelSpecificValue) String() string {
+	return "ModelSpecificValue"
+}
+
+func (v ModelSpecificValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	var band24 basetypes.ObjectValue
+
+	if v.Band24.IsNull() {
+		band24 = types.ObjectNull(
+			Band24Value{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.Band24.IsUnknown() {
+		band24 = types.ObjectUnknown(
+			Band24Value{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.Band24.IsNull() && !v.Band24.IsUnknown() {
+		band24 = types.ObjectValueMust(
+			Band24Value{}.AttributeTypes(ctx),
+			v.Band24.Attributes(),
+		)
+	}
+
+	var band5 basetypes.ObjectValue
+
+	if v.Band5.IsNull() {
+		band5 = types.ObjectNull(
+			Band5Value{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.Band5.IsUnknown() {
+		band5 = types.ObjectUnknown(
+			Band5Value{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.Band5.IsNull() && !v.Band5.IsUnknown() {
+		band5 = types.ObjectValueMust(
+			Band5Value{}.AttributeTypes(ctx),
+			v.Band5.Attributes(),
+		)
+	}
+
+	var band5On24Radio basetypes.ObjectValue
+
+	if v.Band5On24Radio.IsNull() {
+		band5On24Radio = types.ObjectNull(
+			Band5On24RadioValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.Band5On24Radio.IsUnknown() {
+		band5On24Radio = types.ObjectUnknown(
+			Band5On24RadioValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.Band5On24Radio.IsNull() && !v.Band5On24Radio.IsUnknown() {
+		band5On24Radio = types.ObjectValueMust(
+			Band5On24RadioValue{}.AttributeTypes(ctx),
+			v.Band5On24Radio.Attributes(),
+		)
+	}
+
+	var band6 basetypes.ObjectValue
+
+	if v.Band6.IsNull() {
+		band6 = types.ObjectNull(
+			Band6Value{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.Band6.IsUnknown() {
+		band6 = types.ObjectUnknown(
+			Band6Value{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.Band6.IsNull() && !v.Band6.IsUnknown() {
+		band6 = types.ObjectValueMust(
+			Band6Value{}.AttributeTypes(ctx),
+			v.Band6.Attributes(),
+		)
+	}
+
+	attributeTypes := map[string]attr.Type{
+		"ant_gain_24": basetypes.Int64Type{},
+		"ant_gain_5":  basetypes.Int64Type{},
+		"ant_gain_6":  basetypes.Int64Type{},
+		"band_24": basetypes.ObjectType{
+			AttrTypes: Band24Value{}.AttributeTypes(ctx),
+		},
+		"band_24_usage": basetypes.StringType{},
+		"band_5": basetypes.ObjectType{
+			AttrTypes: Band5Value{}.AttributeTypes(ctx),
+		},
+		"band_5_on_24_radio": basetypes.ObjectType{
+			AttrTypes: Band5On24RadioValue{}.AttributeTypes(ctx),
+		},
+		"band_6": basetypes.ObjectType{
+			AttrTypes: Band6Value{}.AttributeTypes(ctx),
+		},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"ant_gain_24":        v.AntGain24,
+			"ant_gain_5":         v.AntGain5,
+			"ant_gain_6":         v.AntGain6,
+			"band_24":            band24,
+			"band_24_usage":      v.Band24Usage,
+			"band_5":             band5,
+			"band_5_on_24_radio": band5On24Radio,
+			"band_6":             band6,
+		})
+
+	return objVal, diags
+}
+
+func (v ModelSpecificValue) Equal(o attr.Value) bool {
+	other, ok := o.(ModelSpecificValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.AntGain24.Equal(other.AntGain24) {
+		return false
+	}
+
+	if !v.AntGain5.Equal(other.AntGain5) {
+		return false
+	}
+
+	if !v.AntGain6.Equal(other.AntGain6) {
+		return false
+	}
+
+	if !v.Band24.Equal(other.Band24) {
+		return false
+	}
+
+	if !v.Band24Usage.Equal(other.Band24Usage) {
+		return false
+	}
+
+	if !v.Band5.Equal(other.Band5) {
+		return false
+	}
+
+	if !v.Band5On24Radio.Equal(other.Band5On24Radio) {
+		return false
+	}
+
+	if !v.Band6.Equal(other.Band6) {
+		return false
+	}
+
+	return true
+}
+
+func (v ModelSpecificValue) Type(ctx context.Context) attr.Type {
+	return ModelSpecificType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v ModelSpecificValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"ant_gain_24": basetypes.Int64Type{},
+		"ant_gain_5":  basetypes.Int64Type{},
+		"ant_gain_6":  basetypes.Int64Type{},
+		"band_24": basetypes.ObjectType{
+			AttrTypes: Band24Value{}.AttributeTypes(ctx),
+		},
+		"band_24_usage": basetypes.StringType{},
+		"band_5": basetypes.ObjectType{
+			AttrTypes: Band5Value{}.AttributeTypes(ctx),
+		},
+		"band_5_on_24_radio": basetypes.ObjectType{
+			AttrTypes: Band5On24RadioValue{}.AttributeTypes(ctx),
+		},
+		"band_6": basetypes.ObjectType{
+			AttrTypes: Band6Value{}.AttributeTypes(ctx),
+		},
+	}
+}
+
+var _ basetypes.ObjectTypable = Band24Type{}
+
+type Band24Type struct {
+	basetypes.ObjectType
+}
+
+func (t Band24Type) Equal(o attr.Type) bool {
+	other, ok := o.(Band24Type)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t Band24Type) String() string {
+	return "Band24Type"
+}
+
+func (t Band24Type) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	allowRrmDisableAttribute, ok := attributes["allow_rrm_disable"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`allow_rrm_disable is missing from object`)
+
+		return nil, diags
+	}
+
+	allowRrmDisableVal, ok := allowRrmDisableAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`allow_rrm_disable expected to be basetypes.BoolValue, was: %T`, allowRrmDisableAttribute))
+	}
+
+	antGainAttribute, ok := attributes["ant_gain"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ant_gain is missing from object`)
+
+		return nil, diags
+	}
+
+	antGainVal, ok := antGainAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ant_gain expected to be basetypes.Int64Value, was: %T`, antGainAttribute))
+	}
+
+	antennaModeAttribute, ok := attributes["antenna_mode"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`antenna_mode is missing from object`)
+
+		return nil, diags
+	}
+
+	antennaModeVal, ok := antennaModeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`antenna_mode expected to be basetypes.StringValue, was: %T`, antennaModeAttribute))
+	}
+
+	bandwidthAttribute, ok := attributes["bandwidth"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`bandwidth is missing from object`)
+
+		return nil, diags
+	}
+
+	bandwidthVal, ok := bandwidthAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`bandwidth expected to be basetypes.Int64Value, was: %T`, bandwidthAttribute))
+	}
+
+	channelsAttribute, ok := attributes["channels"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`channels is missing from object`)
+
+		return nil, diags
+	}
+
+	channelsVal, ok := channelsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`channels expected to be basetypes.ListValue, was: %T`, channelsAttribute))
+	}
+
+	disabledAttribute, ok := attributes["disabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disabled is missing from object`)
+
+		return nil, diags
+	}
+
+	disabledVal, ok := disabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disabled expected to be basetypes.BoolValue, was: %T`, disabledAttribute))
+	}
+
+	powerAttribute, ok := attributes["power"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power is missing from object`)
+
+		return nil, diags
+	}
+
+	powerVal, ok := powerAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power expected to be basetypes.Int64Value, was: %T`, powerAttribute))
+	}
+
+	powerMaxAttribute, ok := attributes["power_max"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_max is missing from object`)
+
+		return nil, diags
+	}
+
+	powerMaxVal, ok := powerMaxAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_max expected to be basetypes.Int64Value, was: %T`, powerMaxAttribute))
+	}
+
+	powerMinAttribute, ok := attributes["power_min"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_min is missing from object`)
+
+		return nil, diags
+	}
+
+	powerMinVal, ok := powerMinAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_min expected to be basetypes.Int64Value, was: %T`, powerMinAttribute))
+	}
+
+	preambleAttribute, ok := attributes["preamble"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`preamble is missing from object`)
+
+		return nil, diags
+	}
+
+	preambleVal, ok := preambleAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`preamble expected to be basetypes.StringValue, was: %T`, preambleAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return Band24Value{
+		AllowRrmDisable: allowRrmDisableVal,
+		AntGain:         antGainVal,
+		AntennaMode:     antennaModeVal,
+		Bandwidth:       bandwidthVal,
+		Channels:        channelsVal,
+		Disabled:        disabledVal,
+		Power:           powerVal,
+		PowerMax:        powerMaxVal,
+		PowerMin:        powerMinVal,
+		Preamble:        preambleVal,
+		state:           attr.ValueStateKnown,
+	}, diags
+}
+
+func NewBand24ValueNull() Band24Value {
+	return Band24Value{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewBand24ValueUnknown() Band24Value {
+	return Band24Value{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewBand24Value(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (Band24Value, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing Band24Value Attribute Value",
+				"While creating a Band24Value value, a missing attribute value was detected. "+
+					"A Band24Value must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Band24Value Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid Band24Value Attribute Type",
+				"While creating a Band24Value value, an invalid attribute value was detected. "+
+					"A Band24Value must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Band24Value Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("Band24Value Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra Band24Value Attribute Value",
+				"While creating a Band24Value value, an extra attribute value was detected. "+
+					"A Band24Value must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra Band24Value Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewBand24ValueUnknown(), diags
+	}
+
+	allowRrmDisableAttribute, ok := attributes["allow_rrm_disable"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`allow_rrm_disable is missing from object`)
+
+		return NewBand24ValueUnknown(), diags
+	}
+
+	allowRrmDisableVal, ok := allowRrmDisableAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`allow_rrm_disable expected to be basetypes.BoolValue, was: %T`, allowRrmDisableAttribute))
+	}
+
+	antGainAttribute, ok := attributes["ant_gain"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ant_gain is missing from object`)
+
+		return NewBand24ValueUnknown(), diags
+	}
+
+	antGainVal, ok := antGainAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ant_gain expected to be basetypes.Int64Value, was: %T`, antGainAttribute))
+	}
+
+	antennaModeAttribute, ok := attributes["antenna_mode"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`antenna_mode is missing from object`)
+
+		return NewBand24ValueUnknown(), diags
+	}
+
+	antennaModeVal, ok := antennaModeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`antenna_mode expected to be basetypes.StringValue, was: %T`, antennaModeAttribute))
+	}
+
+	bandwidthAttribute, ok := attributes["bandwidth"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`bandwidth is missing from object`)
+
+		return NewBand24ValueUnknown(), diags
+	}
+
+	bandwidthVal, ok := bandwidthAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`bandwidth expected to be basetypes.Int64Value, was: %T`, bandwidthAttribute))
+	}
+
+	channelsAttribute, ok := attributes["channels"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`channels is missing from object`)
+
+		return NewBand24ValueUnknown(), diags
+	}
+
+	channelsVal, ok := channelsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`channels expected to be basetypes.ListValue, was: %T`, channelsAttribute))
+	}
+
+	disabledAttribute, ok := attributes["disabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disabled is missing from object`)
+
+		return NewBand24ValueUnknown(), diags
+	}
+
+	disabledVal, ok := disabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disabled expected to be basetypes.BoolValue, was: %T`, disabledAttribute))
+	}
+
+	powerAttribute, ok := attributes["power"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power is missing from object`)
+
+		return NewBand24ValueUnknown(), diags
+	}
+
+	powerVal, ok := powerAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power expected to be basetypes.Int64Value, was: %T`, powerAttribute))
+	}
+
+	powerMaxAttribute, ok := attributes["power_max"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_max is missing from object`)
+
+		return NewBand24ValueUnknown(), diags
+	}
+
+	powerMaxVal, ok := powerMaxAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_max expected to be basetypes.Int64Value, was: %T`, powerMaxAttribute))
+	}
+
+	powerMinAttribute, ok := attributes["power_min"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_min is missing from object`)
+
+		return NewBand24ValueUnknown(), diags
+	}
+
+	powerMinVal, ok := powerMinAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_min expected to be basetypes.Int64Value, was: %T`, powerMinAttribute))
+	}
+
+	preambleAttribute, ok := attributes["preamble"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`preamble is missing from object`)
+
+		return NewBand24ValueUnknown(), diags
+	}
+
+	preambleVal, ok := preambleAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`preamble expected to be basetypes.StringValue, was: %T`, preambleAttribute))
+	}
+
+	if diags.HasError() {
+		return NewBand24ValueUnknown(), diags
+	}
+
+	return Band24Value{
+		AllowRrmDisable: allowRrmDisableVal,
+		AntGain:         antGainVal,
+		AntennaMode:     antennaModeVal,
+		Bandwidth:       bandwidthVal,
+		Channels:        channelsVal,
+		Disabled:        disabledVal,
+		Power:           powerVal,
+		PowerMax:        powerMaxVal,
+		PowerMin:        powerMinVal,
+		Preamble:        preambleVal,
+		state:           attr.ValueStateKnown,
+	}, diags
+}
+
+func NewBand24ValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) Band24Value {
+	object, diags := NewBand24Value(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewBand24ValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t Band24Type) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewBand24ValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewBand24ValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewBand24ValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewBand24ValueMust(Band24Value{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t Band24Type) ValueType(ctx context.Context) attr.Value {
+	return Band24Value{}
+}
+
+var _ basetypes.ObjectValuable = Band24Value{}
+
+type Band24Value struct {
+	AllowRrmDisable basetypes.BoolValue   `tfsdk:"allow_rrm_disable"`
+	AntGain         basetypes.Int64Value  `tfsdk:"ant_gain"`
+	AntennaMode     basetypes.StringValue `tfsdk:"antenna_mode"`
+	Bandwidth       basetypes.Int64Value  `tfsdk:"bandwidth"`
+	Channels        basetypes.ListValue   `tfsdk:"channels"`
+	Disabled        basetypes.BoolValue   `tfsdk:"disabled"`
+	Power           basetypes.Int64Value  `tfsdk:"power"`
+	PowerMax        basetypes.Int64Value  `tfsdk:"power_max"`
+	PowerMin        basetypes.Int64Value  `tfsdk:"power_min"`
+	Preamble        basetypes.StringValue `tfsdk:"preamble"`
+	state           attr.ValueState
+}
+
+func (v Band24Value) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 10)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["allow_rrm_disable"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["ant_gain"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["antenna_mode"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["bandwidth"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["channels"] = basetypes.ListType{
+		ElemType: types.Int64Type,
+	}.TerraformType(ctx)
+	attrTypes["disabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["power"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["power_max"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["power_min"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["preamble"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 10)
+
+		val, err = v.AllowRrmDisable.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["allow_rrm_disable"] = val
+
+		val, err = v.AntGain.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["ant_gain"] = val
+
+		val, err = v.AntennaMode.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["antenna_mode"] = val
+
+		val, err = v.Bandwidth.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["bandwidth"] = val
+
+		val, err = v.Channels.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["channels"] = val
+
+		val, err = v.Disabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["disabled"] = val
+
+		val, err = v.Power.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["power"] = val
+
+		val, err = v.PowerMax.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["power_max"] = val
+
+		val, err = v.PowerMin.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["power_min"] = val
+
+		val, err = v.Preamble.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["preamble"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v Band24Value) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v Band24Value) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v Band24Value) String() string {
+	return "Band24Value"
+}
+
+func (v Band24Value) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	channelsVal, d := types.ListValue(types.Int64Type, v.Channels.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"allow_rrm_disable": basetypes.BoolType{},
+			"ant_gain":          basetypes.Int64Type{},
+			"antenna_mode":      basetypes.StringType{},
+			"bandwidth":         basetypes.Int64Type{},
+			"channels": basetypes.ListType{
+				ElemType: types.Int64Type,
+			},
+			"disabled":  basetypes.BoolType{},
+			"power":     basetypes.Int64Type{},
+			"power_max": basetypes.Int64Type{},
+			"power_min": basetypes.Int64Type{},
+			"preamble":  basetypes.StringType{},
+		}), diags
+	}
+
+	attributeTypes := map[string]attr.Type{
+		"allow_rrm_disable": basetypes.BoolType{},
+		"ant_gain":          basetypes.Int64Type{},
+		"antenna_mode":      basetypes.StringType{},
+		"bandwidth":         basetypes.Int64Type{},
+		"channels": basetypes.ListType{
+			ElemType: types.Int64Type,
+		},
+		"disabled":  basetypes.BoolType{},
+		"power":     basetypes.Int64Type{},
+		"power_max": basetypes.Int64Type{},
+		"power_min": basetypes.Int64Type{},
+		"preamble":  basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"allow_rrm_disable": v.AllowRrmDisable,
+			"ant_gain":          v.AntGain,
+			"antenna_mode":      v.AntennaMode,
+			"bandwidth":         v.Bandwidth,
+			"channels":          channelsVal,
+			"disabled":          v.Disabled,
+			"power":             v.Power,
+			"power_max":         v.PowerMax,
+			"power_min":         v.PowerMin,
+			"preamble":          v.Preamble,
+		})
+
+	return objVal, diags
+}
+
+func (v Band24Value) Equal(o attr.Value) bool {
+	other, ok := o.(Band24Value)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.AllowRrmDisable.Equal(other.AllowRrmDisable) {
+		return false
+	}
+
+	if !v.AntGain.Equal(other.AntGain) {
+		return false
+	}
+
+	if !v.AntennaMode.Equal(other.AntennaMode) {
+		return false
+	}
+
+	if !v.Bandwidth.Equal(other.Bandwidth) {
+		return false
+	}
+
+	if !v.Channels.Equal(other.Channels) {
+		return false
+	}
+
+	if !v.Disabled.Equal(other.Disabled) {
+		return false
+	}
+
+	if !v.Power.Equal(other.Power) {
+		return false
+	}
+
+	if !v.PowerMax.Equal(other.PowerMax) {
+		return false
+	}
+
+	if !v.PowerMin.Equal(other.PowerMin) {
+		return false
+	}
+
+	if !v.Preamble.Equal(other.Preamble) {
+		return false
+	}
+
+	return true
+}
+
+func (v Band24Value) Type(ctx context.Context) attr.Type {
+	return Band24Type{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v Band24Value) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"allow_rrm_disable": basetypes.BoolType{},
+		"ant_gain":          basetypes.Int64Type{},
+		"antenna_mode":      basetypes.StringType{},
+		"bandwidth":         basetypes.Int64Type{},
+		"channels": basetypes.ListType{
+			ElemType: types.Int64Type,
+		},
+		"disabled":  basetypes.BoolType{},
+		"power":     basetypes.Int64Type{},
+		"power_max": basetypes.Int64Type{},
+		"power_min": basetypes.Int64Type{},
+		"preamble":  basetypes.StringType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = Band5Type{}
+
+type Band5Type struct {
+	basetypes.ObjectType
+}
+
+func (t Band5Type) Equal(o attr.Type) bool {
+	other, ok := o.(Band5Type)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t Band5Type) String() string {
+	return "Band5Type"
+}
+
+func (t Band5Type) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	allowRrmDisableAttribute, ok := attributes["allow_rrm_disable"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`allow_rrm_disable is missing from object`)
+
+		return nil, diags
+	}
+
+	allowRrmDisableVal, ok := allowRrmDisableAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`allow_rrm_disable expected to be basetypes.BoolValue, was: %T`, allowRrmDisableAttribute))
+	}
+
+	antGainAttribute, ok := attributes["ant_gain"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ant_gain is missing from object`)
+
+		return nil, diags
+	}
+
+	antGainVal, ok := antGainAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ant_gain expected to be basetypes.Int64Value, was: %T`, antGainAttribute))
+	}
+
+	antennaModeAttribute, ok := attributes["antenna_mode"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`antenna_mode is missing from object`)
+
+		return nil, diags
+	}
+
+	antennaModeVal, ok := antennaModeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`antenna_mode expected to be basetypes.StringValue, was: %T`, antennaModeAttribute))
+	}
+
+	bandwidthAttribute, ok := attributes["bandwidth"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`bandwidth is missing from object`)
+
+		return nil, diags
+	}
+
+	bandwidthVal, ok := bandwidthAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`bandwidth expected to be basetypes.Int64Value, was: %T`, bandwidthAttribute))
+	}
+
+	channelsAttribute, ok := attributes["channels"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`channels is missing from object`)
+
+		return nil, diags
+	}
+
+	channelsVal, ok := channelsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`channels expected to be basetypes.ListValue, was: %T`, channelsAttribute))
+	}
+
+	disabledAttribute, ok := attributes["disabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disabled is missing from object`)
+
+		return nil, diags
+	}
+
+	disabledVal, ok := disabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disabled expected to be basetypes.BoolValue, was: %T`, disabledAttribute))
+	}
+
+	powerAttribute, ok := attributes["power"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power is missing from object`)
+
+		return nil, diags
+	}
+
+	powerVal, ok := powerAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power expected to be basetypes.Int64Value, was: %T`, powerAttribute))
+	}
+
+	powerMaxAttribute, ok := attributes["power_max"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_max is missing from object`)
+
+		return nil, diags
+	}
+
+	powerMaxVal, ok := powerMaxAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_max expected to be basetypes.Int64Value, was: %T`, powerMaxAttribute))
+	}
+
+	powerMinAttribute, ok := attributes["power_min"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_min is missing from object`)
+
+		return nil, diags
+	}
+
+	powerMinVal, ok := powerMinAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_min expected to be basetypes.Int64Value, was: %T`, powerMinAttribute))
+	}
+
+	preambleAttribute, ok := attributes["preamble"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`preamble is missing from object`)
+
+		return nil, diags
+	}
+
+	preambleVal, ok := preambleAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`preamble expected to be basetypes.StringValue, was: %T`, preambleAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return Band5Value{
+		AllowRrmDisable: allowRrmDisableVal,
+		AntGain:         antGainVal,
+		AntennaMode:     antennaModeVal,
+		Bandwidth:       bandwidthVal,
+		Channels:        channelsVal,
+		Disabled:        disabledVal,
+		Power:           powerVal,
+		PowerMax:        powerMaxVal,
+		PowerMin:        powerMinVal,
+		Preamble:        preambleVal,
+		state:           attr.ValueStateKnown,
+	}, diags
+}
+
+func NewBand5ValueNull() Band5Value {
+	return Band5Value{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewBand5ValueUnknown() Band5Value {
+	return Band5Value{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewBand5Value(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (Band5Value, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing Band5Value Attribute Value",
+				"While creating a Band5Value value, a missing attribute value was detected. "+
+					"A Band5Value must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Band5Value Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid Band5Value Attribute Type",
+				"While creating a Band5Value value, an invalid attribute value was detected. "+
+					"A Band5Value must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Band5Value Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("Band5Value Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra Band5Value Attribute Value",
+				"While creating a Band5Value value, an extra attribute value was detected. "+
+					"A Band5Value must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra Band5Value Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewBand5ValueUnknown(), diags
+	}
+
+	allowRrmDisableAttribute, ok := attributes["allow_rrm_disable"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`allow_rrm_disable is missing from object`)
+
+		return NewBand5ValueUnknown(), diags
+	}
+
+	allowRrmDisableVal, ok := allowRrmDisableAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`allow_rrm_disable expected to be basetypes.BoolValue, was: %T`, allowRrmDisableAttribute))
+	}
+
+	antGainAttribute, ok := attributes["ant_gain"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ant_gain is missing from object`)
+
+		return NewBand5ValueUnknown(), diags
+	}
+
+	antGainVal, ok := antGainAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ant_gain expected to be basetypes.Int64Value, was: %T`, antGainAttribute))
+	}
+
+	antennaModeAttribute, ok := attributes["antenna_mode"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`antenna_mode is missing from object`)
+
+		return NewBand5ValueUnknown(), diags
+	}
+
+	antennaModeVal, ok := antennaModeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`antenna_mode expected to be basetypes.StringValue, was: %T`, antennaModeAttribute))
+	}
+
+	bandwidthAttribute, ok := attributes["bandwidth"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`bandwidth is missing from object`)
+
+		return NewBand5ValueUnknown(), diags
+	}
+
+	bandwidthVal, ok := bandwidthAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`bandwidth expected to be basetypes.Int64Value, was: %T`, bandwidthAttribute))
+	}
+
+	channelsAttribute, ok := attributes["channels"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`channels is missing from object`)
+
+		return NewBand5ValueUnknown(), diags
+	}
+
+	channelsVal, ok := channelsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`channels expected to be basetypes.ListValue, was: %T`, channelsAttribute))
+	}
+
+	disabledAttribute, ok := attributes["disabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disabled is missing from object`)
+
+		return NewBand5ValueUnknown(), diags
+	}
+
+	disabledVal, ok := disabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disabled expected to be basetypes.BoolValue, was: %T`, disabledAttribute))
+	}
+
+	powerAttribute, ok := attributes["power"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power is missing from object`)
+
+		return NewBand5ValueUnknown(), diags
+	}
+
+	powerVal, ok := powerAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power expected to be basetypes.Int64Value, was: %T`, powerAttribute))
+	}
+
+	powerMaxAttribute, ok := attributes["power_max"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_max is missing from object`)
+
+		return NewBand5ValueUnknown(), diags
+	}
+
+	powerMaxVal, ok := powerMaxAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_max expected to be basetypes.Int64Value, was: %T`, powerMaxAttribute))
+	}
+
+	powerMinAttribute, ok := attributes["power_min"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_min is missing from object`)
+
+		return NewBand5ValueUnknown(), diags
+	}
+
+	powerMinVal, ok := powerMinAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_min expected to be basetypes.Int64Value, was: %T`, powerMinAttribute))
+	}
+
+	preambleAttribute, ok := attributes["preamble"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`preamble is missing from object`)
+
+		return NewBand5ValueUnknown(), diags
+	}
+
+	preambleVal, ok := preambleAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`preamble expected to be basetypes.StringValue, was: %T`, preambleAttribute))
+	}
+
+	if diags.HasError() {
+		return NewBand5ValueUnknown(), diags
+	}
+
+	return Band5Value{
+		AllowRrmDisable: allowRrmDisableVal,
+		AntGain:         antGainVal,
+		AntennaMode:     antennaModeVal,
+		Bandwidth:       bandwidthVal,
+		Channels:        channelsVal,
+		Disabled:        disabledVal,
+		Power:           powerVal,
+		PowerMax:        powerMaxVal,
+		PowerMin:        powerMinVal,
+		Preamble:        preambleVal,
+		state:           attr.ValueStateKnown,
+	}, diags
+}
+
+func NewBand5ValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) Band5Value {
+	object, diags := NewBand5Value(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewBand5ValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t Band5Type) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewBand5ValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewBand5ValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewBand5ValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewBand5ValueMust(Band5Value{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t Band5Type) ValueType(ctx context.Context) attr.Value {
+	return Band5Value{}
+}
+
+var _ basetypes.ObjectValuable = Band5Value{}
+
+type Band5Value struct {
+	AllowRrmDisable basetypes.BoolValue   `tfsdk:"allow_rrm_disable"`
+	AntGain         basetypes.Int64Value  `tfsdk:"ant_gain"`
+	AntennaMode     basetypes.StringValue `tfsdk:"antenna_mode"`
+	Bandwidth       basetypes.Int64Value  `tfsdk:"bandwidth"`
+	Channels        basetypes.ListValue   `tfsdk:"channels"`
+	Disabled        basetypes.BoolValue   `tfsdk:"disabled"`
+	Power           basetypes.Int64Value  `tfsdk:"power"`
+	PowerMax        basetypes.Int64Value  `tfsdk:"power_max"`
+	PowerMin        basetypes.Int64Value  `tfsdk:"power_min"`
+	Preamble        basetypes.StringValue `tfsdk:"preamble"`
+	state           attr.ValueState
+}
+
+func (v Band5Value) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 10)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["allow_rrm_disable"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["ant_gain"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["antenna_mode"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["bandwidth"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["channels"] = basetypes.ListType{
+		ElemType: types.Int64Type,
+	}.TerraformType(ctx)
+	attrTypes["disabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["power"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["power_max"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["power_min"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["preamble"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 10)
+
+		val, err = v.AllowRrmDisable.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["allow_rrm_disable"] = val
+
+		val, err = v.AntGain.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["ant_gain"] = val
+
+		val, err = v.AntennaMode.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["antenna_mode"] = val
+
+		val, err = v.Bandwidth.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["bandwidth"] = val
+
+		val, err = v.Channels.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["channels"] = val
+
+		val, err = v.Disabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["disabled"] = val
+
+		val, err = v.Power.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["power"] = val
+
+		val, err = v.PowerMax.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["power_max"] = val
+
+		val, err = v.PowerMin.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["power_min"] = val
+
+		val, err = v.Preamble.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["preamble"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v Band5Value) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v Band5Value) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v Band5Value) String() string {
+	return "Band5Value"
+}
+
+func (v Band5Value) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	channelsVal, d := types.ListValue(types.Int64Type, v.Channels.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"allow_rrm_disable": basetypes.BoolType{},
+			"ant_gain":          basetypes.Int64Type{},
+			"antenna_mode":      basetypes.StringType{},
+			"bandwidth":         basetypes.Int64Type{},
+			"channels": basetypes.ListType{
+				ElemType: types.Int64Type,
+			},
+			"disabled":  basetypes.BoolType{},
+			"power":     basetypes.Int64Type{},
+			"power_max": basetypes.Int64Type{},
+			"power_min": basetypes.Int64Type{},
+			"preamble":  basetypes.StringType{},
+		}), diags
+	}
+
+	attributeTypes := map[string]attr.Type{
+		"allow_rrm_disable": basetypes.BoolType{},
+		"ant_gain":          basetypes.Int64Type{},
+		"antenna_mode":      basetypes.StringType{},
+		"bandwidth":         basetypes.Int64Type{},
+		"channels": basetypes.ListType{
+			ElemType: types.Int64Type,
+		},
+		"disabled":  basetypes.BoolType{},
+		"power":     basetypes.Int64Type{},
+		"power_max": basetypes.Int64Type{},
+		"power_min": basetypes.Int64Type{},
+		"preamble":  basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"allow_rrm_disable": v.AllowRrmDisable,
+			"ant_gain":          v.AntGain,
+			"antenna_mode":      v.AntennaMode,
+			"bandwidth":         v.Bandwidth,
+			"channels":          channelsVal,
+			"disabled":          v.Disabled,
+			"power":             v.Power,
+			"power_max":         v.PowerMax,
+			"power_min":         v.PowerMin,
+			"preamble":          v.Preamble,
+		})
+
+	return objVal, diags
+}
+
+func (v Band5Value) Equal(o attr.Value) bool {
+	other, ok := o.(Band5Value)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.AllowRrmDisable.Equal(other.AllowRrmDisable) {
+		return false
+	}
+
+	if !v.AntGain.Equal(other.AntGain) {
+		return false
+	}
+
+	if !v.AntennaMode.Equal(other.AntennaMode) {
+		return false
+	}
+
+	if !v.Bandwidth.Equal(other.Bandwidth) {
+		return false
+	}
+
+	if !v.Channels.Equal(other.Channels) {
+		return false
+	}
+
+	if !v.Disabled.Equal(other.Disabled) {
+		return false
+	}
+
+	if !v.Power.Equal(other.Power) {
+		return false
+	}
+
+	if !v.PowerMax.Equal(other.PowerMax) {
+		return false
+	}
+
+	if !v.PowerMin.Equal(other.PowerMin) {
+		return false
+	}
+
+	if !v.Preamble.Equal(other.Preamble) {
+		return false
+	}
+
+	return true
+}
+
+func (v Band5Value) Type(ctx context.Context) attr.Type {
+	return Band5Type{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v Band5Value) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"allow_rrm_disable": basetypes.BoolType{},
+		"ant_gain":          basetypes.Int64Type{},
+		"antenna_mode":      basetypes.StringType{},
+		"bandwidth":         basetypes.Int64Type{},
+		"channels": basetypes.ListType{
+			ElemType: types.Int64Type,
+		},
+		"disabled":  basetypes.BoolType{},
+		"power":     basetypes.Int64Type{},
+		"power_max": basetypes.Int64Type{},
+		"power_min": basetypes.Int64Type{},
+		"preamble":  basetypes.StringType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = Band5On24RadioType{}
+
+type Band5On24RadioType struct {
+	basetypes.ObjectType
+}
+
+func (t Band5On24RadioType) Equal(o attr.Type) bool {
+	other, ok := o.(Band5On24RadioType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t Band5On24RadioType) String() string {
+	return "Band5On24RadioType"
+}
+
+func (t Band5On24RadioType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	allowRrmDisableAttribute, ok := attributes["allow_rrm_disable"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`allow_rrm_disable is missing from object`)
+
+		return nil, diags
+	}
+
+	allowRrmDisableVal, ok := allowRrmDisableAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`allow_rrm_disable expected to be basetypes.BoolValue, was: %T`, allowRrmDisableAttribute))
+	}
+
+	antGainAttribute, ok := attributes["ant_gain"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ant_gain is missing from object`)
+
+		return nil, diags
+	}
+
+	antGainVal, ok := antGainAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ant_gain expected to be basetypes.Int64Value, was: %T`, antGainAttribute))
+	}
+
+	antennaModeAttribute, ok := attributes["antenna_mode"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`antenna_mode is missing from object`)
+
+		return nil, diags
+	}
+
+	antennaModeVal, ok := antennaModeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`antenna_mode expected to be basetypes.StringValue, was: %T`, antennaModeAttribute))
+	}
+
+	bandwidthAttribute, ok := attributes["bandwidth"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`bandwidth is missing from object`)
+
+		return nil, diags
+	}
+
+	bandwidthVal, ok := bandwidthAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`bandwidth expected to be basetypes.Int64Value, was: %T`, bandwidthAttribute))
+	}
+
+	channelsAttribute, ok := attributes["channels"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`channels is missing from object`)
+
+		return nil, diags
+	}
+
+	channelsVal, ok := channelsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`channels expected to be basetypes.ListValue, was: %T`, channelsAttribute))
+	}
+
+	disabledAttribute, ok := attributes["disabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disabled is missing from object`)
+
+		return nil, diags
+	}
+
+	disabledVal, ok := disabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disabled expected to be basetypes.BoolValue, was: %T`, disabledAttribute))
+	}
+
+	powerAttribute, ok := attributes["power"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power is missing from object`)
+
+		return nil, diags
+	}
+
+	powerVal, ok := powerAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power expected to be basetypes.Int64Value, was: %T`, powerAttribute))
+	}
+
+	powerMaxAttribute, ok := attributes["power_max"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_max is missing from object`)
+
+		return nil, diags
+	}
+
+	powerMaxVal, ok := powerMaxAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_max expected to be basetypes.Int64Value, was: %T`, powerMaxAttribute))
+	}
+
+	powerMinAttribute, ok := attributes["power_min"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_min is missing from object`)
+
+		return nil, diags
+	}
+
+	powerMinVal, ok := powerMinAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_min expected to be basetypes.Int64Value, was: %T`, powerMinAttribute))
+	}
+
+	preambleAttribute, ok := attributes["preamble"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`preamble is missing from object`)
+
+		return nil, diags
+	}
+
+	preambleVal, ok := preambleAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`preamble expected to be basetypes.StringValue, was: %T`, preambleAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return Band5On24RadioValue{
+		AllowRrmDisable: allowRrmDisableVal,
+		AntGain:         antGainVal,
+		AntennaMode:     antennaModeVal,
+		Bandwidth:       bandwidthVal,
+		Channels:        channelsVal,
+		Disabled:        disabledVal,
+		Power:           powerVal,
+		PowerMax:        powerMaxVal,
+		PowerMin:        powerMinVal,
+		Preamble:        preambleVal,
+		state:           attr.ValueStateKnown,
+	}, diags
+}
+
+func NewBand5On24RadioValueNull() Band5On24RadioValue {
+	return Band5On24RadioValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewBand5On24RadioValueUnknown() Band5On24RadioValue {
+	return Band5On24RadioValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewBand5On24RadioValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (Band5On24RadioValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing Band5On24RadioValue Attribute Value",
+				"While creating a Band5On24RadioValue value, a missing attribute value was detected. "+
+					"A Band5On24RadioValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Band5On24RadioValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid Band5On24RadioValue Attribute Type",
+				"While creating a Band5On24RadioValue value, an invalid attribute value was detected. "+
+					"A Band5On24RadioValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Band5On24RadioValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("Band5On24RadioValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra Band5On24RadioValue Attribute Value",
+				"While creating a Band5On24RadioValue value, an extra attribute value was detected. "+
+					"A Band5On24RadioValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra Band5On24RadioValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewBand5On24RadioValueUnknown(), diags
+	}
+
+	allowRrmDisableAttribute, ok := attributes["allow_rrm_disable"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`allow_rrm_disable is missing from object`)
+
+		return NewBand5On24RadioValueUnknown(), diags
+	}
+
+	allowRrmDisableVal, ok := allowRrmDisableAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`allow_rrm_disable expected to be basetypes.BoolValue, was: %T`, allowRrmDisableAttribute))
+	}
+
+	antGainAttribute, ok := attributes["ant_gain"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ant_gain is missing from object`)
+
+		return NewBand5On24RadioValueUnknown(), diags
+	}
+
+	antGainVal, ok := antGainAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ant_gain expected to be basetypes.Int64Value, was: %T`, antGainAttribute))
+	}
+
+	antennaModeAttribute, ok := attributes["antenna_mode"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`antenna_mode is missing from object`)
+
+		return NewBand5On24RadioValueUnknown(), diags
+	}
+
+	antennaModeVal, ok := antennaModeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`antenna_mode expected to be basetypes.StringValue, was: %T`, antennaModeAttribute))
+	}
+
+	bandwidthAttribute, ok := attributes["bandwidth"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`bandwidth is missing from object`)
+
+		return NewBand5On24RadioValueUnknown(), diags
+	}
+
+	bandwidthVal, ok := bandwidthAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`bandwidth expected to be basetypes.Int64Value, was: %T`, bandwidthAttribute))
+	}
+
+	channelsAttribute, ok := attributes["channels"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`channels is missing from object`)
+
+		return NewBand5On24RadioValueUnknown(), diags
+	}
+
+	channelsVal, ok := channelsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`channels expected to be basetypes.ListValue, was: %T`, channelsAttribute))
+	}
+
+	disabledAttribute, ok := attributes["disabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disabled is missing from object`)
+
+		return NewBand5On24RadioValueUnknown(), diags
+	}
+
+	disabledVal, ok := disabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disabled expected to be basetypes.BoolValue, was: %T`, disabledAttribute))
+	}
+
+	powerAttribute, ok := attributes["power"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power is missing from object`)
+
+		return NewBand5On24RadioValueUnknown(), diags
+	}
+
+	powerVal, ok := powerAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power expected to be basetypes.Int64Value, was: %T`, powerAttribute))
+	}
+
+	powerMaxAttribute, ok := attributes["power_max"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_max is missing from object`)
+
+		return NewBand5On24RadioValueUnknown(), diags
+	}
+
+	powerMaxVal, ok := powerMaxAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_max expected to be basetypes.Int64Value, was: %T`, powerMaxAttribute))
+	}
+
+	powerMinAttribute, ok := attributes["power_min"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_min is missing from object`)
+
+		return NewBand5On24RadioValueUnknown(), diags
+	}
+
+	powerMinVal, ok := powerMinAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_min expected to be basetypes.Int64Value, was: %T`, powerMinAttribute))
+	}
+
+	preambleAttribute, ok := attributes["preamble"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`preamble is missing from object`)
+
+		return NewBand5On24RadioValueUnknown(), diags
+	}
+
+	preambleVal, ok := preambleAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`preamble expected to be basetypes.StringValue, was: %T`, preambleAttribute))
+	}
+
+	if diags.HasError() {
+		return NewBand5On24RadioValueUnknown(), diags
+	}
+
+	return Band5On24RadioValue{
+		AllowRrmDisable: allowRrmDisableVal,
+		AntGain:         antGainVal,
+		AntennaMode:     antennaModeVal,
+		Bandwidth:       bandwidthVal,
+		Channels:        channelsVal,
+		Disabled:        disabledVal,
+		Power:           powerVal,
+		PowerMax:        powerMaxVal,
+		PowerMin:        powerMinVal,
+		Preamble:        preambleVal,
+		state:           attr.ValueStateKnown,
+	}, diags
+}
+
+func NewBand5On24RadioValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) Band5On24RadioValue {
+	object, diags := NewBand5On24RadioValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewBand5On24RadioValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t Band5On24RadioType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewBand5On24RadioValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewBand5On24RadioValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewBand5On24RadioValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewBand5On24RadioValueMust(Band5On24RadioValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t Band5On24RadioType) ValueType(ctx context.Context) attr.Value {
+	return Band5On24RadioValue{}
+}
+
+var _ basetypes.ObjectValuable = Band5On24RadioValue{}
+
+type Band5On24RadioValue struct {
+	AllowRrmDisable basetypes.BoolValue   `tfsdk:"allow_rrm_disable"`
+	AntGain         basetypes.Int64Value  `tfsdk:"ant_gain"`
+	AntennaMode     basetypes.StringValue `tfsdk:"antenna_mode"`
+	Bandwidth       basetypes.Int64Value  `tfsdk:"bandwidth"`
+	Channels        basetypes.ListValue   `tfsdk:"channels"`
+	Disabled        basetypes.BoolValue   `tfsdk:"disabled"`
+	Power           basetypes.Int64Value  `tfsdk:"power"`
+	PowerMax        basetypes.Int64Value  `tfsdk:"power_max"`
+	PowerMin        basetypes.Int64Value  `tfsdk:"power_min"`
+	Preamble        basetypes.StringValue `tfsdk:"preamble"`
+	state           attr.ValueState
+}
+
+func (v Band5On24RadioValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 10)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["allow_rrm_disable"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["ant_gain"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["antenna_mode"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["bandwidth"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["channels"] = basetypes.ListType{
+		ElemType: types.Int64Type,
+	}.TerraformType(ctx)
+	attrTypes["disabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["power"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["power_max"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["power_min"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["preamble"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 10)
+
+		val, err = v.AllowRrmDisable.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["allow_rrm_disable"] = val
+
+		val, err = v.AntGain.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["ant_gain"] = val
+
+		val, err = v.AntennaMode.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["antenna_mode"] = val
+
+		val, err = v.Bandwidth.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["bandwidth"] = val
+
+		val, err = v.Channels.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["channels"] = val
+
+		val, err = v.Disabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["disabled"] = val
+
+		val, err = v.Power.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["power"] = val
+
+		val, err = v.PowerMax.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["power_max"] = val
+
+		val, err = v.PowerMin.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["power_min"] = val
+
+		val, err = v.Preamble.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["preamble"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v Band5On24RadioValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v Band5On24RadioValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v Band5On24RadioValue) String() string {
+	return "Band5On24RadioValue"
+}
+
+func (v Band5On24RadioValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	channelsVal, d := types.ListValue(types.Int64Type, v.Channels.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"allow_rrm_disable": basetypes.BoolType{},
+			"ant_gain":          basetypes.Int64Type{},
+			"antenna_mode":      basetypes.StringType{},
+			"bandwidth":         basetypes.Int64Type{},
+			"channels": basetypes.ListType{
+				ElemType: types.Int64Type,
+			},
+			"disabled":  basetypes.BoolType{},
+			"power":     basetypes.Int64Type{},
+			"power_max": basetypes.Int64Type{},
+			"power_min": basetypes.Int64Type{},
+			"preamble":  basetypes.StringType{},
+		}), diags
+	}
+
+	attributeTypes := map[string]attr.Type{
+		"allow_rrm_disable": basetypes.BoolType{},
+		"ant_gain":          basetypes.Int64Type{},
+		"antenna_mode":      basetypes.StringType{},
+		"bandwidth":         basetypes.Int64Type{},
+		"channels": basetypes.ListType{
+			ElemType: types.Int64Type,
+		},
+		"disabled":  basetypes.BoolType{},
+		"power":     basetypes.Int64Type{},
+		"power_max": basetypes.Int64Type{},
+		"power_min": basetypes.Int64Type{},
+		"preamble":  basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"allow_rrm_disable": v.AllowRrmDisable,
+			"ant_gain":          v.AntGain,
+			"antenna_mode":      v.AntennaMode,
+			"bandwidth":         v.Bandwidth,
+			"channels":          channelsVal,
+			"disabled":          v.Disabled,
+			"power":             v.Power,
+			"power_max":         v.PowerMax,
+			"power_min":         v.PowerMin,
+			"preamble":          v.Preamble,
+		})
+
+	return objVal, diags
+}
+
+func (v Band5On24RadioValue) Equal(o attr.Value) bool {
+	other, ok := o.(Band5On24RadioValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.AllowRrmDisable.Equal(other.AllowRrmDisable) {
+		return false
+	}
+
+	if !v.AntGain.Equal(other.AntGain) {
+		return false
+	}
+
+	if !v.AntennaMode.Equal(other.AntennaMode) {
+		return false
+	}
+
+	if !v.Bandwidth.Equal(other.Bandwidth) {
+		return false
+	}
+
+	if !v.Channels.Equal(other.Channels) {
+		return false
+	}
+
+	if !v.Disabled.Equal(other.Disabled) {
+		return false
+	}
+
+	if !v.Power.Equal(other.Power) {
+		return false
+	}
+
+	if !v.PowerMax.Equal(other.PowerMax) {
+		return false
+	}
+
+	if !v.PowerMin.Equal(other.PowerMin) {
+		return false
+	}
+
+	if !v.Preamble.Equal(other.Preamble) {
+		return false
+	}
+
+	return true
+}
+
+func (v Band5On24RadioValue) Type(ctx context.Context) attr.Type {
+	return Band5On24RadioType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v Band5On24RadioValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"allow_rrm_disable": basetypes.BoolType{},
+		"ant_gain":          basetypes.Int64Type{},
+		"antenna_mode":      basetypes.StringType{},
+		"bandwidth":         basetypes.Int64Type{},
+		"channels": basetypes.ListType{
+			ElemType: types.Int64Type,
+		},
+		"disabled":  basetypes.BoolType{},
+		"power":     basetypes.Int64Type{},
+		"power_max": basetypes.Int64Type{},
+		"power_min": basetypes.Int64Type{},
+		"preamble":  basetypes.StringType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = Band6Type{}
+
+type Band6Type struct {
+	basetypes.ObjectType
+}
+
+func (t Band6Type) Equal(o attr.Type) bool {
+	other, ok := o.(Band6Type)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t Band6Type) String() string {
+	return "Band6Type"
+}
+
+func (t Band6Type) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	allowRrmDisableAttribute, ok := attributes["allow_rrm_disable"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`allow_rrm_disable is missing from object`)
+
+		return nil, diags
+	}
+
+	allowRrmDisableVal, ok := allowRrmDisableAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`allow_rrm_disable expected to be basetypes.BoolValue, was: %T`, allowRrmDisableAttribute))
+	}
+
+	antGainAttribute, ok := attributes["ant_gain"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ant_gain is missing from object`)
+
+		return nil, diags
+	}
+
+	antGainVal, ok := antGainAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ant_gain expected to be basetypes.Int64Value, was: %T`, antGainAttribute))
+	}
+
+	antennaModeAttribute, ok := attributes["antenna_mode"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`antenna_mode is missing from object`)
+
+		return nil, diags
+	}
+
+	antennaModeVal, ok := antennaModeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`antenna_mode expected to be basetypes.StringValue, was: %T`, antennaModeAttribute))
+	}
+
+	bandwidthAttribute, ok := attributes["bandwidth"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`bandwidth is missing from object`)
+
+		return nil, diags
+	}
+
+	bandwidthVal, ok := bandwidthAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`bandwidth expected to be basetypes.Int64Value, was: %T`, bandwidthAttribute))
+	}
+
+	channelsAttribute, ok := attributes["channels"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`channels is missing from object`)
+
+		return nil, diags
+	}
+
+	channelsVal, ok := channelsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`channels expected to be basetypes.ListValue, was: %T`, channelsAttribute))
+	}
+
+	disabledAttribute, ok := attributes["disabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disabled is missing from object`)
+
+		return nil, diags
+	}
+
+	disabledVal, ok := disabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disabled expected to be basetypes.BoolValue, was: %T`, disabledAttribute))
+	}
+
+	powerAttribute, ok := attributes["power"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power is missing from object`)
+
+		return nil, diags
+	}
+
+	powerVal, ok := powerAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power expected to be basetypes.Int64Value, was: %T`, powerAttribute))
+	}
+
+	powerMaxAttribute, ok := attributes["power_max"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_max is missing from object`)
+
+		return nil, diags
+	}
+
+	powerMaxVal, ok := powerMaxAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_max expected to be basetypes.Int64Value, was: %T`, powerMaxAttribute))
+	}
+
+	powerMinAttribute, ok := attributes["power_min"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_min is missing from object`)
+
+		return nil, diags
+	}
+
+	powerMinVal, ok := powerMinAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_min expected to be basetypes.Int64Value, was: %T`, powerMinAttribute))
+	}
+
+	preambleAttribute, ok := attributes["preamble"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`preamble is missing from object`)
+
+		return nil, diags
+	}
+
+	preambleVal, ok := preambleAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`preamble expected to be basetypes.StringValue, was: %T`, preambleAttribute))
+	}
+
+	standardPowerAttribute, ok := attributes["standard_power"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`standard_power is missing from object`)
+
+		return nil, diags
+	}
+
+	standardPowerVal, ok := standardPowerAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`standard_power expected to be basetypes.BoolValue, was: %T`, standardPowerAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return Band6Value{
+		AllowRrmDisable: allowRrmDisableVal,
+		AntGain:         antGainVal,
+		AntennaMode:     antennaModeVal,
+		Bandwidth:       bandwidthVal,
+		Channels:        channelsVal,
+		Disabled:        disabledVal,
+		Power:           powerVal,
+		PowerMax:        powerMaxVal,
+		PowerMin:        powerMinVal,
+		Preamble:        preambleVal,
+		StandardPower:   standardPowerVal,
+		state:           attr.ValueStateKnown,
+	}, diags
+}
+
+func NewBand6ValueNull() Band6Value {
+	return Band6Value{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewBand6ValueUnknown() Band6Value {
+	return Band6Value{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewBand6Value(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (Band6Value, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing Band6Value Attribute Value",
+				"While creating a Band6Value value, a missing attribute value was detected. "+
+					"A Band6Value must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Band6Value Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid Band6Value Attribute Type",
+				"While creating a Band6Value value, an invalid attribute value was detected. "+
+					"A Band6Value must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Band6Value Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("Band6Value Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra Band6Value Attribute Value",
+				"While creating a Band6Value value, an extra attribute value was detected. "+
+					"A Band6Value must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra Band6Value Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewBand6ValueUnknown(), diags
+	}
+
+	allowRrmDisableAttribute, ok := attributes["allow_rrm_disable"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`allow_rrm_disable is missing from object`)
+
+		return NewBand6ValueUnknown(), diags
+	}
+
+	allowRrmDisableVal, ok := allowRrmDisableAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`allow_rrm_disable expected to be basetypes.BoolValue, was: %T`, allowRrmDisableAttribute))
+	}
+
+	antGainAttribute, ok := attributes["ant_gain"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ant_gain is missing from object`)
+
+		return NewBand6ValueUnknown(), diags
+	}
+
+	antGainVal, ok := antGainAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ant_gain expected to be basetypes.Int64Value, was: %T`, antGainAttribute))
+	}
+
+	antennaModeAttribute, ok := attributes["antenna_mode"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`antenna_mode is missing from object`)
+
+		return NewBand6ValueUnknown(), diags
+	}
+
+	antennaModeVal, ok := antennaModeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`antenna_mode expected to be basetypes.StringValue, was: %T`, antennaModeAttribute))
+	}
+
+	bandwidthAttribute, ok := attributes["bandwidth"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`bandwidth is missing from object`)
+
+		return NewBand6ValueUnknown(), diags
+	}
+
+	bandwidthVal, ok := bandwidthAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`bandwidth expected to be basetypes.Int64Value, was: %T`, bandwidthAttribute))
+	}
+
+	channelsAttribute, ok := attributes["channels"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`channels is missing from object`)
+
+		return NewBand6ValueUnknown(), diags
+	}
+
+	channelsVal, ok := channelsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`channels expected to be basetypes.ListValue, was: %T`, channelsAttribute))
+	}
+
+	disabledAttribute, ok := attributes["disabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disabled is missing from object`)
+
+		return NewBand6ValueUnknown(), diags
+	}
+
+	disabledVal, ok := disabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disabled expected to be basetypes.BoolValue, was: %T`, disabledAttribute))
+	}
+
+	powerAttribute, ok := attributes["power"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power is missing from object`)
+
+		return NewBand6ValueUnknown(), diags
+	}
+
+	powerVal, ok := powerAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power expected to be basetypes.Int64Value, was: %T`, powerAttribute))
+	}
+
+	powerMaxAttribute, ok := attributes["power_max"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_max is missing from object`)
+
+		return NewBand6ValueUnknown(), diags
+	}
+
+	powerMaxVal, ok := powerMaxAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_max expected to be basetypes.Int64Value, was: %T`, powerMaxAttribute))
+	}
+
+	powerMinAttribute, ok := attributes["power_min"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_min is missing from object`)
+
+		return NewBand6ValueUnknown(), diags
+	}
+
+	powerMinVal, ok := powerMinAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_min expected to be basetypes.Int64Value, was: %T`, powerMinAttribute))
+	}
+
+	preambleAttribute, ok := attributes["preamble"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`preamble is missing from object`)
+
+		return NewBand6ValueUnknown(), diags
+	}
+
+	preambleVal, ok := preambleAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`preamble expected to be basetypes.StringValue, was: %T`, preambleAttribute))
+	}
+
+	standardPowerAttribute, ok := attributes["standard_power"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`standard_power is missing from object`)
+
+		return NewBand6ValueUnknown(), diags
+	}
+
+	standardPowerVal, ok := standardPowerAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`standard_power expected to be basetypes.BoolValue, was: %T`, standardPowerAttribute))
+	}
+
+	if diags.HasError() {
+		return NewBand6ValueUnknown(), diags
+	}
+
+	return Band6Value{
+		AllowRrmDisable: allowRrmDisableVal,
+		AntGain:         antGainVal,
+		AntennaMode:     antennaModeVal,
+		Bandwidth:       bandwidthVal,
+		Channels:        channelsVal,
+		Disabled:        disabledVal,
+		Power:           powerVal,
+		PowerMax:        powerMaxVal,
+		PowerMin:        powerMinVal,
+		Preamble:        preambleVal,
+		StandardPower:   standardPowerVal,
+		state:           attr.ValueStateKnown,
+	}, diags
+}
+
+func NewBand6ValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) Band6Value {
+	object, diags := NewBand6Value(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewBand6ValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t Band6Type) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewBand6ValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewBand6ValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewBand6ValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewBand6ValueMust(Band6Value{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t Band6Type) ValueType(ctx context.Context) attr.Value {
+	return Band6Value{}
+}
+
+var _ basetypes.ObjectValuable = Band6Value{}
+
+type Band6Value struct {
+	AllowRrmDisable basetypes.BoolValue   `tfsdk:"allow_rrm_disable"`
+	AntGain         basetypes.Int64Value  `tfsdk:"ant_gain"`
+	AntennaMode     basetypes.StringValue `tfsdk:"antenna_mode"`
+	Bandwidth       basetypes.Int64Value  `tfsdk:"bandwidth"`
+	Channels        basetypes.ListValue   `tfsdk:"channels"`
+	Disabled        basetypes.BoolValue   `tfsdk:"disabled"`
+	Power           basetypes.Int64Value  `tfsdk:"power"`
+	PowerMax        basetypes.Int64Value  `tfsdk:"power_max"`
+	PowerMin        basetypes.Int64Value  `tfsdk:"power_min"`
+	Preamble        basetypes.StringValue `tfsdk:"preamble"`
+	StandardPower   basetypes.BoolValue   `tfsdk:"standard_power"`
+	state           attr.ValueState
+}
+
+func (v Band6Value) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 11)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["allow_rrm_disable"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["ant_gain"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["antenna_mode"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["bandwidth"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["channels"] = basetypes.ListType{
+		ElemType: types.Int64Type,
+	}.TerraformType(ctx)
+	attrTypes["disabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["power"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["power_max"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["power_min"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["preamble"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["standard_power"] = basetypes.BoolType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 11)
+
+		val, err = v.AllowRrmDisable.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["allow_rrm_disable"] = val
+
+		val, err = v.AntGain.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["ant_gain"] = val
+
+		val, err = v.AntennaMode.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["antenna_mode"] = val
+
+		val, err = v.Bandwidth.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["bandwidth"] = val
+
+		val, err = v.Channels.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["channels"] = val
+
+		val, err = v.Disabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["disabled"] = val
+
+		val, err = v.Power.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["power"] = val
+
+		val, err = v.PowerMax.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["power_max"] = val
+
+		val, err = v.PowerMin.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["power_min"] = val
+
+		val, err = v.Preamble.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["preamble"] = val
+
+		val, err = v.StandardPower.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["standard_power"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v Band6Value) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v Band6Value) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v Band6Value) String() string {
+	return "Band6Value"
+}
+
+func (v Band6Value) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	channelsVal, d := types.ListValue(types.Int64Type, v.Channels.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"allow_rrm_disable": basetypes.BoolType{},
+			"ant_gain":          basetypes.Int64Type{},
+			"antenna_mode":      basetypes.StringType{},
+			"bandwidth":         basetypes.Int64Type{},
+			"channels": basetypes.ListType{
+				ElemType: types.Int64Type,
+			},
+			"disabled":       basetypes.BoolType{},
+			"power":          basetypes.Int64Type{},
+			"power_max":      basetypes.Int64Type{},
+			"power_min":      basetypes.Int64Type{},
+			"preamble":       basetypes.StringType{},
+			"standard_power": basetypes.BoolType{},
+		}), diags
+	}
+
+	attributeTypes := map[string]attr.Type{
+		"allow_rrm_disable": basetypes.BoolType{},
+		"ant_gain":          basetypes.Int64Type{},
+		"antenna_mode":      basetypes.StringType{},
+		"bandwidth":         basetypes.Int64Type{},
+		"channels": basetypes.ListType{
+			ElemType: types.Int64Type,
+		},
+		"disabled":       basetypes.BoolType{},
+		"power":          basetypes.Int64Type{},
+		"power_max":      basetypes.Int64Type{},
+		"power_min":      basetypes.Int64Type{},
+		"preamble":       basetypes.StringType{},
+		"standard_power": basetypes.BoolType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"allow_rrm_disable": v.AllowRrmDisable,
+			"ant_gain":          v.AntGain,
+			"antenna_mode":      v.AntennaMode,
+			"bandwidth":         v.Bandwidth,
+			"channels":          channelsVal,
+			"disabled":          v.Disabled,
+			"power":             v.Power,
+			"power_max":         v.PowerMax,
+			"power_min":         v.PowerMin,
+			"preamble":          v.Preamble,
+			"standard_power":    v.StandardPower,
+		})
+
+	return objVal, diags
+}
+
+func (v Band6Value) Equal(o attr.Value) bool {
+	other, ok := o.(Band6Value)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.AllowRrmDisable.Equal(other.AllowRrmDisable) {
+		return false
+	}
+
+	if !v.AntGain.Equal(other.AntGain) {
+		return false
+	}
+
+	if !v.AntennaMode.Equal(other.AntennaMode) {
+		return false
+	}
+
+	if !v.Bandwidth.Equal(other.Bandwidth) {
+		return false
+	}
+
+	if !v.Channels.Equal(other.Channels) {
+		return false
+	}
+
+	if !v.Disabled.Equal(other.Disabled) {
+		return false
+	}
+
+	if !v.Power.Equal(other.Power) {
+		return false
+	}
+
+	if !v.PowerMax.Equal(other.PowerMax) {
+		return false
+	}
+
+	if !v.PowerMin.Equal(other.PowerMin) {
+		return false
+	}
+
+	if !v.Preamble.Equal(other.Preamble) {
+		return false
+	}
+
+	if !v.StandardPower.Equal(other.StandardPower) {
+		return false
+	}
+
+	return true
+}
+
+func (v Band6Value) Type(ctx context.Context) attr.Type {
+	return Band6Type{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v Band6Value) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"allow_rrm_disable": basetypes.BoolType{},
+		"ant_gain":          basetypes.Int64Type{},
+		"antenna_mode":      basetypes.StringType{},
+		"bandwidth":         basetypes.Int64Type{},
+		"channels": basetypes.ListType{
+			ElemType: types.Int64Type,
+		},
+		"disabled":       basetypes.BoolType{},
+		"power":          basetypes.Int64Type{},
+		"power_max":      basetypes.Int64Type{},
+		"power_min":      basetypes.Int64Type{},
+		"preamble":       basetypes.StringType{},
+		"standard_power": basetypes.BoolType{},
 	}
 }

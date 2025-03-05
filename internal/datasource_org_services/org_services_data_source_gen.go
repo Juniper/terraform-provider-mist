@@ -24,20 +24,144 @@ func OrgServicesDataSourceSchema(ctx context.Context) schema.Schema {
 			"org_services": schema.SetNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
-						"created_time": schema.NumberAttribute{
+						"addresses": schema.ListAttribute{
+							ElementType:         types.StringType,
+							Computed:            true,
+							Description:         "If `type`==`custom`, ip subnets (e.g. 10.0.0.0/8)",
+							MarkdownDescription: "If `type`==`custom`, ip subnets (e.g. 10.0.0.0/8)",
+						},
+						"app_categories": schema.ListAttribute{
+							ElementType:         types.StringType,
+							Computed:            true,
+							Description:         "When `type`==`app_categories`, list of application categories are available through [List App Category Definitions]($e/Constants%20Definitions/listAppCategoryDefinitions)",
+							MarkdownDescription: "When `type`==`app_categories`, list of application categories are available through [List App Category Definitions]($e/Constants%20Definitions/listAppCategoryDefinitions)",
+						},
+						"app_subcategories": schema.ListAttribute{
+							ElementType:         types.StringType,
+							Computed:            true,
+							Description:         "When `type`==`app_categories`, list of application categories are available through [List App Sub Category Definitions]($e/Constants%20Definitions/listAppSubCategoryDefinitions)",
+							MarkdownDescription: "When `type`==`app_categories`, list of application categories are available through [List App Sub Category Definitions]($e/Constants%20Definitions/listAppSubCategoryDefinitions)",
+						},
+						"apps": schema.ListAttribute{
+							ElementType:         types.StringType,
+							Computed:            true,
+							Description:         "When `type`==`apps`, list of applications are available through:\n  * [List Applications]($e/Constants%20Definitions/listApplications)\n  * [List Gateway Applications]($e/Constants%20Definitions/listGatewayApplications)\n  * /insight/top_app_by-bytes?wired=true",
+							MarkdownDescription: "When `type`==`apps`, list of applications are available through:\n  * [List Applications]($e/Constants%20Definitions/listApplications)\n  * [List Gateway Applications]($e/Constants%20Definitions/listGatewayApplications)\n  * /insight/top_app_by-bytes?wired=true",
+						},
+						"client_limit_down": schema.Int64Attribute{
+							Computed:            true,
+							Description:         "0 means unlimited",
+							MarkdownDescription: "0 means unlimited",
+						},
+						"client_limit_up": schema.Int64Attribute{
+							Computed:            true,
+							Description:         "0 means unlimited",
+							MarkdownDescription: "0 means unlimited",
+						},
+						"created_time": schema.Float64Attribute{
+							Computed:            true,
+							Description:         "When the object has been created, in epoch",
+							MarkdownDescription: "When the object has been created, in epoch",
+						},
+						"description": schema.StringAttribute{
 							Computed: true,
+						},
+						"dscp": schema.StringAttribute{
+							Computed: true,
+						},
+						"failover_policy": schema.StringAttribute{
+							Computed:            true,
+							Description:         "enum: `non_revertable`, `none`, `revertable`",
+							MarkdownDescription: "enum: `non_revertable`, `none`, `revertable`",
+						},
+						"hostnames": schema.ListAttribute{
+							ElementType:         types.StringType,
+							Computed:            true,
+							Description:         "If `type`==`custom`, web filtering",
+							MarkdownDescription: "If `type`==`custom`, web filtering",
 						},
 						"id": schema.StringAttribute{
+							Computed:            true,
+							Description:         "Unique ID of the object instance in the Mist Organization",
+							MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
+						},
+						"max_jitter": schema.StringAttribute{
 							Computed: true,
 						},
-						"modified_time": schema.NumberAttribute{
+						"max_latency": schema.StringAttribute{
 							Computed: true,
+						},
+						"max_loss": schema.StringAttribute{
+							Computed: true,
+						},
+						"modified_time": schema.Float64Attribute{
+							Computed:            true,
+							Description:         "When the object has been modified for the last time, in epoch",
+							MarkdownDescription: "When the object has been modified for the last time, in epoch",
 						},
 						"name": schema.StringAttribute{
 							Computed: true,
 						},
 						"org_id": schema.StringAttribute{
 							Computed: true,
+						},
+						"service_limit_down": schema.Int64Attribute{
+							Computed:            true,
+							Description:         "0 means unlimited",
+							MarkdownDescription: "0 means unlimited",
+						},
+						"service_limit_up": schema.Int64Attribute{
+							Computed:            true,
+							Description:         "0 means unlimited",
+							MarkdownDescription: "0 means unlimited",
+						},
+						"sle_enabled": schema.BoolAttribute{
+							Computed:            true,
+							Description:         "Whether to enable measure SLE",
+							MarkdownDescription: "Whether to enable measure SLE",
+						},
+						"specs": schema.ListNestedAttribute{
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"port_range": schema.StringAttribute{
+										Computed:            true,
+										Description:         "Port number, port range, or variable",
+										MarkdownDescription: "Port number, port range, or variable",
+									},
+									"protocol": schema.StringAttribute{
+										Computed:            true,
+										Description:         "`https`/ `tcp` / `udp` / `icmp` / `gre` / `any` / `:protocol_number`, `protocol_number` is between 1-254",
+										MarkdownDescription: "`https`/ `tcp` / `udp` / `icmp` / `gre` / `any` / `:protocol_number`, `protocol_number` is between 1-254",
+									},
+								},
+								CustomType: SpecsType{
+									ObjectType: types.ObjectType{
+										AttrTypes: SpecsValue{}.AttributeTypes(ctx),
+									},
+								},
+							},
+							Computed:            true,
+							Description:         "When `type`==`custom`, optional, if it doesn't exist, http and https is assumed",
+							MarkdownDescription: "When `type`==`custom`, optional, if it doesn't exist, http and https is assumed",
+						},
+						"ssr_relaxed_tcp_state_enforcement": schema.BoolAttribute{
+							Computed: true,
+						},
+						"traffic_class": schema.StringAttribute{
+							Computed:            true,
+							Description:         "when `traffic_type`==`custom`. enum: `best_effort`, `high`, `low`, `medium`",
+							MarkdownDescription: "when `traffic_type`==`custom`. enum: `best_effort`, `high`, `low`, `medium`",
+						},
+						"traffic_type": schema.StringAttribute{
+							Computed:            true,
+							Description:         "values from [List Traffic Types]($e/Constants%20Definitions/listTrafficTypes)",
+							MarkdownDescription: "values from [List Traffic Types]($e/Constants%20Definitions/listTrafficTypes)",
+						},
+						"urls": schema.ListAttribute{
+							ElementType:         types.StringType,
+							Computed:            true,
+							Description:         "When `type`==`urls`, no need for spec as URL can encode the ports being used",
+							MarkdownDescription: "When `type`==`urls`, no need for spec as URL can encode the ports being used",
 						},
 					},
 					CustomType: OrgServicesType{
@@ -82,6 +206,114 @@ func (t OrgServicesType) ValueFromObject(ctx context.Context, in basetypes.Objec
 
 	attributes := in.Attributes()
 
+	addressesAttribute, ok := attributes["addresses"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`addresses is missing from object`)
+
+		return nil, diags
+	}
+
+	addressesVal, ok := addressesAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`addresses expected to be basetypes.ListValue, was: %T`, addressesAttribute))
+	}
+
+	appCategoriesAttribute, ok := attributes["app_categories"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`app_categories is missing from object`)
+
+		return nil, diags
+	}
+
+	appCategoriesVal, ok := appCategoriesAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`app_categories expected to be basetypes.ListValue, was: %T`, appCategoriesAttribute))
+	}
+
+	appSubcategoriesAttribute, ok := attributes["app_subcategories"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`app_subcategories is missing from object`)
+
+		return nil, diags
+	}
+
+	appSubcategoriesVal, ok := appSubcategoriesAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`app_subcategories expected to be basetypes.ListValue, was: %T`, appSubcategoriesAttribute))
+	}
+
+	appsAttribute, ok := attributes["apps"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`apps is missing from object`)
+
+		return nil, diags
+	}
+
+	appsVal, ok := appsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`apps expected to be basetypes.ListValue, was: %T`, appsAttribute))
+	}
+
+	clientLimitDownAttribute, ok := attributes["client_limit_down"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`client_limit_down is missing from object`)
+
+		return nil, diags
+	}
+
+	clientLimitDownVal, ok := clientLimitDownAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`client_limit_down expected to be basetypes.Int64Value, was: %T`, clientLimitDownAttribute))
+	}
+
+	clientLimitUpAttribute, ok := attributes["client_limit_up"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`client_limit_up is missing from object`)
+
+		return nil, diags
+	}
+
+	clientLimitUpVal, ok := clientLimitUpAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`client_limit_up expected to be basetypes.Int64Value, was: %T`, clientLimitUpAttribute))
+	}
+
 	createdTimeAttribute, ok := attributes["created_time"]
 
 	if !ok {
@@ -92,12 +324,84 @@ func (t OrgServicesType) ValueFromObject(ctx context.Context, in basetypes.Objec
 		return nil, diags
 	}
 
-	createdTimeVal, ok := createdTimeAttribute.(basetypes.NumberValue)
+	createdTimeVal, ok := createdTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`created_time expected to be basetypes.NumberValue, was: %T`, createdTimeAttribute))
+			fmt.Sprintf(`created_time expected to be basetypes.Float64Value, was: %T`, createdTimeAttribute))
+	}
+
+	descriptionAttribute, ok := attributes["description"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`description is missing from object`)
+
+		return nil, diags
+	}
+
+	descriptionVal, ok := descriptionAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`description expected to be basetypes.StringValue, was: %T`, descriptionAttribute))
+	}
+
+	dscpAttribute, ok := attributes["dscp"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`dscp is missing from object`)
+
+		return nil, diags
+	}
+
+	dscpVal, ok := dscpAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`dscp expected to be basetypes.StringValue, was: %T`, dscpAttribute))
+	}
+
+	failoverPolicyAttribute, ok := attributes["failover_policy"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`failover_policy is missing from object`)
+
+		return nil, diags
+	}
+
+	failoverPolicyVal, ok := failoverPolicyAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`failover_policy expected to be basetypes.StringValue, was: %T`, failoverPolicyAttribute))
+	}
+
+	hostnamesAttribute, ok := attributes["hostnames"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`hostnames is missing from object`)
+
+		return nil, diags
+	}
+
+	hostnamesVal, ok := hostnamesAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`hostnames expected to be basetypes.ListValue, was: %T`, hostnamesAttribute))
 	}
 
 	idAttribute, ok := attributes["id"]
@@ -118,6 +422,60 @@ func (t OrgServicesType) ValueFromObject(ctx context.Context, in basetypes.Objec
 			fmt.Sprintf(`id expected to be basetypes.StringValue, was: %T`, idAttribute))
 	}
 
+	maxJitterAttribute, ok := attributes["max_jitter"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`max_jitter is missing from object`)
+
+		return nil, diags
+	}
+
+	maxJitterVal, ok := maxJitterAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`max_jitter expected to be basetypes.StringValue, was: %T`, maxJitterAttribute))
+	}
+
+	maxLatencyAttribute, ok := attributes["max_latency"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`max_latency is missing from object`)
+
+		return nil, diags
+	}
+
+	maxLatencyVal, ok := maxLatencyAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`max_latency expected to be basetypes.StringValue, was: %T`, maxLatencyAttribute))
+	}
+
+	maxLossAttribute, ok := attributes["max_loss"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`max_loss is missing from object`)
+
+		return nil, diags
+	}
+
+	maxLossVal, ok := maxLossAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`max_loss expected to be basetypes.StringValue, was: %T`, maxLossAttribute))
+	}
+
 	modifiedTimeAttribute, ok := attributes["modified_time"]
 
 	if !ok {
@@ -128,12 +486,12 @@ func (t OrgServicesType) ValueFromObject(ctx context.Context, in basetypes.Objec
 		return nil, diags
 	}
 
-	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.NumberValue)
+	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`modified_time expected to be basetypes.NumberValue, was: %T`, modifiedTimeAttribute))
+			fmt.Sprintf(`modified_time expected to be basetypes.Float64Value, was: %T`, modifiedTimeAttribute))
 	}
 
 	nameAttribute, ok := attributes["name"]
@@ -172,17 +530,182 @@ func (t OrgServicesType) ValueFromObject(ctx context.Context, in basetypes.Objec
 			fmt.Sprintf(`org_id expected to be basetypes.StringValue, was: %T`, orgIdAttribute))
 	}
 
+	serviceLimitDownAttribute, ok := attributes["service_limit_down"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`service_limit_down is missing from object`)
+
+		return nil, diags
+	}
+
+	serviceLimitDownVal, ok := serviceLimitDownAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`service_limit_down expected to be basetypes.Int64Value, was: %T`, serviceLimitDownAttribute))
+	}
+
+	serviceLimitUpAttribute, ok := attributes["service_limit_up"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`service_limit_up is missing from object`)
+
+		return nil, diags
+	}
+
+	serviceLimitUpVal, ok := serviceLimitUpAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`service_limit_up expected to be basetypes.Int64Value, was: %T`, serviceLimitUpAttribute))
+	}
+
+	sleEnabledAttribute, ok := attributes["sle_enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`sle_enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	sleEnabledVal, ok := sleEnabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`sle_enabled expected to be basetypes.BoolValue, was: %T`, sleEnabledAttribute))
+	}
+
+	specsAttribute, ok := attributes["specs"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`specs is missing from object`)
+
+		return nil, diags
+	}
+
+	specsVal, ok := specsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`specs expected to be basetypes.ListValue, was: %T`, specsAttribute))
+	}
+
+	ssrRelaxedTcpStateEnforcementAttribute, ok := attributes["ssr_relaxed_tcp_state_enforcement"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ssr_relaxed_tcp_state_enforcement is missing from object`)
+
+		return nil, diags
+	}
+
+	ssrRelaxedTcpStateEnforcementVal, ok := ssrRelaxedTcpStateEnforcementAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ssr_relaxed_tcp_state_enforcement expected to be basetypes.BoolValue, was: %T`, ssrRelaxedTcpStateEnforcementAttribute))
+	}
+
+	trafficClassAttribute, ok := attributes["traffic_class"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`traffic_class is missing from object`)
+
+		return nil, diags
+	}
+
+	trafficClassVal, ok := trafficClassAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`traffic_class expected to be basetypes.StringValue, was: %T`, trafficClassAttribute))
+	}
+
+	trafficTypeAttribute, ok := attributes["traffic_type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`traffic_type is missing from object`)
+
+		return nil, diags
+	}
+
+	trafficTypeVal, ok := trafficTypeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`traffic_type expected to be basetypes.StringValue, was: %T`, trafficTypeAttribute))
+	}
+
+	urlsAttribute, ok := attributes["urls"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`urls is missing from object`)
+
+		return nil, diags
+	}
+
+	urlsVal, ok := urlsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`urls expected to be basetypes.ListValue, was: %T`, urlsAttribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
 
 	return OrgServicesValue{
-		CreatedTime:  createdTimeVal,
-		Id:           idVal,
-		ModifiedTime: modifiedTimeVal,
-		Name:         nameVal,
-		OrgId:        orgIdVal,
-		state:        attr.ValueStateKnown,
+		Addresses:                     addressesVal,
+		AppCategories:                 appCategoriesVal,
+		AppSubcategories:              appSubcategoriesVal,
+		Apps:                          appsVal,
+		ClientLimitDown:               clientLimitDownVal,
+		ClientLimitUp:                 clientLimitUpVal,
+		CreatedTime:                   createdTimeVal,
+		Description:                   descriptionVal,
+		Dscp:                          dscpVal,
+		FailoverPolicy:                failoverPolicyVal,
+		Hostnames:                     hostnamesVal,
+		Id:                            idVal,
+		MaxJitter:                     maxJitterVal,
+		MaxLatency:                    maxLatencyVal,
+		MaxLoss:                       maxLossVal,
+		ModifiedTime:                  modifiedTimeVal,
+		Name:                          nameVal,
+		OrgId:                         orgIdVal,
+		ServiceLimitDown:              serviceLimitDownVal,
+		ServiceLimitUp:                serviceLimitUpVal,
+		SleEnabled:                    sleEnabledVal,
+		Specs:                         specsVal,
+		SsrRelaxedTcpStateEnforcement: ssrRelaxedTcpStateEnforcementVal,
+		TrafficClass:                  trafficClassVal,
+		TrafficType:                   trafficTypeVal,
+		Urls:                          urlsVal,
+		state:                         attr.ValueStateKnown,
 	}, diags
 }
 
@@ -249,6 +772,114 @@ func NewOrgServicesValue(attributeTypes map[string]attr.Type, attributes map[str
 		return NewOrgServicesValueUnknown(), diags
 	}
 
+	addressesAttribute, ok := attributes["addresses"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`addresses is missing from object`)
+
+		return NewOrgServicesValueUnknown(), diags
+	}
+
+	addressesVal, ok := addressesAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`addresses expected to be basetypes.ListValue, was: %T`, addressesAttribute))
+	}
+
+	appCategoriesAttribute, ok := attributes["app_categories"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`app_categories is missing from object`)
+
+		return NewOrgServicesValueUnknown(), diags
+	}
+
+	appCategoriesVal, ok := appCategoriesAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`app_categories expected to be basetypes.ListValue, was: %T`, appCategoriesAttribute))
+	}
+
+	appSubcategoriesAttribute, ok := attributes["app_subcategories"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`app_subcategories is missing from object`)
+
+		return NewOrgServicesValueUnknown(), diags
+	}
+
+	appSubcategoriesVal, ok := appSubcategoriesAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`app_subcategories expected to be basetypes.ListValue, was: %T`, appSubcategoriesAttribute))
+	}
+
+	appsAttribute, ok := attributes["apps"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`apps is missing from object`)
+
+		return NewOrgServicesValueUnknown(), diags
+	}
+
+	appsVal, ok := appsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`apps expected to be basetypes.ListValue, was: %T`, appsAttribute))
+	}
+
+	clientLimitDownAttribute, ok := attributes["client_limit_down"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`client_limit_down is missing from object`)
+
+		return NewOrgServicesValueUnknown(), diags
+	}
+
+	clientLimitDownVal, ok := clientLimitDownAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`client_limit_down expected to be basetypes.Int64Value, was: %T`, clientLimitDownAttribute))
+	}
+
+	clientLimitUpAttribute, ok := attributes["client_limit_up"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`client_limit_up is missing from object`)
+
+		return NewOrgServicesValueUnknown(), diags
+	}
+
+	clientLimitUpVal, ok := clientLimitUpAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`client_limit_up expected to be basetypes.Int64Value, was: %T`, clientLimitUpAttribute))
+	}
+
 	createdTimeAttribute, ok := attributes["created_time"]
 
 	if !ok {
@@ -259,12 +890,84 @@ func NewOrgServicesValue(attributeTypes map[string]attr.Type, attributes map[str
 		return NewOrgServicesValueUnknown(), diags
 	}
 
-	createdTimeVal, ok := createdTimeAttribute.(basetypes.NumberValue)
+	createdTimeVal, ok := createdTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`created_time expected to be basetypes.NumberValue, was: %T`, createdTimeAttribute))
+			fmt.Sprintf(`created_time expected to be basetypes.Float64Value, was: %T`, createdTimeAttribute))
+	}
+
+	descriptionAttribute, ok := attributes["description"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`description is missing from object`)
+
+		return NewOrgServicesValueUnknown(), diags
+	}
+
+	descriptionVal, ok := descriptionAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`description expected to be basetypes.StringValue, was: %T`, descriptionAttribute))
+	}
+
+	dscpAttribute, ok := attributes["dscp"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`dscp is missing from object`)
+
+		return NewOrgServicesValueUnknown(), diags
+	}
+
+	dscpVal, ok := dscpAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`dscp expected to be basetypes.StringValue, was: %T`, dscpAttribute))
+	}
+
+	failoverPolicyAttribute, ok := attributes["failover_policy"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`failover_policy is missing from object`)
+
+		return NewOrgServicesValueUnknown(), diags
+	}
+
+	failoverPolicyVal, ok := failoverPolicyAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`failover_policy expected to be basetypes.StringValue, was: %T`, failoverPolicyAttribute))
+	}
+
+	hostnamesAttribute, ok := attributes["hostnames"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`hostnames is missing from object`)
+
+		return NewOrgServicesValueUnknown(), diags
+	}
+
+	hostnamesVal, ok := hostnamesAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`hostnames expected to be basetypes.ListValue, was: %T`, hostnamesAttribute))
 	}
 
 	idAttribute, ok := attributes["id"]
@@ -285,6 +988,60 @@ func NewOrgServicesValue(attributeTypes map[string]attr.Type, attributes map[str
 			fmt.Sprintf(`id expected to be basetypes.StringValue, was: %T`, idAttribute))
 	}
 
+	maxJitterAttribute, ok := attributes["max_jitter"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`max_jitter is missing from object`)
+
+		return NewOrgServicesValueUnknown(), diags
+	}
+
+	maxJitterVal, ok := maxJitterAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`max_jitter expected to be basetypes.StringValue, was: %T`, maxJitterAttribute))
+	}
+
+	maxLatencyAttribute, ok := attributes["max_latency"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`max_latency is missing from object`)
+
+		return NewOrgServicesValueUnknown(), diags
+	}
+
+	maxLatencyVal, ok := maxLatencyAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`max_latency expected to be basetypes.StringValue, was: %T`, maxLatencyAttribute))
+	}
+
+	maxLossAttribute, ok := attributes["max_loss"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`max_loss is missing from object`)
+
+		return NewOrgServicesValueUnknown(), diags
+	}
+
+	maxLossVal, ok := maxLossAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`max_loss expected to be basetypes.StringValue, was: %T`, maxLossAttribute))
+	}
+
 	modifiedTimeAttribute, ok := attributes["modified_time"]
 
 	if !ok {
@@ -295,12 +1052,12 @@ func NewOrgServicesValue(attributeTypes map[string]attr.Type, attributes map[str
 		return NewOrgServicesValueUnknown(), diags
 	}
 
-	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.NumberValue)
+	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`modified_time expected to be basetypes.NumberValue, was: %T`, modifiedTimeAttribute))
+			fmt.Sprintf(`modified_time expected to be basetypes.Float64Value, was: %T`, modifiedTimeAttribute))
 	}
 
 	nameAttribute, ok := attributes["name"]
@@ -339,17 +1096,182 @@ func NewOrgServicesValue(attributeTypes map[string]attr.Type, attributes map[str
 			fmt.Sprintf(`org_id expected to be basetypes.StringValue, was: %T`, orgIdAttribute))
 	}
 
+	serviceLimitDownAttribute, ok := attributes["service_limit_down"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`service_limit_down is missing from object`)
+
+		return NewOrgServicesValueUnknown(), diags
+	}
+
+	serviceLimitDownVal, ok := serviceLimitDownAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`service_limit_down expected to be basetypes.Int64Value, was: %T`, serviceLimitDownAttribute))
+	}
+
+	serviceLimitUpAttribute, ok := attributes["service_limit_up"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`service_limit_up is missing from object`)
+
+		return NewOrgServicesValueUnknown(), diags
+	}
+
+	serviceLimitUpVal, ok := serviceLimitUpAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`service_limit_up expected to be basetypes.Int64Value, was: %T`, serviceLimitUpAttribute))
+	}
+
+	sleEnabledAttribute, ok := attributes["sle_enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`sle_enabled is missing from object`)
+
+		return NewOrgServicesValueUnknown(), diags
+	}
+
+	sleEnabledVal, ok := sleEnabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`sle_enabled expected to be basetypes.BoolValue, was: %T`, sleEnabledAttribute))
+	}
+
+	specsAttribute, ok := attributes["specs"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`specs is missing from object`)
+
+		return NewOrgServicesValueUnknown(), diags
+	}
+
+	specsVal, ok := specsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`specs expected to be basetypes.ListValue, was: %T`, specsAttribute))
+	}
+
+	ssrRelaxedTcpStateEnforcementAttribute, ok := attributes["ssr_relaxed_tcp_state_enforcement"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ssr_relaxed_tcp_state_enforcement is missing from object`)
+
+		return NewOrgServicesValueUnknown(), diags
+	}
+
+	ssrRelaxedTcpStateEnforcementVal, ok := ssrRelaxedTcpStateEnforcementAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ssr_relaxed_tcp_state_enforcement expected to be basetypes.BoolValue, was: %T`, ssrRelaxedTcpStateEnforcementAttribute))
+	}
+
+	trafficClassAttribute, ok := attributes["traffic_class"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`traffic_class is missing from object`)
+
+		return NewOrgServicesValueUnknown(), diags
+	}
+
+	trafficClassVal, ok := trafficClassAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`traffic_class expected to be basetypes.StringValue, was: %T`, trafficClassAttribute))
+	}
+
+	trafficTypeAttribute, ok := attributes["traffic_type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`traffic_type is missing from object`)
+
+		return NewOrgServicesValueUnknown(), diags
+	}
+
+	trafficTypeVal, ok := trafficTypeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`traffic_type expected to be basetypes.StringValue, was: %T`, trafficTypeAttribute))
+	}
+
+	urlsAttribute, ok := attributes["urls"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`urls is missing from object`)
+
+		return NewOrgServicesValueUnknown(), diags
+	}
+
+	urlsVal, ok := urlsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`urls expected to be basetypes.ListValue, was: %T`, urlsAttribute))
+	}
+
 	if diags.HasError() {
 		return NewOrgServicesValueUnknown(), diags
 	}
 
 	return OrgServicesValue{
-		CreatedTime:  createdTimeVal,
-		Id:           idVal,
-		ModifiedTime: modifiedTimeVal,
-		Name:         nameVal,
-		OrgId:        orgIdVal,
-		state:        attr.ValueStateKnown,
+		Addresses:                     addressesVal,
+		AppCategories:                 appCategoriesVal,
+		AppSubcategories:              appSubcategoriesVal,
+		Apps:                          appsVal,
+		ClientLimitDown:               clientLimitDownVal,
+		ClientLimitUp:                 clientLimitUpVal,
+		CreatedTime:                   createdTimeVal,
+		Description:                   descriptionVal,
+		Dscp:                          dscpVal,
+		FailoverPolicy:                failoverPolicyVal,
+		Hostnames:                     hostnamesVal,
+		Id:                            idVal,
+		MaxJitter:                     maxJitterVal,
+		MaxLatency:                    maxLatencyVal,
+		MaxLoss:                       maxLossVal,
+		ModifiedTime:                  modifiedTimeVal,
+		Name:                          nameVal,
+		OrgId:                         orgIdVal,
+		ServiceLimitDown:              serviceLimitDownVal,
+		ServiceLimitUp:                serviceLimitUpVal,
+		SleEnabled:                    sleEnabledVal,
+		Specs:                         specsVal,
+		SsrRelaxedTcpStateEnforcement: ssrRelaxedTcpStateEnforcementVal,
+		TrafficClass:                  trafficClassVal,
+		TrafficType:                   trafficTypeVal,
+		Urls:                          urlsVal,
+		state:                         attr.ValueStateKnown,
 	}, diags
 }
 
@@ -421,31 +1343,135 @@ func (t OrgServicesType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = OrgServicesValue{}
 
 type OrgServicesValue struct {
-	CreatedTime  basetypes.NumberValue `tfsdk:"created_time"`
-	Id           basetypes.StringValue `tfsdk:"id"`
-	ModifiedTime basetypes.NumberValue `tfsdk:"modified_time"`
-	Name         basetypes.StringValue `tfsdk:"name"`
-	OrgId        basetypes.StringValue `tfsdk:"org_id"`
-	state        attr.ValueState
+	Addresses                     basetypes.ListValue    `tfsdk:"addresses"`
+	AppCategories                 basetypes.ListValue    `tfsdk:"app_categories"`
+	AppSubcategories              basetypes.ListValue    `tfsdk:"app_subcategories"`
+	Apps                          basetypes.ListValue    `tfsdk:"apps"`
+	ClientLimitDown               basetypes.Int64Value   `tfsdk:"client_limit_down"`
+	ClientLimitUp                 basetypes.Int64Value   `tfsdk:"client_limit_up"`
+	CreatedTime                   basetypes.Float64Value `tfsdk:"created_time"`
+	Description                   basetypes.StringValue  `tfsdk:"description"`
+	Dscp                          basetypes.StringValue  `tfsdk:"dscp"`
+	FailoverPolicy                basetypes.StringValue  `tfsdk:"failover_policy"`
+	Hostnames                     basetypes.ListValue    `tfsdk:"hostnames"`
+	Id                            basetypes.StringValue  `tfsdk:"id"`
+	MaxJitter                     basetypes.StringValue  `tfsdk:"max_jitter"`
+	MaxLatency                    basetypes.StringValue  `tfsdk:"max_latency"`
+	MaxLoss                       basetypes.StringValue  `tfsdk:"max_loss"`
+	ModifiedTime                  basetypes.Float64Value `tfsdk:"modified_time"`
+	Name                          basetypes.StringValue  `tfsdk:"name"`
+	OrgId                         basetypes.StringValue  `tfsdk:"org_id"`
+	ServiceLimitDown              basetypes.Int64Value   `tfsdk:"service_limit_down"`
+	ServiceLimitUp                basetypes.Int64Value   `tfsdk:"service_limit_up"`
+	SleEnabled                    basetypes.BoolValue    `tfsdk:"sle_enabled"`
+	Specs                         basetypes.ListValue    `tfsdk:"specs"`
+	SsrRelaxedTcpStateEnforcement basetypes.BoolValue    `tfsdk:"ssr_relaxed_tcp_state_enforcement"`
+	TrafficClass                  basetypes.StringValue  `tfsdk:"traffic_class"`
+	TrafficType                   basetypes.StringValue  `tfsdk:"traffic_type"`
+	Urls                          basetypes.ListValue    `tfsdk:"urls"`
+	state                         attr.ValueState
 }
 
 func (v OrgServicesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 6)
+	attrTypes := make(map[string]tftypes.Type, 26)
 
 	var val tftypes.Value
 	var err error
 
-	attrTypes["created_time"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["addresses"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["app_categories"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["app_subcategories"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["apps"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["client_limit_down"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["client_limit_up"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["created_time"] = basetypes.Float64Type{}.TerraformType(ctx)
+	attrTypes["description"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["dscp"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["failover_policy"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["hostnames"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
 	attrTypes["id"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["modified_time"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["max_jitter"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["max_latency"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["max_loss"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["modified_time"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["org_id"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["service_limit_down"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["service_limit_up"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["sle_enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["specs"] = basetypes.ListType{
+		ElemType: SpecsValue{}.Type(ctx),
+	}.TerraformType(ctx)
+	attrTypes["ssr_relaxed_tcp_state_enforcement"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["traffic_class"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["traffic_type"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["urls"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 6)
+		vals := make(map[string]tftypes.Value, 26)
+
+		val, err = v.Addresses.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["addresses"] = val
+
+		val, err = v.AppCategories.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["app_categories"] = val
+
+		val, err = v.AppSubcategories.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["app_subcategories"] = val
+
+		val, err = v.Apps.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["apps"] = val
+
+		val, err = v.ClientLimitDown.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["client_limit_down"] = val
+
+		val, err = v.ClientLimitUp.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["client_limit_up"] = val
 
 		val, err = v.CreatedTime.ToTerraformValue(ctx)
 
@@ -455,6 +1481,38 @@ func (v OrgServicesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 
 		vals["created_time"] = val
 
+		val, err = v.Description.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["description"] = val
+
+		val, err = v.Dscp.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["dscp"] = val
+
+		val, err = v.FailoverPolicy.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["failover_policy"] = val
+
+		val, err = v.Hostnames.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["hostnames"] = val
+
 		val, err = v.Id.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -462,6 +1520,30 @@ func (v OrgServicesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 		}
 
 		vals["id"] = val
+
+		val, err = v.MaxJitter.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["max_jitter"] = val
+
+		val, err = v.MaxLatency.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["max_latency"] = val
+
+		val, err = v.MaxLoss.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["max_loss"] = val
 
 		val, err = v.ModifiedTime.ToTerraformValue(ctx)
 
@@ -486,6 +1568,70 @@ func (v OrgServicesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 		}
 
 		vals["org_id"] = val
+
+		val, err = v.ServiceLimitDown.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["service_limit_down"] = val
+
+		val, err = v.ServiceLimitUp.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["service_limit_up"] = val
+
+		val, err = v.SleEnabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["sle_enabled"] = val
+
+		val, err = v.Specs.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["specs"] = val
+
+		val, err = v.SsrRelaxedTcpStateEnforcement.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["ssr_relaxed_tcp_state_enforcement"] = val
+
+		val, err = v.TrafficClass.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["traffic_class"] = val
+
+		val, err = v.TrafficType.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["traffic_type"] = val
+
+		val, err = v.Urls.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["urls"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -516,12 +1662,370 @@ func (v OrgServicesValue) String() string {
 func (v OrgServicesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
+	specs := types.ListValueMust(
+		SpecsType{
+			basetypes.ObjectType{
+				AttrTypes: SpecsValue{}.AttributeTypes(ctx),
+			},
+		},
+		v.Specs.Elements(),
+	)
+
+	if v.Specs.IsNull() {
+		specs = types.ListNull(
+			SpecsType{
+				basetypes.ObjectType{
+					AttrTypes: SpecsValue{}.AttributeTypes(ctx),
+				},
+			},
+		)
+	}
+
+	if v.Specs.IsUnknown() {
+		specs = types.ListUnknown(
+			SpecsType{
+				basetypes.ObjectType{
+					AttrTypes: SpecsValue{}.AttributeTypes(ctx),
+				},
+			},
+		)
+	}
+
+	addressesVal, d := types.ListValue(types.StringType, v.Addresses.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"addresses": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"app_categories": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"app_subcategories": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"apps": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"client_limit_down": basetypes.Int64Type{},
+			"client_limit_up":   basetypes.Int64Type{},
+			"created_time":      basetypes.Float64Type{},
+			"description":       basetypes.StringType{},
+			"dscp":              basetypes.StringType{},
+			"failover_policy":   basetypes.StringType{},
+			"hostnames": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"id":                 basetypes.StringType{},
+			"max_jitter":         basetypes.StringType{},
+			"max_latency":        basetypes.StringType{},
+			"max_loss":           basetypes.StringType{},
+			"modified_time":      basetypes.Float64Type{},
+			"name":               basetypes.StringType{},
+			"org_id":             basetypes.StringType{},
+			"service_limit_down": basetypes.Int64Type{},
+			"service_limit_up":   basetypes.Int64Type{},
+			"sle_enabled":        basetypes.BoolType{},
+			"specs": basetypes.ListType{
+				ElemType: SpecsValue{}.Type(ctx),
+			},
+			"ssr_relaxed_tcp_state_enforcement": basetypes.BoolType{},
+			"traffic_class":                     basetypes.StringType{},
+			"traffic_type":                      basetypes.StringType{},
+			"urls": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	appCategoriesVal, d := types.ListValue(types.StringType, v.AppCategories.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"addresses": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"app_categories": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"app_subcategories": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"apps": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"client_limit_down": basetypes.Int64Type{},
+			"client_limit_up":   basetypes.Int64Type{},
+			"created_time":      basetypes.Float64Type{},
+			"description":       basetypes.StringType{},
+			"dscp":              basetypes.StringType{},
+			"failover_policy":   basetypes.StringType{},
+			"hostnames": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"id":                 basetypes.StringType{},
+			"max_jitter":         basetypes.StringType{},
+			"max_latency":        basetypes.StringType{},
+			"max_loss":           basetypes.StringType{},
+			"modified_time":      basetypes.Float64Type{},
+			"name":               basetypes.StringType{},
+			"org_id":             basetypes.StringType{},
+			"service_limit_down": basetypes.Int64Type{},
+			"service_limit_up":   basetypes.Int64Type{},
+			"sle_enabled":        basetypes.BoolType{},
+			"specs": basetypes.ListType{
+				ElemType: SpecsValue{}.Type(ctx),
+			},
+			"ssr_relaxed_tcp_state_enforcement": basetypes.BoolType{},
+			"traffic_class":                     basetypes.StringType{},
+			"traffic_type":                      basetypes.StringType{},
+			"urls": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	appSubcategoriesVal, d := types.ListValue(types.StringType, v.AppSubcategories.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"addresses": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"app_categories": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"app_subcategories": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"apps": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"client_limit_down": basetypes.Int64Type{},
+			"client_limit_up":   basetypes.Int64Type{},
+			"created_time":      basetypes.Float64Type{},
+			"description":       basetypes.StringType{},
+			"dscp":              basetypes.StringType{},
+			"failover_policy":   basetypes.StringType{},
+			"hostnames": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"id":                 basetypes.StringType{},
+			"max_jitter":         basetypes.StringType{},
+			"max_latency":        basetypes.StringType{},
+			"max_loss":           basetypes.StringType{},
+			"modified_time":      basetypes.Float64Type{},
+			"name":               basetypes.StringType{},
+			"org_id":             basetypes.StringType{},
+			"service_limit_down": basetypes.Int64Type{},
+			"service_limit_up":   basetypes.Int64Type{},
+			"sle_enabled":        basetypes.BoolType{},
+			"specs": basetypes.ListType{
+				ElemType: SpecsValue{}.Type(ctx),
+			},
+			"ssr_relaxed_tcp_state_enforcement": basetypes.BoolType{},
+			"traffic_class":                     basetypes.StringType{},
+			"traffic_type":                      basetypes.StringType{},
+			"urls": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	appsVal, d := types.ListValue(types.StringType, v.Apps.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"addresses": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"app_categories": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"app_subcategories": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"apps": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"client_limit_down": basetypes.Int64Type{},
+			"client_limit_up":   basetypes.Int64Type{},
+			"created_time":      basetypes.Float64Type{},
+			"description":       basetypes.StringType{},
+			"dscp":              basetypes.StringType{},
+			"failover_policy":   basetypes.StringType{},
+			"hostnames": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"id":                 basetypes.StringType{},
+			"max_jitter":         basetypes.StringType{},
+			"max_latency":        basetypes.StringType{},
+			"max_loss":           basetypes.StringType{},
+			"modified_time":      basetypes.Float64Type{},
+			"name":               basetypes.StringType{},
+			"org_id":             basetypes.StringType{},
+			"service_limit_down": basetypes.Int64Type{},
+			"service_limit_up":   basetypes.Int64Type{},
+			"sle_enabled":        basetypes.BoolType{},
+			"specs": basetypes.ListType{
+				ElemType: SpecsValue{}.Type(ctx),
+			},
+			"ssr_relaxed_tcp_state_enforcement": basetypes.BoolType{},
+			"traffic_class":                     basetypes.StringType{},
+			"traffic_type":                      basetypes.StringType{},
+			"urls": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	hostnamesVal, d := types.ListValue(types.StringType, v.Hostnames.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"addresses": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"app_categories": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"app_subcategories": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"apps": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"client_limit_down": basetypes.Int64Type{},
+			"client_limit_up":   basetypes.Int64Type{},
+			"created_time":      basetypes.Float64Type{},
+			"description":       basetypes.StringType{},
+			"dscp":              basetypes.StringType{},
+			"failover_policy":   basetypes.StringType{},
+			"hostnames": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"id":                 basetypes.StringType{},
+			"max_jitter":         basetypes.StringType{},
+			"max_latency":        basetypes.StringType{},
+			"max_loss":           basetypes.StringType{},
+			"modified_time":      basetypes.Float64Type{},
+			"name":               basetypes.StringType{},
+			"org_id":             basetypes.StringType{},
+			"service_limit_down": basetypes.Int64Type{},
+			"service_limit_up":   basetypes.Int64Type{},
+			"sle_enabled":        basetypes.BoolType{},
+			"specs": basetypes.ListType{
+				ElemType: SpecsValue{}.Type(ctx),
+			},
+			"ssr_relaxed_tcp_state_enforcement": basetypes.BoolType{},
+			"traffic_class":                     basetypes.StringType{},
+			"traffic_type":                      basetypes.StringType{},
+			"urls": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	urlsVal, d := types.ListValue(types.StringType, v.Urls.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"addresses": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"app_categories": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"app_subcategories": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"apps": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"client_limit_down": basetypes.Int64Type{},
+			"client_limit_up":   basetypes.Int64Type{},
+			"created_time":      basetypes.Float64Type{},
+			"description":       basetypes.StringType{},
+			"dscp":              basetypes.StringType{},
+			"failover_policy":   basetypes.StringType{},
+			"hostnames": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"id":                 basetypes.StringType{},
+			"max_jitter":         basetypes.StringType{},
+			"max_latency":        basetypes.StringType{},
+			"max_loss":           basetypes.StringType{},
+			"modified_time":      basetypes.Float64Type{},
+			"name":               basetypes.StringType{},
+			"org_id":             basetypes.StringType{},
+			"service_limit_down": basetypes.Int64Type{},
+			"service_limit_up":   basetypes.Int64Type{},
+			"sle_enabled":        basetypes.BoolType{},
+			"specs": basetypes.ListType{
+				ElemType: SpecsValue{}.Type(ctx),
+			},
+			"ssr_relaxed_tcp_state_enforcement": basetypes.BoolType{},
+			"traffic_class":                     basetypes.StringType{},
+			"traffic_type":                      basetypes.StringType{},
+			"urls": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
 	attributeTypes := map[string]attr.Type{
-		"created_time":  basetypes.NumberType{},
-		"id":            basetypes.StringType{},
-		"modified_time": basetypes.NumberType{},
-		"name":          basetypes.StringType{},
-		"org_id":        basetypes.StringType{},
+		"addresses": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"app_categories": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"app_subcategories": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"apps": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"client_limit_down": basetypes.Int64Type{},
+		"client_limit_up":   basetypes.Int64Type{},
+		"created_time":      basetypes.Float64Type{},
+		"description":       basetypes.StringType{},
+		"dscp":              basetypes.StringType{},
+		"failover_policy":   basetypes.StringType{},
+		"hostnames": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"id":                 basetypes.StringType{},
+		"max_jitter":         basetypes.StringType{},
+		"max_latency":        basetypes.StringType{},
+		"max_loss":           basetypes.StringType{},
+		"modified_time":      basetypes.Float64Type{},
+		"name":               basetypes.StringType{},
+		"org_id":             basetypes.StringType{},
+		"service_limit_down": basetypes.Int64Type{},
+		"service_limit_up":   basetypes.Int64Type{},
+		"sle_enabled":        basetypes.BoolType{},
+		"specs": basetypes.ListType{
+			ElemType: SpecsValue{}.Type(ctx),
+		},
+		"ssr_relaxed_tcp_state_enforcement": basetypes.BoolType{},
+		"traffic_class":                     basetypes.StringType{},
+		"traffic_type":                      basetypes.StringType{},
+		"urls": basetypes.ListType{
+			ElemType: types.StringType,
+		},
 	}
 
 	if v.IsNull() {
@@ -535,11 +2039,32 @@ func (v OrgServicesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"created_time":  v.CreatedTime,
-			"id":            v.Id,
-			"modified_time": v.ModifiedTime,
-			"name":          v.Name,
-			"org_id":        v.OrgId,
+			"addresses":                         addressesVal,
+			"app_categories":                    appCategoriesVal,
+			"app_subcategories":                 appSubcategoriesVal,
+			"apps":                              appsVal,
+			"client_limit_down":                 v.ClientLimitDown,
+			"client_limit_up":                   v.ClientLimitUp,
+			"created_time":                      v.CreatedTime,
+			"description":                       v.Description,
+			"dscp":                              v.Dscp,
+			"failover_policy":                   v.FailoverPolicy,
+			"hostnames":                         hostnamesVal,
+			"id":                                v.Id,
+			"max_jitter":                        v.MaxJitter,
+			"max_latency":                       v.MaxLatency,
+			"max_loss":                          v.MaxLoss,
+			"modified_time":                     v.ModifiedTime,
+			"name":                              v.Name,
+			"org_id":                            v.OrgId,
+			"service_limit_down":                v.ServiceLimitDown,
+			"service_limit_up":                  v.ServiceLimitUp,
+			"sle_enabled":                       v.SleEnabled,
+			"specs":                             specs,
+			"ssr_relaxed_tcp_state_enforcement": v.SsrRelaxedTcpStateEnforcement,
+			"traffic_class":                     v.TrafficClass,
+			"traffic_type":                      v.TrafficType,
+			"urls":                              urlsVal,
 		})
 
 	return objVal, diags
@@ -560,11 +2085,63 @@ func (v OrgServicesValue) Equal(o attr.Value) bool {
 		return true
 	}
 
+	if !v.Addresses.Equal(other.Addresses) {
+		return false
+	}
+
+	if !v.AppCategories.Equal(other.AppCategories) {
+		return false
+	}
+
+	if !v.AppSubcategories.Equal(other.AppSubcategories) {
+		return false
+	}
+
+	if !v.Apps.Equal(other.Apps) {
+		return false
+	}
+
+	if !v.ClientLimitDown.Equal(other.ClientLimitDown) {
+		return false
+	}
+
+	if !v.ClientLimitUp.Equal(other.ClientLimitUp) {
+		return false
+	}
+
 	if !v.CreatedTime.Equal(other.CreatedTime) {
 		return false
 	}
 
+	if !v.Description.Equal(other.Description) {
+		return false
+	}
+
+	if !v.Dscp.Equal(other.Dscp) {
+		return false
+	}
+
+	if !v.FailoverPolicy.Equal(other.FailoverPolicy) {
+		return false
+	}
+
+	if !v.Hostnames.Equal(other.Hostnames) {
+		return false
+	}
+
 	if !v.Id.Equal(other.Id) {
+		return false
+	}
+
+	if !v.MaxJitter.Equal(other.MaxJitter) {
+		return false
+	}
+
+	if !v.MaxLatency.Equal(other.MaxLatency) {
+		return false
+	}
+
+	if !v.MaxLoss.Equal(other.MaxLoss) {
 		return false
 	}
 
@@ -577,6 +2154,38 @@ func (v OrgServicesValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.OrgId.Equal(other.OrgId) {
+		return false
+	}
+
+	if !v.ServiceLimitDown.Equal(other.ServiceLimitDown) {
+		return false
+	}
+
+	if !v.ServiceLimitUp.Equal(other.ServiceLimitUp) {
+		return false
+	}
+
+	if !v.SleEnabled.Equal(other.SleEnabled) {
+		return false
+	}
+
+	if !v.Specs.Equal(other.Specs) {
+		return false
+	}
+
+	if !v.SsrRelaxedTcpStateEnforcement.Equal(other.SsrRelaxedTcpStateEnforcement) {
+		return false
+	}
+
+	if !v.TrafficClass.Equal(other.TrafficClass) {
+		return false
+	}
+
+	if !v.TrafficType.Equal(other.TrafficType) {
+		return false
+	}
+
+	if !v.Urls.Equal(other.Urls) {
 		return false
 	}
 
@@ -593,10 +2202,424 @@ func (v OrgServicesValue) Type(ctx context.Context) attr.Type {
 
 func (v OrgServicesValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"created_time":  basetypes.NumberType{},
-		"id":            basetypes.StringType{},
-		"modified_time": basetypes.NumberType{},
-		"name":          basetypes.StringType{},
-		"org_id":        basetypes.StringType{},
+		"addresses": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"app_categories": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"app_subcategories": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"apps": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"client_limit_down": basetypes.Int64Type{},
+		"client_limit_up":   basetypes.Int64Type{},
+		"created_time":      basetypes.Float64Type{},
+		"description":       basetypes.StringType{},
+		"dscp":              basetypes.StringType{},
+		"failover_policy":   basetypes.StringType{},
+		"hostnames": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"id":                 basetypes.StringType{},
+		"max_jitter":         basetypes.StringType{},
+		"max_latency":        basetypes.StringType{},
+		"max_loss":           basetypes.StringType{},
+		"modified_time":      basetypes.Float64Type{},
+		"name":               basetypes.StringType{},
+		"org_id":             basetypes.StringType{},
+		"service_limit_down": basetypes.Int64Type{},
+		"service_limit_up":   basetypes.Int64Type{},
+		"sle_enabled":        basetypes.BoolType{},
+		"specs": basetypes.ListType{
+			ElemType: SpecsValue{}.Type(ctx),
+		},
+		"ssr_relaxed_tcp_state_enforcement": basetypes.BoolType{},
+		"traffic_class":                     basetypes.StringType{},
+		"traffic_type":                      basetypes.StringType{},
+		"urls": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+	}
+}
+
+var _ basetypes.ObjectTypable = SpecsType{}
+
+type SpecsType struct {
+	basetypes.ObjectType
+}
+
+func (t SpecsType) Equal(o attr.Type) bool {
+	other, ok := o.(SpecsType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t SpecsType) String() string {
+	return "SpecsType"
+}
+
+func (t SpecsType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	portRangeAttribute, ok := attributes["port_range"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`port_range is missing from object`)
+
+		return nil, diags
+	}
+
+	portRangeVal, ok := portRangeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`port_range expected to be basetypes.StringValue, was: %T`, portRangeAttribute))
+	}
+
+	protocolAttribute, ok := attributes["protocol"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`protocol is missing from object`)
+
+		return nil, diags
+	}
+
+	protocolVal, ok := protocolAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`protocol expected to be basetypes.StringValue, was: %T`, protocolAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return SpecsValue{
+		PortRange: portRangeVal,
+		Protocol:  protocolVal,
+		state:     attr.ValueStateKnown,
+	}, diags
+}
+
+func NewSpecsValueNull() SpecsValue {
+	return SpecsValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewSpecsValueUnknown() SpecsValue {
+	return SpecsValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewSpecsValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (SpecsValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing SpecsValue Attribute Value",
+				"While creating a SpecsValue value, a missing attribute value was detected. "+
+					"A SpecsValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("SpecsValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid SpecsValue Attribute Type",
+				"While creating a SpecsValue value, an invalid attribute value was detected. "+
+					"A SpecsValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("SpecsValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("SpecsValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra SpecsValue Attribute Value",
+				"While creating a SpecsValue value, an extra attribute value was detected. "+
+					"A SpecsValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra SpecsValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewSpecsValueUnknown(), diags
+	}
+
+	portRangeAttribute, ok := attributes["port_range"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`port_range is missing from object`)
+
+		return NewSpecsValueUnknown(), diags
+	}
+
+	portRangeVal, ok := portRangeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`port_range expected to be basetypes.StringValue, was: %T`, portRangeAttribute))
+	}
+
+	protocolAttribute, ok := attributes["protocol"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`protocol is missing from object`)
+
+		return NewSpecsValueUnknown(), diags
+	}
+
+	protocolVal, ok := protocolAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`protocol expected to be basetypes.StringValue, was: %T`, protocolAttribute))
+	}
+
+	if diags.HasError() {
+		return NewSpecsValueUnknown(), diags
+	}
+
+	return SpecsValue{
+		PortRange: portRangeVal,
+		Protocol:  protocolVal,
+		state:     attr.ValueStateKnown,
+	}, diags
+}
+
+func NewSpecsValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) SpecsValue {
+	object, diags := NewSpecsValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewSpecsValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t SpecsType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewSpecsValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewSpecsValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewSpecsValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewSpecsValueMust(SpecsValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t SpecsType) ValueType(ctx context.Context) attr.Value {
+	return SpecsValue{}
+}
+
+var _ basetypes.ObjectValuable = SpecsValue{}
+
+type SpecsValue struct {
+	PortRange basetypes.StringValue `tfsdk:"port_range"`
+	Protocol  basetypes.StringValue `tfsdk:"protocol"`
+	state     attr.ValueState
+}
+
+func (v SpecsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 2)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["port_range"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["protocol"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 2)
+
+		val, err = v.PortRange.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["port_range"] = val
+
+		val, err = v.Protocol.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["protocol"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v SpecsValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v SpecsValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v SpecsValue) String() string {
+	return "SpecsValue"
+}
+
+func (v SpecsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"port_range": basetypes.StringType{},
+		"protocol":   basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"port_range": v.PortRange,
+			"protocol":   v.Protocol,
+		})
+
+	return objVal, diags
+}
+
+func (v SpecsValue) Equal(o attr.Value) bool {
+	other, ok := o.(SpecsValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.PortRange.Equal(other.PortRange) {
+		return false
+	}
+
+	if !v.Protocol.Equal(other.Protocol) {
+		return false
+	}
+
+	return true
+}
+
+func (v SpecsValue) Type(ctx context.Context) attr.Type {
+	return SpecsType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v SpecsValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"port_range": basetypes.StringType{},
+		"protocol":   basetypes.StringType{},
 	}
 }

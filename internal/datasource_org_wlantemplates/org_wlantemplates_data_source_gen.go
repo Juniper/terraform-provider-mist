@@ -24,14 +24,25 @@ func OrgWlantemplatesDataSourceSchema(ctx context.Context) schema.Schema {
 			"org_wlantemplates": schema.SetNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
-						"created_time": schema.NumberAttribute{
-							Computed: true,
+						"created_time": schema.Float64Attribute{
+							Computed:            true,
+							Description:         "When the object has been created, in epoch",
+							MarkdownDescription: "When the object has been created, in epoch",
+						},
+						"filter_by_deviceprofile": schema.BoolAttribute{
+							Computed:            true,
+							Description:         "Whether to further filter by Device Profile",
+							MarkdownDescription: "Whether to further filter by Device Profile",
 						},
 						"id": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							Description:         "Unique ID of the object instance in the Mist Organization",
+							MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
 						},
-						"modified_time": schema.NumberAttribute{
-							Computed: true,
+						"modified_time": schema.Float64Attribute{
+							Computed:            true,
+							Description:         "When the object has been modified for the last time, in epoch",
+							MarkdownDescription: "When the object has been modified for the last time, in epoch",
 						},
 						"name": schema.StringAttribute{
 							Computed: true,
@@ -92,12 +103,30 @@ func (t OrgWlantemplatesType) ValueFromObject(ctx context.Context, in basetypes.
 		return nil, diags
 	}
 
-	createdTimeVal, ok := createdTimeAttribute.(basetypes.NumberValue)
+	createdTimeVal, ok := createdTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`created_time expected to be basetypes.NumberValue, was: %T`, createdTimeAttribute))
+			fmt.Sprintf(`created_time expected to be basetypes.Float64Value, was: %T`, createdTimeAttribute))
+	}
+
+	filterByDeviceprofileAttribute, ok := attributes["filter_by_deviceprofile"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`filter_by_deviceprofile is missing from object`)
+
+		return nil, diags
+	}
+
+	filterByDeviceprofileVal, ok := filterByDeviceprofileAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`filter_by_deviceprofile expected to be basetypes.BoolValue, was: %T`, filterByDeviceprofileAttribute))
 	}
 
 	idAttribute, ok := attributes["id"]
@@ -128,12 +157,12 @@ func (t OrgWlantemplatesType) ValueFromObject(ctx context.Context, in basetypes.
 		return nil, diags
 	}
 
-	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.NumberValue)
+	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`modified_time expected to be basetypes.NumberValue, was: %T`, modifiedTimeAttribute))
+			fmt.Sprintf(`modified_time expected to be basetypes.Float64Value, was: %T`, modifiedTimeAttribute))
 	}
 
 	nameAttribute, ok := attributes["name"]
@@ -177,12 +206,13 @@ func (t OrgWlantemplatesType) ValueFromObject(ctx context.Context, in basetypes.
 	}
 
 	return OrgWlantemplatesValue{
-		CreatedTime:  createdTimeVal,
-		Id:           idVal,
-		ModifiedTime: modifiedTimeVal,
-		Name:         nameVal,
-		OrgId:        orgIdVal,
-		state:        attr.ValueStateKnown,
+		CreatedTime:           createdTimeVal,
+		FilterByDeviceprofile: filterByDeviceprofileVal,
+		Id:                    idVal,
+		ModifiedTime:          modifiedTimeVal,
+		Name:                  nameVal,
+		OrgId:                 orgIdVal,
+		state:                 attr.ValueStateKnown,
 	}, diags
 }
 
@@ -259,12 +289,30 @@ func NewOrgWlantemplatesValue(attributeTypes map[string]attr.Type, attributes ma
 		return NewOrgWlantemplatesValueUnknown(), diags
 	}
 
-	createdTimeVal, ok := createdTimeAttribute.(basetypes.NumberValue)
+	createdTimeVal, ok := createdTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`created_time expected to be basetypes.NumberValue, was: %T`, createdTimeAttribute))
+			fmt.Sprintf(`created_time expected to be basetypes.Float64Value, was: %T`, createdTimeAttribute))
+	}
+
+	filterByDeviceprofileAttribute, ok := attributes["filter_by_deviceprofile"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`filter_by_deviceprofile is missing from object`)
+
+		return NewOrgWlantemplatesValueUnknown(), diags
+	}
+
+	filterByDeviceprofileVal, ok := filterByDeviceprofileAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`filter_by_deviceprofile expected to be basetypes.BoolValue, was: %T`, filterByDeviceprofileAttribute))
 	}
 
 	idAttribute, ok := attributes["id"]
@@ -295,12 +343,12 @@ func NewOrgWlantemplatesValue(attributeTypes map[string]attr.Type, attributes ma
 		return NewOrgWlantemplatesValueUnknown(), diags
 	}
 
-	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.NumberValue)
+	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`modified_time expected to be basetypes.NumberValue, was: %T`, modifiedTimeAttribute))
+			fmt.Sprintf(`modified_time expected to be basetypes.Float64Value, was: %T`, modifiedTimeAttribute))
 	}
 
 	nameAttribute, ok := attributes["name"]
@@ -344,12 +392,13 @@ func NewOrgWlantemplatesValue(attributeTypes map[string]attr.Type, attributes ma
 	}
 
 	return OrgWlantemplatesValue{
-		CreatedTime:  createdTimeVal,
-		Id:           idVal,
-		ModifiedTime: modifiedTimeVal,
-		Name:         nameVal,
-		OrgId:        orgIdVal,
-		state:        attr.ValueStateKnown,
+		CreatedTime:           createdTimeVal,
+		FilterByDeviceprofile: filterByDeviceprofileVal,
+		Id:                    idVal,
+		ModifiedTime:          modifiedTimeVal,
+		Name:                  nameVal,
+		OrgId:                 orgIdVal,
+		state:                 attr.ValueStateKnown,
 	}, diags
 }
 
@@ -421,12 +470,13 @@ func (t OrgWlantemplatesType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = OrgWlantemplatesValue{}
 
 type OrgWlantemplatesValue struct {
-	CreatedTime  basetypes.NumberValue `tfsdk:"created_time"`
-	Id           basetypes.StringValue `tfsdk:"id"`
-	ModifiedTime basetypes.NumberValue `tfsdk:"modified_time"`
-	Name         basetypes.StringValue `tfsdk:"name"`
-	OrgId        basetypes.StringValue `tfsdk:"org_id"`
-	state        attr.ValueState
+	CreatedTime           basetypes.Float64Value `tfsdk:"created_time"`
+	FilterByDeviceprofile basetypes.BoolValue    `tfsdk:"filter_by_deviceprofile"`
+	Id                    basetypes.StringValue  `tfsdk:"id"`
+	ModifiedTime          basetypes.Float64Value `tfsdk:"modified_time"`
+	Name                  basetypes.StringValue  `tfsdk:"name"`
+	OrgId                 basetypes.StringValue  `tfsdk:"org_id"`
+	state                 attr.ValueState
 }
 
 func (v OrgWlantemplatesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
@@ -435,9 +485,10 @@ func (v OrgWlantemplatesValue) ToTerraformValue(ctx context.Context) (tftypes.Va
 	var val tftypes.Value
 	var err error
 
-	attrTypes["created_time"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["created_time"] = basetypes.Float64Type{}.TerraformType(ctx)
+	attrTypes["filter_by_deviceprofile"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["id"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["modified_time"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["modified_time"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["org_id"] = basetypes.StringType{}.TerraformType(ctx)
 
@@ -454,6 +505,14 @@ func (v OrgWlantemplatesValue) ToTerraformValue(ctx context.Context) (tftypes.Va
 		}
 
 		vals["created_time"] = val
+
+		val, err = v.FilterByDeviceprofile.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["filter_by_deviceprofile"] = val
 
 		val, err = v.Id.ToTerraformValue(ctx)
 
@@ -517,11 +576,12 @@ func (v OrgWlantemplatesValue) ToObjectValue(ctx context.Context) (basetypes.Obj
 	var diags diag.Diagnostics
 
 	attributeTypes := map[string]attr.Type{
-		"created_time":  basetypes.NumberType{},
-		"id":            basetypes.StringType{},
-		"modified_time": basetypes.NumberType{},
-		"name":          basetypes.StringType{},
-		"org_id":        basetypes.StringType{},
+		"created_time":            basetypes.Float64Type{},
+		"filter_by_deviceprofile": basetypes.BoolType{},
+		"id":                      basetypes.StringType{},
+		"modified_time":           basetypes.Float64Type{},
+		"name":                    basetypes.StringType{},
+		"org_id":                  basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -535,11 +595,12 @@ func (v OrgWlantemplatesValue) ToObjectValue(ctx context.Context) (basetypes.Obj
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"created_time":  v.CreatedTime,
-			"id":            v.Id,
-			"modified_time": v.ModifiedTime,
-			"name":          v.Name,
-			"org_id":        v.OrgId,
+			"created_time":            v.CreatedTime,
+			"filter_by_deviceprofile": v.FilterByDeviceprofile,
+			"id":                      v.Id,
+			"modified_time":           v.ModifiedTime,
+			"name":                    v.Name,
+			"org_id":                  v.OrgId,
 		})
 
 	return objVal, diags
@@ -561,6 +622,10 @@ func (v OrgWlantemplatesValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.CreatedTime.Equal(other.CreatedTime) {
+		return false
+	}
+
+	if !v.FilterByDeviceprofile.Equal(other.FilterByDeviceprofile) {
 		return false
 	}
 
@@ -593,10 +658,11 @@ func (v OrgWlantemplatesValue) Type(ctx context.Context) attr.Type {
 
 func (v OrgWlantemplatesValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"created_time":  basetypes.NumberType{},
-		"id":            basetypes.StringType{},
-		"modified_time": basetypes.NumberType{},
-		"name":          basetypes.StringType{},
-		"org_id":        basetypes.StringType{},
+		"created_time":            basetypes.Float64Type{},
+		"filter_by_deviceprofile": basetypes.BoolType{},
+		"id":                      basetypes.StringType{},
+		"modified_time":           basetypes.Float64Type{},
+		"name":                    basetypes.StringType{},
+		"org_id":                  basetypes.StringType{},
 	}
 }

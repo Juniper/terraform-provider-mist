@@ -24,19 +24,106 @@ func OrgWxtagsDataSourceSchema(ctx context.Context) schema.Schema {
 			"org_wxtags": schema.SetNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
-						"created_time": schema.NumberAttribute{
+						"created_time": schema.Float64Attribute{
+							Computed:            true,
+							Description:         "When the object has been created, in epoch",
+							MarkdownDescription: "When the object has been created, in epoch",
+						},
+						"for_site": schema.BoolAttribute{
 							Computed: true,
 						},
 						"id": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							Description:         "Unique ID of the object instance in the Mist Organization",
+							MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
 						},
-						"modified_time": schema.NumberAttribute{
-							Computed: true,
+						"last_ips": schema.ListAttribute{
+							ElementType: types.StringType,
+							Computed:    true,
+						},
+						"mac": schema.StringAttribute{
+							Computed:            true,
+							Description:         "If `type`==`client`, Client MAC Address",
+							MarkdownDescription: "If `type`==`client`, Client MAC Address",
+						},
+						"match": schema.StringAttribute{
+							Computed:            true,
+							Description:         "required if `type`==`match`. enum: `ap_id`, `app`, `asset_mac`, `client_mac`, `hostname`, `ip_range_subnet`, `port`, `psk_name`, `psk_role`, `radius_attr`, `radius_class`, `radius_group`, `radius_username`, `sdkclient_uuid`, `wlan_id`",
+							MarkdownDescription: "required if `type`==`match`. enum: `ap_id`, `app`, `asset_mac`, `client_mac`, `hostname`, `ip_range_subnet`, `port`, `psk_name`, `psk_role`, `radius_attr`, `radius_class`, `radius_group`, `radius_username`, `sdkclient_uuid`, `wlan_id`",
+						},
+						"modified_time": schema.Float64Attribute{
+							Computed:            true,
+							Description:         "When the object has been modified for the last time, in epoch",
+							MarkdownDescription: "When the object has been modified for the last time, in epoch",
 						},
 						"name": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							Description:         "The name",
+							MarkdownDescription: "The name",
+						},
+						"op": schema.StringAttribute{
+							Computed:            true,
+							Description:         "required if `type`==`match`, type of tag (inclusive/exclusive). enum: `in`, `not_in`",
+							MarkdownDescription: "required if `type`==`match`, type of tag (inclusive/exclusive). enum: `in`, `not_in`",
 						},
 						"org_id": schema.StringAttribute{
+							Computed: true,
+						},
+						"resource_mac": schema.StringAttribute{
+							Computed: true,
+						},
+						"services": schema.ListAttribute{
+							ElementType: types.StringType,
+							Computed:    true,
+						},
+						"site_id": schema.StringAttribute{
+							Computed: true,
+						},
+						"specs": schema.ListNestedAttribute{
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"port_range": schema.StringAttribute{
+										Computed:            true,
+										Description:         "Matched destination port, \"0\" means any",
+										MarkdownDescription: "Matched destination port, \"0\" means any",
+									},
+									"protocol": schema.StringAttribute{
+										Computed:            true,
+										Description:         "tcp / udp / icmp / gre / any / \":protocol_number\", `protocol_number` is between 1-254",
+										MarkdownDescription: "tcp / udp / icmp / gre / any / \":protocol_number\", `protocol_number` is between 1-254",
+									},
+									"subnets": schema.ListAttribute{
+										ElementType:         types.StringType,
+										Computed:            true,
+										Description:         "Matched destination subnets and/or IP Addresses",
+										MarkdownDescription: "Matched destination subnets and/or IP Addresses",
+									},
+								},
+								CustomType: SpecsType{
+									ObjectType: types.ObjectType{
+										AttrTypes: SpecsValue{}.AttributeTypes(ctx),
+									},
+								},
+							},
+							Computed:            true,
+							Description:         "If `type`==`spec`",
+							MarkdownDescription: "If `type`==`spec`",
+						},
+						"subnet": schema.StringAttribute{
+							Computed: true,
+						},
+						"type": schema.StringAttribute{
+							Computed:            true,
+							Description:         "enum: `client`, `match`, `resource`, `spec`, `subnet`, `vlan`",
+							MarkdownDescription: "enum: `client`, `match`, `resource`, `spec`, `subnet`, `vlan`",
+						},
+						"values": schema.ListAttribute{
+							ElementType:         types.StringType,
+							Computed:            true,
+							Description:         "Required if `type`==`match` and\n  * `match`==`ap_id`: list of AP IDs\n  * `match`==`app`: list of Application Names\n  * `match`==`asset_mac`: list of Asset MAC Addresses\n  * `match`==`client_mac`: list of Client MAC Addresses\n  * `match`==`hostname`: list of Resources Hostnames\n  * `match`==`ip_range_subnet`: list of IP Addresses and/or CIDRs\n  * `match`==`psk_name`: list of PSK Names\n  * `match`==`psk_role`: list of PSK Roles\n  * `match`==`port`: list of Ports or Port Ranges\n  * `match`==`radius_attr`: list of RADIUS Attributes. The values are [ \"6=1\", \"26=10.2.3.4\" ], this support other RADIUS attributes where we know the type\n  * `match`==`radius_class`: list of RADIUS Classes. This matches the ATTR-Class(25)\n  * `match`==`radius_group`: list of RADIUS Groups. This is a smart tag that matches RADIUS-Filter-ID, Airespace-ACL-Name (VendorID=14179, VendorType=6) / Aruba-User-Role (VendorID=14823, VendorType=1)\n  * `match`==`radius_username`: list of RADIUS Usernames. This matches the ATTR-User-Name(1)\n  * `match`==`sdkclient_uuid`: list of SDK UUIDs\n  * `match`==`wlan_id`: list of WLAN IDs\n\n**Notes**:\nVariables are not allowed",
+							MarkdownDescription: "Required if `type`==`match` and\n  * `match`==`ap_id`: list of AP IDs\n  * `match`==`app`: list of Application Names\n  * `match`==`asset_mac`: list of Asset MAC Addresses\n  * `match`==`client_mac`: list of Client MAC Addresses\n  * `match`==`hostname`: list of Resources Hostnames\n  * `match`==`ip_range_subnet`: list of IP Addresses and/or CIDRs\n  * `match`==`psk_name`: list of PSK Names\n  * `match`==`psk_role`: list of PSK Roles\n  * `match`==`port`: list of Ports or Port Ranges\n  * `match`==`radius_attr`: list of RADIUS Attributes. The values are [ \"6=1\", \"26=10.2.3.4\" ], this support other RADIUS attributes where we know the type\n  * `match`==`radius_class`: list of RADIUS Classes. This matches the ATTR-Class(25)\n  * `match`==`radius_group`: list of RADIUS Groups. This is a smart tag that matches RADIUS-Filter-ID, Airespace-ACL-Name (VendorID=14179, VendorType=6) / Aruba-User-Role (VendorID=14823, VendorType=1)\n  * `match`==`radius_username`: list of RADIUS Usernames. This matches the ATTR-User-Name(1)\n  * `match`==`sdkclient_uuid`: list of SDK UUIDs\n  * `match`==`wlan_id`: list of WLAN IDs\n\n**Notes**:\nVariables are not allowed",
+						},
+						"vlan_id": schema.StringAttribute{
 							Computed: true,
 						},
 					},
@@ -92,12 +179,30 @@ func (t OrgWxtagsType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 		return nil, diags
 	}
 
-	createdTimeVal, ok := createdTimeAttribute.(basetypes.NumberValue)
+	createdTimeVal, ok := createdTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`created_time expected to be basetypes.NumberValue, was: %T`, createdTimeAttribute))
+			fmt.Sprintf(`created_time expected to be basetypes.Float64Value, was: %T`, createdTimeAttribute))
+	}
+
+	forSiteAttribute, ok := attributes["for_site"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`for_site is missing from object`)
+
+		return nil, diags
+	}
+
+	forSiteVal, ok := forSiteAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`for_site expected to be basetypes.BoolValue, was: %T`, forSiteAttribute))
 	}
 
 	idAttribute, ok := attributes["id"]
@@ -118,6 +223,60 @@ func (t OrgWxtagsType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 			fmt.Sprintf(`id expected to be basetypes.StringValue, was: %T`, idAttribute))
 	}
 
+	lastIpsAttribute, ok := attributes["last_ips"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`last_ips is missing from object`)
+
+		return nil, diags
+	}
+
+	lastIpsVal, ok := lastIpsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`last_ips expected to be basetypes.ListValue, was: %T`, lastIpsAttribute))
+	}
+
+	macAttribute, ok := attributes["mac"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`mac is missing from object`)
+
+		return nil, diags
+	}
+
+	macVal, ok := macAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`mac expected to be basetypes.StringValue, was: %T`, macAttribute))
+	}
+
+	matchAttribute, ok := attributes["match"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`match is missing from object`)
+
+		return nil, diags
+	}
+
+	matchVal, ok := matchAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`match expected to be basetypes.StringValue, was: %T`, matchAttribute))
+	}
+
 	modifiedTimeAttribute, ok := attributes["modified_time"]
 
 	if !ok {
@@ -128,12 +287,12 @@ func (t OrgWxtagsType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 		return nil, diags
 	}
 
-	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.NumberValue)
+	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`modified_time expected to be basetypes.NumberValue, was: %T`, modifiedTimeAttribute))
+			fmt.Sprintf(`modified_time expected to be basetypes.Float64Value, was: %T`, modifiedTimeAttribute))
 	}
 
 	nameAttribute, ok := attributes["name"]
@@ -154,6 +313,24 @@ func (t OrgWxtagsType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 			fmt.Sprintf(`name expected to be basetypes.StringValue, was: %T`, nameAttribute))
 	}
 
+	opAttribute, ok := attributes["op"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`op is missing from object`)
+
+		return nil, diags
+	}
+
+	opVal, ok := opAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`op expected to be basetypes.StringValue, was: %T`, opAttribute))
+	}
+
 	orgIdAttribute, ok := attributes["org_id"]
 
 	if !ok {
@@ -172,17 +349,174 @@ func (t OrgWxtagsType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 			fmt.Sprintf(`org_id expected to be basetypes.StringValue, was: %T`, orgIdAttribute))
 	}
 
+	resourceMacAttribute, ok := attributes["resource_mac"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`resource_mac is missing from object`)
+
+		return nil, diags
+	}
+
+	resourceMacVal, ok := resourceMacAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`resource_mac expected to be basetypes.StringValue, was: %T`, resourceMacAttribute))
+	}
+
+	servicesAttribute, ok := attributes["services"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`services is missing from object`)
+
+		return nil, diags
+	}
+
+	servicesVal, ok := servicesAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`services expected to be basetypes.ListValue, was: %T`, servicesAttribute))
+	}
+
+	siteIdAttribute, ok := attributes["site_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`site_id is missing from object`)
+
+		return nil, diags
+	}
+
+	siteIdVal, ok := siteIdAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`site_id expected to be basetypes.StringValue, was: %T`, siteIdAttribute))
+	}
+
+	specsAttribute, ok := attributes["specs"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`specs is missing from object`)
+
+		return nil, diags
+	}
+
+	specsVal, ok := specsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`specs expected to be basetypes.ListValue, was: %T`, specsAttribute))
+	}
+
+	subnetAttribute, ok := attributes["subnet"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`subnet is missing from object`)
+
+		return nil, diags
+	}
+
+	subnetVal, ok := subnetAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`subnet expected to be basetypes.StringValue, was: %T`, subnetAttribute))
+	}
+
+	typeAttribute, ok := attributes["type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`type is missing from object`)
+
+		return nil, diags
+	}
+
+	typeVal, ok := typeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, typeAttribute))
+	}
+
+	valuesAttribute, ok := attributes["values"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`values is missing from object`)
+
+		return nil, diags
+	}
+
+	valuesVal, ok := valuesAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`values expected to be basetypes.ListValue, was: %T`, valuesAttribute))
+	}
+
+	vlanIdAttribute, ok := attributes["vlan_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`vlan_id is missing from object`)
+
+		return nil, diags
+	}
+
+	vlanIdVal, ok := vlanIdAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`vlan_id expected to be basetypes.StringValue, was: %T`, vlanIdAttribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
 
 	return OrgWxtagsValue{
-		CreatedTime:  createdTimeVal,
-		Id:           idVal,
-		ModifiedTime: modifiedTimeVal,
-		Name:         nameVal,
-		OrgId:        orgIdVal,
-		state:        attr.ValueStateKnown,
+		CreatedTime:   createdTimeVal,
+		ForSite:       forSiteVal,
+		Id:            idVal,
+		LastIps:       lastIpsVal,
+		Mac:           macVal,
+		Match:         matchVal,
+		ModifiedTime:  modifiedTimeVal,
+		Name:          nameVal,
+		Op:            opVal,
+		OrgId:         orgIdVal,
+		ResourceMac:   resourceMacVal,
+		Services:      servicesVal,
+		SiteId:        siteIdVal,
+		Specs:         specsVal,
+		Subnet:        subnetVal,
+		OrgWxtagsType: typeVal,
+		Values:        valuesVal,
+		VlanId:        vlanIdVal,
+		state:         attr.ValueStateKnown,
 	}, diags
 }
 
@@ -259,12 +593,30 @@ func NewOrgWxtagsValue(attributeTypes map[string]attr.Type, attributes map[strin
 		return NewOrgWxtagsValueUnknown(), diags
 	}
 
-	createdTimeVal, ok := createdTimeAttribute.(basetypes.NumberValue)
+	createdTimeVal, ok := createdTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`created_time expected to be basetypes.NumberValue, was: %T`, createdTimeAttribute))
+			fmt.Sprintf(`created_time expected to be basetypes.Float64Value, was: %T`, createdTimeAttribute))
+	}
+
+	forSiteAttribute, ok := attributes["for_site"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`for_site is missing from object`)
+
+		return NewOrgWxtagsValueUnknown(), diags
+	}
+
+	forSiteVal, ok := forSiteAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`for_site expected to be basetypes.BoolValue, was: %T`, forSiteAttribute))
 	}
 
 	idAttribute, ok := attributes["id"]
@@ -285,6 +637,60 @@ func NewOrgWxtagsValue(attributeTypes map[string]attr.Type, attributes map[strin
 			fmt.Sprintf(`id expected to be basetypes.StringValue, was: %T`, idAttribute))
 	}
 
+	lastIpsAttribute, ok := attributes["last_ips"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`last_ips is missing from object`)
+
+		return NewOrgWxtagsValueUnknown(), diags
+	}
+
+	lastIpsVal, ok := lastIpsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`last_ips expected to be basetypes.ListValue, was: %T`, lastIpsAttribute))
+	}
+
+	macAttribute, ok := attributes["mac"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`mac is missing from object`)
+
+		return NewOrgWxtagsValueUnknown(), diags
+	}
+
+	macVal, ok := macAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`mac expected to be basetypes.StringValue, was: %T`, macAttribute))
+	}
+
+	matchAttribute, ok := attributes["match"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`match is missing from object`)
+
+		return NewOrgWxtagsValueUnknown(), diags
+	}
+
+	matchVal, ok := matchAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`match expected to be basetypes.StringValue, was: %T`, matchAttribute))
+	}
+
 	modifiedTimeAttribute, ok := attributes["modified_time"]
 
 	if !ok {
@@ -295,12 +701,12 @@ func NewOrgWxtagsValue(attributeTypes map[string]attr.Type, attributes map[strin
 		return NewOrgWxtagsValueUnknown(), diags
 	}
 
-	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.NumberValue)
+	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`modified_time expected to be basetypes.NumberValue, was: %T`, modifiedTimeAttribute))
+			fmt.Sprintf(`modified_time expected to be basetypes.Float64Value, was: %T`, modifiedTimeAttribute))
 	}
 
 	nameAttribute, ok := attributes["name"]
@@ -321,6 +727,24 @@ func NewOrgWxtagsValue(attributeTypes map[string]attr.Type, attributes map[strin
 			fmt.Sprintf(`name expected to be basetypes.StringValue, was: %T`, nameAttribute))
 	}
 
+	opAttribute, ok := attributes["op"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`op is missing from object`)
+
+		return NewOrgWxtagsValueUnknown(), diags
+	}
+
+	opVal, ok := opAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`op expected to be basetypes.StringValue, was: %T`, opAttribute))
+	}
+
 	orgIdAttribute, ok := attributes["org_id"]
 
 	if !ok {
@@ -339,17 +763,174 @@ func NewOrgWxtagsValue(attributeTypes map[string]attr.Type, attributes map[strin
 			fmt.Sprintf(`org_id expected to be basetypes.StringValue, was: %T`, orgIdAttribute))
 	}
 
+	resourceMacAttribute, ok := attributes["resource_mac"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`resource_mac is missing from object`)
+
+		return NewOrgWxtagsValueUnknown(), diags
+	}
+
+	resourceMacVal, ok := resourceMacAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`resource_mac expected to be basetypes.StringValue, was: %T`, resourceMacAttribute))
+	}
+
+	servicesAttribute, ok := attributes["services"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`services is missing from object`)
+
+		return NewOrgWxtagsValueUnknown(), diags
+	}
+
+	servicesVal, ok := servicesAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`services expected to be basetypes.ListValue, was: %T`, servicesAttribute))
+	}
+
+	siteIdAttribute, ok := attributes["site_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`site_id is missing from object`)
+
+		return NewOrgWxtagsValueUnknown(), diags
+	}
+
+	siteIdVal, ok := siteIdAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`site_id expected to be basetypes.StringValue, was: %T`, siteIdAttribute))
+	}
+
+	specsAttribute, ok := attributes["specs"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`specs is missing from object`)
+
+		return NewOrgWxtagsValueUnknown(), diags
+	}
+
+	specsVal, ok := specsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`specs expected to be basetypes.ListValue, was: %T`, specsAttribute))
+	}
+
+	subnetAttribute, ok := attributes["subnet"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`subnet is missing from object`)
+
+		return NewOrgWxtagsValueUnknown(), diags
+	}
+
+	subnetVal, ok := subnetAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`subnet expected to be basetypes.StringValue, was: %T`, subnetAttribute))
+	}
+
+	typeAttribute, ok := attributes["type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`type is missing from object`)
+
+		return NewOrgWxtagsValueUnknown(), diags
+	}
+
+	typeVal, ok := typeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, typeAttribute))
+	}
+
+	valuesAttribute, ok := attributes["values"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`values is missing from object`)
+
+		return NewOrgWxtagsValueUnknown(), diags
+	}
+
+	valuesVal, ok := valuesAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`values expected to be basetypes.ListValue, was: %T`, valuesAttribute))
+	}
+
+	vlanIdAttribute, ok := attributes["vlan_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`vlan_id is missing from object`)
+
+		return NewOrgWxtagsValueUnknown(), diags
+	}
+
+	vlanIdVal, ok := vlanIdAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`vlan_id expected to be basetypes.StringValue, was: %T`, vlanIdAttribute))
+	}
+
 	if diags.HasError() {
 		return NewOrgWxtagsValueUnknown(), diags
 	}
 
 	return OrgWxtagsValue{
-		CreatedTime:  createdTimeVal,
-		Id:           idVal,
-		ModifiedTime: modifiedTimeVal,
-		Name:         nameVal,
-		OrgId:        orgIdVal,
-		state:        attr.ValueStateKnown,
+		CreatedTime:   createdTimeVal,
+		ForSite:       forSiteVal,
+		Id:            idVal,
+		LastIps:       lastIpsVal,
+		Mac:           macVal,
+		Match:         matchVal,
+		ModifiedTime:  modifiedTimeVal,
+		Name:          nameVal,
+		Op:            opVal,
+		OrgId:         orgIdVal,
+		ResourceMac:   resourceMacVal,
+		Services:      servicesVal,
+		SiteId:        siteIdVal,
+		Specs:         specsVal,
+		Subnet:        subnetVal,
+		OrgWxtagsType: typeVal,
+		Values:        valuesVal,
+		VlanId:        vlanIdVal,
+		state:         attr.ValueStateKnown,
 	}, diags
 }
 
@@ -421,31 +1002,65 @@ func (t OrgWxtagsType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = OrgWxtagsValue{}
 
 type OrgWxtagsValue struct {
-	CreatedTime  basetypes.NumberValue `tfsdk:"created_time"`
-	Id           basetypes.StringValue `tfsdk:"id"`
-	ModifiedTime basetypes.NumberValue `tfsdk:"modified_time"`
-	Name         basetypes.StringValue `tfsdk:"name"`
-	OrgId        basetypes.StringValue `tfsdk:"org_id"`
-	state        attr.ValueState
+	CreatedTime   basetypes.Float64Value `tfsdk:"created_time"`
+	ForSite       basetypes.BoolValue    `tfsdk:"for_site"`
+	Id            basetypes.StringValue  `tfsdk:"id"`
+	LastIps       basetypes.ListValue    `tfsdk:"last_ips"`
+	Mac           basetypes.StringValue  `tfsdk:"mac"`
+	Match         basetypes.StringValue  `tfsdk:"match"`
+	ModifiedTime  basetypes.Float64Value `tfsdk:"modified_time"`
+	Name          basetypes.StringValue  `tfsdk:"name"`
+	Op            basetypes.StringValue  `tfsdk:"op"`
+	OrgId         basetypes.StringValue  `tfsdk:"org_id"`
+	ResourceMac   basetypes.StringValue  `tfsdk:"resource_mac"`
+	Services      basetypes.ListValue    `tfsdk:"services"`
+	SiteId        basetypes.StringValue  `tfsdk:"site_id"`
+	Specs         basetypes.ListValue    `tfsdk:"specs"`
+	Subnet        basetypes.StringValue  `tfsdk:"subnet"`
+	OrgWxtagsType basetypes.StringValue  `tfsdk:"type"`
+	Values        basetypes.ListValue    `tfsdk:"values"`
+	VlanId        basetypes.StringValue  `tfsdk:"vlan_id"`
+	state         attr.ValueState
 }
 
 func (v OrgWxtagsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 6)
+	attrTypes := make(map[string]tftypes.Type, 18)
 
 	var val tftypes.Value
 	var err error
 
-	attrTypes["created_time"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["created_time"] = basetypes.Float64Type{}.TerraformType(ctx)
+	attrTypes["for_site"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["id"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["modified_time"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["last_ips"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["mac"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["match"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["modified_time"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["op"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["org_id"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["resource_mac"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["services"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["site_id"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["specs"] = basetypes.ListType{
+		ElemType: SpecsValue{}.Type(ctx),
+	}.TerraformType(ctx)
+	attrTypes["subnet"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["type"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["values"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["vlan_id"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 6)
+		vals := make(map[string]tftypes.Value, 18)
 
 		val, err = v.CreatedTime.ToTerraformValue(ctx)
 
@@ -455,6 +1070,14 @@ func (v OrgWxtagsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 
 		vals["created_time"] = val
 
+		val, err = v.ForSite.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["for_site"] = val
+
 		val, err = v.Id.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -462,6 +1085,30 @@ func (v OrgWxtagsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 		}
 
 		vals["id"] = val
+
+		val, err = v.LastIps.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["last_ips"] = val
+
+		val, err = v.Mac.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["mac"] = val
+
+		val, err = v.Match.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["match"] = val
 
 		val, err = v.ModifiedTime.ToTerraformValue(ctx)
 
@@ -479,6 +1126,14 @@ func (v OrgWxtagsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 
 		vals["name"] = val
 
+		val, err = v.Op.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["op"] = val
+
 		val, err = v.OrgId.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -486,6 +1141,70 @@ func (v OrgWxtagsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 		}
 
 		vals["org_id"] = val
+
+		val, err = v.ResourceMac.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["resource_mac"] = val
+
+		val, err = v.Services.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["services"] = val
+
+		val, err = v.SiteId.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["site_id"] = val
+
+		val, err = v.Specs.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["specs"] = val
+
+		val, err = v.Subnet.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["subnet"] = val
+
+		val, err = v.OrgWxtagsType.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["type"] = val
+
+		val, err = v.Values.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["values"] = val
+
+		val, err = v.VlanId.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["vlan_id"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -516,12 +1235,167 @@ func (v OrgWxtagsValue) String() string {
 func (v OrgWxtagsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
+	specs := types.ListValueMust(
+		SpecsType{
+			basetypes.ObjectType{
+				AttrTypes: SpecsValue{}.AttributeTypes(ctx),
+			},
+		},
+		v.Specs.Elements(),
+	)
+
+	if v.Specs.IsNull() {
+		specs = types.ListNull(
+			SpecsType{
+				basetypes.ObjectType{
+					AttrTypes: SpecsValue{}.AttributeTypes(ctx),
+				},
+			},
+		)
+	}
+
+	if v.Specs.IsUnknown() {
+		specs = types.ListUnknown(
+			SpecsType{
+				basetypes.ObjectType{
+					AttrTypes: SpecsValue{}.AttributeTypes(ctx),
+				},
+			},
+		)
+	}
+
+	lastIpsVal, d := types.ListValue(types.StringType, v.LastIps.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"created_time": basetypes.Float64Type{},
+			"for_site":     basetypes.BoolType{},
+			"id":           basetypes.StringType{},
+			"last_ips": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"mac":           basetypes.StringType{},
+			"match":         basetypes.StringType{},
+			"modified_time": basetypes.Float64Type{},
+			"name":          basetypes.StringType{},
+			"op":            basetypes.StringType{},
+			"org_id":        basetypes.StringType{},
+			"resource_mac":  basetypes.StringType{},
+			"services": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"site_id": basetypes.StringType{},
+			"specs": basetypes.ListType{
+				ElemType: SpecsValue{}.Type(ctx),
+			},
+			"subnet": basetypes.StringType{},
+			"type":   basetypes.StringType{},
+			"values": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"vlan_id": basetypes.StringType{},
+		}), diags
+	}
+
+	servicesVal, d := types.ListValue(types.StringType, v.Services.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"created_time": basetypes.Float64Type{},
+			"for_site":     basetypes.BoolType{},
+			"id":           basetypes.StringType{},
+			"last_ips": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"mac":           basetypes.StringType{},
+			"match":         basetypes.StringType{},
+			"modified_time": basetypes.Float64Type{},
+			"name":          basetypes.StringType{},
+			"op":            basetypes.StringType{},
+			"org_id":        basetypes.StringType{},
+			"resource_mac":  basetypes.StringType{},
+			"services": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"site_id": basetypes.StringType{},
+			"specs": basetypes.ListType{
+				ElemType: SpecsValue{}.Type(ctx),
+			},
+			"subnet": basetypes.StringType{},
+			"type":   basetypes.StringType{},
+			"values": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"vlan_id": basetypes.StringType{},
+		}), diags
+	}
+
+	valuesVal, d := types.ListValue(types.StringType, v.Values.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"created_time": basetypes.Float64Type{},
+			"for_site":     basetypes.BoolType{},
+			"id":           basetypes.StringType{},
+			"last_ips": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"mac":           basetypes.StringType{},
+			"match":         basetypes.StringType{},
+			"modified_time": basetypes.Float64Type{},
+			"name":          basetypes.StringType{},
+			"op":            basetypes.StringType{},
+			"org_id":        basetypes.StringType{},
+			"resource_mac":  basetypes.StringType{},
+			"services": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"site_id": basetypes.StringType{},
+			"specs": basetypes.ListType{
+				ElemType: SpecsValue{}.Type(ctx),
+			},
+			"subnet": basetypes.StringType{},
+			"type":   basetypes.StringType{},
+			"values": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"vlan_id": basetypes.StringType{},
+		}), diags
+	}
+
 	attributeTypes := map[string]attr.Type{
-		"created_time":  basetypes.NumberType{},
-		"id":            basetypes.StringType{},
-		"modified_time": basetypes.NumberType{},
+		"created_time": basetypes.Float64Type{},
+		"for_site":     basetypes.BoolType{},
+		"id":           basetypes.StringType{},
+		"last_ips": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"mac":           basetypes.StringType{},
+		"match":         basetypes.StringType{},
+		"modified_time": basetypes.Float64Type{},
 		"name":          basetypes.StringType{},
+		"op":            basetypes.StringType{},
 		"org_id":        basetypes.StringType{},
+		"resource_mac":  basetypes.StringType{},
+		"services": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"site_id": basetypes.StringType{},
+		"specs": basetypes.ListType{
+			ElemType: SpecsValue{}.Type(ctx),
+		},
+		"subnet": basetypes.StringType{},
+		"type":   basetypes.StringType{},
+		"values": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"vlan_id": basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -536,10 +1410,23 @@ func (v OrgWxtagsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 		attributeTypes,
 		map[string]attr.Value{
 			"created_time":  v.CreatedTime,
+			"for_site":      v.ForSite,
 			"id":            v.Id,
+			"last_ips":      lastIpsVal,
+			"mac":           v.Mac,
+			"match":         v.Match,
 			"modified_time": v.ModifiedTime,
 			"name":          v.Name,
+			"op":            v.Op,
 			"org_id":        v.OrgId,
+			"resource_mac":  v.ResourceMac,
+			"services":      servicesVal,
+			"site_id":       v.SiteId,
+			"specs":         specs,
+			"subnet":        v.Subnet,
+			"type":          v.OrgWxtagsType,
+			"values":        valuesVal,
+			"vlan_id":       v.VlanId,
 		})
 
 	return objVal, diags
@@ -564,7 +1451,23 @@ func (v OrgWxtagsValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.ForSite.Equal(other.ForSite) {
+		return false
+	}
+
 	if !v.Id.Equal(other.Id) {
+		return false
+	}
+
+	if !v.LastIps.Equal(other.LastIps) {
+		return false
+	}
+
+	if !v.Mac.Equal(other.Mac) {
+		return false
+	}
+
+	if !v.Match.Equal(other.Match) {
 		return false
 	}
 
@@ -576,7 +1479,43 @@ func (v OrgWxtagsValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.Op.Equal(other.Op) {
+		return false
+	}
+
 	if !v.OrgId.Equal(other.OrgId) {
+		return false
+	}
+
+	if !v.ResourceMac.Equal(other.ResourceMac) {
+		return false
+	}
+
+	if !v.Services.Equal(other.Services) {
+		return false
+	}
+
+	if !v.SiteId.Equal(other.SiteId) {
+		return false
+	}
+
+	if !v.Specs.Equal(other.Specs) {
+		return false
+	}
+
+	if !v.Subnet.Equal(other.Subnet) {
+		return false
+	}
+
+	if !v.OrgWxtagsType.Equal(other.OrgWxtagsType) {
+		return false
+	}
+
+	if !v.Values.Equal(other.Values) {
+		return false
+	}
+
+	if !v.VlanId.Equal(other.VlanId) {
 		return false
 	}
 
@@ -593,10 +1532,485 @@ func (v OrgWxtagsValue) Type(ctx context.Context) attr.Type {
 
 func (v OrgWxtagsValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"created_time":  basetypes.NumberType{},
-		"id":            basetypes.StringType{},
-		"modified_time": basetypes.NumberType{},
+		"created_time": basetypes.Float64Type{},
+		"for_site":     basetypes.BoolType{},
+		"id":           basetypes.StringType{},
+		"last_ips": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"mac":           basetypes.StringType{},
+		"match":         basetypes.StringType{},
+		"modified_time": basetypes.Float64Type{},
 		"name":          basetypes.StringType{},
+		"op":            basetypes.StringType{},
 		"org_id":        basetypes.StringType{},
+		"resource_mac":  basetypes.StringType{},
+		"services": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"site_id": basetypes.StringType{},
+		"specs": basetypes.ListType{
+			ElemType: SpecsValue{}.Type(ctx),
+		},
+		"subnet": basetypes.StringType{},
+		"type":   basetypes.StringType{},
+		"values": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"vlan_id": basetypes.StringType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = SpecsType{}
+
+type SpecsType struct {
+	basetypes.ObjectType
+}
+
+func (t SpecsType) Equal(o attr.Type) bool {
+	other, ok := o.(SpecsType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t SpecsType) String() string {
+	return "SpecsType"
+}
+
+func (t SpecsType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	portRangeAttribute, ok := attributes["port_range"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`port_range is missing from object`)
+
+		return nil, diags
+	}
+
+	portRangeVal, ok := portRangeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`port_range expected to be basetypes.StringValue, was: %T`, portRangeAttribute))
+	}
+
+	protocolAttribute, ok := attributes["protocol"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`protocol is missing from object`)
+
+		return nil, diags
+	}
+
+	protocolVal, ok := protocolAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`protocol expected to be basetypes.StringValue, was: %T`, protocolAttribute))
+	}
+
+	subnetsAttribute, ok := attributes["subnets"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`subnets is missing from object`)
+
+		return nil, diags
+	}
+
+	subnetsVal, ok := subnetsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`subnets expected to be basetypes.ListValue, was: %T`, subnetsAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return SpecsValue{
+		PortRange: portRangeVal,
+		Protocol:  protocolVal,
+		Subnets:   subnetsVal,
+		state:     attr.ValueStateKnown,
+	}, diags
+}
+
+func NewSpecsValueNull() SpecsValue {
+	return SpecsValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewSpecsValueUnknown() SpecsValue {
+	return SpecsValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewSpecsValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (SpecsValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing SpecsValue Attribute Value",
+				"While creating a SpecsValue value, a missing attribute value was detected. "+
+					"A SpecsValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("SpecsValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid SpecsValue Attribute Type",
+				"While creating a SpecsValue value, an invalid attribute value was detected. "+
+					"A SpecsValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("SpecsValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("SpecsValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra SpecsValue Attribute Value",
+				"While creating a SpecsValue value, an extra attribute value was detected. "+
+					"A SpecsValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra SpecsValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewSpecsValueUnknown(), diags
+	}
+
+	portRangeAttribute, ok := attributes["port_range"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`port_range is missing from object`)
+
+		return NewSpecsValueUnknown(), diags
+	}
+
+	portRangeVal, ok := portRangeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`port_range expected to be basetypes.StringValue, was: %T`, portRangeAttribute))
+	}
+
+	protocolAttribute, ok := attributes["protocol"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`protocol is missing from object`)
+
+		return NewSpecsValueUnknown(), diags
+	}
+
+	protocolVal, ok := protocolAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`protocol expected to be basetypes.StringValue, was: %T`, protocolAttribute))
+	}
+
+	subnetsAttribute, ok := attributes["subnets"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`subnets is missing from object`)
+
+		return NewSpecsValueUnknown(), diags
+	}
+
+	subnetsVal, ok := subnetsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`subnets expected to be basetypes.ListValue, was: %T`, subnetsAttribute))
+	}
+
+	if diags.HasError() {
+		return NewSpecsValueUnknown(), diags
+	}
+
+	return SpecsValue{
+		PortRange: portRangeVal,
+		Protocol:  protocolVal,
+		Subnets:   subnetsVal,
+		state:     attr.ValueStateKnown,
+	}, diags
+}
+
+func NewSpecsValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) SpecsValue {
+	object, diags := NewSpecsValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewSpecsValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t SpecsType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewSpecsValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewSpecsValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewSpecsValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewSpecsValueMust(SpecsValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t SpecsType) ValueType(ctx context.Context) attr.Value {
+	return SpecsValue{}
+}
+
+var _ basetypes.ObjectValuable = SpecsValue{}
+
+type SpecsValue struct {
+	PortRange basetypes.StringValue `tfsdk:"port_range"`
+	Protocol  basetypes.StringValue `tfsdk:"protocol"`
+	Subnets   basetypes.ListValue   `tfsdk:"subnets"`
+	state     attr.ValueState
+}
+
+func (v SpecsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 3)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["port_range"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["protocol"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["subnets"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 3)
+
+		val, err = v.PortRange.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["port_range"] = val
+
+		val, err = v.Protocol.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["protocol"] = val
+
+		val, err = v.Subnets.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["subnets"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v SpecsValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v SpecsValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v SpecsValue) String() string {
+	return "SpecsValue"
+}
+
+func (v SpecsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	subnetsVal, d := types.ListValue(types.StringType, v.Subnets.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"port_range": basetypes.StringType{},
+			"protocol":   basetypes.StringType{},
+			"subnets": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	attributeTypes := map[string]attr.Type{
+		"port_range": basetypes.StringType{},
+		"protocol":   basetypes.StringType{},
+		"subnets": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"port_range": v.PortRange,
+			"protocol":   v.Protocol,
+			"subnets":    subnetsVal,
+		})
+
+	return objVal, diags
+}
+
+func (v SpecsValue) Equal(o attr.Value) bool {
+	other, ok := o.(SpecsValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.PortRange.Equal(other.PortRange) {
+		return false
+	}
+
+	if !v.Protocol.Equal(other.Protocol) {
+		return false
+	}
+
+	if !v.Subnets.Equal(other.Subnets) {
+		return false
+	}
+
+	return true
+}
+
+func (v SpecsValue) Type(ctx context.Context) attr.Type {
+	return SpecsType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v SpecsValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"port_range": basetypes.StringType{},
+		"protocol":   basetypes.StringType{},
+		"subnets": basetypes.ListType{
+			ElemType: types.StringType,
+		},
 	}
 }

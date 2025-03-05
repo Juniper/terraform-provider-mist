@@ -60,6 +60,7 @@ func wlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 	var createdTime basetypes.Float64Value
 	var coaServers = types.ListValueMust(CoaServersValue{}.Type(ctx), []attr.Value{})
 	var disable11ax basetypes.BoolValue
+	var disable11be basetypes.BoolValue
 	var disableHtVhtRates basetypes.BoolValue
 	var disableUapsd basetypes.BoolValue
 	var disableV1RoamNotify basetypes.BoolValue
@@ -258,6 +259,10 @@ func wlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 
 	if d.Disable11ax != nil {
 		disable11ax = types.BoolValue(*d.Disable11ax)
+	}
+
+	if d.Disable11be != nil {
+		disable11be = types.BoolValue(*d.Disable11be)
 	}
 
 	if d.DisableHtVhtRates != nil {
@@ -562,6 +567,7 @@ func wlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 		"coa_servers":                            coaServers,
 		"created_time":                           createdTime,
 		"disable_11ax":                           disable11ax,
+		"disable_11be":                           disable11be,
 		"disable_ht_vht_rates":                   disableHtVhtRates,
 		"disable_uapsd":                          disableUapsd,
 		"disable_v1_roam_notify":                 disableV1RoamNotify,

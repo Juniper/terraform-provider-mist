@@ -37,8 +37,8 @@ func SitePsksDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"created_time": schema.Float64Attribute{
 							Computed:            true,
-							Description:         "when the object has been created, in epoch",
-							MarkdownDescription: "when the object has been created, in epoch",
+							Description:         "When the object has been created, in epoch",
+							MarkdownDescription: "When the object has been created, in epoch",
 						},
 						"email": schema.StringAttribute{
 							Computed:            true,
@@ -57,18 +57,18 @@ func SitePsksDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"id": schema.StringAttribute{
 							Computed:            true,
-							Description:         "Unique ID of the object instance in the Mist Organnization",
-							MarkdownDescription: "Unique ID of the object instance in the Mist Organnization",
+							Description:         "Unique ID of the object instance in the Mist Organization",
+							MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
 						},
 						"mac": schema.StringAttribute{
 							Computed:            true,
-							Description:         "if `usage`==`single`, the mac that this PSK ties to, empty if `auto-binding`",
-							MarkdownDescription: "if `usage`==`single`, the mac that this PSK ties to, empty if `auto-binding`",
+							Description:         "If `usage`==`single`, the mac that this PSK ties to, empty if `auto-binding`",
+							MarkdownDescription: "If `usage`==`single`, the mac that this PSK ties to, empty if `auto-binding`",
 						},
-						"modified_time": schema.NumberAttribute{
+						"modified_time": schema.Float64Attribute{
 							Computed:            true,
-							Description:         "when the object has been modified for the last time, in epoch",
-							MarkdownDescription: "when the object has been modified for the last time, in epoch",
+							Description:         "When the object has been modified for the last time, in epoch",
+							MarkdownDescription: "When the object has been modified for the last time, in epoch",
 						},
 						"name": schema.StringAttribute{
 							Computed: true,
@@ -305,12 +305,12 @@ func (t SitePsksType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 		return nil, diags
 	}
 
-	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.NumberValue)
+	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`modified_time expected to be basetypes.NumberValue, was: %T`, modifiedTimeAttribute))
+			fmt.Sprintf(`modified_time expected to be basetypes.Float64Value, was: %T`, modifiedTimeAttribute))
 	}
 
 	nameAttribute, ok := attributes["name"]
@@ -757,12 +757,12 @@ func NewSitePsksValue(attributeTypes map[string]attr.Type, attributes map[string
 		return NewSitePsksValueUnknown(), diags
 	}
 
-	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.NumberValue)
+	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`modified_time expected to be basetypes.NumberValue, was: %T`, modifiedTimeAttribute))
+			fmt.Sprintf(`modified_time expected to be basetypes.Float64Value, was: %T`, modifiedTimeAttribute))
 	}
 
 	nameAttribute, ok := attributes["name"]
@@ -1085,7 +1085,7 @@ type SitePsksValue struct {
 	ExpiryNotificationTime basetypes.Int64Value   `tfsdk:"expiry_notification_time"`
 	Id                     basetypes.StringValue  `tfsdk:"id"`
 	Mac                    basetypes.StringValue  `tfsdk:"mac"`
-	ModifiedTime           basetypes.NumberValue  `tfsdk:"modified_time"`
+	ModifiedTime           basetypes.Float64Value `tfsdk:"modified_time"`
 	Name                   basetypes.StringValue  `tfsdk:"name"`
 	Note                   basetypes.StringValue  `tfsdk:"note"`
 	NotifyExpiry           basetypes.BoolValue    `tfsdk:"notify_expiry"`
@@ -1114,7 +1114,7 @@ func (v SitePsksValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 	attrTypes["expiry_notification_time"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["mac"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["modified_time"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["modified_time"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["note"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["notify_expiry"] = basetypes.BoolType{}.TerraformType(ctx)
@@ -1331,7 +1331,7 @@ func (v SitePsksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 		"expiry_notification_time": basetypes.Int64Type{},
 		"id":                       basetypes.StringType{},
 		"mac":                      basetypes.StringType{},
-		"modified_time":            basetypes.NumberType{},
+		"modified_time":            basetypes.Float64Type{},
 		"name":                     basetypes.StringType{},
 		"note":                     basetypes.StringType{},
 		"notify_expiry":            basetypes.BoolType{},
@@ -1497,7 +1497,7 @@ func (v SitePsksValue) AttributeTypes(ctx context.Context) map[string]attr.Type 
 		"expiry_notification_time": basetypes.Int64Type{},
 		"id":                       basetypes.StringType{},
 		"mac":                      basetypes.StringType{},
-		"modified_time":            basetypes.NumberType{},
+		"modified_time":            basetypes.Float64Type{},
 		"name":                     basetypes.StringType{},
 		"note":                     basetypes.StringType{},
 		"notify_expiry":            basetypes.BoolType{},
