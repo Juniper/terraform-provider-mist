@@ -308,12 +308,13 @@ func (r *orgInventoryResource) refreshInventory(
 	tflog.Info(ctx, "Starting Inventory state refresh: org_id  "+orgId.String())
 	var serial string
 	var model string
-	var mType models.DeviceTypeEnum
+	var mType models.DeviceTypeDefaultApEnum
 	var mac string
 	var siteId string
 	var vcMac string
 	var vc = true
 	var unassigned bool
+	var modifiedAfter int
 
 	var limit = 1000
 	var page = 0
@@ -330,7 +331,7 @@ func (r *orgInventoryResource) refreshInventory(
 			"total": total,
 		})
 		// Read API call logic
-		data, err := r.client.OrgsInventory().GetOrgInventory(ctx, *orgId, &serial, &model, &mType, &mac, &siteId, &vcMac, &vc, &unassigned, &limit, &page)
+		data, err := r.client.OrgsInventory().GetOrgInventory(ctx, *orgId, &serial, &model, &mType, &mac, &siteId, &vcMac, &vc, &unassigned, &modifiedAfter, &limit, &page)
 		if err != nil {
 			diags.AddError(
 				"Error refreshing Inventory",

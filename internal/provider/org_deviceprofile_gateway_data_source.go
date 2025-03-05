@@ -81,7 +81,7 @@ func (d *orgDeviceprofilesGatewayDataSource) Read(ctx context.Context, req datas
 		return
 	}
 
-	var mType = models.DeviceTypeEnum_AP
+	var mType = models.DeviceTypeDefaultApEnum_AP
 
 	var limit = 1000
 	var page = 0

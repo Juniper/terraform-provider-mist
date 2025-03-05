@@ -81,6 +81,7 @@ func (d *orgInventoryDataSource) Read(ctx context.Context, req datasource.ReadRe
 	var serial string
 	var siteId string
 	var unassigned bool
+	var modifiedAfter int
 	var vc bool
 	var vcMac string
 
@@ -120,7 +121,7 @@ func (d *orgInventoryDataSource) Read(ctx context.Context, req datasource.ReadRe
 			"total": total,
 		})
 		// Read API call logic
-		data, err := d.client.OrgsInventory().GetOrgInventory(ctx, orgId, &serial, &model, nil, &mac, &siteId, &vcMac, &vc, &unassigned, &limit, &page)
+		data, err := d.client.OrgsInventory().GetOrgInventory(ctx, orgId, &serial, &model, nil, &mac, &siteId, &vcMac, &vc, &unassigned, &modifiedAfter, &limit, &page)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error getting Org Inventory",
