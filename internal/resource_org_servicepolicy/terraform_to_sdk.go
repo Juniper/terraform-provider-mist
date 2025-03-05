@@ -18,7 +18,7 @@ func TerraformToSdk(plan *OrgServicepolicyModel) (models.OrgServicePolicy, diag.
 	if !plan.Aamw.IsNull() && !plan.Aamw.IsUnknown() {
 		data.Aamw = aamwTerraformToSdk(&diags, plan.Aamw)
 	} else {
-		unset["aamw"] = ""
+		unset["-aamw"] = ""
 	}
 
 	if !plan.Action.IsNull() && !plan.Action.IsUnknown() {

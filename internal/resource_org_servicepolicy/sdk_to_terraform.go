@@ -14,6 +14,7 @@ func SdkToTerraform(ctx context.Context, d *models.OrgServicePolicy) (OrgService
 	var state OrgServicepolicyModel
 	var diags diag.Diagnostics
 
+	var aamw = NewAamwValueNull()
 	var action types.String
 	var antivirus = NewAntivirusValueNull()
 	var appqoe = NewAppqoeValueNull()
@@ -28,6 +29,9 @@ func SdkToTerraform(ctx context.Context, d *models.OrgServicePolicy) (OrgService
 	var sslProxy = NewSslProxyValueNull()
 	var tenants = types.ListNull(types.StringType)
 
+	if d.Aamw != nil {
+		aamw = aamwSdkToTerraform(ctx, &diags, d.Aamw)
+	}
 	if d.Action != nil {
 		action = types.StringValue(string(*d.Action))
 	}
@@ -66,6 +70,7 @@ func SdkToTerraform(ctx context.Context, d *models.OrgServicePolicy) (OrgService
 		tenants = misttransform.ListOfStringSdkToTerraform(d.Tenants)
 	}
 
+	state.Aamw = aamw
 	state.Action = action
 	state.Antivirus = antivirus
 	state.Appqoe = appqoe
