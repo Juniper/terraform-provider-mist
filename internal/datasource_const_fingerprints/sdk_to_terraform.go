@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 )
 
-func SdkToTerraform(ctx context.Context, d models.ConstFingerprintTypes) (data ConstFingerprintsModel, diags diag.Diagnostics) {
+func SdkToTerraform(_ context.Context, d models.ConstFingerprintTypes) (data ConstFingerprintsModel, diags diag.Diagnostics) {
 	data.Family = misttransform.ListOfStringSdkToTerraform(d.Family)
 	data.Mfg = misttransform.ListOfStringSdkToTerraform(d.Mfg)
 	data.Model = misttransform.ListOfStringSdkToTerraform(d.Model)
