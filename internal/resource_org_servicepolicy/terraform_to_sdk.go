@@ -15,6 +15,12 @@ func TerraformToSdk(plan *OrgServicepolicyModel) (models.OrgServicePolicy, diag.
 
 	data.Name = plan.Name.ValueStringPointer()
 
+	if !plan.Aamw.IsNull() && !plan.Aamw.IsUnknown() {
+		data.Aamw = aamwTerraformToSdk(&diags, plan.Aamw)
+	} else {
+		unset["aamw"] = ""
+	}
+
 	if !plan.Action.IsNull() && !plan.Action.IsUnknown() {
 		data.Action = (*models.AllowDenyEnum)(plan.Action.ValueStringPointer())
 	} else {
