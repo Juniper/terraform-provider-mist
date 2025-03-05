@@ -2,7 +2,8 @@ package datasource_org_networks
 
 import (
 	"context"
-	"math/big"
+
+	mistapi "github.com/Juniper/terraform-provider-mist/internal/commons/api_response"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -25,24 +26,36 @@ func SdkToTerraform(ctx context.Context, l *[]models.Network, elements *[]attr.V
 
 func networkSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.Network) OrgNetworksValue {
 
-	var createdTime basetypes.NumberValue
+	var createdTime basetypes.Float64Value
 	var id basetypes.StringValue
-	var modifiedTime basetypes.NumberValue
+	var modifiedTime basetypes.Float64Value
 	var name basetypes.StringValue
 	var orgId basetypes.StringValue
+	var subnet basetypes.StringValue
+	var subnet6 basetypes.StringValue
+	var vlanId basetypes.StringValue
 
 	if d.CreatedTime != nil {
-		createdTime = types.NumberValue(big.NewFloat(*d.CreatedTime))
+		createdTime = types.Float64Value(*d.CreatedTime)
 	}
 	if d.Id != nil {
 		id = types.StringValue(d.Id.String())
 	}
 	if d.ModifiedTime != nil {
-		modifiedTime = types.NumberValue(big.NewFloat(*d.ModifiedTime))
+		modifiedTime = types.Float64Value(*d.ModifiedTime)
 	}
 	name = types.StringValue(d.Name)
 	if d.OrgId != nil {
 		orgId = types.StringValue(d.OrgId.String())
+	}
+	if d.Subnet != nil {
+		subnet = types.StringValue(*d.Subnet)
+	}
+	if d.Subnet6 != nil {
+		subnet = types.StringValue(*d.Subnet6)
+	}
+	if d.VlanId != nil {
+		vlanId = mistapi.VlanAsString(*d.VlanId)
 	}
 
 	dataMapValue := map[string]attr.Value{
@@ -51,6 +64,9 @@ func networkSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 		"modified_time": modifiedTime,
 		"name":          name,
 		"org_id":        orgId,
+		"subnet":        subnet,
+		"subnet6":       subnet6,
+		"vlan_id":       vlanId,
 	}
 	data, e := NewOrgNetworksValue(OrgNetworksValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
