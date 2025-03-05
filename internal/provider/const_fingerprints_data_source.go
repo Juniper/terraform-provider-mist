@@ -47,7 +47,7 @@ func (d *constFingerprintsDataSource) Metadata(_ context.Context, req datasource
 func (d *constFingerprintsDataSource) Schema(ctx context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryConst + "This data source provides the of list of supported Fingerprints.\n\n" +
-			"The Fingerprint information can be used within `matching` attribute of the NAC Rule resource (`mist_org_nacrule.matching`)\n\n" +
+			"The Fingerprint information can be used within `matching` and `not_matching` attributes of the NAC Rule resource (`mist_org_nacrule`)\n\n" +
 			"There is four different type of fingerprints available:" +
 			"* Family\n" +
 			"* Model\n" +
