@@ -7,12 +7,233 @@ description: |-
 
 # Release Notes for v0.2.xx
 
+## Release Notes for v0.2.23
+**release data**:
+
+This release is adding new attributes based on the Mist Cloud push from February 2025.
+
+### New Cloud support
+Add support for Mist Cloud Global 05 (manage.gc4.mist.com / api.gc4.mist.com)
+
+### New Datasource
+* `mist_const_fingerprints`: The Fingerprint information can be used within `matching` and `not_matching` attributes of the NAC Rule resource (`mist_org_nacrule`)
+
+### Resource Changes
+#### mist_device_ap
+* new attribute `mist_device_ap.lacp_config`
+* new attribute `mist_device_ap.mesh.bands`
+
+#### mist_device_gateway
+* new attribute `mist_device_gateway.bgp_config.no_private_as`
+* new attribute `mist_device_gateway.port_config.redundant_group`
+* remove attribute (deprecated) `mist_device_gateway.port_config.vpn_paths.link`
+* remove attribute (deprecated) `mist_device_gateway.routing_policies.terms.action.aggregate`
+* fix typo to barbiturate `mist_device_gateway.routing_policies.export_communities`
+
+#### mist_device_gateway
+* new attribute `mist_device_switch.vrf_instances.evpn_auto_loopback_subnet`
+* new attribute `mist_device_switch.vrf_instances.evpn_auto_loopback_subnet6`
+* new attribute `mist_device_switch.vrf_instances.extra_routes6`
+
+#### mist_org_deviceprofile_ap
+* new attribute `mist_org_deviceprofile_ap.lacp_config`
+* new attribute `mist_org_deviceprofile_ap.mesh.bands`
+
+#### mist_deviceprofile_gateway
+* new attribute `mist_deviceprofile_gateway.bgp_config.no_private_as`
+* new attribute `mist_deviceprofile_gateway.port_config.redundant_group`
+* remove attribute (deprecated) `mist_deviceprofile_gateway.port_config.vpn_paths.link`
+* remove attribute (deprecated) `mist_deviceprofile_gateway.routing_policies.terms.action.aggregate`
+* fix typo to barbiturate `mist_deviceprofile_gateway.routing_policies.export_communities`
+
+#### mist_gatewaytemplate
+* new attribute `mist_gatewaytemplate.bgp_config.no_private_as`
+* new attribute `mist_gatewaytemplate.port_config.redundant_group`
+* remove attribute (deprecated) `mist_gatewaytemplate.port_config.vpn_paths.link`
+* remove attribute (deprecated) `mist_gatewaytemplate.routing_policies.terms.action.aggregate`
+* fix typo to barbiturate `mist_gatewaytemplate.routing_policies.export_communities`
+
+#### mist_org_nacrule
+* new attribute `mist_org_nacrule.matching.family`
+* new attribute `mist_org_nacrule.matching.mfg`
+* new attribute `mist_org_nacrule.matching.model`
+* new attribute `mist_org_nacrule.matching.os_type`
+* new attribute `mist_org_nacrule.not_matching.family`
+* new attribute `mist_org_nacrule.not_matching.mfg`
+* new attribute `mist_org_nacrule.not_matching.model`
+* new attribute `mist_org_nacrule.not_matching.os_type`
+
+#### mist_org_networktemplate
+* new attribute `mist_org_networktemplate.vrf_instances.evpn_auto_loopback_subnet`
+* new attribute `mist_org_networktemplate.vrf_instances.evpn_auto_loopback_subnet6`
+* new attribute `mist_org_networktemplate.vrf_instances.extra_routes6`
+
+#### mist_org_service
+* new attribute `mist_org_service.org_services[*].client_limit_down`
+* new attribute `mist_org_service.org_services[*].client_limit_up`
+* new attribute `mist_org_service.org_services[*].service_limit_down`
+* new attribute `mist_org_service.org_services[*].service_limit_up`
+
+#### mist_org_servicepolicy
+* new attribute `mist_org_servicepolicy.aamw_profile`
+* new attribute `mist_org_servicepolicy.aamw_profile.aamwprofile_id`
+* new attribute `mist_org_servicepolicy.aamw_profile.enabled`
+* new attribute `mist_org_servicepolicy.aamw_profile.profile`
+
+#### mist_org_setting
+* new attribute `org_setting.junos_shell_access`
+* new attribute `org_setting.junos_shell_access.admin`
+* new attribute `org_setting.junos_shell_access.helpdesk`
+* new attribute `org_setting.junos_shell_access.read`
+* new attribute `org_setting.junos_shell_access.write`
+* new attribute `org_setting.mxedge_mgmt.config_auto_revert`
+* new attribute `org_setting.switch_mgmt.remove_existing_configs`
+
+#### mist_org_vpn
+* new attribute `mist_org_vpn.path_selection`
+* new attribute `mist_org_vpn.path_selection.strategy`
+* new attribute `mist_org_vpn.path.bfd_use_tunnel_mode`
+* new attribute `mist_org_vpn.path.peer_paths`
+* new attribute `mist_org_vpn.path.peer_paths.preference`
+* new attribute `mist_org_vpn.traffic_shaping`
+* new attribute `mist_org_vpn.traffic_shaping.class_percentage`
+* new attribute `mist_org_vpn.traffic_shaping.enabled`
+* new attribute `mist_org_vpn.traffic_shaping.max_tx_kbps`
+* new attribute `mist_org_vpn.type`
+
+#### mist_org_webhook
+* new attribute `mist_org_webhook.single_event_per_message`
+
+#### mist_org_wlan
+* new attribute `mist_org_wlan.wlan.disable_11be`
+* new attribute `mist_org_wlan.wlan.rateset.eht`
+* new attribute `mist_org_wlan.wlan.rateset.he`
+
+#### mist_org_wlan_portal_template
+* new attribute `org_wlan_portal_template.marketing_policy_link`
+* new attribute `org_wlan_portal_template.marketing_policy_opt_in`
+* new attribute `org_wlan_portal_template.marketing_policy_opt_in_label`
+* new attribute `org_wlan_portal_template.marketing_policy_opt_in_text`
+* new attribute `org_wlan_portal_template.locale[*].marketing_policy_link`
+* new attribute `org_wlan_portal_template.locale[*].marketing_policy_opt_in`
+* new attribute `org_wlan_portal_template.locale[*].marketing_policy_opt_in_label`
+* new attribute `org_wlan_portal_template.locale[*].marketing_policy_opt_in_text`
+
+#### mist_site
+* new attribute `mist_site.tz_offset`
+
+#### mist_site_networktemplate
+* new attribute `mist_site_networktemplate.vrf_instances.evpn_auto_loopback_subnet`
+* new attribute `mist_site_networktemplate.vrf_instances.evpn_auto_loopback_subnet6`
+* new attribute `mist_site_networktemplate.vrf_instances.extra_routes6`
+
+#### mist_site_setting
+* new attribute `mist_site_setting.enable_unii4`
+* new attribute `mist_site_setting.gateway_mgmt.disable_usb`
+* new attribute `mist_site_setting.gateway_mgmt.fips_enabled`
+* new attribute `mist_site_setting.rogue.allowed_vlan_ids`
+* new attribute `mist_site_setting.rogue.min_rogue_duration`
+* new attribute `mist_site_setting.rogue.min_rogue_rssi`
+
+#### mist_site_webhook
+* new attribute `mist_site_webhook.single_event_per_message`
+
+#### mist_site_wlan
+* new attribute `mist_site_wlan.wlan.disable_11be`
+* new attribute `mist_site_wlan.wlan.rateset.eht`
+* new attribute `mist_site_wlan.wlan.rateset.he`
+
+#### mist_site_wlan_portal_template
+* new attribute `mist_site_wlan_portal_template.marketing_policy_link`
+* new attribute `mist_site_wlan_portal_template.marketing_policy_opt_in`
+* new attribute `mist_site_wlan_portal_template.marketing_policy_opt_in_label`
+* new attribute `mist_site_wlan_portal_template.marketing_policy_opt_in_text`
+* new attribute `mist_site_wlan_portal_template.locale[*].marketing_policy_link`
+* new attribute `mist_site_wlan_portal_template.locale[*].marketing_policy_opt_in`
+* new attribute `mist_site_wlan_portal_template.locale[*].marketing_policy_opt_in_label`
+* new attribute `mist_site_wlan_portal_template.locale[*].marketing_policy_opt_in_text`
+
+### Data Sources Changes
+
+#### mist_device_ap_stats
+* remove attribute (removed from API) `mist_device_ap_stats.device_ap_stats[*].use_auto_placement`
+
+#### mist_org_nacrules
+* new attribute `mist_org_narcules.org_narcules[*].enabled`
+* new attribute `mist_org_narcules.org_narcules[*].order`
+
+#### mist_org_networks
+* new attribute `mist_org_networks.org_networks[*].subnet`
+* new attribute `mist_org_networks.org_networks[*].subnet6`
+* new attribute `mist_org_networks.org_networks[*].vlan_id`
+
+#### mist_org_rftemplates
+* new attribute `mist_org_rftemplates.org_rftemplate[*].country_code`
+
+#### mist_org_services
+* new attribute `mist_org_services.org_services[*].addresses`
+* new attribute `mist_org_services.org_services[*].app_categories`
+* new attribute `mist_org_services.org_services[*].app_subcategories`
+* new attribute `mist_org_services.org_services[*].apps`
+* new attribute `mist_org_services.org_services[*].client_limit_down`
+* new attribute `mist_org_services.org_services[*].client_limit_up`
+* new attribute `mist_org_services.org_services[*].description`
+* new attribute `mist_org_services.org_services[*].dscp`
+* new attribute `mist_org_services.org_services[*].failover_policy`
+* new attribute `mist_org_services.org_services[*].hostnames`
+* new attribute `mist_org_services.org_services[*].max_jitter`
+* new attribute `mist_org_services.org_services[*].max_latency`
+* new attribute `mist_org_services.org_services[*].max_loss`
+* new attribute `mist_org_services.org_services[*].service_limit_down`
+* new attribute `mist_org_services.org_services[*].service_limit_up`
+* new attribute `mist_org_services.org_services[*].sle_enabled`
+* new attribute `mist_org_services.org_services[*].specs`
+* new attribute `mist_org_services.org_services[*].ssr_relaxed_tcp_state_enforcement`
+* new attribute `mist_org_services.org_services[*].traffic_class`
+* new attribute `mist_org_services.org_services[*].traffic_type`
+* new attribute `mist_org_services.org_services[*].type`
+* new attribute `mist_org_services.org_services[*].urls`
+
+#### mist_org_servicepolicies
+* new attribute `mist_org_servicepolicies.org_servicepolicies[*].aamw`
+* new attribute `mist_org_servicepolicies.org_servicepolicies[*].antivirus`
+* new attribute `mist_org_servicepolicies.org_servicepolicies[*].ssl_proxy`
+
+#### mist_org_webhooks
+* new attribute `mist_org_webhooks.org_webhooks[*].single_event_per_message`
+
+#### mist_org_wlans
+* new attribute `mist_org_wlans.org_wlans[*].disable_11be`
+* new attribute `mist_org_wlans.org_wlans[*].rateset.eht`
+* new attribute `mist_org_wlans.org_wlans[*].rateset.he`
+
+#### mist_org_wxtags
+* new attribute `mist_org_wxtags.org_wxtags[*].mac`
+* new attribute `mist_org_wxtags.org_wxtags[*].match`
+* new attribute `mist_org_wxtags.org_wxtags[*].op`
+* new attribute `mist_org_wxtags.org_wxtags[*].specs`
+* new attribute `mist_org_wxtags.org_wxtags[*].specs.port_range`
+* new attribute `mist_org_wxtags.org_wxtags[*].specs.protocol`
+* new attribute `mist_org_wxtags.org_wxtags[*].specs.subnets`
+* new attribute `mist_org_wxtags.org_wxtags[*].values`
+* new attribute `mist_org_wxtags.org_wxtags[*].vlan_id`
+
+#### mist_site_webhooks
+* new attribute `mist_site_webhooks.site_webhooks[*].single_event_per_message`
+
+#### mist_site_wlans
+* new attribute `mist_site_wlans.site_wlans[*].disable_11be`
+* new attribute `mist_site_wlans.site_wlans[*].rateset.eht`
+* new attribute `mist_site_wlans.site_wlans[*].rateset.he`
+
+
+
 ## Release Notes for v0.2.22
 **release date** : February 28th, 2025
 
 ### Fixes
 * [Issue 89](https://github.com/Juniper/terraform-provider-mist/issues/89): fix typo in `snmp_config.v3_config.usm.users.authentication_type` allowed values in the following resources: `mist_device_switch`, `mist_org_networktemplate`, `mist_site_networktemplate`
-* [Issue 90](https://github.com/Juniper/terraform-provider-mist/issues/90): adding a new validator to not accept empty list in the `snmp_config.client_list` attribute in the following resources: `mist_device_switch`, `mist_org_networktemplate`, `mist_site_networktemplate`
+* [Issue 90](https://github.com/Juniper/terraform-provider-mist/issues/90): adding a new validator to not accept an empty list in the `snmp_config.client_list` attribute in the following resources: `mist_device_switch`, `mist_org_networktemplate`, `mist_site_networktemplate`
 
 
 
@@ -31,14 +252,14 @@ description: |-
 
 ### New Functions
 * `search_vc_by_member_claimcode`, `search_vc_by_member_mac` and `search_vc_by_member_serial` have been added to easily retrieve the Virtual Chassis' 
-`id` and `site_id` based on the claim code, MAC address or Serial Number of one of the Virtual Chassis member.
+`id` and `site_id` based on the claim code, MAC address or Serial Number of ones of the Virtual Chassis member.
 
 ### Changes
 * add `mist_device_ap.flow_control` attribute
 * add the `antivirus` and `sll_proxy` attributes to `mist_org_servicepolicy`, `mist_org_gatewaytemplate.service_policies`, `mist_org_deviceprofile_gateway.service_policies` and `mist_device_gateway.service_policies`
 * [Issue 85](https://github.com/Juniper/terraform-provider-mist/issues/85): adding a new validator to `switch_matching.rules.name` to only allow the rule name `default` within the last rule of the list. This is applied to the resources `mist_org_networktemplate` and `mist_site_networktemplate`
-* update the `mist_org_inventory` resource to support the new Virtual Chassis "virtual mac" that will be deployed later this year by Mist.   
-This new "virtual mac" will be assigned to each new Virtual Chassis, and will be used to generate the `device_id` instead of the MAC Address of the primary member. 
+* update the `mist_org_inventory` resource to support the new Virtual Chassis "virtual MAC" that will be deployed later this year by Mist.   
+This new "virtual MAC" will be assigned to each new Virtual Chassis, and will be used to generate the `device_id` instead of the MAC Address of the primary member. 
 This change will allow replacing the Virtual Chassis primary member without any impact on the Virtual Chassis `device_id`.  
 In addition, new "validations" have been added to the `mist_org_inventory.inventory` resource to validate all the Virtual Chassis members are assigned to the same site. 
 
@@ -71,7 +292,7 @@ In addition, new "validations" have been added to the `mist_org_inventory.invent
 
 ### Fixes
 * [Issue 70](https://github.com/Juniper/terraform-provider-mist/issues/70): In some conditions, the list of MAC addresses returned by Mist when assigning device profiles to a device may be different from the configured order, which generates an error in the provider. The type of the list in the provider has been changed from `List` to `Set` to avoid this issue. This change doesn't impact the existing configurations or deployments.
-* [Issue 74](https://github.com/Juniper/terraform-provider-mist/issues/74): The procedure to unset the `alarmtemplate_id` at the org level was not actually removing the reference, generating an error in the provider. This has been fixed and the Alarm Template can now be unreferenced as expected.
+* [Issue 74](https://github.com/Juniper/terraform-provider-mist/issues/74): The procedure to unset the `alarmtemplate_id` at the org level was not removing the reference, generating an error in the provider. This has been fixed and the Alarm Template can now be unreferenced as expected.
 * [Issue 76](https://github.com/Juniper/terraform-provider-mist/issues/76): When multiple sites where added to the same sitegroup during the same run, the concurrent processing of the provider was causing an unexpected result in the Mist side in some conditions (the `site_ids` attribute was not updated as expected in the sitegroup object). To avoid this situation, the `mist_site` resource has been updated to force the provider to create/update/delete them sequentially, avoiding this "race condition" issue.
 * [Issue 77](https://github.com/Juniper/terraform-provider-mist/issues/77): The `mist_org_webhooks` and `mist_site_webhooks` datasource were missing some attributes, generating an error in the provider. The missing attributes have been added.
 * There was an issue when importing the `mist_org_inventory` resource, resulting in an empty inventory. This has been fixed, and the import function will import/generate the inventory with all the devices in the Mist Org Inventory.
@@ -324,7 +545,8 @@ List of the default value changes:
 | `wlan_limit_up`                            | not set                                                             | `10000`                                                                                                                                         |
 
 #### WLAN resources validators
-Validators applied to the WLAN resources attributes have been updates to simplify the resource configuration and improve the configuration validity.
+Validators applied to the WLAN resources attributes have been updated
+to simplify the resource configuration and improve the configuration validity.
 
 List of the validator changes:
 
@@ -376,4 +598,4 @@ List of the validator changes:
 | `thumbnail`            | Read Only attribute returned by the Mist API. The returned URL has limited lifetime so it doesn't make sense to store it in the resource state |
 
 ### Fixes
-* [Issue 63](https://github.com/Juniper/terraform-provider-mist/issues/63): Adding `Optional` type to `alarmtemplate.rules.delivery`to fix synchronisation issue
+* [Issue 63](https://github.com/Juniper/terraform-provider-mist/issues/63): Adding `Optional` type to `alarmtemplate.rules.delivery`to fix synchronization issue

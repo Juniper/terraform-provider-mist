@@ -30,6 +30,11 @@ Add support for Mist Cloud Global 05 (manage.gc4.mist.com / api.gc4.mist.com)
 * remove attribute (deprecated) `mist_device_gateway.routing_policies.terms.action.aggregate`
 * fix typo to barbiturate `mist_device_gateway.routing_policies.export_communities`
 
+#### mist_device_gateway
+* new attribute `mist_device_switch.vrf_instances.evpn_auto_loopback_subnet`
+* new attribute `mist_device_switch.vrf_instances.evpn_auto_loopback_subnet6`
+* new attribute `mist_device_switch.vrf_instances.extra_routes6`
+
 #### mist_org_deviceprofile_ap
 * new attribute `mist_org_deviceprofile_ap.lacp_config`
 * new attribute `mist_org_deviceprofile_ap.mesh.bands`
@@ -48,7 +53,6 @@ Add support for Mist Cloud Global 05 (manage.gc4.mist.com / api.gc4.mist.com)
 * remove attribute (deprecated) `mist_gatewaytemplate.routing_policies.terms.action.aggregate`
 * fix typo to barbiturate `mist_gatewaytemplate.routing_policies.export_communities`
 
-
 #### mist_org_nacrule
 * new attribute `mist_org_nacrule.matching.family`
 * new attribute `mist_org_nacrule.matching.mfg`
@@ -58,6 +62,11 @@ Add support for Mist Cloud Global 05 (manage.gc4.mist.com / api.gc4.mist.com)
 * new attribute `mist_org_nacrule.not_matching.mfg`
 * new attribute `mist_org_nacrule.not_matching.model`
 * new attribute `mist_org_nacrule.not_matching.os_type`
+
+#### mist_org_networktemplate
+* new attribute `mist_org_networktemplate.vrf_instances.evpn_auto_loopback_subnet`
+* new attribute `mist_org_networktemplate.vrf_instances.evpn_auto_loopback_subnet6`
+* new attribute `mist_org_networktemplate.vrf_instances.extra_routes6`
 
 #### mist_org_service
 * new attribute `mist_org_service.org_services[*].client_limit_down`
@@ -112,6 +121,11 @@ Add support for Mist Cloud Global 05 (manage.gc4.mist.com / api.gc4.mist.com)
 
 #### mist_site
 * new attribute `mist_site.tz_offset`
+
+#### mist_site_networktemplate
+* new attribute `mist_site_networktemplate.vrf_instances.evpn_auto_loopback_subnet`
+* new attribute `mist_site_networktemplate.vrf_instances.evpn_auto_loopback_subnet6`
+* new attribute `mist_site_networktemplate.vrf_instances.extra_routes6`
 
 #### mist_site_setting
 * new attribute `mist_site_setting.enable_unii4`

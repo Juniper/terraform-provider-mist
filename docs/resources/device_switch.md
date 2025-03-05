@@ -118,7 +118,7 @@ resource "mist_device_switch" "switch_one" {
 - `disable_auto_config` (Boolean) For a claimed switch, we control the configs by default. This option (disables the behavior)
 - `dns_servers` (List of String) Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting
 - `dns_suffix` (List of String) Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting
-- `extra_routes` (Attributes Map) (see [below for nested schema](#nestedatt--extra_routes))
+- `extra_routes` (Attributes Map) Property key is the destination CIDR (e.g. "10.0.0.0/8") (see [below for nested schema](#nestedatt--extra_routes))
 - `extra_routes6` (Attributes Map) Property key is the destination CIDR (e.g. "2a02:1234:420a:10c9::/64") (see [below for nested schema](#nestedatt--extra_routes6))
 - `ip_config` (Attributes) Junos IP Config (see [below for nested schema](#nestedatt--ip_config))
 - `local_port_config` (Attributes Map) Local port override, overriding the port configuration from `port_config`. Property key is the port name or range (e.g. "ge-0/0/0-10") (see [below for nested schema](#nestedatt--local_port_config))
@@ -1149,14 +1149,24 @@ Optional:
 
 Optional:
 
-- `evpn_auto_lookback_subnet` (String)
+- `evpn_auto_loopback_subnet` (String)
+- `evpn_auto_loopback_subnet6` (String)
+- `extra_routes` (Attributes Map) Property key is the destination CIDR (e.g. "10.0.0.0/8") (see [below for nested schema](#nestedatt--vrf_instances--extra_routes))
+- `extra_routes6` (Attributes Map) Property key is the destination CIDR (e.g. "2a02:1234:420a:10c9::/64") (see [below for nested schema](#nestedatt--vrf_instances--extra_routes6))
 - `networks` (List of String)
-- `vrf_extra_routes` (Attributes Map) Property key is the destination CIDR (e.g. "10.0.0.0/8") (see [below for nested schema](#nestedatt--vrf_instances--vrf_extra_routes))
 
-<a id="nestedatt--vrf_instances--vrf_extra_routes"></a>
-### Nested Schema for `vrf_instances.vrf_extra_routes`
+<a id="nestedatt--vrf_instances--extra_routes"></a>
+### Nested Schema for `vrf_instances.extra_routes`
 
 Required:
+
+- `via` (String) Next-hop address
+
+
+<a id="nestedatt--vrf_instances--extra_routes6"></a>
+### Nested Schema for `vrf_instances.extra_routes6`
+
+Optional:
 
 - `via` (String) Next-hop address
 

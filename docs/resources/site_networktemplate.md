@@ -101,7 +101,7 @@ resource "mist_site_networktemplate" "networktemplate_one" {
 - `disabled_system_defined_port_usages` (List of String) If some system-default port usages are not desired - namely, ap / iot / uplink
 - `dns_servers` (List of String) Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting
 - `dns_suffix` (List of String) Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting
-- `extra_routes` (Attributes Map) (see [below for nested schema](#nestedatt--extra_routes))
+- `extra_routes` (Attributes Map) Property key is the destination CIDR (e.g. "10.0.0.0/8") (see [below for nested schema](#nestedatt--extra_routes))
 - `extra_routes6` (Attributes Map) Property key is the destination CIDR (e.g. "2a02:1234:420a:10c9::/64") (see [below for nested schema](#nestedatt--extra_routes6))
 - `mist_nac` (Attributes) Enable mist_nac to use RadSec (see [below for nested schema](#nestedatt--mist_nac))
 - `networks` (Attributes Map) Property key is network name (see [below for nested schema](#nestedatt--networks))
@@ -971,14 +971,24 @@ Optional:
 
 Optional:
 
-- `evpn_auto_lookback_subnet` (String)
+- `evpn_auto_loopback_subnet` (String)
+- `evpn_auto_loopback_subnet6` (String)
 - `extra_routes` (Attributes Map) Property key is the destination CIDR (e.g. "10.0.0.0/8") (see [below for nested schema](#nestedatt--vrf_instances--extra_routes))
+- `extra_routes6` (Attributes Map) Property key is the destination CIDR (e.g. "2a02:1234:420a:10c9::/64") (see [below for nested schema](#nestedatt--vrf_instances--extra_routes6))
 - `networks` (List of String)
 
 <a id="nestedatt--vrf_instances--extra_routes"></a>
 ### Nested Schema for `vrf_instances.extra_routes`
 
 Required:
+
+- `via` (String) Next-hop address
+
+
+<a id="nestedatt--vrf_instances--extra_routes6"></a>
+### Nested Schema for `vrf_instances.extra_routes6`
+
+Optional:
 
 - `via` (String) Next-hop address
 
