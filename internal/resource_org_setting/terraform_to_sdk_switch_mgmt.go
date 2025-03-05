@@ -10,6 +10,9 @@ func switchMgmtTerraformToSdk(d SwitchMgmtValue) *models.OrgSettingSwitchMgmt {
 	if d.ApAffinityThreshold.ValueInt64Pointer() != nil {
 		data.ApAffinityThreshold = models.ToPointer(int(d.ApAffinityThreshold.ValueInt64()))
 	}
+	if d.RemoveExistingConfigs.ValueBoolPointer() != nil {
+		data.RemoveExistingConfigs = d.RemoveExistingConfigs.ValueBoolPointer()
+	}
 
 	return &data
 }

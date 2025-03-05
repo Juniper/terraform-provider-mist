@@ -30,6 +30,7 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	var jcloud = NewJcloudValueNull()
 	var jcloudRa = NewJcloudRaValueNull()
 	var juniper = NewJuniperValueNull()
+	var junosShellAccess = NewJunosShellAccessValueNull()
 	var mgmt = NewMgmtValueNull()
 	var mistNac = NewMistNacValueNull()
 	// var msp_id types.String
@@ -97,6 +98,9 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	}
 	if data.Juniper != nil {
 		juniper = juniperSdkToTerraform(ctx, &diags, data.Juniper)
+	}
+	if data.JunosShellAccess != nil {
+		junosShellAccess = junosShellAccessSdkToTerraform(ctx, &diags, data.JunosShellAccess)
 	}
 	if data.Mgmt != nil {
 		mgmt = mgmtSdkToTerraform(ctx, &diags, data.Mgmt)
@@ -172,6 +176,7 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	state.Jcloud = jcloud
 	state.JcloudRa = jcloudRa
 	state.Juniper = juniper
+	state.JunosShellAccess = junosShellAccess
 	state.Mgmt = mgmt
 	state.MistNac = mistNac
 	// state.MspId = msp_id
