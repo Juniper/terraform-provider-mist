@@ -443,6 +443,7 @@ func (p *mistProvider) DataSources(_ context.Context) []func() datasource.DataSo
 		NewSiteWlansDataSource,
 		NewDeviceVersionsDataSource,
 		NewOrgAvprofilesDataSource,
+		NewConstFingerprintsDataSource,
 	}
 }
 
