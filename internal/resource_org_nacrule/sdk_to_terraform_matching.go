@@ -29,7 +29,11 @@ func matchingPortTypesSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 func matchingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.NacRuleMatching) MatchingValue {
 
 	var authType basetypes.StringValue
+	var family = misttransform.ListOfStringSdkToTerraformEmpty()
+	var mfg = misttransform.ListOfStringSdkToTerraformEmpty()
+	var model = misttransform.ListOfStringSdkToTerraformEmpty()
 	var nactags = misttransform.ListOfStringSdkToTerraformEmpty()
+	var osType = misttransform.ListOfStringSdkToTerraformEmpty()
 	var portTypes = misttransform.ListOfStringSdkToTerraformEmpty()
 	var siteIds = misttransform.ListOfStringSdkToTerraformEmpty()
 	var sitegroupIds = misttransform.ListOfStringSdkToTerraformEmpty()
@@ -38,8 +42,20 @@ func matchingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mod
 	if d.AuthType != nil {
 		authType = types.StringValue(string(*d.AuthType))
 	}
+	if d.Family != nil {
+		family = misttransform.ListOfStringSdkToTerraform(d.Family)
+	}
+	if d.Mfg != nil {
+		mfg = misttransform.ListOfStringSdkToTerraform(d.Mfg)
+	}
+	if d.Model != nil {
+		model = misttransform.ListOfStringSdkToTerraform(d.Model)
+	}
 	if d.Nactags != nil {
 		nactags = misttransform.ListOfStringSdkToTerraform(d.Nactags)
+	}
+	if d.OsType != nil {
+		osType = misttransform.ListOfStringSdkToTerraform(d.OsType)
 	}
 	if d.PortTypes != nil {
 		portTypes = matchingPortTypesSdkToTerraform(ctx, diags, d.PortTypes)
@@ -56,7 +72,11 @@ func matchingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mod
 
 	dataMapValue := map[string]attr.Value{
 		"auth_type":     authType,
+		"family":        family,
+		"mfg":           mfg,
+		"model":         model,
 		"nactags":       nactags,
+		"os_type":       osType,
 		"port_types":    portTypes,
 		"site_ids":      siteIds,
 		"sitegroup_ids": sitegroupIds,
@@ -71,7 +91,11 @@ func matchingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mod
 func notMatchingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.NacRuleMatching) NotMatchingValue {
 
 	var authType basetypes.StringValue
+	var family = misttransform.ListOfStringSdkToTerraformEmpty()
+	var mfg = misttransform.ListOfStringSdkToTerraformEmpty()
+	var model = misttransform.ListOfStringSdkToTerraformEmpty()
 	var nactags = misttransform.ListOfStringSdkToTerraformEmpty()
+	var osType = misttransform.ListOfStringSdkToTerraformEmpty()
 	var portTypes = misttransform.ListOfStringSdkToTerraformEmpty()
 	var siteIds = misttransform.ListOfStringSdkToTerraformEmpty()
 	var sitegroupIds = misttransform.ListOfStringSdkToTerraformEmpty()
@@ -80,8 +104,20 @@ func notMatchingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 	if d.AuthType != nil {
 		authType = types.StringValue(string(*d.AuthType))
 	}
+	if d.Family != nil {
+		family = misttransform.ListOfStringSdkToTerraform(d.Family)
+	}
+	if d.Mfg != nil {
+		mfg = misttransform.ListOfStringSdkToTerraform(d.Mfg)
+	}
+	if d.Model != nil {
+		model = misttransform.ListOfStringSdkToTerraform(d.Model)
+	}
 	if d.Nactags != nil {
 		nactags = misttransform.ListOfStringSdkToTerraform(d.Nactags)
+	}
+	if d.OsType != nil {
+		osType = misttransform.ListOfStringSdkToTerraform(d.OsType)
 	}
 	if d.PortTypes != nil {
 		portTypes = matchingPortTypesSdkToTerraform(ctx, diags, d.PortTypes)
@@ -98,7 +134,11 @@ func notMatchingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 
 	dataMapValue := map[string]attr.Value{
 		"auth_type":     authType,
+		"family":        family,
+		"mfg":           mfg,
+		"model":         model,
 		"nactags":       nactags,
+		"os_type":       osType,
 		"port_types":    portTypes,
 		"site_ids":      siteIds,
 		"sitegroup_ids": sitegroupIds,
