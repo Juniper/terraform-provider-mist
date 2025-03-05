@@ -563,6 +563,11 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Default: int64default.StaticInt64(0),
 			},
+			"enable_unii_4": schema.BoolAttribute{
+				Optional: true,
+				Computed: true,
+				Default:  booldefault.StaticBool(false),
+			},
 			"engagement": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"dwell_tag_names": schema.SingleNestedAttribute{
@@ -752,8 +757,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 							"apps": schema.ListAttribute{
 								ElementType:         types.StringType,
 								Optional:            true,
-								Description:         "APp-keys from /api/v1/const/applications",
-								MarkdownDescription: "APp-keys from /api/v1/const/applications",
+								Description:         "APp-keys from [List Applications]($e/Constants%20Definitions/listApplications)",
+								MarkdownDescription: "APp-keys from [List Applications]($e/Constants%20Definitions/listApplications)",
 							},
 							"custom_apps": schema.ListNestedAttribute{
 								NestedObject: schema.NestedAttributeObject{
@@ -912,6 +917,18 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "For both SSR and SRX disable management interface",
 						Default:             booldefault.StaticBool(false),
 					},
+					"disable_usb": schema.BoolAttribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "For SSR disable usb interface",
+						MarkdownDescription: "For SSR disable usb interface",
+						Default:             booldefault.StaticBool(false),
+					},
+					"fips_enabled": schema.BoolAttribute{
+						Optional: true,
+						Computed: true,
+						Default:  booldefault.StaticBool(false),
+					},
 					"probe_hosts": schema.ListAttribute{
 						ElementType: types.StringType,
 						Optional:    true,
@@ -1054,6 +1071,9 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 								"api_key": schema.StringAttribute{
 									Optional: true,
 								},
+								"api_password": schema.StringAttribute{
+									Optional: true,
+								},
 								"api_url": schema.StringAttribute{
 									Optional: true,
 								},
@@ -1187,6 +1207,12 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"rogue": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
+					"allowed_vlan_ids": schema.ListAttribute{
+						ElementType:         types.Int64Type,
+						Optional:            true,
+						Description:         "list of VLAN IDs on which rogue APs are ignored",
+						MarkdownDescription: "list of VLAN IDs on which rogue APs are ignored",
+					},
 					"enabled": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
@@ -1204,6 +1230,16 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					"min_duration": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
+						Description:         "Minimum duration for a bssid to be considered neighbor",
+						MarkdownDescription: "Minimum duration for a bssid to be considered neighbor",
+						Validators: []validator.Int64{
+							int64validator.AtMost(59),
+						},
+						Default: int64default.StaticInt64(10),
+					},
+					"min_rogue_duration": schema.Int64Attribute{
+						Optional:            true,
+						Computed:            true,
 						Description:         "Minimum duration for a bssid to be considered rogue",
 						MarkdownDescription: "Minimum duration for a bssid to be considered rogue",
 						Validators: []validator.Int64{
@@ -1211,11 +1247,21 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						},
 						Default: int64default.StaticInt64(10),
 					},
+					"min_rogue_rssi": schema.Int64Attribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "Minimum RSSI for an AP to be considered rogue",
+						MarkdownDescription: "Minimum RSSI for an AP to be considered rogue",
+						Validators: []validator.Int64{
+							int64validator.AtLeast(-85),
+						},
+						Default: int64default.StaticInt64(-80),
+					},
 					"min_rssi": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Minimum RSSI for an AP to be considered rogue (ignoring APs that’s far away)",
-						MarkdownDescription: "Minimum RSSI for an AP to be considered rogue (ignoring APs that’s far away)",
+						Description:         "Minimum RSSI for an AP to be considered neighbor (ignoring APs that’s far away)",
+						MarkdownDescription: "Minimum RSSI for an AP to be considered neighbor (ignoring APs that’s far away)",
 						Validators: []validator.Int64{
 							int64validator.AtLeast(-85),
 						},
@@ -1385,8 +1431,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Set of heuristic rules will be enabled when marvis subscription is not available. It triggers when, in a Z minute window, there are more than Y distinct client encountring over X failures",
-				MarkdownDescription: "Set of heuristic rules will be enabled when marvis subscription is not available. It triggers when, in a Z minute window, there are more than Y distinct client encountring over X failures",
+				Description:         "Set of heuristic rules will be enabled when marvis subscription is not available. It triggers when, in a Z minute window, there are more than Y distinct client encountering over X failures",
+				MarkdownDescription: "Set of heuristic rules will be enabled when marvis subscription is not available. It triggers when, in a Z minute window, there are more than Y distinct client encountering over X failures",
 			},
 			"site_id": schema.StringAttribute{
 				Required: true,
@@ -1552,8 +1598,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					"dot1x": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Whether to do 802.1x against uplink switch. When enaled, AP cert will be used to do EAP-TLS and the Org's CA Cert has to be provisioned at the switch",
-						MarkdownDescription: "Whether to do 802.1x against uplink switch. When enaled, AP cert will be used to do EAP-TLS and the Org's CA Cert has to be provisioned at the switch",
+						Description:         "Whether to do 802.1x against uplink switch. When enabled, AP cert will be used to do EAP-TLS and the Org's CA Cert has to be provisioned at the switch",
+						MarkdownDescription: "Whether to do 802.1x against uplink switch. When enabled, AP cert will be used to do EAP-TLS and the Org's CA Cert has to be provisioned at the switch",
 						Default:             booldefault.StaticBool(false),
 					},
 					"keep_wlans_up_if_down": schema.BoolAttribute{
@@ -1615,8 +1661,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Optional, for EX9200 only to seggregate virtual-switches. Property key is the instance name",
-				MarkdownDescription: "Optional, for EX9200 only to seggregate virtual-switches. Property key is the instance name",
+				Description:         "Optional, for EX9200 only to segregate virtual-switches. Property key is the instance name",
+				MarkdownDescription: "Optional, for EX9200 only to segregate virtual-switches. Property key is the instance name",
 				Validators: []validator.Map{
 					mapvalidator.SizeAtLeast(1),
 				},
@@ -1731,8 +1777,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					"mesh_allow_dfs": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Whether to allow Mesh to use DFS channels. For DFS channels, Remote Mesh AP would have to do CAC when scanning for new Base AP, which is slow and will distrupt the connection. If roaming is desired, keep it disabled.",
-						MarkdownDescription: "Whether to allow Mesh to use DFS channels. For DFS channels, Remote Mesh AP would have to do CAC when scanning for new Base AP, which is slow and will distrupt the connection. If roaming is desired, keep it disabled.",
+						Description:         "Whether to allow Mesh to use DFS channels. For DFS channels, Remote Mesh AP would have to do CAC when scanning for new Base AP, which is slow and will disrupt the connection. If roaming is desired, keep it disabled.",
+						MarkdownDescription: "Whether to allow Mesh to use DFS channels. For DFS channels, Remote Mesh AP would have to do CAC when scanning for new Base AP, which is slow and will disrupt the connection. If roaming is desired, keep it disabled.",
 						Default:             booldefault.StaticBool(false),
 					},
 					"mesh_enable_crm": schema.BoolAttribute{
@@ -1850,6 +1896,7 @@ type SiteSettingModel struct {
 	ConfigPushPolicy       ConfigPushPolicyValue      `tfsdk:"config_push_policy"`
 	CriticalUrlMonitoring  CriticalUrlMonitoringValue `tfsdk:"critical_url_monitoring"`
 	DeviceUpdownThreshold  types.Int64                `tfsdk:"device_updown_threshold"`
+	EnableUnii4            types.Bool                 `tfsdk:"enable_unii_4"`
 	Engagement             EngagementValue            `tfsdk:"engagement"`
 	GatewayMgmt            GatewayMgmtValue           `tfsdk:"gateway_mgmt"`
 	GatewayUpdownThreshold types.Int64                `tfsdk:"gateway_updown_threshold"`
@@ -8585,6 +8632,42 @@ func (t GatewayMgmtType) ValueFromObject(ctx context.Context, in basetypes.Objec
 			fmt.Sprintf(`disable_oob expected to be basetypes.BoolValue, was: %T`, disableOobAttribute))
 	}
 
+	disableUsbAttribute, ok := attributes["disable_usb"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disable_usb is missing from object`)
+
+		return nil, diags
+	}
+
+	disableUsbVal, ok := disableUsbAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disable_usb expected to be basetypes.BoolValue, was: %T`, disableUsbAttribute))
+	}
+
+	fipsEnabledAttribute, ok := attributes["fips_enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`fips_enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	fipsEnabledVal, ok := fipsEnabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`fips_enabled expected to be basetypes.BoolValue, was: %T`, fipsEnabledAttribute))
+	}
+
 	probeHostsAttribute, ok := attributes["probe_hosts"]
 
 	if !ok {
@@ -8687,6 +8770,8 @@ func (t GatewayMgmtType) ValueFromObject(ctx context.Context, in basetypes.Objec
 		ConfigRevertTimer:          configRevertTimerVal,
 		DisableConsole:             disableConsoleVal,
 		DisableOob:                 disableOobVal,
+		DisableUsb:                 disableUsbVal,
+		FipsEnabled:                fipsEnabledVal,
 		ProbeHosts:                 probeHostsVal,
 		ProtectRe:                  protectReVal,
 		RootPassword:               rootPasswordVal,
@@ -8885,6 +8970,42 @@ func NewGatewayMgmtValue(attributeTypes map[string]attr.Type, attributes map[str
 			fmt.Sprintf(`disable_oob expected to be basetypes.BoolValue, was: %T`, disableOobAttribute))
 	}
 
+	disableUsbAttribute, ok := attributes["disable_usb"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disable_usb is missing from object`)
+
+		return NewGatewayMgmtValueUnknown(), diags
+	}
+
+	disableUsbVal, ok := disableUsbAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disable_usb expected to be basetypes.BoolValue, was: %T`, disableUsbAttribute))
+	}
+
+	fipsEnabledAttribute, ok := attributes["fips_enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`fips_enabled is missing from object`)
+
+		return NewGatewayMgmtValueUnknown(), diags
+	}
+
+	fipsEnabledVal, ok := fipsEnabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`fips_enabled expected to be basetypes.BoolValue, was: %T`, fipsEnabledAttribute))
+	}
+
 	probeHostsAttribute, ok := attributes["probe_hosts"]
 
 	if !ok {
@@ -8987,6 +9108,8 @@ func NewGatewayMgmtValue(attributeTypes map[string]attr.Type, attributes map[str
 		ConfigRevertTimer:          configRevertTimerVal,
 		DisableConsole:             disableConsoleVal,
 		DisableOob:                 disableOobVal,
+		DisableUsb:                 disableUsbVal,
+		FipsEnabled:                fipsEnabledVal,
 		ProbeHosts:                 probeHostsVal,
 		ProtectRe:                  protectReVal,
 		RootPassword:               rootPasswordVal,
@@ -9071,6 +9194,8 @@ type GatewayMgmtValue struct {
 	ConfigRevertTimer          basetypes.Int64Value  `tfsdk:"config_revert_timer"`
 	DisableConsole             basetypes.BoolValue   `tfsdk:"disable_console"`
 	DisableOob                 basetypes.BoolValue   `tfsdk:"disable_oob"`
+	DisableUsb                 basetypes.BoolValue   `tfsdk:"disable_usb"`
+	FipsEnabled                basetypes.BoolValue   `tfsdk:"fips_enabled"`
 	ProbeHosts                 basetypes.ListValue   `tfsdk:"probe_hosts"`
 	ProtectRe                  basetypes.ObjectValue `tfsdk:"protect_re"`
 	RootPassword               basetypes.StringValue `tfsdk:"root_password"`
@@ -9080,7 +9205,7 @@ type GatewayMgmtValue struct {
 }
 
 func (v GatewayMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 12)
+	attrTypes := make(map[string]tftypes.Type, 14)
 
 	var val tftypes.Value
 	var err error
@@ -9098,6 +9223,8 @@ func (v GatewayMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 	attrTypes["config_revert_timer"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["disable_console"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["disable_oob"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["disable_usb"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["fips_enabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["probe_hosts"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
@@ -9112,7 +9239,7 @@ func (v GatewayMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 12)
+		vals := make(map[string]tftypes.Value, 14)
 
 		val, err = v.AdminSshkeys.ToTerraformValue(ctx)
 
@@ -9169,6 +9296,22 @@ func (v GatewayMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 		}
 
 		vals["disable_oob"] = val
+
+		val, err = v.DisableUsb.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["disable_usb"] = val
+
+		val, err = v.FipsEnabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["fips_enabled"] = val
 
 		val, err = v.ProbeHosts.ToTerraformValue(ctx)
 
@@ -9321,6 +9464,8 @@ func (v GatewayMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 			"config_revert_timer": basetypes.Int64Type{},
 			"disable_console":     basetypes.BoolType{},
 			"disable_oob":         basetypes.BoolType{},
+			"disable_usb":         basetypes.BoolType{},
+			"fips_enabled":        basetypes.BoolType{},
 			"probe_hosts": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -9352,6 +9497,8 @@ func (v GatewayMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 			"config_revert_timer": basetypes.Int64Type{},
 			"disable_console":     basetypes.BoolType{},
 			"disable_oob":         basetypes.BoolType{},
+			"disable_usb":         basetypes.BoolType{},
+			"fips_enabled":        basetypes.BoolType{},
 			"probe_hosts": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -9378,6 +9525,8 @@ func (v GatewayMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 		"config_revert_timer": basetypes.Int64Type{},
 		"disable_console":     basetypes.BoolType{},
 		"disable_oob":         basetypes.BoolType{},
+		"disable_usb":         basetypes.BoolType{},
+		"fips_enabled":        basetypes.BoolType{},
 		"probe_hosts": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -9407,6 +9556,8 @@ func (v GatewayMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 			"config_revert_timer":           v.ConfigRevertTimer,
 			"disable_console":               v.DisableConsole,
 			"disable_oob":                   v.DisableOob,
+			"disable_usb":                   v.DisableUsb,
+			"fips_enabled":                  v.FipsEnabled,
 			"probe_hosts":                   probeHostsVal,
 			"protect_re":                    protectRe,
 			"root_password":                 v.RootPassword,
@@ -9460,6 +9611,14 @@ func (v GatewayMgmtValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.DisableUsb.Equal(other.DisableUsb) {
+		return false
+	}
+
+	if !v.FipsEnabled.Equal(other.FipsEnabled) {
+		return false
+	}
+
 	if !v.ProbeHosts.Equal(other.ProbeHosts) {
 		return false
 	}
@@ -9506,6 +9665,8 @@ func (v GatewayMgmtValue) AttributeTypes(ctx context.Context) map[string]attr.Ty
 		"config_revert_timer": basetypes.Int64Type{},
 		"disable_console":     basetypes.BoolType{},
 		"disable_oob":         basetypes.BoolType{},
+		"disable_usb":         basetypes.BoolType{},
+		"fips_enabled":        basetypes.BoolType{},
 		"probe_hosts": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -12774,6 +12935,24 @@ func (t GatewaysType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 			fmt.Sprintf(`api_key expected to be basetypes.StringValue, was: %T`, apiKeyAttribute))
 	}
 
+	apiPasswordAttribute, ok := attributes["api_password"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`api_password is missing from object`)
+
+		return nil, diags
+	}
+
+	apiPasswordVal, ok := apiPasswordAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`api_password expected to be basetypes.StringValue, was: %T`, apiPasswordAttribute))
+	}
+
 	apiUrlAttribute, ok := attributes["api_url"]
 
 	if !ok {
@@ -12797,9 +12976,10 @@ func (t GatewaysType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 	}
 
 	return GatewaysValue{
-		ApiKey: apiKeyVal,
-		ApiUrl: apiUrlVal,
-		state:  attr.ValueStateKnown,
+		ApiKey:      apiKeyVal,
+		ApiPassword: apiPasswordVal,
+		ApiUrl:      apiUrlVal,
+		state:       attr.ValueStateKnown,
 	}, diags
 }
 
@@ -12884,6 +13064,24 @@ func NewGatewaysValue(attributeTypes map[string]attr.Type, attributes map[string
 			fmt.Sprintf(`api_key expected to be basetypes.StringValue, was: %T`, apiKeyAttribute))
 	}
 
+	apiPasswordAttribute, ok := attributes["api_password"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`api_password is missing from object`)
+
+		return NewGatewaysValueUnknown(), diags
+	}
+
+	apiPasswordVal, ok := apiPasswordAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`api_password expected to be basetypes.StringValue, was: %T`, apiPasswordAttribute))
+	}
+
 	apiUrlAttribute, ok := attributes["api_url"]
 
 	if !ok {
@@ -12907,9 +13105,10 @@ func NewGatewaysValue(attributeTypes map[string]attr.Type, attributes map[string
 	}
 
 	return GatewaysValue{
-		ApiKey: apiKeyVal,
-		ApiUrl: apiUrlVal,
-		state:  attr.ValueStateKnown,
+		ApiKey:      apiKeyVal,
+		ApiPassword: apiPasswordVal,
+		ApiUrl:      apiUrlVal,
+		state:       attr.ValueStateKnown,
 	}, diags
 }
 
@@ -12981,25 +13180,27 @@ func (t GatewaysType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = GatewaysValue{}
 
 type GatewaysValue struct {
-	ApiKey basetypes.StringValue `tfsdk:"api_key"`
-	ApiUrl basetypes.StringValue `tfsdk:"api_url"`
-	state  attr.ValueState
+	ApiKey      basetypes.StringValue `tfsdk:"api_key"`
+	ApiPassword basetypes.StringValue `tfsdk:"api_password"`
+	ApiUrl      basetypes.StringValue `tfsdk:"api_url"`
+	state       attr.ValueState
 }
 
 func (v GatewaysValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 2)
+	attrTypes := make(map[string]tftypes.Type, 3)
 
 	var val tftypes.Value
 	var err error
 
 	attrTypes["api_key"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["api_password"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["api_url"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 2)
+		vals := make(map[string]tftypes.Value, 3)
 
 		val, err = v.ApiKey.ToTerraformValue(ctx)
 
@@ -13008,6 +13209,14 @@ func (v GatewaysValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 		}
 
 		vals["api_key"] = val
+
+		val, err = v.ApiPassword.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["api_password"] = val
 
 		val, err = v.ApiUrl.ToTerraformValue(ctx)
 
@@ -13047,8 +13256,9 @@ func (v GatewaysValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 	var diags diag.Diagnostics
 
 	attributeTypes := map[string]attr.Type{
-		"api_key": basetypes.StringType{},
-		"api_url": basetypes.StringType{},
+		"api_key":      basetypes.StringType{},
+		"api_password": basetypes.StringType{},
+		"api_url":      basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -13062,8 +13272,9 @@ func (v GatewaysValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"api_key": v.ApiKey,
-			"api_url": v.ApiUrl,
+			"api_key":      v.ApiKey,
+			"api_password": v.ApiPassword,
+			"api_url":      v.ApiUrl,
 		})
 
 	return objVal, diags
@@ -13088,6 +13299,10 @@ func (v GatewaysValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.ApiPassword.Equal(other.ApiPassword) {
+		return false
+	}
+
 	if !v.ApiUrl.Equal(other.ApiUrl) {
 		return false
 	}
@@ -13105,8 +13320,9 @@ func (v GatewaysValue) Type(ctx context.Context) attr.Type {
 
 func (v GatewaysValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"api_key": basetypes.StringType{},
-		"api_url": basetypes.StringType{},
+		"api_key":      basetypes.StringType{},
+		"api_password": basetypes.StringType{},
+		"api_url":      basetypes.StringType{},
 	}
 }
 
@@ -14382,6 +14598,24 @@ func (t RogueType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue
 
 	attributes := in.Attributes()
 
+	allowedVlanIdsAttribute, ok := attributes["allowed_vlan_ids"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`allowed_vlan_ids is missing from object`)
+
+		return nil, diags
+	}
+
+	allowedVlanIdsVal, ok := allowedVlanIdsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`allowed_vlan_ids expected to be basetypes.ListValue, was: %T`, allowedVlanIdsAttribute))
+	}
+
 	enabledAttribute, ok := attributes["enabled"]
 
 	if !ok {
@@ -14434,6 +14668,42 @@ func (t RogueType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`min_duration expected to be basetypes.Int64Value, was: %T`, minDurationAttribute))
+	}
+
+	minRogueDurationAttribute, ok := attributes["min_rogue_duration"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`min_rogue_duration is missing from object`)
+
+		return nil, diags
+	}
+
+	minRogueDurationVal, ok := minRogueDurationAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`min_rogue_duration expected to be basetypes.Int64Value, was: %T`, minRogueDurationAttribute))
+	}
+
+	minRogueRssiAttribute, ok := attributes["min_rogue_rssi"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`min_rogue_rssi is missing from object`)
+
+		return nil, diags
+	}
+
+	minRogueRssiVal, ok := minRogueRssiAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`min_rogue_rssi expected to be basetypes.Int64Value, was: %T`, minRogueRssiAttribute))
 	}
 
 	minRssiAttribute, ok := attributes["min_rssi"]
@@ -14495,9 +14765,12 @@ func (t RogueType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue
 	}
 
 	return RogueValue{
+		AllowedVlanIds:    allowedVlanIdsVal,
 		Enabled:           enabledVal,
 		HoneypotEnabled:   honeypotEnabledVal,
 		MinDuration:       minDurationVal,
+		MinRogueDuration:  minRogueDurationVal,
+		MinRogueRssi:      minRogueRssiVal,
 		MinRssi:           minRssiVal,
 		WhitelistedBssids: whitelistedBssidsVal,
 		WhitelistedSsids:  whitelistedSsidsVal,
@@ -14568,6 +14841,24 @@ func NewRogueValue(attributeTypes map[string]attr.Type, attributes map[string]at
 		return NewRogueValueUnknown(), diags
 	}
 
+	allowedVlanIdsAttribute, ok := attributes["allowed_vlan_ids"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`allowed_vlan_ids is missing from object`)
+
+		return NewRogueValueUnknown(), diags
+	}
+
+	allowedVlanIdsVal, ok := allowedVlanIdsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`allowed_vlan_ids expected to be basetypes.ListValue, was: %T`, allowedVlanIdsAttribute))
+	}
+
 	enabledAttribute, ok := attributes["enabled"]
 
 	if !ok {
@@ -14620,6 +14911,42 @@ func NewRogueValue(attributeTypes map[string]attr.Type, attributes map[string]at
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`min_duration expected to be basetypes.Int64Value, was: %T`, minDurationAttribute))
+	}
+
+	minRogueDurationAttribute, ok := attributes["min_rogue_duration"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`min_rogue_duration is missing from object`)
+
+		return NewRogueValueUnknown(), diags
+	}
+
+	minRogueDurationVal, ok := minRogueDurationAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`min_rogue_duration expected to be basetypes.Int64Value, was: %T`, minRogueDurationAttribute))
+	}
+
+	minRogueRssiAttribute, ok := attributes["min_rogue_rssi"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`min_rogue_rssi is missing from object`)
+
+		return NewRogueValueUnknown(), diags
+	}
+
+	minRogueRssiVal, ok := minRogueRssiAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`min_rogue_rssi expected to be basetypes.Int64Value, was: %T`, minRogueRssiAttribute))
 	}
 
 	minRssiAttribute, ok := attributes["min_rssi"]
@@ -14681,9 +15008,12 @@ func NewRogueValue(attributeTypes map[string]attr.Type, attributes map[string]at
 	}
 
 	return RogueValue{
+		AllowedVlanIds:    allowedVlanIdsVal,
 		Enabled:           enabledVal,
 		HoneypotEnabled:   honeypotEnabledVal,
 		MinDuration:       minDurationVal,
+		MinRogueDuration:  minRogueDurationVal,
+		MinRogueRssi:      minRogueRssiVal,
 		MinRssi:           minRssiVal,
 		WhitelistedBssids: whitelistedBssidsVal,
 		WhitelistedSsids:  whitelistedSsidsVal,
@@ -14759,9 +15089,12 @@ func (t RogueType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = RogueValue{}
 
 type RogueValue struct {
+	AllowedVlanIds    basetypes.ListValue  `tfsdk:"allowed_vlan_ids"`
 	Enabled           basetypes.BoolValue  `tfsdk:"enabled"`
 	HoneypotEnabled   basetypes.BoolValue  `tfsdk:"honeypot_enabled"`
 	MinDuration       basetypes.Int64Value `tfsdk:"min_duration"`
+	MinRogueDuration  basetypes.Int64Value `tfsdk:"min_rogue_duration"`
+	MinRogueRssi      basetypes.Int64Value `tfsdk:"min_rogue_rssi"`
 	MinRssi           basetypes.Int64Value `tfsdk:"min_rssi"`
 	WhitelistedBssids basetypes.ListValue  `tfsdk:"whitelisted_bssids"`
 	WhitelistedSsids  basetypes.ListValue  `tfsdk:"whitelisted_ssids"`
@@ -14769,14 +15102,19 @@ type RogueValue struct {
 }
 
 func (v RogueValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 6)
+	attrTypes := make(map[string]tftypes.Type, 9)
 
 	var val tftypes.Value
 	var err error
 
+	attrTypes["allowed_vlan_ids"] = basetypes.ListType{
+		ElemType: types.Int64Type,
+	}.TerraformType(ctx)
 	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["honeypot_enabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["min_duration"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["min_rogue_duration"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["min_rogue_rssi"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["min_rssi"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["whitelisted_bssids"] = basetypes.ListType{
 		ElemType: types.StringType,
@@ -14789,7 +15127,15 @@ func (v RogueValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error)
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 6)
+		vals := make(map[string]tftypes.Value, 9)
+
+		val, err = v.AllowedVlanIds.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["allowed_vlan_ids"] = val
 
 		val, err = v.Enabled.ToTerraformValue(ctx)
 
@@ -14814,6 +15160,22 @@ func (v RogueValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error)
 		}
 
 		vals["min_duration"] = val
+
+		val, err = v.MinRogueDuration.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["min_rogue_duration"] = val
+
+		val, err = v.MinRogueRssi.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["min_rogue_rssi"] = val
 
 		val, err = v.MinRssi.ToTerraformValue(ctx)
 
@@ -14868,16 +15230,45 @@ func (v RogueValue) String() string {
 func (v RogueValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
+	allowedVlanIdsVal, d := types.ListValue(types.Int64Type, v.AllowedVlanIds.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"allowed_vlan_ids": basetypes.ListType{
+				ElemType: types.Int64Type,
+			},
+			"enabled":            basetypes.BoolType{},
+			"honeypot_enabled":   basetypes.BoolType{},
+			"min_duration":       basetypes.Int64Type{},
+			"min_rogue_duration": basetypes.Int64Type{},
+			"min_rogue_rssi":     basetypes.Int64Type{},
+			"min_rssi":           basetypes.Int64Type{},
+			"whitelisted_bssids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"whitelisted_ssids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
 	whitelistedBssidsVal, d := types.ListValue(types.StringType, v.WhitelistedBssids.Elements())
 
 	diags.Append(d...)
 
 	if d.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
-			"enabled":          basetypes.BoolType{},
-			"honeypot_enabled": basetypes.BoolType{},
-			"min_duration":     basetypes.Int64Type{},
-			"min_rssi":         basetypes.Int64Type{},
+			"allowed_vlan_ids": basetypes.ListType{
+				ElemType: types.Int64Type,
+			},
+			"enabled":            basetypes.BoolType{},
+			"honeypot_enabled":   basetypes.BoolType{},
+			"min_duration":       basetypes.Int64Type{},
+			"min_rogue_duration": basetypes.Int64Type{},
+			"min_rogue_rssi":     basetypes.Int64Type{},
+			"min_rssi":           basetypes.Int64Type{},
 			"whitelisted_bssids": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -14893,10 +15284,15 @@ func (v RogueValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 
 	if d.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
-			"enabled":          basetypes.BoolType{},
-			"honeypot_enabled": basetypes.BoolType{},
-			"min_duration":     basetypes.Int64Type{},
-			"min_rssi":         basetypes.Int64Type{},
+			"allowed_vlan_ids": basetypes.ListType{
+				ElemType: types.Int64Type,
+			},
+			"enabled":            basetypes.BoolType{},
+			"honeypot_enabled":   basetypes.BoolType{},
+			"min_duration":       basetypes.Int64Type{},
+			"min_rogue_duration": basetypes.Int64Type{},
+			"min_rogue_rssi":     basetypes.Int64Type{},
+			"min_rssi":           basetypes.Int64Type{},
 			"whitelisted_bssids": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -14907,10 +15303,15 @@ func (v RogueValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 	}
 
 	attributeTypes := map[string]attr.Type{
-		"enabled":          basetypes.BoolType{},
-		"honeypot_enabled": basetypes.BoolType{},
-		"min_duration":     basetypes.Int64Type{},
-		"min_rssi":         basetypes.Int64Type{},
+		"allowed_vlan_ids": basetypes.ListType{
+			ElemType: types.Int64Type,
+		},
+		"enabled":            basetypes.BoolType{},
+		"honeypot_enabled":   basetypes.BoolType{},
+		"min_duration":       basetypes.Int64Type{},
+		"min_rogue_duration": basetypes.Int64Type{},
+		"min_rogue_rssi":     basetypes.Int64Type{},
+		"min_rssi":           basetypes.Int64Type{},
 		"whitelisted_bssids": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -14930,9 +15331,12 @@ func (v RogueValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
+			"allowed_vlan_ids":   allowedVlanIdsVal,
 			"enabled":            v.Enabled,
 			"honeypot_enabled":   v.HoneypotEnabled,
 			"min_duration":       v.MinDuration,
+			"min_rogue_duration": v.MinRogueDuration,
+			"min_rogue_rssi":     v.MinRogueRssi,
 			"min_rssi":           v.MinRssi,
 			"whitelisted_bssids": whitelistedBssidsVal,
 			"whitelisted_ssids":  whitelistedSsidsVal,
@@ -14956,6 +15360,10 @@ func (v RogueValue) Equal(o attr.Value) bool {
 		return true
 	}
 
+	if !v.AllowedVlanIds.Equal(other.AllowedVlanIds) {
+		return false
+	}
+
 	if !v.Enabled.Equal(other.Enabled) {
 		return false
 	}
@@ -14965,6 +15373,14 @@ func (v RogueValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.MinDuration.Equal(other.MinDuration) {
+		return false
+	}
+
+	if !v.MinRogueDuration.Equal(other.MinRogueDuration) {
+		return false
+	}
+
+	if !v.MinRogueRssi.Equal(other.MinRogueRssi) {
 		return false
 	}
 
@@ -14993,10 +15409,15 @@ func (v RogueValue) Type(ctx context.Context) attr.Type {
 
 func (v RogueValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"enabled":          basetypes.BoolType{},
-		"honeypot_enabled": basetypes.BoolType{},
-		"min_duration":     basetypes.Int64Type{},
-		"min_rssi":         basetypes.Int64Type{},
+		"allowed_vlan_ids": basetypes.ListType{
+			ElemType: types.Int64Type,
+		},
+		"enabled":            basetypes.BoolType{},
+		"honeypot_enabled":   basetypes.BoolType{},
+		"min_duration":       basetypes.Int64Type{},
+		"min_rogue_duration": basetypes.Int64Type{},
+		"min_rogue_rssi":     basetypes.Int64Type{},
+		"min_rssi":           basetypes.Int64Type{},
 		"whitelisted_bssids": basetypes.ListType{
 			ElemType: types.StringType,
 		},

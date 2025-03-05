@@ -15,13 +15,19 @@ import (
 
 func rogueSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteRogue) RogueValue {
 
+	var allowedVlanIds = misttransform.ListOfIntSdkToTerraformEmpty()
 	var enabled basetypes.BoolValue
 	var honeypotEnabled basetypes.BoolValue
 	var minDuration basetypes.Int64Value
+	var minRogueDuration basetypes.Int64Value
 	var minRssi basetypes.Int64Value
+	var minRogueRssi basetypes.Int64Value
 	var whitelistedBssids = misttransform.ListOfStringSdkToTerraformEmpty()
 	var whitelistedSsids = misttransform.ListOfStringSdkToTerraformEmpty()
 
+	if d != nil && d.AllowedVlanIds != nil {
+		allowedVlanIds = misttransform.ListOfIntSdkToTerraform(d.AllowedVlanIds)
+	}
 	if d != nil && d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
@@ -31,8 +37,14 @@ func rogueSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	if d != nil && d.MinDuration != nil {
 		minDuration = types.Int64Value(int64(*d.MinDuration))
 	}
+	if d != nil && d.MinRogueDuration != nil {
+		minRogueDuration = types.Int64Value(int64(*d.MinRogueDuration))
+	}
 	if d != nil && d.MinRssi != nil {
 		minRssi = types.Int64Value(int64(*d.MinRssi))
+	}
+	if d != nil && d.MinRogueRssi != nil {
+		minRssi = types.Int64Value(int64(*d.MinRogueRssi))
 	}
 	if d != nil && d.WhitelistedBssids != nil {
 		whitelistedBssids = misttransform.ListOfStringSdkToTerraform(d.WhitelistedBssids)
@@ -42,10 +54,13 @@ func rogueSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	}
 
 	dataMapValue := map[string]attr.Value{
+		"allowed_vlan_ids":   allowedVlanIds,
 		"enabled":            enabled,
 		"honeypot_enabled":   honeypotEnabled,
 		"min_duration":       minDuration,
+		"min_rogue_duration": minRogueDuration,
 		"min_rssi":           minRssi,
+		"min_rogue_rssi":     minRogueRssi,
 		"whitelisted_bssids": whitelistedBssids,
 		"whitelisted_ssids":  whitelistedSsids,
 	}

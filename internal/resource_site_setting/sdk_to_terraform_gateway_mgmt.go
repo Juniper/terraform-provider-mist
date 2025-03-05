@@ -214,6 +214,8 @@ func gatewayMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 	var configRevertTimer basetypes.Int64Value
 	var disableConsole basetypes.BoolValue
 	var disableOob basetypes.BoolValue
+	var disableUsb basetypes.BoolValue
+	var fipsEnabled basetypes.BoolValue
 	var probeHosts = misttransform.ListOfStringSdkToTerraformEmpty()
 	var protectRe = types.ObjectNull(ProtectReValue{}.AttributeTypes(ctx))
 	var rootPassword basetypes.StringValue
@@ -237,6 +239,12 @@ func gatewayMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 	}
 	if d.DisableConsole != nil {
 		disableConsole = types.BoolValue(*d.DisableConsole)
+	}
+	if d.DisableUsb != nil {
+		disableUsb = types.BoolValue(*d.DisableUsb)
+	}
+	if d.FipsEnabled != nil {
+		fipsEnabled = types.BoolValue(*d.FipsEnabled)
 	}
 	if d.DisableOob != nil {
 		disableOob = types.BoolValue(*d.DisableOob)
@@ -264,6 +272,8 @@ func gatewayMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 		"auto_signature_update":         autoSignatureUpdate,
 		"config_revert_timer":           configRevertTimer,
 		"disable_console":               disableConsole,
+		"disable_usb":                   disableUsb,
+		"fips_enabled":                  fipsEnabled,
 		"disable_oob":                   disableOob,
 		"probe_hosts":                   probeHosts,
 		"protect_re":                    protectRe,
