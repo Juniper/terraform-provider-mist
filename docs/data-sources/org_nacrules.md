@@ -37,8 +37,10 @@ data "mist_org_nacrules" "nacrules" {
 
 Read-Only:
 
-- `created_time` (Number)
-- `id` (String)
-- `modified_time` (Number)
+- `created_time` (Number) When the object has been created, in epoch
+- `enabled` (Boolean) Enabled or not
+- `id` (String) Unique ID of the object instance in the Mist Organization
+- `modified_time` (Number) When the object has been modified for the last time, in epoch
 - `name` (String)
+- `order` (Number) Prder of the rule, lower value implies higher priority
 - `org_id` (String)

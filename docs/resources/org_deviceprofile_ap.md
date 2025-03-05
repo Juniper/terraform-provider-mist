@@ -47,6 +47,7 @@ resource "mist_org_deviceprofile_ap" "deviceprofile_ap_one" {
 - `disable_module` (Boolean) Whether to disable module port
 - `esl_config` (Attributes) (see [below for nested schema](#nestedatt--esl_config))
 - `ip_config` (Attributes) IP AP settings (see [below for nested schema](#nestedatt--ip_config))
+- `lacp_config` (Attributes) (see [below for nested schema](#nestedatt--lacp_config))
 - `led` (Attributes) LED AP settings (see [below for nested schema](#nestedatt--led))
 - `mesh` (Attributes) Mesh AP settings (see [below for nested schema](#nestedatt--mesh))
 - `ntp_servers` (List of String)
@@ -62,7 +63,7 @@ resource "mist_org_deviceprofile_ap" "deviceprofile_ap_one" {
 
 ### Read-Only
 
-- `id` (String) Unique ID of the object instance in the Mist Organnization
+- `id` (String) Unique ID of the object instance in the Mist Organization
 - `type` (String) Device Type. enum: `ap`
 
 <a id="nestedatt--aeroscout"></a>
@@ -119,7 +120,7 @@ Optional:
 - `enabled` (Boolean) usb_config is ignored if esl_config enabled
 - `host` (String) Only if `type`==`imagotag` or `type`==`native`
 - `port` (Number) Only if `type`==`imagotag` or `type`==`native`
-- `type` (String) note: ble_config will be ingored if esl_config is enabled and with native mode. enum: `hanshow`, `imagotag`, `native`, `solum`
+- `type` (String) note: ble_config will be ignored if esl_config is enabled and with native mode. enum: `hanshow`, `imagotag`, `native`, `solum`
 - `verify_cert` (Boolean) Only if `type`==`imagotag` or `type`==`native`
 - `vlan_id` (Number) Only if `type`==`solum` or `type`==`hanshow`
 
@@ -143,6 +144,14 @@ Optional:
 - `vlan_id` (Number) Management VLAN id, default is 1 (untagged)
 
 
+<a id="nestedatt--lacp_config"></a>
+### Nested Schema for `lacp_config`
+
+Optional:
+
+- `enabled` (Boolean)
+
+
 <a id="nestedatt--led"></a>
 ### Nested Schema for `led`
 
@@ -157,6 +166,7 @@ Optional:
 
 Optional:
 
+- `bands` (List of String) List of bands that the mesh should apply to. For relay, the first viable one will be picked. For relay, the first viable one will be picked. enum: `24`, `5`, `6`
 - `enabled` (Boolean) Whether mesh is enabled on this AP
 - `group` (Number) Mesh group, base AP(s) will only allow remote AP(s) in the same mesh group to join, 1-9, optional
 - `role` (String) enum: `base`, `remote`
@@ -268,7 +278,7 @@ Optional:
 
 Optional:
 
-- `dot1x` (Boolean) Whether to do 802.1x against uplink switch. When enaled, AP cert will be used to do EAP-TLS and the Org's CA Cert has to be provisioned at the switch
+- `dot1x` (Boolean) Whether to do 802.1x against uplink switch. When enabled, AP cert will be used to do EAP-TLS and the Org's CA Cert has to be provisioned at the switch
 - `keep_wlans_up_if_down` (Boolean) By default, WLANs are disabled when uplink is down. In some scenario, like SiteSurvey, one would want the AP to keep sending beacons.
 
 

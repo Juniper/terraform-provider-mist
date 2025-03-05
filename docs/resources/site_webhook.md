@@ -66,13 +66,14 @@ resource "mist_site_webhook" "webhook_one" {
 when `secret` is provided, two  HTTP headers will be added: 
   * X-Mist-Signature-v2: HMAC_SHA256(secret, body)
   * X-Mist-Signature: HMAC_SHA1(secret, body)
+- `single_event_per_message` (Boolean) Some solutions may not be able to parse multiple events from a single message (e.g. IBM Qradar, DSM). When set to `true`, only a single event will be sent per message. this feature is only available on certain topics (see [List Webhook Topics]($e/Constants%20Definitions/listWebhookTopics))
 - `splunk_token` (String, Sensitive) Required if `type`=`splunk`. If splunk_token is not defined for a type Splunk webhook, it will not send, regardless if the webhook receiver is configured to accept it.
 - `type` (String) enum: `aws-sns`, `google-pubsub`, `http-post`, `oauth2`, `splunk`
 - `verify_cert` (Boolean) When url uses HTTPS, whether to verify the certificate
 
 ### Read-Only
 
-- `id` (String) Unique ID of the object instance in the Mist Organnization
+- `id` (String) Unique ID of the object instance in the Mist Organization
 - `org_id` (String)
 
 

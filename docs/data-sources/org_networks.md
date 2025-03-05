@@ -37,8 +37,11 @@ data "mist_org_networks" "networks" {
 
 Read-Only:
 
-- `created_time` (Number)
-- `id` (String)
-- `modified_time` (Number)
+- `created_time` (Number) When the object has been created, in epoch
+- `id` (String) Unique ID of the object instance in the Mist Organization
+- `modified_time` (Number) When the object has been modified for the last time, in epoch
 - `name` (String)
 - `org_id` (String)
+- `subnet` (String)
+- `subnet6` (String)
+- `vlan_id` (String)

@@ -49,11 +49,16 @@ resource "mist_org_setting" "terraform_test" {
 
 - `name` (String)
 - `org_id` (String)
-- `paths` (Attributes Map) (see [below for nested schema](#nestedatt--paths))
+- `paths` (Attributes Map) For `type`==`hub_spoke`, Property key is the VPN name. For `type`==`mesh`, Property key is the Interface name (see [below for nested schema](#nestedatt--paths))
+
+### Optional
+
+- `path_selection` (Attributes) Only if `type`==`hub_spoke` (see [below for nested schema](#nestedatt--path_selection))
+- `type` (String) enum: `hub_spoke`, `mesh`
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
+- `id` (String) Unique ID of the object instance in the Mist Organization
 
 <a id="nestedatt--paths"></a>
 ### Nested Schema for `paths`
@@ -61,8 +66,37 @@ resource "mist_org_setting" "terraform_test" {
 Optional:
 
 - `bfd_profile` (String) enum: `broadband`, `lte`
-- `ip` (String) if different from the wan port
+- `bfd_use_tunnel_mode` (Boolean) If `type`==`mesh` and for SSR only, whether toi use tunnel mode
+- `ip` (String) If different from the wan port
+- `peer_paths` (Attributes Map) If `type`==`mesh`, Property key is the Peer Interface name (see [below for nested schema](#nestedatt--paths--peer_paths))
 - `pod` (Number)
+- `traffic_shaping` (Attributes) (see [below for nested schema](#nestedatt--paths--traffic_shaping))
+
+<a id="nestedatt--paths--peer_paths"></a>
+### Nested Schema for `paths.peer_paths`
+
+Optional:
+
+- `preference` (Number)
+
+
+<a id="nestedatt--paths--traffic_shaping"></a>
+### Nested Schema for `paths.traffic_shaping`
+
+Optional:
+
+- `class_percentage` (List of Number) percentages for differet class of traffic: high / medium / low / best-effort adding up to 100
+- `enabled` (Boolean)
+- `max_tx_kbps` (Number)
+
+
+
+<a id="nestedatt--path_selection"></a>
+### Nested Schema for `path_selection`
+
+Optional:
+
+- `strategy` (String) enum: `disabled`, `simple`, `manual`
 
 
 

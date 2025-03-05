@@ -43,12 +43,12 @@ data "mist_device_ap_stats" "ap_stats" {
 
 ### Optional
 
-- `duration` (String) duration like 7d, 2w
-- `end` (Number) end datetime, can be epoch or relative time like -1d, -2h; now if not specified
+- `duration` (String) Duration like 7d, 2w
+- `end` (Number) End datetime, can be epoch or relative time like -1d, -2h; now if not specified
 - `mac` (String)
 - `site_id` (String)
-- `start` (Number) start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified
-- `status` (String)
+- `start` (Number) Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified
+- `status` (String) enum: `all`, `connected`, `disconnected`
 
 ### Read-Only
 
@@ -66,55 +66,57 @@ Read-Only:
 - `config_reverted` (Boolean)
 - `cpu_system` (Number)
 - `cpu_util` (Number)
-- `created_time` (Number)
+- `created_time` (Number) When the object has been created, in epoch
 - `deviceprofile_id` (String)
-- `env_stat` (Attributes) device environment, including CPU temperature, Ambient temperature, Humidity, Attitude, Pressure, Accelerometers, Magnetometers and vCore Voltage (see [below for nested schema](#nestedatt--device_ap_stats--env_stat))
+- `env_stat` (Attributes) Device environment, including CPU temperature, Ambient temperature, Humidity, Attitude, Pressure, Accelerometers, Magnetometers and vCore Voltage (see [below for nested schema](#nestedatt--device_ap_stats--env_stat))
 - `esl_stat` (Attributes) (see [below for nested schema](#nestedatt--device_ap_stats--esl_stat))
 - `ext_ip` (String)
 - `fwupdate` (Attributes) (see [below for nested schema](#nestedatt--device_ap_stats--fwupdate))
+- `gps` (Attributes) (see [below for nested schema](#nestedatt--device_ap_stats--gps))
 - `hw_rev` (String)
-- `id` (String)
+- `id` (String) Unique ID of the object instance in the Mist Organization
 - `inactive_wired_vlans` (List of Number)
 - `iot_stat` (Attributes Map) (see [below for nested schema](#nestedatt--device_ap_stats--iot_stat))
 - `ip` (String)
 - `ip_config` (Attributes) IP AP settings (see [below for nested schema](#nestedatt--device_ap_stats--ip_config))
 - `ip_stat` (Attributes) (see [below for nested schema](#nestedatt--device_ap_stats--ip_stat))
-- `l2tp_stat` (Attributes Map) l2tp tunnel status (key is the wxtunnel_id) (see [below for nested schema](#nestedatt--device_ap_stats--l2tp_stat))
-- `last_seen` (Number) last seen timestamp
-- `last_trouble` (Attributes) last trouble code of switch (see [below for nested schema](#nestedatt--device_ap_stats--last_trouble))
+- `l2tp_stat` (Attributes Map) L2TP tunnel status (key is the wxtunnel_id) (see [below for nested schema](#nestedatt--device_ap_stats--l2tp_stat))
+- `last_seen` (Number) Last seen timestamp
+- `last_trouble` (Attributes) Last trouble code of switch (see [below for nested schema](#nestedatt--device_ap_stats--last_trouble))
 - `led` (Attributes) LED AP settings (see [below for nested schema](#nestedatt--device_ap_stats--led))
 - `lldp_stat` (Attributes) LLDP Stat (neighbor information, power negotiations) (see [below for nested schema](#nestedatt--device_ap_stats--lldp_stat))
 - `locating` (Boolean)
-- `locked` (Boolean) whether this AP is considered locked (placement / orientation has been vetted)
-- `mac` (String) device mac
+- `locked` (Boolean) Whether this AP is considered locked (placement / orientation has been vetted)
+- `mac` (String) Device mac
 - `map_id` (String)
 - `mem_used_kb` (Number)
 - `mesh_downlinks` (Attributes Map) Property key is the mesh downlink id (e.g `00000000-0000-0000-1000-5c5b35000010`) (see [below for nested schema](#nestedatt--device_ap_stats--mesh_downlinks))
 - `mesh_uplink` (Attributes) (see [below for nested schema](#nestedatt--device_ap_stats--mesh_uplink))
-- `model` (String) device model
-- `modified_time` (Number)
+- `model` (String) Device model
+- `modified_time` (Number) When the object has been modified for the last time, in epoch
 - `mount` (String)
 - `name` (String)
 - `notes` (String)
-- `num_clients` (Number) how many wireless clients are currently connected
+- `num_clients` (Number) How many wireless clients are currently connected
+- `num_wlans` (Number) How many WLANs are applied to the device
 - `org_id` (String)
 - `port_stat` (Attributes Map) Property key is the port name (e.g. `eth0`) (see [below for nested schema](#nestedatt--device_ap_stats--port_stat))
-- `power_budget` (Number) in mW, surplus if positive or deficit if negative
-- `power_constrained` (Boolean) whether insufficient power
-- `power_opmode` (String) constrained mode
+- `power_budget` (Number) In mW, surplus if positive or deficit if negative
+- `power_constrained` (Boolean) Whether insufficient power
+- `power_opmode` (String) Constrained mode
 - `power_src` (String) DC Input / PoE 802.3at / PoE 802.3af / LLDP / ? (unknown)
 - `radio_stat` (Attributes) (see [below for nested schema](#nestedatt--device_ap_stats--radio_stat))
 - `rx_bps` (Number)
 - `rx_bytes` (Number)
 - `rx_pkts` (Number)
-- `serial` (String) serial
+- `serial` (String) Serial Number
 - `site_id` (String)
 - `status` (String)
 - `switch_redundancy` (Attributes) (see [below for nested schema](#nestedatt--device_ap_stats--switch_redundancy))
 - `tx_bps` (Number)
 - `tx_bytes` (Number)
 - `tx_pkts` (Number)
-- `uptime` (Number) how long, in seconds, has the device been up (or rebooted)
+- `uptime` (Number) How long, in seconds, has the device been up (or rebooted)
 - `usb_stat` (Attributes) (see [below for nested schema](#nestedatt--device_ap_stats--usb_stat))
 - `version` (String)
 - `x` (Number)
@@ -129,7 +131,6 @@ Read-Only:
 - `recommended_anchor` (Boolean) Flag to represent if AP is recommended as an anchor by auto placement service
 - `status` (String) Basic Placement Status
 - `status_detail` (String) Additional info about placement status
-- `use_auto_placement` (Boolean) Flag to represent if auto_placement values are currently utilized
 - `x` (Number) X Autoplaced Position in pixels
 - `x_m` (Number) X Autoplaced Position in meters
 - `y` (Number) Y Autoplaced Position in pixels
@@ -190,7 +191,7 @@ Read-Only:
 - `rx_pkts` (Number)
 - `tx_bytes` (Number)
 - `tx_pkts` (Number)
-- `tx_resets` (Number) resets due to tx hung
+- `tx_resets` (Number) Resets due to tx hung
 - `uuid` (String)
 
 
@@ -230,10 +231,25 @@ Read-Only:
 Read-Only:
 
 - `progress` (Number)
-- `status` (String)
+- `status` (String) enum: `inprogress`, `failed`, `upgraded`
 - `status_id` (Number)
 - `timestamp` (Number)
 - `will_retry` (Boolean)
+
+
+<a id="nestedatt--device_ap_stats--gps"></a>
+### Nested Schema for `device_ap_stats.gps`
+
+Read-Only:
+
+- `accuracy` (Number) The estimated accuracy or accuracy of the GPS coordinates, measured in meters.
+- `altitude` (Number) The elevation of the AP above sea level, measured in meters.
+- `latitude` (Number) The geographic latitude of the AP, measured in degrees.
+- `longitude` (Number) The geographic longitude of the AP, measured in degrees.
+- `src` (String) The origin of the GPS data. enum:
+  * `gps`: from this device’s GPS estimates
+  * `other_ap` from neighboring device GPS estimates
+- `timestamp` (Number) The unix timestamp when the GPS data was recorded.
 
 
 <a id="nestedatt--device_ap_stats--iot_stat"></a>
@@ -249,18 +265,18 @@ Read-Only:
 
 Read-Only:
 
-- `dns` (List of String) if `type`==`static`
-- `dns_suffix` (List of String) required if `type`==`static`
-- `gateway` (String) required if `type`==`static`
+- `dns` (List of String) If `type`==`static`
+- `dns_suffix` (List of String) Required if `type`==`static`
+- `gateway` (String) Required if `type`==`static`
 - `gateway6` (String)
-- `ip` (String) required if `type`==`static`
+- `ip` (String) Required if `type`==`static`
 - `ip6` (String)
 - `mtu` (Number)
-- `netmask` (String) required if `type`==`static`
+- `netmask` (String) Required if `type`==`static`
 - `netmask6` (String)
-- `type` (String)
-- `type6` (String)
-- `vlan_id` (Number) management vlan id, default is 1 (untagged)
+- `type` (String) enum: `dhcp`, `static`
+- `type6` (String) enum: `autoconf`, `dhcp`, `disabled`, `static`
+- `vlan_id` (Number) Management VLAN id, default is 1 (untagged)
 
 
 <a id="nestedatt--device_ap_stats--ip_stat"></a>
@@ -285,9 +301,9 @@ Read-Only:
 
 Read-Only:
 
-- `sessions` (Attributes List) list of sessions (see [below for nested schema](#nestedatt--device_ap_stats--l2tp_stat--sessions))
-- `state` (String)
-- `uptime` (Number) uptime
+- `sessions` (Attributes List) List of sessions (see [below for nested schema](#nestedatt--device_ap_stats--l2tp_stat--sessions))
+- `state` (String) enum: `established`, `established_with_session`, `idle`, `wait-ctrl-conn`, `wait-ctrl-reply`
+- `uptime` (Number) Uptime
 - `wxtunnel_id` (String) WxlanTunnel ID
 
 <a id="nestedatt--device_ap_stats--l2tp_stat--sessions"></a>
@@ -295,10 +311,10 @@ Read-Only:
 
 Read-Only:
 
-- `local_sid` (Number) remote sessions id (dynamically unless Tunnel is said to be static)
+- `local_sid` (Number) Remote sessions id (dynamically unless Tunnel is said to be static)
 - `remote_id` (String) WxlanTunnel Remote ID (user-configured)
-- `remote_sid` (Number) remote sessions id (dynamically unless Tunnel is said to be static)
-- `state` (String)
+- `remote_sid` (Number) Remote sessions id (dynamically unless Tunnel is said to be static)
+- `state` (String) enum: `established`, `established_with_session`, `idle`, `wait-ctrl-conn`, `wait-ctrl-reply`
 
 
 
@@ -307,7 +323,7 @@ Read-Only:
 
 Read-Only:
 
-- `code` (String) Code definitions list at /api/v1/consts/ap_led_status
+- `code` (String) Code definitions list at [List Ap Led Definition]($e/Constants%20Definitions/listApLedDefinition)
 - `timestamp` (Number)
 
 
@@ -326,17 +342,17 @@ Read-Only:
 Read-Only:
 
 - `chassis_id` (String)
-- `lldp_med_supported` (Boolean) whether it support LLDP-MED
-- `mgmt_addr` (String) switch’s management address (if advertised), can be IPv4, IPv6, or MAC
+- `lldp_med_supported` (Boolean) Whether it support LLDP-MED
+- `mgmt_addr` (String) Switch’s management address (if advertised), can be IPv4, IPv6, or MAC
 - `mgmt_addrs` (List of String)
 - `port_desc` (String) ge-0/0/4
 - `port_id` (String)
-- `power_allocated` (Number) in mW, provided/allocated by PSE
-- `power_draw` (Number) in mW, total power needed by PD
-- `power_request_count` (Number) number of negotiations, if it keeps increasing, we don’t have a stable power
-- `power_requested` (Number) in mW, the current power requested by PD
-- `system_desc` (String) description provided by switch
-- `system_name` (String) name of the switch
+- `power_allocated` (Number) In mW, provided/allocated by PSE
+- `power_draw` (Number) In mW, total power needed by PD
+- `power_request_count` (Number) Number of negotiations, if it keeps increasing, we don’ t have a stable power
+- `power_requested` (Number) In mW, the current power requested by PD
+- `system_desc` (String) Description provided by switch
+- `system_name` (String) Name of the switch
 
 
 <a id="nestedatt--device_ap_stats--mesh_downlinks"></a>
@@ -410,34 +426,35 @@ Read-Only:
 
 Read-Only:
 
-- `band_24` (Attributes) radio stat (see [below for nested schema](#nestedatt--device_ap_stats--radio_stat--band_24))
-- `band_5` (Attributes) radio stat (see [below for nested schema](#nestedatt--device_ap_stats--radio_stat--band_5))
-- `band_6` (Attributes) radio stat (see [below for nested schema](#nestedatt--device_ap_stats--radio_stat--band_6))
+- `band_24` (Attributes) Radio stat (see [below for nested schema](#nestedatt--device_ap_stats--radio_stat--band_24))
+- `band_5` (Attributes) Radio stat (see [below for nested schema](#nestedatt--device_ap_stats--radio_stat--band_5))
+- `band_6` (Attributes) Radio stat (see [below for nested schema](#nestedatt--device_ap_stats--radio_stat--band_6))
 
 <a id="nestedatt--device_ap_stats--radio_stat--band_24"></a>
 ### Nested Schema for `device_ap_stats.radio_stat.band_24`
 
 Read-Only:
 
-- `bandwidth` (Number) channel width for the band * `80` is only applicable for band_5 and band_6 * `160` is only for band_6
-- `channel` (Number) current channel the radio is running on
-- `dynamic_chaining_enalbed` (Boolean) Use dynamic chaining for downlink
-- `mac` (String) radio (base) mac, it can have 16 bssids (e.g. 5c5b350001a0-5c5b350001af)
+- `bandwidth` (Number) channel width for the band.enum: `20`, `40`, `80` (only applicable for band_5 and band_6), `160` (only for band_6)
+- `channel` (Number) Current channel the radio is running on
+- `dynamic_chaining_enabled` (Boolean) Use dynamic chaining for downlink
+- `mac` (String) Radio (base) mac, it can have 16 bssids (e.g. 5c5b350001a0-5c5b350001af)
 - `noise_floor` (Number)
 - `num_clients` (Number)
-- `power` (Number) transmit power (in dBm)
+- `num_wlans` (Number) How many WLANs are applied to the radio
+- `power` (Number) Transmit power (in dBm)
 - `rx_bytes` (Number)
 - `rx_pkts` (Number)
 - `tx_bytes` (Number)
 - `tx_pkts` (Number)
 - `usage` (String)
-- `util_all` (Number) all utilization in percentage
-- `util_non_wifi` (Number) reception of “No Packets” utilization in percentage, received frames with invalid PLCPs and CRS glitches as noise
-- `util_rx_in_bss` (Number) reception of “In BSS” utilization in percentage, only frames that are received from AP/STAs within the BSS
-- `util_rx_other_bss` (Number) reception of “Other BSS” utilization in percentage, all frames received from AP/STAs that are outside the BSS
-- `util_tx` (Number) transmission utilization in percentage
-- `util_undecodable_wifi` (Number) reception of “UnDecodable Wifi“ utilization in percentage, only Preamble, PLCP header is decoded, Rest is undecodable in this radio
-- `util_unknown_wifi` (Number) reception of “No Category” utilization in percentage, all 802.11 frames that are corrupted at the receiver
+- `util_all` (Number) All utilization in percentage
+- `util_non_wifi` (Number) Reception of "No Packets" utilization in percentage, received frames with invalid PLCPs and CRS glitches as noise
+- `util_rx_in_bss` (Number) Reception of "In BSS" utilization in percentage, only frames that are received from AP/STAs within the BSS
+- `util_rx_other_bss` (Number) Reception of "Other BSS" utilization in percentage, all frames received from AP/STAs that are outside the BSS
+- `util_tx` (Number) Transmission utilization in percentage
+- `util_undecodable_wifi` (Number) Reception of "UnDecodable Wifi" utilization in percentage, only Preamble, PLCP header is decoded, Rest is undecodable in this radio
+- `util_unknown_wifi` (Number) Reception of "No Category" utilization in percentage, all 802.11 frames that are corrupted at the receiver
 
 
 <a id="nestedatt--device_ap_stats--radio_stat--band_5"></a>
@@ -445,25 +462,26 @@ Read-Only:
 
 Read-Only:
 
-- `bandwidth` (Number) channel width for the band * `80` is only applicable for band_5 and band_6 * `160` is only for band_6
-- `channel` (Number) current channel the radio is running on
-- `dynamic_chaining_enalbed` (Boolean) Use dynamic chaining for downlink
-- `mac` (String) radio (base) mac, it can have 16 bssids (e.g. 5c5b350001a0-5c5b350001af)
+- `bandwidth` (Number) channel width for the band.enum: `20`, `40`, `80` (only applicable for band_5 and band_6), `160` (only for band_6)
+- `channel` (Number) Current channel the radio is running on
+- `dynamic_chaining_enabled` (Boolean) Use dynamic chaining for downlink
+- `mac` (String) Radio (base) mac, it can have 16 bssids (e.g. 5c5b350001a0-5c5b350001af)
 - `noise_floor` (Number)
 - `num_clients` (Number)
-- `power` (Number) transmit power (in dBm)
+- `num_wlans` (Number) How many WLANs are applied to the radio
+- `power` (Number) Transmit power (in dBm)
 - `rx_bytes` (Number)
 - `rx_pkts` (Number)
 - `tx_bytes` (Number)
 - `tx_pkts` (Number)
 - `usage` (String)
-- `util_all` (Number) all utilization in percentage
-- `util_non_wifi` (Number) reception of “No Packets” utilization in percentage, received frames with invalid PLCPs and CRS glitches as noise
-- `util_rx_in_bss` (Number) reception of “In BSS” utilization in percentage, only frames that are received from AP/STAs within the BSS
-- `util_rx_other_bss` (Number) reception of “Other BSS” utilization in percentage, all frames received from AP/STAs that are outside the BSS
-- `util_tx` (Number) transmission utilization in percentage
-- `util_undecodable_wifi` (Number) reception of “UnDecodable Wifi“ utilization in percentage, only Preamble, PLCP header is decoded, Rest is undecodable in this radio
-- `util_unknown_wifi` (Number) reception of “No Category” utilization in percentage, all 802.11 frames that are corrupted at the receiver
+- `util_all` (Number) All utilization in percentage
+- `util_non_wifi` (Number) Reception of "No Packets" utilization in percentage, received frames with invalid PLCPs and CRS glitches as noise
+- `util_rx_in_bss` (Number) Reception of "In BSS" utilization in percentage, only frames that are received from AP/STAs within the BSS
+- `util_rx_other_bss` (Number) Reception of "Other BSS" utilization in percentage, all frames received from AP/STAs that are outside the BSS
+- `util_tx` (Number) Transmission utilization in percentage
+- `util_undecodable_wifi` (Number) Reception of "UnDecodable Wifi" utilization in percentage, only Preamble, PLCP header is decoded, Rest is undecodable in this radio
+- `util_unknown_wifi` (Number) Reception of "No Category" utilization in percentage, all 802.11 frames that are corrupted at the receiver
 
 
 <a id="nestedatt--device_ap_stats--radio_stat--band_6"></a>
@@ -471,25 +489,26 @@ Read-Only:
 
 Read-Only:
 
-- `bandwidth` (Number) channel width for the band * `80` is only applicable for band_5 and band_6 * `160` is only for band_6
-- `channel` (Number) current channel the radio is running on
-- `dynamic_chaining_enalbed` (Boolean) Use dynamic chaining for downlink
-- `mac` (String) radio (base) mac, it can have 16 bssids (e.g. 5c5b350001a0-5c5b350001af)
+- `bandwidth` (Number) channel width for the band.enum: `20`, `40`, `80` (only applicable for band_5 and band_6), `160` (only for band_6)
+- `channel` (Number) Current channel the radio is running on
+- `dynamic_chaining_enabled` (Boolean) Use dynamic chaining for downlink
+- `mac` (String) Radio (base) mac, it can have 16 bssids (e.g. 5c5b350001a0-5c5b350001af)
 - `noise_floor` (Number)
 - `num_clients` (Number)
-- `power` (Number) transmit power (in dBm)
+- `num_wlans` (Number) How many WLANs are applied to the radio
+- `power` (Number) Transmit power (in dBm)
 - `rx_bytes` (Number)
 - `rx_pkts` (Number)
 - `tx_bytes` (Number)
 - `tx_pkts` (Number)
 - `usage` (String)
-- `util_all` (Number) all utilization in percentage
-- `util_non_wifi` (Number) reception of “No Packets” utilization in percentage, received frames with invalid PLCPs and CRS glitches as noise
-- `util_rx_in_bss` (Number) reception of “In BSS” utilization in percentage, only frames that are received from AP/STAs within the BSS
-- `util_rx_other_bss` (Number) reception of “Other BSS” utilization in percentage, all frames received from AP/STAs that are outside the BSS
-- `util_tx` (Number) transmission utilization in percentage
-- `util_undecodable_wifi` (Number) reception of “UnDecodable Wifi“ utilization in percentage, only Preamble, PLCP header is decoded, Rest is undecodable in this radio
-- `util_unknown_wifi` (Number) reception of “No Category” utilization in percentage, all 802.11 frames that are corrupted at the receiver
+- `util_all` (Number) All utilization in percentage
+- `util_non_wifi` (Number) Reception of "No Packets" utilization in percentage, received frames with invalid PLCPs and CRS glitches as noise
+- `util_rx_in_bss` (Number) Reception of "In BSS" utilization in percentage, only frames that are received from AP/STAs within the BSS
+- `util_rx_other_bss` (Number) Reception of "Other BSS" utilization in percentage, all frames received from AP/STAs that are outside the BSS
+- `util_tx` (Number) Transmission utilization in percentage
+- `util_undecodable_wifi` (Number) Reception of "UnDecodable Wifi" utilization in percentage, only Preamble, PLCP header is decoded, Rest is undecodable in this radio
+- `util_unknown_wifi` (Number) Reception of "No Category" utilization in percentage, all 802.11 frames that are corrupted at the receiver
 
 
 

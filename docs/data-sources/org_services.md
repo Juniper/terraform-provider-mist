@@ -42,8 +42,40 @@ data "mist_org_services" "services" {
 
 Read-Only:
 
-- `created_time` (Number)
-- `id` (String)
-- `modified_time` (Number)
+- `addresses` (List of String) If `type`==`custom`, ip subnets (e.g. 10.0.0.0/8)
+- `app_categories` (List of String) When `type`==`app_categories`, list of application categories are available through [List App Category Definitions]($e/Constants%20Definitions/listAppCategoryDefinitions)
+- `app_subcategories` (List of String) When `type`==`app_categories`, list of application categories are available through [List App Sub Category Definitions]($e/Constants%20Definitions/listAppSubCategoryDefinitions)
+- `apps` (List of String) When `type`==`apps`, list of applications are available through:
+  * [List Applications]($e/Constants%20Definitions/listApplications)
+  * [List Gateway Applications]($e/Constants%20Definitions/listGatewayApplications)
+  * /insight/top_app_by-bytes?wired=true
+- `client_limit_down` (Number) 0 means unlimited
+- `client_limit_up` (Number) 0 means unlimited
+- `created_time` (Number) When the object has been created, in epoch
+- `description` (String)
+- `dscp` (String)
+- `failover_policy` (String) enum: `non_revertable`, `none`, `revertable`
+- `hostnames` (List of String) If `type`==`custom`, web filtering
+- `id` (String) Unique ID of the object instance in the Mist Organization
+- `max_jitter` (String)
+- `max_latency` (String)
+- `max_loss` (String)
+- `modified_time` (Number) When the object has been modified for the last time, in epoch
 - `name` (String)
 - `org_id` (String)
+- `service_limit_down` (Number) 0 means unlimited
+- `service_limit_up` (Number) 0 means unlimited
+- `sle_enabled` (Boolean) Whether to enable measure SLE
+- `specs` (Attributes List) When `type`==`custom`, optional, if it doesn't exist, http and https is assumed (see [below for nested schema](#nestedatt--org_services--specs))
+- `ssr_relaxed_tcp_state_enforcement` (Boolean)
+- `traffic_class` (String) when `traffic_type`==`custom`. enum: `best_effort`, `high`, `low`, `medium`
+- `traffic_type` (String) values from [List Traffic Types]($e/Constants%20Definitions/listTrafficTypes)
+- `urls` (List of String) When `type`==`urls`, no need for spec as URL can encode the ports being used
+
+<a id="nestedatt--org_services--specs"></a>
+### Nested Schema for `org_services.specs`
+
+Read-Only:
+
+- `port_range` (String) Port number, port range, or variable
+- `protocol` (String) `https`/ `tcp` / `udp` / `icmp` / `gre` / `any` / `:protocol_number`, `protocol_number` is between 1-254

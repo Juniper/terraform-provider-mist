@@ -111,6 +111,10 @@ Optional:
   `pl-PL`, `pt-BR`, `pt-PT`, `ro-RO`, `ru-RU`, `sk-SK`, `sv-SE`, `th-TH`, `tr-TR`, `uk-UA`, `vi-VN`, 
   `zh-Hans`, `zh-Hant` (see [below for nested schema](#nestedatt--portal_template--locales))
 - `logo` (String) path to the background image file. File must be a `png` image less than 100kB and image dimension must be less 500px x 200px (width x height).
+- `marketing_policy_link` (String) label of the link to go to /marketing_policy
+- `marketing_policy_opt_in` (Boolean) hether marketing policy optin is enabled
+- `marketing_policy_opt_in_label` (String) label for marketing optin
+- `marketing_policy_opt_in_text` (String) marketing policy text
 - `message` (String)
 - `multi_auth` (Boolean)
 - `name` (Boolean) Whether name field is required
@@ -134,7 +138,7 @@ Optional:
 - `privacy_policy_text` (String) Text of the Privacy Policy
 - `required_field_label` (String) Label to denote required field
 - `responsive_layout` (Boolean)
-- `sign_in_label` (String) Label of the button to /signin
+- `sign_in_label` (String) Label of the button to signin
 - `sms_carrier_default` (String)
 - `sms_carrier_error` (String)
 - `sms_carrier_field_label` (String) Label for mobile carrier drop-down list
@@ -231,6 +235,10 @@ Optional:
 - `field3label` (String) Label of field3
 - `field4error` (String) Error message when field4 not provided
 - `field4label` (String) Label of field4
+- `marketing_policy_link` (String) label of the link to go to /marketing_policy
+- `marketing_policy_opt_in` (Boolean) hether marketing policy optin is enabled
+- `marketing_policy_opt_in_label` (String) label for marketing optin
+- `marketing_policy_opt_in_text` (String) marketing policy text
 - `message` (String)
 - `name_error` (String) Error message when name not provided
 - `name_label` (String) Label of name field
@@ -247,7 +255,7 @@ Optional:
 - `privacy_policy_link` (String) Label of the link to go to Privacy Policy
 - `privacy_policy_text` (String) Text of the Privacy Policy
 - `required_field_label` (String) Label to denote required field
-- `sign_in_label` (String) Label of the button to /signin
+- `sign_in_label` (String) Label of the button to signin
 - `sms_carrier_default` (String)
 - `sms_carrier_error` (String)
 - `sms_carrier_field_label` (String) Label for mobile carrier drop-down list

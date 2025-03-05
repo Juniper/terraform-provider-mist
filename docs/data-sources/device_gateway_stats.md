@@ -42,12 +42,12 @@ data "mist_device_gateway_stats" "gateway_stats" {
 
 ### Optional
 
-- `duration` (String) duration like 7d, 2w
-- `end` (Number) end datetime, can be epoch or relative time like -1d, -2h; now if not specified
+- `duration` (String) Duration like 7d, 2w
+- `end` (Number) End datetime, can be epoch or relative time like -1d, -2h; now if not specified
 - `mac` (String)
 - `site_id` (String)
-- `start` (Number) start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified
-- `status` (String)
+- `start` (Number) Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified
+- `status` (String) enum: `all`, `connected`, `disconnected`
 
 ### Read-Only
 
@@ -60,6 +60,7 @@ Read-Only:
 
 - `ap_redundancy` (Attributes) (see [below for nested schema](#nestedatt--device_gateway_stats--ap_redundancy))
 - `arp_table_stats` (Attributes) (see [below for nested schema](#nestedatt--device_gateway_stats--arp_table_stats))
+- `bgp_peers` (Attributes List) Only present when `bgp_peers` in `fields` query parameter. Each port object is same as `GET /api/v1/sites/{site_id}/stats/bgp_peers/search` result object, except that org_id, site_id, mac, model are removed (see [below for nested schema](#nestedatt--device_gateway_stats--bgp_peers))
 - `cert_expiry` (Number)
 - `cluster_config` (Attributes) (see [below for nested schema](#nestedatt--device_gateway_stats--cluster_config))
 - `cluster_stat` (Attributes) (see [below for nested schema](#nestedatt--device_gateway_stats--cluster_stat))
@@ -67,45 +68,48 @@ Read-Only:
 - `config_status` (String)
 - `cpu2_stat` (Attributes) (see [below for nested schema](#nestedatt--device_gateway_stats--cpu2_stat))
 - `cpu_stat` (Attributes) (see [below for nested schema](#nestedatt--device_gateway_stats--cpu_stat))
-- `created_time` (Number)
+- `created_time` (Number) When the object has been created, in epoch
 - `deviceprofile_id` (String)
 - `dhcpd2_stat` (Attributes Map) Property key is the network name (see [below for nested schema](#nestedatt--device_gateway_stats--dhcpd2_stat))
 - `dhcpd_stat` (Attributes Map) Property key is the network name (see [below for nested schema](#nestedatt--device_gateway_stats--dhcpd_stat))
 - `ext_ip` (String) IP address
 - `fwupdate` (Attributes) (see [below for nested schema](#nestedatt--device_gateway_stats--fwupdate))
 - `has_pcap` (Boolean)
-- `hostname` (String) hostname reported by the device
-- `id` (String) serial
+- `hostname` (String) Hostname reported by the device
+- `id` (String) Unique ID of the object instance in the Mist Organization
 - `if2_stat` (Attributes Map) Property key is the interface name (see [below for nested schema](#nestedatt--device_gateway_stats--if2_stat))
 - `if_stat` (Attributes Map) Property key is the interface name (see [below for nested schema](#nestedatt--device_gateway_stats--if_stat))
 - `ip` (String) IP address
 - `ip2_stat` (Attributes) (see [below for nested schema](#nestedatt--device_gateway_stats--ip2_stat))
 - `ip_stat` (Attributes) (see [below for nested schema](#nestedatt--device_gateway_stats--ip_stat))
 - `is_ha` (Boolean)
-- `last_seen` (Number) last seen timestamp
-- `mac` (String) device mac
-- `map_id` (String) serial
-- `memory2_stat` (Attributes) memory usage stat (for virtual chassis, memory usage of master RE) (see [below for nested schema](#nestedatt--device_gateway_stats--memory2_stat))
-- `memory_stat` (Attributes) memory usage stat (for virtual chassis, memory usage of master RE) (see [below for nested schema](#nestedatt--device_gateway_stats--memory_stat))
-- `model` (String) device model
-- `modified_time` (Number)
+- `last_seen` (Number) Last seen timestamp
+- `mac` (String) Device mac
+- `map_id` (String) Serial Number
+- `memory2_stat` (Attributes) Memory usage stat (for virtual chassis, memory usage of master RE) (see [below for nested schema](#nestedatt--device_gateway_stats--memory2_stat))
+- `memory_stat` (Attributes) Memory usage stat (for virtual chassis, memory usage of master RE) (see [below for nested schema](#nestedatt--device_gateway_stats--memory_stat))
+- `model` (String) Device model
+- `modified_time` (Number) When the object has been modified for the last time, in epoch
 - `module2_stat` (Attributes List) (see [below for nested schema](#nestedatt--device_gateway_stats--module2_stat))
 - `module_stat` (Attributes List) (see [below for nested schema](#nestedatt--device_gateway_stats--module_stat))
-- `name` (String) device name if configured
+- `name` (String) Device name if configured
 - `node_name` (String)
-- `org_id` (String) serial
+- `org_id` (String)
+- `ports` (Attributes List) Only present when `ports` in `fields` query parameter. Each port object is same as `GET /api/v1/sites/{site_id}/stats/ports/search` result object, except that org_id, site_id, mac, model are removed (see [below for nested schema](#nestedatt--device_gateway_stats--ports))
 - `route_summary_stats` (Attributes) (see [below for nested schema](#nestedatt--device_gateway_stats--route_summary_stats))
-- `router_name` (String) device name if configured
-- `serial` (String) serial
+- `router_name` (String) Device name if configured
+- `serial` (String) Serial Number
 - `service2_stat` (Attributes Map) (see [below for nested schema](#nestedatt--device_gateway_stats--service2_stat))
 - `service_stat` (Attributes Map) (see [below for nested schema](#nestedatt--device_gateway_stats--service_stat))
 - `service_status` (Attributes) (see [below for nested schema](#nestedatt--device_gateway_stats--service_status))
-- `site_id` (String) serial
+- `site_id` (String)
 - `spu2_stat` (Attributes List) (see [below for nested schema](#nestedatt--device_gateway_stats--spu2_stat))
 - `spu_stat` (Attributes List) (see [below for nested schema](#nestedatt--device_gateway_stats--spu_stat))
 - `status` (String)
+- `tunnels` (Attributes List) Only present when `tunnels` in `fields` query parameter. Each port object is same as `GET /api/v1/sites/{site_id}/stats/tunnels/search` result object, except that org_id, site_id, mac, model are removed (see [below for nested schema](#nestedatt--device_gateway_stats--tunnels))
 - `uptime` (Number)
 - `version` (String)
+- `vpn_peers` (Attributes List) Only present when `vpn_peers` in `fields` query parameter. Each port object is same as `GET /api/v1/sites/{site_id}/stats/vpn_peers/search` result object, except that org_id, site_id, mac, model are removed (see [below for nested schema](#nestedatt--device_gateway_stats--vpn_peers))
 
 <a id="nestedatt--device_gateway_stats--ap_redundancy"></a>
 ### Nested Schema for `device_gateway_stats.ap_redundancy`
@@ -133,6 +137,29 @@ Read-Only:
 
 - `arp_table_count` (Number)
 - `max_entries_supported` (Number)
+
+
+<a id="nestedatt--device_gateway_stats--bgp_peers"></a>
+### Nested Schema for `device_gateway_stats.bgp_peers`
+
+Read-Only:
+
+- `evpn_overlay` (Boolean) If this is created for evpn overlay
+- `for_overlay` (Boolean) If this is created for overlay
+- `local_as` (Number) AS
+- `neighbor` (String)
+- `neighbor_as` (Number)
+- `neighbor_mac` (String) If it's another device in the same org
+- `node` (String) Node0/node1
+- `rx_pkts` (Number)
+- `rx_routes` (Number) Number of received routes
+- `state` (String) enum: `active`, `connect`, `established`, `idle`, `open_config`, `open_sent`
+- `timestamp` (Number)
+- `tx_pkts` (Number)
+- `tx_routes` (Number)
+- `up` (Boolean)
+- `uptime` (Number)
+- `vrf_name` (String)
 
 
 <a id="nestedatt--device_gateway_stats--cluster_config"></a>
@@ -248,7 +275,7 @@ Read-Only:
 Read-Only:
 
 - `progress` (Number)
-- `status` (String)
+- `status` (String) enum: `inprogress`, `failed`, `upgraded`
 - `status_id` (Number)
 - `timestamp` (Number)
 - `will_retry` (Boolean)
@@ -386,8 +413,8 @@ Read-Only:
 - `backup_version` (String)
 - `bios_version` (String)
 - `cpld_version` (String)
-- `errors` (Attributes List) used to report all error states the device node is running into.
-An error should always have `type` and `since` fields, and could have some other fields specific to that type. (see [below for nested schema](#nestedatt--device_gateway_stats--module2_stat--errors))
+- `cpu_stat` (Attributes) (see [below for nested schema](#nestedatt--device_gateway_stats--module2_stat--cpu_stat))
+- `errors` (Attributes List) Used to report all error states the device node is running into. An error should always have `type` and `since` fields, and could have some other fields specific to that type. (see [below for nested schema](#nestedatt--device_gateway_stats--module2_stat--errors))
 - `fans` (Attributes List) (see [below for nested schema](#nestedatt--device_gateway_stats--module2_stat--fans))
 - `fpga_version` (String)
 - `last_seen` (Number)
@@ -405,13 +432,26 @@ An error should always have `type` and `since` fields, and could have some other
 - `status` (String)
 - `temperatures` (Attributes List) (see [below for nested schema](#nestedatt--device_gateway_stats--module2_stat--temperatures))
 - `tmc_fpga_version` (String)
+- `type` (String)
 - `uboot_version` (String)
 - `uptime` (Number)
 - `vc_links` (Attributes List) (see [below for nested schema](#nestedatt--device_gateway_stats--module2_stat--vc_links))
 - `vc_mode` (String)
-- `vc_role` (String) master / backup / linecard
+- `vc_role` (String) enum: `master`, `backup`, `linecard`
 - `vc_state` (String)
 - `version` (String)
+
+<a id="nestedatt--device_gateway_stats--module2_stat--cpu_stat"></a>
+### Nested Schema for `device_gateway_stats.module2_stat.cpu_stat`
+
+Read-Only:
+
+- `idle` (Number) Percentage of CPU time that is idle
+- `interrupt` (Number) Percentage of CPU time being used by interrupts
+- `load_avg` (List of Number) Load averages for the last 1, 5, and 15 minutes
+- `system` (Number) Percentage of CPU time being used by system processes
+- `user` (Number) Percentage of CPU time being used by user processe
+
 
 <a id="nestedatt--device_gateway_stats--module2_stat--errors"></a>
 ### Nested Schema for `device_gateway_stats.module2_stat.errors`
@@ -501,8 +541,8 @@ Read-Only:
 - `backup_version` (String)
 - `bios_version` (String)
 - `cpld_version` (String)
-- `errors` (Attributes List) used to report all error states the device node is running into.
-An error should always have `type` and `since` fields, and could have some other fields specific to that type. (see [below for nested schema](#nestedatt--device_gateway_stats--module_stat--errors))
+- `cpu_stat` (Attributes) (see [below for nested schema](#nestedatt--device_gateway_stats--module_stat--cpu_stat))
+- `errors` (Attributes List) Used to report all error states the device node is running into. An error should always have `type` and `since` fields, and could have some other fields specific to that type. (see [below for nested schema](#nestedatt--device_gateway_stats--module_stat--errors))
 - `fans` (Attributes List) (see [below for nested schema](#nestedatt--device_gateway_stats--module_stat--fans))
 - `fpga_version` (String)
 - `last_seen` (Number)
@@ -520,13 +560,26 @@ An error should always have `type` and `since` fields, and could have some other
 - `status` (String)
 - `temperatures` (Attributes List) (see [below for nested schema](#nestedatt--device_gateway_stats--module_stat--temperatures))
 - `tmc_fpga_version` (String)
+- `type` (String)
 - `uboot_version` (String)
 - `uptime` (Number)
 - `vc_links` (Attributes List) (see [below for nested schema](#nestedatt--device_gateway_stats--module_stat--vc_links))
 - `vc_mode` (String)
-- `vc_role` (String) master / backup / linecard
+- `vc_role` (String) enum: `master`, `backup`, `linecard`
 - `vc_state` (String)
 - `version` (String)
+
+<a id="nestedatt--device_gateway_stats--module_stat--cpu_stat"></a>
+### Nested Schema for `device_gateway_stats.module_stat.cpu_stat`
+
+Read-Only:
+
+- `idle` (Number) Percentage of CPU time that is idle
+- `interrupt` (Number) Percentage of CPU time being used by interrupts
+- `load_avg` (List of Number) Load averages for the last 1, 5, and 15 minutes
+- `system` (Number) Percentage of CPU time being used by system processes
+- `user` (Number) Percentage of CPU time being used by user processe
+
 
 <a id="nestedatt--device_gateway_stats--module_stat--errors"></a>
 ### Nested Schema for `device_gateway_stats.module_stat.errors`
@@ -606,6 +659,56 @@ Read-Only:
 - `neighbor_port_id` (String)
 - `port_id` (String)
 
+
+
+<a id="nestedatt--device_gateway_stats--ports"></a>
+### Nested Schema for `device_gateway_stats.ports`
+
+Read-Only:
+
+- `active` (Boolean) Indicates if interface is active/inactive
+- `auth_state` (String) if `up`==`true` and has Authenticator role. enum: `authenticated`, `authenticating`, `held`, `init`
+- `for_site` (Boolean)
+- `full_duplex` (Boolean) Indicates full or half duplex
+- `jitter` (Number) Last sampled jitter of the interface
+- `latency` (Number) Last sampled latency of the interface
+- `loss` (Number) Last sampled loss of the interface
+- `lte_iccid` (String) LTE ICCID value, Check for null/empty
+- `lte_imei` (String) LTE IMEI value, Check for null/empty
+- `lte_imsi` (String) LTE IMSI value, Check for null/empty
+- `mac_count` (Number) Number of mac addresses in the forwarding table
+- `mac_limit` (Number) Limit on number of dynamically learned macs
+- `neighbor_mac` (String) chassis identifier of the chassis type listed
+- `neighbor_port_desc` (String) Description supplied by the system on the interface E.g. "GigabitEthernet2/0/39"
+- `neighbor_system_name` (String) Name supplied by the system on the interface E.g. neighbor system name E.g. "Kumar-Acc-SW.mist.local"
+- `poe_disabled` (Boolean) Is the POE configured not be disabled.
+- `poe_mode` (String) enum: `802.3af`, `802.3at`, `802.3bt`
+- `poe_on` (Boolean) Is the device attached to POE
+- `port_id` (String)
+- `port_mac` (String) Interface mac address
+- `port_usage` (String) gateway port usage. enum: `lan`
+- `power_draw` (Number) Amount of power being used by the interface at the time the command is executed. Unit in watts.
+- `rx_bcast_pkts` (Number) Broadcast input packets
+- `rx_bps` (Number) Input rate
+- `rx_bytes` (Number) Rx bytes
+- `rx_errors` (Number) Input errors
+- `rx_mcast_pkts` (Number) Multicast input packets
+- `rx_pkts` (Number) Rx packets
+- `speed` (Number) Port speed
+- `stp_role` (String) if `up`==`true`. enum: `alternate`, `backup`, `designated`, `root`, `root-prevented`
+- `stp_state` (String) if `up`==`true`. enum: `blocking`, `disabled`, `forwarding`, `learning`, `listening`
+- `tx_bcast_pkts` (Number) Broadcast output packets
+- `tx_bps` (Number) Output rate
+- `tx_bytes` (Number) Tx bytes
+- `tx_errors` (Number) Output errors
+- `tx_mcast_pkts` (Number) Multicast output packets
+- `tx_pkts` (Number) Tx packets
+- `type` (String) device type. enum: `ap`, `ble`, `gateway`, `mxedge`, `nac`, `switch`
+- `unconfigured` (Boolean) Indicates if interface is unconfigured
+- `up` (Boolean) Indicates if interface is up
+- `xcvr_model` (String) Optic Slot ModelName, Check for null/empty
+- `xcvr_part_number` (String) Optic Slot Partnumber, Check for null/empty
+- `xcvr_serial` (String) Optic Slot SerialNumber, Check for null/empty
 
 
 <a id="nestedatt--device_gateway_stats--route_summary_stats"></a>
@@ -690,3 +793,50 @@ Read-Only:
 - `spu_memory` (Number)
 - `spu_pending_session` (Number)
 - `spu_valid_session` (Number)
+
+
+<a id="nestedatt--device_gateway_stats--tunnels"></a>
+### Nested Schema for `device_gateway_stats.tunnels`
+
+Read-Only:
+
+- `auth_algo` (String) Authentication algorithm
+- `encrypt_algo` (String) Encryption algorithm
+- `ike_version` (String) IKE version
+- `ip` (String) IPaddress
+- `last_event` (String) Reason of why the tunnel is down
+- `last_flapped` (Number) Indicates when the port was last flapped
+- `node` (String) Node0/node1
+- `peer_host` (String) Peer host
+- `peer_ip` (String) Peer ip address
+- `priority` (String) enum: `primary`, `secondary`
+- `protocol` (String) enum: `gre`, `ipsec`
+- `rx_bytes` (Number)
+- `rx_pkts` (Number)
+- `tunnel_name` (String) Mist Tunnel Name
+- `tx_bytes` (Number)
+- `tx_pkts` (Number)
+- `up` (Boolean)
+- `uptime` (Number) Duration from first (or last) SA was established
+- `wan_name` (String) WAN interface name
+
+
+<a id="nestedatt--device_gateway_stats--vpn_peers"></a>
+### Nested Schema for `device_gateway_stats.vpn_peers`
+
+Read-Only:
+
+- `is_active` (Boolean) Redundancy status of the associated interface
+- `last_seen` (Number)
+- `latency` (Number)
+- `mos` (Number)
+- `mtu` (Number)
+- `peer_mac` (String) Peer router mac address
+- `peer_port_id` (String) Peer router device interface
+- `peer_router_name` (String)
+- `peer_site_id` (String)
+- `port_id` (String) Router device interface
+- `router_name` (String)
+- `type` (String) `ipsec`for SRX, `svr` for 128T
+- `up` (Boolean)
+- `uptime` (Number)

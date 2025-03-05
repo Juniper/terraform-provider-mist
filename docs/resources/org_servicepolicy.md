@@ -50,6 +50,7 @@ resource "mist_org_servicepolicy" "servicepolicy_one" {
 
 ### Optional
 
+- `aamw` (Attributes) For SRX Only (see [below for nested schema](#nestedatt--aamw))
 - `action` (String) enum: `allow`, `deny`
 - `antivirus` (Attributes) For SRX-only (see [below for nested schema](#nestedatt--antivirus))
 - `appqoe` (Attributes) For SRX Only (see [below for nested schema](#nestedatt--appqoe))
@@ -63,14 +64,24 @@ resource "mist_org_servicepolicy" "servicepolicy_one" {
 
 ### Read-Only
 
-- `id` (String) Unique ID of the object instance in the Mist Organnization
+- `id` (String) Unique ID of the object instance in the Mist Organization
+
+<a id="nestedatt--aamw"></a>
+### Nested Schema for `aamw`
+
+Optional:
+
+- `aamwprofile_id` (String) org-level Advanced Advance Anti Malware Profile (SkyAtp) Profile can be used, this takes precedence over 'profile'
+- `enabled` (Boolean)
+- `profile` (String) enum: `docsonly`, `executables`, `standard`
+
 
 <a id="nestedatt--antivirus"></a>
 ### Nested Schema for `antivirus`
 
 Optional:
 
-- `avprofile_id` (String) org-level AV Profile can be used, this takes precendence over 'profile'
+- `avprofile_id` (String) org-level AV Profile can be used, this takes precedence over 'profile'
 - `enabled` (Boolean)
 - `profile` (String) Default / noftp / httponly / or keys from av_profiles
 

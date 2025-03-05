@@ -51,20 +51,21 @@ resource "mist_site" "juniper_france" {
 
 - `alarmtemplate_id` (String) Alarm Template ID, this takes precedence over the Org-level alarmtemplate_id
 - `aptemplate_id` (String) AP Template ID, used by APs
-- `country_code` (String) country code for the site (for AP config generation), in two-character
+- `country_code` (String) Country code for the site (for AP config generation), in two-character
 - `gatewaytemplate_id` (String) Gateway Template ID, used by gateways
 - `latlng` (Attributes) (see [below for nested schema](#nestedatt--latlng))
 - `networktemplate_id` (String) Network Template ID, this takes precedence over Site Settings
-- `notes` (String) optional, any notes about the site
+- `notes` (String) Optional, any notes about the site
 - `rftemplate_id` (String) RF Template ID, this takes precedence over Site Settings
 - `secpolicy_id` (String) SecPolicy ID
-- `sitegroup_ids` (List of String) sitegroups this site belongs to
+- `sitegroup_ids` (List of String) Sitegroups this site belongs to
 - `sitetemplate_id` (String) Site Template ID
 - `timezone` (String) Timezone the site is at
+- `tzoffset` (Number)
 
 ### Read-Only
 
-- `id` (String) Unique ID of the object instance in the Mist Organnization
+- `id` (String) Unique ID of the object instance in the Mist Organization
 
 <a id="nestedatt--latlng"></a>
 ### Nested Schema for `latlng`

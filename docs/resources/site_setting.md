@@ -62,6 +62,7 @@ resource "mist_site_setting" "site_one" {
 - `config_push_policy` (Attributes) Mist also uses some heuristic rules to prevent destructive configs from being pushed (see [below for nested schema](#nestedatt--config_push_policy))
 - `critical_url_monitoring` (Attributes) You can define some URLs that's critical to site operations the latency will be captured and considered for site health (see [below for nested schema](#nestedatt--critical_url_monitoring))
 - `device_updown_threshold` (Number) By default, device_updown_thresold, if set, will apply to all devices types if different values for specific device type is desired, use the following
+- `enable_unii_4` (Boolean)
 - `engagement` (Attributes) **Note**: if hours does not exist, it's treated as everyday of the week, 00:00-23:59. Currently, we don't allow multiple ranges for the same day (see [below for nested schema](#nestedatt--engagement))
 - `gateway_mgmt` (Attributes) Gateway Site settings (see [below for nested schema](#nestedatt--gateway_mgmt))
 - `gateway_updown_threshold` (Number) Enable threshold-based device down delivery for Gateway devices only. When configured it takes effect for GW devices and `device_updown_threshold` is ignored.
@@ -74,7 +75,7 @@ resource "mist_site_setting" "site_one" {
 - `report_gatt` (Boolean) Whether AP should periodically connect to BLE devices and report GATT device info (device name, manufacturer name, serial number, battery %, temperature, humidity)
 - `rogue` (Attributes) Rogue site settings (see [below for nested schema](#nestedatt--rogue))
 - `rtsa` (Attributes) Managed mobility (see [below for nested schema](#nestedatt--rtsa))
-- `simple_alert` (Attributes) Set of heuristic rules will be enabled when marvis subscription is not available. It triggers when, in a Z minute window, there are more than Y distinct client encountring over X failures (see [below for nested schema](#nestedatt--simple_alert))
+- `simple_alert` (Attributes) Set of heuristic rules will be enabled when marvis subscription is not available. It triggers when, in a Z minute window, there are more than Y distinct client encountering over X failures (see [below for nested schema](#nestedatt--simple_alert))
 - `skyatp` (Attributes) (see [below for nested schema](#nestedatt--skyatp))
 - `srx_app` (Attributes) (see [below for nested schema](#nestedatt--srx_app))
 - `ssh_keys` (List of String) When limit_ssh_access = true in Org Setting, list of SSH public keys provided by Mist Support to install onto APs (see Org:Setting)
@@ -85,7 +86,7 @@ resource "mist_site_setting" "site_one" {
 - `uplink_port_config` (Attributes) AP Uplink port configuration (see [below for nested schema](#nestedatt--uplink_port_config))
 - `vars` (Map of String) Dictionary of name->value, the vars can then be used in Wlans. This can overwrite those from Site Vars
 - `vna` (Attributes) (see [below for nested schema](#nestedatt--vna))
-- `vs_instance` (Attributes Map) Optional, for EX9200 only to seggregate virtual-switches. Property key is the instance name (see [below for nested schema](#nestedatt--vs_instance))
+- `vs_instance` (Attributes Map) Optional, for EX9200 only to segregate virtual-switches. Property key is the instance name (see [below for nested schema](#nestedatt--vs_instance))
 - `wan_vna` (Attributes) (see [below for nested schema](#nestedatt--wan_vna))
 - `wids` (Attributes) WIDS site settings (see [below for nested schema](#nestedatt--wids))
 - `wifi` (Attributes) Wi-Fi site settings (see [below for nested schema](#nestedatt--wifi))
@@ -262,6 +263,8 @@ Optional:
 - `config_revert_timer` (Number) Rollback timer for commit confirmed
 - `disable_console` (Boolean) For both SSR and SRX disable console port
 - `disable_oob` (Boolean) For both SSR and SRX disable management interface
+- `disable_usb` (Boolean) For SSR disable usb interface
+- `fips_enabled` (Boolean)
 - `probe_hosts` (List of String)
 - `protect_re` (Attributes) Restrict inbound-traffic to host
 when enabled, all traffic that is not essential to our operation will be dropped 
@@ -275,7 +278,7 @@ e.g. ntp / dns / traffic to mist will be allowed by default, if dhcpd is enabled
 
 Optional:
 
-- `apps` (List of String) APp-keys from /api/v1/const/applications
+- `apps` (List of String) APp-keys from [List Applications]($e/Constants%20Definitions/listApplications)
 - `custom_apps` (Attributes List) (see [below for nested schema](#nestedatt--gateway_mgmt--app_probing--custom_apps))
 - `enabled` (Boolean)
 
@@ -356,6 +359,7 @@ Optional:
 Optional:
 
 - `api_key` (String)
+- `api_password` (String)
 - `api_url` (String)
 
 
@@ -394,10 +398,13 @@ Optional:
 
 Optional:
 
+- `allowed_vlan_ids` (List of Number) list of VLAN IDs on which rogue APs are ignored
 - `enabled` (Boolean) Whether rogue detection is enabled
 - `honeypot_enabled` (Boolean) Whether honeypot detection is enabled
-- `min_duration` (Number) Minimum duration for a bssid to be considered rogue
-- `min_rssi` (Number) Minimum RSSI for an AP to be considered rogue (ignoring APs that’s far away)
+- `min_duration` (Number) Minimum duration for a bssid to be considered neighbor
+- `min_rogue_duration` (Number) Minimum duration for a bssid to be considered rogue
+- `min_rogue_rssi` (Number) Minimum RSSI for an AP to be considered rogue
+- `min_rssi` (Number) Minimum RSSI for an AP to be considered neighbor (ignoring APs that’s far away)
 - `whitelisted_bssids` (List of String) list of BSSIDs to whitelist. Ex: "cc-:8e-:6f-:d4-:bf-:16", "cc-8e-6f-d4-bf-16", "cc-73-*", "cc:82:*"
 - `whitelisted_ssids` (List of String) List of SSIDs to whitelist
 
@@ -514,7 +521,7 @@ Optional:
 
 Optional:
 
-- `dot1x` (Boolean) Whether to do 802.1x against uplink switch. When enaled, AP cert will be used to do EAP-TLS and the Org's CA Cert has to be provisioned at the switch
+- `dot1x` (Boolean) Whether to do 802.1x against uplink switch. When enabled, AP cert will be used to do EAP-TLS and the Org's CA Cert has to be provisioned at the switch
 - `keep_wlans_up_if_down` (Boolean) By default, WLANs are disabled when uplink is down. In some scenario, like SiteSurvey, one would want the AP to keep sending beacons.
 
 
@@ -572,7 +579,7 @@ Optional:
 - `enabled` (Boolean) Enable Wi-Fi feature (using SUB-MAN license)
 - `locate_connected` (Boolean) Whether to locate connected clients
 - `locate_unconnected` (Boolean) Whether to locate unconnected clients
-- `mesh_allow_dfs` (Boolean) Whether to allow Mesh to use DFS channels. For DFS channels, Remote Mesh AP would have to do CAC when scanning for new Base AP, which is slow and will distrupt the connection. If roaming is desired, keep it disabled.
+- `mesh_allow_dfs` (Boolean) Whether to allow Mesh to use DFS channels. For DFS channels, Remote Mesh AP would have to do CAC when scanning for new Base AP, which is slow and will disrupt the connection. If roaming is desired, keep it disabled.
 - `mesh_enable_crm` (Boolean) Used to enable/disable CRM
 - `mesh_enabled` (Boolean) Whether to enable Mesh feature for the site
 - `mesh_psk` (String, Sensitive) Optional passphrase of mesh networking, default is generated randomly

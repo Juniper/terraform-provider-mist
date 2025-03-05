@@ -52,13 +52,13 @@ data "mist_site_psks" "psks_vip" {
 Read-Only:
 
 - `admin_sso_id` (String) sso id for psk created from psk portal
-- `created_time` (Number) when the object has been created, in epoch
+- `created_time` (Number) When the object has been created, in epoch
 - `email` (String) email to send psk expiring notifications to
 - `expire_time` (Number) Expire time for this PSK key (epoch time in seconds). Default `null` (as no expiration)
 - `expiry_notification_time` (Number) Number of days before psk is expired. Used as to when to start sending reminder notification when the psk is about to expire
-- `id` (String) Unique ID of the object instance in the Mist Organnization
-- `mac` (String) if `usage`==`single`, the mac that this PSK ties to, empty if `auto-binding`
-- `modified_time` (Number) when the object has been modified for the last time, in epoch
+- `id` (String) Unique ID of the object instance in the Mist Organization
+- `mac` (String) If `usage`==`single`, the mac that this PSK ties to, empty if `auto-binding`
+- `modified_time` (Number) When the object has been modified for the last time, in epoch
 - `name` (String)
 - `note` (String)
 - `notify_expiry` (Boolean) If set to true, reminder notification will be sent when psk is about to expire

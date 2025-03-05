@@ -45,31 +45,35 @@ resource "mist_org_nacrule" "nacrule_one" {
 
 - `action` (String) enum: `allow`, `block`
 - `name` (String)
-- `order` (Number) the order of the rule, lower value implies higher priority
+- `order` (Number) Prder of the rule, lower value implies higher priority
 - `org_id` (String)
 
 ### Optional
 
-- `apply_tags` (List of String) all optional, this goes into Access-Accept
-- `enabled` (Boolean) enabled or not
+- `apply_tags` (List of String) All optional, this goes into Access-Accept
+- `enabled` (Boolean) Enabled or not
 - `matching` (Attributes) (see [below for nested schema](#nestedatt--matching))
 - `not_matching` (Attributes) (see [below for nested schema](#nestedatt--not_matching))
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
+- `id` (String) Unique ID of the object instance in the Mist Organization
 
 <a id="nestedatt--matching"></a>
 ### Nested Schema for `matching`
 
 Optional:
 
-- `auth_type` (String) enum: `cert`, `device-auth`, `eap-teap`, `eap-tls`, `eap-ttls`, `idp`, `mab`, `psk`
+- `auth_type` (String) enum: `cert`, `device-auth`, `eap-teap`, `eap-tls`, `eap-ttls`, `idp`, `mab`, `peap-tls`, `psk`
+- `family` (List of String) List of client device families to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed family values
+- `mfg` (List of String) List of client device models to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed model values
+- `model` (List of String) List of client device manufacturers to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed mfg values
 - `nactags` (List of String)
+- `os_type` (List of String) List of client device os types to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed os_type values
 - `port_types` (List of String)
-- `site_ids` (List of String) list of site ids to match
-- `sitegroup_ids` (List of String) list of sitegroup ids to match
-- `vendor` (List of String) list of vendors to match
+- `site_ids` (List of String) List of site ids to match
+- `sitegroup_ids` (List of String) List of sitegroup ids to match
+- `vendor` (List of String) List of vendors to match
 
 
 <a id="nestedatt--not_matching"></a>
@@ -77,12 +81,16 @@ Optional:
 
 Optional:
 
-- `auth_type` (String) enum: `cert`, `device-auth`, `eap-teap`, `eap-tls`, `eap-ttls`, `idp`, `mab`, `psk`
+- `auth_type` (String) enum: `cert`, `device-auth`, `eap-teap`, `eap-tls`, `eap-ttls`, `idp`, `mab`, `peap-tls`, `psk`
+- `family` (List of String) List of client device families to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed family values
+- `mfg` (List of String) List of client device models to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed model values
+- `model` (List of String) List of client device manufacturers to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed mfg values
 - `nactags` (List of String)
+- `os_type` (List of String) List of client device os types to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed os_type values
 - `port_types` (List of String)
-- `site_ids` (List of String) list of site ids to match
-- `sitegroup_ids` (List of String) list of sitegroup ids to match
-- `vendor` (List of String) list of vendors to match
+- `site_ids` (List of String) List of site ids to match
+- `sitegroup_ids` (List of String) List of sitegroup ids to match
+- `vendor` (List of String) List of vendors to match
 
 
 
