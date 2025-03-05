@@ -13,6 +13,8 @@ func SdkToTerraform(data *models.Site) (SiteModel, diag.Diagnostics) {
 	var state SiteModel
 	var diags diag.Diagnostics
 
+	unset := make(map[string]interface{})
+
 	state.Id = types.StringValue(data.Id.String())
 	state.OrgId = types.StringValue(data.OrgId.String())
 	state.Name = types.StringValue(data.Name)
@@ -30,6 +32,7 @@ func SdkToTerraform(data *models.Site) (SiteModel, diag.Diagnostics) {
 	var secpolicyId basetypes.StringValue
 	var sitetemplateId basetypes.StringValue
 	var sitegroupIds = types.ListNull(types.StringType)
+	var tzOffset basetypes.Int64Value
 
 	if data.Address != nil {
 		address = types.StringValue(*data.Address)
@@ -93,6 +96,11 @@ func SdkToTerraform(data *models.Site) (SiteModel, diag.Diagnostics) {
 			sitegroupIds = list
 		}
 	}
+	if data.Tzoffset != nil {
+		tzOffset = types.Int64Value(int64(*data.Tzoffset))
+	} else {
+		unset["-tzoffset"] = ""
+	}
 
 	state.Address = address
 	state.Latlng = latlng
@@ -107,6 +115,7 @@ func SdkToTerraform(data *models.Site) (SiteModel, diag.Diagnostics) {
 	state.SecpolicyId = secpolicyId
 	state.SitetemplateId = sitetemplateId
 	state.SitegroupIds = sitegroupIds
+	state.Tzoffset = tzOffset
 
 	return state, diags
 }

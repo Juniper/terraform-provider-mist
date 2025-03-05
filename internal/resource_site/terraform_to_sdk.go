@@ -138,6 +138,10 @@ func TerraformToSdk(plan *SiteModel) (*models.Site, diag.Diagnostics) {
 		unset["-sitegroup_ids"] = ""
 	}
 
+	if !plan.Tzoffset.IsNull() && !plan.Tzoffset.IsUnknown() {
+		data.Tzoffset = models.ToPointer(int(plan.Tzoffset.ValueInt64()))
+	}
+
 	data.AdditionalProperties = unset
 	return &data, diags
 }
