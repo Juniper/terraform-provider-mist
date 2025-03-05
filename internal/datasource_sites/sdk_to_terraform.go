@@ -2,7 +2,6 @@ package datasource_sites
 
 import (
 	"context"
-	"math/big"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -29,11 +28,11 @@ func siteSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 	var alarmtemplateId basetypes.StringValue
 	var aptemplateId basetypes.StringValue
 	var countryCode basetypes.StringValue
-	var createdTime basetypes.NumberValue
+	var createdTime basetypes.Float64Value
 	var gatewaytemplateId basetypes.StringValue
 	var id basetypes.StringValue
 	var latlng = types.ObjectNull(LatlngValue{}.AttributeTypes(ctx))
-	var modifiedTime basetypes.NumberValue
+	var modifiedTime basetypes.Float64Value
 	var name basetypes.StringValue
 	var networktemplateId basetypes.StringValue
 	var notes basetypes.StringValue
@@ -57,7 +56,7 @@ func siteSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 		countryCode = types.StringValue(*d.CountryCode)
 	}
 	if d.CreatedTime != nil {
-		createdTime = types.NumberValue(big.NewFloat(*d.CreatedTime))
+		createdTime = types.Float64Value(*d.CreatedTime)
 	}
 	if d.GatewaytemplateId.Value() != nil {
 		gatewaytemplateId = types.StringValue(d.GatewaytemplateId.Value().String())
@@ -81,7 +80,7 @@ func siteSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 		diags.Append(e...)
 	}
 	if d.ModifiedTime != nil {
-		modifiedTime = types.NumberValue(big.NewFloat(*d.ModifiedTime))
+		modifiedTime = types.Float64Value(*d.ModifiedTime)
 	}
 	name = types.StringValue(d.Name)
 
