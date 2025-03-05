@@ -177,31 +177,6 @@ func OrgServicepoliciesDataSourceSchema(ctx context.Context) schema.Schema {
 							Description:         "By default, we derive all paths available and use them, optionally, you can customize by using `path_preference`",
 							MarkdownDescription: "By default, we derive all paths available and use them, optionally, you can customize by using `path_preference`",
 						},
-						"secintel": schema.SingleNestedAttribute{
-							Attributes: map[string]schema.Attribute{
-								"enabled": schema.BoolAttribute{
-									Computed: true,
-								},
-								"profile": schema.StringAttribute{
-									Computed:            true,
-									Description:         "enum: `default`, `standard`, `strict`",
-									MarkdownDescription: "enum: `default`, `standard`, `strict`",
-								},
-								"secintelprofile_id": schema.StringAttribute{
-									Computed:            true,
-									Description:         "org-level secintel Profile can be used, this takes precedence over 'profile'",
-									MarkdownDescription: "org-level secintel Profile can be used, this takes precedence over 'profile'",
-								},
-							},
-							CustomType: SecintelType{
-								ObjectType: types.ObjectType{
-									AttrTypes: SecintelValue{}.AttributeTypes(ctx),
-								},
-							},
-							Computed:            true,
-							Description:         "For SRX Only",
-							MarkdownDescription: "For SRX Only",
-						},
 						"services": schema.ListAttribute{
 							ElementType: types.StringType,
 							Computed:    true,
@@ -507,24 +482,6 @@ func (t OrgServicepoliciesType) ValueFromObject(ctx context.Context, in basetype
 			fmt.Sprintf(`path_preference expected to be basetypes.StringValue, was: %T`, pathPreferenceAttribute))
 	}
 
-	secintelAttribute, ok := attributes["secintel"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`secintel is missing from object`)
-
-		return nil, diags
-	}
-
-	secintelVal, ok := secintelAttribute.(basetypes.ObjectValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`secintel expected to be basetypes.ObjectValue, was: %T`, secintelAttribute))
-	}
-
 	servicesAttribute, ok := attributes["services"]
 
 	if !ok {
@@ -597,7 +554,6 @@ func (t OrgServicepoliciesType) ValueFromObject(ctx context.Context, in basetype
 		Name:           nameVal,
 		OrgId:          orgIdVal,
 		PathPreference: pathPreferenceVal,
-		Secintel:       secintelVal,
 		Services:       servicesVal,
 		SslProxy:       sslProxyVal,
 		Tenants:        tenantsVal,
@@ -902,24 +858,6 @@ func NewOrgServicepoliciesValue(attributeTypes map[string]attr.Type, attributes 
 			fmt.Sprintf(`path_preference expected to be basetypes.StringValue, was: %T`, pathPreferenceAttribute))
 	}
 
-	secintelAttribute, ok := attributes["secintel"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`secintel is missing from object`)
-
-		return NewOrgServicepoliciesValueUnknown(), diags
-	}
-
-	secintelVal, ok := secintelAttribute.(basetypes.ObjectValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`secintel expected to be basetypes.ObjectValue, was: %T`, secintelAttribute))
-	}
-
 	servicesAttribute, ok := attributes["services"]
 
 	if !ok {
@@ -992,7 +930,6 @@ func NewOrgServicepoliciesValue(attributeTypes map[string]attr.Type, attributes 
 		Name:           nameVal,
 		OrgId:          orgIdVal,
 		PathPreference: pathPreferenceVal,
-		Secintel:       secintelVal,
 		Services:       servicesVal,
 		SslProxy:       sslProxyVal,
 		Tenants:        tenantsVal,
@@ -1081,7 +1018,6 @@ type OrgServicepoliciesValue struct {
 	Name           basetypes.StringValue  `tfsdk:"name"`
 	OrgId          basetypes.StringValue  `tfsdk:"org_id"`
 	PathPreference basetypes.StringValue  `tfsdk:"path_preference"`
-	Secintel       basetypes.ObjectValue  `tfsdk:"secintel"`
 	Services       basetypes.ListValue    `tfsdk:"services"`
 	SslProxy       basetypes.ObjectValue  `tfsdk:"ssl_proxy"`
 	Tenants        basetypes.ListValue    `tfsdk:"tenants"`
@@ -1089,7 +1025,7 @@ type OrgServicepoliciesValue struct {
 }
 
 func (v OrgServicepoliciesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 17)
+	attrTypes := make(map[string]tftypes.Type, 16)
 
 	var val tftypes.Value
 	var err error
@@ -1117,9 +1053,6 @@ func (v OrgServicepoliciesValue) ToTerraformValue(ctx context.Context) (tftypes.
 	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["org_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["path_preference"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["secintel"] = basetypes.ObjectType{
-		AttrTypes: SecintelValue{}.AttributeTypes(ctx),
-	}.TerraformType(ctx)
 	attrTypes["services"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
@@ -1134,7 +1067,7 @@ func (v OrgServicepoliciesValue) ToTerraformValue(ctx context.Context) (tftypes.
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 17)
+		vals := make(map[string]tftypes.Value, 16)
 
 		val, err = v.Aamw.ToTerraformValue(ctx)
 
@@ -1239,14 +1172,6 @@ func (v OrgServicepoliciesValue) ToTerraformValue(ctx context.Context) (tftypes.
 		}
 
 		vals["path_preference"] = val
-
-		val, err = v.Secintel.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["secintel"] = val
 
 		val, err = v.Services.ToTerraformValue(ctx)
 
@@ -1414,27 +1339,6 @@ func (v OrgServicepoliciesValue) ToObjectValue(ctx context.Context) (basetypes.O
 		)
 	}
 
-	var secintel basetypes.ObjectValue
-
-	if v.Secintel.IsNull() {
-		secintel = types.ObjectNull(
-			SecintelValue{}.AttributeTypes(ctx),
-		)
-	}
-
-	if v.Secintel.IsUnknown() {
-		secintel = types.ObjectUnknown(
-			SecintelValue{}.AttributeTypes(ctx),
-		)
-	}
-
-	if !v.Secintel.IsNull() && !v.Secintel.IsUnknown() {
-		secintel = types.ObjectValueMust(
-			SecintelValue{}.AttributeTypes(ctx),
-			v.Secintel.Attributes(),
-		)
-	}
-
 	var sslProxy basetypes.ObjectValue
 
 	if v.SslProxy.IsNull() {
@@ -1485,9 +1389,6 @@ func (v OrgServicepoliciesValue) ToObjectValue(ctx context.Context) (basetypes.O
 			"name":            basetypes.StringType{},
 			"org_id":          basetypes.StringType{},
 			"path_preference": basetypes.StringType{},
-			"secintel": basetypes.ObjectType{
-				AttrTypes: SecintelValue{}.AttributeTypes(ctx),
-			},
 			"services": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -1529,9 +1430,6 @@ func (v OrgServicepoliciesValue) ToObjectValue(ctx context.Context) (basetypes.O
 			"name":            basetypes.StringType{},
 			"org_id":          basetypes.StringType{},
 			"path_preference": basetypes.StringType{},
-			"secintel": basetypes.ObjectType{
-				AttrTypes: SecintelValue{}.AttributeTypes(ctx),
-			},
 			"services": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -1568,9 +1466,6 @@ func (v OrgServicepoliciesValue) ToObjectValue(ctx context.Context) (basetypes.O
 		"name":            basetypes.StringType{},
 		"org_id":          basetypes.StringType{},
 		"path_preference": basetypes.StringType{},
-		"secintel": basetypes.ObjectType{
-			AttrTypes: SecintelValue{}.AttributeTypes(ctx),
-		},
 		"services": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -1606,7 +1501,6 @@ func (v OrgServicepoliciesValue) ToObjectValue(ctx context.Context) (basetypes.O
 			"name":            v.Name,
 			"org_id":          v.OrgId,
 			"path_preference": v.PathPreference,
-			"secintel":        secintel,
 			"services":        servicesVal,
 			"ssl_proxy":       sslProxy,
 			"tenants":         tenantsVal,
@@ -1682,10 +1576,6 @@ func (v OrgServicepoliciesValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.Secintel.Equal(other.Secintel) {
-		return false
-	}
-
 	if !v.Services.Equal(other.Services) {
 		return false
 	}
@@ -1734,9 +1624,6 @@ func (v OrgServicepoliciesValue) AttributeTypes(ctx context.Context) map[string]
 		"name":            basetypes.StringType{},
 		"org_id":          basetypes.StringType{},
 		"path_preference": basetypes.StringType{},
-		"secintel": basetypes.ObjectType{
-			AttrTypes: SecintelValue{}.AttributeTypes(ctx),
-		},
 		"services": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -3916,440 +3803,6 @@ func (v IdpValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 		"enabled":       basetypes.BoolType{},
 		"idpprofile_id": basetypes.StringType{},
 		"profile":       basetypes.StringType{},
-	}
-}
-
-var _ basetypes.ObjectTypable = SecintelType{}
-
-type SecintelType struct {
-	basetypes.ObjectType
-}
-
-func (t SecintelType) Equal(o attr.Type) bool {
-	other, ok := o.(SecintelType)
-
-	if !ok {
-		return false
-	}
-
-	return t.ObjectType.Equal(other.ObjectType)
-}
-
-func (t SecintelType) String() string {
-	return "SecintelType"
-}
-
-func (t SecintelType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
-	var diags diag.Diagnostics
-
-	attributes := in.Attributes()
-
-	enabledAttribute, ok := attributes["enabled"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`enabled is missing from object`)
-
-		return nil, diags
-	}
-
-	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
-	}
-
-	profileAttribute, ok := attributes["profile"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`profile is missing from object`)
-
-		return nil, diags
-	}
-
-	profileVal, ok := profileAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`profile expected to be basetypes.StringValue, was: %T`, profileAttribute))
-	}
-
-	secintelprofileIdAttribute, ok := attributes["secintelprofile_id"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`secintelprofile_id is missing from object`)
-
-		return nil, diags
-	}
-
-	secintelprofileIdVal, ok := secintelprofileIdAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`secintelprofile_id expected to be basetypes.StringValue, was: %T`, secintelprofileIdAttribute))
-	}
-
-	if diags.HasError() {
-		return nil, diags
-	}
-
-	return SecintelValue{
-		Enabled:           enabledVal,
-		Profile:           profileVal,
-		SecintelprofileId: secintelprofileIdVal,
-		state:             attr.ValueStateKnown,
-	}, diags
-}
-
-func NewSecintelValueNull() SecintelValue {
-	return SecintelValue{
-		state: attr.ValueStateNull,
-	}
-}
-
-func NewSecintelValueUnknown() SecintelValue {
-	return SecintelValue{
-		state: attr.ValueStateUnknown,
-	}
-}
-
-func NewSecintelValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (SecintelValue, diag.Diagnostics) {
-	var diags diag.Diagnostics
-
-	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
-	ctx := context.Background()
-
-	for name, attributeType := range attributeTypes {
-		attribute, ok := attributes[name]
-
-		if !ok {
-			diags.AddError(
-				"Missing SecintelValue Attribute Value",
-				"While creating a SecintelValue value, a missing attribute value was detected. "+
-					"A SecintelValue must contain values for all attributes, even if null or unknown. "+
-					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("SecintelValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
-			)
-
-			continue
-		}
-
-		if !attributeType.Equal(attribute.Type(ctx)) {
-			diags.AddError(
-				"Invalid SecintelValue Attribute Type",
-				"While creating a SecintelValue value, an invalid attribute value was detected. "+
-					"A SecintelValue must use a matching attribute type for the value. "+
-					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("SecintelValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
-					fmt.Sprintf("SecintelValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
-			)
-		}
-	}
-
-	for name := range attributes {
-		_, ok := attributeTypes[name]
-
-		if !ok {
-			diags.AddError(
-				"Extra SecintelValue Attribute Value",
-				"While creating a SecintelValue value, an extra attribute value was detected. "+
-					"A SecintelValue must not contain values beyond the expected attribute types. "+
-					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("Extra SecintelValue Attribute Name: %s", name),
-			)
-		}
-	}
-
-	if diags.HasError() {
-		return NewSecintelValueUnknown(), diags
-	}
-
-	enabledAttribute, ok := attributes["enabled"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`enabled is missing from object`)
-
-		return NewSecintelValueUnknown(), diags
-	}
-
-	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
-	}
-
-	profileAttribute, ok := attributes["profile"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`profile is missing from object`)
-
-		return NewSecintelValueUnknown(), diags
-	}
-
-	profileVal, ok := profileAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`profile expected to be basetypes.StringValue, was: %T`, profileAttribute))
-	}
-
-	secintelprofileIdAttribute, ok := attributes["secintelprofile_id"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`secintelprofile_id is missing from object`)
-
-		return NewSecintelValueUnknown(), diags
-	}
-
-	secintelprofileIdVal, ok := secintelprofileIdAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`secintelprofile_id expected to be basetypes.StringValue, was: %T`, secintelprofileIdAttribute))
-	}
-
-	if diags.HasError() {
-		return NewSecintelValueUnknown(), diags
-	}
-
-	return SecintelValue{
-		Enabled:           enabledVal,
-		Profile:           profileVal,
-		SecintelprofileId: secintelprofileIdVal,
-		state:             attr.ValueStateKnown,
-	}, diags
-}
-
-func NewSecintelValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) SecintelValue {
-	object, diags := NewSecintelValue(attributeTypes, attributes)
-
-	if diags.HasError() {
-		// This could potentially be added to the diag package.
-		diagsStrings := make([]string, 0, len(diags))
-
-		for _, diagnostic := range diags {
-			diagsStrings = append(diagsStrings, fmt.Sprintf(
-				"%s | %s | %s",
-				diagnostic.Severity(),
-				diagnostic.Summary(),
-				diagnostic.Detail()))
-		}
-
-		panic("NewSecintelValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
-	}
-
-	return object
-}
-
-func (t SecintelType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
-	if in.Type() == nil {
-		return NewSecintelValueNull(), nil
-	}
-
-	if !in.Type().Equal(t.TerraformType(ctx)) {
-		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
-	}
-
-	if !in.IsKnown() {
-		return NewSecintelValueUnknown(), nil
-	}
-
-	if in.IsNull() {
-		return NewSecintelValueNull(), nil
-	}
-
-	attributes := map[string]attr.Value{}
-
-	val := map[string]tftypes.Value{}
-
-	err := in.As(&val)
-
-	if err != nil {
-		return nil, err
-	}
-
-	for k, v := range val {
-		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
-
-		if err != nil {
-			return nil, err
-		}
-
-		attributes[k] = a
-	}
-
-	return NewSecintelValueMust(SecintelValue{}.AttributeTypes(ctx), attributes), nil
-}
-
-func (t SecintelType) ValueType(ctx context.Context) attr.Value {
-	return SecintelValue{}
-}
-
-var _ basetypes.ObjectValuable = SecintelValue{}
-
-type SecintelValue struct {
-	Enabled           basetypes.BoolValue   `tfsdk:"enabled"`
-	Profile           basetypes.StringValue `tfsdk:"profile"`
-	SecintelprofileId basetypes.StringValue `tfsdk:"secintelprofile_id"`
-	state             attr.ValueState
-}
-
-func (v SecintelValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 3)
-
-	var val tftypes.Value
-	var err error
-
-	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["profile"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["secintelprofile_id"] = basetypes.StringType{}.TerraformType(ctx)
-
-	objectType := tftypes.Object{AttributeTypes: attrTypes}
-
-	switch v.state {
-	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 3)
-
-		val, err = v.Enabled.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["enabled"] = val
-
-		val, err = v.Profile.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["profile"] = val
-
-		val, err = v.SecintelprofileId.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["secintelprofile_id"] = val
-
-		if err := tftypes.ValidateValue(objectType, vals); err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		return tftypes.NewValue(objectType, vals), nil
-	case attr.ValueStateNull:
-		return tftypes.NewValue(objectType, nil), nil
-	case attr.ValueStateUnknown:
-		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
-	default:
-		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
-	}
-}
-
-func (v SecintelValue) IsNull() bool {
-	return v.state == attr.ValueStateNull
-}
-
-func (v SecintelValue) IsUnknown() bool {
-	return v.state == attr.ValueStateUnknown
-}
-
-func (v SecintelValue) String() string {
-	return "SecintelValue"
-}
-
-func (v SecintelValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
-	var diags diag.Diagnostics
-
-	attributeTypes := map[string]attr.Type{
-		"enabled":            basetypes.BoolType{},
-		"profile":            basetypes.StringType{},
-		"secintelprofile_id": basetypes.StringType{},
-	}
-
-	if v.IsNull() {
-		return types.ObjectNull(attributeTypes), diags
-	}
-
-	if v.IsUnknown() {
-		return types.ObjectUnknown(attributeTypes), diags
-	}
-
-	objVal, diags := types.ObjectValue(
-		attributeTypes,
-		map[string]attr.Value{
-			"enabled":            v.Enabled,
-			"profile":            v.Profile,
-			"secintelprofile_id": v.SecintelprofileId,
-		})
-
-	return objVal, diags
-}
-
-func (v SecintelValue) Equal(o attr.Value) bool {
-	other, ok := o.(SecintelValue)
-
-	if !ok {
-		return false
-	}
-
-	if v.state != other.state {
-		return false
-	}
-
-	if v.state != attr.ValueStateKnown {
-		return true
-	}
-
-	if !v.Enabled.Equal(other.Enabled) {
-		return false
-	}
-
-	if !v.Profile.Equal(other.Profile) {
-		return false
-	}
-
-	if !v.SecintelprofileId.Equal(other.SecintelprofileId) {
-		return false
-	}
-
-	return true
-}
-
-func (v SecintelValue) Type(ctx context.Context) attr.Type {
-	return SecintelType{
-		basetypes.ObjectType{
-			AttrTypes: v.AttributeTypes(ctx),
-		},
-	}
-}
-
-func (v SecintelValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
-	return map[string]attr.Type{
-		"enabled":            basetypes.BoolType{},
-		"profile":            basetypes.StringType{},
-		"secintelprofile_id": basetypes.StringType{},
 	}
 }
 

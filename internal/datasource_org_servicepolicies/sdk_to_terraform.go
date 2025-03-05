@@ -2,7 +2,6 @@ package datasource_org_servicepolicies
 
 import (
 	"context"
-	"math/big"
 
 	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
@@ -27,28 +26,37 @@ func SdkToTerraform(ctx context.Context, l *[]models.OrgServicePolicy, elements 
 
 func servicepolicieSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.OrgServicePolicy) OrgServicepoliciesValue {
 
+	var aamw = types.ObjectNull(AamwValue{}.AttributeTypes(ctx))
 	var action types.String
+	var antivirus = types.ObjectNull(AntivirusValue{}.AttributeTypes(ctx))
 	var appqoe = types.ObjectNull(AppqoeValue{}.AttributeTypes(ctx))
-	var createdTime basetypes.NumberValue
+	var createdTime basetypes.Float64Value
 	var ewf = types.ListNull(EwfValue{}.Type(ctx))
 	var id types.String
 	var idp = types.ObjectNull(IdpValue{}.AttributeTypes(ctx))
 	var localRouting types.Bool
-	var modifiedTime basetypes.NumberValue
+	var modifiedTime basetypes.Float64Value
 	var name types.String
 	var orgId types.String
 	var pathPreference types.String
 	var services = types.ListNull(types.StringType)
+	var sslProxy = types.ObjectNull(SslProxyValue{}.AttributeTypes(ctx))
 	var tenants = types.ListNull(types.StringType)
 
+	if d.Aamw != nil {
+		aamw = aamwSdkToTerraform(ctx, diags, d.Aamw)
+	}
 	if d.Action != nil {
 		action = types.StringValue(string(*d.Action))
+	}
+	if d.Antivirus != nil {
+		antivirus = avSdkToTerraform(ctx, diags, d.Antivirus)
 	}
 	if d.Appqoe != nil {
 		appqoe = appQoeToTerraform(ctx, diags, d.Appqoe)
 	}
 	if d.CreatedTime != nil {
-		createdTime = types.NumberValue(big.NewFloat(*d.CreatedTime))
+		createdTime = types.Float64Value(*d.CreatedTime)
 	}
 	if d.Ewf != nil {
 		ewf = ewfSdkToTerraform(ctx, diags, d.Ewf)
@@ -59,7 +67,7 @@ func servicepolicieSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 		idp = idpSdkToTerraform(ctx, diags, d.Idp)
 	}
 	if d.ModifiedTime != nil {
-		modifiedTime = types.NumberValue(big.NewFloat(*d.ModifiedTime))
+		modifiedTime = types.Float64Value(*d.ModifiedTime)
 	}
 	if d.LocalRouting != nil {
 		localRouting = types.BoolValue(*d.LocalRouting)
@@ -75,14 +83,19 @@ func servicepolicieSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 	if d.Services != nil {
 		services = misttransform.ListOfStringSdkToTerraform(d.Services)
 	}
+	if d.SslProxy != nil {
+		sslProxy = sslProxySdkToTerraform(ctx, diags, d.SslProxy)
+	}
 	if d.Tenants != nil {
 		tenants = misttransform.ListOfStringSdkToTerraform(d.Tenants)
 	}
 
 	dataMapValue := map[string]attr.Value{
-		"created_time":    createdTime,
+		"aamw":            aamw,
 		"action":          action,
+		"antivirus":       antivirus,
 		"appqoe":          appqoe,
+		"created_time":    createdTime,
 		"ewf":             ewf,
 		"id":              id,
 		"idp":             idp,
@@ -92,6 +105,7 @@ func servicepolicieSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 		"org_id":          orgId,
 		"path_preference": pathPreference,
 		"services":        services,
+		"ssl_proxy":       sslProxy,
 		"tenants":         tenants,
 	}
 	data, e := NewOrgServicepoliciesValue(OrgServicepoliciesValue{}.AttributeTypes(ctx), dataMapValue)
