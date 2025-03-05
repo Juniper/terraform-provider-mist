@@ -42,8 +42,8 @@ func switchMgmtProtectReTerraformToSdk(ctx context.Context, diags *diag.Diagnost
 		} else {
 			if !item.AllowedServices.IsNull() && !item.AllowedServices.IsUnknown() {
 				var items []models.ProtectReAllowedServiceEnum
-				for _, item := range item.AllowedServices.Elements() {
-					var iface interface{} = item
+				for _, i := range item.AllowedServices.Elements() {
+					var iface interface{} = i
 					val := iface.(basetypes.StringValue)
 					items = append(items, models.ProtectReAllowedServiceEnum(val.ValueString()))
 				}
@@ -187,6 +187,9 @@ func switchMgmtTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d Sw
 		}
 		if d.DisableOobDownAlarm.ValueBoolPointer() != nil {
 			data.DisableOobDownAlarm = d.DisableOobDownAlarm.ValueBoolPointer()
+		}
+		if d.FipsEnabled.ValueBoolPointer() != nil {
+			data.FipsEnabled = d.FipsEnabled.ValueBoolPointer()
 		}
 		if !d.LocalAccounts.IsNull() && !d.LocalAccounts.IsUnknown() {
 			data.LocalAccounts = switchLocalAccountUsersTerraformToSdk(d.LocalAccounts)

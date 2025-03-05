@@ -36,6 +36,12 @@ func TerraformToSdk(ctx context.Context, plan *SiteNetworktemplateModel) (*model
 		data.AdditionalConfigCmds = misttransform.ListOfStringTerraformToSdk(plan.AdditionalConfigCmds)
 	}
 
+	if plan.AutoUpgradeLinecard.IsNull() || plan.AutoUpgradeLinecard.IsUnknown() {
+		unset["-auto_upgrade_linecard"] = ""
+	} else {
+		data.AutoUpgradeLinecard = plan.AutoUpgradeLinecard.ValueBoolPointer()
+	}
+
 	if plan.DnsServers.IsNull() || plan.DnsServers.IsUnknown() {
 		unset["-dns_servers"] = ""
 	} else {

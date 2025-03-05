@@ -82,8 +82,8 @@ func portUsageTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d bas
 		if puAttrValue.BypassAuthWhenServerDown.ValueBoolPointer() != nil {
 			newPu.BypassAuthWhenServerDown = models.ToPointer(puAttrValue.BypassAuthWhenServerDown.ValueBool())
 		}
-		if puAttrValue.BypassAuthWhenServerDownForUnkownClient.ValueBoolPointer() != nil {
-			newPu.BypassAuthWhenServerDownForUnkownClient = models.ToPointer(puAttrValue.BypassAuthWhenServerDownForUnkownClient.ValueBool())
+		if puAttrValue.BypassAuthWhenServerDownForUnknownClient.ValueBoolPointer() != nil {
+			newPu.BypassAuthWhenServerDownForUnknownClient = models.ToPointer(puAttrValue.BypassAuthWhenServerDownForUnknownClient.ValueBool())
 		}
 		if puAttrValue.Description.ValueStringPointer() != nil {
 			newPu.Description = models.ToPointer(puAttrValue.Description.ValueString())
@@ -108,6 +108,9 @@ func portUsageTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d bas
 		}
 		if puAttrValue.GuestNetwork.ValueStringPointer() != nil {
 			newPu.GuestNetwork = models.NewOptional(models.ToPointer(puAttrValue.GuestNetwork.ValueString()))
+		}
+		if puAttrValue.InterIsolationNetworkLink.ValueBoolPointer() != nil {
+			newPu.InterIsolationNetworkLink = models.ToPointer(puAttrValue.InterIsolationNetworkLink.ValueBool())
 		}
 		if puAttrValue.InterSwitchLink.ValueBoolPointer() != nil {
 			newPu.InterSwitchLink = models.ToPointer(puAttrValue.InterSwitchLink.ValueBool())

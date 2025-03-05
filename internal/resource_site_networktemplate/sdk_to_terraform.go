@@ -20,6 +20,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteNetworkt
 	var aclPolicies = types.ListNull(AclPoliciesValue{}.Type(ctx))
 	var aclTags = types.MapNull(AclTagsValue{}.Type(ctx))
 	var additionalConfigCmds = types.ListNull(types.StringType)
+	var autoUpgradeLinecard basetypes.BoolValue
 	var dhcpSnooping = NewDhcpSnoopingValueNull()
 	var dnsServers = types.ListNull(types.StringType)
 	var dnsSuffix = types.ListNull(types.StringType)
@@ -50,6 +51,9 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteNetworkt
 	}
 	if data.AdditionalConfigCmds != nil {
 		additionalConfigCmds = misttransform.ListOfStringSdkToTerraform(data.AdditionalConfigCmds)
+	}
+	if data.AutoUpgradeLinecard != nil {
+		autoUpgradeLinecard = types.BoolValue(*data.AutoUpgradeLinecard)
 	}
 	if data.DhcpSnooping != nil {
 		dhcpSnooping = dhcpSnoopingSdkToTerraform(ctx, &diags, data.DhcpSnooping)
@@ -121,6 +125,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteNetworkt
 	state.AclPolicies = aclPolicies
 	state.AclTags = aclTags
 	state.AdditionalConfigCmds = additionalConfigCmds
+	state.AutoUpgradeLinecard = autoUpgradeLinecard
 	state.DhcpSnooping = dhcpSnooping
 	state.DnsServers = dnsServers
 	state.DnsSuffix = dnsSuffix

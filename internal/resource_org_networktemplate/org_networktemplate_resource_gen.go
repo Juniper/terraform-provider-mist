@@ -442,8 +442,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Unique ID of the object instance in the Mist Organnization",
-				MarkdownDescription: "Unique ID of the object instance in the Mist Organnization",
+				Description:         "Unique ID of the object instance in the Mist Organization",
+				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -732,13 +732,13 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"output_network": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Exaclty one of the `output_port_id` or `output_network` should be provided",
-							MarkdownDescription: "Exaclty one of the `output_port_id` or `output_network` should be provided",
+							Description:         "Exactly one of the `output_port_id` or `output_network` should be provided",
+							MarkdownDescription: "Exactly one of the `output_port_id` or `output_network` should be provided",
 						},
 						"output_port_id": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Exaclty one of the `output_port_id` or `output_network` should be provided",
-							MarkdownDescription: "Exaclty one of the `output_port_id` or `output_network` should be provided",
+							Description:         "Exactly one of the `output_port_id` or `output_network` should be provided",
+							MarkdownDescription: "Exactly one of the `output_port_id` or `output_network` should be provided",
 						},
 					},
 					CustomType: PortMirroringType{
@@ -761,8 +761,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Property key is the port mirroring instance name. `port_mirroring` can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 port mirrorings is allowed",
-				MarkdownDescription: "Property key is the port mirroring instance name. `port_mirroring` can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 port mirrorings is allowed",
+				Description:         "Property key is the port mirroring instance name. `port_mirroring` can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 mirroring ports is allowed",
+				MarkdownDescription: "Property key is the port mirroring instance name. `port_mirroring` can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 mirroring ports is allowed",
 				Validators: []validator.Map{
 					mapvalidator.SizeAtLeast(1),
 					mapvalidator.SizeAtMost(4),
@@ -809,7 +809,7 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							},
 							Default: booldefault.StaticBool(false),
 						},
-						"bypass_auth_when_server_down_for_unkown_client": schema.BoolAttribute{
+						"bypass_auth_when_server_down_for_unknown_client": schema.BoolAttribute{
 							Optional:            true,
 							Computed:            true,
 							Description:         "Only if `mode`!=`dynamic` and `port_auth`=`dot1x` bypass auth for all (including unknown clients) if set to true when RADIUS server is down",
@@ -901,6 +901,13 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							Validators: []validator.String{
 								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x")),
 							},
+						},
+						"inter_isolation_network_link": schema.BoolAttribute{
+							Optional:            true,
+							Computed:            true,
+							Description:         "`inter_switch_link` is used together with `isolation` under networks. NOTE: `inter_switch_link` works only between Juniper device. This has to be applied to both ports connected together",
+							MarkdownDescription: "`inter_switch_link` is used together with `isolation` under networks. NOTE: `inter_switch_link` works only between Juniper device. This has to be applied to both ports connected together",
+							Default:             booldefault.StaticBool(false),
 						},
 						"inter_switch_link": schema.BoolAttribute{
 							Optional:            true,
@@ -1307,8 +1314,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								"secret": schema.StringAttribute{
 									Required:            true,
 									Sensitive:           true,
-									Description:         "Secretof RADIUS server",
-									MarkdownDescription: "Secretof RADIUS server",
+									Description:         "Secret of RADIUS server",
+									MarkdownDescription: "Secret of RADIUS server",
 								},
 							},
 							CustomType: AcctServersType{
@@ -1371,8 +1378,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								"secret": schema.StringAttribute{
 									Required:            true,
 									Sensitive:           true,
-									Description:         "Secretof RADIUS server",
-									MarkdownDescription: "Secretof RADIUS server",
+									Description:         "Secret of RADIUS server",
+									MarkdownDescription: "Secret of RADIUS server",
 								},
 							},
 							CustomType: AuthServersType{
@@ -2591,7 +2598,9 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									},
 								},
 								"name": schema.StringAttribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "Rule name. WARNING: the name `default` is reserved and can only be used for the last rule in the list",
+									MarkdownDescription: "Rule name. WARNING: the name `default` is reserved and can only be used for the last rule in the list",
 									Validators: []validator.String{
 										stringvalidator.LengthBetween(1, 32),
 									},
@@ -2749,8 +2758,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 									Optional:            true,
-									Description:         "Propery key is the interface name or interface range",
-									MarkdownDescription: "Propery key is the interface name or interface range",
+									Description:         "Property key is the port name or range (e.g. \"ge-0/0/0-10\")",
+									MarkdownDescription: "Property key is the port name or range (e.g. \"ge-0/0/0-10\")",
 									Validators: []validator.Map{
 										mapvalidator.SizeAtLeast(1),
 									},
@@ -2784,13 +2793,13 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											},
 											"output_network": schema.StringAttribute{
 												Optional:            true,
-												Description:         "Exaclty one of the `output_port_id` or `output_network` should be provided",
-												MarkdownDescription: "Exaclty one of the `output_port_id` or `output_network` should be provided",
+												Description:         "Exactly one of the `output_port_id` or `output_network` should be provided",
+												MarkdownDescription: "Exactly one of the `output_port_id` or `output_network` should be provided",
 											},
 											"output_port_id": schema.StringAttribute{
 												Optional:            true,
-												Description:         "Exaclty one of the `output_port_id` or `output_network` should be provided",
-												MarkdownDescription: "Exaclty one of the `output_port_id` or `output_network` should be provided",
+												Description:         "Exactly one of the `output_port_id` or `output_network` should be provided",
+												MarkdownDescription: "Exactly one of the `output_port_id` or `output_network` should be provided",
 											},
 										},
 										CustomType: PortMirroringType{
@@ -2813,8 +2822,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 									Optional:            true,
-									Description:         "Property key is the port mirroring instance name. `port_mirroring` can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 port mirrorings is allowed",
-									MarkdownDescription: "Property key is the port mirroring instance name. `port_mirroring` can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 port mirrorings is allowed",
+									Description:         "Property key is the port mirroring instance name. `port_mirroring` can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 mirroring ports is allowed",
+									MarkdownDescription: "Property key is the port mirroring instance name. `port_mirroring` can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 mirroring ports is allowed",
 									Validators: []validator.Map{
 										mapvalidator.SizeAtLeast(1),
 										mapvalidator.SizeAtMost(4),
@@ -2850,8 +2859,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Defines custom switch configuration based on different criterias",
-				MarkdownDescription: "Defines custom switch configuration based on different criterias",
+				Description:         "Defines custom switch configuration based on different criteria",
+				MarkdownDescription: "Defines custom switch configuration based on different criteria",
 			},
 			"switch_mgmt": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -2894,6 +2903,11 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"disable_oob_down_alarm": schema.BoolAttribute{
 						Optional: true,
+					},
+					"fips_enabled": schema.BoolAttribute{
+						Optional: true,
+						Computed: true,
+						Default:  booldefault.StaticBool(false),
 					},
 					"local_accounts": schema.MapNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{
@@ -3170,6 +3184,9 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 			"vrf_instances": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
+						"evpn_auto_lookback_subnet": schema.StringAttribute{
+							Optional: true,
+						},
 						"networks": schema.ListAttribute{
 							ElementType: types.StringType,
 							Optional:    true,
@@ -10636,22 +10653,22 @@ func (t PortUsagesType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`bypass_auth_when_server_down expected to be basetypes.BoolValue, was: %T`, bypassAuthWhenServerDownAttribute))
 	}
 
-	bypassAuthWhenServerDownForUnkownClientAttribute, ok := attributes["bypass_auth_when_server_down_for_unkown_client"]
+	bypassAuthWhenServerDownForUnknownClientAttribute, ok := attributes["bypass_auth_when_server_down_for_unknown_client"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`bypass_auth_when_server_down_for_unkown_client is missing from object`)
+			`bypass_auth_when_server_down_for_unknown_client is missing from object`)
 
 		return nil, diags
 	}
 
-	bypassAuthWhenServerDownForUnkownClientVal, ok := bypassAuthWhenServerDownForUnkownClientAttribute.(basetypes.BoolValue)
+	bypassAuthWhenServerDownForUnknownClientVal, ok := bypassAuthWhenServerDownForUnknownClientAttribute.(basetypes.BoolValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`bypass_auth_when_server_down_for_unkown_client expected to be basetypes.BoolValue, was: %T`, bypassAuthWhenServerDownForUnkownClientAttribute))
+			fmt.Sprintf(`bypass_auth_when_server_down_for_unknown_client expected to be basetypes.BoolValue, was: %T`, bypassAuthWhenServerDownForUnknownClientAttribute))
 	}
 
 	descriptionAttribute, ok := attributes["description"]
@@ -10796,6 +10813,24 @@ func (t PortUsagesType) ValueFromObject(ctx context.Context, in basetypes.Object
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`guest_network expected to be basetypes.StringValue, was: %T`, guestNetworkAttribute))
+	}
+
+	interIsolationNetworkLinkAttribute, ok := attributes["inter_isolation_network_link"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`inter_isolation_network_link is missing from object`)
+
+		return nil, diags
+	}
+
+	interIsolationNetworkLinkVal, ok := interIsolationNetworkLinkAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`inter_isolation_network_link expected to be basetypes.BoolValue, was: %T`, interIsolationNetworkLinkAttribute))
 	}
 
 	interSwitchLinkAttribute, ok := attributes["inter_switch_link"]
@@ -11253,45 +11288,46 @@ func (t PortUsagesType) ValueFromObject(ctx context.Context, in basetypes.Object
 	}
 
 	return PortUsagesValue{
-		AllNetworks:                             allNetworksVal,
-		AllowDhcpd:                              allowDhcpdVal,
-		AllowMultipleSupplicants:                allowMultipleSupplicantsVal,
-		BypassAuthWhenServerDown:                bypassAuthWhenServerDownVal,
-		BypassAuthWhenServerDownForUnkownClient: bypassAuthWhenServerDownForUnkownClientVal,
-		Description:                             descriptionVal,
-		DisableAutoneg:                          disableAutonegVal,
-		Disabled:                                disabledVal,
-		Duplex:                                  duplexVal,
-		DynamicVlanNetworks:                     dynamicVlanNetworksVal,
-		EnableMacAuth:                           enableMacAuthVal,
-		EnableQos:                               enableQosVal,
-		GuestNetwork:                            guestNetworkVal,
-		InterSwitchLink:                         interSwitchLinkVal,
-		MacAuthOnly:                             macAuthOnlyVal,
-		MacAuthPreferred:                        macAuthPreferredVal,
-		MacAuthProtocol:                         macAuthProtocolVal,
-		MacLimit:                                macLimitVal,
-		Mode:                                    modeVal,
-		Mtu:                                     mtuVal,
-		Networks:                                networksVal,
-		PersistMac:                              persistMacVal,
-		PoeDisabled:                             poeDisabledVal,
-		PortAuth:                                portAuthVal,
-		PortNetwork:                             portNetworkVal,
-		ReauthInterval:                          reauthIntervalVal,
-		ResetDefaultWhen:                        resetDefaultWhenVal,
-		Rules:                                   rulesVal,
-		ServerFailNetwork:                       serverFailNetworkVal,
-		ServerRejectNetwork:                     serverRejectNetworkVal,
-		Speed:                                   speedVal,
-		StormControl:                            stormControlVal,
-		StpEdge:                                 stpEdgeVal,
-		StpNoRootPort:                           stpNoRootPortVal,
-		StpP2p:                                  stpP2pVal,
-		UiEvpntopoId:                            uiEvpntopoIdVal,
-		UseVstp:                                 useVstpVal,
-		VoipNetwork:                             voipNetworkVal,
-		state:                                   attr.ValueStateKnown,
+		AllNetworks:                              allNetworksVal,
+		AllowDhcpd:                               allowDhcpdVal,
+		AllowMultipleSupplicants:                 allowMultipleSupplicantsVal,
+		BypassAuthWhenServerDown:                 bypassAuthWhenServerDownVal,
+		BypassAuthWhenServerDownForUnknownClient: bypassAuthWhenServerDownForUnknownClientVal,
+		Description:                              descriptionVal,
+		DisableAutoneg:                           disableAutonegVal,
+		Disabled:                                 disabledVal,
+		Duplex:                                   duplexVal,
+		DynamicVlanNetworks:                      dynamicVlanNetworksVal,
+		EnableMacAuth:                            enableMacAuthVal,
+		EnableQos:                                enableQosVal,
+		GuestNetwork:                             guestNetworkVal,
+		InterIsolationNetworkLink:                interIsolationNetworkLinkVal,
+		InterSwitchLink:                          interSwitchLinkVal,
+		MacAuthOnly:                              macAuthOnlyVal,
+		MacAuthPreferred:                         macAuthPreferredVal,
+		MacAuthProtocol:                          macAuthProtocolVal,
+		MacLimit:                                 macLimitVal,
+		Mode:                                     modeVal,
+		Mtu:                                      mtuVal,
+		Networks:                                 networksVal,
+		PersistMac:                               persistMacVal,
+		PoeDisabled:                              poeDisabledVal,
+		PortAuth:                                 portAuthVal,
+		PortNetwork:                              portNetworkVal,
+		ReauthInterval:                           reauthIntervalVal,
+		ResetDefaultWhen:                         resetDefaultWhenVal,
+		Rules:                                    rulesVal,
+		ServerFailNetwork:                        serverFailNetworkVal,
+		ServerRejectNetwork:                      serverRejectNetworkVal,
+		Speed:                                    speedVal,
+		StormControl:                             stormControlVal,
+		StpEdge:                                  stpEdgeVal,
+		StpNoRootPort:                            stpNoRootPortVal,
+		StpP2p:                                   stpP2pVal,
+		UiEvpntopoId:                             uiEvpntopoIdVal,
+		UseVstp:                                  useVstpVal,
+		VoipNetwork:                              voipNetworkVal,
+		state:                                    attr.ValueStateKnown,
 	}, diags
 }
 
@@ -11430,22 +11466,22 @@ func NewPortUsagesValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`bypass_auth_when_server_down expected to be basetypes.BoolValue, was: %T`, bypassAuthWhenServerDownAttribute))
 	}
 
-	bypassAuthWhenServerDownForUnkownClientAttribute, ok := attributes["bypass_auth_when_server_down_for_unkown_client"]
+	bypassAuthWhenServerDownForUnknownClientAttribute, ok := attributes["bypass_auth_when_server_down_for_unknown_client"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`bypass_auth_when_server_down_for_unkown_client is missing from object`)
+			`bypass_auth_when_server_down_for_unknown_client is missing from object`)
 
 		return NewPortUsagesValueUnknown(), diags
 	}
 
-	bypassAuthWhenServerDownForUnkownClientVal, ok := bypassAuthWhenServerDownForUnkownClientAttribute.(basetypes.BoolValue)
+	bypassAuthWhenServerDownForUnknownClientVal, ok := bypassAuthWhenServerDownForUnknownClientAttribute.(basetypes.BoolValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`bypass_auth_when_server_down_for_unkown_client expected to be basetypes.BoolValue, was: %T`, bypassAuthWhenServerDownForUnkownClientAttribute))
+			fmt.Sprintf(`bypass_auth_when_server_down_for_unknown_client expected to be basetypes.BoolValue, was: %T`, bypassAuthWhenServerDownForUnknownClientAttribute))
 	}
 
 	descriptionAttribute, ok := attributes["description"]
@@ -11590,6 +11626,24 @@ func NewPortUsagesValue(attributeTypes map[string]attr.Type, attributes map[stri
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`guest_network expected to be basetypes.StringValue, was: %T`, guestNetworkAttribute))
+	}
+
+	interIsolationNetworkLinkAttribute, ok := attributes["inter_isolation_network_link"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`inter_isolation_network_link is missing from object`)
+
+		return NewPortUsagesValueUnknown(), diags
+	}
+
+	interIsolationNetworkLinkVal, ok := interIsolationNetworkLinkAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`inter_isolation_network_link expected to be basetypes.BoolValue, was: %T`, interIsolationNetworkLinkAttribute))
 	}
 
 	interSwitchLinkAttribute, ok := attributes["inter_switch_link"]
@@ -12047,45 +12101,46 @@ func NewPortUsagesValue(attributeTypes map[string]attr.Type, attributes map[stri
 	}
 
 	return PortUsagesValue{
-		AllNetworks:                             allNetworksVal,
-		AllowDhcpd:                              allowDhcpdVal,
-		AllowMultipleSupplicants:                allowMultipleSupplicantsVal,
-		BypassAuthWhenServerDown:                bypassAuthWhenServerDownVal,
-		BypassAuthWhenServerDownForUnkownClient: bypassAuthWhenServerDownForUnkownClientVal,
-		Description:                             descriptionVal,
-		DisableAutoneg:                          disableAutonegVal,
-		Disabled:                                disabledVal,
-		Duplex:                                  duplexVal,
-		DynamicVlanNetworks:                     dynamicVlanNetworksVal,
-		EnableMacAuth:                           enableMacAuthVal,
-		EnableQos:                               enableQosVal,
-		GuestNetwork:                            guestNetworkVal,
-		InterSwitchLink:                         interSwitchLinkVal,
-		MacAuthOnly:                             macAuthOnlyVal,
-		MacAuthPreferred:                        macAuthPreferredVal,
-		MacAuthProtocol:                         macAuthProtocolVal,
-		MacLimit:                                macLimitVal,
-		Mode:                                    modeVal,
-		Mtu:                                     mtuVal,
-		Networks:                                networksVal,
-		PersistMac:                              persistMacVal,
-		PoeDisabled:                             poeDisabledVal,
-		PortAuth:                                portAuthVal,
-		PortNetwork:                             portNetworkVal,
-		ReauthInterval:                          reauthIntervalVal,
-		ResetDefaultWhen:                        resetDefaultWhenVal,
-		Rules:                                   rulesVal,
-		ServerFailNetwork:                       serverFailNetworkVal,
-		ServerRejectNetwork:                     serverRejectNetworkVal,
-		Speed:                                   speedVal,
-		StormControl:                            stormControlVal,
-		StpEdge:                                 stpEdgeVal,
-		StpNoRootPort:                           stpNoRootPortVal,
-		StpP2p:                                  stpP2pVal,
-		UiEvpntopoId:                            uiEvpntopoIdVal,
-		UseVstp:                                 useVstpVal,
-		VoipNetwork:                             voipNetworkVal,
-		state:                                   attr.ValueStateKnown,
+		AllNetworks:                              allNetworksVal,
+		AllowDhcpd:                               allowDhcpdVal,
+		AllowMultipleSupplicants:                 allowMultipleSupplicantsVal,
+		BypassAuthWhenServerDown:                 bypassAuthWhenServerDownVal,
+		BypassAuthWhenServerDownForUnknownClient: bypassAuthWhenServerDownForUnknownClientVal,
+		Description:                              descriptionVal,
+		DisableAutoneg:                           disableAutonegVal,
+		Disabled:                                 disabledVal,
+		Duplex:                                   duplexVal,
+		DynamicVlanNetworks:                      dynamicVlanNetworksVal,
+		EnableMacAuth:                            enableMacAuthVal,
+		EnableQos:                                enableQosVal,
+		GuestNetwork:                             guestNetworkVal,
+		InterIsolationNetworkLink:                interIsolationNetworkLinkVal,
+		InterSwitchLink:                          interSwitchLinkVal,
+		MacAuthOnly:                              macAuthOnlyVal,
+		MacAuthPreferred:                         macAuthPreferredVal,
+		MacAuthProtocol:                          macAuthProtocolVal,
+		MacLimit:                                 macLimitVal,
+		Mode:                                     modeVal,
+		Mtu:                                      mtuVal,
+		Networks:                                 networksVal,
+		PersistMac:                               persistMacVal,
+		PoeDisabled:                              poeDisabledVal,
+		PortAuth:                                 portAuthVal,
+		PortNetwork:                              portNetworkVal,
+		ReauthInterval:                           reauthIntervalVal,
+		ResetDefaultWhen:                         resetDefaultWhenVal,
+		Rules:                                    rulesVal,
+		ServerFailNetwork:                        serverFailNetworkVal,
+		ServerRejectNetwork:                      serverRejectNetworkVal,
+		Speed:                                    speedVal,
+		StormControl:                             stormControlVal,
+		StpEdge:                                  stpEdgeVal,
+		StpNoRootPort:                            stpNoRootPortVal,
+		StpP2p:                                   stpP2pVal,
+		UiEvpntopoId:                             uiEvpntopoIdVal,
+		UseVstp:                                  useVstpVal,
+		VoipNetwork:                              voipNetworkVal,
+		state:                                    attr.ValueStateKnown,
 	}, diags
 }
 
@@ -12157,49 +12212,50 @@ func (t PortUsagesType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = PortUsagesValue{}
 
 type PortUsagesValue struct {
-	AllNetworks                             basetypes.BoolValue   `tfsdk:"all_networks"`
-	AllowDhcpd                              basetypes.BoolValue   `tfsdk:"allow_dhcpd"`
-	AllowMultipleSupplicants                basetypes.BoolValue   `tfsdk:"allow_multiple_supplicants"`
-	BypassAuthWhenServerDown                basetypes.BoolValue   `tfsdk:"bypass_auth_when_server_down"`
-	BypassAuthWhenServerDownForUnkownClient basetypes.BoolValue   `tfsdk:"bypass_auth_when_server_down_for_unkown_client"`
-	Description                             basetypes.StringValue `tfsdk:"description"`
-	DisableAutoneg                          basetypes.BoolValue   `tfsdk:"disable_autoneg"`
-	Disabled                                basetypes.BoolValue   `tfsdk:"disabled"`
-	Duplex                                  basetypes.StringValue `tfsdk:"duplex"`
-	DynamicVlanNetworks                     basetypes.ListValue   `tfsdk:"dynamic_vlan_networks"`
-	EnableMacAuth                           basetypes.BoolValue   `tfsdk:"enable_mac_auth"`
-	EnableQos                               basetypes.BoolValue   `tfsdk:"enable_qos"`
-	GuestNetwork                            basetypes.StringValue `tfsdk:"guest_network"`
-	InterSwitchLink                         basetypes.BoolValue   `tfsdk:"inter_switch_link"`
-	MacAuthOnly                             basetypes.BoolValue   `tfsdk:"mac_auth_only"`
-	MacAuthPreferred                        basetypes.BoolValue   `tfsdk:"mac_auth_preferred"`
-	MacAuthProtocol                         basetypes.StringValue `tfsdk:"mac_auth_protocol"`
-	MacLimit                                basetypes.Int64Value  `tfsdk:"mac_limit"`
-	Mode                                    basetypes.StringValue `tfsdk:"mode"`
-	Mtu                                     basetypes.Int64Value  `tfsdk:"mtu"`
-	Networks                                basetypes.ListValue   `tfsdk:"networks"`
-	PersistMac                              basetypes.BoolValue   `tfsdk:"persist_mac"`
-	PoeDisabled                             basetypes.BoolValue   `tfsdk:"poe_disabled"`
-	PortAuth                                basetypes.StringValue `tfsdk:"port_auth"`
-	PortNetwork                             basetypes.StringValue `tfsdk:"port_network"`
-	ReauthInterval                          basetypes.Int64Value  `tfsdk:"reauth_interval"`
-	ResetDefaultWhen                        basetypes.StringValue `tfsdk:"reset_default_when"`
-	Rules                                   basetypes.ListValue   `tfsdk:"rules"`
-	ServerFailNetwork                       basetypes.StringValue `tfsdk:"server_fail_network"`
-	ServerRejectNetwork                     basetypes.StringValue `tfsdk:"server_reject_network"`
-	Speed                                   basetypes.StringValue `tfsdk:"speed"`
-	StormControl                            basetypes.ObjectValue `tfsdk:"storm_control"`
-	StpEdge                                 basetypes.BoolValue   `tfsdk:"stp_edge"`
-	StpNoRootPort                           basetypes.BoolValue   `tfsdk:"stp_no_root_port"`
-	StpP2p                                  basetypes.BoolValue   `tfsdk:"stp_p2p"`
-	UiEvpntopoId                            basetypes.StringValue `tfsdk:"ui_evpntopo_id"`
-	UseVstp                                 basetypes.BoolValue   `tfsdk:"use_vstp"`
-	VoipNetwork                             basetypes.StringValue `tfsdk:"voip_network"`
-	state                                   attr.ValueState
+	AllNetworks                              basetypes.BoolValue   `tfsdk:"all_networks"`
+	AllowDhcpd                               basetypes.BoolValue   `tfsdk:"allow_dhcpd"`
+	AllowMultipleSupplicants                 basetypes.BoolValue   `tfsdk:"allow_multiple_supplicants"`
+	BypassAuthWhenServerDown                 basetypes.BoolValue   `tfsdk:"bypass_auth_when_server_down"`
+	BypassAuthWhenServerDownForUnknownClient basetypes.BoolValue   `tfsdk:"bypass_auth_when_server_down_for_unknown_client"`
+	Description                              basetypes.StringValue `tfsdk:"description"`
+	DisableAutoneg                           basetypes.BoolValue   `tfsdk:"disable_autoneg"`
+	Disabled                                 basetypes.BoolValue   `tfsdk:"disabled"`
+	Duplex                                   basetypes.StringValue `tfsdk:"duplex"`
+	DynamicVlanNetworks                      basetypes.ListValue   `tfsdk:"dynamic_vlan_networks"`
+	EnableMacAuth                            basetypes.BoolValue   `tfsdk:"enable_mac_auth"`
+	EnableQos                                basetypes.BoolValue   `tfsdk:"enable_qos"`
+	GuestNetwork                             basetypes.StringValue `tfsdk:"guest_network"`
+	InterIsolationNetworkLink                basetypes.BoolValue   `tfsdk:"inter_isolation_network_link"`
+	InterSwitchLink                          basetypes.BoolValue   `tfsdk:"inter_switch_link"`
+	MacAuthOnly                              basetypes.BoolValue   `tfsdk:"mac_auth_only"`
+	MacAuthPreferred                         basetypes.BoolValue   `tfsdk:"mac_auth_preferred"`
+	MacAuthProtocol                          basetypes.StringValue `tfsdk:"mac_auth_protocol"`
+	MacLimit                                 basetypes.Int64Value  `tfsdk:"mac_limit"`
+	Mode                                     basetypes.StringValue `tfsdk:"mode"`
+	Mtu                                      basetypes.Int64Value  `tfsdk:"mtu"`
+	Networks                                 basetypes.ListValue   `tfsdk:"networks"`
+	PersistMac                               basetypes.BoolValue   `tfsdk:"persist_mac"`
+	PoeDisabled                              basetypes.BoolValue   `tfsdk:"poe_disabled"`
+	PortAuth                                 basetypes.StringValue `tfsdk:"port_auth"`
+	PortNetwork                              basetypes.StringValue `tfsdk:"port_network"`
+	ReauthInterval                           basetypes.Int64Value  `tfsdk:"reauth_interval"`
+	ResetDefaultWhen                         basetypes.StringValue `tfsdk:"reset_default_when"`
+	Rules                                    basetypes.ListValue   `tfsdk:"rules"`
+	ServerFailNetwork                        basetypes.StringValue `tfsdk:"server_fail_network"`
+	ServerRejectNetwork                      basetypes.StringValue `tfsdk:"server_reject_network"`
+	Speed                                    basetypes.StringValue `tfsdk:"speed"`
+	StormControl                             basetypes.ObjectValue `tfsdk:"storm_control"`
+	StpEdge                                  basetypes.BoolValue   `tfsdk:"stp_edge"`
+	StpNoRootPort                            basetypes.BoolValue   `tfsdk:"stp_no_root_port"`
+	StpP2p                                   basetypes.BoolValue   `tfsdk:"stp_p2p"`
+	UiEvpntopoId                             basetypes.StringValue `tfsdk:"ui_evpntopo_id"`
+	UseVstp                                  basetypes.BoolValue   `tfsdk:"use_vstp"`
+	VoipNetwork                              basetypes.StringValue `tfsdk:"voip_network"`
+	state                                    attr.ValueState
 }
 
 func (v PortUsagesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 38)
+	attrTypes := make(map[string]tftypes.Type, 39)
 
 	var val tftypes.Value
 	var err error
@@ -12208,7 +12264,7 @@ func (v PortUsagesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	attrTypes["allow_dhcpd"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["allow_multiple_supplicants"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["bypass_auth_when_server_down"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["bypass_auth_when_server_down_for_unkown_client"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["bypass_auth_when_server_down_for_unknown_client"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["description"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["disable_autoneg"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["disabled"] = basetypes.BoolType{}.TerraformType(ctx)
@@ -12219,6 +12275,7 @@ func (v PortUsagesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	attrTypes["enable_mac_auth"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["enable_qos"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["guest_network"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["inter_isolation_network_link"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["inter_switch_link"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["mac_auth_only"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["mac_auth_preferred"] = basetypes.BoolType{}.TerraformType(ctx)
@@ -12255,7 +12312,7 @@ func (v PortUsagesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 38)
+		vals := make(map[string]tftypes.Value, 39)
 
 		val, err = v.AllNetworks.ToTerraformValue(ctx)
 
@@ -12289,13 +12346,13 @@ func (v PortUsagesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 		vals["bypass_auth_when_server_down"] = val
 
-		val, err = v.BypassAuthWhenServerDownForUnkownClient.ToTerraformValue(ctx)
+		val, err = v.BypassAuthWhenServerDownForUnknownClient.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["bypass_auth_when_server_down_for_unkown_client"] = val
+		vals["bypass_auth_when_server_down_for_unknown_client"] = val
 
 		val, err = v.Description.ToTerraformValue(ctx)
 
@@ -12360,6 +12417,14 @@ func (v PortUsagesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 		}
 
 		vals["guest_network"] = val
+
+		val, err = v.InterIsolationNetworkLink.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["inter_isolation_network_link"] = val
 
 		val, err = v.InterSwitchLink.ToTerraformValue(ctx)
 
@@ -12646,28 +12711,29 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 
 	if d.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
-			"all_networks":                                   basetypes.BoolType{},
-			"allow_dhcpd":                                    basetypes.BoolType{},
-			"allow_multiple_supplicants":                     basetypes.BoolType{},
-			"bypass_auth_when_server_down":                   basetypes.BoolType{},
-			"bypass_auth_when_server_down_for_unkown_client": basetypes.BoolType{},
-			"description":                                    basetypes.StringType{},
-			"disable_autoneg":                                basetypes.BoolType{},
-			"disabled":                                       basetypes.BoolType{},
-			"duplex":                                         basetypes.StringType{},
+			"all_networks":                                    basetypes.BoolType{},
+			"allow_dhcpd":                                     basetypes.BoolType{},
+			"allow_multiple_supplicants":                      basetypes.BoolType{},
+			"bypass_auth_when_server_down":                    basetypes.BoolType{},
+			"bypass_auth_when_server_down_for_unknown_client": basetypes.BoolType{},
+			"description":                                     basetypes.StringType{},
+			"disable_autoneg":                                 basetypes.BoolType{},
+			"disabled":                                        basetypes.BoolType{},
+			"duplex":                                          basetypes.StringType{},
 			"dynamic_vlan_networks": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"enable_mac_auth":    basetypes.BoolType{},
-			"enable_qos":         basetypes.BoolType{},
-			"guest_network":      basetypes.StringType{},
-			"inter_switch_link":  basetypes.BoolType{},
-			"mac_auth_only":      basetypes.BoolType{},
-			"mac_auth_preferred": basetypes.BoolType{},
-			"mac_auth_protocol":  basetypes.StringType{},
-			"mac_limit":          basetypes.Int64Type{},
-			"mode":               basetypes.StringType{},
-			"mtu":                basetypes.Int64Type{},
+			"enable_mac_auth":              basetypes.BoolType{},
+			"enable_qos":                   basetypes.BoolType{},
+			"guest_network":                basetypes.StringType{},
+			"inter_isolation_network_link": basetypes.BoolType{},
+			"inter_switch_link":            basetypes.BoolType{},
+			"mac_auth_only":                basetypes.BoolType{},
+			"mac_auth_preferred":           basetypes.BoolType{},
+			"mac_auth_protocol":            basetypes.StringType{},
+			"mac_limit":                    basetypes.Int64Type{},
+			"mode":                         basetypes.StringType{},
+			"mtu":                          basetypes.Int64Type{},
 			"networks": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -12701,28 +12767,29 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 
 	if d.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
-			"all_networks":                                   basetypes.BoolType{},
-			"allow_dhcpd":                                    basetypes.BoolType{},
-			"allow_multiple_supplicants":                     basetypes.BoolType{},
-			"bypass_auth_when_server_down":                   basetypes.BoolType{},
-			"bypass_auth_when_server_down_for_unkown_client": basetypes.BoolType{},
-			"description":                                    basetypes.StringType{},
-			"disable_autoneg":                                basetypes.BoolType{},
-			"disabled":                                       basetypes.BoolType{},
-			"duplex":                                         basetypes.StringType{},
+			"all_networks":                                    basetypes.BoolType{},
+			"allow_dhcpd":                                     basetypes.BoolType{},
+			"allow_multiple_supplicants":                      basetypes.BoolType{},
+			"bypass_auth_when_server_down":                    basetypes.BoolType{},
+			"bypass_auth_when_server_down_for_unknown_client": basetypes.BoolType{},
+			"description":                                     basetypes.StringType{},
+			"disable_autoneg":                                 basetypes.BoolType{},
+			"disabled":                                        basetypes.BoolType{},
+			"duplex":                                          basetypes.StringType{},
 			"dynamic_vlan_networks": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"enable_mac_auth":    basetypes.BoolType{},
-			"enable_qos":         basetypes.BoolType{},
-			"guest_network":      basetypes.StringType{},
-			"inter_switch_link":  basetypes.BoolType{},
-			"mac_auth_only":      basetypes.BoolType{},
-			"mac_auth_preferred": basetypes.BoolType{},
-			"mac_auth_protocol":  basetypes.StringType{},
-			"mac_limit":          basetypes.Int64Type{},
-			"mode":               basetypes.StringType{},
-			"mtu":                basetypes.Int64Type{},
+			"enable_mac_auth":              basetypes.BoolType{},
+			"enable_qos":                   basetypes.BoolType{},
+			"guest_network":                basetypes.StringType{},
+			"inter_isolation_network_link": basetypes.BoolType{},
+			"inter_switch_link":            basetypes.BoolType{},
+			"mac_auth_only":                basetypes.BoolType{},
+			"mac_auth_preferred":           basetypes.BoolType{},
+			"mac_auth_protocol":            basetypes.StringType{},
+			"mac_limit":                    basetypes.Int64Type{},
+			"mode":                         basetypes.StringType{},
+			"mtu":                          basetypes.Int64Type{},
 			"networks": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -12751,28 +12818,29 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 	}
 
 	attributeTypes := map[string]attr.Type{
-		"all_networks":                                   basetypes.BoolType{},
-		"allow_dhcpd":                                    basetypes.BoolType{},
-		"allow_multiple_supplicants":                     basetypes.BoolType{},
-		"bypass_auth_when_server_down":                   basetypes.BoolType{},
-		"bypass_auth_when_server_down_for_unkown_client": basetypes.BoolType{},
-		"description":                                    basetypes.StringType{},
-		"disable_autoneg":                                basetypes.BoolType{},
-		"disabled":                                       basetypes.BoolType{},
-		"duplex":                                         basetypes.StringType{},
+		"all_networks":                                    basetypes.BoolType{},
+		"allow_dhcpd":                                     basetypes.BoolType{},
+		"allow_multiple_supplicants":                      basetypes.BoolType{},
+		"bypass_auth_when_server_down":                    basetypes.BoolType{},
+		"bypass_auth_when_server_down_for_unknown_client": basetypes.BoolType{},
+		"description":                                     basetypes.StringType{},
+		"disable_autoneg":                                 basetypes.BoolType{},
+		"disabled":                                        basetypes.BoolType{},
+		"duplex":                                          basetypes.StringType{},
 		"dynamic_vlan_networks": basetypes.ListType{
 			ElemType: types.StringType,
 		},
-		"enable_mac_auth":    basetypes.BoolType{},
-		"enable_qos":         basetypes.BoolType{},
-		"guest_network":      basetypes.StringType{},
-		"inter_switch_link":  basetypes.BoolType{},
-		"mac_auth_only":      basetypes.BoolType{},
-		"mac_auth_preferred": basetypes.BoolType{},
-		"mac_auth_protocol":  basetypes.StringType{},
-		"mac_limit":          basetypes.Int64Type{},
-		"mode":               basetypes.StringType{},
-		"mtu":                basetypes.Int64Type{},
+		"enable_mac_auth":              basetypes.BoolType{},
+		"enable_qos":                   basetypes.BoolType{},
+		"guest_network":                basetypes.StringType{},
+		"inter_isolation_network_link": basetypes.BoolType{},
+		"inter_switch_link":            basetypes.BoolType{},
+		"mac_auth_only":                basetypes.BoolType{},
+		"mac_auth_preferred":           basetypes.BoolType{},
+		"mac_auth_protocol":            basetypes.StringType{},
+		"mac_limit":                    basetypes.Int64Type{},
+		"mode":                         basetypes.StringType{},
+		"mtu":                          basetypes.Int64Type{},
 		"networks": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -12810,44 +12878,45 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"all_networks":                                   v.AllNetworks,
-			"allow_dhcpd":                                    v.AllowDhcpd,
-			"allow_multiple_supplicants":                     v.AllowMultipleSupplicants,
-			"bypass_auth_when_server_down":                   v.BypassAuthWhenServerDown,
-			"bypass_auth_when_server_down_for_unkown_client": v.BypassAuthWhenServerDownForUnkownClient,
-			"description":                                    v.Description,
-			"disable_autoneg":                                v.DisableAutoneg,
-			"disabled":                                       v.Disabled,
-			"duplex":                                         v.Duplex,
-			"dynamic_vlan_networks":                          dynamicVlanNetworksVal,
-			"enable_mac_auth":                                v.EnableMacAuth,
-			"enable_qos":                                     v.EnableQos,
-			"guest_network":                                  v.GuestNetwork,
-			"inter_switch_link":                              v.InterSwitchLink,
-			"mac_auth_only":                                  v.MacAuthOnly,
-			"mac_auth_preferred":                             v.MacAuthPreferred,
-			"mac_auth_protocol":                              v.MacAuthProtocol,
-			"mac_limit":                                      v.MacLimit,
-			"mode":                                           v.Mode,
-			"mtu":                                            v.Mtu,
-			"networks":                                       networksVal,
-			"persist_mac":                                    v.PersistMac,
-			"poe_disabled":                                   v.PoeDisabled,
-			"port_auth":                                      v.PortAuth,
-			"port_network":                                   v.PortNetwork,
-			"reauth_interval":                                v.ReauthInterval,
-			"reset_default_when":                             v.ResetDefaultWhen,
-			"rules":                                          rules,
-			"server_fail_network":                            v.ServerFailNetwork,
-			"server_reject_network":                          v.ServerRejectNetwork,
-			"speed":                                          v.Speed,
-			"storm_control":                                  stormControl,
-			"stp_edge":                                       v.StpEdge,
-			"stp_no_root_port":                               v.StpNoRootPort,
-			"stp_p2p":                                        v.StpP2p,
-			"ui_evpntopo_id":                                 v.UiEvpntopoId,
-			"use_vstp":                                       v.UseVstp,
-			"voip_network":                                   v.VoipNetwork,
+			"all_networks":                                    v.AllNetworks,
+			"allow_dhcpd":                                     v.AllowDhcpd,
+			"allow_multiple_supplicants":                      v.AllowMultipleSupplicants,
+			"bypass_auth_when_server_down":                    v.BypassAuthWhenServerDown,
+			"bypass_auth_when_server_down_for_unknown_client": v.BypassAuthWhenServerDownForUnknownClient,
+			"description":                                     v.Description,
+			"disable_autoneg":                                 v.DisableAutoneg,
+			"disabled":                                        v.Disabled,
+			"duplex":                                          v.Duplex,
+			"dynamic_vlan_networks":                           dynamicVlanNetworksVal,
+			"enable_mac_auth":                                 v.EnableMacAuth,
+			"enable_qos":                                      v.EnableQos,
+			"guest_network":                                   v.GuestNetwork,
+			"inter_isolation_network_link":                    v.InterIsolationNetworkLink,
+			"inter_switch_link":                               v.InterSwitchLink,
+			"mac_auth_only":                                   v.MacAuthOnly,
+			"mac_auth_preferred":                              v.MacAuthPreferred,
+			"mac_auth_protocol":                               v.MacAuthProtocol,
+			"mac_limit":                                       v.MacLimit,
+			"mode":                                            v.Mode,
+			"mtu":                                             v.Mtu,
+			"networks":                                        networksVal,
+			"persist_mac":                                     v.PersistMac,
+			"poe_disabled":                                    v.PoeDisabled,
+			"port_auth":                                       v.PortAuth,
+			"port_network":                                    v.PortNetwork,
+			"reauth_interval":                                 v.ReauthInterval,
+			"reset_default_when":                              v.ResetDefaultWhen,
+			"rules":                                           rules,
+			"server_fail_network":                             v.ServerFailNetwork,
+			"server_reject_network":                           v.ServerRejectNetwork,
+			"speed":                                           v.Speed,
+			"storm_control":                                   stormControl,
+			"stp_edge":                                        v.StpEdge,
+			"stp_no_root_port":                                v.StpNoRootPort,
+			"stp_p2p":                                         v.StpP2p,
+			"ui_evpntopo_id":                                  v.UiEvpntopoId,
+			"use_vstp":                                        v.UseVstp,
+			"voip_network":                                    v.VoipNetwork,
 		})
 
 	return objVal, diags
@@ -12884,7 +12953,7 @@ func (v PortUsagesValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.BypassAuthWhenServerDownForUnkownClient.Equal(other.BypassAuthWhenServerDownForUnkownClient) {
+	if !v.BypassAuthWhenServerDownForUnknownClient.Equal(other.BypassAuthWhenServerDownForUnknownClient) {
 		return false
 	}
 
@@ -12917,6 +12986,10 @@ func (v PortUsagesValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.GuestNetwork.Equal(other.GuestNetwork) {
+		return false
+	}
+
+	if !v.InterIsolationNetworkLink.Equal(other.InterIsolationNetworkLink) {
 		return false
 	}
 
@@ -13033,28 +13106,29 @@ func (v PortUsagesValue) Type(ctx context.Context) attr.Type {
 
 func (v PortUsagesValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"all_networks":                                   basetypes.BoolType{},
-		"allow_dhcpd":                                    basetypes.BoolType{},
-		"allow_multiple_supplicants":                     basetypes.BoolType{},
-		"bypass_auth_when_server_down":                   basetypes.BoolType{},
-		"bypass_auth_when_server_down_for_unkown_client": basetypes.BoolType{},
-		"description":                                    basetypes.StringType{},
-		"disable_autoneg":                                basetypes.BoolType{},
-		"disabled":                                       basetypes.BoolType{},
-		"duplex":                                         basetypes.StringType{},
+		"all_networks":                                    basetypes.BoolType{},
+		"allow_dhcpd":                                     basetypes.BoolType{},
+		"allow_multiple_supplicants":                      basetypes.BoolType{},
+		"bypass_auth_when_server_down":                    basetypes.BoolType{},
+		"bypass_auth_when_server_down_for_unknown_client": basetypes.BoolType{},
+		"description":                                     basetypes.StringType{},
+		"disable_autoneg":                                 basetypes.BoolType{},
+		"disabled":                                        basetypes.BoolType{},
+		"duplex":                                          basetypes.StringType{},
 		"dynamic_vlan_networks": basetypes.ListType{
 			ElemType: types.StringType,
 		},
-		"enable_mac_auth":    basetypes.BoolType{},
-		"enable_qos":         basetypes.BoolType{},
-		"guest_network":      basetypes.StringType{},
-		"inter_switch_link":  basetypes.BoolType{},
-		"mac_auth_only":      basetypes.BoolType{},
-		"mac_auth_preferred": basetypes.BoolType{},
-		"mac_auth_protocol":  basetypes.StringType{},
-		"mac_limit":          basetypes.Int64Type{},
-		"mode":               basetypes.StringType{},
-		"mtu":                basetypes.Int64Type{},
+		"enable_mac_auth":              basetypes.BoolType{},
+		"enable_qos":                   basetypes.BoolType{},
+		"guest_network":                basetypes.StringType{},
+		"inter_isolation_network_link": basetypes.BoolType{},
+		"inter_switch_link":            basetypes.BoolType{},
+		"mac_auth_only":                basetypes.BoolType{},
+		"mac_auth_preferred":           basetypes.BoolType{},
+		"mac_auth_protocol":            basetypes.StringType{},
+		"mac_limit":                    basetypes.Int64Type{},
+		"mode":                         basetypes.StringType{},
+		"mtu":                          basetypes.Int64Type{},
 		"networks": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -33450,6 +33524,24 @@ func (t SwitchMgmtType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`disable_oob_down_alarm expected to be basetypes.BoolValue, was: %T`, disableOobDownAlarmAttribute))
 	}
 
+	fipsEnabledAttribute, ok := attributes["fips_enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`fips_enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	fipsEnabledVal, ok := fipsEnabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`fips_enabled expected to be basetypes.BoolValue, was: %T`, fipsEnabledAttribute))
+	}
+
 	localAccountsAttribute, ok := attributes["local_accounts"]
 
 	if !ok {
@@ -33587,6 +33679,7 @@ func (t SwitchMgmtType) ValueFromObject(ctx context.Context, in basetypes.Object
 		ConfigRevertTimer:   configRevertTimerVal,
 		DhcpOptionFqdn:      dhcpOptionFqdnVal,
 		DisableOobDownAlarm: disableOobDownAlarmVal,
+		FipsEnabled:         fipsEnabledVal,
 		LocalAccounts:       localAccountsVal,
 		MxedgeProxyHost:     mxedgeProxyHostVal,
 		MxedgeProxyPort:     mxedgeProxyPortVal,
@@ -33769,6 +33862,24 @@ func NewSwitchMgmtValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`disable_oob_down_alarm expected to be basetypes.BoolValue, was: %T`, disableOobDownAlarmAttribute))
 	}
 
+	fipsEnabledAttribute, ok := attributes["fips_enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`fips_enabled is missing from object`)
+
+		return NewSwitchMgmtValueUnknown(), diags
+	}
+
+	fipsEnabledVal, ok := fipsEnabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`fips_enabled expected to be basetypes.BoolValue, was: %T`, fipsEnabledAttribute))
+	}
+
 	localAccountsAttribute, ok := attributes["local_accounts"]
 
 	if !ok {
@@ -33906,6 +34017,7 @@ func NewSwitchMgmtValue(attributeTypes map[string]attr.Type, attributes map[stri
 		ConfigRevertTimer:   configRevertTimerVal,
 		DhcpOptionFqdn:      dhcpOptionFqdnVal,
 		DisableOobDownAlarm: disableOobDownAlarmVal,
+		FipsEnabled:         fipsEnabledVal,
 		LocalAccounts:       localAccountsVal,
 		MxedgeProxyHost:     mxedgeProxyHostVal,
 		MxedgeProxyPort:     mxedgeProxyPortVal,
@@ -33991,6 +34103,7 @@ type SwitchMgmtValue struct {
 	ConfigRevertTimer   basetypes.Int64Value  `tfsdk:"config_revert_timer"`
 	DhcpOptionFqdn      basetypes.BoolValue   `tfsdk:"dhcp_option_fqdn"`
 	DisableOobDownAlarm basetypes.BoolValue   `tfsdk:"disable_oob_down_alarm"`
+	FipsEnabled         basetypes.BoolValue   `tfsdk:"fips_enabled"`
 	LocalAccounts       basetypes.MapValue    `tfsdk:"local_accounts"`
 	MxedgeProxyHost     basetypes.StringValue `tfsdk:"mxedge_proxy_host"`
 	MxedgeProxyPort     basetypes.Int64Value  `tfsdk:"mxedge_proxy_port"`
@@ -34002,7 +34115,7 @@ type SwitchMgmtValue struct {
 }
 
 func (v SwitchMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 13)
+	attrTypes := make(map[string]tftypes.Type, 14)
 
 	var val tftypes.Value
 	var err error
@@ -34013,6 +34126,7 @@ func (v SwitchMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	attrTypes["config_revert_timer"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["dhcp_option_fqdn"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["disable_oob_down_alarm"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["fips_enabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["local_accounts"] = basetypes.MapType{
 		ElemType: LocalAccountsValue{}.Type(ctx),
 	}.TerraformType(ctx)
@@ -34031,7 +34145,7 @@ func (v SwitchMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 13)
+		vals := make(map[string]tftypes.Value, 14)
 
 		val, err = v.ApAffinityThreshold.ToTerraformValue(ctx)
 
@@ -34080,6 +34194,14 @@ func (v SwitchMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 		}
 
 		vals["disable_oob_down_alarm"] = val
+
+		val, err = v.FipsEnabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["fips_enabled"] = val
 
 		val, err = v.LocalAccounts.ToTerraformValue(ctx)
 
@@ -34244,6 +34366,7 @@ func (v SwitchMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		"config_revert_timer":    basetypes.Int64Type{},
 		"dhcp_option_fqdn":       basetypes.BoolType{},
 		"disable_oob_down_alarm": basetypes.BoolType{},
+		"fips_enabled":           basetypes.BoolType{},
 		"local_accounts": basetypes.MapType{
 			ElemType: LocalAccountsValue{}.Type(ctx),
 		},
@@ -34276,6 +34399,7 @@ func (v SwitchMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"config_revert_timer":    v.ConfigRevertTimer,
 			"dhcp_option_fqdn":       v.DhcpOptionFqdn,
 			"disable_oob_down_alarm": v.DisableOobDownAlarm,
+			"fips_enabled":           v.FipsEnabled,
 			"local_accounts":         localAccounts,
 			"mxedge_proxy_host":      v.MxedgeProxyHost,
 			"mxedge_proxy_port":      v.MxedgeProxyPort,
@@ -34327,6 +34451,10 @@ func (v SwitchMgmtValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.FipsEnabled.Equal(other.FipsEnabled) {
+		return false
+	}
+
 	if !v.LocalAccounts.Equal(other.LocalAccounts) {
 		return false
 	}
@@ -34374,6 +34502,7 @@ func (v SwitchMgmtValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"config_revert_timer":    basetypes.Int64Type{},
 		"dhcp_option_fqdn":       basetypes.BoolType{},
 		"disable_oob_down_alarm": basetypes.BoolType{},
+		"fips_enabled":           basetypes.BoolType{},
 		"local_accounts": basetypes.MapType{
 			ElemType: LocalAccountsValue{}.Type(ctx),
 		},
@@ -37738,6 +37867,24 @@ func (t VrfInstancesType) ValueFromObject(ctx context.Context, in basetypes.Obje
 
 	attributes := in.Attributes()
 
+	evpnAutoLookbackSubnetAttribute, ok := attributes["evpn_auto_lookback_subnet"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`evpn_auto_lookback_subnet is missing from object`)
+
+		return nil, diags
+	}
+
+	evpnAutoLookbackSubnetVal, ok := evpnAutoLookbackSubnetAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`evpn_auto_lookback_subnet expected to be basetypes.StringValue, was: %T`, evpnAutoLookbackSubnetAttribute))
+	}
+
 	networksAttribute, ok := attributes["networks"]
 
 	if !ok {
@@ -37779,9 +37926,10 @@ func (t VrfInstancesType) ValueFromObject(ctx context.Context, in basetypes.Obje
 	}
 
 	return VrfInstancesValue{
-		Networks:       networksVal,
-		VrfExtraRoutes: vrfExtraRoutesVal,
-		state:          attr.ValueStateKnown,
+		EvpnAutoLookbackSubnet: evpnAutoLookbackSubnetVal,
+		Networks:               networksVal,
+		VrfExtraRoutes:         vrfExtraRoutesVal,
+		state:                  attr.ValueStateKnown,
 	}, diags
 }
 
@@ -37848,6 +37996,24 @@ func NewVrfInstancesValue(attributeTypes map[string]attr.Type, attributes map[st
 		return NewVrfInstancesValueUnknown(), diags
 	}
 
+	evpnAutoLookbackSubnetAttribute, ok := attributes["evpn_auto_lookback_subnet"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`evpn_auto_lookback_subnet is missing from object`)
+
+		return NewVrfInstancesValueUnknown(), diags
+	}
+
+	evpnAutoLookbackSubnetVal, ok := evpnAutoLookbackSubnetAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`evpn_auto_lookback_subnet expected to be basetypes.StringValue, was: %T`, evpnAutoLookbackSubnetAttribute))
+	}
+
 	networksAttribute, ok := attributes["networks"]
 
 	if !ok {
@@ -37889,9 +38055,10 @@ func NewVrfInstancesValue(attributeTypes map[string]attr.Type, attributes map[st
 	}
 
 	return VrfInstancesValue{
-		Networks:       networksVal,
-		VrfExtraRoutes: vrfExtraRoutesVal,
-		state:          attr.ValueStateKnown,
+		EvpnAutoLookbackSubnet: evpnAutoLookbackSubnetVal,
+		Networks:               networksVal,
+		VrfExtraRoutes:         vrfExtraRoutesVal,
+		state:                  attr.ValueStateKnown,
 	}, diags
 }
 
@@ -37963,17 +38130,19 @@ func (t VrfInstancesType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = VrfInstancesValue{}
 
 type VrfInstancesValue struct {
-	Networks       basetypes.ListValue `tfsdk:"networks"`
-	VrfExtraRoutes basetypes.MapValue  `tfsdk:"extra_routes"`
-	state          attr.ValueState
+	EvpnAutoLookbackSubnet basetypes.StringValue `tfsdk:"evpn_auto_lookback_subnet"`
+	Networks               basetypes.ListValue   `tfsdk:"networks"`
+	VrfExtraRoutes         basetypes.MapValue    `tfsdk:"extra_routes"`
+	state                  attr.ValueState
 }
 
 func (v VrfInstancesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 2)
+	attrTypes := make(map[string]tftypes.Type, 3)
 
 	var val tftypes.Value
 	var err error
 
+	attrTypes["evpn_auto_lookback_subnet"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["networks"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
@@ -37985,7 +38154,15 @@ func (v VrfInstancesValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 2)
+		vals := make(map[string]tftypes.Value, 3)
+
+		val, err = v.EvpnAutoLookbackSubnet.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["evpn_auto_lookback_subnet"] = val
 
 		val, err = v.Networks.ToTerraformValue(ctx)
 
@@ -38067,6 +38244,7 @@ func (v VrfInstancesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 
 	if d.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
+			"evpn_auto_lookback_subnet": basetypes.StringType{},
 			"networks": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -38077,6 +38255,7 @@ func (v VrfInstancesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 	}
 
 	attributeTypes := map[string]attr.Type{
+		"evpn_auto_lookback_subnet": basetypes.StringType{},
 		"networks": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -38096,8 +38275,9 @@ func (v VrfInstancesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"networks":     networksVal,
-			"extra_routes": vrfExtraRoutes,
+			"evpn_auto_lookback_subnet": v.EvpnAutoLookbackSubnet,
+			"networks":                  networksVal,
+			"extra_routes":              vrfExtraRoutes,
 		})
 
 	return objVal, diags
@@ -38116,6 +38296,10 @@ func (v VrfInstancesValue) Equal(o attr.Value) bool {
 
 	if v.state != attr.ValueStateKnown {
 		return true
+	}
+
+	if !v.EvpnAutoLookbackSubnet.Equal(other.EvpnAutoLookbackSubnet) {
+		return false
 	}
 
 	if !v.Networks.Equal(other.Networks) {
@@ -38139,6 +38323,7 @@ func (v VrfInstancesValue) Type(ctx context.Context) attr.Type {
 
 func (v VrfInstancesValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
+		"evpn_auto_lookback_subnet": basetypes.StringType{},
 		"networks": basetypes.ListType{
 			ElemType: types.StringType,
 		},
