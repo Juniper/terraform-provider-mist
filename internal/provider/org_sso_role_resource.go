@@ -132,7 +132,7 @@ func (r *orgSsoRoleResource) Read(ctx context.Context, _ resource.ReadRequest, r
 		return
 	}
 
-	ssoRoleid, err := uuid.Parse(state.Id.ValueString())
+	ssoRoleId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		diags.AddError(
 			"Invalid \"id\" value for \"mist_org_sso_role\" resource",
@@ -141,7 +141,7 @@ func (r *orgSsoRoleResource) Read(ctx context.Context, _ resource.ReadRequest, r
 		return
 	}
 
-	data, err := r.client.OrgsSSORoles().GetOrgSsoRole(ctx, orgId, ssoRoleid)
+	data, err := r.client.OrgsSSORoles().GetOrgSsoRole(ctx, orgId, ssoRoleId)
 	if data.Response.StatusCode == 404 {
 		resp.State.RemoveResource(ctx)
 		return

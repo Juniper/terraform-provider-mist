@@ -376,7 +376,9 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "Property key is the destination CIDR (e.g. \"10.0.0.0/8\")",
+				MarkdownDescription: "Property key is the destination CIDR (e.g. \"10.0.0.0/8\")",
 				Validators: []validator.Map{
 					mapvalidator.SizeAtLeast(1), mapvalidator.KeysAre(stringvalidator.Any(mistvalidator.ParseCidr(true, false), mistvalidator.ParseVar())),
 				},
@@ -3183,7 +3185,10 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 			"vrf_instances": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
-						"evpn_auto_lookback_subnet": schema.StringAttribute{
+						"evpn_auto_loopback_subnet": schema.StringAttribute{
+							Optional: true,
+						},
+						"evpn_auto_loopback_subnet6": schema.StringAttribute{
 							Optional: true,
 						},
 						"networks": schema.ListAttribute{
@@ -3217,6 +3222,28 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							Validators: []validator.Map{
 								mapvalidator.SizeAtLeast(1),
 								mapvalidator.KeysAre(stringvalidator.Any(mistvalidator.ParseCidr(false, true), mistvalidator.ParseVar())),
+							},
+						},
+						"extra_routes6": schema.MapNestedAttribute{
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"via": schema.StringAttribute{
+										Optional:            true,
+										Description:         "Next-hop address",
+										MarkdownDescription: "Next-hop address",
+									},
+								},
+								CustomType: VrfExtraRoutes6Type{
+									ObjectType: types.ObjectType{
+										AttrTypes: VrfExtraRoutes6Value{}.AttributeTypes(ctx),
+									},
+								},
+							},
+							Optional:            true,
+							Description:         "Property key is the destination CIDR (e.g. \"2a02:1234:420a:10c9::/64\")",
+							MarkdownDescription: "Property key is the destination CIDR (e.g. \"2a02:1234:420a:10c9::/64\")",
+							Validators: []validator.Map{
+								mapvalidator.SizeAtLeast(1),
 							},
 						},
 					},
@@ -37866,22 +37893,40 @@ func (t VrfInstancesType) ValueFromObject(ctx context.Context, in basetypes.Obje
 
 	attributes := in.Attributes()
 
-	evpnAutoLookbackSubnetAttribute, ok := attributes["evpn_auto_lookback_subnet"]
+	evpnAutoLoopbackSubnetAttribute, ok := attributes["evpn_auto_loopback_subnet"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`evpn_auto_lookback_subnet is missing from object`)
+			`evpn_auto_loopback_subnet is missing from object`)
 
 		return nil, diags
 	}
 
-	evpnAutoLookbackSubnetVal, ok := evpnAutoLookbackSubnetAttribute.(basetypes.StringValue)
+	evpnAutoLoopbackSubnetVal, ok := evpnAutoLoopbackSubnetAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`evpn_auto_lookback_subnet expected to be basetypes.StringValue, was: %T`, evpnAutoLookbackSubnetAttribute))
+			fmt.Sprintf(`evpn_auto_loopback_subnet expected to be basetypes.StringValue, was: %T`, evpnAutoLoopbackSubnetAttribute))
+	}
+
+	evpnAutoLoopbackSubnet6Attribute, ok := attributes["evpn_auto_loopback_subnet6"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`evpn_auto_loopback_subnet6 is missing from object`)
+
+		return nil, diags
+	}
+
+	evpnAutoLoopbackSubnet6Val, ok := evpnAutoLoopbackSubnet6Attribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`evpn_auto_loopback_subnet6 expected to be basetypes.StringValue, was: %T`, evpnAutoLoopbackSubnet6Attribute))
 	}
 
 	networksAttribute, ok := attributes["networks"]
@@ -37920,15 +37965,35 @@ func (t VrfInstancesType) ValueFromObject(ctx context.Context, in basetypes.Obje
 			fmt.Sprintf(`extra_routes expected to be basetypes.MapValue, was: %T`, vrfExtraRoutesAttribute))
 	}
 
+	vrfExtraRoutes6Attribute, ok := attributes["extra_routes6"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`extra_routes6 is missing from object`)
+
+		return nil, diags
+	}
+
+	vrfExtraRoutes6Val, ok := vrfExtraRoutes6Attribute.(basetypes.MapValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`extra_routes6 expected to be basetypes.MapValue, was: %T`, vrfExtraRoutes6Attribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
 
 	return VrfInstancesValue{
-		EvpnAutoLookbackSubnet: evpnAutoLookbackSubnetVal,
-		Networks:               networksVal,
-		VrfExtraRoutes:         vrfExtraRoutesVal,
-		state:                  attr.ValueStateKnown,
+		EvpnAutoLoopbackSubnet:  evpnAutoLoopbackSubnetVal,
+		EvpnAutoLoopbackSubnet6: evpnAutoLoopbackSubnet6Val,
+		Networks:                networksVal,
+		VrfExtraRoutes:          vrfExtraRoutesVal,
+		VrfExtraRoutes6:         vrfExtraRoutes6Val,
+		state:                   attr.ValueStateKnown,
 	}, diags
 }
 
@@ -37995,22 +38060,40 @@ func NewVrfInstancesValue(attributeTypes map[string]attr.Type, attributes map[st
 		return NewVrfInstancesValueUnknown(), diags
 	}
 
-	evpnAutoLookbackSubnetAttribute, ok := attributes["evpn_auto_lookback_subnet"]
+	evpnAutoLoopbackSubnetAttribute, ok := attributes["evpn_auto_loopback_subnet"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`evpn_auto_lookback_subnet is missing from object`)
+			`evpn_auto_loopback_subnet is missing from object`)
 
 		return NewVrfInstancesValueUnknown(), diags
 	}
 
-	evpnAutoLookbackSubnetVal, ok := evpnAutoLookbackSubnetAttribute.(basetypes.StringValue)
+	evpnAutoLoopbackSubnetVal, ok := evpnAutoLoopbackSubnetAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`evpn_auto_lookback_subnet expected to be basetypes.StringValue, was: %T`, evpnAutoLookbackSubnetAttribute))
+			fmt.Sprintf(`evpn_auto_loopback_subnet expected to be basetypes.StringValue, was: %T`, evpnAutoLoopbackSubnetAttribute))
+	}
+
+	evpnAutoLoopbackSubnet6Attribute, ok := attributes["evpn_auto_loopback_subnet6"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`evpn_auto_loopback_subnet6 is missing from object`)
+
+		return NewVrfInstancesValueUnknown(), diags
+	}
+
+	evpnAutoLoopbackSubnet6Val, ok := evpnAutoLoopbackSubnet6Attribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`evpn_auto_loopback_subnet6 expected to be basetypes.StringValue, was: %T`, evpnAutoLoopbackSubnet6Attribute))
 	}
 
 	networksAttribute, ok := attributes["networks"]
@@ -38049,15 +38132,35 @@ func NewVrfInstancesValue(attributeTypes map[string]attr.Type, attributes map[st
 			fmt.Sprintf(`extra_routes expected to be basetypes.MapValue, was: %T`, vrfExtraRoutesAttribute))
 	}
 
+	vrfExtraRoutes6Attribute, ok := attributes["extra_routes6"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`extra_routes6 is missing from object`)
+
+		return NewVrfInstancesValueUnknown(), diags
+	}
+
+	vrfExtraRoutes6Val, ok := vrfExtraRoutes6Attribute.(basetypes.MapValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`extra_routes6 expected to be basetypes.MapValue, was: %T`, vrfExtraRoutes6Attribute))
+	}
+
 	if diags.HasError() {
 		return NewVrfInstancesValueUnknown(), diags
 	}
 
 	return VrfInstancesValue{
-		EvpnAutoLookbackSubnet: evpnAutoLookbackSubnetVal,
-		Networks:               networksVal,
-		VrfExtraRoutes:         vrfExtraRoutesVal,
-		state:                  attr.ValueStateKnown,
+		EvpnAutoLoopbackSubnet:  evpnAutoLoopbackSubnetVal,
+		EvpnAutoLoopbackSubnet6: evpnAutoLoopbackSubnet6Val,
+		Networks:                networksVal,
+		VrfExtraRoutes:          vrfExtraRoutesVal,
+		VrfExtraRoutes6:         vrfExtraRoutes6Val,
+		state:                   attr.ValueStateKnown,
 	}, diags
 }
 
@@ -38129,39 +38232,53 @@ func (t VrfInstancesType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = VrfInstancesValue{}
 
 type VrfInstancesValue struct {
-	EvpnAutoLookbackSubnet basetypes.StringValue `tfsdk:"evpn_auto_lookback_subnet"`
-	Networks               basetypes.ListValue   `tfsdk:"networks"`
-	VrfExtraRoutes         basetypes.MapValue    `tfsdk:"extra_routes"`
-	state                  attr.ValueState
+	EvpnAutoLoopbackSubnet  basetypes.StringValue `tfsdk:"evpn_auto_loopback_subnet"`
+	EvpnAutoLoopbackSubnet6 basetypes.StringValue `tfsdk:"evpn_auto_loopback_subnet6"`
+	Networks                basetypes.ListValue   `tfsdk:"networks"`
+	VrfExtraRoutes          basetypes.MapValue    `tfsdk:"extra_routes"`
+	VrfExtraRoutes6         basetypes.MapValue    `tfsdk:"extra_routes6"`
+	state                   attr.ValueState
 }
 
 func (v VrfInstancesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 3)
+	attrTypes := make(map[string]tftypes.Type, 5)
 
 	var val tftypes.Value
 	var err error
 
-	attrTypes["evpn_auto_lookback_subnet"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["evpn_auto_loopback_subnet"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["evpn_auto_loopback_subnet6"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["networks"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
 	attrTypes["extra_routes"] = basetypes.MapType{
 		ElemType: VrfExtraRoutesValue{}.Type(ctx),
 	}.TerraformType(ctx)
+	attrTypes["extra_routes6"] = basetypes.MapType{
+		ElemType: VrfExtraRoutes6Value{}.Type(ctx),
+	}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 3)
+		vals := make(map[string]tftypes.Value, 5)
 
-		val, err = v.EvpnAutoLookbackSubnet.ToTerraformValue(ctx)
+		val, err = v.EvpnAutoLoopbackSubnet.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["evpn_auto_lookback_subnet"] = val
+		vals["evpn_auto_loopback_subnet"] = val
+
+		val, err = v.EvpnAutoLoopbackSubnet6.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["evpn_auto_loopback_subnet6"] = val
 
 		val, err = v.Networks.ToTerraformValue(ctx)
 
@@ -38178,6 +38295,14 @@ func (v VrfInstancesValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 		}
 
 		vals["extra_routes"] = val
+
+		val, err = v.VrfExtraRoutes6.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["extra_routes6"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -38237,29 +38362,66 @@ func (v VrfInstancesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 		)
 	}
 
+	vrfExtraRoutes6 := types.MapValueMust(
+		VrfExtraRoutes6Type{
+			basetypes.ObjectType{
+				AttrTypes: VrfExtraRoutes6Value{}.AttributeTypes(ctx),
+			},
+		},
+		v.VrfExtraRoutes6.Elements(),
+	)
+
+	if v.VrfExtraRoutes6.IsNull() {
+		vrfExtraRoutes6 = types.MapNull(
+			VrfExtraRoutes6Type{
+				basetypes.ObjectType{
+					AttrTypes: VrfExtraRoutes6Value{}.AttributeTypes(ctx),
+				},
+			},
+		)
+	}
+
+	if v.VrfExtraRoutes6.IsUnknown() {
+		vrfExtraRoutes6 = types.MapUnknown(
+			VrfExtraRoutes6Type{
+				basetypes.ObjectType{
+					AttrTypes: VrfExtraRoutes6Value{}.AttributeTypes(ctx),
+				},
+			},
+		)
+	}
+
 	networksVal, d := types.ListValue(types.StringType, v.Networks.Elements())
 
 	diags.Append(d...)
 
 	if d.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
-			"evpn_auto_lookback_subnet": basetypes.StringType{},
+			"evpn_auto_loopback_subnet":  basetypes.StringType{},
+			"evpn_auto_loopback_subnet6": basetypes.StringType{},
 			"networks": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"extra_routes": basetypes.MapType{
 				ElemType: VrfExtraRoutesValue{}.Type(ctx),
 			},
+			"extra_routes6": basetypes.MapType{
+				ElemType: VrfExtraRoutes6Value{}.Type(ctx),
+			},
 		}), diags
 	}
 
 	attributeTypes := map[string]attr.Type{
-		"evpn_auto_lookback_subnet": basetypes.StringType{},
+		"evpn_auto_loopback_subnet":  basetypes.StringType{},
+		"evpn_auto_loopback_subnet6": basetypes.StringType{},
 		"networks": basetypes.ListType{
 			ElemType: types.StringType,
 		},
 		"extra_routes": basetypes.MapType{
 			ElemType: VrfExtraRoutesValue{}.Type(ctx),
+		},
+		"extra_routes6": basetypes.MapType{
+			ElemType: VrfExtraRoutes6Value{}.Type(ctx),
 		},
 	}
 
@@ -38274,9 +38436,11 @@ func (v VrfInstancesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"evpn_auto_lookback_subnet": v.EvpnAutoLookbackSubnet,
-			"networks":                  networksVal,
-			"extra_routes":              vrfExtraRoutes,
+			"evpn_auto_loopback_subnet":  v.EvpnAutoLoopbackSubnet,
+			"evpn_auto_loopback_subnet6": v.EvpnAutoLoopbackSubnet6,
+			"networks":                   networksVal,
+			"extra_routes":               vrfExtraRoutes,
+			"extra_routes6":              vrfExtraRoutes6,
 		})
 
 	return objVal, diags
@@ -38297,7 +38461,11 @@ func (v VrfInstancesValue) Equal(o attr.Value) bool {
 		return true
 	}
 
-	if !v.EvpnAutoLookbackSubnet.Equal(other.EvpnAutoLookbackSubnet) {
+	if !v.EvpnAutoLoopbackSubnet.Equal(other.EvpnAutoLoopbackSubnet) {
+		return false
+	}
+
+	if !v.EvpnAutoLoopbackSubnet6.Equal(other.EvpnAutoLoopbackSubnet6) {
 		return false
 	}
 
@@ -38306,6 +38474,10 @@ func (v VrfInstancesValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.VrfExtraRoutes.Equal(other.VrfExtraRoutes) {
+		return false
+	}
+
+	if !v.VrfExtraRoutes6.Equal(other.VrfExtraRoutes6) {
 		return false
 	}
 
@@ -38322,12 +38494,16 @@ func (v VrfInstancesValue) Type(ctx context.Context) attr.Type {
 
 func (v VrfInstancesValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"evpn_auto_lookback_subnet": basetypes.StringType{},
+		"evpn_auto_loopback_subnet":  basetypes.StringType{},
+		"evpn_auto_loopback_subnet6": basetypes.StringType{},
 		"networks": basetypes.ListType{
 			ElemType: types.StringType,
 		},
 		"extra_routes": basetypes.MapType{
 			ElemType: VrfExtraRoutesValue{}.Type(ctx),
+		},
+		"extra_routes6": basetypes.MapType{
+			ElemType: VrfExtraRoutes6Value{}.Type(ctx),
 		},
 	}
 }
@@ -38651,6 +38827,330 @@ func (v VrfExtraRoutesValue) Type(ctx context.Context) attr.Type {
 }
 
 func (v VrfExtraRoutesValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"via": basetypes.StringType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = VrfExtraRoutes6Type{}
+
+type VrfExtraRoutes6Type struct {
+	basetypes.ObjectType
+}
+
+func (t VrfExtraRoutes6Type) Equal(o attr.Type) bool {
+	other, ok := o.(VrfExtraRoutes6Type)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t VrfExtraRoutes6Type) String() string {
+	return "VrfExtraRoutes6Type"
+}
+
+func (t VrfExtraRoutes6Type) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	viaAttribute, ok := attributes["via"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`via is missing from object`)
+
+		return nil, diags
+	}
+
+	viaVal, ok := viaAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`via expected to be basetypes.StringValue, was: %T`, viaAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return VrfExtraRoutes6Value{
+		Via:   viaVal,
+		state: attr.ValueStateKnown,
+	}, diags
+}
+
+func NewVrfExtraRoutes6ValueNull() VrfExtraRoutes6Value {
+	return VrfExtraRoutes6Value{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewVrfExtraRoutes6ValueUnknown() VrfExtraRoutes6Value {
+	return VrfExtraRoutes6Value{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewVrfExtraRoutes6Value(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (VrfExtraRoutes6Value, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing VrfExtraRoutes6Value Attribute Value",
+				"While creating a VrfExtraRoutes6Value value, a missing attribute value was detected. "+
+					"A VrfExtraRoutes6Value must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("VrfExtraRoutes6Value Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid VrfExtraRoutes6Value Attribute Type",
+				"While creating a VrfExtraRoutes6Value value, an invalid attribute value was detected. "+
+					"A VrfExtraRoutes6Value must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("VrfExtraRoutes6Value Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("VrfExtraRoutes6Value Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra VrfExtraRoutes6Value Attribute Value",
+				"While creating a VrfExtraRoutes6Value value, an extra attribute value was detected. "+
+					"A VrfExtraRoutes6Value must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra VrfExtraRoutes6Value Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewVrfExtraRoutes6ValueUnknown(), diags
+	}
+
+	viaAttribute, ok := attributes["via"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`via is missing from object`)
+
+		return NewVrfExtraRoutes6ValueUnknown(), diags
+	}
+
+	viaVal, ok := viaAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`via expected to be basetypes.StringValue, was: %T`, viaAttribute))
+	}
+
+	if diags.HasError() {
+		return NewVrfExtraRoutes6ValueUnknown(), diags
+	}
+
+	return VrfExtraRoutes6Value{
+		Via:   viaVal,
+		state: attr.ValueStateKnown,
+	}, diags
+}
+
+func NewVrfExtraRoutes6ValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) VrfExtraRoutes6Value {
+	object, diags := NewVrfExtraRoutes6Value(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewVrfExtraRoutes6ValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t VrfExtraRoutes6Type) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewVrfExtraRoutes6ValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewVrfExtraRoutes6ValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewVrfExtraRoutes6ValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewVrfExtraRoutes6ValueMust(VrfExtraRoutes6Value{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t VrfExtraRoutes6Type) ValueType(ctx context.Context) attr.Value {
+	return VrfExtraRoutes6Value{}
+}
+
+var _ basetypes.ObjectValuable = VrfExtraRoutes6Value{}
+
+type VrfExtraRoutes6Value struct {
+	Via   basetypes.StringValue `tfsdk:"via"`
+	state attr.ValueState
+}
+
+func (v VrfExtraRoutes6Value) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 1)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["via"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 1)
+
+		val, err = v.Via.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["via"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v VrfExtraRoutes6Value) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v VrfExtraRoutes6Value) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v VrfExtraRoutes6Value) String() string {
+	return "VrfExtraRoutes6Value"
+}
+
+func (v VrfExtraRoutes6Value) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"via": basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"via": v.Via,
+		})
+
+	return objVal, diags
+}
+
+func (v VrfExtraRoutes6Value) Equal(o attr.Value) bool {
+	other, ok := o.(VrfExtraRoutes6Value)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Via.Equal(other.Via) {
+		return false
+	}
+
+	return true
+}
+
+func (v VrfExtraRoutes6Value) Type(ctx context.Context) attr.Type {
+	return VrfExtraRoutes6Type{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v VrfExtraRoutes6Value) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"via": basetypes.StringType{},
 	}

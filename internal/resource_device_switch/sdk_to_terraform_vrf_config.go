@@ -31,7 +31,7 @@ func vrfConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mo
 }
 
 func vrfInstanceExtraRouteSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.VrfExtraRoute) basetypes.MapValue {
-	mapItemType := make(map[string]attr.Value)
+	mapItemValue := make(map[string]attr.Value)
 	for k, d := range m {
 		var via basetypes.StringValue
 
@@ -45,40 +45,76 @@ func vrfInstanceExtraRouteSdkToTerraform(ctx context.Context, diags *diag.Diagno
 		data, e := NewVrfExtraRoutesValue(VrfExtraRoutesValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		mapItemType[k] = data
+		mapItemValue[k] = data
 	}
-	stateType := ExtraRoutesValue{}.Type(ctx)
-	stateResult, e := types.MapValueFrom(ctx, stateType, mapItemType)
+
+	stateResult, e := types.MapValueFrom(ctx, VrfExtraRoutesValue{}.Type(ctx), mapItemValue)
+	diags.Append(e...)
+	return stateResult
+}
+
+func vrfInstanceExtraRoute6SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.VrfExtraRoute) basetypes.MapValue {
+	mapItemValue := make(map[string]attr.Value)
+	for k, d := range m {
+		var via basetypes.StringValue
+
+		if d.Via != nil {
+			via = types.StringValue(*d.Via)
+		}
+
+		dataMapValue := map[string]attr.Value{
+			"via": via,
+		}
+		data, e := NewVrfExtraRoutes6Value(VrfExtraRoutes6Value{}.AttributeTypes(ctx), dataMapValue)
+		diags.Append(e...)
+
+		mapItemValue[k] = data
+	}
+	stateResult, e := types.MapValueFrom(ctx, VrfExtraRoutes6Value{}.Type(ctx), mapItemValue)
 	diags.Append(e...)
 	return stateResult
 }
 
 func vrfInstancesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.SwitchVrfInstance) basetypes.MapValue {
 
-	mapItemType := make(map[string]attr.Value)
+	dataMapValue := make(map[string]attr.Value)
 	for k, d := range m {
+		var evpnAutoLoopbackSubnet basetypes.StringValue
+		var evpnAutoLoopbackSubnet6 basetypes.StringValue
 		var extraRoutes = types.MapNull(VrfExtraRoutesValue{}.Type(ctx))
+		var extraRoutes6 = types.MapNull(VrfExtraRoutes6Value{}.Type(ctx))
 		var networks = misttransform.ListOfStringSdkToTerraformEmpty()
 
+		if d.EvpnAutoLoopbackSubnet != nil {
+			evpnAutoLoopbackSubnet = types.StringValue(*d.EvpnAutoLoopbackSubnet)
+		}
+		if d.EvpnAutoLoopbackSubnet6 != nil {
+			evpnAutoLoopbackSubnet6 = types.StringValue(*d.EvpnAutoLoopbackSubnet6)
+		}
 		if d.ExtraRoutes != nil && len(d.ExtraRoutes) > 0 {
 			extraRoutes = vrfInstanceExtraRouteSdkToTerraform(ctx, diags, d.ExtraRoutes)
+		}
+		if d.ExtraRoutes6 != nil && len(d.ExtraRoutes6) > 0 {
+			extraRoutes6 = vrfInstanceExtraRoute6SdkToTerraform(ctx, diags, d.ExtraRoutes6)
 		}
 		if d.Networks != nil {
 			networks = misttransform.ListOfStringSdkToTerraform(d.Networks)
 		}
 
-		vrfMapAttrType := VrfInstancesValue{}.AttributeTypes(ctx)
 		vrfMapValue := map[string]attr.Value{
-			"vrf_extra_routes": extraRoutes,
-			"networks":         networks,
+			"evpn_auto_loopback_subnet":  evpnAutoLoopbackSubnet,
+			"evpn_auto_loopback_subnet6": evpnAutoLoopbackSubnet6,
+			"extra_routes":               extraRoutes,
+			"extra_routes6":              extraRoutes6,
+			"networks":                   networks,
 		}
-		data, e := NewVrfInstancesValue(vrfMapAttrType, vrfMapValue)
+		data, e := NewVrfInstancesValue(VrfInstancesValue{}.AttributeTypes(ctx), vrfMapValue)
 		diags.Append(e...)
 
-		mapItemType[k] = data
+		dataMapValue[k] = data
 	}
-	stateType := VrfInstancesValue{}.Type(ctx)
-	stateResult, e := types.MapValueFrom(ctx, stateType, mapItemType)
+
+	stateResult, e := types.MapValueFrom(ctx, VrfInstancesValue{}.Type(ctx), dataMapValue)
 	diags.Append(e...)
 	return stateResult
 }
