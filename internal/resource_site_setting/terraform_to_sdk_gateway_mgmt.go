@@ -150,8 +150,17 @@ func gatewayMgmtTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d G
 	if d.DisableConsole.ValueBoolPointer() != nil {
 		data.DisableConsole = d.DisableConsole.ValueBoolPointer()
 	}
+
 	if d.DisableOob.ValueBoolPointer() != nil {
 		data.DisableOob = d.DisableOob.ValueBoolPointer()
+	}
+
+	if d.DisableUsb.ValueBoolPointer() != nil {
+		data.DisableUsb = d.DisableUsb.ValueBoolPointer()
+	}
+
+	if d.FipsEnabled.ValueBoolPointer() != nil {
+		data.FipsEnabled = d.FipsEnabled.ValueBoolPointer()
 	}
 
 	if !d.ProbeHosts.IsNull() && !d.ProbeHosts.IsUnknown() {

@@ -125,11 +125,6 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "Auto Upgrade Settings",
 				MarkdownDescription: "Auto Upgrade Settings",
 			},
-			"auto_upgrade_linecard": schema.BoolAttribute{
-				Optional: true,
-				Computed: true,
-				Default:  booldefault.StaticBool(false),
-			},
 			"blacklist_url": schema.StringAttribute{
 				Computed: true,
 				Default:  stringdefault.StaticString(""),
@@ -1895,7 +1890,6 @@ type SiteSettingModel struct {
 	Analytic               AnalyticValue              `tfsdk:"analytic"`
 	ApUpdownThreshold      types.Int64                `tfsdk:"ap_updown_threshold"`
 	AutoUpgrade            AutoUpgradeValue           `tfsdk:"auto_upgrade"`
-	AutoUpgradeLinecard    types.Bool                 `tfsdk:"auto_upgrade_linecard"`
 	BlacklistUrl           types.String               `tfsdk:"blacklist_url"`
 	BleConfig              BleConfigValue             `tfsdk:"ble_config"`
 	ConfigAutoRevert       types.Bool                 `tfsdk:"config_auto_revert"`

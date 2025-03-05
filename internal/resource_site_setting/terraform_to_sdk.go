@@ -63,6 +63,12 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 		unset["-device_updown_threshold"] = ""
 	}
 
+	if !plan.EnableUnii4.IsNull() && !plan.EnableUnii4.IsUnknown() {
+		data.EnableUnii4 = plan.EnableUnii4.ValueBoolPointer()
+	} else {
+		unset["-enable_unii_4"] = ""
+	}
+
 	if !plan.Engagement.IsNull() && !plan.Engagement.IsUnknown() {
 		data.Engagement = engagementTerraformToSdk(ctx, &diags, plan.Engagement)
 	} else {
