@@ -1038,16 +1038,19 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
 							},
 						},
-						"reauth_interval": schema.Int64Attribute{
+						"reauth_interval": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "Only if `mode`!=`dynamic` and `port_auth`=`dot1x` reauthentication interval range",
-							MarkdownDescription: "Only if `mode`!=`dynamic` and `port_auth`=`dot1x` reauthentication interval range",
-							Validators: []validator.Int64{
-								int64validator.Between(10, 65535),
-								mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x"), types.Int64Value(3600)),
+							Description:         "Only if `mode`!=`dynamic` and `port_auth`=`dot1x` reauthentication interval range between 10 and 65535 (default: 3600)",
+							MarkdownDescription: "Only if `mode`!=`dynamic` and `port_auth`=`dot1x` reauthentication interval range between 10 and 65535 (default: 3600)",
+							Validators: []validator.String{
+								stringvalidator.Any(
+									mistvalidator.ParseInt(10, 65535),
+									mistvalidator.ParseVar(),
+								),
+								mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x"), types.StringValue("3600")),
 							},
-							Default: int64default.StaticInt64(3600),
+							Default: stringdefault.StaticString("3600"),
 						},
 						"reset_default_when": schema.StringAttribute{
 							Optional:            true,
@@ -11086,12 +11089,12 @@ func (t PortUsagesType) ValueFromObject(ctx context.Context, in basetypes.Object
 		return nil, diags
 	}
 
-	reauthIntervalVal, ok := reauthIntervalAttribute.(basetypes.Int64Value)
+	reauthIntervalVal, ok := reauthIntervalAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`reauth_interval expected to be basetypes.Int64Value, was: %T`, reauthIntervalAttribute))
+			fmt.Sprintf(`reauth_interval expected to be basetypes.StringValue, was: %T`, reauthIntervalAttribute))
 	}
 
 	resetDefaultWhenAttribute, ok := attributes["reset_default_when"]
@@ -11899,12 +11902,12 @@ func NewPortUsagesValue(attributeTypes map[string]attr.Type, attributes map[stri
 		return NewPortUsagesValueUnknown(), diags
 	}
 
-	reauthIntervalVal, ok := reauthIntervalAttribute.(basetypes.Int64Value)
+	reauthIntervalVal, ok := reauthIntervalAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`reauth_interval expected to be basetypes.Int64Value, was: %T`, reauthIntervalAttribute))
+			fmt.Sprintf(`reauth_interval expected to be basetypes.StringValue, was: %T`, reauthIntervalAttribute))
 	}
 
 	resetDefaultWhenAttribute, ok := attributes["reset_default_when"]
@@ -12265,7 +12268,7 @@ type PortUsagesValue struct {
 	PoeDisabled                              basetypes.BoolValue   `tfsdk:"poe_disabled"`
 	PortAuth                                 basetypes.StringValue `tfsdk:"port_auth"`
 	PortNetwork                              basetypes.StringValue `tfsdk:"port_network"`
-	ReauthInterval                           basetypes.Int64Value  `tfsdk:"reauth_interval"`
+	ReauthInterval                           basetypes.StringValue `tfsdk:"reauth_interval"`
 	ResetDefaultWhen                         basetypes.StringValue `tfsdk:"reset_default_when"`
 	Rules                                    basetypes.ListValue   `tfsdk:"rules"`
 	ServerFailNetwork                        basetypes.StringValue `tfsdk:"server_fail_network"`
@@ -12317,7 +12320,7 @@ func (v PortUsagesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	attrTypes["poe_disabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["port_auth"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["port_network"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["reauth_interval"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["reauth_interval"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["reset_default_when"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["rules"] = basetypes.ListType{
 		ElemType: RulesValue{}.Type(ctx),
@@ -12768,7 +12771,7 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"poe_disabled":       basetypes.BoolType{},
 			"port_auth":          basetypes.StringType{},
 			"port_network":       basetypes.StringType{},
-			"reauth_interval":    basetypes.Int64Type{},
+			"reauth_interval":    basetypes.StringType{},
 			"reset_default_when": basetypes.StringType{},
 			"rules": basetypes.ListType{
 				ElemType: RulesValue{}.Type(ctx),
@@ -12824,7 +12827,7 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"poe_disabled":       basetypes.BoolType{},
 			"port_auth":          basetypes.StringType{},
 			"port_network":       basetypes.StringType{},
-			"reauth_interval":    basetypes.Int64Type{},
+			"reauth_interval":    basetypes.StringType{},
 			"reset_default_when": basetypes.StringType{},
 			"rules": basetypes.ListType{
 				ElemType: RulesValue{}.Type(ctx),
@@ -12875,7 +12878,7 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		"poe_disabled":       basetypes.BoolType{},
 		"port_auth":          basetypes.StringType{},
 		"port_network":       basetypes.StringType{},
-		"reauth_interval":    basetypes.Int64Type{},
+		"reauth_interval":    basetypes.StringType{},
 		"reset_default_when": basetypes.StringType{},
 		"rules": basetypes.ListType{
 			ElemType: RulesValue{}.Type(ctx),
@@ -13163,7 +13166,7 @@ func (v PortUsagesValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"poe_disabled":       basetypes.BoolType{},
 		"port_auth":          basetypes.StringType{},
 		"port_network":       basetypes.StringType{},
-		"reauth_interval":    basetypes.Int64Type{},
+		"reauth_interval":    basetypes.StringType{},
 		"reset_default_when": basetypes.StringType{},
 		"rules": basetypes.ListType{
 			ElemType: RulesValue{}.Type(ctx),

@@ -2,6 +2,7 @@ package resource_device_switch
 
 import (
 	"context"
+	mistapi "github.com/Juniper/terraform-provider-mist/internal/commons/api_response"
 
 	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -134,7 +135,7 @@ func localPortConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics,
 			itemObj.PortNetwork = types.StringValue(*d.PortNetwork)
 		}
 		if d.ReauthInterval != nil {
-			itemObj.ReauthInterval = types.Int64Value(int64(*d.ReauthInterval))
+			itemObj.ReauthInterval = mistapi.SwitchPortUsageReauthIntervalAsString(*d.ReauthInterval)
 		}
 		if d.ServerFailNetwork.Value() != nil {
 			itemObj.ServerFailNetwork = types.StringValue(*d.ServerFailNetwork.Value())

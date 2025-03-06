@@ -148,8 +148,8 @@ func portUsageTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d bas
 		if puAttrValue.PortNetwork.ValueStringPointer() != nil {
 			newPu.PortNetwork = models.ToPointer(puAttrValue.PortNetwork.ValueString())
 		}
-		if puAttrValue.ReauthInterval.ValueInt64Pointer() != nil {
-			newPu.ReauthInterval = models.ToPointer(int(puAttrValue.ReauthInterval.ValueInt64()))
+		if puAttrValue.ReauthInterval.ValueStringPointer() != nil {
+			newPu.ReauthInterval = models.ToPointer(models.SwitchPortUsageReauthIntervalContainer.FromString(puAttrValue.ReauthInterval.ValueString()))
 		}
 		if !puAttrValue.Rules.IsNull() && !puAttrValue.Rules.IsUnknown() {
 			newPu.Rules = portUsageRulesTerraformToSdk(puAttrValue.Rules)

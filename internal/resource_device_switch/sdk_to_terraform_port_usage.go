@@ -2,6 +2,7 @@ package resource_device_switch
 
 import (
 	"context"
+	mistapi "github.com/Juniper/terraform-provider-mist/internal/commons/api_response"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -120,7 +121,7 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		var poeDisabled basetypes.BoolValue
 		var portAuth basetypes.StringValue
 		var portNetwork basetypes.StringValue
-		var reauthInterval basetypes.Int64Value
+		var reauthInterval basetypes.StringValue
 		var resetDefaultWhen basetypes.StringValue
 		var rules = types.ListNull(RulesValue{}.Type(ctx))
 		var serverFailNetwork basetypes.StringValue
@@ -212,7 +213,7 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 			portNetwork = types.StringValue(*d.PortNetwork)
 		}
 		if d.ReauthInterval != nil {
-			reauthInterval = types.Int64Value(int64(*d.ReauthInterval))
+			reauthInterval = mistapi.SwitchPortUsageReauthIntervalAsString(*d.ReauthInterval)
 		}
 		if d.ResetDefaultWhen != nil {
 			resetDefaultWhen = types.StringValue(string(*d.ResetDefaultWhen))

@@ -17,6 +17,10 @@ Add support for Mist Cloud Global 05 (manage.gc4.mist.com / api.gc4.mist.com)
 
 ### Breaking Changes
 * change type of `mist_org_nactag.gbp_tag` from `int64` to `string`
+* change type of `mist_device_switch.port_usage.reauth_interval` from `int64` to `string`
+* change type of `mist_device_switch.local_port_config.reauth_interval` from `int64` to `string`
+* change type of `mist_org_networktemplate.port_usage.reauth_interval` from `int64` to `string`
+* change type of `mist_site_networktemplate.port_usage.reauth_interval` from `int64` to `string`
 
 ### New Datasource
 * `mist_const_fingerprints`: The Fingerprint information can be used within `matching` and `not_matching` attributes of the NAC Rule resource (`mist_org_nacrule`)

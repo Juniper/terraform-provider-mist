@@ -124,8 +124,8 @@ func LocalPortConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics,
 		if planObj.PortNetwork.ValueStringPointer() != nil {
 			itemObj.PortNetwork = models.ToPointer(planObj.PortNetwork.ValueString())
 		}
-		if planObj.ReauthInterval.ValueInt64Pointer() != nil {
-			itemObj.ReauthInterval = models.ToPointer(int(planObj.ReauthInterval.ValueInt64()))
+		if planObj.ReauthInterval.ValueStringPointer() != nil {
+			itemObj.ReauthInterval = models.ToPointer(models.SwitchPortUsageReauthIntervalContainer.FromString(planObj.ReauthInterval.ValueString()))
 		}
 		if planObj.ServerFailNetwork.ValueStringPointer() != nil {
 			itemObj.ServerFailNetwork = models.NewOptional(models.ToPointer(planObj.ServerFailNetwork.ValueString()))
