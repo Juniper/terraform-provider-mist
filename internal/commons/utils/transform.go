@@ -60,6 +60,13 @@ func ListOfNumberSdkToTerraform(data []float64) basetypes.ListValue {
 	return list
 }
 
+func ListOfNumberSdkToTerraformEmpty() basetypes.ListValue {
+	var items []attr.Value
+	var itemsType attr.Type = basetypes.NumberType{}
+	list, _ := types.ListValue(itemsType, items)
+	return list
+}
+
 // /////// INT
 func ListOfIntTerraformToSdk(list basetypes.ListValue) []int {
 	var items []int
