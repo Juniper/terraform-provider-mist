@@ -74,10 +74,8 @@ func OrgNactagsDataSourceSchema(ctx context.Context) schema.Schema {
 							Description:         "If `type`==`egress_vlan_names`, list of egress vlans to return",
 							MarkdownDescription: "If `type`==`egress_vlan_names`, list of egress vlans to return",
 						},
-						"gbp_tag": schema.Int64Attribute{
-							Computed:            true,
-							Description:         "If `type`==`gbp_tag`",
-							MarkdownDescription: "If `type`==`gbp_tag`",
+						"gbp_tag": schema.StringAttribute{
+							Computed: true,
 						},
 						"id": schema.StringAttribute{
 							Computed:            true,
@@ -278,12 +276,12 @@ func (t OrgNactagsType) ValueFromObject(ctx context.Context, in basetypes.Object
 		return nil, diags
 	}
 
-	gbpTagVal, ok := gbpTagAttribute.(basetypes.Int64Value)
+	gbpTagVal, ok := gbpTagAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`gbp_tag expected to be basetypes.Int64Value, was: %T`, gbpTagAttribute))
+			fmt.Sprintf(`gbp_tag expected to be basetypes.StringValue, was: %T`, gbpTagAttribute))
 	}
 
 	idAttribute, ok := attributes["id"]
@@ -692,12 +690,12 @@ func NewOrgNactagsValue(attributeTypes map[string]attr.Type, attributes map[stri
 		return NewOrgNactagsValueUnknown(), diags
 	}
 
-	gbpTagVal, ok := gbpTagAttribute.(basetypes.Int64Value)
+	gbpTagVal, ok := gbpTagAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`gbp_tag expected to be basetypes.Int64Value, was: %T`, gbpTagAttribute))
+			fmt.Sprintf(`gbp_tag expected to be basetypes.StringValue, was: %T`, gbpTagAttribute))
 	}
 
 	idAttribute, ok := attributes["id"]
@@ -1050,7 +1048,7 @@ type OrgNactagsValue struct {
 	AllowUsermacOverride basetypes.BoolValue    `tfsdk:"allow_usermac_override"`
 	CreatedTime          basetypes.Float64Value `tfsdk:"created_time"`
 	EgressVlanNames      basetypes.ListValue    `tfsdk:"egress_vlan_names"`
-	GbpTag               basetypes.Int64Value   `tfsdk:"gbp_tag"`
+	GbpTag               basetypes.StringValue  `tfsdk:"gbp_tag"`
 	Id                   basetypes.StringValue  `tfsdk:"id"`
 	Match                basetypes.StringValue  `tfsdk:"match"`
 	MatchAll             basetypes.BoolValue    `tfsdk:"match_all"`
@@ -1079,7 +1077,7 @@ func (v OrgNactagsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	attrTypes["egress_vlan_names"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
-	attrTypes["gbp_tag"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["gbp_tag"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["match"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["match_all"] = basetypes.BoolType{}.TerraformType(ctx)
@@ -1291,7 +1289,7 @@ func (v OrgNactagsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"egress_vlan_names": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"gbp_tag":       basetypes.Int64Type{},
+			"gbp_tag":       basetypes.StringType{},
 			"id":            basetypes.StringType{},
 			"match":         basetypes.StringType{},
 			"match_all":     basetypes.BoolType{},
@@ -1326,7 +1324,7 @@ func (v OrgNactagsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"egress_vlan_names": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"gbp_tag":       basetypes.Int64Type{},
+			"gbp_tag":       basetypes.StringType{},
 			"id":            basetypes.StringType{},
 			"match":         basetypes.StringType{},
 			"match_all":     basetypes.BoolType{},
@@ -1361,7 +1359,7 @@ func (v OrgNactagsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"egress_vlan_names": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"gbp_tag":       basetypes.Int64Type{},
+			"gbp_tag":       basetypes.StringType{},
 			"id":            basetypes.StringType{},
 			"match":         basetypes.StringType{},
 			"match_all":     basetypes.BoolType{},
@@ -1396,7 +1394,7 @@ func (v OrgNactagsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"egress_vlan_names": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"gbp_tag":       basetypes.Int64Type{},
+			"gbp_tag":       basetypes.StringType{},
 			"id":            basetypes.StringType{},
 			"match":         basetypes.StringType{},
 			"match_all":     basetypes.BoolType{},
@@ -1426,7 +1424,7 @@ func (v OrgNactagsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		"egress_vlan_names": basetypes.ListType{
 			ElemType: types.StringType,
 		},
-		"gbp_tag":       basetypes.Int64Type{},
+		"gbp_tag":       basetypes.StringType{},
 		"id":            basetypes.StringType{},
 		"match":         basetypes.StringType{},
 		"match_all":     basetypes.BoolType{},
@@ -1588,7 +1586,7 @@ func (v OrgNactagsValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"egress_vlan_names": basetypes.ListType{
 			ElemType: types.StringType,
 		},
-		"gbp_tag":       basetypes.Int64Type{},
+		"gbp_tag":       basetypes.StringType{},
 		"id":            basetypes.StringType{},
 		"match":         basetypes.StringType{},
 		"match_all":     basetypes.BoolType{},
