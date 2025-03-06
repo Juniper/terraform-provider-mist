@@ -33,13 +33,8 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("egress_vlan_names")),
 				},
 			},
-			"gbp_tag": schema.Int64Attribute{
-				Optional:            true,
-				Description:         "If `type`==`gbp_tag`",
-				MarkdownDescription: "If `type`==`gbp_tag`",
-				Validators: []validator.Int64{
-					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("gbp_tag")),
-				},
+			"gbp_tag": schema.StringAttribute{
+				Optional: true,
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
@@ -179,7 +174,7 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 type OrgNactagModel struct {
 	AllowUsermacOverride types.Bool   `tfsdk:"allow_usermac_override"`
 	EgressVlanNames      types.List   `tfsdk:"egress_vlan_names"`
-	GbpTag               types.Int64  `tfsdk:"gbp_tag"`
+	GbpTag               types.String `tfsdk:"gbp_tag"`
 	Id                   types.String `tfsdk:"id"`
 	Match                types.String `tfsdk:"match"`
 	MatchAll             types.Bool   `tfsdk:"match_all"`

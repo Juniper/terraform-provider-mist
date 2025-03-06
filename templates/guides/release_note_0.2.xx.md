@@ -15,6 +15,9 @@ This release is adding new attributes based on the Mist Cloud push from February
 ### New Cloud support
 Add support for Mist Cloud Global 05 (manage.gc4.mist.com / api.gc4.mist.com)
 
+### Breaking Changes
+* change type of `mist_org_nactag.gbp_tag` from `int64` to `string`
+
 ### New Datasource
 * `mist_const_fingerprints`: The Fingerprint information can be used within `matching` and `not_matching` attributes of the NAC Rule resource (`mist_org_nacrule`)
 
