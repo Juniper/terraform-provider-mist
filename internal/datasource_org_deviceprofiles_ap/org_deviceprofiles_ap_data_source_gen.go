@@ -39,9 +39,6 @@ func OrgDeviceprofilesApDataSourceSchema(ctx context.Context) schema.Schema {
 						"org_id": schema.StringAttribute{
 							Computed: true,
 						},
-						"type": schema.StringAttribute{
-							Computed: true,
-						},
 					},
 					CustomType: OrgDeviceprofilesApType{
 						ObjectType: types.ObjectType{
@@ -168,12 +165,6 @@ func (t OrgDeviceprofilesApType) ValueFromObject(ctx context.Context, in basetyp
 	}
 
 	orgIdVal, ok := orgIdAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`org_id expected to be basetypes.StringValue, was: %T`, orgIdAttribute))
-	}
 
 	if diags.HasError() {
 		return nil, diags
