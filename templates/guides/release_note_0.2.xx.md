@@ -370,6 +370,13 @@ Add support for Mist Cloud Global 05 (manage.gc4.mist.com / api.gc4.mist.com)
 * new attribute `mist_org_servicepolicies.org_servicepolicies[*].antivirus`
 * new attribute `mist_org_servicepolicies.org_servicepolicies[*].ssl_proxy`
 
+#### mist_org_vpns
+* new attribute `mist_org_webhooks.org_vpns[*].path_selection`
+* new attribute `mist_org_webhooks.org_vpns[*].path_selection.class_percentage`
+* new attribute `mist_org_webhooks.org_vpns[*].path_selection.enabled`
+* new attribute `mist_org_webhooks.org_vpns[*].path_selection.max_tx_kbps`
+* new attribute `mist_org_webhooks.org_vpns[*].type`
+
 #### mist_org_webhooks
 * new attribute `mist_org_webhooks.org_webhooks[*].single_event_per_message`
 

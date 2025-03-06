@@ -141,6 +141,11 @@ func OrgVpnsDataSourceSchema(ctx context.Context) schema.Schema {
 								mapvalidator.SizeAtLeast(1),
 							},
 						},
+						"type": schema.StringAttribute{
+							Computed:            true,
+							Description:         "enum: `hub_spoke`, `mesh`",
+							MarkdownDescription: "enum: `hub_spoke`, `mesh`",
+						},
 					},
 					CustomType: OrgVpnsType{
 						ObjectType: types.ObjectType{
@@ -310,6 +315,24 @@ func (t OrgVpnsType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 			fmt.Sprintf(`paths expected to be basetypes.MapValue, was: %T`, pathsAttribute))
 	}
 
+	typeAttribute, ok := attributes["type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`type is missing from object`)
+
+		return nil, diags
+	}
+
+	typeVal, ok := typeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, typeAttribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
@@ -322,6 +345,7 @@ func (t OrgVpnsType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 		OrgId:         orgIdVal,
 		PathSelection: pathSelectionVal,
 		Paths:         pathsVal,
+		OrgVpnsType:   typeVal,
 		state:         attr.ValueStateKnown,
 	}, diags
 }
@@ -515,6 +539,24 @@ func NewOrgVpnsValue(attributeTypes map[string]attr.Type, attributes map[string]
 			fmt.Sprintf(`paths expected to be basetypes.MapValue, was: %T`, pathsAttribute))
 	}
 
+	typeAttribute, ok := attributes["type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`type is missing from object`)
+
+		return NewOrgVpnsValueUnknown(), diags
+	}
+
+	typeVal, ok := typeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, typeAttribute))
+	}
+
 	if diags.HasError() {
 		return NewOrgVpnsValueUnknown(), diags
 	}
@@ -527,6 +569,7 @@ func NewOrgVpnsValue(attributeTypes map[string]attr.Type, attributes map[string]
 		OrgId:         orgIdVal,
 		PathSelection: pathSelectionVal,
 		Paths:         pathsVal,
+		OrgVpnsType:   typeVal,
 		state:         attr.ValueStateKnown,
 	}, diags
 }
@@ -606,11 +649,12 @@ type OrgVpnsValue struct {
 	OrgId         basetypes.StringValue  `tfsdk:"org_id"`
 	PathSelection basetypes.ObjectValue  `tfsdk:"path_selection"`
 	Paths         basetypes.MapValue     `tfsdk:"paths"`
+	OrgVpnsType   basetypes.StringValue  `tfsdk:"type"`
 	state         attr.ValueState
 }
 
 func (v OrgVpnsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 7)
+	attrTypes := make(map[string]tftypes.Type, 8)
 
 	var val tftypes.Value
 	var err error
@@ -626,12 +670,13 @@ func (v OrgVpnsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 	attrTypes["paths"] = basetypes.MapType{
 		ElemType: PathsValue{}.Type(ctx),
 	}.TerraformType(ctx)
+	attrTypes["type"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 7)
+		vals := make(map[string]tftypes.Value, 8)
 
 		val, err = v.CreatedTime.ToTerraformValue(ctx)
 
@@ -688,6 +733,14 @@ func (v OrgVpnsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 		}
 
 		vals["paths"] = val
+
+		val, err = v.OrgVpnsType.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["type"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -780,6 +833,7 @@ func (v OrgVpnsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 		"paths": basetypes.MapType{
 			ElemType: PathsValue{}.Type(ctx),
 		},
+		"type": basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -800,6 +854,7 @@ func (v OrgVpnsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 			"org_id":         v.OrgId,
 			"path_selection": pathSelection,
 			"paths":          paths,
+			"type":           v.OrgVpnsType,
 		})
 
 	return objVal, diags
@@ -848,6 +903,10 @@ func (v OrgVpnsValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.OrgVpnsType.Equal(other.OrgVpnsType) {
+		return false
+	}
+
 	return true
 }
 
@@ -872,6 +931,7 @@ func (v OrgVpnsValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 		"paths": basetypes.MapType{
 			ElemType: PathsValue{}.Type(ctx),
 		},
+		"type": basetypes.StringType{},
 	}
 }
 
