@@ -157,6 +157,11 @@ func OrgServicesDataSourceSchema(ctx context.Context) schema.Schema {
 							Description:         "values from [List Traffic Types]($e/Constants%20Definitions/listTrafficTypes)",
 							MarkdownDescription: "values from [List Traffic Types]($e/Constants%20Definitions/listTrafficTypes)",
 						},
+						"type": schema.StringAttribute{
+							Computed:            true,
+							Description:         "enum: `app_categories`, `apps`, `custom`, `urls`",
+							MarkdownDescription: "enum: `app_categories`, `apps`, `custom`, `urls`",
+						},
 						"urls": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Computed:            true,
@@ -656,6 +661,24 @@ func (t OrgServicesType) ValueFromObject(ctx context.Context, in basetypes.Objec
 			fmt.Sprintf(`traffic_type expected to be basetypes.StringValue, was: %T`, trafficTypeAttribute))
 	}
 
+	typeAttribute, ok := attributes["type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`type is missing from object`)
+
+		return nil, diags
+	}
+
+	typeVal, ok := typeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, typeAttribute))
+	}
+
 	urlsAttribute, ok := attributes["urls"]
 
 	if !ok {
@@ -704,6 +727,7 @@ func (t OrgServicesType) ValueFromObject(ctx context.Context, in basetypes.Objec
 		SsrRelaxedTcpStateEnforcement: ssrRelaxedTcpStateEnforcementVal,
 		TrafficClass:                  trafficClassVal,
 		TrafficType:                   trafficTypeVal,
+		OrgServicesType:               typeVal,
 		Urls:                          urlsVal,
 		state:                         attr.ValueStateKnown,
 	}, diags
@@ -1222,6 +1246,24 @@ func NewOrgServicesValue(attributeTypes map[string]attr.Type, attributes map[str
 			fmt.Sprintf(`traffic_type expected to be basetypes.StringValue, was: %T`, trafficTypeAttribute))
 	}
 
+	typeAttribute, ok := attributes["type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`type is missing from object`)
+
+		return NewOrgServicesValueUnknown(), diags
+	}
+
+	typeVal, ok := typeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, typeAttribute))
+	}
+
 	urlsAttribute, ok := attributes["urls"]
 
 	if !ok {
@@ -1270,6 +1312,7 @@ func NewOrgServicesValue(attributeTypes map[string]attr.Type, attributes map[str
 		SsrRelaxedTcpStateEnforcement: ssrRelaxedTcpStateEnforcementVal,
 		TrafficClass:                  trafficClassVal,
 		TrafficType:                   trafficTypeVal,
+		OrgServicesType:               typeVal,
 		Urls:                          urlsVal,
 		state:                         attr.ValueStateKnown,
 	}, diags
@@ -1368,12 +1411,13 @@ type OrgServicesValue struct {
 	SsrRelaxedTcpStateEnforcement basetypes.BoolValue    `tfsdk:"ssr_relaxed_tcp_state_enforcement"`
 	TrafficClass                  basetypes.StringValue  `tfsdk:"traffic_class"`
 	TrafficType                   basetypes.StringValue  `tfsdk:"traffic_type"`
+	OrgServicesType               basetypes.StringValue  `tfsdk:"type"`
 	Urls                          basetypes.ListValue    `tfsdk:"urls"`
 	state                         attr.ValueState
 }
 
 func (v OrgServicesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 26)
+	attrTypes := make(map[string]tftypes.Type, 27)
 
 	var val tftypes.Value
 	var err error
@@ -1415,6 +1459,7 @@ func (v OrgServicesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 	attrTypes["ssr_relaxed_tcp_state_enforcement"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["traffic_class"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["traffic_type"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["type"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["urls"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
@@ -1423,7 +1468,7 @@ func (v OrgServicesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 26)
+		vals := make(map[string]tftypes.Value, 27)
 
 		val, err = v.Addresses.ToTerraformValue(ctx)
 
@@ -1625,6 +1670,14 @@ func (v OrgServicesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 
 		vals["traffic_type"] = val
 
+		val, err = v.OrgServicesType.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["type"] = val
+
 		val, err = v.Urls.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -1734,6 +1787,7 @@ func (v OrgServicesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 			"ssr_relaxed_tcp_state_enforcement": basetypes.BoolType{},
 			"traffic_class":                     basetypes.StringType{},
 			"traffic_type":                      basetypes.StringType{},
+			"type":                              basetypes.StringType{},
 			"urls": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -1783,6 +1837,7 @@ func (v OrgServicesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 			"ssr_relaxed_tcp_state_enforcement": basetypes.BoolType{},
 			"traffic_class":                     basetypes.StringType{},
 			"traffic_type":                      basetypes.StringType{},
+			"type":                              basetypes.StringType{},
 			"urls": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -1832,6 +1887,7 @@ func (v OrgServicesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 			"ssr_relaxed_tcp_state_enforcement": basetypes.BoolType{},
 			"traffic_class":                     basetypes.StringType{},
 			"traffic_type":                      basetypes.StringType{},
+			"type":                              basetypes.StringType{},
 			"urls": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -1881,6 +1937,7 @@ func (v OrgServicesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 			"ssr_relaxed_tcp_state_enforcement": basetypes.BoolType{},
 			"traffic_class":                     basetypes.StringType{},
 			"traffic_type":                      basetypes.StringType{},
+			"type":                              basetypes.StringType{},
 			"urls": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -1930,6 +1987,7 @@ func (v OrgServicesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 			"ssr_relaxed_tcp_state_enforcement": basetypes.BoolType{},
 			"traffic_class":                     basetypes.StringType{},
 			"traffic_type":                      basetypes.StringType{},
+			"type":                              basetypes.StringType{},
 			"urls": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -1979,6 +2037,7 @@ func (v OrgServicesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 			"ssr_relaxed_tcp_state_enforcement": basetypes.BoolType{},
 			"traffic_class":                     basetypes.StringType{},
 			"traffic_type":                      basetypes.StringType{},
+			"type":                              basetypes.StringType{},
 			"urls": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -2023,6 +2082,7 @@ func (v OrgServicesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 		"ssr_relaxed_tcp_state_enforcement": basetypes.BoolType{},
 		"traffic_class":                     basetypes.StringType{},
 		"traffic_type":                      basetypes.StringType{},
+		"type":                              basetypes.StringType{},
 		"urls": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -2064,6 +2124,7 @@ func (v OrgServicesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 			"ssr_relaxed_tcp_state_enforcement": v.SsrRelaxedTcpStateEnforcement,
 			"traffic_class":                     v.TrafficClass,
 			"traffic_type":                      v.TrafficType,
+			"type":                              v.OrgServicesType,
 			"urls":                              urlsVal,
 		})
 
@@ -2185,6 +2246,10 @@ func (v OrgServicesValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.OrgServicesType.Equal(other.OrgServicesType) {
+		return false
+	}
+
 	if !v.Urls.Equal(other.Urls) {
 		return false
 	}
@@ -2239,6 +2304,7 @@ func (v OrgServicesValue) AttributeTypes(ctx context.Context) map[string]attr.Ty
 		"ssr_relaxed_tcp_state_enforcement": basetypes.BoolType{},
 		"traffic_class":                     basetypes.StringType{},
 		"traffic_type":                      basetypes.StringType{},
+		"type":                              basetypes.StringType{},
 		"urls": basetypes.ListType{
 			ElemType: types.StringType,
 		},
