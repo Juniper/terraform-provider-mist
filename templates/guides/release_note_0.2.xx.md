@@ -157,6 +157,14 @@ Add support for Mist Cloud Global 05 (manage.gc4.mist.com / api.gc4.mist.com)
 
 #### mist_device_ap_stats
 * remove attribute (removed from API) `mist_device_ap_stats.device_ap_stats[*].use_auto_placement`
+* new attribute `mist_device_ap_stats.device_ap_stats[*].gps`
+* new attribute `mist_device_ap_stats.device_ap_stats[*].gps.accuracy`
+* new attribute `mist_device_ap_stats.device_ap_stats[*].gps.altitude`
+* new attribute `mist_device_ap_stats.device_ap_stats[*].gps.latitude`
+* new attribute `mist_device_ap_stats.device_ap_stats[*].gps.longitude`
+* new attribute `mist_device_ap_stats.device_ap_stats[*].gps.src`
+* new attribute `mist_device_ap_stats.device_ap_stats[*].gps.timestamp`
+* new attribute `mist_device_ap_stats.device_ap_stats[*].num_wlans`
 
 #### mist_org_nacrules
 * new attribute `mist_org_narcules.org_narcules[*].enabled`

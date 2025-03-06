@@ -42,8 +42,8 @@ func meshUplinkSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 	if d.IdleTime != nil {
 		idleTime = types.Int64Value(int64(*d.IdleTime))
 	}
-	if d.LastSeen != nil {
-		lastSeen = types.Int64Value(int64(*d.LastSeen))
+	if d.LastSeen.Value() != nil {
+		lastSeen = types.Int64Value(int64(*d.LastSeen.Value()))
 	}
 	if d.Proto != nil {
 		proto = types.StringValue(*d.Proto)
