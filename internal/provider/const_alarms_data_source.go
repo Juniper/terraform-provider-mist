@@ -67,8 +67,8 @@ func (d *constAlarmsDataSource) Read(ctx context.Context, req datasource.ReadReq
 	data, err := d.client.ConstantsDefinitions().ListAlarmDefinitions(ctx)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting AP Stats",
-			"Unable to get the AP Stats, unexpected error: "+err.Error(),
+			"Error getting Alarm Definitions",
+			"Unable to get the Alarm Definitions, unexpected error: "+err.Error(),
 		)
 		return
 	}

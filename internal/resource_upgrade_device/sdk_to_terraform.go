@@ -121,8 +121,8 @@ func fwUpdateSdtToTerraform(ctx context.Context, diags *diag.Diagnostics, device
 		if deviceFwUpdate.StatusId.Value() != nil {
 			statusId = types.Int64Value(int64(*deviceFwUpdate.StatusId.Value()))
 		}
-		if deviceFwUpdate.Timestamp.Value() != nil {
-			timestamp = types.Float64Value(*deviceFwUpdate.Timestamp.Value())
+		if deviceFwUpdate.Timestamp != nil {
+			timestamp = types.Float64Value(*deviceFwUpdate.Timestamp)
 		}
 		if deviceFwUpdate.WillRetry.Value() != nil {
 			willRetry = types.BoolValue(*deviceFwUpdate.WillRetry.Value())

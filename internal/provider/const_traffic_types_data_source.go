@@ -67,8 +67,8 @@ func (d *constTrafficTypesDataSource) Read(ctx context.Context, req datasource.R
 	data, err := d.client.ConstantsDefinitions().ListTrafficTypes(ctx)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting AP Stats",
-			"Unable to get the AP Stats, unexpected error: "+err.Error(),
+			"Error getting Traffic Types",
+			"Unable to get the Traffic Types, unexpected error: "+err.Error(),
 		)
 		return
 	}

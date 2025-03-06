@@ -295,7 +295,6 @@ func (r *orgInventoryResource) updateInventory(
 	if len(assign) > 0 {
 		r.assignDevices(diags, ctx, *orgId, assign)
 	}
-	return
 }
 
 func (r *orgInventoryResource) refreshInventory(
@@ -325,7 +324,7 @@ func (r *orgInventoryResource) refreshInventory(
 
 	for limit*page < total {
 		page += 1
-		tflog.Debug(ctx, "Pagination Info", map[string]interface{}{
+		tflog.Debug(ctx, "Pagination Info", map[string]any{
 			"page":  page,
 			"limit": limit,
 			"total": total,

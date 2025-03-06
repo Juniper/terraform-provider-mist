@@ -29,7 +29,6 @@ func deviceprofileApSdkToTerraform(ctx context.Context, diags *diag.Diagnostics,
 	var modifiedTime basetypes.Float64Value
 	var name basetypes.StringValue
 	var orgId basetypes.StringValue
-	var deviceprofileType basetypes.StringValue
 
 	if d.CreatedTime != nil {
 		createdTime = types.Float64Value(*d.CreatedTime)
@@ -44,14 +43,12 @@ func deviceprofileApSdkToTerraform(ctx context.Context, diags *diag.Diagnostics,
 	if d.OrgId != nil {
 		orgId = types.StringValue(d.OrgId.String())
 	}
-	deviceprofileType = types.StringValue(d.Type)
 
 	dataMapValue := map[string]attr.Value{
 		"created_time":  createdTime,
 		"id":            id,
 		"modified_time": modifiedTime,
 		"name":          name,
-		"type":          deviceprofileType,
 		"org_id":        orgId,
 	}
 	data, e := NewOrgDeviceprofilesGatewayValue(OrgDeviceprofilesGatewayValue{}.AttributeTypes(ctx), dataMapValue)

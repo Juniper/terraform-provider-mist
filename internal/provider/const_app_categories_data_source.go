@@ -67,8 +67,8 @@ func (d *constAppCategoriesDataSource) Read(ctx context.Context, req datasource.
 	data, err := d.client.ConstantsDefinitions().ListAppCategoryDefinitions(ctx)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting AP Stats",
-			"Unable to get AP Stats, unexpected error: "+err.Error(),
+			"Error getting App Categories",
+			"Unable to get App Categories, unexpected error: "+err.Error(),
 		)
 		return
 	}

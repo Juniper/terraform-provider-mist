@@ -116,7 +116,7 @@ func vpnPathsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[
 		var ip basetypes.StringValue
 		peerPaths := types.MapNull(PeerPathsValue{}.Type(ctx))
 		var pod basetypes.Int64Value
-		traffigShapping := types.ObjectNull(TrafficShapingValue{}.AttributeTypes(ctx))
+		trafficShaping := types.ObjectNull(TrafficShapingValue{}.AttributeTypes(ctx))
 
 		if d.BfdProfile != nil {
 			bfdProfile = types.StringValue(string(*d.BfdProfile))
@@ -131,15 +131,15 @@ func vpnPathsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[
 			pod = types.Int64Value(int64(*d.Pod))
 		}
 		if d.TrafficShaping != nil {
-			traffigShapping = vpnPathsTrafficShapingSdkToTerraform(ctx, diags, d.TrafficShaping)
+			trafficShaping = vpnPathsTrafficShapingSdkToTerraform(ctx, diags, d.TrafficShaping)
 		}
 
 		dataMapValue := map[string]attr.Value{
-			"bfd_profile":      bfdProfile,
-			"ip":               ip,
-			"peer_paths":       peerPaths,
-			"pod":              pod,
-			"traffic_shapping": traffigShapping,
+			"bfd_profile":     bfdProfile,
+			"ip":              ip,
+			"peer_paths":      peerPaths,
+			"pod":             pod,
+			"traffic_shaping": trafficShaping,
 		}
 		data, e := NewPathsValue(PathsValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)

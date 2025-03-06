@@ -71,8 +71,8 @@ func (d *constFingerprintsDataSource) Read(ctx context.Context, req datasource.R
 	data, err := d.client.ConstantsDefinitions().ListFingerprintTypes(ctx)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting AP Stats",
-			"Unable to get the AP Stats, unexpected error: "+err.Error(),
+			"Error getting Fingerprints",
+			"Unable to get the Fingerprints, unexpected error: "+err.Error(),
 		)
 		return
 	}
