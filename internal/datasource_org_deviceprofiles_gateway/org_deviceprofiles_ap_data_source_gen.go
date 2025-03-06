@@ -39,9 +39,6 @@ func OrgDeviceprofilesGatewayDataSourceSchema(ctx context.Context) schema.Schema
 						"org_id": schema.StringAttribute{
 							Computed: true,
 						},
-						"type": schema.StringAttribute{
-							Computed: true,
-						},
 					},
 					CustomType: OrgDeviceprofilesGatewayType{
 						ObjectType: types.ObjectType{
