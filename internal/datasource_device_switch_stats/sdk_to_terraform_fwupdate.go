@@ -28,8 +28,8 @@ func fwupdateSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mod
 	if d.StatusId.Value() != nil {
 		statusId = types.Int64Value(int64(*d.StatusId.Value()))
 	}
-	if d.Timestamp.Value() != nil {
-		timestamp = types.Float64Value(*d.Timestamp.Value())
+	if d.Timestamp != nil {
+		timestamp = types.Float64Value(*d.Timestamp)
 	}
 	if d.WillRetry.Value() != nil {
 		willRetry = types.BoolValue(*d.WillRetry.Value())
