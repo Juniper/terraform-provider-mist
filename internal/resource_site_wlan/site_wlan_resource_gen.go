@@ -267,10 +267,15 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 					"apps": schema.MapNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{
 							Attributes: map[string]schema.Attribute{
-								"dscp": schema.Int64Attribute{
-									Optional: true,
-									Validators: []validator.Int64{
-										int64validator.Between(0, 63),
+								"dscp": schema.StringAttribute{
+									Optional:            true,
+									Description:         "DSCP value range between 0 and 63",
+									MarkdownDescription: "DSCP value range between 0 and 63",
+									Validators: []validator.String{
+										stringvalidator.Any(
+											mistvalidator.ParseInt(0, 63),
+											mistvalidator.ParseVar(),
+										),
 									},
 								},
 								"dst_subnet": schema.StringAttribute{
@@ -315,11 +320,8 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 					"others": schema.ListNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{
 							Attributes: map[string]schema.Attribute{
-								"dscp": schema.Int64Attribute{
+								"dscp": schema.StringAttribute{
 									Optional: true,
-									Validators: []validator.Int64{
-										int64validator.Between(0, 63),
-									},
 								},
 								"dst_subnet": schema.StringAttribute{
 									Optional: true,
@@ -5034,12 +5036,12 @@ func (t AppsType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue)
 		return nil, diags
 	}
 
-	dscpVal, ok := dscpAttribute.(basetypes.Int64Value)
+	dscpVal, ok := dscpAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`dscp expected to be basetypes.Int64Value, was: %T`, dscpAttribute))
+			fmt.Sprintf(`dscp expected to be basetypes.StringValue, was: %T`, dscpAttribute))
 	}
 
 	dstSubnetAttribute, ok := attributes["dst_subnet"]
@@ -5163,12 +5165,12 @@ func NewAppsValue(attributeTypes map[string]attr.Type, attributes map[string]att
 		return NewAppsValueUnknown(), diags
 	}
 
-	dscpVal, ok := dscpAttribute.(basetypes.Int64Value)
+	dscpVal, ok := dscpAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`dscp expected to be basetypes.Int64Value, was: %T`, dscpAttribute))
+			fmt.Sprintf(`dscp expected to be basetypes.StringValue, was: %T`, dscpAttribute))
 	}
 
 	dstSubnetAttribute, ok := attributes["dst_subnet"]
@@ -5287,7 +5289,7 @@ func (t AppsType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = AppsValue{}
 
 type AppsValue struct {
-	Dscp      basetypes.Int64Value  `tfsdk:"dscp"`
+	Dscp      basetypes.StringValue `tfsdk:"dscp"`
 	DstSubnet basetypes.StringValue `tfsdk:"dst_subnet"`
 	SrcSubnet basetypes.StringValue `tfsdk:"src_subnet"`
 	state     attr.ValueState
@@ -5299,7 +5301,7 @@ func (v AppsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) 
 	var val tftypes.Value
 	var err error
 
-	attrTypes["dscp"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["dscp"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["dst_subnet"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["src_subnet"] = basetypes.StringType{}.TerraformType(ctx)
 
@@ -5363,7 +5365,7 @@ func (v AppsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, di
 	var diags diag.Diagnostics
 
 	attributeTypes := map[string]attr.Type{
-		"dscp":       basetypes.Int64Type{},
+		"dscp":       basetypes.StringType{},
 		"dst_subnet": basetypes.StringType{},
 		"src_subnet": basetypes.StringType{},
 	}
@@ -5427,7 +5429,7 @@ func (v AppsValue) Type(ctx context.Context) attr.Type {
 
 func (v AppsValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"dscp":       basetypes.Int64Type{},
+		"dscp":       basetypes.StringType{},
 		"dst_subnet": basetypes.StringType{},
 		"src_subnet": basetypes.StringType{},
 	}
@@ -5468,12 +5470,12 @@ func (t OthersType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 		return nil, diags
 	}
 
-	dscpVal, ok := dscpAttribute.(basetypes.Int64Value)
+	dscpVal, ok := dscpAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`dscp expected to be basetypes.Int64Value, was: %T`, dscpAttribute))
+			fmt.Sprintf(`dscp expected to be basetypes.StringValue, was: %T`, dscpAttribute))
 	}
 
 	dstSubnetAttribute, ok := attributes["dst_subnet"]
@@ -5635,12 +5637,12 @@ func NewOthersValue(attributeTypes map[string]attr.Type, attributes map[string]a
 		return NewOthersValueUnknown(), diags
 	}
 
-	dscpVal, ok := dscpAttribute.(basetypes.Int64Value)
+	dscpVal, ok := dscpAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`dscp expected to be basetypes.Int64Value, was: %T`, dscpAttribute))
+			fmt.Sprintf(`dscp expected to be basetypes.StringValue, was: %T`, dscpAttribute))
 	}
 
 	dstSubnetAttribute, ok := attributes["dst_subnet"]
@@ -5797,7 +5799,7 @@ func (t OthersType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = OthersValue{}
 
 type OthersValue struct {
-	Dscp       basetypes.Int64Value  `tfsdk:"dscp"`
+	Dscp       basetypes.StringValue `tfsdk:"dscp"`
 	DstSubnet  basetypes.StringValue `tfsdk:"dst_subnet"`
 	PortRanges basetypes.StringValue `tfsdk:"port_ranges"`
 	Protocol   basetypes.StringValue `tfsdk:"protocol"`
@@ -5811,7 +5813,7 @@ func (v OthersValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 	var val tftypes.Value
 	var err error
 
-	attrTypes["dscp"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["dscp"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["dst_subnet"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["port_ranges"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["protocol"] = basetypes.StringType{}.TerraformType(ctx)
@@ -5893,7 +5895,7 @@ func (v OthersValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 	var diags diag.Diagnostics
 
 	attributeTypes := map[string]attr.Type{
-		"dscp":        basetypes.Int64Type{},
+		"dscp":        basetypes.StringType{},
 		"dst_subnet":  basetypes.StringType{},
 		"port_ranges": basetypes.StringType{},
 		"protocol":    basetypes.StringType{},
@@ -5969,7 +5971,7 @@ func (v OthersValue) Type(ctx context.Context) attr.Type {
 
 func (v OthersValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"dscp":        basetypes.Int64Type{},
+		"dscp":        basetypes.StringType{},
 		"dst_subnet":  basetypes.StringType{},
 		"port_ranges": basetypes.StringType{},
 		"protocol":    basetypes.StringType{},

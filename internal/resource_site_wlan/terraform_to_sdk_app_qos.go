@@ -12,8 +12,8 @@ func appQosAppsTerraformToSdk(plan basetypes.MapValue) map[string]models.WlanApp
 		var vInterface interface{} = v
 		vPlan := vInterface.(AppsValue)
 		data := models.WlanAppQosAppsProperties{}
-		if vPlan.Dscp.ValueInt64Pointer() != nil {
-			data.Dscp = models.ToPointer(int(vPlan.Dscp.ValueInt64()))
+		if vPlan.Dscp.ValueStringPointer() != nil {
+			data.Dscp = models.ToPointer(models.DscpContainer.FromString(vPlan.Dscp.ValueString()))
 		}
 		if vPlan.DstSubnet.ValueStringPointer() != nil {
 			data.DstSubnet = vPlan.DstSubnet.ValueStringPointer()
@@ -31,8 +31,8 @@ func appQosOthersTerraformToSdk(plan basetypes.ListValue) []models.WlanAppQosOth
 		var vInterface interface{} = v
 		vPlan := vInterface.(OthersValue)
 		data := models.WlanAppQosOthersItem{}
-		if vPlan.Dscp.ValueInt64Pointer() != nil {
-			data.Dscp = models.ToPointer(int(vPlan.Dscp.ValueInt64()))
+		if vPlan.Dscp.ValueStringPointer() != nil {
+			data.Dscp = models.ToPointer(models.DscpContainer.FromString(vPlan.Dscp.ValueString()))
 		}
 		if vPlan.DstSubnet.ValueStringPointer() != nil {
 			data.DstSubnet = vPlan.DstSubnet.ValueStringPointer()
