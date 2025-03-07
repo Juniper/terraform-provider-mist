@@ -2,8 +2,6 @@ package datasource_site_wlans
 
 import (
 	"context"
-	"strings"
-
 	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -486,19 +484,7 @@ func wlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 	}
 
 	if d.VlanIds != nil {
-		var list []attr.Value
-		if vlanIdsAsString, ok := d.VlanIds.AsString(); ok {
-			for _, vlan := range strings.Split(*vlanIdsAsString, ",") {
-				list = append(list, types.StringValue(vlan))
-			}
-		} else if vlanIdsAsList, ok := d.VlanIds.AsArrayOfVlanIdWithVariable2(); ok {
-			for _, v := range *vlanIdsAsList {
-				list = append(list, mistutils.VlanAsString(v))
-			}
-		}
-		r, e := types.ListValue(basetypes.StringType{}, list)
-		diags.Append(e...)
-		vlanIds = r
+		vlanIds = mistutils.WlanVlanIdsAsArrayOfString(diags, d.VlanIds)
 	}
 
 	if d.VlanPooling != nil {

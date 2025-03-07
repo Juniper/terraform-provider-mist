@@ -24,7 +24,7 @@ func TerraformToSdk(plan *OrgNactagModel) (models.NacTag, diag.Diagnostics) {
 		unset["-egress_vlan_names"] = ""
 	}
 	if !plan.GbpTag.IsNull() && !plan.GbpTag.IsUnknown() {
-		data.GbpTag = models.ToPointer(models.IntegerOrStringContainer.FromString(plan.GbpTag.String()))
+		data.GbpTag = models.ToPointer(models.NacTagGbpTagContainer.FromString(plan.GbpTag.String()))
 	} else {
 		unset["-gbp_tag"] = ""
 	}

@@ -39,7 +39,8 @@ func bonjourTerraformToSdk(plan BonjourValue) *models.WlanBonjour {
 		s := i.(basetypes.StringValue)
 		tmp = append(tmp, s.ValueString())
 	}
-	data.AdditionalVlanIds = strings.Join(tmp, ",")
+
+	data.AdditionalVlanIds = models.AdditionalVlanIdsContainer.FromString(strings.Join(tmp, ","))
 	data.Services = bonjourServicesTerraformToSdk(plan.Services)
 	data.Enabled = plan.Enabled.ValueBoolPointer()
 

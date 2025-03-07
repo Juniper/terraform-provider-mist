@@ -2,8 +2,6 @@ package datasource_site_wlans
 
 import (
 	"context"
-	"strings"
-
 	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -54,14 +52,7 @@ func bonjourSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 	var services = types.MapNull(ServicesValue{}.Type(ctx))
 
 	if d != nil {
-		var items []attr.Value
-		for _, item := range strings.Split(d.AdditionalVlanIds, ",") {
-			if item != "" {
-				items = append(items, types.StringValue(item))
-			}
-		}
-		list, _ := types.ListValue(basetypes.StringType{}, items)
-		additionalVlanIds = list
+		additionalVlanIds = mistutils.WlanBonjourAdditionalVlanIdsAsArrayOfString(diags, d.AdditionalVlanIds)
 	}
 	if d != nil && d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)

@@ -2,8 +2,6 @@ package resource_org_wlan
 
 import (
 	"context"
-	"strings"
-
 	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -11,7 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
 func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.Diagnostics) {
@@ -467,19 +464,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	}
 
 	if data.VlanIds != nil {
-		var list []attr.Value
-		if vlanIdsAsString, ok := data.VlanIds.AsString(); ok {
-			for _, vlan := range strings.Split(*vlanIdsAsString, ",") {
-				list = append(list, types.StringValue(vlan))
-			}
-		} else if vlanIdsAsList, ok := data.VlanIds.AsArrayOfVlanIdWithVariable2(); ok {
-			for _, v := range *vlanIdsAsList {
-				list = append(list, mistutils.VlanAsString(v))
-			}
-		}
-		r, e := types.ListValue(basetypes.StringType{}, list)
-		diags.Append(e...)
-		vlanIds = r
+		vlanIds = mistutils.WlanVlanIdsAsArrayOfString(&diags, data.VlanIds)
 	}
 
 	if data.VlanPooling != nil {
