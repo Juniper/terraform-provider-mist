@@ -7,7 +7,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/Juniper/terraform-provider-mist/internal/datasource_org_usermacs"
 
 	"github.com/google/uuid"
@@ -81,7 +81,7 @@ func (d *orgNacEndpointsDataSource) Read(ctx context.Context, req datasource.Rea
 	var mac = ds.Mac.ValueStringPointer()
 	var labels []string
 	if !ds.Labels.IsNull() && !ds.Labels.IsUnknown() {
-		labels = misttransform.ListOfStringTerraformToSdk(ds.Labels)
+		labels = mistutils.ListOfStringTerraformToSdk(ds.Labels)
 	}
 
 	var limit = 1000

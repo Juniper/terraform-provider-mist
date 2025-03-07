@@ -1,7 +1,7 @@
 package resource_site_psk
 
 import (
-	mistapi "github.com/Juniper/terraform-provider-mist/internal/commons/api_response"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -77,7 +77,7 @@ func SdkToTerraform(d *models.Psk) (SitePskModel, diag.Diagnostics) {
 	usage = types.StringValue(string(*d.Usage))
 
 	if d.VlanId != nil {
-		vlanId = mistapi.PskVlanAsString(*d.VlanId)
+		vlanId = mistutils.PskVlanAsString(*d.VlanId)
 	}
 
 	state.Email = email

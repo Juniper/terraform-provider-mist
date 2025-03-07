@@ -3,7 +3,7 @@ package resource_org_setting
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -61,7 +61,7 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	// 	blacklist_url = types.StringValue(*data.BlacklistUrl)
 	// }
 	if data.Cacerts != nil {
-		cacerts = misttransform.ListOfStringSdkToTerraform(data.Cacerts)
+		cacerts = mistutils.ListOfStringSdkToTerraform(data.Cacerts)
 	}
 	if data.Celona != nil {
 		celona = celonaSdkToTerraform(ctx, &diags, data.Celona)

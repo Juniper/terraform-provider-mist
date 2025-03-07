@@ -3,7 +3,7 @@ package resource_org_gatewaytemplate
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_network"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -82,7 +82,7 @@ func networksTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d base
 			data.Name = plan.Name.ValueString()
 		}
 		if !plan.RoutedForNetworks.IsNull() && !plan.RoutedForNetworks.IsUnknown() {
-			data.RoutedForNetworks = misttransform.ListOfStringTerraformToSdk(plan.RoutedForNetworks)
+			data.RoutedForNetworks = mistutils.ListOfStringTerraformToSdk(plan.RoutedForNetworks)
 		}
 		if plan.Subnet.ValueStringPointer() != nil {
 			data.Subnet = models.ToPointer(plan.Subnet.ValueString())

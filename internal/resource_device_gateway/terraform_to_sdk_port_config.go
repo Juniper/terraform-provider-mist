@@ -3,7 +3,7 @@ package resource_device_gateway
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -36,7 +36,7 @@ func wanProbeOverridePortVpnPathTerraformToSdk(ctx context.Context, diags *diag.
 			return nil
 		}
 		if plan.Ips.IsNull() && !plan.Ips.IsUnknown() {
-			data.Ips = misttransform.ListOfStringTerraformToSdk(plan.Ips)
+			data.Ips = mistutils.ListOfStringTerraformToSdk(plan.Ips)
 		}
 		if plan.ProbeProfile.ValueStringPointer() != nil {
 			data.ProbeProfile = (*models.GatewayWanProbeOverrideProbeProfileEnum)(plan.ProbeProfile.ValueStringPointer())
@@ -79,7 +79,7 @@ func gatewayPortTrafficShapingTerraformToSdk(ctx context.Context, d basetypes.Ob
 	} else {
 		plan := NewTrafficShapingValueMust(d.AttributeTypes(ctx), d.Attributes())
 		if plan.ClassPercentages.IsNull() && !plan.ClassPercentages.IsUnknown() {
-			data.ClassPercentages = misttransform.ListOfIntTerraformToSdk(plan.ClassPercentages)
+			data.ClassPercentages = mistutils.ListOfIntTerraformToSdk(plan.ClassPercentages)
 		}
 		if plan.Enabled.ValueBoolPointer() != nil {
 			data.Enabled = plan.Enabled.ValueBoolPointer()
@@ -98,10 +98,10 @@ func gatewayIpConfigTerraformToSdk(ctx context.Context, d basetypes.ObjectValue)
 	} else {
 		plan := NewPortIpConfigValueMust(d.AttributeTypes(ctx), d.Attributes())
 		if plan.Dns.IsNull() && !plan.Dns.IsUnknown() {
-			data.Dns = misttransform.ListOfStringTerraformToSdk(plan.Dns)
+			data.Dns = mistutils.ListOfStringTerraformToSdk(plan.Dns)
 		}
 		if plan.DnsSuffix.IsNull() && !plan.DnsSuffix.IsUnknown() {
-			data.DnsSuffix = misttransform.ListOfStringTerraformToSdk(plan.DnsSuffix)
+			data.DnsSuffix = mistutils.ListOfStringTerraformToSdk(plan.DnsSuffix)
 		}
 		if plan.Gateway.ValueStringPointer() != nil {
 			data.Gateway = plan.Gateway.ValueStringPointer()
@@ -218,7 +218,7 @@ func portConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d ba
 			data.Name = plan.Name.ValueStringPointer()
 		}
 		if plan.Name.IsNull() && !plan.Name.IsUnknown() {
-			data.Networks = misttransform.ListOfStringTerraformToSdk(plan.Networks)
+			data.Networks = mistutils.ListOfStringTerraformToSdk(plan.Networks)
 		}
 		if plan.OuterVlanId.ValueInt64Pointer() != nil {
 			data.OuterVlanId = models.ToPointer(int(plan.OuterVlanId.ValueInt64()))
@@ -271,7 +271,7 @@ func portConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d ba
 		data.WanExtraRoutes = wanExtraRoutesPortVpnPathTerraformToSdk(plan.WanExtraRoutes)
 
 		if !plan.WanNetworks.IsNull() && !plan.WanNetworks.IsUnknown() {
-			data.WanNetworks = misttransform.ListOfStringTerraformToSdk(plan.WanNetworks)
+			data.WanNetworks = mistutils.ListOfStringTerraformToSdk(plan.WanNetworks)
 		}
 
 		data.WanProbeOverride = wanProbeOverridePortVpnPathTerraformToSdk(ctx, diags, plan.WanProbeOverride)

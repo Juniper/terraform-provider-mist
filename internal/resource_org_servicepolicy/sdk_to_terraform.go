@@ -3,7 +3,7 @@ package resource_org_servicepolicy
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -61,13 +61,13 @@ func SdkToTerraform(ctx context.Context, d *models.OrgServicePolicy) (OrgService
 		pathPreference = types.StringValue(*d.PathPreference)
 	}
 	if d.Services != nil {
-		services = misttransform.ListOfStringSdkToTerraform(d.Services)
+		services = mistutils.ListOfStringSdkToTerraform(d.Services)
 	}
 	if d.SslProxy != nil {
 		sslProxy = sslProxySdkToTerraform(ctx, &diags, d.SslProxy)
 	}
 	if d.Tenants != nil {
-		tenants = misttransform.ListOfStringSdkToTerraform(d.Tenants)
+		tenants = mistutils.ListOfStringSdkToTerraform(d.Tenants)
 	}
 
 	state.Aamw = aamw

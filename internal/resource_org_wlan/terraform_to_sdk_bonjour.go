@@ -3,7 +3,7 @@ package resource_org_wlan
 import (
 	"strings"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -20,7 +20,7 @@ func bonjourServicesTerraformToSdk(plan basetypes.MapValue) map[string]models.Wl
 			vData.DisableLocal = vPlan.DisableLocal.ValueBoolPointer()
 		}
 		if !vPlan.RadiusGroups.IsNull() && !vPlan.RadiusGroups.IsUnknown() {
-			vData.RadiusGroups = misttransform.ListOfStringTerraformToSdk(vPlan.RadiusGroups)
+			vData.RadiusGroups = mistutils.ListOfStringTerraformToSdk(vPlan.RadiusGroups)
 		}
 		if vPlan.Scope.ValueStringPointer() != nil {
 			vData.Scope = models.ToPointer(models.WlanBonjourServicePropertiesScopeEnum(vPlan.Scope.ValueString()))

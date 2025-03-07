@@ -1,7 +1,7 @@
 package resource_org_nacidp
 
 import (
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -37,7 +37,7 @@ func TerraformToSdk(plan *OrgNacidpModel) (*models.Sso, diag.Diagnostics) {
 	}
 
 	if !plan.LdapCacerts.IsNull() && !plan.LdapCacerts.IsUnknown() {
-		data.LdapCacerts = misttransform.ListOfStringTerraformToSdk(plan.LdapCacerts)
+		data.LdapCacerts = mistutils.ListOfStringTerraformToSdk(plan.LdapCacerts)
 	} else {
 		unset["-ldap_ca_certs"] = ""
 	}
@@ -85,7 +85,7 @@ func TerraformToSdk(plan *OrgNacidpModel) (*models.Sso, diag.Diagnostics) {
 	}
 
 	if !plan.LdapServerHosts.IsNull() && !plan.LdapServerHosts.IsUnknown() {
-		data.LdapServerHosts = misttransform.ListOfStringTerraformToSdk(plan.LdapServerHosts)
+		data.LdapServerHosts = mistutils.ListOfStringTerraformToSdk(plan.LdapServerHosts)
 	} else {
 		unset["-ldap_server_hosts"] = ""
 	}

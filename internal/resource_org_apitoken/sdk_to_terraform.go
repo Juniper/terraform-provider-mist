@@ -3,7 +3,7 @@ package resource_org_apitoken
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -40,7 +40,7 @@ func SdkToTerraform(ctx context.Context, data models.OrgApitoken, previousState 
 	orgId = types.StringValue(data.OrgId.String())
 	privileges = privilegesSdkToTerraform(ctx, &diags, data.Privileges)
 	if data.SrcIps != nil {
-		srcIps = misttransform.ListOfStringSdkToTerraform(data.SrcIps)
+		srcIps = mistutils.ListOfStringSdkToTerraform(data.SrcIps)
 	}
 
 	state.CreatedBy = createdBy

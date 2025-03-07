@@ -3,7 +3,7 @@ package datasource_org_usermacs
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -35,7 +35,7 @@ func inventorySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d mod
 		id = types.StringValue(d.Id.String())
 	}
 	if d.Labels != nil {
-		labels = misttransform.ListOfStringSdkToTerraform(d.Labels)
+		labels = mistutils.ListOfStringSdkToTerraform(d.Labels)
 	}
 
 	mac = types.StringValue(d.Mac)

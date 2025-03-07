@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func switchesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.EvpnTopologySwitch) basetypes.MapValue {
@@ -37,13 +37,13 @@ func switchesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []mo
 			deviceprofileId = types.StringValue(d.DeviceprofileId.String())
 		}
 		if d.DownlinkIps != nil {
-			downlinkIps = misttransform.ListOfStringSdkToTerraform(d.DownlinkIps)
+			downlinkIps = mistutils.ListOfStringSdkToTerraform(d.DownlinkIps)
 		}
 		if d.Downlinks != nil {
-			downlinks = misttransform.ListOfStringSdkToTerraform(d.Downlinks)
+			downlinks = mistutils.ListOfStringSdkToTerraform(d.Downlinks)
 		}
 		if d.Esilaglinks != nil {
-			esilaglinks = misttransform.ListOfStringSdkToTerraform(d.Esilaglinks)
+			esilaglinks = mistutils.ListOfStringSdkToTerraform(d.Esilaglinks)
 		}
 		if d.EvpnId != nil {
 			evpnId = types.Int64Value(int64(*d.EvpnId))
@@ -58,7 +58,7 @@ func switchesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []mo
 			pod = types.Int64Value(int64(*d.Pod))
 		}
 		if d.Pods != nil {
-			pods = misttransform.ListOfIntSdkToTerraform(d.Pods)
+			pods = mistutils.ListOfIntSdkToTerraform(d.Pods)
 		}
 
 		role = types.StringValue(string(d.Role))
@@ -70,16 +70,16 @@ func switchesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []mo
 			siteId = types.StringValue(d.SiteId.String())
 		}
 		if d.SuggestedDownlinks != nil {
-			suggestedDownlinks = misttransform.ListOfStringSdkToTerraform(d.SuggestedDownlinks)
+			suggestedDownlinks = mistutils.ListOfStringSdkToTerraform(d.SuggestedDownlinks)
 		}
 		if d.SuggestedEsilaglinks != nil {
-			suggestedEsilaglinks = misttransform.ListOfStringSdkToTerraform(d.SuggestedEsilaglinks)
+			suggestedEsilaglinks = mistutils.ListOfStringSdkToTerraform(d.SuggestedEsilaglinks)
 		}
 		if d.SuggestedUplinks != nil {
-			suggestedUplinks = misttransform.ListOfStringSdkToTerraform(d.SuggestedUplinks)
+			suggestedUplinks = mistutils.ListOfStringSdkToTerraform(d.SuggestedUplinks)
 		}
 		if d.Uplinks != nil {
-			uplinks = misttransform.ListOfStringSdkToTerraform(d.Uplinks)
+			uplinks = mistutils.ListOfStringSdkToTerraform(d.Uplinks)
 		}
 
 		dataMapValue := map[string]attr.Value{

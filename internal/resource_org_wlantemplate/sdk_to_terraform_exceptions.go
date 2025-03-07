@@ -1,7 +1,7 @@
 package resource_org_wlantemplate
 
 import (
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"golang.org/x/net/context"
 
@@ -13,14 +13,14 @@ import (
 
 func exceptionsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.TemplateExceptions) ExceptionsValue {
 
-	var siteIds = misttransform.ListOfUuidSdkToTerraformEmpty()
-	var sitegroupIds = misttransform.ListOfUuidSdkToTerraformEmpty()
+	var siteIds = mistutils.ListOfUuidSdkToTerraformEmpty()
+	var sitegroupIds = mistutils.ListOfUuidSdkToTerraformEmpty()
 
 	if d.SiteIds != nil {
-		siteIds = misttransform.ListOfUuidSdkToTerraform(d.SiteIds)
+		siteIds = mistutils.ListOfUuidSdkToTerraform(d.SiteIds)
 	}
 	if d.SitegroupIds != nil {
-		sitegroupIds = misttransform.ListOfUuidSdkToTerraform(d.SitegroupIds)
+		sitegroupIds = mistutils.ListOfUuidSdkToTerraform(d.SitegroupIds)
 	}
 
 	dataMapValue := map[string]attr.Value{

@@ -5,7 +5,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func portMirroringTerraformToSdk(d basetypes.MapValue) map[string]models.SwitchPortMirroringProperty {
@@ -16,21 +16,21 @@ func portMirroringTerraformToSdk(d basetypes.MapValue) map[string]models.SwitchP
 
 		dataItem := models.SwitchPortMirroringProperty{}
 		if !itemObj.InputNetworksIngress.IsNull() && !itemObj.InputNetworksIngress.IsUnknown() {
-			dataItem.InputNetworksIngress = misttransform.ListOfStringTerraformToSdk(itemObj.InputNetworksIngress)
+			dataItem.InputNetworksIngress = mistutils.ListOfStringTerraformToSdk(itemObj.InputNetworksIngress)
 		}
 		if dataItem.InputNetworksIngress == nil {
 			dataItem.InputNetworksIngress = make([]string, 0)
 		}
 
 		if !itemObj.InputPortIdsEgress.IsNull() && !itemObj.InputPortIdsEgress.IsUnknown() {
-			dataItem.InputPortIdsEgress = misttransform.ListOfStringTerraformToSdk(itemObj.InputPortIdsEgress)
+			dataItem.InputPortIdsEgress = mistutils.ListOfStringTerraformToSdk(itemObj.InputPortIdsEgress)
 		}
 		if dataItem.InputPortIdsEgress == nil {
 			dataItem.InputPortIdsEgress = make([]string, 0)
 		}
 
 		if !itemObj.InputPortIdsIngress.IsNull() && !itemObj.InputPortIdsIngress.IsUnknown() {
-			dataItem.InputPortIdsIngress = misttransform.ListOfStringTerraformToSdk(itemObj.InputPortIdsIngress)
+			dataItem.InputPortIdsIngress = mistutils.ListOfStringTerraformToSdk(itemObj.InputPortIdsIngress)
 		}
 		if dataItem.InputPortIdsIngress == nil {
 			dataItem.InputPortIdsIngress = make([]string, 0)

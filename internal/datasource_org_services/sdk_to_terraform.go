@@ -3,7 +3,7 @@ package datasource_org_services
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -80,19 +80,19 @@ func serviceSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 	var trafficClass types.String
 	var trafficType types.String
 	var serviceType types.String
-	var urls = misttransform.ListOfStringSdkToTerraformEmpty()
+	var urls = mistutils.ListOfStringSdkToTerraformEmpty()
 
 	if d.Addresses != nil {
-		addresses = misttransform.ListOfStringSdkToTerraform(d.Addresses)
+		addresses = mistutils.ListOfStringSdkToTerraform(d.Addresses)
 	}
 	if d.AppCategories != nil {
-		appCategories = misttransform.ListOfStringSdkToTerraform(d.AppCategories)
+		appCategories = mistutils.ListOfStringSdkToTerraform(d.AppCategories)
 	}
 	if d.AppSubcategories != nil {
-		appSubcategories = misttransform.ListOfStringSdkToTerraform(d.AppSubcategories)
+		appSubcategories = mistutils.ListOfStringSdkToTerraform(d.AppSubcategories)
 	}
 	if d.Apps != nil {
-		addresses = misttransform.ListOfStringSdkToTerraform(d.Apps)
+		addresses = mistutils.ListOfStringSdkToTerraform(d.Apps)
 	}
 	if d.ClientLimitDown != nil {
 		clientLimitDown = types.Int64Value(int64(*d.ClientLimitDown))
@@ -113,7 +113,7 @@ func serviceSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 		failoverPolicy = types.StringValue(string(*d.FailoverPolicy))
 	}
 	if d.Hostnames != nil {
-		hostnames = misttransform.ListOfStringSdkToTerraform(d.Hostnames)
+		hostnames = mistutils.ListOfStringSdkToTerraform(d.Hostnames)
 	}
 	if d.Id != nil {
 		id = types.StringValue(d.Id.String())
@@ -161,7 +161,7 @@ func serviceSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 		serviceType = types.StringValue(string(*d.Type))
 	}
 	if d.Urls != nil {
-		urls = misttransform.ListOfStringSdkToTerraform(d.Urls)
+		urls = mistutils.ListOfStringSdkToTerraform(d.Urls)
 	}
 
 	dataMapValue := map[string]attr.Value{

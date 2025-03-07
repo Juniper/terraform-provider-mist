@@ -1,7 +1,7 @@
 package resource_org_setting
 
 import (
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
@@ -18,7 +18,7 @@ func installerTerraformToSdk(d InstallerValue) *models.OrgSettingInstaller {
 	}
 
 	if !d.ExtraSiteIds.IsNull() && !d.ExtraSiteIds.IsUnknown() {
-		data.ExtraSiteIds = misttransform.ListOfUuidTerraformToSdk(d.ExtraSiteIds)
+		data.ExtraSiteIds = mistutils.ListOfUuidTerraformToSdk(d.ExtraSiteIds)
 	}
 
 	if !d.GracePeriod.IsNull() && !d.GracePeriod.IsUnknown() {

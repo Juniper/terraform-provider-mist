@@ -10,23 +10,23 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func rogueSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteRogue) RogueValue {
 
-	var allowedVlanIds = misttransform.ListOfIntSdkToTerraformEmpty()
+	var allowedVlanIds = mistutils.ListOfIntSdkToTerraformEmpty()
 	var enabled basetypes.BoolValue
 	var honeypotEnabled basetypes.BoolValue
 	var minDuration basetypes.Int64Value
 	var minRogueDuration basetypes.Int64Value
 	var minRssi basetypes.Int64Value
 	var minRogueRssi basetypes.Int64Value
-	var whitelistedBssids = misttransform.ListOfStringSdkToTerraformEmpty()
-	var whitelistedSsids = misttransform.ListOfStringSdkToTerraformEmpty()
+	var whitelistedBssids = mistutils.ListOfStringSdkToTerraformEmpty()
+	var whitelistedSsids = mistutils.ListOfStringSdkToTerraformEmpty()
 
 	if d != nil && d.AllowedVlanIds != nil {
-		allowedVlanIds = misttransform.ListOfIntSdkToTerraform(d.AllowedVlanIds)
+		allowedVlanIds = mistutils.ListOfIntSdkToTerraform(d.AllowedVlanIds)
 	}
 	if d != nil && d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
@@ -47,10 +47,10 @@ func rogueSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 		minRogueRssi = types.Int64Value(int64(*d.MinRogueRssi))
 	}
 	if d != nil && d.WhitelistedBssids != nil {
-		whitelistedBssids = misttransform.ListOfStringSdkToTerraform(d.WhitelistedBssids)
+		whitelistedBssids = mistutils.ListOfStringSdkToTerraform(d.WhitelistedBssids)
 	}
 	if d != nil && d.WhitelistedSsids != nil {
-		whitelistedSsids = misttransform.ListOfStringSdkToTerraform(d.WhitelistedSsids)
+		whitelistedSsids = mistutils.ListOfStringSdkToTerraform(d.WhitelistedSsids)
 	}
 
 	dataMapValue := map[string]attr.Value{

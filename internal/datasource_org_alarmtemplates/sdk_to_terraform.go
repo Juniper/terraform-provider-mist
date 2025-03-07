@@ -3,7 +3,7 @@ package datasource_org_alarmtemplates
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -64,14 +64,14 @@ func alarmTempalteSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d
 }
 
 func deliverySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data *models.Delivery) basetypes.ObjectValue {
-	var additionalEmails = misttransform.ListOfStringSdkToTerraformEmpty()
+	var additionalEmails = mistutils.ListOfStringSdkToTerraformEmpty()
 	var enabled types.Bool
 	var toOrgAdmins types.Bool
 	var toSiteAdmins types.Bool
 
 	if data != nil {
 		if data.AdditionalEmails != nil && len(data.AdditionalEmails) > 0 {
-			additionalEmails = misttransform.ListOfStringSdkToTerraform(data.AdditionalEmails)
+			additionalEmails = mistutils.ListOfStringSdkToTerraform(data.AdditionalEmails)
 		}
 		enabled = types.BoolValue(data.Enabled)
 		if data.ToOrgAdmins != nil {

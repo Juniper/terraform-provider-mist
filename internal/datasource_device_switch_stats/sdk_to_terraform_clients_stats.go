@@ -3,7 +3,7 @@ package datasource_device_switch_stats
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -19,7 +19,7 @@ func clientsStatsTotalSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 	var numWiredClients basetypes.Int64Value
 
 	if d.NumAps != nil {
-		numAps = misttransform.ListOfIntSdkToTerraform(d.NumAps)
+		numAps = mistutils.ListOfIntSdkToTerraform(d.NumAps)
 	}
 	if d.NumWiredClients != nil {
 		numWiredClients = types.Int64Value(int64(*d.NumWiredClients))

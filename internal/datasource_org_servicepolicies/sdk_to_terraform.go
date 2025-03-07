@@ -3,7 +3,7 @@ package datasource_org_servicepolicies
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -81,13 +81,13 @@ func servicepolicieSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 		pathPreference = types.StringValue(*d.PathPreference)
 	}
 	if d.Services != nil {
-		services = misttransform.ListOfStringSdkToTerraform(d.Services)
+		services = mistutils.ListOfStringSdkToTerraform(d.Services)
 	}
 	if d.SslProxy != nil {
 		sslProxy = sslProxySdkToTerraform(ctx, diags, d.SslProxy)
 	}
 	if d.Tenants != nil {
-		tenants = misttransform.ListOfStringSdkToTerraform(d.Tenants)
+		tenants = mistutils.ListOfStringSdkToTerraform(d.Tenants)
 	}
 
 	dataMapValue := map[string]attr.Value{

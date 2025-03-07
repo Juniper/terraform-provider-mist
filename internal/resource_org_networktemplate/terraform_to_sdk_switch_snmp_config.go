@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
@@ -20,7 +20,7 @@ func snmpConfigClientListTerraformToSdk(d basetypes.ListValue) []models.SnmpConf
 		plan := vInterface.(ClientListValue)
 		data := models.SnmpConfigClientList{}
 		if !plan.Clients.IsNull() && !plan.Clients.IsUnknown() {
-			data.Clients = misttransform.ListOfStringTerraformToSdk(plan.Clients)
+			data.Clients = mistutils.ListOfStringTerraformToSdk(plan.Clients)
 		}
 		if plan.ClientListName.ValueStringPointer() != nil {
 			data.ClientListName = plan.ClientListName.ValueStringPointer()
@@ -41,13 +41,13 @@ func snmpConfigTrapGroupsTerraformToSdk(d basetypes.ListValue) []models.SnmpConf
 		plan := vInterface.(TrapGroupsValue)
 		data := models.SnmpConfigTrapGroup{}
 		if !plan.Categories.IsNull() && !plan.Categories.IsUnknown() {
-			data.Categories = misttransform.ListOfStringTerraformToSdk(plan.Categories)
+			data.Categories = mistutils.ListOfStringTerraformToSdk(plan.Categories)
 		}
 		if plan.GroupName.ValueStringPointer() != nil {
 			data.GroupName = plan.GroupName.ValueStringPointer()
 		}
 		if !plan.Targets.IsNull() && !plan.Targets.IsUnknown() {
-			data.Targets = misttransform.ListOfStringTerraformToSdk(plan.Targets)
+			data.Targets = mistutils.ListOfStringTerraformToSdk(plan.Targets)
 		}
 		if plan.Version.ValueStringPointer() != nil {
 			data.Version = (*models.SnmpConfigTrapVersionEnum)(plan.Version.ValueStringPointer())

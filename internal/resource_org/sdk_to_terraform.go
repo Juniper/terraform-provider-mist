@@ -1,7 +1,7 @@
 package resource_org
 
 import (
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -30,7 +30,7 @@ func SdkToTerraform(data models.Org) (OrgModel, diag.Diagnostics) {
 		allowMist = types.BoolValue(*data.AllowMist)
 	}
 	if data.OrggroupIds != nil {
-		orggroupIds = misttransform.ListOfUuidSdkToTerraform(data.OrggroupIds)
+		orggroupIds = mistutils.ListOfUuidSdkToTerraform(data.OrggroupIds)
 	}
 	if data.MspId != nil {
 		mspId = types.StringValue(data.MspId.String())

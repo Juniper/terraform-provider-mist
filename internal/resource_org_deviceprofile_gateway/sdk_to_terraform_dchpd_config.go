@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func dhcpdConfigVendorEncapsulatedSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.DhcpdConfigVendorOption) basetypes.MapValue {
@@ -103,8 +103,8 @@ func dhcpdConfigConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 	rMapValue := make(map[string]attr.Value)
 	for k, d := range m {
 		if k != "enabled" {
-			var dnsServers = misttransform.ListOfStringSdkToTerraformEmpty()
-			var dnsSuffix = misttransform.ListOfStringSdkToTerraformEmpty()
+			var dnsServers = mistutils.ListOfStringSdkToTerraformEmpty()
+			var dnsSuffix = mistutils.ListOfStringSdkToTerraformEmpty()
 			var fixedBindings = types.MapNull(FixedBindingsValue{}.Type(ctx))
 			var gateway basetypes.StringValue
 			var ipEnd basetypes.StringValue
@@ -114,17 +114,17 @@ func dhcpdConfigConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 			var leaseTime = types.Int64Value(86400)
 			var options = types.MapNull(OptionsValue{}.Type(ctx))
 			var serverIdOverride = types.BoolValue(false)
-			var servers = misttransform.ListOfStringSdkToTerraformEmpty()
-			var servers6 = misttransform.ListOfStringSdkToTerraformEmpty()
+			var servers = mistutils.ListOfStringSdkToTerraformEmpty()
+			var servers6 = mistutils.ListOfStringSdkToTerraformEmpty()
 			var type4 = types.StringValue("local")
 			var type6 = types.StringValue("none")
 			var vendorEncapsulated = types.MapNull(VendorEncapsulatedValue{}.Type(ctx))
 
 			if d.DnsServers != nil {
-				dnsServers = misttransform.ListOfStringSdkToTerraform(d.DnsServers)
+				dnsServers = mistutils.ListOfStringSdkToTerraform(d.DnsServers)
 			}
 			if d.DnsSuffix != nil {
-				dnsSuffix = misttransform.ListOfStringSdkToTerraform(d.DnsSuffix)
+				dnsSuffix = mistutils.ListOfStringSdkToTerraform(d.DnsSuffix)
 			}
 			if d.FixedBindings != nil && len(d.FixedBindings) > 0 {
 				fixedBindings = dhcpdConfigFixedBindingsSdkToTerraform(ctx, diags, d.FixedBindings)
@@ -154,10 +154,10 @@ func dhcpdConfigConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 				serverIdOverride = types.BoolValue(*d.ServerIdOverride)
 			}
 			if d.Servers != nil {
-				servers = misttransform.ListOfStringSdkToTerraform(d.Servers)
+				servers = mistutils.ListOfStringSdkToTerraform(d.Servers)
 			}
 			if d.Servers6 != nil {
-				servers6 = misttransform.ListOfStringSdkToTerraform(d.Servers6)
+				servers6 = mistutils.ListOfStringSdkToTerraform(d.Servers6)
 			}
 			if d.Type != nil {
 				type4 = types.StringValue(string(*d.Type))

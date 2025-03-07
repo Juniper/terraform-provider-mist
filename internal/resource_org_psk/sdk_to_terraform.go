@@ -3,8 +3,7 @@ package resource_org_psk
 import (
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	mistapi "github.com/Juniper/terraform-provider-mist/internal/commons/api_response"
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -49,7 +48,7 @@ func SdkToTerraform(d *models.Psk) (OrgPskModel, diag.Diagnostics) {
 		mac = types.StringValue(*d.Mac)
 	}
 	if d.Macs != nil {
-		macs = misttransform.ListOfStringSdkToTerraform(d.Macs)
+		macs = mistutils.ListOfStringSdkToTerraform(d.Macs)
 	}
 	if d.MaxUsage != nil {
 		maxUsage = types.Int64Value(int64(*d.MaxUsage))
@@ -84,7 +83,7 @@ func SdkToTerraform(d *models.Psk) (OrgPskModel, diag.Diagnostics) {
 	usage = types.StringValue(string(*d.Usage))
 
 	if d.VlanId != nil {
-		vlanId = mistapi.PskVlanAsString(*d.VlanId)
+		vlanId = mistutils.PskVlanAsString(*d.VlanId)
 	}
 
 	state.Email = email

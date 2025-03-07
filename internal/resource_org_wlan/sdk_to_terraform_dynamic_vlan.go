@@ -3,8 +3,7 @@ package resource_org_wlan
 import (
 	"context"
 
-	mistapi "github.com/Juniper/terraform-provider-mist/internal/commons/api_response"
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -15,9 +14,9 @@ import (
 
 func dynamicVlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.WlanDynamicVlan) DynamicVlanValue {
 
-	var defaultVlanIds = misttransform.ListOfStringSdkToTerraformEmpty()
+	var defaultVlanIds = mistutils.ListOfStringSdkToTerraformEmpty()
 	var enabled basetypes.BoolValue
-	var localVlanIds = misttransform.ListOfStringSdkToTerraformEmpty()
+	var localVlanIds = mistutils.ListOfStringSdkToTerraformEmpty()
 	var typeDynamicVlan basetypes.StringValue
 	var vlans = types.MapNull(types.StringType)
 
@@ -25,7 +24,7 @@ func dynamicVlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 		var items []attr.Value
 		var itemsType attr.Type = basetypes.StringType{}
 		for _, item := range d.DefaultVlanIds {
-			vlanId := mistapi.WlanDynamicVlanAsString(item)
+			vlanId := mistutils.WlanDynamicVlanAsString(item)
 			items = append(items, vlanId)
 		}
 		r, e := types.ListValue(itemsType, items)

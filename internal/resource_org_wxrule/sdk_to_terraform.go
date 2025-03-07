@@ -1,7 +1,7 @@
 package resource_org_wxrule
 
 import (
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -26,25 +26,25 @@ func SdkToTerraform(data *models.WxlanRule) (OrgWxruleModel, diag.Diagnostics) {
 		action = types.StringValue(string(*data.Action))
 	}
 	if data.ApplyTags != nil && len(data.ApplyTags) > 0 {
-		applyTags = misttransform.ListOfStringSdkToTerraform(data.ApplyTags)
+		applyTags = mistutils.ListOfStringSdkToTerraform(data.ApplyTags)
 	}
 	if data.BlockedApps != nil && len(data.BlockedApps) > 0 {
-		blockedApps = misttransform.ListOfStringSdkToTerraform(data.BlockedApps)
+		blockedApps = mistutils.ListOfStringSdkToTerraform(data.BlockedApps)
 	}
 	if data.DstAllowWxtags != nil {
-		dstAllowWxtags = misttransform.ListOfStringSdkToTerraform(data.DstAllowWxtags)
+		dstAllowWxtags = mistutils.ListOfStringSdkToTerraform(data.DstAllowWxtags)
 	}
 	if data.DstDenyWxtags != nil {
-		dstDenyWxtags = misttransform.ListOfStringSdkToTerraform(data.DstDenyWxtags)
+		dstDenyWxtags = mistutils.ListOfStringSdkToTerraform(data.DstDenyWxtags)
 	}
 	if data.DstWxtags != nil {
-		dstWxtags = misttransform.ListOfStringSdkToTerraform(data.DstWxtags)
+		dstWxtags = mistutils.ListOfStringSdkToTerraform(data.DstWxtags)
 	}
 	if data.Enabled != nil {
 		enabled = types.BoolValue(*data.Enabled)
 	}
 	if data.SrcWxtags != nil {
-		srcWxtags = misttransform.ListOfStringSdkToTerraform(data.SrcWxtags)
+		srcWxtags = mistutils.ListOfStringSdkToTerraform(data.SrcWxtags)
 	}
 
 	state.Id = types.StringValue(data.Id.String())

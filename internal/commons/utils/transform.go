@@ -1,4 +1,4 @@
-package mist_transform
+package mist_utils
 
 import (
 	"github.com/tmunzer/mistapi-go/mistapi/models"

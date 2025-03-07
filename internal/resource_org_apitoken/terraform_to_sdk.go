@@ -1,7 +1,7 @@
 package resource_org_apitoken
 
 import (
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/google/uuid"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -17,7 +17,7 @@ func TerraformToSdk(plan *OrgApitokenModel) (*models.OrgApitoken, diag.Diagnosti
 
 	data.Name = plan.Name.ValueString()
 	data.Privileges = privilegesTerraformToSdk(&diags, plan.Privileges)
-	data.SrcIps = misttransform.ListOfStringTerraformToSdk(plan.SrcIps)
+	data.SrcIps = mistutils.ListOfStringTerraformToSdk(plan.SrcIps)
 
 	return &data, diags
 }

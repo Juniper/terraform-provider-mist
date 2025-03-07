@@ -1,7 +1,7 @@
 package resource_device_gateway
 
 import (
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -22,7 +22,7 @@ func ipConfigsTerraformToSdk(d basetypes.MapValue) map[string]models.GatewayIpCo
 			data.Netmask = models.ToPointer(plan.Netmask.ValueString())
 		}
 		if !plan.SecondaryIps.IsNull() && !plan.SecondaryIps.IsUnknown() {
-			data.SecondaryIps = misttransform.ListOfStringTerraformToSdk(plan.SecondaryIps)
+			data.SecondaryIps = mistutils.ListOfStringTerraformToSdk(plan.SecondaryIps)
 		}
 		if !plan.IpConfigsType.IsNull() && !plan.IpConfigsType.IsUnknown() {
 			data.Type = models.ToPointer(models.IpTypeEnum(plan.IpConfigsType.ValueString()))

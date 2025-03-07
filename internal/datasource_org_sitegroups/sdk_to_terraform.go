@@ -3,7 +3,7 @@ package datasource_org_sitegroups
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -47,7 +47,7 @@ func sitegroupSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mo
 		orgId = types.StringValue(d.OrgId.String())
 	}
 	if d.SiteIds != nil {
-		siteIds = misttransform.ListOfUuidSdkToTerraform(d.SiteIds)
+		siteIds = mistutils.ListOfUuidSdkToTerraform(d.SiteIds)
 	}
 
 	dataMapValue := map[string]attr.Value{

@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func vrfConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.VrfConfig) VrfConfigValue {
@@ -34,10 +34,10 @@ func vrfInstancesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m 
 
 	dataMapValue := make(map[string]attr.Value)
 	for k, d := range m {
-		var networks = misttransform.ListOfStringSdkToTerraformEmpty()
+		var networks = mistutils.ListOfStringSdkToTerraformEmpty()
 
 		if d.Networks != nil {
-			networks = misttransform.ListOfStringSdkToTerraform(d.Networks)
+			networks = mistutils.ListOfStringSdkToTerraform(d.Networks)
 		}
 
 		vrfMapAttrType := VrfInstancesValue{}.AttributeTypes(ctx)

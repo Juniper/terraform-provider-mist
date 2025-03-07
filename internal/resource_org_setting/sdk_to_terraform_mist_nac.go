@@ -3,7 +3,7 @@ package resource_org_setting
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -16,18 +16,18 @@ func mistNacIdpsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l [
 
 	var dataList []IdpsValue
 	for _, d := range l {
-		var excludeRealms = misttransform.ListOfStringSdkToTerraformEmpty()
+		var excludeRealms = mistutils.ListOfStringSdkToTerraformEmpty()
 		var id basetypes.StringValue
 		var userRealms = types.ListNull(types.StringType)
 
 		if d.ExcludeRealms != nil {
-			excludeRealms = misttransform.ListOfStringSdkToTerraform(d.ExcludeRealms)
+			excludeRealms = mistutils.ListOfStringSdkToTerraform(d.ExcludeRealms)
 		}
 		if d.Id != nil {
 			id = types.StringValue(d.Id.String())
 		}
 		if d.UserRealms != nil {
-			userRealms = misttransform.ListOfStringSdkToTerraform(d.UserRealms)
+			userRealms = mistutils.ListOfStringSdkToTerraform(d.UserRealms)
 		}
 
 		dataMapValue := map[string]attr.Value{
@@ -71,7 +71,7 @@ func mistNacServerCertSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 }
 
 func mistNacSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.OrgSettingMistNac) MistNacValue {
-	var cacerts = misttransform.ListOfStringSdkToTerraformEmpty()
+	var cacerts = mistutils.ListOfStringSdkToTerraformEmpty()
 	var defaultIdpId basetypes.StringValue
 	var disableRsaeAlgorithms basetypes.BoolValue
 	var eapSslSecurityLevel basetypes.Int64Value
@@ -84,7 +84,7 @@ func mistNacSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 	var useSslPort basetypes.BoolValue
 
 	if d.Cacerts != nil {
-		cacerts = misttransform.ListOfStringSdkToTerraform(d.Cacerts)
+		cacerts = mistutils.ListOfStringSdkToTerraform(d.Cacerts)
 	}
 	if d.DefaultIdpId != nil {
 		defaultIdpId = types.StringValue(*d.DefaultIdpId)

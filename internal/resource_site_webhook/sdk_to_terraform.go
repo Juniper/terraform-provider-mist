@@ -5,7 +5,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -69,7 +69,7 @@ func SdkToTerraform(ctx context.Context, d *models.Webhook) (SiteWebhookModel, d
 		oauth2Password = types.StringValue(*d.Oauth2Password)
 	}
 	if d.Oauth2Scopes != nil {
-		oauth2Scopes = misttransform.ListOfStringSdkToTerraform(d.Oauth2Scopes)
+		oauth2Scopes = mistutils.ListOfStringSdkToTerraform(d.Oauth2Scopes)
 	}
 	if d.Oauth2TokenUrl != nil {
 		oauth2TokenUrl = types.StringValue(*d.Oauth2TokenUrl)

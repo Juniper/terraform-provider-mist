@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func bgpConfigNeighborsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.BgpConfigNeighbors) basetypes.MapValue {
@@ -78,7 +78,7 @@ func bgpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map
 		var localAs basetypes.Int64Value
 		var neighborAs basetypes.Int64Value
 		var neighbors = types.MapNull(NeighborsValue{}.Type(ctx))
-		var networks = misttransform.ListOfStringSdkToTerraformEmpty()
+		var networks = mistutils.ListOfStringSdkToTerraformEmpty()
 		var noPrivateAs basetypes.BoolValue
 		var noReadvertiseToOverlay = types.BoolValue(false)
 		var typeBgp basetypes.StringValue
@@ -130,7 +130,7 @@ func bgpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map
 			neighbors = bgpConfigNeighborsSdkToTerraform(ctx, diags, d.Neighbors)
 		}
 		if d.Networks != nil {
-			networks = misttransform.ListOfStringSdkToTerraform(d.Networks)
+			networks = mistutils.ListOfStringSdkToTerraform(d.Networks)
 		}
 		if d.NoPrivateAs != nil {
 			noPrivateAs = types.BoolValue(*d.NoPrivateAs)

@@ -3,7 +3,7 @@ package resource_org_wlan
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -14,19 +14,19 @@ import (
 )
 
 func ciscoCwaSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.WlanCiscoCwa) CiscoCwaValue {
-	var allowedHostnames = misttransform.ListOfStringSdkToTerraformEmpty()
-	var allowedSubnets = misttransform.ListOfStringSdkToTerraformEmpty()
-	var blockedSubnets = misttransform.ListOfStringSdkToTerraformEmpty()
+	var allowedHostnames = mistutils.ListOfStringSdkToTerraformEmpty()
+	var allowedSubnets = mistutils.ListOfStringSdkToTerraformEmpty()
+	var blockedSubnets = mistutils.ListOfStringSdkToTerraformEmpty()
 	var enabled basetypes.BoolValue
 
 	if d != nil && d.AllowedHostnames != nil {
-		allowedHostnames = misttransform.ListOfStringSdkToTerraform(d.AllowedHostnames)
+		allowedHostnames = mistutils.ListOfStringSdkToTerraform(d.AllowedHostnames)
 	}
 	if d != nil && d.AllowedSubnets != nil {
-		allowedSubnets = misttransform.ListOfStringSdkToTerraform(d.AllowedSubnets)
+		allowedSubnets = mistutils.ListOfStringSdkToTerraform(d.AllowedSubnets)
 	}
 	if d != nil && d.BlockedSubnets != nil {
-		blockedSubnets = misttransform.ListOfStringSdkToTerraform(d.BlockedSubnets)
+		blockedSubnets = mistutils.ListOfStringSdkToTerraform(d.BlockedSubnets)
 	}
 	if d != nil && d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)

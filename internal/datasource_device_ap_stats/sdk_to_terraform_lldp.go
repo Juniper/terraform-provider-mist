@@ -4,7 +4,7 @@ import (
 	"context"
 	"math/big"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -39,7 +39,7 @@ func lldpSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 		mgmtAddr = types.StringValue(*d.MgmtAddr.Value())
 	}
 	if d.MgmtAddrs != nil {
-		mgmtAddrs = misttransform.ListOfStringSdkToTerraform(d.MgmtAddrs)
+		mgmtAddrs = mistutils.ListOfStringSdkToTerraform(d.MgmtAddrs)
 	}
 	if d.PortDesc.Value() != nil {
 		portDesc = types.StringValue(*d.PortDesc.Value())

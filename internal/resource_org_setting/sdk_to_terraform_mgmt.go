@@ -3,7 +3,7 @@ package resource_org_setting
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -13,12 +13,12 @@ import (
 )
 
 func mgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.OrgSettingMgmt) MgmtValue {
-	var mxtunnelIds = misttransform.ListOfUuidSdkToTerraformEmpty()
+	var mxtunnelIds = mistutils.ListOfUuidSdkToTerraformEmpty()
 	var useMxtunnel basetypes.BoolValue
 	var useWxtunnel basetypes.BoolValue
 
 	if d.MxtunnelIds != nil {
-		mxtunnelIds = misttransform.ListOfUuidSdkToTerraform(d.MxtunnelIds)
+		mxtunnelIds = mistutils.ListOfUuidSdkToTerraform(d.MxtunnelIds)
 	}
 	if d.UseMxtunnel != nil {
 		useMxtunnel = types.BoolValue(*d.UseMxtunnel)

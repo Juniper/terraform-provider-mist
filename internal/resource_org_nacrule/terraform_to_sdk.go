@@ -1,7 +1,7 @@
 package resource_org_nacrule
 
 import (
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -20,7 +20,7 @@ func TerraformToSdk(plan *OrgNacruleModel) (models.NacRule, diag.Diagnostics) {
 		unset["-action"] = ""
 	}
 	if !plan.ApplyTags.IsNull() && !plan.ApplyTags.IsUnknown() {
-		data.ApplyTags = misttransform.ListOfStringTerraformToSdk(plan.ApplyTags)
+		data.ApplyTags = mistutils.ListOfStringTerraformToSdk(plan.ApplyTags)
 	} else {
 		unset["-apply_tags"] = ""
 	}

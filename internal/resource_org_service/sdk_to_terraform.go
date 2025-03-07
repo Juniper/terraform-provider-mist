@@ -5,7 +5,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -46,16 +46,16 @@ func SdkToTerraform(ctx context.Context, d *models.Service) (OrgServiceModel, di
 	var state OrgServiceModel
 	var diags diag.Diagnostics
 
-	var addresses = misttransform.ListOfStringSdkToTerraformEmpty()
-	var appCategories = misttransform.ListOfStringSdkToTerraformEmpty()
-	var appSubcategories = misttransform.ListOfStringSdkToTerraformEmpty()
-	var apps = misttransform.ListOfStringSdkToTerraformEmpty()
+	var addresses = mistutils.ListOfStringSdkToTerraformEmpty()
+	var appCategories = mistutils.ListOfStringSdkToTerraformEmpty()
+	var appSubcategories = mistutils.ListOfStringSdkToTerraformEmpty()
+	var apps = mistutils.ListOfStringSdkToTerraformEmpty()
 	var clientLimitDown types.Int64
 	var clientLimitUp types.Int64
 	var description types.String
 	var dscp types.String
 	var failoverPolicy types.String
-	var hostnames = misttransform.ListOfStringSdkToTerraformEmpty()
+	var hostnames = mistutils.ListOfStringSdkToTerraformEmpty()
 	var id types.String
 	var maxJitter types.String
 	var maxLatency types.String
@@ -70,19 +70,19 @@ func SdkToTerraform(ctx context.Context, d *models.Service) (OrgServiceModel, di
 	var trafficClass types.String
 	var trafficType types.String
 	var serviceType types.String
-	var urls = misttransform.ListOfStringSdkToTerraformEmpty()
+	var urls = mistutils.ListOfStringSdkToTerraformEmpty()
 
 	if d.Addresses != nil {
-		addresses = misttransform.ListOfStringSdkToTerraform(d.Addresses)
+		addresses = mistutils.ListOfStringSdkToTerraform(d.Addresses)
 	}
 	if d.AppCategories != nil {
-		appCategories = misttransform.ListOfStringSdkToTerraform(d.AppCategories)
+		appCategories = mistutils.ListOfStringSdkToTerraform(d.AppCategories)
 	}
 	if d.AppSubcategories != nil {
-		appSubcategories = misttransform.ListOfStringSdkToTerraform(d.AppSubcategories)
+		appSubcategories = mistutils.ListOfStringSdkToTerraform(d.AppSubcategories)
 	}
 	if d.Apps != nil {
-		apps = misttransform.ListOfStringSdkToTerraform(d.Apps)
+		apps = mistutils.ListOfStringSdkToTerraform(d.Apps)
 	}
 	if d.ClientLimitDown != nil {
 		clientLimitDown = types.Int64Value(int64(*d.ClientLimitDown))
@@ -100,7 +100,7 @@ func SdkToTerraform(ctx context.Context, d *models.Service) (OrgServiceModel, di
 		failoverPolicy = types.StringValue(string(*d.FailoverPolicy))
 	}
 	if d.Hostnames != nil {
-		hostnames = misttransform.ListOfStringSdkToTerraform(d.Hostnames)
+		hostnames = mistutils.ListOfStringSdkToTerraform(d.Hostnames)
 	}
 	if d.Id != nil {
 		id = types.StringValue(d.Id.String())
@@ -145,7 +145,7 @@ func SdkToTerraform(ctx context.Context, d *models.Service) (OrgServiceModel, di
 		serviceType = types.StringValue(string(*d.Type))
 	}
 	if d.Urls != nil {
-		urls = misttransform.ListOfStringSdkToTerraform(d.Urls)
+		urls = mistutils.ListOfStringSdkToTerraform(d.Urls)
 	}
 
 	state.Addresses = addresses

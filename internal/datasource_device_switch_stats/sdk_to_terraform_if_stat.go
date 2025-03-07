@@ -4,7 +4,7 @@ import (
 	"context"
 	"math/big"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -86,10 +86,10 @@ func ifStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[s
 			addressMode = types.StringValue(*d.AddressMode)
 		}
 		if d.Ips != nil {
-			ips = misttransform.ListOfStringSdkToTerraform(d.Ips)
+			ips = mistutils.ListOfStringSdkToTerraform(d.Ips)
 		}
 		if d.NatAddresses != nil {
-			natAddresses = misttransform.ListOfStringSdkToTerraform(d.NatAddresses)
+			natAddresses = mistutils.ListOfStringSdkToTerraform(d.NatAddresses)
 		}
 		if d.NetworkName != nil {
 			networkName = types.StringValue(*d.NetworkName)

@@ -3,7 +3,7 @@ package resource_site_networktemplate
 import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
@@ -41,7 +41,7 @@ func aclPoliciesTerraformToSdk(d basetypes.ListValue) []models.AclPolicy {
 			dataItem.Actions = actions
 		}
 		if !vPlan.SrcTags.IsNull() && !vPlan.SrcTags.IsUnknown() {
-			dataItem.SrcTags = misttransform.ListOfStringTerraformToSdk(vPlan.SrcTags)
+			dataItem.SrcTags = mistutils.ListOfStringTerraformToSdk(vPlan.SrcTags)
 		}
 
 		data = append(data, dataItem)

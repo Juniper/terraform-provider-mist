@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func vrfConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.VrfConfig) VrfConfigValue {
@@ -83,7 +83,7 @@ func vrfInstancesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m 
 		var evpnAutoLoopbackSubnet6 basetypes.StringValue
 		var extraRoutes = types.MapNull(VrfExtraRoutesValue{}.Type(ctx))
 		var extraRoutes6 = types.MapNull(VrfExtraRoutes6Value{}.Type(ctx))
-		var networks = misttransform.ListOfStringSdkToTerraformEmpty()
+		var networks = mistutils.ListOfStringSdkToTerraformEmpty()
 
 		if d.EvpnAutoLoopbackSubnet != nil {
 			evpnAutoLoopbackSubnet = types.StringValue(*d.EvpnAutoLoopbackSubnet)
@@ -98,7 +98,7 @@ func vrfInstancesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m 
 			extraRoutes6 = vrfInstanceExtraRoute6SdkToTerraform(ctx, diags, d.ExtraRoutes6)
 		}
 		if d.Networks != nil {
-			networks = misttransform.ListOfStringSdkToTerraform(d.Networks)
+			networks = mistutils.ListOfStringSdkToTerraform(d.Networks)
 		}
 
 		vrfMapValue := map[string]attr.Value{

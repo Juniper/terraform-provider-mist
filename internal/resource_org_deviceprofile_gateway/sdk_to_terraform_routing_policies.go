@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func routingPolicyTermMatchingRouteExistsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.RoutingPolicyTermMatchingRouteExists) basetypes.ObjectValue {
@@ -73,28 +73,28 @@ func routingPolicyTermMatchingSdkToTerraform(ctx context.Context, diags *diag.Di
 	var vpnPathSla = types.ObjectNull(VpnPathSlaValue{}.AttributeTypes(ctx))
 
 	if d.AsPath != nil {
-		asPath = misttransform.ListOfStringSdkToTerraform(d.AsPath)
+		asPath = mistutils.ListOfStringSdkToTerraform(d.AsPath)
 	}
 	if d.Community != nil {
-		community = misttransform.ListOfStringSdkToTerraform(d.Community)
+		community = mistutils.ListOfStringSdkToTerraform(d.Community)
 	}
 	if d.Network != nil {
-		network = misttransform.ListOfStringSdkToTerraform(d.Network)
+		network = mistutils.ListOfStringSdkToTerraform(d.Network)
 	}
 	if d.Prefix != nil {
-		prefix = misttransform.ListOfStringSdkToTerraform(d.Prefix)
+		prefix = mistutils.ListOfStringSdkToTerraform(d.Prefix)
 	}
 	if d.Protocol != nil {
-		protocol = misttransform.ListOfStringSdkToTerraform(d.Protocol)
+		protocol = mistutils.ListOfStringSdkToTerraform(d.Protocol)
 	}
 	if d.RouteExists != nil {
 		routeExists = routingPolicyTermMatchingRouteExistsSdkToTerraform(ctx, diags, *d.RouteExists)
 	}
 	if d.VpnNeighborMac != nil {
-		vpnNeighborMac = misttransform.ListOfStringSdkToTerraform(d.VpnNeighborMac)
+		vpnNeighborMac = mistutils.ListOfStringSdkToTerraform(d.VpnNeighborMac)
 	}
 	if d.VpnPath != nil {
-		vpnPath = misttransform.ListOfStringSdkToTerraform(d.VpnPath)
+		vpnPath = mistutils.ListOfStringSdkToTerraform(d.VpnPath)
 	}
 	if d.VpnPathSla != nil {
 		vpnPathSla = routingPolicyTermMatchingVpnSlaSdkToTerraform(ctx, diags, *d.VpnPathSla)
@@ -132,28 +132,28 @@ func routingPolicyTermActionSdkToTerraform(ctx context.Context, diags *diag.Diag
 		accept = types.BoolValue(*d.Accept)
 	}
 	if d.AddCommunity != nil {
-		addCommunity = misttransform.ListOfStringSdkToTerraform(d.AddCommunity)
+		addCommunity = mistutils.ListOfStringSdkToTerraform(d.AddCommunity)
 	}
 	if d.AddTargetVrfs != nil {
-		addTargetVrfs = misttransform.ListOfStringSdkToTerraform(d.AddTargetVrfs)
+		addTargetVrfs = mistutils.ListOfStringSdkToTerraform(d.AddTargetVrfs)
 	}
 	if d.Community != nil {
-		community = misttransform.ListOfStringSdkToTerraform(d.Community)
+		community = mistutils.ListOfStringSdkToTerraform(d.Community)
 	}
 	if d.ExcludeAsPath != nil {
-		excludeAsPath = misttransform.ListOfStringSdkToTerraform(d.ExcludeAsPath)
+		excludeAsPath = mistutils.ListOfStringSdkToTerraform(d.ExcludeAsPath)
 	}
 	if d.ExcludeCommunity != nil {
-		excludeCommunity = misttransform.ListOfStringSdkToTerraform(d.ExcludeCommunity)
+		excludeCommunity = mistutils.ListOfStringSdkToTerraform(d.ExcludeCommunity)
 	}
 	if d.ExportCommunities != nil {
-		exportCommunities = misttransform.ListOfStringSdkToTerraform(d.ExportCommunities)
+		exportCommunities = mistutils.ListOfStringSdkToTerraform(d.ExportCommunities)
 	}
 	if d.LocalPreference != nil {
 		localPreference = types.StringValue(*d.LocalPreference)
 	}
 	if d.PrependAsPath != nil {
-		prependAsPath = misttransform.ListOfStringSdkToTerraform(d.PrependAsPath)
+		prependAsPath = mistutils.ListOfStringSdkToTerraform(d.PrependAsPath)
 	}
 
 	dataMapValue := map[string]attr.Value{

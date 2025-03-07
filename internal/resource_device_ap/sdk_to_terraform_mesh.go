@@ -2,7 +2,8 @@ package resource_device_ap
 
 import (
 	"context"
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -23,7 +24,7 @@ func meshSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 		enabled = types.BoolValue(*d.Enabled)
 	}
 	if d.Bands != nil {
-		bands = misttransform.ListOfDot11SdkToTerraform(d.Bands)
+		bands = mistutils.ListOfDot11SdkToTerraform(d.Bands)
 	}
 	if d.Group.Value() != nil {
 		group = types.Int64Value(int64(*d.Group.Value()))

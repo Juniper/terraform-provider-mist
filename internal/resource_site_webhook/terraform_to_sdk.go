@@ -3,7 +3,7 @@ package resource_site_webhook
 import (
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
@@ -61,7 +61,7 @@ func TerraformToSdk(plan *SiteWebhookModel) (models.Webhook, diag.Diagnostics) {
 	}
 
 	if !plan.Oauth2Scopes.IsNull() && !plan.Oauth2Scopes.IsUnknown() {
-		data.Oauth2Scopes = misttransform.ListOfStringTerraformToSdk(plan.Oauth2Scopes)
+		data.Oauth2Scopes = mistutils.ListOfStringTerraformToSdk(plan.Oauth2Scopes)
 	} else {
 		unset["-oauth2_scopes"] = ""
 	}

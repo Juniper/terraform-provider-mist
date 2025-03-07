@@ -4,8 +4,7 @@ import (
 	"context"
 	"strings"
 
-	mistapi "github.com/Juniper/terraform-provider-mist/internal/commons/api_response"
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -99,10 +98,10 @@ func wlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 	var noStaticIp basetypes.BoolValue
 	var orgId basetypes.StringValue
 	var portal = types.ObjectNull(PortalValue{}.AttributeTypes(ctx))
-	var portalAllowedHostnames = misttransform.ListOfStringSdkToTerraformEmpty()
-	var portalAllowedSubnets = misttransform.ListOfStringSdkToTerraformEmpty()
+	var portalAllowedHostnames = mistutils.ListOfStringSdkToTerraformEmpty()
+	var portalAllowedSubnets = mistutils.ListOfStringSdkToTerraformEmpty()
 	var portalApiSecret = types.StringValue("")
-	var portalDeniedHostnames = misttransform.ListOfStringSdkToTerraformEmpty()
+	var portalDeniedHostnames = mistutils.ListOfStringSdkToTerraformEmpty()
 	var portalImage = types.StringValue("not_present")
 	var portalSsoUrl = types.StringValue("")
 	var qos = types.ObjectNull(QosValue{}.AttributeTypes(ctx))
@@ -117,13 +116,13 @@ func wlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 	var useEapolV1 basetypes.BoolValue
 	var vlanEnabled basetypes.BoolValue
 	var vlanId basetypes.StringValue
-	var vlanIds = misttransform.ListOfStringSdkToTerraformEmpty()
+	var vlanIds = mistutils.ListOfStringSdkToTerraformEmpty()
 	var vlanPooling basetypes.BoolValue
 	var wlanLimitDown basetypes.Int64Value
 	var wlanLimitDownEnabled basetypes.BoolValue
 	var wlanLimitUp basetypes.Int64Value
 	var wlanLimitUpEnabled basetypes.BoolValue
-	var wxtagIds = misttransform.ListOfUuidSdkToTerraformEmpty()
+	var wxtagIds = mistutils.ListOfUuidSdkToTerraformEmpty()
 	var wxtunnelId = types.StringValue("")
 	var wxtunnelRemoteId = types.StringValue("")
 
@@ -158,7 +157,7 @@ func wlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 	}
 
 	if d.ApIds.Value() != nil && len(*d.ApIds.Value()) > 0 {
-		apIds = misttransform.ListOfUuidSdkToTerraform(*d.ApIds.Value())
+		apIds = mistutils.ListOfUuidSdkToTerraform(*d.ApIds.Value())
 	}
 
 	if d.AppLimit != nil {
@@ -394,11 +393,11 @@ func wlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 	}
 
 	if len(d.MxtunnelIds) > 0 {
-		mxtunnelIds = misttransform.ListOfStringSdkToTerraform(d.MxtunnelIds)
+		mxtunnelIds = mistutils.ListOfStringSdkToTerraform(d.MxtunnelIds)
 	}
 
 	if len(d.MxtunnelName) > 0 {
-		mxtunnelName = misttransform.ListOfStringSdkToTerraform(d.MxtunnelName)
+		mxtunnelName = mistutils.ListOfStringSdkToTerraform(d.MxtunnelName)
 	}
 
 	if d.NoStaticDns != nil {
@@ -418,10 +417,10 @@ func wlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 	}
 
 	if d.PortalAllowedHostnames != nil {
-		portalAllowedHostnames = misttransform.ListOfStringSdkToTerraform(d.PortalAllowedHostnames)
+		portalAllowedHostnames = mistutils.ListOfStringSdkToTerraform(d.PortalAllowedHostnames)
 	}
 	if d.PortalAllowedSubnets != nil {
-		portalAllowedSubnets = misttransform.ListOfStringSdkToTerraform(d.PortalAllowedSubnets)
+		portalAllowedSubnets = mistutils.ListOfStringSdkToTerraform(d.PortalAllowedSubnets)
 	}
 
 	if d.PortalApiSecret.IsValueSet() && d.PortalApiSecret.Value() != nil {
@@ -429,7 +428,7 @@ func wlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 	}
 
 	if d.PortalDeniedHostnames != nil {
-		portalDeniedHostnames = misttransform.ListOfStringSdkToTerraform(d.PortalDeniedHostnames)
+		portalDeniedHostnames = mistutils.ListOfStringSdkToTerraform(d.PortalDeniedHostnames)
 	}
 
 	if d.PortalImage.IsValueSet() && d.PortalImage.Value() != nil {
@@ -483,7 +482,7 @@ func wlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 	}
 
 	if d.VlanId != nil {
-		vlanId = mistapi.VlanAsString(*d.VlanId)
+		vlanId = mistutils.VlanAsString(*d.VlanId)
 	}
 
 	if d.VlanIds != nil {
@@ -494,7 +493,7 @@ func wlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 			}
 		} else if vlanIdsAsList, ok := d.VlanIds.AsArrayOfVlanIdWithVariable2(); ok {
 			for _, v := range *vlanIdsAsList {
-				list = append(list, mistapi.VlanAsString(v))
+				list = append(list, mistutils.VlanAsString(v))
 			}
 		}
 		r, e := types.ListValue(basetypes.StringType{}, list)
@@ -523,7 +522,7 @@ func wlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 	}
 
 	if d.WxtagIds.IsValueSet() && d.WxtagIds.Value() != nil {
-		wxtagIds = misttransform.ListOfUuidSdkToTerraform(*d.WxtagIds.Value())
+		wxtagIds = mistutils.ListOfUuidSdkToTerraform(*d.WxtagIds.Value())
 	}
 
 	if d.WxtunnelId.IsValueSet() && d.WxtunnelId.Value() != nil {

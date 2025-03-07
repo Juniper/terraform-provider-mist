@@ -5,7 +5,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
@@ -161,7 +161,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 	}
 
 	if !plan.SshKeys.IsNull() && !plan.SshKeys.IsUnknown() {
-		data.SshKeys = misttransform.ListOfStringTerraformToSdk(plan.SshKeys)
+		data.SshKeys = mistutils.ListOfStringTerraformToSdk(plan.SshKeys)
 	} else {
 		unset["-ssh_keys"] = ""
 	}

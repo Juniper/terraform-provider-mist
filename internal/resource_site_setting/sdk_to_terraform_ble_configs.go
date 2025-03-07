@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func bleConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.BleConfig) BleConfigValue {
@@ -18,7 +18,7 @@ func bleConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 	var beaconEnabled basetypes.BoolValue
 	var beaconRate basetypes.Int64Value
 	var beaconRateMode basetypes.StringValue
-	var beamDisabled = misttransform.ListOfIntSdkToTerraformEmpty()
+	var beamDisabled = mistutils.ListOfIntSdkToTerraformEmpty()
 	var customBlePacketEnabled basetypes.BoolValue
 	var customBlePacketFrame basetypes.StringValue
 	var customBlePacketFreqMsec basetypes.Int64Value
@@ -53,7 +53,7 @@ func bleConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 		beaconRateMode = types.StringValue(string(*d.BeaconRateMode))
 	}
 	if d != nil && d.BeamDisabled != nil {
-		beamDisabled = misttransform.ListOfIntSdkToTerraform(d.BeamDisabled)
+		beamDisabled = mistutils.ListOfIntSdkToTerraform(d.BeamDisabled)
 	}
 	if d != nil && d.CustomBlePacketEnabled != nil {
 		customBlePacketEnabled = types.BoolValue(*d.CustomBlePacketEnabled)

@@ -3,7 +3,7 @@ package resource_org_gatewaytemplate
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -172,13 +172,13 @@ func servicePoliciesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics,
 		}
 
 		if !plan.Services.IsNull() && !plan.Services.IsUnknown() {
-			data.Services = misttransform.ListOfStringTerraformToSdk(plan.Services)
+			data.Services = mistutils.ListOfStringTerraformToSdk(plan.Services)
 		}
 		if !plan.SslProxy.IsNull() && !plan.SslProxy.IsUnknown() {
 			data.SslProxy = sslProxyTerraformToSdk(ctx, diags, plan.SslProxy)
 		}
 		if !plan.Tenants.IsNull() && !plan.Tenants.IsUnknown() {
-			data.Tenants = misttransform.ListOfStringTerraformToSdk(plan.Tenants)
+			data.Tenants = mistutils.ListOfStringTerraformToSdk(plan.Tenants)
 		}
 
 		dataList = append(dataList, data)

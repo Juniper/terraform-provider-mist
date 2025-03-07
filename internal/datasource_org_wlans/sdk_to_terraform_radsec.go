@@ -3,7 +3,7 @@ package datasource_org_wlans
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -43,8 +43,8 @@ func radsecSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	var coaEnabled basetypes.BoolValue
 	var enabled basetypes.BoolValue
 	var idleTimeout basetypes.Int64Value
-	var mxclusterIds = misttransform.ListOfUuidSdkToTerraformEmpty()
-	var proxyHosts = misttransform.ListOfStringSdkToTerraformEmpty()
+	var mxclusterIds = mistutils.ListOfUuidSdkToTerraformEmpty()
+	var proxyHosts = mistutils.ListOfStringSdkToTerraformEmpty()
 	var serverName basetypes.StringValue
 	var servers = types.ListValueMust(ServersValue{}.Type(ctx), []attr.Value{})
 	var useMxedge basetypes.BoolValue
@@ -60,10 +60,10 @@ func radsecSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 		idleTimeout = types.Int64Value(int64(*d.IdleTimeout))
 	}
 	if d != nil && d.MxclusterIds != nil {
-		mxclusterIds = misttransform.ListOfUuidSdkToTerraform(d.MxclusterIds)
+		mxclusterIds = mistutils.ListOfUuidSdkToTerraform(d.MxclusterIds)
 	}
 	if d != nil && d.ProxyHosts != nil {
-		proxyHosts = misttransform.ListOfStringSdkToTerraform(d.ProxyHosts)
+		proxyHosts = mistutils.ListOfStringSdkToTerraform(d.ProxyHosts)
 	}
 	if d != nil && d.ServerName != nil {
 		serverName = types.StringValue(*d.ServerName)

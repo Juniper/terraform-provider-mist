@@ -1,7 +1,7 @@
 package resource_org_nacidp
 
 import (
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -57,7 +57,7 @@ func SdkToTerraform(data *models.Sso) (OrgNacidpModel, diag.Diagnostics) {
 		ldapBindPassword = types.StringValue(*data.LdapBindPassword)
 	}
 	if data.LdapCacerts != nil {
-		ldapCaCerts = misttransform.ListOfStringSdkToTerraform(data.LdapCacerts)
+		ldapCaCerts = mistutils.ListOfStringSdkToTerraform(data.LdapCacerts)
 	}
 	if data.LdapClientCert != nil {
 		ldapClientCert = types.StringValue(*data.LdapClientCert)
@@ -81,7 +81,7 @@ func SdkToTerraform(data *models.Sso) (OrgNacidpModel, diag.Diagnostics) {
 		ldapResolveGroups = types.BoolValue(*data.LdapResolveGroups)
 	}
 	if data.LdapServerHosts != nil {
-		ldapServerHosts = misttransform.ListOfStringSdkToTerraform(data.LdapServerHosts)
+		ldapServerHosts = mistutils.ListOfStringSdkToTerraform(data.LdapServerHosts)
 	}
 	if data.LdapType != nil {
 		ldapType = types.StringValue(string(*data.LdapType))

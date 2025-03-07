@@ -3,7 +3,7 @@ package resource_org_wlan
 import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
@@ -35,10 +35,10 @@ func radsecTerraformToSdk(d RadsecValue) *models.Radsec {
 		data.IdleTimeout = models.ToPointer(int(d.IdleTimeout.ValueInt64()))
 	}
 	if !d.MxclusterIds.IsNull() && !d.MxclusterIds.IsUnknown() {
-		data.MxclusterIds = misttransform.ListOfUuidTerraformToSdk(d.MxclusterIds)
+		data.MxclusterIds = mistutils.ListOfUuidTerraformToSdk(d.MxclusterIds)
 	}
 	if !d.ProxyHosts.IsNull() && !d.ProxyHosts.IsUnknown() {
-		data.ProxyHosts = misttransform.ListOfStringTerraformToSdk(d.ProxyHosts)
+		data.ProxyHosts = mistutils.ListOfStringTerraformToSdk(d.ProxyHosts)
 	}
 	if d.ServerName.ValueStringPointer() != nil {
 		data.ServerName = d.ServerName.ValueStringPointer()

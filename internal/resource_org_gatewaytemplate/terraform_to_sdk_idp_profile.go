@@ -3,7 +3,7 @@ package resource_org_gatewaytemplate
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -30,10 +30,10 @@ func idpProfileMatchingTerraformToSdk(ctx context.Context, diags *diag.Diagnosti
 			diags.Append(e...)
 		} else {
 			if !plan.AttackName.IsNull() && !plan.AttackName.IsUnknown() {
-				data.AttackName = misttransform.ListOfStringTerraformToSdk(plan.AttackName)
+				data.AttackName = mistutils.ListOfStringTerraformToSdk(plan.AttackName)
 			}
 			if !plan.DstSubnet.IsNull() && !plan.DstSubnet.IsUnknown() {
-				data.DstSubnet = misttransform.ListOfStringTerraformToSdk(plan.DstSubnet)
+				data.DstSubnet = mistutils.ListOfStringTerraformToSdk(plan.DstSubnet)
 			}
 			if !plan.Severity.IsNull() && !plan.Severity.IsUnknown() {
 				data.Severity = idpProfileMatchingSeverityTerraformToSdk(plan.Severity)

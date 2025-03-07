@@ -2,7 +2,8 @@ package datasource_org_vpns
 
 import (
 	"context"
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -92,7 +93,7 @@ func vpnPathsTrafficShapingSdkToTerraform(ctx context.Context, diags *diag.Diagn
 	var maxTxKbps basetypes.Int64Value
 
 	if d.ClassPercentage != nil {
-		classPercentage = misttransform.ListOfIntSdkToTerraform(d.ClassPercentage)
+		classPercentage = mistutils.ListOfIntSdkToTerraform(d.ClassPercentage)
 	}
 	if d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)

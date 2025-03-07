@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func overlayEvpnOptionsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.EvpnOptionsOverlay) basetypes.ObjectValue {
@@ -66,7 +66,7 @@ func vsInstanceEvpnOptionsSdkToTerraform(ctx context.Context, diags *diag.Diagno
 		var networks basetypes.ListValue
 
 		if d.Networks != nil {
-			networks = misttransform.ListOfStringSdkToTerraform(d.Networks)
+			networks = mistutils.ListOfStringSdkToTerraform(d.Networks)
 		}
 
 		dataMapValue := map[string]attr.Value{

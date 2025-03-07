@@ -3,7 +3,7 @@ package resource_device_ap
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -127,7 +127,7 @@ func TerraformToSdk(ctx context.Context, plan *DeviceApModel) (models.MistDevice
 	}
 
 	if !plan.NtpServers.IsNull() && !plan.NtpServers.IsUnknown() {
-		data.NtpServers = misttransform.ListOfStringTerraformToSdk(plan.NtpServers)
+		data.NtpServers = mistutils.ListOfStringTerraformToSdk(plan.NtpServers)
 	} else {
 		unset["-ntp_servers"] = ""
 	}

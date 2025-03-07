@@ -1,7 +1,7 @@
 package resource_device_gateway
 
 import (
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -89,7 +89,7 @@ func bgpConfigTerraformToSdk(d basetypes.MapValue) map[string]models.BgpConfig {
 			data.Neighbors = bgpConfigNeighborsTerraformToSdk(plan.Neighbors)
 		}
 		if !plan.Networks.IsNull() && !plan.Networks.IsUnknown() {
-			data.Networks = misttransform.ListOfStringTerraformToSdk(plan.Networks)
+			data.Networks = mistutils.ListOfStringTerraformToSdk(plan.Networks)
 		}
 		if plan.NoPrivateAs.ValueBoolPointer() != nil {
 			data.NoPrivateAs = plan.NoPrivateAs.ValueBoolPointer()

@@ -3,7 +3,6 @@ package resource_site_setting
 import (
 	"context"
 
-	mistapi "github.com/Juniper/terraform-provider-mist/internal/commons/api_response"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -11,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func syntheticTestWanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SynthetictestConfigWanSpeedtest) basetypes.ObjectValue {
@@ -38,12 +37,12 @@ func syntheticTestWanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 func synthteticTestVlansSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.SynthetictestProperties) basetypes.ListValue {
 	var dataList []VlansValue
 	for _, d := range l {
-		var customTestUrls = misttransform.ListOfStringSdkToTerraformEmpty()
+		var customTestUrls = mistutils.ListOfStringSdkToTerraformEmpty()
 		var disabled basetypes.BoolValue
-		var vlanIds = misttransform.ListOfStringSdkToTerraformEmpty()
+		var vlanIds = mistutils.ListOfStringSdkToTerraformEmpty()
 
 		if d.CustomTestUrls != nil {
-			customTestUrls = misttransform.ListOfStringSdkToTerraform(d.CustomTestUrls)
+			customTestUrls = mistutils.ListOfStringSdkToTerraform(d.CustomTestUrls)
 		}
 		if d.Disabled != nil {
 			disabled = types.BoolValue(*d.Disabled)
@@ -51,7 +50,7 @@ func synthteticTestVlansSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 		if d.VlanIds != nil {
 			var items []attr.Value
 			for _, item := range d.VlanIds {
-				items = append(items, mistapi.VlanAsString(item))
+				items = append(items, mistutils.VlanAsString(item))
 			}
 			vlanIds, _ = types.ListValue(basetypes.StringType{}, items)
 		}

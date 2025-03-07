@@ -3,7 +3,7 @@ package resource_site_wxtag
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -35,7 +35,7 @@ func SdkToTerraform(ctx context.Context, data models.WxlanTag) (SiteWxtagModel, 
 		specs = specsSdkToTerraform(ctx, &diags, data.Specs)
 	}
 	if data.Values != nil {
-		values = misttransform.ListOfStringSdkToTerraform(data.Values)
+		values = mistutils.ListOfStringSdkToTerraform(data.Values)
 	}
 	if data.VlanId != nil {
 		vlanId = types.StringValue(data.VlanId.String())

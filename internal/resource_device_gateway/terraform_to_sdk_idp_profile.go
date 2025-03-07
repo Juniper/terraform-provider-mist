@@ -3,7 +3,7 @@ package resource_device_gateway
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -29,10 +29,10 @@ func idpProfileMatchingTerraformToSdk(ctx context.Context, d basetypes.ObjectVal
 		plan := NewIpdProfileOverwriteMatchingValueMust(d.AttributeTypes(ctx), d.Attributes())
 
 		if !plan.AttackName.IsNull() && !plan.AttackName.IsUnknown() {
-			data.AttackName = misttransform.ListOfStringTerraformToSdk(plan.AttackName)
+			data.AttackName = mistutils.ListOfStringTerraformToSdk(plan.AttackName)
 		}
 		if !plan.DstSubnet.IsNull() && !plan.DstSubnet.IsUnknown() {
-			data.DstSubnet = misttransform.ListOfStringTerraformToSdk(plan.DstSubnet)
+			data.DstSubnet = mistutils.ListOfStringTerraformToSdk(plan.DstSubnet)
 		}
 		if !plan.Severity.IsNull() && !plan.Severity.IsUnknown() {
 			data.Severity = idpProfileMatchingSeverityTerraformToSdk(plan.Severity)

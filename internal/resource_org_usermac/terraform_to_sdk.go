@@ -1,7 +1,7 @@
 package resource_org_usermac
 
 import (
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -13,7 +13,7 @@ func TerraformToSdk(plan *OrgUsermacModel) (models.UserMac, diag.Diagnostics) {
 	unset := make(map[string]interface{})
 
 	if !plan.Labels.IsNull() && !plan.Labels.IsUnknown() {
-		data.Labels = misttransform.ListOfStringTerraformToSdk(plan.Labels)
+		data.Labels = mistutils.ListOfStringTerraformToSdk(plan.Labels)
 	} else {
 		unset["-labels"] = ""
 	}

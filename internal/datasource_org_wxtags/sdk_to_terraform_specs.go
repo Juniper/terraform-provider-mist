@@ -3,7 +3,7 @@ package datasource_org_wxtags
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -20,7 +20,7 @@ func specsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data []mo
 		dataMapValue := map[string]attr.Value{
 			"port_range": types.StringValue(*v.PortRange),
 			"protocol":   types.StringValue(*v.Protocol),
-			"subnets":    misttransform.ListOfStringSdkToTerraform(v.Subnets),
+			"subnets":    mistutils.ListOfStringSdkToTerraform(v.Subnets),
 		}
 		data, e := NewSpecsValue(SpecsValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)

@@ -3,7 +3,7 @@ package resource_org_wlan
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -74,7 +74,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgWlanModel) (*models.Wlan, diag
 	if plan.ApIds.IsNull() || plan.ApIds.IsUnknown() {
 		unset["-ap_ids"] = ""
 	} else {
-		data.ApIds = models.NewOptional(models.ToPointer(misttransform.ListOfUuidTerraformToSdk(plan.ApIds)))
+		data.ApIds = models.NewOptional(models.ToPointer(mistutils.ListOfUuidTerraformToSdk(plan.ApIds)))
 	}
 
 	if plan.AppLimit.IsNull() || plan.AppLimit.IsUnknown() {
@@ -417,13 +417,13 @@ func TerraformToSdk(ctx context.Context, plan *OrgWlanModel) (*models.Wlan, diag
 	if plan.MxtunnelIds.IsNull() || plan.MxtunnelIds.IsUnknown() {
 		unset["-mxtunnel_ids"] = ""
 	} else {
-		data.MxtunnelIds = misttransform.ListOfStringTerraformToSdk(plan.MxtunnelIds)
+		data.MxtunnelIds = mistutils.ListOfStringTerraformToSdk(plan.MxtunnelIds)
 	}
 
 	if plan.MxtunnelName.IsNull() || plan.MxtunnelName.IsUnknown() {
 		unset["-mxtunnel_name"] = ""
 	} else {
-		data.MxtunnelName = misttransform.ListOfStringTerraformToSdk(plan.MxtunnelName)
+		data.MxtunnelName = mistutils.ListOfStringTerraformToSdk(plan.MxtunnelName)
 	}
 
 	if plan.NoStaticDns.IsNull() || plan.NoStaticDns.IsUnknown() {
@@ -448,19 +448,19 @@ func TerraformToSdk(ctx context.Context, plan *OrgWlanModel) (*models.Wlan, diag
 	if plan.PortalAllowedHostnames.IsNull() || plan.PortalAllowedHostnames.IsUnknown() {
 		unset["-portal_allowed_hostnames"] = ""
 	} else {
-		data.PortalAllowedHostnames = misttransform.ListOfStringTerraformToSdk(plan.PortalAllowedHostnames)
+		data.PortalAllowedHostnames = mistutils.ListOfStringTerraformToSdk(plan.PortalAllowedHostnames)
 	}
 
 	if plan.PortalAllowedSubnets.IsNull() || plan.PortalAllowedSubnets.IsUnknown() {
 		unset["-portal_allowed_subnets"] = ""
 	} else {
-		data.PortalAllowedSubnets = misttransform.ListOfStringTerraformToSdk(plan.PortalAllowedSubnets)
+		data.PortalAllowedSubnets = mistutils.ListOfStringTerraformToSdk(plan.PortalAllowedSubnets)
 	}
 
 	if plan.PortalDeniedHostnames.IsNull() || plan.PortalDeniedHostnames.IsUnknown() {
 		unset["-portal_denied_hostnames"] = ""
 	} else {
-		data.PortalDeniedHostnames = misttransform.ListOfStringTerraformToSdk(plan.PortalDeniedHostnames)
+		data.PortalDeniedHostnames = mistutils.ListOfStringTerraformToSdk(plan.PortalDeniedHostnames)
 	}
 
 	if plan.Qos.IsNull() || plan.Qos.IsUnknown() {
@@ -572,7 +572,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgWlanModel) (*models.Wlan, diag
 	if plan.WxtagIds.IsNull() || plan.WxtagIds.IsUnknown() {
 		unset["-wxtag_ids"] = ""
 	} else {
-		data.WxtagIds = models.NewOptional(models.ToPointer(misttransform.ListOfUuidTerraformToSdk(plan.WxtagIds)))
+		data.WxtagIds = models.NewOptional(models.ToPointer(mistutils.ListOfUuidTerraformToSdk(plan.WxtagIds)))
 	}
 
 	if plan.WxtunnelId.IsNull() || plan.WxtunnelId.IsUnknown() {

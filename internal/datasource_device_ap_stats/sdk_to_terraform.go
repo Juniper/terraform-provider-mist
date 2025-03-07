@@ -4,7 +4,7 @@ import (
 	"context"
 	"math/big"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -139,7 +139,7 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 		id = types.StringValue(d.Id.String())
 	}
 	if d.InactiveWiredVlans != nil {
-		inactiveWiredVlans = misttransform.ListOfIntSdkToTerraform(d.InactiveWiredVlans)
+		inactiveWiredVlans = mistutils.ListOfIntSdkToTerraform(d.InactiveWiredVlans)
 	}
 	if d.IotStat != nil && len(d.IotStat) > 0 {
 		iotStat = iotStatsSdkToTerraform(ctx, diags, d.IotStat)

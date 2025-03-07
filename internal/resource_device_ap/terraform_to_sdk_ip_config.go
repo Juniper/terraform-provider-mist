@@ -1,7 +1,7 @@
 package resource_device_ap
 
 import (
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
@@ -10,10 +10,10 @@ func ipConfigTerraformToSdk(d IpConfigValue) *models.ApIpConfig {
 	data := models.ApIpConfig{}
 
 	if !d.Dns.IsNull() && !d.Dns.IsUnknown() {
-		data.Dns = misttransform.ListOfStringTerraformToSdk(d.Dns)
+		data.Dns = mistutils.ListOfStringTerraformToSdk(d.Dns)
 	}
 	if !d.DnsSuffix.IsNull() && !d.DnsSuffix.IsUnknown() {
-		data.DnsSuffix = misttransform.ListOfStringTerraformToSdk(d.DnsSuffix)
+		data.DnsSuffix = mistutils.ListOfStringTerraformToSdk(d.DnsSuffix)
 	}
 	if d.Gateway.ValueStringPointer() != nil {
 		data.Gateway = d.Gateway.ValueStringPointer()

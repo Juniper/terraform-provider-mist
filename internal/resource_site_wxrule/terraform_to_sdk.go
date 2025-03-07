@@ -1,7 +1,7 @@
 package resource_site_wxrule
 
 import (
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -20,33 +20,33 @@ func TerraformToSdk(plan *SiteWxruleModel) (*models.WxlanRule, diag.Diagnostics)
 	}
 
 	if !plan.ApplyTags.IsNull() && !plan.ApplyTags.IsUnknown() {
-		data.ApplyTags = misttransform.ListOfStringTerraformToSdk(plan.ApplyTags)
+		data.ApplyTags = mistutils.ListOfStringTerraformToSdk(plan.ApplyTags)
 	} else {
 		unset["-apply_tags"] = ""
 	}
 
 	if !plan.BlockedApps.IsNull() && !plan.BlockedApps.IsUnknown() {
-		data.BlockedApps = misttransform.ListOfStringTerraformToSdk(plan.BlockedApps)
+		data.BlockedApps = mistutils.ListOfStringTerraformToSdk(plan.BlockedApps)
 	} else {
 		unset["-blocked_apps"] = ""
 	}
 
 	if !plan.DstAllowWxtags.IsNull() && !plan.DstAllowWxtags.IsUnknown() {
-		data.DstAllowWxtags = misttransform.ListOfStringTerraformToSdk(plan.DstAllowWxtags)
+		data.DstAllowWxtags = mistutils.ListOfStringTerraformToSdk(plan.DstAllowWxtags)
 	}
 	if data.DstAllowWxtags == nil {
 		data.DstAllowWxtags = make([]string, 0)
 	}
 
 	if !plan.DstDenyWxtags.IsNull() && !plan.DstDenyWxtags.IsUnknown() {
-		data.DstDenyWxtags = misttransform.ListOfStringTerraformToSdk(plan.DstDenyWxtags)
+		data.DstDenyWxtags = mistutils.ListOfStringTerraformToSdk(plan.DstDenyWxtags)
 	}
 	if data.DstDenyWxtags == nil {
 		data.DstDenyWxtags = make([]string, 0)
 	}
 
 	if !plan.DstWxtags.IsNull() && !plan.DstWxtags.IsUnknown() {
-		data.DstWxtags = misttransform.ListOfStringTerraformToSdk(plan.DstWxtags)
+		data.DstWxtags = mistutils.ListOfStringTerraformToSdk(plan.DstWxtags)
 	}
 	if data.DstWxtags == nil {
 		data.DstWxtags = make([]string, 0)
@@ -61,7 +61,7 @@ func TerraformToSdk(plan *SiteWxruleModel) (*models.WxlanRule, diag.Diagnostics)
 	}
 
 	if !plan.SrcWxtags.IsNull() && !plan.SrcWxtags.IsUnknown() {
-		data.SrcWxtags = misttransform.ListOfStringTerraformToSdk(plan.SrcWxtags)
+		data.SrcWxtags = mistutils.ListOfStringTerraformToSdk(plan.SrcWxtags)
 	}
 	if data.SrcWxtags == nil {
 		data.SrcWxtags = make([]string, 0)

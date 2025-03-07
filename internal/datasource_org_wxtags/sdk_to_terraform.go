@@ -2,7 +2,8 @@ package datasource_org_wxtags
 
 import (
 	"context"
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -62,7 +63,7 @@ func wxtagSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 		specs = specsSdkToTerraform(ctx, diags, d.Specs)
 	}
 	if d.Values != nil {
-		values = misttransform.ListOfStringSdkToTerraform(d.Values)
+		values = mistutils.ListOfStringSdkToTerraform(d.Values)
 	}
 	if d.VlanId != nil {
 		vlanId = types.StringValue(d.VlanId.String())

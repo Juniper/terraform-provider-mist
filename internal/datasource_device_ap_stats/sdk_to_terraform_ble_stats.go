@@ -3,7 +3,7 @@ package datasource_device_ap_stats
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -84,7 +84,7 @@ func bleStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mod
 		major = types.Int64Value(int64(*d.Major.Value()))
 	}
 	if d.Minors != nil {
-		minors = misttransform.ListOfIntSdkToTerraform(d.Minors)
+		minors = mistutils.ListOfIntSdkToTerraform(d.Minors)
 	}
 	if d.Power.Value() != nil {
 		power = types.Int64Value(int64(*d.Power.Value()))

@@ -3,7 +3,7 @@ package resource_org_deviceprofile_gateway
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -17,7 +17,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgDeviceprofileGatewayModel) (mo
 
 	data.Name = plan.Name.ValueString()
 
-	additionalConfigCmds := misttransform.ListOfStringTerraformToSdk(plan.AdditionalConfigCmds)
+	additionalConfigCmds := mistutils.ListOfStringTerraformToSdk(plan.AdditionalConfigCmds)
 	data.AdditionalConfigCmds = additionalConfigCmds
 
 	if plan.BgpConfig.IsNull() || plan.BgpConfig.IsUnknown() {
@@ -43,13 +43,13 @@ func TerraformToSdk(ctx context.Context, plan *OrgDeviceprofileGatewayModel) (mo
 	if plan.DnsServers.IsNull() || plan.DnsServers.IsUnknown() {
 		unset["-dns_servers"] = ""
 	} else {
-		data.DnsServers = misttransform.ListOfStringTerraformToSdk(plan.DnsServers)
+		data.DnsServers = mistutils.ListOfStringTerraformToSdk(plan.DnsServers)
 	}
 
 	if plan.DnsSuffix.IsNull() || plan.DnsSuffix.IsUnknown() {
 		unset["-dns_suffix"] = ""
 	} else {
-		data.DnsSuffix = misttransform.ListOfStringTerraformToSdk(plan.DnsSuffix)
+		data.DnsSuffix = mistutils.ListOfStringTerraformToSdk(plan.DnsSuffix)
 	}
 
 	if plan.ExtraRoutes.IsNull() || plan.ExtraRoutes.IsUnknown() {
@@ -95,7 +95,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgDeviceprofileGatewayModel) (mo
 	if plan.NtpServers.IsNull() || plan.NtpServers.IsUnknown() {
 		unset["-ntp_servers"] = ""
 	} else {
-		data.NtpServers = misttransform.ListOfStringTerraformToSdk(plan.NtpServers)
+		data.NtpServers = mistutils.ListOfStringTerraformToSdk(plan.NtpServers)
 	}
 
 	if plan.OobIpConfig.IsNull() || plan.OobIpConfig.IsUnknown() {

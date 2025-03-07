@@ -2,7 +2,8 @@ package resource_org_avprofile
 
 import (
 	"context"
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -35,7 +36,7 @@ func SdkToTerraform(_ context.Context, data *models.Avprofile) (OrgAvprofileMode
 		maxFilesize = types.Int64Value(int64(*data.MaxFilesize))
 	}
 	if data.MimeWhitelist != nil {
-		mimeWhitelist = misttransform.ListOfStringSdkToTerraform(data.MimeWhitelist)
+		mimeWhitelist = mistutils.ListOfStringSdkToTerraform(data.MimeWhitelist)
 	}
 
 	name = types.StringValue(data.Name)
@@ -55,7 +56,7 @@ func SdkToTerraform(_ context.Context, data *models.Avprofile) (OrgAvprofileMode
 		}
 	}
 	if data.UrlWhitelist != nil {
-		urlWhitelist = misttransform.ListOfStringSdkToTerraform(data.UrlWhitelist)
+		urlWhitelist = mistutils.ListOfStringSdkToTerraform(data.UrlWhitelist)
 	}
 
 	state.FallbackAction = fallbackAction

@@ -3,7 +3,7 @@ package resource_org_setting
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -27,7 +27,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgSettingModel) (*models.OrgSett
 	}
 
 	if !plan.Cacerts.IsNull() && !plan.Cacerts.IsUnknown() {
-		data.Cacerts = misttransform.ListOfStringTerraformToSdk(plan.Cacerts)
+		data.Cacerts = mistutils.ListOfStringTerraformToSdk(plan.Cacerts)
 	} else {
 		unset["-cacerts"] = ""
 	}

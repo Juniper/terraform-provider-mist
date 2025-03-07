@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func switchMgmtProtecCustomtReSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.ProtectReCustom) basetypes.ListValue {
@@ -20,7 +20,7 @@ func switchMgmtProtecCustomtReSdkToTerraform(ctx context.Context, diags *diag.Di
 
 		var portRange basetypes.StringValue
 		var protocol basetypes.StringValue
-		var subnets = misttransform.ListOfStringSdkToTerraformEmpty()
+		var subnets = mistutils.ListOfStringSdkToTerraformEmpty()
 
 		if d.PortRange != nil {
 			portRange = types.StringValue(*d.PortRange)
@@ -29,7 +29,7 @@ func switchMgmtProtecCustomtReSdkToTerraform(ctx context.Context, diags *diag.Di
 			protocol = types.StringValue(string(*d.Protocol))
 		}
 		if d.Subnets != nil {
-			subnets = misttransform.ListOfStringSdkToTerraform(d.Subnets)
+			subnets = mistutils.ListOfStringSdkToTerraform(d.Subnets)
 		}
 
 		dataMapValue := map[string]attr.Value{
@@ -70,7 +70,7 @@ func switchMgmtProtectReSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 		enabled = types.BoolValue(*d.Enabled)
 	}
 	if d.TrustedHosts != nil {
-		trustedHosts = misttransform.ListOfStringSdkToTerraform(d.TrustedHosts)
+		trustedHosts = mistutils.ListOfStringSdkToTerraform(d.TrustedHosts)
 	}
 
 	dataMapValue := map[string]attr.Value{

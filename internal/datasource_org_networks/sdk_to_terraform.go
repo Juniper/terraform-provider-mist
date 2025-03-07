@@ -2,8 +2,7 @@ package datasource_org_networks
 
 import (
 	"context"
-
-	mistapi "github.com/Juniper/terraform-provider-mist/internal/commons/api_response"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -55,7 +54,7 @@ func networkSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 		subnet = types.StringValue(*d.Subnet6)
 	}
 	if d.VlanId != nil {
-		vlanId = mistapi.VlanAsString(*d.VlanId)
+		vlanId = mistutils.VlanAsString(*d.VlanId)
 	}
 
 	dataMapValue := map[string]attr.Value{

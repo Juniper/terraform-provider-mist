@@ -3,7 +3,7 @@ package resource_site_evpn_topology
 import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
@@ -21,7 +21,7 @@ func switchTerraformToSdk(d basetypes.MapValue) []models.EvpnTopologySwitch {
 			dataItem.Pod = models.ToPointer(int(plan.Pod.ValueInt64()))
 		}
 		if !plan.Pods.IsNull() && !plan.Pods.IsUnknown() {
-			dataItem.Pods = misttransform.ListOfIntTerraformToSdk(plan.Pods)
+			dataItem.Pods = mistutils.ListOfIntTerraformToSdk(plan.Pods)
 		}
 		if !plan.Role.IsNull() && !plan.Role.IsUnknown() {
 			dataItem.Role = models.EvpnTopologySwitchRoleEnum(plan.Role.ValueString())

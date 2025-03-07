@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
@@ -50,7 +50,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteNetworkt
 		aclTags = aclTagsSdkToTerraform(ctx, &diags, data.AclTags)
 	}
 	if data.AdditionalConfigCmds != nil {
-		additionalConfigCmds = misttransform.ListOfStringSdkToTerraform(data.AdditionalConfigCmds)
+		additionalConfigCmds = mistutils.ListOfStringSdkToTerraform(data.AdditionalConfigCmds)
 	}
 	if data.AutoUpgradeLinecard != nil {
 		autoUpgradeLinecard = types.BoolValue(*data.AutoUpgradeLinecard)
@@ -59,10 +59,10 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteNetworkt
 		dhcpSnooping = dhcpSnoopingSdkToTerraform(ctx, &diags, data.DhcpSnooping)
 	}
 	if data.DnsServers != nil {
-		dnsServers = misttransform.ListOfStringSdkToTerraform(data.DnsServers)
+		dnsServers = mistutils.ListOfStringSdkToTerraform(data.DnsServers)
 	}
 	if data.DnsSuffix != nil {
-		dnsSuffix = misttransform.ListOfStringSdkToTerraform(data.DnsSuffix)
+		dnsSuffix = mistutils.ListOfStringSdkToTerraform(data.DnsSuffix)
 	}
 	if data.DisabledSystemDefinedPortUsages != nil {
 		var items []attr.Value
@@ -86,7 +86,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteNetworkt
 		networks = NetworksSdkToTerraform(ctx, &diags, data.Networks)
 	}
 	if data.NtpServers != nil {
-		ntpServers = misttransform.ListOfStringSdkToTerraform(data.NtpServers)
+		ntpServers = mistutils.ListOfStringSdkToTerraform(data.NtpServers)
 	}
 	if data.OspfAreas != nil {
 		ospfAreas = ospfAreasSdkToTerraform(ctx, &diags, data.OspfAreas)

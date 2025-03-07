@@ -1,7 +1,7 @@
 package resource_org_wlan
 
 import (
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -31,7 +31,7 @@ func portalTerraformToSdk(plan PortalValue) *models.WlanPortal {
 		data.AmazonClientSecret = models.NewOptional(plan.AmazonClientSecret.ValueStringPointer())
 	}
 	if !plan.AmazonEmailDomains.IsNull() && !plan.AmazonEmailDomains.IsUnknown() {
-		data.AmazonEmailDomains = misttransform.ListOfStringTerraformToSdk(plan.AmazonEmailDomains)
+		data.AmazonEmailDomains = mistutils.ListOfStringTerraformToSdk(plan.AmazonEmailDomains)
 	}
 	if plan.AmazonEnabled.ValueBoolPointer() != nil {
 		data.AmazonEnabled = plan.AmazonEnabled.ValueBoolPointer()
@@ -94,7 +94,7 @@ func portalTerraformToSdk(plan PortalValue) *models.WlanPortal {
 		data.FacebookClientSecret = models.NewOptional(plan.FacebookClientSecret.ValueStringPointer())
 	}
 	if !plan.FacebookEmailDomains.IsNull() && !plan.MicrosoftEmailDomains.IsUnknown() {
-		data.FacebookEmailDomains = misttransform.ListOfStringTerraformToSdk(plan.FacebookEmailDomains)
+		data.FacebookEmailDomains = mistutils.ListOfStringTerraformToSdk(plan.FacebookEmailDomains)
 	}
 	if plan.FacebookEnabled.ValueBoolPointer() != nil {
 		data.FacebookEnabled = plan.FacebookEnabled.ValueBoolPointer()
@@ -115,7 +115,7 @@ func portalTerraformToSdk(plan PortalValue) *models.WlanPortal {
 		data.GoogleClientSecret = models.NewOptional(plan.GoogleClientSecret.ValueStringPointer())
 	}
 	if !plan.GoogleEmailDomains.IsNull() && !plan.MicrosoftEmailDomains.IsUnknown() {
-		data.GoogleEmailDomains = misttransform.ListOfStringTerraformToSdk(plan.GoogleEmailDomains)
+		data.GoogleEmailDomains = mistutils.ListOfStringTerraformToSdk(plan.GoogleEmailDomains)
 	}
 	if plan.GoogleEnabled.ValueBoolPointer() != nil {
 		data.GoogleEnabled = plan.GoogleEnabled.ValueBoolPointer()
@@ -136,7 +136,7 @@ func portalTerraformToSdk(plan PortalValue) *models.WlanPortal {
 		data.MicrosoftClientSecret = models.NewOptional(plan.MicrosoftClientSecret.ValueStringPointer())
 	}
 	if !plan.MicrosoftEmailDomains.IsNull() && !plan.MicrosoftEmailDomains.IsUnknown() {
-		data.MicrosoftEmailDomains = misttransform.ListOfStringTerraformToSdk(plan.MicrosoftEmailDomains)
+		data.MicrosoftEmailDomains = mistutils.ListOfStringTerraformToSdk(plan.MicrosoftEmailDomains)
 	}
 	if plan.MicrosoftEnabled.ValueBoolPointer() != nil {
 		data.MicrosoftEnabled = plan.MicrosoftEnabled.ValueBoolPointer()
@@ -184,7 +184,7 @@ func portalTerraformToSdk(plan PortalValue) *models.WlanPortal {
 		data.SponsorAutoApprove = plan.SponsorAutoApprove.ValueBoolPointer()
 	}
 	if !plan.SponsorEmailDomains.IsNull() && !plan.SponsorEmailDomains.IsUnknown() {
-		data.SponsorEmailDomains = misttransform.ListOfStringTerraformToSdk(plan.SponsorEmailDomains)
+		data.SponsorEmailDomains = mistutils.ListOfStringTerraformToSdk(plan.SponsorEmailDomains)
 	}
 	if plan.SponsorEnabled.ValueBoolPointer() != nil {
 		data.SponsorEnabled = plan.SponsorEnabled.ValueBoolPointer()

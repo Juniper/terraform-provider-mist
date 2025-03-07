@@ -1,7 +1,7 @@
 package resource_site_setting
 
 import (
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
@@ -10,7 +10,7 @@ func rogueTerraformToSdk(d RogueValue) *models.SiteRogue {
 	data := models.SiteRogue{}
 
 	if !d.AllowedVlanIds.IsNull() && !d.AllowedVlanIds.IsUnknown() {
-		data.AllowedVlanIds = misttransform.ListOfIntTerraformToSdk(d.AllowedVlanIds)
+		data.AllowedVlanIds = mistutils.ListOfIntTerraformToSdk(d.AllowedVlanIds)
 	}
 	if !d.Enabled.IsNull() && !d.Enabled.IsUnknown() {
 		data.Enabled = d.Enabled.ValueBoolPointer()
@@ -31,10 +31,10 @@ func rogueTerraformToSdk(d RogueValue) *models.SiteRogue {
 		data.MinRogueRssi = models.ToPointer(int(d.MinRogueRssi.ValueInt64()))
 	}
 	if !d.WhitelistedBssids.IsNull() && !d.WhitelistedBssids.IsUnknown() {
-		data.WhitelistedBssids = misttransform.ListOfStringTerraformToSdk(d.WhitelistedBssids)
+		data.WhitelistedBssids = mistutils.ListOfStringTerraformToSdk(d.WhitelistedBssids)
 	}
 	if !d.WhitelistedSsids.IsNull() && !d.WhitelistedSsids.IsUnknown() {
-		data.WhitelistedSsids = misttransform.ListOfStringTerraformToSdk(d.WhitelistedSsids)
+		data.WhitelistedSsids = mistutils.ListOfStringTerraformToSdk(d.WhitelistedSsids)
 	}
 	return &data
 }

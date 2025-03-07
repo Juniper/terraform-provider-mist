@@ -1,7 +1,7 @@
 package resource_org_wlantemplate
 
 import (
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -23,7 +23,7 @@ func TerraformToSdk(plan *OrgWlantemplateModel) (*models.Template, diag.Diagnost
 	}
 
 	if !plan.DeviceprofileIds.IsNull() && !plan.DeviceprofileIds.IsUnknown() {
-		data.DeviceprofileIds = misttransform.ListOfUuidTerraformToSdk(plan.DeviceprofileIds)
+		data.DeviceprofileIds = mistutils.ListOfUuidTerraformToSdk(plan.DeviceprofileIds)
 	} else {
 		unset["-deviceprofile_ids"] = ""
 	}

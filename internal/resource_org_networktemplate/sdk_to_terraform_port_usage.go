@@ -2,7 +2,6 @@ package resource_org_networktemplate
 
 import (
 	"context"
-	mistapi "github.com/Juniper/terraform-provider-mist/internal/commons/api_response"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -11,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func portUsageStormControlSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.SwitchPortUsageStormControl) basetypes.ObjectValue {
@@ -63,7 +62,7 @@ func portUsageRulesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 			equals = types.StringValue(*d.Equals)
 		}
 		if d.EqualsAny != nil {
-			equalsAny = misttransform.ListOfStringSdkToTerraform(d.EqualsAny)
+			equalsAny = mistutils.ListOfStringSdkToTerraform(d.EqualsAny)
 		}
 		if d.Expression != nil {
 			expression = types.StringValue(*d.Expression)
@@ -104,7 +103,7 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		var disableAutoneg basetypes.BoolValue
 		var disabled basetypes.BoolValue
 		var duplex basetypes.StringValue
-		var dynamicVlanNetworks = misttransform.ListOfStringSdkToTerraformEmpty()
+		var dynamicVlanNetworks = mistutils.ListOfStringSdkToTerraformEmpty()
 		var enableMacAuth basetypes.BoolValue
 		var enableQos basetypes.BoolValue
 		var guestNetwork basetypes.StringValue
@@ -116,7 +115,7 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		var macLimit basetypes.Int64Value
 		var mode basetypes.StringValue
 		var mtu basetypes.Int64Value
-		var networks = misttransform.ListOfStringSdkToTerraformEmpty()
+		var networks = mistutils.ListOfStringSdkToTerraformEmpty()
 		var persistMac basetypes.BoolValue
 		var poeDisabled basetypes.BoolValue
 		var portAuth basetypes.StringValue
@@ -163,7 +162,7 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 			duplex = types.StringValue(string(*d.Duplex))
 		}
 		if d.DynamicVlanNetworks != nil {
-			dynamicVlanNetworks = misttransform.ListOfStringSdkToTerraform(d.DynamicVlanNetworks)
+			dynamicVlanNetworks = mistutils.ListOfStringSdkToTerraform(d.DynamicVlanNetworks)
 		}
 		if d.EnableMacAuth != nil {
 			enableMacAuth = types.BoolValue(*d.EnableMacAuth)
@@ -199,7 +198,7 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 			mtu = types.Int64Value(int64(*d.Mtu))
 		}
 		if d.Networks != nil {
-			networks = misttransform.ListOfStringSdkToTerraform(d.Networks)
+			networks = mistutils.ListOfStringSdkToTerraform(d.Networks)
 		}
 		if d.PersistMac != nil {
 			persistMac = types.BoolValue(*d.PersistMac)
@@ -214,7 +213,7 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 			portNetwork = types.StringValue(*d.PortNetwork)
 		}
 		if d.ReauthInterval != nil {
-			reauthInterval = mistapi.SwitchPortUsageReauthIntervalAsString(*d.ReauthInterval)
+			reauthInterval = mistutils.SwitchPortUsageReauthIntervalAsString(*d.ReauthInterval)
 		}
 		if d.ResetDefaultWhen != nil {
 			resetDefaultWhen = types.StringValue(string(*d.ResetDefaultWhen))

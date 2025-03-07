@@ -1,7 +1,7 @@
 package resource_org_network
 
 import (
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -14,7 +14,7 @@ func TenantTerraformToSdk(d basetypes.MapValue) map[string]models.NetworkTenant 
 		var vInterface interface{} = v
 		vPlan := vInterface.(TenantsValue)
 		data := models.NetworkTenant{}
-		data.Addresses = misttransform.ListOfStringTerraformToSdk(vPlan.Addresses)
+		data.Addresses = mistutils.ListOfStringTerraformToSdk(vPlan.Addresses)
 		dataMap[k] = data
 	}
 	return dataMap

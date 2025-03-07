@@ -3,7 +3,7 @@ package datasource_const_app_categories
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -40,7 +40,7 @@ func constAppCategorySdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 		map[string]attr.Value{
 			"display":  types.StringValue(d.Display),
 			"filters":  filter,
-			"includes": misttransform.ListOfStringSdkToTerraform(d.Includes),
+			"includes": mistutils.ListOfStringSdkToTerraform(d.Includes),
 			"key":      types.StringValue(d.Key),
 		},
 	)
@@ -49,14 +49,14 @@ func constAppCategorySdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 }
 
 func constAppCategoryFiltersSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.ConstAppCategoryDefinitionFilters) basetypes.ObjectValue {
-	var srx = misttransform.ListOfStringSdkToTerraformEmpty()
-	var ssr = misttransform.ListOfStringSdkToTerraformEmpty()
+	var srx = mistutils.ListOfStringSdkToTerraformEmpty()
+	var ssr = mistutils.ListOfStringSdkToTerraformEmpty()
 
 	if d.Srx != nil {
-		srx = misttransform.ListOfStringSdkToTerraform(d.Srx)
+		srx = mistutils.ListOfStringSdkToTerraform(d.Srx)
 	}
 	if d.Ssr != nil {
-		ssr = misttransform.ListOfStringSdkToTerraform(d.Ssr)
+		ssr = mistutils.ListOfStringSdkToTerraform(d.Ssr)
 	}
 
 	dataMapValue := map[string]attr.Value{

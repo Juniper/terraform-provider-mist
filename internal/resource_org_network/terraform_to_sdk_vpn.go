@@ -3,7 +3,7 @@ package resource_org_network
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -67,7 +67,7 @@ func VpnTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes
 			data.NoReadvertiseToOverlay = plan.NoReadvertiseToOverlay.ValueBoolPointer()
 		}
 		if !plan.OtherVrfs.IsNull() && !plan.OtherVrfs.IsUnknown() {
-			data.OtherVrfs = misttransform.ListOfStringTerraformToSdk(plan.OtherVrfs)
+			data.OtherVrfs = mistutils.ListOfStringTerraformToSdk(plan.OtherVrfs)
 		}
 		if plan.Routed.ValueBoolPointer() != nil {
 			data.Routed = plan.Routed.ValueBoolPointer()

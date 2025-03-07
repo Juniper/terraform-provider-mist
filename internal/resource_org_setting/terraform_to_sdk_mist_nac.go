@@ -3,7 +3,7 @@ package resource_org_setting
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
@@ -19,7 +19,7 @@ func mistNacIdpsTerraformToSdk(diags *diag.Diagnostics, d basetypes.ListValue) [
 		data := models.OrgSettingMistNacIdp{}
 
 		if !plan.ExcludeRealms.IsNull() && !plan.ExcludeRealms.IsUnknown() {
-			data.ExcludeRealms = misttransform.ListOfStringTerraformToSdk(plan.ExcludeRealms)
+			data.ExcludeRealms = mistutils.ListOfStringTerraformToSdk(plan.ExcludeRealms)
 		}
 
 		if plan.Id.ValueStringPointer() != nil {
@@ -32,7 +32,7 @@ func mistNacIdpsTerraformToSdk(diags *diag.Diagnostics, d basetypes.ListValue) [
 		}
 
 		if !plan.UserRealms.IsNull() && !plan.UserRealms.IsUnknown() {
-			data.UserRealms = misttransform.ListOfStringTerraformToSdk(plan.UserRealms)
+			data.UserRealms = mistutils.ListOfStringTerraformToSdk(plan.UserRealms)
 		}
 
 		dataList = append(dataList, data)
@@ -67,7 +67,7 @@ func mistNacTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d MistN
 	data := models.OrgSettingMistNac{}
 
 	if !d.Cacerts.IsNull() && !d.Cacerts.IsUnknown() {
-		data.Cacerts = misttransform.ListOfStringTerraformToSdk(d.Cacerts)
+		data.Cacerts = mistutils.ListOfStringTerraformToSdk(d.Cacerts)
 	}
 
 	if d.DefaultIdpId.ValueStringPointer() != nil {

@@ -1,7 +1,7 @@
 package resource_site_wxtag
 
 import (
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -17,7 +17,7 @@ func specsTerraformToSdk(plan basetypes.ListValue) []models.WxlanTagSpec {
 		data := models.WxlanTagSpec{
 			PortRange: models.ToPointer(p.PortRange.ValueString()),
 			Protocol:  models.ToPointer(p.Protocol.ValueString()),
-			Subnets:   misttransform.ListOfStringTerraformToSdk(p.Subnets),
+			Subnets:   mistutils.ListOfStringTerraformToSdk(p.Subnets),
 		}
 
 		dataList = append(dataList, data)

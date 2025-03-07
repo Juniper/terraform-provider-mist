@@ -2,9 +2,10 @@ package datasource_org_psks
 
 import (
 	"context"
+
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -70,7 +71,7 @@ func pskSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.P
 		mac = types.StringValue(*d.Mac)
 	}
 	if d.Macs != nil {
-		macs = misttransform.ListOfStringSdkToTerraform(d.Macs)
+		macs = mistutils.ListOfStringSdkToTerraform(d.Macs)
 	}
 	if d.MaxUsage != nil {
 		maxUsage = types.Int64Value(int64(*d.MaxUsage))

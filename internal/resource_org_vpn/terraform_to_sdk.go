@@ -2,7 +2,8 @@ package resource_org_vpn
 
 import (
 	"context"
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -52,7 +53,7 @@ func vpnPathsTrafficShapingTerraformToSdk(ctx context.Context, diags *diag.Diagn
 		diags.Append(e...)
 	} else {
 		if !d.ClassPercentage.IsNull() && !d.ClassPercentage.IsUnknown() {
-			data.ClassPercentage = misttransform.ListOfIntTerraformToSdk(d.ClassPercentage)
+			data.ClassPercentage = mistutils.ListOfIntTerraformToSdk(d.ClassPercentage)
 		}
 		if d.Enabled.ValueBoolPointer() != nil {
 			data.Enabled = d.Enabled.ValueBoolPointer()

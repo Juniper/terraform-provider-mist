@@ -2,9 +2,8 @@ package resource_device_switch
 
 import (
 	"context"
-	mistapi "github.com/Juniper/terraform-provider-mist/internal/commons/api_response"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -84,7 +83,7 @@ func localPortConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics,
 			itemObj.Duplex = types.StringValue(string(*d.Duplex))
 		}
 		if d.DynamicVlanNetworks != nil {
-			itemObj.DynamicVlanNetworks = misttransform.ListOfStringSdkToTerraform(d.DynamicVlanNetworks)
+			itemObj.DynamicVlanNetworks = mistutils.ListOfStringSdkToTerraform(d.DynamicVlanNetworks)
 		}
 		if d.EnableMacAuth != nil {
 			itemObj.EnableMacAuth = types.BoolValue(*d.EnableMacAuth)
@@ -117,7 +116,7 @@ func localPortConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics,
 			itemObj.Mtu = types.Int64Value(int64(*d.Mtu))
 		}
 		if d.Networks != nil {
-			itemObj.Networks = misttransform.ListOfStringSdkToTerraform(d.Networks)
+			itemObj.Networks = mistutils.ListOfStringSdkToTerraform(d.Networks)
 		}
 		if d.Note != nil {
 			itemObj.Note = types.StringValue(*d.Note)
@@ -135,7 +134,7 @@ func localPortConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics,
 			itemObj.PortNetwork = types.StringValue(*d.PortNetwork)
 		}
 		if d.ReauthInterval != nil {
-			itemObj.ReauthInterval = mistapi.SwitchPortUsageReauthIntervalAsString(*d.ReauthInterval)
+			itemObj.ReauthInterval = mistutils.SwitchPortUsageReauthIntervalAsString(*d.ReauthInterval)
 		}
 		if d.ServerFailNetwork.Value() != nil {
 			itemObj.ServerFailNetwork = types.StringValue(*d.ServerFailNetwork.Value())

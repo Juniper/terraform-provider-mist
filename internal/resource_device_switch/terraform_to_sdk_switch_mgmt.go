@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
@@ -25,7 +25,7 @@ func switchMgmtProtectReCustomTerraformToSdk(d basetypes.ListValue) []models.Pro
 			dataItem.Protocol = models.ToPointer(models.ProtectReCustomProtocolEnum(itemObj.Protocol.ValueString()))
 		}
 		if !itemObj.Subnets.IsNull() && !itemObj.Subnets.IsUnknown() {
-			dataItem.Subnets = misttransform.ListOfStringTerraformToSdk(itemObj.Subnets)
+			dataItem.Subnets = mistutils.ListOfStringTerraformToSdk(itemObj.Subnets)
 		}
 
 		data = append(data, dataItem)
@@ -59,7 +59,7 @@ func switchMgmtProtectReTerraformToSdk(ctx context.Context, diags *diag.Diagnost
 			data.Enabled = models.ToPointer(itemObj.Enabled.ValueBool())
 		}
 		if !itemObj.TrustedHosts.IsNull() && !itemObj.TrustedHosts.IsUnknown() {
-			data.TrustedHosts = misttransform.ListOfStringTerraformToSdk(itemObj.TrustedHosts)
+			data.TrustedHosts = mistutils.ListOfStringTerraformToSdk(itemObj.TrustedHosts)
 		}
 		return &data
 	}

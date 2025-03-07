@@ -3,7 +3,7 @@ package resource_org_gatewaytemplate
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -20,28 +20,28 @@ func routingPolicyTermActionTerraformToSdk(ctx context.Context, d basetypes.Obje
 			data.Accept = models.ToPointer(plan.Accept.ValueBool())
 		}
 		if !plan.AddCommunity.IsNull() && !plan.AddCommunity.IsUnknown() {
-			data.AddCommunity = misttransform.ListOfStringTerraformToSdk(plan.AddCommunity)
+			data.AddCommunity = mistutils.ListOfStringTerraformToSdk(plan.AddCommunity)
 		}
 		if !plan.AddTargetVrfs.IsNull() && !plan.AddTargetVrfs.IsUnknown() {
-			data.AddTargetVrfs = misttransform.ListOfStringTerraformToSdk(plan.AddTargetVrfs)
+			data.AddTargetVrfs = mistutils.ListOfStringTerraformToSdk(plan.AddTargetVrfs)
 		}
 		if !plan.Community.IsNull() && !plan.Community.IsUnknown() {
-			data.Community = misttransform.ListOfStringTerraformToSdk(plan.Community)
+			data.Community = mistutils.ListOfStringTerraformToSdk(plan.Community)
 		}
 		if !plan.ExcludeAsPath.IsNull() && !plan.ExcludeAsPath.IsUnknown() {
-			data.ExcludeAsPath = misttransform.ListOfStringTerraformToSdk(plan.ExcludeAsPath)
+			data.ExcludeAsPath = mistutils.ListOfStringTerraformToSdk(plan.ExcludeAsPath)
 		}
 		if !plan.ExcludeCommunity.IsNull() && !plan.ExcludeCommunity.IsUnknown() {
-			data.ExcludeCommunity = misttransform.ListOfStringTerraformToSdk(plan.ExcludeCommunity)
+			data.ExcludeCommunity = mistutils.ListOfStringTerraformToSdk(plan.ExcludeCommunity)
 		}
 		if !plan.ExportCommunities.IsNull() && !plan.ExportCommunities.IsUnknown() {
-			data.ExportCommunities = misttransform.ListOfStringTerraformToSdk(plan.ExportCommunities)
+			data.ExportCommunities = mistutils.ListOfStringTerraformToSdk(plan.ExportCommunities)
 		}
 		if plan.LocalPreference.ValueStringPointer() != nil {
 			data.LocalPreference = models.ToPointer(plan.LocalPreference.ValueString())
 		}
 		if !plan.PrependAsPath.IsNull() && !plan.PrependAsPath.IsUnknown() {
-			data.PrependAsPath = misttransform.ListOfStringTerraformToSdk(plan.PrependAsPath)
+			data.PrependAsPath = mistutils.ListOfStringTerraformToSdk(plan.PrependAsPath)
 		}
 		return &data
 	}
@@ -89,19 +89,19 @@ func routingPolicyTermMatchingTerraformToSdk(ctx context.Context, d basetypes.Ob
 	} else {
 		plan := NewRoutingPolicyTermMatchingValueMust(d.AttributeTypes(ctx), d.Attributes())
 		if !plan.AsPath.IsNull() && !plan.AsPath.IsUnknown() {
-			data.AsPath = misttransform.ListOfStringTerraformToSdk(plan.AsPath)
+			data.AsPath = mistutils.ListOfStringTerraformToSdk(plan.AsPath)
 		}
 		if !plan.Community.IsNull() && !plan.Community.IsUnknown() {
-			data.Community = misttransform.ListOfStringTerraformToSdk(plan.Community)
+			data.Community = mistutils.ListOfStringTerraformToSdk(plan.Community)
 		}
 		if !plan.Network.IsNull() && !plan.Network.IsUnknown() {
-			data.Network = misttransform.ListOfStringTerraformToSdk(plan.Network)
+			data.Network = mistutils.ListOfStringTerraformToSdk(plan.Network)
 		}
 		if !plan.Prefix.IsNull() && !plan.Prefix.IsUnknown() {
-			data.Prefix = misttransform.ListOfStringTerraformToSdk(plan.Prefix)
+			data.Prefix = mistutils.ListOfStringTerraformToSdk(plan.Prefix)
 		}
 		if !plan.Protocol.IsNull() && !plan.Protocol.IsUnknown() {
-			data.Protocol = misttransform.ListOfStringTerraformToSdk(plan.Protocol)
+			data.Protocol = mistutils.ListOfStringTerraformToSdk(plan.Protocol)
 		}
 
 		if !plan.RouteExists.IsNull() && !plan.RouteExists.IsUnknown() {
@@ -109,10 +109,10 @@ func routingPolicyTermMatchingTerraformToSdk(ctx context.Context, d basetypes.Ob
 		}
 
 		if !plan.VpnNeighborMac.IsNull() && !plan.VpnNeighborMac.IsUnknown() {
-			data.VpnNeighborMac = misttransform.ListOfStringTerraformToSdk(plan.VpnNeighborMac)
+			data.VpnNeighborMac = mistutils.ListOfStringTerraformToSdk(plan.VpnNeighborMac)
 		}
 		if !plan.VpnPath.IsNull() && !plan.VpnPath.IsUnknown() {
-			data.VpnPath = misttransform.ListOfStringTerraformToSdk(plan.VpnPath)
+			data.VpnPath = mistutils.ListOfStringTerraformToSdk(plan.VpnPath)
 		}
 
 		if !plan.VpnPathSla.IsNull() && !plan.VpnPathSla.IsUnknown() {

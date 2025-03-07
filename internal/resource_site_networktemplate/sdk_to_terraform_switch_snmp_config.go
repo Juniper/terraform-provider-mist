@@ -3,7 +3,7 @@ package resource_site_networktemplate
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -20,13 +20,13 @@ func snmpClientListSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 	for _, d := range l {
 
 		var clientListName basetypes.StringValue
-		var clients = misttransform.ListOfStringSdkToTerraformEmpty()
+		var clients = mistutils.ListOfStringSdkToTerraformEmpty()
 
 		if d.ClientListName != nil {
 			clientListName = types.StringValue(*d.ClientListName)
 		}
 		if d.Clients != nil {
-			clients = misttransform.ListOfStringSdkToTerraform(d.Clients)
+			clients = mistutils.ListOfStringSdkToTerraform(d.Clients)
 		}
 
 		dataMapValue := map[string]attr.Value{
@@ -48,19 +48,19 @@ func snmpClientListSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 func snmpTrapGroupsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.SnmpConfigTrapGroup) basetypes.ListValue {
 	var dataList []TrapGroupsValue
 	for _, d := range l {
-		var categories = misttransform.ListOfStringSdkToTerraformEmpty()
+		var categories = mistutils.ListOfStringSdkToTerraformEmpty()
 		var groupName basetypes.StringValue
-		var targets = misttransform.ListOfStringSdkToTerraformEmpty()
+		var targets = mistutils.ListOfStringSdkToTerraformEmpty()
 		var version basetypes.StringValue
 
 		if d.Categories != nil {
-			categories = misttransform.ListOfStringSdkToTerraform(d.Categories)
+			categories = mistutils.ListOfStringSdkToTerraform(d.Categories)
 		}
 		if d.GroupName != nil {
 			groupName = types.StringValue(*d.GroupName)
 		}
 		if d.Targets != nil {
-			targets = misttransform.ListOfStringSdkToTerraform(d.Targets)
+			targets = mistutils.ListOfStringSdkToTerraform(d.Targets)
 		}
 		if d.Version != nil {
 			version = types.StringValue(string(*d.Version))

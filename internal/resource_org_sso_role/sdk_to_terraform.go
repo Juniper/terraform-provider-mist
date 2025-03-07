@@ -3,7 +3,7 @@ package resource_org_sso_role
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -41,7 +41,7 @@ func privilegesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data
 		var scope types.String
 		var siteId types.String
 		var sitegroupId types.String
-		var views = misttransform.ListOfStringSdkToTerraformEmpty()
+		var views = mistutils.ListOfStringSdkToTerraformEmpty()
 
 		role = types.StringValue(string(v.Role))
 		scope = types.StringValue(string(v.Scope))

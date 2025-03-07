@@ -1,7 +1,7 @@
 package resource_org_deviceprofile_gateway
 
 import (
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -30,10 +30,10 @@ func pathPreferencePathsTerraformToSdk(d basetypes.ListValue) []models.GatewayPa
 			data.Name = models.ToPointer(plan.Name.ValueString())
 		}
 		if !plan.Networks.IsNull() && !plan.Networks.IsUnknown() {
-			data.Networks = misttransform.ListOfStringTerraformToSdk(plan.Networks)
+			data.Networks = mistutils.ListOfStringTerraformToSdk(plan.Networks)
 		}
 		if !plan.TargetIps.IsNull() && !plan.TargetIps.IsUnknown() {
-			data.TargetIps = misttransform.ListOfStringTerraformToSdk(plan.TargetIps)
+			data.TargetIps = mistutils.ListOfStringTerraformToSdk(plan.TargetIps)
 		}
 		if plan.PathsType.ValueStringPointer() != nil {
 			data.Type = models.ToPointer(models.GatewayPathTypeEnum(plan.PathsType.ValueString()))

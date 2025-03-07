@@ -3,8 +3,7 @@ package resource_org_network
 import (
 	"context"
 
-	mistapi "github.com/Juniper/terraform-provider-mist/internal/commons/api_response"
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -63,7 +62,7 @@ func SdkToTerraform(ctx context.Context, data models.Network) (OrgNetworkModel, 
 		orgId = types.StringValue(data.OrgId.String())
 	}
 	if data.RoutedForNetworks != nil {
-		routedForNetworks = misttransform.ListOfStringSdkToTerraform(data.RoutedForNetworks)
+		routedForNetworks = mistutils.ListOfStringSdkToTerraform(data.RoutedForNetworks)
 	}
 	if data.Subnet != nil {
 		subnet = types.StringValue(*data.Subnet)
@@ -75,7 +74,7 @@ func SdkToTerraform(ctx context.Context, data models.Network) (OrgNetworkModel, 
 		tenants = TenantSdkToTerraform(ctx, &diags, data.Tenants)
 	}
 	if data.VlanId != nil {
-		vlanId = mistapi.VlanAsString(*data.VlanId)
+		vlanId = mistutils.VlanAsString(*data.VlanId)
 	}
 	if data.VpnAccess != nil && len(data.VpnAccess) > 0 {
 		vpnAccess = VpnSdkToTerraform(ctx, &diags, data.VpnAccess)

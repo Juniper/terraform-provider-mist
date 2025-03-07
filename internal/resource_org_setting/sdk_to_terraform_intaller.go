@@ -3,7 +3,7 @@ package resource_org_setting
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -15,7 +15,7 @@ import (
 func installerSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.OrgSettingInstaller) InstallerValue {
 	var allowAllDevices basetypes.BoolValue
 	var allowAllSites basetypes.BoolValue
-	var extraSiteIds = misttransform.ListOfUuidSdkToTerraformEmpty()
+	var extraSiteIds = mistutils.ListOfUuidSdkToTerraformEmpty()
 	var gracePeriod basetypes.Int64Value
 
 	if d.AllowAllDevices != nil {
@@ -25,7 +25,7 @@ func installerSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mo
 		allowAllSites = types.BoolValue(*d.AllowAllSites)
 	}
 	if d.ExtraSiteIds != nil {
-		extraSiteIds = misttransform.ListOfUuidSdkToTerraform(d.ExtraSiteIds)
+		extraSiteIds = mistutils.ListOfUuidSdkToTerraform(d.ExtraSiteIds)
 	}
 	if d.GracePeriod != nil {
 		gracePeriod = types.Int64Value(int64(*d.GracePeriod))

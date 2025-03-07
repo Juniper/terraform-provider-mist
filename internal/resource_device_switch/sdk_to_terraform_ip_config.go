@@ -3,7 +3,7 @@ package resource_device_switch
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -14,8 +14,8 @@ import (
 )
 
 func ipConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.JunosIpConfig) IpConfigValue {
-	var dns = misttransform.ListOfStringSdkToTerraformEmpty()
-	var dnsSuffix = misttransform.ListOfStringSdkToTerraformEmpty()
+	var dns = mistutils.ListOfStringSdkToTerraformEmpty()
+	var dnsSuffix = mistutils.ListOfStringSdkToTerraformEmpty()
 	var gateway basetypes.StringValue
 	var ip basetypes.StringValue
 	var netmask basetypes.StringValue
@@ -23,10 +23,10 @@ func ipConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mod
 	var type4 basetypes.StringValue
 
 	if d.Dns != nil {
-		dns = misttransform.ListOfStringSdkToTerraform(d.Dns)
+		dns = mistutils.ListOfStringSdkToTerraform(d.Dns)
 	}
 	if d.DnsSuffix != nil {
-		dnsSuffix = misttransform.ListOfStringSdkToTerraform(d.DnsSuffix)
+		dnsSuffix = mistutils.ListOfStringSdkToTerraform(d.DnsSuffix)
 	}
 	if d.Gateway != nil {
 		gateway = types.StringValue(*d.Gateway)

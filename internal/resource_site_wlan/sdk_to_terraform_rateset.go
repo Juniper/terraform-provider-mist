@@ -3,7 +3,7 @@ package resource_site_wlan
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -15,7 +15,7 @@ func bandRatesetSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d mo
 	var eht basetypes.StringValue
 	var he basetypes.StringValue
 	var ht basetypes.StringValue
-	var legacy = misttransform.ListOfStringSdkToTerraformEmpty()
+	var legacy = mistutils.ListOfStringSdkToTerraformEmpty()
 	var minRssi basetypes.Int64Value
 	var template basetypes.StringValue
 	var vht basetypes.StringValue

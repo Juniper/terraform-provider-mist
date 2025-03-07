@@ -3,7 +3,7 @@ package resource_org_service
 import (
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
@@ -37,22 +37,22 @@ func TerraformToSdk(plan *OrgServiceModel) (models.Service, diag.Diagnostics) {
 	data.Specs = specSpecsTerraformToSdk(plan.Specs)
 
 	if !plan.Addresses.IsNull() && !plan.Addresses.IsUnknown() {
-		data.Addresses = misttransform.ListOfStringTerraformToSdk(plan.Addresses)
+		data.Addresses = mistutils.ListOfStringTerraformToSdk(plan.Addresses)
 	} else {
 		unset["-addresses"] = ""
 	}
 	if !plan.AppCategories.IsNull() && !plan.AppCategories.IsUnknown() {
-		data.AppCategories = misttransform.ListOfStringTerraformToSdk(plan.AppCategories)
+		data.AppCategories = mistutils.ListOfStringTerraformToSdk(plan.AppCategories)
 	} else {
 		unset["-app_categories"] = ""
 	}
 	if !plan.AppSubcategories.IsNull() && !plan.AppSubcategories.IsUnknown() {
-		data.AppSubcategories = misttransform.ListOfStringTerraformToSdk(plan.AppSubcategories)
+		data.AppSubcategories = mistutils.ListOfStringTerraformToSdk(plan.AppSubcategories)
 	} else {
 		unset["-app_subcategories"] = ""
 	}
 	if !plan.Apps.IsNull() && !plan.Apps.IsUnknown() {
-		data.Apps = misttransform.ListOfStringTerraformToSdk(plan.Apps)
+		data.Apps = mistutils.ListOfStringTerraformToSdk(plan.Apps)
 	} else {
 		unset["-apps"] = ""
 	}
@@ -82,7 +82,7 @@ func TerraformToSdk(plan *OrgServiceModel) (models.Service, diag.Diagnostics) {
 		unset["-failover_policy"] = ""
 	}
 	if !plan.Hostnames.IsNull() && !plan.Hostnames.IsUnknown() {
-		data.Hostnames = misttransform.ListOfStringTerraformToSdk(plan.Hostnames)
+		data.Hostnames = mistutils.ListOfStringTerraformToSdk(plan.Hostnames)
 	} else {
 		unset["-hostnames"] = ""
 	}
@@ -137,7 +137,7 @@ func TerraformToSdk(plan *OrgServiceModel) (models.Service, diag.Diagnostics) {
 		unset["-type"] = ""
 	}
 	if !plan.Urls.IsNull() && !plan.Urls.IsUnknown() {
-		data.Urls = misttransform.ListOfStringTerraformToSdk(plan.Urls)
+		data.Urls = mistutils.ListOfStringTerraformToSdk(plan.Urls)
 	} else {
 		unset["-urls"] = ""
 	}

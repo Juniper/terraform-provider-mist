@@ -8,8 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	mistapi "github.com/Juniper/terraform-provider-mist/internal/commons/api_response"
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
@@ -39,7 +38,7 @@ func wanProbeOverridePortConfigIpConfigSdkToTerraform(ctx context.Context, diags
 	var probeProfile basetypes.StringValue
 
 	if g != nil && g.Ips != nil {
-		ips = misttransform.ListOfStringSdkToTerraform(g.Ips)
+		ips = mistutils.ListOfStringSdkToTerraform(g.Ips)
 	}
 	if g != nil && g.ProbeProfile != nil {
 		probeProfile = types.StringValue(string(*g.ProbeProfile))
@@ -68,10 +67,10 @@ func portConfigIpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 	var ipConfigType = types.StringValue("dhcp")
 
 	if g != nil && g.Dns != nil {
-		dns = misttransform.ListOfStringSdkToTerraform(g.Dns)
+		dns = mistutils.ListOfStringSdkToTerraform(g.Dns)
 	}
 	if g != nil && g.DnsSuffix != nil {
-		dnsSuffix = misttransform.ListOfStringSdkToTerraform(g.DnsSuffix)
+		dnsSuffix = mistutils.ListOfStringSdkToTerraform(g.DnsSuffix)
 	}
 	if g != nil && g.Gateway != nil {
 		gateway = types.StringValue(*g.Gateway)
@@ -118,12 +117,12 @@ func portConfigIpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 }
 
 func portConfigTrafficShapingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, g *models.GatewayTrafficShaping) basetypes.ObjectValue {
-	var classPercentages = misttransform.ListOfIntSdkToTerraformEmpty()
+	var classPercentages = mistutils.ListOfIntSdkToTerraformEmpty()
 	var enabled = types.BoolValue(false)
 	var maxTxKbps basetypes.Int64Value
 
 	if g != nil && g.ClassPercentages != nil {
-		classPercentages = misttransform.ListOfIntSdkToTerraform(g.ClassPercentages)
+		classPercentages = mistutils.ListOfIntSdkToTerraform(g.ClassPercentages)
 	}
 	if g != nil && g.Enabled != nil {
 		enabled = types.BoolValue(*g.Enabled)
@@ -236,7 +235,7 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 		var lteUsername basetypes.StringValue
 		var mtu basetypes.Int64Value
 		var name basetypes.StringValue
-		var networks = misttransform.ListOfStringSdkToTerraform(v.Networks)
+		var networks = mistutils.ListOfStringSdkToTerraform(v.Networks)
 		var outerVlanId basetypes.Int64Value
 		var poeDisabled = types.BoolValue(false)
 		var portNetwork basetypes.StringValue
@@ -245,7 +244,7 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 		var redundantGroup basetypes.Int64Value
 		var rethIdx basetypes.Int64Value
 		var rethNode basetypes.StringValue
-		var rethNodes = misttransform.ListOfStringSdkToTerraform(v.RethNodes)
+		var rethNodes = mistutils.ListOfStringSdkToTerraform(v.RethNodes)
 		var speed = types.StringValue("auto")
 		var ssrNoVirtualMac = types.BoolValue(false)
 		var svrPortRange = types.StringValue("none")
@@ -358,7 +357,7 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 			trafficShaping = portConfigTrafficShapingSdkToTerraform(ctx, diags, v.TrafficShaping)
 		}
 		if v.VlanId != nil {
-			vlanId = mistapi.GatewayVlanAsString(*v.VlanId)
+			vlanId = mistutils.GatewayVlanAsString(*v.VlanId)
 		}
 		if v.VpnPaths != nil && len(v.VpnPaths) > 0 {
 			vpnPaths = portConfigVpnPathsSdkToTerraform(ctx, diags, v.VpnPaths)
@@ -373,7 +372,7 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 			wanExtraRoutes = wanExtraRoutesPortConfigIpConfigSdkToTerraform(ctx, diags, v.WanExtraRoutes)
 		}
 		if v.WanNetworks != nil && len(v.WanNetworks) > 0 {
-			wanNetworks = misttransform.ListOfStringSdkToTerraform(v.WanNetworks)
+			wanNetworks = mistutils.ListOfStringSdkToTerraform(v.WanNetworks)
 		}
 		if v.WanProbeOverride != nil {
 			wanProbeOverride = wanProbeOverridePortConfigIpConfigSdkToTerraform(ctx, diags, v.WanProbeOverride)

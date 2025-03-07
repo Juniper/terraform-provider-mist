@@ -3,7 +3,7 @@ package resource_site_networktemplate
 import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
@@ -60,7 +60,7 @@ func vrfInstancesTerraformToSdk(d basetypes.MapValue) map[string]models.SwitchVr
 			dataItem.EvpnAutoLoopbackSubnet6 = itemObj.EvpnAutoLoopbackSubnet6.ValueStringPointer()
 		}
 		if !itemObj.Networks.IsNull() && !itemObj.Networks.IsUnknown() {
-			dataItem.Networks = misttransform.ListOfStringTerraformToSdk(itemObj.Networks)
+			dataItem.Networks = mistutils.ListOfStringTerraformToSdk(itemObj.Networks)
 		}
 		if !itemObj.VrfExtraRoutes.IsNull() && !itemObj.VrfExtraRoutes.IsUnknown() {
 			dataItem.ExtraRoutes = vrfInstanceExtraRouteTerraformToSdk(itemObj.VrfExtraRoutes)

@@ -3,7 +3,7 @@ package resource_org_networktemplate
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -47,18 +47,18 @@ func aclTagsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[s
 	stateValueMapValue := make(map[string]attr.Value)
 	for k, d := range m {
 		var gbpTag basetypes.Int64Value
-		var macs = misttransform.ListOfStringSdkToTerraformEmpty()
+		var macs = mistutils.ListOfStringSdkToTerraformEmpty()
 		var network basetypes.StringValue
 		var radiusGroup basetypes.StringValue
 		var specs = types.ListNull(SpecsValue{}.Type(ctx))
-		var subnets = misttransform.ListOfStringSdkToTerraformEmpty()
+		var subnets = mistutils.ListOfStringSdkToTerraformEmpty()
 		var tagType = types.StringValue(string(d.Type))
 
 		if d.GbpTag != nil {
 			gbpTag = types.Int64Value(int64(*d.GbpTag))
 		}
 		if d.Macs != nil {
-			macs = misttransform.ListOfStringSdkToTerraform(d.Macs)
+			macs = mistutils.ListOfStringSdkToTerraform(d.Macs)
 		}
 		if d.Network != nil {
 			network = types.StringValue(*d.Network)
@@ -70,7 +70,7 @@ func aclTagsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[s
 			specs = aclTagSpecsSdkToTerraform(ctx, diags, d.Specs)
 		}
 		if d.Subnets != nil {
-			subnets = misttransform.ListOfStringSdkToTerraform(d.Subnets)
+			subnets = mistutils.ListOfStringSdkToTerraform(d.Subnets)
 		}
 
 		dataMapValue := map[string]attr.Value{

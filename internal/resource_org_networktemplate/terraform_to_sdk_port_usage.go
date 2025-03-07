@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/google/uuid"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -49,7 +49,7 @@ func portUsageRulesTerraformToSdk(d basetypes.ListValue) []models.SwitchPortUsag
 			rule.Equals = models.ToPointer(vPlan.Equals.ValueString())
 		}
 		if !vPlan.EqualsAny.IsNull() && !vPlan.EqualsAny.IsUnknown() {
-			rule.EqualsAny = misttransform.ListOfStringTerraformToSdk(vPlan.EqualsAny)
+			rule.EqualsAny = mistutils.ListOfStringTerraformToSdk(vPlan.EqualsAny)
 		}
 		if vPlan.Expression.ValueStringPointer() != nil {
 			rule.Expression = models.ToPointer(vPlan.Expression.ValueString())
@@ -99,7 +99,7 @@ func portUsageTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d bas
 			newPu.Duplex = models.ToPointer(models.SwitchPortUsageDuplexEnum(puAttrValue.Duplex.ValueString()))
 		}
 		if !puAttrValue.DynamicVlanNetworks.IsNull() && !puAttrValue.DynamicVlanNetworks.IsUnknown() {
-			newPu.DynamicVlanNetworks = misttransform.ListOfStringTerraformToSdk(puAttrValue.DynamicVlanNetworks)
+			newPu.DynamicVlanNetworks = mistutils.ListOfStringTerraformToSdk(puAttrValue.DynamicVlanNetworks)
 		}
 		if puAttrValue.EnableMacAuth.ValueBoolPointer() != nil {
 			newPu.EnableMacAuth = models.ToPointer(puAttrValue.EnableMacAuth.ValueBool())
@@ -135,7 +135,7 @@ func portUsageTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d bas
 			newPu.Mtu = models.ToPointer(int(puAttrValue.Mtu.ValueInt64()))
 		}
 		if !puAttrValue.Networks.IsNull() && !puAttrValue.Networks.IsUnknown() {
-			newPu.Networks = misttransform.ListOfStringTerraformToSdk(puAttrValue.Networks)
+			newPu.Networks = mistutils.ListOfStringTerraformToSdk(puAttrValue.Networks)
 		}
 		if puAttrValue.PersistMac.ValueBoolPointer() != nil {
 			newPu.PersistMac = models.ToPointer(puAttrValue.PersistMac.ValueBool())

@@ -2,8 +2,9 @@ package datasource_device_switch_stats
 
 import (
 	"context"
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"math/big"
+
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -28,7 +29,7 @@ func moduleStatCpuSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d
 		interrupt = types.NumberValue(big.NewFloat(*d.Interrupt.Value()))
 	}
 	if d.LoadAvg != nil {
-		loadAvg = misttransform.ListOfNumberSdkToTerraform(d.LoadAvg)
+		loadAvg = mistutils.ListOfNumberSdkToTerraform(d.LoadAvg)
 	}
 	if d.System.Value() != nil {
 		system = types.NumberValue(big.NewFloat(*d.System.Value()))

@@ -2,7 +2,8 @@ package datasource_org_avprofiles
 
 import (
 	"context"
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -48,7 +49,7 @@ func servicepolicieSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 		maxFilesize = types.Int64Value(int64(*d.MaxFilesize))
 	}
 	if d.MimeWhitelist != nil {
-		mimeWhitelist = misttransform.ListOfStringSdkToTerraform(d.MimeWhitelist)
+		mimeWhitelist = mistutils.ListOfStringSdkToTerraform(d.MimeWhitelist)
 	}
 	if d.ModifiedTime != nil {
 		modifiedTime = types.Float64Value(*d.ModifiedTime)
@@ -71,7 +72,7 @@ func servicepolicieSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 		}
 	}
 	if d.UrlWhitelist != nil {
-		urlWhitelist = misttransform.ListOfStringSdkToTerraform(d.UrlWhitelist)
+		urlWhitelist = mistutils.ListOfStringSdkToTerraform(d.UrlWhitelist)
 	}
 
 	dataMapValue := map[string]attr.Value{

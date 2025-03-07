@@ -3,7 +3,7 @@ package resource_org_alarmtemplate
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -27,7 +27,7 @@ func deliveryTerraformToSdk(d DeliveryValue) models.Delivery {
 	var data models.Delivery
 	if !d.IsNull() && !d.IsUnknown() {
 		if !d.AdditionalEmails.IsNull() && !d.AdditionalEmails.IsUnknown() {
-			data.AdditionalEmails = misttransform.ListOfStringTerraformToSdk(d.AdditionalEmails)
+			data.AdditionalEmails = mistutils.ListOfStringTerraformToSdk(d.AdditionalEmails)
 		}
 		data.Enabled = *d.Enabled.ValueBoolPointer()
 		if !d.ToOrgAdmins.IsNull() && !d.ToOrgAdmins.IsUnknown() {

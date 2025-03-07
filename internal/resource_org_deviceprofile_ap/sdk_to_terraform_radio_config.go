@@ -3,7 +3,7 @@ package resource_org_deviceprofile_ap
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -18,7 +18,7 @@ func band24SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *model
 	var antGain basetypes.Int64Value
 	var antennaMode basetypes.StringValue
 	var bandwidth basetypes.Int64Value
-	var channels = misttransform.ListOfIntSdkToTerraformEmpty()
+	var channels = mistutils.ListOfIntSdkToTerraformEmpty()
 	var disabled basetypes.BoolValue
 	var power basetypes.Int64Value
 	var powerMax basetypes.Int64Value
@@ -38,7 +38,7 @@ func band24SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *model
 		bandwidth = types.Int64Value(int64(*d.Bandwidth))
 	}
 	if d.Channels.Value() != nil {
-		channels = misttransform.ListOfIntSdkToTerraform(*d.Channels.Value())
+		channels = mistutils.ListOfIntSdkToTerraform(*d.Channels.Value())
 	}
 	if d.Disabled != nil {
 		disabled = types.BoolValue(*d.Disabled)
@@ -79,7 +79,7 @@ func band5SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	var antGain basetypes.Int64Value
 	var antennaMode basetypes.StringValue
 	var bandwidth basetypes.Int64Value
-	var channels = misttransform.ListOfIntSdkToTerraformEmpty()
+	var channels = mistutils.ListOfIntSdkToTerraformEmpty()
 	var disabled basetypes.BoolValue
 	var power basetypes.Int64Value
 	var powerMax basetypes.Int64Value
@@ -99,7 +99,7 @@ func band5SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 		bandwidth = types.Int64Value(int64(*d.Bandwidth))
 	}
 	if d.Channels.Value() != nil {
-		channels = misttransform.ListOfIntSdkToTerraform(*d.Channels.Value())
+		channels = mistutils.ListOfIntSdkToTerraform(*d.Channels.Value())
 	}
 	if d.Disabled != nil {
 		disabled = types.BoolValue(*d.Disabled)
@@ -140,7 +140,7 @@ func band6SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	var antGain basetypes.Int64Value
 	var antennaMode basetypes.StringValue
 	var bandwidth basetypes.Int64Value
-	var channels = misttransform.ListOfIntSdkToTerraformEmpty()
+	var channels = mistutils.ListOfIntSdkToTerraformEmpty()
 	var disabled basetypes.BoolValue
 	var power basetypes.Int64Value
 	var powerMax basetypes.Int64Value
@@ -161,7 +161,7 @@ func band6SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 		bandwidth = types.Int64Value(int64(*d.Bandwidth))
 	}
 	if d.Channels.Value() != nil {
-		channels = misttransform.ListOfIntSdkToTerraform(*d.Channels.Value())
+		channels = mistutils.ListOfIntSdkToTerraform(*d.Channels.Value())
 	}
 	if d.Disabled != nil {
 		disabled = types.BoolValue(*d.Disabled)
