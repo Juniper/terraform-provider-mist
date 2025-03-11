@@ -30,8 +30,8 @@ func bgpConfigNeighborsTerraformToSdk(d basetypes.MapValue) map[string]models.Bg
 		if plan.MultihopTtl.ValueInt64Pointer() != nil {
 			data.MultihopTtl = models.ToPointer(int(plan.MultihopTtl.ValueInt64()))
 		}
-		if plan.NeighborAs.ValueInt64Pointer() != nil {
-			data.NeighborAs = models.ToPointer(int(plan.NeighborAs.ValueInt64()))
+		if plan.NeighborAs.ValueStringPointer() != nil {
+			data.NeighborAs = models.ToPointer(models.BgpAsContainer.FromString(plan.NeighborAs.ValueString()))
 		}
 
 		dataMap[k] = data
@@ -79,11 +79,11 @@ func bgpConfigTerraformToSdk(d basetypes.MapValue) map[string]models.BgpConfig {
 		if plan.ImportPolicy.ValueStringPointer() != nil {
 			data.ImportPolicy = plan.ImportPolicy.ValueStringPointer()
 		}
-		if plan.LocalAs.ValueInt64Pointer() != nil {
-			data.LocalAs = models.ToPointer(int(plan.LocalAs.ValueInt64()))
+		if plan.LocalAs.ValueStringPointer() != nil {
+			data.LocalAs = models.ToPointer(models.BgpAsContainer.FromString(plan.LocalAs.ValueString()))
 		}
-		if plan.NeighborAs.ValueInt64Pointer() != nil {
-			data.NeighborAs = models.ToPointer(int(plan.NeighborAs.ValueInt64()))
+		if plan.NeighborAs.ValueStringPointer() != nil {
+			data.NeighborAs = models.ToPointer(models.BgpAsContainer.FromString(plan.NeighborAs.ValueString()))
 		}
 		if !plan.Neighbors.IsNull() && !plan.Neighbors.IsUnknown() {
 			data.Neighbors = bgpConfigNeighborsTerraformToSdk(plan.Neighbors)

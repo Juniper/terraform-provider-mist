@@ -22,7 +22,7 @@ func bgpConfigNeighborsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 		var holdTime = types.Int64Value(90)
 		var importPolicy basetypes.StringValue
 		var multihopTtl basetypes.Int64Value
-		var neighborAs basetypes.Int64Value
+		var neighborAs basetypes.StringValue
 
 		if d.Disabled != nil {
 			disabled = types.BoolValue(*d.Disabled)
@@ -40,7 +40,7 @@ func bgpConfigNeighborsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 			multihopTtl = types.Int64Value(int64(*d.MultihopTtl))
 		}
 		if d.NeighborAs != nil {
-			neighborAs = types.Int64Value(int64(*d.NeighborAs))
+			neighborAs = mistutils.BgpAsAsString(d.NeighborAs)
 		}
 
 		dataMapValue := map[string]attr.Value{
@@ -75,8 +75,8 @@ func bgpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map
 		var holdTime = types.Int64Value(90)
 		var importBgp basetypes.StringValue
 		var importPolicy basetypes.StringValue
-		var localAs basetypes.Int64Value
-		var neighborAs basetypes.Int64Value
+		var localAs basetypes.StringValue
+		var neighborAs basetypes.StringValue
 		var neighbors = types.MapNull(NeighborsValue{}.Type(ctx))
 		var networks = mistutils.ListOfStringSdkToTerraformEmpty()
 		var noPrivateAs basetypes.BoolValue
@@ -121,10 +121,10 @@ func bgpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map
 			importPolicy = types.StringValue(*d.ImportPolicy)
 		}
 		if d.LocalAs != nil {
-			localAs = types.Int64Value(int64(*d.LocalAs))
+			localAs = mistutils.BgpAsAsString(d.LocalAs)
 		}
-		if d.NeighborAs != nil {
-			neighborAs = types.Int64Value(int64(*d.NeighborAs))
+		if d.NeighborAs != nil && len(d.Neighbors) > 0 {
+			neighborAs = mistutils.BgpAsAsString(d.NeighborAs)
 		}
 		if d.Neighbors != nil && len(d.Neighbors) > 0 {
 			neighbors = bgpConfigNeighborsSdkToTerraform(ctx, diags, d.Neighbors)

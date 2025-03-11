@@ -114,11 +114,27 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Default import policies if no per-neighbor policies defined",
 							MarkdownDescription: "Default import policies if no per-neighbor policies defined",
 						},
-						"local_as": schema.Int64Attribute{
-							Optional: true,
+						"local_as": schema.StringAttribute{
+							Optional:            true,
+							Description:         "Local AS. Value must be in range 1-4294967295 or a variable (e.g. `{{as_variable}}`)",
+							MarkdownDescription: "Local AS. Value must be in range 1-4294967295 or a variable (e.g. `{{as_variable}}`)",
+							Validators: []validator.String{
+								stringvalidator.Any(
+									mistvalidator.ParseInt(1, 4294967295),
+									mistvalidator.ParseVar(),
+								),
+							},
 						},
-						"neighbor_as": schema.Int64Attribute{
-							Optional: true,
+						"neighbor_as": schema.StringAttribute{
+							Optional:            true,
+							Description:         "Neighbor AS. Value must be in range 1-4294967295 or a variable (e.g. `{{as_variable}}`)",
+							MarkdownDescription: "Neighbor AS. Value must be in range 1-4294967295 or a variable (e.g. `{{as_variable}}`)",
+							Validators: []validator.String{
+								stringvalidator.Any(
+									mistvalidator.ParseInt(1, 4294967295),
+									mistvalidator.ParseVar(),
+								),
+							},
 						},
 						"neighbors": schema.MapNestedAttribute{
 							NestedObject: schema.NestedAttributeObject{
@@ -152,8 +168,16 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 											int64validator.Between(0, 255),
 										},
 									},
-									"neighbor_as": schema.Int64Attribute{
-										Optional: true,
+									"neighbor_as": schema.StringAttribute{
+										Optional:            true,
+										Description:         "Neighbor AS. Value must be in range 1-4294967295 or a variable (e.g. `{{as_variable}}`)",
+										MarkdownDescription: "Neighbor AS. Value must be in range 1-4294967295 or a variable (e.g. `{{as_variable}}`)",
+										Validators: []validator.String{
+											stringvalidator.Any(
+												mistvalidator.ParseInt(1, 4294967295),
+												mistvalidator.ParseVar(),
+											),
+										},
 									},
 								},
 								CustomType: NeighborsType{
@@ -2034,9 +2058,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 												AttrTypes: TrafficShapingValue{}.AttributeTypes(ctx),
 											},
 										},
-										Optional:            true,
-										Description:         "Only if the VPN `type`==`hub_spoke`",
-										MarkdownDescription: "Only if the VPN `type`==`hub_spoke`",
+										Optional: true,
 									},
 								},
 								CustomType: VpnPathsType{
@@ -3741,12 +3763,12 @@ func (t BgpConfigType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 		return nil, diags
 	}
 
-	localAsVal, ok := localAsAttribute.(basetypes.Int64Value)
+	localAsVal, ok := localAsAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`local_as expected to be basetypes.Int64Value, was: %T`, localAsAttribute))
+			fmt.Sprintf(`local_as expected to be basetypes.StringValue, was: %T`, localAsAttribute))
 	}
 
 	neighborAsAttribute, ok := attributes["neighbor_as"]
@@ -3759,12 +3781,12 @@ func (t BgpConfigType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 		return nil, diags
 	}
 
-	neighborAsVal, ok := neighborAsAttribute.(basetypes.Int64Value)
+	neighborAsVal, ok := neighborAsAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`neighbor_as expected to be basetypes.Int64Value, was: %T`, neighborAsAttribute))
+			fmt.Sprintf(`neighbor_as expected to be basetypes.StringValue, was: %T`, neighborAsAttribute))
 	}
 
 	neighborsAttribute, ok := attributes["neighbors"]
@@ -4231,12 +4253,12 @@ func NewBgpConfigValue(attributeTypes map[string]attr.Type, attributes map[strin
 		return NewBgpConfigValueUnknown(), diags
 	}
 
-	localAsVal, ok := localAsAttribute.(basetypes.Int64Value)
+	localAsVal, ok := localAsAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`local_as expected to be basetypes.Int64Value, was: %T`, localAsAttribute))
+			fmt.Sprintf(`local_as expected to be basetypes.StringValue, was: %T`, localAsAttribute))
 	}
 
 	neighborAsAttribute, ok := attributes["neighbor_as"]
@@ -4249,12 +4271,12 @@ func NewBgpConfigValue(attributeTypes map[string]attr.Type, attributes map[strin
 		return NewBgpConfigValueUnknown(), diags
 	}
 
-	neighborAsVal, ok := neighborAsAttribute.(basetypes.Int64Value)
+	neighborAsVal, ok := neighborAsAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`neighbor_as expected to be basetypes.Int64Value, was: %T`, neighborAsAttribute))
+			fmt.Sprintf(`neighbor_as expected to be basetypes.StringValue, was: %T`, neighborAsAttribute))
 	}
 
 	neighborsAttribute, ok := attributes["neighbors"]
@@ -4529,8 +4551,8 @@ type BgpConfigValue struct {
 	HoldTime               basetypes.Int64Value  `tfsdk:"hold_time"`
 	Import                 basetypes.StringValue `tfsdk:"import"`
 	ImportPolicy           basetypes.StringValue `tfsdk:"import_policy"`
-	LocalAs                basetypes.Int64Value  `tfsdk:"local_as"`
-	NeighborAs             basetypes.Int64Value  `tfsdk:"neighbor_as"`
+	LocalAs                basetypes.StringValue `tfsdk:"local_as"`
+	NeighborAs             basetypes.StringValue `tfsdk:"neighbor_as"`
 	Neighbors              basetypes.MapValue    `tfsdk:"neighbors"`
 	Networks               basetypes.ListValue   `tfsdk:"networks"`
 	NoPrivateAs            basetypes.BoolValue   `tfsdk:"no_private_as"`
@@ -4560,8 +4582,8 @@ func (v BgpConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 	attrTypes["hold_time"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["import"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["import_policy"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["local_as"] = basetypes.Int64Type{}.TerraformType(ctx)
-	attrTypes["neighbor_as"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["local_as"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["neighbor_as"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["neighbors"] = basetypes.MapType{
 		ElemType: NeighborsValue{}.Type(ctx),
 	}.TerraformType(ctx)
@@ -4833,8 +4855,8 @@ func (v BgpConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 			"hold_time":             basetypes.Int64Type{},
 			"import":                basetypes.StringType{},
 			"import_policy":         basetypes.StringType{},
-			"local_as":              basetypes.Int64Type{},
-			"neighbor_as":           basetypes.Int64Type{},
+			"local_as":              basetypes.StringType{},
+			"neighbor_as":           basetypes.StringType{},
 			"neighbors": basetypes.MapType{
 				ElemType: NeighborsValue{}.Type(ctx),
 			},
@@ -4863,8 +4885,8 @@ func (v BgpConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 		"hold_time":             basetypes.Int64Type{},
 		"import":                basetypes.StringType{},
 		"import_policy":         basetypes.StringType{},
-		"local_as":              basetypes.Int64Type{},
-		"neighbor_as":           basetypes.Int64Type{},
+		"local_as":              basetypes.StringType{},
+		"neighbor_as":           basetypes.StringType{},
 		"neighbors": basetypes.MapType{
 			ElemType: NeighborsValue{}.Type(ctx),
 		},
@@ -5045,8 +5067,8 @@ func (v BgpConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Type
 		"hold_time":             basetypes.Int64Type{},
 		"import":                basetypes.StringType{},
 		"import_policy":         basetypes.StringType{},
-		"local_as":              basetypes.Int64Type{},
-		"neighbor_as":           basetypes.Int64Type{},
+		"local_as":              basetypes.StringType{},
+		"neighbor_as":           basetypes.StringType{},
 		"neighbors": basetypes.MapType{
 			ElemType: NeighborsValue{}.Type(ctx),
 		},
@@ -5188,12 +5210,12 @@ func (t NeighborsType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 		return nil, diags
 	}
 
-	neighborAsVal, ok := neighborAsAttribute.(basetypes.Int64Value)
+	neighborAsVal, ok := neighborAsAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`neighbor_as expected to be basetypes.Int64Value, was: %T`, neighborAsAttribute))
+			fmt.Sprintf(`neighbor_as expected to be basetypes.StringValue, was: %T`, neighborAsAttribute))
 	}
 
 	if diags.HasError() {
@@ -5374,12 +5396,12 @@ func NewNeighborsValue(attributeTypes map[string]attr.Type, attributes map[strin
 		return NewNeighborsValueUnknown(), diags
 	}
 
-	neighborAsVal, ok := neighborAsAttribute.(basetypes.Int64Value)
+	neighborAsVal, ok := neighborAsAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`neighbor_as expected to be basetypes.Int64Value, was: %T`, neighborAsAttribute))
+			fmt.Sprintf(`neighbor_as expected to be basetypes.StringValue, was: %T`, neighborAsAttribute))
 	}
 
 	if diags.HasError() {
@@ -5470,7 +5492,7 @@ type NeighborsValue struct {
 	HoldTime     basetypes.Int64Value  `tfsdk:"hold_time"`
 	ImportPolicy basetypes.StringValue `tfsdk:"import_policy"`
 	MultihopTtl  basetypes.Int64Value  `tfsdk:"multihop_ttl"`
-	NeighborAs   basetypes.Int64Value  `tfsdk:"neighbor_as"`
+	NeighborAs   basetypes.StringValue `tfsdk:"neighbor_as"`
 	state        attr.ValueState
 }
 
@@ -5485,7 +5507,7 @@ func (v NeighborsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 	attrTypes["hold_time"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["import_policy"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["multihop_ttl"] = basetypes.Int64Type{}.TerraformType(ctx)
-	attrTypes["neighbor_as"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["neighbor_as"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
@@ -5576,7 +5598,7 @@ func (v NeighborsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 		"hold_time":     basetypes.Int64Type{},
 		"import_policy": basetypes.StringType{},
 		"multihop_ttl":  basetypes.Int64Type{},
-		"neighbor_as":   basetypes.Int64Type{},
+		"neighbor_as":   basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -5658,7 +5680,7 @@ func (v NeighborsValue) AttributeTypes(ctx context.Context) map[string]attr.Type
 		"hold_time":     basetypes.Int64Type{},
 		"import_policy": basetypes.StringType{},
 		"multihop_ttl":  basetypes.Int64Type{},
-		"neighbor_as":   basetypes.Int64Type{},
+		"neighbor_as":   basetypes.StringType{},
 	}
 }
 
