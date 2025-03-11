@@ -50,7 +50,7 @@ Read-Only:
 - `allow_usermac_override` (Boolean) Can be set to true to allow the override by usermac result
 - `created_time` (Number) When the object has been created, in epoch
 - `egress_vlan_names` (List of String) If `type`==`egress_vlan_names`, list of egress vlans to return
-- `gbp_tag` (Number) If `type`==`gbp_tag`
+- `gbp_tag` (String)
 - `id` (String) Unique ID of the object instance in the Mist Organization
 - `match` (String) if `type`==`match`. enum: `cert_cn`, `cert_issuer`, `cert_san`, `cert_serial`, `cert_sub`, `cert_template`, `client_mac`, `idp_role`, `ingress_vlan`, `mdm_status`, `nas_ip`, `radius_group`, `realm`, `ssid`, `user_name`, `usermac_label`
 - `match_all` (Boolean) This field is applicable only when `type`==`match`

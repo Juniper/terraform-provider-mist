@@ -82,7 +82,7 @@ Read-Only:
 - `if_stat` (Attributes Map) Property key is the interface name (see [below for nested schema](#nestedatt--device_switch_stats--if_stat))
 - `ip` (String)
 - `ip_stat` (Attributes) (see [below for nested schema](#nestedatt--device_switch_stats--ip_stat))
-- `last_seen` (Number)
+- `last_seen` (Number) Last seen timestamp
 - `last_trouble` (Attributes) Last trouble code of switch (see [below for nested schema](#nestedatt--device_switch_stats--last_trouble))
 - `mac` (String)
 - `mac_table_stats` (Attributes) (see [below for nested schema](#nestedatt--device_switch_stats--mac_table_stats))
@@ -93,7 +93,7 @@ Read-Only:
 - `module_stat` (Attributes List) (see [below for nested schema](#nestedatt--device_switch_stats--module_stat))
 - `name` (String) Device name if configured
 - `org_id` (String)
-- `ports` (Attributes List) Only present when `ports` in `fields` query parameter. Each port object is same as `GET /api/v1/sites/{site_id}/stats/ports/search` result object, except that org_id, site_id, mac, model are removed (see [below for nested schema](#nestedatt--device_switch_stats--ports))
+- `ports` (Attributes List) (see [below for nested schema](#nestedatt--device_switch_stats--ports))
 - `route_summary_stats` (Attributes) (see [below for nested schema](#nestedatt--device_switch_stats--route_summary_stats))
 - `serial` (String)
 - `service_stat` (Attributes Map) (see [below for nested schema](#nestedatt--device_switch_stats--service_stat))
@@ -189,7 +189,7 @@ Read-Only:
 - `progress` (Number)
 - `status` (String) enum: `inprogress`, `failed`, `upgraded`
 - `status_id` (Number)
-- `timestamp` (Number)
+- `timestamp` (Number) Epoch (seconds)
 - `will_retry` (Boolean)
 
 
@@ -253,7 +253,7 @@ Read-Only:
 Read-Only:
 
 - `code` (String) Code definitions list at [List Ap Led Definition]($e/Constants%20Definitions/listApLedDefinition)
-- `timestamp` (Number)
+- `timestamp` (Number) Epoch (seconds)
 
 
 <a id="nestedatt--device_switch_stats--mac_table_stats"></a>
@@ -286,7 +286,9 @@ Read-Only:
 - `fans` (Attributes List) (see [below for nested schema](#nestedatt--device_switch_stats--module_stat--fans))
 - `fpc_idx` (Number)
 - `fpga_version` (String)
-- `last_seen` (Number)
+- `last_seen` (Number) Last seen timestamp
+- `locating` (Boolean)
+- `mac` (String)
 - `model` (String)
 - `optics_cpld_version` (String)
 - `pending_version` (String)
@@ -409,24 +411,28 @@ Read-Only:
 
 - `active` (Boolean) Indicates if interface is active/inactive
 - `auth_state` (String) if `up`==`true` and has Authenticator role. enum: `authenticated`, `authenticating`, `held`, `init`
+- `disabled` (Boolean) Indicates if interface is disabled
 - `for_site` (Boolean)
 - `full_duplex` (Boolean) Indicates full or half duplex
 - `jitter` (Number) Last sampled jitter of the interface
+- `last_flapped` (Number) Indicates when the port was last flapped
 - `latency` (Number) Last sampled latency of the interface
 - `loss` (Number) Last sampled loss of the interface
 - `lte_iccid` (String) LTE ICCID value, Check for null/empty
 - `lte_imei` (String) LTE IMEI value, Check for null/empty
 - `lte_imsi` (String) LTE IMSI value, Check for null/empty
+- `mac` (String)
 - `mac_count` (Number) Number of mac addresses in the forwarding table
 - `mac_limit` (Number) Limit on number of dynamically learned macs
 - `neighbor_mac` (String) chassis identifier of the chassis type listed
 - `neighbor_port_desc` (String) Description supplied by the system on the interface E.g. "GigabitEthernet2/0/39"
 - `neighbor_system_name` (String) Name supplied by the system on the interface E.g. neighbor system name E.g. "Kumar-Acc-SW.mist.local"
-- `poe_disabled` (Boolean) Is the POE configured not be disabled.
+- `org_id` (String)
+- `poe_disabled` (Boolean) Is the POE disabled
 - `poe_mode` (String) enum: `802.3af`, `802.3at`, `802.3bt`
 - `poe_on` (Boolean) Is the device attached to POE
 - `port_id` (String)
-- `port_mac` (String) Interface mac address
+- `port_mac` (String) Interface MAC address
 - `port_usage` (String) gateway port usage. enum: `lan`
 - `power_draw` (Number) Amount of power being used by the interface at the time the command is executed. Unit in watts.
 - `rx_bcast_pkts` (Number) Broadcast input packets
@@ -435,6 +441,7 @@ Read-Only:
 - `rx_errors` (Number) Input errors
 - `rx_mcast_pkts` (Number) Multicast input packets
 - `rx_pkts` (Number) Rx packets
+- `site_id` (String)
 - `speed` (Number) Port speed
 - `stp_role` (String) if `up`==`true`. enum: `alternate`, `backup`, `designated`, `root`, `root-prevented`
 - `stp_state` (String) if `up`==`true`. enum: `blocking`, `disabled`, `forwarding`, `learning`, `listening`

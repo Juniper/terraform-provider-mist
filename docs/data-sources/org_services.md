@@ -70,6 +70,7 @@ Read-Only:
 - `ssr_relaxed_tcp_state_enforcement` (Boolean)
 - `traffic_class` (String) when `traffic_type`==`custom`. enum: `best_effort`, `high`, `low`, `medium`
 - `traffic_type` (String) values from [List Traffic Types]($e/Constants%20Definitions/listTrafficTypes)
+- `type` (String) enum: `app_categories`, `apps`, `custom`, `urls`
 - `urls` (List of String) When `type`==`urls`, no need for spec as URL can encode the ports being used
 
 <a id="nestedatt--org_services--specs"></a>

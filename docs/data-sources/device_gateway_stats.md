@@ -146,15 +146,15 @@ Read-Only:
 
 - `evpn_overlay` (Boolean) If this is created for evpn overlay
 - `for_overlay` (Boolean) If this is created for overlay
-- `local_as` (Number) AS
+- `local_as` (String)
 - `neighbor` (String)
-- `neighbor_as` (Number)
+- `neighbor_as` (String)
 - `neighbor_mac` (String) If it's another device in the same org
 - `node` (String) Node0/node1
 - `rx_pkts` (Number)
 - `rx_routes` (Number) Number of received routes
 - `state` (String) enum: `active`, `connect`, `established`, `idle`, `open_config`, `open_sent`
-- `timestamp` (Number)
+- `timestamp` (Number) Epoch (seconds)
 - `tx_pkts` (Number)
 - `tx_routes` (Number)
 - `up` (Boolean)
@@ -277,7 +277,7 @@ Read-Only:
 - `progress` (Number)
 - `status` (String) enum: `inprogress`, `failed`, `upgraded`
 - `status_id` (Number)
-- `timestamp` (Number)
+- `timestamp` (Number) Epoch (seconds)
 - `will_retry` (Boolean)
 
 
@@ -413,15 +413,14 @@ Read-Only:
 - `backup_version` (String)
 - `bios_version` (String)
 - `cpld_version` (String)
-- `cpu_stat` (Attributes) (see [below for nested schema](#nestedatt--device_gateway_stats--module2_stat--cpu_stat))
-- `errors` (Attributes List) Used to report all error states the device node is running into. An error should always have `type` and `since` fields, and could have some other fields specific to that type. (see [below for nested schema](#nestedatt--device_gateway_stats--module2_stat--errors))
 - `fans` (Attributes List) (see [below for nested schema](#nestedatt--device_gateway_stats--module2_stat--fans))
 - `fpga_version` (String)
-- `last_seen` (Number)
+- `last_seen` (Number) Last seen timestamp
+- `locating` (Boolean)
+- `mac` (String)
 - `model` (String)
 - `optics_cpld_version` (String)
 - `pending_version` (String)
-- `pics` (Attributes List) (see [below for nested schema](#nestedatt--device_gateway_stats--module2_stat--pics))
 - `poe` (Attributes) (see [below for nested schema](#nestedatt--device_gateway_stats--module2_stat--poe))
 - `poe_version` (String)
 - `power_cpld_version` (String)
@@ -432,7 +431,6 @@ Read-Only:
 - `status` (String)
 - `temperatures` (Attributes List) (see [below for nested schema](#nestedatt--device_gateway_stats--module2_stat--temperatures))
 - `tmc_fpga_version` (String)
-- `type` (String)
 - `uboot_version` (String)
 - `uptime` (Number)
 - `vc_links` (Attributes List) (see [below for nested schema](#nestedatt--device_gateway_stats--module2_stat--vc_links))
@@ -440,30 +438,6 @@ Read-Only:
 - `vc_role` (String) enum: `master`, `backup`, `linecard`
 - `vc_state` (String)
 - `version` (String)
-
-<a id="nestedatt--device_gateway_stats--module2_stat--cpu_stat"></a>
-### Nested Schema for `device_gateway_stats.module2_stat.cpu_stat`
-
-Read-Only:
-
-- `idle` (Number) Percentage of CPU time that is idle
-- `interrupt` (Number) Percentage of CPU time being used by interrupts
-- `load_avg` (List of Number) Load averages for the last 1, 5, and 15 minutes
-- `system` (Number) Percentage of CPU time being used by system processes
-- `user` (Number) Percentage of CPU time being used by user processe
-
-
-<a id="nestedatt--device_gateway_stats--module2_stat--errors"></a>
-### Nested Schema for `device_gateway_stats.module2_stat.errors`
-
-Read-Only:
-
-- `feature` (String)
-- `minimum_version` (String)
-- `reason` (String)
-- `since` (Number)
-- `type` (String)
-
 
 <a id="nestedatt--device_gateway_stats--module2_stat--fans"></a>
 ### Nested Schema for `device_gateway_stats.module2_stat.fans`
@@ -473,25 +447,6 @@ Read-Only:
 - `airflow` (String)
 - `name` (String)
 - `status` (String)
-
-
-<a id="nestedatt--device_gateway_stats--module2_stat--pics"></a>
-### Nested Schema for `device_gateway_stats.module2_stat.pics`
-
-Read-Only:
-
-- `index` (Number)
-- `model_number` (String)
-- `port_groups` (Attributes List) (see [below for nested schema](#nestedatt--device_gateway_stats--module2_stat--pics--port_groups))
-
-<a id="nestedatt--device_gateway_stats--module2_stat--pics--port_groups"></a>
-### Nested Schema for `device_gateway_stats.module2_stat.pics.port_groups`
-
-Read-Only:
-
-- `count` (Number)
-- `type` (String)
-
 
 
 <a id="nestedatt--device_gateway_stats--module2_stat--poe"></a>
@@ -541,15 +496,14 @@ Read-Only:
 - `backup_version` (String)
 - `bios_version` (String)
 - `cpld_version` (String)
-- `cpu_stat` (Attributes) (see [below for nested schema](#nestedatt--device_gateway_stats--module_stat--cpu_stat))
-- `errors` (Attributes List) Used to report all error states the device node is running into. An error should always have `type` and `since` fields, and could have some other fields specific to that type. (see [below for nested schema](#nestedatt--device_gateway_stats--module_stat--errors))
 - `fans` (Attributes List) (see [below for nested schema](#nestedatt--device_gateway_stats--module_stat--fans))
 - `fpga_version` (String)
-- `last_seen` (Number)
+- `last_seen` (Number) Last seen timestamp
+- `locating` (Boolean)
+- `mac` (String)
 - `model` (String)
 - `optics_cpld_version` (String)
 - `pending_version` (String)
-- `pics` (Attributes List) (see [below for nested schema](#nestedatt--device_gateway_stats--module_stat--pics))
 - `poe` (Attributes) (see [below for nested schema](#nestedatt--device_gateway_stats--module_stat--poe))
 - `poe_version` (String)
 - `power_cpld_version` (String)
@@ -560,7 +514,6 @@ Read-Only:
 - `status` (String)
 - `temperatures` (Attributes List) (see [below for nested schema](#nestedatt--device_gateway_stats--module_stat--temperatures))
 - `tmc_fpga_version` (String)
-- `type` (String)
 - `uboot_version` (String)
 - `uptime` (Number)
 - `vc_links` (Attributes List) (see [below for nested schema](#nestedatt--device_gateway_stats--module_stat--vc_links))
@@ -568,30 +521,6 @@ Read-Only:
 - `vc_role` (String) enum: `master`, `backup`, `linecard`
 - `vc_state` (String)
 - `version` (String)
-
-<a id="nestedatt--device_gateway_stats--module_stat--cpu_stat"></a>
-### Nested Schema for `device_gateway_stats.module_stat.cpu_stat`
-
-Read-Only:
-
-- `idle` (Number) Percentage of CPU time that is idle
-- `interrupt` (Number) Percentage of CPU time being used by interrupts
-- `load_avg` (List of Number) Load averages for the last 1, 5, and 15 minutes
-- `system` (Number) Percentage of CPU time being used by system processes
-- `user` (Number) Percentage of CPU time being used by user processe
-
-
-<a id="nestedatt--device_gateway_stats--module_stat--errors"></a>
-### Nested Schema for `device_gateway_stats.module_stat.errors`
-
-Read-Only:
-
-- `feature` (String)
-- `minimum_version` (String)
-- `reason` (String)
-- `since` (Number)
-- `type` (String)
-
 
 <a id="nestedatt--device_gateway_stats--module_stat--fans"></a>
 ### Nested Schema for `device_gateway_stats.module_stat.fans`
@@ -601,25 +530,6 @@ Read-Only:
 - `airflow` (String)
 - `name` (String)
 - `status` (String)
-
-
-<a id="nestedatt--device_gateway_stats--module_stat--pics"></a>
-### Nested Schema for `device_gateway_stats.module_stat.pics`
-
-Read-Only:
-
-- `index` (Number)
-- `model_number` (String)
-- `port_groups` (Attributes List) (see [below for nested schema](#nestedatt--device_gateway_stats--module_stat--pics--port_groups))
-
-<a id="nestedatt--device_gateway_stats--module_stat--pics--port_groups"></a>
-### Nested Schema for `device_gateway_stats.module_stat.pics.port_groups`
-
-Read-Only:
-
-- `count` (Number)
-- `type` (String)
-
 
 
 <a id="nestedatt--device_gateway_stats--module_stat--poe"></a>
@@ -668,6 +578,7 @@ Read-Only:
 
 - `active` (Boolean) Indicates if interface is active/inactive
 - `auth_state` (String) if `up`==`true` and has Authenticator role. enum: `authenticated`, `authenticating`, `held`, `init`
+- `disabled` (Boolean) Indicates if interface is disabled
 - `for_site` (Boolean)
 - `full_duplex` (Boolean) Indicates full or half duplex
 - `jitter` (Number) Last sampled jitter of the interface
@@ -827,7 +738,7 @@ Read-Only:
 Read-Only:
 
 - `is_active` (Boolean) Redundancy status of the associated interface
-- `last_seen` (Number)
+- `last_seen` (Number) Last seen timestamp
 - `latency` (Number)
 - `mos` (Number)
 - `mtu` (Number)

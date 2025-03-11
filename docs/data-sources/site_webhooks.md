@@ -19,7 +19,7 @@ The Webhook can be set up and customized using the Mist API, allowing users to r
 
 ```terraform
 data "mist_site_webhooks" "webhooks" {
-  org_id  = "15fca2ac-b1a6-47cc-9953-cc6906281550"
+  site_id  = "15fca2ac-b1a6-47cc-9953-cc6906281550"
 }
 ```
 

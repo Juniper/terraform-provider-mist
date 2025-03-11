@@ -198,7 +198,7 @@ Read-Only:
 
 Read-Only:
 
-- `dscp` (Number)
+- `dscp` (String)
 - `dst_subnet` (String) Subnet filter is not required but helps AP to only inspect certain traffic (thus reducing AP load)
 - `src_subnet` (String) Subnet filter is not required but helps AP to only inspect certain traffic (thus reducing AP load)
 
@@ -208,7 +208,7 @@ Read-Only:
 
 Read-Only:
 
-- `dscp` (Number)
+- `dscp` (String)
 - `dst_subnet` (String)
 - `port_ranges` (String)
 - `protocol` (String)

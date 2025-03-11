@@ -13,7 +13,7 @@ This data source provide the list of the Org VPNs.
 ## Example Usage
 
 ```terraform
-data "mist_vpns" "vpns" {
+data "mist_org_vpns" "vpns" {
   org_id  = "15fca2ac-b1a6-47cc-9953-cc6906281550"
 }
 ```
@@ -41,6 +41,7 @@ Read-Only:
 - `org_id` (String)
 - `path_selection` (Attributes) Only if `type`==`hub_spoke` (see [below for nested schema](#nestedatt--org_vpns--path_selection))
 - `paths` (Attributes Map) For `type`==`hub_spoke`, Property key is the VPN name. For `type`==`mesh`, Property key is the Interface name (see [below for nested schema](#nestedatt--org_vpns--paths))
+- `type` (String) enum: `hub_spoke`, `mesh`
 
 <a id="nestedatt--org_vpns--path_selection"></a>
 ### Nested Schema for `org_vpns.path_selection`

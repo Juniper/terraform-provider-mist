@@ -108,8 +108,8 @@ Optional:
 - `hold_time` (Number)
 - `import` (String)
 - `import_policy` (String) Default import policies if no per-neighbor policies defined
-- `local_as` (Number)
-- `neighbor_as` (Number)
+- `local_as` (String) Local AS. Value must be in range 1-4294967295 or a variable (e.g. `{{as_variable}}`)
+- `neighbor_as` (String) Neighbor AS. Value must be in range 1-4294967295 or a variable (e.g. `{{as_variable}}`)
 - `neighbors` (Attributes Map) If per-neighbor as is desired. Property key is the neighbor address (see [below for nested schema](#nestedatt--bgp_config--neighbors))
 - `networks` (List of String) If `type`!=`external`or `via`==`wan`networks where we expect BGP neighbor to connect to/from
 - `no_private_as` (Boolean)
@@ -130,7 +130,7 @@ Optional:
 - `hold_time` (Number)
 - `import_policy` (String)
 - `multihop_ttl` (Number) Assuming BGP neighbor is directly connected
-- `neighbor_as` (Number)
+- `neighbor_as` (String) Neighbor AS. Value must be in range 1-4294967295 or a variable (e.g. `{{as_variable}}`)
 
 
 
@@ -551,7 +551,7 @@ Optional:
 - `bfd_use_tunnel_mode` (Boolean) Only if the VPN `type`==`hub_spoke`. Whether to use tunnel mode. SSR only
 - `preference` (Number) Only if the VPN `type`==`hub_spoke`. For a given VPN, when `path_selection.strategy`==`simple`, the preference for a path (lower is preferred)
 - `role` (String) If the VPN `type`==`hub_spoke`, enum: `hub`, `spoke`. If the VPN `type`==`mesh`, enum: `mesh`
-- `traffic_shaping` (Attributes) Only if the VPN `type`==`hub_spoke` (see [below for nested schema](#nestedatt--port_config--vpn_paths--traffic_shaping))
+- `traffic_shaping` (Attributes) (see [below for nested schema](#nestedatt--port_config--vpn_paths--traffic_shaping))
 
 <a id="nestedatt--port_config--vpn_paths--traffic_shaping"></a>
 ### Nested Schema for `port_config.vpn_paths.traffic_shaping`

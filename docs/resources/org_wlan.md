@@ -208,7 +208,7 @@ Optional:
 
 Optional:
 
-- `dscp` (Number)
+- `dscp` (String) DSCP value range between 0 and 63
 - `dst_subnet` (String) Subnet filter is not required but helps AP to only inspect certain traffic (thus reducing AP load)
 - `src_subnet` (String) Subnet filter is not required but helps AP to only inspect certain traffic (thus reducing AP load)
 
@@ -218,7 +218,7 @@ Optional:
 
 Optional:
 
-- `dscp` (Number)
+- `dscp` (String)
 - `dst_subnet` (String)
 - `port_ranges` (String)
 - `protocol` (String)

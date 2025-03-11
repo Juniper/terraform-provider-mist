@@ -233,7 +233,7 @@ Read-Only:
 - `progress` (Number)
 - `status` (String) enum: `inprogress`, `failed`, `upgraded`
 - `status_id` (Number)
-- `timestamp` (Number)
+- `timestamp` (Number) Epoch (seconds)
 - `will_retry` (Boolean)
 
 
@@ -249,7 +249,7 @@ Read-Only:
 - `src` (String) The origin of the GPS data. enum:
   * `gps`: from this device’s GPS estimates
   * `other_ap` from neighboring device GPS estimates
-- `timestamp` (Number) The unix timestamp when the GPS data was recorded.
+- `timestamp` (Number) Epoch (seconds)
 
 
 <a id="nestedatt--device_ap_stats--iot_stat"></a>
@@ -324,7 +324,7 @@ Read-Only:
 Read-Only:
 
 - `code` (String) Code definitions list at [List Ap Led Definition]($e/Constants%20Definitions/listApLedDefinition)
-- `timestamp` (Number)
+- `timestamp` (Number) Epoch (seconds)
 
 
 <a id="nestedatt--device_ap_stats--led"></a>
@@ -363,7 +363,7 @@ Read-Only:
 - `band` (String)
 - `channel` (Number)
 - `idle_time` (Number)
-- `last_seen` (Number)
+- `last_seen` (Number) Last seen timestamp
 - `proto` (String)
 - `rssi` (Number)
 - `rx_bps` (Number)
@@ -388,7 +388,7 @@ Read-Only:
 - `band` (String)
 - `channel` (Number)
 - `idle_time` (Number)
-- `last_seen` (Number)
+- `last_seen` (Number) Last seen timestamp
 - `proto` (String)
 - `rssi` (Number)
 - `rx_bps` (Number)
@@ -414,9 +414,11 @@ Read-Only:
 - `full_duplex` (Boolean)
 - `rx_bytes` (Number)
 - `rx_errors` (Number)
+- `rx_peak_bps` (Number)
 - `rx_pkts` (Number)
 - `speed` (Number)
 - `tx_bytes` (Number)
+- `tx_peak_bps` (Number)
 - `tx_pkts` (Number)
 - `up` (Boolean)
 

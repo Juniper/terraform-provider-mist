@@ -416,7 +416,7 @@ Optional:
 - `poe_disabled` (Boolean) Whether PoE capabilities are disabled for a port
 - `port_auth` (String) if dot1x is desired, set to dot1x. enum: `dot1x`
 - `port_network` (String) Native network/vlan for untagged traffic
-- `reauth_interval` (Number) Only if `port_auth`=`dot1x` reauthentication interval range
+- `reauth_interval` (String) Only if `mode`!=`dynamic` and `port_auth`=`dot1x` reauthentication interval range between 10 and 65535 (default: 3600)
 - `server_fail_network` (String) Only if `port_auth`==`dot1x` sets server fail fallback vlan
 - `server_reject_network` (String) Only if `port_auth`==`dot1x` when radius server reject / fails
 - `speed` (String) enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`,`auto`
@@ -594,7 +594,7 @@ Optional:
 - `poe_disabled` (Boolean) Only if `mode`!=`dynamic` whether PoE capabilities are disabled for a port
 - `port_auth` (String) Only if `mode`!=`dynamic` if dot1x is desired, set to dot1x. enum: `dot1x`
 - `port_network` (String) Only if `mode`!=`dynamic` native network/vlan for untagged traffic
-- `reauth_interval` (Number) Only if `mode`!=`dynamic` and `port_auth`=`dot1x` reauthentication interval range
+- `reauth_interval` (String) Only if `mode`!=`dynamic` and `port_auth`=`dot1x` reauthentication interval range between 10 and 65535 (default: 3600)
 - `reset_default_when` (String) Only if `mode`==`dynamic` Control when the DPC port should be changed to the default port usage. enum: `link_down`, `none` (let the DPC port keep at the current port usage)
 - `rules` (Attributes List) Only if `mode`==`dynamic` (see [below for nested schema](#nestedatt--port_usages--rules))
 - `server_fail_network` (String) Only if `mode`!=`dynamic` and `port_auth`==`dot1x` sets server fail fallback vlan

@@ -40,7 +40,6 @@ data "mist_org_wlantemplates" "templates" {
 Read-Only:
 
 - `created_time` (Number) When the object has been created, in epoch
-- `filter_by_deviceprofile` (Boolean) Whether to further filter by Device Profile
 - `id` (String) Unique ID of the object instance in the Mist Organization
 - `modified_time` (Number) When the object has been modified for the last time, in epoch
 - `name` (String)

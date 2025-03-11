@@ -45,4 +45,3 @@ Read-Only:
 - `modified_time` (Number)
 - `name` (String)
 - `org_id` (String)
-- `type` (String)
