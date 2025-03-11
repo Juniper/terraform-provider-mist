@@ -92,15 +92,13 @@ func DeviceGatewayStatsDataSourceSchema(ctx context.Context) schema.Schema {
 										Description:         "If this is created for overlay",
 										MarkdownDescription: "If this is created for overlay",
 									},
-									"local_as": schema.Int64Attribute{
-										Computed:            true,
-										Description:         "AS",
-										MarkdownDescription: "AS",
+									"local_as": schema.StringAttribute{
+										Computed: true,
 									},
 									"neighbor": schema.StringAttribute{
 										Computed: true,
 									},
-									"neighbor_as": schema.Int64Attribute{
+									"neighbor_as": schema.StringAttribute{
 										Computed: true,
 									},
 									"neighbor_mac": schema.StringAttribute{
@@ -7123,12 +7121,12 @@ func (t BgpPeersType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 		return nil, diags
 	}
 
-	localAsVal, ok := localAsAttribute.(basetypes.Int64Value)
+	localAsVal, ok := localAsAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`local_as expected to be basetypes.Int64Value, was: %T`, localAsAttribute))
+			fmt.Sprintf(`local_as expected to be basetypes.StringValue, was: %T`, localAsAttribute))
 	}
 
 	neighborAttribute, ok := attributes["neighbor"]
@@ -7159,12 +7157,12 @@ func (t BgpPeersType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 		return nil, diags
 	}
 
-	neighborAsVal, ok := neighborAsAttribute.(basetypes.Int64Value)
+	neighborAsVal, ok := neighborAsAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`neighbor_as expected to be basetypes.Int64Value, was: %T`, neighborAsAttribute))
+			fmt.Sprintf(`neighbor_as expected to be basetypes.StringValue, was: %T`, neighborAsAttribute))
 	}
 
 	neighborMacAttribute, ok := attributes["neighbor_mac"]
@@ -7499,12 +7497,12 @@ func NewBgpPeersValue(attributeTypes map[string]attr.Type, attributes map[string
 		return NewBgpPeersValueUnknown(), diags
 	}
 
-	localAsVal, ok := localAsAttribute.(basetypes.Int64Value)
+	localAsVal, ok := localAsAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`local_as expected to be basetypes.Int64Value, was: %T`, localAsAttribute))
+			fmt.Sprintf(`local_as expected to be basetypes.StringValue, was: %T`, localAsAttribute))
 	}
 
 	neighborAttribute, ok := attributes["neighbor"]
@@ -7535,12 +7533,12 @@ func NewBgpPeersValue(attributeTypes map[string]attr.Type, attributes map[string
 		return NewBgpPeersValueUnknown(), diags
 	}
 
-	neighborAsVal, ok := neighborAsAttribute.(basetypes.Int64Value)
+	neighborAsVal, ok := neighborAsAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`neighbor_as expected to be basetypes.Int64Value, was: %T`, neighborAsAttribute))
+			fmt.Sprintf(`neighbor_as expected to be basetypes.StringValue, was: %T`, neighborAsAttribute))
 	}
 
 	neighborMacAttribute, ok := attributes["neighbor_mac"]
@@ -7836,9 +7834,9 @@ var _ basetypes.ObjectValuable = BgpPeersValue{}
 type BgpPeersValue struct {
 	EvpnOverlay basetypes.BoolValue    `tfsdk:"evpn_overlay"`
 	ForOverlay  basetypes.BoolValue    `tfsdk:"for_overlay"`
-	LocalAs     basetypes.Int64Value   `tfsdk:"local_as"`
+	LocalAs     basetypes.StringValue  `tfsdk:"local_as"`
 	Neighbor    basetypes.StringValue  `tfsdk:"neighbor"`
-	NeighborAs  basetypes.Int64Value   `tfsdk:"neighbor_as"`
+	NeighborAs  basetypes.StringValue  `tfsdk:"neighbor_as"`
 	NeighborMac basetypes.StringValue  `tfsdk:"neighbor_mac"`
 	Node        basetypes.StringValue  `tfsdk:"node"`
 	RxPkts      basetypes.Int64Value   `tfsdk:"rx_pkts"`
@@ -7861,9 +7859,9 @@ func (v BgpPeersValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 
 	attrTypes["evpn_overlay"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["for_overlay"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["local_as"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["local_as"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["neighbor"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["neighbor_as"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["neighbor_as"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["neighbor_mac"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["node"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["rx_pkts"] = basetypes.Int64Type{}.TerraformType(ctx)
@@ -8042,9 +8040,9 @@ func (v BgpPeersValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 	attributeTypes := map[string]attr.Type{
 		"evpn_overlay": basetypes.BoolType{},
 		"for_overlay":  basetypes.BoolType{},
-		"local_as":     basetypes.Int64Type{},
+		"local_as":     basetypes.StringType{},
 		"neighbor":     basetypes.StringType{},
-		"neighbor_as":  basetypes.Int64Type{},
+		"neighbor_as":  basetypes.StringType{},
 		"neighbor_mac": basetypes.StringType{},
 		"node":         basetypes.StringType{},
 		"rx_pkts":      basetypes.Int64Type{},
@@ -8184,9 +8182,9 @@ func (v BgpPeersValue) AttributeTypes(ctx context.Context) map[string]attr.Type 
 	return map[string]attr.Type{
 		"evpn_overlay": basetypes.BoolType{},
 		"for_overlay":  basetypes.BoolType{},
-		"local_as":     basetypes.Int64Type{},
+		"local_as":     basetypes.StringType{},
 		"neighbor":     basetypes.StringType{},
-		"neighbor_as":  basetypes.Int64Type{},
+		"neighbor_as":  basetypes.StringType{},
 		"neighbor_mac": basetypes.StringType{},
 		"node":         basetypes.StringType{},
 		"rx_pkts":      basetypes.Int64Type{},

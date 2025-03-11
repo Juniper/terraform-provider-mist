@@ -322,7 +322,9 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 									Computed: true,
 								},
 								"timestamp": schema.Float64Attribute{
-									Computed: true,
+									Computed:            true,
+									Description:         "Epoch (seconds)",
+									MarkdownDescription: "Epoch (seconds)",
 								},
 								"will_retry": schema.BoolAttribute{
 									Computed: true,
@@ -364,8 +366,8 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 								"timestamp": schema.Float64Attribute{
 									Computed:            true,
-									Description:         "The unix timestamp when the GPS data was recorded.",
-									MarkdownDescription: "The unix timestamp when the GPS data was recorded.",
+									Description:         "Epoch (seconds)",
+									MarkdownDescription: "Epoch (seconds)",
 								},
 							},
 							CustomType: GpsType{
@@ -583,7 +585,7 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 								mapvalidator.SizeAtLeast(1),
 							},
 						},
-						"last_seen": schema.NumberAttribute{
+						"last_seen": schema.Float64Attribute{
 							Computed:            true,
 							Description:         "Last seen timestamp",
 							MarkdownDescription: "Last seen timestamp",
@@ -595,8 +597,10 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 									Description:         "Code definitions list at [List Ap Led Definition]($e/Constants%20Definitions/listApLedDefinition)",
 									MarkdownDescription: "Code definitions list at [List Ap Led Definition]($e/Constants%20Definitions/listApLedDefinition)",
 								},
-								"timestamp": schema.Int64Attribute{
-									Computed: true,
+								"timestamp": schema.Float64Attribute{
+									Computed:            true,
+									Description:         "Epoch (seconds)",
+									MarkdownDescription: "Epoch (seconds)",
 								},
 							},
 							CustomType: LastTroubleType{
@@ -724,8 +728,10 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 									"idle_time": schema.Int64Attribute{
 										Computed: true,
 									},
-									"last_seen": schema.NumberAttribute{
-										Computed: true,
+									"last_seen": schema.Float64Attribute{
+										Computed:            true,
+										Description:         "Last seen timestamp",
+										MarkdownDescription: "Last seen timestamp",
 									},
 									"proto": schema.StringAttribute{
 										Computed: true,
@@ -794,8 +800,10 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 								"idle_time": schema.Int64Attribute{
 									Computed: true,
 								},
-								"last_seen": schema.NumberAttribute{
-									Computed: true,
+								"last_seen": schema.Float64Attribute{
+									Computed:            true,
+									Description:         "Last seen timestamp",
+									MarkdownDescription: "Last seen timestamp",
 								},
 								"proto": schema.StringAttribute{
 									Computed: true,
@@ -888,22 +896,28 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 									"full_duplex": schema.BoolAttribute{
 										Computed: true,
 									},
-									"rx_bytes": schema.NumberAttribute{
+									"rx_bytes": schema.Int64Attribute{
 										Computed: true,
 									},
-									"rx_errors": schema.NumberAttribute{
+									"rx_errors": schema.Int64Attribute{
 										Computed: true,
 									},
-									"rx_pkts": schema.NumberAttribute{
+									"rx_peak_bps": schema.Int64Attribute{
+										Computed: true,
+									},
+									"rx_pkts": schema.Int64Attribute{
 										Computed: true,
 									},
 									"speed": schema.Int64Attribute{
 										Computed: true,
 									},
-									"tx_bytes": schema.NumberAttribute{
+									"tx_bytes": schema.Int64Attribute{
 										Computed: true,
 									},
-									"tx_pkts": schema.NumberAttribute{
+									"tx_peak_bps": schema.Int64Attribute{
+										Computed: true,
+									},
+									"tx_pkts": schema.Int64Attribute{
 										Computed: true,
 									},
 									"up": schema.BoolAttribute{
@@ -1820,12 +1834,12 @@ func (t DeviceApStatsType) ValueFromObject(ctx context.Context, in basetypes.Obj
 		return nil, diags
 	}
 
-	lastSeenVal, ok := lastSeenAttribute.(basetypes.NumberValue)
+	lastSeenVal, ok := lastSeenAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`last_seen expected to be basetypes.NumberValue, was: %T`, lastSeenAttribute))
+			fmt.Sprintf(`last_seen expected to be basetypes.Float64Value, was: %T`, lastSeenAttribute))
 	}
 
 	lastTroubleAttribute, ok := attributes["last_trouble"]
@@ -3070,12 +3084,12 @@ func NewDeviceApStatsValue(attributeTypes map[string]attr.Type, attributes map[s
 		return NewDeviceApStatsValueUnknown(), diags
 	}
 
-	lastSeenVal, ok := lastSeenAttribute.(basetypes.NumberValue)
+	lastSeenVal, ok := lastSeenAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`last_seen expected to be basetypes.NumberValue, was: %T`, lastSeenAttribute))
+			fmt.Sprintf(`last_seen expected to be basetypes.Float64Value, was: %T`, lastSeenAttribute))
 	}
 
 	lastTroubleAttribute, ok := attributes["last_trouble"]
@@ -3941,7 +3955,7 @@ type DeviceApStatsValue struct {
 	IpConfig           basetypes.ObjectValue  `tfsdk:"ip_config"`
 	IpStat             basetypes.ObjectValue  `tfsdk:"ip_stat"`
 	L2tpStat           basetypes.MapValue     `tfsdk:"l2tp_stat"`
-	LastSeen           basetypes.NumberValue  `tfsdk:"last_seen"`
+	LastSeen           basetypes.Float64Value `tfsdk:"last_seen"`
 	LastTrouble        basetypes.ObjectValue  `tfsdk:"last_trouble"`
 	Led                basetypes.ObjectValue  `tfsdk:"led"`
 	LldpStat           basetypes.ObjectValue  `tfsdk:"lldp_stat"`
@@ -4036,7 +4050,7 @@ func (v DeviceApStatsValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 	attrTypes["l2tp_stat"] = basetypes.MapType{
 		ElemType: L2tpStatValue{}.Type(ctx),
 	}.TerraformType(ctx)
-	attrTypes["last_seen"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["last_seen"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["last_trouble"] = basetypes.ObjectType{
 		AttrTypes: LastTroubleValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
@@ -5130,7 +5144,7 @@ func (v DeviceApStatsValue) ToObjectValue(ctx context.Context) (basetypes.Object
 			"l2tp_stat": basetypes.MapType{
 				ElemType: L2tpStatValue{}.Type(ctx),
 			},
-			"last_seen": basetypes.NumberType{},
+			"last_seen": basetypes.Float64Type{},
 			"last_trouble": basetypes.ObjectType{
 				AttrTypes: LastTroubleValue{}.AttributeTypes(ctx),
 			},
@@ -5238,7 +5252,7 @@ func (v DeviceApStatsValue) ToObjectValue(ctx context.Context) (basetypes.Object
 		"l2tp_stat": basetypes.MapType{
 			ElemType: L2tpStatValue{}.Type(ctx),
 		},
-		"last_seen": basetypes.NumberType{},
+		"last_seen": basetypes.Float64Type{},
 		"last_trouble": basetypes.ObjectType{
 			AttrTypes: LastTroubleValue{}.AttributeTypes(ctx),
 		},
@@ -5698,7 +5712,7 @@ func (v DeviceApStatsValue) AttributeTypes(ctx context.Context) map[string]attr.
 		"l2tp_stat": basetypes.MapType{
 			ElemType: L2tpStatValue{}.Type(ctx),
 		},
-		"last_seen": basetypes.NumberType{},
+		"last_seen": basetypes.Float64Type{},
 		"last_trouble": basetypes.ObjectType{
 			AttrTypes: LastTroubleValue{}.AttributeTypes(ctx),
 		},
@@ -15142,12 +15156,12 @@ func (t LastTroubleType) ValueFromObject(ctx context.Context, in basetypes.Objec
 		return nil, diags
 	}
 
-	timestampVal, ok := timestampAttribute.(basetypes.Int64Value)
+	timestampVal, ok := timestampAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`timestamp expected to be basetypes.Int64Value, was: %T`, timestampAttribute))
+			fmt.Sprintf(`timestamp expected to be basetypes.Float64Value, was: %T`, timestampAttribute))
 	}
 
 	if diags.HasError() {
@@ -15252,12 +15266,12 @@ func NewLastTroubleValue(attributeTypes map[string]attr.Type, attributes map[str
 		return NewLastTroubleValueUnknown(), diags
 	}
 
-	timestampVal, ok := timestampAttribute.(basetypes.Int64Value)
+	timestampVal, ok := timestampAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`timestamp expected to be basetypes.Int64Value, was: %T`, timestampAttribute))
+			fmt.Sprintf(`timestamp expected to be basetypes.Float64Value, was: %T`, timestampAttribute))
 	}
 
 	if diags.HasError() {
@@ -15339,8 +15353,8 @@ func (t LastTroubleType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = LastTroubleValue{}
 
 type LastTroubleValue struct {
-	Code      basetypes.StringValue `tfsdk:"code"`
-	Timestamp basetypes.Int64Value  `tfsdk:"timestamp"`
+	Code      basetypes.StringValue  `tfsdk:"code"`
+	Timestamp basetypes.Float64Value `tfsdk:"timestamp"`
 	state     attr.ValueState
 }
 
@@ -15351,7 +15365,7 @@ func (v LastTroubleValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 	var err error
 
 	attrTypes["code"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["timestamp"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["timestamp"] = basetypes.Float64Type{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
@@ -15406,7 +15420,7 @@ func (v LastTroubleValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 
 	attributeTypes := map[string]attr.Type{
 		"code":      basetypes.StringType{},
-		"timestamp": basetypes.Int64Type{},
+		"timestamp": basetypes.Float64Type{},
 	}
 
 	if v.IsNull() {
@@ -15464,7 +15478,7 @@ func (v LastTroubleValue) Type(ctx context.Context) attr.Type {
 func (v LastTroubleValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"code":      basetypes.StringType{},
-		"timestamp": basetypes.Int64Type{},
+		"timestamp": basetypes.Float64Type{},
 	}
 }
 
@@ -16894,12 +16908,12 @@ func (t MeshDownlinksType) ValueFromObject(ctx context.Context, in basetypes.Obj
 		return nil, diags
 	}
 
-	lastSeenVal, ok := lastSeenAttribute.(basetypes.NumberValue)
+	lastSeenVal, ok := lastSeenAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`last_seen expected to be basetypes.NumberValue, was: %T`, lastSeenAttribute))
+			fmt.Sprintf(`last_seen expected to be basetypes.Float64Value, was: %T`, lastSeenAttribute))
 	}
 
 	protoAttribute, ok := attributes["proto"]
@@ -17308,12 +17322,12 @@ func NewMeshDownlinksValue(attributeTypes map[string]attr.Type, attributes map[s
 		return NewMeshDownlinksValueUnknown(), diags
 	}
 
-	lastSeenVal, ok := lastSeenAttribute.(basetypes.NumberValue)
+	lastSeenVal, ok := lastSeenAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`last_seen expected to be basetypes.NumberValue, was: %T`, lastSeenAttribute))
+			fmt.Sprintf(`last_seen expected to be basetypes.Float64Value, was: %T`, lastSeenAttribute))
 	}
 
 	protoAttribute, ok := attributes["proto"]
@@ -17663,24 +17677,24 @@ func (t MeshDownlinksType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = MeshDownlinksValue{}
 
 type MeshDownlinksValue struct {
-	Band      basetypes.StringValue `tfsdk:"band"`
-	Channel   basetypes.Int64Value  `tfsdk:"channel"`
-	IdleTime  basetypes.Int64Value  `tfsdk:"idle_time"`
-	LastSeen  basetypes.NumberValue `tfsdk:"last_seen"`
-	Proto     basetypes.StringValue `tfsdk:"proto"`
-	Rssi      basetypes.Int64Value  `tfsdk:"rssi"`
-	RxBps     basetypes.Int64Value  `tfsdk:"rx_bps"`
-	RxBytes   basetypes.Int64Value  `tfsdk:"rx_bytes"`
-	RxPackets basetypes.Int64Value  `tfsdk:"rx_packets"`
-	RxRate    basetypes.Int64Value  `tfsdk:"rx_rate"`
-	RxRetries basetypes.Int64Value  `tfsdk:"rx_retries"`
-	SiteId    basetypes.StringValue `tfsdk:"site_id"`
-	Snr       basetypes.Int64Value  `tfsdk:"snr"`
-	TxBps     basetypes.Int64Value  `tfsdk:"tx_bps"`
-	TxBytes   basetypes.Int64Value  `tfsdk:"tx_bytes"`
-	TxPackets basetypes.Int64Value  `tfsdk:"tx_packets"`
-	TxRate    basetypes.Int64Value  `tfsdk:"tx_rate"`
-	TxRetries basetypes.Int64Value  `tfsdk:"tx_retries"`
+	Band      basetypes.StringValue  `tfsdk:"band"`
+	Channel   basetypes.Int64Value   `tfsdk:"channel"`
+	IdleTime  basetypes.Int64Value   `tfsdk:"idle_time"`
+	LastSeen  basetypes.Float64Value `tfsdk:"last_seen"`
+	Proto     basetypes.StringValue  `tfsdk:"proto"`
+	Rssi      basetypes.Int64Value   `tfsdk:"rssi"`
+	RxBps     basetypes.Int64Value   `tfsdk:"rx_bps"`
+	RxBytes   basetypes.Int64Value   `tfsdk:"rx_bytes"`
+	RxPackets basetypes.Int64Value   `tfsdk:"rx_packets"`
+	RxRate    basetypes.Int64Value   `tfsdk:"rx_rate"`
+	RxRetries basetypes.Int64Value   `tfsdk:"rx_retries"`
+	SiteId    basetypes.StringValue  `tfsdk:"site_id"`
+	Snr       basetypes.Int64Value   `tfsdk:"snr"`
+	TxBps     basetypes.Int64Value   `tfsdk:"tx_bps"`
+	TxBytes   basetypes.Int64Value   `tfsdk:"tx_bytes"`
+	TxPackets basetypes.Int64Value   `tfsdk:"tx_packets"`
+	TxRate    basetypes.Int64Value   `tfsdk:"tx_rate"`
+	TxRetries basetypes.Int64Value   `tfsdk:"tx_retries"`
 	state     attr.ValueState
 }
 
@@ -17693,7 +17707,7 @@ func (v MeshDownlinksValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 	attrTypes["band"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["channel"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["idle_time"] = basetypes.Int64Type{}.TerraformType(ctx)
-	attrTypes["last_seen"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["last_seen"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["proto"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["rssi"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["rx_bps"] = basetypes.Int64Type{}.TerraformType(ctx)
@@ -17892,7 +17906,7 @@ func (v MeshDownlinksValue) ToObjectValue(ctx context.Context) (basetypes.Object
 		"band":       basetypes.StringType{},
 		"channel":    basetypes.Int64Type{},
 		"idle_time":  basetypes.Int64Type{},
-		"last_seen":  basetypes.NumberType{},
+		"last_seen":  basetypes.Float64Type{},
 		"proto":      basetypes.StringType{},
 		"rssi":       basetypes.Int64Type{},
 		"rx_bps":     basetypes.Int64Type{},
@@ -18046,7 +18060,7 @@ func (v MeshDownlinksValue) AttributeTypes(ctx context.Context) map[string]attr.
 		"band":       basetypes.StringType{},
 		"channel":    basetypes.Int64Type{},
 		"idle_time":  basetypes.Int64Type{},
-		"last_seen":  basetypes.NumberType{},
+		"last_seen":  basetypes.Float64Type{},
 		"proto":      basetypes.StringType{},
 		"rssi":       basetypes.Int64Type{},
 		"rx_bps":     basetypes.Int64Type{},
@@ -18153,12 +18167,12 @@ func (t MeshUplinkType) ValueFromObject(ctx context.Context, in basetypes.Object
 		return nil, diags
 	}
 
-	lastSeenVal, ok := lastSeenAttribute.(basetypes.NumberValue)
+	lastSeenVal, ok := lastSeenAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`last_seen expected to be basetypes.NumberValue, was: %T`, lastSeenAttribute))
+			fmt.Sprintf(`last_seen expected to be basetypes.Float64Value, was: %T`, lastSeenAttribute))
 	}
 
 	protoAttribute, ok := attributes["proto"]
@@ -18586,12 +18600,12 @@ func NewMeshUplinkValue(attributeTypes map[string]attr.Type, attributes map[stri
 		return NewMeshUplinkValueUnknown(), diags
 	}
 
-	lastSeenVal, ok := lastSeenAttribute.(basetypes.NumberValue)
+	lastSeenVal, ok := lastSeenAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`last_seen expected to be basetypes.NumberValue, was: %T`, lastSeenAttribute))
+			fmt.Sprintf(`last_seen expected to be basetypes.Float64Value, was: %T`, lastSeenAttribute))
 	}
 
 	protoAttribute, ok := attributes["proto"]
@@ -18960,25 +18974,25 @@ func (t MeshUplinkType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = MeshUplinkValue{}
 
 type MeshUplinkValue struct {
-	Band       basetypes.StringValue `tfsdk:"band"`
-	Channel    basetypes.Int64Value  `tfsdk:"channel"`
-	IdleTime   basetypes.Int64Value  `tfsdk:"idle_time"`
-	LastSeen   basetypes.NumberValue `tfsdk:"last_seen"`
-	Proto      basetypes.StringValue `tfsdk:"proto"`
-	Rssi       basetypes.Int64Value  `tfsdk:"rssi"`
-	RxBps      basetypes.Int64Value  `tfsdk:"rx_bps"`
-	RxBytes    basetypes.Int64Value  `tfsdk:"rx_bytes"`
-	RxPackets  basetypes.Int64Value  `tfsdk:"rx_packets"`
-	RxRate     basetypes.Int64Value  `tfsdk:"rx_rate"`
-	RxRetries  basetypes.Int64Value  `tfsdk:"rx_retries"`
-	SiteId     basetypes.StringValue `tfsdk:"site_id"`
-	Snr        basetypes.Int64Value  `tfsdk:"snr"`
-	TxBps      basetypes.Int64Value  `tfsdk:"tx_bps"`
-	TxBytes    basetypes.Int64Value  `tfsdk:"tx_bytes"`
-	TxPackets  basetypes.Int64Value  `tfsdk:"tx_packets"`
-	TxRate     basetypes.Int64Value  `tfsdk:"tx_rate"`
-	TxRetries  basetypes.Int64Value  `tfsdk:"tx_retries"`
-	UplinkApId basetypes.StringValue `tfsdk:"uplink_ap_id"`
+	Band       basetypes.StringValue  `tfsdk:"band"`
+	Channel    basetypes.Int64Value   `tfsdk:"channel"`
+	IdleTime   basetypes.Int64Value   `tfsdk:"idle_time"`
+	LastSeen   basetypes.Float64Value `tfsdk:"last_seen"`
+	Proto      basetypes.StringValue  `tfsdk:"proto"`
+	Rssi       basetypes.Int64Value   `tfsdk:"rssi"`
+	RxBps      basetypes.Int64Value   `tfsdk:"rx_bps"`
+	RxBytes    basetypes.Int64Value   `tfsdk:"rx_bytes"`
+	RxPackets  basetypes.Int64Value   `tfsdk:"rx_packets"`
+	RxRate     basetypes.Int64Value   `tfsdk:"rx_rate"`
+	RxRetries  basetypes.Int64Value   `tfsdk:"rx_retries"`
+	SiteId     basetypes.StringValue  `tfsdk:"site_id"`
+	Snr        basetypes.Int64Value   `tfsdk:"snr"`
+	TxBps      basetypes.Int64Value   `tfsdk:"tx_bps"`
+	TxBytes    basetypes.Int64Value   `tfsdk:"tx_bytes"`
+	TxPackets  basetypes.Int64Value   `tfsdk:"tx_packets"`
+	TxRate     basetypes.Int64Value   `tfsdk:"tx_rate"`
+	TxRetries  basetypes.Int64Value   `tfsdk:"tx_retries"`
+	UplinkApId basetypes.StringValue  `tfsdk:"uplink_ap_id"`
 	state      attr.ValueState
 }
 
@@ -18991,7 +19005,7 @@ func (v MeshUplinkValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	attrTypes["band"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["channel"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["idle_time"] = basetypes.Int64Type{}.TerraformType(ctx)
-	attrTypes["last_seen"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["last_seen"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["proto"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["rssi"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["rx_bps"] = basetypes.Int64Type{}.TerraformType(ctx)
@@ -19199,7 +19213,7 @@ func (v MeshUplinkValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		"band":         basetypes.StringType{},
 		"channel":      basetypes.Int64Type{},
 		"idle_time":    basetypes.Int64Type{},
-		"last_seen":    basetypes.NumberType{},
+		"last_seen":    basetypes.Float64Type{},
 		"proto":        basetypes.StringType{},
 		"rssi":         basetypes.Int64Type{},
 		"rx_bps":       basetypes.Int64Type{},
@@ -19359,7 +19373,7 @@ func (v MeshUplinkValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"band":         basetypes.StringType{},
 		"channel":      basetypes.Int64Type{},
 		"idle_time":    basetypes.Int64Type{},
-		"last_seen":    basetypes.NumberType{},
+		"last_seen":    basetypes.Float64Type{},
 		"proto":        basetypes.StringType{},
 		"rssi":         basetypes.Int64Type{},
 		"rx_bps":       basetypes.Int64Type{},
@@ -19431,12 +19445,12 @@ func (t PortStatType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 		return nil, diags
 	}
 
-	rxBytesVal, ok := rxBytesAttribute.(basetypes.NumberValue)
+	rxBytesVal, ok := rxBytesAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`rx_bytes expected to be basetypes.NumberValue, was: %T`, rxBytesAttribute))
+			fmt.Sprintf(`rx_bytes expected to be basetypes.Int64Value, was: %T`, rxBytesAttribute))
 	}
 
 	rxErrorsAttribute, ok := attributes["rx_errors"]
@@ -19449,12 +19463,30 @@ func (t PortStatType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 		return nil, diags
 	}
 
-	rxErrorsVal, ok := rxErrorsAttribute.(basetypes.NumberValue)
+	rxErrorsVal, ok := rxErrorsAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`rx_errors expected to be basetypes.NumberValue, was: %T`, rxErrorsAttribute))
+			fmt.Sprintf(`rx_errors expected to be basetypes.Int64Value, was: %T`, rxErrorsAttribute))
+	}
+
+	rxPeakBpsAttribute, ok := attributes["rx_peak_bps"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`rx_peak_bps is missing from object`)
+
+		return nil, diags
+	}
+
+	rxPeakBpsVal, ok := rxPeakBpsAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`rx_peak_bps expected to be basetypes.Int64Value, was: %T`, rxPeakBpsAttribute))
 	}
 
 	rxPktsAttribute, ok := attributes["rx_pkts"]
@@ -19467,12 +19499,12 @@ func (t PortStatType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 		return nil, diags
 	}
 
-	rxPktsVal, ok := rxPktsAttribute.(basetypes.NumberValue)
+	rxPktsVal, ok := rxPktsAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`rx_pkts expected to be basetypes.NumberValue, was: %T`, rxPktsAttribute))
+			fmt.Sprintf(`rx_pkts expected to be basetypes.Int64Value, was: %T`, rxPktsAttribute))
 	}
 
 	speedAttribute, ok := attributes["speed"]
@@ -19503,12 +19535,30 @@ func (t PortStatType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 		return nil, diags
 	}
 
-	txBytesVal, ok := txBytesAttribute.(basetypes.NumberValue)
+	txBytesVal, ok := txBytesAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`tx_bytes expected to be basetypes.NumberValue, was: %T`, txBytesAttribute))
+			fmt.Sprintf(`tx_bytes expected to be basetypes.Int64Value, was: %T`, txBytesAttribute))
+	}
+
+	txPeakBpsAttribute, ok := attributes["tx_peak_bps"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`tx_peak_bps is missing from object`)
+
+		return nil, diags
+	}
+
+	txPeakBpsVal, ok := txPeakBpsAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`tx_peak_bps expected to be basetypes.Int64Value, was: %T`, txPeakBpsAttribute))
 	}
 
 	txPktsAttribute, ok := attributes["tx_pkts"]
@@ -19521,12 +19571,12 @@ func (t PortStatType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 		return nil, diags
 	}
 
-	txPktsVal, ok := txPktsAttribute.(basetypes.NumberValue)
+	txPktsVal, ok := txPktsAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`tx_pkts expected to be basetypes.NumberValue, was: %T`, txPktsAttribute))
+			fmt.Sprintf(`tx_pkts expected to be basetypes.Int64Value, was: %T`, txPktsAttribute))
 	}
 
 	upAttribute, ok := attributes["up"]
@@ -19555,9 +19605,11 @@ func (t PortStatType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 		FullDuplex: fullDuplexVal,
 		RxBytes:    rxBytesVal,
 		RxErrors:   rxErrorsVal,
+		RxPeakBps:  rxPeakBpsVal,
 		RxPkts:     rxPktsVal,
 		Speed:      speedVal,
 		TxBytes:    txBytesVal,
+		TxPeakBps:  txPeakBpsVal,
 		TxPkts:     txPktsVal,
 		Up:         upVal,
 		state:      attr.ValueStateKnown,
@@ -19655,12 +19707,12 @@ func NewPortStatValue(attributeTypes map[string]attr.Type, attributes map[string
 		return NewPortStatValueUnknown(), diags
 	}
 
-	rxBytesVal, ok := rxBytesAttribute.(basetypes.NumberValue)
+	rxBytesVal, ok := rxBytesAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`rx_bytes expected to be basetypes.NumberValue, was: %T`, rxBytesAttribute))
+			fmt.Sprintf(`rx_bytes expected to be basetypes.Int64Value, was: %T`, rxBytesAttribute))
 	}
 
 	rxErrorsAttribute, ok := attributes["rx_errors"]
@@ -19673,12 +19725,30 @@ func NewPortStatValue(attributeTypes map[string]attr.Type, attributes map[string
 		return NewPortStatValueUnknown(), diags
 	}
 
-	rxErrorsVal, ok := rxErrorsAttribute.(basetypes.NumberValue)
+	rxErrorsVal, ok := rxErrorsAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`rx_errors expected to be basetypes.NumberValue, was: %T`, rxErrorsAttribute))
+			fmt.Sprintf(`rx_errors expected to be basetypes.Int64Value, was: %T`, rxErrorsAttribute))
+	}
+
+	rxPeakBpsAttribute, ok := attributes["rx_peak_bps"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`rx_peak_bps is missing from object`)
+
+		return NewPortStatValueUnknown(), diags
+	}
+
+	rxPeakBpsVal, ok := rxPeakBpsAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`rx_peak_bps expected to be basetypes.Int64Value, was: %T`, rxPeakBpsAttribute))
 	}
 
 	rxPktsAttribute, ok := attributes["rx_pkts"]
@@ -19691,12 +19761,12 @@ func NewPortStatValue(attributeTypes map[string]attr.Type, attributes map[string
 		return NewPortStatValueUnknown(), diags
 	}
 
-	rxPktsVal, ok := rxPktsAttribute.(basetypes.NumberValue)
+	rxPktsVal, ok := rxPktsAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`rx_pkts expected to be basetypes.NumberValue, was: %T`, rxPktsAttribute))
+			fmt.Sprintf(`rx_pkts expected to be basetypes.Int64Value, was: %T`, rxPktsAttribute))
 	}
 
 	speedAttribute, ok := attributes["speed"]
@@ -19727,12 +19797,30 @@ func NewPortStatValue(attributeTypes map[string]attr.Type, attributes map[string
 		return NewPortStatValueUnknown(), diags
 	}
 
-	txBytesVal, ok := txBytesAttribute.(basetypes.NumberValue)
+	txBytesVal, ok := txBytesAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`tx_bytes expected to be basetypes.NumberValue, was: %T`, txBytesAttribute))
+			fmt.Sprintf(`tx_bytes expected to be basetypes.Int64Value, was: %T`, txBytesAttribute))
+	}
+
+	txPeakBpsAttribute, ok := attributes["tx_peak_bps"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`tx_peak_bps is missing from object`)
+
+		return NewPortStatValueUnknown(), diags
+	}
+
+	txPeakBpsVal, ok := txPeakBpsAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`tx_peak_bps expected to be basetypes.Int64Value, was: %T`, txPeakBpsAttribute))
 	}
 
 	txPktsAttribute, ok := attributes["tx_pkts"]
@@ -19745,12 +19833,12 @@ func NewPortStatValue(attributeTypes map[string]attr.Type, attributes map[string
 		return NewPortStatValueUnknown(), diags
 	}
 
-	txPktsVal, ok := txPktsAttribute.(basetypes.NumberValue)
+	txPktsVal, ok := txPktsAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`tx_pkts expected to be basetypes.NumberValue, was: %T`, txPktsAttribute))
+			fmt.Sprintf(`tx_pkts expected to be basetypes.Int64Value, was: %T`, txPktsAttribute))
 	}
 
 	upAttribute, ok := attributes["up"]
@@ -19779,9 +19867,11 @@ func NewPortStatValue(attributeTypes map[string]attr.Type, attributes map[string
 		FullDuplex: fullDuplexVal,
 		RxBytes:    rxBytesVal,
 		RxErrors:   rxErrorsVal,
+		RxPeakBps:  rxPeakBpsVal,
 		RxPkts:     rxPktsVal,
 		Speed:      speedVal,
 		TxBytes:    txBytesVal,
+		TxPeakBps:  txPeakBpsVal,
 		TxPkts:     txPktsVal,
 		Up:         upVal,
 		state:      attr.ValueStateKnown,
@@ -19856,37 +19946,41 @@ func (t PortStatType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = PortStatValue{}
 
 type PortStatValue struct {
-	FullDuplex basetypes.BoolValue   `tfsdk:"full_duplex"`
-	RxBytes    basetypes.NumberValue `tfsdk:"rx_bytes"`
-	RxErrors   basetypes.NumberValue `tfsdk:"rx_errors"`
-	RxPkts     basetypes.NumberValue `tfsdk:"rx_pkts"`
-	Speed      basetypes.Int64Value  `tfsdk:"speed"`
-	TxBytes    basetypes.NumberValue `tfsdk:"tx_bytes"`
-	TxPkts     basetypes.NumberValue `tfsdk:"tx_pkts"`
-	Up         basetypes.BoolValue   `tfsdk:"up"`
+	FullDuplex basetypes.BoolValue  `tfsdk:"full_duplex"`
+	RxBytes    basetypes.Int64Value `tfsdk:"rx_bytes"`
+	RxErrors   basetypes.Int64Value `tfsdk:"rx_errors"`
+	RxPeakBps  basetypes.Int64Value `tfsdk:"rx_peak_bps"`
+	RxPkts     basetypes.Int64Value `tfsdk:"rx_pkts"`
+	Speed      basetypes.Int64Value `tfsdk:"speed"`
+	TxBytes    basetypes.Int64Value `tfsdk:"tx_bytes"`
+	TxPeakBps  basetypes.Int64Value `tfsdk:"tx_peak_bps"`
+	TxPkts     basetypes.Int64Value `tfsdk:"tx_pkts"`
+	Up         basetypes.BoolValue  `tfsdk:"up"`
 	state      attr.ValueState
 }
 
 func (v PortStatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 8)
+	attrTypes := make(map[string]tftypes.Type, 10)
 
 	var val tftypes.Value
 	var err error
 
 	attrTypes["full_duplex"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["rx_bytes"] = basetypes.NumberType{}.TerraformType(ctx)
-	attrTypes["rx_errors"] = basetypes.NumberType{}.TerraformType(ctx)
-	attrTypes["rx_pkts"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["rx_bytes"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["rx_errors"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["rx_peak_bps"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["rx_pkts"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["speed"] = basetypes.Int64Type{}.TerraformType(ctx)
-	attrTypes["tx_bytes"] = basetypes.NumberType{}.TerraformType(ctx)
-	attrTypes["tx_pkts"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["tx_bytes"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["tx_peak_bps"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["tx_pkts"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["up"] = basetypes.BoolType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 8)
+		vals := make(map[string]tftypes.Value, 10)
 
 		val, err = v.FullDuplex.ToTerraformValue(ctx)
 
@@ -19912,6 +20006,14 @@ func (v PortStatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 
 		vals["rx_errors"] = val
 
+		val, err = v.RxPeakBps.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["rx_peak_bps"] = val
+
 		val, err = v.RxPkts.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -19935,6 +20037,14 @@ func (v PortStatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 		}
 
 		vals["tx_bytes"] = val
+
+		val, err = v.TxPeakBps.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["tx_peak_bps"] = val
 
 		val, err = v.TxPkts.ToTerraformValue(ctx)
 
@@ -19983,12 +20093,14 @@ func (v PortStatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 
 	attributeTypes := map[string]attr.Type{
 		"full_duplex": basetypes.BoolType{},
-		"rx_bytes":    basetypes.NumberType{},
-		"rx_errors":   basetypes.NumberType{},
-		"rx_pkts":     basetypes.NumberType{},
+		"rx_bytes":    basetypes.Int64Type{},
+		"rx_errors":   basetypes.Int64Type{},
+		"rx_peak_bps": basetypes.Int64Type{},
+		"rx_pkts":     basetypes.Int64Type{},
 		"speed":       basetypes.Int64Type{},
-		"tx_bytes":    basetypes.NumberType{},
-		"tx_pkts":     basetypes.NumberType{},
+		"tx_bytes":    basetypes.Int64Type{},
+		"tx_peak_bps": basetypes.Int64Type{},
+		"tx_pkts":     basetypes.Int64Type{},
 		"up":          basetypes.BoolType{},
 	}
 
@@ -20006,9 +20118,11 @@ func (v PortStatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"full_duplex": v.FullDuplex,
 			"rx_bytes":    v.RxBytes,
 			"rx_errors":   v.RxErrors,
+			"rx_peak_bps": v.RxPeakBps,
 			"rx_pkts":     v.RxPkts,
 			"speed":       v.Speed,
 			"tx_bytes":    v.TxBytes,
+			"tx_peak_bps": v.TxPeakBps,
 			"tx_pkts":     v.TxPkts,
 			"up":          v.Up,
 		})
@@ -20043,6 +20157,10 @@ func (v PortStatValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.RxPeakBps.Equal(other.RxPeakBps) {
+		return false
+	}
+
 	if !v.RxPkts.Equal(other.RxPkts) {
 		return false
 	}
@@ -20052,6 +20170,10 @@ func (v PortStatValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.TxBytes.Equal(other.TxBytes) {
+		return false
+	}
+
+	if !v.TxPeakBps.Equal(other.TxPeakBps) {
 		return false
 	}
 
@@ -20077,12 +20199,14 @@ func (v PortStatValue) Type(ctx context.Context) attr.Type {
 func (v PortStatValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"full_duplex": basetypes.BoolType{},
-		"rx_bytes":    basetypes.NumberType{},
-		"rx_errors":   basetypes.NumberType{},
-		"rx_pkts":     basetypes.NumberType{},
+		"rx_bytes":    basetypes.Int64Type{},
+		"rx_errors":   basetypes.Int64Type{},
+		"rx_peak_bps": basetypes.Int64Type{},
+		"rx_pkts":     basetypes.Int64Type{},
 		"speed":       basetypes.Int64Type{},
-		"tx_bytes":    basetypes.NumberType{},
-		"tx_pkts":     basetypes.NumberType{},
+		"tx_bytes":    basetypes.Int64Type{},
+		"tx_peak_bps": basetypes.Int64Type{},
+		"tx_pkts":     basetypes.Int64Type{},
 		"up":          basetypes.BoolType{},
 	}
 }

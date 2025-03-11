@@ -2,6 +2,7 @@ package datasource_device_gateway_stats
 
 import (
 	"context"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -15,9 +16,9 @@ func bgpPeersSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []mo
 	for _, d := range l {
 		var evpnOverlay basetypes.BoolValue
 		var forOverlay basetypes.BoolValue
-		var localAs basetypes.Int64Value
+		var localAs basetypes.StringValue
 		var neighbor basetypes.StringValue
-		var neighborAs basetypes.Int64Value
+		var neighborAs basetypes.StringValue
 		var neighborMac basetypes.StringValue
 		var node basetypes.StringValue
 		var rxPkts basetypes.Int64Value
@@ -37,13 +38,13 @@ func bgpPeersSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []mo
 			forOverlay = types.BoolValue(*d.ForOverlay)
 		}
 		if d.LocalAs != nil {
-			localAs = types.Int64Value(int64(*d.LocalAs))
+			localAs = mistutils.BgpAsAsString(d.LocalAs)
 		}
 		if d.Neighbor != nil {
 			neighbor = types.StringValue(*d.Neighbor)
 		}
 		if d.NeighborAs != nil {
-			neighborAs = types.Int64Value(int64(*d.NeighborAs))
+			neighborAs = mistutils.BgpAsAsString(d.NeighborAs)
 		}
 		if d.NeighborMac != nil {
 			neighborMac = types.StringValue(*d.NeighborMac)
