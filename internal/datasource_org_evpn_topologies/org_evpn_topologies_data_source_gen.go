@@ -25,35 +25,35 @@ func OrgEvpnTopologiesDataSourceSchema(ctx context.Context) schema.Schema {
 					Attributes: map[string]schema.Attribute{
 						"created_time": schema.Float64Attribute{
 							Computed:            true,
-							Description:         "when the object has been created, in epoch",
-							MarkdownDescription: "when the object has been created, in epoch",
+							Description:         "When the object has been created, in epoch",
+							MarkdownDescription: "When the object has been created, in epoch",
 						},
 						"evpn_options": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
 								"auto_loopback_subnet": schema.StringAttribute{
 									Computed:            true,
-									Description:         "optional, for dhcp_relay, unique loopback IPs are required for ERB or IPClos where we can set option-82 server_id-overrides",
-									MarkdownDescription: "optional, for dhcp_relay, unique loopback IPs are required for ERB or IPClos where we can set option-82 server_id-overrides",
+									Description:         "Optional, for dhcp_relay, unique loopback IPs are required for ERB or IPClos where we can set option-82 server_id-overrides",
+									MarkdownDescription: "Optional, for dhcp_relay, unique loopback IPs are required for ERB or IPClos where we can set option-82 server_id-overrides",
 								},
 								"auto_loopback_subnet6": schema.StringAttribute{
 									Computed:            true,
-									Description:         "optional, for dhcp_relay, unique loopback IPs are required for ERB or IPClos where we can set option-82 server_id-overrides",
-									MarkdownDescription: "optional, for dhcp_relay, unique loopback IPs are required for ERB or IPClos where we can set option-82 server_id-overrides",
+									Description:         "Optional, for dhcp_relay, unique loopback IPs are required for ERB or IPClos where we can set option-82 server_id-overrides",
+									MarkdownDescription: "Optional, for dhcp_relay, unique loopback IPs are required for ERB or IPClos where we can set option-82 server_id-overrides",
 								},
 								"auto_router_id_subnet": schema.StringAttribute{
 									Computed:            true,
-									Description:         "optional, this generates router_id automatically, if specified, `router_id_prefix` is ignored",
-									MarkdownDescription: "optional, this generates router_id automatically, if specified, `router_id_prefix` is ignored",
+									Description:         "Optional, this generates router_id automatically, if specified, `router_id_prefix` is ignored",
+									MarkdownDescription: "Optional, this generates router_id automatically, if specified, `router_id_prefix` is ignored",
 								},
 								"auto_router_id_subnet6": schema.StringAttribute{
 									Computed:            true,
-									Description:         "optional, this generates router_id automatically, if specified, `router_id_prefix` is ignored",
-									MarkdownDescription: "optional, this generates router_id automatically, if specified, `router_id_prefix` is ignored",
+									Description:         "Optional, this generates router_id automatically, if specified, `router_id_prefix` is ignored",
+									MarkdownDescription: "Optional, this generates router_id automatically, if specified, `router_id_prefix` is ignored",
 								},
 								"core_as_border": schema.BoolAttribute{
 									Computed:            true,
-									Description:         "optional, for ERB or CLOS, you can either use esilag to upstream routers or to also be the virtual-gateway. When `routed_at` != `core`, whether to do virtual-gateway at core as well",
-									MarkdownDescription: "optional, for ERB or CLOS, you can either use esilag to upstream routers or to also be the virtual-gateway. When `routed_at` != `core`, whether to do virtual-gateway at core as well",
+									Description:         "Optional, for ERB or CLOS, you can either use esilag to upstream routers or to also be the virtual-gateway. When `routed_at` != `core`, whether to do virtual-gateway at core as well",
+									MarkdownDescription: "Optional, for ERB or CLOS, you can either use esilag to upstream routers or to also be the virtual-gateway. When `routed_at` != `core`, whether to do virtual-gateway at core as well",
 								},
 								"overlay": schema.SingleNestedAttribute{
 									Attributes: map[string]schema.Attribute{
@@ -97,13 +97,13 @@ func OrgEvpnTopologiesDataSourceSchema(ctx context.Context) schema.Schema {
 										},
 										"subnet": schema.StringAttribute{
 											Computed:            true,
-											Description:         "underlay subnet, by default, `10.255.240.0/20`, or `fd31:5700::/64` for ipv6",
-											MarkdownDescription: "underlay subnet, by default, `10.255.240.0/20`, or `fd31:5700::/64` for ipv6",
+											Description:         "Underlay subnet, by default, `10.255.240.0/20`, or `fd31:5700::/64` for ipv6",
+											MarkdownDescription: "Underlay subnet, by default, `10.255.240.0/20`, or `fd31:5700::/64` for ipv6",
 										},
 										"use_ipv6": schema.BoolAttribute{
 											Computed:            true,
-											Description:         "if v6 is desired for underlay",
-											MarkdownDescription: "if v6 is desired for underlay",
+											Description:         "If v6 is desired for underlay",
+											MarkdownDescription: "If v6 is desired for underlay",
 										},
 									},
 									CustomType: UnderlayType{
@@ -128,8 +128,8 @@ func OrgEvpnTopologiesDataSourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 									Computed:            true,
-									Description:         "optional, for EX9200 only to seggregate virtual-switches",
-									MarkdownDescription: "optional, for EX9200 only to seggregate virtual-switches",
+									Description:         "Optional, for EX9200 only to segregate virtual-switches",
+									MarkdownDescription: "Optional, for EX9200 only to segregate virtual-switches",
 									Validators: []validator.Map{
 										mapvalidator.SizeAtLeast(1),
 									},
@@ -146,13 +146,13 @@ func OrgEvpnTopologiesDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"id": schema.StringAttribute{
 							Computed:            true,
-							Description:         "Unique ID of the object instance in the Mist Organnization",
-							MarkdownDescription: "Unique ID of the object instance in the Mist Organnization",
+							Description:         "Unique ID of the object instance in the Mist Organization",
+							MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
 						},
 						"modified_time": schema.Float64Attribute{
 							Computed:            true,
-							Description:         "when the object has been modified for the last time, in epoch",
-							MarkdownDescription: "when the object has been modified for the last time, in epoch",
+							Description:         "When the object has been modified for the last time, in epoch",
+							MarkdownDescription: "When the object has been modified for the last time, in epoch",
 						},
 						"name": schema.StringAttribute{
 							Computed: true,
@@ -1045,6 +1045,24 @@ func (t EvpnOptionsType) ValueFromObject(ctx context.Context, in basetypes.Objec
 			fmt.Sprintf(`per_vlan_vga_v4_mac expected to be basetypes.BoolValue, was: %T`, perVlanVgaV4MacAttribute))
 	}
 
+	perVlanVgaV6MacAttribute, ok := attributes["per_vlan_vga_v6_mac"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`per_vlan_vga_v6_mac is missing from object`)
+
+		return nil, diags
+	}
+
+	perVlanVgaV6MacVal, ok := perVlanVgaV6MacAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`per_vlan_vga_v6_mac expected to be basetypes.BoolValue, was: %T`, perVlanVgaV6MacAttribute))
+	}
+
 	routedAtAttribute, ok := attributes["routed_at"]
 
 	if !ok {
@@ -1111,6 +1129,7 @@ func (t EvpnOptionsType) ValueFromObject(ctx context.Context, in basetypes.Objec
 		CoreAsBorder:        coreAsBorderVal,
 		Overlay:             overlayVal,
 		PerVlanVgaV4Mac:     perVlanVgaV4MacVal,
+		PerVlanVgaV6Mac:     perVlanVgaV6MacVal,
 		RoutedAt:            routedAtVal,
 		Underlay:            underlayVal,
 		VsInstances:         vsInstancesVal,
@@ -1307,6 +1326,24 @@ func NewEvpnOptionsValue(attributeTypes map[string]attr.Type, attributes map[str
 			fmt.Sprintf(`per_vlan_vga_v4_mac expected to be basetypes.BoolValue, was: %T`, perVlanVgaV4MacAttribute))
 	}
 
+	perVlanVgaV6MacAttribute, ok := attributes["per_vlan_vga_v6_mac"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`per_vlan_vga_v6_mac is missing from object`)
+
+		return NewEvpnOptionsValueUnknown(), diags
+	}
+
+	perVlanVgaV6MacVal, ok := perVlanVgaV6MacAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`per_vlan_vga_v6_mac expected to be basetypes.BoolValue, was: %T`, perVlanVgaV6MacAttribute))
+	}
+
 	routedAtAttribute, ok := attributes["routed_at"]
 
 	if !ok {
@@ -1373,6 +1410,7 @@ func NewEvpnOptionsValue(attributeTypes map[string]attr.Type, attributes map[str
 		CoreAsBorder:        coreAsBorderVal,
 		Overlay:             overlayVal,
 		PerVlanVgaV4Mac:     perVlanVgaV4MacVal,
+		PerVlanVgaV6Mac:     perVlanVgaV6MacVal,
 		RoutedAt:            routedAtVal,
 		Underlay:            underlayVal,
 		VsInstances:         vsInstancesVal,
@@ -1455,6 +1493,7 @@ type EvpnOptionsValue struct {
 	CoreAsBorder        basetypes.BoolValue   `tfsdk:"core_as_border"`
 	Overlay             basetypes.ObjectValue `tfsdk:"overlay"`
 	PerVlanVgaV4Mac     basetypes.BoolValue   `tfsdk:"per_vlan_vga_v4_mac"`
+	PerVlanVgaV6Mac     basetypes.BoolValue   `tfsdk:"per_vlan_vga_v6_mac"`
 	RoutedAt            basetypes.StringValue `tfsdk:"routed_at"`
 	Underlay            basetypes.ObjectValue `tfsdk:"underlay"`
 	VsInstances         basetypes.MapValue    `tfsdk:"vs_instances"`
@@ -1462,7 +1501,7 @@ type EvpnOptionsValue struct {
 }
 
 func (v EvpnOptionsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 10)
+	attrTypes := make(map[string]tftypes.Type, 11)
 
 	var val tftypes.Value
 	var err error
@@ -1476,6 +1515,7 @@ func (v EvpnOptionsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 		AttrTypes: OverlayValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
 	attrTypes["per_vlan_vga_v4_mac"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["per_vlan_vga_v6_mac"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["routed_at"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["underlay"] = basetypes.ObjectType{
 		AttrTypes: UnderlayValue{}.AttributeTypes(ctx),
@@ -1488,7 +1528,7 @@ func (v EvpnOptionsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 10)
+		vals := make(map[string]tftypes.Value, 11)
 
 		val, err = v.AutoLoopbackSubnet.ToTerraformValue(ctx)
 
@@ -1545,6 +1585,14 @@ func (v EvpnOptionsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 		}
 
 		vals["per_vlan_vga_v4_mac"] = val
+
+		val, err = v.PerVlanVgaV6Mac.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["per_vlan_vga_v6_mac"] = val
 
 		val, err = v.RoutedAt.ToTerraformValue(ctx)
 
@@ -1680,6 +1728,7 @@ func (v EvpnOptionsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 			AttrTypes: OverlayValue{}.AttributeTypes(ctx),
 		},
 		"per_vlan_vga_v4_mac": basetypes.BoolType{},
+		"per_vlan_vga_v6_mac": basetypes.BoolType{},
 		"routed_at":           basetypes.StringType{},
 		"underlay": basetypes.ObjectType{
 			AttrTypes: UnderlayValue{}.AttributeTypes(ctx),
@@ -1707,6 +1756,7 @@ func (v EvpnOptionsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 			"core_as_border":         v.CoreAsBorder,
 			"overlay":                overlay,
 			"per_vlan_vga_v4_mac":    v.PerVlanVgaV4Mac,
+			"per_vlan_vga_v6_mac":    v.PerVlanVgaV6Mac,
 			"routed_at":              v.RoutedAt,
 			"underlay":               underlay,
 			"vs_instances":           vsInstances,
@@ -1758,6 +1808,10 @@ func (v EvpnOptionsValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.PerVlanVgaV6Mac.Equal(other.PerVlanVgaV6Mac) {
+		return false
+	}
+
 	if !v.RoutedAt.Equal(other.RoutedAt) {
 		return false
 	}
@@ -1792,6 +1846,7 @@ func (v EvpnOptionsValue) AttributeTypes(ctx context.Context) map[string]attr.Ty
 			AttrTypes: OverlayValue{}.AttributeTypes(ctx),
 		},
 		"per_vlan_vga_v4_mac": basetypes.BoolType{},
+		"per_vlan_vga_v6_mac": basetypes.BoolType{},
 		"routed_at":           basetypes.StringType{},
 		"underlay": basetypes.ObjectType{
 			AttrTypes: UnderlayValue{}.AttributeTypes(ctx),
