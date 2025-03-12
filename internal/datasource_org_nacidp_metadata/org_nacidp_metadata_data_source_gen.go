@@ -13,16 +13,24 @@ func OrgNacidpMetadataDataSourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"acs_url": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "If `idp_type`==`saml`",
+				MarkdownDescription: "If `idp_type`==`saml`",
 			},
 			"entity_id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "If `idp_type`==`saml`",
+				MarkdownDescription: "If `idp_type`==`saml`",
 			},
 			"logout_url": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "If `idp_type`==`saml`",
+				MarkdownDescription: "If `idp_type`==`saml`",
 			},
 			"metadata": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "If `idp_type`==`saml`",
+				MarkdownDescription: "If `idp_type`==`saml`",
 			},
 			"nacidp_id": schema.StringAttribute{
 				Required: true,
@@ -30,15 +38,21 @@ func OrgNacidpMetadataDataSourceSchema(ctx context.Context) schema.Schema {
 			"org_id": schema.StringAttribute{
 				Required: true,
 			},
+			"scim_base_url": schema.StringAttribute{
+				Computed:            true,
+				Description:         "If `idp_type`==`oauth` and `scim_enabled`==`true`",
+				MarkdownDescription: "If `idp_type`==`oauth` and `scim_enabled`==`true`",
+			},
 		},
 	}
 }
 
 type OrgNacidpMetadataModel struct {
-	AcsUrl    types.String `tfsdk:"acs_url"`
-	EntityId  types.String `tfsdk:"entity_id"`
-	LogoutUrl types.String `tfsdk:"logout_url"`
-	Metadata  types.String `tfsdk:"metadata"`
-	NacidpId  types.String `tfsdk:"nacidp_id"`
-	OrgId     types.String `tfsdk:"org_id"`
+	AcsUrl      types.String `tfsdk:"acs_url"`
+	EntityId    types.String `tfsdk:"entity_id"`
+	LogoutUrl   types.String `tfsdk:"logout_url"`
+	Metadata    types.String `tfsdk:"metadata"`
+	NacidpId    types.String `tfsdk:"nacidp_id"`
+	OrgId       types.String `tfsdk:"org_id"`
+	ScimBaseUrl types.String `tfsdk:"scim_base_url"`
 }

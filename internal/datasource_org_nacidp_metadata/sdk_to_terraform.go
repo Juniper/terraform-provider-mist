@@ -21,6 +21,9 @@ func SdkToTerraform(data *models.SamlMetadata) OrgNacidpMetadataModel {
 	if data.Metadata != nil {
 		ds.Metadata = types.StringValue(*data.Metadata)
 	}
+	if data.ScimBaseUrl != nil {
+		ds.ScimBaseUrl = types.StringValue(*data.ScimBaseUrl)
+	}
 
 	return ds
 }
