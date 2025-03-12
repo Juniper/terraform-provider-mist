@@ -29,9 +29,6 @@ func OrgWxtagsDataSourceSchema(ctx context.Context) schema.Schema {
 							Description:         "When the object has been created, in epoch",
 							MarkdownDescription: "When the object has been created, in epoch",
 						},
-						"for_site": schema.BoolAttribute{
-							Computed: true,
-						},
 						"id": schema.StringAttribute{
 							Computed:            true,
 							Description:         "Unique ID of the object instance in the Mist Organization",
@@ -187,24 +184,6 @@ func (t OrgWxtagsType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 			fmt.Sprintf(`created_time expected to be basetypes.Float64Value, was: %T`, createdTimeAttribute))
 	}
 
-	forSiteAttribute, ok := attributes["for_site"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`for_site is missing from object`)
-
-		return nil, diags
-	}
-
-	forSiteVal, ok := forSiteAttribute.(basetypes.BoolValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`for_site expected to be basetypes.BoolValue, was: %T`, forSiteAttribute))
-	}
-
 	idAttribute, ok := attributes["id"]
 
 	if !ok {
@@ -499,7 +478,6 @@ func (t OrgWxtagsType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 
 	return OrgWxtagsValue{
 		CreatedTime:   createdTimeVal,
-		ForSite:       forSiteVal,
 		Id:            idVal,
 		LastIps:       lastIpsVal,
 		Mac:           macVal,
@@ -601,24 +579,6 @@ func NewOrgWxtagsValue(attributeTypes map[string]attr.Type, attributes map[strin
 			fmt.Sprintf(`created_time expected to be basetypes.Float64Value, was: %T`, createdTimeAttribute))
 	}
 
-	forSiteAttribute, ok := attributes["for_site"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`for_site is missing from object`)
-
-		return NewOrgWxtagsValueUnknown(), diags
-	}
-
-	forSiteVal, ok := forSiteAttribute.(basetypes.BoolValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`for_site expected to be basetypes.BoolValue, was: %T`, forSiteAttribute))
-	}
-
 	idAttribute, ok := attributes["id"]
 
 	if !ok {
@@ -913,7 +873,6 @@ func NewOrgWxtagsValue(attributeTypes map[string]attr.Type, attributes map[strin
 
 	return OrgWxtagsValue{
 		CreatedTime:   createdTimeVal,
-		ForSite:       forSiteVal,
 		Id:            idVal,
 		LastIps:       lastIpsVal,
 		Mac:           macVal,
@@ -1003,7 +962,6 @@ var _ basetypes.ObjectValuable = OrgWxtagsValue{}
 
 type OrgWxtagsValue struct {
 	CreatedTime   basetypes.Float64Value `tfsdk:"created_time"`
-	ForSite       basetypes.BoolValue    `tfsdk:"for_site"`
 	Id            basetypes.StringValue  `tfsdk:"id"`
 	LastIps       basetypes.ListValue    `tfsdk:"last_ips"`
 	Mac           basetypes.StringValue  `tfsdk:"mac"`
@@ -1024,13 +982,12 @@ type OrgWxtagsValue struct {
 }
 
 func (v OrgWxtagsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 18)
+	attrTypes := make(map[string]tftypes.Type, 17)
 
 	var val tftypes.Value
 	var err error
 
 	attrTypes["created_time"] = basetypes.Float64Type{}.TerraformType(ctx)
-	attrTypes["for_site"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["last_ips"] = basetypes.ListType{
 		ElemType: types.StringType,
@@ -1060,7 +1017,7 @@ func (v OrgWxtagsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 18)
+		vals := make(map[string]tftypes.Value, 17)
 
 		val, err = v.CreatedTime.ToTerraformValue(ctx)
 
@@ -1069,14 +1026,6 @@ func (v OrgWxtagsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 		}
 
 		vals["created_time"] = val
-
-		val, err = v.ForSite.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["for_site"] = val
 
 		val, err = v.Id.ToTerraformValue(ctx)
 
@@ -1271,7 +1220,6 @@ func (v OrgWxtagsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 	if d.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"created_time": basetypes.Float64Type{},
-			"for_site":     basetypes.BoolType{},
 			"id":           basetypes.StringType{},
 			"last_ips": basetypes.ListType{
 				ElemType: types.StringType,
@@ -1306,7 +1254,6 @@ func (v OrgWxtagsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 	if d.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"created_time": basetypes.Float64Type{},
-			"for_site":     basetypes.BoolType{},
 			"id":           basetypes.StringType{},
 			"last_ips": basetypes.ListType{
 				ElemType: types.StringType,
@@ -1341,7 +1288,6 @@ func (v OrgWxtagsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 	if d.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"created_time": basetypes.Float64Type{},
-			"for_site":     basetypes.BoolType{},
 			"id":           basetypes.StringType{},
 			"last_ips": basetypes.ListType{
 				ElemType: types.StringType,
@@ -1371,7 +1317,6 @@ func (v OrgWxtagsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 
 	attributeTypes := map[string]attr.Type{
 		"created_time": basetypes.Float64Type{},
-		"for_site":     basetypes.BoolType{},
 		"id":           basetypes.StringType{},
 		"last_ips": basetypes.ListType{
 			ElemType: types.StringType,
@@ -1410,7 +1355,6 @@ func (v OrgWxtagsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 		attributeTypes,
 		map[string]attr.Value{
 			"created_time":  v.CreatedTime,
-			"for_site":      v.ForSite,
 			"id":            v.Id,
 			"last_ips":      lastIpsVal,
 			"mac":           v.Mac,
@@ -1448,10 +1392,6 @@ func (v OrgWxtagsValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.CreatedTime.Equal(other.CreatedTime) {
-		return false
-	}
-
-	if !v.ForSite.Equal(other.ForSite) {
 		return false
 	}
 
@@ -1533,7 +1473,6 @@ func (v OrgWxtagsValue) Type(ctx context.Context) attr.Type {
 func (v OrgWxtagsValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"created_time": basetypes.Float64Type{},
-		"for_site":     basetypes.BoolType{},
 		"id":           basetypes.StringType{},
 		"last_ips": basetypes.ListType{
 			ElemType: types.StringType,
