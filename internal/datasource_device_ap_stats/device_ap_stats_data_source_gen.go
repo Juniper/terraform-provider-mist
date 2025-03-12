@@ -188,16 +188,24 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 									Computed: true,
 								},
 								"rx_bytes": schema.Int64Attribute{
-									Computed: true,
+									Computed:            true,
+									Description:         "Amount of traffic received since connection",
+									MarkdownDescription: "Amount of traffic received since connection",
 								},
 								"rx_pkts": schema.Int64Attribute{
-									Computed: true,
+									Computed:            true,
+									Description:         "Amount of packets received since connection",
+									MarkdownDescription: "Amount of packets received since connection",
 								},
 								"tx_bytes": schema.Int64Attribute{
-									Computed: true,
+									Computed:            true,
+									Description:         "Amount of traffic sent since connection",
+									MarkdownDescription: "Amount of traffic sent since connection",
 								},
 								"tx_pkts": schema.Int64Attribute{
-									Computed: true,
+									Computed:            true,
+									Description:         "Amount of packets sent since connection",
+									MarkdownDescription: "Amount of packets sent since connection",
 								},
 								"tx_resets": schema.Int64Attribute{
 									Computed:            true,
@@ -740,19 +748,29 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 										Computed: true,
 									},
 									"rx_bps": schema.Int64Attribute{
-										Computed: true,
+										Computed:            true,
+										Description:         "Rate of receiving traffic, bits/seconds, last known",
+										MarkdownDescription: "Rate of receiving traffic, bits/seconds, last known",
 									},
 									"rx_bytes": schema.Int64Attribute{
-										Computed: true,
+										Computed:            true,
+										Description:         "Amount of traffic received since connection",
+										MarkdownDescription: "Amount of traffic received since connection",
 									},
 									"rx_packets": schema.Int64Attribute{
-										Computed: true,
+										Computed:            true,
+										Description:         "Amount of packets received since connection",
+										MarkdownDescription: "Amount of packets received since connection",
 									},
-									"rx_rate": schema.Int64Attribute{
-										Computed: true,
+									"rx_rate": schema.Float64Attribute{
+										Computed:            true,
+										Description:         "RX Rate, Mbps",
+										MarkdownDescription: "RX Rate, Mbps",
 									},
 									"rx_retries": schema.Int64Attribute{
-										Computed: true,
+										Computed:            true,
+										Description:         "Amount of rx retries",
+										MarkdownDescription: "Amount of rx retries",
 									},
 									"site_id": schema.StringAttribute{
 										Computed: true,
@@ -761,19 +779,29 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 										Computed: true,
 									},
 									"tx_bps": schema.Int64Attribute{
-										Computed: true,
+										Computed:            true,
+										Description:         "Rate of transmitting traffic, bits/seconds, last known",
+										MarkdownDescription: "Rate of transmitting traffic, bits/seconds, last known",
 									},
 									"tx_bytes": schema.Int64Attribute{
-										Computed: true,
+										Computed:            true,
+										Description:         "Amount of traffic sent since connection",
+										MarkdownDescription: "Amount of traffic sent since connection",
 									},
 									"tx_packets": schema.Int64Attribute{
-										Computed: true,
+										Computed:            true,
+										Description:         "Amount of packets sent since connection",
+										MarkdownDescription: "Amount of packets sent since connection",
 									},
-									"tx_rate": schema.Int64Attribute{
-										Computed: true,
+									"tx_rate": schema.Float64Attribute{
+										Computed:            true,
+										Description:         "TX Rate, Mbps",
+										MarkdownDescription: "TX Rate, Mbps",
 									},
 									"tx_retries": schema.Int64Attribute{
-										Computed: true,
+										Computed:            true,
+										Description:         "Amount of tx retries",
+										MarkdownDescription: "Amount of tx retries",
 									},
 								},
 								CustomType: MeshDownlinksType{
@@ -812,19 +840,29 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 									Computed: true,
 								},
 								"rx_bps": schema.Int64Attribute{
-									Computed: true,
+									Computed:            true,
+									Description:         "Rate of receiving traffic, bits/seconds, last known",
+									MarkdownDescription: "Rate of receiving traffic, bits/seconds, last known",
 								},
 								"rx_bytes": schema.Int64Attribute{
-									Computed: true,
+									Computed:            true,
+									Description:         "Amount of traffic received since connection",
+									MarkdownDescription: "Amount of traffic received since connection",
 								},
 								"rx_packets": schema.Int64Attribute{
-									Computed: true,
+									Computed:            true,
+									Description:         "Amount of packets received since connection",
+									MarkdownDescription: "Amount of packets received since connection",
 								},
-								"rx_rate": schema.Int64Attribute{
-									Computed: true,
+								"rx_rate": schema.Float64Attribute{
+									Computed:            true,
+									Description:         "RX Rate, Mbps",
+									MarkdownDescription: "RX Rate, Mbps",
 								},
 								"rx_retries": schema.Int64Attribute{
-									Computed: true,
+									Computed:            true,
+									Description:         "Amount of rx retries",
+									MarkdownDescription: "Amount of rx retries",
 								},
 								"site_id": schema.StringAttribute{
 									Computed: true,
@@ -833,19 +871,29 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 									Computed: true,
 								},
 								"tx_bps": schema.Int64Attribute{
-									Computed: true,
+									Computed:            true,
+									Description:         "Rate of transmitting traffic, bits/seconds, last known",
+									MarkdownDescription: "Rate of transmitting traffic, bits/seconds, last known",
 								},
 								"tx_bytes": schema.Int64Attribute{
-									Computed: true,
+									Computed:            true,
+									Description:         "Amount of traffic sent since connection",
+									MarkdownDescription: "Amount of traffic sent since connection",
 								},
 								"tx_packets": schema.Int64Attribute{
-									Computed: true,
+									Computed:            true,
+									Description:         "Amount of packets sent since connection",
+									MarkdownDescription: "Amount of packets sent since connection",
 								},
-								"tx_rate": schema.Int64Attribute{
-									Computed: true,
+								"tx_rate": schema.Float64Attribute{
+									Computed:            true,
+									Description:         "TX Rate, Mbps",
+									MarkdownDescription: "TX Rate, Mbps",
 								},
 								"tx_retries": schema.Int64Attribute{
-									Computed: true,
+									Computed:            true,
+									Description:         "Amount of tx retries",
+									MarkdownDescription: "Amount of tx retries",
 								},
 								"uplink_ap_id": schema.StringAttribute{
 									Computed: true,
@@ -897,7 +945,9 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 										Computed: true,
 									},
 									"rx_bytes": schema.Int64Attribute{
-										Computed: true,
+										Computed:            true,
+										Description:         "Amount of traffic received since connection",
+										MarkdownDescription: "Amount of traffic received since connection",
 									},
 									"rx_errors": schema.Int64Attribute{
 										Computed: true,
@@ -906,19 +956,25 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 										Computed: true,
 									},
 									"rx_pkts": schema.Int64Attribute{
-										Computed: true,
+										Computed:            true,
+										Description:         "Amount of packets received since connection",
+										MarkdownDescription: "Amount of packets received since connection",
 									},
 									"speed": schema.Int64Attribute{
 										Computed: true,
 									},
 									"tx_bytes": schema.Int64Attribute{
-										Computed: true,
+										Computed:            true,
+										Description:         "Amount of traffic sent since connection",
+										MarkdownDescription: "Amount of traffic sent since connection",
 									},
 									"tx_peak_bps": schema.Int64Attribute{
 										Computed: true,
 									},
 									"tx_pkts": schema.Int64Attribute{
-										Computed: true,
+										Computed:            true,
+										Description:         "Amount of packets sent since connection",
+										MarkdownDescription: "Amount of packets sent since connection",
 									},
 									"up": schema.BoolAttribute{
 										Computed: true,
@@ -998,16 +1054,24 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 											MarkdownDescription: "Transmit power (in dBm)",
 										},
 										"rx_bytes": schema.Int64Attribute{
-											Computed: true,
+											Computed:            true,
+											Description:         "Amount of traffic received since connection",
+											MarkdownDescription: "Amount of traffic received since connection",
 										},
 										"rx_pkts": schema.Int64Attribute{
-											Computed: true,
+											Computed:            true,
+											Description:         "Amount of packets received since connection",
+											MarkdownDescription: "Amount of packets received since connection",
 										},
 										"tx_bytes": schema.Int64Attribute{
-											Computed: true,
+											Computed:            true,
+											Description:         "Amount of traffic sent since connection",
+											MarkdownDescription: "Amount of traffic sent since connection",
 										},
 										"tx_pkts": schema.Int64Attribute{
-											Computed: true,
+											Computed:            true,
+											Description:         "Amount of packets sent since connection",
+											MarkdownDescription: "Amount of packets sent since connection",
 										},
 										"usage": schema.StringAttribute{
 											Computed: true,
@@ -1096,16 +1160,24 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 											MarkdownDescription: "Transmit power (in dBm)",
 										},
 										"rx_bytes": schema.Int64Attribute{
-											Computed: true,
+											Computed:            true,
+											Description:         "Amount of traffic received since connection",
+											MarkdownDescription: "Amount of traffic received since connection",
 										},
 										"rx_pkts": schema.Int64Attribute{
-											Computed: true,
+											Computed:            true,
+											Description:         "Amount of packets received since connection",
+											MarkdownDescription: "Amount of packets received since connection",
 										},
 										"tx_bytes": schema.Int64Attribute{
-											Computed: true,
+											Computed:            true,
+											Description:         "Amount of traffic sent since connection",
+											MarkdownDescription: "Amount of traffic sent since connection",
 										},
 										"tx_pkts": schema.Int64Attribute{
-											Computed: true,
+											Computed:            true,
+											Description:         "Amount of packets sent since connection",
+											MarkdownDescription: "Amount of packets sent since connection",
 										},
 										"usage": schema.StringAttribute{
 											Computed: true,
@@ -1194,16 +1266,24 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 											MarkdownDescription: "Transmit power (in dBm)",
 										},
 										"rx_bytes": schema.Int64Attribute{
-											Computed: true,
+											Computed:            true,
+											Description:         "Amount of traffic received since connection",
+											MarkdownDescription: "Amount of traffic received since connection",
 										},
 										"rx_pkts": schema.Int64Attribute{
-											Computed: true,
+											Computed:            true,
+											Description:         "Amount of packets received since connection",
+											MarkdownDescription: "Amount of packets received since connection",
 										},
 										"tx_bytes": schema.Int64Attribute{
-											Computed: true,
+											Computed:            true,
+											Description:         "Amount of traffic sent since connection",
+											MarkdownDescription: "Amount of traffic sent since connection",
 										},
 										"tx_pkts": schema.Int64Attribute{
-											Computed: true,
+											Computed:            true,
+											Description:         "Amount of packets sent since connection",
+											MarkdownDescription: "Amount of packets sent since connection",
 										},
 										"usage": schema.StringAttribute{
 											Computed: true,
@@ -1261,14 +1341,20 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 							},
 							Computed: true,
 						},
-						"rx_bps": schema.NumberAttribute{
-							Computed: true,
+						"rx_bps": schema.Int64Attribute{
+							Computed:            true,
+							Description:         "Rate of receiving traffic, bits/seconds, last known",
+							MarkdownDescription: "Rate of receiving traffic, bits/seconds, last known",
 						},
 						"rx_bytes": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							Description:         "Amount of traffic received since connection",
+							MarkdownDescription: "Amount of traffic received since connection",
 						},
 						"rx_pkts": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							Description:         "Amount of packets received since connection",
+							MarkdownDescription: "Amount of packets received since connection",
 						},
 						"serial": schema.StringAttribute{
 							Computed:            true,
@@ -1294,14 +1380,20 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 							},
 							Computed: true,
 						},
-						"tx_bps": schema.NumberAttribute{
-							Computed: true,
+						"tx_bps": schema.Int64Attribute{
+							Computed:            true,
+							Description:         "Rate of transmitting traffic, bits/seconds, last known",
+							MarkdownDescription: "Rate of transmitting traffic, bits/seconds, last known",
 						},
-						"tx_bytes": schema.NumberAttribute{
-							Computed: true,
+						"tx_bytes": schema.Int64Attribute{
+							Computed:            true,
+							Description:         "Amount of traffic sent since connection",
+							MarkdownDescription: "Amount of traffic sent since connection",
 						},
-						"tx_pkts": schema.NumberAttribute{
-							Computed: true,
+						"tx_pkts": schema.Int64Attribute{
+							Computed:            true,
+							Description:         "Amount of packets sent since connection",
+							MarkdownDescription: "Amount of packets sent since connection",
 						},
 						"uptime": schema.NumberAttribute{
 							Computed:            true,
@@ -2284,12 +2376,12 @@ func (t DeviceApStatsType) ValueFromObject(ctx context.Context, in basetypes.Obj
 		return nil, diags
 	}
 
-	rxBpsVal, ok := rxBpsAttribute.(basetypes.NumberValue)
+	rxBpsVal, ok := rxBpsAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`rx_bps expected to be basetypes.NumberValue, was: %T`, rxBpsAttribute))
+			fmt.Sprintf(`rx_bps expected to be basetypes.Int64Value, was: %T`, rxBpsAttribute))
 	}
 
 	rxBytesAttribute, ok := attributes["rx_bytes"]
@@ -2410,12 +2502,12 @@ func (t DeviceApStatsType) ValueFromObject(ctx context.Context, in basetypes.Obj
 		return nil, diags
 	}
 
-	txBpsVal, ok := txBpsAttribute.(basetypes.NumberValue)
+	txBpsVal, ok := txBpsAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`tx_bps expected to be basetypes.NumberValue, was: %T`, txBpsAttribute))
+			fmt.Sprintf(`tx_bps expected to be basetypes.Int64Value, was: %T`, txBpsAttribute))
 	}
 
 	txBytesAttribute, ok := attributes["tx_bytes"]
@@ -2428,12 +2520,12 @@ func (t DeviceApStatsType) ValueFromObject(ctx context.Context, in basetypes.Obj
 		return nil, diags
 	}
 
-	txBytesVal, ok := txBytesAttribute.(basetypes.NumberValue)
+	txBytesVal, ok := txBytesAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`tx_bytes expected to be basetypes.NumberValue, was: %T`, txBytesAttribute))
+			fmt.Sprintf(`tx_bytes expected to be basetypes.Int64Value, was: %T`, txBytesAttribute))
 	}
 
 	txPktsAttribute, ok := attributes["tx_pkts"]
@@ -2446,12 +2538,12 @@ func (t DeviceApStatsType) ValueFromObject(ctx context.Context, in basetypes.Obj
 		return nil, diags
 	}
 
-	txPktsVal, ok := txPktsAttribute.(basetypes.NumberValue)
+	txPktsVal, ok := txPktsAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`tx_pkts expected to be basetypes.NumberValue, was: %T`, txPktsAttribute))
+			fmt.Sprintf(`tx_pkts expected to be basetypes.Int64Value, was: %T`, txPktsAttribute))
 	}
 
 	uptimeAttribute, ok := attributes["uptime"]
@@ -3534,12 +3626,12 @@ func NewDeviceApStatsValue(attributeTypes map[string]attr.Type, attributes map[s
 		return NewDeviceApStatsValueUnknown(), diags
 	}
 
-	rxBpsVal, ok := rxBpsAttribute.(basetypes.NumberValue)
+	rxBpsVal, ok := rxBpsAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`rx_bps expected to be basetypes.NumberValue, was: %T`, rxBpsAttribute))
+			fmt.Sprintf(`rx_bps expected to be basetypes.Int64Value, was: %T`, rxBpsAttribute))
 	}
 
 	rxBytesAttribute, ok := attributes["rx_bytes"]
@@ -3660,12 +3752,12 @@ func NewDeviceApStatsValue(attributeTypes map[string]attr.Type, attributes map[s
 		return NewDeviceApStatsValueUnknown(), diags
 	}
 
-	txBpsVal, ok := txBpsAttribute.(basetypes.NumberValue)
+	txBpsVal, ok := txBpsAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`tx_bps expected to be basetypes.NumberValue, was: %T`, txBpsAttribute))
+			fmt.Sprintf(`tx_bps expected to be basetypes.Int64Value, was: %T`, txBpsAttribute))
 	}
 
 	txBytesAttribute, ok := attributes["tx_bytes"]
@@ -3678,12 +3770,12 @@ func NewDeviceApStatsValue(attributeTypes map[string]attr.Type, attributes map[s
 		return NewDeviceApStatsValueUnknown(), diags
 	}
 
-	txBytesVal, ok := txBytesAttribute.(basetypes.NumberValue)
+	txBytesVal, ok := txBytesAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`tx_bytes expected to be basetypes.NumberValue, was: %T`, txBytesAttribute))
+			fmt.Sprintf(`tx_bytes expected to be basetypes.Int64Value, was: %T`, txBytesAttribute))
 	}
 
 	txPktsAttribute, ok := attributes["tx_pkts"]
@@ -3696,12 +3788,12 @@ func NewDeviceApStatsValue(attributeTypes map[string]attr.Type, attributes map[s
 		return NewDeviceApStatsValueUnknown(), diags
 	}
 
-	txPktsVal, ok := txPktsAttribute.(basetypes.NumberValue)
+	txPktsVal, ok := txPktsAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`tx_pkts expected to be basetypes.NumberValue, was: %T`, txPktsAttribute))
+			fmt.Sprintf(`tx_pkts expected to be basetypes.Int64Value, was: %T`, txPktsAttribute))
 	}
 
 	uptimeAttribute, ok := attributes["uptime"]
@@ -3980,16 +4072,16 @@ type DeviceApStatsValue struct {
 	PowerOpmode        basetypes.StringValue  `tfsdk:"power_opmode"`
 	PowerSrc           basetypes.StringValue  `tfsdk:"power_src"`
 	RadioStat          basetypes.ObjectValue  `tfsdk:"radio_stat"`
-	RxBps              basetypes.NumberValue  `tfsdk:"rx_bps"`
+	RxBps              basetypes.Int64Value   `tfsdk:"rx_bps"`
 	RxBytes            basetypes.Int64Value   `tfsdk:"rx_bytes"`
 	RxPkts             basetypes.Int64Value   `tfsdk:"rx_pkts"`
 	Serial             basetypes.StringValue  `tfsdk:"serial"`
 	SiteId             basetypes.StringValue  `tfsdk:"site_id"`
 	Status             basetypes.StringValue  `tfsdk:"status"`
 	SwitchRedundancy   basetypes.ObjectValue  `tfsdk:"switch_redundancy"`
-	TxBps              basetypes.NumberValue  `tfsdk:"tx_bps"`
-	TxBytes            basetypes.NumberValue  `tfsdk:"tx_bytes"`
-	TxPkts             basetypes.NumberValue  `tfsdk:"tx_pkts"`
+	TxBps              basetypes.Int64Value   `tfsdk:"tx_bps"`
+	TxBytes            basetypes.Int64Value   `tfsdk:"tx_bytes"`
+	TxPkts             basetypes.Int64Value   `tfsdk:"tx_pkts"`
 	Uptime             basetypes.NumberValue  `tfsdk:"uptime"`
 	UsbStat            basetypes.ObjectValue  `tfsdk:"usb_stat"`
 	Version            basetypes.StringValue  `tfsdk:"version"`
@@ -4089,7 +4181,7 @@ func (v DeviceApStatsValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 	attrTypes["radio_stat"] = basetypes.ObjectType{
 		AttrTypes: RadioStatValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
-	attrTypes["rx_bps"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["rx_bps"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["rx_bytes"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["rx_pkts"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["serial"] = basetypes.StringType{}.TerraformType(ctx)
@@ -4098,9 +4190,9 @@ func (v DeviceApStatsValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 	attrTypes["switch_redundancy"] = basetypes.ObjectType{
 		AttrTypes: SwitchRedundancyValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
-	attrTypes["tx_bps"] = basetypes.NumberType{}.TerraformType(ctx)
-	attrTypes["tx_bytes"] = basetypes.NumberType{}.TerraformType(ctx)
-	attrTypes["tx_pkts"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["tx_bps"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["tx_bytes"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["tx_pkts"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["uptime"] = basetypes.NumberType{}.TerraformType(ctx)
 	attrTypes["usb_stat"] = basetypes.ObjectType{
 		AttrTypes: UsbStatValue{}.AttributeTypes(ctx),
@@ -5183,7 +5275,7 @@ func (v DeviceApStatsValue) ToObjectValue(ctx context.Context) (basetypes.Object
 			"radio_stat": basetypes.ObjectType{
 				AttrTypes: RadioStatValue{}.AttributeTypes(ctx),
 			},
-			"rx_bps":   basetypes.NumberType{},
+			"rx_bps":   basetypes.Int64Type{},
 			"rx_bytes": basetypes.Int64Type{},
 			"rx_pkts":  basetypes.Int64Type{},
 			"serial":   basetypes.StringType{},
@@ -5192,9 +5284,9 @@ func (v DeviceApStatsValue) ToObjectValue(ctx context.Context) (basetypes.Object
 			"switch_redundancy": basetypes.ObjectType{
 				AttrTypes: SwitchRedundancyValue{}.AttributeTypes(ctx),
 			},
-			"tx_bps":   basetypes.NumberType{},
-			"tx_bytes": basetypes.NumberType{},
-			"tx_pkts":  basetypes.NumberType{},
+			"tx_bps":   basetypes.Int64Type{},
+			"tx_bytes": basetypes.Int64Type{},
+			"tx_pkts":  basetypes.Int64Type{},
 			"uptime":   basetypes.NumberType{},
 			"usb_stat": basetypes.ObjectType{
 				AttrTypes: UsbStatValue{}.AttributeTypes(ctx),
@@ -5291,7 +5383,7 @@ func (v DeviceApStatsValue) ToObjectValue(ctx context.Context) (basetypes.Object
 		"radio_stat": basetypes.ObjectType{
 			AttrTypes: RadioStatValue{}.AttributeTypes(ctx),
 		},
-		"rx_bps":   basetypes.NumberType{},
+		"rx_bps":   basetypes.Int64Type{},
 		"rx_bytes": basetypes.Int64Type{},
 		"rx_pkts":  basetypes.Int64Type{},
 		"serial":   basetypes.StringType{},
@@ -5300,9 +5392,9 @@ func (v DeviceApStatsValue) ToObjectValue(ctx context.Context) (basetypes.Object
 		"switch_redundancy": basetypes.ObjectType{
 			AttrTypes: SwitchRedundancyValue{}.AttributeTypes(ctx),
 		},
-		"tx_bps":   basetypes.NumberType{},
-		"tx_bytes": basetypes.NumberType{},
-		"tx_pkts":  basetypes.NumberType{},
+		"tx_bps":   basetypes.Int64Type{},
+		"tx_bytes": basetypes.Int64Type{},
+		"tx_pkts":  basetypes.Int64Type{},
 		"uptime":   basetypes.NumberType{},
 		"usb_stat": basetypes.ObjectType{
 			AttrTypes: UsbStatValue{}.AttributeTypes(ctx),
@@ -5751,7 +5843,7 @@ func (v DeviceApStatsValue) AttributeTypes(ctx context.Context) map[string]attr.
 		"radio_stat": basetypes.ObjectType{
 			AttrTypes: RadioStatValue{}.AttributeTypes(ctx),
 		},
-		"rx_bps":   basetypes.NumberType{},
+		"rx_bps":   basetypes.Int64Type{},
 		"rx_bytes": basetypes.Int64Type{},
 		"rx_pkts":  basetypes.Int64Type{},
 		"serial":   basetypes.StringType{},
@@ -5760,9 +5852,9 @@ func (v DeviceApStatsValue) AttributeTypes(ctx context.Context) map[string]attr.
 		"switch_redundancy": basetypes.ObjectType{
 			AttrTypes: SwitchRedundancyValue{}.AttributeTypes(ctx),
 		},
-		"tx_bps":   basetypes.NumberType{},
-		"tx_bytes": basetypes.NumberType{},
-		"tx_pkts":  basetypes.NumberType{},
+		"tx_bps":   basetypes.Int64Type{},
+		"tx_bytes": basetypes.Int64Type{},
+		"tx_pkts":  basetypes.Int64Type{},
 		"uptime":   basetypes.NumberType{},
 		"usb_stat": basetypes.ObjectType{
 			AttrTypes: UsbStatValue{}.AttributeTypes(ctx),
@@ -17016,12 +17108,12 @@ func (t MeshDownlinksType) ValueFromObject(ctx context.Context, in basetypes.Obj
 		return nil, diags
 	}
 
-	rxRateVal, ok := rxRateAttribute.(basetypes.Int64Value)
+	rxRateVal, ok := rxRateAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`rx_rate expected to be basetypes.Int64Value, was: %T`, rxRateAttribute))
+			fmt.Sprintf(`rx_rate expected to be basetypes.Float64Value, was: %T`, rxRateAttribute))
 	}
 
 	rxRetriesAttribute, ok := attributes["rx_retries"]
@@ -17142,12 +17234,12 @@ func (t MeshDownlinksType) ValueFromObject(ctx context.Context, in basetypes.Obj
 		return nil, diags
 	}
 
-	txRateVal, ok := txRateAttribute.(basetypes.Int64Value)
+	txRateVal, ok := txRateAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`tx_rate expected to be basetypes.Int64Value, was: %T`, txRateAttribute))
+			fmt.Sprintf(`tx_rate expected to be basetypes.Float64Value, was: %T`, txRateAttribute))
 	}
 
 	txRetriesAttribute, ok := attributes["tx_retries"]
@@ -17430,12 +17522,12 @@ func NewMeshDownlinksValue(attributeTypes map[string]attr.Type, attributes map[s
 		return NewMeshDownlinksValueUnknown(), diags
 	}
 
-	rxRateVal, ok := rxRateAttribute.(basetypes.Int64Value)
+	rxRateVal, ok := rxRateAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`rx_rate expected to be basetypes.Int64Value, was: %T`, rxRateAttribute))
+			fmt.Sprintf(`rx_rate expected to be basetypes.Float64Value, was: %T`, rxRateAttribute))
 	}
 
 	rxRetriesAttribute, ok := attributes["rx_retries"]
@@ -17556,12 +17648,12 @@ func NewMeshDownlinksValue(attributeTypes map[string]attr.Type, attributes map[s
 		return NewMeshDownlinksValueUnknown(), diags
 	}
 
-	txRateVal, ok := txRateAttribute.(basetypes.Int64Value)
+	txRateVal, ok := txRateAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`tx_rate expected to be basetypes.Int64Value, was: %T`, txRateAttribute))
+			fmt.Sprintf(`tx_rate expected to be basetypes.Float64Value, was: %T`, txRateAttribute))
 	}
 
 	txRetriesAttribute, ok := attributes["tx_retries"]
@@ -17686,14 +17778,14 @@ type MeshDownlinksValue struct {
 	RxBps     basetypes.Int64Value   `tfsdk:"rx_bps"`
 	RxBytes   basetypes.Int64Value   `tfsdk:"rx_bytes"`
 	RxPackets basetypes.Int64Value   `tfsdk:"rx_packets"`
-	RxRate    basetypes.Int64Value   `tfsdk:"rx_rate"`
+	RxRate    basetypes.Float64Value `tfsdk:"rx_rate"`
 	RxRetries basetypes.Int64Value   `tfsdk:"rx_retries"`
 	SiteId    basetypes.StringValue  `tfsdk:"site_id"`
 	Snr       basetypes.Int64Value   `tfsdk:"snr"`
 	TxBps     basetypes.Int64Value   `tfsdk:"tx_bps"`
 	TxBytes   basetypes.Int64Value   `tfsdk:"tx_bytes"`
 	TxPackets basetypes.Int64Value   `tfsdk:"tx_packets"`
-	TxRate    basetypes.Int64Value   `tfsdk:"tx_rate"`
+	TxRate    basetypes.Float64Value `tfsdk:"tx_rate"`
 	TxRetries basetypes.Int64Value   `tfsdk:"tx_retries"`
 	state     attr.ValueState
 }
@@ -17713,14 +17805,14 @@ func (v MeshDownlinksValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 	attrTypes["rx_bps"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["rx_bytes"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["rx_packets"] = basetypes.Int64Type{}.TerraformType(ctx)
-	attrTypes["rx_rate"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["rx_rate"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["rx_retries"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["site_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["snr"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["tx_bps"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["tx_bytes"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["tx_packets"] = basetypes.Int64Type{}.TerraformType(ctx)
-	attrTypes["tx_rate"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["tx_rate"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["tx_retries"] = basetypes.Int64Type{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
@@ -17912,14 +18004,14 @@ func (v MeshDownlinksValue) ToObjectValue(ctx context.Context) (basetypes.Object
 		"rx_bps":     basetypes.Int64Type{},
 		"rx_bytes":   basetypes.Int64Type{},
 		"rx_packets": basetypes.Int64Type{},
-		"rx_rate":    basetypes.Int64Type{},
+		"rx_rate":    basetypes.Float64Type{},
 		"rx_retries": basetypes.Int64Type{},
 		"site_id":    basetypes.StringType{},
 		"snr":        basetypes.Int64Type{},
 		"tx_bps":     basetypes.Int64Type{},
 		"tx_bytes":   basetypes.Int64Type{},
 		"tx_packets": basetypes.Int64Type{},
-		"tx_rate":    basetypes.Int64Type{},
+		"tx_rate":    basetypes.Float64Type{},
 		"tx_retries": basetypes.Int64Type{},
 	}
 
@@ -18066,14 +18158,14 @@ func (v MeshDownlinksValue) AttributeTypes(ctx context.Context) map[string]attr.
 		"rx_bps":     basetypes.Int64Type{},
 		"rx_bytes":   basetypes.Int64Type{},
 		"rx_packets": basetypes.Int64Type{},
-		"rx_rate":    basetypes.Int64Type{},
+		"rx_rate":    basetypes.Float64Type{},
 		"rx_retries": basetypes.Int64Type{},
 		"site_id":    basetypes.StringType{},
 		"snr":        basetypes.Int64Type{},
 		"tx_bps":     basetypes.Int64Type{},
 		"tx_bytes":   basetypes.Int64Type{},
 		"tx_packets": basetypes.Int64Type{},
-		"tx_rate":    basetypes.Int64Type{},
+		"tx_rate":    basetypes.Float64Type{},
 		"tx_retries": basetypes.Int64Type{},
 	}
 }
@@ -18275,12 +18367,12 @@ func (t MeshUplinkType) ValueFromObject(ctx context.Context, in basetypes.Object
 		return nil, diags
 	}
 
-	rxRateVal, ok := rxRateAttribute.(basetypes.Int64Value)
+	rxRateVal, ok := rxRateAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`rx_rate expected to be basetypes.Int64Value, was: %T`, rxRateAttribute))
+			fmt.Sprintf(`rx_rate expected to be basetypes.Float64Value, was: %T`, rxRateAttribute))
 	}
 
 	rxRetriesAttribute, ok := attributes["rx_retries"]
@@ -18401,12 +18493,12 @@ func (t MeshUplinkType) ValueFromObject(ctx context.Context, in basetypes.Object
 		return nil, diags
 	}
 
-	txRateVal, ok := txRateAttribute.(basetypes.Int64Value)
+	txRateVal, ok := txRateAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`tx_rate expected to be basetypes.Int64Value, was: %T`, txRateAttribute))
+			fmt.Sprintf(`tx_rate expected to be basetypes.Float64Value, was: %T`, txRateAttribute))
 	}
 
 	txRetriesAttribute, ok := attributes["tx_retries"]
@@ -18708,12 +18800,12 @@ func NewMeshUplinkValue(attributeTypes map[string]attr.Type, attributes map[stri
 		return NewMeshUplinkValueUnknown(), diags
 	}
 
-	rxRateVal, ok := rxRateAttribute.(basetypes.Int64Value)
+	rxRateVal, ok := rxRateAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`rx_rate expected to be basetypes.Int64Value, was: %T`, rxRateAttribute))
+			fmt.Sprintf(`rx_rate expected to be basetypes.Float64Value, was: %T`, rxRateAttribute))
 	}
 
 	rxRetriesAttribute, ok := attributes["rx_retries"]
@@ -18834,12 +18926,12 @@ func NewMeshUplinkValue(attributeTypes map[string]attr.Type, attributes map[stri
 		return NewMeshUplinkValueUnknown(), diags
 	}
 
-	txRateVal, ok := txRateAttribute.(basetypes.Int64Value)
+	txRateVal, ok := txRateAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`tx_rate expected to be basetypes.Int64Value, was: %T`, txRateAttribute))
+			fmt.Sprintf(`tx_rate expected to be basetypes.Float64Value, was: %T`, txRateAttribute))
 	}
 
 	txRetriesAttribute, ok := attributes["tx_retries"]
@@ -18983,14 +19075,14 @@ type MeshUplinkValue struct {
 	RxBps      basetypes.Int64Value   `tfsdk:"rx_bps"`
 	RxBytes    basetypes.Int64Value   `tfsdk:"rx_bytes"`
 	RxPackets  basetypes.Int64Value   `tfsdk:"rx_packets"`
-	RxRate     basetypes.Int64Value   `tfsdk:"rx_rate"`
+	RxRate     basetypes.Float64Value `tfsdk:"rx_rate"`
 	RxRetries  basetypes.Int64Value   `tfsdk:"rx_retries"`
 	SiteId     basetypes.StringValue  `tfsdk:"site_id"`
 	Snr        basetypes.Int64Value   `tfsdk:"snr"`
 	TxBps      basetypes.Int64Value   `tfsdk:"tx_bps"`
 	TxBytes    basetypes.Int64Value   `tfsdk:"tx_bytes"`
 	TxPackets  basetypes.Int64Value   `tfsdk:"tx_packets"`
-	TxRate     basetypes.Int64Value   `tfsdk:"tx_rate"`
+	TxRate     basetypes.Float64Value `tfsdk:"tx_rate"`
 	TxRetries  basetypes.Int64Value   `tfsdk:"tx_retries"`
 	UplinkApId basetypes.StringValue  `tfsdk:"uplink_ap_id"`
 	state      attr.ValueState
@@ -19011,14 +19103,14 @@ func (v MeshUplinkValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	attrTypes["rx_bps"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["rx_bytes"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["rx_packets"] = basetypes.Int64Type{}.TerraformType(ctx)
-	attrTypes["rx_rate"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["rx_rate"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["rx_retries"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["site_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["snr"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["tx_bps"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["tx_bytes"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["tx_packets"] = basetypes.Int64Type{}.TerraformType(ctx)
-	attrTypes["tx_rate"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["tx_rate"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["tx_retries"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["uplink_ap_id"] = basetypes.StringType{}.TerraformType(ctx)
 
@@ -19219,14 +19311,14 @@ func (v MeshUplinkValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		"rx_bps":       basetypes.Int64Type{},
 		"rx_bytes":     basetypes.Int64Type{},
 		"rx_packets":   basetypes.Int64Type{},
-		"rx_rate":      basetypes.Int64Type{},
+		"rx_rate":      basetypes.Float64Type{},
 		"rx_retries":   basetypes.Int64Type{},
 		"site_id":      basetypes.StringType{},
 		"snr":          basetypes.Int64Type{},
 		"tx_bps":       basetypes.Int64Type{},
 		"tx_bytes":     basetypes.Int64Type{},
 		"tx_packets":   basetypes.Int64Type{},
-		"tx_rate":      basetypes.Int64Type{},
+		"tx_rate":      basetypes.Float64Type{},
 		"tx_retries":   basetypes.Int64Type{},
 		"uplink_ap_id": basetypes.StringType{},
 	}
@@ -19379,14 +19471,14 @@ func (v MeshUplinkValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"rx_bps":       basetypes.Int64Type{},
 		"rx_bytes":     basetypes.Int64Type{},
 		"rx_packets":   basetypes.Int64Type{},
-		"rx_rate":      basetypes.Int64Type{},
+		"rx_rate":      basetypes.Float64Type{},
 		"rx_retries":   basetypes.Int64Type{},
 		"site_id":      basetypes.StringType{},
 		"snr":          basetypes.Int64Type{},
 		"tx_bps":       basetypes.Int64Type{},
 		"tx_bytes":     basetypes.Int64Type{},
 		"tx_packets":   basetypes.Int64Type{},
-		"tx_rate":      basetypes.Int64Type{},
+		"tx_rate":      basetypes.Float64Type{},
 		"tx_retries":   basetypes.Int64Type{},
 		"uplink_ap_id": basetypes.StringType{},
 	}

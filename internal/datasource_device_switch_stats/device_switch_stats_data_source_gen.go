@@ -285,10 +285,14 @@ func DeviceSwitchStatsDataSourceSchema(ctx context.Context) schema.Schema {
 										Computed: true,
 									},
 									"rx_bytes": schema.Int64Attribute{
-										Computed: true,
+										Computed:            true,
+										Description:         "Amount of traffic received since connection",
+										MarkdownDescription: "Amount of traffic received since connection",
 									},
 									"rx_pkts": schema.Int64Attribute{
-										Computed: true,
+										Computed:            true,
+										Description:         "Amount of packets received since connection",
+										MarkdownDescription: "Amount of packets received since connection",
 									},
 									"servp_info": schema.SingleNestedAttribute{
 										Attributes: map[string]schema.Attribute{
@@ -322,10 +326,14 @@ func DeviceSwitchStatsDataSourceSchema(ctx context.Context) schema.Schema {
 										Computed: true,
 									},
 									"tx_bytes": schema.Int64Attribute{
-										Computed: true,
+										Computed:            true,
+										Description:         "Amount of traffic sent since connection",
+										MarkdownDescription: "Amount of traffic sent since connection",
 									},
 									"tx_pkts": schema.Int64Attribute{
-										Computed: true,
+										Computed:            true,
+										Description:         "Amount of packets sent since connection",
+										MarkdownDescription: "Amount of packets sent since connection",
 									},
 									"up": schema.BoolAttribute{
 										Computed: true,
@@ -900,13 +908,13 @@ func DeviceSwitchStatsDataSourceSchema(ctx context.Context) schema.Schema {
 									},
 									"rx_bps": schema.Int64Attribute{
 										Computed:            true,
-										Description:         "Input rate",
-										MarkdownDescription: "Input rate",
+										Description:         "Rate of receiving traffic, bits/seconds, last known",
+										MarkdownDescription: "Rate of receiving traffic, bits/seconds, last known",
 									},
 									"rx_bytes": schema.Int64Attribute{
 										Computed:            true,
-										Description:         "Rx bytes",
-										MarkdownDescription: "Rx bytes",
+										Description:         "Amount of traffic received since connection",
+										MarkdownDescription: "Amount of traffic received since connection",
 									},
 									"rx_errors": schema.Int64Attribute{
 										Computed:            true,
@@ -920,8 +928,8 @@ func DeviceSwitchStatsDataSourceSchema(ctx context.Context) schema.Schema {
 									},
 									"rx_pkts": schema.Int64Attribute{
 										Computed:            true,
-										Description:         "Rx packets",
-										MarkdownDescription: "Rx packets",
+										Description:         "Amount of packets received since connection",
+										MarkdownDescription: "Amount of packets received since connection",
 									},
 									"site_id": schema.StringAttribute{
 										Computed: true,
@@ -948,13 +956,13 @@ func DeviceSwitchStatsDataSourceSchema(ctx context.Context) schema.Schema {
 									},
 									"tx_bps": schema.Int64Attribute{
 										Computed:            true,
-										Description:         "Output rate",
-										MarkdownDescription: "Output rate",
+										Description:         "Rate of transmitting traffic, bits/seconds, last known",
+										MarkdownDescription: "Rate of transmitting traffic, bits/seconds, last known",
 									},
 									"tx_bytes": schema.Int64Attribute{
 										Computed:            true,
-										Description:         "Tx bytes",
-										MarkdownDescription: "Tx bytes",
+										Description:         "Amount of traffic sent since connection",
+										MarkdownDescription: "Amount of traffic sent since connection",
 									},
 									"tx_errors": schema.Int64Attribute{
 										Computed:            true,
@@ -968,8 +976,8 @@ func DeviceSwitchStatsDataSourceSchema(ctx context.Context) schema.Schema {
 									},
 									"tx_pkts": schema.Int64Attribute{
 										Computed:            true,
-										Description:         "Tx packets",
-										MarkdownDescription: "Tx packets",
+										Description:         "Amount of packets sent since connection",
+										MarkdownDescription: "Amount of packets sent since connection",
 									},
 									"type": schema.StringAttribute{
 										Computed:            true,
