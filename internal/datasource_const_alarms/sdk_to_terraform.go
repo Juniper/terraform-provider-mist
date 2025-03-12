@@ -2,6 +2,7 @@ package datasource_const_alarms
 
 import (
 	"context"
+	"slices"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -15,9 +16,13 @@ func SdkToTerraform(ctx context.Context, l []models.ConstAlarmDefinition) (baset
 	var diags diag.Diagnostics
 
 	var elements []attr.Value
+	var keys []string
 	for _, d := range l {
 		elem := constAppCategorySdkToTerraform(ctx, &diags, d)
-		elements = append(elements, elem)
+		if !slices.Contains(keys, elem.Key.ValueString()) {
+			keys = append(keys, elem.Key.ValueString())
+			elements = append(elements, elem)
+		}
 	}
 
 	dataSet, err := types.SetValue(ConstAlarmsValue{}.Type(ctx), elements)
