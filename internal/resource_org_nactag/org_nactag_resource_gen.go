@@ -35,6 +35,13 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"gbp_tag": schema.StringAttribute{
 				Optional: true,
+				Validators: []validator.String{
+					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("gbp_tag")),
+					stringvalidator.Any(
+						mistvalidator.ParseInt(0, 65535),
+						mistvalidator.ParseVar(),
+					),
+				},
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,

@@ -321,8 +321,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 									Optional:            true,
-									Description:         "If `type`==`local` or `type6`==`local`. Property key is the MAC Address. Format is `[0-9a-f]{12}` (e.g \"5684dae9ac8b\")",
-									MarkdownDescription: "If `type`==`local` or `type6`==`local`. Property key is the MAC Address. Format is `[0-9a-f]{12}` (e.g \"5684dae9ac8b\")",
+									Description:         "If `type`==`local` or `type6`==`local`. Property key is the MAC Address. Format is `[0-9a-f]{12}` (e.g. \"5684dae9ac8b\")",
+									MarkdownDescription: "If `type`==`local` or `type6`==`local`. Property key is the MAC Address. Format is `[0-9a-f]{12}` (e.g. \"5684dae9ac8b\")",
 									Validators: []validator.Map{
 										mapvalidator.SizeAtLeast(1),
 										mapvalidator.KeysAre(mistvalidator.ParseMac()),
@@ -2073,8 +2073,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional:            true,
-							Description:         "Only if `usage`==`wan`. Property Key is the destination CIDR (e.g \"100.100.100.0/24\")",
-							MarkdownDescription: "Only if `usage`==`wan`. Property Key is the destination CIDR (e.g \"100.100.100.0/24\")",
+							Description:         "Only if `usage`==`wan`. Property Key is the destination CIDR (e.g. \"100.100.100.0/24\")",
+							MarkdownDescription: "Only if `usage`==`wan`. Property Key is the destination CIDR (e.g. \"100.100.100.0/24\")",
 							Validators: []validator.Map{
 								mistvalidator.AllowedWhenValueIsWithDefault(
 									path.MatchRelative().AtParent().AtName("usage"),

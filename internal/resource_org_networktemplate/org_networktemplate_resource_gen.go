@@ -2850,8 +2850,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional:            true,
-						Description:         "list of rules to define custom switch configuration based on different criterias. Each list must have at least one of `match_model`, `match_name` or `match_role` must be defined",
-						MarkdownDescription: "list of rules to define custom switch configuration based on different criterias. Each list must have at least one of `match_model`, `match_name` or `match_role` must be defined",
+						Description:         "list of rules to define custom switch configuration based on different criteria. Each list must have at least one of `match_model`, `match_name` or `match_role` must be defined",
+						MarkdownDescription: "list of rules to define custom switch configuration based on different criteria. Each list must have at least one of `match_model`, `match_name` or `match_role` must be defined",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 							mistvalidator.SwitchMatchingRuleNames(),

@@ -54,7 +54,7 @@ func (r *orgSsoRoleResource) Metadata(_ context.Context, req resource.MetadataRe
 
 func (r *orgSsoRoleResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryOrg + "This resource manages Org SSO Roles for Admin Authantication.\n\n" +
+		MarkdownDescription: docCategoryOrg + "This resource manages Org SSO Roles for Admin Authentication.\n\n" +
 			"SSO roles refer to the different functions assigned to users within a Single Sign-On (SSO) system.  \n" +
 			"These roles determine the tasks and actions that users can perform within the SSO system. " +
 			"There are typically predefined roles and custom roles in an SSO system.  \n" +

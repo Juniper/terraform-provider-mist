@@ -110,7 +110,7 @@ func (d *orgNacEndpointsDataSource) Read(ctx context.Context, req datasource.Rea
 		if limit, err = strconv.Atoi(limitString); err != nil {
 			resp.Diagnostics.AddError(
 				"Error extracting HTTP Response Headers",
-				"Unable to convert the X-Page-Limit value into int, unexpectederror: "+err.Error(),
+				"Unable to convert the X-Page-Limit value into int, unexpected error: "+err.Error(),
 			)
 			return
 		}

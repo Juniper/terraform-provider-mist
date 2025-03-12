@@ -47,7 +47,7 @@ func (d *constAlarmsDataSource) Metadata(_ context.Context, req datasource.Metad
 
 func (d *constAlarmsDataSource) Schema(ctx context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryConst + "This data source provides the list of  available Alarms.\n\n" +
+		MarkdownDescription: docCategoryConst + "This data source provides the list of available Alarms.\n\n" +
 			"The alarm `key` can be used to configure the `mist_org_alarmtemplate.rules`.",
 		Attributes: datasource_const_alarms.ConstAlarmsDataSourceSchema(ctx).Attributes,
 	}

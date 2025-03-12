@@ -89,6 +89,9 @@ func OrgWebhookResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Required when `type`==`oauth2`, if provided, will be used in the token request",
 				MarkdownDescription: "Required when `type`==`oauth2`, if provided, will be used in the token request",
+				Validators: []validator.List{
+					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("oauth2")),
+				},
 			},
 			"oauth2_token_url": schema.StringAttribute{
 				Optional:            true,

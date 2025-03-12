@@ -811,8 +811,8 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Computed:            true,
-							Description:         "Property key is the mesh downlink id (e.g `00000000-0000-0000-1000-5c5b35000010`)",
-							MarkdownDescription: "Property key is the mesh downlink id (e.g `00000000-0000-0000-1000-5c5b35000010`)",
+							Description:         "Property key is the mesh downlink id (e.g. `00000000-0000-0000-1000-5c5b35000010`)",
+							MarkdownDescription: "Property key is the mesh downlink id (e.g. `00000000-0000-0000-1000-5c5b35000010`)",
 							Validators: []validator.Map{
 								mapvalidator.SizeAtLeast(1),
 							},

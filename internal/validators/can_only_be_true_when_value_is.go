@@ -47,7 +47,7 @@ func (o CanOnlyBeTrueWhenValueIsValidator) Validate(ctx context.Context, req Can
 		return
 	}
 
-	// if we don't have a value there's no need for further investigation
+	// if we don't have a value, there's no need for further investigation
 	if req.ConfigValue.IsNull() {
 		return
 	}

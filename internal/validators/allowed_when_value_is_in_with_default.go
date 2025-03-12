@@ -47,7 +47,7 @@ func (o AllowedWhenValueIsInWithDefaultValidator) Validate(ctx context.Context, 
 		return
 	}
 
-	// if we don't have a value there's no need for further investigation
+	// if we don't have a value, there's no need for further investigation
 	if req.ConfigValue.IsNull() {
 		return
 	}

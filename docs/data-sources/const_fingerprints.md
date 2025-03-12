@@ -4,7 +4,7 @@ subcategory: "Constants"
 description: |-
   This data source provides the of list of supported Fingerprints.
   The Fingerprint information can be used within matching and not_matching attributes of the NAC Rule resource (mist_org_nacrule)
-  There is four different type of fingerprints available:* Family
+  There are four different types of fingerprints available:* Family
   ModelMfgOS Type
 ---
 
@@ -14,7 +14,7 @@ This data source provides the of list of supported Fingerprints.
 
 The Fingerprint information can be used within `matching` and `not_matching` attributes of the NAC Rule resource (`mist_org_nacrule`)
 
-There is four different type of fingerprints available:* Family
+There are four different types of fingerprints available:* Family
 * Model
 * Mfg
 * OS Type

@@ -2,13 +2,13 @@
 page_title: "mist_org_sso_role Resource - terraform-provider-mist"
 subcategory: "Org"
 description: |-
-  This resource manages Org SSO Roles for Admin Authantication.
+  This resource manages Org SSO Roles for Admin Authentication.
   SSO roles refer to the different functions assigned to users within a Single Sign-On (SSO) system.These roles determine the tasks and actions that users can perform within the SSO system. There are typically predefined roles and custom roles in an SSO system.Roles in SSO provide a well-defined separation of responsibility and visibility, allowing for granular-level access control on SSO objects.
 ---
 
 # mist_org_sso_role (Resource)
 
-This resource manages Org SSO Roles for Admin Authantication.
+This resource manages Org SSO Roles for Admin Authentication.
 
 SSO roles refer to the different functions assigned to users within a Single Sign-On (SSO) system.  
 These roles determine the tasks and actions that users can perform within the SSO system. There are typically predefined roles and custom roles in an SSO system.  

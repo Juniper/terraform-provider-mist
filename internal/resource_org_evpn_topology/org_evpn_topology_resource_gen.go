@@ -5,6 +5,7 @@ package resource_org_evpn_topology
 import (
 	"context"
 	"fmt"
+	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
@@ -129,6 +130,9 @@ func OrgEvpnTopologyResourceSchema(ctx context.Context) schema.Schema {
 								Optional:            true,
 								Description:         "Underlay subnet, by default, `10.255.240.0/20`, or `fd31:5700::/64` for ipv6",
 								MarkdownDescription: "Underlay subnet, by default, `10.255.240.0/20`, or `fd31:5700::/64` for ipv6",
+								Validators: []validator.String{
+									mistvalidator.ParseCidr(false, false),
+								},
 							},
 							"use_ipv6": schema.BoolAttribute{
 								Optional:            true,

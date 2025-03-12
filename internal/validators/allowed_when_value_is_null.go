@@ -45,7 +45,7 @@ func (o AllowedWhenValueIsNullValidator) Validate(ctx context.Context, req Allow
 		return
 	}
 
-	// if we have a value there's no need for further investigation
+	// if we have a value, there's no need for further investigation
 	if req.ConfigValue.IsNull() {
 		return
 	}

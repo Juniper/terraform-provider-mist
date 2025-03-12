@@ -56,7 +56,7 @@ func (r *orgDeviceprofileAssignResource) Metadata(_ context.Context, req resourc
 func (r *orgDeviceprofileAssignResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryDevices + "This resource is used to assign/unassign a device profile to one or multiple devices.\n\n" +
-			"The `mist_org_deviceprofile_gateway` resource can be assigned to Gateways, and the" +
+			"The `mist_org_deviceprofile_gateway` resource can be assigned to Gateways, and the " +
 			"`mist_org_deviceprofile_ap` resource can be assigned the Wireless Access Points",
 		Attributes: resource_org_deviceprofile_assign.OrgDeviceprofileAssignResourceSchema(ctx).Attributes,
 	}

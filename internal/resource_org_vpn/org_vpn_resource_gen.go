@@ -129,8 +129,8 @@ func OrgVpnResourceSchema(ctx context.Context) schema.Schema {
 								"class_percentage": schema.ListAttribute{
 									ElementType:         types.Int64Type,
 									Optional:            true,
-									Description:         "percentages for differet class of traffic: high / medium / low / best-effort adding up to 100",
-									MarkdownDescription: "percentages for differet class of traffic: high / medium / low / best-effort adding up to 100",
+									Description:         "percentages for different class of traffic: high / medium / low / best-effort adding up to 100",
+									MarkdownDescription: "percentages for different class of traffic: high / medium / low / best-effort adding up to 100",
 									Validators: []validator.List{
 										listvalidator.SizeBetween(4, 4),
 									},

@@ -28,7 +28,7 @@ resource "mist_site_networktemplate" "networktemplate_one" {
   dns_suffix  = ["mycorp.com"]
   ntp_servers = ["pool.ntp.org"]
   additional_config_cmds = [
-    "set system hostnam test",
+    "set system hostname test",
     "set system services ssh root-login allow"
   ]
   networks = {
@@ -788,7 +788,7 @@ Optional:
 Optional:
 
 - `enable` (Boolean)
-- `rules` (Attributes List) list of rules to define custom switch configuration based on different criterias. Each list must have at least one of `match_model`, `match_name` or `match_role` must be defined (see [below for nested schema](#nestedatt--switch_matching--rules))
+- `rules` (Attributes List) list of rules to define custom switch configuration based on different criteria. Each list must have at least one of `match_model`, `match_name` or `match_role` must be defined (see [below for nested schema](#nestedatt--switch_matching--rules))
 
 <a id="nestedatt--switch_matching--rules"></a>
 ### Nested Schema for `switch_matching.rules`

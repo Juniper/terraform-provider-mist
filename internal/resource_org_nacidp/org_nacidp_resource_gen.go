@@ -72,6 +72,9 @@ func OrgNacidpResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Required if `idp_type`==`ldap`, list of CA certificates to validate the LDAP certificate",
 				MarkdownDescription: "Required if `idp_type`==`ldap`, list of CA certificates to validate the LDAP certificate",
+				Validators: []validator.List{
+					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("idp_type"), types.StringValue("ldap")),
+				},
 			},
 			"ldap_client_cert": schema.StringAttribute{
 				Optional:            true,

@@ -329,8 +329,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 									Optional:            true,
-									Description:         "If `type`==`server` or `type6`==`server`. Property key is the MAC Address. Format is `[0-9a-f]{12}` (e.g \"5684dae9ac8b\")",
-									MarkdownDescription: "If `type`==`server` or `type6`==`server`. Property key is the MAC Address. Format is `[0-9a-f]{12}` (e.g \"5684dae9ac8b\")",
+									Description:         "If `type`==`server` or `type6`==`server`. Property key is the MAC Address. Format is `[0-9a-f]{12}` (e.g. \"5684dae9ac8b\")",
+									MarkdownDescription: "If `type`==`server` or `type6`==`server`. Property key is the MAC Address. Format is `[0-9a-f]{12}` (e.g. \"5684dae9ac8b\")",
 									Validators: []validator.Map{
 										mapvalidator.SizeAtLeast(1),
 										mapvalidator.KeysAre(mistvalidator.ParseMac()),
