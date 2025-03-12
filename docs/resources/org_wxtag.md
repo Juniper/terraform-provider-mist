@@ -30,9 +30,9 @@ A WxTag is a label or tag used in the mist system to classify and categorize app
 ## Example Usage
 
 ```terraform
-resource "mist_org_wxtag" "wtag_one" {
+resource "mist_org_wxtag" "wxtag_one" {
   org_id = mist_org.terraform_test.id
-  name   = "wtag_one"
+  name   = "wxtag_one"
   values = [
     "10.3.0.0/16"
   ]

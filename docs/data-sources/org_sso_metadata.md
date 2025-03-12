@@ -3,14 +3,14 @@ page_title: "mist_org_sso_metadata Data Source - terraform-provider-mist"
 subcategory: "Org"
 description: |-
   This data source provides the SSO Metadata information.
-  The provided information (entity_id, acs_url, logout_url and metadata) are the informationrequired to configure the IDP
+  The provided information (entity_id, acs_url, logout_url and metadata) are the information required to configure the IDP
 ---
 
 # mist_org_sso_metadata (Data Source)
 
 This data source provides the SSO Metadata information.
 
-The provided information (`entity_id`, `acs_url`, `logout_url` and `metadata`) are the informationrequired to configure the IDP
+The provided information (`entity_id`, `acs_url`, `logout_url` and `metadata`) are the information required to configure the IDP
 
 
 ## Example Usage

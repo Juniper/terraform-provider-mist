@@ -149,7 +149,7 @@ Optional:
 
 - `dns_servers` (List of String) If `type`==`local` or `type6`==`local` - optional, if not defined, system one will be used
 - `dns_suffix` (List of String) If `type`==`local` or `type6`==`local` - optional, if not defined, system one will be used
-- `fixed_bindings` (Attributes Map) If `type`==`local` or `type6`==`local`. Property key is the MAC Address. Format is `[0-9a-f]{12}` (e.g "5684dae9ac8b") (see [below for nested schema](#nestedatt--dhcpd_config--config--fixed_bindings))
+- `fixed_bindings` (Attributes Map) If `type`==`local` or `type6`==`local`. Property key is the MAC Address. Format is `[0-9a-f]{12}` (e.g. "5684dae9ac8b") (see [below for nested schema](#nestedatt--dhcpd_config--config--fixed_bindings))
 - `gateway` (String) If `type`==`local` - optional, `ip` will be used if not provided
 - `ip_end` (String) If `type`==`local`
 - `ip_end6` (String) If `type6`==`local`
@@ -509,7 +509,7 @@ Optional:
 - `vpn_paths` (Attributes Map) Property key is the VPN name (see [below for nested schema](#nestedatt--port_config--vpn_paths))
 - `wan_arp_policer` (String) Only when `wan_type`==`broadband`. enum: `default`, `max`, `recommended`
 - `wan_ext_ip` (String) Only if `usage`==`wan`, optional. If spoke should reach this port by a different IP
-- `wan_extra_routes` (Attributes Map) Only if `usage`==`wan`. Property Key is the destination CIDR (e.g "100.100.100.0/24") (see [below for nested schema](#nestedatt--port_config--wan_extra_routes))
+- `wan_extra_routes` (Attributes Map) Only if `usage`==`wan`. Property Key is the destination CIDR (e.g. "100.100.100.0/24") (see [below for nested schema](#nestedatt--port_config--wan_extra_routes))
 - `wan_networks` (List of String) Only if `usage`==`wan`. If some networks are connected to this WAN port, it can be added here so policies can be defined
 - `wan_probe_override` (Attributes) Only if `usage`==`wan` (see [below for nested schema](#nestedatt--port_config--wan_probe_override))
 - `wan_source_nat` (Attributes) Only if `usage`==`wan`, optional. By default, source-NAT is performed on all WAN Ports using the interface-ip (see [below for nested schema](#nestedatt--port_config--wan_source_nat))

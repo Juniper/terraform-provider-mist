@@ -76,6 +76,6 @@ Read-Only:
 
 Read-Only:
 
-- `class_percentage` (List of Number) percentages for differet class of traffic: high / medium / low / best-effort adding up to 100
+- `class_percentage` (List of Number) percentages for different class of traffic: high / medium / low / best-effort adding up to 100
 - `enabled` (Boolean)
 - `max_tx_kbps` (Number)

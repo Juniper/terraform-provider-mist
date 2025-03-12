@@ -52,7 +52,7 @@ resource "mist_device_gateway_cluster" "cluster_one" {
 
 Required:
 
-- `mac` (String) Gateway MAC Address. Format is `[0-9a-f]{12}` (e.g "5684dae9ac8b")
+- `mac` (String) Gateway MAC Address. Format is `[0-9a-f]{12}` (e.g. "5684dae9ac8b")
 
 
 

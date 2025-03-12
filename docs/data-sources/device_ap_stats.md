@@ -90,7 +90,7 @@ Read-Only:
 - `mac` (String) Device mac
 - `map_id` (String)
 - `mem_used_kb` (Number)
-- `mesh_downlinks` (Attributes Map) Property key is the mesh downlink id (e.g `00000000-0000-0000-1000-5c5b35000010`) (see [below for nested schema](#nestedatt--device_ap_stats--mesh_downlinks))
+- `mesh_downlinks` (Attributes Map) Property key is the mesh downlink id (e.g. `00000000-0000-0000-1000-5c5b35000010`) (see [below for nested schema](#nestedatt--device_ap_stats--mesh_downlinks))
 - `mesh_uplink` (Attributes) (see [below for nested schema](#nestedatt--device_ap_stats--mesh_uplink))
 - `model` (String) Device model
 - `modified_time` (Number) When the object has been modified for the last time, in epoch

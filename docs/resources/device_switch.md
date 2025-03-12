@@ -267,7 +267,7 @@ Optional:
 
 - `dns_servers` (List of String) If `type`==`server` or `type6`==`server` - optional, if not defined, system one will be used
 - `dns_suffix` (List of String) If `type`==`server` or `type6`==`server` - optional, if not defined, system one will be used
-- `fixed_bindings` (Attributes Map) If `type`==`server` or `type6`==`server`. Property key is the MAC Address. Format is `[0-9a-f]{12}` (e.g "5684dae9ac8b") (see [below for nested schema](#nestedatt--dhcpd_config--config--fixed_bindings))
+- `fixed_bindings` (Attributes Map) If `type`==`server` or `type6`==`server`. Property key is the MAC Address. Format is `[0-9a-f]{12}` (e.g. "5684dae9ac8b") (see [below for nested schema](#nestedatt--dhcpd_config--config--fixed_bindings))
 - `gateway` (String) If `type`==`server`  - optional, `ip` will be used if not provided
 - `ip_end` (String) If `type`==`server`
 - `ip_end6` (String) If `type6`==`server`
