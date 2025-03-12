@@ -91,6 +91,7 @@ func evpnOptionsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 	var coreAsBorder basetypes.BoolValue
 	var overlay = types.ObjectNull(OverlayValue{}.AttributeTypes(ctx))
 	var perVlanVgaV4Mac basetypes.BoolValue
+	var perVlanVgaV6Mac basetypes.BoolValue
 	var routedAt basetypes.StringValue
 	var underlay = types.ObjectNull(UnderlayValue{}.AttributeTypes(ctx))
 	var vsInstances = types.MapNull(VsInstancesValue{}.Type(ctx))
@@ -116,6 +117,9 @@ func evpnOptionsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 	if d.PerVlanVgaV4Mac != nil {
 		perVlanVgaV4Mac = types.BoolValue(*d.PerVlanVgaV4Mac)
 	}
+	if d.PerVlanVgaV6Mac != nil {
+		perVlanVgaV6Mac = types.BoolValue(*d.PerVlanVgaV6Mac)
+	}
 	if d.RoutedAt != nil {
 		routedAt = types.StringValue(string(*d.RoutedAt))
 	}
@@ -134,6 +138,7 @@ func evpnOptionsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 		"core_as_border":         coreAsBorder,
 		"overlay":                overlay,
 		"per_vlan_vga_v4_mac":    perVlanVgaV4Mac,
+		"per_vlan_vga_v6_mac":    perVlanVgaV6Mac,
 		"routed_at":              routedAt,
 		"underlay":               underlay,
 		"vs_instances":           vsInstances,
