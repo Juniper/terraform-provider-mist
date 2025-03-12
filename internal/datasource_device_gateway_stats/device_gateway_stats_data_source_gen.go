@@ -315,8 +315,8 @@ func DeviceGatewayStatsDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 								"user": schema.NumberAttribute{
 									Computed:            true,
-									Description:         "Percentage of CPU time being used by user processe",
-									MarkdownDescription: "Percentage of CPU time being used by user processe",
+									Description:         "Percentage of CPU time being used by user processes",
+									MarkdownDescription: "Percentage of CPU time being used by user processes",
 								},
 							},
 							CustomType: CpuStatType{
@@ -351,8 +351,8 @@ func DeviceGatewayStatsDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 								"user": schema.NumberAttribute{
 									Computed:            true,
-									Description:         "Percentage of CPU time being used by user processe",
-									MarkdownDescription: "Percentage of CPU time being used by user processe",
+									Description:         "Percentage of CPU time being used by user processes",
+									MarkdownDescription: "Percentage of CPU time being used by user processes",
 								},
 							},
 							CustomType: CpuStatType{
@@ -1659,8 +1659,8 @@ func DeviceGatewayStatsDataSourceSchema(ctx context.Context) schema.Schema {
 									},
 									"ip": schema.StringAttribute{
 										Computed:            true,
-										Description:         "IPaddress",
-										MarkdownDescription: "IPaddress",
+										Description:         "IP Address",
+										MarkdownDescription: "IP Address",
 									},
 									"last_event": schema.StringAttribute{
 										Computed:            true,

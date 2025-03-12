@@ -1552,8 +1552,8 @@ func OrgWlansDataSourceSchema(ctx context.Context) schema.Schema {
 						"vlan_ids": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Computed:            true,
-							Description:         "if `vlan_enabled`==`true` and `vlan_pooling`==`true`. List of VLAN IDs (comma separeted) to be used in the VLAN Pool",
-							MarkdownDescription: "if `vlan_enabled`==`true` and `vlan_pooling`==`true`. List of VLAN IDs (comma separeted) to be used in the VLAN Pool",
+							Description:         "if `vlan_enabled`==`true` and `vlan_pooling`==`true`. List of VLAN IDs (comma separated) to be used in the VLAN Pool",
+							MarkdownDescription: "if `vlan_enabled`==`true` and `vlan_pooling`==`true`. List of VLAN IDs (comma separated) to be used in the VLAN Pool",
 						},
 						"vlan_pooling": schema.BoolAttribute{
 							Computed:            true,

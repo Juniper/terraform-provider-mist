@@ -49,8 +49,8 @@ func OrgNacrulesDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"order": schema.Int64Attribute{
 							Computed:            true,
-							Description:         "Prder of the rule, lower value implies higher priority",
-							MarkdownDescription: "Prder of the rule, lower value implies higher priority",
+							Description:         "Order of the rule, lower value implies higher priority",
+							MarkdownDescription: "Order of the rule, lower value implies higher priority",
 						},
 						"org_id": schema.StringAttribute{
 							Computed: true,

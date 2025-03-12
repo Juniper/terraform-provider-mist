@@ -161,8 +161,8 @@ func DeviceSwitchStatsDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 								"user": schema.NumberAttribute{
 									Computed:            true,
-									Description:         "Percentage of CPU time being used by user processe",
-									MarkdownDescription: "Percentage of CPU time being used by user processe",
+									Description:         "Percentage of CPU time being used by user processes",
+									MarkdownDescription: "Percentage of CPU time being used by user processes",
 								},
 							},
 							CustomType: CpuStatType{
@@ -516,8 +516,8 @@ func DeviceSwitchStatsDataSourceSchema(ctx context.Context) schema.Schema {
 											},
 											"user": schema.NumberAttribute{
 												Computed:            true,
-												Description:         "Percentage of CPU time being used by user processe",
-												MarkdownDescription: "Percentage of CPU time being used by user processe",
+												Description:         "Percentage of CPU time being used by user processes",
+												MarkdownDescription: "Percentage of CPU time being used by user processes",
 											},
 										},
 										CustomType: CpuStatType{

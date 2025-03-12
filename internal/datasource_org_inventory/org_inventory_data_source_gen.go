@@ -114,8 +114,8 @@ func OrgInventoryDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"vc_mac": schema.StringAttribute{
 							Computed:            true,
-							Description:         "If `type`==`switch` and device part of a Virtual Chassis, MAC Address of the Virtual Chassis. if `type`==`gateway` and device part of a Clust, MAC Address of the Cluster",
-							MarkdownDescription: "If `type`==`switch` and device part of a Virtual Chassis, MAC Address of the Virtual Chassis. if `type`==`gateway` and device part of a Clust, MAC Address of the Cluster",
+							Description:         "If `type`==`switch` and device part of a Virtual Chassis, MAC Address of the Virtual Chassis. if `type`==`gateway` and device part of a Cluster, MAC Address of the Cluster",
+							MarkdownDescription: "If `type`==`switch` and device part of a Virtual Chassis, MAC Address of the Virtual Chassis. if `type`==`gateway` and device part of a Cluster, MAC Address of the Cluster",
 						},
 					},
 					CustomType: OrgInventoryType{
