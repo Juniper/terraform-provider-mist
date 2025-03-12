@@ -85,8 +85,15 @@ func SiteEvpnTopologyResourceSchema(ctx context.Context) schema.Schema {
 					"per_vlan_vga_v4_mac": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "by default, JUNOS uses 00-00-5e-00-01-01 as the virtual-gateway-address's v4_mac\nif enabled, 00-00-5e-00-XX-YY will be used (where XX=vlan_id/256, YY=vlan_id%256)",
-						MarkdownDescription: "by default, JUNOS uses 00-00-5e-00-01-01 as the virtual-gateway-address's v4_mac\nif enabled, 00-00-5e-00-XX-YY will be used (where XX=vlan_id/256, YY=vlan_id%256)",
+						Description:         "Only for by Core-Distribution architecture when `evpn_options.routed_at`==`core`. By default, JUNOS uses 00-00-5e-00-01-01 as the virtual-gateway-address's v4_mac. If enabled, 00-00-5e-00-0X-YY will be used (where XX=vlan_id/256, YY=vlan_id%256)",
+						MarkdownDescription: "Only for by Core-Distribution architecture when `evpn_options.routed_at`==`core`. By default, JUNOS uses 00-00-5e-00-01-01 as the virtual-gateway-address's v4_mac. If enabled, 00-00-5e-00-0X-YY will be used (where XX=vlan_id/256, YY=vlan_id%256)",
+						Default:             booldefault.StaticBool(false),
+					},
+					"per_vlan_vga_v6_mac": schema.BoolAttribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "Only for by Core-Distribution architecture when `evpn_options.routed_at`==`core`. By default, JUNOS uses 00-00-5e-00-02-01 as the virtual-gateway-address's v6_mac. If enabled, 00-00-5e-00-1X-YY will be used (where XX=vlan_id/256, YY=vlan_id%256)",
+						MarkdownDescription: "Only for by Core-Distribution architecture when `evpn_options.routed_at`==`core`. By default, JUNOS uses 00-00-5e-00-02-01 as the virtual-gateway-address's v6_mac. If enabled, 00-00-5e-00-1X-YY will be used (where XX=vlan_id/256, YY=vlan_id%256)",
 						Default:             booldefault.StaticBool(false),
 					},
 					"routed_at": schema.StringAttribute{
