@@ -155,7 +155,7 @@ func (r *orgDeviceprofileAssignResource) Read(ctx context.Context, _ resource.Re
 
 	var serial string
 	var model string
-	var mType models.DeviceTypeDefaultApEnum
+	var mType models.DeviceTypeEnum
 	var mac string
 	var siteId string
 	var vcMac string

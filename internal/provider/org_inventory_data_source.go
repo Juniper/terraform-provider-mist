@@ -8,6 +8,7 @@ import (
 	"github.com/Juniper/terraform-provider-mist/internal/datasource_org_inventory"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
+	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -84,6 +85,7 @@ func (d *orgInventoryDataSource) Read(ctx context.Context, req datasource.ReadRe
 	var modifiedAfter int
 	var vc bool
 	var vcMac string
+	var deviceType models.DeviceTypeEnum
 
 	if !ds.Mac.IsNull() && !ds.Mac.IsUnknown() {
 		mac = ds.Mac.ValueString()
@@ -106,6 +108,9 @@ func (d *orgInventoryDataSource) Read(ctx context.Context, req datasource.ReadRe
 	if !ds.Vc.IsNull() && !ds.Vc.IsUnknown() {
 		vc = ds.Vc.ValueBool()
 	}
+	if !ds.Type.IsNull() && !ds.Type.IsUnknown() {
+		deviceType = models.DeviceTypeEnum(ds.Type.ValueString())
+	}
 
 	var limit = 1000
 	var page = 0
@@ -121,7 +126,7 @@ func (d *orgInventoryDataSource) Read(ctx context.Context, req datasource.ReadRe
 			"total": total,
 		})
 		// Read API call logic
-		data, err := d.client.OrgsInventory().GetOrgInventory(ctx, orgId, &serial, &model, nil, &mac, &siteId, &vcMac, &vc, &unassigned, &modifiedAfter, &limit, &page)
+		data, err := d.client.OrgsInventory().GetOrgInventory(ctx, orgId, &serial, &model, &deviceType, &mac, &siteId, &vcMac, &vc, &unassigned, &modifiedAfter, &limit, &page)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error getting Org Inventory",

@@ -2,6 +2,7 @@ package datasource_device_gateway_stats
 
 import (
 	"context"
+
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -67,20 +68,20 @@ func tunnelsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []mod
 		if d.Protocol != nil {
 			protocol = types.StringValue(string(*d.Protocol))
 		}
-		if d.RxBytes != nil {
-			rxBytes = types.Int64Value(int64(*d.RxBytes))
+		if d.RxBytes.Value() != nil {
+			rxBytes = types.Int64Value(int64(*d.RxBytes.Value()))
 		}
-		if d.RxPkts != nil {
-			rxPkts = types.Int64Value(int64(*d.RxPkts))
+		if d.RxPkts.Value() != nil {
+			rxPkts = types.Int64Value(int64(*d.RxPkts.Value()))
 		}
 		if d.TunnelName != nil {
 			tunnelName = types.StringValue(*d.TunnelName)
 		}
-		if d.TxBytes != nil {
-			txBytes = types.Int64Value(int64(*d.TxBytes))
+		if d.TxBytes.Value() != nil {
+			txBytes = types.Int64Value(int64(*d.TxBytes.Value()))
 		}
-		if d.TxPkts != nil {
-			txPkts = types.Int64Value(int64(*d.TxPkts))
+		if d.TxPkts.Value() != nil {
+			txPkts = types.Int64Value(int64(*d.TxPkts.Value()))
 		}
 		if d.Up != nil {
 			up = types.BoolValue(*d.Up)

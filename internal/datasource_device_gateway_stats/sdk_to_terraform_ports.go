@@ -2,8 +2,9 @@ package datasource_device_gateway_stats
 
 import (
 	"context"
-	"github.com/tmunzer/mistapi-go/mistapi/models"
 	"math/big"
+
+	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -131,11 +132,11 @@ func portsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []model
 		if d.RxBcastPkts != nil {
 			rxBcastPkts = types.Int64Value(int64(*d.RxBcastPkts))
 		}
-		if d.RxBps != nil {
-			rxBps = types.Int64Value(int64(*d.RxBps))
+		if d.RxBps.Value() != nil {
+			rxBps = types.Int64Value(int64(*d.RxBps.Value()))
 		}
-		if d.RxBytes != nil {
-			rxBytes = types.Int64Value(int64(*d.RxBytes))
+		if d.RxBytes.Value() != nil {
+			rxBytes = types.Int64Value(int64(*d.RxBytes.Value()))
 		}
 		if d.RxErrors != nil {
 			rxErrors = types.Int64Value(int64(*d.RxErrors))
@@ -155,11 +156,11 @@ func portsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []model
 		if d.TxBcastPkts != nil {
 			txBcastPkts = types.Int64Value(int64(*d.TxBcastPkts))
 		}
-		if d.TxBps != nil {
-			txBps = types.Int64Value(int64(*d.TxBps))
+		if d.TxBps.Value() != nil {
+			txBps = types.Int64Value(int64(*d.TxBps.Value()))
 		}
-		if d.TxBytes != nil {
-			txBytes = types.Int64Value(int64(*d.TxBytes))
+		if d.TxBytes.Value() != nil {
+			txBytes = types.Int64Value(int64(*d.TxBytes.Value()))
 		}
 		if d.TxErrors != nil {
 			txErrors = types.Int64Value(int64(*d.TxErrors))

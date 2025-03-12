@@ -49,7 +49,7 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	var ipConfig = types.ObjectNull(IpConfigValue{}.AttributeTypes(ctx))
 	var ipStat = types.ObjectNull(IpStatValue{}.AttributeTypes(ctx))
 	var l2tpStat = types.MapNull(L2tpStatValue{}.Type(ctx))
-	var lastSeen basetypes.NumberValue
+	var lastSeen basetypes.Float64Value
 	var lastTrouble = types.ObjectNull(LastTroubleValue{}.AttributeTypes(ctx))
 	var led = types.ObjectNull(LedValue{}.AttributeTypes(ctx))
 	var lldpStat = types.ObjectNull(LldpStatValue{}.AttributeTypes(ctx))
@@ -74,16 +74,16 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	var powerOpmode basetypes.StringValue
 	var powerSrc basetypes.StringValue
 	var radioStat = types.ObjectNull(RadioStatValue{}.AttributeTypes(ctx))
-	var rxBps basetypes.NumberValue
+	var rxBps basetypes.Int64Value
 	var rxBytes basetypes.Int64Value
 	var rxPkts basetypes.Int64Value
 	var serial basetypes.StringValue
 	var siteId basetypes.StringValue
 	var status basetypes.StringValue
 	var switchRedundancy = types.ObjectNull(SwitchRedundancyValue{}.AttributeTypes(ctx))
-	var txBps basetypes.NumberValue
-	var txBytes basetypes.NumberValue
-	var txPkts basetypes.NumberValue
+	var txBps basetypes.Int64Value
+	var txBytes basetypes.Int64Value
+	var txPkts basetypes.Int64Value
 	var uptime basetypes.NumberValue
 	var usbStat = types.ObjectNull(UsbStatValue{}.AttributeTypes(ctx))
 	var version basetypes.StringValue
@@ -157,7 +157,7 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 		l2tpStat = l2tpStatsSdkToTerraform(ctx, diags, d.L2tpStat)
 	}
 	if d.LastSeen.Value() != nil {
-		lastSeen = types.NumberValue(big.NewFloat(*d.LastSeen.Value()))
+		lastSeen = types.Float64Value(*d.LastSeen.Value())
 	}
 	if d.LastTrouble != nil {
 		lastTrouble = lastTroubleSdkToTerraform(ctx, diags, d.LastTrouble)
@@ -232,7 +232,7 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 		radioStat = radioStatSdkToTerraform(ctx, diags, d.RadioStat)
 	}
 	if d.RxBps.Value() != nil {
-		rxBps = types.NumberValue(big.NewFloat(*d.RxBps.Value()))
+		rxBps = types.Int64Value(int64(*d.RxBps.Value()))
 	}
 	if d.RxBytes.Value() != nil {
 		rxBytes = types.Int64Value(*d.RxBytes.Value())
@@ -253,13 +253,13 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 		switchRedundancy = SwitchRedundancySdkToTerraform(ctx, diags, d.SwitchRedundancy)
 	}
 	if d.TxBps.Value() != nil {
-		txBps = types.NumberValue(big.NewFloat(*d.TxBps.Value()))
+		txBps = types.Int64Value(int64(*d.TxBps.Value()))
 	}
 	if d.TxBytes.Value() != nil {
-		txBytes = types.NumberValue(big.NewFloat(*d.TxBytes.Value()))
+		txBytes = types.Int64Value(int64(*d.TxBytes.Value()))
 	}
 	if d.TxPkts.Value() != nil {
-		txPkts = types.NumberValue(big.NewFloat(*d.TxPkts.Value()))
+		txPkts = types.Int64Value(int64(*d.TxPkts.Value()))
 	}
 	if d.Uptime.Value() != nil {
 		uptime = types.NumberValue(big.NewFloat(*d.Uptime.Value()))

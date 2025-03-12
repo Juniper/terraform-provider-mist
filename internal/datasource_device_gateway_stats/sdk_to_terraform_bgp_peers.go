@@ -2,6 +2,7 @@ package datasource_device_gateway_stats
 
 import (
 	"context"
+
 	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -52,8 +53,8 @@ func bgpPeersSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []mo
 		if d.Node != nil {
 			node = types.StringValue(*d.Node)
 		}
-		if d.RxPkts != nil {
-			rxPkts = types.Int64Value(int64(*d.RxPkts))
+		if d.RxPkts.Value() != nil {
+			rxPkts = types.Int64Value(int64(*d.RxPkts.Value()))
 		}
 		if d.RxRoutes != nil {
 			rxRoutes = types.Int64Value(int64(*d.RxRoutes))
@@ -64,8 +65,8 @@ func bgpPeersSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []mo
 		if d.Timestamp != nil {
 			timestamp = types.Float64Value(*d.Timestamp)
 		}
-		if d.TxPkts != nil {
-			txPkts = types.Int64Value(int64(*d.TxPkts))
+		if d.TxPkts.Value() != nil {
+			txPkts = types.Int64Value(int64(*d.TxPkts.Value()))
 		}
 		if d.TxRoutes != nil {
 			txRoutes = types.Int64Value(int64(*d.TxRoutes))

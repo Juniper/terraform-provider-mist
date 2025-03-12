@@ -17,13 +17,12 @@ func TerraformToSdk(ctx context.Context, plan *OrgVpnModel) (*models.Vpn, diag.D
 	data.Name = plan.Name.ValueString()
 	data.Paths = vpnPathsTerraformToSdk(ctx, &diags, plan.Paths)
 	data.PathSelection = vpnPathSelectionTerraformToSdk(plan.PathSelection)
-	data.Type = (*models.VpnTypeEnum)(plan.Type.ValueStringPointer())
+	data.Type = (*models.VpnModeEnum)(plan.Type.ValueStringPointer())
 
 	return &data, diags
 }
 
 func vpnPathSelectionTerraformToSdk(d PathSelectionValue) (data *models.VpnPathSelection) {
-
 	if d.Strategy.ValueStringPointer() != nil {
 		data.Strategy = (*models.VpnPathSelectionStrategyEnum)(d.Strategy.ValueStringPointer())
 	}

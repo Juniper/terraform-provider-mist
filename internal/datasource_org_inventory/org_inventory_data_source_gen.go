@@ -5,8 +5,10 @@ package datasource_org_inventory
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
@@ -25,8 +27,8 @@ func OrgInventoryDataSourceSchema(ctx context.Context) schema.Schema {
 			},
 			"model": schema.StringAttribute{
 				Optional:            true,
-				Description:         "device model",
-				MarkdownDescription: "device model",
+				Description:         "Device model",
+				MarkdownDescription: "Device model",
 			},
 			"org_id": schema.StringAttribute{
 				Required: true,
@@ -36,64 +38,64 @@ func OrgInventoryDataSourceSchema(ctx context.Context) schema.Schema {
 					Attributes: map[string]schema.Attribute{
 						"adopted": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "only if `type`==`switch` or `type`==`gateway`\nwhether the switch/gateway is adopted",
-							MarkdownDescription: "only if `type`==`switch` or `type`==`gateway`\nwhether the switch/gateway is adopted",
+							Description:         "Only if `type`==`switch` or `type`==`gateway`, whether the switch/gateway is adopted",
+							MarkdownDescription: "Only if `type`==`switch` or `type`==`gateway`, whether the switch/gateway is adopted",
 						},
 						"claim_code": schema.StringAttribute{
 							Computed:            true,
-							Description:         "device claim code",
-							MarkdownDescription: "device claim code",
+							Description:         "Device claim code",
+							MarkdownDescription: "Device claim code",
 						},
 						"connected": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "whether the device is connected",
-							MarkdownDescription: "whether the device is connected",
+							Description:         "Whether the device is connected",
+							MarkdownDescription: "Whether the device is connected",
 						},
 						"deviceprofile_id": schema.StringAttribute{
 							Computed:            true,
-							Description:         "deviceprofile id if assigned, null if not assigned",
-							MarkdownDescription: "deviceprofile id if assigned, null if not assigned",
+							Description:         "Deviceprofile id if assigned, null if not assigned",
+							MarkdownDescription: "Deviceprofile id if assigned, null if not assigned",
 						},
 						"hostname": schema.StringAttribute{
 							Computed:            true,
-							Description:         "hostname reported by the device",
-							MarkdownDescription: "hostname reported by the device",
+							Description:         "Hostname reported by the device",
+							MarkdownDescription: "Hostname reported by the device",
 						},
 						"hw_rev": schema.StringAttribute{
 							Computed:            true,
-							Description:         "device hardware revision number",
-							MarkdownDescription: "device hardware revision number",
+							Description:         "Device hardware revision number",
+							MarkdownDescription: "Device hardware revision number",
 						},
 						"id": schema.StringAttribute{
 							Computed:            true,
-							Description:         "device id",
-							MarkdownDescription: "device id",
+							Description:         "Unique ID of the object instance in the Mist Organization",
+							MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
 						},
 						"jsi": schema.BoolAttribute{
 							Computed: true,
 						},
 						"mac": schema.StringAttribute{
 							Computed:            true,
-							Description:         "device MAC address",
-							MarkdownDescription: "device MAC address",
+							Description:         "Device MAC address",
+							MarkdownDescription: "Device MAC address",
 						},
 						"model": schema.StringAttribute{
 							Computed:            true,
-							Description:         "device model",
-							MarkdownDescription: "device model",
+							Description:         "Device model",
+							MarkdownDescription: "Device model",
 						},
 						"name": schema.StringAttribute{
 							Computed:            true,
-							Description:         "device name if configured",
-							MarkdownDescription: "device name if configured",
+							Description:         "Device name if configured",
+							MarkdownDescription: "Device name if configured",
 						},
 						"org_id": schema.StringAttribute{
 							Computed: true,
 						},
 						"serial": schema.StringAttribute{
 							Computed:            true,
-							Description:         "device serial",
-							MarkdownDescription: "device serial",
+							Description:         "Device serial",
+							MarkdownDescription: "Device serial",
 						},
 						"site_id": schema.StringAttribute{
 							Computed:            true,
@@ -102,8 +104,8 @@ func OrgInventoryDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"sku": schema.StringAttribute{
 							Computed:            true,
-							Description:         "device stock keeping unit",
-							MarkdownDescription: "device stock keeping unit",
+							Description:         "Device stock keeping unit",
+							MarkdownDescription: "Device stock keeping unit",
 						},
 						"type": schema.StringAttribute{
 							Computed:            true,
@@ -112,8 +114,8 @@ func OrgInventoryDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"vc_mac": schema.StringAttribute{
 							Computed:            true,
-							Description:         "if `type`==`switch` and device part of a Virtual Chassis, MAC Address of the Virtual Chassis. if `type`==`gateway` and device part of a Clust, MAC Address of the Cluster",
-							MarkdownDescription: "if `type`==`switch` and device part of a Virtual Chassis, MAC Address of the Virtual Chassis. if `type`==`gateway` and device part of a Clust, MAC Address of the Cluster",
+							Description:         "If `type`==`switch` and device part of a Virtual Chassis, MAC Address of the Virtual Chassis. if `type`==`gateway` and device part of a Clust, MAC Address of the Cluster",
+							MarkdownDescription: "If `type`==`switch` and device part of a Virtual Chassis, MAC Address of the Virtual Chassis. if `type`==`gateway` and device part of a Clust, MAC Address of the Cluster",
 						},
 					},
 					CustomType: OrgInventoryType{
@@ -122,24 +124,35 @@ func OrgInventoryDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 					},
 				},
-				Computed:            true,
-				Description:         "List of devices",
-				MarkdownDescription: "List of devices",
+				Computed: true,
 			},
 			"serial": schema.StringAttribute{
 				Optional:            true,
-				Description:         "device serial",
-				MarkdownDescription: "device serial",
+				Description:         "Device serial",
+				MarkdownDescription: "Device serial",
 			},
 			"site_id": schema.StringAttribute{
 				Optional:            true,
-				Description:         "site id if assigned, null if not assigned",
-				MarkdownDescription: "site id if assigned, null if not assigned",
+				Description:         "Site id if assigned, null if not assigned",
+				MarkdownDescription: "Site id if assigned, null if not assigned",
+			},
+			"type": schema.StringAttribute{
+				Optional:            true,
+				Description:         "enum: `ap`, `gateway`, `switch`",
+				MarkdownDescription: "enum: `ap`, `gateway`, `switch`",
+				Validators: []validator.String{
+					stringvalidator.OneOf(
+						"",
+						"ap",
+						"gateway",
+						"switch",
+					),
+				},
 			},
 			"unassigned": schema.BoolAttribute{
 				Optional:            true,
-				Description:         "to display Unassigned devices",
-				MarkdownDescription: "to display Unassigned devices",
+				Description:         "To display Unassigned devices",
+				MarkdownDescription: "To display Unassigned devices",
 			},
 			"vc": schema.BoolAttribute{
 				Optional:            true,
@@ -162,6 +175,7 @@ type OrgInventoryModel struct {
 	OrgInventory types.Set    `tfsdk:"org_inventory"`
 	Serial       types.String `tfsdk:"serial"`
 	SiteId       types.String `tfsdk:"site_id"`
+	Type         types.String `tfsdk:"type"`
 	Unassigned   types.Bool   `tfsdk:"unassigned"`
 	Vc           types.Bool   `tfsdk:"vc"`
 	VcMac        types.String `tfsdk:"vc_mac"`
