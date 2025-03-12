@@ -29,11 +29,15 @@ func SdkToTerraform(ctx context.Context, l []models.ConstWebhookTopic) (basetype
 }
 
 func constWebhookSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.ConstWebhookTopic) ConstWebhooksValue {
+	var allowsSingleEventPerMessage basetypes.BoolValue
 	var forOrg basetypes.BoolValue
 	var hasDeliveryResults basetypes.BoolValue
 	var internal basetypes.BoolValue
 	var key basetypes.StringValue
 
+	if d.AllowsSingleEventPerMessage != nil {
+		allowsSingleEventPerMessage = types.BoolValue(*d.AllowsSingleEventPerMessage)
+	}
 	if d.ForOrg != nil {
 		forOrg = types.BoolValue(*d.ForOrg)
 	}
@@ -50,10 +54,11 @@ func constWebhookSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	o, e := NewConstWebhooksValue(
 		ConstWebhooksValue{}.AttributeTypes(ctx),
 		map[string]attr.Value{
-			"for_org":              forOrg,
-			"has_delivery_results": hasDeliveryResults,
-			"internal":             internal,
-			"key":                  key,
+			"allows_single_event_per_message": allowsSingleEventPerMessage,
+			"for_org":                         forOrg,
+			"has_delivery_results":            hasDeliveryResults,
+			"internal":                        internal,
+			"key":                             key,
 		},
 	)
 	diags.Append(e...)

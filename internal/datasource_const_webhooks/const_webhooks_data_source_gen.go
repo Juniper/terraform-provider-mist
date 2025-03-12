@@ -21,25 +21,31 @@ func ConstWebhooksDataSourceSchema(ctx context.Context) schema.Schema {
 			"const_webhooks": schema.SetNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
+						"allows_single_event_per_message": schema.BoolAttribute{
+							Computed:            true,
+							Description:         "supports single event per message results",
+							MarkdownDescription: "supports single event per message results",
+						},
 						"for_org": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "can be used in org webhooks, optional",
-							MarkdownDescription: "can be used in org webhooks, optional",
+							Description:         "Can be used in org webhooks, optional",
+							MarkdownDescription: "Can be used in org webhooks, optional",
 						},
 						"has_delivery_results": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "supports webhook delivery results /api/v1/:scope/:scope_id/webhooks/:webhook_id/events/search",
-							MarkdownDescription: "supports webhook delivery results /api/v1/:scope/:scope_id/webhooks/:webhook_id/events/search",
+							Description:         "Supports webhook delivery results /api/v1/:scope/:scope_id/webhooks/:webhook_id/events/search",
+							MarkdownDescription: "Supports webhook delivery results /api/v1/:scope/:scope_id/webhooks/:webhook_id/events/search",
 						},
 						"internal": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "internal topic (not selectable in site/org webhooks)",
-							MarkdownDescription: "internal topic (not selectable in site/org webhooks)",
+							Description:         "Internal topic (not selectable in site/org webhooks)",
+							MarkdownDescription: "Internal topic (not selectable in site/org webhooks)",
 						},
 						"key": schema.StringAttribute{
 							Computed:            true,
-							Description:         "webhook topic name",
-							MarkdownDescription: "webhook topic name",
+							Sensitive:           true,
+							Description:         "Webhook topic name",
+							MarkdownDescription: "Webhook topic name",
 						},
 					},
 					CustomType: ConstWebhooksType{
@@ -82,6 +88,24 @@ func (t ConstWebhooksType) ValueFromObject(ctx context.Context, in basetypes.Obj
 	var diags diag.Diagnostics
 
 	attributes := in.Attributes()
+
+	allowsSingleEventPerMessageAttribute, ok := attributes["allows_single_event_per_message"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`allows_single_event_per_message is missing from object`)
+
+		return nil, diags
+	}
+
+	allowsSingleEventPerMessageVal, ok := allowsSingleEventPerMessageAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`allows_single_event_per_message expected to be basetypes.BoolValue, was: %T`, allowsSingleEventPerMessageAttribute))
+	}
 
 	forOrgAttribute, ok := attributes["for_org"]
 
@@ -160,11 +184,12 @@ func (t ConstWebhooksType) ValueFromObject(ctx context.Context, in basetypes.Obj
 	}
 
 	return ConstWebhooksValue{
-		ForOrg:             forOrgVal,
-		HasDeliveryResults: hasDeliveryResultsVal,
-		Internal:           internalVal,
-		Key:                keyVal,
-		state:              attr.ValueStateKnown,
+		AllowsSingleEventPerMessage: allowsSingleEventPerMessageVal,
+		ForOrg:                      forOrgVal,
+		HasDeliveryResults:          hasDeliveryResultsVal,
+		Internal:                    internalVal,
+		Key:                         keyVal,
+		state:                       attr.ValueStateKnown,
 	}, diags
 }
 
@@ -231,6 +256,24 @@ func NewConstWebhooksValue(attributeTypes map[string]attr.Type, attributes map[s
 		return NewConstWebhooksValueUnknown(), diags
 	}
 
+	allowsSingleEventPerMessageAttribute, ok := attributes["allows_single_event_per_message"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`allows_single_event_per_message is missing from object`)
+
+		return NewConstWebhooksValueUnknown(), diags
+	}
+
+	allowsSingleEventPerMessageVal, ok := allowsSingleEventPerMessageAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`allows_single_event_per_message expected to be basetypes.BoolValue, was: %T`, allowsSingleEventPerMessageAttribute))
+	}
+
 	forOrgAttribute, ok := attributes["for_org"]
 
 	if !ok {
@@ -308,11 +351,12 @@ func NewConstWebhooksValue(attributeTypes map[string]attr.Type, attributes map[s
 	}
 
 	return ConstWebhooksValue{
-		ForOrg:             forOrgVal,
-		HasDeliveryResults: hasDeliveryResultsVal,
-		Internal:           internalVal,
-		Key:                keyVal,
-		state:              attr.ValueStateKnown,
+		AllowsSingleEventPerMessage: allowsSingleEventPerMessageVal,
+		ForOrg:                      forOrgVal,
+		HasDeliveryResults:          hasDeliveryResultsVal,
+		Internal:                    internalVal,
+		Key:                         keyVal,
+		state:                       attr.ValueStateKnown,
 	}, diags
 }
 
@@ -384,19 +428,21 @@ func (t ConstWebhooksType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = ConstWebhooksValue{}
 
 type ConstWebhooksValue struct {
-	ForOrg             basetypes.BoolValue   `tfsdk:"for_org"`
-	HasDeliveryResults basetypes.BoolValue   `tfsdk:"has_delivery_results"`
-	Internal           basetypes.BoolValue   `tfsdk:"internal"`
-	Key                basetypes.StringValue `tfsdk:"key"`
-	state              attr.ValueState
+	AllowsSingleEventPerMessage basetypes.BoolValue   `tfsdk:"allows_single_event_per_message"`
+	ForOrg                      basetypes.BoolValue   `tfsdk:"for_org"`
+	HasDeliveryResults          basetypes.BoolValue   `tfsdk:"has_delivery_results"`
+	Internal                    basetypes.BoolValue   `tfsdk:"internal"`
+	Key                         basetypes.StringValue `tfsdk:"key"`
+	state                       attr.ValueState
 }
 
 func (v ConstWebhooksValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 4)
+	attrTypes := make(map[string]tftypes.Type, 5)
 
 	var val tftypes.Value
 	var err error
 
+	attrTypes["allows_single_event_per_message"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["for_org"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["has_delivery_results"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["internal"] = basetypes.BoolType{}.TerraformType(ctx)
@@ -406,7 +452,15 @@ func (v ConstWebhooksValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 4)
+		vals := make(map[string]tftypes.Value, 5)
+
+		val, err = v.AllowsSingleEventPerMessage.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["allows_single_event_per_message"] = val
 
 		val, err = v.ForOrg.ToTerraformValue(ctx)
 
@@ -470,10 +524,11 @@ func (v ConstWebhooksValue) ToObjectValue(ctx context.Context) (basetypes.Object
 	var diags diag.Diagnostics
 
 	attributeTypes := map[string]attr.Type{
-		"for_org":              basetypes.BoolType{},
-		"has_delivery_results": basetypes.BoolType{},
-		"internal":             basetypes.BoolType{},
-		"key":                  basetypes.StringType{},
+		"allows_single_event_per_message": basetypes.BoolType{},
+		"for_org":                         basetypes.BoolType{},
+		"has_delivery_results":            basetypes.BoolType{},
+		"internal":                        basetypes.BoolType{},
+		"key":                             basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -487,10 +542,11 @@ func (v ConstWebhooksValue) ToObjectValue(ctx context.Context) (basetypes.Object
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"for_org":              v.ForOrg,
-			"has_delivery_results": v.HasDeliveryResults,
-			"internal":             v.Internal,
-			"key":                  v.Key,
+			"allows_single_event_per_message": v.AllowsSingleEventPerMessage,
+			"for_org":                         v.ForOrg,
+			"has_delivery_results":            v.HasDeliveryResults,
+			"internal":                        v.Internal,
+			"key":                             v.Key,
 		})
 
 	return objVal, diags
@@ -509,6 +565,10 @@ func (v ConstWebhooksValue) Equal(o attr.Value) bool {
 
 	if v.state != attr.ValueStateKnown {
 		return true
+	}
+
+	if !v.AllowsSingleEventPerMessage.Equal(other.AllowsSingleEventPerMessage) {
+		return false
 	}
 
 	if !v.ForOrg.Equal(other.ForOrg) {
@@ -540,9 +600,10 @@ func (v ConstWebhooksValue) Type(ctx context.Context) attr.Type {
 
 func (v ConstWebhooksValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"for_org":              basetypes.BoolType{},
-		"has_delivery_results": basetypes.BoolType{},
-		"internal":             basetypes.BoolType{},
-		"key":                  basetypes.StringType{},
+		"allows_single_event_per_message": basetypes.BoolType{},
+		"for_org":                         basetypes.BoolType{},
+		"has_delivery_results":            basetypes.BoolType{},
+		"internal":                        basetypes.BoolType{},
+		"key":                             basetypes.StringType{},
 	}
 }
