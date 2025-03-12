@@ -55,7 +55,7 @@ func (r *orgNacRuleResource) Metadata(_ context.Context, req resource.MetadataRe
 func (r *orgNacRuleResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryNac + "This resource manages the NAC Rules (Auth Policies).\n\n" +
-			"A NAC Rule defines a list of critera (NAC Tag) the network client must match to execute the Rule, an action (Allow/Deny)" +
+			"A NAC Rule defines a list of criteria (NAC Tag) the network client must match to execute the Rule, an action (Allow/Deny)" +
 			"and a list of RADIUS Attributes (NAC Tags) to return",
 		Attributes: resource_org_nacrule.OrgNacruleResourceSchema(ctx).Attributes,
 	}

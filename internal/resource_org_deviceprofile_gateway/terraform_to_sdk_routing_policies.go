@@ -131,7 +131,7 @@ func routingPolicyTermMatchingTerraformToSdk(ctx context.Context, diags *diag.Di
 	return &data
 }
 
-func routingPolicyTermerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.RoutingPolicyTerm {
+func routingPolicyTermTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.RoutingPolicyTerm {
 	var dataList []models.RoutingPolicyTerm
 	for _, v := range d.Elements() {
 		var vInterface interface{} = v
@@ -159,7 +159,7 @@ func routingPoliciesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics,
 
 		data := models.RoutingPolicy{}
 		if !plan.Terms.IsNull() && !plan.Terms.IsUnknown() {
-			data.Terms = routingPolicyTermerraformToSdk(ctx, diags, plan.Terms)
+			data.Terms = routingPolicyTermTerraformToSdk(ctx, diags, plan.Terms)
 		}
 
 		dataMap[k] = data

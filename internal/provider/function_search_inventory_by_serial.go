@@ -93,7 +93,7 @@ func (f *SearchInventoryBySerialFunction) Run(ctx context.Context, req function.
 			}
 		}
 	} else {
-		resp.Error = function.NewArgumentFuncError(0, "The provided inventory is emtpy")
+		resp.Error = function.NewArgumentFuncError(0, "The provided inventory is empty")
 	}
 
 	resp.Error = function.NewArgumentFuncError(1, fmt.Sprintf("Unable to find a device with Serial \"%s\" in the provided inventory", serial))

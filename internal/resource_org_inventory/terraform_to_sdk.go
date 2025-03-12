@@ -31,7 +31,7 @@ func processAction(planSiteId *basetypes.StringValue, stateSiteId *basetypes.Str
 		// Planned Site ID is not set > must be unassigned
 		return "unassign"
 	} else {
-		// Planned Site ID is set > must be assigned or reassiogned
+		// Planned Site ID is set > must be assigned or reassigned
 		return "assign"
 	}
 }
@@ -48,7 +48,7 @@ parameters:
 		the planed device Site ID
 	stateMap : *map[string]InventoryValue
 		map of the devices in the Mist inventory. The key may be the device Claim Code or MAC address
-		(depeending on the value type in planDeviceInfo) and the value is DeviceValue
+		(depending on the value type in planDeviceInfo) and the value is DeviceValue
 
 returns:
 
@@ -177,7 +177,7 @@ parameters:
 		list of MAC Address (string) that must be unassigned from Mist Sites
 	assignClaim : *map[string]string
 		map of  ClaimCodes / SiteId of the devices that must be claimed then assigned to a site. This is required
-		because we don't have the device MAC address at this time (we only have the claim code, the MAC Addresss
+		because we don't have the device MAC address at this time (we only have the claim code, the MAC Addresses
 		which is required for the "assign" op will be known after the claim)
 		the key is the device Claim Code
 		the value is the site id where the device must be assigned to after the claim
@@ -255,7 +255,7 @@ parameters:
 	unclaim : *[]string
 		list of serial numbers (serial) that must be unclaim from the Mist Inventory
 */
-func processUnplanedDevices(
+func processUnplannedDevices(
 	diags *diag.Diagnostics,
 	planDevicesMap *map[string]*InventoryValue,
 	stateDevices *basetypes.MapValue,
@@ -358,10 +358,10 @@ func DeleteOrgInventory(
 ) (macsToUnclaim []string, diags diag.Diagnostics) {
 	if !stateInventory.Devices.IsNull() {
 		planDevicesMap := make(map[string]*DevicesValue)
-		legacyProcessUnplanedDevices(&planDevicesMap, &stateInventory.Devices, &macsToUnclaim)
+		legacyProcessUnplannedDevices(&planDevicesMap, &stateInventory.Devices, &macsToUnclaim)
 	} else {
 		planDevicesMap := make(map[string]*InventoryValue)
-		processUnplanedDevices(&diags, &planDevicesMap, &stateInventory.Inventory, &macsToUnclaim)
+		processUnplannedDevices(&diags, &planDevicesMap, &stateInventory.Inventory, &macsToUnclaim)
 	}
 
 	return macsToUnclaim, diags

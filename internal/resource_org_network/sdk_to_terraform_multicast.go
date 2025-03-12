@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func groupMutlicastSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d map[string]models.NetworkMulticastGroup) basetypes.MapValue {
+func groupMulticastSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d map[string]models.NetworkMulticastGroup) basetypes.MapValue {
 	stateValueMapValue := make(map[string]attr.Value)
 	for k, v := range d {
 		var rpIp basetypes.StringValue
@@ -33,7 +33,7 @@ func groupMutlicastSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 	return stateResultMap
 }
 
-func MutlicastSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.NetworkMulticast) MulticastValue {
+func MulticastSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.NetworkMulticast) MulticastValue {
 	var disableIgmp basetypes.BoolValue
 	var enabled basetypes.BoolValue
 	var groups = types.MapNull(GroupsValue{}.Type(ctx))
@@ -45,7 +45,7 @@ func MutlicastSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d mod
 		enabled = types.BoolValue(*d.Enabled)
 	}
 	if d.Groups != nil {
-		groups = groupMutlicastSdkToTerraform(ctx, diags, d.Groups)
+		groups = groupMulticastSdkToTerraform(ctx, diags, d.Groups)
 	}
 
 	dataMapValue := map[string]attr.Value{

@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func gatewayMgmtProtecCustomtReSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.ProtectReCustom) basetypes.ListValue {
+func gatewayMgmtProtectCustomReSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.ProtectReCustom) basetypes.ListValue {
 	var dataList []CustomValue
 
 	for _, d := range l {
@@ -63,7 +63,7 @@ func gatewayMgmtProtectReSdkToTerraform(ctx context.Context, diags *diag.Diagnos
 		allowedServices = list
 	}
 	if d.Custom != nil {
-		custom = gatewayMgmtProtecCustomtReSdkToTerraform(ctx, diags, d.Custom)
+		custom = gatewayMgmtProtectCustomReSdkToTerraform(ctx, diags, d.Custom)
 	}
 	if d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)

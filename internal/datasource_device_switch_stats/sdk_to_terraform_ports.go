@@ -142,10 +142,10 @@ func portsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []model
 			rxBcastPkts = types.Int64Value(int64(*d.RxBcastPkts))
 		}
 		if d.RxBps.Value() != nil {
-			rxBps = types.Int64Value(int64(*d.RxBps.Value()))
+			rxBps = types.Int64Value(*d.RxBps.Value())
 		}
 		if d.RxBytes.Value() != nil {
-			rxBytes = types.Int64Value(int64(*d.RxBytes.Value()))
+			rxBytes = types.Int64Value(*d.RxBytes.Value())
 		}
 		if d.RxErrors != nil {
 			rxErrors = types.Int64Value(int64(*d.RxErrors))
@@ -169,10 +169,10 @@ func portsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []model
 			txBcastPkts = types.Int64Value(int64(*d.TxBcastPkts))
 		}
 		if d.TxBps.Value() != nil {
-			txBps = types.Int64Value(int64(*d.TxBps.Value()))
+			txBps = types.Int64Value(*d.TxBps.Value())
 		}
 		if d.TxBytes.Value() != nil {
-			txBytes = types.Int64Value(int64(*d.TxBytes.Value()))
+			txBytes = types.Int64Value(*d.TxBytes.Value())
 		}
 		if d.TxErrors != nil {
 			txErrors = types.Int64Value(int64(*d.TxErrors))

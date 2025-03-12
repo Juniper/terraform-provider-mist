@@ -60,11 +60,11 @@ func DeviceStatSdkToTerraform(ctx context.Context, upgrade UpgradeDeviceModel, d
 	var uptime = -1
 
 	body, _ := io.ReadAll(data.Response.Body)
-	var objmap map[string]interface{}
-	if err := json.Unmarshal(body, &objmap); err != nil {
+	var objMap map[string]interface{}
+	if err := json.Unmarshal(body, &objMap); err != nil {
 		tflog.Error(ctx, err.Error())
 	} else {
-		if objmap["type"] == "ap" {
+		if objMap["type"] == "ap" {
 			stats := models.StatsAp{}
 			json.Unmarshal(body, &stats)
 			fwupdate = fwUpdateSdtToTerraform(ctx, &diags, stats.Fwupdate)
@@ -74,7 +74,7 @@ func DeviceStatSdkToTerraform(ctx context.Context, upgrade UpgradeDeviceModel, d
 			if stats.Uptime.Value() != nil {
 				uptime = int(*stats.Uptime.Value())
 			}
-		} else if objmap["type"] == "switch" {
+		} else if objMap["type"] == "switch" {
 			stats := models.StatsSwitch{}
 			json.Unmarshal(body, &stats)
 			fwupdate = fwUpdateSdtToTerraform(ctx, &diags, stats.Fwupdate)
@@ -84,7 +84,7 @@ func DeviceStatSdkToTerraform(ctx context.Context, upgrade UpgradeDeviceModel, d
 			if stats.Uptime.Value() != nil {
 				uptime = int(*stats.Uptime.Value())
 			}
-		} else if objmap["type"] == "gateway" {
+		} else if objMap["type"] == "gateway" {
 			stats := models.StatsGateway{}
 			json.Unmarshal(body, &stats)
 			fwupdate = fwUpdateSdtToTerraform(ctx, &diags, stats.Fwupdate)

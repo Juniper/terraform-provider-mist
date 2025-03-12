@@ -36,7 +36,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgWlanModel) (*models.Wlan, diag
 		data.AcctInterimInterval = models.ToPointer(int(plan.AcctInterimInterval.ValueInt64()))
 	}
 
-	// addsing len(plan.AcctServers.Elements()) == 0 because the
+	// adding len(plan.AcctServers.Elements()) == 0 because the
 	// default is an empty list meanings the plan.AcctServers is
 	// not null and not unknown
 	if plan.AcctServers.IsNull() || plan.AcctServers.IsUnknown() || len(plan.AcctServers.Elements()) == 0 {
@@ -116,7 +116,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgWlanModel) (*models.Wlan, diag
 		data.AuthServerSelection = models.ToPointer(models.WlanAuthServerSelectionEnum(plan.AuthServerSelection.ValueString()))
 	}
 
-	// addsing len(plan.AuthServers.Elements()) == 0 because the
+	// adding len(plan.AuthServers.Elements()) == 0 because the
 	// default is an empty list meanings the plan.Authservers is
 	// not null and not unknown
 	if plan.AuthServers.IsNull() || plan.AuthServers.IsUnknown() || len(plan.AuthServers.Elements()) == 0 {
@@ -213,7 +213,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgWlanModel) (*models.Wlan, diag
 		data.ClientLimitUpEnabled = plan.ClientLimitUpEnabled.ValueBoolPointer()
 	}
 
-	// addsing len(plan.CoaServers.Elements()) == 0 because the
+	// adding len(plan.CoaServers.Elements()) == 0 because the
 	// default is an empty list meanings the plan.CoaServers is
 	// not null and not unknown
 	if plan.CoaServers.IsNull() || plan.CoaServers.IsUnknown() || len(plan.CoaServers.Elements()) == 0 {

@@ -69,19 +69,19 @@ func tunnelsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []mod
 			protocol = types.StringValue(string(*d.Protocol))
 		}
 		if d.RxBytes.Value() != nil {
-			rxBytes = types.Int64Value(int64(*d.RxBytes.Value()))
+			rxBytes = types.Int64Value(*d.RxBytes.Value())
 		}
 		if d.RxPkts.Value() != nil {
-			rxPkts = types.Int64Value(int64(*d.RxPkts.Value()))
+			rxPkts = types.Int64Value(*d.RxPkts.Value())
 		}
 		if d.TunnelName != nil {
 			tunnelName = types.StringValue(*d.TunnelName)
 		}
 		if d.TxBytes.Value() != nil {
-			txBytes = types.Int64Value(int64(*d.TxBytes.Value()))
+			txBytes = types.Int64Value(*d.TxBytes.Value())
 		}
 		if d.TxPkts.Value() != nil {
-			txPkts = types.Int64Value(int64(*d.TxPkts.Value()))
+			txPkts = types.Int64Value(*d.TxPkts.Value())
 		}
 		if d.Up != nil {
 			up = types.BoolValue(*d.Up)

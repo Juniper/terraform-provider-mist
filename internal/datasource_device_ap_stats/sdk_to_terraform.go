@@ -214,7 +214,7 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 		orgId = types.StringValue(d.OrgId.String())
 	}
 	if d.PortStat.Value() != nil && len(*d.PortStat.Value()) > 0 {
-		portStat = portStatdkToTerraform(ctx, diags, *d.PortStat.Value())
+		portStat = portStatSdkToTerraform(ctx, diags, *d.PortStat.Value())
 	}
 	if d.PowerBudget.Value() != nil {
 		powerBudget = types.Int64Value(int64(*d.PowerBudget.Value()))
@@ -232,13 +232,13 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 		radioStat = radioStatSdkToTerraform(ctx, diags, d.RadioStat)
 	}
 	if d.RxBps.Value() != nil {
-		rxBps = types.Int64Value(int64(*d.RxBps.Value()))
+		rxBps = types.Int64Value(*d.RxBps.Value())
 	}
 	if d.RxBytes.Value() != nil {
 		rxBytes = types.Int64Value(*d.RxBytes.Value())
 	}
 	if d.RxPkts.Value() != nil {
-		rxPkts = types.Int64Value(int64(*d.RxPkts.Value()))
+		rxPkts = types.Int64Value(*d.RxPkts.Value())
 	}
 	if d.Serial.Value() != nil {
 		serial = types.StringValue(*d.Serial.Value())
@@ -253,13 +253,13 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 		switchRedundancy = SwitchRedundancySdkToTerraform(ctx, diags, d.SwitchRedundancy)
 	}
 	if d.TxBps.Value() != nil {
-		txBps = types.Int64Value(int64(*d.TxBps.Value()))
+		txBps = types.Int64Value(*d.TxBps.Value())
 	}
 	if d.TxBytes.Value() != nil {
-		txBytes = types.Int64Value(int64(*d.TxBytes.Value()))
+		txBytes = types.Int64Value(*d.TxBytes.Value())
 	}
 	if d.TxPkts.Value() != nil {
-		txPkts = types.Int64Value(int64(*d.TxPkts.Value()))
+		txPkts = types.Int64Value(*d.TxPkts.Value())
 	}
 	if d.Uptime.Value() != nil {
 		uptime = types.NumberValue(big.NewFloat(*d.Uptime.Value()))

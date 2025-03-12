@@ -1,4 +1,4 @@
-resource "mist_site_wxtag" "wtag_one" {
+resource "mist_site_wxtag" "wxtag_one" {
   site_id = mist_site.terraform_test.id
   name   = "wtag_one"
   values = [

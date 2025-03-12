@@ -13,7 +13,7 @@ var _ validator.String = ParseMagicValidator{}
 type ParseMagicValidator struct{}
 
 func (o ParseMagicValidator) Description(_ context.Context) string {
-	return "Ensures that value submitted by the user contains a Mist Maciable"
+	return "Ensures that value submitted by the user contains a Mist Claim Code"
 }
 
 func (o ParseMagicValidator) MarkdownDescription(ctx context.Context) string {

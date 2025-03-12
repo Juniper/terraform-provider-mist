@@ -113,7 +113,7 @@ func (d *orgWxtagsDataSource) Read(ctx context.Context, req datasource.ReadReque
 		if limit, err = strconv.Atoi(limitString); err != nil {
 			resp.Diagnostics.AddError(
 				"Error extracting HTTP Response Headers",
-				"Unable to convert the X-Page-Limit value into int, unexcpected error: "+err.Error(),
+				"Unable to convert the X-Page-Limit value into int, unexpected error: "+err.Error(),
 			)
 			return
 		}
@@ -122,7 +122,7 @@ func (d *orgWxtagsDataSource) Read(ctx context.Context, req datasource.ReadReque
 		if total, err = strconv.Atoi(totalString); err != nil {
 			resp.Diagnostics.AddError(
 				"Error extracting HTTP Response Headers",
-				"Unable to convert the X-Page-Total value into int, unexcpected error: "+err.Error(),
+				"Unable to convert the X-Page-Total value into int, unexpected error: "+err.Error(),
 			)
 			return
 		}

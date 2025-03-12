@@ -16,14 +16,14 @@ func SdkToTerraform(ctx context.Context, l *[]models.Avprofile, elements *[]attr
 	var diags diag.Diagnostics
 
 	for _, d := range *l {
-		elem := servicepolicieSdkToTerraform(ctx, &diags, &d)
+		elem := servicepolicySdkToTerraform(ctx, &diags, &d)
 		*elements = append(*elements, elem)
 	}
 
 	return diags
 }
 
-func servicepolicieSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.Avprofile) OrgAvprofilesValue {
+func servicepolicySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.Avprofile) OrgAvprofilesValue {
 
 	var createdTime basetypes.Float64Value
 	var fallbackAction basetypes.StringValue

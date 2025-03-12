@@ -43,7 +43,7 @@ func SdkToTerraform(ctx context.Context, data models.Network) (OrgNetworkModel, 
 		gateway6 = types.StringValue(*data.Gateway6)
 	}
 	if data.Multicast != nil {
-		multicast = MutlicastSdkToTerraform(ctx, &diags, *data.Multicast)
+		multicast = MulticastSdkToTerraform(ctx, &diags, *data.Multicast)
 	}
 	if data.Id != nil {
 		id = types.StringValue(data.Id.String())

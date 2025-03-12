@@ -172,7 +172,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	}
 
 	if data.SyntheticTest != nil {
-		syntheticTest = synthteticTestSdkToTerraform(ctx, &diags, data.SyntheticTest)
+		syntheticTest = syntheticTestSdkToTerraform(ctx, &diags, data.SyntheticTest)
 	}
 
 	if data.TrackAnonymousDevices != nil {

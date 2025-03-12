@@ -120,7 +120,7 @@ func (r *orgInventoryResource) Read(ctx context.Context, _ resource.ReadRequest,
 	}
 
 	var orgIdString string
-	// if it's an "Import" process, keep the "comp" var empty and remove the "import." prefic
+	// if it's an "Import" process, keep the "comp" var empty and remove the "import." prefix
 	// otherwise, set the comp var with the current state
 	// the comp var is used to only report information about the devices managed by TF. This
 	// is currently the only way to be sure to not delete them from the Org
@@ -343,7 +343,7 @@ func (r *orgInventoryResource) refreshInventory(
 		if limit, err = strconv.Atoi(limitString); err != nil {
 			diags.AddError(
 				"Error refreshing Inventory",
-				"Unable to convert the X-Page-Limit value into int, unexcpected error: "+err.Error(),
+				"Unable to convert the X-Page-Limit value into int, unexpected error: "+err.Error(),
 			)
 			return state
 		}
@@ -352,7 +352,7 @@ func (r *orgInventoryResource) refreshInventory(
 		if total, err = strconv.Atoi(totalString); err != nil {
 			diags.AddError(
 				"Error refreshing Inventory",
-				"Unable to convert the X-Page-Total value into int, unexcpected error: "+err.Error(),
+				"Unable to convert the X-Page-Total value into int, unexpected error: "+err.Error(),
 			)
 			return state
 		}

@@ -122,7 +122,7 @@ func legacyProcessPlanedDevices(
 	}
 }
 
-func legacyProcessUnplanedDevices(
+func legacyProcessUnplannedDevices(
 	planDevicesMap *map[string]*DevicesValue,
 	stateDevices *basetypes.ListValue,
 	macsToUnclaim *[]string,
@@ -181,7 +181,7 @@ func legacyTerraformToSdk(
 	// process devices in the state
 	// check if devices must be unclaimed
 	planDevicesMap := legacyGenDeviceMap(&planInventory.Devices)
-	legacyProcessUnplanedDevices(&planDevicesMap, &stateInventory.Devices, &unclaim)
+	legacyProcessUnplannedDevices(&planDevicesMap, &stateInventory.Devices, &unclaim)
 
 	return claim, unclaim, unassign, assignClaim, assign, diags
 }

@@ -20,7 +20,7 @@ func lastTroubleSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 		code = types.StringValue(*d.Code)
 	}
 	if d.Timestamp != nil {
-		timestamp = types.Float64Value(float64(*d.Timestamp))
+		timestamp = types.Float64Value(*d.Timestamp)
 	}
 
 	dataMapValue := map[string]attr.Value{

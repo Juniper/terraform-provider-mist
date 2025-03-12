@@ -130,7 +130,7 @@ func (r *orgEvpnTopologyResource) Read(ctx context.Context, _ resource.ReadReque
 		)
 		return
 	}
-	evpnTopologyid, err := uuid.Parse(state.Id.ValueString())
+	evpnTopologyId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"id\" value for \"mist_org_evpn_topology\" resource",
@@ -140,7 +140,7 @@ func (r *orgEvpnTopologyResource) Read(ctx context.Context, _ resource.ReadReque
 	}
 
 	tflog.Info(ctx, "Starting EvpnTopology Read: evpn_topology_id "+state.Id.ValueString())
-	httpr, err := r.client.OrgsEVPNTopologies().GetOrgEvpnTopology(ctx, orgId, evpnTopologyid)
+	httpr, err := r.client.OrgsEVPNTopologies().GetOrgEvpnTopology(ctx, orgId, evpnTopologyId)
 	if httpr.Response.StatusCode == 404 {
 		resp.State.RemoveResource(ctx)
 		return
@@ -187,7 +187,7 @@ func (r *orgEvpnTopologyResource) Update(ctx context.Context, req resource.Updat
 		)
 		return
 	}
-	evpnTopologyid, err := uuid.Parse(state.Id.ValueString())
+	evpnTopologyId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"id\" value for \"mist_org_evpn_topology\" resource",
@@ -203,7 +203,7 @@ func (r *orgEvpnTopologyResource) Update(ctx context.Context, req resource.Updat
 	}
 
 	tflog.Info(ctx, "Starting EvpnTopology Update for EvpnTopology "+state.Id.ValueString())
-	data, err := r.client.OrgsEVPNTopologies().UpdateOrgEvpnTopology(ctx, orgId, evpnTopologyid, evpnTopology)
+	data, err := r.client.OrgsEVPNTopologies().UpdateOrgEvpnTopology(ctx, orgId, evpnTopologyId, evpnTopology)
 
 	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
 	if apiErr != "" {
@@ -245,7 +245,7 @@ func (r *orgEvpnTopologyResource) Delete(ctx context.Context, _ resource.DeleteR
 		)
 		return
 	}
-	evpnTopologyid, err := uuid.Parse(state.Id.ValueString())
+	evpnTopologyId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"id\" value for \"mist_org_evpn_topology\" resource",
@@ -255,7 +255,7 @@ func (r *orgEvpnTopologyResource) Delete(ctx context.Context, _ resource.DeleteR
 	}
 
 	tflog.Info(ctx, "Starting EvpnTopology Delete: evpn_topology_id "+state.Id.ValueString())
-	data, err := r.client.OrgsEVPNTopologies().DeleteOrgEvpnTopology(ctx, orgId, evpnTopologyid)
+	data, err := r.client.OrgsEVPNTopologies().DeleteOrgEvpnTopology(ctx, orgId, evpnTopologyId)
 	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
 	if data.StatusCode != 404 && apiErr != "" {
 		resp.Diagnostics.AddError(

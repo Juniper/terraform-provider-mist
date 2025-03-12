@@ -13,10 +13,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func legacyCheckVcSiteId(device *DevicesValue, vcmacToSite map[string]types.String) {
+func legacyCheckVcSiteId(device *DevicesValue, vcmMcToSite map[string]types.String) {
 	if device.VcMac.ValueString() != "" && device.SiteId.ValueString() == "" {
 		var vcMac = strings.ToUpper(device.VcMac.ValueString())
-		if siteId, ok := vcmacToSite[vcMac]; ok {
+		if siteId, ok := vcmMcToSite[vcMac]; ok {
 			device.SiteId = siteId
 		}
 
@@ -27,7 +27,7 @@ func legacyProcessMistInventory(
 	diags *diag.Diagnostics,
 	data *[]models.Inventory,
 	mistDevicesByClaimCode *map[string]*DevicesValue,
-	mistDevicesbyMac *map[string]*DevicesValue,
+	mistDevicesByMac *map[string]*DevicesValue,
 	mistSiteIdByVcMac *map[string]types.String,
 ) {
 	for _, d := range *data {
@@ -97,7 +97,7 @@ func legacyProcessMistInventory(
 
 		var nMagic = strings.ToUpper(newDevice.Magic.ValueString())
 		var nMac = strings.ToUpper(newDevice.Mac.ValueString())
-		(*mistDevicesbyMac)[nMac] = &newDevice
+		(*mistDevicesByMac)[nMac] = &newDevice
 		if nMagic != "" {
 			// for claimed devices
 			(*mistDevicesByClaimCode)[nMagic] = &newDevice
@@ -117,10 +117,10 @@ func legacySdkToTerraform(
 	var diags diag.Diagnostics
 	var devicesOut []attr.Value
 	mistDevicesByClaimCode := make(map[string]*DevicesValue)
-	mistDevicesbyMac := make(map[string]*DevicesValue)
+	mistDevicesByMac := make(map[string]*DevicesValue)
 	mistSiteIdByVcMac := make(map[string]types.String)
 
-	legacyProcessMistInventory(ctx, &diags, data, &mistDevicesByClaimCode, &mistDevicesbyMac, &mistSiteIdByVcMac)
+	legacyProcessMistInventory(ctx, &diags, data, &mistDevicesByClaimCode, &mistDevicesByMac, &mistSiteIdByVcMac)
 
 	newState.OrgId = types.StringValue(orgId)
 
@@ -137,7 +137,7 @@ func legacySdkToTerraform(
 			legacyCheckVcSiteId(deviceFromMist, mistSiteIdByVcMac)
 			deviceFromMist.UnclaimWhenDestroyed = device.UnclaimWhenDestroyed
 			devicesOut = append(devicesOut, *deviceFromMist)
-		} else if deviceFromMist, ok = mistDevicesbyMac[mac]; ok {
+		} else if deviceFromMist, ok = mistDevicesByMac[mac]; ok {
 			legacyCheckVcSiteId(deviceFromMist, mistSiteIdByVcMac)
 			deviceFromMist.UnclaimWhenDestroyed = device.UnclaimWhenDestroyed
 			devicesOut = append(devicesOut, *deviceFromMist)

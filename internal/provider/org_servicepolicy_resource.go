@@ -54,7 +54,7 @@ func (r *orgServicepolicyResource) Metadata(_ context.Context, req resource.Meta
 }
 func (r *orgServicepolicyResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryWan + "This resource manages WAN Assurance Service Policies (Application Policiess).\n\n" +
+		MarkdownDescription: docCategoryWan + "This resource manages WAN Assurance Service Policies (Application Policies).\n\n" +
 			"The Service Policies can be used in the `service_policies` object by referencing the Service Policy ID as the `servicepolicy_id` in:\n" +
 			"* the Gateway configuration (`mist_device_gateway.service_policies`)\n" +
 			"* the Gateway Templates (`mist_org_gatewaytemplate.service_policies`)\n" +

@@ -34,7 +34,7 @@ func SdkToTerraform(ctx context.Context, d *models.Webhook) (SiteWebhookModel, d
 	var siteId types.String
 	var splunkToken types.String
 	var topics types.List
-	var wtype types.String
+	var wType types.String
 	var url types.String
 	var verifyCert types.Bool
 
@@ -102,7 +102,7 @@ func SdkToTerraform(ctx context.Context, d *models.Webhook) (SiteWebhookModel, d
 		topics = list
 	}
 	if d.Type != nil {
-		wtype = types.StringValue(string(*d.Type))
+		wType = types.StringValue(string(*d.Type))
 	}
 	if d.Url != nil {
 		url = types.StringValue(*d.Url)
@@ -129,7 +129,7 @@ func SdkToTerraform(ctx context.Context, d *models.Webhook) (SiteWebhookModel, d
 	state.SplunkToken = splunkToken
 	state.OrgId = orgId
 	state.Topics = topics
-	state.Type = wtype
+	state.Type = wType
 	state.Url = url
 	state.VerifyCert = verifyCert
 

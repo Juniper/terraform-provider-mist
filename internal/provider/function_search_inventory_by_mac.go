@@ -93,7 +93,7 @@ func (f *SearchInventoryByMacFunction) Run(ctx context.Context, req function.Run
 			}
 		}
 	} else {
-		resp.Error = function.NewArgumentFuncError(0, "The provided inventory is emtpy")
+		resp.Error = function.NewArgumentFuncError(0, "The provided inventory is empty")
 	}
 
 	resp.Error = function.NewArgumentFuncError(1, fmt.Sprintf("Unable to find a device with MAC Address \"%s\" in the provided inventory", mac))

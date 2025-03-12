@@ -1,6 +1,6 @@
 
-resource "mist_org_wlantemplate" "wlantempalte_one" {
-  name   = "wlantempalte_one"
+resource "mist_org_wlantemplate" "wlantemplate_one" {
+  name   = "wlantemplate_one"
   org_id = mist_org.terraform_test.id
   applies = {
     site_ids = [

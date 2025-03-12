@@ -9,12 +9,12 @@ import (
 func TerraformToSdk(macsPlan basetypes.SetValue, macsState basetypes.SetValue) (models.MacAddresses, models.MacAddresses, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	var macsToAssign models.MacAddresses
-	var macsToUnssign models.MacAddresses
+	var macsToUnassign models.MacAddresses
 
 	macsToAssign.Macs = diffList(macsPlan, macsState)
-	macsToUnssign.Macs = diffList(macsState, macsPlan)
+	macsToUnassign.Macs = diffList(macsState, macsPlan)
 
-	return macsToAssign, macsToUnssign, diags
+	return macsToAssign, macsToUnassign, diags
 }
 
 func diffList(listOne basetypes.SetValue, listTwo basetypes.SetValue) []string {

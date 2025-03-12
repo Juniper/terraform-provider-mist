@@ -11,7 +11,7 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func portStatdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.StatsApPortStat) basetypes.MapValue {
+func portStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.StatsApPortStat) basetypes.MapValue {
 	mapAttrValues := make(map[string]attr.Value)
 	for k, d := range m {
 		var fullDuplex basetypes.BoolValue
@@ -29,7 +29,7 @@ func portStatdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[s
 			fullDuplex = types.BoolValue(*d.FullDuplex.Value())
 		}
 		if d.RxBytes.Value() != nil {
-			rxBytes = types.Int64Value(int64(*d.RxBytes.Value()))
+			rxBytes = types.Int64Value(*d.RxBytes.Value())
 		}
 		if d.RxErrors.Value() != nil {
 			rxErrors = types.Int64Value(int64(*d.RxErrors.Value()))
@@ -38,19 +38,19 @@ func portStatdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[s
 			rxPeakBps = types.Int64Value(int64(*d.RxPeakBps.Value()))
 		}
 		if d.RxPkts.Value() != nil {
-			rxPkts = types.Int64Value(int64(*d.RxPkts.Value()))
+			rxPkts = types.Int64Value(*d.RxPkts.Value())
 		}
 		if d.Speed.Value() != nil {
 			speed = types.Int64Value(int64(*d.Speed.Value()))
 		}
 		if d.TxBytes.Value() != nil {
-			txBytes = types.Int64Value(int64(*d.TxBytes.Value()))
+			txBytes = types.Int64Value(*d.TxBytes.Value())
 		}
 		if d.TxPeakBps.Value() != nil {
 			txPeakBps = types.Int64Value(int64(*d.TxPeakBps.Value()))
 		}
 		if d.TxPkts.Value() != nil {
-			txPkts = types.Int64Value(int64(*d.TxPkts.Value()))
+			txPkts = types.Int64Value(*d.TxPkts.Value())
 		}
 		if d.Up.Value() != nil {
 			up = types.BoolValue(*d.Up.Value())

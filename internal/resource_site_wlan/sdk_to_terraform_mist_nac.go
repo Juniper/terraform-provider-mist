@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func mistNacdSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.WlanMistNac) MistNacValue {
+func mistNacSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.WlanMistNac) MistNacValue {
 	var enabled basetypes.BoolValue
 
 	if d != nil && d.Enabled != nil {

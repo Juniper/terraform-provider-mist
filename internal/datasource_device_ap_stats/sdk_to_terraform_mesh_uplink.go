@@ -52,13 +52,13 @@ func meshUplinkSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 		rssi = types.Int64Value(int64(*d.Rssi))
 	}
 	if d.RxBps.Value() != nil {
-		rxBps = types.Int64Value(int64(*d.RxBps.Value()))
+		rxBps = types.Int64Value(*d.RxBps.Value())
 	}
 	if d.RxBytes.Value() != nil {
-		rxBytes = types.Int64Value(int64(*d.RxBytes.Value()))
+		rxBytes = types.Int64Value(*d.RxBytes.Value())
 	}
 	if d.RxPackets.Value() != nil {
-		rxPackets = types.Int64Value(int64(*d.RxPackets.Value()))
+		rxPackets = types.Int64Value(*d.RxPackets.Value())
 	}
 	if d.RxRate.Value() != nil {
 		rxRate = types.Int64Value(int64(*d.RxRate.Value()))
@@ -73,13 +73,13 @@ func meshUplinkSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 		snr = types.Int64Value(int64(*d.Snr))
 	}
 	if d.TxBps.Value() != nil {
-		txBps = types.Int64Value(int64(*d.TxBps.Value()))
+		txBps = types.Int64Value(*d.TxBps.Value())
 	}
 	if d.TxBytes.Value() != nil {
-		txBytes = types.Int64Value(int64(*d.TxBytes.Value()))
+		txBytes = types.Int64Value(*d.TxBytes.Value())
 	}
 	if d.TxPackets.Value() != nil {
-		txPackets = types.Int64Value(int64(*d.TxPackets.Value()))
+		txPackets = types.Int64Value(*d.TxPackets.Value())
 	}
 	if d.TxRate.Value() != nil {
 		txRate = types.Int64Value(int64(*d.TxRate.Value()))

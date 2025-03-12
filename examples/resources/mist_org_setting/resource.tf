@@ -12,7 +12,7 @@ resource "mist_org_setting" "terraform_test" {
   disable_remote_shell     = true
   gateway_updown_threshold = 10
   mxedge_mgmt = {
-    mist_password = "mist_secret_passowrd"
+    mist_password = "root_secret_password"
     root_password = "root_secret_password"
     oob_ip_type   = "dhcp"
     oob_ip_type6  = "disabled"

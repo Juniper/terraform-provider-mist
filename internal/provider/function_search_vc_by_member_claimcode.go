@@ -84,7 +84,7 @@ func (f *SearchVcByMemberClaimcodeFunction) Run(ctx context.Context, req functio
 			vcMember := vi.(resource_org_inventory.DevicesValue)
 			if strings.EqualFold(vcMember.Magic.ValueString(), claimcode) {
 				if vcMember.DevicesType.ValueString() == "switch" {
-					vc, err := f.genVirtualChassFromDevices(ctx, vcMember)
+					vc, err := f.genVirtualChassisFromDevices(ctx, vcMember)
 					if err != nil {
 						for _, e := range err.Errors() {
 							resp.Error = function.NewFuncError(e.Detail())
@@ -103,7 +103,7 @@ func (f *SearchVcByMemberClaimcodeFunction) Run(ctx context.Context, req functio
 			vcMember := vi.(resource_org_inventory.InventoryValue)
 			if strings.EqualFold(vcMember.Magic.ValueString(), claimcode) {
 				if vcMember.InventoryType.ValueString() == "switch" {
-					vc, err := f.genVirtualChassFromInventory(ctx, vcMember)
+					vc, err := f.genVirtualChassisFromInventory(ctx, vcMember)
 					if err != nil {
 						for _, e := range err.Errors() {
 							resp.Error = function.NewFuncError(e.Detail())
@@ -117,13 +117,13 @@ func (f *SearchVcByMemberClaimcodeFunction) Run(ctx context.Context, req functio
 			}
 		}
 	} else {
-		resp.Error = function.NewArgumentFuncError(0, "The provided inventory is emtpy")
+		resp.Error = function.NewArgumentFuncError(0, "The provided inventory is empty")
 	}
 
 	resp.Error = function.NewArgumentFuncError(1, fmt.Sprintf("Unable to find a device with Claim Code \"%s\" in the provided inventory", claimcode))
 }
 
-func (f *SearchVcByMemberClaimcodeFunction) genVirtualChassFromDevices(
+func (f *SearchVcByMemberClaimcodeFunction) genVirtualChassisFromDevices(
 	ctx context.Context,
 	vcMember resource_org_inventory.DevicesValue,
 ) (resource_org_inventory.DevicesValue, diag.Diagnostics) {
@@ -161,7 +161,7 @@ func (f *SearchVcByMemberClaimcodeFunction) genVirtualChassFromDevices(
 	return vcMember, nil
 }
 
-func (f *SearchVcByMemberClaimcodeFunction) genVirtualChassFromInventory(
+func (f *SearchVcByMemberClaimcodeFunction) genVirtualChassisFromInventory(
 	ctx context.Context,
 	vcMember resource_org_inventory.InventoryValue,
 ) (resource_org_inventory.InventoryValue, diag.Diagnostics) {

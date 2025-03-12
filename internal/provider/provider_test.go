@@ -146,7 +146,7 @@ func TestIntegration_Configure_Invalid_Configuration(t *testing.T) {
 	testProvider.Configure(context.Background(), req, &resp)
 
 	if resp.Diagnostics.HasError() {
-		assert.Equal(t, diag.Diagnostics{diag.NewErrorDiagnostic("Authentication Error", "ResponseHttp401Error occured: Unauthorized")}, resp.Diagnostics)
+		assert.Equal(t, diag.Diagnostics{diag.NewErrorDiagnostic("Authentication Error", "ResponseHttp401Error occurred: Unauthorized")}, resp.Diagnostics)
 	}
 }
 func TestIntegration_Configure_API_Token(t *testing.T) {

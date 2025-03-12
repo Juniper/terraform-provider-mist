@@ -52,12 +52,12 @@ func (d *orgServicepoliciesDataSource) Metadata(_ context.Context, req datasourc
 
 func (d *orgServicepoliciesDataSource) Schema(ctx context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryWan + "This data source provides the list of WAN Assurance Service Policies (Application Policiess).\n\n" +
+		MarkdownDescription: docCategoryWan + "This data source provides the list of WAN Assurance Service Policies (Application Policies).\n\n" +
 			"The Service Policies can be used in the `service_policies` object by referencing the Service Policy ID as the `servicepolicy_id` in:\n" +
 			"* the Gateway configuration (`mist_device_gateway.service_policies`)\n" +
 			"* the Gateway Templates (`mist_org_gatewaytemplate.service_policies`)\n" +
 			"* the HUB Profiles (`mist_org_deviceprofile_gateway.service_policies`)\n" +
-			"They can be used to manage common policies betweeen multiples configurations",
+			"They can be used to manage common policies between multiples configurations",
 		Attributes: datasource_org_servicepolicies.OrgServicepoliciesDataSourceSchema(ctx).Attributes,
 	}
 }
@@ -105,7 +105,7 @@ func (d *orgServicepoliciesDataSource) Read(ctx context.Context, req datasource.
 		if limit, err = strconv.Atoi(limitString); err != nil {
 			resp.Diagnostics.AddError(
 				"Error extracting HTTP Response Headers",
-				"Unable to convert the X-Page-Limit value into int, unexcpected error: "+err.Error(),
+				"Unable to convert the X-Page-Limit value into int, unexpected error: "+err.Error(),
 			)
 			return
 		}
@@ -114,7 +114,7 @@ func (d *orgServicepoliciesDataSource) Read(ctx context.Context, req datasource.
 		if total, err = strconv.Atoi(totalString); err != nil {
 			resp.Diagnostics.AddError(
 				"Error extracting HTTP Response Headers",
-				"Unable to convert the X-Page-Total value into int, unexcpected error: "+err.Error(),
+				"Unable to convert the X-Page-Total value into int, unexpected error: "+err.Error(),
 			)
 			return
 		}

@@ -60,7 +60,7 @@ func (r *orgNacEndpointResource) Schema(ctx context.Context, _ resource.SchemaRe
 			"Once an endpoint is labeled, the label name can be used to create `mist_org_nactag` resource as match criteria.\n\n" +
 			"The `mist_org_nactag` resource can be used to create Tags regrouping one or multiple endpoint MAC Addresses, " +
 			"but the use of the User MACs provides additional features:\n" +
-			"* possitility to assign specific attributes, like a Name, a Radius Group, a VLAN ID, ...\n" +
+			"* possibility to assign specific attributes, like a Name, a Radius Group, a VLAN ID, ...\n" +
 			"* possibility to assign one or multiple Tags (Labels) to a User MAC\n" +
 			"* improved management for large list of MAC Addresses",
 		Attributes: resource_org_usermac.OrgUsermacResourceSchema(ctx).Attributes,

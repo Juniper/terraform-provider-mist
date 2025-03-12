@@ -69,7 +69,7 @@ func TerraformToSdk(plan *OrgServiceModel) (models.Service, diag.Diagnostics) {
 	if plan.Description.ValueStringPointer() != nil {
 		data.Description = plan.Description.ValueStringPointer()
 	} else {
-		unset["-descritpion"] = ""
+		unset["-description"] = ""
 	}
 	if plan.Dscp.ValueStringPointer() != nil {
 		data.Dscp = models.ToPointer(models.ServiceDscpContainer.FromString(plan.Dscp.ValueString()))

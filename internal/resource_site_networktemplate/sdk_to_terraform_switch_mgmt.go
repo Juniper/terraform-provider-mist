@@ -13,7 +13,7 @@ import (
 	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
-func switchMgmtProtecCustomtReSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.ProtectReCustom) basetypes.ListValue {
+func switchMgmtProtectCustomReSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.ProtectReCustom) basetypes.ListValue {
 	var dataList []CustomValue
 
 	for _, d := range l {
@@ -64,7 +64,7 @@ func switchMgmtProtectReSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 		allowedServices = list
 	}
 	if d.Custom != nil {
-		custom = switchMgmtProtecCustomtReSdkToTerraform(ctx, diags, d.Custom)
+		custom = switchMgmtProtectCustomReSdkToTerraform(ctx, diags, d.Custom)
 	}
 	if d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)

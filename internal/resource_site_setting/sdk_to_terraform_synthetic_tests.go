@@ -34,7 +34,7 @@ func syntheticTestWanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 	return data
 }
 
-func synthteticTestVlansSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.SynthetictestProperties) basetypes.ListValue {
+func syntheticTestVlansSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.SynthetictestProperties) basetypes.ListValue {
 	var dataList []VlansValue
 	for _, d := range l {
 		var customTestUrls = mistutils.ListOfStringSdkToTerraformEmpty()
@@ -71,7 +71,7 @@ func synthteticTestVlansSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 	return r
 }
 
-func synthteticTestSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SynthetictestConfig) SyntheticTestValue {
+func syntheticTestSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SynthetictestConfig) SyntheticTestValue {
 
 	var disabled basetypes.BoolValue
 	var vlans = types.ListNull(VlansValue{}.Type(ctx))
@@ -81,7 +81,7 @@ func synthteticTestSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 		disabled = types.BoolValue(*d.Disabled)
 	}
 	if d != nil && d.Vlans != nil {
-		vlans = synthteticTestVlansSdkToTerraform(ctx, diags, d.Vlans)
+		vlans = syntheticTestVlansSdkToTerraform(ctx, diags, d.Vlans)
 	}
 	if d != nil && d.WanSpeedtest != nil {
 		wanSpeedtest = syntheticTestWanSdkToTerraform(ctx, diags, d.WanSpeedtest)

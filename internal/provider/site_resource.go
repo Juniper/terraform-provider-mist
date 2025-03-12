@@ -63,9 +63,9 @@ func (r *siteResource) Schema(ctx context.Context, _ resource.SchemaRequest, res
 func (r *siteResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan, state resource_site.SiteModel
 
-	// the resourceLock is required to avoid concurent sitegroup assign/unassign to
+	// the resourceLock is required to avoid concurrent sitegroup assign/unassign to
 	// different sites. If the same sitegroup is assigned to multiple sites at the
-	// same time, the `site_ids` atribute may not be updated correctly in the Mist
+	// same time, the `site_ids` attribute may not be updated correctly in the Mist
 	// backend
 	// by using this approach, the provider is creating/updating/deleting each sites
 	// sequentially
@@ -164,9 +164,9 @@ func (r *siteResource) Read(ctx context.Context, _ resource.ReadRequest, resp *r
 func (r *siteResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var state, plan resource_site.SiteModel
 
-	// the resourceLock is required to avoid concurent sitegroup assign/unassign to
+	// the resourceLock is required to avoid concurrent sitegroup assign/unassign to
 	// different sites. If the same sitegroup is assigned to multiple sites at the
-	// same time, the `site_ids` atribute may not be updated correctly in the Mist
+	// same time, the `site_ids` attribute may not be updated correctly in the Mist
 	// backend
 	// by using this approach, the provider is creating/updating/deleting each sites
 	// sequentially
@@ -229,11 +229,11 @@ func (r *siteResource) Update(ctx context.Context, req resource.UpdateRequest, r
 func (r *siteResource) Delete(ctx context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state resource_site.SiteModel
 
-	// the resourceLock is required to avoid concurent sitegroup assign/unassign to
+	// the resourceLock is required to avoid concurrent sitegroup assign/unassign to
 	// different sites. If the same sitegroup is assigned to multiple sites at the
-	// same time, the `site_ids` atribute may not be updated correctly in the Mist
+	// same time, the `site_ids` attribute may not be updated correctly in the Mist
 	// backend
-	// by using this approach, the provider is creating/updating/deleting each sites
+	// by using this approach, the provider is creating/updating/deleting each site
 	// sequentially
 	resourceLock.Lock()
 

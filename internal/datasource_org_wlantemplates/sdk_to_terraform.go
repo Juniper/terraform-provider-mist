@@ -14,14 +14,14 @@ func SdkToTerraform(ctx context.Context, l *[]models.Template, elements *[]attr.
 	var diags diag.Diagnostics
 
 	for _, d := range *l {
-		elem := wxlantemplateSdkToTerraform(ctx, &diags, &d)
+		elem := wxlanTemplateSdkToTerraform(ctx, &diags, &d)
 		*elements = append(*elements, elem)
 	}
 
 	return diags
 }
 
-func wxlantemplateSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.Template) OrgWlantemplatesValue {
+func wxlanTemplateSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.Template) OrgWlantemplatesValue {
 
 	var createdTime basetypes.Float64Value
 	var id basetypes.StringValue

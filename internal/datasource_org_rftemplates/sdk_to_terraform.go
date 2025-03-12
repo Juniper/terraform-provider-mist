@@ -15,14 +15,14 @@ func SdkToTerraform(ctx context.Context, l *[]models.RfTemplate, elements *[]att
 	var diags diag.Diagnostics
 
 	for _, d := range *l {
-		elem := rftempalteSdkToTerraform(ctx, &diags, &d)
+		elem := rfTemplateSdkToTerraform(ctx, &diags, &d)
 		*elements = append(*elements, elem)
 	}
 
 	return diags
 }
 
-func rftempalteSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.RfTemplate) OrgRftemplatesValue {
+func rfTemplateSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.RfTemplate) OrgRftemplatesValue {
 
 	var countryCode basetypes.StringValue
 	var createdTime basetypes.Float64Value

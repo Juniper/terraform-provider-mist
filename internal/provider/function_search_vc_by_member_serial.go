@@ -84,7 +84,7 @@ func (f *SearchVcByMemberSerialFunction) Run(ctx context.Context, req function.R
 			vcMember := vi.(resource_org_inventory.DevicesValue)
 			if strings.EqualFold(vcMember.Serial.ValueString(), serial) {
 				if vcMember.DevicesType.ValueString() == "switch" {
-					vc, err := f.genVirtualChassFromDevices(ctx, vcMember)
+					vc, err := f.genVirtualChassisFromDevices(ctx, vcMember)
 					if err != nil {
 						for _, e := range err.Errors() {
 							function.NewFuncError(e.Detail())
@@ -103,7 +103,7 @@ func (f *SearchVcByMemberSerialFunction) Run(ctx context.Context, req function.R
 			vcMember := vi.(resource_org_inventory.InventoryValue)
 			if strings.EqualFold(vcMember.Serial.ValueString(), serial) {
 				if vcMember.InventoryType.ValueString() == "switch" {
-					vc, err := f.genVirtualChassFromInventory(ctx, vcMember)
+					vc, err := f.genVirtualChassisFromInventory(ctx, vcMember)
 					if err != nil {
 						for _, e := range err.Errors() {
 							function.NewFuncError(e.Detail())
@@ -117,13 +117,13 @@ func (f *SearchVcByMemberSerialFunction) Run(ctx context.Context, req function.R
 			}
 		}
 	} else {
-		resp.Error = function.NewArgumentFuncError(0, "The provided inventory is emtpy")
+		resp.Error = function.NewArgumentFuncError(0, "The provided inventory is empty")
 	}
 
 	resp.Error = function.NewArgumentFuncError(1, fmt.Sprintf("Unable to find a device with Serial \"%s\" in the provided inventory", serial))
 }
 
-func (f *SearchVcByMemberSerialFunction) genVirtualChassFromDevices(
+func (f *SearchVcByMemberSerialFunction) genVirtualChassisFromDevices(
 	ctx context.Context,
 	vcMember resource_org_inventory.DevicesValue,
 ) (
@@ -164,7 +164,7 @@ func (f *SearchVcByMemberSerialFunction) genVirtualChassFromDevices(
 	return vcMember, nil
 }
 
-func (f *SearchVcByMemberSerialFunction) genVirtualChassFromInventory(
+func (f *SearchVcByMemberSerialFunction) genVirtualChassisFromInventory(
 	ctx context.Context,
 	vcMember resource_org_inventory.InventoryValue,
 ) (

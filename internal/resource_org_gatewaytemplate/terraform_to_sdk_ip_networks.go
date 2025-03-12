@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func mulitcastNetworksTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.NetworkMulticast {
+func multicastNetworksTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.NetworkMulticast {
 	data := models.NetworkMulticast{}
 	if !d.IsNull() && !d.IsUnknown() {
 		plan, e := NewMulticastValue(d.AttributeTypes(ctx), d.Attributes())
@@ -76,7 +76,7 @@ func networksTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d base
 			data.Isolation = models.ToPointer(plan.Isolation.ValueBool())
 		}
 		if !plan.Multicast.IsNull() && !plan.Multicast.IsUnknown() {
-			data.Multicast = mulitcastNetworksTerraformToSdk(ctx, diags, plan.Multicast)
+			data.Multicast = multicastNetworksTerraformToSdk(ctx, diags, plan.Multicast)
 		}
 		if plan.Name.ValueStringPointer() != nil {
 			data.Name = plan.Name.ValueString()

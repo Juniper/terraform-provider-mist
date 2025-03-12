@@ -363,7 +363,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	}
 
 	if data.MistNac != nil {
-		mistNac = mistNacdSkToTerraform(ctx, &diags, data.MistNac)
+		mistNac = mistNacSkToTerraform(ctx, &diags, data.MistNac)
 	}
 
 	if data.MspId != nil {

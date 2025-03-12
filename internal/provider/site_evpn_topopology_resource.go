@@ -54,7 +54,7 @@ func (r *siteEvpnTopologyResource) Metadata(_ context.Context, req resource.Meta
 
 func (r *siteEvpnTopologyResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryWired + "This resource manages the Site Evpn Topologys.\n\n" +
+		MarkdownDescription: docCategoryWired + "This resource manages the Site Evpn Topology.\n\n" +
 			"EVPN allows an alternative but more efficient LAN architecture utilizing VxLAN / MP-BGP to separate the control plane " +
 			"(MAC / IP Learning) from the forwarding plane.\n\n" +
 			"-> To create or manage your EVPN Topology with the Mist Provider, please refer to the `How To - EVPN Topology` Guide.",
@@ -130,7 +130,7 @@ func (r *siteEvpnTopologyResource) Read(ctx context.Context, _ resource.ReadRequ
 		)
 		return
 	}
-	evpnTopologyid, err := uuid.Parse(state.Id.ValueString())
+	evpnTopologyId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"id\" value for \"mist_site_evpn_topology\" resource",
@@ -140,7 +140,7 @@ func (r *siteEvpnTopologyResource) Read(ctx context.Context, _ resource.ReadRequ
 	}
 
 	tflog.Info(ctx, "Starting EvpnTopology Read: evpn_topology_id "+state.Id.ValueString())
-	httpr, err := r.client.SitesEVPNTopologies().GetSiteEvpnTopology(ctx, siteId, evpnTopologyid)
+	httpr, err := r.client.SitesEVPNTopologies().GetSiteEvpnTopology(ctx, siteId, evpnTopologyId)
 	if httpr.Response.StatusCode == 404 {
 		resp.State.RemoveResource(ctx)
 		return
@@ -187,7 +187,7 @@ func (r *siteEvpnTopologyResource) Update(ctx context.Context, req resource.Upda
 		)
 		return
 	}
-	evpnTopologyid, err := uuid.Parse(state.Id.ValueString())
+	evpnTopologyId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"id\" value for \"mist_site_evpn_topology\" resource",
@@ -203,7 +203,7 @@ func (r *siteEvpnTopologyResource) Update(ctx context.Context, req resource.Upda
 	}
 
 	tflog.Info(ctx, "Starting EvpnTopology Update for EvpnTopology "+state.Id.ValueString())
-	data, err := r.client.SitesEVPNTopologies().UpdateSiteEvpnTopology(ctx, siteId, evpnTopologyid, evpnTopology)
+	data, err := r.client.SitesEVPNTopologies().UpdateSiteEvpnTopology(ctx, siteId, evpnTopologyId, evpnTopology)
 
 	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
 	if apiErr != "" {
@@ -245,7 +245,7 @@ func (r *siteEvpnTopologyResource) Delete(ctx context.Context, _ resource.Delete
 		)
 		return
 	}
-	evpnTopologyid, err := uuid.Parse(state.Id.ValueString())
+	evpnTopologyId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"id\" value for \"mist_site_evpn_topology\" resource",
@@ -255,7 +255,7 @@ func (r *siteEvpnTopologyResource) Delete(ctx context.Context, _ resource.Delete
 	}
 
 	tflog.Info(ctx, "Starting EvpnTopology Delete: evpn_topology_id "+state.Id.ValueString())
-	data, err := r.client.SitesEVPNTopologies().DeleteSiteEvpnTopology(ctx, siteId, evpnTopologyid)
+	data, err := r.client.SitesEVPNTopologies().DeleteSiteEvpnTopology(ctx, siteId, evpnTopologyId)
 	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
 	if data.StatusCode != 404 && apiErr != "" {
 		resp.Diagnostics.AddError(

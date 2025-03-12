@@ -117,7 +117,7 @@ func portConfigIpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 	return r
 }
 
-func portConfigTrafficShappingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, g *models.GatewayTrafficShaping) basetypes.ObjectValue {
+func portConfigTrafficShapingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, g *models.GatewayTrafficShaping) basetypes.ObjectValue {
 	var classPercentages = mistutils.ListOfIntSdkToTerraformEmpty()
 	var enabled = types.BoolValue(false)
 	var maxTxKbps basetypes.Int64Value
@@ -165,7 +165,7 @@ func portConfigVpnPathsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 			preference = types.Int64Value(int64(*v.Preference))
 		}
 		if v.TrafficShaping != nil {
-			trafficShaping = portConfigTrafficShappingSdkToTerraform(ctx, diags, v.TrafficShaping)
+			trafficShaping = portConfigTrafficShapingSdkToTerraform(ctx, diags, v.TrafficShaping)
 		}
 		if v.Role != nil {
 			role = types.StringValue(string(*v.Role))
@@ -354,7 +354,7 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 			svrPortRange = types.StringValue(*v.SvrPortRange)
 		}
 		if v.TrafficShaping != nil {
-			trafficShaping = portConfigTrafficShappingSdkToTerraform(ctx, diags, v.TrafficShaping)
+			trafficShaping = portConfigTrafficShapingSdkToTerraform(ctx, diags, v.TrafficShaping)
 		}
 		if v.VlanId != nil {
 			vlanId = mistutils.GatewayVlanAsString(*v.VlanId)

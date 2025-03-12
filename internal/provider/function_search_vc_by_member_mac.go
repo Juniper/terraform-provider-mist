@@ -84,7 +84,7 @@ func (f *SearchVcByMemberMacFunction) Run(ctx context.Context, req function.RunR
 			vcMember := vi.(resource_org_inventory.DevicesValue)
 			if strings.EqualFold(vcMember.Mac.ValueString(), mac) {
 				if vcMember.DevicesType.ValueString() == "switch" {
-					vc, err := f.genVirtualChassFromDevices(ctx, vcMember)
+					vc, err := f.genVirtualChassisFromDevices(ctx, vcMember)
 					if err != nil {
 						for _, e := range err.Errors() {
 							function.NewFuncError(e.Detail())
@@ -103,7 +103,7 @@ func (f *SearchVcByMemberMacFunction) Run(ctx context.Context, req function.RunR
 			vcMember := vi.(resource_org_inventory.InventoryValue)
 			if strings.EqualFold(vcMember.Mac.ValueString(), mac) {
 				if vcMember.InventoryType.ValueString() == "switch" {
-					vc, err := f.genVirtualChassFromInventory(ctx, vcMember)
+					vc, err := f.genVirtualChassisFromInventory(ctx, vcMember)
 					if err != nil {
 						for _, e := range err.Errors() {
 							function.NewFuncError(e.Detail())
@@ -117,14 +117,14 @@ func (f *SearchVcByMemberMacFunction) Run(ctx context.Context, req function.RunR
 			}
 		}
 	} else {
-		resp.Error = function.NewArgumentFuncError(0, "The provided inventory is emtpy")
+		resp.Error = function.NewArgumentFuncError(0, "The provided inventory is empty")
 	}
 
 	resp.Error = function.NewArgumentFuncError(1, fmt.Sprintf("Unable to find a device with MAC Address \"%s\" in the provided inventory", mac))
 
 }
 
-func (f *SearchVcByMemberMacFunction) genVirtualChassFromDevices(
+func (f *SearchVcByMemberMacFunction) genVirtualChassisFromDevices(
 	ctx context.Context,
 	vcMember resource_org_inventory.DevicesValue,
 ) (
@@ -165,7 +165,7 @@ func (f *SearchVcByMemberMacFunction) genVirtualChassFromDevices(
 	return vcMember, nil
 }
 
-func (f *SearchVcByMemberMacFunction) genVirtualChassFromInventory(
+func (f *SearchVcByMemberMacFunction) genVirtualChassisFromInventory(
 	ctx context.Context,
 	vcMember resource_org_inventory.InventoryValue,
 ) (

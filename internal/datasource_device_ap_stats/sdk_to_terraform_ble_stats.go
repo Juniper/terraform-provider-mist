@@ -90,16 +90,16 @@ func bleStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mod
 		power = types.Int64Value(int64(*d.Power.Value()))
 	}
 	if d.RxBytes.Value() != nil {
-		rxBytes = types.Int64Value(int64(*d.RxBytes.Value()))
+		rxBytes = types.Int64Value(*d.RxBytes.Value())
 	}
 	if d.RxPkts.Value() != nil {
-		rxPkts = types.Int64Value(int64(*d.RxPkts.Value()))
+		rxPkts = types.Int64Value(*d.RxPkts.Value())
 	}
 	if d.TxBytes.Value() != nil {
 		txBytes = types.Int64Value(*d.TxBytes.Value())
 	}
 	if d.TxPkts.Value() != nil {
-		txPkts = types.Int64Value(int64(*d.TxPkts.Value()))
+		txPkts = types.Int64Value(*d.TxPkts.Value())
 	}
 	if d.TxResets.Value() != nil {
 		txResets = types.Int64Value(int64(*d.TxResets.Value()))

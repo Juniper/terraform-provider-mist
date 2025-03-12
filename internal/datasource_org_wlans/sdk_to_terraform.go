@@ -379,7 +379,7 @@ func wlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 	}
 
 	if d.MistNac != nil {
-		mistNac = mistNacdSkToTerraform(ctx, diags, d.MistNac)
+		mistNac = mistNacSkToTerraform(ctx, diags, d.MistNac)
 	}
 
 	if d.ModifiedTime != nil {

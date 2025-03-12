@@ -55,11 +55,11 @@ func (r *siteNetworkTemplateResource) Schema(ctx context.Context, _ resource.Sch
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryWired + "This resource manages the Site Network configuration (Switch configuration).\n\n" +
 			"The Site Network template can be used to override the Org Network template assign to the site, " +
-			"or to configure common switch settings accross the site without having to create an Org Network template.\n\n" +
+			"or to configure common switch settings across the site without having to create an Org Network template.\n\n" +
 			"~> When using the Mist APIs, all the switch settings defined at the site level are stored under the site settings with all the rest of the site configuration " +
 			"(`/api/v1/sites/{site_id}/setting` Mist API Endpoint). To simplify this resource, the `mist_site_networktemplate` resource has been created to centralize all " +
 			"the site level switches related settings.\n\n" +
-			"!> Only ONE `mist_site_networktemplate` resource can be configured per site. If multiple ones are configured, only the last one defined we be succesfully deployed to Mist",
+			"!> Only ONE `mist_site_networktemplate` resource can be configured per site. If multiple ones are configured, only the last one defined we be successfully deployed to Mist",
 		Attributes: resource_site_networktemplate.SiteNetworktemplateResourceSchema(ctx).Attributes,
 	}
 }
@@ -190,7 +190,7 @@ func (r *siteNetworkTemplateResource) Update(ctx context.Context, req resource.U
 	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
 	if apiErr != "" {
 		resp.Diagnostics.AddError(
-			"Error updateing \"mist_site_networktemplate\" resource",
+			"Error updating \"mist_site_networktemplate\" resource",
 			fmt.Sprintf("Unable to update the Network Template. %s", apiErr),
 		)
 		return

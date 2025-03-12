@@ -17,14 +17,14 @@ func SdkToTerraform(ctx context.Context, l *[]models.AlarmTemplate, elements *[]
 	var diags diag.Diagnostics
 
 	for _, d := range *l {
-		elem := alarmTempalteSdkToTerraform(ctx, &diags, &d)
+		elem := alarmTemplateSdkToTerraform(ctx, &diags, &d)
 		*elements = append(*elements, elem)
 	}
 
 	return diags
 }
 
-func alarmTempalteSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.AlarmTemplate) OrgAlarmtemplatesValue {
+func alarmTemplateSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.AlarmTemplate) OrgAlarmtemplatesValue {
 
 	var createdTime basetypes.Float64Value
 	var delivery = types.ObjectNull(DeliveryValue{}.AttributeTypes(ctx))

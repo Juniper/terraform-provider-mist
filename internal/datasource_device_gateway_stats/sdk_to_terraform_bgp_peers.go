@@ -54,7 +54,7 @@ func bgpPeersSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []mo
 			node = types.StringValue(*d.Node)
 		}
 		if d.RxPkts.Value() != nil {
-			rxPkts = types.Int64Value(int64(*d.RxPkts.Value()))
+			rxPkts = types.Int64Value(*d.RxPkts.Value())
 		}
 		if d.RxRoutes != nil {
 			rxRoutes = types.Int64Value(int64(*d.RxRoutes))
@@ -66,7 +66,7 @@ func bgpPeersSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []mo
 			timestamp = types.Float64Value(*d.Timestamp)
 		}
 		if d.TxPkts.Value() != nil {
-			txPkts = types.Int64Value(int64(*d.TxPkts.Value()))
+			txPkts = types.Int64Value(*d.TxPkts.Value())
 		}
 		if d.TxRoutes != nil {
 			txRoutes = types.Int64Value(int64(*d.TxRoutes))

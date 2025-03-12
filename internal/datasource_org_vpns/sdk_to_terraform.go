@@ -150,7 +150,7 @@ func vpnPathsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[
 			bfdProfile = types.StringValue(string(*d.BfdProfile))
 		}
 		if d.BfdUseTunnelMode != nil {
-			bfdUseTunnelMode = types.BoolValue(bool(*d.BfdUseTunnelMode))
+			bfdUseTunnelMode = types.BoolValue(*d.BfdUseTunnelMode)
 		}
 		if d.Ip != nil {
 			ip = types.StringValue(*d.Ip)
