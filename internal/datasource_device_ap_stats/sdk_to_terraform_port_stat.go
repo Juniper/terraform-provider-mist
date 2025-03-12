@@ -2,6 +2,7 @@ package datasource_device_ap_stats
 
 import (
 	"context"
+
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -16,9 +17,11 @@ func portStatdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[s
 		var fullDuplex basetypes.BoolValue
 		var rxBytes basetypes.Int64Value
 		var rxErrors basetypes.Int64Value
+		var rxPeakBps basetypes.Int64Value
 		var rxPkts basetypes.Int64Value
 		var speed basetypes.Int64Value
 		var txBytes basetypes.Int64Value
+		var txPeakBps basetypes.Int64Value
 		var txPkts basetypes.Int64Value
 		var up basetypes.BoolValue
 
@@ -31,6 +34,9 @@ func portStatdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[s
 		if d.RxErrors.Value() != nil {
 			rxErrors = types.Int64Value(int64(*d.RxErrors.Value()))
 		}
+		if d.RxPeakBps.Value() != nil {
+			rxPeakBps = types.Int64Value(int64(*d.RxPeakBps.Value()))
+		}
 		if d.RxPkts.Value() != nil {
 			rxPkts = types.Int64Value(int64(*d.RxPkts.Value()))
 		}
@@ -39,6 +45,9 @@ func portStatdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[s
 		}
 		if d.TxBytes.Value() != nil {
 			txBytes = types.Int64Value(int64(*d.TxBytes.Value()))
+		}
+		if d.TxPeakBps.Value() != nil {
+			txPeakBps = types.Int64Value(int64(*d.TxPeakBps.Value()))
 		}
 		if d.TxPkts.Value() != nil {
 			txPkts = types.Int64Value(int64(*d.TxPkts.Value()))
@@ -51,9 +60,11 @@ func portStatdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[s
 			"full_duplex": fullDuplex,
 			"rx_bytes":    rxBytes,
 			"rx_errors":   rxErrors,
+			"rx_peak_bps": rxPeakBps,
 			"rx_pkts":     rxPkts,
 			"speed":       speed,
 			"tx_bytes":    txBytes,
+			"tx_peak_bps": txPeakBps,
 			"tx_pkts":     txPkts,
 			"up":          up,
 		}
