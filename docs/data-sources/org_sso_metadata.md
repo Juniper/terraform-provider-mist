@@ -32,7 +32,8 @@ data "mist_org_sso_metadata" "sso_idp" {
 
 ### Read-Only
 
-- `acs_url` (String)
-- `entity_id` (String)
-- `logout_url` (String)
-- `metadata` (String)
+- `acs_url` (String) If `idp_type`==`saml`
+- `entity_id` (String) If `idp_type`==`saml`
+- `logout_url` (String) If `idp_type`==`saml`
+- `metadata` (String) If `idp_type`==`saml`
+- `scim_base_url` (String) If `idp_type`==`oauth` and `scim_enabled`==`true`

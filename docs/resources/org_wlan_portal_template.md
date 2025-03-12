@@ -112,7 +112,7 @@ Optional:
   `zh-Hans`, `zh-Hant` (see [below for nested schema](#nestedatt--portal_template--locales))
 - `logo` (String) path to the background image file. File must be a `png` image less than 100kB and image dimension must be less 500px x 200px (width x height).
 - `marketing_policy_link` (String) label of the link to go to /marketing_policy
-- `marketing_policy_opt_in` (Boolean) hether marketing policy optin is enabled
+- `marketing_policy_opt_in` (Boolean) Whether marketing policy optin is enabled
 - `marketing_policy_opt_in_label` (String) label for marketing optin
 - `marketing_policy_opt_in_text` (String) marketing policy text
 - `message` (String)
@@ -236,7 +236,7 @@ Optional:
 - `field4error` (String) Error message when field4 not provided
 - `field4label` (String) Label of field4
 - `marketing_policy_link` (String) label of the link to go to /marketing_policy
-- `marketing_policy_opt_in` (Boolean) hether marketing policy optin is enabled
+- `marketing_policy_opt_in` (Boolean) Whether marketing policy optin is enabled
 - `marketing_policy_opt_in_label` (String) label for marketing optin
 - `marketing_policy_opt_in_text` (String) marketing policy text
 - `message` (String)

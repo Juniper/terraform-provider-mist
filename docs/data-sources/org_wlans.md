@@ -137,7 +137,7 @@ Read-Only:
 - `use_eapol_v1` (Boolean) If `auth.type`==`eap` or `auth.type`==`psk`, should only be set for legacy client, such as pre-2004, 802.11b devices
 - `vlan_enabled` (Boolean) If vlan tagging is enabled
 - `vlan_id` (String)
-- `vlan_ids` (List of String) if `vlan_enabled`==`true` and `vlan_pooling`==`true`. List of VLAN IDs (comma separeted) to be used in the VLAN Pool
+- `vlan_ids` (List of String) if `vlan_enabled`==`true` and `vlan_pooling`==`true`. List of VLAN IDs (comma separated) to be used in the VLAN Pool
 - `vlan_pooling` (Boolean) Requires `vlan_enabled`==`true` to be set to `true`. Vlan pooling allows AP to place client on different VLAN using a deterministic algorithm
 - `wlan_limit_down` (Number) In kbps
 - `wlan_limit_down_enabled` (Boolean) If downlink limiting for whole wlan is enabled

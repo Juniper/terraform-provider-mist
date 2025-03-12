@@ -34,7 +34,8 @@ data "mist_const_webhooks" "list_of_webhooks" {}
 
 Read-Only:
 
-- `for_org` (Boolean) can be used in org webhooks, optional
-- `has_delivery_results` (Boolean) supports webhook delivery results /api/v1/:scope/:scope_id/webhooks/:webhook_id/events/search
-- `internal` (Boolean) internal topic (not selectable in site/org webhooks)
-- `key` (String) webhook topic name
+- `allows_single_event_per_message` (Boolean) supports single event per message results
+- `for_org` (Boolean) Can be used in org webhooks, optional
+- `has_delivery_results` (Boolean) Supports webhook delivery results /api/v1/:scope/:scope_id/webhooks/:webhook_id/events/search
+- `internal` (Boolean) Internal topic (not selectable in site/org webhooks)
+- `key` (String, Sensitive) Webhook topic name

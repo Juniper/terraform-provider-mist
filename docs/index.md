@@ -77,11 +77,11 @@ The value may be either a complete URL or a `[username:password@]host[:port]`, i
 
 ### Environment Variables
 
-| Variable Name      | Provider attribute | Type   | Description                                                                                                                                                                                                                                    |
-|--------------------|--------------------|--------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `MIST_HOST`        | `host`             | String | URL of the Mist Cloud, e.g. `api.mist.com`. See above for the list of supported Clouds.                                                                                                                                                        |
-| `MIST_API_TOKEN`   | `apitoken`         | String | For API Token authentication, the Mist API Token.                                                                                                                                                                                              |
-| `MIST_USERNAME`    | `username`         | String | For username/password authentication, the Mist Account password.                                                                                                                                                                               |
-| `MIST_PASSWORD`    | `password`         | String | For username/password authentication, the Mist Account password.                                                                                                                                                                               |
-| `MIST_PROXY`       | `proxy`            | String | Requests use the configured proxy to reach the Mist Cloud. The value may be either a complete URL or a `[username:password@]host[:port]`, in which case the `http` scheme is assumed. The schemes `http`, `https`, and `socks5` are supported. |
-| `MIST_API_TIMEOUT` | `api_timeout`      | Int    | Timeout in seconds for completing API transactions with the Mist Cloud. Omit for default value of 10 seconds. Value of 0 results in infinite timeout.                                                                                          |
+| Variable Name | Provider attribute | Type | Description |
+| ---- | ---- | ---- | ---- |
+| `MIST_HOST` | `host` | String | URL of the Mist Cloud, e.g. `api.mist.com`. See above for the list of supported Clouds.|
+| `MIST_API_TOKEN` | `apitoken` | String | For API Token authentication, the Mist API Token. |
+| `MIST_USERNAME` | `username` | String | For username/password authentication, the Mist Account password. |
+| `MIST_PASSWORD` | `password` | String | For username/password authentication, the Mist Account password. |
+| `MIST_PROXY` | `proxy` | String | Requests use the configured proxy to reach the Mist Cloud. The value may be either a complete URL or a `[username:password@]host[:port]`, in which case the `http` scheme is assumed. The schemes `http`, `https`, and `socks5` are supported. |
+| `MIST_API_TIMEOUT` | `api_timeout` | Int | Timeout in seconds for completing API transactions with the Mist Cloud. Omit for default value of 10 seconds. Value of 0 results in infinite timeout. |

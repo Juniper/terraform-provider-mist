@@ -19,7 +19,7 @@ WxLAN policies are used to allow or deny specific users from accessing specific 
 ```terraform
 resource "mist_org_wxrule" "wxrule_one" {
   org_id      = mist_org.terraform_test.id
-  template_id = mist_org_wlantemplate.wlantempalte_one.id
+  template_id = mist_org_wlantemplate.wlantemplate_one.id
   src_wxtags = [
     mist_org_wxtag.wxtag_one.id
   ]

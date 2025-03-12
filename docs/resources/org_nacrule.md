@@ -45,7 +45,7 @@ resource "mist_org_nacrule" "nacrule_one" {
 
 - `action` (String) enum: `allow`, `block`
 - `name` (String)
-- `order` (Number) Prder of the rule, lower value implies higher priority
+- `order` (Number) Order of the rule, lower value implies higher priority
 - `org_id` (String)
 
 ### Optional

@@ -151,11 +151,11 @@ Read-Only:
 - `neighbor_as` (String)
 - `neighbor_mac` (String) If it's another device in the same org
 - `node` (String) Node0/node1
-- `rx_pkts` (Number)
+- `rx_pkts` (Number) Amount of packets received since connection
 - `rx_routes` (Number) Number of received routes
 - `state` (String) enum: `active`, `connect`, `established`, `idle`, `open_config`, `open_sent`
 - `timestamp` (Number) Epoch (seconds)
-- `tx_pkts` (Number)
+- `tx_pkts` (Number) Amount of packets sent since connection
 - `tx_routes` (Number)
 - `up` (Boolean)
 - `uptime` (Number)
@@ -236,7 +236,7 @@ Read-Only:
 - `interrupt` (Number) Percentage of CPU time being used by interrupts
 - `load_avg` (List of Number) Load averages for the last 1, 5, and 15 minutes
 - `system` (Number) Percentage of CPU time being used by system processes
-- `user` (Number) Percentage of CPU time being used by user processe
+- `user` (Number) Percentage of CPU time being used by user processes
 
 
 <a id="nestedatt--device_gateway_stats--cpu_stat"></a>
@@ -248,7 +248,7 @@ Read-Only:
 - `interrupt` (Number) Percentage of CPU time being used by interrupts
 - `load_avg` (List of Number) Load averages for the last 1, 5, and 15 minutes
 - `system` (Number) Percentage of CPU time being used by system processes
-- `user` (Number) Percentage of CPU time being used by user processe
+- `user` (Number) Percentage of CPU time being used by user processes
 
 
 <a id="nestedatt--device_gateway_stats--dhcpd2_stat"></a>
@@ -293,11 +293,11 @@ Read-Only:
 - `port_id` (String)
 - `port_usage` (String)
 - `redundancy_state` (String)
-- `rx_bytes` (Number)
-- `rx_pkts` (Number)
+- `rx_bytes` (Number) Amount of traffic received since connection
+- `rx_pkts` (Number) Amount of packets received since connection
 - `servp_info` (Attributes) (see [below for nested schema](#nestedatt--device_gateway_stats--if2_stat--servp_info))
-- `tx_bytes` (Number)
-- `tx_pkts` (Number)
+- `tx_bytes` (Number) Amount of traffic sent since connection
+- `tx_pkts` (Number) Amount of packets sent since connection
 - `up` (Boolean)
 - `vlan` (Number)
 - `wan_name` (String)
@@ -330,11 +330,11 @@ Read-Only:
 - `port_id` (String)
 - `port_usage` (String)
 - `redundancy_state` (String)
-- `rx_bytes` (Number)
-- `rx_pkts` (Number)
+- `rx_bytes` (Number) Amount of traffic received since connection
+- `rx_pkts` (Number) Amount of packets received since connection
 - `servp_info` (Attributes) (see [below for nested schema](#nestedatt--device_gateway_stats--if_stat--servp_info))
-- `tx_bytes` (Number)
-- `tx_pkts` (Number)
+- `tx_bytes` (Number) Amount of traffic sent since connection
+- `tx_pkts` (Number) Amount of packets sent since connection
 - `up` (Boolean)
 - `vlan` (Number)
 - `wan_name` (String)
@@ -600,20 +600,20 @@ Read-Only:
 - `port_usage` (String) gateway port usage. enum: `lan`
 - `power_draw` (Number) Amount of power being used by the interface at the time the command is executed. Unit in watts.
 - `rx_bcast_pkts` (Number) Broadcast input packets
-- `rx_bps` (Number) Input rate
-- `rx_bytes` (Number) Rx bytes
+- `rx_bps` (Number) Rate of receiving traffic, bits/seconds, last known
+- `rx_bytes` (Number) Amount of traffic received since connection
 - `rx_errors` (Number) Input errors
 - `rx_mcast_pkts` (Number) Multicast input packets
-- `rx_pkts` (Number) Rx packets
+- `rx_pkts` (Number) Amount of packets received since connection
 - `speed` (Number) Port speed
 - `stp_role` (String) if `up`==`true`. enum: `alternate`, `backup`, `designated`, `root`, `root-prevented`
 - `stp_state` (String) if `up`==`true`. enum: `blocking`, `disabled`, `forwarding`, `learning`, `listening`
 - `tx_bcast_pkts` (Number) Broadcast output packets
-- `tx_bps` (Number) Output rate
-- `tx_bytes` (Number) Tx bytes
+- `tx_bps` (Number) Rate of transmitting traffic, bits/seconds, last known
+- `tx_bytes` (Number) Amount of traffic sent since connection
 - `tx_errors` (Number) Output errors
 - `tx_mcast_pkts` (Number) Multicast output packets
-- `tx_pkts` (Number) Tx packets
+- `tx_pkts` (Number) Amount of packets sent since connection
 - `type` (String) device type. enum: `ap`, `ble`, `gateway`, `mxedge`, `nac`, `switch`
 - `unconfigured` (Boolean) Indicates if interface is unconfigured
 - `up` (Boolean) Indicates if interface is up
@@ -714,7 +714,7 @@ Read-Only:
 - `auth_algo` (String) Authentication algorithm
 - `encrypt_algo` (String) Encryption algorithm
 - `ike_version` (String) IKE version
-- `ip` (String) IPaddress
+- `ip` (String) IP Address
 - `last_event` (String) Reason of why the tunnel is down
 - `last_flapped` (Number) Indicates when the port was last flapped
 - `node` (String) Node0/node1
@@ -722,11 +722,11 @@ Read-Only:
 - `peer_ip` (String) Peer ip address
 - `priority` (String) enum: `primary`, `secondary`
 - `protocol` (String) enum: `gre`, `ipsec`
-- `rx_bytes` (Number)
-- `rx_pkts` (Number)
+- `rx_bytes` (Number) Amount of traffic received since connection
+- `rx_pkts` (Number) Amount of packets received since connection
 - `tunnel_name` (String) Mist Tunnel Name
-- `tx_bytes` (Number)
-- `tx_pkts` (Number)
+- `tx_bytes` (Number) Amount of traffic sent since connection
+- `tx_pkts` (Number) Amount of packets sent since connection
 - `up` (Boolean)
 - `uptime` (Number) Duration from first (or last) SA was established
 - `wan_name` (String) WAN interface name

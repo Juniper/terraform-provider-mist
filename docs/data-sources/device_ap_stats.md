@@ -106,16 +106,16 @@ Read-Only:
 - `power_opmode` (String) Constrained mode
 - `power_src` (String) DC Input / PoE 802.3at / PoE 802.3af / LLDP / ? (unknown)
 - `radio_stat` (Attributes) (see [below for nested schema](#nestedatt--device_ap_stats--radio_stat))
-- `rx_bps` (Number)
-- `rx_bytes` (Number)
-- `rx_pkts` (Number)
+- `rx_bps` (Number) Rate of receiving traffic, bits/seconds, last known
+- `rx_bytes` (Number) Amount of traffic received since connection
+- `rx_pkts` (Number) Amount of packets received since connection
 - `serial` (String) Serial Number
 - `site_id` (String)
 - `status` (String)
 - `switch_redundancy` (Attributes) (see [below for nested schema](#nestedatt--device_ap_stats--switch_redundancy))
-- `tx_bps` (Number)
-- `tx_bytes` (Number)
-- `tx_pkts` (Number)
+- `tx_bps` (Number) Rate of transmitting traffic, bits/seconds, last known
+- `tx_bytes` (Number) Amount of traffic sent since connection
+- `tx_pkts` (Number) Amount of packets sent since connection
 - `uptime` (Number) How long, in seconds, has the device been up (or rebooted)
 - `usb_stat` (Attributes) (see [below for nested schema](#nestedatt--device_ap_stats--usb_stat))
 - `version` (String)
@@ -187,10 +187,10 @@ Read-Only:
 - `major` (Number)
 - `minors` (List of Number)
 - `power` (Number)
-- `rx_bytes` (Number)
-- `rx_pkts` (Number)
-- `tx_bytes` (Number)
-- `tx_pkts` (Number)
+- `rx_bytes` (Number) Amount of traffic received since connection
+- `rx_pkts` (Number) Amount of packets received since connection
+- `tx_bytes` (Number) Amount of traffic sent since connection
+- `tx_pkts` (Number) Amount of packets sent since connection
 - `tx_resets` (Number) Resets due to tx hung
 - `uuid` (String)
 
@@ -366,18 +366,18 @@ Read-Only:
 - `last_seen` (Number) Last seen timestamp
 - `proto` (String)
 - `rssi` (Number)
-- `rx_bps` (Number)
-- `rx_bytes` (Number)
-- `rx_packets` (Number)
-- `rx_rate` (Number)
-- `rx_retries` (Number)
+- `rx_bps` (Number) Rate of receiving traffic, bits/seconds, last known
+- `rx_bytes` (Number) Amount of traffic received since connection
+- `rx_packets` (Number) Amount of packets received since connection
+- `rx_rate` (Number) RX Rate, Mbps
+- `rx_retries` (Number) Amount of rx retries
 - `site_id` (String)
 - `snr` (Number)
-- `tx_bps` (Number)
-- `tx_bytes` (Number)
-- `tx_packets` (Number)
-- `tx_rate` (Number)
-- `tx_retries` (Number)
+- `tx_bps` (Number) Rate of transmitting traffic, bits/seconds, last known
+- `tx_bytes` (Number) Amount of traffic sent since connection
+- `tx_packets` (Number) Amount of packets sent since connection
+- `tx_rate` (Number) TX Rate, Mbps
+- `tx_retries` (Number) Amount of tx retries
 
 
 <a id="nestedatt--device_ap_stats--mesh_uplink"></a>
@@ -391,18 +391,18 @@ Read-Only:
 - `last_seen` (Number) Last seen timestamp
 - `proto` (String)
 - `rssi` (Number)
-- `rx_bps` (Number)
-- `rx_bytes` (Number)
-- `rx_packets` (Number)
-- `rx_rate` (Number)
-- `rx_retries` (Number)
+- `rx_bps` (Number) Rate of receiving traffic, bits/seconds, last known
+- `rx_bytes` (Number) Amount of traffic received since connection
+- `rx_packets` (Number) Amount of packets received since connection
+- `rx_rate` (Number) RX Rate, Mbps
+- `rx_retries` (Number) Amount of rx retries
 - `site_id` (String)
 - `snr` (Number)
-- `tx_bps` (Number)
-- `tx_bytes` (Number)
-- `tx_packets` (Number)
-- `tx_rate` (Number)
-- `tx_retries` (Number)
+- `tx_bps` (Number) Rate of transmitting traffic, bits/seconds, last known
+- `tx_bytes` (Number) Amount of traffic sent since connection
+- `tx_packets` (Number) Amount of packets sent since connection
+- `tx_rate` (Number) TX Rate, Mbps
+- `tx_retries` (Number) Amount of tx retries
 - `uplink_ap_id` (String)
 
 
@@ -412,14 +412,14 @@ Read-Only:
 Read-Only:
 
 - `full_duplex` (Boolean)
-- `rx_bytes` (Number)
+- `rx_bytes` (Number) Amount of traffic received since connection
 - `rx_errors` (Number)
 - `rx_peak_bps` (Number)
-- `rx_pkts` (Number)
+- `rx_pkts` (Number) Amount of packets received since connection
 - `speed` (Number)
-- `tx_bytes` (Number)
+- `tx_bytes` (Number) Amount of traffic sent since connection
 - `tx_peak_bps` (Number)
-- `tx_pkts` (Number)
+- `tx_pkts` (Number) Amount of packets sent since connection
 - `up` (Boolean)
 
 
@@ -445,10 +445,10 @@ Read-Only:
 - `num_clients` (Number)
 - `num_wlans` (Number) How many WLANs are applied to the radio
 - `power` (Number) Transmit power (in dBm)
-- `rx_bytes` (Number)
-- `rx_pkts` (Number)
-- `tx_bytes` (Number)
-- `tx_pkts` (Number)
+- `rx_bytes` (Number) Amount of traffic received since connection
+- `rx_pkts` (Number) Amount of packets received since connection
+- `tx_bytes` (Number) Amount of traffic sent since connection
+- `tx_pkts` (Number) Amount of packets sent since connection
 - `usage` (String)
 - `util_all` (Number) All utilization in percentage
 - `util_non_wifi` (Number) Reception of "No Packets" utilization in percentage, received frames with invalid PLCPs and CRS glitches as noise
@@ -472,10 +472,10 @@ Read-Only:
 - `num_clients` (Number)
 - `num_wlans` (Number) How many WLANs are applied to the radio
 - `power` (Number) Transmit power (in dBm)
-- `rx_bytes` (Number)
-- `rx_pkts` (Number)
-- `tx_bytes` (Number)
-- `tx_pkts` (Number)
+- `rx_bytes` (Number) Amount of traffic received since connection
+- `rx_pkts` (Number) Amount of packets received since connection
+- `tx_bytes` (Number) Amount of traffic sent since connection
+- `tx_pkts` (Number) Amount of packets sent since connection
 - `usage` (String)
 - `util_all` (Number) All utilization in percentage
 - `util_non_wifi` (Number) Reception of "No Packets" utilization in percentage, received frames with invalid PLCPs and CRS glitches as noise
@@ -499,10 +499,10 @@ Read-Only:
 - `num_clients` (Number)
 - `num_wlans` (Number) How many WLANs are applied to the radio
 - `power` (Number) Transmit power (in dBm)
-- `rx_bytes` (Number)
-- `rx_pkts` (Number)
-- `tx_bytes` (Number)
-- `tx_pkts` (Number)
+- `rx_bytes` (Number) Amount of traffic received since connection
+- `rx_pkts` (Number) Amount of packets received since connection
+- `tx_bytes` (Number) Amount of traffic sent since connection
+- `tx_pkts` (Number) Amount of packets sent since connection
 - `usage` (String)
 - `util_all` (Number) All utilization in percentage
 - `util_non_wifi` (Number) Reception of "No Packets" utilization in percentage, received frames with invalid PLCPs and CRS glitches as noise

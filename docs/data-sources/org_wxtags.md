@@ -51,7 +51,6 @@ data "mist_device_switch_stats" "switch_stats" {
 Read-Only:
 
 - `created_time` (Number) When the object has been created, in epoch
-- `for_site` (Boolean)
 - `id` (String) Unique ID of the object instance in the Mist Organization
 - `last_ips` (List of String)
 - `mac` (String) If `type`==`client`, Client MAC Address

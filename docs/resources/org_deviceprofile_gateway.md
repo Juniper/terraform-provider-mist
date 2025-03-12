@@ -4,7 +4,7 @@ subcategory: "WAN Assurance"
 description: |-
   This resource manages the Gateway Device Profiles (HUB Profiles).
   A HUB profile is a configuration profile that automates the creation of overlay networks and defines the attributes of a hub device in a network. It includes settings for wan interfaces, lan interfaces, dns servers, traffic steering preferences, application policies, and routing options. HUB profiles are used to create consistent configurations for hub devices and ensure efficient connectivity between hubs and spokes in a network.
-  The Gateway Devide Profile can be assigned to a gateway with the mist_org_deviceprofile_assign resource.
+  The Gateway Device Profile can be assigned to a gateway with the mist_org_deviceprofile_assign resource.
 ---
 
 # mist_org_deviceprofile_gateway (Resource)
@@ -13,7 +13,7 @@ This resource manages the Gateway Device Profiles (HUB Profiles).
 
 A HUB profile is a configuration profile that automates the creation of overlay networks and defines the attributes of a hub device in a network. It includes settings for wan interfaces, lan interfaces, dns servers, traffic steering preferences, application policies, and routing options. HUB profiles are used to create consistent configurations for hub devices and ensure efficient connectivity between hubs and spokes in a network.
 
-The Gateway Devide Profile can be assigned to a gateway with the `mist_org_deviceprofile_assign` resource.
+The Gateway Device Profile can be assigned to a gateway with the `mist_org_deviceprofile_assign` resource.
 
 
 ## Example Usage
@@ -724,7 +724,7 @@ Optional:
 - `name` (String) Required when `servicepolicy_id` is not defined, optional otherwise (override the servicepolicy name)
 - `path_preference` (String) By default, we derive all paths available and use them. Optionally, you can customize by using `path_preference`
 - `servicepolicy_id` (String) Used to link servicepolicy defined at org level and overwrite some attributes
-- `services` (List of String) Required when `servicepolicy_id` is not defined. List of Applications / Desctinations
+- `services` (List of String) Required when `servicepolicy_id` is not defined. List of Applications / Destinations
 - `ssl_proxy` (Attributes) For SRX-only (see [below for nested schema](#nestedatt--service_policies--ssl_proxy))
 - `tenants` (List of String) Required when `servicepolicy_id` is not defined. List of Networks / Users
 

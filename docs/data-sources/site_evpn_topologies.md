@@ -1,14 +1,14 @@
 ---
-page_title: "mist_org_evpn_topologies Data Source - terraform-provider-mist"
+page_title: "mist_site_evpn_topologies Data Source - terraform-provider-mist"
 subcategory: "Wired Assurance"
 description: |-
-  This data source provides the list of Org Evpn Topologies
+  This data source provides the list of Site Evpn Topologies
   EVPN allows an alternative but more efficient LAN architecture utilizing VxLAN / MP-BGP to separate the control plane (MAC / IP Learning) from the forwarding plane.
 ---
 
-# mist_org_evpn_topologies (Data Source)
+# mist_site_evpn_topologies (Data Source)
 
-This data source provides the list of Org Evpn Topologies
+This data source provides the list of Site Evpn Topologies
 
 EVPN allows an alternative but more efficient LAN architecture utilizing VxLAN / MP-BGP to separate the control plane (MAC / IP Learning) from the forwarding plane.
 
@@ -16,8 +16,8 @@ EVPN allows an alternative but more efficient LAN architecture utilizing VxLAN /
 ## Example Usage
 
 ```terraform
-data "mist_org_evpn_topologies" "org_evpn_topologies" {
-  org_id  = "15fca2ac-b1a6-47cc-9953-cc6906281550"
+data "mist_site_evpn_topologies" "site_evpn_topologies" {
+  site_id  = "15fca2ac-b1a6-47cc-9953-cc6906281550"
 }
 ```
 
@@ -26,27 +26,27 @@ data "mist_org_evpn_topologies" "org_evpn_topologies" {
 
 ### Required
 
-- `org_id` (String)
+- `site_id` (String)
 
 ### Read-Only
 
-- `org_evpn_topologies` (Attributes Set) (see [below for nested schema](#nestedatt--org_evpn_topologies))
+- `site_evpn_topologies` (Attributes Set) (see [below for nested schema](#nestedatt--site_evpn_topologies))
 
-<a id="nestedatt--org_evpn_topologies"></a>
-### Nested Schema for `org_evpn_topologies`
+<a id="nestedatt--site_evpn_topologies"></a>
+### Nested Schema for `site_evpn_topologies`
 
 Read-Only:
 
 - `created_time` (Number) When the object has been created, in epoch
-- `evpn_options` (Attributes) EVPN Options (see [below for nested schema](#nestedatt--org_evpn_topologies--evpn_options))
+- `evpn_options` (Attributes) EVPN Options (see [below for nested schema](#nestedatt--site_evpn_topologies--evpn_options))
 - `id` (String) Unique ID of the object instance in the Mist Organization
 - `modified_time` (Number) When the object has been modified for the last time, in epoch
 - `name` (String)
-- `org_id` (String)
 - `pod_names` (Map of String) Property key is the pod number
+- `site_id` (String)
 
-<a id="nestedatt--org_evpn_topologies--evpn_options"></a>
-### Nested Schema for `org_evpn_topologies.evpn_options`
+<a id="nestedatt--site_evpn_topologies--evpn_options"></a>
+### Nested Schema for `site_evpn_topologies.evpn_options`
 
 Read-Only:
 
@@ -55,23 +55,23 @@ Read-Only:
 - `auto_router_id_subnet` (String) Optional, this generates router_id automatically, if specified, `router_id_prefix` is ignored
 - `auto_router_id_subnet6` (String) Optional, this generates router_id automatically, if specified, `router_id_prefix` is ignored
 - `core_as_border` (Boolean) Optional, for ERB or CLOS, you can either use esilag to upstream routers or to also be the virtual-gateway. When `routed_at` != `core`, whether to do virtual-gateway at core as well
-- `overlay` (Attributes) (see [below for nested schema](#nestedatt--org_evpn_topologies--evpn_options--overlay))
+- `overlay` (Attributes) (see [below for nested schema](#nestedatt--site_evpn_topologies--evpn_options--overlay))
 - `per_vlan_vga_v4_mac` (Boolean) Only for by Core-Distribution architecture when `evpn_options.routed_at`==`core`. By default, JUNOS uses 00-00-5e-00-01-01 as the virtual-gateway-address's v4_mac. If enabled, 00-00-5e-00-0X-YY will be used (where XX=vlan_id/256, YY=vlan_id%256)
 - `per_vlan_vga_v6_mac` (Boolean) Only for by Core-Distribution architecture when `evpn_options.routed_at`==`core`. By default, JUNOS uses 00-00-5e-00-02-01 as the virtual-gateway-address's v6_mac. If enabled, 00-00-5e-00-1X-YY will be used (where XX=vlan_id/256, YY=vlan_id%256)
 - `routed_at` (String) optional, where virtual-gateway should reside. enum: `core`, `distribution`, `edge`
-- `underlay` (Attributes) (see [below for nested schema](#nestedatt--org_evpn_topologies--evpn_options--underlay))
-- `vs_instances` (Attributes Map) Optional, for EX9200 only to segregate virtual-switches (see [below for nested schema](#nestedatt--org_evpn_topologies--evpn_options--vs_instances))
+- `underlay` (Attributes) (see [below for nested schema](#nestedatt--site_evpn_topologies--evpn_options--underlay))
+- `vs_instances` (Attributes Map) Optional, for EX9200 only to segregate virtual-switches (see [below for nested schema](#nestedatt--site_evpn_topologies--evpn_options--vs_instances))
 
-<a id="nestedatt--org_evpn_topologies--evpn_options--overlay"></a>
-### Nested Schema for `org_evpn_topologies.evpn_options.overlay`
+<a id="nestedatt--site_evpn_topologies--evpn_options--overlay"></a>
+### Nested Schema for `site_evpn_topologies.evpn_options.overlay`
 
 Read-Only:
 
 - `as` (Number) Overlay BGP Local AS Number
 
 
-<a id="nestedatt--org_evpn_topologies--evpn_options--underlay"></a>
-### Nested Schema for `org_evpn_topologies.evpn_options.underlay`
+<a id="nestedatt--site_evpn_topologies--evpn_options--underlay"></a>
+### Nested Schema for `site_evpn_topologies.evpn_options.underlay`
 
 Read-Only:
 
@@ -81,8 +81,8 @@ Read-Only:
 - `use_ipv6` (Boolean) If v6 is desired for underlay
 
 
-<a id="nestedatt--org_evpn_topologies--evpn_options--vs_instances"></a>
-### Nested Schema for `org_evpn_topologies.evpn_options.vs_instances`
+<a id="nestedatt--site_evpn_topologies--evpn_options--vs_instances"></a>
+### Nested Schema for `site_evpn_topologies.evpn_options.vs_instances`
 
 Read-Only:
 

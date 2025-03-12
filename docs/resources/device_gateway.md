@@ -693,7 +693,7 @@ Optional:
 - `name` (String) Required when `servicepolicy_id` is not defined, optional otherwise (override the servicepolicy name)
 - `path_preference` (String) By default, we derive all paths available and use them. Optionally, you can customize by using `path_preference`
 - `servicepolicy_id` (String) Used to link servicepolicy defined at org level and overwrite some attributes
-- `services` (List of String) Required when `servicepolicy_id` is not defined. List of Applications / Desctinations
+- `services` (List of String) Required when `servicepolicy_id` is not defined. List of Applications / Destinations
 - `ssl_proxy` (Attributes) For SRX-only (see [below for nested schema](#nestedatt--service_policies--ssl_proxy))
 - `tenants` (List of String) Required when `servicepolicy_id` is not defined. List of Networks / Users
 

@@ -3,14 +3,14 @@ page_title: "mist_org_nacrules Data Source - terraform-provider-mist"
 subcategory: "Access Assurance"
 description: |-
   This data source provides the list of NAC Rules (Auth Policies).
-  A NAC Rule defines a list of critera (NAC Tag) the network client must match to execute the Rule, an action (Allow/Deny)and a list of RADIUS Attributes (NAC Tags) to return
+  A NAC Rule defines a list of criteria (NAC Tag) the network client must match to execute the Rule, an action (Allow/Deny)and a list of RADIUS Attributes (NAC Tags) to return
 ---
 
 # mist_org_nacrules (Data Source)
 
 This data source provides the list of NAC Rules (Auth Policies).
 
-A NAC Rule defines a list of critera (NAC Tag) the network client must match to execute the Rule, an action (Allow/Deny)and a list of RADIUS Attributes (NAC Tags) to return
+A NAC Rule defines a list of criteria (NAC Tag) the network client must match to execute the Rule, an action (Allow/Deny)and a list of RADIUS Attributes (NAC Tags) to return
 
 
 ## Example Usage
@@ -42,5 +42,5 @@ Read-Only:
 - `id` (String) Unique ID of the object instance in the Mist Organization
 - `modified_time` (Number) When the object has been modified for the last time, in epoch
 - `name` (String)
-- `order` (Number) Prder of the rule, lower value implies higher priority
+- `order` (Number) Order of the rule, lower value implies higher priority
 - `org_id` (String)

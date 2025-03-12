@@ -3,14 +3,14 @@ page_title: "mist_org_nactag Resource - terraform-provider-mist"
 subcategory: "Access Assurance"
 description: |-
   This resource manages NAC Tags (Auth Policy Labels).
-  The NAC Tags can be used in the NAC Rules to define the matching criterias or the returned RADIUS Attributes
+  The NAC Tags can be used in the NAC Rules to define the matching criteria or the returned RADIUS Attributes
 ---
 
 # mist_org_nactag (Resource)
 
 This resource manages NAC Tags (Auth Policy Labels).
 
-The NAC Tags can be used in the NAC Rules to define the matching criterias or the returned RADIUS Attributes
+The NAC Tags can be used in the NAC Rules to define the matching criteria or the returned RADIUS Attributes
 
 
 ## Example Usage

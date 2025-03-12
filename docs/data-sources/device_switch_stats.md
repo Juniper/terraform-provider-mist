@@ -169,7 +169,7 @@ Read-Only:
 - `interrupt` (Number) Percentage of CPU time being used by interrupts
 - `load_avg` (List of Number) Load averages for the last 1, 5, and 15 minutes
 - `system` (Number) Percentage of CPU time being used by system processes
-- `user` (Number) Percentage of CPU time being used by user processe
+- `user` (Number) Percentage of CPU time being used by user processes
 
 
 <a id="nestedatt--device_switch_stats--dhcpd_stat"></a>
@@ -205,11 +205,11 @@ Read-Only:
 - `port_id` (String)
 - `port_usage` (String)
 - `redundancy_state` (String)
-- `rx_bytes` (Number)
-- `rx_pkts` (Number)
+- `rx_bytes` (Number) Amount of traffic received since connection
+- `rx_pkts` (Number) Amount of packets received since connection
 - `servp_info` (Attributes) (see [below for nested schema](#nestedatt--device_switch_stats--if_stat--servp_info))
-- `tx_bytes` (Number)
-- `tx_pkts` (Number)
+- `tx_bytes` (Number) Amount of traffic sent since connection
+- `tx_pkts` (Number) Amount of packets sent since connection
 - `up` (Boolean)
 - `vlan` (Number)
 - `wan_name` (String)
@@ -321,7 +321,7 @@ Read-Only:
 - `interrupt` (Number) Percentage of CPU time being used by interrupts
 - `load_avg` (List of Number) Load averages for the last 1, 5, and 15 minutes
 - `system` (Number) Percentage of CPU time being used by system processes
-- `user` (Number) Percentage of CPU time being used by user processe
+- `user` (Number) Percentage of CPU time being used by user processes
 
 
 <a id="nestedatt--device_switch_stats--module_stat--errors"></a>
@@ -436,21 +436,21 @@ Read-Only:
 - `port_usage` (String) gateway port usage. enum: `lan`
 - `power_draw` (Number) Amount of power being used by the interface at the time the command is executed. Unit in watts.
 - `rx_bcast_pkts` (Number) Broadcast input packets
-- `rx_bps` (Number) Input rate
-- `rx_bytes` (Number) Rx bytes
+- `rx_bps` (Number) Rate of receiving traffic, bits/seconds, last known
+- `rx_bytes` (Number) Amount of traffic received since connection
 - `rx_errors` (Number) Input errors
 - `rx_mcast_pkts` (Number) Multicast input packets
-- `rx_pkts` (Number) Rx packets
+- `rx_pkts` (Number) Amount of packets received since connection
 - `site_id` (String)
 - `speed` (Number) Port speed
 - `stp_role` (String) if `up`==`true`. enum: `alternate`, `backup`, `designated`, `root`, `root-prevented`
 - `stp_state` (String) if `up`==`true`. enum: `blocking`, `disabled`, `forwarding`, `learning`, `listening`
 - `tx_bcast_pkts` (Number) Broadcast output packets
-- `tx_bps` (Number) Output rate
-- `tx_bytes` (Number) Tx bytes
+- `tx_bps` (Number) Rate of transmitting traffic, bits/seconds, last known
+- `tx_bytes` (Number) Amount of traffic sent since connection
 - `tx_errors` (Number) Output errors
 - `tx_mcast_pkts` (Number) Multicast output packets
-- `tx_pkts` (Number) Tx packets
+- `tx_pkts` (Number) Amount of packets sent since connection
 - `type` (String) device type. enum: `ap`, `ble`, `gateway`, `mxedge`, `nac`, `switch`
 - `unconfigured` (Boolean) Indicates if interface is unconfigured
 - `up` (Boolean) Indicates if interface is up

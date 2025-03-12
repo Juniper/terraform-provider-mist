@@ -44,6 +44,7 @@ The following changes were required to support API type possibilities and/or to 
 
 ### New Datasource
 * `mist_const_fingerprints`: The Fingerprint information can be used within `matching` and `not_matching` attributes of the NAC Rule resource (`mist_org_nacrule`)
+* `mist_site_evpn_topologies`
 
 ### Resource Changes
 #### mist_device_ap
@@ -79,6 +80,9 @@ The following changes were required to support API type possibilities and/or to 
 * remove attribute (deprecated) `mist_gatewaytemplate.port_config.vpn_paths.link`
 * remove attribute (deprecated) `mist_gatewaytemplate.routing_policies.terms.action.aggregate`
 * fix typo to barbiturate `mist_gatewaytemplate.routing_policies.export_communities`
+
+### mist_org_evpn_topology
+* new attribute `mist_org_evpn_topology.evpn_options.evpn_options.per_vlan_vga_v6_mac`
 
 #### mist_org_nacrule
 * new attribute `mist_org_nacrule.matching.family`
@@ -149,6 +153,9 @@ The following changes were required to support API type possibilities and/or to 
 #### mist_site
 * new attribute `mist_site.tz_offset`
 
+### mist_site_evpn_topology
+* new attribute `mist_site_evpn_topology.evpn_options.evpn_options.per_vlan_vga_v6_mac`
+
 #### mist_site_networktemplate
 * new attribute `mist_site_networktemplate.vrf_instances.evpn_auto_loopback_subnet`
 * new attribute `mist_site_networktemplate.vrf_instances.evpn_auto_loopback_subnet6`
@@ -182,6 +189,9 @@ The following changes were required to support API type possibilities and/or to 
 
 ### Data Sources Changes
 
+#### mist_const_webhooks
+* new attribute `mist_const_webhooks.const_webhooks[*].allows_single_event_per_message`
+
 #### mist_device_ap_stats
 * remove attribute (removed from API) `mist_device_ap_stats.device_ap_stats[*].use_auto_placement`
 * new attribute `mist_device_ap_stats.device_ap_stats[*].gps`
@@ -192,6 +202,8 @@ The following changes were required to support API type possibilities and/or to 
   * new attribute `mist_device_ap_stats.device_ap_stats[*].gps.src`
   * new attribute `mist_device_ap_stats.device_ap_stats[*].gps.timestamp`
 * new attribute `mist_device_ap_stats.device_ap_stats[*].num_wlans`
+* new attribute `mist_device_ap_stats.device_ap_stats[*].port_stats.rx_peak_bps`
+* new attribute `mist_device_ap_stats.device_ap_stats[*].port_stats.tx_peak_bps`
 
 #### mist_device_gateway_stats
 * new attribute `mist_device_gateway_stats.device_gateway_stats[*].bgp_peers`
@@ -356,6 +368,12 @@ The following changes were required to support API type possibilities and/or to 
 * new attribute `mist_device_switch_stats.deviceswitch_stats[*].vc_setup_info.request_time`
 * new attribute `mist_device_switch_stats.deviceswitch_stats[*].vc_setup_info.request_type`
 
+### mist_org_evpn_topologies
+* new attribute `mist_site_evpn_topologies.org_evpn_topologies[*].evpn_options.per_vlan_vga_v6_mac`
+
+### mist_org_nac_metadata
+* new attribute `mist_org_nac_metadata.scim_base_url`
+
 #### mist_org_nacrules
 * new attribute `mist_org_narcules.org_narcules[*].enabled`
 * new attribute `mist_org_narcules.org_narcules[*].order`
@@ -396,6 +414,9 @@ The following changes were required to support API type possibilities and/or to 
 * new attribute `mist_org_servicepolicies.org_servicepolicies[*].aamw`
 * new attribute `mist_org_servicepolicies.org_servicepolicies[*].antivirus`
 * new attribute `mist_org_servicepolicies.org_servicepolicies[*].ssl_proxy`
+
+### mist_org_sso_metadata
+* new attribute `mist_org_sso_metadata.scim_base_url`
 
 #### mist_org_vpns
 * new attribute `mist_org_webhooks.org_vpns[*].path_selection`

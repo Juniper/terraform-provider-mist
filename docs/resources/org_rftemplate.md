@@ -16,8 +16,8 @@ The RF Templates can be used to define Wireless Access Points radio configuratio
 ## Example Usage
 
 ```terraform
-resource "mist_org_rftemplate" "rftempalte_one" {
-  name         = "rftempalte_one"
+resource "mist_org_rftemplate" "rftemplate_one" {
+  name         = "rftemplate_one"
   org_id       = mist_org.terraform_test.id
   band_24_usage = "auto"
   band_5 = {

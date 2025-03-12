@@ -3,7 +3,7 @@ page_title: "mist_org_wxtag Resource - terraform-provider-mist"
 subcategory: "Wi-Fi Assurance"
 description: |-
   This resource manages the Org WxLan tags (labels).
-  A WxTag is a label or tag used in the mist system to classify and categorize applications, users, and resources for the purpose of creating policies and making network management decisions.They can be used
+  A WxTag is a label or tag used in the mist system to classify and categorize applications, users, and resources for the purpose of creating policies and making network management decisions. They can be used
   within the Org WxRules to create filtering rules:
   mist_org_wxrule.dst_allow_wxtagsmist_org_wxrule.dst_deny_wxtagsmist_org_wxrule.dst_wxtagsmist_org_wxrule.src_wxtagswithin the Org WxRules to assign specific VLAN:
   mist_org_wxrule.apply_tagsin the WLANs configuration to assign a WLAN to specific APs:
@@ -14,7 +14,7 @@ description: |-
 
 This resource manages the Org WxLan tags (labels).
 
-A WxTag is a label or tag used in the mist system to classify and categorize applications, users, and resources for the purpose of creating policies and making network management decisions.They can be used 
+A WxTag is a label or tag used in the mist system to classify and categorize applications, users, and resources for the purpose of creating policies and making network management decisions. They can be used 
 * within the Org WxRules to create filtering rules:
   * `mist_org_wxrule.dst_allow_wxtags`
   * `mist_org_wxrule.dst_deny_wxtags`

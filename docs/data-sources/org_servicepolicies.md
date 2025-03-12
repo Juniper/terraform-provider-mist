@@ -2,21 +2,21 @@
 page_title: "mist_org_servicepolicies Data Source - terraform-provider-mist"
 subcategory: "WAN Assurance"
 description: |-
-  This data source provides the list of WAN Assurance Service Policies (Application Policiess).
+  This data source provides the list of WAN Assurance Service Policies (Application Policies).
   The Service Policies can be used in the service_policies object by referencing the Service Policy ID as the servicepolicy_id in:
   the Gateway configuration (mist_device_gateway.service_policies)the Gateway Templates (mist_org_gatewaytemplate.service_policies)the HUB Profiles (mist_org_deviceprofile_gateway.service_policies)
-  They can be used to manage common policies betweeen multiples configurations
+  They can be used to manage common policies between multiples configurations
 ---
 
 # mist_org_servicepolicies (Data Source)
 
-This data source provides the list of WAN Assurance Service Policies (Application Policiess).
+This data source provides the list of WAN Assurance Service Policies (Application Policies).
 
 The Service Policies can be used in the `service_policies` object by referencing the Service Policy ID as the `servicepolicy_id` in:
 * the Gateway configuration (`mist_device_gateway.service_policies`)
 * the Gateway Templates (`mist_org_gatewaytemplate.service_policies`)
 * the HUB Profiles (`mist_org_deviceprofile_gateway.service_policies`)
-They can be used to manage common policies betweeen multiples configurations
+They can be used to manage common policies between multiples configurations
 
 
 ## Example Usage

@@ -34,7 +34,7 @@ resource "mist_device_image" "device_image_one" {
 
 - `device_id` (String)
 - `file` (String) path to the device image file to upload. File must be a `jpeg`, `jpg` or `png` image`
-- `image_number` (Number)
+- `image_number` (Number) number of the image, between 1 and 3
 - `site_id` (String)
 
 

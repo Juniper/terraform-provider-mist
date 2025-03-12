@@ -3,14 +3,14 @@ page_title: "mist_org_nactags Data Source - terraform-provider-mist"
 subcategory: "Access Assurance"
 description: |-
   This data source provides the list of NAC Tags (Auth Policy Labels).
-  The NAC Tags can be used in the NAC Rules to define the matching criterias or the returned RADIUS Attributes
+  The NAC Tags can be used in the NAC Rules to define the matching criteria or the returned RADIUS Attributes
 ---
 
 # mist_org_nactags (Data Source)
 
 This data source provides the list of NAC Tags (Auth Policy Labels).
 
-The NAC Tags can be used in the NAC Rules to define the matching criterias or the returned RADIUS Attributes
+The NAC Tags can be used in the NAC Rules to define the matching criteria or the returned RADIUS Attributes
 
 
 ## Example Usage
