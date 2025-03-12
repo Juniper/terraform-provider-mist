@@ -42,7 +42,7 @@ func SdkToTerraform(upgrade UpgradeDeviceModel, data *models.ResponseDeviceUpgra
 	upgrade.DeviceVersion = deviceVersion
 	upgrade.Fwupdate = fwupdate
 	upgrade.Status = status
-	upgrade.Timestamp = types.Number(timestamp)
+	upgrade.Timestamp = timestamp
 	upgrade.SyncUpgrade = syncUpgrade
 	upgrade.SyncUpgradeStartTimeout = syncUpgradeStartTimeout
 	upgrade.SyncUpgradeRefreshInterval = syncUpgradeRefreshInterval

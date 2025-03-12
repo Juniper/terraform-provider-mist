@@ -76,7 +76,7 @@ func legacyDetectDeviceInfoType(device *DevicesValue) (bool, bool, string) {
 	return false, false, ""
 }
 
-func legacyProcessPlanedDevices(
+func legacyProcessPlannedDevices(
 	diags *diag.Diagnostics,
 	planDevices *basetypes.ListValue,
 	stateDevicesMap *map[string]*DevicesValue,
@@ -176,7 +176,7 @@ func legacyTerraformToSdk(
 	// process devices in the plan
 	// check if devices must be claimed/assigned/unassigned
 	stateDevicesMap := legacyGenDeviceMap(&stateInventory.Devices)
-	legacyProcessPlanedDevices(&diags, &planInventory.Devices, &stateDevicesMap, &claim, &unassign, &assignClaim, &assign)
+	legacyProcessPlannedDevices(&diags, &planInventory.Devices, &stateDevicesMap, &claim, &unassign, &assignClaim, &assign)
 
 	// process devices in the state
 	// check if devices must be unclaimed

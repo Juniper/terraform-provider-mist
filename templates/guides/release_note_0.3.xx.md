@@ -81,6 +81,9 @@ The following changes were required to support API type possibilities and/or to 
 * remove attribute (deprecated) `mist_gatewaytemplate.routing_policies.terms.action.aggregate`
 * fix typo to barbiturate `mist_gatewaytemplate.routing_policies.export_communities`
 
+### mist_org_evpn_topology
+* new attribute `mist_org_evpn_topology.evpn_options.evpn_options.per_vlan_vga_v6_mac`
+
 #### mist_org_nacrule
 * new attribute `mist_org_nacrule.matching.family`
 * new attribute `mist_org_nacrule.matching.mfg`
@@ -149,6 +152,9 @@ The following changes were required to support API type possibilities and/or to 
 
 #### mist_site
 * new attribute `mist_site.tz_offset`
+
+### mist_site_evpn_topology
+* new attribute `mist_site_evpn_topology.evpn_options.evpn_options.per_vlan_vga_v6_mac`
 
 #### mist_site_networktemplate
 * new attribute `mist_site_networktemplate.vrf_instances.evpn_auto_loopback_subnet`
@@ -363,7 +369,7 @@ The following changes were required to support API type possibilities and/or to 
 * new attribute `mist_device_switch_stats.deviceswitch_stats[*].vc_setup_info.request_type`
 
 ### mist_org_evpn_topologies
-* new attribute `mist_site_evpn_topologies.org_evpn_topologies[*].per_vlan_vga_v6_mac`
+* new attribute `mist_site_evpn_topologies.org_evpn_topologies[*].evpn_options.per_vlan_vga_v6_mac`
 
 ### mist_org_nac_metadata
 * new attribute `mist_org_nac_metadata.scim_base_url`

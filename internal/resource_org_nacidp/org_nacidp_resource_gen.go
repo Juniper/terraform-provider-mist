@@ -28,8 +28,8 @@ func OrgNacidpResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Unique ID of the object instance in the Mist Organnization",
-				MarkdownDescription: "Unique ID of the object instance in the Mist Organnization",
+				Description:         "Unique ID of the object instance in the Mist Organization",
+				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
 			},
 			"idp_type": schema.StringAttribute{
 				Required:            true,
@@ -75,32 +75,32 @@ func OrgNacidpResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"ldap_client_cert": schema.StringAttribute{
 				Optional:            true,
-				Description:         "if `idp_type`==`ldap`, LDAPS Client certificate",
-				MarkdownDescription: "if `idp_type`==`ldap`, LDAPS Client certificate",
+				Description:         "If `idp_type`==`ldap`, LDAPS Client certificate",
+				MarkdownDescription: "If `idp_type`==`ldap`, LDAPS Client certificate",
 				Validators: []validator.String{
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("idp_type"), types.StringValue("ldap")),
 				},
 			},
 			"ldap_client_key": schema.StringAttribute{
 				Optional:            true,
-				Description:         "if `idp_type`==`ldap`, Key for the `ldap_client_cert`",
-				MarkdownDescription: "if `idp_type`==`ldap`, Key for the `ldap_client_cert`",
+				Description:         "If `idp_type`==`ldap`, Key for the `ldap_client_cert`",
+				MarkdownDescription: "If `idp_type`==`ldap`, Key for the `ldap_client_cert`",
 				Validators: []validator.String{
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("idp_type"), types.StringValue("ldap")),
 				},
 			},
 			"ldap_group_attr": schema.StringAttribute{
 				Optional:            true,
-				Description:         "if `ldap_type`==`custom`",
-				MarkdownDescription: "if `ldap_type`==`custom`",
+				Description:         "If `ldap_type`==`custom`",
+				MarkdownDescription: "If `ldap_type`==`custom`",
 				Validators: []validator.String{
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("ldap_type"), types.StringValue("custom")),
 				},
 			},
 			"ldap_group_dn": schema.StringAttribute{
 				Optional:            true,
-				Description:         "if `ldap_type`==`custom`",
-				MarkdownDescription: "if `ldap_type`==`custom`",
+				Description:         "If `ldap_type`==`custom`",
+				MarkdownDescription: "If `ldap_type`==`custom`",
 				Validators: []validator.String{
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("ldap_type"), types.StringValue("custom")),
 				},
@@ -108,8 +108,8 @@ func OrgNacidpResourceSchema(ctx context.Context) schema.Schema {
 			"ldap_resolve_groups": schema.BoolAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "if `idp_type`==`ldap`, whether to recursively resolve LDAP groups",
-				MarkdownDescription: "if `idp_type`==`ldap`, whether to recursively resolve LDAP groups",
+				Description:         "If `idp_type`==`ldap`, whether to recursively resolve LDAP groups",
+				MarkdownDescription: "If `idp_type`==`ldap`, whether to recursively resolve LDAP groups",
 				Validators: []validator.Bool{
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("idp_type"), types.StringValue("ldap")),
 				},
@@ -117,8 +117,8 @@ func OrgNacidpResourceSchema(ctx context.Context) schema.Schema {
 			"ldap_server_hosts": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
-				Description:         "if `idp_type`==`ldap`, list of LDAP/LDAPS server IP Addresses or Hostnames",
-				MarkdownDescription: "if `idp_type`==`ldap`, list of LDAP/LDAPS server IP Addresses or Hostnames",
+				Description:         "If `idp_type`==`ldap`, list of LDAP/LDAPS server IP Addresses or Hostnames",
+				MarkdownDescription: "If `idp_type`==`ldap`, list of LDAP/LDAPS server IP Addresses or Hostnames",
 				Validators: []validator.List{
 					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("idp_type"), types.StringValue("ldap")),
 				},
@@ -156,8 +156,8 @@ func OrgNacidpResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"name": schema.StringAttribute{
 				Required:            true,
-				Description:         "name",
-				MarkdownDescription: "name",
+				Description:         "Name",
+				MarkdownDescription: "Name",
 			},
 			"oauth_cc_client_id": schema.StringAttribute{
 				Optional:            true,
@@ -177,8 +177,8 @@ func OrgNacidpResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"oauth_discovery_url": schema.StringAttribute{
 				Optional:            true,
-				Description:         "if `idp_type`==`oauth`",
-				MarkdownDescription: "if `idp_type`==`oauth`",
+				Description:         "If `idp_type`==`oauth`",
+				MarkdownDescription: "If `idp_type`==`oauth`",
 				Validators: []validator.String{
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("idp_type"), types.StringValue("oauth")),
 				},
@@ -202,16 +202,16 @@ func OrgNacidpResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"oauth_ropc_client_id": schema.StringAttribute{
 				Optional:            true,
-				Description:         "if `idp_type`==`oauth`, ropc = Resource Owner Password Credentials",
-				MarkdownDescription: "if `idp_type`==`oauth`, ropc = Resource Owner Password Credentials",
+				Description:         "If `idp_type`==`oauth`, ropc = Resource Owner Password Credentials",
+				MarkdownDescription: "If `idp_type`==`oauth`, ropc = Resource Owner Password Credentials",
 				Validators: []validator.String{
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("idp_type"), types.StringValue("oauth")),
 				},
 			},
 			"oauth_ropc_client_secret": schema.StringAttribute{
 				Optional:            true,
-				Description:         "if `oauth_type`==`azure` or `oauth_type`==`azure-gov`. oauth_ropc_client_secret can be empty",
-				MarkdownDescription: "if `oauth_type`==`azure` or `oauth_type`==`azure-gov`. oauth_ropc_client_secret can be empty",
+				Description:         "If `oauth_type`==`azure` or `oauth_type`==`azure-gov`. oauth_ropc_client_secret can be empty",
+				MarkdownDescription: "If `oauth_type`==`azure` or `oauth_type`==`azure-gov`. oauth_ropc_client_secret can be empty",
 				Validators: []validator.String{
 					stringvalidator.Any(
 						mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("oauth_type"), types.StringValue("azure")),
@@ -248,8 +248,8 @@ func OrgNacidpResourceSchema(ctx context.Context) schema.Schema {
 			"scim_enabled": schema.BoolAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "if `idp_type`==`oauth`, indicates if SCIM provisioning is enabled for the OAuth IDP",
-				MarkdownDescription: "if `idp_type`==`oauth`, indicates if SCIM provisioning is enabled for the OAuth IDP",
+				Description:         "If `idp_type`==`oauth`, indicates if SCIM provisioning is enabled for the OAuth IDP",
+				MarkdownDescription: "If `idp_type`==`oauth`, indicates if SCIM provisioning is enabled for the OAuth IDP",
 				Validators: []validator.Bool{
 					mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("idp_type"), types.StringValue("oauth"), types.BoolValue(false)),
 				},
@@ -258,8 +258,8 @@ func OrgNacidpResourceSchema(ctx context.Context) schema.Schema {
 			"scim_secret_token": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "if `idp_type`==`oauth`, scim_secret_token (auto-generated when not provided by caller and `scim_enabled`==`true`, empty string when `scim_enabled`==`false`) is used as the Bearer token in the Authorization header of SCIM provisioning requests by the IDP",
-				MarkdownDescription: "if `idp_type`==`oauth`, scim_secret_token (auto-generated when not provided by caller and `scim_enabled`==`true`, empty string when `scim_enabled`==`false`) is used as the Bearer token in the Authorization header of SCIM provisioning requests by the IDP",
+				Description:         "If `idp_type`==`oauth`, scim_secret_token (auto-generated when not provided by caller and `scim_enabled`==`true`, empty string when `scim_enabled`==`false`) is used as the Bearer token in the Authorization header of SCIM provisioning requests by the IDP",
+				MarkdownDescription: "If `idp_type`==`oauth`, scim_secret_token (auto-generated when not provided by caller and `scim_enabled`==`true`, empty string when `scim_enabled`==`false`) is used as the Bearer token in the Authorization header of SCIM provisioning requests by the IDP",
 				Validators: []validator.String{
 					mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("idp_type"), types.StringValue("oauth"), types.StringValue("")),
 				},

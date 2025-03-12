@@ -263,8 +263,8 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"order": schema.Int64Attribute{
 				Required:            true,
-				Description:         "Prder of the rule, lower value implies higher priority",
-				MarkdownDescription: "Prder of the rule, lower value implies higher priority",
+				Description:         "Order of the rule, lower value implies higher priority",
+				MarkdownDescription: "Order of the rule, lower value implies higher priority",
 				Validators: []validator.Int64{
 					int64validator.AtLeast(0),
 				},

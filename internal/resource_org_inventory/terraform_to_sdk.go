@@ -15,9 +15,9 @@ processAction defines the required action for a specific device (assign/unassign
 parameters:
 
 	planSiteId : *basetypes.StringValue
-		planed siteId for the device
+		planned siteId for the device
 	stateSiteId : *basetypes.StringValue
-		planed siteId for the device
+		planned siteId for the device
 
 returns:
 
@@ -43,9 +43,9 @@ or the MAC Address
 parameters:
 
 	planDeviceInfo : string
-		the planed device Claim Code or MAC Address
+		the planned device Claim Code or MAC Address
 	planDeviceSiteId : basetypes.StringValue
-		the planed device Site ID
+		the planned device Site ID
 	stateMap : *map[string]InventoryValue
 		map of the devices in the Mist inventory. The key may be the device Claim Code or MAC address
 		(depending on the value type in planDeviceInfo) and the value is DeviceValue
@@ -159,7 +159,7 @@ func vcMembersAssignmentCheck(
 }
 
 /*
-processPlanedDevices processes the planed devices and detects which type of action should be applied. Depending
+processPlannedDevices processes the planned devices and detects which type of action should be applied. Depending
 on the required action, the device will be added to one of the required list
 
 parameters:
@@ -186,7 +186,7 @@ parameters:
 		the key is the siteId where the device(s) must be claimed to
 		the value is a list of MAC Address that must be assigned to the site
 */
-func processPlanedDevices(
+func processPlannedDevices(
 	diags *diag.Diagnostics,
 	planDevices *basetypes.MapValue,
 	stateDevicesMap *map[string]*InventoryValue,
@@ -241,7 +241,7 @@ func processPlanedDevices(
 }
 
 /*
-processUnplanedDevices processes the planed devices to detect which devices must be unclaimed
+processUnplannedDevices processes the planned devices to detect which devices must be unclaimed
 
 parameters:
 
@@ -295,11 +295,11 @@ func processUnplannedDevices(
 			diags.AddError(
 				"Unable to process a device in \"mist_org_inventory\"",
 				fmt.Sprintf(
-					"Only some of the devices part of the Virtual Chassis %s are currently planed to "+
+					"Only some of the devices part of the Virtual Chassis %s are currently planned to "+
 						"be unclaimed. To unclaim a Virtual Chassis, please delete all the devices part of the "+
 						"Virtual Chassis from the inventory.\n\n"+
 						"Virtual Chassis Members: %s\n"+
-						"Virtual Chassis Members planed to be unclaimed: %s\n",
+						"Virtual Chassis Members planned to be unclaimed: %s\n",
 					vcMac, VcMembers[vcMac], vcMembers,
 				),
 			)
@@ -324,12 +324,12 @@ func mapTerraformToSdk(
 	// process devices in the plan
 	// check if devices must be claimed/assigned/unassigned
 	stateDevicesMap := GenDeviceMap(&stateInventory.Inventory)
-	processPlanedDevices(&diags, &planInventory.Inventory, &stateDevicesMap, &claim, &unassign, &assignClaim, &assign)
+	processPlannedDevices(&diags, &planInventory.Inventory, &stateDevicesMap, &claim, &unassign, &assignClaim, &assign)
 
 	// process devices in the state
 	// check if devices must be unclaimed
 	planDevicesMap := GenDeviceMap(&planInventory.Inventory)
-	processUnplanedDevices(&diags, &planDevicesMap, &stateInventory.Inventory, &unclaim)
+	processUnplannedDevices(&diags, &planDevicesMap, &stateInventory.Inventory, &unclaim)
 
 	return claim, unclaim, unassign, assignClaim, assign, diags
 }

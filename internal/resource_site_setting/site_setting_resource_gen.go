@@ -556,8 +556,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 			"device_updown_threshold": schema.Int64Attribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "By default, device_updown_thresold, if set, will apply to all devices types if different values for specific device type is desired, use the following",
-				MarkdownDescription: "By default, device_updown_thresold, if set, will apply to all devices types if different values for specific device type is desired, use the following",
+				Description:         "By default, device_updown_threshold, if set, will apply to all devices types if different values for specific device type is desired, use the following",
+				MarkdownDescription: "By default, device_updown_threshold, if set, will apply to all devices types if different values for specific device type is desired, use the following",
 				Validators: []validator.Int64{
 					int64validator.Between(0, 240),
 				},

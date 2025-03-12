@@ -87,6 +87,9 @@ func evpnOptionsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d E
 	if !d.PerVlanVgaV4Mac.IsNull() && !d.PerVlanVgaV4Mac.IsUnknown() {
 		data.PerVlanVgaV4Mac = d.PerVlanVgaV4Mac.ValueBoolPointer()
 	}
+	if !d.PerVlanVgaV6Mac.IsNull() && !d.PerVlanVgaV6Mac.IsUnknown() {
+		data.PerVlanVgaV6Mac = d.PerVlanVgaV6Mac.ValueBoolPointer()
+	}
 	if !d.RoutedAt.IsNull() && !d.RoutedAt.IsUnknown() {
 		data.RoutedAt = (*models.EvpnOptionsRoutedAtEnum)(d.RoutedAt.ValueStringPointer())
 	}

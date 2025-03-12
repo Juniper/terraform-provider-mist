@@ -2629,8 +2629,8 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							ElementType:         types.StringType,
 							Optional:            true,
 							Computed:            true,
-							Description:         "Required when `servicepolicy_id` is not defined. List of Applications / Desctinations",
-							MarkdownDescription: "Required when `servicepolicy_id` is not defined. List of Applications / Desctinations",
+							Description:         "Required when `servicepolicy_id` is not defined. List of Applications / Destinations",
+							MarkdownDescription: "Required when `servicepolicy_id` is not defined. List of Applications / Destinations",
 							Validators: []validator.List{
 								listvalidator.UniqueValues(),
 								mistvalidator.RequiredWhenValueIsNull(path.MatchRelative().AtParent().AtName("servicepolicy_id")),

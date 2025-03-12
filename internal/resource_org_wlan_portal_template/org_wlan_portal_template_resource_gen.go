@@ -521,8 +521,8 @@ func OrgWlanPortalTemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"marketing_policy_opt_in": schema.BoolAttribute{
 									Optional:            true,
-									Description:         "hether marketing policy optin is enabled",
-									MarkdownDescription: "hether marketing policy optin is enabled",
+									Description:         "Whether marketing policy optin is enabled",
+									MarkdownDescription: "Whether marketing policy optin is enabled",
 								},
 								"marketing_policy_opt_in_label": schema.StringAttribute{
 									Optional:            true,
@@ -827,8 +827,8 @@ func OrgWlanPortalTemplateResourceSchema(ctx context.Context) schema.Schema {
 					"marketing_policy_opt_in": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "hether marketing policy optin is enabled",
-						MarkdownDescription: "hether marketing policy optin is enabled",
+						Description:         "Whether marketing policy optin is enabled",
+						MarkdownDescription: "Whether marketing policy optin is enabled",
 						Default:             booldefault.StaticBool(false),
 					},
 					"marketing_policy_opt_in_label": schema.StringAttribute{
