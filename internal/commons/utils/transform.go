@@ -1,9 +1,10 @@
 package mist_utils
 
 import (
-	"github.com/tmunzer/mistapi-go/mistapi/models"
 	"math/big"
 	"strings"
+
+	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -121,7 +122,7 @@ func ListOfUuidSdkToTerraformEmpty() basetypes.ListValue {
 }
 
 // /////// DOT11
-func ListODot11TerraformToSdk(list basetypes.ListValue) []models.Dot11BandEnum {
+func ListOfDot11TerraformToSdk(list basetypes.ListValue) []models.Dot11BandEnum {
 	var items []models.Dot11BandEnum
 	for _, item := range list.Elements() {
 		var sInterface interface{} = item
