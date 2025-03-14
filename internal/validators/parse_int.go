@@ -29,15 +29,30 @@ func (o ParseIntValidator) ValidateString(_ context.Context, req validator.Strin
 		return
 	}
 
-	strValue := req.ConfigValue.ValueString()
-	intValue, e := strconv.Atoi(strValue)
-	if e != nil || intValue < o.min || intValue > o.max {
-		resp.Diagnostics.Append(validatordiag.InvalidAttributeValueDiagnostic(
-			req.Path,
-			fmt.Sprintf("must be an Integer between %s and %s", strconv.Itoa(o.min), strconv.Itoa(o.max)),
-			strValue,
-		))
-		return
+	if o.min >= 0 {
+		strValue := req.ConfigValue.ValueString()
+		intValue, e := strconv.ParseUint(strValue, 10, 64)
+		minValue := uint64(o.min)
+		maxValue := uint64(o.max)
+		if e != nil || intValue < minValue || intValue > maxValue {
+			resp.Diagnostics.Append(validatordiag.InvalidAttributeValueDiagnostic(
+				req.Path,
+				fmt.Sprintf("must be an Integer between %s and %s", strconv.Itoa(o.min), strconv.Itoa(o.max)),
+				strValue,
+			))
+			return
+		}
+	} else {
+		strValue := req.ConfigValue.ValueString()
+		intValue, e := strconv.Atoi(strValue)
+		if e != nil || intValue < o.min || intValue > o.max {
+			resp.Diagnostics.Append(validatordiag.InvalidAttributeValueDiagnostic(
+				req.Path,
+				fmt.Sprintf("must be an Integer between %s and %s", strconv.Itoa(o.min), strconv.Itoa(o.max)),
+				strValue,
+			))
+			return
+		}
 	}
 }
 
