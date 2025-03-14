@@ -61,11 +61,11 @@ resource "mist_site" "juniper_france" {
 - `sitegroup_ids` (List of String) Sitegroups this site belongs to
 - `sitetemplate_id` (String) Site Template ID
 - `timezone` (String) Timezone the site is at
-- `tzoffset` (Number)
 
 ### Read-Only
 
 - `id` (String) Unique ID of the object instance in the Mist Organization
+- `tzoffset` (Number)
 
 <a id="nestedatt--latlng"></a>
 ### Nested Schema for `latlng`

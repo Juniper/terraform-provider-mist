@@ -16,31 +16,44 @@ This release is adding new attributes based on the Mist Cloud push from February
 Add support for Mist Cloud Global 05 (manage.gc4.mist.com / api.gc4.mist.com)
 
 ### Breaking Changes
+#### mist_org_inventory
+!> This version is removing the deprecated `mist_org_inventory.devices` attribute. Please make sure to migrate to the `mist_org_inventory.inventory` attribute before upgrading to this version.
+
+Process to migrate from the `devices` attribute to the `inventory` one:
+- update your `mist_org_inventory.devices` list by adding the attribute `unclaim_when_destroyed`=`false` to each device (this is just for security, the migration process will not touch the devices in the Mist Cloud)
+- apply the configuration change. This will only update the resource state and mark each device to be kept "as is" during the migration process (the devices won't be unassigned or unclaimed)
+- update your `mist_org_inventory` resource to use the `mist_org_inventory.inventory` attribute and remove the `mist_org_inventory.devices` one. If needed, update the rest of your configuration to match the changes.
+- apply the configuration change
+
+
+#### Other breaking changes
 The following changes were required to support API type possibilities and/or to add the possibility to support the use of {{variables}} in the attribute values: 
-* `mist_org_nactag`:
+* `mist_org_nactag` resource:
   * change type of `mist_org_nactag.gbp_tag` from `int64` to `string`
-* `mist_device_switch`:
+* `mist_device_switch` resource:
   * change type of `mist_device_switch.port_usage.reauth_interval` from `int64` to `string`
   * change type of `mist_device_switch.local_port_config.reauth_interval` from `int64` to `string`
-* `mist_org_networktemplate`:
+* `mist_org_networktemplate` resource:
   * change type of `mist_org_networktemplate.port_usage.reauth_interval` from `int64` to `string`
   * change type of `mist_site_networktemplate.port_usage.reauth_interval` from `int64` to `string`
-* `mist_org_wlan`:
+* `mist_org_wlan` resource:
   * change type of `mist_org_wlan.app_qos.apps.dscp` from `int64` to `string`
   * change type of `mist_site_wlan.app_qos.otherscp` from `int64` to `string`
   * change type of `mist_site_wlan.app_qos.others.dscp` from `int64` to `string`
-* `mist_device_gateway`:
+* `mist_device_gateway` resource:
   * change type of `mist_device_gateway.bgp_config.local_as` from `int64` to `string`
   * change type of `mist_device_gateway.bgp_config.neighbor_as` from `int64` to `string`
   * change type of `mist_device_gateway.bgp_config.local_as` from `int64` to `string`
-* `mist_org_deviceprofile_gateway`:
+* `mist_org_deviceprofile_gateway` resource:
   * change type of `mist_org_deviceprofile_gateway.bgp_config.local_as` from `int64` to `string`
   * change type of `mist_org_deviceprofile_gateway.bgp_config.neighbor_as` from `int64` to `string`
   * change type of `mist_org_deviceprofile_gateway.bgp_config.neighbors.neighbor_as` from `int64` to `string`
-* `mist_org_gatewaytemplate`:
+* `mist_org_gatewaytemplate` resource:
   * change type of `mist_org_gatewaytemplate.bgp_config.local_as` from `int64` to `string`
   * change type of `mist_org_gatewaytemplate.bgp_config.neighbor_as` from `int64` to `string`
   * change type of `mist_org_gatewaytemplate.bgp_config.neighbors.neighbor_as` from `int64` to `string`
+* `mist_site` resource:
+  * change `mist_site.tzoffset` to read only to comply with Mist API behavior 
 
 ### New Datasource
 * `mist_const_fingerprints`: The Fingerprint information can be used within `matching` and `not_matching` attributes of the NAC Rule resource (`mist_org_nacrule`)

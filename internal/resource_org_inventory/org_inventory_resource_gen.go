@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -128,7 +127,6 @@ func OrgInventoryResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "Property key can be the device Claim Code or the device MAC Address:\n  * Claim Code: used to claim the device to the Mist Organization and manage it. Format is `[0-9A-Z]{15}` (e.g `01234ABCDE56789`)\n  * MAC Address: used to manage a device already in the Mist Organization (claimed or adopted devices). Format is `[0-9a-f]{12}` (e.g `5684dae9ac8b`)\n\n    >",
 				MarkdownDescription: "Property key can be the device Claim Code or the device MAC Address:\n  * Claim Code: used to claim the device to the Mist Organization and manage it. Format is `[0-9A-Z]{15}` (e.g `01234ABCDE56789`)\n  * MAC Address: used to manage a device already in the Mist Organization (claimed or adopted devices). Format is `[0-9a-f]{12}` (e.g `5684dae9ac8b`)\n\n    >",
 				Validators: []validator.Map{
-					mistvalidator.AllowedWhenValueIsNull(path.MatchRelative().AtParent().AtName("devices")),
 					mapvalidator.KeysAre(
 						stringvalidator.Any(
 							mistvalidator.ParseMagic(),

@@ -72,34 +72,11 @@ resource "mist_org_inventory" "inventory" {
 
 ### Optional
 
-- `devices` (Attributes List, Deprecated) **DEPRECATED** The `devices` attribute has been deprecated in version v0.2.0 of the Juniper-Mist Provider. It has been replaced with the `inventory` map and may be removed in future versions. Please update your configurations to use the `inventory` attribute. List of devices to manage. Exactly one of `claim_code` or `mac` field must be set (see [below for nested schema](#nestedatt--devices))
 - `inventory` (Attributes Map) Property key can be the device Claim Code or the device MAC Address:
   * Claim Code: used to claim the device to the Mist Organization and manage it. Format is `[0-9A-Z]{15}` (e.g `01234ABCDE56789`)
   * MAC Address: used to manage a device already in the Mist Organization (claimed or adopted devices). Format is `[0-9a-f]{12}` (e.g `5684dae9ac8b`)
 
     > (see [below for nested schema](#nestedatt--inventory))
-
-<a id="nestedatt--devices"></a>
-### Nested Schema for `devices`
-
-Optional:
-
-- `claim_code` (String) used to claim the device to the Mist Organization and manage it. Format is `[0-9A-Z]{15}` (e.g `01234ABCDE56789`)
-- `mac` (String) used to managed a device already in the Mist Organization (claimed or adopted devices). Format is `[0-9a-f]{12}` (e.g `5684dae9ac8b`)
-- `site_id` (String) Site ID. Used to assign device to a Site
-- `unclaim_when_destroyed` (Boolean) Unclaim the device from the Mist Organization when removed from the provider inventory. Default is `false`
-
-Read-Only:
-
-- `deviceprofile_id` (String) deviceprofile id if assigned, null if not assigned
-- `hostname` (String) hostname reported by the device
-- `id` (String) device id
-- `model` (String) device model
-- `org_id` (String)
-- `serial` (String) device serial
-- `type` (String) enum: `ap`, `gateway`, `switch`
-- `vc_mac` (String) if `type`==`switch` and device part of a Virtual Chassis, MAC Address of the Virtual Chassis. if `type`==`gateway` and device part of a Cluster, MAC Address of the Cluster
-
 
 <a id="nestedatt--inventory"></a>
 ### Nested Schema for `inventory`
