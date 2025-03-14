@@ -307,7 +307,7 @@ func processUnplannedDevices(
 	}
 }
 
-func mapTerraformToSdk(
+func TerraformToSdk(
 	stateInventory *OrgInventoryModel,
 	planInventory *OrgInventoryModel,
 ) (
@@ -323,46 +323,22 @@ func mapTerraformToSdk(
 
 	// process devices in the plan
 	// check if devices must be claimed/assigned/unassigned
-	stateDevicesMap := GenDeviceMap(&stateInventory.Inventory)
+	stateDevicesMap, _ := GenDeviceMap(&stateInventory.Inventory)
 	processPlannedDevices(&diags, &planInventory.Inventory, &stateDevicesMap, &claim, &unassign, &assignClaim, &assign)
 
 	// process devices in the state
 	// check if devices must be unclaimed
-	planDevicesMap := GenDeviceMap(&planInventory.Inventory)
+	planDevicesMap, _ := GenDeviceMap(&planInventory.Inventory)
 	processUnplannedDevices(&diags, &planDevicesMap, &stateInventory.Inventory, &unclaim)
 
 	return claim, unclaim, unassign, assignClaim, assign, diags
 }
 
-func TerraformToSdk(
-	stateInventory *OrgInventoryModel,
-	planInventory *OrgInventoryModel,
-) (
-	claim []string,
-	unclaim []string,
-	unassign []string,
-	assignClaim map[string]string,
-	assign map[string][]string,
-	diags diag.Diagnostics,
-) {
-
-	if !planInventory.Devices.IsNull() && !planInventory.Devices.IsUnknown() {
-		return legacyTerraformToSdk(stateInventory, planInventory)
-	} else {
-		return mapTerraformToSdk(stateInventory, planInventory)
-	}
-}
-
 func DeleteOrgInventory(
 	stateInventory *OrgInventoryModel,
 ) (macsToUnclaim []string, diags diag.Diagnostics) {
-	if !stateInventory.Devices.IsNull() {
-		planDevicesMap := make(map[string]*DevicesValue)
-		legacyProcessUnplannedDevices(&planDevicesMap, &stateInventory.Devices, &macsToUnclaim)
-	} else {
-		planDevicesMap := make(map[string]*InventoryValue)
-		processUnplannedDevices(&diags, &planDevicesMap, &stateInventory.Inventory, &macsToUnclaim)
-	}
+	planDevicesMap := make(map[string]*InventoryValue)
+	processUnplannedDevices(&diags, &planDevicesMap, &stateInventory.Inventory, &macsToUnclaim)
 
 	return macsToUnclaim, diags
 }

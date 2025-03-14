@@ -49,7 +49,6 @@ func (f *SearchInventoryByMacFunction) Definition(ctx context.Context, _ functio
 				MarkdownDescription: "`mist_org_inventory` resource",
 				AttributeTypes: map[string]attr.Type{
 					"org_id":    types.StringType,
-					"devices":   types.ListType{ElemType: resource_org_inventory.DevicesValue{}.Type(ctx)},
 					"inventory": types.MapType{ElemType: resource_org_inventory.InventoryValue{}.Type(ctx)},
 				},
 			},
@@ -60,7 +59,7 @@ func (f *SearchInventoryByMacFunction) Definition(ctx context.Context, _ functio
 			},
 		},
 		Return: function.ObjectReturn{
-			AttributeTypes: resource_org_inventory.DevicesValue{}.AttributeTypes(ctx),
+			AttributeTypes: resource_org_inventory.InventoryValue{}.AttributeTypes(ctx),
 		},
 	}
 }
@@ -74,16 +73,7 @@ func (f *SearchInventoryByMacFunction) Run(ctx context.Context, req function.Run
 		return
 	}
 
-	if !inventory.Devices.IsNull() && !inventory.Devices.IsUnknown() && len(inventory.Devices.Elements()) > 0 {
-		for _, v := range inventory.Devices.Elements() {
-			var vi interface{} = v
-			device := vi.(resource_org_inventory.DevicesValue)
-			if !device.Mac.IsNull() && !device.Mac.IsUnknown() && strings.EqualFold(device.Mac.ValueString(), mac) {
-				resp.Error = resp.Result.Set(ctx, &device)
-				return
-			}
-		}
-	} else if !inventory.Inventory.IsNull() && !inventory.Inventory.IsUnknown() && len(inventory.Inventory.Elements()) > 0 {
+	if !inventory.Inventory.IsNull() && !inventory.Inventory.IsUnknown() && len(inventory.Inventory.Elements()) > 0 {
 		for _, v := range inventory.Inventory.Elements() {
 			var vi interface{} = v
 			device := vi.(resource_org_inventory.InventoryValue)

@@ -213,6 +213,7 @@ func processSync(
 	ctx context.Context,
 	diags *diag.Diagnostics,
 	refInventoryDevices *map[string]*InventoryValue,
+	refPlanMap *map[string]string,
 	mistDevicesByClaimCode *map[string]*InventoryValue,
 	mistDevicesByMac *map[string]*InventoryValue,
 	mistSiteIdByVcMac *map[string]types.String,
@@ -239,7 +240,8 @@ func processSync(
 	*/
 	newStateDevices := make(map[string]attr.Value)
 
-	for deviceInfo, device := range *refInventoryDevices {
+	for deviceInfoStandardized, device := range *refInventoryDevices {
+		deviceInfo := (*refPlanMap)[deviceInfoStandardized]
 		isClaimCode, isMac := DetectDeviceInfoType(diags, strings.ToUpper(deviceInfo))
 
 		if isClaimCode {
@@ -303,8 +305,8 @@ func mapSdkToTerraform(
 		state.Inventory = processImport(ctx, &diags, &mistDevicesByMac, &mistSiteIdByVcMac)
 	} else {
 		state.OrgId = refInventory.OrgId
-		refInventoryDevicesMap := GenDeviceMap(&refInventory.Inventory)
-		state.Inventory = processSync(ctx, &diags, &refInventoryDevicesMap, &mistDevicesByClaimCode, &mistDevicesByMac, &mistSiteIdByVcMac)
+		refInventoryDevicesMap, refPlanMap := GenDeviceMap(&refInventory.Inventory)
+		state.Inventory = processSync(ctx, &diags, &refInventoryDevicesMap, &refPlanMap, &mistDevicesByClaimCode, &mistDevicesByMac, &mistSiteIdByVcMac)
 	}
 
 	return state, diags
@@ -315,14 +317,7 @@ func SdkToTerraform(
 	orgId string,
 	data *[]models.Inventory,
 	refInventory *OrgInventoryModel,
-) (OrgInventoryModel, diag.Diagnostics) {
-	if !refInventory.Devices.IsNull() && !refInventory.Devices.IsUnknown() {
-		state, diags := legacySdkToTerraform(ctx, orgId, data, refInventory)
-		state.Inventory = basetypes.NewMapNull(InventoryValue{}.Type(ctx))
-		return state, diags
-	} else {
-		state, diags := mapSdkToTerraform(ctx, orgId, data, refInventory)
-		state.Devices = basetypes.NewListNull(DevicesValue{}.Type(ctx))
-		return state, diags
-	}
+) (state OrgInventoryModel, diags diag.Diagnostics) {
+	state, diags = mapSdkToTerraform(ctx, orgId, data, refInventory)
+	return state, diags
 }

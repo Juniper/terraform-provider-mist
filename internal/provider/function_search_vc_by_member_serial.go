@@ -53,7 +53,6 @@ func (f *SearchVcByMemberSerialFunction) Definition(ctx context.Context, _ funct
 				MarkdownDescription: "`mist_org_inventory` resource",
 				AttributeTypes: map[string]attr.Type{
 					"org_id":    types.StringType,
-					"devices":   types.ListType{ElemType: resource_org_inventory.DevicesValue{}.Type(ctx)},
 					"inventory": types.MapType{ElemType: resource_org_inventory.InventoryValue{}.Type(ctx)},
 				},
 			},
@@ -64,7 +63,7 @@ func (f *SearchVcByMemberSerialFunction) Definition(ctx context.Context, _ funct
 			},
 		},
 		Return: function.ObjectReturn{
-			AttributeTypes: resource_org_inventory.DevicesValue{}.AttributeTypes(ctx),
+			AttributeTypes: resource_org_inventory.InventoryValue{}.AttributeTypes(ctx),
 		},
 	}
 }
@@ -78,26 +77,7 @@ func (f *SearchVcByMemberSerialFunction) Run(ctx context.Context, req function.R
 		return
 	}
 
-	if !inventory.Devices.IsNull() && !inventory.Devices.IsUnknown() && len(inventory.Devices.Elements()) > 0 {
-		for _, v := range inventory.Devices.Elements() {
-			var vi interface{} = v
-			vcMember := vi.(resource_org_inventory.DevicesValue)
-			if strings.EqualFold(vcMember.Serial.ValueString(), serial) {
-				if vcMember.DevicesType.ValueString() == "switch" {
-					vc, err := f.genVirtualChassisFromDevices(ctx, vcMember)
-					if err != nil {
-						for _, e := range err.Errors() {
-							function.NewFuncError(e.Detail())
-						}
-					}
-					resp.Error = resp.Result.Set(ctx, &vc)
-					return
-				} else {
-					resp.Error = function.NewArgumentFuncError(1, fmt.Sprintf("The provided Serial Number \"%s\" does not belong to a switch (%s)", serial, vcMember.DevicesType.ValueString()))
-				}
-			}
-		}
-	} else if !inventory.Inventory.IsNull() && !inventory.Inventory.IsUnknown() && len(inventory.Inventory.Elements()) > 0 {
+	if !inventory.Inventory.IsNull() && !inventory.Inventory.IsUnknown() && len(inventory.Inventory.Elements()) > 0 {
 		for _, v := range inventory.Inventory.Elements() {
 			var vi interface{} = v
 			vcMember := vi.(resource_org_inventory.InventoryValue)
@@ -121,47 +101,6 @@ func (f *SearchVcByMemberSerialFunction) Run(ctx context.Context, req function.R
 	}
 
 	resp.Error = function.NewArgumentFuncError(1, fmt.Sprintf("Unable to find a device with Serial \"%s\" in the provided inventory", serial))
-}
-
-func (f *SearchVcByMemberSerialFunction) genVirtualChassisFromDevices(
-	ctx context.Context,
-	vcMember resource_org_inventory.DevicesValue,
-) (
-	resource_org_inventory.DevicesValue,
-	diag.Diagnostics,
-) {
-	if !vcMember.VcMac.IsNull() && !vcMember.VcMac.IsUnknown() && vcMember.VcMac.ValueString() != "" {
-		var claimCode basetypes.StringValue
-		var deviceprofileId = vcMember.DeviceprofileId
-		var mac = vcMember.VcMac
-		var model = vcMember.Model
-		var orgId = vcMember.OrgId
-		var serial basetypes.StringValue
-		var siteId = vcMember.SiteId
-		var deviceType = vcMember.DevicesType
-		var vcMac = vcMember.VcMac
-		var hostname = vcMember.Hostname
-		var unclaimWhenDestroyed = vcMember.UnclaimWhenDestroyed
-		var id = types.StringValue(fmt.Sprintf("00000000-0000-0000-1000-%s", vcMember.VcMac.ValueString()))
-
-		dataMapValue := map[string]attr.Value{
-			"deviceprofile_id":       deviceprofileId,
-			"hostname":               hostname,
-			"id":                     id,
-			"mac":                    mac,
-			"claim_code":             claimCode,
-			"model":                  model,
-			"org_id":                 orgId,
-			"serial":                 serial,
-			"site_id":                siteId,
-			"type":                   deviceType,
-			"unclaim_when_destroyed": unclaimWhenDestroyed,
-			"vc_mac":                 vcMac,
-		}
-		vc, err := resource_org_inventory.NewDevicesValue(resource_org_inventory.InventoryValue{}.AttributeTypes(ctx), dataMapValue)
-		return vc, err.Errors()
-	}
-	return vcMember, nil
 }
 
 func (f *SearchVcByMemberSerialFunction) genVirtualChassisFromInventory(
