@@ -17,39 +17,27 @@ func SdkToTerraform(ctx context.Context, data models.OrgApitoken, previousState 
 	var state OrgApitokenModel
 	var diags diag.Diagnostics
 
-	var createdBy types.String
-	var id types.String
-	var key types.String
-	var name types.String
-	var orgId types.String
-	var privileges = types.ListNull(PrivilegesValue{}.Type(ctx))
-	var srcIps = types.ListNull(types.StringType)
-
-	if data.CreatedBy.Value() != nil {
-		createdBy = types.StringValue(*data.CreatedBy.Value())
-	}
-	id = types.StringValue(data.Id.String())
 	// Since Mist is not returning the complete API Token afterward, keeping the value
 	// sent back when the API Token has been created
-	if previousState != nil && previousState.Key.ValueStringPointer() != nil {
-		key = previousState.Key
+	if previousState != nil {
+		state = *previousState
 	} else {
-		key = types.StringValue(*data.Key)
-	}
-	name = types.StringValue(data.Name)
-	orgId = types.StringValue(data.OrgId.String())
-	privileges = privilegesSdkToTerraform(ctx, &diags, data.Privileges)
-	if data.SrcIps != nil {
-		srcIps = mistutils.ListOfStringSdkToTerraform(data.SrcIps)
+		state.Key = types.StringValue(*data.Key)
 	}
 
-	state.CreatedBy = createdBy
-	state.Id = id
-	state.Key = key
-	state.Name = name
-	state.OrgId = orgId
-	state.Privileges = privileges
-	state.SrcIps = srcIps
+	if data.CreatedBy.Value() != nil {
+		state.CreatedBy = types.StringValue(*data.CreatedBy.Value())
+	}
+	state.Id = types.StringValue(data.Id.String())
+
+	state.Name = types.StringValue(data.Name)
+	state.OrgId = types.StringValue(data.OrgId.String())
+	state.Privileges = privilegesSdkToTerraform(ctx, &diags, data.Privileges)
+	if data.SrcIps != nil {
+		state.SrcIps = mistutils.ListOfStringSdkToTerraform(data.SrcIps)
+	} else {
+		state.SrcIps = types.ListNull(types.StringType)
+	}
 
 	return state, diags
 }
@@ -78,10 +66,10 @@ func privilegesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data
 			"site_id":      siteId,
 			"sitegroup_id": sitegroupId,
 		}
-		data, e := NewPrivilegesValue(PrivilegesValue{}.AttributeTypes(ctx), dataMapValue)
+		priv, e := NewPrivilegesValue(PrivilegesValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
-		dataList = append(dataList, data)
+		dataList = append(dataList, priv)
 	}
 
 	r, e := types.ListValueFrom(ctx, PrivilegesValue{}.Type(ctx), dataList)
