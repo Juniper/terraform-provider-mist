@@ -8,7 +8,7 @@ description: |-
 # Release Notes for v0.3.xx
 
 ## Release Notes for v0.3.0
-**release data**:
+**release data**: March 14th, 2025
 
 This release is adding new attributes based on the Mist Cloud push from February 2025.
 
