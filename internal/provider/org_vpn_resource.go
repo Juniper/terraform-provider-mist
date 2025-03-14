@@ -84,7 +84,7 @@ func (r *orgVpnResource) Create(ctx context.Context, req resource.CreateRequest,
 		)
 		return
 	}
-	data, err := r.client.OrgsVPNs().CreateOrgVpns(ctx, orgId, vpn)
+	data, err := r.client.OrgsVPNs().CreateOrgVpn(ctx, orgId, vpn)
 
 	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
 	if apiErr != "" {

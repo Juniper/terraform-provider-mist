@@ -13,8 +13,6 @@ func SdkToTerraform(data *models.Site) (SiteModel, diag.Diagnostics) {
 	var state SiteModel
 	var diags diag.Diagnostics
 
-	unset := make(map[string]interface{})
-
 	state.Id = types.StringValue(data.Id.String())
 	state.OrgId = types.StringValue(data.OrgId.String())
 	state.Name = types.StringValue(data.Name)
@@ -98,8 +96,6 @@ func SdkToTerraform(data *models.Site) (SiteModel, diag.Diagnostics) {
 	}
 	if data.Tzoffset != nil {
 		tzOffset = types.Int64Value(int64(*data.Tzoffset))
-	} else {
-		unset["-tzoffset"] = ""
 	}
 
 	state.Address = address

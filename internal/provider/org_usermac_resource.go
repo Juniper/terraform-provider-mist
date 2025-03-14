@@ -91,7 +91,7 @@ func (r *orgNacEndpointResource) Create(ctx context.Context, req resource.Create
 		return
 	}
 	tflog.Info(ctx, "Starting OrgNacEndpoint Create for Org "+plan.OrgId.ValueString())
-	data, err := r.client.OrgsUserMACs().CreateOrgUserMacs(ctx, orgId, &nacEndpoint)
+	data, err := r.client.OrgsUserMACs().CreateOrgUserMac(ctx, orgId, &nacEndpoint)
 
 	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
 	if apiErr != "" {

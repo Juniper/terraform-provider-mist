@@ -206,7 +206,7 @@ func (r *orgNetworkTemplateResource) Update(ctx context.Context, req resource.Up
 	}
 
 	tflog.Info(ctx, "Starting NetworkTemplate Update for NetworkTemplate "+state.Id.ValueString())
-	data, err := r.client.OrgsNetworkTemplates().UpdateOrgNetworkTemplates(ctx, orgId, templateId, &networktemplate)
+	data, err := r.client.OrgsNetworkTemplates().UpdateOrgNetworkTemplate(ctx, orgId, templateId, &networktemplate)
 
 	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
 	if apiErr != "" {

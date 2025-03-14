@@ -90,7 +90,7 @@ func (r *orgDeviceprofileGatewayResource) Create(ctx context.Context, req resour
 		)
 		return
 	}
-	data, err := r.client.OrgsDeviceProfiles().CreateOrgDeviceProfiles(ctx, orgId, &deviceprofileGateway)
+	data, err := r.client.OrgsDeviceProfiles().CreateOrgDeviceProfile(ctx, orgId, &deviceprofileGateway)
 	if data.Response.StatusCode != 200 {
 
 		apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
