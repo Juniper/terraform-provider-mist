@@ -2,7 +2,7 @@
 subcategory: "Release Notes"
 page_title: "v0.2.xx"
 description: |-
-    Release Notes for v0.2.xx
+    Release Notes for v0.3.xx
 ---
 
 # Release Notes for v0.3.xx
