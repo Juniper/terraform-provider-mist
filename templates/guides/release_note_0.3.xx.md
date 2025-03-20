@@ -7,8 +7,41 @@ description: |-
 
 # Release Notes for v0.3.xx
 
-## Release Notes for v0.3.0
+## Release Notes for v0.3.1
 **release data**:
+
+### Resource changes
+* `mist_org_setting.mist_org_setting` has been removed to match the API structure (use `mist_org_setting.mxedge_mgmt.fips_enabled` instead)
+
+#### Resources default values removed
+Changes applied to resources to reduce configuration drift when importing the resource or saving changes from the Mist UI. 
+These changes try to mimic the Mist UI default values; however, some of them are changing based on other parameter values which make it currently impossible to eliminate the configuration drift.
+
+~> These changes in the resources definition should not trigger configuration drift.
+
+List of the default value removed:
+*  `mist_org_setting`
+| Attribute | Previous Default | 
+|-----------|-----------|
+| `ap_updown_threshold` | StaticInt64(0) |
+| `device_updown_threshold` | StaticInt64(0) |
+| `disable_pcap` | StaticBool(false) |
+| `disable_remote_shell` | StaticBool(false) |
+| `gateway_updown_threshold` | StaticInt64(0) |
+| `mist_nac.disable_rsae_algorithms` | StaticBool(false) |
+| `mist_nac.eap_ssl_security_level` | StaticInt64(0) |
+| `mist_nac.idp_machine_cert_lookup_field` | StaticString("automatic") |
+| `mist_nac.idp_user_cert_lookup_field` | StaticString("automatic") |
+| `mist_nac.use_ip_version` | StaticString("v4") |
+| `mist_nac.use_ssl_port` | StaticBool(false) |
+| `mxedge_mgmt.config_auto_revert` | StaticBool(false) |
+| `mxedge_mgmt.oob_ip_type` | StaticString(dhcp) |
+| `mxedge_mgmt.oob_ip_type6` | StaticString(autoconf) |
+| `switch_updown_threshold` | StaticInt64(0) |
+
+
+## Release Notes for v0.3.0
+**release data**: March 14th, 2025 
 
 This release is adding new attributes based on the Mist Cloud push from February 2025.
 
