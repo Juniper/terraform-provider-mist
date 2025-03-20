@@ -89,7 +89,7 @@ func (o ForbiddenWhenValueIsWithDefaultValidator) Validate(ctx context.Context, 
 			if o.Value.Equal(mpVal) {
 				resp.Diagnostics.Append(validatordiag.InvalidAttributeCombinationDiagnostic(
 					req.Path,
-					fmt.Sprintf("attribute %s cannot be set when %s has value %s, got: %s. Default value %s is allowed.", req.Path, mp, mpVal.String(), req.ConfigValue.String(), o.DefaultValue.String()),
+					fmt.Sprintf("Attribute \"%s\" cannot be set when \"%s\" has value %s, got: %s. Default value \"%s\" is allowed.", req.Path, mp, mpVal.String(), req.ConfigValue.String(), o.DefaultValue.String()),
 				))
 			}
 		}

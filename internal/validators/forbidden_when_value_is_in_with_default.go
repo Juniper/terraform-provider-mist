@@ -90,7 +90,7 @@ func (o ForbiddenWhenValueIsInWithDefaultValidator) Validate(ctx context.Context
 			if forbidden {
 				resp.Diagnostics.Append(validatordiag.InvalidAttributeCombinationDiagnostic(
 					req.Path,
-					fmt.Sprintf("attribute %s cannot be set when %s has value in %s, got: %s. Default value %s is allowed.", req.Path, mp, o.Values, mpVal.String(), o.DefaultValue.String()),
+					fmt.Sprintf("Attribute \"%s\" cannot be set when \"%s\" has value in%s, got: %s. Default value \"%s\" is allowed.", req.Path, mp, o.Values, mpVal.String(), o.DefaultValue.String()),
 				))
 			}
 		}
