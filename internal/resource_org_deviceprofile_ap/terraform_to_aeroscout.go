@@ -16,6 +16,9 @@ func aeroscoutTerraformToSdk(d AeroscoutValue) *models.ApAeroscout {
 	if d.LocateConnected.ValueBoolPointer() != nil {
 		data.LocateConnected = d.LocateConnected.ValueBoolPointer()
 	}
+	if d.Port.ValueInt64Pointer() != nil {
+		data.Port = models.NewOptional(models.ToPointer(int(d.Port.ValueInt64())))
+	}
 
 	return &data
 }

@@ -12,32 +12,73 @@ description: |-
 
 ### Resource changes
 * `mist_org_setting.mist_org_setting` has been removed to match the API structure (use `mist_org_setting.mxedge_mgmt.fips_enabled` instead)
+* `mist_org_deviceprofile_ap.aeroscout.port` has been added
 
 #### Resources default values removed
 Changes applied to resources to reduce configuration drift when importing the resource or saving changes from the Mist UI. 
 These changes try to mimic the Mist UI default values; however, some of them are changing based on other parameter values which make it currently impossible to eliminate the configuration drift.
 
-~> These changes in the resources definition should not trigger configuration drift.
+~> These changes in the resources definition should not trigger configuration drift. However, depending on when the object has been created with the Mist UI, the default values set by the UI may be different, and a configuration drift can occure. 
 
-List of the default value removed:
-*  `mist_org_setting`
+List of the default value changed:
+*  `mist_org_deviceprofile_ap`
 | Attribute | Previous Default | 
 |-----------|-----------|
-| `ap_updown_threshold` | StaticInt64(0) |
-| `device_updown_threshold` | StaticInt64(0) |
-| `disable_pcap` | StaticBool(false) |
-| `disable_remote_shell` | StaticBool(false) |
-| `gateway_updown_threshold` | StaticInt64(0) |
-| `mist_nac.disable_rsae_algorithms` | StaticBool(false) |
-| `mist_nac.eap_ssl_security_level` | StaticInt64(0) |
-| `mist_nac.idp_machine_cert_lookup_field` | StaticString("automatic") |
-| `mist_nac.idp_user_cert_lookup_field` | StaticString("automatic") |
-| `mist_nac.use_ip_version` | StaticString("v4") |
-| `mist_nac.use_ssl_port` | StaticBool(false) |
-| `mxedge_mgmt.config_auto_revert` | StaticBool(false) |
-| `mxedge_mgmt.oob_ip_type` | StaticString(dhcp) |
-| `mxedge_mgmt.oob_ip_type6` | StaticString(autoconf) |
-| `switch_updown_threshold` | StaticInt64(0) |
+| `aeroscout.host` | N/A |StaticString("") |
+| `ble_config.beacon_enabled` | StaticBool(false) | StaticBool(true) |
+| `ble_config.beacon_rate` | StaticInt64(0) | N/A |
+| `ble_config.beacon_rate_mode` | StaticString("default") | N/A |
+| `ble_config.custom_ble_packet_enabled` | StaticBool(false) | N/A |
+| `ble_config.custom_ble_packet_frame` | StaticString("") | N/A |
+| `ble_config.custom_ble_packet_freq_msec` | StaticInt64(0) | N/A |
+| `ble_config.eddystone_uid_adv_power` | StaticInt64(0) | N/A |
+| `ble_config.eddystone_uid_beams` | StaticString("") | N/A |
+| `ble_config.eddystone_uid_enabled` | StaticBool(false) | N/A |
+| `ble_config.eddystone_uid_freq_msec` | StaticInt64(0) | N/A |
+| `ble_config.eddystone_uid_instance` | StaticString("") | N/A |
+| `ble_config.eddystone_uid_namespace` | StaticString("") | N/A |
+| `ble_config.eddystone_url_adv_power` | StaticInt64(0) | N/A |
+| `ble_config.eddystone_url_beams` | StaticString("") | N/A |
+| `ble_config.eddystone_url_enabled` | StaticBool(false) | N/A |
+| `ble_config.eddystone_url_freq_msec` | StaticInt64(0) | N/A |
+| `ble_config.eddystone_url_url` | StaticString("") | N/A |
+| `ble_config.ibeacon_adv_power` | StaticInt64(0) | N/A |
+| `ble_config.ibeacon_beams` | StaticString("") | N/A |
+| `ble_config.ibeacon_enabled` | StaticBool(false) | N/A |
+| `ble_config.ibeacon_freq_msec` | StaticInt64(0) | N/A |
+| `ble_config.ibeacon_major` | StaticInt64(0) | N/A |
+| `ble_config.ibeacon_minor` | StaticInt64(0) | N/A |
+| `ble_config.ibeacon_uuid` | StaticString("") | N/A |
+| `ble_config.power` | StaticInt64(0) | N/A |
+| `ble_config.power_mode` | StaticString("default") | N/A |
+| `esl_config.host` | N/A | StaticString("") |
+| `esl_config.type` | N/A | StaticString("imagotag") |
+| `ip_config.mtu` | N/A | StaticInt64(0) |
+| `ip_config.type6` | StaticString("disabled") | N/A |
+| `ip_config.vlan_id` | StaticInt64(1) | N/A |
+| `radio_config.allow_rrm_disable` | StaticBool(false) | N/A |
+| `radio_config.antenna_mode` | StaticString("default") | N/A |
+| `radio_config.indoor_use` | StaticBool(false) | N/A |
+| `radio_config.keep_wlans_up_if_down` | StaticBool(false) | N/A |
+
+*  `mist_org_setting`
+| Attribute | Previous Default | New Default | 
+|-----------|-----------|
+| `ap_updown_threshold` | StaticInt64(0) | N/A |
+| `device_updown_threshold` | StaticInt64(0) | N/A |
+| `disable_pcap` | StaticBool(false) | N/A |
+| `disable_remote_shell` | StaticBool(false) | N/A |
+| `gateway_updown_threshold` | StaticInt64(0) | N/A |
+| `mist_nac.disable_rsae_algorithms` | StaticBool(false) | N/A |
+| `mist_nac.eap_ssl_security_level` | StaticInt64(0) | N/A |
+| `mist_nac.idp_machine_cert_lookup_field` | StaticString("automatic") | N/A |
+| `mist_nac.idp_user_cert_lookup_field` | StaticString("automatic") | N/A |
+| `mist_nac.use_ip_version` | StaticString("v4") | N/A |
+| `mist_nac.use_ssl_port` | StaticBool(false) | N/A |
+| `mxedge_mgmt.config_auto_revert` | StaticBool(false) | N/A |
+| `mxedge_mgmt.oob_ip_type` | StaticString(dhcp) | N/A |
+| `mxedge_mgmt.oob_ip_type6` | StaticString(autoconf) | N/A |
+| `switch_updown_threshold` | StaticInt64(0) | N/A |
 
 
 ## Release Notes for v0.3.0
