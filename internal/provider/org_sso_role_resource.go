@@ -3,7 +3,6 @@ package provider
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
 
@@ -11,16 +10,15 @@ import (
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_sso_role"
 
 	"github.com/google/uuid"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 var (
-	_ resource.Resource                = &orgSsoRoleResource{}
-	_ resource.ResourceWithConfigure   = &orgSsoRoleResource{}
-	_ resource.ResourceWithImportState = &orgSsoRoleResource{}
+	_ resource.Resource              = &orgSsoRoleResource{}
+	_ resource.ResourceWithConfigure = &orgSsoRoleResource{}
+	// _ resource.ResourceWithImportState = &orgSsoRoleResource{}
 )
 
 func NewOrgSsoRole() resource.Resource {
@@ -94,7 +92,7 @@ func (r *orgSsoRoleResource) Create(ctx context.Context, req resource.CreateRequ
 	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error creating \"mist_org_sso_role\" resource",
-			fmt.Sprintf("Unable to create the API Token. %s", apiErr),
+			fmt.Sprintf("Unable to create the Org SSO Role. %s", apiErr),
 		)
 		return
 	}
@@ -148,7 +146,7 @@ func (r *orgSsoRoleResource) Read(ctx context.Context, _ resource.ReadRequest, r
 	} else if err != nil {
 		diags.AddError(
 			"Error getting \"mist_org_sso_role\" resource",
-			"Unable to get the API Token, unexpected error: "+err.Error(),
+			"Unable to get the Org SSO Role, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -158,6 +156,8 @@ func (r *orgSsoRoleResource) Read(ctx context.Context, _ resource.ReadRequest, r
 	if resp.Diagnostics.HasError() {
 		return
 	}
+	// Set refreshed state
+	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -210,7 +210,7 @@ func (r *orgSsoRoleResource) Update(ctx context.Context, req resource.UpdateRequ
 	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error updating \"mist_org_sso_role\" resource",
-			fmt.Sprintf("Unable to update the API Token. %s", apiErr),
+			fmt.Sprintf("Unable to update the Org SSO Role. %s", apiErr),
 		)
 		return
 	}
@@ -261,39 +261,39 @@ func (r *orgSsoRoleResource) Delete(ctx context.Context, _ resource.DeleteReques
 	if data.StatusCode != 404 && apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_sso_role\" resource",
-			fmt.Sprintf("Unable to delete the API Token. %s", apiErr),
+			fmt.Sprintf("Unable to delete the Org SSO Role. %s", apiErr),
 		)
 		return
 	}
 }
 
-func (r *orgSsoRoleResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+// func (r *orgSsoRoleResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 
-	importIds := strings.Split(req.ID, ".")
-	if len(importIds) != 2 {
-		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"mist_org_sso_role\" resource",
-			"import \"id\" format must be \"{org_id}.{sso_role_id}\"",
-		)
-		return
-	}
-	_, err := uuid.Parse(importIds[0])
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Invalid \"org_id\" value for \"mist_org_sso_role\" resource",
-			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{sso_role_id}\"", importIds[0], err.Error()),
-		)
-		return
-	}
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("org_id"), importIds[0])...)
+// 	importIds := strings.Split(req.ID, ".")
+// 	if len(importIds) != 2 {
+// 		resp.Diagnostics.AddError(
+// 			"Invalid \"id\" value for \"mist_org_sso_role\" resource",
+// 			"import \"id\" format must be \"{org_id}.{sso_role_id}\"",
+// 		)
+// 		return
+// 	}
+// 	_, err := uuid.Parse(importIds[0])
+// 	if err != nil {
+// 		resp.Diagnostics.AddError(
+// 			"Invalid \"org_id\" value for \"mist_org_sso_role\" resource",
+// 			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{sso_role_id}\"", importIds[0], err.Error()),
+// 		)
+// 		return
+// 	}
+// 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("org_id"), importIds[0])...)
 
-	_, err = uuid.Parse(importIds[1])
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Invalid \"id\" value for \"mist_org_sso_role\" resource",
-			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{sso_role_id}\"", importIds[1], err.Error()),
-		)
-		return
-	}
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), importIds[1])...)
-}
+// 	_, err = uuid.Parse(importIds[1])
+// 	if err != nil {
+// 		resp.Diagnostics.AddError(
+// 			"Invalid \"id\" value for \"mist_org_sso_role\" resource",
+// 			fmt.Sprintf("Unable to parse the the UUID \"%s\": %s. Import \"id\" format must be \"{org_id}.{sso_role_id}\"", importIds[1], err.Error()),
+// 		)
+// 		return
+// 	}
+// 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), importIds[1])...)
+// }

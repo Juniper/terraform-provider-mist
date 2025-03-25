@@ -24,6 +24,9 @@ The following changes were required to support API type possibilities and/or to 
 #### `mist_org_setting`
 * `.mxedge_fips_enabled` has been removed to match the API structure (use `mist_org_setting.mxedge_mgmt.fips_enabled` instead)
 
+#### `mist_org_sso_role`
+* temporarly removing the `import` function. The import function will be added back in a later version
+
 #### `mist_device_switch`, `mist_org_networktemplate` and `mist_site_networktemplate` resources:
 * `.radius_config.acct_immediate_update` has been added
 * `.radius_config.auth_server_selection` has been added

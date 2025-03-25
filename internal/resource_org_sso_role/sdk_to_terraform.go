@@ -25,6 +25,7 @@ func SdkToTerraform(ctx context.Context, data models.SsoRoleOrg) (OrgSsoRoleMode
 	name = types.StringValue(data.Name)
 	orgId = types.StringValue(data.OrgId.String())
 	privileges = privilegesSdkToTerraform(ctx, &diags, data.Privileges)
+
 	state.Id = id
 	state.Name = name
 	state.OrgId = orgId
