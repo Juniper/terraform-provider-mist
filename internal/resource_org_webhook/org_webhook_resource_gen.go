@@ -7,6 +7,7 @@ import (
 	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
@@ -32,8 +33,10 @@ func OrgWebhookResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "If `type`=`http-post`, additional custom HTTP headers to add. The headers name and value must be string, total bytes of headers name and value must be less than 1000",
 				MarkdownDescription: "If `type`=`http-post`, additional custom HTTP headers to add. The headers name and value must be string, total bytes of headers name and value must be less than 1000",
 				Validators: []validator.Map{
-					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("http-post")),
-					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("oauth2")),
+					mistvalidator.AllowedWhenValueIsIn(path.MatchRelative().AtParent().AtName("type"), []attr.Value{
+						types.StringValue("http-post"),
+						types.StringValue("oauth2"),
+					}),
 				},
 			},
 			"id": schema.StringAttribute{
@@ -140,8 +143,8 @@ func OrgWebhookResourceSchema(ctx context.Context) schema.Schema {
 			"topics": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Required:            true,
-				Description:         "enum: `alarms`, `audits`, `client-info`, `client-join`, `client-sessions`, `device-updowns`, `device-events`, `mxedge-events`, `nac-accounting`, `nac_events`",
-				MarkdownDescription: "enum: `alarms`, `audits`, `client-info`, `client-join`, `client-sessions`, `device-updowns`, `device-events`, `mxedge-events`, `nac-accounting`, `nac_events`",
+				Description:         "enum: `alarms`, `audits`, `client-info`, `client-join`, `client-sessions`, `device-events`, `device-updowns`, `guest-authorizations`, `mxedge-events`, `nac-accounting`, `nac-events`",
+				MarkdownDescription: "enum: `alarms`, `audits`, `client-info`, `client-join`, `client-sessions`, `device-events`, `device-updowns`, `guest-authorizations`, `mxedge-events`, `nac-accounting`, `nac-events`",
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 					listvalidator.ValueStringsAre(
@@ -153,8 +156,9 @@ func OrgWebhookResourceSchema(ctx context.Context) schema.Schema {
 							"client-sessions",
 							"device-events",
 							"device-updowns",
+							"guest-authorizations",
 							"mxedge-events",
-							"nac-sessions",
+							"nac-accounting",
 							"nac-events",
 						),
 					),
