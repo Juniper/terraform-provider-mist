@@ -101,7 +101,6 @@ func OrgSsoResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "name of the attribute in SAML Assertion to extract role from. Default: `Role`",
 				MarkdownDescription: "name of the attribute in SAML Assertion to extract role from. Default: `Role`",
-				Default:             stringdefault.StaticString("Role"),
 			},
 		},
 	}

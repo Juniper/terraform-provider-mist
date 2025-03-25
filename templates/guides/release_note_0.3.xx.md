@@ -111,6 +111,10 @@ List of the default value changed:
 | `.mxedge_mgmt.oob_ip_type6` | StaticString(autoconf) | N/A |
 | `.switch_updown_threshold` | StaticInt64(0) | N/A |
 
+#### `mist_org_sso_role`
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `.role_attr_from` | StaticString("Role) | N/A |
 
 ## Release Notes for v0.3.0
 **release data**: March 14th, 2025 
