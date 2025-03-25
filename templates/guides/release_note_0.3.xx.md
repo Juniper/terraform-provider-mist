@@ -16,6 +16,8 @@ The following changes were required to support API type possibilities and/or to 
   * change type of `.port_usages.mtu` from `int64` to `string`
 * `mist_device_gateway`, `mist_org_deviceprofile_gateway` and `mist_org_gatewaytemplate` resources:
   * change type of `.port_config.reth_idx` from `int64` to `string`
+* `mist_org_service` resource
+  * fix `.failover_policy` enum values from [`revertable`, `non_revertable`] to [`revertible`, `non_revertible`]
 
 ### Resource changes
 

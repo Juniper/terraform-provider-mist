@@ -109,17 +109,17 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 			"failover_policy": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "enum: `non_revertable`, `none`, `revertable`",
-				MarkdownDescription: "enum: `non_revertable`, `none`, `revertable`",
+				Description:         "enum: `non_revertible`, `none`, `revertible`",
+				MarkdownDescription: "enum: `non_revertible`, `none`, `revertible`",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
-						"non_revertable",
+						"non_revertible",
 						"none",
-						"revertable",
+						"revertible",
 					),
 				},
-				Default: stringdefault.StaticString("revertable"),
+				Default: stringdefault.StaticString("revertible"),
 			},
 			"hostnames": schema.ListAttribute{
 				ElementType:         types.StringType,
