@@ -200,8 +200,8 @@ func switchMgmtTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d Sw
 		if d.MxedgeProxyHost.ValueStringPointer() != nil {
 			data.MxedgeProxyHost = d.MxedgeProxyHost.ValueStringPointer()
 		}
-		if d.MxedgeProxyPort.ValueInt64Pointer() != nil {
-			data.MxedgeProxyPort = models.ToPointer(int(d.MxedgeProxyPort.ValueInt64()))
+		if d.MxedgeProxyPort.ValueStringPointer() != nil {
+			data.MxedgeProxyPort = models.ToPointer(models.SwitchMgmtMxedgeProxyPortContainer.FromString(d.MxedgeProxyPort.ValueString()))
 		}
 		if !d.ProtectRe.IsNull() && !d.ProtectRe.IsUnknown() {
 			data.ProtectRe = switchMgmtProtectReTerraformToSdk(ctx, diags, d.ProtectRe)

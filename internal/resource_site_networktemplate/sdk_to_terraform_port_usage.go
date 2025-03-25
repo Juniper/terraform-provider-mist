@@ -112,9 +112,9 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		var macAuthOnly basetypes.BoolValue
 		var macAuthPreferred basetypes.BoolValue
 		var macAuthProtocol basetypes.StringValue
-		var macLimit basetypes.Int64Value
+		var macLimit basetypes.StringValue
 		var mode basetypes.StringValue
-		var mtu basetypes.Int64Value
+		var mtu basetypes.StringValue
 		var networks = mistutils.ListOfStringSdkToTerraformEmpty()
 		var persistMac basetypes.BoolValue
 		var poeDisabled basetypes.BoolValue
@@ -189,13 +189,13 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 			macAuthProtocol = types.StringValue(string(*d.MacAuthProtocol))
 		}
 		if d.MacLimit != nil {
-			macLimit = types.Int64Value(int64(*d.MacLimit))
+			macLimit = mistutils.SwitchPortUsageMacLimitAsString(d.MacLimit)
 		}
 		if d.Mode != nil {
 			mode = types.StringValue(string(*d.Mode))
 		}
 		if d.Mtu != nil {
-			mtu = types.Int64Value(int64(*d.Mtu))
+			mtu = mistutils.SwitchPortUsageMtuAsString(d.Mtu)
 		}
 		if d.Networks != nil {
 			networks = mistutils.ListOfStringSdkToTerraform(d.Networks)
@@ -248,8 +248,8 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		if d.UseVstp != nil {
 			useVstp = types.BoolValue(*d.UseVstp)
 		}
-		if d.VoipNetwork != nil {
-			voipNetwork = types.StringValue(*d.VoipNetwork)
+		if d.VoipNetwork.Value() != nil {
+			voipNetwork = types.StringValue(*d.VoipNetwork.Value())
 		}
 
 		dataMapValue := map[string]attr.Value{

@@ -15,8 +15,8 @@ func remoteSyslogConfigArchiveTerraformToSdk(ctx context.Context, diags *diag.Di
 		item, e := NewArchiveValue(ArchiveValue{}.AttributeTypes(ctx), d.Attributes())
 		diags.Append(e...)
 		if e == nil {
-			if item.Files.ValueInt64Pointer() != nil {
-				data.Files = models.ToPointer(int(item.Files.ValueInt64()))
+			if item.Files.ValueStringPointer() != nil {
+				data.Files = models.ToPointer(models.RemoteSyslogArchiveFilesContainer.FromString(item.Files.ValueString()))
 			}
 			if item.Size.ValueStringPointer() != nil {
 				data.Size = models.ToPointer(item.Size.ValueString())
@@ -31,8 +31,8 @@ func remoteSyslogArchiveTerraformToSdk(ctx context.Context, diags *diag.Diagnost
 		item, e := NewArchiveValue(ArchiveValue{}.AttributeTypes(ctx), d.Attributes())
 		diags.Append(e...)
 		if e == nil {
-			if item.Files.ValueInt64Pointer() != nil {
-				data.Files = models.ToPointer(int(item.Files.ValueInt64()))
+			if item.Files.ValueStringPointer() != nil {
+				data.Files = models.ToPointer(models.RemoteSyslogArchiveFilesContainer.FromString(item.Files.ValueString()))
 			}
 			if item.Size.ValueStringPointer() != nil {
 				data.Size = models.ToPointer(item.Size.ValueString())
@@ -125,8 +125,8 @@ func remoteSyslogServersTerraformToSdk(d basetypes.ListValue) []models.RemoteSys
 		if itemObj.Match.ValueStringPointer() != nil {
 			dataItem.Match = models.ToPointer(itemObj.Match.ValueString())
 		}
-		if itemObj.Port.ValueInt64Pointer() != nil {
-			dataItem.Port = models.ToPointer(int(itemObj.Port.ValueInt64()))
+		if itemObj.Port.ValueStringPointer() != nil {
+			dataItem.Port = models.ToPointer(models.RemoteSyslogServerPortContainer.FromString(itemObj.Port.ValueString()))
 		}
 		if itemObj.Protocol.ValueStringPointer() != nil {
 			dataItem.Protocol = models.ToPointer(models.RemoteSyslogServerProtocolEnum(itemObj.Protocol.ValueString()))

@@ -3,6 +3,7 @@ package resource_org_networktemplate
 import (
 	"context"
 
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -13,11 +14,11 @@ import (
 
 func remoteSyslogArchiveSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.RemoteSyslogArchive) basetypes.ObjectValue {
 
-	var files basetypes.Int64Value
+	var files basetypes.StringValue
 	var size basetypes.StringValue
 
 	if d != nil && d.Files != nil {
-		files = types.Int64Value(int64(*d.Files))
+		files = mistutils.SyslogFilesAsString(d.Files)
 	}
 	if d != nil && d.Size != nil {
 		size = types.StringValue(*d.Size)
@@ -137,7 +138,7 @@ func remoteSyslogServerSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 		var facility basetypes.StringValue
 		var host basetypes.StringValue
 		var match basetypes.StringValue
-		var port basetypes.Int64Value
+		var port basetypes.StringValue
 		var protocol basetypes.StringValue
 		var routingInstance basetypes.StringValue
 		var severity basetypes.StringValue
@@ -161,7 +162,7 @@ func remoteSyslogServerSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 			match = types.StringValue(*d.Match)
 		}
 		if d.Port != nil {
-			port = types.Int64Value(int64(*d.Port))
+			port = mistutils.SyslogPortAsString(d.Port)
 		}
 		if d.Protocol != nil {
 			protocol = types.StringValue(string(*d.Protocol))

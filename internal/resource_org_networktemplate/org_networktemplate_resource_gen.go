@@ -471,7 +471,7 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 			"name": schema.StringAttribute{
 				Required: true,
 				Validators: []validator.String{
-					stringvalidator.All(stringvalidator.LengthBetween(2, 32), mistvalidator.ParseName()),
+					stringvalidator.LengthBetween(2, 32),
 				},
 			},
 			"networks": schema.MapNestedAttribute{
@@ -927,7 +927,6 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "Only if `mode`!=`dynamic` and `enable_mac_auth`==`true`",
 							Validators: []validator.Bool{
 								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
-								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("enable_mac_auth"), types.BoolValue(true)),
 							},
 						},
 						"mac_auth_preferred": schema.BoolAttribute{
@@ -951,16 +950,17 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							},
 							Default: stringdefault.StaticString("eap-md5"),
 						},
-						"mac_limit": schema.Int64Attribute{
+						"mac_limit": schema.StringAttribute{
 							Optional:            true,
-							Computed:            true,
-							Description:         "Only if `mode`!=`dynamic` max number of mac addresses, default is 0 for unlimited, otherwise range is 1 or higher, with upper bound constrained by platform",
-							MarkdownDescription: "Only if `mode`!=`dynamic` max number of mac addresses, default is 0 for unlimited, otherwise range is 1 or higher, with upper bound constrained by platform",
-							Validators: []validator.Int64{
-								int64validator.AtLeast(0),
-								mistvalidator.ForbiddenWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic"), types.Int64Value(0)),
+							Description:         "Only if `mode`!=`dynamic` max number of mac addresses, default is 0 for unlimited, otherwise range is 1 to 16383 (upper bound constrained by platform)",
+							MarkdownDescription: "Only if `mode`!=`dynamic` max number of mac addresses, default is 0 for unlimited, otherwise range is 1 to 16383 (upper bound constrained by platform)",
+							Validators: []validator.String{
+								stringvalidator.Any(
+									mistvalidator.ParseInt(0, 16383),
+									mistvalidator.ParseVar(),
+								),
+								mistvalidator.ForbiddenWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic"), types.StringValue("0")),
 							},
-							Default: int64default.StaticInt64(0),
 						},
 						"mode": schema.StringAttribute{
 							Optional:            true,
@@ -976,12 +976,15 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								),
 							},
 						},
-						"mtu": schema.Int64Attribute{
+						"mtu": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Only if `mode`!=`dynamic` media maximum transmission unit (MTU) is the largest data unit that can be forwarded without fragmentation. The default value is 1514.",
-							MarkdownDescription: "Only if `mode`!=`dynamic` media maximum transmission unit (MTU) is the largest data unit that can be forwarded without fragmentation. The default value is 1514.",
-							Validators: []validator.Int64{
-								int64validator.AtLeast(0),
+							Description:         "Only if `mode`!=`dynamic` media maximum transmission unit (MTU) is the largest data unit that can be forwarded without fragmentation. Value between 256 and 9216, default value is 1514.",
+							MarkdownDescription: "Only if `mode`!=`dynamic` media maximum transmission unit (MTU) is the largest data unit that can be forwarded without fragmentation. Value between 256 and 9216, default value is 1514.",
+							Validators: []validator.String{
+								stringvalidator.Any(
+									mistvalidator.ParseInt(256, 9216),
+									mistvalidator.ParseVar(),
+								),
 								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
 							},
 						},
@@ -1001,11 +1004,7 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "Only if `mode`==`access` and `port_auth`!=`dot1x` whether the port should retain dynamically learned MAC addresses",
 							MarkdownDescription: "Only if `mode`==`access` and `port_auth`!=`dot1x` whether the port should retain dynamically learned MAC addresses",
-							Validators: []validator.Bool{
-								mistvalidator.CanOnlyBeTrueWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("access")),
-								mistvalidator.CanOnlyBeTrueWhenValueIs(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x")),
-							},
-							Default: booldefault.StaticBool(false),
+							Default:             booldefault.StaticBool(false),
 						},
 						"poe_disabled": schema.BoolAttribute{
 							Optional:            true,
@@ -1267,6 +1266,9 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"radius_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
+					"acct_immediate_update": schema.BoolAttribute{
+						Optional: true,
+					},
 					"acct_interim_interval": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
@@ -1333,6 +1335,20 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
+					},
+					"auth_server_selection": schema.StringAttribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "enum: `ordered`, `unordered`",
+						MarkdownDescription: "enum: `ordered`, `unordered`",
+						Validators: []validator.String{
+							stringvalidator.OneOf(
+								"",
+								"ordered",
+								"unordered",
+							),
+						},
+						Default: stringdefault.StaticString("ordered"),
 					},
 					"auth_servers": schema.ListNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{
@@ -1412,6 +1428,19 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "Radius auth session timeout",
 						Default:             int64default.StaticInt64(5),
 					},
+					"coa_enabled": schema.BoolAttribute{
+						Optional: true,
+						Computed: true,
+						Default:  booldefault.StaticBool(false),
+					},
+					"coa_port": schema.StringAttribute{
+						Optional: true,
+					},
+					"fast_dot1x_timers": schema.BoolAttribute{
+						Optional: true,
+						Computed: true,
+						Default:  booldefault.StaticBool(false),
+					},
 					"network": schema.StringAttribute{
 						Optional:            true,
 						Description:         "Use `network`or `source_ip`. Which network the RADIUS server resides, if there's static IP for this network, we'd use it as source-ip",
@@ -1436,7 +1465,7 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 				Attributes: map[string]schema.Attribute{
 					"archive": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
-							"files": schema.Int64Attribute{
+							"files": schema.StringAttribute{
 								Optional: true,
 							},
 							"size": schema.StringAttribute{
@@ -1530,7 +1559,7 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							Attributes: map[string]schema.Attribute{
 								"archive": schema.SingleNestedAttribute{
 									Attributes: map[string]schema.Attribute{
-										"files": schema.Int64Attribute{
+										"files": schema.StringAttribute{
 											Optional: true,
 										},
 										"size": schema.StringAttribute{
@@ -1735,10 +1764,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								"match": schema.StringAttribute{
 									Optional: true,
 								},
-								"port": schema.Int64Attribute{
+								"port": schema.StringAttribute{
 									Optional: true,
-									Computed: true,
-									Default:  int64default.StaticInt64(514),
 								},
 								"protocol": schema.StringAttribute{
 									Optional:            true,
@@ -2954,13 +2981,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					"mxedge_proxy_host": schema.StringAttribute{
 						Optional: true,
 					},
-					"mxedge_proxy_port": schema.Int64Attribute{
+					"mxedge_proxy_port": schema.StringAttribute{
 						Optional: true,
-						Computed: true,
-						Validators: []validator.Int64{
-							int64validator.Between(1, 65535),
-						},
-						Default: int64default.StaticInt64(2222),
 					},
 					"protect_re": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
@@ -10945,12 +10967,12 @@ func (t PortUsagesType) ValueFromObject(ctx context.Context, in basetypes.Object
 		return nil, diags
 	}
 
-	macLimitVal, ok := macLimitAttribute.(basetypes.Int64Value)
+	macLimitVal, ok := macLimitAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`mac_limit expected to be basetypes.Int64Value, was: %T`, macLimitAttribute))
+			fmt.Sprintf(`mac_limit expected to be basetypes.StringValue, was: %T`, macLimitAttribute))
 	}
 
 	modeAttribute, ok := attributes["mode"]
@@ -10981,12 +11003,12 @@ func (t PortUsagesType) ValueFromObject(ctx context.Context, in basetypes.Object
 		return nil, diags
 	}
 
-	mtuVal, ok := mtuAttribute.(basetypes.Int64Value)
+	mtuVal, ok := mtuAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`mtu expected to be basetypes.Int64Value, was: %T`, mtuAttribute))
+			fmt.Sprintf(`mtu expected to be basetypes.StringValue, was: %T`, mtuAttribute))
 	}
 
 	networksAttribute, ok := attributes["networks"]
@@ -11758,12 +11780,12 @@ func NewPortUsagesValue(attributeTypes map[string]attr.Type, attributes map[stri
 		return NewPortUsagesValueUnknown(), diags
 	}
 
-	macLimitVal, ok := macLimitAttribute.(basetypes.Int64Value)
+	macLimitVal, ok := macLimitAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`mac_limit expected to be basetypes.Int64Value, was: %T`, macLimitAttribute))
+			fmt.Sprintf(`mac_limit expected to be basetypes.StringValue, was: %T`, macLimitAttribute))
 	}
 
 	modeAttribute, ok := attributes["mode"]
@@ -11794,12 +11816,12 @@ func NewPortUsagesValue(attributeTypes map[string]attr.Type, attributes map[stri
 		return NewPortUsagesValueUnknown(), diags
 	}
 
-	mtuVal, ok := mtuAttribute.(basetypes.Int64Value)
+	mtuVal, ok := mtuAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`mtu expected to be basetypes.Int64Value, was: %T`, mtuAttribute))
+			fmt.Sprintf(`mtu expected to be basetypes.StringValue, was: %T`, mtuAttribute))
 	}
 
 	networksAttribute, ok := attributes["networks"]
@@ -12260,9 +12282,9 @@ type PortUsagesValue struct {
 	MacAuthOnly                              basetypes.BoolValue   `tfsdk:"mac_auth_only"`
 	MacAuthPreferred                         basetypes.BoolValue   `tfsdk:"mac_auth_preferred"`
 	MacAuthProtocol                          basetypes.StringValue `tfsdk:"mac_auth_protocol"`
-	MacLimit                                 basetypes.Int64Value  `tfsdk:"mac_limit"`
+	MacLimit                                 basetypes.StringValue `tfsdk:"mac_limit"`
 	Mode                                     basetypes.StringValue `tfsdk:"mode"`
-	Mtu                                      basetypes.Int64Value  `tfsdk:"mtu"`
+	Mtu                                      basetypes.StringValue `tfsdk:"mtu"`
 	Networks                                 basetypes.ListValue   `tfsdk:"networks"`
 	PersistMac                               basetypes.BoolValue   `tfsdk:"persist_mac"`
 	PoeDisabled                              basetypes.BoolValue   `tfsdk:"poe_disabled"`
@@ -12310,9 +12332,9 @@ func (v PortUsagesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	attrTypes["mac_auth_only"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["mac_auth_preferred"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["mac_auth_protocol"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["mac_limit"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["mac_limit"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["mode"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["mtu"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["mtu"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["networks"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
@@ -12761,9 +12783,9 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"mac_auth_only":                basetypes.BoolType{},
 			"mac_auth_preferred":           basetypes.BoolType{},
 			"mac_auth_protocol":            basetypes.StringType{},
-			"mac_limit":                    basetypes.Int64Type{},
+			"mac_limit":                    basetypes.StringType{},
 			"mode":                         basetypes.StringType{},
-			"mtu":                          basetypes.Int64Type{},
+			"mtu":                          basetypes.StringType{},
 			"networks": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -12817,9 +12839,9 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"mac_auth_only":                basetypes.BoolType{},
 			"mac_auth_preferred":           basetypes.BoolType{},
 			"mac_auth_protocol":            basetypes.StringType{},
-			"mac_limit":                    basetypes.Int64Type{},
+			"mac_limit":                    basetypes.StringType{},
 			"mode":                         basetypes.StringType{},
-			"mtu":                          basetypes.Int64Type{},
+			"mtu":                          basetypes.StringType{},
 			"networks": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -12868,9 +12890,9 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		"mac_auth_only":                basetypes.BoolType{},
 		"mac_auth_preferred":           basetypes.BoolType{},
 		"mac_auth_protocol":            basetypes.StringType{},
-		"mac_limit":                    basetypes.Int64Type{},
+		"mac_limit":                    basetypes.StringType{},
 		"mode":                         basetypes.StringType{},
-		"mtu":                          basetypes.Int64Type{},
+		"mtu":                          basetypes.StringType{},
 		"networks": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -13156,9 +13178,9 @@ func (v PortUsagesValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"mac_auth_only":                basetypes.BoolType{},
 		"mac_auth_preferred":           basetypes.BoolType{},
 		"mac_auth_protocol":            basetypes.StringType{},
-		"mac_limit":                    basetypes.Int64Type{},
+		"mac_limit":                    basetypes.StringType{},
 		"mode":                         basetypes.StringType{},
-		"mtu":                          basetypes.Int64Type{},
+		"mtu":                          basetypes.StringType{},
 		"networks": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -14321,6 +14343,24 @@ func (t RadiusConfigType) ValueFromObject(ctx context.Context, in basetypes.Obje
 
 	attributes := in.Attributes()
 
+	acctImmediateUpdateAttribute, ok := attributes["acct_immediate_update"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`acct_immediate_update is missing from object`)
+
+		return nil, diags
+	}
+
+	acctImmediateUpdateVal, ok := acctImmediateUpdateAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`acct_immediate_update expected to be basetypes.BoolValue, was: %T`, acctImmediateUpdateAttribute))
+	}
+
 	acctInterimIntervalAttribute, ok := attributes["acct_interim_interval"]
 
 	if !ok {
@@ -14355,6 +14395,24 @@ func (t RadiusConfigType) ValueFromObject(ctx context.Context, in basetypes.Obje
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`acct_servers expected to be basetypes.ListValue, was: %T`, acctServersAttribute))
+	}
+
+	authServerSelectionAttribute, ok := attributes["auth_server_selection"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`auth_server_selection is missing from object`)
+
+		return nil, diags
+	}
+
+	authServerSelectionVal, ok := authServerSelectionAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`auth_server_selection expected to be basetypes.StringValue, was: %T`, authServerSelectionAttribute))
 	}
 
 	authServersAttribute, ok := attributes["auth_servers"]
@@ -14411,6 +14469,60 @@ func (t RadiusConfigType) ValueFromObject(ctx context.Context, in basetypes.Obje
 			fmt.Sprintf(`auth_servers_timeout expected to be basetypes.Int64Value, was: %T`, authServersTimeoutAttribute))
 	}
 
+	coaEnabledAttribute, ok := attributes["coa_enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`coa_enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	coaEnabledVal, ok := coaEnabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`coa_enabled expected to be basetypes.BoolValue, was: %T`, coaEnabledAttribute))
+	}
+
+	coaPortAttribute, ok := attributes["coa_port"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`coa_port is missing from object`)
+
+		return nil, diags
+	}
+
+	coaPortVal, ok := coaPortAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`coa_port expected to be basetypes.StringValue, was: %T`, coaPortAttribute))
+	}
+
+	fastDot1xTimersAttribute, ok := attributes["fast_dot1x_timers"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`fast_dot1x_timers is missing from object`)
+
+		return nil, diags
+	}
+
+	fastDot1xTimersVal, ok := fastDot1xTimersAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`fast_dot1x_timers expected to be basetypes.BoolValue, was: %T`, fastDot1xTimersAttribute))
+	}
+
 	networkAttribute, ok := attributes["network"]
 
 	if !ok {
@@ -14452,11 +14564,16 @@ func (t RadiusConfigType) ValueFromObject(ctx context.Context, in basetypes.Obje
 	}
 
 	return RadiusConfigValue{
+		AcctImmediateUpdate: acctImmediateUpdateVal,
 		AcctInterimInterval: acctInterimIntervalVal,
 		AcctServers:         acctServersVal,
+		AuthServerSelection: authServerSelectionVal,
 		AuthServers:         authServersVal,
 		AuthServersRetries:  authServersRetriesVal,
 		AuthServersTimeout:  authServersTimeoutVal,
+		CoaEnabled:          coaEnabledVal,
+		CoaPort:             coaPortVal,
+		FastDot1xTimers:     fastDot1xTimersVal,
 		Network:             networkVal,
 		SourceIp:            sourceIpVal,
 		state:               attr.ValueStateKnown,
@@ -14526,6 +14643,24 @@ func NewRadiusConfigValue(attributeTypes map[string]attr.Type, attributes map[st
 		return NewRadiusConfigValueUnknown(), diags
 	}
 
+	acctImmediateUpdateAttribute, ok := attributes["acct_immediate_update"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`acct_immediate_update is missing from object`)
+
+		return NewRadiusConfigValueUnknown(), diags
+	}
+
+	acctImmediateUpdateVal, ok := acctImmediateUpdateAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`acct_immediate_update expected to be basetypes.BoolValue, was: %T`, acctImmediateUpdateAttribute))
+	}
+
 	acctInterimIntervalAttribute, ok := attributes["acct_interim_interval"]
 
 	if !ok {
@@ -14560,6 +14695,24 @@ func NewRadiusConfigValue(attributeTypes map[string]attr.Type, attributes map[st
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`acct_servers expected to be basetypes.ListValue, was: %T`, acctServersAttribute))
+	}
+
+	authServerSelectionAttribute, ok := attributes["auth_server_selection"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`auth_server_selection is missing from object`)
+
+		return NewRadiusConfigValueUnknown(), diags
+	}
+
+	authServerSelectionVal, ok := authServerSelectionAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`auth_server_selection expected to be basetypes.StringValue, was: %T`, authServerSelectionAttribute))
 	}
 
 	authServersAttribute, ok := attributes["auth_servers"]
@@ -14616,6 +14769,60 @@ func NewRadiusConfigValue(attributeTypes map[string]attr.Type, attributes map[st
 			fmt.Sprintf(`auth_servers_timeout expected to be basetypes.Int64Value, was: %T`, authServersTimeoutAttribute))
 	}
 
+	coaEnabledAttribute, ok := attributes["coa_enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`coa_enabled is missing from object`)
+
+		return NewRadiusConfigValueUnknown(), diags
+	}
+
+	coaEnabledVal, ok := coaEnabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`coa_enabled expected to be basetypes.BoolValue, was: %T`, coaEnabledAttribute))
+	}
+
+	coaPortAttribute, ok := attributes["coa_port"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`coa_port is missing from object`)
+
+		return NewRadiusConfigValueUnknown(), diags
+	}
+
+	coaPortVal, ok := coaPortAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`coa_port expected to be basetypes.StringValue, was: %T`, coaPortAttribute))
+	}
+
+	fastDot1xTimersAttribute, ok := attributes["fast_dot1x_timers"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`fast_dot1x_timers is missing from object`)
+
+		return NewRadiusConfigValueUnknown(), diags
+	}
+
+	fastDot1xTimersVal, ok := fastDot1xTimersAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`fast_dot1x_timers expected to be basetypes.BoolValue, was: %T`, fastDot1xTimersAttribute))
+	}
+
 	networkAttribute, ok := attributes["network"]
 
 	if !ok {
@@ -14657,11 +14864,16 @@ func NewRadiusConfigValue(attributeTypes map[string]attr.Type, attributes map[st
 	}
 
 	return RadiusConfigValue{
+		AcctImmediateUpdate: acctImmediateUpdateVal,
 		AcctInterimInterval: acctInterimIntervalVal,
 		AcctServers:         acctServersVal,
+		AuthServerSelection: authServerSelectionVal,
 		AuthServers:         authServersVal,
 		AuthServersRetries:  authServersRetriesVal,
 		AuthServersTimeout:  authServersTimeoutVal,
+		CoaEnabled:          coaEnabledVal,
+		CoaPort:             coaPortVal,
+		FastDot1xTimers:     fastDot1xTimersVal,
 		Network:             networkVal,
 		SourceIp:            sourceIpVal,
 		state:               attr.ValueStateKnown,
@@ -14736,31 +14948,41 @@ func (t RadiusConfigType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = RadiusConfigValue{}
 
 type RadiusConfigValue struct {
+	AcctImmediateUpdate basetypes.BoolValue   `tfsdk:"acct_immediate_update"`
 	AcctInterimInterval basetypes.Int64Value  `tfsdk:"acct_interim_interval"`
 	AcctServers         basetypes.ListValue   `tfsdk:"acct_servers"`
+	AuthServerSelection basetypes.StringValue `tfsdk:"auth_server_selection"`
 	AuthServers         basetypes.ListValue   `tfsdk:"auth_servers"`
 	AuthServersRetries  basetypes.Int64Value  `tfsdk:"auth_servers_retries"`
 	AuthServersTimeout  basetypes.Int64Value  `tfsdk:"auth_servers_timeout"`
+	CoaEnabled          basetypes.BoolValue   `tfsdk:"coa_enabled"`
+	CoaPort             basetypes.StringValue `tfsdk:"coa_port"`
+	FastDot1xTimers     basetypes.BoolValue   `tfsdk:"fast_dot1x_timers"`
 	Network             basetypes.StringValue `tfsdk:"network"`
 	SourceIp            basetypes.StringValue `tfsdk:"source_ip"`
 	state               attr.ValueState
 }
 
 func (v RadiusConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 7)
+	attrTypes := make(map[string]tftypes.Type, 12)
 
 	var val tftypes.Value
 	var err error
 
+	attrTypes["acct_immediate_update"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["acct_interim_interval"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["acct_servers"] = basetypes.ListType{
 		ElemType: AcctServersValue{}.Type(ctx),
 	}.TerraformType(ctx)
+	attrTypes["auth_server_selection"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["auth_servers"] = basetypes.ListType{
 		ElemType: AuthServersValue{}.Type(ctx),
 	}.TerraformType(ctx)
 	attrTypes["auth_servers_retries"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["auth_servers_timeout"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["coa_enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["coa_port"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["fast_dot1x_timers"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["network"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["source_ip"] = basetypes.StringType{}.TerraformType(ctx)
 
@@ -14768,7 +14990,15 @@ func (v RadiusConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 7)
+		vals := make(map[string]tftypes.Value, 12)
+
+		val, err = v.AcctImmediateUpdate.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["acct_immediate_update"] = val
 
 		val, err = v.AcctInterimInterval.ToTerraformValue(ctx)
 
@@ -14785,6 +15015,14 @@ func (v RadiusConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 		}
 
 		vals["acct_servers"] = val
+
+		val, err = v.AuthServerSelection.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["auth_server_selection"] = val
 
 		val, err = v.AuthServers.ToTerraformValue(ctx)
 
@@ -14809,6 +15047,30 @@ func (v RadiusConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 		}
 
 		vals["auth_servers_timeout"] = val
+
+		val, err = v.CoaEnabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["coa_enabled"] = val
+
+		val, err = v.CoaPort.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["coa_port"] = val
+
+		val, err = v.FastDot1xTimers.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["fast_dot1x_timers"] = val
 
 		val, err = v.Network.ToTerraformValue(ctx)
 
@@ -14914,15 +15176,20 @@ func (v RadiusConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 	}
 
 	attributeTypes := map[string]attr.Type{
+		"acct_immediate_update": basetypes.BoolType{},
 		"acct_interim_interval": basetypes.Int64Type{},
 		"acct_servers": basetypes.ListType{
 			ElemType: AcctServersValue{}.Type(ctx),
 		},
+		"auth_server_selection": basetypes.StringType{},
 		"auth_servers": basetypes.ListType{
 			ElemType: AuthServersValue{}.Type(ctx),
 		},
 		"auth_servers_retries": basetypes.Int64Type{},
 		"auth_servers_timeout": basetypes.Int64Type{},
+		"coa_enabled":          basetypes.BoolType{},
+		"coa_port":             basetypes.StringType{},
+		"fast_dot1x_timers":    basetypes.BoolType{},
 		"network":              basetypes.StringType{},
 		"source_ip":            basetypes.StringType{},
 	}
@@ -14938,11 +15205,16 @@ func (v RadiusConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
+			"acct_immediate_update": v.AcctImmediateUpdate,
 			"acct_interim_interval": v.AcctInterimInterval,
 			"acct_servers":          acctServers,
+			"auth_server_selection": v.AuthServerSelection,
 			"auth_servers":          authServers,
 			"auth_servers_retries":  v.AuthServersRetries,
 			"auth_servers_timeout":  v.AuthServersTimeout,
+			"coa_enabled":           v.CoaEnabled,
+			"coa_port":              v.CoaPort,
+			"fast_dot1x_timers":     v.FastDot1xTimers,
 			"network":               v.Network,
 			"source_ip":             v.SourceIp,
 		})
@@ -14965,11 +15237,19 @@ func (v RadiusConfigValue) Equal(o attr.Value) bool {
 		return true
 	}
 
+	if !v.AcctImmediateUpdate.Equal(other.AcctImmediateUpdate) {
+		return false
+	}
+
 	if !v.AcctInterimInterval.Equal(other.AcctInterimInterval) {
 		return false
 	}
 
 	if !v.AcctServers.Equal(other.AcctServers) {
+		return false
+	}
+
+	if !v.AuthServerSelection.Equal(other.AuthServerSelection) {
 		return false
 	}
 
@@ -14982,6 +15262,18 @@ func (v RadiusConfigValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.AuthServersTimeout.Equal(other.AuthServersTimeout) {
+		return false
+	}
+
+	if !v.CoaEnabled.Equal(other.CoaEnabled) {
+		return false
+	}
+
+	if !v.CoaPort.Equal(other.CoaPort) {
+		return false
+	}
+
+	if !v.FastDot1xTimers.Equal(other.FastDot1xTimers) {
 		return false
 	}
 
@@ -15006,15 +15298,20 @@ func (v RadiusConfigValue) Type(ctx context.Context) attr.Type {
 
 func (v RadiusConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
+		"acct_immediate_update": basetypes.BoolType{},
 		"acct_interim_interval": basetypes.Int64Type{},
 		"acct_servers": basetypes.ListType{
 			ElemType: AcctServersValue{}.Type(ctx),
 		},
+		"auth_server_selection": basetypes.StringType{},
 		"auth_servers": basetypes.ListType{
 			ElemType: AuthServersValue{}.Type(ctx),
 		},
 		"auth_servers_retries": basetypes.Int64Type{},
 		"auth_servers_timeout": basetypes.Int64Type{},
+		"coa_enabled":          basetypes.BoolType{},
+		"coa_port":             basetypes.StringType{},
+		"fast_dot1x_timers":    basetypes.BoolType{},
 		"network":              basetypes.StringType{},
 		"source_ip":            basetypes.StringType{},
 	}
@@ -17341,12 +17638,12 @@ func (t ArchiveType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 		return nil, diags
 	}
 
-	filesVal, ok := filesAttribute.(basetypes.Int64Value)
+	filesVal, ok := filesAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`files expected to be basetypes.Int64Value, was: %T`, filesAttribute))
+			fmt.Sprintf(`files expected to be basetypes.StringValue, was: %T`, filesAttribute))
 	}
 
 	sizeAttribute, ok := attributes["size"]
@@ -17451,12 +17748,12 @@ func NewArchiveValue(attributeTypes map[string]attr.Type, attributes map[string]
 		return NewArchiveValueUnknown(), diags
 	}
 
-	filesVal, ok := filesAttribute.(basetypes.Int64Value)
+	filesVal, ok := filesAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`files expected to be basetypes.Int64Value, was: %T`, filesAttribute))
+			fmt.Sprintf(`files expected to be basetypes.StringValue, was: %T`, filesAttribute))
 	}
 
 	sizeAttribute, ok := attributes["size"]
@@ -17556,7 +17853,7 @@ func (t ArchiveType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = ArchiveValue{}
 
 type ArchiveValue struct {
-	Files basetypes.Int64Value  `tfsdk:"files"`
+	Files basetypes.StringValue `tfsdk:"files"`
 	Size  basetypes.StringValue `tfsdk:"size"`
 	state attr.ValueState
 }
@@ -17567,7 +17864,7 @@ func (v ArchiveValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 	var val tftypes.Value
 	var err error
 
-	attrTypes["files"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["files"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["size"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
@@ -17622,7 +17919,7 @@ func (v ArchiveValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 	var diags diag.Diagnostics
 
 	attributeTypes := map[string]attr.Type{
-		"files": basetypes.Int64Type{},
+		"files": basetypes.StringType{},
 		"size":  basetypes.StringType{},
 	}
 
@@ -17680,7 +17977,7 @@ func (v ArchiveValue) Type(ctx context.Context) attr.Type {
 
 func (v ArchiveValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"files": basetypes.Int64Type{},
+		"files": basetypes.StringType{},
 		"size":  basetypes.StringType{},
 	}
 }
@@ -19209,12 +19506,12 @@ func (t ServersType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 		return nil, diags
 	}
 
-	portVal, ok := portAttribute.(basetypes.Int64Value)
+	portVal, ok := portAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`port expected to be basetypes.Int64Value, was: %T`, portAttribute))
+			fmt.Sprintf(`port expected to be basetypes.StringValue, was: %T`, portAttribute))
 	}
 
 	protocolAttribute, ok := attributes["protocol"]
@@ -19509,12 +19806,12 @@ func NewServersValue(attributeTypes map[string]attr.Type, attributes map[string]
 		return NewServersValueUnknown(), diags
 	}
 
-	portVal, ok := portAttribute.(basetypes.Int64Value)
+	portVal, ok := portAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`port expected to be basetypes.Int64Value, was: %T`, portAttribute))
+			fmt.Sprintf(`port expected to be basetypes.StringValue, was: %T`, portAttribute))
 	}
 
 	protocolAttribute, ok := attributes["protocol"]
@@ -19719,7 +20016,7 @@ type ServersValue struct {
 	Facility         basetypes.StringValue `tfsdk:"facility"`
 	Host             basetypes.StringValue `tfsdk:"host"`
 	Match            basetypes.StringValue `tfsdk:"match"`
-	Port             basetypes.Int64Value  `tfsdk:"port"`
+	Port             basetypes.StringValue `tfsdk:"port"`
 	Protocol         basetypes.StringValue `tfsdk:"protocol"`
 	RoutingInstance  basetypes.StringValue `tfsdk:"routing_instance"`
 	Severity         basetypes.StringValue `tfsdk:"severity"`
@@ -19742,7 +20039,7 @@ func (v ServersValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 	attrTypes["facility"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["host"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["match"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["port"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["port"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["protocol"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["routing_instance"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["severity"] = basetypes.StringType{}.TerraformType(ctx)
@@ -19918,7 +20215,7 @@ func (v ServersValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 		"facility":          basetypes.StringType{},
 		"host":              basetypes.StringType{},
 		"match":             basetypes.StringType{},
-		"port":              basetypes.Int64Type{},
+		"port":              basetypes.StringType{},
 		"protocol":          basetypes.StringType{},
 		"routing_instance":  basetypes.StringType{},
 		"severity":          basetypes.StringType{},
@@ -20038,7 +20335,7 @@ func (v ServersValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 		"facility":          basetypes.StringType{},
 		"host":              basetypes.StringType{},
 		"match":             basetypes.StringType{},
-		"port":              basetypes.Int64Type{},
+		"port":              basetypes.StringType{},
 		"protocol":          basetypes.StringType{},
 		"routing_instance":  basetypes.StringType{},
 		"severity":          basetypes.StringType{},
@@ -33618,12 +33915,12 @@ func (t SwitchMgmtType) ValueFromObject(ctx context.Context, in basetypes.Object
 		return nil, diags
 	}
 
-	mxedgeProxyPortVal, ok := mxedgeProxyPortAttribute.(basetypes.Int64Value)
+	mxedgeProxyPortVal, ok := mxedgeProxyPortAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`mxedge_proxy_port expected to be basetypes.Int64Value, was: %T`, mxedgeProxyPortAttribute))
+			fmt.Sprintf(`mxedge_proxy_port expected to be basetypes.StringValue, was: %T`, mxedgeProxyPortAttribute))
 	}
 
 	protectReAttribute, ok := attributes["protect_re"]
@@ -33956,12 +34253,12 @@ func NewSwitchMgmtValue(attributeTypes map[string]attr.Type, attributes map[stri
 		return NewSwitchMgmtValueUnknown(), diags
 	}
 
-	mxedgeProxyPortVal, ok := mxedgeProxyPortAttribute.(basetypes.Int64Value)
+	mxedgeProxyPortVal, ok := mxedgeProxyPortAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`mxedge_proxy_port expected to be basetypes.Int64Value, was: %T`, mxedgeProxyPortAttribute))
+			fmt.Sprintf(`mxedge_proxy_port expected to be basetypes.StringValue, was: %T`, mxedgeProxyPortAttribute))
 	}
 
 	protectReAttribute, ok := attributes["protect_re"]
@@ -34136,7 +34433,7 @@ type SwitchMgmtValue struct {
 	FipsEnabled         basetypes.BoolValue   `tfsdk:"fips_enabled"`
 	LocalAccounts       basetypes.MapValue    `tfsdk:"local_accounts"`
 	MxedgeProxyHost     basetypes.StringValue `tfsdk:"mxedge_proxy_host"`
-	MxedgeProxyPort     basetypes.Int64Value  `tfsdk:"mxedge_proxy_port"`
+	MxedgeProxyPort     basetypes.StringValue `tfsdk:"mxedge_proxy_port"`
 	ProtectRe           basetypes.ObjectValue `tfsdk:"protect_re"`
 	RootPassword        basetypes.StringValue `tfsdk:"root_password"`
 	Tacacs              basetypes.ObjectValue `tfsdk:"tacacs"`
@@ -34161,7 +34458,7 @@ func (v SwitchMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 		ElemType: LocalAccountsValue{}.Type(ctx),
 	}.TerraformType(ctx)
 	attrTypes["mxedge_proxy_host"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["mxedge_proxy_port"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["mxedge_proxy_port"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["protect_re"] = basetypes.ObjectType{
 		AttrTypes: ProtectReValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
@@ -34401,7 +34698,7 @@ func (v SwitchMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			ElemType: LocalAccountsValue{}.Type(ctx),
 		},
 		"mxedge_proxy_host": basetypes.StringType{},
-		"mxedge_proxy_port": basetypes.Int64Type{},
+		"mxedge_proxy_port": basetypes.StringType{},
 		"protect_re": basetypes.ObjectType{
 			AttrTypes: ProtectReValue{}.AttributeTypes(ctx),
 		},
@@ -34537,7 +34834,7 @@ func (v SwitchMgmtValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 			ElemType: LocalAccountsValue{}.Type(ctx),
 		},
 		"mxedge_proxy_host": basetypes.StringType{},
-		"mxedge_proxy_port": basetypes.Int64Type{},
+		"mxedge_proxy_port": basetypes.StringType{},
 		"protect_re": basetypes.ObjectType{
 			AttrTypes: ProtectReValue{}.AttributeTypes(ctx),
 		},
