@@ -21,12 +21,13 @@ func OrgAvprofileResourceSchema(ctx context.Context) schema.Schema {
 		Attributes: map[string]schema.Attribute{
 			"fallback_action": schema.StringAttribute{
 				Optional:            true,
-				Description:         "enum: `block`, `permit`",
-				MarkdownDescription: "enum: `block`, `permit`",
+				Description:         "enum: `block`, `log-and-permit`, `permit`",
+				MarkdownDescription: "enum: `block`, `log-and-permit`, `permit`",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
 						"block",
+						"log-and-permit",
 						"permit",
 					),
 				},

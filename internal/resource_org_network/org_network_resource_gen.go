@@ -262,6 +262,7 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 			"routed_for_networks": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
+				Computed:            true,
 				Description:         "For a Network (usually LAN), it can be routable to other networks (e.g. OSPF)",
 				MarkdownDescription: "For a Network (usually LAN), it can be routable to other networks (e.g. OSPF)",
 			},
