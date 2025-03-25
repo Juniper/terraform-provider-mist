@@ -14,6 +14,8 @@ The following changes were required to support API type possibilities and/or to 
 * `mist_device_switch`, `mist_org_networktemplate` and `mist_site_networktemplate` resources:
   * change type of `.port_usages.mac_limit` from `int64` to `string`
   * change type of `.port_usages.mtu` from `int64` to `string`
+* `mist_device_gateway`, `mist_org_deviceprofile_gateway` and `mist_org_gatewaytemplate` resources:
+  * change type of `.port_config.reth_idx` from `int64` to `string`
 
 ### Resource changes
 

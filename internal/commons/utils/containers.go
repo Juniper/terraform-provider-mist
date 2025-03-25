@@ -177,3 +177,13 @@ func SwitchMgmtMxedgeProxyPortsAsString(bgpAs *models.SwitchMgmtMxedgeProxyPort)
 		return types.StringNull()
 	}
 }
+
+func GatewayPortConfigRethIdxAsString(bgpAs *models.GatewayPortConfigRethIdx) basetypes.StringValue {
+	if v, ok := bgpAs.AsString(); ok {
+		return types.StringValue(*v)
+	} else if v, ok := bgpAs.AsNumber(); ok {
+		return types.StringValue(fmt.Sprint(*v))
+	} else {
+		return types.StringNull()
+	}
+}

@@ -237,8 +237,8 @@ func portConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d ba
 		if plan.RedundantGroup.ValueInt64Pointer() != nil {
 			data.RedundantGroup = models.ToPointer(int(plan.RedundantGroup.ValueInt64()))
 		}
-		if plan.RethIdx.ValueInt64Pointer() != nil {
-			data.RethIdx = models.ToPointer(int(plan.RethIdx.ValueInt64()))
+		if plan.RethIdx.ValueStringPointer() != nil {
+			data.RethIdx = models.ToPointer(models.GatewayPortConfigRethIdxContainer.FromString(plan.RethIdx.ValueString()))
 		}
 		if plan.RethNode.ValueStringPointer() != nil {
 			data.RethNode = plan.RethNode.ValueStringPointer()
