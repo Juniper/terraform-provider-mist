@@ -47,9 +47,14 @@ These changes try to mimic the Mist UI default values; however, some of them are
 ~> These changes in the resources definition should not trigger configuration drift. However, depending on when the object has been created with the Mist UI, the default values set by the UI may be different, and a configuration drift can occure. 
 
 List of the default value changed:
+*  `mist_org_alarmtemplate`
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `.rules.delivery.additional_emails` | N/A | StaticValue(types.ListValueMust(types.StringType, []attr.Value{})) |
+
 *  `mist_device_ap` and `mist_org_deviceprofile_ap`
-| Attribute | Previous Default | 
-|-----------|-----------|
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
 | `.aeroscout.host` | N/A |StaticString("") |
 | `.ble_config.beacon_enabled` | StaticBool(false) | StaticBool(true) |
 | `.ble_config.beacon_rate` | StaticInt64(0) | N/A |
@@ -88,8 +93,8 @@ List of the default value changed:
 | `.radio_config.keep_wlans_up_if_down` | StaticBool(false) | N/A |
 
 *  `mist_org_setting`
-| Attribute | Previous Default | New Default | 
-|-----------|-----------|
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
 | `.ap_updown_threshold` | StaticInt64(0) | N/A |
 | `.device_updown_threshold` | StaticInt64(0) | N/A |
 | `.disable_pcap` | StaticBool(false) | N/A |
