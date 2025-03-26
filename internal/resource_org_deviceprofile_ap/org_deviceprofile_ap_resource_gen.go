@@ -454,6 +454,9 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "Unique ID of the object instance in the Mist Organization",
 				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"ip_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{

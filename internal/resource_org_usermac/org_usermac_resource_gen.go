@@ -6,7 +6,9 @@ import (
 	"context"
 	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
@@ -20,6 +22,9 @@ func OrgUsermacResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "Unique ID of the object instance in the Mist Organization",
 				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"labels": schema.ListAttribute{
 				ElementType: types.StringType,

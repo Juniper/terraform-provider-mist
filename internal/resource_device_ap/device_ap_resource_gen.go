@@ -370,6 +370,9 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"device_id": schema.StringAttribute{
 				Required: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"disable_eth1": schema.BoolAttribute{
 				Optional:            true,
