@@ -795,7 +795,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						Description:         "Used only if `subnet` is not specified in `networks`",
 						MarkdownDescription: "Used only if `subnet` is not specified in `networks`",
 						Validators: []validator.String{
-							stringvalidator.Any(mistvalidator.ParseNetmask(true, true), mistvalidator.ParseVar()),
+							stringvalidator.Any(mistvalidator.ParseNetmask(false, false), mistvalidator.ParseVar()),
 							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static")),
 							mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("dhcp")),
 						},
@@ -1316,7 +1316,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						Description:         "Used only if `subnet` is not specified in `networks`",
 						MarkdownDescription: "Used only if `subnet` is not specified in `networks`",
 						Validators: []validator.String{
-							stringvalidator.Any(mistvalidator.ParseNetmask(true, true), mistvalidator.ParseVar()),
+							stringvalidator.Any(mistvalidator.ParseNetmask(false, false), mistvalidator.ParseVar()),
 							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static")),
 							mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("dhcp")),
 						},
@@ -1551,7 +1551,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Optional, `subnet` from `network` definition will be used if defined",
 							MarkdownDescription: "Optional, `subnet` from `network` definition will be used if defined",
 							Validators: []validator.String{
-								stringvalidator.Any(mistvalidator.ParseNetmask(true, true), mistvalidator.ParseVar()),
+								stringvalidator.Any(mistvalidator.ParseNetmask(false, false), mistvalidator.ParseVar()),
 								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static")),
 								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("dhcp")),
 							},
@@ -1561,7 +1561,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Optional, `subnet` from `network` definition will be used if defined",
 							MarkdownDescription: "Optional, `subnet` from `network` definition will be used if defined",
 							Validators: []validator.String{
-								stringvalidator.Any(mistvalidator.ParseNetmask(true, true), mistvalidator.ParseVar()),
+								stringvalidator.Any(mistvalidator.ParseNetmask(false, false), mistvalidator.ParseVar()),
 								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type6"), types.StringValue("static")),
 								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type6"), types.StringValue("dhcp")),
 								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type6"), types.StringValue("autoconf")),

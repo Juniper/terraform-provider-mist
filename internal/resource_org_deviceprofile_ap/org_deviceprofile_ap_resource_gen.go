@@ -531,7 +531,7 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 						Description:         "Required if `type`==`static`",
 						MarkdownDescription: "Required if `type`==`static`",
 						Validators: []validator.String{
-							stringvalidator.Any(mistvalidator.ParseNetmask(true, true), mistvalidator.ParseVar()),
+							stringvalidator.Any(mistvalidator.ParseNetmask(false, false), mistvalidator.ParseVar()),
 							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static")),
 							mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("dhcp")),
 						},
@@ -539,7 +539,7 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					"netmask6": schema.StringAttribute{
 						Optional: true,
 						Validators: []validator.String{
-							stringvalidator.Any(mistvalidator.ParseNetmask(true, true), mistvalidator.ParseVar()),
+							stringvalidator.Any(mistvalidator.ParseNetmask(false, false), mistvalidator.ParseVar()),
 							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type6"), types.StringValue("static")),
 							mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type6"), types.StringValue("dhcp")),
 							mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type6"), types.StringValue("autoconf")),
