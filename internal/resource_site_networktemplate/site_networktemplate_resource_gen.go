@@ -2978,10 +2978,17 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 					},
 					"mxedge_proxy_host": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "IP Address or FQDN of the Mist Edge used to proxy the switch management traffic to the Mist Cloud",
+						MarkdownDescription: "IP Address or FQDN of the Mist Edge used to proxy the switch management traffic to the Mist Cloud",
 					},
 					"mxedge_proxy_port": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "Mist Edge port used to proxy the switch management traffic to the Mist Cloud. Value in range 1-65535",
+						MarkdownDescription: "Mist Edge port used to proxy the switch management traffic to the Mist Cloud. Value in range 1-65535",
+						Validators: []validator.String{
+							stringvalidator.Any(mistvalidator.ParseInt(1, 65535), mistvalidator.ParseVar()),
+						},
 					},
 					"protect_re": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
