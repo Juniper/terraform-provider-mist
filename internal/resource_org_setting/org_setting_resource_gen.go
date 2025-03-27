@@ -40,10 +40,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 				Attributes: map[string]schema.Attribute{
 					"no_reveal": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "By default, API hides password/secrets when the user doesn't have write access\n  * `true`: API will hide passwords/secrets for all users\n  * `false`: API will hide passwords/secrets for read-only users",
 						MarkdownDescription: "By default, API hides password/secrets when the user doesn't have write access\n  * `true`: API will hide passwords/secrets for all users\n  * `false`: API will hide passwords/secrets for read-only users",
-						Default:             booldefault.StaticBool(false),
 					},
 				},
 				CustomType: ApiPolicyType{
@@ -82,13 +80,17 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 			"cloudshark": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"apitoken": schema.StringAttribute{
-						Required:  true,
+						Optional:  true,
+						Computed:  true,
 						Sensitive: true,
+						Default:   stringdefault.StaticString(""),
 					},
 					"url": schema.StringAttribute{
 						Optional:            true,
+						Computed:            true,
 						Description:         "If using CS Enterprise",
 						MarkdownDescription: "If using CS Enterprise",
+						Default:             stringdefault.StaticString(""),
 					},
 				},
 				CustomType: CloudsharkType{

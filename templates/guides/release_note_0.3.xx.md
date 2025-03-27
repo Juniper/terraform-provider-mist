@@ -98,6 +98,8 @@ List of the default value changed:
 | Attribute | Previous Default | New Default |
 |-----------|-----------|-----------|
 | `.ap_updown_threshold` | StaticInt64(0) | N/A |
+| `.cloudshark.apitoken` | N/A |StaticString("") |
+| `.cloudshark.url` | N/A |StaticString("") |
 | `.device_updown_threshold` | StaticInt64(0) | N/A |
 | `.disable_pcap` | StaticBool(false) | N/A |
 | `.disable_remote_shell` | StaticBool(false) | N/A |
