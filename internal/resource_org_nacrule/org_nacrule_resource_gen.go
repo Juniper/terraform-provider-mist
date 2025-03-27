@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -43,9 +44,7 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "All optional, this goes into Access-Accept",
 				MarkdownDescription: "All optional, this goes into Access-Accept",
-				Validators: []validator.List{
-					listvalidator.SizeAtLeast(1),
-				},
+				Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 			},
 			"enabled": schema.BoolAttribute{
 				Optional:            true,

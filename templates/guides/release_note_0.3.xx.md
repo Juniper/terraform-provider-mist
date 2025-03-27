@@ -153,7 +153,12 @@ List of the default value changed:
 | `.switch_mgmt.dhcp_option_fqdn` | StaticBool(false) | N/A |
 | `.switch_mgmt.mxedge_proxy_port` | StaticInt64(2200) | N/A |
 
-*  `mist_org_nac_tag`
+*  `mist_org_nacrule`
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `.apply_tags` | N/A | StaticValue(types.ListValueMust(types.StringType, []attr.Value{})) |
+
+*  `mist_org_nactag`
 | Attribute | Previous Default | New Default |
 |-----------|-----------|-----------|
 | `.allow_usermac_override` | StaticBool(false) | N/A |
