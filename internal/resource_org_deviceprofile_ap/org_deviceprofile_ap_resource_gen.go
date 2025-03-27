@@ -53,7 +53,7 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Whether to enable the feature to allow wireless clients data received and sent to AES server for location calculation",
 						MarkdownDescription: "Whether to enable the feature to allow wireless clients data received and sent to AES server for location calculation",
-						Default:             booldefault.StaticBool(true),
+						Default:             booldefault.StaticBool(false),
 					},
 					"port": schema.Int64Attribute{
 						Optional: true,
@@ -943,6 +943,7 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							},
 							"bandwidth": schema.Int64Attribute{
 								Optional:            true,
+								Computed:            true,
 								Description:         "channel width for the 5GHz band. enum: `20`, `40`, `80`",
 								MarkdownDescription: "channel width for the 5GHz band. enum: `20`, `40`, `80`",
 								Validators: []validator.Int64{
@@ -952,6 +953,7 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 										80,
 									),
 								},
+								Default: int64default.StaticInt64(40),
 							},
 							"channel": schema.Int64Attribute{
 								Optional:            true,
@@ -1062,6 +1064,7 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							},
 							"bandwidth": schema.Int64Attribute{
 								Optional:            true,
+								Computed:            true,
 								Description:         "channel width for the 5GHz band. enum: `20`, `40`, `80`",
 								MarkdownDescription: "channel width for the 5GHz band. enum: `20`, `40`, `80`",
 								Validators: []validator.Int64{
@@ -1071,6 +1074,7 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 										80,
 									),
 								},
+								Default: int64default.StaticInt64(40),
 							},
 							"channel": schema.Int64Attribute{
 								Optional:            true,
@@ -1342,6 +1346,7 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 				Attributes: map[string]schema.Attribute{
 					"cacert": schema.StringAttribute{
 						Optional:            true,
+						Computed:            true,
 						Description:         "Only if `type`==`imagotag`",
 						MarkdownDescription: "Only if `type`==`imagotag`",
 						Validators: []validator.String{
@@ -1350,6 +1355,7 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 								types.StringValue("imagotag"),
 							),
 						},
+						Default: stringdefault.StaticString(""),
 					},
 					"channel": schema.Int64Attribute{
 						Optional:            true,
@@ -1369,6 +1375,7 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"host": schema.StringAttribute{
 						Optional:            true,
+						Computed:            true,
 						Description:         "Only if `type`==`imagotag`",
 						MarkdownDescription: "Only if `type`==`imagotag`",
 						Validators: []validator.String{
@@ -1377,6 +1384,7 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 								types.StringValue("imagotag"),
 							),
 						},
+						Default: stringdefault.StaticString(""),
 					},
 					"port": schema.Int64Attribute{
 						Optional:            true,

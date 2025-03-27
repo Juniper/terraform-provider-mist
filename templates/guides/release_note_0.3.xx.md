@@ -69,6 +69,7 @@ List of the default value changed:
 | Attribute | Previous Default | New Default |
 |-----------|-----------|-----------|
 | `.aeroscout.host` | N/A |StaticString("") |
+| `.aeroscout.locate_connected` | StaticBool(true) | StaticBool(false) |
 | `.ble_config.beacon_enabled` | StaticBool(false) | StaticBool(true) |
 | `.ble_config.beacon_rate` | StaticInt64(0) | N/A |
 | `.ble_config.beacon_rate_mode` | StaticString("default") | N/A |
@@ -102,8 +103,12 @@ List of the default value changed:
 | `.ip_config.vlan_id` | StaticInt64(1) | N/A |
 | `.radio_config.allow_rrm_disable` | StaticBool(false) | N/A |
 | `.radio_config.antenna_mode` | StaticString("default") | N/A |
+| `.radio_config.band_5.bandwidth` | N/A | StaticInt64(40) |
+| `.radio_config.band_5_on_24_radio.bandwidth` | N/A | StaticInt64(40) |
 | `.radio_config.indoor_use` | StaticBool(false) | N/A |
 | `.radio_config.keep_wlans_up_if_down` | StaticBool(false) | N/A |
+| `.usb_config.cacert` | N/A | StaticString("") |
+| `.usb_config.host` | N/A | StaticString("") |
 | `.usb_config.port` | StaticInt64(0) | N/A |
 | `.usb_config.vlan_id` | StaticInt64(1) | N/A |
 
@@ -235,10 +240,10 @@ List of the default value changed:
 | `.model_specific.band_24.power` | StaticInt64(0) | N/A |
 | `.model_specific.band_5.antenna_mode` | StaticString("default") | N/A |
 | `.model_specific.band_5.bandwidth` | N/A | StaticInt64(40) |
+| `.model_specific.band_5.power` | StaticInt64(0) | N/A |
 | `.model_specific.band_5_on_24_radio.antenna_mode` | StaticString("default") | N/A |
 | `.model_specific.band_5_on_24_radio.bandwidth` | N/A | StaticInt64(40) |
 | `.model_specific.band_5_on_24_radio.power` | StaticInt64(0) | N/A |
-| `.model_specific.band_5.power` | StaticInt64(0) | N/A |
 | `.model_specific.band_6.antenna_mode` | StaticString("default") | N/A |
 | `.model_specific.band_6.power` | StaticInt64(0) | N/A |
 
