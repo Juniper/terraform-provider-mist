@@ -124,6 +124,13 @@ List of the default value changed:
 | `.ssr_relaxed_tcp_state_enforcement` | StaticBool(false) | N/A |
 | `.traffic_class` | StaticString("best_effort") | N/A |
 
+#### `mist_org_servicepolicy`
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `.aamw.profile` | StaticString("standard") | N/A |
+| `.ewf.profile` | StaticString("strict") | N/A |
+| `.idp.profile` | StaticString("strict") | N/A |
+
 *  `mist_org_setting`
 | Attribute | Previous Default | New Default |
 |-----------|-----------|-----------|

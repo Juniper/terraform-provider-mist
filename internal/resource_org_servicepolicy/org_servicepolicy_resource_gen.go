@@ -40,7 +40,6 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"profile": schema.StringAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "enum: `docsonly`, `executables`, `standard`",
 						MarkdownDescription: "enum: `docsonly`, `executables`, `standard`",
 						Validators: []validator.String{
@@ -51,7 +50,6 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 								"standard",
 							),
 						},
-						Default: stringdefault.StaticString("standard"),
 					},
 				},
 				CustomType: AamwType{
@@ -136,7 +134,6 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"profile": schema.StringAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "enum: `critical`, `standard`, `strict`",
 							MarkdownDescription: "enum: `critical`, `standard`, `strict`",
 							Validators: []validator.String{
@@ -147,7 +144,6 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 									"strict",
 								),
 							},
-							Default: stringdefault.StaticString("strict"),
 						},
 					},
 					CustomType: EwfType{
@@ -183,10 +179,8 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"profile": schema.StringAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "enum: `Custom`, `strict` (default), `standard` or keys from idp_profiles",
 						MarkdownDescription: "enum: `Custom`, `strict` (default), `standard` or keys from idp_profiles",
-						Default:             stringdefault.StaticString("strict"),
 					},
 				},
 				CustomType: IdpType{
