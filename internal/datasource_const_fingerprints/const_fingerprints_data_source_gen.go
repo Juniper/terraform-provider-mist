@@ -24,7 +24,7 @@ func ConstFingerprintsDataSourceSchema(ctx context.Context) schema.Schema {
 				ElementType: types.StringType,
 				Computed:    true,
 			},
-			"os_type": schema.ListAttribute{
+			"os": schema.ListAttribute{
 				ElementType: types.StringType,
 				Computed:    true,
 			},
@@ -36,5 +36,5 @@ type ConstFingerprintsModel struct {
 	Family types.List `tfsdk:"family"`
 	Mfg    types.List `tfsdk:"mfg"`
 	Model  types.List `tfsdk:"model"`
-	OsType types.List `tfsdk:"os_type"`
+	Os     types.List `tfsdk:"os"`
 }
