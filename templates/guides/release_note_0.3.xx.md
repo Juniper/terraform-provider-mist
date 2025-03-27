@@ -138,6 +138,11 @@ List of the default value changed:
 |-----------|-----------|-----------|
 | `.role_attr_from` | StaticString("Role") | N/A |
 
+#### `mist_org_webhook` and `mist_site_webhook`
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `.single_event_per_message` | StaticString("in") | N/A |
+
 #### `mist_org_wxtag` and `mist_site_wxtag`
 | Attribute | Previous Default | New Default |
 |-----------|-----------|-----------|

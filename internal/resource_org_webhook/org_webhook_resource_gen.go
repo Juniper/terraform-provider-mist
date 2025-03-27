@@ -131,10 +131,8 @@ func OrgWebhookResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"single_event_per_message": schema.BoolAttribute{
 				Optional:            true,
-				Computed:            true,
 				Description:         "Some solutions may not be able to parse multiple events from a single message (e.g. IBM Qradar, DSM). When set to `true`, only a single event will be sent per message. this feature is only available on certain topics (see [List Webhook Topics]($e/Constants%20Definitions/listWebhookTopics))",
 				MarkdownDescription: "Some solutions may not be able to parse multiple events from a single message (e.g. IBM Qradar, DSM). When set to `true`, only a single event will be sent per message. this feature is only available on certain topics (see [List Webhook Topics]($e/Constants%20Definitions/listWebhookTopics))",
-				Default:             booldefault.StaticBool(false),
 			},
 			"splunk_token": schema.StringAttribute{
 				Optional:            true,
