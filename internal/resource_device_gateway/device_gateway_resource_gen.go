@@ -1906,7 +1906,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						"reth_idx": schema.StringAttribute{
-							Optional: true,
+							Optional:            true,
+							Description:         "For SRX only and if HA Mode",
+							MarkdownDescription: "For SRX only and if HA Mode",
 						},
 						"reth_node": schema.StringAttribute{
 							Optional:            true,

@@ -636,7 +636,6 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					"bands": schema.ListAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
-						Computed:            true,
 						Description:         "List of bands that the mesh should apply to. For relay, the first viable one will be picked. For relay, the first viable one will be picked. enum: `24`, `5`, `6`",
 						MarkdownDescription: "List of bands that the mesh should apply to. For relay, the first viable one will be picked. For relay, the first viable one will be picked. enum: `24`, `5`, `6`",
 						Validators: []validator.List{
@@ -1381,7 +1380,6 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"port": schema.Int64Attribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Only if `type`==`imagotag`",
 						MarkdownDescription: "Only if `type`==`imagotag`",
 						Validators: []validator.Int64{
@@ -1391,7 +1389,6 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							),
 							int64validator.Between(1, 65535),
 						},
-						Default: int64default.StaticInt64(0),
 					},
 					"type": schema.StringAttribute{
 						Optional:            true,
@@ -1419,7 +1416,6 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"vlan_id": schema.Int64Attribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Only if `type`==`solum` or `type`==`hanshow`",
 						MarkdownDescription: "Only if `type`==`solum` or `type`==`hanshow`",
 						Validators: []validator.Int64{
@@ -1432,7 +1428,6 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							),
 							int64validator.Between(1, 4094),
 						},
-						Default: int64default.StaticInt64(1),
 					},
 				},
 				CustomType: UsbConfigType{

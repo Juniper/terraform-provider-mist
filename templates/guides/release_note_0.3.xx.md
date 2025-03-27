@@ -91,6 +91,8 @@ List of the default value changed:
 | `.radio_config.antenna_mode` | StaticString("default") | N/A |
 | `.radio_config.indoor_use` | StaticBool(false) | N/A |
 | `.radio_config.keep_wlans_up_if_down` | StaticBool(false) | N/A |
+| `.usb_config.port` | StaticInt64(0) | N/A |
+| `.usb_config.vlan_id` | StaticInt64(1) | N/A |
 
 *  `mist_org_setting`
 | Attribute | Previous Default | New Default |
