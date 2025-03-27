@@ -138,6 +138,14 @@ List of the default value changed:
 |-----------|-----------|-----------|
 | `.role_attr_from` | StaticString("Role") | N/A |
 
+#### `mist_org_vpn` and `mist_site_vpn`
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `.paths.bfd_profile` | StaticString("broadband") | N/A |
+| `.paths.bfd_use_tunnel_mode` | StaticBool(false) | N/A |
+| `.paths.pod` | StaticInt64(1) | N/A |
+| `.type` | StaticString("hub_spoke") | N/A |
+
 #### `mist_org_webhook` and `mist_site_webhook`
 | Attribute | Previous Default | New Default |
 |-----------|-----------|-----------|

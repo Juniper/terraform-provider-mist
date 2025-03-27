@@ -11,8 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -43,7 +41,7 @@ func OrgVpnResourceSchema(ctx context.Context) schema.Schema {
 				},
 			},
 			"org_id": schema.StringAttribute{
-				Required: true,
+				Optional: true,
 			},
 			"path_selection": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -77,7 +75,6 @@ func OrgVpnResourceSchema(ctx context.Context) schema.Schema {
 					Attributes: map[string]schema.Attribute{
 						"bfd_profile": schema.StringAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "enum: `broadband`, `lte`",
 							MarkdownDescription: "enum: `broadband`, `lte`",
 							Validators: []validator.String{
@@ -87,14 +84,11 @@ func OrgVpnResourceSchema(ctx context.Context) schema.Schema {
 									"lte",
 								),
 							},
-							Default: stringdefault.StaticString("broadband"),
 						},
 						"bfd_use_tunnel_mode": schema.BoolAttribute{
 							Optional:            true,
-							Computed:            true,
-							Description:         "If `type`==`mesh` and for SSR only, whether toi use tunnel mode",
-							MarkdownDescription: "If `type`==`mesh` and for SSR only, whether toi use tunnel mode",
-							Default:             booldefault.StaticBool(false),
+							Description:         "If `type`==`mesh` and for SSR only, whether to use tunnel mode",
+							MarkdownDescription: "If `type`==`mesh` and for SSR only, whether to use tunnel mode",
 						},
 						"ip": schema.StringAttribute{
 							Optional:            true,
@@ -123,11 +117,9 @@ func OrgVpnResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"pod": schema.Int64Attribute{
 							Optional: true,
-							Computed: true,
 							Validators: []validator.Int64{
 								int64validator.Between(1, 128),
 							},
-							Default: int64default.StaticInt64(1),
 						},
 						"traffic_shaping": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
@@ -170,7 +162,6 @@ func OrgVpnResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"type": schema.StringAttribute{
 				Optional:            true,
-				Computed:            true,
 				Description:         "enum: `hub_spoke`, `mesh`",
 				MarkdownDescription: "enum: `hub_spoke`, `mesh`",
 				Validators: []validator.String{
@@ -180,7 +171,6 @@ func OrgVpnResourceSchema(ctx context.Context) schema.Schema {
 						"mesh",
 					),
 				},
-				Default: stringdefault.StaticString("hub_spoke"),
 			},
 		},
 	}
