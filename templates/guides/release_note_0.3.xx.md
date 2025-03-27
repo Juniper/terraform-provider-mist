@@ -136,7 +136,12 @@ List of the default value changed:
 #### `mist_org_sso`
 | Attribute | Previous Default | New Default |
 |-----------|-----------|-----------|
-| `.role_attr_from` | StaticString("Role) | N/A |
+| `.role_attr_from` | StaticString("Role") | N/A |
+
+#### `mist_org_wxtag` and `mist_site_wxtag`
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `.op` | StaticString("in") | N/A |
 
 
 --- 

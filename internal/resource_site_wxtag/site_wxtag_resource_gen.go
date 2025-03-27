@@ -40,7 +40,6 @@ func SiteWxtagResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "If `type`==`client`, Client MAC Address",
 				Validators: []validator.String{
 					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("client")),
-					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("client")),
 				},
 			},
 			"match": schema.StringAttribute{
@@ -66,7 +65,6 @@ func SiteWxtagResourceSchema(ctx context.Context) schema.Schema {
 						"wlan_id",
 					),
 					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("match")),
-					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("match")),
 				},
 			},
 			"name": schema.StringAttribute{
@@ -76,7 +74,6 @@ func SiteWxtagResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"op": schema.StringAttribute{
 				Optional:            true,
-				Computed:            true,
 				Description:         "required if `type`==`match`, type of tag (inclusive/exclusive). enum: `in`, `not_in`",
 				MarkdownDescription: "required if `type`==`match`, type of tag (inclusive/exclusive). enum: `in`, `not_in`",
 				Validators: []validator.String{
@@ -86,7 +83,6 @@ func SiteWxtagResourceSchema(ctx context.Context) schema.Schema {
 					),
 					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("match")),
 				},
-				Default: stringdefault.StaticString("in"),
 			},
 			"site_id": schema.StringAttribute{
 				Required: true,
@@ -153,7 +149,6 @@ func SiteWxtagResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "If `type`==`spec`",
 				Validators: []validator.List{
 					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("spec")),
-					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("spec")),
 				},
 			},
 			"type": schema.StringAttribute{
