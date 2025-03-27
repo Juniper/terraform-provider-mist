@@ -112,6 +112,18 @@ List of the default value changed:
 | `.remote_syslog.servers.port` | StaticInt64(514) | N/A |
 | `.switch_mgmt.mxedge_proxy_port` | StaticInt64(2200) | N/A |
 
+#### `mist_org_service`
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `.client_limit_down` | StaticInt64(0) | N/A |
+| `.client_limit_up` | StaticInt64(0) | N/A |
+| `.failover_policy` | StaticString("revertible") | N/A |
+| `.service_limit_down` | StaticInt64(0) | N/A |
+| `.service_limit_up` | StaticInt64(0) | N/A |
+| `.sle_enabled` | StaticBool(false) | N/A |
+| `.ssr_relaxed_tcp_state_enforcement` | StaticBool(false) | N/A |
+| `.traffic_class` | StaticString("best_effort") | N/A |
+
 *  `mist_org_setting`
 | Attribute | Previous Default | New Default |
 |-----------|-----------|-----------|
