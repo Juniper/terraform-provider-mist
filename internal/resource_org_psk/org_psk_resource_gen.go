@@ -52,8 +52,7 @@ func OrgPskResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "If `usage`==`single`, the mac that this PSK ties to, empty if `auto-binding`",
 				MarkdownDescription: "If `usage`==`single`, the mac that this PSK ties to, empty if `auto-binding`",
 				Validators: []validator.String{
-					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("usage"),
-						types.StringValue("single")),
+					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("single")),
 					mistvalidator.ParseMac(),
 				},
 			},
@@ -71,10 +70,8 @@ func OrgPskResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"max_usage": schema.Int64Attribute{
 				Optional:            true,
-				Computed:            true,
 				Description:         "For Org PSK Only. Max concurrent users for this PSK key. Default is 0 (unlimited)",
 				MarkdownDescription: "For Org PSK Only. Max concurrent users for this PSK key. Default is 0 (unlimited)",
-				Default:             int64default.StaticInt64(0),
 			},
 			"name": schema.StringAttribute{
 				Required: true,
@@ -141,7 +138,10 @@ func OrgPskResourceSchema(ctx context.Context) schema.Schema {
 			"vlan_id": schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					stringvalidator.Any(mistvalidator.ParseInt(1, 4094), mistvalidator.ParseVar()),
+					stringvalidator.Any(
+						mistvalidator.ParseInt(1, 4094),
+						mistvalidator.ParseVar(),
+					),
 				},
 			},
 		},

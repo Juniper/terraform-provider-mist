@@ -53,10 +53,11 @@ To address the configuration drift caused by the behavior where the resource `id
 
 
 ### Resources default values removed
-Changes applied to resources to reduce configuration drift when importing the resource or saving changes from the Mist UI. 
-These changes try to mimic the Mist UI default values; however, some of them are changing based on other parameter values which make it currently impossible to eliminate the configuration drift.
+### Changes to Reduce Configuration Drift
 
-~> **Warning** The suppression of default values in resource definitions may cause configuration drift if the affected attributes are not explicitly defined in your HCL configuration. Attributes without explicit definitions will default to `null`, but this will not impact the actual configuration in the Mist Cloud. 
+Changes have been applied to resources to reduce configuration drift when importing resources or saving changes from the Mist UI. These updates aim to align Terraform resource states with the Mist UI default values. However, some default values are dynamic and depend on other parameter values, making it currently impossible to completely eliminate configuration drift in certain scenarios.
+
+~> **Warning** Some default values have been removed from the Terraform Provider resource schemas. This change may lead to configuration drift if the affected attributes are not explicitly defined in your HCL configuration. Attributes without explicit definitions will default to `null`, but this will not alter the actual configuration in the Mist Cloud. To avoid discrepancies, ensure that all required attributes are explicitly set in your configuration.
 
 List of the default value changed:
 *  `mist_org_alarmtemplate`
@@ -111,6 +112,11 @@ List of the default value changed:
 |-----------|-----------|-----------|
 | `.remote_syslog.servers.port` | StaticInt64(514) | N/A |
 | `.switch_mgmt.mxedge_proxy_port` | StaticInt64(2200) | N/A |
+
+#### `mist_org_psk` and `mist_site_psk`
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `.max_usage` | int64default.StaticInt64(0) | N/A |
 
 #### `mist_org_rftemplate`
 | Attribute | Previous Default | New Default |
