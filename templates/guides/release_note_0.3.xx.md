@@ -56,7 +56,7 @@ To address the configuration drift caused by the behavior where the resource `id
 Changes applied to resources to reduce configuration drift when importing the resource or saving changes from the Mist UI. 
 These changes try to mimic the Mist UI default values; however, some of them are changing based on other parameter values which make it currently impossible to eliminate the configuration drift.
 
-~> These changes in the resources definition should not trigger configuration drift. However, depending on when the object has been created with the Mist UI, the default values set by the UI may be different, and a configuration drift can occure. 
+~> **Warning** The suppression of default values in resource definitions may cause configuration drift if the affected attributes are not explicitly defined in your HCL configuration. Attributes without explicit definitions will default to `null`, but this will not impact the actual configuration in the Mist Cloud. 
 
 List of the default value changed:
 *  `mist_org_alarmtemplate`
@@ -111,6 +111,34 @@ List of the default value changed:
 |-----------|-----------|-----------|
 | `.remote_syslog.servers.port` | StaticInt64(514) | N/A |
 | `.switch_mgmt.mxedge_proxy_port` | StaticInt64(2200) | N/A |
+
+#### `mist_org_rftemplate`
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `.band_24.antenna_mode` | StaticString("default") | N/A |
+| `.band_24.power` | StaticInt64(0) | N/A |
+| `.band_5.antenna_mode` | StaticString("default") | N/A |
+| `.band_5.bandwidth` | N/A | StaticInt64(40) |
+| `.band_5_on_24_radio.antenna_mode` | StaticString("default") | N/A |
+| `.band_5_on_24_radio.bandwidth` | N/A | StaticInt64(40) |
+| `.band_5_on_24_radio.power` | StaticInt64(0) | N/A |
+| `.band_5.power` | StaticInt64(0) | N/A |
+| `.band_6.antenna_mode` | StaticString("default") | N/A |
+| `.band_6.power` | StaticInt64(0) | N/A |
+| `.model_specific.ant_gain_24` | N/A | StaticInt64(0) | 
+| `.model_specific.ant_gain_5` | N/A | StaticInt64(0) | 
+| `.model_specific.ant_gain_6` | N/A | StaticInt64(0) | 
+| `.model_specific.band_24.antenna_mode` | StaticString("default") | N/A |
+| `.model_specific.band_24.power` | StaticInt64(0) | N/A |
+| `.model_specific.band_5.antenna_mode` | StaticString("default") | N/A |
+| `.model_specific.band_5.bandwidth` | N/A | StaticInt64(40) |
+| `.model_specific.band_5_on_24_radio.antenna_mode` | StaticString("default") | N/A |
+| `.model_specific.band_5_on_24_radio.bandwidth` | N/A | StaticInt64(40) |
+| `.model_specific.band_5_on_24_radio.power` | StaticInt64(0) | N/A |
+| `.model_specific.band_5.power` | StaticInt64(0) | N/A |
+| `.model_specific.band_6.antenna_mode` | StaticString("default") | N/A |
+| `.model_specific.band_6.power` | StaticInt64(0) | N/A |
+
 
 #### `mist_org_service`
 | Attribute | Previous Default | New Default |
