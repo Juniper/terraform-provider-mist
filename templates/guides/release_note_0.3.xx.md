@@ -153,6 +153,12 @@ List of the default value changed:
 | `.switch_mgmt.dhcp_option_fqdn` | StaticBool(false) | N/A |
 | `.switch_mgmt.mxedge_proxy_port` | StaticInt64(2200) | N/A |
 
+*  `mist_org_nac_tag`
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `.allow_usermac_override` | StaticBool(false) | N/A |
+| `.match_all` | StaticBool(false) | N/A |
+
 *  `mist_org_networktemplate` and `mist_site_networktemplate`
 | Attribute | Previous Default | New Default |
 |-----------|-----------|-----------|
