@@ -136,17 +136,15 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Whether Mist beacons is enabled",
 						MarkdownDescription: "Whether Mist beacons is enabled",
-						Default:             booldefault.StaticBool(false),
+						Default:             booldefault.StaticBool(true),
 					},
 					"beacon_rate": schema.Int64Attribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Required if `beacon_rate_mode`==`custom`, 1-10, in number-beacons-per-second",
 						MarkdownDescription: "Required if `beacon_rate_mode`==`custom`, 1-10, in number-beacons-per-second",
 						Validators: []validator.Int64{
 							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("beacon_rate_mode"), types.StringValue("custom")),
 						},
-						Default: int64default.StaticInt64(0),
 					},
 					"beacon_rate_mode": schema.StringAttribute{
 						Optional:            true,

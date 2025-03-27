@@ -8,39 +8,51 @@ description: |-
 # Release Notes for v0.3.xx
 
 ## Release Notes for v0.3.1
-**release data**:
-### Breaking changes
-The following changes were required to support API type possibilities and/or to add the possibility to support the use of {{variables}} in the attribute values: 
-* `mist_device_switch`, `mist_org_networktemplate` and `mist_site_networktemplate` resources:
-  * change type of `.port_usages.mac_limit` from `int64` to `string`
-  * change type of `.port_usages.mtu` from `int64` to `string`
-* `mist_device_gateway`, `mist_org_deviceprofile_gateway` and `mist_org_gatewaytemplate` resources:
-  * change type of `.port_config.reth_idx` from `int64` to `string`
-* `mist_org_service` resource
-  * fix `.failover_policy` enum values from [`revertable`, `non_revertable`] to [`revertible`, `non_revertible`]
+**Release Date**: 
+### Breaking Changes
 
-### Resource changes
+#### Changes in Allowed Attribute Values
+- **`mist_org_service` Resource**  
+  - Corrected the `.failover_policy` enum values from `[revertable, non_revertable]` to `[revertible, non_revertible]`.  
 
-#### `mist_org_setting`
-* `.mxedge_fips_enabled` has been removed to match the API structure (use `mist_org_setting.mxedge_mgmt.fips_enabled` instead)
+~> **Impact** Ensure your Terraform configurations are updated to use the corrected enum values to avoid validation errors.
 
-#### `mist_org_sso_role`
-* temporarly removing the `import` function. The import function will be added back in a later version
+#### Changes in Attribute Types
+To improve compatibility with API type variations and support the use of `{{variables}}` in attribute values, the following type changes have been made:
 
-#### `mist_device_switch`, `mist_org_networktemplate` and `mist_site_networktemplate` resources:
-* `.radius_config.acct_immediate_update` has been added
-* `.radius_config.auth_server_selection` has been added
-* `.radius_config.coa_enabled` has been added
-* `.radius_config.coa_port` has been added
-* `.radius_config.fast_dot1x_timers` has been added
+- **`mist_device_switch`, `mist_org_networktemplate`, and `mist_site_networktemplate` Resources**  
+  - Updated the type of `.port_usages.mac_limit` from `int64` to `string`.  
+  - Updated the type of `.port_usages.mtu` from `int64` to `string`.
 
-#### `mist_org_deviceprofile_ap`
-* `.aeroscout.port` has been added
+- **`mist_device_gateway`, `mist_org_deviceprofile_gateway`, and `mist_org_gatewaytemplate` Resources**  
+  - Updated the type of `.port_config.reth_idx` from `int64` to `string`.
 
-#### New attributes
+~> **Impact** Review and update your Terraform configurations to align with the new attribute types. This ensures compatibility with the latest API behavior and prevents potential runtime issues.
 
 
-#### Resources default values removed
+### General changes
+#### Reducing Configuration Drift for Resource IDs
+To address the configuration drift caused by the behavior where the resource `id` was marked as "known after apply," improvements have been made to ensure that the `id` attribute uses the state value if unknown. This change reduces unnecessary plan differences and aligns the resource state more accurately with the Mist Cloud API. Users should experience fewer discrepancies when managing resources through Terraform.
+
+#### Attributes removed
+* `mist_org_setting.mxedge_fips_enabled` has been removed to match the API structure (use `mist_org_setting.mxedge_mgmt.fips_enabled` instead)
+
+#### Import function disabled
+* temporarly removing the `import` function from the `mist_org_sso_role` resource. The import function will be added back in a later version
+
+#### Attributes added
+- **`mist_device_switch`, `mist_org_networktemplate` and `mist_site_networktemplate` resources**
+ - `.radius_config.acct_immediate_update` has been added
+ - `.radius_config.auth_server_selection` has been added, default is `StaticString("ordered")`
+ - `.radius_config.coa_enabled` has been added, default is `StaticBool(true)`
+ - `.radius_config.coa_port` has been added
+ - `.radius_config.fast_dot1x_timers` has been added, default is `StaticBool(false)`
+
+- **`mist_org_deviceprofile_ap` resource**
+ -  `.aeroscout.port` has been added
+
+
+### Resources default values removed
 Changes applied to resources to reduce configuration drift when importing the resource or saving changes from the Mist UI. 
 These changes try to mimic the Mist UI default values; however, some of them are changing based on other parameter values which make it currently impossible to eliminate the configuration drift.
 
@@ -94,6 +106,12 @@ List of the default value changed:
 | `.usb_config.port` | StaticInt64(0) | N/A |
 | `.usb_config.vlan_id` | StaticInt64(1) | N/A |
 
+*  `mist_device_switch`, `mist_org_networktemplate` and `mist_site_networktemplate`
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `.remote_syslog.servers.port` | StaticInt64(514) | N/A |
+| `.switch_mgmt.mxedge_proxy_port` | StaticInt64(2200) | N/A |
+
 *  `mist_org_setting`
 | Attribute | Previous Default | New Default |
 |-----------|-----------|-----------|
@@ -115,11 +133,13 @@ List of the default value changed:
 | `.mxedge_mgmt.oob_ip_type6` | StaticString(autoconf) | N/A |
 | `.switch_updown_threshold` | StaticInt64(0) | N/A |
 
-#### `mist_org_sso_role`
+#### `mist_org_sso`
 | Attribute | Previous Default | New Default |
 |-----------|-----------|-----------|
 | `.role_attr_from` | StaticString("Role) | N/A |
 
+
+--- 
 ## Release Notes for v0.3.0
 **release data**: March 14th, 2025 
 
