@@ -158,6 +158,12 @@ List of the default value changed:
 | `.switch_mgmt.dhcp_option_fqdn` | StaticBool(false) | N/A |
 | `.switch_mgmt.mxedge_proxy_port` | StaticInt64(2200) | N/A |
 
+*  `mist_org_avprofile`
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `.mime_whitelist` | N/A | StaticValue(types.ListValueMust(types.StringType, []attr.Value{})) |
+| `.url_whitelist` | N/A | StaticValue(types.ListValueMust(types.StringType, []attr.Value{})) |
+
 *  `mist_org_nacrule`
 | Attribute | Previous Default | New Default |
 |-----------|-----------|-----------|
