@@ -107,10 +107,96 @@ List of the default value changed:
 | `.usb_config.port` | StaticInt64(0) | N/A |
 | `.usb_config.vlan_id` | StaticInt64(1) | N/A |
 
-*  `mist_device_switch`, `mist_org_networktemplate` and `mist_site_networktemplate`
+*  `mist_device_switch`
 | Attribute | Previous Default | New Default |
 |-----------|-----------|-----------|
+| `.dns_servers` | N/A | StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})) |
+| `.dns_suffix` | N/A | StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})) |
+| `.extra_routes.discard` | StaticBool(false) | N/A |
+| `.extra_routes.no_resolve` | StaticBool(false) | N/A |
+| `.extra_routes6.discard` | StaticBool(false) | N/A |
+| `.extra_routes6.no_resolve` | StaticBool(false) | N/A |
+| `.networks.isolation` | StaticBool(false) | N/A |
+| `.ntp_servers` | N/A | StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})) |
+| `.oob_ip_config.use_mgmt_vrf_for_host_out` | StaticBool(false) | N/A |
+| `.port_config.aggregated` | StaticBool(false) | N/A |
+| `.port_config.disable_autoneg` | StaticBool(false) | N/A |
+| `.port_config.duplex` | StaticString("auto") | N/A |
+| `.port_config.mtu` | StaticInt64(1514) | N/A |
+| `.port_config.poe_disabled` | StaticBool(false) | N/A |
+| `.port_config.speed` | StaticString("auto") | N/A |
+| `.port_usages.allow_multiple_supplicants` | StaticBool(false) | N/A |
+| `.port_usages.bypass_auth_when_server_down` | StaticBool(false) | N/A |
+| `.port_usages.bypass_auth_when_server_down_for_unknown_client` | StaticBool(false) | N/A |
+| `.port_usages.description` | N/A | StaticString("") |
+| `.port_usages.enable_mac_auth` | StaticBool(false) | N/A |
+| `.port_usages.inter_isolation_network_link` | StaticBool(false) | N/A |
+| `.port_usages.inter_switch_link` | StaticBool(false) | N/A |
+| `.port_usages.mac_auth_protocol` | StaticString("eap-md5") | N/A |
+| `.port_usages.mac_limit` | N/A |StaticString("0") |
+| `.port_usages.reauth_interval` | StaticString("3600") | N/A |
+| `.port_usages.reset_default_when` | StaticString("link_down") | N/A |
+| `.port_usages.storm_control.no_broadcast` | StaticBool(false) | N/A |
+| `.port_usages.storm_control.no_multicast` | StaticBool(false) | N/A |
+| `.port_usages.storm_control.no_registered_multicast` | StaticBool(false) | N/A |
+| `.port_usages.storm_control.no_unknown_unicast` | StaticBool(false) | N/A |
+| `.port_usages.storm_control.percentage` | StaticInt64(80) | N/A |
+| `.port_usages.stp_no_root_port` | StaticBool(false) | N/A |
+| `.port_usages.stp_p2p` | StaticBool(false) | N/A |
+| `.port_usages.use_vstp` | StaticBool(false) | N/A |
+| `.radius_config.auth_servers.require_message_authenticator` | StaticBool(false) | N/A |
+| `.radius_config.auth_servers.coa_port` | N/A | StaticString("") |
+| `.remote_syslog.send_to_all_servers` | StaticBool(false) | N/A |
 | `.remote_syslog.servers.port` | StaticInt64(514) | N/A |
+| `.snmp_config.network` | StaticString("default") | N/A |
+| `.switch_mgmt.ap_affinity_threshold` | StaticInt64(10) | N/A |
+| `.switch_mgmt.dhcp_option_fqdn` | StaticBool(false) | N/A |
+| `.switch_mgmt.mxedge_proxy_port` | StaticInt64(2200) | N/A |
+
+*  `mist_org_networktemplate` and `mist_site_networktemplate`
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `.dns_servers` | N/A | StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})) |
+| `.dns_suffix` | N/A | StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})) |
+| `.extra_routes.discard` | StaticBool(false) | N/A |
+| `.extra_routes.no_resolve` | StaticBool(false) | N/A |
+| `.extra_routes6.discard` | StaticBool(false) | N/A |
+| `.extra_routes6.no_resolve` | StaticBool(false) | N/A |
+| `.networks.isolation` | StaticBool(false) | N/A |
+| `.ntp_servers` | N/A | StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})) |
+| `.port_usages.allow_multiple_supplicants` | StaticBool(false) | N/A |
+| `.port_usages.bypass_auth_when_server_down` | StaticBool(false) | N/A |
+| `.port_usages.bypass_auth_when_server_down_for_unknown_client` | StaticBool(false) | N/A |
+| `.port_usages.description` | N/A | StaticString("") |
+| `.port_usages.enable_mac_auth` | StaticBool(false) | N/A |
+| `.port_usages.inter_isolation_network_link` | StaticBool(false) | N/A |
+| `.port_usages.inter_switch_link` | StaticBool(false) | N/A |
+| `.port_usages.mac_auth_protocol` | StaticString("eap-md5") | N/A |
+| `.port_usages.mac_limit` | N/A |StaticString("0") |
+| `.port_usages.reauth_interval` | StaticString("3600") | N/A |
+| `.port_usages.reset_default_when` | StaticString("link_down") | N/A |
+| `.port_usages.storm_control.no_broadcast` | StaticBool(false) | N/A |
+| `.port_usages.storm_control.no_multicast` | StaticBool(false) | N/A |
+| `.port_usages.storm_control.no_registered_multicast` | StaticBool(false) | N/A |
+| `.port_usages.storm_control.no_unknown_unicast` | StaticBool(false) | N/A |
+| `.port_usages.storm_control.percentage` | StaticInt64(80) | N/A |
+| `.port_usages.stp_no_root_port` | StaticBool(false) | N/A |
+| `.port_usages.stp_p2p` | StaticBool(false) | N/A |
+| `.port_usages.use_vstp` | StaticBool(false) | N/A |
+| `.radius_config.auth_servers.require_message_authenticator` | StaticBool(false) | N/A |
+| `.radius_config.auth_servers.coa_port` | N/A | StaticString("") |
+| `.remote_syslog.send_to_all_servers` | StaticBool(false) | N/A |
+| `.remote_syslog.servers.port` | StaticInt64(514) | N/A |
+| `.snmp_config.network` | StaticString("default") | N/A |
+| `.switch_matching.rules.oob_ip_config.use_mgmt_vrf_for_host_out` | StaticBool(false) | N/A |
+| `.switch_matching.rules.port_config.aggregated` | StaticBool(false) | N/A |
+| `.switch_matching.rules.port_config.disable_autoneg` | StaticBool(false) | N/A |
+| `.switch_matching.rules.port_config.duplex` | StaticString("auto") | N/A |
+| `.switch_matching.rules.port_config.mtu` | StaticInt64(1514) | N/A |
+| `.switch_matching.rules.port_config.poe_disabled` | StaticBool(false) | N/A |
+| `.switch_matching.rules.port_config.speed` | StaticString("auto") | N/A |
+| `.switch_mgmt.ap_affinity_threshold` | StaticInt64(10) | N/A |
+| `.switch_mgmt.dhcp_option_fqdn` | StaticBool(false) | N/A |
 | `.switch_mgmt.mxedge_proxy_port` | StaticInt64(2200) | N/A |
 
 #### `mist_org_psk` and `mist_site_psk`

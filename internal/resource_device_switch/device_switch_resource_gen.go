@@ -571,6 +571,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 			"dns_servers": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
+				Computed:            true,
 				Description:         "Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting",
 				MarkdownDescription: "Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting",
 				Validators: []validator.List{
@@ -582,25 +583,23 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 					),
 					listvalidator.SizeAtLeast(1),
 				},
+				Default: listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 			},
 			"dns_suffix": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
+				Computed:            true,
 				Description:         "Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting",
 				MarkdownDescription: "Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting",
-				Validators: []validator.List{
-					listvalidator.SizeAtLeast(1),
-				},
+				Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 			},
 			"extra_routes": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"discard": schema.BoolAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "This takes precedence",
 							MarkdownDescription: "This takes precedence",
-							Default:             booldefault.StaticBool(false),
 						},
 						"metric": schema.Int64Attribute{
 							Optional: true,
@@ -631,8 +630,6 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"no_resolve": schema.BoolAttribute{
 							Optional: true,
-							Computed: true,
-							Default:  booldefault.StaticBool(false),
 						},
 						"preference": schema.Int64Attribute{
 							Optional: true,
@@ -667,10 +664,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 					Attributes: map[string]schema.Attribute{
 						"discard": schema.BoolAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "This takes precedence",
 							MarkdownDescription: "This takes precedence",
-							Default:             booldefault.StaticBool(false),
 						},
 						"metric": schema.Int64Attribute{
 							Optional: true,
@@ -701,8 +696,6 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"no_resolve": schema.BoolAttribute{
 							Optional: true,
-							Computed: true,
-							Default:  booldefault.StaticBool(false),
 						},
 						"preference": schema.Int64Attribute{
 							Optional: true,
@@ -868,10 +861,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"disable_autoneg": schema.BoolAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "Only if `mode`!=`dynamic` if speed and duplex are specified, whether to disable autonegotiation",
 							MarkdownDescription: "Only if `mode`!=`dynamic` if speed and duplex are specified, whether to disable autonegotiation",
-							Default:             booldefault.StaticBool(false),
 						},
 						"disabled": schema.BoolAttribute{
 							Optional:            true,
@@ -882,7 +873,6 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"duplex": schema.StringAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "link connection mode. enum: `auto`, `full`, `half`",
 							MarkdownDescription: "link connection mode. enum: `auto`, `full`, `half`",
 							Validators: []validator.String{
@@ -893,7 +883,6 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 									"half",
 								),
 							},
-							Default: stringdefault.StaticString("auto"),
 						},
 						"dynamic_vlan_networks": schema.ListAttribute{
 							ElementType:         types.StringType,
@@ -998,10 +987,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"poe_disabled": schema.BoolAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "Whether PoE capabilities are disabled for a port",
 							MarkdownDescription: "Whether PoE capabilities are disabled for a port",
-							Default:             booldefault.StaticBool(false),
 						},
 						"port_auth": schema.StringAttribute{
 							Optional:            true,
@@ -1021,7 +1008,6 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"reauth_interval": schema.StringAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "Only if `mode`!=`dynamic` and `port_auth`=`dot1x` reauthentication interval range between 10 and 65535 (default: 3600)",
 							MarkdownDescription: "Only if `mode`!=`dynamic` and `port_auth`=`dot1x` reauthentication interval range between 10 and 65535 (default: 3600)",
 							Validators: []validator.String{
@@ -1031,7 +1017,6 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 								),
 								mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x"), types.StringValue("3600")),
 							},
-							Default: stringdefault.StaticString("3600"),
 						},
 						"server_fail_network": schema.StringAttribute{
 							Optional:            true,
@@ -1045,7 +1030,6 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"speed": schema.StringAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`,`auto`",
 							MarkdownDescription: "enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`,`auto`",
 							Validators: []validator.String{
@@ -1063,7 +1047,6 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 									"auto",
 								),
 							},
-							Default: stringdefault.StaticString("auto"),
 						},
 						"storm_control": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
@@ -1233,10 +1216,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"isolation": schema.BoolAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "whether to stop clients to talk to each other, default is false (when enabled, a unique isolation_vlan_id is required). NOTE: this features requires uplink device to also a be Juniper device and `inter_switch_link` to be set",
 							MarkdownDescription: "whether to stop clients to talk to each other, default is false (when enabled, a unique isolation_vlan_id is required). NOTE: this features requires uplink device to also a be Juniper device and `inter_switch_link` to be set",
-							Default:             booldefault.StaticBool(false),
 						},
 						"isolation_vlan_id": schema.StringAttribute{
 							Optional: true,
@@ -1287,11 +1268,10 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 			"ntp_servers": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
+				Computed:            true,
 				Description:         "List of NTP servers specific to this device. By default, those in Site Settings will be used",
 				MarkdownDescription: "List of NTP servers specific to this device. By default, those in Site Settings will be used",
-				Validators: []validator.List{
-					listvalidator.SizeAtLeast(1),
-				},
+				Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 			},
 			"oob_ip_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -1631,27 +1611,24 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"aggregated": schema.BoolAttribute{
 							Optional: true,
-							Computed: true,
-							Default:  booldefault.StaticBool(false),
 						},
 						"critical": schema.BoolAttribute{
 							Optional:            true,
+							Computed:            true,
 							Description:         "To generate port up/down alarm",
 							MarkdownDescription: "To generate port up/down alarm",
+							Default:             booldefault.StaticBool(false),
 						},
 						"description": schema.StringAttribute{
 							Optional: true,
 						},
 						"disable_autoneg": schema.BoolAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "If `speed` and `duplex` are specified, whether to disable autonegotiation",
 							MarkdownDescription: "If `speed` and `duplex` are specified, whether to disable autonegotiation",
-							Default:             booldefault.StaticBool(false),
 						},
 						"duplex": schema.StringAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "enum: `auto`, `full`, `half`",
 							MarkdownDescription: "enum: `auto`, `full`, `half`",
 							Validators: []validator.String{
@@ -1662,7 +1639,6 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 									"half",
 								),
 							},
-							Default: stringdefault.StaticString("auto"),
 						},
 						"dynamic_usage": schema.StringAttribute{
 							Optional:            true,
@@ -1674,24 +1650,21 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"mtu": schema.Int64Attribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "Media maximum transmission unit (MTU) is the largest data unit that can be forwarded without fragmentation",
 							MarkdownDescription: "Media maximum transmission unit (MTU) is the largest data unit that can be forwarded without fragmentation",
-							Default:             int64default.StaticInt64(1514),
 						},
 						"no_local_overwrite": schema.BoolAttribute{
 							Optional:            true,
+							Computed:            true,
 							Description:         "Prevent helpdesk to override the port config",
 							MarkdownDescription: "Prevent helpdesk to override the port config",
+							Default:             booldefault.StaticBool(true),
 						},
 						"poe_disabled": schema.BoolAttribute{
 							Optional: true,
-							Computed: true,
-							Default:  booldefault.StaticBool(false),
 						},
 						"speed": schema.StringAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`,`auto`",
 							MarkdownDescription: "enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`,`auto`",
 							Validators: []validator.String{
@@ -1709,7 +1682,6 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 									"auto",
 								),
 							},
-							Default: stringdefault.StaticString("auto"),
 						},
 						"usage": schema.StringAttribute{
 							Required:            true,
@@ -1791,7 +1763,6 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "Property key is the port mirroring instance name. `port_mirroring` can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 mirroring ports is allowed",
 				MarkdownDescription: "Property key is the port mirroring instance name. `port_mirroring` can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 mirroring ports is allowed",
 				Validators: []validator.Map{
-					mapvalidator.SizeAtLeast(1),
 					mapvalidator.SizeAtMost(4),
 				},
 			},
@@ -1818,41 +1789,37 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"allow_multiple_supplicants": schema.BoolAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "Only if `mode`!=`dynamic`",
 							MarkdownDescription: "Only if `mode`!=`dynamic`",
 							Validators: []validator.Bool{
 								mistvalidator.ForbiddenWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic"), types.BoolValue(false)),
 							},
-							Default: booldefault.StaticBool(false),
 						},
 						"bypass_auth_when_server_down": schema.BoolAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "Only if `mode`!=`dynamic` and `port_auth`==`dot1x` bypass auth for known clients if set to true when RADIUS server is down",
 							MarkdownDescription: "Only if `mode`!=`dynamic` and `port_auth`==`dot1x` bypass auth for known clients if set to true when RADIUS server is down",
 							Validators: []validator.Bool{
 								mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x"), types.BoolValue(false)),
 							},
-							Default: booldefault.StaticBool(false),
 						},
 						"bypass_auth_when_server_down_for_unknown_client": schema.BoolAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "Only if `mode`!=`dynamic` and `port_auth`=`dot1x` bypass auth for all (including unknown clients) if set to true when RADIUS server is down",
 							MarkdownDescription: "Only if `mode`!=`dynamic` and `port_auth`=`dot1x` bypass auth for all (including unknown clients) if set to true when RADIUS server is down",
 							Validators: []validator.Bool{
 								mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x"), types.BoolValue(false)),
 							},
-							Default: booldefault.StaticBool(false),
 						},
 						"description": schema.StringAttribute{
 							Optional:            true,
+							Computed:            true,
 							Description:         "Only if `mode`!=`dynamic`",
 							MarkdownDescription: "Only if `mode`!=`dynamic`",
 							Validators: []validator.String{
 								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
 							},
+							Default: stringdefault.StaticString(""),
 						},
 						"disable_autoneg": schema.BoolAttribute{
 							Optional:            true,
@@ -1903,13 +1870,11 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"enable_mac_auth": schema.BoolAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "Only if `mode`!=`dynamic` and `port_auth`==`dot1x` whether to enable MAC Auth",
 							MarkdownDescription: "Only if `mode`!=`dynamic` and `port_auth`==`dot1x` whether to enable MAC Auth",
 							Validators: []validator.Bool{
 								mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x"), types.BoolValue(false)),
 							},
-							Default: booldefault.StaticBool(false),
 						},
 						"enable_qos": schema.BoolAttribute{
 							Optional:            true,
@@ -1931,20 +1896,16 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"inter_isolation_network_link": schema.BoolAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "`inter_switch_link` is used together with `isolation` under networks. NOTE: `inter_switch_link` works only between Juniper device. This has to be applied to both ports connected together",
 							MarkdownDescription: "`inter_switch_link` is used together with `isolation` under networks. NOTE: `inter_switch_link` works only between Juniper device. This has to be applied to both ports connected together",
-							Default:             booldefault.StaticBool(false),
 						},
 						"inter_switch_link": schema.BoolAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "Only if `mode`!=`dynamic` inter_switch_link is used together with \"isolation\" under networks. NOTE: inter_switch_link works only between Juniper device. This has to be applied to both ports connected together",
 							MarkdownDescription: "Only if `mode`!=`dynamic` inter_switch_link is used together with \"isolation\" under networks. NOTE: inter_switch_link works only between Juniper device. This has to be applied to both ports connected together",
 							Validators: []validator.Bool{
 								mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x"), types.BoolValue(false)),
 							},
-							Default: booldefault.StaticBool(false),
 						},
 						"mac_auth_only": schema.BoolAttribute{
 							Optional:            true,
@@ -1961,7 +1922,6 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"mac_auth_protocol": schema.StringAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "Only if `mode`!=`dynamic` and `enable_mac_auth` ==`true`. This type is ignored if mist_nac is enabled. enum: `eap-md5`, `eap-peap`, `pap`",
 							MarkdownDescription: "Only if `mode`!=`dynamic` and `enable_mac_auth` ==`true`. This type is ignored if mist_nac is enabled. enum: `eap-md5`, `eap-peap`, `pap`",
 							Validators: []validator.String{
@@ -1973,10 +1933,10 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 								),
 								mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("enable_mac_auth"), types.BoolValue(true), types.StringValue("eap-md5")),
 							},
-							Default: stringdefault.StaticString("eap-md5"),
 						},
 						"mac_limit": schema.StringAttribute{
 							Optional:            true,
+							Computed:            true,
 							Description:         "Only if `mode`!=`dynamic` max number of mac addresses, default is 0 for unlimited, otherwise range is 1 to 16383 (upper bound constrained by platform)",
 							MarkdownDescription: "Only if `mode`!=`dynamic` max number of mac addresses, default is 0 for unlimited, otherwise range is 1 to 16383 (upper bound constrained by platform)",
 							Validators: []validator.String{
@@ -1986,6 +1946,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 								),
 								mistvalidator.ForbiddenWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic"), types.StringValue("0")),
 							},
+							Default: stringdefault.StaticString("0"),
 						},
 						"mode": schema.StringAttribute{
 							Optional:            true,
@@ -2064,7 +2025,6 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"reauth_interval": schema.StringAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "Only if `mode`!=`dynamic` and `port_auth`=`dot1x` reauthentication interval range between 10 and 65535 (default: 3600)",
 							MarkdownDescription: "Only if `mode`!=`dynamic` and `port_auth`=`dot1x` reauthentication interval range between 10 and 65535 (default: 3600)",
 							Validators: []validator.String{
@@ -2074,11 +2034,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 								),
 								mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x"), types.StringValue("3600")),
 							},
-							Default: stringdefault.StaticString("3600"),
 						},
 						"reset_default_when": schema.StringAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "Only if `mode`==`dynamic` Control when the DPC port should be changed to the default port usage. enum: `link_down`, `none` (let the DPC port keep at the current port usage)",
 							MarkdownDescription: "Only if `mode`==`dynamic` Control when the DPC port should be changed to the default port usage. enum: `link_down`, `none` (let the DPC port keep at the current port usage)",
 							Validators: []validator.String{
@@ -2089,7 +2047,6 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 								),
 								mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic"), types.StringValue("link_down")),
 							},
-							Default: stringdefault.StaticString("link_down"),
 						},
 						"rules": schema.ListNestedAttribute{
 							NestedObject: schema.NestedAttributeObject{
@@ -2177,41 +2134,31 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Attributes: map[string]schema.Attribute{
 								"no_broadcast": schema.BoolAttribute{
 									Optional:            true,
-									Computed:            true,
 									Description:         "Whether to disable storm control on broadcast traffic",
 									MarkdownDescription: "Whether to disable storm control on broadcast traffic",
-									Default:             booldefault.StaticBool(false),
 								},
 								"no_multicast": schema.BoolAttribute{
 									Optional:            true,
-									Computed:            true,
 									Description:         "Whether to disable storm control on multicast traffic",
 									MarkdownDescription: "Whether to disable storm control on multicast traffic",
-									Default:             booldefault.StaticBool(false),
 								},
 								"no_registered_multicast": schema.BoolAttribute{
 									Optional:            true,
-									Computed:            true,
 									Description:         "Whether to disable storm control on registered multicast traffic",
 									MarkdownDescription: "Whether to disable storm control on registered multicast traffic",
-									Default:             booldefault.StaticBool(false),
 								},
 								"no_unknown_unicast": schema.BoolAttribute{
 									Optional:            true,
-									Computed:            true,
 									Description:         "Whether to disable storm control on unknown unicast traffic",
 									MarkdownDescription: "Whether to disable storm control on unknown unicast traffic",
-									Default:             booldefault.StaticBool(false),
 								},
 								"percentage": schema.Int64Attribute{
 									Optional:            true,
-									Computed:            true,
 									Description:         "Bandwidth-percentage, configures the storm control level as a percentage of the available bandwidth",
 									MarkdownDescription: "Bandwidth-percentage, configures the storm control level as a percentage of the available bandwidth",
 									Validators: []validator.Int64{
 										int64validator.Between(0, 100),
 									},
-									Default: int64default.StaticInt64(80),
 								},
 							},
 							CustomType: StormControlType{
@@ -2238,29 +2185,23 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"stp_no_root_port": schema.BoolAttribute{
 							Optional: true,
-							Computed: true,
 							Validators: []validator.Bool{
 								mistvalidator.ForbiddenWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic"), types.BoolValue(false)),
 							},
-							Default: booldefault.StaticBool(false),
 						},
 						"stp_p2p": schema.BoolAttribute{
 							Optional: true,
-							Computed: true,
 							Validators: []validator.Bool{
 								mistvalidator.ForbiddenWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic"), types.BoolValue(false)),
 							},
-							Default: booldefault.StaticBool(false),
 						},
 						"use_vstp": schema.BoolAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "If this is connected to a vstp network",
 							MarkdownDescription: "If this is connected to a vstp network",
 							Validators: []validator.Bool{
 								mistvalidator.ForbiddenWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic"), types.BoolValue(false)),
 							},
-							Default: booldefault.StaticBool(false),
 						},
 						"voip_network": schema.StringAttribute{
 							Optional:            true,
@@ -2411,10 +2352,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"require_message_authenticator": schema.BoolAttribute{
 									Optional:            true,
-									Computed:            true,
 									Description:         "Whether to require Message-Authenticator in requests",
 									MarkdownDescription: "Whether to require Message-Authenticator in requests",
-									Default:             booldefault.StaticBool(false),
 								},
 								"secret": schema.StringAttribute{
 									Required:            true,
@@ -2455,6 +2394,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"coa_port": schema.StringAttribute{
 						Optional: true,
+						Computed: true,
+						Default:  stringdefault.StaticString(""),
 					},
 					"fast_dot1x_timers": schema.BoolAttribute{
 						Optional: true,
@@ -2681,8 +2622,6 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"send_to_all_servers": schema.BoolAttribute{
 						Optional: true,
-						Computed: true,
-						Default:  booldefault.StaticBool(false),
 					},
 					"servers": schema.ListNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{
@@ -3012,8 +2951,6 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"network": schema.StringAttribute{
 						Optional: true,
-						Computed: true,
-						Default:  stringdefault.StaticString("default"),
 					},
 					"trap_groups": schema.ListNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{
@@ -3568,10 +3505,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 				Attributes: map[string]schema.Attribute{
 					"ap_affinity_threshold": schema.Int64Attribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "AP_affinity_threshold ap_affinity_threshold can be added as a field under site/setting. By default, this value is set to 12. If the field is set in both site/setting and org/setting, the value from site/setting will be used.",
 						MarkdownDescription: "AP_affinity_threshold ap_affinity_threshold can be added as a field under site/setting. By default, this value is set to 12. If the field is set in both site/setting and org/setting, the value from site/setting will be used.",
-						Default:             int64default.StaticInt64(10),
 					},
 					"cli_banner": schema.StringAttribute{
 						Optional:            true,
@@ -3598,18 +3533,14 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"dhcp_option_fqdn": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Enable to provide the FQDN with DHCP option 81",
 						MarkdownDescription: "Enable to provide the FQDN with DHCP option 81",
-						Default:             booldefault.StaticBool(false),
 					},
 					"disable_oob_down_alarm": schema.BoolAttribute{
 						Optional: true,
 					},
 					"fips_enabled": schema.BoolAttribute{
 						Optional: true,
-						Computed: true,
-						Default:  booldefault.StaticBool(false),
 					},
 					"local_accounts": schema.MapNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{
@@ -3644,9 +3575,6 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "Property key is the user name. For Local user authentication",
 						MarkdownDescription: "Property key is the user name. For Local user authentication",
-						Validators: []validator.Map{
-							mapvalidator.SizeAtLeast(1),
-						},
 					},
 					"mxedge_proxy_host": schema.StringAttribute{
 						Optional:            true,
@@ -3765,7 +3693,6 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						Attributes: map[string]schema.Attribute{
 							"default_role": schema.StringAttribute{
 								Optional:            true,
-								Computed:            true,
 								Description:         "enum: `admin`, `helpdesk`, `none`, `read`",
 								MarkdownDescription: "enum: `admin`, `helpdesk`, `none`, `read`",
 								Validators: []validator.String{
@@ -3777,7 +3704,6 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 										"read",
 									),
 								},
-								Default: stringdefault.StaticString("none"),
 							},
 							"enabled": schema.BoolAttribute{
 								Optional: true,
