@@ -317,7 +317,13 @@ List of the default value changed:
 |-----------|-----------|-----------|
 | `.op` | StaticString("in") | N/A |
 
-#### `ap_updown_threshold`
+#### `site`
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `.notes` | N/A | StaticString("") |
+| `.sitegroup_ids` | N/A | [] |
+
+#### `site_setting`
 | Attribute | Previous Default | New Default |
 |-----------|-----------|-----------|
 | `.ap_updown_threshold` | StaticInt64(0) | N/A |
