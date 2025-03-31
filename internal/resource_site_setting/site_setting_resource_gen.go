@@ -67,7 +67,7 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Description:         "Custom versions for different models. Property key is the model name (e.g. \"AP41\")",
 						MarkdownDescription: "Custom versions for different models. Property key is the model name (e.g. \"AP41\")",
 						Validators: []validator.Map{
-							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("version"), types.StringValue("custom")),
+							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("version"), types.StringValue("custom")),
 						},
 					},
 					"day_of_week": schema.StringAttribute{
