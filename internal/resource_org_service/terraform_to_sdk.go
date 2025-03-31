@@ -114,7 +114,7 @@ func TerraformToSdk(plan *OrgServiceModel) (models.Service, diag.Diagnostics) {
 	if plan.SleEnabled.ValueBoolPointer() != nil {
 		data.SleEnabled = plan.SleEnabled.ValueBoolPointer()
 	} else {
-		unset["-sle_enables"] = ""
+		unset["-sle_enabled"] = ""
 	}
 	if plan.SsrRelaxedTcpStateEnforcement.ValueBoolPointer() != nil {
 		data.SsrRelaxedTcpStateEnforcement = plan.SsrRelaxedTcpStateEnforcement.ValueBoolPointer()
