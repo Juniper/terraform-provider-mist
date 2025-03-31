@@ -3186,7 +3186,6 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Property key is the destination CIDR (e.g. \"10.0.0.0/8\")",
 							MarkdownDescription: "Property key is the destination CIDR (e.g. \"10.0.0.0/8\")",
 							Validators: []validator.Map{
-								mapvalidator.SizeAtLeast(1),
 								mapvalidator.KeysAre(stringvalidator.Any(mistvalidator.ParseCidr(false, true), mistvalidator.ParseVar())),
 							},
 						},
@@ -3223,7 +3222,6 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "Property key is the network name",
 				MarkdownDescription: "Property key is the network name",
 				Validators: []validator.Map{
-					mapvalidator.SizeAtLeast(1),
 					mapvalidator.KeysAre(mistvalidator.ParseName()),
 				},
 			},
