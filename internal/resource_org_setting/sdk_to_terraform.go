@@ -34,7 +34,6 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	var mgmt = NewMgmtValueNull()
 	var mistNac = NewMistNacValueNull()
 	// var msp_id types.String
-	var mxedgeFipsEnabled types.Bool
 	var mxedgeMgmt MxedgeMgmtValue
 	var opticPortConfig = types.MapNull(OpticPortConfigValue{}.Type(ctx))
 	var orgId types.String
@@ -111,9 +110,6 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	// if data.MspId != nil {
 	// 	msp_id = types.StringValue(data.MspId.String())
 	// }
-	if data.MxedgeFipsEnabled != nil {
-		mxedgeFipsEnabled = types.BoolValue(*data.MxedgeFipsEnabled)
-	}
 	if data.MxedgeMgmt != nil {
 		mxedgeMgmt = mxedgeMgmtSdkToTerraform(ctx, &diags, data.MxedgeMgmt)
 	}
@@ -180,7 +176,6 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	state.Mgmt = mgmt
 	state.MistNac = mistNac
 	// state.MspId = msp_id
-	state.MxedgeFipsEnabled = mxedgeFipsEnabled
 	state.MxedgeMgmt = mxedgeMgmt
 	state.OpticPortConfig = opticPortConfig
 	state.OrgId = orgId

@@ -7,9 +7,12 @@ import (
 	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
@@ -32,14 +35,19 @@ func SiteWebhookResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "If `type`=`http-post`, additional custom HTTP headers to add. The headers name and value must be string, total bytes of headers name and value must be less than 1000",
 				MarkdownDescription: "If `type`=`http-post`, additional custom HTTP headers to add. The headers name and value must be string, total bytes of headers name and value must be less than 1000",
 				Validators: []validator.Map{
-					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("http-post")),
-					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("oauth2")),
+					mistvalidator.AllowedWhenValueIsIn(path.MatchRelative().AtParent().AtName("type"), []attr.Value{
+						types.StringValue("http-post"),
+						types.StringValue("oauth2"),
+					}),
 				},
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
 				Description:         "Unique ID of the object instance in the Mist Organization",
 				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"name": schema.StringAttribute{
 				Required:            true,
@@ -123,10 +131,8 @@ func SiteWebhookResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"single_event_per_message": schema.BoolAttribute{
 				Optional:            true,
-				Computed:            true,
 				Description:         "Some solutions may not be able to parse multiple events from a single message (e.g. IBM Qradar, DSM). When set to `true`, only a single event will be sent per message. this feature is only available on certain topics (see [List Webhook Topics]($e/Constants%20Definitions/listWebhookTopics))",
 				MarkdownDescription: "Some solutions may not be able to parse multiple events from a single message (e.g. IBM Qradar, DSM). When set to `true`, only a single event will be sent per message. this feature is only available on certain topics (see [List Webhook Topics]($e/Constants%20Definitions/listWebhookTopics))",
-				Default:             booldefault.StaticBool(false),
 			},
 			"site_id": schema.StringAttribute{
 				Required: true,
@@ -143,8 +149,8 @@ func SiteWebhookResourceSchema(ctx context.Context) schema.Schema {
 			"topics": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Required:            true,
-				Description:         "enum: `alarms`, `asset-raw`, `asset-raw-rssi`, `audits`, `client-info`, `client-join`, `client-latency`, `client-sessions`, `device-updowns`, `device-events`, `discovered-raw-rssi`, `location`, `location_asset`, `location_centrak`, `location_client`, `location_sdk`, `location_unclient`, `mxedge-events`, `nac-accounting`, `nac_events`, `occupancy-alerts`, `rssizone`, `sdkclient_scan_data`, `site_sle`, `vbeacon`, `wifi-conn-raw`, `wifi-unconn-raw`, `zone`",
-				MarkdownDescription: "enum: `alarms`, `asset-raw`, `asset-raw-rssi`, `audits`, `client-info`, `client-join`, `client-latency`, `client-sessions`, `device-updowns`, `device-events`, `discovered-raw-rssi`, `location`, `location_asset`, `location_centrak`, `location_client`, `location_sdk`, `location_unclient`, `mxedge-events`, `nac-accounting`, `nac_events`, `occupancy-alerts`, `rssizone`, `sdkclient_scan_data`, `site_sle`, `vbeacon`, `wifi-conn-raw`, `wifi-unconn-raw`, `zone`",
+				Description:         "enum:  `alarms `, `asset-raw `, `asset-raw-rssi `, `audits `, `client-info `, `client-join `, `client-latency `, `client-sessions `, `device-events `, `device-updowns `, `discovered-raw-rssi `, `guest-authorizations `, `location `, `location-asset `, `location-centrak `, `location-client `, `location-sdk `, `location-unclient `, `mxedge-events `, `nac-accounting `, `nac-events `, `occupancy-alerts `, `rssizone `, `sdkclient-scan-data `, `vbeacon `, `wifi-conn-raw `, `wifi-unconn-raw `, `zone `",
+				MarkdownDescription: "enum:  `alarms `, `asset-raw `, `asset-raw-rssi `, `audits `, `client-info `, `client-join `, `client-latency `, `client-sessions `, `device-events `, `device-updowns `, `discovered-raw-rssi `, `guest-authorizations `, `location `, `location-asset `, `location-centrak `, `location-client `, `location-sdk `, `location-unclient `, `mxedge-events `, `nac-accounting `, `nac-events `, `occupancy-alerts `, `rssizone `, `sdkclient-scan-data `, `vbeacon `, `wifi-conn-raw `, `wifi-unconn-raw `, `zone `",
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 					listvalidator.ValueStringsAre(
@@ -157,22 +163,22 @@ func SiteWebhookResourceSchema(ctx context.Context) schema.Schema {
 							"client-join",
 							"client-latency",
 							"client-sessions",
-							"device-updowns",
 							"device-events",
+							"device-updowns",
 							"discovered-raw-rssi",
+							"guest-authorizations",
 							"location",
-							"location_asset",
-							"location_centrak",
-							"location_client",
-							"location_sdk",
-							"location_unclient",
+							"location-asset",
+							"location-centrak",
+							"location-client",
+							"location-sdk",
+							"location-unclient",
 							"mxedge-events",
 							"nac-accounting",
-							"nac_events",
+							"nac-events",
 							"occupancy-alerts",
 							"rssizone",
-							"sdkclient_scan_data",
-							"site_sle",
+							"sdkclient-scan-data",
 							"vbeacon",
 							"wifi-conn-raw",
 							"wifi-unconn-raw",

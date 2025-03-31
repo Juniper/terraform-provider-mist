@@ -3,6 +3,7 @@ package resource_device_switch
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
@@ -22,8 +23,8 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	var dhcpdConfig = NewDhcpdConfigValueNull()
 	var deviceId types.String
 	var disableAutoConfig types.Bool
-	var dnsServers = types.ListNull(types.StringType)
-	var dnsSuffix = types.ListNull(types.StringType)
+	var dnsServers = types.ListValueMust(types.StringType, []attr.Value{})
+	var dnsSuffix = types.ListValueMust(types.StringType, []attr.Value{})
 	var extraRoutes = types.MapNull(ExtraRoutesValue{}.Type(ctx))
 	var extraRoutes6 = types.MapNull(ExtraRoutes6Value{}.Type(ctx))
 	var image1Url = types.StringValue("not_present")
@@ -37,7 +38,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	var name types.String
 	var notes types.String
 	var networks = types.MapNull(NetworksValue{}.Type(ctx))
-	var ntpServers = types.ListNull(types.StringType)
+	var ntpServers = types.ListValueMust(types.StringType, []attr.Value{})
 	var oobIpConfig = NewOobIpConfigValueNull()
 	var ospfAreas = types.MapNull(OspfAreasValue{}.Type(ctx))
 	var otherIpConfigs = types.MapNull(OtherIpConfigsValue{}.Type(ctx))

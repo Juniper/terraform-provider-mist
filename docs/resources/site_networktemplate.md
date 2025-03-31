@@ -288,15 +288,15 @@ Optional:
 
 Required:
 
-- `ospf_networks` (Attributes Map) (see [below for nested schema](#nestedatt--ospf_areas--ospf_networks))
+- `networks` (Attributes Map) (see [below for nested schema](#nestedatt--ospf_areas--networks))
 
 Optional:
 
 - `include_loopback` (Boolean)
 - `type` (String) OSPF type. enum: `default`, `nssa`, `stub`
 
-<a id="nestedatt--ospf_areas--ospf_networks"></a>
-### Nested Schema for `ospf_areas.ospf_networks`
+<a id="nestedatt--ospf_areas--networks"></a>
+### Nested Schema for `ospf_areas.networks`
 
 Optional:
 
@@ -350,9 +350,9 @@ Optional:
 - `mac_auth_only` (Boolean) Only if `mode`!=`dynamic` and `enable_mac_auth`==`true`
 - `mac_auth_preferred` (Boolean) Only if `mode`!=`dynamic` + `enable_mac_auth`==`true` + `mac_auth_only`==`false`, dot1x will be given priority then mac_auth. Enable this to prefer mac_auth over dot1x.
 - `mac_auth_protocol` (String) Only if `mode`!=`dynamic` and `enable_mac_auth` ==`true`. This type is ignored if mist_nac is enabled. enum: `eap-md5`, `eap-peap`, `pap`
-- `mac_limit` (Number) Only if `mode`!=`dynamic` max number of mac addresses, default is 0 for unlimited, otherwise range is 1 or higher, with upper bound constrained by platform
+- `mac_limit` (String) Only if `mode`!=`dynamic` max number of mac addresses, default is 0 for unlimited, otherwise range is 1 to 16383 (upper bound constrained by platform)
 - `mode` (String) `mode`==`dynamic` must only be used if the port usage name is `dynamic`. enum: `access`, `dynamic`, `inet`, `trunk`
-- `mtu` (Number) Only if `mode`!=`dynamic` media maximum transmission unit (MTU) is the largest data unit that can be forwarded without fragmentation. The default value is 1514.
+- `mtu` (String) Only if `mode`!=`dynamic` media maximum transmission unit (MTU) is the largest data unit that can be forwarded without fragmentation. Value between 256 and 9216, default value is 1514.
 - `networks` (List of String) Only if `mode`==`trunk`, the list of network/vlans
 - `persist_mac` (Boolean) Only if `mode`==`access` and `port_auth`!=`dot1x` whether the port should retain dynamically learned MAC addresses
 - `poe_disabled` (Boolean) Only if `mode`!=`dynamic` whether PoE capabilities are disabled for a port
@@ -407,11 +407,16 @@ Optional:
 
 Optional:
 
+- `acct_immediate_update` (Boolean)
 - `acct_interim_interval` (Number) How frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from RADIUS Server). Very frequent messages can affect the performance of the radius server, 600 and up is recommended when enabled
 - `acct_servers` (Attributes List) (see [below for nested schema](#nestedatt--radius_config--acct_servers))
+- `auth_server_selection` (String) enum: `ordered`, `unordered`
 - `auth_servers` (Attributes List) (see [below for nested schema](#nestedatt--radius_config--auth_servers))
 - `auth_servers_retries` (Number) Radius auth session retries
 - `auth_servers_timeout` (Number) Radius auth session timeout
+- `coa_enabled` (Boolean)
+- `coa_port` (String)
+- `fast_dot1x_timers` (Boolean)
 - `network` (String) Use `network`or `source_ip`. Which network the RADIUS server resides, if there's static IP for this network, we'd use it as source-ip
 - `source_ip` (String) Use `network`or `source_ip`
 
@@ -471,7 +476,7 @@ Optional:
 
 Optional:
 
-- `files` (Number)
+- `files` (String)
 - `size` (String)
 
 
@@ -509,7 +514,7 @@ Optional:
 
 Optional:
 
-- `files` (Number)
+- `files` (String)
 - `size` (String)
 
 
@@ -533,7 +538,7 @@ Optional:
 - `facility` (String) enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`
 - `host` (String)
 - `match` (String)
-- `port` (Number)
+- `port` (String)
 - `protocol` (String) enum: `tcp`, `udp`
 - `routing_instance` (String)
 - `severity` (String) enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`
@@ -879,8 +884,8 @@ Optional:
 - `disable_oob_down_alarm` (Boolean)
 - `fips_enabled` (Boolean)
 - `local_accounts` (Attributes Map) Property key is the user name. For Local user authentication (see [below for nested schema](#nestedatt--switch_mgmt--local_accounts))
-- `mxedge_proxy_host` (String)
-- `mxedge_proxy_port` (Number)
+- `mxedge_proxy_host` (String) IP Address or FQDN of the Mist Edge used to proxy the switch management traffic to the Mist Cloud
+- `mxedge_proxy_port` (String) Mist Edge port used to proxy the switch management traffic to the Mist Cloud. Value in range 1-65535
 - `protect_re` (Attributes) Restrict inbound-traffic to host
 when enabled, all traffic that is not essential to our operation will be dropped 
 e.g. ntp / dns / traffic to mist will be allowed by default, if dhcpd is enabled, we'll make sure it works (see [below for nested schema](#nestedatt--switch_mgmt--protect_re))

@@ -11,7 +11,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
@@ -38,7 +40,6 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"profile": schema.StringAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "enum: `docsonly`, `executables`, `standard`",
 						MarkdownDescription: "enum: `docsonly`, `executables`, `standard`",
 						Validators: []validator.String{
@@ -49,7 +50,6 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 								"standard",
 							),
 						},
-						Default: stringdefault.StaticString("standard"),
 					},
 				},
 				CustomType: AamwType{
@@ -134,7 +134,6 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"profile": schema.StringAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "enum: `critical`, `standard`, `strict`",
 							MarkdownDescription: "enum: `critical`, `standard`, `strict`",
 							Validators: []validator.String{
@@ -145,7 +144,6 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 									"strict",
 								),
 							},
-							Default: stringdefault.StaticString("strict"),
 						},
 					},
 					CustomType: EwfType{
@@ -160,6 +158,9 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "Unique ID of the object instance in the Mist Organization",
 				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"idp": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -178,10 +179,8 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"profile": schema.StringAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "enum: `Custom`, `strict` (default), `standard` or keys from idp_profiles",
 						MarkdownDescription: "enum: `Custom`, `strict` (default), `standard` or keys from idp_profiles",
-						Default:             stringdefault.StaticString("strict"),
 					},
 				},
 				CustomType: IdpType{

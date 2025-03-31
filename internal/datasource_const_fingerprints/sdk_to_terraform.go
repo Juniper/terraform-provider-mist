@@ -13,7 +13,7 @@ func SdkToTerraform(_ context.Context, d models.ConstFingerprintTypes) (data Con
 	data.Family = mistutils.ListOfStringSdkToTerraform(d.Family)
 	data.Mfg = mistutils.ListOfStringSdkToTerraform(d.Mfg)
 	data.Model = mistutils.ListOfStringSdkToTerraform(d.Model)
-	data.OsType = mistutils.ListOfStringSdkToTerraform(d.OsType)
+	data.Os = mistutils.ListOfStringSdkToTerraform(d.Os)
 
 	return data, diags
 }

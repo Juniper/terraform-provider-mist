@@ -2,9 +2,10 @@ package mist_utils
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
@@ -108,6 +109,76 @@ func WlanVlanIdsAsArrayOfString(diags *diag.Diagnostics, vlanIds *models.WlanVla
 }
 
 func BgpAsAsString(bgpAs *models.BgpAs) basetypes.StringValue {
+	if v, ok := bgpAs.AsString(); ok {
+		return types.StringValue(*v)
+	} else if v, ok := bgpAs.AsNumber(); ok {
+		return types.StringValue(fmt.Sprint(*v))
+	} else {
+		return types.StringNull()
+	}
+}
+
+func CoaPortAsString(bgpAs *models.CoaPort) basetypes.StringValue {
+	if v, ok := bgpAs.AsString(); ok {
+		return types.StringValue(*v)
+	} else if v, ok := bgpAs.AsNumber(); ok {
+		return types.StringValue(fmt.Sprint(*v))
+	} else {
+		return types.StringNull()
+	}
+}
+
+func SyslogFilesAsString(bgpAs *models.RemoteSyslogArchiveFiles) basetypes.StringValue {
+	if v, ok := bgpAs.AsString(); ok {
+		return types.StringValue(*v)
+	} else if v, ok := bgpAs.AsNumber(); ok {
+		return types.StringValue(fmt.Sprint(*v))
+	} else {
+		return types.StringNull()
+	}
+}
+
+func SyslogPortAsString(bgpAs *models.RemoteSyslogServerPort) basetypes.StringValue {
+	if v, ok := bgpAs.AsString(); ok {
+		return types.StringValue(*v)
+	} else if v, ok := bgpAs.AsNumber(); ok {
+		return types.StringValue(fmt.Sprint(*v))
+	} else {
+		return types.StringNull()
+	}
+}
+
+func SwitchPortUsageMacLimitAsString(bgpAs *models.SwitchPortUsageMacLimit) basetypes.StringValue {
+	if v, ok := bgpAs.AsString(); ok {
+		return types.StringValue(*v)
+	} else if v, ok := bgpAs.AsNumber(); ok {
+		return types.StringValue(fmt.Sprint(*v))
+	} else {
+		return types.StringNull()
+	}
+}
+
+func SwitchPortUsageMtuAsString(bgpAs *models.SwitchPortUsageMtu) basetypes.StringValue {
+	if v, ok := bgpAs.AsString(); ok {
+		return types.StringValue(*v)
+	} else if v, ok := bgpAs.AsNumber(); ok {
+		return types.StringValue(fmt.Sprint(*v))
+	} else {
+		return types.StringNull()
+	}
+}
+
+func SwitchMgmtMxedgeProxyPortsAsString(bgpAs *models.SwitchMgmtMxedgeProxyPort) basetypes.StringValue {
+	if v, ok := bgpAs.AsString(); ok {
+		return types.StringValue(*v)
+	} else if v, ok := bgpAs.AsNumber(); ok {
+		return types.StringValue(fmt.Sprint(*v))
+	} else {
+		return types.StringNull()
+	}
+}
+
+func GatewayPortConfigRethIdxAsString(bgpAs *models.GatewayPortConfigRethIdx) basetypes.StringValue {
 	if v, ok := bgpAs.AsString(); ok {
 		return types.StringValue(*v)
 	} else if v, ok := bgpAs.AsNumber(); ok {

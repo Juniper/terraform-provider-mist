@@ -84,6 +84,7 @@ Optional:
 - `enabled` (Boolean) Whether to enable aeroscout config
 - `host` (String) Required if enabled, aeroscout server host
 - `locate_connected` (Boolean) Whether to enable the feature to allow wireless clients data received and sent to AES server for location calculation
+- `port` (Number)
 
 
 <a id="nestedatt--ble_config"></a>

@@ -47,7 +47,7 @@ resource "mist_org_webhook" "webhook_one" {
 
 - `name` (String) Name of the webhook
 - `org_id` (String)
-- `topics` (List of String) enum: `alarms`, `audits`, `client-info`, `client-join`, `client-sessions`, `device-updowns`, `device-events`, `mxedge-events`, `nac-accounting`, `nac_events`
+- `topics` (List of String) enum: `alarms`, `audits`, `client-info`, `client-join`, `client-sessions`, `device-events`, `device-updowns`, `guest-authorizations`, `mxedge-events`, `nac-accounting`, `nac-events`
 - `url` (String)
 
 ### Optional

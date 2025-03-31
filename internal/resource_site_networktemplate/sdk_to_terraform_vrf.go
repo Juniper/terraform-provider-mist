@@ -90,10 +90,10 @@ func vrfInstancesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m 
 		if d.EvpnAutoLoopbackSubnet6 != nil {
 			evpnAutoLoopbackSubnet6 = types.StringValue(*d.EvpnAutoLoopbackSubnet6)
 		}
-		if d.ExtraRoutes != nil && len(d.ExtraRoutes) > 0 {
+		if len(d.ExtraRoutes) > 0 {
 			extraRoutes = vrfInstanceExtraRouteSdkToTerraform(ctx, diags, d.ExtraRoutes)
 		}
-		if d.ExtraRoutes6 != nil && len(d.ExtraRoutes6) > 0 {
+		if len(d.ExtraRoutes6) > 0 {
 			extraRoutes6 = vrfInstanceExtraRoute6SdkToTerraform(ctx, diags, d.ExtraRoutes6)
 		}
 		if d.Networks != nil {

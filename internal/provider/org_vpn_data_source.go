@@ -87,7 +87,7 @@ func (d *orgVpnsDataSource) Read(ctx context.Context, req datasource.ReadRequest
 			"limit": limit,
 			"total": total,
 		})
-		data, err := d.client.OrgsVPNs().ListOrgsVpns(ctx, orgId, &limit, &page)
+		data, err := d.client.OrgsVPNs().ListOrgVpns(ctx, orgId, &limit, &page)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error getting Org VPNs list",

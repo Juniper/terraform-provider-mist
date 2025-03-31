@@ -40,18 +40,25 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"host": schema.StringAttribute{
 						Optional:            true,
+						Computed:            true,
 						Description:         "Required if enabled, aeroscout server host",
 						MarkdownDescription: "Required if enabled, aeroscout server host",
 						Validators: []validator.String{
 							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("enabled"), types.BoolValue(true)),
 						},
+						Default: stringdefault.StaticString(""),
 					},
 					"locate_connected": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
 						Description:         "Whether to enable the feature to allow wireless clients data received and sent to AES server for location calculation",
 						MarkdownDescription: "Whether to enable the feature to allow wireless clients data received and sent to AES server for location calculation",
-						Default:             booldefault.StaticBool(true),
+						Default:             booldefault.StaticBool(false),
+					},
+					"port": schema.Int64Attribute{
+						Optional: true,
+						Computed: true,
+						Default:  int64default.StaticInt64(1144),
 					},
 				},
 				CustomType: AeroscoutType{
@@ -70,21 +77,18 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Whether Mist beacons is enabled",
 						MarkdownDescription: "Whether Mist beacons is enabled",
-						Default:             booldefault.StaticBool(false),
+						Default:             booldefault.StaticBool(true),
 					},
 					"beacon_rate": schema.Int64Attribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Required if `beacon_rate_mode`==`custom`, 1-10, in number-beacons-per-second",
 						MarkdownDescription: "Required if `beacon_rate_mode`==`custom`, 1-10, in number-beacons-per-second",
 						Validators: []validator.Int64{
 							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("beacon_rate_mode"), types.StringValue("custom")),
 						},
-						Default: int64default.StaticInt64(0),
 					},
 					"beacon_rate_mode": schema.StringAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "enum: `custom`, `default`",
 						MarkdownDescription: "enum: `custom`, `default`",
 						Validators: []validator.String{
@@ -94,7 +98,6 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 								"default",
 							),
 						},
-						Default: stringdefault.StaticString("default"),
 					},
 					"beam_disabled": schema.ListAttribute{
 						ElementType:         types.Int64Type,
@@ -108,218 +111,173 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"custom_ble_packet_enabled": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Can be enabled if `beacon_enabled`==`true`, whether to send custom packet",
 						MarkdownDescription: "Can be enabled if `beacon_enabled`==`true`, whether to send custom packet",
 						Validators: []validator.Bool{
 							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("beacon_enabled"), types.BoolValue(true)),
 						},
-						Default: booldefault.StaticBool(false),
 					},
 					"custom_ble_packet_frame": schema.StringAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "The custom frame to be sent out in this beacon. The frame must be a hexstring",
 						MarkdownDescription: "The custom frame to be sent out in this beacon. The frame must be a hexstring",
 						Validators: []validator.String{
 							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("custom_ble_packet_enabled"), types.BoolValue(true)),
 						},
-						Default: stringdefault.StaticString(""),
 					},
 					"custom_ble_packet_freq_msec": schema.Int64Attribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Frequency (msec) of data emitted by custom ble beacon",
 						MarkdownDescription: "Frequency (msec) of data emitted by custom ble beacon",
 						Validators: []validator.Int64{
 							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("custom_ble_packet_enabled"), types.BoolValue(true)),
 						},
-						Default: int64default.StaticInt64(0),
 					},
 					"eddystone_uid_adv_power": schema.Int64Attribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Advertised TX Power, -100 to 20 (dBm), omit this attribute to use default",
 						MarkdownDescription: "Advertised TX Power, -100 to 20 (dBm), omit this attribute to use default",
 						Validators: []validator.Int64{
 							int64validator.Between(-100, 20),
 						},
-						Default: int64default.StaticInt64(0),
 					},
 					"eddystone_uid_beams": schema.StringAttribute{
 						Optional: true,
-						Computed: true,
-						Default:  stringdefault.StaticString(""),
 					},
 					"eddystone_uid_enabled": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Only if `beacon_enabled`==`false`, Whether Eddystone-UID beacon is enabled",
 						MarkdownDescription: "Only if `beacon_enabled`==`false`, Whether Eddystone-UID beacon is enabled",
 						Validators: []validator.Bool{
 							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("beacon_enabled"), types.BoolValue(false)),
 						},
-						Default: booldefault.StaticBool(false),
 					},
 					"eddystone_uid_freq_msec": schema.Int64Attribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Frequency (msec) of data emmit by Eddystone-UID beacon",
 						MarkdownDescription: "Frequency (msec) of data emmit by Eddystone-UID beacon",
 						Validators: []validator.Int64{
 							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("eddystone_uid_enabled"), types.BoolValue(true)),
 						},
-						Default: int64default.StaticInt64(0),
 					},
 					"eddystone_uid_instance": schema.StringAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Eddystone-UID instance for the device",
 						MarkdownDescription: "Eddystone-UID instance for the device",
 						Validators: []validator.String{
 							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("eddystone_uid_enabled"), types.BoolValue(true)),
 						},
-						Default: stringdefault.StaticString(""),
 					},
 					"eddystone_uid_namespace": schema.StringAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Eddystone-UID namespace",
 						MarkdownDescription: "Eddystone-UID namespace",
 						Validators: []validator.String{
 							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("eddystone_uid_enabled"), types.BoolValue(true)),
 						},
-						Default: stringdefault.StaticString(""),
 					},
 					"eddystone_url_adv_power": schema.Int64Attribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Advertised TX Power, -100 to 20 (dBm), omit this attribute to use default",
 						MarkdownDescription: "Advertised TX Power, -100 to 20 (dBm), omit this attribute to use default",
 						Validators: []validator.Int64{
 							int64validator.Between(-100, 20),
 						},
-						Default: int64default.StaticInt64(0),
 					},
 					"eddystone_url_beams": schema.StringAttribute{
 						Optional: true,
-						Computed: true,
 						Validators: []validator.String{
 							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("eddystone_url_enabled"), types.BoolValue(true)),
 						},
-						Default: stringdefault.StaticString(""),
 					},
 					"eddystone_url_enabled": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Only if `beacon_enabled`==`false`, Whether Eddystone-URL beacon is enabled",
 						MarkdownDescription: "Only if `beacon_enabled`==`false`, Whether Eddystone-URL beacon is enabled",
 						Validators: []validator.Bool{
 							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("beacon_enabled"), types.BoolValue(false)),
 						},
-						Default: booldefault.StaticBool(false),
 					},
 					"eddystone_url_freq_msec": schema.Int64Attribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Frequency (msec) of data emit by Eddystone-UID beacon",
 						MarkdownDescription: "Frequency (msec) of data emit by Eddystone-UID beacon",
 						Validators: []validator.Int64{
 							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("eddystone_url_enabled"), types.BoolValue(true)),
 						},
-						Default: int64default.StaticInt64(0),
 					},
 					"eddystone_url_url": schema.StringAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "URL pointed by Eddystone-URL beacon",
 						MarkdownDescription: "URL pointed by Eddystone-URL beacon",
 						Validators: []validator.String{
 							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("eddystone_url_enabled"), types.BoolValue(true)),
 						},
-						Default: stringdefault.StaticString(""),
 					},
 					"ibeacon_adv_power": schema.Int64Attribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Advertised TX Power, -100 to 20 (dBm), omit this attribute to use default",
 						MarkdownDescription: "Advertised TX Power, -100 to 20 (dBm), omit this attribute to use default",
 						Validators: []validator.Int64{
 							int64validator.Between(-100, 20),
 						},
-						Default: int64default.StaticInt64(0),
 					},
 					"ibeacon_beams": schema.StringAttribute{
 						Optional: true,
-						Computed: true,
 						Validators: []validator.String{
 							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("ibeacon_enabled"), types.BoolValue(true)),
 						},
-						Default: stringdefault.StaticString(""),
 					},
 					"ibeacon_enabled": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Can be enabled if `beacon_enabled`==`true`, whether to send iBeacon",
 						MarkdownDescription: "Can be enabled if `beacon_enabled`==`true`, whether to send iBeacon",
 						Validators: []validator.Bool{
 							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("beacon_enabled"), types.BoolValue(true)),
 						},
-						Default: booldefault.StaticBool(false),
 					},
 					"ibeacon_freq_msec": schema.Int64Attribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Frequency (msec) of data emmit for iBeacon",
 						MarkdownDescription: "Frequency (msec) of data emmit for iBeacon",
 						Validators: []validator.Int64{
 							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("ibeacon_enabled"), types.BoolValue(true)),
 						},
-						Default: int64default.StaticInt64(0),
 					},
 					"ibeacon_major": schema.Int64Attribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Major number for iBeacon",
 						MarkdownDescription: "Major number for iBeacon",
 						Validators: []validator.Int64{
 							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("ibeacon_enabled"), types.BoolValue(true)),
 						},
-						Default: int64default.StaticInt64(0),
 					},
 					"ibeacon_minor": schema.Int64Attribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Minor number for iBeacon",
 						MarkdownDescription: "Minor number for iBeacon",
 						Validators: []validator.Int64{
 							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("ibeacon_enabled"), types.BoolValue(true)),
 						},
-						Default: int64default.StaticInt64(0),
 					},
 					"ibeacon_uuid": schema.StringAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Optional, if not specified, the same UUID as the beacon will be used",
 						MarkdownDescription: "Optional, if not specified, the same UUID as the beacon will be used",
 						Validators: []validator.String{
 							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("ibeacon_enabled"), types.BoolValue(true)),
 						},
-						Default: stringdefault.StaticString(""),
 					},
 					"power": schema.Int64Attribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Required if `power_mode`==`custom`; else use `power_mode` as default",
 						MarkdownDescription: "Required if `power_mode`==`custom`; else use `power_mode` as default",
 						Validators: []validator.Int64{
 							int64validator.Between(2, 7),
 						},
-						Default: int64default.StaticInt64(9),
 					},
 					"power_mode": schema.StringAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "enum: `custom`, `default`",
 						MarkdownDescription: "enum: `custom`, `default`",
 						Validators: []validator.String{
@@ -329,7 +287,6 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 								"default",
 							),
 						},
-						Default: stringdefault.StaticString("default"),
 					},
 				},
 				CustomType: BleConfigType{
@@ -408,6 +365,7 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"host": schema.StringAttribute{
 						Optional:            true,
+						Computed:            true,
 						Description:         "Only if `type`==`imagotag` or `type`==`native`",
 						MarkdownDescription: "Only if `type`==`imagotag` or `type`==`native`",
 						Validators: []validator.String{
@@ -419,6 +377,7 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 								},
 							),
 						},
+						Default: stringdefault.StaticString(""),
 					},
 					"port": schema.Int64Attribute{
 						Optional:            true,
@@ -437,6 +396,7 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"type": schema.StringAttribute{
 						Optional:            true,
+						Computed:            true,
 						Description:         "note: ble_config will be ignored if esl_config is enabled and with native mode. enum: `hanshow`, `imagotag`, `native`, `solum`",
 						MarkdownDescription: "note: ble_config will be ignored if esl_config is enabled and with native mode. enum: `hanshow`, `imagotag`, `native`, `solum`",
 						Validators: []validator.String{
@@ -448,6 +408,7 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 								"solum",
 							),
 						},
+						Default: stringdefault.StaticString("imagotag"),
 					},
 					"verify_cert": schema.BoolAttribute{
 						Optional:            true,
@@ -469,12 +430,13 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 						Description:         "Only if `type`==`solum` or `type`==`hanshow`",
 						MarkdownDescription: "Only if `type`==`solum` or `type`==`hanshow`",
 						Validators: []validator.Int64{
-							mistvalidator.AllowedWhenValueIsIn(
+							mistvalidator.AllowedWhenValueIsInWithDefault(
 								path.MatchRelative().AtParent().AtName("type"),
 								[]attr.Value{
 									types.StringValue("solum"),
 									types.StringValue("hanshow"),
 								},
+								types.Int64Value(1),
 							),
 							int64validator.Between(1, 4094),
 						},
@@ -492,6 +454,9 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "Unique ID of the object instance in the Mist Organization",
 				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"ip_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -558,13 +523,15 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"mtu": schema.Int64Attribute{
 						Optional: true,
+						Computed: true,
+						Default:  int64default.StaticInt64(0),
 					},
 					"netmask": schema.StringAttribute{
 						Optional:            true,
 						Description:         "Required if `type`==`static`",
 						MarkdownDescription: "Required if `type`==`static`",
 						Validators: []validator.String{
-							stringvalidator.Any(mistvalidator.ParseNetmask(true, true), mistvalidator.ParseVar()),
+							stringvalidator.Any(mistvalidator.ParseNetmask(false, false), mistvalidator.ParseVar()),
 							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static")),
 							mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("dhcp")),
 						},
@@ -572,7 +539,7 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					"netmask6": schema.StringAttribute{
 						Optional: true,
 						Validators: []validator.String{
-							stringvalidator.Any(mistvalidator.ParseNetmask(true, true), mistvalidator.ParseVar()),
+							stringvalidator.Any(mistvalidator.ParseNetmask(false, false), mistvalidator.ParseVar()),
 							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type6"), types.StringValue("static")),
 							mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type6"), types.StringValue("dhcp")),
 							mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type6"), types.StringValue("autoconf")),
@@ -594,7 +561,6 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"type6": schema.StringAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "enum: `autoconf`, `dhcp`, `disabled`, `static`",
 						MarkdownDescription: "enum: `autoconf`, `dhcp`, `disabled`, `static`",
 						Validators: []validator.String{
@@ -606,17 +572,14 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 								"static",
 							),
 						},
-						Default: stringdefault.StaticString("disabled"),
 					},
 					"vlan_id": schema.Int64Attribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Management VLAN id, default is 1 (untagged)",
 						MarkdownDescription: "Management VLAN id, default is 1 (untagged)",
 						Validators: []validator.Int64{
 							int64validator.Between(1, 4094),
 						},
-						Default: int64default.StaticInt64(1),
 					},
 				},
 				CustomType: IpConfigType{
@@ -769,8 +732,6 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 				Attributes: map[string]schema.Attribute{
 					"allow_rrm_disable": schema.BoolAttribute{
 						Optional: true,
-						Computed: true,
-						Default:  booldefault.StaticBool(false),
 					},
 					"ant_gain_24": schema.Int64Attribute{
 						Optional:            true,
@@ -798,7 +759,6 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"antenna_mode": schema.StringAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
 						MarkdownDescription: "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
 						Validators: []validator.String{
@@ -811,7 +771,6 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 								"default",
 							),
 						},
-						Default: stringdefault.StaticString("default"),
 					},
 					"band_24": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
@@ -984,6 +943,7 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							},
 							"bandwidth": schema.Int64Attribute{
 								Optional:            true,
+								Computed:            true,
 								Description:         "channel width for the 5GHz band. enum: `20`, `40`, `80`",
 								MarkdownDescription: "channel width for the 5GHz band. enum: `20`, `40`, `80`",
 								Validators: []validator.Int64{
@@ -993,6 +953,7 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 										80,
 									),
 								},
+								Default: int64default.StaticInt64(40),
 							},
 							"channel": schema.Int64Attribute{
 								Optional:            true,
@@ -1103,6 +1064,7 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							},
 							"bandwidth": schema.Int64Attribute{
 								Optional:            true,
+								Computed:            true,
 								Description:         "channel width for the 5GHz band. enum: `20`, `40`, `80`",
 								MarkdownDescription: "channel width for the 5GHz band. enum: `20`, `40`, `80`",
 								Validators: []validator.Int64{
@@ -1112,6 +1074,7 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 										80,
 									),
 								},
+								Default: int64default.StaticInt64(40),
 							},
 							"channel": schema.Int64Attribute{
 								Optional:            true,
@@ -1319,10 +1282,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"indoor_use": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "To make an outdoor operate indoor. For an outdoor-ap, some channels are disallowed by default, this allows the user to use it as an indoor-ap",
 						MarkdownDescription: "To make an outdoor operate indoor. For an outdoor-ap, some channels are disallowed by default, this allows the user to use it as an indoor-ap",
-						Default:             booldefault.StaticBool(false),
 					},
 					"scanning_enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -1368,10 +1329,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"keep_wlans_up_if_down": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "By default, WLANs are disabled when uplink is down. In some scenario, like SiteSurvey, one would want the AP to keep sending beacons.",
 						MarkdownDescription: "By default, WLANs are disabled when uplink is down. In some scenario, like SiteSurvey, one would want the AP to keep sending beacons.",
-						Default:             booldefault.StaticBool(false),
 					},
 				},
 				CustomType: UplinkPortConfigType{
@@ -1387,6 +1346,7 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 				Attributes: map[string]schema.Attribute{
 					"cacert": schema.StringAttribute{
 						Optional:            true,
+						Computed:            true,
 						Description:         "Only if `type`==`imagotag`",
 						MarkdownDescription: "Only if `type`==`imagotag`",
 						Validators: []validator.String{
@@ -1395,6 +1355,7 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 								types.StringValue("imagotag"),
 							),
 						},
+						Default: stringdefault.StaticString(""),
 					},
 					"channel": schema.Int64Attribute{
 						Optional:            true,
@@ -1414,6 +1375,7 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"host": schema.StringAttribute{
 						Optional:            true,
+						Computed:            true,
 						Description:         "Only if `type`==`imagotag`",
 						MarkdownDescription: "Only if `type`==`imagotag`",
 						Validators: []validator.String{
@@ -1422,10 +1384,10 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 								types.StringValue("imagotag"),
 							),
 						},
+						Default: stringdefault.StaticString(""),
 					},
 					"port": schema.Int64Attribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Only if `type`==`imagotag`",
 						MarkdownDescription: "Only if `type`==`imagotag`",
 						Validators: []validator.Int64{
@@ -1435,7 +1397,6 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							),
 							int64validator.Between(1, 65535),
 						},
-						Default: int64default.StaticInt64(0),
 					},
 					"type": schema.StringAttribute{
 						Optional:            true,
@@ -1463,7 +1424,6 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"vlan_id": schema.Int64Attribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Only if `type`==`solum` or `type`==`hanshow`",
 						MarkdownDescription: "Only if `type`==`solum` or `type`==`hanshow`",
 						Validators: []validator.Int64{
@@ -1476,7 +1436,6 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							),
 							int64validator.Between(1, 4094),
 						},
-						Default: int64default.StaticInt64(1),
 					},
 				},
 				CustomType: UsbConfigType{
@@ -1603,6 +1562,24 @@ func (t AeroscoutType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 			fmt.Sprintf(`locate_connected expected to be basetypes.BoolValue, was: %T`, locateConnectedAttribute))
 	}
 
+	portAttribute, ok := attributes["port"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`port is missing from object`)
+
+		return nil, diags
+	}
+
+	portVal, ok := portAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`port expected to be basetypes.Int64Value, was: %T`, portAttribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
@@ -1611,6 +1588,7 @@ func (t AeroscoutType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 		Enabled:         enabledVal,
 		Host:            hostVal,
 		LocateConnected: locateConnectedVal,
+		Port:            portVal,
 		state:           attr.ValueStateKnown,
 	}, diags
 }
@@ -1732,6 +1710,24 @@ func NewAeroscoutValue(attributeTypes map[string]attr.Type, attributes map[strin
 			fmt.Sprintf(`locate_connected expected to be basetypes.BoolValue, was: %T`, locateConnectedAttribute))
 	}
 
+	portAttribute, ok := attributes["port"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`port is missing from object`)
+
+		return NewAeroscoutValueUnknown(), diags
+	}
+
+	portVal, ok := portAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`port expected to be basetypes.Int64Value, was: %T`, portAttribute))
+	}
+
 	if diags.HasError() {
 		return NewAeroscoutValueUnknown(), diags
 	}
@@ -1740,6 +1736,7 @@ func NewAeroscoutValue(attributeTypes map[string]attr.Type, attributes map[strin
 		Enabled:         enabledVal,
 		Host:            hostVal,
 		LocateConnected: locateConnectedVal,
+		Port:            portVal,
 		state:           attr.ValueStateKnown,
 	}, diags
 }
@@ -1815,11 +1812,12 @@ type AeroscoutValue struct {
 	Enabled         basetypes.BoolValue   `tfsdk:"enabled"`
 	Host            basetypes.StringValue `tfsdk:"host"`
 	LocateConnected basetypes.BoolValue   `tfsdk:"locate_connected"`
+	Port            basetypes.Int64Value  `tfsdk:"port"`
 	state           attr.ValueState
 }
 
 func (v AeroscoutValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 3)
+	attrTypes := make(map[string]tftypes.Type, 4)
 
 	var val tftypes.Value
 	var err error
@@ -1827,12 +1825,13 @@ func (v AeroscoutValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["host"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["locate_connected"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["port"] = basetypes.Int64Type{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 3)
+		vals := make(map[string]tftypes.Value, 4)
 
 		val, err = v.Enabled.ToTerraformValue(ctx)
 
@@ -1857,6 +1856,14 @@ func (v AeroscoutValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 		}
 
 		vals["locate_connected"] = val
+
+		val, err = v.Port.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["port"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -1891,6 +1898,7 @@ func (v AeroscoutValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 		"enabled":          basetypes.BoolType{},
 		"host":             basetypes.StringType{},
 		"locate_connected": basetypes.BoolType{},
+		"port":             basetypes.Int64Type{},
 	}
 
 	if v.IsNull() {
@@ -1907,6 +1915,7 @@ func (v AeroscoutValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 			"enabled":          v.Enabled,
 			"host":             v.Host,
 			"locate_connected": v.LocateConnected,
+			"port":             v.Port,
 		})
 
 	return objVal, diags
@@ -1939,6 +1948,10 @@ func (v AeroscoutValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.Port.Equal(other.Port) {
+		return false
+	}
+
 	return true
 }
 
@@ -1955,6 +1968,7 @@ func (v AeroscoutValue) AttributeTypes(ctx context.Context) map[string]attr.Type
 		"enabled":          basetypes.BoolType{},
 		"host":             basetypes.StringType{},
 		"locate_connected": basetypes.BoolType{},
+		"port":             basetypes.Int64Type{},
 	}
 }
 

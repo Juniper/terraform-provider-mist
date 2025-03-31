@@ -85,14 +85,11 @@ Variables are not allowed
 <a id="nestedatt--specs"></a>
 ### Nested Schema for `specs`
 
-Required:
-
-- `subnets` (List of String) Matched destination subnets and/or IP Addresses
-
 Optional:
 
 - `port_range` (String) Matched destination port, "0" means any
 - `protocol` (String) tcp / udp / icmp / gre / any / ":protocol_number", `protocol_number` is between 1-254
+- `subnets` (List of String) Matched destination subnets and/or IP Addresses
 
 
 

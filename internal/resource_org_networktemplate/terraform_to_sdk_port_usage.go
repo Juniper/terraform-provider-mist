@@ -125,14 +125,14 @@ func portUsageTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d bas
 		if puAttrValue.MacAuthProtocol.ValueStringPointer() != nil {
 			newPu.MacAuthProtocol = models.ToPointer(models.SwitchPortUsageMacAuthProtocolEnum(puAttrValue.MacAuthProtocol.ValueString()))
 		}
-		if puAttrValue.MacLimit.ValueInt64Pointer() != nil {
-			newPu.MacLimit = models.ToPointer(int(puAttrValue.MacLimit.ValueInt64()))
+		if puAttrValue.MacLimit.ValueStringPointer() != nil {
+			newPu.MacLimit = models.ToPointer(models.SwitchPortUsageMacLimitContainer.FromString(puAttrValue.MacLimit.ValueString()))
 		}
 		if puAttrValue.Mode.ValueStringPointer() != nil {
 			newPu.Mode = models.ToPointer(models.SwitchPortUsageModeEnum(puAttrValue.Mode.ValueString()))
 		}
-		if puAttrValue.Mtu.ValueInt64Pointer() != nil {
-			newPu.Mtu = models.ToPointer(int(puAttrValue.Mtu.ValueInt64()))
+		if puAttrValue.Mtu.ValueStringPointer() != nil {
+			newPu.Mtu = models.ToPointer(models.SwitchPortUsageMtuContainer.FromString(puAttrValue.Mtu.ValueString()))
 		}
 		if !puAttrValue.Networks.IsNull() && !puAttrValue.Networks.IsUnknown() {
 			newPu.Networks = mistutils.ListOfStringTerraformToSdk(puAttrValue.Networks)
@@ -192,7 +192,7 @@ func portUsageTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d bas
 			newPu.UseVstp = puAttrValue.UseVstp.ValueBoolPointer()
 		}
 		if puAttrValue.VoipNetwork.ValueStringPointer() != nil {
-			newPu.VoipNetwork = models.ToPointer(puAttrValue.VoipNetwork.ValueString())
+			newPu.VoipNetwork = models.NewOptional(models.ToPointer(puAttrValue.VoipNetwork.ValueString()))
 		}
 
 		data[puName] = newPu

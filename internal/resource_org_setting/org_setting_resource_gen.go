@@ -30,22 +30,18 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 		Attributes: map[string]schema.Attribute{
 			"ap_updown_threshold": schema.Int64Attribute{
 				Optional:            true,
-				Computed:            true,
 				Description:         "Enable threshold-based device down delivery for AP devices only. When configured it takes effect for AP devices and `device_updown_threshold` is ignored.",
 				MarkdownDescription: "Enable threshold-based device down delivery for AP devices only. When configured it takes effect for AP devices and `device_updown_threshold` is ignored.",
 				Validators: []validator.Int64{
 					int64validator.Between(0, 240),
 				},
-				Default: int64default.StaticInt64(0),
 			},
 			"api_policy": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"no_reveal": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "By default, API hides password/secrets when the user doesn't have write access\n  * `true`: API will hide passwords/secrets for all users\n  * `false`: API will hide passwords/secrets for read-only users",
 						MarkdownDescription: "By default, API hides password/secrets when the user doesn't have write access\n  * `true`: API will hide passwords/secrets for all users\n  * `false`: API will hide passwords/secrets for read-only users",
-						Default:             booldefault.StaticBool(false),
 					},
 				},
 				CustomType: ApiPolicyType{
@@ -84,13 +80,17 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 			"cloudshark": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"apitoken": schema.StringAttribute{
-						Required:  true,
+						Optional:  true,
+						Computed:  true,
 						Sensitive: true,
+						Default:   stringdefault.StaticString(""),
 					},
 					"url": schema.StringAttribute{
 						Optional:            true,
+						Computed:            true,
 						Description:         "If using CS Enterprise",
 						MarkdownDescription: "If using CS Enterprise",
+						Default:             stringdefault.StaticString(""),
 					},
 				},
 				CustomType: CloudsharkType{
@@ -148,37 +148,29 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"device_updown_threshold": schema.Int64Attribute{
 				Optional:            true,
-				Computed:            true,
 				Description:         "Enable threshold-based device down delivery via\n  * device-updowns webhooks topic, \n  * Mist Alert Framework; e.g. send AP/SW/GW down event only if AP/SW/GW Up is not seen within the threshold in minutes; 0 - 240, default is 0 (trigger immediate)",
 				MarkdownDescription: "Enable threshold-based device down delivery via\n  * device-updowns webhooks topic, \n  * Mist Alert Framework; e.g. send AP/SW/GW down event only if AP/SW/GW Up is not seen within the threshold in minutes; 0 - 240, default is 0 (trigger immediate)",
 				Validators: []validator.Int64{
 					int64validator.Between(0, 240),
 				},
-				Default: int64default.StaticInt64(0),
 			},
 			"disable_pcap": schema.BoolAttribute{
 				Optional:            true,
-				Computed:            true,
 				Description:         "Whether to disallow Mist to analyze pcap files (this is required for marvis pcap)",
 				MarkdownDescription: "Whether to disallow Mist to analyze pcap files (this is required for marvis pcap)",
-				Default:             booldefault.StaticBool(false),
 			},
 			"disable_remote_shell": schema.BoolAttribute{
 				Optional:            true,
-				Computed:            true,
 				Description:         "Whether to disable remote shell access for an entire org",
 				MarkdownDescription: "Whether to disable remote shell access for an entire org",
-				Default:             booldefault.StaticBool(false),
 			},
 			"gateway_updown_threshold": schema.Int64Attribute{
 				Optional:            true,
-				Computed:            true,
 				Description:         "Enable threshold-based device down delivery for Gateway devices only. When configured it takes effect for GW devices and `device_updown_threshold` is ignored.",
 				MarkdownDescription: "Enable threshold-based device down delivery for Gateway devices only. When configured it takes effect for GW devices and `device_updown_threshold` is ignored.",
 				Validators: []validator.Int64{
 					int64validator.Between(0, 240),
 				},
-				Default: int64default.StaticInt64(0),
 			},
 			"installer": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -414,20 +406,16 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"disable_rsae_algorithms": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "to disable RSAE_PSS_SHA256, RSAE_PSS_SHA384, RSAE_PSS_SHA512 from server side. see https://www.openssl.org/docs/man3.0/man1/openssl-ciphers.html",
 						MarkdownDescription: "to disable RSAE_PSS_SHA256, RSAE_PSS_SHA384, RSAE_PSS_SHA512 from server side. see https://www.openssl.org/docs/man3.0/man1/openssl-ciphers.html",
-						Default:             booldefault.StaticBool(false),
 					},
 					"eap_ssl_security_level": schema.Int64Attribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "eap ssl security level, see https://www.openssl.org/docs/man1.1.1/man3/SSL_CTX_set_security_level.html#DEFAULT-CALLBACK-BEHAVIOUR",
 						MarkdownDescription: "eap ssl security level, see https://www.openssl.org/docs/man1.1.1/man3/SSL_CTX_set_security_level.html#DEFAULT-CALLBACK-BEHAVIOUR",
 						Validators: []validator.Int64{
 							int64validator.Between(1, 4),
 						},
-						Default: int64default.StaticInt64(2),
 					},
 					"eu_only": schema.BoolAttribute{
 						Optional:            true,
@@ -438,7 +426,6 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"idp_machine_cert_lookup_field": schema.StringAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "allow customer to choose the EAP-TLS client certificate's field to use for IDP Machine Groups lookup. enum: `automatic`, `cn`, `dns`",
 						MarkdownDescription: "allow customer to choose the EAP-TLS client certificate's field to use for IDP Machine Groups lookup. enum: `automatic`, `cn`, `dns`",
 						Validators: []validator.String{
@@ -449,11 +436,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 								"dns",
 							),
 						},
-						Default: stringdefault.StaticString("automatic"),
 					},
 					"idp_user_cert_lookup_field": schema.StringAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "allow customer to choose the EAP-TLS client certificate's field. To use for IDP User Groups lookup. enum: `automatic`, `cn`, `email`, `upn`",
 						MarkdownDescription: "allow customer to choose the EAP-TLS client certificate's field. To use for IDP User Groups lookup. enum: `automatic`, `cn`, `email`, `upn`",
 						Validators: []validator.String{
@@ -465,7 +450,6 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 								"upn",
 							),
 						},
-						Default: stringdefault.StaticString("automatic"),
 					},
 					"idps": schema.ListNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{
@@ -535,7 +519,6 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"use_ip_version": schema.StringAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "by default, NAS devices(switches/aps) and proxies(mxedge) are configured to reach mist-nac via IPv4. enum: `v4`, `v6`",
 						MarkdownDescription: "by default, NAS devices(switches/aps) and proxies(mxedge) are configured to reach mist-nac via IPv4. enum: `v4`, `v6`",
 						Validators: []validator.String{
@@ -545,14 +528,11 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 								"v6",
 							),
 						},
-						Default: stringdefault.StaticString("v4"),
 					},
 					"use_ssl_port": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "By default, NAS devices (switches/aps) and proxies(mxedge) are configured to use port TCP2083(RadSec) to reach mist-nac. Set `use_ssl_port`==`true` to override that port with TCP43 (ssl), This is an org level setting that is applicable to wlans, switch_templates, and mxedge_clusters that have mist-nac enabled",
 						MarkdownDescription: "By default, NAS devices (switches/aps) and proxies(mxedge) are configured to use port TCP2083(RadSec) to reach mist-nac. Set `use_ssl_port`==`true` to override that port with TCP43 (ssl), This is an org level setting that is applicable to wlans, switch_templates, and mxedge_clusters that have mist-nac enabled",
-						Default:             booldefault.StaticBool(false),
 					},
 				},
 				CustomType: MistNacType{
@@ -562,17 +542,10 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Optional: true,
 			},
-			"mxedge_fips_enabled": schema.BoolAttribute{
-				Optional: true,
-				Computed: true,
-				Default:  booldefault.StaticBool(false),
-			},
 			"mxedge_mgmt": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"config_auto_revert": schema.BoolAttribute{
 						Optional: true,
-						Computed: true,
-						Default:  booldefault.StaticBool(false),
 					},
 					"fips_enabled": schema.BoolAttribute{
 						Optional: true,
@@ -585,7 +558,6 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"oob_ip_type": schema.StringAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "enum: `dhcp`, `disabled`, `static`",
 						MarkdownDescription: "enum: `dhcp`, `disabled`, `static`",
 						Validators: []validator.String{
@@ -596,11 +568,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 								"static",
 							),
 						},
-						Default: stringdefault.StaticString("dhcp"),
 					},
 					"oob_ip_type6": schema.StringAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "enum: `autoconf`, `dhcp`, `disabled`, `static`",
 						MarkdownDescription: "enum: `autoconf`, `dhcp`, `disabled`, `static`",
 						Validators: []validator.String{
@@ -612,7 +582,6 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 								"static",
 							),
 						},
-						Default: stringdefault.StaticString("autoconf"),
 					},
 					"root_password": schema.StringAttribute{
 						Optional:  true,
@@ -780,10 +749,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"switch_updown_threshold": schema.Int64Attribute{
 				Optional:            true,
-				Computed:            true,
 				Description:         "Enable threshold-based device down delivery for Switch devices only. When configured it takes effect for SW devices and `device_updown_threshold` is ignored.",
 				MarkdownDescription: "Enable threshold-based device down delivery for Switch devices only. When configured it takes effect for SW devices and `device_updown_threshold` is ignored.",
-				Default:             int64default.StaticInt64(0),
 			},
 			"synthetic_test": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -965,7 +932,6 @@ type OrgSettingModel struct {
 	JunosShellAccess       JunosShellAccessValue `tfsdk:"junos_shell_access"`
 	Mgmt                   MgmtValue             `tfsdk:"mgmt"`
 	MistNac                MistNacValue          `tfsdk:"mist_nac"`
-	MxedgeFipsEnabled      types.Bool            `tfsdk:"mxedge_fips_enabled"`
 	MxedgeMgmt             MxedgeMgmtValue       `tfsdk:"mxedge_mgmt"`
 	OpticPortConfig        types.Map             `tfsdk:"optic_port_config"`
 	OrgId                  types.String          `tfsdk:"org_id"`

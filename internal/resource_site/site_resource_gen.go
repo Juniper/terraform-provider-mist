@@ -7,7 +7,11 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
@@ -48,6 +52,9 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "Unique ID of the object instance in the Mist Organization",
 				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"latlng": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -75,8 +82,10 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"notes": schema.StringAttribute{
 				Optional:            true,
+				Computed:            true,
 				Description:         "Optional, any notes about the site",
 				MarkdownDescription: "Optional, any notes about the site",
+				Default:             stringdefault.StaticString(""),
 			},
 			"org_id": schema.StringAttribute{
 				Required: true,
@@ -94,8 +103,10 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 			"sitegroup_ids": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
+				Computed:            true,
 				Description:         "Sitegroups this site belongs to",
 				MarkdownDescription: "Sitegroups this site belongs to",
+				Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 			},
 			"sitetemplate_id": schema.StringAttribute{
 				Optional:            true,
@@ -111,6 +122,9 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"tzoffset": schema.Int64Attribute{
 				Computed: true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 		},
 	}

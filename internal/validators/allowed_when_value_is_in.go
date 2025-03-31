@@ -84,7 +84,7 @@ func (o AllowedWhenValueIsInValidator) Validate(ctx context.Context, req Allowed
 			if !allowed {
 				resp.Diagnostics.Append(validatordiag.InvalidAttributeCombinationDiagnostic(
 					req.Path,
-					fmt.Sprintf("attribute %s is only allowed when %s has value in %s, got: %s", req.Path, mp, o.Values, mpVal.String()),
+					fmt.Sprintf("Attribute \"%s\" is only allowed when \"%s\" has value in %s, got: %s", req.Path, mp, o.Values, mpVal.String()),
 				))
 			}
 		}

@@ -15,6 +15,7 @@ func aeroscoutSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mo
 	var enabled basetypes.BoolValue
 	var host basetypes.StringValue
 	var locateConnected basetypes.BoolValue
+	var port basetypes.Int64Value
 
 	if d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
@@ -25,11 +26,15 @@ func aeroscoutSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mo
 	if d.LocateConnected != nil {
 		locateConnected = types.BoolValue(*d.LocateConnected)
 	}
+	if d.Port.Value() != nil {
+		port = types.Int64Value(int64(*d.Port.Value()))
+	}
 
 	dataMapValue := map[string]attr.Value{
 		"enabled":          enabled,
 		"host":             host,
 		"locate_connected": locateConnected,
+		"port":             port,
 	}
 	data, e := NewAeroscoutValue(AeroscoutValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)

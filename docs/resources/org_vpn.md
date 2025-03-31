@@ -48,11 +48,11 @@ resource "mist_org_setting" "terraform_test" {
 ### Required
 
 - `name` (String)
-- `org_id` (String)
 - `paths` (Attributes Map) For `type`==`hub_spoke`, Property key is the VPN name. For `type`==`mesh`, Property key is the Interface name (see [below for nested schema](#nestedatt--paths))
 
 ### Optional
 
+- `org_id` (String)
 - `path_selection` (Attributes) Only if `type`==`hub_spoke` (see [below for nested schema](#nestedatt--path_selection))
 - `type` (String) enum: `hub_spoke`, `mesh`
 
@@ -66,7 +66,7 @@ resource "mist_org_setting" "terraform_test" {
 Optional:
 
 - `bfd_profile` (String) enum: `broadband`, `lte`
-- `bfd_use_tunnel_mode` (Boolean) If `type`==`mesh` and for SSR only, whether toi use tunnel mode
+- `bfd_use_tunnel_mode` (Boolean) If `type`==`mesh` and for SSR only, whether to use tunnel mode
 - `ip` (String) If different from the wan port
 - `peer_paths` (Attributes Map) If `type`==`mesh`, Property key is the Peer Interface name (see [below for nested schema](#nestedatt--paths--peer_paths))
 - `pod` (Number)

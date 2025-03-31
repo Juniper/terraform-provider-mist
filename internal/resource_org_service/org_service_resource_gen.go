@@ -12,10 +12,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
@@ -75,23 +75,19 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"client_limit_down": schema.Int64Attribute{
 				Optional:            true,
-				Computed:            true,
-				Description:         "0 means unlimited",
-				MarkdownDescription: "0 means unlimited",
+				Description:         "0 means unlimited, value from 0 to 107374182",
+				MarkdownDescription: "0 means unlimited, value from 0 to 107374182",
 				Validators: []validator.Int64{
 					int64validator.Between(0, 107374182),
 				},
-				Default: int64default.StaticInt64(0),
 			},
 			"client_limit_up": schema.Int64Attribute{
 				Optional:            true,
-				Computed:            true,
-				Description:         "0 means unlimited",
-				MarkdownDescription: "0 means unlimited",
+				Description:         "0 means unlimited, value from 0 to 107374182",
+				MarkdownDescription: "0 means unlimited, value from 0 to 107374182",
 				Validators: []validator.Int64{
 					int64validator.Between(0, 107374182),
 				},
-				Default: int64default.StaticInt64(0),
 			},
 			"description": schema.StringAttribute{
 				Optional: true,
@@ -108,18 +104,16 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"failover_policy": schema.StringAttribute{
 				Optional:            true,
-				Computed:            true,
-				Description:         "enum: `non_revertable`, `none`, `revertable`",
-				MarkdownDescription: "enum: `non_revertable`, `none`, `revertable`",
+				Description:         "enum: `non_revertible`, `none`, `revertible`",
+				MarkdownDescription: "enum: `non_revertible`, `none`, `revertible`",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
-						"non_revertable",
+						"non_revertible",
 						"none",
-						"revertable",
+						"revertible",
 					),
 				},
-				Default: stringdefault.StaticString("revertable"),
 			},
 			"hostnames": schema.ListAttribute{
 				ElementType:         types.StringType,
@@ -136,6 +130,9 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "Unique ID of the object instance in the Mist Organization",
 				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"max_jitter": schema.StringAttribute{
 				Optional: true,
@@ -178,30 +175,24 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"service_limit_down": schema.Int64Attribute{
 				Optional:            true,
-				Computed:            true,
-				Description:         "0 means unlimited",
-				MarkdownDescription: "0 means unlimited",
+				Description:         "0 means unlimited, value from 0 to 107374182",
+				MarkdownDescription: "0 means unlimited, value from 0 to 107374182",
 				Validators: []validator.Int64{
 					int64validator.Between(0, 107374182),
 				},
-				Default: int64default.StaticInt64(0),
 			},
 			"service_limit_up": schema.Int64Attribute{
 				Optional:            true,
-				Computed:            true,
-				Description:         "0 means unlimited",
-				MarkdownDescription: "0 means unlimited",
+				Description:         "0 means unlimited, value from 0 to 107374182",
+				MarkdownDescription: "0 means unlimited, value from 0 to 107374182",
 				Validators: []validator.Int64{
 					int64validator.Between(0, 107374182),
 				},
-				Default: int64default.StaticInt64(0),
 			},
 			"sle_enabled": schema.BoolAttribute{
 				Optional:            true,
-				Computed:            true,
 				Description:         "Whether to enable measure SLE",
 				MarkdownDescription: "Whether to enable measure SLE",
-				Default:             booldefault.StaticBool(false),
 			},
 			"specs": schema.ListNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
@@ -218,8 +209,6 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 										types.StringValue("udp"),
 									},
 								),
-								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("protocol"), types.StringValue("tcp")),
-								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("protocol"), types.StringValue("udp")),
 								stringvalidator.Any(
 									mistvalidator.ParseInt(0, 65535),
 									mistvalidator.ParseRangeOfInt(0, 65535, true),
@@ -253,12 +242,9 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"ssr_relaxed_tcp_state_enforcement": schema.BoolAttribute{
 				Optional: true,
-				Computed: true,
-				Default:  booldefault.StaticBool(false),
 			},
 			"traffic_class": schema.StringAttribute{
 				Optional:            true,
-				Computed:            true,
 				Description:         "when `traffic_type`==`custom`. enum: `best_effort`, `high`, `low`, `medium`",
 				MarkdownDescription: "when `traffic_type`==`custom`. enum: `best_effort`, `high`, `low`, `medium`",
 				Validators: []validator.String{
@@ -275,7 +261,6 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 						"low",
 					),
 				},
-				Default: stringdefault.StaticString("best_effort"),
 			},
 			"traffic_type": schema.StringAttribute{
 				Optional:            true,

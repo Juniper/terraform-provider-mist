@@ -242,7 +242,7 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 		var preserveDscp = types.BoolValue(true)
 		var redundant basetypes.BoolValue
 		var redundantGroup basetypes.Int64Value
-		var rethIdx basetypes.Int64Value
+		var rethIdx basetypes.StringValue
 		var rethNode basetypes.StringValue
 		var rethNodes = mistutils.ListOfStringSdkToTerraform(v.RethNodes)
 		var speed = types.StringValue("auto")
@@ -339,7 +339,7 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 			redundantGroup = types.Int64Value(int64(*v.RedundantGroup))
 		}
 		if v.RethIdx != nil {
-			rethIdx = types.Int64Value(int64(*v.RethIdx))
+			rethIdx = mistutils.GatewayPortConfigRethIdxAsString(v.RethIdx)
 		}
 		if v.RethNode != nil {
 			rethNode = types.StringValue(*v.RethNode)

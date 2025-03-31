@@ -7,7 +7,8 @@ import (
 	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
@@ -19,10 +20,8 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 		Attributes: map[string]schema.Attribute{
 			"allow_usermac_override": schema.BoolAttribute{
 				Optional:            true,
-				Computed:            true,
 				Description:         "Can be set to true to allow the override by usermac result",
 				MarkdownDescription: "Can be set to true to allow the override by usermac result",
-				Default:             booldefault.StaticBool(false),
 			},
 			"egress_vlan_names": schema.ListAttribute{
 				ElementType:         types.StringType,
@@ -47,6 +46,9 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "Unique ID of the object instance in the Mist Organization",
 				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"match": schema.StringAttribute{
 				Optional:            true,
@@ -74,10 +76,8 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"match_all": schema.BoolAttribute{
 				Optional:            true,
-				Computed:            true,
 				Description:         "This field is applicable only when `type`==`match`\n  * `false`: means it is sufficient to match any of the values (i.e., match-any behavior)\n  * `true`: means all values should be matched (i.e., match-all behavior)\n\n\nCurrently it makes sense to set this field to `true` only if the `match`==`idp_role` or `match`==`usermac_label`",
 				MarkdownDescription: "This field is applicable only when `type`==`match`\n  * `false`: means it is sufficient to match any of the values (i.e., match-any behavior)\n  * `true`: means all values should be matched (i.e., match-all behavior)\n\n\nCurrently it makes sense to set this field to `true` only if the `match`==`idp_role` or `match`==`usermac_label`",
-				Default:             booldefault.StaticBool(false),
 			},
 			"name": schema.StringAttribute{
 				Required: true,

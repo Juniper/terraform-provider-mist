@@ -114,6 +114,7 @@ func vpnPathsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[
 	mapAttrValues := make(map[string]attr.Value)
 	for k, d := range m {
 		var bfdProfile basetypes.StringValue
+		var bfdUseTunnelMode basetypes.BoolValue
 		var ip basetypes.StringValue
 		peerPaths := types.MapNull(PeerPathsValue{}.Type(ctx))
 		var pod basetypes.Int64Value
@@ -121,6 +122,9 @@ func vpnPathsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[
 
 		if d.BfdProfile != nil {
 			bfdProfile = types.StringValue(string(*d.BfdProfile))
+		}
+		if d.BfdUseTunnelMode != nil {
+			bfdUseTunnelMode = types.BoolValue(*d.BfdUseTunnelMode)
 		}
 		if d.Ip != nil {
 			ip = types.StringValue(*d.Ip)
@@ -136,11 +140,12 @@ func vpnPathsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[
 		}
 
 		dataMapValue := map[string]attr.Value{
-			"bfd_profile":     bfdProfile,
-			"ip":              ip,
-			"peer_paths":      peerPaths,
-			"pod":             pod,
-			"traffic_shaping": trafficShaping,
+			"bfd_profile":         bfdProfile,
+			"bfd_use_tunnel_mode": bfdUseTunnelMode,
+			"ip":                  ip,
+			"peer_paths":          peerPaths,
+			"pod":                 pod,
+			"traffic_shaping":     trafficShaping,
 		}
 		data, e := NewPathsValue(PathsValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)

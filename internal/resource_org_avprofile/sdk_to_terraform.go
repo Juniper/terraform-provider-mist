@@ -20,11 +20,11 @@ func SdkToTerraform(_ context.Context, data *models.Avprofile) (OrgAvprofileMode
 	var fallbackAction basetypes.StringValue
 	var id basetypes.StringValue
 	var maxFilesize basetypes.Int64Value
-	var mimeWhitelist = types.ListNull(types.StringType)
+	var mimeWhitelist = types.ListValueMust(types.StringType, []attr.Value{})
 	var name basetypes.StringValue
 	var orgId basetypes.StringValue
 	var protocols = types.ListNull(types.StringType)
-	var urlWhitelist = types.ListNull(types.StringType)
+	var urlWhitelist = types.ListValueMust(types.StringType, []attr.Value{})
 
 	if data.FallbackAction != nil {
 		fallbackAction = types.StringValue(string(*data.FallbackAction))

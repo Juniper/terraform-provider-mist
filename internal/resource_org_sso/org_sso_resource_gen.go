@@ -5,7 +5,9 @@ package resource_org_sso
 import (
 	"context"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
@@ -34,6 +36,9 @@ func OrgSsoResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "Unique ID of the object instance in the Mist Organization",
 				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"idp_cert": schema.StringAttribute{
 				Required:            true,
@@ -101,7 +106,6 @@ func OrgSsoResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "name of the attribute in SAML Assertion to extract role from. Default: `Role`",
 				MarkdownDescription: "name of the attribute in SAML Assertion to extract role from. Default: `Role`",
-				Default:             stringdefault.StaticString("Role"),
 			},
 		},
 	}

@@ -68,6 +68,9 @@ func radiusAuthServersTerraformToSdk(d basetypes.ListValue) []models.RadiusAuthS
 func radiusConfigTerraformToSdk(d RadiusConfigValue) *models.SwitchRadiusConfig {
 
 	data := models.SwitchRadiusConfig{}
+	if d.AcctImmediateUpdate.ValueBoolPointer() != nil {
+		data.AcctImmediateUpdate = d.AcctImmediateUpdate.ValueBoolPointer()
+	}
 	if d.AcctInterimInterval.ValueInt64Pointer() != nil {
 		data.AcctInterimInterval = models.ToPointer(int(d.AcctInterimInterval.ValueInt64()))
 	}
@@ -77,8 +80,20 @@ func radiusConfigTerraformToSdk(d RadiusConfigValue) *models.SwitchRadiusConfig 
 	if d.AuthServersRetries.ValueInt64Pointer() != nil {
 		data.AuthServersRetries = models.ToPointer(int(d.AuthServersRetries.ValueInt64()))
 	}
+	if d.AuthServerSelection.ValueStringPointer() != nil {
+		data.AuthServerSelection = (*models.SwitchRadiusConfigAuthServerSelectionEnum)(d.AuthServerSelection.ValueStringPointer())
+	}
 	if d.AuthServersTimeout.ValueInt64Pointer() != nil {
 		data.AuthServersTimeout = models.ToPointer(int(d.AuthServersTimeout.ValueInt64()))
+	}
+	if d.CoaEnabled.ValueBoolPointer() != nil {
+		data.CoaEnabled = d.CoaEnabled.ValueBoolPointer()
+	}
+	if d.CoaPort.ValueStringPointer() != nil {
+		data.CoaPort = models.ToPointer(models.CoaPortContainer.FromString(d.CoaPort.ValueString()))
+	}
+	if d.FastDot1xTimers.ValueBoolPointer() != nil {
+		data.FastDot1xTimers = d.FastDot1xTimers.ValueBoolPointer()
 	}
 	if d.Network.ValueStringPointer() != nil {
 		data.Network = models.ToPointer(d.Network.ValueString())

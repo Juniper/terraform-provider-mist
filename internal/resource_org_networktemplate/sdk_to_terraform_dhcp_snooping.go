@@ -18,7 +18,7 @@ func dhcpSnoopingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	var enableArpSpoofCheck basetypes.BoolValue
 	var enableIpSourceGuard basetypes.BoolValue
 	var enabled basetypes.BoolValue
-	var networks = types.ListNull(types.StringType)
+	var networks = mistutils.ListOfStringSdkToTerraformEmpty()
 
 	if d != nil && d.AllNetworks != nil {
 		allNetworks = types.BoolValue(*d.AllNetworks)
@@ -32,7 +32,7 @@ func dhcpSnoopingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	if d != nil && d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
-	if d != nil && d.Networks != nil {
+	if d != nil && len(d.Networks) > 0 {
 		networks = mistutils.ListOfStringSdkToTerraform(d.Networks)
 	}
 

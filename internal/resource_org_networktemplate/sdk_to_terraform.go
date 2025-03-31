@@ -3,6 +3,7 @@ package resource_org_networktemplate
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
@@ -19,15 +20,15 @@ func SdkToTerraform(ctx context.Context, data models.NetworkTemplate) (OrgNetwor
 	var aclTags = types.MapNull(AclTagsValue{}.Type(ctx))
 	var additionalConfigCmds = types.ListNull(types.StringType)
 	var dhcpSnooping = NewDhcpSnoopingValueNull()
-	var dnsServers = types.ListNull(types.StringType)
-	var dnsSuffix = types.ListNull(types.StringType)
+	var dnsServers = types.ListValueMust(types.StringType, []attr.Value{})
+	var dnsSuffix = types.ListValueMust(types.StringType, []attr.Value{})
 	var extraRoutes = types.MapNull(ExtraRoutesValue{}.Type(ctx))
 	var extraRoutes6 = types.MapNull(ExtraRoutes6Value{}.Type(ctx))
 	var id types.String
 	var mistNac = NewMistNacValueNull()
 	var name types.String
 	var networks = types.MapNull(NetworksValue{}.Type(ctx))
-	var ntpServers = types.ListNull(types.StringType)
+	var ntpServers = types.ListValueMust(types.StringType, []attr.Value{})
 	var orgId types.String
 	var ospfAreas = types.MapNull(OspfAreasValue{}.Type(ctx))
 	var portMirroring = types.MapNull(PortMirroringValue{}.Type(ctx))

@@ -116,12 +116,6 @@ func TerraformToSdk(ctx context.Context, plan *OrgSettingModel) (*models.OrgSett
 		unset["-mist_nac"] = ""
 	}
 
-	if plan.MxedgeFipsEnabled.ValueBoolPointer() != nil {
-		data.MxedgeFipsEnabled = plan.MxedgeFipsEnabled.ValueBoolPointer()
-	} else {
-		unset["-mxedge_fips_enabled"] = ""
-	}
-
 	if !plan.MxedgeMgmt.IsNull() && !plan.MxedgeMgmt.IsUnknown() {
 		data.MxedgeMgmt = mxEdgeMgmtTerraformToSdk(plan.MxedgeMgmt)
 	} else {

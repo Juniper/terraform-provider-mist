@@ -54,8 +54,8 @@ resource "mist_device_gateway" "gateway_one" {
 - `dhcpd_config` (Attributes) (see [below for nested schema](#nestedatt--dhcpd_config))
 - `dns_servers` (List of String) Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting
 - `dns_suffix` (List of String) Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting
-- `extra_routes` (Attributes Map) Property key is the destination CIDR (e.g. "10.0.0.0/8") (see [below for nested schema](#nestedatt--extra_routes))
-- `extra_routes6` (Attributes Map) Property key is the destination CIDR (e.g. "2a02:1234:420a:10c9::/64") (see [below for nested schema](#nestedatt--extra_routes6))
+- `extra_routes` (Attributes Map) Property key is the destination CIDR (e.g. "10.0.0.0/8"), the destination Network name or a variable (e.g. "{{myvar}}") (see [below for nested schema](#nestedatt--extra_routes))
+- `extra_routes6` (Attributes Map) Property key is the destination CIDR (e.g. "2a02:1234:420a:10c9::/64"), the destination Network name or a variable (e.g. "{{myvar}}") (see [below for nested schema](#nestedatt--extra_routes6))
 - `idp_profiles` (Attributes Map) Property key is the profile name (see [below for nested schema](#nestedatt--idp_profiles))
 - `ip_configs` (Attributes Map) Property key is the network name (see [below for nested schema](#nestedatt--ip_configs))
 - `managed` (Boolean)
@@ -253,13 +253,10 @@ Optional:
 <a id="nestedatt--ip_configs"></a>
 ### Nested Schema for `ip_configs`
 
-Required:
+Optional:
 
 - `ip` (String)
 - `netmask` (String)
-
-Optional:
-
 - `secondary_ips` (List of String) Optional list of secondary IPs in CIDR format
 - `type` (String) enum: `dhcp`, `static`
 
@@ -498,7 +495,7 @@ Optional:
 - `preserve_dscp` (Boolean) Whether to preserve dscp when sending traffic over VPN (SSR-only)
 - `redundant` (Boolean) If HA mode
 - `redundant_group` (Number) If HA mode, SRX Only - support redundancy-group. 1-128 for physical SRX, 1-64 for virtual SRX
-- `reth_idx` (Number) If HA mode
+- `reth_idx` (String) For SRX only and if HA Mode
 - `reth_node` (String) If HA mode
 - `reth_nodes` (List of String) SSR only - supporting vlan-based redundancy (matching the size of `networks`)
 - `speed` (String)

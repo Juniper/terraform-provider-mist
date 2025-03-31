@@ -55,17 +55,17 @@ resource "mist_org_service" "service_one" {
   * [List Applications]($e/Constants%20Definitions/listApplications)
   * [List Gateway Applications]($e/Constants%20Definitions/listGatewayApplications)
   * /insight/top_app_by-bytes?wired=true
-- `client_limit_down` (Number) 0 means unlimited
-- `client_limit_up` (Number) 0 means unlimited
+- `client_limit_down` (Number) 0 means unlimited, value from 0 to 107374182
+- `client_limit_up` (Number) 0 means unlimited, value from 0 to 107374182
 - `description` (String)
 - `dscp` (String)
-- `failover_policy` (String) enum: `non_revertable`, `none`, `revertable`
+- `failover_policy` (String) enum: `non_revertible`, `none`, `revertible`
 - `hostnames` (List of String) If `type`==`custom`, web filtering
 - `max_jitter` (String)
 - `max_latency` (String)
 - `max_loss` (String)
-- `service_limit_down` (Number) 0 means unlimited
-- `service_limit_up` (Number) 0 means unlimited
+- `service_limit_down` (Number) 0 means unlimited, value from 0 to 107374182
+- `service_limit_up` (Number) 0 means unlimited, value from 0 to 107374182
 - `sle_enabled` (Boolean) Whether to enable measure SLE
 - `specs` (Attributes List) When `type`==`custom`, optional, if it doesn't exist, http and https is assumed (see [below for nested schema](#nestedatt--specs))
 - `ssr_relaxed_tcp_state_enforcement` (Boolean)

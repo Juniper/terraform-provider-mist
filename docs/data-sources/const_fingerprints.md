@@ -34,4 +34,4 @@ data "mist_const_fingerprints" "list_of_fingerprints" {}
 - `family` (List of String)
 - `mfg` (List of String)
 - `model` (List of String)
-- `os_type` (List of String)
+- `os` (List of String)

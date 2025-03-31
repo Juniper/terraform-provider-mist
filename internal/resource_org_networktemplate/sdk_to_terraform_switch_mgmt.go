@@ -246,7 +246,7 @@ func switchMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 	var fipsEnabled basetypes.BoolValue
 	var localAccounts = types.MapNull(LocalAccountsValue{}.Type(ctx))
 	var mxedgeProxyHost basetypes.StringValue
-	var mxedgeProxyPort basetypes.Int64Value
+	var mxedgeProxyPort basetypes.StringValue
 	var protectRe = types.ObjectNull(ProtectReValue{}.AttributeTypes(ctx))
 	var rootPassword basetypes.StringValue
 	var tacacs = types.ObjectNull(TacacsValue{}.AttributeTypes(ctx))
@@ -281,7 +281,7 @@ func switchMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 			mxedgeProxyHost = types.StringValue(*d.MxedgeProxyHost)
 		}
 		if d.MxedgeProxyPort != nil {
-			mxedgeProxyPort = types.Int64Value(int64(*d.MxedgeProxyPort))
+			mxedgeProxyPort = mistutils.SwitchMgmtMxedgeProxyPortsAsString(d.MxedgeProxyPort)
 		}
 		if d.ProtectRe != nil {
 			protectRe = switchMgmtProtectReSdkToTerraform(ctx, diags, d.ProtectRe)

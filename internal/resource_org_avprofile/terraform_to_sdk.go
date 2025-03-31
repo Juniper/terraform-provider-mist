@@ -30,11 +30,11 @@ func TerraformToSdk(plan *OrgAvprofileModel) (*models.Avprofile, diag.Diagnostic
 
 	data.Name = plan.Name.ValueString()
 
-	var items []models.AvprofileProtocolsEnum
+	var items []models.AvprofileProtocolEnum
 	for _, p := range plan.Protocols.Elements() {
 		var sInterface interface{} = p
 		s := sInterface.(basetypes.StringValue)
-		items = append(items, (models.AvprofileProtocolsEnum)(s.ValueString()))
+		items = append(items, (models.AvprofileProtocolEnum)(s.ValueString()))
 	}
 	data.Protocols = items
 

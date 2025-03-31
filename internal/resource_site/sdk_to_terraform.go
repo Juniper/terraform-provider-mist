@@ -29,7 +29,7 @@ func SdkToTerraform(data *models.Site) (SiteModel, diag.Diagnostics) {
 	var rftemplateId basetypes.StringValue
 	var secpolicyId basetypes.StringValue
 	var sitetemplateId basetypes.StringValue
-	var sitegroupIds = types.ListNull(types.StringType)
+	var sitegroupIds = types.ListValueMust(types.StringType, []attr.Value{})
 	var tzOffset basetypes.Int64Value
 
 	if data.Address != nil {

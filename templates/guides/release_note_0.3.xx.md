@@ -2,13 +2,385 @@
 subcategory: "Release Notes"
 page_title: "v0.2.xx"
 description: |-
-    Release Notes for v0.2.xx
+    Release Notes for v0.3.xx
 ---
 
 # Release Notes for v0.3.xx
 
+## Release Notes for v0.3.1
+**Release Date**: March 31th, 2025 
+### Breaking Changes
+
+#### Changes in Allowed Attribute Values
+- **`mist_org_service` Resource**  
+  - Corrected the `.failover_policy` enum values from `[revertable, non_revertable]` to `[revertible, non_revertible]`.  
+
+~> **Impact** Ensure your Terraform configurations are updated to use the corrected enum values to avoid validation errors.
+
+#### Changes in Attribute Types
+To improve compatibility with API type variations and support the use of `{{variables}}` in attribute values, the following type changes have been made:
+
+- **`mist_device_switch`, `mist_org_networktemplate`, and `mist_site_networktemplate` Resources**  
+  - Updated the type of `.port_usages.mac_limit` from `int64` to `string`.  
+  - Updated the type of `.port_usages.mtu` from `int64` to `string`.
+
+- **`mist_device_gateway`, `mist_org_deviceprofile_gateway`, and `mist_org_gatewaytemplate` Resources**  
+  - Updated the type of `.port_config.reth_idx` from `int64` to `string`.
+
+~> **Impact** Review and update your Terraform configurations to align with the new attribute types. This ensures compatibility with the latest API behavior and prevents potential runtime issues.
+
+
+### General changes
+
+#### Attributes removed
+* `mist_org_setting.mxedge_fips_enabled` has been removed to match the API structure (use `mist_org_setting.mxedge_mgmt.fips_enabled` instead)
+
+#### Import function disabled
+* temporarly removing the `import` function from the `mist_org_sso_role` resource. The import function will be added back in a later version
+
+#### Attributes added
+- **`mist_device_switch`, `mist_org_networktemplate` and `mist_site_networktemplate` resources**
+ - `.radius_config.acct_immediate_update` has been added
+ - `.radius_config.auth_server_selection` has been added, default is `StaticString("ordered")`
+ - `.radius_config.coa_enabled` has been added, default is `StaticBool(true)`
+ - `.radius_config.coa_port` has been added
+ - `.radius_config.fast_dot1x_timers` has been added, default is `StaticBool(false)`
+
+- **`mist_org_deviceprofile_ap` resource**
+ -  `.aeroscout.port` has been added
+
+
+### Resources default values removed
+
+#### Reducing Configuration Drift for Resource IDs
+
+To address the configuration drift caused by the behavior where the resource `id` was marked as "known after apply," improvements have been made to ensure that the `id` attribute uses the state value if unknown. This change reduces unnecessary plan differences and aligns the resource state more accurately with the Mist Cloud API. Users should experience fewer discrepancies when managing resources through Terraform.
+
+#### Changes to Reduce Configuration Drift
+
+Changes have been applied to resources to reduce configuration drift when importing resources or saving changes from the Mist UI. These updates aim to align Terraform resource states with the Mist UI default values. However, some default values are dynamic and depend on other parameter values, making it currently impossible to completely eliminate configuration drift in certain scenarios.
+
+~> **Warning** Some default values have been removed from the Terraform Provider resource schemas.  
+These changes may lead to configuration drift if the affected attributes are not explicitly defined in your HCL configuration.  
+Attributes without explicit definitions will default to `null`, but this will not alter the actual configuration in the Mist Cloud (the Mist Cloud will use the default value). To avoid discrepancies, ensure that all required attributes are explicitly set in your configuration.
+
+List of the default value changed:
+*  `mist_org_alarmtemplate`
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `.rules.delivery.additional_emails` | N/A | [] |
+
+*  `mist_device_ap` and `mist_org_deviceprofile_ap`
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `.aeroscout.host` | N/A |StaticString("") |
+| `.aeroscout.locate_connected` | StaticBool(true) | StaticBool(false) |
+| `.ble_config.beacon_enabled` | StaticBool(false) | StaticBool(true) |
+| `.ble_config.beacon_rate` | StaticInt64(0) | N/A |
+| `.ble_config.beacon_rate_mode` | StaticString("default") | N/A |
+| `.ble_config.custom_ble_packet_enabled` | StaticBool(false) | N/A |
+| `.ble_config.custom_ble_packet_frame` | StaticString("") | N/A |
+| `.ble_config.custom_ble_packet_freq_msec` | StaticInt64(0) | N/A |
+| `.ble_config.eddystone_uid_adv_power` | StaticInt64(0) | N/A |
+| `.ble_config.eddystone_uid_beams` | StaticString("") | N/A |
+| `.ble_config.eddystone_uid_enabled` | StaticBool(false) | N/A |
+| `.ble_config.eddystone_uid_freq_msec` | StaticInt64(0) | N/A |
+| `.ble_config.eddystone_uid_instance` | StaticString("") | N/A |
+| `.ble_config.eddystone_uid_namespace` | StaticString("") | N/A |
+| `.ble_config.eddystone_url_adv_power` | StaticInt64(0) | N/A |
+| `.ble_config.eddystone_url_beams` | StaticString("") | N/A |
+| `.ble_config.eddystone_url_enabled` | StaticBool(false) | N/A |
+| `.ble_config.eddystone_url_freq_msec` | StaticInt64(0) | N/A |
+| `.ble_config.eddystone_url_url` | StaticString("") | N/A |
+| `.ble_config.ibeacon_adv_power` | StaticInt64(0) | N/A |
+| `.ble_config.ibeacon_beams` | StaticString("") | N/A |
+| `.ble_config.ibeacon_enabled` | StaticBool(false) | N/A |
+| `.ble_config.ibeacon_freq_msec` | StaticInt64(0) | N/A |
+| `.ble_config.ibeacon_major` | StaticInt64(0) | N/A |
+| `.ble_config.ibeacon_minor` | StaticInt64(0) | N/A |
+| `.ble_config.ibeacon_uuid` | StaticString("") | N/A |
+| `.ble_config.power` | StaticInt64(0) | N/A |
+| `.ble_config.power_mode` | StaticString("default") | N/A |
+| `.esl_config.host` | N/A | StaticString("") |
+| `.esl_config.type` | N/A | StaticString("imagotag") |
+| `.ip_config.mtu` | N/A | StaticInt64(0) |
+| `.ip_config.type6` | StaticString("disabled") | N/A |
+| `.ip_config.vlan_id` | StaticInt64(1) | N/A |
+| `.radio_config.allow_rrm_disable` | StaticBool(false) | N/A |
+| `.radio_config.antenna_mode` | StaticString("default") | N/A |
+| `.radio_config.band_5.bandwidth` | N/A | StaticInt64(40) |
+| `.radio_config.band_5_on_24_radio.bandwidth` | N/A | StaticInt64(40) |
+| `.radio_config.indoor_use` | StaticBool(false) | N/A |
+| `.radio_config.keep_wlans_up_if_down` | StaticBool(false) | N/A |
+| `.usb_config.cacert` | N/A | StaticString("") |
+| `.usb_config.host` | N/A | StaticString("") |
+| `.usb_config.port` | StaticInt64(0) | N/A |
+| `.usb_config.vlan_id` | StaticInt64(1) | N/A |
+
+*  `mist_device_switch`
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `.dns_servers` | N/A | [] |
+| `.dns_suffix` | N/A | [] |
+| `.extra_routes.discard` | StaticBool(false) | N/A |
+| `.extra_routes.no_resolve` | StaticBool(false) | N/A |
+| `.extra_routes6.discard` | StaticBool(false) | N/A |
+| `.extra_routes6.no_resolve` | StaticBool(false) | N/A |
+| `.networks.isolation` | StaticBool(false) | N/A |
+| `.ntp_servers` | N/A | [] |
+| `.oob_ip_config.use_mgmt_vrf_for_host_out` | StaticBool(false) | N/A |
+| `.port_config.aggregated` | StaticBool(false) | N/A |
+| `.port_config.disable_autoneg` | StaticBool(false) | N/A |
+| `.port_config.duplex` | StaticString("auto") | N/A |
+| `.port_config.mtu` | StaticInt64(1514) | N/A |
+| `.port_config.poe_disabled` | StaticBool(false) | N/A |
+| `.port_config.speed` | StaticString("auto") | N/A |
+| `.port_usages.allow_multiple_supplicants` | StaticBool(false) | N/A |
+| `.port_usages.bypass_auth_when_server_down` | StaticBool(false) | N/A |
+| `.port_usages.bypass_auth_when_server_down_for_unknown_client` | StaticBool(false) | N/A |
+| `.port_usages.description` | N/A | StaticString("") |
+| `.port_usages.enable_mac_auth` | StaticBool(false) | N/A |
+| `.port_usages.inter_isolation_network_link` | StaticBool(false) | N/A |
+| `.port_usages.inter_switch_link` | StaticBool(false) | N/A |
+| `.port_usages.mac_auth_protocol` | StaticString("eap-md5") | N/A |
+| `.port_usages.mac_limit` | N/A |StaticString("0") |
+| `.port_usages.reauth_interval` | StaticString("3600") | N/A |
+| `.port_usages.reset_default_when` | StaticString("link_down") | N/A |
+| `.port_usages.storm_control.no_broadcast` | StaticBool(false) | N/A |
+| `.port_usages.storm_control.no_multicast` | StaticBool(false) | N/A |
+| `.port_usages.storm_control.no_registered_multicast` | StaticBool(false) | N/A |
+| `.port_usages.storm_control.no_unknown_unicast` | StaticBool(false) | N/A |
+| `.port_usages.storm_control.percentage` | StaticInt64(80) | N/A |
+| `.port_usages.stp_no_root_port` | StaticBool(false) | N/A |
+| `.port_usages.stp_p2p` | StaticBool(false) | N/A |
+| `.port_usages.use_vstp` | StaticBool(false) | N/A |
+| `.radius_config.auth_servers.require_message_authenticator` | StaticBool(false) | N/A |
+| `.radius_config.auth_servers.coa_port` | N/A | StaticString("") |
+| `.remote_syslog.send_to_all_servers` | StaticBool(false) | N/A |
+| `.remote_syslog.servers.port` | StaticInt64(514) | N/A |
+| `.snmp_config.network` | StaticString("default") | N/A |
+| `.switch_mgmt.ap_affinity_threshold` | StaticInt64(10) | N/A |
+| `.switch_mgmt.dhcp_option_fqdn` | StaticBool(false) | N/A |
+| `.switch_mgmt.mxedge_proxy_port` | StaticInt64(2200) | N/A |
+
+*  `mist_org_avprofile`
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `.mime_whitelist` | N/A | [] |
+| `.url_whitelist` | N/A | [] |
+
+*  `mist_org_nacrule`
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `.apply_tags` | N/A | [] |
+
+*  `mist_org_nactag`
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `.allow_usermac_override` | StaticBool(false) | N/A |
+| `.match_all` | StaticBool(false) | N/A |
+
+*  `mist_org_network`
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `.routed_for_networks` | N/A | [] |
+| `.vpn_access.source_nat` | N/A | {} |
+| `.vpn_access.static_nat` | N/A | {} |
+
+*  `mist_org_networktemplate` and `mist_site_networktemplate`
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `.dns_servers` | N/A | [] |
+| `.dns_suffix` | N/A | [] |
+| `.extra_routes.discard` | StaticBool(false) | N/A |
+| `.extra_routes.no_resolve` | StaticBool(false) | N/A |
+| `.extra_routes6.discard` | StaticBool(false) | N/A |
+| `.extra_routes6.no_resolve` | StaticBool(false) | N/A |
+| `.networks.isolation` | StaticBool(false) | N/A |
+| `.ntp_servers` | N/A | []] |
+| `.port_usages.allow_multiple_supplicants` | StaticBool(false) | N/A |
+| `.port_usages.bypass_auth_when_server_down` | StaticBool(false) | N/A |
+| `.port_usages.bypass_auth_when_server_down_for_unknown_client` | StaticBool(false) | N/A |
+| `.port_usages.description` | N/A | StaticString("") |
+| `.port_usages.enable_mac_auth` | StaticBool(false) | N/A |
+| `.port_usages.inter_isolation_network_link` | StaticBool(false) | N/A |
+| `.port_usages.inter_switch_link` | StaticBool(false) | N/A |
+| `.port_usages.mac_auth_protocol` | StaticString("eap-md5") | N/A |
+| `.port_usages.mac_limit` | N/A |StaticString("0") |
+| `.port_usages.reauth_interval` | StaticString("3600") | N/A |
+| `.port_usages.reset_default_when` | StaticString("link_down") | N/A |
+| `.port_usages.storm_control.no_broadcast` | StaticBool(false) | N/A |
+| `.port_usages.storm_control.no_multicast` | StaticBool(false) | N/A |
+| `.port_usages.storm_control.no_registered_multicast` | StaticBool(false) | N/A |
+| `.port_usages.storm_control.no_unknown_unicast` | StaticBool(false) | N/A |
+| `.port_usages.storm_control.percentage` | StaticInt64(80) | N/A |
+| `.port_usages.stp_no_root_port` | StaticBool(false) | N/A |
+| `.port_usages.stp_p2p` | StaticBool(false) | N/A |
+| `.port_usages.use_vstp` | StaticBool(false) | N/A |
+| `.radius_config.auth_servers.require_message_authenticator` | StaticBool(false) | N/A |
+| `.radius_config.auth_servers.coa_port` | N/A | StaticString("") |
+| `.remote_syslog.send_to_all_servers` | StaticBool(false) | N/A |
+| `.remote_syslog.servers.port` | StaticInt64(514) | N/A |
+| `.snmp_config.network` | StaticString("default") | N/A |
+| `.ssh_keys` | N/A | [] |
+| `.switch_matching.rules.oob_ip_config.use_mgmt_vrf_for_host_out` | StaticBool(false) | N/A |
+| `.switch_matching.rules.port_config.aggregated` | StaticBool(false) | N/A |
+| `.switch_matching.rules.port_config.disable_autoneg` | StaticBool(false) | N/A |
+| `.switch_matching.rules.port_config.duplex` | StaticString("auto") | N/A |
+| `.switch_matching.rules.port_config.mtu` | StaticInt64(1514) | N/A |
+| `.switch_matching.rules.port_config.poe_disabled` | StaticBool(false) | N/A |
+| `.switch_matching.rules.port_config.speed` | StaticString("auto") | N/A |
+| `.switch_mgmt.ap_affinity_threshold` | StaticInt64(10) | N/A |
+| `.switch_mgmt.dhcp_option_fqdn` | StaticBool(false) | N/A |
+| `.switch_mgmt.mxedge_proxy_port` | StaticInt64(2200) | N/A |
+
+* `mist_org_psk` and `mist_site_psk`
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `.max_usage` | StaticInt64(0) | N/A |
+
+* `mist_org_rftemplate`
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `.band_24.antenna_mode` | StaticString("default") | N/A |
+| `.band_24.power` | StaticInt64(0) | N/A |
+| `.band_5.antenna_mode` | StaticString("default") | N/A |
+| `.band_5.bandwidth` | N/A | StaticInt64(40) |
+| `.band_5_on_24_radio.antenna_mode` | StaticString("default") | N/A |
+| `.band_5_on_24_radio.bandwidth` | N/A | StaticInt64(40) |
+| `.band_5_on_24_radio.power` | StaticInt64(0) | N/A |
+| `.band_5.power` | StaticInt64(0) | N/A |
+| `.band_6.antenna_mode` | StaticString("default") | N/A |
+| `.band_6.power` | StaticInt64(0) | N/A |
+| `.model_specific.ant_gain_24` | N/A | StaticInt64(0) | 
+| `.model_specific.ant_gain_5` | N/A | StaticInt64(0) | 
+| `.model_specific.ant_gain_6` | N/A | StaticInt64(0) | 
+| `.model_specific.band_24.antenna_mode` | StaticString("default") | N/A |
+| `.model_specific.band_24.power` | StaticInt64(0) | N/A |
+| `.model_specific.band_5.antenna_mode` | StaticString("default") | N/A |
+| `.model_specific.band_5.bandwidth` | N/A | StaticInt64(40) |
+| `.model_specific.band_5.power` | StaticInt64(0) | N/A |
+| `.model_specific.band_5_on_24_radio.antenna_mode` | StaticString("default") | N/A |
+| `.model_specific.band_5_on_24_radio.bandwidth` | N/A | StaticInt64(40) |
+| `.model_specific.band_5_on_24_radio.power` | StaticInt64(0) | N/A |
+| `.model_specific.band_6.antenna_mode` | StaticString("default") | N/A |
+| `.model_specific.band_6.power` | StaticInt64(0) | N/A |
+
+
+* `mist_org_service`
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `.client_limit_down` | StaticInt64(0) | N/A |
+| `.client_limit_up` | StaticInt64(0) | N/A |
+| `.failover_policy` | StaticString("revertible") | N/A |
+| `.service_limit_down` | StaticInt64(0) | N/A |
+| `.service_limit_up` | StaticInt64(0) | N/A |
+| `.sle_enabled` | StaticBool(false) | N/A |
+| `.ssr_relaxed_tcp_state_enforcement` | StaticBool(false) | N/A |
+| `.traffic_class` | StaticString("best_effort") | N/A |
+
+* `mist_org_servicepolicy`
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `.aamw.profile` | StaticString("standard") | N/A |
+| `.ewf.profile` | StaticString("strict") | N/A |
+| `.idp.profile` | StaticString("strict") | N/A |
+
+*  `mist_org_setting`
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `.ap_updown_threshold` | StaticInt64(0) | N/A |
+| `.cloudshark.apitoken` | N/A |StaticString("") |
+| `.cloudshark.url` | N/A |StaticString("") |
+| `.device_updown_threshold` | StaticInt64(0) | N/A |
+| `.disable_pcap` | StaticBool(false) | N/A |
+| `.disable_remote_shell` | StaticBool(false) | N/A |
+| `.gateway_updown_threshold` | StaticInt64(0) | N/A |
+| `.mist_nac.disable_rsae_algorithms` | StaticBool(false) | N/A |
+| `.mist_nac.eap_ssl_security_level` | StaticInt64(0) | N/A |
+| `.mist_nac.idp_machine_cert_lookup_field` | StaticString("automatic") | N/A |
+| `.mist_nac.idp_user_cert_lookup_field` | StaticString("automatic") | N/A |
+| `.mist_nac.use_ip_version` | StaticString("v4") | N/A |
+| `.mist_nac.use_ssl_port` | StaticBool(false) | N/A |
+| `.mxedge_mgmt.config_auto_revert` | StaticBool(false) | N/A |
+| `.mxedge_mgmt.oob_ip_type` | StaticString(dhcp) | N/A |
+| `.mxedge_mgmt.oob_ip_type6` | StaticString(autoconf) | N/A |
+| `.switch_updown_threshold` | StaticInt64(0) | N/A |
+
+* `mist_org_sso`
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `.role_attr_from` | StaticString("Role") | N/A |
+
+* `mist_org_vpn` and `mist_site_vpn`
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `.paths.bfd_profile` | StaticString("broadband") | N/A |
+| `.paths.bfd_use_tunnel_mode` | StaticBool(false) | N/A |
+| `.paths.pod` | StaticInt64(1) | N/A |
+| `.type` | StaticString("hub_spoke") | N/A |
+
+* `mist_org_webhook` and `mist_site_webhook`
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `.single_event_per_message` | StaticString("in") | N/A |
+
+* `mist_org_wxtag` and `mist_site_wxtag`
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `.op` | StaticString("in") | N/A |
+
+* `site`
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `.notes` | N/A | StaticString("") |
+| `.sitegroup_ids` | N/A | [] |
+
+* `site_setting`
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `.ap_updown_threshold` | StaticInt64(0) | N/A |
+| `.device_updown_threshold` | StaticInt64(0) | N/A |
+| `.engagement.bounce` | StaticString("Visitor") | StaticString("") |
+| `.engagement.engaged` | StaticString("Associates") | StaticString("") |
+| `.engagement.passerby` | StaticString("Passerby") | StaticString("") |
+| `.engagement.stationed` | StaticString("Assets") | StaticString("") |
+| `.engagement.hours.mon` | StaticString("") | N/A |
+| `.engagement.hours.tue` | StaticString("") | N/A |
+| `.engagement.hours.wed` | StaticString("") | N/A |
+| `.engagement.hours.thu` | StaticString("") | N/A |
+| `.engagement.hours.fri` | StaticString("") | N/A |
+| `.engagement.hours.sat` | StaticString("") | N/A |
+| `.engagement.hours.sun` | StaticString("") | N/A |
+| `.gateway_mgmt.auto_signature_update.day_od_week` | N/A | StaticString("") |
+| `.gateway_mgmt.config_revert_timer` | StaticInt64(10) | N/A |
+| `.gateway_mgmt.disable_console` | StaticBool(false) | N/A |
+| `.gateway_mgmt.disable_oob` | StaticBool(false) | N/A |
+| `.gateway_mgmt.disable_usb` | StaticBool(false) | N/A |
+| `.gateway_mgmt.fips_enabled` | StaticBool(false) | N/A |
+| `.gateway_mgmt.security_log_source_interface` | N/A | StaticString("") |
+| `.gateway_updown_threshold` | StaticInt64(0) | N/A |
+| `.occupancy.min_duration` | StaticInt64(3000) | N/A |
+| `.remove_existing_configs` | StaticBool(false) | N/A |
+| `.report_gatt` | StaticBool(false) | N/A |
+| `.rogue.min_rogue_duration` | StaticInt64(10) | N/A |
+| `.rogue.min_rogue_rssi` | StaticInt64(-80) | N/A |
+| `.rtsa.disable_pressure_sensor` | StaticBool(false) | N/A |
+| `.switch_updown_threshold` | StaticInt64(0) | N/A |
+| `.synthetic_test.disabled` | StaticBool(false) | N/A |
+| `.track_anonymous_devices` | StaticBool(false) | N/A |
+| `.track_anonymous_devices.dot1x` | StaticBool(false) | N/A |
+| `.wifi.cisco_enabled` | StaticBool(false) | N/A |
+| `.wifi.disable_11k` | StaticBool(false) | N/A |
+| `.wifi.disable_radios_when_power_constrained` | StaticBool(false) | N/A |
+| `.wifi.enable_arp_spoof_check` | StaticBool(false) | N/A |
+| `.wifi.enable_shared_radio_scanning` | StaticBool(true) | N/A |
+| `.wifi.mesh_enable_crm` | StaticBool(false) | N/A |
+
+
+--- 
 ## Release Notes for v0.3.0
-**release data**: March 14th, 2025
+**release data**: March 14th, 2025 
 
 This release is adding new attributes based on the Mist Cloud push from February 2025.
 

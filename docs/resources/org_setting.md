@@ -87,7 +87,6 @@ resource "mist_org_setting" "terraform_test" {
 - `junos_shell_access` (Attributes) by default, webshell access is only enabled for Admin user (see [below for nested schema](#nestedatt--junos_shell_access))
 - `mgmt` (Attributes) management-related properties (see [below for nested schema](#nestedatt--mgmt))
 - `mist_nac` (Attributes) (see [below for nested schema](#nestedatt--mist_nac))
-- `mxedge_fips_enabled` (Boolean)
 - `mxedge_mgmt` (Attributes) (see [below for nested schema](#nestedatt--mxedge_mgmt))
 - `optic_port_config` (Attributes Map) Property key is the interface name or range (e.g. `et-0/0/47`, `et-0/0/48-49`) (see [below for nested schema](#nestedatt--optic_port_config))
 - `password_policy` (Attributes) password policy (see [below for nested schema](#nestedatt--password_policy))
@@ -129,12 +128,9 @@ Required:
 <a id="nestedatt--cloudshark"></a>
 ### Nested Schema for `cloudshark`
 
-Required:
-
-- `apitoken` (String, Sensitive)
-
 Optional:
 
+- `apitoken` (String, Sensitive)
 - `url` (String) If using CS Enterprise
 
 

@@ -582,10 +582,10 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Property key is the destination CIDR (e.g. \"10.0.0.0/8\")",
-				MarkdownDescription: "Property key is the destination CIDR (e.g. \"10.0.0.0/8\")",
+				Description:         "Property key is the destination CIDR (e.g. \"10.0.0.0/8\"), the destination Network name or a variable (e.g. \"{{myvar}}\")",
+				MarkdownDescription: "Property key is the destination CIDR (e.g. \"10.0.0.0/8\"), the destination Network name or a variable (e.g. \"{{myvar}}\")",
 				Validators: []validator.Map{
-					mapvalidator.SizeAtLeast(1), mapvalidator.KeysAre(stringvalidator.Any(mistvalidator.ParseCidr(true, false), mistvalidator.ParseVar())),
+					mapvalidator.SizeAtLeast(1),
 				},
 			},
 			"extra_routes6": schema.MapNestedAttribute{
@@ -605,10 +605,10 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Property key is the destination CIDR (e.g. \"2a02:1234:420a:10c9::/64\")",
-				MarkdownDescription: "Property key is the destination CIDR (e.g. \"2a02:1234:420a:10c9::/64\")",
+				Description:         "Property key is the destination CIDR (e.g. \"2a02:1234:420a:10c9::/64\"), the destination Network name or a variable (e.g. \"{{myvar}}\")",
+				MarkdownDescription: "Property key is the destination CIDR (e.g. \"2a02:1234:420a:10c9::/64\"), the destination Network name or a variable (e.g. \"{{myvar}}\")",
 				Validators: []validator.Map{
-					mapvalidator.SizeAtLeast(1), mapvalidator.KeysAre(stringvalidator.Any(mistvalidator.ParseCidr(false, true), mistvalidator.ParseVar())),
+					mapvalidator.SizeAtLeast(1),
 				},
 			},
 			"id": schema.StringAttribute{
@@ -711,7 +711,7 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"ip": schema.StringAttribute{
-							Required: true,
+							Optional: true,
 							Validators: []validator.String{
 								stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar()),
 								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static")),
@@ -719,11 +719,9 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						"netmask": schema.StringAttribute{
-							Required: true,
+							Optional: true,
 							Validators: []validator.String{
-								stringvalidator.Any(mistvalidator.ParseNetmask(true, true), mistvalidator.ParseVar()),
-								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static")),
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("dhcp")),
+								stringvalidator.Any(mistvalidator.ParseNetmask(false, false), mistvalidator.ParseVar()),
 							},
 						},
 						"secondary_ips": schema.ListAttribute{
@@ -1271,7 +1269,7 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 						Description:         "If `type`==`static`",
 						MarkdownDescription: "If `type`==`static`",
 						Validators: []validator.String{
-							stringvalidator.Any(mistvalidator.ParseNetmask(true, true), mistvalidator.ParseVar()),
+							stringvalidator.Any(mistvalidator.ParseNetmask(false, false), mistvalidator.ParseVar()),
 							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static")),
 							mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("dhcp")),
 						},
@@ -1301,7 +1299,7 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 								Description:         "Used only if `subnet` is not specified in `networks`",
 								MarkdownDescription: "Used only if `subnet` is not specified in `networks`",
 								Validators: []validator.String{
-									stringvalidator.Any(mistvalidator.ParseNetmask(true, true), mistvalidator.ParseVar()),
+									stringvalidator.Any(mistvalidator.ParseNetmask(false, false), mistvalidator.ParseVar()),
 									mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static")),
 									mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("dhcp")),
 								},
@@ -1689,9 +1687,6 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 							Sensitive:           true,
 							Description:         "If `wan_type`==`lte`",
 							MarkdownDescription: "If `wan_type`==`lte`",
-							Validators: []validator.String{
-								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("lte")),
-							},
 						},
 						"lte_username": schema.StringAttribute{
 							Optional:            true,
@@ -1772,7 +1767,7 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 									Description:         "Used only if `subnet` is not specified in `networks`. Interface Netmask (i.e. \"/24\") or a Variable (i.e. \"{{myvar}}\")",
 									MarkdownDescription: "Used only if `subnet` is not specified in `networks`. Interface Netmask (i.e. \"/24\") or a Variable (i.e. \"{{myvar}}\")",
 									Validators: []validator.String{
-										stringvalidator.Any(mistvalidator.ParseNetmask(true, true), mistvalidator.ParseVar()),
+										stringvalidator.Any(mistvalidator.ParseNetmask(false, false), mistvalidator.ParseVar()),
 										mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static")),
 									},
 								},
@@ -1871,10 +1866,10 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 								int64validator.Between(1, 128),
 							},
 						},
-						"reth_idx": schema.Int64Attribute{
+						"reth_idx": schema.StringAttribute{
 							Optional:            true,
-							Description:         "If HA mode",
-							MarkdownDescription: "If HA mode",
+							Description:         "For SRX only and if HA Mode",
+							MarkdownDescription: "For SRX only and if HA Mode",
 						},
 						"reth_node": schema.StringAttribute{
 							Optional:            true,
@@ -20881,12 +20876,12 @@ func (t PortConfigType) ValueFromObject(ctx context.Context, in basetypes.Object
 		return nil, diags
 	}
 
-	rethIdxVal, ok := rethIdxAttribute.(basetypes.Int64Value)
+	rethIdxVal, ok := rethIdxAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`reth_idx expected to be basetypes.Int64Value, was: %T`, rethIdxAttribute))
+			fmt.Sprintf(`reth_idx expected to be basetypes.StringValue, was: %T`, rethIdxAttribute))
 	}
 
 	rethNodeAttribute, ok := attributes["reth_node"]
@@ -21789,12 +21784,12 @@ func NewPortConfigValue(attributeTypes map[string]attr.Type, attributes map[stri
 		return NewPortConfigValueUnknown(), diags
 	}
 
-	rethIdxVal, ok := rethIdxAttribute.(basetypes.Int64Value)
+	rethIdxVal, ok := rethIdxAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`reth_idx expected to be basetypes.Int64Value, was: %T`, rethIdxAttribute))
+			fmt.Sprintf(`reth_idx expected to be basetypes.StringValue, was: %T`, rethIdxAttribute))
 	}
 
 	rethNodeAttribute, ok := attributes["reth_node"]
@@ -22233,7 +22228,7 @@ type PortConfigValue struct {
 	PreserveDscp     basetypes.BoolValue   `tfsdk:"preserve_dscp"`
 	Redundant        basetypes.BoolValue   `tfsdk:"redundant"`
 	RedundantGroup   basetypes.Int64Value  `tfsdk:"redundant_group"`
-	RethIdx          basetypes.Int64Value  `tfsdk:"reth_idx"`
+	RethIdx          basetypes.StringValue `tfsdk:"reth_idx"`
 	RethNode         basetypes.StringValue `tfsdk:"reth_node"`
 	RethNodes        basetypes.ListValue   `tfsdk:"reth_nodes"`
 	Speed            basetypes.StringValue `tfsdk:"speed"`
@@ -22290,7 +22285,7 @@ func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	attrTypes["preserve_dscp"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["redundant"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["redundant_group"] = basetypes.Int64Type{}.TerraformType(ctx)
-	attrTypes["reth_idx"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["reth_idx"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["reth_node"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["reth_nodes"] = basetypes.ListType{
 		ElemType: types.StringType,
@@ -22888,7 +22883,7 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"preserve_dscp":   basetypes.BoolType{},
 			"redundant":       basetypes.BoolType{},
 			"redundant_group": basetypes.Int64Type{},
-			"reth_idx":        basetypes.Int64Type{},
+			"reth_idx":        basetypes.StringType{},
 			"reth_node":       basetypes.StringType{},
 			"reth_nodes": basetypes.ListType{
 				ElemType: types.StringType,
@@ -22959,7 +22954,7 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"preserve_dscp":   basetypes.BoolType{},
 			"redundant":       basetypes.BoolType{},
 			"redundant_group": basetypes.Int64Type{},
-			"reth_idx":        basetypes.Int64Type{},
+			"reth_idx":        basetypes.StringType{},
 			"reth_node":       basetypes.StringType{},
 			"reth_nodes": basetypes.ListType{
 				ElemType: types.StringType,
@@ -23030,7 +23025,7 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"preserve_dscp":   basetypes.BoolType{},
 			"redundant":       basetypes.BoolType{},
 			"redundant_group": basetypes.Int64Type{},
-			"reth_idx":        basetypes.Int64Type{},
+			"reth_idx":        basetypes.StringType{},
 			"reth_node":       basetypes.StringType{},
 			"reth_nodes": basetypes.ListType{
 				ElemType: types.StringType,
@@ -23096,7 +23091,7 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		"preserve_dscp":   basetypes.BoolType{},
 		"redundant":       basetypes.BoolType{},
 		"redundant_group": basetypes.Int64Type{},
-		"reth_idx":        basetypes.Int64Type{},
+		"reth_idx":        basetypes.StringType{},
 		"reth_node":       basetypes.StringType{},
 		"reth_nodes": basetypes.ListType{
 			ElemType: types.StringType,
@@ -23424,7 +23419,7 @@ func (v PortConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"preserve_dscp":   basetypes.BoolType{},
 		"redundant":       basetypes.BoolType{},
 		"redundant_group": basetypes.Int64Type{},
-		"reth_idx":        basetypes.Int64Type{},
+		"reth_idx":        basetypes.StringType{},
 		"reth_node":       basetypes.StringType{},
 		"reth_nodes": basetypes.ListType{
 			ElemType: types.StringType,

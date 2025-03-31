@@ -89,7 +89,7 @@ func (o AllowedWhenValueIsInWithDefaultValidator) Validate(ctx context.Context, 
 			if !allowed {
 				resp.Diagnostics.Append(validatordiag.InvalidAttributeCombinationDiagnostic(
 					req.Path,
-					fmt.Sprintf("attribute %s is only allowed when %s has value in %s, got: %s. Default value %s is allowed.", req.Path, mp, o.Values, mpVal.String(), o.DefaultValue.String()),
+					fmt.Sprintf("Attribute \"%s\" is only allowed when \"%s\" has value in %s, got: %s. Default value \"%s\" is allowed.", req.Path, mp, o.Values, mpVal.String(), o.DefaultValue.String()),
 				))
 			}
 		}
