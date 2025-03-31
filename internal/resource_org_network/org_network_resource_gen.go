@@ -14,6 +14,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -371,6 +373,14 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "If `routed`==`false` (usually at Spoke), but some hosts needs to be reachable from Hub",
 							MarkdownDescription: "If `routed`==`false` (usually at Spoke), but some hosts needs to be reachable from Hub",
+							Default: objectdefault.StaticValue(
+								types.ObjectValueMust(
+									SourceNatValue{}.AttributeTypes(ctx),
+									map[string]attr.Value{
+										"external_ip": types.StringNull(),
+									},
+								),
+							),
 						},
 						"summarized_subnet": schema.StringAttribute{
 							Optional:            true,
@@ -479,6 +489,12 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 									),
 								),
 							},
+							Default: mapdefault.StaticValue(
+								types.MapValueMust(
+									VpnAccessStaticNatValue{}.Type(ctx),
+									map[string]attr.Value{},
+								),
+							),
 						},
 					},
 					CustomType: VpnAccessType{

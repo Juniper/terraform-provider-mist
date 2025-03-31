@@ -175,6 +175,12 @@ List of the default value changed:
 | `.allow_usermac_override` | StaticBool(false) | N/A |
 | `.match_all` | StaticBool(false) | N/A |
 
+*  `mist_org_network`
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `.vpn_access.source_nat` | N/A | {} |
+| `.vpn_access.static_nat` | N/A | {} |
+
 *  `mist_org_networktemplate` and `mist_site_networktemplate`
 | Attribute | Previous Default | New Default |
 |-----------|-----------|-----------|
