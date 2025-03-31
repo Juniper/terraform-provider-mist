@@ -8,7 +8,7 @@ description: |-
 # Release Notes for v0.3.xx
 
 ## Release Notes for v0.3.1
-**Release Date**: 
+**Release Date**: March 31th, 2025 
 ### Breaking Changes
 
 #### Changes in Allowed Attribute Values
