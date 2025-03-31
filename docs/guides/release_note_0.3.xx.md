@@ -31,8 +31,6 @@ To improve compatibility with API type variations and support the use of `{{vari
 
 
 ### General changes
-#### Reducing Configuration Drift for Resource IDs
-To address the configuration drift caused by the behavior where the resource `id` was marked as "known after apply," improvements have been made to ensure that the `id` attribute uses the state value if unknown. This change reduces unnecessary plan differences and aligns the resource state more accurately with the Mist Cloud API. Users should experience fewer discrepancies when managing resources through Terraform.
 
 #### Attributes removed
 * `mist_org_setting.mxedge_fips_enabled` has been removed to match the API structure (use `mist_org_setting.mxedge_mgmt.fips_enabled` instead)
@@ -53,11 +51,18 @@ To address the configuration drift caused by the behavior where the resource `id
 
 
 ### Resources default values removed
-### Changes to Reduce Configuration Drift
+
+#### Reducing Configuration Drift for Resource IDs
+
+To address the configuration drift caused by the behavior where the resource `id` was marked as "known after apply," improvements have been made to ensure that the `id` attribute uses the state value if unknown. This change reduces unnecessary plan differences and aligns the resource state more accurately with the Mist Cloud API. Users should experience fewer discrepancies when managing resources through Terraform.
+
+#### Changes to Reduce Configuration Drift
 
 Changes have been applied to resources to reduce configuration drift when importing resources or saving changes from the Mist UI. These updates aim to align Terraform resource states with the Mist UI default values. However, some default values are dynamic and depend on other parameter values, making it currently impossible to completely eliminate configuration drift in certain scenarios.
 
-~> **Warning** Some default values have been removed from the Terraform Provider resource schemas. This change may lead to configuration drift if the affected attributes are not explicitly defined in your HCL configuration. Attributes without explicit definitions will default to `null`, but this will not alter the actual configuration in the Mist Cloud (the Mist Cloud will use the default value). To avoid discrepancies, ensure that all required attributes are explicitly set in your configuration.
+~> **Warning** Some default values have been removed from the Terraform Provider resource schemas.  
+These changes may lead to configuration drift if the affected attributes are not explicitly defined in your HCL configuration.  
+Attributes without explicit definitions will default to `null`, but this will not alter the actual configuration in the Mist Cloud (the Mist Cloud will use the default value). To avoid discrepancies, ensure that all required attributes are explicitly set in your configuration.
 
 List of the default value changed:
 *  `mist_org_alarmtemplate`
@@ -229,12 +234,12 @@ List of the default value changed:
 | `.switch_mgmt.dhcp_option_fqdn` | StaticBool(false) | N/A |
 | `.switch_mgmt.mxedge_proxy_port` | StaticInt64(2200) | N/A |
 
-#### `mist_org_psk` and `mist_site_psk`
+* `mist_org_psk` and `mist_site_psk`
 | Attribute | Previous Default | New Default |
 |-----------|-----------|-----------|
-| `.max_usage` | int64default.StaticInt64(0) | N/A |
+| `.max_usage` | StaticInt64(0) | N/A |
 
-#### `mist_org_rftemplate`
+* `mist_org_rftemplate`
 | Attribute | Previous Default | New Default |
 |-----------|-----------|-----------|
 | `.band_24.antenna_mode` | StaticString("default") | N/A |
@@ -262,7 +267,7 @@ List of the default value changed:
 | `.model_specific.band_6.power` | StaticInt64(0) | N/A |
 
 
-#### `mist_org_service`
+* `mist_org_service`
 | Attribute | Previous Default | New Default |
 |-----------|-----------|-----------|
 | `.client_limit_down` | StaticInt64(0) | N/A |
@@ -274,7 +279,7 @@ List of the default value changed:
 | `.ssr_relaxed_tcp_state_enforcement` | StaticBool(false) | N/A |
 | `.traffic_class` | StaticString("best_effort") | N/A |
 
-#### `mist_org_servicepolicy`
+* `mist_org_servicepolicy`
 | Attribute | Previous Default | New Default |
 |-----------|-----------|-----------|
 | `.aamw.profile` | StaticString("standard") | N/A |
@@ -302,12 +307,12 @@ List of the default value changed:
 | `.mxedge_mgmt.oob_ip_type6` | StaticString(autoconf) | N/A |
 | `.switch_updown_threshold` | StaticInt64(0) | N/A |
 
-#### `mist_org_sso`
+* `mist_org_sso`
 | Attribute | Previous Default | New Default |
 |-----------|-----------|-----------|
 | `.role_attr_from` | StaticString("Role") | N/A |
 
-#### `mist_org_vpn` and `mist_site_vpn`
+* `mist_org_vpn` and `mist_site_vpn`
 | Attribute | Previous Default | New Default |
 |-----------|-----------|-----------|
 | `.paths.bfd_profile` | StaticString("broadband") | N/A |
@@ -315,23 +320,23 @@ List of the default value changed:
 | `.paths.pod` | StaticInt64(1) | N/A |
 | `.type` | StaticString("hub_spoke") | N/A |
 
-#### `mist_org_webhook` and `mist_site_webhook`
+* `mist_org_webhook` and `mist_site_webhook`
 | Attribute | Previous Default | New Default |
 |-----------|-----------|-----------|
 | `.single_event_per_message` | StaticString("in") | N/A |
 
-#### `mist_org_wxtag` and `mist_site_wxtag`
+* `mist_org_wxtag` and `mist_site_wxtag`
 | Attribute | Previous Default | New Default |
 |-----------|-----------|-----------|
 | `.op` | StaticString("in") | N/A |
 
-#### `site`
+* `site`
 | Attribute | Previous Default | New Default |
 |-----------|-----------|-----------|
 | `.notes` | N/A | StaticString("") |
 | `.sitegroup_ids` | N/A | [] |
 
-#### `site_setting`
+* `site_setting`
 | Attribute | Previous Default | New Default |
 |-----------|-----------|-----------|
 | `.ap_updown_threshold` | StaticInt64(0) | N/A |
