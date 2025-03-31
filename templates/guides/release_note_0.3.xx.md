@@ -317,6 +317,47 @@ List of the default value changed:
 |-----------|-----------|-----------|
 | `.op` | StaticString("in") | N/A |
 
+#### `ap_updown_threshold`
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `.ap_updown_threshold` | StaticInt64(0) | N/A |
+| `.device_updown_threshold` | StaticInt64(0) | N/A |
+| `.engagement.bounce` | StaticString("Visitor") | StaticString("") |
+| `.engagement.engaged` | StaticString("Associates") | StaticString("") |
+| `.engagement.passerby` | StaticString("Passerby") | StaticString("") |
+| `.engagement.stationed` | StaticString("Assets") | StaticString("") |
+| `.engagement.hours.mon` | StaticString("") | N/A |
+| `.engagement.hours.tue` | StaticString("") | N/A |
+| `.engagement.hours.wed` | StaticString("") | N/A |
+| `.engagement.hours.thu` | StaticString("") | N/A |
+| `.engagement.hours.fri` | StaticString("") | N/A |
+| `.engagement.hours.sat` | StaticString("") | N/A |
+| `.engagement.hours.sun` | StaticString("") | N/A |
+| `.gateway_mgmt.auto_signature_update.day_od_week` | N/A | StaticString("") |
+| `.gateway_mgmt.config_revert_timer` | StaticInt64(10) | N/A |
+| `.gateway_mgmt.disable_console` | StaticBool(false) | N/A |
+| `.gateway_mgmt.disable_oob` | StaticBool(false) | N/A |
+| `.gateway_mgmt.disable_usb` | StaticBool(false) | N/A |
+| `.gateway_mgmt.fips_enabled` | StaticBool(false) | N/A |
+| `.gateway_mgmt.security_log_source_interface` | N/A | StaticString("") |
+| `.gateway_updown_threshold` | StaticInt64(0) | N/A |
+| `.occupancy.min_duration` | StaticInt64(3000) | N/A |
+| `.remove_existing_configs` | StaticBool(false) | N/A |
+| `.report_gatt` | StaticBool(false) | N/A |
+| `.rogue.min_rogue_duration` | StaticInt64(10) | N/A |
+| `.rogue.min_rogue_rssi` | StaticInt64(-80) | N/A |
+| `.rtsa.disable_pressure_sensor` | StaticBool(false) | N/A |
+| `.switch_updown_threshold` | StaticInt64(0) | N/A |
+| `.synthetic_test.disabled` | StaticBool(false) | N/A |
+| `.track_anonymous_devices` | StaticBool(false) | N/A |
+| `.track_anonymous_devices.dot1x` | StaticBool(false) | N/A |
+| `.wifi.cisco_enabled` | StaticBool(false) | N/A |
+| `.wifi.disable_11k` | StaticBool(false) | N/A |
+| `.wifi.disable_radios_when_power_constrained` | StaticBool(false) | N/A |
+| `.wifi.enable_arp_spoof_check` | StaticBool(false) | N/A |
+| `.wifi.enable_shared_radio_scanning` | StaticBool(true) | N/A |
+| `.wifi.mesh_enable_crm` | StaticBool(false) | N/A |
+
 
 --- 
 ## Release Notes for v0.3.0

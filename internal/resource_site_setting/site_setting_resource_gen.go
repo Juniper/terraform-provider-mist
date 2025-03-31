@@ -50,13 +50,11 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"ap_updown_threshold": schema.Int64Attribute{
 				Optional:            true,
-				Computed:            true,
 				Description:         "Enable threshold-based device down delivery for AP devices only. When configured it takes effect for AP devices and `device_updown_threshold` is ignored.",
 				MarkdownDescription: "Enable threshold-based device down delivery for AP devices only. When configured it takes effect for AP devices and `device_updown_threshold` is ignored.",
 				Validators: []validator.Int64{
 					int64validator.Between(0, 240),
 				},
-				Default: int64default.StaticInt64(0),
 			},
 			"auto_upgrade": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -553,13 +551,11 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"device_updown_threshold": schema.Int64Attribute{
 				Optional:            true,
-				Computed:            true,
 				Description:         "By default, device_updown_threshold, if set, will apply to all devices types if different values for specific device type is desired, use the following",
 				MarkdownDescription: "By default, device_updown_threshold, if set, will apply to all devices types if different values for specific device type is desired, use the following",
 				Validators: []validator.Int64{
 					int64validator.Between(0, 240),
 				},
-				Default: int64default.StaticInt64(0),
 			},
 			"enable_unii_4": schema.BoolAttribute{
 				Optional: true,
@@ -575,28 +571,28 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 								Computed:            true,
 								Description:         "Default to `Visitor`",
 								MarkdownDescription: "Default to `Visitor`",
-								Default:             stringdefault.StaticString("Visitor"),
+								Default:             stringdefault.StaticString(""),
 							},
 							"engaged": schema.StringAttribute{
 								Optional:            true,
 								Computed:            true,
 								Description:         "Default to `Associates`",
 								MarkdownDescription: "Default to `Associates`",
-								Default:             stringdefault.StaticString("Associates"),
+								Default:             stringdefault.StaticString(""),
 							},
 							"passerby": schema.StringAttribute{
 								Optional:            true,
 								Computed:            true,
 								Description:         "Default to `Passerby`",
 								MarkdownDescription: "Default to `Passerby`",
-								Default:             stringdefault.StaticString("Passerby"),
+								Default:             stringdefault.StaticString(""),
 							},
 							"stationed": schema.StringAttribute{
 								Optional:            true,
 								Computed:            true,
 								Description:         "Default to `Assets`",
 								MarkdownDescription: "Default to `Assets`",
-								Default:             stringdefault.StaticString("Assets"),
+								Default:             stringdefault.StaticString(""),
 							},
 						},
 						CustomType: DwellTagNamesType{
@@ -652,52 +648,38 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Attributes: map[string]schema.Attribute{
 							"fri": schema.StringAttribute{
 								Optional:            true,
-								Computed:            true,
 								Description:         "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
 								MarkdownDescription: "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
-								Default:             stringdefault.StaticString(""),
 							},
 							"mon": schema.StringAttribute{
 								Optional:            true,
-								Computed:            true,
 								Description:         "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
 								MarkdownDescription: "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
-								Default:             stringdefault.StaticString(""),
 							},
 							"sat": schema.StringAttribute{
 								Optional:            true,
-								Computed:            true,
 								Description:         "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
 								MarkdownDescription: "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
-								Default:             stringdefault.StaticString(""),
 							},
 							"sun": schema.StringAttribute{
 								Optional:            true,
-								Computed:            true,
 								Description:         "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
 								MarkdownDescription: "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
-								Default:             stringdefault.StaticString(""),
 							},
 							"thu": schema.StringAttribute{
 								Optional:            true,
-								Computed:            true,
 								Description:         "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
 								MarkdownDescription: "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
-								Default:             stringdefault.StaticString(""),
 							},
 							"tue": schema.StringAttribute{
 								Optional:            true,
-								Computed:            true,
 								Description:         "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
 								MarkdownDescription: "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
-								Default:             stringdefault.StaticString(""),
 							},
 							"wed": schema.StringAttribute{
 								Optional:            true,
-								Computed:            true,
 								Description:         "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
 								MarkdownDescription: "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
-								Default:             stringdefault.StaticString(""),
 							},
 						},
 						CustomType: HoursType{
@@ -711,13 +693,11 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"max_dwell": schema.Int64Attribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Max time, default is 43200(12h), max is 68400 (18h)",
 						MarkdownDescription: "Max time, default is 43200(12h), max is 68400 (18h)",
 						Validators: []validator.Int64{
 							int64validator.Between(1, 68400),
 						},
-						Default: int64default.StaticInt64(43200),
 					},
 					"min_dwell": schema.Int64Attribute{
 						Optional:            true,
@@ -857,6 +837,7 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Attributes: map[string]schema.Attribute{
 							"day_of_week": schema.StringAttribute{
 								Optional:            true,
+								Computed:            true,
 								Description:         "enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`",
 								MarkdownDescription: "enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`",
 								Validators: []validator.String{
@@ -872,6 +853,7 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 										"wed",
 									),
 								},
+								Default: stringdefault.StaticString(""),
 							},
 							"enable": schema.BoolAttribute{
 								Optional: true,
@@ -893,39 +875,29 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"config_revert_timer": schema.Int64Attribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Rollback timer for commit confirmed",
 						MarkdownDescription: "Rollback timer for commit confirmed",
 						Validators: []validator.Int64{
 							int64validator.Between(1, 30),
 						},
-						Default: int64default.StaticInt64(10),
 					},
 					"disable_console": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "For both SSR and SRX disable console port",
 						MarkdownDescription: "For both SSR and SRX disable console port",
-						Default:             booldefault.StaticBool(false),
 					},
 					"disable_oob": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "For both SSR and SRX disable management interface",
 						MarkdownDescription: "For both SSR and SRX disable management interface",
-						Default:             booldefault.StaticBool(false),
 					},
 					"disable_usb": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "For SSR disable usb interface",
 						MarkdownDescription: "For SSR disable usb interface",
-						Default:             booldefault.StaticBool(false),
 					},
 					"fips_enabled": schema.BoolAttribute{
 						Optional: true,
-						Computed: true,
-						Default:  booldefault.StaticBool(false),
 					},
 					"probe_hosts": schema.ListAttribute{
 						ElementType: types.StringType,
@@ -1040,6 +1012,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"security_log_source_interface": schema.StringAttribute{
 						Optional: true,
+						Computed: true,
+						Default:  stringdefault.StaticString(""),
 					},
 				},
 				CustomType: GatewayMgmtType{
@@ -1053,13 +1027,11 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"gateway_updown_threshold": schema.Int64Attribute{
 				Optional:            true,
-				Computed:            true,
 				Description:         "Enable threshold-based device down delivery for Gateway devices only. When configured it takes effect for GW devices and `device_updown_threshold` is ignored.",
 				MarkdownDescription: "Enable threshold-based device down delivery for Gateway devices only. When configured it takes effect for GW devices and `device_updown_threshold` is ignored.",
 				Validators: []validator.Int64{
 					int64validator.Between(0, 240),
 				},
-				Default: int64default.StaticInt64(0),
 			},
 			"juniper_srx": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -1138,10 +1110,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"min_duration": schema.Int64Attribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Minimum duration",
 						MarkdownDescription: "Minimum duration",
-						Default:             int64default.StaticInt64(3000),
 					},
 					"sdkclients_enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -1191,17 +1161,13 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"remove_existing_configs": schema.BoolAttribute{
 				Optional:            true,
-				Computed:            true,
 				Description:         "By default, when we configure a device, we only clean up config we generate. Remove existing configs if enabled",
 				MarkdownDescription: "By default, when we configure a device, we only clean up config we generate. Remove existing configs if enabled",
-				Default:             booldefault.StaticBool(false),
 			},
 			"report_gatt": schema.BoolAttribute{
 				Optional:            true,
-				Computed:            true,
 				Description:         "Whether AP should periodically connect to BLE devices and report GATT device info (device name, manufacturer name, serial number, battery %, temperature, humidity)",
 				MarkdownDescription: "Whether AP should periodically connect to BLE devices and report GATT device info (device name, manufacturer name, serial number, battery %, temperature, humidity)",
-				Default:             booldefault.StaticBool(false),
 			},
 			"rogue": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -1241,23 +1207,19 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"min_rogue_duration": schema.Int64Attribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Minimum duration for a bssid to be considered rogue",
 						MarkdownDescription: "Minimum duration for a bssid to be considered rogue",
 						Validators: []validator.Int64{
 							int64validator.AtMost(59),
 						},
-						Default: int64default.StaticInt64(10),
 					},
 					"min_rogue_rssi": schema.Int64Attribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Minimum RSSI for an AP to be considered rogue",
 						MarkdownDescription: "Minimum RSSI for an AP to be considered rogue",
 						Validators: []validator.Int64{
 							int64validator.AtLeast(-85),
 						},
-						Default: int64default.StaticInt64(-80),
 					},
 					"min_rssi": schema.Int64Attribute{
 						Optional:            true,
@@ -1311,8 +1273,6 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"disable_pressure_sensor": schema.BoolAttribute{
 						Optional: true,
-						Computed: true,
-						Default:  booldefault.StaticBool(false),
 					},
 					"enabled": schema.BoolAttribute{
 						Optional: true,
@@ -1483,7 +1443,7 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 				},
-				Default: listdefault.StaticValue(types.ListNull(types.StringType)),
+				Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 			},
 			"ssr": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -1504,20 +1464,16 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"switch_updown_threshold": schema.Int64Attribute{
 				Optional:            true,
-				Computed:            true,
 				Description:         "Enable threshold-based device down delivery for Switch devices only. When configured it takes effect for SW devices and `device_updown_threshold` is ignored.",
 				MarkdownDescription: "Enable threshold-based device down delivery for Switch devices only. When configured it takes effect for SW devices and `device_updown_threshold` is ignored.",
 				Validators: []validator.Int64{
 					int64validator.Between(0, 240),
 				},
-				Default: int64default.StaticInt64(0),
 			},
 			"synthetic_test": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"disabled": schema.BoolAttribute{
 						Optional: true,
-						Computed: true,
-						Default:  booldefault.StaticBool(false),
 					},
 					"vlans": schema.ListNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{
@@ -1590,19 +1546,15 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"track_anonymous_devices": schema.BoolAttribute{
 				Optional:            true,
-				Computed:            true,
 				Description:         "Whether to track anonymous BLE assets (requires ‘track_asset’  enabled)",
 				MarkdownDescription: "Whether to track anonymous BLE assets (requires ‘track_asset’  enabled)",
-				Default:             booldefault.StaticBool(false),
 			},
 			"uplink_port_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"dot1x": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Whether to do 802.1x against uplink switch. When enabled, AP cert will be used to do EAP-TLS and the Org's CA Cert has to be provisioned at the switch",
 						MarkdownDescription: "Whether to do 802.1x against uplink switch. When enabled, AP cert will be used to do EAP-TLS and the Org's CA Cert has to be provisioned at the switch",
-						Default:             booldefault.StaticBool(false),
 					},
 					"keep_wlans_up_if_down": schema.BoolAttribute{
 						Optional:            true,
@@ -1728,32 +1680,22 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 				Attributes: map[string]schema.Attribute{
 					"cisco_enabled": schema.BoolAttribute{
 						Optional: true,
-						Computed: true,
-						Default:  booldefault.StaticBool(true),
 					},
 					"disable_11k": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Whether to disable 11k",
 						MarkdownDescription: "Whether to disable 11k",
-						Default:             booldefault.StaticBool(false),
 					},
 					"disable_radios_when_power_constrained": schema.BoolAttribute{
 						Optional: true,
-						Computed: true,
-						Default:  booldefault.StaticBool(false),
 					},
 					"enable_arp_spoof_check": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "When proxy_arp is enabled, check for arp spoofing.",
 						MarkdownDescription: "When proxy_arp is enabled, check for arp spoofing.",
-						Default:             booldefault.StaticBool(false),
 					},
 					"enable_shared_radio_scanning": schema.BoolAttribute{
 						Optional: true,
-						Computed: true,
-						Default:  booldefault.StaticBool(true),
 					},
 					"enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -1785,10 +1727,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"mesh_enable_crm": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Used to enable/disable CRM",
 						MarkdownDescription: "Used to enable/disable CRM",
-						Default:             booldefault.StaticBool(false),
 					},
 					"mesh_enabled": schema.BoolAttribute{
 						Optional:            true,
