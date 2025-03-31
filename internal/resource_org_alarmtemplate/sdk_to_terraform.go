@@ -41,7 +41,7 @@ func SdkToTerraform(ctx context.Context, data models.AlarmTemplate) (OrgAlarmtem
 }
 
 func deliverySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data *models.Delivery) DeliveryValue {
-	var additionalEmails = mistutils.ListOfStringSdkToTerraformEmpty()
+	var additionalEmails = types.ListValueMust(types.StringType, []attr.Value{})
 	var enabled types.Bool
 	var toOrgAdmins types.Bool
 	var toSiteAdmins types.Bool
