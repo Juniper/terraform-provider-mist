@@ -63,7 +63,7 @@ List of the default value changed:
 *  `mist_org_alarmtemplate`
 | Attribute | Previous Default | New Default |
 |-----------|-----------|-----------|
-| `.rules.delivery.additional_emails` | N/A | StaticValue(types.ListValueMust(types.StringType, []attr.Value{})) |
+| `.rules.delivery.additional_emails` | N/A | [] |
 
 *  `mist_device_ap` and `mist_org_deviceprofile_ap`
 | Attribute | Previous Default | New Default |
@@ -115,14 +115,14 @@ List of the default value changed:
 *  `mist_device_switch`
 | Attribute | Previous Default | New Default |
 |-----------|-----------|-----------|
-| `.dns_servers` | N/A | StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})) |
-| `.dns_suffix` | N/A | StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})) |
+| `.dns_servers` | N/A | [] |
+| `.dns_suffix` | N/A | [] |
 | `.extra_routes.discard` | StaticBool(false) | N/A |
 | `.extra_routes.no_resolve` | StaticBool(false) | N/A |
 | `.extra_routes6.discard` | StaticBool(false) | N/A |
 | `.extra_routes6.no_resolve` | StaticBool(false) | N/A |
 | `.networks.isolation` | StaticBool(false) | N/A |
-| `.ntp_servers` | N/A | StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})) |
+| `.ntp_servers` | N/A | [] |
 | `.oob_ip_config.use_mgmt_vrf_for_host_out` | StaticBool(false) | N/A |
 | `.port_config.aggregated` | StaticBool(false) | N/A |
 | `.port_config.disable_autoneg` | StaticBool(false) | N/A |
@@ -161,13 +161,13 @@ List of the default value changed:
 *  `mist_org_avprofile`
 | Attribute | Previous Default | New Default |
 |-----------|-----------|-----------|
-| `.mime_whitelist` | N/A | StaticValue(types.ListValueMust(types.StringType, []attr.Value{})) |
-| `.url_whitelist` | N/A | StaticValue(types.ListValueMust(types.StringType, []attr.Value{})) |
+| `.mime_whitelist` | N/A | [] |
+| `.url_whitelist` | N/A | [] |
 
 *  `mist_org_nacrule`
 | Attribute | Previous Default | New Default |
 |-----------|-----------|-----------|
-| `.apply_tags` | N/A | StaticValue(types.ListValueMust(types.StringType, []attr.Value{})) |
+| `.apply_tags` | N/A | [] |
 
 *  `mist_org_nactag`
 | Attribute | Previous Default | New Default |
@@ -178,20 +178,21 @@ List of the default value changed:
 *  `mist_org_network`
 | Attribute | Previous Default | New Default |
 |-----------|-----------|-----------|
+| `.routed_for_networks` | N/A | [] |
 | `.vpn_access.source_nat` | N/A | {} |
 | `.vpn_access.static_nat` | N/A | {} |
 
 *  `mist_org_networktemplate` and `mist_site_networktemplate`
 | Attribute | Previous Default | New Default |
 |-----------|-----------|-----------|
-| `.dns_servers` | N/A | StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})) |
-| `.dns_suffix` | N/A | StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})) |
+| `.dns_servers` | N/A | [] |
+| `.dns_suffix` | N/A | [] |
 | `.extra_routes.discard` | StaticBool(false) | N/A |
 | `.extra_routes.no_resolve` | StaticBool(false) | N/A |
 | `.extra_routes6.discard` | StaticBool(false) | N/A |
 | `.extra_routes6.no_resolve` | StaticBool(false) | N/A |
 | `.networks.isolation` | StaticBool(false) | N/A |
-| `.ntp_servers` | N/A | StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})) |
+| `.ntp_servers` | N/A | []] |
 | `.port_usages.allow_multiple_supplicants` | StaticBool(false) | N/A |
 | `.port_usages.bypass_auth_when_server_down` | StaticBool(false) | N/A |
 | `.port_usages.bypass_auth_when_server_down_for_unknown_client` | StaticBool(false) | N/A |
@@ -216,6 +217,7 @@ List of the default value changed:
 | `.remote_syslog.send_to_all_servers` | StaticBool(false) | N/A |
 | `.remote_syslog.servers.port` | StaticInt64(514) | N/A |
 | `.snmp_config.network` | StaticString("default") | N/A |
+| `.ssh_keys` | N/A | [] |
 | `.switch_matching.rules.oob_ip_config.use_mgmt_vrf_for_host_out` | StaticBool(false) | N/A |
 | `.switch_matching.rules.port_config.aggregated` | StaticBool(false) | N/A |
 | `.switch_matching.rules.port_config.disable_autoneg` | StaticBool(false) | N/A |
