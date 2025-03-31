@@ -12,8 +12,8 @@ import (
 var _ validator.String = ParseIntValidator{}
 
 type ParseIntValidator struct {
-	min int
-	max int
+	min int64
+	max int64
 }
 
 func (o ParseIntValidator) Description(_ context.Context) string {
@@ -30,18 +30,18 @@ func (o ParseIntValidator) ValidateString(_ context.Context, req validator.Strin
 	}
 
 	strValue := req.ConfigValue.ValueString()
-	intValue, e := strconv.Atoi(strValue)
+	intValue, e := strconv.ParseInt(strValue, 10, 64)
 	if e != nil || intValue < o.min || intValue > o.max {
 		resp.Diagnostics.Append(validatordiag.InvalidAttributeValueDiagnostic(
 			req.Path,
-			fmt.Sprintf("must be an Integer between %s and %s", strconv.Itoa(o.min), strconv.Itoa(o.max)),
+			fmt.Sprintf("must be an Integer between %s and %s", strconv.FormatInt(o.min, 10), strconv.FormatInt(o.max, 10)),
 			strValue,
 		))
 		return
 	}
 }
 
-func ParseInt(min int, max int) validator.String {
+func ParseInt(min int64, max int64) validator.String {
 	return ParseIntValidator{
 		min: min,
 		max: max,
