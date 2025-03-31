@@ -57,7 +57,7 @@ To address the configuration drift caused by the behavior where the resource `id
 
 Changes have been applied to resources to reduce configuration drift when importing resources or saving changes from the Mist UI. These updates aim to align Terraform resource states with the Mist UI default values. However, some default values are dynamic and depend on other parameter values, making it currently impossible to completely eliminate configuration drift in certain scenarios.
 
-~> **Warning** Some default values have been removed from the Terraform Provider resource schemas. This change may lead to configuration drift if the affected attributes are not explicitly defined in your HCL configuration. Attributes without explicit definitions will default to `null`, but this will not alter the actual configuration in the Mist Cloud. To avoid discrepancies, ensure that all required attributes are explicitly set in your configuration.
+~> **Warning** Some default values have been removed from the Terraform Provider resource schemas. This change may lead to configuration drift if the affected attributes are not explicitly defined in your HCL configuration. Attributes without explicit definitions will default to `null`, but this will not alter the actual configuration in the Mist Cloud (the Mist Cloud will use the default value). To avoid discrepancies, ensure that all required attributes are explicitly set in your configuration.
 
 List of the default value changed:
 *  `mist_org_alarmtemplate`
