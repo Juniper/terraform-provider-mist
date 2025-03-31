@@ -207,10 +207,10 @@ func switchMatchingRulesSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 		if d.Name != nil {
 			name = types.StringValue(*d.Name)
 		}
-		if d.PortConfig != nil && len(d.PortConfig) > 0 {
+		if len(d.PortConfig) > 0 {
 			portConfig = switchMatchingRulesPortConfigSdkToTerraform(ctx, diags, d.PortConfig)
 		}
-		if d.PortMirroring != nil && len(d.PortMirroring) > 0 {
+		if len(d.PortMirroring) > 0 {
 			portMirroring = portMirroringSdkToTerraform(ctx, diags, d.PortMirroring)
 		}
 		if d.IpConfig != nil {
