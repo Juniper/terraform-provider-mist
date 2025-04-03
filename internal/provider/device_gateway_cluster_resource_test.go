@@ -1,0 +1,142 @@
+package provider
+
+import (
+	"fmt"
+	"testing"
+
+	"github.com/hashicorp/hcl/v2/gohcl"
+	"github.com/hashicorp/hcl/v2/hclwrite"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	// gwc "github.com/terraform-provider-mist/internal/resource_device_gateway_cluster"
+)
+
+const (
+	resourceDeviceGatewayCluster = `
+	resource %q %q {
+		%s
+	}`
+)
+
+type deviceGatewayCluster struct {
+	Id     string
+	SiteId string       `hcl:"site_id"`
+	Nodes  []NodesValue `hcl:"nodes"`
+}
+
+type NodesValue struct {
+	Mac string `cty:"mac"`
+}
+
+// render will return the string format of the site_psk_resource terraform configuration
+// func (s *deviceGatewayCluster) render(rType, rName string) string {
+// 	nodes := make([]string, len(s.Nodes))
+// 	for i, node := range s.Nodes {
+// 		nodes[i] = fmt.Sprintf(resourceNode, node.Mac)
+// 		if i != len(s.Nodes)-1 {
+// 			nodes[i] += ","
+// 		}
+// 	}
+
+// 	return "" +
+// 		fmt.Sprintf(resourceDeviceGatewayCluster,
+// 			rType, rName,
+// 			s.SiteId,
+// 			strings.Join(nodes, ""),
+// 		)
+// }
+
+func (s *deviceGatewayCluster) render(rType, rName, config string) string {
+	return fmt.Sprintf(resourceDeviceGatewayCluster, rType, rName, config)
+}
+
+func (s *deviceGatewayCluster) testChecks(t testing.TB, rType, rName string) testChecks {
+	checks := newTestChecks(rType + "." + rName)
+
+	checks.append(t, "TestCheckResourceAttrSet", "id")
+	checks.append(t, "TestCheckResourceAttr", "id", s.Id)
+	checks.append(t, "TestCheckResourceAttr", "site_id", s.SiteId)
+
+	return checks
+}
+
+func TestDeviceGatewayCluster(t *testing.T) {
+	// apiVersion := version.Must(version.NewVersion(client.Version()))
+
+	type testStep struct {
+		config deviceGatewayCluster
+	}
+
+	type testCase struct {
+		//apiVersionConstraints version.Constraints
+		steps []testStep
+	}
+
+	testCases := map[string]testCase{
+		"simple_case": {
+			steps: []testStep{
+				{
+					config: deviceGatewayCluster{
+						Id:     "1234",
+						SiteId: "2c107c8e-2e06-404a-ba61-e25b5757ecea",
+						Nodes: []NodesValue{
+							{
+								Mac: "5684dae9ac8b",
+							},
+						},
+					},
+				},
+				{
+					config: deviceGatewayCluster{
+						Id:     "5678",
+						SiteId: "2c107c8e-2e06-404a-ba61-e25b5757ecea",
+						Nodes: []NodesValue{
+							{
+								Mac: "5684dae9ac8d",
+							},
+							{
+								Mac: "5684dae9ac8e",
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for tName, tCase := range testCases {
+		// Add api version check here
+		// if !tCase.apiVersionConstraints.Check(apiVersion) {
+		// 	t.Skipf("test case %s requires api version %s", tName, tCase.apiVersionConstraints.String())
+		// }
+		t.Run(tName, func(t *testing.T) {
+			resourceType := "device_gateway_cluster"
+
+			steps := make([]resource.TestStep, len(tCase.steps))
+			for i, step := range tCase.steps {
+				config := step.config
+
+				f := hclwrite.NewEmptyFile()
+				gohcl.EncodeIntoBody(&config, f.Body())
+				configStr := config.render(resourceType, tName, string(f.Bytes()))
+
+				checks := config.testChecks(t, resourceType, tName)
+				chkLog := checks.string()
+				stepName := fmt.Sprintf("test case %s step %d", tName, i+1)
+
+				// log config and checks here
+				t.Logf("\n// ------ begin config for %s ------\n%s// -------- end config for %s ------\n\n", stepName, configStr, stepName)
+				t.Logf("\n// ------ begin checks for %s ------\n%s// -------- end checks for %s ------\n\n", stepName, chkLog, stepName)
+
+				steps[i] = resource.TestStep{
+					Config: configStr,
+					Check:  resource.ComposeAggregateTestCheckFunc(checks.checks...),
+				}
+			}
+
+			resource.Test(t, resource.TestCase{
+				ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+				Steps:                    steps,
+			})
+		})
+	}
+}
