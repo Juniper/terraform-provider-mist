@@ -264,7 +264,7 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 		sponsorExpire = types.Int64Value(int64(*d.SponsorExpire.Value()))
 	}
 	if d != nil && d.SponsorLinkValidityDuration != nil {
-		sponsorLinkValidityDuration = types.StringValue(*d.SponsorLinkValidityDuration)
+		sponsorLinkValidityDuration = mistutils.SponsorLinkValidityDurationAsString(d.SponsorLinkValidityDuration)
 	}
 	if d != nil && d.SponsorNotifyAll != nil {
 		sponsorNotifyAll = types.BoolValue(*d.SponsorNotifyAll)

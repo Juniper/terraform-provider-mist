@@ -3,6 +3,7 @@ package resource_org_wlan
 import (
 	"context"
 
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -22,7 +23,7 @@ func dynamicPskSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 		defaultPsk = types.StringValue(*d.DefaultPsk)
 	}
 	if d != nil && d.DefaultVlanId != nil {
-		defaultVlanId = types.StringValue(d.DefaultVlanId.String())
+		defaultVlanId = mistutils.VlanAsString(*d.DefaultVlanId)
 	}
 	if d != nil && d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)

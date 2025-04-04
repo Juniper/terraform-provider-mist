@@ -193,7 +193,7 @@ func portalTerraformToSdk(plan PortalValue) *models.WlanPortal {
 		data.SponsorExpire = models.NewOptional(models.ToPointer(int(plan.SponsorExpire.ValueInt64())))
 	}
 	if plan.SponsorLinkValidityDuration.ValueStringPointer() != nil {
-		data.SponsorLinkValidityDuration = plan.SponsorLinkValidityDuration.ValueStringPointer()
+		data.SponsorLinkValidityDuration = models.ToPointer(models.SponsorLinkValidityDurationContainer.FromString(plan.SponsorLinkValidityDuration.ValueString()))
 	}
 	if plan.SponsorNotifyAll.ValueBoolPointer() != nil {
 		data.SponsorNotifyAll = plan.SponsorNotifyAll.ValueBoolPointer()

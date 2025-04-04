@@ -2,6 +2,8 @@ package resource_org_wlan
 
 import (
 	"context"
+	"strings"
+
 	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -44,7 +46,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	var clientLimitDownEnabled types.Bool
 	var clientLimitUp types.Int64
 	var clientLimitUpEnabled types.Bool
-	var coaServers = types.ListValueMust(CoaServersValue{}.Type(ctx), []attr.Value{})
+	var coaServers = types.ListNull(CoaServersValue{}.Type(ctx))
 	var disable11ax types.Bool
 	var disable11be types.Bool
 	var disableHtVhtRates types.Bool
@@ -122,8 +124,6 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 
 	if len(data.AcctServers) > 0 {
 		acctServers = radiusServersAcctSdkToTerraform(ctx, &diags, data.AcctServers)
-	} else {
-		types.ListValueMust(AcctServersValue{}.Type(ctx), make([]attr.Value, 0))
 	}
 
 	if data.Airwatch != nil {
@@ -172,8 +172,6 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 
 	if len(data.AuthServers) > 0 {
 		authServers = radiusServersAuthSdkToTerraform(ctx, &diags, data.AuthServers)
-	} else {
-		authServers = types.ListValueMust(AuthServersValue{}.Type(ctx), make([]attr.Value, 0))
 	}
 
 	if data.AuthServersNasId.IsValueSet() && data.AuthServersNasId.Value() != nil {
@@ -234,8 +232,6 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 
 	if len(data.CoaServers) > 0 {
 		coaServers = coaServersSdkToTerraform(ctx, &diags, data.CoaServers)
-	} else {
-		coaServers = types.ListValueMust(CoaServersValue{}.Type(ctx), make([]attr.Value, 0))
 	}
 
 	if data.Disable11ax != nil {
@@ -434,7 +430,15 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	}
 
 	if data.RoamMode != nil {
-		roamMode = types.StringValue(string(*data.RoamMode))
+		if strings.ToUpper(string(*data.RoamMode)) == "11R" {
+			roamMode = types.StringValue("11r")
+		} else if strings.ToUpper(string(*data.RoamMode)) == "NONE" {
+			roamMode = types.StringValue("NONE")
+		} else if strings.ToUpper(string(*data.RoamMode)) == "OKC" {
+			roamMode = types.StringValue("OKC")
+		} else {
+			roamMode = types.StringValue(string(*data.RoamMode))
+		}
 	}
 
 	if data.Schedule != nil {
@@ -459,8 +463,8 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 		vlanEnabled = types.BoolValue(*data.VlanEnabled)
 	}
 
-	if data.VlanId != nil {
-		vlanId = mistutils.VlanAsString(*data.VlanId)
+	if data.VlanId.Value() != nil {
+		vlanId = mistutils.WlanVlanAsString(*data.VlanId.Value())
 	}
 
 	if data.VlanIds != nil {

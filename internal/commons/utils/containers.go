@@ -12,6 +12,15 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
+func WlanVlanAsString(vlanId models.WlanVlanIdWithVariable) basetypes.StringValue {
+	if v, ok := vlanId.AsString(); ok {
+		return types.StringValue(*v)
+	} else if v, ok := vlanId.AsNumber(); ok {
+		return types.StringValue(fmt.Sprint(*v))
+	} else {
+		return types.StringNull()
+	}
+}
 func VlanAsString(vlanId models.VlanIdWithVariable) basetypes.StringValue {
 	if v, ok := vlanId.AsString(); ok {
 		return types.StringValue(*v)
@@ -33,6 +42,16 @@ func GatewayVlanAsString(vlanId models.GatewayPortVlanIdWithVariable) basetypes.
 }
 
 func WlanDynamicVlanAsString(vlanId models.WlanDynamicVlanDefaultVlanId) basetypes.StringValue {
+	if v, ok := vlanId.AsString(); ok {
+		return types.StringValue(*v)
+	} else if v, ok := vlanId.AsNumber(); ok {
+		return types.StringValue(fmt.Sprint(*v))
+	} else {
+		return types.StringNull()
+	}
+}
+
+func WlanDynamicVlanDefaultVlanIdDeprecatedAsString(vlanId models.WlanDynamicVlanDefaultVlanIdDeprecated) basetypes.StringValue {
 	if v, ok := vlanId.AsString(); ok {
 		return types.StringValue(*v)
 	} else if v, ok := vlanId.AsNumber(); ok {
@@ -80,14 +99,18 @@ func WlanBonjourAdditionalVlanIdsAsArrayOfString(diags *diag.Diagnostics, vlanId
 				items = append(items, types.StringValue(id))
 			}
 		}
-	} else if arrayIds, arrayOk := vlanIds.AsArrayOfVlanIdWithVariable8(); arrayOk {
+	} else if arrayIds, arrayOk := vlanIds.AsArrayOfVlanIdWithVariable7(); arrayOk {
 		for _, id := range *arrayIds {
 			items = append(items, VlanAsString(id))
 		}
 	}
-	list, e := types.ListValue(basetypes.StringType{}, items)
-	diags.Append(e...)
-	return list
+	if len(items) > 0 {
+		list, e := types.ListValue(basetypes.StringType{}, items)
+		diags.Append(e...)
+		return list
+	} else {
+		return types.ListNull(types.StringType)
+	}
 }
 
 func WlanVlanIdsAsArrayOfString(diags *diag.Diagnostics, vlanIds *models.WlanVlanIds) basetypes.ListValue {
@@ -98,7 +121,7 @@ func WlanVlanIdsAsArrayOfString(diags *diag.Diagnostics, vlanIds *models.WlanVla
 				items = append(items, types.StringValue(id))
 			}
 		}
-	} else if arrayIds, arrayOk := vlanIds.AsArrayOfVlanIdWithVariable5(); arrayOk {
+	} else if arrayIds, arrayOk := vlanIds.AsArrayOfVlanIdWithVariable4(); arrayOk {
 		for _, id := range *arrayIds {
 			items = append(items, VlanAsString(id))
 		}
@@ -179,6 +202,26 @@ func SwitchMgmtMxedgeProxyPortsAsString(bgpAs *models.SwitchMgmtMxedgeProxyPort)
 }
 
 func GatewayPortConfigRethIdxAsString(bgpAs *models.GatewayPortConfigRethIdx) basetypes.StringValue {
+	if v, ok := bgpAs.AsString(); ok {
+		return types.StringValue(*v)
+	} else if v, ok := bgpAs.AsNumber(); ok {
+		return types.StringValue(fmt.Sprint(*v))
+	} else {
+		return types.StringNull()
+	}
+}
+
+func RadescIdleTimeoutAsString(bgpAs *models.RadescIdleTimeout) basetypes.StringValue {
+	if v, ok := bgpAs.AsString(); ok {
+		return types.StringValue(*v)
+	} else if v, ok := bgpAs.AsNumber(); ok {
+		return types.StringValue(fmt.Sprint(*v))
+	} else {
+		return types.StringNull()
+	}
+}
+
+func SponsorLinkValidityDurationAsString(bgpAs *models.SponsorLinkValidityDuration) basetypes.StringValue {
 	if v, ok := bgpAs.AsString(); ok {
 		return types.StringValue(*v)
 	} else if v, ok := bgpAs.AsNumber(); ok {

@@ -31,8 +31,8 @@ func radsecTerraformToSdk(d RadsecValue) *models.Radsec {
 	if d.Enabled.ValueBoolPointer() != nil {
 		data.Enabled = d.Enabled.ValueBoolPointer()
 	}
-	if d.IdleTimeout.ValueInt64Pointer() != nil {
-		data.IdleTimeout = models.ToPointer(int(d.IdleTimeout.ValueInt64()))
+	if d.IdleTimeout.ValueStringPointer() != nil {
+		data.IdleTimeout = models.ToPointer(models.RadescIdleTimeoutContainer.FromString(d.IdleTimeout.ValueString()))
 	}
 	if !d.MxclusterIds.IsNull() && !d.MxclusterIds.IsUnknown() {
 		data.MxclusterIds = mistutils.ListOfUuidTerraformToSdk(d.MxclusterIds)

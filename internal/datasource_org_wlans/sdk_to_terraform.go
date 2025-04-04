@@ -2,6 +2,8 @@ package datasource_org_wlans
 
 import (
 	"context"
+	"strings"
+
 	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -454,7 +456,15 @@ func wlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 	}
 
 	if d.RoamMode != nil {
-		roamMode = types.StringValue(string(*d.RoamMode))
+		if strings.ToUpper(string(*d.RoamMode)) == "11R" {
+			roamMode = types.StringValue("11r")
+		} else if strings.ToUpper(string(*d.RoamMode)) == "NONE" {
+			roamMode = types.StringValue("NONE")
+		} else if strings.ToUpper(string(*d.RoamMode)) == "OKC" {
+			roamMode = types.StringValue("OKC")
+		} else {
+			roamMode = types.StringValue(string(*d.RoamMode))
+		}
 	}
 
 	if d.Schedule != nil {
@@ -477,8 +487,8 @@ func wlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 		vlanEnabled = types.BoolValue(*d.VlanEnabled)
 	}
 
-	if d.VlanId != nil {
-		vlanId = mistutils.VlanAsString(*d.VlanId)
+	if d.VlanId.Value() != nil {
+		vlanId = mistutils.WlanVlanAsString(*d.VlanId.Value())
 	}
 
 	if d.VlanIds != nil {

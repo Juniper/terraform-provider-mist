@@ -14,11 +14,11 @@ import (
 )
 
 func hotspot20SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.WlanHotspot20) Hotspot20Value {
-	var domainName = mistutils.ListOfStringSdkToTerraformEmpty()
+	var domainName = basetypes.NewListNull(types.StringType)
 	var enabled basetypes.BoolValue
-	var naiRealms = mistutils.ListOfStringSdkToTerraformEmpty()
-	var operators = mistutils.ListOfStringSdkToTerraformEmpty()
-	var rcoi = mistutils.ListOfStringSdkToTerraformEmpty()
+	var naiRealms = basetypes.NewListNull(types.StringType)
+	var operators = basetypes.NewListNull(types.StringType)
+	var rcoi = basetypes.NewListNull(types.StringType)
 	var venueName basetypes.StringValue
 
 	if d != nil && d.DomainName != nil {

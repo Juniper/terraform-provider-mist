@@ -14,7 +14,7 @@ import (
 
 func dynamicVlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.WlanDynamicVlan) DynamicVlanValue {
 
-	var defaultVlanIds = mistutils.ListOfStringSdkToTerraformEmpty()
+	var defaultVlanIds = basetypes.NewListNull(types.StringType)
 	var enabled basetypes.BoolValue
 	var localVlanIds = mistutils.ListOfStringSdkToTerraformEmpty()
 	var typeDynamicVlan basetypes.StringValue
@@ -32,10 +32,11 @@ func dynamicVlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 		defaultVlanIds = r
 	}
 
+	// this is for backward compatibility when dynamic_vlan.default_vlan_id is used
 	if d != nil && d.DefaultVlanIds == nil && d.DefaultVlanId != nil {
 		var items []attr.Value
 		var itemsType attr.Type = basetypes.StringType{}
-		items = append(items, types.StringValue(d.DefaultVlanId.String()))
+		items = append(items, mistutils.WlanDynamicVlanDefaultVlanIdDeprecatedAsString(*d.DefaultVlanId))
 		r, e := types.ListValue(itemsType, items)
 		diags.Append(e...)
 		defaultVlanIds = r

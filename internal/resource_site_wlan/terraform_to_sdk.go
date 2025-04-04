@@ -516,7 +516,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteWlanModel) (*models.Wlan, dia
 	if plan.VlanId.IsNull() || plan.VlanId.IsUnknown() {
 		unset["-vlan_id"] = ""
 	} else {
-		data.VlanId = models.ToPointer(models.VlanIdWithVariableContainer.FromString(plan.VlanId.ValueString()))
+		data.VlanId = models.NewOptional(models.ToPointer(models.WlanVlanIdWithVariableContainer.FromString(plan.VlanId.ValueString())))
 	}
 
 	if plan.VlanIds.IsNull() || plan.VlanIds.IsUnknown() {
@@ -529,7 +529,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteWlanModel) (*models.Wlan, dia
 			v := models.VlanIdWithVariableContainer.FromString(i.ValueString())
 			items = append(items, v)
 		}
-		data.VlanIds = models.ToPointer(models.WlanVlanIdsContainer.FromArrayOfVlanIdWithVariable5(items))
+		data.VlanIds = models.ToPointer(models.WlanVlanIdsContainer.FromArrayOfVlanIdWithVariable4(items))
 	}
 
 	if plan.VlanPooling.IsNull() || plan.VlanPooling.IsUnknown() {
