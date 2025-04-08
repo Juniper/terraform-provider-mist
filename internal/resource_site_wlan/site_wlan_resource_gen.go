@@ -1803,8 +1803,8 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 					"sponsor_link_validity_duration": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Optional if `sponsor_enabled`==`true`. How long to remain valid sponsored guest request approve/deny link received in email, in minutes.",
-						MarkdownDescription: "Optional if `sponsor_enabled`==`true`. How long to remain valid sponsored guest request approve/deny link received in email, in minutes.",
+						Description:         "Optional if `sponsor_enabled`==`true`. How long to remain valid sponsored guest request approve/deny link received in email, in minutes. Default is 60 minutes.",
+						MarkdownDescription: "Optional if `sponsor_enabled`==`true`. How long to remain valid sponsored guest request approve/deny link received in email, in minutes. Default is 60 minutes.",
 						Default:             stringdefault.StaticString("60"),
 					},
 					"sponsor_notify_all": schema.BoolAttribute{
