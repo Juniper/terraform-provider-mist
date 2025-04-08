@@ -264,15 +264,12 @@ Optional:
 <a id="nestedatt--bonjour"></a>
 ### Nested Schema for `bonjour`
 
-Required:
-
-- `additional_vlan_ids` (List of String) additional VLAN IDs (on the LAN side or from other WLANs) should we be forwarding bonjour queries/responses
-- `services` (Attributes Map) What services are allowed. 
-Property key is the service name (see [below for nested schema](#nestedatt--bonjour--services))
-
 Optional:
 
+- `additional_vlan_ids` (List of String) additional VLAN IDs (on the LAN side or from other WLANs) should we be forwarding bonjour queries/responses
 - `enabled` (Boolean) Whether to enable bonjour for this WLAN. Once enabled, limit_bcast is assumed true, allow_mdns is assumed false
+- `services` (Attributes Map) What services are allowed. 
+Property key is the service name (see [below for nested schema](#nestedatt--bonjour--services))
 
 <a id="nestedatt--bonjour--services"></a>
 ### Nested Schema for `bonjour.services`
@@ -308,7 +305,7 @@ Optional:
 
 - `disable_event_timestamp_check` (Boolean) Whether to disable Event-Timestamp Check
 - `enabled` (Boolean)
-- `port` (Number)
+- `port` (String)
 
 
 <a id="nestedatt--dns_server_rewrite"></a>
@@ -335,12 +332,9 @@ Optional:
 <a id="nestedatt--dynamic_vlan"></a>
 ### Nested Schema for `dynamic_vlan`
 
-Required:
-
-- `default_vlan_ids` (List of String) Default VLAN ID(s) can be a number, a range of VLAN IDs, a variable or multiple numbers, ranges or variables as a VLAN pool. Default VLAN as a pool of VLANS requires 0.14.x or newer firmware
-
 Optional:
 
+- `default_vlan_ids` (List of String) Default VLAN ID(s) can be a number, a range of VLAN IDs, a variable or multiple numbers, ranges or variables as a VLAN pool. Default VLAN as a pool of VLANS requires 0.14.x or newer firmware
 - `enabled` (Boolean) Requires `vlan_enabled`==`true` to be set to `true`. Whether to enable dynamic vlan
 - `local_vlan_ids` (List of String) VLAN_ids to be locally bridged
 - `type` (String) standard (using Tunnel-Private-Group-ID, widely supported), airespace-interface-name (Airespace/Cisco). enum: `airespace-interface-name`, `standard`
@@ -402,7 +396,7 @@ Optional:
 - `amazon_email_domains` (List of String) Optional if `amazon_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.
 - `amazon_enabled` (Boolean) Whether amazon is enabled as a login method
 - `amazon_expire` (Number) Optional if `amazon_enabled`==`true`. Interval for which guest remains authorized using amazon auth (in minutes), if not provided, uses expire`
-- `auth` (String) authentication scheme. enum: `amazon`, `azure`, `email`, `external`, `facebook`, `google`, `microsoft`, `multi`, `none`, `password`, `sponsor`, `sso`
+- `auth` (String) authentication scheme. enum: `amazon`, `azure`, `email`, `external`, `facebook`, `google`, `microsoft`, `multi`, `none`, `password`, `sms`, `sponsor`, `sso`
 - `azure_client_id` (String) Required if `azure_enabled`==`true`. Azure active directory app client id
 - `azure_client_secret` (String) Required if `azure_enabled`==`true`. Azure active directory app client secret
 - `azure_enabled` (Boolean) Whether Azure Active Directory is enabled as a login method
@@ -454,7 +448,7 @@ Optional:
 - `sponsor_email_domains` (List of String) List of domain allowed for sponsor email. Required if `sponsor_enabled` is `true` and `sponsors` is empty.
 - `sponsor_enabled` (Boolean) Whether sponsor is enabled
 - `sponsor_expire` (Number) Optional if `sponsor_enabled`==`true`. Interval for which guest remains authorized using sponsor auth (in minutes), if not provided, uses expire`
-- `sponsor_link_validity_duration` (String) Optional if `sponsor_enabled`==`true`. How long to remain valid sponsored guest request approve/deny link received in email, in minutes.
+- `sponsor_link_validity_duration` (String) Optional if `sponsor_enabled`==`true`. How long to remain valid sponsored guest request approve/deny link received in email, in minutes. Default is 60 minutes.
 - `sponsor_notify_all` (Boolean) Optional if `sponsor_enabled`==`true`. whether to notify all sponsors that are mentioned in `sponsors` object. Both `sponsor_notify_all` and `predefined_sponsors_enabled` should be true in order to notify sponsors. If true, email sent to 10 sponsors in no particular order.
 - `sponsor_status_notify` (Boolean) Optional if `sponsor_enabled`==`true`. If enabled, guest will get email about sponsor's action (approve/deny)
 - `sponsors` (Map of String) object of allowed sponsors email with name. Required if `sponsor_enabled`
@@ -491,7 +485,7 @@ Optional:
 
 - `coa_enabled` (Boolean)
 - `enabled` (Boolean)
-- `idle_timeout` (Number)
+- `idle_timeout` (String)
 - `mxcluster_ids` (List of String) To use Org mxedges when this WLAN does not use mxtunnel, specify their mxcluster_ids. Org mxedge(s) identified by mxcluster_ids
 - `proxy_hosts` (List of String) Default is site.mxedge.radsec.proxy_hosts which must be a superset of all `wlans[*].radsec.proxy_hosts`. When `radsec.proxy_hosts` are not used, tunnel peers (org or site mxedges) are used irrespective of `use_site_mxedge`
 - `server_name` (String) Name of the server to verify (against the cacerts in Org Setting). Only if not Mist Edge.

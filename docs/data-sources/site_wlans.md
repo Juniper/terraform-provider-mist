@@ -290,7 +290,7 @@ Read-Only:
 - `disable_event_timestamp_check` (Boolean) Whether to disable Event-Timestamp Check
 - `enabled` (Boolean)
 - `ip` (String)
-- `port` (Number)
+- `port` (String)
 - `secret` (String, Sensitive)
 
 
@@ -382,7 +382,7 @@ Read-Only:
 - `amazon_email_domains` (List of String) Optional if `amazon_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.
 - `amazon_enabled` (Boolean) Whether amazon is enabled as a login method
 - `amazon_expire` (Number) Optional if `amazon_enabled`==`true`. Interval for which guest remains authorized using amazon auth (in minutes), if not provided, uses expire`
-- `auth` (String) authentication scheme. enum: `amazon`, `azure`, `email`, `external`, `facebook`, `google`, `microsoft`, `multi`, `none`, `password`, `sponsor`, `sso`
+- `auth` (String) authentication scheme. enum: `amazon`, `azure`, `email`, `external`, `facebook`, `google`, `microsoft`, `multi`, `none`, `password`, `sms`, `sponsor`, `sso`
 - `azure_client_id` (String) Required if `azure_enabled`==`true`. Azure active directory app client id
 - `azure_client_secret` (String) Required if `azure_enabled`==`true`. Azure active directory app client secret
 - `azure_enabled` (Boolean) Whether Azure Active Directory is enabled as a login method
@@ -471,7 +471,7 @@ Read-Only:
 
 - `coa_enabled` (Boolean)
 - `enabled` (Boolean)
-- `idle_timeout` (Number)
+- `idle_timeout` (String)
 - `mxcluster_ids` (List of String) To use Org mxedges when this WLAN does not use mxtunnel, specify their mxcluster_ids. Org mxedge(s) identified by mxcluster_ids
 - `proxy_hosts` (List of String) Default is site.mxedge.radsec.proxy_hosts which must be a superset of all `wlans[*].radsec.proxy_hosts`. When `radsec.proxy_hosts` are not used, tunnel peers (org or site mxedges) are used irrespective of `use_site_mxedge`
 - `server_name` (String) Name of the server to verify (against the cacerts in Org Setting). Only if not Mist Edge.

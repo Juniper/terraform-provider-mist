@@ -786,7 +786,7 @@ Optional:
 - `primary` (Attributes) Only if `provider`==`zscaler-ipsec`, `provider`==`jse-ipsec` or `provider`==`custom-ipsec` (see [below for nested schema](#nestedatt--tunnel_configs--primary))
 - `probe` (Attributes) Only if `provider`==`custom-ipsec` (see [below for nested schema](#nestedatt--tunnel_configs--probe))
 - `protocol` (String) Only if `provider`==`custom-ipsec`. enum: `gre`, `ipsec`
-- `provider` (String) Only if `auto_provision.enabled`==`false`. enum: `custom-ipsec`, `customer-gre`, `jse-ipsec`, `zscaler-gre`, `zscaler-ipsec`
+- `provider` (String) Only if `auto_provision.enabled`==`false`. enum: `custom-ipsec`, `custom-gre`, `jse-ipsec`, `zscaler-gre`, `zscaler-ipsec`
 - `psk` (String, Sensitive) Required if `provider`==`zscaler-ipsec`, `provider`==`jse-ipsec` or `provider`==`custom-ipsec`
 - `secondary` (Attributes) Only if `provider`==`zscaler-ipsec`, `provider`==`jse-ipsec` or `provider`==`custom-ipsec` (see [below for nested schema](#nestedatt--tunnel_configs--secondary))
 - `version` (String) Only if `provider`==`custom-gre` or `provider`==`custom-ipsec`. enum: `1`, `2`

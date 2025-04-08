@@ -9,6 +9,22 @@ description: |-
 
 ## Release Notes for v0.3.2
 **Release Date**: 
+### Fixes
+* **[Issue 98](https://github.com/Juniper/terraform-provider-mist/issues/98):** Corrected a typo in the `.tunnel_configs.networks` validation for the following resources:  
+  - `mist_device_gateway`  
+  - `mist_org_deviceprofile_gateway`  
+  - `mist_org_gatewaytemplate`  
+
+* Fixed a typo in the `.tunnel_configs.provider` enumeration for the following resources:  
+  - `mist_device_gateway`  
+  - `mist_org_deviceprofile_gateway`  
+  - `mist_org_gatewaytemplate`  
+
+* Resolved conversion issues affecting the following resources:  
+  - `mist_device_gateway`  
+  - `mist_org_deviceprofile_gateway`  
+  - `mist_org_gatewaytemplate`  
+
 ### Breaking Changes
 
 #### Changes in Attribute Types

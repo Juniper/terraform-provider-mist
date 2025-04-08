@@ -1,11 +1,93 @@
 ---
 subcategory: "Release Notes"
-page_title: "v0.2.xx"
+page_title: "v0.3.xx"
 description: |-
     Release Notes for v0.3.xx
 ---
 
 # Release Notes for v0.3.xx
+
+## Release Notes for v0.3.2
+**Release Date**: 
+### Fixes
+* **[Issue 98](https://github.com/Juniper/terraform-provider-mist/issues/98):** Corrected a typo in the `.tunnel_configs.networks` validation for the following resources:  
+  - `mist_device_gateway`  
+  - `mist_org_deviceprofile_gateway`  
+  - `mist_org_gatewaytemplate`  
+
+* Fixed a typo in the `.tunnel_configs.provider` enumeration for the following resources:  
+  - `mist_device_gateway`  
+  - `mist_org_deviceprofile_gateway`  
+  - `mist_org_gatewaytemplate`  
+
+* Resolved conversion issues affecting the following resources:  
+  - `mist_device_gateway`  
+  - `mist_org_deviceprofile_gateway`  
+  - `mist_org_gatewaytemplate`  
+
+### Breaking Changes
+
+#### Changes in Attribute Types
+- **`mist_org_wlan` and `mist_site_wlan` Resources**  
+  - Updated the type of `.coa_servers.port` from `int64` to `string`.
+  - Updated the type of `.radsec.idle_timeout` from `int64` to `string`.
+
+~> **Impact** Review and update your Terraform configurations to align with the new attribute types. This ensures compatibility with the latest API behavior and prevents potential runtime issues.
+
+### Resources default values changed
+
+#### Changes to Reduce Configuration Drift
+
+Changes have been applied to resources to reduce configuration drift when importing resources or saving changes from the Mist UI. These updates aim to align Terraform resource states with the Mist UI default values. However, some default values are dynamic and depend on other parameter values, making it currently impossible to completely eliminate configuration drift in certain scenarios.
+
+~> **Warning** Some default values have been removed from the Terraform Provider resource schemas.  
+These changes may lead to configuration drift if the affected attributes are not explicitly defined in your HCL configuration.  
+Attributes without explicit definitions will default to `null`, but this will not alter the actual configuration in the Mist Cloud (the Mist Cloud will use the default value). To avoid discrepancies, ensure that all required attributes are explicitly set in your configuration.
+
+
+List of the default value changed:
+*  `mist_org_wlan` and `mist_site_wlan`
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `.auth_servers_retries` | StaticInt64(2) | N/A |
+| `.auth_servers_timeout` | StaticInt64(5) | N/A |
+| `.band_steer_force_band5` | StaticBool(false) | N/A |
+| `.block_blacklist_clients` | StaticBool(false) | N/A |
+| `.bonjour.enabled` | StaticBool(false) | N/A |
+| `.cisco_cwa.allowed_hostnames` | N/A | [] |
+| `.cisco_cwa.allowed_subnets` | N/A | [] |
+| `.cisco_cwa.blocked_subnets` | N/A | [] |
+| `.client_limit_down_enabled` | StaticBool(false) | N/A |
+| `.client_limit_up_enabled` | StaticBool(false) | N/A |
+| `.coa_servers` | [] | N/A |
+| `.disable_11be` | StaticBool(false) | N/A |
+| `.disable_ht_vht_rates` | StaticBool(false) | N/A |
+| `.disable_v1_roam_notify` | StaticBool(false) | N/A |
+| `.disable_v2_roam_notify` | StaticBool(false) | N/A |
+| `.enable_local_keycaching` | StaticBool(false) | N/A |
+| `.enable_wireless_bridging` | StaticBool(false) | N/A |
+| `.enable_wireless_bridging_dhcp_tracking` | StaticBool(false) | N/A |
+| `.fast_dot1x_timers` | StaticBool(false) | N/A |
+| `.isolation` | StaticBool(false) | N/A |
+| `.l2_isolation` | StaticBool(false) | N/A |
+| `.legacy_overds` | StaticBool(false) | N/A |
+| `.max_num_clients` | StaticInt64(0) | N/A |
+| `.radsec.server_name` | N/A | StaticString("") | 
+| `.radsec.use_site_mxedge` | StaticBool(false) | N/A |
+| `.roam_mode` | StaticBool(false) | N/A |
+| `.schedule.hours.mon` | StaticString(") | N/A |
+| `.schedule.hours.tue` | StaticString(") | N/A |
+| `.schedule.hours.wed` | StaticString(") | N/A |
+| `.schedule.hours.thu` | StaticString(") | N/A |
+| `.schedule.hours.fri` | StaticString(") | N/A |
+| `.schedule.hours.sat` | StaticString(") | N/A |
+| `.schedule.hours.sun` | StaticString(") | N/A |
+| `.sle_excluded` | StaticBool(false) | N/A |
+| `.wlan_limit_down_enabled` | StaticBool(false) | N/A |
+| `.wlan_limit_up_enabled` | StaticBool(false) | N/A |
+
+
+--- 
 
 ## Release Notes for v0.3.1
 **Release Date**: March 31th, 2025 
@@ -50,7 +132,7 @@ To improve compatibility with API type variations and support the use of `{{vari
  -  `.aeroscout.port` has been added
 
 
-### Resources default values removed
+### Resources default values changed
 
 #### Reducing Configuration Drift for Resource IDs
 
@@ -379,6 +461,7 @@ List of the default value changed:
 
 
 --- 
+
 ## Release Notes for v0.3.0
 **release data**: March 14th, 2025 
 
