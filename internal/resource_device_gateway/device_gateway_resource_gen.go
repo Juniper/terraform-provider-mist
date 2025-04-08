@@ -2958,7 +2958,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Validators: []validator.String{
 								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("zscaler-ipsec")),
 								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("jse-ipsec")),
-								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("customer-ipsec")),
+								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("custom-ipsec")),
 							},
 						},
 						"mode": schema.StringAttribute{
@@ -2982,7 +2982,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "If `provider`==`custom-ipsec`, networks reachable via this tunnel",
 							MarkdownDescription: "If `provider`==`custom-ipsec`, networks reachable via this tunnel",
 							Validators: []validator.List{
-								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("customer-ipsec")),
+								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("custom-ipsec")),
 							},
 						},
 						"primary": schema.SingleNestedAttribute{
