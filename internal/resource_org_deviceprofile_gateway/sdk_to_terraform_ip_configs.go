@@ -20,7 +20,7 @@ func ipConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map
 
 		var ip basetypes.StringValue
 		var netmask basetypes.StringValue
-		var secondaryIps = mistutils.ListOfStringSdkToTerraformEmpty()
+		var secondaryIps = types.ListNull(types.StringType)
 		var typeIp basetypes.StringValue
 
 		if d.Ip != nil {

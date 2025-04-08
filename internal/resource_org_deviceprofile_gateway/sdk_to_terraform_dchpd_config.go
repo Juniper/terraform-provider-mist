@@ -104,7 +104,7 @@ func dhcpdConfigConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 	for k, d := range m {
 		if k != "enabled" {
 			var dnsServers = mistutils.ListOfStringSdkToTerraformEmpty()
-			var dnsSuffix = mistutils.ListOfStringSdkToTerraformEmpty()
+			var dnsSuffix = types.ListNull(types.StringType)
 			var fixedBindings = types.MapNull(FixedBindingsValue{}.Type(ctx))
 			var gateway basetypes.StringValue
 			var ipEnd basetypes.StringValue
@@ -114,8 +114,8 @@ func dhcpdConfigConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 			var leaseTime = types.Int64Value(86400)
 			var options = types.MapNull(OptionsValue{}.Type(ctx))
 			var serverIdOverride = types.BoolValue(false)
-			var servers = mistutils.ListOfStringSdkToTerraformEmpty()
-			var servers6 = mistutils.ListOfStringSdkToTerraformEmpty()
+			var servers = types.ListNull(types.StringType)
+			var servers6 = types.ListNull(types.StringType)
 			var type4 = types.StringValue("local")
 			var type6 = types.StringValue("none")
 			var vendorEncapsulated = types.MapNull(VendorEncapsulatedValue{}.Type(ctx))

@@ -17,6 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
@@ -2066,6 +2067,7 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional:            true,
+							Computed:            true,
 							Description:         "Only if `usage`==`wan`. Property Key is the destination CIDR (e.g. \"100.100.100.0/24\")",
 							MarkdownDescription: "Only if `usage`==`wan`. Property Key is the destination CIDR (e.g. \"100.100.100.0/24\")",
 							Validators: []validator.Map{
@@ -2075,6 +2077,7 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 									types.MapValueMust(WanExtraRoutesValue{}.Type(ctx), map[string]attr.Value{}),
 								),
 							},
+							Default: mapdefault.StaticValue(types.MapValueMust(WanExtraRoutesValue{}.Type(ctx), map[string]attr.Value{})),
 						},
 						"wan_networks": schema.ListAttribute{
 							ElementType:         types.StringType,

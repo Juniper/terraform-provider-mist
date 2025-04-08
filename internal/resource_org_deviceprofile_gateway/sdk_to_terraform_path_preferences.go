@@ -22,8 +22,8 @@ func pathPreferencePathsSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 		var gatewayIp basetypes.StringValue
 		var internetAccess basetypes.BoolValue
 		var name basetypes.StringValue
-		var networks = mistutils.ListOfStringSdkToTerraformEmpty()
-		var targetIps = mistutils.ListOfStringSdkToTerraformEmpty()
+		var networks = types.ListNull(types.StringType)
+		var targetIps = types.ListNull(types.StringType)
 		var typePath basetypes.StringValue
 		var wanName basetypes.StringValue
 
