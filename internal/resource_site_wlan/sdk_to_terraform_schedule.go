@@ -20,7 +20,7 @@ func scheduleSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 	if d != nil && d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
-	if d != nil && d.Hours != nil {
+	if d != nil && d.Hours != nil && len(d.Hours.String()) > 0 {
 		hours = misthours.HoursSdkToTerraform(diags, d.Hours)
 	}
 
