@@ -192,7 +192,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgWlanModel) (*models.Wlan, diag
 	if plan.ClientLimitDown.IsNull() || plan.ClientLimitDown.IsUnknown() {
 		unset["-client_limit_down"] = ""
 	} else {
-		data.ClientLimitDown = models.ToPointer(int(plan.ClientLimitDown.ValueInt64()))
+		data.ClientLimitDown = models.ToPointer(models.WlanLimitContainer.FromString(plan.ClientLimitDown.ValueString()))
 	}
 
 	if plan.ClientLimitDownEnabled.IsNull() || plan.ClientLimitDownEnabled.IsUnknown() {
@@ -204,7 +204,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgWlanModel) (*models.Wlan, diag
 	if plan.ClientLimitUp.IsNull() || plan.ClientLimitUp.IsUnknown() {
 		unset["-client_limit_up"] = ""
 	} else {
-		data.ClientLimitUp = models.ToPointer(int(plan.ClientLimitUp.ValueInt64()))
+		data.ClientLimitUp = models.ToPointer(models.WlanLimitContainer.FromString(plan.ClientLimitUp.ValueString()))
 	}
 
 	if plan.ClientLimitUpEnabled.IsNull() || plan.ClientLimitUpEnabled.IsUnknown() {
@@ -523,7 +523,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgWlanModel) (*models.Wlan, diag
 	if plan.VlanId.IsNull() || plan.VlanId.IsUnknown() {
 		unset["-vlan_id"] = ""
 	} else {
-		data.VlanId = models.ToPointer(models.VlanIdWithVariableContainer.FromString(plan.VlanId.ValueString()))
+		data.VlanId = models.NewOptional(models.ToPointer(models.WlanVlanIdWithVariableContainer.FromString(plan.VlanId.ValueString())))
 	}
 
 	if plan.VlanIds.IsNull() || plan.VlanIds.IsUnknown() {
@@ -536,7 +536,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgWlanModel) (*models.Wlan, diag
 			v := models.VlanIdWithVariableContainer.FromString(i.ValueString())
 			items = append(items, v)
 		}
-		data.VlanIds = models.ToPointer(models.WlanVlanIdsContainer.FromArrayOfVlanIdWithVariable5(items))
+		data.VlanIds = models.ToPointer(models.WlanVlanIdsContainer.FromArrayOfVlanIdWithVariable4(items))
 	}
 
 	if plan.VlanPooling.IsNull() || plan.VlanPooling.IsUnknown() {
@@ -548,7 +548,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgWlanModel) (*models.Wlan, diag
 	if plan.WlanLimitDown.IsNull() || plan.WlanLimitDown.IsUnknown() {
 		unset["-wlan_limit_down"] = ""
 	} else {
-		data.WlanLimitDown = models.NewOptional(models.ToPointer(int(plan.WlanLimitDown.ValueInt64())))
+		data.WlanLimitDown = models.ToPointer(models.WlanLimitContainer.FromString(plan.WlanLimitDown.ValueString()))
 	}
 
 	if plan.WlanLimitDownEnabled.IsNull() || plan.WlanLimitDownEnabled.IsUnknown() {
@@ -560,7 +560,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgWlanModel) (*models.Wlan, diag
 	if plan.WlanLimitUp.IsNull() || plan.WlanLimitUp.IsUnknown() {
 		unset["-wlan_limit_up"] = ""
 	} else {
-		data.WlanLimitUp = models.NewOptional(models.ToPointer(int(plan.WlanLimitUp.ValueInt64())))
+		data.WlanLimitUp = models.ToPointer(models.WlanLimitContainer.FromString(plan.WlanLimitUp.ValueString()))
 	}
 
 	if plan.WlanLimitUpEnabled.IsNull() || plan.WlanLimitUpEnabled.IsUnknown() {

@@ -35,7 +35,7 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "If `type`==`custom`, ip subnets (e.g. 10.0.0.0/8)",
 				MarkdownDescription: "If `type`==`custom`, ip subnets (e.g. 10.0.0.0/8)",
 				Validators: []validator.List{
-					listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseCidr(true, false), mistvalidator.ParseVar())),
+					listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseCidrSubnetOnly(true, false), mistvalidator.ParseVar())),
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("custom")),
 				},
 				Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),

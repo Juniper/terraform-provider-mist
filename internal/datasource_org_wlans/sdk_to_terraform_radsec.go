@@ -42,7 +42,7 @@ func radsecServersSkToTerraform(ctx context.Context, diags *diag.Diagnostics, l 
 func radsecSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.Radsec) basetypes.ObjectValue {
 	var coaEnabled basetypes.BoolValue
 	var enabled basetypes.BoolValue
-	var idleTimeout basetypes.Int64Value
+	var idleTimeout basetypes.StringValue
 	var mxclusterIds = mistutils.ListOfUuidSdkToTerraformEmpty()
 	var proxyHosts = mistutils.ListOfStringSdkToTerraformEmpty()
 	var serverName basetypes.StringValue
@@ -57,7 +57,7 @@ func radsecSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 		enabled = types.BoolValue(*d.Enabled)
 	}
 	if d != nil && d.IdleTimeout != nil {
-		idleTimeout = types.Int64Value(int64(*d.IdleTimeout))
+		idleTimeout = mistutils.RadescIdleTimeoutAsString(d.IdleTimeout)
 	}
 	if d != nil && d.MxclusterIds != nil {
 		mxclusterIds = mistutils.ListOfUuidSdkToTerraform(d.MxclusterIds)

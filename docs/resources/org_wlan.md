@@ -71,9 +71,9 @@ resource "mist_org_wlan" "wlan_one" {
 - `block_blacklist_clients` (Boolean) Whether to block the clients in the blacklist (up to first 256 macs)
 - `bonjour` (Attributes) Bonjour gateway wlan settings (see [below for nested schema](#nestedatt--bonjour))
 - `cisco_cwa` (Attributes) Cisco CWA (central web authentication) required RADIUS with COA in order to work. See CWA: https://www.cisco.com/c/en/us/support/docs/security/identity-services-engine/115732-central-web-auth-00.html (see [below for nested schema](#nestedatt--cisco_cwa))
-- `client_limit_down` (Number) In kbps
+- `client_limit_down` (String)
 - `client_limit_down_enabled` (Boolean) If downlink limiting per-client is enabled
-- `client_limit_up` (Number) In kbps
+- `client_limit_up` (String)
 - `client_limit_up_enabled` (Boolean) If uplink limiting per-client is enabled
 - `coa_servers` (Attributes List) List of COA (change of authorization) servers, optional (see [below for nested schema](#nestedatt--coa_servers))
 - `disable_11ax` (Boolean) Some old WLAN drivers may not be compatible
@@ -138,9 +138,9 @@ resource "mist_org_wlan" "wlan_one" {
 - `vlan_id` (String)
 - `vlan_ids` (List of String) if `vlan_enabled`==`true` and `vlan_pooling`==`true`. List of VLAN IDs (comma separated) to be used in the VLAN Pool
 - `vlan_pooling` (Boolean) Requires `vlan_enabled`==`true` to be set to `true`. Vlan pooling allows AP to place client on different VLAN using a deterministic algorithm
-- `wlan_limit_down` (Number) In kbps
+- `wlan_limit_down` (String)
 - `wlan_limit_down_enabled` (Boolean) If downlink limiting for whole wlan is enabled
-- `wlan_limit_up` (Number) In kbps
+- `wlan_limit_up` (String)
 - `wlan_limit_up_enabled` (Boolean) If uplink limiting for whole wlan is enabled
 - `wxtag_ids` (List of String) List of wxtag_ids
 - `wxtunnel_id` (String) When `interface`=`wxtunnel`, id of the WXLAN Tunnel
@@ -168,7 +168,7 @@ Optional:
 - `keywrap_format` (String) enum: `ascii`, `hex`
 - `keywrap_kek` (String)
 - `keywrap_mack` (String)
-- `port` (Number) Acct port of RADIUS server
+- `port` (String)
 
 
 <a id="nestedatt--airwatch"></a>
@@ -259,22 +259,19 @@ Optional:
 - `keywrap_format` (String) enum: `ascii`, `hex`
 - `keywrap_kek` (String)
 - `keywrap_mack` (String)
-- `port` (Number) Auth port of RADIUS server
+- `port` (String)
 - `require_message_authenticator` (Boolean) Whether to require Message-Authenticator in requests
 
 
 <a id="nestedatt--bonjour"></a>
 ### Nested Schema for `bonjour`
 
-Required:
-
-- `additional_vlan_ids` (List of String) additional VLAN IDs (on the LAN side or from other WLANs) should we be forwarding bonjour queries/responses
-- `services` (Attributes Map) What services are allowed. 
-Property key is the service name (see [below for nested schema](#nestedatt--bonjour--services))
-
 Optional:
 
+- `additional_vlan_ids` (List of String) additional VLAN IDs (on the LAN side or from other WLANs) should we be forwarding bonjour queries/responses
 - `enabled` (Boolean) Whether to enable bonjour for this WLAN. Once enabled, limit_bcast is assumed true, allow_mdns is assumed false
+- `services` (Attributes Map) What services are allowed. 
+Property key is the service name (see [below for nested schema](#nestedatt--bonjour--services))
 
 <a id="nestedatt--bonjour--services"></a>
 ### Nested Schema for `bonjour.services`
@@ -310,7 +307,7 @@ Optional:
 
 - `disable_event_timestamp_check` (Boolean) Whether to disable Event-Timestamp Check
 - `enabled` (Boolean)
-- `port` (Number)
+- `port` (String)
 
 
 <a id="nestedatt--dns_server_rewrite"></a>
@@ -337,12 +334,9 @@ Optional:
 <a id="nestedatt--dynamic_vlan"></a>
 ### Nested Schema for `dynamic_vlan`
 
-Required:
-
-- `default_vlan_ids` (List of String) Default VLAN ID(s) can be a number, a range of VLAN IDs, a variable or multiple numbers, ranges or variables as a VLAN pool. Default VLAN as a pool of VLANS requires 0.14.x or newer firmware
-
 Optional:
 
+- `default_vlan_ids` (List of String) Default VLAN ID(s) can be a number, a range of VLAN IDs, a variable or multiple numbers, ranges or variables as a VLAN pool. Default VLAN as a pool of VLANS requires 0.14.x or newer firmware
 - `enabled` (Boolean) Requires `vlan_enabled`==`true` to be set to `true`. Whether to enable dynamic vlan
 - `local_vlan_ids` (List of String) VLAN_ids to be locally bridged
 - `type` (String) standard (using Tunnel-Private-Group-ID, widely supported), airespace-interface-name (Airespace/Cisco). enum: `airespace-interface-name`, `standard`
@@ -404,7 +398,7 @@ Optional:
 - `amazon_email_domains` (List of String) Optional if `amazon_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.
 - `amazon_enabled` (Boolean) Whether amazon is enabled as a login method
 - `amazon_expire` (Number) Optional if `amazon_enabled`==`true`. Interval for which guest remains authorized using amazon auth (in minutes), if not provided, uses expire`
-- `auth` (String) authentication scheme. enum: `amazon`, `azure`, `email`, `external`, `facebook`, `google`, `microsoft`, `multi`, `none`, `password`, `sponsor`, `sso`
+- `auth` (String) authentication scheme. enum: `amazon`, `azure`, `email`, `external`, `facebook`, `google`, `microsoft`, `multi`, `none`, `password`, `sms`, `sponsor`, `sso`
 - `azure_client_id` (String) Required if `azure_enabled`==`true`. Azure active directory app client id
 - `azure_client_secret` (String) Required if `azure_enabled`==`true`. Azure active directory app client secret
 - `azure_enabled` (Boolean) Whether Azure Active Directory is enabled as a login method
@@ -456,7 +450,7 @@ Optional:
 - `sponsor_email_domains` (List of String) List of domain allowed for sponsor email. Required if `sponsor_enabled` is `true` and `sponsors` is empty.
 - `sponsor_enabled` (Boolean) Whether sponsor is enabled
 - `sponsor_expire` (Number) Optional if `sponsor_enabled`==`true`. Interval for which guest remains authorized using sponsor auth (in minutes), if not provided, uses expire`
-- `sponsor_link_validity_duration` (String) Optional if `sponsor_enabled`==`true`. How long to remain valid sponsored guest request approve/deny link received in email, in minutes.
+- `sponsor_link_validity_duration` (String) Optional if `sponsor_enabled`==`true`. How long to remain valid sponsored guest request approve/deny link received in email, in minutes. Default is 60 minutes.
 - `sponsor_notify_all` (Boolean) Optional if `sponsor_enabled`==`true`. whether to notify all sponsors that are mentioned in `sponsors` object. Both `sponsor_notify_all` and `predefined_sponsors_enabled` should be true in order to notify sponsors. If true, email sent to 10 sponsors in no particular order.
 - `sponsor_status_notify` (Boolean) Optional if `sponsor_enabled`==`true`. If enabled, guest will get email about sponsor's action (approve/deny)
 - `sponsors` (Map of String) object of allowed sponsors email with name. Required if `sponsor_enabled`
@@ -493,7 +487,7 @@ Optional:
 
 - `coa_enabled` (Boolean)
 - `enabled` (Boolean)
-- `idle_timeout` (Number)
+- `idle_timeout` (String)
 - `mxcluster_ids` (List of String) To use Org mxedges when this WLAN does not use mxtunnel, specify their mxcluster_ids. Org mxedge(s) identified by mxcluster_ids
 - `proxy_hosts` (List of String) Default is site.mxedge.radsec.proxy_hosts which must be a superset of all `wlans[*].radsec.proxy_hosts`. When `radsec.proxy_hosts` are not used, tunnel peers (org or site mxedges) are used irrespective of `use_site_mxedge`
 - `server_name` (String) Name of the server to verify (against the cacerts in Org Setting). Only if not Mist Edge.

@@ -21,7 +21,7 @@ func radiusServersAcctSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 		var keywrapFormat basetypes.StringValue
 		var keywrapKek basetypes.StringValue
 		var keywrapMack basetypes.StringValue
-		var port = types.Int64Value(int64(*d.Port))
+		var port basetypes.StringValue
 		var secret = types.StringValue(d.Secret)
 
 		if d.KeywrapEnabled != nil {
@@ -35,6 +35,9 @@ func radiusServersAcctSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 		}
 		if d.KeywrapMack != nil {
 			keywrapMack = types.StringValue(*d.KeywrapMack)
+		}
+		if d.Port != nil {
+			port = mistutils.RadiusAcctPortAsString(d.Port)
 		}
 
 		dataMapValue := map[string]attr.Value{
@@ -67,7 +70,7 @@ func radiusServersAuthSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 		var keywrapFormat basetypes.StringValue
 		var keywrapKek basetypes.StringValue
 		var keywrapMack basetypes.StringValue
-		var port basetypes.Int64Value
+		var port basetypes.StringValue
 		var requireMessageAuthenticator basetypes.BoolValue
 		var secret basetypes.StringValue
 
@@ -84,7 +87,9 @@ func radiusServersAuthSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 		if d.KeywrapMack != nil {
 			keywrapMack = types.StringValue(*d.KeywrapMack)
 		}
-		port = types.Int64Value(int64(*d.Port))
+		if d.Port != nil {
+			port = mistutils.RadiusAuthPortAsString(d.Port)
+		}
 		if d.RequireMessageAuthenticator != nil {
 			requireMessageAuthenticator = types.BoolValue(*d.RequireMessageAuthenticator)
 		}
@@ -151,7 +156,7 @@ func radiusConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 		coaEnabled = types.BoolValue(*d.CoaEnabled)
 	}
 	if d != nil && d.CoaPort != nil {
-		coaPort = mistutils.CoaPortAsString(d.CoaPort)
+		coaPort = mistutils.RadiusCoaPortAsString(d.CoaPort)
 	}
 	if d != nil && d.FastDot1xTimers != nil {
 		fastDot1xTimers = types.BoolValue(*d.FastDot1xTimers)

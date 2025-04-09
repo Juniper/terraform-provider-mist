@@ -235,7 +235,7 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 		var lteUsername basetypes.StringValue
 		var mtu basetypes.Int64Value
 		var name basetypes.StringValue
-		var networks = mistutils.ListOfStringSdkToTerraform(v.Networks)
+		var networks = types.ListNull(types.StringType)
 		var outerVlanId basetypes.Int64Value
 		var poeDisabled = types.BoolValue(false)
 		var portNetwork basetypes.StringValue
@@ -244,7 +244,7 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 		var redundantGroup basetypes.Int64Value
 		var rethIdx basetypes.StringValue
 		var rethNode basetypes.StringValue
-		var rethNodes = mistutils.ListOfStringSdkToTerraform(v.RethNodes)
+		var rethNodes = types.ListNull(types.StringType)
 		var speed = types.StringValue("auto")
 		var ssrNoVirtualMac = types.BoolValue(false)
 		var svrPortRange = types.StringValue("none")
@@ -254,7 +254,7 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 		var vpnPaths = types.MapNull(VpnPathsValue{}.Type(ctx))
 		var wanArpPolicer = types.StringValue("default")
 		var wanExtIp basetypes.StringValue
-		var wanExtraRoutes = types.MapNull(WanExtraRoutesValue{}.Type(ctx))
+		var wanExtraRoutes = types.MapValueMust(WanExtraRoutesValue{}.Type(ctx), map[string]attr.Value{})
 		var wanNetworks = mistutils.ListOfStringSdkToTerraform(v.WanNetworks)
 		var wanProbeOverride = types.ObjectNull(WanProbeOverrideValue{}.AttributeTypes(ctx))
 		var wanSourceNat = types.ObjectNull(WanSourceNatValue{}.AttributeTypes(ctx))
@@ -319,6 +319,9 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 		}
 		if v.Name != nil {
 			name = types.StringValue(*v.Name)
+		}
+		if v.Networks != nil {
+			networks = mistutils.ListOfStringSdkToTerraform(v.Networks)
 		}
 		if v.OuterVlanId != nil {
 			outerVlanId = types.Int64Value(int64(*v.OuterVlanId))

@@ -29,15 +29,15 @@ func matchingPortTypesSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 func matchingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.NacRuleMatching) MatchingValue {
 
 	var authType basetypes.StringValue
-	var family = mistutils.ListOfStringSdkToTerraformEmpty()
-	var mfg = mistutils.ListOfStringSdkToTerraformEmpty()
-	var model = mistutils.ListOfStringSdkToTerraformEmpty()
-	var nactags = mistutils.ListOfStringSdkToTerraformEmpty()
-	var osType = mistutils.ListOfStringSdkToTerraformEmpty()
-	var portTypes = mistutils.ListOfStringSdkToTerraformEmpty()
-	var siteIds = mistutils.ListOfStringSdkToTerraformEmpty()
-	var sitegroupIds = mistutils.ListOfStringSdkToTerraformEmpty()
-	var vendor = mistutils.ListOfStringSdkToTerraformEmpty()
+	var family = types.ListNull(types.StringType)
+	var mfg = types.ListNull(types.StringType)
+	var model = types.ListNull(types.StringType)
+	var nactags = types.ListNull(types.StringType)
+	var osType = types.ListNull(types.StringType)
+	var portTypes = types.ListNull(types.StringType)
+	var siteIds = types.ListNull(types.StringType)
+	var sitegroupIds = types.ListNull(types.StringType)
+	var vendor = types.ListNull(types.StringType)
 
 	if d.AuthType != nil {
 		authType = types.StringValue(string(*d.AuthType))
@@ -91,15 +91,15 @@ func matchingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mod
 func notMatchingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.NacRuleMatching) NotMatchingValue {
 
 	var authType basetypes.StringValue
-	var family = mistutils.ListOfStringSdkToTerraformEmpty()
-	var mfg = mistutils.ListOfStringSdkToTerraformEmpty()
-	var model = mistutils.ListOfStringSdkToTerraformEmpty()
-	var nactags = mistutils.ListOfStringSdkToTerraformEmpty()
-	var osType = mistutils.ListOfStringSdkToTerraformEmpty()
-	var portTypes = mistutils.ListOfStringSdkToTerraformEmpty()
-	var siteIds = mistutils.ListOfStringSdkToTerraformEmpty()
-	var sitegroupIds = mistutils.ListOfStringSdkToTerraformEmpty()
-	var vendor = mistutils.ListOfStringSdkToTerraformEmpty()
+	var family = types.ListNull(types.StringType)
+	var mfg = types.ListNull(types.StringType)
+	var model = types.ListNull(types.StringType)
+	var nactags = types.ListNull(types.StringType)
+	var osType = types.ListNull(types.StringType)
+	var portTypes = types.ListNull(types.StringType)
+	var siteIds = types.ListNull(types.StringType)
+	var sitegroupIds = types.ListNull(types.StringType)
+	var vendor = types.ListNull(types.StringType)
 
 	if d.AuthType != nil {
 		authType = types.StringValue(string(*d.AuthType))

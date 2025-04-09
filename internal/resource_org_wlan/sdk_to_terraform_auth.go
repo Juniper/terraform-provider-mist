@@ -54,15 +54,14 @@ func authSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 	if d != nil && d.Owe != nil {
 		owe = types.StringValue(string(*d.Owe))
 	}
-	var pairwiseList []attr.Value
 	if d != nil && d.Pairwise != nil {
+		var pairwiseList []attr.Value
 		for _, item := range d.Pairwise {
 			value := string(item)
 			pairwiseList = append(pairwiseList, types.StringValue(value))
 		}
+		pairwise = types.ListValueMust(basetypes.StringType{}, pairwiseList)
 	}
-	pairwise = types.ListValueMust(basetypes.StringType{}, pairwiseList)
-
 	if d != nil && d.PrivateWlan != nil {
 		privateWlan = types.BoolValue(*d.PrivateWlan)
 	}

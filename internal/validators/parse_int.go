@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/helpers/validatordiag"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -29,7 +30,7 @@ func (o ParseIntValidator) ValidateString(_ context.Context, req validator.Strin
 		return
 	}
 
-	strValue := req.ConfigValue.ValueString()
+	strValue := strings.TrimSpace(req.ConfigValue.ValueString())
 	intValue, e := strconv.ParseInt(strValue, 10, 64)
 	if e != nil || intValue < o.min || intValue > o.max {
 		resp.Diagnostics.Append(validatordiag.InvalidAttributeValueDiagnostic(

@@ -78,7 +78,7 @@ func bgpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map
 		var localAs basetypes.StringValue
 		var neighborAs basetypes.StringValue
 		var neighbors = types.MapNull(NeighborsValue{}.Type(ctx))
-		var networks = mistutils.ListOfStringSdkToTerraformEmpty()
+		var networks = types.ListNull(types.StringType)
 		var noPrivateAs basetypes.BoolValue
 		var noReadvertiseToOverlay = types.BoolValue(false)
 		var typeBgp basetypes.StringValue

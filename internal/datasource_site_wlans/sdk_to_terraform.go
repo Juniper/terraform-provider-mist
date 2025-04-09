@@ -2,6 +2,8 @@ package datasource_site_wlans
 
 import (
 	"context"
+	"strings"
+
 	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -50,9 +52,9 @@ func wlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 	var blockBlacklistClients basetypes.BoolValue
 	var bonjour = types.ObjectNull(BonjourValue{}.AttributeTypes(ctx))
 	var ciscoCwa = types.ObjectNull(CiscoCwaValue{}.AttributeTypes(ctx))
-	var clientLimitDown basetypes.Int64Value
+	var clientLimitDown basetypes.StringValue
 	var clientLimitDownEnabled basetypes.BoolValue
-	var clientLimitUp basetypes.Int64Value
+	var clientLimitUp basetypes.StringValue
 	var clientLimitUpEnabled basetypes.BoolValue
 	var createdTime basetypes.Float64Value
 	var coaServers = types.ListValueMust(CoaServersValue{}.Type(ctx), []attr.Value{})
@@ -116,9 +118,9 @@ func wlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 	var vlanId basetypes.StringValue
 	var vlanIds = mistutils.ListOfStringSdkToTerraformEmpty()
 	var vlanPooling basetypes.BoolValue
-	var wlanLimitDown basetypes.Int64Value
+	var wlanLimitDown basetypes.StringValue
 	var wlanLimitDownEnabled basetypes.BoolValue
-	var wlanLimitUp basetypes.Int64Value
+	var wlanLimitUp basetypes.StringValue
 	var wlanLimitUpEnabled basetypes.BoolValue
 	var wxtagIds = mistutils.ListOfUuidSdkToTerraformEmpty()
 	var wxtunnelId = types.StringValue("")
@@ -229,7 +231,7 @@ func wlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 	}
 
 	if d.ClientLimitDown != nil {
-		clientLimitDown = types.Int64Value(int64(*d.ClientLimitDown))
+		clientLimitDown = mistutils.WlanLimitAsString(d.ClientLimitDown)
 	}
 
 	if d.ClientLimitDownEnabled != nil {
@@ -237,7 +239,7 @@ func wlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 	}
 
 	if d.ClientLimitUp != nil {
-		clientLimitUp = types.Int64Value(int64(*d.ClientLimitUp))
+		clientLimitUp = mistutils.WlanLimitAsString(d.ClientLimitUp)
 	}
 
 	if d.ClientLimitUpEnabled != nil {
@@ -454,7 +456,15 @@ func wlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 	}
 
 	if d.RoamMode != nil {
-		roamMode = types.StringValue(string(*d.RoamMode))
+		if strings.ToUpper(string(*d.RoamMode)) == "11R" {
+			roamMode = types.StringValue("11r")
+		} else if strings.ToUpper(string(*d.RoamMode)) == "NONE" {
+			roamMode = types.StringValue("NONE")
+		} else if strings.ToUpper(string(*d.RoamMode)) == "OKC" {
+			roamMode = types.StringValue("OKC")
+		} else {
+			roamMode = types.StringValue(string(*d.RoamMode))
+		}
 	}
 
 	if d.Schedule != nil {
@@ -479,8 +489,8 @@ func wlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 		vlanEnabled = types.BoolValue(*d.VlanEnabled)
 	}
 
-	if d.VlanId != nil {
-		vlanId = mistutils.VlanAsString(*d.VlanId)
+	if d.VlanId.Value() != nil {
+		vlanId = mistutils.WlanVlanAsString(*d.VlanId.Value())
 	}
 
 	if d.VlanIds != nil {
@@ -491,16 +501,16 @@ func wlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 		vlanPooling = types.BoolValue(*d.VlanPooling)
 	}
 
-	if d.WlanLimitDown.IsValueSet() && d.WlanLimitDown.Value() != nil {
-		wlanLimitDown = types.Int64Value(int64(*d.WlanLimitDown.Value()))
+	if d.WlanLimitDown != nil {
+		wlanLimitDown = mistutils.WlanLimitAsString(d.WlanLimitDown)
 	}
 
 	if d.WlanLimitDownEnabled != nil {
 		wlanLimitDownEnabled = types.BoolValue(*d.WlanLimitDownEnabled)
 	}
 
-	if d.WlanLimitUp.IsValueSet() && d.WlanLimitUp.Value() != nil {
-		wlanLimitUp = types.Int64Value(int64(*d.WlanLimitUp.Value()))
+	if d.WlanLimitUp != nil {
+		wlanLimitUp = mistutils.WlanLimitAsString(d.WlanLimitUp)
 	}
 
 	if d.WlanLimitUpEnabled != nil {

@@ -1267,15 +1267,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								"keywrap_mack": schema.StringAttribute{
 									Optional: true,
 								},
-								"port": schema.Int64Attribute{
-									Optional:            true,
-									Computed:            true,
-									Description:         "Acct port of RADIUS server",
-									MarkdownDescription: "Acct port of RADIUS server",
-									Validators: []validator.Int64{
-										int64validator.Between(1, 65535),
-									},
-									Default: int64default.StaticInt64(1813),
+								"port": schema.StringAttribute{
+									Optional: true,
 								},
 								"secret": schema.StringAttribute{
 									Required:            true,
@@ -1338,15 +1331,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								"keywrap_mack": schema.StringAttribute{
 									Optional: true,
 								},
-								"port": schema.Int64Attribute{
-									Optional:            true,
-									Computed:            true,
-									Description:         "Auth port of RADIUS server",
-									MarkdownDescription: "Auth port of RADIUS server",
-									Validators: []validator.Int64{
-										int64validator.Between(1, 65535),
-									},
-									Default: int64default.StaticInt64(1812),
+								"port": schema.StringAttribute{
+									Optional: true,
 								},
 								"require_message_authenticator": schema.BoolAttribute{
 									Optional:            true,
@@ -3653,11 +3639,19 @@ func (v AclPoliciesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 		)
 	}
 
-	srcTagsVal, d := types.ListValue(types.StringType, v.SrcTags.Elements())
+	var srcTagsVal basetypes.ListValue
+	switch {
+	case v.SrcTags.IsUnknown():
+		srcTagsVal = types.ListUnknown(types.StringType)
+	case v.SrcTags.IsNull():
+		srcTagsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		srcTagsVal, d = types.ListValue(types.StringType, v.SrcTags.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"actions": basetypes.ListType{
 				ElemType: ActionsValue{}.Type(ctx),
@@ -4717,11 +4711,19 @@ func (v AclTagsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 		)
 	}
 
-	macsVal, d := types.ListValue(types.StringType, v.Macs.Elements())
+	var macsVal basetypes.ListValue
+	switch {
+	case v.Macs.IsUnknown():
+		macsVal = types.ListUnknown(types.StringType)
+	case v.Macs.IsNull():
+		macsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		macsVal, d = types.ListValue(types.StringType, v.Macs.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"gbp_tag": basetypes.Int64Type{},
 			"macs": basetypes.ListType{
@@ -4739,11 +4741,19 @@ func (v AclTagsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 		}), diags
 	}
 
-	subnetsVal, d := types.ListValue(types.StringType, v.Subnets.Elements())
+	var subnetsVal basetypes.ListValue
+	switch {
+	case v.Subnets.IsUnknown():
+		subnetsVal = types.ListUnknown(types.StringType)
+	case v.Subnets.IsNull():
+		subnetsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		subnetsVal, d = types.ListValue(types.StringType, v.Subnets.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"gbp_tag": basetypes.Int64Type{},
 			"macs": basetypes.ListType{
@@ -5712,11 +5722,19 @@ func (v DhcpSnoopingValue) String() string {
 func (v DhcpSnoopingValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	networksVal, d := types.ListValue(types.StringType, v.Networks.Elements())
+	var networksVal basetypes.ListValue
+	switch {
+	case v.Networks.IsUnknown():
+		networksVal = types.ListUnknown(types.StringType)
+	case v.Networks.IsNull():
+		networksVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		networksVal, d = types.ListValue(types.StringType, v.Networks.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"all_networks":           basetypes.BoolType{},
 			"enable_arp_spoof_check": basetypes.BoolType{},
@@ -9763,11 +9781,19 @@ func (v OspfNetworksValue) String() string {
 func (v OspfNetworksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	authKeysVal, d := types.MapValue(types.StringType, v.AuthKeys.Elements())
+	var authKeysVal basetypes.MapValue
+	switch {
+	case v.AuthKeys.IsUnknown():
+		authKeysVal = types.MapUnknown(types.StringType)
+	case v.AuthKeys.IsNull():
+		authKeysVal = types.MapNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		authKeysVal, d = types.MapValue(types.StringType, v.AuthKeys.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"auth_keys": basetypes.MapType{
 				ElemType: types.StringType,
@@ -10389,11 +10415,19 @@ func (v PortMirroringValue) String() string {
 func (v PortMirroringValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	inputNetworksIngressVal, d := types.ListValue(types.StringType, v.InputNetworksIngress.Elements())
+	var inputNetworksIngressVal basetypes.ListValue
+	switch {
+	case v.InputNetworksIngress.IsUnknown():
+		inputNetworksIngressVal = types.ListUnknown(types.StringType)
+	case v.InputNetworksIngress.IsNull():
+		inputNetworksIngressVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		inputNetworksIngressVal, d = types.ListValue(types.StringType, v.InputNetworksIngress.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"input_networks_ingress": basetypes.ListType{
 				ElemType: types.StringType,
@@ -10409,11 +10443,19 @@ func (v PortMirroringValue) ToObjectValue(ctx context.Context) (basetypes.Object
 		}), diags
 	}
 
-	inputPortIdsEgressVal, d := types.ListValue(types.StringType, v.InputPortIdsEgress.Elements())
+	var inputPortIdsEgressVal basetypes.ListValue
+	switch {
+	case v.InputPortIdsEgress.IsUnknown():
+		inputPortIdsEgressVal = types.ListUnknown(types.StringType)
+	case v.InputPortIdsEgress.IsNull():
+		inputPortIdsEgressVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		inputPortIdsEgressVal, d = types.ListValue(types.StringType, v.InputPortIdsEgress.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"input_networks_ingress": basetypes.ListType{
 				ElemType: types.StringType,
@@ -10429,11 +10471,19 @@ func (v PortMirroringValue) ToObjectValue(ctx context.Context) (basetypes.Object
 		}), diags
 	}
 
-	inputPortIdsIngressVal, d := types.ListValue(types.StringType, v.InputPortIdsIngress.Elements())
+	var inputPortIdsIngressVal basetypes.ListValue
+	switch {
+	case v.InputPortIdsIngress.IsUnknown():
+		inputPortIdsIngressVal = types.ListUnknown(types.StringType)
+	case v.InputPortIdsIngress.IsNull():
+		inputPortIdsIngressVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		inputPortIdsIngressVal, d = types.ListValue(types.StringType, v.InputPortIdsIngress.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"input_networks_ingress": basetypes.ListType{
 				ElemType: types.StringType,
@@ -12695,11 +12745,19 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		)
 	}
 
-	dynamicVlanNetworksVal, d := types.ListValue(types.StringType, v.DynamicVlanNetworks.Elements())
+	var dynamicVlanNetworksVal basetypes.ListValue
+	switch {
+	case v.DynamicVlanNetworks.IsUnknown():
+		dynamicVlanNetworksVal = types.ListUnknown(types.StringType)
+	case v.DynamicVlanNetworks.IsNull():
+		dynamicVlanNetworksVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		dynamicVlanNetworksVal, d = types.ListValue(types.StringType, v.DynamicVlanNetworks.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"all_networks":                                    basetypes.BoolType{},
 			"allow_dhcpd":                                     basetypes.BoolType{},
@@ -12751,11 +12809,19 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		}), diags
 	}
 
-	networksVal, d := types.ListValue(types.StringType, v.Networks.Elements())
+	var networksVal basetypes.ListValue
+	switch {
+	case v.Networks.IsUnknown():
+		networksVal = types.ListUnknown(types.StringType)
+	case v.Networks.IsNull():
+		networksVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		networksVal, d = types.ListValue(types.StringType, v.Networks.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"all_networks":                                    basetypes.BoolType{},
 			"allow_dhcpd":                                     basetypes.BoolType{},
@@ -13607,11 +13673,19 @@ func (v RulesValue) String() string {
 func (v RulesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	equalsAnyVal, d := types.ListValue(types.StringType, v.EqualsAny.Elements())
+	var equalsAnyVal basetypes.ListValue
+	switch {
+	case v.EqualsAny.IsUnknown():
+		equalsAnyVal = types.ListUnknown(types.StringType)
+	case v.EqualsAny.IsNull():
+		equalsAnyVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		equalsAnyVal, d = types.ListValue(types.StringType, v.EqualsAny.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"equals": basetypes.StringType{},
 			"equals_any": basetypes.ListType{
@@ -15380,12 +15454,12 @@ func (t AcctServersType) ValueFromObject(ctx context.Context, in basetypes.Objec
 		return nil, diags
 	}
 
-	portVal, ok := portAttribute.(basetypes.Int64Value)
+	portVal, ok := portAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`port expected to be basetypes.Int64Value, was: %T`, portAttribute))
+			fmt.Sprintf(`port expected to be basetypes.StringValue, was: %T`, portAttribute))
 	}
 
 	secretAttribute, ok := attributes["secret"]
@@ -15585,12 +15659,12 @@ func NewAcctServersValue(attributeTypes map[string]attr.Type, attributes map[str
 		return NewAcctServersValueUnknown(), diags
 	}
 
-	portVal, ok := portAttribute.(basetypes.Int64Value)
+	portVal, ok := portAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`port expected to be basetypes.Int64Value, was: %T`, portAttribute))
+			fmt.Sprintf(`port expected to be basetypes.StringValue, was: %T`, portAttribute))
 	}
 
 	secretAttribute, ok := attributes["secret"]
@@ -15700,7 +15774,7 @@ type AcctServersValue struct {
 	KeywrapFormat  basetypes.StringValue `tfsdk:"keywrap_format"`
 	KeywrapKek     basetypes.StringValue `tfsdk:"keywrap_kek"`
 	KeywrapMack    basetypes.StringValue `tfsdk:"keywrap_mack"`
-	Port           basetypes.Int64Value  `tfsdk:"port"`
+	Port           basetypes.StringValue `tfsdk:"port"`
 	Secret         basetypes.StringValue `tfsdk:"secret"`
 	state          attr.ValueState
 }
@@ -15716,7 +15790,7 @@ func (v AcctServersValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 	attrTypes["keywrap_format"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["keywrap_kek"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["keywrap_mack"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["port"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["port"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["secret"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
@@ -15816,7 +15890,7 @@ func (v AcctServersValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 		"keywrap_format":  basetypes.StringType{},
 		"keywrap_kek":     basetypes.StringType{},
 		"keywrap_mack":    basetypes.StringType{},
-		"port":            basetypes.Int64Type{},
+		"port":            basetypes.StringType{},
 		"secret":          basetypes.StringType{},
 	}
 
@@ -15904,7 +15978,7 @@ func (v AcctServersValue) AttributeTypes(ctx context.Context) map[string]attr.Ty
 		"keywrap_format":  basetypes.StringType{},
 		"keywrap_kek":     basetypes.StringType{},
 		"keywrap_mack":    basetypes.StringType{},
-		"port":            basetypes.Int64Type{},
+		"port":            basetypes.StringType{},
 		"secret":          basetypes.StringType{},
 	}
 }
@@ -16034,12 +16108,12 @@ func (t AuthServersType) ValueFromObject(ctx context.Context, in basetypes.Objec
 		return nil, diags
 	}
 
-	portVal, ok := portAttribute.(basetypes.Int64Value)
+	portVal, ok := portAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`port expected to be basetypes.Int64Value, was: %T`, portAttribute))
+			fmt.Sprintf(`port expected to be basetypes.StringValue, was: %T`, portAttribute))
 	}
 
 	requireMessageAuthenticatorAttribute, ok := attributes["require_message_authenticator"]
@@ -16258,12 +16332,12 @@ func NewAuthServersValue(attributeTypes map[string]attr.Type, attributes map[str
 		return NewAuthServersValueUnknown(), diags
 	}
 
-	portVal, ok := portAttribute.(basetypes.Int64Value)
+	portVal, ok := portAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`port expected to be basetypes.Int64Value, was: %T`, portAttribute))
+			fmt.Sprintf(`port expected to be basetypes.StringValue, was: %T`, portAttribute))
 	}
 
 	requireMessageAuthenticatorAttribute, ok := attributes["require_message_authenticator"]
@@ -16392,7 +16466,7 @@ type AuthServersValue struct {
 	KeywrapFormat               basetypes.StringValue `tfsdk:"keywrap_format"`
 	KeywrapKek                  basetypes.StringValue `tfsdk:"keywrap_kek"`
 	KeywrapMack                 basetypes.StringValue `tfsdk:"keywrap_mack"`
-	Port                        basetypes.Int64Value  `tfsdk:"port"`
+	Port                        basetypes.StringValue `tfsdk:"port"`
 	RequireMessageAuthenticator basetypes.BoolValue   `tfsdk:"require_message_authenticator"`
 	Secret                      basetypes.StringValue `tfsdk:"secret"`
 	state                       attr.ValueState
@@ -16409,7 +16483,7 @@ func (v AuthServersValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 	attrTypes["keywrap_format"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["keywrap_kek"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["keywrap_mack"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["port"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["port"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["require_message_authenticator"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["secret"] = basetypes.StringType{}.TerraformType(ctx)
 
@@ -16518,7 +16592,7 @@ func (v AuthServersValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 		"keywrap_format":                basetypes.StringType{},
 		"keywrap_kek":                   basetypes.StringType{},
 		"keywrap_mack":                  basetypes.StringType{},
-		"port":                          basetypes.Int64Type{},
+		"port":                          basetypes.StringType{},
 		"require_message_authenticator": basetypes.BoolType{},
 		"secret":                        basetypes.StringType{},
 	}
@@ -16612,7 +16686,7 @@ func (v AuthServersValue) AttributeTypes(ctx context.Context) map[string]attr.Ty
 		"keywrap_format":                basetypes.StringType{},
 		"keywrap_kek":                   basetypes.StringType{},
 		"keywrap_mack":                  basetypes.StringType{},
-		"port":                          basetypes.Int64Type{},
+		"port":                          basetypes.StringType{},
 		"require_message_authenticator": basetypes.BoolType{},
 		"secret":                        basetypes.StringType{},
 	}
@@ -22165,11 +22239,19 @@ func (v ClientListValue) String() string {
 func (v ClientListValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	clientsVal, d := types.ListValue(types.StringType, v.Clients.Elements())
+	var clientsVal basetypes.ListValue
+	switch {
+	case v.Clients.IsUnknown():
+		clientsVal = types.ListUnknown(types.StringType)
+	case v.Clients.IsNull():
+		clientsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		clientsVal, d = types.ListValue(types.StringType, v.Clients.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"client_list_name": basetypes.StringType{},
 			"clients": basetypes.ListType{
@@ -22661,11 +22743,19 @@ func (v TrapGroupsValue) String() string {
 func (v TrapGroupsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	categoriesVal, d := types.ListValue(types.StringType, v.Categories.Elements())
+	var categoriesVal basetypes.ListValue
+	switch {
+	case v.Categories.IsUnknown():
+		categoriesVal = types.ListUnknown(types.StringType)
+	case v.Categories.IsNull():
+		categoriesVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		categoriesVal, d = types.ListValue(types.StringType, v.Categories.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"categories": basetypes.ListType{
 				ElemType: types.StringType,
@@ -22678,11 +22768,19 @@ func (v TrapGroupsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		}), diags
 	}
 
-	targetsVal, d := types.ListValue(types.StringType, v.Targets.Elements())
+	var targetsVal basetypes.ListValue
+	switch {
+	case v.Targets.IsUnknown():
+		targetsVal = types.ListUnknown(types.StringType)
+	case v.Targets.IsNull():
+		targetsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		targetsVal, d = types.ListValue(types.StringType, v.Targets.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"categories": basetypes.ListType{
 				ElemType: types.StringType,
@@ -31564,11 +31662,19 @@ func (v MatchingRulesValue) ToObjectValue(ctx context.Context) (basetypes.Object
 		)
 	}
 
-	additionalConfigCmdsVal, d := types.ListValue(types.StringType, v.AdditionalConfigCmds.Elements())
+	var additionalConfigCmdsVal basetypes.ListValue
+	switch {
+	case v.AdditionalConfigCmds.IsUnknown():
+		additionalConfigCmdsVal = types.ListUnknown(types.StringType)
+	case v.AdditionalConfigCmds.IsNull():
+		additionalConfigCmdsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		additionalConfigCmdsVal, d = types.ListValue(types.StringType, v.AdditionalConfigCmds.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"additional_config_cmds": basetypes.ListType{
 				ElemType: types.StringType,
@@ -35609,11 +35715,19 @@ func (v ProtectReValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 		)
 	}
 
-	allowedServicesVal, d := types.ListValue(types.StringType, v.AllowedServices.Elements())
+	var allowedServicesVal basetypes.ListValue
+	switch {
+	case v.AllowedServices.IsUnknown():
+		allowedServicesVal = types.ListUnknown(types.StringType)
+	case v.AllowedServices.IsNull():
+		allowedServicesVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		allowedServicesVal, d = types.ListValue(types.StringType, v.AllowedServices.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"allowed_services": basetypes.ListType{
 				ElemType: types.StringType,
@@ -35628,11 +35742,19 @@ func (v ProtectReValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 		}), diags
 	}
 
-	trustedHostsVal, d := types.ListValue(types.StringType, v.TrustedHosts.Elements())
+	var trustedHostsVal basetypes.ListValue
+	switch {
+	case v.TrustedHosts.IsUnknown():
+		trustedHostsVal = types.ListUnknown(types.StringType)
+	case v.TrustedHosts.IsNull():
+		trustedHostsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		trustedHostsVal, d = types.ListValue(types.StringType, v.TrustedHosts.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"allowed_services": basetypes.ListType{
 				ElemType: types.StringType,
@@ -36102,11 +36224,19 @@ func (v CustomValue) String() string {
 func (v CustomValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	subnetsVal, d := types.ListValue(types.StringType, v.Subnets.Elements())
+	var subnetsVal basetypes.ListValue
+	switch {
+	case v.Subnets.IsUnknown():
+		subnetsVal = types.ListUnknown(types.StringType)
+	case v.Subnets.IsNull():
+		subnetsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		subnetsVal, d = types.ListValue(types.StringType, v.Subnets.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"port_range": basetypes.StringType{},
 			"protocol":   basetypes.StringType{},
@@ -38630,11 +38760,19 @@ func (v VrfInstancesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 		)
 	}
 
-	networksVal, d := types.ListValue(types.StringType, v.Networks.Elements())
+	var networksVal basetypes.ListValue
+	switch {
+	case v.Networks.IsUnknown():
+		networksVal = types.ListUnknown(types.StringType)
+	case v.Networks.IsNull():
+		networksVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		networksVal, d = types.ListValue(types.StringType, v.Networks.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"evpn_auto_loopback_subnet":  basetypes.StringType{},
 			"evpn_auto_loopback_subnet6": basetypes.StringType{},

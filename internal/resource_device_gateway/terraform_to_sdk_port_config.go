@@ -217,7 +217,7 @@ func portConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d ba
 		if plan.Name.ValueStringPointer() != nil {
 			data.Name = plan.Name.ValueStringPointer()
 		}
-		if plan.Name.IsNull() && !plan.Name.IsUnknown() {
+		if !plan.Networks.IsNull() && !plan.Networks.IsUnknown() {
 			data.Networks = mistutils.ListOfStringTerraformToSdk(plan.Networks)
 		}
 		if plan.OuterVlanId.ValueInt64Pointer() != nil {
