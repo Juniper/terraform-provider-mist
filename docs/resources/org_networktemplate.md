@@ -433,7 +433,7 @@ Optional:
 - `keywrap_format` (String) enum: `ascii`, `hex`
 - `keywrap_kek` (String)
 - `keywrap_mack` (String)
-- `port` (Number) Acct port of RADIUS server
+- `port` (String)
 
 
 <a id="nestedatt--radius_config--auth_servers"></a>
@@ -450,7 +450,7 @@ Optional:
 - `keywrap_format` (String) enum: `ascii`, `hex`
 - `keywrap_kek` (String)
 - `keywrap_mack` (String)
-- `port` (Number) Auth port of RADIUS server
+- `port` (String)
 - `require_message_authenticator` (Boolean) Whether to require Message-Authenticator in requests
 
 

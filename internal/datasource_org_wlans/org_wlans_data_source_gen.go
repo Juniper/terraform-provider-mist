@@ -58,10 +58,8 @@ func OrgWlansDataSourceSchema(ctx context.Context) schema.Schema {
 									"keywrap_mack": schema.StringAttribute{
 										Computed: true,
 									},
-									"port": schema.Int64Attribute{
-										Computed:            true,
-										Description:         "Acct port of RADIUS server",
-										MarkdownDescription: "Acct port of RADIUS server",
+									"port": schema.StringAttribute{
+										Computed: true,
 									},
 									"secret": schema.StringAttribute{
 										Computed:            true,
@@ -346,10 +344,8 @@ func OrgWlansDataSourceSchema(ctx context.Context) schema.Schema {
 									"keywrap_mack": schema.StringAttribute{
 										Computed: true,
 									},
-									"port": schema.Int64Attribute{
-										Computed:            true,
-										Description:         "Auth port of RADIUS server",
-										MarkdownDescription: "Auth port of RADIUS server",
+									"port": schema.StringAttribute{
+										Computed: true,
 									},
 									"require_message_authenticator": schema.BoolAttribute{
 										Computed:            true,
@@ -503,20 +499,16 @@ func OrgWlansDataSourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Cisco CWA (central web authentication) required RADIUS with COA in order to work. See CWA: https://www.cisco.com/c/en/us/support/docs/security/identity-services-engine/115732-central-web-auth-00.html",
 							MarkdownDescription: "Cisco CWA (central web authentication) required RADIUS with COA in order to work. See CWA: https://www.cisco.com/c/en/us/support/docs/security/identity-services-engine/115732-central-web-auth-00.html",
 						},
-						"client_limit_down": schema.Int64Attribute{
-							Computed:            true,
-							Description:         "In kbps",
-							MarkdownDescription: "In kbps",
+						"client_limit_down": schema.StringAttribute{
+							Computed: true,
 						},
 						"client_limit_down_enabled": schema.BoolAttribute{
 							Computed:            true,
 							Description:         "If downlink limiting per-client is enabled",
 							MarkdownDescription: "If downlink limiting per-client is enabled",
 						},
-						"client_limit_up": schema.Int64Attribute{
-							Computed:            true,
-							Description:         "In kbps",
-							MarkdownDescription: "In kbps",
+						"client_limit_up": schema.StringAttribute{
+							Computed: true,
 						},
 						"client_limit_up_enabled": schema.BoolAttribute{
 							Computed:            true,
@@ -1189,9 +1181,7 @@ func OrgWlansDataSourceSchema(ctx context.Context) schema.Schema {
 									MarkdownDescription: "Optional if `sponsor_enabled`==`true`. Interval for which guest remains authorized using sponsor auth (in minutes), if not provided, uses expire`",
 								},
 								"sponsor_link_validity_duration": schema.StringAttribute{
-									Computed:            true,
-									Description:         "Optional if `sponsor_enabled`==`true`. How long to remain valid sponsored guest request approve/deny link received in email, in minutes.",
-									MarkdownDescription: "Optional if `sponsor_enabled`==`true`. How long to remain valid sponsored guest request approve/deny link received in email, in minutes.",
+									Computed: true,
 								},
 								"sponsor_notify_all": schema.BoolAttribute{
 									Computed:            true,
@@ -1560,20 +1550,16 @@ func OrgWlansDataSourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Requires `vlan_enabled`==`true` to be set to `true`. Vlan pooling allows AP to place client on different VLAN using a deterministic algorithm",
 							MarkdownDescription: "Requires `vlan_enabled`==`true` to be set to `true`. Vlan pooling allows AP to place client on different VLAN using a deterministic algorithm",
 						},
-						"wlan_limit_down": schema.Int64Attribute{
-							Computed:            true,
-							Description:         "In kbps",
-							MarkdownDescription: "In kbps",
+						"wlan_limit_down": schema.StringAttribute{
+							Computed: true,
 						},
 						"wlan_limit_down_enabled": schema.BoolAttribute{
 							Computed:            true,
 							Description:         "If downlink limiting for whole wlan is enabled",
 							MarkdownDescription: "If downlink limiting for whole wlan is enabled",
 						},
-						"wlan_limit_up": schema.Int64Attribute{
-							Computed:            true,
-							Description:         "In kbps",
-							MarkdownDescription: "In kbps",
+						"wlan_limit_up": schema.StringAttribute{
+							Computed: true,
 						},
 						"wlan_limit_up_enabled": schema.BoolAttribute{
 							Computed:            true,
@@ -2099,12 +2085,12 @@ func (t OrgWlansType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 		return nil, diags
 	}
 
-	clientLimitDownVal, ok := clientLimitDownAttribute.(basetypes.Int64Value)
+	clientLimitDownVal, ok := clientLimitDownAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`client_limit_down expected to be basetypes.Int64Value, was: %T`, clientLimitDownAttribute))
+			fmt.Sprintf(`client_limit_down expected to be basetypes.StringValue, was: %T`, clientLimitDownAttribute))
 	}
 
 	clientLimitDownEnabledAttribute, ok := attributes["client_limit_down_enabled"]
@@ -2135,12 +2121,12 @@ func (t OrgWlansType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 		return nil, diags
 	}
 
-	clientLimitUpVal, ok := clientLimitUpAttribute.(basetypes.Int64Value)
+	clientLimitUpVal, ok := clientLimitUpAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`client_limit_up expected to be basetypes.Int64Value, was: %T`, clientLimitUpAttribute))
+			fmt.Sprintf(`client_limit_up expected to be basetypes.StringValue, was: %T`, clientLimitUpAttribute))
 	}
 
 	clientLimitUpEnabledAttribute, ok := attributes["client_limit_up_enabled"]
@@ -3287,12 +3273,12 @@ func (t OrgWlansType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 		return nil, diags
 	}
 
-	wlanLimitDownVal, ok := wlanLimitDownAttribute.(basetypes.Int64Value)
+	wlanLimitDownVal, ok := wlanLimitDownAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`wlan_limit_down expected to be basetypes.Int64Value, was: %T`, wlanLimitDownAttribute))
+			fmt.Sprintf(`wlan_limit_down expected to be basetypes.StringValue, was: %T`, wlanLimitDownAttribute))
 	}
 
 	wlanLimitDownEnabledAttribute, ok := attributes["wlan_limit_down_enabled"]
@@ -3323,12 +3309,12 @@ func (t OrgWlansType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 		return nil, diags
 	}
 
-	wlanLimitUpVal, ok := wlanLimitUpAttribute.(basetypes.Int64Value)
+	wlanLimitUpVal, ok := wlanLimitUpAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`wlan_limit_up expected to be basetypes.Int64Value, was: %T`, wlanLimitUpAttribute))
+			fmt.Sprintf(`wlan_limit_up expected to be basetypes.StringValue, was: %T`, wlanLimitUpAttribute))
 	}
 
 	wlanLimitUpEnabledAttribute, ok := attributes["wlan_limit_up_enabled"]
@@ -4033,12 +4019,12 @@ func NewOrgWlansValue(attributeTypes map[string]attr.Type, attributes map[string
 		return NewOrgWlansValueUnknown(), diags
 	}
 
-	clientLimitDownVal, ok := clientLimitDownAttribute.(basetypes.Int64Value)
+	clientLimitDownVal, ok := clientLimitDownAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`client_limit_down expected to be basetypes.Int64Value, was: %T`, clientLimitDownAttribute))
+			fmt.Sprintf(`client_limit_down expected to be basetypes.StringValue, was: %T`, clientLimitDownAttribute))
 	}
 
 	clientLimitDownEnabledAttribute, ok := attributes["client_limit_down_enabled"]
@@ -4069,12 +4055,12 @@ func NewOrgWlansValue(attributeTypes map[string]attr.Type, attributes map[string
 		return NewOrgWlansValueUnknown(), diags
 	}
 
-	clientLimitUpVal, ok := clientLimitUpAttribute.(basetypes.Int64Value)
+	clientLimitUpVal, ok := clientLimitUpAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`client_limit_up expected to be basetypes.Int64Value, was: %T`, clientLimitUpAttribute))
+			fmt.Sprintf(`client_limit_up expected to be basetypes.StringValue, was: %T`, clientLimitUpAttribute))
 	}
 
 	clientLimitUpEnabledAttribute, ok := attributes["client_limit_up_enabled"]
@@ -5221,12 +5207,12 @@ func NewOrgWlansValue(attributeTypes map[string]attr.Type, attributes map[string
 		return NewOrgWlansValueUnknown(), diags
 	}
 
-	wlanLimitDownVal, ok := wlanLimitDownAttribute.(basetypes.Int64Value)
+	wlanLimitDownVal, ok := wlanLimitDownAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`wlan_limit_down expected to be basetypes.Int64Value, was: %T`, wlanLimitDownAttribute))
+			fmt.Sprintf(`wlan_limit_down expected to be basetypes.StringValue, was: %T`, wlanLimitDownAttribute))
 	}
 
 	wlanLimitDownEnabledAttribute, ok := attributes["wlan_limit_down_enabled"]
@@ -5257,12 +5243,12 @@ func NewOrgWlansValue(attributeTypes map[string]attr.Type, attributes map[string
 		return NewOrgWlansValueUnknown(), diags
 	}
 
-	wlanLimitUpVal, ok := wlanLimitUpAttribute.(basetypes.Int64Value)
+	wlanLimitUpVal, ok := wlanLimitUpAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`wlan_limit_up expected to be basetypes.Int64Value, was: %T`, wlanLimitUpAttribute))
+			fmt.Sprintf(`wlan_limit_up expected to be basetypes.StringValue, was: %T`, wlanLimitUpAttribute))
 	}
 
 	wlanLimitUpEnabledAttribute, ok := attributes["wlan_limit_up_enabled"]
@@ -5537,9 +5523,9 @@ type OrgWlansValue struct {
 	BlockBlacklistClients                basetypes.BoolValue    `tfsdk:"block_blacklist_clients"`
 	Bonjour                              basetypes.ObjectValue  `tfsdk:"bonjour"`
 	CiscoCwa                             basetypes.ObjectValue  `tfsdk:"cisco_cwa"`
-	ClientLimitDown                      basetypes.Int64Value   `tfsdk:"client_limit_down"`
+	ClientLimitDown                      basetypes.StringValue  `tfsdk:"client_limit_down"`
 	ClientLimitDownEnabled               basetypes.BoolValue    `tfsdk:"client_limit_down_enabled"`
-	ClientLimitUp                        basetypes.Int64Value   `tfsdk:"client_limit_up"`
+	ClientLimitUp                        basetypes.StringValue  `tfsdk:"client_limit_up"`
 	ClientLimitUpEnabled                 basetypes.BoolValue    `tfsdk:"client_limit_up_enabled"`
 	CoaServers                           basetypes.ListValue    `tfsdk:"coa_servers"`
 	CreatedTime                          basetypes.Float64Value `tfsdk:"created_time"`
@@ -5603,9 +5589,9 @@ type OrgWlansValue struct {
 	VlanId                               basetypes.StringValue  `tfsdk:"vlan_id"`
 	VlanIds                              basetypes.ListValue    `tfsdk:"vlan_ids"`
 	VlanPooling                          basetypes.BoolValue    `tfsdk:"vlan_pooling"`
-	WlanLimitDown                        basetypes.Int64Value   `tfsdk:"wlan_limit_down"`
+	WlanLimitDown                        basetypes.StringValue  `tfsdk:"wlan_limit_down"`
 	WlanLimitDownEnabled                 basetypes.BoolValue    `tfsdk:"wlan_limit_down_enabled"`
-	WlanLimitUp                          basetypes.Int64Value   `tfsdk:"wlan_limit_up"`
+	WlanLimitUp                          basetypes.StringValue  `tfsdk:"wlan_limit_up"`
 	WlanLimitUpEnabled                   basetypes.BoolValue    `tfsdk:"wlan_limit_up_enabled"`
 	WxtagIds                             basetypes.ListValue    `tfsdk:"wxtag_ids"`
 	WxtunnelId                           basetypes.StringValue  `tfsdk:"wxtunnel_id"`
@@ -5664,9 +5650,9 @@ func (v OrgWlansValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 	attrTypes["cisco_cwa"] = basetypes.ObjectType{
 		AttrTypes: CiscoCwaValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
-	attrTypes["client_limit_down"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["client_limit_down"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["client_limit_down_enabled"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["client_limit_up"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["client_limit_up"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["client_limit_up_enabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["coa_servers"] = basetypes.ListType{
 		ElemType: CoaServersValue{}.Type(ctx),
@@ -5766,9 +5752,9 @@ func (v OrgWlansValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
 	attrTypes["vlan_pooling"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["wlan_limit_down"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["wlan_limit_down"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["wlan_limit_down_enabled"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["wlan_limit_up"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["wlan_limit_up"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["wlan_limit_up_enabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["wxtag_ids"] = basetypes.ListType{
 		ElemType: types.StringType,
@@ -7106,9 +7092,9 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"cisco_cwa": basetypes.ObjectType{
 				AttrTypes: CiscoCwaValue{}.AttributeTypes(ctx),
 			},
-			"client_limit_down":         basetypes.Int64Type{},
+			"client_limit_down":         basetypes.StringType{},
 			"client_limit_down_enabled": basetypes.BoolType{},
-			"client_limit_up":           basetypes.Int64Type{},
+			"client_limit_up":           basetypes.StringType{},
 			"client_limit_up_enabled":   basetypes.BoolType{},
 			"coa_servers": basetypes.ListType{
 				ElemType: CoaServersValue{}.Type(ctx),
@@ -7208,9 +7194,9 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 				ElemType: types.StringType,
 			},
 			"vlan_pooling":            basetypes.BoolType{},
-			"wlan_limit_down":         basetypes.Int64Type{},
+			"wlan_limit_down":         basetypes.StringType{},
 			"wlan_limit_down_enabled": basetypes.BoolType{},
-			"wlan_limit_up":           basetypes.Int64Type{},
+			"wlan_limit_up":           basetypes.StringType{},
 			"wlan_limit_up_enabled":   basetypes.BoolType{},
 			"wxtag_ids": basetypes.ListType{
 				ElemType: types.StringType,
@@ -7279,9 +7265,9 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"cisco_cwa": basetypes.ObjectType{
 				AttrTypes: CiscoCwaValue{}.AttributeTypes(ctx),
 			},
-			"client_limit_down":         basetypes.Int64Type{},
+			"client_limit_down":         basetypes.StringType{},
 			"client_limit_down_enabled": basetypes.BoolType{},
-			"client_limit_up":           basetypes.Int64Type{},
+			"client_limit_up":           basetypes.StringType{},
 			"client_limit_up_enabled":   basetypes.BoolType{},
 			"coa_servers": basetypes.ListType{
 				ElemType: CoaServersValue{}.Type(ctx),
@@ -7381,9 +7367,9 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 				ElemType: types.StringType,
 			},
 			"vlan_pooling":            basetypes.BoolType{},
-			"wlan_limit_down":         basetypes.Int64Type{},
+			"wlan_limit_down":         basetypes.StringType{},
 			"wlan_limit_down_enabled": basetypes.BoolType{},
-			"wlan_limit_up":           basetypes.Int64Type{},
+			"wlan_limit_up":           basetypes.StringType{},
 			"wlan_limit_up_enabled":   basetypes.BoolType{},
 			"wxtag_ids": basetypes.ListType{
 				ElemType: types.StringType,
@@ -7452,9 +7438,9 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"cisco_cwa": basetypes.ObjectType{
 				AttrTypes: CiscoCwaValue{}.AttributeTypes(ctx),
 			},
-			"client_limit_down":         basetypes.Int64Type{},
+			"client_limit_down":         basetypes.StringType{},
 			"client_limit_down_enabled": basetypes.BoolType{},
-			"client_limit_up":           basetypes.Int64Type{},
+			"client_limit_up":           basetypes.StringType{},
 			"client_limit_up_enabled":   basetypes.BoolType{},
 			"coa_servers": basetypes.ListType{
 				ElemType: CoaServersValue{}.Type(ctx),
@@ -7554,9 +7540,9 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 				ElemType: types.StringType,
 			},
 			"vlan_pooling":            basetypes.BoolType{},
-			"wlan_limit_down":         basetypes.Int64Type{},
+			"wlan_limit_down":         basetypes.StringType{},
 			"wlan_limit_down_enabled": basetypes.BoolType{},
-			"wlan_limit_up":           basetypes.Int64Type{},
+			"wlan_limit_up":           basetypes.StringType{},
 			"wlan_limit_up_enabled":   basetypes.BoolType{},
 			"wxtag_ids": basetypes.ListType{
 				ElemType: types.StringType,
@@ -7625,9 +7611,9 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"cisco_cwa": basetypes.ObjectType{
 				AttrTypes: CiscoCwaValue{}.AttributeTypes(ctx),
 			},
-			"client_limit_down":         basetypes.Int64Type{},
+			"client_limit_down":         basetypes.StringType{},
 			"client_limit_down_enabled": basetypes.BoolType{},
-			"client_limit_up":           basetypes.Int64Type{},
+			"client_limit_up":           basetypes.StringType{},
 			"client_limit_up_enabled":   basetypes.BoolType{},
 			"coa_servers": basetypes.ListType{
 				ElemType: CoaServersValue{}.Type(ctx),
@@ -7727,9 +7713,9 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 				ElemType: types.StringType,
 			},
 			"vlan_pooling":            basetypes.BoolType{},
-			"wlan_limit_down":         basetypes.Int64Type{},
+			"wlan_limit_down":         basetypes.StringType{},
 			"wlan_limit_down_enabled": basetypes.BoolType{},
-			"wlan_limit_up":           basetypes.Int64Type{},
+			"wlan_limit_up":           basetypes.StringType{},
 			"wlan_limit_up_enabled":   basetypes.BoolType{},
 			"wxtag_ids": basetypes.ListType{
 				ElemType: types.StringType,
@@ -7798,9 +7784,9 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"cisco_cwa": basetypes.ObjectType{
 				AttrTypes: CiscoCwaValue{}.AttributeTypes(ctx),
 			},
-			"client_limit_down":         basetypes.Int64Type{},
+			"client_limit_down":         basetypes.StringType{},
 			"client_limit_down_enabled": basetypes.BoolType{},
-			"client_limit_up":           basetypes.Int64Type{},
+			"client_limit_up":           basetypes.StringType{},
 			"client_limit_up_enabled":   basetypes.BoolType{},
 			"coa_servers": basetypes.ListType{
 				ElemType: CoaServersValue{}.Type(ctx),
@@ -7900,9 +7886,9 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 				ElemType: types.StringType,
 			},
 			"vlan_pooling":            basetypes.BoolType{},
-			"wlan_limit_down":         basetypes.Int64Type{},
+			"wlan_limit_down":         basetypes.StringType{},
 			"wlan_limit_down_enabled": basetypes.BoolType{},
-			"wlan_limit_up":           basetypes.Int64Type{},
+			"wlan_limit_up":           basetypes.StringType{},
 			"wlan_limit_up_enabled":   basetypes.BoolType{},
 			"wxtag_ids": basetypes.ListType{
 				ElemType: types.StringType,
@@ -7971,9 +7957,9 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"cisco_cwa": basetypes.ObjectType{
 				AttrTypes: CiscoCwaValue{}.AttributeTypes(ctx),
 			},
-			"client_limit_down":         basetypes.Int64Type{},
+			"client_limit_down":         basetypes.StringType{},
 			"client_limit_down_enabled": basetypes.BoolType{},
-			"client_limit_up":           basetypes.Int64Type{},
+			"client_limit_up":           basetypes.StringType{},
 			"client_limit_up_enabled":   basetypes.BoolType{},
 			"coa_servers": basetypes.ListType{
 				ElemType: CoaServersValue{}.Type(ctx),
@@ -8073,9 +8059,9 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 				ElemType: types.StringType,
 			},
 			"vlan_pooling":            basetypes.BoolType{},
-			"wlan_limit_down":         basetypes.Int64Type{},
+			"wlan_limit_down":         basetypes.StringType{},
 			"wlan_limit_down_enabled": basetypes.BoolType{},
-			"wlan_limit_up":           basetypes.Int64Type{},
+			"wlan_limit_up":           basetypes.StringType{},
 			"wlan_limit_up_enabled":   basetypes.BoolType{},
 			"wxtag_ids": basetypes.ListType{
 				ElemType: types.StringType,
@@ -8144,9 +8130,9 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"cisco_cwa": basetypes.ObjectType{
 				AttrTypes: CiscoCwaValue{}.AttributeTypes(ctx),
 			},
-			"client_limit_down":         basetypes.Int64Type{},
+			"client_limit_down":         basetypes.StringType{},
 			"client_limit_down_enabled": basetypes.BoolType{},
-			"client_limit_up":           basetypes.Int64Type{},
+			"client_limit_up":           basetypes.StringType{},
 			"client_limit_up_enabled":   basetypes.BoolType{},
 			"coa_servers": basetypes.ListType{
 				ElemType: CoaServersValue{}.Type(ctx),
@@ -8246,9 +8232,9 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 				ElemType: types.StringType,
 			},
 			"vlan_pooling":            basetypes.BoolType{},
-			"wlan_limit_down":         basetypes.Int64Type{},
+			"wlan_limit_down":         basetypes.StringType{},
 			"wlan_limit_down_enabled": basetypes.BoolType{},
-			"wlan_limit_up":           basetypes.Int64Type{},
+			"wlan_limit_up":           basetypes.StringType{},
 			"wlan_limit_up_enabled":   basetypes.BoolType{},
 			"wxtag_ids": basetypes.ListType{
 				ElemType: types.StringType,
@@ -8317,9 +8303,9 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"cisco_cwa": basetypes.ObjectType{
 				AttrTypes: CiscoCwaValue{}.AttributeTypes(ctx),
 			},
-			"client_limit_down":         basetypes.Int64Type{},
+			"client_limit_down":         basetypes.StringType{},
 			"client_limit_down_enabled": basetypes.BoolType{},
-			"client_limit_up":           basetypes.Int64Type{},
+			"client_limit_up":           basetypes.StringType{},
 			"client_limit_up_enabled":   basetypes.BoolType{},
 			"coa_servers": basetypes.ListType{
 				ElemType: CoaServersValue{}.Type(ctx),
@@ -8419,9 +8405,9 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 				ElemType: types.StringType,
 			},
 			"vlan_pooling":            basetypes.BoolType{},
-			"wlan_limit_down":         basetypes.Int64Type{},
+			"wlan_limit_down":         basetypes.StringType{},
 			"wlan_limit_down_enabled": basetypes.BoolType{},
-			"wlan_limit_up":           basetypes.Int64Type{},
+			"wlan_limit_up":           basetypes.StringType{},
 			"wlan_limit_up_enabled":   basetypes.BoolType{},
 			"wxtag_ids": basetypes.ListType{
 				ElemType: types.StringType,
@@ -8490,9 +8476,9 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"cisco_cwa": basetypes.ObjectType{
 				AttrTypes: CiscoCwaValue{}.AttributeTypes(ctx),
 			},
-			"client_limit_down":         basetypes.Int64Type{},
+			"client_limit_down":         basetypes.StringType{},
 			"client_limit_down_enabled": basetypes.BoolType{},
-			"client_limit_up":           basetypes.Int64Type{},
+			"client_limit_up":           basetypes.StringType{},
 			"client_limit_up_enabled":   basetypes.BoolType{},
 			"coa_servers": basetypes.ListType{
 				ElemType: CoaServersValue{}.Type(ctx),
@@ -8592,9 +8578,9 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 				ElemType: types.StringType,
 			},
 			"vlan_pooling":            basetypes.BoolType{},
-			"wlan_limit_down":         basetypes.Int64Type{},
+			"wlan_limit_down":         basetypes.StringType{},
 			"wlan_limit_down_enabled": basetypes.BoolType{},
-			"wlan_limit_up":           basetypes.Int64Type{},
+			"wlan_limit_up":           basetypes.StringType{},
 			"wlan_limit_up_enabled":   basetypes.BoolType{},
 			"wxtag_ids": basetypes.ListType{
 				ElemType: types.StringType,
@@ -8650,9 +8636,9 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 		"cisco_cwa": basetypes.ObjectType{
 			AttrTypes: CiscoCwaValue{}.AttributeTypes(ctx),
 		},
-		"client_limit_down":         basetypes.Int64Type{},
+		"client_limit_down":         basetypes.StringType{},
 		"client_limit_down_enabled": basetypes.BoolType{},
-		"client_limit_up":           basetypes.Int64Type{},
+		"client_limit_up":           basetypes.StringType{},
 		"client_limit_up_enabled":   basetypes.BoolType{},
 		"coa_servers": basetypes.ListType{
 			ElemType: CoaServersValue{}.Type(ctx),
@@ -8752,9 +8738,9 @@ func (v OrgWlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			ElemType: types.StringType,
 		},
 		"vlan_pooling":            basetypes.BoolType{},
-		"wlan_limit_down":         basetypes.Int64Type{},
+		"wlan_limit_down":         basetypes.StringType{},
 		"wlan_limit_down_enabled": basetypes.BoolType{},
-		"wlan_limit_up":           basetypes.Int64Type{},
+		"wlan_limit_up":           basetypes.StringType{},
 		"wlan_limit_up_enabled":   basetypes.BoolType{},
 		"wxtag_ids": basetypes.ListType{
 			ElemType: types.StringType,
@@ -9342,9 +9328,9 @@ func (v OrgWlansValue) AttributeTypes(ctx context.Context) map[string]attr.Type 
 		"cisco_cwa": basetypes.ObjectType{
 			AttrTypes: CiscoCwaValue{}.AttributeTypes(ctx),
 		},
-		"client_limit_down":         basetypes.Int64Type{},
+		"client_limit_down":         basetypes.StringType{},
 		"client_limit_down_enabled": basetypes.BoolType{},
-		"client_limit_up":           basetypes.Int64Type{},
+		"client_limit_up":           basetypes.StringType{},
 		"client_limit_up_enabled":   basetypes.BoolType{},
 		"coa_servers": basetypes.ListType{
 			ElemType: CoaServersValue{}.Type(ctx),
@@ -9444,9 +9430,9 @@ func (v OrgWlansValue) AttributeTypes(ctx context.Context) map[string]attr.Type 
 			ElemType: types.StringType,
 		},
 		"vlan_pooling":            basetypes.BoolType{},
-		"wlan_limit_down":         basetypes.Int64Type{},
+		"wlan_limit_down":         basetypes.StringType{},
 		"wlan_limit_down_enabled": basetypes.BoolType{},
-		"wlan_limit_up":           basetypes.Int64Type{},
+		"wlan_limit_up":           basetypes.StringType{},
 		"wlan_limit_up_enabled":   basetypes.BoolType{},
 		"wxtag_ids": basetypes.ListType{
 			ElemType: types.StringType,
@@ -9581,12 +9567,12 @@ func (t AcctServersType) ValueFromObject(ctx context.Context, in basetypes.Objec
 		return nil, diags
 	}
 
-	portVal, ok := portAttribute.(basetypes.Int64Value)
+	portVal, ok := portAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`port expected to be basetypes.Int64Value, was: %T`, portAttribute))
+			fmt.Sprintf(`port expected to be basetypes.StringValue, was: %T`, portAttribute))
 	}
 
 	secretAttribute, ok := attributes["secret"]
@@ -9786,12 +9772,12 @@ func NewAcctServersValue(attributeTypes map[string]attr.Type, attributes map[str
 		return NewAcctServersValueUnknown(), diags
 	}
 
-	portVal, ok := portAttribute.(basetypes.Int64Value)
+	portVal, ok := portAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`port expected to be basetypes.Int64Value, was: %T`, portAttribute))
+			fmt.Sprintf(`port expected to be basetypes.StringValue, was: %T`, portAttribute))
 	}
 
 	secretAttribute, ok := attributes["secret"]
@@ -9901,7 +9887,7 @@ type AcctServersValue struct {
 	KeywrapFormat  basetypes.StringValue `tfsdk:"keywrap_format"`
 	KeywrapKek     basetypes.StringValue `tfsdk:"keywrap_kek"`
 	KeywrapMack    basetypes.StringValue `tfsdk:"keywrap_mack"`
-	Port           basetypes.Int64Value  `tfsdk:"port"`
+	Port           basetypes.StringValue `tfsdk:"port"`
 	Secret         basetypes.StringValue `tfsdk:"secret"`
 	state          attr.ValueState
 }
@@ -9917,7 +9903,7 @@ func (v AcctServersValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 	attrTypes["keywrap_format"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["keywrap_kek"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["keywrap_mack"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["port"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["port"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["secret"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
@@ -10017,7 +10003,7 @@ func (v AcctServersValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 		"keywrap_format":  basetypes.StringType{},
 		"keywrap_kek":     basetypes.StringType{},
 		"keywrap_mack":    basetypes.StringType{},
-		"port":            basetypes.Int64Type{},
+		"port":            basetypes.StringType{},
 		"secret":          basetypes.StringType{},
 	}
 
@@ -10105,7 +10091,7 @@ func (v AcctServersValue) AttributeTypes(ctx context.Context) map[string]attr.Ty
 		"keywrap_format":  basetypes.StringType{},
 		"keywrap_kek":     basetypes.StringType{},
 		"keywrap_mack":    basetypes.StringType{},
-		"port":            basetypes.Int64Type{},
+		"port":            basetypes.StringType{},
 		"secret":          basetypes.StringType{},
 	}
 }
@@ -13762,12 +13748,12 @@ func (t AuthServersType) ValueFromObject(ctx context.Context, in basetypes.Objec
 		return nil, diags
 	}
 
-	portVal, ok := portAttribute.(basetypes.Int64Value)
+	portVal, ok := portAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`port expected to be basetypes.Int64Value, was: %T`, portAttribute))
+			fmt.Sprintf(`port expected to be basetypes.StringValue, was: %T`, portAttribute))
 	}
 
 	requireMessageAuthenticatorAttribute, ok := attributes["require_message_authenticator"]
@@ -13986,12 +13972,12 @@ func NewAuthServersValue(attributeTypes map[string]attr.Type, attributes map[str
 		return NewAuthServersValueUnknown(), diags
 	}
 
-	portVal, ok := portAttribute.(basetypes.Int64Value)
+	portVal, ok := portAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`port expected to be basetypes.Int64Value, was: %T`, portAttribute))
+			fmt.Sprintf(`port expected to be basetypes.StringValue, was: %T`, portAttribute))
 	}
 
 	requireMessageAuthenticatorAttribute, ok := attributes["require_message_authenticator"]
@@ -14120,7 +14106,7 @@ type AuthServersValue struct {
 	KeywrapFormat               basetypes.StringValue `tfsdk:"keywrap_format"`
 	KeywrapKek                  basetypes.StringValue `tfsdk:"keywrap_kek"`
 	KeywrapMack                 basetypes.StringValue `tfsdk:"keywrap_mack"`
-	Port                        basetypes.Int64Value  `tfsdk:"port"`
+	Port                        basetypes.StringValue `tfsdk:"port"`
 	RequireMessageAuthenticator basetypes.BoolValue   `tfsdk:"require_message_authenticator"`
 	Secret                      basetypes.StringValue `tfsdk:"secret"`
 	state                       attr.ValueState
@@ -14137,7 +14123,7 @@ func (v AuthServersValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 	attrTypes["keywrap_format"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["keywrap_kek"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["keywrap_mack"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["port"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["port"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["require_message_authenticator"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["secret"] = basetypes.StringType{}.TerraformType(ctx)
 
@@ -14246,7 +14232,7 @@ func (v AuthServersValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 		"keywrap_format":                basetypes.StringType{},
 		"keywrap_kek":                   basetypes.StringType{},
 		"keywrap_mack":                  basetypes.StringType{},
-		"port":                          basetypes.Int64Type{},
+		"port":                          basetypes.StringType{},
 		"require_message_authenticator": basetypes.BoolType{},
 		"secret":                        basetypes.StringType{},
 	}
@@ -14340,7 +14326,7 @@ func (v AuthServersValue) AttributeTypes(ctx context.Context) map[string]attr.Ty
 		"keywrap_format":                basetypes.StringType{},
 		"keywrap_kek":                   basetypes.StringType{},
 		"keywrap_mack":                  basetypes.StringType{},
-		"port":                          basetypes.Int64Type{},
+		"port":                          basetypes.StringType{},
 		"require_message_authenticator": basetypes.BoolType{},
 		"secret":                        basetypes.StringType{},
 	}

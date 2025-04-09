@@ -14,8 +14,8 @@ func radiusAcctServersTerraformToSdk(d basetypes.ListValue) []models.RadiusAcctS
 		srvPlan := srvPlanInterface.(AcctServersValue)
 		srvData := models.RadiusAcctServer{}
 		srvData.Host = srvPlan.Host.ValueString()
-		if srvPlan.Port.ValueInt64Pointer() != nil {
-			srvData.Port = models.ToPointer(int(srvPlan.Port.ValueInt64()))
+		if srvPlan.Port.ValueStringPointer() != nil {
+			srvData.Port = models.ToPointer(models.RadiusAcctPortContainer.FromString(srvPlan.Port.ValueString()))
 		}
 		srvData.Secret = srvPlan.Secret.ValueString()
 		if srvPlan.KeywrapEnabled.ValueBoolPointer() != nil {
@@ -43,8 +43,8 @@ func radiusAuthServersTerraformToSdk(d basetypes.ListValue) []models.RadiusAuthS
 		srvPlan := srvPlanInterface.(AuthServersValue)
 		srvData := models.RadiusAuthServer{}
 		srvData.Host = srvPlan.Host.ValueString()
-		if srvPlan.Port.ValueInt64Pointer() != nil {
-			srvData.Port = models.ToPointer(int(srvPlan.Port.ValueInt64()))
+		if srvPlan.Port.ValueStringPointer() != nil {
+			srvData.Port = models.ToPointer(models.RadiusAuthPortContainer.FromString(srvPlan.Port.ValueString()))
 		}
 		srvData.Secret = srvPlan.Secret.ValueString()
 		if srvPlan.RequireMessageAuthenticator.ValueBoolPointer() != nil {

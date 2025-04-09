@@ -80,15 +80,8 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 						"keywrap_mack": schema.StringAttribute{
 							Optional: true,
 						},
-						"port": schema.Int64Attribute{
-							Optional:            true,
-							Computed:            true,
-							Description:         "Acct port of RADIUS server",
-							MarkdownDescription: "Acct port of RADIUS server",
-							Validators: []validator.Int64{
-								int64validator.Between(1, 65535),
-							},
-							Default: int64default.StaticInt64(1813),
+						"port": schema.StringAttribute{
+							Optional: true,
 						},
 						"secret": schema.StringAttribute{
 							Required:            true,
@@ -577,15 +570,8 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 						"keywrap_mack": schema.StringAttribute{
 							Optional: true,
 						},
-						"port": schema.Int64Attribute{
-							Optional:            true,
-							Computed:            true,
-							Description:         "Auth port of RADIUS server",
-							MarkdownDescription: "Auth port of RADIUS server",
-							Validators: []validator.Int64{
-								int64validator.Between(1, 65535),
-							},
-							Default: int64default.StaticInt64(1812),
+						"port": schema.StringAttribute{
+							Optional: true,
 						},
 						"require_message_authenticator": schema.BoolAttribute{
 							Optional:            true,
@@ -813,30 +799,20 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 					),
 				),
 			},
-			"client_limit_down": schema.Int64Attribute{
-				Optional:            true,
-				Computed:            true,
-				Description:         "In kbps",
-				MarkdownDescription: "In kbps",
-				Validators: []validator.Int64{
-					int64validator.Between(1, 999000),
-				},
-				Default: int64default.StaticInt64(1000),
+			"client_limit_down": schema.StringAttribute{
+				Optional: true,
+				Computed: true,
+				Default:  stringdefault.StaticString("1000"),
 			},
 			"client_limit_down_enabled": schema.BoolAttribute{
 				Optional:            true,
 				Description:         "If downlink limiting per-client is enabled",
 				MarkdownDescription: "If downlink limiting per-client is enabled",
 			},
-			"client_limit_up": schema.Int64Attribute{
-				Optional:            true,
-				Computed:            true,
-				Description:         "In kbps",
-				MarkdownDescription: "In kbps",
-				Validators: []validator.Int64{
-					int64validator.Between(1, 999000),
-				},
-				Default: int64default.StaticInt64(512),
+			"client_limit_up": schema.StringAttribute{
+				Optional: true,
+				Computed: true,
+				Default:  stringdefault.StaticString("512"),
 			},
 			"client_limit_up_enabled": schema.BoolAttribute{
 				Optional:            true,
@@ -2534,30 +2510,20 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Default: booldefault.StaticBool(false),
 			},
-			"wlan_limit_down": schema.Int64Attribute{
-				Optional:            true,
-				Computed:            true,
-				Description:         "In kbps",
-				MarkdownDescription: "In kbps",
-				Validators: []validator.Int64{
-					mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("wlan_limit_down_enabled"), types.BoolValue(true), types.Int64Value(20000)),
-				},
-				Default: int64default.StaticInt64(20000),
+			"wlan_limit_down": schema.StringAttribute{
+				Optional: true,
+				Computed: true,
+				Default:  stringdefault.StaticString("20000"),
 			},
 			"wlan_limit_down_enabled": schema.BoolAttribute{
 				Optional:            true,
 				Description:         "If downlink limiting for whole wlan is enabled",
 				MarkdownDescription: "If downlink limiting for whole wlan is enabled",
 			},
-			"wlan_limit_up": schema.Int64Attribute{
-				Optional:            true,
-				Computed:            true,
-				Description:         "In kbps",
-				MarkdownDescription: "In kbps",
-				Validators: []validator.Int64{
-					mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("wlan_limit_up_enabled"), types.BoolValue(true), types.Int64Value(10000)),
-				},
-				Default: int64default.StaticInt64(10000),
+			"wlan_limit_up": schema.StringAttribute{
+				Optional: true,
+				Computed: true,
+				Default:  stringdefault.StaticString("10000"),
 			},
 			"wlan_limit_up_enabled": schema.BoolAttribute{
 				Optional:            true,
@@ -2619,9 +2585,9 @@ type OrgWlanModel struct {
 	BlockBlacklistClients                types.Bool              `tfsdk:"block_blacklist_clients"`
 	Bonjour                              BonjourValue            `tfsdk:"bonjour"`
 	CiscoCwa                             CiscoCwaValue           `tfsdk:"cisco_cwa"`
-	ClientLimitDown                      types.Int64             `tfsdk:"client_limit_down"`
+	ClientLimitDown                      types.String            `tfsdk:"client_limit_down"`
 	ClientLimitDownEnabled               types.Bool              `tfsdk:"client_limit_down_enabled"`
-	ClientLimitUp                        types.Int64             `tfsdk:"client_limit_up"`
+	ClientLimitUp                        types.String            `tfsdk:"client_limit_up"`
 	ClientLimitUpEnabled                 types.Bool              `tfsdk:"client_limit_up_enabled"`
 	CoaServers                           types.List              `tfsdk:"coa_servers"`
 	Disable11ax                          types.Bool              `tfsdk:"disable_11ax"`
@@ -2683,9 +2649,9 @@ type OrgWlanModel struct {
 	VlanId                               types.String            `tfsdk:"vlan_id"`
 	VlanIds                              types.List              `tfsdk:"vlan_ids"`
 	VlanPooling                          types.Bool              `tfsdk:"vlan_pooling"`
-	WlanLimitDown                        types.Int64             `tfsdk:"wlan_limit_down"`
+	WlanLimitDown                        types.String            `tfsdk:"wlan_limit_down"`
 	WlanLimitDownEnabled                 types.Bool              `tfsdk:"wlan_limit_down_enabled"`
-	WlanLimitUp                          types.Int64             `tfsdk:"wlan_limit_up"`
+	WlanLimitUp                          types.String            `tfsdk:"wlan_limit_up"`
 	WlanLimitUpEnabled                   types.Bool              `tfsdk:"wlan_limit_up_enabled"`
 	WxtagIds                             types.List              `tfsdk:"wxtag_ids"`
 	WxtunnelId                           types.String            `tfsdk:"wxtunnel_id"`
@@ -2817,12 +2783,12 @@ func (t AcctServersType) ValueFromObject(ctx context.Context, in basetypes.Objec
 		return nil, diags
 	}
 
-	portVal, ok := portAttribute.(basetypes.Int64Value)
+	portVal, ok := portAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`port expected to be basetypes.Int64Value, was: %T`, portAttribute))
+			fmt.Sprintf(`port expected to be basetypes.StringValue, was: %T`, portAttribute))
 	}
 
 	secretAttribute, ok := attributes["secret"]
@@ -3022,12 +2988,12 @@ func NewAcctServersValue(attributeTypes map[string]attr.Type, attributes map[str
 		return NewAcctServersValueUnknown(), diags
 	}
 
-	portVal, ok := portAttribute.(basetypes.Int64Value)
+	portVal, ok := portAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`port expected to be basetypes.Int64Value, was: %T`, portAttribute))
+			fmt.Sprintf(`port expected to be basetypes.StringValue, was: %T`, portAttribute))
 	}
 
 	secretAttribute, ok := attributes["secret"]
@@ -3137,7 +3103,7 @@ type AcctServersValue struct {
 	KeywrapFormat  basetypes.StringValue `tfsdk:"keywrap_format"`
 	KeywrapKek     basetypes.StringValue `tfsdk:"keywrap_kek"`
 	KeywrapMack    basetypes.StringValue `tfsdk:"keywrap_mack"`
-	Port           basetypes.Int64Value  `tfsdk:"port"`
+	Port           basetypes.StringValue `tfsdk:"port"`
 	Secret         basetypes.StringValue `tfsdk:"secret"`
 	state          attr.ValueState
 }
@@ -3153,7 +3119,7 @@ func (v AcctServersValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 	attrTypes["keywrap_format"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["keywrap_kek"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["keywrap_mack"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["port"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["port"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["secret"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
@@ -3253,7 +3219,7 @@ func (v AcctServersValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 		"keywrap_format":  basetypes.StringType{},
 		"keywrap_kek":     basetypes.StringType{},
 		"keywrap_mack":    basetypes.StringType{},
-		"port":            basetypes.Int64Type{},
+		"port":            basetypes.StringType{},
 		"secret":          basetypes.StringType{},
 	}
 
@@ -3341,7 +3307,7 @@ func (v AcctServersValue) AttributeTypes(ctx context.Context) map[string]attr.Ty
 		"keywrap_format":  basetypes.StringType{},
 		"keywrap_kek":     basetypes.StringType{},
 		"keywrap_mack":    basetypes.StringType{},
-		"port":            basetypes.Int64Type{},
+		"port":            basetypes.StringType{},
 		"secret":          basetypes.StringType{},
 	}
 }
@@ -6998,12 +6964,12 @@ func (t AuthServersType) ValueFromObject(ctx context.Context, in basetypes.Objec
 		return nil, diags
 	}
 
-	portVal, ok := portAttribute.(basetypes.Int64Value)
+	portVal, ok := portAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`port expected to be basetypes.Int64Value, was: %T`, portAttribute))
+			fmt.Sprintf(`port expected to be basetypes.StringValue, was: %T`, portAttribute))
 	}
 
 	requireMessageAuthenticatorAttribute, ok := attributes["require_message_authenticator"]
@@ -7222,12 +7188,12 @@ func NewAuthServersValue(attributeTypes map[string]attr.Type, attributes map[str
 		return NewAuthServersValueUnknown(), diags
 	}
 
-	portVal, ok := portAttribute.(basetypes.Int64Value)
+	portVal, ok := portAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`port expected to be basetypes.Int64Value, was: %T`, portAttribute))
+			fmt.Sprintf(`port expected to be basetypes.StringValue, was: %T`, portAttribute))
 	}
 
 	requireMessageAuthenticatorAttribute, ok := attributes["require_message_authenticator"]
@@ -7356,7 +7322,7 @@ type AuthServersValue struct {
 	KeywrapFormat               basetypes.StringValue `tfsdk:"keywrap_format"`
 	KeywrapKek                  basetypes.StringValue `tfsdk:"keywrap_kek"`
 	KeywrapMack                 basetypes.StringValue `tfsdk:"keywrap_mack"`
-	Port                        basetypes.Int64Value  `tfsdk:"port"`
+	Port                        basetypes.StringValue `tfsdk:"port"`
 	RequireMessageAuthenticator basetypes.BoolValue   `tfsdk:"require_message_authenticator"`
 	Secret                      basetypes.StringValue `tfsdk:"secret"`
 	state                       attr.ValueState
@@ -7373,7 +7339,7 @@ func (v AuthServersValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 	attrTypes["keywrap_format"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["keywrap_kek"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["keywrap_mack"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["port"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["port"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["require_message_authenticator"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["secret"] = basetypes.StringType{}.TerraformType(ctx)
 
@@ -7482,7 +7448,7 @@ func (v AuthServersValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 		"keywrap_format":                basetypes.StringType{},
 		"keywrap_kek":                   basetypes.StringType{},
 		"keywrap_mack":                  basetypes.StringType{},
-		"port":                          basetypes.Int64Type{},
+		"port":                          basetypes.StringType{},
 		"require_message_authenticator": basetypes.BoolType{},
 		"secret":                        basetypes.StringType{},
 	}
@@ -7576,7 +7542,7 @@ func (v AuthServersValue) AttributeTypes(ctx context.Context) map[string]attr.Ty
 		"keywrap_format":                basetypes.StringType{},
 		"keywrap_kek":                   basetypes.StringType{},
 		"keywrap_mack":                  basetypes.StringType{},
-		"port":                          basetypes.Int64Type{},
+		"port":                          basetypes.StringType{},
 		"require_message_authenticator": basetypes.BoolType{},
 		"secret":                        basetypes.StringType{},
 	}

@@ -15,7 +15,9 @@ func radiusAcctServersTerraformToSdk(d basetypes.ListValue) []models.RadiusAcctS
 
 		srvData := models.RadiusAcctServer{}
 		srvData.Host = srvPlan.Host.ValueString()
-		srvData.Port = models.ToPointer(int(srvPlan.Port.ValueInt64()))
+		if srvPlan.Port.ValueStringPointer() != nil {
+			srvData.Port = models.ToPointer(models.RadiusAcctPortContainer.FromString(srvPlan.Port.ValueString()))
+		}
 		srvData.Secret = srvPlan.Secret.ValueString()
 		if srvPlan.KeywrapEnabled.ValueBoolPointer() != nil {
 			srvData.KeywrapEnabled = models.ToPointer(srvPlan.KeywrapEnabled.ValueBool())
@@ -43,7 +45,9 @@ func radiusAuthServersTerraformToSdk(d basetypes.ListValue) []models.RadiusAuthS
 
 		srvData := models.RadiusAuthServer{}
 		srvData.Host = srvPlan.Host.ValueString()
-		srvData.Port = models.ToPointer(int(srvPlan.Port.ValueInt64()))
+		if srvPlan.Port.ValueStringPointer() != nil {
+			srvData.Port = models.ToPointer(models.RadiusAuthPortContainer.FromString(srvPlan.Port.ValueString()))
+		}
 		srvData.Secret = srvPlan.Secret.ValueString()
 		if srvPlan.KeywrapEnabled.ValueBoolPointer() != nil {
 			srvData.KeywrapEnabled = models.ToPointer(srvPlan.KeywrapEnabled.ValueBool())
@@ -90,7 +94,7 @@ func radiusConfigTerraformToSdk(d RadiusConfigValue) *models.SwitchRadiusConfig 
 		data.CoaEnabled = d.CoaEnabled.ValueBoolPointer()
 	}
 	if d.CoaPort.ValueStringPointer() != nil {
-		data.CoaPort = models.ToPointer(models.CoaPortContainer.FromString(d.CoaPort.ValueString()))
+		data.CoaPort = models.ToPointer(models.RadiusCoaPortContainer.FromString(d.CoaPort.ValueString()))
 	}
 	if d.FastDot1xTimers.ValueBoolPointer() != nil {
 		data.FastDot1xTimers = d.FastDot1xTimers.ValueBoolPointer()

@@ -30,7 +30,7 @@ func coaServersSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []
 		}
 		ip = types.StringValue(d.Ip)
 		if d.Port != nil {
-			port = mistutils.CoaPortAsString(d.Port)
+			port = mistutils.RadiusCoaPortAsString(d.Port)
 		}
 		secret = types.StringValue(d.Secret)
 

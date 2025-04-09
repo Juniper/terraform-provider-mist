@@ -141,7 +141,27 @@ func BgpAsAsString(bgpAs *models.BgpAs) basetypes.StringValue {
 	}
 }
 
-func CoaPortAsString(bgpAs *models.CoaPort) basetypes.StringValue {
+func RadiusCoaPortAsString(bgpAs *models.RadiusCoaPort) basetypes.StringValue {
+	if v, ok := bgpAs.AsString(); ok {
+		return types.StringValue(*v)
+	} else if v, ok := bgpAs.AsNumber(); ok {
+		return types.StringValue(fmt.Sprint(*v))
+	} else {
+		return types.StringNull()
+	}
+}
+
+func RadiusAcctPortAsString(bgpAs *models.RadiusAcctPort) basetypes.StringValue {
+	if v, ok := bgpAs.AsString(); ok {
+		return types.StringValue(*v)
+	} else if v, ok := bgpAs.AsNumber(); ok {
+		return types.StringValue(fmt.Sprint(*v))
+	} else {
+		return types.StringNull()
+	}
+}
+
+func RadiusAuthPortAsString(bgpAs *models.RadiusAuthPort) basetypes.StringValue {
 	if v, ok := bgpAs.AsString(); ok {
 		return types.StringValue(*v)
 	} else if v, ok := bgpAs.AsNumber(); ok {
@@ -222,6 +242,16 @@ func RadescIdleTimeoutAsString(bgpAs *models.RadescIdleTimeout) basetypes.String
 }
 
 func SponsorLinkValidityDurationAsString(bgpAs *models.SponsorLinkValidityDuration) basetypes.StringValue {
+	if v, ok := bgpAs.AsString(); ok {
+		return types.StringValue(*v)
+	} else if v, ok := bgpAs.AsNumber(); ok {
+		return types.StringValue(fmt.Sprint(*v))
+	} else {
+		return types.StringNull()
+	}
+}
+
+func WlanLimitAsString(bgpAs *models.WlanLimit) basetypes.StringValue {
 	if v, ok := bgpAs.AsString(); ok {
 		return types.StringValue(*v)
 	} else if v, ok := bgpAs.AsNumber(); ok {

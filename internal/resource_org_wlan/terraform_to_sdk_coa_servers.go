@@ -26,7 +26,7 @@ func coaServerTerraformToSdk(plan basetypes.ListValue) []models.CoaServer {
 			data.Enabled = vPlan.Enabled.ValueBoolPointer()
 		}
 		if vPlan.Port.ValueStringPointer() != nil {
-			data.Port = models.ToPointer(models.CoaPortContainer.FromString(vPlan.Port.ValueString()))
+			data.Port = models.ToPointer(models.RadiusCoaPortContainer.FromString(vPlan.Port.ValueString()))
 		}
 		dataList = append(dataList, data)
 	}

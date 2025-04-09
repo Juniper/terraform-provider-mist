@@ -42,9 +42,9 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	var blockBlacklistClients types.Bool
 	var bonjour = NewBonjourValueNull()
 	var ciscoCwa = NewCiscoCwaValueNull()
-	var clientLimitDown types.Int64
+	var clientLimitDown types.String
 	var clientLimitDownEnabled types.Bool
-	var clientLimitUp types.Int64
+	var clientLimitUp types.String
 	var clientLimitUpEnabled types.Bool
 	var coaServers = types.ListNull(CoaServersValue{}.Type(ctx))
 	var disable11ax types.Bool
@@ -106,9 +106,9 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	var vlanId types.String
 	var vlanIds = mistutils.ListOfStringSdkToTerraformEmpty()
 	var vlanPooling types.Bool
-	var wlanLimitDown types.Int64
+	var wlanLimitDown types.String
 	var wlanLimitDownEnabled types.Bool
-	var wlanLimitUp types.Int64
+	var wlanLimitUp types.String
 	var wlanLimitUpEnabled types.Bool
 	var wxtagIds = mistutils.ListOfUuidSdkToTerraformEmpty()
 	var wxtunnelId = types.StringValue("")
@@ -215,7 +215,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	}
 
 	if data.ClientLimitDown != nil {
-		clientLimitDown = types.Int64Value(int64(*data.ClientLimitDown))
+		clientLimitDown = mistutils.WlanLimitAsString(data.ClientLimitDown)
 	}
 
 	if data.ClientLimitDownEnabled != nil {
@@ -223,7 +223,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	}
 
 	if data.ClientLimitUp != nil {
-		clientLimitUp = types.Int64Value(int64(*data.ClientLimitUp))
+		clientLimitUp = mistutils.WlanLimitAsString(data.ClientLimitUp)
 	}
 
 	if data.ClientLimitUpEnabled != nil {
@@ -475,16 +475,16 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 		vlanPooling = types.BoolValue(*data.VlanPooling)
 	}
 
-	if data.WlanLimitDown.IsValueSet() && data.WlanLimitDown.Value() != nil {
-		wlanLimitDown = types.Int64Value(int64(*data.WlanLimitDown.Value()))
+	if data.WlanLimitDown != nil {
+		wlanLimitDown = mistutils.WlanLimitAsString(data.WlanLimitDown)
 	}
 
 	if data.WlanLimitDownEnabled != nil {
 		wlanLimitDownEnabled = types.BoolValue(*data.WlanLimitDownEnabled)
 	}
 
-	if data.WlanLimitUp.IsValueSet() && data.WlanLimitUp.Value() != nil {
-		wlanLimitUp = types.Int64Value(int64(*data.WlanLimitUp.Value()))
+	if data.WlanLimitUp != nil {
+		wlanLimitUp = mistutils.WlanLimitAsString(data.WlanLimitUp)
 	}
 
 	if data.WlanLimitUpEnabled != nil {

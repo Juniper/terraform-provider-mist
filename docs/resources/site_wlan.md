@@ -68,9 +68,9 @@ resource "mist_site_wlan" "wlan_one" {
 - `block_blacklist_clients` (Boolean) Whether to block the clients in the blacklist (up to first 256 macs)
 - `bonjour` (Attributes) Bonjour gateway wlan settings (see [below for nested schema](#nestedatt--bonjour))
 - `cisco_cwa` (Attributes) Cisco CWA (central web authentication) required RADIUS with COA in order to work. See CWA: https://www.cisco.com/c/en/us/support/docs/security/identity-services-engine/115732-central-web-auth-00.html (see [below for nested schema](#nestedatt--cisco_cwa))
-- `client_limit_down` (Number) In kbps
+- `client_limit_down` (String)
 - `client_limit_down_enabled` (Boolean) If downlink limiting per-client is enabled
-- `client_limit_up` (Number) In kbps
+- `client_limit_up` (String)
 - `client_limit_up_enabled` (Boolean) If uplink limiting per-client is enabled
 - `coa_servers` (Attributes List) List of COA (change of authorization) servers, optional (see [below for nested schema](#nestedatt--coa_servers))
 - `disable_11ax` (Boolean) Some old WLAN drivers may not be compatible
@@ -135,9 +135,9 @@ resource "mist_site_wlan" "wlan_one" {
 - `vlan_id` (String)
 - `vlan_ids` (List of String) if `vlan_enabled`==`true` and `vlan_pooling`==`true`. List of VLAN IDs (comma separated) to be used in the VLAN Pool
 - `vlan_pooling` (Boolean) Requires `vlan_enabled`==`true` to be set to `true`. Vlan pooling allows AP to place client on different VLAN using a deterministic algorithm
-- `wlan_limit_down` (Number) In kbps
+- `wlan_limit_down` (String)
 - `wlan_limit_down_enabled` (Boolean) If downlink limiting for whole wlan is enabled
-- `wlan_limit_up` (Number) In kbps
+- `wlan_limit_up` (String)
 - `wlan_limit_up_enabled` (Boolean) If uplink limiting for whole wlan is enabled
 - `wxtag_ids` (List of String) List of wxtag_ids
 - `wxtunnel_id` (String) When `interface`=`wxtunnel`, id of the WXLAN Tunnel
@@ -166,7 +166,7 @@ Optional:
 - `keywrap_format` (String) enum: `ascii`, `hex`
 - `keywrap_kek` (String)
 - `keywrap_mack` (String)
-- `port` (Number) Acct port of RADIUS server
+- `port` (String)
 
 
 <a id="nestedatt--airwatch"></a>
@@ -257,7 +257,7 @@ Optional:
 - `keywrap_format` (String) enum: `ascii`, `hex`
 - `keywrap_kek` (String)
 - `keywrap_mack` (String)
-- `port` (Number) Auth port of RADIUS server
+- `port` (String)
 - `require_message_authenticator` (Boolean) Whether to require Message-Authenticator in requests
 
 
