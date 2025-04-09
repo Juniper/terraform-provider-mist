@@ -19,7 +19,8 @@ func matchingPortTypesTerraformToSdk(d basetypes.ListValue) (data []models.NacRu
 	return data
 }
 
-func matchingTerraformToSdk(d MatchingValue) (data *models.NacRuleMatching) {
+func matchingTerraformToSdk(d MatchingValue) *models.NacRuleMatching {
+	data := models.NacRuleMatching{}
 
 	if !d.AuthType.IsNull() && !d.AuthType.IsUnknown() {
 		data.AuthType = models.ToPointer(models.NacAuthTypeEnum(d.AuthType.ValueString()))
@@ -49,10 +50,11 @@ func matchingTerraformToSdk(d MatchingValue) (data *models.NacRuleMatching) {
 		data.Vendor = mistutils.ListOfStringTerraformToSdk(d.Vendor)
 	}
 
-	return data
+	return &data
 }
 
-func notMatchingTerraformToSdk(d NotMatchingValue) (data *models.NacRuleMatching) {
+func notMatchingTerraformToSdk(d NotMatchingValue) *models.NacRuleMatching {
+	data := models.NacRuleMatching{}
 
 	if !d.AuthType.IsNull() && !d.AuthType.IsUnknown() {
 		data.AuthType = models.ToPointer(models.NacAuthTypeEnum(d.AuthType.ValueString()))
@@ -82,5 +84,5 @@ func notMatchingTerraformToSdk(d NotMatchingValue) (data *models.NacRuleMatching
 		data.Vendor = mistutils.ListOfStringTerraformToSdk(d.Vendor)
 	}
 
-	return data
+	return &data
 }
