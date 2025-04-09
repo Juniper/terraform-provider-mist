@@ -3154,7 +3154,7 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 								MarkdownDescription: "Required if `surrogate_IP`==`true`, idle Time to Disassociation",
 								Validators: []validator.Int64{
 									int64validator.Between(0, 43200),
-									mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("surrogate_IP"), types.BoolValue(true)),
+									mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("surrogate_ip"), types.BoolValue(true)),
 								},
 							},
 							"ofw_enabled": schema.BoolAttribute{
@@ -3211,7 +3211,7 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 											MarkdownDescription: "Required if `surrogate_IP`==`true`, idle Time to Disassociation",
 											Validators: []validator.Int64{
 												int64validator.Between(0, 43200),
-												mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("surrogate_IP"), types.BoolValue(true)),
+												mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("surrogate_ip"), types.BoolValue(true)),
 											},
 										},
 										"name": schema.StringAttribute{
