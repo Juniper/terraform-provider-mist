@@ -17,6 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -67,6 +68,7 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Validators: []validator.Map{
 							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("version"), types.StringValue("custom")),
 						},
+						Default: mapdefault.StaticValue(types.MapValueMust(types.StringType, map[string]attr.Value{})),
 					},
 					"day_of_week": schema.StringAttribute{
 						Optional:            true,
@@ -538,6 +540,7 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
+						Default: listdefault.StaticValue(types.ListNull(MonitorsValue{}.Type(ctx))),
 					},
 				},
 				CustomType: CriticalUrlMonitoringType{
@@ -722,13 +725,11 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					"admin_sshkeys": schema.ListAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
-						Computed:            true,
 						Description:         "For SSR only, as direct root access is not allowed",
 						MarkdownDescription: "For SSR only, as direct root access is not allowed",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
-						Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 					},
 					"app_probing": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
@@ -902,8 +903,9 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					"probe_hosts": schema.ListAttribute{
 						ElementType: types.StringType,
 						Optional:    true,
-						Computed:    true,
-						Default:     listdefault.StaticValue(types.ListNull(types.StringType)),
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"protect_re": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
@@ -1174,12 +1176,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					"allowed_vlan_ids": schema.ListAttribute{
 						ElementType:         types.Int64Type,
 						Optional:            true,
-						Computed:            true,
 						Description:         "list of VLAN IDs on which rogue APs are ignored",
 						MarkdownDescription: "list of VLAN IDs on which rogue APs are ignored",
-						Validators: []validator.List{
-							listvalidator.SizeAtLeast(1),
-						},
 					},
 					"enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -1240,6 +1238,7 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
+						Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 					},
 					"whitelisted_ssids": schema.ListAttribute{
 						ElementType:         types.StringType,
@@ -1250,6 +1249,7 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
+						Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 					},
 				},
 				CustomType: RogueType{
@@ -1793,9 +1793,6 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "List of email addresses to send email notifications when the alert threshold is reached",
 						MarkdownDescription: "List of email addresses to send email notifications when the alert threshold is reached",
-						Validators: []validator.List{
-							listvalidator.SizeAtLeast(1),
-						},
 					},
 					"enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -2658,11 +2655,19 @@ func (v AutoUpgradeValue) String() string {
 func (v AutoUpgradeValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	customVersionsVal, d := types.MapValue(types.StringType, v.CustomVersions.Elements())
+	var customVersionsVal basetypes.MapValue
+	switch {
+	case v.CustomVersions.IsUnknown():
+		customVersionsVal = types.MapUnknown(types.StringType)
+	case v.CustomVersions.IsNull():
+		customVersionsVal = types.MapNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		customVersionsVal, d = types.MapValue(types.StringType, v.CustomVersions.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"custom_versions": basetypes.MapType{
 				ElemType: types.StringType,
@@ -4280,11 +4285,19 @@ func (v BleConfigValue) String() string {
 func (v BleConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	beamDisabledVal, d := types.ListValue(types.Int64Type, v.BeamDisabled.Elements())
+	var beamDisabledVal basetypes.ListValue
+	switch {
+	case v.BeamDisabled.IsUnknown():
+		beamDisabledVal = types.ListUnknown(types.Int64Type)
+	case v.BeamDisabled.IsNull():
+		beamDisabledVal = types.ListNull(types.Int64Type)
+	default:
+		var d diag.Diagnostics
+		beamDisabledVal, d = types.ListValue(types.Int64Type, v.BeamDisabled.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"beacon_enabled":   basetypes.BoolType{},
 			"beacon_rate":      basetypes.Int64Type{},
@@ -9387,11 +9400,19 @@ func (v GatewayMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 		)
 	}
 
-	adminSshkeysVal, d := types.ListValue(types.StringType, v.AdminSshkeys.Elements())
+	var adminSshkeysVal basetypes.ListValue
+	switch {
+	case v.AdminSshkeys.IsUnknown():
+		adminSshkeysVal = types.ListUnknown(types.StringType)
+	case v.AdminSshkeys.IsNull():
+		adminSshkeysVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		adminSshkeysVal, d = types.ListValue(types.StringType, v.AdminSshkeys.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"admin_sshkeys": basetypes.ListType{
 				ElemType: types.StringType,
@@ -9420,11 +9441,19 @@ func (v GatewayMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 		}), diags
 	}
 
-	probeHostsVal, d := types.ListValue(types.StringType, v.ProbeHosts.Elements())
+	var probeHostsVal basetypes.ListValue
+	switch {
+	case v.ProbeHosts.IsUnknown():
+		probeHostsVal = types.ListUnknown(types.StringType)
+	case v.ProbeHosts.IsNull():
+		probeHostsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		probeHostsVal, d = types.ListValue(types.StringType, v.ProbeHosts.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"admin_sshkeys": basetypes.ListType{
 				ElemType: types.StringType,
@@ -10017,11 +10046,19 @@ func (v AppProbingValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		)
 	}
 
-	appsVal, d := types.ListValue(types.StringType, v.Apps.Elements())
+	var appsVal basetypes.ListValue
+	switch {
+	case v.Apps.IsUnknown():
+		appsVal = types.ListUnknown(types.StringType)
+	case v.Apps.IsNull():
+		appsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		appsVal, d = types.ListValue(types.StringType, v.Apps.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"apps": basetypes.ListType{
 				ElemType: types.StringType,
@@ -10813,11 +10850,19 @@ func (v CustomAppsValue) String() string {
 func (v CustomAppsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	hostnamesVal, d := types.ListValue(types.StringType, v.Hostnames.Elements())
+	var hostnamesVal basetypes.ListValue
+	switch {
+	case v.Hostnames.IsUnknown():
+		hostnamesVal = types.ListUnknown(types.StringType)
+	case v.Hostnames.IsNull():
+		hostnamesVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		hostnamesVal, d = types.ListValue(types.StringType, v.Hostnames.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"address":  basetypes.StringType{},
 			"app_type": basetypes.StringType{},
@@ -11838,11 +11883,19 @@ func (v ProtectReValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 		)
 	}
 
-	allowedServicesVal, d := types.ListValue(types.StringType, v.AllowedServices.Elements())
+	var allowedServicesVal basetypes.ListValue
+	switch {
+	case v.AllowedServices.IsUnknown():
+		allowedServicesVal = types.ListUnknown(types.StringType)
+	case v.AllowedServices.IsNull():
+		allowedServicesVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		allowedServicesVal, d = types.ListValue(types.StringType, v.AllowedServices.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"allowed_services": basetypes.ListType{
 				ElemType: types.StringType,
@@ -11857,11 +11910,19 @@ func (v ProtectReValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 		}), diags
 	}
 
-	trustedHostsVal, d := types.ListValue(types.StringType, v.TrustedHosts.Elements())
+	var trustedHostsVal basetypes.ListValue
+	switch {
+	case v.TrustedHosts.IsUnknown():
+		trustedHostsVal = types.ListUnknown(types.StringType)
+	case v.TrustedHosts.IsNull():
+		trustedHostsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		trustedHostsVal, d = types.ListValue(types.StringType, v.TrustedHosts.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"allowed_services": basetypes.ListType{
 				ElemType: types.StringType,
@@ -12331,11 +12392,19 @@ func (v CustomValue) String() string {
 func (v CustomValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	subnetsVal, d := types.ListValue(types.StringType, v.Subnets.Elements())
+	var subnetsVal basetypes.ListValue
+	switch {
+	case v.Subnets.IsUnknown():
+		subnetsVal = types.ListUnknown(types.StringType)
+	case v.Subnets.IsNull():
+		subnetsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		subnetsVal, d = types.ListValue(types.StringType, v.Subnets.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"port_range": basetypes.StringType{},
 			"protocol":   basetypes.StringType{},
@@ -15172,11 +15241,19 @@ func (v RogueValue) String() string {
 func (v RogueValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	allowedVlanIdsVal, d := types.ListValue(types.Int64Type, v.AllowedVlanIds.Elements())
+	var allowedVlanIdsVal basetypes.ListValue
+	switch {
+	case v.AllowedVlanIds.IsUnknown():
+		allowedVlanIdsVal = types.ListUnknown(types.Int64Type)
+	case v.AllowedVlanIds.IsNull():
+		allowedVlanIdsVal = types.ListNull(types.Int64Type)
+	default:
+		var d diag.Diagnostics
+		allowedVlanIdsVal, d = types.ListValue(types.Int64Type, v.AllowedVlanIds.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"allowed_vlan_ids": basetypes.ListType{
 				ElemType: types.Int64Type,
@@ -15196,11 +15273,19 @@ func (v RogueValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 		}), diags
 	}
 
-	whitelistedBssidsVal, d := types.ListValue(types.StringType, v.WhitelistedBssids.Elements())
+	var whitelistedBssidsVal basetypes.ListValue
+	switch {
+	case v.WhitelistedBssids.IsUnknown():
+		whitelistedBssidsVal = types.ListUnknown(types.StringType)
+	case v.WhitelistedBssids.IsNull():
+		whitelistedBssidsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		whitelistedBssidsVal, d = types.ListValue(types.StringType, v.WhitelistedBssids.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"allowed_vlan_ids": basetypes.ListType{
 				ElemType: types.Int64Type,
@@ -15220,11 +15305,19 @@ func (v RogueValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 		}), diags
 	}
 
-	whitelistedSsidsVal, d := types.ListValue(types.StringType, v.WhitelistedSsids.Elements())
+	var whitelistedSsidsVal basetypes.ListValue
+	switch {
+	case v.WhitelistedSsids.IsUnknown():
+		whitelistedSsidsVal = types.ListUnknown(types.StringType)
+	case v.WhitelistedSsids.IsNull():
+		whitelistedSsidsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		whitelistedSsidsVal, d = types.ListValue(types.StringType, v.WhitelistedSsids.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"allowed_vlan_ids": basetypes.ListType{
 				ElemType: types.Int64Type,
@@ -18750,11 +18843,19 @@ func (v SsrValue) String() string {
 func (v SsrValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	conductorHostsVal, d := types.ListValue(types.StringType, v.ConductorHosts.Elements())
+	var conductorHostsVal basetypes.ListValue
+	switch {
+	case v.ConductorHosts.IsUnknown():
+		conductorHostsVal = types.ListUnknown(types.StringType)
+	case v.ConductorHosts.IsNull():
+		conductorHostsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		conductorHostsVal, d = types.ListValue(types.StringType, v.ConductorHosts.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"conductor_hosts": basetypes.ListType{
 				ElemType: types.StringType,
@@ -19694,11 +19795,19 @@ func (v VlansValue) String() string {
 func (v VlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	customTestUrlsVal, d := types.ListValue(types.StringType, v.CustomTestUrls.Elements())
+	var customTestUrlsVal basetypes.ListValue
+	switch {
+	case v.CustomTestUrls.IsUnknown():
+		customTestUrlsVal = types.ListUnknown(types.StringType)
+	case v.CustomTestUrls.IsNull():
+		customTestUrlsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		customTestUrlsVal, d = types.ListValue(types.StringType, v.CustomTestUrls.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"custom_test_urls": basetypes.ListType{
 				ElemType: types.StringType,
@@ -19710,11 +19819,19 @@ func (v VlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 		}), diags
 	}
 
-	vlanIdsVal, d := types.ListValue(types.StringType, v.VlanIds.Elements())
+	var vlanIdsVal basetypes.ListValue
+	switch {
+	case v.VlanIds.IsUnknown():
+		vlanIdsVal = types.ListUnknown(types.StringType)
+	case v.VlanIds.IsNull():
+		vlanIdsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		vlanIdsVal, d = types.ListValue(types.StringType, v.VlanIds.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"custom_test_urls": basetypes.ListType{
 				ElemType: types.StringType,
@@ -21156,11 +21273,19 @@ func (v VsInstanceValue) String() string {
 func (v VsInstanceValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	networksVal, d := types.ListValue(types.StringType, v.Networks.Elements())
+	var networksVal basetypes.ListValue
+	switch {
+	case v.Networks.IsUnknown():
+		networksVal = types.ListUnknown(types.StringType)
+	case v.Networks.IsNull():
+		networksVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		networksVal, d = types.ListValue(types.StringType, v.Networks.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"networks": basetypes.ListType{
 				ElemType: types.StringType,
@@ -24011,11 +24136,19 @@ func (v ZoneOccupancyAlertValue) String() string {
 func (v ZoneOccupancyAlertValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	emailNotifiersVal, d := types.ListValue(types.StringType, v.EmailNotifiers.Elements())
+	var emailNotifiersVal basetypes.ListValue
+	switch {
+	case v.EmailNotifiers.IsUnknown():
+		emailNotifiersVal = types.ListUnknown(types.StringType)
+	case v.EmailNotifiers.IsNull():
+		emailNotifiersVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		emailNotifiersVal, d = types.ListValue(types.StringType, v.EmailNotifiers.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"email_notifiers": basetypes.ListType{
 				ElemType: types.StringType,

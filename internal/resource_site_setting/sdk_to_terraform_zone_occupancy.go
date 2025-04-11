@@ -14,7 +14,7 @@ import (
 )
 
 func zoneOccupancySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.SiteZoneOccupancyAlert) ZoneOccupancyAlertValue {
-	var emailNotifiers = mistutils.ListOfStringSdkToTerraformEmpty()
+	var emailNotifiers = types.ListNull(types.StringType)
 	var enabled basetypes.BoolValue
 	var threshold basetypes.Int64Value
 
