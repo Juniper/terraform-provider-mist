@@ -113,6 +113,15 @@ List of the default value changed:
 
 
 
+*  `mist_org_wlantemplate`
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `.applies.site_ids` | N/A | [] |
+| `.applies.sitegroup_ids` | N/A | [] |
+| `.exceptions.site_ids` | N/A | [] |
+| `.exceptions.sitegroup_ids` | N/A | [] |
+
+
 --- 
 
 ## Release Notes for v0.3.1

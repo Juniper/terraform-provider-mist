@@ -33,6 +33,7 @@ func OrgWlantemplateResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "List of site ids",
 						MarkdownDescription: "List of site ids",
+						Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 					},
 					"sitegroup_ids": schema.ListAttribute{
 						ElementType:         types.StringType,
@@ -40,6 +41,7 @@ func OrgWlantemplateResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "List of sitegroup ids",
 						MarkdownDescription: "List of sitegroup ids",
+						Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 					},
 				},
 				CustomType: AppliesType{
@@ -68,6 +70,7 @@ func OrgWlantemplateResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "List of site ids",
 						MarkdownDescription: "List of site ids",
+						Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 					},
 					"sitegroup_ids": schema.ListAttribute{
 						ElementType:         types.StringType,
@@ -75,6 +78,7 @@ func OrgWlantemplateResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "List of sitegroup ids",
 						MarkdownDescription: "List of sitegroup ids",
+						Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 					},
 				},
 				CustomType: ExceptionsType{
@@ -489,11 +493,19 @@ func (v AppliesValue) String() string {
 func (v AppliesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	siteIdsVal, d := types.ListValue(types.StringType, v.SiteIds.Elements())
+	var siteIdsVal basetypes.ListValue
+	switch {
+	case v.SiteIds.IsUnknown():
+		siteIdsVal = types.ListUnknown(types.StringType)
+	case v.SiteIds.IsNull():
+		siteIdsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		siteIdsVal, d = types.ListValue(types.StringType, v.SiteIds.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"org_id": basetypes.StringType{},
 			"site_ids": basetypes.ListType{
@@ -505,11 +517,19 @@ func (v AppliesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 		}), diags
 	}
 
-	sitegroupIdsVal, d := types.ListValue(types.StringType, v.SitegroupIds.Elements())
+	var sitegroupIdsVal basetypes.ListValue
+	switch {
+	case v.SitegroupIds.IsUnknown():
+		sitegroupIdsVal = types.ListUnknown(types.StringType)
+	case v.SitegroupIds.IsNull():
+		sitegroupIdsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		sitegroupIdsVal, d = types.ListValue(types.StringType, v.SitegroupIds.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"org_id": basetypes.StringType{},
 			"site_ids": basetypes.ListType{
@@ -919,11 +939,19 @@ func (v ExceptionsValue) String() string {
 func (v ExceptionsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	siteIdsVal, d := types.ListValue(types.StringType, v.SiteIds.Elements())
+	var siteIdsVal basetypes.ListValue
+	switch {
+	case v.SiteIds.IsUnknown():
+		siteIdsVal = types.ListUnknown(types.StringType)
+	case v.SiteIds.IsNull():
+		siteIdsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		siteIdsVal, d = types.ListValue(types.StringType, v.SiteIds.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"site_ids": basetypes.ListType{
 				ElemType: types.StringType,
@@ -934,11 +962,19 @@ func (v ExceptionsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		}), diags
 	}
 
-	sitegroupIdsVal, d := types.ListValue(types.StringType, v.SitegroupIds.Elements())
+	var sitegroupIdsVal basetypes.ListValue
+	switch {
+	case v.SitegroupIds.IsUnknown():
+		sitegroupIdsVal = types.ListUnknown(types.StringType)
+	case v.SitegroupIds.IsNull():
+		sitegroupIdsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		sitegroupIdsVal, d = types.ListValue(types.StringType, v.SitegroupIds.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"site_ids": basetypes.ListType{
 				ElemType: types.StringType,
