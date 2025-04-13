@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -53,6 +54,16 @@ func OrgWlantemplateResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "Where this template should be applied to, can be org_id, site_ids, sitegroup_ids",
 				MarkdownDescription: "Where this template should be applied to, can be org_id, site_ids, sitegroup_ids",
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						AppliesValue{}.AttributeTypes(ctx),
+						map[string]attr.Value{
+							"org_id":        types.StringNull(),
+							"site_ids":      types.ListValueMust(types.StringType, []attr.Value{}),
+							"sitegroup_ids": types.ListValueMust(types.StringType, []attr.Value{}),
+						},
+					),
+				),
 			},
 			"deviceprofile_ids": schema.ListAttribute{
 				ElementType:         types.StringType,
@@ -90,6 +101,15 @@ func OrgWlantemplateResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "Where this template should not be applied to (takes precedence)",
 				MarkdownDescription: "Where this template should not be applied to (takes precedence)",
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						ExceptionsValue{}.AttributeTypes(ctx),
+						map[string]attr.Value{
+							"site_ids":      types.ListValueMust(types.StringType, []attr.Value{}),
+							"sitegroup_ids": types.ListValueMust(types.StringType, []attr.Value{}),
+						},
+					),
+				),
 			},
 			"filter_by_deviceprofile": schema.BoolAttribute{
 				Optional:            true,
