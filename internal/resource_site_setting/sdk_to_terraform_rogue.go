@@ -15,7 +15,7 @@ import (
 
 func rogueSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteRogue) RogueValue {
 
-	var allowedVlanIds = mistutils.ListOfIntSdkToTerraformEmpty()
+	var allowedVlanIds = types.ListNull(types.Int64Type)
 	var enabled basetypes.BoolValue
 	var honeypotEnabled basetypes.BoolValue
 	var minDuration basetypes.Int64Value

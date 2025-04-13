@@ -11,10 +11,18 @@ description: |-
 **Release Date**: 
 ### Fixes
 * **[Issue 97](https://github.com/Juniper/terraform-provider-mist/issues/97):** Changed the `mist_org_service.addresses` validator to be less restricive and match the Mist UI behavior
+
 * **[Issue 98](https://github.com/Juniper/terraform-provider-mist/issues/98):** Corrected a typo in the `.tunnel_configs.networks` validation for the following resources:  
   - `mist_device_gateway`  
   - `mist_org_deviceprofile_gateway`  
   - `mist_org_gatewaytemplate`  
+
+
+* **[Issue 99](https://github.com/Juniper/terraform-provider-mist/issues/99):** Adding the missing attributes to the `mist_org_networks` datasource
+
+* **[Issue 100](https://github.com/Juniper/terraform-provider-mist/issues/100):** Fix validators configuration causing a Provider error when the attribute `tunnel_provider_options` was configured in the `mist_device_gateway`, `mist_org_deviceprofile_gateway` and `mist_org_gatewaytemplate` datasources
+
+* Fix issue with `mist_org_nacrule.matching` and `mist_org_nacrule.not_matching` default values
 
 * Fixed a typo in the `.tunnel_configs.provider` enumeration for the following resources:  
   - `mist_device_gateway`  
@@ -26,13 +34,14 @@ description: |-
   - `mist_org_deviceprofile_gateway`  
   - `mist_org_gatewaytemplate`  
 
-* **[Issue 99](https://github.com/Juniper/terraform-provider-mist/issues/99):** Adding the missing attributes to the `mist_org_networks` datasource
-* **[Issue 100](https://github.com/Juniper/terraform-provider-mist/issues/100):** Fix validators configuration causing a Provider error when the attribute `tunnel_provider_options` was configured in the `mist_device_gateway`, `mist_org_deviceprofile_gateway` and `mist_org_gatewaytemplate` datasources
-* Fix issue with `mist_org_nacrule.matching` and `mist_org_nacrule.not_matching` default values
 
 ### Breaking Changes
 
 #### Changes in Attribute Types
+
+
+~> **Impact** Review and update your Terraform configurations to align with the new attribute types. This ensures compatibility with the latest API behavior and prevents potential runtime issues.
+
 - **`mist_org_wlan` and `mist_site_wlan` Resources**  
   - Updated the type of `.client_limit_down` from `int64` to `string`.
   - Updated the type of `.client_limit_up` from `int64` to `string`.
@@ -49,7 +58,6 @@ description: |-
   - Updated the type of `.auth_servers.port` from `int64` to `string`.
   - Updated the type of `.coa_servers.port` from `int64` to `string`.
 
-~> **Impact** Review and update your Terraform configurations to align with the new attribute types. This ensures compatibility with the latest API behavior and prevents potential runtime issues.
 
 ### Resources default values changed
 
@@ -103,6 +111,15 @@ List of the default value changed:
 | `.wlan_limit_down_enabled` | StaticBool(false) | N/A |
 | `.wlan_limit_up_enabled` | StaticBool(false) | N/A |
 
+
+
+*  `mist_org_wlantemplate`
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `.applies.site_ids` | N/A | [] |
+| `.applies.sitegroup_ids` | N/A | [] |
+| `.exceptions.site_ids` | N/A | [] |
+| `.exceptions.sitegroup_ids` | N/A | [] |
 
 
 --- 
