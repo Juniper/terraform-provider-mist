@@ -207,7 +207,7 @@ func gatewayMgmtAutoSignatureUpdateSdkToTerraform(ctx context.Context, diags *di
 }
 
 func gatewayMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteSettingGatewayMgmt) GatewayMgmtValue {
-	var adminSshkeys = types.ListNull(types.StringType)
+	var adminSshkeys = types.ListValueMust(types.StringType, []attr.Value{})
 	var appProbing = types.ObjectNull(AppProbingValue{}.AttributeTypes(ctx))
 	var appUsage basetypes.BoolValue
 	var autoSignatureUpdate = types.ObjectNull(AutoSignatureUpdateValue{}.AttributeTypes(ctx))
@@ -216,7 +216,7 @@ func gatewayMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 	var disableOob basetypes.BoolValue
 	var disableUsb basetypes.BoolValue
 	var fipsEnabled basetypes.BoolValue
-	var probeHosts = types.ListNull(types.StringType)
+	var probeHosts = types.ListValueMust(types.StringType, []attr.Value{})
 	var protectRe = types.ObjectNull(ProtectReValue{}.AttributeTypes(ctx))
 	var rootPassword basetypes.StringValue
 	var securityLogSourceAddress basetypes.StringValue

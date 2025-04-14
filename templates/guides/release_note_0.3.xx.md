@@ -36,6 +36,9 @@ description: |-
 
 * Resolved issue when using Mist GLOBAL 05 Cloud (manage.gc4.mist.com)
 
+* Resolved an issue with the `mist_site_setting` resource triggered when all the `vars` are removed from the plan
+
+
 ### Breaking Changes
 
 #### Changes in Attribute Types
@@ -136,6 +139,8 @@ List of the default value changed:
 | `.auto_upgrade` | N/A | Nested Object |
 | `.engagement` | N/A | Nested Object |
 | `.gateway_mgmt` | N/A | Nested Object |
+| `.gateway_mgmt.admin_sshkeys` | N/A | [] |
+| `.gateway_mgmt.probe_hosts` | N/A | [] |
 | `.led` | N/A | Nested Object |
 | `.occupancy` | N/A | Nested Object |
 | `.rogue` | N/A | Nested Object |

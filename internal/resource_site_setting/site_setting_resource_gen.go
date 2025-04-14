@@ -779,11 +779,10 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					"admin_sshkeys": schema.ListAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
+						Computed:            true,
 						Description:         "For SSR only, as direct root access is not allowed",
 						MarkdownDescription: "For SSR only, as direct root access is not allowed",
-						Validators: []validator.List{
-							listvalidator.SizeAtLeast(1),
-						},
+						Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 					},
 					"app_probing": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
@@ -957,9 +956,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					"probe_hosts": schema.ListAttribute{
 						ElementType: types.StringType,
 						Optional:    true,
-						Validators: []validator.List{
-							listvalidator.SizeAtLeast(1),
-						},
+						Computed:    true,
+						Default:     listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 					},
 					"protect_re": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
