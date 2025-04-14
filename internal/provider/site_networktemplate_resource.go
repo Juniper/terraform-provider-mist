@@ -230,14 +230,25 @@ func (r *siteNetworkTemplateResource) Delete(ctx context.Context, _ resource.Del
 		)
 		return
 	}
-	httpr, err := r.client.SitesSetting().UpdateSiteSettings(ctx, siteId, networktemplate)
-	if httpr.Response.StatusCode != 404 && err != nil {
+	data, err := r.client.SitesSetting().UpdateSiteSettings(ctx, siteId, networktemplate)
+	if data.Response != nil {
+		apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+		if data.Response.StatusCode != 404 && apiErr != "" {
+			resp.Diagnostics.AddError(
+				"Error deleting \"mist_site_networktemplate\" resource",
+				fmt.Sprintf("Unable to delete the NetworkTemplate. %s", apiErr),
+			)
+			return
+		}
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_site_networktemplate\" resource",
 			"Unable to delete the NetworkTemplate, unexpected error: "+err.Error(),
 		)
 		return
 	}
+
+	resp.State.RemoveResource(ctx)
 }
 
 func (r *siteNetworkTemplateResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

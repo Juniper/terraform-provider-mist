@@ -248,16 +248,26 @@ func (r *orgNacRuleResource) Delete(ctx context.Context, _ resource.DeleteReques
 		)
 		return
 	}
-	tflog.Info(ctx, "Starting NacRule Delete: nacrule_id "+state.Id.ValueString())
+
 	data, err := r.client.OrgsNACRules().DeleteOrgNacRule(ctx, orgId, nacruleId)
-	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && apiErr != "" {
+	if data != nil {
+		apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+		if data.StatusCode != 404 && apiErr != "" {
+			resp.Diagnostics.AddError(
+				"Error deleting \"mist_org_nacrule\" resource",
+				fmt.Sprintf("Unable to delete the NAC Rule. %s", apiErr),
+			)
+			return
+		}
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_nacrule\" resource",
-			fmt.Sprintf("Unable to delete the NAC Rule. %s", apiErr),
+			"Unable to delete the NAC Rule, unexpected error: "+err.Error(),
 		)
 		return
 	}
+
+	resp.State.RemoveResource(ctx)
 }
 
 func (r *orgNacRuleResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

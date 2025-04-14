@@ -230,14 +230,23 @@ func (r *siteSettingResource) Delete(ctx context.Context, _ resource.DeleteReque
 		return
 	}
 	data, err := r.client.SitesSetting().UpdateSiteSettings(ctx, siteId, siteSetting)
-	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
-	if data.Response.StatusCode != 404 && apiErr != "" {
+	if data.Response != nil {
+		apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+		if data.Response.StatusCode != 404 && apiErr != "" {
+			resp.Diagnostics.AddError(
+				"Error deleting \"mist_site_setting\" resource",
+				fmt.Sprintf("Unable to delete the Site Setting. %s", apiErr),
+			)
+			return
+		}
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_site_setting\" resource",
-			fmt.Sprintf("Unable to delete the Site Setting. %s", apiErr),
+			"Unable to delete the Site Setting, unexpected error: "+err.Error(),
 		)
 		return
 	}
+	resp.State.RemoveResource(ctx)
 }
 
 func (r *siteSettingResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

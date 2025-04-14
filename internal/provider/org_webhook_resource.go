@@ -253,16 +253,25 @@ func (r *orgWebhookResource) Delete(ctx context.Context, _ resource.DeleteReques
 		return
 	}
 
-	tflog.Info(ctx, "Starting Webhook Delete: webhook_id "+state.Id.ValueString())
 	data, err := r.client.OrgsWebhooks().DeleteOrgWebhook(ctx, orgId, webhookId)
-	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && apiErr != "" {
+	if data != nil {
+		apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+		if data.StatusCode != 404 && apiErr != "" {
+			resp.Diagnostics.AddError(
+				"Error deleting \"mist_org_webhook\" resource",
+				fmt.Sprintf("Unable to delete the Webhook. %s", apiErr),
+			)
+			return
+		}
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_webhook\" resource",
-			fmt.Sprintf("Unable to delete the Webhook. %s", apiErr),
+			"Unable to delete the Webhook, unexpected error: "+err.Error(),
 		)
 		return
 	}
+
+	resp.State.RemoveResource(ctx)
 }
 
 func (r *orgWebhookResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

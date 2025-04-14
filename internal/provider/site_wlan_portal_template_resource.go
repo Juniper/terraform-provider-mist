@@ -212,12 +212,21 @@ func (r *siteWlanPortalTemplateResource) Delete(ctx context.Context, _ resource.
 	}
 
 	data, err := r.client.SitesWlans().UpdateSiteWlanPortalTemplate(ctx, siteId, wlanId, template)
-	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
-	if data.Response.StatusCode != 404 && apiErr != "" {
+	if data.Response != nil {
+		apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+		if data.Response.StatusCode != 404 && apiErr != "" {
+			resp.Diagnostics.AddError(
+				"Error deleting \"mist_site_wlan_portal_template\" resource",
+				fmt.Sprintf("Unable to delete the WLAN Portal Temaplate. %s", apiErr),
+			)
+			return
+		}
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_site_wlan_portal_template\" resource",
-			fmt.Sprintf("Unable to delete the WLAN Portal Temaplate. %s", apiErr),
+			"Unable to delete the WLAN Portal Template, unexpected error: "+err.Error(),
 		)
 		return
 	}
+	resp.State.RemoveResource(ctx)
 }

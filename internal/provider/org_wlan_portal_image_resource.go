@@ -212,12 +212,23 @@ func (r *orgWlanPortalImageResource) Delete(ctx context.Context, _ resource.Dele
 		return
 	}
 
-	httpr, err := r.client.OrgsWlans().DeleteOrgWlanPortalImage(ctx, orgId, wlanId)
-	if httpr.StatusCode != 404 && err != nil {
+	data, err := r.client.OrgsWlans().DeleteOrgWlanPortalImage(ctx, orgId, wlanId)
+	if data != nil {
+		apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+		if data.StatusCode != 404 && apiErr != "" {
+			resp.Diagnostics.AddError(
+				"Error deleting \"mist_org_wlan_portal_image\" resource",
+				"Could not delete Portal Image, unexpected error: "+err.Error(),
+			)
+			return
+		}
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_wlan_portal_image\" resource",
-			"Could not delete Portal Image, unexpected error: "+err.Error(),
+			"Unable to delete the Portal Image, unexpected error: "+err.Error(),
 		)
 		return
 	}
+
+	resp.State.RemoveResource(ctx)
 }

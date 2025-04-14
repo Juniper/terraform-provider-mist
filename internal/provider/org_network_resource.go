@@ -252,16 +252,25 @@ func (r *orgNetworkResource) Delete(ctx context.Context, _ resource.DeleteReques
 		return
 	}
 
-	tflog.Info(ctx, "Starting Network Delete: network_id "+state.Id.ValueString())
 	data, err := r.client.OrgsNetworks().DeleteOrgNetwork(ctx, orgId, networkId)
-	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && apiErr != "" {
+	if data != nil {
+		apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+		if data.StatusCode != 404 && apiErr != "" {
+			resp.Diagnostics.AddError(
+				"Error deleting \"mist_org_network\" resource",
+				fmt.Sprintf("Unable to delete the Network. %s", apiErr),
+			)
+			return
+		}
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_network\" resource",
-			fmt.Sprintf("Unable to delete the Network. %s", apiErr),
+			"Unable to delete the Network, unexpected error: "+err.Error(),
 		)
 		return
 	}
+
+	resp.State.RemoveResource(ctx)
 }
 
 func (r *orgNetworkResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

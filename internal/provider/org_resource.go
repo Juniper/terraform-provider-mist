@@ -217,16 +217,25 @@ func (r *orgResource) Delete(ctx context.Context, _ resource.DeleteRequest, resp
 		return
 	}
 
-	tflog.Info(ctx, "Starting Org Delete: org_id "+state.Id.ValueString())
 	data, err := r.client.Orgs().DeleteOrg(ctx, orgId)
-	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && apiErr != "" {
+	if data != nil {
+		apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+		if data.StatusCode != 404 && apiErr != "" {
+			resp.Diagnostics.AddError(
+				"Error deleting \"mist_org\" resource",
+				fmt.Sprintf("Unable to delete the Org. %s", apiErr),
+			)
+			return
+		}
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org\" resource",
-			fmt.Sprintf("Unable to delete the Org. %s", apiErr),
+			"Unable to delete the Org, unexpected error: "+err.Error(),
 		)
 		return
 	}
+
+	resp.State.RemoveResource(ctx)
 }
 
 func (r *orgResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

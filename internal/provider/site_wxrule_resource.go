@@ -251,16 +251,26 @@ func (r *siteWxRuleResource) Delete(ctx context.Context, _ resource.DeleteReques
 		)
 		return
 	}
-	tflog.Info(ctx, "Starting WxRule Delete: wxrule_id "+state.Id.ValueString())
+
 	data, err := r.client.SitesWxRules().DeleteSiteWxRule(ctx, siteId, wxruleId)
-	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && apiErr != "" {
+	if data != nil {
+		apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+		if data.StatusCode != 404 && apiErr != "" {
+			resp.Diagnostics.AddError(
+				"Error deleting \"mist_site_wxrule\" resource",
+				fmt.Sprintf("Unable to delete the WxRule. %s", apiErr),
+			)
+			return
+		}
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_site_wxrule\" resource",
-			fmt.Sprintf("Unable to delete the WxRule. %s", apiErr),
+			"Unable to delete the WxRule, unexpected error: "+err.Error(),
 		)
 		return
 	}
+
+	resp.State.RemoveResource(ctx)
 }
 
 func (r *siteWxRuleResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

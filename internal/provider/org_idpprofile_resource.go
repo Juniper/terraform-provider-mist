@@ -251,15 +251,26 @@ func (r *orgIdpprofileResource) Delete(ctx context.Context, _ resource.DeleteReq
 		)
 		return
 	}
+
 	data, err := r.client.OrgsIDPProfiles().DeleteOrgIdpProfile(ctx, orgId, idpprofileId)
-	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && apiErr != "" {
+	if data != nil {
+		apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+		if data.StatusCode != 404 && apiErr != "" {
+			resp.Diagnostics.AddError(
+				"Error deleting \"mist_org_idpprofile\" resource",
+				fmt.Sprintf("Unable to delete the IDP Profile. %s", apiErr),
+			)
+			return
+		}
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_idpprofile\" resource",
-			fmt.Sprintf("Unable to delete the IDP Profile. %s", apiErr),
+			"Unable to delete the IDP Profile, unexpected error: "+err.Error(),
 		)
 		return
 	}
+
+	resp.State.RemoveResource(ctx)
 }
 
 func (r *orgIdpprofileResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

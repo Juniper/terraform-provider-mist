@@ -251,16 +251,25 @@ func (r *orgNacTagResource) Delete(ctx context.Context, _ resource.DeleteRequest
 		return
 	}
 
-	tflog.Info(ctx, "Starting NacTag Delete: nactag_id "+state.Id.ValueString())
 	data, err := r.client.OrgsNACTags().DeleteOrgNacTag(ctx, orgId, nactagId)
-	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && apiErr != "" {
+	if data != nil {
+		apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+		if data.StatusCode != 404 && apiErr != "" {
+			resp.Diagnostics.AddError(
+				"Error deleting \"mist_org_nactag\" resource",
+				fmt.Sprintf("Unable to delete the NAC Tag. %s", apiErr),
+			)
+			return
+		}
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_nactag\" resource",
-			fmt.Sprintf("Unable to delete the NAC Tag. %s", apiErr),
+			"Unable to delete the NAC Tag, unexpected error: "+err.Error(),
 		)
 		return
 	}
+
+	resp.State.RemoveResource(ctx)
 }
 
 func (r *orgNacTagResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

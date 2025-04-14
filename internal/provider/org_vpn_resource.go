@@ -248,14 +248,25 @@ func (r *orgVpnResource) Delete(ctx context.Context, _ resource.DeleteRequest, r
 		)
 		return
 	}
-	httpr, err := r.client.OrgsVPNs().DeleteOrgVpn(ctx, orgId, vpnId)
-	if httpr.StatusCode != 404 && err != nil {
+	data, err := r.client.OrgsVPNs().DeleteOrgVpn(ctx, orgId, vpnId)
+	if data != nil {
+		apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+		if data.StatusCode != 404 && apiErr != "" {
+			resp.Diagnostics.AddError(
+				"Error deleting \"mist_org_vpn\" resource",
+				"Unable to delete the VPN, unexpected error: "+err.Error(),
+			)
+			return
+		}
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_vpn\" resource",
 			"Unable to delete the VPN, unexpected error: "+err.Error(),
 		)
 		return
 	}
+
+	resp.State.RemoveResource(ctx)
 }
 
 func (r *orgVpnResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

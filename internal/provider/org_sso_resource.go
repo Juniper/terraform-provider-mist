@@ -258,16 +258,25 @@ func (r *orgSsoResource) Delete(ctx context.Context, _ resource.DeleteRequest, r
 		return
 	}
 
-	tflog.Info(ctx, "Starting Sso Delete: sso_id "+state.Id.ValueString())
 	data, err := r.client.OrgsSSO().DeleteOrgSso(ctx, orgId, ssoId)
-	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && apiErr != "" {
+	if data != nil {
+		apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+		if data.StatusCode != 404 && apiErr != "" {
+			resp.Diagnostics.AddError(
+				"Error deleting \"mist_org_sso\" resource",
+				fmt.Sprintf("Unable to delete the Org SSO. %s", apiErr),
+			)
+			return
+		}
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_sso\" resource",
-			fmt.Sprintf("Unable to delete the Org SSO. %s", apiErr),
+			"Unable to delete the Org SSO, unexpected error: "+err.Error(),
 		)
 		return
 	}
+
+	resp.State.RemoveResource(ctx)
 }
 
 func (r *orgSsoResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

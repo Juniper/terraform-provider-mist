@@ -210,8 +210,8 @@ func (r *orgWlanPortalTemplateResource) Delete(ctx context.Context, _ resource.D
 		return
 	}
 
-	httpr, err := r.client.OrgsWlans().UpdateOrgWlanPortalTemplate(ctx, orgId, wlanId, template)
-	if httpr.Response.StatusCode != 404 && err != nil {
+	_, err = r.client.OrgsWlans().UpdateOrgWlanPortalTemplate(ctx, orgId, wlanId, template)
+	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_wlan_portal_template\" resource",
 			"Unable to delete the WLAN Portal Template, unexpected error: "+err.Error(),
