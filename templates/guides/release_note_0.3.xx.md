@@ -38,6 +38,8 @@ description: |-
 
 * Resolved an issue with the `mist_site_setting` resource triggered when all the `vars` are removed from the plan
 
+* Fixed a provider crash occurring during resource deletion when the API returned a nil response.
+
 
 ### Breaking Changes
 
