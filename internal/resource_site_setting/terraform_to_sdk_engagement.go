@@ -52,8 +52,12 @@ func engagementTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d En
 
 	data.Hours = misthours.HoursTerraformToSdk(ctx, diags, d.Hours)
 
-	data.MaxDwell = models.ToPointer(int(d.MaxDwell.ValueInt64()))
-	data.MinDwell = models.ToPointer(int(d.MinDwell.ValueInt64()))
+	if !d.MaxDwell.IsNull() && !d.MaxDwell.IsUnknown() {
+		data.MaxDwell = models.ToPointer(int(d.MaxDwell.ValueInt64()))
+	}
+	if !d.MinDwell.IsNull() && !d.MinDwell.IsUnknown() {
+		data.MinDwell = models.ToPointer(int(d.MinDwell.ValueInt64()))
+	}
 
 	return &data
 }

@@ -34,6 +34,7 @@ description: |-
   - `mist_org_deviceprofile_gateway`  
   - `mist_org_gatewaytemplate`  
 
+* Resolved issue when using Mist GLOBAL 05 Cloud (manage.gc4.mist.com)
 
 ### Breaking Changes
 
@@ -121,6 +122,26 @@ List of the default value changed:
 | `.exceptions.site_ids` | N/A | [] |
 | `.exceptions.sitegroup_ids` | N/A | [] |
 
+
+* `mist_site_setting`
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `.analytic` | N/A | Nested Object |
+| `.auto_upgrade` | N/A | Nested Object |
+| `.engagement` | N/A | Nested Object |
+| `.gateway_mgmt` | N/A | Nested Object |
+| `.led` | N/A | Nested Object |
+| `.occupancy` | N/A | Nested Object |
+| `.rogue` | N/A | Nested Object |
+| `.rogue.allowed_vlan_ids` | N/A | [] |
+| `.rtsa` | N/A | Nested Object |
+| `.ssr` | N/A | Nested Object |
+| `.synthetic_test` | N/A | Nested Object |
+| `.uplink_port_config` | N/A | Nested Object |
+| `.wids` | N/A | Nested Object |
+| `.wifi` | N/A | Nested Object |
+| `.zone_occupancy_alert` | N/A | Nested Object |
+| `.zone_occupancy_alert.email_notifiers` | N/A | [] |
 
 --- 
 

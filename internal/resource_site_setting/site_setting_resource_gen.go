@@ -18,6 +18,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -48,6 +49,15 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
+				Computed: true,
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						AnalyticValue{}.AttributeTypes(ctx),
+						map[string]attr.Value{
+							"enabled": types.BoolValue(false),
+						},
+					),
+				),
 			},
 			"ap_updown_threshold": schema.Int64Attribute{
 				Optional:            true,
@@ -122,8 +132,21 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
+				Computed:            true,
 				Description:         "Auto Upgrade Settings",
 				MarkdownDescription: "Auto Upgrade Settings",
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						AutoUpgradeValue{}.AttributeTypes(ctx),
+						map[string]attr.Value{
+							"custom_versions": types.MapValueMust(types.StringType, map[string]attr.Value{}),
+							"day_of_week":     types.StringValue("sun"),
+							"enabled":         types.BoolValue(true),
+							"time_of_day":     types.StringValue("02:00"),
+							"version":         types.StringValue("stable"),
+						},
+					),
+				),
 			},
 			"blacklist_url": schema.StringAttribute{
 				Computed: true,
@@ -717,8 +740,39 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
+				Computed:            true,
 				Description:         "**Note**: if hours does not exist, it's treated as everyday of the week, 00:00-23:59. Currently, we don't allow multiple ranges for the same day",
 				MarkdownDescription: "**Note**: if hours does not exist, it's treated as everyday of the week, 00:00-23:59. Currently, we don't allow multiple ranges for the same day",
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						EngagementValue{}.AttributeTypes(ctx),
+						map[string]attr.Value{
+							"dwell_tag_names": types.ObjectValueMust(
+								DwellTagNamesValue{}.AttributeTypes(ctx),
+								map[string]attr.Value{
+									"bounce":    types.StringValue(""),
+									"engaged":   types.StringValue(""),
+									"passerby":  types.StringValue(""),
+									"stationed": types.StringValue(""),
+								},
+							),
+							"dwell_tags": types.ObjectValueMust(
+								DwellTagNamesValue{}.AttributeTypes(ctx),
+								map[string]attr.Value{
+									"bounce":    types.StringValue("301-14400"),
+									"engaged":   types.StringValue("14401-28800"),
+									"passerby":  types.StringValue("1-300"),
+									"stationed": types.StringValue("28801-42000"),
+								},
+							),
+							"hours": types.ObjectNull(
+								HoursValue{}.AttributeTypes(ctx),
+							),
+							"max_dwell": types.Int64Null(),
+							"min_dwell": types.Int64Null(),
+						},
+					),
+				),
 			},
 			"gateway_mgmt": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -1024,8 +1078,37 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
+				Computed:            true,
 				Description:         "Gateway Site settings",
 				MarkdownDescription: "Gateway Site settings",
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						GatewayMgmtValue{}.AttributeTypes(ctx),
+						map[string]attr.Value{
+							"admin_sshkeys": types.ListValueMust(types.StringType, []attr.Value{}),
+							"app_probing":   types.ObjectNull(AppProbingValue{}.AttributeTypes(ctx)),
+							"app_usage":     types.BoolValue(false),
+							"auto_signature_update": types.ObjectValueMust(
+								AutoSignatureUpdateValue{}.AttributeTypes(ctx),
+								map[string]attr.Value{
+									"day_of_week": types.StringValue(""),
+									"enable":      types.BoolValue(true),
+									"time_of_day": types.StringValue("02:00"),
+								},
+							),
+							"config_revert_timer":           types.Int64Null(),
+							"disable_console":               types.BoolNull(),
+							"disable_oob":                   types.BoolNull(),
+							"disable_usb":                   types.BoolNull(),
+							"fips_enabled":                  types.BoolNull(),
+							"probe_hosts":                   types.ListValueMust(types.StringType, []attr.Value{}),
+							"protect_re":                    types.ObjectNull(ProtectReValue{}.AttributeTypes(ctx)),
+							"root_password":                 types.StringNull(),
+							"security_log_source_address":   types.StringNull(),
+							"security_log_source_interface": types.StringValue(""),
+						},
+					),
+				),
 			},
 			"gateway_updown_threshold": schema.Int64Attribute{
 				Optional:            true,
@@ -1091,8 +1174,18 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
+				Computed:            true,
 				Description:         "LED AP settings",
 				MarkdownDescription: "LED AP settings",
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						LedValue{}.AttributeTypes(ctx),
+						map[string]attr.Value{
+							"brightness": types.Int64Value(255),
+							"enabled":    types.BoolValue(true),
+						},
+					),
+				),
 			},
 			"occupancy": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -1136,8 +1229,21 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
+				Computed:            true,
 				Description:         "Occupancy Analytics settings",
 				MarkdownDescription: "Occupancy Analytics settings",
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						OccupancyValue{}.AttributeTypes(ctx),
+						map[string]attr.Value{
+							"assets_enabled":              types.BoolValue(false),
+							"clients_enabled":             types.BoolValue(false),
+							"min_duration":                types.Int64Null(),
+							"sdkclients_enabled":          types.BoolValue(true),
+							"unconnected_clients_enabled": types.BoolValue(false),
+						},
+					),
+				),
 			},
 			"persist_config_on_device": schema.BoolAttribute{
 				Optional:            true,
@@ -1176,8 +1282,10 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					"allowed_vlan_ids": schema.ListAttribute{
 						ElementType:         types.Int64Type,
 						Optional:            true,
+						Computed:            true,
 						Description:         "list of VLAN IDs on which rogue APs are ignored",
 						MarkdownDescription: "list of VLAN IDs on which rogue APs are ignored",
+						Default:             listdefault.StaticValue(types.ListValueMust(types.Int64Type, []attr.Value{})),
 					},
 					"enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -1258,8 +1366,25 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
+				Computed:            true,
 				Description:         "Rogue site settings",
 				MarkdownDescription: "Rogue site settings",
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						RogueValue{}.AttributeTypes(ctx),
+						map[string]attr.Value{
+							"allowed_vlan_ids":   types.ListValueMust(types.Int64Type, []attr.Value{}),
+							"enabled":            types.BoolValue(false),
+							"honeypot_enabled":   types.BoolValue(true),
+							"min_duration":       types.Int64Value(10),
+							"min_rogue_duration": types.Int64Null(),
+							"min_rogue_rssi":     types.Int64Null(),
+							"min_rssi":           types.Int64Value(-80),
+							"whitelisted_bssids": types.ListValueMust(types.StringType, []attr.Value{}),
+							"whitelisted_ssids":  types.ListValueMust(types.StringType, []attr.Value{}),
+						},
+					),
+				),
 			},
 			"rtsa": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -1291,8 +1416,21 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
+				Computed:            true,
 				Description:         "Managed mobility",
 				MarkdownDescription: "Managed mobility",
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						RtsaValue{}.AttributeTypes(ctx),
+						map[string]attr.Value{
+							"app_waking":              types.BoolValue(false),
+							"disable_dead_reckoning":  types.BoolNull(),
+							"disable_pressure_sensor": types.BoolNull(),
+							"enabled":                 types.BoolValue(true),
+							"track_asset":             types.BoolValue(false),
+						},
+					),
+				),
 			},
 			"simple_alert": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -1461,6 +1599,16 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
+				Computed: true,
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						SsrValue{}.AttributeTypes(ctx),
+						map[string]attr.Value{
+							"conductor_hosts": types.ListValueMust(types.StringType, []attr.Value{}),
+							"disable_stats":   types.BoolNull(),
+						},
+					),
+				),
 			},
 			"switch_updown_threshold": schema.Int64Attribute{
 				Optional:            true,
@@ -1543,6 +1691,17 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
+				Computed: true,
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						SyntheticTestValue{}.AttributeTypes(ctx),
+						map[string]attr.Value{
+							"disabled":      types.BoolNull(),
+							"vlans":         types.ListNull(VlansValue{}.Type(ctx)),
+							"wan_speedtest": types.ObjectNull(WanSpeedtestValue{}.AttributeTypes(ctx)),
+						},
+					),
+				),
 			},
 			"track_anonymous_devices": schema.BoolAttribute{
 				Optional:            true,
@@ -1570,8 +1729,18 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
+				Computed:            true,
 				Description:         "AP Uplink port configuration",
 				MarkdownDescription: "AP Uplink port configuration",
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						UplinkPortConfigValue{}.AttributeTypes(ctx),
+						map[string]attr.Value{
+							"dot1x":                 types.BoolNull(),
+							"keep_wlans_up_if_down": types.BoolValue(true),
+						},
+					),
+				),
 			},
 			"vars": schema.MapAttribute{
 				ElementType:         types.StringType,
@@ -1673,8 +1842,17 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
+				Computed:            true,
 				Description:         "WIDS site settings",
 				MarkdownDescription: "WIDS site settings",
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						WidsValue{}.AttributeTypes(ctx),
+						map[string]attr.Value{
+							"repeated_auth_failures": types.ObjectNull(RepeatedAuthFailuresValue{}.AttributeTypes(ctx)),
+						},
+					),
+				),
 			},
 			"wifi": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -1768,8 +1946,30 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
+				Computed:            true,
 				Description:         "Wi-Fi site settings",
 				MarkdownDescription: "Wi-Fi site settings",
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						WifiValue{}.AttributeTypes(ctx),
+						map[string]attr.Value{
+							"cisco_enabled":                         types.BoolNull(),
+							"disable_11k":                           types.BoolNull(),
+							"disable_radios_when_power_constrained": types.BoolNull(),
+							"enable_arp_spoof_check":                types.BoolNull(),
+							"enable_shared_radio_scanning":          types.BoolNull(),
+							"enabled":                               types.BoolValue(true),
+							"locate_connected":                      types.BoolValue(false),
+							"locate_unconnected":                    types.BoolValue(false),
+							"mesh_allow_dfs":                        types.BoolValue(false),
+							"mesh_enable_crm":                       types.BoolNull(),
+							"mesh_enabled":                          types.BoolValue(false),
+							"mesh_psk":                              types.StringNull(),
+							"mesh_ssid":                             types.StringNull(),
+							"proxy_arp":                             types.StringNull(),
+						},
+					),
+				),
 			},
 			"wired_vna": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -1791,8 +1991,10 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					"email_notifiers": schema.ListAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
+						Computed:            true,
 						Description:         "List of email addresses to send email notifications when the alert threshold is reached",
 						MarkdownDescription: "List of email addresses to send email notifications when the alert threshold is reached",
+						Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 					},
 					"enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -1818,8 +2020,19 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
+				Computed:            true,
 				Description:         "Zone Occupancy alert site settings",
 				MarkdownDescription: "Zone Occupancy alert site settings",
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						ZoneOccupancyAlertValue{}.AttributeTypes(ctx),
+						map[string]attr.Value{
+							"email_notifiers": types.ListValueMust(types.StringType, []attr.Value{}),
+							"enabled":         types.BoolValue(false),
+							"threshold":       types.Int64Value(5),
+						},
+					),
+				),
 			},
 		},
 	}
