@@ -250,16 +250,26 @@ func (r *orgSiteGroupResource) Delete(ctx context.Context, _ resource.DeleteRequ
 		)
 		return
 	}
-	tflog.Info(ctx, "Starting SiteGroup Delete: sitegroup_id "+state.Id.ValueString())
+
 	data, err := r.client.OrgsSitegroups().DeleteOrgSiteGroup(ctx, orgId, sitegroupId)
-	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && apiErr != "" {
+	if data != nil {
+		apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+		if data.StatusCode != 404 && apiErr != "" {
+			resp.Diagnostics.AddError(
+				"Error deleting \"mist_org_sitegroup\" resource",
+				fmt.Sprintf("Unable to delete the SiteGroup. %s", apiErr),
+			)
+			return
+		}
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_sitegroup\" resource",
-			fmt.Sprintf("Unable to delete the SiteGroup. %s", apiErr),
+			"Unable to delete the SiteGroup, unexpected error: "+err.Error(),
 		)
 		return
 	}
+
+	resp.State.RemoveResource(ctx)
 }
 
 func (r *orgSiteGroupResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

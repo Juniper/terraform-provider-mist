@@ -254,15 +254,26 @@ func (r *orgNacEndpointResource) Delete(ctx context.Context, _ resource.DeleteRe
 		)
 		return
 	}
+
 	data, err := r.client.OrgsUserMACs().DeleteOrgUserMac(ctx, orgId, nacEndpointId)
-	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && apiErr != "" {
+	if data != nil {
+		apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+		if data.StatusCode != 404 && apiErr != "" {
+			resp.Diagnostics.AddError(
+				"Error deleting \"mist_org_nac_endpoint\" resource",
+				fmt.Sprintf("Unable to delete the NacEndpoint. %s", apiErr),
+			)
+			return
+		}
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_nac_endpoint\" resource",
-			fmt.Sprintf("Unable to delete the NacEndpoint. %s", apiErr),
+			"Unable to delete the NacEndpoint, unexpected error: "+err.Error(),
 		)
 		return
 	}
+
+	resp.State.RemoveResource(ctx)
 }
 
 func (r *orgNacEndpointResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

@@ -199,7 +199,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 	if !plan.Vars.IsNull() && !plan.Vars.IsUnknown() {
 		data.Vars = varsTerraformToSdk(plan.Vars)
 	} else {
-		unset["-var"] = ""
+		unset["-vars"] = ""
 	}
 
 	if !plan.Vna.IsNull() && !plan.Vna.IsUnknown() {

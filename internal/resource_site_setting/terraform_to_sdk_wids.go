@@ -23,7 +23,7 @@ func widsAuthFailureTerraformToSdk(ctx context.Context, o basetypes.ObjectValue)
 func widsTerraformToSdk(ctx context.Context, d WidsValue) *models.SiteWids {
 	data := models.SiteWids{}
 
-	if !d.IsNull() {
+	if !d.RepeatedAuthFailures.IsNull() {
 		repeatedAuthFailures := widsAuthFailureTerraformToSdk(ctx, d.RepeatedAuthFailures)
 		data.RepeatedAuthFailures = repeatedAuthFailures
 	}

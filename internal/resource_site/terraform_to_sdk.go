@@ -126,7 +126,7 @@ func TerraformToSdk(plan *SiteModel) (*models.Site, diag.Diagnostics) {
 		unset["-sitetemplate_id"] = ""
 	}
 
-	if !plan.SitegroupIds.IsNull() && !plan.SitegroupIds.IsUnknown() {
+	if !plan.SitegroupIds.IsNull() && !plan.SitegroupIds.IsUnknown() && len(plan.SitegroupIds.Elements()) > 0 {
 		var items []uuid.UUID
 		for _, item := range plan.SitegroupIds.Elements() {
 			var iface interface{} = item

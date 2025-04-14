@@ -266,6 +266,8 @@ func (p *mistProvider) Configure(ctx context.Context, req provider.ConfigureRequ
 		mistCloud = mistapi.MIST_GLOBAL_03
 	case "api.gc2.mist.com":
 		mistCloud = mistapi.MIST_GLOBAL_04
+	case "api.gc4.mist.com":
+		mistCloud = mistapi.MIST_GLOBAL_05
 	case "api.eu.mist.com":
 		mistCloud = mistapi.MIST_EMEA_01
 	case "api.gc3.mist.com":

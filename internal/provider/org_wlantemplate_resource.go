@@ -252,15 +252,26 @@ func (r *orgWlanTemplateResource) Delete(ctx context.Context, _ resource.DeleteR
 		)
 		return
 	}
+
 	data, err := r.client.OrgsWLANTemplates().DeleteOrgTemplate(ctx, orgId, wlantemplateId)
-	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && apiErr != "" {
+	if data != nil {
+		apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+		if data.StatusCode != 404 && apiErr != "" {
+			resp.Diagnostics.AddError(
+				"Error deleting \"mist_org_wlantemplate\" resource",
+				fmt.Sprintf("Unable to delete the Wlan Template. %s", apiErr),
+			)
+			return
+		}
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_wlantemplate\" resource",
-			fmt.Sprintf("Unable to delete the Wlan Template. %s", apiErr),
+			"Unable to delete the Wlan Template, unexpected error: "+err.Error(),
 		)
 		return
 	}
+
+	resp.State.RemoveResource(ctx)
 }
 
 func (r *orgWlanTemplateResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

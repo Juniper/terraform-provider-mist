@@ -261,16 +261,25 @@ func (r *siteWxTagResource) Delete(ctx context.Context, _ resource.DeleteRequest
 		return
 	}
 
-	tflog.Info(ctx, "Starting WxTag Delete: wxtag_id "+state.Id.ValueString())
 	data, err := r.client.SitesWxTags().DeleteSiteWxTag(ctx, siteId, wxtagId)
-	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && apiErr != "" {
+	if data != nil {
+		apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+		if data.StatusCode != 404 && apiErr != "" {
+			resp.Diagnostics.AddError(
+				"Error deleting \"mist_site_wxtag\" resource",
+				fmt.Sprintf("Unable to delete the WxTag. %s", apiErr),
+			)
+			return
+		}
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_site_wxtag\" resource",
-			fmt.Sprintf("Unable to delete the WxTag. %s", apiErr),
+			fmt.Sprintf("Unable to delete the WxTag. %s", err.Error()),
 		)
 		return
 	}
+
+	resp.State.RemoveResource(ctx)
 }
 
 func (r *siteWxTagResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

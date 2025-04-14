@@ -3105,8 +3105,10 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"use_mxedge_proxy": schema.BoolAttribute{
 						Optional:            true,
+						Computed:            true,
 						Description:         "To use mxedge as proxy",
 						MarkdownDescription: "To use mxedge as proxy",
+						Default:             booldefault.StaticBool(false),
 					},
 				},
 				CustomType: SwitchMgmtType{

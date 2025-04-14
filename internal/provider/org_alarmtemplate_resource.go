@@ -252,15 +252,26 @@ func (r *orgAlarmtemplateResource) Delete(ctx context.Context, _ resource.Delete
 		)
 		return
 	}
+
 	data, err := r.client.OrgsAlarmTemplates().DeleteOrgAlarmTemplate(ctx, orgId, alarmtemplateId)
-	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && apiErr != "" {
+	if data != nil {
+		apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+		if data.StatusCode != 404 && apiErr != "" {
+			resp.Diagnostics.AddError(
+				"Error deleting \"mist_org_alarmtemplate\" resource",
+				fmt.Sprintf("Unable to delete the Alarmtemplate. %s", apiErr),
+			)
+			return
+		}
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_alarmtemplate\" resource",
-			fmt.Sprintf("Unable to delete the Alarmtemplate. %s", apiErr),
+			"Unable to delete the Alarmtemplate, unexpected error: "+err.Error(),
 		)
 		return
 	}
+
+	resp.State.RemoveResource(ctx)
 }
 
 func (r *orgAlarmtemplateResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

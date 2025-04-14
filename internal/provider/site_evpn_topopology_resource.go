@@ -254,16 +254,25 @@ func (r *siteEvpnTopologyResource) Delete(ctx context.Context, _ resource.Delete
 		return
 	}
 
-	tflog.Info(ctx, "Starting EvpnTopology Delete: evpn_topology_id "+state.Id.ValueString())
 	data, err := r.client.SitesEVPNTopologies().DeleteSiteEvpnTopology(ctx, siteId, evpnTopologyId)
-	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && apiErr != "" {
+	if data != nil {
+		apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+		if data.StatusCode != 404 && apiErr != "" {
+			resp.Diagnostics.AddError(
+				"Error deleting \"mist_site_evpn_topology\" resource",
+				fmt.Sprintf("Unable to delete the EvpnTopology. %s", apiErr),
+			)
+			return
+		}
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_site_evpn_topology\" resource",
-			fmt.Sprintf("Unable to delete the EvpnTopology. %s", apiErr),
+			"Unable to delete the EvpnTopology, unexpected error: "+err.Error(),
 		)
 		return
 	}
+
+	resp.State.RemoveResource(ctx)
 }
 
 func (r *siteEvpnTopologyResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

@@ -252,19 +252,28 @@ func (r *siteResource) Delete(ctx context.Context, _ resource.DeleteRequest, res
 		return
 	}
 
-	tflog.Info(ctx, "Starting Site Delete: site_id "+state.Id.ValueString())
 	data, err := r.client.Sites().DeleteSite(ctx, siteId)
 	// The API call has been done, we can unlock the resource
 	resourceLock.Unlock()
 
-	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && apiErr != "" {
+	if data != nil {
+		apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+		if data.StatusCode != 404 && apiErr != "" {
+			resp.Diagnostics.AddError(
+				"Error deleting \"mist_site\" resource",
+				fmt.Sprintf("Unable to delete the Site. %s", apiErr),
+			)
+			return
+		}
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_site\" resource",
-			fmt.Sprintf("Unable to delete the Site. %s", apiErr),
+			"Unable to delete the Site, unexpected error: "+err.Error(),
 		)
 		return
 	}
+
+	resp.State.RemoveResource(ctx)
 }
 
 func (r *siteResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

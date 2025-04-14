@@ -255,16 +255,25 @@ func (r *orgSsoRoleResource) Delete(ctx context.Context, _ resource.DeleteReques
 		return
 	}
 
-	tflog.Info(ctx, "Starting SsoRole Delete: sso_role_id "+state.Id.ValueString())
 	data, err := r.client.OrgsSSORoles().DeleteOrgSsoRole(ctx, orgId, ssoRoleid)
-	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && apiErr != "" {
+	if data != nil {
+		apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+		if data.StatusCode != 404 && apiErr != "" {
+			resp.Diagnostics.AddError(
+				"Error deleting \"mist_org_sso_role\" resource",
+				fmt.Sprintf("Unable to delete the Org SSO Role. %s", apiErr),
+			)
+			return
+		}
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_sso_role\" resource",
-			fmt.Sprintf("Unable to delete the Org SSO Role. %s", apiErr),
+			"Unable to delete the Org SSO Role, unexpected error: "+err.Error(),
 		)
 		return
 	}
+
+	resp.State.RemoveResource(ctx)
 }
 
 // func (r *orgSsoRoleResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

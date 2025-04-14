@@ -34,6 +34,12 @@ description: |-
   - `mist_org_deviceprofile_gateway`  
   - `mist_org_gatewaytemplate`  
 
+* Resolved issue when using Mist GLOBAL 05 Cloud (manage.gc4.mist.com)
+
+* Resolved an issue with the `mist_site_setting` resource triggered when all the `vars` are removed from the plan
+
+* Fixed a provider crash occurring during resource deletion when the API returned a nil response.
+
 
 ### Breaking Changes
 
@@ -121,6 +127,34 @@ List of the default value changed:
 | `.exceptions.site_ids` | N/A | [] |
 | `.exceptions.sitegroup_ids` | N/A | [] |
 
+
+* `mist_site_networktemplate`
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `.switch_mgmt.use_mxedge_proxy` | N/A | Nested Object |
+
+
+* `mist_site_setting`
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `.analytic` | N/A | Nested Object |
+| `.auto_upgrade` | N/A | Nested Object |
+| `.engagement` | N/A | Nested Object |
+| `.gateway_mgmt` | N/A | Nested Object |
+| `.gateway_mgmt.admin_sshkeys` | N/A | [] |
+| `.gateway_mgmt.probe_hosts` | N/A | [] |
+| `.led` | N/A | Nested Object |
+| `.occupancy` | N/A | Nested Object |
+| `.rogue` | N/A | Nested Object |
+| `.rogue.allowed_vlan_ids` | N/A | [] |
+| `.rtsa` | N/A | Nested Object |
+| `.ssr` | N/A | Nested Object |
+| `.synthetic_test` | N/A | Nested Object |
+| `.uplink_port_config` | N/A | Nested Object |
+| `.wids` | N/A | Nested Object |
+| `.wifi` | N/A | Nested Object |
+| `.zone_occupancy_alert` | N/A | Nested Object |
+| `.zone_occupancy_alert.email_notifiers` | N/A | [] |
 
 --- 
 
