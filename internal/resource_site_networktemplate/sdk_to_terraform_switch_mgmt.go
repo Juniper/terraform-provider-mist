@@ -248,7 +248,7 @@ func switchMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 	var protectRe = types.ObjectNull(ProtectReValue{}.AttributeTypes(ctx))
 	var rootPassword basetypes.StringValue
 	var tacacs = types.ObjectNull(TacacsValue{}.AttributeTypes(ctx))
-	var useMxedgeProxy basetypes.BoolValue
+	var useMxedgeProxy = types.BoolValue(false)
 
 	if d != nil {
 		if d.ApAffinityThreshold != nil {

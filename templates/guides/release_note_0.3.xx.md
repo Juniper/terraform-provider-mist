@@ -123,6 +123,12 @@ List of the default value changed:
 | `.exceptions.sitegroup_ids` | N/A | [] |
 
 
+* `mist_site_networktemplate`
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `.switch_mgmt.use_mxedge_proxy` | N/A | Nested Object |
+
+
 * `mist_site_setting`
 | Attribute | Previous Default | New Default |
 |-----------|-----------|-----------|
