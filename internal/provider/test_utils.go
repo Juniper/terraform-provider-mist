@@ -11,6 +11,22 @@ import (
 	"gotest.tools/assert"
 )
 
+const (
+	resourceConfigString = `
+resource %q %q {
+%s
+}`
+)
+
+// Render will return the string format of the terraform configuration
+func Render(rType, rName, config string) string {
+	return fmt.Sprintf(resourceConfigString,
+		rType,
+		rName,
+		config,
+	)
+}
+
 func newTestChecks(path string) testChecks {
 	return testChecks{path: path}
 }
@@ -60,6 +76,11 @@ func (o *testChecks) append(t testing.TB, testCheckFuncName string, testCheckFun
 	default:
 		t.Fatalf("unknown test check function: %s", testCheckFuncName)
 	}
+}
+
+func (o *testChecks) appendSetNestedCheck(_ testing.TB, attrName string, m map[string]string) {
+	o.checks = append(o.checks, resource.TestCheckTypeSetElemNestedAttrs(o.path, attrName, m))
+	o.logLines.appendf("TestCheckTypeSetElemNestedAttrs(%s, %s, %s)", o.path, attrName, m)
 }
 
 func (o *testChecks) string() string {
