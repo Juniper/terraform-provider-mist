@@ -105,7 +105,7 @@ func radiusServersAuthSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 			"require_message_authenticator": requireMessageAuthenticator,
 			"secret":                        secret,
 		}
-		data, e := NewAcctServersValue(AuthServersValue{}.AttributeTypes(ctx), dataMapValue)
+		data, e := NewAuthServersValue(AuthServersValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
 		authValueList = append(authValueList, data)
