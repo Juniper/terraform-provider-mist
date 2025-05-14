@@ -7,10 +7,17 @@ description: |-
 
 # Release Notes for v0.3.xx
 
-## Release Notes for v0.3.2
-**Release Date**: 
+
+## Release Notes for v0.3.3
+**Release Date**: May 14th, 2025
 ### Fixes
-* **[Issue 97](https://github.com/Juniper/terraform-provider-mist/issues/97):** Changed the `mist_org_service.addresses` validator to be less restricive and match the Mist UI behavior
+* **[Issue 103](https://github.com/Juniper/terraform-provider-mist/issues/103):** Resolved a bug that prevented proper configuration of the `radius_config.auth_servers` attribute in the `mist_device_switch` resource.
+
+
+## Release Notes for v0.3.2
+**Release Date**: April 14th, 2025
+### Fixes
+* **[Issue 97](https://github.com/Juniper/terraform-provider-mist/issues/97):** Changed the `mist_org_service.addresses` validator to be less restrictive and match the Mist UI behavior
 
 * **[Issue 98](https://github.com/Juniper/terraform-provider-mist/issues/98):** Corrected a typo in the `.tunnel_configs.networks` validation for the following resources:  
   - `mist_device_gateway`  
@@ -187,7 +194,7 @@ To improve compatibility with API type variations and support the use of `{{vari
 * `mist_org_setting.mxedge_fips_enabled` has been removed to match the API structure (use `mist_org_setting.mxedge_mgmt.fips_enabled` instead)
 
 #### Import function disabled
-* temporarly removing the `import` function from the `mist_org_sso_role` resource. The import function will be added back in a later version
+* temporary removing the `import` function from the `mist_org_sso_role` resource. The import function will be added back in a later version
 
 #### Attributes added
 - **`mist_device_switch`, `mist_org_networktemplate` and `mist_site_networktemplate` resources**
