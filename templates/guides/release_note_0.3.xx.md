@@ -8,6 +8,12 @@ description: |-
 # Release Notes for v0.3.xx
 
 
+## Release Notes for v0.3.4
+**Release Date**: May 16th, 2025
+### Fixes
+* **[Issue 104](https://github.com/Juniper/terraform-provider-mist/issues/104):** Resolved a bug that prevented proper configuration of the `local_port_config` attribute in the `mist_device_switch` resource.
+
+
 ## Release Notes for v0.3.3
 **Release Date**: May 14th, 2025
 ### Fixes
