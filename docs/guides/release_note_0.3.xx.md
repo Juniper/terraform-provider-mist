@@ -8,6 +8,11 @@ description: |-
 # Release Notes for v0.3.xx
 
 
+## Release Notes for v0.3.5
+**Release Date**: May 23th, 2025
+### Fixes
+* **[Issue 105](https://github.com/Juniper/terraform-provider-mist/issues/105):** Resolved a bug that prevented proper configuration of the `uplink_port_config.keep_wlans_up_if_down` attribute in the `mist_site_setting` resource.
+
 ## Release Notes for v0.3.4
 **Release Date**: May 16th, 2025
 ### Fixes
