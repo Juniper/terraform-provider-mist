@@ -11,7 +11,7 @@ const (
 	inRes     = "device_gateway"
 	pvdFolder = "/Users/kdejong/go/src/github.com/terraform-provider-mist"
 	inFile    = pvdFolder + "/internal/resource_" + inRes + "/" + inRes + "_resource_gen.go"
-	outFile   = pvdFolder + "/internal/provider/" + inRes + "_test1_structs.go"
+	outFile   = pvdFolder + "/internal/provider/" + inRes + "_test_structs.go"
 	matchFile = "./test/" + inRes + "/matching.yaml"
 )
 
@@ -79,7 +79,7 @@ func main() {
 					}
 
 					attrLookup[attrName] = append(attrLookup[attrName], attrParameters{})
-					fmt.Printf("Pushed attribute %d: %s\n", len(attrLookup[attrName]), attrName)
+					// fmt.Printf("Pushed attribute %d: %s\n", len(attrLookup[attrName]), attrName)
 					continue
 				}
 			}
@@ -98,10 +98,10 @@ func main() {
 				attrStack = attrStack.Push("planmodifiers")
 			}
 
-			var attrName string
+			//var attrName string
 			if strings.HasPrefix(strings.TrimSpace(line), "},") {
-				attrStack, attrName = attrStack.Pop()
-				fmt.Printf("Popped attribute: %s\n", attrName)
+				attrStack, _ = attrStack.Pop()
+				// fmt.Printf("Popped attribute: %s\n", attrName)
 			}
 
 			if strings.Contains(line, "Required:") {
