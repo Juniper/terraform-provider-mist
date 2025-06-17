@@ -15,19 +15,6 @@ const (
 	matchFile = "./test/" + inRes + "/matching.yaml"
 )
 
-// var customMatches map[string]string
-
-// func loadCustomMatches() error {
-// 	file, err := os.Open(matchFile)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	defer file.Close()
-
-// 	decoder := yaml.NewDecoder(file)
-// 	return decoder.Decode(&customMatches)
-// }
-
 type attrParameters struct {
 	Required   bool
 	IsListType bool
@@ -37,11 +24,6 @@ type attrParameters struct {
 }
 
 func main() {
-	// err := loadCustomMatches()
-	// if err != nil {
-	// 	fmt.Printf("Error loading custom matches: %v\n", err)
-	// }
-
 	in, err := os.Open(inFile)
 	if err != nil {
 		fmt.Printf("Error opening input file: %v\n", err)
