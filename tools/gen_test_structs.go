@@ -76,10 +76,10 @@ func main() {
 					attrStack = attrStack.Push(attrName)
 					if _, exists := attrLookup[attrName]; !exists {
 						attrLookup[attrName] = make([]attrParameters, 0)
+						attrLookup[attrName] = append(attrLookup[attrName], attrParameters{})
 					}
 
 					attrLookup[attrName] = append(attrLookup[attrName], attrParameters{})
-					// fmt.Printf("Pushed attribute %d: %s\n", len(attrLookup[attrName]), attrName)
 					continue
 				}
 			}
@@ -104,18 +104,23 @@ func main() {
 				// fmt.Printf("Popped attribute: %s\n", attrName)
 			}
 
+			index := 0
+			if attrStack.Len() > 2 {
+				index = len(attrLookup[attrStack.Peek()]) - 1
+			}
+
 			if strings.Contains(line, "Required:") {
-				attrLookup[attrStack.Peek()][len(attrLookup[attrStack.Peek()])-1].Required = true
+				attrLookup[attrStack.Peek()][index].Required = true
 			} else if strings.Contains(line, "Optional:") {
-				attrLookup[attrStack.Peek()][len(attrLookup[attrStack.Peek()])-1].Optional = true
+				attrLookup[attrStack.Peek()][index].Optional = true
 			} else if strings.Contains(line, "Computed:") {
-				attrLookup[attrStack.Peek()][len(attrLookup[attrStack.Peek()])-1].Computed = true
+				attrLookup[attrStack.Peek()][index].Computed = true
 			} else if strings.Contains(line, "ElementType:") {
 				splittedLine := strings.Fields(line)
 				if len(splittedLine) > 1 {
 					fmt.Printf("Setting ElementType for %s to %s\n", attrStack.Peek(), splittedLine[1])
-					attrLookup[attrStack.Peek()][len(attrLookup[attrStack.Peek()])-1].IsListType = true
-					attrLookup[attrStack.Peek()][len(attrLookup[attrStack.Peek()])-1].ElemType = strings.Trim(splittedLine[1], ",")
+					attrLookup[attrStack.Peek()][index].IsListType = true
+					attrLookup[attrStack.Peek()][index].ElemType = strings.Trim(splittedLine[1], ",")
 				}
 			}
 
@@ -144,6 +149,11 @@ func main() {
 					attrParam := attrParameters{}
 					if attrParameters, ok := attrLookup[varTag]; ok && len(attrParameters) > 0 {
 						attrParam = attrParameters[0]
+						if !attrParam.Required && !attrParam.Optional {
+							attrLookup[varTag] = attrParameters[1:]
+							attrParam = attrParameters[0]
+						}
+
 						if len(attrParameters) > 1 {
 							attrLookup[varTag] = attrParameters[1:]
 						}
@@ -154,6 +164,7 @@ func main() {
 
 					if attrParam.Computed && !attrParam.Optional {
 						fmt.Printf("Computed attribute %s skipped\n", varTag)
+						continue
 					}
 
 					if strings.Contains(varType, "types.List") {
@@ -172,13 +183,17 @@ func main() {
 							line = fmt.Sprintf("\t%s []%sValue `%s:\"%s\"`\n", varName, varName, tag, varTag)
 						}
 					} else if strings.Contains(varType, "types.String") {
-						if attrParam.Optional && !attrParam.Computed {
+						if attrParam.Optional {
 							line = fmt.Sprintf("\t%s *string `%s:\"%s\"`\n", varName, tag, varTag)
 						} else {
 							line = fmt.Sprintf("\t%s string `%s:\"%s\"`\n", varName, tag, varTag)
 						}
 					} else if strings.Contains(varType, "types.Bool") {
-						line = fmt.Sprintf("\t%s bool `%s:\"%s\"`\n", varName, tag, varTag)
+						if attrParam.Optional {
+							line = fmt.Sprintf("\t%s *bool `%s:\"%s\"`\n", varName, tag, varTag)
+						} else {
+							line = fmt.Sprintf("\t%s bool `%s:\"%s\"`\n", varName, tag, varTag)
+						}
 					} else if strings.Contains(varType, "types.Float64") {
 						line = fmt.Sprintf("\t%s float64 `%s:\"%s\"`\n", varName, tag, varTag)
 					} else if strings.Contains(varType, "types.Int64") {
@@ -240,4 +255,8 @@ func (s stack) Peek() string {
 		return ""
 	}
 	return s[len(s)-1]
+}
+
+func (s stack) Len() int {
+	return len(s)
 }
