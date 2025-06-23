@@ -68,17 +68,21 @@ func main() {
 
 		// Parse Schema and derermine attribute parameters
 		if isSchema {
-			if strings.HasPrefix(strings.TrimSpace(line), "map[string]attr.Value{") {
+			if strings.HasSuffix(strings.TrimSpace(line), "map[string]attr.Value{") {
 				attrStack = attrStack.Push("ignoreMap")
 			}
 
-			if strings.HasPrefix(strings.TrimSpace(line), "},") {
+			if strings.HasSuffix(strings.TrimSpace(line), "[]attr.Value{") {
+				attrStack = attrStack.Push("ignoreAttrList")
+			}
+
+			if strings.HasPrefix(strings.TrimSpace(line), "},") || strings.HasPrefix(strings.TrimSpace(line), "}),") || strings.HasPrefix(strings.TrimSpace(line), "})),") {
 				attrStack, _ = attrStack.Pop()
 
 				continue
 			}
 
-			if attrStack.Peek() == "ignoreMap" || attrStack.Peek() == "validators" {
+			if attrStack.Peek() == "ignoreMap" || attrStack.Peek() == "validators" || attrStack.Peek() == "ignoreAttrList" {
 				continue
 			}
 
