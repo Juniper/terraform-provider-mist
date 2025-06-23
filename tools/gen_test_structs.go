@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	inRes     = "device_gateway"
+	inRes     = "org_wlan"
 	pvdFolder = "/Users/kdejong/go/src/github.com/terraform-provider-mist"
 	inFile    = pvdFolder + "/internal/resource_" + inRes + "/" + inRes + "_resource_gen.go"
 	outFile   = pvdFolder + "/internal/provider/" + inRes + "_test_structs.go"
@@ -211,7 +211,11 @@ func main() {
 					} else if strings.Contains(varType, "types.Int64") {
 						line = fmt.Sprintf("\t%s int64 `%s:\"%s\"`\n", varName, tag, varTag)
 					} else if strings.Contains(varType, "types.Object") {
-						line = fmt.Sprintf("\t%s %sValue `%s:\"%s\"`\n", varName, varName, tag, varTag)
+						if attrParam.Optional {
+							line = fmt.Sprintf("\t%s *%sValue `%s:\"%s\"`\n", varName, varName, tag, varTag)
+						} else {
+							line = fmt.Sprintf("\t%s %sValue `%s:\"%s\"`\n", varName, varName, tag, varTag)
+						}
 					} else if strings.Contains(varType, "types.Map") {
 						switch {
 						case attrParam.ElemType == "types.StringType":
@@ -226,7 +230,11 @@ func main() {
 							line = fmt.Sprintf("\t%s map[string]%sValue `%s:\"%s\"`\n", varName, varName, tag, varTag)
 						}
 					} else {
-						line = fmt.Sprintf("\t%s %s `%s:\"%s\"`\n", varName, varType, tag, varTag)
+						if attrParam.Optional {
+							line = fmt.Sprintf("\t%s *%s `%s:\"%s\"`\n", varName, varType, tag, varTag)
+						} else {
+							line = fmt.Sprintf("\t%s %s `%s:\"%s\"`\n", varName, varType, tag, varTag)
+						}
 					}
 				} else {
 					line = line + "\n"
