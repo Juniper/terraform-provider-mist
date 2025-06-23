@@ -68,6 +68,20 @@ func main() {
 
 		// Parse Schema and derermine attribute parameters
 		if isSchema {
+			if strings.HasPrefix(strings.TrimSpace(line), "map[string]attr.Value{") {
+				attrStack = attrStack.Push("ignoreMap")
+			}
+
+			if strings.HasPrefix(strings.TrimSpace(line), "},") {
+				attrStack, _ = attrStack.Pop()
+
+				continue
+			}
+
+			if attrStack.Peek() == "ignoreMap" || attrStack.Peek() == "validators" {
+				continue
+			}
+
 			splittedLine := strings.Fields(line)
 			if strings.HasPrefix(splittedLine[0], "\"") && strings.HasSuffix(splittedLine[0], ":") {
 				attrName := strings.Trim(splittedLine[0], ":")
@@ -96,12 +110,6 @@ func main() {
 				attrStack = attrStack.Push("objecttype")
 			} else if strings.Contains(line, "PlanModifiers:") {
 				attrStack = attrStack.Push("planmodifiers")
-			}
-
-			//var attrName string
-			if strings.HasPrefix(strings.TrimSpace(line), "},") {
-				attrStack, _ = attrStack.Pop()
-				// fmt.Printf("Popped attribute: %s\n", attrName)
 			}
 
 			index := 0
@@ -149,13 +157,13 @@ func main() {
 					attrParam := attrParameters{}
 					if attrParameters, ok := attrLookup[varTag]; ok && len(attrParameters) > 0 {
 						attrParam = attrParameters[0]
-						if !attrParam.Required && !attrParam.Optional {
+						if !attrParam.Required && !attrParam.Optional && !attrParam.Computed {
 							attrLookup[varTag] = attrParameters[1:]
-							attrParam = attrParameters[0]
+							attrParam = attrParameters[1]
 						}
 
-						if len(attrParameters) > 1 {
-							attrLookup[varTag] = attrParameters[1:]
+						if len(attrLookup[varTag]) > 1 {
+							attrLookup[varTag] = attrLookup[varTag][1:]
 						}
 					} else {
 						fmt.Printf("Warning: No parameters found for attribute %s\n", varTag)
@@ -259,4 +267,8 @@ func (s stack) Peek() string {
 
 func (s stack) Len() int {
 	return len(s)
+}
+
+func (s stack) IsEmpty() bool {
+	return len(s) == 0
 }
