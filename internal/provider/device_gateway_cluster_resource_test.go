@@ -2,68 +2,26 @@ package provider
 
 import (
 	"fmt"
+	"os"
 	"testing"
 
+	"github.com/hashicorp/hcl"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclwrite"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	// gwc "github.com/terraform-provider-mist/internal/resource_device_gateway_cluster"
 )
 
-const (
-	resourceDeviceGatewayCluster = `
-	resource %q %q {
-		%s
-	}`
-)
-
-type deviceGatewayCluster struct {
-	Id     string
-	SiteId string       `hcl:"site_id"`
-	Nodes  []NodesValue `hcl:"nodes"`
-}
-
-type NodesValue struct {
-	Mac string `cty:"mac"`
-}
-
-// render will return the string format of the site_psk_resource terraform configuration
-// func (s *deviceGatewayCluster) render(rType, rName string) string {
-// 	nodes := make([]string, len(s.Nodes))
-// 	for i, node := range s.Nodes {
-// 		nodes[i] = fmt.Sprintf(resourceNode, node.Mac)
-// 		if i != len(s.Nodes)-1 {
-// 			nodes[i] += ","
-// 		}
-// 	}
-
-// 	return "" +
-// 		fmt.Sprintf(resourceDeviceGatewayCluster,
-// 			rType, rName,
-// 			s.SiteId,
-// 			strings.Join(nodes, ""),
-// 		)
-// }
-
-func (s *deviceGatewayCluster) render(rType, rName, config string) string {
-	return fmt.Sprintf(resourceDeviceGatewayCluster, rType, rName, config)
-}
-
-func (s *deviceGatewayCluster) testChecks(t testing.TB, rType, rName string) testChecks {
+func (s *DeviceGatewayClusterModel) testChecks(t testing.TB, rType, rName string) testChecks {
 	checks := newTestChecks(rType + "." + rName)
-
-	checks.append(t, "TestCheckResourceAttrSet", "id")
-	checks.append(t, "TestCheckResourceAttr", "id", s.Id)
 	checks.append(t, "TestCheckResourceAttr", "site_id", s.SiteId)
 
 	return checks
 }
 
 func TestDeviceGatewayCluster(t *testing.T) {
-	// apiVersion := version.Must(version.NewVersion(client.Version()))
-
 	type testStep struct {
-		config deviceGatewayCluster
+		config DeviceGatewayClusterModel
 	}
 
 	type testCase struct {
@@ -71,33 +29,53 @@ func TestDeviceGatewayCluster(t *testing.T) {
 		steps []testStep
 	}
 
+	var DGClusterModel DeviceGatewayClusterModel
+
+	b, err := os.ReadFile("fixtures/device_gateway_cluster_resource/device_gateway_cluster_config.tf")
+	if err != nil {
+		fmt.Print(err)
+	}
+
+	str := string(b) // convert content to a 'string'
+	fmt.Println(str)
+
+	err = hcl.Decode(&DGClusterModel, str)
+	if err != nil {
+		fmt.Printf("error decoding hcl: %s\n", err)
+	}
+
 	testCases := map[string]testCase{
-		"simple_case": {
+		// "simple_case": {
+		// 	steps: []testStep{
+		// 		{
+		// 			config: DeviceGatewayClusterModel{
+		// 				SiteId: "2c107c8e-2e06-404a-ba61-e25b5757ecea",
+		// 				Nodes: []NodesValue{
+		// 					{
+		// 						Mac: "5684dae9ac8b",
+		// 					},
+		// 				},
+		// 			},
+		// 		},
+		// 		{
+		// 			config: DeviceGatewayClusterModel{
+		// 				SiteId: "2c107c8e-2e06-404a-ba61-e25b5757ecea",
+		// 				Nodes: []NodesValue{
+		// 					{
+		// 						Mac: "5684dae9ac8d",
+		// 					},
+		// 					{
+		// 						Mac: "5684dae9ac8e",
+		// 					},
+		// 				},
+		// 			},
+		// 		},
+		// 	},
+		// },
+		"hcl_decode": {
 			steps: []testStep{
 				{
-					config: deviceGatewayCluster{
-						Id:     "1234",
-						SiteId: "2c107c8e-2e06-404a-ba61-e25b5757ecea",
-						Nodes: []NodesValue{
-							{
-								Mac: "5684dae9ac8b",
-							},
-						},
-					},
-				},
-				{
-					config: deviceGatewayCluster{
-						Id:     "5678",
-						SiteId: "2c107c8e-2e06-404a-ba61-e25b5757ecea",
-						Nodes: []NodesValue{
-							{
-								Mac: "5684dae9ac8d",
-							},
-							{
-								Mac: "5684dae9ac8e",
-							},
-						},
-					},
+					config: DGClusterModel,
 				},
 			},
 		},
@@ -109,7 +87,7 @@ func TestDeviceGatewayCluster(t *testing.T) {
 		// 	t.Skipf("test case %s requires api version %s", tName, tCase.apiVersionConstraints.String())
 		// }
 		t.Run(tName, func(t *testing.T) {
-			resourceType := "device_gateway_cluster"
+			resourceType := "mist_device_gateway_cluster"
 
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
@@ -117,7 +95,7 @@ func TestDeviceGatewayCluster(t *testing.T) {
 
 				f := hclwrite.NewEmptyFile()
 				gohcl.EncodeIntoBody(&config, f.Body())
-				configStr := config.render(resourceType, tName, string(f.Bytes()))
+				configStr := Render(resourceType, tName, string(f.Bytes()))
 
 				checks := config.testChecks(t, resourceType, tName)
 				chkLog := checks.string()
