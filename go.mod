@@ -7,6 +7,7 @@ toolchain go1.23.3
 require (
 	github.com/apimatic/go-core-runtime v0.0.28
 	github.com/google/uuid v1.6.0
+	github.com/hashicorp/hcl v1.0.0
 	github.com/hashicorp/hcl/v2 v2.23.0
 	github.com/hashicorp/terraform-plugin-docs v0.20.1
 	github.com/hashicorp/terraform-plugin-framework v1.13.0
