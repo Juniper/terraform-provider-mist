@@ -231,7 +231,7 @@ func GatewayPortConfigRethIdxAsString(bgpAs *models.GatewayPortConfigRethIdx) ba
 	}
 }
 
-func RadescIdleTimeoutAsString(bgpAs *models.RadescIdleTimeout) basetypes.StringValue {
+func RadsecIdleTimeoutAsString(bgpAs *models.RadsecIdleTimeout) basetypes.StringValue {
 	if v, ok := bgpAs.AsString(); ok {
 		return types.StringValue(*v)
 	} else if v, ok := bgpAs.AsNumber(); ok {

@@ -473,8 +473,8 @@ func TerraformToSdk(ctx context.Context, plan *OrgWlanModel) (*models.Wlan, diag
 	if plan.Radsec.IsNull() || plan.Radsec.IsUnknown() {
 		unset["-radsec"] = ""
 	} else {
-		radesc := radsecTerraformToSdk(plan.Radsec)
-		data.Radsec = radesc
+		Radsec := radsecTerraformToSdk(plan.Radsec)
+		data.Radsec = Radsec
 	}
 
 	if plan.Rateset.IsNull() || plan.Rateset.IsUnknown() {
