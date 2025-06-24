@@ -309,7 +309,7 @@ func (r *orgInventoryResource) refreshInventory(
 	var model string
 	var mType models.DeviceTypeEnum
 	var mac string
-	var siteId string
+	var siteId uuid.UUID
 	var vcMac string
 	var vc = true
 	var unassigned bool

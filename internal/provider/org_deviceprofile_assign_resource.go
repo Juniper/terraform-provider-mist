@@ -157,7 +157,7 @@ func (r *orgDeviceprofileAssignResource) Read(ctx context.Context, _ resource.Re
 	var model string
 	var mType models.DeviceTypeEnum
 	var mac string
-	var siteId string
+	var siteId uuid.UUID
 	var vcMac string
 	var vc = false
 	var unassigned bool

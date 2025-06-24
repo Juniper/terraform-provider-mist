@@ -80,7 +80,7 @@ func (d *orgInventoryDataSource) Read(ctx context.Context, req datasource.ReadRe
 	var mac string
 	var model string
 	var serial string
-	var siteId string
+	var siteId uuid.UUID
 	var unassigned bool
 	var modifiedAfter int
 	var vc bool
@@ -94,7 +94,14 @@ func (d *orgInventoryDataSource) Read(ctx context.Context, req datasource.ReadRe
 		model = ds.Model.ValueString()
 	}
 	if !ds.SiteId.IsNull() && !ds.SiteId.IsUnknown() {
-		siteId = ds.SiteId.ValueString()
+		siteId, err = uuid.Parse(ds.SiteId.ValueString())
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Invalid \"siteId\" value for \"org_inventory\" data_source",
+				"Could parse the UUID: "+err.Error(),
+			)
+			return
+		}
 	}
 	if !ds.Serial.IsNull() && !ds.Serial.IsUnknown() {
 		serial = ds.Serial.ValueString()
