@@ -18,6 +18,7 @@ func band24SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *model
 	var antGain basetypes.Int64Value
 	var antennaMode basetypes.StringValue
 	var bandwidth basetypes.Int64Value
+	var channel basetypes.Int64Value
 	var channels = mistutils.ListOfIntSdkToTerraformEmpty()
 	var disabled basetypes.BoolValue
 	var power basetypes.Int64Value
@@ -36,6 +37,9 @@ func band24SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *model
 	}
 	if d.Bandwidth != nil {
 		bandwidth = types.Int64Value(int64(*d.Bandwidth))
+	}
+	if d.Channel.Value() != nil {
+		channel = types.Int64Value(int64(*d.Channel.Value()))
 	}
 	if d.Channels.Value() != nil {
 		channels = mistutils.ListOfIntSdkToTerraform(*d.Channels.Value())
@@ -61,6 +65,7 @@ func band24SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *model
 		"ant_gain":          antGain,
 		"antenna_mode":      antennaMode,
 		"bandwidth":         bandwidth,
+		"channel":           channel,
 		"channels":          channels,
 		"disabled":          disabled,
 		"power":             power,
@@ -79,6 +84,7 @@ func band5SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	var antGain basetypes.Int64Value
 	var antennaMode basetypes.StringValue
 	var bandwidth basetypes.Int64Value
+	var channel basetypes.Int64Value
 	var channels = mistutils.ListOfIntSdkToTerraformEmpty()
 	var disabled basetypes.BoolValue
 	var power basetypes.Int64Value
@@ -97,6 +103,9 @@ func band5SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	}
 	if d.Bandwidth != nil {
 		bandwidth = types.Int64Value(int64(*d.Bandwidth))
+	}
+	if d.Channel.Value() != nil {
+		channel = types.Int64Value(int64(*d.Channel.Value()))
 	}
 	if d.Channels.Value() != nil {
 		channels = mistutils.ListOfIntSdkToTerraform(*d.Channels.Value())
@@ -122,6 +131,7 @@ func band5SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 		"ant_gain":          antGain,
 		"antenna_mode":      antennaMode,
 		"bandwidth":         bandwidth,
+		"channel":           channel,
 		"channels":          channels,
 		"disabled":          disabled,
 		"power":             power,
@@ -140,6 +150,7 @@ func band6SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	var antGain basetypes.Int64Value
 	var antennaMode basetypes.StringValue
 	var bandwidth basetypes.Int64Value
+	var channel basetypes.Int64Value
 	var channels = mistutils.ListOfIntSdkToTerraformEmpty()
 	var disabled basetypes.BoolValue
 	var power basetypes.Int64Value
@@ -159,6 +170,9 @@ func band6SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	}
 	if d.Bandwidth != nil {
 		bandwidth = types.Int64Value(int64(*d.Bandwidth))
+	}
+	if d.Channel.Value() != nil {
+		channel = types.Int64Value(int64(*d.Channel.Value()))
 	}
 	if d.Channels.Value() != nil {
 		channels = mistutils.ListOfIntSdkToTerraform(*d.Channels.Value())
@@ -187,6 +201,7 @@ func band6SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 		"ant_gain":          antGain,
 		"antenna_mode":      antennaMode,
 		"bandwidth":         bandwidth,
+		"channel":           channel,
 		"channels":          channels,
 		"disabled":          disabled,
 		"power":             power,
@@ -213,6 +228,7 @@ func radioConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 	var band5 = types.ObjectNull(Band5Value{}.AttributeTypes(ctx))
 	var band5On24Radio = types.ObjectNull(Band5Value{}.AttributeTypes(ctx))
 	var band6 = types.ObjectNull(Band6Value{}.AttributeTypes(ctx))
+	var fullAutomaticRrm basetypes.BoolValue
 	var indoorUse basetypes.BoolValue
 	var scanningEnabled basetypes.BoolValue
 
@@ -246,6 +262,9 @@ func radioConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 	if d.Band6 != nil {
 		band6 = band6SdkToTerraform(ctx, diags, d.Band6)
 	}
+	if d.FullAutomaticRrm != nil {
+		fullAutomaticRrm = types.BoolValue(*d.FullAutomaticRrm)
+	}
 	if d.IndoorUse != nil {
 		indoorUse = types.BoolValue(*d.IndoorUse)
 	}
@@ -264,6 +283,7 @@ func radioConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 		"band_5":             band5,
 		"band_5_on_24_radio": band5On24Radio,
 		"band_6":             band6,
+		"full_automatic_rrm": fullAutomaticRrm,
 		"indoor_use":         indoorUse,
 		"scanning_enabled":   scanningEnabled,
 	}
