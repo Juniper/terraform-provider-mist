@@ -214,9 +214,17 @@ func main() {
 							line = fmt.Sprintf("\t%s bool `%s:\"%s\"`\n", varName, tag, varTag)
 						}
 					} else if strings.Contains(varType, "types.Float64") {
-						line = fmt.Sprintf("\t%s float64 `%s:\"%s\"`\n", varName, tag, varTag)
+						if attrParam.Optional {
+							line = fmt.Sprintf("\t%s *float64 `%s:\"%s\"`\n", varName, tag, varTag)
+						} else {
+							line = fmt.Sprintf("\t%s float64 `%s:\"%s\"`\n", varName, tag, varTag)
+						}
 					} else if strings.Contains(varType, "types.Int64") {
-						line = fmt.Sprintf("\t%s int64 `%s:\"%s\"`\n", varName, tag, varTag)
+						if attrParam.Optional {
+							line = fmt.Sprintf("\t%s *int64 `%s:\"%s\"`\n", varName, tag, varTag)
+						} else {
+							line = fmt.Sprintf("\t%s int64 `%s:\"%s\"`\n", varName, tag, varTag)
+						}
 					} else if strings.Contains(varType, "types.Object") {
 						if attrParam.Optional {
 							line = fmt.Sprintf("\t%s *%sValue `%s:\"%s\"`\n", varName, varName, tag, varTag)
