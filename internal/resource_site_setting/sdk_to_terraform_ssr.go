@@ -13,7 +13,7 @@ import (
 	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
-func ssrSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteSettingSsr) SsrValue {
+func ssrSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SettingSsr) SsrValue {
 
 	var conductorHosts = mistutils.ListOfStringSdkToTerraformEmpty()
 	var disableStats basetypes.BoolValue
