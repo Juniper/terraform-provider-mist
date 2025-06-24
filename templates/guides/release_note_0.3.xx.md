@@ -8,6 +8,19 @@ description: |-
 # Release Notes for v0.3.xx
 
 
+## Release Notes for v0.3.6
+**Release Date**: June 24th, 2025
+
+### Fixes
+* **[Issue 108](https://github.com/Juniper/terraform-provider-mist/issues/108):** Resolved a bug that prevented proper configuration of the `mist_device_ap.radio_config` and `mist_deviceprofile_ap.radio_config` resources.
+
+
+### New Attributes
+* **`mist_device_ap` and `mist_org_deviceprofile_ap` Resources**  
+  - Added `.port_config` nested object
+  - Added `.radio_config.full_automatic_rrm`
+
+
 ## Release Notes for v0.3.5
 **Release Date**: May 23th, 2025
 ### Fixes
