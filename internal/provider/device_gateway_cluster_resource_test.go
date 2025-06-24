@@ -8,8 +8,7 @@ import (
 	"github.com/hashicorp/hcl"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclwrite"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	// gwc "github.com/terraform-provider-mist/internal/resource_device_gateway_cluster"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
 func (s *DeviceGatewayClusterModel) testChecks(t testing.TB, rType, rName string) testChecks {
