@@ -81,6 +81,9 @@ func radiusConfigTerraformToSdk(d RadiusConfigValue) *models.SwitchRadiusConfig 
 	if !d.AcctServers.IsNull() && !d.AcctServers.IsUnknown() {
 		data.AcctServers = radiusAcctServersTerraformToSdk(d.AcctServers)
 	}
+	if !d.AuthServers.IsNull() && !d.AuthServers.IsUnknown() {
+		data.AuthServers = radiusAuthServersTerraformToSdk(d.AuthServers)
+	}
 	if d.AuthServersRetries.ValueInt64Pointer() != nil {
 		data.AuthServersRetries = models.ToPointer(int(d.AuthServersRetries.ValueInt64()))
 	}
@@ -104,9 +107,6 @@ func radiusConfigTerraformToSdk(d RadiusConfigValue) *models.SwitchRadiusConfig 
 	}
 	if d.SourceIp.ValueStringPointer() != nil {
 		data.SourceIp = models.ToPointer(d.SourceIp.ValueString())
-	}
-	if !d.AuthServers.IsNull() && !d.AuthServers.IsUnknown() {
-		data.AuthServers = radiusAuthServersTerraformToSdk(d.AuthServers)
 	}
 
 	return &data
