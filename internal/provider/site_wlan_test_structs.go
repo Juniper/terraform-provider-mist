@@ -2,7 +2,7 @@ package provider
 
 type SiteWlanModel struct {
 	AcctImmediateUpdate                  *bool                    `hcl:"acct_immediate_update"`
-	AcctInterimInterval                  int64                    `hcl:"acct_interim_interval"`
+	AcctInterimInterval                  *int64                   `hcl:"acct_interim_interval"`
 	AcctServers                          []AcctServersValue       `hcl:"acct_servers"`
 	Airwatch                             *AirwatchValue           `hcl:"airwatch"`
 	AllowIpv6Ndp                         *bool                    `hcl:"allow_ipv6_ndp"`
@@ -13,22 +13,22 @@ type SiteWlanModel struct {
 	AppQos                               *AppQosValue             `hcl:"app_qos"`
 	ApplyTo                              *string                  `hcl:"apply_to"`
 	ArpFilter                            *bool                    `hcl:"arp_filter"`
-	Auth                                 *OrgWlanAuthValue        `hcl:"auth"`
+	Auth                                 *AuthValue               `hcl:"auth"`
 	AuthServerSelection                  *string                  `hcl:"auth_server_selection"`
 	AuthServers                          []AuthServersValue       `hcl:"auth_servers"`
 	AuthServersNasId                     *string                  `hcl:"auth_servers_nas_id"`
 	AuthServersNasIp                     *string                  `hcl:"auth_servers_nas_ip"`
-	AuthServersRetries                   int64                    `hcl:"auth_servers_retries"`
-	AuthServersTimeout                   int64                    `hcl:"auth_servers_timeout"`
+	AuthServersRetries                   *int64                   `hcl:"auth_servers_retries"`
+	AuthServersTimeout                   *int64                   `hcl:"auth_servers_timeout"`
 	BandSteer                            *bool                    `hcl:"band_steer"`
 	BandSteerForceBand5                  *bool                    `hcl:"band_steer_force_band5"`
 	Bands                                []string                 `hcl:"bands"`
 	BlockBlacklistClients                *bool                    `hcl:"block_blacklist_clients"`
 	Bonjour                              *BonjourValue            `hcl:"bonjour"`
 	CiscoCwa                             *CiscoCwaValue           `hcl:"cisco_cwa"`
-	ClientLimitDown                      int64                    `hcl:"client_limit_down"`
+	ClientLimitDown                      *int64                   `hcl:"client_limit_down"`
 	ClientLimitDownEnabled               *bool                    `hcl:"client_limit_down_enabled"`
-	ClientLimitUp                        int64                    `hcl:"client_limit_up"`
+	ClientLimitUp                        *int64                   `hcl:"client_limit_up"`
 	ClientLimitUpEnabled                 *bool                    `hcl:"client_limit_up_enabled"`
 	CoaServers                           []CoaServersValue        `hcl:"coa_servers"`
 	Disable11ax                          *bool                    `hcl:"disable_11ax"`
@@ -40,7 +40,7 @@ type SiteWlanModel struct {
 	DisableWhenMxtunnelDown              *bool                    `hcl:"disable_when_mxtunnel_down"`
 	DisableWmm                           *bool                    `hcl:"disable_wmm"`
 	DnsServerRewrite                     *DnsServerRewriteValue   `hcl:"dns_server_rewrite"`
-	Dtim                                 int64                    `hcl:"dtim"`
+	Dtim                                 *int64                   `hcl:"dtim"`
 	DynamicPsk                           *DynamicPskValue         `hcl:"dynamic_psk"`
 	DynamicVlan                          *DynamicVlanValue        `hcl:"dynamic_vlan"`
 	EnableLocalKeycaching                *bool                    `hcl:"enable_local_keycaching"`
@@ -58,8 +58,8 @@ type SiteWlanModel struct {
 	LegacyOverds                         *bool                    `hcl:"legacy_overds"`
 	LimitBcast                           *bool                    `hcl:"limit_bcast"`
 	LimitProbeResponse                   *bool                    `hcl:"limit_probe_response"`
-	MaxIdletime                          int64                    `hcl:"max_idletime"`
-	MaxNumClients                        int64                    `hcl:"max_num_clients"`
+	MaxIdletime                          *int64                   `hcl:"max_idletime"`
+	MaxNumClients                        *int64                   `hcl:"max_num_clients"`
 	MistNac                              *MistNacValue            `hcl:"mist_nac"`
 	MxtunnelIds                          []string                 `hcl:"mxtunnel_ids"`
 	MxtunnelName                         []string                 `hcl:"mxtunnel_name"`
@@ -83,9 +83,9 @@ type SiteWlanModel struct {
 	VlanId                               *string                  `hcl:"vlan_id"`
 	VlanIds                              []string                 `hcl:"vlan_ids"`
 	VlanPooling                          *bool                    `hcl:"vlan_pooling"`
-	WlanLimitDown                        int64                    `hcl:"wlan_limit_down"`
+	WlanLimitDown                        *int64                   `hcl:"wlan_limit_down"`
 	WlanLimitDownEnabled                 *bool                    `hcl:"wlan_limit_down_enabled"`
-	WlanLimitUp                          int64                    `hcl:"wlan_limit_up"`
+	WlanLimitUp                          *int64                   `hcl:"wlan_limit_up"`
 	WlanLimitUpEnabled                   *bool                    `hcl:"wlan_limit_up_enabled"`
 	WxtagIds                             []string                 `hcl:"wxtag_ids"`
 	WxtunnelId                           *string                  `hcl:"wxtunnel_id"`

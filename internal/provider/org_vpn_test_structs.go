@@ -9,5 +9,5 @@ type OrgVpnModel struct {
 type OrgVpnPathsValue struct {
 	BfdProfile *string `cty:"bfd_profile"`
 	Ip         *string `cty:"ip"`
-	Pod        int64   `cty:"pod"`
+	Pod        *int64  `cty:"pod"`
 }

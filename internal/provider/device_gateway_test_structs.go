@@ -31,24 +31,24 @@ type DeviceGatewayModel struct {
 	Vars                  map[string]string                   `hcl:"vars"`
 	VrfConfig             *VrfConfigValue                     `hcl:"vrf_config"`
 	VrfInstances          map[string]GatewayVrfInstancesValue `hcl:"vrf_instances"`
-	X                     float64                             `hcl:"x"`
-	Y                     float64                             `hcl:"y"`
+	X                     *float64                            `hcl:"x"`
+	Y                     *float64                            `hcl:"y"`
 }
 
 type BgpConfigValue struct {
 	AuthKey                *string                   `cty:"auth_key"`
-	BfdMinimumInterval     int64                     `cty:"bfd_minimum_interval"`
-	BfdMultiplier          int64                     `cty:"bfd_multiplier"`
+	BfdMinimumInterval     *int64                    `cty:"bfd_minimum_interval"`
+	BfdMultiplier          *int64                    `cty:"bfd_multiplier"`
 	DisableBfd             *bool                     `cty:"disable_bfd"`
 	Export                 *string                   `cty:"export"`
 	ExportPolicy           *string                   `cty:"export_policy"`
 	ExtendedV4Nexthop      *bool                     `cty:"extended_v4_nexthop"`
-	GracefulRestartTime    int64                     `cty:"graceful_restart_time"`
-	HoldTime               int64                     `cty:"hold_time"`
+	GracefulRestartTime    *int64                    `cty:"graceful_restart_time"`
+	HoldTime               *int64                    `cty:"hold_time"`
 	Import                 *string                   `cty:"import"`
 	ImportPolicy           *string                   `cty:"import_policy"`
-	LocalAs                int64                     `cty:"local_as"`
-	NeighborAs             int64                     `cty:"neighbor_as"`
+	LocalAs                *int64                    `cty:"local_as"`
+	NeighborAs             *int64                    `cty:"neighbor_as"`
 	Neighbors              map[string]NeighborsValue `cty:"neighbors"`
 	Networks               []string                  `cty:"networks"`
 	NoReadvertiseToOverlay *bool                     `cty:"no_readvertise_to_overlay"`
@@ -62,10 +62,10 @@ type BgpConfigValue struct {
 type NeighborsValue struct {
 	Disabled     *bool   `cty:"disabled"`
 	ExportPolicy *string `cty:"export_policy"`
-	HoldTime     int64   `cty:"hold_time"`
+	HoldTime     *int64  `cty:"hold_time"`
 	ImportPolicy *string `cty:"import_policy"`
-	MultihopTtl  int64   `cty:"multihop_ttl"`
-	NeighborAs   int64   `cty:"neighbor_as"`
+	MultihopTtl  *int64  `cty:"multihop_ttl"`
+	NeighborAs   *int64  `cty:"neighbor_as"`
 }
 
 type GatewayExtraRoutesValue struct {
@@ -146,13 +146,9 @@ type InternetAccessStaticNatValue struct {
 }
 
 type MulticastValue struct {
-	DisableIgmp *bool                         `cty:"disable_igmp"`
-	Enabled     *bool                         `cty:"enabled"`
-	Groups      map[string]GatewayGroupsValue `cty:"groups"`
-}
-
-type GatewayGroupsValue struct {
-	RpIp *string `cty:"rp_ip"`
+	DisableIgmp *bool                  `cty:"disable_igmp"`
+	Enabled     *bool                  `cty:"enabled"`
+	Groups      map[string]GroupsValue `cty:"groups"`
 }
 
 type TenantsValue struct {
@@ -218,7 +214,7 @@ type PathPreferencesValue struct {
 }
 
 type PathsValue struct {
-	Cost           int64    `cty:"cost"`
+	Cost           *int64   `cty:"cost"`
 	Disabled       *bool    `cty:"disabled"`
 	GatewayIp      *string  `cty:"gateway_ip"`
 	InternetAccess *bool    `cty:"internet_access"`
@@ -239,24 +235,24 @@ type GatewayPortConfigValue struct {
 	DisableAutoneg   *bool                          `cty:"disable_autoneg"`
 	Disabled         *bool                          `cty:"disabled"`
 	DslType          *string                        `cty:"dsl_type"`
-	DslVci           int64                          `cty:"dsl_vci"`
-	DslVpi           int64                          `cty:"dsl_vpi"`
+	DslVci           *int64                         `cty:"dsl_vci"`
+	DslVpi           *int64                         `cty:"dsl_vpi"`
 	Duplex           *string                        `cty:"duplex"`
 	LteApn           *string                        `cty:"lte_apn"`
 	LteAuth          *string                        `cty:"lte_auth"`
 	LteBackup        *bool                          `cty:"lte_backup"`
 	LtePassword      *string                        `cty:"lte_password"`
 	LteUsername      *string                        `cty:"lte_username"`
-	Mtu              int64                          `cty:"mtu"`
+	Mtu              *int64                         `cty:"mtu"`
 	Name             *string                        `cty:"name"`
 	Networks         []string                       `cty:"networks"`
-	OuterVlanId      int64                          `cty:"outer_vlan_id"`
+	OuterVlanId      *int64                         `cty:"outer_vlan_id"`
 	PoeDisabled      *bool                          `cty:"poe_disabled"`
 	PortIpConfig     *PortIpConfigValue             `cty:"ip_config"`
 	PortNetwork      *string                        `cty:"port_network"`
 	PreserveDscp     *bool                          `cty:"preserve_dscp"`
 	Redundant        *bool                          `cty:"redundant"`
-	RethIdx          int64                          `cty:"reth_idx"`
+	RethIdx          *int64                         `cty:"reth_idx"`
 	RethNode         *string                        `cty:"reth_node"`
 	RethNodes        []string                       `cty:"reth_nodes"`
 	Speed            *string                        `cty:"speed"`
@@ -291,14 +287,14 @@ type PortIpConfigValue struct {
 type TrafficShapingValue struct {
 	ClassPercentages []int64 `cty:"class_percentages"`
 	Enabled          *bool   `cty:"enabled"`
-	MaxTxKbps        int64   `cty:"max_tx_kbps"`
+	MaxTxKbps        *int64  `cty:"max_tx_kbps"`
 }
 
 type VpnPathsValue struct {
 	BfdProfile       *string              `cty:"bfd_profile"`
 	BfdUseTunnelMode *bool                `cty:"bfd_use_tunnel_mode"`
 	LinkName         *string              `cty:"link_name"`
-	Preference       int64                `cty:"preference"`
+	Preference       *int64               `cty:"preference"`
 	Role             *string              `cty:"role"`
 	TrafficShaping   *TrafficShapingValue `cty:"traffic_shaping"`
 }
@@ -325,8 +321,8 @@ type PortMirrorValue struct {
 	FamilyType     *string  `cty:"family_type"`
 	IngressPortIds []string `cty:"ingress_port_ids"`
 	OutputPortId   *string  `cty:"output_port_id"`
-	Rate           int64    `cty:"rate"`
-	RunLength      int64    `cty:"run_length"`
+	Rate           *int64   `cty:"rate"`
+	RunLength      *int64   `cty:"run_length"`
 }
 
 type RoutingPoliciesValue struct {
@@ -369,9 +365,9 @@ type RouteExistsValue struct {
 }
 
 type VpnPathSlaValue struct {
-	MaxJitter  int64 `cty:"max_jitter"`
-	MaxLatency int64 `cty:"max_latency"`
-	MaxLoss    int64 `cty:"max_loss"`
+	MaxJitter  *int64 `cty:"max_jitter"`
+	MaxLatency *int64 `cty:"max_latency"`
+	MaxLoss    *int64 `cty:"max_loss"`
 }
 
 type ServicePoliciesValue struct {
@@ -420,10 +416,10 @@ type SslProxyValue struct {
 
 type TunnelConfigsValue struct {
 	AutoProvision  *AutoProvisionValue   `cty:"auto_provision"`
-	IkeLifetime    int64                 `cty:"ike_lifetime"`
+	IkeLifetime    *int64                `cty:"ike_lifetime"`
 	IkeMode        *string               `cty:"ike_mode"`
 	IkeProposals   []IkeProposalsValue   `cty:"ike_proposals"`
-	IpsecLifetime  int64                 `cty:"ipsec_lifetime"`
+	IpsecLifetime  *int64                `cty:"ipsec_lifetime"`
 	IpsecProposals []IpsecProposalsValue `cty:"ipsec_proposals"`
 	LocalId        *string               `cty:"local_id"`
 	Mode           *string               `cty:"mode"`
@@ -482,9 +478,9 @@ type PrimaryValue struct {
 }
 
 type ProbeValue struct {
-	Interval  int64   `cty:"interval"`
-	Threshold int64   `cty:"threshold"`
-	Timeout   int64   `cty:"timeout"`
+	Interval  *int64  `cty:"interval"`
+	Threshold *int64  `cty:"threshold"`
+	Timeout   *int64  `cty:"timeout"`
 	ProbeType *string `cty:"type"`
 }
 
@@ -502,7 +498,7 @@ type TunnelProviderOptionsValue struct {
 }
 
 type JseValue struct {
-	NumUsers int64   `cty:"num_users"`
+	NumUsers *int64  `cty:"num_users"`
 	OrgName  *string `cty:"org_name"`
 }
 
@@ -510,35 +506,35 @@ type ZscalerValue struct {
 	AupBlockInternetUntilAccepted       *bool               `cty:"aup_block_internet_until_accepted"`
 	AupEnabled                          *bool               `cty:"aup_enabled"`
 	AupForceSslInspection               *bool               `cty:"aup_force_ssl_inspection"`
-	AupTimeoutInDays                    int64               `cty:"aup_timeout_in_days"`
+	AupTimeoutInDays                    *int64              `cty:"aup_timeout_in_days"`
 	AuthRequired                        *bool               `cty:"auth_required"`
 	CautionEnabled                      *bool               `cty:"caution_enabled"`
-	DnBandwidth                         float64             `cty:"dn_bandwidth"`
-	IdleTimeInMinutes                   int64               `cty:"idle_time_in_minutes"`
+	DnBandwidth                         *float64            `cty:"dn_bandwidth"`
+	IdleTimeInMinutes                   *int64              `cty:"idle_time_in_minutes"`
 	OfwEnabled                          *bool               `cty:"ofw_enabled"`
 	SubLocations                        []SubLocationsValue `cty:"sub_locations"`
 	SurrogateIp                         *bool               `cty:"surrogate_ip"`
 	SurrogateIpEnforcedForKnownBrowsers *bool               `cty:"surrogate_ip_enforced_for_known_browsers"`
-	SurrogateRefreshTimeInMinutes       int64               `cty:"surrogate_refresh_time_in_minutes"`
-	UpBandwidth                         float64             `cty:"up_bandwidth"`
+	SurrogateRefreshTimeInMinutes       *int64              `cty:"surrogate_refresh_time_in_minutes"`
+	UpBandwidth                         *float64            `cty:"up_bandwidth"`
 	XffForwardEnabled                   *bool               `cty:"xff_forward_enabled"`
 }
 
 type SubLocationsValue struct {
-	AupBlockInternetUntilAccepted       *bool   `cty:"aup_block_internet_until_accepted"`
-	AupEnabled                          *bool   `cty:"aup_enabled"`
-	AupForceSslInspection               *bool   `cty:"aup_force_ssl_inspection"`
-	AupTimeoutInDays                    int64   `cty:"aup_timeout_in_days"`
-	AuthRequired                        *bool   `cty:"auth_required"`
-	CautionEnabled                      *bool   `cty:"caution_enabled"`
-	DnBandwidth                         float64 `cty:"dn_bandwidth"`
-	IdleTimeInMinutes                   int64   `cty:"idle_time_in_minutes"`
-	Name                                *string `cty:"name"`
-	OfwEnabled                          *bool   `cty:"ofw_enabled"`
-	SurrogateIp                         *bool   `cty:"surrogate_ip"`
-	SurrogateIpEnforcedForKnownBrowsers *bool   `cty:"surrogate_ip_enforced_for_known_browsers"`
-	SurrogateRefreshTimeInMinutes       int64   `cty:"surrogate_refresh_time_in_minutes"`
-	UpBandwidth                         float64 `cty:"up_bandwidth"`
+	AupBlockInternetUntilAccepted       *bool    `cty:"aup_block_internet_until_accepted"`
+	AupEnabled                          *bool    `cty:"aup_enabled"`
+	AupForceSslInspection               *bool    `cty:"aup_force_ssl_inspection"`
+	AupTimeoutInDays                    *int64   `cty:"aup_timeout_in_days"`
+	AuthRequired                        *bool    `cty:"auth_required"`
+	CautionEnabled                      *bool    `cty:"caution_enabled"`
+	DnBandwidth                         *float64 `cty:"dn_bandwidth"`
+	IdleTimeInMinutes                   *int64   `cty:"idle_time_in_minutes"`
+	Name                                *string  `cty:"name"`
+	OfwEnabled                          *bool    `cty:"ofw_enabled"`
+	SurrogateIp                         *bool    `cty:"surrogate_ip"`
+	SurrogateIpEnforcedForKnownBrowsers *bool    `cty:"surrogate_ip_enforced_for_known_browsers"`
+	SurrogateRefreshTimeInMinutes       *int64   `cty:"surrogate_refresh_time_in_minutes"`
+	UpBandwidth                         *float64 `cty:"up_bandwidth"`
 }
 
 type GatewayVrfInstancesValue struct {

@@ -45,15 +45,15 @@ type OrgNetworktemplatePortUsagesValue struct {
 	MacAuthOnly                             *bool              `cty:"mac_auth_only"`
 	MacAuthPreferred                        *bool              `cty:"mac_auth_preferred"`
 	MacAuthProtocol                         *string            `cty:"mac_auth_protocol"`
-	MacLimit                                int64              `cty:"mac_limit"`
+	MacLimit                                *int64             `cty:"mac_limit"`
 	Mode                                    *string            `cty:"mode"`
-	Mtu                                     int64              `cty:"mtu"`
+	Mtu                                     *int64             `cty:"mtu"`
 	Networks                                []string           `cty:"networks"`
 	PersistMac                              *bool              `cty:"persist_mac"`
 	PoeDisabled                             *bool              `cty:"poe_disabled"`
 	PortAuth                                *string            `cty:"port_auth"`
 	PortNetwork                             *string            `cty:"port_network"`
-	ReauthInterval                          int64              `cty:"reauth_interval"`
+	ReauthInterval                          *int64             `cty:"reauth_interval"`
 	ResetDefaultWhen                        *string            `cty:"reset_default_when"`
 	Rules                                   []RulesValue       `cty:"rules"`
 	ServerFailNetwork                       *string            `cty:"server_fail_network"`
@@ -78,7 +78,7 @@ type MatchingRulesValue struct {
 	IpConfig             *OrgNetworktemplateIpConfigValue    `cty:"ip_config"`
 	MatchModel           *string                             `cty:"match_model"`
 	MatchName            *string                             `cty:"match_name"`
-	MatchNameOffset      int64                               `cty:"match_name_offset"`
+	MatchNameOffset      *int64                              `cty:"match_name_offset"`
 	MatchRole            *string                             `cty:"match_role"`
 	MatchType            *string                             `cty:"match_type"`
 	MatchValue           *string                             `cty:"match_value"`

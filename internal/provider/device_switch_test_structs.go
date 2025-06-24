@@ -41,8 +41,8 @@ type DeviceSwitchModel struct {
 	VrfConfig             *VrfConfigValue                 `hcl:"vrf_config"`
 	VrfInstances          map[string]VrfInstancesValue    `hcl:"vrf_instances"`
 	VrrpConfig            *VrrpConfigValue                `hcl:"vrrp_config"`
-	X                     float64                         `hcl:"x"`
-	Y                     float64                         `hcl:"y"`
+	X                     *float64                        `hcl:"x"`
+	Y                     *float64                        `hcl:"y"`
 }
 
 type AclPoliciesValue struct {
@@ -57,7 +57,7 @@ type ActionsValue struct {
 }
 
 type AclTagsValue struct {
-	GbpTag      int64        `cty:"gbp_tag"`
+	GbpTag      *int64       `cty:"gbp_tag"`
 	Macs        []string     `cty:"macs"`
 	Network     *string      `cty:"network"`
 	RadiusGroup *string      `cty:"radius_group"`
@@ -93,7 +93,7 @@ type ConfigValue struct {
 	IpEnd6             *string                            `cty:"ip_end6"`
 	IpStart            *string                            `cty:"ip_start"`
 	IpStart6           *string                            `cty:"ip_start6"`
-	LeaseTime          int64                              `cty:"lease_time"`
+	LeaseTime          *int64                             `cty:"lease_time"`
 	Options            map[string]OptionsValue            `cty:"options"`
 	ServerIdOverride   *bool                              `cty:"server_id_override"`
 	Servers            []string                           `cty:"servers"`
@@ -120,24 +120,24 @@ type VendorEncapsulatedValue struct {
 
 type ExtraRoutesValue struct {
 	Discard       *bool                         `cty:"discard"`
-	Metric        int64                         `cty:"metric"`
+	Metric        *int64                        `cty:"metric"`
 	NextQualified map[string]NextQualifiedValue `cty:"next_qualified"`
 	NoResolve     *bool                         `cty:"no_resolve"`
-	Preference    int64                         `cty:"preference"`
+	Preference    *int64                        `cty:"preference"`
 	Via           string                        `cty:"via"`
 }
 
 type NextQualifiedValue struct {
-	Metric     int64 `cty:"metric"`
-	Preference int64 `cty:"preference"`
+	Metric     *int64 `cty:"metric"`
+	Preference *int64 `cty:"preference"`
 }
 
 type ExtraRoutes6Value struct {
 	Discard       *bool                         `cty:"discard"`
-	Metric        int64                         `cty:"metric"`
+	Metric        *int64                        `cty:"metric"`
 	NextQualified map[string]NextQualifiedValue `cty:"next_qualified"`
 	NoResolve     *bool                         `cty:"no_resolve"`
-	Preference    int64                         `cty:"preference"`
+	Preference    *int64                        `cty:"preference"`
 	Via           string                        `cty:"via"`
 }
 
@@ -169,16 +169,16 @@ type LocalPortConfigValue struct {
 	MacAuthOnly                             *bool              `cty:"mac_auth_only"`
 	MacAuthPreferred                        *bool              `cty:"mac_auth_preferred"`
 	MacAuthProtocol                         *string            `cty:"mac_auth_protocol"`
-	MacLimit                                int64              `cty:"mac_limit"`
+	MacLimit                                *int64             `cty:"mac_limit"`
 	Mode                                    *string            `cty:"mode"`
-	Mtu                                     int64              `cty:"mtu"`
+	Mtu                                     *int64             `cty:"mtu"`
 	Networks                                []string           `cty:"networks"`
 	Note                                    *string            `cty:"note"`
 	PersistMac                              *bool              `cty:"persist_mac"`
 	PoeDisabled                             *bool              `cty:"poe_disabled"`
 	PortAuth                                *string            `cty:"port_auth"`
 	PortNetwork                             *string            `cty:"port_network"`
-	ReauthInterval                          int64              `cty:"reauth_interval"`
+	ReauthInterval                          *int64             `cty:"reauth_interval"`
 	ServerFailNetwork                       *string            `cty:"server_fail_network"`
 	ServerRejectNetwork                     *string            `cty:"server_reject_network"`
 	Speed                                   *string            `cty:"speed"`
@@ -192,11 +192,11 @@ type LocalPortConfigValue struct {
 }
 
 type StormControlValue struct {
-	NoBroadcast           *bool `cty:"no_broadcast"`
-	NoMulticast           *bool `cty:"no_multicast"`
-	NoRegisteredMulticast *bool `cty:"no_registered_multicast"`
-	NoUnknownUnicast      *bool `cty:"no_unknown_unicast"`
-	Percentage            int64 `cty:"percentage"`
+	NoBroadcast           *bool  `cty:"no_broadcast"`
+	NoMulticast           *bool  `cty:"no_multicast"`
+	NoRegisteredMulticast *bool  `cty:"no_registered_multicast"`
+	NoUnknownUnicast      *bool  `cty:"no_unknown_unicast"`
+	Percentage            *int64 `cty:"percentage"`
 }
 
 type MistNacValue struct {
@@ -234,13 +234,13 @@ type OspfNetworksValue struct {
 	AuthKeys               map[string]string `cty:"auth_keys"`
 	AuthPassword           *string           `cty:"auth_password"`
 	AuthType               *string           `cty:"auth_type"`
-	BfdMinimumInterval     int64             `cty:"bfd_minimum_interval"`
-	DeadInterval           int64             `cty:"dead_interval"`
+	BfdMinimumInterval     *int64            `cty:"bfd_minimum_interval"`
+	DeadInterval           *int64            `cty:"dead_interval"`
 	ExportPolicy           *string           `cty:"export_policy"`
-	HelloInterval          int64             `cty:"hello_interval"`
+	HelloInterval          *int64            `cty:"hello_interval"`
 	ImportPolicy           *string           `cty:"import_policy"`
 	InterfaceType          *string           `cty:"interface_type"`
-	Metric                 int64             `cty:"metric"`
+	Metric                 *int64            `cty:"metric"`
 	NoReadvertiseToOverlay *bool             `cty:"no_readvertise_to_overlay"`
 	Passive                *bool             `cty:"passive"`
 }
@@ -257,7 +257,7 @@ type OtherIpConfigsValue struct {
 
 type PortConfigValue struct {
 	AeDisableLacp    *bool   `cty:"ae_disable_lacp"`
-	AeIdx            int64   `cty:"ae_idx"`
+	AeIdx            *int64  `cty:"ae_idx"`
 	AeLacpSlow       *bool   `cty:"ae_lacp_slow"`
 	Aggregated       *bool   `cty:"aggregated"`
 	Critical         *bool   `cty:"critical"`
@@ -266,7 +266,7 @@ type PortConfigValue struct {
 	Duplex           *string `cty:"duplex"`
 	DynamicUsage     *string `cty:"dynamic_usage"`
 	Esilag           *bool   `cty:"esilag"`
-	Mtu              int64   `cty:"mtu"`
+	Mtu              *int64  `cty:"mtu"`
 	NoLocalOverwrite *bool   `cty:"no_local_overwrite"`
 	PoeDisabled      *bool   `cty:"poe_disabled"`
 	Speed            *string `cty:"speed"`
@@ -299,15 +299,15 @@ type PortUsagesValue struct {
 	MacAuthOnly                             *bool              `cty:"mac_auth_only"`
 	MacAuthPreferred                        *bool              `cty:"mac_auth_preferred"`
 	MacAuthProtocol                         *string            `cty:"mac_auth_protocol"`
-	MacLimit                                int64              `cty:"mac_limit"`
+	MacLimit                                *int64             `cty:"mac_limit"`
 	Mode                                    *string            `cty:"mode"`
-	Mtu                                     int64              `cty:"mtu"`
+	Mtu                                     *int64             `cty:"mtu"`
 	Networks                                []string           `cty:"networks"`
 	PersistMac                              *bool              `cty:"persist_mac"`
 	PoeDisabled                             *bool              `cty:"poe_disabled"`
 	PortAuth                                *string            `cty:"port_auth"`
 	PortNetwork                             *string            `cty:"port_network"`
-	ReauthInterval                          int64              `cty:"reauth_interval"`
+	ReauthInterval                          *int64             `cty:"reauth_interval"`
 	ResetDefaultWhen                        *string            `cty:"reset_default_when"`
 	Rules                                   []RulesValue       `cty:"rules"`
 	ServerFailNetwork                       *string            `cty:"server_fail_network"`
@@ -330,11 +330,11 @@ type RulesValue struct {
 }
 
 type RadiusConfigValue struct {
-	AcctInterimInterval int64              `cty:"acct_interim_interval"`
+	AcctInterimInterval *int64             `cty:"acct_interim_interval"`
 	AcctServers         []AcctServersValue `cty:"acct_servers"`
 	AuthServers         []AuthServersValue `cty:"auth_servers"`
-	AuthServersRetries  int64              `cty:"auth_servers_retries"`
-	AuthServersTimeout  int64              `cty:"auth_servers_timeout"`
+	AuthServersRetries  *int64             `cty:"auth_servers_retries"`
+	AuthServersTimeout  *int64             `cty:"auth_servers_timeout"`
 	Network             *string            `cty:"network"`
 	SourceIp            *string            `cty:"source_ip"`
 }
@@ -345,7 +345,7 @@ type AcctServersValue struct {
 	KeywrapFormat  *string `cty:"keywrap_format"`
 	KeywrapKek     *string `cty:"keywrap_kek"`
 	KeywrapMack    *string `cty:"keywrap_mack"`
-	Port           int64   `cty:"port"`
+	Port           *int64  `cty:"port"`
 	Secret         string  `cty:"secret"`
 }
 
@@ -355,7 +355,7 @@ type AuthServersValue struct {
 	KeywrapFormat               *string `cty:"keywrap_format"`
 	KeywrapKek                  *string `cty:"keywrap_kek"`
 	KeywrapMack                 *string `cty:"keywrap_mack"`
-	Port                        int64   `cty:"port"`
+	Port                        *int64  `cty:"port"`
 	RequireMessageAuthenticator *bool   `cty:"require_message_authenticator"`
 	Secret                      string  `cty:"secret"`
 }
@@ -373,7 +373,7 @@ type RemoteSyslogValue struct {
 }
 
 type ArchiveValue struct {
-	Files int64   `cty:"files"`
+	Files *int64  `cty:"files"`
 	Size  *string `cty:"size"`
 }
 
@@ -401,7 +401,7 @@ type ServersValue struct {
 	Facility         *string         `cty:"facility"`
 	Host             *string         `cty:"host"`
 	Match            *string         `cty:"match"`
-	Port             int64           `cty:"port"`
+	Port             *int64          `cty:"port"`
 	Protocol         *string         `cty:"protocol"`
 	RoutingInstance  *string         `cty:"routing_instance"`
 	Severity         *string         `cty:"severity"`
@@ -548,15 +548,15 @@ type StpConfigValue struct {
 }
 
 type SwitchMgmtValue struct {
-	ApAffinityThreshold int64                         `cty:"ap_affinity_threshold"`
+	ApAffinityThreshold *int64                        `cty:"ap_affinity_threshold"`
 	CliBanner           *string                       `cty:"cli_banner"`
-	CliIdleTimeout      int64                         `cty:"cli_idle_timeout"`
-	ConfigRevertTimer   int64                         `cty:"config_revert_timer"`
+	CliIdleTimeout      *int64                        `cty:"cli_idle_timeout"`
+	ConfigRevertTimer   *int64                        `cty:"config_revert_timer"`
 	DhcpOptionFqdn      *bool                         `cty:"dhcp_option_fqdn"`
 	DisableOobDownAlarm *bool                         `cty:"disable_oob_down_alarm"`
 	LocalAccounts       map[string]LocalAccountsValue `cty:"local_accounts"`
 	MxedgeProxyHost     *string                       `cty:"mxedge_proxy_host"`
-	MxedgeProxyPort     int64                         `cty:"mxedge_proxy_port"`
+	MxedgeProxyPort     *int64                        `cty:"mxedge_proxy_port"`
 	ProtectRe           *ProtectReValue               `cty:"protect_re"`
 	RootPassword        *string                       `cty:"root_password"`
 	Tacacs              *TacacsValue                  `cty:"tacacs"`
@@ -593,14 +593,14 @@ type TacacctServersValue struct {
 	Host    *string `cty:"host"`
 	Port    *string `cty:"port"`
 	Secret  *string `cty:"secret"`
-	Timeout int64   `cty:"timeout"`
+	Timeout *int64  `cty:"timeout"`
 }
 
 type TacplusServersValue struct {
 	Host    *string `cty:"host"`
 	Port    *string `cty:"port"`
 	Secret  *string `cty:"secret"`
-	Timeout int64   `cty:"timeout"`
+	Timeout *int64  `cty:"timeout"`
 }
 
 type VirtualChassisValue struct {
@@ -633,5 +633,5 @@ type VrrpConfigValue struct {
 }
 
 type GroupsValue struct {
-	Priority int64 `cty:"priority"`
+	Priority *int64 `cty:"priority"`
 }

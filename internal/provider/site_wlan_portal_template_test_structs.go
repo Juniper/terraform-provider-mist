@@ -105,7 +105,7 @@ type PortalTemplateValue struct {
 	SmsNumberSubmit          *string                 `cty:"sms_number_submit"`
 	SmsNumberTitle           *string                 `cty:"sms_number_title"`
 	SmsUsernameFormat        *string                 `cty:"sms_username_format"`
-	SmsValidityDuration      int64                   `cty:"sms_validity_duration"`
+	SmsValidityDuration      *int64                  `cty:"sms_validity_duration"`
 	SponsorBackLink          *string                 `cty:"sponsor_back_link"`
 	SponsorCancel            *string                 `cty:"sponsor_cancel"`
 	SponsorEmail             *string                 `cty:"sponsor_email"`
