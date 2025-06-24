@@ -1,16 +1,16 @@
 package provider
 
 type OrgSettingModel struct {
-	ApUpdownThreshold      int64                           `hcl:"ap_updown_threshold"`
+	ApUpdownThreshold      *int64                          `hcl:"ap_updown_threshold"`
 	ApiPolicy              *ApiPolicyValue                 `hcl:"api_policy"`
 	Cacerts                []string                        `hcl:"cacerts"`
 	Celona                 *CelonaValue                    `hcl:"celona"`
 	Cloudshark             *CloudsharkValue                `hcl:"cloudshark"`
 	DeviceCert             *DeviceCertValue                `hcl:"device_cert"`
-	DeviceUpdownThreshold  int64                           `hcl:"device_updown_threshold"`
+	DeviceUpdownThreshold  *int64                          `hcl:"device_updown_threshold"`
 	DisablePcap            *bool                           `hcl:"disable_pcap"`
 	DisableRemoteShell     *bool                           `hcl:"disable_remote_shell"`
-	GatewayUpdownThreshold int64                           `hcl:"gateway_updown_threshold"`
+	GatewayUpdownThreshold *int64                          `hcl:"gateway_updown_threshold"`
 	Installer              *InstallerValue                 `hcl:"installer"`
 	Jcloud                 *JcloudValue                    `hcl:"jcloud"`
 	JcloudRa               *JcloudRaValue                  `hcl:"jcloud_ra"`
@@ -24,9 +24,9 @@ type OrgSettingModel struct {
 	Pcap                   *PcapValue                      `hcl:"pcap"`
 	Security               *SecurityValue                  `hcl:"security"`
 	SwitchMgmt             *OrgSettingSwitchMgmtValue      `hcl:"switch_mgmt"`
-	SwitchUpdownThreshold  int64                           `hcl:"switch_updown_threshold"`
+	SwitchUpdownThreshold  *int64                          `hcl:"switch_updown_threshold"`
 	SyntheticTest          *SyntheticTestValue             `hcl:"synthetic_test"`
-	UiIdleTimeout          int64                           `hcl:"ui_idle_timeout"`
+	UiIdleTimeout          *int64                          `hcl:"ui_idle_timeout"`
 	VpnOptions             *VpnOptionsValue                `hcl:"vpn_options"`
 	WanPma                 *WanPmaValue                    `hcl:"wan_pma"`
 	WiredPma               *WiredPmaValue                  `hcl:"wired_pma"`
@@ -59,7 +59,7 @@ type InstallerValue struct {
 	AllowAllDevices *bool    `cty:"allow_all_devices"`
 	AllowAllSites   *bool    `cty:"allow_all_sites"`
 	ExtraSiteIds    []string `cty:"extra_site_ids"`
-	GracePeriod     int64    `cty:"grace_period"`
+	GracePeriod     *int64   `cty:"grace_period"`
 }
 
 type JcloudValue struct {
@@ -90,7 +90,7 @@ type OrgSettingMistNacValue struct {
 	Cacerts                   []string         `cty:"cacerts"`
 	DefaultIdpId              *string          `cty:"default_idp_id"`
 	DisableRsaeAlgorithms     *bool            `cty:"disable_rsae_algorithms"`
-	EapSslSecurityLevel       int64            `cty:"eap_ssl_security_level"`
+	EapSslSecurityLevel       *int64           `cty:"eap_ssl_security_level"`
 	EuOnly                    *bool            `cty:"eu_only"`
 	IdpMachineCertLookupField *string          `cty:"idp_machine_cert_lookup_field"`
 	IdpUserCertLookupField    *string          `cty:"idp_user_cert_lookup_field"`
@@ -126,16 +126,16 @@ type OpticPortConfigValue struct {
 }
 
 type PasswordPolicyValue struct {
-	Enabled               *bool `cty:"enabled"`
-	ExpiryInDays          int64 `cty:"expiry_in_days"`
-	MinLength             int64 `cty:"min_length"`
-	RequiresSpecialChar   *bool `cty:"requires_special_char"`
-	RequiresTwoFactorAuth *bool `cty:"requires_two_factor_auth"`
+	Enabled               *bool  `cty:"enabled"`
+	ExpiryInDays          *int64 `cty:"expiry_in_days"`
+	MinLength             *int64 `cty:"min_length"`
+	RequiresSpecialChar   *bool  `cty:"requires_special_char"`
+	RequiresTwoFactorAuth *bool  `cty:"requires_two_factor_auth"`
 }
 
 type PcapValue struct {
 	Bucket    *string `cty:"bucket"`
-	MaxPktLen int64   `cty:"max_pkt_len"`
+	MaxPktLen *int64  `cty:"max_pkt_len"`
 }
 
 type SecurityValue struct {
@@ -145,7 +145,7 @@ type SecurityValue struct {
 }
 
 type OrgSettingSwitchMgmtValue struct {
-	ApAffinityThreshold int64 `cty:"ap_affinity_threshold"`
+	ApAffinityThreshold *int64 `cty:"ap_affinity_threshold"`
 }
 
 type SyntheticTestValue struct {
@@ -166,7 +166,7 @@ type WanSpeedtestValue struct {
 }
 
 type VpnOptionsValue struct {
-	AsBase   int64   `cty:"as_base"`
+	AsBase   *int64  `cty:"as_base"`
 	StSubnet *string `cty:"st_subnet"`
 }
 

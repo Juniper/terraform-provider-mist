@@ -1,38 +1,38 @@
 package provider
 
 type DeviceGatewayModel struct {
-	AdditionalConfigCmds  []string                        `hcl:"additional_config_cmds"`
-	BgpConfig             map[string]BgpConfigValue       `hcl:"bgp_config"`
-	DeviceId              string                          `hcl:"device_id"`
-	DhcpdConfig           *DhcpdConfigValue               `hcl:"dhcpd_config"`
-	DnsServers            []string                        `hcl:"dns_servers"`
-	DnsSuffix             []string                        `hcl:"dns_suffix"`
-	ExtraRoutes           map[string]ExtraRoutesValue     `hcl:"extra_routes"`
-	ExtraRoutes6          map[string]ExtraRoutes6Value    `hcl:"extra_routes6"`
-	IdpProfiles           map[string]IdpProfilesValue     `hcl:"idp_profiles"`
-	IpConfigs             map[string]IpConfigsValue       `hcl:"ip_configs"`
-	Managed               *bool                           `hcl:"managed"`
-	MapId                 *string                         `hcl:"map_id"`
-	MspId                 *string                         `hcl:"msp_id"`
-	Name                  string                          `hcl:"name"`
-	Networks              []NetworksValue                 `hcl:"networks"`
-	Notes                 *string                         `hcl:"notes"`
-	NtpServers            []string                        `hcl:"ntp_servers"`
-	OobIpConfig           *OobIpConfigValue               `hcl:"oob_ip_config"`
-	PathPreferences       map[string]PathPreferencesValue `hcl:"path_preferences"`
-	PortConfig            map[string]PortConfigValue      `hcl:"port_config"`
-	PortMirroring         *PortMirroringValue             `hcl:"port_mirroring"`
-	RouterId              *string                         `hcl:"router_id"`
-	RoutingPolicies       map[string]RoutingPoliciesValue `hcl:"routing_policies"`
-	ServicePolicies       []ServicePoliciesValue          `hcl:"service_policies"`
-	SiteId                string                          `hcl:"site_id"`
-	TunnelConfigs         map[string]TunnelConfigsValue   `hcl:"tunnel_configs"`
-	TunnelProviderOptions *TunnelProviderOptionsValue     `hcl:"tunnel_provider_options"`
-	Vars                  map[string]string               `hcl:"vars"`
-	VrfConfig             *VrfConfigValue                 `hcl:"vrf_config"`
-	VrfInstances          map[string]VrfInstancesValue    `hcl:"vrf_instances"`
-	X                     *float64                        `hcl:"x"`
-	Y                     *float64                        `hcl:"y"`
+	AdditionalConfigCmds  []string                            `hcl:"additional_config_cmds"`
+	BgpConfig             map[string]BgpConfigValue           `hcl:"bgp_config"`
+	DeviceId              string                              `hcl:"device_id"`
+	DhcpdConfig           *DhcpdConfigValue                   `hcl:"dhcpd_config"`
+	DnsServers            []string                            `hcl:"dns_servers"`
+	DnsSuffix             []string                            `hcl:"dns_suffix"`
+	ExtraRoutes           map[string]GatewayExtraRoutesValue  `hcl:"extra_routes"`
+	ExtraRoutes6          map[string]GatewayExtraRoutes6Value `hcl:"extra_routes6"`
+	IdpProfiles           map[string]IdpProfilesValue         `hcl:"idp_profiles"`
+	IpConfigs             map[string]IpConfigsValue           `hcl:"ip_configs"`
+	Managed               *bool                               `hcl:"managed"`
+	MapId                 *string                             `hcl:"map_id"`
+	MspId                 *string                             `hcl:"msp_id"`
+	Name                  string                              `hcl:"name"`
+	Networks              []GatewayNetworksValue              `hcl:"networks"`
+	Notes                 *string                             `hcl:"notes"`
+	NtpServers            []string                            `hcl:"ntp_servers"`
+	OobIpConfig           *GatewayOobIpConfigValue            `hcl:"oob_ip_config"`
+	PathPreferences       map[string]PathPreferencesValue     `hcl:"path_preferences"`
+	PortConfig            map[string]GatewayPortConfigValue   `hcl:"port_config"`
+	PortMirroring         *GatewayPortMirroringValue          `hcl:"port_mirroring"`
+	RouterId              *string                             `hcl:"router_id"`
+	RoutingPolicies       map[string]RoutingPoliciesValue     `hcl:"routing_policies"`
+	ServicePolicies       []ServicePoliciesValue              `hcl:"service_policies"`
+	SiteId                string                              `hcl:"site_id"`
+	TunnelConfigs         map[string]TunnelConfigsValue       `hcl:"tunnel_configs"`
+	TunnelProviderOptions *TunnelProviderOptionsValue         `hcl:"tunnel_provider_options"`
+	Vars                  map[string]string                   `hcl:"vars"`
+	VrfConfig             *VrfConfigValue                     `hcl:"vrf_config"`
+	VrfInstances          map[string]GatewayVrfInstancesValue `hcl:"vrf_instances"`
+	X                     *float64                            `hcl:"x"`
+	Y                     *float64                            `hcl:"y"`
 }
 
 type BgpConfigValue struct {
@@ -188,10 +188,6 @@ type MulticastValue struct {
 	DisableIgmp *bool                  `cty:"disable_igmp"`
 	Enabled     *bool                  `cty:"enabled"`
 	Groups      map[string]GroupsValue `cty:"groups"`
-}
-
-type GroupsValue struct {
-	RpIp *string `cty:"rp_ip"`
 }
 
 type TenantsValue struct {

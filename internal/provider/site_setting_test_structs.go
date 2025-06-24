@@ -2,16 +2,16 @@ package provider
 
 type SiteSettingModel struct {
 	Analytic               *AnalyticValue              `hcl:"analytic"`
-	ApUpdownThreshold      int64                       `hcl:"ap_updown_threshold"`
+	ApUpdownThreshold      *int64                      `hcl:"ap_updown_threshold"`
 	AutoUpgrade            *AutoUpgradeValue           `hcl:"auto_upgrade"`
 	BleConfig              *BleConfigValue             `hcl:"ble_config"`
 	ConfigAutoRevert       *bool                       `hcl:"config_auto_revert"`
 	ConfigPushPolicy       *ConfigPushPolicyValue      `hcl:"config_push_policy"`
 	CriticalUrlMonitoring  *CriticalUrlMonitoringValue `hcl:"critical_url_monitoring"`
-	DeviceUpdownThreshold  int64                       `hcl:"device_updown_threshold"`
+	DeviceUpdownThreshold  *int64                      `hcl:"device_updown_threshold"`
 	Engagement             *EngagementValue            `hcl:"engagement"`
 	GatewayMgmt            *GatewayMgmtValue           `hcl:"gateway_mgmt"`
-	GatewayUpdownThreshold int64                       `hcl:"gateway_updown_threshold"`
+	GatewayUpdownThreshold *int64                      `hcl:"gateway_updown_threshold"`
 	JuniperSrx             *JuniperSrxValue            `hcl:"juniper_srx"`
 	Led                    *LedValue                   `hcl:"led"`
 	Occupancy              *OccupancyValue             `hcl:"occupancy"`
@@ -27,7 +27,7 @@ type SiteSettingModel struct {
 	SrxApp                 *SrxAppValue                `hcl:"srx_app"`
 	SshKeys                []string                    `hcl:"ssh_keys"`
 	Ssr                    *SsrValue                   `hcl:"ssr"`
-	SwitchUpdownThreshold  int64                       `hcl:"switch_updown_threshold"`
+	SwitchUpdownThreshold  *int64                      `hcl:"switch_updown_threshold"`
 	SyntheticTest          *SyntheticTestValue         `hcl:"synthetic_test"`
 	TrackAnonymousDevices  *bool                       `hcl:"track_anonymous_devices"`
 	UplinkPortConfig       *UplinkPortConfigValue      `hcl:"uplink_port_config"`
@@ -77,8 +77,8 @@ type EngagementValue struct {
 	DwellTagNames *DwellTagNamesValue `cty:"dwell_tag_names"`
 	DwellTags     *DwellTagsValue     `cty:"dwell_tags"`
 	Hours         *HoursValue         `cty:"hours"`
-	MaxDwell      int64               `cty:"max_dwell"`
-	MinDwell      int64               `cty:"min_dwell"`
+	MaxDwell      *int64              `cty:"max_dwell"`
+	MinDwell      *int64              `cty:"min_dwell"`
 }
 
 type DwellTagNamesValue struct {
@@ -100,7 +100,7 @@ type GatewayMgmtValue struct {
 	AppProbing                 *AppProbingValue          `cty:"app_probing"`
 	AppUsage                   *bool                     `cty:"app_usage"`
 	AutoSignatureUpdate        *AutoSignatureUpdateValue `cty:"auto_signature_update"`
-	ConfigRevertTimer          int64                     `cty:"config_revert_timer"`
+	ConfigRevertTimer          *int64                    `cty:"config_revert_timer"`
 	DisableConsole             *bool                     `cty:"disable_console"`
 	DisableOob                 *bool                     `cty:"disable_oob"`
 	ProbeHosts                 []string                  `cty:"probe_hosts"`
@@ -121,7 +121,7 @@ type CustomAppsValue struct {
 	Hostnames  []string `cty:"hostnames"`
 	Name       string   `cty:"name"`
 	Network    *string  `cty:"network"`
-	PacketSize int64    `cty:"packet_size"`
+	PacketSize *int64   `cty:"packet_size"`
 	Protocol   string   `cty:"protocol"`
 	Vrf        *string  `cty:"vrf"`
 }
@@ -143,11 +143,11 @@ type GatewaysValue struct {
 }
 
 type OccupancyValue struct {
-	AssetsEnabled             *bool `cty:"assets_enabled"`
-	ClientsEnabled            *bool `cty:"clients_enabled"`
-	MinDuration               int64 `cty:"min_duration"`
-	SdkclientsEnabled         *bool `cty:"sdkclients_enabled"`
-	UnconnectedClientsEnabled *bool `cty:"unconnected_clients_enabled"`
+	AssetsEnabled             *bool  `cty:"assets_enabled"`
+	ClientsEnabled            *bool  `cty:"clients_enabled"`
+	MinDuration               *int64 `cty:"min_duration"`
+	SdkclientsEnabled         *bool  `cty:"sdkclients_enabled"`
+	UnconnectedClientsEnabled *bool  `cty:"unconnected_clients_enabled"`
 }
 
 type ProxyValue struct {
@@ -157,8 +157,8 @@ type ProxyValue struct {
 type RogueValue struct {
 	Enabled           *bool    `cty:"enabled"`
 	HoneypotEnabled   *bool    `cty:"honeypot_enabled"`
-	MinDuration       int64    `cty:"min_duration"`
-	MinRssi           int64    `cty:"min_rssi"`
+	MinDuration       *int64   `cty:"min_duration"`
+	MinRssi           *int64   `cty:"min_rssi"`
 	WhitelistedBssids []string `cty:"whitelisted_bssids"`
 	WhitelistedSsids  []string `cty:"whitelisted_ssids"`
 }
@@ -178,21 +178,21 @@ type SimpleAlertValue struct {
 }
 
 type ArpFailureValue struct {
-	ClientCount   int64 `cty:"client_count"`
-	Duration      int64 `cty:"duration"`
-	IncidentCount int64 `cty:"incident_count"`
+	ClientCount   *int64 `cty:"client_count"`
+	Duration      *int64 `cty:"duration"`
+	IncidentCount *int64 `cty:"incident_count"`
 }
 
 type DhcpFailureValue struct {
-	ClientCount   int64 `cty:"client_count"`
-	Duration      int64 `cty:"duration"`
-	IncidentCount int64 `cty:"incident_count"`
+	ClientCount   *int64 `cty:"client_count"`
+	Duration      *int64 `cty:"duration"`
+	IncidentCount *int64 `cty:"incident_count"`
 }
 
 type DnsFailureValue struct {
-	ClientCount   int64 `cty:"client_count"`
-	Duration      int64 `cty:"duration"`
-	IncidentCount int64 `cty:"incident_count"`
+	ClientCount   *int64 `cty:"client_count"`
+	Duration      *int64 `cty:"duration"`
+	IncidentCount *int64 `cty:"incident_count"`
 }
 
 type SkyatpValue struct {
@@ -226,8 +226,8 @@ type WidsValue struct {
 }
 
 type RepeatedAuthFailuresValue struct {
-	Duration  int64 `cty:"duration"`
-	Threshold int64 `cty:"threshold"`
+	Duration  *int64 `cty:"duration"`
+	Threshold *int64 `cty:"threshold"`
 }
 
 type WifiValue struct {
@@ -254,5 +254,5 @@ type WiredVnaValue struct {
 type ZoneOccupancyAlertValue struct {
 	EmailNotifiers []string `cty:"email_notifiers"`
 	Enabled        *bool    `cty:"enabled"`
-	Threshold      int64    `cty:"threshold"`
+	Threshold      *int64   `cty:"threshold"`
 }
