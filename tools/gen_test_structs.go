@@ -8,11 +8,7 @@ import (
 )
 
 const (
-	inRes     = "org_wlan"
 	pvdFolder = "/Users/kdejong/go/src/github.com/terraform-provider-mist"
-	inFile    = pvdFolder + "/internal/resource_" + inRes + "/" + inRes + "_resource_gen.go"
-	outFile   = pvdFolder + "/internal/provider/" + inRes + "_test_structs.go"
-	matchFile = "./test/" + inRes + "/matching.yaml"
 )
 
 type attrParameters struct {
@@ -24,6 +20,17 @@ type attrParameters struct {
 }
 
 func main() {
+	if len(os.Args) < 2 {
+		fmt.Println("Usage: go run gen_test_structs.go <resource_name>")
+		fmt.Println("Example: go run gen_test_structs.go device_gateway")
+		os.Exit(1)
+	}
+
+	inRes := os.Args[1]
+	inFile := pvdFolder + "/internal/resource_" + inRes + "/" + inRes + "_resource_gen.go"
+	outFile := pvdFolder + "/internal/provider/" + inRes + "_test_structs.go"
+	// matchFile := "./test/" + inRes + "/matching.yaml" // Currently unused
+
 	in, err := os.Open(inFile)
 	if err != nil {
 		fmt.Printf("Error opening input file: %v\n", err)
