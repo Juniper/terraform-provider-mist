@@ -8,6 +8,13 @@ description: |-
 # Release Notes for v0.3.xx
 
 
+## Release Notes for v0.3.8
+**Release Date**: June 25th, 2025
+
+### Fixes
+* **[Issue 108](https://github.com/Juniper/terraform-provider-mist/issues/108):** Fixed mesh configuration handling by properly initializing the `bands` attribute with `null` instead of an empty list when no bands are configured. This resolves schema validation issues in both `mist_device_ap` and `mist_org_deviceprofile_ap` resources when importing or updating mesh configurations.
+
+
 ## Release Notes for v0.3.7
 **Release Date**: June 25th, 2025
 
