@@ -16,7 +16,7 @@ import (
 func meshSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ApMesh) MeshValue {
 
 	var enabled basetypes.BoolValue
-	bands := types.ListValueMust(types.StringType, []attr.Value{})
+	bands := types.ListNull(types.StringType)
 	var group basetypes.Int64Value
 	var role basetypes.StringValue
 
