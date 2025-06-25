@@ -8,6 +8,13 @@ description: |-
 # Release Notes for v0.3.xx
 
 
+## Release Notes for v0.3.7
+**Release Date**: June 25th, 2025
+
+### Fixes
+* **[Issue 108](https://github.com/Juniper/terraform-provider-mist/issues/108):** Fixed handling of optional `site_id` values in the organization inventory resource and data source by updating the underlying type from `uuid.UUID` to `*uuid.UUID`. This resolves issues where null or unset `site_id` values were not properly handled during API calls.
+
+
 ## Release Notes for v0.3.6
 **Release Date**: June 24th, 2025
 
