@@ -10,16 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func (s *OrgWebhookModel) testChecks(t testing.TB, rType, rName string) testChecks {
-	checks := newTestChecks(rType + "." + rName)
-	checks.append(t, "TestCheckResourceAttrSet", "name")
-	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
-	checks.append(t, "TestCheckResourceAttrSet", "org_id")
-	checks.append(t, "TestCheckResourceAttr", "org_id", s.OrgId)
-
-	return checks
-}
-
 func TestOrgWebhookModel(t *testing.T) {
 	type testStep struct {
 		config OrgWebhookModel
@@ -57,20 +47,24 @@ func TestOrgWebhookModel(t *testing.T) {
 				f := hclwrite.NewEmptyFile()
 				gohcl.EncodeIntoBody(&config, f.Body())
 				configStr := Render(resourceType, tName, string(f.Bytes()))
-				fmt.Printf("Config: %s\n", configStr)
 
-				checks := config.testChecks(t, PrefixProviderName(resourceType), tName)
-				chkLog := checks.string()
-				stepName := fmt.Sprintf("test case %s step %d", tName, i+1)
-
-				// log config and checks here
-				t.Logf("\n// ------ begin config for %s ------\n%s// -------- end config for %s ------\n\n", stepName, configStr, stepName)
-				t.Logf("\n// ------ begin checks for %s ------\n%s// -------- end checks for %s ------\n\n", stepName, chkLog, stepName)
+				// Focus checks on the webhook resource
+				checks := newTestChecks(PrefixProviderName(resourceType) + "." + tName)
+				checks.append(t, "TestCheckResourceAttr", "name", config.Name)
+				checks.append(t, "TestCheckResourceAttr", "org_id", config.OrgId)
+				checks.append(t, "TestCheckResourceAttr", "url", config.Url)
+				checks.append(t, "TestCheckResourceAttr", "topics.#", fmt.Sprintf("%d", len(config.Topics)))
+				if len(config.Topics) > 0 {
+					checks.append(t, "TestCheckResourceAttr", "topics.0", config.Topics[0])
+				}
 
 				steps[i] = resource.TestStep{
 					Config: configStr,
 					Check:  resource.ComposeAggregateTestCheckFunc(checks.checks...),
 				}
+
+				// Log configuration for debugging
+				t.Logf("\n// ------ Config ------\n%s\n", configStr)
 			}
 
 			resource.Test(t, resource.TestCase{

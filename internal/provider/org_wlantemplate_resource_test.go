@@ -2,22 +2,12 @@
 package provider
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclwrite"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
-
-func (s *OrgWlantemplateModel) testChecks(t testing.TB, rType, rName string) testChecks {
-	checks := newTestChecks(rType + "." + rName)
-
-	checks.append(t, "TestCheckResourceAttrSet", "name")
-	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
-
-	return checks
-}
 
 func TestOrgWlantemplateModel(t *testing.T) {
 	type testStep struct {
@@ -33,7 +23,7 @@ func TestOrgWlantemplateModel(t *testing.T) {
 			steps: []testStep{
 				{
 					config: OrgWlantemplateModel{
-						Name:  "Test2",
+						Name:  "TestTemplate",
 						OrgId: GetTestOrgId(),
 					},
 				},
@@ -52,20 +42,19 @@ func TestOrgWlantemplateModel(t *testing.T) {
 				f := hclwrite.NewEmptyFile()
 				gohcl.EncodeIntoBody(&config, f.Body())
 				configStr := Render(resourceType, tName, string(f.Bytes()))
-				fmt.Printf("Config: %s\n", configStr)
 
-				checks := config.testChecks(t, PrefixProviderName(resourceType), tName)
-				chkLog := checks.string()
-				stepName := fmt.Sprintf("test case %s step %d", tName, i+1)
-
-				// log config and checks here
-				t.Logf("\n// ------ begin config for %s ------\n%s// -------- end config for %s ------\n\n", stepName, configStr, stepName)
-				t.Logf("\n// ------ begin checks for %s ------\n%s// -------- end checks for %s ------\n\n", stepName, chkLog, stepName)
+				// Focus checks on the wlan template resource
+				checks := newTestChecks(PrefixProviderName(resourceType) + "." + tName)
+				checks.append(t, "TestCheckResourceAttr", "name", config.Name)
+				checks.append(t, "TestCheckResourceAttr", "org_id", config.OrgId)
 
 				steps[i] = resource.TestStep{
 					Config: configStr,
 					Check:  resource.ComposeAggregateTestCheckFunc(checks.checks...),
 				}
+
+				// Log configuration for debugging
+				t.Logf("\n// ------ Config ------\n%s\n", configStr)
 			}
 
 			resource.Test(t, resource.TestCase{
