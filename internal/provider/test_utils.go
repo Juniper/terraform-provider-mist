@@ -1,30 +1,34 @@
+// WIP
 package provider
 
 import (
 	"fmt"
 	"math"
+	"os"
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/stretchr/testify/require"
 	"gotest.tools/assert"
 )
 
-const (
-	resourceConfigString = `
-resource %q %q {
-%s
-}`
-)
+func GetTestOrgId() string {
+	return os.Getenv("TF_MIST_TEST_ORG_ID")
+}
 
-// Render will return the string format of the terraform configuration
-func Render(rType, rName, config string) string {
-	return fmt.Sprintf(resourceConfigString,
-		rType,
-		rName,
-		config,
-	)
+func PrefixProviderName(name string) string {
+	if strings.HasPrefix(name, "mist_") {
+		return name
+	}
+	return "mist_" + name
+}
+
+func Render(resourceType, resourceName, config string) string {
+	return fmt.Sprintf(`
+    resource "%s" "%s" {
+    %s
+    }`, PrefixProviderName(resourceType), resourceName, config)
 }
 
 func newTestChecks(path string) testChecks {
@@ -35,10 +39,6 @@ type testChecks struct {
 	path     string
 	logLines lineNumberer
 	checks   []resource.TestCheckFunc
-}
-
-func (o *testChecks) setPath(path string) {
-	o.path = path
 }
 
 func (o *testChecks) append(t testing.TB, testCheckFuncName string, testCheckFuncArgs ...string) {
