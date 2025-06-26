@@ -51,9 +51,9 @@ func TestSiteModel(t *testing.T) {
 			steps: []testStep{
 				{
 					config: SiteModel{
-						Address: "48 Balfour St, Woodstock, Cape Town, 7915, South Africa",
+						Address: "test-address",
 						Name:    "test-site",
-						OrgId:   "901c5705-ca11-4bf1-9158-31f7195618ef",
+						OrgId:   GetTestOrgId(),
 					},
 				},
 			},
@@ -69,7 +69,7 @@ func TestSiteModel(t *testing.T) {
 
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
-			resourceType := "mist_site"
+			resourceType := "site"
 
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
