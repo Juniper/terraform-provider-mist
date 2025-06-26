@@ -2536,10 +2536,7 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "List of wxtag_ids",
 				MarkdownDescription: "List of wxtag_ids",
-				Validators: []validator.List{
-					listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseInt(1, 4094), mistvalidator.ParseVar())),
-				},
-				Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+				Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 			},
 			"wxtunnel_id": schema.StringAttribute{
 				Optional:            true,
@@ -14103,6 +14100,8 @@ func (t PortalType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 		SmsExpire:                   smsExpireVal,
 		SmsMessageFormat:            smsMessageFormatVal,
 		SmsProvider:                 smsProviderVal,
+		SmsglobalApiKey:             smsglobalApiKeyVal,
+		SmsglobalApiSecret:          smsglobalApiSecretVal,
 		SponsorAutoApprove:          sponsorAutoApproveVal,
 		SponsorEmailDomains:         sponsorEmailDomainsVal,
 		SponsorEnabled:              sponsorEnabledVal,
@@ -15162,6 +15161,42 @@ func NewPortalValue(attributeTypes map[string]attr.Type, attributes map[string]a
 			fmt.Sprintf(`sms_provider expected to be basetypes.StringValue, was: %T`, smsProviderAttribute))
 	}
 
+	smsglobalApiKeyAttribute, ok := attributes["smsglobal_api_key"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`smsglobal_api_key is missing from object`)
+
+		return NewPortalValueUnknown(), diags
+	}
+
+	smsglobalApiKeyVal, ok := smsglobalApiKeyAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`smsglobal_api_key expected to be basetypes.StringValue, was: %T`, smsglobalApiKeyAttribute))
+	}
+
+	smsglobalApiSecretAttribute, ok := attributes["smsglobal_api_secret"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`smsglobal_api_secret is missing from object`)
+
+		return NewPortalValueUnknown(), diags
+	}
+
+	smsglobalApiSecretVal, ok := smsglobalApiSecretAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`smsglobal_api_secret expected to be basetypes.StringValue, was: %T`, smsglobalApiSecretAttribute))
+	}
+
 	sponsorAutoApproveAttribute, ok := attributes["sponsor_auto_approve"]
 
 	if !ok {
@@ -15581,6 +15616,8 @@ func NewPortalValue(attributeTypes map[string]attr.Type, attributes map[string]a
 		SmsExpire:                   smsExpireVal,
 		SmsMessageFormat:            smsMessageFormatVal,
 		SmsProvider:                 smsProviderVal,
+		SmsglobalApiKey:             smsglobalApiKeyVal,
+		SmsglobalApiSecret:          smsglobalApiSecretVal,
 		SponsorAutoApprove:          sponsorAutoApproveVal,
 		SponsorEmailDomains:         sponsorEmailDomainsVal,
 		SponsorEnabled:              sponsorEnabledVal,
@@ -15727,6 +15764,8 @@ type PortalValue struct {
 	SmsExpire                   basetypes.Int64Value  `tfsdk:"sms_expire"`
 	SmsMessageFormat            basetypes.StringValue `tfsdk:"sms_message_format"`
 	SmsProvider                 basetypes.StringValue `tfsdk:"sms_provider"`
+	SmsglobalApiKey             basetypes.StringValue `tfsdk:"smsglobal_api_key"`
+	SmsglobalApiSecret          basetypes.StringValue `tfsdk:"smsglobal_api_secret"`
 	SponsorAutoApprove          basetypes.BoolValue   `tfsdk:"sponsor_auto_approve"`
 	SponsorEmailDomains         basetypes.ListValue   `tfsdk:"sponsor_email_domains"`
 	SponsorEnabled              basetypes.BoolValue   `tfsdk:"sponsor_enabled"`
@@ -15751,7 +15790,7 @@ type PortalValue struct {
 }
 
 func (v PortalValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 74)
+	attrTypes := make(map[string]tftypes.Type, 76)
 
 	var val tftypes.Value
 	var err error
@@ -15818,6 +15857,8 @@ func (v PortalValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 	attrTypes["sms_expire"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["sms_message_format"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["sms_provider"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["smsglobal_api_key"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["smsglobal_api_secret"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["sponsor_auto_approve"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["sponsor_email_domains"] = basetypes.ListType{
 		ElemType: types.StringType,
@@ -15847,7 +15888,7 @@ func (v PortalValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 74)
+		vals := make(map[string]tftypes.Value, 76)
 
 		val, err = v.AllowWlanIdRoam.ToTerraformValue(ctx)
 
@@ -16281,6 +16322,22 @@ func (v PortalValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 
 		vals["sms_provider"] = val
 
+		val, err = v.SmsglobalApiKey.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["smsglobal_api_key"] = val
+
+		val, err = v.SmsglobalApiSecret.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["smsglobal_api_secret"] = val
+
 		val, err = v.SponsorAutoApprove.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -16546,6 +16603,8 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"sms_expire":                     basetypes.Int64Type{},
 			"sms_message_format":             basetypes.StringType{},
 			"sms_provider":                   basetypes.StringType{},
+			"smsglobal_api_key":              basetypes.StringType{},
+			"smsglobal_api_secret":           basetypes.StringType{},
 			"sponsor_auto_approve":           basetypes.BoolType{},
 			"sponsor_email_domains": basetypes.ListType{
 				ElemType: types.StringType,
@@ -16649,6 +16708,8 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"sms_expire":                     basetypes.Int64Type{},
 			"sms_message_format":             basetypes.StringType{},
 			"sms_provider":                   basetypes.StringType{},
+			"smsglobal_api_key":              basetypes.StringType{},
+			"smsglobal_api_secret":           basetypes.StringType{},
 			"sponsor_auto_approve":           basetypes.BoolType{},
 			"sponsor_email_domains": basetypes.ListType{
 				ElemType: types.StringType,
@@ -16752,6 +16813,8 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"sms_expire":                     basetypes.Int64Type{},
 			"sms_message_format":             basetypes.StringType{},
 			"sms_provider":                   basetypes.StringType{},
+			"smsglobal_api_key":              basetypes.StringType{},
+			"smsglobal_api_secret":           basetypes.StringType{},
 			"sponsor_auto_approve":           basetypes.BoolType{},
 			"sponsor_email_domains": basetypes.ListType{
 				ElemType: types.StringType,
@@ -16855,6 +16918,8 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"sms_expire":                     basetypes.Int64Type{},
 			"sms_message_format":             basetypes.StringType{},
 			"sms_provider":                   basetypes.StringType{},
+			"smsglobal_api_key":              basetypes.StringType{},
+			"smsglobal_api_secret":           basetypes.StringType{},
 			"sponsor_auto_approve":           basetypes.BoolType{},
 			"sponsor_email_domains": basetypes.ListType{
 				ElemType: types.StringType,
@@ -16958,6 +17023,8 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"sms_expire":                     basetypes.Int64Type{},
 			"sms_message_format":             basetypes.StringType{},
 			"sms_provider":                   basetypes.StringType{},
+			"smsglobal_api_key":              basetypes.StringType{},
+			"smsglobal_api_secret":           basetypes.StringType{},
 			"sponsor_auto_approve":           basetypes.BoolType{},
 			"sponsor_email_domains": basetypes.ListType{
 				ElemType: types.StringType,
@@ -17061,6 +17128,8 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"sms_expire":                     basetypes.Int64Type{},
 			"sms_message_format":             basetypes.StringType{},
 			"sms_provider":                   basetypes.StringType{},
+			"smsglobal_api_key":              basetypes.StringType{},
+			"smsglobal_api_secret":           basetypes.StringType{},
 			"sponsor_auto_approve":           basetypes.BoolType{},
 			"sponsor_email_domains": basetypes.ListType{
 				ElemType: types.StringType,
@@ -17151,6 +17220,8 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 		"sms_expire":                     basetypes.Int64Type{},
 		"sms_message_format":             basetypes.StringType{},
 		"sms_provider":                   basetypes.StringType{},
+		"smsglobal_api_key":              basetypes.StringType{},
+		"smsglobal_api_secret":           basetypes.StringType{},
 		"sponsor_auto_approve":           basetypes.BoolType{},
 		"sponsor_email_domains": basetypes.ListType{
 			ElemType: types.StringType,
@@ -17242,6 +17313,8 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"sms_expire":                     v.SmsExpire,
 			"sms_message_format":             v.SmsMessageFormat,
 			"sms_provider":                   v.SmsProvider,
+			"smsglobal_api_key":              v.SmsglobalApiKey,
+			"smsglobal_api_secret":           v.SmsglobalApiSecret,
 			"sponsor_auto_approve":           v.SponsorAutoApprove,
 			"sponsor_email_domains":          sponsorEmailDomainsVal,
 			"sponsor_enabled":                v.SponsorEnabled,
@@ -17498,6 +17571,14 @@ func (v PortalValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.SmsglobalApiKey.Equal(other.SmsglobalApiKey) {
+		return false
+	}
+
+	if !v.SmsglobalApiSecret.Equal(other.SmsglobalApiSecret) {
+		return false
+	}
+
 	if !v.SponsorAutoApprove.Equal(other.SponsorAutoApprove) {
 		return false
 	}
@@ -17653,6 +17734,8 @@ func (v PortalValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 		"sms_expire":                     basetypes.Int64Type{},
 		"sms_message_format":             basetypes.StringType{},
 		"sms_provider":                   basetypes.StringType{},
+		"smsglobal_api_key":              basetypes.StringType{},
+		"smsglobal_api_secret":           basetypes.StringType{},
 		"sponsor_auto_approve":           basetypes.BoolType{},
 		"sponsor_email_domains": basetypes.ListType{
 			ElemType: types.StringType,
