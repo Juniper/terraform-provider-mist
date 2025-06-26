@@ -8,6 +8,18 @@ description: |-
 # Release Notes for v0.3.xx
 
 
+## Release Notes for v0.3.9
+**Release Date**: June 26th, 2025
+
+### Fixes
+* **[Issue 112](https://github.com/Juniper/terraform-provider-mist/issues/112):** Resolved a bug that prevented proper configuration of the `mist_org_wlan.wxtag_ids` and `mist_org_wlan.wxtag_ids` resources attributes.
+
+
+### New Attributes
+* **`mist_org_wlan` and `mist_org_wlan` Resources**  
+  - Added `smsglobal` option to `.portal.sms_provider` 
+  - Added `.portal.smsglobal_api_key` and `.portal.smsglobal_api_secret`
+
 ## Release Notes for v0.3.8
 **Release Date**: June 25th, 2025
 
