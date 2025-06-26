@@ -1734,8 +1734,8 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 					"sms_provider": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Optioanl if `sms_enabled`==`true`. enum: `broadnet`, `clickatell`, `gupshup`, `manual`, `puzzel`, `telstra`, `twilio`",
-						MarkdownDescription: "Optioanl if `sms_enabled`==`true`. enum: `broadnet`, `clickatell`, `gupshup`, `manual`, `puzzel`, `telstra`, `twilio`",
+						Description:         "Optioanl if `sms_enabled`==`true`. enum: `broadnet`, `clickatell`, `gupshup`, `manual`, `puzzel`, `smsglobal`, `telstra`, `twilio`",
+						MarkdownDescription: "Optioanl if `sms_enabled`==`true`. enum: `broadnet`, `clickatell`, `gupshup`, `manual`, `puzzel`, `smsglobal`, `telstra`, `twilio`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -1750,6 +1750,16 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("sms_enabled"), types.BoolValue(true)),
 						},
 						Default: stringdefault.StaticString("manual"),
+					},
+					"smsglobal_api_key": schema.StringAttribute{
+						Optional:            true,
+						Description:         "Required if `sms_provider`==`smsglobal`, Client API Key",
+						MarkdownDescription: "Required if `sms_provider`==`smsglobal`, Client API Key",
+					},
+					"smsglobal_api_secret": schema.StringAttribute{
+						Optional:            true,
+						Description:         "Required if `sms_provider`==`smsglobal`, Client secret",
+						MarkdownDescription: "Required if `sms_provider`==`smsglobal`, Client secret",
 					},
 					"sponsor_auto_approve": schema.BoolAttribute{
 						Optional:            true,
@@ -13682,6 +13692,42 @@ func (t PortalType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`sms_provider expected to be basetypes.StringValue, was: %T`, smsProviderAttribute))
+	}
+
+	smsglobalApiKeyAttribute, ok := attributes["smsglobal_api_key"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`smsglobal_api_key is missing from object`)
+
+		return nil, diags
+	}
+
+	smsglobalApiKeyVal, ok := smsglobalApiKeyAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`smsglobal_api_key expected to be basetypes.StringValue, was: %T`, smsglobalApiKeyAttribute))
+	}
+
+	smsglobalApiSecretAttribute, ok := attributes["smsglobal_api_secret"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`smsglobal_api_secret is missing from object`)
+
+		return nil, diags
+	}
+
+	smsglobalApiSecretVal, ok := smsglobalApiSecretAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`smsglobal_api_secret expected to be basetypes.StringValue, was: %T`, smsglobalApiSecretAttribute))
 	}
 
 	sponsorAutoApproveAttribute, ok := attributes["sponsor_auto_approve"]
