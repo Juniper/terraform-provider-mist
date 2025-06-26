@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/hcl"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclwrite"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	// gwc "github.com/terraform-provider-mist/internal/resource_device_gateway_cluster"
 )
 
@@ -34,7 +34,7 @@ func TestSitePskModel(t *testing.T) {
 
 	var FixtureSitePskModel SitePskModel
 
-	b, err := os.ReadFile("fixtures/site_psk_resource/site_psk_resource_config.tf")
+	b, err := os.ReadFile("fixtures/site_psk_resource/site_psk_config.tf")
 	if err != nil {
 		fmt.Print(err)
 	}

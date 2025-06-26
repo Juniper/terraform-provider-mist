@@ -12,18 +12,16 @@ import (
 	// gwc "github.com/terraform-provider-mist/internal/resource_device_gateway_cluster"
 )
 
-func (s *SiteModel) testChecks(t testing.TB, rType, rName string) testChecks {
+func (s *SiteNetworktemplateModel) testChecks(t testing.TB, rType, rName string) testChecks {
 	checks := newTestChecks(rType + "." + rName)
-	checks.append(t, "TestCheckResourceAttr", "address", s.Address)
-	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
-	checks.append(t, "TestCheckResourceAttr", "org_id", s.OrgId)
+	checks.append(t, "TestCheckResourceAttr", "site_id", s.SiteId)
 
 	return checks
 }
 
-func TestSiteModel(t *testing.T) {
+func TestSiteNetworktemplateModel(t *testing.T) {
 	type testStep struct {
-		config SiteModel
+		config SiteNetworktemplateModel
 	}
 
 	type testCase struct {
@@ -31,9 +29,9 @@ func TestSiteModel(t *testing.T) {
 		steps []testStep
 	}
 
-	var FixtureSiteModel SiteModel
+	var FixtureSiteNetworktemplateModel SiteNetworktemplateModel
 
-	b, err := os.ReadFile("fixtures/site_resource/site_resource_config.tf")
+	b, err := os.ReadFile("fixtures/site_networktemplate_resource/site_networktemplate_config.tf")
 	if err != nil {
 		fmt.Print(err)
 	}
@@ -41,7 +39,7 @@ func TestSiteModel(t *testing.T) {
 	str := string(b) // convert content to a 'string'
 	fmt.Println(str)
 
-	err = hcl.Decode(&FixtureSiteModel, str)
+	err = hcl.Decode(&FixtureSiteNetworktemplateModel, str)
 	if err != nil {
 		fmt.Printf("error decoding hcl: %s\n", err)
 	}
@@ -50,10 +48,8 @@ func TestSiteModel(t *testing.T) {
 		"simple_case": {
 			steps: []testStep{
 				{
-					config: SiteModel{
-						Address: "48 Balfour St, Woodstock, Cape Town, 7915, South Africa",
-						Name:    "test-site",
-						OrgId:   "901c5705-ca11-4bf1-9158-31f7195618ef",
+					config: SiteNetworktemplateModel{
+						SiteId: "2c107c8e-2e06-404a-ba61-e25b5757ecea",
 					},
 				},
 			},
@@ -61,7 +57,7 @@ func TestSiteModel(t *testing.T) {
 		// "hcl_decode": {
 		// 	steps: []testStep{
 		// 		{
-		// 			config: FixtureSiteModel,
+		// 			config: FixtureSiteNetworktemplateModel,
 		// 		},
 		// 	},
 		// },
@@ -69,7 +65,7 @@ func TestSiteModel(t *testing.T) {
 
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
-			resourceType := "mist_site"
+			resourceType := "mist_site_networktemplate"
 
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {

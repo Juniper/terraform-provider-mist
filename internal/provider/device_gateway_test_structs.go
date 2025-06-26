@@ -68,50 +68,11 @@ type NeighborsValue struct {
 	NeighborAs   *int64  `cty:"neighbor_as"`
 }
 
-type DhcpdConfigValue struct {
-	Config  map[string]ConfigValue `cty:"config"`
-	Enabled *bool                  `cty:"enabled"`
-}
-
-type ConfigValue struct {
-	DnsServers         []string                           `cty:"dns_servers"`
-	DnsSuffix          []string                           `cty:"dns_suffix"`
-	FixedBindings      map[string]FixedBindingsValue      `cty:"fixed_bindings"`
-	Gateway            *string                            `cty:"gateway"`
-	IpEnd4             *string                            `cty:"ip_end"`
-	IpEnd6             *string                            `cty:"ip_end6"`
-	IpStart4           *string                            `cty:"ip_start"`
-	IpStart6           *string                            `cty:"ip_start6"`
-	LeaseTime          *int64                             `cty:"lease_time"`
-	Options            map[string]OptionsValue            `cty:"options"`
-	ServerIdOverride   *bool                              `cty:"server_id_override"`
-	Servers4           []string                           `cty:"servers"`
-	Servers6           []string                           `cty:"servers6"`
-	Type4              *string                            `cty:"type"`
-	Type6              *string                            `cty:"type6"`
-	VendorEncapsulated map[string]VendorEncapsulatedValue `cty:"vendor_encapsulated"`
-}
-
-type FixedBindingsValue struct {
-	Ip   string  `cty:"ip"`
-	Name *string `cty:"name"`
-}
-
-type OptionsValue struct {
-	OptionsType *string `cty:"type"`
-	Value       *string `cty:"value"`
-}
-
-type VendorEncapsulatedValue struct {
-	VendorEncapsulatedType *string `cty:"type"`
-	Value                  *string `cty:"value"`
-}
-
-type ExtraRoutesValue struct {
+type GatewayExtraRoutesValue struct {
 	Via string `cty:"via"`
 }
 
-type ExtraRoutes6Value struct {
+type GatewayExtraRoutes6Value struct {
 	Via string `cty:"via"`
 }
 
@@ -142,7 +103,7 @@ type IpConfigsValue struct {
 	IpConfigsType *string  `cty:"type"`
 }
 
-type NetworksValue struct {
+type GatewayNetworksValue struct {
 	DisallowMistServices *bool                     `cty:"disallow_mist_services"`
 	Gateway              *string                   `cty:"gateway"`
 	Gateway6             *string                   `cty:"gateway6"`
@@ -226,7 +187,7 @@ type VpnAccessStaticNatValue struct {
 	Name       string `cty:"name"`
 }
 
-type OobIpConfigValue struct {
+type GatewayOobIpConfigValue struct {
 	Gateway              *string     `cty:"gateway"`
 	Ip                   *string     `cty:"ip"`
 	Netmask              *string     `cty:"netmask"`
@@ -264,7 +225,7 @@ type PathsValue struct {
 	WanName        *string  `cty:"wan_name"`
 }
 
-type PortConfigValue struct {
+type GatewayPortConfigValue struct {
 	AeDisableLacp    *bool                          `cty:"ae_disable_lacp"`
 	AeIdx            *string                        `cty:"ae_idx"`
 	AeLacpForceUp    *bool                          `cty:"ae_lacp_force_up"`
@@ -352,7 +313,7 @@ type WanSourceNatValue struct {
 	NatPool  *string `cty:"nat_pool"`
 }
 
-type PortMirroringValue struct {
+type GatewayPortMirroringValue struct {
 	PortMirror *PortMirrorValue `cty:"port_mirror"`
 }
 
@@ -576,10 +537,6 @@ type SubLocationsValue struct {
 	UpBandwidth                         *float64 `cty:"up_bandwidth"`
 }
 
-type VrfConfigValue struct {
-	Enabled *bool `cty:"enabled"`
-}
-
-type VrfInstancesValue struct {
+type GatewayVrfInstancesValue struct {
 	Networks []string `cty:"networks"`
 }

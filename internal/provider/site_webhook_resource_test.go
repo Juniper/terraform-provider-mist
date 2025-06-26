@@ -12,18 +12,21 @@ import (
 	// gwc "github.com/terraform-provider-mist/internal/resource_device_gateway_cluster"
 )
 
-func (s *SiteModel) testChecks(t testing.TB, rType, rName string) testChecks {
+func (s *SiteWebhookModel) testChecks(t testing.TB, rType, rName string) testChecks {
 	checks := newTestChecks(rType + "." + rName)
-	checks.append(t, "TestCheckResourceAttr", "address", s.Address)
 	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
-	checks.append(t, "TestCheckResourceAttr", "org_id", s.OrgId)
+	checks.append(t, "TestCheckResourceAttr", "site_id", s.SiteId)
+	checks.append(t, "TestCheckResourceAttr", "topics.#", fmt.Sprintf("%d", len(s.Topics)))
+	checks.append(t, "TestCheckResourceAttr", "topics.0", s.Topics[0])
+	checks.append(t, "TestCheckResourceAttr", "topics.1", s.Topics[1])
+	checks.append(t, "TestCheckResourceAttr", "url", s.Url)
 
 	return checks
 }
 
-func TestSiteModel(t *testing.T) {
+func TestSiteWebhookModel(t *testing.T) {
 	type testStep struct {
-		config SiteModel
+		config SiteWebhookModel
 	}
 
 	type testCase struct {
@@ -31,9 +34,9 @@ func TestSiteModel(t *testing.T) {
 		steps []testStep
 	}
 
-	var FixtureSiteModel SiteModel
+	var FixtureSiteWebhookModel SiteWebhookModel
 
-	b, err := os.ReadFile("fixtures/site_resource/site_resource_config.tf")
+	b, err := os.ReadFile("fixtures/site_webhook_resource/site_webhook_config.tf")
 	if err != nil {
 		fmt.Print(err)
 	}
@@ -41,7 +44,7 @@ func TestSiteModel(t *testing.T) {
 	str := string(b) // convert content to a 'string'
 	fmt.Println(str)
 
-	err = hcl.Decode(&FixtureSiteModel, str)
+	err = hcl.Decode(&FixtureSiteWebhookModel, str)
 	if err != nil {
 		fmt.Printf("error decoding hcl: %s\n", err)
 	}
@@ -50,10 +53,14 @@ func TestSiteModel(t *testing.T) {
 		"simple_case": {
 			steps: []testStep{
 				{
-					config: SiteModel{
-						Address: "48 Balfour St, Woodstock, Cape Town, 7915, South Africa",
-						Name:    "test-site",
-						OrgId:   "901c5705-ca11-4bf1-9158-31f7195618ef",
+					config: SiteWebhookModel{
+						Name:   "test-site-webhook",
+						SiteId: "2c107c8e-2e06-404a-ba61-e25b5757ecea",
+						Topics: []string{
+							"device-events",
+							"alarms",
+						},
+						Url: "https://example.com/webhook",
 					},
 				},
 			},
@@ -61,7 +68,7 @@ func TestSiteModel(t *testing.T) {
 		// "hcl_decode": {
 		// 	steps: []testStep{
 		// 		{
-		// 			config: FixtureSiteModel,
+		// 			config: FixtureSiteWebhookModel,
 		// 		},
 		// 	},
 		// },
@@ -69,7 +76,7 @@ func TestSiteModel(t *testing.T) {
 
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
-			resourceType := "mist_site"
+			resourceType := "mist_site_webhook"
 
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
