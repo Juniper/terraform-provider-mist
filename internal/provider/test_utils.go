@@ -264,6 +264,5 @@ func GetOrgWlanBaseConfig(orgID string) (config string, wlanRef string) {
 	f.Body().SetAttributeRaw("template_id", hclwrite.TokensForIdentifier(templateRef))
 	wlanConfigStr := Render("org_wlan", "wlanName", string(f.Bytes()))
 
-	// Combine all three configs
 	return wlanTemplateConfigStr + "\n\n" + wlanConfigStr, "mist_org_wlan.wlanName.id"
 }
