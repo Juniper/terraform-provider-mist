@@ -1744,6 +1744,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 								"gupshup",
 								"manual",
 								"puzzel",
+								"smsglobal",
 								"telstra",
 								"twilio",
 							),
@@ -1755,11 +1756,17 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "Required if `sms_provider`==`smsglobal`, Client API Key",
 						MarkdownDescription: "Required if `sms_provider`==`smsglobal`, Client API Key",
+						Validators: []validator.String{
+							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("sms_provider"), types.StringValue("smsglobal")),
+						},
 					},
 					"smsglobal_api_secret": schema.StringAttribute{
 						Optional:            true,
 						Description:         "Required if `sms_provider`==`smsglobal`, Client secret",
 						MarkdownDescription: "Required if `sms_provider`==`smsglobal`, Client secret",
+						Validators: []validator.String{
+							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("sms_provider"), types.StringValue("smsglobal")),
+						},
 					},
 					"sponsor_auto_approve": schema.BoolAttribute{
 						Optional:            true,
@@ -1993,6 +2000,8 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 							"sms_expire":                     types.Int64Null(),
 							"sms_message_format":             types.StringValue("Code {{code}} expires in {{duration}} minutes."),
 							"sms_provider":                   types.StringValue("manual"),
+							"smsglobal_api_key":              types.StringNull(),
+							"smsglobal_api_secret":           types.StringNull(),
 							"sponsor_auto_approve":           types.BoolNull(),
 							"sponsor_email_domains":          types.ListValueMust(types.StringType, []attr.Value{}),
 							"sponsor_enabled":                types.BoolValue(false),
