@@ -944,6 +944,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 									Optional:            true,
 									Description:         "List of networks to be used for synthetic tests",
 									MarkdownDescription: "List of networks to be used for synthetic tests",
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 								"probes": schema.ListAttribute{
 									ElementType:         types.StringType,
@@ -984,7 +987,6 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 								"probes": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Optional:            true,
-									Computed:            true,
 									Description:         "app name comes from `custom_probes` above or /const/synthetic_test_probes",
 									MarkdownDescription: "app name comes from `custom_probes` above or /const/synthetic_test_probes",
 									Validators: []validator.List{
