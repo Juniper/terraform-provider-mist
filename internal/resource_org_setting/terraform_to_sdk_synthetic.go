@@ -87,6 +87,10 @@ func syntheticTestVlansTerraformToSdk(d basetypes.ListValue) []models.Synthetict
 			data.Disabled = plan.Disabled.ValueBoolPointer()
 		}
 
+		if !plan.Probes.IsNull() && !plan.Probes.IsUnknown() {
+			data.Probes = mistutils.ListOfStringTerraformToSdk(plan.Probes)
+		}
+
 		if !plan.VlanIds.IsNull() && !plan.VlanIds.IsUnknown() {
 			var items []models.VlanIdWithVariable
 			for _, item := range plan.VlanIds.Elements() {

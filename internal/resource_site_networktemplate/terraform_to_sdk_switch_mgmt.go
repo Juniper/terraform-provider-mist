@@ -206,6 +206,9 @@ func switchMgmtTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d Sw
 		if !d.ProtectRe.IsNull() && !d.ProtectRe.IsUnknown() {
 			data.ProtectRe = switchMgmtProtectReTerraformToSdk(ctx, diags, d.ProtectRe)
 		}
+		if d.RemoveExistingConfigs.ValueBoolPointer() != nil {
+			data.RemoveExistingConfigs = d.RemoveExistingConfigs.ValueBoolPointer()
+		}
 		if d.RootPassword.ValueStringPointer() != nil {
 			data.RootPassword = models.ToPointer(d.RootPassword.ValueString())
 		}

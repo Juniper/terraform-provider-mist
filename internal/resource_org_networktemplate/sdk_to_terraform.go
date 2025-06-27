@@ -35,7 +35,6 @@ func SdkToTerraform(ctx context.Context, data models.NetworkTemplate) (OrgNetwor
 	var portUsages = types.MapNull(PortUsagesValue{}.Type(ctx))
 	var radiusConfig = NewRadiusConfigValueNull()
 	var remoteSyslog = NewRemoteSyslogValueNull()
-	var removeExistingConfigs = types.BoolValue(false)
 	var snmpConfig = NewSnmpConfigValueNull()
 	var switchMatching = NewSwitchMatchingValueNull()
 	var switchMgmt = NewSwitchMgmtValueNull()
@@ -99,9 +98,6 @@ func SdkToTerraform(ctx context.Context, data models.NetworkTemplate) (OrgNetwor
 	if data.RemoteSyslog != nil {
 		remoteSyslog = remoteSyslogSdkToTerraform(ctx, &diags, data.RemoteSyslog)
 	}
-	if data.RemoveExistingConfigs != nil {
-		state.RemoveExistingConfigs = types.BoolValue(*data.RemoveExistingConfigs)
-	}
 	if data.SnmpConfig != nil {
 		snmpConfig = snmpConfigSdkToTerraform(ctx, &diags, data.SnmpConfig)
 	}
@@ -137,7 +133,6 @@ func SdkToTerraform(ctx context.Context, data models.NetworkTemplate) (OrgNetwor
 	state.PortUsages = portUsages
 	state.RadiusConfig = radiusConfig
 	state.RemoteSyslog = remoteSyslog
-	state.RemoveExistingConfigs = removeExistingConfigs
 	state.SnmpConfig = snmpConfig
 	state.SwitchMatching = switchMatching
 	state.SwitchMgmt = switchMgmt

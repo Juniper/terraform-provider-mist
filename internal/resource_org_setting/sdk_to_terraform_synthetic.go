@@ -85,7 +85,7 @@ func syntheticTestLanNetworksSdkToTerraform(ctx context.Context, diags *diag.Dia
 	var dataList []LanNetworksValue
 	for _, d := range l {
 		var networks = mistutils.ListOfStringSdkToTerraformEmpty()
-		var probes = mistutils.ListOfStringSdkToTerraformEmpty()
+		var probes = types.ListNull(basetypes.StringType{})
 
 		if d.Networks != nil {
 			networks = mistutils.ListOfStringSdkToTerraform(d.Networks)
@@ -113,13 +113,17 @@ func syntheticTestVlansSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 	for _, d := range l {
 		var customTestUrls = mistutils.ListOfStringSdkToTerraformEmpty()
 		var disabled basetypes.BoolValue
-		var vlanIds = mistutils.ListOfStringSdkToTerraformEmpty()
+		var probes = types.ListNull(basetypes.StringType{})
+		var vlanIds = types.ListNull(basetypes.StringType{})
 
 		if d.CustomTestUrls != nil {
 			customTestUrls = mistutils.ListOfStringSdkToTerraform(d.CustomTestUrls)
 		}
 		if d.Disabled != nil {
 			disabled = types.BoolValue(*d.Disabled)
+		}
+		if d.Probes != nil {
+			probes = mistutils.ListOfStringSdkToTerraform(d.Probes)
 		}
 		if d.VlanIds != nil {
 			var items []attr.Value
@@ -132,6 +136,7 @@ func syntheticTestVlansSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 		dataMapValue := map[string]attr.Value{
 			"custom_test_urls": customTestUrls,
 			"disabled":         disabled,
+			"probes":           probes,
 			"vlan_ids":         vlanIds,
 		}
 		data, e := NewVlansValue(VlansValue{}.AttributeTypes(ctx), dataMapValue)

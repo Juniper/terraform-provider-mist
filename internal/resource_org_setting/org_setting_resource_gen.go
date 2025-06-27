@@ -768,6 +768,7 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"conductor_token": schema.StringAttribute{
 						Optional:            true,
+						Sensitive:           true,
 						Description:         "Token to be used by the SSR Devices to connect to the Conductor",
 						MarkdownDescription: "Token to be used by the SSR Devices to connect to the Conductor",
 					},
@@ -983,8 +984,12 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 								"probes": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Optional:            true,
+									Computed:            true,
 									Description:         "app name comes from `custom_probes` above or /const/synthetic_test_probes",
 									MarkdownDescription: "app name comes from `custom_probes` above or /const/synthetic_test_probes",
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 								"vlan_ids": schema.ListAttribute{
 									ElementType: types.StringType,

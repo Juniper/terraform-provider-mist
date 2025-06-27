@@ -5,10 +5,8 @@ package resource_site_setting
 import (
 	"context"
 	"fmt"
-	"strings"
-
-	mistplanmodifiers "github.com/Juniper/terraform-provider-mist/internal/planmodifiers"
-	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
+	"github.com/Juniper/terraform-provider-mist/internal/planmodifiers"
+	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
@@ -27,6 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -579,8 +578,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 			"default_port_usage": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "Port usage to assign to switch ports without any port usage assngied. Default: `default` to preserve default behavior",
-				MarkdownDescription: "Port usage to assign to switch ports without any port usage assngied. Default: `default` to preserve default behavior",
+				Description:         "Port usage to assign to switch ports without any port usage assigned. Default: `default` to preserve default behavior",
+				MarkdownDescription: "Port usage to assign to switch ports without any port usage assigned. Default: `default` to preserve default behavior",
 				Default:             stringdefault.StaticString("default"),
 			},
 			"device_updown_threshold": schema.Int64Attribute{
@@ -1822,12 +1821,18 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 									Optional:            true,
 									Description:         "List of networks to be used for synthetic tests",
 									MarkdownDescription: "List of networks to be used for synthetic tests",
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 								"probes": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Optional:            true,
 									Description:         "app name comes from `custom_probes` above or /const/synthetic_test_probes",
 									MarkdownDescription: "app name comes from `custom_probes` above or /const/synthetic_test_probes",
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 							},
 							CustomType: LanNetworksType{
@@ -1846,7 +1851,6 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 								"custom_test_urls": schema.ListAttribute{
 									ElementType:        types.StringType,
 									Optional:           true,
-									Computed:           true,
 									DeprecationMessage: "This attribute is deprecated.",
 									Validators: []validator.List{
 										listvalidator.SizeAtLeast(1),
@@ -1864,17 +1868,13 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 									Optional:            true,
 									Description:         "app name comes from `custom_probes` above or /const/synthetic_test_probes",
 									MarkdownDescription: "app name comes from `custom_probes` above or /const/synthetic_test_probes",
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 								"vlan_ids": schema.ListAttribute{
 									ElementType: types.StringType,
 									Optional:    true,
-									Computed:    true,
-									Validators: []validator.List{
-										listvalidator.SizeAtLeast(1),
-										listvalidator.ValueInt64sAre(
-											int64validator.Between(1, 4094),
-										),
-									},
 								},
 							},
 							CustomType: VlansType{
