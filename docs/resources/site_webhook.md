@@ -52,6 +52,7 @@ resource "mist_site_webhook" "webhook_one" {
 
 ### Optional
 
+- `assetfilter_ids` (List of String) Only if `type`==`asset-raw-rssi`. List of ids to associated asset filters. These filters will be applied to messages routed to a filtered-asset-rssi webhook
 - `enabled` (Boolean) Whether webhook is enabled
 - `headers` (Map of String) If `type`=`http-post`, additional custom HTTP headers to add. The headers name and value must be string, total bytes of headers name and value must be less than 1000
 - `oauth2_client_id` (String) Required when `oauth2_grant_type`==`client_credentials`

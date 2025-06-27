@@ -52,7 +52,7 @@ resource "mist_org_deviceprofile_ap" "deviceprofile_ap_one" {
 - `mesh` (Attributes) Mesh AP settings (see [below for nested schema](#nestedatt--mesh))
 - `ntp_servers` (List of String)
 - `poe_passthrough` (Boolean) Whether to enable power out through module port (for APH) or eth1 (for APL/BT11)
-- `port_config` (Attributes Map) Property key is the interface(s) name (e.g. "eth1,eth2") (see [below for nested schema](#nestedatt--port_config))
+- `port_config` (Attributes Map) eth0 is not allowed here. Property key is the interface(s) name (e.g. `eth1` or `eth1,eth2`). If spcified, this takes predecence over switch_config (deprecated) (see [below for nested schema](#nestedatt--port_config))
 - `pwr_config` (Attributes) Power related configs (see [below for nested schema](#nestedatt--pwr_config))
 - `radio_config` (Attributes) Radio AP settings (see [below for nested schema](#nestedatt--radio_config))
 - `site_id` (String)

@@ -505,6 +505,7 @@ Optional:
 - `vlan_id` (String)
 - `vpn_paths` (Attributes Map) Property key is the VPN name (see [below for nested schema](#nestedatt--port_config--vpn_paths))
 - `wan_arp_policer` (String) Only when `wan_type`==`broadband`. enum: `default`, `max`, `recommended`
+- `wan_disable_speedtest` (Boolean) If `wan_type`==`wan`, disable speedtest
 - `wan_ext_ip` (String) Only if `usage`==`wan`, optional. If spoke should reach this port by a different IP
 - `wan_extra_routes` (Attributes Map) Only if `usage`==`wan`. Property Key is the destination CIDR (e.g. "100.100.100.0/24") (see [below for nested schema](#nestedatt--port_config--wan_extra_routes))
 - `wan_networks` (List of String) Only if `usage`==`wan`. If some networks are connected to this WAN port, it can be added here so policies can be defined
@@ -757,11 +758,11 @@ Optional:
 - `ipsec_proposals` (Attributes List) Only if  `provider`==`custom-ipsec` (see [below for nested schema](#nestedatt--tunnel_configs--ipsec_proposals))
 - `local_id` (String) Required if `provider`==`zscaler-ipsec`, `provider`==`jse-ipsec` or `provider`==`custom-ipsec`
 - `mode` (String) Required if `provider`==`zscaler-gre`, `provider`==`jse-ipsec`. enum: `active-active`, `active-standby`
-- `networks` (List of String) If `provider`==`custom-ipsec`, networks reachable via this tunnel
+- `networks` (List of String) If `provider`==`custom-ipsec` or `provider`==`prisma-ipsec`, networks reachable via this tunnel
 - `primary` (Attributes) Only if `provider`==`zscaler-ipsec`, `provider`==`jse-ipsec` or `provider`==`custom-ipsec` (see [below for nested schema](#nestedatt--tunnel_configs--primary))
 - `probe` (Attributes) Only if `provider`==`custom-ipsec` (see [below for nested schema](#nestedatt--tunnel_configs--probe))
 - `protocol` (String) Only if `provider`==`custom-ipsec`. enum: `gre`, `ipsec`
-- `provider` (String) Only if `auto_provision.enabled`==`false`. enum: `custom-ipsec`, `custom-gre`, `jse-ipsec`, `zscaler-gre`, `zscaler-ipsec`
+- `provider` (String) Only if `auto_provision.enabled`==`false`. enum: `custom-ipsec`, `custom-gre`, `jse-ipsec`, `prisma-ipsec`, `zscaler-gre`, `zscaler-ipsec`
 - `psk` (String, Sensitive) Required if `provider`==`zscaler-ipsec`, `provider`==`jse-ipsec` or `provider`==`custom-ipsec`
 - `secondary` (Attributes) Only if `provider`==`zscaler-ipsec`, `provider`==`jse-ipsec` or `provider`==`custom-ipsec` (see [below for nested schema](#nestedatt--tunnel_configs--secondary))
 - `version` (String) Only if `provider`==`custom-gre` or `provider`==`custom-ipsec`. enum: `1`, `2`
@@ -778,8 +779,9 @@ Optional:
 - `enable` (Boolean)
 - `latlng` (Attributes) API override for POP selection (see [below for nested schema](#nestedatt--tunnel_configs--auto_provision--latlng))
 - `primary` (Attributes) (see [below for nested schema](#nestedatt--tunnel_configs--auto_provision--primary))
-- `region` (String) API override for POP selection
+- `region` (String) API override for POP selection in the case user wants to override the auto discovery of remote network location and force the tunnel to use the specified peer location.
 - `secondary` (Attributes) (see [below for nested schema](#nestedatt--tunnel_configs--auto_provision--secondary))
+- `service_connection` (String) if `provider`==`prisma-ipsec`. By default, we'll use the location of the site to determine the optimal Remote Network location, optionally, service_connection can be considered, then we'll also consider this along with the site location. Define service_connection if the traffic is to be routed to a specific service connection. This field takes a service connection name that is configured in the Prisma cloud, Prisma Access Setup -> Service Connections.
 
 <a id="nestedatt--tunnel_configs--auto_provision--latlng"></a>
 ### Nested Schema for `tunnel_configs.auto_provision.latlng`
@@ -897,6 +899,7 @@ Optional:
 Optional:
 
 - `jse` (Attributes) For jse-ipsec, this allows provisioning of adequate resource on JSE. Make sure adequate licenses are added (see [below for nested schema](#nestedatt--tunnel_provider_options--jse))
+- `prisma` (Attributes) (see [below for nested schema](#nestedatt--tunnel_provider_options--prisma))
 - `zscaler` (Attributes) For zscaler-ipsec and zscaler-gre (see [below for nested schema](#nestedatt--tunnel_provider_options--zscaler))
 
 <a id="nestedatt--tunnel_provider_options--jse"></a>
@@ -906,6 +909,14 @@ Optional:
 
 - `num_users` (Number)
 - `org_name` (String) JSE Organization name
+
+
+<a id="nestedatt--tunnel_provider_options--prisma"></a>
+### Nested Schema for `tunnel_provider_options.prisma`
+
+Optional:
+
+- `service_account_name` (String) For prisma-ipsec, service account name to used for tunnel auto provisioning
 
 
 <a id="nestedatt--tunnel_provider_options--zscaler"></a>
