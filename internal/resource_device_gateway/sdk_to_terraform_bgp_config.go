@@ -123,10 +123,10 @@ func bgpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map
 		if d.LocalAs != nil {
 			localAs = mistutils.BgpAsAsString(d.LocalAs)
 		}
-		if d.NeighborAs != nil && len(d.Neighbors) > 0 {
+		if d.NeighborAs != nil {
 			neighborAs = mistutils.BgpAsAsString(d.NeighborAs)
 		}
-		if d.Neighbors != nil && len(d.Neighbors) > 0 {
+		if len(d.Neighbors) > 0 {
 			neighbors = bgpConfigNeighborsSdkToTerraform(ctx, diags, d.Neighbors)
 		}
 		if d.Networks != nil {
