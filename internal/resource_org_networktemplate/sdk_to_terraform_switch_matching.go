@@ -34,6 +34,7 @@ func switchMatchingRulesPortConfigSdkToTerraform(ctx context.Context, diags *dia
 		var mtu basetypes.Int64Value
 		var noLocalOverwrite basetypes.BoolValue
 		var poeDisabled basetypes.BoolValue
+		var portNetwork basetypes.StringValue
 		var speed basetypes.StringValue
 		var usage = types.StringValue(d.Usage)
 
@@ -76,6 +77,9 @@ func switchMatchingRulesPortConfigSdkToTerraform(ctx context.Context, diags *dia
 		if d.PoeDisabled != nil {
 			poeDisabled = types.BoolValue(*d.PoeDisabled)
 		}
+		if d.PortNetwork != nil {
+			portNetwork = types.StringValue(*d.PortNetwork)
+		}
 		if d.Speed != nil {
 			speed = types.StringValue(string(*d.Speed))
 		}
@@ -94,6 +98,7 @@ func switchMatchingRulesPortConfigSdkToTerraform(ctx context.Context, diags *dia
 			"mtu":                mtu,
 			"no_local_overwrite": noLocalOverwrite,
 			"poe_disabled":       poeDisabled,
+			"port_network":       portNetwork,
 			"speed":              speed,
 			"usage":              usage,
 		}

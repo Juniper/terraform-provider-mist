@@ -29,6 +29,7 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		var mtu basetypes.Int64Value
 		var noLocalOverwrite basetypes.BoolValue
 		var poeDisabled basetypes.BoolValue
+		var portNetwork basetypes.StringValue
 		var speed basetypes.StringValue
 		var usage = types.StringValue(d.Usage)
 
@@ -71,6 +72,9 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		if d.PoeDisabled != nil {
 			poeDisabled = types.BoolValue(*d.PoeDisabled)
 		}
+		if d.PortNetwork != nil {
+			portNetwork = types.StringValue(*d.PortNetwork)
+		}
 		if d.Speed != nil {
 			speed = types.StringValue(string(*d.Speed))
 		}
@@ -89,6 +93,7 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 			"mtu":                mtu,
 			"no_local_overwrite": noLocalOverwrite,
 			"poe_disabled":       poeDisabled,
+			"port_network":       portNetwork,
 			"speed":              speed,
 			"usage":              usage,
 		}
