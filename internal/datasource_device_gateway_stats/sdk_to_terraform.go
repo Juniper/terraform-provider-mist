@@ -114,10 +114,10 @@ func deviceGatewayStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 	if d.DeviceprofileId.Value() != nil {
 		deviceprofileId = types.StringValue(d.DeviceprofileId.Value().String())
 	}
-	if d.Dhcpd2Stat != nil && len(d.Dhcpd2Stat) > 0 {
+	if len(d.Dhcpd2Stat) > 0 {
 		dhcpd2Stat = dhcpdStatsSdkToTerraform(ctx, diags, d.Dhcpd2Stat)
 	}
-	if d.DhcpdStat != nil && len(d.DhcpdStat) > 0 {
+	if len(d.DhcpdStat) > 0 {
 		dhcpdStat = dhcpdStatsSdkToTerraform(ctx, diags, d.DhcpdStat)
 	}
 	if d.ExtIp.Value() != nil {
@@ -135,10 +135,10 @@ func deviceGatewayStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 	if d.Id != nil {
 		id = types.StringValue(d.Id.String())
 	}
-	if d.If2Stat != nil && len(d.If2Stat) > 0 {
+	if len(d.If2Stat) > 0 {
 		if2Stat = ifStatsSdkToTerraform(ctx, diags, d.If2Stat)
 	}
-	if d.IfStat != nil && len(d.IfStat) > 0 {
+	if len(d.IfStat) > 0 {
 		ifStat = ifStatsSdkToTerraform(ctx, diags, d.IfStat)
 	}
 	if d.Ip.Value() != nil {
@@ -201,10 +201,10 @@ func deviceGatewayStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 	if d.Serial != nil {
 		serial = types.StringValue(*d.Serial)
 	}
-	if d.Service2Stat != nil && len(d.Service2Stat) > 0 {
+	if len(d.Service2Stat) > 0 {
 		service2Stat = serviceStatsSdkToTerraform(ctx, diags, d.Service2Stat)
 	}
-	if d.ServiceStat != nil && len(d.ServiceStat) > 0 {
+	if len(d.ServiceStat) > 0 {
 		serviceStat = serviceStatsSdkToTerraform(ctx, diags, d.ServiceStat)
 	}
 	if d.ServiceStatus != nil {

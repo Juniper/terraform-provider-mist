@@ -97,7 +97,7 @@ func VpnSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[strin
 		if d.AllowPing != nil {
 			allowPing = types.BoolValue(*d.AllowPing)
 		}
-		if d.DestinationNat != nil && len(d.DestinationNat) > 0 {
+		if len(d.DestinationNat) > 0 {
 			destinationNat = destinationNatVpnSdkToTerraform(ctx, diags, d.DestinationNat)
 		}
 		if d.NatPool != nil {

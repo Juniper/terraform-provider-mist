@@ -44,7 +44,7 @@ func SdkToTerraform(ctx context.Context, data models.NetworkTemplate) (OrgNetwor
 	if data.AclPolicies != nil {
 		aclPolicies = aclPoliciesSdkToTerraform(ctx, &diags, data.AclPolicies)
 	}
-	if data.AclTags != nil && len(data.AclTags) > 0 {
+	if len(data.AclTags) > 0 {
 		aclTags = aclTagsSdkToTerraform(ctx, &diags, data.AclTags)
 	}
 	if data.AdditionalConfigCmds != nil {
@@ -59,10 +59,10 @@ func SdkToTerraform(ctx context.Context, data models.NetworkTemplate) (OrgNetwor
 	if data.DnsSuffix != nil {
 		dnsSuffix = mistutils.ListOfStringSdkToTerraform(data.DnsSuffix)
 	}
-	if data.ExtraRoutes != nil && len(data.ExtraRoutes) > 0 {
+	if len(data.ExtraRoutes) > 0 {
 		extraRoutes = extraRoutesSdkToTerraform(ctx, &diags, data.ExtraRoutes)
 	}
-	if data.ExtraRoutes6 != nil && len(data.ExtraRoutes6) > 0 {
+	if len(data.ExtraRoutes6) > 0 {
 		extraRoutes6 = extraRoutes6SdkToTerraform(ctx, &diags, data.ExtraRoutes6)
 	}
 	if data.Id != nil {
@@ -74,7 +74,7 @@ func SdkToTerraform(ctx context.Context, data models.NetworkTemplate) (OrgNetwor
 	if data.Name != nil {
 		name = types.StringValue(*data.Name)
 	}
-	if data.Networks != nil && len(data.Networks) > 0 {
+	if len(data.Networks) > 0 {
 		networks = NetworksSdkToTerraform(ctx, &diags, data.Networks)
 	}
 	if data.NtpServers != nil {
@@ -89,7 +89,7 @@ func SdkToTerraform(ctx context.Context, data models.NetworkTemplate) (OrgNetwor
 	if data.PortMirroring != nil {
 		portMirroring = portMirroringSdkToTerraform(ctx, &diags, data.PortMirroring)
 	}
-	if data.PortUsages != nil && len(data.PortUsages) > 0 {
+	if len(data.PortUsages) > 0 {
 		portUsages = portUsagesSdkToTerraform(ctx, &diags, data.PortUsages)
 	}
 	if data.RadiusConfig != nil {
@@ -110,7 +110,7 @@ func SdkToTerraform(ctx context.Context, data models.NetworkTemplate) (OrgNetwor
 	if data.VrfConfig != nil {
 		vrfConfig = vrfConfigSdkToTerraform(ctx, &diags, data.VrfConfig)
 	}
-	if data.VrfInstances != nil && len(data.VrfInstances) > 0 {
+	if len(data.VrfInstances) > 0 {
 		vrfInstances = vrfInstancesSdkToTerraform(ctx, &diags, data.VrfInstances)
 	}
 

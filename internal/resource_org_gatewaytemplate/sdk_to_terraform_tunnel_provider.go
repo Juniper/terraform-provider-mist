@@ -137,8 +137,8 @@ func tunnelProviderZscalerSubLocationSdkToTerraform(ctx context.Context, diags *
 			dataList = append(dataList, data)
 		}
 	}
-	datalistType := SubLocationsValue{}.Type(ctx)
-	r, e := types.ListValueFrom(ctx, datalistType, dataList)
+
+	r, e := types.ListValueFrom(ctx, SubLocationsValue{}.Type(ctx), dataList)
 	diags.Append(e...)
 	return r
 }

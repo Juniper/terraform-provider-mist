@@ -110,13 +110,13 @@ func networksSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m []mo
 		if d.Subnet6 != nil {
 			subnet6 = types.StringValue(*d.Subnet6)
 		}
-		if d.Tenants != nil && len(d.Tenants) > 0 {
+		if len(d.Tenants) > 0 {
 			tenants = resource_org_network.TenantSdkToTerraform(ctx, diags, d.Tenants)
 		}
 		if d.VlanId != nil {
 			vlanId = types.StringValue(d.VlanId.String())
 		}
-		if d.VpnAccess != nil && len(d.VpnAccess) > 0 {
+		if len(d.VpnAccess) > 0 {
 			vpnAccess = resource_org_network.VpnSdkToTerraform(ctx, diags, d.VpnAccess)
 		}
 
@@ -141,8 +141,7 @@ func networksSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m []mo
 
 		dataList = append(dataList, data)
 	}
-	datalistType := NetworksValue{}.Type(ctx)
-	r, e := types.ListValueFrom(ctx, datalistType, dataList)
+	r, e := types.ListValueFrom(ctx, NetworksValue{}.Type(ctx), dataList)
 	diags.Append(e...)
 	return r
 }

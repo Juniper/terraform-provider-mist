@@ -363,7 +363,7 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 		if v.VlanId != nil {
 			vlanId = mistutils.GatewayVlanAsString(*v.VlanId)
 		}
-		if v.VpnPaths != nil && len(v.VpnPaths) > 0 {
+		if len(v.VpnPaths) > 0 {
 			vpnPaths = portConfigVpnPathsSdkToTerraform(ctx, diags, v.VpnPaths)
 		}
 		if v.WanArpPolicer != nil {
@@ -375,10 +375,10 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 		if v.WanExtIp != nil {
 			wanExtIp = types.StringValue(*v.WanExtIp)
 		}
-		if v.WanExtraRoutes != nil && len(v.WanExtraRoutes) > 0 {
+		if len(v.WanExtraRoutes) > 0 {
 			wanExtraRoutes = wanExtraRoutesPortConfigIpConfigSdkToTerraform(ctx, diags, v.WanExtraRoutes)
 		}
-		if v.WanNetworks != nil && len(v.WanNetworks) > 0 {
+		if len(v.WanNetworks) > 0 {
 			wanNetworks = mistutils.ListOfStringSdkToTerraform(v.WanNetworks)
 		}
 		if v.WanProbeOverride != nil {

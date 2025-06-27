@@ -63,7 +63,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgGatewaytemplateModel) (*models
 	if plan.ExtraRoutes6.IsNull() || plan.ExtraRoutes6.IsUnknown() {
 		unset["-extra_routes6"] = ""
 	} else {
-		data.ExtraRoutes6 = extraRoutesTerraformToSdk(plan.ExtraRoutes6)
+		data.ExtraRoutes6 = extraRoutes6TerraformToSdk(plan.ExtraRoutes6)
 	}
 
 	if plan.IdpProfiles.IsNull() || plan.IdpProfiles.IsUnknown() {

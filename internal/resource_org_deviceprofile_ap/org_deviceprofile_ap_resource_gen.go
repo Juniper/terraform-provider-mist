@@ -5,7 +5,9 @@ package resource_org_deviceprofile_ap
 import (
 	"context"
 	"fmt"
-	"github.com/Juniper/terraform-provider-mist/internal/validators"
+	"strings"
+
+	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
@@ -22,7 +24,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -155,8 +156,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"eddystone_uid_freq_msec": schema.Int64Attribute{
 						Optional:            true,
-						Description:         "Frequency (msec) of data emmit by Eddystone-UID beacon",
-						MarkdownDescription: "Frequency (msec) of data emmit by Eddystone-UID beacon",
+						Description:         "Frequency (msec) of data emit by Eddystone-UID beacon",
+						MarkdownDescription: "Frequency (msec) of data emit by Eddystone-UID beacon",
 						Validators: []validator.Int64{
 							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("eddystone_uid_enabled"), types.BoolValue(true)),
 						},
@@ -239,8 +240,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"ibeacon_freq_msec": schema.Int64Attribute{
 						Optional:            true,
-						Description:         "Frequency (msec) of data emmit for iBeacon",
-						MarkdownDescription: "Frequency (msec) of data emmit for iBeacon",
+						Description:         "Frequency (msec) of data emit for iBeacon",
+						MarkdownDescription: "Frequency (msec) of data emit for iBeacon",
 						Validators: []validator.Int64{
 							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("ibeacon_enabled"), types.BoolValue(true)),
 						},
@@ -1117,8 +1118,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "eth0 is not allowed here. Property key is the interface(s) name (e.g. `eth1` or `eth1,eth2`). If spcified, this takes predecence over switch_config (deprecated)",
-				MarkdownDescription: "eth0 is not allowed here. Property key is the interface(s) name (e.g. `eth1` or `eth1,eth2`). If spcified, this takes predecence over switch_config (deprecated)",
+				Description:         "eth0 is not allowed here. Property key is the interface(s) name (e.g. `eth1` or `eth1,eth2`). If specified, this takes precedence over switch_config (deprecated)",
+				MarkdownDescription: "eth0 is not allowed here. Property key is the interface(s) name (e.g. `eth1` or `eth1,eth2`). If specified, this takes precedence over switch_config (deprecated)",
 				Validators: []validator.Map{
 					mapvalidator.SizeAtLeast(1),
 				},

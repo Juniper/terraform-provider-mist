@@ -2592,7 +2592,7 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									Computed:            true,
 									Description:         "property key define the type of matching, value is the string to match. e.g: `match_name[0:3]`, `match_name[2:6]`, `match_model`,  `match_model[0-6]`",
 									MarkdownDescription: "property key define the type of matching, value is the string to match. e.g: `match_name[0:3]`, `match_name[2:6]`, `match_model`,  `match_model[0-6]`",
-									DeprecationMessage:  "The `match_type` attribute has been deprecated in version v0.2.8 of the Juniper-Mist Provider. It has been replaced with the `match_name`, `match_model` and `match_role`attribuites and may be removed in future versions.\nPlease update your configurations.",
+									DeprecationMessage:  "The `match_type` attribute has been deprecated in version v0.2.8 of the Juniper-Mist Provider. It has been replaced with the `match_name`, `match_model` and `match_role`attributes and may be removed in future versions.\nPlease update your configurations.",
 									PlanModifiers: []planmodifier.String{
 										stringplanmodifier.UseStateForUnknown(),
 									},
@@ -2605,7 +2605,7 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								"match_value": schema.StringAttribute{
 									Optional:           true,
 									Computed:           true,
-									DeprecationMessage: "The `match_value` attribute has been deprecated in version v0.2.8 of the Juniper-Mist Provider. It has been replaced with the `match_name`, `match_model` and `match_role`attribuites and may be removed in future versions.\nPlease update your configurations.",
+									DeprecationMessage: "The `match_value` attribute has been deprecated in version v0.2.8 of the Juniper-Mist Provider. It has been replaced with the `match_name`, `match_model` and `match_role`attributes and may be removed in future versions.\nPlease update your configurations.",
 									PlanModifiers: []planmodifier.String{
 										stringplanmodifier.UseStateForUnknown(),
 									},

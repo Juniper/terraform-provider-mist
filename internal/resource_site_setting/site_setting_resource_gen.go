@@ -5,8 +5,10 @@ package resource_site_setting
 import (
 	"context"
 	"fmt"
-	"github.com/Juniper/terraform-provider-mist/internal/planmodifiers"
-	"github.com/Juniper/terraform-provider-mist/internal/validators"
+	"strings"
+
+	mistplanmodifiers "github.com/Juniper/terraform-provider-mist/internal/planmodifiers"
+	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
@@ -25,7 +27,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -251,8 +252,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					"eddystone_uid_freq_msec": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Frequency (msec) of data emmit by Eddystone-UID beacon",
-						MarkdownDescription: "Frequency (msec) of data emmit by Eddystone-UID beacon",
+						Description:         "Frequency (msec) of data emit by Eddystone-UID beacon",
+						MarkdownDescription: "Frequency (msec) of data emit by Eddystone-UID beacon",
 						Validators: []validator.Int64{
 							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("eddystone_uid_enabled"), types.BoolValue(true)),
 						},
@@ -357,8 +358,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					"ibeacon_freq_msec": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Frequency (msec) of data emmit for iBeacon",
-						MarkdownDescription: "Frequency (msec) of data emmit for iBeacon",
+						Description:         "Frequency (msec) of data emit for iBeacon",
+						MarkdownDescription: "Frequency (msec) of data emit for iBeacon",
 						Validators: []validator.Int64{
 							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("ibeacon_enabled"), types.BoolValue(true)),
 						},
@@ -1619,8 +1620,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					"coverage": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Covrage, in dBm",
-						MarkdownDescription: "Covrage, in dBm",
+						Description:         "Coverage, in dBm",
+						MarkdownDescription: "Coverage, in dBm",
 						Validators: []validator.Int64{
 							int64validator.Between(-90, -60),
 						},
