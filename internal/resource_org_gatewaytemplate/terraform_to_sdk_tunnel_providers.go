@@ -24,6 +24,19 @@ func tunnelProviderOptionsJseTerraformToSdk(ctx context.Context, d basetypes.Obj
 	}
 }
 
+func tunnelProviderOptionsPrismaTerraformToSdk(ctx context.Context, d basetypes.ObjectValue) models.TunnelProviderOptionsPrisma {
+	data := models.TunnelProviderOptionsPrisma{}
+	if d.IsNull() || d.IsUnknown() {
+		return data
+	} else {
+		plan := NewPrismaValueMust(d.AttributeTypes(ctx), d.Attributes())
+		if plan.ServiceAccountName.ValueStringPointer() != nil {
+			data.ServiceAccountName = plan.ServiceAccountName.ValueStringPointer()
+		}
+		return data
+	}
+}
+
 func tunnelProviderOptionsZscalerSubLocationTerraformToSdk(d basetypes.ListValue) []models.TunnelProviderOptionsZscalerSubLocation {
 	var dataList []models.TunnelProviderOptionsZscalerSubLocation
 	for _, v := range d.Elements() {
@@ -142,6 +155,11 @@ func tunnelProviderOptionsTerraformToSdk(ctx context.Context, d TunnelProviderOp
 	jse := tunnelProviderOptionsJseTerraformToSdk(ctx, d.Jse)
 	if !d.Jse.IsNull() && !d.Jse.IsUnknown() {
 		data.Jse = &jse
+	}
+
+	if !d.Prisma.IsNull() && !d.Prisma.IsUnknown() {
+		prisma := tunnelProviderOptionsPrismaTerraformToSdk(ctx, d.Prisma)
+		data.Prisma = &prisma
 	}
 
 	zscaler := tunnelProviderOptionsZscalerTerraformToSdk(ctx, d.Zscaler)

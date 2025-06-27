@@ -263,6 +263,10 @@ func portConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d ba
 
 		data.WanArpPolicer = models.ToPointer(models.GatewayPortWanArpPolicerEnum(plan.WanArpPolicer.ValueString()))
 
+		if plan.WanDisableSpeedtest.ValueBoolPointer() != nil {
+			data.WanDisableSpeedtest = plan.WanDisableSpeedtest.ValueBoolPointer()
+		}
+
 		if plan.WanExtIp.ValueStringPointer() != nil {
 			data.WanExtIp = plan.WanExtIp.ValueStringPointer()
 		}

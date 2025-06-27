@@ -2045,6 +2045,12 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 							},
 							Default: stringdefault.StaticString("default"),
 						},
+						"wan_disable_speedtest": schema.BoolAttribute{
+							Optional:            true,
+							Computed:            true,
+							Description:         "If `wan_type`==`wan`, disable speedtest",
+							MarkdownDescription: "If `wan_type`==`wan`, disable speedtest",
+						},
 						"wan_ext_ip": schema.StringAttribute{
 							Optional:            true,
 							Description:         "Only if `usage`==`wan`, optional. If spoke should reach this port by a different IP",
@@ -2684,8 +2690,13 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"region": schema.StringAttribute{
 									Optional:            true,
-									Description:         "API override for POP selection",
-									MarkdownDescription: "API override for POP selection",
+									Description:         "API override for POP selection in the case user wants to override the auto discovery of remote network location and force the tunnel to use the specified peer location.",
+									MarkdownDescription: "API override for POP selection in the case user wants to override the auto discovery of remote network location and force the tunnel to use the specified peer location.",
+								},
+								"service_connection": schema.StringAttribute{
+									Optional:            true,
+									Description:         "if `provider`==`prisma-ipsec`. By default, we'll use the location of the site to determine the optimal Remote Network location, optionally, service_connection can be considered, then we'll also consider this along with the site location. Define service_connection if the traffic is to be routed to a specific service connection. This field takes a service connection name that is configured in the Prisma cloud, Prisma Access Setup -> Service Connections.",
+									MarkdownDescription: "if `provider`==`prisma-ipsec`. By default, we'll use the location of the site to determine the optimal Remote Network location, optionally, service_connection can be considered, then we'll also consider this along with the site location. Define service_connection if the traffic is to be routed to a specific service connection. This field takes a service connection name that is configured in the Prisma cloud, Prisma Access Setup -> Service Connections.",
 								},
 							},
 							CustomType: AutoProvisionType{
@@ -2893,8 +2904,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 							ElementType:         types.StringType,
 							Optional:            true,
 							Computed:            true,
-							Description:         "If `provider`==`custom-ipsec`, networks reachable via this tunnel",
-							MarkdownDescription: "If `provider`==`custom-ipsec`, networks reachable via this tunnel",
+							Description:         "If `provider`==`custom-ipsec` or `provider`==`prisma-ipsec`, networks reachable via this tunnel",
+							MarkdownDescription: "If `provider`==`custom-ipsec` or `provider`==`prisma-ipsec`, networks reachable via this tunnel",
 							Validators: []validator.List{
 								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("custom-ipsec")),
 							},
@@ -2993,14 +3004,15 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"provider": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Only if `auto_provision.enabled`==`false`. enum: `custom-ipsec`, `custom-gre`, `jse-ipsec`, `zscaler-gre`, `zscaler-ipsec`",
-							MarkdownDescription: "Only if `auto_provision.enabled`==`false`. enum: `custom-ipsec`, `custom-gre`, `jse-ipsec`, `zscaler-gre`, `zscaler-ipsec`",
+							Description:         "Only if `auto_provision.enabled`==`false`. enum: `custom-ipsec`, `custom-gre`, `jse-ipsec`, `prisma-ipsec`, `zscaler-gre`, `zscaler-ipsec`",
+							MarkdownDescription: "Only if `auto_provision.enabled`==`false`. enum: `custom-ipsec`, `custom-gre`, `jse-ipsec`, `prisma-ipsec`, `zscaler-gre`, `zscaler-ipsec`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
 									"custom-ipsec",
 									"custom-gre",
 									"jse-ipsec",
+									"prisma-ipsec",
 									"zscaler-gre",
 									"zscaler-ipsec",
 								),
@@ -3105,6 +3117,21 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "For jse-ipsec, this allows provisioning of adequate resource on JSE. Make sure adequate licenses are added",
 						MarkdownDescription: "For jse-ipsec, this allows provisioning of adequate resource on JSE. Make sure adequate licenses are added",
+					},
+					"prisma": schema.SingleNestedAttribute{
+						Attributes: map[string]schema.Attribute{
+							"service_account_name": schema.StringAttribute{
+								Optional:            true,
+								Description:         "For prisma-ipsec, service account name to used for tunnel auto provisioning",
+								MarkdownDescription: "For prisma-ipsec, service account name to used for tunnel auto provisioning",
+							},
+						},
+						CustomType: PrismaType{
+							ObjectType: types.ObjectType{
+								AttrTypes: PrismaValue{}.AttributeTypes(ctx),
+							},
+						},
+						Optional: true,
 					},
 					"zscaler": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
@@ -21175,6 +21202,24 @@ func (t PortConfigType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`wan_arp_policer expected to be basetypes.StringValue, was: %T`, wanArpPolicerAttribute))
 	}
 
+	wanDisableSpeedtestAttribute, ok := attributes["wan_disable_speedtest"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`wan_disable_speedtest is missing from object`)
+
+		return nil, diags
+	}
+
+	wanDisableSpeedtestVal, ok := wanDisableSpeedtestAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`wan_disable_speedtest expected to be basetypes.BoolValue, was: %T`, wanDisableSpeedtestAttribute))
+	}
+
 	wanExtIpAttribute, ok := attributes["wan_ext_ip"]
 
 	if !ok {
@@ -21288,51 +21333,52 @@ func (t PortConfigType) ValueFromObject(ctx context.Context, in basetypes.Object
 	}
 
 	return PortConfigValue{
-		AeDisableLacp:    aeDisableLacpVal,
-		AeIdx:            aeIdxVal,
-		AeLacpForceUp:    aeLacpForceUpVal,
-		Aggregated:       aggregatedVal,
-		Critical:         criticalVal,
-		Description:      descriptionVal,
-		DisableAutoneg:   disableAutonegVal,
-		Disabled:         disabledVal,
-		DslType:          dslTypeVal,
-		DslVci:           dslVciVal,
-		DslVpi:           dslVpiVal,
-		Duplex:           duplexVal,
-		LteApn:           lteApnVal,
-		LteAuth:          lteAuthVal,
-		LteBackup:        lteBackupVal,
-		LtePassword:      ltePasswordVal,
-		LteUsername:      lteUsernameVal,
-		Mtu:              mtuVal,
-		Name:             nameVal,
-		Networks:         networksVal,
-		OuterVlanId:      outerVlanIdVal,
-		PoeDisabled:      poeDisabledVal,
-		PortIpConfig:     portIpConfigVal,
-		PortNetwork:      portNetworkVal,
-		PreserveDscp:     preserveDscpVal,
-		Redundant:        redundantVal,
-		RedundantGroup:   redundantGroupVal,
-		RethIdx:          rethIdxVal,
-		RethNode:         rethNodeVal,
-		RethNodes:        rethNodesVal,
-		Speed:            speedVal,
-		SsrNoVirtualMac:  ssrNoVirtualMacVal,
-		SvrPortRange:     svrPortRangeVal,
-		TrafficShaping:   trafficShapingVal,
-		Usage:            usageVal,
-		VlanId:           vlanIdVal,
-		VpnPaths:         vpnPathsVal,
-		WanArpPolicer:    wanArpPolicerVal,
-		WanExtIp:         wanExtIpVal,
-		WanExtraRoutes:   wanExtraRoutesVal,
-		WanNetworks:      wanNetworksVal,
-		WanProbeOverride: wanProbeOverrideVal,
-		WanSourceNat:     wanSourceNatVal,
-		WanType:          wanTypeVal,
-		state:            attr.ValueStateKnown,
+		AeDisableLacp:       aeDisableLacpVal,
+		AeIdx:               aeIdxVal,
+		AeLacpForceUp:       aeLacpForceUpVal,
+		Aggregated:          aggregatedVal,
+		Critical:            criticalVal,
+		Description:         descriptionVal,
+		DisableAutoneg:      disableAutonegVal,
+		Disabled:            disabledVal,
+		DslType:             dslTypeVal,
+		DslVci:              dslVciVal,
+		DslVpi:              dslVpiVal,
+		Duplex:              duplexVal,
+		LteApn:              lteApnVal,
+		LteAuth:             lteAuthVal,
+		LteBackup:           lteBackupVal,
+		LtePassword:         ltePasswordVal,
+		LteUsername:         lteUsernameVal,
+		Mtu:                 mtuVal,
+		Name:                nameVal,
+		Networks:            networksVal,
+		OuterVlanId:         outerVlanIdVal,
+		PoeDisabled:         poeDisabledVal,
+		PortIpConfig:        portIpConfigVal,
+		PortNetwork:         portNetworkVal,
+		PreserveDscp:        preserveDscpVal,
+		Redundant:           redundantVal,
+		RedundantGroup:      redundantGroupVal,
+		RethIdx:             rethIdxVal,
+		RethNode:            rethNodeVal,
+		RethNodes:           rethNodesVal,
+		Speed:               speedVal,
+		SsrNoVirtualMac:     ssrNoVirtualMacVal,
+		SvrPortRange:        svrPortRangeVal,
+		TrafficShaping:      trafficShapingVal,
+		Usage:               usageVal,
+		VlanId:              vlanIdVal,
+		VpnPaths:            vpnPathsVal,
+		WanArpPolicer:       wanArpPolicerVal,
+		WanDisableSpeedtest: wanDisableSpeedtestVal,
+		WanExtIp:            wanExtIpVal,
+		WanExtraRoutes:      wanExtraRoutesVal,
+		WanNetworks:         wanNetworksVal,
+		WanProbeOverride:    wanProbeOverrideVal,
+		WanSourceNat:        wanSourceNatVal,
+		WanType:             wanTypeVal,
+		state:               attr.ValueStateKnown,
 	}, diags
 }
 
@@ -22083,6 +22129,24 @@ func NewPortConfigValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`wan_arp_policer expected to be basetypes.StringValue, was: %T`, wanArpPolicerAttribute))
 	}
 
+	wanDisableSpeedtestAttribute, ok := attributes["wan_disable_speedtest"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`wan_disable_speedtest is missing from object`)
+
+		return NewPortConfigValueUnknown(), diags
+	}
+
+	wanDisableSpeedtestVal, ok := wanDisableSpeedtestAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`wan_disable_speedtest expected to be basetypes.BoolValue, was: %T`, wanDisableSpeedtestAttribute))
+	}
+
 	wanExtIpAttribute, ok := attributes["wan_ext_ip"]
 
 	if !ok {
@@ -22196,51 +22260,52 @@ func NewPortConfigValue(attributeTypes map[string]attr.Type, attributes map[stri
 	}
 
 	return PortConfigValue{
-		AeDisableLacp:    aeDisableLacpVal,
-		AeIdx:            aeIdxVal,
-		AeLacpForceUp:    aeLacpForceUpVal,
-		Aggregated:       aggregatedVal,
-		Critical:         criticalVal,
-		Description:      descriptionVal,
-		DisableAutoneg:   disableAutonegVal,
-		Disabled:         disabledVal,
-		DslType:          dslTypeVal,
-		DslVci:           dslVciVal,
-		DslVpi:           dslVpiVal,
-		Duplex:           duplexVal,
-		LteApn:           lteApnVal,
-		LteAuth:          lteAuthVal,
-		LteBackup:        lteBackupVal,
-		LtePassword:      ltePasswordVal,
-		LteUsername:      lteUsernameVal,
-		Mtu:              mtuVal,
-		Name:             nameVal,
-		Networks:         networksVal,
-		OuterVlanId:      outerVlanIdVal,
-		PoeDisabled:      poeDisabledVal,
-		PortIpConfig:     portIpConfigVal,
-		PortNetwork:      portNetworkVal,
-		PreserveDscp:     preserveDscpVal,
-		Redundant:        redundantVal,
-		RedundantGroup:   redundantGroupVal,
-		RethIdx:          rethIdxVal,
-		RethNode:         rethNodeVal,
-		RethNodes:        rethNodesVal,
-		Speed:            speedVal,
-		SsrNoVirtualMac:  ssrNoVirtualMacVal,
-		SvrPortRange:     svrPortRangeVal,
-		TrafficShaping:   trafficShapingVal,
-		Usage:            usageVal,
-		VlanId:           vlanIdVal,
-		VpnPaths:         vpnPathsVal,
-		WanArpPolicer:    wanArpPolicerVal,
-		WanExtIp:         wanExtIpVal,
-		WanExtraRoutes:   wanExtraRoutesVal,
-		WanNetworks:      wanNetworksVal,
-		WanProbeOverride: wanProbeOverrideVal,
-		WanSourceNat:     wanSourceNatVal,
-		WanType:          wanTypeVal,
-		state:            attr.ValueStateKnown,
+		AeDisableLacp:       aeDisableLacpVal,
+		AeIdx:               aeIdxVal,
+		AeLacpForceUp:       aeLacpForceUpVal,
+		Aggregated:          aggregatedVal,
+		Critical:            criticalVal,
+		Description:         descriptionVal,
+		DisableAutoneg:      disableAutonegVal,
+		Disabled:            disabledVal,
+		DslType:             dslTypeVal,
+		DslVci:              dslVciVal,
+		DslVpi:              dslVpiVal,
+		Duplex:              duplexVal,
+		LteApn:              lteApnVal,
+		LteAuth:             lteAuthVal,
+		LteBackup:           lteBackupVal,
+		LtePassword:         ltePasswordVal,
+		LteUsername:         lteUsernameVal,
+		Mtu:                 mtuVal,
+		Name:                nameVal,
+		Networks:            networksVal,
+		OuterVlanId:         outerVlanIdVal,
+		PoeDisabled:         poeDisabledVal,
+		PortIpConfig:        portIpConfigVal,
+		PortNetwork:         portNetworkVal,
+		PreserveDscp:        preserveDscpVal,
+		Redundant:           redundantVal,
+		RedundantGroup:      redundantGroupVal,
+		RethIdx:             rethIdxVal,
+		RethNode:            rethNodeVal,
+		RethNodes:           rethNodesVal,
+		Speed:               speedVal,
+		SsrNoVirtualMac:     ssrNoVirtualMacVal,
+		SvrPortRange:        svrPortRangeVal,
+		TrafficShaping:      trafficShapingVal,
+		Usage:               usageVal,
+		VlanId:              vlanIdVal,
+		VpnPaths:            vpnPathsVal,
+		WanArpPolicer:       wanArpPolicerVal,
+		WanDisableSpeedtest: wanDisableSpeedtestVal,
+		WanExtIp:            wanExtIpVal,
+		WanExtraRoutes:      wanExtraRoutesVal,
+		WanNetworks:         wanNetworksVal,
+		WanProbeOverride:    wanProbeOverrideVal,
+		WanSourceNat:        wanSourceNatVal,
+		WanType:             wanTypeVal,
+		state:               attr.ValueStateKnown,
 	}, diags
 }
 
@@ -22312,55 +22377,56 @@ func (t PortConfigType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = PortConfigValue{}
 
 type PortConfigValue struct {
-	AeDisableLacp    basetypes.BoolValue   `tfsdk:"ae_disable_lacp"`
-	AeIdx            basetypes.StringValue `tfsdk:"ae_idx"`
-	AeLacpForceUp    basetypes.BoolValue   `tfsdk:"ae_lacp_force_up"`
-	Aggregated       basetypes.BoolValue   `tfsdk:"aggregated"`
-	Critical         basetypes.BoolValue   `tfsdk:"critical"`
-	Description      basetypes.StringValue `tfsdk:"description"`
-	DisableAutoneg   basetypes.BoolValue   `tfsdk:"disable_autoneg"`
-	Disabled         basetypes.BoolValue   `tfsdk:"disabled"`
-	DslType          basetypes.StringValue `tfsdk:"dsl_type"`
-	DslVci           basetypes.Int64Value  `tfsdk:"dsl_vci"`
-	DslVpi           basetypes.Int64Value  `tfsdk:"dsl_vpi"`
-	Duplex           basetypes.StringValue `tfsdk:"duplex"`
-	LteApn           basetypes.StringValue `tfsdk:"lte_apn"`
-	LteAuth          basetypes.StringValue `tfsdk:"lte_auth"`
-	LteBackup        basetypes.BoolValue   `tfsdk:"lte_backup"`
-	LtePassword      basetypes.StringValue `tfsdk:"lte_password"`
-	LteUsername      basetypes.StringValue `tfsdk:"lte_username"`
-	Mtu              basetypes.Int64Value  `tfsdk:"mtu"`
-	Name             basetypes.StringValue `tfsdk:"name"`
-	Networks         basetypes.ListValue   `tfsdk:"networks"`
-	OuterVlanId      basetypes.Int64Value  `tfsdk:"outer_vlan_id"`
-	PoeDisabled      basetypes.BoolValue   `tfsdk:"poe_disabled"`
-	PortIpConfig     basetypes.ObjectValue `tfsdk:"ip_config"`
-	PortNetwork      basetypes.StringValue `tfsdk:"port_network"`
-	PreserveDscp     basetypes.BoolValue   `tfsdk:"preserve_dscp"`
-	Redundant        basetypes.BoolValue   `tfsdk:"redundant"`
-	RedundantGroup   basetypes.Int64Value  `tfsdk:"redundant_group"`
-	RethIdx          basetypes.StringValue `tfsdk:"reth_idx"`
-	RethNode         basetypes.StringValue `tfsdk:"reth_node"`
-	RethNodes        basetypes.ListValue   `tfsdk:"reth_nodes"`
-	Speed            basetypes.StringValue `tfsdk:"speed"`
-	SsrNoVirtualMac  basetypes.BoolValue   `tfsdk:"ssr_no_virtual_mac"`
-	SvrPortRange     basetypes.StringValue `tfsdk:"svr_port_range"`
-	TrafficShaping   basetypes.ObjectValue `tfsdk:"traffic_shaping"`
-	Usage            basetypes.StringValue `tfsdk:"usage"`
-	VlanId           basetypes.StringValue `tfsdk:"vlan_id"`
-	VpnPaths         basetypes.MapValue    `tfsdk:"vpn_paths"`
-	WanArpPolicer    basetypes.StringValue `tfsdk:"wan_arp_policer"`
-	WanExtIp         basetypes.StringValue `tfsdk:"wan_ext_ip"`
-	WanExtraRoutes   basetypes.MapValue    `tfsdk:"wan_extra_routes"`
-	WanNetworks      basetypes.ListValue   `tfsdk:"wan_networks"`
-	WanProbeOverride basetypes.ObjectValue `tfsdk:"wan_probe_override"`
-	WanSourceNat     basetypes.ObjectValue `tfsdk:"wan_source_nat"`
-	WanType          basetypes.StringValue `tfsdk:"wan_type"`
-	state            attr.ValueState
+	AeDisableLacp       basetypes.BoolValue   `tfsdk:"ae_disable_lacp"`
+	AeIdx               basetypes.StringValue `tfsdk:"ae_idx"`
+	AeLacpForceUp       basetypes.BoolValue   `tfsdk:"ae_lacp_force_up"`
+	Aggregated          basetypes.BoolValue   `tfsdk:"aggregated"`
+	Critical            basetypes.BoolValue   `tfsdk:"critical"`
+	Description         basetypes.StringValue `tfsdk:"description"`
+	DisableAutoneg      basetypes.BoolValue   `tfsdk:"disable_autoneg"`
+	Disabled            basetypes.BoolValue   `tfsdk:"disabled"`
+	DslType             basetypes.StringValue `tfsdk:"dsl_type"`
+	DslVci              basetypes.Int64Value  `tfsdk:"dsl_vci"`
+	DslVpi              basetypes.Int64Value  `tfsdk:"dsl_vpi"`
+	Duplex              basetypes.StringValue `tfsdk:"duplex"`
+	LteApn              basetypes.StringValue `tfsdk:"lte_apn"`
+	LteAuth             basetypes.StringValue `tfsdk:"lte_auth"`
+	LteBackup           basetypes.BoolValue   `tfsdk:"lte_backup"`
+	LtePassword         basetypes.StringValue `tfsdk:"lte_password"`
+	LteUsername         basetypes.StringValue `tfsdk:"lte_username"`
+	Mtu                 basetypes.Int64Value  `tfsdk:"mtu"`
+	Name                basetypes.StringValue `tfsdk:"name"`
+	Networks            basetypes.ListValue   `tfsdk:"networks"`
+	OuterVlanId         basetypes.Int64Value  `tfsdk:"outer_vlan_id"`
+	PoeDisabled         basetypes.BoolValue   `tfsdk:"poe_disabled"`
+	PortIpConfig        basetypes.ObjectValue `tfsdk:"ip_config"`
+	PortNetwork         basetypes.StringValue `tfsdk:"port_network"`
+	PreserveDscp        basetypes.BoolValue   `tfsdk:"preserve_dscp"`
+	Redundant           basetypes.BoolValue   `tfsdk:"redundant"`
+	RedundantGroup      basetypes.Int64Value  `tfsdk:"redundant_group"`
+	RethIdx             basetypes.StringValue `tfsdk:"reth_idx"`
+	RethNode            basetypes.StringValue `tfsdk:"reth_node"`
+	RethNodes           basetypes.ListValue   `tfsdk:"reth_nodes"`
+	Speed               basetypes.StringValue `tfsdk:"speed"`
+	SsrNoVirtualMac     basetypes.BoolValue   `tfsdk:"ssr_no_virtual_mac"`
+	SvrPortRange        basetypes.StringValue `tfsdk:"svr_port_range"`
+	TrafficShaping      basetypes.ObjectValue `tfsdk:"traffic_shaping"`
+	Usage               basetypes.StringValue `tfsdk:"usage"`
+	VlanId              basetypes.StringValue `tfsdk:"vlan_id"`
+	VpnPaths            basetypes.MapValue    `tfsdk:"vpn_paths"`
+	WanArpPolicer       basetypes.StringValue `tfsdk:"wan_arp_policer"`
+	WanDisableSpeedtest basetypes.BoolValue   `tfsdk:"wan_disable_speedtest"`
+	WanExtIp            basetypes.StringValue `tfsdk:"wan_ext_ip"`
+	WanExtraRoutes      basetypes.MapValue    `tfsdk:"wan_extra_routes"`
+	WanNetworks         basetypes.ListValue   `tfsdk:"wan_networks"`
+	WanProbeOverride    basetypes.ObjectValue `tfsdk:"wan_probe_override"`
+	WanSourceNat        basetypes.ObjectValue `tfsdk:"wan_source_nat"`
+	WanType             basetypes.StringValue `tfsdk:"wan_type"`
+	state               attr.ValueState
 }
 
 func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 44)
+	attrTypes := make(map[string]tftypes.Type, 45)
 
 	var val tftypes.Value
 	var err error
@@ -22413,6 +22479,7 @@ func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 		ElemType: VpnPathsValue{}.Type(ctx),
 	}.TerraformType(ctx)
 	attrTypes["wan_arp_policer"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["wan_disable_speedtest"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["wan_ext_ip"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["wan_extra_routes"] = basetypes.MapType{
 		ElemType: WanExtraRoutesValue{}.Type(ctx),
@@ -22432,7 +22499,7 @@ func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 44)
+		vals := make(map[string]tftypes.Value, 45)
 
 		val, err = v.AeDisableLacp.ToTerraformValue(ctx)
 
@@ -22738,6 +22805,14 @@ func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 		vals["wan_arp_policer"] = val
 
+		val, err = v.WanDisableSpeedtest.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["wan_disable_speedtest"] = val
+
 		val, err = v.WanExtIp.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -23018,8 +23093,9 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"vpn_paths": basetypes.MapType{
 				ElemType: VpnPathsValue{}.Type(ctx),
 			},
-			"wan_arp_policer": basetypes.StringType{},
-			"wan_ext_ip":      basetypes.StringType{},
+			"wan_arp_policer":       basetypes.StringType{},
+			"wan_disable_speedtest": basetypes.BoolType{},
+			"wan_ext_ip":            basetypes.StringType{},
 			"wan_extra_routes": basetypes.MapType{
 				ElemType: WanExtraRoutesValue{}.Type(ctx),
 			},
@@ -23097,8 +23173,9 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"vpn_paths": basetypes.MapType{
 				ElemType: VpnPathsValue{}.Type(ctx),
 			},
-			"wan_arp_policer": basetypes.StringType{},
-			"wan_ext_ip":      basetypes.StringType{},
+			"wan_arp_policer":       basetypes.StringType{},
+			"wan_disable_speedtest": basetypes.BoolType{},
+			"wan_ext_ip":            basetypes.StringType{},
 			"wan_extra_routes": basetypes.MapType{
 				ElemType: WanExtraRoutesValue{}.Type(ctx),
 			},
@@ -23176,8 +23253,9 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"vpn_paths": basetypes.MapType{
 				ElemType: VpnPathsValue{}.Type(ctx),
 			},
-			"wan_arp_policer": basetypes.StringType{},
-			"wan_ext_ip":      basetypes.StringType{},
+			"wan_arp_policer":       basetypes.StringType{},
+			"wan_disable_speedtest": basetypes.BoolType{},
+			"wan_ext_ip":            basetypes.StringType{},
 			"wan_extra_routes": basetypes.MapType{
 				ElemType: WanExtraRoutesValue{}.Type(ctx),
 			},
@@ -23242,8 +23320,9 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		"vpn_paths": basetypes.MapType{
 			ElemType: VpnPathsValue{}.Type(ctx),
 		},
-		"wan_arp_policer": basetypes.StringType{},
-		"wan_ext_ip":      basetypes.StringType{},
+		"wan_arp_policer":       basetypes.StringType{},
+		"wan_disable_speedtest": basetypes.BoolType{},
+		"wan_ext_ip":            basetypes.StringType{},
 		"wan_extra_routes": basetypes.MapType{
 			ElemType: WanExtraRoutesValue{}.Type(ctx),
 		},
@@ -23270,50 +23349,51 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"ae_disable_lacp":    v.AeDisableLacp,
-			"ae_idx":             v.AeIdx,
-			"ae_lacp_force_up":   v.AeLacpForceUp,
-			"aggregated":         v.Aggregated,
-			"critical":           v.Critical,
-			"description":        v.Description,
-			"disable_autoneg":    v.DisableAutoneg,
-			"disabled":           v.Disabled,
-			"dsl_type":           v.DslType,
-			"dsl_vci":            v.DslVci,
-			"dsl_vpi":            v.DslVpi,
-			"duplex":             v.Duplex,
-			"lte_apn":            v.LteApn,
-			"lte_auth":           v.LteAuth,
-			"lte_backup":         v.LteBackup,
-			"lte_password":       v.LtePassword,
-			"lte_username":       v.LteUsername,
-			"mtu":                v.Mtu,
-			"name":               v.Name,
-			"networks":           networksVal,
-			"outer_vlan_id":      v.OuterVlanId,
-			"poe_disabled":       v.PoeDisabled,
-			"ip_config":          portIpConfig,
-			"port_network":       v.PortNetwork,
-			"preserve_dscp":      v.PreserveDscp,
-			"redundant":          v.Redundant,
-			"redundant_group":    v.RedundantGroup,
-			"reth_idx":           v.RethIdx,
-			"reth_node":          v.RethNode,
-			"reth_nodes":         rethNodesVal,
-			"speed":              v.Speed,
-			"ssr_no_virtual_mac": v.SsrNoVirtualMac,
-			"svr_port_range":     v.SvrPortRange,
-			"traffic_shaping":    trafficShaping,
-			"usage":              v.Usage,
-			"vlan_id":            v.VlanId,
-			"vpn_paths":          vpnPaths,
-			"wan_arp_policer":    v.WanArpPolicer,
-			"wan_ext_ip":         v.WanExtIp,
-			"wan_extra_routes":   wanExtraRoutes,
-			"wan_networks":       wanNetworksVal,
-			"wan_probe_override": wanProbeOverride,
-			"wan_source_nat":     wanSourceNat,
-			"wan_type":           v.WanType,
+			"ae_disable_lacp":       v.AeDisableLacp,
+			"ae_idx":                v.AeIdx,
+			"ae_lacp_force_up":      v.AeLacpForceUp,
+			"aggregated":            v.Aggregated,
+			"critical":              v.Critical,
+			"description":           v.Description,
+			"disable_autoneg":       v.DisableAutoneg,
+			"disabled":              v.Disabled,
+			"dsl_type":              v.DslType,
+			"dsl_vci":               v.DslVci,
+			"dsl_vpi":               v.DslVpi,
+			"duplex":                v.Duplex,
+			"lte_apn":               v.LteApn,
+			"lte_auth":              v.LteAuth,
+			"lte_backup":            v.LteBackup,
+			"lte_password":          v.LtePassword,
+			"lte_username":          v.LteUsername,
+			"mtu":                   v.Mtu,
+			"name":                  v.Name,
+			"networks":              networksVal,
+			"outer_vlan_id":         v.OuterVlanId,
+			"poe_disabled":          v.PoeDisabled,
+			"ip_config":             portIpConfig,
+			"port_network":          v.PortNetwork,
+			"preserve_dscp":         v.PreserveDscp,
+			"redundant":             v.Redundant,
+			"redundant_group":       v.RedundantGroup,
+			"reth_idx":              v.RethIdx,
+			"reth_node":             v.RethNode,
+			"reth_nodes":            rethNodesVal,
+			"speed":                 v.Speed,
+			"ssr_no_virtual_mac":    v.SsrNoVirtualMac,
+			"svr_port_range":        v.SvrPortRange,
+			"traffic_shaping":       trafficShaping,
+			"usage":                 v.Usage,
+			"vlan_id":               v.VlanId,
+			"vpn_paths":             vpnPaths,
+			"wan_arp_policer":       v.WanArpPolicer,
+			"wan_disable_speedtest": v.WanDisableSpeedtest,
+			"wan_ext_ip":            v.WanExtIp,
+			"wan_extra_routes":      wanExtraRoutes,
+			"wan_networks":          wanNetworksVal,
+			"wan_probe_override":    wanProbeOverride,
+			"wan_source_nat":        wanSourceNat,
+			"wan_type":              v.WanType,
 		})
 
 	return objVal, diags
@@ -23486,6 +23566,10 @@ func (v PortConfigValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.WanDisableSpeedtest.Equal(other.WanDisableSpeedtest) {
+		return false
+	}
+
 	if !v.WanExtIp.Equal(other.WanExtIp) {
 		return false
 	}
@@ -23570,8 +23654,9 @@ func (v PortConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"vpn_paths": basetypes.MapType{
 			ElemType: VpnPathsValue{}.Type(ctx),
 		},
-		"wan_arp_policer": basetypes.StringType{},
-		"wan_ext_ip":      basetypes.StringType{},
+		"wan_arp_policer":       basetypes.StringType{},
+		"wan_disable_speedtest": basetypes.BoolType{},
+		"wan_ext_ip":            basetypes.StringType{},
 		"wan_extra_routes": basetypes.MapType{
 			ElemType: WanExtraRoutesValue{}.Type(ctx),
 		},
@@ -35280,6 +35365,24 @@ func (t AutoProvisionType) ValueFromObject(ctx context.Context, in basetypes.Obj
 			fmt.Sprintf(`region expected to be basetypes.StringValue, was: %T`, regionAttribute))
 	}
 
+	serviceConnectionAttribute, ok := attributes["service_connection"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`service_connection is missing from object`)
+
+		return nil, diags
+	}
+
+	serviceConnectionVal, ok := serviceConnectionAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`service_connection expected to be basetypes.StringValue, was: %T`, serviceConnectionAttribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
@@ -35291,6 +35394,7 @@ func (t AutoProvisionType) ValueFromObject(ctx context.Context, in basetypes.Obj
 		Latlng:                 latlngVal,
 		Provider:               providerVal,
 		Region:                 regionVal,
+		ServiceConnection:      serviceConnectionVal,
 		state:                  attr.ValueStateKnown,
 	}, diags
 }
@@ -35466,6 +35570,24 @@ func NewAutoProvisionValue(attributeTypes map[string]attr.Type, attributes map[s
 			fmt.Sprintf(`region expected to be basetypes.StringValue, was: %T`, regionAttribute))
 	}
 
+	serviceConnectionAttribute, ok := attributes["service_connection"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`service_connection is missing from object`)
+
+		return NewAutoProvisionValueUnknown(), diags
+	}
+
+	serviceConnectionVal, ok := serviceConnectionAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`service_connection expected to be basetypes.StringValue, was: %T`, serviceConnectionAttribute))
+	}
+
 	if diags.HasError() {
 		return NewAutoProvisionValueUnknown(), diags
 	}
@@ -35477,6 +35599,7 @@ func NewAutoProvisionValue(attributeTypes map[string]attr.Type, attributes map[s
 		Latlng:                 latlngVal,
 		Provider:               providerVal,
 		Region:                 regionVal,
+		ServiceConnection:      serviceConnectionVal,
 		state:                  attr.ValueStateKnown,
 	}, diags
 }
@@ -35555,11 +35678,12 @@ type AutoProvisionValue struct {
 	Latlng                 basetypes.ObjectValue `tfsdk:"latlng"`
 	Provider               basetypes.StringValue `tfsdk:"provider"`
 	Region                 basetypes.StringValue `tfsdk:"region"`
+	ServiceConnection      basetypes.StringValue `tfsdk:"service_connection"`
 	state                  attr.ValueState
 }
 
 func (v AutoProvisionValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 6)
+	attrTypes := make(map[string]tftypes.Type, 7)
 
 	var val tftypes.Value
 	var err error
@@ -35576,12 +35700,13 @@ func (v AutoProvisionValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 	}.TerraformType(ctx)
 	attrTypes["provider"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["region"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["service_connection"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 6)
+		vals := make(map[string]tftypes.Value, 7)
 
 		val, err = v.AutoProvisionPrimary.ToTerraformValue(ctx)
 
@@ -35630,6 +35755,14 @@ func (v AutoProvisionValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 		}
 
 		vals["region"] = val
+
+		val, err = v.ServiceConnection.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["service_connection"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -35734,8 +35867,9 @@ func (v AutoProvisionValue) ToObjectValue(ctx context.Context) (basetypes.Object
 		"latlng": basetypes.ObjectType{
 			AttrTypes: LatlngValue{}.AttributeTypes(ctx),
 		},
-		"provider": basetypes.StringType{},
-		"region":   basetypes.StringType{},
+		"provider":           basetypes.StringType{},
+		"region":             basetypes.StringType{},
+		"service_connection": basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -35749,12 +35883,13 @@ func (v AutoProvisionValue) ToObjectValue(ctx context.Context) (basetypes.Object
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"primary":   autoProvisionPrimary,
-			"secondary": autoProvisionSecondary,
-			"enable":    v.Enable,
-			"latlng":    latlng,
-			"provider":  v.Provider,
-			"region":    v.Region,
+			"primary":            autoProvisionPrimary,
+			"secondary":          autoProvisionSecondary,
+			"enable":             v.Enable,
+			"latlng":             latlng,
+			"provider":           v.Provider,
+			"region":             v.Region,
+			"service_connection": v.ServiceConnection,
 		})
 
 	return objVal, diags
@@ -35799,6 +35934,10 @@ func (v AutoProvisionValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.ServiceConnection.Equal(other.ServiceConnection) {
+		return false
+	}
+
 	return true
 }
 
@@ -35822,8 +35961,9 @@ func (v AutoProvisionValue) AttributeTypes(ctx context.Context) map[string]attr.
 		"latlng": basetypes.ObjectType{
 			AttrTypes: LatlngValue{}.AttributeTypes(ctx),
 		},
-		"provider": basetypes.StringType{},
-		"region":   basetypes.StringType{},
+		"provider":           basetypes.StringType{},
+		"region":             basetypes.StringType{},
+		"service_connection": basetypes.StringType{},
 	}
 }
 
@@ -39948,6 +40088,24 @@ func (t TunnelProviderOptionsType) ValueFromObject(ctx context.Context, in baset
 			fmt.Sprintf(`jse expected to be basetypes.ObjectValue, was: %T`, jseAttribute))
 	}
 
+	prismaAttribute, ok := attributes["prisma"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`prisma is missing from object`)
+
+		return nil, diags
+	}
+
+	prismaVal, ok := prismaAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`prisma expected to be basetypes.ObjectValue, was: %T`, prismaAttribute))
+	}
+
 	zscalerAttribute, ok := attributes["zscaler"]
 
 	if !ok {
@@ -39972,6 +40130,7 @@ func (t TunnelProviderOptionsType) ValueFromObject(ctx context.Context, in baset
 
 	return TunnelProviderOptionsValue{
 		Jse:     jseVal,
+		Prisma:  prismaVal,
 		Zscaler: zscalerVal,
 		state:   attr.ValueStateKnown,
 	}, diags
@@ -40058,6 +40217,24 @@ func NewTunnelProviderOptionsValue(attributeTypes map[string]attr.Type, attribut
 			fmt.Sprintf(`jse expected to be basetypes.ObjectValue, was: %T`, jseAttribute))
 	}
 
+	prismaAttribute, ok := attributes["prisma"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`prisma is missing from object`)
+
+		return NewTunnelProviderOptionsValueUnknown(), diags
+	}
+
+	prismaVal, ok := prismaAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`prisma expected to be basetypes.ObjectValue, was: %T`, prismaAttribute))
+	}
+
 	zscalerAttribute, ok := attributes["zscaler"]
 
 	if !ok {
@@ -40082,6 +40259,7 @@ func NewTunnelProviderOptionsValue(attributeTypes map[string]attr.Type, attribut
 
 	return TunnelProviderOptionsValue{
 		Jse:     jseVal,
+		Prisma:  prismaVal,
 		Zscaler: zscalerVal,
 		state:   attr.ValueStateKnown,
 	}, diags
@@ -40156,18 +40334,22 @@ var _ basetypes.ObjectValuable = TunnelProviderOptionsValue{}
 
 type TunnelProviderOptionsValue struct {
 	Jse     basetypes.ObjectValue `tfsdk:"jse"`
+	Prisma  basetypes.ObjectValue `tfsdk:"prisma"`
 	Zscaler basetypes.ObjectValue `tfsdk:"zscaler"`
 	state   attr.ValueState
 }
 
 func (v TunnelProviderOptionsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 2)
+	attrTypes := make(map[string]tftypes.Type, 3)
 
 	var val tftypes.Value
 	var err error
 
 	attrTypes["jse"] = basetypes.ObjectType{
 		AttrTypes: JseValue{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
+	attrTypes["prisma"] = basetypes.ObjectType{
+		AttrTypes: PrismaValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
 	attrTypes["zscaler"] = basetypes.ObjectType{
 		AttrTypes: ZscalerValue{}.AttributeTypes(ctx),
@@ -40177,7 +40359,7 @@ func (v TunnelProviderOptionsValue) ToTerraformValue(ctx context.Context) (tftyp
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 2)
+		vals := make(map[string]tftypes.Value, 3)
 
 		val, err = v.Jse.ToTerraformValue(ctx)
 
@@ -40186,6 +40368,14 @@ func (v TunnelProviderOptionsValue) ToTerraformValue(ctx context.Context) (tftyp
 		}
 
 		vals["jse"] = val
+
+		val, err = v.Prisma.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["prisma"] = val
 
 		val, err = v.Zscaler.ToTerraformValue(ctx)
 
@@ -40245,6 +40435,27 @@ func (v TunnelProviderOptionsValue) ToObjectValue(ctx context.Context) (basetype
 		)
 	}
 
+	var prisma basetypes.ObjectValue
+
+	if v.Prisma.IsNull() {
+		prisma = types.ObjectNull(
+			PrismaValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.Prisma.IsUnknown() {
+		prisma = types.ObjectUnknown(
+			PrismaValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.Prisma.IsNull() && !v.Prisma.IsUnknown() {
+		prisma = types.ObjectValueMust(
+			PrismaValue{}.AttributeTypes(ctx),
+			v.Prisma.Attributes(),
+		)
+	}
+
 	var zscaler basetypes.ObjectValue
 
 	if v.Zscaler.IsNull() {
@@ -40270,6 +40481,9 @@ func (v TunnelProviderOptionsValue) ToObjectValue(ctx context.Context) (basetype
 		"jse": basetypes.ObjectType{
 			AttrTypes: JseValue{}.AttributeTypes(ctx),
 		},
+		"prisma": basetypes.ObjectType{
+			AttrTypes: PrismaValue{}.AttributeTypes(ctx),
+		},
 		"zscaler": basetypes.ObjectType{
 			AttrTypes: ZscalerValue{}.AttributeTypes(ctx),
 		},
@@ -40287,6 +40501,7 @@ func (v TunnelProviderOptionsValue) ToObjectValue(ctx context.Context) (basetype
 		attributeTypes,
 		map[string]attr.Value{
 			"jse":     jse,
+			"prisma":  prisma,
 			"zscaler": zscaler,
 		})
 
@@ -40312,6 +40527,10 @@ func (v TunnelProviderOptionsValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.Prisma.Equal(other.Prisma) {
+		return false
+	}
+
 	if !v.Zscaler.Equal(other.Zscaler) {
 		return false
 	}
@@ -40331,6 +40550,9 @@ func (v TunnelProviderOptionsValue) AttributeTypes(ctx context.Context) map[stri
 	return map[string]attr.Type{
 		"jse": basetypes.ObjectType{
 			AttrTypes: JseValue{}.AttributeTypes(ctx),
+		},
+		"prisma": basetypes.ObjectType{
+			AttrTypes: PrismaValue{}.AttributeTypes(ctx),
 		},
 		"zscaler": basetypes.ObjectType{
 			AttrTypes: ZscalerValue{}.AttributeTypes(ctx),
@@ -40714,6 +40936,330 @@ func (v JseValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"num_users": basetypes.Int64Type{},
 		"org_name":  basetypes.StringType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = PrismaType{}
+
+type PrismaType struct {
+	basetypes.ObjectType
+}
+
+func (t PrismaType) Equal(o attr.Type) bool {
+	other, ok := o.(PrismaType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t PrismaType) String() string {
+	return "PrismaType"
+}
+
+func (t PrismaType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	serviceAccountNameAttribute, ok := attributes["service_account_name"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`service_account_name is missing from object`)
+
+		return nil, diags
+	}
+
+	serviceAccountNameVal, ok := serviceAccountNameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`service_account_name expected to be basetypes.StringValue, was: %T`, serviceAccountNameAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return PrismaValue{
+		ServiceAccountName: serviceAccountNameVal,
+		state:              attr.ValueStateKnown,
+	}, diags
+}
+
+func NewPrismaValueNull() PrismaValue {
+	return PrismaValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewPrismaValueUnknown() PrismaValue {
+	return PrismaValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewPrismaValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (PrismaValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing PrismaValue Attribute Value",
+				"While creating a PrismaValue value, a missing attribute value was detected. "+
+					"A PrismaValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("PrismaValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid PrismaValue Attribute Type",
+				"While creating a PrismaValue value, an invalid attribute value was detected. "+
+					"A PrismaValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("PrismaValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("PrismaValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra PrismaValue Attribute Value",
+				"While creating a PrismaValue value, an extra attribute value was detected. "+
+					"A PrismaValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra PrismaValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewPrismaValueUnknown(), diags
+	}
+
+	serviceAccountNameAttribute, ok := attributes["service_account_name"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`service_account_name is missing from object`)
+
+		return NewPrismaValueUnknown(), diags
+	}
+
+	serviceAccountNameVal, ok := serviceAccountNameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`service_account_name expected to be basetypes.StringValue, was: %T`, serviceAccountNameAttribute))
+	}
+
+	if diags.HasError() {
+		return NewPrismaValueUnknown(), diags
+	}
+
+	return PrismaValue{
+		ServiceAccountName: serviceAccountNameVal,
+		state:              attr.ValueStateKnown,
+	}, diags
+}
+
+func NewPrismaValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) PrismaValue {
+	object, diags := NewPrismaValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewPrismaValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t PrismaType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewPrismaValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewPrismaValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewPrismaValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewPrismaValueMust(PrismaValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t PrismaType) ValueType(ctx context.Context) attr.Value {
+	return PrismaValue{}
+}
+
+var _ basetypes.ObjectValuable = PrismaValue{}
+
+type PrismaValue struct {
+	ServiceAccountName basetypes.StringValue `tfsdk:"service_account_name"`
+	state              attr.ValueState
+}
+
+func (v PrismaValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 1)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["service_account_name"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 1)
+
+		val, err = v.ServiceAccountName.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["service_account_name"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v PrismaValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v PrismaValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v PrismaValue) String() string {
+	return "PrismaValue"
+}
+
+func (v PrismaValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"service_account_name": basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"service_account_name": v.ServiceAccountName,
+		})
+
+	return objVal, diags
+}
+
+func (v PrismaValue) Equal(o attr.Value) bool {
+	other, ok := o.(PrismaValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.ServiceAccountName.Equal(other.ServiceAccountName) {
+		return false
+	}
+
+	return true
+}
+
+func (v PrismaValue) Type(ctx context.Context) attr.Type {
+	return PrismaType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v PrismaValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"service_account_name": basetypes.StringType{},
 	}
 }
 

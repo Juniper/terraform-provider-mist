@@ -88,7 +88,9 @@ func tunnelConfigsAutoProvisionTerraformToSdk(ctx context.Context, diags *diag.D
 			if plan.Region.ValueStringPointer() != nil {
 				data.Region = plan.Region.ValueStringPointer()
 			}
-
+			if plan.ServiceConnection.ValueStringPointer() != nil {
+				data.ServiceConnection = plan.ServiceConnection.ValueStringPointer()
+			}
 		}
 		return data
 	}
