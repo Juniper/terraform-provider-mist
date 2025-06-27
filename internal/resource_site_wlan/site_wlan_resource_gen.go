@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/objectvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -2456,6 +2457,12 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "Days/Hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun)",
 						MarkdownDescription: "Days/Hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun)",
+						Validators: []validator.Object{
+							mistvalidator.AtLeastNAttributes(
+								1,
+								"fri", "mon", "sat", "sun", "thu", "tue", "wed",
+							),
+						},
 					},
 				},
 				CustomType: ScheduleType{
