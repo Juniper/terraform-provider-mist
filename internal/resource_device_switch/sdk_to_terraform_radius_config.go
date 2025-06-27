@@ -5,6 +5,8 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -19,7 +21,7 @@ func radiusServersAcctSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 		var keywrapFormat basetypes.StringValue
 		var keywrapKek basetypes.StringValue
 		var keywrapMack basetypes.StringValue
-		var port = types.Int64Value(int64(*d.Port))
+		var port basetypes.StringValue
 		var secret = types.StringValue(d.Secret)
 
 		if d.KeywrapEnabled != nil {
@@ -33,6 +35,9 @@ func radiusServersAcctSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 		}
 		if d.KeywrapMack != nil {
 			keywrapMack = types.StringValue(*d.KeywrapMack)
+		}
+		if d.Port != nil {
+			port = mistutils.RadiusAcctPortAsString(d.Port)
 		}
 
 		dataMapValue := map[string]attr.Value{
@@ -65,7 +70,7 @@ func radiusServersAuthSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 		var keywrapFormat basetypes.StringValue
 		var keywrapKek basetypes.StringValue
 		var keywrapMack basetypes.StringValue
-		var port basetypes.Int64Value
+		var port basetypes.StringValue
 		var requireMessageAuthenticator basetypes.BoolValue
 		var secret basetypes.StringValue
 
@@ -82,7 +87,9 @@ func radiusServersAuthSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 		if d.KeywrapMack != nil {
 			keywrapMack = types.StringValue(*d.KeywrapMack)
 		}
-		port = types.Int64Value(int64(*d.Port))
+		if d.Port != nil {
+			port = mistutils.RadiusAuthPortAsString(d.Port)
+		}
 		if d.RequireMessageAuthenticator != nil {
 			requireMessageAuthenticator = types.BoolValue(*d.RequireMessageAuthenticator)
 		}
@@ -98,7 +105,7 @@ func radiusServersAuthSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 			"require_message_authenticator": requireMessageAuthenticator,
 			"secret":                        secret,
 		}
-		data, e := NewAcctServersValue(AuthServersValue{}.AttributeTypes(ctx), dataMapValue)
+		data, e := NewAuthServersValue(AuthServersValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
 		authValueList = append(authValueList, data)
@@ -111,14 +118,22 @@ func radiusServersAuthSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 }
 
 func radiusConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SwitchRadiusConfig) RadiusConfigValue {
+	var acctImmediateUpdate basetypes.BoolValue
 	var acctInterimInterval basetypes.Int64Value
 	var acctServers = types.ListNull(AcctServersValue{}.Type(ctx))
 	var authServers = types.ListNull(AuthServersValue{}.Type(ctx))
 	var authServersRetries basetypes.Int64Value
+	var authServerSelection basetypes.StringValue
 	var authServersTimeout basetypes.Int64Value
+	var coaEnabled basetypes.BoolValue
+	var coaPort basetypes.StringValue
+	var fastDot1xTimers basetypes.BoolValue
 	var network basetypes.StringValue
 	var sourceIp basetypes.StringValue
 
+	if d != nil && d.AcctImmediateUpdate != nil {
+		acctImmediateUpdate = types.BoolValue(*d.AcctImmediateUpdate)
+	}
 	if d != nil && d.AcctInterimInterval != nil {
 		acctInterimInterval = types.Int64Value(int64(*d.AcctInterimInterval))
 	}
@@ -131,8 +146,20 @@ func radiusConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	if d != nil && d.AuthServersRetries != nil {
 		authServersRetries = types.Int64Value(int64(*d.AuthServersRetries))
 	}
+	if d != nil && d.AuthServerSelection != nil {
+		authServerSelection = types.StringValue(string(*d.AuthServerSelection))
+	}
 	if d != nil && d.AuthServersTimeout != nil {
 		authServersTimeout = types.Int64Value(int64(*d.AuthServersTimeout))
+	}
+	if d != nil && d.CoaEnabled != nil {
+		coaEnabled = types.BoolValue(*d.CoaEnabled)
+	}
+	if d != nil && d.CoaPort != nil {
+		coaPort = mistutils.RadiusCoaPortAsString(d.CoaPort)
+	}
+	if d != nil && d.FastDot1xTimers != nil {
+		fastDot1xTimers = types.BoolValue(*d.FastDot1xTimers)
 	}
 	if d != nil && d.Network != nil {
 		network = types.StringValue(*d.Network)
@@ -142,11 +169,16 @@ func radiusConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	}
 
 	dataMapValue := map[string]attr.Value{
+		"acct_immediate_update": acctImmediateUpdate,
 		"acct_interim_interval": acctInterimInterval,
 		"acct_servers":          acctServers,
 		"auth_servers":          authServers,
 		"auth_servers_retries":  authServersRetries,
 		"auth_servers_timeout":  authServersTimeout,
+		"auth_server_selection": authServerSelection,
+		"coa_enabled":           coaEnabled,
+		"coa_port":              coaPort,
+		"fast_dot1x_timers":     fastDot1xTimers,
 		"network":               network,
 		"source_ip":             sourceIp,
 	}

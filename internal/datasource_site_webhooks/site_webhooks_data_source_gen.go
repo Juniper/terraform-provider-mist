@@ -42,8 +42,8 @@ func SiteWebhooksDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"id": schema.StringAttribute{
 							Computed:            true,
-							Description:         "Unique ID of the object instance in the Mist Organnization",
-							MarkdownDescription: "Unique ID of the object instance in the Mist Organnization",
+							Description:         "Unique ID of the object instance in the Mist Organization",
+							MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
 						},
 						"modified_time": schema.Float64Attribute{
 							Computed:            true,
@@ -101,6 +101,11 @@ func SiteWebhooksDataSourceSchema(ctx context.Context) schema.Schema {
 							Sensitive:           true,
 							Description:         "Only if `type`=`http-post` \n\nwhen `secret` is provided, two  HTTP headers will be added: \n  * X-Mist-Signature-v2: HMAC_SHA256(secret, body)\n  * X-Mist-Signature: HMAC_SHA1(secret, body)",
 							MarkdownDescription: "Only if `type`=`http-post` \n\nwhen `secret` is provided, two  HTTP headers will be added: \n  * X-Mist-Signature-v2: HMAC_SHA256(secret, body)\n  * X-Mist-Signature: HMAC_SHA1(secret, body)",
+						},
+						"single_event_per_message": schema.BoolAttribute{
+							Computed:            true,
+							Description:         "Some solutions may not be able to parse multiple events from a single message (e.g. IBM Qradar, DSM). When set to `true`, only a single event will be sent per message. this feature is only available on certain topics (see [List Webhook Topics]($e/Constants%20Definitions/listWebhookTopics))",
+							MarkdownDescription: "Some solutions may not be able to parse multiple events from a single message (e.g. IBM Qradar, DSM). When set to `true`, only a single event will be sent per message. this feature is only available on certain topics (see [List Webhook Topics]($e/Constants%20Definitions/listWebhookTopics))",
 						},
 						"site_id": schema.StringAttribute{
 							Computed: true,
@@ -443,6 +448,24 @@ func (t SiteWebhooksType) ValueFromObject(ctx context.Context, in basetypes.Obje
 			fmt.Sprintf(`secret expected to be basetypes.StringValue, was: %T`, secretAttribute))
 	}
 
+	singleEventPerMessageAttribute, ok := attributes["single_event_per_message"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`single_event_per_message is missing from object`)
+
+		return nil, diags
+	}
+
+	singleEventPerMessageVal, ok := singleEventPerMessageAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`single_event_per_message expected to be basetypes.BoolValue, was: %T`, singleEventPerMessageAttribute))
+	}
+
 	siteIdAttribute, ok := attributes["site_id"]
 
 	if !ok {
@@ -556,28 +579,29 @@ func (t SiteWebhooksType) ValueFromObject(ctx context.Context, in basetypes.Obje
 	}
 
 	return SiteWebhooksValue{
-		CreatedTime:        createdTimeVal,
-		Enabled:            enabledVal,
-		Headers:            headersVal,
-		Id:                 idVal,
-		ModifiedTime:       modifiedTimeVal,
-		Name:               nameVal,
-		Oauth2ClientId:     oauth2ClientIdVal,
-		Oauth2ClientSecret: oauth2ClientSecretVal,
-		Oauth2GrantType:    oauth2GrantTypeVal,
-		Oauth2Password:     oauth2PasswordVal,
-		Oauth2Scopes:       oauth2ScopesVal,
-		Oauth2TokenUrl:     oauth2TokenUrlVal,
-		Oauth2Username:     oauth2UsernameVal,
-		OrgId:              orgIdVal,
-		Secret:             secretVal,
-		SiteId:             siteIdVal,
-		SplunkToken:        splunkTokenVal,
-		Topics:             topicsVal,
-		SiteWebhooksType:   typeVal,
-		Url:                urlVal,
-		VerifyCert:         verifyCertVal,
-		state:              attr.ValueStateKnown,
+		CreatedTime:           createdTimeVal,
+		Enabled:               enabledVal,
+		Headers:               headersVal,
+		Id:                    idVal,
+		ModifiedTime:          modifiedTimeVal,
+		Name:                  nameVal,
+		Oauth2ClientId:        oauth2ClientIdVal,
+		Oauth2ClientSecret:    oauth2ClientSecretVal,
+		Oauth2GrantType:       oauth2GrantTypeVal,
+		Oauth2Password:        oauth2PasswordVal,
+		Oauth2Scopes:          oauth2ScopesVal,
+		Oauth2TokenUrl:        oauth2TokenUrlVal,
+		Oauth2Username:        oauth2UsernameVal,
+		OrgId:                 orgIdVal,
+		Secret:                secretVal,
+		SingleEventPerMessage: singleEventPerMessageVal,
+		SiteId:                siteIdVal,
+		SplunkToken:           splunkTokenVal,
+		Topics:                topicsVal,
+		SiteWebhooksType:      typeVal,
+		Url:                   urlVal,
+		VerifyCert:            verifyCertVal,
+		state:                 attr.ValueStateKnown,
 	}, diags
 }
 
@@ -914,6 +938,24 @@ func NewSiteWebhooksValue(attributeTypes map[string]attr.Type, attributes map[st
 			fmt.Sprintf(`secret expected to be basetypes.StringValue, was: %T`, secretAttribute))
 	}
 
+	singleEventPerMessageAttribute, ok := attributes["single_event_per_message"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`single_event_per_message is missing from object`)
+
+		return NewSiteWebhooksValueUnknown(), diags
+	}
+
+	singleEventPerMessageVal, ok := singleEventPerMessageAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`single_event_per_message expected to be basetypes.BoolValue, was: %T`, singleEventPerMessageAttribute))
+	}
+
 	siteIdAttribute, ok := attributes["site_id"]
 
 	if !ok {
@@ -1027,28 +1069,29 @@ func NewSiteWebhooksValue(attributeTypes map[string]attr.Type, attributes map[st
 	}
 
 	return SiteWebhooksValue{
-		CreatedTime:        createdTimeVal,
-		Enabled:            enabledVal,
-		Headers:            headersVal,
-		Id:                 idVal,
-		ModifiedTime:       modifiedTimeVal,
-		Name:               nameVal,
-		Oauth2ClientId:     oauth2ClientIdVal,
-		Oauth2ClientSecret: oauth2ClientSecretVal,
-		Oauth2GrantType:    oauth2GrantTypeVal,
-		Oauth2Password:     oauth2PasswordVal,
-		Oauth2Scopes:       oauth2ScopesVal,
-		Oauth2TokenUrl:     oauth2TokenUrlVal,
-		Oauth2Username:     oauth2UsernameVal,
-		OrgId:              orgIdVal,
-		Secret:             secretVal,
-		SiteId:             siteIdVal,
-		SplunkToken:        splunkTokenVal,
-		Topics:             topicsVal,
-		SiteWebhooksType:   typeVal,
-		Url:                urlVal,
-		VerifyCert:         verifyCertVal,
-		state:              attr.ValueStateKnown,
+		CreatedTime:           createdTimeVal,
+		Enabled:               enabledVal,
+		Headers:               headersVal,
+		Id:                    idVal,
+		ModifiedTime:          modifiedTimeVal,
+		Name:                  nameVal,
+		Oauth2ClientId:        oauth2ClientIdVal,
+		Oauth2ClientSecret:    oauth2ClientSecretVal,
+		Oauth2GrantType:       oauth2GrantTypeVal,
+		Oauth2Password:        oauth2PasswordVal,
+		Oauth2Scopes:          oauth2ScopesVal,
+		Oauth2TokenUrl:        oauth2TokenUrlVal,
+		Oauth2Username:        oauth2UsernameVal,
+		OrgId:                 orgIdVal,
+		Secret:                secretVal,
+		SingleEventPerMessage: singleEventPerMessageVal,
+		SiteId:                siteIdVal,
+		SplunkToken:           splunkTokenVal,
+		Topics:                topicsVal,
+		SiteWebhooksType:      typeVal,
+		Url:                   urlVal,
+		VerifyCert:            verifyCertVal,
+		state:                 attr.ValueStateKnown,
 	}, diags
 }
 
@@ -1120,32 +1163,33 @@ func (t SiteWebhooksType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = SiteWebhooksValue{}
 
 type SiteWebhooksValue struct {
-	CreatedTime        basetypes.Float64Value `tfsdk:"created_time"`
-	Enabled            basetypes.BoolValue    `tfsdk:"enabled"`
-	Headers            basetypes.MapValue     `tfsdk:"headers"`
-	Id                 basetypes.StringValue  `tfsdk:"id"`
-	ModifiedTime       basetypes.Float64Value `tfsdk:"modified_time"`
-	Name               basetypes.StringValue  `tfsdk:"name"`
-	Oauth2ClientId     basetypes.StringValue  `tfsdk:"oauth2_client_id"`
-	Oauth2ClientSecret basetypes.StringValue  `tfsdk:"oauth2_client_secret"`
-	Oauth2GrantType    basetypes.StringValue  `tfsdk:"oauth2_grant_type"`
-	Oauth2Password     basetypes.StringValue  `tfsdk:"oauth2_password"`
-	Oauth2Scopes       basetypes.ListValue    `tfsdk:"oauth2_scopes"`
-	Oauth2TokenUrl     basetypes.StringValue  `tfsdk:"oauth2_token_url"`
-	Oauth2Username     basetypes.StringValue  `tfsdk:"oauth2_username"`
-	OrgId              basetypes.StringValue  `tfsdk:"org_id"`
-	Secret             basetypes.StringValue  `tfsdk:"secret"`
-	SiteId             basetypes.StringValue  `tfsdk:"site_id"`
-	SplunkToken        basetypes.StringValue  `tfsdk:"splunk_token"`
-	Topics             basetypes.ListValue    `tfsdk:"topics"`
-	SiteWebhooksType   basetypes.StringValue  `tfsdk:"type"`
-	Url                basetypes.StringValue  `tfsdk:"url"`
-	VerifyCert         basetypes.BoolValue    `tfsdk:"verify_cert"`
-	state              attr.ValueState
+	CreatedTime           basetypes.Float64Value `tfsdk:"created_time"`
+	Enabled               basetypes.BoolValue    `tfsdk:"enabled"`
+	Headers               basetypes.MapValue     `tfsdk:"headers"`
+	Id                    basetypes.StringValue  `tfsdk:"id"`
+	ModifiedTime          basetypes.Float64Value `tfsdk:"modified_time"`
+	Name                  basetypes.StringValue  `tfsdk:"name"`
+	Oauth2ClientId        basetypes.StringValue  `tfsdk:"oauth2_client_id"`
+	Oauth2ClientSecret    basetypes.StringValue  `tfsdk:"oauth2_client_secret"`
+	Oauth2GrantType       basetypes.StringValue  `tfsdk:"oauth2_grant_type"`
+	Oauth2Password        basetypes.StringValue  `tfsdk:"oauth2_password"`
+	Oauth2Scopes          basetypes.ListValue    `tfsdk:"oauth2_scopes"`
+	Oauth2TokenUrl        basetypes.StringValue  `tfsdk:"oauth2_token_url"`
+	Oauth2Username        basetypes.StringValue  `tfsdk:"oauth2_username"`
+	OrgId                 basetypes.StringValue  `tfsdk:"org_id"`
+	Secret                basetypes.StringValue  `tfsdk:"secret"`
+	SingleEventPerMessage basetypes.BoolValue    `tfsdk:"single_event_per_message"`
+	SiteId                basetypes.StringValue  `tfsdk:"site_id"`
+	SplunkToken           basetypes.StringValue  `tfsdk:"splunk_token"`
+	Topics                basetypes.ListValue    `tfsdk:"topics"`
+	SiteWebhooksType      basetypes.StringValue  `tfsdk:"type"`
+	Url                   basetypes.StringValue  `tfsdk:"url"`
+	VerifyCert            basetypes.BoolValue    `tfsdk:"verify_cert"`
+	state                 attr.ValueState
 }
 
 func (v SiteWebhooksValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 21)
+	attrTypes := make(map[string]tftypes.Type, 22)
 
 	var val tftypes.Value
 	var err error
@@ -1169,6 +1213,7 @@ func (v SiteWebhooksValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 	attrTypes["oauth2_username"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["org_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["secret"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["single_event_per_message"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["site_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["splunk_token"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["topics"] = basetypes.ListType{
@@ -1182,7 +1227,7 @@ func (v SiteWebhooksValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 21)
+		vals := make(map[string]tftypes.Value, 22)
 
 		val, err = v.CreatedTime.ToTerraformValue(ctx)
 
@@ -1304,6 +1349,14 @@ func (v SiteWebhooksValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 
 		vals["secret"] = val
 
+		val, err = v.SingleEventPerMessage.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["single_event_per_message"] = val
+
 		val, err = v.SiteId.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -1402,12 +1455,13 @@ func (v SiteWebhooksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 			"oauth2_scopes": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"oauth2_token_url": basetypes.StringType{},
-			"oauth2_username":  basetypes.StringType{},
-			"org_id":           basetypes.StringType{},
-			"secret":           basetypes.StringType{},
-			"site_id":          basetypes.StringType{},
-			"splunk_token":     basetypes.StringType{},
+			"oauth2_token_url":         basetypes.StringType{},
+			"oauth2_username":          basetypes.StringType{},
+			"org_id":                   basetypes.StringType{},
+			"secret":                   basetypes.StringType{},
+			"single_event_per_message": basetypes.BoolType{},
+			"site_id":                  basetypes.StringType{},
+			"splunk_token":             basetypes.StringType{},
 			"topics": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -1438,12 +1492,13 @@ func (v SiteWebhooksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 			"oauth2_scopes": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"oauth2_token_url": basetypes.StringType{},
-			"oauth2_username":  basetypes.StringType{},
-			"org_id":           basetypes.StringType{},
-			"secret":           basetypes.StringType{},
-			"site_id":          basetypes.StringType{},
-			"splunk_token":     basetypes.StringType{},
+			"oauth2_token_url":         basetypes.StringType{},
+			"oauth2_username":          basetypes.StringType{},
+			"org_id":                   basetypes.StringType{},
+			"secret":                   basetypes.StringType{},
+			"single_event_per_message": basetypes.BoolType{},
+			"site_id":                  basetypes.StringType{},
+			"splunk_token":             basetypes.StringType{},
 			"topics": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -1474,12 +1529,13 @@ func (v SiteWebhooksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 			"oauth2_scopes": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"oauth2_token_url": basetypes.StringType{},
-			"oauth2_username":  basetypes.StringType{},
-			"org_id":           basetypes.StringType{},
-			"secret":           basetypes.StringType{},
-			"site_id":          basetypes.StringType{},
-			"splunk_token":     basetypes.StringType{},
+			"oauth2_token_url":         basetypes.StringType{},
+			"oauth2_username":          basetypes.StringType{},
+			"org_id":                   basetypes.StringType{},
+			"secret":                   basetypes.StringType{},
+			"single_event_per_message": basetypes.BoolType{},
+			"site_id":                  basetypes.StringType{},
+			"splunk_token":             basetypes.StringType{},
 			"topics": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -1505,12 +1561,13 @@ func (v SiteWebhooksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 		"oauth2_scopes": basetypes.ListType{
 			ElemType: types.StringType,
 		},
-		"oauth2_token_url": basetypes.StringType{},
-		"oauth2_username":  basetypes.StringType{},
-		"org_id":           basetypes.StringType{},
-		"secret":           basetypes.StringType{},
-		"site_id":          basetypes.StringType{},
-		"splunk_token":     basetypes.StringType{},
+		"oauth2_token_url":         basetypes.StringType{},
+		"oauth2_username":          basetypes.StringType{},
+		"org_id":                   basetypes.StringType{},
+		"secret":                   basetypes.StringType{},
+		"single_event_per_message": basetypes.BoolType{},
+		"site_id":                  basetypes.StringType{},
+		"splunk_token":             basetypes.StringType{},
 		"topics": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -1530,27 +1587,28 @@ func (v SiteWebhooksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"created_time":         v.CreatedTime,
-			"enabled":              v.Enabled,
-			"headers":              headersVal,
-			"id":                   v.Id,
-			"modified_time":        v.ModifiedTime,
-			"name":                 v.Name,
-			"oauth2_client_id":     v.Oauth2ClientId,
-			"oauth2_client_secret": v.Oauth2ClientSecret,
-			"oauth2_grant_type":    v.Oauth2GrantType,
-			"oauth2_password":      v.Oauth2Password,
-			"oauth2_scopes":        oauth2ScopesVal,
-			"oauth2_token_url":     v.Oauth2TokenUrl,
-			"oauth2_username":      v.Oauth2Username,
-			"org_id":               v.OrgId,
-			"secret":               v.Secret,
-			"site_id":              v.SiteId,
-			"splunk_token":         v.SplunkToken,
-			"topics":               topicsVal,
-			"type":                 v.SiteWebhooksType,
-			"url":                  v.Url,
-			"verify_cert":          v.VerifyCert,
+			"created_time":             v.CreatedTime,
+			"enabled":                  v.Enabled,
+			"headers":                  headersVal,
+			"id":                       v.Id,
+			"modified_time":            v.ModifiedTime,
+			"name":                     v.Name,
+			"oauth2_client_id":         v.Oauth2ClientId,
+			"oauth2_client_secret":     v.Oauth2ClientSecret,
+			"oauth2_grant_type":        v.Oauth2GrantType,
+			"oauth2_password":          v.Oauth2Password,
+			"oauth2_scopes":            oauth2ScopesVal,
+			"oauth2_token_url":         v.Oauth2TokenUrl,
+			"oauth2_username":          v.Oauth2Username,
+			"org_id":                   v.OrgId,
+			"secret":                   v.Secret,
+			"single_event_per_message": v.SingleEventPerMessage,
+			"site_id":                  v.SiteId,
+			"splunk_token":             v.SplunkToken,
+			"topics":                   topicsVal,
+			"type":                     v.SiteWebhooksType,
+			"url":                      v.Url,
+			"verify_cert":              v.VerifyCert,
 		})
 
 	return objVal, diags
@@ -1631,6 +1689,10 @@ func (v SiteWebhooksValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.SingleEventPerMessage.Equal(other.SingleEventPerMessage) {
+		return false
+	}
+
 	if !v.SiteId.Equal(other.SiteId) {
 		return false
 	}
@@ -1683,12 +1745,13 @@ func (v SiteWebhooksValue) AttributeTypes(ctx context.Context) map[string]attr.T
 		"oauth2_scopes": basetypes.ListType{
 			ElemType: types.StringType,
 		},
-		"oauth2_token_url": basetypes.StringType{},
-		"oauth2_username":  basetypes.StringType{},
-		"org_id":           basetypes.StringType{},
-		"secret":           basetypes.StringType{},
-		"site_id":          basetypes.StringType{},
-		"splunk_token":     basetypes.StringType{},
+		"oauth2_token_url":         basetypes.StringType{},
+		"oauth2_username":          basetypes.StringType{},
+		"org_id":                   basetypes.StringType{},
+		"secret":                   basetypes.StringType{},
+		"single_event_per_message": basetypes.BoolType{},
+		"site_id":                  basetypes.StringType{},
+		"splunk_token":             basetypes.StringType{},
 		"topics": basetypes.ListType{
 			ElemType: types.StringType,
 		},

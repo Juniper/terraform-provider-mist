@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func destinationNatInternetAccesTerraformToSdk(d basetypes.MapValue) map[string]models.NetworkInternetAccessDestinationNatProperty {
+func destinationNatInternetAccessTerraformToSdk(d basetypes.MapValue) map[string]models.NetworkInternetAccessDestinationNatProperty {
 	dataMap := make(map[string]models.NetworkInternetAccessDestinationNatProperty)
 	for k, v := range d.Elements() {
 		var vInterface interface{} = v
@@ -21,7 +21,7 @@ func destinationNatInternetAccesTerraformToSdk(d basetypes.MapValue) map[string]
 	return dataMap
 }
 
-func staticNatInternetAccesTerraformToSdk(d basetypes.MapValue) map[string]models.NetworkInternetAccessStaticNatProperty {
+func staticNatInternetAccessTerraformToSdk(d basetypes.MapValue) map[string]models.NetworkInternetAccessStaticNatProperty {
 	dataMap := make(map[string]models.NetworkInternetAccessStaticNatProperty)
 	for k, v := range d.Elements() {
 		var vInterface interface{} = v
@@ -42,13 +42,13 @@ func InternetAccessTerraformToSdk(d InternetAccessValue) *models.NetworkInternet
 		data.CreateSimpleServicePolicy = d.CreateSimpleServicePolicy.ValueBoolPointer()
 	}
 	if !d.InternetAccessDestinationNat.IsNull() && !d.InternetAccessDestinationNat.IsUnknown() {
-		data.DestinationNat = destinationNatInternetAccesTerraformToSdk(d.InternetAccessDestinationNat)
+		data.DestinationNat = destinationNatInternetAccessTerraformToSdk(d.InternetAccessDestinationNat)
 	}
 	if !d.Enabled.IsNull() && !d.Enabled.IsUnknown() {
 		data.Enabled = d.Enabled.ValueBoolPointer()
 	}
 	if !d.InternetAccessStaticNat.IsNull() && !d.InternetAccessStaticNat.IsUnknown() {
-		data.StaticNat = staticNatInternetAccesTerraformToSdk(d.InternetAccessStaticNat)
+		data.StaticNat = staticNatInternetAccessTerraformToSdk(d.InternetAccessStaticNat)
 	}
 	if !d.Restricted.IsNull() && !d.Restricted.IsUnknown() {
 		data.Restricted = d.Restricted.ValueBoolPointer()

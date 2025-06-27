@@ -239,16 +239,25 @@ func (r *orgApitokenResource) Delete(ctx context.Context, _ resource.DeleteReque
 		return
 	}
 
-	tflog.Info(ctx, "Starting Apitoken Delete: apitoken_id "+state.Id.ValueString())
 	data, err := r.client.OrgsAPITokens().DeleteOrgApiToken(ctx, orgId, apitokenId)
-	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && apiErr != "" {
+	if data != nil {
+		apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+		if data.StatusCode != 404 && apiErr != "" {
+			resp.Diagnostics.AddError(
+				"Error deleting \"mist_org_apitoken\" resource",
+				fmt.Sprintf("Unable to delete the API Token. %s", apiErr),
+			)
+			return
+		}
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_apitoken\" resource",
-			fmt.Sprintf("Unable to delete the API Token. %s", apiErr),
+			"Unable to delete the API Token, unexpected error: "+err.Error(),
 		)
 		return
 	}
+
+	resp.State.RemoveResource(ctx)
 }
 
 func (r *orgApitokenResource) readApiToken(ctx context.Context, diags *diag.Diagnostics, mistOrgId basetypes.StringValue, mistApitokenId basetypes.StringValue, state resource_org_apitoken.OrgApitokenModel) *resource_org_apitoken.OrgApitokenModel {

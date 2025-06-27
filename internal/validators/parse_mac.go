@@ -13,7 +13,7 @@ var _ validator.String = ParseMacValidator{}
 type ParseMacValidator struct{}
 
 func (o ParseMacValidator) Description(_ context.Context) string {
-	return "Ensures that value submitted by the user contains a Mist Maciable"
+	return "Ensures that value submitted by the user contains a MAC Address"
 }
 
 func (o ParseMacValidator) MarkdownDescription(ctx context.Context) string {

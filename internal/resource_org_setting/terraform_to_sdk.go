@@ -3,7 +3,7 @@ package resource_org_setting
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -27,7 +27,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgSettingModel) (*models.OrgSett
 	}
 
 	if !plan.Cacerts.IsNull() && !plan.Cacerts.IsUnknown() {
-		data.Cacerts = misttransform.ListOfStringTerraformToSdk(plan.Cacerts)
+		data.Cacerts = mistutils.ListOfStringTerraformToSdk(plan.Cacerts)
 	} else {
 		unset["-cacerts"] = ""
 	}
@@ -98,6 +98,12 @@ func TerraformToSdk(ctx context.Context, plan *OrgSettingModel) (*models.OrgSett
 		unset["-juniper"] = ""
 	}
 
+	if !plan.JunosShellAccess.IsNull() && !plan.JunosShellAccess.IsUnknown() {
+		data.JunosShellAccess = junosShellAccessTerraformToSdk(plan.JunosShellAccess)
+	} else {
+		unset["-junos_shell_access"] = ""
+	}
+
 	if !plan.Mgmt.IsNull() && !plan.Mgmt.IsUnknown() {
 		data.Mgmt = mgmtTerraformToSdk(plan.Mgmt)
 	} else {
@@ -108,12 +114,6 @@ func TerraformToSdk(ctx context.Context, plan *OrgSettingModel) (*models.OrgSett
 		data.MistNac = mistNacTerraformToSdk(ctx, &diags, plan.MistNac)
 	} else {
 		unset["-mist_nac"] = ""
-	}
-
-	if plan.MxedgeFipsEnabled.ValueBoolPointer() != nil {
-		data.MxedgeFipsEnabled = plan.MxedgeFipsEnabled.ValueBoolPointer()
-	} else {
-		unset["-mxedge_fips_enabled"] = ""
 	}
 
 	if !plan.MxedgeMgmt.IsNull() && !plan.MxedgeMgmt.IsUnknown() {

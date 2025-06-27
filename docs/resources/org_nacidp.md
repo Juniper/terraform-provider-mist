@@ -68,7 +68,7 @@ resource "mist_org_nacidp" "idp_ldap" {
 ### Required
 
 - `idp_type` (String) enum: `ldap`, `mxedge_proxy`, `oauth`
-- `name` (String) name
+- `name` (String) Name
 - `org_id` (String)
 
 ### Optional
@@ -78,29 +78,29 @@ resource "mist_org_nacidp" "idp_ldap" {
 - `ldap_bind_dn` (String) Required if `idp_type`==`ldap`, the account used to authenticate against the LDAP
 - `ldap_bind_password` (String) Required if `idp_type`==`ldap`, the password used to authenticate against the LDAP
 - `ldap_cacerts` (List of String) Required if `idp_type`==`ldap`, list of CA certificates to validate the LDAP certificate
-- `ldap_client_cert` (String) if `idp_type`==`ldap`, LDAPS Client certificate
-- `ldap_client_key` (String) if `idp_type`==`ldap`, Key for the `ldap_client_cert`
-- `ldap_group_attr` (String) if `ldap_type`==`custom`
-- `ldap_group_dn` (String) if `ldap_type`==`custom`
-- `ldap_resolve_groups` (Boolean) if `idp_type`==`ldap`, whether to recursively resolve LDAP groups
-- `ldap_server_hosts` (List of String) if `idp_type`==`ldap`, list of LDAP/LDAPS server IP Addresses or Hostnames
+- `ldap_client_cert` (String) If `idp_type`==`ldap`, LDAPS Client certificate
+- `ldap_client_key` (String) If `idp_type`==`ldap`, Key for the `ldap_client_cert`
+- `ldap_group_attr` (String) If `ldap_type`==`custom`
+- `ldap_group_dn` (String) If `ldap_type`==`custom`
+- `ldap_resolve_groups` (Boolean) If `idp_type`==`ldap`, whether to recursively resolve LDAP groups
+- `ldap_server_hosts` (List of String) If `idp_type`==`ldap`, list of LDAP/LDAPS server IP Addresses or Hostnames
 - `ldap_type` (String) if `idp_type`==`ldap`. enum: `azure`, `custom`, `google`, `okta`, `ping_identity`
 - `ldap_user_filter` (String) Required if `ldap_type`==`custom`, LDAP filter that will identify the type of user
 - `member_filter` (String) Required if `ldap_type`==`custom`,LDAP filter that will identify the type of member
 - `oauth_cc_client_id` (String) Required if `idp_type`==`oauth`, Client Credentials
 - `oauth_cc_client_secret` (String) Required if `idp_type`==`oauth`, oauth_cc_client_secret is RSA private key, of the form "-----BEGIN RSA PRIVATE KEY--...."
-- `oauth_discovery_url` (String) if `idp_type`==`oauth`
+- `oauth_discovery_url` (String) If `idp_type`==`oauth`
 - `oauth_ping_identity_region` (String) enum: `us` (United States, default), `ca` (Canada), `eu` (Europe), `asia` (Asia), `au` (Australia)
-- `oauth_ropc_client_id` (String) if `idp_type`==`oauth`, ropc = Resource Owner Password Credentials
-- `oauth_ropc_client_secret` (String) if `oauth_type`==`azure` or `oauth_type`==`azure-gov`. oauth_ropc_client_secret can be empty
+- `oauth_ropc_client_id` (String) If `idp_type`==`oauth`, ropc = Resource Owner Password Credentials
+- `oauth_ropc_client_secret` (String) If `oauth_type`==`azure` or `oauth_type`==`azure-gov`. oauth_ropc_client_secret can be empty
 - `oauth_tenant_id` (String) Required if `idp_type`==`oauth`, oauth_tenant_id
 - `oauth_type` (String) if `idp_type`==`oauth`. enum: `azure`, `azure-gov`, `okta`, `ping_identity`
-- `scim_enabled` (Boolean) if `idp_type`==`oauth`, indicates if SCIM provisioning is enabled for the OAuth IDP
-- `scim_secret_token` (String) if `idp_type`==`oauth`, scim_secret_token (auto-generated when not provided by caller and `scim_enabled`==`true`, empty string when `scim_enabled`==`false`) is used as the Bearer token in the Authorization header of SCIM provisioning requests by the IDP
+- `scim_enabled` (Boolean) If `idp_type`==`oauth`, indicates if SCIM provisioning is enabled for the OAuth IDP
+- `scim_secret_token` (String) If `idp_type`==`oauth`, scim_secret_token (auto-generated when not provided by caller and `scim_enabled`==`true`, empty string when `scim_enabled`==`false`) is used as the Bearer token in the Authorization header of SCIM provisioning requests by the IDP
 
 ### Read-Only
 
-- `id` (String) Unique ID of the object instance in the Mist Organnization
+- `id` (String) Unique ID of the object instance in the Mist Organization
 
 
 

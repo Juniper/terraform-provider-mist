@@ -21,6 +21,7 @@ This provider can be used with the following Mist Clouds:
 * Global 02 (api.gc1.mist.com)
 * Global 03 (api.ac2.mist.com)
 * Global 04 (api.gc2.mist.com)
+* Global 05 (api.gc4.mist.com)
 * EMEA 01 (api.eu.mist.com)
 * EMEA 02 (api.gc3.mist.com)
 * EMEA 03 (api.ac6.mist.com)
@@ -76,7 +77,7 @@ The value may be either a complete URL or a `[username:password@]host[:port]`, i
 
 ### Environment Variables
 
-| Varibale Name | Provider attribute | Type | Description |
+| Variable Name | Provider attribute | Type | Description |
 | ---- | ---- | ---- | ---- |
 | `MIST_HOST` | `host` | String | URL of the Mist Cloud, e.g. `api.mist.com`. See above for the list of supported Clouds.|
 | `MIST_API_TOKEN` | `apitoken` | String | For API Token authentication, the Mist API Token. |

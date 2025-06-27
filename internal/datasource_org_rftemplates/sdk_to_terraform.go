@@ -2,7 +2,6 @@ package datasource_org_rftemplates
 
 import (
 	"context"
-	"math/big"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -16,29 +15,33 @@ func SdkToTerraform(ctx context.Context, l *[]models.RfTemplate, elements *[]att
 	var diags diag.Diagnostics
 
 	for _, d := range *l {
-		elem := rftempalteSdkToTerraform(ctx, &diags, &d)
+		elem := rfTemplateSdkToTerraform(ctx, &diags, &d)
 		*elements = append(*elements, elem)
 	}
 
 	return diags
 }
 
-func rftempalteSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.RfTemplate) OrgRftemplatesValue {
+func rfTemplateSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.RfTemplate) OrgRftemplatesValue {
 
-	var createdTime basetypes.NumberValue
+	var countryCode basetypes.StringValue
+	var createdTime basetypes.Float64Value
 	var id basetypes.StringValue
-	var modifiedTime basetypes.NumberValue
+	var modifiedTime basetypes.Float64Value
 	var name basetypes.StringValue
 	var orgId basetypes.StringValue
 
+	if d.CountryCode != nil {
+		countryCode = types.StringValue(*d.CountryCode)
+	}
 	if d.CreatedTime != nil {
-		createdTime = types.NumberValue(big.NewFloat(*d.CreatedTime))
+		createdTime = types.Float64Value(*d.CreatedTime)
 	}
 	if d.Id != nil {
 		id = types.StringValue(d.Id.String())
 	}
 	if d.ModifiedTime != nil {
-		modifiedTime = types.NumberValue(big.NewFloat(*d.ModifiedTime))
+		modifiedTime = types.Float64Value(*d.ModifiedTime)
 	}
 	name = types.StringValue(d.Name)
 	if d.OrgId != nil {
@@ -46,6 +49,7 @@ func rftempalteSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 	}
 
 	dataMapValue := map[string]attr.Value{
+		"country_code":  countryCode,
 		"created_time":  createdTime,
 		"id":            id,
 		"modified_time": modifiedTime,

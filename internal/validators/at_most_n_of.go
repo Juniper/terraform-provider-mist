@@ -67,7 +67,7 @@ func (o AtMostNOfValidator) Validate(ctx context.Context, req AtMostNOfValidator
 				continue
 			}
 
-			// Delay validation until all involved attribute have a known value
+			// Delay validation until all involved attributes have a known value
 			if mpVal.IsUnknown() {
 				return
 			}

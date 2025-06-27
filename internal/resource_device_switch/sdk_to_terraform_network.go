@@ -2,8 +2,8 @@ package resource_device_switch
 
 import (
 	"context"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
-	mistapi "github.com/Juniper/terraform-provider-mist/internal/commons/api_response"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -43,7 +43,7 @@ func NetworksSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[
 		if d.Gateway6 != nil {
 			gateway6 = types.StringValue(*d.Gateway6)
 		}
-		vlanId = mistapi.VlanAsString(d.VlanId)
+		vlanId = mistutils.VlanAsString(d.VlanId)
 
 		dataMapValue := map[string]attr.Value{
 			"isolation":         isolation,

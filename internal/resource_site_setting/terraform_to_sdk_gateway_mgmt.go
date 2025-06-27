@@ -3,7 +3,7 @@ package resource_site_setting
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
@@ -24,7 +24,7 @@ func gatewayMgmtProtectReCustomTerraformToSdk(d basetypes.ListValue) []models.Pr
 			dataItem.Protocol = models.ToPointer(models.ProtectReCustomProtocolEnum(itemObj.Protocol.ValueString()))
 		}
 		if !itemObj.Subnets.IsNull() && !itemObj.Subnets.IsUnknown() {
-			dataItem.Subnets = misttransform.ListOfStringTerraformToSdk(itemObj.Subnets)
+			dataItem.Subnets = mistutils.ListOfStringTerraformToSdk(itemObj.Subnets)
 		}
 
 		data = append(data, dataItem)
@@ -57,7 +57,7 @@ func gatewayMgmtProtectReTerraformToSdk(ctx context.Context, diags *diag.Diagnos
 			data.Enabled = models.ToPointer(itemObj.Enabled.ValueBool())
 		}
 		if !itemObj.TrustedHosts.IsNull() && !itemObj.TrustedHosts.IsUnknown() {
-			data.TrustedHosts = misttransform.ListOfStringTerraformToSdk(itemObj.TrustedHosts)
+			data.TrustedHosts = mistutils.ListOfStringTerraformToSdk(itemObj.TrustedHosts)
 		}
 		return &data
 	}
@@ -73,7 +73,7 @@ func gatewayMgmtAppProbingCustomTerraformToSdk(d basetypes.ListValue) []models.A
 		data.Name = plan.Name.ValueStringPointer()
 		data.Protocol = (*models.AppProbingCustomAppProtocolEnum)(plan.Protocol.ValueStringPointer())
 
-		data.Hostnames = misttransform.ListOfStringTerraformToSdk(plan.Hostnames)
+		data.Hostnames = mistutils.ListOfStringTerraformToSdk(plan.Hostnames)
 		if len(data.Hostnames) > 0 {
 			data.Key = &data.Hostnames[0]
 		}
@@ -101,7 +101,7 @@ func gatewayMgmtAppProbingTerraformToSdk(ctx context.Context, diags *diag.Diagno
 		if e != nil {
 			diags.Append(e...)
 		} else {
-			data.Apps = misttransform.ListOfStringTerraformToSdk(v.Apps)
+			data.Apps = mistutils.ListOfStringTerraformToSdk(v.Apps)
 			data.CustomApps = gatewayMgmtAppProbingCustomTerraformToSdk(v.CustomApps)
 			data.Enabled = v.Enabled.ValueBoolPointer()
 		}
@@ -128,7 +128,7 @@ func gatewayMgmtTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d G
 	data := models.SiteSettingGatewayMgmt{}
 
 	if !d.AdminSshkeys.IsNull() && !d.AdminSshkeys.IsUnknown() {
-		data.AdminSshkeys = misttransform.ListOfStringTerraformToSdk(d.AdminSshkeys)
+		data.AdminSshkeys = mistutils.ListOfStringTerraformToSdk(d.AdminSshkeys)
 	}
 
 	if !d.AppProbing.IsNull() && !d.AppProbing.IsUnknown() {
@@ -150,12 +150,21 @@ func gatewayMgmtTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d G
 	if d.DisableConsole.ValueBoolPointer() != nil {
 		data.DisableConsole = d.DisableConsole.ValueBoolPointer()
 	}
+
 	if d.DisableOob.ValueBoolPointer() != nil {
 		data.DisableOob = d.DisableOob.ValueBoolPointer()
 	}
 
+	if d.DisableUsb.ValueBoolPointer() != nil {
+		data.DisableUsb = d.DisableUsb.ValueBoolPointer()
+	}
+
+	if d.FipsEnabled.ValueBoolPointer() != nil {
+		data.FipsEnabled = d.FipsEnabled.ValueBoolPointer()
+	}
+
 	if !d.ProbeHosts.IsNull() && !d.ProbeHosts.IsUnknown() {
-		data.ProbeHosts = misttransform.ListOfStringTerraformToSdk(d.ProbeHosts)
+		data.ProbeHosts = mistutils.ListOfStringTerraformToSdk(d.ProbeHosts)
 	}
 
 	if !d.ProtectRe.IsNull() && !d.ProtectRe.IsUnknown() {

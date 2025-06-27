@@ -1,7 +1,7 @@
 package resource_org_wxtag
 
 import (
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -43,7 +43,7 @@ func TerraformToSdk(plan *OrgWxtagModel) (*models.WxlanTag, diag.Diagnostics) {
 	data.Type = models.WxlanTagTypeEnum(plan.Type.ValueString())
 
 	if !plan.Values.IsNull() && !plan.Values.IsUnknown() {
-		data.Values = misttransform.ListOfStringTerraformToSdk(plan.Values)
+		data.Values = mistutils.ListOfStringTerraformToSdk(plan.Values)
 	} else {
 		unset["-values"] = ""
 	}

@@ -70,8 +70,8 @@ func (d *constApplicationsDataSource) Read(ctx context.Context, req datasource.R
 	data, err := d.client.ConstantsDefinitions().ListApplications(ctx)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting AP Stats",
-			"Unable to get the AP Stats, unexpected error: "+err.Error(),
+			"Error getting Application Definitions",
+			"Unable to get the Application Definitions, unexpected error: "+err.Error(),
 		)
 		return
 	}

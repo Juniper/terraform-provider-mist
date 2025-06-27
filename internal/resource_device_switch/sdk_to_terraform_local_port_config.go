@@ -3,7 +3,7 @@ package resource_device_switch
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -49,125 +49,202 @@ func localPortConfigStormControlSdkToTerraform(ctx context.Context, diags *diag.
 }
 func localPortConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.JunosLocalPortConfig) basetypes.MapValue {
 	mapItemValue := make(map[string]attr.Value)
-	mapItemType := PortConfigValue{}.Type(ctx)
+
 	for k, d := range m {
 
-		itemObj := NewLocalPortConfigValueUnknown()
-		itemObj.Usage = types.StringValue(d.Usage)
+		var usage = types.StringValue(d.Usage)
+		var allNetworks basetypes.BoolValue
+		var allowDhcpd basetypes.BoolValue
+		var allowMultipleSupplicants basetypes.BoolValue
+		var bypassAuthWhenServerDown basetypes.BoolValue
+		var bypassAuthWhenServerDownForUnknownClient basetypes.BoolValue
+		var description basetypes.StringValue
+		var disableAutoneg basetypes.BoolValue
+		var disabled basetypes.BoolValue
+		var duplex basetypes.StringValue
+		var dynamicVlanNetworks = types.ListNull(types.StringType)
+		var enableMacAuth basetypes.BoolValue
+		var enableQos basetypes.BoolValue
+		var guestNetwork basetypes.StringValue
+		var interSwitchLink basetypes.BoolValue
+		var macAuthOnly basetypes.BoolValue
+		var macAuthPreferred basetypes.BoolValue
+		var macAuthProtocol basetypes.StringValue
+		var macLimit basetypes.Int64Value
+		var mode basetypes.StringValue
+		var mtu basetypes.Int64Value
+		var networks = types.ListNull(types.StringType)
+		var note basetypes.StringValue
+		var persistMac basetypes.BoolValue
+		var poeDisabled basetypes.BoolValue
+		var portAuth basetypes.StringValue
+		var portNetwork basetypes.StringValue
+		var reauthInterval basetypes.StringValue
+		var serverFailNetwork basetypes.StringValue
+		var serverRejectNetwork basetypes.StringValue
+		var speed basetypes.StringValue
+		var stormControl = types.ObjectNull(StormControlValue{}.AttributeTypes(ctx))
+		var stpEdge basetypes.BoolValue
+		var stpNoRootPort basetypes.BoolValue
+		var stpP2p basetypes.BoolValue
+		var useVstp basetypes.BoolValue
+		var voipNetwork basetypes.StringValue
 
 		if d.AllNetworks != nil {
-			itemObj.AllNetworks = types.BoolValue(*d.AllNetworks)
+			allNetworks = types.BoolValue(*d.AllNetworks)
 		}
 		if d.AllowDhcpd != nil {
-			itemObj.AllowDhcpd = types.BoolValue(*d.AllowDhcpd)
+			allowDhcpd = types.BoolValue(*d.AllowDhcpd)
 		}
 		if d.AllowMultipleSupplicants != nil {
-			itemObj.AllowMultipleSupplicants = types.BoolValue(*d.AllowMultipleSupplicants)
+			allowMultipleSupplicants = types.BoolValue(*d.AllowMultipleSupplicants)
 		}
 		if d.BypassAuthWhenServerDown != nil {
-			itemObj.BypassAuthWhenServerDown = types.BoolValue(*d.BypassAuthWhenServerDown)
+			bypassAuthWhenServerDown = types.BoolValue(*d.BypassAuthWhenServerDown)
 		}
-		if d.BypassAuthWhenServerDownForUnkownClient != nil {
-			itemObj.BypassAuthWhenServerDownForUnkownClient = types.BoolValue(*d.BypassAuthWhenServerDownForUnkownClient)
+		if d.BypassAuthWhenServerDownForUnknownClient != nil {
+			bypassAuthWhenServerDownForUnknownClient = types.BoolValue(*d.BypassAuthWhenServerDownForUnknownClient)
 		}
 		if d.Description != nil {
-			itemObj.Description = types.StringValue(*d.Description)
+			description = types.StringValue(*d.Description)
 		}
 		if d.DisableAutoneg != nil {
-			itemObj.DisableAutoneg = types.BoolValue(*d.DisableAutoneg)
+			disableAutoneg = types.BoolValue(*d.DisableAutoneg)
 		}
 		if d.Disabled != nil {
-			itemObj.Disabled = types.BoolValue(*d.Disabled)
+			disabled = types.BoolValue(*d.Disabled)
 		}
 		if d.Duplex != nil {
-			itemObj.Duplex = types.StringValue(string(*d.Duplex))
+			duplex = types.StringValue(string(*d.Duplex))
 		}
 		if d.DynamicVlanNetworks != nil {
-			itemObj.DynamicVlanNetworks = misttransform.ListOfStringSdkToTerraform(d.DynamicVlanNetworks)
+			dynamicVlanNetworks = mistutils.ListOfStringSdkToTerraform(d.DynamicVlanNetworks)
 		}
 		if d.EnableMacAuth != nil {
-			itemObj.EnableMacAuth = types.BoolValue(*d.EnableMacAuth)
+			enableMacAuth = types.BoolValue(*d.EnableMacAuth)
 		}
 		if d.EnableQos != nil {
-			itemObj.EnableQos = types.BoolValue(*d.EnableQos)
+			enableQos = types.BoolValue(*d.EnableQos)
 		}
 		if d.GuestNetwork.Value() != nil {
-			itemObj.GuestNetwork = types.StringValue(*d.GuestNetwork.Value())
+			guestNetwork = types.StringValue(*d.GuestNetwork.Value())
 		}
 		if d.InterSwitchLink != nil {
-			itemObj.InterSwitchLink = types.BoolValue(*d.InterSwitchLink)
+			interSwitchLink = types.BoolValue(*d.InterSwitchLink)
 		}
 		if d.MacAuthOnly != nil {
-			itemObj.MacAuthOnly = types.BoolValue(*d.MacAuthOnly)
+			macAuthOnly = types.BoolValue(*d.MacAuthOnly)
 		}
 		if d.MacAuthPreferred != nil {
-			itemObj.MacAuthPreferred = types.BoolValue(*d.MacAuthPreferred)
+			macAuthPreferred = types.BoolValue(*d.MacAuthPreferred)
 		}
 		if d.MacAuthProtocol != nil {
-			itemObj.MacAuthProtocol = types.StringValue(string(*d.MacAuthProtocol))
+			macAuthProtocol = types.StringValue(string(*d.MacAuthProtocol))
 		}
 		if d.MacLimit != nil {
-			itemObj.MacLimit = types.Int64Value(int64(*d.MacLimit))
+			macLimit = types.Int64Value(int64(*d.MacLimit))
 		}
 		if d.Mode != nil {
-			itemObj.Mode = types.StringValue(string(*d.Mode))
+			mode = types.StringValue(string(*d.Mode))
 		}
 		if d.Mtu != nil {
-			itemObj.Mtu = types.Int64Value(int64(*d.Mtu))
+			mtu = types.Int64Value(int64(*d.Mtu))
 		}
 		if d.Networks != nil {
-			itemObj.Networks = misttransform.ListOfStringSdkToTerraform(d.Networks)
+			networks = mistutils.ListOfStringSdkToTerraform(d.Networks)
 		}
 		if d.Note != nil {
-			itemObj.Note = types.StringValue(*d.Note)
+			note = types.StringValue(*d.Note)
 		}
 		if d.PersistMac != nil {
-			itemObj.PersistMac = types.BoolValue(*d.PersistMac)
+			persistMac = types.BoolValue(*d.PersistMac)
 		}
 		if d.PoeDisabled != nil {
-			itemObj.PoeDisabled = types.BoolValue(*d.PoeDisabled)
+			poeDisabled = types.BoolValue(*d.PoeDisabled)
 		}
 		if d.PortAuth.Value() != nil {
-			itemObj.PortAuth = types.StringValue(string(*d.PortAuth.Value()))
+			portAuth = types.StringValue(string(*d.PortAuth.Value()))
 		}
 		if d.PortNetwork != nil {
-			itemObj.PortNetwork = types.StringValue(*d.PortNetwork)
+			portNetwork = types.StringValue(*d.PortNetwork)
 		}
 		if d.ReauthInterval != nil {
-			itemObj.ReauthInterval = types.Int64Value(int64(*d.ReauthInterval))
+			reauthInterval = mistutils.SwitchPortUsageReauthIntervalAsString(*d.ReauthInterval)
 		}
 		if d.ServerFailNetwork.Value() != nil {
-			itemObj.ServerFailNetwork = types.StringValue(*d.ServerFailNetwork.Value())
+			serverFailNetwork = types.StringValue(*d.ServerFailNetwork.Value())
 		}
 		if d.ServerRejectNetwork.Value() != nil {
-			itemObj.ServerRejectNetwork = types.StringValue(*d.ServerRejectNetwork.Value())
+			serverRejectNetwork = types.StringValue(*d.ServerRejectNetwork.Value())
 		}
 		if d.Speed != nil {
-			itemObj.Speed = types.StringValue(string(*d.Speed))
+			speed = types.StringValue(string(*d.Speed))
 		}
 		if d.StormControl != nil {
-			itemObj.StormControl = localPortConfigStormControlSdkToTerraform(ctx, diags, *d.StormControl)
+			stormControl = localPortConfigStormControlSdkToTerraform(ctx, diags, *d.StormControl)
 		}
 		if d.StpEdge != nil {
-			itemObj.StpEdge = types.BoolValue(*d.StpEdge)
+			stpEdge = types.BoolValue(*d.StpEdge)
 		}
 		if d.StpNoRootPort != nil {
-			itemObj.StpNoRootPort = types.BoolValue(*d.StpNoRootPort)
+			stpNoRootPort = types.BoolValue(*d.StpNoRootPort)
 		}
 		if d.StpP2p != nil {
-			itemObj.StpP2p = types.BoolValue(*d.StpP2p)
+			stpP2p = types.BoolValue(*d.StpP2p)
 		}
 		if d.UseVstp != nil {
-			itemObj.UseVstp = types.BoolValue(*d.UseVstp)
+			useVstp = types.BoolValue(*d.UseVstp)
 		}
 
 		if d.VoipNetwork != nil {
-			itemObj.VoipNetwork = types.StringValue(*d.VoipNetwork)
+			voipNetwork = types.StringValue(*d.VoipNetwork)
 		}
 
-		mapItemValue[k] = itemObj
+		dataMapValue := map[string]attr.Value{
+			"note":                         note,
+			"all_networks":                 allNetworks,
+			"allow_dhcpd":                  allowDhcpd,
+			"allow_multiple_supplicants":   allowMultipleSupplicants,
+			"bypass_auth_when_server_down": bypassAuthWhenServerDown,
+			"bypass_auth_when_server_down_for_unknown_client": bypassAuthWhenServerDownForUnknownClient,
+			"description":           description,
+			"disable_autoneg":       disableAutoneg,
+			"disabled":              disabled,
+			"duplex":                duplex,
+			"dynamic_vlan_networks": dynamicVlanNetworks,
+			"enable_mac_auth":       enableMacAuth,
+			"enable_qos":            enableQos,
+			"guest_network":         guestNetwork,
+			"inter_switch_link":     interSwitchLink,
+			"mac_auth_only":         macAuthOnly,
+			"mac_auth_preferred":    macAuthPreferred,
+			"mac_auth_protocol":     macAuthProtocol,
+			"mac_limit":             macLimit,
+			"mode":                  mode,
+			"mtu":                   mtu,
+			"networks":              networks,
+			"persist_mac":           persistMac,
+			"poe_disabled":          poeDisabled,
+			"port_auth":             portAuth,
+			"port_network":          portNetwork,
+			"reauth_interval":       reauthInterval,
+			"server_fail_network":   serverFailNetwork,
+			"server_reject_network": serverRejectNetwork,
+			"speed":                 speed,
+			"storm_control":         stormControl,
+			"stp_edge":              stpEdge,
+			"stp_no_root_port":      stpNoRootPort,
+			"stp_p2p":               stpP2p,
+			"usage":                 usage,
+			"use_vstp":              useVstp,
+			"voip_network":          voipNetwork,
+		}
+		data, e := NewLocalPortConfigValue(LocalPortConfigValue{}.AttributeTypes(ctx), dataMapValue)
+		diags.Append(e...)
+
+		mapItemValue[k] = data
 	}
-	r, e := types.MapValueFrom(ctx, mapItemType, mapItemValue)
+	r, e := types.MapValueFrom(ctx, LocalPortConfigValue{}.Type(ctx), mapItemValue)
 	diags.Append(e...)
 	return r
 }

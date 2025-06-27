@@ -1,7 +1,7 @@
 package resource_org_wlan
 
 import (
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
@@ -10,13 +10,13 @@ func ciscoCwaTerraformToSdk(plan CiscoCwaValue) *models.WlanCiscoCwa {
 
 	data := models.WlanCiscoCwa{}
 	if !plan.AllowedHostnames.IsNull() && !plan.AllowedHostnames.IsUnknown() {
-		data.AllowedHostnames = misttransform.ListOfStringTerraformToSdk(plan.AllowedHostnames)
+		data.AllowedHostnames = mistutils.ListOfStringTerraformToSdk(plan.AllowedHostnames)
 	}
 	if !plan.AllowedSubnets.IsNull() && !plan.AllowedSubnets.IsUnknown() {
-		data.AllowedSubnets = misttransform.ListOfStringTerraformToSdk(plan.AllowedSubnets)
+		data.AllowedSubnets = mistutils.ListOfStringTerraformToSdk(plan.AllowedSubnets)
 	}
 	if !plan.BlockedSubnets.IsNull() && !plan.BlockedSubnets.IsUnknown() {
-		data.BlockedSubnets = misttransform.ListOfStringTerraformToSdk(plan.BlockedSubnets)
+		data.BlockedSubnets = mistutils.ListOfStringTerraformToSdk(plan.BlockedSubnets)
 	}
 	if plan.Enabled.ValueBoolPointer() != nil {
 		data.Enabled = plan.Enabled.ValueBoolPointer()

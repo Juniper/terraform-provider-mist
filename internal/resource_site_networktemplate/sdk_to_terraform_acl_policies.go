@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func aclPolicyActionsToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.AclPolicyAction) basetypes.ListValue {
@@ -47,7 +47,7 @@ func aclPoliciesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l [
 
 		var actions = types.ListNull(ActionsValue{}.Type(ctx))
 		var name basetypes.StringValue
-		var srcTags = misttransform.ListOfStringSdkToTerraformEmpty()
+		var srcTags = mistutils.ListOfStringSdkToTerraformEmpty()
 
 		if d.Actions != nil {
 			actions = aclPolicyActionsToTerraform(ctx, diags, d.Actions)
@@ -56,7 +56,7 @@ func aclPoliciesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l [
 			name = types.StringValue(*d.Name)
 		}
 		if d.SrcTags != nil {
-			srcTags = misttransform.ListOfStringSdkToTerraform(d.SrcTags)
+			srcTags = mistutils.ListOfStringSdkToTerraform(d.SrcTags)
 		}
 
 		dataMapValue := map[string]attr.Value{

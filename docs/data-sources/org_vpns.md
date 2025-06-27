@@ -13,7 +13,7 @@ This data source provide the list of the Org VPNs.
 ## Example Usage
 
 ```terraform
-data "mist_vpns" "vpns" {
+data "mist_org_vpns" "vpns" {
   org_id  = "15fca2ac-b1a6-47cc-9953-cc6906281550"
 }
 ```
@@ -34,12 +34,22 @@ data "mist_vpns" "vpns" {
 
 Read-Only:
 
-- `created_time` (Number)
-- `id` (String)
-- `modified_time` (Number)
+- `created_time` (Number) When the object has been created, in epoch
+- `id` (String) Unique ID of the object instance in the Mist Organization
+- `modified_time` (Number) When the object has been modified for the last time, in epoch
 - `name` (String)
 - `org_id` (String)
-- `paths` (Attributes Map) (see [below for nested schema](#nestedatt--org_vpns--paths))
+- `path_selection` (Attributes) Only if `type`==`hub_spoke` (see [below for nested schema](#nestedatt--org_vpns--path_selection))
+- `paths` (Attributes Map) For `type`==`hub_spoke`, Property key is the VPN name. For `type`==`mesh`, Property key is the Interface name (see [below for nested schema](#nestedatt--org_vpns--paths))
+- `type` (String) enum: `hub_spoke`, `mesh`
+
+<a id="nestedatt--org_vpns--path_selection"></a>
+### Nested Schema for `org_vpns.path_selection`
+
+Read-Only:
+
+- `strategy` (String) enum: `disabled`, `simple`, `manual`
+
 
 <a id="nestedatt--org_vpns--paths"></a>
 ### Nested Schema for `org_vpns.paths`
@@ -47,5 +57,25 @@ Read-Only:
 Read-Only:
 
 - `bfd_profile` (String) enum: `broadband`, `lte`
-- `ip` (String) if different from the wan port
+- `bfd_use_tunnel_mode` (Boolean) If `type`==`mesh` and for SSR only, whether toi use tunnel mode
+- `ip` (String) If different from the wan port
+- `peer_paths` (Attributes Map) If `type`==`mesh`, Property key is the Peer Interface name (see [below for nested schema](#nestedatt--org_vpns--paths--peer_paths))
 - `pod` (Number)
+- `traffic_shaping` (Attributes) (see [below for nested schema](#nestedatt--org_vpns--paths--traffic_shaping))
+
+<a id="nestedatt--org_vpns--paths--peer_paths"></a>
+### Nested Schema for `org_vpns.paths.peer_paths`
+
+Read-Only:
+
+- `preference` (Number)
+
+
+<a id="nestedatt--org_vpns--paths--traffic_shaping"></a>
+### Nested Schema for `org_vpns.paths.traffic_shaping`
+
+Read-Only:
+
+- `class_percentage` (List of Number) percentages for different class of traffic: high / medium / low / best-effort adding up to 100
+- `enabled` (Boolean)
+- `max_tx_kbps` (Number)

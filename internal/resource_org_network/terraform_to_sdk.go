@@ -3,7 +3,7 @@ package resource_org_network
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -64,7 +64,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgNetworkModel) (*models.Network
 	}
 
 	if !plan.RoutedForNetworks.IsNull() && !plan.RoutedForNetworks.IsUnknown() {
-		data.RoutedForNetworks = misttransform.ListOfStringTerraformToSdk(plan.RoutedForNetworks)
+		data.RoutedForNetworks = mistutils.ListOfStringTerraformToSdk(plan.RoutedForNetworks)
 	} else {
 		unset["-routed_for_networks"] = ""
 	}

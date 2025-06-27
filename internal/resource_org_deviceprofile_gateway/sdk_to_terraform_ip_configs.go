@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func ipConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.GatewayIpConfigProperty) basetypes.MapValue {
@@ -20,7 +20,7 @@ func ipConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map
 
 		var ip basetypes.StringValue
 		var netmask basetypes.StringValue
-		var secondaryIps = misttransform.ListOfStringSdkToTerraformEmpty()
+		var secondaryIps = types.ListNull(types.StringType)
 		var typeIp basetypes.StringValue
 
 		if d.Ip != nil {
@@ -30,7 +30,7 @@ func ipConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map
 			netmask = types.StringValue(*d.Netmask)
 		}
 		if d.SecondaryIps != nil {
-			secondaryIps = misttransform.ListOfStringSdkToTerraform(d.SecondaryIps)
+			secondaryIps = mistutils.ListOfStringSdkToTerraform(d.SecondaryIps)
 		}
 		if d.Type != nil {
 			typeIp = types.StringValue(string(*d.Type))

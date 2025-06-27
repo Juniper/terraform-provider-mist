@@ -5,7 +5,7 @@ resource "mist_site_networktemplate" "networktemplate_one" {
   dns_suffix  = ["mycorp.com"]
   ntp_servers = ["pool.ntp.org"]
   additional_config_cmds = [
-    "set system hostnam test",
+    "set system hostname test",
     "set system services ssh root-login allow"
   ]
   networks = {

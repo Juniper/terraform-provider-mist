@@ -3,6 +3,7 @@ package datasource_site_wlans
 import (
 	"context"
 
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -18,7 +19,7 @@ func coaServersSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []
 		var disableEventTimestampCheck basetypes.BoolValue
 		var enabled basetypes.BoolValue
 		var ip basetypes.StringValue
-		var port basetypes.Int64Value
+		var port basetypes.StringValue
 		var secret basetypes.StringValue
 
 		if d.DisableEventTimestampCheck != nil {
@@ -29,7 +30,7 @@ func coaServersSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []
 		}
 		ip = types.StringValue(d.Ip)
 		if d.Port != nil {
-			port = types.Int64Value(int64(*d.Port))
+			port = mistutils.RadiusCoaPortAsString(d.Port)
 		}
 		secret = types.StringValue(d.Secret)
 

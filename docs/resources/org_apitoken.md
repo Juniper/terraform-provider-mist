@@ -44,18 +44,18 @@ resource "mist_org_apitoken" "apitoken_one" {
 
 ### Required
 
-- `name` (String) name of the token
+- `name` (String) Name of the token
 - `org_id` (String)
-- `privileges` (Attributes List) list of privileges the token has on the orgs/sites (see [below for nested schema](#nestedatt--privileges))
+- `privileges` (Attributes List) List of privileges the token has on the orgs/sites (see [below for nested schema](#nestedatt--privileges))
 
 ### Optional
 
-- `src_ips` (List of String) list of allowed IP addresses from where the token can be used from. At most 10 IP addresses can be specified, cannot be changed once the API Token is created.
+- `src_ips` (List of String) List of allowed IP addresses from where the token can be used from. At most 10 IP addresses can be specified, cannot be changed once the API Token is created.
 
 ### Read-Only
 
 - `created_by` (String) email of the token creator / null if creator is deleted
-- `id` (String) The ID of this resource.
+- `id` (String) Unique ID of the object instance in the Mist Organization
 - `key` (String, Sensitive)
 
 <a id="nestedatt--privileges"></a>

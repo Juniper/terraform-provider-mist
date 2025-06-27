@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
@@ -33,19 +33,25 @@ func TerraformToSdk(ctx context.Context, plan *SiteNetworktemplateModel) (*model
 	if plan.AdditionalConfigCmds.IsNull() || plan.AdditionalConfigCmds.IsUnknown() {
 		unset["-additional_config_cmds"] = ""
 	} else {
-		data.AdditionalConfigCmds = misttransform.ListOfStringTerraformToSdk(plan.AdditionalConfigCmds)
+		data.AdditionalConfigCmds = mistutils.ListOfStringTerraformToSdk(plan.AdditionalConfigCmds)
+	}
+
+	if plan.AutoUpgradeLinecard.IsNull() || plan.AutoUpgradeLinecard.IsUnknown() {
+		unset["-auto_upgrade_linecard"] = ""
+	} else {
+		data.AutoUpgradeLinecard = plan.AutoUpgradeLinecard.ValueBoolPointer()
 	}
 
 	if plan.DnsServers.IsNull() || plan.DnsServers.IsUnknown() {
 		unset["-dns_servers"] = ""
 	} else {
-		data.DnsServers = misttransform.ListOfStringTerraformToSdk(plan.DnsServers)
+		data.DnsServers = mistutils.ListOfStringTerraformToSdk(plan.DnsServers)
 	}
 
 	if plan.DnsSuffix.IsNull() || plan.DnsSuffix.IsUnknown() {
 		unset["-dns_suffix"] = ""
 	} else {
-		data.DnsSuffix = misttransform.ListOfStringTerraformToSdk(plan.DnsSuffix)
+		data.DnsSuffix = mistutils.ListOfStringTerraformToSdk(plan.DnsSuffix)
 	}
 
 	if plan.DhcpSnooping.IsNull() || plan.DhcpSnooping.IsUnknown() {
@@ -93,7 +99,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteNetworktemplateModel) (*model
 	if plan.NtpServers.IsNull() || plan.NtpServers.IsUnknown() {
 		unset["-ntp_servers"] = ""
 	} else {
-		data.NtpServers = misttransform.ListOfStringTerraformToSdk(plan.NtpServers)
+		data.NtpServers = mistutils.ListOfStringTerraformToSdk(plan.NtpServers)
 	}
 
 	if plan.OspfAreas.IsNull() || plan.OspfAreas.IsUnknown() {

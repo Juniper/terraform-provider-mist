@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
@@ -20,15 +20,16 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteNetworkt
 	var aclPolicies = types.ListNull(AclPoliciesValue{}.Type(ctx))
 	var aclTags = types.MapNull(AclTagsValue{}.Type(ctx))
 	var additionalConfigCmds = types.ListNull(types.StringType)
+	var autoUpgradeLinecard basetypes.BoolValue
 	var dhcpSnooping = NewDhcpSnoopingValueNull()
-	var dnsServers = types.ListNull(types.StringType)
-	var dnsSuffix = types.ListNull(types.StringType)
+	var dnsServers = types.ListValueMust(types.StringType, []attr.Value{})
+	var dnsSuffix = types.ListValueMust(types.StringType, []attr.Value{})
 	var disabledSystemDefinedPortUsages = types.ListNull(types.StringType)
 	var extraRoutes = types.MapNull(ExtraRoutesValue{}.Type(ctx))
 	var extraRoutes6 = types.MapNull(ExtraRoutes6Value{}.Type(ctx))
 	var mistNac = NewMistNacValueNull()
 	var networks = types.MapNull(NetworksValue{}.Type(ctx))
-	var ntpServers = types.ListNull(types.StringType)
+	var ntpServers = types.ListValueMust(types.StringType, []attr.Value{})
 	var ospfAreas = types.MapNull(OspfAreasValue{}.Type(ctx))
 	var portMirroring = types.MapNull(PortMirroringValue{}.Type(ctx))
 	var portUsages = types.MapNull(PortUsagesValue{}.Type(ctx))
@@ -45,20 +46,23 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteNetworkt
 	if data.AclPolicies != nil {
 		aclPolicies = aclPoliciesSdkToTerraform(ctx, &diags, data.AclPolicies)
 	}
-	if data.AclTags != nil && len(data.AclTags) > 0 {
+	if len(data.AclTags) > 0 {
 		aclTags = aclTagsSdkToTerraform(ctx, &diags, data.AclTags)
 	}
 	if data.AdditionalConfigCmds != nil {
-		additionalConfigCmds = misttransform.ListOfStringSdkToTerraform(data.AdditionalConfigCmds)
+		additionalConfigCmds = mistutils.ListOfStringSdkToTerraform(data.AdditionalConfigCmds)
+	}
+	if data.AutoUpgradeLinecard != nil {
+		autoUpgradeLinecard = types.BoolValue(*data.AutoUpgradeLinecard)
 	}
 	if data.DhcpSnooping != nil {
 		dhcpSnooping = dhcpSnoopingSdkToTerraform(ctx, &diags, data.DhcpSnooping)
 	}
 	if data.DnsServers != nil {
-		dnsServers = misttransform.ListOfStringSdkToTerraform(data.DnsServers)
+		dnsServers = mistutils.ListOfStringSdkToTerraform(data.DnsServers)
 	}
 	if data.DnsSuffix != nil {
-		dnsSuffix = misttransform.ListOfStringSdkToTerraform(data.DnsSuffix)
+		dnsSuffix = mistutils.ListOfStringSdkToTerraform(data.DnsSuffix)
 	}
 	if data.DisabledSystemDefinedPortUsages != nil {
 		var items []attr.Value
@@ -69,28 +73,28 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteNetworkt
 		list, _ := types.ListValue(itemsType, items)
 		disabledSystemDefinedPortUsages = list
 	}
-	if data.ExtraRoutes != nil && len(data.ExtraRoutes) > 0 {
+	if len(data.ExtraRoutes) > 0 {
 		extraRoutes = extraRoutesSdkToTerraform(ctx, &diags, data.ExtraRoutes)
 	}
-	if data.ExtraRoutes6 != nil && len(data.ExtraRoutes6) > 0 {
+	if len(data.ExtraRoutes6) > 0 {
 		extraRoutes6 = extraRoutes6SdkToTerraform(ctx, &diags, data.ExtraRoutes6)
 	}
 	if data.MistNac != nil {
 		mistNac = mistNacSdkToTerraform(ctx, &diags, data.MistNac)
 	}
-	if data.Networks != nil && len(data.Networks) > 0 {
+	if len(data.Networks) > 0 {
 		networks = NetworksSdkToTerraform(ctx, &diags, data.Networks)
 	}
 	if data.NtpServers != nil {
-		ntpServers = misttransform.ListOfStringSdkToTerraform(data.NtpServers)
+		ntpServers = mistutils.ListOfStringSdkToTerraform(data.NtpServers)
 	}
 	if data.OspfAreas != nil {
 		ospfAreas = ospfAreasSdkToTerraform(ctx, &diags, data.OspfAreas)
 	}
-	if data.PortMirroring != nil && len(data.PortMirroring) > 0 {
+	if len(data.PortMirroring) > 0 {
 		portMirroring = portMirroringSdkToTerraform(ctx, &diags, data.PortMirroring)
 	}
-	if data.PortUsages != nil && len(data.PortUsages) > 0 {
+	if len(data.PortUsages) > 0 {
 		portUsages = portUsagesSdkToTerraform(ctx, &diags, data.PortUsages)
 	}
 	if data.RadiusConfig != nil {
@@ -121,6 +125,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteNetworkt
 	state.AclPolicies = aclPolicies
 	state.AclTags = aclTags
 	state.AdditionalConfigCmds = additionalConfigCmds
+	state.AutoUpgradeLinecard = autoUpgradeLinecard
 	state.DhcpSnooping = dhcpSnooping
 	state.DnsServers = dnsServers
 	state.DnsSuffix = dnsSuffix

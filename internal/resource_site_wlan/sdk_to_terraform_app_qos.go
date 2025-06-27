@@ -2,6 +2,7 @@ package resource_site_wlan
 
 import (
 	"context"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -16,12 +17,12 @@ func appQosAppsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 	mapAttrValues := make(map[string]attr.Value)
 	for k, d := range m {
 
-		var dscp basetypes.Int64Value
+		var dscp basetypes.StringValue
 		var dstSubnet basetypes.StringValue
 		var srcSubnet basetypes.StringValue
 
 		if d.Dscp != nil {
-			dscp = types.Int64Value(int64(*d.Dscp))
+			dscp = mistutils.DscpAsString(*d.Dscp)
 		}
 		if d.DstSubnet != nil {
 			dstSubnet = types.StringValue(*d.DstSubnet)
@@ -50,14 +51,14 @@ func appQosOthersSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l 
 	var dataList []OthersValue
 	for _, d := range l {
 
-		var dscp basetypes.Int64Value
+		var dscp basetypes.StringValue
 		var dstSubnet basetypes.StringValue
 		var portRanges basetypes.StringValue
 		var protocol basetypes.StringValue
 		var srcSubnet basetypes.StringValue
 
 		if d.Dscp != nil {
-			dscp = types.Int64Value(int64(*d.Dscp))
+			dscp = mistutils.DscpAsString(*d.Dscp)
 		}
 		if d.DstSubnet != nil {
 			dstSubnet = types.StringValue(*d.DstSubnet)

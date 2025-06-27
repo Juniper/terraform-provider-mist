@@ -8,6 +8,7 @@ import (
 	"github.com/Juniper/terraform-provider-mist/internal/datasource_org_inventory"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
+	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -79,10 +80,12 @@ func (d *orgInventoryDataSource) Read(ctx context.Context, req datasource.ReadRe
 	var mac string
 	var model string
 	var serial string
-	var siteId string
+	var siteId *uuid.UUID
 	var unassigned bool
+	var modifiedAfter int
 	var vc bool
 	var vcMac string
+	var deviceType models.DeviceTypeEnum
 
 	if !ds.Mac.IsNull() && !ds.Mac.IsUnknown() {
 		mac = ds.Mac.ValueString()
@@ -91,7 +94,15 @@ func (d *orgInventoryDataSource) Read(ctx context.Context, req datasource.ReadRe
 		model = ds.Model.ValueString()
 	}
 	if !ds.SiteId.IsNull() && !ds.SiteId.IsUnknown() {
-		siteId = ds.SiteId.ValueString()
+		tmp, err := uuid.Parse(ds.SiteId.ValueString())
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Invalid \"siteId\" value for \"org_inventory\" data_source",
+				"Could parse the UUID: "+err.Error(),
+			)
+			return
+		}
+		siteId = &tmp
 	}
 	if !ds.Serial.IsNull() && !ds.Serial.IsUnknown() {
 		serial = ds.Serial.ValueString()
@@ -104,6 +115,9 @@ func (d *orgInventoryDataSource) Read(ctx context.Context, req datasource.ReadRe
 	}
 	if !ds.Vc.IsNull() && !ds.Vc.IsUnknown() {
 		vc = ds.Vc.ValueBool()
+	}
+	if !ds.Type.IsNull() && !ds.Type.IsUnknown() {
+		deviceType = models.DeviceTypeEnum(ds.Type.ValueString())
 	}
 
 	var limit = 1000
@@ -120,7 +134,7 @@ func (d *orgInventoryDataSource) Read(ctx context.Context, req datasource.ReadRe
 			"total": total,
 		})
 		// Read API call logic
-		data, err := d.client.OrgsInventory().GetOrgInventory(ctx, orgId, &serial, &model, nil, &mac, &siteId, &vcMac, &vc, &unassigned, &limit, &page)
+		data, err := d.client.OrgsInventory().GetOrgInventory(ctx, orgId, &serial, &model, &deviceType, &mac, siteId, &vcMac, &vc, &unassigned, &modifiedAfter, &limit, &page)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error getting Org Inventory",
@@ -133,7 +147,7 @@ func (d *orgInventoryDataSource) Read(ctx context.Context, req datasource.ReadRe
 		if limit, err = strconv.Atoi(limitString); err != nil {
 			resp.Diagnostics.AddError(
 				"Error extracting HTTP Response Headers",
-				"Unable to convert the X-Page-Limit value into int, unexcpected error: "+err.Error(),
+				"Unable to convert the X-Page-Limit value into int, unexpected error: "+err.Error(),
 			)
 			return
 		}
@@ -142,7 +156,7 @@ func (d *orgInventoryDataSource) Read(ctx context.Context, req datasource.ReadRe
 		if total, err = strconv.Atoi(totalString); err != nil {
 			resp.Diagnostics.AddError(
 				"Error extracting HTTP Response Headers",
-				"Unable to convert the X-Page-Total value into int, unexcpected error: "+err.Error(),
+				"Unable to convert the X-Page-Total value into int, unexpected error: "+err.Error(),
 			)
 			return
 		}

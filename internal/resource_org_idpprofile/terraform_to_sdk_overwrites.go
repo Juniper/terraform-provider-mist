@@ -3,7 +3,7 @@ package resource_org_idpprofile
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -28,10 +28,10 @@ func overwritesMatchingTerraformToSdk(ctx context.Context, diags *diag.Diagnosti
 			diags.Append(e...)
 		} else {
 			if !plan.AttackName.IsNull() && !plan.AttackName.IsUnknown() {
-				data.AttackName = misttransform.ListOfStringTerraformToSdk(plan.AttackName)
+				data.AttackName = mistutils.ListOfStringTerraformToSdk(plan.AttackName)
 			}
 			if !plan.DstSubnet.IsNull() && !plan.DstSubnet.IsUnknown() {
-				data.DstSubnet = misttransform.ListOfStringTerraformToSdk(plan.DstSubnet)
+				data.DstSubnet = mistutils.ListOfStringTerraformToSdk(plan.DstSubnet)
 			}
 			if !plan.Severity.IsNull() && !plan.Severity.IsUnknown() {
 				data.Severity = overwritesMatchingSeverityTerraformToSdk(plan.Severity)

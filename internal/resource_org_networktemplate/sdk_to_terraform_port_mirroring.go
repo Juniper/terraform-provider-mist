@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func portMirroringSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.SwitchPortMirroringProperty) basetypes.MapValue {
@@ -23,13 +23,13 @@ func portMirroringSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m
 		var outputPortId basetypes.StringValue
 
 		if d.InputNetworksIngress != nil {
-			inputNetworksIngress = misttransform.ListOfStringSdkToTerraform(d.InputNetworksIngress)
+			inputNetworksIngress = mistutils.ListOfStringSdkToTerraform(d.InputNetworksIngress)
 		}
 		if d.InputPortIdsEgress != nil {
-			inputPortIdsEgress = misttransform.ListOfStringSdkToTerraform(d.InputPortIdsEgress)
+			inputPortIdsEgress = mistutils.ListOfStringSdkToTerraform(d.InputPortIdsEgress)
 		}
 		if d.InputPortIdsIngress != nil {
-			inputPortIdsIngress = misttransform.ListOfStringSdkToTerraform(d.InputPortIdsIngress)
+			inputPortIdsIngress = mistutils.ListOfStringSdkToTerraform(d.InputPortIdsIngress)
 		}
 		if d.OutputNetwork != nil {
 			outputNetwork = types.StringValue(*d.OutputNetwork)

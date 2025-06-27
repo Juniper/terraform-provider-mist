@@ -251,15 +251,26 @@ func (r *orgServiceResource) Delete(ctx context.Context, _ resource.DeleteReques
 		)
 		return
 	}
+
 	data, err := r.client.OrgsServices().DeleteOrgService(ctx, orgId, serviceId)
-	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && apiErr != "" {
+	if data != nil {
+		apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+		if data.StatusCode != 404 && apiErr != "" {
+			resp.Diagnostics.AddError(
+				"Error deleting \"mist_org_service\" resource",
+				fmt.Sprintf("Unable to delete the Service. %s", apiErr),
+			)
+			return
+		}
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_service\" resource",
-			fmt.Sprintf("Unable to delete the Service. %s", apiErr),
+			"Unable to delete the Service, unexpected error: "+err.Error(),
 		)
 		return
 	}
+
+	resp.State.RemoveResource(ctx)
 }
 
 func (r *orgServiceResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

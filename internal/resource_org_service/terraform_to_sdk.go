@@ -3,7 +3,7 @@ package resource_org_service
 import (
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
@@ -37,29 +37,39 @@ func TerraformToSdk(plan *OrgServiceModel) (models.Service, diag.Diagnostics) {
 	data.Specs = specSpecsTerraformToSdk(plan.Specs)
 
 	if !plan.Addresses.IsNull() && !plan.Addresses.IsUnknown() {
-		data.Addresses = misttransform.ListOfStringTerraformToSdk(plan.Addresses)
+		data.Addresses = mistutils.ListOfStringTerraformToSdk(plan.Addresses)
 	} else {
 		unset["-addresses"] = ""
 	}
 	if !plan.AppCategories.IsNull() && !plan.AppCategories.IsUnknown() {
-		data.AppCategories = misttransform.ListOfStringTerraformToSdk(plan.AppCategories)
+		data.AppCategories = mistutils.ListOfStringTerraformToSdk(plan.AppCategories)
 	} else {
 		unset["-app_categories"] = ""
 	}
 	if !plan.AppSubcategories.IsNull() && !plan.AppSubcategories.IsUnknown() {
-		data.AppSubcategories = misttransform.ListOfStringTerraformToSdk(plan.AppSubcategories)
+		data.AppSubcategories = mistutils.ListOfStringTerraformToSdk(plan.AppSubcategories)
 	} else {
 		unset["-app_subcategories"] = ""
 	}
 	if !plan.Apps.IsNull() && !plan.Apps.IsUnknown() {
-		data.Apps = misttransform.ListOfStringTerraformToSdk(plan.Apps)
+		data.Apps = mistutils.ListOfStringTerraformToSdk(plan.Apps)
 	} else {
 		unset["-apps"] = ""
+	}
+	if plan.ClientLimitDown.ValueInt64Pointer() != nil {
+		data.ClientLimitDown = models.ToPointer(int(plan.ClientLimitDown.ValueInt64()))
+	} else {
+		unset["-client_limit_down"] = ""
+	}
+	if plan.ClientLimitUp.ValueInt64Pointer() != nil {
+		data.ClientLimitUp = models.ToPointer(int(plan.ClientLimitUp.ValueInt64()))
+	} else {
+		unset["-client_limit_up"] = ""
 	}
 	if plan.Description.ValueStringPointer() != nil {
 		data.Description = plan.Description.ValueStringPointer()
 	} else {
-		unset["-descritpion"] = ""
+		unset["-description"] = ""
 	}
 	if plan.Dscp.ValueStringPointer() != nil {
 		data.Dscp = models.ToPointer(models.ServiceDscpContainer.FromString(plan.Dscp.ValueString()))
@@ -72,7 +82,7 @@ func TerraformToSdk(plan *OrgServiceModel) (models.Service, diag.Diagnostics) {
 		unset["-failover_policy"] = ""
 	}
 	if !plan.Hostnames.IsNull() && !plan.Hostnames.IsUnknown() {
-		data.Hostnames = misttransform.ListOfStringTerraformToSdk(plan.Hostnames)
+		data.Hostnames = mistutils.ListOfStringTerraformToSdk(plan.Hostnames)
 	} else {
 		unset["-hostnames"] = ""
 	}
@@ -91,10 +101,20 @@ func TerraformToSdk(plan *OrgServiceModel) (models.Service, diag.Diagnostics) {
 	} else {
 		unset["-max_loss"] = ""
 	}
+	if plan.ServiceLimitDown.ValueInt64Pointer() != nil {
+		data.ServiceLimitDown = models.ToPointer(int(plan.ServiceLimitDown.ValueInt64()))
+	} else {
+		unset["-service_limit_down"] = ""
+	}
+	if plan.ServiceLimitUp.ValueInt64Pointer() != nil {
+		data.ServiceLimitUp = models.ToPointer(int(plan.ServiceLimitUp.ValueInt64()))
+	} else {
+		unset["-service_limit_up"] = ""
+	}
 	if plan.SleEnabled.ValueBoolPointer() != nil {
 		data.SleEnabled = plan.SleEnabled.ValueBoolPointer()
 	} else {
-		unset["-sle_enables"] = ""
+		unset["-sle_enabled"] = ""
 	}
 	if plan.SsrRelaxedTcpStateEnforcement.ValueBoolPointer() != nil {
 		data.SsrRelaxedTcpStateEnforcement = plan.SsrRelaxedTcpStateEnforcement.ValueBoolPointer()
@@ -117,7 +137,7 @@ func TerraformToSdk(plan *OrgServiceModel) (models.Service, diag.Diagnostics) {
 		unset["-type"] = ""
 	}
 	if !plan.Urls.IsNull() && !plan.Urls.IsUnknown() {
-		data.Urls = misttransform.ListOfStringTerraformToSdk(plan.Urls)
+		data.Urls = mistutils.ListOfStringTerraformToSdk(plan.Urls)
 	} else {
 		unset["-urls"] = ""
 	}

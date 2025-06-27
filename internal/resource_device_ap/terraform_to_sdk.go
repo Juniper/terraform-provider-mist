@@ -3,7 +3,7 @@ package resource_device_ap
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -12,7 +12,7 @@ import (
 )
 
 func TerraformToSdk(ctx context.Context, plan *DeviceApModel) (models.MistDevice, diag.Diagnostics) {
-	data := models.DeviceAp{}
+	var data models.DeviceAp
 	var diags diag.Diagnostics
 	unset := make(map[string]interface{})
 
@@ -36,8 +36,7 @@ func TerraformToSdk(ctx context.Context, plan *DeviceApModel) (models.MistDevice
 	}
 
 	if !plan.Aeroscout.IsNull() && !plan.Aeroscout.IsUnknown() {
-		aeroscout := aeroscoutTerraformToSdk(plan.Aeroscout)
-		data.Aeroscout = aeroscout
+		data.Aeroscout = aeroscoutTerraformToSdk(plan.Aeroscout)
 	} else {
 		unset["-aeroscout"] = ""
 	}
@@ -98,15 +97,19 @@ func TerraformToSdk(ctx context.Context, plan *DeviceApModel) (models.MistDevice
 	}
 
 	if !plan.IpConfig.IsNull() && !plan.IpConfig.IsUnknown() {
-		ipConfig := ipConfigTerraformToSdk(plan.IpConfig)
-		data.IpConfig = ipConfig
+		data.IpConfig = ipConfigTerraformToSdk(plan.IpConfig)
 	} else {
 		unset["-ip_config"] = ""
 	}
 
+	if !plan.LacpConfig.IsNull() && !plan.LacpConfig.IsUnknown() {
+		data.LacpConfig = lacpConfigTerraformToSdk(plan.LacpConfig)
+	} else {
+		unset["-lacp_config"] = ""
+	}
+
 	if !plan.Led.IsNull() && !plan.Led.IsUnknown() {
-		led := ledTerraformToSdk(plan.Led)
-		data.Led = led
+		data.Led = ledTerraformToSdk(plan.Led)
 	} else {
 		unset["-led"] = ""
 	}
@@ -118,14 +121,13 @@ func TerraformToSdk(ctx context.Context, plan *DeviceApModel) (models.MistDevice
 	}
 
 	if !plan.Mesh.IsNull() && !plan.Mesh.IsUnknown() {
-		mesh := meshTerraformToSdk(plan.Mesh)
-		data.Mesh = mesh
+		data.Mesh = meshTerraformToSdk(plan.Mesh)
 	} else {
 		unset["-mesh"] = ""
 	}
 
 	if !plan.NtpServers.IsNull() && !plan.NtpServers.IsUnknown() {
-		data.NtpServers = misttransform.ListOfStringTerraformToSdk(plan.NtpServers)
+		data.NtpServers = mistutils.ListOfStringTerraformToSdk(plan.NtpServers)
 	} else {
 		unset["-ntp_servers"] = ""
 	}
@@ -140,6 +142,12 @@ func TerraformToSdk(ctx context.Context, plan *DeviceApModel) (models.MistDevice
 		data.PoePassthrough = plan.PoePassthrough.ValueBoolPointer()
 	} else {
 		unset["-poe_passthrough"] = ""
+	}
+
+	if !plan.PortConfig.IsNull() && !plan.PortConfig.IsUnknown() {
+		data.PortConfig = portConfigTerraformToSdk(ctx, &diags, plan.PortConfig)
+	} else {
+		unset["-port_config"] = ""
 	}
 
 	if !plan.PwrConfig.IsNull() && !plan.PwrConfig.IsUnknown() {

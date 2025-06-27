@@ -2,7 +2,6 @@ package datasource_site_psks
 
 import (
 	"context"
-	"math/big"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -27,13 +26,13 @@ func pskSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.P
 	var state SitePsksValue
 
 	var adminSsoId types.String
-	var createdTime basetypes.NumberValue
+	var createdTime basetypes.Float64Value
 	var email types.String
 	var expireTime types.Int64
 	var expiryNotificationTime types.Int64
 	var id types.String
 	var mac types.String
-	var modifiedTime basetypes.NumberValue
+	var modifiedTime basetypes.Float64Value
 	var name types.String
 	var note types.String
 	var notifyExpiry types.Bool
@@ -51,7 +50,7 @@ func pskSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.P
 		adminSsoId = types.StringValue(*d.AdminSsoId)
 	}
 	if d.CreatedTime != nil {
-		createdTime = types.NumberValue(big.NewFloat(*d.CreatedTime))
+		createdTime = types.Float64Value(*d.CreatedTime)
 	}
 	if d.Email != nil {
 		email = types.StringValue(*d.Email)
@@ -69,7 +68,7 @@ func pskSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.P
 		mac = types.StringValue(*d.Mac)
 	}
 	if d.ModifiedTime != nil {
-		modifiedTime = types.NumberValue(big.NewFloat(*d.ModifiedTime))
+		modifiedTime = types.Float64Value(*d.ModifiedTime)
 	}
 
 	name = types.StringValue(d.Name)

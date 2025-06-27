@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_network"
 )
 
@@ -72,7 +72,7 @@ func networksSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m []mo
 		var isolation basetypes.BoolValue
 		var multicast = NewMulticastValueNull()
 		var name basetypes.StringValue
-		var routedForNetworks = misttransform.ListOfStringSdkToTerraformEmpty()
+		var routedForNetworks = mistutils.ListOfStringSdkToTerraformEmpty()
 		var subnet basetypes.StringValue
 		var subnet6 basetypes.StringValue
 		var tenants = types.MapNull(resource_org_network.TenantsValue{}.Type(ctx))
@@ -102,7 +102,7 @@ func networksSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m []mo
 		}
 		name = types.StringValue(d.Name)
 		if d.RoutedForNetworks != nil {
-			routedForNetworks = misttransform.ListOfStringSdkToTerraform(d.RoutedForNetworks)
+			routedForNetworks = mistutils.ListOfStringSdkToTerraform(d.RoutedForNetworks)
 		}
 		if d.Subnet != nil {
 			subnet = types.StringValue(*d.Subnet)

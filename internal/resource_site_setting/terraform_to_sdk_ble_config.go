@@ -3,7 +3,7 @@ package resource_site_setting
 import (
 	"github.com/google/uuid"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
@@ -21,7 +21,7 @@ func siteSettingBleConfigTerraformToSdk(d BleConfigValue) *models.BleConfig {
 		data.BeaconRateMode = models.ToPointer(models.BleConfigBeaconRateModeEnum(d.BeaconRateMode.ValueString()))
 	}
 	if !d.BeamDisabled.IsNull() && !d.BeamDisabled.IsUnknown() {
-		data.BeamDisabled = misttransform.ListOfIntTerraformToSdk(d.BeamDisabled)
+		data.BeamDisabled = mistutils.ListOfIntTerraformToSdk(d.BeamDisabled)
 	}
 	if d.CustomBlePacketEnabled.ValueBoolPointer() != nil {
 		data.CustomBlePacketEnabled = d.CustomBlePacketEnabled.ValueBoolPointer()

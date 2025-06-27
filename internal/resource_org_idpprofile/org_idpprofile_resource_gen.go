@@ -39,7 +39,9 @@ func OrgIdpprofileResourceSchema(ctx context.Context) schema.Schema {
 				},
 			},
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Unique ID of the object instance in the Mist Organization",
+				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -59,8 +61,8 @@ func OrgIdpprofileResourceSchema(ctx context.Context) schema.Schema {
 						"action": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "enum:\n  * alert (default)\n  * drop: siliently dropping packets\n  * close: notify client/server to close connection",
-							MarkdownDescription: "enum:\n  * alert (default)\n  * drop: siliently dropping packets\n  * close: notify client/server to close connection",
+							Description:         "enum:\n  * alert (default)\n  * drop: silently dropping packets\n  * close: notify client/server to close connection",
+							MarkdownDescription: "enum:\n  * alert (default)\n  * drop: silently dropping packets\n  * close: notify client/server to close connection",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",

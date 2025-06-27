@@ -23,8 +23,8 @@ func ConstCountriesDataSourceSchema(ctx context.Context) schema.Schema {
 					Attributes: map[string]schema.Attribute{
 						"alpha2": schema.StringAttribute{
 							Computed:            true,
-							Description:         "country code, in two-character",
-							MarkdownDescription: "country code, in two-character",
+							Description:         "Country code, in two-character",
+							MarkdownDescription: "Country code, in two-character",
 						},
 						"certified": schema.BoolAttribute{
 							Computed: true,
@@ -34,8 +34,8 @@ func ConstCountriesDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"numeric": schema.NumberAttribute{
 							Computed:            true,
-							Description:         "country code, ISO 3166-1 numeric",
-							MarkdownDescription: "country code, ISO 3166-1 numeric",
+							Description:         "Country code, ISO 3166-1 numeric",
+							MarkdownDescription: "Country code, ISO 3166-1 numeric",
 						},
 					},
 					CustomType: ConstCountriesType{

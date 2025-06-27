@@ -2,13 +2,13 @@
 page_title: "mist_const_alarms Data Source - terraform-provider-mist"
 subcategory: "Constants"
 description: |-
-  This data source provides the list of  available Alarms.
+  This data source provides the list of available Alarms.
   The alarm key can be used to configure the mist_org_alarmtemplate.rules.
 ---
 
 # mist_const_alarms (Data Source)
 
-This data source provides the list of  available Alarms.
+This data source provides the list of available Alarms.
 
 The alarm `key` can be used to configure the `mist_org_alarmtemplate.rules`.
 

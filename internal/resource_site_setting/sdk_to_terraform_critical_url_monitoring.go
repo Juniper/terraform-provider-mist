@@ -2,8 +2,8 @@ package resource_site_setting
 
 import (
 	"context"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
-	mistapi "github.com/Juniper/terraform-provider-mist/internal/commons/api_response"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -22,7 +22,7 @@ func criticalUrlMonitoringMonitorSdkToTerraform(ctx context.Context, diags *diag
 			url = types.StringValue(*d.Url)
 		}
 		if d.VlanId != nil {
-			vlanId = mistapi.VlanAsString(*d.VlanId)
+			vlanId = mistutils.VlanAsString(*d.VlanId)
 		}
 
 		dataMapValue := map[string]attr.Value{

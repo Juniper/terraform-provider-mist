@@ -2,7 +2,7 @@
 page_title: "mist_upgrade_device Resource - terraform-provider-mist"
 subcategory: "Devices"
 description: |-
-  This resource can be used to upgrade the frimware of a single device (Wi-Fi Access Points, Switches and SRX/SSR Gateways).
+  This resource can be used to upgrade the firmware of a single device (Wi-Fi Access Points, Switches and SRX/SSR Gateways).
   The resource will send the upgrade command to Mist, which will take care of deploying the new firmware version to the device, and reboot it if required.
   The time required to upgrade a device depends on the type of device and its hardware. By default, the resource will track the upgrade process and only return the result once the device is upgraded and rebooted (unless reboot==false or reboot_at is set).If required it is possible to run the upgrade in async mode (attribute sync=false). In this case, the resource will only trigger the upgrade and return the Mist response, but will not track the upgrade progress.
   The list of available firmware versions can be retrieved with the mist_device_versions data source.
@@ -10,7 +10,7 @@ description: |-
 
 # mist_upgrade_device (Resource)
 
-This resource can be used to upgrade the frimware of a single device (Wi-Fi Access Points, Switches and SRX/SSR Gateways).
+This resource can be used to upgrade the firmware of a single device (Wi-Fi Access Points, Switches and SRX/SSR Gateways).
 
 The resource will send the upgrade command to Mist, which will take care of deploying the new firmware version to the device, and reboot it if required.
 
@@ -63,7 +63,7 @@ resource "mist_upgrade_device" "switch_upgrade" {
 - `device_version` (String) current device firmware version
 - `fwupdate` (Attributes) (see [below for nested schema](#nestedatt--fwupdate))
 - `status` (String) enum: `error`, `inprogress`, `scheduled`, `starting`, `success`
-- `timestamp` (Number) Timestamp
+- `timestamp` (Number) Epoch (seconds)
 
 <a id="nestedatt--fwupdate"></a>
 ### Nested Schema for `fwupdate`
@@ -73,7 +73,7 @@ Read-Only:
 - `progress` (Number)
 - `status` (String) enum: `inprogress`, `failed`, `upgraded`
 - `status_id` (Number)
-- `timestamp` (Number)
+- `timestamp` (Number) Epoch (seconds)
 - `will_retry` (Boolean)
 
 

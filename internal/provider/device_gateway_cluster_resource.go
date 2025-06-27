@@ -139,7 +139,7 @@ func (r *deviceGatewayClusterResource) Create(ctx context.Context, req resource.
 				)
 				return
 			}
-			// if the cluster already exists, and we are suspecting a node invertion
+			// if the cluster already exists, and we are suspecting a node inversion,
 			// this can be detected because the node0 is assigned to the site but there is no device/cluster with its MAC Address
 		} else if strings.Contains(apiErr, "resource not found") {
 			existingGatewayCluster, sameNodes := r.checkClusterNodes(ctx, siteId, PlannedNode1Mac, PlannedNode0Mac)

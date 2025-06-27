@@ -46,7 +46,7 @@ func (o AllowedWhenValueIsValidator) Validate(ctx context.Context, req AllowedWh
 		return
 	}
 
-	// if we don't have a value there's no need for further investigation
+	// if we don't have a value, there's no need for further investigation
 	if req.ConfigValue.IsNull() {
 		return
 	}
@@ -78,7 +78,7 @@ func (o AllowedWhenValueIsValidator) Validate(ctx context.Context, req AllowedWh
 			if mpVal.IsUnknown() || !o.Value.Equal(mpVal) {
 				resp.Diagnostics.Append(validatordiag.InvalidAttributeCombinationDiagnostic(
 					req.Path,
-					fmt.Sprintf("attribute %s is only allowed when %s has value in %s, got: %s", req.Path, mp, o.Value, mpVal.String()),
+					fmt.Sprintf("Attribute \"%s\" is only allowed when \"%s\" has value in %s, got: %s", req.Path, mp, o.Value, mpVal.String()),
 				))
 			}
 		}

@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
@@ -25,7 +25,7 @@ func switchMgmtProtectReCustomTerraformToSdk(d basetypes.ListValue) []models.Pro
 			dataItem.Protocol = models.ToPointer(models.ProtectReCustomProtocolEnum(itemObj.Protocol.ValueString()))
 		}
 		if !itemObj.Subnets.IsNull() && !itemObj.Subnets.IsUnknown() {
-			dataItem.Subnets = misttransform.ListOfStringTerraformToSdk(itemObj.Subnets)
+			dataItem.Subnets = mistutils.ListOfStringTerraformToSdk(itemObj.Subnets)
 		}
 
 		data = append(data, dataItem)
@@ -42,8 +42,8 @@ func switchMgmtProtectReTerraformToSdk(ctx context.Context, diags *diag.Diagnost
 		} else {
 			if !item.AllowedServices.IsNull() && !item.AllowedServices.IsUnknown() {
 				var items []models.ProtectReAllowedServiceEnum
-				for _, item := range item.AllowedServices.Elements() {
-					var iface interface{} = item
+				for _, i := range item.AllowedServices.Elements() {
+					var iface interface{} = i
 					val := iface.(basetypes.StringValue)
 					items = append(items, models.ProtectReAllowedServiceEnum(val.ValueString()))
 				}
@@ -56,7 +56,7 @@ func switchMgmtProtectReTerraformToSdk(ctx context.Context, diags *diag.Diagnost
 				data.Enabled = models.ToPointer(item.Enabled.ValueBool())
 			}
 			if !item.TrustedHosts.IsNull() && !item.TrustedHosts.IsUnknown() {
-				data.TrustedHosts = misttransform.ListOfStringTerraformToSdk(item.TrustedHosts)
+				data.TrustedHosts = mistutils.ListOfStringTerraformToSdk(item.TrustedHosts)
 			}
 		}
 	}
@@ -188,14 +188,17 @@ func switchMgmtTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d Sw
 		if d.DisableOobDownAlarm.ValueBoolPointer() != nil {
 			data.DisableOobDownAlarm = d.DisableOobDownAlarm.ValueBoolPointer()
 		}
+		if d.FipsEnabled.ValueBoolPointer() != nil {
+			data.FipsEnabled = d.FipsEnabled.ValueBoolPointer()
+		}
 		if !d.LocalAccounts.IsNull() && !d.LocalAccounts.IsUnknown() {
 			data.LocalAccounts = switchLocalAccountUsersTerraformToSdk(d.LocalAccounts)
 		}
 		if d.MxedgeProxyHost.ValueStringPointer() != nil {
 			data.MxedgeProxyHost = d.MxedgeProxyHost.ValueStringPointer()
 		}
-		if d.MxedgeProxyPort.ValueInt64Pointer() != nil {
-			data.MxedgeProxyPort = models.ToPointer(int(d.MxedgeProxyPort.ValueInt64()))
+		if d.MxedgeProxyPort.ValueStringPointer() != nil {
+			data.MxedgeProxyPort = models.ToPointer(models.SwitchMgmtMxedgeProxyPortContainer.FromString(d.MxedgeProxyPort.ValueString()))
 		}
 		if !d.ProtectRe.IsNull() && !d.ProtectRe.IsUnknown() {
 			data.ProtectRe = switchMgmtProtectReTerraformToSdk(ctx, diags, d.ProtectRe)

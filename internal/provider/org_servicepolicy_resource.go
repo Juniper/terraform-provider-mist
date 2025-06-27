@@ -54,7 +54,7 @@ func (r *orgServicepolicyResource) Metadata(_ context.Context, req resource.Meta
 }
 func (r *orgServicepolicyResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryWan + "This resource manages WAN Assurance Service Policies (Application Policiess).\n\n" +
+		MarkdownDescription: docCategoryWan + "This resource manages WAN Assurance Service Policies (Application Policies).\n\n" +
 			"The Service Policies can be used in the `service_policies` object by referencing the Service Policy ID as the `servicepolicy_id` in:\n" +
 			"* the Gateway configuration (`mist_device_gateway.service_policies`)\n" +
 			"* the Gateway Templates (`mist_org_gatewaytemplate.service_policies`)\n" +
@@ -251,15 +251,26 @@ func (r *orgServicepolicyResource) Delete(ctx context.Context, _ resource.Delete
 		)
 		return
 	}
+
 	data, err := r.client.OrgsServicePolicies().DeleteOrgServicePolicy(ctx, orgId, servicepolicyId)
-	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && apiErr != "" {
+	if data != nil {
+		apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+		if data.StatusCode != 404 && apiErr != "" {
+			resp.Diagnostics.AddError(
+				"Error deleting \"mist_org_servicepolicy\" resource",
+				fmt.Sprintf("Unable to delete the Service Policy. %s", apiErr),
+			)
+			return
+		}
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_servicepolicy\" resource",
-			fmt.Sprintf("Unable to delete the Service Policy. %s", apiErr),
+			"Unable to delete the Service Policy, unexpected error: "+err.Error(),
 		)
 		return
 	}
+
+	resp.State.RemoveResource(ctx)
 }
 
 func (r *orgServicepolicyResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

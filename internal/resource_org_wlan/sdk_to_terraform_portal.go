@@ -3,7 +3,7 @@ package resource_org_wlan
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -17,7 +17,7 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	var allowWlanIdRoam basetypes.BoolValue
 	var amazonClientId basetypes.StringValue
 	var amazonClientSecret basetypes.StringValue
-	var amazonEmailDomains = misttransform.ListOfStringSdkToTerraformEmpty()
+	var amazonEmailDomains = mistutils.ListOfStringSdkToTerraformEmpty()
 	var amazonEnabled basetypes.BoolValue
 	var amazonExpire basetypes.Int64Value
 	var auth basetypes.StringValue
@@ -38,21 +38,21 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	var externalPortalUrl = types.StringValue("")
 	var facebookClientId basetypes.StringValue
 	var facebookClientSecret basetypes.StringValue
-	var facebookEmailDomains = misttransform.ListOfStringSdkToTerraformEmpty()
+	var facebookEmailDomains = mistutils.ListOfStringSdkToTerraformEmpty()
 	var facebookEnabled basetypes.BoolValue
 	var facebookExpire basetypes.Int64Value
 	var forward basetypes.BoolValue
 	var forwardUrl basetypes.StringValue
 	var googleClientId basetypes.StringValue
 	var googleClientSecret basetypes.StringValue
-	var googleEmailDomains = misttransform.ListOfStringSdkToTerraformEmpty()
+	var googleEmailDomains = mistutils.ListOfStringSdkToTerraformEmpty()
 	var googleEnabled basetypes.BoolValue
 	var googleExpire basetypes.Int64Value
 	var gupshupPassword basetypes.StringValue
 	var gupshupUserid basetypes.StringValue
 	var microsoftClientId basetypes.StringValue
 	var microsoftClientSecret basetypes.StringValue
-	var microsoftEmailDomains = misttransform.ListOfStringSdkToTerraformEmpty()
+	var microsoftEmailDomains = mistutils.ListOfStringSdkToTerraformEmpty()
 	var microsoftEnabled basetypes.BoolValue
 	var microsoftExpire basetypes.Int64Value
 	var passphraseEnabled basetypes.BoolValue
@@ -68,8 +68,10 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	var smsExpire basetypes.Int64Value
 	var smsMessageFormat basetypes.StringValue
 	var smsProvider basetypes.StringValue
+	var smsGlobalApiKey basetypes.StringValue
+	var smsGlobalApiSecret basetypes.StringValue
 	var sponsorAutoApprove basetypes.BoolValue
-	var sponsorEmailDomains = misttransform.ListOfStringSdkToTerraformEmpty()
+	var sponsorEmailDomains = mistutils.ListOfStringSdkToTerraformEmpty()
 	var sponsorEnabled basetypes.BoolValue
 	var sponsorExpire basetypes.Int64Value
 	var sponsorLinkValidityDuration basetypes.StringValue
@@ -99,7 +101,7 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 		amazonClientSecret = types.StringValue(*d.AmazonClientSecret.Value())
 	}
 	if d != nil && d.AmazonEmailDomains != nil {
-		amazonEmailDomains = misttransform.ListOfStringSdkToTerraform(d.AmazonEmailDomains)
+		amazonEmailDomains = mistutils.ListOfStringSdkToTerraform(d.AmazonEmailDomains)
 	}
 	if d != nil && d.AmazonEnabled != nil {
 		amazonEnabled = types.BoolValue(*d.AmazonEnabled)
@@ -162,7 +164,7 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 		facebookClientSecret = types.StringValue(*d.FacebookClientSecret.Value())
 	}
 	if d != nil && d.FacebookEmailDomains != nil {
-		facebookEmailDomains = misttransform.ListOfStringSdkToTerraform(d.FacebookEmailDomains)
+		facebookEmailDomains = mistutils.ListOfStringSdkToTerraform(d.FacebookEmailDomains)
 	}
 	if d != nil && d.FacebookEnabled != nil {
 		facebookEnabled = types.BoolValue(*d.FacebookEnabled)
@@ -183,7 +185,7 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 		googleClientSecret = types.StringValue(*d.GoogleClientSecret.Value())
 	}
 	if d != nil && d.GoogleEmailDomains != nil {
-		googleEmailDomains = misttransform.ListOfStringSdkToTerraform(d.GoogleEmailDomains)
+		googleEmailDomains = mistutils.ListOfStringSdkToTerraform(d.GoogleEmailDomains)
 	}
 	if d != nil && d.GoogleEnabled != nil {
 		googleEnabled = types.BoolValue(*d.GoogleEnabled)
@@ -204,7 +206,7 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 		microsoftClientSecret = types.StringValue(*d.MicrosoftClientSecret.Value())
 	}
 	if d != nil && d.MicrosoftEmailDomains != nil {
-		microsoftEmailDomains = misttransform.ListOfStringSdkToTerraform(d.MicrosoftEmailDomains)
+		microsoftEmailDomains = mistutils.ListOfStringSdkToTerraform(d.MicrosoftEmailDomains)
 	}
 	if d != nil && d.MicrosoftEnabled != nil {
 		microsoftEnabled = types.BoolValue(*d.MicrosoftEnabled)
@@ -251,11 +253,17 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	if d != nil && d.SmsProvider != nil {
 		smsProvider = types.StringValue(string(*d.SmsProvider))
 	}
+	if d != nil && d.SmsglobalApiKey != nil {
+		smsGlobalApiKey = types.StringValue(*d.SmsglobalApiKey)
+	}
+	if d != nil && d.SmsglobalApiSecret != nil {
+		smsGlobalApiSecret = types.StringValue(*d.SmsglobalApiSecret)
+	}
 	if d != nil && d.SponsorAutoApprove != nil {
 		sponsorAutoApprove = types.BoolValue(*d.SponsorAutoApprove)
 	}
 	if d != nil && d.SponsorEmailDomains != nil {
-		sponsorEmailDomains = misttransform.ListOfStringSdkToTerraform(d.SponsorEmailDomains)
+		sponsorEmailDomains = mistutils.ListOfStringSdkToTerraform(d.SponsorEmailDomains)
 	}
 	if d != nil && d.SponsorEnabled != nil {
 		sponsorEnabled = types.BoolValue(*d.SponsorEnabled)
@@ -264,7 +272,7 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 		sponsorExpire = types.Int64Value(int64(*d.SponsorExpire.Value()))
 	}
 	if d != nil && d.SponsorLinkValidityDuration != nil {
-		sponsorLinkValidityDuration = types.StringValue(*d.SponsorLinkValidityDuration)
+		sponsorLinkValidityDuration = mistutils.SponsorLinkValidityDurationAsString(d.SponsorLinkValidityDuration)
 	}
 	if d != nil && d.SponsorNotifyAll != nil {
 		sponsorNotifyAll = types.BoolValue(*d.SponsorNotifyAll)
@@ -373,6 +381,8 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 		"sms_expire":                     smsExpire,
 		"sms_message_format":             smsMessageFormat,
 		"sms_provider":                   smsProvider,
+		"smsglobal_api_key":              smsGlobalApiKey,
+		"smsglobal_api_secret":           smsGlobalApiSecret,
 		"sponsor_auto_approve":           sponsorAutoApprove,
 		"sponsor_email_domains":          sponsorEmailDomains,
 		"sponsor_enabled":                sponsorEnabled,

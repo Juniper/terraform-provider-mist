@@ -31,7 +31,7 @@ data "mist_const_countries" "list_of_countries" {}
 
 Read-Only:
 
-- `alpha2` (String) country code, in two-character
+- `alpha2` (String) Country code, in two-character
 - `certified` (Boolean)
 - `name` (String)
-- `numeric` (Number) country code, ISO 3166-1 numeric
+- `numeric` (Number) Country code, ISO 3166-1 numeric

@@ -3,11 +3,11 @@ package resource_org_network
 import (
 	"context"
 
-	mistapi "github.com/Juniper/terraform-provider-mist/internal/commons/api_response"
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
@@ -27,7 +27,7 @@ func SdkToTerraform(ctx context.Context, data models.Network) (OrgNetworkModel, 
 	var isolation basetypes.BoolValue
 	var name basetypes.StringValue
 	var orgId basetypes.StringValue
-	var routedForNetworks = types.ListNull(types.StringType)
+	var routedForNetworks = types.ListValueMust(types.StringType, []attr.Value{})
 	var subnet basetypes.StringValue
 	var subnet6 basetypes.StringValue
 	var tenants = types.MapNull(TenantsValue{}.Type(ctx))
@@ -44,7 +44,7 @@ func SdkToTerraform(ctx context.Context, data models.Network) (OrgNetworkModel, 
 		gateway6 = types.StringValue(*data.Gateway6)
 	}
 	if data.Multicast != nil {
-		multicast = MutlicastSdkToTerraform(ctx, &diags, *data.Multicast)
+		multicast = MulticastSdkToTerraform(ctx, &diags, *data.Multicast)
 	}
 	if data.Id != nil {
 		id = types.StringValue(data.Id.String())
@@ -63,7 +63,7 @@ func SdkToTerraform(ctx context.Context, data models.Network) (OrgNetworkModel, 
 		orgId = types.StringValue(data.OrgId.String())
 	}
 	if data.RoutedForNetworks != nil {
-		routedForNetworks = misttransform.ListOfStringSdkToTerraform(data.RoutedForNetworks)
+		routedForNetworks = mistutils.ListOfStringSdkToTerraform(data.RoutedForNetworks)
 	}
 	if data.Subnet != nil {
 		subnet = types.StringValue(*data.Subnet)
@@ -75,7 +75,7 @@ func SdkToTerraform(ctx context.Context, data models.Network) (OrgNetworkModel, 
 		tenants = TenantSdkToTerraform(ctx, &diags, data.Tenants)
 	}
 	if data.VlanId != nil {
-		vlanId = mistapi.VlanAsString(*data.VlanId)
+		vlanId = mistutils.VlanAsString(*data.VlanId)
 	}
 	if data.VpnAccess != nil && len(data.VpnAccess) > 0 {
 		vpnAccess = VpnSdkToTerraform(ctx, &diags, data.VpnAccess)

@@ -3,7 +3,7 @@ package resource_site_setting
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -14,12 +14,12 @@ import (
 )
 
 func zoneOccupancySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.SiteZoneOccupancyAlert) ZoneOccupancyAlertValue {
-	var emailNotifiers = misttransform.ListOfStringSdkToTerraformEmpty()
+	var emailNotifiers = types.ListValueMust(types.StringType, []attr.Value{})
 	var enabled basetypes.BoolValue
 	var threshold basetypes.Int64Value
 
 	if d.EmailNotifiers != nil {
-		emailNotifiers = misttransform.ListOfStringSdkToTerraform(d.EmailNotifiers)
+		emailNotifiers = mistutils.ListOfStringSdkToTerraform(d.EmailNotifiers)
 	}
 	if d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)

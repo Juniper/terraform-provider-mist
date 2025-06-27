@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func bgpConfigNeighborsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.BgpConfigNeighbors) basetypes.MapValue {
@@ -22,7 +22,7 @@ func bgpConfigNeighborsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 		var holdTime = types.Int64Value(90)
 		var importPolicy basetypes.StringValue
 		var multihopTtl basetypes.Int64Value
-		var neighborAs basetypes.Int64Value
+		var neighborAs basetypes.StringValue
 
 		if d.Disabled != nil {
 			disabled = types.BoolValue(*d.Disabled)
@@ -40,7 +40,7 @@ func bgpConfigNeighborsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 			multihopTtl = types.Int64Value(int64(*d.MultihopTtl))
 		}
 		if d.NeighborAs != nil {
-			neighborAs = types.Int64Value(int64(*d.NeighborAs))
+			neighborAs = mistutils.BgpAsAsString(d.NeighborAs)
 		}
 
 		dataMapValue := map[string]attr.Value{
@@ -56,8 +56,7 @@ func bgpConfigNeighborsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 
 		stateValueMapValue[k] = data
 	}
-	stateResultMapType := NeighborsValue{}.Type(ctx)
-	stateResultMap, e := types.MapValueFrom(ctx, stateResultMapType, stateValueMapValue)
+	stateResultMap, e := types.MapValueFrom(ctx, NeighborsValue{}.Type(ctx), stateValueMapValue)
 	diags.Append(e...)
 	return stateResultMap
 }
@@ -76,10 +75,11 @@ func bgpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map
 		var holdTime = types.Int64Value(90)
 		var importBgp basetypes.StringValue
 		var importPolicy basetypes.StringValue
-		var localAs basetypes.Int64Value
-		var neighborAs basetypes.Int64Value
+		var localAs basetypes.StringValue
+		var neighborAs basetypes.StringValue
 		var neighbors = types.MapNull(NeighborsValue{}.Type(ctx))
-		var networks = misttransform.ListOfStringSdkToTerraformEmpty()
+		var networks = types.ListNull(types.StringType)
+		var noPrivateAs basetypes.BoolValue
 		var noReadvertiseToOverlay = types.BoolValue(false)
 		var typeBgp basetypes.StringValue
 		var tunnelName basetypes.StringValue
@@ -121,16 +121,19 @@ func bgpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map
 			importPolicy = types.StringValue(*d.ImportPolicy)
 		}
 		if d.LocalAs != nil {
-			localAs = types.Int64Value(int64(*d.LocalAs))
+			localAs = mistutils.BgpAsAsString(d.LocalAs)
 		}
 		if d.NeighborAs != nil && len(d.Neighbors) > 0 {
-			neighborAs = types.Int64Value(int64(*d.NeighborAs))
+			neighborAs = mistutils.BgpAsAsString(d.NeighborAs)
 		}
 		if d.Neighbors != nil && len(d.Neighbors) > 0 {
 			neighbors = bgpConfigNeighborsSdkToTerraform(ctx, diags, d.Neighbors)
 		}
 		if d.Networks != nil {
-			networks = misttransform.ListOfStringSdkToTerraform(d.Networks)
+			networks = mistutils.ListOfStringSdkToTerraform(d.Networks)
+		}
+		if d.NoPrivateAs != nil {
+			noPrivateAs = types.BoolValue(*d.NoPrivateAs)
 		}
 		if d.NoReadvertiseToOverlay != nil {
 			noReadvertiseToOverlay = types.BoolValue(*d.NoReadvertiseToOverlay)
@@ -167,6 +170,7 @@ func bgpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map
 			"neighbor_as":               neighborAs,
 			"neighbors":                 neighbors,
 			"networks":                  networks,
+			"no_private_as":             noPrivateAs,
 			"no_readvertise_to_overlay": noReadvertiseToOverlay,
 			"type":                      typeBgp,
 			"tunnel_name":               tunnelName,

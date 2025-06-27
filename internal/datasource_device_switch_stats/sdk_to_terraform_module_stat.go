@@ -4,6 +4,8 @@ import (
 	"context"
 	"math/big"
 
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -11,6 +13,43 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
+
+func moduleStatCpuSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.CpuStat) basetypes.ObjectValue {
+
+	var idle basetypes.NumberValue
+	var interrupt basetypes.NumberValue
+	var loadAvg = types.ListNull(types.NumberType)
+	var system basetypes.NumberValue
+	var user basetypes.NumberValue
+
+	if d.Idle.Value() != nil {
+		idle = types.NumberValue(big.NewFloat(*d.Idle.Value()))
+	}
+	if d.Interrupt.Value() != nil {
+		interrupt = types.NumberValue(big.NewFloat(*d.Interrupt.Value()))
+	}
+	if d.LoadAvg != nil {
+		loadAvg = mistutils.ListOfNumberSdkToTerraform(d.LoadAvg)
+	}
+	if d.System.Value() != nil {
+		system = types.NumberValue(big.NewFloat(*d.System.Value()))
+	}
+	if d.User.Value() != nil {
+		user = types.NumberValue(big.NewFloat(*d.User.Value()))
+	}
+
+	dataMapValue := map[string]attr.Value{
+		"idle":      idle,
+		"interrupt": interrupt,
+		"load_avg":  loadAvg,
+		"system":    system,
+		"user":      user,
+	}
+	data, e := basetypes.NewObjectValue(CpuStatValue{}.AttributeTypes(ctx), dataMapValue)
+	diags.Append(e...)
+
+	return data
+}
 
 func moduleStatErrorSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.ModuleStatItemErrorsItems) basetypes.ListValue {
 
@@ -262,18 +301,21 @@ func moduleStatVcLinksSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 
 	return r
 }
-func moduleStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.ModuleStatItem) basetypes.ListValue {
+func moduleStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.StatsSwitchModuleStatItem) basetypes.ListValue {
 
 	var dataList []ModuleStatValue
 	for _, d := range l {
 		var backupVersion basetypes.StringValue
 		var biosVersion basetypes.StringValue
 		var cpldVersion basetypes.StringValue
+		var cpuStat = types.ObjectNull(CpuStatValue{}.AttributeTypes(ctx))
 		var errors = types.ListNull(ErrorsValue{}.Type(ctx))
 		var fans = types.ListNull(FansValue{}.Type(ctx))
 		var fpcIdx basetypes.Int64Value
 		var fpgaVersion basetypes.StringValue
-		var lastSeen basetypes.NumberValue
+		var lastSeen basetypes.Float64Value
+		var locating basetypes.BoolValue
+		var mac basetypes.StringValue
 		var model basetypes.StringValue
 		var opticsCpldVersion basetypes.StringValue
 		var pendingVersion basetypes.StringValue
@@ -288,6 +330,7 @@ func moduleStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []
 		var status basetypes.StringValue
 		var temperatures = types.ListNull(TemperaturesValue{}.Type(ctx))
 		var tmcFpgaVersion basetypes.StringValue
+		var mType basetypes.StringValue
 		var ubootVersion basetypes.StringValue
 		var uptime basetypes.Int64Value
 		var vcLinks = types.ListNull(VcLinksValue{}.Type(ctx))
@@ -305,6 +348,9 @@ func moduleStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []
 		if d.CpldVersion.Value() != nil {
 			cpldVersion = types.StringValue(*d.CpldVersion.Value())
 		}
+		if d.CpuStat != nil {
+			cpuStat = moduleStatCpuSdkToTerraform(ctx, diags, d.CpuStat)
+		}
 		if d.Errors != nil {
 			errors = moduleStatErrorSdkToTerraform(ctx, diags, d.Errors)
 		}
@@ -318,7 +364,13 @@ func moduleStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []
 			fpgaVersion = types.StringValue(*d.FpgaVersion.Value())
 		}
 		if d.LastSeen.Value() != nil {
-			lastSeen = types.NumberValue(big.NewFloat(*d.LastSeen.Value()))
+			lastSeen = types.Float64Value(*d.LastSeen.Value())
+		}
+		if d.Locating != nil {
+			locating = types.BoolValue(*d.Locating)
+		}
+		if d.Mac != nil {
+			mac = types.StringValue(*d.Mac)
 		}
 		if d.Model.Value() != nil {
 			model = types.StringValue(*d.Model.Value())
@@ -362,6 +414,9 @@ func moduleStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []
 		if d.TmcFpgaVersion.Value() != nil {
 			tmcFpgaVersion = types.StringValue(*d.TmcFpgaVersion.Value())
 		}
+		if d.Type.Value() != nil {
+			mType = types.StringValue(*d.Type.Value())
+		}
 		if d.UbootVersion.Value() != nil {
 			ubootVersion = types.StringValue(*d.UbootVersion.Value())
 		}
@@ -388,11 +443,14 @@ func moduleStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []
 			"backup_version":      backupVersion,
 			"bios_version":        biosVersion,
 			"cpld_version":        cpldVersion,
+			"cpu_stat":            cpuStat,
 			"errors":              errors,
 			"fans":                fans,
 			"fpc_idx":             fpcIdx,
 			"fpga_version":        fpgaVersion,
 			"last_seen":           lastSeen,
+			"locating":            locating,
+			"mac":                 mac,
 			"model":               model,
 			"optics_cpld_version": opticsCpldVersion,
 			"pending_version":     pendingVersion,
@@ -407,6 +465,7 @@ func moduleStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []
 			"status":              status,
 			"temperatures":        temperatures,
 			"tmc_fpga_version":    tmcFpgaVersion,
+			"type":                mType,
 			"uboot_version":       ubootVersion,
 			"uptime":              uptime,
 			"vc_links":            vcLinks,

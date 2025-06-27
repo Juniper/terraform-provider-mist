@@ -12,8 +12,9 @@ import (
 var _ validator.String = ParseCidrValidator{}
 
 type ParseCidrValidator struct {
-	requireIpv4 bool
-	requireIpv6 bool
+	requireIpv4   bool
+	requireIpv6   bool
+	requireBaseIp bool
 }
 
 func (o ParseCidrValidator) Description(_ context.Context) string {
@@ -49,7 +50,7 @@ func (o ParseCidrValidator) ValidateString(_ context.Context, req validator.Stri
 		return
 	}
 
-	if !ipNet.IP.Equal(ip) {
+	if o.requireBaseIp && !ipNet.IP.Equal(ip) {
 		resp.Diagnostics.Append(validatordiag.InvalidAttributeValueDiagnostic(
 			req.Path,
 			fmt.Sprintf("value is not a valid CIDR base address (did you mean %q?)", ipNet.String()),
@@ -67,9 +68,18 @@ func (o ParseCidrValidator) ValidateString(_ context.Context, req validator.Stri
 	}
 }
 
+func ParseCidrSubnetOnly(requireIpv4 bool, requireIpv6 bool) validator.String {
+	return ParseCidrValidator{
+		requireIpv4:   requireIpv4,
+		requireIpv6:   requireIpv6,
+		requireBaseIp: false,
+	}
+}
+
 func ParseCidr(requireIpv4 bool, requireIpv6 bool) validator.String {
 	return ParseCidrValidator{
-		requireIpv4: requireIpv4,
-		requireIpv6: requireIpv6,
+		requireIpv4:   requireIpv4,
+		requireIpv6:   requireIpv6,
+		requireBaseIp: true,
 	}
 }

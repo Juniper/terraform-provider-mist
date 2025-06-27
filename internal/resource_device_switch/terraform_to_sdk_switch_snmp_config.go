@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
@@ -20,7 +20,7 @@ func snmpConfigClientListTerraformToSdk(d basetypes.ListValue) []models.SnmpConf
 		plan := vInterface.(ClientListValue)
 		data := models.SnmpConfigClientList{}
 		if !plan.Clients.IsNull() && !plan.Clients.IsUnknown() {
-			data.Clients = misttransform.ListOfStringTerraformToSdk(plan.Clients)
+			data.Clients = mistutils.ListOfStringTerraformToSdk(plan.Clients)
 		}
 		if plan.ClientListName.ValueStringPointer() != nil {
 			data.ClientListName = plan.ClientListName.ValueStringPointer()
@@ -41,16 +41,16 @@ func snmpConfigTrapGroupsTerraformToSdk(d basetypes.ListValue) []models.SnmpConf
 		plan := vInterface.(TrapGroupsValue)
 		data := models.SnmpConfigTrapGroup{}
 		if !plan.Categories.IsNull() && !plan.Categories.IsUnknown() {
-			data.Categories = misttransform.ListOfStringTerraformToSdk(plan.Categories)
+			data.Categories = mistutils.ListOfStringTerraformToSdk(plan.Categories)
 		}
 		if plan.GroupName.ValueStringPointer() != nil {
 			data.GroupName = plan.GroupName.ValueStringPointer()
 		}
 		if !plan.Targets.IsNull() && !plan.Targets.IsUnknown() {
-			data.Targets = misttransform.ListOfStringTerraformToSdk(plan.Targets)
+			data.Targets = mistutils.ListOfStringTerraformToSdk(plan.Targets)
 		}
 		if plan.Version.ValueStringPointer() != nil {
-			data.Version = (*models.SnmpConfigTrapVerionEnum)(plan.Version.ValueStringPointer())
+			data.Version = (*models.SnmpConfigTrapVersionEnum)(plan.Version.ValueStringPointer())
 		}
 
 		dataList = append(dataList, data)
@@ -217,24 +217,23 @@ func snmpConfigV3TargetParametersTerraformToSdk(d basetypes.ListValue) []models.
 }
 
 // V3 USM
-func snmpConfigV3UsmUsersTerraformToSdk(d basetypes.ListValue) []models.SnmpUsmpUser {
-	var dataList []models.SnmpUsmpUser
+func snmpConfigV3UsmUsersTerraformToSdk(d basetypes.ListValue) (dataList []models.SnmpUsmUser) {
 	for _, v := range d.Elements() {
 		var vInterface interface{} = v
 		plan := vInterface.(Snmpv3UsersValue)
-		data := models.SnmpUsmpUser{}
+		data := models.SnmpUsmUser{}
 
 		if plan.AuthenticationPassword.ValueStringPointer() != nil {
 			data.AuthenticationPassword = plan.AuthenticationPassword.ValueStringPointer()
 		}
 		if plan.AuthenticationType.ValueStringPointer() != nil {
-			data.AuthenticationType = (*models.SnmpUsmpUserAuthenticationTypeEnum)(plan.AuthenticationType.ValueStringPointer())
+			data.AuthenticationType = (*models.SnmpUsmUserAuthenticationTypeEnum)(plan.AuthenticationType.ValueStringPointer())
 		}
 		if plan.EncryptionPassword.ValueStringPointer() != nil {
 			data.EncryptionPassword = plan.EncryptionPassword.ValueStringPointer()
 		}
 		if plan.EncryptionType.ValueStringPointer() != nil {
-			data.EncryptionType = (*models.SnmpUsmpUserEncryptionTypeEnum)(plan.EncryptionType.ValueStringPointer())
+			data.EncryptionType = (*models.SnmpUsmUserEncryptionTypeEnum)(plan.EncryptionType.ValueStringPointer())
 		}
 		if plan.Name.ValueStringPointer() != nil {
 			data.Name = plan.Name.ValueStringPointer()
@@ -246,7 +245,7 @@ func snmpConfigV3UsmUsersTerraformToSdk(d basetypes.ListValue) []models.SnmpUsmp
 	return dataList
 }
 
-func snmpConfigV3UsmTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.SnmpUsm {
+func snmpConfigV3UsmTerraformToSdk(_ context.Context, _ *diag.Diagnostics, d basetypes.ListValue) []models.SnmpUsm {
 	var dataList []models.SnmpUsm
 	for _, v := range d.Elements() {
 

@@ -61,7 +61,7 @@ func (r *orgDeviceprofileGatewayResource) Schema(ctx context.Context, _ resource
 			"A HUB profile is a configuration profile that automates the creation of overlay networks and defines the attributes of a hub device in a network. " +
 			"It includes settings for wan interfaces, lan interfaces, dns servers, traffic steering preferences, application policies, and routing options. " +
 			"HUB profiles are used to create consistent configurations for hub devices and ensure efficient connectivity between hubs and spokes in a network.\n\n" +
-			"The Gateway Devide Profile can be assigned to a gateway with the `mist_org_deviceprofile_assign` resource.",
+			"The Gateway Device Profile can be assigned to a gateway with the `mist_org_deviceprofile_assign` resource.",
 		Attributes: resource_org_deviceprofile_gateway.OrgDeviceprofileGatewayResourceSchema(ctx).Attributes,
 	}
 }
@@ -90,7 +90,7 @@ func (r *orgDeviceprofileGatewayResource) Create(ctx context.Context, req resour
 		)
 		return
 	}
-	data, err := r.client.OrgsDeviceProfiles().CreateOrgDeviceProfiles(ctx, orgId, &deviceprofileGateway)
+	data, err := r.client.OrgsDeviceProfiles().CreateOrgDeviceProfile(ctx, orgId, &deviceprofileGateway)
 	if data.Response.StatusCode != 200 {
 
 		apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
@@ -142,7 +142,7 @@ func (r *orgDeviceprofileGatewayResource) Read(ctx context.Context, _ resource.R
 		)
 		return
 	}
-	deviceprofileGatewayid, err := uuid.Parse(state.Id.ValueString())
+	deviceprofileGatewayId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"id\" value for \"mist_org_deviceprofile_gateway\" resource",
@@ -151,7 +151,7 @@ func (r *orgDeviceprofileGatewayResource) Read(ctx context.Context, _ resource.R
 		return
 	}
 	tflog.Info(ctx, "Starting DeviceprofileGateway Read: deviceprofile_gateway_id "+state.Id.ValueString())
-	httpr, err := r.client.OrgsDeviceProfiles().GetOrgDeviceProfile(ctx, orgId, deviceprofileGatewayid)
+	httpr, err := r.client.OrgsDeviceProfiles().GetOrgDeviceProfile(ctx, orgId, deviceprofileGatewayId)
 	if httpr.Response.StatusCode == 404 {
 		resp.State.RemoveResource(ctx)
 		return
@@ -213,7 +213,7 @@ func (r *orgDeviceprofileGatewayResource) Update(ctx context.Context, req resour
 		)
 		return
 	}
-	deviceprofileGatewayid, err := uuid.Parse(state.Id.ValueString())
+	deviceprofileGatewayId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"id\" value for \"mist_org_deviceprofile_gateway\" resource",
@@ -222,7 +222,7 @@ func (r *orgDeviceprofileGatewayResource) Update(ctx context.Context, req resour
 		return
 	}
 	tflog.Info(ctx, "Starting DeviceprofileGateway Update for DeviceprofileGateway "+state.Id.ValueString())
-	data, err := r.client.OrgsDeviceProfiles().UpdateOrgDeviceProfile(ctx, orgId, deviceprofileGatewayid, &deviceprofileGateway)
+	data, err := r.client.OrgsDeviceProfiles().UpdateOrgDeviceProfile(ctx, orgId, deviceprofileGatewayId, &deviceprofileGateway)
 
 	if data.Response.StatusCode != 200 {
 
@@ -275,7 +275,7 @@ func (r *orgDeviceprofileGatewayResource) Delete(ctx context.Context, _ resource
 		)
 		return
 	}
-	deviceprofileGatewayid, err := uuid.Parse(state.Id.ValueString())
+	deviceprofileGatewayId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"id\" value for \"mist_org_deviceprofile_gateway\" resource",
@@ -283,16 +283,26 @@ func (r *orgDeviceprofileGatewayResource) Delete(ctx context.Context, _ resource
 		)
 		return
 	}
-	tflog.Info(ctx, "Starting DeviceprofileGateway Delete: deviceprofile_gateway_id "+state.Id.ValueString())
-	data, err := r.client.OrgsDeviceProfiles().DeleteOrgDeviceProfile(ctx, orgId, deviceprofileGatewayid)
-	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && apiErr != "" {
+
+	data, err := r.client.OrgsDeviceProfiles().DeleteOrgDeviceProfile(ctx, orgId, deviceprofileGatewayId)
+	if data != nil {
+		apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+		if data.StatusCode != 404 && apiErr != "" {
+			resp.Diagnostics.AddError(
+				"Error deleting \"mist_org_deviceprofile_gateway\" resource",
+				fmt.Sprintf("Unable to delete the Gateway Device Profile. %s", apiErr),
+			)
+			return
+		}
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_deviceprofile_gateway\" resource",
-			fmt.Sprintf("Unable to delete the Gateway Device Profile. %s", apiErr),
+			"Unable to delete the Gateway Device Profile, unexpected error: "+err.Error(),
 		)
 		return
 	}
+
+	resp.State.RemoveResource(ctx)
 }
 
 func (r *orgDeviceprofileGatewayResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

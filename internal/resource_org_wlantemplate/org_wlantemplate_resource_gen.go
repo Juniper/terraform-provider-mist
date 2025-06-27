@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -31,15 +32,17 @@ func OrgWlantemplateResourceSchema(ctx context.Context) schema.Schema {
 						ElementType:         types.StringType,
 						Optional:            true,
 						Computed:            true,
-						Description:         "list of site ids",
-						MarkdownDescription: "list of site ids",
+						Description:         "List of site ids",
+						MarkdownDescription: "List of site ids",
+						Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 					},
 					"sitegroup_ids": schema.ListAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
 						Computed:            true,
-						Description:         "list of sitegroup ids",
-						MarkdownDescription: "list of sitegroup ids",
+						Description:         "List of sitegroup ids",
+						MarkdownDescription: "List of sitegroup ids",
+						Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 					},
 				},
 				CustomType: AppliesType{
@@ -49,15 +52,25 @@ func OrgWlantemplateResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Optional:            true,
 				Computed:            true,
-				Description:         "where this template should be applied to, can be org_id, site_ids, sitegroup_ids",
-				MarkdownDescription: "where this template should be applied to, can be org_id, site_ids, sitegroup_ids",
+				Description:         "Where this template should be applied to, can be org_id, site_ids, sitegroup_ids",
+				MarkdownDescription: "Where this template should be applied to, can be org_id, site_ids, sitegroup_ids",
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						AppliesValue{}.AttributeTypes(ctx),
+						map[string]attr.Value{
+							"org_id":        types.StringNull(),
+							"site_ids":      types.ListValueMust(types.StringType, []attr.Value{}),
+							"sitegroup_ids": types.ListValueMust(types.StringType, []attr.Value{}),
+						},
+					),
+				),
 			},
 			"deviceprofile_ids": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
 				Computed:            true,
-				Description:         "list of Device Profile ids",
-				MarkdownDescription: "list of Device Profile ids",
+				Description:         "List of Device Profile ids",
+				MarkdownDescription: "List of Device Profile ids",
 				Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 			},
 			"exceptions": schema.SingleNestedAttribute{
@@ -66,15 +79,17 @@ func OrgWlantemplateResourceSchema(ctx context.Context) schema.Schema {
 						ElementType:         types.StringType,
 						Optional:            true,
 						Computed:            true,
-						Description:         "list of site ids",
-						MarkdownDescription: "list of site ids",
+						Description:         "List of site ids",
+						MarkdownDescription: "List of site ids",
+						Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 					},
 					"sitegroup_ids": schema.ListAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
 						Computed:            true,
-						Description:         "list of sitegroup ids",
-						MarkdownDescription: "list of sitegroup ids",
+						Description:         "List of sitegroup ids",
+						MarkdownDescription: "List of sitegroup ids",
+						Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 					},
 				},
 				CustomType: ExceptionsType{
@@ -84,18 +99,29 @@ func OrgWlantemplateResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Optional:            true,
 				Computed:            true,
-				Description:         "where this template should not be applied to (takes precedence)",
-				MarkdownDescription: "where this template should not be applied to (takes precedence)",
+				Description:         "Where this template should not be applied to (takes precedence)",
+				MarkdownDescription: "Where this template should not be applied to (takes precedence)",
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						ExceptionsValue{}.AttributeTypes(ctx),
+						map[string]attr.Value{
+							"site_ids":      types.ListValueMust(types.StringType, []attr.Value{}),
+							"sitegroup_ids": types.ListValueMust(types.StringType, []attr.Value{}),
+						},
+					),
+				),
 			},
 			"filter_by_deviceprofile": schema.BoolAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "whether to further filter by Device Profile",
-				MarkdownDescription: "whether to further filter by Device Profile",
+				Description:         "Whether to further filter by Device Profile",
+				MarkdownDescription: "Whether to further filter by Device Profile",
 				Default:             booldefault.StaticBool(false),
 			},
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Unique ID of the object instance in the Mist Organization",
+				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -487,11 +513,19 @@ func (v AppliesValue) String() string {
 func (v AppliesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	siteIdsVal, d := types.ListValue(types.StringType, v.SiteIds.Elements())
+	var siteIdsVal basetypes.ListValue
+	switch {
+	case v.SiteIds.IsUnknown():
+		siteIdsVal = types.ListUnknown(types.StringType)
+	case v.SiteIds.IsNull():
+		siteIdsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		siteIdsVal, d = types.ListValue(types.StringType, v.SiteIds.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"org_id": basetypes.StringType{},
 			"site_ids": basetypes.ListType{
@@ -503,11 +537,19 @@ func (v AppliesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 		}), diags
 	}
 
-	sitegroupIdsVal, d := types.ListValue(types.StringType, v.SitegroupIds.Elements())
+	var sitegroupIdsVal basetypes.ListValue
+	switch {
+	case v.SitegroupIds.IsUnknown():
+		sitegroupIdsVal = types.ListUnknown(types.StringType)
+	case v.SitegroupIds.IsNull():
+		sitegroupIdsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		sitegroupIdsVal, d = types.ListValue(types.StringType, v.SitegroupIds.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"org_id": basetypes.StringType{},
 			"site_ids": basetypes.ListType{
@@ -917,11 +959,19 @@ func (v ExceptionsValue) String() string {
 func (v ExceptionsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	siteIdsVal, d := types.ListValue(types.StringType, v.SiteIds.Elements())
+	var siteIdsVal basetypes.ListValue
+	switch {
+	case v.SiteIds.IsUnknown():
+		siteIdsVal = types.ListUnknown(types.StringType)
+	case v.SiteIds.IsNull():
+		siteIdsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		siteIdsVal, d = types.ListValue(types.StringType, v.SiteIds.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"site_ids": basetypes.ListType{
 				ElemType: types.StringType,
@@ -932,11 +982,19 @@ func (v ExceptionsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		}), diags
 	}
 
-	sitegroupIdsVal, d := types.ListValue(types.StringType, v.SitegroupIds.Elements())
+	var sitegroupIdsVal basetypes.ListValue
+	switch {
+	case v.SitegroupIds.IsUnknown():
+		sitegroupIdsVal = types.ListUnknown(types.StringType)
+	case v.SitegroupIds.IsNull():
+		sitegroupIdsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		sitegroupIdsVal, d = types.ListValue(types.StringType, v.SitegroupIds.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"site_ids": basetypes.ListType{
 				ElemType: types.StringType,

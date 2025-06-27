@@ -47,7 +47,7 @@ func (o CanOnlyBeTrueWhenValueIsValidator) Validate(ctx context.Context, req Can
 		return
 	}
 
-	// if we don't have a value there's no need for further investigation
+	// if we don't have a value, there's no need for further investigation
 	if req.ConfigValue.IsNull() {
 		return
 	}
@@ -85,7 +85,7 @@ func (o CanOnlyBeTrueWhenValueIsValidator) Validate(ctx context.Context, req Can
 			if !o.Value.Equal(mpVal) {
 				resp.Diagnostics.Append(validatordiag.InvalidAttributeCombinationDiagnostic(
 					req.Path,
-					fmt.Sprintf("attribute %s can only be true when %s has value %s, got: %s", req.Path, mp, o.Value, mpVal.String()),
+					fmt.Sprintf("Attribute \"%s\" can only be true when \"%s\" has value %s, got: %s", req.Path, mp, o.Value, mpVal.String()),
 				))
 			}
 		}

@@ -62,13 +62,14 @@ Read-Only:
 - `block_blacklist_clients` (Boolean) Whether to block the clients in the blacklist (up to first 256 macs)
 - `bonjour` (Attributes) Bonjour gateway wlan settings (see [below for nested schema](#nestedatt--site_wlans--bonjour))
 - `cisco_cwa` (Attributes) Cisco CWA (central web authentication) required RADIUS with COA in order to work. See CWA: https://www.cisco.com/c/en/us/support/docs/security/identity-services-engine/115732-central-web-auth-00.html (see [below for nested schema](#nestedatt--site_wlans--cisco_cwa))
-- `client_limit_down` (Number) In kbps
+- `client_limit_down` (String)
 - `client_limit_down_enabled` (Boolean) If downlink limiting per-client is enabled
-- `client_limit_up` (Number) In kbps
+- `client_limit_up` (String)
 - `client_limit_up_enabled` (Boolean) If uplink limiting per-client is enabled
 - `coa_servers` (Attributes List) List of COA (change of authorization) servers, optional (see [below for nested schema](#nestedatt--site_wlans--coa_servers))
 - `created_time` (Number) When the object has been created, in epoch
 - `disable_11ax` (Boolean) Some old WLAN drivers may not be compatible
+- `disable_11be` (Boolean) To disable Wi-Fi 7 EHT IEs
 - `disable_ht_vht_rates` (Boolean) To disable ht or vht rates
 - `disable_uapsd` (Boolean) Whether to disable U-APSD
 - `disable_v1_roam_notify` (Boolean) Disable sending v2 roam notification messages
@@ -92,14 +93,14 @@ Read-Only:
   * `pairwise` can only be wpa2-ccmp (for now, wpa3 support on the roadmap) (see [below for nested schema](#nestedatt--site_wlans--dynamic_psk))
 - `dynamic_vlan` (Attributes) For 802.1x (see [below for nested schema](#nestedatt--site_wlans--dynamic_vlan))
 - `enable_local_keycaching` (Boolean) Enable AP-AP keycaching via multicast
-- `enable_wireless_bridging` (Boolean) By default, we'd inspect all DHCP packets and drop those unrelated to the wireless client itself in the case where client is a wireless bridge (DHCP packets for other MACs will need to be orwarded), wireless_bridging can be enabled
+- `enable_wireless_bridging` (Boolean) By default, we'd inspect all DHCP packets and drop those unrelated to the wireless client itself in the case where client is a wireless bridge (DHCP packets for other MACs will need to be forwarded), wireless_bridging can be enabled
 - `enable_wireless_bridging_dhcp_tracking` (Boolean) If the client bridge is doing DHCP on behalf of other devices (L2-NAT), enable dhcp_tracking will cut down DHCP response packets to be forwarded to wireless
 - `enabled` (Boolean) If this wlan is enabled
 - `fast_dot1x_timers` (Boolean) If set to true, sets default fast-timers with values calculated from ‘auth_servers_timeout’ and ‘auth_server_retries’ .
 - `hide_ssid` (Boolean) Whether to hide SSID in beacon
 - `hostname_ie` (Boolean) Include hostname inside IE in AP beacons / probe responses
 - `hotspot20` (Attributes) Hostspot 2.0 wlan settings (see [below for nested schema](#nestedatt--site_wlans--hotspot20))
-- `id` (String) Unique ID of the object instance in the Mist Organnization
+- `id` (String) Unique ID of the object instance in the Mist Organization
 - `inject_dhcp_option_82` (Attributes) (see [below for nested schema](#nestedatt--site_wlans--inject_dhcp_option_82))
 - `interface` (String) where this WLAN will be connected to. enum: `all`, `eth0`, `eth1`, `eth2`, `eth3`, `mxtunnel`, `site_mxedge`, `wxtunnel`
 - `isolation` (Boolean) Whether to stop clients to talk to each other
@@ -113,7 +114,7 @@ Read-Only:
 - `modified_time` (Number) When the object has been modified for the last time, in epoch
 - `msp_id` (String)
 - `mxtunnel_ids` (List of String) When `interface`=`mxtunnel`, id of the Mist Tunnel
-- `mxtunnel_name` (List of String) When `interface`=`site_medge`, name of the mxtunnel that in mxtunnels under Site Setting
+- `mxtunnel_name` (List of String) When `interface`=`site_mxedge`, name of the mxtunnel that in mxtunnels under Site Setting
 - `no_static_dns` (Boolean) Whether to only allow client to use DNS that we’ve learned from DHCP response
 - `no_static_ip` (Boolean) Whether to only allow client that we’ve learned from DHCP exchange to talk
 - `org_id` (String)
@@ -136,11 +137,11 @@ Read-Only:
 - `use_eapol_v1` (Boolean) If `auth.type`==`eap` or `auth.type`==`psk`, should only be set for legacy client, such as pre-2004, 802.11b devices
 - `vlan_enabled` (Boolean) If vlan tagging is enabled
 - `vlan_id` (String)
-- `vlan_ids` (List of String) if `vlan_enabled`==`true` and `vlan_pooling`==`true`. List of VLAN IDs (comma separeted) to be used in the VLAN Pool
+- `vlan_ids` (List of String) if `vlan_enabled`==`true` and `vlan_pooling`==`true`. List of VLAN IDs (comma separated) to be used in the VLAN Pool
 - `vlan_pooling` (Boolean) Requires `vlan_enabled`==`true` to be set to `true`. Vlan pooling allows AP to place client on different VLAN using a deterministic algorithm
-- `wlan_limit_down` (Number) In kbps
+- `wlan_limit_down` (String)
 - `wlan_limit_down_enabled` (Boolean) If downlink limiting for whole wlan is enabled
-- `wlan_limit_up` (Number) In kbps
+- `wlan_limit_up` (String)
 - `wlan_limit_up_enabled` (Boolean) If uplink limiting for whole wlan is enabled
 - `wxtag_ids` (List of String) List of wxtag_ids
 - `wxtunnel_id` (String) When `interface`=`wxtunnel`, id of the WXLAN Tunnel
@@ -156,8 +157,8 @@ Read-Only:
 - `keywrap_format` (String) enum: `ascii`, `hex`
 - `keywrap_kek` (String)
 - `keywrap_mack` (String)
-- `port` (Number) Acct port of RADIUS server
-- `secret` (String, Sensitive) Secretof RADIUS server
+- `port` (String)
+- `secret` (String, Sensitive) Secret of RADIUS server
 
 
 <a id="nestedatt--site_wlans--airwatch"></a>
@@ -197,7 +198,7 @@ Read-Only:
 
 Read-Only:
 
-- `dscp` (Number)
+- `dscp` (String)
 - `dst_subnet` (String) Subnet filter is not required but helps AP to only inspect certain traffic (thus reducing AP load)
 - `src_subnet` (String) Subnet filter is not required but helps AP to only inspect certain traffic (thus reducing AP load)
 
@@ -207,7 +208,7 @@ Read-Only:
 
 Read-Only:
 
-- `dscp` (Number)
+- `dscp` (String)
 - `dst_subnet` (String)
 - `port_ranges` (String)
 - `protocol` (String)
@@ -244,9 +245,9 @@ Read-Only:
 - `keywrap_format` (String) enum: `ascii`, `hex`
 - `keywrap_kek` (String)
 - `keywrap_mack` (String)
-- `port` (Number) Auth port of RADIUS server
+- `port` (String)
 - `require_message_authenticator` (Boolean) Whether to require Message-Authenticator in requests
-- `secret` (String, Sensitive) Secretof RADIUS server
+- `secret` (String, Sensitive) Secret of RADIUS server
 
 
 <a id="nestedatt--site_wlans--bonjour"></a>
@@ -289,7 +290,7 @@ Read-Only:
 - `disable_event_timestamp_check` (Boolean) Whether to disable Event-Timestamp Check
 - `enabled` (Boolean)
 - `ip` (String)
-- `port` (Number)
+- `port` (String)
 - `secret` (String, Sensitive)
 
 
@@ -323,7 +324,7 @@ Read-Only:
 - `enabled` (Boolean) Requires `vlan_enabled`==`true` to be set to `true`. Whether to enable dynamic vlan
 - `local_vlan_ids` (List of String) VLAN_ids to be locally bridged
 - `type` (String) standard (using Tunnel-Private-Group-ID, widely supported), airespace-interface-name (Airespace/Cisco). enum: `airespace-interface-name`, `standard`
-- `vlans` (Map of String) Map between vlan_id (as string) to airespace interface names (comma-separated) or null for stndard mapping
+- `vlans` (Map of String) Map between vlan_id (as string) to airespace interface names (comma-separated) or null for standard mapping
   * if `dynamic_vlan.type`==`standard`, property key is the Vlan ID and property value is \"\"
   * if `dynamic_vlan.type`==`airespace-interface-name`, property key is the Vlan ID and property value is the Airespace Interface Name
 
@@ -377,11 +378,11 @@ Read-Only:
 
 - `allow_wlan_id_roam` (Boolean) Optional if `amazon_enabled`==`true`. Whether to allow guest to connect to other Guest WLANs (with different `WLAN.ssid`) of same org without reauthentication (disable random_mac for seamless roaming)
 - `amazon_client_id` (String) Optional if `amazon_enabled`==`true`. Amazon OAuth2 client id. This is optional. If not provided, it will use a default one.
-- `amazon_client_secret` (String) Optional if `amazon_enabled`==`true`. Amazon OAuth2 client secret. If amazon_client_id was provided, provide a correspoinding value. Else leave blank.
+- `amazon_client_secret` (String) Optional if `amazon_enabled`==`true`. Amazon OAuth2 client secret. If amazon_client_id was provided, provide a corresponding value. Else leave blank.
 - `amazon_email_domains` (List of String) Optional if `amazon_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.
 - `amazon_enabled` (Boolean) Whether amazon is enabled as a login method
 - `amazon_expire` (Number) Optional if `amazon_enabled`==`true`. Interval for which guest remains authorized using amazon auth (in minutes), if not provided, uses expire`
-- `auth` (String) authentication scheme. enum: `amazon`, `azure`, `email`, `external`, `facebook`, `google`, `microsoft`, `multi`, `none`, `password`, `sponsor`, `sso`
+- `auth` (String) authentication scheme. enum: `amazon`, `azure`, `email`, `external`, `facebook`, `google`, `microsoft`, `multi`, `none`, `password`, `sms`, `sponsor`, `sso`
 - `azure_client_id` (String) Required if `azure_enabled`==`true`. Azure active directory app client id
 - `azure_client_secret` (String) Required if `azure_enabled`==`true`. Azure active directory app client secret
 - `azure_enabled` (Boolean) Whether Azure Active Directory is enabled as a login method
@@ -398,21 +399,21 @@ Read-Only:
 - `expire` (Number) How long to remain authorized, in minutes
 - `external_portal_url` (String) Required if `wlan_portal_auth`==`external`. External portal URL (e.g. https://host/url) where we can append our query parameters to
 - `facebook_client_id` (String) Required if `facebook_enabled`==`true`. Facebook OAuth2 app id. This is optional. If not provided, it will use a default one.
-- `facebook_client_secret` (String) Required if `facebook_enabled`==`true`. Facebook OAuth2 app secret. If facebook_client_id was provided, provide a correspoinding value. Else leave blank.
+- `facebook_client_secret` (String) Required if `facebook_enabled`==`true`. Facebook OAuth2 app secret. If facebook_client_id was provided, provide a corresponding value. Else leave blank.
 - `facebook_email_domains` (List of String) Optional if `facebook_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.
 - `facebook_enabled` (Boolean) Whether facebook is enabled as a login method
 - `facebook_expire` (Number) Optional if `facebook_enabled`==`true`. Interval for which guest remains authorized using facebook auth (in minutes), if not provided, uses expire`
 - `forward` (Boolean) Whether to forward the user to another URL after authorized
 - `forward_url` (String) URL to forward the user to
 - `google_client_id` (String) Google OAuth2 app id. This is optional. If not provided, it will use a default one.
-- `google_client_secret` (String) Optional if `google_enabled`==`true`. Google OAuth2 app secret. If google_client_id was provided, provide a correspoinding value. Else leave blank.
+- `google_client_secret` (String) Optional if `google_enabled`==`true`. Google OAuth2 app secret. If google_client_id was provided, provide a corresponding value. Else leave blank.
 - `google_email_domains` (List of String) Optional if `google_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.
 - `google_enabled` (Boolean) Whether Google is enabled as login method
 - `google_expire` (Number) Optional if `google_enabled`==`true`. Interval for which guest remains authorized using Google Auth (in minutes), if not provided, uses expire`
 - `gupshup_password` (String, Sensitive) Required if `sms_provider`==`gupshup`
 - `gupshup_userid` (String) Required if `sms_provider`==`gupshup`
 - `microsoft_client_id` (String) Optional if `microsoft_enabled`==`true`. Microsoft 365 OAuth2 client id. This is optional. If not provided, it will use a default one.
-- `microsoft_client_secret` (String) Optional if `microsoft_enabled`==`true`. Microsoft 365 OAuth2 client secret. If microsoft_client_id was provided, provide a correspoinding value. Else leave blank.
+- `microsoft_client_secret` (String) Optional if `microsoft_enabled`==`true`. Microsoft 365 OAuth2 client secret. If microsoft_client_id was provided, provide a corresponding value. Else leave blank.
 - `microsoft_email_domains` (List of String) Optional if `microsoft_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.
 - `microsoft_enabled` (Boolean) Whether microsoft 365 is enabled as a login method
 - `microsoft_expire` (Number) Optional if `microsoft_enabled`==`true`. Interval for which guest remains authorized using microsoft auth (in minutes), if not provided, uses expire`
@@ -433,15 +434,15 @@ Read-Only:
 - `sponsor_email_domains` (List of String) List of domain allowed for sponsor email. Required if `sponsor_enabled` is `true` and `sponsors` is empty.
 - `sponsor_enabled` (Boolean) Whether sponsor is enabled
 - `sponsor_expire` (Number) Optional if `sponsor_enabled`==`true`. Interval for which guest remains authorized using sponsor auth (in minutes), if not provided, uses expire`
-- `sponsor_link_validity_duration` (String) Optional if `sponsor_enabled`==`true`. How long to remain valid sponsored guest request approve/deny link received in email, in minutes.
+- `sponsor_link_validity_duration` (String)
 - `sponsor_notify_all` (Boolean) Optional if `sponsor_enabled`==`true`. whether to notify all sponsors that are mentioned in `sponsors` object. Both `sponsor_notify_all` and `predefined_sponsors_enabled` should be true in order to notify sponsors. If true, email sent to 10 sponsors in no particular order.
 - `sponsor_status_notify` (Boolean) Optional if `sponsor_enabled`==`true`. If enabled, guest will get email about sponsor's action (approve/deny)
 - `sponsors` (Map of String) object of allowed sponsors email with name. Required if `sponsor_enabled`
             is `true` and `sponsor_email_domains` is empty.
 
             Property key is the sponsor email, Property value is the sponsor name
-- `sso_default_role` (String) Optionl if `wlan_portal_auth`==`sso`, default role to assign if there’s no match. By default, an assertion is treated as invalid when there’s no role matched
-- `sso_forced_role` (String) Optionl if `wlan_portal_auth`==`sso`
+- `sso_default_role` (String) Optional if `wlan_portal_auth`==`sso`, default role to assign if there’s no match. By default, an assertion is treated as invalid when there’s no role matched
+- `sso_forced_role` (String) Optional if `wlan_portal_auth`==`sso`
 - `sso_idp_cert` (String) Required if `wlan_portal_auth`==`sso`. IDP Cert (used to verify the signed response)
 - `sso_idp_sign_algo` (String) Optioanl if `wlan_portal_auth`==`sso`, Signing algorithm for SAML Assertion. enum: `sha1`, `sha256`, `sha384`, `sha512`
 - `sso_idp_sso_url` (String) Required if `wlan_portal_auth`==`sso`, IDP Single-Sign-On URL
@@ -470,7 +471,7 @@ Read-Only:
 
 - `coa_enabled` (Boolean)
 - `enabled` (Boolean)
-- `idle_timeout` (Number)
+- `idle_timeout` (String)
 - `mxcluster_ids` (List of String) To use Org mxedges when this WLAN does not use mxtunnel, specify their mxcluster_ids. Org mxedge(s) identified by mxcluster_ids
 - `proxy_hosts` (List of String) Default is site.mxedge.radsec.proxy_hosts which must be a superset of all `wlans[*].radsec.proxy_hosts`. When `radsec.proxy_hosts` are not used, tunnel peers (org or site mxedges) are used irrespective of `use_site_mxedge`
 - `server_name` (String) Name of the server to verify (against the cacerts in Org Setting). Only if not Mist Edge.
@@ -493,6 +494,8 @@ Read-Only:
 
 Read-Only:
 
+- `eht` (String) If `template`==`custom`. EHT MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit)
+- `he` (String) If `template`==`custom`. HE MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit
 - `ht` (String) If `template`==`custom`. MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit), e.g. 00ff 00f0 001f limits HT rates to MCS 0-7 for 1 stream, MCS 4-7 for 2 stream (i.e. MCS 12-15), MCS 1-5 for 3 stream (i.e. MCS 16-20)
 - `legacy` (List of String) If `template`==`custom`. List of supported rates (IE=1) and extended supported rates (IE=50) for custom template, append ‘b’ at the end to indicate a rate being basic/mandatory. If `template`==`custom` is configured and legacy does not define at least one basic rate, it will use `no-legacy` default values
 - `min_rssi` (Number) Minimum RSSI for client to connect, 0 means not enforcing

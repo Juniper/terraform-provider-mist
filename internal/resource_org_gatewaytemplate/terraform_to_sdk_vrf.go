@@ -3,7 +3,7 @@ package resource_org_gatewaytemplate
 import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
@@ -39,7 +39,7 @@ func vrfInstancesTerraformToSdk(d basetypes.MapValue) map[string]models.GatewayV
 
 		dataItem := models.GatewayVrfInstance{}
 		if !itemObj.Networks.IsNull() && !itemObj.Networks.IsUnknown() {
-			dataItem.Networks = misttransform.ListOfStringTerraformToSdk(itemObj.Networks)
+			dataItem.Networks = mistutils.ListOfStringTerraformToSdk(itemObj.Networks)
 		}
 
 		data[itemName] = dataItem

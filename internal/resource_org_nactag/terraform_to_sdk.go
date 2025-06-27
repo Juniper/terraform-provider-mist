@@ -1,7 +1,7 @@
 package resource_org_nactag
 
 import (
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -19,12 +19,12 @@ func TerraformToSdk(plan *OrgNactagModel) (models.NacTag, diag.Diagnostics) {
 		unset["-allow_usermac_override"] = ""
 	}
 	if !plan.EgressVlanNames.IsNull() && !plan.EgressVlanNames.IsUnknown() {
-		data.EgressVlanNames = misttransform.ListOfStringTerraformToSdk(plan.EgressVlanNames)
+		data.EgressVlanNames = mistutils.ListOfStringTerraformToSdk(plan.EgressVlanNames)
 	} else {
 		unset["-egress_vlan_names"] = ""
 	}
 	if !plan.GbpTag.IsNull() && !plan.GbpTag.IsUnknown() {
-		data.GbpTag = models.ToPointer(int(plan.GbpTag.ValueInt64()))
+		data.GbpTag = models.ToPointer(models.NacTagGbpTagContainer.FromString(plan.GbpTag.String()))
 	} else {
 		unset["-gbp_tag"] = ""
 	}
@@ -40,7 +40,7 @@ func TerraformToSdk(plan *OrgNactagModel) (models.NacTag, diag.Diagnostics) {
 	}
 	data.Name = plan.Name.ValueString()
 	if !plan.RadiusAttrs.IsNull() && !plan.RadiusAttrs.IsUnknown() {
-		data.RadiusAttrs = misttransform.ListOfStringTerraformToSdk(plan.RadiusAttrs)
+		data.RadiusAttrs = mistutils.ListOfStringTerraformToSdk(plan.RadiusAttrs)
 	} else {
 		unset["-radius_attrs"] = ""
 	}
@@ -50,7 +50,7 @@ func TerraformToSdk(plan *OrgNactagModel) (models.NacTag, diag.Diagnostics) {
 		unset["-radius_group"] = ""
 	}
 	if !plan.RadiusVendorAttrs.IsNull() && !plan.RadiusVendorAttrs.IsUnknown() {
-		data.RadiusVendorAttrs = misttransform.ListOfStringTerraformToSdk(plan.RadiusVendorAttrs)
+		data.RadiusVendorAttrs = mistutils.ListOfStringTerraformToSdk(plan.RadiusVendorAttrs)
 	} else {
 		unset["-radius_vendor_attrs"] = ""
 	}
@@ -65,7 +65,7 @@ func TerraformToSdk(plan *OrgNactagModel) (models.NacTag, diag.Diagnostics) {
 		unset["-type"] = ""
 	}
 	if !plan.Values.IsNull() && !plan.Values.IsUnknown() {
-		data.Values = misttransform.ListOfStringTerraformToSdk(plan.Values)
+		data.Values = mistutils.ListOfStringTerraformToSdk(plan.Values)
 	} else {
 		unset["-values"] = ""
 	}

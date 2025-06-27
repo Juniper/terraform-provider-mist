@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func portUsageStormControlSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.SwitchPortUsageStormControl) basetypes.ObjectValue {
@@ -62,7 +62,7 @@ func portUsageRulesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 			equals = types.StringValue(*d.Equals)
 		}
 		if d.EqualsAny != nil {
-			equalsAny = misttransform.ListOfStringSdkToTerraform(d.EqualsAny)
+			equalsAny = mistutils.ListOfStringSdkToTerraform(d.EqualsAny)
 		}
 		if d.Expression != nil {
 			expression = types.StringValue(*d.Expression)
@@ -98,28 +98,29 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		var allowDhcpd basetypes.BoolValue
 		var allowMultipleSupplicants basetypes.BoolValue
 		var bypassAuthWhenServerDown basetypes.BoolValue
-		var bypassAuthWhenServerDownForUnkownClient basetypes.BoolValue
+		var bypassAuthWhenServerDownForUnknownClient basetypes.BoolValue
 		var description basetypes.StringValue
 		var disableAutoneg basetypes.BoolValue
 		var disabled basetypes.BoolValue
 		var duplex basetypes.StringValue
-		var dynamicVlanNetworks = misttransform.ListOfStringSdkToTerraformEmpty()
+		var dynamicVlanNetworks = types.ListNull(types.StringType)
 		var enableMacAuth basetypes.BoolValue
 		var enableQos basetypes.BoolValue
 		var guestNetwork basetypes.StringValue
+		var interIsolationNetwork basetypes.BoolValue
 		var interSwitchLink basetypes.BoolValue
 		var macAuthOnly basetypes.BoolValue
 		var macAuthPreferred basetypes.BoolValue
 		var macAuthProtocol basetypes.StringValue
-		var macLimit basetypes.Int64Value
+		var macLimit basetypes.StringValue
 		var mode basetypes.StringValue
-		var mtu basetypes.Int64Value
-		var networks = misttransform.ListOfStringSdkToTerraformEmpty()
+		var mtu basetypes.StringValue
+		var networks = types.ListNull(types.StringType)
 		var persistMac basetypes.BoolValue
 		var poeDisabled basetypes.BoolValue
 		var portAuth basetypes.StringValue
 		var portNetwork basetypes.StringValue
-		var reauthInterval basetypes.Int64Value
+		var reauthInterval basetypes.StringValue
 		var resetDefaultWhen basetypes.StringValue
 		var rules = types.ListNull(RulesValue{}.Type(ctx))
 		var serverFailNetwork basetypes.StringValue
@@ -144,8 +145,8 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		if d.BypassAuthWhenServerDown != nil {
 			bypassAuthWhenServerDown = types.BoolValue(*d.BypassAuthWhenServerDown)
 		}
-		if d.BypassAuthWhenServerDownForUnkownClient != nil {
-			bypassAuthWhenServerDownForUnkownClient = types.BoolValue(*d.BypassAuthWhenServerDownForUnkownClient)
+		if d.BypassAuthWhenServerDownForUnknownClient != nil {
+			bypassAuthWhenServerDownForUnknownClient = types.BoolValue(*d.BypassAuthWhenServerDownForUnknownClient)
 		}
 		if d.Description != nil {
 			description = types.StringValue(*d.Description)
@@ -160,7 +161,7 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 			duplex = types.StringValue(string(*d.Duplex))
 		}
 		if d.DynamicVlanNetworks != nil {
-			dynamicVlanNetworks = misttransform.ListOfStringSdkToTerraform(d.DynamicVlanNetworks)
+			dynamicVlanNetworks = mistutils.ListOfStringSdkToTerraform(d.DynamicVlanNetworks)
 		}
 		if d.EnableMacAuth != nil {
 			enableMacAuth = types.BoolValue(*d.EnableMacAuth)
@@ -170,6 +171,9 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		}
 		if d.GuestNetwork.Value() != nil {
 			guestNetwork = types.StringValue(*d.GuestNetwork.Value())
+		}
+		if d.InterIsolationNetworkLink != nil {
+			interIsolationNetwork = types.BoolValue(*d.InterIsolationNetworkLink)
 		}
 		if d.InterSwitchLink != nil {
 			interSwitchLink = types.BoolValue(*d.InterSwitchLink)
@@ -184,16 +188,16 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 			macAuthProtocol = types.StringValue(string(*d.MacAuthProtocol))
 		}
 		if d.MacLimit != nil {
-			macLimit = types.Int64Value(int64(*d.MacLimit))
+			macLimit = mistutils.SwitchPortUsageMacLimitAsString(d.MacLimit)
 		}
 		if d.Mode != nil {
 			mode = types.StringValue(string(*d.Mode))
 		}
 		if d.Mtu != nil {
-			mtu = types.Int64Value(int64(*d.Mtu))
+			mtu = mistutils.SwitchPortUsageMtuAsString(d.Mtu)
 		}
 		if d.Networks != nil {
-			networks = misttransform.ListOfStringSdkToTerraform(d.Networks)
+			networks = mistutils.ListOfStringSdkToTerraform(d.Networks)
 		}
 		if d.PersistMac != nil {
 			persistMac = types.BoolValue(*d.PersistMac)
@@ -208,7 +212,7 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 			portNetwork = types.StringValue(*d.PortNetwork)
 		}
 		if d.ReauthInterval != nil {
-			reauthInterval = types.Int64Value(int64(*d.ReauthInterval))
+			reauthInterval = mistutils.SwitchPortUsageReauthIntervalAsString(*d.ReauthInterval)
 		}
 		if d.ResetDefaultWhen != nil {
 			resetDefaultWhen = types.StringValue(string(*d.ResetDefaultWhen))
@@ -240,48 +244,49 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		if d.UseVstp != nil {
 			useVstp = types.BoolValue(*d.UseVstp)
 		}
-		if d.VoipNetwork != nil {
-			voipNetwork = types.StringValue(*d.VoipNetwork)
+		if d.VoipNetwork.Value() != nil {
+			voipNetwork = types.StringValue(*d.VoipNetwork.Value())
 		}
 
 		dataMapValue := map[string]attr.Value{
-			"all_networks":                                   allNetworks,
-			"allow_dhcpd":                                    allowDhcpd,
-			"allow_multiple_supplicants":                     allowMultipleSupplicants,
-			"bypass_auth_when_server_down":                   bypassAuthWhenServerDown,
-			"bypass_auth_when_server_down_for_unkown_client": bypassAuthWhenServerDownForUnkownClient,
-			"description":                                    description,
-			"disable_autoneg":                                disableAutoneg,
-			"disabled":                                       disabled,
-			"duplex":                                         duplex,
-			"dynamic_vlan_networks":                          dynamicVlanNetworks,
-			"enable_mac_auth":                                enableMacAuth,
-			"enable_qos":                                     enableQos,
-			"guest_network":                                  guestNetwork,
-			"inter_switch_link":                              interSwitchLink,
-			"mac_auth_only":                                  macAuthOnly,
-			"mac_auth_preferred":                             macAuthPreferred,
-			"mac_auth_protocol":                              macAuthProtocol,
-			"mac_limit":                                      macLimit,
-			"mode":                                           mode,
-			"mtu":                                            mtu,
-			"networks":                                       networks,
-			"persist_mac":                                    persistMac,
-			"poe_disabled":                                   poeDisabled,
-			"port_auth":                                      portAuth,
-			"port_network":                                   portNetwork,
-			"reauth_interval":                                reauthInterval,
-			"reset_default_when":                             resetDefaultWhen,
-			"rules":                                          rules,
-			"server_fail_network":                            serverFailNetwork,
-			"server_reject_network":                          serverRejectNetwork,
-			"speed":                                          speed,
-			"storm_control":                                  stormControl,
-			"stp_edge":                                       stpEdge,
-			"stp_no_root_port":                               stpNoRootPort,
-			"stp_p2p":                                        stpP2p,
-			"use_vstp":                                       useVstp,
-			"voip_network":                                   voipNetwork,
+			"all_networks":                                    allNetworks,
+			"allow_dhcpd":                                     allowDhcpd,
+			"allow_multiple_supplicants":                      allowMultipleSupplicants,
+			"bypass_auth_when_server_down":                    bypassAuthWhenServerDown,
+			"bypass_auth_when_server_down_for_unknown_client": bypassAuthWhenServerDownForUnknownClient,
+			"description":                                     description,
+			"disable_autoneg":                                 disableAutoneg,
+			"disabled":                                        disabled,
+			"duplex":                                          duplex,
+			"dynamic_vlan_networks":                           dynamicVlanNetworks,
+			"enable_mac_auth":                                 enableMacAuth,
+			"enable_qos":                                      enableQos,
+			"guest_network":                                   guestNetwork,
+			"inter_isolation_network_link":                    interIsolationNetwork,
+			"inter_switch_link":                               interSwitchLink,
+			"mac_auth_only":                                   macAuthOnly,
+			"mac_auth_preferred":                              macAuthPreferred,
+			"mac_auth_protocol":                               macAuthProtocol,
+			"mac_limit":                                       macLimit,
+			"mode":                                            mode,
+			"mtu":                                             mtu,
+			"networks":                                        networks,
+			"persist_mac":                                     persistMac,
+			"poe_disabled":                                    poeDisabled,
+			"port_auth":                                       portAuth,
+			"port_network":                                    portNetwork,
+			"reauth_interval":                                 reauthInterval,
+			"reset_default_when":                              resetDefaultWhen,
+			"rules":                                           rules,
+			"server_fail_network":                             serverFailNetwork,
+			"server_reject_network":                           serverRejectNetwork,
+			"speed":                                           speed,
+			"storm_control":                                   stormControl,
+			"stp_edge":                                        stpEdge,
+			"stp_no_root_port":                                stpNoRootPort,
+			"stp_p2p":                                         stpP2p,
+			"use_vstp":                                        useVstp,
+			"voip_network":                                    voipNetwork,
 		}
 		data, e := NewPortUsagesValue(PortUsagesValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)

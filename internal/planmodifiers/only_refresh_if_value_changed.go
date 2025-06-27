@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-// useStateForUnknownModifier implements the plan modifier.
+// OnlyRefreshIfValueHasChangedModifier useStateForUnknownModifier implements the plan modifier.
 type OnlyRefreshIfValueHasChangedModifier struct {
 	Expression path.Expression
 }

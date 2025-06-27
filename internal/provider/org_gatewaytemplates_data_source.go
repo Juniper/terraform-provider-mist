@@ -53,7 +53,7 @@ func (d *orgGatewaytemplatesDataSource) Metadata(_ context.Context, req datasour
 func (d *orgGatewaytemplatesDataSource) Schema(ctx context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryWan + "This data source provides the list of Gateway Templates.\n\n" +
-			"A Gateway template can be used to define generic gateway configuration at the org level and" +
+			"A Gateway template can be used to define generic gateway configuration at the org level and " +
 			"be applied to one or multiple Sites. It works like a blueprint of the network of the site.",
 		Attributes: datasource_org_gatewaytemplates.OrgGatewaytemplatesDataSourceSchema(ctx).Attributes,
 	}
@@ -93,7 +93,7 @@ func (d *orgGatewaytemplatesDataSource) Read(ctx context.Context, req datasource
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error getting Org Gateway Templates list",
-				"Unable to get the the list of Org Gateway Tempaltes, unexpected error: "+err.Error(),
+				"Unable to get the the list of Org Gateway Templates, unexpected error: "+err.Error(),
 			)
 			return
 		}
@@ -102,7 +102,7 @@ func (d *orgGatewaytemplatesDataSource) Read(ctx context.Context, req datasource
 		if limit, err = strconv.Atoi(limitString); err != nil {
 			resp.Diagnostics.AddError(
 				"Error extracting HTTP Response Headers",
-				"Unable to convert the X-Page-Limit value into int, unexcpected error: "+err.Error(),
+				"Unable to convert the X-Page-Limit value into int, unexpected error: "+err.Error(),
 			)
 			return
 		}
@@ -111,7 +111,7 @@ func (d *orgGatewaytemplatesDataSource) Read(ctx context.Context, req datasource
 		if total, err = strconv.Atoi(totalString); err != nil {
 			resp.Diagnostics.AddError(
 				"Error extracting HTTP Response Headers",
-				"Unable to convert the X-Page-Total value into int, unexcpected error: "+err.Error(),
+				"Unable to convert the X-Page-Total value into int, unexpected error: "+err.Error(),
 			)
 			return
 		}

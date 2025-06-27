@@ -5,10 +5,11 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func SdkToTerraform(ctx context.Context, data models.NacRule) (OrgNacruleModel, diag.Diagnostics) {
@@ -16,7 +17,7 @@ func SdkToTerraform(ctx context.Context, data models.NacRule) (OrgNacruleModel, 
 	var diags diag.Diagnostics
 
 	var action types.String
-	var applyTags = types.ListNull(types.StringType)
+	var applyTags = types.ListValueMust(types.StringType, []attr.Value{})
 	var enabled types.Bool
 	var id types.String
 	var matching = NewMatchingValueNull()
@@ -27,7 +28,7 @@ func SdkToTerraform(ctx context.Context, data models.NacRule) (OrgNacruleModel, 
 
 	action = types.StringValue(string(data.Action))
 	if data.ApplyTags != nil {
-		applyTags = misttransform.ListOfStringSdkToTerraform(data.ApplyTags)
+		applyTags = mistutils.ListOfStringSdkToTerraform(data.ApplyTags)
 	}
 	if data.Enabled != nil {
 		enabled = types.BoolValue(*data.Enabled)

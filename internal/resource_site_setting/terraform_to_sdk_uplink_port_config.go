@@ -12,7 +12,7 @@ func uplinkPortConfigTerraformToSdk(d UplinkPortConfigValue) *models.ApUplinkPor
 	}
 
 	if d.KeepWlansUpIfDown.ValueBoolPointer() != nil {
-		data.KeepWlansUpIfDown = d.Dot1x.ValueBoolPointer()
+		data.KeepWlansUpIfDown = d.KeepWlansUpIfDown.ValueBoolPointer()
 	}
 
 	return &data

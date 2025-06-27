@@ -3,7 +3,7 @@ package datasource_device_switch_stats
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -30,10 +30,10 @@ func ipStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 		dhcpServer = types.StringValue(*d.DhcpServer.Value())
 	}
 	if d.Dns != nil {
-		dns = misttransform.ListOfStringSdkToTerraform(d.Dns)
+		dns = mistutils.ListOfStringSdkToTerraform(d.Dns)
 	}
 	if d.DnsSuffix != nil {
-		dnsSuffix = misttransform.ListOfStringSdkToTerraform(d.DnsSuffix)
+		dnsSuffix = mistutils.ListOfStringSdkToTerraform(d.DnsSuffix)
 	}
 	if d.Gateway.Value() != nil {
 		gateway = types.StringValue(*d.Gateway.Value())

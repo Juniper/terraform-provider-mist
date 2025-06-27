@@ -248,15 +248,25 @@ func (r *siteWlanResource) Delete(ctx context.Context, _ resource.DeleteRequest,
 		)
 		return
 	}
+
 	data, err := r.client.SitesWlans().DeleteSiteWlan(ctx, siteId, wlanId)
-	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && apiErr != "" {
+	if data != nil {
+		apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+		if data.StatusCode != 404 && apiErr != "" {
+			resp.Diagnostics.AddError(
+				"Error deleting \"mist_site_wlan\" resource",
+				fmt.Sprintf("Unable to delete the Wlan. %s", apiErr),
+			)
+			return
+		}
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_site_wlan\" resource",
-			fmt.Sprintf("Unable to delete the Wlan. %s", apiErr),
+			"Unable to delete the Wlan, unexpected error: "+err.Error(),
 		)
 		return
 	}
+	resp.State.RemoveResource(ctx)
 }
 
 func (r *siteWlanResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

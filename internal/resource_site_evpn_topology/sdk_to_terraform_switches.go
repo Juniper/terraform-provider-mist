@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func switchesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.EvpnTopologySwitch) basetypes.MapValue {
@@ -21,7 +21,7 @@ func switchesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []mo
 		var mac basetypes.StringValue
 		var model basetypes.StringValue
 		var pod = types.Int64Value(1)
-		var pods = misttransform.ListOfIntSdkToTerraformEmpty()
+		var pods = mistutils.ListOfIntSdkToTerraformEmpty()
 		var role basetypes.StringValue
 		var routerId basetypes.StringValue
 		var siteId basetypes.StringValue
@@ -42,7 +42,7 @@ func switchesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []mo
 			pod = types.Int64Value(int64(*d.Pod))
 		}
 		if d.Pods != nil {
-			pods = misttransform.ListOfIntSdkToTerraform(d.Pods)
+			pods = mistutils.ListOfIntSdkToTerraform(d.Pods)
 		}
 
 		role = types.StringValue(string(d.Role))

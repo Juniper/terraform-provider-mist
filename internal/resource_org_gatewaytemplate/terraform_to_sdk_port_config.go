@@ -3,7 +3,7 @@ package resource_org_gatewaytemplate
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -36,7 +36,7 @@ func wanProbeOverridePortVpnPathTerraformToSdk(ctx context.Context, diags *diag.
 			return nil
 		}
 		if plan.Ips.IsNull() && !plan.Ips.IsUnknown() {
-			data.Ips = misttransform.ListOfStringTerraformToSdk(plan.Ips)
+			data.Ips = mistutils.ListOfStringTerraformToSdk(plan.Ips)
 		}
 		if plan.ProbeProfile.ValueStringPointer() != nil {
 			data.ProbeProfile = (*models.GatewayWanProbeOverrideProbeProfileEnum)(plan.ProbeProfile.ValueStringPointer())
@@ -54,13 +54,10 @@ func gatewayPortVpnPathTerraformToSdk(ctx context.Context, d basetypes.MapValue)
 			data.BfdProfile = models.ToPointer(models.GatewayPortVpnPathBfdProfileEnum(plan.BfdProfile.ValueString()))
 		}
 		if plan.BfdUseTunnelMode.ValueBoolPointer() != nil {
-			data.BfdUseTunnelMode = models.ToPointer(plan.BfdUseTunnelMode.ValueBool())
+			data.BfdUseTunnelMode = plan.BfdUseTunnelMode.ValueBoolPointer()
 		}
 		if plan.Role.ValueStringPointer() != nil {
 			data.Role = models.ToPointer(models.GatewayPortVpnPathRoleEnum(plan.Role.ValueString()))
-		}
-		if plan.LinkName.ValueStringPointer() != nil {
-			data.LinkName = plan.LinkName.ValueStringPointer()
 		}
 		if plan.Preference.ValueInt64Pointer() != nil {
 			data.Preference = models.ToPointer(int(plan.Preference.ValueInt64()))
@@ -81,7 +78,7 @@ func gatewayPortTrafficShapingTerraformToSdk(ctx context.Context, d basetypes.Ob
 	} else {
 		plan := NewTrafficShapingValueMust(d.AttributeTypes(ctx), d.Attributes())
 		if plan.ClassPercentages.IsNull() && !plan.ClassPercentages.IsUnknown() {
-			data.ClassPercentages = misttransform.ListOfIntTerraformToSdk(plan.ClassPercentages)
+			data.ClassPercentages = mistutils.ListOfIntTerraformToSdk(plan.ClassPercentages)
 		}
 		if plan.Enabled.ValueBoolPointer() != nil {
 			data.Enabled = plan.Enabled.ValueBoolPointer()
@@ -100,28 +97,28 @@ func gatewayIpConfigTerraformToSdk(ctx context.Context, d basetypes.ObjectValue)
 	} else {
 		plan := NewPortIpConfigValueMust(d.AttributeTypes(ctx), d.Attributes())
 		if plan.Dns.IsNull() && !plan.Dns.IsUnknown() {
-			data.Dns = misttransform.ListOfStringTerraformToSdk(plan.Dns)
+			data.Dns = mistutils.ListOfStringTerraformToSdk(plan.Dns)
 		}
 		if plan.DnsSuffix.IsNull() && !plan.DnsSuffix.IsUnknown() {
-			data.DnsSuffix = misttransform.ListOfStringTerraformToSdk(plan.DnsSuffix)
+			data.DnsSuffix = mistutils.ListOfStringTerraformToSdk(plan.DnsSuffix)
 		}
 		if plan.Gateway.ValueStringPointer() != nil {
-			data.Gateway = models.ToPointer(plan.Gateway.ValueString())
+			data.Gateway = plan.Gateway.ValueStringPointer()
 		}
 		if plan.Ip.ValueStringPointer() != nil {
-			data.Ip = models.ToPointer(plan.Ip.ValueString())
+			data.Ip = plan.Ip.ValueStringPointer()
 		}
 		if plan.Netmask.ValueStringPointer() != nil {
-			data.Netmask = models.ToPointer(plan.Netmask.ValueString())
+			data.Netmask = plan.Netmask.ValueStringPointer()
 		}
 		if plan.Network.ValueStringPointer() != nil {
-			data.Network = models.ToPointer(plan.Network.ValueString())
+			data.Network = plan.Network.ValueStringPointer()
 		}
 		if plan.PoserPassword.ValueStringPointer() != nil {
-			data.PoserPassword = models.ToPointer(plan.PoserPassword.ValueString())
+			data.PoserPassword = plan.PoserPassword.ValueStringPointer()
 		}
 		if plan.PppoeUsername.ValueStringPointer() != nil {
-			data.PppoeUsername = models.ToPointer(plan.PppoeUsername.ValueString())
+			data.PppoeUsername = plan.PppoeUsername.ValueStringPointer()
 		}
 		if plan.PppoeAuth.ValueStringPointer() != nil {
 			data.PppoeAuth = models.ToPointer(models.GatewayWanPpoeAuthEnum(plan.PppoeAuth.ValueString()))
@@ -174,13 +171,13 @@ func portConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d ba
 			data.Usage = models.GatewayPortUsageEnum(plan.Usage.ValueString())
 		}
 		if plan.Description.ValueStringPointer() != nil {
-			data.Description = models.ToPointer(plan.Description.ValueString())
+			data.Description = plan.Description.ValueStringPointer()
 		}
 		if plan.DisableAutoneg.ValueBoolPointer() != nil {
-			data.DisableAutoneg = models.ToPointer(plan.DisableAutoneg.ValueBool())
+			data.DisableAutoneg = plan.DisableAutoneg.ValueBoolPointer()
 		}
 		if plan.Disabled.ValueBoolPointer() != nil {
-			data.Disabled = models.ToPointer(plan.Disabled.ValueBool())
+			data.Disabled = plan.Disabled.ValueBoolPointer()
 		}
 		if plan.DslType.ValueStringPointer() != nil {
 			data.DslType = models.ToPointer(models.GatewayPortDslTypeEnum(plan.DslType.ValueString()))
@@ -199,58 +196,61 @@ func portConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d ba
 		data.IpConfig = gatewayIpConfigTerraformToSdk(ctx, t)
 
 		if plan.LteApn.ValueStringPointer() != nil {
-			data.LteApn = models.ToPointer(plan.LteApn.ValueString())
+			data.LteApn = plan.LteApn.ValueStringPointer()
 		}
 		if plan.LteAuth.ValueStringPointer() != nil {
 			data.LteAuth = models.ToPointer(models.GatewayPortLteAuthEnum(plan.LteAuth.ValueString()))
 		}
 		if plan.LteBackup.ValueBoolPointer() != nil {
-			data.LteBackup = models.ToPointer(plan.LteBackup.ValueBool())
+			data.LteBackup = plan.LteBackup.ValueBoolPointer()
 		}
 		if plan.LtePassword.ValueStringPointer() != nil {
-			data.LtePassword = models.ToPointer(plan.LtePassword.ValueString())
+			data.LtePassword = plan.LtePassword.ValueStringPointer()
 		}
 		if plan.LteUsername.ValueStringPointer() != nil {
-			data.LteUsername = models.ToPointer(plan.LteUsername.ValueString())
+			data.LteUsername = plan.LteUsername.ValueStringPointer()
 		}
 		if plan.Mtu.ValueInt64Pointer() != nil {
 			data.Mtu = models.ToPointer(int(plan.Mtu.ValueInt64()))
 		}
 		if plan.Name.ValueStringPointer() != nil {
-			data.Name = models.ToPointer(plan.Name.ValueString())
+			data.Name = plan.Name.ValueStringPointer()
 		}
-		if plan.Name.IsNull() && !plan.Name.IsUnknown() {
-			data.Networks = misttransform.ListOfStringTerraformToSdk(plan.Networks)
+		if !plan.Networks.IsNull() && !plan.Networks.IsUnknown() {
+			data.Networks = mistutils.ListOfStringTerraformToSdk(plan.Networks)
 		}
 		if plan.OuterVlanId.ValueInt64Pointer() != nil {
 			data.OuterVlanId = models.ToPointer(int(plan.OuterVlanId.ValueInt64()))
 		}
 		if plan.PoeDisabled.ValueBoolPointer() != nil {
-			data.PoeDisabled = models.ToPointer(plan.PoeDisabled.ValueBool())
+			data.PoeDisabled = plan.PoeDisabled.ValueBoolPointer()
 		}
 		if plan.PortNetwork.ValueStringPointer() != nil {
-			data.PortNetwork = models.ToPointer(plan.PortNetwork.ValueString())
+			data.PortNetwork = plan.PortNetwork.ValueStringPointer()
 		}
 		if plan.PreserveDscp.ValueBoolPointer() != nil {
-			data.PreserveDscp = models.ToPointer(plan.PreserveDscp.ValueBool())
+			data.PreserveDscp = plan.PreserveDscp.ValueBoolPointer()
 		}
 		if plan.Redundant.ValueBoolPointer() != nil {
-			data.Redundant = models.ToPointer(plan.Redundant.ValueBool())
+			data.Redundant = plan.Redundant.ValueBoolPointer()
 		}
-		if plan.RethIdx.ValueInt64Pointer() != nil {
-			data.RethIdx = models.ToPointer(int(plan.RethIdx.ValueInt64()))
+		if plan.RedundantGroup.ValueInt64Pointer() != nil {
+			data.RedundantGroup = models.ToPointer(int(plan.RedundantGroup.ValueInt64()))
+		}
+		if plan.RethIdx.ValueStringPointer() != nil {
+			data.RethIdx = models.ToPointer(models.GatewayPortConfigRethIdxContainer.FromString(plan.RethIdx.ValueString()))
 		}
 		if plan.RethNode.ValueStringPointer() != nil {
-			data.RethNode = models.ToPointer(plan.RethNode.ValueString())
+			data.RethNode = plan.RethNode.ValueStringPointer()
 		}
 		if plan.Speed.ValueStringPointer() != nil {
-			data.Speed = models.ToPointer(plan.Speed.ValueString())
+			data.Speed = plan.Speed.ValueStringPointer()
 		}
 		if plan.SsrNoVirtualMac.ValueBoolPointer() != nil {
-			data.SsrNoVirtualMac = models.ToPointer(plan.SsrNoVirtualMac.ValueBool())
+			data.SsrNoVirtualMac = plan.SsrNoVirtualMac.ValueBoolPointer()
 		}
 		if plan.SvrPortRange.ValueStringPointer() != nil {
-			data.SvrPortRange = models.ToPointer(plan.SvrPortRange.ValueString())
+			data.SvrPortRange = plan.SvrPortRange.ValueStringPointer()
 		}
 
 		data.TrafficShaping = gatewayPortTrafficShapingTerraformToSdk(ctx, plan.TrafficShaping)
@@ -264,13 +264,13 @@ func portConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d ba
 		data.WanArpPolicer = models.ToPointer(models.GatewayPortWanArpPolicerEnum(plan.WanArpPolicer.ValueString()))
 
 		if plan.WanExtIp.ValueStringPointer() != nil {
-			data.WanExtIp = models.ToPointer(plan.WanExtIp.ValueString())
+			data.WanExtIp = plan.WanExtIp.ValueStringPointer()
 		}
 
 		data.WanExtraRoutes = wanExtraRoutesPortVpnPathTerraformToSdk(plan.WanExtraRoutes)
 
 		if !plan.WanNetworks.IsNull() && !plan.WanNetworks.IsUnknown() {
-			data.WanNetworks = misttransform.ListOfStringTerraformToSdk(plan.WanNetworks)
+			data.WanNetworks = mistutils.ListOfStringTerraformToSdk(plan.WanNetworks)
 		}
 
 		data.WanProbeOverride = wanProbeOverridePortVpnPathTerraformToSdk(ctx, diags, plan.WanProbeOverride)

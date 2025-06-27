@@ -14,6 +14,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -31,8 +33,8 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 			"disallow_mist_services": schema.BoolAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "whether to disallow Mist Devices in the network",
-				MarkdownDescription: "whether to disallow Mist Devices in the network",
+				Description:         "Whether to disallow Mist Devices in the network",
+				MarkdownDescription: "Whether to disallow Mist Devices in the network",
 				Default:             booldefault.StaticBool(false),
 			},
 			"gateway": schema.StringAttribute{
@@ -49,8 +51,8 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Unique ID of the object instance in the Mist Organnization",
-				MarkdownDescription: "Unique ID of the object instance in the Mist Organnization",
+				Description:         "Unique ID of the object instance in the Mist Organization",
+				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -185,8 +187,8 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 					"restricted": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "by default, all access is allowed, to only allow certain traffic, make `restricted`=`true` and define service_policies",
-						MarkdownDescription: "by default, all access is allowed, to only allow certain traffic, make `restricted`=`true` and define service_policies",
+						Description:         "By default, all access is allowed, to only allow certain traffic, make `restricted`=`true` and define service_policies",
+						MarkdownDescription: "By default, all access is allowed, to only allow certain traffic, make `restricted`=`true` and define service_policies",
 						Default:             booldefault.StaticBool(false),
 					},
 				},
@@ -196,21 +198,21 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "whether this network has direct internet access",
-				MarkdownDescription: "whether this network has direct internet access",
+				Description:         "Whether this network has direct internet access",
+				MarkdownDescription: "Whether this network has direct internet access",
 			},
 			"isolation": schema.BoolAttribute{
 				Optional:            true,
-				Description:         "whether to allow clients in the network to talk to each other",
-				MarkdownDescription: "whether to allow clients in the network to talk to each other",
+				Description:         "Whether to allow clients in the network to talk to each other",
+				MarkdownDescription: "Whether to allow clients in the network to talk to each other",
 			},
 			"multicast": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"disable_igmp": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "if the network will only be the soruce of the multicast traffic, IGMP can be disabled",
-						MarkdownDescription: "if the network will only be the soruce of the multicast traffic, IGMP can be disabled",
+						Description:         "If the network will only be the source of the multicast traffic, IGMP can be disabled",
+						MarkdownDescription: "If the network will only be the source of the multicast traffic, IGMP can be disabled",
 						Default:             booldefault.StaticBool(false),
 					},
 					"enabled": schema.BoolAttribute{
@@ -247,8 +249,8 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "whether to enable multicast support (only PIM-sparse mode is supported)",
-				MarkdownDescription: "whether to enable multicast support (only PIM-sparse mode is supported)",
+				Description:         "Whether to enable multicast support (only PIM-sparse mode is supported)",
+				MarkdownDescription: "Whether to enable multicast support (only PIM-sparse mode is supported)",
 			},
 			"name": schema.StringAttribute{
 				Required: true,
@@ -262,8 +264,10 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 			"routed_for_networks": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
-				Description:         "for a Network (usually LAN), it can be routable to other networks (e.g. OSPF)",
-				MarkdownDescription: "for a Network (usually LAN), it can be routable to other networks (e.g. OSPF)",
+				Computed:            true,
+				Description:         "For a Network (usually LAN), it can be routable to other networks (e.g. OSPF)",
+				MarkdownDescription: "For a Network (usually LAN), it can be routable to other networks (e.g. OSPF)",
+				Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 			},
 			"subnet": schema.StringAttribute{
 				Required: true,
@@ -309,18 +313,18 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 					Attributes: map[string]schema.Attribute{
 						"advertised_subnet": schema.StringAttribute{
 							Optional:            true,
-							Description:         "if `routed`==`true`, whether to advertise an aggregated subnet toward HUB this is useful when there are multiple networks on SPOKE's side",
-							MarkdownDescription: "if `routed`==`true`, whether to advertise an aggregated subnet toward HUB this is useful when there are multiple networks on SPOKE's side",
+							Description:         "If `routed`==`true`, whether to advertise an aggregated subnet toward HUB this is useful when there are multiple networks on SPOKE's side",
+							MarkdownDescription: "If `routed`==`true`, whether to advertise an aggregated subnet toward HUB this is useful when there are multiple networks on SPOKE's side",
 						},
 						"allow_ping": schema.BoolAttribute{
 							Optional:            true,
-							Description:         "whether to allow ping from vpn into this routed network",
-							MarkdownDescription: "whether to allow ping from vpn into this routed network",
+							Description:         "Whether to allow ping from vpn into this routed network",
+							MarkdownDescription: "Whether to allow ping from vpn into this routed network",
 						},
 						"nat_pool": schema.StringAttribute{
 							Optional:            true,
-							Description:         "if `routed`==`false` (usually at Spoke), but some hosts needs to be reachable from Hub, a subnet is required to create and advertise the route to Hub",
-							MarkdownDescription: "if `routed`==`false` (usually at Spoke), but some hosts needs to be reachable from Hub, a subnet is required to create and advertise the route to Hub",
+							Description:         "If `routed`==`false` (usually at Spoke), but some hosts needs to be reachable from Hub, a subnet is required to create and advertise the route to Hub",
+							MarkdownDescription: "If `routed`==`false` (usually at Spoke), but some hosts needs to be reachable from Hub, a subnet is required to create and advertise the route to Hub",
 						},
 						"no_readvertise_to_lan_bgp": schema.BoolAttribute{
 							Optional:            true,
@@ -338,21 +342,21 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"no_readvertise_to_overlay": schema.BoolAttribute{
 							Optional:            true,
-							Description:         "toward overlay\nhow HUB should deal with routes it received from Spokes",
-							MarkdownDescription: "toward overlay\nhow HUB should deal with routes it received from Spokes",
+							Description:         "toward overlay, how HUB should deal with routes it received from Spokes",
+							MarkdownDescription: "toward overlay, how HUB should deal with routes it received from Spokes",
 						},
 						"other_vrfs": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Optional:            true,
 							Computed:            true,
-							Description:         "by default, the routes are only readvertised toward the same vrf on spoke\nto allow it to be leaked to other vrfs",
-							MarkdownDescription: "by default, the routes are only readvertised toward the same vrf on spoke\nto allow it to be leaked to other vrfs",
+							Description:         "By default, the routes are only readvertised toward the same vrf on spoke. To allow it to be leaked to other vrfs",
+							MarkdownDescription: "By default, the routes are only readvertised toward the same vrf on spoke. To allow it to be leaked to other vrfs",
 							Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 						},
 						"routed": schema.BoolAttribute{
 							Optional:            true,
-							Description:         "whether this network is routable",
-							MarkdownDescription: "whether this network is routable",
+							Description:         "Whether this network is routable",
+							MarkdownDescription: "Whether this network is routable",
 						},
 						"source_nat": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
@@ -367,13 +371,21 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 							},
 							Optional:            true,
 							Computed:            true,
-							Description:         "if `routed`==`false` (usually at Spoke), but some hosts needs to be reachable from Hub",
-							MarkdownDescription: "if `routed`==`false` (usually at Spoke), but some hosts needs to be reachable from Hub",
+							Description:         "If `routed`==`false` (usually at Spoke), but some hosts needs to be reachable from Hub",
+							MarkdownDescription: "If `routed`==`false` (usually at Spoke), but some hosts needs to be reachable from Hub",
+							Default: objectdefault.StaticValue(
+								types.ObjectValueMust(
+									SourceNatValue{}.AttributeTypes(ctx),
+									map[string]attr.Value{
+										"external_ip": types.StringNull(),
+									},
+								),
+							),
 						},
 						"summarized_subnet": schema.StringAttribute{
 							Optional:            true,
-							Description:         "toward overlay\nhow HUB should deal with routes it received from Spokes",
-							MarkdownDescription: "toward overlay\nhow HUB should deal with routes it received from Spokes",
+							Description:         "toward overlay, how HUB should deal with routes it received from Spokes",
+							MarkdownDescription: "toward overlay, how HUB should deal with routes it received from Spokes",
 						},
 						"summarized_subnet_to_lan_bgp": schema.StringAttribute{
 							Optional:            true,
@@ -477,6 +489,12 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 									),
 								),
 							},
+							Default: mapdefault.StaticValue(
+								types.MapValueMust(
+									VpnAccessStaticNatValue{}.Type(ctx),
+									map[string]attr.Value{},
+								),
+							),
 						},
 					},
 					CustomType: VpnAccessType{

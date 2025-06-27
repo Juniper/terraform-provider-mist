@@ -3,14 +3,14 @@ page_title: "mist_org_nactag Resource - terraform-provider-mist"
 subcategory: "Access Assurance"
 description: |-
   This resource manages NAC Tags (Auth Policy Labels).
-  The NAC Tags can be used in the NAC Rules to define the matching criterias or the returned RADIUS Attributes
+  The NAC Tags can be used in the NAC Rules to define the matching criteria or the returned RADIUS Attributes
 ---
 
 # mist_org_nactag (Resource)
 
 This resource manages NAC Tags (Auth Policy Labels).
 
-The NAC Tags can be used in the NAC Rules to define the matching criterias or the returned RADIUS Attributes
+The NAC Tags can be used in the NAC Rules to define the matching criteria or the returned RADIUS Attributes
 
 
 ## Example Usage
@@ -40,7 +40,7 @@ resource "mist_org_nactag" "tag_one" {
 
 - `allow_usermac_override` (Boolean) Can be set to true to allow the override by usermac result
 - `egress_vlan_names` (List of String) If `type`==`egress_vlan_names`, list of egress vlans to return
-- `gbp_tag` (Number) If `type`==`gbp_tag`
+- `gbp_tag` (String)
 - `match` (String) if `type`==`match`. enum: `cert_cn`, `cert_issuer`, `cert_san`, `cert_serial`, `cert_sub`, `cert_template`, `client_mac`, `idp_role`, `ingress_vlan`, `mdm_status`, `nas_ip`, `radius_group`, `realm`, `ssid`, `user_name`, `usermac_label`
 - `match_all` (Boolean) This field is applicable only when `type`==`match`
   * `false`: means it is sufficient to match any of the values (i.e., match-any behavior)
@@ -62,7 +62,7 @@ Note that it is allowed to have more than one radius_vendor_attrs in the result 
 
 ### Read-Only
 
-- `id` (String) Unique ID of the object instance in the Mist Organnization
+- `id` (String) Unique ID of the object instance in the Mist Organization
 
 
 

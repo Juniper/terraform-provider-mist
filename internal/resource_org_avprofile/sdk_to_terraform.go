@@ -2,7 +2,8 @@ package resource_org_avprofile
 
 import (
 	"context"
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -12,18 +13,18 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func SdkToTerraform(ctx context.Context, data *models.Avprofile) (OrgAvprofileModel, diag.Diagnostics) {
+func SdkToTerraform(_ context.Context, data *models.Avprofile) (OrgAvprofileModel, diag.Diagnostics) {
 	var state OrgAvprofileModel
 	var diags diag.Diagnostics
 
 	var fallbackAction basetypes.StringValue
 	var id basetypes.StringValue
 	var maxFilesize basetypes.Int64Value
-	var mimeWhitelist = types.ListNull(types.StringType)
+	var mimeWhitelist = types.ListValueMust(types.StringType, []attr.Value{})
 	var name basetypes.StringValue
 	var orgId basetypes.StringValue
 	var protocols = types.ListNull(types.StringType)
-	var urlWhitelist = types.ListNull(types.StringType)
+	var urlWhitelist = types.ListValueMust(types.StringType, []attr.Value{})
 
 	if data.FallbackAction != nil {
 		fallbackAction = types.StringValue(string(*data.FallbackAction))
@@ -35,7 +36,7 @@ func SdkToTerraform(ctx context.Context, data *models.Avprofile) (OrgAvprofileMo
 		maxFilesize = types.Int64Value(int64(*data.MaxFilesize))
 	}
 	if data.MimeWhitelist != nil {
-		mimeWhitelist = misttransform.ListOfStringSdkToTerraform(data.MimeWhitelist)
+		mimeWhitelist = mistutils.ListOfStringSdkToTerraform(data.MimeWhitelist)
 	}
 
 	name = types.StringValue(data.Name)
@@ -55,7 +56,7 @@ func SdkToTerraform(ctx context.Context, data *models.Avprofile) (OrgAvprofileMo
 		}
 	}
 	if data.UrlWhitelist != nil {
-		urlWhitelist = misttransform.ListOfStringSdkToTerraform(data.UrlWhitelist)
+		urlWhitelist = mistutils.ListOfStringSdkToTerraform(data.UrlWhitelist)
 	}
 
 	state.FallbackAction = fallbackAction

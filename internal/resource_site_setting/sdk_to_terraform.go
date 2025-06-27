@@ -5,6 +5,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
@@ -25,6 +26,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	var criticalUrlMonitoring = NewCriticalUrlMonitoringValueNull()
 	var deviceUpdownThreshold types.Int64
 	var engagement = NewEngagementValueNull()
+	var enableUnii4 types.Bool
 	var gatewayMgmt = NewGatewayMgmtValueNull()
 	var gatewayUpdownThreshold types.Int64
 	var juniperSrx = NewJuniperSrxValueNull()
@@ -39,7 +41,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	var simpleAlert = NewSimpleAlertValueNull()
 	var skyatp = NewSkyatpValueNull()
 	var srxApp = NewSrxAppValueNull()
-	var sshKeys = types.ListNull(types.StringType)
+	var sshKeys = types.ListValueMust(types.StringType, []attr.Value{})
 	var ssr = NewSsrValueNull()
 	var switchUpdownThreshold types.Int64
 	var syntheticTest = NewSyntheticTestValueNull()
@@ -96,6 +98,10 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 
 	if data.Engagement != nil {
 		engagement = engagementSdkToTerraform(ctx, &diags, data.Engagement)
+	}
+
+	if data.EnableUnii4 != nil {
+		enableUnii4 = types.BoolValue(*data.EnableUnii4)
 	}
 
 	if data.GatewayMgmt != nil {
@@ -167,7 +173,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	}
 
 	if data.SyntheticTest != nil {
-		syntheticTest = synthteticTestSdkToTerraform(ctx, &diags, data.SyntheticTest)
+		syntheticTest = syntheticTestSdkToTerraform(ctx, &diags, data.SyntheticTest)
 	}
 
 	if data.TrackAnonymousDevices != nil {
@@ -227,6 +233,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	state.ConfigPushPolicy = configPushPolicy
 	state.CriticalUrlMonitoring = criticalUrlMonitoring
 	state.DeviceUpdownThreshold = deviceUpdownThreshold
+	state.EnableUnii4 = enableUnii4
 	state.Engagement = engagement
 	state.GatewayMgmt = gatewayMgmt
 	state.GatewayUpdownThreshold = gatewayUpdownThreshold

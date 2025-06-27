@@ -3,7 +3,7 @@ package resource_org_networktemplate
 import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
@@ -22,7 +22,22 @@ func vrfInstanceExtraRouteTerraformToSdk(d basetypes.MapValue) map[string]models
 		var itemInterface interface{} = itemValue
 		itemObj := itemInterface.(VrfExtraRoutesValue)
 
-		dataItem := models.VrfExtraRoute{}
+		var dataItem models.VrfExtraRoute
+		if itemObj.Via.ValueStringPointer() != nil {
+			dataItem.Via = models.ToPointer(itemObj.Via.ValueString())
+		}
+		data[itemName] = dataItem
+	}
+	return data
+}
+
+func vrfInstanceExtraRoute6TerraformToSdk(d basetypes.MapValue) map[string]models.VrfExtraRoute {
+	data := make(map[string]models.VrfExtraRoute)
+	for itemName, itemValue := range d.Elements() {
+		var itemInterface interface{} = itemValue
+		itemObj := itemInterface.(VrfExtraRoutes6Value)
+
+		var dataItem models.VrfExtraRoute
 		if itemObj.Via.ValueStringPointer() != nil {
 			dataItem.Via = models.ToPointer(itemObj.Via.ValueString())
 		}
@@ -37,12 +52,21 @@ func vrfInstancesTerraformToSdk(d basetypes.MapValue) map[string]models.SwitchVr
 		var itemInterface interface{} = itemValue
 		itemObj := itemInterface.(VrfInstancesValue)
 
-		dataItem := models.SwitchVrfInstance{}
+		var dataItem models.SwitchVrfInstance
+		if !itemObj.EvpnAutoLoopbackSubnet.IsNull() && !itemObj.EvpnAutoLoopbackSubnet.IsUnknown() {
+			dataItem.EvpnAutoLoopbackSubnet = itemObj.EvpnAutoLoopbackSubnet.ValueStringPointer()
+		}
+		if !itemObj.EvpnAutoLoopbackSubnet6.IsNull() && !itemObj.EvpnAutoLoopbackSubnet6.IsUnknown() {
+			dataItem.EvpnAutoLoopbackSubnet6 = itemObj.EvpnAutoLoopbackSubnet6.ValueStringPointer()
+		}
 		if !itemObj.Networks.IsNull() && !itemObj.Networks.IsUnknown() {
-			dataItem.Networks = misttransform.ListOfStringTerraformToSdk(itemObj.Networks)
+			dataItem.Networks = mistutils.ListOfStringTerraformToSdk(itemObj.Networks)
 		}
 		if !itemObj.VrfExtraRoutes.IsNull() && !itemObj.VrfExtraRoutes.IsUnknown() {
 			dataItem.ExtraRoutes = vrfInstanceExtraRouteTerraformToSdk(itemObj.VrfExtraRoutes)
+		}
+		if !itemObj.VrfExtraRoutes6.IsNull() && !itemObj.VrfExtraRoutes6.IsUnknown() {
+			dataItem.ExtraRoutes = vrfInstanceExtraRoute6TerraformToSdk(itemObj.VrfExtraRoutes6)
 		}
 
 		data[itemName] = dataItem

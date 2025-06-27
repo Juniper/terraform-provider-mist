@@ -10,16 +10,16 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
-func ssrSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteSettingSsr) SsrValue {
+func ssrSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SettingSsr) SsrValue {
 
-	var conductorHosts = misttransform.ListOfStringSdkToTerraformEmpty()
+	var conductorHosts = mistutils.ListOfStringSdkToTerraformEmpty()
 	var disableStats basetypes.BoolValue
 
 	if d != nil && d.ConductorHosts != nil {
-		conductorHosts = misttransform.ListOfStringSdkToTerraform(d.ConductorHosts)
+		conductorHosts = mistutils.ListOfStringSdkToTerraform(d.ConductorHosts)
 	}
 	if d != nil && d.DisableStats != nil {
 		disableStats = types.BoolValue(*d.DisableStats)

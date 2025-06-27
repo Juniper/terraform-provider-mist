@@ -2,11 +2,10 @@ package datasource_org_psks
 
 import (
 	"context"
-	"math/big"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -29,7 +28,7 @@ func pskSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.P
 	var state OrgPsksValue
 
 	var adminSsoId types.String
-	var createdTime basetypes.NumberValue
+	var createdTime basetypes.Float64Value
 	var email types.String
 	var expireTime types.Int64
 	var expiryNotificationTime types.Int64
@@ -37,7 +36,7 @@ func pskSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.P
 	var mac types.String
 	var macs = types.ListNull(types.StringType)
 	var maxUsage types.Int64
-	var modifiedTime basetypes.NumberValue
+	var modifiedTime basetypes.Float64Value
 	var name types.String
 	var note types.String
 	var notifyExpiry types.Bool
@@ -54,7 +53,7 @@ func pskSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.P
 		adminSsoId = types.StringValue(*d.AdminSsoId)
 	}
 	if d.CreatedTime != nil {
-		createdTime = types.NumberValue(big.NewFloat(*d.CreatedTime))
+		createdTime = types.Float64Value(*d.CreatedTime)
 	}
 	if d.Email != nil {
 		email = types.StringValue(*d.Email)
@@ -72,13 +71,13 @@ func pskSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.P
 		mac = types.StringValue(*d.Mac)
 	}
 	if d.Macs != nil {
-		macs = misttransform.ListOfStringSdkToTerraform(d.Macs)
+		macs = mistutils.ListOfStringSdkToTerraform(d.Macs)
 	}
 	if d.MaxUsage != nil {
 		maxUsage = types.Int64Value(int64(*d.MaxUsage))
 	}
 	if d.ModifiedTime != nil {
-		modifiedTime = types.NumberValue(big.NewFloat(*d.ModifiedTime))
+		modifiedTime = types.Float64Value(*d.ModifiedTime)
 	}
 
 	name = types.StringValue(d.Name)
@@ -107,7 +106,9 @@ func pskSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.P
 
 	ssid = types.StringValue(d.Ssid)
 
-	usage = types.StringValue(string(*d.Usage))
+	if d.Usage != nil {
+		usage = types.StringValue(string(*d.Usage))
+	}
 
 	if d.VlanId != nil {
 		vlanId = types.StringValue(d.VlanId.String())

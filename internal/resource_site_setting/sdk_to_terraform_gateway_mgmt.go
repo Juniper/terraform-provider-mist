@@ -3,7 +3,7 @@ package resource_site_setting
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -12,14 +12,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func gatewayMgmtProtecCustomtReSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.ProtectReCustom) basetypes.ListValue {
+func gatewayMgmtProtectCustomReSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.ProtectReCustom) basetypes.ListValue {
 	var dataList []CustomValue
 
 	for _, d := range l {
 
 		var portRange basetypes.StringValue
 		var protocol basetypes.StringValue
-		var subnets = misttransform.ListOfStringSdkToTerraformEmpty()
+		var subnets = mistutils.ListOfStringSdkToTerraformEmpty()
 
 		if d.PortRange != nil {
 			portRange = types.StringValue(*d.PortRange)
@@ -28,7 +28,7 @@ func gatewayMgmtProtecCustomtReSdkToTerraform(ctx context.Context, diags *diag.D
 			protocol = types.StringValue(string(*d.Protocol))
 		}
 		if d.Subnets != nil {
-			subnets = misttransform.ListOfStringSdkToTerraform(d.Subnets)
+			subnets = mistutils.ListOfStringSdkToTerraform(d.Subnets)
 		}
 
 		dataMapValue := map[string]attr.Value{
@@ -51,7 +51,7 @@ func gatewayMgmtProtectReSdkToTerraform(ctx context.Context, diags *diag.Diagnos
 	var allowedServices = types.ListNull(types.StringType)
 	var custom = basetypes.NewListValueMust(CustomValue{}.Type(ctx), []attr.Value{})
 	var enabled basetypes.BoolValue
-	var trustedHosts = types.ListNull(types.StringType)
+	var trustedHosts = basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})
 
 	if d.AllowedServices != nil {
 		var items []attr.Value
@@ -63,13 +63,13 @@ func gatewayMgmtProtectReSdkToTerraform(ctx context.Context, diags *diag.Diagnos
 		allowedServices = list
 	}
 	if d.Custom != nil {
-		custom = gatewayMgmtProtecCustomtReSdkToTerraform(ctx, diags, d.Custom)
+		custom = gatewayMgmtProtectCustomReSdkToTerraform(ctx, diags, d.Custom)
 	}
 	if d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
 	if d.TrustedHosts != nil {
-		trustedHosts = misttransform.ListOfStringSdkToTerraform(d.TrustedHosts)
+		trustedHosts = mistutils.ListOfStringSdkToTerraform(d.TrustedHosts)
 	}
 
 	dataMapValue := map[string]attr.Value{
@@ -91,7 +91,7 @@ func gatewayMgmtAppProbingCustomSdkToTerraform(ctx context.Context, diags *diag.
 	for _, d := range l {
 		var address basetypes.StringValue
 		var appType basetypes.StringValue
-		var hostnames = misttransform.ListOfStringSdkToTerraformEmpty()
+		var hostnames = mistutils.ListOfStringSdkToTerraformEmpty()
 		var key basetypes.StringValue
 		var name basetypes.StringValue
 		var network basetypes.StringValue
@@ -107,7 +107,7 @@ func gatewayMgmtAppProbingCustomSdkToTerraform(ctx context.Context, diags *diag.
 			appType = types.StringValue(*d.AppType)
 		}
 		if d.Hostnames != nil {
-			hostnames = misttransform.ListOfStringSdkToTerraform(d.Hostnames)
+			hostnames = mistutils.ListOfStringSdkToTerraform(d.Hostnames)
 		}
 		if d.Key != nil {
 			key = types.StringValue(*d.Key)
@@ -160,7 +160,7 @@ func gatewayMgmtAppProbingSdkToTerraform(ctx context.Context, diags *diag.Diagno
 	var enabled basetypes.BoolValue
 
 	if d.Apps != nil {
-		apps = misttransform.ListOfStringSdkToTerraform(d.Apps)
+		apps = mistutils.ListOfStringSdkToTerraform(d.Apps)
 	}
 	if d.CustomApps != nil {
 		customApps = gatewayMgmtAppProbingCustomSdkToTerraform(ctx, diags, d.CustomApps)
@@ -207,21 +207,23 @@ func gatewayMgmtAutoSignatureUpdateSdkToTerraform(ctx context.Context, diags *di
 }
 
 func gatewayMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteSettingGatewayMgmt) GatewayMgmtValue {
-	var adminSshkeys = misttransform.ListOfStringSdkToTerraformEmpty()
+	var adminSshkeys = types.ListValueMust(types.StringType, []attr.Value{})
 	var appProbing = types.ObjectNull(AppProbingValue{}.AttributeTypes(ctx))
 	var appUsage basetypes.BoolValue
 	var autoSignatureUpdate = types.ObjectNull(AutoSignatureUpdateValue{}.AttributeTypes(ctx))
 	var configRevertTimer basetypes.Int64Value
 	var disableConsole basetypes.BoolValue
 	var disableOob basetypes.BoolValue
-	var probeHosts = misttransform.ListOfStringSdkToTerraformEmpty()
+	var disableUsb basetypes.BoolValue
+	var fipsEnabled basetypes.BoolValue
+	var probeHosts = types.ListValueMust(types.StringType, []attr.Value{})
 	var protectRe = types.ObjectNull(ProtectReValue{}.AttributeTypes(ctx))
 	var rootPassword basetypes.StringValue
 	var securityLogSourceAddress basetypes.StringValue
 	var securityLogSourceInterface basetypes.StringValue
 
 	if d.AdminSshkeys != nil {
-		adminSshkeys = misttransform.ListOfStringSdkToTerraform(d.AdminSshkeys)
+		adminSshkeys = mistutils.ListOfStringSdkToTerraform(d.AdminSshkeys)
 	}
 	if d.AppProbing != nil {
 		appProbing = gatewayMgmtAppProbingSdkToTerraform(ctx, diags, d.AppProbing)
@@ -238,11 +240,17 @@ func gatewayMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 	if d.DisableConsole != nil {
 		disableConsole = types.BoolValue(*d.DisableConsole)
 	}
+	if d.DisableUsb != nil {
+		disableUsb = types.BoolValue(*d.DisableUsb)
+	}
+	if d.FipsEnabled != nil {
+		fipsEnabled = types.BoolValue(*d.FipsEnabled)
+	}
 	if d.DisableOob != nil {
 		disableOob = types.BoolValue(*d.DisableOob)
 	}
 	if d.ProbeHosts != nil {
-		probeHosts = misttransform.ListOfStringSdkToTerraform(d.ProbeHosts)
+		probeHosts = mistutils.ListOfStringSdkToTerraform(d.ProbeHosts)
 	}
 	if d.ProtectRe != nil {
 		protectRe = gatewayMgmtProtectReSdkToTerraform(ctx, diags, d.ProtectRe)
@@ -264,6 +272,8 @@ func gatewayMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 		"auto_signature_update":         autoSignatureUpdate,
 		"config_revert_timer":           configRevertTimer,
 		"disable_console":               disableConsole,
+		"disable_usb":                   disableUsb,
+		"fips_enabled":                  fipsEnabled,
 		"disable_oob":                   disableOob,
 		"probe_hosts":                   probeHosts,
 		"protect_re":                    protectRe,

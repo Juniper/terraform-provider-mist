@@ -25,7 +25,7 @@ type constAppCategoriesDataSource struct {
 }
 
 func (d *constAppCategoriesDataSource) Configure(ctx context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
-	tflog.Info(ctx, "Configuring Mist Org Constants App Catgories Datasource client")
+	tflog.Info(ctx, "Configuring Mist Org Constants App Categories Datasource client")
 	if req.ProviderData == nil {
 		return
 	}
@@ -67,8 +67,8 @@ func (d *constAppCategoriesDataSource) Read(ctx context.Context, req datasource.
 	data, err := d.client.ConstantsDefinitions().ListAppCategoryDefinitions(ctx)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting AP Stats",
-			"Unable to get AP Stats, unexpected error: "+err.Error(),
+			"Error getting App Categories",
+			"Unable to get App Categories, unexpected error: "+err.Error(),
 		)
 		return
 	}

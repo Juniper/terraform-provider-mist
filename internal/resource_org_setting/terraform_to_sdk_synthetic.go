@@ -3,7 +3,7 @@ package resource_org_setting
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
@@ -18,7 +18,7 @@ func syntheticTestVlansTerraformToSdk(d basetypes.ListValue) []models.Synthetict
 		data := models.SynthetictestProperties{}
 
 		if !plan.CustomTestUrls.IsNull() && !plan.CustomTestUrls.IsUnknown() {
-			data.CustomTestUrls = misttransform.ListOfStringTerraformToSdk(plan.CustomTestUrls)
+			data.CustomTestUrls = mistutils.ListOfStringTerraformToSdk(plan.CustomTestUrls)
 		}
 
 		if plan.Disabled.ValueBoolPointer() != nil {

@@ -23,6 +23,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileAp) (OrgDevic
 	var disableModule types.Bool
 	var eslConfig = NewEslConfigValueNull()
 	var ipConfig = NewIpConfigValueNull()
+	var lacpConfig = NewLacpConfigValueNull()
 	var led = NewLedValueNull()
 	var mesh = NewMeshValueNull()
 	var name types.String
@@ -30,6 +31,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileAp) (OrgDevic
 	var orgId types.String
 	var poePassthrough types.Bool
 	var profileId types.String
+	var portConfig = types.MapNull(PortConfigValue{}.Type(ctx))
 	var pwrConfig = NewPwrConfigValueNull()
 	var radioConfig = NewRadioConfigValueNull()
 	var siteId types.String
@@ -43,7 +45,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileAp) (OrgDevic
 		aeroscout = aeroscoutSdkToTerraform(ctx, &diags, data.Aeroscout)
 	}
 	if data.BleConfig != nil {
-		bleConfig = bleConfigsSdkToTerraform(ctx, &diags, data.BleConfig)
+		bleConfig = bleConfigSdkToTerraform(ctx, &diags, data.BleConfig)
 	}
 	if data.DisableEth1 != nil {
 		disableEth1 = types.BoolValue(*data.DisableEth1)
@@ -66,6 +68,9 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileAp) (OrgDevic
 	if data.IpConfig != nil {
 		ipConfig = ipConfigSdkToTerraform(ctx, &diags, data.IpConfig)
 	}
+	if data.LacpConfig != nil {
+		lacpConfig = lacpConfigSdkToTerraform(ctx, &diags, data.LacpConfig)
+	}
 	if data.Led != nil {
 		led = ledSdkToTerraform(ctx, &diags, data.Led)
 	}
@@ -83,6 +88,9 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileAp) (OrgDevic
 	}
 	if data.PoePassthrough != nil {
 		poePassthrough = types.BoolValue(*data.PoePassthrough)
+	}
+	if data.PortConfig != nil {
+		portConfig = portConfigSdkToTerraform(ctx, &diags, data.PortConfig)
 	}
 	if data.PwrConfig != nil {
 		pwrConfig = pwrConfigSdkToTerraform(ctx, &diags, data.PwrConfig)
@@ -114,12 +122,14 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileAp) (OrgDevic
 	state.EslConfig = eslConfig
 	state.Id = profileId
 	state.IpConfig = ipConfig
+	state.LacpConfig = lacpConfig
 	state.Led = led
 	state.Mesh = mesh
 	state.Name = name
 	state.NtpServers = ntpServers
 	state.OrgId = orgId
 	state.PoePassthrough = poePassthrough
+	state.PortConfig = portConfig
 	state.PwrConfig = pwrConfig
 	state.RadioConfig = radioConfig
 	state.SiteId = siteId

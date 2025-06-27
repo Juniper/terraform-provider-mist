@@ -5,7 +5,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -30,10 +30,11 @@ func SdkToTerraform(ctx context.Context, d *models.Webhook) (SiteWebhookModel, d
 	var oauth2Username types.String
 	var orgId types.String
 	var secret types.String
+	var singleEventPerMessage types.Bool
 	var siteId types.String
 	var splunkToken types.String
 	var topics types.List
-	var wtype types.String
+	var wType types.String
 	var url types.String
 	var verifyCert types.Bool
 
@@ -68,7 +69,7 @@ func SdkToTerraform(ctx context.Context, d *models.Webhook) (SiteWebhookModel, d
 		oauth2Password = types.StringValue(*d.Oauth2Password)
 	}
 	if d.Oauth2Scopes != nil {
-		oauth2Scopes = misttransform.ListOfStringSdkToTerraform(d.Oauth2Scopes)
+		oauth2Scopes = mistutils.ListOfStringSdkToTerraform(d.Oauth2Scopes)
 	}
 	if d.Oauth2TokenUrl != nil {
 		oauth2TokenUrl = types.StringValue(*d.Oauth2TokenUrl)
@@ -81,6 +82,9 @@ func SdkToTerraform(ctx context.Context, d *models.Webhook) (SiteWebhookModel, d
 	}
 	if d.Secret.Value() != nil {
 		secret = types.StringValue(*d.Secret.Value())
+	}
+	if d.SingleEventPerMessage != nil {
+		singleEventPerMessage = types.BoolValue(*d.SingleEventPerMessage)
 	}
 	if d.SiteId != nil {
 		siteId = types.StringValue(d.SiteId.String())
@@ -98,7 +102,7 @@ func SdkToTerraform(ctx context.Context, d *models.Webhook) (SiteWebhookModel, d
 		topics = list
 	}
 	if d.Type != nil {
-		wtype = types.StringValue(string(*d.Type))
+		wType = types.StringValue(string(*d.Type))
 	}
 	if d.Url != nil {
 		url = types.StringValue(*d.Url)
@@ -120,11 +124,12 @@ func SdkToTerraform(ctx context.Context, d *models.Webhook) (SiteWebhookModel, d
 	state.Oauth2Username = oauth2Username
 	state.OrgId = orgId
 	state.Secret = secret
+	state.SingleEventPerMessage = singleEventPerMessage
 	state.SiteId = siteId
 	state.SplunkToken = splunkToken
 	state.OrgId = orgId
 	state.Topics = topics
-	state.Type = wtype
+	state.Type = wType
 	state.Url = url
 	state.VerifyCert = verifyCert
 

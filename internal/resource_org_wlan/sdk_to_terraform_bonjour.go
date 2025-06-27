@@ -2,9 +2,8 @@ package resource_org_wlan
 
 import (
 	"context"
-	"strings"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -20,14 +19,14 @@ func bonjourServicesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics,
 	for k, d := range m {
 
 		var disableLocal basetypes.BoolValue
-		var radiusGroups = misttransform.ListOfStringSdkToTerraformEmpty()
+		var radiusGroups = mistutils.ListOfStringSdkToTerraformEmpty()
 		var scope basetypes.StringValue
 
 		if d.DisableLocal != nil {
 			disableLocal = types.BoolValue(*d.DisableLocal)
 		}
 		if d.RadiusGroups != nil {
-			radiusGroups = misttransform.ListOfStringSdkToTerraform(d.RadiusGroups)
+			radiusGroups = mistutils.ListOfStringSdkToTerraform(d.RadiusGroups)
 		}
 		if d.Scope != nil {
 			scope = types.StringValue(string(*d.Scope))
@@ -53,15 +52,8 @@ func bonjourSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 	var enabled basetypes.BoolValue
 	var services = types.MapNull(ServicesValue{}.Type(ctx))
 
-	if d != nil {
-		var items []attr.Value
-		for _, item := range strings.Split(d.AdditionalVlanIds, ",") {
-			if item != "" {
-				items = append(items, types.StringValue(item))
-			}
-		}
-		list, _ := types.ListValue(basetypes.StringType{}, items)
-		additionalVlanIds = list
+	if d != nil && d.AdditionalVlanIds != nil {
+		additionalVlanIds = mistutils.WlanBonjourAdditionalVlanIdsAsArrayOfString(diags, *d.AdditionalVlanIds)
 	}
 	if d != nil && d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)

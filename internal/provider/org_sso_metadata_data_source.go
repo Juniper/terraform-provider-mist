@@ -48,7 +48,7 @@ func (d *orgSsoMetadataDataSource) Metadata(_ context.Context, req datasource.Me
 func (d *orgSsoMetadataDataSource) Schema(ctx context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryOrg + "This data source provides the SSO Metadata information.\n\n" +
-			"The provided information (`entity_id`, `acs_url`, `logout_url` and `metadata`) are the information" +
+			"The provided information (`entity_id`, `acs_url`, `logout_url` and `metadata`) are the information " +
 			"required to configure the IDP",
 		Attributes: datasource_org_sso_metadata.OrgSsoMetadataDataSourceSchema(ctx).Attributes,
 	}

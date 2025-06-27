@@ -73,11 +73,11 @@ func (d *deviceVersionsDataSource) Read(ctx context.Context, req datasource.Read
 		return
 	}
 
-	var mType models.DeviceTypeEnum
+	var mType models.DeviceTypeDefaultApEnum
 	var model string
 
 	if !ds.Type.IsNull() && !ds.Type.IsUnknown() {
-		mType = models.DeviceTypeEnum(ds.Type.ValueString())
+		mType = models.DeviceTypeDefaultApEnum(ds.Type.ValueString())
 	}
 	if !ds.Model.IsNull() && !ds.Model.IsUnknown() {
 		model = ds.Model.ValueString()

@@ -10,7 +10,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
@@ -39,24 +41,26 @@ func OrgPskResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Unique ID of the object instance in the Mist Organnization",
-				MarkdownDescription: "Unique ID of the object instance in the Mist Organnization",
+				Description:         "Unique ID of the object instance in the Mist Organization",
+				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"mac": schema.StringAttribute{
 				Optional:            true,
-				Description:         "if `usage`==`single`, the mac that this PSK ties to, empty if `auto-binding`",
-				MarkdownDescription: "if `usage`==`single`, the mac that this PSK ties to, empty if `auto-binding`",
+				Description:         "If `usage`==`single`, the mac that this PSK ties to, empty if `auto-binding`",
+				MarkdownDescription: "If `usage`==`single`, the mac that this PSK ties to, empty if `auto-binding`",
 				Validators: []validator.String{
-					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("usage"),
-						types.StringValue("single")),
+					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("single")),
 					mistvalidator.ParseMac(),
 				},
 			},
 			"macs": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
-				Description:         "if `usage`==`macs`, this list contains N number of client mac addresses or mac patterns(11:22:*) or both. This list is capped at 5000",
-				MarkdownDescription: "if `usage`==`macs`, this list contains N number of client mac addresses or mac patterns(11:22:*) or both. This list is capped at 5000",
+				Description:         "If `usage`==`macs`, this list contains N number of client mac addresses or mac patterns(1122*) or both. This list is capped at 5000",
+				MarkdownDescription: "If `usage`==`macs`, this list contains N number of client mac addresses or mac patterns(1122*) or both. This list is capped at 5000",
 				Validators: []validator.List{
 					listvalidator.SizeAtMost(5000),
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("macs")),
@@ -66,10 +70,8 @@ func OrgPskResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"max_usage": schema.Int64Attribute{
 				Optional:            true,
-				Computed:            true,
 				Description:         "For Org PSK Only. Max concurrent users for this PSK key. Default is 0 (unlimited)",
 				MarkdownDescription: "For Org PSK Only. Max concurrent users for this PSK key. Default is 0 (unlimited)",
-				Default:             int64default.StaticInt64(0),
 			},
 			"name": schema.StringAttribute{
 				Required: true,
@@ -136,7 +138,10 @@ func OrgPskResourceSchema(ctx context.Context) schema.Schema {
 			"vlan_id": schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					stringvalidator.Any(mistvalidator.ParseInt(1, 4094), mistvalidator.ParseVar()),
+					stringvalidator.Any(
+						mistvalidator.ParseInt(1, 4094),
+						mistvalidator.ParseVar(),
+					),
 				},
 			},
 		},

@@ -3,7 +3,7 @@ package resource_device_gateway
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -21,10 +21,10 @@ func tunnelConfigsAutoProvisionPrimaryTerraformToSdk(ctx context.Context, diags 
 			diags.Append(e...)
 		} else {
 			if !plan.ProbeIps.IsNull() && !plan.ProbeIps.IsUnknown() {
-				data.ProbeIps = misttransform.ListOfStringTerraformToSdk(plan.ProbeIps)
+				data.ProbeIps = mistutils.ListOfStringTerraformToSdk(plan.ProbeIps)
 			}
 			if !plan.WanNames.IsNull() && !plan.WanNames.IsUnknown() {
-				data.WanNames = misttransform.ListOfStringTerraformToSdk(plan.WanNames)
+				data.WanNames = mistutils.ListOfStringTerraformToSdk(plan.WanNames)
 			}
 		}
 		return &data
@@ -41,10 +41,10 @@ func tunnelConfigsAutoProvisionSecondaryTerraformToSdk(ctx context.Context, diag
 			diags.Append(e...)
 		} else {
 			if !plan.ProbeIps.IsNull() && !plan.ProbeIps.IsUnknown() {
-				data.ProbeIps = misttransform.ListOfStringTerraformToSdk(plan.ProbeIps)
+				data.ProbeIps = mistutils.ListOfStringTerraformToSdk(plan.ProbeIps)
 			}
 			if !plan.WanNames.IsNull() && !plan.WanNames.IsUnknown() {
-				data.WanNames = misttransform.ListOfStringTerraformToSdk(plan.WanNames)
+				data.WanNames = mistutils.ListOfStringTerraformToSdk(plan.WanNames)
 			}
 		}
 		return &data
@@ -172,19 +172,19 @@ func gatewayTemplateTunnelPrimaryProbeTerraformToSdk(ctx context.Context, diags 
 			diags.Append(e...)
 		} else {
 			if !plan.Hosts.IsNull() && !plan.Hosts.IsUnknown() {
-				data.Hosts = misttransform.ListOfStringTerraformToSdk(plan.Hosts)
+				data.Hosts = mistutils.ListOfStringTerraformToSdk(plan.Hosts)
 			}
 			if !plan.InternalIps.IsNull() && !plan.InternalIps.IsUnknown() {
-				data.InternalIps = misttransform.ListOfStringTerraformToSdk(plan.InternalIps)
+				data.InternalIps = mistutils.ListOfStringTerraformToSdk(plan.InternalIps)
 			}
 			if !plan.ProbeIps.IsNull() && !plan.ProbeIps.IsUnknown() {
-				data.ProbeIps = misttransform.ListOfStringTerraformToSdk(plan.ProbeIps)
+				data.ProbeIps = mistutils.ListOfStringTerraformToSdk(plan.ProbeIps)
 			}
 			if !plan.RemoteIds.IsNull() && !plan.RemoteIds.IsUnknown() {
-				data.RemoteIds = misttransform.ListOfStringTerraformToSdk(plan.RemoteIds)
+				data.RemoteIds = mistutils.ListOfStringTerraformToSdk(plan.RemoteIds)
 			}
 			if !plan.WanNames.IsNull() && !plan.WanNames.IsUnknown() {
-				data.WanNames = misttransform.ListOfStringTerraformToSdk(plan.WanNames)
+				data.WanNames = mistutils.ListOfStringTerraformToSdk(plan.WanNames)
 			}
 		}
 		return data
@@ -201,19 +201,19 @@ func gatewayTemplateTunnelSecondaryProbeTerraformToSdk(ctx context.Context, diag
 			diags.Append(e...)
 		} else {
 			if !plan.Hosts.IsNull() && !plan.Hosts.IsUnknown() {
-				data.Hosts = misttransform.ListOfStringTerraformToSdk(plan.Hosts)
+				data.Hosts = mistutils.ListOfStringTerraformToSdk(plan.Hosts)
 			}
 			if !plan.InternalIps.IsNull() && !plan.InternalIps.IsUnknown() {
-				data.InternalIps = misttransform.ListOfStringTerraformToSdk(plan.InternalIps)
+				data.InternalIps = mistutils.ListOfStringTerraformToSdk(plan.InternalIps)
 			}
 			if !plan.ProbeIps.IsNull() && !plan.ProbeIps.IsUnknown() {
-				data.ProbeIps = misttransform.ListOfStringTerraformToSdk(plan.ProbeIps)
+				data.ProbeIps = mistutils.ListOfStringTerraformToSdk(plan.ProbeIps)
 			}
 			if !plan.RemoteIds.IsNull() && !plan.RemoteIds.IsUnknown() {
-				data.RemoteIds = misttransform.ListOfStringTerraformToSdk(plan.RemoteIds)
+				data.RemoteIds = mistutils.ListOfStringTerraformToSdk(plan.RemoteIds)
 			}
 			if !plan.WanNames.IsNull() && !plan.WanNames.IsUnknown() {
-				data.WanNames = misttransform.ListOfStringTerraformToSdk(plan.WanNames)
+				data.WanNames = mistutils.ListOfStringTerraformToSdk(plan.WanNames)
 			}
 		}
 		return data
@@ -258,7 +258,7 @@ func tunnelConfigsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d
 		}
 
 		if !plan.Networks.IsNull() && !plan.Networks.IsUnknown() {
-			data.Networks = misttransform.ListOfStringTerraformToSdk(plan.Networks)
+			data.Networks = mistutils.ListOfStringTerraformToSdk(plan.Networks)
 		}
 
 		if !plan.Primary.IsNull() && !plan.Primary.IsUnknown() {

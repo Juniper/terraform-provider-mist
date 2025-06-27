@@ -3,7 +3,7 @@ package resource_site_evpn_topology
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -56,7 +56,7 @@ func vsInstanceEvpnOptionsTerraformToSdk(d basetypes.MapValue) map[string]models
 		plan := vInterface.(VsInstancesValue)
 		data := models.EvpnOptionsVsInstance{}
 		if !plan.Networks.IsNull() && !plan.Networks.IsUnknown() {
-			data.Networks = misttransform.ListOfStringTerraformToSdk(plan.Networks)
+			data.Networks = mistutils.ListOfStringTerraformToSdk(plan.Networks)
 		}
 		dataMap[k] = data
 	}
@@ -86,6 +86,9 @@ func evpnOptionsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d E
 	}
 	if !d.PerVlanVgaV4Mac.IsNull() && !d.PerVlanVgaV4Mac.IsUnknown() {
 		data.PerVlanVgaV4Mac = d.PerVlanVgaV4Mac.ValueBoolPointer()
+	}
+	if !d.PerVlanVgaV6Mac.IsNull() && !d.PerVlanVgaV6Mac.IsUnknown() {
+		data.PerVlanVgaV6Mac = d.PerVlanVgaV6Mac.ValueBoolPointer()
 	}
 	if !d.RoutedAt.IsNull() && !d.RoutedAt.IsUnknown() {
 		data.RoutedAt = (*models.EvpnOptionsRoutedAtEnum)(d.RoutedAt.ValueStringPointer())

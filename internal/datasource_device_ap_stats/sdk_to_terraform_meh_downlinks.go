@@ -42,8 +42,8 @@ func meshDownlinksSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m
 		if d.IdleTime != nil {
 			idleTime = types.Int64Value(int64(*d.IdleTime))
 		}
-		if d.LastSeen != nil {
-			lastSeen = types.Int64Value(int64(*d.LastSeen))
+		if d.LastSeen.Value() != nil {
+			lastSeen = types.Int64Value(int64(*d.LastSeen.Value()))
 		}
 		if d.Proto != nil {
 			proto = types.StringValue(*d.Proto)
@@ -51,20 +51,20 @@ func meshDownlinksSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m
 		if d.Rssi != nil {
 			rssi = types.Int64Value(int64(*d.Rssi))
 		}
-		if d.RxBps != nil {
-			rxBps = types.Int64Value(int64(*d.RxBps))
+		if d.RxBps.Value() != nil {
+			rxBps = types.Int64Value(*d.RxBps.Value())
 		}
-		if d.RxBytes != nil {
-			rxBytes = types.Int64Value(int64(*d.RxBytes))
+		if d.RxBytes.Value() != nil {
+			rxBytes = types.Int64Value(*d.RxBytes.Value())
 		}
-		if d.RxPackets != nil {
-			rxPackets = types.Int64Value(int64(*d.RxPackets))
+		if d.RxPackets.Value() != nil {
+			rxPackets = types.Int64Value(*d.RxPackets.Value())
 		}
-		if d.RxRate != nil {
-			rxRate = types.Int64Value(int64(*d.RxRate))
+		if d.RxRate.Value() != nil {
+			rxRate = types.Int64Value(int64(*d.RxRate.Value()))
 		}
-		if d.RxRetries != nil {
-			rxRetries = types.Int64Value(int64(*d.RxRetries))
+		if d.RxRetries.Value() != nil {
+			rxRetries = types.Int64Value(int64(*d.RxRetries.Value()))
 		}
 		if d.SiteId != nil {
 			siteId = types.StringValue(d.SiteId.String())
@@ -72,20 +72,20 @@ func meshDownlinksSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m
 		if d.Snr != nil {
 			snr = types.Int64Value(int64(*d.Snr))
 		}
-		if d.TxBps != nil {
-			txBps = types.Int64Value(int64(*d.TxBps))
+		if d.TxBps.Value() != nil {
+			txBps = types.Int64Value(*d.TxBps.Value())
 		}
-		if d.TxBytes != nil {
-			txBytes = types.Int64Value(int64(*d.TxBytes))
+		if d.TxBytes.Value() != nil {
+			txBytes = types.Int64Value(*d.TxBytes.Value())
 		}
-		if d.TxPackets != nil {
-			txPackets = types.Int64Value(int64(*d.TxPackets))
+		if d.TxPackets.Value() != nil {
+			txPackets = types.Int64Value(*d.TxPackets.Value())
 		}
-		if d.TxRate != nil {
-			txRate = types.Int64Value(int64(*d.TxRate))
+		if d.TxRate.Value() != nil {
+			txRate = types.Int64Value(int64(*d.TxRate.Value()))
 		}
-		if d.TxRetries != nil {
-			txRetries = types.Int64Value(int64(*d.TxRetries))
+		if d.TxRetries.Value() != nil {
+			txRetries = types.Int64Value(int64(*d.TxRetries.Value()))
 		}
 
 		dataMapValue := map[string]attr.Value{

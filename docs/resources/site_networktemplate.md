@@ -3,20 +3,20 @@ page_title: "mist_site_networktemplate Resource - terraform-provider-mist"
 subcategory: "Wired Assurance"
 description: |-
   This resource manages the Site Network configuration (Switch configuration).
-  The Site Network template can be used to override the Org Network template assign to the site, or to configure common switch settings accross the site without having to create an Org Network template.
+  The Site Network template can be used to override the Org Network template assign to the site, or to configure common switch settings across the site without having to create an Org Network template.
   ~> When using the Mist APIs, all the switch settings defined at the site level are stored under the site settings with all the rest of the site configuration (/api/v1/sites/{site_id}/setting Mist API Endpoint). To simplify this resource, the mist_site_networktemplate resource has been created to centralize all the site level switches related settings.
-  !> Only ONE mist_site_networktemplate resource can be configured per site. If multiple ones are configured, only the last one defined we be succesfully deployed to Mist
+  !> Only ONE mist_site_networktemplate resource can be configured per site. If multiple ones are configured, only the last one defined we be successfully deployed to Mist
 ---
 
 # mist_site_networktemplate (Resource)
 
 This resource manages the Site Network configuration (Switch configuration).
 
-The Site Network template can be used to override the Org Network template assign to the site, or to configure common switch settings accross the site without having to create an Org Network template.
+The Site Network template can be used to override the Org Network template assign to the site, or to configure common switch settings across the site without having to create an Org Network template.
 
 ~> When using the Mist APIs, all the switch settings defined at the site level are stored under the site settings with all the rest of the site configuration (`/api/v1/sites/{site_id}/setting` Mist API Endpoint). To simplify this resource, the `mist_site_networktemplate` resource has been created to centralize all the site level switches related settings.
 
-!> Only ONE `mist_site_networktemplate` resource can be configured per site. If multiple ones are configured, only the last one defined we be succesfully deployed to Mist
+!> Only ONE `mist_site_networktemplate` resource can be configured per site. If multiple ones are configured, only the last one defined we be successfully deployed to Mist
 
 
 ## Example Usage
@@ -28,7 +28,7 @@ resource "mist_site_networktemplate" "networktemplate_one" {
   dns_suffix  = ["mycorp.com"]
   ntp_servers = ["pool.ntp.org"]
   additional_config_cmds = [
-    "set system hostnam test",
+    "set system hostname test",
     "set system services ssh root-login allow"
   ]
   networks = {
@@ -89,30 +89,31 @@ resource "mist_site_networktemplate" "networktemplate_one" {
 
 ### Required
 
-- `site_id` (String) Unique ID of the object instance in the Mist Organnization
+- `site_id` (String) Unique ID of the object instance in the Mist Organization
 
 ### Optional
 
 - `acl_policies` (Attributes List) (see [below for nested schema](#nestedatt--acl_policies))
 - `acl_tags` (Attributes Map) ACL Tags to identify traffic source or destination. Key name is the tag name (see [below for nested schema](#nestedatt--acl_tags))
 - `additional_config_cmds` (List of String) additional CLI commands to append to the generated Junos config. **Note**: no check is done
+- `auto_upgrade_linecard` (Boolean)
 - `dhcp_snooping` (Attributes) (see [below for nested schema](#nestedatt--dhcp_snooping))
 - `disabled_system_defined_port_usages` (List of String) If some system-default port usages are not desired - namely, ap / iot / uplink
 - `dns_servers` (List of String) Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting
 - `dns_suffix` (List of String) Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting
-- `extra_routes` (Attributes Map) (see [below for nested schema](#nestedatt--extra_routes))
+- `extra_routes` (Attributes Map) Property key is the destination CIDR (e.g. "10.0.0.0/8") (see [below for nested schema](#nestedatt--extra_routes))
 - `extra_routes6` (Attributes Map) Property key is the destination CIDR (e.g. "2a02:1234:420a:10c9::/64") (see [below for nested schema](#nestedatt--extra_routes6))
 - `mist_nac` (Attributes) Enable mist_nac to use RadSec (see [below for nested schema](#nestedatt--mist_nac))
 - `networks` (Attributes Map) Property key is network name (see [below for nested schema](#nestedatt--networks))
 - `ntp_servers` (List of String) List of NTP servers
 - `ospf_areas` (Attributes Map) Junos OSPF areas (see [below for nested schema](#nestedatt--ospf_areas))
-- `port_mirroring` (Attributes Map) Property key is the port mirroring instance name. `port_mirroring` can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 port mirrorings is allowed (see [below for nested schema](#nestedatt--port_mirroring))
+- `port_mirroring` (Attributes Map) Property key is the port mirroring instance name. `port_mirroring` can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 mirroring ports is allowed (see [below for nested schema](#nestedatt--port_mirroring))
 - `port_usages` (Attributes Map) Property key is the port usage name. Defines the profiles of port configuration configured on the switch (see [below for nested schema](#nestedatt--port_usages))
 - `radius_config` (Attributes) Junos Radius config (see [below for nested schema](#nestedatt--radius_config))
 - `remote_syslog` (Attributes) (see [below for nested schema](#nestedatt--remote_syslog))
 - `remove_existing_configs` (Boolean) By default, when we configure a device, we only clean up config we generate. Remove existing configs if enabled
 - `snmp_config` (Attributes) (see [below for nested schema](#nestedatt--snmp_config))
-- `switch_matching` (Attributes) Defines custom switch configuration based on different criterias (see [below for nested schema](#nestedatt--switch_matching))
+- `switch_matching` (Attributes) Defines custom switch configuration based on different criteria (see [below for nested schema](#nestedatt--switch_matching))
 - `switch_mgmt` (Attributes) Switch settings (see [below for nested schema](#nestedatt--switch_mgmt))
 - `vrf_config` (Attributes) (see [below for nested schema](#nestedatt--vrf_config))
 - `vrf_instances` (Attributes Map) Property key is the network name (see [below for nested schema](#nestedatt--vrf_instances))
@@ -287,15 +288,15 @@ Optional:
 
 Required:
 
-- `ospf_networks` (Attributes Map) (see [below for nested schema](#nestedatt--ospf_areas--ospf_networks))
+- `networks` (Attributes Map) (see [below for nested schema](#nestedatt--ospf_areas--networks))
 
 Optional:
 
 - `include_loopback` (Boolean)
 - `type` (String) OSPF type. enum: `default`, `nssa`, `stub`
 
-<a id="nestedatt--ospf_areas--ospf_networks"></a>
-### Nested Schema for `ospf_areas.ospf_networks`
+<a id="nestedatt--ospf_areas--networks"></a>
+### Nested Schema for `ospf_areas.networks`
 
 Optional:
 
@@ -322,8 +323,8 @@ Optional:
 - `input_networks_ingress` (List of String) At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified
 - `input_port_ids_egress` (List of String) At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified
 - `input_port_ids_ingress` (List of String) At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified
-- `output_network` (String) Exaclty one of the `output_port_id` or `output_network` should be provided
-- `output_port_id` (String) Exaclty one of the `output_port_id` or `output_network` should be provided
+- `output_network` (String) Exactly one of the `output_port_id` or `output_network` should be provided
+- `output_port_id` (String) Exactly one of the `output_port_id` or `output_network` should be provided
 
 
 <a id="nestedatt--port_usages"></a>
@@ -335,7 +336,7 @@ Optional:
 - `allow_dhcpd` (Boolean) Only if `mode`!=`dynamic`. If DHCP snooping is enabled, whether DHCP server is allowed on the interfaces with. All the interfaces from port configs using this port usage are effected. Please notice that allow_dhcpd is a tri_state. When it is not defined, it means using the system's default setting which depends on whether the port is an access or trunk port.
 - `allow_multiple_supplicants` (Boolean) Only if `mode`!=`dynamic`
 - `bypass_auth_when_server_down` (Boolean) Only if `mode`!=`dynamic` and `port_auth`==`dot1x` bypass auth for known clients if set to true when RADIUS server is down
-- `bypass_auth_when_server_down_for_unkown_client` (Boolean) Only if `mode`!=`dynamic` and `port_auth`=`dot1x` bypass auth for all (including unknown clients) if set to true when RADIUS server is down
+- `bypass_auth_when_server_down_for_unknown_client` (Boolean) Only if `mode`!=`dynamic` and `port_auth`=`dot1x` bypass auth for all (including unknown clients) if set to true when RADIUS server is down
 - `description` (String) Only if `mode`!=`dynamic`
 - `disable_autoneg` (Boolean) Only if `mode`!=`dynamic` if speed and duplex are specified, whether to disable autonegotiation
 - `disabled` (Boolean) Only if `mode`!=`dynamic` whether the port is disabled
@@ -344,19 +345,20 @@ Optional:
 - `enable_mac_auth` (Boolean) Only if `mode`!=`dynamic` and `port_auth`==`dot1x` whether to enable MAC Auth
 - `enable_qos` (Boolean) Only if `mode`!=`dynamic`
 - `guest_network` (String) Only if `mode`!=`dynamic` and `port_auth`==`dot1x` which network to put the device into if the device cannot do dot1x. default is null (i.e. not allowed)
+- `inter_isolation_network_link` (Boolean) `inter_switch_link` is used together with `isolation` under networks. NOTE: `inter_switch_link` works only between Juniper device. This has to be applied to both ports connected together
 - `inter_switch_link` (Boolean) Only if `mode`!=`dynamic` inter_switch_link is used together with "isolation" under networks. NOTE: inter_switch_link works only between Juniper device. This has to be applied to both ports connected together
 - `mac_auth_only` (Boolean) Only if `mode`!=`dynamic` and `enable_mac_auth`==`true`
 - `mac_auth_preferred` (Boolean) Only if `mode`!=`dynamic` + `enable_mac_auth`==`true` + `mac_auth_only`==`false`, dot1x will be given priority then mac_auth. Enable this to prefer mac_auth over dot1x.
 - `mac_auth_protocol` (String) Only if `mode`!=`dynamic` and `enable_mac_auth` ==`true`. This type is ignored if mist_nac is enabled. enum: `eap-md5`, `eap-peap`, `pap`
-- `mac_limit` (Number) Only if `mode`!=`dynamic` max number of mac addresses, default is 0 for unlimited, otherwise range is 1 or higher, with upper bound constrained by platform
+- `mac_limit` (String) Only if `mode`!=`dynamic` max number of mac addresses, default is 0 for unlimited, otherwise range is 1 to 16383 (upper bound constrained by platform)
 - `mode` (String) `mode`==`dynamic` must only be used if the port usage name is `dynamic`. enum: `access`, `dynamic`, `inet`, `trunk`
-- `mtu` (Number) Only if `mode`!=`dynamic` media maximum transmission unit (MTU) is the largest data unit that can be forwarded without fragmentation. The default value is 1514.
+- `mtu` (String) Only if `mode`!=`dynamic` media maximum transmission unit (MTU) is the largest data unit that can be forwarded without fragmentation. Value between 256 and 9216, default value is 1514.
 - `networks` (List of String) Only if `mode`==`trunk`, the list of network/vlans
 - `persist_mac` (Boolean) Only if `mode`==`access` and `port_auth`!=`dot1x` whether the port should retain dynamically learned MAC addresses
 - `poe_disabled` (Boolean) Only if `mode`!=`dynamic` whether PoE capabilities are disabled for a port
 - `port_auth` (String) Only if `mode`!=`dynamic` if dot1x is desired, set to dot1x. enum: `dot1x`
 - `port_network` (String) Only if `mode`!=`dynamic` native network/vlan for untagged traffic
-- `reauth_interval` (Number) Only if `mode`!=`dynamic` and `port_auth`=`dot1x` reauthentication interval range
+- `reauth_interval` (String) Only if `mode`!=`dynamic` and `port_auth`=`dot1x` reauthentication interval range between 10 and 65535 (default: 3600)
 - `reset_default_when` (String) Only if `mode`==`dynamic` Control when the DPC port should be changed to the default port usage. enum: `link_down`, `none` (let the DPC port keep at the current port usage)
 - `rules` (Attributes List) Only if `mode`==`dynamic` (see [below for nested schema](#nestedatt--port_usages--rules))
 - `server_fail_network` (String) Only if `mode`!=`dynamic` and `port_auth`==`dot1x` sets server fail fallback vlan
@@ -405,11 +407,16 @@ Optional:
 
 Optional:
 
+- `acct_immediate_update` (Boolean)
 - `acct_interim_interval` (Number) How frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from RADIUS Server). Very frequent messages can affect the performance of the radius server, 600 and up is recommended when enabled
 - `acct_servers` (Attributes List) (see [below for nested schema](#nestedatt--radius_config--acct_servers))
+- `auth_server_selection` (String) enum: `ordered`, `unordered`
 - `auth_servers` (Attributes List) (see [below for nested schema](#nestedatt--radius_config--auth_servers))
 - `auth_servers_retries` (Number) Radius auth session retries
 - `auth_servers_timeout` (Number) Radius auth session timeout
+- `coa_enabled` (Boolean)
+- `coa_port` (String)
+- `fast_dot1x_timers` (Boolean)
 - `network` (String) Use `network`or `source_ip`. Which network the RADIUS server resides, if there's static IP for this network, we'd use it as source-ip
 - `source_ip` (String) Use `network`or `source_ip`
 
@@ -419,7 +426,7 @@ Optional:
 Required:
 
 - `host` (String) IP/ hostname of RADIUS server
-- `secret` (String, Sensitive) Secretof RADIUS server
+- `secret` (String, Sensitive) Secret of RADIUS server
 
 Optional:
 
@@ -427,7 +434,7 @@ Optional:
 - `keywrap_format` (String) enum: `ascii`, `hex`
 - `keywrap_kek` (String)
 - `keywrap_mack` (String)
-- `port` (Number) Acct port of RADIUS server
+- `port` (String)
 
 
 <a id="nestedatt--radius_config--auth_servers"></a>
@@ -436,7 +443,7 @@ Optional:
 Required:
 
 - `host` (String) IP/ hostname of RADIUS server
-- `secret` (String, Sensitive) Secretof RADIUS server
+- `secret` (String, Sensitive) Secret of RADIUS server
 
 Optional:
 
@@ -444,7 +451,7 @@ Optional:
 - `keywrap_format` (String) enum: `ascii`, `hex`
 - `keywrap_kek` (String)
 - `keywrap_mack` (String)
-- `port` (Number) Auth port of RADIUS server
+- `port` (String)
 - `require_message_authenticator` (Boolean) Whether to require Message-Authenticator in requests
 
 
@@ -469,7 +476,7 @@ Optional:
 
 Optional:
 
-- `files` (Number)
+- `files` (String)
 - `size` (String)
 
 
@@ -507,7 +514,7 @@ Optional:
 
 Optional:
 
-- `files` (Number)
+- `files` (String)
 - `size` (String)
 
 
@@ -531,7 +538,7 @@ Optional:
 - `facility` (String) enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`
 - `host` (String)
 - `match` (String)
-- `port` (Number)
+- `port` (String)
 - `protocol` (String) enum: `tcp`, `udp`
 - `routing_instance` (String)
 - `severity` (String) enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`
@@ -786,7 +793,7 @@ Optional:
 Optional:
 
 - `enable` (Boolean)
-- `rules` (Attributes List) list of rules to define custom switch configuration based on different criterias. Each list must have at least one of `match_model`, `match_name` or `match_role` must be defined (see [below for nested schema](#nestedatt--switch_matching--rules))
+- `rules` (Attributes List) list of rules to define custom switch configuration based on different criteria. Each list must have at least one of `match_model`, `match_name` or `match_role` must be defined (see [below for nested schema](#nestedatt--switch_matching--rules))
 
 <a id="nestedatt--switch_matching--rules"></a>
 ### Nested Schema for `switch_matching.rules`
@@ -801,10 +808,10 @@ Optional:
 - `match_role` (String) string the switch role must start with to use this rule. It is possible to combine with the `match_name` and `match_model` attributes
 - `match_type` (String, Deprecated) property key define the type of matching, value is the string to match. e.g: `match_name[0:3]`, `match_name[2:6]`, `match_model`,  `match_model[0-6]`
 - `match_value` (String, Deprecated)
-- `name` (String)
+- `name` (String) Rule name. WARNING: the name `default` is reserved and can only be used for the last rule in the list
 - `oob_ip_config` (Attributes) Out-of-Band Management interface configuration (see [below for nested schema](#nestedatt--switch_matching--rules--oob_ip_config))
-- `port_config` (Attributes Map) Propery key is the interface name or interface range (see [below for nested schema](#nestedatt--switch_matching--rules--port_config))
-- `port_mirroring` (Attributes Map) Property key is the port mirroring instance name. `port_mirroring` can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 port mirrorings is allowed (see [below for nested schema](#nestedatt--switch_matching--rules--port_mirroring))
+- `port_config` (Attributes Map) Property key is the port name or range (e.g. "ge-0/0/0-10") (see [below for nested schema](#nestedatt--switch_matching--rules--port_config))
+- `port_mirroring` (Attributes Map) Property key is the port mirroring instance name. `port_mirroring` can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 mirroring ports is allowed (see [below for nested schema](#nestedatt--switch_matching--rules--port_mirroring))
 
 <a id="nestedatt--switch_matching--rules--ip_config"></a>
 ### Nested Schema for `switch_matching.rules.ip_config`
@@ -858,8 +865,8 @@ Optional:
 - `input_networks_ingress` (List of String) At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified
 - `input_port_ids_egress` (List of String) At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified
 - `input_port_ids_ingress` (List of String) At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified
-- `output_network` (String) Exaclty one of the `output_port_id` or `output_network` should be provided
-- `output_port_id` (String) Exaclty one of the `output_port_id` or `output_network` should be provided
+- `output_network` (String) Exactly one of the `output_port_id` or `output_network` should be provided
+- `output_port_id` (String) Exactly one of the `output_port_id` or `output_network` should be provided
 
 
 
@@ -875,9 +882,10 @@ Optional:
 - `config_revert_timer` (Number) Rollback timer for commit confirmed
 - `dhcp_option_fqdn` (Boolean) Enable to provide the FQDN with DHCP option 81
 - `disable_oob_down_alarm` (Boolean)
+- `fips_enabled` (Boolean)
 - `local_accounts` (Attributes Map) Property key is the user name. For Local user authentication (see [below for nested schema](#nestedatt--switch_mgmt--local_accounts))
-- `mxedge_proxy_host` (String)
-- `mxedge_proxy_port` (Number)
+- `mxedge_proxy_host` (String) IP Address or FQDN of the Mist Edge used to proxy the switch management traffic to the Mist Cloud
+- `mxedge_proxy_port` (String) Mist Edge port used to proxy the switch management traffic to the Mist Cloud. Value in range 1-65535
 - `protect_re` (Attributes) Restrict inbound-traffic to host
 when enabled, all traffic that is not essential to our operation will be dropped 
 e.g. ntp / dns / traffic to mist will be allowed by default, if dhcpd is enabled, we'll make sure it works (see [below for nested schema](#nestedatt--switch_mgmt--protect_re))
@@ -968,13 +976,24 @@ Optional:
 
 Optional:
 
+- `evpn_auto_loopback_subnet` (String)
+- `evpn_auto_loopback_subnet6` (String)
 - `extra_routes` (Attributes Map) Property key is the destination CIDR (e.g. "10.0.0.0/8") (see [below for nested schema](#nestedatt--vrf_instances--extra_routes))
+- `extra_routes6` (Attributes Map) Property key is the destination CIDR (e.g. "2a02:1234:420a:10c9::/64") (see [below for nested schema](#nestedatt--vrf_instances--extra_routes6))
 - `networks` (List of String)
 
 <a id="nestedatt--vrf_instances--extra_routes"></a>
 ### Nested Schema for `vrf_instances.extra_routes`
 
 Required:
+
+- `via` (String) Next-hop address
+
+
+<a id="nestedatt--vrf_instances--extra_routes6"></a>
+### Nested Schema for `vrf_instances.extra_routes6`
+
+Optional:
 
 - `via` (String) Next-hop address
 

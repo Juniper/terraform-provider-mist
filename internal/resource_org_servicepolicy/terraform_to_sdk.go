@@ -3,7 +3,7 @@ package resource_org_servicepolicy
 import (
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 )
@@ -14,6 +14,12 @@ func TerraformToSdk(plan *OrgServicepolicyModel) (models.OrgServicePolicy, diag.
 	unset := make(map[string]interface{})
 
 	data.Name = plan.Name.ValueStringPointer()
+
+	if !plan.Aamw.IsNull() && !plan.Aamw.IsUnknown() {
+		data.Aamw = aamwTerraformToSdk(&diags, plan.Aamw)
+	} else {
+		unset["-aamw"] = ""
+	}
 
 	if !plan.Action.IsNull() && !plan.Action.IsUnknown() {
 		data.Action = (*models.AllowDenyEnum)(plan.Action.ValueStringPointer())
@@ -62,7 +68,7 @@ func TerraformToSdk(plan *OrgServicepolicyModel) (models.OrgServicePolicy, diag.
 	}
 
 	if !plan.Services.IsNull() && !plan.Services.IsUnknown() {
-		data.Services = misttransform.ListOfStringTerraformToSdk(plan.Services)
+		data.Services = mistutils.ListOfStringTerraformToSdk(plan.Services)
 	} else {
 		unset["-services"] = ""
 	}
@@ -74,7 +80,7 @@ func TerraformToSdk(plan *OrgServicepolicyModel) (models.OrgServicePolicy, diag.
 	}
 
 	if !plan.Tenants.IsNull() && !plan.Services.IsUnknown() {
-		data.Tenants = misttransform.ListOfStringTerraformToSdk(plan.Tenants)
+		data.Tenants = mistutils.ListOfStringTerraformToSdk(plan.Tenants)
 	} else {
 		unset["-tenants"] = ""
 	}

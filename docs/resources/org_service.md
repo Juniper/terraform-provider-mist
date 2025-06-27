@@ -48,40 +48,43 @@ resource "mist_org_service" "service_one" {
 
 ### Optional
 
-- `addresses` (List of String) if `type`==`custom`, ip subnets (e.g. 10.0.0.0/8)
-- `app_categories` (List of String) when `type`==`app_categories`, list of application categories are available through /api/v1/const/app_categories
-- `app_subcategories` (List of String) when `type`==`app_categories`, list of application categories are available through /api/v1/const/app_subcategories
-- `apps` (List of String) when `type`==`apps`, list of applications are available through:
-  * /api/v1/const/applications
-  * /api/v1/const/gateway_applications
+- `addresses` (List of String) If `type`==`custom`, ip subnets (e.g. 10.0.0.0/8)
+- `app_categories` (List of String) When `type`==`app_categories`, list of application categories are available through [List App Category Definitions]($e/Constants%20Definitions/listAppCategoryDefinitions)
+- `app_subcategories` (List of String) When `type`==`app_categories`, list of application categories are available through [List App Sub Category Definitions]($e/Constants%20Definitions/listAppSubCategoryDefinitions)
+- `apps` (List of String) When `type`==`apps`, list of applications are available through:
+  * [List Applications]($e/Constants%20Definitions/listApplications)
+  * [List Gateway Applications]($e/Constants%20Definitions/listGatewayApplications)
   * /insight/top_app_by-bytes?wired=true
+- `client_limit_down` (Number) 0 means unlimited, value from 0 to 107374182
+- `client_limit_up` (Number) 0 means unlimited, value from 0 to 107374182
 - `description` (String)
 - `dscp` (String)
-- `failover_policy` (String) enum: `non_revertable`, `none`, `revertable`
-- `hostnames` (List of String) if `type`==`custom`, web filtering
+- `failover_policy` (String) enum: `non_revertible`, `none`, `revertible`
+- `hostnames` (List of String) If `type`==`custom`, web filtering
 - `max_jitter` (String)
 - `max_latency` (String)
 - `max_loss` (String)
-- `sle_enabled` (Boolean) whether to enable measure SLE
-- `specs` (Attributes List) when `type`==`custom`, optional, if it doesn't exist, http and https is assumed (see [below for nested schema](#nestedatt--specs))
+- `service_limit_down` (Number) 0 means unlimited, value from 0 to 107374182
+- `service_limit_up` (Number) 0 means unlimited, value from 0 to 107374182
+- `sle_enabled` (Boolean) Whether to enable measure SLE
+- `specs` (Attributes List) When `type`==`custom`, optional, if it doesn't exist, http and https is assumed (see [below for nested schema](#nestedatt--specs))
 - `ssr_relaxed_tcp_state_enforcement` (Boolean)
 - `traffic_class` (String) when `traffic_type`==`custom`. enum: `best_effort`, `high`, `low`, `medium`
-- `traffic_type` (String) values from `/api/v1/consts/traffic_types`
+- `traffic_type` (String) values from [List Traffic Types]($e/Constants%20Definitions/listTrafficTypes)
 - `type` (String) enum: `app_categories`, `apps`, `custom`, `urls`
-- `urls` (List of String) when `type`==`urls`, no need for spec as URL can encode the ports being used
+- `urls` (List of String) When `type`==`urls`, no need for spec as URL can encode the ports being used
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
+- `id` (String) Unique ID of the object instance in the Mist Organization
 
 <a id="nestedatt--specs"></a>
 ### Nested Schema for `specs`
 
 Optional:
 
-- `port_range` (String) port number, port range, or variable
-- `protocol` (String) `https`/ `tcp` / `udp` / `icmp` / `gre` / `any` / `:protocol_number`.
-`protocol_number` is between 1-254
+- `port_range` (String) Port number, port range, or variable
+- `protocol` (String) `https`/ `tcp` / `udp` / `icmp` / `gre` / `any` / `:protocol_number`, `protocol_number` is between 1-254
 
 
 

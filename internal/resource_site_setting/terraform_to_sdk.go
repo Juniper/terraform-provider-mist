@@ -5,7 +5,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
@@ -63,6 +63,12 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 		unset["-device_updown_threshold"] = ""
 	}
 
+	if !plan.EnableUnii4.IsNull() && !plan.EnableUnii4.IsUnknown() {
+		data.EnableUnii4 = plan.EnableUnii4.ValueBoolPointer()
+	} else {
+		unset["-enable_unii_4"] = ""
+	}
+
 	if !plan.Engagement.IsNull() && !plan.Engagement.IsUnknown() {
 		data.Engagement = engagementTerraformToSdk(ctx, &diags, plan.Engagement)
 	} else {
@@ -115,7 +121,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 	if plan.RemoveExistingConfigs.ValueBoolPointer() != nil {
 		data.RemoveExistingConfigs = plan.RemoveExistingConfigs.ValueBoolPointer()
 	} else {
-		unset["remove_existing_configs"] = ""
+		unset["-remove_existing_configs"] = ""
 	}
 
 	if plan.ReportGatt.ValueBoolPointer() != nil {
@@ -155,7 +161,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 	}
 
 	if !plan.SshKeys.IsNull() && !plan.SshKeys.IsUnknown() {
-		data.SshKeys = misttransform.ListOfStringTerraformToSdk(plan.SshKeys)
+		data.SshKeys = mistutils.ListOfStringTerraformToSdk(plan.SshKeys)
 	} else {
 		unset["-ssh_keys"] = ""
 	}
@@ -193,7 +199,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 	if !plan.Vars.IsNull() && !plan.Vars.IsUnknown() {
 		data.Vars = varsTerraformToSdk(plan.Vars)
 	} else {
-		unset["-var"] = ""
+		unset["-vars"] = ""
 	}
 
 	if !plan.Vna.IsNull() && !plan.Vna.IsUnknown() {

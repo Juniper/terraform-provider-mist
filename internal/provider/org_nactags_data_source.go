@@ -54,7 +54,7 @@ func (d *orgNactagsDataSource) Metadata(_ context.Context, req datasource.Metada
 func (d *orgNactagsDataSource) Schema(ctx context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryNac + "This data source provides the list of NAC Tags (Auth Policy Labels).\n\n" +
-			"The NAC Tags can be used in the NAC Rules to define the matching criterias or the returned RADIUS Attributes",
+			"The NAC Tags can be used in the NAC Rules to define the matching criteria or the returned RADIUS Attributes",
 		Attributes: datasource_org_nactags.OrgNactagsDataSourceSchema(ctx).Attributes,
 	}
 }
@@ -116,7 +116,7 @@ func (d *orgNactagsDataSource) Read(ctx context.Context, req datasource.ReadRequ
 		if limit, err = strconv.Atoi(limitString); err != nil {
 			resp.Diagnostics.AddError(
 				"Error extracting HTTP Response Headers",
-				"Unable to convert the X-Page-Limit value into int, unexcpected error: "+err.Error(),
+				"Unable to convert the X-Page-Limit value into int, unexpected error: "+err.Error(),
 			)
 			return
 		}
@@ -125,7 +125,7 @@ func (d *orgNactagsDataSource) Read(ctx context.Context, req datasource.ReadRequ
 		if total, err = strconv.Atoi(totalString); err != nil {
 			resp.Diagnostics.AddError(
 				"Error extracting HTTP Response Headers",
-				"Unable to convert the X-Page-Total value into int, unexcpected error: "+err.Error(),
+				"Unable to convert the X-Page-Total value into int, unexpected error: "+err.Error(),
 			)
 			return
 		}

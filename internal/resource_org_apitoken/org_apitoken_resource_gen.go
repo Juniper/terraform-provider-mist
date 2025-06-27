@@ -11,6 +11,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
@@ -29,7 +31,12 @@ func OrgApitokenResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "email of the token creator / null if creator is deleted",
 			},
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Unique ID of the object instance in the Mist Organization",
+				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"key": schema.StringAttribute{
 				Computed:  true,
@@ -37,8 +44,8 @@ func OrgApitokenResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"name": schema.StringAttribute{
 				Required:            true,
-				Description:         "name of the token",
-				MarkdownDescription: "name of the token",
+				Description:         "Name of the token",
+				MarkdownDescription: "Name of the token",
 			},
 			"org_id": schema.StringAttribute{
 				Required: true,
@@ -100,8 +107,8 @@ func OrgApitokenResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Required:            true,
-				Description:         "list of privileges the token has on the orgs/sites",
-				MarkdownDescription: "list of privileges the token has on the orgs/sites",
+				Description:         "List of privileges the token has on the orgs/sites",
+				MarkdownDescription: "List of privileges the token has on the orgs/sites",
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 				},
@@ -109,15 +116,15 @@ func OrgApitokenResourceSchema(ctx context.Context) schema.Schema {
 			"src_ips": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
-				Description:         "list of allowed IP addresses from where the token can be used from. At most 10 IP addresses can be specified, cannot be changed once the API Token is created.",
-				MarkdownDescription: "list of allowed IP addresses from where the token can be used from. At most 10 IP addresses can be specified, cannot be changed once the API Token is created.",
+				Description:         "List of allowed IP addresses from where the token can be used from. At most 10 IP addresses can be specified, cannot be changed once the API Token is created.",
+				MarkdownDescription: "List of allowed IP addresses from where the token can be used from. At most 10 IP addresses can be specified, cannot be changed once the API Token is created.",
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 					listvalidator.SizeAtMost(10),
 					listvalidator.ValueStringsAre(
 						stringvalidator.Any(
-							mistvalidator.ParseIp(true, true),
-							mistvalidator.ParseCidr(true, true),
+							mistvalidator.ParseIp(false, false),
+							mistvalidator.ParseCidr(false, false),
 						),
 					),
 				},

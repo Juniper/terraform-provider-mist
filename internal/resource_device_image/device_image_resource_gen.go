@@ -30,7 +30,9 @@ func DeviceImageResourceSchema(ctx context.Context) schema.Schema {
 				},
 			},
 			"image_number": schema.Int64Attribute{
-				Required: true,
+				Required:            true,
+				Description:         "number of the image, between 1 and 3",
+				MarkdownDescription: "number of the image, between 1 and 3",
 				Validators: []validator.Int64{
 					int64validator.Between(1, 3),
 				},

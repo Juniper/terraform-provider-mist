@@ -62,7 +62,7 @@ func (r *orgDeviceprofileApResource) Schema(ctx context.Context, _ resource.Sche
 			"They allow for efficient application of configurations based on ap groups, wlan groups, RF settings, and sites. " +
 			"Device profiles enable various use cases such as activating ethernet passthrough, applying different rf settings, applying mesh configuration, " +
 			"activating specific features like esl or vble, and more.\n\n" +
-			"The AP Devide Profile can be assigned to a gateway with the `mist_org_deviceprofile_assign` resource.",
+			"The AP Device Profile can be assigned to a gateway with the `mist_org_deviceprofile_assign` resource.",
 		Attributes: resource_org_deviceprofile_ap.OrgDeviceprofileApResourceSchema(ctx).Attributes,
 	}
 }
@@ -91,7 +91,7 @@ func (r *orgDeviceprofileApResource) Create(ctx context.Context, req resource.Cr
 		)
 		return
 	}
-	data, err := r.client.OrgsDeviceProfiles().CreateOrgDeviceProfiles(ctx, orgId, &deviceprofileAp)
+	data, err := r.client.OrgsDeviceProfiles().CreateOrgDeviceProfile(ctx, orgId, &deviceprofileAp)
 	if data.Response.StatusCode != 200 {
 
 		apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
@@ -143,7 +143,7 @@ func (r *orgDeviceprofileApResource) Read(ctx context.Context, _ resource.ReadRe
 		)
 		return
 	}
-	deviceprofileApid, err := uuid.Parse(state.Id.ValueString())
+	deviceprofileApId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"deviceprofile_ap_id\" value for \"mist_org_deviceprofile_ap\" resource",
@@ -152,7 +152,7 @@ func (r *orgDeviceprofileApResource) Read(ctx context.Context, _ resource.ReadRe
 		return
 	}
 	tflog.Info(ctx, "Starting DeviceprofileAp Read: deviceprofile_ap_id "+state.Id.ValueString())
-	httpr, err := r.client.OrgsDeviceProfiles().GetOrgDeviceProfile(ctx, orgId, deviceprofileApid)
+	httpr, err := r.client.OrgsDeviceProfiles().GetOrgDeviceProfile(ctx, orgId, deviceprofileApId)
 	if httpr.Response.StatusCode == 404 {
 		resp.State.RemoveResource(ctx)
 		return
@@ -214,7 +214,7 @@ func (r *orgDeviceprofileApResource) Update(ctx context.Context, req resource.Up
 		)
 		return
 	}
-	deviceprofileApid, err := uuid.Parse(state.Id.ValueString())
+	deviceprofileApId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"deviceprofile_ap_id\" value for \"mist_org_deviceprofile_ap\" resource",
@@ -223,7 +223,7 @@ func (r *orgDeviceprofileApResource) Update(ctx context.Context, req resource.Up
 		return
 	}
 	tflog.Info(ctx, "Starting DeviceprofileAp Update for DeviceprofileAp "+state.Id.ValueString())
-	data, err := r.client.OrgsDeviceProfiles().UpdateOrgDeviceProfile(ctx, orgId, deviceprofileApid, &deviceprofileAp)
+	data, err := r.client.OrgsDeviceProfiles().UpdateOrgDeviceProfile(ctx, orgId, deviceprofileApId, &deviceprofileAp)
 
 	if data.Response.StatusCode != 200 {
 
@@ -276,7 +276,7 @@ func (r *orgDeviceprofileApResource) Delete(ctx context.Context, _ resource.Dele
 		)
 		return
 	}
-	deviceprofileApid, err := uuid.Parse(state.Id.ValueString())
+	deviceprofileApId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"deviceprofile_ap_id\" value for \"mist_org_deviceprofile_ap\" resource",
@@ -284,16 +284,26 @@ func (r *orgDeviceprofileApResource) Delete(ctx context.Context, _ resource.Dele
 		)
 		return
 	}
-	tflog.Info(ctx, "Starting DeviceprofileAp Delete: deviceprofile_ap_id "+state.Id.ValueString())
-	data, err := r.client.OrgsDeviceProfiles().DeleteOrgDeviceProfile(ctx, orgId, deviceprofileApid)
-	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && apiErr != "" {
+
+	data, err := r.client.OrgsDeviceProfiles().DeleteOrgDeviceProfile(ctx, orgId, deviceprofileApId)
+	if data != nil {
+		apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+		if data.StatusCode != 404 && apiErr != "" {
+			resp.Diagnostics.AddError(
+				"Error deleting \"mist_org_deviceprofile_ap\" resource",
+				fmt.Sprintf("Unable to delete the AP Device Profile. %s", apiErr),
+			)
+			return
+		}
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_deviceprofile_ap\" resource",
-			fmt.Sprintf("Unable to delete the AP Device Profile. %s", apiErr),
+			"Unable to delete the AP Device Profile, unexpected error: "+err.Error(),
 		)
 		return
 	}
+
+	resp.State.RemoveResource(ctx)
 }
 
 func (r *orgDeviceprofileApResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

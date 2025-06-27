@@ -3,14 +3,14 @@ page_title: "mist_org_sso_metadata Data Source - terraform-provider-mist"
 subcategory: "Org"
 description: |-
   This data source provides the SSO Metadata information.
-  The provided information (entity_id, acs_url, logout_url and metadata) are the informationrequired to configure the IDP
+  The provided information (entity_id, acs_url, logout_url and metadata) are the information required to configure the IDP
 ---
 
 # mist_org_sso_metadata (Data Source)
 
 This data source provides the SSO Metadata information.
 
-The provided information (`entity_id`, `acs_url`, `logout_url` and `metadata`) are the informationrequired to configure the IDP
+The provided information (`entity_id`, `acs_url`, `logout_url` and `metadata`) are the information required to configure the IDP
 
 
 ## Example Usage
@@ -32,7 +32,8 @@ data "mist_org_sso_metadata" "sso_idp" {
 
 ### Read-Only
 
-- `acs_url` (String)
-- `entity_id` (String)
-- `logout_url` (String)
-- `metadata` (String)
+- `acs_url` (String) If `idp_type`==`saml`
+- `entity_id` (String) If `idp_type`==`saml`
+- `logout_url` (String) If `idp_type`==`saml`
+- `metadata` (String) If `idp_type`==`saml`
+- `scim_base_url` (String) If `idp_type`==`oauth` and `scim_enabled`==`true`

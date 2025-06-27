@@ -165,7 +165,7 @@ func (r *deviceApResource) Read(ctx context.Context, _ resource.ReadRequest, res
 	} else if httpr.Response.StatusCode != 200 && err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting \"mist_device_ap\" resource",
-			"Unable toget the Wireless Access Point, unexpected error: "+err.Error(),
+			"Unable to get the Wireless Access Point, unexpected error: "+err.Error(),
 		)
 		return
 	}

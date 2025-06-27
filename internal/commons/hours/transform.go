@@ -15,8 +15,8 @@ import (
 )
 
 func HoursSdkToTerraform(diags *diag.Diagnostics, d *models.Hours) basetypes.ObjectValue {
-	rAttrType := HoursValue{}.AttributeTypes()
 
+	var set = false
 	var mon types.String
 	var tue types.String
 	var wed types.String
@@ -26,39 +26,50 @@ func HoursSdkToTerraform(diags *diag.Diagnostics, d *models.Hours) basetypes.Obj
 	var sun types.String
 
 	if d.Mon != nil {
+		set = true
 		mon = types.StringValue(*d.Mon)
 	}
 	if d.Tue != nil {
+		set = true
 		tue = types.StringValue(*d.Tue)
 	}
 	if d.Wed != nil {
+		set = true
 		wed = types.StringValue(*d.Wed)
 	}
 	if d.Thu != nil {
+		set = true
 		thu = types.StringValue(*d.Thu)
 	}
 	if d.Fri != nil {
+		set = true
 		fri = types.StringValue(*d.Fri)
 	}
 	if d.Sat != nil {
+		set = true
 		sat = types.StringValue(*d.Sat)
 	}
 	if d.Sun != nil {
+		set = true
 		sun = types.StringValue(*d.Sun)
 	}
 
-	rAttrValue := map[string]attr.Value{
-		"mon": mon,
-		"tue": tue,
-		"wed": wed,
-		"thu": thu,
-		"fri": fri,
-		"sat": sat,
-		"sun": sun,
+	if set {
+		rAttrValue := map[string]attr.Value{
+			"mon": mon,
+			"tue": tue,
+			"wed": wed,
+			"thu": thu,
+			"fri": fri,
+			"sat": sat,
+			"sun": sun,
+		}
+		r, e := basetypes.NewObjectValue(HoursValue{}.AttributeTypes(), rAttrValue)
+		diags.Append(e...)
+		return r
+	} else {
+		return types.ObjectNull(HoursValue{}.AttributeTypes())
 	}
-	r, e := basetypes.NewObjectValue(rAttrType, rAttrValue)
-	diags.Append(e...)
-	return r
 }
 
 func HoursTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.Hours {

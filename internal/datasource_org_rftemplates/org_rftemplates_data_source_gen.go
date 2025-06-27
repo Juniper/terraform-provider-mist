@@ -5,8 +5,10 @@ package datasource_org_rftemplates
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
@@ -24,17 +26,30 @@ func OrgRftemplatesDataSourceSchema(ctx context.Context) schema.Schema {
 			"org_rftemplates": schema.SetNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
-						"created_time": schema.NumberAttribute{
-							Computed: true,
+						"country_code": schema.StringAttribute{
+							Computed:            true,
+							Description:         "Optional, country code to use. If specified, this gets applied to all sites using the RF Template",
+							MarkdownDescription: "Optional, country code to use. If specified, this gets applied to all sites using the RF Template",
+						},
+						"created_time": schema.Float64Attribute{
+							Computed:            true,
+							Description:         "When the object has been created, in epoch",
+							MarkdownDescription: "When the object has been created, in epoch",
 						},
 						"id": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							Description:         "Unique ID of the object instance in the Mist Organization",
+							MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
 						},
-						"modified_time": schema.NumberAttribute{
-							Computed: true,
+						"modified_time": schema.Float64Attribute{
+							Computed:            true,
+							Description:         "When the object has been modified for the last time, in epoch",
+							MarkdownDescription: "When the object has been modified for the last time, in epoch",
 						},
 						"name": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							Description:         "The name of the RF template",
+							MarkdownDescription: "The name of the RF template",
 						},
 						"org_id": schema.StringAttribute{
 							Computed: true,
@@ -48,6 +63,12 @@ func OrgRftemplatesDataSourceSchema(ctx context.Context) schema.Schema {
 				},
 				Computed: true,
 			},
+			"page": schema.Int64Attribute{
+				Optional: true,
+				Validators: []validator.Int64{
+					int64validator.AtLeast(1),
+				},
+			},
 		},
 	}
 }
@@ -55,6 +76,7 @@ func OrgRftemplatesDataSourceSchema(ctx context.Context) schema.Schema {
 type OrgRftemplatesModel struct {
 	OrgId          types.String `tfsdk:"org_id"`
 	OrgRftemplates types.Set    `tfsdk:"org_rftemplates"`
+	Page           types.Int64  `tfsdk:"page"`
 }
 
 var _ basetypes.ObjectTypable = OrgRftemplatesType{}
@@ -82,6 +104,24 @@ func (t OrgRftemplatesType) ValueFromObject(ctx context.Context, in basetypes.Ob
 
 	attributes := in.Attributes()
 
+	countryCodeAttribute, ok := attributes["country_code"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`country_code is missing from object`)
+
+		return nil, diags
+	}
+
+	countryCodeVal, ok := countryCodeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`country_code expected to be basetypes.StringValue, was: %T`, countryCodeAttribute))
+	}
+
 	createdTimeAttribute, ok := attributes["created_time"]
 
 	if !ok {
@@ -92,12 +132,12 @@ func (t OrgRftemplatesType) ValueFromObject(ctx context.Context, in basetypes.Ob
 		return nil, diags
 	}
 
-	createdTimeVal, ok := createdTimeAttribute.(basetypes.NumberValue)
+	createdTimeVal, ok := createdTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`created_time expected to be basetypes.NumberValue, was: %T`, createdTimeAttribute))
+			fmt.Sprintf(`created_time expected to be basetypes.Float64Value, was: %T`, createdTimeAttribute))
 	}
 
 	idAttribute, ok := attributes["id"]
@@ -128,12 +168,12 @@ func (t OrgRftemplatesType) ValueFromObject(ctx context.Context, in basetypes.Ob
 		return nil, diags
 	}
 
-	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.NumberValue)
+	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`modified_time expected to be basetypes.NumberValue, was: %T`, modifiedTimeAttribute))
+			fmt.Sprintf(`modified_time expected to be basetypes.Float64Value, was: %T`, modifiedTimeAttribute))
 	}
 
 	nameAttribute, ok := attributes["name"]
@@ -177,6 +217,7 @@ func (t OrgRftemplatesType) ValueFromObject(ctx context.Context, in basetypes.Ob
 	}
 
 	return OrgRftemplatesValue{
+		CountryCode:  countryCodeVal,
 		CreatedTime:  createdTimeVal,
 		Id:           idVal,
 		ModifiedTime: modifiedTimeVal,
@@ -249,6 +290,24 @@ func NewOrgRftemplatesValue(attributeTypes map[string]attr.Type, attributes map[
 		return NewOrgRftemplatesValueUnknown(), diags
 	}
 
+	countryCodeAttribute, ok := attributes["country_code"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`country_code is missing from object`)
+
+		return NewOrgRftemplatesValueUnknown(), diags
+	}
+
+	countryCodeVal, ok := countryCodeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`country_code expected to be basetypes.StringValue, was: %T`, countryCodeAttribute))
+	}
+
 	createdTimeAttribute, ok := attributes["created_time"]
 
 	if !ok {
@@ -259,12 +318,12 @@ func NewOrgRftemplatesValue(attributeTypes map[string]attr.Type, attributes map[
 		return NewOrgRftemplatesValueUnknown(), diags
 	}
 
-	createdTimeVal, ok := createdTimeAttribute.(basetypes.NumberValue)
+	createdTimeVal, ok := createdTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`created_time expected to be basetypes.NumberValue, was: %T`, createdTimeAttribute))
+			fmt.Sprintf(`created_time expected to be basetypes.Float64Value, was: %T`, createdTimeAttribute))
 	}
 
 	idAttribute, ok := attributes["id"]
@@ -295,12 +354,12 @@ func NewOrgRftemplatesValue(attributeTypes map[string]attr.Type, attributes map[
 		return NewOrgRftemplatesValueUnknown(), diags
 	}
 
-	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.NumberValue)
+	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`modified_time expected to be basetypes.NumberValue, was: %T`, modifiedTimeAttribute))
+			fmt.Sprintf(`modified_time expected to be basetypes.Float64Value, was: %T`, modifiedTimeAttribute))
 	}
 
 	nameAttribute, ok := attributes["name"]
@@ -344,6 +403,7 @@ func NewOrgRftemplatesValue(attributeTypes map[string]attr.Type, attributes map[
 	}
 
 	return OrgRftemplatesValue{
+		CountryCode:  countryCodeVal,
 		CreatedTime:  createdTimeVal,
 		Id:           idVal,
 		ModifiedTime: modifiedTimeVal,
@@ -421,11 +481,12 @@ func (t OrgRftemplatesType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = OrgRftemplatesValue{}
 
 type OrgRftemplatesValue struct {
-	CreatedTime  basetypes.NumberValue `tfsdk:"created_time"`
-	Id           basetypes.StringValue `tfsdk:"id"`
-	ModifiedTime basetypes.NumberValue `tfsdk:"modified_time"`
-	Name         basetypes.StringValue `tfsdk:"name"`
-	OrgId        basetypes.StringValue `tfsdk:"org_id"`
+	CountryCode  basetypes.StringValue  `tfsdk:"country_code"`
+	CreatedTime  basetypes.Float64Value `tfsdk:"created_time"`
+	Id           basetypes.StringValue  `tfsdk:"id"`
+	ModifiedTime basetypes.Float64Value `tfsdk:"modified_time"`
+	Name         basetypes.StringValue  `tfsdk:"name"`
+	OrgId        basetypes.StringValue  `tfsdk:"org_id"`
 	state        attr.ValueState
 }
 
@@ -435,9 +496,10 @@ func (v OrgRftemplatesValue) ToTerraformValue(ctx context.Context) (tftypes.Valu
 	var val tftypes.Value
 	var err error
 
-	attrTypes["created_time"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["country_code"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["created_time"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["id"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["modified_time"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["modified_time"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["org_id"] = basetypes.StringType{}.TerraformType(ctx)
 
@@ -446,6 +508,14 @@ func (v OrgRftemplatesValue) ToTerraformValue(ctx context.Context) (tftypes.Valu
 	switch v.state {
 	case attr.ValueStateKnown:
 		vals := make(map[string]tftypes.Value, 6)
+
+		val, err = v.CountryCode.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["country_code"] = val
 
 		val, err = v.CreatedTime.ToTerraformValue(ctx)
 
@@ -517,9 +587,10 @@ func (v OrgRftemplatesValue) ToObjectValue(ctx context.Context) (basetypes.Objec
 	var diags diag.Diagnostics
 
 	attributeTypes := map[string]attr.Type{
-		"created_time":  basetypes.NumberType{},
+		"country_code":  basetypes.StringType{},
+		"created_time":  basetypes.Float64Type{},
 		"id":            basetypes.StringType{},
-		"modified_time": basetypes.NumberType{},
+		"modified_time": basetypes.Float64Type{},
 		"name":          basetypes.StringType{},
 		"org_id":        basetypes.StringType{},
 	}
@@ -535,6 +606,7 @@ func (v OrgRftemplatesValue) ToObjectValue(ctx context.Context) (basetypes.Objec
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
+			"country_code":  v.CountryCode,
 			"created_time":  v.CreatedTime,
 			"id":            v.Id,
 			"modified_time": v.ModifiedTime,
@@ -558,6 +630,10 @@ func (v OrgRftemplatesValue) Equal(o attr.Value) bool {
 
 	if v.state != attr.ValueStateKnown {
 		return true
+	}
+
+	if !v.CountryCode.Equal(other.CountryCode) {
+		return false
 	}
 
 	if !v.CreatedTime.Equal(other.CreatedTime) {
@@ -593,9 +669,10 @@ func (v OrgRftemplatesValue) Type(ctx context.Context) attr.Type {
 
 func (v OrgRftemplatesValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"created_time":  basetypes.NumberType{},
+		"country_code":  basetypes.StringType{},
+		"created_time":  basetypes.Float64Type{},
 		"id":            basetypes.StringType{},
-		"modified_time": basetypes.NumberType{},
+		"modified_time": basetypes.Float64Type{},
 		"name":          basetypes.StringType{},
 		"org_id":        basetypes.StringType{},
 	}

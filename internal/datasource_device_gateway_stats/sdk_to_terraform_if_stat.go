@@ -4,7 +4,7 @@ import (
 	"context"
 	"math/big"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -86,10 +86,10 @@ func ifStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[s
 			addressMode = types.StringValue(*d.AddressMode)
 		}
 		if d.Ips != nil {
-			ips = misttransform.ListOfStringSdkToTerraform(d.Ips)
+			ips = mistutils.ListOfStringSdkToTerraform(d.Ips)
 		}
 		if d.NatAddresses != nil {
-			natAddresses = misttransform.ListOfStringSdkToTerraform(d.NatAddresses)
+			natAddresses = mistutils.ListOfStringSdkToTerraform(d.NatAddresses)
 		}
 		if d.NetworkName != nil {
 			networkName = types.StringValue(*d.NetworkName)
@@ -103,20 +103,20 @@ func ifStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[s
 		if d.RedundancyState != nil {
 			redundancyState = types.StringValue(*d.RedundancyState)
 		}
-		if d.RxBytes != nil {
-			rxBytes = types.Int64Value(int64(*d.RxBytes))
+		if d.RxBytes.Value() != nil {
+			rxBytes = types.Int64Value(*d.RxBytes.Value())
 		}
-		if d.RxPkts != nil {
-			rxPkts = types.Int64Value(int64(*d.RxPkts))
+		if d.RxPkts.Value() != nil {
+			rxPkts = types.Int64Value(*d.RxPkts.Value())
 		}
 		if d.ServpInfo != nil {
 			servpInfo = ifStatsServpInfoSdkToTerraform(ctx, diags, d.ServpInfo)
 		}
-		if d.TxBytes != nil {
-			txBytes = types.Int64Value(int64(*d.TxBytes))
+		if d.TxBytes.Value() != nil {
+			txBytes = types.Int64Value(*d.TxBytes.Value())
 		}
-		if d.TxPkts != nil {
-			txPkts = types.Int64Value(int64(*d.TxPkts))
+		if d.TxPkts.Value() != nil {
+			txPkts = types.Int64Value(*d.TxPkts.Value())
 		}
 		if d.Up != nil {
 			up = types.BoolValue(*d.Up)

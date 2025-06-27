@@ -4,7 +4,7 @@ import (
 	"context"
 	"math/big"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -34,12 +34,13 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	var configReverted basetypes.BoolValue
 	var cpuSystem basetypes.Int64Value
 	var cpuUtil basetypes.Int64Value
-	var createdTime basetypes.Int64Value
+	var createdTime basetypes.Float64Value
 	var deviceprofileId basetypes.StringValue
 	var envStat = types.ObjectNull(EnvStatValue{}.AttributeTypes(ctx))
 	var eslStat = types.ObjectNull(EslStatValue{}.AttributeTypes(ctx))
 	var extIp basetypes.StringValue
 	var fwupdate = types.ObjectNull(FwupdateValue{}.AttributeTypes(ctx))
+	var gps = types.ObjectNull(GpsValue{}.AttributeTypes(ctx))
 	var hwRev basetypes.StringValue
 	var id basetypes.StringValue
 	var inactiveWiredVlans = types.ListNull(types.Int64Type)
@@ -48,7 +49,7 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	var ipConfig = types.ObjectNull(IpConfigValue{}.AttributeTypes(ctx))
 	var ipStat = types.ObjectNull(IpStatValue{}.AttributeTypes(ctx))
 	var l2tpStat = types.MapNull(L2tpStatValue{}.Type(ctx))
-	var lastSeen basetypes.NumberValue
+	var lastSeen basetypes.Float64Value
 	var lastTrouble = types.ObjectNull(LastTroubleValue{}.AttributeTypes(ctx))
 	var led = types.ObjectNull(LedValue{}.AttributeTypes(ctx))
 	var lldpStat = types.ObjectNull(LldpStatValue{}.AttributeTypes(ctx))
@@ -60,11 +61,12 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	var meshDownlinks = types.MapNull(MeshDownlinksValue{}.Type(ctx))
 	var meshUplink = types.ObjectNull(MeshUplinkValue{}.AttributeTypes(ctx))
 	var model basetypes.StringValue
-	var modifiedTime basetypes.Int64Value
+	var modifiedTime basetypes.Float64Value
 	var mount basetypes.StringValue
 	var name basetypes.StringValue
 	var notes basetypes.StringValue
 	var numClients basetypes.Int64Value
+	var numWlans basetypes.Int64Value
 	var orgId basetypes.StringValue
 	var portStat = types.MapNull(PortStatValue{}.Type(ctx))
 	var powerBudget basetypes.Int64Value
@@ -72,16 +74,16 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	var powerOpmode basetypes.StringValue
 	var powerSrc basetypes.StringValue
 	var radioStat = types.ObjectNull(RadioStatValue{}.AttributeTypes(ctx))
-	var rxBps basetypes.NumberValue
+	var rxBps basetypes.Int64Value
 	var rxBytes basetypes.Int64Value
 	var rxPkts basetypes.Int64Value
 	var serial basetypes.StringValue
 	var siteId basetypes.StringValue
 	var status basetypes.StringValue
 	var switchRedundancy = types.ObjectNull(SwitchRedundancyValue{}.AttributeTypes(ctx))
-	var txBps basetypes.NumberValue
-	var txBytes basetypes.NumberValue
-	var txPkts basetypes.NumberValue
+	var txBps basetypes.Int64Value
+	var txBytes basetypes.Int64Value
+	var txPkts basetypes.Int64Value
 	var uptime basetypes.NumberValue
 	var usbStat = types.ObjectNull(UsbStatValue{}.AttributeTypes(ctx))
 	var version basetypes.StringValue
@@ -110,7 +112,7 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 		cpuUtil = types.Int64Value(int64(*d.CpuUtil.Value()))
 	}
 	if d.CreatedTime != nil {
-		createdTime = types.Int64Value(int64(*d.CreatedTime))
+		createdTime = types.Float64Value(*d.CreatedTime)
 	}
 	if d.DeviceprofileId.Value() != nil {
 		deviceprofileId = types.StringValue(d.DeviceprofileId.Value().String())
@@ -127,6 +129,9 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	if d.Fwupdate != nil {
 		fwupdate = fwupdateSdkToTerraform(ctx, diags, d.Fwupdate)
 	}
+	if d.Gps != nil {
+		gps = gpsStatsSdkToTerraform(ctx, diags, d.Gps)
+	}
 	if d.HwRev.Value() != nil {
 		hwRev = types.StringValue(*d.HwRev.Value())
 	}
@@ -134,7 +139,7 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 		id = types.StringValue(d.Id.String())
 	}
 	if d.InactiveWiredVlans != nil {
-		inactiveWiredVlans = misttransform.ListOfIntSdkToTerraform(d.InactiveWiredVlans)
+		inactiveWiredVlans = mistutils.ListOfIntSdkToTerraform(d.InactiveWiredVlans)
 	}
 	if d.IotStat != nil && len(d.IotStat) > 0 {
 		iotStat = iotStatsSdkToTerraform(ctx, diags, d.IotStat)
@@ -152,7 +157,7 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 		l2tpStat = l2tpStatsSdkToTerraform(ctx, diags, d.L2tpStat)
 	}
 	if d.LastSeen.Value() != nil {
-		lastSeen = types.NumberValue(big.NewFloat(*d.LastSeen.Value()))
+		lastSeen = types.Float64Value(*d.LastSeen.Value())
 	}
 	if d.LastTrouble != nil {
 		lastTrouble = lastTroubleSdkToTerraform(ctx, diags, d.LastTrouble)
@@ -188,7 +193,7 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 		model = types.StringValue(*d.Model)
 	}
 	if d.ModifiedTime != nil {
-		modifiedTime = types.Int64Value(int64(*d.ModifiedTime))
+		modifiedTime = types.Float64Value(*d.ModifiedTime)
 	}
 	if d.Mount.Value() != nil {
 		mount = types.StringValue(*d.Mount.Value())
@@ -202,11 +207,14 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	if d.NumClients.Value() != nil {
 		numClients = types.Int64Value(int64(*d.NumClients.Value()))
 	}
+	if d.NumWlans != nil {
+		numWlans = types.Int64Value(int64(*d.NumWlans))
+	}
 	if d.OrgId != nil {
 		orgId = types.StringValue(d.OrgId.String())
 	}
 	if d.PortStat.Value() != nil && len(*d.PortStat.Value()) > 0 {
-		portStat = portStatdkToTerraform(ctx, diags, *d.PortStat.Value())
+		portStat = portStatSdkToTerraform(ctx, diags, *d.PortStat.Value())
 	}
 	if d.PowerBudget.Value() != nil {
 		powerBudget = types.Int64Value(int64(*d.PowerBudget.Value()))
@@ -224,13 +232,13 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 		radioStat = radioStatSdkToTerraform(ctx, diags, d.RadioStat)
 	}
 	if d.RxBps.Value() != nil {
-		rxBps = types.NumberValue(big.NewFloat(*d.RxBps.Value()))
+		rxBps = types.Int64Value(*d.RxBps.Value())
 	}
 	if d.RxBytes.Value() != nil {
 		rxBytes = types.Int64Value(*d.RxBytes.Value())
 	}
 	if d.RxPkts.Value() != nil {
-		rxPkts = types.Int64Value(int64(*d.RxPkts.Value()))
+		rxPkts = types.Int64Value(*d.RxPkts.Value())
 	}
 	if d.Serial.Value() != nil {
 		serial = types.StringValue(*d.Serial.Value())
@@ -245,13 +253,13 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 		switchRedundancy = SwitchRedundancySdkToTerraform(ctx, diags, d.SwitchRedundancy)
 	}
 	if d.TxBps.Value() != nil {
-		txBps = types.NumberValue(big.NewFloat(*d.TxBps.Value()))
+		txBps = types.Int64Value(*d.TxBps.Value())
 	}
 	if d.TxBytes.Value() != nil {
-		txBytes = types.NumberValue(big.NewFloat(*d.TxBytes.Value()))
+		txBytes = types.Int64Value(*d.TxBytes.Value())
 	}
 	if d.TxPkts.Value() != nil {
-		txPkts = types.NumberValue(big.NewFloat(*d.TxPkts.Value()))
+		txPkts = types.Int64Value(*d.TxPkts.Value())
 	}
 	if d.Uptime.Value() != nil {
 		uptime = types.NumberValue(big.NewFloat(*d.Uptime.Value()))
@@ -283,6 +291,7 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 		"esl_stat":             eslStat,
 		"ext_ip":               extIp,
 		"fwupdate":             fwupdate,
+		"gps":                  gps,
 		"hw_rev":               hwRev,
 		"id":                   id,
 		"inactive_wired_vlans": inactiveWiredVlans,
@@ -308,6 +317,7 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 		"name":                 name,
 		"notes":                notes,
 		"num_clients":          numClients,
+		"num_wlans":            numWlans,
 		"org_id":               orgId,
 		"port_stat":            portStat,
 		"power_budget":         powerBudget,

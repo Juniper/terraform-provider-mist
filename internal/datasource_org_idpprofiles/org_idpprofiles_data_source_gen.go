@@ -36,8 +36,8 @@ func OrgIdpprofilesDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"id": schema.StringAttribute{
 							Computed:            true,
-							Description:         "Unique ID of the object instance in the Mist Organnization",
-							MarkdownDescription: "Unique ID of the object instance in the Mist Organnization",
+							Description:         "Unique ID of the object instance in the Mist Organization",
+							MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
 						},
 						"modified_time": schema.Float64Attribute{
 							Computed:            true,
@@ -55,8 +55,8 @@ func OrgIdpprofilesDataSourceSchema(ctx context.Context) schema.Schema {
 								Attributes: map[string]schema.Attribute{
 									"action": schema.StringAttribute{
 										Computed:            true,
-										Description:         "enum:\n  * alert (default)\n  * drop: siliently dropping packets\n  * close: notify client/server to close connection",
-										MarkdownDescription: "enum:\n  * alert (default)\n  * drop: siliently dropping packets\n  * close: notify client/server to close connection",
+										Description:         "enum:\n  * alert (default)\n  * drop: silently dropping packets\n  * close: notify client/server to close connection",
+										MarkdownDescription: "enum:\n  * alert (default)\n  * drop: silently dropping packets\n  * close: notify client/server to close connection",
 									},
 									"matching": schema.SingleNestedAttribute{
 										Attributes: map[string]schema.Attribute{

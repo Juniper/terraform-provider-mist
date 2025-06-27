@@ -67,8 +67,8 @@ func (d *constCountriesDataSource) Read(ctx context.Context, req datasource.Read
 	data, err := d.client.ConstantsDefinitions().ListCountryCodes(ctx, nil)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting AP Stats",
-			"Unable to get the AP Stats, unexpected error: "+err.Error(),
+			"Error getting Country Definitions",
+			"Unable to get the Country Definitions, unexpected error: "+err.Error(),
 		)
 		return
 	}

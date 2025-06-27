@@ -10,6 +10,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
@@ -26,6 +28,7 @@ func SiteWxruleResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "type of action, allow / block. enum: `allow`, `block`",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
+						"",
 						"allow",
 						"block",
 					),
@@ -41,8 +44,8 @@ func SiteWxruleResourceSchema(ctx context.Context) schema.Schema {
 			"blocked_apps": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
-				Description:         "blocked apps (always blocking, ignoring action), the key of Get Application List",
-				MarkdownDescription: "blocked apps (always blocking, ignoring action), the key of Get Application List",
+				Description:         "Blocked apps (always blocking, ignoring action), the key of Get Application List",
+				MarkdownDescription: "Blocked apps (always blocking, ignoring action), the key of Get Application List",
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 				},
@@ -77,12 +80,17 @@ func SiteWxruleResourceSchema(ctx context.Context) schema.Schema {
 				Default:  booldefault.StaticBool(true),
 			},
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Unique ID of the object instance in the Mist Organization",
+				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"order": schema.Int64Attribute{
 				Required:            true,
-				Description:         "the order how rules would be looked up, > 0 and bigger order got matched first, -1 means LAST, uniqueness not checked",
-				MarkdownDescription: "the order how rules would be looked up, > 0 and bigger order got matched first, -1 means LAST, uniqueness not checked",
+				Description:         "Order how rules would be looked up, > 0 and bigger order got matched first, -1 means LAST, uniqueness not checked",
+				MarkdownDescription: "Order how rules would be looked up, > 0 and bigger order got matched first, -1 means LAST, uniqueness not checked",
 				Validators: []validator.Int64{
 					int64validator.Any(
 						int64validator.Between(-1, -1),

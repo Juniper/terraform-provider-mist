@@ -2,7 +2,6 @@ package datasource_org_nacrules
 
 import (
 	"context"
-	"math/big"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -25,20 +24,28 @@ func SdkToTerraform(ctx context.Context, l *[]models.NacRule, elements *[]attr.V
 
 func nacruleSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.NacRule) OrgNacrulesValue {
 
-	var createdTime basetypes.NumberValue
+	var createdTime basetypes.Float64Value
+	var enabled basetypes.BoolValue
 	var id basetypes.StringValue
-	var modifiedTime basetypes.NumberValue
+	var modifiedTime basetypes.Float64Value
 	var name basetypes.StringValue
+	var order basetypes.Int64Value
 	var orgId basetypes.StringValue
 
 	if d.CreatedTime != nil {
-		createdTime = types.NumberValue(big.NewFloat(*d.CreatedTime))
+		createdTime = types.Float64Value(*d.CreatedTime)
+	}
+	if d.Enabled != nil {
+		enabled = types.BoolValue(*d.Enabled)
 	}
 	if d.Id != nil {
 		id = types.StringValue(d.Id.String())
 	}
 	if d.ModifiedTime != nil {
-		modifiedTime = types.NumberValue(big.NewFloat(*d.ModifiedTime))
+		modifiedTime = types.Float64Value(*d.ModifiedTime)
+	}
+	if d.Order != nil {
+		order = types.Int64Value(int64(*d.Order))
 	}
 	name = types.StringValue(d.Name)
 	if d.OrgId != nil {
@@ -47,9 +54,11 @@ func nacruleSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 
 	dataMapValue := map[string]attr.Value{
 		"created_time":  createdTime,
+		"enabled":       enabled,
 		"id":            id,
 		"modified_time": modifiedTime,
 		"name":          name,
+		"order":         order,
 		"org_id":        orgId,
 	}
 	data, e := NewOrgNacrulesValue(OrgNacrulesValue{}.AttributeTypes(ctx), dataMapValue)

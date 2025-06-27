@@ -24,22 +24,19 @@ func OrgDeviceprofilesApDataSourceSchema(ctx context.Context) schema.Schema {
 			"deviceprofiles": schema.SetNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
-						"created_time": schema.NumberAttribute{
+						"created_time": schema.Float64Attribute{
 							Computed: true,
 						},
 						"id": schema.StringAttribute{
 							Computed: true,
 						},
-						"modified_time": schema.NumberAttribute{
+						"modified_time": schema.Float64Attribute{
 							Computed: true,
 						},
 						"name": schema.StringAttribute{
 							Computed: true,
 						},
 						"org_id": schema.StringAttribute{
-							Computed: true,
-						},
-						"type": schema.StringAttribute{
 							Computed: true,
 						},
 					},
@@ -95,12 +92,12 @@ func (t OrgDeviceprofilesApType) ValueFromObject(ctx context.Context, in basetyp
 		return nil, diags
 	}
 
-	createdTimeVal, ok := createdTimeAttribute.(basetypes.NumberValue)
+	createdTimeVal, ok := createdTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`created_time expected to be basetypes.NumberValue, was: %T`, createdTimeAttribute))
+			fmt.Sprintf(`created_time expected to be basetypes.Float64Value, was: %T`, createdTimeAttribute))
 	}
 
 	idAttribute, ok := attributes["id"]
@@ -131,12 +128,12 @@ func (t OrgDeviceprofilesApType) ValueFromObject(ctx context.Context, in basetyp
 		return nil, diags
 	}
 
-	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.NumberValue)
+	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`modified_time expected to be basetypes.NumberValue, was: %T`, modifiedTimeAttribute))
+			fmt.Sprintf(`modified_time expected to be basetypes.Float64Value, was: %T`, modifiedTimeAttribute))
 	}
 
 	nameAttribute, ok := attributes["name"]
@@ -168,12 +165,6 @@ func (t OrgDeviceprofilesApType) ValueFromObject(ctx context.Context, in basetyp
 	}
 
 	orgIdVal, ok := orgIdAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`org_id expected to be basetypes.StringValue, was: %T`, orgIdAttribute))
-	}
 
 	if diags.HasError() {
 		return nil, diags
@@ -262,12 +253,12 @@ func NewOrgDeviceprofilesApValue(attributeTypes map[string]attr.Type, attributes
 		return NewOrgDeviceprofilesApValueUnknown(), diags
 	}
 
-	createdTimeVal, ok := createdTimeAttribute.(basetypes.NumberValue)
+	createdTimeVal, ok := createdTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`created_time expected to be basetypes.NumberValue, was: %T`, createdTimeAttribute))
+			fmt.Sprintf(`created_time expected to be basetypes.Float64Value, was: %T`, createdTimeAttribute))
 	}
 
 	idAttribute, ok := attributes["id"]
@@ -298,12 +289,12 @@ func NewOrgDeviceprofilesApValue(attributeTypes map[string]attr.Type, attributes
 		return NewOrgDeviceprofilesApValueUnknown(), diags
 	}
 
-	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.NumberValue)
+	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`modified_time expected to be basetypes.NumberValue, was: %T`, modifiedTimeAttribute))
+			fmt.Sprintf(`modified_time expected to be basetypes.Float64Value, was: %T`, modifiedTimeAttribute))
 	}
 
 	nameAttribute, ok := attributes["name"]
@@ -424,11 +415,11 @@ func (t OrgDeviceprofilesApType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = OrgDeviceprofilesApValue{}
 
 type OrgDeviceprofilesApValue struct {
-	CreatedTime  basetypes.NumberValue `tfsdk:"created_time"`
-	Id           basetypes.StringValue `tfsdk:"id"`
-	ModifiedTime basetypes.NumberValue `tfsdk:"modified_time"`
-	Name         basetypes.StringValue `tfsdk:"name"`
-	OrgId        basetypes.StringValue `tfsdk:"org_id"`
+	CreatedTime  basetypes.Float64Value `tfsdk:"created_time"`
+	Id           basetypes.StringValue  `tfsdk:"id"`
+	ModifiedTime basetypes.Float64Value `tfsdk:"modified_time"`
+	Name         basetypes.StringValue  `tfsdk:"name"`
+	OrgId        basetypes.StringValue  `tfsdk:"org_id"`
 	state        attr.ValueState
 }
 
@@ -438,9 +429,9 @@ func (v OrgDeviceprofilesApValue) ToTerraformValue(ctx context.Context) (tftypes
 	var val tftypes.Value
 	var err error
 
-	attrTypes["created_time"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["created_time"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["id"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["modified_time"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["modified_time"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["org_id"] = basetypes.StringType{}.TerraformType(ctx)
 
@@ -520,9 +511,9 @@ func (v OrgDeviceprofilesApValue) ToObjectValue(ctx context.Context) (basetypes.
 	var diags diag.Diagnostics
 
 	attributeTypes := map[string]attr.Type{
-		"created_time":  basetypes.NumberType{},
+		"created_time":  basetypes.Float64Type{},
 		"id":            basetypes.StringType{},
-		"modified_time": basetypes.NumberType{},
+		"modified_time": basetypes.Float64Type{},
 		"name":          basetypes.StringType{},
 		"org_id":        basetypes.StringType{},
 	}
@@ -596,9 +587,9 @@ func (v OrgDeviceprofilesApValue) Type(ctx context.Context) attr.Type {
 
 func (v OrgDeviceprofilesApValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"created_time":  basetypes.NumberType{},
+		"created_time":  basetypes.Float64Type{},
 		"id":            basetypes.StringType{},
-		"modified_time": basetypes.NumberType{},
+		"modified_time": basetypes.Float64Type{},
 		"name":          basetypes.StringType{},
 		"org_id":        basetypes.StringType{},
 	}

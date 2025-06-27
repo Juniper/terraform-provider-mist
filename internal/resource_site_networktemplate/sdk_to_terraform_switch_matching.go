@@ -13,7 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func switchMatchingRulesPortConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.JunosPortConfig) basetypes.MapValue {
@@ -160,7 +160,7 @@ func switchMatchingRulesSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 
 	for _, d := range l {
 
-		var additionalConfigCmds = misttransform.ListOfStringSdkToTerraformEmpty()
+		var additionalConfigCmds = mistutils.ListOfStringSdkToTerraformEmpty()
 		var matchModel = types.StringValue("")
 		var matchName = types.StringValue("")
 		var matchNameOffset = types.Int64Value(0)
@@ -202,15 +202,15 @@ func switchMatchingRulesSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 		}
 
 		if d.AdditionalConfigCmds != nil {
-			additionalConfigCmds = misttransform.ListOfStringSdkToTerraform(d.AdditionalConfigCmds)
+			additionalConfigCmds = mistutils.ListOfStringSdkToTerraform(d.AdditionalConfigCmds)
 		}
 		if d.Name != nil {
 			name = types.StringValue(*d.Name)
 		}
-		if d.PortConfig != nil && len(d.PortConfig) > 0 {
+		if len(d.PortConfig) > 0 {
 			portConfig = switchMatchingRulesPortConfigSdkToTerraform(ctx, diags, d.PortConfig)
 		}
-		if d.PortMirroring != nil && len(d.PortMirroring) > 0 {
+		if len(d.PortMirroring) > 0 {
 			portMirroring = portMirroringSdkToTerraform(ctx, diags, d.PortMirroring)
 		}
 		if d.IpConfig != nil {

@@ -26,20 +26,43 @@ func OrgVpnsDataSourceSchema(ctx context.Context) schema.Schema {
 			"org_vpns": schema.SetNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
-						"created_time": schema.NumberAttribute{
-							Computed: true,
+						"created_time": schema.Float64Attribute{
+							Computed:            true,
+							Description:         "When the object has been created, in epoch",
+							MarkdownDescription: "When the object has been created, in epoch",
 						},
 						"id": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							Description:         "Unique ID of the object instance in the Mist Organization",
+							MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
 						},
-						"modified_time": schema.NumberAttribute{
-							Computed: true,
+						"modified_time": schema.Float64Attribute{
+							Computed:            true,
+							Description:         "When the object has been modified for the last time, in epoch",
+							MarkdownDescription: "When the object has been modified for the last time, in epoch",
 						},
 						"name": schema.StringAttribute{
 							Computed: true,
 						},
 						"org_id": schema.StringAttribute{
 							Computed: true,
+						},
+						"path_selection": schema.SingleNestedAttribute{
+							Attributes: map[string]schema.Attribute{
+								"strategy": schema.StringAttribute{
+									Computed:            true,
+									Description:         "enum: `disabled`, `simple`, `manual`",
+									MarkdownDescription: "enum: `disabled`, `simple`, `manual`",
+								},
+							},
+							CustomType: PathSelectionType{
+								ObjectType: types.ObjectType{
+									AttrTypes: PathSelectionValue{}.AttributeTypes(ctx),
+								},
+							},
+							Computed:            true,
+							Description:         "Only if `type`==`hub_spoke`",
+							MarkdownDescription: "Only if `type`==`hub_spoke`",
 						},
 						"paths": schema.MapNestedAttribute{
 							NestedObject: schema.NestedAttributeObject{
@@ -49,12 +72,59 @@ func OrgVpnsDataSourceSchema(ctx context.Context) schema.Schema {
 										Description:         "enum: `broadband`, `lte`",
 										MarkdownDescription: "enum: `broadband`, `lte`",
 									},
+									"bfd_use_tunnel_mode": schema.BoolAttribute{
+										Computed:            true,
+										Description:         "If `type`==`mesh` and for SSR only, whether toi use tunnel mode",
+										MarkdownDescription: "If `type`==`mesh` and for SSR only, whether toi use tunnel mode",
+									},
 									"ip": schema.StringAttribute{
 										Computed:            true,
-										Description:         "if different from the wan port",
-										MarkdownDescription: "if different from the wan port",
+										Description:         "If different from the wan port",
+										MarkdownDescription: "If different from the wan port",
+									},
+									"peer_paths": schema.MapNestedAttribute{
+										NestedObject: schema.NestedAttributeObject{
+											Attributes: map[string]schema.Attribute{
+												"preference": schema.Int64Attribute{
+													Computed: true,
+												},
+											},
+											CustomType: PeerPathsType{
+												ObjectType: types.ObjectType{
+													AttrTypes: PeerPathsValue{}.AttributeTypes(ctx),
+												},
+											},
+										},
+										Computed:            true,
+										Description:         "If `type`==`mesh`, Property key is the Peer Interface name",
+										MarkdownDescription: "If `type`==`mesh`, Property key is the Peer Interface name",
+										Validators: []validator.Map{
+											mapvalidator.SizeAtLeast(1),
+										},
 									},
 									"pod": schema.Int64Attribute{
+										Computed: true,
+									},
+									"traffic_shaping": schema.SingleNestedAttribute{
+										Attributes: map[string]schema.Attribute{
+											"class_percentage": schema.ListAttribute{
+												ElementType:         types.Int64Type,
+												Computed:            true,
+												Description:         "percentages for different class of traffic: high / medium / low / best-effort adding up to 100",
+												MarkdownDescription: "percentages for different class of traffic: high / medium / low / best-effort adding up to 100",
+											},
+											"enabled": schema.BoolAttribute{
+												Computed: true,
+											},
+											"max_tx_kbps": schema.Int64Attribute{
+												Computed: true,
+											},
+										},
+										CustomType: TrafficShapingType{
+											ObjectType: types.ObjectType{
+												AttrTypes: TrafficShapingValue{}.AttributeTypes(ctx),
+											},
+										},
 										Computed: true,
 									},
 								},
@@ -64,10 +134,17 @@ func OrgVpnsDataSourceSchema(ctx context.Context) schema.Schema {
 									},
 								},
 							},
-							Computed: true,
+							Computed:            true,
+							Description:         "For `type`==`hub_spoke`, Property key is the VPN name. For `type`==`mesh`, Property key is the Interface name",
+							MarkdownDescription: "For `type`==`hub_spoke`, Property key is the VPN name. For `type`==`mesh`, Property key is the Interface name",
 							Validators: []validator.Map{
 								mapvalidator.SizeAtLeast(1),
 							},
+						},
+						"type": schema.StringAttribute{
+							Computed:            true,
+							Description:         "enum: `hub_spoke`, `mesh`",
+							MarkdownDescription: "enum: `hub_spoke`, `mesh`",
 						},
 					},
 					CustomType: OrgVpnsType{
@@ -122,12 +199,12 @@ func (t OrgVpnsType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 		return nil, diags
 	}
 
-	createdTimeVal, ok := createdTimeAttribute.(basetypes.NumberValue)
+	createdTimeVal, ok := createdTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`created_time expected to be basetypes.NumberValue, was: %T`, createdTimeAttribute))
+			fmt.Sprintf(`created_time expected to be basetypes.Float64Value, was: %T`, createdTimeAttribute))
 	}
 
 	idAttribute, ok := attributes["id"]
@@ -158,12 +235,12 @@ func (t OrgVpnsType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 		return nil, diags
 	}
 
-	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.NumberValue)
+	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`modified_time expected to be basetypes.NumberValue, was: %T`, modifiedTimeAttribute))
+			fmt.Sprintf(`modified_time expected to be basetypes.Float64Value, was: %T`, modifiedTimeAttribute))
 	}
 
 	nameAttribute, ok := attributes["name"]
@@ -202,6 +279,24 @@ func (t OrgVpnsType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 			fmt.Sprintf(`org_id expected to be basetypes.StringValue, was: %T`, orgIdAttribute))
 	}
 
+	pathSelectionAttribute, ok := attributes["path_selection"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`path_selection is missing from object`)
+
+		return nil, diags
+	}
+
+	pathSelectionVal, ok := pathSelectionAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`path_selection expected to be basetypes.ObjectValue, was: %T`, pathSelectionAttribute))
+	}
+
 	pathsAttribute, ok := attributes["paths"]
 
 	if !ok {
@@ -220,18 +315,38 @@ func (t OrgVpnsType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 			fmt.Sprintf(`paths expected to be basetypes.MapValue, was: %T`, pathsAttribute))
 	}
 
+	typeAttribute, ok := attributes["type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`type is missing from object`)
+
+		return nil, diags
+	}
+
+	typeVal, ok := typeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, typeAttribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
 
 	return OrgVpnsValue{
-		CreatedTime:  createdTimeVal,
-		Id:           idVal,
-		ModifiedTime: modifiedTimeVal,
-		Name:         nameVal,
-		OrgId:        orgIdVal,
-		Paths:        pathsVal,
-		state:        attr.ValueStateKnown,
+		CreatedTime:   createdTimeVal,
+		Id:            idVal,
+		ModifiedTime:  modifiedTimeVal,
+		Name:          nameVal,
+		OrgId:         orgIdVal,
+		PathSelection: pathSelectionVal,
+		Paths:         pathsVal,
+		OrgVpnsType:   typeVal,
+		state:         attr.ValueStateKnown,
 	}, diags
 }
 
@@ -308,12 +423,12 @@ func NewOrgVpnsValue(attributeTypes map[string]attr.Type, attributes map[string]
 		return NewOrgVpnsValueUnknown(), diags
 	}
 
-	createdTimeVal, ok := createdTimeAttribute.(basetypes.NumberValue)
+	createdTimeVal, ok := createdTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`created_time expected to be basetypes.NumberValue, was: %T`, createdTimeAttribute))
+			fmt.Sprintf(`created_time expected to be basetypes.Float64Value, was: %T`, createdTimeAttribute))
 	}
 
 	idAttribute, ok := attributes["id"]
@@ -344,12 +459,12 @@ func NewOrgVpnsValue(attributeTypes map[string]attr.Type, attributes map[string]
 		return NewOrgVpnsValueUnknown(), diags
 	}
 
-	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.NumberValue)
+	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`modified_time expected to be basetypes.NumberValue, was: %T`, modifiedTimeAttribute))
+			fmt.Sprintf(`modified_time expected to be basetypes.Float64Value, was: %T`, modifiedTimeAttribute))
 	}
 
 	nameAttribute, ok := attributes["name"]
@@ -388,6 +503,24 @@ func NewOrgVpnsValue(attributeTypes map[string]attr.Type, attributes map[string]
 			fmt.Sprintf(`org_id expected to be basetypes.StringValue, was: %T`, orgIdAttribute))
 	}
 
+	pathSelectionAttribute, ok := attributes["path_selection"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`path_selection is missing from object`)
+
+		return NewOrgVpnsValueUnknown(), diags
+	}
+
+	pathSelectionVal, ok := pathSelectionAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`path_selection expected to be basetypes.ObjectValue, was: %T`, pathSelectionAttribute))
+	}
+
 	pathsAttribute, ok := attributes["paths"]
 
 	if !ok {
@@ -406,18 +539,38 @@ func NewOrgVpnsValue(attributeTypes map[string]attr.Type, attributes map[string]
 			fmt.Sprintf(`paths expected to be basetypes.MapValue, was: %T`, pathsAttribute))
 	}
 
+	typeAttribute, ok := attributes["type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`type is missing from object`)
+
+		return NewOrgVpnsValueUnknown(), diags
+	}
+
+	typeVal, ok := typeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, typeAttribute))
+	}
+
 	if diags.HasError() {
 		return NewOrgVpnsValueUnknown(), diags
 	}
 
 	return OrgVpnsValue{
-		CreatedTime:  createdTimeVal,
-		Id:           idVal,
-		ModifiedTime: modifiedTimeVal,
-		Name:         nameVal,
-		OrgId:        orgIdVal,
-		Paths:        pathsVal,
-		state:        attr.ValueStateKnown,
+		CreatedTime:   createdTimeVal,
+		Id:            idVal,
+		ModifiedTime:  modifiedTimeVal,
+		Name:          nameVal,
+		OrgId:         orgIdVal,
+		PathSelection: pathSelectionVal,
+		Paths:         pathsVal,
+		OrgVpnsType:   typeVal,
+		state:         attr.ValueStateKnown,
 	}, diags
 }
 
@@ -489,35 +642,41 @@ func (t OrgVpnsType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = OrgVpnsValue{}
 
 type OrgVpnsValue struct {
-	CreatedTime  basetypes.NumberValue `tfsdk:"created_time"`
-	Id           basetypes.StringValue `tfsdk:"id"`
-	ModifiedTime basetypes.NumberValue `tfsdk:"modified_time"`
-	Name         basetypes.StringValue `tfsdk:"name"`
-	OrgId        basetypes.StringValue `tfsdk:"org_id"`
-	Paths        basetypes.MapValue    `tfsdk:"paths"`
-	state        attr.ValueState
+	CreatedTime   basetypes.Float64Value `tfsdk:"created_time"`
+	Id            basetypes.StringValue  `tfsdk:"id"`
+	ModifiedTime  basetypes.Float64Value `tfsdk:"modified_time"`
+	Name          basetypes.StringValue  `tfsdk:"name"`
+	OrgId         basetypes.StringValue  `tfsdk:"org_id"`
+	PathSelection basetypes.ObjectValue  `tfsdk:"path_selection"`
+	Paths         basetypes.MapValue     `tfsdk:"paths"`
+	OrgVpnsType   basetypes.StringValue  `tfsdk:"type"`
+	state         attr.ValueState
 }
 
 func (v OrgVpnsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 6)
+	attrTypes := make(map[string]tftypes.Type, 8)
 
 	var val tftypes.Value
 	var err error
 
-	attrTypes["created_time"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["created_time"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["id"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["modified_time"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["modified_time"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["org_id"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["path_selection"] = basetypes.ObjectType{
+		AttrTypes: PathSelectionValue{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
 	attrTypes["paths"] = basetypes.MapType{
 		ElemType: PathsValue{}.Type(ctx),
 	}.TerraformType(ctx)
+	attrTypes["type"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 6)
+		vals := make(map[string]tftypes.Value, 8)
 
 		val, err = v.CreatedTime.ToTerraformValue(ctx)
 
@@ -559,6 +718,14 @@ func (v OrgVpnsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 
 		vals["org_id"] = val
 
+		val, err = v.PathSelection.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["path_selection"] = val
+
 		val, err = v.Paths.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -566,6 +733,14 @@ func (v OrgVpnsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 		}
 
 		vals["paths"] = val
+
+		val, err = v.OrgVpnsType.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["type"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -595,6 +770,27 @@ func (v OrgVpnsValue) String() string {
 
 func (v OrgVpnsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
+
+	var pathSelection basetypes.ObjectValue
+
+	if v.PathSelection.IsNull() {
+		pathSelection = types.ObjectNull(
+			PathSelectionValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.PathSelection.IsUnknown() {
+		pathSelection = types.ObjectUnknown(
+			PathSelectionValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.PathSelection.IsNull() && !v.PathSelection.IsUnknown() {
+		pathSelection = types.ObjectValueMust(
+			PathSelectionValue{}.AttributeTypes(ctx),
+			v.PathSelection.Attributes(),
+		)
+	}
 
 	paths := types.MapValueMust(
 		PathsType{
@@ -626,14 +822,18 @@ func (v OrgVpnsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 	}
 
 	attributeTypes := map[string]attr.Type{
-		"created_time":  basetypes.NumberType{},
+		"created_time":  basetypes.Float64Type{},
 		"id":            basetypes.StringType{},
-		"modified_time": basetypes.NumberType{},
+		"modified_time": basetypes.Float64Type{},
 		"name":          basetypes.StringType{},
 		"org_id":        basetypes.StringType{},
+		"path_selection": basetypes.ObjectType{
+			AttrTypes: PathSelectionValue{}.AttributeTypes(ctx),
+		},
 		"paths": basetypes.MapType{
 			ElemType: PathsValue{}.Type(ctx),
 		},
+		"type": basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -647,12 +847,14 @@ func (v OrgVpnsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"created_time":  v.CreatedTime,
-			"id":            v.Id,
-			"modified_time": v.ModifiedTime,
-			"name":          v.Name,
-			"org_id":        v.OrgId,
-			"paths":         paths,
+			"created_time":   v.CreatedTime,
+			"id":             v.Id,
+			"modified_time":  v.ModifiedTime,
+			"name":           v.Name,
+			"org_id":         v.OrgId,
+			"path_selection": pathSelection,
+			"paths":          paths,
+			"type":           v.OrgVpnsType,
 		})
 
 	return objVal, diags
@@ -693,7 +895,15 @@ func (v OrgVpnsValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.PathSelection.Equal(other.PathSelection) {
+		return false
+	}
+
 	if !v.Paths.Equal(other.Paths) {
+		return false
+	}
+
+	if !v.OrgVpnsType.Equal(other.OrgVpnsType) {
 		return false
 	}
 
@@ -710,14 +920,342 @@ func (v OrgVpnsValue) Type(ctx context.Context) attr.Type {
 
 func (v OrgVpnsValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"created_time":  basetypes.NumberType{},
+		"created_time":  basetypes.Float64Type{},
 		"id":            basetypes.StringType{},
-		"modified_time": basetypes.NumberType{},
+		"modified_time": basetypes.Float64Type{},
 		"name":          basetypes.StringType{},
 		"org_id":        basetypes.StringType{},
+		"path_selection": basetypes.ObjectType{
+			AttrTypes: PathSelectionValue{}.AttributeTypes(ctx),
+		},
 		"paths": basetypes.MapType{
 			ElemType: PathsValue{}.Type(ctx),
 		},
+		"type": basetypes.StringType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = PathSelectionType{}
+
+type PathSelectionType struct {
+	basetypes.ObjectType
+}
+
+func (t PathSelectionType) Equal(o attr.Type) bool {
+	other, ok := o.(PathSelectionType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t PathSelectionType) String() string {
+	return "PathSelectionType"
+}
+
+func (t PathSelectionType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	strategyAttribute, ok := attributes["strategy"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`strategy is missing from object`)
+
+		return nil, diags
+	}
+
+	strategyVal, ok := strategyAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`strategy expected to be basetypes.StringValue, was: %T`, strategyAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return PathSelectionValue{
+		Strategy: strategyVal,
+		state:    attr.ValueStateKnown,
+	}, diags
+}
+
+func NewPathSelectionValueNull() PathSelectionValue {
+	return PathSelectionValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewPathSelectionValueUnknown() PathSelectionValue {
+	return PathSelectionValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewPathSelectionValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (PathSelectionValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing PathSelectionValue Attribute Value",
+				"While creating a PathSelectionValue value, a missing attribute value was detected. "+
+					"A PathSelectionValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("PathSelectionValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid PathSelectionValue Attribute Type",
+				"While creating a PathSelectionValue value, an invalid attribute value was detected. "+
+					"A PathSelectionValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("PathSelectionValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("PathSelectionValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra PathSelectionValue Attribute Value",
+				"While creating a PathSelectionValue value, an extra attribute value was detected. "+
+					"A PathSelectionValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra PathSelectionValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewPathSelectionValueUnknown(), diags
+	}
+
+	strategyAttribute, ok := attributes["strategy"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`strategy is missing from object`)
+
+		return NewPathSelectionValueUnknown(), diags
+	}
+
+	strategyVal, ok := strategyAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`strategy expected to be basetypes.StringValue, was: %T`, strategyAttribute))
+	}
+
+	if diags.HasError() {
+		return NewPathSelectionValueUnknown(), diags
+	}
+
+	return PathSelectionValue{
+		Strategy: strategyVal,
+		state:    attr.ValueStateKnown,
+	}, diags
+}
+
+func NewPathSelectionValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) PathSelectionValue {
+	object, diags := NewPathSelectionValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewPathSelectionValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t PathSelectionType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewPathSelectionValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewPathSelectionValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewPathSelectionValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewPathSelectionValueMust(PathSelectionValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t PathSelectionType) ValueType(ctx context.Context) attr.Value {
+	return PathSelectionValue{}
+}
+
+var _ basetypes.ObjectValuable = PathSelectionValue{}
+
+type PathSelectionValue struct {
+	Strategy basetypes.StringValue `tfsdk:"strategy"`
+	state    attr.ValueState
+}
+
+func (v PathSelectionValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 1)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["strategy"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 1)
+
+		val, err = v.Strategy.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["strategy"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v PathSelectionValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v PathSelectionValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v PathSelectionValue) String() string {
+	return "PathSelectionValue"
+}
+
+func (v PathSelectionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"strategy": basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"strategy": v.Strategy,
+		})
+
+	return objVal, diags
+}
+
+func (v PathSelectionValue) Equal(o attr.Value) bool {
+	other, ok := o.(PathSelectionValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Strategy.Equal(other.Strategy) {
+		return false
+	}
+
+	return true
+}
+
+func (v PathSelectionValue) Type(ctx context.Context) attr.Type {
+	return PathSelectionType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v PathSelectionValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"strategy": basetypes.StringType{},
 	}
 }
 
@@ -764,6 +1302,24 @@ func (t PathsType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue
 			fmt.Sprintf(`bfd_profile expected to be basetypes.StringValue, was: %T`, bfdProfileAttribute))
 	}
 
+	bfdUseTunnelModeAttribute, ok := attributes["bfd_use_tunnel_mode"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`bfd_use_tunnel_mode is missing from object`)
+
+		return nil, diags
+	}
+
+	bfdUseTunnelModeVal, ok := bfdUseTunnelModeAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`bfd_use_tunnel_mode expected to be basetypes.BoolValue, was: %T`, bfdUseTunnelModeAttribute))
+	}
+
 	ipAttribute, ok := attributes["ip"]
 
 	if !ok {
@@ -780,6 +1336,24 @@ func (t PathsType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`ip expected to be basetypes.StringValue, was: %T`, ipAttribute))
+	}
+
+	peerPathsAttribute, ok := attributes["peer_paths"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`peer_paths is missing from object`)
+
+		return nil, diags
+	}
+
+	peerPathsVal, ok := peerPathsAttribute.(basetypes.MapValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`peer_paths expected to be basetypes.MapValue, was: %T`, peerPathsAttribute))
 	}
 
 	podAttribute, ok := attributes["pod"]
@@ -800,15 +1374,36 @@ func (t PathsType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue
 			fmt.Sprintf(`pod expected to be basetypes.Int64Value, was: %T`, podAttribute))
 	}
 
+	trafficShapingAttribute, ok := attributes["traffic_shaping"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`traffic_shaping is missing from object`)
+
+		return nil, diags
+	}
+
+	trafficShapingVal, ok := trafficShapingAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`traffic_shaping expected to be basetypes.ObjectValue, was: %T`, trafficShapingAttribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
 
 	return PathsValue{
-		BfdProfile: bfdProfileVal,
-		Ip:         ipVal,
-		Pod:        podVal,
-		state:      attr.ValueStateKnown,
+		BfdProfile:       bfdProfileVal,
+		BfdUseTunnelMode: bfdUseTunnelModeVal,
+		Ip:               ipVal,
+		PeerPaths:        peerPathsVal,
+		Pod:              podVal,
+		TrafficShaping:   trafficShapingVal,
+		state:            attr.ValueStateKnown,
 	}, diags
 }
 
@@ -893,6 +1488,24 @@ func NewPathsValue(attributeTypes map[string]attr.Type, attributes map[string]at
 			fmt.Sprintf(`bfd_profile expected to be basetypes.StringValue, was: %T`, bfdProfileAttribute))
 	}
 
+	bfdUseTunnelModeAttribute, ok := attributes["bfd_use_tunnel_mode"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`bfd_use_tunnel_mode is missing from object`)
+
+		return NewPathsValueUnknown(), diags
+	}
+
+	bfdUseTunnelModeVal, ok := bfdUseTunnelModeAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`bfd_use_tunnel_mode expected to be basetypes.BoolValue, was: %T`, bfdUseTunnelModeAttribute))
+	}
+
 	ipAttribute, ok := attributes["ip"]
 
 	if !ok {
@@ -909,6 +1522,24 @@ func NewPathsValue(attributeTypes map[string]attr.Type, attributes map[string]at
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`ip expected to be basetypes.StringValue, was: %T`, ipAttribute))
+	}
+
+	peerPathsAttribute, ok := attributes["peer_paths"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`peer_paths is missing from object`)
+
+		return NewPathsValueUnknown(), diags
+	}
+
+	peerPathsVal, ok := peerPathsAttribute.(basetypes.MapValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`peer_paths expected to be basetypes.MapValue, was: %T`, peerPathsAttribute))
 	}
 
 	podAttribute, ok := attributes["pod"]
@@ -929,15 +1560,36 @@ func NewPathsValue(attributeTypes map[string]attr.Type, attributes map[string]at
 			fmt.Sprintf(`pod expected to be basetypes.Int64Value, was: %T`, podAttribute))
 	}
 
+	trafficShapingAttribute, ok := attributes["traffic_shaping"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`traffic_shaping is missing from object`)
+
+		return NewPathsValueUnknown(), diags
+	}
+
+	trafficShapingVal, ok := trafficShapingAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`traffic_shaping expected to be basetypes.ObjectValue, was: %T`, trafficShapingAttribute))
+	}
+
 	if diags.HasError() {
 		return NewPathsValueUnknown(), diags
 	}
 
 	return PathsValue{
-		BfdProfile: bfdProfileVal,
-		Ip:         ipVal,
-		Pod:        podVal,
-		state:      attr.ValueStateKnown,
+		BfdProfile:       bfdProfileVal,
+		BfdUseTunnelMode: bfdUseTunnelModeVal,
+		Ip:               ipVal,
+		PeerPaths:        peerPathsVal,
+		Pod:              podVal,
+		TrafficShaping:   trafficShapingVal,
+		state:            attr.ValueStateKnown,
 	}, diags
 }
 
@@ -1009,27 +1661,37 @@ func (t PathsType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = PathsValue{}
 
 type PathsValue struct {
-	BfdProfile basetypes.StringValue `tfsdk:"bfd_profile"`
-	Ip         basetypes.StringValue `tfsdk:"ip"`
-	Pod        basetypes.Int64Value  `tfsdk:"pod"`
-	state      attr.ValueState
+	BfdProfile       basetypes.StringValue `tfsdk:"bfd_profile"`
+	BfdUseTunnelMode basetypes.BoolValue   `tfsdk:"bfd_use_tunnel_mode"`
+	Ip               basetypes.StringValue `tfsdk:"ip"`
+	PeerPaths        basetypes.MapValue    `tfsdk:"peer_paths"`
+	Pod              basetypes.Int64Value  `tfsdk:"pod"`
+	TrafficShaping   basetypes.ObjectValue `tfsdk:"traffic_shaping"`
+	state            attr.ValueState
 }
 
 func (v PathsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 3)
+	attrTypes := make(map[string]tftypes.Type, 6)
 
 	var val tftypes.Value
 	var err error
 
 	attrTypes["bfd_profile"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["bfd_use_tunnel_mode"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["ip"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["peer_paths"] = basetypes.MapType{
+		ElemType: PeerPathsValue{}.Type(ctx),
+	}.TerraformType(ctx)
 	attrTypes["pod"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["traffic_shaping"] = basetypes.ObjectType{
+		AttrTypes: TrafficShapingValue{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 3)
+		vals := make(map[string]tftypes.Value, 6)
 
 		val, err = v.BfdProfile.ToTerraformValue(ctx)
 
@@ -1039,6 +1701,14 @@ func (v PathsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error)
 
 		vals["bfd_profile"] = val
 
+		val, err = v.BfdUseTunnelMode.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["bfd_use_tunnel_mode"] = val
+
 		val, err = v.Ip.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -1047,6 +1717,14 @@ func (v PathsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error)
 
 		vals["ip"] = val
 
+		val, err = v.PeerPaths.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["peer_paths"] = val
+
 		val, err = v.Pod.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -1054,6 +1732,14 @@ func (v PathsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error)
 		}
 
 		vals["pod"] = val
+
+		val, err = v.TrafficShaping.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["traffic_shaping"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -1084,10 +1770,67 @@ func (v PathsValue) String() string {
 func (v PathsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
+	peerPaths := types.MapValueMust(
+		PeerPathsType{
+			basetypes.ObjectType{
+				AttrTypes: PeerPathsValue{}.AttributeTypes(ctx),
+			},
+		},
+		v.PeerPaths.Elements(),
+	)
+
+	if v.PeerPaths.IsNull() {
+		peerPaths = types.MapNull(
+			PeerPathsType{
+				basetypes.ObjectType{
+					AttrTypes: PeerPathsValue{}.AttributeTypes(ctx),
+				},
+			},
+		)
+	}
+
+	if v.PeerPaths.IsUnknown() {
+		peerPaths = types.MapUnknown(
+			PeerPathsType{
+				basetypes.ObjectType{
+					AttrTypes: PeerPathsValue{}.AttributeTypes(ctx),
+				},
+			},
+		)
+	}
+
+	var trafficShaping basetypes.ObjectValue
+
+	if v.TrafficShaping.IsNull() {
+		trafficShaping = types.ObjectNull(
+			TrafficShapingValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.TrafficShaping.IsUnknown() {
+		trafficShaping = types.ObjectUnknown(
+			TrafficShapingValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.TrafficShaping.IsNull() && !v.TrafficShaping.IsUnknown() {
+		trafficShaping = types.ObjectValueMust(
+			TrafficShapingValue{}.AttributeTypes(ctx),
+			v.TrafficShaping.Attributes(),
+		)
+	}
+
 	attributeTypes := map[string]attr.Type{
-		"bfd_profile": basetypes.StringType{},
-		"ip":          basetypes.StringType{},
-		"pod":         basetypes.Int64Type{},
+		"bfd_profile":         basetypes.StringType{},
+		"bfd_use_tunnel_mode": basetypes.BoolType{},
+		"ip":                  basetypes.StringType{},
+		"peer_paths": basetypes.MapType{
+			ElemType: PeerPathsValue{}.Type(ctx),
+		},
+		"pod": basetypes.Int64Type{},
+		"traffic_shaping": basetypes.ObjectType{
+			AttrTypes: TrafficShapingValue{}.AttributeTypes(ctx),
+		},
 	}
 
 	if v.IsNull() {
@@ -1101,9 +1844,12 @@ func (v PathsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"bfd_profile": v.BfdProfile,
-			"ip":          v.Ip,
-			"pod":         v.Pod,
+			"bfd_profile":         v.BfdProfile,
+			"bfd_use_tunnel_mode": v.BfdUseTunnelMode,
+			"ip":                  v.Ip,
+			"peer_paths":          peerPaths,
+			"pod":                 v.Pod,
+			"traffic_shaping":     trafficShaping,
 		})
 
 	return objVal, diags
@@ -1128,11 +1874,23 @@ func (v PathsValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.BfdUseTunnelMode.Equal(other.BfdUseTunnelMode) {
+		return false
+	}
+
 	if !v.Ip.Equal(other.Ip) {
 		return false
 	}
 
+	if !v.PeerPaths.Equal(other.PeerPaths) {
+		return false
+	}
+
 	if !v.Pod.Equal(other.Pod) {
+		return false
+	}
+
+	if !v.TrafficShaping.Equal(other.TrafficShaping) {
 		return false
 	}
 
@@ -1149,8 +1907,793 @@ func (v PathsValue) Type(ctx context.Context) attr.Type {
 
 func (v PathsValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"bfd_profile": basetypes.StringType{},
-		"ip":          basetypes.StringType{},
-		"pod":         basetypes.Int64Type{},
+		"bfd_profile":         basetypes.StringType{},
+		"bfd_use_tunnel_mode": basetypes.BoolType{},
+		"ip":                  basetypes.StringType{},
+		"peer_paths": basetypes.MapType{
+			ElemType: PeerPathsValue{}.Type(ctx),
+		},
+		"pod": basetypes.Int64Type{},
+		"traffic_shaping": basetypes.ObjectType{
+			AttrTypes: TrafficShapingValue{}.AttributeTypes(ctx),
+		},
+	}
+}
+
+var _ basetypes.ObjectTypable = PeerPathsType{}
+
+type PeerPathsType struct {
+	basetypes.ObjectType
+}
+
+func (t PeerPathsType) Equal(o attr.Type) bool {
+	other, ok := o.(PeerPathsType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t PeerPathsType) String() string {
+	return "PeerPathsType"
+}
+
+func (t PeerPathsType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	preferenceAttribute, ok := attributes["preference"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`preference is missing from object`)
+
+		return nil, diags
+	}
+
+	preferenceVal, ok := preferenceAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`preference expected to be basetypes.Int64Value, was: %T`, preferenceAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return PeerPathsValue{
+		Preference: preferenceVal,
+		state:      attr.ValueStateKnown,
+	}, diags
+}
+
+func NewPeerPathsValueNull() PeerPathsValue {
+	return PeerPathsValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewPeerPathsValueUnknown() PeerPathsValue {
+	return PeerPathsValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewPeerPathsValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (PeerPathsValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing PeerPathsValue Attribute Value",
+				"While creating a PeerPathsValue value, a missing attribute value was detected. "+
+					"A PeerPathsValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("PeerPathsValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid PeerPathsValue Attribute Type",
+				"While creating a PeerPathsValue value, an invalid attribute value was detected. "+
+					"A PeerPathsValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("PeerPathsValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("PeerPathsValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra PeerPathsValue Attribute Value",
+				"While creating a PeerPathsValue value, an extra attribute value was detected. "+
+					"A PeerPathsValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra PeerPathsValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewPeerPathsValueUnknown(), diags
+	}
+
+	preferenceAttribute, ok := attributes["preference"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`preference is missing from object`)
+
+		return NewPeerPathsValueUnknown(), diags
+	}
+
+	preferenceVal, ok := preferenceAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`preference expected to be basetypes.Int64Value, was: %T`, preferenceAttribute))
+	}
+
+	if diags.HasError() {
+		return NewPeerPathsValueUnknown(), diags
+	}
+
+	return PeerPathsValue{
+		Preference: preferenceVal,
+		state:      attr.ValueStateKnown,
+	}, diags
+}
+
+func NewPeerPathsValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) PeerPathsValue {
+	object, diags := NewPeerPathsValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewPeerPathsValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t PeerPathsType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewPeerPathsValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewPeerPathsValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewPeerPathsValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewPeerPathsValueMust(PeerPathsValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t PeerPathsType) ValueType(ctx context.Context) attr.Value {
+	return PeerPathsValue{}
+}
+
+var _ basetypes.ObjectValuable = PeerPathsValue{}
+
+type PeerPathsValue struct {
+	Preference basetypes.Int64Value `tfsdk:"preference"`
+	state      attr.ValueState
+}
+
+func (v PeerPathsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 1)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["preference"] = basetypes.Int64Type{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 1)
+
+		val, err = v.Preference.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["preference"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v PeerPathsValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v PeerPathsValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v PeerPathsValue) String() string {
+	return "PeerPathsValue"
+}
+
+func (v PeerPathsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"preference": basetypes.Int64Type{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"preference": v.Preference,
+		})
+
+	return objVal, diags
+}
+
+func (v PeerPathsValue) Equal(o attr.Value) bool {
+	other, ok := o.(PeerPathsValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Preference.Equal(other.Preference) {
+		return false
+	}
+
+	return true
+}
+
+func (v PeerPathsValue) Type(ctx context.Context) attr.Type {
+	return PeerPathsType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v PeerPathsValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"preference": basetypes.Int64Type{},
+	}
+}
+
+var _ basetypes.ObjectTypable = TrafficShapingType{}
+
+type TrafficShapingType struct {
+	basetypes.ObjectType
+}
+
+func (t TrafficShapingType) Equal(o attr.Type) bool {
+	other, ok := o.(TrafficShapingType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t TrafficShapingType) String() string {
+	return "TrafficShapingType"
+}
+
+func (t TrafficShapingType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	classPercentageAttribute, ok := attributes["class_percentage"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`class_percentage is missing from object`)
+
+		return nil, diags
+	}
+
+	classPercentageVal, ok := classPercentageAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`class_percentage expected to be basetypes.ListValue, was: %T`, classPercentageAttribute))
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	maxTxKbpsAttribute, ok := attributes["max_tx_kbps"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`max_tx_kbps is missing from object`)
+
+		return nil, diags
+	}
+
+	maxTxKbpsVal, ok := maxTxKbpsAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`max_tx_kbps expected to be basetypes.Int64Value, was: %T`, maxTxKbpsAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return TrafficShapingValue{
+		ClassPercentage: classPercentageVal,
+		Enabled:         enabledVal,
+		MaxTxKbps:       maxTxKbpsVal,
+		state:           attr.ValueStateKnown,
+	}, diags
+}
+
+func NewTrafficShapingValueNull() TrafficShapingValue {
+	return TrafficShapingValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewTrafficShapingValueUnknown() TrafficShapingValue {
+	return TrafficShapingValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewTrafficShapingValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (TrafficShapingValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing TrafficShapingValue Attribute Value",
+				"While creating a TrafficShapingValue value, a missing attribute value was detected. "+
+					"A TrafficShapingValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("TrafficShapingValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid TrafficShapingValue Attribute Type",
+				"While creating a TrafficShapingValue value, an invalid attribute value was detected. "+
+					"A TrafficShapingValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("TrafficShapingValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("TrafficShapingValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra TrafficShapingValue Attribute Value",
+				"While creating a TrafficShapingValue value, an extra attribute value was detected. "+
+					"A TrafficShapingValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra TrafficShapingValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewTrafficShapingValueUnknown(), diags
+	}
+
+	classPercentageAttribute, ok := attributes["class_percentage"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`class_percentage is missing from object`)
+
+		return NewTrafficShapingValueUnknown(), diags
+	}
+
+	classPercentageVal, ok := classPercentageAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`class_percentage expected to be basetypes.ListValue, was: %T`, classPercentageAttribute))
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return NewTrafficShapingValueUnknown(), diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	maxTxKbpsAttribute, ok := attributes["max_tx_kbps"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`max_tx_kbps is missing from object`)
+
+		return NewTrafficShapingValueUnknown(), diags
+	}
+
+	maxTxKbpsVal, ok := maxTxKbpsAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`max_tx_kbps expected to be basetypes.Int64Value, was: %T`, maxTxKbpsAttribute))
+	}
+
+	if diags.HasError() {
+		return NewTrafficShapingValueUnknown(), diags
+	}
+
+	return TrafficShapingValue{
+		ClassPercentage: classPercentageVal,
+		Enabled:         enabledVal,
+		MaxTxKbps:       maxTxKbpsVal,
+		state:           attr.ValueStateKnown,
+	}, diags
+}
+
+func NewTrafficShapingValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) TrafficShapingValue {
+	object, diags := NewTrafficShapingValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewTrafficShapingValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t TrafficShapingType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewTrafficShapingValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewTrafficShapingValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewTrafficShapingValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewTrafficShapingValueMust(TrafficShapingValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t TrafficShapingType) ValueType(ctx context.Context) attr.Value {
+	return TrafficShapingValue{}
+}
+
+var _ basetypes.ObjectValuable = TrafficShapingValue{}
+
+type TrafficShapingValue struct {
+	ClassPercentage basetypes.ListValue  `tfsdk:"class_percentage"`
+	Enabled         basetypes.BoolValue  `tfsdk:"enabled"`
+	MaxTxKbps       basetypes.Int64Value `tfsdk:"max_tx_kbps"`
+	state           attr.ValueState
+}
+
+func (v TrafficShapingValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 3)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["class_percentage"] = basetypes.ListType{
+		ElemType: types.Int64Type,
+	}.TerraformType(ctx)
+	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["max_tx_kbps"] = basetypes.Int64Type{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 3)
+
+		val, err = v.ClassPercentage.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["class_percentage"] = val
+
+		val, err = v.Enabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enabled"] = val
+
+		val, err = v.MaxTxKbps.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["max_tx_kbps"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v TrafficShapingValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v TrafficShapingValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v TrafficShapingValue) String() string {
+	return "TrafficShapingValue"
+}
+
+func (v TrafficShapingValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	classPercentageVal, d := types.ListValue(types.Int64Type, v.ClassPercentage.Elements())
+
+	diags.Append(d...)
+
+	if d.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"class_percentage": basetypes.ListType{
+				ElemType: types.Int64Type,
+			},
+			"enabled":     basetypes.BoolType{},
+			"max_tx_kbps": basetypes.Int64Type{},
+		}), diags
+	}
+
+	attributeTypes := map[string]attr.Type{
+		"class_percentage": basetypes.ListType{
+			ElemType: types.Int64Type,
+		},
+		"enabled":     basetypes.BoolType{},
+		"max_tx_kbps": basetypes.Int64Type{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"class_percentage": classPercentageVal,
+			"enabled":          v.Enabled,
+			"max_tx_kbps":      v.MaxTxKbps,
+		})
+
+	return objVal, diags
+}
+
+func (v TrafficShapingValue) Equal(o attr.Value) bool {
+	other, ok := o.(TrafficShapingValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.ClassPercentage.Equal(other.ClassPercentage) {
+		return false
+	}
+
+	if !v.Enabled.Equal(other.Enabled) {
+		return false
+	}
+
+	if !v.MaxTxKbps.Equal(other.MaxTxKbps) {
+		return false
+	}
+
+	return true
+}
+
+func (v TrafficShapingValue) Type(ctx context.Context) attr.Type {
+	return TrafficShapingType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v TrafficShapingValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"class_percentage": basetypes.ListType{
+			ElemType: types.Int64Type,
+		},
+		"enabled":     basetypes.BoolType{},
+		"max_tx_kbps": basetypes.Int64Type{},
 	}
 }

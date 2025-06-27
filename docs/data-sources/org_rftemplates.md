@@ -28,6 +28,10 @@ data "mist_org_rftemplates" "templates" {
 
 - `org_id` (String)
 
+### Optional
+
+- `page` (Number)
+
 ### Read-Only
 
 - `org_rftemplates` (Attributes Set) (see [below for nested schema](#nestedatt--org_rftemplates))
@@ -37,8 +41,9 @@ data "mist_org_rftemplates" "templates" {
 
 Read-Only:
 
-- `created_time` (Number)
-- `id` (String)
-- `modified_time` (Number)
-- `name` (String)
+- `country_code` (String) Optional, country code to use. If specified, this gets applied to all sites using the RF Template
+- `created_time` (Number) When the object has been created, in epoch
+- `id` (String) Unique ID of the object instance in the Mist Organization
+- `modified_time` (Number) When the object has been modified for the last time, in epoch
+- `name` (String) The name of the RF template
 - `org_id` (String)

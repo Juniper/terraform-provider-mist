@@ -15,10 +15,11 @@ func radioStatBandSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d
 
 	var bandwidth basetypes.Int64Value
 	var channel basetypes.Int64Value
-	var dynamicChainingEnalbed basetypes.BoolValue
+	var dynamicChainingEnabled basetypes.BoolValue
 	var mac basetypes.StringValue
 	var noiseFloor basetypes.Int64Value
 	var numClients basetypes.Int64Value
+	var numWlans basetypes.Int64Value
 	var power basetypes.Int64Value
 	var rxBytes basetypes.Int64Value
 	var rxPkts basetypes.Int64Value
@@ -39,8 +40,8 @@ func radioStatBandSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d
 	if d.Channel.Value() != nil {
 		channel = types.Int64Value(int64(*d.Channel.Value()))
 	}
-	if d.DynamicChainingEnalbed.Value() != nil {
-		dynamicChainingEnalbed = types.BoolValue(*d.DynamicChainingEnalbed.Value())
+	if d.DynamicChainingEnabled.Value() != nil {
+		dynamicChainingEnabled = types.BoolValue(*d.DynamicChainingEnabled.Value())
 	}
 	if d.Mac.Value() != nil {
 		mac = types.StringValue(*d.Mac.Value())
@@ -51,20 +52,23 @@ func radioStatBandSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d
 	if d.NumClients.Value() != nil {
 		numClients = types.Int64Value(int64(*d.NumClients.Value()))
 	}
+	if d.NumWlans != nil {
+		numWlans = types.Int64Value(int64(*d.NumWlans))
+	}
 	if d.Power.Value() != nil {
 		power = types.Int64Value(int64(*d.Power.Value()))
 	}
 	if d.RxBytes.Value() != nil {
-		rxBytes = types.Int64Value(int64(*d.RxBytes.Value()))
+		rxBytes = types.Int64Value(*d.RxBytes.Value())
 	}
 	if d.RxPkts.Value() != nil {
-		rxPkts = types.Int64Value(int64(*d.RxPkts.Value()))
+		rxPkts = types.Int64Value(*d.RxPkts.Value())
 	}
 	if d.TxBytes.Value() != nil {
-		txBytes = types.Int64Value(int64(*d.TxBytes.Value()))
+		txBytes = types.Int64Value(*d.TxBytes.Value())
 	}
 	if d.TxPkts.Value() != nil {
-		txPkts = types.Int64Value(int64(*d.TxPkts.Value()))
+		txPkts = types.Int64Value(*d.TxPkts.Value())
 	}
 	if d.Usage.Value() != nil {
 		usage = types.StringValue(*d.Usage.Value())
@@ -94,10 +98,11 @@ func radioStatBandSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d
 	dataMapValue := map[string]attr.Value{
 		"bandwidth":                bandwidth,
 		"channel":                  channel,
-		"dynamic_chaining_enalbed": dynamicChainingEnalbed,
+		"dynamic_chaining_enabled": dynamicChainingEnabled,
 		"mac":                      mac,
 		"noise_floor":              noiseFloor,
 		"num_clients":              numClients,
+		"num_wlans":                numWlans,
 		"power":                    power,
 		"rx_bytes":                 rxBytes,
 		"rx_pkts":                  rxPkts,

@@ -5,7 +5,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -43,9 +43,10 @@ func webhookSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 	var orgId types.String
 	var secret types.String
 	var siteId types.String
+	var singleEventPerMessage types.Bool
 	var splunkToken types.String
 	var topics types.List
-	var wtype types.String
+	var wType types.String
 	var url types.String
 	var verifyCert types.Bool
 
@@ -86,7 +87,7 @@ func webhookSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 		oauth2Password = types.StringValue(*d.Oauth2Password)
 	}
 	if d.Oauth2Scopes != nil {
-		oauth2Scopes = misttransform.ListOfStringSdkToTerraform(d.Oauth2Scopes)
+		oauth2Scopes = mistutils.ListOfStringSdkToTerraform(d.Oauth2Scopes)
 	}
 	if d.Oauth2TokenUrl != nil {
 		oauth2TokenUrl = types.StringValue(*d.Oauth2TokenUrl)
@@ -99,6 +100,9 @@ func webhookSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 	}
 	if d.Secret.Value() != nil {
 		secret = types.StringValue(*d.Secret.Value())
+	}
+	if d.SingleEventPerMessage != nil {
+		singleEventPerMessage = types.BoolValue(*d.SingleEventPerMessage)
 	}
 	if d.SiteId != nil {
 		siteId = types.StringValue(d.SiteId.String())
@@ -116,7 +120,7 @@ func webhookSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 		topics = list
 	}
 	if d.Type != nil {
-		wtype = types.StringValue(string(*d.Type))
+		wType = types.StringValue(string(*d.Type))
 	}
 	if d.Url != nil {
 		url = types.StringValue(*d.Url)
@@ -126,27 +130,28 @@ func webhookSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 	}
 
 	dataMapValue := map[string]attr.Value{
-		"created_time":         createdTime,
-		"enabled":              enabled,
-		"headers":              headers,
-		"id":                   id,
-		"modified_time":        modifiedTime,
-		"name":                 name,
-		"oauth2_client_id":     oauth2ClientId,
-		"oauth2_client_secret": oauth2ClientSecret,
-		"oauth2_grant_type":    oauth2GrantType,
-		"oauth2_password":      oauth2Password,
-		"oauth2_scopes":        oauth2Scopes,
-		"oauth2_token_url":     oauth2TokenUrl,
-		"oauth2_username":      oauth2Username,
-		"org_id":               orgId,
-		"secret":               secret,
-		"site_id":              siteId,
-		"splunk_token":         splunkToken,
-		"topics":               topics,
-		"type":                 wtype,
-		"url":                  url,
-		"verify_cert":          verifyCert,
+		"created_time":             createdTime,
+		"enabled":                  enabled,
+		"headers":                  headers,
+		"id":                       id,
+		"modified_time":            modifiedTime,
+		"name":                     name,
+		"oauth2_client_id":         oauth2ClientId,
+		"oauth2_client_secret":     oauth2ClientSecret,
+		"oauth2_grant_type":        oauth2GrantType,
+		"oauth2_password":          oauth2Password,
+		"oauth2_scopes":            oauth2Scopes,
+		"oauth2_token_url":         oauth2TokenUrl,
+		"oauth2_username":          oauth2Username,
+		"org_id":                   orgId,
+		"secret":                   secret,
+		"site_id":                  siteId,
+		"single_event_per_message": singleEventPerMessage,
+		"splunk_token":             splunkToken,
+		"topics":                   topics,
+		"type":                     wType,
+		"url":                      url,
+		"verify_cert":              verifyCert,
 	}
 	state, e := NewSiteWebhooksValue(SiteWebhooksValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)

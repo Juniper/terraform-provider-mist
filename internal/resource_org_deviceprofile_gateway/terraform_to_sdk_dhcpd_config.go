@@ -1,7 +1,7 @@
 package resource_org_deviceprofile_gateway
 
 import (
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -77,10 +77,10 @@ func dhcpdConfigConfigsTerraformToSdk(d basetypes.MapValue) map[string]models.Dh
 
 		data := models.DhcpdConfigProperty{}
 		if !plan.DnsServers.IsNull() && !plan.DnsServers.IsUnknown() {
-			data.DnsServers = misttransform.ListOfStringTerraformToSdk(plan.DnsServers)
+			data.DnsServers = mistutils.ListOfStringTerraformToSdk(plan.DnsServers)
 		}
 		if !plan.DnsSuffix.IsNull() && !plan.DnsSuffix.IsUnknown() {
-			data.DnsSuffix = misttransform.ListOfStringTerraformToSdk(plan.DnsSuffix)
+			data.DnsSuffix = mistutils.ListOfStringTerraformToSdk(plan.DnsSuffix)
 		}
 		if !plan.FixedBindings.IsNull() && !plan.FixedBindings.IsUnknown() {
 			data.FixedBindings = fixedBindings
@@ -110,10 +110,10 @@ func dhcpdConfigConfigsTerraformToSdk(d basetypes.MapValue) map[string]models.Dh
 			data.ServerIdOverride = models.ToPointer(plan.ServerIdOverride.ValueBool())
 		}
 		if !plan.Servers4.IsNull() && !plan.Servers4.IsUnknown() {
-			data.Servers = misttransform.ListOfStringTerraformToSdk(plan.Servers4)
+			data.Servers = mistutils.ListOfStringTerraformToSdk(plan.Servers4)
 		}
 		if !plan.Servers6.IsNull() && !plan.Servers6.IsUnknown() {
-			data.Servers6 = misttransform.ListOfStringTerraformToSdk(plan.Servers6)
+			data.Servers6 = mistutils.ListOfStringTerraformToSdk(plan.Servers6)
 		}
 		if plan.Type4.ValueStringPointer() != nil {
 			data.Type = models.ToPointer(models.DhcpdConfigTypeEnum(plan.Type4.ValueString()))

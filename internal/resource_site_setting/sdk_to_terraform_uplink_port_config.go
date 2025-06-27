@@ -13,7 +13,7 @@ import (
 
 func uplinkPortConfigValueSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ApUplinkPortConfig) UplinkPortConfigValue {
 	var dot1x basetypes.BoolValue
-	var keepWlansUpIfDown basetypes.BoolValue
+	var keepWlansUpIfDown = types.BoolValue(true)
 
 	if d.Dot1x != nil {
 		dot1x = types.BoolValue(*d.Dot1x)

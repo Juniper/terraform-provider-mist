@@ -37,37 +37,37 @@ data "mist_org_inventory" "inventory" {
 ### Optional
 
 - `mac` (String) MAC address
-- `model` (String) device model
-- `serial` (String) device serial
-- `site_id` (String) site id if assigned, null if not assigned
-- `unassigned` (Boolean) to display Unassigned devices
+- `model` (String) Device model
+- `serial` (String) Device serial
+- `site_id` (String) Site id if assigned, null if not assigned
+- `type` (String) enum: `ap`, `gateway`, `switch`
+- `unassigned` (Boolean) To display Unassigned devices
 - `vc` (Boolean) To display Virtual Chassis members
 - `vc_mac` (String) Virtual Chassis MAC Address
 
 ### Read-Only
 
-- `org_inventory` (Attributes Set) List of devices (see [below for nested schema](#nestedatt--org_inventory))
+- `org_inventory` (Attributes Set) (see [below for nested schema](#nestedatt--org_inventory))
 
 <a id="nestedatt--org_inventory"></a>
 ### Nested Schema for `org_inventory`
 
 Read-Only:
 
-- `adopted` (Boolean) only if `type`==`switch` or `type`==`gateway`
-whether the switch/gateway is adopted
-- `claim_code` (String) device claim code
-- `connected` (Boolean) whether the device is connected
-- `deviceprofile_id` (String) deviceprofile id if assigned, null if not assigned
-- `hostname` (String) hostname reported by the device
-- `hw_rev` (String) device hardware revision number
-- `id` (String) device id
+- `adopted` (Boolean) Only if `type`==`switch` or `type`==`gateway`, whether the switch/gateway is adopted
+- `claim_code` (String) Device claim code
+- `connected` (Boolean) Whether the device is connected
+- `deviceprofile_id` (String) Deviceprofile id if assigned, null if not assigned
+- `hostname` (String) Hostname reported by the device
+- `hw_rev` (String) Device hardware revision number
+- `id` (String) Unique ID of the object instance in the Mist Organization
 - `jsi` (Boolean)
-- `mac` (String) device MAC address
-- `model` (String) device model
-- `name` (String) device name if configured
+- `mac` (String) Device MAC address
+- `model` (String) Device model
+- `name` (String) Device name if configured
 - `org_id` (String)
-- `serial` (String) device serial
+- `serial` (String) Device serial
 - `site_id` (String) Site ID where the device is assigned to
-- `sku` (String) device stock keeping unit
+- `sku` (String) Device stock keeping unit
 - `type` (String) enum: `ap`, `gateway`, `switch`
-- `vc_mac` (String) if `type`==`switch` and device part of a Virtual Chassis, MAC Address of the Virtual Chassis. if `type`==`gateway` and device part of a Clust, MAC Address of the Cluster
+- `vc_mac` (String) If `type`==`switch` and device part of a Virtual Chassis, MAC Address of the Virtual Chassis. if `type`==`gateway` and device part of a Cluster, MAC Address of the Cluster

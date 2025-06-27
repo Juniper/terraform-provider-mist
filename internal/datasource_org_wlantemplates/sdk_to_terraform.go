@@ -2,8 +2,6 @@ package datasource_org_wlantemplates
 
 import (
 	"context"
-	"math/big"
-
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -16,29 +14,29 @@ func SdkToTerraform(ctx context.Context, l *[]models.Template, elements *[]attr.
 	var diags diag.Diagnostics
 
 	for _, d := range *l {
-		elem := wxlantemplateSdkToTerraform(ctx, &diags, &d)
+		elem := wxlanTemplateSdkToTerraform(ctx, &diags, &d)
 		*elements = append(*elements, elem)
 	}
 
 	return diags
 }
 
-func wxlantemplateSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.Template) OrgWlantemplatesValue {
+func wxlanTemplateSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.Template) OrgWlantemplatesValue {
 
-	var createdTime basetypes.NumberValue
+	var createdTime basetypes.Float64Value
 	var id basetypes.StringValue
-	var modifiedTime basetypes.NumberValue
+	var modifiedTime basetypes.Float64Value
 	var name basetypes.StringValue
 	var orgId basetypes.StringValue
 
 	if d.CreatedTime != nil {
-		createdTime = types.NumberValue(big.NewFloat(*d.CreatedTime))
+		createdTime = types.Float64Value(*d.CreatedTime)
 	}
 	if d.Id != nil {
 		id = types.StringValue(d.Id.String())
 	}
 	if d.ModifiedTime != nil {
-		modifiedTime = types.NumberValue(big.NewFloat(*d.ModifiedTime))
+		modifiedTime = types.Float64Value(*d.ModifiedTime)
 	}
 	name = types.StringValue(d.Name)
 	if d.OrgId != nil {

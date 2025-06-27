@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func dhcpSnoopingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.DhcpSnooping) DhcpSnoopingValue {
@@ -18,7 +18,7 @@ func dhcpSnoopingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	var enableArpSpoofCheck basetypes.BoolValue
 	var enableIpSourceGuard basetypes.BoolValue
 	var enabled basetypes.BoolValue
-	var networks = types.ListNull(types.StringType)
+	var networks = mistutils.ListOfStringSdkToTerraformEmpty()
 
 	if d != nil && d.AllNetworks != nil {
 		allNetworks = types.BoolValue(*d.AllNetworks)
@@ -32,8 +32,8 @@ func dhcpSnoopingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	if d != nil && d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
-	if d != nil && d.Networks != nil {
-		networks = misttransform.ListOfStringSdkToTerraform(d.Networks)
+	if d != nil && len(d.Networks) > 0 {
+		networks = mistutils.ListOfStringSdkToTerraform(d.Networks)
 	}
 
 	dataMapValue := map[string]attr.Value{

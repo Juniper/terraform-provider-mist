@@ -55,7 +55,7 @@ func (r *upgradeDeviceResource) Metadata(_ context.Context, req resource.Metadat
 
 func (r *upgradeDeviceResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryDevices + "This resource can be used to upgrade the frimware of a single device (Wi-Fi Access Points, Switches and SRX/SSR Gateways).\n\n" +
+		MarkdownDescription: docCategoryDevices + "This resource can be used to upgrade the firmware of a single device (Wi-Fi Access Points, Switches and SRX/SSR Gateways).\n\n" +
 			"The resource will send the upgrade command to Mist, which will take care of deploying the new firmware version to the " +
 			"device, and reboot it if required.\n\n" +
 			"The time required to upgrade a device depends on the type of device and its hardware. " +
@@ -299,7 +299,7 @@ func (r *upgradeDeviceResource) refreshFwUpdate(
 			return state, diags
 		} else {
 			if !upgradeStarted {
-				// save the initil upgrade status id retrieved from Mist (it will increase once the upgrade starts)
+				// save the initial upgrade status id retrieved from Mist (it will increase once the upgrade starts)
 				// this will be used to detect if/when the upgrade starts
 				if previousStatusId == -1 {
 					tflog.Debug(ctx, "upgrade check is sync, wait for the upgrade to start")

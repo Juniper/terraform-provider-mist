@@ -255,14 +255,26 @@ func (r *orgAvprofileResource) Delete(ctx context.Context, _ resource.DeleteRequ
 		)
 		return
 	}
-	httpr, err := r.client.OrgsAntivirusProfiles().DeleteOrgAntivirusProfile(ctx, orgId, avprofileId)
-	if httpr.StatusCode != 404 && err != nil {
+
+	data, err := r.client.OrgsAntivirusProfiles().DeleteOrgAntivirusProfile(ctx, orgId, avprofileId)
+	if data != nil {
+		apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+		if data.StatusCode != 404 && apiErr != "" {
+			resp.Diagnostics.AddError(
+				"Error deleting \"mist_org_avprofile\" resource",
+				fmt.Sprintf("Unable to delete the Antivirus Profile. %s", apiErr),
+			)
+			return
+		}
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_avprofile\" resource",
 			"Unable to delete the Antivirus Profile, unexpected error: "+err.Error(),
 		)
 		return
 	}
+
+	resp.State.RemoveResource(ctx)
 }
 
 func (r *orgAvprofileResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

@@ -38,6 +38,9 @@ func band24TerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basety
 			if plan.Bandwidth.ValueInt64Pointer() != nil {
 				data.Bandwidth = models.ToPointer(models.Dot11Bandwidth24Enum(plan.Bandwidth.ValueInt64()))
 			}
+			if plan.Channel.ValueInt64Pointer() != nil {
+				data.Channel = models.NewOptional(models.ToPointer(int(plan.Channel.ValueInt64())))
+			}
 			if !plan.Channels.IsNull() && !plan.Channels.IsUnknown() {
 				data.Channels = models.NewOptional(models.ToPointer(channelsTerraformToSdk(plan.Channels)))
 			}
@@ -80,6 +83,9 @@ func band5TerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetyp
 			if plan.Bandwidth.ValueInt64Pointer() != nil {
 				data.Bandwidth = models.ToPointer(models.Dot11Bandwidth5Enum(plan.Bandwidth.ValueInt64()))
 			}
+			if plan.Channel.ValueInt64Pointer() != nil {
+				data.Channel = models.NewOptional(models.ToPointer(int(plan.Channel.ValueInt64())))
+			}
 			if !plan.Channels.IsNull() && !plan.Channels.IsUnknown() {
 				data.Channels = models.NewOptional(models.ToPointer(channelsTerraformToSdk(plan.Channels)))
 			}
@@ -121,6 +127,9 @@ func band6TerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetyp
 			}
 			if plan.Bandwidth.ValueInt64Pointer() != nil {
 				data.Bandwidth = models.ToPointer(models.Dot11Bandwidth6Enum(plan.Bandwidth.ValueInt64()))
+			}
+			if plan.Channel.ValueInt64Pointer() != nil {
+				data.Channel = models.NewOptional(models.ToPointer(int(plan.Channel.ValueInt64())))
 			}
 			if !plan.Channels.IsNull() && !plan.Channels.IsUnknown() {
 				data.Channels = models.NewOptional(models.ToPointer(channelsTerraformToSdk(plan.Channels)))
@@ -181,6 +190,9 @@ func radioConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, pla
 	}
 	if !plan.Band6.IsNull() && !plan.Band6.IsUnknown() {
 		data.Band6 = band6TerraformToSdk(ctx, diags, plan.Band6)
+	}
+	if plan.FullAutomaticRrm.ValueBoolPointer() != nil {
+		data.FullAutomaticRrm = plan.FullAutomaticRrm.ValueBoolPointer()
 	}
 	if plan.IndoorUse.ValueBoolPointer() != nil {
 		data.IndoorUse = plan.IndoorUse.ValueBoolPointer()

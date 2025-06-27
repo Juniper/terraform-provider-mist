@@ -24,17 +24,33 @@ func OrgNacrulesDataSourceSchema(ctx context.Context) schema.Schema {
 			"org_nacrules": schema.SetNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
-						"created_time": schema.NumberAttribute{
-							Computed: true,
+						"created_time": schema.Float64Attribute{
+							Computed:            true,
+							Description:         "When the object has been created, in epoch",
+							MarkdownDescription: "When the object has been created, in epoch",
+						},
+						"enabled": schema.BoolAttribute{
+							Computed:            true,
+							Description:         "Enabled or not",
+							MarkdownDescription: "Enabled or not",
 						},
 						"id": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							Description:         "Unique ID of the object instance in the Mist Organization",
+							MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
 						},
-						"modified_time": schema.NumberAttribute{
-							Computed: true,
+						"modified_time": schema.Float64Attribute{
+							Computed:            true,
+							Description:         "When the object has been modified for the last time, in epoch",
+							MarkdownDescription: "When the object has been modified for the last time, in epoch",
 						},
 						"name": schema.StringAttribute{
 							Computed: true,
+						},
+						"order": schema.Int64Attribute{
+							Computed:            true,
+							Description:         "Order of the rule, lower value implies higher priority",
+							MarkdownDescription: "Order of the rule, lower value implies higher priority",
 						},
 						"org_id": schema.StringAttribute{
 							Computed: true,
@@ -92,12 +108,30 @@ func (t OrgNacrulesType) ValueFromObject(ctx context.Context, in basetypes.Objec
 		return nil, diags
 	}
 
-	createdTimeVal, ok := createdTimeAttribute.(basetypes.NumberValue)
+	createdTimeVal, ok := createdTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`created_time expected to be basetypes.NumberValue, was: %T`, createdTimeAttribute))
+			fmt.Sprintf(`created_time expected to be basetypes.Float64Value, was: %T`, createdTimeAttribute))
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
 	}
 
 	idAttribute, ok := attributes["id"]
@@ -128,12 +162,12 @@ func (t OrgNacrulesType) ValueFromObject(ctx context.Context, in basetypes.Objec
 		return nil, diags
 	}
 
-	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.NumberValue)
+	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`modified_time expected to be basetypes.NumberValue, was: %T`, modifiedTimeAttribute))
+			fmt.Sprintf(`modified_time expected to be basetypes.Float64Value, was: %T`, modifiedTimeAttribute))
 	}
 
 	nameAttribute, ok := attributes["name"]
@@ -152,6 +186,24 @@ func (t OrgNacrulesType) ValueFromObject(ctx context.Context, in basetypes.Objec
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`name expected to be basetypes.StringValue, was: %T`, nameAttribute))
+	}
+
+	orderAttribute, ok := attributes["order"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`order is missing from object`)
+
+		return nil, diags
+	}
+
+	orderVal, ok := orderAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`order expected to be basetypes.Int64Value, was: %T`, orderAttribute))
 	}
 
 	orgIdAttribute, ok := attributes["org_id"]
@@ -178,9 +230,11 @@ func (t OrgNacrulesType) ValueFromObject(ctx context.Context, in basetypes.Objec
 
 	return OrgNacrulesValue{
 		CreatedTime:  createdTimeVal,
+		Enabled:      enabledVal,
 		Id:           idVal,
 		ModifiedTime: modifiedTimeVal,
 		Name:         nameVal,
+		Order:        orderVal,
 		OrgId:        orgIdVal,
 		state:        attr.ValueStateKnown,
 	}, diags
@@ -259,12 +313,30 @@ func NewOrgNacrulesValue(attributeTypes map[string]attr.Type, attributes map[str
 		return NewOrgNacrulesValueUnknown(), diags
 	}
 
-	createdTimeVal, ok := createdTimeAttribute.(basetypes.NumberValue)
+	createdTimeVal, ok := createdTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`created_time expected to be basetypes.NumberValue, was: %T`, createdTimeAttribute))
+			fmt.Sprintf(`created_time expected to be basetypes.Float64Value, was: %T`, createdTimeAttribute))
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return NewOrgNacrulesValueUnknown(), diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
 	}
 
 	idAttribute, ok := attributes["id"]
@@ -295,12 +367,12 @@ func NewOrgNacrulesValue(attributeTypes map[string]attr.Type, attributes map[str
 		return NewOrgNacrulesValueUnknown(), diags
 	}
 
-	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.NumberValue)
+	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`modified_time expected to be basetypes.NumberValue, was: %T`, modifiedTimeAttribute))
+			fmt.Sprintf(`modified_time expected to be basetypes.Float64Value, was: %T`, modifiedTimeAttribute))
 	}
 
 	nameAttribute, ok := attributes["name"]
@@ -319,6 +391,24 @@ func NewOrgNacrulesValue(attributeTypes map[string]attr.Type, attributes map[str
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`name expected to be basetypes.StringValue, was: %T`, nameAttribute))
+	}
+
+	orderAttribute, ok := attributes["order"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`order is missing from object`)
+
+		return NewOrgNacrulesValueUnknown(), diags
+	}
+
+	orderVal, ok := orderAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`order expected to be basetypes.Int64Value, was: %T`, orderAttribute))
 	}
 
 	orgIdAttribute, ok := attributes["org_id"]
@@ -345,9 +435,11 @@ func NewOrgNacrulesValue(attributeTypes map[string]attr.Type, attributes map[str
 
 	return OrgNacrulesValue{
 		CreatedTime:  createdTimeVal,
+		Enabled:      enabledVal,
 		Id:           idVal,
 		ModifiedTime: modifiedTimeVal,
 		Name:         nameVal,
+		Order:        orderVal,
 		OrgId:        orgIdVal,
 		state:        attr.ValueStateKnown,
 	}, diags
@@ -421,31 +513,35 @@ func (t OrgNacrulesType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = OrgNacrulesValue{}
 
 type OrgNacrulesValue struct {
-	CreatedTime  basetypes.NumberValue `tfsdk:"created_time"`
-	Id           basetypes.StringValue `tfsdk:"id"`
-	ModifiedTime basetypes.NumberValue `tfsdk:"modified_time"`
-	Name         basetypes.StringValue `tfsdk:"name"`
-	OrgId        basetypes.StringValue `tfsdk:"org_id"`
+	CreatedTime  basetypes.Float64Value `tfsdk:"created_time"`
+	Enabled      basetypes.BoolValue    `tfsdk:"enabled"`
+	Id           basetypes.StringValue  `tfsdk:"id"`
+	ModifiedTime basetypes.Float64Value `tfsdk:"modified_time"`
+	Name         basetypes.StringValue  `tfsdk:"name"`
+	Order        basetypes.Int64Value   `tfsdk:"order"`
+	OrgId        basetypes.StringValue  `tfsdk:"org_id"`
 	state        attr.ValueState
 }
 
 func (v OrgNacrulesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 6)
+	attrTypes := make(map[string]tftypes.Type, 7)
 
 	var val tftypes.Value
 	var err error
 
-	attrTypes["created_time"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["created_time"] = basetypes.Float64Type{}.TerraformType(ctx)
+	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["id"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["modified_time"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["modified_time"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["order"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["org_id"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 6)
+		vals := make(map[string]tftypes.Value, 7)
 
 		val, err = v.CreatedTime.ToTerraformValue(ctx)
 
@@ -454,6 +550,14 @@ func (v OrgNacrulesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 		}
 
 		vals["created_time"] = val
+
+		val, err = v.Enabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enabled"] = val
 
 		val, err = v.Id.ToTerraformValue(ctx)
 
@@ -478,6 +582,14 @@ func (v OrgNacrulesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 		}
 
 		vals["name"] = val
+
+		val, err = v.Order.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["order"] = val
 
 		val, err = v.OrgId.ToTerraformValue(ctx)
 
@@ -517,10 +629,12 @@ func (v OrgNacrulesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 	var diags diag.Diagnostics
 
 	attributeTypes := map[string]attr.Type{
-		"created_time":  basetypes.NumberType{},
+		"created_time":  basetypes.Float64Type{},
+		"enabled":       basetypes.BoolType{},
 		"id":            basetypes.StringType{},
-		"modified_time": basetypes.NumberType{},
+		"modified_time": basetypes.Float64Type{},
 		"name":          basetypes.StringType{},
+		"order":         basetypes.Int64Type{},
 		"org_id":        basetypes.StringType{},
 	}
 
@@ -536,9 +650,11 @@ func (v OrgNacrulesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 		attributeTypes,
 		map[string]attr.Value{
 			"created_time":  v.CreatedTime,
+			"enabled":       v.Enabled,
 			"id":            v.Id,
 			"modified_time": v.ModifiedTime,
 			"name":          v.Name,
+			"order":         v.Order,
 			"org_id":        v.OrgId,
 		})
 
@@ -564,6 +680,10 @@ func (v OrgNacrulesValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.Enabled.Equal(other.Enabled) {
+		return false
+	}
+
 	if !v.Id.Equal(other.Id) {
 		return false
 	}
@@ -573,6 +693,10 @@ func (v OrgNacrulesValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.Name.Equal(other.Name) {
+		return false
+	}
+
+	if !v.Order.Equal(other.Order) {
 		return false
 	}
 
@@ -593,10 +717,12 @@ func (v OrgNacrulesValue) Type(ctx context.Context) attr.Type {
 
 func (v OrgNacrulesValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"created_time":  basetypes.NumberType{},
+		"created_time":  basetypes.Float64Type{},
+		"enabled":       basetypes.BoolType{},
 		"id":            basetypes.StringType{},
-		"modified_time": basetypes.NumberType{},
+		"modified_time": basetypes.Float64Type{},
 		"name":          basetypes.StringType{},
+		"order":         basetypes.Int64Type{},
 		"org_id":        basetypes.StringType{},
 	}
 }

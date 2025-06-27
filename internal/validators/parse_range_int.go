@@ -66,10 +66,10 @@ func (o ParseRangeOfIntValidator) ValidateString(_ context.Context, req validato
 	}
 }
 
-func ParseRangeOfInt(min int, max int, equalAlloweds bool) validator.String {
+func ParseRangeOfInt(min int, max int, equalAllowed bool) validator.String {
 	return ParseRangeOfIntValidator{
 		min:          min,
 		max:          max,
-		equalAllowed: equalAlloweds,
+		equalAllowed: equalAllowed,
 	}
 }

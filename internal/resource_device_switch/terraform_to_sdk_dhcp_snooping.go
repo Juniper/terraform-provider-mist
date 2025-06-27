@@ -1,7 +1,7 @@
 package resource_device_switch
 
 import (
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
@@ -21,7 +21,7 @@ func dhcpSnoopingTerraformToSdk(d DhcpSnoopingValue) *models.DhcpSnooping {
 		data.Enabled = models.ToPointer(d.Enabled.ValueBool())
 	}
 	if !d.Networks.IsNull() && !d.Networks.IsUnknown() {
-		data.Networks = misttransform.ListOfStringTerraformToSdk(d.Networks)
+		data.Networks = mistutils.ListOfStringTerraformToSdk(d.Networks)
 	}
 	return &data
 }

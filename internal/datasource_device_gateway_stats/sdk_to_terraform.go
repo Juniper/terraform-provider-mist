@@ -27,6 +27,7 @@ func deviceGatewayStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 
 	var apRedundancy = types.ObjectNull(ApRedundancyValue{}.AttributeTypes(ctx))
 	var arpTableStats = types.ObjectNull(ArpTableStatsValue{}.AttributeTypes(ctx))
+	var bgpPeers = types.ListNull(BgpPeersValue{}.Type(ctx))
 	var certExpiry basetypes.Int64Value
 	var clusterConfig = types.ObjectNull(ClusterConfigValue{}.AttributeTypes(ctx))
 	var clusterStat = types.ObjectNull(ClusterStatValue{}.AttributeTypes(ctx))
@@ -34,7 +35,7 @@ func deviceGatewayStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 	var configStatus basetypes.StringValue
 	var cpu2Stat = types.ObjectNull(CpuStatValue{}.AttributeTypes(ctx))
 	var cpuStat = types.ObjectNull(CpuStatValue{}.AttributeTypes(ctx))
-	var createdTime basetypes.Int64Value
+	var createdTime basetypes.Float64Value
 	var deviceprofileId basetypes.StringValue
 	var dhcpd2Stat = types.MapNull(DhcpdStatValue{}.Type(ctx))
 	var dhcpdStat = types.MapNull(DhcpdStatValue{}.Type(ctx))
@@ -49,18 +50,19 @@ func deviceGatewayStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 	var ip2Stat = types.ObjectNull(IpStatValue{}.AttributeTypes(ctx))
 	var ipStat = types.ObjectNull(IpStatValue{}.AttributeTypes(ctx))
 	var isHa basetypes.BoolValue
-	var lastSeen basetypes.NumberValue
+	var lastSeen basetypes.Float64Value
 	var mac basetypes.StringValue
 	var mapId basetypes.StringValue
 	var memory2Stat = types.ObjectNull(MemoryStatValue{}.AttributeTypes(ctx))
 	var memoryStat = types.ObjectNull(MemoryStatValue{}.AttributeTypes(ctx))
 	var model basetypes.StringValue
-	var modifiedTime basetypes.Int64Value
+	var modifiedTime basetypes.Float64Value
 	var module2Stat = types.ListNull(ModuleStatValue{}.Type(ctx))
 	var moduleStat = types.ListNull(ModuleStatValue{}.Type(ctx))
 	var name basetypes.StringValue
 	var nodeName basetypes.StringValue
 	var orgId basetypes.StringValue
+	var ports = types.ListNull(PortsValue{}.Type(ctx))
 	var routeSummaryStats = types.ObjectNull(RouteSummaryStatsValue{}.AttributeTypes(ctx))
 	var routerName basetypes.StringValue
 	var serial basetypes.StringValue
@@ -71,14 +73,19 @@ func deviceGatewayStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 	var spu2Stat = types.ListNull(SpuStatValue{}.Type(ctx))
 	var spuStat = types.ListNull(SpuStatValue{}.Type(ctx))
 	var status basetypes.StringValue
+	var tunnels = types.ListNull(TunnelsValue{}.Type(ctx))
 	var uptime basetypes.NumberValue
 	var version basetypes.StringValue
+	var vpnPeers = types.ListNull(VpnPeersValue{}.Type(ctx))
 
 	if d.ApRedundancy != nil {
 		apRedundancy = apRedundancySdkToTerraform(ctx, diags, d.ApRedundancy)
 	}
 	if d.ArpTableStats != nil {
 		arpTableStats = arpTableStatsSdkToTerraform(ctx, diags, d.ArpTableStats)
+	}
+	if d.BgpPeers != nil {
+		bgpPeers = bgpPeersSdkToTerraform(ctx, diags, d.BgpPeers)
 	}
 	if d.CertExpiry != nil {
 		certExpiry = types.Int64Value(*d.CertExpiry)
@@ -102,7 +109,7 @@ func deviceGatewayStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 		cpuStat = cpuStatsSdkToTerraform(ctx, diags, d.CpuStat)
 	}
 	if d.CreatedTime != nil {
-		createdTime = types.Int64Value(int64(*d.CreatedTime))
+		createdTime = types.Float64Value(*d.CreatedTime)
 	}
 	if d.DeviceprofileId.Value() != nil {
 		deviceprofileId = types.StringValue(d.DeviceprofileId.Value().String())
@@ -146,8 +153,8 @@ func deviceGatewayStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 	if d.IsHa.Value() != nil {
 		isHa = types.BoolValue(*d.IsHa.Value())
 	}
-	if d.LastSeen != nil {
-		lastSeen = types.NumberValue(big.NewFloat(*d.LastSeen))
+	if d.LastSeen.Value() != nil {
+		lastSeen = types.Float64Value(*d.LastSeen.Value())
 	}
 
 	mac = types.StringValue(d.Mac)
@@ -165,7 +172,7 @@ func deviceGatewayStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 		model = types.StringValue(*d.Model)
 	}
 	if d.ModifiedTime != nil {
-		modifiedTime = types.Int64Value(int64(*d.ModifiedTime))
+		modifiedTime = types.Float64Value(*d.ModifiedTime)
 	}
 	if d.Module2Stat != nil {
 		module2Stat = moduleStatSdkToTerraform(ctx, diags, d.Module2Stat)
@@ -181,6 +188,9 @@ func deviceGatewayStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 	}
 	if d.OrgId != nil {
 		orgId = types.StringValue(d.OrgId.String())
+	}
+	if d.Ports != nil {
+		ports = portsSdkToTerraform(ctx, diags, d.Ports)
 	}
 	if d.RouteSummaryStats != nil {
 		routeSummaryStats = routeSummaryStatsSdkToTerraform(ctx, diags, d.RouteSummaryStats)
@@ -212,16 +222,23 @@ func deviceGatewayStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 	if d.Status != nil {
 		status = types.StringValue(*d.Status)
 	}
+	if d.Tunnels != nil {
+		tunnels = tunnelsSdkToTerraform(ctx, diags, d.Tunnels)
+	}
 	if d.Uptime.Value() != nil {
 		uptime = types.NumberValue(big.NewFloat(*d.Uptime.Value()))
 	}
 	if d.Version.Value() != nil {
 		version = types.StringValue(*d.Version.Value())
 	}
+	if d.VpnPeers != nil {
+		vpnPeers = vpnPeersSdkToTerraform(ctx, diags, d.VpnPeers)
+	}
 
 	dataMapValue := map[string]attr.Value{
 		"ap_redundancy":       apRedundancy,
 		"arp_table_stats":     arpTableStats,
+		"bgp_peers":           bgpPeers,
 		"cert_expiry":         certExpiry,
 		"cluster_config":      clusterConfig,
 		"cluster_stat":        clusterStat,
@@ -256,6 +273,7 @@ func deviceGatewayStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 		"name":                name,
 		"node_name":           nodeName,
 		"org_id":              orgId,
+		"ports":               ports,
 		"route_summary_stats": routeSummaryStats,
 		"router_name":         routerName,
 		"serial":              serial,
@@ -266,8 +284,10 @@ func deviceGatewayStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 		"spu2_stat":           spu2Stat,
 		"spu_stat":            spuStat,
 		"status":              status,
+		"tunnels":             tunnels,
 		"uptime":              uptime,
 		"version":             version,
+		"vpn_peers":           vpnPeers,
 	}
 	data, e := NewDeviceGatewayStatsValue(DeviceGatewayStatsValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)

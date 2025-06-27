@@ -69,8 +69,8 @@ func (d *constWebhooksDataSource) Read(ctx context.Context, req datasource.ReadR
 	data, err := d.client.ConstantsDefinitions().ListWebhookTopics(ctx)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting AP Stats",
-			"Unable to get the AP Stats, unexpected error: "+err.Error(),
+			"Error getting Webhook Definitions",
+			"Unable to get the Webhook Definitions, unexpected error: "+err.Error(),
 		)
 		return
 	}

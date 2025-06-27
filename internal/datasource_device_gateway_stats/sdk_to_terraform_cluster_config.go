@@ -3,7 +3,7 @@ package datasource_device_gateway_stats
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -73,7 +73,7 @@ func clusterConfigFabricLinkInfoSdkToTerraform(ctx context.Context, diags *diag.
 		dataPlaneNotifiedStatus = types.StringValue(*d.DataPlaneNotifiedStatus)
 	}
 	if d.Interface != nil {
-		interfaceLink = misttransform.ListOfStringSdkToTerraform(d.Interface)
+		interfaceLink = mistutils.ListOfStringSdkToTerraform(d.Interface)
 	}
 	if d.InternalStatus != nil {
 		internalStatus = types.StringValue(*d.InternalStatus)

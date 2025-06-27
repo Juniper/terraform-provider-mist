@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func tunnelConfigAutoProvNodeSdkToTerraform(diags *diag.Diagnostics, d models.TunnelConfigAutoProvisionNode, rType map[string]attr.Type) basetypes.ObjectValue {
@@ -19,10 +19,10 @@ func tunnelConfigAutoProvNodeSdkToTerraform(diags *diag.Diagnostics, d models.Tu
 	var wanNames = types.ListNull(types.StringType)
 
 	if d.ProbeIps != nil {
-		probeIps = misttransform.ListOfStringSdkToTerraform(d.ProbeIps)
+		probeIps = mistutils.ListOfStringSdkToTerraform(d.ProbeIps)
 	}
 	if d.WanNames != nil {
-		wanNames = misttransform.ListOfStringSdkToTerraform(d.WanNames)
+		wanNames = mistutils.ListOfStringSdkToTerraform(d.WanNames)
 	}
 
 	rAttrValue := map[string]attr.Value{
@@ -157,19 +157,19 @@ func tunnelConfigNodeSdkToTerraform(diags *diag.Diagnostics, d models.TunnelConf
 	var wanNames = types.ListNull(types.StringType)
 
 	if d.Hosts != nil {
-		hosts = misttransform.ListOfStringSdkToTerraform(d.Hosts)
+		hosts = mistutils.ListOfStringSdkToTerraform(d.Hosts)
 	}
 	if d.InternalIps != nil {
-		internalIps = misttransform.ListOfStringSdkToTerraform(d.InternalIps)
+		internalIps = mistutils.ListOfStringSdkToTerraform(d.InternalIps)
 	}
 	if d.ProbeIps != nil {
-		probeIps = misttransform.ListOfStringSdkToTerraform(d.ProbeIps)
+		probeIps = mistutils.ListOfStringSdkToTerraform(d.ProbeIps)
 	}
 	if d.RemoteIds != nil {
-		remoteIds = misttransform.ListOfStringSdkToTerraform(d.RemoteIds)
+		remoteIds = mistutils.ListOfStringSdkToTerraform(d.RemoteIds)
 	}
 	if d.WanNames != nil {
-		wanNames = misttransform.ListOfStringSdkToTerraform(d.WanNames)
+		wanNames = mistutils.ListOfStringSdkToTerraform(d.WanNames)
 	}
 
 	dataMapValue := map[string]attr.Value{
@@ -228,7 +228,7 @@ func tunnelConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m
 		var ipsecProposals = types.ListNull(IpsecProposalsValue{}.Type(ctx))
 		var localId basetypes.StringValue
 		var mode = types.StringValue("active-standby")
-		var networks = misttransform.ListOfStringSdkToTerraformEmpty()
+		var networks = mistutils.ListOfStringSdkToTerraformEmpty()
 		var primary = types.ObjectNull(PrimaryValue{}.AttributeTypes(ctx))
 		var probe = types.ObjectNull(ProbeValue{}.AttributeTypes(ctx))
 		var protocol basetypes.StringValue
@@ -262,7 +262,7 @@ func tunnelConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m
 			mode = types.StringValue(string(*d.Mode))
 		}
 		if d.Networks != nil {
-			networks = misttransform.ListOfStringSdkToTerraform(d.Networks)
+			networks = mistutils.ListOfStringSdkToTerraform(d.Networks)
 		}
 		if d.Primary != nil {
 			primary = tunnelConfigNodeSdkToTerraform(diags, *d.Primary, PrimaryValue{}.AttributeTypes(ctx))

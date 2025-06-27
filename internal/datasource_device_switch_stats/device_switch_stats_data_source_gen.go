@@ -5,6 +5,7 @@ package datasource_device_switch_stats
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -42,8 +43,11 @@ func DeviceSwitchStatsDataSourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 									Computed:            true,
-									Description:         "for a VC / stacked switches.",
-									MarkdownDescription: "for a VC / stacked switches.",
+									Description:         "For a VC / stacked switches.",
+									MarkdownDescription: "For a VC / stacked switches.",
+									Validators: []validator.Map{
+										mapvalidator.SizeAtLeast(1),
+									},
 								},
 								"num_aps": schema.Int64Attribute{
 									Computed: true,
@@ -157,8 +161,8 @@ func DeviceSwitchStatsDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 								"user": schema.NumberAttribute{
 									Computed:            true,
-									Description:         "Percentage of CPU time being used by user processe",
-									MarkdownDescription: "Percentage of CPU time being used by user processe",
+									Description:         "Percentage of CPU time being used by user processes",
+									MarkdownDescription: "Percentage of CPU time being used by user processes",
 								},
 							},
 							CustomType: CpuStatType{
@@ -168,8 +172,10 @@ func DeviceSwitchStatsDataSourceSchema(ctx context.Context) schema.Schema {
 							},
 							Computed: true,
 						},
-						"created_time": schema.Int64Attribute{
-							Computed: true,
+						"created_time": schema.Float64Attribute{
+							Computed:            true,
+							Description:         "When the object has been created, in epoch",
+							MarkdownDescription: "When the object has been created, in epoch",
 						},
 						"deviceprofile_id": schema.StringAttribute{
 							Computed: true,
@@ -193,6 +199,9 @@ func DeviceSwitchStatsDataSourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "Property key is the network name",
 							MarkdownDescription: "Property key is the network name",
+							Validators: []validator.Map{
+								mapvalidator.SizeAtLeast(1),
+							},
 						},
 						"evpntopo_id": schema.StringAttribute{
 							Computed: true,
@@ -206,13 +215,17 @@ func DeviceSwitchStatsDataSourceSchema(ctx context.Context) schema.Schema {
 									Computed: true,
 								},
 								"status": schema.StringAttribute{
-									Computed: true,
+									Computed:            true,
+									Description:         "enum: `inprogress`, `failed`, `upgraded`",
+									MarkdownDescription: "enum: `inprogress`, `failed`, `upgraded`",
 								},
 								"status_id": schema.Int64Attribute{
 									Computed: true,
 								},
 								"timestamp": schema.Float64Attribute{
-									Computed: true,
+									Computed:            true,
+									Description:         "Epoch (seconds)",
+									MarkdownDescription: "Epoch (seconds)",
 								},
 								"will_retry": schema.BoolAttribute{
 									Computed: true,
@@ -227,21 +240,23 @@ func DeviceSwitchStatsDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"has_pcap": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "whether the switch supports packet capture",
-							MarkdownDescription: "whether the switch supports packet capture",
+							Description:         "Whether the switch supports packet capture",
+							MarkdownDescription: "Whether the switch supports packet capture",
 						},
 						"hostname": schema.StringAttribute{
 							Computed:            true,
-							Description:         "hostname reported by the device",
-							MarkdownDescription: "hostname reported by the device",
+							Description:         "Hostname reported by the device",
+							MarkdownDescription: "Hostname reported by the device",
 						},
 						"hw_rev": schema.StringAttribute{
 							Computed:            true,
-							Description:         "device hardware revision number",
-							MarkdownDescription: "device hardware revision number",
+							Description:         "Device hardware revision number",
+							MarkdownDescription: "Device hardware revision number",
 						},
 						"id": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							Description:         "Unique ID of the object instance in the Mist Organization",
+							MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
 						},
 						"if_stat": schema.MapNestedAttribute{
 							NestedObject: schema.NestedAttributeObject{
@@ -270,10 +285,14 @@ func DeviceSwitchStatsDataSourceSchema(ctx context.Context) schema.Schema {
 										Computed: true,
 									},
 									"rx_bytes": schema.Int64Attribute{
-										Computed: true,
+										Computed:            true,
+										Description:         "Amount of traffic received since connection",
+										MarkdownDescription: "Amount of traffic received since connection",
 									},
 									"rx_pkts": schema.Int64Attribute{
-										Computed: true,
+										Computed:            true,
+										Description:         "Amount of packets received since connection",
+										MarkdownDescription: "Amount of packets received since connection",
 									},
 									"servp_info": schema.SingleNestedAttribute{
 										Attributes: map[string]schema.Attribute{
@@ -307,10 +326,14 @@ func DeviceSwitchStatsDataSourceSchema(ctx context.Context) schema.Schema {
 										Computed: true,
 									},
 									"tx_bytes": schema.Int64Attribute{
-										Computed: true,
+										Computed:            true,
+										Description:         "Amount of traffic sent since connection",
+										MarkdownDescription: "Amount of traffic sent since connection",
 									},
 									"tx_pkts": schema.Int64Attribute{
-										Computed: true,
+										Computed:            true,
+										Description:         "Amount of packets sent since connection",
+										MarkdownDescription: "Amount of packets sent since connection",
 									},
 									"up": schema.BoolAttribute{
 										Computed: true,
@@ -334,6 +357,9 @@ func DeviceSwitchStatsDataSourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "Property key is the interface name",
 							MarkdownDescription: "Property key is the interface name",
+							Validators: []validator.Map{
+								mapvalidator.SizeAtLeast(1),
+							},
 						},
 						"ip": schema.StringAttribute{
 							Computed: true,
@@ -381,18 +407,22 @@ func DeviceSwitchStatsDataSourceSchema(ctx context.Context) schema.Schema {
 							},
 							Computed: true,
 						},
-						"last_seen": schema.NumberAttribute{
-							Computed: true,
+						"last_seen": schema.Float64Attribute{
+							Computed:            true,
+							Description:         "Last seen timestamp",
+							MarkdownDescription: "Last seen timestamp",
 						},
 						"last_trouble": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
 								"code": schema.StringAttribute{
 									Computed:            true,
-									Description:         "Code definitions list at /api/v1/consts/ap_led_status",
-									MarkdownDescription: "Code definitions list at /api/v1/consts/ap_led_status",
+									Description:         "Code definitions list at [List Ap Led Definition]($e/Constants%20Definitions/listApLedDefinition)",
+									MarkdownDescription: "Code definitions list at [List Ap Led Definition]($e/Constants%20Definitions/listApLedDefinition)",
 								},
-								"timestamp": schema.Int64Attribute{
-									Computed: true,
+								"timestamp": schema.Float64Attribute{
+									Computed:            true,
+									Description:         "Epoch (seconds)",
+									MarkdownDescription: "Epoch (seconds)",
 								},
 							},
 							CustomType: LastTroubleType{
@@ -401,8 +431,8 @@ func DeviceSwitchStatsDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Computed:            true,
-							Description:         "last trouble code of switch",
-							MarkdownDescription: "last trouble code of switch",
+							Description:         "Last trouble code of switch",
+							MarkdownDescription: "Last trouble code of switch",
 						},
 						"mac": schema.StringAttribute{
 							Computed: true,
@@ -438,14 +468,16 @@ func DeviceSwitchStatsDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Computed:            true,
-							Description:         "memory usage stat (for virtual chassis, memory usage of master RE)",
-							MarkdownDescription: "memory usage stat (for virtual chassis, memory usage of master RE)",
+							Description:         "Memory usage stat (for virtual chassis, memory usage of master RE)",
+							MarkdownDescription: "Memory usage stat (for virtual chassis, memory usage of master RE)",
 						},
 						"model": schema.StringAttribute{
 							Computed: true,
 						},
-						"modified_time": schema.Int64Attribute{
-							Computed: true,
+						"modified_time": schema.Float64Attribute{
+							Computed:            true,
+							Description:         "When the object has been modified for the last time, in epoch",
+							MarkdownDescription: "When the object has been modified for the last time, in epoch",
 						},
 						"module_stat": schema.ListNestedAttribute{
 							NestedObject: schema.NestedAttributeObject{
@@ -457,6 +489,42 @@ func DeviceSwitchStatsDataSourceSchema(ctx context.Context) schema.Schema {
 										Computed: true,
 									},
 									"cpld_version": schema.StringAttribute{
+										Computed: true,
+									},
+									"cpu_stat": schema.SingleNestedAttribute{
+										Attributes: map[string]schema.Attribute{
+											"idle": schema.NumberAttribute{
+												Computed:            true,
+												Description:         "Percentage of CPU time that is idle",
+												MarkdownDescription: "Percentage of CPU time that is idle",
+											},
+											"interrupt": schema.NumberAttribute{
+												Computed:            true,
+												Description:         "Percentage of CPU time being used by interrupts",
+												MarkdownDescription: "Percentage of CPU time being used by interrupts",
+											},
+											"load_avg": schema.ListAttribute{
+												ElementType:         types.NumberType,
+												Computed:            true,
+												Description:         "Load averages for the last 1, 5, and 15 minutes",
+												MarkdownDescription: "Load averages for the last 1, 5, and 15 minutes",
+											},
+											"system": schema.NumberAttribute{
+												Computed:            true,
+												Description:         "Percentage of CPU time being used by system processes",
+												MarkdownDescription: "Percentage of CPU time being used by system processes",
+											},
+											"user": schema.NumberAttribute{
+												Computed:            true,
+												Description:         "Percentage of CPU time being used by user processes",
+												MarkdownDescription: "Percentage of CPU time being used by user processes",
+											},
+										},
+										CustomType: CpuStatType{
+											ObjectType: types.ObjectType{
+												AttrTypes: CpuStatValue{}.AttributeTypes(ctx),
+											},
+										},
 										Computed: true,
 									},
 									"errors": schema.ListNestedAttribute{
@@ -485,8 +553,8 @@ func DeviceSwitchStatsDataSourceSchema(ctx context.Context) schema.Schema {
 											},
 										},
 										Computed:            true,
-										Description:         "used to report all error states the device node is running into.\nAn error should always have `type` and `since` fields, and could have some other fields specific to that type.",
-										MarkdownDescription: "used to report all error states the device node is running into.\nAn error should always have `type` and `since` fields, and could have some other fields specific to that type.",
+										Description:         "Used to report all error states the device node is running into. An error should always have `type` and `since` fields, and could have some other fields specific to that type.",
+										MarkdownDescription: "Used to report all error states the device node is running into. An error should always have `type` and `since` fields, and could have some other fields specific to that type.",
 									},
 									"fans": schema.ListNestedAttribute{
 										NestedObject: schema.NestedAttributeObject{
@@ -515,7 +583,15 @@ func DeviceSwitchStatsDataSourceSchema(ctx context.Context) schema.Schema {
 									"fpga_version": schema.StringAttribute{
 										Computed: true,
 									},
-									"last_seen": schema.NumberAttribute{
+									"last_seen": schema.Float64Attribute{
+										Computed:            true,
+										Description:         "Last seen timestamp",
+										MarkdownDescription: "Last seen timestamp",
+									},
+									"locating": schema.BoolAttribute{
+										Computed: true,
+									},
+									"mac": schema.StringAttribute{
 										Computed: true,
 									},
 									"model": schema.StringAttribute{
@@ -639,6 +715,9 @@ func DeviceSwitchStatsDataSourceSchema(ctx context.Context) schema.Schema {
 									"tmc_fpga_version": schema.StringAttribute{
 										Computed: true,
 									},
+									"type": schema.StringAttribute{
+										Computed: true,
+									},
 									"uboot_version": schema.StringAttribute{
 										Computed: true,
 									},
@@ -671,8 +750,8 @@ func DeviceSwitchStatsDataSourceSchema(ctx context.Context) schema.Schema {
 									},
 									"vc_role": schema.StringAttribute{
 										Computed:            true,
-										Description:         "master / backup / linecard",
-										MarkdownDescription: "master / backup / linecard",
+										Description:         "enum: `master`, `backup`, `linecard`",
+										MarkdownDescription: "enum: `master`, `backup`, `linecard`",
 									},
 									"vc_state": schema.StringAttribute{
 										Computed: true,
@@ -691,10 +770,252 @@ func DeviceSwitchStatsDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"name": schema.StringAttribute{
 							Computed:            true,
-							Description:         "device name if configured",
-							MarkdownDescription: "device name if configured",
+							Description:         "Device name if configured",
+							MarkdownDescription: "Device name if configured",
 						},
 						"org_id": schema.StringAttribute{
+							Computed: true,
+						},
+						"ports": schema.ListNestedAttribute{
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"active": schema.BoolAttribute{
+										Computed:            true,
+										Description:         "Indicates if interface is active/inactive",
+										MarkdownDescription: "Indicates if interface is active/inactive",
+									},
+									"auth_state": schema.StringAttribute{
+										Computed:            true,
+										Description:         "if `up`==`true` and has Authenticator role. enum: `authenticated`, `authenticating`, `held`, `init`",
+										MarkdownDescription: "if `up`==`true` and has Authenticator role. enum: `authenticated`, `authenticating`, `held`, `init`",
+									},
+									"disabled": schema.BoolAttribute{
+										Computed:            true,
+										Description:         "Indicates if interface is disabled",
+										MarkdownDescription: "Indicates if interface is disabled",
+									},
+									"for_site": schema.BoolAttribute{
+										Computed: true,
+									},
+									"full_duplex": schema.BoolAttribute{
+										Computed:            true,
+										Description:         "Indicates full or half duplex",
+										MarkdownDescription: "Indicates full or half duplex",
+									},
+									"jitter": schema.NumberAttribute{
+										Computed:            true,
+										Description:         "Last sampled jitter of the interface",
+										MarkdownDescription: "Last sampled jitter of the interface",
+									},
+									"last_flapped": schema.Float64Attribute{
+										Computed:            true,
+										Description:         "Indicates when the port was last flapped",
+										MarkdownDescription: "Indicates when the port was last flapped",
+									},
+									"latency": schema.NumberAttribute{
+										Computed:            true,
+										Description:         "Last sampled latency of the interface",
+										MarkdownDescription: "Last sampled latency of the interface",
+									},
+									"loss": schema.NumberAttribute{
+										Computed:            true,
+										Description:         "Last sampled loss of the interface",
+										MarkdownDescription: "Last sampled loss of the interface",
+									},
+									"lte_iccid": schema.StringAttribute{
+										Computed:            true,
+										Description:         "LTE ICCID value, Check for null/empty",
+										MarkdownDescription: "LTE ICCID value, Check for null/empty",
+									},
+									"lte_imei": schema.StringAttribute{
+										Computed:            true,
+										Description:         "LTE IMEI value, Check for null/empty",
+										MarkdownDescription: "LTE IMEI value, Check for null/empty",
+									},
+									"lte_imsi": schema.StringAttribute{
+										Computed:            true,
+										Description:         "LTE IMSI value, Check for null/empty",
+										MarkdownDescription: "LTE IMSI value, Check for null/empty",
+									},
+									"mac": schema.StringAttribute{
+										Computed: true,
+									},
+									"mac_count": schema.Int64Attribute{
+										Computed:            true,
+										Description:         "Number of mac addresses in the forwarding table",
+										MarkdownDescription: "Number of mac addresses in the forwarding table",
+									},
+									"mac_limit": schema.Int64Attribute{
+										Computed:            true,
+										Description:         "Limit on number of dynamically learned macs",
+										MarkdownDescription: "Limit on number of dynamically learned macs",
+									},
+									"neighbor_mac": schema.StringAttribute{
+										Computed:            true,
+										Description:         "chassis identifier of the chassis type listed",
+										MarkdownDescription: "chassis identifier of the chassis type listed",
+									},
+									"neighbor_port_desc": schema.StringAttribute{
+										Computed:            true,
+										Description:         "Description supplied by the system on the interface E.g. \"GigabitEthernet2/0/39\"",
+										MarkdownDescription: "Description supplied by the system on the interface E.g. \"GigabitEthernet2/0/39\"",
+									},
+									"neighbor_system_name": schema.StringAttribute{
+										Computed:            true,
+										Description:         "Name supplied by the system on the interface E.g. neighbor system name E.g. \"Kumar-Acc-SW.mist.local\"",
+										MarkdownDescription: "Name supplied by the system on the interface E.g. neighbor system name E.g. \"Kumar-Acc-SW.mist.local\"",
+									},
+									"org_id": schema.StringAttribute{
+										Computed: true,
+									},
+									"poe_disabled": schema.BoolAttribute{
+										Computed:            true,
+										Description:         "Is the POE disabled",
+										MarkdownDescription: "Is the POE disabled",
+									},
+									"poe_mode": schema.StringAttribute{
+										Computed:            true,
+										Description:         "enum: `802.3af`, `802.3at`, `802.3bt`",
+										MarkdownDescription: "enum: `802.3af`, `802.3at`, `802.3bt`",
+									},
+									"poe_on": schema.BoolAttribute{
+										Computed:            true,
+										Description:         "Is the device attached to POE",
+										MarkdownDescription: "Is the device attached to POE",
+									},
+									"port_id": schema.StringAttribute{
+										Computed: true,
+									},
+									"port_mac": schema.StringAttribute{
+										Computed:            true,
+										Description:         "Interface MAC address",
+										MarkdownDescription: "Interface MAC address",
+									},
+									"port_usage": schema.StringAttribute{
+										Computed:            true,
+										Description:         "gateway port usage. enum: `lan`",
+										MarkdownDescription: "gateway port usage. enum: `lan`",
+									},
+									"power_draw": schema.NumberAttribute{
+										Computed:            true,
+										Description:         "Amount of power being used by the interface at the time the command is executed. Unit in watts.",
+										MarkdownDescription: "Amount of power being used by the interface at the time the command is executed. Unit in watts.",
+									},
+									"rx_bcast_pkts": schema.Int64Attribute{
+										Computed:            true,
+										Description:         "Broadcast input packets",
+										MarkdownDescription: "Broadcast input packets",
+									},
+									"rx_bps": schema.Int64Attribute{
+										Computed:            true,
+										Description:         "Rate of receiving traffic, bits/seconds, last known",
+										MarkdownDescription: "Rate of receiving traffic, bits/seconds, last known",
+									},
+									"rx_bytes": schema.Int64Attribute{
+										Computed:            true,
+										Description:         "Amount of traffic received since connection",
+										MarkdownDescription: "Amount of traffic received since connection",
+									},
+									"rx_errors": schema.Int64Attribute{
+										Computed:            true,
+										Description:         "Input errors",
+										MarkdownDescription: "Input errors",
+									},
+									"rx_mcast_pkts": schema.Int64Attribute{
+										Computed:            true,
+										Description:         "Multicast input packets",
+										MarkdownDescription: "Multicast input packets",
+									},
+									"rx_pkts": schema.Int64Attribute{
+										Computed:            true,
+										Description:         "Amount of packets received since connection",
+										MarkdownDescription: "Amount of packets received since connection",
+									},
+									"site_id": schema.StringAttribute{
+										Computed: true,
+									},
+									"speed": schema.Int64Attribute{
+										Computed:            true,
+										Description:         "Port speed",
+										MarkdownDescription: "Port speed",
+									},
+									"stp_role": schema.StringAttribute{
+										Computed:            true,
+										Description:         "if `up`==`true`. enum: `alternate`, `backup`, `designated`, `root`, `root-prevented`",
+										MarkdownDescription: "if `up`==`true`. enum: `alternate`, `backup`, `designated`, `root`, `root-prevented`",
+									},
+									"stp_state": schema.StringAttribute{
+										Computed:            true,
+										Description:         "if `up`==`true`. enum: `blocking`, `disabled`, `forwarding`, `learning`, `listening`",
+										MarkdownDescription: "if `up`==`true`. enum: `blocking`, `disabled`, `forwarding`, `learning`, `listening`",
+									},
+									"tx_bcast_pkts": schema.Int64Attribute{
+										Computed:            true,
+										Description:         "Broadcast output packets",
+										MarkdownDescription: "Broadcast output packets",
+									},
+									"tx_bps": schema.Int64Attribute{
+										Computed:            true,
+										Description:         "Rate of transmitting traffic, bits/seconds, last known",
+										MarkdownDescription: "Rate of transmitting traffic, bits/seconds, last known",
+									},
+									"tx_bytes": schema.Int64Attribute{
+										Computed:            true,
+										Description:         "Amount of traffic sent since connection",
+										MarkdownDescription: "Amount of traffic sent since connection",
+									},
+									"tx_errors": schema.Int64Attribute{
+										Computed:            true,
+										Description:         "Output errors",
+										MarkdownDescription: "Output errors",
+									},
+									"tx_mcast_pkts": schema.Int64Attribute{
+										Computed:            true,
+										Description:         "Multicast output packets",
+										MarkdownDescription: "Multicast output packets",
+									},
+									"tx_pkts": schema.Int64Attribute{
+										Computed:            true,
+										Description:         "Amount of packets sent since connection",
+										MarkdownDescription: "Amount of packets sent since connection",
+									},
+									"type": schema.StringAttribute{
+										Computed:            true,
+										Description:         "device type. enum: `ap`, `ble`, `gateway`, `mxedge`, `nac`, `switch`",
+										MarkdownDescription: "device type. enum: `ap`, `ble`, `gateway`, `mxedge`, `nac`, `switch`",
+									},
+									"unconfigured": schema.BoolAttribute{
+										Computed:            true,
+										Description:         "Indicates if interface is unconfigured",
+										MarkdownDescription: "Indicates if interface is unconfigured",
+									},
+									"up": schema.BoolAttribute{
+										Computed:            true,
+										Description:         "Indicates if interface is up",
+										MarkdownDescription: "Indicates if interface is up",
+									},
+									"xcvr_model": schema.StringAttribute{
+										Computed:            true,
+										Description:         "Optic Slot ModelName, Check for null/empty",
+										MarkdownDescription: "Optic Slot ModelName, Check for null/empty",
+									},
+									"xcvr_part_number": schema.StringAttribute{
+										Computed:            true,
+										Description:         "Optic Slot Partnumber, Check for null/empty",
+										MarkdownDescription: "Optic Slot Partnumber, Check for null/empty",
+									},
+									"xcvr_serial": schema.StringAttribute{
+										Computed:            true,
+										Description:         "Optic Slot SerialNumber, Check for null/empty",
+										MarkdownDescription: "Optic Slot SerialNumber, Check for null/empty",
+									},
+								},
+								CustomType: PortsType{
+									ObjectType: types.ObjectType{
+										AttrTypes: PortsValue{}.AttributeTypes(ctx),
+									},
+								},
+							},
 							Computed: true,
 						},
 						"route_summary_stats": schema.SingleNestedAttribute{
@@ -757,6 +1078,9 @@ func DeviceSwitchStatsDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Computed: true,
+							Validators: []validator.Map{
+								mapvalidator.SizeAtLeast(1),
+							},
 						},
 						"site_id": schema.StringAttribute{
 							Computed: true,
@@ -775,7 +1099,19 @@ func DeviceSwitchStatsDataSourceSchema(ctx context.Context) schema.Schema {
 								"config_type": schema.StringAttribute{
 									Computed: true,
 								},
+								"current_stats": schema.StringAttribute{
+									Computed: true,
+								},
 								"err_missing_dev_id_fpc": schema.BoolAttribute{
+									Computed: true,
+								},
+								"last_update": schema.Float64Attribute{
+									Computed: true,
+								},
+								"request_time": schema.Float64Attribute{
+									Computed: true,
+								},
+								"request_type": schema.StringAttribute{
 									Computed: true,
 								},
 							},
@@ -800,18 +1136,18 @@ func DeviceSwitchStatsDataSourceSchema(ctx context.Context) schema.Schema {
 			},
 			"duration": schema.StringAttribute{
 				Optional:            true,
-				Description:         "duration like 7d, 2w",
-				MarkdownDescription: "duration like 7d, 2w",
+				Description:         "Duration like 7d, 2w",
+				MarkdownDescription: "Duration like 7d, 2w",
 			},
 			"end": schema.Int64Attribute{
 				Optional:            true,
-				Description:         "end datetime, can be epoch or relative time like -1d, -2h; now if not specified",
-				MarkdownDescription: "end datetime, can be epoch or relative time like -1d, -2h; now if not specified",
+				Description:         "End datetime, can be epoch or relative time like -1d, -2h; now if not specified",
+				MarkdownDescription: "End datetime, can be epoch or relative time like -1d, -2h; now if not specified",
 			},
 			"evpn_unused": schema.StringAttribute{
 				Optional:            true,
-				Description:         "if `evpn_unused`==`true`, find EVPN eligible switches which don’t belong to any EVPN Topology yet",
-				MarkdownDescription: "if `evpn_unused`==`true`, find EVPN eligible switches which don’t belong to any EVPN Topology yet",
+				Description:         "If `evpn_unused`==`true`, find EVPN eligible switches which don’t belong to any EVPN Topology yet",
+				MarkdownDescription: "If `evpn_unused`==`true`, find EVPN eligible switches which don’t belong to any EVPN Topology yet",
 			},
 			"evpntopo_id": schema.StringAttribute{
 				Optional:            true,
@@ -829,11 +1165,13 @@ func DeviceSwitchStatsDataSourceSchema(ctx context.Context) schema.Schema {
 			},
 			"start": schema.Int64Attribute{
 				Optional:            true,
-				Description:         "start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified",
-				MarkdownDescription: "start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified",
+				Description:         "Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified",
+				MarkdownDescription: "Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified",
 			},
 			"status": schema.StringAttribute{
-				Optional: true,
+				Optional:            true,
+				Description:         "enum: `all`, `connected`, `disconnected`",
+				MarkdownDescription: "enum: `all`, `connected`, `disconnected`",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -1021,12 +1359,12 @@ func (t DeviceSwitchStatsType) ValueFromObject(ctx context.Context, in basetypes
 		return nil, diags
 	}
 
-	createdTimeVal, ok := createdTimeAttribute.(basetypes.Int64Value)
+	createdTimeVal, ok := createdTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`created_time expected to be basetypes.Int64Value, was: %T`, createdTimeAttribute))
+			fmt.Sprintf(`created_time expected to be basetypes.Float64Value, was: %T`, createdTimeAttribute))
 	}
 
 	deviceprofileIdAttribute, ok := attributes["deviceprofile_id"]
@@ -1255,12 +1593,12 @@ func (t DeviceSwitchStatsType) ValueFromObject(ctx context.Context, in basetypes
 		return nil, diags
 	}
 
-	lastSeenVal, ok := lastSeenAttribute.(basetypes.NumberValue)
+	lastSeenVal, ok := lastSeenAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`last_seen expected to be basetypes.NumberValue, was: %T`, lastSeenAttribute))
+			fmt.Sprintf(`last_seen expected to be basetypes.Float64Value, was: %T`, lastSeenAttribute))
 	}
 
 	lastTroubleAttribute, ok := attributes["last_trouble"]
@@ -1381,12 +1719,12 @@ func (t DeviceSwitchStatsType) ValueFromObject(ctx context.Context, in basetypes
 		return nil, diags
 	}
 
-	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.Int64Value)
+	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`modified_time expected to be basetypes.Int64Value, was: %T`, modifiedTimeAttribute))
+			fmt.Sprintf(`modified_time expected to be basetypes.Float64Value, was: %T`, modifiedTimeAttribute))
 	}
 
 	moduleStatAttribute, ok := attributes["module_stat"]
@@ -1441,6 +1779,24 @@ func (t DeviceSwitchStatsType) ValueFromObject(ctx context.Context, in basetypes
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`org_id expected to be basetypes.StringValue, was: %T`, orgIdAttribute))
+	}
+
+	portsAttribute, ok := attributes["ports"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ports is missing from object`)
+
+		return nil, diags
+	}
+
+	portsVal, ok := portsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ports expected to be basetypes.ListValue, was: %T`, portsAttribute))
 	}
 
 	routeSummaryStatsAttribute, ok := attributes["route_summary_stats"]
@@ -1641,6 +1997,7 @@ func (t DeviceSwitchStatsType) ValueFromObject(ctx context.Context, in basetypes
 		ModuleStat:          moduleStatVal,
 		Name:                nameVal,
 		OrgId:               orgIdVal,
+		Ports:               portsVal,
 		RouteSummaryStats:   routeSummaryStatsVal,
 		Serial:              serialVal,
 		ServiceStat:         serviceStatVal,
@@ -1853,12 +2210,12 @@ func NewDeviceSwitchStatsValue(attributeTypes map[string]attr.Type, attributes m
 		return NewDeviceSwitchStatsValueUnknown(), diags
 	}
 
-	createdTimeVal, ok := createdTimeAttribute.(basetypes.Int64Value)
+	createdTimeVal, ok := createdTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`created_time expected to be basetypes.Int64Value, was: %T`, createdTimeAttribute))
+			fmt.Sprintf(`created_time expected to be basetypes.Float64Value, was: %T`, createdTimeAttribute))
 	}
 
 	deviceprofileIdAttribute, ok := attributes["deviceprofile_id"]
@@ -2087,12 +2444,12 @@ func NewDeviceSwitchStatsValue(attributeTypes map[string]attr.Type, attributes m
 		return NewDeviceSwitchStatsValueUnknown(), diags
 	}
 
-	lastSeenVal, ok := lastSeenAttribute.(basetypes.NumberValue)
+	lastSeenVal, ok := lastSeenAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`last_seen expected to be basetypes.NumberValue, was: %T`, lastSeenAttribute))
+			fmt.Sprintf(`last_seen expected to be basetypes.Float64Value, was: %T`, lastSeenAttribute))
 	}
 
 	lastTroubleAttribute, ok := attributes["last_trouble"]
@@ -2213,12 +2570,12 @@ func NewDeviceSwitchStatsValue(attributeTypes map[string]attr.Type, attributes m
 		return NewDeviceSwitchStatsValueUnknown(), diags
 	}
 
-	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.Int64Value)
+	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`modified_time expected to be basetypes.Int64Value, was: %T`, modifiedTimeAttribute))
+			fmt.Sprintf(`modified_time expected to be basetypes.Float64Value, was: %T`, modifiedTimeAttribute))
 	}
 
 	moduleStatAttribute, ok := attributes["module_stat"]
@@ -2273,6 +2630,24 @@ func NewDeviceSwitchStatsValue(attributeTypes map[string]attr.Type, attributes m
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`org_id expected to be basetypes.StringValue, was: %T`, orgIdAttribute))
+	}
+
+	portsAttribute, ok := attributes["ports"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ports is missing from object`)
+
+		return NewDeviceSwitchStatsValueUnknown(), diags
+	}
+
+	portsVal, ok := portsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ports expected to be basetypes.ListValue, was: %T`, portsAttribute))
 	}
 
 	routeSummaryStatsAttribute, ok := attributes["route_summary_stats"]
@@ -2473,6 +2848,7 @@ func NewDeviceSwitchStatsValue(attributeTypes map[string]attr.Type, attributes m
 		ModuleStat:          moduleStatVal,
 		Name:                nameVal,
 		OrgId:               orgIdVal,
+		Ports:               portsVal,
 		RouteSummaryStats:   routeSummaryStatsVal,
 		Serial:              serialVal,
 		ServiceStat:         serviceStatVal,
@@ -2554,51 +2930,52 @@ func (t DeviceSwitchStatsType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = DeviceSwitchStatsValue{}
 
 type DeviceSwitchStatsValue struct {
-	ApRedundancy        basetypes.ObjectValue `tfsdk:"ap_redundancy"`
-	ArpTableStats       basetypes.ObjectValue `tfsdk:"arp_table_stats"`
-	CertExpiry          basetypes.Int64Value  `tfsdk:"cert_expiry"`
-	Clients             basetypes.ListValue   `tfsdk:"clients"`
-	ClientsStats        basetypes.ObjectValue `tfsdk:"clients_stats"`
-	ConfigStatus        basetypes.StringValue `tfsdk:"config_status"`
-	CpuStat             basetypes.ObjectValue `tfsdk:"cpu_stat"`
-	CreatedTime         basetypes.Int64Value  `tfsdk:"created_time"`
-	DeviceprofileId     basetypes.StringValue `tfsdk:"deviceprofile_id"`
-	DhcpdStat           basetypes.MapValue    `tfsdk:"dhcpd_stat"`
-	EvpntopoId          basetypes.StringValue `tfsdk:"evpntopo_id"`
-	FwVersionsOutofsync basetypes.BoolValue   `tfsdk:"fw_versions_outofsync"`
-	Fwupdate            basetypes.ObjectValue `tfsdk:"fwupdate"`
-	HasPcap             basetypes.BoolValue   `tfsdk:"has_pcap"`
-	Hostname            basetypes.StringValue `tfsdk:"hostname"`
-	HwRev               basetypes.StringValue `tfsdk:"hw_rev"`
-	Id                  basetypes.StringValue `tfsdk:"id"`
-	IfStat              basetypes.MapValue    `tfsdk:"if_stat"`
-	Ip                  basetypes.StringValue `tfsdk:"ip"`
-	IpStat              basetypes.ObjectValue `tfsdk:"ip_stat"`
-	LastSeen            basetypes.NumberValue `tfsdk:"last_seen"`
-	LastTrouble         basetypes.ObjectValue `tfsdk:"last_trouble"`
-	Mac                 basetypes.StringValue `tfsdk:"mac"`
-	MacTableStats       basetypes.ObjectValue `tfsdk:"mac_table_stats"`
-	MapId               basetypes.StringValue `tfsdk:"map_id"`
-	MemoryStat          basetypes.ObjectValue `tfsdk:"memory_stat"`
-	Model               basetypes.StringValue `tfsdk:"model"`
-	ModifiedTime        basetypes.Int64Value  `tfsdk:"modified_time"`
-	ModuleStat          basetypes.ListValue   `tfsdk:"module_stat"`
-	Name                basetypes.StringValue `tfsdk:"name"`
-	OrgId               basetypes.StringValue `tfsdk:"org_id"`
-	RouteSummaryStats   basetypes.ObjectValue `tfsdk:"route_summary_stats"`
-	Serial              basetypes.StringValue `tfsdk:"serial"`
-	ServiceStat         basetypes.MapValue    `tfsdk:"service_stat"`
-	SiteId              basetypes.StringValue `tfsdk:"site_id"`
-	Status              basetypes.StringValue `tfsdk:"status"`
-	Uptime              basetypes.NumberValue `tfsdk:"uptime"`
-	VcMac               basetypes.StringValue `tfsdk:"vc_mac"`
-	VcSetupInfo         basetypes.ObjectValue `tfsdk:"vc_setup_info"`
-	Version             basetypes.StringValue `tfsdk:"version"`
+	ApRedundancy        basetypes.ObjectValue  `tfsdk:"ap_redundancy"`
+	ArpTableStats       basetypes.ObjectValue  `tfsdk:"arp_table_stats"`
+	CertExpiry          basetypes.Int64Value   `tfsdk:"cert_expiry"`
+	Clients             basetypes.ListValue    `tfsdk:"clients"`
+	ClientsStats        basetypes.ObjectValue  `tfsdk:"clients_stats"`
+	ConfigStatus        basetypes.StringValue  `tfsdk:"config_status"`
+	CpuStat             basetypes.ObjectValue  `tfsdk:"cpu_stat"`
+	CreatedTime         basetypes.Float64Value `tfsdk:"created_time"`
+	DeviceprofileId     basetypes.StringValue  `tfsdk:"deviceprofile_id"`
+	DhcpdStat           basetypes.MapValue     `tfsdk:"dhcpd_stat"`
+	EvpntopoId          basetypes.StringValue  `tfsdk:"evpntopo_id"`
+	FwVersionsOutofsync basetypes.BoolValue    `tfsdk:"fw_versions_outofsync"`
+	Fwupdate            basetypes.ObjectValue  `tfsdk:"fwupdate"`
+	HasPcap             basetypes.BoolValue    `tfsdk:"has_pcap"`
+	Hostname            basetypes.StringValue  `tfsdk:"hostname"`
+	HwRev               basetypes.StringValue  `tfsdk:"hw_rev"`
+	Id                  basetypes.StringValue  `tfsdk:"id"`
+	IfStat              basetypes.MapValue     `tfsdk:"if_stat"`
+	Ip                  basetypes.StringValue  `tfsdk:"ip"`
+	IpStat              basetypes.ObjectValue  `tfsdk:"ip_stat"`
+	LastSeen            basetypes.Float64Value `tfsdk:"last_seen"`
+	LastTrouble         basetypes.ObjectValue  `tfsdk:"last_trouble"`
+	Mac                 basetypes.StringValue  `tfsdk:"mac"`
+	MacTableStats       basetypes.ObjectValue  `tfsdk:"mac_table_stats"`
+	MapId               basetypes.StringValue  `tfsdk:"map_id"`
+	MemoryStat          basetypes.ObjectValue  `tfsdk:"memory_stat"`
+	Model               basetypes.StringValue  `tfsdk:"model"`
+	ModifiedTime        basetypes.Float64Value `tfsdk:"modified_time"`
+	ModuleStat          basetypes.ListValue    `tfsdk:"module_stat"`
+	Name                basetypes.StringValue  `tfsdk:"name"`
+	OrgId               basetypes.StringValue  `tfsdk:"org_id"`
+	Ports               basetypes.ListValue    `tfsdk:"ports"`
+	RouteSummaryStats   basetypes.ObjectValue  `tfsdk:"route_summary_stats"`
+	Serial              basetypes.StringValue  `tfsdk:"serial"`
+	ServiceStat         basetypes.MapValue     `tfsdk:"service_stat"`
+	SiteId              basetypes.StringValue  `tfsdk:"site_id"`
+	Status              basetypes.StringValue  `tfsdk:"status"`
+	Uptime              basetypes.NumberValue  `tfsdk:"uptime"`
+	VcMac               basetypes.StringValue  `tfsdk:"vc_mac"`
+	VcSetupInfo         basetypes.ObjectValue  `tfsdk:"vc_setup_info"`
+	Version             basetypes.StringValue  `tfsdk:"version"`
 	state               attr.ValueState
 }
 
 func (v DeviceSwitchStatsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 40)
+	attrTypes := make(map[string]tftypes.Type, 41)
 
 	var val tftypes.Value
 	var err error
@@ -2620,7 +2997,7 @@ func (v DeviceSwitchStatsValue) ToTerraformValue(ctx context.Context) (tftypes.V
 	attrTypes["cpu_stat"] = basetypes.ObjectType{
 		AttrTypes: CpuStatValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
-	attrTypes["created_time"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["created_time"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["deviceprofile_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["dhcpd_stat"] = basetypes.MapType{
 		ElemType: DhcpdStatValue{}.Type(ctx),
@@ -2641,7 +3018,7 @@ func (v DeviceSwitchStatsValue) ToTerraformValue(ctx context.Context) (tftypes.V
 	attrTypes["ip_stat"] = basetypes.ObjectType{
 		AttrTypes: IpStatValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
-	attrTypes["last_seen"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["last_seen"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["last_trouble"] = basetypes.ObjectType{
 		AttrTypes: LastTroubleValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
@@ -2654,12 +3031,15 @@ func (v DeviceSwitchStatsValue) ToTerraformValue(ctx context.Context) (tftypes.V
 		AttrTypes: MemoryStatValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
 	attrTypes["model"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["modified_time"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["modified_time"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["module_stat"] = basetypes.ListType{
 		ElemType: ModuleStatValue{}.Type(ctx),
 	}.TerraformType(ctx)
 	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["org_id"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["ports"] = basetypes.ListType{
+		ElemType: PortsValue{}.Type(ctx),
+	}.TerraformType(ctx)
 	attrTypes["route_summary_stats"] = basetypes.ObjectType{
 		AttrTypes: RouteSummaryStatsValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
@@ -2680,7 +3060,7 @@ func (v DeviceSwitchStatsValue) ToTerraformValue(ctx context.Context) (tftypes.V
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 40)
+		vals := make(map[string]tftypes.Value, 41)
 
 		val, err = v.ApRedundancy.ToTerraformValue(ctx)
 
@@ -2929,6 +3309,14 @@ func (v DeviceSwitchStatsValue) ToTerraformValue(ctx context.Context) (tftypes.V
 		}
 
 		vals["org_id"] = val
+
+		val, err = v.Ports.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["ports"] = val
 
 		val, err = v.RouteSummaryStats.ToTerraformValue(ctx)
 
@@ -3336,6 +3724,35 @@ func (v DeviceSwitchStatsValue) ToObjectValue(ctx context.Context) (basetypes.Ob
 		)
 	}
 
+	ports := types.ListValueMust(
+		PortsType{
+			basetypes.ObjectType{
+				AttrTypes: PortsValue{}.AttributeTypes(ctx),
+			},
+		},
+		v.Ports.Elements(),
+	)
+
+	if v.Ports.IsNull() {
+		ports = types.ListNull(
+			PortsType{
+				basetypes.ObjectType{
+					AttrTypes: PortsValue{}.AttributeTypes(ctx),
+				},
+			},
+		)
+	}
+
+	if v.Ports.IsUnknown() {
+		ports = types.ListUnknown(
+			PortsType{
+				basetypes.ObjectType{
+					AttrTypes: PortsValue{}.AttributeTypes(ctx),
+				},
+			},
+		)
+	}
+
 	var routeSummaryStats basetypes.ObjectValue
 
 	if v.RouteSummaryStats.IsNull() {
@@ -3425,7 +3842,7 @@ func (v DeviceSwitchStatsValue) ToObjectValue(ctx context.Context) (basetypes.Ob
 		"cpu_stat": basetypes.ObjectType{
 			AttrTypes: CpuStatValue{}.AttributeTypes(ctx),
 		},
-		"created_time":     basetypes.Int64Type{},
+		"created_time":     basetypes.Float64Type{},
 		"deviceprofile_id": basetypes.StringType{},
 		"dhcpd_stat": basetypes.MapType{
 			ElemType: DhcpdStatValue{}.Type(ctx),
@@ -3446,7 +3863,7 @@ func (v DeviceSwitchStatsValue) ToObjectValue(ctx context.Context) (basetypes.Ob
 		"ip_stat": basetypes.ObjectType{
 			AttrTypes: IpStatValue{}.AttributeTypes(ctx),
 		},
-		"last_seen": basetypes.NumberType{},
+		"last_seen": basetypes.Float64Type{},
 		"last_trouble": basetypes.ObjectType{
 			AttrTypes: LastTroubleValue{}.AttributeTypes(ctx),
 		},
@@ -3459,12 +3876,15 @@ func (v DeviceSwitchStatsValue) ToObjectValue(ctx context.Context) (basetypes.Ob
 			AttrTypes: MemoryStatValue{}.AttributeTypes(ctx),
 		},
 		"model":         basetypes.StringType{},
-		"modified_time": basetypes.Int64Type{},
+		"modified_time": basetypes.Float64Type{},
 		"module_stat": basetypes.ListType{
 			ElemType: ModuleStatValue{}.Type(ctx),
 		},
 		"name":   basetypes.StringType{},
 		"org_id": basetypes.StringType{},
+		"ports": basetypes.ListType{
+			ElemType: PortsValue{}.Type(ctx),
+		},
 		"route_summary_stats": basetypes.ObjectType{
 			AttrTypes: RouteSummaryStatsValue{}.AttributeTypes(ctx),
 		},
@@ -3524,6 +3944,7 @@ func (v DeviceSwitchStatsValue) ToObjectValue(ctx context.Context) (basetypes.Ob
 			"module_stat":           moduleStat,
 			"name":                  v.Name,
 			"org_id":                v.OrgId,
+			"ports":                 ports,
 			"route_summary_stats":   routeSummaryStats,
 			"serial":                v.Serial,
 			"service_stat":          serviceStat,
@@ -3677,6 +4098,10 @@ func (v DeviceSwitchStatsValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.Ports.Equal(other.Ports) {
+		return false
+	}
+
 	if !v.RouteSummaryStats.Equal(other.RouteSummaryStats) {
 		return false
 	}
@@ -3743,7 +4168,7 @@ func (v DeviceSwitchStatsValue) AttributeTypes(ctx context.Context) map[string]a
 		"cpu_stat": basetypes.ObjectType{
 			AttrTypes: CpuStatValue{}.AttributeTypes(ctx),
 		},
-		"created_time":     basetypes.Int64Type{},
+		"created_time":     basetypes.Float64Type{},
 		"deviceprofile_id": basetypes.StringType{},
 		"dhcpd_stat": basetypes.MapType{
 			ElemType: DhcpdStatValue{}.Type(ctx),
@@ -3764,7 +4189,7 @@ func (v DeviceSwitchStatsValue) AttributeTypes(ctx context.Context) map[string]a
 		"ip_stat": basetypes.ObjectType{
 			AttrTypes: IpStatValue{}.AttributeTypes(ctx),
 		},
-		"last_seen": basetypes.NumberType{},
+		"last_seen": basetypes.Float64Type{},
 		"last_trouble": basetypes.ObjectType{
 			AttrTypes: LastTroubleValue{}.AttributeTypes(ctx),
 		},
@@ -3777,12 +4202,15 @@ func (v DeviceSwitchStatsValue) AttributeTypes(ctx context.Context) map[string]a
 			AttrTypes: MemoryStatValue{}.AttributeTypes(ctx),
 		},
 		"model":         basetypes.StringType{},
-		"modified_time": basetypes.Int64Type{},
+		"modified_time": basetypes.Float64Type{},
 		"module_stat": basetypes.ListType{
 			ElemType: ModuleStatValue{}.Type(ctx),
 		},
 		"name":   basetypes.StringType{},
 		"org_id": basetypes.StringType{},
+		"ports": basetypes.ListType{
+			ElemType: PortsValue{}.Type(ctx),
+		},
 		"route_summary_stats": basetypes.ObjectType{
 			AttrTypes: RouteSummaryStatsValue{}.AttributeTypes(ctx),
 		},
@@ -10624,12 +11052,12 @@ func (t LastTroubleType) ValueFromObject(ctx context.Context, in basetypes.Objec
 		return nil, diags
 	}
 
-	timestampVal, ok := timestampAttribute.(basetypes.Int64Value)
+	timestampVal, ok := timestampAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`timestamp expected to be basetypes.Int64Value, was: %T`, timestampAttribute))
+			fmt.Sprintf(`timestamp expected to be basetypes.Float64Value, was: %T`, timestampAttribute))
 	}
 
 	if diags.HasError() {
@@ -10734,12 +11162,12 @@ func NewLastTroubleValue(attributeTypes map[string]attr.Type, attributes map[str
 		return NewLastTroubleValueUnknown(), diags
 	}
 
-	timestampVal, ok := timestampAttribute.(basetypes.Int64Value)
+	timestampVal, ok := timestampAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`timestamp expected to be basetypes.Int64Value, was: %T`, timestampAttribute))
+			fmt.Sprintf(`timestamp expected to be basetypes.Float64Value, was: %T`, timestampAttribute))
 	}
 
 	if diags.HasError() {
@@ -10821,8 +11249,8 @@ func (t LastTroubleType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = LastTroubleValue{}
 
 type LastTroubleValue struct {
-	Code      basetypes.StringValue `tfsdk:"code"`
-	Timestamp basetypes.Int64Value  `tfsdk:"timestamp"`
+	Code      basetypes.StringValue  `tfsdk:"code"`
+	Timestamp basetypes.Float64Value `tfsdk:"timestamp"`
 	state     attr.ValueState
 }
 
@@ -10833,7 +11261,7 @@ func (v LastTroubleValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 	var err error
 
 	attrTypes["code"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["timestamp"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["timestamp"] = basetypes.Float64Type{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
@@ -10888,7 +11316,7 @@ func (v LastTroubleValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 
 	attributeTypes := map[string]attr.Type{
 		"code":      basetypes.StringType{},
-		"timestamp": basetypes.Int64Type{},
+		"timestamp": basetypes.Float64Type{},
 	}
 
 	if v.IsNull() {
@@ -10946,7 +11374,7 @@ func (v LastTroubleValue) Type(ctx context.Context) attr.Type {
 func (v LastTroubleValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"code":      basetypes.StringType{},
-		"timestamp": basetypes.Int64Type{},
+		"timestamp": basetypes.Float64Type{},
 	}
 }
 
@@ -11732,6 +12160,24 @@ func (t ModuleStatType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`cpld_version expected to be basetypes.StringValue, was: %T`, cpldVersionAttribute))
 	}
 
+	cpuStatAttribute, ok := attributes["cpu_stat"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`cpu_stat is missing from object`)
+
+		return nil, diags
+	}
+
+	cpuStatVal, ok := cpuStatAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`cpu_stat expected to be basetypes.ObjectValue, was: %T`, cpuStatAttribute))
+	}
+
 	errorsAttribute, ok := attributes["errors"]
 
 	if !ok {
@@ -11814,12 +12260,48 @@ func (t ModuleStatType) ValueFromObject(ctx context.Context, in basetypes.Object
 		return nil, diags
 	}
 
-	lastSeenVal, ok := lastSeenAttribute.(basetypes.NumberValue)
+	lastSeenVal, ok := lastSeenAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`last_seen expected to be basetypes.NumberValue, was: %T`, lastSeenAttribute))
+			fmt.Sprintf(`last_seen expected to be basetypes.Float64Value, was: %T`, lastSeenAttribute))
+	}
+
+	locatingAttribute, ok := attributes["locating"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`locating is missing from object`)
+
+		return nil, diags
+	}
+
+	locatingVal, ok := locatingAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`locating expected to be basetypes.BoolValue, was: %T`, locatingAttribute))
+	}
+
+	macAttribute, ok := attributes["mac"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`mac is missing from object`)
+
+		return nil, diags
+	}
+
+	macVal, ok := macAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`mac expected to be basetypes.StringValue, was: %T`, macAttribute))
 	}
 
 	modelAttribute, ok := attributes["model"]
@@ -12074,6 +12556,24 @@ func (t ModuleStatType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`tmc_fpga_version expected to be basetypes.StringValue, was: %T`, tmcFpgaVersionAttribute))
 	}
 
+	typeAttribute, ok := attributes["type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`type is missing from object`)
+
+		return nil, diags
+	}
+
+	typeVal, ok := typeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, typeAttribute))
+	}
+
 	ubootVersionAttribute, ok := attributes["uboot_version"]
 
 	if !ok {
@@ -12208,11 +12708,14 @@ func (t ModuleStatType) ValueFromObject(ctx context.Context, in basetypes.Object
 		BackupVersion:     backupVersionVal,
 		BiosVersion:       biosVersionVal,
 		CpldVersion:       cpldVersionVal,
+		CpuStat:           cpuStatVal,
 		Errors:            errorsVal,
 		Fans:              fansVal,
 		FpcIdx:            fpcIdxVal,
 		FpgaVersion:       fpgaVersionVal,
 		LastSeen:          lastSeenVal,
+		Locating:          locatingVal,
+		Mac:               macVal,
 		Model:             modelVal,
 		OpticsCpldVersion: opticsCpldVersionVal,
 		PendingVersion:    pendingVersionVal,
@@ -12227,6 +12730,7 @@ func (t ModuleStatType) ValueFromObject(ctx context.Context, in basetypes.Object
 		Status:            statusVal,
 		Temperatures:      temperaturesVal,
 		TmcFpgaVersion:    tmcFpgaVersionVal,
+		ModuleStatType:    typeVal,
 		UbootVersion:      ubootVersionVal,
 		Uptime:            uptimeVal,
 		VcLinks:           vcLinksVal,
@@ -12355,6 +12859,24 @@ func NewModuleStatValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`cpld_version expected to be basetypes.StringValue, was: %T`, cpldVersionAttribute))
 	}
 
+	cpuStatAttribute, ok := attributes["cpu_stat"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`cpu_stat is missing from object`)
+
+		return NewModuleStatValueUnknown(), diags
+	}
+
+	cpuStatVal, ok := cpuStatAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`cpu_stat expected to be basetypes.ObjectValue, was: %T`, cpuStatAttribute))
+	}
+
 	errorsAttribute, ok := attributes["errors"]
 
 	if !ok {
@@ -12437,12 +12959,48 @@ func NewModuleStatValue(attributeTypes map[string]attr.Type, attributes map[stri
 		return NewModuleStatValueUnknown(), diags
 	}
 
-	lastSeenVal, ok := lastSeenAttribute.(basetypes.NumberValue)
+	lastSeenVal, ok := lastSeenAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`last_seen expected to be basetypes.NumberValue, was: %T`, lastSeenAttribute))
+			fmt.Sprintf(`last_seen expected to be basetypes.Float64Value, was: %T`, lastSeenAttribute))
+	}
+
+	locatingAttribute, ok := attributes["locating"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`locating is missing from object`)
+
+		return NewModuleStatValueUnknown(), diags
+	}
+
+	locatingVal, ok := locatingAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`locating expected to be basetypes.BoolValue, was: %T`, locatingAttribute))
+	}
+
+	macAttribute, ok := attributes["mac"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`mac is missing from object`)
+
+		return NewModuleStatValueUnknown(), diags
+	}
+
+	macVal, ok := macAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`mac expected to be basetypes.StringValue, was: %T`, macAttribute))
 	}
 
 	modelAttribute, ok := attributes["model"]
@@ -12697,6 +13255,24 @@ func NewModuleStatValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`tmc_fpga_version expected to be basetypes.StringValue, was: %T`, tmcFpgaVersionAttribute))
 	}
 
+	typeAttribute, ok := attributes["type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`type is missing from object`)
+
+		return NewModuleStatValueUnknown(), diags
+	}
+
+	typeVal, ok := typeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, typeAttribute))
+	}
+
 	ubootVersionAttribute, ok := attributes["uboot_version"]
 
 	if !ok {
@@ -12831,11 +13407,14 @@ func NewModuleStatValue(attributeTypes map[string]attr.Type, attributes map[stri
 		BackupVersion:     backupVersionVal,
 		BiosVersion:       biosVersionVal,
 		CpldVersion:       cpldVersionVal,
+		CpuStat:           cpuStatVal,
 		Errors:            errorsVal,
 		Fans:              fansVal,
 		FpcIdx:            fpcIdxVal,
 		FpgaVersion:       fpgaVersionVal,
 		LastSeen:          lastSeenVal,
+		Locating:          locatingVal,
+		Mac:               macVal,
 		Model:             modelVal,
 		OpticsCpldVersion: opticsCpldVersionVal,
 		PendingVersion:    pendingVersionVal,
@@ -12850,6 +13429,7 @@ func NewModuleStatValue(attributeTypes map[string]attr.Type, attributes map[stri
 		Status:            statusVal,
 		Temperatures:      temperaturesVal,
 		TmcFpgaVersion:    tmcFpgaVersionVal,
+		ModuleStatType:    typeVal,
 		UbootVersion:      ubootVersionVal,
 		Uptime:            uptimeVal,
 		VcLinks:           vcLinksVal,
@@ -12929,40 +13509,44 @@ func (t ModuleStatType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = ModuleStatValue{}
 
 type ModuleStatValue struct {
-	BackupVersion     basetypes.StringValue `tfsdk:"backup_version"`
-	BiosVersion       basetypes.StringValue `tfsdk:"bios_version"`
-	CpldVersion       basetypes.StringValue `tfsdk:"cpld_version"`
-	Errors            basetypes.ListValue   `tfsdk:"errors"`
-	Fans              basetypes.ListValue   `tfsdk:"fans"`
-	FpcIdx            basetypes.Int64Value  `tfsdk:"fpc_idx"`
-	FpgaVersion       basetypes.StringValue `tfsdk:"fpga_version"`
-	LastSeen          basetypes.NumberValue `tfsdk:"last_seen"`
-	Model             basetypes.StringValue `tfsdk:"model"`
-	OpticsCpldVersion basetypes.StringValue `tfsdk:"optics_cpld_version"`
-	PendingVersion    basetypes.StringValue `tfsdk:"pending_version"`
-	Pics              basetypes.ListValue   `tfsdk:"pics"`
-	Poe               basetypes.ObjectValue `tfsdk:"poe"`
-	PoeVersion        basetypes.StringValue `tfsdk:"poe_version"`
-	PowerCpldVersion  basetypes.StringValue `tfsdk:"power_cpld_version"`
-	Psus              basetypes.ListValue   `tfsdk:"psus"`
-	ReFpgaVersion     basetypes.StringValue `tfsdk:"re_fpga_version"`
-	RecoveryVersion   basetypes.StringValue `tfsdk:"recovery_version"`
-	Serial            basetypes.StringValue `tfsdk:"serial"`
-	Status            basetypes.StringValue `tfsdk:"status"`
-	Temperatures      basetypes.ListValue   `tfsdk:"temperatures"`
-	TmcFpgaVersion    basetypes.StringValue `tfsdk:"tmc_fpga_version"`
-	UbootVersion      basetypes.StringValue `tfsdk:"uboot_version"`
-	Uptime            basetypes.Int64Value  `tfsdk:"uptime"`
-	VcLinks           basetypes.ListValue   `tfsdk:"vc_links"`
-	VcMode            basetypes.StringValue `tfsdk:"vc_mode"`
-	VcRole            basetypes.StringValue `tfsdk:"vc_role"`
-	VcState           basetypes.StringValue `tfsdk:"vc_state"`
-	Version           basetypes.StringValue `tfsdk:"version"`
+	BackupVersion     basetypes.StringValue  `tfsdk:"backup_version"`
+	BiosVersion       basetypes.StringValue  `tfsdk:"bios_version"`
+	CpldVersion       basetypes.StringValue  `tfsdk:"cpld_version"`
+	CpuStat           basetypes.ObjectValue  `tfsdk:"cpu_stat"`
+	Errors            basetypes.ListValue    `tfsdk:"errors"`
+	Fans              basetypes.ListValue    `tfsdk:"fans"`
+	FpcIdx            basetypes.Int64Value   `tfsdk:"fpc_idx"`
+	FpgaVersion       basetypes.StringValue  `tfsdk:"fpga_version"`
+	LastSeen          basetypes.Float64Value `tfsdk:"last_seen"`
+	Locating          basetypes.BoolValue    `tfsdk:"locating"`
+	Mac               basetypes.StringValue  `tfsdk:"mac"`
+	Model             basetypes.StringValue  `tfsdk:"model"`
+	OpticsCpldVersion basetypes.StringValue  `tfsdk:"optics_cpld_version"`
+	PendingVersion    basetypes.StringValue  `tfsdk:"pending_version"`
+	Pics              basetypes.ListValue    `tfsdk:"pics"`
+	Poe               basetypes.ObjectValue  `tfsdk:"poe"`
+	PoeVersion        basetypes.StringValue  `tfsdk:"poe_version"`
+	PowerCpldVersion  basetypes.StringValue  `tfsdk:"power_cpld_version"`
+	Psus              basetypes.ListValue    `tfsdk:"psus"`
+	ReFpgaVersion     basetypes.StringValue  `tfsdk:"re_fpga_version"`
+	RecoveryVersion   basetypes.StringValue  `tfsdk:"recovery_version"`
+	Serial            basetypes.StringValue  `tfsdk:"serial"`
+	Status            basetypes.StringValue  `tfsdk:"status"`
+	Temperatures      basetypes.ListValue    `tfsdk:"temperatures"`
+	TmcFpgaVersion    basetypes.StringValue  `tfsdk:"tmc_fpga_version"`
+	ModuleStatType    basetypes.StringValue  `tfsdk:"type"`
+	UbootVersion      basetypes.StringValue  `tfsdk:"uboot_version"`
+	Uptime            basetypes.Int64Value   `tfsdk:"uptime"`
+	VcLinks           basetypes.ListValue    `tfsdk:"vc_links"`
+	VcMode            basetypes.StringValue  `tfsdk:"vc_mode"`
+	VcRole            basetypes.StringValue  `tfsdk:"vc_role"`
+	VcState           basetypes.StringValue  `tfsdk:"vc_state"`
+	Version           basetypes.StringValue  `tfsdk:"version"`
 	state             attr.ValueState
 }
 
 func (v ModuleStatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 29)
+	attrTypes := make(map[string]tftypes.Type, 33)
 
 	var val tftypes.Value
 	var err error
@@ -12970,6 +13554,9 @@ func (v ModuleStatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	attrTypes["backup_version"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["bios_version"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["cpld_version"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["cpu_stat"] = basetypes.ObjectType{
+		AttrTypes: CpuStatValue{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
 	attrTypes["errors"] = basetypes.ListType{
 		ElemType: ErrorsValue{}.Type(ctx),
 	}.TerraformType(ctx)
@@ -12978,7 +13565,9 @@ func (v ModuleStatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	}.TerraformType(ctx)
 	attrTypes["fpc_idx"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["fpga_version"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["last_seen"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["last_seen"] = basetypes.Float64Type{}.TerraformType(ctx)
+	attrTypes["locating"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["mac"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["model"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["optics_cpld_version"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["pending_version"] = basetypes.StringType{}.TerraformType(ctx)
@@ -13001,6 +13590,7 @@ func (v ModuleStatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 		ElemType: TemperaturesValue{}.Type(ctx),
 	}.TerraformType(ctx)
 	attrTypes["tmc_fpga_version"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["type"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["uboot_version"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["uptime"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["vc_links"] = basetypes.ListType{
@@ -13015,7 +13605,7 @@ func (v ModuleStatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 29)
+		vals := make(map[string]tftypes.Value, 33)
 
 		val, err = v.BackupVersion.ToTerraformValue(ctx)
 
@@ -13040,6 +13630,14 @@ func (v ModuleStatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 		}
 
 		vals["cpld_version"] = val
+
+		val, err = v.CpuStat.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["cpu_stat"] = val
 
 		val, err = v.Errors.ToTerraformValue(ctx)
 
@@ -13080,6 +13678,22 @@ func (v ModuleStatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 		}
 
 		vals["last_seen"] = val
+
+		val, err = v.Locating.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["locating"] = val
+
+		val, err = v.Mac.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["mac"] = val
 
 		val, err = v.Model.ToTerraformValue(ctx)
 
@@ -13193,6 +13807,14 @@ func (v ModuleStatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 		vals["tmc_fpga_version"] = val
 
+		val, err = v.ModuleStatType.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["type"] = val
+
 		val, err = v.UbootVersion.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -13277,6 +13899,27 @@ func (v ModuleStatValue) String() string {
 
 func (v ModuleStatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
+
+	var cpuStat basetypes.ObjectValue
+
+	if v.CpuStat.IsNull() {
+		cpuStat = types.ObjectNull(
+			CpuStatValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.CpuStat.IsUnknown() {
+		cpuStat = types.ObjectUnknown(
+			CpuStatValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.CpuStat.IsNull() && !v.CpuStat.IsUnknown() {
+		cpuStat = types.ObjectValueMust(
+			CpuStatValue{}.AttributeTypes(ctx),
+			v.CpuStat.Attributes(),
+		)
+	}
 
 	errors := types.ListValueMust(
 		ErrorsType{
@@ -13477,6 +14120,9 @@ func (v ModuleStatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		"backup_version": basetypes.StringType{},
 		"bios_version":   basetypes.StringType{},
 		"cpld_version":   basetypes.StringType{},
+		"cpu_stat": basetypes.ObjectType{
+			AttrTypes: CpuStatValue{}.AttributeTypes(ctx),
+		},
 		"errors": basetypes.ListType{
 			ElemType: ErrorsValue{}.Type(ctx),
 		},
@@ -13485,7 +14131,9 @@ func (v ModuleStatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		},
 		"fpc_idx":             basetypes.Int64Type{},
 		"fpga_version":        basetypes.StringType{},
-		"last_seen":           basetypes.NumberType{},
+		"last_seen":           basetypes.Float64Type{},
+		"locating":            basetypes.BoolType{},
+		"mac":                 basetypes.StringType{},
 		"model":               basetypes.StringType{},
 		"optics_cpld_version": basetypes.StringType{},
 		"pending_version":     basetypes.StringType{},
@@ -13508,6 +14156,7 @@ func (v ModuleStatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			ElemType: TemperaturesValue{}.Type(ctx),
 		},
 		"tmc_fpga_version": basetypes.StringType{},
+		"type":             basetypes.StringType{},
 		"uboot_version":    basetypes.StringType{},
 		"uptime":           basetypes.Int64Type{},
 		"vc_links": basetypes.ListType{
@@ -13533,11 +14182,14 @@ func (v ModuleStatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"backup_version":      v.BackupVersion,
 			"bios_version":        v.BiosVersion,
 			"cpld_version":        v.CpldVersion,
+			"cpu_stat":            cpuStat,
 			"errors":              errors,
 			"fans":                fans,
 			"fpc_idx":             v.FpcIdx,
 			"fpga_version":        v.FpgaVersion,
 			"last_seen":           v.LastSeen,
+			"locating":            v.Locating,
+			"mac":                 v.Mac,
 			"model":               v.Model,
 			"optics_cpld_version": v.OpticsCpldVersion,
 			"pending_version":     v.PendingVersion,
@@ -13552,6 +14204,7 @@ func (v ModuleStatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"status":              v.Status,
 			"temperatures":        temperatures,
 			"tmc_fpga_version":    v.TmcFpgaVersion,
+			"type":                v.ModuleStatType,
 			"uboot_version":       v.UbootVersion,
 			"uptime":              v.Uptime,
 			"vc_links":            vcLinks,
@@ -13591,6 +14244,10 @@ func (v ModuleStatValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.CpuStat.Equal(other.CpuStat) {
+		return false
+	}
+
 	if !v.Errors.Equal(other.Errors) {
 		return false
 	}
@@ -13608,6 +14265,14 @@ func (v ModuleStatValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.LastSeen.Equal(other.LastSeen) {
+		return false
+	}
+
+	if !v.Locating.Equal(other.Locating) {
+		return false
+	}
+
+	if !v.Mac.Equal(other.Mac) {
 		return false
 	}
 
@@ -13667,6 +14332,10 @@ func (v ModuleStatValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.ModuleStatType.Equal(other.ModuleStatType) {
+		return false
+	}
+
 	if !v.UbootVersion.Equal(other.UbootVersion) {
 		return false
 	}
@@ -13711,6 +14380,9 @@ func (v ModuleStatValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"backup_version": basetypes.StringType{},
 		"bios_version":   basetypes.StringType{},
 		"cpld_version":   basetypes.StringType{},
+		"cpu_stat": basetypes.ObjectType{
+			AttrTypes: CpuStatValue{}.AttributeTypes(ctx),
+		},
 		"errors": basetypes.ListType{
 			ElemType: ErrorsValue{}.Type(ctx),
 		},
@@ -13719,7 +14391,9 @@ func (v ModuleStatValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		},
 		"fpc_idx":             basetypes.Int64Type{},
 		"fpga_version":        basetypes.StringType{},
-		"last_seen":           basetypes.NumberType{},
+		"last_seen":           basetypes.Float64Type{},
+		"locating":            basetypes.BoolType{},
+		"mac":                 basetypes.StringType{},
 		"model":               basetypes.StringType{},
 		"optics_cpld_version": basetypes.StringType{},
 		"pending_version":     basetypes.StringType{},
@@ -13742,6 +14416,7 @@ func (v ModuleStatValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 			ElemType: TemperaturesValue{}.Type(ctx),
 		},
 		"tmc_fpga_version": basetypes.StringType{},
+		"type":             basetypes.StringType{},
 		"uboot_version":    basetypes.StringType{},
 		"uptime":           basetypes.Int64Type{},
 		"vc_links": basetypes.ListType{
@@ -17206,6 +17881,2915 @@ func (v VcLinksValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	}
 }
 
+var _ basetypes.ObjectTypable = PortsType{}
+
+type PortsType struct {
+	basetypes.ObjectType
+}
+
+func (t PortsType) Equal(o attr.Type) bool {
+	other, ok := o.(PortsType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t PortsType) String() string {
+	return "PortsType"
+}
+
+func (t PortsType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	activeAttribute, ok := attributes["active"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`active is missing from object`)
+
+		return nil, diags
+	}
+
+	activeVal, ok := activeAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`active expected to be basetypes.BoolValue, was: %T`, activeAttribute))
+	}
+
+	authStateAttribute, ok := attributes["auth_state"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`auth_state is missing from object`)
+
+		return nil, diags
+	}
+
+	authStateVal, ok := authStateAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`auth_state expected to be basetypes.StringValue, was: %T`, authStateAttribute))
+	}
+
+	disabledAttribute, ok := attributes["disabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disabled is missing from object`)
+
+		return nil, diags
+	}
+
+	disabledVal, ok := disabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disabled expected to be basetypes.BoolValue, was: %T`, disabledAttribute))
+	}
+
+	forSiteAttribute, ok := attributes["for_site"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`for_site is missing from object`)
+
+		return nil, diags
+	}
+
+	forSiteVal, ok := forSiteAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`for_site expected to be basetypes.BoolValue, was: %T`, forSiteAttribute))
+	}
+
+	fullDuplexAttribute, ok := attributes["full_duplex"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`full_duplex is missing from object`)
+
+		return nil, diags
+	}
+
+	fullDuplexVal, ok := fullDuplexAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`full_duplex expected to be basetypes.BoolValue, was: %T`, fullDuplexAttribute))
+	}
+
+	jitterAttribute, ok := attributes["jitter"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`jitter is missing from object`)
+
+		return nil, diags
+	}
+
+	jitterVal, ok := jitterAttribute.(basetypes.NumberValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`jitter expected to be basetypes.NumberValue, was: %T`, jitterAttribute))
+	}
+
+	lastFlappedAttribute, ok := attributes["last_flapped"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`last_flapped is missing from object`)
+
+		return nil, diags
+	}
+
+	lastFlappedVal, ok := lastFlappedAttribute.(basetypes.Float64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`last_flapped expected to be basetypes.Float64Value, was: %T`, lastFlappedAttribute))
+	}
+
+	latencyAttribute, ok := attributes["latency"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`latency is missing from object`)
+
+		return nil, diags
+	}
+
+	latencyVal, ok := latencyAttribute.(basetypes.NumberValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`latency expected to be basetypes.NumberValue, was: %T`, latencyAttribute))
+	}
+
+	lossAttribute, ok := attributes["loss"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`loss is missing from object`)
+
+		return nil, diags
+	}
+
+	lossVal, ok := lossAttribute.(basetypes.NumberValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`loss expected to be basetypes.NumberValue, was: %T`, lossAttribute))
+	}
+
+	lteIccidAttribute, ok := attributes["lte_iccid"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`lte_iccid is missing from object`)
+
+		return nil, diags
+	}
+
+	lteIccidVal, ok := lteIccidAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`lte_iccid expected to be basetypes.StringValue, was: %T`, lteIccidAttribute))
+	}
+
+	lteImeiAttribute, ok := attributes["lte_imei"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`lte_imei is missing from object`)
+
+		return nil, diags
+	}
+
+	lteImeiVal, ok := lteImeiAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`lte_imei expected to be basetypes.StringValue, was: %T`, lteImeiAttribute))
+	}
+
+	lteImsiAttribute, ok := attributes["lte_imsi"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`lte_imsi is missing from object`)
+
+		return nil, diags
+	}
+
+	lteImsiVal, ok := lteImsiAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`lte_imsi expected to be basetypes.StringValue, was: %T`, lteImsiAttribute))
+	}
+
+	macAttribute, ok := attributes["mac"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`mac is missing from object`)
+
+		return nil, diags
+	}
+
+	macVal, ok := macAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`mac expected to be basetypes.StringValue, was: %T`, macAttribute))
+	}
+
+	macCountAttribute, ok := attributes["mac_count"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`mac_count is missing from object`)
+
+		return nil, diags
+	}
+
+	macCountVal, ok := macCountAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`mac_count expected to be basetypes.Int64Value, was: %T`, macCountAttribute))
+	}
+
+	macLimitAttribute, ok := attributes["mac_limit"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`mac_limit is missing from object`)
+
+		return nil, diags
+	}
+
+	macLimitVal, ok := macLimitAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`mac_limit expected to be basetypes.Int64Value, was: %T`, macLimitAttribute))
+	}
+
+	neighborMacAttribute, ok := attributes["neighbor_mac"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`neighbor_mac is missing from object`)
+
+		return nil, diags
+	}
+
+	neighborMacVal, ok := neighborMacAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`neighbor_mac expected to be basetypes.StringValue, was: %T`, neighborMacAttribute))
+	}
+
+	neighborPortDescAttribute, ok := attributes["neighbor_port_desc"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`neighbor_port_desc is missing from object`)
+
+		return nil, diags
+	}
+
+	neighborPortDescVal, ok := neighborPortDescAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`neighbor_port_desc expected to be basetypes.StringValue, was: %T`, neighborPortDescAttribute))
+	}
+
+	neighborSystemNameAttribute, ok := attributes["neighbor_system_name"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`neighbor_system_name is missing from object`)
+
+		return nil, diags
+	}
+
+	neighborSystemNameVal, ok := neighborSystemNameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`neighbor_system_name expected to be basetypes.StringValue, was: %T`, neighborSystemNameAttribute))
+	}
+
+	orgIdAttribute, ok := attributes["org_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`org_id is missing from object`)
+
+		return nil, diags
+	}
+
+	orgIdVal, ok := orgIdAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`org_id expected to be basetypes.StringValue, was: %T`, orgIdAttribute))
+	}
+
+	poeDisabledAttribute, ok := attributes["poe_disabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`poe_disabled is missing from object`)
+
+		return nil, diags
+	}
+
+	poeDisabledVal, ok := poeDisabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`poe_disabled expected to be basetypes.BoolValue, was: %T`, poeDisabledAttribute))
+	}
+
+	poeModeAttribute, ok := attributes["poe_mode"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`poe_mode is missing from object`)
+
+		return nil, diags
+	}
+
+	poeModeVal, ok := poeModeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`poe_mode expected to be basetypes.StringValue, was: %T`, poeModeAttribute))
+	}
+
+	poeOnAttribute, ok := attributes["poe_on"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`poe_on is missing from object`)
+
+		return nil, diags
+	}
+
+	poeOnVal, ok := poeOnAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`poe_on expected to be basetypes.BoolValue, was: %T`, poeOnAttribute))
+	}
+
+	portIdAttribute, ok := attributes["port_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`port_id is missing from object`)
+
+		return nil, diags
+	}
+
+	portIdVal, ok := portIdAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`port_id expected to be basetypes.StringValue, was: %T`, portIdAttribute))
+	}
+
+	portMacAttribute, ok := attributes["port_mac"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`port_mac is missing from object`)
+
+		return nil, diags
+	}
+
+	portMacVal, ok := portMacAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`port_mac expected to be basetypes.StringValue, was: %T`, portMacAttribute))
+	}
+
+	portUsageAttribute, ok := attributes["port_usage"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`port_usage is missing from object`)
+
+		return nil, diags
+	}
+
+	portUsageVal, ok := portUsageAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`port_usage expected to be basetypes.StringValue, was: %T`, portUsageAttribute))
+	}
+
+	powerDrawAttribute, ok := attributes["power_draw"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_draw is missing from object`)
+
+		return nil, diags
+	}
+
+	powerDrawVal, ok := powerDrawAttribute.(basetypes.NumberValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_draw expected to be basetypes.NumberValue, was: %T`, powerDrawAttribute))
+	}
+
+	rxBcastPktsAttribute, ok := attributes["rx_bcast_pkts"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`rx_bcast_pkts is missing from object`)
+
+		return nil, diags
+	}
+
+	rxBcastPktsVal, ok := rxBcastPktsAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`rx_bcast_pkts expected to be basetypes.Int64Value, was: %T`, rxBcastPktsAttribute))
+	}
+
+	rxBpsAttribute, ok := attributes["rx_bps"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`rx_bps is missing from object`)
+
+		return nil, diags
+	}
+
+	rxBpsVal, ok := rxBpsAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`rx_bps expected to be basetypes.Int64Value, was: %T`, rxBpsAttribute))
+	}
+
+	rxBytesAttribute, ok := attributes["rx_bytes"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`rx_bytes is missing from object`)
+
+		return nil, diags
+	}
+
+	rxBytesVal, ok := rxBytesAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`rx_bytes expected to be basetypes.Int64Value, was: %T`, rxBytesAttribute))
+	}
+
+	rxErrorsAttribute, ok := attributes["rx_errors"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`rx_errors is missing from object`)
+
+		return nil, diags
+	}
+
+	rxErrorsVal, ok := rxErrorsAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`rx_errors expected to be basetypes.Int64Value, was: %T`, rxErrorsAttribute))
+	}
+
+	rxMcastPktsAttribute, ok := attributes["rx_mcast_pkts"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`rx_mcast_pkts is missing from object`)
+
+		return nil, diags
+	}
+
+	rxMcastPktsVal, ok := rxMcastPktsAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`rx_mcast_pkts expected to be basetypes.Int64Value, was: %T`, rxMcastPktsAttribute))
+	}
+
+	rxPktsAttribute, ok := attributes["rx_pkts"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`rx_pkts is missing from object`)
+
+		return nil, diags
+	}
+
+	rxPktsVal, ok := rxPktsAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`rx_pkts expected to be basetypes.Int64Value, was: %T`, rxPktsAttribute))
+	}
+
+	siteIdAttribute, ok := attributes["site_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`site_id is missing from object`)
+
+		return nil, diags
+	}
+
+	siteIdVal, ok := siteIdAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`site_id expected to be basetypes.StringValue, was: %T`, siteIdAttribute))
+	}
+
+	speedAttribute, ok := attributes["speed"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`speed is missing from object`)
+
+		return nil, diags
+	}
+
+	speedVal, ok := speedAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`speed expected to be basetypes.Int64Value, was: %T`, speedAttribute))
+	}
+
+	stpRoleAttribute, ok := attributes["stp_role"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`stp_role is missing from object`)
+
+		return nil, diags
+	}
+
+	stpRoleVal, ok := stpRoleAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`stp_role expected to be basetypes.StringValue, was: %T`, stpRoleAttribute))
+	}
+
+	stpStateAttribute, ok := attributes["stp_state"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`stp_state is missing from object`)
+
+		return nil, diags
+	}
+
+	stpStateVal, ok := stpStateAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`stp_state expected to be basetypes.StringValue, was: %T`, stpStateAttribute))
+	}
+
+	txBcastPktsAttribute, ok := attributes["tx_bcast_pkts"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`tx_bcast_pkts is missing from object`)
+
+		return nil, diags
+	}
+
+	txBcastPktsVal, ok := txBcastPktsAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`tx_bcast_pkts expected to be basetypes.Int64Value, was: %T`, txBcastPktsAttribute))
+	}
+
+	txBpsAttribute, ok := attributes["tx_bps"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`tx_bps is missing from object`)
+
+		return nil, diags
+	}
+
+	txBpsVal, ok := txBpsAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`tx_bps expected to be basetypes.Int64Value, was: %T`, txBpsAttribute))
+	}
+
+	txBytesAttribute, ok := attributes["tx_bytes"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`tx_bytes is missing from object`)
+
+		return nil, diags
+	}
+
+	txBytesVal, ok := txBytesAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`tx_bytes expected to be basetypes.Int64Value, was: %T`, txBytesAttribute))
+	}
+
+	txErrorsAttribute, ok := attributes["tx_errors"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`tx_errors is missing from object`)
+
+		return nil, diags
+	}
+
+	txErrorsVal, ok := txErrorsAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`tx_errors expected to be basetypes.Int64Value, was: %T`, txErrorsAttribute))
+	}
+
+	txMcastPktsAttribute, ok := attributes["tx_mcast_pkts"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`tx_mcast_pkts is missing from object`)
+
+		return nil, diags
+	}
+
+	txMcastPktsVal, ok := txMcastPktsAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`tx_mcast_pkts expected to be basetypes.Int64Value, was: %T`, txMcastPktsAttribute))
+	}
+
+	txPktsAttribute, ok := attributes["tx_pkts"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`tx_pkts is missing from object`)
+
+		return nil, diags
+	}
+
+	txPktsVal, ok := txPktsAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`tx_pkts expected to be basetypes.Int64Value, was: %T`, txPktsAttribute))
+	}
+
+	typeAttribute, ok := attributes["type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`type is missing from object`)
+
+		return nil, diags
+	}
+
+	typeVal, ok := typeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, typeAttribute))
+	}
+
+	unconfiguredAttribute, ok := attributes["unconfigured"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`unconfigured is missing from object`)
+
+		return nil, diags
+	}
+
+	unconfiguredVal, ok := unconfiguredAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`unconfigured expected to be basetypes.BoolValue, was: %T`, unconfiguredAttribute))
+	}
+
+	upAttribute, ok := attributes["up"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`up is missing from object`)
+
+		return nil, diags
+	}
+
+	upVal, ok := upAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`up expected to be basetypes.BoolValue, was: %T`, upAttribute))
+	}
+
+	xcvrModelAttribute, ok := attributes["xcvr_model"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`xcvr_model is missing from object`)
+
+		return nil, diags
+	}
+
+	xcvrModelVal, ok := xcvrModelAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`xcvr_model expected to be basetypes.StringValue, was: %T`, xcvrModelAttribute))
+	}
+
+	xcvrPartNumberAttribute, ok := attributes["xcvr_part_number"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`xcvr_part_number is missing from object`)
+
+		return nil, diags
+	}
+
+	xcvrPartNumberVal, ok := xcvrPartNumberAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`xcvr_part_number expected to be basetypes.StringValue, was: %T`, xcvrPartNumberAttribute))
+	}
+
+	xcvrSerialAttribute, ok := attributes["xcvr_serial"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`xcvr_serial is missing from object`)
+
+		return nil, diags
+	}
+
+	xcvrSerialVal, ok := xcvrSerialAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`xcvr_serial expected to be basetypes.StringValue, was: %T`, xcvrSerialAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return PortsValue{
+		Active:             activeVal,
+		AuthState:          authStateVal,
+		Disabled:           disabledVal,
+		ForSite:            forSiteVal,
+		FullDuplex:         fullDuplexVal,
+		Jitter:             jitterVal,
+		LastFlapped:        lastFlappedVal,
+		Latency:            latencyVal,
+		Loss:               lossVal,
+		LteIccid:           lteIccidVal,
+		LteImei:            lteImeiVal,
+		LteImsi:            lteImsiVal,
+		Mac:                macVal,
+		MacCount:           macCountVal,
+		MacLimit:           macLimitVal,
+		NeighborMac:        neighborMacVal,
+		NeighborPortDesc:   neighborPortDescVal,
+		NeighborSystemName: neighborSystemNameVal,
+		OrgId:              orgIdVal,
+		PoeDisabled:        poeDisabledVal,
+		PoeMode:            poeModeVal,
+		PoeOn:              poeOnVal,
+		PortId:             portIdVal,
+		PortMac:            portMacVal,
+		PortUsage:          portUsageVal,
+		PowerDraw:          powerDrawVal,
+		RxBcastPkts:        rxBcastPktsVal,
+		RxBps:              rxBpsVal,
+		RxBytes:            rxBytesVal,
+		RxErrors:           rxErrorsVal,
+		RxMcastPkts:        rxMcastPktsVal,
+		RxPkts:             rxPktsVal,
+		SiteId:             siteIdVal,
+		Speed:              speedVal,
+		StpRole:            stpRoleVal,
+		StpState:           stpStateVal,
+		TxBcastPkts:        txBcastPktsVal,
+		TxBps:              txBpsVal,
+		TxBytes:            txBytesVal,
+		TxErrors:           txErrorsVal,
+		TxMcastPkts:        txMcastPktsVal,
+		TxPkts:             txPktsVal,
+		PortsType:          typeVal,
+		Unconfigured:       unconfiguredVal,
+		Up:                 upVal,
+		XcvrModel:          xcvrModelVal,
+		XcvrPartNumber:     xcvrPartNumberVal,
+		XcvrSerial:         xcvrSerialVal,
+		state:              attr.ValueStateKnown,
+	}, diags
+}
+
+func NewPortsValueNull() PortsValue {
+	return PortsValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewPortsValueUnknown() PortsValue {
+	return PortsValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewPortsValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (PortsValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing PortsValue Attribute Value",
+				"While creating a PortsValue value, a missing attribute value was detected. "+
+					"A PortsValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("PortsValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid PortsValue Attribute Type",
+				"While creating a PortsValue value, an invalid attribute value was detected. "+
+					"A PortsValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("PortsValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("PortsValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra PortsValue Attribute Value",
+				"While creating a PortsValue value, an extra attribute value was detected. "+
+					"A PortsValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra PortsValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewPortsValueUnknown(), diags
+	}
+
+	activeAttribute, ok := attributes["active"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`active is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	activeVal, ok := activeAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`active expected to be basetypes.BoolValue, was: %T`, activeAttribute))
+	}
+
+	authStateAttribute, ok := attributes["auth_state"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`auth_state is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	authStateVal, ok := authStateAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`auth_state expected to be basetypes.StringValue, was: %T`, authStateAttribute))
+	}
+
+	disabledAttribute, ok := attributes["disabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disabled is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	disabledVal, ok := disabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disabled expected to be basetypes.BoolValue, was: %T`, disabledAttribute))
+	}
+
+	forSiteAttribute, ok := attributes["for_site"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`for_site is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	forSiteVal, ok := forSiteAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`for_site expected to be basetypes.BoolValue, was: %T`, forSiteAttribute))
+	}
+
+	fullDuplexAttribute, ok := attributes["full_duplex"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`full_duplex is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	fullDuplexVal, ok := fullDuplexAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`full_duplex expected to be basetypes.BoolValue, was: %T`, fullDuplexAttribute))
+	}
+
+	jitterAttribute, ok := attributes["jitter"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`jitter is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	jitterVal, ok := jitterAttribute.(basetypes.NumberValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`jitter expected to be basetypes.NumberValue, was: %T`, jitterAttribute))
+	}
+
+	lastFlappedAttribute, ok := attributes["last_flapped"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`last_flapped is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	lastFlappedVal, ok := lastFlappedAttribute.(basetypes.Float64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`last_flapped expected to be basetypes.Float64Value, was: %T`, lastFlappedAttribute))
+	}
+
+	latencyAttribute, ok := attributes["latency"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`latency is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	latencyVal, ok := latencyAttribute.(basetypes.NumberValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`latency expected to be basetypes.NumberValue, was: %T`, latencyAttribute))
+	}
+
+	lossAttribute, ok := attributes["loss"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`loss is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	lossVal, ok := lossAttribute.(basetypes.NumberValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`loss expected to be basetypes.NumberValue, was: %T`, lossAttribute))
+	}
+
+	lteIccidAttribute, ok := attributes["lte_iccid"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`lte_iccid is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	lteIccidVal, ok := lteIccidAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`lte_iccid expected to be basetypes.StringValue, was: %T`, lteIccidAttribute))
+	}
+
+	lteImeiAttribute, ok := attributes["lte_imei"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`lte_imei is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	lteImeiVal, ok := lteImeiAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`lte_imei expected to be basetypes.StringValue, was: %T`, lteImeiAttribute))
+	}
+
+	lteImsiAttribute, ok := attributes["lte_imsi"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`lte_imsi is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	lteImsiVal, ok := lteImsiAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`lte_imsi expected to be basetypes.StringValue, was: %T`, lteImsiAttribute))
+	}
+
+	macAttribute, ok := attributes["mac"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`mac is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	macVal, ok := macAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`mac expected to be basetypes.StringValue, was: %T`, macAttribute))
+	}
+
+	macCountAttribute, ok := attributes["mac_count"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`mac_count is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	macCountVal, ok := macCountAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`mac_count expected to be basetypes.Int64Value, was: %T`, macCountAttribute))
+	}
+
+	macLimitAttribute, ok := attributes["mac_limit"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`mac_limit is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	macLimitVal, ok := macLimitAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`mac_limit expected to be basetypes.Int64Value, was: %T`, macLimitAttribute))
+	}
+
+	neighborMacAttribute, ok := attributes["neighbor_mac"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`neighbor_mac is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	neighborMacVal, ok := neighborMacAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`neighbor_mac expected to be basetypes.StringValue, was: %T`, neighborMacAttribute))
+	}
+
+	neighborPortDescAttribute, ok := attributes["neighbor_port_desc"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`neighbor_port_desc is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	neighborPortDescVal, ok := neighborPortDescAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`neighbor_port_desc expected to be basetypes.StringValue, was: %T`, neighborPortDescAttribute))
+	}
+
+	neighborSystemNameAttribute, ok := attributes["neighbor_system_name"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`neighbor_system_name is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	neighborSystemNameVal, ok := neighborSystemNameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`neighbor_system_name expected to be basetypes.StringValue, was: %T`, neighborSystemNameAttribute))
+	}
+
+	orgIdAttribute, ok := attributes["org_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`org_id is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	orgIdVal, ok := orgIdAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`org_id expected to be basetypes.StringValue, was: %T`, orgIdAttribute))
+	}
+
+	poeDisabledAttribute, ok := attributes["poe_disabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`poe_disabled is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	poeDisabledVal, ok := poeDisabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`poe_disabled expected to be basetypes.BoolValue, was: %T`, poeDisabledAttribute))
+	}
+
+	poeModeAttribute, ok := attributes["poe_mode"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`poe_mode is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	poeModeVal, ok := poeModeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`poe_mode expected to be basetypes.StringValue, was: %T`, poeModeAttribute))
+	}
+
+	poeOnAttribute, ok := attributes["poe_on"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`poe_on is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	poeOnVal, ok := poeOnAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`poe_on expected to be basetypes.BoolValue, was: %T`, poeOnAttribute))
+	}
+
+	portIdAttribute, ok := attributes["port_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`port_id is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	portIdVal, ok := portIdAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`port_id expected to be basetypes.StringValue, was: %T`, portIdAttribute))
+	}
+
+	portMacAttribute, ok := attributes["port_mac"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`port_mac is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	portMacVal, ok := portMacAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`port_mac expected to be basetypes.StringValue, was: %T`, portMacAttribute))
+	}
+
+	portUsageAttribute, ok := attributes["port_usage"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`port_usage is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	portUsageVal, ok := portUsageAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`port_usage expected to be basetypes.StringValue, was: %T`, portUsageAttribute))
+	}
+
+	powerDrawAttribute, ok := attributes["power_draw"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_draw is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	powerDrawVal, ok := powerDrawAttribute.(basetypes.NumberValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_draw expected to be basetypes.NumberValue, was: %T`, powerDrawAttribute))
+	}
+
+	rxBcastPktsAttribute, ok := attributes["rx_bcast_pkts"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`rx_bcast_pkts is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	rxBcastPktsVal, ok := rxBcastPktsAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`rx_bcast_pkts expected to be basetypes.Int64Value, was: %T`, rxBcastPktsAttribute))
+	}
+
+	rxBpsAttribute, ok := attributes["rx_bps"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`rx_bps is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	rxBpsVal, ok := rxBpsAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`rx_bps expected to be basetypes.Int64Value, was: %T`, rxBpsAttribute))
+	}
+
+	rxBytesAttribute, ok := attributes["rx_bytes"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`rx_bytes is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	rxBytesVal, ok := rxBytesAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`rx_bytes expected to be basetypes.Int64Value, was: %T`, rxBytesAttribute))
+	}
+
+	rxErrorsAttribute, ok := attributes["rx_errors"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`rx_errors is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	rxErrorsVal, ok := rxErrorsAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`rx_errors expected to be basetypes.Int64Value, was: %T`, rxErrorsAttribute))
+	}
+
+	rxMcastPktsAttribute, ok := attributes["rx_mcast_pkts"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`rx_mcast_pkts is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	rxMcastPktsVal, ok := rxMcastPktsAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`rx_mcast_pkts expected to be basetypes.Int64Value, was: %T`, rxMcastPktsAttribute))
+	}
+
+	rxPktsAttribute, ok := attributes["rx_pkts"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`rx_pkts is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	rxPktsVal, ok := rxPktsAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`rx_pkts expected to be basetypes.Int64Value, was: %T`, rxPktsAttribute))
+	}
+
+	siteIdAttribute, ok := attributes["site_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`site_id is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	siteIdVal, ok := siteIdAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`site_id expected to be basetypes.StringValue, was: %T`, siteIdAttribute))
+	}
+
+	speedAttribute, ok := attributes["speed"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`speed is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	speedVal, ok := speedAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`speed expected to be basetypes.Int64Value, was: %T`, speedAttribute))
+	}
+
+	stpRoleAttribute, ok := attributes["stp_role"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`stp_role is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	stpRoleVal, ok := stpRoleAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`stp_role expected to be basetypes.StringValue, was: %T`, stpRoleAttribute))
+	}
+
+	stpStateAttribute, ok := attributes["stp_state"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`stp_state is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	stpStateVal, ok := stpStateAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`stp_state expected to be basetypes.StringValue, was: %T`, stpStateAttribute))
+	}
+
+	txBcastPktsAttribute, ok := attributes["tx_bcast_pkts"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`tx_bcast_pkts is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	txBcastPktsVal, ok := txBcastPktsAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`tx_bcast_pkts expected to be basetypes.Int64Value, was: %T`, txBcastPktsAttribute))
+	}
+
+	txBpsAttribute, ok := attributes["tx_bps"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`tx_bps is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	txBpsVal, ok := txBpsAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`tx_bps expected to be basetypes.Int64Value, was: %T`, txBpsAttribute))
+	}
+
+	txBytesAttribute, ok := attributes["tx_bytes"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`tx_bytes is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	txBytesVal, ok := txBytesAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`tx_bytes expected to be basetypes.Int64Value, was: %T`, txBytesAttribute))
+	}
+
+	txErrorsAttribute, ok := attributes["tx_errors"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`tx_errors is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	txErrorsVal, ok := txErrorsAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`tx_errors expected to be basetypes.Int64Value, was: %T`, txErrorsAttribute))
+	}
+
+	txMcastPktsAttribute, ok := attributes["tx_mcast_pkts"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`tx_mcast_pkts is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	txMcastPktsVal, ok := txMcastPktsAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`tx_mcast_pkts expected to be basetypes.Int64Value, was: %T`, txMcastPktsAttribute))
+	}
+
+	txPktsAttribute, ok := attributes["tx_pkts"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`tx_pkts is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	txPktsVal, ok := txPktsAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`tx_pkts expected to be basetypes.Int64Value, was: %T`, txPktsAttribute))
+	}
+
+	typeAttribute, ok := attributes["type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`type is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	typeVal, ok := typeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, typeAttribute))
+	}
+
+	unconfiguredAttribute, ok := attributes["unconfigured"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`unconfigured is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	unconfiguredVal, ok := unconfiguredAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`unconfigured expected to be basetypes.BoolValue, was: %T`, unconfiguredAttribute))
+	}
+
+	upAttribute, ok := attributes["up"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`up is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	upVal, ok := upAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`up expected to be basetypes.BoolValue, was: %T`, upAttribute))
+	}
+
+	xcvrModelAttribute, ok := attributes["xcvr_model"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`xcvr_model is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	xcvrModelVal, ok := xcvrModelAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`xcvr_model expected to be basetypes.StringValue, was: %T`, xcvrModelAttribute))
+	}
+
+	xcvrPartNumberAttribute, ok := attributes["xcvr_part_number"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`xcvr_part_number is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	xcvrPartNumberVal, ok := xcvrPartNumberAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`xcvr_part_number expected to be basetypes.StringValue, was: %T`, xcvrPartNumberAttribute))
+	}
+
+	xcvrSerialAttribute, ok := attributes["xcvr_serial"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`xcvr_serial is missing from object`)
+
+		return NewPortsValueUnknown(), diags
+	}
+
+	xcvrSerialVal, ok := xcvrSerialAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`xcvr_serial expected to be basetypes.StringValue, was: %T`, xcvrSerialAttribute))
+	}
+
+	if diags.HasError() {
+		return NewPortsValueUnknown(), diags
+	}
+
+	return PortsValue{
+		Active:             activeVal,
+		AuthState:          authStateVal,
+		Disabled:           disabledVal,
+		ForSite:            forSiteVal,
+		FullDuplex:         fullDuplexVal,
+		Jitter:             jitterVal,
+		LastFlapped:        lastFlappedVal,
+		Latency:            latencyVal,
+		Loss:               lossVal,
+		LteIccid:           lteIccidVal,
+		LteImei:            lteImeiVal,
+		LteImsi:            lteImsiVal,
+		Mac:                macVal,
+		MacCount:           macCountVal,
+		MacLimit:           macLimitVal,
+		NeighborMac:        neighborMacVal,
+		NeighborPortDesc:   neighborPortDescVal,
+		NeighborSystemName: neighborSystemNameVal,
+		OrgId:              orgIdVal,
+		PoeDisabled:        poeDisabledVal,
+		PoeMode:            poeModeVal,
+		PoeOn:              poeOnVal,
+		PortId:             portIdVal,
+		PortMac:            portMacVal,
+		PortUsage:          portUsageVal,
+		PowerDraw:          powerDrawVal,
+		RxBcastPkts:        rxBcastPktsVal,
+		RxBps:              rxBpsVal,
+		RxBytes:            rxBytesVal,
+		RxErrors:           rxErrorsVal,
+		RxMcastPkts:        rxMcastPktsVal,
+		RxPkts:             rxPktsVal,
+		SiteId:             siteIdVal,
+		Speed:              speedVal,
+		StpRole:            stpRoleVal,
+		StpState:           stpStateVal,
+		TxBcastPkts:        txBcastPktsVal,
+		TxBps:              txBpsVal,
+		TxBytes:            txBytesVal,
+		TxErrors:           txErrorsVal,
+		TxMcastPkts:        txMcastPktsVal,
+		TxPkts:             txPktsVal,
+		PortsType:          typeVal,
+		Unconfigured:       unconfiguredVal,
+		Up:                 upVal,
+		XcvrModel:          xcvrModelVal,
+		XcvrPartNumber:     xcvrPartNumberVal,
+		XcvrSerial:         xcvrSerialVal,
+		state:              attr.ValueStateKnown,
+	}, diags
+}
+
+func NewPortsValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) PortsValue {
+	object, diags := NewPortsValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewPortsValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t PortsType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewPortsValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewPortsValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewPortsValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewPortsValueMust(PortsValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t PortsType) ValueType(ctx context.Context) attr.Value {
+	return PortsValue{}
+}
+
+var _ basetypes.ObjectValuable = PortsValue{}
+
+type PortsValue struct {
+	Active             basetypes.BoolValue    `tfsdk:"active"`
+	AuthState          basetypes.StringValue  `tfsdk:"auth_state"`
+	Disabled           basetypes.BoolValue    `tfsdk:"disabled"`
+	ForSite            basetypes.BoolValue    `tfsdk:"for_site"`
+	FullDuplex         basetypes.BoolValue    `tfsdk:"full_duplex"`
+	Jitter             basetypes.NumberValue  `tfsdk:"jitter"`
+	LastFlapped        basetypes.Float64Value `tfsdk:"last_flapped"`
+	Latency            basetypes.NumberValue  `tfsdk:"latency"`
+	Loss               basetypes.NumberValue  `tfsdk:"loss"`
+	LteIccid           basetypes.StringValue  `tfsdk:"lte_iccid"`
+	LteImei            basetypes.StringValue  `tfsdk:"lte_imei"`
+	LteImsi            basetypes.StringValue  `tfsdk:"lte_imsi"`
+	Mac                basetypes.StringValue  `tfsdk:"mac"`
+	MacCount           basetypes.Int64Value   `tfsdk:"mac_count"`
+	MacLimit           basetypes.Int64Value   `tfsdk:"mac_limit"`
+	NeighborMac        basetypes.StringValue  `tfsdk:"neighbor_mac"`
+	NeighborPortDesc   basetypes.StringValue  `tfsdk:"neighbor_port_desc"`
+	NeighborSystemName basetypes.StringValue  `tfsdk:"neighbor_system_name"`
+	OrgId              basetypes.StringValue  `tfsdk:"org_id"`
+	PoeDisabled        basetypes.BoolValue    `tfsdk:"poe_disabled"`
+	PoeMode            basetypes.StringValue  `tfsdk:"poe_mode"`
+	PoeOn              basetypes.BoolValue    `tfsdk:"poe_on"`
+	PortId             basetypes.StringValue  `tfsdk:"port_id"`
+	PortMac            basetypes.StringValue  `tfsdk:"port_mac"`
+	PortUsage          basetypes.StringValue  `tfsdk:"port_usage"`
+	PowerDraw          basetypes.NumberValue  `tfsdk:"power_draw"`
+	RxBcastPkts        basetypes.Int64Value   `tfsdk:"rx_bcast_pkts"`
+	RxBps              basetypes.Int64Value   `tfsdk:"rx_bps"`
+	RxBytes            basetypes.Int64Value   `tfsdk:"rx_bytes"`
+	RxErrors           basetypes.Int64Value   `tfsdk:"rx_errors"`
+	RxMcastPkts        basetypes.Int64Value   `tfsdk:"rx_mcast_pkts"`
+	RxPkts             basetypes.Int64Value   `tfsdk:"rx_pkts"`
+	SiteId             basetypes.StringValue  `tfsdk:"site_id"`
+	Speed              basetypes.Int64Value   `tfsdk:"speed"`
+	StpRole            basetypes.StringValue  `tfsdk:"stp_role"`
+	StpState           basetypes.StringValue  `tfsdk:"stp_state"`
+	TxBcastPkts        basetypes.Int64Value   `tfsdk:"tx_bcast_pkts"`
+	TxBps              basetypes.Int64Value   `tfsdk:"tx_bps"`
+	TxBytes            basetypes.Int64Value   `tfsdk:"tx_bytes"`
+	TxErrors           basetypes.Int64Value   `tfsdk:"tx_errors"`
+	TxMcastPkts        basetypes.Int64Value   `tfsdk:"tx_mcast_pkts"`
+	TxPkts             basetypes.Int64Value   `tfsdk:"tx_pkts"`
+	PortsType          basetypes.StringValue  `tfsdk:"type"`
+	Unconfigured       basetypes.BoolValue    `tfsdk:"unconfigured"`
+	Up                 basetypes.BoolValue    `tfsdk:"up"`
+	XcvrModel          basetypes.StringValue  `tfsdk:"xcvr_model"`
+	XcvrPartNumber     basetypes.StringValue  `tfsdk:"xcvr_part_number"`
+	XcvrSerial         basetypes.StringValue  `tfsdk:"xcvr_serial"`
+	state              attr.ValueState
+}
+
+func (v PortsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 48)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["active"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["auth_state"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["disabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["for_site"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["full_duplex"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["jitter"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["last_flapped"] = basetypes.Float64Type{}.TerraformType(ctx)
+	attrTypes["latency"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["loss"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["lte_iccid"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["lte_imei"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["lte_imsi"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["mac"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["mac_count"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["mac_limit"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["neighbor_mac"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["neighbor_port_desc"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["neighbor_system_name"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["org_id"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["poe_disabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["poe_mode"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["poe_on"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["port_id"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["port_mac"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["port_usage"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["power_draw"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["rx_bcast_pkts"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["rx_bps"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["rx_bytes"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["rx_errors"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["rx_mcast_pkts"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["rx_pkts"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["site_id"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["speed"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["stp_role"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["stp_state"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["tx_bcast_pkts"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["tx_bps"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["tx_bytes"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["tx_errors"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["tx_mcast_pkts"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["tx_pkts"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["type"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["unconfigured"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["up"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["xcvr_model"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["xcvr_part_number"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["xcvr_serial"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 48)
+
+		val, err = v.Active.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["active"] = val
+
+		val, err = v.AuthState.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["auth_state"] = val
+
+		val, err = v.Disabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["disabled"] = val
+
+		val, err = v.ForSite.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["for_site"] = val
+
+		val, err = v.FullDuplex.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["full_duplex"] = val
+
+		val, err = v.Jitter.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["jitter"] = val
+
+		val, err = v.LastFlapped.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["last_flapped"] = val
+
+		val, err = v.Latency.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["latency"] = val
+
+		val, err = v.Loss.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["loss"] = val
+
+		val, err = v.LteIccid.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["lte_iccid"] = val
+
+		val, err = v.LteImei.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["lte_imei"] = val
+
+		val, err = v.LteImsi.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["lte_imsi"] = val
+
+		val, err = v.Mac.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["mac"] = val
+
+		val, err = v.MacCount.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["mac_count"] = val
+
+		val, err = v.MacLimit.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["mac_limit"] = val
+
+		val, err = v.NeighborMac.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["neighbor_mac"] = val
+
+		val, err = v.NeighborPortDesc.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["neighbor_port_desc"] = val
+
+		val, err = v.NeighborSystemName.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["neighbor_system_name"] = val
+
+		val, err = v.OrgId.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["org_id"] = val
+
+		val, err = v.PoeDisabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["poe_disabled"] = val
+
+		val, err = v.PoeMode.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["poe_mode"] = val
+
+		val, err = v.PoeOn.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["poe_on"] = val
+
+		val, err = v.PortId.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["port_id"] = val
+
+		val, err = v.PortMac.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["port_mac"] = val
+
+		val, err = v.PortUsage.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["port_usage"] = val
+
+		val, err = v.PowerDraw.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["power_draw"] = val
+
+		val, err = v.RxBcastPkts.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["rx_bcast_pkts"] = val
+
+		val, err = v.RxBps.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["rx_bps"] = val
+
+		val, err = v.RxBytes.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["rx_bytes"] = val
+
+		val, err = v.RxErrors.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["rx_errors"] = val
+
+		val, err = v.RxMcastPkts.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["rx_mcast_pkts"] = val
+
+		val, err = v.RxPkts.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["rx_pkts"] = val
+
+		val, err = v.SiteId.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["site_id"] = val
+
+		val, err = v.Speed.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["speed"] = val
+
+		val, err = v.StpRole.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["stp_role"] = val
+
+		val, err = v.StpState.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["stp_state"] = val
+
+		val, err = v.TxBcastPkts.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["tx_bcast_pkts"] = val
+
+		val, err = v.TxBps.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["tx_bps"] = val
+
+		val, err = v.TxBytes.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["tx_bytes"] = val
+
+		val, err = v.TxErrors.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["tx_errors"] = val
+
+		val, err = v.TxMcastPkts.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["tx_mcast_pkts"] = val
+
+		val, err = v.TxPkts.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["tx_pkts"] = val
+
+		val, err = v.PortsType.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["type"] = val
+
+		val, err = v.Unconfigured.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["unconfigured"] = val
+
+		val, err = v.Up.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["up"] = val
+
+		val, err = v.XcvrModel.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["xcvr_model"] = val
+
+		val, err = v.XcvrPartNumber.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["xcvr_part_number"] = val
+
+		val, err = v.XcvrSerial.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["xcvr_serial"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v PortsValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v PortsValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v PortsValue) String() string {
+	return "PortsValue"
+}
+
+func (v PortsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"active":               basetypes.BoolType{},
+		"auth_state":           basetypes.StringType{},
+		"disabled":             basetypes.BoolType{},
+		"for_site":             basetypes.BoolType{},
+		"full_duplex":          basetypes.BoolType{},
+		"jitter":               basetypes.NumberType{},
+		"last_flapped":         basetypes.Float64Type{},
+		"latency":              basetypes.NumberType{},
+		"loss":                 basetypes.NumberType{},
+		"lte_iccid":            basetypes.StringType{},
+		"lte_imei":             basetypes.StringType{},
+		"lte_imsi":             basetypes.StringType{},
+		"mac":                  basetypes.StringType{},
+		"mac_count":            basetypes.Int64Type{},
+		"mac_limit":            basetypes.Int64Type{},
+		"neighbor_mac":         basetypes.StringType{},
+		"neighbor_port_desc":   basetypes.StringType{},
+		"neighbor_system_name": basetypes.StringType{},
+		"org_id":               basetypes.StringType{},
+		"poe_disabled":         basetypes.BoolType{},
+		"poe_mode":             basetypes.StringType{},
+		"poe_on":               basetypes.BoolType{},
+		"port_id":              basetypes.StringType{},
+		"port_mac":             basetypes.StringType{},
+		"port_usage":           basetypes.StringType{},
+		"power_draw":           basetypes.NumberType{},
+		"rx_bcast_pkts":        basetypes.Int64Type{},
+		"rx_bps":               basetypes.Int64Type{},
+		"rx_bytes":             basetypes.Int64Type{},
+		"rx_errors":            basetypes.Int64Type{},
+		"rx_mcast_pkts":        basetypes.Int64Type{},
+		"rx_pkts":              basetypes.Int64Type{},
+		"site_id":              basetypes.StringType{},
+		"speed":                basetypes.Int64Type{},
+		"stp_role":             basetypes.StringType{},
+		"stp_state":            basetypes.StringType{},
+		"tx_bcast_pkts":        basetypes.Int64Type{},
+		"tx_bps":               basetypes.Int64Type{},
+		"tx_bytes":             basetypes.Int64Type{},
+		"tx_errors":            basetypes.Int64Type{},
+		"tx_mcast_pkts":        basetypes.Int64Type{},
+		"tx_pkts":              basetypes.Int64Type{},
+		"type":                 basetypes.StringType{},
+		"unconfigured":         basetypes.BoolType{},
+		"up":                   basetypes.BoolType{},
+		"xcvr_model":           basetypes.StringType{},
+		"xcvr_part_number":     basetypes.StringType{},
+		"xcvr_serial":          basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"active":               v.Active,
+			"auth_state":           v.AuthState,
+			"disabled":             v.Disabled,
+			"for_site":             v.ForSite,
+			"full_duplex":          v.FullDuplex,
+			"jitter":               v.Jitter,
+			"last_flapped":         v.LastFlapped,
+			"latency":              v.Latency,
+			"loss":                 v.Loss,
+			"lte_iccid":            v.LteIccid,
+			"lte_imei":             v.LteImei,
+			"lte_imsi":             v.LteImsi,
+			"mac":                  v.Mac,
+			"mac_count":            v.MacCount,
+			"mac_limit":            v.MacLimit,
+			"neighbor_mac":         v.NeighborMac,
+			"neighbor_port_desc":   v.NeighborPortDesc,
+			"neighbor_system_name": v.NeighborSystemName,
+			"org_id":               v.OrgId,
+			"poe_disabled":         v.PoeDisabled,
+			"poe_mode":             v.PoeMode,
+			"poe_on":               v.PoeOn,
+			"port_id":              v.PortId,
+			"port_mac":             v.PortMac,
+			"port_usage":           v.PortUsage,
+			"power_draw":           v.PowerDraw,
+			"rx_bcast_pkts":        v.RxBcastPkts,
+			"rx_bps":               v.RxBps,
+			"rx_bytes":             v.RxBytes,
+			"rx_errors":            v.RxErrors,
+			"rx_mcast_pkts":        v.RxMcastPkts,
+			"rx_pkts":              v.RxPkts,
+			"site_id":              v.SiteId,
+			"speed":                v.Speed,
+			"stp_role":             v.StpRole,
+			"stp_state":            v.StpState,
+			"tx_bcast_pkts":        v.TxBcastPkts,
+			"tx_bps":               v.TxBps,
+			"tx_bytes":             v.TxBytes,
+			"tx_errors":            v.TxErrors,
+			"tx_mcast_pkts":        v.TxMcastPkts,
+			"tx_pkts":              v.TxPkts,
+			"type":                 v.PortsType,
+			"unconfigured":         v.Unconfigured,
+			"up":                   v.Up,
+			"xcvr_model":           v.XcvrModel,
+			"xcvr_part_number":     v.XcvrPartNumber,
+			"xcvr_serial":          v.XcvrSerial,
+		})
+
+	return objVal, diags
+}
+
+func (v PortsValue) Equal(o attr.Value) bool {
+	other, ok := o.(PortsValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Active.Equal(other.Active) {
+		return false
+	}
+
+	if !v.AuthState.Equal(other.AuthState) {
+		return false
+	}
+
+	if !v.Disabled.Equal(other.Disabled) {
+		return false
+	}
+
+	if !v.ForSite.Equal(other.ForSite) {
+		return false
+	}
+
+	if !v.FullDuplex.Equal(other.FullDuplex) {
+		return false
+	}
+
+	if !v.Jitter.Equal(other.Jitter) {
+		return false
+	}
+
+	if !v.LastFlapped.Equal(other.LastFlapped) {
+		return false
+	}
+
+	if !v.Latency.Equal(other.Latency) {
+		return false
+	}
+
+	if !v.Loss.Equal(other.Loss) {
+		return false
+	}
+
+	if !v.LteIccid.Equal(other.LteIccid) {
+		return false
+	}
+
+	if !v.LteImei.Equal(other.LteImei) {
+		return false
+	}
+
+	if !v.LteImsi.Equal(other.LteImsi) {
+		return false
+	}
+
+	if !v.Mac.Equal(other.Mac) {
+		return false
+	}
+
+	if !v.MacCount.Equal(other.MacCount) {
+		return false
+	}
+
+	if !v.MacLimit.Equal(other.MacLimit) {
+		return false
+	}
+
+	if !v.NeighborMac.Equal(other.NeighborMac) {
+		return false
+	}
+
+	if !v.NeighborPortDesc.Equal(other.NeighborPortDesc) {
+		return false
+	}
+
+	if !v.NeighborSystemName.Equal(other.NeighborSystemName) {
+		return false
+	}
+
+	if !v.OrgId.Equal(other.OrgId) {
+		return false
+	}
+
+	if !v.PoeDisabled.Equal(other.PoeDisabled) {
+		return false
+	}
+
+	if !v.PoeMode.Equal(other.PoeMode) {
+		return false
+	}
+
+	if !v.PoeOn.Equal(other.PoeOn) {
+		return false
+	}
+
+	if !v.PortId.Equal(other.PortId) {
+		return false
+	}
+
+	if !v.PortMac.Equal(other.PortMac) {
+		return false
+	}
+
+	if !v.PortUsage.Equal(other.PortUsage) {
+		return false
+	}
+
+	if !v.PowerDraw.Equal(other.PowerDraw) {
+		return false
+	}
+
+	if !v.RxBcastPkts.Equal(other.RxBcastPkts) {
+		return false
+	}
+
+	if !v.RxBps.Equal(other.RxBps) {
+		return false
+	}
+
+	if !v.RxBytes.Equal(other.RxBytes) {
+		return false
+	}
+
+	if !v.RxErrors.Equal(other.RxErrors) {
+		return false
+	}
+
+	if !v.RxMcastPkts.Equal(other.RxMcastPkts) {
+		return false
+	}
+
+	if !v.RxPkts.Equal(other.RxPkts) {
+		return false
+	}
+
+	if !v.SiteId.Equal(other.SiteId) {
+		return false
+	}
+
+	if !v.Speed.Equal(other.Speed) {
+		return false
+	}
+
+	if !v.StpRole.Equal(other.StpRole) {
+		return false
+	}
+
+	if !v.StpState.Equal(other.StpState) {
+		return false
+	}
+
+	if !v.TxBcastPkts.Equal(other.TxBcastPkts) {
+		return false
+	}
+
+	if !v.TxBps.Equal(other.TxBps) {
+		return false
+	}
+
+	if !v.TxBytes.Equal(other.TxBytes) {
+		return false
+	}
+
+	if !v.TxErrors.Equal(other.TxErrors) {
+		return false
+	}
+
+	if !v.TxMcastPkts.Equal(other.TxMcastPkts) {
+		return false
+	}
+
+	if !v.TxPkts.Equal(other.TxPkts) {
+		return false
+	}
+
+	if !v.PortsType.Equal(other.PortsType) {
+		return false
+	}
+
+	if !v.Unconfigured.Equal(other.Unconfigured) {
+		return false
+	}
+
+	if !v.Up.Equal(other.Up) {
+		return false
+	}
+
+	if !v.XcvrModel.Equal(other.XcvrModel) {
+		return false
+	}
+
+	if !v.XcvrPartNumber.Equal(other.XcvrPartNumber) {
+		return false
+	}
+
+	if !v.XcvrSerial.Equal(other.XcvrSerial) {
+		return false
+	}
+
+	return true
+}
+
+func (v PortsValue) Type(ctx context.Context) attr.Type {
+	return PortsType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v PortsValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"active":               basetypes.BoolType{},
+		"auth_state":           basetypes.StringType{},
+		"disabled":             basetypes.BoolType{},
+		"for_site":             basetypes.BoolType{},
+		"full_duplex":          basetypes.BoolType{},
+		"jitter":               basetypes.NumberType{},
+		"last_flapped":         basetypes.Float64Type{},
+		"latency":              basetypes.NumberType{},
+		"loss":                 basetypes.NumberType{},
+		"lte_iccid":            basetypes.StringType{},
+		"lte_imei":             basetypes.StringType{},
+		"lte_imsi":             basetypes.StringType{},
+		"mac":                  basetypes.StringType{},
+		"mac_count":            basetypes.Int64Type{},
+		"mac_limit":            basetypes.Int64Type{},
+		"neighbor_mac":         basetypes.StringType{},
+		"neighbor_port_desc":   basetypes.StringType{},
+		"neighbor_system_name": basetypes.StringType{},
+		"org_id":               basetypes.StringType{},
+		"poe_disabled":         basetypes.BoolType{},
+		"poe_mode":             basetypes.StringType{},
+		"poe_on":               basetypes.BoolType{},
+		"port_id":              basetypes.StringType{},
+		"port_mac":             basetypes.StringType{},
+		"port_usage":           basetypes.StringType{},
+		"power_draw":           basetypes.NumberType{},
+		"rx_bcast_pkts":        basetypes.Int64Type{},
+		"rx_bps":               basetypes.Int64Type{},
+		"rx_bytes":             basetypes.Int64Type{},
+		"rx_errors":            basetypes.Int64Type{},
+		"rx_mcast_pkts":        basetypes.Int64Type{},
+		"rx_pkts":              basetypes.Int64Type{},
+		"site_id":              basetypes.StringType{},
+		"speed":                basetypes.Int64Type{},
+		"stp_role":             basetypes.StringType{},
+		"stp_state":            basetypes.StringType{},
+		"tx_bcast_pkts":        basetypes.Int64Type{},
+		"tx_bps":               basetypes.Int64Type{},
+		"tx_bytes":             basetypes.Int64Type{},
+		"tx_errors":            basetypes.Int64Type{},
+		"tx_mcast_pkts":        basetypes.Int64Type{},
+		"tx_pkts":              basetypes.Int64Type{},
+		"type":                 basetypes.StringType{},
+		"unconfigured":         basetypes.BoolType{},
+		"up":                   basetypes.BoolType{},
+		"xcvr_model":           basetypes.StringType{},
+		"xcvr_part_number":     basetypes.StringType{},
+		"xcvr_serial":          basetypes.StringType{},
+	}
+}
+
 var _ basetypes.ObjectTypable = RouteSummaryStatsType{}
 
 type RouteSummaryStatsType struct {
@@ -18447,6 +22031,24 @@ func (t VcSetupInfoType) ValueFromObject(ctx context.Context, in basetypes.Objec
 			fmt.Sprintf(`config_type expected to be basetypes.StringValue, was: %T`, configTypeAttribute))
 	}
 
+	currentStatsAttribute, ok := attributes["current_stats"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`current_stats is missing from object`)
+
+		return nil, diags
+	}
+
+	currentStatsVal, ok := currentStatsAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`current_stats expected to be basetypes.StringValue, was: %T`, currentStatsAttribute))
+	}
+
 	errMissingDevIdFpcAttribute, ok := attributes["err_missing_dev_id_fpc"]
 
 	if !ok {
@@ -18465,13 +22067,71 @@ func (t VcSetupInfoType) ValueFromObject(ctx context.Context, in basetypes.Objec
 			fmt.Sprintf(`err_missing_dev_id_fpc expected to be basetypes.BoolValue, was: %T`, errMissingDevIdFpcAttribute))
 	}
 
+	lastUpdateAttribute, ok := attributes["last_update"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`last_update is missing from object`)
+
+		return nil, diags
+	}
+
+	lastUpdateVal, ok := lastUpdateAttribute.(basetypes.Float64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`last_update expected to be basetypes.Float64Value, was: %T`, lastUpdateAttribute))
+	}
+
+	requestTimeAttribute, ok := attributes["request_time"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`request_time is missing from object`)
+
+		return nil, diags
+	}
+
+	requestTimeVal, ok := requestTimeAttribute.(basetypes.Float64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`request_time expected to be basetypes.Float64Value, was: %T`, requestTimeAttribute))
+	}
+
+	requestTypeAttribute, ok := attributes["request_type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`request_type is missing from object`)
+
+		return nil, diags
+	}
+
+	requestTypeVal, ok := requestTypeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`request_type expected to be basetypes.StringValue, was: %T`, requestTypeAttribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
 
 	return VcSetupInfoValue{
 		ConfigType:         configTypeVal,
+		CurrentStats:       currentStatsVal,
 		ErrMissingDevIdFpc: errMissingDevIdFpcVal,
+		LastUpdate:         lastUpdateVal,
+		RequestTime:        requestTimeVal,
+		RequestType:        requestTypeVal,
 		state:              attr.ValueStateKnown,
 	}, diags
 }
@@ -18557,6 +22217,24 @@ func NewVcSetupInfoValue(attributeTypes map[string]attr.Type, attributes map[str
 			fmt.Sprintf(`config_type expected to be basetypes.StringValue, was: %T`, configTypeAttribute))
 	}
 
+	currentStatsAttribute, ok := attributes["current_stats"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`current_stats is missing from object`)
+
+		return NewVcSetupInfoValueUnknown(), diags
+	}
+
+	currentStatsVal, ok := currentStatsAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`current_stats expected to be basetypes.StringValue, was: %T`, currentStatsAttribute))
+	}
+
 	errMissingDevIdFpcAttribute, ok := attributes["err_missing_dev_id_fpc"]
 
 	if !ok {
@@ -18575,13 +22253,71 @@ func NewVcSetupInfoValue(attributeTypes map[string]attr.Type, attributes map[str
 			fmt.Sprintf(`err_missing_dev_id_fpc expected to be basetypes.BoolValue, was: %T`, errMissingDevIdFpcAttribute))
 	}
 
+	lastUpdateAttribute, ok := attributes["last_update"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`last_update is missing from object`)
+
+		return NewVcSetupInfoValueUnknown(), diags
+	}
+
+	lastUpdateVal, ok := lastUpdateAttribute.(basetypes.Float64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`last_update expected to be basetypes.Float64Value, was: %T`, lastUpdateAttribute))
+	}
+
+	requestTimeAttribute, ok := attributes["request_time"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`request_time is missing from object`)
+
+		return NewVcSetupInfoValueUnknown(), diags
+	}
+
+	requestTimeVal, ok := requestTimeAttribute.(basetypes.Float64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`request_time expected to be basetypes.Float64Value, was: %T`, requestTimeAttribute))
+	}
+
+	requestTypeAttribute, ok := attributes["request_type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`request_type is missing from object`)
+
+		return NewVcSetupInfoValueUnknown(), diags
+	}
+
+	requestTypeVal, ok := requestTypeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`request_type expected to be basetypes.StringValue, was: %T`, requestTypeAttribute))
+	}
+
 	if diags.HasError() {
 		return NewVcSetupInfoValueUnknown(), diags
 	}
 
 	return VcSetupInfoValue{
 		ConfigType:         configTypeVal,
+		CurrentStats:       currentStatsVal,
 		ErrMissingDevIdFpc: errMissingDevIdFpcVal,
+		LastUpdate:         lastUpdateVal,
+		RequestTime:        requestTimeVal,
+		RequestType:        requestTypeVal,
 		state:              attr.ValueStateKnown,
 	}, diags
 }
@@ -18654,25 +22390,33 @@ func (t VcSetupInfoType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = VcSetupInfoValue{}
 
 type VcSetupInfoValue struct {
-	ConfigType         basetypes.StringValue `tfsdk:"config_type"`
-	ErrMissingDevIdFpc basetypes.BoolValue   `tfsdk:"err_missing_dev_id_fpc"`
+	ConfigType         basetypes.StringValue  `tfsdk:"config_type"`
+	CurrentStats       basetypes.StringValue  `tfsdk:"current_stats"`
+	ErrMissingDevIdFpc basetypes.BoolValue    `tfsdk:"err_missing_dev_id_fpc"`
+	LastUpdate         basetypes.Float64Value `tfsdk:"last_update"`
+	RequestTime        basetypes.Float64Value `tfsdk:"request_time"`
+	RequestType        basetypes.StringValue  `tfsdk:"request_type"`
 	state              attr.ValueState
 }
 
 func (v VcSetupInfoValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 2)
+	attrTypes := make(map[string]tftypes.Type, 6)
 
 	var val tftypes.Value
 	var err error
 
 	attrTypes["config_type"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["current_stats"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["err_missing_dev_id_fpc"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["last_update"] = basetypes.Float64Type{}.TerraformType(ctx)
+	attrTypes["request_time"] = basetypes.Float64Type{}.TerraformType(ctx)
+	attrTypes["request_type"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 2)
+		vals := make(map[string]tftypes.Value, 6)
 
 		val, err = v.ConfigType.ToTerraformValue(ctx)
 
@@ -18682,6 +22426,14 @@ func (v VcSetupInfoValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 
 		vals["config_type"] = val
 
+		val, err = v.CurrentStats.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["current_stats"] = val
+
 		val, err = v.ErrMissingDevIdFpc.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -18689,6 +22441,30 @@ func (v VcSetupInfoValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 		}
 
 		vals["err_missing_dev_id_fpc"] = val
+
+		val, err = v.LastUpdate.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["last_update"] = val
+
+		val, err = v.RequestTime.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["request_time"] = val
+
+		val, err = v.RequestType.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["request_type"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -18721,7 +22497,11 @@ func (v VcSetupInfoValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 
 	attributeTypes := map[string]attr.Type{
 		"config_type":            basetypes.StringType{},
+		"current_stats":          basetypes.StringType{},
 		"err_missing_dev_id_fpc": basetypes.BoolType{},
+		"last_update":            basetypes.Float64Type{},
+		"request_time":           basetypes.Float64Type{},
+		"request_type":           basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -18736,7 +22516,11 @@ func (v VcSetupInfoValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 		attributeTypes,
 		map[string]attr.Value{
 			"config_type":            v.ConfigType,
+			"current_stats":          v.CurrentStats,
 			"err_missing_dev_id_fpc": v.ErrMissingDevIdFpc,
+			"last_update":            v.LastUpdate,
+			"request_time":           v.RequestTime,
+			"request_type":           v.RequestType,
 		})
 
 	return objVal, diags
@@ -18761,7 +22545,23 @@ func (v VcSetupInfoValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.CurrentStats.Equal(other.CurrentStats) {
+		return false
+	}
+
 	if !v.ErrMissingDevIdFpc.Equal(other.ErrMissingDevIdFpc) {
+		return false
+	}
+
+	if !v.LastUpdate.Equal(other.LastUpdate) {
+		return false
+	}
+
+	if !v.RequestTime.Equal(other.RequestTime) {
+		return false
+	}
+
+	if !v.RequestType.Equal(other.RequestType) {
 		return false
 	}
 
@@ -18779,6 +22579,10 @@ func (v VcSetupInfoValue) Type(ctx context.Context) attr.Type {
 func (v VcSetupInfoValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"config_type":            basetypes.StringType{},
+		"current_stats":          basetypes.StringType{},
 		"err_missing_dev_id_fpc": basetypes.BoolType{},
+		"last_update":            basetypes.Float64Type{},
+		"request_time":           basetypes.Float64Type{},
+		"request_type":           basetypes.StringType{},
 	}
 }

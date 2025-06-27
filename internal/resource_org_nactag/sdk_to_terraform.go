@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func SdkToTerraform(data *models.NacTag) (OrgNactagModel, diag.Diagnostics) {
@@ -15,7 +15,7 @@ func SdkToTerraform(data *models.NacTag) (OrgNactagModel, diag.Diagnostics) {
 
 	var allowUsermacOverride types.Bool
 	var egressVlanNames = types.ListNull(types.StringType)
-	var gbpTag types.Int64
+	var gbpTag types.String
 	var id types.String
 	var match types.String
 	var matchAll types.Bool
@@ -33,10 +33,10 @@ func SdkToTerraform(data *models.NacTag) (OrgNactagModel, diag.Diagnostics) {
 		allowUsermacOverride = types.BoolValue(*data.AllowUsermacOverride)
 	}
 	if data.EgressVlanNames != nil {
-		egressVlanNames = misttransform.ListOfStringSdkToTerraform(data.EgressVlanNames)
+		egressVlanNames = mistutils.ListOfStringSdkToTerraform(data.EgressVlanNames)
 	}
 	if data.GbpTag != nil {
-		gbpTag = types.Int64Value(int64(*data.GbpTag))
+		gbpTag = types.StringValue(data.GbpTag.String())
 	}
 	if data.Id != nil {
 		id = types.StringValue(data.Id.String())
@@ -54,20 +54,20 @@ func SdkToTerraform(data *models.NacTag) (OrgNactagModel, diag.Diagnostics) {
 		orgId = types.StringValue(data.OrgId.String())
 	}
 	if data.RadiusAttrs != nil {
-		radiusAttrs = misttransform.ListOfStringSdkToTerraform(data.RadiusAttrs)
+		radiusAttrs = mistutils.ListOfStringSdkToTerraform(data.RadiusAttrs)
 	}
 	if data.RadiusGroup != nil {
 		radiusGroup = types.StringValue(*data.RadiusGroup)
 	}
 	if data.RadiusVendorAttrs != nil {
-		radiusVendorAttrs = misttransform.ListOfStringSdkToTerraform(data.RadiusVendorAttrs)
+		radiusVendorAttrs = mistutils.ListOfStringSdkToTerraform(data.RadiusVendorAttrs)
 	}
 	if data.SessionTimeout != nil {
 		sessionTimeout = types.Int64Value(int64(*data.SessionTimeout))
 	}
 	typeNactag = types.StringValue(string(data.Type))
 	if data.Values != nil {
-		values = misttransform.ListOfStringSdkToTerraform(data.Values)
+		values = mistutils.ListOfStringSdkToTerraform(data.Values)
 	}
 	if data.Vlan != nil {
 		vlan = types.StringValue(*data.Vlan)

@@ -3,7 +3,7 @@ package resource_org_setting
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -30,10 +30,10 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	var jcloud = NewJcloudValueNull()
 	var jcloudRa = NewJcloudRaValueNull()
 	var juniper = NewJuniperValueNull()
+	var junosShellAccess = NewJunosShellAccessValueNull()
 	var mgmt = NewMgmtValueNull()
 	var mistNac = NewMistNacValueNull()
 	// var msp_id types.String
-	var mxedgeFipsEnabled types.Bool
 	var mxedgeMgmt MxedgeMgmtValue
 	var opticPortConfig = types.MapNull(OpticPortConfigValue{}.Type(ctx))
 	var orgId types.String
@@ -60,7 +60,7 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	// 	blacklist_url = types.StringValue(*data.BlacklistUrl)
 	// }
 	if data.Cacerts != nil {
-		cacerts = misttransform.ListOfStringSdkToTerraform(data.Cacerts)
+		cacerts = mistutils.ListOfStringSdkToTerraform(data.Cacerts)
 	}
 	if data.Celona != nil {
 		celona = celonaSdkToTerraform(ctx, &diags, data.Celona)
@@ -98,6 +98,9 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	if data.Juniper != nil {
 		juniper = juniperSdkToTerraform(ctx, &diags, data.Juniper)
 	}
+	if data.JunosShellAccess != nil {
+		junosShellAccess = junosShellAccessSdkToTerraform(ctx, &diags, data.JunosShellAccess)
+	}
 	if data.Mgmt != nil {
 		mgmt = mgmtSdkToTerraform(ctx, &diags, data.Mgmt)
 	}
@@ -107,9 +110,6 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	// if data.MspId != nil {
 	// 	msp_id = types.StringValue(data.MspId.String())
 	// }
-	if data.MxedgeFipsEnabled != nil {
-		mxedgeFipsEnabled = types.BoolValue(*data.MxedgeFipsEnabled)
-	}
 	if data.MxedgeMgmt != nil {
 		mxedgeMgmt = mxedgeMgmtSdkToTerraform(ctx, &diags, data.MxedgeMgmt)
 	}
@@ -172,10 +172,10 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	state.Jcloud = jcloud
 	state.JcloudRa = jcloudRa
 	state.Juniper = juniper
+	state.JunosShellAccess = junosShellAccess
 	state.Mgmt = mgmt
 	state.MistNac = mistNac
 	// state.MspId = msp_id
-	state.MxedgeFipsEnabled = mxedgeFipsEnabled
 	state.MxedgeMgmt = mxedgeMgmt
 	state.OpticPortConfig = opticPortConfig
 	state.OrgId = orgId

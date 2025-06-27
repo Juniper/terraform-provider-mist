@@ -10,8 +10,8 @@ func authKeysTerraformToSdk(plan basetypes.ListValue) []string {
 	var items []string
 	for _, v := range plan.Elements() {
 		if v != nil {
-			var vInteface interface{} = v
-			vPlan := vInteface.(basetypes.StringValue)
+			var vInterface interface{} = v
+			vPlan := vInterface.(basetypes.StringValue)
 			items = append(items, vPlan.ValueString())
 		} else {
 			var t string
@@ -23,8 +23,8 @@ func authKeysTerraformToSdk(plan basetypes.ListValue) []string {
 func authPairwiseTerraformToSdk(plan basetypes.ListValue) []models.WlanAuthPairwiseItemEnum {
 	var items []models.WlanAuthPairwiseItemEnum
 	for _, v := range plan.Elements() {
-		var vInteface interface{} = v
-		vPlan := vInteface.(basetypes.StringValue)
+		var vInterface interface{} = v
+		vPlan := vInterface.(basetypes.StringValue)
 		items = append(items, (models.WlanAuthPairwiseItemEnum)(vPlan.ValueString()))
 	}
 	return items

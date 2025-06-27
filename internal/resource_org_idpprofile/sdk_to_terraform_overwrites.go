@@ -3,7 +3,7 @@ package resource_org_idpprofile
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -26,15 +26,15 @@ func overwritesMatchingSeveritySdkToTerraform(ctx context.Context, diags *diag.D
 }
 
 func overwritesMatchingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.IdpProfileMatching) basetypes.ObjectValue {
-	var attackName = misttransform.ListOfStringSdkToTerraformEmpty()
-	var dstSubnet = misttransform.ListOfStringSdkToTerraformEmpty()
-	var severity = misttransform.ListOfStringSdkToTerraformEmpty()
+	var attackName = mistutils.ListOfStringSdkToTerraformEmpty()
+	var dstSubnet = mistutils.ListOfStringSdkToTerraformEmpty()
+	var severity = mistutils.ListOfStringSdkToTerraformEmpty()
 
 	if d.AttackName != nil {
-		attackName = misttransform.ListOfStringSdkToTerraform(d.AttackName)
+		attackName = mistutils.ListOfStringSdkToTerraform(d.AttackName)
 	}
 	if d.DstSubnet != nil {
-		dstSubnet = misttransform.ListOfStringSdkToTerraform(d.DstSubnet)
+		dstSubnet = mistutils.ListOfStringSdkToTerraform(d.DstSubnet)
 	}
 	if d.Severity != nil {
 		severity = overwritesMatchingSeveritySdkToTerraform(ctx, diags, d.Severity)

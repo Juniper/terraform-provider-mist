@@ -54,14 +54,14 @@ resource "mist_org_avprofile" "avprofile_one" {
 
 ### Optional
 
-- `fallback_action` (String) enum: `block`, `permit`
+- `fallback_action` (String) enum: `block`, `log-and-permit`, `permit`
 - `max_filesize` (Number) In KB
 - `mime_whitelist` (List of String)
 - `url_whitelist` (List of String)
 
 ### Read-Only
 
-- `id` (String) Unique ID of the object instance in the Mist Organnization
+- `id` (String) Unique ID of the object instance in the Mist Organization
 
 
 

@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/google/uuid"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -49,7 +49,7 @@ func portUsageRulesTerraformToSdk(d basetypes.ListValue) []models.SwitchPortUsag
 			rule.Equals = models.ToPointer(vPlan.Equals.ValueString())
 		}
 		if !vPlan.EqualsAny.IsNull() && !vPlan.EqualsAny.IsUnknown() {
-			rule.EqualsAny = misttransform.ListOfStringTerraformToSdk(vPlan.EqualsAny)
+			rule.EqualsAny = mistutils.ListOfStringTerraformToSdk(vPlan.EqualsAny)
 		}
 		if vPlan.Expression.ValueStringPointer() != nil {
 			rule.Expression = models.ToPointer(vPlan.Expression.ValueString())
@@ -83,8 +83,8 @@ func portUsageTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d bas
 		if puAttrValue.BypassAuthWhenServerDown.ValueBoolPointer() != nil {
 			newPu.BypassAuthWhenServerDown = models.ToPointer(puAttrValue.BypassAuthWhenServerDown.ValueBool())
 		}
-		if puAttrValue.BypassAuthWhenServerDownForUnkownClient.ValueBoolPointer() != nil {
-			newPu.BypassAuthWhenServerDownForUnkownClient = models.ToPointer(puAttrValue.BypassAuthWhenServerDownForUnkownClient.ValueBool())
+		if puAttrValue.BypassAuthWhenServerDownForUnknownClient.ValueBoolPointer() != nil {
+			newPu.BypassAuthWhenServerDownForUnknownClient = models.ToPointer(puAttrValue.BypassAuthWhenServerDownForUnknownClient.ValueBool())
 		}
 		if puAttrValue.Description.ValueStringPointer() != nil {
 			newPu.Description = models.ToPointer(puAttrValue.Description.ValueString())
@@ -99,7 +99,7 @@ func portUsageTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d bas
 			newPu.Duplex = models.ToPointer(models.SwitchPortUsageDuplexEnum(puAttrValue.Duplex.ValueString()))
 		}
 		if !puAttrValue.DynamicVlanNetworks.IsNull() && !puAttrValue.DynamicVlanNetworks.IsUnknown() {
-			newPu.DynamicVlanNetworks = misttransform.ListOfStringTerraformToSdk(puAttrValue.DynamicVlanNetworks)
+			newPu.DynamicVlanNetworks = mistutils.ListOfStringTerraformToSdk(puAttrValue.DynamicVlanNetworks)
 		}
 		if puAttrValue.EnableMacAuth.ValueBoolPointer() != nil {
 			newPu.EnableMacAuth = models.ToPointer(puAttrValue.EnableMacAuth.ValueBool())
@@ -109,6 +109,9 @@ func portUsageTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d bas
 		}
 		if puAttrValue.GuestNetwork.ValueStringPointer() != nil {
 			newPu.GuestNetwork = models.NewOptional(models.ToPointer(puAttrValue.GuestNetwork.ValueString()))
+		}
+		if puAttrValue.InterIsolationNetworkLink.ValueBoolPointer() != nil {
+			newPu.InterIsolationNetworkLink = models.ToPointer(puAttrValue.InterIsolationNetworkLink.ValueBool())
 		}
 		if puAttrValue.InterSwitchLink.ValueBoolPointer() != nil {
 			newPu.InterSwitchLink = models.ToPointer(puAttrValue.InterSwitchLink.ValueBool())
@@ -122,17 +125,17 @@ func portUsageTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d bas
 		if puAttrValue.MacAuthProtocol.ValueStringPointer() != nil {
 			newPu.MacAuthProtocol = models.ToPointer(models.SwitchPortUsageMacAuthProtocolEnum(puAttrValue.MacAuthProtocol.ValueString()))
 		}
-		if puAttrValue.MacLimit.ValueInt64Pointer() != nil {
-			newPu.MacLimit = models.ToPointer(int(puAttrValue.MacLimit.ValueInt64()))
+		if puAttrValue.MacLimit.ValueStringPointer() != nil {
+			newPu.MacLimit = models.ToPointer(models.SwitchPortUsageMacLimitContainer.FromString(puAttrValue.MacLimit.ValueString()))
 		}
 		if puAttrValue.Mode.ValueStringPointer() != nil {
 			newPu.Mode = models.ToPointer(models.SwitchPortUsageModeEnum(puAttrValue.Mode.ValueString()))
 		}
-		if puAttrValue.Mtu.ValueInt64Pointer() != nil {
-			newPu.Mtu = models.ToPointer(int(puAttrValue.Mtu.ValueInt64()))
+		if puAttrValue.Mtu.ValueStringPointer() != nil {
+			newPu.Mtu = models.ToPointer(models.SwitchPortUsageMtuContainer.FromString(puAttrValue.Mtu.ValueString()))
 		}
 		if !puAttrValue.Networks.IsNull() && !puAttrValue.Networks.IsUnknown() {
-			newPu.Networks = misttransform.ListOfStringTerraformToSdk(puAttrValue.Networks)
+			newPu.Networks = mistutils.ListOfStringTerraformToSdk(puAttrValue.Networks)
 		}
 		if puAttrValue.PersistMac.ValueBoolPointer() != nil {
 			newPu.PersistMac = models.ToPointer(puAttrValue.PersistMac.ValueBool())
@@ -146,8 +149,8 @@ func portUsageTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d bas
 		if puAttrValue.PortNetwork.ValueStringPointer() != nil {
 			newPu.PortNetwork = models.ToPointer(puAttrValue.PortNetwork.ValueString())
 		}
-		if puAttrValue.ReauthInterval.ValueInt64Pointer() != nil {
-			newPu.ReauthInterval = models.ToPointer(int(puAttrValue.ReauthInterval.ValueInt64()))
+		if puAttrValue.ReauthInterval.ValueStringPointer() != nil {
+			newPu.ReauthInterval = models.ToPointer(models.SwitchPortUsageReauthIntervalContainer.FromString(puAttrValue.ReauthInterval.ValueString()))
 		}
 		if !puAttrValue.Rules.IsNull() && !puAttrValue.Rules.IsUnknown() {
 			newPu.Rules = portUsageRulesTerraformToSdk(puAttrValue.Rules)
@@ -189,7 +192,7 @@ func portUsageTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d bas
 			newPu.UseVstp = puAttrValue.UseVstp.ValueBoolPointer()
 		}
 		if puAttrValue.VoipNetwork.ValueStringPointer() != nil {
-			newPu.VoipNetwork = models.ToPointer(puAttrValue.VoipNetwork.ValueString())
+			newPu.VoipNetwork = models.NewOptional(models.ToPointer(puAttrValue.VoipNetwork.ValueString()))
 		}
 
 		data[puName] = newPu

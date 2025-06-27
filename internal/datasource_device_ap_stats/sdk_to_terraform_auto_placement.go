@@ -69,7 +69,6 @@ func autoPlacementSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d
 	var recommendedAnchor basetypes.BoolValue
 	var status basetypes.StringValue
 	var statusDetail basetypes.StringValue
-	var useAutoPlacement basetypes.BoolValue
 	var x basetypes.Float64Value
 	var xM basetypes.Float64Value
 	var y basetypes.Float64Value
@@ -86,9 +85,6 @@ func autoPlacementSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d
 	}
 	if d.StatusDetail != nil {
 		statusDetail = types.StringValue(*d.StatusDetail)
-	}
-	if d.UseAutoPlacement != nil {
-		useAutoPlacement = types.BoolValue(*d.UseAutoPlacement)
 	}
 	if d.X != nil {
 		x = types.Float64Value(*d.X)
@@ -108,7 +104,6 @@ func autoPlacementSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d
 		"recommended_anchor": recommendedAnchor,
 		"status":             status,
 		"status_detail":      statusDetail,
-		"use_auto_placement": useAutoPlacement,
 		"x":                  x,
 		"x_m":                xM,
 		"y":                  y,

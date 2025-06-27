@@ -3,7 +3,7 @@ package resource_device_switch
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
@@ -58,8 +58,8 @@ func LocalPortConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics,
 		if planObj.BypassAuthWhenServerDown.ValueBoolPointer() != nil {
 			itemObj.BypassAuthWhenServerDown = models.ToPointer(planObj.BypassAuthWhenServerDown.ValueBool())
 		}
-		if planObj.BypassAuthWhenServerDownForUnkownClient.ValueBoolPointer() != nil {
-			itemObj.BypassAuthWhenServerDownForUnkownClient = models.ToPointer(planObj.BypassAuthWhenServerDownForUnkownClient.ValueBool())
+		if planObj.BypassAuthWhenServerDownForUnknownClient.ValueBoolPointer() != nil {
+			itemObj.BypassAuthWhenServerDownForUnknownClient = models.ToPointer(planObj.BypassAuthWhenServerDownForUnknownClient.ValueBool())
 		}
 		if planObj.Description.ValueStringPointer() != nil {
 			itemObj.Description = models.ToPointer(planObj.Description.ValueString())
@@ -74,7 +74,7 @@ func LocalPortConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics,
 			itemObj.Duplex = models.ToPointer(models.SwitchPortLocalUsageDuplexEnum(planObj.Duplex.ValueString()))
 		}
 		if !planObj.DynamicVlanNetworks.IsNull() && !planObj.DynamicVlanNetworks.IsUnknown() {
-			itemObj.DynamicVlanNetworks = misttransform.ListOfStringTerraformToSdk(planObj.DynamicVlanNetworks)
+			itemObj.DynamicVlanNetworks = mistutils.ListOfStringTerraformToSdk(planObj.DynamicVlanNetworks)
 		}
 		if planObj.EnableMacAuth.ValueBoolPointer() != nil {
 			itemObj.EnableMacAuth = models.ToPointer(planObj.EnableMacAuth.ValueBool())
@@ -107,7 +107,7 @@ func LocalPortConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics,
 			itemObj.Mtu = models.ToPointer(int(planObj.Mtu.ValueInt64()))
 		}
 		if !planObj.Networks.IsNull() && !planObj.Networks.IsUnknown() {
-			itemObj.Networks = misttransform.ListOfStringTerraformToSdk(planObj.Networks)
+			itemObj.Networks = mistutils.ListOfStringTerraformToSdk(planObj.Networks)
 		}
 		if planObj.Note.ValueStringPointer() != nil {
 			itemObj.Note = planObj.Note.ValueStringPointer()
@@ -124,8 +124,8 @@ func LocalPortConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics,
 		if planObj.PortNetwork.ValueStringPointer() != nil {
 			itemObj.PortNetwork = models.ToPointer(planObj.PortNetwork.ValueString())
 		}
-		if planObj.ReauthInterval.ValueInt64Pointer() != nil {
-			itemObj.ReauthInterval = models.ToPointer(int(planObj.ReauthInterval.ValueInt64()))
+		if planObj.ReauthInterval.ValueStringPointer() != nil {
+			itemObj.ReauthInterval = models.ToPointer(models.SwitchPortUsageReauthIntervalContainer.FromString(planObj.ReauthInterval.ValueString()))
 		}
 		if planObj.ServerFailNetwork.ValueStringPointer() != nil {
 			itemObj.ServerFailNetwork = models.NewOptional(models.ToPointer(planObj.ServerFailNetwork.ValueString()))

@@ -4,15 +4,13 @@ import (
 	"context"
 	"strings"
 
-	mistapi "github.com/Juniper/terraform-provider-mist/internal/commons/api_response"
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
 func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.Diagnostics) {
@@ -44,12 +42,13 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	var blockBlacklistClients types.Bool
 	var bonjour = NewBonjourValueNull()
 	var ciscoCwa = NewCiscoCwaValueNull()
-	var clientLimitDown types.Int64
+	var clientLimitDown types.String
 	var clientLimitDownEnabled types.Bool
-	var clientLimitUp types.Int64
+	var clientLimitUp types.String
 	var clientLimitUpEnabled types.Bool
-	var coaServers = types.ListValueMust(CoaServersValue{}.Type(ctx), []attr.Value{})
+	var coaServers = types.ListNull(CoaServersValue{}.Type(ctx))
 	var disable11ax types.Bool
+	var disable11be types.Bool
 	var disableHtVhtRates types.Bool
 	var disableUapsd types.Bool
 	var disableV1RoamNotify types.Bool
@@ -87,10 +86,10 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	var noStaticIp types.Bool
 	var orgId types.String
 	var portal = NewPortalValueNull()
-	var portalAllowedHostnames = misttransform.ListOfStringSdkToTerraformEmpty()
-	var portalAllowedSubnets = misttransform.ListOfStringSdkToTerraformEmpty()
+	var portalAllowedHostnames = mistutils.ListOfStringSdkToTerraformEmpty()
+	var portalAllowedSubnets = mistutils.ListOfStringSdkToTerraformEmpty()
 	var portalApiSecret = types.StringValue("")
-	var portalDeniedHostnames = misttransform.ListOfStringSdkToTerraformEmpty()
+	var portalDeniedHostnames = mistutils.ListOfStringSdkToTerraformEmpty()
 	var portalImage = types.StringValue("not_present")
 	var portalSsoUrl = types.StringValue("")
 	var qos = NewQosValueNull()
@@ -105,13 +104,13 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	var useEapolV1 types.Bool
 	var vlanEnabled types.Bool
 	var vlanId types.String
-	var vlanIds = misttransform.ListOfStringSdkToTerraformEmpty()
+	var vlanIds = mistutils.ListOfStringSdkToTerraformEmpty()
 	var vlanPooling types.Bool
-	var wlanLimitDown types.Int64
+	var wlanLimitDown types.String
 	var wlanLimitDownEnabled types.Bool
-	var wlanLimitUp types.Int64
+	var wlanLimitUp types.String
 	var wlanLimitUpEnabled types.Bool
-	var wxtagIds = misttransform.ListOfUuidSdkToTerraformEmpty()
+	var wxtagIds = mistutils.ListOfUuidSdkToTerraformEmpty()
 	var wxtunnelId = types.StringValue("")
 	var wxtunnelRemoteId = types.StringValue("")
 
@@ -125,8 +124,6 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 
 	if len(data.AcctServers) > 0 {
 		acctServers = radiusServersAcctSdkToTerraform(ctx, &diags, data.AcctServers)
-	} else {
-		types.ListValueMust(AcctServersValue{}.Type(ctx), make([]attr.Value, 0))
 	}
 
 	if data.Airwatch != nil {
@@ -146,7 +143,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	}
 
 	if data.ApIds.Value() != nil && len(*data.ApIds.Value()) > 0 {
-		apIds = misttransform.ListOfUuidSdkToTerraform(*data.ApIds.Value())
+		apIds = mistutils.ListOfUuidSdkToTerraform(*data.ApIds.Value())
 	}
 
 	if data.AppLimit != nil {
@@ -175,8 +172,6 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 
 	if len(data.AuthServers) > 0 {
 		authServers = radiusServersAuthSdkToTerraform(ctx, &diags, data.AuthServers)
-	} else {
-		authServers = types.ListValueMust(AuthServersValue{}.Type(ctx), make([]attr.Value, 0))
 	}
 
 	if data.AuthServersNasId.IsValueSet() && data.AuthServersNasId.Value() != nil {
@@ -220,7 +215,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	}
 
 	if data.ClientLimitDown != nil {
-		clientLimitDown = types.Int64Value(int64(*data.ClientLimitDown))
+		clientLimitDown = mistutils.WlanLimitAsString(data.ClientLimitDown)
 	}
 
 	if data.ClientLimitDownEnabled != nil {
@@ -228,7 +223,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	}
 
 	if data.ClientLimitUp != nil {
-		clientLimitUp = types.Int64Value(int64(*data.ClientLimitUp))
+		clientLimitUp = mistutils.WlanLimitAsString(data.ClientLimitUp)
 	}
 
 	if data.ClientLimitUpEnabled != nil {
@@ -237,12 +232,14 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 
 	if len(data.CoaServers) > 0 {
 		coaServers = coaServersSdkToTerraform(ctx, &diags, data.CoaServers)
-	} else {
-		coaServers = types.ListValueMust(CoaServersValue{}.Type(ctx), make([]attr.Value, 0))
 	}
 
 	if data.Disable11ax != nil {
 		disable11ax = types.BoolValue(*data.Disable11ax)
+	}
+
+	if data.Disable11be != nil {
+		disable11be = types.BoolValue(*data.Disable11be)
 	}
 
 	if data.DisableHtVhtRates != nil {
@@ -362,7 +359,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	}
 
 	if data.MistNac != nil {
-		mistNac = mistNacdSkToTerraform(ctx, &diags, data.MistNac)
+		mistNac = mistNacSkToTerraform(ctx, &diags, data.MistNac)
 	}
 
 	if data.MspId != nil {
@@ -370,11 +367,11 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	}
 
 	if len(data.MxtunnelIds) > 0 {
-		mxtunnelIds = misttransform.ListOfStringSdkToTerraform(data.MxtunnelIds)
+		mxtunnelIds = mistutils.ListOfStringSdkToTerraform(data.MxtunnelIds)
 	}
 
 	if len(data.MxtunnelName) > 0 {
-		mxtunnelName = misttransform.ListOfStringSdkToTerraform(data.MxtunnelName)
+		mxtunnelName = mistutils.ListOfStringSdkToTerraform(data.MxtunnelName)
 	}
 
 	if data.NoStaticDns != nil {
@@ -394,10 +391,10 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	}
 
 	if data.PortalAllowedHostnames != nil {
-		portalAllowedHostnames = misttransform.ListOfStringSdkToTerraform(data.PortalAllowedHostnames)
+		portalAllowedHostnames = mistutils.ListOfStringSdkToTerraform(data.PortalAllowedHostnames)
 	}
 	if data.PortalAllowedSubnets != nil {
-		portalAllowedSubnets = misttransform.ListOfStringSdkToTerraform(data.PortalAllowedSubnets)
+		portalAllowedSubnets = mistutils.ListOfStringSdkToTerraform(data.PortalAllowedSubnets)
 	}
 
 	if data.PortalApiSecret.IsValueSet() && data.PortalApiSecret.Value() != nil {
@@ -405,7 +402,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	}
 
 	if data.PortalDeniedHostnames != nil {
-		portalDeniedHostnames = misttransform.ListOfStringSdkToTerraform(data.PortalDeniedHostnames)
+		portalDeniedHostnames = mistutils.ListOfStringSdkToTerraform(data.PortalDeniedHostnames)
 	}
 
 	if data.PortalImage.IsValueSet() && data.PortalImage.Value() != nil {
@@ -433,7 +430,15 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	}
 
 	if data.RoamMode != nil {
-		roamMode = types.StringValue(string(*data.RoamMode))
+		if strings.ToUpper(string(*data.RoamMode)) == "11R" {
+			roamMode = types.StringValue("11r")
+		} else if strings.ToUpper(string(*data.RoamMode)) == "NONE" {
+			roamMode = types.StringValue("NONE")
+		} else if strings.ToUpper(string(*data.RoamMode)) == "OKC" {
+			roamMode = types.StringValue("OKC")
+		} else {
+			roamMode = types.StringValue(string(*data.RoamMode))
+		}
 	}
 
 	if data.Schedule != nil {
@@ -458,40 +463,28 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 		vlanEnabled = types.BoolValue(*data.VlanEnabled)
 	}
 
-	if data.VlanId != nil {
-		vlanId = mistapi.VlanAsString(*data.VlanId)
+	if data.VlanId.Value() != nil {
+		vlanId = mistutils.WlanVlanAsString(*data.VlanId.Value())
 	}
 
 	if data.VlanIds != nil {
-		var list []attr.Value
-		if vlanIdsAsString, ok := data.VlanIds.AsString(); ok {
-			for _, vlan := range strings.Split(*vlanIdsAsString, ",") {
-				list = append(list, types.StringValue(vlan))
-			}
-		} else if vlanIdsAsList, ok := data.VlanIds.AsArrayOfVlanIdWithVariable2(); ok {
-			for _, v := range *vlanIdsAsList {
-				list = append(list, mistapi.VlanAsString(v))
-			}
-		}
-		r, e := types.ListValue(basetypes.StringType{}, list)
-		diags.Append(e...)
-		vlanIds = r
+		vlanIds = mistutils.WlanVlanIdsAsArrayOfString(&diags, data.VlanIds)
 	}
 
 	if data.VlanPooling != nil {
 		vlanPooling = types.BoolValue(*data.VlanPooling)
 	}
 
-	if data.WlanLimitDown.IsValueSet() && data.WlanLimitDown.Value() != nil {
-		wlanLimitDown = types.Int64Value(int64(*data.WlanLimitDown.Value()))
+	if data.WlanLimitDown != nil {
+		wlanLimitDown = mistutils.WlanLimitAsString(data.WlanLimitDown)
 	}
 
 	if data.WlanLimitDownEnabled != nil {
 		wlanLimitDownEnabled = types.BoolValue(*data.WlanLimitDownEnabled)
 	}
 
-	if data.WlanLimitUp.IsValueSet() && data.WlanLimitUp.Value() != nil {
-		wlanLimitUp = types.Int64Value(int64(*data.WlanLimitUp.Value()))
+	if data.WlanLimitUp != nil {
+		wlanLimitUp = mistutils.WlanLimitAsString(data.WlanLimitUp)
 	}
 
 	if data.WlanLimitUpEnabled != nil {
@@ -499,7 +492,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	}
 
 	if data.WxtagIds.IsValueSet() && data.WxtagIds.Value() != nil {
-		wxtagIds = misttransform.ListOfUuidSdkToTerraform(*data.WxtagIds.Value())
+		wxtagIds = mistutils.ListOfUuidSdkToTerraform(*data.WxtagIds.Value())
 	}
 
 	if data.WxtunnelId.IsValueSet() && data.WxtunnelId.Value() != nil {
@@ -541,6 +534,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	state.ClientLimitUpEnabled = clientLimitUpEnabled
 	state.CoaServers = coaServers
 	state.Disable11ax = disable11ax
+	state.Disable11be = disable11be
 	state.DisableHtVhtRates = disableHtVhtRates
 	state.DisableUapsd = disableUapsd
 	state.DisableV1RoamNotify = disableV1RoamNotify

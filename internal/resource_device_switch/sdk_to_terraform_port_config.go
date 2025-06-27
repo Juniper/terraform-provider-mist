@@ -13,7 +13,7 @@ import (
 
 func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.JunosPortConfig) basetypes.MapValue {
 	mapItemValue := make(map[string]attr.Value)
-	mapItemType := PortConfigValue{}.Type(ctx)
+
 	for k, d := range m {
 
 		var aeDisableLacp basetypes.BoolValue
@@ -97,7 +97,7 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 
 		mapItemValue[k] = data
 	}
-	r, e := types.MapValueFrom(ctx, mapItemType, mapItemValue)
+	r, e := types.MapValueFrom(ctx, PortConfigValue{}.Type(ctx), mapItemValue)
 	diags.Append(e...)
 	return r
 }

@@ -95,7 +95,7 @@ func (r *orgSsoResource) Create(ctx context.Context, req resource.CreateRequest,
 	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error creating \"mist_org_sso\" resource",
-			fmt.Sprintf("Unable to create the API Token. %s", apiErr),
+			fmt.Sprintf("Unable to create the Org SSO. %s", apiErr),
 		)
 		return
 	}
@@ -149,7 +149,7 @@ func (r *orgSsoResource) Read(ctx context.Context, _ resource.ReadRequest, resp 
 	} else if err != nil {
 		diags.AddError(
 			"Error getting \"mist_org_sso\" resource",
-			"Unable to get the API Token, unexpected error: "+err.Error(),
+			"Unable to get the Org SSO, unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -159,6 +159,8 @@ func (r *orgSsoResource) Read(ctx context.Context, _ resource.ReadRequest, resp 
 	if resp.Diagnostics.HasError() {
 		return
 	}
+	// Set refreshed state
+	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -211,7 +213,7 @@ func (r *orgSsoResource) Update(ctx context.Context, req resource.UpdateRequest,
 	if apiErr != "" {
 		resp.Diagnostics.AddError(
 			"Error updating \"mist_org_sso\" resource",
-			fmt.Sprintf("Unable to update the API Token. %s", apiErr),
+			fmt.Sprintf("Unable to update the Org SSO. %s", apiErr),
 		)
 		return
 	}
@@ -256,16 +258,25 @@ func (r *orgSsoResource) Delete(ctx context.Context, _ resource.DeleteRequest, r
 		return
 	}
 
-	tflog.Info(ctx, "Starting Sso Delete: sso_id "+state.Id.ValueString())
 	data, err := r.client.OrgsSSO().DeleteOrgSso(ctx, orgId, ssoId)
-	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && apiErr != "" {
+	if data != nil {
+		apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+		if data.StatusCode != 404 && apiErr != "" {
+			resp.Diagnostics.AddError(
+				"Error deleting \"mist_org_sso\" resource",
+				fmt.Sprintf("Unable to delete the Org SSO. %s", apiErr),
+			)
+			return
+		}
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_sso\" resource",
-			fmt.Sprintf("Unable to delete the API Token. %s", apiErr),
+			"Unable to delete the Org SSO, unexpected error: "+err.Error(),
 		)
 		return
 	}
+
+	resp.State.RemoveResource(ctx)
 }
 
 func (r *orgSsoResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

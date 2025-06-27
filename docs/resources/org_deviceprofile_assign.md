@@ -2,15 +2,15 @@
 page_title: "mist_org_deviceprofile_assign Resource - terraform-provider-mist"
 subcategory: "Devices"
 description: |-
-  This resourceis used to assign/unassign a device profile to one or multiple devices.
-  The mist_org_deviceprofile_gateway resource can be assigned to Gateways, and themist_org_deviceprofile_ap resource can be assigned the Wireless Access Points
+  This resource is used to assign/unassign a device profile to one or multiple devices.
+  The mist_org_deviceprofile_gateway resource can be assigned to Gateways, and the mist_org_deviceprofile_ap resource can be assigned the Wireless Access Points
 ---
 
 # mist_org_deviceprofile_assign (Resource)
 
-This resourceis used to assign/unassign a device profile to one or multiple devices.
+This resource is used to assign/unassign a device profile to one or multiple devices.
 
-The `mist_org_deviceprofile_gateway` resource can be assigned to Gateways, and the`mist_org_deviceprofile_ap` resource can be assigned the Wireless Access Points
+The `mist_org_deviceprofile_gateway` resource can be assigned to Gateways, and the `mist_org_deviceprofile_ap` resource can be assigned the Wireless Access Points
 
 
 ## Example Usage

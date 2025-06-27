@@ -32,7 +32,7 @@ func deviceSwitchStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 	var clientsStats = types.ObjectNull(ClientsStatsValue{}.AttributeTypes(ctx))
 	var configStatus basetypes.StringValue
 	var cpuStat = types.ObjectNull(CpuStatValue{}.AttributeTypes(ctx))
-	var createdTime basetypes.Int64Value
+	var createdTime basetypes.Float64Value
 	var deviceprofileId basetypes.StringValue
 	var dhcpdStat = types.MapNull(DhcpdStatValue{}.Type(ctx))
 	var evpntopoId basetypes.StringValue
@@ -45,17 +45,18 @@ func deviceSwitchStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 	var ifStat = types.MapNull(IfStatValue{}.Type(ctx))
 	var ip basetypes.StringValue
 	var ipStat = types.ObjectNull(IpStatValue{}.AttributeTypes(ctx))
-	var lastSeen basetypes.NumberValue
+	var lastSeen basetypes.Float64Value
 	var lastTrouble = types.ObjectNull(LastTroubleValue{}.AttributeTypes(ctx))
 	var mac basetypes.StringValue
 	var macTableStats = types.ObjectNull(MacTableStatsValue{}.AttributeTypes(ctx))
 	var mapId basetypes.StringValue
 	var memoryStat = types.ObjectNull(MemoryStatValue{}.AttributeTypes(ctx))
 	var model basetypes.StringValue
-	var modifiedTime basetypes.Int64Value
+	var modifiedTime basetypes.Float64Value
 	var moduleStat = types.ListNull(ModuleStatValue{}.Type(ctx))
 	var name basetypes.StringValue
 	var orgId basetypes.StringValue
+	var ports = types.ListNull(PortsValue{}.Type(ctx))
 	var routeSummaryStats = types.ObjectNull(RouteSummaryStatsValue{}.AttributeTypes(ctx))
 	var serial basetypes.StringValue
 	var serviceStat = types.MapNull(ServiceStatValue{}.Type(ctx))
@@ -88,7 +89,7 @@ func deviceSwitchStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 		cpuStat = cpuStatsSdkToTerraform(ctx, diags, d.CpuStat)
 	}
 	if d.CreatedTime != nil {
-		createdTime = types.Int64Value(int64(*d.CreatedTime))
+		createdTime = types.Float64Value(*d.CreatedTime)
 	}
 	if d.DeviceprofileId.Value() != nil {
 		deviceprofileId = types.StringValue(d.DeviceprofileId.Value().String())
@@ -126,8 +127,8 @@ func deviceSwitchStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 	if d.IpStat != nil {
 		ipStat = ipStatsSdkToTerraform(ctx, diags, d.IpStat)
 	}
-	if d.LastSeen != nil {
-		lastSeen = types.NumberValue(big.NewFloat(*d.LastSeen))
+	if d.LastSeen.Value() != nil {
+		lastSeen = types.Float64Value(*d.LastSeen.Value())
 	}
 	if d.LastTrouble != nil {
 		lastTrouble = lastTroubleSdkToTerraform(ctx, diags, d.LastTrouble)
@@ -148,7 +149,7 @@ func deviceSwitchStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 		model = types.StringValue(*d.Model)
 	}
 	if d.ModifiedTime != nil {
-		modifiedTime = types.Int64Value(int64(*d.ModifiedTime))
+		modifiedTime = types.Float64Value(*d.ModifiedTime)
 	}
 	if d.ModuleStat != nil {
 		moduleStat = moduleStatSdkToTerraform(ctx, diags, d.ModuleStat)
@@ -158,6 +159,9 @@ func deviceSwitchStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 	}
 	if d.OrgId != nil {
 		orgId = types.StringValue(d.OrgId.String())
+	}
+	if d.Ports != nil {
+		ports = portsSdkToTerraform(ctx, diags, d.Ports)
 	}
 	if d.RouteSummaryStats != nil {
 		routeSummaryStats = routeSummaryStatsSdkToTerraform(ctx, diags, d.RouteSummaryStats)
@@ -219,6 +223,7 @@ func deviceSwitchStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 		"module_stat":           moduleStat,
 		"name":                  name,
 		"org_id":                orgId,
+		"ports":                 ports,
 		"route_summary_stats":   routeSummaryStats,
 		"serial":                serial,
 		"service_stat":          serviceStat,

@@ -70,6 +70,7 @@ func (p *mistProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp 
 			"* Global 02 (api.gc1.mist.com)\n" +
 			"* Global 03 (api.ac2.mist.com)\n" +
 			"* Global 04 (api.gc2.mist.com)\n" +
+			"* Global 05 (api.gc4.mist.com)\n" +
 			"* EMEA 01 (api.eu.mist.com)\n" +
 			"* EMEA 02 (api.gc3.mist.com)\n" +
 			"* EMEA 03 (api.ac6.mist.com)\n" +
@@ -265,6 +266,8 @@ func (p *mistProvider) Configure(ctx context.Context, req provider.ConfigureRequ
 		mistCloud = mistapi.MIST_GLOBAL_03
 	case "api.gc2.mist.com":
 		mistCloud = mistapi.MIST_GLOBAL_04
+	case "api.gc4.mist.com":
+		mistCloud = mistapi.MIST_GLOBAL_05
 	case "api.eu.mist.com":
 		mistCloud = mistapi.MIST_EMEA_01
 	case "api.gc3.mist.com":
@@ -443,6 +446,8 @@ func (p *mistProvider) DataSources(_ context.Context) []func() datasource.DataSo
 		NewSiteWlansDataSource,
 		NewDeviceVersionsDataSource,
 		NewOrgAvprofilesDataSource,
+		NewConstFingerprintsDataSource,
+		NewSiteEvpnTopologiesDataSource,
 	}
 }
 

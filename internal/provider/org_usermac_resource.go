@@ -60,7 +60,7 @@ func (r *orgNacEndpointResource) Schema(ctx context.Context, _ resource.SchemaRe
 			"Once an endpoint is labeled, the label name can be used to create `mist_org_nactag` resource as match criteria.\n\n" +
 			"The `mist_org_nactag` resource can be used to create Tags regrouping one or multiple endpoint MAC Addresses, " +
 			"but the use of the User MACs provides additional features:\n" +
-			"* possitility to assign specific attributes, like a Name, a Radius Group, a VLAN ID, ...\n" +
+			"* possibility to assign specific attributes, like a Name, a Radius Group, a VLAN ID, ...\n" +
 			"* possibility to assign one or multiple Tags (Labels) to a User MAC\n" +
 			"* improved management for large list of MAC Addresses",
 		Attributes: resource_org_usermac.OrgUsermacResourceSchema(ctx).Attributes,
@@ -91,7 +91,7 @@ func (r *orgNacEndpointResource) Create(ctx context.Context, req resource.Create
 		return
 	}
 	tflog.Info(ctx, "Starting OrgNacEndpoint Create for Org "+plan.OrgId.ValueString())
-	data, err := r.client.OrgsUserMACs().CreateOrgUserMacs(ctx, orgId, &nacEndpoint)
+	data, err := r.client.OrgsUserMACs().CreateOrgUserMac(ctx, orgId, &nacEndpoint)
 
 	apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
 	if apiErr != "" {
@@ -254,15 +254,26 @@ func (r *orgNacEndpointResource) Delete(ctx context.Context, _ resource.DeleteRe
 		)
 		return
 	}
+
 	data, err := r.client.OrgsUserMACs().DeleteOrgUserMac(ctx, orgId, nacEndpointId)
-	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && apiErr != "" {
+	if data != nil {
+		apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+		if data.StatusCode != 404 && apiErr != "" {
+			resp.Diagnostics.AddError(
+				"Error deleting \"mist_org_nac_endpoint\" resource",
+				fmt.Sprintf("Unable to delete the NacEndpoint. %s", apiErr),
+			)
+			return
+		}
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_nac_endpoint\" resource",
-			fmt.Sprintf("Unable to delete the NacEndpoint. %s", apiErr),
+			"Unable to delete the NacEndpoint, unexpected error: "+err.Error(),
 		)
 		return
 	}
+
+	resp.State.RemoveResource(ctx)
 }
 
 func (r *orgNacEndpointResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

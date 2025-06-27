@@ -3,7 +3,7 @@ package resource_site_wlan
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -29,7 +29,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteWlanModel) (*models.Wlan, dia
 		data.AcctInterimInterval = models.ToPointer(int(plan.AcctInterimInterval.ValueInt64()))
 	}
 
-	// addsing len(plan.AcctServers.Elements()) == 0 because the
+	// adding len(plan.AcctServers.Elements()) == 0 because the
 	// default is an empty list meanings the plan.AcctServers is
 	// not null and not unknown
 	if plan.AcctServers.IsNull() || plan.AcctServers.IsUnknown() || len(plan.AcctServers.Elements()) == 0 {
@@ -67,7 +67,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteWlanModel) (*models.Wlan, dia
 	if plan.ApIds.IsNull() || plan.ApIds.IsUnknown() {
 		unset["-ap_ids"] = ""
 	} else {
-		data.ApIds = models.NewOptional(models.ToPointer(misttransform.ListOfUuidTerraformToSdk(plan.ApIds)))
+		data.ApIds = models.NewOptional(models.ToPointer(mistutils.ListOfUuidTerraformToSdk(plan.ApIds)))
 	}
 
 	if plan.AppLimit.IsNull() || plan.AppLimit.IsUnknown() {
@@ -109,7 +109,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteWlanModel) (*models.Wlan, dia
 		data.AuthServerSelection = models.ToPointer(models.WlanAuthServerSelectionEnum(plan.AuthServerSelection.ValueString()))
 	}
 
-	// addsing len(plan.AuthServers.Elements()) == 0 because the
+	// adding len(plan.AuthServers.Elements()) == 0 because the
 	// default is an empty list meanings the plan.Authservers is
 	// not null and not unknown
 	if plan.AuthServers.IsNull() || plan.AuthServers.IsUnknown() || len(plan.AuthServers.Elements()) == 0 {
@@ -185,7 +185,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteWlanModel) (*models.Wlan, dia
 	if plan.ClientLimitDown.IsNull() || plan.ClientLimitDown.IsUnknown() {
 		unset["-client_limit_down"] = ""
 	} else {
-		data.ClientLimitDown = models.ToPointer(int(plan.ClientLimitDown.ValueInt64()))
+		data.ClientLimitDown = models.ToPointer(models.WlanLimitContainer.FromString(plan.ClientLimitDown.ValueString()))
 	}
 
 	if plan.ClientLimitDownEnabled.IsNull() || plan.ClientLimitDownEnabled.IsUnknown() {
@@ -197,7 +197,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteWlanModel) (*models.Wlan, dia
 	if plan.ClientLimitUp.IsNull() || plan.ClientLimitUp.IsUnknown() {
 		unset["-client_limit_up"] = ""
 	} else {
-		data.ClientLimitUp = models.ToPointer(int(plan.ClientLimitUp.ValueInt64()))
+		data.ClientLimitUp = models.ToPointer(models.WlanLimitContainer.FromString(plan.ClientLimitUp.ValueString()))
 	}
 
 	if plan.ClientLimitUpEnabled.IsNull() || plan.ClientLimitUpEnabled.IsUnknown() {
@@ -206,7 +206,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteWlanModel) (*models.Wlan, dia
 		data.ClientLimitUpEnabled = plan.ClientLimitUpEnabled.ValueBoolPointer()
 	}
 
-	// addsing len(plan.CoaServers.Elements()) == 0 because the
+	// adding len(plan.CoaServers.Elements()) == 0 because the
 	// default is an empty list meanings the plan.CoaServers is
 	// not null and not unknown
 	if plan.CoaServers.IsNull() || plan.CoaServers.IsUnknown() || len(plan.CoaServers.Elements()) == 0 {
@@ -219,6 +219,12 @@ func TerraformToSdk(ctx context.Context, plan *SiteWlanModel) (*models.Wlan, dia
 		unset["-disable_11ax"] = ""
 	} else {
 		data.Disable11ax = plan.Disable11ax.ValueBoolPointer()
+	}
+
+	if plan.Disable11be.IsNull() || plan.Disable11be.IsUnknown() {
+		unset["-disable_11be"] = ""
+	} else {
+		data.Disable11be = plan.Disable11be.ValueBoolPointer()
 	}
 
 	if plan.DisableHtVhtRates.IsNull() || plan.DisableHtVhtRates.IsUnknown() {
@@ -404,13 +410,13 @@ func TerraformToSdk(ctx context.Context, plan *SiteWlanModel) (*models.Wlan, dia
 	if plan.MxtunnelIds.IsNull() || plan.MxtunnelIds.IsUnknown() {
 		unset["-mxtunnel_ids"] = ""
 	} else {
-		data.MxtunnelIds = misttransform.ListOfStringTerraformToSdk(plan.MxtunnelIds)
+		data.MxtunnelIds = mistutils.ListOfStringTerraformToSdk(plan.MxtunnelIds)
 	}
 
 	if plan.MxtunnelName.IsNull() || plan.MxtunnelName.IsUnknown() {
 		unset["-mxtunnel_name"] = ""
 	} else {
-		data.MxtunnelName = misttransform.ListOfStringTerraformToSdk(plan.MxtunnelName)
+		data.MxtunnelName = mistutils.ListOfStringTerraformToSdk(plan.MxtunnelName)
 	}
 
 	if plan.NoStaticDns.IsNull() || plan.NoStaticDns.IsUnknown() {
@@ -435,19 +441,19 @@ func TerraformToSdk(ctx context.Context, plan *SiteWlanModel) (*models.Wlan, dia
 	if plan.PortalAllowedHostnames.IsNull() || plan.PortalAllowedHostnames.IsUnknown() {
 		unset["-portal_allowed_hostnames"] = ""
 	} else {
-		data.PortalAllowedHostnames = misttransform.ListOfStringTerraformToSdk(plan.PortalAllowedHostnames)
+		data.PortalAllowedHostnames = mistutils.ListOfStringTerraformToSdk(plan.PortalAllowedHostnames)
 	}
 
 	if plan.PortalAllowedSubnets.IsNull() || plan.PortalAllowedSubnets.IsUnknown() {
 		unset["-portal_allowed_subnets"] = ""
 	} else {
-		data.PortalAllowedSubnets = misttransform.ListOfStringTerraformToSdk(plan.PortalAllowedSubnets)
+		data.PortalAllowedSubnets = mistutils.ListOfStringTerraformToSdk(plan.PortalAllowedSubnets)
 	}
 
 	if plan.PortalDeniedHostnames.IsNull() || plan.PortalDeniedHostnames.IsUnknown() {
 		unset["-portal_denied_hostnames"] = ""
 	} else {
-		data.PortalDeniedHostnames = misttransform.ListOfStringTerraformToSdk(plan.PortalDeniedHostnames)
+		data.PortalDeniedHostnames = mistutils.ListOfStringTerraformToSdk(plan.PortalDeniedHostnames)
 	}
 
 	if plan.Qos.IsNull() || plan.Qos.IsUnknown() {
@@ -460,8 +466,8 @@ func TerraformToSdk(ctx context.Context, plan *SiteWlanModel) (*models.Wlan, dia
 	if plan.Radsec.IsNull() || plan.Radsec.IsUnknown() {
 		unset["-radsec"] = ""
 	} else {
-		radesc := radsecTerraformToSdk(plan.Radsec)
-		data.Radsec = radesc
+		Radsec := radsecTerraformToSdk(plan.Radsec)
+		data.Radsec = Radsec
 	}
 
 	if plan.Rateset.IsNull() || plan.Rateset.IsUnknown() {
@@ -510,7 +516,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteWlanModel) (*models.Wlan, dia
 	if plan.VlanId.IsNull() || plan.VlanId.IsUnknown() {
 		unset["-vlan_id"] = ""
 	} else {
-		data.VlanId = models.ToPointer(models.VlanIdWithVariableContainer.FromString(plan.VlanId.ValueString()))
+		data.VlanId = models.NewOptional(models.ToPointer(models.WlanVlanIdWithVariableContainer.FromString(plan.VlanId.ValueString())))
 	}
 
 	if plan.VlanIds.IsNull() || plan.VlanIds.IsUnknown() {
@@ -523,7 +529,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteWlanModel) (*models.Wlan, dia
 			v := models.VlanIdWithVariableContainer.FromString(i.ValueString())
 			items = append(items, v)
 		}
-		data.VlanIds = models.ToPointer(models.WlanVlanIdsContainer.FromArrayOfVlanIdWithVariable2(items))
+		data.VlanIds = models.ToPointer(models.WlanVlanIdsContainer.FromArrayOfVlanIdWithVariable4(items))
 	}
 
 	if plan.VlanPooling.IsNull() || plan.VlanPooling.IsUnknown() {
@@ -535,7 +541,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteWlanModel) (*models.Wlan, dia
 	if plan.WlanLimitDown.IsNull() || plan.WlanLimitDown.IsUnknown() {
 		unset["-wlan_limit_down"] = ""
 	} else {
-		data.WlanLimitDown = models.NewOptional(models.ToPointer(int(plan.WlanLimitDown.ValueInt64())))
+		data.WlanLimitDown = models.ToPointer(models.WlanLimitContainer.FromString(plan.WlanLimitDown.ValueString()))
 	}
 
 	if plan.WlanLimitDownEnabled.IsNull() || plan.WlanLimitDownEnabled.IsUnknown() {
@@ -547,7 +553,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteWlanModel) (*models.Wlan, dia
 	if plan.WlanLimitUp.IsNull() || plan.WlanLimitUp.IsUnknown() {
 		unset["-wlan_limit_up"] = ""
 	} else {
-		data.WlanLimitUp = models.NewOptional(models.ToPointer(int(plan.WlanLimitUp.ValueInt64())))
+		data.WlanLimitUp = models.ToPointer(models.WlanLimitContainer.FromString(plan.WlanLimitUp.ValueString()))
 	}
 
 	if plan.WlanLimitUpEnabled.IsNull() || plan.WlanLimitUpEnabled.IsUnknown() {
@@ -559,7 +565,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteWlanModel) (*models.Wlan, dia
 	if plan.WxtagIds.IsNull() || plan.WxtagIds.IsUnknown() {
 		unset["-wxtag_ids"] = ""
 	} else {
-		data.WxtagIds = models.NewOptional(models.ToPointer(misttransform.ListOfUuidTerraformToSdk(plan.WxtagIds)))
+		data.WxtagIds = models.NewOptional(models.ToPointer(mistutils.ListOfUuidTerraformToSdk(plan.WxtagIds)))
 	}
 
 	if plan.WxtunnelId.IsNull() || plan.WxtunnelId.IsUnknown() {

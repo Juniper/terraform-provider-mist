@@ -154,7 +154,7 @@ func processImport(
 		parameters:
 			ctx : context.Context
 			diags :  *diag.Diagnostics
-			mistDevicesbyMac : *map[string]*InventoryValue,
+			mistDevicesByMac : *map[string]*InventoryValue,
 				map of the devices retrieved in the Mist Inventory
 			mistSiteIdByVcMac : *map[string]*types.String
 				map to find a siteId based on the VC Master/Cluster Primary MAC Address. The Key is the device MAC
@@ -180,14 +180,44 @@ func processImport(
 	return newStateDevices
 }
 
+func vcSiteIdValidation(
+	diags *diag.Diagnostics,
+	deviceInfo string,
+	deviceSiteId string,
+	vcSiteId string,
+) {
+	if deviceSiteId != vcSiteId && deviceSiteId != "" {
+		diags.AddError(
+			"Unable to claim a device in \"mist_org_inventory\"",
+			fmt.Sprintf(
+				"The device mist_org_inventory.inventory[%s] cannot be claimed and assigned to the site %s"+
+					" because it is part of a Virtual Chassis already assigned to the site %s.\n"+
+					"Please update mist_org_inventory.inventory[%s].site_id with the Virtual Chassis site_id",
+				deviceInfo, deviceSiteId, vcSiteId, deviceInfo,
+			),
+		)
+	} else if deviceSiteId != vcSiteId && deviceSiteId == "" {
+		diags.AddError(
+			"Unable to claim a device in \"mist_org_inventory\"",
+			fmt.Sprintf(
+				"The device mist_org_inventory.inventory[%s] cannot be claimed"+
+					" because it is part of a Virtual Chassis already assigned to the site %s.\n"+
+					"Please update mist_org_inventory.inventory[%s].site_id with the Virtual Chassis site_id",
+				deviceInfo, vcSiteId, deviceInfo,
+			),
+		)
+	}
+}
+
 func processSync(
 	ctx context.Context,
 	diags *diag.Diagnostics,
-	refInventorydevices *map[string]InventoryValue,
+	refInventoryDevices *map[string]*InventoryValue,
+	refPlanMap *map[string]string,
 	mistDevicesByClaimCode *map[string]*InventoryValue,
 	mistDevicesByMac *map[string]*InventoryValue,
 	mistSiteIdByVcMac *map[string]types.String,
-) basetypes.MapValue {
+) (newStateDevicesSet basetypes.MapValue) {
 	/*
 		Function used when using a TF import. Generated the ByClaimCode SetNested
 
@@ -210,23 +240,27 @@ func processSync(
 	*/
 	newStateDevices := make(map[string]attr.Value)
 
-	for deviceInfo, d := range *refInventorydevices {
+	for deviceInfoStandardized, device := range *refInventoryDevices {
+		deviceInfo := (*refPlanMap)[deviceInfoStandardized]
 		isClaimCode, isMac := DetectDeviceInfoType(diags, strings.ToUpper(deviceInfo))
-
-		var di interface{} = d
-		var device = di.(InventoryValue)
 
 		if isClaimCode {
 			if deviceFromMist, ok := (*mistDevicesByClaimCode)[strings.ToUpper(deviceInfo)]; ok {
 				checkVcSiteId(deviceFromMist, mistSiteIdByVcMac)
 				deviceFromMist.UnclaimWhenDestroyed = device.UnclaimWhenDestroyed
 				newStateDevices[deviceInfo] = deviceFromMist
+				if deviceFromMist.InventoryType.ValueString() == "switch" {
+					vcSiteIdValidation(diags, deviceInfo, device.SiteId.ValueString(), deviceFromMist.SiteId.ValueString())
+				}
 			}
 		} else if isMac {
 			if deviceFromMist, ok := (*mistDevicesByMac)[strings.ToUpper(deviceInfo)]; ok {
 				checkVcSiteId(deviceFromMist, mistSiteIdByVcMac)
 				deviceFromMist.UnclaimWhenDestroyed = device.UnclaimWhenDestroyed
 				newStateDevices[deviceInfo] = deviceFromMist
+				if deviceFromMist.InventoryType.ValueString() == "switch" {
+					vcSiteIdValidation(diags, deviceInfo, device.SiteId.ValueString(), deviceFromMist.SiteId.ValueString())
+				}
 			}
 		} else {
 			diags.AddError(
@@ -246,20 +280,18 @@ func mapSdkToTerraform(
 	orgId string,
 	data *[]models.Inventory,
 	refInventory *OrgInventoryModel,
-) (OrgInventoryModel, diag.Diagnostics) {
-	var state OrgInventoryModel
-	var diags diag.Diagnostics
+) (state OrgInventoryModel, diags diag.Diagnostics) {
 	mistDevicesByClaimCode := make(map[string]*InventoryValue)
-	mistDevicesbyMac := make(map[string]*InventoryValue)
+	mistDevicesByMac := make(map[string]*InventoryValue)
 	mistSiteIdByVcMac := make(map[string]types.String)
 
-	processMistInventory(ctx, &diags, data, &mistDevicesByClaimCode, &mistDevicesbyMac, &mistSiteIdByVcMac)
+	processMistInventory(ctx, &diags, data, &mistDevicesByClaimCode, &mistDevicesByMac, &mistSiteIdByVcMac)
 
 	/*
 		The SetNested Devices is set/updated in both cases (done above)
 
 		If it's for an Import (no ref_inventory.OrgId), then generate the inventory with
-		- bassetypes.StringValue OrgId with the import orgId
+		- basetypes.StringValue OrgId with the import orgId
 		- SetNested	ByClaimCode with the list of devices with a claim code
 		- SetNested ByMac with the list of devices without a claim code
 
@@ -270,11 +302,11 @@ func mapSdkToTerraform(
 	*/
 	if refInventory.OrgId.ValueStringPointer() == nil {
 		state.OrgId = types.StringValue(orgId)
-		state.Inventory = processImport(ctx, &diags, &mistDevicesbyMac, &mistSiteIdByVcMac)
+		state.Inventory = processImport(ctx, &diags, &mistDevicesByMac, &mistSiteIdByVcMac)
 	} else {
 		state.OrgId = refInventory.OrgId
-		refInventorydevicesmap := GenDeviceMap(&refInventory.Inventory)
-		state.Inventory = processSync(ctx, &diags, &refInventorydevicesmap, &mistDevicesByClaimCode, &mistDevicesbyMac, &mistSiteIdByVcMac)
+		refInventoryDevicesMap, refPlanMap := GenDeviceMap(&refInventory.Inventory)
+		state.Inventory = processSync(ctx, &diags, &refInventoryDevicesMap, &refPlanMap, &mistDevicesByClaimCode, &mistDevicesByMac, &mistSiteIdByVcMac)
 	}
 
 	return state, diags
@@ -285,14 +317,7 @@ func SdkToTerraform(
 	orgId string,
 	data *[]models.Inventory,
 	refInventory *OrgInventoryModel,
-) (OrgInventoryModel, diag.Diagnostics) {
-	if !refInventory.Devices.IsNull() && !refInventory.Devices.IsUnknown() {
-		state, diags := legacySdkToTerraform(ctx, orgId, data, refInventory)
-		state.Inventory = basetypes.NewMapNull(InventoryValue{}.Type(ctx))
-		return state, diags
-	} else {
-		state, diags := mapSdkToTerraform(ctx, orgId, data, refInventory)
-		state.Devices = basetypes.NewListNull(DevicesValue{}.Type(ctx))
-		return state, diags
-	}
+) (state OrgInventoryModel, diags diag.Diagnostics) {
+	state, diags = mapSdkToTerraform(ctx, orgId, data, refInventory)
+	return state, diags
 }

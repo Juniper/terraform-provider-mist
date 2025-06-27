@@ -3,7 +3,7 @@ page_title: "mist_org_wxtag Resource - terraform-provider-mist"
 subcategory: "Wi-Fi Assurance"
 description: |-
   This resource manages the Org WxLan tags (labels).
-  A WxTag is a label or tag used in the mist system to classify and categorize applications, users, and resources for the purpose of creating policies and making network management decisions.They can be used
+  A WxTag is a label or tag used in the mist system to classify and categorize applications, users, and resources for the purpose of creating policies and making network management decisions. They can be used
   within the Org WxRules to create filtering rules:
   mist_org_wxrule.dst_allow_wxtagsmist_org_wxrule.dst_deny_wxtagsmist_org_wxrule.dst_wxtagsmist_org_wxrule.src_wxtagswithin the Org WxRules to assign specific VLAN:
   mist_org_wxrule.apply_tagsin the WLANs configuration to assign a WLAN to specific APs:
@@ -14,7 +14,7 @@ description: |-
 
 This resource manages the Org WxLan tags (labels).
 
-A WxTag is a label or tag used in the mist system to classify and categorize applications, users, and resources for the purpose of creating policies and making network management decisions.They can be used 
+A WxTag is a label or tag used in the mist system to classify and categorize applications, users, and resources for the purpose of creating policies and making network management decisions. They can be used 
 * within the Org WxRules to create filtering rules:
   * `mist_org_wxrule.dst_allow_wxtags`
   * `mist_org_wxrule.dst_deny_wxtags`
@@ -30,9 +30,9 @@ A WxTag is a label or tag used in the mist system to classify and categorize app
 ## Example Usage
 
 ```terraform
-resource "mist_org_wxtag" "wtag_one" {
+resource "mist_org_wxtag" "wxtag_one" {
   org_id = mist_org.terraform_test.id
-  name   = "wtag_one"
+  name   = "wxtag_one"
   values = [
     "10.3.0.0/16"
   ]
@@ -53,11 +53,11 @@ resource "mist_org_wxtag" "wtag_one" {
 
 ### Optional
 
-- `mac` (String) if `type`==`client`, Client MAC Address
+- `mac` (String) If `type`==`client`, Client MAC Address
 - `match` (String) required if `type`==`match`. enum: `ap_id`, `app`, `asset_mac`, `client_mac`, `hostname`, `ip_range_subnet`, `port`, `psk_name`, `psk_role`, `radius_attr`, `radius_class`, `radius_group`, `radius_username`, `sdkclient_uuid`, `wlan_id`
 - `op` (String) required if `type`==`match`, type of tag (inclusive/exclusive). enum: `in`, `not_in`
-- `specs` (Attributes List) if `type`==`spec` (see [below for nested schema](#nestedatt--specs))
-- `values` (List of String) required if `type`==`match` and
+- `specs` (Attributes List) If `type`==`spec` (see [below for nested schema](#nestedatt--specs))
+- `values` (List of String) Required if `type`==`match` and
   * `match`==`ap_id`: list of AP IDs
   * `match`==`app`: list of Application Names
   * `match`==`asset_mac`: list of Asset MAC Addresses
@@ -67,7 +67,7 @@ resource "mist_org_wxtag" "wtag_one" {
   * `match`==`psk_name`: list of PSK Names
   * `match`==`psk_role`: list of PSK Roles
   * `match`==`port`: list of Ports or Port Ranges
-  * `match`==`radius_attr`: list of RADIUS Attributes. The values are [ “6=1”, “26=10.2.3.4” ], this support other RADIUS attributes where we know the type
+  * `match`==`radius_attr`: list of RADIUS Attributes. The values are [ "6=1", "26=10.2.3.4" ], this support other RADIUS attributes where we know the type
   * `match`==`radius_class`: list of RADIUS Classes. This matches the ATTR-Class(25)
   * `match`==`radius_group`: list of RADIUS Groups. This is a smart tag that matches RADIUS-Filter-ID, Airespace-ACL-Name (VendorID=14179, VendorType=6) / Aruba-User-Role (VendorID=14823, VendorType=1)
   * `match`==`radius_username`: list of RADIUS Usernames. This matches the ATTR-User-Name(1)
@@ -80,19 +80,16 @@ Variables are not allowed
 
 ### Read-Only
 
-- `id` (String) Unique ID of the object instance in the Mist Organnization
+- `id` (String) Unique ID of the object instance in the Mist Organization
 
 <a id="nestedatt--specs"></a>
 ### Nested Schema for `specs`
 
-Required:
-
-- `subnets` (List of String) matched destination subnets and/or IP Addresses
-
 Optional:
 
-- `port_range` (String) matched destination port, "0" means any
+- `port_range` (String) Matched destination port, "0" means any
 - `protocol` (String) tcp / udp / icmp / gre / any / ":protocol_number", `protocol_number` is between 1-254
+- `subnets` (List of String) Matched destination subnets and/or IP Addresses
 
 
 

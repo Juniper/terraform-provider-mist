@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func pathPreferencePathsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.GatewayPathPreferencesPath) basetypes.ListValue {
@@ -22,8 +22,8 @@ func pathPreferencePathsSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 		var gatewayIp basetypes.StringValue
 		var internetAccess basetypes.BoolValue
 		var name basetypes.StringValue
-		var networks = misttransform.ListOfStringSdkToTerraformEmpty()
-		var targetIps = misttransform.ListOfStringSdkToTerraformEmpty()
+		var networks = types.ListNull(types.StringType)
+		var targetIps = types.ListNull(types.StringType)
 		var typePath basetypes.StringValue
 		var wanName basetypes.StringValue
 
@@ -43,10 +43,10 @@ func pathPreferencePathsSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 			name = types.StringValue(*d.Name)
 		}
 		if d.Networks != nil {
-			networks = misttransform.ListOfStringSdkToTerraform(d.Networks)
+			networks = mistutils.ListOfStringSdkToTerraform(d.Networks)
 		}
 		if d.TargetIps != nil {
-			targetIps = misttransform.ListOfStringSdkToTerraform(d.TargetIps)
+			targetIps = mistutils.ListOfStringSdkToTerraform(d.TargetIps)
 		}
 		if d.Type != nil {
 			typePath = types.StringValue(string(*d.Type))

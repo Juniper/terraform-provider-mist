@@ -7,6 +7,10 @@ import (
 func mxEdgeMgmtTerraformToSdk(d MxedgeMgmtValue) *models.MxedgeMgmt {
 	data := models.MxedgeMgmt{}
 
+	if d.ConfigAutoRevert.ValueBoolPointer() != nil {
+		data.ConfigAutoRevert = d.ConfigAutoRevert.ValueBoolPointer()
+	}
+
 	if d.FipsEnabled.ValueBoolPointer() != nil {
 		data.FipsEnabled = d.FipsEnabled.ValueBoolPointer()
 	}

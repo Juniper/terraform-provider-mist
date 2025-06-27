@@ -4,7 +4,7 @@ import (
 	"context"
 	"math/big"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -29,7 +29,7 @@ func cpuStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mod
 		interrupt = types.NumberValue(big.NewFloat(*d.Interrupt.Value()))
 	}
 	if d.LoadAvg != nil {
-		loadAvg = misttransform.ListOfNumberSdkToTerraform(d.LoadAvg)
+		loadAvg = mistutils.ListOfNumberSdkToTerraform(d.LoadAvg)
 	}
 	if d.System.Value() != nil {
 		system = types.NumberValue(big.NewFloat(*d.System.Value()))

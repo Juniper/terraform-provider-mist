@@ -3,7 +3,7 @@ package resource_org_networktemplate
 import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
@@ -36,7 +36,7 @@ func actTagsTerraformToSdk(d basetypes.MapValue) map[string]models.AclTag {
 		if itemObj.GbpTag.ValueInt64Pointer() != nil {
 			dataItem.GbpTag = models.ToPointer(int(itemObj.GbpTag.ValueInt64()))
 		}
-		dataItem.Macs = misttransform.ListOfStringTerraformToSdk(itemObj.Macs)
+		dataItem.Macs = mistutils.ListOfStringTerraformToSdk(itemObj.Macs)
 		if itemObj.Network.ValueStringPointer() != nil {
 			dataItem.Network = models.ToPointer(itemObj.Network.ValueString())
 		}
@@ -47,7 +47,7 @@ func actTagsTerraformToSdk(d basetypes.MapValue) map[string]models.AclTag {
 			dataItem.Specs = actTagSpecsTerraformToSdk(itemObj.Specs)
 		}
 		if !itemObj.Subnets.IsNull() && !itemObj.Subnets.IsUnknown() {
-			dataItem.Subnets = misttransform.ListOfStringTerraformToSdk(itemObj.Subnets)
+			dataItem.Subnets = mistutils.ListOfStringTerraformToSdk(itemObj.Subnets)
 		}
 		data[itemName] = dataItem
 	}

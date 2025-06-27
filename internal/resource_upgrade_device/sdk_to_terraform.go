@@ -42,7 +42,7 @@ func SdkToTerraform(upgrade UpgradeDeviceModel, data *models.ResponseDeviceUpgra
 	upgrade.DeviceVersion = deviceVersion
 	upgrade.Fwupdate = fwupdate
 	upgrade.Status = status
-	upgrade.Timestamp = types.Number(timestamp)
+	upgrade.Timestamp = timestamp
 	upgrade.SyncUpgrade = syncUpgrade
 	upgrade.SyncUpgradeStartTimeout = syncUpgradeStartTimeout
 	upgrade.SyncUpgradeRefreshInterval = syncUpgradeRefreshInterval
@@ -60,11 +60,11 @@ func DeviceStatSdkToTerraform(ctx context.Context, upgrade UpgradeDeviceModel, d
 	var uptime = -1
 
 	body, _ := io.ReadAll(data.Response.Body)
-	var objmap map[string]interface{}
-	if err := json.Unmarshal(body, &objmap); err != nil {
+	var objMap map[string]interface{}
+	if err := json.Unmarshal(body, &objMap); err != nil {
 		tflog.Error(ctx, err.Error())
 	} else {
-		if objmap["type"] == "ap" {
+		if objMap["type"] == "ap" {
 			stats := models.StatsAp{}
 			json.Unmarshal(body, &stats)
 			fwupdate = fwUpdateSdtToTerraform(ctx, &diags, stats.Fwupdate)
@@ -74,7 +74,7 @@ func DeviceStatSdkToTerraform(ctx context.Context, upgrade UpgradeDeviceModel, d
 			if stats.Uptime.Value() != nil {
 				uptime = int(*stats.Uptime.Value())
 			}
-		} else if objmap["type"] == "switch" {
+		} else if objMap["type"] == "switch" {
 			stats := models.StatsSwitch{}
 			json.Unmarshal(body, &stats)
 			fwupdate = fwUpdateSdtToTerraform(ctx, &diags, stats.Fwupdate)
@@ -84,7 +84,7 @@ func DeviceStatSdkToTerraform(ctx context.Context, upgrade UpgradeDeviceModel, d
 			if stats.Uptime.Value() != nil {
 				uptime = int(*stats.Uptime.Value())
 			}
-		} else if objmap["type"] == "gateway" {
+		} else if objMap["type"] == "gateway" {
 			stats := models.StatsGateway{}
 			json.Unmarshal(body, &stats)
 			fwupdate = fwUpdateSdtToTerraform(ctx, &diags, stats.Fwupdate)
@@ -121,8 +121,8 @@ func fwUpdateSdtToTerraform(ctx context.Context, diags *diag.Diagnostics, device
 		if deviceFwUpdate.StatusId.Value() != nil {
 			statusId = types.Int64Value(int64(*deviceFwUpdate.StatusId.Value()))
 		}
-		if deviceFwUpdate.Timestamp.Value() != nil {
-			timestamp = types.Float64Value(*deviceFwUpdate.Timestamp.Value())
+		if deviceFwUpdate.Timestamp != nil {
+			timestamp = types.Float64Value(*deviceFwUpdate.Timestamp)
 		}
 		if deviceFwUpdate.WillRetry.Value() != nil {
 			willRetry = types.BoolValue(*deviceFwUpdate.WillRetry.Value())

@@ -1,7 +1,7 @@
 package resource_org_avprofile
 
 import (
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -23,23 +23,23 @@ func TerraformToSdk(plan *OrgAvprofileModel) (*models.Avprofile, diag.Diagnostic
 	}
 
 	if !plan.MimeWhitelist.IsNull() && !plan.MimeWhitelist.IsUnknown() {
-		data.MimeWhitelist = misttransform.ListOfStringTerraformToSdk(plan.MimeWhitelist)
+		data.MimeWhitelist = mistutils.ListOfStringTerraformToSdk(plan.MimeWhitelist)
 	} else {
 		unset["-mime_whitelist"] = ""
 	}
 
 	data.Name = plan.Name.ValueString()
 
-	var items []models.AvprofileProtocolsEnum
+	var items []models.AvprofileProtocolEnum
 	for _, p := range plan.Protocols.Elements() {
 		var sInterface interface{} = p
 		s := sInterface.(basetypes.StringValue)
-		items = append(items, (models.AvprofileProtocolsEnum)(s.ValueString()))
+		items = append(items, (models.AvprofileProtocolEnum)(s.ValueString()))
 	}
 	data.Protocols = items
 
 	if !plan.UrlWhitelist.IsNull() && !plan.UrlWhitelist.IsUnknown() {
-		data.UrlWhitelist = misttransform.ListOfStringTerraformToSdk(plan.UrlWhitelist)
+		data.UrlWhitelist = mistutils.ListOfStringTerraformToSdk(plan.UrlWhitelist)
 	} else {
 		unset["-url_whitelist"] = ""
 	}

@@ -6,7 +6,9 @@ import (
 	"context"
 	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
@@ -18,8 +20,11 @@ func OrgUsermacResourceSchema(ctx context.Context) schema.Schema {
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Unique ID of the object instance in the Mist Organnization",
-				MarkdownDescription: "Unique ID of the object instance in the Mist Organnization",
+				Description:         "Unique ID of the object instance in the Mist Organization",
+				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"labels": schema.ListAttribute{
 				ElementType: types.StringType,
@@ -31,8 +36,8 @@ func OrgUsermacResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"mac": schema.StringAttribute{
 				Required:            true,
-				Description:         "only non-local-admin MAC is accepted",
-				MarkdownDescription: "only non-local-admin MAC is accepted",
+				Description:         "Only non-local-admin MAC is accepted",
+				MarkdownDescription: "Only non-local-admin MAC is accepted",
 			},
 			"name": schema.StringAttribute{
 				Optional: true,

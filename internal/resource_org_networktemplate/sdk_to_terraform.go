@@ -3,10 +3,11 @@ package resource_org_networktemplate
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
@@ -19,15 +20,15 @@ func SdkToTerraform(ctx context.Context, data models.NetworkTemplate) (OrgNetwor
 	var aclTags = types.MapNull(AclTagsValue{}.Type(ctx))
 	var additionalConfigCmds = types.ListNull(types.StringType)
 	var dhcpSnooping = NewDhcpSnoopingValueNull()
-	var dnsServers = types.ListNull(types.StringType)
-	var dnsSuffix = types.ListNull(types.StringType)
+	var dnsServers = types.ListValueMust(types.StringType, []attr.Value{})
+	var dnsSuffix = types.ListValueMust(types.StringType, []attr.Value{})
 	var extraRoutes = types.MapNull(ExtraRoutesValue{}.Type(ctx))
 	var extraRoutes6 = types.MapNull(ExtraRoutes6Value{}.Type(ctx))
 	var id types.String
 	var mistNac = NewMistNacValueNull()
 	var name types.String
 	var networks = types.MapNull(NetworksValue{}.Type(ctx))
-	var ntpServers = types.ListNull(types.StringType)
+	var ntpServers = types.ListValueMust(types.StringType, []attr.Value{})
 	var orgId types.String
 	var ospfAreas = types.MapNull(OspfAreasValue{}.Type(ctx))
 	var portMirroring = types.MapNull(PortMirroringValue{}.Type(ctx))
@@ -48,16 +49,16 @@ func SdkToTerraform(ctx context.Context, data models.NetworkTemplate) (OrgNetwor
 		aclTags = aclTagsSdkToTerraform(ctx, &diags, data.AclTags)
 	}
 	if data.AdditionalConfigCmds != nil {
-		additionalConfigCmds = misttransform.ListOfStringSdkToTerraform(data.AdditionalConfigCmds)
+		additionalConfigCmds = mistutils.ListOfStringSdkToTerraform(data.AdditionalConfigCmds)
 	}
 	if data.DhcpSnooping != nil {
 		dhcpSnooping = dhcpSnoopingSdkToTerraform(ctx, &diags, data.DhcpSnooping)
 	}
 	if data.DnsServers != nil {
-		dnsServers = misttransform.ListOfStringSdkToTerraform(data.DnsServers)
+		dnsServers = mistutils.ListOfStringSdkToTerraform(data.DnsServers)
 	}
 	if data.DnsSuffix != nil {
-		dnsSuffix = misttransform.ListOfStringSdkToTerraform(data.DnsSuffix)
+		dnsSuffix = mistutils.ListOfStringSdkToTerraform(data.DnsSuffix)
 	}
 	if data.ExtraRoutes != nil && len(data.ExtraRoutes) > 0 {
 		extraRoutes = extraRoutesSdkToTerraform(ctx, &diags, data.ExtraRoutes)
@@ -78,7 +79,7 @@ func SdkToTerraform(ctx context.Context, data models.NetworkTemplate) (OrgNetwor
 		networks = NetworksSdkToTerraform(ctx, &diags, data.Networks)
 	}
 	if data.NtpServers != nil {
-		ntpServers = misttransform.ListOfStringSdkToTerraform(data.NtpServers)
+		ntpServers = mistutils.ListOfStringSdkToTerraform(data.NtpServers)
 	}
 	if data.OrgId != nil {
 		orgId = types.StringValue(data.OrgId.String())

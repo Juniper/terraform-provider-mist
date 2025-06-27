@@ -15,7 +15,9 @@ func radiusAcctServersTerraformToSdk(d basetypes.ListValue) []models.RadiusAcctS
 
 		srvData := models.RadiusAcctServer{}
 		srvData.Host = srvPlan.Host.ValueString()
-		srvData.Port = models.ToPointer(int(srvPlan.Port.ValueInt64()))
+		if srvPlan.Port.ValueStringPointer() != nil {
+			srvData.Port = models.ToPointer(models.RadiusAcctPortContainer.FromString(srvPlan.Port.ValueString()))
+		}
 		srvData.Secret = srvPlan.Secret.ValueString()
 		if srvPlan.KeywrapEnabled.ValueBoolPointer() != nil {
 			srvData.KeywrapEnabled = models.ToPointer(srvPlan.KeywrapEnabled.ValueBool())
@@ -43,7 +45,9 @@ func radiusAuthServersTerraformToSdk(d basetypes.ListValue) []models.RadiusAuthS
 
 		srvData := models.RadiusAuthServer{}
 		srvData.Host = srvPlan.Host.ValueString()
-		srvData.Port = models.ToPointer(int(srvPlan.Port.ValueInt64()))
+		if srvPlan.Port.ValueStringPointer() != nil {
+			srvData.Port = models.ToPointer(models.RadiusAuthPortContainer.FromString(srvPlan.Port.ValueString()))
+		}
 		srvData.Secret = srvPlan.Secret.ValueString()
 		if srvPlan.KeywrapEnabled.ValueBoolPointer() != nil {
 			srvData.KeywrapEnabled = models.ToPointer(srvPlan.KeywrapEnabled.ValueBool())
@@ -68,26 +72,41 @@ func radiusAuthServersTerraformToSdk(d basetypes.ListValue) []models.RadiusAuthS
 func radiusConfigTerraformToSdk(d RadiusConfigValue) *models.SwitchRadiusConfig {
 
 	data := models.SwitchRadiusConfig{}
+	if d.AcctImmediateUpdate.ValueBoolPointer() != nil {
+		data.AcctImmediateUpdate = d.AcctImmediateUpdate.ValueBoolPointer()
+	}
 	if d.AcctInterimInterval.ValueInt64Pointer() != nil {
 		data.AcctInterimInterval = models.ToPointer(int(d.AcctInterimInterval.ValueInt64()))
 	}
 	if !d.AcctServers.IsNull() && !d.AcctServers.IsUnknown() {
 		data.AcctServers = radiusAcctServersTerraformToSdk(d.AcctServers)
 	}
+	if !d.AuthServers.IsNull() && !d.AuthServers.IsUnknown() {
+		data.AuthServers = radiusAuthServersTerraformToSdk(d.AuthServers)
+	}
 	if d.AuthServersRetries.ValueInt64Pointer() != nil {
 		data.AuthServersRetries = models.ToPointer(int(d.AuthServersRetries.ValueInt64()))
 	}
+	if d.AuthServerSelection.ValueStringPointer() != nil {
+		data.AuthServerSelection = (*models.SwitchRadiusConfigAuthServerSelectionEnum)(d.AuthServerSelection.ValueStringPointer())
+	}
 	if d.AuthServersTimeout.ValueInt64Pointer() != nil {
 		data.AuthServersTimeout = models.ToPointer(int(d.AuthServersTimeout.ValueInt64()))
+	}
+	if d.CoaEnabled.ValueBoolPointer() != nil {
+		data.CoaEnabled = d.CoaEnabled.ValueBoolPointer()
+	}
+	if d.CoaPort.ValueStringPointer() != nil {
+		data.CoaPort = models.ToPointer(models.RadiusCoaPortContainer.FromString(d.CoaPort.ValueString()))
+	}
+	if d.FastDot1xTimers.ValueBoolPointer() != nil {
+		data.FastDot1xTimers = d.FastDot1xTimers.ValueBoolPointer()
 	}
 	if d.Network.ValueStringPointer() != nil {
 		data.Network = models.ToPointer(d.Network.ValueString())
 	}
 	if d.SourceIp.ValueStringPointer() != nil {
 		data.SourceIp = models.ToPointer(d.SourceIp.ValueString())
-	}
-	if !d.AuthServers.IsNull() && !d.AuthServers.IsUnknown() {
-		data.AuthServers = radiusAuthServersTerraformToSdk(d.AuthServers)
 	}
 
 	return &data

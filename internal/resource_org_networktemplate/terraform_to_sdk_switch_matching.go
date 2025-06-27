@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
@@ -110,7 +110,7 @@ func switchMatchingRulesTerraformToSdk(ctx context.Context, diags *diag.Diagnost
 		itemObj := models.SwitchMatchingRule{}
 
 		if !planObj.AdditionalConfigCmds.IsNull() && !planObj.AdditionalConfigCmds.IsUnknown() {
-			itemObj.AdditionalConfigCmds = misttransform.ListOfStringTerraformToSdk(planObj.AdditionalConfigCmds)
+			itemObj.AdditionalConfigCmds = mistutils.ListOfStringTerraformToSdk(planObj.AdditionalConfigCmds)
 		}
 		if planObj.Name.ValueStringPointer() != nil {
 			itemObj.Name = models.ToPointer(planObj.Name.ValueString())

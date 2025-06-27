@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func servicePolicyAppQoESdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ServicePolicyAppqoe) basetypes.ObjectValue {
@@ -158,9 +158,9 @@ func servicePoliciesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics,
 		var name basetypes.StringValue
 		var pathPreference basetypes.StringValue
 		var servicepolicyId basetypes.StringValue
-		var services = misttransform.ListOfStringSdkToTerraform(v.Services)
+		var services = mistutils.ListOfStringSdkToTerraform(v.Services)
 		var sslProxy = types.ObjectNull(SslProxyValue{}.AttributeTypes(ctx))
-		var tenants = misttransform.ListOfStringSdkToTerraform(v.Tenants)
+		var tenants = mistutils.ListOfStringSdkToTerraform(v.Tenants)
 
 		if v.Action != nil {
 			action = types.StringValue(string(*v.Action))

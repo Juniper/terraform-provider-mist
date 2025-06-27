@@ -17,6 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
@@ -114,11 +115,27 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Default import policies if no per-neighbor policies defined",
 							MarkdownDescription: "Default import policies if no per-neighbor policies defined",
 						},
-						"local_as": schema.Int64Attribute{
-							Optional: true,
+						"local_as": schema.StringAttribute{
+							Optional:            true,
+							Description:         "Local AS. Value must be in range 1-4294967295 or a variable (e.g. `{{as_variable}}`)",
+							MarkdownDescription: "Local AS. Value must be in range 1-4294967295 or a variable (e.g. `{{as_variable}}`)",
+							Validators: []validator.String{
+								stringvalidator.Any(
+									mistvalidator.ParseInt(1, 4294967295),
+									mistvalidator.ParseVar(),
+								),
+							},
 						},
-						"neighbor_as": schema.Int64Attribute{
-							Optional: true,
+						"neighbor_as": schema.StringAttribute{
+							Optional:            true,
+							Description:         "Neighbor AS. Value must be in range 1-4294967295 or a variable (e.g. `{{as_variable}}`)",
+							MarkdownDescription: "Neighbor AS. Value must be in range 1-4294967295 or a variable (e.g. `{{as_variable}}`)",
+							Validators: []validator.String{
+								stringvalidator.Any(
+									mistvalidator.ParseInt(1, 4294967295),
+									mistvalidator.ParseVar(),
+								),
+							},
 						},
 						"neighbors": schema.MapNestedAttribute{
 							NestedObject: schema.NestedAttributeObject{
@@ -152,8 +169,16 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 											int64validator.Between(0, 255),
 										},
 									},
-									"neighbor_as": schema.Int64Attribute{
-										Optional: true,
+									"neighbor_as": schema.StringAttribute{
+										Optional:            true,
+										Description:         "Neighbor AS. Value must be in range 1-4294967295 or a variable (e.g. `{{as_variable}}`)",
+										MarkdownDescription: "Neighbor AS. Value must be in range 1-4294967295 or a variable (e.g. `{{as_variable}}`)",
+										Validators: []validator.String{
+											stringvalidator.Any(
+												mistvalidator.ParseInt(1, 4294967295),
+												mistvalidator.ParseVar(),
+											),
+										},
 									},
 								},
 								CustomType: NeighborsType{
@@ -182,6 +207,11 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 								),
 							},
 							Default: listdefault.StaticValue(types.ListNull(types.StringType)),
+						},
+						"no_private_as": schema.BoolAttribute{
+							Optional: true,
+							Computed: true,
+							Default:  booldefault.StaticBool(false),
 						},
 						"no_readvertise_to_overlay": schema.BoolAttribute{
 							Optional:            true,
@@ -298,8 +328,8 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 									Optional:            true,
-									Description:         "If `type`==`local` or `type6`==`local`. Property key is the MAC Address. Format is `[0-9a-f]{12}` (e.g \"5684dae9ac8b\")",
-									MarkdownDescription: "If `type`==`local` or `type6`==`local`. Property key is the MAC Address. Format is `[0-9a-f]{12}` (e.g \"5684dae9ac8b\")",
+									Description:         "If `type`==`local` or `type6`==`local`. Property key is the MAC Address. Format is `[0-9a-f]{12}` (e.g. \"5684dae9ac8b\")",
+									MarkdownDescription: "If `type`==`local` or `type6`==`local`. Property key is the MAC Address. Format is `[0-9a-f]{12}` (e.g. \"5684dae9ac8b\")",
 									Validators: []validator.Map{
 										mapvalidator.SizeAtLeast(1),
 										mapvalidator.KeysAre(mistvalidator.ParseMac()),
@@ -554,10 +584,10 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Property key is the destination CIDR (e.g. \"10.0.0.0/8\")",
-				MarkdownDescription: "Property key is the destination CIDR (e.g. \"10.0.0.0/8\")",
+				Description:         "Property key is the destination CIDR (e.g. \"10.0.0.0/8\"), the destination Network name or a variable (e.g. \"{{myvar}}\")",
+				MarkdownDescription: "Property key is the destination CIDR (e.g. \"10.0.0.0/8\"), the destination Network name or a variable (e.g. \"{{myvar}}\")",
 				Validators: []validator.Map{
-					mapvalidator.SizeAtLeast(1), mapvalidator.KeysAre(stringvalidator.Any(mistvalidator.ParseCidr(true, false), mistvalidator.ParseVar())),
+					mapvalidator.SizeAtLeast(1),
 				},
 			},
 			"extra_routes6": schema.MapNestedAttribute{
@@ -577,10 +607,10 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Property key is the destination CIDR (e.g. \"2a02:1234:420a:10c9::/64\")",
-				MarkdownDescription: "Property key is the destination CIDR (e.g. \"2a02:1234:420a:10c9::/64\")",
+				Description:         "Property key is the destination CIDR (e.g. \"2a02:1234:420a:10c9::/64\"), the destination Network name or a variable (e.g. \"{{myvar}}\")",
+				MarkdownDescription: "Property key is the destination CIDR (e.g. \"2a02:1234:420a:10c9::/64\"), the destination Network name or a variable (e.g. \"{{myvar}}\")",
 				Validators: []validator.Map{
-					mapvalidator.SizeAtLeast(1), mapvalidator.KeysAre(stringvalidator.Any(mistvalidator.ParseCidr(false, true), mistvalidator.ParseVar())),
+					mapvalidator.SizeAtLeast(1),
 				},
 			},
 			"idp_profiles": schema.MapNestedAttribute{
@@ -601,8 +631,8 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"id": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Unique ID of the object instance in the Mist Organnization",
-							MarkdownDescription: "Unique ID of the object instance in the Mist Organnization",
+							Description:         "Unique ID of the object instance in the Mist Organization",
+							MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
 						},
 						"name": schema.StringAttribute{
 							Optional: true,
@@ -616,8 +646,8 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									"action": schema.StringAttribute{
 										Optional:            true,
 										Computed:            true,
-										Description:         "enum:\n  * alert (default)\n  * drop: siliently dropping packets\n  * close: notify client/server to close connection",
-										MarkdownDescription: "enum:\n  * alert (default)\n  * drop: siliently dropping packets\n  * close: notify client/server to close connection",
+										Description:         "enum:\n  * alert (default)\n  * drop: silently dropping packets\n  * close: notify client/server to close connection",
+										MarkdownDescription: "enum:\n  * alert (default)\n  * drop: silently dropping packets\n  * close: notify client/server to close connection",
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",
@@ -698,7 +728,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"ip": schema.StringAttribute{
-							Required: true,
+							Optional: true,
 							Validators: []validator.String{
 								stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar()),
 								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static")),
@@ -706,11 +736,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						"netmask": schema.StringAttribute{
-							Required: true,
+							Optional: true,
 							Validators: []validator.String{
-								stringvalidator.Any(mistvalidator.ParseNetmask(true, true), mistvalidator.ParseVar()),
-								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static")),
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("dhcp")),
+								stringvalidator.Any(mistvalidator.ParseNetmask(false, false), mistvalidator.ParseVar()),
 							},
 						},
 						"secondary_ips": schema.ListAttribute{
@@ -955,8 +983,8 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 								"disable_igmp": schema.BoolAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "If the network will only be the soruce of the multicast traffic, IGMP can be disabled",
-									MarkdownDescription: "If the network will only be the soruce of the multicast traffic, IGMP can be disabled",
+									Description:         "If the network will only be the source of the multicast traffic, IGMP can be disabled",
+									MarkdownDescription: "If the network will only be the source of the multicast traffic, IGMP can be disabled",
 									Default:             booldefault.StaticBool(false),
 								},
 								"enabled": schema.BoolAttribute{
@@ -1281,7 +1309,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 						Description:         "If `type`==`static`",
 						MarkdownDescription: "If `type`==`static`",
 						Validators: []validator.String{
-							stringvalidator.Any(mistvalidator.ParseNetmask(true, true), mistvalidator.ParseVar()),
+							stringvalidator.Any(mistvalidator.ParseNetmask(false, false), mistvalidator.ParseVar()),
 							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static")),
 							mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("dhcp")),
 						},
@@ -1311,7 +1339,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 								Description:         "Used only if `subnet` is not specified in `networks`",
 								MarkdownDescription: "Used only if `subnet` is not specified in `networks`",
 								Validators: []validator.String{
-									stringvalidator.Any(mistvalidator.ParseNetmask(true, true), mistvalidator.ParseVar()),
+									stringvalidator.Any(mistvalidator.ParseNetmask(false, false), mistvalidator.ParseVar()),
 									mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static")),
 									mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("dhcp")),
 								},
@@ -1699,9 +1727,6 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Sensitive:           true,
 							Description:         "If `wan_type`==`lte`",
 							MarkdownDescription: "If `wan_type`==`lte`",
-							Validators: []validator.String{
-								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("lte")),
-							},
 						},
 						"lte_username": schema.StringAttribute{
 							Optional:            true,
@@ -1782,7 +1807,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									Description:         "Used only if `subnet` is not specified in `networks`. Interface Netmask (i.e. \"/24\") or a Variable (i.e. \"{{myvar}}\")",
 									MarkdownDescription: "Used only if `subnet` is not specified in `networks`. Interface Netmask (i.e. \"/24\") or a Variable (i.e. \"{{myvar}}\")",
 									Validators: []validator.String{
-										stringvalidator.Any(mistvalidator.ParseNetmask(true, true), mistvalidator.ParseVar()),
+										stringvalidator.Any(mistvalidator.ParseNetmask(false, false), mistvalidator.ParseVar()),
 										mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static")),
 									},
 								},
@@ -1868,15 +1893,21 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"redundant": schema.BoolAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "If HA mode",
 							MarkdownDescription: "If HA mode",
-							Default:             booldefault.StaticBool(false),
 						},
-						"reth_idx": schema.Int64Attribute{
+						"redundant_group": schema.Int64Attribute{
 							Optional:            true,
-							Description:         "If HA mode",
-							MarkdownDescription: "If HA mode",
+							Description:         "If HA mode, SRX Only - support redundancy-group. 1-128 for physical SRX, 1-64 for virtual SRX",
+							MarkdownDescription: "If HA mode, SRX Only - support redundancy-group. 1-128 for physical SRX, 1-64 for virtual SRX",
+							Validators: []validator.Int64{
+								int64validator.Between(1, 128),
+							},
+						},
+						"reth_idx": schema.StringAttribute{
+							Optional:            true,
+							Description:         "For SRX only and if HA Mode",
+							MarkdownDescription: "For SRX only and if HA Mode",
 						},
 						"reth_node": schema.StringAttribute{
 							Optional:            true,
@@ -1915,8 +1946,8 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 								"class_percentages": schema.ListAttribute{
 									ElementType:         types.Int64Type,
 									Optional:            true,
-									Description:         "percentages for differet class of traffic: high / medium / low / best-effort. Sum must be equal to 100",
-									MarkdownDescription: "percentages for differet class of traffic: high / medium / low / best-effort. Sum must be equal to 100",
+									Description:         "percentages for different class of traffic: high / medium / low / best-effort. Sum must be equal to 100",
+									MarkdownDescription: "percentages for different class of traffic: high / medium / low / best-effort. Sum must be equal to 100",
 								},
 								"enabled": schema.BoolAttribute{
 									Optional: true,
@@ -1977,11 +2008,6 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 										MarkdownDescription: "Only if the VPN `type`==`hub_spoke`. Whether to use tunnel mode. SSR only",
 										Default:             booldefault.StaticBool(false),
 									},
-									"link_name": schema.StringAttribute{
-										Optional:            true,
-										Description:         "Only if the VPN `type`==`mesh`",
-										MarkdownDescription: "Only if the VPN `type`==`mesh`",
-									},
 									"preference": schema.Int64Attribute{
 										Optional:            true,
 										Description:         "Only if the VPN `type`==`hub_spoke`. For a given VPN, when `path_selection.strategy`==`simple`, the preference for a path (lower is preferred)",
@@ -1990,12 +2016,13 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									"role": schema.StringAttribute{
 										Optional:            true,
 										Computed:            true,
-										Description:         "Only if the VPN `type`==`hub_spoke`. enum: `hub`, `spoke`",
-										MarkdownDescription: "Only if the VPN `type`==`hub_spoke`. enum: `hub`, `spoke`",
+										Description:         "If the VPN `type`==`hub_spoke`, enum: `hub`, `spoke`. If the VPN `type`==`mesh`, enum: `mesh`",
+										MarkdownDescription: "If the VPN `type`==`hub_spoke`, enum: `hub`, `spoke`. If the VPN `type`==`mesh`, enum: `mesh`",
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",
 												"hub",
+												"mesh",
 												"spoke",
 											),
 										},
@@ -2006,8 +2033,8 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 											"class_percentages": schema.ListAttribute{
 												ElementType:         types.Int64Type,
 												Optional:            true,
-												Description:         "percentages for differet class of traffic: high / medium / low / best-effort. Sum must be equal to 100",
-												MarkdownDescription: "percentages for differet class of traffic: high / medium / low / best-effort. Sum must be equal to 100",
+												Description:         "percentages for different class of traffic: high / medium / low / best-effort. Sum must be equal to 100",
+												MarkdownDescription: "percentages for different class of traffic: high / medium / low / best-effort. Sum must be equal to 100",
 											},
 											"enabled": schema.BoolAttribute{
 												Optional: true,
@@ -2079,8 +2106,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional:            true,
-							Description:         "Only if `usage`==`wan`. Property Key is the destianation CIDR (e.g \"100.100.100.0/24\")",
-							MarkdownDescription: "Only if `usage`==`wan`. Property Key is the destianation CIDR (e.g \"100.100.100.0/24\")",
+							Computed:            true,
+							Description:         "Only if `usage`==`wan`. Property Key is the destination CIDR (e.g. \"100.100.100.0/24\")",
+							MarkdownDescription: "Only if `usage`==`wan`. Property Key is the destination CIDR (e.g. \"100.100.100.0/24\")",
 							Validators: []validator.Map{
 								mistvalidator.AllowedWhenValueIsWithDefault(
 									path.MatchRelative().AtParent().AtName("usage"),
@@ -2088,6 +2116,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									types.MapValueMust(WanExtraRoutesValue{}.Type(ctx), map[string]attr.Value{}),
 								),
 							},
+							Default: mapdefault.StaticValue(types.MapValueMust(WanExtraRoutesValue{}.Type(ctx), map[string]attr.Value{})),
 						},
 						"wan_networks": schema.ListAttribute{
 							ElementType:         types.StringType,
@@ -2257,12 +2286,6 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 												Description:         "For SSR, hub decides how VRF routes are leaked on spoke",
 												MarkdownDescription: "For SSR, hub decides how VRF routes are leaked on spoke",
 											},
-											"aggregate": schema.ListAttribute{
-												ElementType:         types.StringType,
-												Optional:            true,
-												Description:         "route aggregation",
-												MarkdownDescription: "route aggregation",
-											},
 											"community": schema.ListAttribute{
 												ElementType:         types.StringType,
 												Optional:            true,
@@ -2279,7 +2302,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 												ElementType: types.StringType,
 												Optional:    true,
 											},
-											"export_communitites": schema.ListAttribute{
+											"export_communities": schema.ListAttribute{
 												ElementType:         types.StringType,
 												Optional:            true,
 												Description:         "When used as export policy, optional",
@@ -2334,8 +2357,8 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 											"protocol": schema.ListAttribute{
 												ElementType:         types.StringType,
 												Optional:            true,
-												Description:         "`direct`, `bgp`, `osp`, ...",
-												MarkdownDescription: "`direct`, `bgp`, `osp`, ...",
+												Description:         "`direct`, `bgp`, `osp`, `static`, `aggregate`...",
+												MarkdownDescription: "`direct`, `bgp`, `osp`, `static`, `aggregate`...",
 											},
 											"route_exists": schema.SingleNestedAttribute{
 												Attributes: map[string]schema.Attribute{
@@ -2454,8 +2477,8 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Attributes: map[string]schema.Attribute{
 								"avprofile_id": schema.StringAttribute{
 									Optional:            true,
-									Description:         "org-level AV Profile can be used, this takes precendence over 'profile'",
-									MarkdownDescription: "org-level AV Profile can be used, this takes precendence over 'profile'",
+									Description:         "org-level AV Profile can be used, this takes precedence over 'profile'",
+									MarkdownDescription: "org-level AV Profile can be used, this takes precedence over 'profile'",
 								},
 								"enabled": schema.BoolAttribute{
 									Optional: true,
@@ -2539,8 +2562,6 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Attributes: map[string]schema.Attribute{
 								"alert_only": schema.BoolAttribute{
 									Optional: true,
-									Computed: true,
-									Default:  booldefault.StaticBool(false),
 								},
 								"enabled": schema.BoolAttribute{
 									Optional: true,
@@ -2602,8 +2623,8 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							ElementType:         types.StringType,
 							Optional:            true,
 							Computed:            true,
-							Description:         "Required when `servicepolicy_id` is not defined. List of Applications / Desctinations",
-							MarkdownDescription: "Required when `servicepolicy_id` is not defined. List of Applications / Desctinations",
+							Description:         "Required when `servicepolicy_id` is not defined. List of Applications / Destinations",
+							MarkdownDescription: "Required when `servicepolicy_id` is not defined. List of Applications / Destinations",
 							Validators: []validator.List{
 								listvalidator.UniqueValues(),
 								mistvalidator.RequiredWhenValueIsNull(path.MatchRelative().AtParent().AtName("servicepolicy_id")),
@@ -2940,7 +2961,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Validators: []validator.String{
 								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("zscaler-ipsec")),
 								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("jse-ipsec")),
-								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("customer-ipsec")),
+								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("custom-ipsec")),
 							},
 						},
 						"mode": schema.StringAttribute{
@@ -2964,7 +2985,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "If `provider`==`custom-ipsec`, networks reachable via this tunnel",
 							MarkdownDescription: "If `provider`==`custom-ipsec`, networks reachable via this tunnel",
 							Validators: []validator.List{
-								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("customer-ipsec")),
+								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("custom-ipsec")),
 							},
 						},
 						"primary": schema.SingleNestedAttribute{
@@ -3061,13 +3082,13 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"provider": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Only if `auto_provision.enabled`==`false`. enum: `custom-ipsec`, `customer-gre`, `jse-ipsec`, `zscaler-gre`, `zscaler-ipsec`",
-							MarkdownDescription: "Only if `auto_provision.enabled`==`false`. enum: `custom-ipsec`, `customer-gre`, `jse-ipsec`, `zscaler-gre`, `zscaler-ipsec`",
+							Description:         "Only if `auto_provision.enabled`==`false`. enum: `custom-ipsec`, `custom-gre`, `jse-ipsec`, `zscaler-gre`, `zscaler-ipsec`",
+							MarkdownDescription: "Only if `auto_provision.enabled`==`false`. enum: `custom-ipsec`, `custom-gre`, `jse-ipsec`, `zscaler-gre`, `zscaler-ipsec`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
 									"custom-ipsec",
-									"customer-gre",
+									"custom-gre",
 									"jse-ipsec",
 									"zscaler-gre",
 									"zscaler-ipsec",
@@ -3222,7 +3243,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 								MarkdownDescription: "Required if `surrogate_IP`==`true`, idle Time to Disassociation",
 								Validators: []validator.Int64{
 									int64validator.Between(0, 43200),
-									mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("surrogate_IP"), types.BoolValue(true)),
+									mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("surrogate_ip"), types.BoolValue(true)),
 								},
 							},
 							"ofw_enabled": schema.BoolAttribute{
@@ -3279,7 +3300,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 											MarkdownDescription: "Required if `surrogate_IP`==`true`, idle Time to Disassociation",
 											Validators: []validator.Int64{
 												int64validator.Between(0, 43200),
-												mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("surrogate_IP"), types.BoolValue(true)),
+												mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("surrogate_ip"), types.BoolValue(true)),
 											},
 										},
 										"name": schema.StringAttribute{
@@ -3443,7 +3464,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "Property key is the network name",
 				MarkdownDescription: "Property key is the network name",
 				Validators: []validator.Map{
-					mapvalidator.SizeAtLeast(1), mapvalidator.KeysAre(mistvalidator.ParseName()),
+					mapvalidator.KeysAre(mistvalidator.ParseName()),
 				},
 			},
 			"x": schema.Float64Attribute{
@@ -3736,12 +3757,12 @@ func (t BgpConfigType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 		return nil, diags
 	}
 
-	localAsVal, ok := localAsAttribute.(basetypes.Int64Value)
+	localAsVal, ok := localAsAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`local_as expected to be basetypes.Int64Value, was: %T`, localAsAttribute))
+			fmt.Sprintf(`local_as expected to be basetypes.StringValue, was: %T`, localAsAttribute))
 	}
 
 	neighborAsAttribute, ok := attributes["neighbor_as"]
@@ -3754,12 +3775,12 @@ func (t BgpConfigType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 		return nil, diags
 	}
 
-	neighborAsVal, ok := neighborAsAttribute.(basetypes.Int64Value)
+	neighborAsVal, ok := neighborAsAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`neighbor_as expected to be basetypes.Int64Value, was: %T`, neighborAsAttribute))
+			fmt.Sprintf(`neighbor_as expected to be basetypes.StringValue, was: %T`, neighborAsAttribute))
 	}
 
 	neighborsAttribute, ok := attributes["neighbors"]
@@ -3796,6 +3817,24 @@ func (t BgpConfigType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`networks expected to be basetypes.ListValue, was: %T`, networksAttribute))
+	}
+
+	noPrivateAsAttribute, ok := attributes["no_private_as"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`no_private_as is missing from object`)
+
+		return nil, diags
+	}
+
+	noPrivateAsVal, ok := noPrivateAsAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`no_private_as expected to be basetypes.BoolValue, was: %T`, noPrivateAsAttribute))
 	}
 
 	noReadvertiseToOverlayAttribute, ok := attributes["no_readvertise_to_overlay"]
@@ -3926,6 +3965,7 @@ func (t BgpConfigType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 		NeighborAs:             neighborAsVal,
 		Neighbors:              neighborsVal,
 		Networks:               networksVal,
+		NoPrivateAs:            noPrivateAsVal,
 		NoReadvertiseToOverlay: noReadvertiseToOverlayVal,
 		TunnelName:             tunnelNameVal,
 		BgpConfigType:          typeVal,
@@ -4207,12 +4247,12 @@ func NewBgpConfigValue(attributeTypes map[string]attr.Type, attributes map[strin
 		return NewBgpConfigValueUnknown(), diags
 	}
 
-	localAsVal, ok := localAsAttribute.(basetypes.Int64Value)
+	localAsVal, ok := localAsAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`local_as expected to be basetypes.Int64Value, was: %T`, localAsAttribute))
+			fmt.Sprintf(`local_as expected to be basetypes.StringValue, was: %T`, localAsAttribute))
 	}
 
 	neighborAsAttribute, ok := attributes["neighbor_as"]
@@ -4225,12 +4265,12 @@ func NewBgpConfigValue(attributeTypes map[string]attr.Type, attributes map[strin
 		return NewBgpConfigValueUnknown(), diags
 	}
 
-	neighborAsVal, ok := neighborAsAttribute.(basetypes.Int64Value)
+	neighborAsVal, ok := neighborAsAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`neighbor_as expected to be basetypes.Int64Value, was: %T`, neighborAsAttribute))
+			fmt.Sprintf(`neighbor_as expected to be basetypes.StringValue, was: %T`, neighborAsAttribute))
 	}
 
 	neighborsAttribute, ok := attributes["neighbors"]
@@ -4267,6 +4307,24 @@ func NewBgpConfigValue(attributeTypes map[string]attr.Type, attributes map[strin
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`networks expected to be basetypes.ListValue, was: %T`, networksAttribute))
+	}
+
+	noPrivateAsAttribute, ok := attributes["no_private_as"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`no_private_as is missing from object`)
+
+		return NewBgpConfigValueUnknown(), diags
+	}
+
+	noPrivateAsVal, ok := noPrivateAsAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`no_private_as expected to be basetypes.BoolValue, was: %T`, noPrivateAsAttribute))
 	}
 
 	noReadvertiseToOverlayAttribute, ok := attributes["no_readvertise_to_overlay"]
@@ -4397,6 +4455,7 @@ func NewBgpConfigValue(attributeTypes map[string]attr.Type, attributes map[strin
 		NeighborAs:             neighborAsVal,
 		Neighbors:              neighborsVal,
 		Networks:               networksVal,
+		NoPrivateAs:            noPrivateAsVal,
 		NoReadvertiseToOverlay: noReadvertiseToOverlayVal,
 		TunnelName:             tunnelNameVal,
 		BgpConfigType:          typeVal,
@@ -4486,10 +4545,11 @@ type BgpConfigValue struct {
 	HoldTime               basetypes.Int64Value  `tfsdk:"hold_time"`
 	Import                 basetypes.StringValue `tfsdk:"import"`
 	ImportPolicy           basetypes.StringValue `tfsdk:"import_policy"`
-	LocalAs                basetypes.Int64Value  `tfsdk:"local_as"`
-	NeighborAs             basetypes.Int64Value  `tfsdk:"neighbor_as"`
+	LocalAs                basetypes.StringValue `tfsdk:"local_as"`
+	NeighborAs             basetypes.StringValue `tfsdk:"neighbor_as"`
 	Neighbors              basetypes.MapValue    `tfsdk:"neighbors"`
 	Networks               basetypes.ListValue   `tfsdk:"networks"`
+	NoPrivateAs            basetypes.BoolValue   `tfsdk:"no_private_as"`
 	NoReadvertiseToOverlay basetypes.BoolValue   `tfsdk:"no_readvertise_to_overlay"`
 	TunnelName             basetypes.StringValue `tfsdk:"tunnel_name"`
 	BgpConfigType          basetypes.StringValue `tfsdk:"type"`
@@ -4500,7 +4560,7 @@ type BgpConfigValue struct {
 }
 
 func (v BgpConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 21)
+	attrTypes := make(map[string]tftypes.Type, 22)
 
 	var val tftypes.Value
 	var err error
@@ -4516,14 +4576,15 @@ func (v BgpConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 	attrTypes["hold_time"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["import"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["import_policy"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["local_as"] = basetypes.Int64Type{}.TerraformType(ctx)
-	attrTypes["neighbor_as"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["local_as"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["neighbor_as"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["neighbors"] = basetypes.MapType{
 		ElemType: NeighborsValue{}.Type(ctx),
 	}.TerraformType(ctx)
 	attrTypes["networks"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
+	attrTypes["no_private_as"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["no_readvertise_to_overlay"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["tunnel_name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["type"] = basetypes.StringType{}.TerraformType(ctx)
@@ -4535,7 +4596,7 @@ func (v BgpConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 21)
+		vals := make(map[string]tftypes.Value, 22)
 
 		val, err = v.AuthKey.ToTerraformValue(ctx)
 
@@ -4657,6 +4718,14 @@ func (v BgpConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 
 		vals["networks"] = val
 
+		val, err = v.NoPrivateAs.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["no_private_as"] = val
+
 		val, err = v.NoReadvertiseToOverlay.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -4763,11 +4832,19 @@ func (v BgpConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 		)
 	}
 
-	networksVal, d := types.ListValue(types.StringType, v.Networks.Elements())
+	var networksVal basetypes.ListValue
+	switch {
+	case v.Networks.IsUnknown():
+		networksVal = types.ListUnknown(types.StringType)
+	case v.Networks.IsNull():
+		networksVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		networksVal, d = types.ListValue(types.StringType, v.Networks.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"auth_key":              basetypes.StringType{},
 			"bfd_minimum_interval":  basetypes.Int64Type{},
@@ -4780,14 +4857,15 @@ func (v BgpConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 			"hold_time":             basetypes.Int64Type{},
 			"import":                basetypes.StringType{},
 			"import_policy":         basetypes.StringType{},
-			"local_as":              basetypes.Int64Type{},
-			"neighbor_as":           basetypes.Int64Type{},
+			"local_as":              basetypes.StringType{},
+			"neighbor_as":           basetypes.StringType{},
 			"neighbors": basetypes.MapType{
 				ElemType: NeighborsValue{}.Type(ctx),
 			},
 			"networks": basetypes.ListType{
 				ElemType: types.StringType,
 			},
+			"no_private_as":             basetypes.BoolType{},
 			"no_readvertise_to_overlay": basetypes.BoolType{},
 			"tunnel_name":               basetypes.StringType{},
 			"type":                      basetypes.StringType{},
@@ -4809,14 +4887,15 @@ func (v BgpConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 		"hold_time":             basetypes.Int64Type{},
 		"import":                basetypes.StringType{},
 		"import_policy":         basetypes.StringType{},
-		"local_as":              basetypes.Int64Type{},
-		"neighbor_as":           basetypes.Int64Type{},
+		"local_as":              basetypes.StringType{},
+		"neighbor_as":           basetypes.StringType{},
 		"neighbors": basetypes.MapType{
 			ElemType: NeighborsValue{}.Type(ctx),
 		},
 		"networks": basetypes.ListType{
 			ElemType: types.StringType,
 		},
+		"no_private_as":             basetypes.BoolType{},
 		"no_readvertise_to_overlay": basetypes.BoolType{},
 		"tunnel_name":               basetypes.StringType{},
 		"type":                      basetypes.StringType{},
@@ -4851,6 +4930,7 @@ func (v BgpConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 			"neighbor_as":               v.NeighborAs,
 			"neighbors":                 neighbors,
 			"networks":                  networksVal,
+			"no_private_as":             v.NoPrivateAs,
 			"no_readvertise_to_overlay": v.NoReadvertiseToOverlay,
 			"tunnel_name":               v.TunnelName,
 			"type":                      v.BgpConfigType,
@@ -4937,6 +5017,10 @@ func (v BgpConfigValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.NoPrivateAs.Equal(other.NoPrivateAs) {
+		return false
+	}
+
 	if !v.NoReadvertiseToOverlay.Equal(other.NoReadvertiseToOverlay) {
 		return false
 	}
@@ -4985,14 +5069,15 @@ func (v BgpConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Type
 		"hold_time":             basetypes.Int64Type{},
 		"import":                basetypes.StringType{},
 		"import_policy":         basetypes.StringType{},
-		"local_as":              basetypes.Int64Type{},
-		"neighbor_as":           basetypes.Int64Type{},
+		"local_as":              basetypes.StringType{},
+		"neighbor_as":           basetypes.StringType{},
 		"neighbors": basetypes.MapType{
 			ElemType: NeighborsValue{}.Type(ctx),
 		},
 		"networks": basetypes.ListType{
 			ElemType: types.StringType,
 		},
+		"no_private_as":             basetypes.BoolType{},
 		"no_readvertise_to_overlay": basetypes.BoolType{},
 		"tunnel_name":               basetypes.StringType{},
 		"type":                      basetypes.StringType{},
@@ -5127,12 +5212,12 @@ func (t NeighborsType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 		return nil, diags
 	}
 
-	neighborAsVal, ok := neighborAsAttribute.(basetypes.Int64Value)
+	neighborAsVal, ok := neighborAsAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`neighbor_as expected to be basetypes.Int64Value, was: %T`, neighborAsAttribute))
+			fmt.Sprintf(`neighbor_as expected to be basetypes.StringValue, was: %T`, neighborAsAttribute))
 	}
 
 	if diags.HasError() {
@@ -5313,12 +5398,12 @@ func NewNeighborsValue(attributeTypes map[string]attr.Type, attributes map[strin
 		return NewNeighborsValueUnknown(), diags
 	}
 
-	neighborAsVal, ok := neighborAsAttribute.(basetypes.Int64Value)
+	neighborAsVal, ok := neighborAsAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`neighbor_as expected to be basetypes.Int64Value, was: %T`, neighborAsAttribute))
+			fmt.Sprintf(`neighbor_as expected to be basetypes.StringValue, was: %T`, neighborAsAttribute))
 	}
 
 	if diags.HasError() {
@@ -5409,7 +5494,7 @@ type NeighborsValue struct {
 	HoldTime     basetypes.Int64Value  `tfsdk:"hold_time"`
 	ImportPolicy basetypes.StringValue `tfsdk:"import_policy"`
 	MultihopTtl  basetypes.Int64Value  `tfsdk:"multihop_ttl"`
-	NeighborAs   basetypes.Int64Value  `tfsdk:"neighbor_as"`
+	NeighborAs   basetypes.StringValue `tfsdk:"neighbor_as"`
 	state        attr.ValueState
 }
 
@@ -5424,7 +5509,7 @@ func (v NeighborsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 	attrTypes["hold_time"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["import_policy"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["multihop_ttl"] = basetypes.Int64Type{}.TerraformType(ctx)
-	attrTypes["neighbor_as"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["neighbor_as"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
@@ -5515,7 +5600,7 @@ func (v NeighborsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 		"hold_time":     basetypes.Int64Type{},
 		"import_policy": basetypes.StringType{},
 		"multihop_ttl":  basetypes.Int64Type{},
-		"neighbor_as":   basetypes.Int64Type{},
+		"neighbor_as":   basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -5597,7 +5682,7 @@ func (v NeighborsValue) AttributeTypes(ctx context.Context) map[string]attr.Type
 		"hold_time":     basetypes.Int64Type{},
 		"import_policy": basetypes.StringType{},
 		"multihop_ttl":  basetypes.Int64Type{},
-		"neighbor_as":   basetypes.Int64Type{},
+		"neighbor_as":   basetypes.StringType{},
 	}
 }
 
@@ -7103,11 +7188,19 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 		)
 	}
 
-	dnsServersVal, d := types.ListValue(types.StringType, v.DnsServers.Elements())
+	var dnsServersVal basetypes.ListValue
+	switch {
+	case v.DnsServers.IsUnknown():
+		dnsServersVal = types.ListUnknown(types.StringType)
+	case v.DnsServers.IsNull():
+		dnsServersVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		dnsServersVal, d = types.ListValue(types.StringType, v.DnsServers.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"dns_servers": basetypes.ListType{
 				ElemType: types.StringType,
@@ -7142,11 +7235,19 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 		}), diags
 	}
 
-	dnsSuffixVal, d := types.ListValue(types.StringType, v.DnsSuffix.Elements())
+	var dnsSuffixVal basetypes.ListValue
+	switch {
+	case v.DnsSuffix.IsUnknown():
+		dnsSuffixVal = types.ListUnknown(types.StringType)
+	case v.DnsSuffix.IsNull():
+		dnsSuffixVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		dnsSuffixVal, d = types.ListValue(types.StringType, v.DnsSuffix.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"dns_servers": basetypes.ListType{
 				ElemType: types.StringType,
@@ -7181,11 +7282,19 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 		}), diags
 	}
 
-	serversVal, d := types.ListValue(types.StringType, v.Servers4.Elements())
+	var serversVal basetypes.ListValue
+	switch {
+	case v.Servers4.IsUnknown():
+		serversVal = types.ListUnknown(types.StringType)
+	case v.Servers4.IsNull():
+		serversVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		serversVal, d = types.ListValue(types.StringType, v.Servers4.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"dns_servers": basetypes.ListType{
 				ElemType: types.StringType,
@@ -7220,11 +7329,19 @@ func (v ConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 		}), diags
 	}
 
-	servers6Val, d := types.ListValue(types.StringType, v.Servers6.Elements())
+	var servers6Val basetypes.ListValue
+	switch {
+	case v.Servers6.IsUnknown():
+		servers6Val = types.ListUnknown(types.StringType)
+	case v.Servers6.IsNull():
+		servers6Val = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		servers6Val, d = types.ListValue(types.StringType, v.Servers6.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"dns_servers": basetypes.ListType{
 				ElemType: types.StringType,
@@ -10643,11 +10760,19 @@ func (v IpdProfileOverwriteMatchingValue) String() string {
 func (v IpdProfileOverwriteMatchingValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	attackNameVal, d := types.ListValue(types.StringType, v.AttackName.Elements())
+	var attackNameVal basetypes.ListValue
+	switch {
+	case v.AttackName.IsUnknown():
+		attackNameVal = types.ListUnknown(types.StringType)
+	case v.AttackName.IsNull():
+		attackNameVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		attackNameVal, d = types.ListValue(types.StringType, v.AttackName.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"attack_name": basetypes.ListType{
 				ElemType: types.StringType,
@@ -10661,11 +10786,19 @@ func (v IpdProfileOverwriteMatchingValue) ToObjectValue(ctx context.Context) (ba
 		}), diags
 	}
 
-	dstSubnetVal, d := types.ListValue(types.StringType, v.DstSubnet.Elements())
+	var dstSubnetVal basetypes.ListValue
+	switch {
+	case v.DstSubnet.IsUnknown():
+		dstSubnetVal = types.ListUnknown(types.StringType)
+	case v.DstSubnet.IsNull():
+		dstSubnetVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		dstSubnetVal, d = types.ListValue(types.StringType, v.DstSubnet.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"attack_name": basetypes.ListType{
 				ElemType: types.StringType,
@@ -10679,11 +10812,19 @@ func (v IpdProfileOverwriteMatchingValue) ToObjectValue(ctx context.Context) (ba
 		}), diags
 	}
 
-	severityVal, d := types.ListValue(types.StringType, v.Severity.Elements())
+	var severityVal basetypes.ListValue
+	switch {
+	case v.Severity.IsUnknown():
+		severityVal = types.ListUnknown(types.StringType)
+	case v.Severity.IsNull():
+		severityVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		severityVal, d = types.ListValue(types.StringType, v.Severity.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"attack_name": basetypes.ListType{
 				ElemType: types.StringType,
@@ -11193,11 +11334,19 @@ func (v IpConfigsValue) String() string {
 func (v IpConfigsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	secondaryIpsVal, d := types.ListValue(types.StringType, v.SecondaryIps.Elements())
+	var secondaryIpsVal basetypes.ListValue
+	switch {
+	case v.SecondaryIps.IsUnknown():
+		secondaryIpsVal = types.ListUnknown(types.StringType)
+	case v.SecondaryIps.IsNull():
+		secondaryIpsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		secondaryIpsVal, d = types.ListValue(types.StringType, v.SecondaryIps.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"ip":      basetypes.StringType{},
 			"netmask": basetypes.StringType{},
@@ -12314,11 +12463,19 @@ func (v NetworksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 		)
 	}
 
-	routedForNetworksVal, d := types.ListValue(types.StringType, v.RoutedForNetworks.Elements())
+	var routedForNetworksVal basetypes.ListValue
+	switch {
+	case v.RoutedForNetworks.IsUnknown():
+		routedForNetworksVal = types.ListUnknown(types.StringType)
+	case v.RoutedForNetworks.IsNull():
+		routedForNetworksVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		routedForNetworksVal, d = types.ListValue(types.StringType, v.RoutedForNetworks.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"disallow_mist_services": basetypes.BoolType{},
 			"gateway":                basetypes.StringType{},
@@ -15444,11 +15601,19 @@ func (v TenantsValue) String() string {
 func (v TenantsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	addressesVal, d := types.ListValue(types.StringType, v.Addresses.Elements())
+	var addressesVal basetypes.ListValue
+	switch {
+	case v.Addresses.IsUnknown():
+		addressesVal = types.ListUnknown(types.StringType)
+	case v.Addresses.IsNull():
+		addressesVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		addressesVal, d = types.ListValue(types.StringType, v.Addresses.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"addresses": basetypes.ListType{
 				ElemType: types.StringType,
@@ -16495,11 +16660,19 @@ func (v VpnAccessValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 		)
 	}
 
-	otherVrfsVal, d := types.ListValue(types.StringType, v.OtherVrfs.Elements())
+	var otherVrfsVal basetypes.ListValue
+	switch {
+	case v.OtherVrfs.IsUnknown():
+		otherVrfsVal = types.ListUnknown(types.StringType)
+	case v.OtherVrfs.IsNull():
+		otherVrfsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		otherVrfsVal, d = types.ListValue(types.StringType, v.OtherVrfs.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"advertised_subnet":          basetypes.StringType{},
 			"allow_ping":                 basetypes.BoolType{},
@@ -20286,11 +20459,19 @@ func (v PathsValue) String() string {
 func (v PathsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	networksVal, d := types.ListValue(types.StringType, v.Networks.Elements())
+	var networksVal basetypes.ListValue
+	switch {
+	case v.Networks.IsUnknown():
+		networksVal = types.ListUnknown(types.StringType)
+	case v.Networks.IsNull():
+		networksVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		networksVal, d = types.ListValue(types.StringType, v.Networks.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"cost":            basetypes.Int64Type{},
 			"disabled":        basetypes.BoolType{},
@@ -20308,11 +20489,19 @@ func (v PathsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 		}), diags
 	}
 
-	targetIpsVal, d := types.ListValue(types.StringType, v.TargetIps.Elements())
+	var targetIpsVal basetypes.ListValue
+	switch {
+	case v.TargetIps.IsUnknown():
+		targetIpsVal = types.ListUnknown(types.StringType)
+	case v.TargetIps.IsNull():
+		targetIpsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		targetIpsVal, d = types.ListValue(types.StringType, v.TargetIps.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"cost":            basetypes.Int64Type{},
 			"disabled":        basetypes.BoolType{},
@@ -20944,6 +21133,24 @@ func (t PortConfigType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`redundant expected to be basetypes.BoolValue, was: %T`, redundantAttribute))
 	}
 
+	redundantGroupAttribute, ok := attributes["redundant_group"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`redundant_group is missing from object`)
+
+		return nil, diags
+	}
+
+	redundantGroupVal, ok := redundantGroupAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`redundant_group expected to be basetypes.Int64Value, was: %T`, redundantGroupAttribute))
+	}
+
 	rethIdxAttribute, ok := attributes["reth_idx"]
 
 	if !ok {
@@ -20954,12 +21161,12 @@ func (t PortConfigType) ValueFromObject(ctx context.Context, in basetypes.Object
 		return nil, diags
 	}
 
-	rethIdxVal, ok := rethIdxAttribute.(basetypes.Int64Value)
+	rethIdxVal, ok := rethIdxAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`reth_idx expected to be basetypes.Int64Value, was: %T`, rethIdxAttribute))
+			fmt.Sprintf(`reth_idx expected to be basetypes.StringValue, was: %T`, rethIdxAttribute))
 	}
 
 	rethNodeAttribute, ok := attributes["reth_node"]
@@ -21281,6 +21488,7 @@ func (t PortConfigType) ValueFromObject(ctx context.Context, in basetypes.Object
 		PortNetwork:      portNetworkVal,
 		PreserveDscp:     preserveDscpVal,
 		Redundant:        redundantVal,
+		RedundantGroup:   redundantGroupVal,
 		RethIdx:          rethIdxVal,
 		RethNode:         rethNodeVal,
 		RethNodes:        rethNodesVal,
@@ -21833,6 +22041,24 @@ func NewPortConfigValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`redundant expected to be basetypes.BoolValue, was: %T`, redundantAttribute))
 	}
 
+	redundantGroupAttribute, ok := attributes["redundant_group"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`redundant_group is missing from object`)
+
+		return NewPortConfigValueUnknown(), diags
+	}
+
+	redundantGroupVal, ok := redundantGroupAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`redundant_group expected to be basetypes.Int64Value, was: %T`, redundantGroupAttribute))
+	}
+
 	rethIdxAttribute, ok := attributes["reth_idx"]
 
 	if !ok {
@@ -21843,12 +22069,12 @@ func NewPortConfigValue(attributeTypes map[string]attr.Type, attributes map[stri
 		return NewPortConfigValueUnknown(), diags
 	}
 
-	rethIdxVal, ok := rethIdxAttribute.(basetypes.Int64Value)
+	rethIdxVal, ok := rethIdxAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`reth_idx expected to be basetypes.Int64Value, was: %T`, rethIdxAttribute))
+			fmt.Sprintf(`reth_idx expected to be basetypes.StringValue, was: %T`, rethIdxAttribute))
 	}
 
 	rethNodeAttribute, ok := attributes["reth_node"]
@@ -22170,6 +22396,7 @@ func NewPortConfigValue(attributeTypes map[string]attr.Type, attributes map[stri
 		PortNetwork:      portNetworkVal,
 		PreserveDscp:     preserveDscpVal,
 		Redundant:        redundantVal,
+		RedundantGroup:   redundantGroupVal,
 		RethIdx:          rethIdxVal,
 		RethNode:         rethNodeVal,
 		RethNodes:        rethNodesVal,
@@ -22285,7 +22512,8 @@ type PortConfigValue struct {
 	PortNetwork      basetypes.StringValue `tfsdk:"port_network"`
 	PreserveDscp     basetypes.BoolValue   `tfsdk:"preserve_dscp"`
 	Redundant        basetypes.BoolValue   `tfsdk:"redundant"`
-	RethIdx          basetypes.Int64Value  `tfsdk:"reth_idx"`
+	RedundantGroup   basetypes.Int64Value  `tfsdk:"redundant_group"`
+	RethIdx          basetypes.StringValue `tfsdk:"reth_idx"`
 	RethNode         basetypes.StringValue `tfsdk:"reth_node"`
 	RethNodes        basetypes.ListValue   `tfsdk:"reth_nodes"`
 	Speed            basetypes.StringValue `tfsdk:"speed"`
@@ -22306,7 +22534,7 @@ type PortConfigValue struct {
 }
 
 func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 43)
+	attrTypes := make(map[string]tftypes.Type, 44)
 
 	var val tftypes.Value
 	var err error
@@ -22341,7 +22569,8 @@ func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	attrTypes["port_network"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["preserve_dscp"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["redundant"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["reth_idx"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["redundant_group"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["reth_idx"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["reth_node"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["reth_nodes"] = basetypes.ListType{
 		ElemType: types.StringType,
@@ -22377,7 +22606,7 @@ func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 43)
+		vals := make(map[string]tftypes.Value, 44)
 
 		val, err = v.AeDisableLacp.ToTerraformValue(ctx)
 
@@ -22586,6 +22815,14 @@ func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 		}
 
 		vals["redundant"] = val
+
+		val, err = v.RedundantGroup.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["redundant_group"] = val
 
 		val, err = v.RethIdx.ToTerraformValue(ctx)
 
@@ -22894,11 +23131,19 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		)
 	}
 
-	networksVal, d := types.ListValue(types.StringType, v.Networks.Elements())
+	var networksVal basetypes.ListValue
+	switch {
+	case v.Networks.IsUnknown():
+		networksVal = types.ListUnknown(types.StringType)
+	case v.Networks.IsNull():
+		networksVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		networksVal, d = types.ListValue(types.StringType, v.Networks.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"ae_disable_lacp":  basetypes.BoolType{},
 			"ae_idx":           basetypes.StringType{},
@@ -22927,11 +23172,12 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"ip_config": basetypes.ObjectType{
 				AttrTypes: PortIpConfigValue{}.AttributeTypes(ctx),
 			},
-			"port_network":  basetypes.StringType{},
-			"preserve_dscp": basetypes.BoolType{},
-			"redundant":     basetypes.BoolType{},
-			"reth_idx":      basetypes.Int64Type{},
-			"reth_node":     basetypes.StringType{},
+			"port_network":    basetypes.StringType{},
+			"preserve_dscp":   basetypes.BoolType{},
+			"redundant":       basetypes.BoolType{},
+			"redundant_group": basetypes.Int64Type{},
+			"reth_idx":        basetypes.StringType{},
+			"reth_node":       basetypes.StringType{},
 			"reth_nodes": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -22964,11 +23210,19 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		}), diags
 	}
 
-	rethNodesVal, d := types.ListValue(types.StringType, v.RethNodes.Elements())
+	var rethNodesVal basetypes.ListValue
+	switch {
+	case v.RethNodes.IsUnknown():
+		rethNodesVal = types.ListUnknown(types.StringType)
+	case v.RethNodes.IsNull():
+		rethNodesVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		rethNodesVal, d = types.ListValue(types.StringType, v.RethNodes.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"ae_disable_lacp":  basetypes.BoolType{},
 			"ae_idx":           basetypes.StringType{},
@@ -22997,11 +23251,12 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"ip_config": basetypes.ObjectType{
 				AttrTypes: PortIpConfigValue{}.AttributeTypes(ctx),
 			},
-			"port_network":  basetypes.StringType{},
-			"preserve_dscp": basetypes.BoolType{},
-			"redundant":     basetypes.BoolType{},
-			"reth_idx":      basetypes.Int64Type{},
-			"reth_node":     basetypes.StringType{},
+			"port_network":    basetypes.StringType{},
+			"preserve_dscp":   basetypes.BoolType{},
+			"redundant":       basetypes.BoolType{},
+			"redundant_group": basetypes.Int64Type{},
+			"reth_idx":        basetypes.StringType{},
+			"reth_node":       basetypes.StringType{},
 			"reth_nodes": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -23034,11 +23289,19 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		}), diags
 	}
 
-	wanNetworksVal, d := types.ListValue(types.StringType, v.WanNetworks.Elements())
+	var wanNetworksVal basetypes.ListValue
+	switch {
+	case v.WanNetworks.IsUnknown():
+		wanNetworksVal = types.ListUnknown(types.StringType)
+	case v.WanNetworks.IsNull():
+		wanNetworksVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		wanNetworksVal, d = types.ListValue(types.StringType, v.WanNetworks.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"ae_disable_lacp":  basetypes.BoolType{},
 			"ae_idx":           basetypes.StringType{},
@@ -23067,11 +23330,12 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"ip_config": basetypes.ObjectType{
 				AttrTypes: PortIpConfigValue{}.AttributeTypes(ctx),
 			},
-			"port_network":  basetypes.StringType{},
-			"preserve_dscp": basetypes.BoolType{},
-			"redundant":     basetypes.BoolType{},
-			"reth_idx":      basetypes.Int64Type{},
-			"reth_node":     basetypes.StringType{},
+			"port_network":    basetypes.StringType{},
+			"preserve_dscp":   basetypes.BoolType{},
+			"redundant":       basetypes.BoolType{},
+			"redundant_group": basetypes.Int64Type{},
+			"reth_idx":        basetypes.StringType{},
+			"reth_node":       basetypes.StringType{},
 			"reth_nodes": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -23132,11 +23396,12 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		"ip_config": basetypes.ObjectType{
 			AttrTypes: PortIpConfigValue{}.AttributeTypes(ctx),
 		},
-		"port_network":  basetypes.StringType{},
-		"preserve_dscp": basetypes.BoolType{},
-		"redundant":     basetypes.BoolType{},
-		"reth_idx":      basetypes.Int64Type{},
-		"reth_node":     basetypes.StringType{},
+		"port_network":    basetypes.StringType{},
+		"preserve_dscp":   basetypes.BoolType{},
+		"redundant":       basetypes.BoolType{},
+		"redundant_group": basetypes.Int64Type{},
+		"reth_idx":        basetypes.StringType{},
+		"reth_node":       basetypes.StringType{},
 		"reth_nodes": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -23205,6 +23470,7 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"port_network":       v.PortNetwork,
 			"preserve_dscp":      v.PreserveDscp,
 			"redundant":          v.Redundant,
+			"redundant_group":    v.RedundantGroup,
 			"reth_idx":           v.RethIdx,
 			"reth_node":          v.RethNode,
 			"reth_nodes":         rethNodesVal,
@@ -23346,6 +23612,10 @@ func (v PortConfigValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.RedundantGroup.Equal(other.RedundantGroup) {
+		return false
+	}
+
 	if !v.RethIdx.Equal(other.RethIdx) {
 		return false
 	}
@@ -23454,11 +23724,12 @@ func (v PortConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"ip_config": basetypes.ObjectType{
 			AttrTypes: PortIpConfigValue{}.AttributeTypes(ctx),
 		},
-		"port_network":  basetypes.StringType{},
-		"preserve_dscp": basetypes.BoolType{},
-		"redundant":     basetypes.BoolType{},
-		"reth_idx":      basetypes.Int64Type{},
-		"reth_node":     basetypes.StringType{},
+		"port_network":    basetypes.StringType{},
+		"preserve_dscp":   basetypes.BoolType{},
+		"redundant":       basetypes.BoolType{},
+		"redundant_group": basetypes.Int64Type{},
+		"reth_idx":        basetypes.StringType{},
+		"reth_node":       basetypes.StringType{},
 		"reth_nodes": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -24194,11 +24465,19 @@ func (v PortIpConfigValue) String() string {
 func (v PortIpConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	dnsVal, d := types.ListValue(types.StringType, v.Dns.Elements())
+	var dnsVal basetypes.ListValue
+	switch {
+	case v.Dns.IsUnknown():
+		dnsVal = types.ListUnknown(types.StringType)
+	case v.Dns.IsNull():
+		dnsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		dnsVal, d = types.ListValue(types.StringType, v.Dns.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"dns": basetypes.ListType{
 				ElemType: types.StringType,
@@ -24217,11 +24496,19 @@ func (v PortIpConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 		}), diags
 	}
 
-	dnsSuffixVal, d := types.ListValue(types.StringType, v.DnsSuffix.Elements())
+	var dnsSuffixVal basetypes.ListValue
+	switch {
+	case v.DnsSuffix.IsUnknown():
+		dnsSuffixVal = types.ListUnknown(types.StringType)
+	case v.DnsSuffix.IsNull():
+		dnsSuffixVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		dnsSuffixVal, d = types.ListValue(types.StringType, v.DnsSuffix.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"dns": basetypes.ListType{
 				ElemType: types.StringType,
@@ -24733,11 +25020,19 @@ func (v TrafficShapingValue) String() string {
 func (v TrafficShapingValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	classPercentagesVal, d := types.ListValue(types.Int64Type, v.ClassPercentages.Elements())
+	var classPercentagesVal basetypes.ListValue
+	switch {
+	case v.ClassPercentages.IsUnknown():
+		classPercentagesVal = types.ListUnknown(types.Int64Type)
+	case v.ClassPercentages.IsNull():
+		classPercentagesVal = types.ListNull(types.Int64Type)
+	default:
+		var d diag.Diagnostics
+		classPercentagesVal, d = types.ListValue(types.Int64Type, v.ClassPercentages.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"class_percentages": basetypes.ListType{
 				ElemType: types.Int64Type,
@@ -24883,24 +25178,6 @@ func (t VpnPathsType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 			fmt.Sprintf(`bfd_use_tunnel_mode expected to be basetypes.BoolValue, was: %T`, bfdUseTunnelModeAttribute))
 	}
 
-	linkNameAttribute, ok := attributes["link_name"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`link_name is missing from object`)
-
-		return nil, diags
-	}
-
-	linkNameVal, ok := linkNameAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`link_name expected to be basetypes.StringValue, was: %T`, linkNameAttribute))
-	}
-
 	preferenceAttribute, ok := attributes["preference"]
 
 	if !ok {
@@ -24962,7 +25239,6 @@ func (t VpnPathsType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 	return VpnPathsValue{
 		BfdProfile:       bfdProfileVal,
 		BfdUseTunnelMode: bfdUseTunnelModeVal,
-		LinkName:         linkNameVal,
 		Preference:       preferenceVal,
 		Role:             roleVal,
 		TrafficShaping:   trafficShapingVal,
@@ -25069,24 +25345,6 @@ func NewVpnPathsValue(attributeTypes map[string]attr.Type, attributes map[string
 			fmt.Sprintf(`bfd_use_tunnel_mode expected to be basetypes.BoolValue, was: %T`, bfdUseTunnelModeAttribute))
 	}
 
-	linkNameAttribute, ok := attributes["link_name"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`link_name is missing from object`)
-
-		return NewVpnPathsValueUnknown(), diags
-	}
-
-	linkNameVal, ok := linkNameAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`link_name expected to be basetypes.StringValue, was: %T`, linkNameAttribute))
-	}
-
 	preferenceAttribute, ok := attributes["preference"]
 
 	if !ok {
@@ -25148,7 +25406,6 @@ func NewVpnPathsValue(attributeTypes map[string]attr.Type, attributes map[string
 	return VpnPathsValue{
 		BfdProfile:       bfdProfileVal,
 		BfdUseTunnelMode: bfdUseTunnelModeVal,
-		LinkName:         linkNameVal,
 		Preference:       preferenceVal,
 		Role:             roleVal,
 		TrafficShaping:   trafficShapingVal,
@@ -25226,7 +25483,6 @@ var _ basetypes.ObjectValuable = VpnPathsValue{}
 type VpnPathsValue struct {
 	BfdProfile       basetypes.StringValue `tfsdk:"bfd_profile"`
 	BfdUseTunnelMode basetypes.BoolValue   `tfsdk:"bfd_use_tunnel_mode"`
-	LinkName         basetypes.StringValue `tfsdk:"link_name"`
 	Preference       basetypes.Int64Value  `tfsdk:"preference"`
 	Role             basetypes.StringValue `tfsdk:"role"`
 	TrafficShaping   basetypes.ObjectValue `tfsdk:"traffic_shaping"`
@@ -25234,14 +25490,13 @@ type VpnPathsValue struct {
 }
 
 func (v VpnPathsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 6)
+	attrTypes := make(map[string]tftypes.Type, 5)
 
 	var val tftypes.Value
 	var err error
 
 	attrTypes["bfd_profile"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["bfd_use_tunnel_mode"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["link_name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["preference"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["role"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["traffic_shaping"] = basetypes.ObjectType{
@@ -25252,7 +25507,7 @@ func (v VpnPathsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 6)
+		vals := make(map[string]tftypes.Value, 5)
 
 		val, err = v.BfdProfile.ToTerraformValue(ctx)
 
@@ -25269,14 +25524,6 @@ func (v VpnPathsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 		}
 
 		vals["bfd_use_tunnel_mode"] = val
-
-		val, err = v.LinkName.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["link_name"] = val
 
 		val, err = v.Preference.ToTerraformValue(ctx)
 
@@ -25355,7 +25602,6 @@ func (v VpnPathsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 	attributeTypes := map[string]attr.Type{
 		"bfd_profile":         basetypes.StringType{},
 		"bfd_use_tunnel_mode": basetypes.BoolType{},
-		"link_name":           basetypes.StringType{},
 		"preference":          basetypes.Int64Type{},
 		"role":                basetypes.StringType{},
 		"traffic_shaping": basetypes.ObjectType{
@@ -25376,7 +25622,6 @@ func (v VpnPathsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 		map[string]attr.Value{
 			"bfd_profile":         v.BfdProfile,
 			"bfd_use_tunnel_mode": v.BfdUseTunnelMode,
-			"link_name":           v.LinkName,
 			"preference":          v.Preference,
 			"role":                v.Role,
 			"traffic_shaping":     trafficShaping,
@@ -25408,10 +25653,6 @@ func (v VpnPathsValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.LinkName.Equal(other.LinkName) {
-		return false
-	}
-
 	if !v.Preference.Equal(other.Preference) {
 		return false
 	}
@@ -25439,7 +25680,6 @@ func (v VpnPathsValue) AttributeTypes(ctx context.Context) map[string]attr.Type 
 	return map[string]attr.Type{
 		"bfd_profile":         basetypes.StringType{},
 		"bfd_use_tunnel_mode": basetypes.BoolType{},
-		"link_name":           basetypes.StringType{},
 		"preference":          basetypes.Int64Type{},
 		"role":                basetypes.StringType{},
 		"traffic_shaping": basetypes.ObjectType{
@@ -26089,11 +26329,19 @@ func (v WanProbeOverrideValue) String() string {
 func (v WanProbeOverrideValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	ipsVal, d := types.ListValue(types.StringType, v.Ips.Elements())
+	var ipsVal basetypes.ListValue
+	switch {
+	case v.Ips.IsUnknown():
+		ipsVal = types.ListUnknown(types.StringType)
+	case v.Ips.IsNull():
+		ipsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		ipsVal, d = types.ListValue(types.StringType, v.Ips.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"ips": basetypes.ListType{
 				ElemType: types.StringType,
@@ -27361,11 +27609,19 @@ func (v PortMirrorValue) String() string {
 func (v PortMirrorValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	ingressPortIdsVal, d := types.ListValue(types.StringType, v.IngressPortIds.Elements())
+	var ingressPortIdsVal basetypes.ListValue
+	switch {
+	case v.IngressPortIds.IsUnknown():
+		ingressPortIdsVal = types.ListUnknown(types.StringType)
+	case v.IngressPortIds.IsNull():
+		ingressPortIdsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		ingressPortIdsVal, d = types.ListValue(types.StringType, v.IngressPortIds.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"family_type": basetypes.StringType{},
 			"ingress_port_ids": basetypes.ListType{
@@ -28337,24 +28593,6 @@ func (t ActionType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 			fmt.Sprintf(`add_target_vrfs expected to be basetypes.ListValue, was: %T`, addTargetVrfsAttribute))
 	}
 
-	aggregateAttribute, ok := attributes["aggregate"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`aggregate is missing from object`)
-
-		return nil, diags
-	}
-
-	aggregateVal, ok := aggregateAttribute.(basetypes.ListValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`aggregate expected to be basetypes.ListValue, was: %T`, aggregateAttribute))
-	}
-
 	communityAttribute, ok := attributes["community"]
 
 	if !ok {
@@ -28409,22 +28647,22 @@ func (t ActionType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 			fmt.Sprintf(`exclude_community expected to be basetypes.ListValue, was: %T`, excludeCommunityAttribute))
 	}
 
-	exportCommunititesAttribute, ok := attributes["export_communitites"]
+	exportCommunitiesAttribute, ok := attributes["export_communities"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`export_communitites is missing from object`)
+			`export_communities is missing from object`)
 
 		return nil, diags
 	}
 
-	exportCommunititesVal, ok := exportCommunititesAttribute.(basetypes.ListValue)
+	exportCommunitiesVal, ok := exportCommunitiesAttribute.(basetypes.ListValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`export_communitites expected to be basetypes.ListValue, was: %T`, exportCommunititesAttribute))
+			fmt.Sprintf(`export_communities expected to be basetypes.ListValue, was: %T`, exportCommunitiesAttribute))
 	}
 
 	localPreferenceAttribute, ok := attributes["local_preference"]
@@ -28468,17 +28706,16 @@ func (t ActionType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 	}
 
 	return ActionValue{
-		Accept:             acceptVal,
-		AddCommunity:       addCommunityVal,
-		AddTargetVrfs:      addTargetVrfsVal,
-		Aggregate:          aggregateVal,
-		Community:          communityVal,
-		ExcludeAsPath:      excludeAsPathVal,
-		ExcludeCommunity:   excludeCommunityVal,
-		ExportCommunitites: exportCommunititesVal,
-		LocalPreference:    localPreferenceVal,
-		PrependAsPath:      prependAsPathVal,
-		state:              attr.ValueStateKnown,
+		Accept:            acceptVal,
+		AddCommunity:      addCommunityVal,
+		AddTargetVrfs:     addTargetVrfsVal,
+		Community:         communityVal,
+		ExcludeAsPath:     excludeAsPathVal,
+		ExcludeCommunity:  excludeCommunityVal,
+		ExportCommunities: exportCommunitiesVal,
+		LocalPreference:   localPreferenceVal,
+		PrependAsPath:     prependAsPathVal,
+		state:             attr.ValueStateKnown,
 	}, diags
 }
 
@@ -28599,24 +28836,6 @@ func NewActionValue(attributeTypes map[string]attr.Type, attributes map[string]a
 			fmt.Sprintf(`add_target_vrfs expected to be basetypes.ListValue, was: %T`, addTargetVrfsAttribute))
 	}
 
-	aggregateAttribute, ok := attributes["aggregate"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`aggregate is missing from object`)
-
-		return NewActionValueUnknown(), diags
-	}
-
-	aggregateVal, ok := aggregateAttribute.(basetypes.ListValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`aggregate expected to be basetypes.ListValue, was: %T`, aggregateAttribute))
-	}
-
 	communityAttribute, ok := attributes["community"]
 
 	if !ok {
@@ -28671,22 +28890,22 @@ func NewActionValue(attributeTypes map[string]attr.Type, attributes map[string]a
 			fmt.Sprintf(`exclude_community expected to be basetypes.ListValue, was: %T`, excludeCommunityAttribute))
 	}
 
-	exportCommunititesAttribute, ok := attributes["export_communitites"]
+	exportCommunitiesAttribute, ok := attributes["export_communities"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`export_communitites is missing from object`)
+			`export_communities is missing from object`)
 
 		return NewActionValueUnknown(), diags
 	}
 
-	exportCommunititesVal, ok := exportCommunititesAttribute.(basetypes.ListValue)
+	exportCommunitiesVal, ok := exportCommunitiesAttribute.(basetypes.ListValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`export_communitites expected to be basetypes.ListValue, was: %T`, exportCommunititesAttribute))
+			fmt.Sprintf(`export_communities expected to be basetypes.ListValue, was: %T`, exportCommunitiesAttribute))
 	}
 
 	localPreferenceAttribute, ok := attributes["local_preference"]
@@ -28730,17 +28949,16 @@ func NewActionValue(attributeTypes map[string]attr.Type, attributes map[string]a
 	}
 
 	return ActionValue{
-		Accept:             acceptVal,
-		AddCommunity:       addCommunityVal,
-		AddTargetVrfs:      addTargetVrfsVal,
-		Aggregate:          aggregateVal,
-		Community:          communityVal,
-		ExcludeAsPath:      excludeAsPathVal,
-		ExcludeCommunity:   excludeCommunityVal,
-		ExportCommunitites: exportCommunititesVal,
-		LocalPreference:    localPreferenceVal,
-		PrependAsPath:      prependAsPathVal,
-		state:              attr.ValueStateKnown,
+		Accept:            acceptVal,
+		AddCommunity:      addCommunityVal,
+		AddTargetVrfs:     addTargetVrfsVal,
+		Community:         communityVal,
+		ExcludeAsPath:     excludeAsPathVal,
+		ExcludeCommunity:  excludeCommunityVal,
+		ExportCommunities: exportCommunitiesVal,
+		LocalPreference:   localPreferenceVal,
+		PrependAsPath:     prependAsPathVal,
+		state:             attr.ValueStateKnown,
 	}, diags
 }
 
@@ -28812,21 +29030,20 @@ func (t ActionType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = ActionValue{}
 
 type ActionValue struct {
-	Accept             basetypes.BoolValue   `tfsdk:"accept"`
-	AddCommunity       basetypes.ListValue   `tfsdk:"add_community"`
-	AddTargetVrfs      basetypes.ListValue   `tfsdk:"add_target_vrfs"`
-	Aggregate          basetypes.ListValue   `tfsdk:"aggregate"`
-	Community          basetypes.ListValue   `tfsdk:"community"`
-	ExcludeAsPath      basetypes.ListValue   `tfsdk:"exclude_as_path"`
-	ExcludeCommunity   basetypes.ListValue   `tfsdk:"exclude_community"`
-	ExportCommunitites basetypes.ListValue   `tfsdk:"export_communitites"`
-	LocalPreference    basetypes.StringValue `tfsdk:"local_preference"`
-	PrependAsPath      basetypes.ListValue   `tfsdk:"prepend_as_path"`
-	state              attr.ValueState
+	Accept            basetypes.BoolValue   `tfsdk:"accept"`
+	AddCommunity      basetypes.ListValue   `tfsdk:"add_community"`
+	AddTargetVrfs     basetypes.ListValue   `tfsdk:"add_target_vrfs"`
+	Community         basetypes.ListValue   `tfsdk:"community"`
+	ExcludeAsPath     basetypes.ListValue   `tfsdk:"exclude_as_path"`
+	ExcludeCommunity  basetypes.ListValue   `tfsdk:"exclude_community"`
+	ExportCommunities basetypes.ListValue   `tfsdk:"export_communities"`
+	LocalPreference   basetypes.StringValue `tfsdk:"local_preference"`
+	PrependAsPath     basetypes.ListValue   `tfsdk:"prepend_as_path"`
+	state             attr.ValueState
 }
 
 func (v ActionValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 10)
+	attrTypes := make(map[string]tftypes.Type, 9)
 
 	var val tftypes.Value
 	var err error
@@ -28838,9 +29055,6 @@ func (v ActionValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 	attrTypes["add_target_vrfs"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
-	attrTypes["aggregate"] = basetypes.ListType{
-		ElemType: types.StringType,
-	}.TerraformType(ctx)
 	attrTypes["community"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
@@ -28850,7 +29064,7 @@ func (v ActionValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 	attrTypes["exclude_community"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
-	attrTypes["export_communitites"] = basetypes.ListType{
+	attrTypes["export_communities"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
 	attrTypes["local_preference"] = basetypes.StringType{}.TerraformType(ctx)
@@ -28862,7 +29076,7 @@ func (v ActionValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 10)
+		vals := make(map[string]tftypes.Value, 9)
 
 		val, err = v.Accept.ToTerraformValue(ctx)
 
@@ -28888,14 +29102,6 @@ func (v ActionValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 
 		vals["add_target_vrfs"] = val
 
-		val, err = v.Aggregate.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["aggregate"] = val
-
 		val, err = v.Community.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -28920,13 +29126,13 @@ func (v ActionValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 
 		vals["exclude_community"] = val
 
-		val, err = v.ExportCommunitites.ToTerraformValue(ctx)
+		val, err = v.ExportCommunities.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["export_communitites"] = val
+		vals["export_communities"] = val
 
 		val, err = v.LocalPreference.ToTerraformValue(ctx)
 
@@ -28973,20 +29179,25 @@ func (v ActionValue) String() string {
 func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	addCommunityVal, d := types.ListValue(types.StringType, v.AddCommunity.Elements())
+	var addCommunityVal basetypes.ListValue
+	switch {
+	case v.AddCommunity.IsUnknown():
+		addCommunityVal = types.ListUnknown(types.StringType)
+	case v.AddCommunity.IsNull():
+		addCommunityVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		addCommunityVal, d = types.ListValue(types.StringType, v.AddCommunity.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"accept": basetypes.BoolType{},
 			"add_community": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"add_target_vrfs": basetypes.ListType{
-				ElemType: types.StringType,
-			},
-			"aggregate": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"community": basetypes.ListType{
@@ -28998,7 +29209,7 @@ func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"exclude_community": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"export_communitites": basetypes.ListType{
+			"export_communities": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"local_preference": basetypes.StringType{},
@@ -29008,20 +29219,25 @@ func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 		}), diags
 	}
 
-	addTargetVrfsVal, d := types.ListValue(types.StringType, v.AddTargetVrfs.Elements())
+	var addTargetVrfsVal basetypes.ListValue
+	switch {
+	case v.AddTargetVrfs.IsUnknown():
+		addTargetVrfsVal = types.ListUnknown(types.StringType)
+	case v.AddTargetVrfs.IsNull():
+		addTargetVrfsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		addTargetVrfsVal, d = types.ListValue(types.StringType, v.AddTargetVrfs.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"accept": basetypes.BoolType{},
 			"add_community": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"add_target_vrfs": basetypes.ListType{
-				ElemType: types.StringType,
-			},
-			"aggregate": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"community": basetypes.ListType{
@@ -29033,7 +29249,7 @@ func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"exclude_community": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"export_communitites": basetypes.ListType{
+			"export_communities": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"local_preference": basetypes.StringType{},
@@ -29043,20 +29259,25 @@ func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 		}), diags
 	}
 
-	aggregateVal, d := types.ListValue(types.StringType, v.Aggregate.Elements())
+	var communityVal basetypes.ListValue
+	switch {
+	case v.Community.IsUnknown():
+		communityVal = types.ListUnknown(types.StringType)
+	case v.Community.IsNull():
+		communityVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		communityVal, d = types.ListValue(types.StringType, v.Community.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"accept": basetypes.BoolType{},
 			"add_community": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"add_target_vrfs": basetypes.ListType{
-				ElemType: types.StringType,
-			},
-			"aggregate": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"community": basetypes.ListType{
@@ -29068,7 +29289,7 @@ func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"exclude_community": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"export_communitites": basetypes.ListType{
+			"export_communities": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"local_preference": basetypes.StringType{},
@@ -29078,20 +29299,25 @@ func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 		}), diags
 	}
 
-	communityVal, d := types.ListValue(types.StringType, v.Community.Elements())
+	var excludeAsPathVal basetypes.ListValue
+	switch {
+	case v.ExcludeAsPath.IsUnknown():
+		excludeAsPathVal = types.ListUnknown(types.StringType)
+	case v.ExcludeAsPath.IsNull():
+		excludeAsPathVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		excludeAsPathVal, d = types.ListValue(types.StringType, v.ExcludeAsPath.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"accept": basetypes.BoolType{},
 			"add_community": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"add_target_vrfs": basetypes.ListType{
-				ElemType: types.StringType,
-			},
-			"aggregate": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"community": basetypes.ListType{
@@ -29103,7 +29329,7 @@ func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"exclude_community": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"export_communitites": basetypes.ListType{
+			"export_communities": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"local_preference": basetypes.StringType{},
@@ -29113,20 +29339,25 @@ func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 		}), diags
 	}
 
-	excludeAsPathVal, d := types.ListValue(types.StringType, v.ExcludeAsPath.Elements())
+	var excludeCommunityVal basetypes.ListValue
+	switch {
+	case v.ExcludeCommunity.IsUnknown():
+		excludeCommunityVal = types.ListUnknown(types.StringType)
+	case v.ExcludeCommunity.IsNull():
+		excludeCommunityVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		excludeCommunityVal, d = types.ListValue(types.StringType, v.ExcludeCommunity.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"accept": basetypes.BoolType{},
 			"add_community": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"add_target_vrfs": basetypes.ListType{
-				ElemType: types.StringType,
-			},
-			"aggregate": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"community": basetypes.ListType{
@@ -29138,7 +29369,7 @@ func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"exclude_community": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"export_communitites": basetypes.ListType{
+			"export_communities": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"local_preference": basetypes.StringType{},
@@ -29148,20 +29379,25 @@ func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 		}), diags
 	}
 
-	excludeCommunityVal, d := types.ListValue(types.StringType, v.ExcludeCommunity.Elements())
+	var exportCommunitiesVal basetypes.ListValue
+	switch {
+	case v.ExportCommunities.IsUnknown():
+		exportCommunitiesVal = types.ListUnknown(types.StringType)
+	case v.ExportCommunities.IsNull():
+		exportCommunitiesVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		exportCommunitiesVal, d = types.ListValue(types.StringType, v.ExportCommunities.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"accept": basetypes.BoolType{},
 			"add_community": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"add_target_vrfs": basetypes.ListType{
-				ElemType: types.StringType,
-			},
-			"aggregate": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"community": basetypes.ListType{
@@ -29173,7 +29409,7 @@ func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"exclude_community": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"export_communitites": basetypes.ListType{
+			"export_communities": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"local_preference": basetypes.StringType{},
@@ -29183,55 +29419,25 @@ func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 		}), diags
 	}
 
-	exportCommunititesVal, d := types.ListValue(types.StringType, v.ExportCommunitites.Elements())
-
-	diags.Append(d...)
-
-	if d.HasError() {
-		return types.ObjectUnknown(map[string]attr.Type{
-			"accept": basetypes.BoolType{},
-			"add_community": basetypes.ListType{
-				ElemType: types.StringType,
-			},
-			"add_target_vrfs": basetypes.ListType{
-				ElemType: types.StringType,
-			},
-			"aggregate": basetypes.ListType{
-				ElemType: types.StringType,
-			},
-			"community": basetypes.ListType{
-				ElemType: types.StringType,
-			},
-			"exclude_as_path": basetypes.ListType{
-				ElemType: types.StringType,
-			},
-			"exclude_community": basetypes.ListType{
-				ElemType: types.StringType,
-			},
-			"export_communitites": basetypes.ListType{
-				ElemType: types.StringType,
-			},
-			"local_preference": basetypes.StringType{},
-			"prepend_as_path": basetypes.ListType{
-				ElemType: types.StringType,
-			},
-		}), diags
+	var prependAsPathVal basetypes.ListValue
+	switch {
+	case v.PrependAsPath.IsUnknown():
+		prependAsPathVal = types.ListUnknown(types.StringType)
+	case v.PrependAsPath.IsNull():
+		prependAsPathVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		prependAsPathVal, d = types.ListValue(types.StringType, v.PrependAsPath.Elements())
+		diags.Append(d...)
 	}
 
-	prependAsPathVal, d := types.ListValue(types.StringType, v.PrependAsPath.Elements())
-
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"accept": basetypes.BoolType{},
 			"add_community": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"add_target_vrfs": basetypes.ListType{
-				ElemType: types.StringType,
-			},
-			"aggregate": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"community": basetypes.ListType{
@@ -29243,7 +29449,7 @@ func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"exclude_community": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"export_communitites": basetypes.ListType{
+			"export_communities": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"local_preference": basetypes.StringType{},
@@ -29261,9 +29467,6 @@ func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 		"add_target_vrfs": basetypes.ListType{
 			ElemType: types.StringType,
 		},
-		"aggregate": basetypes.ListType{
-			ElemType: types.StringType,
-		},
 		"community": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -29273,7 +29476,7 @@ func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 		"exclude_community": basetypes.ListType{
 			ElemType: types.StringType,
 		},
-		"export_communitites": basetypes.ListType{
+		"export_communities": basetypes.ListType{
 			ElemType: types.StringType,
 		},
 		"local_preference": basetypes.StringType{},
@@ -29293,16 +29496,15 @@ func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"accept":              v.Accept,
-			"add_community":       addCommunityVal,
-			"add_target_vrfs":     addTargetVrfsVal,
-			"aggregate":           aggregateVal,
-			"community":           communityVal,
-			"exclude_as_path":     excludeAsPathVal,
-			"exclude_community":   excludeCommunityVal,
-			"export_communitites": exportCommunititesVal,
-			"local_preference":    v.LocalPreference,
-			"prepend_as_path":     prependAsPathVal,
+			"accept":             v.Accept,
+			"add_community":      addCommunityVal,
+			"add_target_vrfs":    addTargetVrfsVal,
+			"community":          communityVal,
+			"exclude_as_path":    excludeAsPathVal,
+			"exclude_community":  excludeCommunityVal,
+			"export_communities": exportCommunitiesVal,
+			"local_preference":   v.LocalPreference,
+			"prepend_as_path":    prependAsPathVal,
 		})
 
 	return objVal, diags
@@ -29335,10 +29537,6 @@ func (v ActionValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.Aggregate.Equal(other.Aggregate) {
-		return false
-	}
-
 	if !v.Community.Equal(other.Community) {
 		return false
 	}
@@ -29351,7 +29549,7 @@ func (v ActionValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.ExportCommunitites.Equal(other.ExportCommunitites) {
+	if !v.ExportCommunities.Equal(other.ExportCommunities) {
 		return false
 	}
 
@@ -29383,9 +29581,6 @@ func (v ActionValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 		"add_target_vrfs": basetypes.ListType{
 			ElemType: types.StringType,
 		},
-		"aggregate": basetypes.ListType{
-			ElemType: types.StringType,
-		},
 		"community": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -29395,7 +29590,7 @@ func (v ActionValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 		"exclude_community": basetypes.ListType{
 			ElemType: types.StringType,
 		},
-		"export_communitites": basetypes.ListType{
+		"export_communities": basetypes.ListType{
 			ElemType: types.StringType,
 		},
 		"local_preference": basetypes.StringType{},
@@ -30116,11 +30311,19 @@ func (v RoutingPolicyTermMatchingValue) ToObjectValue(ctx context.Context) (base
 		)
 	}
 
-	asPathVal, d := types.ListValue(types.StringType, v.AsPath.Elements())
+	var asPathVal basetypes.ListValue
+	switch {
+	case v.AsPath.IsUnknown():
+		asPathVal = types.ListUnknown(types.StringType)
+	case v.AsPath.IsNull():
+		asPathVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		asPathVal, d = types.ListValue(types.StringType, v.AsPath.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"as_path": basetypes.ListType{
 				ElemType: types.StringType,
@@ -30152,11 +30355,19 @@ func (v RoutingPolicyTermMatchingValue) ToObjectValue(ctx context.Context) (base
 		}), diags
 	}
 
-	communityVal, d := types.ListValue(types.StringType, v.Community.Elements())
+	var communityVal basetypes.ListValue
+	switch {
+	case v.Community.IsUnknown():
+		communityVal = types.ListUnknown(types.StringType)
+	case v.Community.IsNull():
+		communityVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		communityVal, d = types.ListValue(types.StringType, v.Community.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"as_path": basetypes.ListType{
 				ElemType: types.StringType,
@@ -30188,11 +30399,19 @@ func (v RoutingPolicyTermMatchingValue) ToObjectValue(ctx context.Context) (base
 		}), diags
 	}
 
-	networkVal, d := types.ListValue(types.StringType, v.Network.Elements())
+	var networkVal basetypes.ListValue
+	switch {
+	case v.Network.IsUnknown():
+		networkVal = types.ListUnknown(types.StringType)
+	case v.Network.IsNull():
+		networkVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		networkVal, d = types.ListValue(types.StringType, v.Network.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"as_path": basetypes.ListType{
 				ElemType: types.StringType,
@@ -30224,11 +30443,19 @@ func (v RoutingPolicyTermMatchingValue) ToObjectValue(ctx context.Context) (base
 		}), diags
 	}
 
-	prefixVal, d := types.ListValue(types.StringType, v.Prefix.Elements())
+	var prefixVal basetypes.ListValue
+	switch {
+	case v.Prefix.IsUnknown():
+		prefixVal = types.ListUnknown(types.StringType)
+	case v.Prefix.IsNull():
+		prefixVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		prefixVal, d = types.ListValue(types.StringType, v.Prefix.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"as_path": basetypes.ListType{
 				ElemType: types.StringType,
@@ -30260,11 +30487,19 @@ func (v RoutingPolicyTermMatchingValue) ToObjectValue(ctx context.Context) (base
 		}), diags
 	}
 
-	protocolVal, d := types.ListValue(types.StringType, v.Protocol.Elements())
+	var protocolVal basetypes.ListValue
+	switch {
+	case v.Protocol.IsUnknown():
+		protocolVal = types.ListUnknown(types.StringType)
+	case v.Protocol.IsNull():
+		protocolVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		protocolVal, d = types.ListValue(types.StringType, v.Protocol.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"as_path": basetypes.ListType{
 				ElemType: types.StringType,
@@ -30296,11 +30531,19 @@ func (v RoutingPolicyTermMatchingValue) ToObjectValue(ctx context.Context) (base
 		}), diags
 	}
 
-	vpnNeighborMacVal, d := types.ListValue(types.StringType, v.VpnNeighborMac.Elements())
+	var vpnNeighborMacVal basetypes.ListValue
+	switch {
+	case v.VpnNeighborMac.IsUnknown():
+		vpnNeighborMacVal = types.ListUnknown(types.StringType)
+	case v.VpnNeighborMac.IsNull():
+		vpnNeighborMacVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		vpnNeighborMacVal, d = types.ListValue(types.StringType, v.VpnNeighborMac.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"as_path": basetypes.ListType{
 				ElemType: types.StringType,
@@ -30332,11 +30575,19 @@ func (v RoutingPolicyTermMatchingValue) ToObjectValue(ctx context.Context) (base
 		}), diags
 	}
 
-	vpnPathVal, d := types.ListValue(types.StringType, v.VpnPath.Elements())
+	var vpnPathVal basetypes.ListValue
+	switch {
+	case v.VpnPath.IsUnknown():
+		vpnPathVal = types.ListUnknown(types.StringType)
+	case v.VpnPath.IsNull():
+		vpnPathVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		vpnPathVal, d = types.ListValue(types.StringType, v.VpnPath.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"as_path": basetypes.ListType{
 				ElemType: types.StringType,
@@ -32252,11 +32503,19 @@ func (v ServicePoliciesValue) ToObjectValue(ctx context.Context) (basetypes.Obje
 		)
 	}
 
-	servicesVal, d := types.ListValue(types.StringType, v.Services.Elements())
+	var servicesVal basetypes.ListValue
+	switch {
+	case v.Services.IsUnknown():
+		servicesVal = types.ListUnknown(types.StringType)
+	case v.Services.IsNull():
+		servicesVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		servicesVal, d = types.ListValue(types.StringType, v.Services.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"action": basetypes.StringType{},
 			"antivirus": basetypes.ObjectType{
@@ -32287,11 +32546,19 @@ func (v ServicePoliciesValue) ToObjectValue(ctx context.Context) (basetypes.Obje
 		}), diags
 	}
 
-	tenantsVal, d := types.ListValue(types.StringType, v.Tenants.Elements())
+	var tenantsVal basetypes.ListValue
+	switch {
+	case v.Tenants.IsUnknown():
+		tenantsVal = types.ListUnknown(types.StringType)
+	case v.Tenants.IsNull():
+		tenantsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		tenantsVal, d = types.ListValue(types.StringType, v.Tenants.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"action": basetypes.StringType{},
 			"antivirus": basetypes.ObjectType{
@@ -35742,11 +36009,19 @@ func (v TunnelConfigsValue) ToObjectValue(ctx context.Context) (basetypes.Object
 		)
 	}
 
-	networksVal, d := types.ListValue(types.StringType, v.Networks.Elements())
+	var networksVal basetypes.ListValue
+	switch {
+	case v.Networks.IsUnknown():
+		networksVal = types.ListUnknown(types.StringType)
+	case v.Networks.IsNull():
+		networksVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		networksVal, d = types.ListValue(types.StringType, v.Networks.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"auto_provision": basetypes.ObjectType{
 				AttrTypes: AutoProvisionValue{}.AttributeTypes(ctx),
@@ -36970,11 +37245,19 @@ func (v AutoProvisionPrimaryValue) String() string {
 func (v AutoProvisionPrimaryValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	probeIpsVal, d := types.ListValue(types.StringType, v.ProbeIps.Elements())
+	var probeIpsVal basetypes.ListValue
+	switch {
+	case v.ProbeIps.IsUnknown():
+		probeIpsVal = types.ListUnknown(types.StringType)
+	case v.ProbeIps.IsNull():
+		probeIpsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		probeIpsVal, d = types.ListValue(types.StringType, v.ProbeIps.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"probe_ips": basetypes.ListType{
 				ElemType: types.StringType,
@@ -36985,11 +37268,19 @@ func (v AutoProvisionPrimaryValue) ToObjectValue(ctx context.Context) (basetypes
 		}), diags
 	}
 
-	wanNamesVal, d := types.ListValue(types.StringType, v.WanNames.Elements())
+	var wanNamesVal basetypes.ListValue
+	switch {
+	case v.WanNames.IsUnknown():
+		wanNamesVal = types.ListUnknown(types.StringType)
+	case v.WanNames.IsNull():
+		wanNamesVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		wanNamesVal, d = types.ListValue(types.StringType, v.WanNames.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"probe_ips": basetypes.ListType{
 				ElemType: types.StringType,
@@ -37391,11 +37682,19 @@ func (v AutoProvisionSecondaryValue) String() string {
 func (v AutoProvisionSecondaryValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	probeIpsVal, d := types.ListValue(types.StringType, v.ProbeIps.Elements())
+	var probeIpsVal basetypes.ListValue
+	switch {
+	case v.ProbeIps.IsUnknown():
+		probeIpsVal = types.ListUnknown(types.StringType)
+	case v.ProbeIps.IsNull():
+		probeIpsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		probeIpsVal, d = types.ListValue(types.StringType, v.ProbeIps.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"probe_ips": basetypes.ListType{
 				ElemType: types.StringType,
@@ -37406,11 +37705,19 @@ func (v AutoProvisionSecondaryValue) ToObjectValue(ctx context.Context) (basetyp
 		}), diags
 	}
 
-	wanNamesVal, d := types.ListValue(types.StringType, v.WanNames.Elements())
+	var wanNamesVal basetypes.ListValue
+	switch {
+	case v.WanNames.IsUnknown():
+		wanNamesVal = types.ListUnknown(types.StringType)
+	case v.WanNames.IsNull():
+		wanNamesVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		wanNamesVal, d = types.ListValue(types.StringType, v.WanNames.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"probe_ips": basetypes.ListType{
 				ElemType: types.StringType,
@@ -39209,11 +39516,19 @@ func (v PrimaryValue) String() string {
 func (v PrimaryValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	hostsVal, d := types.ListValue(types.StringType, v.Hosts.Elements())
+	var hostsVal basetypes.ListValue
+	switch {
+	case v.Hosts.IsUnknown():
+		hostsVal = types.ListUnknown(types.StringType)
+	case v.Hosts.IsNull():
+		hostsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		hostsVal, d = types.ListValue(types.StringType, v.Hosts.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"hosts": basetypes.ListType{
 				ElemType: types.StringType,
@@ -39233,11 +39548,19 @@ func (v PrimaryValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 		}), diags
 	}
 
-	internalIpsVal, d := types.ListValue(types.StringType, v.InternalIps.Elements())
+	var internalIpsVal basetypes.ListValue
+	switch {
+	case v.InternalIps.IsUnknown():
+		internalIpsVal = types.ListUnknown(types.StringType)
+	case v.InternalIps.IsNull():
+		internalIpsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		internalIpsVal, d = types.ListValue(types.StringType, v.InternalIps.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"hosts": basetypes.ListType{
 				ElemType: types.StringType,
@@ -39257,11 +39580,19 @@ func (v PrimaryValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 		}), diags
 	}
 
-	probeIpsVal, d := types.ListValue(types.StringType, v.ProbeIps.Elements())
+	var probeIpsVal basetypes.ListValue
+	switch {
+	case v.ProbeIps.IsUnknown():
+		probeIpsVal = types.ListUnknown(types.StringType)
+	case v.ProbeIps.IsNull():
+		probeIpsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		probeIpsVal, d = types.ListValue(types.StringType, v.ProbeIps.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"hosts": basetypes.ListType{
 				ElemType: types.StringType,
@@ -39281,11 +39612,19 @@ func (v PrimaryValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 		}), diags
 	}
 
-	remoteIdsVal, d := types.ListValue(types.StringType, v.RemoteIds.Elements())
+	var remoteIdsVal basetypes.ListValue
+	switch {
+	case v.RemoteIds.IsUnknown():
+		remoteIdsVal = types.ListUnknown(types.StringType)
+	case v.RemoteIds.IsNull():
+		remoteIdsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		remoteIdsVal, d = types.ListValue(types.StringType, v.RemoteIds.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"hosts": basetypes.ListType{
 				ElemType: types.StringType,
@@ -39305,11 +39644,19 @@ func (v PrimaryValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 		}), diags
 	}
 
-	wanNamesVal, d := types.ListValue(types.StringType, v.WanNames.Elements())
+	var wanNamesVal basetypes.ListValue
+	switch {
+	case v.WanNames.IsUnknown():
+		wanNamesVal = types.ListUnknown(types.StringType)
+	case v.WanNames.IsNull():
+		wanNamesVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		wanNamesVal, d = types.ListValue(types.StringType, v.WanNames.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"hosts": basetypes.ListType{
 				ElemType: types.StringType,
@@ -40392,11 +40739,19 @@ func (v SecondaryValue) String() string {
 func (v SecondaryValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	hostsVal, d := types.ListValue(types.StringType, v.Hosts.Elements())
+	var hostsVal basetypes.ListValue
+	switch {
+	case v.Hosts.IsUnknown():
+		hostsVal = types.ListUnknown(types.StringType)
+	case v.Hosts.IsNull():
+		hostsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		hostsVal, d = types.ListValue(types.StringType, v.Hosts.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"hosts": basetypes.ListType{
 				ElemType: types.StringType,
@@ -40416,11 +40771,19 @@ func (v SecondaryValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 		}), diags
 	}
 
-	internalIpsVal, d := types.ListValue(types.StringType, v.InternalIps.Elements())
+	var internalIpsVal basetypes.ListValue
+	switch {
+	case v.InternalIps.IsUnknown():
+		internalIpsVal = types.ListUnknown(types.StringType)
+	case v.InternalIps.IsNull():
+		internalIpsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		internalIpsVal, d = types.ListValue(types.StringType, v.InternalIps.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"hosts": basetypes.ListType{
 				ElemType: types.StringType,
@@ -40440,11 +40803,19 @@ func (v SecondaryValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 		}), diags
 	}
 
-	probeIpsVal, d := types.ListValue(types.StringType, v.ProbeIps.Elements())
+	var probeIpsVal basetypes.ListValue
+	switch {
+	case v.ProbeIps.IsUnknown():
+		probeIpsVal = types.ListUnknown(types.StringType)
+	case v.ProbeIps.IsNull():
+		probeIpsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		probeIpsVal, d = types.ListValue(types.StringType, v.ProbeIps.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"hosts": basetypes.ListType{
 				ElemType: types.StringType,
@@ -40464,11 +40835,19 @@ func (v SecondaryValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 		}), diags
 	}
 
-	remoteIdsVal, d := types.ListValue(types.StringType, v.RemoteIds.Elements())
+	var remoteIdsVal basetypes.ListValue
+	switch {
+	case v.RemoteIds.IsUnknown():
+		remoteIdsVal = types.ListUnknown(types.StringType)
+	case v.RemoteIds.IsNull():
+		remoteIdsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		remoteIdsVal, d = types.ListValue(types.StringType, v.RemoteIds.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"hosts": basetypes.ListType{
 				ElemType: types.StringType,
@@ -40488,11 +40867,19 @@ func (v SecondaryValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 		}), diags
 	}
 
-	wanNamesVal, d := types.ListValue(types.StringType, v.WanNames.Elements())
+	var wanNamesVal basetypes.ListValue
+	switch {
+	case v.WanNames.IsUnknown():
+		wanNamesVal = types.ListUnknown(types.StringType)
+	case v.WanNames.IsNull():
+		wanNamesVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		wanNamesVal, d = types.ListValue(types.StringType, v.WanNames.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"hosts": basetypes.ListType{
 				ElemType: types.StringType,
@@ -44190,11 +44577,19 @@ func (v VrfInstancesValue) String() string {
 func (v VrfInstancesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	networksVal, d := types.ListValue(types.StringType, v.Networks.Elements())
+	var networksVal basetypes.ListValue
+	switch {
+	case v.Networks.IsUnknown():
+		networksVal = types.ListUnknown(types.StringType)
+	case v.Networks.IsNull():
+		networksVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		networksVal, d = types.ListValue(types.StringType, v.Networks.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"networks": basetypes.ListType{
 				ElemType: types.StringType,

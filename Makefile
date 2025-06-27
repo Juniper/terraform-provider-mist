@@ -59,13 +59,13 @@ docs-check:
 	@sh -c "$(CURDIR)/scripts/tfplugindocs.sh"
 
 build:
-	GPG_FINGERPRINT=1211DC34850D21DE goreleaser release --clean 
+	GPG_FINGERPRINT=82AD65745D9BAFF7 goreleaser release --clean 
 
 install: build
 		mkdir -p ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
 		mv ${BINARY} ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
 
-test: gofmt
+test: fmt
 	go test -i $(TEST) || exit 1                                                   
 	echo $(TEST) | xargs -t -n4 go test $(TESTARGS) -timeout=30s -parallel=4   
 

@@ -17,6 +17,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -47,16 +49,23 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
+				Computed: true,
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						AnalyticValue{}.AttributeTypes(ctx),
+						map[string]attr.Value{
+							"enabled": types.BoolValue(false),
+						},
+					),
+				),
 			},
 			"ap_updown_threshold": schema.Int64Attribute{
 				Optional:            true,
-				Computed:            true,
 				Description:         "Enable threshold-based device down delivery for AP devices only. When configured it takes effect for AP devices and `device_updown_threshold` is ignored.",
 				MarkdownDescription: "Enable threshold-based device down delivery for AP devices only. When configured it takes effect for AP devices and `device_updown_threshold` is ignored.",
 				Validators: []validator.Int64{
 					int64validator.Between(0, 240),
 				},
-				Default: int64default.StaticInt64(0),
 			},
 			"auto_upgrade": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -67,8 +76,9 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Description:         "Custom versions for different models. Property key is the model name (e.g. \"AP41\")",
 						MarkdownDescription: "Custom versions for different models. Property key is the model name (e.g. \"AP41\")",
 						Validators: []validator.Map{
-							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("version"), types.StringValue("custom")),
+							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("version"), types.StringValue("custom")),
 						},
+						Default: mapdefault.StaticValue(types.MapValueMust(types.StringType, map[string]attr.Value{})),
 					},
 					"day_of_week": schema.StringAttribute{
 						Optional:            true,
@@ -122,8 +132,21 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
+				Computed:            true,
 				Description:         "Auto Upgrade Settings",
 				MarkdownDescription: "Auto Upgrade Settings",
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						AutoUpgradeValue{}.AttributeTypes(ctx),
+						map[string]attr.Value{
+							"custom_versions": types.MapValueMust(types.StringType, map[string]attr.Value{}),
+							"day_of_week":     types.StringValue("sun"),
+							"enabled":         types.BoolValue(true),
+							"time_of_day":     types.StringValue("02:00"),
+							"version":         types.StringValue("stable"),
+						},
+					),
+				),
 			},
 			"blacklist_url": schema.StringAttribute{
 				Computed: true,
@@ -136,17 +159,15 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Whether Mist beacons is enabled",
 						MarkdownDescription: "Whether Mist beacons is enabled",
-						Default:             booldefault.StaticBool(false),
+						Default:             booldefault.StaticBool(true),
 					},
 					"beacon_rate": schema.Int64Attribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Required if `beacon_rate_mode`==`custom`, 1-10, in number-beacons-per-second",
 						MarkdownDescription: "Required if `beacon_rate_mode`==`custom`, 1-10, in number-beacons-per-second",
 						Validators: []validator.Int64{
 							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("beacon_rate_mode"), types.StringValue("custom")),
 						},
-						Default: int64default.StaticInt64(0),
 					},
 					"beacon_rate_mode": schema.StringAttribute{
 						Optional:            true,
@@ -542,6 +563,7 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
+						Default: listdefault.StaticValue(types.ListNull(MonitorsValue{}.Type(ctx))),
 					},
 				},
 				CustomType: CriticalUrlMonitoringType{
@@ -555,13 +577,16 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"device_updown_threshold": schema.Int64Attribute{
 				Optional:            true,
-				Computed:            true,
-				Description:         "By default, device_updown_thresold, if set, will apply to all devices types if different values for specific device type is desired, use the following",
-				MarkdownDescription: "By default, device_updown_thresold, if set, will apply to all devices types if different values for specific device type is desired, use the following",
+				Description:         "By default, device_updown_threshold, if set, will apply to all devices types if different values for specific device type is desired, use the following",
+				MarkdownDescription: "By default, device_updown_threshold, if set, will apply to all devices types if different values for specific device type is desired, use the following",
 				Validators: []validator.Int64{
 					int64validator.Between(0, 240),
 				},
-				Default: int64default.StaticInt64(0),
+			},
+			"enable_unii_4": schema.BoolAttribute{
+				Optional: true,
+				Computed: true,
+				Default:  booldefault.StaticBool(false),
 			},
 			"engagement": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -572,28 +597,28 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 								Computed:            true,
 								Description:         "Default to `Visitor`",
 								MarkdownDescription: "Default to `Visitor`",
-								Default:             stringdefault.StaticString("Visitor"),
+								Default:             stringdefault.StaticString(""),
 							},
 							"engaged": schema.StringAttribute{
 								Optional:            true,
 								Computed:            true,
 								Description:         "Default to `Associates`",
 								MarkdownDescription: "Default to `Associates`",
-								Default:             stringdefault.StaticString("Associates"),
+								Default:             stringdefault.StaticString(""),
 							},
 							"passerby": schema.StringAttribute{
 								Optional:            true,
 								Computed:            true,
 								Description:         "Default to `Passerby`",
 								MarkdownDescription: "Default to `Passerby`",
-								Default:             stringdefault.StaticString("Passerby"),
+								Default:             stringdefault.StaticString(""),
 							},
 							"stationed": schema.StringAttribute{
 								Optional:            true,
 								Computed:            true,
 								Description:         "Default to `Assets`",
 								MarkdownDescription: "Default to `Assets`",
-								Default:             stringdefault.StaticString("Assets"),
+								Default:             stringdefault.StaticString(""),
 							},
 						},
 						CustomType: DwellTagNamesType{
@@ -649,52 +674,38 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Attributes: map[string]schema.Attribute{
 							"fri": schema.StringAttribute{
 								Optional:            true,
-								Computed:            true,
 								Description:         "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
 								MarkdownDescription: "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
-								Default:             stringdefault.StaticString(""),
 							},
 							"mon": schema.StringAttribute{
 								Optional:            true,
-								Computed:            true,
 								Description:         "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
 								MarkdownDescription: "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
-								Default:             stringdefault.StaticString(""),
 							},
 							"sat": schema.StringAttribute{
 								Optional:            true,
-								Computed:            true,
 								Description:         "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
 								MarkdownDescription: "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
-								Default:             stringdefault.StaticString(""),
 							},
 							"sun": schema.StringAttribute{
 								Optional:            true,
-								Computed:            true,
 								Description:         "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
 								MarkdownDescription: "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
-								Default:             stringdefault.StaticString(""),
 							},
 							"thu": schema.StringAttribute{
 								Optional:            true,
-								Computed:            true,
 								Description:         "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
 								MarkdownDescription: "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
-								Default:             stringdefault.StaticString(""),
 							},
 							"tue": schema.StringAttribute{
 								Optional:            true,
-								Computed:            true,
 								Description:         "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
 								MarkdownDescription: "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
-								Default:             stringdefault.StaticString(""),
 							},
 							"wed": schema.StringAttribute{
 								Optional:            true,
-								Computed:            true,
 								Description:         "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
 								MarkdownDescription: "Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.",
-								Default:             stringdefault.StaticString(""),
 							},
 						},
 						CustomType: HoursType{
@@ -708,13 +719,11 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"max_dwell": schema.Int64Attribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Max time, default is 43200(12h), max is 68400 (18h)",
 						MarkdownDescription: "Max time, default is 43200(12h), max is 68400 (18h)",
 						Validators: []validator.Int64{
 							int64validator.Between(1, 68400),
 						},
-						Default: int64default.StaticInt64(43200),
 					},
 					"min_dwell": schema.Int64Attribute{
 						Optional:            true,
@@ -731,8 +740,39 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
+				Computed:            true,
 				Description:         "**Note**: if hours does not exist, it's treated as everyday of the week, 00:00-23:59. Currently, we don't allow multiple ranges for the same day",
 				MarkdownDescription: "**Note**: if hours does not exist, it's treated as everyday of the week, 00:00-23:59. Currently, we don't allow multiple ranges for the same day",
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						EngagementValue{}.AttributeTypes(ctx),
+						map[string]attr.Value{
+							"dwell_tag_names": types.ObjectValueMust(
+								DwellTagNamesValue{}.AttributeTypes(ctx),
+								map[string]attr.Value{
+									"bounce":    types.StringValue(""),
+									"engaged":   types.StringValue(""),
+									"passerby":  types.StringValue(""),
+									"stationed": types.StringValue(""),
+								},
+							),
+							"dwell_tags": types.ObjectValueMust(
+								DwellTagNamesValue{}.AttributeTypes(ctx),
+								map[string]attr.Value{
+									"bounce":    types.StringValue("301-14400"),
+									"engaged":   types.StringValue("14401-28800"),
+									"passerby":  types.StringValue("1-300"),
+									"stationed": types.StringValue("28801-42000"),
+								},
+							),
+							"hours": types.ObjectNull(
+								HoursValue{}.AttributeTypes(ctx),
+							),
+							"max_dwell": types.Int64Null(),
+							"min_dwell": types.Int64Null(),
+						},
+					),
+				),
 			},
 			"gateway_mgmt": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -742,18 +782,15 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "For SSR only, as direct root access is not allowed",
 						MarkdownDescription: "For SSR only, as direct root access is not allowed",
-						Validators: []validator.List{
-							listvalidator.SizeAtLeast(1),
-						},
-						Default: listdefault.StaticValue(types.ListNull(types.StringType)),
+						Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 					},
 					"app_probing": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
 							"apps": schema.ListAttribute{
 								ElementType:         types.StringType,
 								Optional:            true,
-								Description:         "APp-keys from /api/v1/const/applications",
-								MarkdownDescription: "APp-keys from /api/v1/const/applications",
+								Description:         "APp-keys from [List Applications]($e/Constants%20Definitions/listApplications)",
+								MarkdownDescription: "APp-keys from [List Applications]($e/Constants%20Definitions/listApplications)",
 							},
 							"custom_apps": schema.ListNestedAttribute{
 								NestedObject: schema.NestedAttributeObject{
@@ -854,6 +891,7 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Attributes: map[string]schema.Attribute{
 							"day_of_week": schema.StringAttribute{
 								Optional:            true,
+								Computed:            true,
 								Description:         "enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`",
 								MarkdownDescription: "enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`",
 								Validators: []validator.String{
@@ -869,6 +907,7 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 										"wed",
 									),
 								},
+								Default: stringdefault.StaticString(""),
 							},
 							"enable": schema.BoolAttribute{
 								Optional: true,
@@ -890,33 +929,35 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"config_revert_timer": schema.Int64Attribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Rollback timer for commit confirmed",
 						MarkdownDescription: "Rollback timer for commit confirmed",
 						Validators: []validator.Int64{
 							int64validator.Between(1, 30),
 						},
-						Default: int64default.StaticInt64(10),
 					},
 					"disable_console": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "For both SSR and SRX disable console port",
 						MarkdownDescription: "For both SSR and SRX disable console port",
-						Default:             booldefault.StaticBool(false),
 					},
 					"disable_oob": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "For both SSR and SRX disable management interface",
 						MarkdownDescription: "For both SSR and SRX disable management interface",
-						Default:             booldefault.StaticBool(false),
+					},
+					"disable_usb": schema.BoolAttribute{
+						Optional:            true,
+						Description:         "For SSR disable usb interface",
+						MarkdownDescription: "For SSR disable usb interface",
+					},
+					"fips_enabled": schema.BoolAttribute{
+						Optional: true,
 					},
 					"probe_hosts": schema.ListAttribute{
 						ElementType: types.StringType,
 						Optional:    true,
 						Computed:    true,
-						Default:     listdefault.StaticValue(types.ListNull(types.StringType)),
+						Default:     listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 					},
 					"protect_re": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
@@ -1025,6 +1066,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"security_log_source_interface": schema.StringAttribute{
 						Optional: true,
+						Computed: true,
+						Default:  stringdefault.StaticString(""),
 					},
 				},
 				CustomType: GatewayMgmtType{
@@ -1033,18 +1076,45 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
+				Computed:            true,
 				Description:         "Gateway Site settings",
 				MarkdownDescription: "Gateway Site settings",
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						GatewayMgmtValue{}.AttributeTypes(ctx),
+						map[string]attr.Value{
+							"admin_sshkeys": types.ListValueMust(types.StringType, []attr.Value{}),
+							"app_probing":   types.ObjectNull(AppProbingValue{}.AttributeTypes(ctx)),
+							"app_usage":     types.BoolValue(false),
+							"auto_signature_update": types.ObjectValueMust(
+								AutoSignatureUpdateValue{}.AttributeTypes(ctx),
+								map[string]attr.Value{
+									"day_of_week": types.StringValue(""),
+									"enable":      types.BoolValue(true),
+									"time_of_day": types.StringValue("02:00"),
+								},
+							),
+							"config_revert_timer":           types.Int64Null(),
+							"disable_console":               types.BoolNull(),
+							"disable_oob":                   types.BoolNull(),
+							"disable_usb":                   types.BoolNull(),
+							"fips_enabled":                  types.BoolNull(),
+							"probe_hosts":                   types.ListValueMust(types.StringType, []attr.Value{}),
+							"protect_re":                    types.ObjectNull(ProtectReValue{}.AttributeTypes(ctx)),
+							"root_password":                 types.StringNull(),
+							"security_log_source_address":   types.StringNull(),
+							"security_log_source_interface": types.StringValue(""),
+						},
+					),
+				),
 			},
 			"gateway_updown_threshold": schema.Int64Attribute{
 				Optional:            true,
-				Computed:            true,
 				Description:         "Enable threshold-based device down delivery for Gateway devices only. When configured it takes effect for GW devices and `device_updown_threshold` is ignored.",
 				MarkdownDescription: "Enable threshold-based device down delivery for Gateway devices only. When configured it takes effect for GW devices and `device_updown_threshold` is ignored.",
 				Validators: []validator.Int64{
 					int64validator.Between(0, 240),
 				},
-				Default: int64default.StaticInt64(0),
 			},
 			"juniper_srx": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -1052,6 +1122,9 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						NestedObject: schema.NestedAttributeObject{
 							Attributes: map[string]schema.Attribute{
 								"api_key": schema.StringAttribute{
+									Optional: true,
+								},
+								"api_password": schema.StringAttribute{
 									Optional: true,
 								},
 								"api_url": schema.StringAttribute{
@@ -1099,8 +1172,18 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
+				Computed:            true,
 				Description:         "LED AP settings",
 				MarkdownDescription: "LED AP settings",
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						LedValue{}.AttributeTypes(ctx),
+						map[string]attr.Value{
+							"brightness": types.Int64Value(255),
+							"enabled":    types.BoolValue(true),
+						},
+					),
+				),
 			},
 			"occupancy": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -1120,10 +1203,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"min_duration": schema.Int64Attribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Minimum duration",
 						MarkdownDescription: "Minimum duration",
-						Default:             int64default.StaticInt64(3000),
 					},
 					"sdkclients_enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -1146,8 +1227,21 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
+				Computed:            true,
 				Description:         "Occupancy Analytics settings",
 				MarkdownDescription: "Occupancy Analytics settings",
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						OccupancyValue{}.AttributeTypes(ctx),
+						map[string]attr.Value{
+							"assets_enabled":              types.BoolValue(false),
+							"clients_enabled":             types.BoolValue(false),
+							"min_duration":                types.Int64Null(),
+							"sdkclients_enabled":          types.BoolValue(true),
+							"unconnected_clients_enabled": types.BoolValue(false),
+						},
+					),
+				),
 			},
 			"persist_config_on_device": schema.BoolAttribute{
 				Optional:            true,
@@ -1173,20 +1267,24 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"remove_existing_configs": schema.BoolAttribute{
 				Optional:            true,
-				Computed:            true,
 				Description:         "By default, when we configure a device, we only clean up config we generate. Remove existing configs if enabled",
 				MarkdownDescription: "By default, when we configure a device, we only clean up config we generate. Remove existing configs if enabled",
-				Default:             booldefault.StaticBool(false),
 			},
 			"report_gatt": schema.BoolAttribute{
 				Optional:            true,
-				Computed:            true,
 				Description:         "Whether AP should periodically connect to BLE devices and report GATT device info (device name, manufacturer name, serial number, battery %, temperature, humidity)",
 				MarkdownDescription: "Whether AP should periodically connect to BLE devices and report GATT device info (device name, manufacturer name, serial number, battery %, temperature, humidity)",
-				Default:             booldefault.StaticBool(false),
 			},
 			"rogue": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
+					"allowed_vlan_ids": schema.ListAttribute{
+						ElementType:         types.Int64Type,
+						Optional:            true,
+						Computed:            true,
+						Description:         "list of VLAN IDs on which rogue APs are ignored",
+						MarkdownDescription: "list of VLAN IDs on which rogue APs are ignored",
+						Default:             listdefault.StaticValue(types.ListValueMust(types.Int64Type, []attr.Value{})),
+					},
 					"enabled": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
@@ -1204,18 +1302,34 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					"min_duration": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Minimum duration for a bssid to be considered rogue",
-						MarkdownDescription: "Minimum duration for a bssid to be considered rogue",
+						Description:         "Minimum duration for a bssid to be considered neighbor",
+						MarkdownDescription: "Minimum duration for a bssid to be considered neighbor",
 						Validators: []validator.Int64{
 							int64validator.AtMost(59),
 						},
 						Default: int64default.StaticInt64(10),
 					},
+					"min_rogue_duration": schema.Int64Attribute{
+						Optional:            true,
+						Description:         "Minimum duration for a bssid to be considered rogue",
+						MarkdownDescription: "Minimum duration for a bssid to be considered rogue",
+						Validators: []validator.Int64{
+							int64validator.AtMost(59),
+						},
+					},
+					"min_rogue_rssi": schema.Int64Attribute{
+						Optional:            true,
+						Description:         "Minimum RSSI for an AP to be considered rogue",
+						MarkdownDescription: "Minimum RSSI for an AP to be considered rogue",
+						Validators: []validator.Int64{
+							int64validator.AtLeast(-85),
+						},
+					},
 					"min_rssi": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Minimum RSSI for an AP to be considered rogue (ignoring APs that’s far away)",
-						MarkdownDescription: "Minimum RSSI for an AP to be considered rogue (ignoring APs that’s far away)",
+						Description:         "Minimum RSSI for an AP to be considered neighbor (ignoring APs that’s far away)",
+						MarkdownDescription: "Minimum RSSI for an AP to be considered neighbor (ignoring APs that’s far away)",
 						Validators: []validator.Int64{
 							int64validator.AtLeast(-85),
 						},
@@ -1230,6 +1344,7 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
+						Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 					},
 					"whitelisted_ssids": schema.ListAttribute{
 						ElementType:         types.StringType,
@@ -1240,6 +1355,7 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
+						Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 					},
 				},
 				CustomType: RogueType{
@@ -1248,8 +1364,25 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
+				Computed:            true,
 				Description:         "Rogue site settings",
 				MarkdownDescription: "Rogue site settings",
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						RogueValue{}.AttributeTypes(ctx),
+						map[string]attr.Value{
+							"allowed_vlan_ids":   types.ListValueMust(types.Int64Type, []attr.Value{}),
+							"enabled":            types.BoolValue(false),
+							"honeypot_enabled":   types.BoolValue(true),
+							"min_duration":       types.Int64Value(10),
+							"min_rogue_duration": types.Int64Null(),
+							"min_rogue_rssi":     types.Int64Null(),
+							"min_rssi":           types.Int64Value(-80),
+							"whitelisted_bssids": types.ListValueMust(types.StringType, []attr.Value{}),
+							"whitelisted_ssids":  types.ListValueMust(types.StringType, []attr.Value{}),
+						},
+					),
+				),
 			},
 			"rtsa": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -1263,8 +1396,6 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"disable_pressure_sensor": schema.BoolAttribute{
 						Optional: true,
-						Computed: true,
-						Default:  booldefault.StaticBool(false),
 					},
 					"enabled": schema.BoolAttribute{
 						Optional: true,
@@ -1283,8 +1414,21 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
+				Computed:            true,
 				Description:         "Managed mobility",
 				MarkdownDescription: "Managed mobility",
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						RtsaValue{}.AttributeTypes(ctx),
+						map[string]attr.Value{
+							"app_waking":              types.BoolValue(false),
+							"disable_dead_reckoning":  types.BoolNull(),
+							"disable_pressure_sensor": types.BoolNull(),
+							"enabled":                 types.BoolValue(true),
+							"track_asset":             types.BoolValue(false),
+						},
+					),
+				),
 			},
 			"simple_alert": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -1385,8 +1529,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Set of heuristic rules will be enabled when marvis subscription is not available. It triggers when, in a Z minute window, there are more than Y distinct client encountring over X failures",
-				MarkdownDescription: "Set of heuristic rules will be enabled when marvis subscription is not available. It triggers when, in a Z minute window, there are more than Y distinct client encountring over X failures",
+				Description:         "Set of heuristic rules will be enabled when marvis subscription is not available. It triggers when, in a Z minute window, there are more than Y distinct client encountering over X failures",
+				MarkdownDescription: "Set of heuristic rules will be enabled when marvis subscription is not available. It triggers when, in a Z minute window, there are more than Y distinct client encountering over X failures",
 			},
 			"site_id": schema.StringAttribute{
 				Required: true,
@@ -1435,7 +1579,7 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 				},
-				Default: listdefault.StaticValue(types.ListNull(types.StringType)),
+				Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 			},
 			"ssr": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -1453,23 +1597,29 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
+				Computed: true,
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						SsrValue{}.AttributeTypes(ctx),
+						map[string]attr.Value{
+							"conductor_hosts": types.ListValueMust(types.StringType, []attr.Value{}),
+							"disable_stats":   types.BoolNull(),
+						},
+					),
+				),
 			},
 			"switch_updown_threshold": schema.Int64Attribute{
 				Optional:            true,
-				Computed:            true,
 				Description:         "Enable threshold-based device down delivery for Switch devices only. When configured it takes effect for SW devices and `device_updown_threshold` is ignored.",
 				MarkdownDescription: "Enable threshold-based device down delivery for Switch devices only. When configured it takes effect for SW devices and `device_updown_threshold` is ignored.",
 				Validators: []validator.Int64{
 					int64validator.Between(0, 240),
 				},
-				Default: int64default.StaticInt64(0),
 			},
 			"synthetic_test": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"disabled": schema.BoolAttribute{
 						Optional: true,
-						Computed: true,
-						Default:  booldefault.StaticBool(false),
 					},
 					"vlans": schema.ListNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{
@@ -1539,22 +1689,29 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
+				Computed: true,
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						SyntheticTestValue{}.AttributeTypes(ctx),
+						map[string]attr.Value{
+							"disabled":      types.BoolNull(),
+							"vlans":         types.ListNull(VlansValue{}.Type(ctx)),
+							"wan_speedtest": types.ObjectNull(WanSpeedtestValue{}.AttributeTypes(ctx)),
+						},
+					),
+				),
 			},
 			"track_anonymous_devices": schema.BoolAttribute{
 				Optional:            true,
-				Computed:            true,
 				Description:         "Whether to track anonymous BLE assets (requires ‘track_asset’  enabled)",
 				MarkdownDescription: "Whether to track anonymous BLE assets (requires ‘track_asset’  enabled)",
-				Default:             booldefault.StaticBool(false),
 			},
 			"uplink_port_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"dot1x": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
-						Description:         "Whether to do 802.1x against uplink switch. When enaled, AP cert will be used to do EAP-TLS and the Org's CA Cert has to be provisioned at the switch",
-						MarkdownDescription: "Whether to do 802.1x against uplink switch. When enaled, AP cert will be used to do EAP-TLS and the Org's CA Cert has to be provisioned at the switch",
-						Default:             booldefault.StaticBool(false),
+						Description:         "Whether to do 802.1x against uplink switch. When enabled, AP cert will be used to do EAP-TLS and the Org's CA Cert has to be provisioned at the switch",
+						MarkdownDescription: "Whether to do 802.1x against uplink switch. When enabled, AP cert will be used to do EAP-TLS and the Org's CA Cert has to be provisioned at the switch",
 					},
 					"keep_wlans_up_if_down": schema.BoolAttribute{
 						Optional:            true,
@@ -1570,8 +1727,18 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
+				Computed:            true,
 				Description:         "AP Uplink port configuration",
 				MarkdownDescription: "AP Uplink port configuration",
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						UplinkPortConfigValue{}.AttributeTypes(ctx),
+						map[string]attr.Value{
+							"dot1x":                 types.BoolNull(),
+							"keep_wlans_up_if_down": types.BoolValue(true),
+						},
+					),
+				),
 			},
 			"vars": schema.MapAttribute{
 				ElementType:         types.StringType,
@@ -1615,8 +1782,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Optional, for EX9200 only to seggregate virtual-switches. Property key is the instance name",
-				MarkdownDescription: "Optional, for EX9200 only to seggregate virtual-switches. Property key is the instance name",
+				Description:         "Optional, for EX9200 only to segregate virtual-switches. Property key is the instance name",
+				MarkdownDescription: "Optional, for EX9200 only to segregate virtual-switches. Property key is the instance name",
 				Validators: []validator.Map{
 					mapvalidator.SizeAtLeast(1),
 				},
@@ -1673,39 +1840,38 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
+				Computed:            true,
 				Description:         "WIDS site settings",
 				MarkdownDescription: "WIDS site settings",
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						WidsValue{}.AttributeTypes(ctx),
+						map[string]attr.Value{
+							"repeated_auth_failures": types.ObjectNull(RepeatedAuthFailuresValue{}.AttributeTypes(ctx)),
+						},
+					),
+				),
 			},
 			"wifi": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"cisco_enabled": schema.BoolAttribute{
 						Optional: true,
-						Computed: true,
-						Default:  booldefault.StaticBool(true),
 					},
 					"disable_11k": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Whether to disable 11k",
 						MarkdownDescription: "Whether to disable 11k",
-						Default:             booldefault.StaticBool(false),
 					},
 					"disable_radios_when_power_constrained": schema.BoolAttribute{
 						Optional: true,
-						Computed: true,
-						Default:  booldefault.StaticBool(false),
 					},
 					"enable_arp_spoof_check": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "When proxy_arp is enabled, check for arp spoofing.",
 						MarkdownDescription: "When proxy_arp is enabled, check for arp spoofing.",
-						Default:             booldefault.StaticBool(false),
 					},
 					"enable_shared_radio_scanning": schema.BoolAttribute{
 						Optional: true,
-						Computed: true,
-						Default:  booldefault.StaticBool(true),
 					},
 					"enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -1731,16 +1897,14 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					"mesh_allow_dfs": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Whether to allow Mesh to use DFS channels. For DFS channels, Remote Mesh AP would have to do CAC when scanning for new Base AP, which is slow and will distrupt the connection. If roaming is desired, keep it disabled.",
-						MarkdownDescription: "Whether to allow Mesh to use DFS channels. For DFS channels, Remote Mesh AP would have to do CAC when scanning for new Base AP, which is slow and will distrupt the connection. If roaming is desired, keep it disabled.",
+						Description:         "Whether to allow Mesh to use DFS channels. For DFS channels, Remote Mesh AP would have to do CAC when scanning for new Base AP, which is slow and will disrupt the connection. If roaming is desired, keep it disabled.",
+						MarkdownDescription: "Whether to allow Mesh to use DFS channels. For DFS channels, Remote Mesh AP would have to do CAC when scanning for new Base AP, which is slow and will disrupt the connection. If roaming is desired, keep it disabled.",
 						Default:             booldefault.StaticBool(false),
 					},
 					"mesh_enable_crm": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Used to enable/disable CRM",
 						MarkdownDescription: "Used to enable/disable CRM",
-						Default:             booldefault.StaticBool(false),
 					},
 					"mesh_enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -1780,8 +1944,30 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
+				Computed:            true,
 				Description:         "Wi-Fi site settings",
 				MarkdownDescription: "Wi-Fi site settings",
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						WifiValue{}.AttributeTypes(ctx),
+						map[string]attr.Value{
+							"cisco_enabled":                         types.BoolNull(),
+							"disable_11k":                           types.BoolNull(),
+							"disable_radios_when_power_constrained": types.BoolNull(),
+							"enable_arp_spoof_check":                types.BoolNull(),
+							"enable_shared_radio_scanning":          types.BoolNull(),
+							"enabled":                               types.BoolValue(true),
+							"locate_connected":                      types.BoolValue(false),
+							"locate_unconnected":                    types.BoolValue(false),
+							"mesh_allow_dfs":                        types.BoolValue(false),
+							"mesh_enable_crm":                       types.BoolNull(),
+							"mesh_enabled":                          types.BoolValue(false),
+							"mesh_psk":                              types.StringNull(),
+							"mesh_ssid":                             types.StringNull(),
+							"proxy_arp":                             types.StringNull(),
+						},
+					),
+				),
 			},
 			"wired_vna": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -1803,11 +1989,10 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					"email_notifiers": schema.ListAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
+						Computed:            true,
 						Description:         "List of email addresses to send email notifications when the alert threshold is reached",
 						MarkdownDescription: "List of email addresses to send email notifications when the alert threshold is reached",
-						Validators: []validator.List{
-							listvalidator.SizeAtLeast(1),
-						},
+						Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 					},
 					"enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -1833,8 +2018,19 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
+				Computed:            true,
 				Description:         "Zone Occupancy alert site settings",
 				MarkdownDescription: "Zone Occupancy alert site settings",
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						ZoneOccupancyAlertValue{}.AttributeTypes(ctx),
+						map[string]attr.Value{
+							"email_notifiers": types.ListValueMust(types.StringType, []attr.Value{}),
+							"enabled":         types.BoolValue(false),
+							"threshold":       types.Int64Value(5),
+						},
+					),
+				),
 			},
 		},
 	}
@@ -1850,6 +2046,7 @@ type SiteSettingModel struct {
 	ConfigPushPolicy       ConfigPushPolicyValue      `tfsdk:"config_push_policy"`
 	CriticalUrlMonitoring  CriticalUrlMonitoringValue `tfsdk:"critical_url_monitoring"`
 	DeviceUpdownThreshold  types.Int64                `tfsdk:"device_updown_threshold"`
+	EnableUnii4            types.Bool                 `tfsdk:"enable_unii_4"`
 	Engagement             EngagementValue            `tfsdk:"engagement"`
 	GatewayMgmt            GatewayMgmtValue           `tfsdk:"gateway_mgmt"`
 	GatewayUpdownThreshold types.Int64                `tfsdk:"gateway_updown_threshold"`
@@ -2669,11 +2866,19 @@ func (v AutoUpgradeValue) String() string {
 func (v AutoUpgradeValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	customVersionsVal, d := types.MapValue(types.StringType, v.CustomVersions.Elements())
+	var customVersionsVal basetypes.MapValue
+	switch {
+	case v.CustomVersions.IsUnknown():
+		customVersionsVal = types.MapUnknown(types.StringType)
+	case v.CustomVersions.IsNull():
+		customVersionsVal = types.MapNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		customVersionsVal, d = types.MapValue(types.StringType, v.CustomVersions.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"custom_versions": basetypes.MapType{
 				ElemType: types.StringType,
@@ -4291,11 +4496,19 @@ func (v BleConfigValue) String() string {
 func (v BleConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	beamDisabledVal, d := types.ListValue(types.Int64Type, v.BeamDisabled.Elements())
+	var beamDisabledVal basetypes.ListValue
+	switch {
+	case v.BeamDisabled.IsUnknown():
+		beamDisabledVal = types.ListUnknown(types.Int64Type)
+	case v.BeamDisabled.IsNull():
+		beamDisabledVal = types.ListNull(types.Int64Type)
+	default:
+		var d diag.Diagnostics
+		beamDisabledVal, d = types.ListValue(types.Int64Type, v.BeamDisabled.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"beacon_enabled":   basetypes.BoolType{},
 			"beacon_rate":      basetypes.Int64Type{},
@@ -8585,6 +8798,42 @@ func (t GatewayMgmtType) ValueFromObject(ctx context.Context, in basetypes.Objec
 			fmt.Sprintf(`disable_oob expected to be basetypes.BoolValue, was: %T`, disableOobAttribute))
 	}
 
+	disableUsbAttribute, ok := attributes["disable_usb"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disable_usb is missing from object`)
+
+		return nil, diags
+	}
+
+	disableUsbVal, ok := disableUsbAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disable_usb expected to be basetypes.BoolValue, was: %T`, disableUsbAttribute))
+	}
+
+	fipsEnabledAttribute, ok := attributes["fips_enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`fips_enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	fipsEnabledVal, ok := fipsEnabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`fips_enabled expected to be basetypes.BoolValue, was: %T`, fipsEnabledAttribute))
+	}
+
 	probeHostsAttribute, ok := attributes["probe_hosts"]
 
 	if !ok {
@@ -8687,6 +8936,8 @@ func (t GatewayMgmtType) ValueFromObject(ctx context.Context, in basetypes.Objec
 		ConfigRevertTimer:          configRevertTimerVal,
 		DisableConsole:             disableConsoleVal,
 		DisableOob:                 disableOobVal,
+		DisableUsb:                 disableUsbVal,
+		FipsEnabled:                fipsEnabledVal,
 		ProbeHosts:                 probeHostsVal,
 		ProtectRe:                  protectReVal,
 		RootPassword:               rootPasswordVal,
@@ -8885,6 +9136,42 @@ func NewGatewayMgmtValue(attributeTypes map[string]attr.Type, attributes map[str
 			fmt.Sprintf(`disable_oob expected to be basetypes.BoolValue, was: %T`, disableOobAttribute))
 	}
 
+	disableUsbAttribute, ok := attributes["disable_usb"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disable_usb is missing from object`)
+
+		return NewGatewayMgmtValueUnknown(), diags
+	}
+
+	disableUsbVal, ok := disableUsbAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disable_usb expected to be basetypes.BoolValue, was: %T`, disableUsbAttribute))
+	}
+
+	fipsEnabledAttribute, ok := attributes["fips_enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`fips_enabled is missing from object`)
+
+		return NewGatewayMgmtValueUnknown(), diags
+	}
+
+	fipsEnabledVal, ok := fipsEnabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`fips_enabled expected to be basetypes.BoolValue, was: %T`, fipsEnabledAttribute))
+	}
+
 	probeHostsAttribute, ok := attributes["probe_hosts"]
 
 	if !ok {
@@ -8987,6 +9274,8 @@ func NewGatewayMgmtValue(attributeTypes map[string]attr.Type, attributes map[str
 		ConfigRevertTimer:          configRevertTimerVal,
 		DisableConsole:             disableConsoleVal,
 		DisableOob:                 disableOobVal,
+		DisableUsb:                 disableUsbVal,
+		FipsEnabled:                fipsEnabledVal,
 		ProbeHosts:                 probeHostsVal,
 		ProtectRe:                  protectReVal,
 		RootPassword:               rootPasswordVal,
@@ -9071,6 +9360,8 @@ type GatewayMgmtValue struct {
 	ConfigRevertTimer          basetypes.Int64Value  `tfsdk:"config_revert_timer"`
 	DisableConsole             basetypes.BoolValue   `tfsdk:"disable_console"`
 	DisableOob                 basetypes.BoolValue   `tfsdk:"disable_oob"`
+	DisableUsb                 basetypes.BoolValue   `tfsdk:"disable_usb"`
+	FipsEnabled                basetypes.BoolValue   `tfsdk:"fips_enabled"`
 	ProbeHosts                 basetypes.ListValue   `tfsdk:"probe_hosts"`
 	ProtectRe                  basetypes.ObjectValue `tfsdk:"protect_re"`
 	RootPassword               basetypes.StringValue `tfsdk:"root_password"`
@@ -9080,7 +9371,7 @@ type GatewayMgmtValue struct {
 }
 
 func (v GatewayMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 12)
+	attrTypes := make(map[string]tftypes.Type, 14)
 
 	var val tftypes.Value
 	var err error
@@ -9098,6 +9389,8 @@ func (v GatewayMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 	attrTypes["config_revert_timer"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["disable_console"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["disable_oob"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["disable_usb"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["fips_enabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["probe_hosts"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
@@ -9112,7 +9405,7 @@ func (v GatewayMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 12)
+		vals := make(map[string]tftypes.Value, 14)
 
 		val, err = v.AdminSshkeys.ToTerraformValue(ctx)
 
@@ -9169,6 +9462,22 @@ func (v GatewayMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 		}
 
 		vals["disable_oob"] = val
+
+		val, err = v.DisableUsb.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["disable_usb"] = val
+
+		val, err = v.FipsEnabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["fips_enabled"] = val
 
 		val, err = v.ProbeHosts.ToTerraformValue(ctx)
 
@@ -9302,11 +9611,19 @@ func (v GatewayMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 		)
 	}
 
-	adminSshkeysVal, d := types.ListValue(types.StringType, v.AdminSshkeys.Elements())
+	var adminSshkeysVal basetypes.ListValue
+	switch {
+	case v.AdminSshkeys.IsUnknown():
+		adminSshkeysVal = types.ListUnknown(types.StringType)
+	case v.AdminSshkeys.IsNull():
+		adminSshkeysVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		adminSshkeysVal, d = types.ListValue(types.StringType, v.AdminSshkeys.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"admin_sshkeys": basetypes.ListType{
 				ElemType: types.StringType,
@@ -9321,6 +9638,8 @@ func (v GatewayMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 			"config_revert_timer": basetypes.Int64Type{},
 			"disable_console":     basetypes.BoolType{},
 			"disable_oob":         basetypes.BoolType{},
+			"disable_usb":         basetypes.BoolType{},
+			"fips_enabled":        basetypes.BoolType{},
 			"probe_hosts": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -9333,11 +9652,19 @@ func (v GatewayMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 		}), diags
 	}
 
-	probeHostsVal, d := types.ListValue(types.StringType, v.ProbeHosts.Elements())
+	var probeHostsVal basetypes.ListValue
+	switch {
+	case v.ProbeHosts.IsUnknown():
+		probeHostsVal = types.ListUnknown(types.StringType)
+	case v.ProbeHosts.IsNull():
+		probeHostsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		probeHostsVal, d = types.ListValue(types.StringType, v.ProbeHosts.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"admin_sshkeys": basetypes.ListType{
 				ElemType: types.StringType,
@@ -9352,6 +9679,8 @@ func (v GatewayMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 			"config_revert_timer": basetypes.Int64Type{},
 			"disable_console":     basetypes.BoolType{},
 			"disable_oob":         basetypes.BoolType{},
+			"disable_usb":         basetypes.BoolType{},
+			"fips_enabled":        basetypes.BoolType{},
 			"probe_hosts": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -9378,6 +9707,8 @@ func (v GatewayMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 		"config_revert_timer": basetypes.Int64Type{},
 		"disable_console":     basetypes.BoolType{},
 		"disable_oob":         basetypes.BoolType{},
+		"disable_usb":         basetypes.BoolType{},
+		"fips_enabled":        basetypes.BoolType{},
 		"probe_hosts": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -9407,6 +9738,8 @@ func (v GatewayMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 			"config_revert_timer":           v.ConfigRevertTimer,
 			"disable_console":               v.DisableConsole,
 			"disable_oob":                   v.DisableOob,
+			"disable_usb":                   v.DisableUsb,
+			"fips_enabled":                  v.FipsEnabled,
 			"probe_hosts":                   probeHostsVal,
 			"protect_re":                    protectRe,
 			"root_password":                 v.RootPassword,
@@ -9460,6 +9793,14 @@ func (v GatewayMgmtValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.DisableUsb.Equal(other.DisableUsb) {
+		return false
+	}
+
+	if !v.FipsEnabled.Equal(other.FipsEnabled) {
+		return false
+	}
+
 	if !v.ProbeHosts.Equal(other.ProbeHosts) {
 		return false
 	}
@@ -9506,6 +9847,8 @@ func (v GatewayMgmtValue) AttributeTypes(ctx context.Context) map[string]attr.Ty
 		"config_revert_timer": basetypes.Int64Type{},
 		"disable_console":     basetypes.BoolType{},
 		"disable_oob":         basetypes.BoolType{},
+		"disable_usb":         basetypes.BoolType{},
+		"fips_enabled":        basetypes.BoolType{},
 		"probe_hosts": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -9914,11 +10257,19 @@ func (v AppProbingValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		)
 	}
 
-	appsVal, d := types.ListValue(types.StringType, v.Apps.Elements())
+	var appsVal basetypes.ListValue
+	switch {
+	case v.Apps.IsUnknown():
+		appsVal = types.ListUnknown(types.StringType)
+	case v.Apps.IsNull():
+		appsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		appsVal, d = types.ListValue(types.StringType, v.Apps.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"apps": basetypes.ListType{
 				ElemType: types.StringType,
@@ -10710,11 +11061,19 @@ func (v CustomAppsValue) String() string {
 func (v CustomAppsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	hostnamesVal, d := types.ListValue(types.StringType, v.Hostnames.Elements())
+	var hostnamesVal basetypes.ListValue
+	switch {
+	case v.Hostnames.IsUnknown():
+		hostnamesVal = types.ListUnknown(types.StringType)
+	case v.Hostnames.IsNull():
+		hostnamesVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		hostnamesVal, d = types.ListValue(types.StringType, v.Hostnames.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"address":  basetypes.StringType{},
 			"app_type": basetypes.StringType{},
@@ -11735,11 +12094,19 @@ func (v ProtectReValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 		)
 	}
 
-	allowedServicesVal, d := types.ListValue(types.StringType, v.AllowedServices.Elements())
+	var allowedServicesVal basetypes.ListValue
+	switch {
+	case v.AllowedServices.IsUnknown():
+		allowedServicesVal = types.ListUnknown(types.StringType)
+	case v.AllowedServices.IsNull():
+		allowedServicesVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		allowedServicesVal, d = types.ListValue(types.StringType, v.AllowedServices.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"allowed_services": basetypes.ListType{
 				ElemType: types.StringType,
@@ -11754,11 +12121,19 @@ func (v ProtectReValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 		}), diags
 	}
 
-	trustedHostsVal, d := types.ListValue(types.StringType, v.TrustedHosts.Elements())
+	var trustedHostsVal basetypes.ListValue
+	switch {
+	case v.TrustedHosts.IsUnknown():
+		trustedHostsVal = types.ListUnknown(types.StringType)
+	case v.TrustedHosts.IsNull():
+		trustedHostsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		trustedHostsVal, d = types.ListValue(types.StringType, v.TrustedHosts.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"allowed_services": basetypes.ListType{
 				ElemType: types.StringType,
@@ -12228,11 +12603,19 @@ func (v CustomValue) String() string {
 func (v CustomValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	subnetsVal, d := types.ListValue(types.StringType, v.Subnets.Elements())
+	var subnetsVal basetypes.ListValue
+	switch {
+	case v.Subnets.IsUnknown():
+		subnetsVal = types.ListUnknown(types.StringType)
+	case v.Subnets.IsNull():
+		subnetsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		subnetsVal, d = types.ListValue(types.StringType, v.Subnets.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"port_range": basetypes.StringType{},
 			"protocol":   basetypes.StringType{},
@@ -12774,6 +13157,24 @@ func (t GatewaysType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 			fmt.Sprintf(`api_key expected to be basetypes.StringValue, was: %T`, apiKeyAttribute))
 	}
 
+	apiPasswordAttribute, ok := attributes["api_password"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`api_password is missing from object`)
+
+		return nil, diags
+	}
+
+	apiPasswordVal, ok := apiPasswordAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`api_password expected to be basetypes.StringValue, was: %T`, apiPasswordAttribute))
+	}
+
 	apiUrlAttribute, ok := attributes["api_url"]
 
 	if !ok {
@@ -12797,9 +13198,10 @@ func (t GatewaysType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 	}
 
 	return GatewaysValue{
-		ApiKey: apiKeyVal,
-		ApiUrl: apiUrlVal,
-		state:  attr.ValueStateKnown,
+		ApiKey:      apiKeyVal,
+		ApiPassword: apiPasswordVal,
+		ApiUrl:      apiUrlVal,
+		state:       attr.ValueStateKnown,
 	}, diags
 }
 
@@ -12884,6 +13286,24 @@ func NewGatewaysValue(attributeTypes map[string]attr.Type, attributes map[string
 			fmt.Sprintf(`api_key expected to be basetypes.StringValue, was: %T`, apiKeyAttribute))
 	}
 
+	apiPasswordAttribute, ok := attributes["api_password"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`api_password is missing from object`)
+
+		return NewGatewaysValueUnknown(), diags
+	}
+
+	apiPasswordVal, ok := apiPasswordAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`api_password expected to be basetypes.StringValue, was: %T`, apiPasswordAttribute))
+	}
+
 	apiUrlAttribute, ok := attributes["api_url"]
 
 	if !ok {
@@ -12907,9 +13327,10 @@ func NewGatewaysValue(attributeTypes map[string]attr.Type, attributes map[string
 	}
 
 	return GatewaysValue{
-		ApiKey: apiKeyVal,
-		ApiUrl: apiUrlVal,
-		state:  attr.ValueStateKnown,
+		ApiKey:      apiKeyVal,
+		ApiPassword: apiPasswordVal,
+		ApiUrl:      apiUrlVal,
+		state:       attr.ValueStateKnown,
 	}, diags
 }
 
@@ -12981,25 +13402,27 @@ func (t GatewaysType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = GatewaysValue{}
 
 type GatewaysValue struct {
-	ApiKey basetypes.StringValue `tfsdk:"api_key"`
-	ApiUrl basetypes.StringValue `tfsdk:"api_url"`
-	state  attr.ValueState
+	ApiKey      basetypes.StringValue `tfsdk:"api_key"`
+	ApiPassword basetypes.StringValue `tfsdk:"api_password"`
+	ApiUrl      basetypes.StringValue `tfsdk:"api_url"`
+	state       attr.ValueState
 }
 
 func (v GatewaysValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 2)
+	attrTypes := make(map[string]tftypes.Type, 3)
 
 	var val tftypes.Value
 	var err error
 
 	attrTypes["api_key"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["api_password"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["api_url"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 2)
+		vals := make(map[string]tftypes.Value, 3)
 
 		val, err = v.ApiKey.ToTerraformValue(ctx)
 
@@ -13008,6 +13431,14 @@ func (v GatewaysValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 		}
 
 		vals["api_key"] = val
+
+		val, err = v.ApiPassword.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["api_password"] = val
 
 		val, err = v.ApiUrl.ToTerraformValue(ctx)
 
@@ -13047,8 +13478,9 @@ func (v GatewaysValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 	var diags diag.Diagnostics
 
 	attributeTypes := map[string]attr.Type{
-		"api_key": basetypes.StringType{},
-		"api_url": basetypes.StringType{},
+		"api_key":      basetypes.StringType{},
+		"api_password": basetypes.StringType{},
+		"api_url":      basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -13062,8 +13494,9 @@ func (v GatewaysValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"api_key": v.ApiKey,
-			"api_url": v.ApiUrl,
+			"api_key":      v.ApiKey,
+			"api_password": v.ApiPassword,
+			"api_url":      v.ApiUrl,
 		})
 
 	return objVal, diags
@@ -13088,6 +13521,10 @@ func (v GatewaysValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.ApiPassword.Equal(other.ApiPassword) {
+		return false
+	}
+
 	if !v.ApiUrl.Equal(other.ApiUrl) {
 		return false
 	}
@@ -13105,8 +13542,9 @@ func (v GatewaysValue) Type(ctx context.Context) attr.Type {
 
 func (v GatewaysValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"api_key": basetypes.StringType{},
-		"api_url": basetypes.StringType{},
+		"api_key":      basetypes.StringType{},
+		"api_password": basetypes.StringType{},
+		"api_url":      basetypes.StringType{},
 	}
 }
 
@@ -14382,6 +14820,24 @@ func (t RogueType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue
 
 	attributes := in.Attributes()
 
+	allowedVlanIdsAttribute, ok := attributes["allowed_vlan_ids"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`allowed_vlan_ids is missing from object`)
+
+		return nil, diags
+	}
+
+	allowedVlanIdsVal, ok := allowedVlanIdsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`allowed_vlan_ids expected to be basetypes.ListValue, was: %T`, allowedVlanIdsAttribute))
+	}
+
 	enabledAttribute, ok := attributes["enabled"]
 
 	if !ok {
@@ -14434,6 +14890,42 @@ func (t RogueType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`min_duration expected to be basetypes.Int64Value, was: %T`, minDurationAttribute))
+	}
+
+	minRogueDurationAttribute, ok := attributes["min_rogue_duration"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`min_rogue_duration is missing from object`)
+
+		return nil, diags
+	}
+
+	minRogueDurationVal, ok := minRogueDurationAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`min_rogue_duration expected to be basetypes.Int64Value, was: %T`, minRogueDurationAttribute))
+	}
+
+	minRogueRssiAttribute, ok := attributes["min_rogue_rssi"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`min_rogue_rssi is missing from object`)
+
+		return nil, diags
+	}
+
+	minRogueRssiVal, ok := minRogueRssiAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`min_rogue_rssi expected to be basetypes.Int64Value, was: %T`, minRogueRssiAttribute))
 	}
 
 	minRssiAttribute, ok := attributes["min_rssi"]
@@ -14495,9 +14987,12 @@ func (t RogueType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue
 	}
 
 	return RogueValue{
+		AllowedVlanIds:    allowedVlanIdsVal,
 		Enabled:           enabledVal,
 		HoneypotEnabled:   honeypotEnabledVal,
 		MinDuration:       minDurationVal,
+		MinRogueDuration:  minRogueDurationVal,
+		MinRogueRssi:      minRogueRssiVal,
 		MinRssi:           minRssiVal,
 		WhitelistedBssids: whitelistedBssidsVal,
 		WhitelistedSsids:  whitelistedSsidsVal,
@@ -14568,6 +15063,24 @@ func NewRogueValue(attributeTypes map[string]attr.Type, attributes map[string]at
 		return NewRogueValueUnknown(), diags
 	}
 
+	allowedVlanIdsAttribute, ok := attributes["allowed_vlan_ids"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`allowed_vlan_ids is missing from object`)
+
+		return NewRogueValueUnknown(), diags
+	}
+
+	allowedVlanIdsVal, ok := allowedVlanIdsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`allowed_vlan_ids expected to be basetypes.ListValue, was: %T`, allowedVlanIdsAttribute))
+	}
+
 	enabledAttribute, ok := attributes["enabled"]
 
 	if !ok {
@@ -14620,6 +15133,42 @@ func NewRogueValue(attributeTypes map[string]attr.Type, attributes map[string]at
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`min_duration expected to be basetypes.Int64Value, was: %T`, minDurationAttribute))
+	}
+
+	minRogueDurationAttribute, ok := attributes["min_rogue_duration"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`min_rogue_duration is missing from object`)
+
+		return NewRogueValueUnknown(), diags
+	}
+
+	minRogueDurationVal, ok := minRogueDurationAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`min_rogue_duration expected to be basetypes.Int64Value, was: %T`, minRogueDurationAttribute))
+	}
+
+	minRogueRssiAttribute, ok := attributes["min_rogue_rssi"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`min_rogue_rssi is missing from object`)
+
+		return NewRogueValueUnknown(), diags
+	}
+
+	minRogueRssiVal, ok := minRogueRssiAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`min_rogue_rssi expected to be basetypes.Int64Value, was: %T`, minRogueRssiAttribute))
 	}
 
 	minRssiAttribute, ok := attributes["min_rssi"]
@@ -14681,9 +15230,12 @@ func NewRogueValue(attributeTypes map[string]attr.Type, attributes map[string]at
 	}
 
 	return RogueValue{
+		AllowedVlanIds:    allowedVlanIdsVal,
 		Enabled:           enabledVal,
 		HoneypotEnabled:   honeypotEnabledVal,
 		MinDuration:       minDurationVal,
+		MinRogueDuration:  minRogueDurationVal,
+		MinRogueRssi:      minRogueRssiVal,
 		MinRssi:           minRssiVal,
 		WhitelistedBssids: whitelistedBssidsVal,
 		WhitelistedSsids:  whitelistedSsidsVal,
@@ -14759,9 +15311,12 @@ func (t RogueType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = RogueValue{}
 
 type RogueValue struct {
+	AllowedVlanIds    basetypes.ListValue  `tfsdk:"allowed_vlan_ids"`
 	Enabled           basetypes.BoolValue  `tfsdk:"enabled"`
 	HoneypotEnabled   basetypes.BoolValue  `tfsdk:"honeypot_enabled"`
 	MinDuration       basetypes.Int64Value `tfsdk:"min_duration"`
+	MinRogueDuration  basetypes.Int64Value `tfsdk:"min_rogue_duration"`
+	MinRogueRssi      basetypes.Int64Value `tfsdk:"min_rogue_rssi"`
 	MinRssi           basetypes.Int64Value `tfsdk:"min_rssi"`
 	WhitelistedBssids basetypes.ListValue  `tfsdk:"whitelisted_bssids"`
 	WhitelistedSsids  basetypes.ListValue  `tfsdk:"whitelisted_ssids"`
@@ -14769,14 +15324,19 @@ type RogueValue struct {
 }
 
 func (v RogueValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 6)
+	attrTypes := make(map[string]tftypes.Type, 9)
 
 	var val tftypes.Value
 	var err error
 
+	attrTypes["allowed_vlan_ids"] = basetypes.ListType{
+		ElemType: types.Int64Type,
+	}.TerraformType(ctx)
 	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["honeypot_enabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["min_duration"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["min_rogue_duration"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["min_rogue_rssi"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["min_rssi"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["whitelisted_bssids"] = basetypes.ListType{
 		ElemType: types.StringType,
@@ -14789,7 +15349,15 @@ func (v RogueValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error)
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 6)
+		vals := make(map[string]tftypes.Value, 9)
+
+		val, err = v.AllowedVlanIds.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["allowed_vlan_ids"] = val
 
 		val, err = v.Enabled.ToTerraformValue(ctx)
 
@@ -14814,6 +15382,22 @@ func (v RogueValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error)
 		}
 
 		vals["min_duration"] = val
+
+		val, err = v.MinRogueDuration.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["min_rogue_duration"] = val
+
+		val, err = v.MinRogueRssi.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["min_rogue_rssi"] = val
 
 		val, err = v.MinRssi.ToTerraformValue(ctx)
 
@@ -14868,16 +15452,29 @@ func (v RogueValue) String() string {
 func (v RogueValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	whitelistedBssidsVal, d := types.ListValue(types.StringType, v.WhitelistedBssids.Elements())
+	var allowedVlanIdsVal basetypes.ListValue
+	switch {
+	case v.AllowedVlanIds.IsUnknown():
+		allowedVlanIdsVal = types.ListUnknown(types.Int64Type)
+	case v.AllowedVlanIds.IsNull():
+		allowedVlanIdsVal = types.ListNull(types.Int64Type)
+	default:
+		var d diag.Diagnostics
+		allowedVlanIdsVal, d = types.ListValue(types.Int64Type, v.AllowedVlanIds.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
-			"enabled":          basetypes.BoolType{},
-			"honeypot_enabled": basetypes.BoolType{},
-			"min_duration":     basetypes.Int64Type{},
-			"min_rssi":         basetypes.Int64Type{},
+			"allowed_vlan_ids": basetypes.ListType{
+				ElemType: types.Int64Type,
+			},
+			"enabled":            basetypes.BoolType{},
+			"honeypot_enabled":   basetypes.BoolType{},
+			"min_duration":       basetypes.Int64Type{},
+			"min_rogue_duration": basetypes.Int64Type{},
+			"min_rogue_rssi":     basetypes.Int64Type{},
+			"min_rssi":           basetypes.Int64Type{},
 			"whitelisted_bssids": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -14887,16 +15484,61 @@ func (v RogueValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 		}), diags
 	}
 
-	whitelistedSsidsVal, d := types.ListValue(types.StringType, v.WhitelistedSsids.Elements())
+	var whitelistedBssidsVal basetypes.ListValue
+	switch {
+	case v.WhitelistedBssids.IsUnknown():
+		whitelistedBssidsVal = types.ListUnknown(types.StringType)
+	case v.WhitelistedBssids.IsNull():
+		whitelistedBssidsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		whitelistedBssidsVal, d = types.ListValue(types.StringType, v.WhitelistedBssids.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
-			"enabled":          basetypes.BoolType{},
-			"honeypot_enabled": basetypes.BoolType{},
-			"min_duration":     basetypes.Int64Type{},
-			"min_rssi":         basetypes.Int64Type{},
+			"allowed_vlan_ids": basetypes.ListType{
+				ElemType: types.Int64Type,
+			},
+			"enabled":            basetypes.BoolType{},
+			"honeypot_enabled":   basetypes.BoolType{},
+			"min_duration":       basetypes.Int64Type{},
+			"min_rogue_duration": basetypes.Int64Type{},
+			"min_rogue_rssi":     basetypes.Int64Type{},
+			"min_rssi":           basetypes.Int64Type{},
+			"whitelisted_bssids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"whitelisted_ssids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	var whitelistedSsidsVal basetypes.ListValue
+	switch {
+	case v.WhitelistedSsids.IsUnknown():
+		whitelistedSsidsVal = types.ListUnknown(types.StringType)
+	case v.WhitelistedSsids.IsNull():
+		whitelistedSsidsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		whitelistedSsidsVal, d = types.ListValue(types.StringType, v.WhitelistedSsids.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"allowed_vlan_ids": basetypes.ListType{
+				ElemType: types.Int64Type,
+			},
+			"enabled":            basetypes.BoolType{},
+			"honeypot_enabled":   basetypes.BoolType{},
+			"min_duration":       basetypes.Int64Type{},
+			"min_rogue_duration": basetypes.Int64Type{},
+			"min_rogue_rssi":     basetypes.Int64Type{},
+			"min_rssi":           basetypes.Int64Type{},
 			"whitelisted_bssids": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -14907,10 +15549,15 @@ func (v RogueValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 	}
 
 	attributeTypes := map[string]attr.Type{
-		"enabled":          basetypes.BoolType{},
-		"honeypot_enabled": basetypes.BoolType{},
-		"min_duration":     basetypes.Int64Type{},
-		"min_rssi":         basetypes.Int64Type{},
+		"allowed_vlan_ids": basetypes.ListType{
+			ElemType: types.Int64Type,
+		},
+		"enabled":            basetypes.BoolType{},
+		"honeypot_enabled":   basetypes.BoolType{},
+		"min_duration":       basetypes.Int64Type{},
+		"min_rogue_duration": basetypes.Int64Type{},
+		"min_rogue_rssi":     basetypes.Int64Type{},
+		"min_rssi":           basetypes.Int64Type{},
 		"whitelisted_bssids": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -14930,9 +15577,12 @@ func (v RogueValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
+			"allowed_vlan_ids":   allowedVlanIdsVal,
 			"enabled":            v.Enabled,
 			"honeypot_enabled":   v.HoneypotEnabled,
 			"min_duration":       v.MinDuration,
+			"min_rogue_duration": v.MinRogueDuration,
+			"min_rogue_rssi":     v.MinRogueRssi,
 			"min_rssi":           v.MinRssi,
 			"whitelisted_bssids": whitelistedBssidsVal,
 			"whitelisted_ssids":  whitelistedSsidsVal,
@@ -14956,6 +15606,10 @@ func (v RogueValue) Equal(o attr.Value) bool {
 		return true
 	}
 
+	if !v.AllowedVlanIds.Equal(other.AllowedVlanIds) {
+		return false
+	}
+
 	if !v.Enabled.Equal(other.Enabled) {
 		return false
 	}
@@ -14965,6 +15619,14 @@ func (v RogueValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.MinDuration.Equal(other.MinDuration) {
+		return false
+	}
+
+	if !v.MinRogueDuration.Equal(other.MinRogueDuration) {
+		return false
+	}
+
+	if !v.MinRogueRssi.Equal(other.MinRogueRssi) {
 		return false
 	}
 
@@ -14993,10 +15655,15 @@ func (v RogueValue) Type(ctx context.Context) attr.Type {
 
 func (v RogueValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"enabled":          basetypes.BoolType{},
-		"honeypot_enabled": basetypes.BoolType{},
-		"min_duration":     basetypes.Int64Type{},
-		"min_rssi":         basetypes.Int64Type{},
+		"allowed_vlan_ids": basetypes.ListType{
+			ElemType: types.Int64Type,
+		},
+		"enabled":            basetypes.BoolType{},
+		"honeypot_enabled":   basetypes.BoolType{},
+		"min_duration":       basetypes.Int64Type{},
+		"min_rogue_duration": basetypes.Int64Type{},
+		"min_rogue_rssi":     basetypes.Int64Type{},
+		"min_rssi":           basetypes.Int64Type{},
 		"whitelisted_bssids": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -18387,11 +19054,19 @@ func (v SsrValue) String() string {
 func (v SsrValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	conductorHostsVal, d := types.ListValue(types.StringType, v.ConductorHosts.Elements())
+	var conductorHostsVal basetypes.ListValue
+	switch {
+	case v.ConductorHosts.IsUnknown():
+		conductorHostsVal = types.ListUnknown(types.StringType)
+	case v.ConductorHosts.IsNull():
+		conductorHostsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		conductorHostsVal, d = types.ListValue(types.StringType, v.ConductorHosts.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"conductor_hosts": basetypes.ListType{
 				ElemType: types.StringType,
@@ -19331,11 +20006,19 @@ func (v VlansValue) String() string {
 func (v VlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	customTestUrlsVal, d := types.ListValue(types.StringType, v.CustomTestUrls.Elements())
+	var customTestUrlsVal basetypes.ListValue
+	switch {
+	case v.CustomTestUrls.IsUnknown():
+		customTestUrlsVal = types.ListUnknown(types.StringType)
+	case v.CustomTestUrls.IsNull():
+		customTestUrlsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		customTestUrlsVal, d = types.ListValue(types.StringType, v.CustomTestUrls.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"custom_test_urls": basetypes.ListType{
 				ElemType: types.StringType,
@@ -19347,11 +20030,19 @@ func (v VlansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 		}), diags
 	}
 
-	vlanIdsVal, d := types.ListValue(types.StringType, v.VlanIds.Elements())
+	var vlanIdsVal basetypes.ListValue
+	switch {
+	case v.VlanIds.IsUnknown():
+		vlanIdsVal = types.ListUnknown(types.StringType)
+	case v.VlanIds.IsNull():
+		vlanIdsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		vlanIdsVal, d = types.ListValue(types.StringType, v.VlanIds.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"custom_test_urls": basetypes.ListType{
 				ElemType: types.StringType,
@@ -20793,11 +21484,19 @@ func (v VsInstanceValue) String() string {
 func (v VsInstanceValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	networksVal, d := types.ListValue(types.StringType, v.Networks.Elements())
+	var networksVal basetypes.ListValue
+	switch {
+	case v.Networks.IsUnknown():
+		networksVal = types.ListUnknown(types.StringType)
+	case v.Networks.IsNull():
+		networksVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		networksVal, d = types.ListValue(types.StringType, v.Networks.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"networks": basetypes.ListType{
 				ElemType: types.StringType,
@@ -23648,11 +24347,19 @@ func (v ZoneOccupancyAlertValue) String() string {
 func (v ZoneOccupancyAlertValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	emailNotifiersVal, d := types.ListValue(types.StringType, v.EmailNotifiers.Elements())
+	var emailNotifiersVal basetypes.ListValue
+	switch {
+	case v.EmailNotifiers.IsUnknown():
+		emailNotifiersVal = types.ListUnknown(types.StringType)
+	case v.EmailNotifiers.IsNull():
+		emailNotifiersVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		emailNotifiersVal, d = types.ListValue(types.StringType, v.EmailNotifiers.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"email_notifiers": basetypes.ListType{
 				ElemType: types.StringType,

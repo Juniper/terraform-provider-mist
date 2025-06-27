@@ -48,7 +48,7 @@ func (d *orgNacidpMetadataDataSource) Metadata(_ context.Context, req datasource
 func (d *orgNacidpMetadataDataSource) Schema(ctx context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryNac + "This data source provides the NAC IDP Metadata information.\n\n" +
-			"The provided information (`entity_id`, `acs_url`, `logout_url` and `metadata`) are the information" +
+			"The provided information (`entity_id`, `acs_url`, `logout_url` and `metadata`) are the information " +
 			"required to configure the IDP",
 		Attributes: datasource_org_nacidp_metadata.OrgNacidpMetadataDataSourceSchema(ctx).Attributes,
 	}

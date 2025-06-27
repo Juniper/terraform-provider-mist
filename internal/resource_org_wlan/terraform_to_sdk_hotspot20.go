@@ -1,7 +1,7 @@
 package resource_org_wlan
 
 import (
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -20,17 +20,17 @@ func hotspot20TerraformToSdk(plan Hotspot20Value) *models.WlanHotspot20 {
 
 	data := models.WlanHotspot20{}
 	if !plan.DomainName.IsNull() && !plan.DomainName.IsUnknown() {
-		data.DomainName = misttransform.ListOfStringTerraformToSdk(plan.DomainName)
+		data.DomainName = mistutils.ListOfStringTerraformToSdk(plan.DomainName)
 	}
 	if plan.Enabled.ValueBoolPointer() != nil {
 		data.Enabled = plan.Enabled.ValueBoolPointer()
 	}
 	if !plan.NaiRealms.IsNull() && !plan.NaiRealms.IsUnknown() {
-		data.NaiRealms = misttransform.ListOfStringTerraformToSdk(plan.NaiRealms)
+		data.NaiRealms = mistutils.ListOfStringTerraformToSdk(plan.NaiRealms)
 	}
 	data.Operators = operators
 	if !plan.Rcoi.IsNull() && !plan.Rcoi.IsUnknown() {
-		data.Rcoi = misttransform.ListOfStringTerraformToSdk(plan.Rcoi)
+		data.Rcoi = mistutils.ListOfStringTerraformToSdk(plan.Rcoi)
 	}
 	if plan.VenueName.ValueStringPointer() != nil {
 		data.VenueName = plan.VenueName.ValueStringPointer()

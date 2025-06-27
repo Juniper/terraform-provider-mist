@@ -3,7 +3,7 @@ package resource_site_wlan
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -14,21 +14,21 @@ import (
 )
 
 func hotspot20SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.WlanHotspot20) Hotspot20Value {
-	var domainName = misttransform.ListOfStringSdkToTerraformEmpty()
+	var domainName = basetypes.NewListNull(types.StringType)
 	var enabled basetypes.BoolValue
-	var naiRealms = misttransform.ListOfStringSdkToTerraformEmpty()
-	var operators = misttransform.ListOfStringSdkToTerraformEmpty()
-	var rcoi = misttransform.ListOfStringSdkToTerraformEmpty()
+	var naiRealms = basetypes.NewListNull(types.StringType)
+	var operators = basetypes.NewListNull(types.StringType)
+	var rcoi = basetypes.NewListNull(types.StringType)
 	var venueName basetypes.StringValue
 
 	if d != nil && d.DomainName != nil {
-		domainName = misttransform.ListOfStringSdkToTerraform(d.DomainName)
+		domainName = mistutils.ListOfStringSdkToTerraform(d.DomainName)
 	}
 	if d != nil && d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
 	if d != nil && d.NaiRealms != nil {
-		naiRealms = misttransform.ListOfStringSdkToTerraform(d.NaiRealms)
+		naiRealms = mistutils.ListOfStringSdkToTerraform(d.NaiRealms)
 	}
 	if d != nil && d.Operators != nil {
 		var operatorsList []attr.Value
@@ -38,7 +38,7 @@ func hotspot20SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mo
 		operators = types.ListValueMust(basetypes.StringType{}, operatorsList)
 	}
 	if d != nil && d.Rcoi != nil {
-		rcoi = misttransform.ListOfStringSdkToTerraform(d.Rcoi)
+		rcoi = mistutils.ListOfStringSdkToTerraform(d.Rcoi)
 	}
 	if d != nil && d.VenueName != nil {
 		venueName = types.StringValue(*d.VenueName)

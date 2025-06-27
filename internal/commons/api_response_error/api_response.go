@@ -17,8 +17,7 @@ type ErrorInventory struct {
 	Reason  []string `json:"reason"`
 }
 
-func ProcessApiErrorInventory(statusCode int, body io.ReadCloser) interface{} {
-	var errorInterface interface{}
+func ProcessApiErrorInventory(statusCode int, body io.ReadCloser) (errorInterface interface{}) {
 	if statusCode == 400 {
 		bodyBytes, e := io.ReadAll(body)
 		if e == nil {
@@ -31,8 +30,7 @@ func ProcessApiErrorInventory(statusCode int, body io.ReadCloser) interface{} {
 	return errorInterface
 }
 
-func ProcessApiError(statusCode int, body io.ReadCloser, err error) string {
-	var errorResponse = ""
+func ProcessApiError(statusCode int, body io.ReadCloser, err error) (errorResponse string) {
 	if statusCode >= 300 {
 		bodyBytes, e := io.ReadAll(body)
 		if e == nil {
@@ -50,8 +48,13 @@ func ProcessApiError(statusCode int, body io.ReadCloser, err error) string {
 	return errorResponse
 }
 
-func ProcessInventoryApiError(action string, statusCode int, body io.ReadCloser, err error) []string {
-	var errorResponse []string
+func ProcessInventoryApiError(
+	action string,
+	statusCode int,
+	body io.ReadCloser,
+	err error,
+) (errorResponse []string, vcMemberAssignWarning bool) {
+	vcMemberAssignWarning = false
 	if statusCode == 400 || statusCode == 404 {
 		var valueType = "information"
 		switch action {
@@ -67,19 +70,22 @@ func ProcessInventoryApiError(action string, statusCode int, body io.ReadCloser,
 		bodyBytes, e := io.ReadAll(body)
 		if e == nil {
 			errorBody := ErrorInventory{}
-			err := json.Unmarshal(bodyBytes, &errorBody)
+			err = json.Unmarshal(bodyBytes, &errorBody)
 			if err != nil {
-				return nil
+				return nil, vcMemberAssignWarning
 			}
-
 			for i, mac := range errorBody.Error {
 				reason := errorBody.Reason[i]
-				errorResponse = append(errorResponse, fmt.Sprintf("Invalid %s \"%s\". Reason from Mist: %s", valueType, mac, reason))
+				if reason == "VC member switches could not be assigned" {
+					vcMemberAssignWarning = true
+				} else {
+					errorResponse = append(errorResponse, fmt.Sprintf("Invalid %s \"%s\". Reason from Mist: %s", valueType, mac, reason))
+				}
 			}
 		}
 	}
-	if err != nil && len(errorResponse) == 0 {
+	if err != nil && len(errorResponse) == 0 && !vcMemberAssignWarning {
 		errorResponse = append(errorResponse, fmt.Sprintf("unexpected error: %s", err.Error()))
 	}
-	return errorResponse
+	return errorResponse, vcMemberAssignWarning
 }

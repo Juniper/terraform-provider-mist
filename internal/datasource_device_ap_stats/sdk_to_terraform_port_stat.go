@@ -2,7 +2,6 @@ package datasource_device_ap_stats
 
 import (
 	"context"
-	"math/big"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -12,38 +11,46 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func portStatdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.StatsApPortStat) basetypes.MapValue {
+func portStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.StatsApPortStat) basetypes.MapValue {
 	mapAttrValues := make(map[string]attr.Value)
 	for k, d := range m {
 		var fullDuplex basetypes.BoolValue
-		var rxBytes basetypes.NumberValue
-		var rxErrors basetypes.NumberValue
-		var rxPkts basetypes.NumberValue
+		var rxBytes basetypes.Int64Value
+		var rxErrors basetypes.Int64Value
+		var rxPeakBps basetypes.Int64Value
+		var rxPkts basetypes.Int64Value
 		var speed basetypes.Int64Value
-		var txBytes basetypes.NumberValue
-		var txPkts basetypes.NumberValue
+		var txBytes basetypes.Int64Value
+		var txPeakBps basetypes.Int64Value
+		var txPkts basetypes.Int64Value
 		var up basetypes.BoolValue
 
 		if d.FullDuplex.Value() != nil {
 			fullDuplex = types.BoolValue(*d.FullDuplex.Value())
 		}
 		if d.RxBytes.Value() != nil {
-			rxBytes = types.NumberValue(big.NewFloat(*d.RxBytes.Value()))
+			rxBytes = types.Int64Value(*d.RxBytes.Value())
 		}
 		if d.RxErrors.Value() != nil {
-			rxErrors = types.NumberValue(big.NewFloat(*d.RxErrors.Value()))
+			rxErrors = types.Int64Value(int64(*d.RxErrors.Value()))
+		}
+		if d.RxPeakBps.Value() != nil {
+			rxPeakBps = types.Int64Value(int64(*d.RxPeakBps.Value()))
 		}
 		if d.RxPkts.Value() != nil {
-			rxPkts = types.NumberValue(big.NewFloat(*d.RxPkts.Value()))
+			rxPkts = types.Int64Value(*d.RxPkts.Value())
 		}
 		if d.Speed.Value() != nil {
 			speed = types.Int64Value(int64(*d.Speed.Value()))
 		}
 		if d.TxBytes.Value() != nil {
-			txBytes = types.NumberValue(big.NewFloat(*d.TxBytes.Value()))
+			txBytes = types.Int64Value(*d.TxBytes.Value())
+		}
+		if d.TxPeakBps.Value() != nil {
+			txPeakBps = types.Int64Value(int64(*d.TxPeakBps.Value()))
 		}
 		if d.TxPkts.Value() != nil {
-			txPkts = types.NumberValue(big.NewFloat(*d.TxPkts.Value()))
+			txPkts = types.Int64Value(*d.TxPkts.Value())
 		}
 		if d.Up.Value() != nil {
 			up = types.BoolValue(*d.Up.Value())
@@ -53,9 +60,11 @@ func portStatdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[s
 			"full_duplex": fullDuplex,
 			"rx_bytes":    rxBytes,
 			"rx_errors":   rxErrors,
+			"rx_peak_bps": rxPeakBps,
 			"rx_pkts":     rxPkts,
 			"speed":       speed,
 			"tx_bytes":    txBytes,
+			"tx_peak_bps": txPeakBps,
 			"tx_pkts":     txPkts,
 			"up":          up,
 		}

@@ -3,7 +3,7 @@ package resource_org_network
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -19,7 +19,7 @@ func TenantSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d map[st
 	stateValueMapValue := make(map[string]attr.Value)
 	for k, v := range d {
 		stateValueMapAttrValue := map[string]attr.Value{
-			"addresses": misttransform.ListOfStringSdkToTerraform(v.Addresses),
+			"addresses": mistutils.ListOfStringSdkToTerraform(v.Addresses),
 		}
 		n, e := NewTenantsValue(stateValueMapAttrType, stateValueMapAttrValue)
 		diags.Append(e...)

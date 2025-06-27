@@ -2,7 +2,6 @@ package datasource_org_gatewaytemplates
 
 import (
 	"context"
-	"math/big"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -25,20 +24,20 @@ func SdkToTerraform(ctx context.Context, l *[]models.GatewayTemplate, elements *
 
 func gatewaytemplateSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.GatewayTemplate) OrgGatewaytemplatesValue {
 
-	var createdTime basetypes.NumberValue
+	var createdTime basetypes.Float64Value
 	var id basetypes.StringValue
-	var modifiedTime basetypes.NumberValue
+	var modifiedTime basetypes.Float64Value
 	var name basetypes.StringValue
 	var orgId basetypes.StringValue
 
 	if d.CreatedTime != nil {
-		createdTime = types.NumberValue(big.NewFloat(*d.CreatedTime))
+		createdTime = types.Float64Value(*d.CreatedTime)
 	}
 	if d.Id != nil {
 		id = types.StringValue(d.Id.String())
 	}
 	if d.ModifiedTime != nil {
-		modifiedTime = types.NumberValue(big.NewFloat(*d.ModifiedTime))
+		modifiedTime = types.Float64Value(*d.ModifiedTime)
 	}
 	name = types.StringValue(d.Name)
 	if d.OrgId != nil {

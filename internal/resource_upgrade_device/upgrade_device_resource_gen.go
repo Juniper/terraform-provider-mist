@@ -46,7 +46,9 @@ func UpgradeDeviceResourceSchema(ctx context.Context) schema.Schema {
 						Computed: true,
 					},
 					"timestamp": schema.Float64Attribute{
-						Computed: true,
+						Computed:            true,
+						Description:         "Epoch (seconds)",
+						MarkdownDescription: "Epoch (seconds)",
 					},
 					"will_retry": schema.BoolAttribute{
 						Computed: true,
@@ -133,10 +135,10 @@ func UpgradeDeviceResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "firmware version to deploy to the device. Use the `mist_device_versions` datasource to get the list of available firmware versions",
 				MarkdownDescription: "firmware version to deploy to the device. Use the `mist_device_versions` datasource to get the list of available firmware versions",
 			},
-			"timestamp": schema.NumberAttribute{
+			"timestamp": schema.Float64Attribute{
 				Computed:            true,
-				Description:         "Timestamp",
-				MarkdownDescription: "Timestamp",
+				Description:         "Epoch (seconds)",
+				MarkdownDescription: "Epoch (seconds)",
 			},
 		},
 	}
@@ -157,7 +159,7 @@ type UpgradeDeviceModel struct {
 	SyncUpgradeStartTimeout    types.Int64   `tfsdk:"sync_upgrade_start_timeout"`
 	SyncUpgradeTimeout         types.Int64   `tfsdk:"sync_upgrade_timeout"`
 	TargetVersion              types.String  `tfsdk:"target_version"`
-	Timestamp                  types.Number  `tfsdk:"timestamp"`
+	Timestamp                  types.Float64 `tfsdk:"timestamp"`
 }
 
 var _ basetypes.ObjectTypable = FwupdateType{}

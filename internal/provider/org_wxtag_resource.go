@@ -56,7 +56,7 @@ func (r *orgWxTagResource) Schema(ctx context.Context, _ resource.SchemaRequest,
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryWlan + "This resource manages the Org WxLan tags (labels).\n\n" +
 			"A WxTag is a label or tag used in the mist system to classify and categorize applications, " +
-			"users, and resources for the purpose of creating policies and making network management decisions." +
+			"users, and resources for the purpose of creating policies and making network management decisions. " +
 			"They can be used \n" +
 			"* within the Org WxRules to create filtering rules:\n" +
 			"  * `mist_org_wxrule.dst_allow_wxtags`\n" +
@@ -260,15 +260,26 @@ func (r *orgWxTagResource) Delete(ctx context.Context, _ resource.DeleteRequest,
 		)
 		return
 	}
+
 	data, err := r.client.OrgsWxTags().DeleteOrgWxTag(ctx, orgId, wxtagId)
-	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
-	if data.StatusCode != 404 && apiErr != "" {
+	if data != nil {
+		apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
+		if data.StatusCode != 404 && apiErr != "" {
+			resp.Diagnostics.AddError(
+				"Error deleting \"mist_org_wxtag\" resource",
+				fmt.Sprintf("Unable to delete the WxTag. %s", apiErr),
+			)
+			return
+		}
+	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting \"mist_org_wxtag\" resource",
-			fmt.Sprintf("Unable to delete the WxTag. %s", apiErr),
+			"Unable to delete the WxTag, unexpected error: "+err.Error(),
 		)
 		return
 	}
+
+	resp.State.RemoveResource(ctx)
 }
 
 func (r *orgWxTagResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

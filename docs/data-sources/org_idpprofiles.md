@@ -42,7 +42,7 @@ Read-Only:
 
 - `base_profile` (String) enum: `critical`, `standard`, `strict`
 - `created_time` (Number) When the object has been created, in epoch
-- `id` (String) Unique ID of the object instance in the Mist Organnization
+- `id` (String) Unique ID of the object instance in the Mist Organization
 - `modified_time` (Number) When the object has been modified for the last time, in epoch
 - `name` (String)
 - `org_id` (String)
@@ -55,7 +55,7 @@ Read-Only:
 
 - `action` (String) enum:
   * alert (default)
-  * drop: siliently dropping packets
+  * drop: silently dropping packets
   * close: notify client/server to close connection
 - `matching` (Attributes) (see [below for nested schema](#nestedatt--org_idpprofiles--overwrites--matching))
 - `name` (String)

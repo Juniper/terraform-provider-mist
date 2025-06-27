@@ -3,7 +3,7 @@ package resource_org_gatewaytemplate
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_network"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func mulitcastNetworksTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.NetworkMulticast {
+func multicastNetworksTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.NetworkMulticast {
 	data := models.NetworkMulticast{}
 	if !d.IsNull() && !d.IsUnknown() {
 		plan, e := NewMulticastValue(d.AttributeTypes(ctx), d.Attributes())
@@ -76,13 +76,13 @@ func networksTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d base
 			data.Isolation = models.ToPointer(plan.Isolation.ValueBool())
 		}
 		if !plan.Multicast.IsNull() && !plan.Multicast.IsUnknown() {
-			data.Multicast = mulitcastNetworksTerraformToSdk(ctx, diags, plan.Multicast)
+			data.Multicast = multicastNetworksTerraformToSdk(ctx, diags, plan.Multicast)
 		}
 		if plan.Name.ValueStringPointer() != nil {
 			data.Name = plan.Name.ValueString()
 		}
 		if !plan.RoutedForNetworks.IsNull() && !plan.RoutedForNetworks.IsUnknown() {
-			data.RoutedForNetworks = misttransform.ListOfStringTerraformToSdk(plan.RoutedForNetworks)
+			data.RoutedForNetworks = mistutils.ListOfStringTerraformToSdk(plan.RoutedForNetworks)
 		}
 		if plan.Subnet.ValueStringPointer() != nil {
 			data.Subnet = models.ToPointer(plan.Subnet.ValueString())

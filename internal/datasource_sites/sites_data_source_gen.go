@@ -44,7 +44,7 @@ func SitesDataSourceSchema(ctx context.Context) schema.Schema {
 							Description:         "country code for the site (for AP config generation), in two-character",
 							MarkdownDescription: "country code for the site (for AP config generation), in two-character",
 						},
-						"created_time": schema.NumberAttribute{
+						"created_time": schema.Float64Attribute{
 							Computed: true,
 						},
 						"gatewaytemplate_id": schema.StringAttribute{
@@ -71,7 +71,7 @@ func SitesDataSourceSchema(ctx context.Context) schema.Schema {
 							},
 							Computed: true,
 						},
-						"modified_time": schema.NumberAttribute{
+						"modified_time": schema.Float64Attribute{
 							Computed: true,
 						},
 						"name": schema.StringAttribute{
@@ -241,12 +241,12 @@ func (t SitesType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue
 		return nil, diags
 	}
 
-	createdTimeVal, ok := createdTimeAttribute.(basetypes.NumberValue)
+	createdTimeVal, ok := createdTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`created_time expected to be basetypes.NumberValue, was: %T`, createdTimeAttribute))
+			fmt.Sprintf(`created_time expected to be basetypes.Float64Value, was: %T`, createdTimeAttribute))
 	}
 
 	gatewaytemplateIdAttribute, ok := attributes["gatewaytemplate_id"]
@@ -313,12 +313,12 @@ func (t SitesType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue
 		return nil, diags
 	}
 
-	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.NumberValue)
+	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`modified_time expected to be basetypes.NumberValue, was: %T`, modifiedTimeAttribute))
+			fmt.Sprintf(`modified_time expected to be basetypes.Float64Value, was: %T`, modifiedTimeAttribute))
 	}
 
 	nameAttribute, ok := attributes["name"]
@@ -655,12 +655,12 @@ func NewSitesValue(attributeTypes map[string]attr.Type, attributes map[string]at
 		return NewSitesValueUnknown(), diags
 	}
 
-	createdTimeVal, ok := createdTimeAttribute.(basetypes.NumberValue)
+	createdTimeVal, ok := createdTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`created_time expected to be basetypes.NumberValue, was: %T`, createdTimeAttribute))
+			fmt.Sprintf(`created_time expected to be basetypes.Float64Value, was: %T`, createdTimeAttribute))
 	}
 
 	gatewaytemplateIdAttribute, ok := attributes["gatewaytemplate_id"]
@@ -727,12 +727,12 @@ func NewSitesValue(attributeTypes map[string]attr.Type, attributes map[string]at
 		return NewSitesValueUnknown(), diags
 	}
 
-	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.NumberValue)
+	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.Float64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`modified_time expected to be basetypes.NumberValue, was: %T`, modifiedTimeAttribute))
+			fmt.Sprintf(`modified_time expected to be basetypes.Float64Value, was: %T`, modifiedTimeAttribute))
 	}
 
 	nameAttribute, ok := attributes["name"]
@@ -992,24 +992,24 @@ func (t SitesType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = SitesValue{}
 
 type SitesValue struct {
-	Address           basetypes.StringValue `tfsdk:"address"`
-	AlarmtemplateId   basetypes.StringValue `tfsdk:"alarmtemplate_id"`
-	AptemplateId      basetypes.StringValue `tfsdk:"aptemplate_id"`
-	CountryCode       basetypes.StringValue `tfsdk:"country_code"`
-	CreatedTime       basetypes.NumberValue `tfsdk:"created_time"`
-	GatewaytemplateId basetypes.StringValue `tfsdk:"gatewaytemplate_id"`
-	Id                basetypes.StringValue `tfsdk:"id"`
-	Latlng            basetypes.ObjectValue `tfsdk:"latlng"`
-	ModifiedTime      basetypes.NumberValue `tfsdk:"modified_time"`
-	Name              basetypes.StringValue `tfsdk:"name"`
-	NetworktemplateId basetypes.StringValue `tfsdk:"networktemplate_id"`
-	Notes             basetypes.StringValue `tfsdk:"notes"`
-	OrgId             basetypes.StringValue `tfsdk:"org_id"`
-	RftemplateId      basetypes.StringValue `tfsdk:"rftemplate_id"`
-	SecpolicyId       basetypes.StringValue `tfsdk:"secpolicy_id"`
-	SitegroupIds      basetypes.ListValue   `tfsdk:"sitegroup_ids"`
-	SitetemplateId    basetypes.StringValue `tfsdk:"sitetemplate_id"`
-	Timezone          basetypes.StringValue `tfsdk:"timezone"`
+	Address           basetypes.StringValue  `tfsdk:"address"`
+	AlarmtemplateId   basetypes.StringValue  `tfsdk:"alarmtemplate_id"`
+	AptemplateId      basetypes.StringValue  `tfsdk:"aptemplate_id"`
+	CountryCode       basetypes.StringValue  `tfsdk:"country_code"`
+	CreatedTime       basetypes.Float64Value `tfsdk:"created_time"`
+	GatewaytemplateId basetypes.StringValue  `tfsdk:"gatewaytemplate_id"`
+	Id                basetypes.StringValue  `tfsdk:"id"`
+	Latlng            basetypes.ObjectValue  `tfsdk:"latlng"`
+	ModifiedTime      basetypes.Float64Value `tfsdk:"modified_time"`
+	Name              basetypes.StringValue  `tfsdk:"name"`
+	NetworktemplateId basetypes.StringValue  `tfsdk:"networktemplate_id"`
+	Notes             basetypes.StringValue  `tfsdk:"notes"`
+	OrgId             basetypes.StringValue  `tfsdk:"org_id"`
+	RftemplateId      basetypes.StringValue  `tfsdk:"rftemplate_id"`
+	SecpolicyId       basetypes.StringValue  `tfsdk:"secpolicy_id"`
+	SitegroupIds      basetypes.ListValue    `tfsdk:"sitegroup_ids"`
+	SitetemplateId    basetypes.StringValue  `tfsdk:"sitetemplate_id"`
+	Timezone          basetypes.StringValue  `tfsdk:"timezone"`
 	state             attr.ValueState
 }
 
@@ -1023,13 +1023,13 @@ func (v SitesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error)
 	attrTypes["alarmtemplate_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["aptemplate_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["country_code"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["created_time"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["created_time"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["gatewaytemplate_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["latlng"] = basetypes.ObjectType{
 		AttrTypes: LatlngValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
-	attrTypes["modified_time"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["modified_time"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["networktemplate_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["notes"] = basetypes.StringType{}.TerraformType(ctx)
@@ -1252,13 +1252,13 @@ func (v SitesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 			"alarmtemplate_id":   basetypes.StringType{},
 			"aptemplate_id":      basetypes.StringType{},
 			"country_code":       basetypes.StringType{},
-			"created_time":       basetypes.NumberType{},
+			"created_time":       basetypes.Float64Type{},
 			"gatewaytemplate_id": basetypes.StringType{},
 			"id":                 basetypes.StringType{},
 			"latlng": basetypes.ObjectType{
 				AttrTypes: LatlngValue{}.AttributeTypes(ctx),
 			},
-			"modified_time":      basetypes.NumberType{},
+			"modified_time":      basetypes.Float64Type{},
 			"name":               basetypes.StringType{},
 			"networktemplate_id": basetypes.StringType{},
 			"notes":              basetypes.StringType{},
@@ -1278,13 +1278,13 @@ func (v SitesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 		"alarmtemplate_id":   basetypes.StringType{},
 		"aptemplate_id":      basetypes.StringType{},
 		"country_code":       basetypes.StringType{},
-		"created_time":       basetypes.NumberType{},
+		"created_time":       basetypes.Float64Type{},
 		"gatewaytemplate_id": basetypes.StringType{},
 		"id":                 basetypes.StringType{},
 		"latlng": basetypes.ObjectType{
 			AttrTypes: LatlngValue{}.AttributeTypes(ctx),
 		},
-		"modified_time":      basetypes.NumberType{},
+		"modified_time":      basetypes.Float64Type{},
 		"name":               basetypes.StringType{},
 		"networktemplate_id": basetypes.StringType{},
 		"notes":              basetypes.StringType{},
@@ -1436,13 +1436,13 @@ func (v SitesValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 		"alarmtemplate_id":   basetypes.StringType{},
 		"aptemplate_id":      basetypes.StringType{},
 		"country_code":       basetypes.StringType{},
-		"created_time":       basetypes.NumberType{},
+		"created_time":       basetypes.Float64Type{},
 		"gatewaytemplate_id": basetypes.StringType{},
 		"id":                 basetypes.StringType{},
 		"latlng": basetypes.ObjectType{
 			AttrTypes: LatlngValue{}.AttributeTypes(ctx),
 		},
-		"modified_time":      basetypes.NumberType{},
+		"modified_time":      basetypes.Float64Type{},
 		"name":               basetypes.StringType{},
 		"networktemplate_id": basetypes.StringType{},
 		"notes":              basetypes.StringType{},

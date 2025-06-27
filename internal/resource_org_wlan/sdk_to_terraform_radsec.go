@@ -3,7 +3,7 @@ package resource_org_wlan
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -42,9 +42,9 @@ func radsecServersSkToTerraform(ctx context.Context, diags *diag.Diagnostics, l 
 func radsecSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.Radsec) RadsecValue {
 	var coaEnabled basetypes.BoolValue
 	var enabled basetypes.BoolValue
-	var idleTimeout basetypes.Int64Value
-	var mxclusterIds = misttransform.ListOfUuidSdkToTerraformEmpty()
-	var proxyHosts = misttransform.ListOfStringSdkToTerraformEmpty()
+	var idleTimeout basetypes.StringValue
+	var mxclusterIds = basetypes.NewListNull(types.StringType)
+	var proxyHosts = basetypes.NewListNull(types.StringType)
 	var serverName basetypes.StringValue
 	var servers = types.ListValueMust(ServersValue{}.Type(ctx), []attr.Value{})
 	var useMxedge basetypes.BoolValue
@@ -57,13 +57,13 @@ func radsecSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 		enabled = types.BoolValue(*d.Enabled)
 	}
 	if d != nil && d.IdleTimeout != nil {
-		idleTimeout = types.Int64Value(int64(*d.IdleTimeout))
+		idleTimeout = mistutils.RadsecIdleTimeoutAsString(d.IdleTimeout)
 	}
 	if d != nil && d.MxclusterIds != nil {
-		mxclusterIds = misttransform.ListOfUuidSdkToTerraform(d.MxclusterIds)
+		mxclusterIds = mistutils.ListOfUuidSdkToTerraform(d.MxclusterIds)
 	}
 	if d != nil && d.ProxyHosts != nil {
-		proxyHosts = misttransform.ListOfStringSdkToTerraform(d.ProxyHosts)
+		proxyHosts = mistutils.ListOfStringSdkToTerraform(d.ProxyHosts)
 	}
 	if d != nil && d.ServerName != nil {
 		serverName = types.StringValue(*d.ServerName)

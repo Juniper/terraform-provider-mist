@@ -37,10 +37,10 @@ data "mist_org_alarmtemplates" "alarmtemplates" {
 
 Read-Only:
 
-- `created_time` (Number) when the object has been created, in epoch
+- `created_time` (Number) When the object has been created, in epoch
 - `delivery` (Attributes) Delivery object to configure the alarm delivery (see [below for nested schema](#nestedatt--org_alarmtemplates--delivery))
-- `id` (String) Unique ID of the object instance in the Mist Organnization
-- `modified_time` (Number) when the object has been modified for the last time, in epoch
+- `id` (String) Unique ID of the object instance in the Mist Organization
+- `modified_time` (Number) When the object has been modified for the last time, in epoch
 - `name` (String) Some string to name the alarm template
 - `org_id` (String)
 - `rules` (Attributes Map) Alarm Rules object to configure the individual alarm keys/types. Property key is the alarm name. (see [below for nested schema](#nestedatt--org_alarmtemplates--rules))

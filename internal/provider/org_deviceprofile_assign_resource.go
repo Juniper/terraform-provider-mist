@@ -55,8 +55,8 @@ func (r *orgDeviceprofileAssignResource) Metadata(_ context.Context, req resourc
 
 func (r *orgDeviceprofileAssignResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryDevices + "This resourceis used to assign/unassign a device profile to one or multiple devices.\n\n" +
-			"The `mist_org_deviceprofile_gateway` resource can be assigned to Gateways, and the" +
+		MarkdownDescription: docCategoryDevices + "This resource is used to assign/unassign a device profile to one or multiple devices.\n\n" +
+			"The `mist_org_deviceprofile_gateway` resource can be assigned to Gateways, and the " +
 			"`mist_org_deviceprofile_ap` resource can be assigned the Wireless Access Points",
 		Attributes: resource_org_deviceprofile_assign.OrgDeviceprofileAssignResourceSchema(ctx).Attributes,
 	}
@@ -129,7 +129,7 @@ func (r *orgDeviceprofileAssignResource) Create(ctx context.Context, req resourc
 func (r *orgDeviceprofileAssignResource) Read(ctx context.Context, _ resource.ReadRequest, resp *resource.ReadResponse) {
 	var state resource_org_deviceprofile_assign.OrgDeviceprofileAssignModel
 
-	// TODO: really read the device info to get the profile assignements
+	// TODO: really read the device info to get the profile assignments
 	diags := resp.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -157,14 +157,15 @@ func (r *orgDeviceprofileAssignResource) Read(ctx context.Context, _ resource.Re
 	var model string
 	var mType models.DeviceTypeEnum
 	var mac string
-	var siteId string
+	var siteId *uuid.UUID
 	var vcMac string
 	var vc = false
 	var unassigned bool
+	var modifiedAfter int
 	var limit = 1000
 	var page int
 	tflog.Info(ctx, "Starting Inventory Read: org_id  "+orgId.String())
-	data, err := r.client.OrgsInventory().GetOrgInventory(ctx, orgId, &serial, &model, &mType, &mac, &siteId, &vcMac, &vc, &unassigned, &limit, &page)
+	data, err := r.client.OrgsInventory().GetOrgInventory(ctx, orgId, &serial, &model, &mType, &mac, siteId, &vcMac, &vc, &unassigned, &modifiedAfter, &limit, &page)
 	if err != nil {
 		diags.AddError(
 			"Error refreshing Inventory",

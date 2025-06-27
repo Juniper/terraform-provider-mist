@@ -3,7 +3,6 @@ package resource_org_wlan
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -12,12 +11,20 @@ import (
 )
 
 func bandRatesetSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.WlanDatarates) basetypes.ObjectValue {
+	var eht basetypes.StringValue
+	var he basetypes.StringValue
 	var ht basetypes.StringValue
-	var legacy = misttransform.ListOfStringSdkToTerraformEmpty()
+	var legacy = basetypes.NewListNull(types.StringType)
 	var minRssi basetypes.Int64Value
 	var template basetypes.StringValue
 	var vht basetypes.StringValue
 
+	if d.Eht.Value() != nil {
+		eht = types.StringValue(*d.Eht.Value())
+	}
+	if d.He.Value() != nil {
+		he = types.StringValue(*d.He.Value())
+	}
 	if d.Ht.Value() != nil {
 		ht = types.StringValue(*d.Ht.Value())
 	}
@@ -41,6 +48,8 @@ func bandRatesetSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d mo
 	}
 
 	dataMapValue := map[string]attr.Value{
+		"eht":      eht,
+		"he":       he,
 		"ht":       ht,
 		"legacy":   legacy,
 		"min_rssi": minRssi,

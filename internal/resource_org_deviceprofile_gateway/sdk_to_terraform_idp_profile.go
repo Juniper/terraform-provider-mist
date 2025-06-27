@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func idpProfileOverwriteMatchingSeveritiesSdkToTerraform(data []models.IdpProfileMatchingSeverityValueEnum) basetypes.ListValue {
@@ -27,15 +27,15 @@ func idpProfileOverwriteMatchingSeveritiesSdkToTerraform(data []models.IdpProfil
 
 func idpProfileOverwriteMatchingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.IdpProfileMatching) basetypes.ObjectValue {
 
-	var attackName = misttransform.ListOfStringSdkToTerraformEmpty()
-	var dstSubnet = misttransform.ListOfStringSdkToTerraformEmpty()
-	var severity = misttransform.ListOfStringSdkToTerraformEmpty()
+	var attackName = mistutils.ListOfStringSdkToTerraformEmpty()
+	var dstSubnet = mistutils.ListOfStringSdkToTerraformEmpty()
+	var severity = mistutils.ListOfStringSdkToTerraformEmpty()
 
 	if d != nil && d.AttackName != nil {
-		attackName = misttransform.ListOfStringSdkToTerraform(d.AttackName)
+		attackName = mistutils.ListOfStringSdkToTerraform(d.AttackName)
 	}
 	if d != nil && d.DstSubnet != nil {
-		dstSubnet = misttransform.ListOfStringSdkToTerraform(d.DstSubnet)
+		dstSubnet = mistutils.ListOfStringSdkToTerraform(d.DstSubnet)
 	}
 	if d != nil && d.Severity != nil {
 		severity = idpProfileOverwriteMatchingSeveritiesSdkToTerraform(d.Severity)

@@ -2,14 +2,14 @@
 page_title: "mist_site_evpn_topology Resource - terraform-provider-mist"
 subcategory: "Wired Assurance"
 description: |-
-  This resource manages the Site Evpn Topologys.
+  This resource manages the Site Evpn Topology.
   EVPN allows an alternative but more efficient LAN architecture utilizing VxLAN / MP-BGP to separate the control plane (MAC / IP Learning) from the forwarding plane.
   -> To create or manage your EVPN Topology with the Mist Provider, please refer to the How To - EVPN Topology Guide.
 ---
 
 # mist_site_evpn_topology (Resource)
 
-This resource manages the Site Evpn Topologys.
+This resource manages the Site Evpn Topology.
 
 EVPN allows an alternative but more efficient LAN architecture utilizing VxLAN / MP-BGP to separate the control plane (MAC / IP Learning) from the forwarding plane.
 
@@ -83,7 +83,7 @@ resource "mist_site_site_evpn_topology" "evpn_one" {
 
 ### Read-Only
 
-- `id` (String) Unique ID of the object instance in the Mist Organnization
+- `id` (String) Unique ID of the object instance in the Mist Organization
 - `org_id` (String)
 
 <a id="nestedatt--switches"></a>
@@ -95,10 +95,10 @@ Required:
 
 Optional:
 
-- `pod` (Number) optionally, for distribution / access / esilag-access, they can be placed into different pods. e.g. 
+- `pod` (Number) Optionally, for distribution / access / esilag-access, they can be placed into different pods. e.g. 
   * for CLOS, to group dist / access switches into pods
   * for ERB/CRB, to group dist / esilag-access into pods
-- `pods` (List of Number) by default, core switches are assumed to be connecting all pods. 
+- `pods` (List of Number) By default, core switches are assumed to be connecting all pods. 
 if you want to limit the pods, you can specify pods.
 
 Read-Only:
@@ -116,18 +116,17 @@ Read-Only:
 
 Optional:
 
-- `auto_loopback_subnet` (String) optional, for dhcp_relay, unique loopback IPs are required for ERB or IPClos where we can set option-82 server_id-overrides
-- `auto_loopback_subnet6` (String) optional, for dhcp_relay, unique loopback IPs are required for ERB or IPClos where we can set option-82 server_id-overrides
-- `auto_router_id_subnet` (String) optional, this generates router_id automatically, if specified, `router_id_prefix` is ignored
-- `auto_router_id_subnet6` (String) optional, this generates router_id automatically, if specified, `router_id_prefix` is ignored
-- `core_as_border` (Boolean) optional, for ERB or CLOS, you can either use esilag to upstream routers or to also be the virtual-gateway
-when `routed_at` != `core`, whether to do virtual-gateway at core as well
+- `auto_loopback_subnet` (String) Optional, for dhcp_relay, unique loopback IPs are required for ERB or IPClos where we can set option-82 server_id-overrides
+- `auto_loopback_subnet6` (String) Optional, for dhcp_relay, unique loopback IPs are required for ERB or IPClos where we can set option-82 server_id-overrides
+- `auto_router_id_subnet` (String) Optional, this generates router_id automatically, if specified, `router_id_prefix` is ignored
+- `auto_router_id_subnet6` (String) Optional, this generates router_id automatically, if specified, `router_id_prefix` is ignored
+- `core_as_border` (Boolean) Optional, for ERB or CLOS, you can either use esilag to upstream routers or to also be the virtual-gateway. When `routed_at` != `core`, whether to do virtual-gateway at core as well
 - `overlay` (Attributes) (see [below for nested schema](#nestedatt--evpn_options--overlay))
-- `per_vlan_vga_v4_mac` (Boolean) by default, JUNOS uses 00-00-5e-00-01-01 as the virtual-gateway-address's v4_mac
-if enabled, 00-00-5e-00-XX-YY will be used (where XX=vlan_id/256, YY=vlan_id%256)
+- `per_vlan_vga_v4_mac` (Boolean) Only for by Core-Distribution architecture when `evpn_options.routed_at`==`core`. By default, JUNOS uses 00-00-5e-00-01-01 as the virtual-gateway-address's v4_mac. If enabled, 00-00-5e-00-0X-YY will be used (where XX=vlan_id/256, YY=vlan_id%256)
+- `per_vlan_vga_v6_mac` (Boolean) Only for by Core-Distribution architecture when `evpn_options.routed_at`==`core`. By default, JUNOS uses 00-00-5e-00-02-01 as the virtual-gateway-address's v6_mac. If enabled, 00-00-5e-00-1X-YY will be used (where XX=vlan_id/256, YY=vlan_id%256)
 - `routed_at` (String) optional, where virtual-gateway should reside. enum: `core`, `distribution`, `edge`
 - `underlay` (Attributes) (see [below for nested schema](#nestedatt--evpn_options--underlay))
-- `vs_instances` (Attributes Map) optional, for EX9200 only to seggregate virtual-switches (see [below for nested schema](#nestedatt--evpn_options--vs_instances))
+- `vs_instances` (Attributes Map) Optional, for EX9200 only to segregate virtual-switches (see [below for nested schema](#nestedatt--evpn_options--vs_instances))
 
 <a id="nestedatt--evpn_options--overlay"></a>
 ### Nested Schema for `evpn_options.overlay`
@@ -144,8 +143,8 @@ Optional:
 
 - `as_base` (Number) Underlay BGP Base AS Number
 - `routed_id_prefix` (String)
-- `subnet` (String) underlay subnet, by default, `10.255.240.0/20`, or `fd31:5700::/64` for ipv6
-- `use_ipv6` (Boolean) if v6 is desired for underlay
+- `subnet` (String) Underlay subnet, by default, `10.255.240.0/20`, or `fd31:5700::/64` for ipv6
+- `use_ipv6` (Boolean) If v6 is desired for underlay
 
 
 <a id="nestedatt--evpn_options--vs_instances"></a>

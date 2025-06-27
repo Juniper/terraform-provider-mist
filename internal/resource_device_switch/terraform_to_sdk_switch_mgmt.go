@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
@@ -25,7 +25,7 @@ func switchMgmtProtectReCustomTerraformToSdk(d basetypes.ListValue) []models.Pro
 			dataItem.Protocol = models.ToPointer(models.ProtectReCustomProtocolEnum(itemObj.Protocol.ValueString()))
 		}
 		if !itemObj.Subnets.IsNull() && !itemObj.Subnets.IsUnknown() {
-			dataItem.Subnets = misttransform.ListOfStringTerraformToSdk(itemObj.Subnets)
+			dataItem.Subnets = mistutils.ListOfStringTerraformToSdk(itemObj.Subnets)
 		}
 
 		data = append(data, dataItem)
@@ -45,8 +45,8 @@ func switchMgmtProtectReTerraformToSdk(ctx context.Context, diags *diag.Diagnost
 
 		if !itemObj.AllowedServices.IsNull() && !itemObj.AllowedServices.IsUnknown() {
 			var items []models.ProtectReAllowedServiceEnum
-			for _, item := range itemObj.AllowedServices.Elements() {
-				var iface interface{} = item
+			for _, i := range itemObj.AllowedServices.Elements() {
+				var iface interface{} = i
 				val := iface.(basetypes.StringValue)
 				items = append(items, models.ProtectReAllowedServiceEnum(val.ValueString()))
 			}
@@ -59,13 +59,13 @@ func switchMgmtProtectReTerraformToSdk(ctx context.Context, diags *diag.Diagnost
 			data.Enabled = models.ToPointer(itemObj.Enabled.ValueBool())
 		}
 		if !itemObj.TrustedHosts.IsNull() && !itemObj.TrustedHosts.IsUnknown() {
-			data.TrustedHosts = misttransform.ListOfStringTerraformToSdk(itemObj.TrustedHosts)
+			data.TrustedHosts = mistutils.ListOfStringTerraformToSdk(itemObj.TrustedHosts)
 		}
 		return &data
 	}
 }
 
-func TacacsAcctServersTerraformToSdk(d basetypes.ListValue) []models.TacacsAcctServer {
+func tacacsAcctServersTerraformToSdk(d basetypes.ListValue) []models.TacacsAcctServer {
 
 	var data []models.TacacsAcctServer
 	for _, planAttr := range d.Elements() {
@@ -89,7 +89,7 @@ func TacacsAcctServersTerraformToSdk(d basetypes.ListValue) []models.TacacsAcctS
 	}
 	return data
 }
-func TacacsAuthServersTerraformToSdk(d basetypes.ListValue) []models.TacacsAuthServer {
+func tacacsAuthServersTerraformToSdk(d basetypes.ListValue) []models.TacacsAuthServer {
 
 	var data []models.TacacsAuthServer
 	for _, planAttr := range d.Elements() {
@@ -134,10 +134,10 @@ func switchMgmtTacacsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics
 				data.Network = models.ToPointer(item.Network.ValueString())
 			}
 			if !item.TacacctServers.IsNull() && !item.TacacctServers.IsUnknown() {
-				data.AcctServers = TacacsAcctServersTerraformToSdk(item.TacacctServers)
+				data.AcctServers = tacacsAcctServersTerraformToSdk(item.TacacctServers)
 			}
 			if !item.TacplusServers.IsNull() && !item.TacplusServers.IsUnknown() {
-				data.TacplusServers = TacacsAuthServersTerraformToSdk(item.TacplusServers)
+				data.TacplusServers = tacacsAuthServersTerraformToSdk(item.TacplusServers)
 			}
 			if item.DefaultRole.ValueStringPointer() != nil {
 				data.DefaultRole = models.ToPointer(models.TacacsDefaultRoleEnum(item.DefaultRole.ValueString()))
@@ -191,14 +191,17 @@ func switchMgmtTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d Sw
 		if d.DisableOobDownAlarm.ValueBoolPointer() != nil {
 			data.DisableOobDownAlarm = d.DisableOobDownAlarm.ValueBoolPointer()
 		}
+		if d.FipsEnabled.ValueBoolPointer() != nil {
+			data.FipsEnabled = d.FipsEnabled.ValueBoolPointer()
+		}
 		if !d.LocalAccounts.IsNull() && !d.LocalAccounts.IsUnknown() {
 			data.LocalAccounts = switchLocalAccountUsersTerraformToSdk(d.LocalAccounts)
 		}
 		if d.MxedgeProxyHost.ValueStringPointer() != nil {
 			data.MxedgeProxyHost = d.MxedgeProxyHost.ValueStringPointer()
 		}
-		if d.MxedgeProxyPort.ValueInt64Pointer() != nil {
-			data.MxedgeProxyPort = models.ToPointer(int(d.MxedgeProxyPort.ValueInt64()))
+		if d.MxedgeProxyPort.ValueStringPointer() != nil {
+			data.MxedgeProxyPort = models.ToPointer(models.SwitchMgmtMxedgeProxyPortContainer.FromString(d.MxedgeProxyPort.ValueString()))
 		}
 		if !d.ProtectRe.IsNull() && !d.ProtectRe.IsUnknown() {
 			data.ProtectRe = switchMgmtProtectReTerraformToSdk(ctx, diags, d.ProtectRe)

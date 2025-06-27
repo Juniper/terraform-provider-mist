@@ -46,6 +46,7 @@ resource "mist_device_ap" "ap_one" {
 - `flow_control` (Boolean) For some AP models, flow_control can be enabled to address some switch compatibility issue
 - `height` (Number) Height, in meters, optional
 - `ip_config` (Attributes) IP AP settings (see [below for nested schema](#nestedatt--ip_config))
+- `lacp_config` (Attributes) (see [below for nested schema](#nestedatt--lacp_config))
 - `led` (Attributes) LED AP settings (see [below for nested schema](#nestedatt--led))
 - `locked` (Boolean) Whether this map is considered locked down
 - `map_id` (String) Map where the device belongs to
@@ -54,6 +55,7 @@ resource "mist_device_ap" "ap_one" {
 - `ntp_servers` (List of String)
 - `orientation` (Number) Orientation, 0-359, in degrees, up is 0, right is 90.
 - `poe_passthrough` (Boolean) Whether to enable power out through module port (for APH) or eth1 (for APL/BT11)
+- `port_config` (Attributes Map) eth0 is not allowed here. Property key is the interface(s) name (e.g. `eth1` or `eth1,eth2`). If spcified, this takes predecence over switch_config (deprecated) (see [below for nested schema](#nestedatt--port_config))
 - `pwr_config` (Attributes) Power related configs (see [below for nested schema](#nestedatt--pwr_config))
 - `radio_config` (Attributes) Radio AP settings (see [below for nested schema](#nestedatt--radio_config))
 - `uplink_port_config` (Attributes) AP Uplink port configuration (see [below for nested schema](#nestedatt--uplink_port_config))
@@ -83,6 +85,7 @@ Optional:
 - `enabled` (Boolean) Whether to enable aeroscout config
 - `host` (String) Required if enabled, aeroscout server host
 - `locate_connected` (Boolean) Whether to enable the feature to allow wireless clients data received and sent to AES server for location calculation
+- `port` (Number)
 
 
 <a id="nestedatt--ble_config"></a>
@@ -158,7 +161,7 @@ Optional:
 - `enabled` (Boolean) usb_config is ignored if esl_config enabled
 - `host` (String) Only if `type`==`imagotag` or `type`==`native`
 - `port` (Number) Only if `type`==`imagotag` or `type`==`native`
-- `type` (String) note: ble_config will be ingored if esl_config is enabled and with native mode. enum: `hanshow`, `imagotag`, `native`, `solum`
+- `type` (String) note: ble_config will be ignored if esl_config is enabled and with native mode. enum: `hanshow`, `imagotag`, `native`, `solum`
 - `verify_cert` (Boolean) Only if `type`==`imagotag` or `type`==`native`
 - `vlan_id` (Number) Only if `type`==`solum` or `type`==`hanshow`
 
@@ -182,6 +185,14 @@ Optional:
 - `vlan_id` (Number) Management VLAN id, default is 1 (untagged)
 
 
+<a id="nestedatt--lacp_config"></a>
+### Nested Schema for `lacp_config`
+
+Optional:
+
+- `enabled` (Boolean)
+
+
 <a id="nestedatt--led"></a>
 ### Nested Schema for `led`
 
@@ -196,9 +207,142 @@ Optional:
 
 Optional:
 
+- `bands` (List of String) List of bands that the mesh should apply to. For relay, the first viable one will be picked. For relay, the first viable one will be picked. enum: `24`, `5`, `6`
 - `enabled` (Boolean) Whether mesh is enabled on this AP
 - `group` (Number) Mesh group, base AP(s) will only allow remote AP(s) in the same mesh group to join, 1-9, optional
 - `role` (String) enum: `base`, `remote`
+
+
+<a id="nestedatt--port_config"></a>
+### Nested Schema for `port_config`
+
+Optional:
+
+- `disabled` (Boolean)
+- `dynamic_vlan` (Attributes) Optional dynamic vlan (see [below for nested schema](#nestedatt--port_config--dynamic_vlan))
+- `enable_mac_auth` (Boolean)
+- `forwarding` (String) enum: 
+  * `all`: local breakout, All VLANs
+  * `limited`: local breakout, only the VLANs configured in `port_vlan_id` and `vlan_ids`
+  * `mxtunnel`: central breakout to an Org Mist Edge (requires `mxtunnel_id`)
+  * `site_mxedge`: central breakout to a Site Mist Edge (requires `mxtunnel_name`)
+  * `wxtunnel`': central breakout to an Org WxTunnel (requires `wxtunnel_id`)
+- `mac_auth_preferred` (Boolean) When `true`, we'll do dot1x then mac_auth. enable this to prefer mac_auth
+- `mac_auth_protocol` (String) if `enable_mac_auth`==`true`, allows user to select an authentication protocol. enum: `eap-md5`, `eap-peap`, `pap`
+- `mist_nac` (Attributes) (see [below for nested schema](#nestedatt--port_config--mist_nac))
+- `mx_tunnel_id` (String) If `forwarding`==`mxtunnel`, vlan_ids comes from mxtunnel
+- `mxtunnel_name` (String) If `forwarding`==`site_mxedge`, vlan_ids comes from site_mxedge (`mxtunnels` under site setting)
+- `port_auth` (String) When doing port auth. enum: `dot1x`, `none`
+- `port_vlan_id` (Number) If `forwarding`==`limited`
+- `radius_config` (Attributes) Junos Radius config (see [below for nested schema](#nestedatt--port_config--radius_config))
+- `radsec` (Attributes) RadSec settings (see [below for nested schema](#nestedatt--port_config--radsec))
+- `vlan_id` (Number) Optional to specify the vlan id for a tunnel if forwarding is for `wxtunnel`, `mxtunnel` or `site_mxedge`.
+  * if vlan_id is not specified then it will use first one in vlan_ids[] of the mxtunnel.
+  * if forwarding == site_mxedge, vlan_ids comes from site_mxedge (`mxtunnels` under site setting)
+- `vlan_ids` (List of Number) If `forwarding`==`limited`
+- `wxtunnel_id` (String) If `forwarding`==`wxtunnel`, the port is bridged to the vlan of the session
+- `wxtunnel_remote_id` (String) If `forwarding`==`wxtunnel`, the port is bridged to the vlan of the session
+
+<a id="nestedatt--port_config--dynamic_vlan"></a>
+### Nested Schema for `port_config.dynamic_vlan`
+
+Optional:
+
+- `default_vlan_id` (Number)
+- `enabled` (Boolean)
+- `type` (String)
+- `vlans` (Map of String)
+
+
+<a id="nestedatt--port_config--mist_nac"></a>
+### Nested Schema for `port_config.mist_nac`
+
+Optional:
+
+- `enabled` (Boolean) When enabled:
+  * `auth_servers` is ignored
+  * `acct_servers` is ignored
+  * `auth_servers_*` are ignored
+  * `coa_servers` is ignored
+  * `radsec` is ignored
+  * `coa_enabled` is assumed
+
+
+<a id="nestedatt--port_config--radius_config"></a>
+### Nested Schema for `port_config.radius_config`
+
+Optional:
+
+- `acct_interim_interval` (Number) How frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from RADIUS Server). Very frequent messages can affect the performance of the radius server, 600 and up is recommended when enabled
+- `acct_servers` (Attributes List) (see [below for nested schema](#nestedatt--port_config--radius_config--acct_servers))
+- `auth_servers` (Attributes List) (see [below for nested schema](#nestedatt--port_config--radius_config--auth_servers))
+- `auth_servers_retries` (Number) radius auth session retries
+- `auth_servers_timeout` (Number) radius auth session timeout
+- `coa_enabled` (Boolean)
+- `coa_port` (Number)
+- `network` (String) use `network`or `source_ip`, which network the RADIUS server resides, if there's static IP for this network, we'd use it as source-ip
+- `source_ip` (String) use `network`or `source_ip`
+
+<a id="nestedatt--port_config--radius_config--acct_servers"></a>
+### Nested Schema for `port_config.radius_config.acct_servers`
+
+Required:
+
+- `host` (String) IP/ hostname of RADIUS server
+- `secret` (String, Sensitive) Secret of RADIUS server
+
+Optional:
+
+- `keywrap_enabled` (Boolean)
+- `keywrap_format` (String) enum: `ascii`, `hex`
+- `keywrap_kek` (String)
+- `keywrap_mack` (String)
+- `port` (String)
+
+
+<a id="nestedatt--port_config--radius_config--auth_servers"></a>
+### Nested Schema for `port_config.radius_config.auth_servers`
+
+Required:
+
+- `host` (String) IP/ hostname of RADIUS server
+- `secret` (String, Sensitive) Secret of RADIUS server
+
+Optional:
+
+- `keywrap_enabled` (Boolean)
+- `keywrap_format` (String) enum: `ascii`, `hex`
+- `keywrap_kek` (String)
+- `keywrap_mack` (String)
+- `port` (String)
+- `require_message_authenticator` (Boolean) Whether to require Message-Authenticator in requests
+
+
+
+<a id="nestedatt--port_config--radsec"></a>
+### Nested Schema for `port_config.radsec`
+
+Optional:
+
+- `coa_enabled` (Boolean)
+- `enabled` (Boolean)
+- `idle_timeout` (String)
+- `mxcluster_ids` (List of String) To use Org mxedges when this WLAN does not use mxtunnel, specify their mxcluster_ids. Org mxedge(s) identified by mxcluster_ids
+- `proxy_hosts` (List of String) Default is site.mxedge.radsec.proxy_hosts which must be a superset of all `wlans[*].radsec.proxy_hosts`. When `radsec.proxy_hosts` are not used, tunnel peers (org or site mxedges) are used irrespective of `use_site_mxedge`
+- `server_name` (String) Name of the server to verify (against the cacerts in Org Setting). Only if not Mist Edge.
+- `servers` (Attributes List) List of RadSec Servers. Only if not Mist Edge. (see [below for nested schema](#nestedatt--port_config--radsec--servers))
+- `use_mxedge` (Boolean) use mxedge(s) as RadSec Proxy
+- `use_site_mxedge` (Boolean) To use Site mxedges when this WLAN does not use mxtunnel
+
+<a id="nestedatt--port_config--radsec--servers"></a>
+### Nested Schema for `port_config.radsec.servers`
+
+Optional:
+
+- `host` (String)
+- `port` (Number)
+
+
 
 
 <a id="nestedatt--pwr_config"></a>
@@ -225,6 +369,7 @@ Optional:
 - `band_5` (Attributes) Radio Band AP settings (see [below for nested schema](#nestedatt--radio_config--band_5))
 - `band_5_on_24_radio` (Attributes) Radio Band AP settings (see [below for nested schema](#nestedatt--radio_config--band_5_on_24_radio))
 - `band_6` (Attributes) Radio Band AP settings (see [below for nested schema](#nestedatt--radio_config--band_6))
+- `full_automatic_rrm` (Boolean) Let RRM control everything, only the `channels` and `ant_gain` will be honored (i.e. disabled/bandwidth/power/band_24_usage are all controlled by RRM)
 - `indoor_use` (Boolean) To make an outdoor operate indoor. For an outdoor-ap, some channels are disallowed by default, this allows the user to use it as an indoor-ap
 - `scanning_enabled` (Boolean) Whether scanning radio is enabled
 
@@ -307,7 +452,7 @@ Optional:
 
 Optional:
 
-- `dot1x` (Boolean) Whether to do 802.1x against uplink switch. When enaled, AP cert will be used to do EAP-TLS and the Org's CA Cert has to be provisioned at the switch
+- `dot1x` (Boolean) Whether to do 802.1x against uplink switch. When enabled, AP cert will be used to do EAP-TLS and the Org's CA Cert has to be provisioned at the switch
 - `keep_wlans_up_if_down` (Boolean) By default, WLANs are disabled when uplink is down. In some scenario, like SiteSurvey, one would want the AP to keep sending beacons.
 
 

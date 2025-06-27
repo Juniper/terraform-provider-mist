@@ -10,18 +10,24 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func rogueSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteRogue) RogueValue {
 
+	var allowedVlanIds = mistutils.ListOfIntSdkToTerraformEmpty()
 	var enabled basetypes.BoolValue
 	var honeypotEnabled basetypes.BoolValue
 	var minDuration basetypes.Int64Value
+	var minRogueDuration basetypes.Int64Value
 	var minRssi basetypes.Int64Value
-	var whitelistedBssids = misttransform.ListOfStringSdkToTerraformEmpty()
-	var whitelistedSsids = misttransform.ListOfStringSdkToTerraformEmpty()
+	var minRogueRssi basetypes.Int64Value
+	var whitelistedBssids = mistutils.ListOfStringSdkToTerraformEmpty()
+	var whitelistedSsids = mistutils.ListOfStringSdkToTerraformEmpty()
 
+	if d != nil && d.AllowedVlanIds != nil {
+		allowedVlanIds = mistutils.ListOfIntSdkToTerraform(d.AllowedVlanIds)
+	}
 	if d != nil && d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
@@ -31,21 +37,30 @@ func rogueSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	if d != nil && d.MinDuration != nil {
 		minDuration = types.Int64Value(int64(*d.MinDuration))
 	}
+	if d != nil && d.MinRogueDuration != nil {
+		minRogueDuration = types.Int64Value(int64(*d.MinRogueDuration))
+	}
 	if d != nil && d.MinRssi != nil {
 		minRssi = types.Int64Value(int64(*d.MinRssi))
 	}
+	if d != nil && d.MinRogueRssi != nil {
+		minRogueRssi = types.Int64Value(int64(*d.MinRogueRssi))
+	}
 	if d != nil && d.WhitelistedBssids != nil {
-		whitelistedBssids = misttransform.ListOfStringSdkToTerraform(d.WhitelistedBssids)
+		whitelistedBssids = mistutils.ListOfStringSdkToTerraform(d.WhitelistedBssids)
 	}
 	if d != nil && d.WhitelistedSsids != nil {
-		whitelistedSsids = misttransform.ListOfStringSdkToTerraform(d.WhitelistedSsids)
+		whitelistedSsids = mistutils.ListOfStringSdkToTerraform(d.WhitelistedSsids)
 	}
 
 	dataMapValue := map[string]attr.Value{
+		"allowed_vlan_ids":   allowedVlanIds,
 		"enabled":            enabled,
 		"honeypot_enabled":   honeypotEnabled,
 		"min_duration":       minDuration,
+		"min_rogue_duration": minRogueDuration,
 		"min_rssi":           minRssi,
+		"min_rogue_rssi":     minRogueRssi,
 		"whitelisted_bssids": whitelistedBssids,
 		"whitelisted_ssids":  whitelistedSsids,
 	}

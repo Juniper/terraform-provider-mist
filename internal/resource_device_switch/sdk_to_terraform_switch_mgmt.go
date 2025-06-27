@@ -10,17 +10,17 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
-func switchMgmtProtecCustomtReSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.ProtectReCustom) basetypes.ListValue {
+func switchMgmtProtectCustomReSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.ProtectReCustom) basetypes.ListValue {
 	var dataList []CustomValue
 
 	for _, d := range l {
 
 		var portRange basetypes.StringValue
 		var protocol basetypes.StringValue
-		var subnets = misttransform.ListOfStringSdkToTerraformEmpty()
+		var subnets = mistutils.ListOfStringSdkToTerraformEmpty()
 
 		if d.PortRange != nil {
 			portRange = types.StringValue(*d.PortRange)
@@ -29,7 +29,7 @@ func switchMgmtProtecCustomtReSdkToTerraform(ctx context.Context, diags *diag.Di
 			protocol = types.StringValue(string(*d.Protocol))
 		}
 		if d.Subnets != nil {
-			subnets = misttransform.ListOfStringSdkToTerraform(d.Subnets)
+			subnets = mistutils.ListOfStringSdkToTerraform(d.Subnets)
 		}
 
 		dataMapValue := map[string]attr.Value{
@@ -51,10 +51,10 @@ func switchMgmtProtecCustomtReSdkToTerraform(ctx context.Context, diags *diag.Di
 
 func switchMgmtProtectReSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ProtectRe) basetypes.ObjectValue {
 
-	var allowedServices = types.ListNull(types.StringType)
+	var allowedServices = basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})
 	var custom = basetypes.NewListValueMust(CustomValue{}.Type(ctx), []attr.Value{})
 	var enabled basetypes.BoolValue
-	var trustedHosts = types.ListNull(types.StringType)
+	var trustedHosts = basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})
 
 	if d.AllowedServices != nil {
 		var items []attr.Value
@@ -66,13 +66,13 @@ func switchMgmtProtectReSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 		allowedServices = list
 	}
 	if d.Custom != nil {
-		custom = switchMgmtProtecCustomtReSdkToTerraform(ctx, diags, d.Custom)
+		custom = switchMgmtProtectCustomReSdkToTerraform(ctx, diags, d.Custom)
 	}
 	if d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
 	if d.TrustedHosts != nil {
-		trustedHosts = misttransform.ListOfStringSdkToTerraform(d.TrustedHosts)
+		trustedHosts = mistutils.ListOfStringSdkToTerraform(d.TrustedHosts)
 	}
 
 	dataMapValue := map[string]attr.Value{
@@ -247,9 +247,10 @@ func switchMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 	var configRevertTimer basetypes.Int64Value
 	var dhcpOptionFqdn basetypes.BoolValue
 	var disableOobDownAlarm basetypes.BoolValue
+	var fipsEnabled basetypes.BoolValue
 	var localAccounts = types.MapNull(LocalAccountsValue{}.Type(ctx))
 	var mxedgeProxyHost basetypes.StringValue
-	var mxedgeProxyPort basetypes.Int64Value
+	var mxedgeProxyPort basetypes.StringValue
 	var protectRe = types.ObjectNull(ProtectReValue{}.AttributeTypes(ctx))
 	var rootPassword basetypes.StringValue
 	var tacacs = types.ObjectNull(TacacsValue{}.AttributeTypes(ctx))
@@ -274,6 +275,9 @@ func switchMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 		if d.DisableOobDownAlarm != nil {
 			disableOobDownAlarm = types.BoolValue(*d.DisableOobDownAlarm)
 		}
+		if d.FipsEnabled != nil {
+			fipsEnabled = types.BoolValue(*d.FipsEnabled)
+		}
 		if d.LocalAccounts != nil {
 			localAccounts = switchLocalAccountUserSdkToTerraform(ctx, diags, d.LocalAccounts)
 		}
@@ -281,7 +285,7 @@ func switchMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 			mxedgeProxyHost = types.StringValue(*d.MxedgeProxyHost)
 		}
 		if d.MxedgeProxyPort != nil {
-			mxedgeProxyPort = types.Int64Value(int64(*d.MxedgeProxyPort))
+			mxedgeProxyPort = mistutils.SwitchMgmtMxedgeProxyPortsAsString(d.MxedgeProxyPort)
 		}
 		if d.ProtectRe != nil {
 			protectRe = switchMgmtProtectReSdkToTerraform(ctx, diags, d.ProtectRe)
@@ -304,6 +308,7 @@ func switchMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 		"config_revert_timer":    configRevertTimer,
 		"dhcp_option_fqdn":       dhcpOptionFqdn,
 		"disable_oob_down_alarm": disableOobDownAlarm,
+		"fips_enabled":           fipsEnabled,
 		"local_accounts":         localAccounts,
 		"mxedge_proxy_host":      mxedgeProxyHost,
 		"mxedge_proxy_port":      mxedgeProxyPort,

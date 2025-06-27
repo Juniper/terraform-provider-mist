@@ -27,7 +27,9 @@ func OrgResourceSchema(ctx context.Context) schema.Schema {
 				Default:  booldefault.StaticBool(true),
 			},
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Unique ID of the object instance in the Mist Organization",
+				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -42,8 +44,8 @@ func OrgResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"msp_name": schema.StringAttribute{
 				Computed:            true,
-				Description:         "name of the msp the org belongs to",
-				MarkdownDescription: "name of the msp the org belongs to",
+				Description:         "Name of the msp the org belongs to",
+				MarkdownDescription: "Name of the msp the org belongs to",
 			},
 			"name": schema.StringAttribute{
 				Required: true,

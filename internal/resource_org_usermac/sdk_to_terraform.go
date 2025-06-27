@@ -1,7 +1,7 @@
 package resource_org_usermac
 
 import (
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/google/uuid"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -26,7 +26,7 @@ func SdkToTerraform(d *models.UserMac, mistOrgId *uuid.UUID) (OrgUsermacModel, d
 		id = types.StringValue(d.Id.String())
 	}
 	if d.Labels != nil {
-		labels = misttransform.ListOfStringSdkToTerraform(d.Labels)
+		labels = mistutils.ListOfStringSdkToTerraform(d.Labels)
 	}
 
 	mac = types.StringValue(d.Mac)

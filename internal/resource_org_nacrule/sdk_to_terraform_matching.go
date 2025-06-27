@@ -3,7 +3,7 @@ package resource_org_nacrule
 import (
 	"context"
 
-	misttransform "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -29,34 +29,54 @@ func matchingPortTypesSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 func matchingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.NacRuleMatching) MatchingValue {
 
 	var authType basetypes.StringValue
-	var nactags = misttransform.ListOfStringSdkToTerraformEmpty()
-	var portTypes = misttransform.ListOfStringSdkToTerraformEmpty()
-	var siteIds = misttransform.ListOfStringSdkToTerraformEmpty()
-	var sitegroupIds = misttransform.ListOfStringSdkToTerraformEmpty()
-	var vendor = misttransform.ListOfStringSdkToTerraformEmpty()
+	var family = types.ListNull(types.StringType)
+	var mfg = types.ListNull(types.StringType)
+	var model = types.ListNull(types.StringType)
+	var nactags = types.ListNull(types.StringType)
+	var osType = types.ListNull(types.StringType)
+	var portTypes = types.ListNull(types.StringType)
+	var siteIds = types.ListNull(types.StringType)
+	var sitegroupIds = types.ListNull(types.StringType)
+	var vendor = types.ListNull(types.StringType)
 
 	if d.AuthType != nil {
 		authType = types.StringValue(string(*d.AuthType))
 	}
+	if d.Family != nil {
+		family = mistutils.ListOfStringSdkToTerraform(d.Family)
+	}
+	if d.Mfg != nil {
+		mfg = mistutils.ListOfStringSdkToTerraform(d.Mfg)
+	}
+	if d.Model != nil {
+		model = mistutils.ListOfStringSdkToTerraform(d.Model)
+	}
 	if d.Nactags != nil {
-		nactags = misttransform.ListOfStringSdkToTerraform(d.Nactags)
+		nactags = mistutils.ListOfStringSdkToTerraform(d.Nactags)
+	}
+	if d.OsType != nil {
+		osType = mistutils.ListOfStringSdkToTerraform(d.OsType)
 	}
 	if d.PortTypes != nil {
 		portTypes = matchingPortTypesSdkToTerraform(ctx, diags, d.PortTypes)
 	}
 	if d.SiteIds != nil {
-		siteIds = misttransform.ListOfUuidSdkToTerraform(d.SiteIds)
+		siteIds = mistutils.ListOfUuidSdkToTerraform(d.SiteIds)
 	}
 	if d.SitegroupIds != nil {
-		sitegroupIds = misttransform.ListOfUuidSdkToTerraform(d.SitegroupIds)
+		sitegroupIds = mistutils.ListOfUuidSdkToTerraform(d.SitegroupIds)
 	}
 	if d.Vendor != nil {
-		vendor = misttransform.ListOfStringSdkToTerraform(d.Vendor)
+		vendor = mistutils.ListOfStringSdkToTerraform(d.Vendor)
 	}
 
 	dataMapValue := map[string]attr.Value{
 		"auth_type":     authType,
+		"family":        family,
+		"mfg":           mfg,
+		"model":         model,
 		"nactags":       nactags,
+		"os_type":       osType,
 		"port_types":    portTypes,
 		"site_ids":      siteIds,
 		"sitegroup_ids": sitegroupIds,
@@ -71,34 +91,54 @@ func matchingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mod
 func notMatchingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.NacRuleMatching) NotMatchingValue {
 
 	var authType basetypes.StringValue
-	var nactags = misttransform.ListOfStringSdkToTerraformEmpty()
-	var portTypes = misttransform.ListOfStringSdkToTerraformEmpty()
-	var siteIds = misttransform.ListOfStringSdkToTerraformEmpty()
-	var sitegroupIds = misttransform.ListOfStringSdkToTerraformEmpty()
-	var vendor = misttransform.ListOfStringSdkToTerraformEmpty()
+	var family = types.ListNull(types.StringType)
+	var mfg = types.ListNull(types.StringType)
+	var model = types.ListNull(types.StringType)
+	var nactags = types.ListNull(types.StringType)
+	var osType = types.ListNull(types.StringType)
+	var portTypes = types.ListNull(types.StringType)
+	var siteIds = types.ListNull(types.StringType)
+	var sitegroupIds = types.ListNull(types.StringType)
+	var vendor = types.ListNull(types.StringType)
 
 	if d.AuthType != nil {
 		authType = types.StringValue(string(*d.AuthType))
 	}
+	if d.Family != nil {
+		family = mistutils.ListOfStringSdkToTerraform(d.Family)
+	}
+	if d.Mfg != nil {
+		mfg = mistutils.ListOfStringSdkToTerraform(d.Mfg)
+	}
+	if d.Model != nil {
+		model = mistutils.ListOfStringSdkToTerraform(d.Model)
+	}
 	if d.Nactags != nil {
-		nactags = misttransform.ListOfStringSdkToTerraform(d.Nactags)
+		nactags = mistutils.ListOfStringSdkToTerraform(d.Nactags)
+	}
+	if d.OsType != nil {
+		osType = mistutils.ListOfStringSdkToTerraform(d.OsType)
 	}
 	if d.PortTypes != nil {
 		portTypes = matchingPortTypesSdkToTerraform(ctx, diags, d.PortTypes)
 	}
 	if d.SiteIds != nil {
-		siteIds = misttransform.ListOfUuidSdkToTerraform(d.SiteIds)
+		siteIds = mistutils.ListOfUuidSdkToTerraform(d.SiteIds)
 	}
 	if d.SitegroupIds != nil {
-		sitegroupIds = misttransform.ListOfUuidSdkToTerraform(d.SitegroupIds)
+		sitegroupIds = mistutils.ListOfUuidSdkToTerraform(d.SitegroupIds)
 	}
 	if d.Vendor != nil {
-		vendor = misttransform.ListOfStringSdkToTerraform(d.Vendor)
+		vendor = mistutils.ListOfStringSdkToTerraform(d.Vendor)
 	}
 
 	dataMapValue := map[string]attr.Value{
 		"auth_type":     authType,
+		"family":        family,
+		"mfg":           mfg,
+		"model":         model,
 		"nactags":       nactags,
+		"os_type":       osType,
 		"port_types":    portTypes,
 		"site_ids":      siteIds,
 		"sitegroup_ids": sitegroupIds,
