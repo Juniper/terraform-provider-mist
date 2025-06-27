@@ -309,7 +309,7 @@ func (r *orgInventoryResource) refreshInventory(
 	var model string
 	var mType models.DeviceTypeEnum
 	var mac string
-	var siteId string
+	var siteId *uuid.UUID
 	var vcMac string
 	var vc = true
 	var unassigned bool
@@ -330,7 +330,7 @@ func (r *orgInventoryResource) refreshInventory(
 			"total": total,
 		})
 		// Read API call logic
-		data, err := r.client.OrgsInventory().GetOrgInventory(ctx, *orgId, &serial, &model, &mType, &mac, &siteId, &vcMac, &vc, &unassigned, &modifiedAfter, &limit, &page)
+		data, err := r.client.OrgsInventory().GetOrgInventory(ctx, *orgId, &serial, &model, &mType, &mac, siteId, &vcMac, &vc, &unassigned, &modifiedAfter, &limit, &page)
 		if err != nil {
 			diags.AddError(
 				"Error refreshing Inventory",

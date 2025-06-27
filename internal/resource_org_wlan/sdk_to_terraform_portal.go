@@ -68,6 +68,8 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	var smsExpire basetypes.Int64Value
 	var smsMessageFormat basetypes.StringValue
 	var smsProvider basetypes.StringValue
+	var smsGlobalApiKey basetypes.StringValue
+	var smsGlobalApiSecret basetypes.StringValue
 	var sponsorAutoApprove basetypes.BoolValue
 	var sponsorEmailDomains = mistutils.ListOfStringSdkToTerraformEmpty()
 	var sponsorEnabled basetypes.BoolValue
@@ -251,6 +253,12 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	if d != nil && d.SmsProvider != nil {
 		smsProvider = types.StringValue(string(*d.SmsProvider))
 	}
+	if d != nil && d.SmsglobalApiKey != nil {
+		smsGlobalApiKey = types.StringValue(*d.SmsglobalApiKey)
+	}
+	if d != nil && d.SmsglobalApiSecret != nil {
+		smsGlobalApiSecret = types.StringValue(*d.SmsglobalApiSecret)
+	}
 	if d != nil && d.SponsorAutoApprove != nil {
 		sponsorAutoApprove = types.BoolValue(*d.SponsorAutoApprove)
 	}
@@ -373,6 +381,8 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 		"sms_expire":                     smsExpire,
 		"sms_message_format":             smsMessageFormat,
 		"sms_provider":                   smsProvider,
+		"smsglobal_api_key":              smsGlobalApiKey,
+		"smsglobal_api_secret":           smsGlobalApiSecret,
 		"sponsor_auto_approve":           sponsorAutoApprove,
 		"sponsor_email_domains":          sponsorEmailDomains,
 		"sponsor_enabled":                sponsorEnabled,

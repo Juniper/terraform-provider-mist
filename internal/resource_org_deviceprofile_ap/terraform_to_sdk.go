@@ -91,6 +91,12 @@ func TerraformToSdk(ctx context.Context, plan *OrgDeviceprofileApModel) (models.
 		unset["-poe_passthrough"] = ""
 	}
 
+	if !plan.PortConfig.IsNull() && !plan.PortConfig.IsUnknown() {
+		data.PortConfig = portConfigTerraformToSdk(ctx, &diags, plan.PortConfig)
+	} else {
+		unset["-port_config"] = ""
+	}
+
 	if !plan.PwrConfig.IsNull() && !plan.PwrConfig.IsUnknown() {
 		data.PwrConfig = pwrConfigTerraformToSdk(plan.PwrConfig)
 	} else {

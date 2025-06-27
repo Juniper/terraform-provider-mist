@@ -31,6 +31,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileAp) (OrgDevic
 	var orgId types.String
 	var poePassthrough types.Bool
 	var profileId types.String
+	var portConfig = types.MapNull(PortConfigValue{}.Type(ctx))
 	var pwrConfig = NewPwrConfigValueNull()
 	var radioConfig = NewRadioConfigValueNull()
 	var siteId types.String
@@ -88,6 +89,9 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileAp) (OrgDevic
 	if data.PoePassthrough != nil {
 		poePassthrough = types.BoolValue(*data.PoePassthrough)
 	}
+	if data.PortConfig != nil {
+		portConfig = portConfigSdkToTerraform(ctx, &diags, data.PortConfig)
+	}
 	if data.PwrConfig != nil {
 		pwrConfig = pwrConfigSdkToTerraform(ctx, &diags, data.PwrConfig)
 	}
@@ -125,6 +129,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileAp) (OrgDevic
 	state.NtpServers = ntpServers
 	state.OrgId = orgId
 	state.PoePassthrough = poePassthrough
+	state.PortConfig = portConfig
 	state.PwrConfig = pwrConfig
 	state.RadioConfig = radioConfig
 	state.SiteId = siteId

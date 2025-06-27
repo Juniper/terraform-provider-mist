@@ -57,7 +57,7 @@ func radsecSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 		enabled = types.BoolValue(*d.Enabled)
 	}
 	if d != nil && d.IdleTimeout != nil {
-		idleTimeout = mistutils.RadescIdleTimeoutAsString(d.IdleTimeout)
+		idleTimeout = mistutils.RadsecIdleTimeoutAsString(d.IdleTimeout)
 	}
 	if d != nil && d.MxclusterIds != nil {
 		mxclusterIds = mistutils.ListOfUuidSdkToTerraform(d.MxclusterIds)

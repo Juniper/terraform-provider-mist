@@ -19,9 +19,6 @@ func switchMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 	if d.ApAffinityThreshold != nil {
 		apAffinityThreshold = types.Int64Value(int64(*d.ApAffinityThreshold))
 	}
-	if d.RemoveExistingConfigs != nil {
-		removeExistingConfigs = types.BoolValue(*d.RemoveExistingConfigs)
-	}
 
 	dataMapValue := map[string]attr.Value{
 		"ap_affinity_threshold":   apAffinityThreshold,

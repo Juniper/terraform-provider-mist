@@ -64,7 +64,7 @@ func (d *constAlarmsDataSource) Read(ctx context.Context, req datasource.ReadReq
 	}
 
 	// Read API call logic
-	data, err := d.client.ConstantsDefinitions().ListAlarmDefinitions(ctx)
+	data, err := d.client.ConstantsEvents().ListAlarmDefinitions(ctx)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting Alarm Definitions",

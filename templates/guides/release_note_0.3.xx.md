@@ -8,6 +8,45 @@ description: |-
 # Release Notes for v0.3.xx
 
 
+## Release Notes for v0.3.9
+**Release Date**: June 26th, 2025
+
+### Fixes
+* **[Issue 112](https://github.com/Juniper/terraform-provider-mist/issues/112):** Resolved a bug that prevented proper configuration of the `mist_org_wlan.wxtag_ids` and `mist_org_wlan.wxtag_ids` resources attributes.
+
+
+### New Attributes
+* **`mist_org_wlan` and `mist_org_wlan` Resources**  
+  - Added `smsglobal` option to `.portal.sms_provider` 
+  - Added `.portal.smsglobal_api_key` and `.portal.smsglobal_api_secret`
+
+## Release Notes for v0.3.8
+**Release Date**: June 25th, 2025
+
+### Fixes
+* **[Issue 108](https://github.com/Juniper/terraform-provider-mist/issues/108):** Fixed mesh configuration handling by properly initializing the `bands` attribute with `null` instead of an empty list when no bands are configured. This resolves schema validation issues in both `mist_device_ap` and `mist_org_deviceprofile_ap` resources when importing or updating mesh configurations.
+
+
+## Release Notes for v0.3.7
+**Release Date**: June 25th, 2025
+
+### Fixes
+* **[Issue 108](https://github.com/Juniper/terraform-provider-mist/issues/108):** Fixed handling of optional `site_id` values in the organization inventory resource and data source by updating the underlying type from `uuid.UUID` to `*uuid.UUID`. This resolves issues where null or unset `site_id` values were not properly handled during API calls.
+
+
+## Release Notes for v0.3.6
+**Release Date**: June 24th, 2025
+
+### Fixes
+* **[Issue 108](https://github.com/Juniper/terraform-provider-mist/issues/108):** Resolved a bug that prevented proper configuration of the `mist_device_ap.radio_config` and `mist_deviceprofile_ap.radio_config` resources.
+
+
+### New Attributes
+* **`mist_device_ap` and `mist_org_deviceprofile_ap` Resources**  
+  - Added `.port_config` nested object
+  - Added `.radio_config.full_automatic_rrm`
+
+
 ## Release Notes for v0.3.5
 **Release Date**: May 23th, 2025
 ### Fixes
