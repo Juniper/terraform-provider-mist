@@ -97,7 +97,7 @@ resource "mist_site_networktemplate" "networktemplate_one" {
 - `acl_tags` (Attributes Map) ACL Tags to identify traffic source or destination. Key name is the tag name (see [below for nested schema](#nestedatt--acl_tags))
 - `additional_config_cmds` (List of String) additional CLI commands to append to the generated Junos config. **Note**: no check is done
 - `auto_upgrade_linecard` (Boolean)
-- `default_port_usage` (String) Port usage to assign to switch ports without any port usage assngied. Default: `default` to preserve default behavior
+- `default_port_usage` (String) Port usage to assign to switch ports without any port usage assigned. Default: `default` to preserve default behavior
 - `dhcp_snooping` (Attributes) (see [below for nested schema](#nestedatt--dhcp_snooping))
 - `disabled_system_defined_port_usages` (List of String) If some system-default port usages are not desired - namely, ap / iot / uplink
 - `dns_servers` (List of String) Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting

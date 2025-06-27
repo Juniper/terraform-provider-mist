@@ -318,7 +318,7 @@ Optional:
 Optional:
 
 - `conductor_hosts` (List of String) List of Conductor IP Addresses or Hosts to be used by the SSR Devices
-- `conductor_token` (String) Token to be used by the SSR Devices to connect to the Conductor
+- `conductor_token` (String, Sensitive) Token to be used by the SSR Devices to connect to the Conductor
 - `disable_stats` (Boolean) Disable stats collection on SSR devices
 
 

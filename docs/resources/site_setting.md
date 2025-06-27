@@ -61,7 +61,7 @@ resource "mist_site_setting" "site_one" {
 - `config_auto_revert` (Boolean) Whether to enable ap auto config revert
 - `config_push_policy` (Attributes) Mist also uses some heuristic rules to prevent destructive configs from being pushed (see [below for nested schema](#nestedatt--config_push_policy))
 - `critical_url_monitoring` (Attributes) You can define some URLs that's critical to site operations the latency will be captured and considered for site health (see [below for nested schema](#nestedatt--critical_url_monitoring))
-- `default_port_usage` (String) Port usage to assign to switch ports without any port usage assngied. Default: `default` to preserve default behavior
+- `default_port_usage` (String) Port usage to assign to switch ports without any port usage assigned. Default: `default` to preserve default behavior
 - `device_updown_threshold` (Number) By default, device_updown_threshold, if set, will apply to all devices types if different values for specific device type is desired, use the following
 - `enable_unii_4` (Boolean)
 - `engagement` (Attributes) **Note**: if hours does not exist, it's treated as everyday of the week, 00:00-23:59. Currently, we don't allow multiple ranges for the same day (see [below for nested schema](#nestedatt--engagement))
