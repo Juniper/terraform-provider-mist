@@ -14,7 +14,7 @@ import (
 )
 
 func portUsageStormControlSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.SwitchPortUsageStormControl) basetypes.ObjectValue {
-	var noBroadcast = types.BoolValue(false)
+	var noBroadcast basetypes.BoolValue
 	var noMulticast basetypes.BoolValue
 	var noRegisteredMulticast basetypes.BoolValue
 	var noUnknownUnicast basetypes.BoolValue

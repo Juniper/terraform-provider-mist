@@ -98,6 +98,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "Can only be used under dst tags.",
 							MarkdownDescription: "Can only be used under dst tags.",
+							Validators: []validator.List{
+								listvalidator.SizeAtLeast(1),
+							},
 						},
 						"gbp_tag": schema.Int64Attribute{
 							Optional:            true,
