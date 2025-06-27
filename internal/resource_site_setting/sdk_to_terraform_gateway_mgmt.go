@@ -51,6 +51,7 @@ func gatewayMgmtProtectReSdkToTerraform(ctx context.Context, diags *diag.Diagnos
 	var allowedServices = types.ListNull(types.StringType)
 	var custom = basetypes.NewListValueMust(CustomValue{}.Type(ctx), []attr.Value{})
 	var enabled basetypes.BoolValue
+	var hitCount basetypes.BoolValue
 	var trustedHosts = basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})
 
 	if d.AllowedServices != nil {
@@ -68,6 +69,9 @@ func gatewayMgmtProtectReSdkToTerraform(ctx context.Context, diags *diag.Diagnos
 	if d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
+	if d.HitCount != nil {
+		hitCount = types.BoolValue(*d.HitCount)
+	}
 	if d.TrustedHosts != nil {
 		trustedHosts = mistutils.ListOfStringSdkToTerraform(d.TrustedHosts)
 	}
@@ -76,6 +80,7 @@ func gatewayMgmtProtectReSdkToTerraform(ctx context.Context, diags *diag.Diagnos
 		"allowed_services": allowedServices,
 		"custom":           custom,
 		"enabled":          enabled,
+		"hit_count":        hitCount,
 		"trusted_hosts":    trustedHosts,
 	}
 	data, e := NewProtectReValue(ProtectReValue{}.AttributeTypes(ctx), dataMapValue)

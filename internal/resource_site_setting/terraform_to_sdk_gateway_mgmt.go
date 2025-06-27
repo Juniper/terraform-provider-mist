@@ -56,6 +56,9 @@ func gatewayMgmtProtectReTerraformToSdk(ctx context.Context, diags *diag.Diagnos
 		if itemObj.Enabled.ValueBoolPointer() != nil {
 			data.Enabled = models.ToPointer(itemObj.Enabled.ValueBool())
 		}
+		if itemObj.HitCount.ValueBoolPointer() != nil {
+			data.HitCount = itemObj.HitCount.ValueBoolPointer()
+		}
 		if !itemObj.TrustedHosts.IsNull() && !itemObj.TrustedHosts.IsUnknown() {
 			data.TrustedHosts = mistutils.ListOfStringTerraformToSdk(itemObj.TrustedHosts)
 		}
