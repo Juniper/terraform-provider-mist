@@ -54,6 +54,7 @@ func switchMgmtProtectReSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 	var custom = basetypes.NewListValueMust(CustomValue{}.Type(ctx), []attr.Value{})
 	var enabled basetypes.BoolValue
 	var trustedHosts = basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})
+	var hitCount = types.BoolNull()
 
 	if d.AllowedServices != nil {
 		var items []attr.Value
@@ -70,6 +71,9 @@ func switchMgmtProtectReSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 	if d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
+	if d.HitCount != nil {
+		hitCount = types.BoolValue(*d.HitCount)
+	}
 	if d.TrustedHosts != nil {
 		trustedHosts = mistutils.ListOfStringSdkToTerraform(d.TrustedHosts)
 	}
@@ -78,6 +82,7 @@ func switchMgmtProtectReSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 		"allowed_services": allowedServices,
 		"custom":           custom,
 		"enabled":          enabled,
+		"hit_count":        hitCount,
 		"trusted_hosts":    trustedHosts,
 	}
 	data, e := NewProtectReValue(ProtectReValue{}.AttributeTypes(ctx), dataMapValue)
