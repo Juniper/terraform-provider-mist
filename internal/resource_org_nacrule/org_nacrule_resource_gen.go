@@ -65,8 +65,8 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 				Attributes: map[string]schema.Attribute{
 					"auth_type": schema.StringAttribute{
 						Optional:            true,
-						Description:         "enum: `cert`, `device-auth`, `eap-teap`, `eap-tls`, `eap-ttls`, `idp`, `mab`, `peap-tls`, `psk`",
-						MarkdownDescription: "enum: `cert`, `device-auth`, `eap-teap`, `eap-tls`, `eap-ttls`, `idp`, `mab`, `peap-tls`, `psk`",
+						Description:         "enum: `cert`, `device-auth`, `eap-teap`, `eap-tls`, `eap-ttls`, `idp`, `mab`, `eap-peap`",
+						MarkdownDescription: "enum: `cert`, `device-auth`, `eap-teap`, `eap-tls`, `eap-ttls`, `idp`, `mab`, `eap-peap`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -77,8 +77,7 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 								"eap-ttls",
 								"idp",
 								"mab",
-								"peap-tls",
-								"psk",
+								"eap-peap",
 							),
 						},
 					},
@@ -195,8 +194,8 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 				Attributes: map[string]schema.Attribute{
 					"auth_type": schema.StringAttribute{
 						Optional:            true,
-						Description:         "enum: `cert`, `device-auth`, `eap-teap`, `eap-tls`, `eap-ttls`, `idp`, `mab`, `peap-tls`, `psk`",
-						MarkdownDescription: "enum: `cert`, `device-auth`, `eap-teap`, `eap-tls`, `eap-ttls`, `idp`, `mab`, `peap-tls`, `psk`",
+						Description:         "enum: `cert`, `device-auth`, `eap-teap`, `eap-tls`, `eap-ttls`, `idp`, `mab`, `eap-peap`",
+						MarkdownDescription: "enum: `cert`, `device-auth`, `eap-teap`, `eap-tls`, `eap-ttls`, `idp`, `mab`, `eap-peap`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -207,8 +206,7 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 								"eap-ttls",
 								"idp",
 								"mab",
-								"peap-tls",
-								"psk",
+								"eap-peap",
 							),
 						},
 					},

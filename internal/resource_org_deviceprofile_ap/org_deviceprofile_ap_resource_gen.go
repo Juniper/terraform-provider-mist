@@ -1117,8 +1117,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Property key is the interface(s) name (e.g. \"eth1,eth2\")",
-				MarkdownDescription: "Property key is the interface(s) name (e.g. \"eth1,eth2\")",
+				Description:         "eth0 is not allowed here. Property key is the interface(s) name (e.g. `eth1` or `eth1,eth2`). If spcified, this takes predecence over switch_config (deprecated)",
+				MarkdownDescription: "eth0 is not allowed here. Property key is the interface(s) name (e.g. `eth1` or `eth1,eth2`). If spcified, this takes predecence over switch_config (deprecated)",
 				Validators: []validator.Map{
 					mapvalidator.SizeAtLeast(1),
 				},
