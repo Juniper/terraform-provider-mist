@@ -1,30 +1,36 @@
+// WIP
 package provider
 
 import (
 	"fmt"
 	"math"
+	"os"
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/hcl/v2/gohcl"
+	"github.com/hashicorp/hcl/v2/hclwrite"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/stretchr/testify/require"
 	"gotest.tools/assert"
 )
 
-const (
-	resourceConfigString = `
-resource %q %q {
-%s
-}`
-)
+func GetTestOrgId() string {
+	return os.Getenv("MIST_TEST_ORG_ID")
+}
 
-// Render will return the string format of the terraform configuration
-func Render(rType, rName, config string) string {
-	return fmt.Sprintf(resourceConfigString,
-		rType,
-		rName,
-		config,
-	)
+func PrefixProviderName(name string) string {
+	if strings.HasPrefix(name, "mist_") {
+		return name
+	}
+	return "mist_" + name
+}
+
+func Render(resourceType, resourceName, config string) string {
+	return fmt.Sprintf(`
+    resource "%s" "%s" {
+    %s
+    }`, PrefixProviderName(resourceType), resourceName, config)
 }
 
 func newTestChecks(path string) testChecks {
@@ -35,10 +41,6 @@ type testChecks struct {
 	path     string
 	logLines lineNumberer
 	checks   []resource.TestCheckFunc
-}
-
-func (o *testChecks) setPath(path string) {
-	o.path = path
 }
 
 func (o *testChecks) append(t testing.TB, testCheckFuncName string, testCheckFuncArgs ...string) {
@@ -194,4 +196,73 @@ func TestLineNumbererString(t *testing.T) {
 
 		assert.Equal(t, tCase.expected, result)
 	}
+}
+
+// CreateTestPNGFile creates a minimal PNG file for testing purposes
+func CreateTestPNGFile(t *testing.T) string {
+	// Minimal PNG file data (1x1 transparent pixel)
+	pngData := []byte{
+		0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, // PNG signature
+		0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52, // IHDR chunk header
+		0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, // 1x1 dimensions
+		0x08, 0x06, 0x00, 0x00, 0x00, 0x1F, 0x15, 0xC4, // bit depth, color type, etc.
+		0x89, 0x00, 0x00, 0x00, 0x0A, 0x49, 0x44, 0x41, // IDAT chunk header
+		0x54, 0x78, 0x9C, 0x63, 0x00, 0x01, 0x00, 0x00, // compressed image data
+		0x05, 0x00, 0x01, 0x0D, 0x0A, 0x2D, 0xB4, 0x00, // (transparent pixel)
+		0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE, // IEND chunk
+		0x42, 0x60, 0x82,
+	}
+
+	// Create temporary file
+	tmpFile, err := os.CreateTemp("", "test-portal-image-*.png")
+	if err != nil {
+		t.Fatalf("Failed to create temp file: %v", err)
+	}
+
+	// Write PNG data
+	if _, err := tmpFile.Write(pngData); err != nil {
+		tmpFile.Close()
+		os.Remove(tmpFile.Name())
+		t.Fatalf("Failed to write PNG data: %v", err)
+	}
+
+	if err := tmpFile.Close(); err != nil {
+		os.Remove(tmpFile.Name())
+		t.Fatalf("Failed to close temp file: %v", err)
+	}
+
+	// Clean up on test completion
+	t.Cleanup(func() {
+		os.Remove(tmpFile.Name())
+	})
+
+	return tmpFile.Name()
+}
+
+func GetOrgWlanBaseConfig(orgID string) (config string, wlanRef string) {
+	// Create the prerequisite WLAN template
+	wlanTemplateConfig := OrgWlantemplateModel{
+		Name:  "Test_WLAN_Template",
+		OrgId: orgID,
+	}
+
+	f := hclwrite.NewEmptyFile()
+	gohcl.EncodeIntoBody(&wlanTemplateConfig, f.Body())
+	wlanTemplateConfigStr := Render("org_wlantemplate", "test_wlan_template", string(f.Bytes()))
+
+	// Create the WLAN that references the template
+	templateRef := fmt.Sprintf("mist_org_wlantemplate.%s.id", "test_wlan_template")
+
+	wlanConfig := OrgWlanModel{
+		OrgId: orgID,
+		Ssid:  "TestSSID",
+	}
+
+	f = hclwrite.NewEmptyFile()
+	gohcl.EncodeIntoBody(&wlanConfig, f.Body())
+	// Add the template_id attribute to the body before rendering
+	f.Body().SetAttributeRaw("template_id", hclwrite.TokensForIdentifier(templateRef))
+	wlanConfigStr := Render("org_wlan", "wlanName", string(f.Bytes()))
+
+	return wlanTemplateConfigStr + "\n\n" + wlanConfigStr, "mist_org_wlan.wlanName.id"
 }
