@@ -17,8 +17,8 @@ description: |-
 
 ### General changes
 
-#### Attributes removed
-* `mist_org_setting.mxedge_fips_enabled` has been removed to match the API structure (use `mist_org_setting.mxedge_mgmt.fips_enabled` instead)
+#### New validator
+* Adding new validator to `mist_org_wlan.schedule.hours` `mist_site_wlan.schedule.hours` to require at least one day of the week to be set.
 
 #### Import re-enabled
 * The `import` function for the `mist_org_sso_role` resource has been re-enabled
