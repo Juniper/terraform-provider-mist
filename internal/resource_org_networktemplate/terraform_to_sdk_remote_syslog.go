@@ -3,6 +3,7 @@ package resource_org_networktemplate
 import (
 	"context"
 
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
@@ -11,35 +12,39 @@ import (
 
 func remoteSyslogConfigArchiveTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.RemoteSyslogArchive {
 	data := models.RemoteSyslogArchive{}
-	if !d.IsNull() && !d.IsUnknown() {
+	if d.IsNull() || d.IsUnknown() {
+		return &data
+	} else {
 		item, e := NewArchiveValue(ArchiveValue{}.AttributeTypes(ctx), d.Attributes())
 		diags.Append(e...)
-		if e == nil {
-			if item.Files.ValueStringPointer() != nil {
-				data.Files = models.ToPointer(models.RemoteSyslogArchiveFilesContainer.FromString(item.Files.ValueString()))
-			}
-			if item.Size.ValueStringPointer() != nil {
-				data.Size = models.ToPointer(item.Size.ValueString())
-			}
+		var itemInterface interface{} = item
+		itemObj := itemInterface.(ArchiveValue)
+		if itemObj.Files.ValueStringPointer() != nil {
+			data.Files = models.ToPointer(models.RemoteSyslogArchiveFilesContainer.FromString(itemObj.Files.ValueString()))
 		}
+		if itemObj.Size.ValueStringPointer() != nil {
+			data.Size = models.ToPointer(itemObj.Size.ValueString())
+		}
+		return &data
 	}
-	return &data
 }
 func remoteSyslogArchiveTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.RemoteSyslogArchive {
 	data := models.RemoteSyslogArchive{}
-	if !d.IsNull() && !d.IsUnknown() {
+	if d.IsNull() || d.IsUnknown() {
+		return &data
+	} else {
 		item, e := NewArchiveValue(ArchiveValue{}.AttributeTypes(ctx), d.Attributes())
 		diags.Append(e...)
-		if e == nil {
-			if item.Files.ValueStringPointer() != nil {
-				data.Files = models.ToPointer(models.RemoteSyslogArchiveFilesContainer.FromString(item.Files.ValueString()))
-			}
-			if item.Size.ValueStringPointer() != nil {
-				data.Size = models.ToPointer(item.Size.ValueString())
-			}
+		var itemInterface interface{} = item
+		itemObj := itemInterface.(ArchiveValue)
+		if itemObj.Files.ValueStringPointer() != nil {
+			data.Files = models.ToPointer(models.RemoteSyslogArchiveFilesContainer.FromString(itemObj.Files.ValueString()))
 		}
+		if itemObj.Size.ValueStringPointer() != nil {
+			data.Size = models.ToPointer(itemObj.Size.ValueString())
+		}
+		return &data
 	}
-	return &data
 }
 func remoteSyslogContentTerraformToSdk(d basetypes.ListValue) []models.RemoteSyslogContent {
 	var data []models.RemoteSyslogContent
@@ -47,6 +52,7 @@ func remoteSyslogContentTerraformToSdk(d basetypes.ListValue) []models.RemoteSys
 		var itemInterface interface{} = v
 		itemIn := itemInterface.(ContentsValue)
 		itemOut := models.RemoteSyslogContent{}
+
 		facility := models.ToPointer(models.RemoteSyslogFacilityEnum(itemIn.Facility.ValueString()))
 		severity := models.ToPointer(models.RemoteSyslogSeverityEnum(itemIn.Severity.ValueString()))
 		itemOut.Facility = models.ToPointer(*facility)
@@ -57,17 +63,18 @@ func remoteSyslogContentTerraformToSdk(d basetypes.ListValue) []models.RemoteSys
 }
 func remoteSyslogConsoleTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.RemoteSyslogConsole {
 	data := models.RemoteSyslogConsole{}
-	if !d.IsNull() && !d.IsUnknown() {
+	if d.IsNull() || d.IsUnknown() {
+		return &data
+	} else {
 		itemObj, e := NewConsoleValue(d.AttributeTypes(ctx), d.Attributes())
 		diags.Append(e...)
-		if e == nil {
-			// var item_interface interface{} = d
-			// item_obj := item_interface.(ConsoleValue)
-
+		// var item_interface interface{} = d
+		// item_obj := item_interface.(ConsoleValue)
+		if !itemObj.Contents.IsNull() && !itemObj.Contents.IsUnknown() {
 			data.Contents = remoteSyslogContentTerraformToSdk(itemObj.Contents)
 		}
+		return &data
 	}
-	return &data
 }
 
 func remoteSyslogFilesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.RemoteSyslogFileConfig {
@@ -83,6 +90,9 @@ func remoteSyslogFilesTerraformToSdk(ctx context.Context, diags *diag.Diagnostic
 		}
 		if !itemObj.Contents.IsNull() && !itemObj.Contents.IsUnknown() {
 			dataItem.Contents = remoteSyslogContentTerraformToSdk(itemObj.Contents)
+		}
+		if itemObj.EnableTls.ValueBoolPointer() != nil {
+			dataItem.EnableTls = models.ToPointer(itemObj.EnableTls.ValueBool())
 		}
 		if itemObj.ExplicitPriority.ValueBoolPointer() != nil {
 			dataItem.ExplicitPriority = models.ToPointer(itemObj.ExplicitPriority.ValueBool())
@@ -199,6 +209,9 @@ func remoteSyslogTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d 
 	}
 	if !d.Archive.IsNull() && !d.Archive.IsUnknown() {
 		data.Archive = remoteSyslogArchiveTerraformToSdk(ctx, diags, d.Archive)
+	}
+	if !d.Cacerts.IsNull() && !d.Cacerts.IsUnknown() {
+		data.Cacerts = mistutils.ListOfStringTerraformToSdk(d.Cacerts)
 	}
 	if !d.Console.IsNull() && !d.Console.IsUnknown() {
 		data.Console = remoteSyslogConsoleTerraformToSdk(ctx, diags, d.Console)

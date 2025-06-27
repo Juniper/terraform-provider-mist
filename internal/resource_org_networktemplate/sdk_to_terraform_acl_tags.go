@@ -46,14 +46,19 @@ func aclTagsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[s
 
 	stateValueMapValue := make(map[string]attr.Value)
 	for k, d := range m {
+		var etherTypes = mistutils.ListOfStringSdkToTerraformEmpty()
 		var gbpTag basetypes.Int64Value
 		var macs = mistutils.ListOfStringSdkToTerraformEmpty()
 		var network basetypes.StringValue
+		var portUsage basetypes.StringValue
 		var radiusGroup basetypes.StringValue
 		var specs = types.ListNull(SpecsValue{}.Type(ctx))
-		var subnets = mistutils.ListOfStringSdkToTerraformEmpty()
+		var subnets = types.ListNull(types.StringType)
 		var tagType = types.StringValue(string(d.Type))
 
+		if d.EtherTypes != nil {
+			etherTypes = mistutils.ListOfStringSdkToTerraform(d.EtherTypes)
+		}
 		if d.GbpTag != nil {
 			gbpTag = types.Int64Value(int64(*d.GbpTag))
 		}
@@ -62,6 +67,9 @@ func aclTagsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[s
 		}
 		if d.Network != nil {
 			network = types.StringValue(*d.Network)
+		}
+		if d.PortUsage != nil {
+			portUsage = types.StringValue(*d.PortUsage)
 		}
 		if d.RadiusGroup != nil {
 			radiusGroup = types.StringValue(*d.RadiusGroup)
@@ -74,9 +82,11 @@ func aclTagsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[s
 		}
 
 		dataMapValue := map[string]attr.Value{
+			"ether_types":  etherTypes,
 			"gbp_tag":      gbpTag,
 			"macs":         macs,
 			"network":      network,
+			"port_usage":   portUsage,
 			"radius_group": radiusGroup,
 			"specs":        specs,
 			"subnets":      subnets,
@@ -87,7 +97,6 @@ func aclTagsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[s
 
 		stateValueMapValue[k] = data
 	}
-
 	stateResultMap, e := types.MapValueFrom(ctx, AclTagsValue{}.Type(ctx), stateValueMapValue)
 	diags.Append(e...)
 	return stateResultMap

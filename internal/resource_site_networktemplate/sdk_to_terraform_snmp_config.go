@@ -1,4 +1,4 @@
-package resource_org_networktemplate
+package resource_site_networktemplate
 
 import (
 	"context"
@@ -501,7 +501,6 @@ func snmpV3VacmSecurityToGroupSdkToTerraform(ctx context.Context, diags *diag.Di
 		"security_model": securityModel,
 		"content":        content,
 	}
-	// data, e := NewSecurityToGroupValue(data_map_attr_type, dataMapValue)
 	data, e := basetypes.NewObjectValue(SecurityToGroupValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
@@ -615,6 +614,7 @@ func snmpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 	var description basetypes.StringValue
 	var enabled basetypes.BoolValue
 	var engineId basetypes.StringValue
+	var engineIdType basetypes.StringValue
 	var location basetypes.StringValue
 	var name basetypes.StringValue
 	var network basetypes.StringValue
@@ -637,6 +637,9 @@ func snmpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 		}
 		if d.EngineId != nil {
 			engineId = types.StringValue(*d.EngineId)
+		}
+		if d.EngineIdType != nil {
+			engineIdType = types.StringValue(string(*d.EngineIdType))
 		}
 		if d.Location != nil {
 			location = types.StringValue(*d.Location)
@@ -662,18 +665,19 @@ func snmpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 	}
 
 	dataMapValue := map[string]attr.Value{
-		"client_list": clientList,
-		"contact":     contact,
-		"description": description,
-		"enabled":     enabled,
-		"engine_id":   engineId,
-		"location":    location,
-		"name":        name,
-		"network":     network,
-		"trap_groups": trapGroups,
-		"v2c_config":  v2cConfig,
-		"v3_config":   v3Config,
-		"views":       views,
+		"client_list":    clientList,
+		"contact":        contact,
+		"description":    description,
+		"enabled":        enabled,
+		"engine_id":      engineId,
+		"engine_id_type": engineIdType,
+		"location":       location,
+		"name":           name,
+		"network":        network,
+		"trap_groups":    trapGroups,
+		"v2c_config":     v2cConfig,
+		"v3_config":      v3Config,
+		"views":          views,
 	}
 	data, e := NewSnmpConfigValue(SnmpConfigValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)

@@ -85,6 +85,9 @@ func portUsageTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d bas
 		if puAttrValue.BypassAuthWhenServerDownForUnknownClient.ValueBoolPointer() != nil {
 			newPu.BypassAuthWhenServerDownForUnknownClient = models.ToPointer(puAttrValue.BypassAuthWhenServerDownForUnknownClient.ValueBool())
 		}
+		if puAttrValue.CommunityVlanId.ValueInt64Pointer() != nil {
+			newPu.CommunityVlanId = models.ToPointer(int(puAttrValue.CommunityVlanId.ValueInt64()))
+		}
 		if puAttrValue.Description.ValueStringPointer() != nil {
 			newPu.Description = models.ToPointer(puAttrValue.Description.ValueString())
 		}

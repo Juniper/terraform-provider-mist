@@ -3,6 +3,7 @@ package resource_device_switch
 import (
 	"context"
 
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
@@ -51,6 +52,7 @@ func remoteSyslogContentTerraformToSdk(d basetypes.ListValue) []models.RemoteSys
 		var itemInterface interface{} = v
 		itemIn := itemInterface.(ContentsValue)
 		itemOut := models.RemoteSyslogContent{}
+
 		facility := models.ToPointer(models.RemoteSyslogFacilityEnum(itemIn.Facility.ValueString()))
 		severity := models.ToPointer(models.RemoteSyslogSeverityEnum(itemIn.Severity.ValueString()))
 		itemOut.Facility = models.ToPointer(*facility)
@@ -68,8 +70,9 @@ func remoteSyslogConsoleTerraformToSdk(ctx context.Context, diags *diag.Diagnost
 		diags.Append(e...)
 		// var item_interface interface{} = d
 		// item_obj := item_interface.(ConsoleValue)
-
-		data.Contents = remoteSyslogContentTerraformToSdk(itemObj.Contents)
+		if !itemObj.Contents.IsNull() && !itemObj.Contents.IsUnknown() {
+			data.Contents = remoteSyslogContentTerraformToSdk(itemObj.Contents)
+		}
 		return &data
 	}
 }
@@ -87,6 +90,9 @@ func remoteSyslogFilesTerraformToSdk(ctx context.Context, diags *diag.Diagnostic
 		}
 		if !itemObj.Contents.IsNull() && !itemObj.Contents.IsUnknown() {
 			dataItem.Contents = remoteSyslogContentTerraformToSdk(itemObj.Contents)
+		}
+		if itemObj.EnableTls.ValueBoolPointer() != nil {
+			dataItem.EnableTls = models.ToPointer(itemObj.EnableTls.ValueBool())
 		}
 		if itemObj.ExplicitPriority.ValueBoolPointer() != nil {
 			dataItem.ExplicitPriority = models.ToPointer(itemObj.ExplicitPriority.ValueBool())
@@ -203,6 +209,9 @@ func remoteSyslogTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d 
 	}
 	if !d.Archive.IsNull() && !d.Archive.IsUnknown() {
 		data.Archive = remoteSyslogArchiveTerraformToSdk(ctx, diags, d.Archive)
+	}
+	if !d.Cacerts.IsNull() && !d.Cacerts.IsUnknown() {
+		data.Cacerts = mistutils.ListOfStringTerraformToSdk(d.Cacerts)
 	}
 	if !d.Console.IsNull() && !d.Console.IsUnknown() {
 		data.Console = remoteSyslogConsoleTerraformToSdk(ctx, diags, d.Console)

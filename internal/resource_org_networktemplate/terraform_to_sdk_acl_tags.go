@@ -33,12 +33,18 @@ func actTagsTerraformToSdk(d basetypes.MapValue) map[string]models.AclTag {
 
 		dataItem := models.AclTag{}
 		dataItem.Type = models.AclTagTypeEnum(itemObj.AclTagsType.ValueString())
+		if !itemObj.EtherTypes.IsNull() && !itemObj.EtherTypes.IsUnknown() {
+			dataItem.EtherTypes = mistutils.ListOfStringTerraformToSdk(itemObj.EtherTypes)
+		}
 		if itemObj.GbpTag.ValueInt64Pointer() != nil {
 			dataItem.GbpTag = models.ToPointer(int(itemObj.GbpTag.ValueInt64()))
 		}
 		dataItem.Macs = mistutils.ListOfStringTerraformToSdk(itemObj.Macs)
 		if itemObj.Network.ValueStringPointer() != nil {
 			dataItem.Network = models.ToPointer(itemObj.Network.ValueString())
+		}
+		if itemObj.PortUsage.ValueStringPointer() != nil {
+			dataItem.PortUsage = models.ToPointer(itemObj.PortUsage.ValueString())
 		}
 		if itemObj.RadiusGroup.ValueStringPointer() != nil {
 			dataItem.RadiusGroup = models.ToPointer(itemObj.RadiusGroup.ValueString())

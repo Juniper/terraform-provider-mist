@@ -94,6 +94,12 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 			"acl_tags": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
+						"ether_types": schema.ListAttribute{
+							ElementType:         types.StringType,
+							Optional:            true,
+							Description:         "Can only be used under dst tags.",
+							MarkdownDescription: "Can only be used under dst tags.",
+						},
 						"gbp_tag": schema.Int64Attribute{
 							Optional:            true,
 							Description:         "Required if\n  - `type`==`dynamic_gbp` (gbp_tag received from RADIUS)\n  - `type`==`gbp_resource`\n  - `type`==`static_gbp` (applying gbp tag against matching conditions)",
@@ -121,6 +127,11 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							Validators: []validator.String{
 								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("network")),
 							},
+						},
+						"port_usage": schema.StringAttribute{
+							Optional:            true,
+							Description:         "Required if `type`==`port_usage`",
+							MarkdownDescription: "Required if `type`==`port_usage`",
 						},
 						"radius_group": schema.StringAttribute{
 							Optional:            true,
@@ -183,8 +194,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional:            true,
-							Description:         "If `type`==`resource` or `type`==`gbp_resource`. Empty means unrestricted, i.e. any",
-							MarkdownDescription: "If `type`==`resource` or `type`==`gbp_resource`. Empty means unrestricted, i.e. any",
+							Description:         "If `type`==`resource`, `type`==`radius_group`, `type`==`port_usage` or `type`==`gbp_resource`. Empty means unrestricted, i.e. any",
+							MarkdownDescription: "If `type`==`resource`, `type`==`radius_group`, `type`==`port_usage` or `type`==`gbp_resource`. Empty means unrestricted, i.e. any",
 							Validators: []validator.List{
 								listvalidator.SizeAtLeast(1),
 							},
@@ -202,8 +213,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"type": schema.StringAttribute{
 							Required:            true,
-							Description:         "enum: \n  * `any`: matching anything not identified\n  * `dynamic_gbp`: from the gbp_tag received from RADIUS\n  * `gbp_resource`: can only be used in `dst_tags`\n  * `mac`\n  * `network`\n  * `radius_group`\n  * `resource`: can only be used in `dst_tags`\n  * `static_gbp`: applying gbp tag against matching conditions\n  * `subnet`'",
-							MarkdownDescription: "enum: \n  * `any`: matching anything not identified\n  * `dynamic_gbp`: from the gbp_tag received from RADIUS\n  * `gbp_resource`: can only be used in `dst_tags`\n  * `mac`\n  * `network`\n  * `radius_group`\n  * `resource`: can only be used in `dst_tags`\n  * `static_gbp`: applying gbp tag against matching conditions\n  * `subnet`'",
+							Description:         "enum: \n  * `any`: matching anything not identified\n  * `dynamic_gbp`: from the gbp_tag received from RADIUS\n  * `gbp_resource`: can only be used in `dst_tags`\n  * `mac`\n  * `network`\n  * `port_usage`\n  * `radius_group`\n  * `resource`: can only be used in `dst_tags`\n  * `static_gbp`: applying gbp tag against matching conditions\n  * `subnet`'",
+							MarkdownDescription: "enum: \n  * `any`: matching anything not identified\n  * `dynamic_gbp`: from the gbp_tag received from RADIUS\n  * `gbp_resource`: can only be used in `dst_tags`\n  * `mac`\n  * `network`\n  * `port_usage`\n  * `radius_group`\n  * `resource`: can only be used in `dst_tags`\n  * `static_gbp`: applying gbp tag against matching conditions\n  * `subnet`'",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -212,6 +223,7 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									"gbp_resource",
 									"mac",
 									"network",
+									"port_usage",
 									"radius_group",
 									"resource",
 									"static_gbp",
@@ -245,7 +257,14 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 			"auto_upgrade_linecard": schema.BoolAttribute{
 				Optional: true,
 				Computed: true,
-				Default:  booldefault.StaticBool(false),
+				Default:  booldefault.StaticBool(true),
+			},
+			"default_port_usage": schema.StringAttribute{
+				Optional:            true,
+				Computed:            true,
+				Description:         "Port usage to assign to switch ports without any port usage assngied. Default: `default` to preserve default behavior",
+				MarkdownDescription: "Port usage to assign to switch ports without any port usage assngied. Default: `default` to preserve default behavior",
+				Default:             stringdefault.StaticString("default"),
 			},
 			"dhcp_snooping": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -446,6 +465,41 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					mapvalidator.SizeAtLeast(1), mapvalidator.KeysAre(stringvalidator.Any(mistvalidator.ParseCidr(false, true), mistvalidator.ParseVar())),
 				},
 			},
+			"marvis": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"auto_operations": schema.SingleNestedAttribute{
+						Attributes: map[string]schema.Attribute{
+							"bounce_port_for_abnormal_poe_client": schema.BoolAttribute{
+								Optional: true,
+								Computed: true,
+								Default:  booldefault.StaticBool(false),
+							},
+							"disable_port_when_ddos_protocol_violation": schema.BoolAttribute{
+								Optional: true,
+								Computed: true,
+								Default:  booldefault.StaticBool(false),
+							},
+							"disable_port_when_rogue_dhcp_server_detected": schema.BoolAttribute{
+								Optional: true,
+								Computed: true,
+								Default:  booldefault.StaticBool(false),
+							},
+						},
+						CustomType: AutoOperationsType{
+							ObjectType: types.ObjectType{
+								AttrTypes: AutoOperationsValue{}.AttributeTypes(ctx),
+							},
+						},
+						Optional: true,
+					},
+				},
+				CustomType: MarvisType{
+					ObjectType: types.ObjectType{
+						AttrTypes: MarvisValue{}.AttributeTypes(ctx),
+					},
+				},
+				Optional: true,
+			},
 			"mist_nac": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"enabled": schema.BoolAttribute{
@@ -485,8 +539,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"isolation": schema.BoolAttribute{
 							Optional:            true,
-							Description:         "whether to stop clients to talk to each other, default is false (when enabled, a unique isolation_vlan_id is required). NOTE: this features requires uplink device to also a be Juniper device and `inter_switch_link` to be set",
-							MarkdownDescription: "whether to stop clients to talk to each other, default is false (when enabled, a unique isolation_vlan_id is required). NOTE: this features requires uplink device to also a be Juniper device and `inter_switch_link` to be set",
+							Description:         "whether to stop clients to talk to each other, default is false (when enabled, a unique isolation_vlan_id is required). NOTE: this features requires uplink device to also a be Juniper device and `inter_switch_link` to be set. See also `inter_isolation_network_link` and `community_vlan_id` in port_usage",
+							MarkdownDescription: "whether to stop clients to talk to each other, default is false (when enabled, a unique isolation_vlan_id is required). NOTE: this features requires uplink device to also a be Juniper device and `inter_switch_link` to be set. See also `inter_isolation_network_link` and `community_vlan_id` in port_usage",
 						},
 						"isolation_vlan_id": schema.StringAttribute{
 							Optional: true,
@@ -794,6 +848,11 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							Validators: []validator.Bool{
 								mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x"), types.BoolValue(false)),
 							},
+						},
+						"community_vlan_id": schema.Int64Attribute{
+							Optional:            true,
+							Description:         "Only if `mode`!=`dynamic`. To be used together with `isolation` under networks. Signaling that this port connects to the networks isolated but wired clients belong to the same community can talk to each other",
+							MarkdownDescription: "Only if `mode`!=`dynamic`. To be used together with `isolation` under networks. Signaling that this port connects to the networks isolated but wired clients belong to the same community can talk to each other",
 						},
 						"description": schema.StringAttribute{
 							Optional:            true,
@@ -1415,6 +1474,13 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						Optional: true,
 					},
+					"cacerts": schema.ListAttribute{
+						ElementType: types.StringType,
+						Optional:    true,
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
+					},
 					"console": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
 							"contents": schema.ListNestedAttribute{
@@ -1568,6 +1634,11 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 									Optional: true,
+								},
+								"enable_tls": schema.BoolAttribute{
+									Optional:            true,
+									Description:         "Only if `protocol`==`tcp`",
+									MarkdownDescription: "Only if `protocol`==`tcp`",
 								},
 								"explicit_priority": schema.BoolAttribute{
 									Optional: true,
@@ -1860,8 +1931,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 			"remove_existing_configs": schema.BoolAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "By default, when we configure a device, we only clean up config we generate. Remove existing configs if enabled",
-				MarkdownDescription: "By default, when we configure a device, we only clean up config we generate. Remove existing configs if enabled",
+				Description:         "By default, only the configuration generated by Mist is cleaned up during the configuration process. If `true`, all the existing configuration will be removed.",
+				MarkdownDescription: "By default, only the configuration generated by Mist is cleaned up during the configuration process. If `true`, all the existing configuration will be removed.",
 				Default:             booldefault.StaticBool(false),
 			},
 			"site_id": schema.StringAttribute{
@@ -1871,6 +1942,56 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
+			},
+			"sle_thresholds": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"capacity": schema.Int64Attribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "Capacity, in %",
+						MarkdownDescription: "Capacity, in %",
+						Validators: []validator.Int64{
+							int64validator.Between(5, 50),
+						},
+						Default: int64default.StaticInt64(20),
+					},
+					"coverage": schema.Int64Attribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "Covrage, in dBm",
+						MarkdownDescription: "Covrage, in dBm",
+						Validators: []validator.Int64{
+							int64validator.Between(-90, -60),
+						},
+						Default: int64default.StaticInt64(-72),
+					},
+					"throughput": schema.Int64Attribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "Throughput, in Mbps",
+						MarkdownDescription: "Throughput, in Mbps",
+						Validators: []validator.Int64{
+							int64validator.Between(1, 100),
+						},
+						Default: int64default.StaticInt64(10),
+					},
+					"timetoconnect": schema.Int64Attribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "Time to connect, in seconds",
+						MarkdownDescription: "Time to connect, in seconds",
+						Validators: []validator.Int64{
+							int64validator.Between(2, 10),
+						},
+						Default: int64default.StaticInt64(4),
+					},
+				},
+				CustomType: SleThresholdsType{
+					ObjectType: types.ObjectType{
+						AttrTypes: SleThresholdsValue{}.AttributeTypes(ctx),
+					},
+				},
+				Optional: true,
 			},
 			"snmp_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -1912,6 +2033,20 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						Validators: []validator.String{
 							stringvalidator.LengthAtMost(27),
 						},
+					},
+					"engine_id_type": schema.StringAttribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "enum: `local`, `use_mac_address`",
+						MarkdownDescription: "enum: `local`, `use_mac_address`",
+						Validators: []validator.String{
+							stringvalidator.OneOf(
+								"",
+								"local",
+								"use_mac_address",
+							),
+						},
+						Default: stringdefault.StaticString("local"),
 					},
 					"location": schema.StringAttribute{
 						Optional: true,
@@ -2687,6 +2822,11 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											"poe_disabled": schema.BoolAttribute{
 												Optional: true,
 											},
+											"port_network": schema.StringAttribute{
+												Optional:            true,
+												Description:         "Required if `usage`==`vlan_tunnel`. Q-in-Q tunneling using All-in-one bundling. This also enables standard L2PT for interfaces that are not encapsulation tunnel interfaces and uses MAC rewrite operation. [View more information](https://www.juniper.net/documentation/us/en/software/junos/multicast-l2/topics/topic-map/q-in-q.html#id-understanding-qinq-tunneling-and-vlan-translation)",
+												MarkdownDescription: "Required if `usage`==`vlan_tunnel`. Q-in-Q tunneling using All-in-one bundling. This also enables standard L2PT for interfaces that are not encapsulation tunnel interfaces and uses MAC rewrite operation. [View more information](https://www.juniper.net/documentation/us/en/software/junos/multicast-l2/topics/topic-map/q-in-q.html#id-understanding-qinq-tunneling-and-vlan-translation)",
+											},
 											"speed": schema.StringAttribute{
 												Optional:            true,
 												Description:         "enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`,`auto`",
@@ -2709,8 +2849,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											},
 											"usage": schema.StringAttribute{
 												Required:            true,
-												Description:         "Port usage name. If EVPN is used, use `evpn_uplink`or `evpn_downlink`",
-												MarkdownDescription: "Port usage name. If EVPN is used, use `evpn_uplink`or `evpn_downlink`",
+												Description:         "Port usage name. For Q-in-Q, use `vlan_tunnel`. If EVPN is used, use `evpn_uplink`or `evpn_downlink`",
+												MarkdownDescription: "Port usage name. For Q-in-Q, use `vlan_tunnel`. If EVPN is used, use `evpn_uplink`or `evpn_downlink`",
 											},
 										},
 										CustomType: PortConfigType{
@@ -2989,6 +3129,13 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								MarkdownDescription: "When enabled, all traffic that is not essential to our operation will be dropped\ne.g. ntp / dns / traffic to mist will be allowed by default\n     if dhcpd is enabled, we'll make sure it works",
 								Default:             booldefault.StaticBool(false),
 							},
+							"hit_count": schema.BoolAttribute{
+								Optional:            true,
+								Computed:            true,
+								Description:         "Whether to enable hit count for Protect_RE policy",
+								MarkdownDescription: "Whether to enable hit count for Protect_RE policy",
+								Default:             booldefault.StaticBool(false),
+							},
 							"trusted_hosts": schema.ListAttribute{
 								ElementType:         types.StringType,
 								Optional:            true,
@@ -3006,6 +3153,13 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "Restrict inbound-traffic to host\nwhen enabled, all traffic that is not essential to our operation will be dropped \ne.g. ntp / dns / traffic to mist will be allowed by default, if dhcpd is enabled, we'll make sure it works",
 						MarkdownDescription: "Restrict inbound-traffic to host\nwhen enabled, all traffic that is not essential to our operation will be dropped \ne.g. ntp / dns / traffic to mist will be allowed by default, if dhcpd is enabled, we'll make sure it works",
+					},
+					"remove_existing_configs": schema.BoolAttribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "By default, only the configuration generated by Mist is cleaned up during the configuration process. If `true`, all the existing configuration will be removed.",
+						MarkdownDescription: "By default, only the configuration generated by Mist is cleaned up during the configuration process. If `true`, all the existing configuration will be removed.",
+						Default:             booldefault.StaticBool(false),
 					},
 					"root_password": schema.StringAttribute{
 						Optional:  true,
@@ -3221,12 +3375,14 @@ type SiteNetworktemplateModel struct {
 	AclTags                         types.Map           `tfsdk:"acl_tags"`
 	AdditionalConfigCmds            types.List          `tfsdk:"additional_config_cmds"`
 	AutoUpgradeLinecard             types.Bool          `tfsdk:"auto_upgrade_linecard"`
+	DefaultPortUsage                types.String        `tfsdk:"default_port_usage"`
 	DhcpSnooping                    DhcpSnoopingValue   `tfsdk:"dhcp_snooping"`
 	DisabledSystemDefinedPortUsages types.List          `tfsdk:"disabled_system_defined_port_usages"`
 	DnsServers                      types.List          `tfsdk:"dns_servers"`
 	DnsSuffix                       types.List          `tfsdk:"dns_suffix"`
 	ExtraRoutes                     types.Map           `tfsdk:"extra_routes"`
 	ExtraRoutes6                    types.Map           `tfsdk:"extra_routes6"`
+	Marvis                          MarvisValue         `tfsdk:"marvis"`
 	MistNac                         MistNacValue        `tfsdk:"mist_nac"`
 	Networks                        types.Map           `tfsdk:"networks"`
 	NtpServers                      types.List          `tfsdk:"ntp_servers"`
@@ -3237,6 +3393,7 @@ type SiteNetworktemplateModel struct {
 	RemoteSyslog                    RemoteSyslogValue   `tfsdk:"remote_syslog"`
 	RemoveExistingConfigs           types.Bool          `tfsdk:"remove_existing_configs"`
 	SiteId                          types.String        `tfsdk:"site_id"`
+	SleThresholds                   SleThresholdsValue  `tfsdk:"sle_thresholds"`
 	SnmpConfig                      SnmpConfigValue     `tfsdk:"snmp_config"`
 	SwitchMatching                  SwitchMatchingValue `tfsdk:"switch_matching"`
 	SwitchMgmt                      SwitchMgmtValue     `tfsdk:"switch_mgmt"`
@@ -4147,6 +4304,24 @@ func (t AclTagsType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 
 	attributes := in.Attributes()
 
+	etherTypesAttribute, ok := attributes["ether_types"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ether_types is missing from object`)
+
+		return nil, diags
+	}
+
+	etherTypesVal, ok := etherTypesAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ether_types expected to be basetypes.ListValue, was: %T`, etherTypesAttribute))
+	}
+
 	gbpTagAttribute, ok := attributes["gbp_tag"]
 
 	if !ok {
@@ -4199,6 +4374,24 @@ func (t AclTagsType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`network expected to be basetypes.StringValue, was: %T`, networkAttribute))
+	}
+
+	portUsageAttribute, ok := attributes["port_usage"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`port_usage is missing from object`)
+
+		return nil, diags
+	}
+
+	portUsageVal, ok := portUsageAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`port_usage expected to be basetypes.StringValue, was: %T`, portUsageAttribute))
 	}
 
 	radiusGroupAttribute, ok := attributes["radius_group"]
@@ -4278,9 +4471,11 @@ func (t AclTagsType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 	}
 
 	return AclTagsValue{
+		EtherTypes:  etherTypesVal,
 		GbpTag:      gbpTagVal,
 		Macs:        macsVal,
 		Network:     networkVal,
+		PortUsage:   portUsageVal,
 		RadiusGroup: radiusGroupVal,
 		Specs:       specsVal,
 		Subnets:     subnetsVal,
@@ -4352,6 +4547,24 @@ func NewAclTagsValue(attributeTypes map[string]attr.Type, attributes map[string]
 		return NewAclTagsValueUnknown(), diags
 	}
 
+	etherTypesAttribute, ok := attributes["ether_types"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ether_types is missing from object`)
+
+		return NewAclTagsValueUnknown(), diags
+	}
+
+	etherTypesVal, ok := etherTypesAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ether_types expected to be basetypes.ListValue, was: %T`, etherTypesAttribute))
+	}
+
 	gbpTagAttribute, ok := attributes["gbp_tag"]
 
 	if !ok {
@@ -4404,6 +4617,24 @@ func NewAclTagsValue(attributeTypes map[string]attr.Type, attributes map[string]
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`network expected to be basetypes.StringValue, was: %T`, networkAttribute))
+	}
+
+	portUsageAttribute, ok := attributes["port_usage"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`port_usage is missing from object`)
+
+		return NewAclTagsValueUnknown(), diags
+	}
+
+	portUsageVal, ok := portUsageAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`port_usage expected to be basetypes.StringValue, was: %T`, portUsageAttribute))
 	}
 
 	radiusGroupAttribute, ok := attributes["radius_group"]
@@ -4483,9 +4714,11 @@ func NewAclTagsValue(attributeTypes map[string]attr.Type, attributes map[string]
 	}
 
 	return AclTagsValue{
+		EtherTypes:  etherTypesVal,
 		GbpTag:      gbpTagVal,
 		Macs:        macsVal,
 		Network:     networkVal,
+		PortUsage:   portUsageVal,
 		RadiusGroup: radiusGroupVal,
 		Specs:       specsVal,
 		Subnets:     subnetsVal,
@@ -4562,9 +4795,11 @@ func (t AclTagsType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = AclTagsValue{}
 
 type AclTagsValue struct {
+	EtherTypes  basetypes.ListValue   `tfsdk:"ether_types"`
 	GbpTag      basetypes.Int64Value  `tfsdk:"gbp_tag"`
 	Macs        basetypes.ListValue   `tfsdk:"macs"`
 	Network     basetypes.StringValue `tfsdk:"network"`
+	PortUsage   basetypes.StringValue `tfsdk:"port_usage"`
 	RadiusGroup basetypes.StringValue `tfsdk:"radius_group"`
 	Specs       basetypes.ListValue   `tfsdk:"specs"`
 	Subnets     basetypes.ListValue   `tfsdk:"subnets"`
@@ -4573,16 +4808,20 @@ type AclTagsValue struct {
 }
 
 func (v AclTagsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 7)
+	attrTypes := make(map[string]tftypes.Type, 9)
 
 	var val tftypes.Value
 	var err error
 
+	attrTypes["ether_types"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
 	attrTypes["gbp_tag"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["macs"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
 	attrTypes["network"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["port_usage"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["radius_group"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["specs"] = basetypes.ListType{
 		ElemType: SpecsValue{}.Type(ctx),
@@ -4596,7 +4835,15 @@ func (v AclTagsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 7)
+		vals := make(map[string]tftypes.Value, 9)
+
+		val, err = v.EtherTypes.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["ether_types"] = val
 
 		val, err = v.GbpTag.ToTerraformValue(ctx)
 
@@ -4621,6 +4868,14 @@ func (v AclTagsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 		}
 
 		vals["network"] = val
+
+		val, err = v.PortUsage.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["port_usage"] = val
 
 		val, err = v.RadiusGroup.ToTerraformValue(ctx)
 
@@ -4712,6 +4967,40 @@ func (v AclTagsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 		)
 	}
 
+	var etherTypesVal basetypes.ListValue
+	switch {
+	case v.EtherTypes.IsUnknown():
+		etherTypesVal = types.ListUnknown(types.StringType)
+	case v.EtherTypes.IsNull():
+		etherTypesVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		etherTypesVal, d = types.ListValue(types.StringType, v.EtherTypes.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"ether_types": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"gbp_tag": basetypes.Int64Type{},
+			"macs": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"network":      basetypes.StringType{},
+			"port_usage":   basetypes.StringType{},
+			"radius_group": basetypes.StringType{},
+			"specs": basetypes.ListType{
+				ElemType: SpecsValue{}.Type(ctx),
+			},
+			"subnets": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"type": basetypes.StringType{},
+		}), diags
+	}
+
 	var macsVal basetypes.ListValue
 	switch {
 	case v.Macs.IsUnknown():
@@ -4726,11 +5015,15 @@ func (v AclTagsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 
 	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
+			"ether_types": basetypes.ListType{
+				ElemType: types.StringType,
+			},
 			"gbp_tag": basetypes.Int64Type{},
 			"macs": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"network":      basetypes.StringType{},
+			"port_usage":   basetypes.StringType{},
 			"radius_group": basetypes.StringType{},
 			"specs": basetypes.ListType{
 				ElemType: SpecsValue{}.Type(ctx),
@@ -4756,11 +5049,15 @@ func (v AclTagsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 
 	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
+			"ether_types": basetypes.ListType{
+				ElemType: types.StringType,
+			},
 			"gbp_tag": basetypes.Int64Type{},
 			"macs": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"network":      basetypes.StringType{},
+			"port_usage":   basetypes.StringType{},
 			"radius_group": basetypes.StringType{},
 			"specs": basetypes.ListType{
 				ElemType: SpecsValue{}.Type(ctx),
@@ -4773,11 +5070,15 @@ func (v AclTagsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 	}
 
 	attributeTypes := map[string]attr.Type{
+		"ether_types": basetypes.ListType{
+			ElemType: types.StringType,
+		},
 		"gbp_tag": basetypes.Int64Type{},
 		"macs": basetypes.ListType{
 			ElemType: types.StringType,
 		},
 		"network":      basetypes.StringType{},
+		"port_usage":   basetypes.StringType{},
 		"radius_group": basetypes.StringType{},
 		"specs": basetypes.ListType{
 			ElemType: SpecsValue{}.Type(ctx),
@@ -4799,9 +5100,11 @@ func (v AclTagsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
+			"ether_types":  etherTypesVal,
 			"gbp_tag":      v.GbpTag,
 			"macs":         macsVal,
 			"network":      v.Network,
+			"port_usage":   v.PortUsage,
 			"radius_group": v.RadiusGroup,
 			"specs":        specs,
 			"subnets":      subnetsVal,
@@ -4826,6 +5129,10 @@ func (v AclTagsValue) Equal(o attr.Value) bool {
 		return true
 	}
 
+	if !v.EtherTypes.Equal(other.EtherTypes) {
+		return false
+	}
+
 	if !v.GbpTag.Equal(other.GbpTag) {
 		return false
 	}
@@ -4835,6 +5142,10 @@ func (v AclTagsValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.Network.Equal(other.Network) {
+		return false
+	}
+
+	if !v.PortUsage.Equal(other.PortUsage) {
 		return false
 	}
 
@@ -4867,11 +5178,15 @@ func (v AclTagsValue) Type(ctx context.Context) attr.Type {
 
 func (v AclTagsValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
+		"ether_types": basetypes.ListType{
+			ElemType: types.StringType,
+		},
 		"gbp_tag": basetypes.Int64Type{},
 		"macs": basetypes.ListType{
 			ElemType: types.StringType,
 		},
 		"network":      basetypes.StringType{},
+		"port_usage":   basetypes.StringType{},
 		"radius_group": basetypes.StringType{},
 		"specs": basetypes.ListType{
 			ElemType: SpecsValue{}.Type(ctx),
@@ -7480,6 +7795,791 @@ func (v ExtraRoutes6Value) AttributeTypes(ctx context.Context) map[string]attr.T
 		"no_resolve": basetypes.BoolType{},
 		"preference": basetypes.Int64Type{},
 		"via":        basetypes.StringType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = MarvisType{}
+
+type MarvisType struct {
+	basetypes.ObjectType
+}
+
+func (t MarvisType) Equal(o attr.Type) bool {
+	other, ok := o.(MarvisType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t MarvisType) String() string {
+	return "MarvisType"
+}
+
+func (t MarvisType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	autoOperationsAttribute, ok := attributes["auto_operations"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`auto_operations is missing from object`)
+
+		return nil, diags
+	}
+
+	autoOperationsVal, ok := autoOperationsAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`auto_operations expected to be basetypes.ObjectValue, was: %T`, autoOperationsAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return MarvisValue{
+		AutoOperations: autoOperationsVal,
+		state:          attr.ValueStateKnown,
+	}, diags
+}
+
+func NewMarvisValueNull() MarvisValue {
+	return MarvisValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewMarvisValueUnknown() MarvisValue {
+	return MarvisValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewMarvisValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (MarvisValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing MarvisValue Attribute Value",
+				"While creating a MarvisValue value, a missing attribute value was detected. "+
+					"A MarvisValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("MarvisValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid MarvisValue Attribute Type",
+				"While creating a MarvisValue value, an invalid attribute value was detected. "+
+					"A MarvisValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("MarvisValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("MarvisValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra MarvisValue Attribute Value",
+				"While creating a MarvisValue value, an extra attribute value was detected. "+
+					"A MarvisValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra MarvisValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewMarvisValueUnknown(), diags
+	}
+
+	autoOperationsAttribute, ok := attributes["auto_operations"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`auto_operations is missing from object`)
+
+		return NewMarvisValueUnknown(), diags
+	}
+
+	autoOperationsVal, ok := autoOperationsAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`auto_operations expected to be basetypes.ObjectValue, was: %T`, autoOperationsAttribute))
+	}
+
+	if diags.HasError() {
+		return NewMarvisValueUnknown(), diags
+	}
+
+	return MarvisValue{
+		AutoOperations: autoOperationsVal,
+		state:          attr.ValueStateKnown,
+	}, diags
+}
+
+func NewMarvisValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) MarvisValue {
+	object, diags := NewMarvisValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewMarvisValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t MarvisType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewMarvisValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewMarvisValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewMarvisValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewMarvisValueMust(MarvisValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t MarvisType) ValueType(ctx context.Context) attr.Value {
+	return MarvisValue{}
+}
+
+var _ basetypes.ObjectValuable = MarvisValue{}
+
+type MarvisValue struct {
+	AutoOperations basetypes.ObjectValue `tfsdk:"auto_operations"`
+	state          attr.ValueState
+}
+
+func (v MarvisValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 1)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["auto_operations"] = basetypes.ObjectType{
+		AttrTypes: AutoOperationsValue{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 1)
+
+		val, err = v.AutoOperations.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["auto_operations"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v MarvisValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v MarvisValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v MarvisValue) String() string {
+	return "MarvisValue"
+}
+
+func (v MarvisValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	var autoOperations basetypes.ObjectValue
+
+	if v.AutoOperations.IsNull() {
+		autoOperations = types.ObjectNull(
+			AutoOperationsValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.AutoOperations.IsUnknown() {
+		autoOperations = types.ObjectUnknown(
+			AutoOperationsValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.AutoOperations.IsNull() && !v.AutoOperations.IsUnknown() {
+		autoOperations = types.ObjectValueMust(
+			AutoOperationsValue{}.AttributeTypes(ctx),
+			v.AutoOperations.Attributes(),
+		)
+	}
+
+	attributeTypes := map[string]attr.Type{
+		"auto_operations": basetypes.ObjectType{
+			AttrTypes: AutoOperationsValue{}.AttributeTypes(ctx),
+		},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"auto_operations": autoOperations,
+		})
+
+	return objVal, diags
+}
+
+func (v MarvisValue) Equal(o attr.Value) bool {
+	other, ok := o.(MarvisValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.AutoOperations.Equal(other.AutoOperations) {
+		return false
+	}
+
+	return true
+}
+
+func (v MarvisValue) Type(ctx context.Context) attr.Type {
+	return MarvisType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v MarvisValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"auto_operations": basetypes.ObjectType{
+			AttrTypes: AutoOperationsValue{}.AttributeTypes(ctx),
+		},
+	}
+}
+
+var _ basetypes.ObjectTypable = AutoOperationsType{}
+
+type AutoOperationsType struct {
+	basetypes.ObjectType
+}
+
+func (t AutoOperationsType) Equal(o attr.Type) bool {
+	other, ok := o.(AutoOperationsType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t AutoOperationsType) String() string {
+	return "AutoOperationsType"
+}
+
+func (t AutoOperationsType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	bouncePortForAbnormalPoeClientAttribute, ok := attributes["bounce_port_for_abnormal_poe_client"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`bounce_port_for_abnormal_poe_client is missing from object`)
+
+		return nil, diags
+	}
+
+	bouncePortForAbnormalPoeClientVal, ok := bouncePortForAbnormalPoeClientAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`bounce_port_for_abnormal_poe_client expected to be basetypes.BoolValue, was: %T`, bouncePortForAbnormalPoeClientAttribute))
+	}
+
+	disablePortWhenDdosProtocolViolationAttribute, ok := attributes["disable_port_when_ddos_protocol_violation"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disable_port_when_ddos_protocol_violation is missing from object`)
+
+		return nil, diags
+	}
+
+	disablePortWhenDdosProtocolViolationVal, ok := disablePortWhenDdosProtocolViolationAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disable_port_when_ddos_protocol_violation expected to be basetypes.BoolValue, was: %T`, disablePortWhenDdosProtocolViolationAttribute))
+	}
+
+	disablePortWhenRogueDhcpServerDetectedAttribute, ok := attributes["disable_port_when_rogue_dhcp_server_detected"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disable_port_when_rogue_dhcp_server_detected is missing from object`)
+
+		return nil, diags
+	}
+
+	disablePortWhenRogueDhcpServerDetectedVal, ok := disablePortWhenRogueDhcpServerDetectedAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disable_port_when_rogue_dhcp_server_detected expected to be basetypes.BoolValue, was: %T`, disablePortWhenRogueDhcpServerDetectedAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return AutoOperationsValue{
+		BouncePortForAbnormalPoeClient:         bouncePortForAbnormalPoeClientVal,
+		DisablePortWhenDdosProtocolViolation:   disablePortWhenDdosProtocolViolationVal,
+		DisablePortWhenRogueDhcpServerDetected: disablePortWhenRogueDhcpServerDetectedVal,
+		state:                                  attr.ValueStateKnown,
+	}, diags
+}
+
+func NewAutoOperationsValueNull() AutoOperationsValue {
+	return AutoOperationsValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewAutoOperationsValueUnknown() AutoOperationsValue {
+	return AutoOperationsValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewAutoOperationsValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (AutoOperationsValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing AutoOperationsValue Attribute Value",
+				"While creating a AutoOperationsValue value, a missing attribute value was detected. "+
+					"A AutoOperationsValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("AutoOperationsValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid AutoOperationsValue Attribute Type",
+				"While creating a AutoOperationsValue value, an invalid attribute value was detected. "+
+					"A AutoOperationsValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("AutoOperationsValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("AutoOperationsValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra AutoOperationsValue Attribute Value",
+				"While creating a AutoOperationsValue value, an extra attribute value was detected. "+
+					"A AutoOperationsValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra AutoOperationsValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewAutoOperationsValueUnknown(), diags
+	}
+
+	bouncePortForAbnormalPoeClientAttribute, ok := attributes["bounce_port_for_abnormal_poe_client"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`bounce_port_for_abnormal_poe_client is missing from object`)
+
+		return NewAutoOperationsValueUnknown(), diags
+	}
+
+	bouncePortForAbnormalPoeClientVal, ok := bouncePortForAbnormalPoeClientAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`bounce_port_for_abnormal_poe_client expected to be basetypes.BoolValue, was: %T`, bouncePortForAbnormalPoeClientAttribute))
+	}
+
+	disablePortWhenDdosProtocolViolationAttribute, ok := attributes["disable_port_when_ddos_protocol_violation"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disable_port_when_ddos_protocol_violation is missing from object`)
+
+		return NewAutoOperationsValueUnknown(), diags
+	}
+
+	disablePortWhenDdosProtocolViolationVal, ok := disablePortWhenDdosProtocolViolationAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disable_port_when_ddos_protocol_violation expected to be basetypes.BoolValue, was: %T`, disablePortWhenDdosProtocolViolationAttribute))
+	}
+
+	disablePortWhenRogueDhcpServerDetectedAttribute, ok := attributes["disable_port_when_rogue_dhcp_server_detected"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disable_port_when_rogue_dhcp_server_detected is missing from object`)
+
+		return NewAutoOperationsValueUnknown(), diags
+	}
+
+	disablePortWhenRogueDhcpServerDetectedVal, ok := disablePortWhenRogueDhcpServerDetectedAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disable_port_when_rogue_dhcp_server_detected expected to be basetypes.BoolValue, was: %T`, disablePortWhenRogueDhcpServerDetectedAttribute))
+	}
+
+	if diags.HasError() {
+		return NewAutoOperationsValueUnknown(), diags
+	}
+
+	return AutoOperationsValue{
+		BouncePortForAbnormalPoeClient:         bouncePortForAbnormalPoeClientVal,
+		DisablePortWhenDdosProtocolViolation:   disablePortWhenDdosProtocolViolationVal,
+		DisablePortWhenRogueDhcpServerDetected: disablePortWhenRogueDhcpServerDetectedVal,
+		state:                                  attr.ValueStateKnown,
+	}, diags
+}
+
+func NewAutoOperationsValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) AutoOperationsValue {
+	object, diags := NewAutoOperationsValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewAutoOperationsValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t AutoOperationsType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewAutoOperationsValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewAutoOperationsValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewAutoOperationsValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewAutoOperationsValueMust(AutoOperationsValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t AutoOperationsType) ValueType(ctx context.Context) attr.Value {
+	return AutoOperationsValue{}
+}
+
+var _ basetypes.ObjectValuable = AutoOperationsValue{}
+
+type AutoOperationsValue struct {
+	BouncePortForAbnormalPoeClient         basetypes.BoolValue `tfsdk:"bounce_port_for_abnormal_poe_client"`
+	DisablePortWhenDdosProtocolViolation   basetypes.BoolValue `tfsdk:"disable_port_when_ddos_protocol_violation"`
+	DisablePortWhenRogueDhcpServerDetected basetypes.BoolValue `tfsdk:"disable_port_when_rogue_dhcp_server_detected"`
+	state                                  attr.ValueState
+}
+
+func (v AutoOperationsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 3)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["bounce_port_for_abnormal_poe_client"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["disable_port_when_ddos_protocol_violation"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["disable_port_when_rogue_dhcp_server_detected"] = basetypes.BoolType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 3)
+
+		val, err = v.BouncePortForAbnormalPoeClient.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["bounce_port_for_abnormal_poe_client"] = val
+
+		val, err = v.DisablePortWhenDdosProtocolViolation.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["disable_port_when_ddos_protocol_violation"] = val
+
+		val, err = v.DisablePortWhenRogueDhcpServerDetected.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["disable_port_when_rogue_dhcp_server_detected"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v AutoOperationsValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v AutoOperationsValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v AutoOperationsValue) String() string {
+	return "AutoOperationsValue"
+}
+
+func (v AutoOperationsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"bounce_port_for_abnormal_poe_client":          basetypes.BoolType{},
+		"disable_port_when_ddos_protocol_violation":    basetypes.BoolType{},
+		"disable_port_when_rogue_dhcp_server_detected": basetypes.BoolType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"bounce_port_for_abnormal_poe_client":          v.BouncePortForAbnormalPoeClient,
+			"disable_port_when_ddos_protocol_violation":    v.DisablePortWhenDdosProtocolViolation,
+			"disable_port_when_rogue_dhcp_server_detected": v.DisablePortWhenRogueDhcpServerDetected,
+		})
+
+	return objVal, diags
+}
+
+func (v AutoOperationsValue) Equal(o attr.Value) bool {
+	other, ok := o.(AutoOperationsValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.BouncePortForAbnormalPoeClient.Equal(other.BouncePortForAbnormalPoeClient) {
+		return false
+	}
+
+	if !v.DisablePortWhenDdosProtocolViolation.Equal(other.DisablePortWhenDdosProtocolViolation) {
+		return false
+	}
+
+	if !v.DisablePortWhenRogueDhcpServerDetected.Equal(other.DisablePortWhenRogueDhcpServerDetected) {
+		return false
+	}
+
+	return true
+}
+
+func (v AutoOperationsValue) Type(ctx context.Context) attr.Type {
+	return AutoOperationsType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v AutoOperationsValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"bounce_port_for_abnormal_poe_client":          basetypes.BoolType{},
+		"disable_port_when_ddos_protocol_violation":    basetypes.BoolType{},
+		"disable_port_when_rogue_dhcp_server_detected": basetypes.BoolType{},
 	}
 }
 
@@ -10712,6 +11812,24 @@ func (t PortUsagesType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`bypass_auth_when_server_down_for_unknown_client expected to be basetypes.BoolValue, was: %T`, bypassAuthWhenServerDownForUnknownClientAttribute))
 	}
 
+	communityVlanIdAttribute, ok := attributes["community_vlan_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`community_vlan_id is missing from object`)
+
+		return nil, diags
+	}
+
+	communityVlanIdVal, ok := communityVlanIdAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`community_vlan_id expected to be basetypes.Int64Value, was: %T`, communityVlanIdAttribute))
+	}
+
 	descriptionAttribute, ok := attributes["description"]
 
 	if !ok {
@@ -11334,6 +12452,7 @@ func (t PortUsagesType) ValueFromObject(ctx context.Context, in basetypes.Object
 		AllowMultipleSupplicants:                 allowMultipleSupplicantsVal,
 		BypassAuthWhenServerDown:                 bypassAuthWhenServerDownVal,
 		BypassAuthWhenServerDownForUnknownClient: bypassAuthWhenServerDownForUnknownClientVal,
+		CommunityVlanId:                          communityVlanIdVal,
 		Description:                              descriptionVal,
 		DisableAutoneg:                           disableAutonegVal,
 		Disabled:                                 disabledVal,
@@ -11525,6 +12644,24 @@ func NewPortUsagesValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`bypass_auth_when_server_down_for_unknown_client expected to be basetypes.BoolValue, was: %T`, bypassAuthWhenServerDownForUnknownClientAttribute))
 	}
 
+	communityVlanIdAttribute, ok := attributes["community_vlan_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`community_vlan_id is missing from object`)
+
+		return NewPortUsagesValueUnknown(), diags
+	}
+
+	communityVlanIdVal, ok := communityVlanIdAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`community_vlan_id expected to be basetypes.Int64Value, was: %T`, communityVlanIdAttribute))
+	}
+
 	descriptionAttribute, ok := attributes["description"]
 
 	if !ok {
@@ -12147,6 +13284,7 @@ func NewPortUsagesValue(attributeTypes map[string]attr.Type, attributes map[stri
 		AllowMultipleSupplicants:                 allowMultipleSupplicantsVal,
 		BypassAuthWhenServerDown:                 bypassAuthWhenServerDownVal,
 		BypassAuthWhenServerDownForUnknownClient: bypassAuthWhenServerDownForUnknownClientVal,
+		CommunityVlanId:                          communityVlanIdVal,
 		Description:                              descriptionVal,
 		DisableAutoneg:                           disableAutonegVal,
 		Disabled:                                 disabledVal,
@@ -12258,6 +13396,7 @@ type PortUsagesValue struct {
 	AllowMultipleSupplicants                 basetypes.BoolValue   `tfsdk:"allow_multiple_supplicants"`
 	BypassAuthWhenServerDown                 basetypes.BoolValue   `tfsdk:"bypass_auth_when_server_down"`
 	BypassAuthWhenServerDownForUnknownClient basetypes.BoolValue   `tfsdk:"bypass_auth_when_server_down_for_unknown_client"`
+	CommunityVlanId                          basetypes.Int64Value  `tfsdk:"community_vlan_id"`
 	Description                              basetypes.StringValue `tfsdk:"description"`
 	DisableAutoneg                           basetypes.BoolValue   `tfsdk:"disable_autoneg"`
 	Disabled                                 basetypes.BoolValue   `tfsdk:"disabled"`
@@ -12296,7 +13435,7 @@ type PortUsagesValue struct {
 }
 
 func (v PortUsagesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 39)
+	attrTypes := make(map[string]tftypes.Type, 40)
 
 	var val tftypes.Value
 	var err error
@@ -12306,6 +13445,7 @@ func (v PortUsagesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	attrTypes["allow_multiple_supplicants"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["bypass_auth_when_server_down"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["bypass_auth_when_server_down_for_unknown_client"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["community_vlan_id"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["description"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["disable_autoneg"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["disabled"] = basetypes.BoolType{}.TerraformType(ctx)
@@ -12353,7 +13493,7 @@ func (v PortUsagesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 39)
+		vals := make(map[string]tftypes.Value, 40)
 
 		val, err = v.AllNetworks.ToTerraformValue(ctx)
 
@@ -12394,6 +13534,14 @@ func (v PortUsagesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 		}
 
 		vals["bypass_auth_when_server_down_for_unknown_client"] = val
+
+		val, err = v.CommunityVlanId.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["community_vlan_id"] = val
 
 		val, err = v.Description.ToTerraformValue(ctx)
 
@@ -12765,6 +13913,7 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"allow_multiple_supplicants":                      basetypes.BoolType{},
 			"bypass_auth_when_server_down":                    basetypes.BoolType{},
 			"bypass_auth_when_server_down_for_unknown_client": basetypes.BoolType{},
+			"community_vlan_id":                               basetypes.Int64Type{},
 			"description":                                     basetypes.StringType{},
 			"disable_autoneg":                                 basetypes.BoolType{},
 			"disabled":                                        basetypes.BoolType{},
@@ -12829,6 +13978,7 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"allow_multiple_supplicants":                      basetypes.BoolType{},
 			"bypass_auth_when_server_down":                    basetypes.BoolType{},
 			"bypass_auth_when_server_down_for_unknown_client": basetypes.BoolType{},
+			"community_vlan_id":                               basetypes.Int64Type{},
 			"description":                                     basetypes.StringType{},
 			"disable_autoneg":                                 basetypes.BoolType{},
 			"disabled":                                        basetypes.BoolType{},
@@ -12880,6 +14030,7 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		"allow_multiple_supplicants":                      basetypes.BoolType{},
 		"bypass_auth_when_server_down":                    basetypes.BoolType{},
 		"bypass_auth_when_server_down_for_unknown_client": basetypes.BoolType{},
+		"community_vlan_id":                               basetypes.Int64Type{},
 		"description":                                     basetypes.StringType{},
 		"disable_autoneg":                                 basetypes.BoolType{},
 		"disabled":                                        basetypes.BoolType{},
@@ -12940,6 +14091,7 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"allow_multiple_supplicants":                      v.AllowMultipleSupplicants,
 			"bypass_auth_when_server_down":                    v.BypassAuthWhenServerDown,
 			"bypass_auth_when_server_down_for_unknown_client": v.BypassAuthWhenServerDownForUnknownClient,
+			"community_vlan_id":                               v.CommunityVlanId,
 			"description":                                     v.Description,
 			"disable_autoneg":                                 v.DisableAutoneg,
 			"disabled":                                        v.Disabled,
@@ -13011,6 +14163,10 @@ func (v PortUsagesValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.BypassAuthWhenServerDownForUnknownClient.Equal(other.BypassAuthWhenServerDownForUnknownClient) {
+		return false
+	}
+
+	if !v.CommunityVlanId.Equal(other.CommunityVlanId) {
 		return false
 	}
 
@@ -13168,6 +14324,7 @@ func (v PortUsagesValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"allow_multiple_supplicants":                      basetypes.BoolType{},
 		"bypass_auth_when_server_down":                    basetypes.BoolType{},
 		"bypass_auth_when_server_down_for_unknown_client": basetypes.BoolType{},
+		"community_vlan_id":                               basetypes.Int64Type{},
 		"description":                                     basetypes.StringType{},
 		"disable_autoneg":                                 basetypes.BoolType{},
 		"disabled":                                        basetypes.BoolType{},
@@ -16736,6 +17893,24 @@ func (t RemoteSyslogType) ValueFromObject(ctx context.Context, in basetypes.Obje
 			fmt.Sprintf(`archive expected to be basetypes.ObjectValue, was: %T`, archiveAttribute))
 	}
 
+	cacertsAttribute, ok := attributes["cacerts"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`cacerts is missing from object`)
+
+		return nil, diags
+	}
+
+	cacertsVal, ok := cacertsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`cacerts expected to be basetypes.ListValue, was: %T`, cacertsAttribute))
+	}
+
 	consoleAttribute, ok := attributes["console"]
 
 	if !ok {
@@ -16886,6 +18061,7 @@ func (t RemoteSyslogType) ValueFromObject(ctx context.Context, in basetypes.Obje
 
 	return RemoteSyslogValue{
 		Archive:          archiveVal,
+		Cacerts:          cacertsVal,
 		Console:          consoleVal,
 		Enabled:          enabledVal,
 		Files:            filesVal,
@@ -16979,6 +18155,24 @@ func NewRemoteSyslogValue(attributeTypes map[string]attr.Type, attributes map[st
 			fmt.Sprintf(`archive expected to be basetypes.ObjectValue, was: %T`, archiveAttribute))
 	}
 
+	cacertsAttribute, ok := attributes["cacerts"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`cacerts is missing from object`)
+
+		return NewRemoteSyslogValueUnknown(), diags
+	}
+
+	cacertsVal, ok := cacertsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`cacerts expected to be basetypes.ListValue, was: %T`, cacertsAttribute))
+	}
+
 	consoleAttribute, ok := attributes["console"]
 
 	if !ok {
@@ -17129,6 +18323,7 @@ func NewRemoteSyslogValue(attributeTypes map[string]attr.Type, attributes map[st
 
 	return RemoteSyslogValue{
 		Archive:          archiveVal,
+		Cacerts:          cacertsVal,
 		Console:          consoleVal,
 		Enabled:          enabledVal,
 		Files:            filesVal,
@@ -17210,6 +18405,7 @@ var _ basetypes.ObjectValuable = RemoteSyslogValue{}
 
 type RemoteSyslogValue struct {
 	Archive          basetypes.ObjectValue `tfsdk:"archive"`
+	Cacerts          basetypes.ListValue   `tfsdk:"cacerts"`
 	Console          basetypes.ObjectValue `tfsdk:"console"`
 	Enabled          basetypes.BoolValue   `tfsdk:"enabled"`
 	Files            basetypes.ListValue   `tfsdk:"files"`
@@ -17222,13 +18418,16 @@ type RemoteSyslogValue struct {
 }
 
 func (v RemoteSyslogValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 9)
+	attrTypes := make(map[string]tftypes.Type, 10)
 
 	var val tftypes.Value
 	var err error
 
 	attrTypes["archive"] = basetypes.ObjectType{
 		AttrTypes: ArchiveValue{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
+	attrTypes["cacerts"] = basetypes.ListType{
+		ElemType: types.StringType,
 	}.TerraformType(ctx)
 	attrTypes["console"] = basetypes.ObjectType{
 		AttrTypes: ConsoleValue{}.AttributeTypes(ctx),
@@ -17251,7 +18450,7 @@ func (v RemoteSyslogValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 9)
+		vals := make(map[string]tftypes.Value, 10)
 
 		val, err = v.Archive.ToTerraformValue(ctx)
 
@@ -17260,6 +18459,14 @@ func (v RemoteSyslogValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 		}
 
 		vals["archive"] = val
+
+		val, err = v.Cacerts.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["cacerts"] = val
 
 		val, err = v.Console.ToTerraformValue(ctx)
 
@@ -17483,9 +18690,51 @@ func (v RemoteSyslogValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 		)
 	}
 
+	var cacertsVal basetypes.ListValue
+	switch {
+	case v.Cacerts.IsUnknown():
+		cacertsVal = types.ListUnknown(types.StringType)
+	case v.Cacerts.IsNull():
+		cacertsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		cacertsVal, d = types.ListValue(types.StringType, v.Cacerts.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"archive": basetypes.ObjectType{
+				AttrTypes: ArchiveValue{}.AttributeTypes(ctx),
+			},
+			"cacerts": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"console": basetypes.ObjectType{
+				AttrTypes: ConsoleValue{}.AttributeTypes(ctx),
+			},
+			"enabled": basetypes.BoolType{},
+			"files": basetypes.ListType{
+				ElemType: FilesValue{}.Type(ctx),
+			},
+			"network":             basetypes.StringType{},
+			"send_to_all_servers": basetypes.BoolType{},
+			"servers": basetypes.ListType{
+				ElemType: ServersValue{}.Type(ctx),
+			},
+			"time_format": basetypes.StringType{},
+			"users": basetypes.ListType{
+				ElemType: UsersValue{}.Type(ctx),
+			},
+		}), diags
+	}
+
 	attributeTypes := map[string]attr.Type{
 		"archive": basetypes.ObjectType{
 			AttrTypes: ArchiveValue{}.AttributeTypes(ctx),
+		},
+		"cacerts": basetypes.ListType{
+			ElemType: types.StringType,
 		},
 		"console": basetypes.ObjectType{
 			AttrTypes: ConsoleValue{}.AttributeTypes(ctx),
@@ -17517,6 +18766,7 @@ func (v RemoteSyslogValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 		attributeTypes,
 		map[string]attr.Value{
 			"archive":             archive,
+			"cacerts":             cacertsVal,
 			"console":             console,
 			"enabled":             v.Enabled,
 			"files":               files,
@@ -17546,6 +18796,10 @@ func (v RemoteSyslogValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.Archive.Equal(other.Archive) {
+		return false
+	}
+
+	if !v.Cacerts.Equal(other.Cacerts) {
 		return false
 	}
 
@@ -17596,6 +18850,9 @@ func (v RemoteSyslogValue) AttributeTypes(ctx context.Context) map[string]attr.T
 	return map[string]attr.Type{
 		"archive": basetypes.ObjectType{
 			AttrTypes: ArchiveValue{}.AttributeTypes(ctx),
+		},
+		"cacerts": basetypes.ListType{
+			ElemType: types.StringType,
 		},
 		"console": basetypes.ObjectType{
 			AttrTypes: ConsoleValue{}.AttributeTypes(ctx),
@@ -18794,6 +20051,24 @@ func (t FilesType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue
 			fmt.Sprintf(`contents expected to be basetypes.ListValue, was: %T`, contentsAttribute))
 	}
 
+	enableTlsAttribute, ok := attributes["enable_tls"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enable_tls is missing from object`)
+
+		return nil, diags
+	}
+
+	enableTlsVal, ok := enableTlsAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enable_tls expected to be basetypes.BoolValue, was: %T`, enableTlsAttribute))
+	}
+
 	explicitPriorityAttribute, ok := attributes["explicit_priority"]
 
 	if !ok {
@@ -18873,6 +20148,7 @@ func (t FilesType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue
 	return FilesValue{
 		Archive:          archiveVal,
 		Contents:         contentsVal,
+		EnableTls:        enableTlsVal,
 		ExplicitPriority: explicitPriorityVal,
 		File:             fileVal,
 		Match:            matchVal,
@@ -18980,6 +20256,24 @@ func NewFilesValue(attributeTypes map[string]attr.Type, attributes map[string]at
 			fmt.Sprintf(`contents expected to be basetypes.ListValue, was: %T`, contentsAttribute))
 	}
 
+	enableTlsAttribute, ok := attributes["enable_tls"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enable_tls is missing from object`)
+
+		return NewFilesValueUnknown(), diags
+	}
+
+	enableTlsVal, ok := enableTlsAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enable_tls expected to be basetypes.BoolValue, was: %T`, enableTlsAttribute))
+	}
+
 	explicitPriorityAttribute, ok := attributes["explicit_priority"]
 
 	if !ok {
@@ -19059,6 +20353,7 @@ func NewFilesValue(attributeTypes map[string]attr.Type, attributes map[string]at
 	return FilesValue{
 		Archive:          archiveVal,
 		Contents:         contentsVal,
+		EnableTls:        enableTlsVal,
 		ExplicitPriority: explicitPriorityVal,
 		File:             fileVal,
 		Match:            matchVal,
@@ -19137,6 +20432,7 @@ var _ basetypes.ObjectValuable = FilesValue{}
 type FilesValue struct {
 	Archive          basetypes.ObjectValue `tfsdk:"archive"`
 	Contents         basetypes.ListValue   `tfsdk:"contents"`
+	EnableTls        basetypes.BoolValue   `tfsdk:"enable_tls"`
 	ExplicitPriority basetypes.BoolValue   `tfsdk:"explicit_priority"`
 	File             basetypes.StringValue `tfsdk:"file"`
 	Match            basetypes.StringValue `tfsdk:"match"`
@@ -19145,7 +20441,7 @@ type FilesValue struct {
 }
 
 func (v FilesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 6)
+	attrTypes := make(map[string]tftypes.Type, 7)
 
 	var val tftypes.Value
 	var err error
@@ -19156,6 +20452,7 @@ func (v FilesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error)
 	attrTypes["contents"] = basetypes.ListType{
 		ElemType: ContentsValue{}.Type(ctx),
 	}.TerraformType(ctx)
+	attrTypes["enable_tls"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["explicit_priority"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["file"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["match"] = basetypes.StringType{}.TerraformType(ctx)
@@ -19165,7 +20462,7 @@ func (v FilesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error)
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 6)
+		vals := make(map[string]tftypes.Value, 7)
 
 		val, err = v.Archive.ToTerraformValue(ctx)
 
@@ -19182,6 +20479,14 @@ func (v FilesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error)
 		}
 
 		vals["contents"] = val
+
+		val, err = v.EnableTls.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enable_tls"] = val
 
 		val, err = v.ExplicitPriority.ToTerraformValue(ctx)
 
@@ -19301,6 +20606,7 @@ func (v FilesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 		"contents": basetypes.ListType{
 			ElemType: ContentsValue{}.Type(ctx),
 		},
+		"enable_tls":        basetypes.BoolType{},
 		"explicit_priority": basetypes.BoolType{},
 		"file":              basetypes.StringType{},
 		"match":             basetypes.StringType{},
@@ -19320,6 +20626,7 @@ func (v FilesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 		map[string]attr.Value{
 			"archive":           archive,
 			"contents":          contents,
+			"enable_tls":        v.EnableTls,
 			"explicit_priority": v.ExplicitPriority,
 			"file":              v.File,
 			"match":             v.Match,
@@ -19349,6 +20656,10 @@ func (v FilesValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.Contents.Equal(other.Contents) {
+		return false
+	}
+
+	if !v.EnableTls.Equal(other.EnableTls) {
 		return false
 	}
 
@@ -19387,6 +20698,7 @@ func (v FilesValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 		"contents": basetypes.ListType{
 			ElemType: ContentsValue{}.Type(ctx),
 		},
+		"enable_tls":        basetypes.BoolType{},
 		"explicit_priority": basetypes.BoolType{},
 		"file":              basetypes.StringType{},
 		"match":             basetypes.StringType{},
@@ -20827,6 +22139,495 @@ func (v UsersValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	}
 }
 
+var _ basetypes.ObjectTypable = SleThresholdsType{}
+
+type SleThresholdsType struct {
+	basetypes.ObjectType
+}
+
+func (t SleThresholdsType) Equal(o attr.Type) bool {
+	other, ok := o.(SleThresholdsType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t SleThresholdsType) String() string {
+	return "SleThresholdsType"
+}
+
+func (t SleThresholdsType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	capacityAttribute, ok := attributes["capacity"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`capacity is missing from object`)
+
+		return nil, diags
+	}
+
+	capacityVal, ok := capacityAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`capacity expected to be basetypes.Int64Value, was: %T`, capacityAttribute))
+	}
+
+	coverageAttribute, ok := attributes["coverage"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`coverage is missing from object`)
+
+		return nil, diags
+	}
+
+	coverageVal, ok := coverageAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`coverage expected to be basetypes.Int64Value, was: %T`, coverageAttribute))
+	}
+
+	throughputAttribute, ok := attributes["throughput"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`throughput is missing from object`)
+
+		return nil, diags
+	}
+
+	throughputVal, ok := throughputAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`throughput expected to be basetypes.Int64Value, was: %T`, throughputAttribute))
+	}
+
+	timetoconnectAttribute, ok := attributes["timetoconnect"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`timetoconnect is missing from object`)
+
+		return nil, diags
+	}
+
+	timetoconnectVal, ok := timetoconnectAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`timetoconnect expected to be basetypes.Int64Value, was: %T`, timetoconnectAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return SleThresholdsValue{
+		Capacity:      capacityVal,
+		Coverage:      coverageVal,
+		Throughput:    throughputVal,
+		Timetoconnect: timetoconnectVal,
+		state:         attr.ValueStateKnown,
+	}, diags
+}
+
+func NewSleThresholdsValueNull() SleThresholdsValue {
+	return SleThresholdsValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewSleThresholdsValueUnknown() SleThresholdsValue {
+	return SleThresholdsValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewSleThresholdsValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (SleThresholdsValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing SleThresholdsValue Attribute Value",
+				"While creating a SleThresholdsValue value, a missing attribute value was detected. "+
+					"A SleThresholdsValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("SleThresholdsValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid SleThresholdsValue Attribute Type",
+				"While creating a SleThresholdsValue value, an invalid attribute value was detected. "+
+					"A SleThresholdsValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("SleThresholdsValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("SleThresholdsValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra SleThresholdsValue Attribute Value",
+				"While creating a SleThresholdsValue value, an extra attribute value was detected. "+
+					"A SleThresholdsValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra SleThresholdsValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewSleThresholdsValueUnknown(), diags
+	}
+
+	capacityAttribute, ok := attributes["capacity"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`capacity is missing from object`)
+
+		return NewSleThresholdsValueUnknown(), diags
+	}
+
+	capacityVal, ok := capacityAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`capacity expected to be basetypes.Int64Value, was: %T`, capacityAttribute))
+	}
+
+	coverageAttribute, ok := attributes["coverage"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`coverage is missing from object`)
+
+		return NewSleThresholdsValueUnknown(), diags
+	}
+
+	coverageVal, ok := coverageAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`coverage expected to be basetypes.Int64Value, was: %T`, coverageAttribute))
+	}
+
+	throughputAttribute, ok := attributes["throughput"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`throughput is missing from object`)
+
+		return NewSleThresholdsValueUnknown(), diags
+	}
+
+	throughputVal, ok := throughputAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`throughput expected to be basetypes.Int64Value, was: %T`, throughputAttribute))
+	}
+
+	timetoconnectAttribute, ok := attributes["timetoconnect"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`timetoconnect is missing from object`)
+
+		return NewSleThresholdsValueUnknown(), diags
+	}
+
+	timetoconnectVal, ok := timetoconnectAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`timetoconnect expected to be basetypes.Int64Value, was: %T`, timetoconnectAttribute))
+	}
+
+	if diags.HasError() {
+		return NewSleThresholdsValueUnknown(), diags
+	}
+
+	return SleThresholdsValue{
+		Capacity:      capacityVal,
+		Coverage:      coverageVal,
+		Throughput:    throughputVal,
+		Timetoconnect: timetoconnectVal,
+		state:         attr.ValueStateKnown,
+	}, diags
+}
+
+func NewSleThresholdsValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) SleThresholdsValue {
+	object, diags := NewSleThresholdsValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewSleThresholdsValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t SleThresholdsType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewSleThresholdsValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewSleThresholdsValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewSleThresholdsValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewSleThresholdsValueMust(SleThresholdsValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t SleThresholdsType) ValueType(ctx context.Context) attr.Value {
+	return SleThresholdsValue{}
+}
+
+var _ basetypes.ObjectValuable = SleThresholdsValue{}
+
+type SleThresholdsValue struct {
+	Capacity      basetypes.Int64Value `tfsdk:"capacity"`
+	Coverage      basetypes.Int64Value `tfsdk:"coverage"`
+	Throughput    basetypes.Int64Value `tfsdk:"throughput"`
+	Timetoconnect basetypes.Int64Value `tfsdk:"timetoconnect"`
+	state         attr.ValueState
+}
+
+func (v SleThresholdsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 4)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["capacity"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["coverage"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["throughput"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["timetoconnect"] = basetypes.Int64Type{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 4)
+
+		val, err = v.Capacity.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["capacity"] = val
+
+		val, err = v.Coverage.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["coverage"] = val
+
+		val, err = v.Throughput.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["throughput"] = val
+
+		val, err = v.Timetoconnect.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["timetoconnect"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v SleThresholdsValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v SleThresholdsValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v SleThresholdsValue) String() string {
+	return "SleThresholdsValue"
+}
+
+func (v SleThresholdsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"capacity":      basetypes.Int64Type{},
+		"coverage":      basetypes.Int64Type{},
+		"throughput":    basetypes.Int64Type{},
+		"timetoconnect": basetypes.Int64Type{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"capacity":      v.Capacity,
+			"coverage":      v.Coverage,
+			"throughput":    v.Throughput,
+			"timetoconnect": v.Timetoconnect,
+		})
+
+	return objVal, diags
+}
+
+func (v SleThresholdsValue) Equal(o attr.Value) bool {
+	other, ok := o.(SleThresholdsValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Capacity.Equal(other.Capacity) {
+		return false
+	}
+
+	if !v.Coverage.Equal(other.Coverage) {
+		return false
+	}
+
+	if !v.Throughput.Equal(other.Throughput) {
+		return false
+	}
+
+	if !v.Timetoconnect.Equal(other.Timetoconnect) {
+		return false
+	}
+
+	return true
+}
+
+func (v SleThresholdsValue) Type(ctx context.Context) attr.Type {
+	return SleThresholdsType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v SleThresholdsValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"capacity":      basetypes.Int64Type{},
+		"coverage":      basetypes.Int64Type{},
+		"throughput":    basetypes.Int64Type{},
+		"timetoconnect": basetypes.Int64Type{},
+	}
+}
+
 var _ basetypes.ObjectTypable = SnmpConfigType{}
 
 type SnmpConfigType struct {
@@ -20940,6 +22741,24 @@ func (t SnmpConfigType) ValueFromObject(ctx context.Context, in basetypes.Object
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`engine_id expected to be basetypes.StringValue, was: %T`, engineIdAttribute))
+	}
+
+	engineIdTypeAttribute, ok := attributes["engine_id_type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`engine_id_type is missing from object`)
+
+		return nil, diags
+	}
+
+	engineIdTypeVal, ok := engineIdTypeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`engine_id_type expected to be basetypes.StringValue, was: %T`, engineIdTypeAttribute))
 	}
 
 	locationAttribute, ok := attributes["location"]
@@ -21073,19 +22892,20 @@ func (t SnmpConfigType) ValueFromObject(ctx context.Context, in basetypes.Object
 	}
 
 	return SnmpConfigValue{
-		ClientList:  clientListVal,
-		Contact:     contactVal,
-		Description: descriptionVal,
-		Enabled:     enabledVal,
-		EngineId:    engineIdVal,
-		Location:    locationVal,
-		Name:        nameVal,
-		Network:     networkVal,
-		TrapGroups:  trapGroupsVal,
-		V2cConfig:   v2cConfigVal,
-		V3Config:    v3ConfigVal,
-		Views:       viewsVal,
-		state:       attr.ValueStateKnown,
+		ClientList:   clientListVal,
+		Contact:      contactVal,
+		Description:  descriptionVal,
+		Enabled:      enabledVal,
+		EngineId:     engineIdVal,
+		EngineIdType: engineIdTypeVal,
+		Location:     locationVal,
+		Name:         nameVal,
+		Network:      networkVal,
+		TrapGroups:   trapGroupsVal,
+		V2cConfig:    v2cConfigVal,
+		V3Config:     v3ConfigVal,
+		Views:        viewsVal,
+		state:        attr.ValueStateKnown,
 	}, diags
 }
 
@@ -21242,6 +23062,24 @@ func NewSnmpConfigValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`engine_id expected to be basetypes.StringValue, was: %T`, engineIdAttribute))
 	}
 
+	engineIdTypeAttribute, ok := attributes["engine_id_type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`engine_id_type is missing from object`)
+
+		return NewSnmpConfigValueUnknown(), diags
+	}
+
+	engineIdTypeVal, ok := engineIdTypeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`engine_id_type expected to be basetypes.StringValue, was: %T`, engineIdTypeAttribute))
+	}
+
 	locationAttribute, ok := attributes["location"]
 
 	if !ok {
@@ -21373,19 +23211,20 @@ func NewSnmpConfigValue(attributeTypes map[string]attr.Type, attributes map[stri
 	}
 
 	return SnmpConfigValue{
-		ClientList:  clientListVal,
-		Contact:     contactVal,
-		Description: descriptionVal,
-		Enabled:     enabledVal,
-		EngineId:    engineIdVal,
-		Location:    locationVal,
-		Name:        nameVal,
-		Network:     networkVal,
-		TrapGroups:  trapGroupsVal,
-		V2cConfig:   v2cConfigVal,
-		V3Config:    v3ConfigVal,
-		Views:       viewsVal,
-		state:       attr.ValueStateKnown,
+		ClientList:   clientListVal,
+		Contact:      contactVal,
+		Description:  descriptionVal,
+		Enabled:      enabledVal,
+		EngineId:     engineIdVal,
+		EngineIdType: engineIdTypeVal,
+		Location:     locationVal,
+		Name:         nameVal,
+		Network:      networkVal,
+		TrapGroups:   trapGroupsVal,
+		V2cConfig:    v2cConfigVal,
+		V3Config:     v3ConfigVal,
+		Views:        viewsVal,
+		state:        attr.ValueStateKnown,
 	}, diags
 }
 
@@ -21457,23 +23296,24 @@ func (t SnmpConfigType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = SnmpConfigValue{}
 
 type SnmpConfigValue struct {
-	ClientList  basetypes.ListValue   `tfsdk:"client_list"`
-	Contact     basetypes.StringValue `tfsdk:"contact"`
-	Description basetypes.StringValue `tfsdk:"description"`
-	Enabled     basetypes.BoolValue   `tfsdk:"enabled"`
-	EngineId    basetypes.StringValue `tfsdk:"engine_id"`
-	Location    basetypes.StringValue `tfsdk:"location"`
-	Name        basetypes.StringValue `tfsdk:"name"`
-	Network     basetypes.StringValue `tfsdk:"network"`
-	TrapGroups  basetypes.ListValue   `tfsdk:"trap_groups"`
-	V2cConfig   basetypes.ListValue   `tfsdk:"v2c_config"`
-	V3Config    basetypes.ObjectValue `tfsdk:"v3_config"`
-	Views       basetypes.ListValue   `tfsdk:"views"`
-	state       attr.ValueState
+	ClientList   basetypes.ListValue   `tfsdk:"client_list"`
+	Contact      basetypes.StringValue `tfsdk:"contact"`
+	Description  basetypes.StringValue `tfsdk:"description"`
+	Enabled      basetypes.BoolValue   `tfsdk:"enabled"`
+	EngineId     basetypes.StringValue `tfsdk:"engine_id"`
+	EngineIdType basetypes.StringValue `tfsdk:"engine_id_type"`
+	Location     basetypes.StringValue `tfsdk:"location"`
+	Name         basetypes.StringValue `tfsdk:"name"`
+	Network      basetypes.StringValue `tfsdk:"network"`
+	TrapGroups   basetypes.ListValue   `tfsdk:"trap_groups"`
+	V2cConfig    basetypes.ListValue   `tfsdk:"v2c_config"`
+	V3Config     basetypes.ObjectValue `tfsdk:"v3_config"`
+	Views        basetypes.ListValue   `tfsdk:"views"`
+	state        attr.ValueState
 }
 
 func (v SnmpConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 12)
+	attrTypes := make(map[string]tftypes.Type, 13)
 
 	var val tftypes.Value
 	var err error
@@ -21485,6 +23325,7 @@ func (v SnmpConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	attrTypes["description"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["engine_id"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["engine_id_type"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["location"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["network"] = basetypes.StringType{}.TerraformType(ctx)
@@ -21505,7 +23346,7 @@ func (v SnmpConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 12)
+		vals := make(map[string]tftypes.Value, 13)
 
 		val, err = v.ClientList.ToTerraformValue(ctx)
 
@@ -21546,6 +23387,14 @@ func (v SnmpConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 		}
 
 		vals["engine_id"] = val
+
+		val, err = v.EngineIdType.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["engine_id_type"] = val
 
 		val, err = v.Location.ToTerraformValue(ctx)
 
@@ -21773,13 +23622,14 @@ func (v SnmpConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		"client_list": basetypes.ListType{
 			ElemType: ClientListValue{}.Type(ctx),
 		},
-		"contact":     basetypes.StringType{},
-		"description": basetypes.StringType{},
-		"enabled":     basetypes.BoolType{},
-		"engine_id":   basetypes.StringType{},
-		"location":    basetypes.StringType{},
-		"name":        basetypes.StringType{},
-		"network":     basetypes.StringType{},
+		"contact":        basetypes.StringType{},
+		"description":    basetypes.StringType{},
+		"enabled":        basetypes.BoolType{},
+		"engine_id":      basetypes.StringType{},
+		"engine_id_type": basetypes.StringType{},
+		"location":       basetypes.StringType{},
+		"name":           basetypes.StringType{},
+		"network":        basetypes.StringType{},
 		"trap_groups": basetypes.ListType{
 			ElemType: TrapGroupsValue{}.Type(ctx),
 		},
@@ -21805,18 +23655,19 @@ func (v SnmpConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"client_list": clientList,
-			"contact":     v.Contact,
-			"description": v.Description,
-			"enabled":     v.Enabled,
-			"engine_id":   v.EngineId,
-			"location":    v.Location,
-			"name":        v.Name,
-			"network":     v.Network,
-			"trap_groups": trapGroups,
-			"v2c_config":  v2cConfig,
-			"v3_config":   v3Config,
-			"views":       views,
+			"client_list":    clientList,
+			"contact":        v.Contact,
+			"description":    v.Description,
+			"enabled":        v.Enabled,
+			"engine_id":      v.EngineId,
+			"engine_id_type": v.EngineIdType,
+			"location":       v.Location,
+			"name":           v.Name,
+			"network":        v.Network,
+			"trap_groups":    trapGroups,
+			"v2c_config":     v2cConfig,
+			"v3_config":      v3Config,
+			"views":          views,
 		})
 
 	return objVal, diags
@@ -21854,6 +23705,10 @@ func (v SnmpConfigValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.EngineId.Equal(other.EngineId) {
+		return false
+	}
+
+	if !v.EngineIdType.Equal(other.EngineIdType) {
 		return false
 	}
 
@@ -21901,13 +23756,14 @@ func (v SnmpConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"client_list": basetypes.ListType{
 			ElemType: ClientListValue{}.Type(ctx),
 		},
-		"contact":     basetypes.StringType{},
-		"description": basetypes.StringType{},
-		"enabled":     basetypes.BoolType{},
-		"engine_id":   basetypes.StringType{},
-		"location":    basetypes.StringType{},
-		"name":        basetypes.StringType{},
-		"network":     basetypes.StringType{},
+		"contact":        basetypes.StringType{},
+		"description":    basetypes.StringType{},
+		"enabled":        basetypes.BoolType{},
+		"engine_id":      basetypes.StringType{},
+		"engine_id_type": basetypes.StringType{},
+		"location":       basetypes.StringType{},
+		"name":           basetypes.StringType{},
+		"network":        basetypes.StringType{},
 		"trap_groups": basetypes.ListType{
 			ElemType: TrapGroupsValue{}.Type(ctx),
 		},
@@ -32928,6 +34784,24 @@ func (t PortConfigType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`poe_disabled expected to be basetypes.BoolValue, was: %T`, poeDisabledAttribute))
 	}
 
+	portNetworkAttribute, ok := attributes["port_network"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`port_network is missing from object`)
+
+		return nil, diags
+	}
+
+	portNetworkVal, ok := portNetworkAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`port_network expected to be basetypes.StringValue, was: %T`, portNetworkAttribute))
+	}
+
 	speedAttribute, ok := attributes["speed"]
 
 	if !ok {
@@ -32982,6 +34856,7 @@ func (t PortConfigType) ValueFromObject(ctx context.Context, in basetypes.Object
 		Mtu:              mtuVal,
 		NoLocalOverwrite: noLocalOverwriteVal,
 		PoeDisabled:      poeDisabledVal,
+		PortNetwork:      portNetworkVal,
 		Speed:            speedVal,
 		Usage:            usageVal,
 		state:            attr.ValueStateKnown,
@@ -33285,6 +35160,24 @@ func NewPortConfigValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`poe_disabled expected to be basetypes.BoolValue, was: %T`, poeDisabledAttribute))
 	}
 
+	portNetworkAttribute, ok := attributes["port_network"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`port_network is missing from object`)
+
+		return NewPortConfigValueUnknown(), diags
+	}
+
+	portNetworkVal, ok := portNetworkAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`port_network expected to be basetypes.StringValue, was: %T`, portNetworkAttribute))
+	}
+
 	speedAttribute, ok := attributes["speed"]
 
 	if !ok {
@@ -33339,6 +35232,7 @@ func NewPortConfigValue(attributeTypes map[string]attr.Type, attributes map[stri
 		Mtu:              mtuVal,
 		NoLocalOverwrite: noLocalOverwriteVal,
 		PoeDisabled:      poeDisabledVal,
+		PortNetwork:      portNetworkVal,
 		Speed:            speedVal,
 		Usage:            usageVal,
 		state:            attr.ValueStateKnown,
@@ -33426,13 +35320,14 @@ type PortConfigValue struct {
 	Mtu              basetypes.Int64Value  `tfsdk:"mtu"`
 	NoLocalOverwrite basetypes.BoolValue   `tfsdk:"no_local_overwrite"`
 	PoeDisabled      basetypes.BoolValue   `tfsdk:"poe_disabled"`
+	PortNetwork      basetypes.StringValue `tfsdk:"port_network"`
 	Speed            basetypes.StringValue `tfsdk:"speed"`
 	Usage            basetypes.StringValue `tfsdk:"usage"`
 	state            attr.ValueState
 }
 
 func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 15)
+	attrTypes := make(map[string]tftypes.Type, 16)
 
 	var val tftypes.Value
 	var err error
@@ -33450,6 +35345,7 @@ func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	attrTypes["mtu"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["no_local_overwrite"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["poe_disabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["port_network"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["speed"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["usage"] = basetypes.StringType{}.TerraformType(ctx)
 
@@ -33457,7 +35353,7 @@ func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 15)
+		vals := make(map[string]tftypes.Value, 16)
 
 		val, err = v.AeDisableLacp.ToTerraformValue(ctx)
 
@@ -33563,6 +35459,14 @@ func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 		vals["poe_disabled"] = val
 
+		val, err = v.PortNetwork.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["port_network"] = val
+
 		val, err = v.Speed.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -33622,6 +35526,7 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		"mtu":                basetypes.Int64Type{},
 		"no_local_overwrite": basetypes.BoolType{},
 		"poe_disabled":       basetypes.BoolType{},
+		"port_network":       basetypes.StringType{},
 		"speed":              basetypes.StringType{},
 		"usage":              basetypes.StringType{},
 	}
@@ -33650,6 +35555,7 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"mtu":                v.Mtu,
 			"no_local_overwrite": v.NoLocalOverwrite,
 			"poe_disabled":       v.PoeDisabled,
+			"port_network":       v.PortNetwork,
 			"speed":              v.Speed,
 			"usage":              v.Usage,
 		})
@@ -33724,6 +35630,10 @@ func (v PortConfigValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.PortNetwork.Equal(other.PortNetwork) {
+		return false
+	}
+
 	if !v.Speed.Equal(other.Speed) {
 		return false
 	}
@@ -33758,6 +35668,7 @@ func (v PortConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"mtu":                basetypes.Int64Type{},
 		"no_local_overwrite": basetypes.BoolType{},
 		"poe_disabled":       basetypes.BoolType{},
+		"port_network":       basetypes.StringType{},
 		"speed":              basetypes.StringType{},
 		"usage":              basetypes.StringType{},
 	}
@@ -33986,6 +35897,24 @@ func (t SwitchMgmtType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`protect_re expected to be basetypes.ObjectValue, was: %T`, protectReAttribute))
 	}
 
+	removeExistingConfigsAttribute, ok := attributes["remove_existing_configs"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`remove_existing_configs is missing from object`)
+
+		return nil, diags
+	}
+
+	removeExistingConfigsVal, ok := removeExistingConfigsAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`remove_existing_configs expected to be basetypes.BoolValue, was: %T`, removeExistingConfigsAttribute))
+	}
+
 	rootPasswordAttribute, ok := attributes["root_password"]
 
 	if !ok {
@@ -34045,21 +35974,22 @@ func (t SwitchMgmtType) ValueFromObject(ctx context.Context, in basetypes.Object
 	}
 
 	return SwitchMgmtValue{
-		ApAffinityThreshold: apAffinityThresholdVal,
-		CliBanner:           cliBannerVal,
-		CliIdleTimeout:      cliIdleTimeoutVal,
-		ConfigRevertTimer:   configRevertTimerVal,
-		DhcpOptionFqdn:      dhcpOptionFqdnVal,
-		DisableOobDownAlarm: disableOobDownAlarmVal,
-		FipsEnabled:         fipsEnabledVal,
-		LocalAccounts:       localAccountsVal,
-		MxedgeProxyHost:     mxedgeProxyHostVal,
-		MxedgeProxyPort:     mxedgeProxyPortVal,
-		ProtectRe:           protectReVal,
-		RootPassword:        rootPasswordVal,
-		Tacacs:              tacacsVal,
-		UseMxedgeProxy:      useMxedgeProxyVal,
-		state:               attr.ValueStateKnown,
+		ApAffinityThreshold:   apAffinityThresholdVal,
+		CliBanner:             cliBannerVal,
+		CliIdleTimeout:        cliIdleTimeoutVal,
+		ConfigRevertTimer:     configRevertTimerVal,
+		DhcpOptionFqdn:        dhcpOptionFqdnVal,
+		DisableOobDownAlarm:   disableOobDownAlarmVal,
+		FipsEnabled:           fipsEnabledVal,
+		LocalAccounts:         localAccountsVal,
+		MxedgeProxyHost:       mxedgeProxyHostVal,
+		MxedgeProxyPort:       mxedgeProxyPortVal,
+		ProtectRe:             protectReVal,
+		RemoveExistingConfigs: removeExistingConfigsVal,
+		RootPassword:          rootPasswordVal,
+		Tacacs:                tacacsVal,
+		UseMxedgeProxy:        useMxedgeProxyVal,
+		state:                 attr.ValueStateKnown,
 	}, diags
 }
 
@@ -34324,6 +36254,24 @@ func NewSwitchMgmtValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`protect_re expected to be basetypes.ObjectValue, was: %T`, protectReAttribute))
 	}
 
+	removeExistingConfigsAttribute, ok := attributes["remove_existing_configs"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`remove_existing_configs is missing from object`)
+
+		return NewSwitchMgmtValueUnknown(), diags
+	}
+
+	removeExistingConfigsVal, ok := removeExistingConfigsAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`remove_existing_configs expected to be basetypes.BoolValue, was: %T`, removeExistingConfigsAttribute))
+	}
+
 	rootPasswordAttribute, ok := attributes["root_password"]
 
 	if !ok {
@@ -34383,21 +36331,22 @@ func NewSwitchMgmtValue(attributeTypes map[string]attr.Type, attributes map[stri
 	}
 
 	return SwitchMgmtValue{
-		ApAffinityThreshold: apAffinityThresholdVal,
-		CliBanner:           cliBannerVal,
-		CliIdleTimeout:      cliIdleTimeoutVal,
-		ConfigRevertTimer:   configRevertTimerVal,
-		DhcpOptionFqdn:      dhcpOptionFqdnVal,
-		DisableOobDownAlarm: disableOobDownAlarmVal,
-		FipsEnabled:         fipsEnabledVal,
-		LocalAccounts:       localAccountsVal,
-		MxedgeProxyHost:     mxedgeProxyHostVal,
-		MxedgeProxyPort:     mxedgeProxyPortVal,
-		ProtectRe:           protectReVal,
-		RootPassword:        rootPasswordVal,
-		Tacacs:              tacacsVal,
-		UseMxedgeProxy:      useMxedgeProxyVal,
-		state:               attr.ValueStateKnown,
+		ApAffinityThreshold:   apAffinityThresholdVal,
+		CliBanner:             cliBannerVal,
+		CliIdleTimeout:        cliIdleTimeoutVal,
+		ConfigRevertTimer:     configRevertTimerVal,
+		DhcpOptionFqdn:        dhcpOptionFqdnVal,
+		DisableOobDownAlarm:   disableOobDownAlarmVal,
+		FipsEnabled:           fipsEnabledVal,
+		LocalAccounts:         localAccountsVal,
+		MxedgeProxyHost:       mxedgeProxyHostVal,
+		MxedgeProxyPort:       mxedgeProxyPortVal,
+		ProtectRe:             protectReVal,
+		RemoveExistingConfigs: removeExistingConfigsVal,
+		RootPassword:          rootPasswordVal,
+		Tacacs:                tacacsVal,
+		UseMxedgeProxy:        useMxedgeProxyVal,
+		state:                 attr.ValueStateKnown,
 	}, diags
 }
 
@@ -34469,25 +36418,26 @@ func (t SwitchMgmtType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = SwitchMgmtValue{}
 
 type SwitchMgmtValue struct {
-	ApAffinityThreshold basetypes.Int64Value  `tfsdk:"ap_affinity_threshold"`
-	CliBanner           basetypes.StringValue `tfsdk:"cli_banner"`
-	CliIdleTimeout      basetypes.Int64Value  `tfsdk:"cli_idle_timeout"`
-	ConfigRevertTimer   basetypes.Int64Value  `tfsdk:"config_revert_timer"`
-	DhcpOptionFqdn      basetypes.BoolValue   `tfsdk:"dhcp_option_fqdn"`
-	DisableOobDownAlarm basetypes.BoolValue   `tfsdk:"disable_oob_down_alarm"`
-	FipsEnabled         basetypes.BoolValue   `tfsdk:"fips_enabled"`
-	LocalAccounts       basetypes.MapValue    `tfsdk:"local_accounts"`
-	MxedgeProxyHost     basetypes.StringValue `tfsdk:"mxedge_proxy_host"`
-	MxedgeProxyPort     basetypes.StringValue `tfsdk:"mxedge_proxy_port"`
-	ProtectRe           basetypes.ObjectValue `tfsdk:"protect_re"`
-	RootPassword        basetypes.StringValue `tfsdk:"root_password"`
-	Tacacs              basetypes.ObjectValue `tfsdk:"tacacs"`
-	UseMxedgeProxy      basetypes.BoolValue   `tfsdk:"use_mxedge_proxy"`
-	state               attr.ValueState
+	ApAffinityThreshold   basetypes.Int64Value  `tfsdk:"ap_affinity_threshold"`
+	CliBanner             basetypes.StringValue `tfsdk:"cli_banner"`
+	CliIdleTimeout        basetypes.Int64Value  `tfsdk:"cli_idle_timeout"`
+	ConfigRevertTimer     basetypes.Int64Value  `tfsdk:"config_revert_timer"`
+	DhcpOptionFqdn        basetypes.BoolValue   `tfsdk:"dhcp_option_fqdn"`
+	DisableOobDownAlarm   basetypes.BoolValue   `tfsdk:"disable_oob_down_alarm"`
+	FipsEnabled           basetypes.BoolValue   `tfsdk:"fips_enabled"`
+	LocalAccounts         basetypes.MapValue    `tfsdk:"local_accounts"`
+	MxedgeProxyHost       basetypes.StringValue `tfsdk:"mxedge_proxy_host"`
+	MxedgeProxyPort       basetypes.StringValue `tfsdk:"mxedge_proxy_port"`
+	ProtectRe             basetypes.ObjectValue `tfsdk:"protect_re"`
+	RemoveExistingConfigs basetypes.BoolValue   `tfsdk:"remove_existing_configs"`
+	RootPassword          basetypes.StringValue `tfsdk:"root_password"`
+	Tacacs                basetypes.ObjectValue `tfsdk:"tacacs"`
+	UseMxedgeProxy        basetypes.BoolValue   `tfsdk:"use_mxedge_proxy"`
+	state                 attr.ValueState
 }
 
 func (v SwitchMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 14)
+	attrTypes := make(map[string]tftypes.Type, 15)
 
 	var val tftypes.Value
 	var err error
@@ -34507,6 +36457,7 @@ func (v SwitchMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	attrTypes["protect_re"] = basetypes.ObjectType{
 		AttrTypes: ProtectReValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
+	attrTypes["remove_existing_configs"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["root_password"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["tacacs"] = basetypes.ObjectType{
 		AttrTypes: TacacsValue{}.AttributeTypes(ctx),
@@ -34517,7 +36468,7 @@ func (v SwitchMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 14)
+		vals := make(map[string]tftypes.Value, 15)
 
 		val, err = v.ApAffinityThreshold.ToTerraformValue(ctx)
 
@@ -34606,6 +36557,14 @@ func (v SwitchMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 		}
 
 		vals["protect_re"] = val
+
+		val, err = v.RemoveExistingConfigs.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["remove_existing_configs"] = val
 
 		val, err = v.RootPassword.ToTerraformValue(ctx)
 
@@ -34747,7 +36706,8 @@ func (v SwitchMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		"protect_re": basetypes.ObjectType{
 			AttrTypes: ProtectReValue{}.AttributeTypes(ctx),
 		},
-		"root_password": basetypes.StringType{},
+		"remove_existing_configs": basetypes.BoolType{},
+		"root_password":           basetypes.StringType{},
 		"tacacs": basetypes.ObjectType{
 			AttrTypes: TacacsValue{}.AttributeTypes(ctx),
 		},
@@ -34765,20 +36725,21 @@ func (v SwitchMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"ap_affinity_threshold":  v.ApAffinityThreshold,
-			"cli_banner":             v.CliBanner,
-			"cli_idle_timeout":       v.CliIdleTimeout,
-			"config_revert_timer":    v.ConfigRevertTimer,
-			"dhcp_option_fqdn":       v.DhcpOptionFqdn,
-			"disable_oob_down_alarm": v.DisableOobDownAlarm,
-			"fips_enabled":           v.FipsEnabled,
-			"local_accounts":         localAccounts,
-			"mxedge_proxy_host":      v.MxedgeProxyHost,
-			"mxedge_proxy_port":      v.MxedgeProxyPort,
-			"protect_re":             protectRe,
-			"root_password":          v.RootPassword,
-			"tacacs":                 tacacs,
-			"use_mxedge_proxy":       v.UseMxedgeProxy,
+			"ap_affinity_threshold":   v.ApAffinityThreshold,
+			"cli_banner":              v.CliBanner,
+			"cli_idle_timeout":        v.CliIdleTimeout,
+			"config_revert_timer":     v.ConfigRevertTimer,
+			"dhcp_option_fqdn":        v.DhcpOptionFqdn,
+			"disable_oob_down_alarm":  v.DisableOobDownAlarm,
+			"fips_enabled":            v.FipsEnabled,
+			"local_accounts":          localAccounts,
+			"mxedge_proxy_host":       v.MxedgeProxyHost,
+			"mxedge_proxy_port":       v.MxedgeProxyPort,
+			"protect_re":              protectRe,
+			"remove_existing_configs": v.RemoveExistingConfigs,
+			"root_password":           v.RootPassword,
+			"tacacs":                  tacacs,
+			"use_mxedge_proxy":        v.UseMxedgeProxy,
 		})
 
 	return objVal, diags
@@ -34843,6 +36804,10 @@ func (v SwitchMgmtValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.RemoveExistingConfigs.Equal(other.RemoveExistingConfigs) {
+		return false
+	}
+
 	if !v.RootPassword.Equal(other.RootPassword) {
 		return false
 	}
@@ -34883,7 +36848,8 @@ func (v SwitchMgmtValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"protect_re": basetypes.ObjectType{
 			AttrTypes: ProtectReValue{}.AttributeTypes(ctx),
 		},
-		"root_password": basetypes.StringType{},
+		"remove_existing_configs": basetypes.BoolType{},
+		"root_password":           basetypes.StringType{},
 		"tacacs": basetypes.ObjectType{
 			AttrTypes: TacacsValue{}.AttributeTypes(ctx),
 		},
@@ -35349,6 +37315,24 @@ func (t ProtectReType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
 	}
 
+	hitCountAttribute, ok := attributes["hit_count"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`hit_count is missing from object`)
+
+		return nil, diags
+	}
+
+	hitCountVal, ok := hitCountAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`hit_count expected to be basetypes.BoolValue, was: %T`, hitCountAttribute))
+	}
+
 	trustedHostsAttribute, ok := attributes["trusted_hosts"]
 
 	if !ok {
@@ -35375,6 +37359,7 @@ func (t ProtectReType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 		AllowedServices: allowedServicesVal,
 		Custom:          customVal,
 		Enabled:         enabledVal,
+		HitCount:        hitCountVal,
 		TrustedHosts:    trustedHostsVal,
 		state:           attr.ValueStateKnown,
 	}, diags
@@ -35497,6 +37482,24 @@ func NewProtectReValue(attributeTypes map[string]attr.Type, attributes map[strin
 			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
 	}
 
+	hitCountAttribute, ok := attributes["hit_count"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`hit_count is missing from object`)
+
+		return NewProtectReValueUnknown(), diags
+	}
+
+	hitCountVal, ok := hitCountAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`hit_count expected to be basetypes.BoolValue, was: %T`, hitCountAttribute))
+	}
+
 	trustedHostsAttribute, ok := attributes["trusted_hosts"]
 
 	if !ok {
@@ -35523,6 +37526,7 @@ func NewProtectReValue(attributeTypes map[string]attr.Type, attributes map[strin
 		AllowedServices: allowedServicesVal,
 		Custom:          customVal,
 		Enabled:         enabledVal,
+		HitCount:        hitCountVal,
 		TrustedHosts:    trustedHostsVal,
 		state:           attr.ValueStateKnown,
 	}, diags
@@ -35599,12 +37603,13 @@ type ProtectReValue struct {
 	AllowedServices basetypes.ListValue `tfsdk:"allowed_services"`
 	Custom          basetypes.ListValue `tfsdk:"custom"`
 	Enabled         basetypes.BoolValue `tfsdk:"enabled"`
+	HitCount        basetypes.BoolValue `tfsdk:"hit_count"`
 	TrustedHosts    basetypes.ListValue `tfsdk:"trusted_hosts"`
 	state           attr.ValueState
 }
 
 func (v ProtectReValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 4)
+	attrTypes := make(map[string]tftypes.Type, 5)
 
 	var val tftypes.Value
 	var err error
@@ -35616,6 +37621,7 @@ func (v ProtectReValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 		ElemType: CustomValue{}.Type(ctx),
 	}.TerraformType(ctx)
 	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["hit_count"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["trusted_hosts"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
@@ -35624,7 +37630,7 @@ func (v ProtectReValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 4)
+		vals := make(map[string]tftypes.Value, 5)
 
 		val, err = v.AllowedServices.ToTerraformValue(ctx)
 
@@ -35649,6 +37655,14 @@ func (v ProtectReValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 		}
 
 		vals["enabled"] = val
+
+		val, err = v.HitCount.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["hit_count"] = val
 
 		val, err = v.TrustedHosts.ToTerraformValue(ctx)
 
@@ -35736,7 +37750,8 @@ func (v ProtectReValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 			"custom": basetypes.ListType{
 				ElemType: CustomValue{}.Type(ctx),
 			},
-			"enabled": basetypes.BoolType{},
+			"enabled":   basetypes.BoolType{},
+			"hit_count": basetypes.BoolType{},
 			"trusted_hosts": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -35763,7 +37778,8 @@ func (v ProtectReValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 			"custom": basetypes.ListType{
 				ElemType: CustomValue{}.Type(ctx),
 			},
-			"enabled": basetypes.BoolType{},
+			"enabled":   basetypes.BoolType{},
+			"hit_count": basetypes.BoolType{},
 			"trusted_hosts": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -35777,7 +37793,8 @@ func (v ProtectReValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 		"custom": basetypes.ListType{
 			ElemType: CustomValue{}.Type(ctx),
 		},
-		"enabled": basetypes.BoolType{},
+		"enabled":   basetypes.BoolType{},
+		"hit_count": basetypes.BoolType{},
 		"trusted_hosts": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -35797,6 +37814,7 @@ func (v ProtectReValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 			"allowed_services": allowedServicesVal,
 			"custom":           custom,
 			"enabled":          v.Enabled,
+			"hit_count":        v.HitCount,
 			"trusted_hosts":    trustedHostsVal,
 		})
 
@@ -35830,6 +37848,10 @@ func (v ProtectReValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.HitCount.Equal(other.HitCount) {
+		return false
+	}
+
 	if !v.TrustedHosts.Equal(other.TrustedHosts) {
 		return false
 	}
@@ -35853,7 +37875,8 @@ func (v ProtectReValue) AttributeTypes(ctx context.Context) map[string]attr.Type
 		"custom": basetypes.ListType{
 			ElemType: CustomValue{}.Type(ctx),
 		},
-		"enabled": basetypes.BoolType{},
+		"enabled":   basetypes.BoolType{},
+		"hit_count": basetypes.BoolType{},
 		"trusted_hosts": basetypes.ListType{
 			ElemType: types.StringType,
 		},

@@ -1,4 +1,4 @@
-package resource_org_networktemplate
+package resource_device_switch
 
 import (
 	"context"
@@ -453,6 +453,9 @@ func snmpConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d Sn
 	}
 	if d.EngineId.ValueStringPointer() != nil {
 		data.EngineId = d.EngineId.ValueStringPointer()
+	}
+	if d.EngineIdType.ValueStringPointer() != nil {
+		data.EngineIdType = (*models.SnmpConfigEngineIdTypeEnum)(d.EngineIdType.ValueStringPointer())
 	}
 	if d.Location.ValueStringPointer() != nil {
 		data.Location = d.Location.ValueStringPointer()
