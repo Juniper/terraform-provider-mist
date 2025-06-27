@@ -557,11 +557,19 @@ func (v DeliveryValue) String() string {
 func (v DeliveryValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	additionalEmailsVal, d := types.ListValue(types.StringType, v.AdditionalEmails.Elements())
+	var additionalEmailsVal basetypes.ListValue
+	switch {
+	case v.AdditionalEmails.IsUnknown():
+		additionalEmailsVal = types.ListUnknown(types.StringType)
+	case v.AdditionalEmails.IsNull():
+		additionalEmailsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		additionalEmailsVal, d = types.ListValue(types.StringType, v.AdditionalEmails.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"additional_emails": basetypes.ListType{
 				ElemType: types.StringType,

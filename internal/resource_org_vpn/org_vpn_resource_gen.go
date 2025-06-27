@@ -1859,11 +1859,19 @@ func (v TrafficShapingValue) String() string {
 func (v TrafficShapingValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	classPercentageVal, d := types.ListValue(types.Int64Type, v.ClassPercentage.Elements())
+	var classPercentageVal basetypes.ListValue
+	switch {
+	case v.ClassPercentage.IsUnknown():
+		classPercentageVal = types.ListUnknown(types.Int64Type)
+	case v.ClassPercentage.IsNull():
+		classPercentageVal = types.ListNull(types.Int64Type)
+	default:
+		var d diag.Diagnostics
+		classPercentageVal, d = types.ListValue(types.Int64Type, v.ClassPercentage.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"class_percentage": basetypes.ListType{
 				ElemType: types.Int64Type,

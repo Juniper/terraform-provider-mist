@@ -579,11 +579,19 @@ func (v PrivilegesValue) String() string {
 func (v PrivilegesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	viewsVal, d := types.ListValue(types.StringType, v.Views.Elements())
+	var viewsVal basetypes.ListValue
+	switch {
+	case v.Views.IsUnknown():
+		viewsVal = types.ListUnknown(types.StringType)
+	case v.Views.IsNull():
+		viewsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		viewsVal, d = types.ListValue(types.StringType, v.Views.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"role":         basetypes.StringType{},
 			"scope":        basetypes.StringType{},
