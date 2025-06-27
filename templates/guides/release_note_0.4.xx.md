@@ -8,7 +8,7 @@ description: |-
 # Release Notes for v0.4.xx
 
 
-## Release Notes for v0.4.1
+## Release Notes for v0.4.0
 **Release Date**: June 27th, 2025 
 
 ### Fixes
