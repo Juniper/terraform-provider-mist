@@ -9,16 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func (o *OrgSsoRoleModel) testChecks(t testing.TB, rType, rName string) testChecks {
-	checks := newTestChecks(rType + "." + rName)
-
-	// Check required fields
-	checks.append(t, "TestCheckResourceAttr", "org_id", o.OrgId)
-	checks.append(t, "TestCheckResourceAttr", "name", o.Name)
-
-	return checks
-}
-
 func TestOrgSsoRole(t *testing.T) {
 	type testStep struct {
 		config OrgSsoRoleModel
@@ -35,7 +25,7 @@ func TestOrgSsoRole(t *testing.T) {
 					config: OrgSsoRoleModel{
 						OrgId: GetTestOrgId(),
 						Name:  "test-sso-role",
-						Privileges: []OrgSsoRolePrivilegesValue{
+						Privileges: []PrivilegesValue{
 							{
 								Role:  "read",
 								Scope: "org",
@@ -49,17 +39,15 @@ func TestOrgSsoRole(t *testing.T) {
 
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
-			resourceType := PrefixProviderName("org_sso_role")
-
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
 				config := step.config
 
 				f := hclwrite.NewEmptyFile()
 				gohcl.EncodeIntoBody(&config, f.Body())
-				configStr := Render(resourceType, tName, string(f.Bytes()))
+				configStr := Render("org_sso_role", tName, string(f.Bytes()))
 
-				checks := config.testChecks(t, resourceType, tName)
+				checks := config.testChecks(t, PrefixProviderName("org_sso_role"), tName)
 				chkLog := checks.string()
 				stepName := fmt.Sprintf("test case %s step %d", tName, i+1)
 
@@ -78,4 +66,32 @@ func TestOrgSsoRole(t *testing.T) {
 			})
 		})
 	}
+}
+
+func (o *OrgSsoRoleModel) testChecks(t testing.TB, rType, rName string) testChecks {
+	checks := newTestChecks(rType + "." + rName)
+
+	// Check required fields
+	checks.append(t, "TestCheckResourceAttr", "org_id", o.OrgId)
+	checks.append(t, "TestCheckResourceAttr", "name", o.Name)
+
+	// Check privileges
+	if len(o.Privileges) > 0 {
+		// Check the first privilege entry
+		checks.append(t, "TestCheckResourceAttr", "privileges.0.role", o.Privileges[0].Role)
+		checks.append(t, "TestCheckResourceAttr", "privileges.0.scope", o.Privileges[0].Scope)
+
+		// Check optional fields in privileges if they are set
+		if o.Privileges[0].SiteId != nil {
+			checks.append(t, "TestCheckResourceAttr", "privileges.0.site_id", *o.Privileges[0].SiteId)
+		}
+		if o.Privileges[0].SitegroupId != nil {
+			checks.append(t, "TestCheckResourceAttr", "privileges.0.sitegroup_id", *o.Privileges[0].SitegroupId)
+		}
+		if len(o.Privileges[0].Views) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "privileges.0.views.0", o.Privileges[0].Views[0])
+		}
+	}
+
+	return checks
 }

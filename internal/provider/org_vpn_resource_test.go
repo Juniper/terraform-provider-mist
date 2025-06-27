@@ -9,16 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func (o *OrgVpnModel) testChecks(t testing.TB, rType, rName string) testChecks {
-	checks := newTestChecks(rType + "." + rName)
-
-	// Check required fields
-	checks.append(t, "TestCheckResourceAttr", "org_id", o.OrgId)
-	checks.append(t, "TestCheckResourceAttr", "name", o.Name)
-
-	return checks
-}
-
 func TestOrgVpn(t *testing.T) {
 	type testStep struct {
 		config OrgVpnModel
@@ -35,7 +25,7 @@ func TestOrgVpn(t *testing.T) {
 					config: OrgVpnModel{
 						OrgId: GetTestOrgId(),
 						Name:  "test-vpn",
-						Paths: map[string]OrgVpnPathsValue{
+						Paths: map[string]PathsValue{
 							"path1": {},
 						},
 					},
@@ -46,17 +36,15 @@ func TestOrgVpn(t *testing.T) {
 
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
-			resourceType := PrefixProviderName("org_vpn")
-
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
 				config := step.config
 
 				f := hclwrite.NewEmptyFile()
 				gohcl.EncodeIntoBody(&config, f.Body())
-				configStr := Render(resourceType, tName, string(f.Bytes()))
+				configStr := Render("org_vpn", tName, string(f.Bytes()))
 
-				checks := config.testChecks(t, resourceType, tName)
+				checks := config.testChecks(t, PrefixProviderName("org_vpn"), tName)
 				chkLog := checks.string()
 				stepName := fmt.Sprintf("test case %s step %d", tName, i+1)
 
@@ -75,4 +63,36 @@ func TestOrgVpn(t *testing.T) {
 			})
 		})
 	}
+}
+
+func (o *OrgVpnModel) testChecks(t testing.TB, rType, rName string) testChecks {
+	checks := newTestChecks(rType + "." + rName)
+
+	// Check required fields
+	checks.append(t, "TestCheckResourceAttr", "org_id", o.OrgId)
+	checks.append(t, "TestCheckResourceAttr", "name", o.Name)
+
+	// Check paths
+	if len(o.Paths) > 0 {
+		// For each path in the map, check that it exists
+		for pathName, pathValue := range o.Paths {
+			pathPrefix := fmt.Sprintf("paths.%s", pathName)
+
+			// Check that the path exists by verifying attributes are set
+			checks.append(t, "TestCheckResourceAttrSet", pathPrefix+".bfd_profile")
+
+			// Check specific fields if they are set in the test config
+			if pathValue.BfdProfile != nil {
+				checks.append(t, "TestCheckResourceAttr", pathPrefix+".bfd_profile", *pathValue.BfdProfile)
+			}
+			if pathValue.Ip != nil {
+				checks.append(t, "TestCheckResourceAttr", pathPrefix+".ip", *pathValue.Ip)
+			}
+			if pathValue.Pod != nil {
+				checks.append(t, "TestCheckResourceAttr", pathPrefix+".pod", fmt.Sprintf("%d", *pathValue.Pod))
+			}
+		}
+	}
+
+	return checks
 }

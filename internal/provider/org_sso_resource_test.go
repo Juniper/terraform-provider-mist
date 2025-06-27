@@ -9,20 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func (o *OrgSsoModel) testChecks(t testing.TB, rType, rName string) testChecks {
-	checks := newTestChecks(rType + "." + rName)
-
-	// Check required fields
-	checks.append(t, "TestCheckResourceAttr", "org_id", o.OrgId)
-	checks.append(t, "TestCheckResourceAttr", "name", o.Name)
-	checks.append(t, "TestCheckResourceAttr", "idp_cert", o.IdpCert)
-	checks.append(t, "TestCheckResourceAttr", "idp_sign_algo", o.IdpSignAlgo)
-	checks.append(t, "TestCheckResourceAttr", "idp_sso_url", o.IdpSsoUrl)
-	checks.append(t, "TestCheckResourceAttr", "issuer", o.Issuer)
-
-	return checks
-}
-
 func TestOrgSso(t *testing.T) {
 	type testStep struct {
 		config OrgSsoModel
@@ -51,7 +37,6 @@ func TestOrgSso(t *testing.T) {
 
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
-			resourceType := PrefixProviderName("org_sso")
 
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
@@ -59,9 +44,9 @@ func TestOrgSso(t *testing.T) {
 
 				f := hclwrite.NewEmptyFile()
 				gohcl.EncodeIntoBody(&config, f.Body())
-				configStr := Render(resourceType, tName, string(f.Bytes()))
+				configStr := Render("org_sso", tName, string(f.Bytes()))
 
-				checks := config.testChecks(t, resourceType, tName)
+				checks := config.testChecks(t, PrefixProviderName("org_sso"), tName)
 				chkLog := checks.string()
 				stepName := fmt.Sprintf("test case %s step %d", tName, i+1)
 
@@ -80,4 +65,18 @@ func TestOrgSso(t *testing.T) {
 			})
 		})
 	}
+}
+
+func (o *OrgSsoModel) testChecks(t testing.TB, rType, rName string) testChecks {
+	checks := newTestChecks(rType + "." + rName)
+
+	// Check required fields
+	checks.append(t, "TestCheckResourceAttr", "org_id", o.OrgId)
+	checks.append(t, "TestCheckResourceAttr", "name", o.Name)
+	checks.append(t, "TestCheckResourceAttr", "idp_cert", o.IdpCert)
+	checks.append(t, "TestCheckResourceAttr", "idp_sign_algo", o.IdpSignAlgo)
+	checks.append(t, "TestCheckResourceAttr", "idp_sso_url", o.IdpSsoUrl)
+	checks.append(t, "TestCheckResourceAttr", "issuer", o.Issuer)
+
+	return checks
 }

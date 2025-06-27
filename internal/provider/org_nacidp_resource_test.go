@@ -9,22 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-// Helper function for creating string pointers
-func stringPtr(s string) *string {
-	return &s
-}
-
-func (o *OrgNacidpModel) testChecks(t testing.TB, rType, rName string) testChecks {
-	checks := newTestChecks(rType + "." + rName)
-
-	// Check required fields
-	checks.append(t, "TestCheckResourceAttr", "org_id", o.OrgId)
-	checks.append(t, "TestCheckResourceAttr", "name", o.Name)
-	checks.append(t, "TestCheckResourceAttr", "idp_type", o.IdpType)
-
-	return checks
-}
-
 func TestOrgNacidp(t *testing.T) {
 	type testStep struct {
 		config OrgNacidpModel
@@ -55,17 +39,15 @@ func TestOrgNacidp(t *testing.T) {
 
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
-			resourceType := PrefixProviderName("org_nacidp")
-
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
 				config := step.config
 
 				f := hclwrite.NewEmptyFile()
 				gohcl.EncodeIntoBody(&config, f.Body())
-				configStr := Render(resourceType, tName, string(f.Bytes()))
+				configStr := Render("org_nacidp", tName, string(f.Bytes()))
 
-				checks := config.testChecks(t, resourceType, tName)
+				checks := config.testChecks(t, PrefixProviderName("org_nacidp"), tName)
 				chkLog := checks.string()
 				stepName := fmt.Sprintf("test case %s step %d", tName, i+1)
 
@@ -85,4 +67,32 @@ func TestOrgNacidp(t *testing.T) {
 			})
 		})
 	}
+}
+
+func (o *OrgNacidpModel) testChecks(t testing.TB, rType, rName string) testChecks {
+	checks := newTestChecks(rType + "." + rName)
+
+	// Check required fields
+	checks.append(t, "TestCheckResourceAttr", "org_id", o.OrgId)
+	checks.append(t, "TestCheckResourceAttr", "name", o.Name)
+	checks.append(t, "TestCheckResourceAttr", "idp_type", o.IdpType)
+
+	// Check optional fields that are set in the test
+	if o.LdapBaseDn != nil {
+		checks.append(t, "TestCheckResourceAttr", "ldap_base_dn", *o.LdapBaseDn)
+	}
+	if o.LdapBindDn != nil {
+		checks.append(t, "TestCheckResourceAttr", "ldap_bind_dn", *o.LdapBindDn)
+	}
+	if o.LdapBindPassword != nil {
+		checks.append(t, "TestCheckResourceAttr", "ldap_bind_password", *o.LdapBindPassword)
+	}
+	if o.LdapType != nil {
+		checks.append(t, "TestCheckResourceAttr", "ldap_type", *o.LdapType)
+	}
+	if len(o.LdapServerHosts) > 0 {
+		checks.append(t, "TestCheckResourceAttr", "ldap_server_hosts.0", o.LdapServerHosts[0])
+	}
+
+	return checks
 }

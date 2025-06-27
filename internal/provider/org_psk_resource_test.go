@@ -9,18 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func (o *OrgPskModel) testChecks(t testing.TB, rType, rName string) testChecks {
-	checks := newTestChecks(rType + "." + rName)
-
-	// Check required fields
-	checks.append(t, "TestCheckResourceAttr", "org_id", o.OrgId)
-	checks.append(t, "TestCheckResourceAttr", "name", o.Name)
-	checks.append(t, "TestCheckResourceAttr", "passphrase", o.Passphrase)
-	checks.append(t, "TestCheckResourceAttr", "ssid", o.Ssid)
-
-	return checks
-}
-
 func TestOrgPsk(t *testing.T) {
 	type testStep struct {
 		config OrgPskModel
@@ -47,17 +35,15 @@ func TestOrgPsk(t *testing.T) {
 
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
-			resourceType := PrefixProviderName("org_psk")
-
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
 				config := step.config
 
 				f := hclwrite.NewEmptyFile()
 				gohcl.EncodeIntoBody(&config, f.Body())
-				configStr := Render(resourceType, tName, string(f.Bytes()))
+				configStr := Render("org_psk", tName, string(f.Bytes()))
 
-				checks := config.testChecks(t, resourceType, tName)
+				checks := config.testChecks(t, PrefixProviderName("org_psk"), tName)
 				chkLog := checks.string()
 				stepName := fmt.Sprintf("test case %s step %d", tName, i+1)
 
@@ -76,4 +62,16 @@ func TestOrgPsk(t *testing.T) {
 			})
 		})
 	}
+}
+
+func (o *OrgPskModel) testChecks(t testing.TB, rType, rName string) testChecks {
+	checks := newTestChecks(rType + "." + rName)
+
+	// Check required fields
+	checks.append(t, "TestCheckResourceAttr", "org_id", o.OrgId)
+	checks.append(t, "TestCheckResourceAttr", "name", o.Name)
+	checks.append(t, "TestCheckResourceAttr", "passphrase", o.Passphrase)
+	checks.append(t, "TestCheckResourceAttr", "ssid", o.Ssid)
+
+	return checks
 }

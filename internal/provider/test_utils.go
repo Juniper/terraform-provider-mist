@@ -266,3 +266,8 @@ func GetOrgWlanBaseConfig(orgID string) (config string, wlanRef string) {
 
 	return wlanTemplateConfigStr + "\n\n" + wlanConfigStr, "mist_org_wlan.wlanName.id"
 }
+
+// Helper function for creating string pointers
+func stringPtr(s string) *string {
+	return &s
+}
