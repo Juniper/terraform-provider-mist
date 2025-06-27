@@ -5,8 +5,10 @@ package resource_site_setting
 import (
 	"context"
 	"fmt"
-	"github.com/Juniper/terraform-provider-mist/internal/planmodifiers"
-	"github.com/Juniper/terraform-provider-mist/internal/validators"
+	"strings"
+
+	mistplanmodifiers "github.com/Juniper/terraform-provider-mist/internal/planmodifiers"
+	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
@@ -25,7 +27,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -1712,6 +1713,7 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						SsrValue{}.AttributeTypes(ctx),
 						map[string]attr.Value{
 							"conductor_hosts": types.ListValueMust(types.StringType, []attr.Value{}),
+							"conductor_token": types.StringNull(),
 							"disable_stats":   types.BoolNull(),
 						},
 					),
@@ -1729,7 +1731,6 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 				Attributes: map[string]schema.Attribute{
 					"aggressiveness": schema.StringAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "enum: `auto`, `high`, `low`",
 						MarkdownDescription: "enum: `auto`, `high`, `low`",
 						Validators: []validator.String{
@@ -1741,7 +1742,6 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 								"low",
 							),
 						},
-						Default: stringdefault.StaticString("auto"),
 					},
 					"custom_probes": schema.MapNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{
@@ -1920,9 +1920,12 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					types.ObjectValueMust(
 						SyntheticTestValue{}.AttributeTypes(ctx),
 						map[string]attr.Value{
-							"disabled":      types.BoolNull(),
-							"vlans":         types.ListNull(VlansValue{}.Type(ctx)),
-							"wan_speedtest": types.ObjectNull(WanSpeedtestValue{}.AttributeTypes(ctx)),
+							"aggressiveness": types.StringNull(),
+							"custom_probes":  types.MapNull(CustomProbesValue{}.Type(ctx)),
+							"disabled":       types.BoolNull(),
+							"lan_networks":   types.ListNull(LanNetworksValue{}.Type(ctx)),
+							"vlans":          types.ListNull(VlansValue{}.Type(ctx)),
+							"wan_speedtest":  types.ObjectNull(WanSpeedtestValue{}.AttributeTypes(ctx)),
 						},
 					),
 				),
